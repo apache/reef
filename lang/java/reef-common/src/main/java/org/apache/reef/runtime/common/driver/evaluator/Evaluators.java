@@ -20,7 +20,7 @@ package org.apache.reef.runtime.common.driver.evaluator;
 
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
-import org.apache.reef.proto.DriverRuntimeProtocol;
+import org.apache.reef.runtime.common.driver.resourcemanager.ResourceAllocationEvent;
 import org.apache.reef.util.Optional;
 import org.apache.reef.util.SingletonAsserter;
 
@@ -106,7 +106,7 @@ public final class Evaluators implements AutoCloseable {
    */
   public synchronized void put(
       final EvaluatorManagerFactory evaluatorManagerFactory,
-      final DriverRuntimeProtocol.ResourceAllocationProto evaluatorMsg) {
+      final ResourceAllocationEvent evaluatorMsg) {
     this.put(evaluatorManagerFactory.getNewEvaluatorManager(evaluatorMsg));
   }
 

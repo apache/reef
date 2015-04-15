@@ -21,7 +21,7 @@ package org.apache.reef.runtime.common.driver;
 import org.apache.reef.driver.catalog.ResourceCatalog;
 import org.apache.reef.driver.evaluator.EvaluatorRequest;
 import org.apache.reef.driver.evaluator.EvaluatorRequestor;
-import org.apache.reef.proto.DriverRuntimeProtocol;
+import org.apache.reef.runtime.common.driver.api.ResourceRequestEvent;
 import org.apache.reef.runtime.common.driver.api.ResourceRequestHandler;
 import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.exceptions.InjectionException;
@@ -53,8 +53,8 @@ public class EvaluatorRequestorImplTest {
     final DummyRequestHandler requestHandler = new DummyRequestHandler();
     final EvaluatorRequestor evaluatorRequestor = new EvaluatorRequestorImpl(resourceCatalog, requestHandler, loggingScopeFactory);
     evaluatorRequestor.submit(EvaluatorRequest.newBuilder().setMemory(memory).build());
-    Assert.assertEquals("Memory request did not make it", requestHandler.get().getMemorySize(), memory);
-    Assert.assertEquals("Number of requests did not make it", requestHandler.get().getResourceCount(), 1);
+    Assert.assertEquals("Memory request did not make it", memory, requestHandler.get().getMemorySize().get().intValue());
+    Assert.assertEquals("Number of requests did not make it", 1, requestHandler.get().getResourceCount());
   }
 
   /**
@@ -67,8 +67,8 @@ public class EvaluatorRequestorImplTest {
     final DummyRequestHandler requestHandler = new DummyRequestHandler();
     final EvaluatorRequestor evaluatorRequestor = new EvaluatorRequestorImpl(resourceCatalog, requestHandler, loggingScopeFactory);
     evaluatorRequestor.submit(EvaluatorRequest.newBuilder().setMemory(memory).setNumber(count).build());
-    Assert.assertEquals("Memory request did not make it", requestHandler.get().getMemorySize(), memory);
-    Assert.assertEquals("Number of requests did not make it", requestHandler.get().getResourceCount(), count);
+    Assert.assertEquals("Memory request did not make it", memory, requestHandler.get().getMemorySize().get().intValue());
+    Assert.assertEquals("Number of requests did not make it", count, requestHandler.get().getResourceCount());
   }
 
   /**
@@ -96,14 +96,14 @@ public class EvaluatorRequestorImplTest {
   }
 
   private class DummyRequestHandler implements ResourceRequestHandler {
-    private DriverRuntimeProtocol.ResourceRequestProto request;
+    private ResourceRequestEvent request;
 
     @Override
-    public void onNext(DriverRuntimeProtocol.ResourceRequestProto resourceRequestProto) {
-      this.request = resourceRequestProto;
+    public void onNext(final ResourceRequestEvent resourceRequestEvent) {
+      this.request = resourceRequestEvent;
     }
 
-    public DriverRuntimeProtocol.ResourceRequestProto get() {
+    public ResourceRequestEvent get() {
       return this.request;
     }
   }

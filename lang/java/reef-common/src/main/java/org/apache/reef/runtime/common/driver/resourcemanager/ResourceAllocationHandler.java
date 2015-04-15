@@ -20,7 +20,6 @@ package org.apache.reef.runtime.common.driver.resourcemanager;
 
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
-import org.apache.reef.proto.DriverRuntimeProtocol;
 import org.apache.reef.runtime.common.driver.evaluator.EvaluatorManagerFactory;
 import org.apache.reef.runtime.common.driver.evaluator.Evaluators;
 import org.apache.reef.wake.EventHandler;
@@ -33,7 +32,7 @@ import javax.inject.Inject;
 @Private
 @DriverSide
 public final class ResourceAllocationHandler
-    implements EventHandler<DriverRuntimeProtocol.ResourceAllocationProto> {
+    implements EventHandler<ResourceAllocationEvent> {
 
   /**
    * Helper class to make new EvaluatorManager instances,
@@ -54,7 +53,7 @@ public final class ResourceAllocationHandler
   }
 
   @Override
-  public void onNext(final DriverRuntimeProtocol.ResourceAllocationProto value) {
+  public void onNext(final ResourceAllocationEvent value) {
     // FIXME: Using this put() method is a temporary fix for the race condition
     // described in issues #828 and #839. Use Evaluators.put(EvaluatorManager) instead
     // when the bug is fixed.

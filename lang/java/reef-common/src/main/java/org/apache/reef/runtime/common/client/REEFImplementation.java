@@ -22,7 +22,7 @@ import org.apache.reef.annotations.Provided;
 import org.apache.reef.annotations.audience.ClientSide;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.client.REEF;
-import org.apache.reef.proto.ClientRuntimeProtocol.JobSubmissionProto;
+import org.apache.reef.runtime.common.client.api.JobSubmissionEvent;
 import org.apache.reef.runtime.common.client.api.JobSubmissionHandler;
 import org.apache.reef.runtime.common.launch.parameters.ErrorHandlerRID;
 import org.apache.reef.tang.Configuration;
@@ -83,7 +83,7 @@ public final class REEFImplementation implements REEF {
   @Override
   public void submit(final Configuration driverConf) {
     try (LoggingScope ls = this.loggingScopeFactory.reefSubmit()) {
-      final JobSubmissionProto submissionMessage;
+      final JobSubmissionEvent submissionMessage;
       try {
         if (this.clientWireUp.isClientPresent()) {
           submissionMessage = this.jobSubmissionHelper.getJobsubmissionProto(driverConf)

@@ -23,7 +23,7 @@ import org.apache.hadoop.yarn.api.ApplicationConstants;
 import org.apache.hadoop.yarn.api.records.Container;
 import org.apache.hadoop.yarn.api.records.ContainerLaunchContext;
 import org.apache.hadoop.yarn.api.records.LocalResource;
-import org.apache.reef.proto.DriverRuntimeProtocol;
+import org.apache.reef.runtime.common.driver.api.ResourceLaunchEvent;
 import org.apache.reef.runtime.common.driver.api.ResourceLaunchHandler;
 import org.apache.reef.runtime.common.files.ClasspathProvider;
 import org.apache.reef.runtime.common.files.REEFFileNames;
@@ -73,18 +73,18 @@ public final class YARNResourceLaunchHandler implements ResourceLaunchHandler {
   }
 
   @Override
-  public void onNext(final DriverRuntimeProtocol.ResourceLaunchProto resourceLaunchProto) {
+  public void onNext(final ResourceLaunchEvent resourceLaunchEvent) {
     try {
 
-      final String containerId = resourceLaunchProto.getIdentifier();
-      LOG.log(Level.FINEST, "TIME: Start ResourceLaunchProto {0}", containerId);
+      final String containerId = resourceLaunchEvent.getIdentifier();
+      LOG.log(Level.FINEST, "TIME: Start ResourceLaunch {0}", containerId);
       final Container container = this.containers.get(containerId);
       LOG.log(Level.FINEST, "Setting up container launch container for id={0}", container.getId());
       final Map<String, LocalResource> localResources =
-          this.evaluatorSetupHelper.getResources(resourceLaunchProto);
+          this.evaluatorSetupHelper.getResources(resourceLaunchEvent);
 
       final LaunchCommandBuilder commandBuilder;
-      switch (resourceLaunchProto.getType()) {
+      switch (resourceLaunchEvent.getType()) {
         case JVM:
           commandBuilder = new JavaLaunchCommandBuilder()
               .setClassPath(this.classpath.getEvaluatorClasspath());
@@ -94,12 +94,12 @@ public final class YARNResourceLaunchHandler implements ResourceLaunchHandler {
           break;
         default:
           throw new IllegalArgumentException(
-              "Unsupported container type: " + resourceLaunchProto.getType());
+              "Unsupported container type: " + resourceLaunchEvent.getType());
       }
 
       final List<String> command = commandBuilder
-          .setErrorHandlerRID(resourceLaunchProto.getRemoteId())
-          .setLaunchID(resourceLaunchProto.getIdentifier())
+          .setErrorHandlerRID(resourceLaunchEvent.getRemoteId())
+          .setLaunchID(resourceLaunchEvent.getIdentifier())
           .setConfigurationFileName(this.filenames.getEvaluatorConfigurationPath())
           .setMemory((int) (this.jvmHeapFactor * container.getResource().getMemory()))
           .setStandardErr(ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/" + this.filenames.getEvaluatorStderrFileName())
@@ -115,10 +115,10 @@ public final class YARNResourceLaunchHandler implements ResourceLaunchHandler {
       final ContainerLaunchContext ctx = YarnTypes.getContainerLaunchContext(command, localResources);
       this.yarnContainerManager.get().submit(container, ctx);
 
-      LOG.log(Level.FINEST, "TIME: End ResourceLaunchProto {0}", containerId);
+      LOG.log(Level.FINEST, "TIME: End ResourceLaunch {0}", containerId);
 
     } catch (final Throwable e) {
-      LOG.log(Level.WARNING, "Error handling resource launch message: " + resourceLaunchProto, e);
+      LOG.log(Level.WARNING, "Error handling resource launch message: " + resourceLaunchEvent, e);
       throw new RuntimeException(e);
     }
   }

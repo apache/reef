@@ -20,7 +20,6 @@ package org.apache.reef.runtime.common.driver.resourcemanager;
 
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
-import org.apache.reef.proto.DriverRuntimeProtocol;
 import org.apache.reef.runtime.common.driver.catalog.ResourceCatalogImpl;
 import org.apache.reef.wake.EventHandler;
 
@@ -31,7 +30,7 @@ import javax.inject.Inject;
  */
 @Private
 @DriverSide
-public final class NodeDescriptorHandler implements EventHandler<DriverRuntimeProtocol.NodeDescriptorProto> {
+public final class NodeDescriptorHandler implements EventHandler<NodeDescriptorEvent> {
   private final ResourceCatalogImpl resourceCatalog;
 
   @Inject
@@ -40,7 +39,7 @@ public final class NodeDescriptorHandler implements EventHandler<DriverRuntimePr
   }
 
   @Override
-  public void onNext(final DriverRuntimeProtocol.NodeDescriptorProto value) {
+  public void onNext(final NodeDescriptorEvent value) {
     this.resourceCatalog.handle(value);
   }
 }

@@ -19,11 +19,11 @@
 package org.apache.reef.runtime.mesos.driver;
 
 import org.apache.reef.annotations.audience.Private;
-import org.apache.reef.proto.DriverRuntimeProtocol.NodeDescriptorProto;
-import org.apache.reef.proto.DriverRuntimeProtocol.ResourceAllocationProto;
-import org.apache.reef.proto.DriverRuntimeProtocol.ResourceStatusProto;
-import org.apache.reef.proto.DriverRuntimeProtocol.RuntimeStatusProto;
 import org.apache.reef.runtime.common.driver.api.RuntimeParameters;
+import org.apache.reef.runtime.common.driver.resourcemanager.NodeDescriptorEvent;
+import org.apache.reef.runtime.common.driver.resourcemanager.ResourceAllocationEvent;
+import org.apache.reef.runtime.common.driver.resourcemanager.ResourceStatusEvent;
+import org.apache.reef.runtime.common.driver.resourcemanager.RuntimeStatusEvent;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.wake.EventHandler;
 
@@ -31,35 +31,35 @@ import javax.inject.Inject;
 
 @Private
 final class REEFEventHandlers {
-  private final EventHandler<ResourceAllocationProto> resourceAllocationEventHandler;
-  private final EventHandler<RuntimeStatusProto> runtimeStatusEventHandler;
-  private final EventHandler<NodeDescriptorProto> nodeDescriptorEventHandler;
-  private final EventHandler<ResourceStatusProto> resourceStatusHandlerEventHandler;
+  private final EventHandler<ResourceAllocationEvent> resourceAllocationEventHandler;
+  private final EventHandler<RuntimeStatusEvent> runtimeStatusEventHandler;
+  private final EventHandler<NodeDescriptorEvent> nodeDescriptorEventHandler;
+  private final EventHandler<ResourceStatusEvent> resourceStatusHandlerEventHandler;
 
   @Inject
-  REEFEventHandlers(final @Parameter(RuntimeParameters.ResourceAllocationHandler.class) EventHandler<ResourceAllocationProto> resourceAllocationEventHandler,
-                    final @Parameter(RuntimeParameters.RuntimeStatusHandler.class) EventHandler<RuntimeStatusProto> runtimeStatusEventHandler,
-                    final @Parameter(RuntimeParameters.NodeDescriptorHandler.class) EventHandler<NodeDescriptorProto> nodeDescriptorEventHandler,
-                    final @Parameter(RuntimeParameters.ResourceStatusHandler.class) EventHandler<ResourceStatusProto> resourceStatusHandlerEventHandler) {
+  REEFEventHandlers(final @Parameter(RuntimeParameters.ResourceAllocationHandler.class) EventHandler<ResourceAllocationEvent> resourceAllocationEventHandler,
+                    final @Parameter(RuntimeParameters.RuntimeStatusHandler.class) EventHandler<RuntimeStatusEvent> runtimeStatusEventHandler,
+                    final @Parameter(RuntimeParameters.NodeDescriptorHandler.class) EventHandler<NodeDescriptorEvent> nodeDescriptorEventHandler,
+                    final @Parameter(RuntimeParameters.ResourceStatusHandler.class) EventHandler<ResourceStatusEvent> resourceStatusHandlerEventHandler) {
     this.resourceAllocationEventHandler = resourceAllocationEventHandler;
     this.runtimeStatusEventHandler = runtimeStatusEventHandler;
     this.nodeDescriptorEventHandler = nodeDescriptorEventHandler;
     this.resourceStatusHandlerEventHandler = resourceStatusHandlerEventHandler;
   }
 
-  void onNodeDescriptor(final NodeDescriptorProto nodeDescriptorProto) {
+  void onNodeDescriptor(final NodeDescriptorEvent nodeDescriptorProto) {
     this.nodeDescriptorEventHandler.onNext(nodeDescriptorProto);
   }
 
-  void onRuntimeStatus(final RuntimeStatusProto runtimeStatusProto) {
+  void onRuntimeStatus(final RuntimeStatusEvent runtimeStatusProto) {
     this.runtimeStatusEventHandler.onNext(runtimeStatusProto);
   }
 
-  void onResourceAllocation(final ResourceAllocationProto resourceAllocationProto) {
+  void onResourceAllocation(final ResourceAllocationEvent resourceAllocationProto) {
     this.resourceAllocationEventHandler.onNext(resourceAllocationProto);
   }
 
-  void onResourceStatus(final ResourceStatusProto resourceStatusProto) {
+  void onResourceStatus(final ResourceStatusEvent resourceStatusProto) {
     this.resourceStatusHandlerEventHandler.onNext(resourceStatusProto);
   }
 }

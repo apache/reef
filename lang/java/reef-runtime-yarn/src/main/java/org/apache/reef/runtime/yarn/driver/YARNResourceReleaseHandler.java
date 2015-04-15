@@ -18,7 +18,7 @@
  */
 package org.apache.reef.runtime.yarn.driver;
 
-import org.apache.reef.proto.DriverRuntimeProtocol;
+import org.apache.reef.runtime.common.driver.api.ResourceReleaseEvent;
 import org.apache.reef.runtime.common.driver.api.ResourceReleaseHandler;
 import org.apache.reef.tang.InjectionFuture;
 
@@ -42,8 +42,8 @@ public final class YARNResourceReleaseHandler implements ResourceReleaseHandler 
   }
 
   @Override
-  public void onNext(final DriverRuntimeProtocol.ResourceReleaseProto resourceReleaseProto) {
-    final String containerId = resourceReleaseProto.getIdentifier();
+  public void onNext(final ResourceReleaseEvent resourceReleaseEvent) {
+    final String containerId = resourceReleaseEvent.getIdentifier();
     LOG.log(Level.FINEST, "Releasing container {0}", containerId);
     this.yarnContainerManager.get().release(containerId);
   }

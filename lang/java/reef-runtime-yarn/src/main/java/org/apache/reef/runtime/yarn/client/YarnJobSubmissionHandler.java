@@ -25,7 +25,7 @@ import org.apache.hadoop.yarn.exceptions.YarnException;
 import org.apache.reef.annotations.audience.ClientSide;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.driver.parameters.DriverJobSubmissionDirectory;
-import org.apache.reef.proto.ClientRuntimeProtocol;
+import org.apache.reef.runtime.common.client.api.JobSubmissionEvent;
 import org.apache.reef.runtime.common.client.api.JobSubmissionHandler;
 import org.apache.reef.runtime.common.files.ClasspathProvider;
 import org.apache.reef.runtime.common.files.JobJarMaker;
@@ -85,28 +85,28 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
   }
 
   @Override
-  public void onNext(final ClientRuntimeProtocol.JobSubmissionProto jobSubmissionProto) {
+  public void onNext(final JobSubmissionEvent jobSubmissionEvent) {
 
-    LOG.log(Level.FINEST, "Submitting job with ID [{0}]", jobSubmissionProto.getIdentifier());
+    LOG.log(Level.FINEST, "Submitting job with ID [{0}]", jobSubmissionEvent.getIdentifier());
 
     try (final YarnSubmissionHelper submissionHelper =
              new YarnSubmissionHelper(this.yarnConfiguration, this.fileNames, this.classpath)) {
 
       LOG.log(Level.FINE, "Assembling submission JAR for the Driver.");
       final JobFolder jobFolderOnDfs = this.uploader.createJobFolder(submissionHelper.getApplicationId());
-      final Configuration driverConfiguration = makeDriverConfiguration(jobSubmissionProto, jobFolderOnDfs.getPath());
-      final File jobSubmissionFile = this.jobJarMaker.createJobSubmissionJAR(jobSubmissionProto, driverConfiguration);
+      final Configuration driverConfiguration = makeDriverConfiguration(jobSubmissionEvent, jobFolderOnDfs.getPath());
+      final File jobSubmissionFile = this.jobJarMaker.createJobSubmissionJAR(jobSubmissionEvent, driverConfiguration);
       final LocalResource driverJarOnDfs = jobFolderOnDfs.uploadAsLocalResource(jobSubmissionFile);
 
       submissionHelper
           .addLocalResource(this.fileNames.getREEFFolderName(), driverJarOnDfs)
-          .setApplicationName(jobSubmissionProto.getIdentifier())
-          .setDriverMemory(jobSubmissionProto.getDriverMemory())
-          .setPriority(getPriority(jobSubmissionProto))
-          .setQueue(getQueue(jobSubmissionProto, "default"))
-          .submit(jobSubmissionProto.getRemoteId());
+          .setApplicationName(jobSubmissionEvent.getIdentifier())
+          .setDriverMemory(jobSubmissionEvent.getDriverMemory().get())
+          .setPriority(getPriority(jobSubmissionEvent))
+          .setQueue(getQueue(jobSubmissionEvent, "default"))
+          .submit(jobSubmissionEvent.getRemoteId());
 
-      LOG.log(Level.FINEST, "Submitted job with ID [{0}]", jobSubmissionProto.getIdentifier());
+      LOG.log(Level.FINEST, "Submitted job with ID [{0}]", jobSubmissionEvent.getIdentifier());
     } catch (final YarnException | IOException e) {
       throw new RuntimeException("Unable to submit Driver to YARN.", e);
     }
@@ -116,9 +116,9 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
    * Assembles the Driver configuration.
    */
   private Configuration makeDriverConfiguration(
-      final ClientRuntimeProtocol.JobSubmissionProto jobSubmissionProto,
+      final JobSubmissionEvent jobSubmissionEvent,
       final Path jobFolderPath) throws IOException {
-    final Configuration config = this.configurationSerializer.fromString(jobSubmissionProto.getConfiguration());
+    final Configuration config = this.configurationSerializer.fromString(jobSubmissionEvent.getConfiguration());
     final String userBoundJobSubmissionDirectory = config.getNamedParameter((NamedParameterNode<?>) config.getClassHierarchy().getNode(ReflectionUtilities.getFullName(DriverJobSubmissionDirectory.class)));
     LOG.log(Level.FINE, "user bound job submission Directory: " + userBoundJobSubmissionDirectory);
     final String finalJobFolderPath =
@@ -127,27 +127,24 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
     return Configurations.merge(
         YarnDriverConfiguration.CONF
             .set(YarnDriverConfiguration.JOB_SUBMISSION_DIRECTORY, finalJobFolderPath)
-            .set(YarnDriverConfiguration.JOB_IDENTIFIER, jobSubmissionProto.getIdentifier())
-            .set(YarnDriverConfiguration.CLIENT_REMOTE_IDENTIFIER, jobSubmissionProto.getRemoteId())
+            .set(YarnDriverConfiguration.JOB_IDENTIFIER, jobSubmissionEvent.getIdentifier())
+            .set(YarnDriverConfiguration.CLIENT_REMOTE_IDENTIFIER, jobSubmissionEvent.getRemoteId())
             .set(YarnDriverConfiguration.JVM_HEAP_SLACK, this.jvmSlack)
             .build(),
-        this.configurationSerializer.fromString(jobSubmissionProto.getConfiguration()));
+        this.configurationSerializer.fromString(jobSubmissionEvent.getConfiguration()));
   }
 
-  private static int getPriority(final ClientRuntimeProtocol.JobSubmissionProto jobSubmissionProto) {
-    return jobSubmissionProto.hasPriority() ? jobSubmissionProto.getPriority() : 0;
+  private static int getPriority(final JobSubmissionEvent jobSubmissionEvent) {
+    return jobSubmissionEvent.getPriority().orElse(0);
   }
 
   /**
-   * Extract the queue name from the jobSubmissionProto or return default if none is set.
+   * Extract the queue name from the jobSubmissionEvent or return default if none is set.
    * <p/>
    * TODO: Revisit this. We also have a named parameter for the queue in YarnClientConfiguration.
    */
-  private final String getQueue(final ClientRuntimeProtocol.JobSubmissionProto jobSubmissionProto,
+  private final String getQueue(final JobSubmissionEvent jobSubmissionEvent,
                                 final String defaultQueue) {
-    return jobSubmissionProto.hasQueue() && !jobSubmissionProto.getQueue().isEmpty() ?
-        jobSubmissionProto.getQueue() : defaultQueue;
+    return jobSubmissionEvent.getQueue().orElse(defaultQueue);
   }
-
-
 }

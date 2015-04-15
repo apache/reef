@@ -22,7 +22,7 @@ import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.io.TempFileCreator;
 import org.apache.reef.io.WorkingDirectoryTempFileCreator;
-import org.apache.reef.proto.DriverRuntimeProtocol;
+import org.apache.reef.runtime.common.driver.api.ResourceLaunchEvent;
 import org.apache.reef.runtime.common.driver.api.ResourceLaunchHandler;
 import org.apache.reef.runtime.common.files.ClasspathProvider;
 import org.apache.reef.runtime.common.files.JobJarMaker;
@@ -78,15 +78,15 @@ final class MesosResourceLaunchHandler implements ResourceLaunchHandler {
 
 
   @Override
-  public void onNext(final DriverRuntimeProtocol.ResourceLaunchProto resourceLaunchProto) {
+  public void onNext(final ResourceLaunchEvent resourceLaunchEvent) {
     try {
-      LOG.log(Level.INFO, "resourceLaunchProto. {0}", resourceLaunchProto.toString());
+      LOG.log(Level.INFO, "resourceLaunch. {0}", resourceLaunchEvent.toString());
 
       final File localStagingFolder =
           Files.createTempDirectory(this.fileNames.getEvaluatorFolderPrefix()).toFile();
 
       final Configuration evaluatorConfiguration = Tang.Factory.getTang()
-          .newConfigurationBuilder(this.configurationSerializer.fromString(resourceLaunchProto.getEvaluatorConf()))
+          .newConfigurationBuilder(this.configurationSerializer.fromString(resourceLaunchEvent.getEvaluatorConf()))
           .bindImplementation(TempFileCreator.class, WorkingDirectoryTempFileCreator.class)
           .build();
 
@@ -94,15 +94,15 @@ final class MesosResourceLaunchHandler implements ResourceLaunchHandler {
           localStagingFolder, this.fileNames.getEvaluatorConfigurationName());
       this.configurationSerializer.toFile(evaluatorConfiguration, configurationFile);
 
-      JobJarMaker.copy(resourceLaunchProto.getFileList(), localStagingFolder);
+      JobJarMaker.copy(resourceLaunchEvent.getFileList(), localStagingFolder);
 
       final FileSystem fileSystem = FileSystem.get(new org.apache.hadoop.conf.Configuration());
-      final Path hdfsFolder = new Path(fileSystem.getUri() + "/" + resourceLaunchProto.getIdentifier() + "/");
+      final Path hdfsFolder = new Path(fileSystem.getUri() + "/" + resourceLaunchEvent.getIdentifier() + "/");
       FileUtil.copy(localStagingFolder, fileSystem, hdfsFolder, false, new org.apache.hadoop.conf.Configuration());
 
       // TODO: Replace REEFExecutor with a simple launch command (we only need to launch REEFExecutor)
       final LaunchCommandBuilder commandBuilder;
-      switch (resourceLaunchProto.getType()) {
+      switch (resourceLaunchEvent.getType()) {
         case JVM:
           commandBuilder = new JavaLaunchCommandBuilder().setClassPath(this.classpath.getEvaluatorClasspath());
           break;
@@ -115,13 +115,13 @@ final class MesosResourceLaunchHandler implements ResourceLaunchHandler {
 
       final List<String> command = commandBuilder
           .setErrorHandlerRID(this.remoteManager.getMyIdentifier())
-          .setLaunchID(resourceLaunchProto.getIdentifier())
+          .setLaunchID(resourceLaunchEvent.getIdentifier())
           .setConfigurationFileName(this.fileNames.getEvaluatorConfigurationPath())
-          .setMemory((int) (this.jvmHeapFactor * this.executors.getMemory(resourceLaunchProto.getIdentifier())))
+          .setMemory((int) (this.jvmHeapFactor * this.executors.getMemory(resourceLaunchEvent.getIdentifier())))
           .build();
 
       this.executors.launchEvaluator(
-          new EvaluatorLaunch(resourceLaunchProto.getIdentifier(), StringUtils.join(command, ' ')));
+          new EvaluatorLaunch(resourceLaunchEvent.getIdentifier(), StringUtils.join(command, ' ')));
     } catch (IOException e) {
       throw new RuntimeException(e);
     }

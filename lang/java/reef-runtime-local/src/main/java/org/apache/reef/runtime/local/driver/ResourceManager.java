@@ -20,10 +20,17 @@ package org.apache.reef.runtime.local.driver;
 
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
-import org.apache.reef.proto.DriverRuntimeProtocol;
 import org.apache.reef.proto.ReefServiceProtos;
+import org.apache.reef.runtime.common.driver.api.ResourceLaunchEvent;
+import org.apache.reef.runtime.common.driver.api.ResourceReleaseEvent;
+import org.apache.reef.runtime.common.driver.api.ResourceRequestEvent;
 import org.apache.reef.runtime.common.driver.api.RuntimeParameters;
+import org.apache.reef.runtime.common.driver.resourcemanager.ResourceAllocationEvent;
+import org.apache.reef.runtime.common.driver.resourcemanager.ResourceAllocationEventImpl;
+import org.apache.reef.runtime.common.driver.resourcemanager.RuntimeStatusEvent;
+import org.apache.reef.runtime.common.driver.resourcemanager.RuntimeStatusEventImpl;
 import org.apache.reef.runtime.common.files.ClasspathProvider;
+import org.apache.reef.runtime.common.files.FileResource;
 import org.apache.reef.runtime.common.files.REEFFileNames;
 import org.apache.reef.runtime.common.launch.CLRLaunchCommandBuilder;
 import org.apache.reef.runtime.common.launch.JavaLaunchCommandBuilder;
@@ -58,9 +65,9 @@ public final class ResourceManager {
 
   private final ResourceRequestQueue requestQueue = new ResourceRequestQueue();
 
-  private final EventHandler<DriverRuntimeProtocol.ResourceAllocationProto> allocationHandler;
+  private final EventHandler<ResourceAllocationEvent> allocationHandler;
   private final ContainerManager theContainers;
-  private final EventHandler<DriverRuntimeProtocol.RuntimeStatusProto> runtimeStatusHandlerEventHandler;
+  private final EventHandler<RuntimeStatusEvent> runtimeStatusHandlerEventHandler;
   private final int defaultMemorySize;
   private final int defaultNumberOfCores;
   private final ConfigurationSerializer configurationSerializer;
@@ -73,8 +80,8 @@ public final class ResourceManager {
   @Inject
   ResourceManager(
       final ContainerManager containerManager,
-      final @Parameter(RuntimeParameters.ResourceAllocationHandler.class) EventHandler<DriverRuntimeProtocol.ResourceAllocationProto> allocationHandler,
-      final @Parameter(RuntimeParameters.RuntimeStatusHandler.class) EventHandler<DriverRuntimeProtocol.RuntimeStatusProto> runtimeStatusHandlerEventHandler,
+      final @Parameter(RuntimeParameters.ResourceAllocationHandler.class) EventHandler<ResourceAllocationEvent> allocationHandler,
+      final @Parameter(RuntimeParameters.RuntimeStatusHandler.class) EventHandler<RuntimeStatusEvent> runtimeStatusHandlerEventHandler,
       final @Parameter(DefaultMemorySize.class) int defaultMemorySize,
       final @Parameter(DefaultNumberOfCores.class) int defaultNumberOfCores,
       final @Parameter(JVMHeapSlack.class) double jvmHeapSlack,
@@ -105,9 +112,9 @@ public final class ResourceManager {
    * @param launchRequest the ResourceLaunchProto to parse
    * @return a list of files set in the given ResourceLaunchProto
    */
-  private static List<File> getLocalFiles(final DriverRuntimeProtocol.ResourceLaunchProto launchRequest) {
+  private static List<File> getLocalFiles(final ResourceLaunchEvent launchRequest) {
     final List<File> files = new ArrayList<>();  // Libraries local to this evaluator
-    for (final ReefServiceProtos.FileResourceProto frp : launchRequest.getFileList()) {
+    for (final FileResource frp : launchRequest.getFileList()) {
       files.add(new File(frp.getPath()).getAbsoluteFile());
     }
     return files;
@@ -120,7 +127,7 @@ public final class ResourceManager {
    *
    * @param resourceRequest the resource request to be handled.
    */
-  final void onResourceRequest(final DriverRuntimeProtocol.ResourceRequestProto resourceRequest) {
+  final void onResourceRequest(final ResourceRequestEvent resourceRequest) {
     synchronized (this.theContainers) {
       this.requestQueue.add(new ResourceRequest(resourceRequest));
       this.checkRequestQueue();
@@ -132,7 +139,7 @@ public final class ResourceManager {
    *
    * @param releaseRequest the release request to be processed
    */
-  final void onResourceReleaseRequest(final DriverRuntimeProtocol.ResourceReleaseProto releaseRequest) {
+  final void onResourceReleaseRequest(final ResourceReleaseEvent releaseRequest) {
     synchronized (this.theContainers) {
       LOG.log(Level.FINEST, "Release container: {0}", releaseRequest.getIdentifier());
       this.theContainers.release(releaseRequest.getIdentifier());
@@ -158,7 +165,7 @@ public final class ResourceManager {
    * @param launchRequest the launch request to be processed.
    */
   final void onResourceLaunchRequest(
-      final DriverRuntimeProtocol.ResourceLaunchProto launchRequest) {
+      final ResourceLaunchEvent launchRequest) {
 
     synchronized (this.theContainers) {
 
@@ -218,16 +225,16 @@ public final class ResourceManager {
     if (this.theContainers.hasContainerAvailable() && this.requestQueue.hasOutStandingRequests()) {
 
       // Record the satisfaction of one request and get its details.
-      final DriverRuntimeProtocol.ResourceRequestProto requestProto = this.requestQueue.satisfyOne();
+      final ResourceRequestEvent requestEvent = this.requestQueue.satisfyOne();
 
       // Allocate a Container
       final Container container = this.theContainers.allocateOne(
-          requestProto.hasMemorySize() ? requestProto.getMemorySize() : this.defaultMemorySize,
-          requestProto.hasVirtualCores() ? requestProto.getVirtualCores() : this.defaultNumberOfCores);
+              requestEvent.getMemorySize().orElse(this.defaultMemorySize),
+              requestEvent.getVirtualCores().orElse(this.defaultNumberOfCores));
 
       // Tell the receivers about it
-      final DriverRuntimeProtocol.ResourceAllocationProto alloc =
-          DriverRuntimeProtocol.ResourceAllocationProto.newBuilder()
+      final ResourceAllocationEvent alloc =
+          ResourceAllocationEventImpl.newBuilder()
               .setIdentifier(container.getContainerID())
               .setNodeId(container.getNodeID())
               .setResourceMemory(container.getMemory())
@@ -250,16 +257,18 @@ public final class ResourceManager {
 
   private void sendRuntimeStatus() {
 
-    final DriverRuntimeProtocol.RuntimeStatusProto msg =
-        DriverRuntimeProtocol.RuntimeStatusProto.newBuilder()
+    final RuntimeStatusEventImpl.Builder builder =
+        RuntimeStatusEventImpl.newBuilder()
             .setName("LOCAL")
             .setState(ReefServiceProtos.State.RUNNING)
-            .setOutstandingContainerRequests(this.requestQueue.getNumberOfOutstandingRequests())
-            .addAllContainerAllocation(this.theContainers.getAllocatedContainerIDs())
-            .build();
+            .setOutstandingContainerRequests(this.requestQueue.getNumberOfOutstandingRequests());
+    for (final String containerAllocation : this.theContainers.getAllocatedContainerIDs()) {
+      builder.addContainerAllocation(containerAllocation);
+    }
+    final RuntimeStatusEvent msg = builder.build();
 
     LOG.log(Level.INFO, "Allocated: {0}, Outstanding requests: {1}",
-        new Object[]{msg.getContainerAllocationCount(), msg.getOutstandingContainerRequests()});
+        new Object[]{msg.getContainerAllocationList().size(), msg.getOutstandingContainerRequests()});
     this.runtimeStatusHandlerEventHandler.onNext(msg);
   }
 }

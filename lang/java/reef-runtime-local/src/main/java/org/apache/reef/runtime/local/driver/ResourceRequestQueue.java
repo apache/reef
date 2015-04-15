@@ -20,7 +20,7 @@ package org.apache.reef.runtime.local.driver;
 
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
-import org.apache.reef.proto.DriverRuntimeProtocol;
+import org.apache.reef.runtime.common.driver.api.ResourceRequestEvent;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -54,7 +54,7 @@ final class ResourceRequestQueue {
    * Satisfies one resource for the front-most request. If that satisfies the
    * request, it is removed from the queue.
    */
-  final synchronized DriverRuntimeProtocol.ResourceRequestProto satisfyOne() {
+  final synchronized ResourceRequestEvent satisfyOne() {
     final ResourceRequest req = this.requestQueue.element();
     req.satisfyOne();
     if (req.isSatisfied()) {

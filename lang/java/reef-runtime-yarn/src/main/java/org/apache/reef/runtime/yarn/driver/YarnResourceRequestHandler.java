@@ -24,7 +24,7 @@ import org.apache.hadoop.yarn.client.api.AMRMClient;
 import org.apache.hadoop.yarn.util.Records;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
-import org.apache.reef.proto.DriverRuntimeProtocol;
+import org.apache.reef.runtime.common.driver.api.ResourceRequestEvent;
 import org.apache.reef.runtime.common.driver.api.ResourceRequestHandler;
 
 import javax.inject.Inject;
@@ -51,41 +51,41 @@ public final class YarnResourceRequestHandler implements ResourceRequestHandler 
   }
 
   @Override
-  public synchronized void onNext(final DriverRuntimeProtocol.ResourceRequestProto resourceRequestProto) {
-    LOG.log(Level.FINEST, "Got ResourceRequestProto in YarnResourceRequestHandler: memory = {0}, cores = {1}.", new Object[]{resourceRequestProto.getMemorySize(), resourceRequestProto.getVirtualCores()});
+  public synchronized void onNext(final ResourceRequestEvent resourceRequestEvent) {
+    LOG.log(Level.FINEST, "Got ResourceRequestEvent in YarnResourceRequestHandler: memory = {0}, cores = {1}.", new Object[]{resourceRequestEvent.getMemorySize(), resourceRequestEvent.getVirtualCores()});
 
-    final String[] nodes = resourceRequestProto.getNodeNameCount() == 0 ? null :
-        resourceRequestProto.getNodeNameList().toArray(new String[resourceRequestProto.getNodeNameCount()]);
-    final String[] racks = resourceRequestProto.getRackNameCount() == 0 ? null :
-        resourceRequestProto.getRackNameList().toArray(new String[resourceRequestProto.getRackNameCount()]);
+    final String[] nodes = resourceRequestEvent.getNodeNameList().size() == 0 ? null :
+        resourceRequestEvent.getNodeNameList().toArray(new String[resourceRequestEvent.getNodeNameList().size()]);
+    final String[] racks = resourceRequestEvent.getRackNameList().size() == 0 ? null :
+        resourceRequestEvent.getRackNameList().toArray(new String[resourceRequestEvent.getRackNameList().size()]);
 
     // set the priority for the request
-    final Priority pri = getPriority(resourceRequestProto);
-    final Resource resource = getResource(resourceRequestProto);
-    final boolean relax_locality = !resourceRequestProto.hasRelaxLocality() || resourceRequestProto.getRelaxLocality();
+    final Priority pri = getPriority(resourceRequestEvent);
+    final Resource resource = getResource(resourceRequestEvent);
+    final boolean relax_locality = resourceRequestEvent.getRelaxLocality().orElse(true);
 
     final AMRMClient.ContainerRequest[] containerRequests =
-        new AMRMClient.ContainerRequest[resourceRequestProto.getResourceCount()];
+        new AMRMClient.ContainerRequest[resourceRequestEvent.getResourceCount()];
 
-    for (int i = 0; i < resourceRequestProto.getResourceCount(); i++) {
+    for (int i = 0; i < resourceRequestEvent.getResourceCount(); i++) {
       containerRequests[i] = new AMRMClient.ContainerRequest(resource, nodes, racks, pri, relax_locality);
     }
     this.yarnContainerRequestHandler.onContainerRequest(containerRequests);
   }
 
-  private synchronized Resource getResource(final DriverRuntimeProtocol.ResourceRequestProto resourceRequestProto) {
+  private synchronized Resource getResource(final ResourceRequestEvent resourceRequestEvent) {
     final Resource result = Records.newRecord(Resource.class);
-    final int memory = getMemory(resourceRequestProto.getMemorySize());
-    final int core = resourceRequestProto.getVirtualCores();
+    final int memory = getMemory(resourceRequestEvent.getMemorySize().get());
+    final int core = resourceRequestEvent.getVirtualCores().get();
     LOG.log(Level.FINEST, "Resource requested: memory = {0}, virtual core count = {1}.", new Object[]{memory, core});
     result.setMemory(memory);
     result.setVirtualCores(core);
     return result;
   }
 
-  private synchronized Priority getPriority(final DriverRuntimeProtocol.ResourceRequestProto resourceRequestProto) {
+  private synchronized Priority getPriority(final ResourceRequestEvent resourceRequestEvent) {
     final Priority pri = Records.newRecord(Priority.class);
-    pri.setPriority(resourceRequestProto.hasPriority() ? resourceRequestProto.getPriority() : 1);
+    pri.setPriority(resourceRequestEvent.getPriority().orElse(1));
     return pri;
   }
 

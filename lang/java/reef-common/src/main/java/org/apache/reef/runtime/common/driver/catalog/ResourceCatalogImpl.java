@@ -22,7 +22,7 @@ import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.driver.catalog.NodeDescriptor;
 import org.apache.reef.driver.catalog.RackDescriptor;
 import org.apache.reef.driver.catalog.ResourceCatalog;
-import org.apache.reef.proto.DriverRuntimeProtocol.NodeDescriptorProto;
+import org.apache.reef.runtime.common.driver.resourcemanager.NodeDescriptorEvent;
 
 import javax.inject.Inject;
 import java.net.InetSocketAddress;
@@ -68,8 +68,8 @@ public final class ResourceCatalogImpl implements ResourceCatalog {
     return this.nodes.get(id);
   }
 
-  public synchronized final void handle(final NodeDescriptorProto node) {
-    final String rack_name = (node.hasRackName() ? node.getRackName() : DEFAULT_RACK);
+  public synchronized final void handle(final NodeDescriptorEvent node) {
+    final String rack_name = node.getRackName().orElse(DEFAULT_RACK);
 
     LOG.log(Level.FINEST, "Catalog new node: id[{0}], rack[{1}], host[{2}], port[{3}], memory[{4}]",
         new Object[]{node.getIdentifier(), rack_name, node.getHostName(), node.getPort(),
