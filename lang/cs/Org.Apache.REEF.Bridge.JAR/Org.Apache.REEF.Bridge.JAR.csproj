@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!--
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file
@@ -96,15 +96,16 @@ under the License.
             <BuildCommand>$(NuGetCommand) pack "$(FinalizedNuspecFile)" -BasePath $(NugetProjectPath) -Properties "Configuration=$(Configuration);Platform=$(Platform);REEF_Version=$(REEF_Version)" $(NonInteractiveSwitch) -OutputDirectory "$(PackageOutputDir)" </BuildCommand>
             <ReefVer>$([System.String]::Copy('$(REEF_NugetVersion)').Replace('-SNAPSHOT-',''))</ReefVer>
         </PropertyGroup>
+
   <ItemGroup>
     <Line Include="line01"><Text>param($installPath, $toolsPath, $package, $project)</Text></Line>
     <Line Include="line02"><Text>$file1 = $project.ProjectItems.Item("reef-bridge-java-$(ReefVer)-incubating-SNAPSHOT-shaded.jar")</Text></Line>
     <Line Include="line03"><Text>$copyToOutput1 = $file1.Properties.Item("CopyToOutputDirectory")</Text></Line>
     <Line Include="line04"><Text>$copyToOutput1.Value = 2</Text></Line>
     <!--Copy the client JAR-->
-    <Line Include="line02"><Text>$file1 = $project.ProjectItems.Item("reef-bridge-client-$(ReefVer)-incubating-SNAPSHOT-shaded.jar")</Text></Line>
-    <Line Include="line03"><Text>$copyToOutput1 = $file1.Properties.Item("CopyToOutputDirectory")</Text></Line>
-    <Line Include="line04"><Text>$copyToOutput1.Value = 2</Text></Line>
+    <Line Include="line05"><Text>$file2 = $project.ProjectItems.Item("reef-bridge-client-$(ReefVer)-incubating-SNAPSHOT-shaded.jar")</Text></Line>
+    <Line Include="line06"><Text>$copyToOutput2 = $file2.Properties.Item("CopyToOutputDirectory")</Text></Line>
+    <Line Include="line07"><Text>$copyToOutput2.Value = 2</Text></Line>
     <LineText Include="%(Line.Text)" />
   </ItemGroup>
   <WriteLinesToFile

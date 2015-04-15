@@ -61,7 +61,9 @@ under the License.
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="run.cmd" />
+    <None Include="run.cmd">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.Utilities\Org.Apache.REEF.Utilities.csproj">
