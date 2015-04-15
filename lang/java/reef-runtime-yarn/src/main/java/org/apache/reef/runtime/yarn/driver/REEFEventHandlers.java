@@ -19,8 +19,11 @@
 package org.apache.reef.runtime.yarn.driver;
 
 import org.apache.reef.annotations.audience.Private;
-import org.apache.reef.proto.DriverRuntimeProtocol;
 import org.apache.reef.runtime.common.driver.api.RuntimeParameters;
+import org.apache.reef.runtime.common.driver.resourcemanager.NodeDescriptorEvent;
+import org.apache.reef.runtime.common.driver.resourcemanager.ResourceAllocationEvent;
+import org.apache.reef.runtime.common.driver.resourcemanager.ResourceStatusEvent;
+import org.apache.reef.runtime.common.driver.resourcemanager.RuntimeStatusEvent;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.wake.EventHandler;
 
@@ -32,20 +35,20 @@ import javax.inject.Inject;
 // This is a great place to add a thread boundary, should that need arise.
 @Private
 final class REEFEventHandlers implements AutoCloseable {
-  private final EventHandler<DriverRuntimeProtocol.ResourceAllocationProto> resourceAllocationHandler;
-  private final EventHandler<DriverRuntimeProtocol.ResourceStatusProto> resourceStatusHandler;
-  private final EventHandler<DriverRuntimeProtocol.RuntimeStatusProto> runtimeStatusHandler;
-  private final EventHandler<DriverRuntimeProtocol.NodeDescriptorProto> nodeDescriptorProtoEventHandler;
+  private final EventHandler<ResourceAllocationEvent> resourceAllocationHandler;
+  private final EventHandler<ResourceStatusEvent> resourceStatusHandler;
+  private final EventHandler<RuntimeStatusEvent> runtimeStatusHandler;
+  private final EventHandler<NodeDescriptorEvent> nodeDescriptorEventHandler;
 
   @Inject
-  REEFEventHandlers(final @Parameter(RuntimeParameters.NodeDescriptorHandler.class) EventHandler<DriverRuntimeProtocol.NodeDescriptorProto> nodeDescriptorProtoEventHandler,
-                    final @Parameter(RuntimeParameters.RuntimeStatusHandler.class) EventHandler<DriverRuntimeProtocol.RuntimeStatusProto> runtimeStatusProtoEventHandler,
-                    final @Parameter(RuntimeParameters.ResourceAllocationHandler.class) EventHandler<DriverRuntimeProtocol.ResourceAllocationProto> resourceAllocationHandler,
-                    final @Parameter(RuntimeParameters.ResourceStatusHandler.class) EventHandler<DriverRuntimeProtocol.ResourceStatusProto> resourceStatusHandler) {
+  REEFEventHandlers(final @Parameter(RuntimeParameters.NodeDescriptorHandler.class) EventHandler<NodeDescriptorEvent> nodeDescriptorEventHandler,
+                    final @Parameter(RuntimeParameters.RuntimeStatusHandler.class) EventHandler<RuntimeStatusEvent> runtimeStatusProtoEventHandler,
+                    final @Parameter(RuntimeParameters.ResourceAllocationHandler.class) EventHandler<ResourceAllocationEvent> resourceAllocationHandler,
+                    final @Parameter(RuntimeParameters.ResourceStatusHandler.class) EventHandler<ResourceStatusEvent> resourceStatusHandler) {
     this.resourceAllocationHandler = resourceAllocationHandler;
     this.resourceStatusHandler = resourceStatusHandler;
     this.runtimeStatusHandler = runtimeStatusProtoEventHandler;
-    this.nodeDescriptorProtoEventHandler = nodeDescriptorProtoEventHandler;
+    this.nodeDescriptorEventHandler = nodeDescriptorEventHandler;
   }
 
   /**
@@ -53,35 +56,35 @@ final class REEFEventHandlers implements AutoCloseable {
    *
    * @param nodeDescriptorProto
    */
-  void onNodeDescriptor(final DriverRuntimeProtocol.NodeDescriptorProto nodeDescriptorProto) {
-    this.nodeDescriptorProtoEventHandler.onNext(nodeDescriptorProto);
+  void onNodeDescriptor(final NodeDescriptorEvent nodeDescriptorProto) {
+    this.nodeDescriptorEventHandler.onNext(nodeDescriptorProto);
   }
 
   /**
    * Update REEF's view on the runtime status.
    *
-   * @param runtimeStatusProto
+   * @param runtimeStatusEvent
    */
-  void onRuntimeStatus(final DriverRuntimeProtocol.RuntimeStatusProto runtimeStatusProto) {
-    this.runtimeStatusHandler.onNext(runtimeStatusProto);
+  void onRuntimeStatus(final RuntimeStatusEvent runtimeStatusEvent) {
+    this.runtimeStatusHandler.onNext(runtimeStatusEvent);
   }
 
   /**
    * Inform REEF of a fresh resource allocation.
    *
-   * @param resourceAllocationProto
+   * @param resourceAllocationEvent
    */
-  void onResourceAllocation(final DriverRuntimeProtocol.ResourceAllocationProto resourceAllocationProto) {
-    this.resourceAllocationHandler.onNext(resourceAllocationProto);
+  void onResourceAllocation(final ResourceAllocationEvent resourceAllocationEvent) {
+    this.resourceAllocationHandler.onNext(resourceAllocationEvent);
   }
 
   /**
    * Update REEF on a change to the status of a resource.
    *
-   * @param resourceStatusProto
+   * @param resourceStatusEvent
    */
-  void onResourceStatus(final DriverRuntimeProtocol.ResourceStatusProto resourceStatusProto) {
-    this.resourceStatusHandler.onNext(resourceStatusProto);
+  void onResourceStatus(final ResourceStatusEvent resourceStatusEvent) {
+    this.resourceStatusHandler.onNext(resourceStatusEvent);
   }
 
   @Override

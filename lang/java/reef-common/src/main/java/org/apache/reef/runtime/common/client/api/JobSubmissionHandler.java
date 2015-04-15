@@ -19,11 +19,10 @@
 package org.apache.reef.runtime.common.client.api;
 
 import org.apache.reef.annotations.audience.RuntimeAuthor;
-import org.apache.reef.proto.ClientRuntimeProtocol.JobSubmissionProto;
 import org.apache.reef.wake.EventHandler;
 
 @RuntimeAuthor
-public interface JobSubmissionHandler extends EventHandler<JobSubmissionProto>, AutoCloseable {
+public interface JobSubmissionHandler extends EventHandler<JobSubmissionEvent>, AutoCloseable {
 
   @Override
   public void close();

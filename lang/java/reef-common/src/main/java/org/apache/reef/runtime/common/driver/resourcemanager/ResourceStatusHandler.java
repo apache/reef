@@ -19,7 +19,6 @@
 package org.apache.reef.runtime.common.driver.resourcemanager;
 
 import org.apache.reef.annotations.audience.Private;
-import org.apache.reef.proto.DriverRuntimeProtocol;
 import org.apache.reef.runtime.common.driver.evaluator.EvaluatorManager;
 import org.apache.reef.runtime.common.driver.evaluator.EvaluatorManagerFactory;
 import org.apache.reef.runtime.common.driver.evaluator.Evaluators;
@@ -33,7 +32,7 @@ import javax.inject.Inject;
  * about the current state of a given resource. Ideally, we should think the same thing.
  */
 @Private
-public final class ResourceStatusHandler implements EventHandler<DriverRuntimeProtocol.ResourceStatusProto> {
+public final class ResourceStatusHandler implements EventHandler<ResourceStatusEvent> {
 
   private final Evaluators evaluators;
   private final EvaluatorManagerFactory evaluatorManagerFactory;
@@ -49,21 +48,21 @@ public final class ResourceStatusHandler implements EventHandler<DriverRuntimePr
    * about the state of the resource executing an Evaluator; This method simply passes the message
    * off to the referenced EvaluatorManager
    *
-   * @param resourceStatusProto resource status message from the ResourceManager
+   * @param resourceStatusEvent resource status message from the ResourceManager
    */
   @Override
-  public void onNext(final DriverRuntimeProtocol.ResourceStatusProto resourceStatusProto) {
-    final Optional<EvaluatorManager> evaluatorManager = this.evaluators.get(resourceStatusProto.getIdentifier());
+  public void onNext(final ResourceStatusEvent resourceStatusEvent) {
+    final Optional<EvaluatorManager> evaluatorManager = this.evaluators.get(resourceStatusEvent.getIdentifier());
     if (evaluatorManager.isPresent()) {
-      evaluatorManager.get().onResourceStatusMessage(resourceStatusProto);
+      evaluatorManager.get().onResourceStatusMessage(resourceStatusEvent);
     } else {
-      if (resourceStatusProto.getIsFromPreviousDriver()) {
-        EvaluatorManager previousEvaluatorManager = this.evaluatorManagerFactory.createForEvaluatorFailedDuringDriverRestart(resourceStatusProto);
-        previousEvaluatorManager.onResourceStatusMessage(resourceStatusProto);
+      if (resourceStatusEvent.getIsFromPreviousDriver().get()) {
+        EvaluatorManager previousEvaluatorManager = this.evaluatorManagerFactory.createForEvaluatorFailedDuringDriverRestart(resourceStatusEvent);
+        previousEvaluatorManager.onResourceStatusMessage(resourceStatusEvent);
       } else {
         throw new RuntimeException(
-            "Unknown resource status from evaluator " + resourceStatusProto.getIdentifier() +
-                " with state " + resourceStatusProto.getState()
+            "Unknown resource status from evaluator " + resourceStatusEvent.getIdentifier() +
+                " with state " + resourceStatusEvent.getState()
         );
       }
     }

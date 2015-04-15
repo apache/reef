@@ -20,7 +20,7 @@ package org.apache.reef.runtime.local.driver;
 
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
-import org.apache.reef.proto.DriverRuntimeProtocol;
+import org.apache.reef.runtime.common.driver.api.ResourceReleaseEvent;
 import org.apache.reef.runtime.common.driver.api.ResourceReleaseHandler;
 
 import javax.inject.Inject;
@@ -41,7 +41,7 @@ public final class LocalResourceReleaseHandler implements ResourceReleaseHandler
   }
 
   @Override
-  public void onNext(final DriverRuntimeProtocol.ResourceReleaseProto t) {
+  public void onNext(final ResourceReleaseEvent t) {
     this.resourceManager.onResourceReleaseRequest(t);
   }
 }

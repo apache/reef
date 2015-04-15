@@ -18,7 +18,7 @@
  */
 package org.apache.reef.runtime.common.driver.catalog;
 
-import org.apache.reef.proto.DriverRuntimeProtocol;
+import org.apache.reef.runtime.common.driver.resourcemanager.NodeDescriptorEventImpl;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -35,7 +35,7 @@ public final class CatalogTest {
     final ResourceCatalogImpl catalog = new ResourceCatalogImpl();
 
     for (int i = 0; i < nodes; i++) {
-      catalog.handle(DriverRuntimeProtocol.NodeDescriptorProto.newBuilder()
+      catalog.handle(NodeDescriptorEventImpl.newBuilder()
           .setRackName("test-rack")
           .setHostName("test-" + i)
           .setPort(0)

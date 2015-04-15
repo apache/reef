@@ -32,31 +32,6 @@ enum State {
     KILLED = 5;
 }
 
-enum FileType {
-    PLAIN = 0;
-    LIB = 1;
-    ARCHIVE = 2;
-}
-
-// Removed in REEF 0.3 in favor of explicit memory sizes.
-// enum SIZE {
-//    SMALL = 0;
-//    MEDIUM = 1;
-//    LARGE = 2;
-//    XLARGE = 3;
-//}
-
-enum ProcessType {
-    JVM = 0;
-    CLR = 1;
-}
-
-message FileResourceProto {
-    required FileType type = 1;
-    required string name = 2;
-    required string path = 3;
-}
-
 message RuntimeErrorProto {
     required string name = 1; // e.g., local, yarn21
     required string message = 2;

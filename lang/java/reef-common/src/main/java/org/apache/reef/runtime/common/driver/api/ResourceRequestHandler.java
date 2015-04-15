@@ -19,12 +19,11 @@
 package org.apache.reef.runtime.common.driver.api;
 
 import org.apache.reef.annotations.audience.RuntimeAuthor;
-import org.apache.reef.proto.DriverRuntimeProtocol;
 import org.apache.reef.wake.EventHandler;
 
 /**
  * The evaluator request handler.
  */
 @RuntimeAuthor
-public interface ResourceRequestHandler extends EventHandler<DriverRuntimeProtocol.ResourceRequestProto> {
+public interface ResourceRequestHandler extends EventHandler<ResourceRequestEvent> {
 }

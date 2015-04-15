@@ -20,7 +20,7 @@ package org.apache.reef.runtime.local.driver;
 
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
-import org.apache.reef.proto.DriverRuntimeProtocol;
+import org.apache.reef.runtime.common.driver.api.ResourceRequestEvent;
 import org.apache.reef.runtime.common.driver.api.ResourceRequestHandler;
 
 import javax.inject.Inject;
@@ -40,7 +40,7 @@ final class LocalResourceRequestHandler implements ResourceRequestHandler {
   }
 
   @Override
-  public void onNext(final DriverRuntimeProtocol.ResourceRequestProto t) {
+  public void onNext(final ResourceRequestEvent t) {
     this.resourceManager.onResourceRequest(t);
   }
 }
