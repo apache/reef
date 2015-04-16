@@ -24,7 +24,7 @@ using Org.Apache.REEF.Wake.Remote;
 namespace Org.Apache.REEF.Network.Group.Topology
 {
     /// <summary>
-    /// Represents a topology graph for IMpiOperators.
+    /// Represents a topology graph for IGroupCommOperators.
     /// </summary>
     public interface ITopology<T1, T2> where T2 : ICodec<T1>
     {

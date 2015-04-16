@@ -41,15 +41,15 @@ using Org.Apache.REEF.Wake.Remote;
 namespace Org.Apache.REEF.Network.Group.Driver.Impl
 {
     /// <summary>
-    /// Used to create Communication Groups for MPI Operators on the Reef driver.
-    /// Also manages configuration for MPI tasks/services.
+    /// Used to create Communication Groups for Group Communication Operators on the Reef driver.
+    /// Also manages configuration for Group Communication tasks/services.
     /// </summary>
-    public class MpiDriver : IMpiDriver
+    public class GroupCommDriver : IGroupCommDriver
     {
         private const string MasterTaskContextName = "MasterTaskContext";
         private const string SlaveTaskContextName = "SlaveTaskContext";
 
-        private static Logger LOGGER = Logger.GetLogger(typeof(MpiDriver));
+        private static Logger LOGGER = Logger.GetLogger(typeof(GroupCommDriver));
 
         private readonly string _driverId;
         private readonly string _nameServerAddr;           
@@ -63,18 +63,18 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
         private readonly NameServer _nameServer;
 
         /// <summary>
-        /// Create a new MpiDriver object.
+        /// Create a new GroupCommunicationDriver object.
         /// </summary>
         /// <param name="driverId">Identifer for the REEF driver</param>
-        /// <param name="masterTaskId">Identifer for MPI master task</param>
+        /// <param name="masterTaskId">Identifer for Group Communication master task</param>
         /// <param name="fanOut">fanOut for tree topology</param>
         /// <param name="configSerializer">Used to serialize task configuration</param>
         [System.Obsolete("user the other constructor")]
         [Inject]
-        public MpiDriver(
-            [Parameter(typeof(MpiConfigurationOptions.DriverId))] string driverId,
-            [Parameter(typeof(MpiConfigurationOptions.MasterTaskId))] string masterTaskId,
-            [Parameter(typeof(MpiConfigurationOptions.FanOut))] int fanOut,
+        public GroupCommDriver(
+            [Parameter(typeof(GroupCommConfigurationOptions.DriverId))] string driverId,
+            [Parameter(typeof(GroupCommConfigurationOptions.MasterTaskId))] string masterTaskId,
+            [Parameter(typeof(GroupCommConfigurationOptions.FanOut))] int fanOut,
             AvroConfigurationSerializer configSerializer)
         {
             _driverId = driverId;
@@ -92,21 +92,21 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
         }
 
         /// <summary>
-        /// Create a new MpiDriver object.
+        /// Create a new GroupCommunicationDriver object.
         /// </summary>
         /// <param name="driverId">Identifer for the REEF driver</param>
-        /// <param name="masterTaskId">Identifer for MPI master task</param>
+        /// <param name="masterTaskId">Identifer for Group Communication master task</param>
         /// <param name="fanOut">fanOut for tree topology</param>
         /// <param name="groupName">default communication group name</param>
         /// <param name="numberOfTasks">Number of tasks in the default group</param>
         /// <param name="configSerializer">Used to serialize task configuration</param>
         [Inject]
-        public MpiDriver(
-            [Parameter(typeof(MpiConfigurationOptions.DriverId))] string driverId,
-            [Parameter(typeof(MpiConfigurationOptions.MasterTaskId))] string masterTaskId,
-            [Parameter(typeof(MpiConfigurationOptions.FanOut))] int fanOut,
-            [Parameter(typeof(MpiConfigurationOptions.GroupName))] string groupName,
-            [Parameter(typeof(MpiConfigurationOptions.NumberOfTasks))] int numberOfTasks,
+        public GroupCommDriver(
+            [Parameter(typeof(GroupCommConfigurationOptions.DriverId))] string driverId,
+            [Parameter(typeof(GroupCommConfigurationOptions.MasterTaskId))] string masterTaskId,
+            [Parameter(typeof(GroupCommConfigurationOptions.FanOut))] int fanOut,
+            [Parameter(typeof(GroupCommConfigurationOptions.GroupName))] string groupName,
+            [Parameter(typeof(GroupCommConfigurationOptions.NumberOfTasks))] int numberOfTasks,
             AvroConfigurationSerializer configSerializer)
         {
             _driverId = driverId;
@@ -154,7 +154,7 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
             }
             else if (_commGroups.ContainsKey(groupName))
             {
-                throw new ArgumentException("Group Name already registered with MpiDriver");
+                throw new ArgumentException("Group Name already registered with GroupCommunicationDriver");
             }
 
             var commGroup = new CommunicationGroupDriver(groupName, _driverId, numTasks, _fanOut, _configSerializer);
@@ -179,7 +179,7 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
         }
 
         /// <summary>
-        /// Get the service configuration required for running MPI on Reef tasks.
+        /// Get the service configuration required for running Group Communication on Reef tasks.
         /// </summary>
         /// <returns>The service configuration for the Reef tasks</returns>
         public IConfiguration GetServiceConfiguration()
@@ -191,7 +191,7 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
             return TangFactory.GetTang().NewConfigurationBuilder(serviceConfig)
                 .BindImplementation(
                     GenericType<IObserver<NsMessage<GroupCommunicationMessage>>>.Class,
-                    GenericType<MpiNetworkObserver>.Class)
+                    GenericType<GroupCommNetworkObserver>.Class)
                 .BindImplementation(
                     GenericType<ICodec<GroupCommunicationMessage>>.Class,
                     GenericType<GroupCommunicationMessageCodec>.Class)
@@ -211,12 +211,12 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
         /// The task may belong to many Communication Groups, so each one is serialized
         /// in the configuration as a SerializedGroupConfig.
         /// The user must merge their part of task configuration (task id, task class)
-        /// with this returned MPI task configuration.
+        /// with this returned Group Communication task configuration.
         /// </summary>
         /// <param name="taskId">The id of the task Configuration to generate</param>
-        /// <returns>The MPI task configuration with communication group and
+        /// <returns>The Group Communication task configuration with communication group and
         /// operator configuration set.</returns>
-        public IConfiguration GetMpiTaskConfiguration(string taskId)
+        public IConfiguration GetGroupCommTaskConfiguration(string taskId)
         {
             var confBuilder = TangFactory.GetTang().NewConfigurationBuilder();
 
@@ -225,8 +225,8 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
                 var taskConf = commGroup.GetGroupTaskConfiguration(taskId);
                 if (taskConf != null)
                 {
-                    confBuilder.BindSetEntry<MpiConfigurationOptions.SerializedGroupConfigs, string>(
-                        GenericType<MpiConfigurationOptions.SerializedGroupConfigs>.Class,
+                    confBuilder.BindSetEntry<GroupCommConfigurationOptions.SerializedGroupConfigs, string>(
+                        GenericType<GroupCommConfigurationOptions.SerializedGroupConfigs>.Class,
                         _configSerializer.ToString(taskConf));
                 }
             }

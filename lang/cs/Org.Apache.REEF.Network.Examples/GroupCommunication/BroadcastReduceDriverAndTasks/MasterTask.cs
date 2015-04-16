@@ -34,7 +34,7 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.BroadcastReduceDri
         private readonly int _numIters;
         private readonly int _numReduceSenders;
 
-        private readonly IMpiClient _mpiClient;
+        private readonly IGroupCommClient _groupCommClient;
         private readonly ICommunicationGroupClient _commGroup;
         private readonly IBroadcastSender<int> _broadcastSender;
         private readonly IReduceReceiver<int> _sumReducer;
@@ -43,14 +43,14 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.BroadcastReduceDri
         public MasterTask(
             [Parameter(typeof(GroupTestConfig.NumIterations))] int numIters,
             [Parameter(typeof(GroupTestConfig.NumEvaluators))] int numEvaluators,
-            IMpiClient mpiClient)
+            IGroupCommClient groupCommClient)
         {
             _logger.Log(Level.Info, "Hello from master task");
             _numIters = numIters;
             _numReduceSenders = numEvaluators - 1;
-            _mpiClient = mpiClient;
+            _groupCommClient = groupCommClient;
 
-            _commGroup = mpiClient.GetCommunicationGroup(GroupTestConstants.GroupName);
+            _commGroup = groupCommClient.GetCommunicationGroup(GroupTestConstants.GroupName);
             _broadcastSender = _commGroup.GetBroadcastSender<int>(GroupTestConstants.BroadcastOperatorName);
             _sumReducer = _commGroup.GetReduceReceiver<int>(GroupTestConstants.ReduceOperatorName);
         }
@@ -78,7 +78,7 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.BroadcastReduceDri
 
         public void Dispose()
         {
-            _mpiClient.Dispose();
+            _groupCommClient.Dispose();
         }
 
         private int TriangleNumber(int n)

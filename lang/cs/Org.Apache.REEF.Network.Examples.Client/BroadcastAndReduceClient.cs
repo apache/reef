@@ -62,15 +62,15 @@ namespace Org.Apache.REEF.Network.Examples.Client
                     numTasks.ToString(CultureInfo.InvariantCulture))
                 .Build();
 
-            IConfiguration mpiDriverConfig = TangFactory.GetTang().NewConfigurationBuilder()
-                .BindStringNamedParam<MpiConfigurationOptions.DriverId>(driverId)
-                .BindStringNamedParam<MpiConfigurationOptions.MasterTaskId>(masterTaskId)
-                .BindStringNamedParam<MpiConfigurationOptions.GroupName>(groupName)
-                .BindIntNamedParam<MpiConfigurationOptions.FanOut>(fanOut.ToString(CultureInfo.InvariantCulture).ToString(CultureInfo.InvariantCulture))
-                .BindIntNamedParam<MpiConfigurationOptions.NumberOfTasks>(numTasks.ToString(CultureInfo.InvariantCulture))
+            IConfiguration groupCommDriverConfig = TangFactory.GetTang().NewConfigurationBuilder()
+                .BindStringNamedParam<GroupCommConfigurationOptions.DriverId>(driverId)
+                .BindStringNamedParam<GroupCommConfigurationOptions.MasterTaskId>(masterTaskId)
+                .BindStringNamedParam<GroupCommConfigurationOptions.GroupName>(groupName)
+                .BindIntNamedParam<GroupCommConfigurationOptions.FanOut>(fanOut.ToString(CultureInfo.InvariantCulture).ToString(CultureInfo.InvariantCulture))
+                .BindIntNamedParam<GroupCommConfigurationOptions.NumberOfTasks>(numTasks.ToString(CultureInfo.InvariantCulture))
                 .Build();
 
-            IConfiguration merged = Configurations.Merge(driverConfig, mpiDriverConfig);
+            IConfiguration merged = Configurations.Merge(driverConfig, groupCommDriverConfig);
 
             HashSet<string> appDlls = new HashSet<string>();
             appDlls.Add(typeof(IDriver).Assembly.GetName().Name);

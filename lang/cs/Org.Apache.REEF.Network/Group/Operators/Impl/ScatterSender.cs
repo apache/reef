@@ -28,7 +28,7 @@ using Org.Apache.REEF.Tang.Annotations;
 namespace Org.Apache.REEF.Network.Group.Operators.Impl
 {
     /// <summary>
-    /// MPI operator used to scatter a list of elements to all
+    /// Group Communication operator used to scatter a list of elements to all
     /// of the IScatterReceivers.
     /// </summary>
     /// <typeparam name="T">The message type</typeparam>
@@ -48,8 +48,8 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
         /// <param name="networkHandler">The network handler</param>
         [Inject]
         public ScatterSender(
-            [Parameter(typeof(MpiConfigurationOptions.OperatorName))] string operatorName,
-            [Parameter(typeof(MpiConfigurationOptions.CommunicationGroupName))] string groupName,
+            [Parameter(typeof(GroupCommConfigurationOptions.OperatorName))] string operatorName,
+            [Parameter(typeof(GroupCommConfigurationOptions.CommunicationGroupName))] string groupName,
             OperatorTopology<T> topology,
             ICommunicationGroupNetworkObserver networkHandler)
         {

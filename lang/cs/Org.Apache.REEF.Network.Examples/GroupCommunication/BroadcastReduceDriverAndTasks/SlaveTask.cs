@@ -31,7 +31,7 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.BroadcastReduceDri
         private static readonly Logger _logger = Logger.GetLogger(typeof(SlaveTask));
 
         private readonly int _numIterations;
-        private readonly IMpiClient _mpiClient;
+        private readonly IGroupCommClient _groupCommClient;
         private readonly ICommunicationGroupClient _commGroup;
         private readonly IBroadcastReceiver<int> _broadcastReceiver;
         private readonly IReduceSender<int> _triangleNumberSender;
@@ -39,13 +39,13 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.BroadcastReduceDri
         [Inject]
         public SlaveTask(
             [Parameter(typeof(GroupTestConfig.NumIterations))] int numIters,
-            IMpiClient mpiClient)
+            IGroupCommClient groupCommClient)
         {
             _logger.Log(Level.Info, "Hello from slave task");
 
             _numIterations = numIters;
-            _mpiClient = mpiClient;
-            _commGroup = _mpiClient.GetCommunicationGroup(GroupTestConstants.GroupName);
+            _groupCommClient = groupCommClient;
+            _commGroup = _groupCommClient.GetCommunicationGroup(GroupTestConstants.GroupName);
             _broadcastReceiver = _commGroup.GetBroadcastReceiver<int>(GroupTestConstants.BroadcastOperatorName);
             _triangleNumberSender = _commGroup.GetReduceSender<int>(GroupTestConstants.ReduceOperatorName);
         }
@@ -69,7 +69,7 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.BroadcastReduceDri
 
         public void Dispose()
         {
-            _mpiClient.Dispose();
+            _groupCommClient.Dispose();
         }
 
         private int TriangleNumber(int n)

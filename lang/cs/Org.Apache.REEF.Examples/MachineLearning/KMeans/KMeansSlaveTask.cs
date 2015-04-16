@@ -32,7 +32,7 @@ namespace Org.Apache.REEF.Examples.MachineLearning.KMeans
     {
         private static readonly Logger _logger = Logger.GetLogger(typeof(KMeansSlaveTask));
         private readonly int _clustersNum;
-        private readonly IMpiClient _mpiClient;
+        private readonly IGroupCommClient _groupCommClient;
         private readonly ICommunicationGroupClient _commGroup;
         private readonly IBroadcastReceiver<Centroids> _dataBroadcastReceiver;
         private readonly IBroadcastReceiver<ControlMessage> _controlBroadcastReceiver;
@@ -43,14 +43,14 @@ namespace Org.Apache.REEF.Examples.MachineLearning.KMeans
         public KMeansSlaveTask(
             DataPartitionCache dataPartition,
             [Parameter(typeof(KMeansConfiguratioinOptions.TotalNumEvaluators))] int clustersNumber,
-            IMpiClient mpiClient)
+            IGroupCommClient groupCommClient)
         {
             using (_logger.LogFunction("KMeansSlaveTask::KMeansSlaveTask"))
             {
                 _dataPartition = dataPartition;
-                _mpiClient = mpiClient;
+                _groupCommClient = groupCommClient;
                 _clustersNum = clustersNumber;
-                _commGroup = _mpiClient.GetCommunicationGroup(Constants.KMeansCommunicationGroupName);
+                _commGroup = _groupCommClient.GetCommunicationGroup(Constants.KMeansCommunicationGroupName);
                 _dataBroadcastReceiver = _commGroup.GetBroadcastReceiver<Centroids>(Constants.CentroidsBroadcastOperatorName);
                 _partialMeansSender = _commGroup.GetReduceSender<ProcessedResults>(Constants.MeansReduceOperatorName);
                 _controlBroadcastReceiver = _commGroup.GetBroadcastReceiver<ControlMessage>(Constants.ControlMessageBroadcastOperatorName);
@@ -80,7 +80,7 @@ namespace Org.Apache.REEF.Examples.MachineLearning.KMeans
 
         public void Dispose()
         {
-            _mpiClient.Dispose();
+            _groupCommClient.Dispose();
         }
 
         private List<PartialMean> ComputePartialMeans()

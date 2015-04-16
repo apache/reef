@@ -35,7 +35,7 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.PipelineBroadcastR
         private readonly int _numReduceSenders;
         private readonly int _arraySize;
 
-        private readonly IMpiClient _mpiClient;
+        private readonly IGroupCommClient _groupCommClient;
         private readonly ICommunicationGroupClient _commGroup;
         private readonly IBroadcastSender<int[]> _broadcastSender;
         private readonly IReduceReceiver<int[]> _sumReducer;
@@ -45,15 +45,15 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.PipelineBroadcastR
             [Parameter(typeof(GroupTestConfig.NumIterations))] int numIters,
             [Parameter(typeof(GroupTestConfig.NumEvaluators))] int numEvaluators,
             [Parameter(typeof(GroupTestConfig.ArraySize))] int arraySize,
-            IMpiClient mpiClient)
+            IGroupCommClient groupCommClient)
         {
             Logger.Log(Level.Info, "Hello from master task");
             _numIters = numIters;
             _numReduceSenders = numEvaluators - 1;
             _arraySize = arraySize;
-            _mpiClient = mpiClient;
+            _groupCommClient = groupCommClient;
 
-            _commGroup = mpiClient.GetCommunicationGroup(GroupTestConstants.GroupName);
+            _commGroup = groupCommClient.GetCommunicationGroup(GroupTestConstants.GroupName);
             _broadcastSender = _commGroup.GetBroadcastSender<int[]>(GroupTestConstants.BroadcastOperatorName);
             _sumReducer = _commGroup.GetReduceReceiver<int[]>(GroupTestConstants.ReduceOperatorName);
             Logger.Log(Level.Info, "finished master task constructor");
@@ -91,7 +91,7 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.PipelineBroadcastR
 
         public void Dispose()
         {
-            _mpiClient.Dispose();
+            _groupCommClient.Dispose();
         }
 
         private int TriangleNumber(int n)

@@ -37,7 +37,7 @@ using Org.Apache.REEF.Wake.Remote.Impl;
 namespace Org.Apache.REEF.Network.Group.Driver.Impl
 {
     /// <summary>
-    /// Used to configure MPI operators in Reef driver.
+    /// Used to configure Group Communication operators in Reef driver.
     /// All operators in the same Communication Group run on the the 
     /// same set of tasks.
     /// </summary>
@@ -168,7 +168,7 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
         }
 
         /// <summary>
-        /// Adds the Broadcast MPI operator to the communication group. Default to IntCodec
+        /// Adds the Broadcast Group Communication operator to the communication group. Default to IntCodec
         /// </summary>
         /// <param name="operatorName">The name of the broadcast operator</param>
         /// <param name="masterTaskId">The master task id in broadcast operator</param>
@@ -181,7 +181,7 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
         }
 
         /// <summary>
-        /// Adds the Reduce MPI operator to the communication group.
+        /// Adds the Reduce Group Communication operator to the communication group.
         /// </summary>
         /// <typeparam name="TMessage">The type of messages that operators will send</typeparam>
         /// <typeparam name="TMessageCodec">The codec used for serializing messages</typeparam>
@@ -226,7 +226,7 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
         }
 
                /// <summary>
-        /// Adds the Reduce MPI operator to the communication group.
+        /// Adds the Reduce Group Communication operator to the communication group.
         /// </summary>
         /// <typeparam name="TMessage">The type of messages that operators will send</typeparam>
         /// <typeparam name="TMessageCodec">The codec used for serializing messages</typeparam>
@@ -270,7 +270,7 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
         }
 
         /// <summary>
-        /// Adds the Reduce MPI operator to the communication group with default IntCodec
+        /// Adds the Reduce Group Communication operator to the communication group with default IntCodec
         /// </summary>
         /// <param name="operatorName">The name of the reduce operator</param>
         /// <param name="masterTaskId">The master task id for the typology</param>
@@ -287,7 +287,7 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
         }
 
         /// <summary>
-        /// Adds the Scatter MPI operator to the communication group.
+        /// Adds the Scatter Group Communication operator to the communication group.
         /// </summary>
         /// <typeparam name="TMessage">The type of messages that operators will send</typeparam>
         /// <typeparam name="TMessageCodec">The codec used for serializing messages</typeparam>
@@ -322,7 +322,7 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
         }
 
         /// <summary>
-        /// Adds the Scatter MPI operator to the communication group with default IntCodec
+        /// Adds the Scatter Group Communication operator to the communication group with default IntCodec
         /// </summary>
         /// <param name="operatorName">The name of the scatter operator</param>
         /// <param name="senderId">The sender id</param>
@@ -397,26 +397,26 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
             }
 
             var confBuilder = TangFactory.GetTang().NewConfigurationBuilder()
-                .BindNamedParameter<MpiConfigurationOptions.DriverId, string>(
-                    GenericType<MpiConfigurationOptions.DriverId>.Class,
+                .BindNamedParameter<GroupCommConfigurationOptions.DriverId, string>(
+                    GenericType<GroupCommConfigurationOptions.DriverId>.Class,
                     _driverId)
-                .BindNamedParameter<MpiConfigurationOptions.CommunicationGroupName, string>(
-                    GenericType<MpiConfigurationOptions.CommunicationGroupName>.Class,
+                .BindNamedParameter<GroupCommConfigurationOptions.CommunicationGroupName, string>(
+                    GenericType<GroupCommConfigurationOptions.CommunicationGroupName>.Class,
                     _groupName);
 
             foreach (var operatorName in _topologies.Keys)
             {
                 var innerConf = TangFactory.GetTang().NewConfigurationBuilder(GetOperatorConfiguration(operatorName, taskId))
-                    .BindNamedParameter<MpiConfigurationOptions.DriverId, string>(
-                        GenericType<MpiConfigurationOptions.DriverId>.Class,
+                    .BindNamedParameter<GroupCommConfigurationOptions.DriverId, string>(
+                        GenericType<GroupCommConfigurationOptions.DriverId>.Class,
                         _driverId)
-                    .BindNamedParameter<MpiConfigurationOptions.OperatorName, string>(
-                        GenericType<MpiConfigurationOptions.OperatorName>.Class,
+                    .BindNamedParameter<GroupCommConfigurationOptions.OperatorName, string>(
+                        GenericType<GroupCommConfigurationOptions.OperatorName>.Class,
                         operatorName)
                     .Build();
 
-                confBuilder.BindSetEntry<MpiConfigurationOptions.SerializedOperatorConfigs, string>(
-                    GenericType<MpiConfigurationOptions.SerializedOperatorConfigs>.Class,
+                confBuilder.BindSetEntry<GroupCommConfigurationOptions.SerializedOperatorConfigs, string>(
+                    GenericType<GroupCommConfigurationOptions.SerializedOperatorConfigs>.Class,
                     _confSerializer.ToString(innerConf));
             }
 

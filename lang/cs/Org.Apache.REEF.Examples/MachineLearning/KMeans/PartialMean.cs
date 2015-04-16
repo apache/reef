@@ -74,7 +74,7 @@ namespace Org.Apache.REEF.Examples.MachineLearning.KMeans
             List<PartialMean> partialMeans = new List<PartialMean>();
             for (int i = 0; i < partitionsNum; i++)
             {
-                // should be replaced with MPI
+                // should be replaced with Group Communication
                 string path = Path.Combine(executionDirectory, Constants.DataDirectory, Constants.PartialMeanFilePrefix + i.ToString(CultureInfo.InvariantCulture));
                 FileStream file = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read);
                 using (StreamReader reader = new StreamReader(file))

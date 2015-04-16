@@ -30,7 +30,7 @@ using Org.Apache.REEF.Utilities.Logging;
 namespace Org.Apache.REEF.Network.Group.Operators.Impl
 {
     /// <summary>
-    /// MPI operator used to receive and reduce messages in pipelined fashion.
+    /// Group Communication operator used to receive and reduce messages in pipelined fashion.
     /// </summary>
     /// <typeparam name="T">The message type</typeparam>
     public class ReduceReceiver<T> : IReduceReceiver<T>
@@ -52,8 +52,8 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
         /// message to pipelined ones and vice versa.</param>
         [Inject]
         public ReduceReceiver(
-            [Parameter(typeof (MpiConfigurationOptions.OperatorName))] string operatorName,
-            [Parameter(typeof (MpiConfigurationOptions.CommunicationGroupName))] string groupName,
+            [Parameter(typeof (GroupCommConfigurationOptions.OperatorName))] string operatorName,
+            [Parameter(typeof (GroupCommConfigurationOptions.CommunicationGroupName))] string groupName,
             OperatorTopology<PipelineMessage<T>> topology,
             ICommunicationGroupNetworkObserver networkHandler,
             IReduceFunction<T> reduceFunction,

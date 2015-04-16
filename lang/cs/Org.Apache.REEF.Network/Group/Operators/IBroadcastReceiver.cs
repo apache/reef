@@ -20,10 +20,10 @@
 namespace Org.Apache.REEF.Network.Group.Operators
 {
     /// <summary>
-    /// MPI Operator used to receive broadcast messages.
+    /// Group Communication Operator used to receive broadcast messages.
     /// </summary>
     /// <typeparam name="T">The type of message being sent.</typeparam>
-    public interface IBroadcastReceiver<T> : IMpiOperator<T>
+    public interface IBroadcastReceiver<T> : IGroupCommOperator<T>
     {
         /// <summary>
         /// Receive a message from parent BroadcastSender.

@@ -20,10 +20,10 @@
 namespace Org.Apache.REEF.Network.Group.Operators
 {
     /// <summary>
-    /// MPI operator used to receive and reduce messages.
+    /// Group Communication operator used to receive and reduce messages.
     /// </summary>
     /// <typeparam name="T">The message type</typeparam>
-    public interface IReduceReceiver<T> : IMpiOperator<T>
+    public interface IReduceReceiver<T> : IGroupCommOperator<T>
     {
         /// <summary>
         /// Returns the class used to reduce incoming messages sent by ReduceSenders.

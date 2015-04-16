@@ -58,13 +58,13 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
             string masterTaskId = "task0";
             int fanOut = 3;
 
-            var mpiDriver = GroupCommunicationTests.GetInstanceOfMpiDriver(driverId, masterTaskId, groupName, fanOut, numTasks);
+            var groupCommDriver = GroupCommunicationTests.GetInstanceOfGroupCommDriver(driverId, masterTaskId, groupName, fanOut, numTasks);
 
-            ICommunicationGroupDriver commGroup = mpiDriver.DefaultGroup
+            ICommunicationGroupDriver commGroup = groupCommDriver.DefaultGroup
                 .AddReduce<int, IntCodec>(operatorName, masterTaskId, new SumFunction(), TopologyTypes.Tree)
                 .Build();
 
-            var commGroups = GroupCommunicationTests.CommGroupClients(groupName, numTasks, mpiDriver, commGroup);
+            var commGroups = GroupCommunicationTests.CommGroupClients(groupName, numTasks, groupCommDriver, commGroup);
 
             IReduceReceiver<int> receiver = commGroups[0].GetReduceReceiver<int>(operatorName);
             IReduceSender<int> sender1 = commGroups[1].GetReduceSender<int>(operatorName);
@@ -114,13 +114,13 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
             int value3 = 99;
             int fanOut = 3;
 
-            var mpiDriver = GroupCommunicationTests.GetInstanceOfMpiDriver(driverId, masterTaskId, groupName, fanOut, numTasks);
+            var groupCommDriver = GroupCommunicationTests.GetInstanceOfGroupCommDriver(driverId, masterTaskId, groupName, fanOut, numTasks);
 
-            ICommunicationGroupDriver commGroup = mpiDriver.DefaultGroup
+            ICommunicationGroupDriver commGroup = groupCommDriver.DefaultGroup
                 .AddBroadcast<int, IntCodec>(operatorName, masterTaskId, TopologyTypes.Tree)
                 .Build();
 
-            var commGroups = GroupCommunicationTests.CommGroupClients(groupName, numTasks, mpiDriver, commGroup);
+            var commGroups = GroupCommunicationTests.CommGroupClients(groupName, numTasks, groupCommDriver, commGroup);
 
             IBroadcastSender<int> sender = commGroups[0].GetBroadcastSender<int>(operatorName);
             IBroadcastReceiver<int> receiver1 = commGroups[1].GetBroadcastReceiver<int>(operatorName);
@@ -190,9 +190,9 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
             int numTasks = 10;
             int fanOut = 3;
 
-            var mpiDriver = GroupCommunicationTests.GetInstanceOfMpiDriver(driverId, masterTaskId, groupName, fanOut, numTasks);
+            var groupCommDriver = GroupCommunicationTests.GetInstanceOfGroupCommDriver(driverId, masterTaskId, groupName, fanOut, numTasks);
 
-            ICommunicationGroupDriver commGroup = mpiDriver.DefaultGroup
+            ICommunicationGroupDriver commGroup = groupCommDriver.DefaultGroup
                 .AddBroadcast<int, IntCodec>(
                     broadcastOperatorName,
                     masterTaskId,
@@ -204,7 +204,7 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
                     TopologyTypes.Tree)
                 .Build();
 
-            var commGroups = GroupCommunicationTests.CommGroupClients(groupName, numTasks, mpiDriver, commGroup);
+            var commGroups = GroupCommunicationTests.CommGroupClients(groupName, numTasks, groupCommDriver, commGroup);
 
             //for master task
             IBroadcastSender<int> broadcastSender = commGroups[0].GetBroadcastSender<int>(broadcastOperatorName);
@@ -303,13 +303,13 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
             int numTasks = 5;
             int fanOut = 2;
 
-            var mpiDriver = GroupCommunicationTests.GetInstanceOfMpiDriver(driverId, masterTaskId, groupName, fanOut, numTasks);
+            var groupCommDriver = GroupCommunicationTests.GetInstanceOfGroupCommDriver(driverId, masterTaskId, groupName, fanOut, numTasks);
 
-            ICommunicationGroupDriver commGroup = mpiDriver.DefaultGroup
+            ICommunicationGroupDriver commGroup = groupCommDriver.DefaultGroup
                 .AddScatter<int, IntCodec>(operatorName, masterTaskId, TopologyTypes.Tree)
                 .Build();
 
-            var commGroups = GroupCommunicationTests.CommGroupClients(groupName, numTasks, mpiDriver, commGroup);
+            var commGroups = GroupCommunicationTests.CommGroupClients(groupName, numTasks, groupCommDriver, commGroup);
 
             IScatterSender<int> sender = commGroups[0].GetScatterSender<int>(operatorName);
             IScatterReceiver<int> receiver1 = commGroups[1].GetScatterReceiver<int>(operatorName);
@@ -348,13 +348,13 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
             int numTasks = 5;
             int fanOut = 2;
 
-            var mpiDriver = GroupCommunicationTests.GetInstanceOfMpiDriver(driverId, masterTaskId, groupName, fanOut, numTasks);
+            var groupCommDriver = GroupCommunicationTests.GetInstanceOfGroupCommDriver(driverId, masterTaskId, groupName, fanOut, numTasks);
 
-            ICommunicationGroupDriver commGroup = mpiDriver.DefaultGroup
+            ICommunicationGroupDriver commGroup = groupCommDriver.DefaultGroup
                 .AddScatter<int, IntCodec>(operatorName, masterTaskId, TopologyTypes.Tree)
                 .Build();
 
-            var commGroups = GroupCommunicationTests.CommGroupClients(groupName, numTasks, mpiDriver, commGroup);
+            var commGroups = GroupCommunicationTests.CommGroupClients(groupName, numTasks, groupCommDriver, commGroup);
 
             IScatterSender<int> sender = commGroups[0].GetScatterSender<int>(operatorName);
             IScatterReceiver<int> receiver1 = commGroups[1].GetScatterReceiver<int>(operatorName);
@@ -402,13 +402,13 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
             int numTasks = 4;
             int fanOut = 2;
 
-            var mpiDriver = GroupCommunicationTests.GetInstanceOfMpiDriver(driverId, masterTaskId, groupName, fanOut, numTasks);
+            var groupCommDriver = GroupCommunicationTests.GetInstanceOfGroupCommDriver(driverId, masterTaskId, groupName, fanOut, numTasks);
 
-            ICommunicationGroupDriver commGroup = mpiDriver.DefaultGroup
+            ICommunicationGroupDriver commGroup = groupCommDriver.DefaultGroup
                 .AddScatter<int, IntCodec>(operatorName, masterTaskId, TopologyTypes.Tree)
                 .Build();
 
-            var commGroups = GroupCommunicationTests.CommGroupClients(groupName, numTasks, mpiDriver, commGroup);
+            var commGroups = GroupCommunicationTests.CommGroupClients(groupName, numTasks, groupCommDriver, commGroup);
 
             IScatterSender<int> sender = commGroups[0].GetScatterSender<int>(operatorName);
             IScatterReceiver<int> receiver1 = commGroups[1].GetScatterReceiver<int>(operatorName);
@@ -453,13 +453,13 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
             int numTasks = 4;
             int fanOut = 2;
 
-            var mpiDriver = GroupCommunicationTests.GetInstanceOfMpiDriver(driverId, masterTaskId, groupName, fanOut, numTasks);
+            var groupCommDriver = GroupCommunicationTests.GetInstanceOfGroupCommDriver(driverId, masterTaskId, groupName, fanOut, numTasks);
 
-            ICommunicationGroupDriver commGroup = mpiDriver.DefaultGroup
+            ICommunicationGroupDriver commGroup = groupCommDriver.DefaultGroup
                 .AddScatter<int, IntCodec>(operatorName, masterTaskId, TopologyTypes.Tree)
                 .Build();
 
-            var commGroups = GroupCommunicationTests.CommGroupClients(groupName, numTasks, mpiDriver, commGroup);
+            var commGroups = GroupCommunicationTests.CommGroupClients(groupName, numTasks, groupCommDriver, commGroup);
 
             IScatterSender<int> sender = commGroups[0].GetScatterSender<int>(operatorName);
             IScatterReceiver<int> receiver1 = commGroups[1].GetScatterReceiver<int>(operatorName);
@@ -505,13 +505,13 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
             int numTasks = 6;
             int fanOut = 2;
 
-            var mpiDriver = GroupCommunicationTests.GetInstanceOfMpiDriver(driverId, masterTaskId, groupName, fanOut, numTasks);
+            var groupCommDriver = GroupCommunicationTests.GetInstanceOfGroupCommDriver(driverId, masterTaskId, groupName, fanOut, numTasks);
 
-            ICommunicationGroupDriver commGroup = mpiDriver.DefaultGroup
+            ICommunicationGroupDriver commGroup = groupCommDriver.DefaultGroup
                 .AddScatter<int, IntCodec>(operatorName, masterTaskId, TopologyTypes.Tree)
                 .Build();
 
-            var commGroups = GroupCommunicationTests.CommGroupClients(groupName, numTasks, mpiDriver, commGroup);
+            var commGroups = GroupCommunicationTests.CommGroupClients(groupName, numTasks, groupCommDriver, commGroup);
 
             IScatterSender<int> sender = commGroups[0].GetScatterSender<int>(operatorName);
             IScatterReceiver<int> receiver1 = commGroups[1].GetScatterReceiver<int>(operatorName);
@@ -569,9 +569,9 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
             int numTasks = 5;
             int fanOut = 2;
 
-            var mpiDriver = GroupCommunicationTests.GetInstanceOfMpiDriver(driverId, masterTaskId, groupName, fanOut, numTasks);
+            var groupCommDriver = GroupCommunicationTests.GetInstanceOfGroupCommDriver(driverId, masterTaskId, groupName, fanOut, numTasks);
 
-            ICommunicationGroupDriver commGroup = mpiDriver.DefaultGroup
+            ICommunicationGroupDriver commGroup = groupCommDriver.DefaultGroup
               .AddScatter<int, IntCodec>(
                     scatterOperatorName,
                     masterTaskId,
@@ -582,7 +582,7 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
                     new SumFunction(),
                     TopologyTypes.Tree).Build();
 
-            var commGroups = GroupCommunicationTests.CommGroupClients(groupName, numTasks, mpiDriver, commGroup);
+            var commGroups = GroupCommunicationTests.CommGroupClients(groupName, numTasks, groupCommDriver, commGroup);
 
             IScatterSender<int> sender = commGroups[0].GetScatterSender<int>(scatterOperatorName);
             IReduceReceiver<int> sumReducer = commGroups[0].GetReduceReceiver<int>(reduceOperatorName);
