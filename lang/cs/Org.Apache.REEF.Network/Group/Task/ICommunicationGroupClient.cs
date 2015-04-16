@@ -24,7 +24,7 @@ using Org.Apache.REEF.Tang.Annotations;
 namespace Org.Apache.REEF.Network.Group.Task
 {
     /// <summary>
-    ///  Used by Tasks to fetch MPI Operators in the group configured by the driver.
+    ///  Used by Tasks to fetch Group Communication Operators in the group configured by the driver.
     /// </summary>
     [DefaultImplementation(typeof(CommunicationGroupClient))]
     public interface ICommunicationGroupClient

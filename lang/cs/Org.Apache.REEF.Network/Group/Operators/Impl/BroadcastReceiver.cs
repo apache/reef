@@ -30,7 +30,7 @@ using Org.Apache.REEF.Utilities.Logging;
 namespace Org.Apache.REEF.Network.Group.Operators.Impl
 {
     /// <summary>
-    /// MPI Operator used to receive broadcast messages in pipelined fashion.
+    /// Group Communication Operator used to receive broadcast messages in pipelined fashion.
     /// </summary>
     /// <typeparam name="T">The type of message being sent.</typeparam>
     public class BroadcastReceiver<T> : IBroadcastReceiver<T>
@@ -51,8 +51,8 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
         /// message to pipelined ones and vice versa.</param>
         [Inject]
         public BroadcastReceiver(
-            [Parameter(typeof(MpiConfigurationOptions.OperatorName))] string operatorName,
-            [Parameter(typeof(MpiConfigurationOptions.CommunicationGroupName))] string groupName,
+            [Parameter(typeof(GroupCommConfigurationOptions.OperatorName))] string operatorName,
+            [Parameter(typeof(GroupCommConfigurationOptions.CommunicationGroupName))] string groupName,
             OperatorTopology<PipelineMessage<T>> topology,
             ICommunicationGroupNetworkObserver networkHandler,
             IPipelineDataConverter<T> dataConverter)

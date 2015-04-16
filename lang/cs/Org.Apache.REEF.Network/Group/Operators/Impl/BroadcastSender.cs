@@ -30,7 +30,7 @@ using Org.Apache.REEF.Utilities.Logging;
 namespace Org.Apache.REEF.Network.Group.Operators.Impl
 {
     /// <summary>
-    /// MPI Operator used to send messages to child Tasks in pipelined fashion.
+    /// Group Communication Operator used to send messages to child Tasks in pipelined fashion.
     /// </summary>
     /// <typeparam name="T">The message type</typeparam>
     public class BroadcastSender<T> : IBroadcastSender<T>
@@ -51,8 +51,8 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
         /// message to pipelined ones and vice versa.</param>
         [Inject]
         public BroadcastSender(
-            [Parameter(typeof(MpiConfigurationOptions.OperatorName))] string operatorName,
-            [Parameter(typeof(MpiConfigurationOptions.CommunicationGroupName))] string groupName,
+            [Parameter(typeof(GroupCommConfigurationOptions.OperatorName))] string operatorName,
+            [Parameter(typeof(GroupCommConfigurationOptions.CommunicationGroupName))] string groupName,
             OperatorTopology<PipelineMessage<T>> topology,
             ICommunicationGroupNetworkObserver networkHandler,
             IPipelineDataConverter<T> dataConverter)
@@ -71,7 +71,7 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
         }
 
         /// <summary>
-        /// Returns the identifier for the MPI operator.
+        /// Returns the identifier for the Group Communication operator.
         /// </summary>
         public string OperatorName { get; private set; }
 

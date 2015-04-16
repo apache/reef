@@ -28,8 +28,8 @@ namespace Org.Apache.REEF.Network.Group.Task
     /// <summary>
     /// Handles all incoming messages for this Task.
     /// </summary>
-    [DefaultImplementation(typeof(MpiNetworkObserver))]
-    public interface IMpiNetworkObserver : IObserver<NsMessage<GroupCommunicationMessage>>
+    [DefaultImplementation(typeof(GroupCommNetworkObserver))]
+    public interface IGroupCommNetworkObserver : IObserver<NsMessage<GroupCommunicationMessage>>
     {
         /// <summary>
         /// Registers the network handler for the given CommunicationGroup.

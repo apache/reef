@@ -31,7 +31,7 @@ using Org.Apache.REEF.Network.Group.Pipelining;
 namespace Org.Apache.REEF.Network.Group.Topology
 {
     /// <summary>
-    /// Represents a graph of MPI Operators where there are only two levels of
+    /// Represents a graph of Group Communication Operators where there are only two levels of
     /// nodes: the root and all children extending from the root.
     /// </summary>
     /// <typeparam name="T">The message type</typeparam>
@@ -85,8 +85,8 @@ namespace Org.Apache.REEF.Network.Group.Topology
         {
             var confBuilder = TangFactory.GetTang().NewConfigurationBuilder()
                 .BindImplementation(typeof(ICodec<T1>), OperatorSpec.Codec)
-                .BindNamedParameter<MpiConfigurationOptions.TopologyRootTaskId, string>(
-                    GenericType<MpiConfigurationOptions.TopologyRootTaskId>.Class,
+                .BindNamedParameter<GroupCommConfigurationOptions.TopologyRootTaskId, string>(
+                    GenericType<GroupCommConfigurationOptions.TopologyRootTaskId>.Class,
                     _rootId);
 
             if (taskId.Equals(_rootId))
@@ -95,8 +95,8 @@ namespace Org.Apache.REEF.Network.Group.Topology
                 {
                     if (!tId.Equals(_rootId))
                     {
-                        confBuilder.BindSetEntry<MpiConfigurationOptions.TopologyChildTaskIds, string>(
-                            GenericType<MpiConfigurationOptions.TopologyChildTaskIds>.Class,
+                        confBuilder.BindSetEntry<GroupCommConfigurationOptions.TopologyChildTaskIds, string>(
+                            GenericType<GroupCommConfigurationOptions.TopologyChildTaskIds>.Class,
                             tId);
                     }
                 }
@@ -112,11 +112,11 @@ namespace Org.Apache.REEF.Network.Group.Topology
 
                 if (taskId.Equals(broadcastSpec.SenderId))
                 {
-                    confBuilder.BindImplementation(GenericType<IMpiOperator<T1>>.Class, GenericType<BroadcastSender<T1>>.Class);
+                    confBuilder.BindImplementation(GenericType<IGroupCommOperator<T1>>.Class, GenericType<BroadcastSender<T1>>.Class);
                 }
                 else
                 {
-                    confBuilder.BindImplementation(GenericType<IMpiOperator<T1>>.Class, GenericType<BroadcastReceiver<T1>>.Class);
+                    confBuilder.BindImplementation(GenericType<IGroupCommOperator<T1>>.Class, GenericType<BroadcastReceiver<T1>>.Class);
                 }
             }
             else if (OperatorSpec is ReduceOperatorSpec<T1, T2>)
@@ -129,11 +129,11 @@ namespace Org.Apache.REEF.Network.Group.Topology
                 
                 if (taskId.Equals(reduceSpec.ReceiverId))
                 {
-                    confBuilder.BindImplementation(GenericType<IMpiOperator<T1>>.Class, GenericType<ReduceReceiver<T1>>.Class);
+                    confBuilder.BindImplementation(GenericType<IGroupCommOperator<T1>>.Class, GenericType<ReduceReceiver<T1>>.Class);
                 }
                 else
                 {
-                    confBuilder.BindImplementation(GenericType<IMpiOperator<T1>>.Class, GenericType<ReduceSender<T1>>.Class);
+                    confBuilder.BindImplementation(GenericType<IGroupCommOperator<T1>>.Class, GenericType<ReduceSender<T1>>.Class);
                 }
             }
             else if (OperatorSpec is ScatterOperatorSpec<T1, T2>)
@@ -141,11 +141,11 @@ namespace Org.Apache.REEF.Network.Group.Topology
                 ScatterOperatorSpec<T1, T2> scatterSpec = OperatorSpec as ScatterOperatorSpec<T1, T2>;
                 if (taskId.Equals(scatterSpec.SenderId))
                 {
-                    confBuilder.BindImplementation(GenericType<IMpiOperator<T1>>.Class, GenericType<ScatterSender<T1>>.Class);
+                    confBuilder.BindImplementation(GenericType<IGroupCommOperator<T1>>.Class, GenericType<ScatterSender<T1>>.Class);
                 }
                 else
                 {
-                    confBuilder.BindImplementation(GenericType<IMpiOperator<T1>>.Class, GenericType<ScatterReceiver<T1>>.Class);
+                    confBuilder.BindImplementation(GenericType<IGroupCommOperator<T1>>.Class, GenericType<ScatterReceiver<T1>>.Class);
                 }
             }
             else

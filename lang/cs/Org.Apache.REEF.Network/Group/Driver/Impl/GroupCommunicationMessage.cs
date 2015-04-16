@@ -20,7 +20,7 @@
 namespace Org.Apache.REEF.Network.Group.Driver.Impl
 {
     /// <summary>
-    /// Messages sent by MPI Operators
+    /// Messages sent by Group Communication Operators
     /// </summary>
     public class GroupCommunicationMessage
     {
@@ -28,7 +28,7 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
         /// Create new CommunicationGroupMessage.
         /// </summary>
         /// <param name="groupName">The name of the communication group</param>
-        /// <param name="operatorName">The name of the MPI operator</param>
+        /// <param name="operatorName">The name of the Group Communication operator</param>
         /// <param name="source">The message source</param>
         /// <param name="destination">The message destination</param>
         /// <param name="data">The actual byte array of data</param>
@@ -53,7 +53,7 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
         /// Create new CommunicationGroupMessage.
         /// </summary>
         /// <param name="groupName">The name of the communication group</param>
-        /// <param name="operatorName">The name of the MPI operator</param>
+        /// <param name="operatorName">The name of the Group Communication operator</param>
         /// <param name="source">The message source</param>
         /// <param name="destination">The message destination</param>
         /// <param name="data">The actual byte array of data</param>
@@ -80,7 +80,7 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
         public string GroupName { get; private set; }
 
         /// <summary>
-        /// Returns the MPI Operator name.
+        /// Returns the Group Communication Operator name.
         /// </summary>
         public string OperatorName { get; private set; }
 

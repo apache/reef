@@ -20,10 +20,10 @@
 namespace Org.Apache.REEF.Network.Group.Operators
 {
     /// <summary>
-    /// MPI Operator used to send messages to child Tasks.
+    /// Group Communication Operator used to send messages to child Tasks.
     /// </summary>
     /// <typeparam name="T">The message type</typeparam>
-    public interface IBroadcastSender<T> : IMpiOperator<T>
+    public interface IBroadcastSender<T> : IGroupCommOperator<T>
     {
         /// <summary>
         /// Send the data to all BroadcastReceivers.

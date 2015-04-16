@@ -20,10 +20,10 @@
 namespace Org.Apache.REEF.Network.Group.Operators
 {
     /// <summary>
-    /// An Mpi Operator to be used in a Reef Task.
+    /// An Group Communication Operator to be used in a Reef Task.
     /// </summary>
     /// <typeparam name="T">The message type</typeparam>
-    public interface IMpiOperator<T>
+    public interface IGroupCommOperator<T>
     {
         /// <summary>
         /// The operator name.

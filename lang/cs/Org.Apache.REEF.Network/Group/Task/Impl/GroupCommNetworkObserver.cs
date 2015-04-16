@@ -30,17 +30,17 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
     /// <summary>
     /// Handles all incoming messages for this Task.
     /// </summary>
-    public class MpiNetworkObserver : IMpiNetworkObserver
+    public class GroupCommNetworkObserver : IGroupCommNetworkObserver
     {
-        private static readonly Logger LOGGER = Logger.GetLogger(typeof(MpiNetworkObserver));
+        private static readonly Logger LOGGER = Logger.GetLogger(typeof(GroupCommNetworkObserver));
 
         private readonly Dictionary<string, IObserver<GroupCommunicationMessage>> _commGroupHandlers;
             
         /// <summary>
-        /// Creates a new MpiNetworkObserver.
+        /// Creates a new GroupCommNetworkObserver.
         /// </summary>
         [Inject]
-        public MpiNetworkObserver()
+        public GroupCommNetworkObserver()
         {
             _commGroupHandlers = new Dictionary<string, IObserver<GroupCommunicationMessage>>();
         }
@@ -65,12 +65,12 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
             }
             catch (InvalidOperationException)
             {
-                LOGGER.Log(Level.Error, "Mpi Network Handler received message with no data");
+                LOGGER.Log(Level.Error, "Group Communication Network Handler received message with no data");
                 throw;
             }
             catch (KeyNotFoundException)
             {
-                LOGGER.Log(Level.Error, "Mpi Network Handler received message for nonexistant group");
+                LOGGER.Log(Level.Error, "Group Communication Network Handler received message for nonexistant group");
                 throw;
             }
         }

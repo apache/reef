@@ -68,7 +68,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         /// <summary>
         /// Creates a new OperatorTopology object.
         /// </summary>
-        /// <param name="operatorName">The name of the MPI Operator</param>
+        /// <param name="operatorName">The name of the Group Communication Operator</param>
         /// <param name="groupName">The name of the operator's Communication Group</param>
         /// <param name="taskId">The operator's Task identifier</param>
         /// <param name="driverId">The identifer for the driver</param>
@@ -79,14 +79,14 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         /// <param name="sender">The Sender used to do point to point communication</param>
         [Inject]
         public OperatorTopology(
-            [Parameter(typeof(MpiConfigurationOptions.OperatorName))] string operatorName,
-            [Parameter(typeof(MpiConfigurationOptions.CommunicationGroupName))] string groupName,
+            [Parameter(typeof(GroupCommConfigurationOptions.OperatorName))] string operatorName,
+            [Parameter(typeof(GroupCommConfigurationOptions.CommunicationGroupName))] string groupName,
             [Parameter(typeof(TaskConfigurationOptions.Identifier))] string taskId,
-            [Parameter(typeof(MpiConfigurationOptions.DriverId))] string driverId,
-            [Parameter(typeof(MpiConfigurationOptions.Timeout))] int timrout,
-            [Parameter(typeof(MpiConfigurationOptions.RetryCount))] int retryCount,
-            [Parameter(typeof(MpiConfigurationOptions.TopologyRootTaskId))] string rootId,
-            [Parameter(typeof(MpiConfigurationOptions.TopologyChildTaskIds))] ISet<string> childIds,
+            [Parameter(typeof(GroupCommConfigurationOptions.DriverId))] string driverId,
+            [Parameter(typeof(GroupCommConfigurationOptions.Timeout))] int timrout,
+            [Parameter(typeof(GroupCommConfigurationOptions.RetryCount))] int retryCount,
+            [Parameter(typeof(GroupCommConfigurationOptions.TopologyRootTaskId))] string rootId,
+            [Parameter(typeof(GroupCommConfigurationOptions.TopologyChildTaskIds))] ISet<string> childIds,
             NetworkService<GroupCommunicationMessage> networkService,
             ICodec<T> codec,
             Sender sender)

@@ -43,8 +43,8 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         /// </summary>
         [Inject]
         public CommunicationGroupNetworkObserver(
-            [Parameter(typeof(MpiConfigurationOptions.RetryCountWaitingForHanler))] int retryCount,
-            [Parameter(typeof(MpiConfigurationOptions.SleepTimeWaitingForHandler))] int sleepTime)
+            [Parameter(typeof(GroupCommConfigurationOptions.RetryCountWaitingForHanler))] int retryCount,
+            [Parameter(typeof(GroupCommConfigurationOptions.SleepTimeWaitingForHandler))] int sleepTime)
         {
             _handlers = new Dictionary<string, IObserver<GroupCommunicationMessage>>();
             _retryCount = retryCount;

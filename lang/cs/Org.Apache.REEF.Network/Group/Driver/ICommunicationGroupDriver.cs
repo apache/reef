@@ -29,7 +29,7 @@ using Org.Apache.REEF.Wake.Remote;
 namespace Org.Apache.REEF.Network.Group.Driver
 {
     /// <summary>
-    /// Used to configure MPI operators in Reef driver.
+    /// Used to configure Group Communication operators in Reef driver.
     /// All operators in the same Communication Group run on the the 
     /// same set of tasks.
     /// </summary>
@@ -41,7 +41,7 @@ namespace Org.Apache.REEF.Network.Group.Driver
         List<string> TaskIds { get; }
 
         /// <summary>
-        /// Adds the Broadcast MPI operator to the communication group.
+        /// Adds the Broadcast Group Communication operator to the communication group.
         /// </summary>
         /// <typeparam name="TMessage">The type of messages that operators will send</typeparam>
         /// <typeparam name="TMessageCodec">The codec used for serializing messages</typeparam>
@@ -53,7 +53,7 @@ namespace Org.Apache.REEF.Network.Group.Driver
         ICommunicationGroupDriver AddBroadcast<TMessage, TMessageCodec>(string operatorName, string masterTaskId, TopologyTypes topologyType, IPipelineDataConverter<TMessage> pipelineDataConverter) where TMessageCodec : ICodec<TMessage>;
 
         /// <summary>
-        /// Adds the Broadcast MPI operator to the communication group.
+        /// Adds the Broadcast Group Communication operator to the communication group.
         /// </summary>
         /// <typeparam name="TMessage">The type of messages that operators will send</typeparam>
         /// <typeparam name="TMessageCodec">The codec used for serializing messages</typeparam>
@@ -64,7 +64,7 @@ namespace Org.Apache.REEF.Network.Group.Driver
         ICommunicationGroupDriver AddBroadcast<TMessage, TMessageCodec>(string operatorName, string masterTaskId, TopologyTypes topologyType = TopologyTypes.Flat) where TMessageCodec : ICodec<TMessage>;
 
         /// <summary>
-        /// Adds the Broadcast MPI operator to the communication group. Default to IntCodec
+        /// Adds the Broadcast Group Communication operator to the communication group. Default to IntCodec
         /// </summary>
         /// <param name="operatorName">The name of the broadcast operator</param>
         /// <param name="masterTaskId">The master task id in broadcast operator</param>
@@ -73,7 +73,7 @@ namespace Org.Apache.REEF.Network.Group.Driver
         ICommunicationGroupDriver AddBroadcast(string operatorName, string masterTaskId, TopologyTypes topologyType = TopologyTypes.Flat);
 
         /// <summary>
-        /// Adds the Reduce MPI operator to the communication group.
+        /// Adds the Reduce Group Communication operator to the communication group.
         /// </summary>
         /// <typeparam name="TMessage">The type of messages that operators will send</typeparam>
         /// <typeparam name="TMessageCodec">The codec used for serializing messages</typeparam>
@@ -85,7 +85,7 @@ namespace Org.Apache.REEF.Network.Group.Driver
         ICommunicationGroupDriver AddReduce<TMessage, TMessageCodec>(string operatorName, string masterTaskId, IReduceFunction<TMessage> reduceFunction, TopologyTypes topologyType, IPipelineDataConverter<TMessage> pipelineDataConverter) where TMessageCodec : ICodec<TMessage>;
 
         /// <summary>
-        /// Adds the Reduce MPI operator to the communication group.
+        /// Adds the Reduce Group Communication operator to the communication group.
         /// </summary>
         /// <typeparam name="TMessage">The type of messages that operators will send</typeparam>
         /// <typeparam name="TMessageCodec">The codec used for serializing messages</typeparam>
@@ -98,7 +98,7 @@ namespace Org.Apache.REEF.Network.Group.Driver
 
 
         /// <summary>
-        /// Adds the Reduce MPI operator to the communication group with default IntCodec
+        /// Adds the Reduce Group Communication operator to the communication group with default IntCodec
         /// </summary>
         /// <param name="operatorName">The name of the reduce operator</param>
         /// <param name="masterTaskId">The master task id for the typology</param>
@@ -108,7 +108,7 @@ namespace Org.Apache.REEF.Network.Group.Driver
         ICommunicationGroupDriver AddReduce(string operatorName, string masterTaskId, IReduceFunction<int> reduceFunction, TopologyTypes topologyType = TopologyTypes.Flat);
 
         /// <summary>
-        /// Adds the Scatter MPI operator to the communication group.
+        /// Adds the Scatter Group Communication operator to the communication group.
         /// </summary>
         /// <typeparam name="TMessage">The type of messages that operators will send</typeparam>
         /// <typeparam name="TMessageCodec">The codec used for serializing messages</typeparam>
@@ -119,7 +119,7 @@ namespace Org.Apache.REEF.Network.Group.Driver
         ICommunicationGroupDriver AddScatter<TMessage, TMessageCodec>(string operatorName, string senderId, TopologyTypes topologyType = TopologyTypes.Flat) where TMessageCodec : ICodec<TMessage>;
 
         /// <summary>
-        /// Adds the Scatter MPI operator to the communication group with default Codec
+        /// Adds the Scatter Group Communication operator to the communication group with default Codec
         /// </summary>
         /// <param name="operatorName">The name of the scatter operator</param>
         /// <param name="senderId">The sender id</param>
