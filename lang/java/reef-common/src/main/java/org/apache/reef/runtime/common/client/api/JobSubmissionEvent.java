@@ -18,22 +18,64 @@
  */
 package org.apache.reef.runtime.common.client.api;
 
+import org.apache.reef.annotations.audience.RuntimeAuthor;
 import org.apache.reef.runtime.common.files.FileResource;
+import org.apache.reef.tang.Configuration;
+import org.apache.reef.tang.annotations.DefaultImplementation;
 import org.apache.reef.util.Optional;
 
 import java.util.List;
 
 /**
- * Event from REEF Client -> Driver Runtime
+ * Event sent to Driver Runtime
+ * Submission of a Job to the Driver Runtime
  */
+@RuntimeAuthor
+@DefaultImplementation(JobSubmissionEventImpl.class)
 public interface JobSubmissionEvent {
+
+  /**
+   * @return Id of the Job
+   */
   String getIdentifier();
+
+  /**
+   * @return Remote Id for the error handler
+   */
   String getRemoteId();
-  String getConfiguration();
+
+  /**
+   * @return Driver configuration
+   */
+  Configuration getConfiguration();
+
+  /**
+   * @return Owner's username
+   */
   String getUserName();
+
+  /**
+   * @return List of global files
+   */
   List<FileResource> getGlobalFileList();
+
+  /**
+   * @return List of local files
+   */
   List<FileResource> getLocalFileList();
+
+  /**
+   * @return Memory to be allocated to the Driver
+   */
   Optional<Integer> getDriverMemory();
+
+  /**
+   * @return Priority to be given to the Job
+   */
   Optional<Integer> getPriority();
+
+  /**
+   * @return Queue to submit the Job to
+   */
   Optional<String> getQueue();
 }

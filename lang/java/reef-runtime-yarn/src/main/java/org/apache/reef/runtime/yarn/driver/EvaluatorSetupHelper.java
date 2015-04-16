@@ -140,7 +140,7 @@ final class EvaluatorSetupHelper {
   private Configuration makeEvaluatorConfiguration(final ResourceLaunchEvent resourceLaunchEvent)
       throws IOException {
     return Tang.Factory.getTang()
-        .newConfigurationBuilder(this.configurationSerializer.fromString(resourceLaunchEvent.getEvaluatorConf()))
+        .newConfigurationBuilder(resourceLaunchEvent.getEvaluatorConf())
         .bindImplementation(TempFileCreator.class, WorkingDirectoryTempFileCreator.class)
         .build();
   }

@@ -38,17 +38,17 @@ final class REEFEventHandlers implements AutoCloseable {
   private final EventHandler<ResourceAllocationEvent> resourceAllocationHandler;
   private final EventHandler<ResourceStatusEvent> resourceStatusHandler;
   private final EventHandler<RuntimeStatusEvent> runtimeStatusHandler;
-  private final EventHandler<NodeDescriptorEvent> nodeDescriptorProtoEventHandler;
+  private final EventHandler<NodeDescriptorEvent> nodeDescriptorEventHandler;
 
   @Inject
-  REEFEventHandlers(final @Parameter(RuntimeParameters.NodeDescriptorHandler.class) EventHandler<NodeDescriptorEvent> nodeDescriptorProtoEventHandler,
+  REEFEventHandlers(final @Parameter(RuntimeParameters.NodeDescriptorHandler.class) EventHandler<NodeDescriptorEvent> nodeDescriptorEventHandler,
                     final @Parameter(RuntimeParameters.RuntimeStatusHandler.class) EventHandler<RuntimeStatusEvent> runtimeStatusProtoEventHandler,
                     final @Parameter(RuntimeParameters.ResourceAllocationHandler.class) EventHandler<ResourceAllocationEvent> resourceAllocationHandler,
                     final @Parameter(RuntimeParameters.ResourceStatusHandler.class) EventHandler<ResourceStatusEvent> resourceStatusHandler) {
     this.resourceAllocationHandler = resourceAllocationHandler;
     this.resourceStatusHandler = resourceStatusHandler;
     this.runtimeStatusHandler = runtimeStatusProtoEventHandler;
-    this.nodeDescriptorProtoEventHandler = nodeDescriptorProtoEventHandler;
+    this.nodeDescriptorEventHandler = nodeDescriptorEventHandler;
   }
 
   /**
@@ -57,7 +57,7 @@ final class REEFEventHandlers implements AutoCloseable {
    * @param nodeDescriptorProto
    */
   void onNodeDescriptor(final NodeDescriptorEvent nodeDescriptorProto) {
-    this.nodeDescriptorProtoEventHandler.onNext(nodeDescriptorProto);
+    this.nodeDescriptorEventHandler.onNext(nodeDescriptorProto);
   }
 
   /**

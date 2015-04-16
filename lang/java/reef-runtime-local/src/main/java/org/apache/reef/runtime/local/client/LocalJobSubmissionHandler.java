@@ -50,7 +50,6 @@ final class LocalJobSubmissionHandler implements JobSubmissionHandler {
   private final String rootFolderName;
   private final ConfigurationSerializer configurationSerializer;
   private final REEFFileNames fileNames;
-  private final ClasspathProvider classpath;
   private final PreparedDriverFolderLauncher driverLauncher;
   private final LoggingScopeFactory loggingScopeFactory;
   private final DriverConfigurationProvider driverConfigurationProvider;
@@ -61,7 +60,6 @@ final class LocalJobSubmissionHandler implements JobSubmissionHandler {
       final @Parameter(RootFolder.class) String rootFolderName,
       final ConfigurationSerializer configurationSerializer,
       final REEFFileNames fileNames,
-      final ClasspathProvider classpath,
 
       final PreparedDriverFolderLauncher driverLauncher,
       final LoggingScopeFactory loggingScopeFactory,
@@ -70,7 +68,6 @@ final class LocalJobSubmissionHandler implements JobSubmissionHandler {
     this.executor = executor;
     this.configurationSerializer = configurationSerializer;
     this.fileNames = fileNames;
-    this.classpath = classpath;
 
     this.driverLauncher = driverLauncher;
     this.driverConfigurationProvider = driverConfigurationProvider;
@@ -101,8 +98,7 @@ final class LocalJobSubmissionHandler implements JobSubmissionHandler {
         driverFiles.copyTo(driverFolder);
 
         final Configuration driverConfiguration = this.driverConfigurationProvider
-            .getDriverConfiguration(jobFolder, t.getRemoteId(), t.getIdentifier(),
-                configurationSerializer.fromString(t.getConfiguration()));
+            .getDriverConfiguration(jobFolder, t.getRemoteId(), t.getIdentifier(), t.getConfiguration());
 
         this.configurationSerializer.toFile(driverConfiguration,
             new File(driverFolder, this.fileNames.getDriverConfigurationPath()));

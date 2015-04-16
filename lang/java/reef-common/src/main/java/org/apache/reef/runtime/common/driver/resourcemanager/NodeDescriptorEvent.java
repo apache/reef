@@ -18,15 +18,42 @@
  */
 package org.apache.reef.runtime.common.driver.resourcemanager;
 
+import org.apache.reef.annotations.audience.DriverSide;
+import org.apache.reef.annotations.audience.RuntimeAuthor;
+import org.apache.reef.tang.annotations.DefaultImplementation;
 import org.apache.reef.util.Optional;
 
 /**
  * Event from Driver Runtime -> Driver Process
+ * Description of a node in the cluster
  */
+@RuntimeAuthor
+@DriverSide
+@DefaultImplementation(NodeDescriptorEventImpl.class)
 public interface NodeDescriptorEvent {
+
+  /**
+   * @return Id of the node
+   */
   String getIdentifier();
+
+  /**
+   * @return Host name of the node
+   */
   String getHostName();
+
+  /**
+   * @return Port of the node
+   */
   int getPort();
+
+  /**
+   * @return Total memory size of the node, in MB
+   */
   int getMemorySize();
+
+  /**
+   * @return Name of rack where the node is located
+   */
   Optional<String> getRackName();
 }

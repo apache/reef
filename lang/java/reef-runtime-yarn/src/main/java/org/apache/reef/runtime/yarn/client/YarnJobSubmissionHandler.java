@@ -118,7 +118,7 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
   private Configuration makeDriverConfiguration(
       final JobSubmissionEvent jobSubmissionEvent,
       final Path jobFolderPath) throws IOException {
-    final Configuration config = this.configurationSerializer.fromString(jobSubmissionEvent.getConfiguration());
+    final Configuration config = jobSubmissionEvent.getConfiguration();
     final String userBoundJobSubmissionDirectory = config.getNamedParameter((NamedParameterNode<?>) config.getClassHierarchy().getNode(ReflectionUtilities.getFullName(DriverJobSubmissionDirectory.class)));
     LOG.log(Level.FINE, "user bound job submission Directory: " + userBoundJobSubmissionDirectory);
     final String finalJobFolderPath =
@@ -131,7 +131,7 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
             .set(YarnDriverConfiguration.CLIENT_REMOTE_IDENTIFIER, jobSubmissionEvent.getRemoteId())
             .set(YarnDriverConfiguration.JVM_HEAP_SLACK, this.jvmSlack)
             .build(),
-        this.configurationSerializer.fromString(jobSubmissionEvent.getConfiguration()));
+        config);
   }
 
   private static int getPriority(final JobSubmissionEvent jobSubmissionEvent) {

@@ -182,7 +182,7 @@ final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
             ResourceLaunchEventImpl.newBuilder()
                 .setIdentifier(this.evaluatorManager.getId())
                 .setRemoteId(this.remoteID)
-                .setEvaluatorConf(configurationSerializer.toString(evaluatorConfiguration));
+                .setEvaluatorConf(evaluatorConfiguration);
 
         for (final File file : this.files) {
           rbuilder.addFile(FileResourceImpl.newBuilder()

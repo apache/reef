@@ -86,7 +86,7 @@ final class MesosResourceLaunchHandler implements ResourceLaunchHandler {
           Files.createTempDirectory(this.fileNames.getEvaluatorFolderPrefix()).toFile();
 
       final Configuration evaluatorConfiguration = Tang.Factory.getTang()
-          .newConfigurationBuilder(this.configurationSerializer.fromString(resourceLaunchEvent.getEvaluatorConf()))
+          .newConfigurationBuilder(resourceLaunchEvent.getEvaluatorConf())
           .bindImplementation(TempFileCreator.class, WorkingDirectoryTempFileCreator.class)
           .build();
 

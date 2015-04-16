@@ -18,9 +18,20 @@
  */
 package org.apache.reef.runtime.common.driver.api;
 
+import org.apache.reef.annotations.audience.DriverSide;
+import org.apache.reef.annotations.audience.RuntimeAuthor;
+import org.apache.reef.tang.annotations.DefaultImplementation;
+
 /**
  * Event from Driver Process -> Driver Runtime
+ * A request to the Driver Runtime to release this resource
  */
+@RuntimeAuthor
+@DriverSide
+@DefaultImplementation(ResourceReleaseEventImpl.class)
 public interface ResourceReleaseEvent {
+  /**
+   * @return Id of the resource to release
+   */
   String getIdentifier();
 }

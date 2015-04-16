@@ -33,7 +33,6 @@ import org.apache.reef.util.logging.LoggingScope;
 import org.apache.reef.util.logging.LoggingScopeFactory;
 
 import javax.inject.Inject;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @ClientSide
@@ -86,11 +85,11 @@ public final class REEFImplementation implements REEF {
       final JobSubmissionEvent submissionMessage;
       try {
         if (this.clientWireUp.isClientPresent()) {
-          submissionMessage = this.jobSubmissionHelper.getJobsubmissionProto(driverConf)
+          submissionMessage = this.jobSubmissionHelper.getJobSubmissionBuilder(driverConf)
               .setRemoteId(this.clientWireUp.getRemoteManagerIdentifier())
               .build();
         } else {
-          submissionMessage = this.jobSubmissionHelper.getJobsubmissionProto(driverConf)
+          submissionMessage = this.jobSubmissionHelper.getJobSubmissionBuilder(driverConf)
               .setRemoteId(ErrorHandlerRID.NONE)
               .build();
         }

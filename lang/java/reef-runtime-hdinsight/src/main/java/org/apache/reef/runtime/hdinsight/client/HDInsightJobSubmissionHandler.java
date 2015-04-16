@@ -33,7 +33,6 @@ import org.apache.reef.runtime.hdinsight.client.yarnrest.*;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Configurations;
 import org.apache.reef.tang.annotations.Parameter;
-import org.apache.reef.tang.formats.ConfigurationSerializer;
 
 import javax.inject.Inject;
 import java.io.File;
@@ -54,7 +53,6 @@ public final class HDInsightJobSubmissionHandler implements JobSubmissionHandler
   private final AzureUploader uploader;
   private final JobJarMaker jobJarMaker;
   private final HDInsightInstance hdInsightInstance;
-  private final ConfigurationSerializer configurationSerializer;
   private final REEFFileNames filenames;
   private final ClasspathProvider classpath;
   private final double jvmHeapSlack;
@@ -63,14 +61,12 @@ public final class HDInsightJobSubmissionHandler implements JobSubmissionHandler
   HDInsightJobSubmissionHandler(final AzureUploader uploader,
                                 final JobJarMaker jobJarMaker,
                                 final HDInsightInstance hdInsightInstance,
-                                final ConfigurationSerializer configurationSerializer,
                                 final REEFFileNames filenames,
                                 final ClasspathProvider classpath,
                                 final @Parameter(JVMHeapSlack.class) double jvmHeapSlack) {
     this.uploader = uploader;
     this.jobJarMaker = jobJarMaker;
     this.hdInsightInstance = hdInsightInstance;
-    this.configurationSerializer = configurationSerializer;
     this.filenames = filenames;
     this.classpath = classpath;
     this.jvmHeapSlack = jvmHeapSlack;
@@ -174,7 +170,7 @@ public final class HDInsightJobSubmissionHandler implements JobSubmissionHandler
         .build();
 
     return Configurations.merge(
-        this.configurationSerializer.fromString(jobSubmissionEvent.getConfiguration()),
+        jobSubmissionEvent.getConfiguration(),
         hdinsightDriverConfiguration);
   }
 }

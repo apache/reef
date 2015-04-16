@@ -18,14 +18,37 @@
  */
 package org.apache.reef.runtime.common.driver.resourcemanager;
 
+import org.apache.reef.annotations.audience.DriverSide;
+import org.apache.reef.annotations.audience.RuntimeAuthor;
+import org.apache.reef.tang.annotations.DefaultImplementation;
 import org.apache.reef.util.Optional;
 
 /**
  * Event from Driver Runtime -> Driver Process
+ * A Resource allocated by the Driver Runtime. In response to a ResourceRequestEvent.
  */
+@RuntimeAuthor
+@DriverSide
+@DefaultImplementation(ResourceAllocationEventImpl.class)
 public interface ResourceAllocationEvent {
+
+  /**
+   * @return Id of the allocated resource
+   */
   String getIdentifier();
+
+  /**
+   * @return Memory size of the resource, in MB
+   */
   int getResourceMemory();
+
+  /**
+   * @return Id of the node where resource was allocated
+   */
   String getNodeId();
+
+  /**
+   * @return Number of virtual CPU cores on the resource
+   */
   Optional<Integer> getVirtualCores();
 }

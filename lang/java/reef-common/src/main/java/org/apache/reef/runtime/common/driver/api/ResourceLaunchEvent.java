@@ -18,18 +18,46 @@
  */
 package org.apache.reef.runtime.common.driver.api;
 
+import org.apache.reef.annotations.audience.DriverSide;
+import org.apache.reef.annotations.audience.RuntimeAuthor;
 import org.apache.reef.runtime.common.files.FileResource;
 import org.apache.reef.runtime.common.launch.ProcessType;
+import org.apache.reef.tang.Configuration;
+import org.apache.reef.tang.annotations.DefaultImplementation;
 
 import java.util.List;
 
 /**
  * Event from Driver Process -> Driver Runtime
+ * A request to the Driver Runtime to launch an Evaluator on the allocated Resource
  */
+@RuntimeAuthor
+@DriverSide
+@DefaultImplementation(ResourceLaunchEventImpl.class)
 public interface ResourceLaunchEvent {
+
+    /**
+     * @return Id of the resource to launch the Evaluator on
+     */
     String getIdentifier();
+
+    /**
+     * @return Remote Id for the error handler
+     */
     String getRemoteId();
-    String getEvaluatorConf();
+
+    /**
+     * @return Evaluator configuration
+     */
+    Configuration getEvaluatorConf();
+
+    /**
+     * @return Type of process to launch
+     */
     ProcessType getType();
+
+    /**
+     * @return List of libraries local to this Evaluator
+     */
     List<FileResource> getFileList();
 }

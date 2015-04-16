@@ -20,6 +20,7 @@ package org.apache.reef.runtime.common.driver.api;
 
 import org.apache.reef.runtime.common.files.FileResource;
 import org.apache.reef.runtime.common.launch.ProcessType;
+import org.apache.reef.tang.Configuration;
 import org.apache.reef.util.BuilderUtils;
 
 import java.util.ArrayList;
@@ -29,7 +30,7 @@ public final class ResourceLaunchEventImpl implements ResourceLaunchEvent {
 
   private final String identifier;
   private final String remoteId;
-  private final String evaluatorConf;
+  private final Configuration evaluatorConf;
   private final ProcessType type;
   private final List<FileResource> fileList;
 
@@ -52,7 +53,7 @@ public final class ResourceLaunchEventImpl implements ResourceLaunchEvent {
   }
 
   @Override
-  public String getEvaluatorConf() {
+  public Configuration getEvaluatorConf() {
     return evaluatorConf;
   }
 
@@ -73,7 +74,7 @@ public final class ResourceLaunchEventImpl implements ResourceLaunchEvent {
   public static final class Builder implements org.apache.reef.util.Builder<ResourceLaunchEvent> {
     private String identifier;
     private String remoteId;
-    private String evaluatorConf;
+    private Configuration evaluatorConf;
     private ProcessType type;
     private List<FileResource> fileList = new ArrayList<>();
 
@@ -87,7 +88,7 @@ public final class ResourceLaunchEventImpl implements ResourceLaunchEvent {
       return this;
     }
 
-    public Builder setEvaluatorConf(final String evaluatorConf) {
+    public Builder setEvaluatorConf(final Configuration evaluatorConf) {
       this.evaluatorConf = evaluatorConf;
       return this;
     }

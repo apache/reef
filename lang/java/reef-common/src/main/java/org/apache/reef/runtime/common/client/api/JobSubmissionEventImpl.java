@@ -19,6 +19,7 @@
 package org.apache.reef.runtime.common.client.api;
 
 import org.apache.reef.runtime.common.files.FileResource;
+import org.apache.reef.tang.Configuration;
 import org.apache.reef.util.BuilderUtils;
 import org.apache.reef.util.Optional;
 
@@ -28,7 +29,7 @@ import java.util.List;
 public final class JobSubmissionEventImpl implements JobSubmissionEvent {
   private final String identifier;
   private final String remoteId;
-  private final String configuration;
+  private final Configuration configuration;
   private final String userName;
   private final List<FileResource> globalFileList;
   private final List<FileResource> localFileList;
@@ -59,7 +60,7 @@ public final class JobSubmissionEventImpl implements JobSubmissionEvent {
   }
 
   @Override
-  public String getConfiguration() {
+  public Configuration getConfiguration() {
     return configuration;
   }
 
@@ -100,7 +101,7 @@ public final class JobSubmissionEventImpl implements JobSubmissionEvent {
   public static final class Builder implements org.apache.reef.util.Builder<JobSubmissionEvent> {
     private String identifier;
     private String remoteId;
-    private String configuration;
+    private Configuration configuration;
     private String userName;
     private List<FileResource> globalFileList = new ArrayList<>();
     private List<FileResource> localFileList = new ArrayList<>();
@@ -118,7 +119,7 @@ public final class JobSubmissionEventImpl implements JobSubmissionEvent {
       return this;
     }
 
-    public Builder setConfiguration(final String configuration) {
+    public Builder setConfiguration(final Configuration configuration) {
       this.configuration = configuration;
       return this;
     }

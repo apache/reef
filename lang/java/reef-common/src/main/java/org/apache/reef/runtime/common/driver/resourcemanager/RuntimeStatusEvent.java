@@ -18,17 +18,35 @@
  */
 package org.apache.reef.runtime.common.driver.resourcemanager;
 
+import org.apache.reef.annotations.audience.DriverSide;
+import org.apache.reef.annotations.audience.RuntimeAuthor;
 import org.apache.reef.proto.ReefServiceProtos;
+import org.apache.reef.tang.annotations.DefaultImplementation;
 import org.apache.reef.util.Optional;
 
 import java.util.List;
 
 /**
  * Event from Driver Runtime -> Driver Process
+ * A status update from the Driver Runtime to the Driver Process
  */
+@RuntimeAuthor
+@DriverSide
+@DefaultImplementation(RuntimeStatusEventImpl.class)
 public interface RuntimeStatusEvent {
+  /**
+   * @return Name of the Runtime
+   */
   String getName();
+
+  /**
+   * @return State of the Runtime
+   */
   ReefServiceProtos.State getState();
+
+  /**
+   * @return List of allocated resources
+   */
   List<String> getContainerAllocationList();
   Optional<ReefServiceProtos.RuntimeErrorProto> getError();
   Optional<Integer> getOutstandingContainerRequests();

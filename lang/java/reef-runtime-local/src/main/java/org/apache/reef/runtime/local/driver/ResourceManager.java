@@ -180,8 +180,7 @@ public final class ResourceManager {
         final File evaluatorConfigurationFile = new File(c.getFolder(), fileNames.getEvaluatorConfigurationPath());
 
         try {
-          this.configurationSerializer.toFile(this.configurationSerializer.fromString(launchRequest.getEvaluatorConf()),
-              evaluatorConfigurationFile);
+          this.configurationSerializer.toFile(launchRequest.getEvaluatorConf(), evaluatorConfigurationFile);
         } catch (final IOException | BindException e) {
           throw new RuntimeException("Unable to write configuration.", e);
         }

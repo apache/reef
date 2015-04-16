@@ -18,16 +18,42 @@
  */
 package org.apache.reef.runtime.common.driver.resourcemanager;
 
+import org.apache.reef.annotations.audience.DriverSide;
+import org.apache.reef.annotations.audience.RuntimeAuthor;
 import org.apache.reef.proto.ReefServiceProtos;
+import org.apache.reef.tang.annotations.DefaultImplementation;
 import org.apache.reef.util.Optional;
 
 /**
  * Event from Driver Runtime -> Driver Process
+ * Status of a resource in the cluster
  */
+@RuntimeAuthor
+@DriverSide
+@DefaultImplementation(ResourceStatusEventImpl.class)
 public interface ResourceStatusEvent {
+  /**
+   * @return Id of the resource
+   */
   String getIdentifier();
+
+  /**
+   * @return State of the resource
+   */
   ReefServiceProtos.State getState();
+
+  /**
+   * @return Diagnostics from the resource
+   */
   Optional<String> getDiagnostics();
+
+  /**
+   * @return Exit code of the resource, if it has exited
+   */
   Optional<Integer> getExitCode();
+
+  /**
+   * @return If true, this resource is from a previous Driver (the Driver was restarted)
+   */
   Optional<Boolean> getIsFromPreviousDriver();
 }

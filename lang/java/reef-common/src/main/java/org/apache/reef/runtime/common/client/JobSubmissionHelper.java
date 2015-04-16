@@ -73,14 +73,14 @@ final class JobSubmissionHelper {
    * @throws InjectionException
    * @throws IOException
    */
-  final JobSubmissionEventImpl.Builder getJobsubmissionProto(final Configuration driverConfiguration) throws InjectionException, IOException {
+  final JobSubmissionEventImpl.Builder getJobSubmissionBuilder(final Configuration driverConfiguration) throws InjectionException, IOException {
     final Injector injector = Tang.Factory.getTang().newInjector(driverConfiguration);
 
     final JobSubmissionEventImpl.Builder jbuilder = JobSubmissionEventImpl.newBuilder()
         .setIdentifier(returnOrGenerateDriverId(injector.getNamedInstance(DriverIdentifier.class)))
         .setDriverMemory(injector.getNamedInstance(DriverMemory.class))
         .setUserName(System.getProperty("user.name"))
-        .setConfiguration(configurationSerializer.toString(driverConfiguration));
+        .setConfiguration(driverConfiguration);
 
 
     for (final String globalFileName : injector.getNamedInstance(JobGlobalFiles.class)) {

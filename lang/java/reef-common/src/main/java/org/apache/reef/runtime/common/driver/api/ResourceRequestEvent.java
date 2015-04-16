@@ -18,19 +18,57 @@
  */
 package org.apache.reef.runtime.common.driver.api;
 
+import org.apache.reef.annotations.audience.DriverSide;
+import org.apache.reef.annotations.audience.RuntimeAuthor;
+import org.apache.reef.tang.annotations.DefaultImplementation;
 import org.apache.reef.util.Optional;
 
 import java.util.List;
 
 /**
  * Event from Driver Process -> Driver Runtime
+ * A request to the Driver Runtime to allocate resources with the given specification
  */
+@RuntimeAuthor
+@DriverSide
+@DefaultImplementation(ResourceRequestEventImpl.class)
 public interface ResourceRequestEvent {
+
+  /**
+   * @return The number of resources requested
+   */
   int getResourceCount();
+
+  /**
+   * @return A list of preferred nodes to place the resource on.
+   *   An empty list indicates all nodes are equally preferred.
+   */
   List<String> getNodeNameList();
+
+  /**
+   * @return A list of preferred racks to place the resource on,
+   *   An empty list indicates all racks are equally preferred.
+   */
   List<String> getRackNameList();
+
+  /**
+   * @return The amount of memory to allocate to the resource
+   */
   Optional<Integer> getMemorySize();
+
+  /**
+   * @return The priority assigned to the resource
+   */
   Optional<Integer> getPriority();
+
+  /**
+   * @return The number of virtual CPU cores to allocate for the resource
+   */
   Optional<Integer> getVirtualCores();
+
+  /**
+   * @return If true, allow allocation on nodes and racks other than
+   *   the preferred list. If false, strictly enforce the preferences.
+   */
   Optional<Boolean> getRelaxLocality();
 }
