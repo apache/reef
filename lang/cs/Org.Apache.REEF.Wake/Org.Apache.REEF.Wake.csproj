@@ -60,6 +60,14 @@ under the License.
     <Compile Include="IObserverFactory.cs" />
     <Compile Include="IStage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Remote\AuxillaryStreamingFunctions.cs" />
+    <Compile Include="Remote\Impl\SerializableLink.cs" />
+    <Compile Include="Remote\Impl\SerializableTransportClient.cs" />
+    <Compile Include="Remote\Impl\SerializableTransportServer.cs" />
+    <Compile Include="Remote\Impl\TestEvent.cs" />
+    <Compile Include="Remote\Impl\WritableString.cs" />
+    <Compile Include="Remote\IType.cs" />
+    <Compile Include="Remote\IWritable.cs" />
     <Compile Include="Remote\Proto\WakeRemoteProtosGen.cs" />
     <Compile Include="Remote\ICodec.cs" />
     <Compile Include="Remote\ICodecFactory.cs" />
