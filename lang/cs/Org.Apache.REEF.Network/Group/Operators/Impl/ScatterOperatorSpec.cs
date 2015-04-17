@@ -17,51 +17,26 @@
  * under the License.
  */
 
-using System;
-using Org.Apache.REEF.Wake.Remote;
-using Org.Apache.REEF.Network.Group.Pipelining;
+using Org.Apache.REEF.Tang.Implementations.Configuration;
+using Org.Apache.REEF.Tang.Interface;
 
 namespace Org.Apache.REEF.Network.Group.Operators.Impl
 {
     /// <summary>
     /// The specification used to define Scatter Group Communication Operators.
     /// </summary>
-    public class ScatterOperatorSpec<T1, T2> : IOperatorSpec<T1, T2> where T2 : ICodec<T1>
+    public class ScatterOperatorSpec : IOperatorSpec
     {
         /// <summary>
         /// Creates a new ScatterOperatorSpec.
         /// </summary>
-        /// <param name="senderId">The identifier of the task that will
-        /// be sending messages</param>
-        /// <param name="codec">The codec used to serialize and 
-        /// deserialize messages</param>
-        public ScatterOperatorSpec(string senderId)
+        /// <param name="senderId">The identifier of the task that will be sending messages</param>
+        /// <param name="configurations">The configuration Codec, ReduceFunction and DataConverter used for group communication client</param>
+        public ScatterOperatorSpec(string senderId, params IConfiguration[] configurations)
         {
             SenderId = senderId;
-            Codec = typeof(T2);
+            Configiration = Configurations.Merge(configurations);
         }
-
-        /// <summary>
-        /// Creates a new ScatterOperatorSpec.
-        /// </summary>
-        /// <param name="senderId">The identifier of the task that will
-        /// be sending messages</param>
-        /// deserialize messages</param>
-        /// <param name="dataConverter">The converter used to convert original
-        /// message to pipelined ones and vice versa.</param>
-        public ScatterOperatorSpec(
-            string senderId,
-            IPipelineDataConverter<T1> dataConverter)
-        {
-            SenderId = senderId;
-            Codec = typeof(T2);
-            PipelineDataConverter = dataConverter;
-        }
-
-        /// <summary>
-        /// Returns the IPipelineDataConvert used to convert messages to pipeline form and vice-versa
-        /// </summary>
-        public IPipelineDataConverter<T1> PipelineDataConverter { get; private set; }
 
         /// <summary>
         /// Returns the identifier for the task that splits and scatters a list
@@ -70,8 +45,8 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
         public string SenderId { get; private set; }
 
         /// <summary>
-        /// The codec used to serialize and deserialize messages.
+        /// Returns the Configuration for Codec, ReduceFunction and DataConverter
         /// </summary>
-        public Type Codec { get; private set; }
+        public IConfiguration Configiration { get; private set; }
     }
 }

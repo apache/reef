@@ -34,6 +34,7 @@ using Org.Apache.REEF.Network.Group.Config;
 using Org.Apache.REEF.Network.Group.Driver;
 using Org.Apache.REEF.Network.Group.Driver.Impl;
 using Org.Apache.REEF.Network.Group.Operators.Impl;
+using Org.Apache.REEF.Network.Group.Pipelining.Impl;
 using Org.Apache.REEF.Network.NetworkService;
 using Org.Apache.REEF.Network.NetworkService.Codec;
 using Org.Apache.REEF.Tang.Annotations;
@@ -43,6 +44,7 @@ using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities.Logging;
+using Org.Apache.REEF.Network.Group.Topology;
 
 namespace Org.Apache.REEF.Examples.MachineLearning.KMeans
 {
@@ -81,10 +83,38 @@ namespace Org.Apache.REEF.Examples.MachineLearning.KMeans
 
             _groupCommDriver = groupCommDriver;
 
+            IConfiguration conf1 = CodecConfiguration<Centroids>.Conf
+                .Set(CodecConfiguration<Centroids>.Codec, GenericType<CentroidsCodec>.Class)
+                .Build();
+
+            IConfiguration dataConverterConfig1 = PipelineDataConverterConfiguration<Centroids>.Conf
+                .Set(PipelineDataConverterConfiguration<Centroids>.DataConverter, GenericType<DefaultPipelineDataConverter<Centroids>>.Class)
+                .Build();
+
+            IConfiguration conf2 = CodecConfiguration<ControlMessage>.Conf
+                .Set(CodecConfiguration<ControlMessage>.Codec, GenericType<ControlMessageCodec>.Class)
+                .Build();
+
+            IConfiguration dataConverterConfig2 = PipelineDataConverterConfiguration<ControlMessage>.Conf
+                .Set(PipelineDataConverterConfiguration<ControlMessage>.DataConverter, GenericType<DefaultPipelineDataConverter<ControlMessage>>.Class)
+                .Build();
+
+            IConfiguration conf3 = CodecConfiguration<ProcessedResults>.Conf
+                .Set(CodecConfiguration<ProcessedResults>.Codec, GenericType<ProcessedResultsCodec>.Class)
+                .Build();
+
+            IConfiguration reduceFunctionConfig = ReduceFunctionConfiguration<ProcessedResults>.Conf
+                .Set(ReduceFunctionConfiguration<ProcessedResults>.ReduceFunction, GenericType<KMeansMasterTask.AggregateMeans>.Class)
+                .Build();
+
+            IConfiguration dataConverterConfig3 = PipelineDataConverterConfiguration<ProcessedResults>.Conf
+                .Set(PipelineDataConverterConfiguration<ProcessedResults>.DataConverter, GenericType<DefaultPipelineDataConverter<ProcessedResults>>.Class)
+                .Build();
+
             _commGroup = _groupCommDriver.DefaultGroup
-                   .AddBroadcast<Centroids, CentroidsCodec>(Constants.CentroidsBroadcastOperatorName, Constants.MasterTaskId)
-                   .AddBroadcast<ControlMessage, ControlMessageCodec>(Constants.ControlMessageBroadcastOperatorName, Constants.MasterTaskId)
-                   .AddReduce<ProcessedResults, ProcessedResultsCodec>(Constants.MeansReduceOperatorName, Constants.MasterTaskId, new KMeansMasterTask.AggregateMeans())
+                   .AddBroadcast<Centroids>(Constants.CentroidsBroadcastOperatorName, Constants.MasterTaskId, TopologyTypes.Flat, conf1, dataConverterConfig1)
+                   .AddBroadcast<ControlMessage>(Constants.ControlMessageBroadcastOperatorName, Constants.MasterTaskId, TopologyTypes.Flat, conf2, dataConverterConfig2)
+                   .AddReduce<ProcessedResults>(Constants.MeansReduceOperatorName, Constants.MasterTaskId, TopologyTypes.Flat, conf3, reduceFunctionConfig, dataConverterConfig3)
                    .Build();
 
             _groupCommTaskStarter = new TaskStarter(_groupCommDriver, _totalEvaluators);

@@ -21,54 +21,28 @@ using System;
 using Org.Apache.REEF.Wake.Remote;
 using Org.Apache.REEF.Network.Group.Pipelining.Impl;
 using Org.Apache.REEF.Network.Group.Pipelining;
+using Org.Apache.REEF.Tang.Implementations.Configuration;
+using Org.Apache.REEF.Tang.Interface;
 
 namespace Org.Apache.REEF.Network.Group.Operators.Impl
 {
     /// <summary>
     /// The specification used to define Reduce Group Communication Operators.
     /// </summary>
-    public class ReduceOperatorSpec<T1, T2> : IOperatorSpec<T1, T2> where T2 : ICodec<T1>
+    public class ReduceOperatorSpec : IOperatorSpec
     {
         /// <summary>
         /// Creates a new ReduceOperatorSpec.
         /// </summary>
-        /// <param name="receiverId">The identifier of the task that
-        /// will receive and reduce incoming messages.</param>
-        /// <param name="codec">The codec used for serializing messages.</param>
-        /// <param name="reduceFunction">The class used to aggregate all messages.</param>
-        public ReduceOperatorSpec(
-            string receiverId, 
-            IReduceFunction<T1> reduceFunction)
-        {
-            ReceiverId = receiverId;
-            Codec = typeof(T2);
-            ReduceFunction = reduceFunction;
-            PipelineDataConverter = new DefaultPipelineDataConverter<T1>();
-        }
-
-        /// <summary>
-        /// Creates a new ReduceOperatorSpec.
-        /// </summary>
-        /// <param name="receiverId">The identifier of the task that
-        /// will receive and reduce incoming messages.</param>
-        /// <param name="reduceFunction">The class used to aggregate all messages.</param>
-        /// <param name="dataConverter">The converter used to convert original
-        /// message to pipelined ones and vice versa.</param>
+        /// <param name="receiverId">The identifier of the task that will receive and reduce incoming messages.</param>
+        /// <param name="configurations">The configuration used for Codec, ReduceFunction and DataConverter.</param>
         public ReduceOperatorSpec(
             string receiverId,
-            IPipelineDataConverter<T1> dataConverter,
-            IReduceFunction<T1> reduceFunction)
+            params IConfiguration[] configurations)
         {
             ReceiverId = receiverId;
-            Codec = typeof(T2);
-            ReduceFunction = reduceFunction;
-            PipelineDataConverter = dataConverter ?? new DefaultPipelineDataConverter<T1>();
+            Configiration = Configurations.Merge(configurations);
         }
-
-        /// <summary>
-        /// Returns the IPipelineDataConvert used to convert messages to pipeline form and vice-versa
-        /// </summary>
-        public IPipelineDataConverter<T1> PipelineDataConverter { get; private set; }
 
         /// <summary>
         /// Returns the identifier for the task that receives and reduces
@@ -77,13 +51,8 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
         public string ReceiverId { get; private set; }
 
         /// <summary>
-        /// The codec used to serialize and deserialize messages.
+        /// Returns the Configuration for Codec, ReduceFunction and DataConverter
         /// </summary>
-        public Type Codec { get; private set; }
-
-        /// <summary>
-        /// The class used to aggregate incoming messages.
-        /// </summary>
-        public IReduceFunction<T1> ReduceFunction { get; private set; }
+        public IConfiguration Configiration { get; private set; }
     }
 }
