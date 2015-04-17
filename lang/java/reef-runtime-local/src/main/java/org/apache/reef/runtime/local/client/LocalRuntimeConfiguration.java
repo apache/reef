@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -18,21 +18,19 @@
  */
 package org.apache.reef.runtime.local.client;
 
-import org.apache.reef.client.REEF;
-import org.apache.reef.client.RunningJob;
-import org.apache.reef.runtime.common.client.REEFImplementation;
-import org.apache.reef.runtime.common.client.RunningJobImpl;
+import org.apache.reef.client.parameters.DriverConfigurationProviders;
+import org.apache.reef.common.ConfigurationProvider;
+import org.apache.reef.runtime.common.client.CommonRuntimeConfiguration;
 import org.apache.reef.runtime.common.client.api.JobSubmissionHandler;
 import org.apache.reef.runtime.common.files.RuntimeClasspathProvider;
-import org.apache.reef.runtime.common.launch.REEFMessageCodec;
 import org.apache.reef.runtime.common.parameters.JVMHeapSlack;
 import org.apache.reef.runtime.local.LocalClasspathProvider;
 import org.apache.reef.runtime.local.client.parameters.MaxNumberOfEvaluators;
 import org.apache.reef.runtime.local.client.parameters.RootFolder;
 import org.apache.reef.tang.formats.ConfigurationModule;
 import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
+import org.apache.reef.tang.formats.OptionalImpl;
 import org.apache.reef.tang.formats.OptionalParameter;
-import org.apache.reef.wake.remote.RemoteConfiguration;
 
 import java.util.concurrent.ExecutorService;
 
@@ -63,18 +61,21 @@ public class LocalRuntimeConfiguration extends ConfigurationModuleBuilder {
   public static final OptionalParameter<Double> JVM_HEAP_SLACK = new OptionalParameter<>();
 
   /**
+   * Configuration provides whose Configuration will be merged into all Driver Configuration.
+   */
+  public static final OptionalImpl<ConfigurationProvider> DRIVER_CONFIGURATION_PROVIDERS = new OptionalImpl<>();
+
+  /**
    * The ConfigurationModule for the local resourcemanager.
    */
   public static final ConfigurationModule CONF = new LocalRuntimeConfiguration()
-      .bindImplementation(REEF.class, REEFImplementation.class)
-      .bindImplementation(RunningJob.class, RunningJobImpl.class)
+      .merge(CommonRuntimeConfiguration.CONF)
       .bindImplementation(JobSubmissionHandler.class, LocalJobSubmissionHandler.class)
       .bindConstructor(ExecutorService.class, ExecutorServiceConstructor.class)
-          // Bind the message codec for REEF.
-      .bindNamedParameter(RemoteConfiguration.MessageCodec.class, REEFMessageCodec.class)
       .bindNamedParameter(MaxNumberOfEvaluators.class, MAX_NUMBER_OF_EVALUATORS)
       .bindNamedParameter(RootFolder.class, RUNTIME_ROOT_FOLDER)
       .bindNamedParameter(JVMHeapSlack.class, JVM_HEAP_SLACK)
+      .bindSetEntry(DriverConfigurationProviders.class, DRIVER_CONFIGURATION_PROVIDERS)
       .bindImplementation(RuntimeClasspathProvider.class, LocalClasspathProvider.class)
       .build();
 
