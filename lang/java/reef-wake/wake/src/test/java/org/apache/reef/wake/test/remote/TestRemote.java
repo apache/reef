@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -18,23 +18,35 @@
  */
 package org.apache.reef.wake.test.remote;
 
+import org.apache.reef.tang.Tang;
+import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.impl.LoggingEventHandler;
 import org.apache.reef.wake.remote.*;
+import org.apache.reef.wake.remote.address.LocalAddressProvider;
+import org.apache.reef.wake.remote.address.LocalAddressProviderFactory;
 import org.apache.reef.wake.remote.impl.DefaultRemoteIdentifierFactoryImplementation;
 import org.apache.reef.wake.remote.impl.DefaultRemoteManagerImplementation;
 
+import javax.inject.Inject;
 import java.net.UnknownHostException;
 
-public class TestRemote {
+public class TestRemote implements Runnable {
+  private final LocalAddressProvider localAddressProvider;
 
-  public static void main(String[] args) {
-    String hostAddress = NetUtils.getLocalAddress();
+  @Inject
+  public TestRemote() throws InjectionException {
+    this.localAddressProvider = LocalAddressProviderFactory.getInstance();
+  }
+
+  @Override
+  public void run() {
+    final String hostAddress = localAddressProvider.getLocalAddress();
     int myPort = 10011;
     int remotePort = 10001;
     Codec<TestEvent> codec = new TestEventCodec();
     try (RemoteManager rm = new DefaultRemoteManagerImplementation("name", hostAddress,
-        myPort, codec, new LoggingEventHandler<Throwable>(), false, 1, 10000)) {
+        myPort, codec, new LoggingEventHandler<Throwable>(), false, 1, 10000, localAddressProvider)) {
       // proxy handler
       RemoteIdentifierFactory factory = new DefaultRemoteIdentifierFactoryImplementation();
       RemoteIdentifier remoteId = factory.getNewInstance("socket://" + hostAddress + ":" + remotePort);
@@ -49,6 +61,10 @@ public class TestRemote {
     } catch (Exception e) {
       e.printStackTrace();
     }
+  }
+
+  public static void main(String[] args) throws InjectionException {
+    Tang.Factory.getTang().newInjector().getInstance(TestRemote.class).run();
   }
 }
 

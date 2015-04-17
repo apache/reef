@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -22,7 +22,6 @@ import org.apache.reef.runtime.common.evaluator.PIDStoreStartHandler;
 import org.apache.reef.runtime.common.launch.parameters.ClockConfigurationPath;
 import org.apache.reef.runtime.common.launch.parameters.ErrorHandlerRID;
 import org.apache.reef.runtime.common.launch.parameters.LaunchID;
-import org.apache.reef.runtime.common.utils.RemoteManager;
 import org.apache.reef.tang.*;
 import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
@@ -46,7 +45,6 @@ import java.util.logging.Logger;
 public final class LaunchClass implements AutoCloseable, Runnable {
 
   private static final Logger LOG = Logger.getLogger(LaunchClass.class.getName());
-  private final RemoteManager remoteManager;
   private final String launchID;
   private final String errorHandlerID;
   private final String evaluatorConfigurationPath;
@@ -56,8 +54,7 @@ public final class LaunchClass implements AutoCloseable, Runnable {
   private WakeProfiler profiler;
 
   @Inject
-  LaunchClass(final RemoteManager remoteManager,
-              final REEFUncaughtExceptionHandler uncaughtExceptionHandler,
+  LaunchClass(final REEFUncaughtExceptionHandler uncaughtExceptionHandler,
               final REEFErrorHandler errorHandler,
               final @Parameter(LaunchID.class) String launchID,
               final @Parameter(ErrorHandlerRID.class) String errorHandlerID,
@@ -66,7 +63,6 @@ public final class LaunchClass implements AutoCloseable, Runnable {
               final ConfigurationSerializer configurationSerializer,
               final REEFVersion reefVersion) {
     reefVersion.logVersion();
-    this.remoteManager = remoteManager;
     this.launchID = launchID;
     this.errorHandlerID = errorHandlerID;
     this.evaluatorConfigurationPath = evaluatorConfigurationPath;
@@ -83,6 +79,7 @@ public final class LaunchClass implements AutoCloseable, Runnable {
       this.profiler = new WakeProfiler();
       ProfilingStopHandler.setProfiler(profiler); // TODO: This probably should be bound via Tang.
     }
+    LOG.log(Level.FINE, "Instantiated LaunchClass");
   }
 
   /**
@@ -146,7 +143,6 @@ public final class LaunchClass implements AutoCloseable, Runnable {
       if (isProfilingEnabled) {
         clockInjector.bindAspect(profiler);
       }
-      clockInjector.bindVolatileInstance(RemoteManager.class, this.remoteManager);
       return clockInjector.getInstance(Clock.class);
     } catch (final Throwable ex) {
       fail("Unable to instantiate the clock", ex);

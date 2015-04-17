@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -24,7 +24,8 @@ import org.apache.reef.wake.impl.LoggingEventHandler;
 import org.apache.reef.wake.impl.LoggingUtils;
 import org.apache.reef.wake.impl.ThreadPoolStage;
 import org.apache.reef.wake.impl.TimerStage;
-import org.apache.reef.wake.remote.NetUtils;
+import org.apache.reef.wake.remote.address.LocalAddressProvider;
+import org.apache.reef.wake.remote.address.LocalAddressProviderFactory;
 import org.apache.reef.wake.remote.impl.TransportEvent;
 import org.apache.reef.wake.remote.transport.Link;
 import org.apache.reef.wake.remote.transport.netty.NettyMessagingTransport;
@@ -39,6 +40,11 @@ import java.util.logging.Level;
 
 
 public class TransportRaceTest {
+  private final LocalAddressProvider localAddressProvider;
+
+  public TransportRaceTest() {
+    this.localAddressProvider = LocalAddressProviderFactory.getInstance();
+  }
 
   @Test
   public void testRace() throws Exception {
@@ -52,7 +58,7 @@ public class TransportRaceTest {
     final ServerHandler serverHandler = new ServerHandler(monitor, msgsSent);
     EStage<TransportEvent> serverStage = new ThreadPoolStage<>("server@7001",
         serverHandler, 1, new LoggingEventHandler<Throwable>());
-    String hostAddress = NetUtils.getLocalAddress();
+    final String hostAddress = this.localAddressProvider.getLocalAddress();
     int port = 7001;
     NettyMessagingTransport transport = new NettyMessagingTransport(
         hostAddress, port, clientStage, serverStage, 1, 10000);

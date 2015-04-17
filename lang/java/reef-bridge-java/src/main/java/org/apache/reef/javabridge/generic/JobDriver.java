@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -35,7 +35,7 @@ import org.apache.reef.util.logging.CLRBufferedLogHandler;
 import org.apache.reef.util.logging.LoggingScope;
 import org.apache.reef.util.logging.LoggingScopeFactory;
 import org.apache.reef.wake.EventHandler;
-import org.apache.reef.wake.remote.NetUtils;
+import org.apache.reef.wake.remote.address.LocalAddressProvider;
 import org.apache.reef.wake.remote.impl.ObjectSerializableCodec;
 import org.apache.reef.wake.time.Clock;
 import org.apache.reef.wake.time.event.Alarm;
@@ -146,14 +146,15 @@ public final class JobDriver {
             final EvaluatorRequestor evaluatorRequestor,
             final DriverStatusManager driverStatusManager,
             final LoggingScopeFactory loggingScopeFactory,
-            final LibLoader libLoader) {
+            final LibLoader libLoader,
+            final LocalAddressProvider localAddressProvider) {
     this.clock = clock;
     this.httpServer = httpServer;
     this.jobMessageObserver = jobMessageObserver;
     this.evaluatorRequestor = evaluatorRequestor;
     this.nameServer = nameServer;
     this.driverStatusManager = driverStatusManager;
-    this.nameServerInfo = NetUtils.getLocalAddress() + ":" + this.nameServer.getPort();
+    this.nameServerInfo = localAddressProvider.getLocalAddress() + ":" + this.nameServer.getPort();
     this.loggingScopeFactory = loggingScopeFactory;
     this.libLoader = libLoader;
   }
@@ -274,7 +275,7 @@ public final class JobDriver {
       try (final LoggingScope ls = loggingScopeFactory.evaluatorAllocated(allocatedEvaluator.getId())) {
         synchronized (JobDriver.this) {
           LOG.log(Level.INFO, "AllocatedEvaluatorHandler.OnNext");
-            JobDriver.this.submitEvaluator(allocatedEvaluator, EvaluatorType.CLR);
+          JobDriver.this.submitEvaluator(allocatedEvaluator, EvaluatorType.CLR);
         }
       }
     }
@@ -504,7 +505,7 @@ public final class JobDriver {
     public void onNext(final ActiveContext context) {
       try (final LoggingScope ls = loggingScopeFactory.driverRestartActiveContextReceived(context.getId())) {
         JobDriver.this.contexts.put(context.getId(), context);
-      LOG.log(Level.INFO, "DriverRestartActiveContextHandler event received: " + context.getId());
+        LOG.log(Level.INFO, "DriverRestartActiveContextHandler event received: " + context.getId());
         clock.scheduleAlarm(0, new EventHandler<Alarm>() {
           @Override
           public void onNext(final Alarm time) {

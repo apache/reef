@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -31,7 +31,7 @@ import org.apache.reef.runtime.local.client.parameters.RootFolder;
 import org.apache.reef.runtime.local.process.ReefRunnableProcessObserver;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.wake.EventHandler;
-import org.apache.reef.wake.remote.NetUtils;
+import org.apache.reef.wake.remote.address.LocalAddressProvider;
 import org.apache.reef.wake.remote.RemoteMessage;
 import org.apache.reef.wake.time.Time;
 import org.apache.reef.wake.time.runtime.RuntimeClock;
@@ -72,6 +72,7 @@ final class ContainerManager implements AutoCloseable {
   private final File rootFolder;
   private final REEFFileNames fileNames;
   private final ReefRunnableProcessObserver processObserver;
+  private final String localAddress;
 
   @Inject
   ContainerManager(
@@ -82,7 +83,8 @@ final class ContainerManager implements AutoCloseable {
       final @Parameter(RootFolder.class) String rootFolderName,
       final @Parameter(RuntimeParameters.NodeDescriptorHandler.class)
       EventHandler<DriverRuntimeProtocol.NodeDescriptorProto> nodeDescriptorHandler,
-      final ReefRunnableProcessObserver processObserver) {
+      final ReefRunnableProcessObserver processObserver,
+      final LocalAddressProvider localAddressProvider) {
 
     this.capacity = capacity;
     this.fileNames = fileNames;
@@ -90,6 +92,7 @@ final class ContainerManager implements AutoCloseable {
     this.errorHandlerRID = remoteManager.getMyIdentifier();
     this.nodeDescriptorHandler = nodeDescriptorHandler;
     this.rootFolder = new File(rootFolderName);
+    this.localAddress = localAddressProvider.getLocalAddress();
 
     LOG.log(Level.FINEST, "Initializing Container Manager with {0} containers", capacity);
 
@@ -131,7 +134,7 @@ final class ContainerManager implements AutoCloseable {
       nodeDescriptorHandler.onNext(DriverRuntimeProtocol.NodeDescriptorProto.newBuilder()
           .setIdentifier(id)
           .setRackName("/default-rack")
-          .setHostName(NetUtils.getLocalAddress())
+          .setHostName(this.localAddress)
           .setPort(i)
           .setMemorySize(512) // TODO: Find the actual system memory on this machine.
           .build());
