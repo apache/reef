@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -18,13 +18,16 @@
  */
 package org.apache.reef.wake.test.remote;
 
+import org.apache.reef.tang.Tang;
+import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.wake.EStage;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.impl.LoggingEventHandler;
 import org.apache.reef.wake.impl.LoggingUtils;
 import org.apache.reef.wake.impl.ThreadPoolStage;
 import org.apache.reef.wake.impl.TimerStage;
-import org.apache.reef.wake.remote.NetUtils;
+import org.apache.reef.wake.remote.address.LocalAddressProvider;
+import org.apache.reef.wake.remote.address.LocalAddressProviderFactory;
 import org.apache.reef.wake.remote.impl.TransportEvent;
 import org.apache.reef.wake.remote.transport.Link;
 import org.apache.reef.wake.remote.transport.netty.NettyMessagingTransport;
@@ -35,7 +38,6 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.logging.Level;
 
@@ -43,10 +45,15 @@ import java.util.logging.Level;
  * Test transferring large messages
  */
 public class LargeMsgTest {
+  private final LocalAddressProvider localAddressProvider;
   private final static byte[][] values = new byte[3][];
   private final static int l0 = 1 << 25;
   private final static int l1 = 1 << 2;
   private final static int l2 = 1 << 21;
+
+  public LargeMsgTest() throws InjectionException {
+    this.localAddressProvider = LocalAddressProviderFactory.getInstance();
+  }
 
   @BeforeClass
   public static void setUpBeforeClass() {
@@ -78,7 +85,7 @@ public class LargeMsgTest {
     EStage<TransportEvent> serverStage = new ThreadPoolStage<>("server@7001",
         new ServerHandler(monitor, dataSize), 1, new LoggingEventHandler<Throwable>());
 
-    String hostAddress = NetUtils.getLocalAddress();
+    final String hostAddress = this.localAddressProvider.getLocalAddress();
     int port = 7001;
     NettyMessagingTransport transport = new NettyMessagingTransport(hostAddress, port, clientStage, serverStage, 1, 10000);
     final Link<byte[]> link = transport.open(new InetSocketAddress(hostAddress, port), new PassThroughEncoder(), null);

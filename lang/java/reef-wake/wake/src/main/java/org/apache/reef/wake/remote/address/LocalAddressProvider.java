@@ -16,16 +16,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.runtime.common.client;
+package org.apache.reef.wake.remote.address;
 
-import org.apache.reef.tang.formats.ConfigurationModule;
-import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
+import org.apache.reef.tang.ConfigurationProvider;
+import org.apache.reef.tang.annotations.DefaultImplementation;
 
 /**
- * @deprecated this class was never used.
+ * Injectable class that provides the local address of the node to bind to.
  */
-@Deprecated
-public class CommonClientConfigurationModule extends ConfigurationModuleBuilder {
-  public final static ConfigurationModule CONF = new CommonClientConfigurationModule()
-      .build();
+@DefaultImplementation(HostnameBasedLocalAddressProvider.class)
+public interface LocalAddressProvider extends ConfigurationProvider {
+
+  /**
+   * @return a String representation of the local address.
+   */
+  String getLocalAddress();
 }

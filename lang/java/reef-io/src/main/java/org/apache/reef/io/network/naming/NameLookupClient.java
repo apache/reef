@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -33,7 +33,8 @@ import org.apache.reef.wake.IdentifierFactory;
 import org.apache.reef.wake.Stage;
 import org.apache.reef.wake.impl.SyncStage;
 import org.apache.reef.wake.remote.Codec;
-import org.apache.reef.wake.remote.NetUtils;
+import org.apache.reef.wake.remote.address.LocalAddressProvider;
+import org.apache.reef.wake.remote.address.LocalAddressProviderFactory;
 import org.apache.reef.wake.remote.impl.TransportEvent;
 import org.apache.reef.wake.remote.transport.Link;
 import org.apache.reef.wake.remote.transport.Transport;
@@ -74,10 +75,51 @@ public class NameLookupClient implements Stage, NamingLookup {
    * @param factory    an identifier factory
    * @param cache      an cache
    */
-  public NameLookupClient(final String serverAddr, final int serverPort,
-                          final IdentifierFactory factory, final int retryCount, final int retryTimeout,
+  public NameLookupClient(final String serverAddr,
+                          final int serverPort,
+                          final IdentifierFactory factory,
+                          final int retryCount,
+                          final int retryTimeout,
+                          final Cache<Identifier, InetSocketAddress> cache,
+                          final LocalAddressProvider localAddressProvider) {
+    this(serverAddr, serverPort, 10000, factory, retryCount, retryTimeout, cache, localAddressProvider);
+  }
+
+  /**
+   * Constructs a naming lookup client
+   *
+   * @param serverAddr a server address
+   * @param serverPort a server port number
+   * @param factory    an identifier factory
+   * @param cache      an cache
+   */
+  @Deprecated
+  public NameLookupClient(final String serverAddr,
+                          final int serverPort,
+                          final IdentifierFactory factory,
+                          final int retryCount,
+                          final int retryTimeout,
                           final Cache<Identifier, InetSocketAddress> cache) {
-    this(serverAddr, serverPort, 10000, factory, retryCount, retryTimeout, cache);
+    this(serverAddr, serverPort, 10000, factory, retryCount, retryTimeout, cache, LocalAddressProviderFactory.getInstance());
+  }
+
+  @Deprecated
+  public NameLookupClient(final String serverAddr,
+                          final int serverPort,
+                          final long timeout,
+                          final IdentifierFactory factory,
+                          final int retryCount,
+                          final int retryTimeout,
+                          final Cache<Identifier, InetSocketAddress> cache) {
+    this(serverAddr,
+        serverPort,
+        timeout,
+        factory,
+        retryCount,
+        retryTimeout,
+        cache,
+        LocalAddressProviderFactory.getInstance());
+
   }
 
   /**
@@ -89,9 +131,14 @@ public class NameLookupClient implements Stage, NamingLookup {
    * @param factory    an identifier factory
    * @param cache      an cache
    */
-  public NameLookupClient(final String serverAddr, final int serverPort, final long timeout,
-                          final IdentifierFactory factory, final int retryCount, final int retryTimeout,
-                          final Cache<Identifier, InetSocketAddress> cache) {
+  public NameLookupClient(final String serverAddr,
+                          final int serverPort,
+                          final long timeout,
+                          final IdentifierFactory factory,
+                          final int retryCount,
+                          final int retryTimeout,
+                          final Cache<Identifier, InetSocketAddress> cache,
+                          final LocalAddressProvider localAddressProvider) {
 
     this.serverSocketAddr = new InetSocketAddress(serverAddr, serverPort);
     this.timeout = timeout;
@@ -99,7 +146,7 @@ public class NameLookupClient implements Stage, NamingLookup {
     this.codec = NamingCodecFactory.createLookupCodec(factory);
     this.replyQueue = new LinkedBlockingQueue<>();
 
-    this.transport = new NettyMessagingTransport(NetUtils.getLocalAddress(), 0,
+    this.transport = new NettyMessagingTransport(localAddressProvider.getLocalAddress(), 0,
         new SyncStage<>(new NamingLookupClientHandler(
             new NamingLookupResponseHandler(this.replyQueue), this.codec)),
         null, retryCount, retryTimeout);

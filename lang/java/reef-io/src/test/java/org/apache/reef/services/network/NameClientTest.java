@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -25,7 +25,8 @@ import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.wake.Identifier;
 import org.apache.reef.wake.IdentifierFactory;
-import org.apache.reef.wake.remote.NetUtils;
+import org.apache.reef.wake.remote.address.LocalAddressProvider;
+import org.apache.reef.wake.remote.address.LocalAddressProviderFactory;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -35,6 +36,12 @@ import java.net.InetSocketAddress;
 import java.util.concurrent.ExecutionException;
 
 public class NameClientTest {
+
+  private final LocalAddressProvider localAddressProvider;
+
+  public NameClientTest() throws InjectionException {
+    this.localAddressProvider = LocalAddressProviderFactory.getInstance();
+  }
 
   static int retryCount, retryTimeout;
 
@@ -69,13 +76,14 @@ public class NameClientTest {
    */
   @Test
   public final void testClose() throws Exception {
+    final String localAddress = localAddressProvider.getLocalAddress();
     IdentifierFactory factory = new StringIdentifierFactory();
-    try (NameServer server = new NameServerImpl(0, factory)) {
+    try (NameServer server = new NameServerImpl(0, factory, this.localAddressProvider)) {
       int serverPort = server.getPort();
-      try (NameClient client = new NameClient(NetUtils.getLocalAddress(), serverPort, factory, retryCount, retryTimeout,
-          new NameCache(10000))) {
+      try (NameClient client = new NameClient(localAddress, serverPort, factory, retryCount, retryTimeout,
+          new NameCache(10000), localAddressProvider)) {
         Identifier id = factory.getNewInstance("Task1");
-        client.register(id, new InetSocketAddress(NetUtils.getLocalAddress(), 7001));
+        client.register(id, new InetSocketAddress(localAddress, 7001));
         client.unregister(id);
         Thread.sleep(100);
       }
@@ -92,12 +100,13 @@ public class NameClientTest {
   @Test
   public final void testLookup() throws Exception {
     IdentifierFactory factory = new StringIdentifierFactory();
-    try (NameServer server = new NameServerImpl(0, factory)) {
+    final String localAddress = localAddressProvider.getLocalAddress();
+    try (NameServer server = new NameServerImpl(0, factory, this.localAddressProvider)) {
       int serverPort = server.getPort();
-      try (NameClient client = new NameClient(NetUtils.getLocalAddress(), serverPort, factory, retryCount, retryTimeout,
-          new NameCache(150))) {
+      try (NameClient client = new NameClient(localAddress, serverPort, factory, retryCount, retryTimeout,
+          new NameCache(150), localAddressProvider)) {
         Identifier id = factory.getNewInstance("Task1");
-        client.register(id, new InetSocketAddress(NetUtils.getLocalAddress(), 7001));
+        client.register(id, new InetSocketAddress(localAddress, 7001));
         client.lookup(id);// caches the entry
         client.unregister(id);
         Thread.sleep(100);

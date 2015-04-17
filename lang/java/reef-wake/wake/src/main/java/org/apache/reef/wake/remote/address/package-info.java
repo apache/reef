@@ -16,16 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.runtime.common.client;
-
-import org.apache.reef.tang.formats.ConfigurationModule;
-import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
-
 /**
- * @deprecated this class was never used.
+ * Local address resolution.
  */
-@Deprecated
-public class CommonClientConfigurationModule extends ConfigurationModuleBuilder {
-  public final static ConfigurationModule CONF = new CommonClientConfigurationModule()
-      .build();
-}
+package org.apache.reef.wake.remote.address;

@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -22,7 +22,8 @@ import org.apache.reef.wake.EStage;
 import org.apache.reef.wake.impl.LoggingUtils;
 import org.apache.reef.wake.impl.TimerStage;
 import org.apache.reef.wake.remote.Codec;
-import org.apache.reef.wake.remote.NetUtils;
+import org.apache.reef.wake.remote.address.LocalAddressProvider;
+import org.apache.reef.wake.remote.address.LocalAddressProviderFactory;
 import org.apache.reef.wake.remote.impl.ObjectSerializableCodec;
 import org.apache.reef.wake.remote.impl.TransportEvent;
 import org.apache.reef.wake.remote.transport.Link;
@@ -42,6 +43,11 @@ import java.util.logging.Level;
 
 
 public class TransportTest {
+  private final LocalAddressProvider localAddressProvider;
+
+  public TransportTest() {
+    this.localAddressProvider = LocalAddressProviderFactory.getInstance();
+  }
 
   final String logPrefix = "TEST ";
   @Rule
@@ -56,7 +62,8 @@ public class TransportTest {
     TimerStage timer = new TimerStage(new TimeoutHandler(monitor), 2000, 2000);
 
     final int expected = 2;
-    final String hostAddress = NetUtils.getLocalAddress();
+    final String hostAddress = this.localAddressProvider.toString();
+    ;
     final int port = 9100;
 
     // Codec<String>
@@ -87,7 +94,7 @@ public class TransportTest {
     TimerStage timer = new TimerStage(new TimeoutHandler(monitor), 2000, 2000);
 
     final int expected = 2;
-    final String hostAddress = NetUtils.getLocalAddress();
+    final String hostAddress = this.localAddressProvider.toString();
     final int port = 9100;
 
     // Codec<TestEvent>

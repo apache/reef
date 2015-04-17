@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -22,7 +22,12 @@ import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.impl.LoggingUtils;
 import org.apache.reef.wake.impl.MultiEventHandler;
 import org.apache.reef.wake.impl.TimerStage;
-import org.apache.reef.wake.remote.*;
+import org.apache.reef.wake.remote.Decoder;
+import org.apache.reef.wake.remote.Encoder;
+import org.apache.reef.wake.remote.RemoteIdentifier;
+import org.apache.reef.wake.remote.RemoteIdentifierFactory;
+import org.apache.reef.wake.remote.address.LocalAddressProvider;
+import org.apache.reef.wake.remote.address.LocalAddressProviderFactory;
 import org.apache.reef.wake.remote.impl.*;
 import org.apache.reef.wake.remote.transport.Transport;
 import org.apache.reef.wake.remote.transport.netty.NettyMessagingTransport;
@@ -37,6 +42,11 @@ import java.util.*;
 import java.util.logging.Level;
 
 public class SmallMessagesTest {
+  private final LocalAddressProvider localAddressProvider;
+
+  public SmallMessagesTest() {
+    this.localAddressProvider = LocalAddressProviderFactory.getInstance();
+  }
 
   @Rule
   public final TestName name = new TestName();
@@ -74,7 +84,7 @@ public class SmallMessagesTest {
     final RemoteReceiverStage reRecvStage = new RemoteReceiverStage(
         new RemoteEventHandler(decoder, handler), null, 10);
 
-    String hostAddress = NetUtils.getLocalAddress();
+    final String hostAddress = this.localAddressProvider.toString();
 
     // transport
     Transport transport = new NettyMessagingTransport(hostAddress, port, reRecvStage, reRecvStage, 1, 10000);
