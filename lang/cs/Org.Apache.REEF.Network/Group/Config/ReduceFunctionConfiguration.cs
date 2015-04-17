@@ -17,21 +17,23 @@
  * under the License.
  */
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using Org.Apache.REEF.Network.Group.Operators;
-using Org.Apache.REEF.Tang.Interface;
-using Org.Apache.REEF.Wake.Remote;
+using Org.Apache.REEF.Tang.Formats;
+using Org.Apache.REEF.Tang.Util;
 
-namespace Org.Apache.REEF.Network.Group.Topology
+namespace Org.Apache.REEF.Network.Group.Config
 {
-    /// <summary>
-    /// Represents a topology graph for IGroupCommOperators.
-    /// </summary>
-    public interface ITopology<T>
+    public class ReduceFunctionConfiguration<T> : ConfigurationModuleBuilder
     {
-        IOperatorSpec OperatorSpec { get; }
+        public static readonly RequiredImpl<IReduceFunction<T>> ReduceFunctionRequiredImpl = new RequiredImpl<IReduceFunction<T>>();
 
-        IConfiguration GetTaskConfiguration(string taskId);
-
-        void AddTask(string taskId);
+        public static ConfigurationModule Conf = new ReduceFunctionConfiguration<T>()
+            .BindImplementation(GenericType<IReduceFunction<T>>.Class, ReduceFunctionRequiredImpl)
+            .Build();
     }
 }

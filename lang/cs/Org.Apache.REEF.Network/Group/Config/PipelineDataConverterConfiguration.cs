@@ -17,21 +17,18 @@
  * under the License.
  */
 
-using Org.Apache.REEF.Network.Group.Operators;
-using Org.Apache.REEF.Tang.Interface;
-using Org.Apache.REEF.Wake.Remote;
+using Org.Apache.REEF.Network.Group.Pipelining;
+using Org.Apache.REEF.Tang.Formats;
+using Org.Apache.REEF.Tang.Util;
 
-namespace Org.Apache.REEF.Network.Group.Topology
+namespace Org.Apache.REEF.Network.Group.Config
 {
-    /// <summary>
-    /// Represents a topology graph for IGroupCommOperators.
-    /// </summary>
-    public interface ITopology<T>
+    public class PipelineDataConverterConfiguration<T> : ConfigurationModuleBuilder
     {
-        IOperatorSpec OperatorSpec { get; }
+        public static readonly RequiredImpl<IPipelineDataConverter<T>> dataConverterRequiredImpl = new RequiredImpl<IPipelineDataConverter<T>>();
 
-        IConfiguration GetTaskConfiguration(string taskId);
-
-        void AddTask(string taskId);
+        public static ConfigurationModule Conf = new PipelineDataConverterConfiguration<T>()
+            .BindImplementation(GenericType<IPipelineDataConverter<T>>.Class, dataConverterRequiredImpl)
+            .Build();
     }
 }

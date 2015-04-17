@@ -26,16 +26,20 @@ using System.Reactive;
 using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.Common.Tasks;
+using Org.Apache.REEF.Examples.MachineLearning.KMeans;
+using Org.Apache.REEF.Examples.MachineLearning.KMeans.codecs;
 using Org.Apache.REEF.Network.Group.Codec;
 using Org.Apache.REEF.Network.Group.Config;
 using Org.Apache.REEF.Network.Group.Driver;
 using Org.Apache.REEF.Network.Group.Driver.Impl;
 using Org.Apache.REEF.Network.Group.Operators;
 using Org.Apache.REEF.Network.Group.Operators.Impl;
+using Org.Apache.REEF.Network.Group.Pipelining.Impl;
 using Org.Apache.REEF.Network.Group.Task;
 using Org.Apache.REEF.Network.Group.Topology;
 using Org.Apache.REEF.Network.Naming;
 using Org.Apache.REEF.Network.NetworkService;
+using Org.Apache.REEF.Network.NetworkService.Codec;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Implementations.Configuration;
@@ -44,6 +48,7 @@ using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Wake.Remote;
 using Org.Apache.REEF.Wake.Remote.Impl;
+using Constants = Org.Apache.REEF.Common.Constants;
 
 namespace Org.Apache.REEF.Network.Tests.GroupCommunication
 {
@@ -101,14 +106,16 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
 
             var groupCommunicationDriver = GetInstanceOfGroupCommDriver(driverId, masterTaskId, groupName, fanOut, numTasks);
 
+            IConfiguration conf = GetDefaulConfiguration();
             ICommunicationGroupDriver commGroup = groupCommunicationDriver.DefaultGroup
-                .AddBroadcast<int, IntCodec>(
+                .AddBroadcast<int>(
+                    conf,       
                     broadcastOperatorName,
                     masterTaskId)
-                .AddReduce<int, IntCodec>(
+                .AddReduce<int>(
+                    conf,
                     reduceOperatorName,
-                    masterTaskId,
-                    new SumFunction())
+                    masterTaskId)
                 .Build();
 
             var commGroups = CommGroupClients(groupName, numTasks, groupCommunicationDriver, commGroup);
@@ -156,14 +163,16 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
 
             IGroupCommDriver groupCommDriver = GetInstanceOfGroupCommDriver(driverId, masterTaskId, groupName, fanOut, numTasks);
 
+            IConfiguration conf = GetDefaulConfiguration();
             ICommunicationGroupDriver commGroup = groupCommDriver.DefaultGroup
-                .AddScatter<int, IntCodec>(
+                .AddScatter<int>(
+                    conf,
                     scatterOperatorName,
                     masterTaskId)
-                .AddReduce<int, IntCodec>(
-                    reduceOperatorName,
-                        masterTaskId,
-                        new SumFunction())
+                .AddReduce<int>(
+                        conf,
+                        reduceOperatorName,
+                        masterTaskId)
                 .Build();
 
             List<ICommunicationGroupClient> commGroups = CommGroupClients(groupName, numTasks, groupCommDriver, commGroup);
@@ -205,6 +214,43 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
         }
 
         [TestMethod]
+        public void TestCodecConfig()
+        {
+            string groupName = "group1";
+            string masterTaskId = "task0";
+            string driverId = "Driver Id";
+            string meansReduceOperatorName = "MeansReduce";
+            string centroidsBroadcastOperatorName = "CentroidsBroadcast";
+            string controlMessageBroadcastOperatorName = "ControlMessageBroadcast";
+
+
+            IGroupCommDriver groupCommDriver = GetInstanceOfGroupCommDriver(driverId, masterTaskId, groupName, 2, 5);
+
+            IConfiguration conf1 = CodecConfiguration<Centroids>.Conf
+                .Set(CodecConfiguration<Centroids>.CodecRequiredImpl, GenericType<CentroidsCodec>.Class)
+                .Build();
+
+            IConfiguration conf2 = CodecConfiguration<ControlMessage>.Conf
+                .Set(CodecConfiguration<ControlMessage>.CodecRequiredImpl, GenericType<ControlMessageCodec>.Class)
+                .Build();
+
+            IConfiguration conf3 = CodecConfiguration<ProcessedResults>.Conf
+                .Set(CodecConfiguration<ProcessedResults>.CodecRequiredImpl, GenericType<ProcessedResultsCodec>.Class)
+                .Build();
+
+            IConfiguration reduceFunctionConfig = ReduceFunctionConfiguration<ProcessedResults>.Conf
+                .Set(ReduceFunctionConfiguration<ProcessedResults>.ReduceFunctionRequiredImpl, GenericType<KMeansMasterTask.AggregateMeans>.Class)
+                .Build();
+
+            IConfiguration merged = Configurations.Merge(conf3, reduceFunctionConfig);
+            var group = groupCommDriver.DefaultGroup
+                   .AddBroadcast<Centroids>(conf1, centroidsBroadcastOperatorName, masterTaskId)
+                   .AddBroadcast<ControlMessage>(conf2, controlMessageBroadcastOperatorName, masterTaskId)
+                   .AddReduce<ProcessedResults>(merged, meansReduceOperatorName, masterTaskId)
+                   .Build();
+        }
+
+        [TestMethod]
         public void TestBroadcastOperator()
         {
             NameServer nameServer = new NameServer(0);
@@ -220,7 +266,7 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
             IGroupCommDriver groupCommDriver = GetInstanceOfGroupCommDriver(driverId, masterTaskId, groupName, fanOut, numTasks);
 
             var commGroup = groupCommDriver.DefaultGroup
-                .AddBroadcast<int, IntCodec>(operatorName, masterTaskId)
+                .AddBroadcast(operatorName, masterTaskId)
                 .Build();
 
             List<ICommunicationGroupClient> commGroups = CommGroupClients(groupName, numTasks, groupCommDriver, commGroup);
@@ -288,7 +334,7 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
             IGroupCommDriver groupCommDriver = GetInstanceOfGroupCommDriver(driverId, masterTaskId, groupName, fanOut, numTasks);
 
             var commGroup = groupCommDriver.DefaultGroup
-              .AddBroadcast<int, IntCodec>(operatorName, masterTaskId)
+              .AddBroadcast(operatorName, masterTaskId)
               .Build();
 
             List<ICommunicationGroupClient> commGroups = CommGroupClients(groupName, numTasks, groupCommDriver, commGroup);
@@ -327,7 +373,7 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
             IGroupCommDriver groupCommDriver = GetInstanceOfGroupCommDriver(driverId, masterTaskId, groupName, fanOut, numTasks);
 
             var commGroup = groupCommDriver.DefaultGroup
-                .AddReduce<int, IntCodec>(operatorName, "task0", new SumFunction())
+                .AddReduce<int>(GetDefaulConfiguration(), operatorName, "task0")
                 .Build();
 
             List<ICommunicationGroupClient> commGroups = CommGroupClients(groupName, numTasks, groupCommDriver, commGroup);
@@ -362,7 +408,7 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
             IGroupCommDriver groupCommDriver = GetInstanceOfGroupCommDriver(driverId, masterTaskId, groupName, fanOut, numTasks);
 
             var commGroup = groupCommDriver.DefaultGroup
-                .AddReduce<int, IntCodec>(operatorName, "task0", new SumFunction())
+                .AddReduce<int>(GetDefaulConfiguration(), operatorName, "task0")
                 .Build();
 
             List<ICommunicationGroupClient> commGroups = CommGroupClients(groupName, numTasks, groupCommDriver, commGroup);
@@ -484,7 +530,7 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
             IGroupCommDriver groupCommDriver = GetInstanceOfGroupCommDriver(driverId, masterTaskId, groupName, fanOut, numTasks);
 
             var commGroup = groupCommDriver.DefaultGroup
-                .AddScatter<int, IntCodec>(operatorName, masterTaskId)
+                .AddScatter<int>(GetDefaulConfiguration(), operatorName, masterTaskId)
                 .Build();
 
             List<ICommunicationGroupClient> commGroups = CommGroupClients(groupName, numTasks, groupCommDriver, commGroup);
@@ -534,7 +580,7 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
             IGroupCommDriver groupCommDriver = GetInstanceOfGroupCommDriver(driverId, masterTaskId, groupName, fanOut, numTasks);
 
             var commGroup = groupCommDriver.DefaultGroup
-                .AddScatter<int, IntCodec>(operatorName, masterTaskId)
+                .AddScatter<int>(GetDefaulConfiguration(), operatorName, masterTaskId)
                 .Build();
 
             List<ICommunicationGroupClient> commGroups = CommGroupClients(groupName, numTasks, groupCommDriver, commGroup);
@@ -581,7 +627,7 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
             IGroupCommDriver groupCommDriver = GetInstanceOfGroupCommDriver(driverId, masterTaskId, groupName, fanOut, numTasks);
 
             var commGroup = groupCommDriver.DefaultGroup
-                .AddScatter<int, IntCodec>(operatorName, masterTaskId)
+                .AddScatter<int>(GetDefaulConfiguration(), operatorName, masterTaskId)
                 .Build();
 
             List<ICommunicationGroupClient> commGroups = CommGroupClients(groupName, numTasks, groupCommDriver, commGroup);
@@ -618,8 +664,8 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
         [TestMethod]
         public void TestConfigurationBroadcastSpec()
         {
-            FlatTopology<int, IntCodec> topology = new FlatTopology<int, IntCodec>("Operator", "Operator", "task1", "driverid",
-                new BroadcastOperatorSpec<int, IntCodec>("Sender"));
+            FlatTopology<int> topology = new FlatTopology<int>("Operator", "Operator", "task1", "driverid",
+                new BroadcastOperatorSpec("Sender", GetDefaulConfiguration()));
 
             topology.AddTask("task1");
             var conf = topology.GetTaskConfiguration("task1");
@@ -631,8 +677,8 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
         [TestMethod]
         public void TestConfigurationReduceSpec()
         {
-            FlatTopology<int, IntCodec> topology = new FlatTopology<int, IntCodec>("Operator", "Group", "task1", "driverid",
-                new ReduceOperatorSpec<int, IntCodec>("task1", new SumFunction()));
+            FlatTopology<int> topology = new FlatTopology<int>("Operator", "Group", "task1", "driverid",
+                new ReduceOperatorSpec("task1", GetDefaulConfiguration()));
 
             topology.AddTask("task1");
             var conf2 = topology.GetTaskConfiguration("task1");
@@ -711,6 +757,22 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
         public static int TriangleNumber(int n)
         {
             return Enumerable.Range(1, n).Sum();
+        }
+        private IConfiguration GetDefaulConfiguration()
+        {
+            IConfiguration codecConfiguration = CodecConfiguration<int>.Conf
+                .Set(CodecConfiguration<int>.CodecRequiredImpl, GenericType<IntCodec>.Class)
+                .Build();
+
+            IConfiguration reduceFunctionConfig = ReduceFunctionConfiguration<int>.Conf
+                .Set(ReduceFunctionConfiguration<int>.ReduceFunctionRequiredImpl, GenericType<SumFunction>.Class)
+                .Build();
+
+            IConfiguration dataConverterConfig = PipelineDataConverterConfiguration<int>.Conf
+                .Set(PipelineDataConverterConfiguration<int>.dataConverterRequiredImpl, GenericType<DefaultPipelineDataConverter<int>>.Class)
+                .Build();
+
+            return Configurations.Merge(codecConfiguration, reduceFunctionConfig, dataConverterConfig);
         }
     }
 

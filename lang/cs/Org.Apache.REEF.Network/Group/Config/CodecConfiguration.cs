@@ -17,21 +17,20 @@
  * under the License.
  */
 
-using Org.Apache.REEF.Network.Group.Operators;
-using Org.Apache.REEF.Tang.Interface;
+using Org.Apache.REEF.Network.Group.Pipelining;
+using Org.Apache.REEF.Tang.Formats;
+using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Wake.Remote;
 
-namespace Org.Apache.REEF.Network.Group.Topology
+namespace Org.Apache.REEF.Network.Group.Config
 {
-    /// <summary>
-    /// Represents a topology graph for IGroupCommOperators.
-    /// </summary>
-    public interface ITopology<T>
+    public class CodecConfiguration<T> : ConfigurationModuleBuilder
     {
-        IOperatorSpec OperatorSpec { get; }
+        public static readonly RequiredImpl<ICodec<T>> CodecRequiredImpl = new RequiredImpl<ICodec<T>>();
 
-        IConfiguration GetTaskConfiguration(string taskId);
-
-        void AddTask(string taskId);
+        public static ConfigurationModule Conf = new CodecConfiguration<T>()
+            .BindImplementation(GenericType<ICodec<T>>.Class, CodecRequiredImpl)
+            .BindImplementation(GenericType<ICodec<PipelineMessage<T>>>.Class, GenericType<PipelineMessageCodec<T>>.Class)
+            .Build();
     }
 }

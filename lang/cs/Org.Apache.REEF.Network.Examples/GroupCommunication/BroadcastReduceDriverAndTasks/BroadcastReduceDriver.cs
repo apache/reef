@@ -27,15 +27,20 @@ using Org.Apache.REEF.Driver;
 using Org.Apache.REEF.Driver.Bridge;
 using Org.Apache.REEF.Driver.Context;
 using Org.Apache.REEF.Driver.Evaluator;
+using Org.Apache.REEF.Network.Group.Config;
 using Org.Apache.REEF.Network.Group.Driver;
 using Org.Apache.REEF.Network.Group.Driver.Impl;
 using Org.Apache.REEF.Network.Group.Operators;
+using Org.Apache.REEF.Network.Group.Pipelining.Impl;
+using Org.Apache.REEF.Network.Group.Topology;
 using Org.Apache.REEF.Network.NetworkService;
 using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Tang.Implementations.Configuration;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities.Logging;
+using Org.Apache.REEF.Wake.Remote;
 using Org.Apache.REEF.Wake.Remote.Impl;
 
 namespace Org.Apache.REEF.Network.Examples.GroupCommunication.BroadcastReduceDriverAndTasks
@@ -61,14 +66,32 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.BroadcastReduceDri
             _numEvaluators = numEvaluators;
             _numIterations = numIterations;
             _groupCommDriver = groupCommDriver;
+
+            IConfiguration codecConfig = CodecConfiguration<int>.Conf
+                .Set(CodecConfiguration<int>.CodecRequiredImpl, GenericType<IntCodec>.Class)
+                .Build();
+
+            IConfiguration reduceFunctionConfig = ReduceFunctionConfiguration<int>.Conf
+                .Set(ReduceFunctionConfiguration<int>.ReduceFunctionRequiredImpl, GenericType<SumFunction>.Class)
+                .Build();
+
+            IConfiguration dataConverterConfig = PipelineDataConverterConfiguration<int>.Conf
+                .Set(PipelineDataConverterConfiguration<int>.dataConverterRequiredImpl, GenericType<DefaultPipelineDataConverter<int>>.Class)
+                .Build();
+
+            IConfiguration merged = Configurations.Merge(codecConfig, reduceFunctionConfig, dataConverterConfig);
+
             _commGroup = _groupCommDriver.DefaultGroup
-                    .AddBroadcast<int, IntCodec>(
+                    .AddBroadcast<int>(
+                        merged,
                         GroupTestConstants.BroadcastOperatorName,
-                       GroupTestConstants.MasterTaskId)
-                    .AddReduce<int, IntCodec>(
+                        GroupTestConstants.MasterTaskId, 
+                        TopologyTypes.Tree)
+                    .AddReduce<int>(
+                        merged,
                         GroupTestConstants.ReduceOperatorName,
-                            GroupTestConstants.MasterTaskId,
-                            new SumFunction())
+                        GroupTestConstants.MasterTaskId,
+                        TopologyTypes.Tree)
                     .Build();
 
             _groupCommTaskStarter = new TaskStarter(_groupCommDriver, numEvaluators);
