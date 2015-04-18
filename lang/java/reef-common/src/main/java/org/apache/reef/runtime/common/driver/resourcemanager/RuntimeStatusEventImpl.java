@@ -25,6 +25,10 @@ import org.apache.reef.util.Optional;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Default POJO implementation of RuntimeStatusEvent.
+ * Use newBuilder to construct an instance.
+ */
 public final class RuntimeStatusEventImpl implements RuntimeStatusEvent {
   private final String name;
   private final ReefServiceProtos.State state;
@@ -76,26 +80,42 @@ public final class RuntimeStatusEventImpl implements RuntimeStatusEvent {
     private ReefServiceProtos.RuntimeErrorProto error;
     private Integer outstandingContainerRequests;
 
+    /**
+     * @see RuntimeStatusEvent#getName()
+     */
     public Builder setName(final String name) {
       this.name = name;
       return this;
     }
 
+    /**
+     * @see RuntimeStatusEvent#getState()
+     */
     public Builder setState(final ReefServiceProtos.State state) {
       this.state = state;
       return this;
     }
 
+    /**
+     * Add an entry to containerAllocationList
+     * @see RuntimeStatusEvent#getContainerAllocationList()
+     */
     public Builder addContainerAllocation(final String containerAllocation) {
       this.containerAllocationList.add(containerAllocation);
       return this;
     }
 
+    /**
+     * @see RuntimeStatusEvent#getError()
+     */
     public Builder setError(final ReefServiceProtos.RuntimeErrorProto error) {
       this.error = error;
       return this;
     }
 
+    /**
+     * @see RuntimeStatusEvent#getOutstandingContainerRequests()
+     */
     public Builder setOutstandingContainerRequests(final int outstandingContainerRequests) {
       this.outstandingContainerRequests = outstandingContainerRequests;
       return this;

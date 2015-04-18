@@ -20,6 +20,10 @@ package org.apache.reef.runtime.common.files;
 
 import org.apache.reef.util.BuilderUtils;
 
+/**
+ * Default POJO implementation of FileResource.
+ * Use newBuilder to construct an instance.
+ */
 public final class FileResourceImpl implements FileResource {
   private final FileType type;
   private final String name;
@@ -55,16 +59,25 @@ public final class FileResourceImpl implements FileResource {
     private String name;
     private String path;
 
+    /**
+     * @see FileResource#getType()
+     */
     public Builder setType(final FileType type) {
       this.type = type;
       return this;
     }
 
+    /**
+     * @see FileResource#getName()
+     */
     public Builder setName(final String name) {
       this.name = name;
       return this;
     }
 
+    /**
+     * @see FileResource#getPath()
+     */
     public Builder setPath(final String path) {
       this.path = path;
       return this;

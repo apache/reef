@@ -20,6 +20,10 @@ package org.apache.reef.runtime.common.driver.api;
 
 import org.apache.reef.util.BuilderUtils;
 
+/**
+ * Default POJO implementation of ResourceReleaseEvent.
+ * Use newBuilder to construct an instance.
+ */
 public final class ResourceReleaseEventImpl implements ResourceReleaseEvent {
 
   private final String identifier;
@@ -41,6 +45,9 @@ public final class ResourceReleaseEventImpl implements ResourceReleaseEvent {
 
     private String identifier;
 
+    /**
+     * @see ResourceReleaseEvent#getIdentifier()
+     */
     public Builder setIdentifier(final String identifier) {
       this.identifier = identifier;
       return this;

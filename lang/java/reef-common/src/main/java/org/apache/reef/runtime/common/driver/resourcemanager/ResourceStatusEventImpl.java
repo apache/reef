@@ -22,6 +22,10 @@ import org.apache.reef.proto.ReefServiceProtos;
 import org.apache.reef.util.BuilderUtils;
 import org.apache.reef.util.Optional;
 
+/**
+ * Default POJO implementation of ResourceStatusEvent.
+ * Use newBuilder to construct an instance.
+ */
 public final class ResourceStatusEventImpl implements ResourceStatusEvent {
   private final String identifier;
   private final ReefServiceProtos.State state;
@@ -73,26 +77,41 @@ public final class ResourceStatusEventImpl implements ResourceStatusEvent {
     private Integer exitCode;
     private Boolean isFromPreviousDriver;
 
+    /**
+     * @see ResourceStatusEvent#getIdentifier()
+     */
     public Builder setIdentifier(final String identifier) {
       this.identifier = identifier;
       return this;
     }
 
+    /**
+     * @see ResourceStatusEvent#getState()
+     */
     public Builder setState(final ReefServiceProtos.State state) {
       this.state = state;
       return this;
     }
 
+    /**
+     * @see ResourceStatusEvent#getDiagnostics()
+     */
     public Builder setDiagnostics(final String diagnostics) {
       this.diagnostics = diagnostics;
       return this;
     }
 
+    /**
+     * @see ResourceStatusEvent#getExitCode()
+     */
     public Builder setExitCode(final int exitCode) {
       this.exitCode = exitCode;
       return this;
     }
 
+    /**
+     * @see ResourceStatusEvent#getIsFromPreviousDriver()
+     */
     public Builder setIsFromPreviousDriver(final boolean isFromPreviousDriver) {
       this.isFromPreviousDriver = isFromPreviousDriver;
       return this;

@@ -26,6 +26,10 @@ import org.apache.reef.util.BuilderUtils;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Default POJO implementation of ResourceLaunchEvent.
+ * Use newBuilder to construct an instance.
+ */
 public final class ResourceLaunchEventImpl implements ResourceLaunchEvent {
 
   private final String identifier;
@@ -78,26 +82,42 @@ public final class ResourceLaunchEventImpl implements ResourceLaunchEvent {
     private ProcessType type;
     private List<FileResource> fileList = new ArrayList<>();
 
+    /**
+     * @see ResourceLaunchEvent#getIdentifier()
+     */
     public Builder setIdentifier(final String identifier) {
       this.identifier = identifier;
       return this;
     }
 
+    /**
+     * @see ResourceLaunchEvent#getRemoteId()
+     */
     public Builder setRemoteId(final String remoteId) {
       this.remoteId = remoteId;
       return this;
     }
 
+    /**
+     * @see ResourceLaunchEvent#getEvaluatorConf()
+     */
     public Builder setEvaluatorConf(final Configuration evaluatorConf) {
       this.evaluatorConf = evaluatorConf;
       return this;
     }
 
+    /**
+     * @see ResourceLaunchEvent#getType()
+     */
     public Builder setType(final ProcessType type) {
       this.type = type;
       return this;
     }
 
+    /**
+     * Add an entry to the fileList
+     * @see ResourceLaunchEvent#getFileList()
+     */
     public Builder addFile(final FileResource file) {
       this.fileList.add(file);
       return this;

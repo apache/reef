@@ -24,6 +24,10 @@ import org.apache.reef.util.Optional;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Default POJO implementation of ResourceRequestEvent.
+ * Use newBuilder to construct an instance.
+ */
 public final class ResourceRequestEventImpl implements ResourceRequestEvent {
   private final int resourceCount;
   private final List<String> nodeNameList;
@@ -91,6 +95,9 @@ public final class ResourceRequestEventImpl implements ResourceRequestEvent {
     private Integer virtualCores;
     private Boolean relaxLocality;
 
+    /**
+     * Create a builder from an existing ResourceRequestEvent
+     */
     public Builder mergeFrom(final ResourceRequestEvent resourceRequestEvent) {
       this.resourceCount = resourceRequestEvent.getResourceCount();
       this.nodeNameList = resourceRequestEvent.getNodeNameList();
@@ -102,36 +109,59 @@ public final class ResourceRequestEventImpl implements ResourceRequestEvent {
       return this;
     }
 
+    /**
+     * @see ResourceRequestEvent#getResourceCount()
+     */
     public Builder setResourceCount(final int resourceCount) {
       this.resourceCount = resourceCount;
       return this;
     }
 
+    /**
+     * Add an entry to the nodeNameList
+     * @see ResourceRequestEvent#getNodeNameList()
+     */
     public Builder addNodeName(final String nodeName) {
       this.nodeNameList.add(nodeName);
       return this;
     }
 
+    /**
+     * Add an entry to rackNameList
+     * @see ResourceRequestEvent#getRackNameList()
+     */
     public Builder addRackName(final String rackName) {
       this.rackNameList.add(rackName);
       return this;
     }
 
+    /**
+     * @see ResourceRequestEvent#getMemorySize()
+     */
     public Builder setMemorySize(final int memorySize) {
       this.memorySize = memorySize;
       return this;
     }
 
+    /**
+     * @see ResourceRequestEvent#getPriority()
+     */
     public Builder setPriority(final int priority) {
       this.priority = priority;
       return this;
     }
 
+    /**
+     * @see ResourceRequestEvent#getVirtualCores()
+     */
     public Builder setVirtualCores(final int virtualCores) {
       this.virtualCores = virtualCores;
       return this;
     }
 
+    /**
+     * @see ResourceRequestEvent#getRelaxLocality()
+     */
     public Builder setRelaxLocality(final boolean relaxLocality) {
       this.relaxLocality = relaxLocality;
       return this;

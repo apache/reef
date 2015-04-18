@@ -28,7 +28,7 @@ import java.util.List;
 
 /**
  * Default POJO implementation of JobSubmissionEvent.
- * Use newBuilder to construct.
+ * Use newBuilder to construct an instance.
  */
 public final class JobSubmissionEventImpl implements JobSubmissionEvent {
   private final String identifier;

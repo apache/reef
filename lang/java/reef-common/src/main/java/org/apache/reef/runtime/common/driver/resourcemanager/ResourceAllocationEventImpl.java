@@ -21,6 +21,10 @@ package org.apache.reef.runtime.common.driver.resourcemanager;
 import org.apache.reef.util.BuilderUtils;
 import org.apache.reef.util.Optional;
 
+/**
+ * Default POJO implementation of ResourceAllocationEvent.
+ * Use newBuilder to construct an instance.
+ */
 public final class ResourceAllocationEventImpl implements ResourceAllocationEvent {
   private final String identifier;
   private final int resourceMemory;
@@ -64,21 +68,33 @@ public final class ResourceAllocationEventImpl implements ResourceAllocationEven
     private String nodeId;
     private Integer virtualCores;
 
+    /**
+     * @see ResourceAllocationEvent#getIdentifier()
+     */
     public Builder setIdentifier(final String identifier) {
       this.identifier = identifier;
       return this;
     }
 
+    /**
+     * @see ResourceAllocationEvent#getResourceMemory()
+     */
     public Builder setResourceMemory(final int resourceMemory) {
       this.resourceMemory = resourceMemory;
       return this;
     }
 
+    /**
+     * @see ResourceAllocationEvent#getNodeId()
+     */
     public Builder setNodeId(final String nodeId) {
       this.nodeId = nodeId;
       return this;
     }
 
+    /**
+     * @see ResourceAllocationEvent#getVirtualCores()
+     */
     public Builder setVirtualCores(final int virtualCores) {
       this.virtualCores = virtualCores;
       return this;

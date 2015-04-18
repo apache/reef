@@ -21,6 +21,10 @@ package org.apache.reef.runtime.common.driver.resourcemanager;
 import org.apache.reef.util.BuilderUtils;
 import org.apache.reef.util.Optional;
 
+/**
+ * Default POJO implementation of NodeDescriptorEvent.
+ * Use newBuilder to construct an instance.
+ */
 public final class NodeDescriptorEventImpl implements NodeDescriptorEvent {
   private final String identifier;
   private final String hostName;
@@ -72,26 +76,41 @@ public final class NodeDescriptorEventImpl implements NodeDescriptorEvent {
     private Integer memorySize;
     private String rackName;
 
+    /**
+     * @see NodeDescriptorEvent#getIdentifier()
+     */
     public Builder setIdentifier(final String identifier) {
       this.identifier = identifier;
       return this;
     }
 
+    /**
+     * @see NodeDescriptorEvent#getHostName()
+     */
     public Builder setHostName(final String hostName) {
       this.hostName = hostName;
       return this;
     }
 
+    /**
+     * @see NodeDescriptorEvent#getPort()
+     */
     public Builder setPort(final int port) {
       this.port = port;
       return this;
     }
 
+    /**
+     * @see NodeDescriptorEvent#getMemorySize()
+     */
     public Builder setMemorySize(final int memorySize) {
       this.memorySize = memorySize;
       return this;
     }
 
+    /**
+     * @see NodeDescriptorEvent#getRackName()
+     */
     public Builder setRackName(final String rackName) {
       this.rackName = rackName;
       return this;
