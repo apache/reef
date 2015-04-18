@@ -19,7 +19,7 @@
 package org.apache.reef.runtime.local.client;
 
 import org.apache.reef.client.parameters.DriverConfigurationProviders;
-import org.apache.reef.common.ConfigurationProvider;
+import org.apache.reef.tang.ConfigurationProvider;
 import org.apache.reef.runtime.common.client.CommonRuntimeConfiguration;
 import org.apache.reef.runtime.common.client.api.JobSubmissionHandler;
 import org.apache.reef.runtime.common.files.RuntimeClasspathProvider;

@@ -23,7 +23,7 @@ import org.apache.reef.annotations.audience.ClientSide;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.client.REEF;
 import org.apache.reef.client.parameters.DriverConfigurationProviders;
-import org.apache.reef.common.ConfigurationProvider;
+import org.apache.reef.tang.ConfigurationProvider;
 import org.apache.reef.proto.ClientRuntimeProtocol.JobSubmissionProto;
 import org.apache.reef.runtime.common.client.api.JobSubmissionHandler;
 import org.apache.reef.runtime.common.launch.parameters.ErrorHandlerRID;
@@ -34,13 +34,11 @@ import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.util.REEFVersion;
-import org.apache.reef.util.logging.Config;
 import org.apache.reef.util.logging.LoggingScope;
 import org.apache.reef.util.logging.LoggingScopeFactory;
 
 import javax.inject.Inject;
 import java.util.Set;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @ClientSide

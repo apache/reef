@@ -16,9 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.common;
-
-import org.apache.reef.tang.Configuration;
+package org.apache.reef.tang;
 
 /**
  * Objects that can provide a Configuration implement this interface.
