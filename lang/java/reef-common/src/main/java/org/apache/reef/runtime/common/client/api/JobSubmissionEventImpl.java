@@ -26,6 +26,10 @@ import org.apache.reef.util.Optional;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Default POJO implementation of JobSubmissionEvent.
+ * Use newBuilder to construct.
+ */
 public final class JobSubmissionEventImpl implements JobSubmissionEvent {
   private final String identifier;
   private final String remoteId;
@@ -109,46 +113,75 @@ public final class JobSubmissionEventImpl implements JobSubmissionEvent {
     private Integer priority;
     private String queue;
 
+    /**
+     * @see JobSubmissionEvent#getIdentifier()
+     */
     public Builder setIdentifier(final String identifier) {
       this.identifier = identifier;
       return this;
     }
 
+    /**
+     * @see JobSubmissionEvent#getRemoteId()
+     */
     public Builder setRemoteId(final String remoteId) {
       this.remoteId = remoteId;
       return this;
     }
 
+    /**
+     * @see JobSubmissionEvent#getConfiguration()
+     */
     public Builder setConfiguration(final Configuration configuration) {
       this.configuration = configuration;
       return this;
     }
 
+    /**
+     * @see JobSubmissionEvent#getUserName()
+     */
     public Builder setUserName(final String userName) {
       this.userName = userName;
       return this;
     }
 
+    /**
+     * Add an entry to the globalFileList
+     * @see JobSubmissionEvent#getGlobalFileList()
+     */
     public Builder addGlobalFile(final FileResource globalFile) {
       this.globalFileList.add(globalFile);
       return this;
     }
 
+    /**
+     * Add an entry to the localFileList
+     * @see JobSubmissionEvent#getLocalFileList()
+     */
     public Builder addLocalFile(final FileResource localFile) {
       this.localFileList.add(localFile);
       return this;
     }
 
+    /**
+     * @see JobSubmissionEvent#getDriverMemory()
+     */
     public Builder setDriverMemory(final Integer driverMemory) {
       this.driverMemory = driverMemory;
       return this;
     }
 
+    /**
+     * @see JobSubmissionEvent#getPriority()
+     */
     public Builder setPriority(final Integer priority) {
       this.priority = priority;
       return this;
     }
 
+    /**
+     * @see JobSubmissionEvent#getQueue()
+     */
     public Builder setQueue(final String queue) {
       this.queue = queue;
       return this;

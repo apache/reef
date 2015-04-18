@@ -18,11 +18,28 @@
  */
 package org.apache.reef.runtime.common.files;
 
+import org.apache.reef.annotations.audience.RuntimeAuthor;
+import org.apache.reef.tang.annotations.DefaultImplementation;
+
 /**
- * A File Resource for use by Runtimes
+ * A File Resource with a FileType for use by Runtimes
  */
+@RuntimeAuthor
+@DefaultImplementation(FileResourceImpl.class)
 public interface FileResource {
+
+  /**
+   * @return Type of the file
+   */
   FileType getType();
+
+  /**
+   * @return Name of the file
+   */
   String getName();
+
+  /**
+   * @return Path of the file
+   */
   String getPath();
 }

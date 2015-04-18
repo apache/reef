@@ -45,9 +45,17 @@ public interface RuntimeStatusEvent {
   ReefServiceProtos.State getState();
 
   /**
-   * @return List of allocated resources
+   * @return List of allocated containers
    */
   List<String> getContainerAllocationList();
+
+  /**
+   * @return Error from the Runtime
+   */
   Optional<ReefServiceProtos.RuntimeErrorProto> getError();
+
+  /**
+   * @return Number of outstanding container requests
+   */
   Optional<Integer> getOutstandingContainerRequests();
 }
