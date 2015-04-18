@@ -18,7 +18,7 @@
  */
 package org.apache.reef.driver.parameters;
 
-import org.apache.reef.common.ConfigurationProvider;
+import org.apache.reef.tang.ConfigurationProvider;
 import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
 
