@@ -69,6 +69,9 @@ public final class NodeDescriptorEventImpl implements NodeDescriptorEvent {
     return new Builder();
   }
 
+  /**
+   * Builder used to create NodeDescriptorEvent instances.
+   */
   public static final class Builder implements org.apache.reef.util.Builder<NodeDescriptorEvent> {
     private String identifier;
     private String hostName;

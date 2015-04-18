@@ -75,6 +75,9 @@ public final class ResourceLaunchEventImpl implements ResourceLaunchEvent {
     return new Builder();
   }
 
+  /**
+   * Builder used to create ResourceLaunchEvent instances.
+   */
   public static final class Builder implements org.apache.reef.util.Builder<ResourceLaunchEvent> {
     private String identifier;
     private String remoteId;

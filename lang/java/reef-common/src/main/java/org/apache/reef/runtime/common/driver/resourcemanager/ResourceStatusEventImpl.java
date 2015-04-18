@@ -70,6 +70,9 @@ public final class ResourceStatusEventImpl implements ResourceStatusEvent {
     return new Builder();
   }
 
+  /**
+   * Builder used to create ResourceStatusEvent instances.
+   */
   public static final class Builder implements org.apache.reef.util.Builder<ResourceStatusEvent> {
     private String identifier;
     private ReefServiceProtos.State state;

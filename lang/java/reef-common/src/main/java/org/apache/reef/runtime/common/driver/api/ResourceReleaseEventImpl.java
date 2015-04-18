@@ -37,6 +37,9 @@ public final class ResourceReleaseEventImpl implements ResourceReleaseEvent {
     return identifier;
   }
 
+  /**
+   * Builder used to create ResourceReleaseEvent instances.
+   */
   public static Builder newBuilder() {
     return new Builder();
   }

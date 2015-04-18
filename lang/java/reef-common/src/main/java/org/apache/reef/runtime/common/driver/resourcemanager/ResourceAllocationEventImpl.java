@@ -62,6 +62,9 @@ public final class ResourceAllocationEventImpl implements ResourceAllocationEven
     return new Builder();
   }
 
+  /**
+   * Builder used to create ResourceAllocationEvent instances.
+   */
   public static final class Builder implements org.apache.reef.util.Builder<ResourceAllocationEvent> {
     private String identifier;
     private Integer resourceMemory;

@@ -54,6 +54,9 @@ public final class FileResourceImpl implements FileResource {
     return new Builder();
   }
 
+  /**
+   * Builder used to create FileResource instances.
+   */
   public static final class Builder implements org.apache.reef.util.Builder<FileResource> {
     private FileType type;
     private String name;

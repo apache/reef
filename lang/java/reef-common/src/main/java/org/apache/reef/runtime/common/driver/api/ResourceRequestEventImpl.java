@@ -86,6 +86,9 @@ public final class ResourceRequestEventImpl implements ResourceRequestEvent {
     return new Builder();
   }
 
+  /**
+   * Builder used to create ResourceRequestEvent instances.
+   */
   public static final class Builder implements org.apache.reef.util.Builder<ResourceRequestEvent> {
     private Integer resourceCount;
     private List<String> nodeNameList = new ArrayList<>();

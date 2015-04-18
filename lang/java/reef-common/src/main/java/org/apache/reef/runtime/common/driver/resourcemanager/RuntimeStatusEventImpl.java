@@ -73,6 +73,9 @@ public final class RuntimeStatusEventImpl implements RuntimeStatusEvent {
     return new Builder();
   }
 
+  /**
+   * Builder used to create RuntimeStatusEvent instances.
+   */
   public static final class Builder implements org.apache.reef.util.Builder<RuntimeStatusEvent> {
     private String name;
     private ReefServiceProtos.State state;

@@ -102,6 +102,9 @@ public final class JobSubmissionEventImpl implements JobSubmissionEvent {
     return new Builder();
   }
 
+  /**
+   * Builder used to create JobSubmissionEvent instances.
+   */
   public static final class Builder implements org.apache.reef.util.Builder<JobSubmissionEvent> {
     private String identifier;
     private String remoteId;
