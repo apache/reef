@@ -24,7 +24,7 @@ using Org.Apache.REEF.Network.Group.Pipelining;
 namespace Org.Apache.REEF.Network.Group.Operators.Impl
 {
     /// <summary>
-    /// The specification used to define Scatter MPI Operators.
+    /// The specification used to define Scatter Group Communication Operators.
     /// </summary>
     public class ScatterOperatorSpec<T1, T2> : IOperatorSpec<T1, T2> where T2 : ICodec<T1>
     {

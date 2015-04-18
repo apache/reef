@@ -26,7 +26,7 @@ using Org.Apache.REEF.Wake;
 namespace Org.Apache.REEF.Network.Group.Operators.Impl
 {
     /// <summary>
-    /// MPI operator used to do point-to-point communication between named Tasks.
+    /// Group Communication operator used to do point-to-point communication between named Tasks.
     /// </summary>
     public class Sender
     {

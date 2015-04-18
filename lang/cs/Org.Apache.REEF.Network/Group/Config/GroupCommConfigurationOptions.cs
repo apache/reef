@@ -22,14 +22,14 @@ using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.Network.Group.Config
 {
-    public class MpiConfigurationOptions
+    public class GroupCommConfigurationOptions
     {
         [NamedParameter("Name of the communication group")]
         public class CommunicationGroupName : Name<string>
         {
         }
 
-        [NamedParameter("Name of the MPI operator")]
+        [NamedParameter("Name of the Group Communication operator")]
         public class OperatorName : Name<string>
         {
         }

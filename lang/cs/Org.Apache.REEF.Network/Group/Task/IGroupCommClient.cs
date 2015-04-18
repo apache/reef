@@ -26,8 +26,8 @@ namespace Org.Apache.REEF.Network.Group.Task
     /// <summary>
     /// Used by Tasks to fetch CommunicationGroupClients.
     /// </summary>
-    [DefaultImplementation(typeof(MpiClient))]
-    public interface IMpiClient : IDisposable
+    [DefaultImplementation(typeof(GroupCommClient))]
+    public interface IGroupCommClient : IDisposable
     {
         /// <summary>
         /// Gets the CommunicationGroupClient with the given group name.

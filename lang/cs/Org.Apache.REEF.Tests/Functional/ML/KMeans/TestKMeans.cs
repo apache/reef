@@ -160,15 +160,15 @@ namespace Org.Apache.REEF.Tests.Functional.ML.KMeans
                 .BindIntNamedParam<NumPartitions>(Partitions.ToString())
                 .Build();
 
-            IConfiguration mpiDriverConfig = TangFactory.GetTang().NewConfigurationBuilder()
-                .BindStringNamedParam<MpiConfigurationOptions.DriverId>(Identifier)
-                .BindStringNamedParam<MpiConfigurationOptions.MasterTaskId>(Constants.MasterTaskId)
-                .BindStringNamedParam<MpiConfigurationOptions.GroupName>(Constants.KMeansCommunicationGroupName)
-                .BindIntNamedParam<MpiConfigurationOptions.FanOut>(fanOut.ToString(CultureInfo.InvariantCulture).ToString(CultureInfo.InvariantCulture))
-                .BindIntNamedParam<MpiConfigurationOptions.NumberOfTasks>(totalEvaluators.ToString())
+            IConfiguration groupCommunicationDriverConfig = TangFactory.GetTang().NewConfigurationBuilder()
+                .BindStringNamedParam<GroupCommConfigurationOptions.DriverId>(Identifier)
+                .BindStringNamedParam<GroupCommConfigurationOptions.MasterTaskId>(Constants.MasterTaskId)
+                .BindStringNamedParam<GroupCommConfigurationOptions.GroupName>(Constants.KMeansCommunicationGroupName)
+                .BindIntNamedParam<GroupCommConfigurationOptions.FanOut>(fanOut.ToString(CultureInfo.InvariantCulture).ToString(CultureInfo.InvariantCulture))
+                .BindIntNamedParam<GroupCommConfigurationOptions.NumberOfTasks>(totalEvaluators.ToString())
                 .Build();
 
-            return Configurations.Merge(driverConfig, mpiDriverConfig);
+            return Configurations.Merge(driverConfig, groupCommunicationDriverConfig);
         }
 
         private HashSet<string> AssembliesToCopy()

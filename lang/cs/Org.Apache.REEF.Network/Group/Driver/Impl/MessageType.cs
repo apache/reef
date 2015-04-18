@@ -20,7 +20,7 @@
 namespace Org.Apache.REEF.Network.Group.Driver.Impl
 {
     /// <summary>
-    /// Represents the different types of messages that Mpi Tasks can
+    /// Represents the different types of messages that Group Comm Tasks can
     /// send to each other.
     /// </summary>
     public enum MessageType

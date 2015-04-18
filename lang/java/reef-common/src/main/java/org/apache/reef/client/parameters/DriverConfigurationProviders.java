@@ -1,4 +1,4 @@
-﻿/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -16,28 +16,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.reef.client.parameters;
 
-namespace Org.Apache.REEF.Network.Group.Operators
-{
-    /// <summary>
-    /// An Mpi Operator to be used in a Reef Task.
-    /// </summary>
-    /// <typeparam name="T">The message type</typeparam>
-    public interface IMpiOperator<T>
-    {
-        /// <summary>
-        /// The operator name.
-        /// </summary>
-        string OperatorName { get; }
+import org.apache.reef.tang.ConfigurationProvider;
+import org.apache.reef.tang.annotations.Name;
+import org.apache.reef.tang.annotations.NamedParameter;
 
-        /// <summary>
-        /// The name of the operator's CommunicationGroup.
-        /// </summary>
-        string GroupName { get; }
+import java.util.Set;
 
-        /// <summary>
-        /// The operator version number.
-        /// </summary>
-        int Version { get; }
-    }
+/**
+ * Configuration provides whose Configurations will be mixed into the Driver Configuration.
+ */
+@NamedParameter(doc = "Configuration provides whose Configurations will be mixed into the Driver Configuration.")
+public final class DriverConfigurationProviders implements Name<Set<ConfigurationProvider>> {
 }

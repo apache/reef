@@ -22,11 +22,11 @@ using System.Collections.Generic;
 namespace Org.Apache.REEF.Network.Group.Operators
 {
     /// <summary>
-    /// MPI operator used to receive a sublist of messages sent
+    /// Group Communication operator used to receive a sublist of messages sent
     /// from the IScatterSender.
     /// </summary>
     /// <typeparam name="T">The message type</typeparam>
-    public interface IScatterReceiver<T> : IMpiOperator<T>
+    public interface IScatterReceiver<T> : IGroupCommOperator<T>
     {
         /// <summary>
         /// Receive a sublist of messages sent from the IScatterSender.

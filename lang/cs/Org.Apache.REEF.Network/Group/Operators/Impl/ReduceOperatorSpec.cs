@@ -25,7 +25,7 @@ using Org.Apache.REEF.Network.Group.Pipelining;
 namespace Org.Apache.REEF.Network.Group.Operators.Impl
 {
     /// <summary>
-    /// The specification used to define Reduce MPI Operators.
+    /// The specification used to define Reduce Group Communication Operators.
     /// </summary>
     public class ReduceOperatorSpec<T1, T2> : IOperatorSpec<T1, T2> where T2 : ICodec<T1>
     {

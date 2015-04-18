@@ -107,15 +107,15 @@ namespace Org.Apache.REEF.Network.Group.Topology
             //add parentid, if no parent, add itself
             var confBuilder = TangFactory.GetTang().NewConfigurationBuilder()
                 .BindImplementation(typeof(ICodec<T1>), OperatorSpec.Codec)
-                .BindNamedParameter<MpiConfigurationOptions.TopologyRootTaskId, string>(
-                    GenericType<MpiConfigurationOptions.TopologyRootTaskId>.Class,
+                .BindNamedParameter<GroupCommConfigurationOptions.TopologyRootTaskId, string>(
+                    GenericType<GroupCommConfigurationOptions.TopologyRootTaskId>.Class,
                     parentId);
 
             //add all its children
             foreach (TaskNode childNode in selfTaskNode.GetChildren())
             {
-                confBuilder.BindSetEntry<MpiConfigurationOptions.TopologyChildTaskIds, string>(
-                    GenericType<MpiConfigurationOptions.TopologyChildTaskIds>.Class,
+                confBuilder.BindSetEntry<GroupCommConfigurationOptions.TopologyChildTaskIds, string>(
+                    GenericType<GroupCommConfigurationOptions.TopologyChildTaskIds>.Class,
                     childNode.TaskId);
             }
 
@@ -127,11 +127,11 @@ namespace Org.Apache.REEF.Network.Group.Topology
                 .BindImplementation(GenericType<ICodec<PipelineMessage<T1>>>.Class, GenericType<PipelineMessageCodec<T1>>.Class);
                 if (taskId.Equals(broadcastSpec.SenderId))
                 {
-                    confBuilder.BindImplementation(GenericType<IMpiOperator<T1>>.Class, GenericType<BroadcastSender<T1>>.Class);
+                    confBuilder.BindImplementation(GenericType<IGroupCommOperator<T1>>.Class, GenericType<BroadcastSender<T1>>.Class);
                 }
                 else
                 {
-                    confBuilder.BindImplementation(GenericType<IMpiOperator<T1>>.Class, GenericType<BroadcastReceiver<T1>>.Class);
+                    confBuilder.BindImplementation(GenericType<IGroupCommOperator<T1>>.Class, GenericType<BroadcastReceiver<T1>>.Class);
                 }
             }
             else if (OperatorSpec is ReduceOperatorSpec<T1, T2>)
@@ -144,11 +144,11 @@ namespace Org.Apache.REEF.Network.Group.Topology
 
                 if (taskId.Equals(reduceSpec.ReceiverId))
                 {
-                    confBuilder.BindImplementation(GenericType<IMpiOperator<T1>>.Class, GenericType<ReduceReceiver<T1>>.Class);
+                    confBuilder.BindImplementation(GenericType<IGroupCommOperator<T1>>.Class, GenericType<ReduceReceiver<T1>>.Class);
                 }
                 else
                 {
-                    confBuilder.BindImplementation(GenericType<IMpiOperator<T1>>.Class, GenericType<ReduceSender<T1>>.Class);
+                    confBuilder.BindImplementation(GenericType<IGroupCommOperator<T1>>.Class, GenericType<ReduceSender<T1>>.Class);
                 }
             }
             else if (OperatorSpec is ScatterOperatorSpec<T1, T2>)
@@ -156,11 +156,11 @@ namespace Org.Apache.REEF.Network.Group.Topology
                 ScatterOperatorSpec<T1, T2> scatterSpec = OperatorSpec as ScatterOperatorSpec<T1, T2>;
                 if (taskId.Equals(scatterSpec.SenderId))
                 {
-                    confBuilder.BindImplementation(GenericType<IMpiOperator<T1>>.Class, GenericType<ScatterSender<T1>>.Class);
+                    confBuilder.BindImplementation(GenericType<IGroupCommOperator<T1>>.Class, GenericType<ScatterSender<T1>>.Class);
                 }
                 else
                 {
-                    confBuilder.BindImplementation(GenericType<IMpiOperator<T1>>.Class, GenericType<ScatterReceiver<T1>>.Class);
+                    confBuilder.BindImplementation(GenericType<IGroupCommOperator<T1>>.Class, GenericType<ScatterReceiver<T1>>.Class);
                 }
             }
             else

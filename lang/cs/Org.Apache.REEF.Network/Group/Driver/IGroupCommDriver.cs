@@ -23,10 +23,10 @@ using Org.Apache.REEF.Tang.Interface;
 namespace Org.Apache.REEF.Network.Group.Driver
 {
     /// <summary>
-    /// Used to create Communication Groups for MPI Operators.
-    /// Also manages configuration for MPI tasks/services.
+    /// Used to create Communication Groups for Group Communication Operators.
+    /// Also manages configuration for Group Communication tasks/services.
     /// </summary>
-    public interface IMpiDriver
+    public interface IGroupCommDriver
     {
         /// <summary>
         /// Returns the identifier for the master task
@@ -51,7 +51,7 @@ namespace Org.Apache.REEF.Network.Group.Driver
         IConfiguration GetContextConfiguration();
 
         /// <summary>
-        /// Get the service configuration required for running MPI on Reef tasks.
+        /// Get the service configuration required for running Group Communication on Reef tasks.
         /// </summary>
         /// <returns>The service configuration for the Reef tasks</returns>
         IConfiguration GetServiceConfiguration();
@@ -86,11 +86,11 @@ namespace Org.Apache.REEF.Network.Group.Driver
         /// in the configuration as a SerializedGroupConfig.
         ///
         /// The user must merge their part of task configuration (task id, task class)
-        /// with this returned MPI task configuration.
+        /// with this returned Group Communication task configuration.
         /// </summary>
         /// <param name="taskId">The id of the task Configuration to generate</param>
-        /// <returns>The MPI task configuration with communication group and
+        /// <returns>The Group Communication task configuration with communication group and
         /// operator configuration set.</returns>
-        IConfiguration GetMpiTaskConfiguration(string taskId);
+        IConfiguration GetGroupCommTaskConfiguration(string taskId);
     }
 }

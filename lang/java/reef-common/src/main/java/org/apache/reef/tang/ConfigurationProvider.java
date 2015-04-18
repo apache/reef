@@ -1,4 +1,4 @@
-﻿/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -16,22 +16,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.reef.tang;
 
-using Org.Apache.REEF.Network.Group.Operators;
-using Org.Apache.REEF.Tang.Interface;
-using Org.Apache.REEF.Wake.Remote;
+/**
+ * Objects that can provide a Configuration implement this interface.
+ */
+public interface ConfigurationProvider {
 
-namespace Org.Apache.REEF.Network.Group.Topology
-{
-    /// <summary>
-    /// Represents a topology graph for IGroupCommOperators.
-    /// </summary>
-    public interface ITopology<T1, T2> where T2 : ICodec<T1>
-    {
-        IOperatorSpec<T1, T2> OperatorSpec { get; }
-
-        IConfiguration GetTaskConfiguration(string taskId);
-
-        void AddTask(string taskId);
-    }
+  /**
+   * @return a Configuration provided by this instance.
+   */
+  Configuration getConfiguration();
 }

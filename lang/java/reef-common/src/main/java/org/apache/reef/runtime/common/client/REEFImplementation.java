@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -22,17 +22,23 @@ import org.apache.reef.annotations.Provided;
 import org.apache.reef.annotations.audience.ClientSide;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.client.REEF;
+import org.apache.reef.client.parameters.DriverConfigurationProviders;
+import org.apache.reef.tang.ConfigurationProvider;
 import org.apache.reef.runtime.common.client.api.JobSubmissionEvent;
 import org.apache.reef.runtime.common.client.api.JobSubmissionHandler;
 import org.apache.reef.runtime.common.launch.parameters.ErrorHandlerRID;
 import org.apache.reef.tang.Configuration;
+import org.apache.reef.tang.ConfigurationBuilder;
+import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
+import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.util.REEFVersion;
 import org.apache.reef.util.logging.LoggingScope;
 import org.apache.reef.util.logging.LoggingScopeFactory;
 
 import javax.inject.Inject;
+import java.util.Set;
 import java.util.logging.Logger;
 
 @ClientSide
@@ -47,6 +53,7 @@ public final class REEFImplementation implements REEF {
   private final JobSubmissionHelper jobSubmissionHelper;
   private final ClientWireUp clientWireUp;
   private final LoggingScopeFactory loggingScopeFactory;
+  private final Set<ConfigurationProvider> configurationProviders;
 
   /**
    * @param jobSubmissionHandler
@@ -55,6 +62,7 @@ public final class REEFImplementation implements REEF {
    * @param jobStatusMessageHandler is passed only to make sure it is instantiated
    * @param clientWireUp
    * @param reefVersion             provides the current version of REEF.
+   * @param configurationProviders
    */
   @Inject
   REEFImplementation(final JobSubmissionHandler jobSubmissionHandler,
@@ -63,11 +71,13 @@ public final class REEFImplementation implements REEF {
                      final JobStatusMessageHandler jobStatusMessageHandler,
                      final ClientWireUp clientWireUp,
                      final LoggingScopeFactory loggingScopeFactory,
-                     final REEFVersion reefVersion) {
+                     final REEFVersion reefVersion,
+                     final @Parameter(DriverConfigurationProviders.class) Set<ConfigurationProvider> configurationProviders) {
     this.jobSubmissionHandler = jobSubmissionHandler;
     this.runningJobs = runningJobs;
     this.jobSubmissionHelper = jobSubmissionHelper;
     this.clientWireUp = clientWireUp;
+    this.configurationProviders = configurationProviders;
     clientWireUp.performWireUp();
     this.loggingScopeFactory = loggingScopeFactory;
     reefVersion.logVersion();
@@ -82,6 +92,7 @@ public final class REEFImplementation implements REEF {
   @Override
   public void submit(final Configuration driverConf) {
     try (LoggingScope ls = this.loggingScopeFactory.reefSubmit()) {
+      final Configuration driverConfiguration = createDriverConfiguration(driverConf);
       final JobSubmissionEvent submissionMessage;
       try {
         if (this.clientWireUp.isClientPresent()) {
@@ -99,6 +110,21 @@ public final class REEFImplementation implements REEF {
 
       this.jobSubmissionHandler.onNext(submissionMessage);
     }
+  }
+
+  /**
+   * Assembles the final Driver Configuration by merging in all the Configurations provided by ConfigurationProviders.
+   *
+   * @param driverConfiguration
+   * @return
+   */
+  private Configuration createDriverConfiguration(final Configuration driverConfiguration) {
+    final ConfigurationBuilder configurationBuilder = Tang.Factory.getTang()
+        .newConfigurationBuilder(driverConfiguration);
+    for (final ConfigurationProvider configurationProvider : this.configurationProviders) {
+      configurationBuilder.addConfiguration(configurationProvider.getConfiguration());
+    }
+    return configurationBuilder.build();
   }
 
   @NamedParameter(doc = "The driver remote identifier.")

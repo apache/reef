@@ -35,26 +35,26 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
     /// <summary>
     /// Used by Tasks to fetch CommunicationGroupClients.
     /// </summary>
-    public class MpiClient : IMpiClient
+    public class GroupCommClient : IGroupCommClient
     {
         private readonly Dictionary<string, ICommunicationGroupClient> _commGroups;
 
         private readonly INetworkService<GroupCommunicationMessage> _networkService;
 
         /// <summary>
-        /// Creates a new MpiClient and registers the task ID with the Name Server.
+        /// Creates a new GroupCommClient and registers the task ID with the Name Server.
         /// </summary>
         /// <param name="groupConfigs">The set of serialized Group Communication configurations</param>
         /// <param name="taskId">The identifier for this task</param>
-        /// <param name="mpiNetworkObserver">The network handler to receive incoming messages
+        /// <param name="groupCommNetworkObserver">The network handler to receive incoming messages
         /// for this task</param>
         /// <param name="networkService">The network service used to send messages</param>
         /// <param name="configSerializer">Used to deserialize Group Communication configuration</param>
         [Inject]
-        public MpiClient(
-            [Parameter(typeof(MpiConfigurationOptions.SerializedGroupConfigs))] ISet<string> groupConfigs,
+        public GroupCommClient(
+            [Parameter(typeof(GroupCommConfigurationOptions.SerializedGroupConfigs))] ISet<string> groupConfigs,
             [Parameter(typeof(TaskConfigurationOptions.Identifier))] string taskId,
-            IMpiNetworkObserver mpiNetworkObserver,
+            IGroupCommNetworkObserver groupCommNetworkObserver,
             NetworkService<GroupCommunicationMessage> networkService,
             AvroConfigurationSerializer configSerializer)
         {
@@ -68,7 +68,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
 
                 IInjector injector = TangFactory.GetTang().NewInjector(groupConfig);
                 injector.BindVolatileParameter(GenericType<TaskConfigurationOptions.Identifier>.Class, taskId);
-                injector.BindVolatileInstance(GenericType<IMpiNetworkObserver>.Class, mpiNetworkObserver);
+                injector.BindVolatileInstance(GenericType<IGroupCommNetworkObserver>.Class, groupCommNetworkObserver);
                 injector.BindVolatileInstance(GenericType<NetworkService<GroupCommunicationMessage>>.Class, networkService);
 
                 ICommunicationGroupClient commGroup = injector.GetInstance<ICommunicationGroupClient>();
@@ -96,7 +96,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         }
 
         /// <summary>
-        /// Disposes of the MpiClient's services.
+        /// Disposes of the GroupCommClient's services.
         /// </summary>
         public void Dispose()
         {

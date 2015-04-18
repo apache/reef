@@ -17,21 +17,27 @@
  * under the License.
  */
 
-using Org.Apache.REEF.Network.Group.Operators;
-using Org.Apache.REEF.Tang.Interface;
-using Org.Apache.REEF.Wake.Remote;
-
-namespace Org.Apache.REEF.Network.Group.Topology
+namespace Org.Apache.REEF.Network.Group.Operators
 {
     /// <summary>
-    /// Represents a topology graph for IGroupCommOperators.
+    /// An Group Communication Operator to be used in a Reef Task.
     /// </summary>
-    public interface ITopology<T1, T2> where T2 : ICodec<T1>
+    /// <typeparam name="T">The message type</typeparam>
+    public interface IGroupCommOperator<T>
     {
-        IOperatorSpec<T1, T2> OperatorSpec { get; }
+        /// <summary>
+        /// The operator name.
+        /// </summary>
+        string OperatorName { get; }
 
-        IConfiguration GetTaskConfiguration(string taskId);
+        /// <summary>
+        /// The name of the operator's CommunicationGroup.
+        /// </summary>
+        string GroupName { get; }
 
-        void AddTask(string taskId);
+        /// <summary>
+        /// The operator version number.
+        /// </summary>
+        int Version { get; }
     }
 }

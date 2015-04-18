@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -21,13 +21,9 @@ package org.apache.reef.runtime.mesos.client;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.reef.annotations.audience.ClientSide;
 import org.apache.reef.annotations.audience.Public;
-import org.apache.reef.client.REEF;
-import org.apache.reef.client.RunningJob;
-import org.apache.reef.runtime.common.client.REEFImplementation;
-import org.apache.reef.runtime.common.client.RunningJobImpl;
+import org.apache.reef.runtime.common.client.CommonRuntimeConfiguration;
 import org.apache.reef.runtime.common.client.api.JobSubmissionHandler;
 import org.apache.reef.runtime.common.files.RuntimeClasspathProvider;
-import org.apache.reef.runtime.common.launch.REEFMessageCodec;
 import org.apache.reef.runtime.mesos.MesosClasspathProvider;
 import org.apache.reef.runtime.mesos.client.parameters.MasterIp;
 import org.apache.reef.runtime.mesos.client.parameters.RootFolder;
@@ -36,7 +32,6 @@ import org.apache.reef.tang.formats.ConfigurationModule;
 import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
 import org.apache.reef.tang.formats.OptionalParameter;
 import org.apache.reef.tang.formats.RequiredParameter;
-import org.apache.reef.wake.remote.RemoteConfiguration;
 
 /**
  * A ConfigurationModule for the Mesos resource manager
@@ -56,9 +51,7 @@ public class MesosClientConfiguration extends ConfigurationModuleBuilder {
   public static final RequiredParameter<String> MASTER_IP = new RequiredParameter<>();
 
   public static final ConfigurationModule CONF = new MesosClientConfiguration()
-      .bindImplementation(REEF.class, REEFImplementation.class)
-      .bindImplementation(RunningJob.class, RunningJobImpl.class)
-      .bindNamedParameter(RemoteConfiguration.MessageCodec.class, REEFMessageCodec.class)
+      .merge(CommonRuntimeConfiguration.CONF)
       .bindImplementation(JobSubmissionHandler.class, MesosJobSubmissionHandler.class)
       .bindNamedParameter(RootFolder.class, ROOT_FOLDER)
       .bindNamedParameter(MasterIp.class, MASTER_IP)

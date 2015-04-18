@@ -1,4 +1,4 @@
-﻿/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -16,22 +16,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.reef.driver.parameters;
 
-using Org.Apache.REEF.Network.Group.Operators;
-using Org.Apache.REEF.Tang.Interface;
-using Org.Apache.REEF.Wake.Remote;
+import org.apache.reef.tang.ConfigurationProvider;
+import org.apache.reef.tang.annotations.Name;
+import org.apache.reef.tang.annotations.NamedParameter;
 
-namespace Org.Apache.REEF.Network.Group.Topology
-{
-    /// <summary>
-    /// Represents a topology graph for IGroupCommOperators.
-    /// </summary>
-    public interface ITopology<T1, T2> where T2 : ICodec<T1>
-    {
-        IOperatorSpec<T1, T2> OperatorSpec { get; }
+import java.util.Set;
 
-        IConfiguration GetTaskConfiguration(string taskId);
-
-        void AddTask(string taskId);
-    }
+/**
+ * Configuration provides whose Configurations will be mixed into the Evaluator Configuration.
+ */
+@NamedParameter(doc = "Configuration provides whose Configurations will be mixed into the Evaluator Configuration.")
+public final class EvaluatorConfigurationProviders implements Name<Set<ConfigurationProvider>> {
 }

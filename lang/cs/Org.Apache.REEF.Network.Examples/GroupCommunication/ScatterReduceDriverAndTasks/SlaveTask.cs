@@ -31,18 +31,18 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.ScatterReduceDrive
     {
         private static readonly Logger _logger = Logger.GetLogger(typeof(SlaveTask));
 
-        private readonly IMpiClient _mpiClient;
+        private readonly IGroupCommClient _groupCommClient;
         private readonly ICommunicationGroupClient _commGroup;
         private readonly IScatterReceiver<int> _scatterReceiver;
         private readonly IReduceSender<int> _sumSender;
 
         [Inject]
-        public SlaveTask(IMpiClient mpiClient)
+        public SlaveTask(IGroupCommClient groupCommClient)
         {
             _logger.Log(Level.Info, "Hello from slave task");
 
-            _mpiClient = mpiClient;
-            _commGroup = _mpiClient.GetCommunicationGroup(GroupTestConstants.GroupName);
+            _groupCommClient = groupCommClient;
+            _commGroup = _groupCommClient.GetCommunicationGroup(GroupTestConstants.GroupName);
             _scatterReceiver = _commGroup.GetScatterReceiver<int>(GroupTestConstants.ScatterOperatorName);
             _sumSender = _commGroup.GetReduceSender<int>(GroupTestConstants.ReduceOperatorName);
         }
@@ -61,7 +61,7 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.ScatterReduceDrive
 
         public void Dispose()
         {
-            _mpiClient.Dispose();
+            _groupCommClient.Dispose();
         }
     }
 }

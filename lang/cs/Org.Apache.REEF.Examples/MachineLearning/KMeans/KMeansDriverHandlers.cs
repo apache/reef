@@ -60,12 +60,12 @@ namespace Org.Apache.REEF.Examples.MachineLearning.KMeans
         private readonly int _clustersNumber = 3;
         private readonly int _totalEvaluators;
         private int _partitionInex = 0;
-        private readonly IMpiDriver _mpiDriver;
+        private readonly IGroupCommDriver _groupCommDriver;
         private readonly ICommunicationGroupDriver _commGroup;
-        private readonly TaskStarter _mpiTaskStarter;
+        private readonly TaskStarter _groupCommTaskStarter;
 
         [Inject]
-        public KMeansDriverHandlers([Parameter(typeof(NumPartitions))] int numPartitions, MpiDriver mpiDriver)
+        public KMeansDriverHandlers([Parameter(typeof(NumPartitions))] int numPartitions, GroupCommDriver groupCommDriver)
         {
             Identifier = "KMeansDriverId";
             _executionDirectory = Path.Combine(Directory.GetCurrentDirectory(), Constants.KMeansExecutionBaseDirectory, Guid.NewGuid().ToString("N").Substring(0, 4));
@@ -79,15 +79,15 @@ namespace Org.Apache.REEF.Examples.MachineLearning.KMeans
 
             _totalEvaluators = numPartitions + 1;
 
-            _mpiDriver = mpiDriver;
+            _groupCommDriver = groupCommDriver;
 
-            _commGroup = _mpiDriver.DefaultGroup
+            _commGroup = _groupCommDriver.DefaultGroup
                    .AddBroadcast<Centroids, CentroidsCodec>(Constants.CentroidsBroadcastOperatorName, Constants.MasterTaskId)
                    .AddBroadcast<ControlMessage, ControlMessageCodec>(Constants.ControlMessageBroadcastOperatorName, Constants.MasterTaskId)
                    .AddReduce<ProcessedResults, ProcessedResultsCodec>(Constants.MeansReduceOperatorName, Constants.MasterTaskId, new KMeansMasterTask.AggregateMeans())
                    .Build();
 
-            _mpiTaskStarter = new TaskStarter(_mpiDriver, _totalEvaluators);
+            _groupCommTaskStarter = new TaskStarter(_groupCommDriver, _totalEvaluators);
 
             CreateClassHierarchy();  
         }
@@ -105,10 +105,10 @@ namespace Org.Apache.REEF.Examples.MachineLearning.KMeans
 
         public void OnNext(IAllocatedEvaluator allocatedEvaluator)
         {
-            IConfiguration contextConfiguration = _mpiDriver.GetContextConfiguration();
+            IConfiguration contextConfiguration = _groupCommDriver.GetContextConfiguration();
 
             int partitionNum;
-            if (_mpiDriver.IsMasterContextConfiguration(contextConfiguration))
+            if (_groupCommDriver.IsMasterContextConfiguration(contextConfiguration))
             {
                 partitionNum = -1;
             }
@@ -121,7 +121,7 @@ namespace Org.Apache.REEF.Examples.MachineLearning.KMeans
                 }
             } 
 
-            IConfiguration gcServiceConfiguration = _mpiDriver.GetServiceConfiguration();
+            IConfiguration gcServiceConfiguration = _groupCommDriver.GetServiceConfiguration();
 
             IConfiguration commonServiceConfiguration = TangFactory.GetTang().NewConfigurationBuilder(gcServiceConfiguration)
                 .BindNamedParameter<DataPartitionCache.PartitionIndex, int>(GenericType<DataPartitionCache.PartitionIndex>.Class, partitionNum.ToString(CultureInfo.InvariantCulture))
@@ -141,7 +141,7 @@ namespace Org.Apache.REEF.Examples.MachineLearning.KMeans
         {
             IConfiguration taskConfiguration;
 
-            if (_mpiDriver.IsMasterTaskContext(activeContext))
+            if (_groupCommDriver.IsMasterTaskContext(activeContext))
             {
                 // Configure Master Task
                 taskConfiguration = TaskConfiguration.ConfigurationModule
@@ -162,7 +162,7 @@ namespace Org.Apache.REEF.Examples.MachineLearning.KMeans
 
                 _commGroup.AddTask(slaveTaskId);
             }
-            _mpiTaskStarter.QueueTask(taskConfiguration, activeContext);
+            _groupCommTaskStarter.QueueTask(taskConfiguration, activeContext);
         }
 
         public void OnError(Exception error)

@@ -47,21 +47,21 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.BroadcastReduceDri
         private readonly int _numEvaluators;
         private readonly int _numIterations;
 
-        private readonly IMpiDriver _mpiDriver;
+        private readonly IGroupCommDriver _groupCommDriver;
         private readonly ICommunicationGroupDriver _commGroup;
-        private readonly TaskStarter _mpiTaskStarter;
+        private readonly TaskStarter _groupCommTaskStarter;
 
         [Inject]
         public BroadcastReduceDriver(
             [Parameter(typeof(GroupTestConfig.NumEvaluators))] int numEvaluators,
             [Parameter(typeof(GroupTestConfig.NumIterations))] int numIterations,
-            MpiDriver mpiDriver)
+            GroupCommDriver groupCommDriver)
         {
             Identifier = "BroadcastStartHandler";
             _numEvaluators = numEvaluators;
             _numIterations = numIterations;
-            _mpiDriver = mpiDriver;
-            _commGroup = _mpiDriver.DefaultGroup
+            _groupCommDriver = groupCommDriver;
+            _commGroup = _groupCommDriver.DefaultGroup
                     .AddBroadcast<int, IntCodec>(
                         GroupTestConstants.BroadcastOperatorName,
                        GroupTestConstants.MasterTaskId)
@@ -71,7 +71,7 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.BroadcastReduceDri
                             new SumFunction())
                     .Build();
 
-            _mpiTaskStarter = new TaskStarter(_mpiDriver, numEvaluators);
+            _groupCommTaskStarter = new TaskStarter(_groupCommDriver, numEvaluators);
 
             CreateClassHierarchy();
         }
@@ -86,14 +86,14 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.BroadcastReduceDri
 
         public void OnNext(IAllocatedEvaluator allocatedEvaluator)
         {
-            IConfiguration contextConf = _mpiDriver.GetContextConfiguration();
-            IConfiguration serviceConf = _mpiDriver.GetServiceConfiguration();
+            IConfiguration contextConf = _groupCommDriver.GetContextConfiguration();
+            IConfiguration serviceConf = _groupCommDriver.GetServiceConfiguration();
             allocatedEvaluator.SubmitContextAndService(contextConf, serviceConf);
         }
 
         public void OnNext(IActiveContext activeContext)
         {
-            if (_mpiDriver.IsMasterTaskContext(activeContext))
+            if (_groupCommDriver.IsMasterTaskContext(activeContext))
             {
                 // Configure Master Task
                 IConfiguration partialTaskConf = TangFactory.GetTang().NewConfigurationBuilder(
@@ -110,7 +110,7 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.BroadcastReduceDri
                     .Build();
 
                 _commGroup.AddTask(GroupTestConstants.MasterTaskId);
-                _mpiTaskStarter.QueueTask(partialTaskConf, activeContext);
+                _groupCommTaskStarter.QueueTask(partialTaskConf, activeContext);
             }
             else
             {
@@ -130,7 +130,7 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.BroadcastReduceDri
                     .Build();
 
                 _commGroup.AddTask(slaveTaskId);
-                _mpiTaskStarter.QueueTask(partialTaskConf, activeContext);
+                _groupCommTaskStarter.QueueTask(partialTaskConf, activeContext);
             }
         }
 
