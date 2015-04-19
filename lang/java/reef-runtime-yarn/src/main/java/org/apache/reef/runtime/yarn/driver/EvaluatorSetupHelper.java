@@ -106,7 +106,7 @@ final class EvaluatorSetupHelper {
     this.configurationSerializer.toFile(makeEvaluatorConfiguration(resourceLaunchEvent), configurationFile);
 
     // Copy files to the staging folder
-    JobJarMaker.copy(resourceLaunchEvent.getFileList(), localStagingFolder);
+    JobJarMaker.copy(resourceLaunchEvent.getFileSet(), localStagingFolder);
 
     // Make a JAR file out of it
     final File localFile = tempFileCreator.createTempFile(

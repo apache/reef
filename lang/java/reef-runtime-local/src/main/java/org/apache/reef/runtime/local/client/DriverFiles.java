@@ -62,7 +62,7 @@ final class DriverFiles {
 
     final DriverFiles driverFiles = new DriverFiles(fileNames);
 
-    for (final FileResource frp : jobSubmissionEvent.getGlobalFileList()) {
+    for (final FileResource frp : jobSubmissionEvent.getGlobalFileSet()) {
       final File f = new File(frp.getPath());
       if (frp.getType() == FileType.LIB) {
         driverFiles.addGlobalLib(f);
@@ -71,7 +71,7 @@ final class DriverFiles {
       }
     }
 
-    for (final FileResource frp : jobSubmissionEvent.getLocalFileList()) {
+    for (final FileResource frp : jobSubmissionEvent.getLocalFileSet()) {
       final File f = new File(frp.getPath());
       if (frp.getType() == FileType.LIB) {
         driverFiles.addLocalLib(f);

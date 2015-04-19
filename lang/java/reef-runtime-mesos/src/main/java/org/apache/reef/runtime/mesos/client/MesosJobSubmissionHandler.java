@@ -91,7 +91,7 @@ final class MesosJobSubmissionHandler implements JobSubmissionHandler {
 
       final File localFolder = new File(reefFolder, this.fileNames.getLocalFolderName());
       localFolder.mkdirs();
-      for (final FileResource file : jobSubmissionEvent.getLocalFileList()) {
+      for (final FileResource file : jobSubmissionEvent.getLocalFileSet()) {
         final Path src = new File(file.getPath()).toPath();
         final Path dst = new File(driverFolder, this.fileNames.getLocalFolderPath() + "/" + file.getName()).toPath();
         Files.copy(src, dst, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
@@ -99,7 +99,7 @@ final class MesosJobSubmissionHandler implements JobSubmissionHandler {
 
       final File globalFolder = new File(reefFolder, this.fileNames.getGlobalFolderName());
       globalFolder.mkdirs();
-      for (final FileResource file : jobSubmissionEvent.getGlobalFileList()) {
+      for (final FileResource file : jobSubmissionEvent.getGlobalFileSet()) {
         final Path src = new File(file.getPath()).toPath();
         final Path dst = new File(driverFolder, this.fileNames.getGlobalFolderPath() + "/" + file.getName()).toPath();
         Files.copy(src, dst, java.nio.file.StandardCopyOption.REPLACE_EXISTING);

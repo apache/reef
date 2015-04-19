@@ -24,7 +24,7 @@ import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.annotations.DefaultImplementation;
 import org.apache.reef.util.Optional;
 
-import java.util.List;
+import java.util.Set;
 
 /**
  * Event sent to Driver Runtime
@@ -57,12 +57,12 @@ public interface JobSubmissionEvent {
   /**
    * @return List of global files
    */
-  List<FileResource> getGlobalFileList();
+  Set<FileResource> getGlobalFileSet();
 
   /**
    * @return List of local files
    */
-  List<FileResource> getLocalFileList();
+  Set<FileResource> getLocalFileSet();
 
   /**
    * @return Memory to be allocated to the Driver

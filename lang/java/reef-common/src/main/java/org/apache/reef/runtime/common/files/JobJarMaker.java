@@ -21,7 +21,6 @@ package org.apache.reef.runtime.common.files;
 import org.apache.reef.annotations.audience.ClientSide;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.annotations.audience.RuntimeAuthor;
-import org.apache.reef.proto.ReefServiceProtos;
 import org.apache.reef.runtime.common.client.api.JobSubmissionEvent;
 import org.apache.reef.runtime.common.parameters.DeleteTempFiles;
 import org.apache.reef.tang.Configuration;
@@ -104,8 +103,8 @@ public final class JobJarMaker {
     final File localFolder = new File(jobSubmissionFolder, this.fileNames.getLocalFolderName());
     final File globalFolder = new File(jobSubmissionFolder, this.fileNames.getGlobalFolderName());
 
-    this.copy(jobSubmissionEvent.getGlobalFileList(), globalFolder);
-    this.copy(jobSubmissionEvent.getLocalFileList(), localFolder);
+    this.copy(jobSubmissionEvent.getGlobalFileSet(), globalFolder);
+    this.copy(jobSubmissionEvent.getLocalFileSet(), localFolder);
 
     // Store the Driver Configuration in the JAR file.
     this.configurationSerializer.toFile(

@@ -25,7 +25,7 @@ import org.apache.reef.runtime.common.launch.ProcessType;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.annotations.DefaultImplementation;
 
-import java.util.List;
+import java.util.Set;
 
 /**
  * Event from Driver Process -> Driver Runtime
@@ -59,5 +59,5 @@ public interface ResourceLaunchEvent {
     /**
      * @return List of libraries local to this Evaluator
      */
-    List<FileResource> getFileList();
+    Set<FileResource> getFileSet();
 }

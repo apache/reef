@@ -114,7 +114,7 @@ public final class ResourceManager {
    */
   private static List<File> getLocalFiles(final ResourceLaunchEvent launchRequest) {
     final List<File> files = new ArrayList<>();  // Libraries local to this evaluator
-    for (final FileResource frp : launchRequest.getFileList()) {
+    for (final FileResource frp : launchRequest.getFileSet()) {
       files.add(new File(frp.getPath()).getAbsoluteFile());
     }
     return files;

@@ -23,8 +23,8 @@ import org.apache.reef.tang.Configuration;
 import org.apache.reef.util.BuilderUtils;
 import org.apache.reef.util.Optional;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Default POJO implementation of JobSubmissionEvent.
@@ -35,8 +35,8 @@ public final class JobSubmissionEventImpl implements JobSubmissionEvent {
   private final String remoteId;
   private final Configuration configuration;
   private final String userName;
-  private final List<FileResource> globalFileList;
-  private final List<FileResource> localFileList;
+  private final Set<FileResource> globalFileSet;
+  private final Set<FileResource> localFileSet;
   private final Optional<Integer> driverMemory;
   private final Optional<Integer> priority;
   private final Optional<String> queue;
@@ -46,8 +46,8 @@ public final class JobSubmissionEventImpl implements JobSubmissionEvent {
     this.remoteId = BuilderUtils.notNull(builder.remoteId);
     this.configuration = BuilderUtils.notNull(builder.configuration);
     this.userName = BuilderUtils.notNull(builder.userName);
-    this.globalFileList = BuilderUtils.notNull(builder.globalFileList);
-    this.localFileList = BuilderUtils.notNull(builder.localFileList);
+    this.globalFileSet = BuilderUtils.notNull(builder.globalFileSet);
+    this.localFileSet = BuilderUtils.notNull(builder.localFileSet);
     this.driverMemory = Optional.ofNullable(builder.driverMemory);
     this.priority = Optional.ofNullable(builder.priority);
     this.queue = Optional.ofNullable(builder.queue);
@@ -74,13 +74,13 @@ public final class JobSubmissionEventImpl implements JobSubmissionEvent {
   }
 
   @Override
-  public List<FileResource> getGlobalFileList() {
-    return globalFileList;
+  public Set<FileResource> getGlobalFileSet() {
+    return globalFileSet;
   }
 
   @Override
-  public List<FileResource> getLocalFileList() {
-    return localFileList;
+  public Set<FileResource> getLocalFileSet() {
+    return localFileSet;
   }
 
   @Override
@@ -110,8 +110,8 @@ public final class JobSubmissionEventImpl implements JobSubmissionEvent {
     private String remoteId;
     private Configuration configuration;
     private String userName;
-    private List<FileResource> globalFileList = new ArrayList<>();
-    private List<FileResource> localFileList = new ArrayList<>();
+    private Set<FileResource> globalFileSet = new HashSet<>();
+    private Set<FileResource> localFileSet = new HashSet<>();
     private Integer driverMemory;
     private Integer priority;
     private String queue;
@@ -149,20 +149,20 @@ public final class JobSubmissionEventImpl implements JobSubmissionEvent {
     }
 
     /**
-     * Add an entry to the globalFileList
-     * @see JobSubmissionEvent#getGlobalFileList()
+     * Add an entry to the globalFileSet
+     * @see JobSubmissionEvent#getGlobalFileSet()
      */
     public Builder addGlobalFile(final FileResource globalFile) {
-      this.globalFileList.add(globalFile);
+      this.globalFileSet.add(globalFile);
       return this;
     }
 
     /**
-     * Add an entry to the localFileList
-     * @see JobSubmissionEvent#getLocalFileList()
+     * Add an entry to the localFileSet
+     * @see JobSubmissionEvent#getLocalFileSet()
      */
     public Builder addLocalFile(final FileResource localFile) {
-      this.localFileList.add(localFile);
+      this.localFileSet.add(localFile);
       return this;
     }
 

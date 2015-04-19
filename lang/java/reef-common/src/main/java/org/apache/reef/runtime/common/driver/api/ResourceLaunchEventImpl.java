@@ -23,8 +23,8 @@ import org.apache.reef.runtime.common.launch.ProcessType;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.util.BuilderUtils;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Default POJO implementation of ResourceLaunchEvent.
@@ -36,14 +36,14 @@ public final class ResourceLaunchEventImpl implements ResourceLaunchEvent {
   private final String remoteId;
   private final Configuration evaluatorConf;
   private final ProcessType type;
-  private final List<FileResource> fileList;
+  private final Set<FileResource> fileSet;
 
   private ResourceLaunchEventImpl(final Builder builder) {
     this.identifier = BuilderUtils.notNull(builder.identifier);
     this.remoteId = BuilderUtils.notNull(builder.remoteId);
     this.evaluatorConf = BuilderUtils.notNull(builder.evaluatorConf);
     this.type = BuilderUtils.notNull(builder.type);
-    this.fileList = BuilderUtils.notNull(builder.fileList);
+    this.fileSet = BuilderUtils.notNull(builder.fileSet);
   }
 
   @Override
@@ -67,8 +67,8 @@ public final class ResourceLaunchEventImpl implements ResourceLaunchEvent {
   }
 
   @Override
-  public List<FileResource> getFileList() {
-    return fileList;
+  public Set<FileResource> getFileSet() {
+    return fileSet;
   }
 
   public static Builder newBuilder() {
@@ -83,7 +83,7 @@ public final class ResourceLaunchEventImpl implements ResourceLaunchEvent {
     private String remoteId;
     private Configuration evaluatorConf;
     private ProcessType type;
-    private List<FileResource> fileList = new ArrayList<>();
+    private Set<FileResource> fileSet = new HashSet<>();
 
     /**
      * @see ResourceLaunchEvent#getIdentifier()
@@ -118,11 +118,11 @@ public final class ResourceLaunchEventImpl implements ResourceLaunchEvent {
     }
 
     /**
-     * Add an entry to the fileList
-     * @see ResourceLaunchEvent#getFileList()
+     * Add an entry to the fileSet
+     * @see ResourceLaunchEvent#getFileSet()
      */
     public Builder addFile(final FileResource file) {
-      this.fileList.add(file);
+      this.fileSet.add(file);
       return this;
     }
 

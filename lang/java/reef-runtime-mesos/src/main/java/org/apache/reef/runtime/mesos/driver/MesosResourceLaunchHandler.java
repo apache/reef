@@ -94,7 +94,7 @@ final class MesosResourceLaunchHandler implements ResourceLaunchHandler {
           localStagingFolder, this.fileNames.getEvaluatorConfigurationName());
       this.configurationSerializer.toFile(evaluatorConfiguration, configurationFile);
 
-      JobJarMaker.copy(resourceLaunchEvent.getFileList(), localStagingFolder);
+      JobJarMaker.copy(resourceLaunchEvent.getFileSet(), localStagingFolder);
 
       final FileSystem fileSystem = FileSystem.get(new org.apache.hadoop.conf.Configuration());
       final Path hdfsFolder = new Path(fileSystem.getUri() + "/" + resourceLaunchEvent.getIdentifier() + "/");
