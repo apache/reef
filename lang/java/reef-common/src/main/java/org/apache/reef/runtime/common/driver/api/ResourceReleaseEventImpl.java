@@ -37,13 +37,13 @@ public final class ResourceReleaseEventImpl implements ResourceReleaseEvent {
     return identifier;
   }
 
-  /**
-   * Builder used to create ResourceReleaseEvent instances.
-   */
   public static Builder newBuilder() {
     return new Builder();
   }
 
+  /**
+   * Builder used to create ResourceReleaseEvent instances.
+   */
   public static final class Builder implements org.apache.reef.util.Builder<ResourceReleaseEvent> {
 
     private String identifier;
