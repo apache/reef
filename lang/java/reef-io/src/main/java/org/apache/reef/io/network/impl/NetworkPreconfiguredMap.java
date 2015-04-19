@@ -89,8 +89,8 @@ public final class NetworkPreconfiguredMap {
       int eventClassNameCode = getEventClassNameCode(eventClassName);
       checkRepetition(map, eventClassNameCode,
           "There are more than one " + simpleName + "s for one event type : " + eventClassName
-          + "\nPlease check whether the hash code for " + simpleName + " is same as an already "
-          + "configured event type.");
+              + "\nPlease check whether the hash code for " + simpleName + " is same as an already "
+              + "configured event type.");
 
       LOG.log(Level.FINE, simpleName + " for " + eventClassName + " is registered.");
       map.put(eventClassNameCode, obj);
@@ -121,14 +121,88 @@ public final class NetworkPreconfiguredMap {
     }
   }
 
-  private String getEventClassName(Class<?> childClass, String simpleName) {
-    for (Type type : childClass.getGenericInterfaces()) {
-      final String name = ((Class)((ParameterizedType)type).getRawType()).getSimpleName();
-      if (name.equals(simpleName)) {
-        return ((Class)(((ParameterizedType)type).getActualTypeArguments()[0])).getName();
+  private String indexOfSimpleName(Class<?> clazz, String findName) {
+    Type[] genericInterfaces = clazz.getGenericInterfaces();
+    Type[] allParents = new Type[genericInterfaces.length+1];
+    allParents[0] = clazz.getGenericSuperclass();
+    for(int i = 1; i < allParents.length; i++) {
+      allParents[i] = genericInterfaces[i - 1];
+    }
+
+    Type[] typeParameters = clazz.getTypeParameters();
+
+    for (Type type : allParents) {
+      if (type instanceof Class) {
+        String ret = reflectEventClassName((Class) type, findName);
+        if (ret  != null) {
+          return ret;
+        }
+      } else if (type instanceof ParameterizedType) {
+        final String name = ((Class)((ParameterizedType)type).getRawType()).getSimpleName();
+        if (name.equals(findName)) {
+          String typeVariable = (((ParameterizedType) type).getActualTypeArguments()[0]).toString();
+          return findTypeVariableIndex(typeParameters, typeVariable) + "";
+        } else {
+          int index = Integer.parseInt(indexOfSimpleName((Class) ((ParameterizedType) type).getRawType(), findName));
+          String typeVariable = ((ParameterizedType) type).getActualTypeArguments()[index].toString();
+          return findTypeVariableIndex(typeParameters, typeVariable) + "";
+        }
       }
     }
-    throw new NetworkRuntimeException(childClass.getName() + " is not seems to directly implement " + simpleName);
+    return null;
+  }
+
+  private int findTypeVariableIndex(Type[] typeParameters, String typeVariable) {
+    for (int i = 0; i < typeParameters.length; i++) {
+      if (typeParameters[i].toString().equals(typeVariable)) {
+        return i;
+      }
+    }
+    throw new RuntimeException("Unexpected class hierarchy");
+  }
+
+  private String reflectEventClassName(Class<?> clazz, String findName) {
+    if (clazz == Object.class) {
+      return null;
+    }
+    Type[] genericInterfaces = clazz.getGenericInterfaces();
+    Type[] allParents = new Type[genericInterfaces.length + 1];
+    allParents[0] = clazz.getGenericSuperclass();
+    for(int i = 1; i < allParents.length; i++) {
+      allParents[i] = genericInterfaces[i - 1];
+    }
+    for (Type type : allParents) {
+      if (type instanceof Class) {
+        String ret = reflectEventClassName((Class) type, findName);
+        if (ret != null) {
+          return ret;
+        }
+      } else if (type instanceof ParameterizedType) {
+        final String name = ((Class)((ParameterizedType)type).getRawType()).getSimpleName();
+        if (name.equals(findName)) {
+          return ((Class)(((ParameterizedType)type).getActualTypeArguments()[0])).getName();
+        } else {
+          String index = indexOfSimpleName((Class)((ParameterizedType) type).getRawType(), findName);
+          try {
+            int integerIndex = Integer.parseInt(index);
+            return ((Class)(((ParameterizedType)type).getActualTypeArguments()[integerIndex])).getName();
+          } catch(NumberFormatException e) {
+            if (index != null) {
+              return index;
+            }
+          }
+        }
+      }
+    }
+    return null;
+  }
+
+  private String getEventClassName(Class<?> childClass, String simpleName) {
+    String eventClassName = reflectEventClassName(childClass, simpleName);
+    if (eventClassName != null) {
+      return eventClassName;
+    }
+    throw new NetworkRuntimeException(childClass.getName() + " has unexpected class hierarchy for  " + simpleName);
   }
 
   /**
