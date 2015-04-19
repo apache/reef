@@ -93,7 +93,7 @@ final class ProcessContainer implements Container {
         final Path linkTargetPath = Files.readSymbolicLink(sourceFile.toPath());
         Files.createSymbolicLink(destinationFile.toPath(), linkTargetPath);
       } else {
-        Files.copy(sourceFile.toPath(), destinationFile.toPath());
+        Files.copy(sourceFile.toPath(), destinationFile.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
       }
     }
   }

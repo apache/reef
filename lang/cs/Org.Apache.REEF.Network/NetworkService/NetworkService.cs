@@ -60,11 +60,10 @@ namespace Org.Apache.REEF.Network.NetworkService
         [Inject]
         public NetworkService(
             [Parameter(typeof(NetworkServiceOptions.NetworkServicePort))] int nsPort,
-            [Parameter(typeof(NamingConfigurationOptions.NameServerAddress))] string nameServerAddr,
-            [Parameter(typeof(NamingConfigurationOptions.NameServerPort))] int nameServerPort,
             IObserver<NsMessage<T>> messageHandler,
             IIdentifierFactory idFactory,
-            ICodec<T> codec)
+            ICodec<T> codec,
+            INameClient nameClient)
         {
             _codec = new NsMessageCodec<T>(codec, idFactory);
 
@@ -72,7 +71,7 @@ namespace Org.Apache.REEF.Network.NetworkService
             _remoteManager = new DefaultRemoteManager<NsMessage<T>>(localAddress, nsPort, _codec);
             _messageHandler = messageHandler;
 
-            NamingClient = new NameClient(nameServerAddr, nameServerPort);
+            NamingClient = nameClient;
             _connectionMap = new Dictionary<IIdentifier, IConnection<T>>();
 
             LOGGER.Log(Level.Info, "Started network service");
@@ -123,6 +122,8 @@ namespace Org.Apache.REEF.Network.NetworkService
             // Create and register incoming message handler
             var anyEndpoint = new IPEndPoint(IPAddress.Any, 0);
             _messageHandlerDisposable = _remoteManager.RegisterObserver(anyEndpoint, _messageHandler);
+
+            LOGGER.Log(Level.Info, "End of Registering id {0} with network service.", id);
         }
 
         /// <summary>

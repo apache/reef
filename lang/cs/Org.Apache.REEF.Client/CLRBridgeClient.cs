@@ -36,8 +36,8 @@ namespace Org.Apache.REEF.Client
     public class CLRBridgeClient
     {
         public const string ReefHome = "REEF_HOME";
-        public const string DefaultClrFolder = @"lang\reef-bridge\dotnetHello";
-        public const string DefaultReefJar = @"lang\reef-bridge\target\" + Constants.BridgeJarFileName;
+        public const string DefaultClrFolder = ".";
+        public const string DefaultReefJar = Constants.JavaBridgeJarFileName;
         public const string DefaultRunCommand = "run.cmd";
 
         private static string _clrFolder = null;
@@ -116,12 +116,12 @@ namespace Org.Apache.REEF.Client
 
             if (string.IsNullOrWhiteSpace(_reefJar))
             {
-                _reefJar = Path.Combine(Environment.GetEnvironmentVariable(ReefHome), DefaultReefJar);
+                _reefJar = DefaultReefJar;
             }
 
             if (string.IsNullOrWhiteSpace(_clrFolder))
             {
-                _clrFolder = Path.Combine(Environment.GetEnvironmentVariable(ReefHome), DefaultClrFolder);
+                _clrFolder = DefaultClrFolder;
             }
 
             // Configurable driver submission settings:

@@ -30,9 +30,9 @@ Function Get-Nuspec-Version {
     Extracts the NuGet version number from the pom.xml file in the source directory.
     #>
 
-    $pomPath = "$SolutionDir\pom.xml"
+    $pomPath = "$SolutionDir\..\..\pom.xml"
     $pom = [xml] (Get-Content $pomPath)
-    $version = $pom.project.parent.version -replace '-incubating-SNAPSHOT',''
+    $version = $pom.project.version -replace '-incubating-SNAPSHOT',''
     return $version
 }
 
@@ -77,6 +77,7 @@ Function Finalize-Nuspec-Version {
     }
 
     $nuspecDir = "$SolutionDir\.nuget\nuspec"
+    Write-Output $nuspecDir
     $nuspecFiles = Get-ChildItem $nuspecDir
     
     # Replace the $version$ token with the specified version in each nuspec file

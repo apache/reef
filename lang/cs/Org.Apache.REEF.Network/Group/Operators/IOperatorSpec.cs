@@ -17,6 +17,7 @@
  * under the License.
  */
 
+using System;
 using Org.Apache.REEF.Wake.Remote;
 
 namespace Org.Apache.REEF.Network.Group.Operators
@@ -24,11 +25,11 @@ namespace Org.Apache.REEF.Network.Group.Operators
     /// <summary>
     /// The specification used to define Broadcast Operators.
     /// </summary>
-    public interface IOperatorSpec<T>
+    public interface IOperatorSpec<T1, T2> where T2 : ICodec<T1>
     {
         /// <summary>
-        /// Returns the codec used to serialize and deserialize messages.
+        /// Returns the codec type used to serialize and deserialize messages.
         /// </summary>
-        ICodec<T> Codec { get; }
+        Type Codec { get; }
     }
 }

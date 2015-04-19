@@ -17,14 +17,16 @@
  * under the License.
  */
 
+using System;
 using Org.Apache.REEF.Wake.Remote;
+using Org.Apache.REEF.Network.Group.Pipelining;
 
 namespace Org.Apache.REEF.Network.Group.Operators.Impl
 {
     /// <summary>
-    /// The specification used to define Scatter MPI Operators.
+    /// The specification used to define Scatter Group Communication Operators.
     /// </summary>
-    public class ScatterOperatorSpec<T> : IOperatorSpec<T>
+    public class ScatterOperatorSpec<T1, T2> : IOperatorSpec<T1, T2> where T2 : ICodec<T1>
     {
         /// <summary>
         /// Creates a new ScatterOperatorSpec.
@@ -33,11 +35,33 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
         /// be sending messages</param>
         /// <param name="codec">The codec used to serialize and 
         /// deserialize messages</param>
-        public ScatterOperatorSpec(string senderId, ICodec<T> codec)
+        public ScatterOperatorSpec(string senderId)
         {
             SenderId = senderId;
-            Codec = codec;
+            Codec = typeof(T2);
         }
+
+        /// <summary>
+        /// Creates a new ScatterOperatorSpec.
+        /// </summary>
+        /// <param name="senderId">The identifier of the task that will
+        /// be sending messages</param>
+        /// deserialize messages</param>
+        /// <param name="dataConverter">The converter used to convert original
+        /// message to pipelined ones and vice versa.</param>
+        public ScatterOperatorSpec(
+            string senderId,
+            IPipelineDataConverter<T1> dataConverter)
+        {
+            SenderId = senderId;
+            Codec = typeof(T2);
+            PipelineDataConverter = dataConverter;
+        }
+
+        /// <summary>
+        /// Returns the IPipelineDataConvert used to convert messages to pipeline form and vice-versa
+        /// </summary>
+        public IPipelineDataConverter<T1> PipelineDataConverter { get; private set; }
 
         /// <summary>
         /// Returns the identifier for the task that splits and scatters a list
@@ -48,6 +72,6 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
         /// <summary>
         /// The codec used to serialize and deserialize messages.
         /// </summary>
-        public ICodec<T> Codec { get; private set; }
+        public Type Codec { get; private set; }
     }
 }

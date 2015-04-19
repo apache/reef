@@ -30,7 +30,7 @@ using Org.Apache.REEF.Utilities.Logging;
 namespace Org.Apache.REEF.Network.Group.Driver.Impl
 {
     /// <summary>
-    /// Helper class to start MPI tasks.
+    /// Helper class to start Group Communication tasks.
     /// </summary>
     public class TaskStarter
     {
@@ -41,7 +41,7 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
         private int _tasksAdded;
         private readonly string _masterTaskId;
 
-        private readonly IMpiDriver _mpiDriver;
+        private readonly IGroupCommDriver _groupCommDriver;
         private readonly List<Tuple<string, IConfiguration, IActiveContext>> _taskTuples; 
 
         /// <summary>
@@ -49,18 +49,18 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
         /// After adding the correct number of tasks to the TaskStarter, the
         /// Tasks will be started on their given active context.
         /// </summary>
-        /// <param name="mpiDriver">The IMpiDriver for the MPI tasks</param>
+        /// <param name="groupCommDriver">The IGroupCommuDriver for the Group Communication tasks</param>
         /// <param name="numTasks">The number of Tasks that need to be added before
         /// the Tasks will be started. </param>
-        public TaskStarter(IMpiDriver mpiDriver, int numTasks)
+        public TaskStarter(IGroupCommDriver groupCommDriver, int numTasks)
         {
             LOGGER.Log(Level.Verbose, "Creating TaskStarter");
-            _masterTaskId = mpiDriver.MasterTaskId;
+            _masterTaskId = groupCommDriver.MasterTaskId;
             _numTasks = numTasks;
             _tasksAdded = 0;
             _lock = new object();
 
-            _mpiDriver = mpiDriver;
+            _groupCommDriver = groupCommDriver;
             _taskTuples = new List<Tuple<string, IConfiguration, IActiveContext>>();
         }
 
@@ -127,8 +127,8 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
             IConfiguration userPartialTaskConf,
             IActiveContext activeContext)
         {
-            IConfiguration mpiTaskConfiguration = _mpiDriver.GetMpiTaskConfiguration(taskId);
-            IConfiguration mergedTaskConf = Configurations.Merge(userPartialTaskConf, mpiTaskConfiguration);
+            IConfiguration groupCommTaskConfiguration = _groupCommDriver.GetGroupCommTaskConfiguration(taskId);
+            IConfiguration mergedTaskConf = Configurations.Merge(userPartialTaskConf, groupCommTaskConfiguration);
             activeContext.SubmitTask(mergedTaskConf);
         }
     }

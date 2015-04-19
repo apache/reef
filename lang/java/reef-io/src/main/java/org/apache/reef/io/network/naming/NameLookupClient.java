@@ -20,7 +20,7 @@ package org.apache.reef.io.network.naming;
 
 import org.apache.reef.io.naming.NameAssignment;
 import org.apache.reef.io.naming.NamingLookup;
-import org.apache.reef.io.network.Cache;
+import org.apache.reef.util.cache.Cache;
 import org.apache.reef.io.network.naming.exception.NamingException;
 import org.apache.reef.io.network.naming.serialization.NamingLookupRequest;
 import org.apache.reef.io.network.naming.serialization.NamingLookupResponse;

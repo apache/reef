@@ -18,27 +18,28 @@
  */
 
 using System;
-using System.Collections.Generic;
 using System.Reactive;
+using System.Collections.Generic;
 using Org.Apache.REEF.Network.Group.Config;
 using Org.Apache.REEF.Network.Group.Driver.Impl;
 using Org.Apache.REEF.Network.Group.Task;
 using Org.Apache.REEF.Network.Group.Task.Impl;
 using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Network.Group.Pipelining;
+using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Network.Group.Operators.Impl
 {
     /// <summary>
-    /// MPI Operator used to send messages to be reduced by the ReduceReceiver.
+    /// Group Communication Operator used to send messages to be reduced by the ReduceReceiver in pipelined fashion.
     /// </summary>
     /// <typeparam name="T">The message type</typeparam>
     public class ReduceSender<T> : IReduceSender<T>
     {
-        private const int DefaultVersion = 1;
-
-        private readonly ICommunicationGroupNetworkObserver _networkHandler;
-        private readonly OperatorTopology<T> _topology;
-        private readonly IReduceFunction<T> _reduceFunction;
+        private static readonly Logger Logger = Logger.GetLogger(typeof (ReduceSender<T>));
+        private const int PipelineVersion = 2;
+        private readonly OperatorTopology<PipelineMessage<T>> _topology;
+        private readonly PipelinedReduceFunction<T> _pipelinedReduceFunc;
 
         /// <summary>
         /// Creates a new ReduceSender.
@@ -47,24 +48,32 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
         /// <param name="groupName">The name of the reduce operator's CommunicationGroup</param>
         /// <param name="topology">The Task's operator topology graph</param>
         /// <param name="networkHandler">The handler used to handle incoming messages</param>
+        /// <param name="reduceFunction">The function used to reduce the incoming messages</param>
+        /// <param name="dataConverter">The converter used to convert original
+        /// message to pipelined ones and vice versa.</param>
         [Inject]
         public ReduceSender(
-            [Parameter(typeof(MpiConfigurationOptions.OperatorName))] string operatorName,
-            [Parameter(typeof(MpiConfigurationOptions.CommunicationGroupName))] string groupName,
-            OperatorTopology<T> topology, 
+            [Parameter(typeof(GroupCommConfigurationOptions.OperatorName))] string operatorName,
+            [Parameter(typeof(GroupCommConfigurationOptions.CommunicationGroupName))] string groupName,
+            OperatorTopology<PipelineMessage<T>> topology,
             ICommunicationGroupNetworkObserver networkHandler,
-            IReduceFunction<T> reduceFunction)
+            IReduceFunction<T> reduceFunction,
+            IPipelineDataConverter<T> dataConverter)
         {
             OperatorName = operatorName;
             GroupName = groupName;
-            Version = DefaultVersion;
-            _reduceFunction = reduceFunction;
-            _networkHandler = networkHandler;
+            ReduceFunction = reduceFunction;
+
+            Version = PipelineVersion;
+
+            _pipelinedReduceFunc = new PipelinedReduceFunction<T>(ReduceFunction);
             _topology = topology;
             _topology.Initialize();
 
             var msgHandler = Observer.Create<GroupCommunicationMessage>(message => _topology.OnNext(message));
-            _networkHandler.Register(operatorName, msgHandler);
+            networkHandler.Register(operatorName, msgHandler);
+
+            PipelineDataConverter = dataConverter;
         }
 
         /// <summary>
@@ -83,35 +92,48 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
         public int Version { get; private set; }
 
         /// <summary>
-        /// Sends data to the operator's ReduceReceiver to be aggregated.
+        /// Get reduced data from children, reduce with the data given, then sends reduced data to parent
+        /// </summary>
+        public IReduceFunction<T> ReduceFunction { get; private set; }
+
+        /// <summary>
+        /// Returns the IPipelineDataConvert used to convert messages to pipeline form and vice-versa
+        /// </summary>
+        public IPipelineDataConverter<T> PipelineDataConverter { get; private set; }
+
+        /// <summary>
+        /// Sends the data to the operator's ReduceReceiver to be aggregated.
         /// </summary>
         /// <param name="data">The data to send</param>
         public void Send(T data)
         {
+            var messageList = PipelineDataConverter.PipelineMessage(data);
+
             if (data == null)
             {
-                throw new ArgumentNullException("data");    
+                throw new ArgumentNullException("data");
             }
 
-            //middle notes
-            if (_topology.HasChildren())
+            foreach (var message in messageList)
             {
-                var reducedValueOfChildren = _topology.ReceiveFromChildren(_reduceFunction);
-
-                var mergeddData = new List<T>();
-                mergeddData.Add(data);
-                if (reducedValueOfChildren != null)
+                if (_topology.HasChildren())
                 {
-                    mergeddData.Add(reducedValueOfChildren);
-                }
-                T reducedValue = _reduceFunction.Reduce(mergeddData);
+                    var reducedValueOfChildren = _topology.ReceiveFromChildren(_pipelinedReduceFunc);
 
-                _topology.SendToParent(reducedValue, MessageType.Data);
-            }
-            else
-            {
-                //leaf node
-                _topology.SendToParent(data, MessageType.Data);
+                    var mergeddData = new List<PipelineMessage<T>> {message};
+
+                    if (reducedValueOfChildren != null)
+                    {
+                        mergeddData.Add(reducedValueOfChildren);
+                    }
+
+                    var reducedValue = _pipelinedReduceFunc.Reduce(mergeddData);
+                    _topology.SendToParent(reducedValue, MessageType.Data);
+                }
+                else
+                {
+                    _topology.SendToParent(message, MessageType.Data);
+                }
             }
         }
     }

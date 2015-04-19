@@ -18,7 +18,6 @@
  */
 package org.apache.reef.runtime.local.client;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.reef.annotations.audience.ClientSide;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.proto.ClientRuntimeProtocol;
@@ -37,7 +36,6 @@ import org.apache.reef.util.logging.LoggingScopeFactory;
 
 import javax.inject.Inject;
 import java.io.File;
-import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -49,20 +47,14 @@ import java.util.logging.Logger;
 @ClientSide
 final class LocalJobSubmissionHandler implements JobSubmissionHandler {
 
-  /**
-   * The name of the folder for the driver within the Job folder.
-   */
-  public static final String DRIVER_FOLDER_NAME = "driver";
-  /**
-   * The (hard-coded) amount of memory to be used for the driver.
-   */
-  public static final int DRIVER_MEMORY = 512;
+
   private static final Logger LOG = Logger.getLogger(LocalJobSubmissionHandler.class.getName());
   private final ExecutorService executor;
   private final String rootFolderName;
   private final ConfigurationSerializer configurationSerializer;
   private final REEFFileNames fileNames;
   private final ClasspathProvider classpath;
+  private final PreparedDriverFolderLauncher driverLauncher;
   private final LoggingScopeFactory loggingScopeFactory;
   private final DriverConfigurationProvider driverConfigurationProvider;
 
@@ -73,6 +65,8 @@ final class LocalJobSubmissionHandler implements JobSubmissionHandler {
       final ConfigurationSerializer configurationSerializer,
       final REEFFileNames fileNames,
       final ClasspathProvider classpath,
+
+      final PreparedDriverFolderLauncher driverLauncher,
       final LoggingScopeFactory loggingScopeFactory,
       final DriverConfigurationProvider driverConfigurationProvider) {
 
@@ -80,6 +74,8 @@ final class LocalJobSubmissionHandler implements JobSubmissionHandler {
     this.configurationSerializer = configurationSerializer;
     this.fileNames = fileNames;
     this.classpath = classpath;
+
+    this.driverLauncher = driverLauncher;
     this.driverConfigurationProvider = driverConfigurationProvider;
     this.rootFolderName = new File(rootFolderName).getAbsolutePath();
     this.loggingScopeFactory = loggingScopeFactory;
@@ -101,7 +97,7 @@ final class LocalJobSubmissionHandler implements JobSubmissionHandler {
         final File jobFolder = new File(new File(rootFolderName),
             "/" + t.getIdentifier() + "-" + System.currentTimeMillis() + "/");
 
-        final File driverFolder = new File(jobFolder, DRIVER_FOLDER_NAME);
+        final File driverFolder = new File(jobFolder, PreparedDriverFolderLauncher.DRIVER_FOLDER_NAME);
         driverFolder.mkdirs();
 
         final DriverFiles driverFiles = DriverFiles.fromJobSubmission(t, this.fileNames);
@@ -113,28 +109,7 @@ final class LocalJobSubmissionHandler implements JobSubmissionHandler {
 
         this.configurationSerializer.toFile(driverConfiguration,
             new File(driverFolder, this.fileNames.getDriverConfigurationPath()));
-
-        final List<String> command = new JavaLaunchCommandBuilder()
-            .setErrorHandlerRID(t.getRemoteId())
-            .setLaunchID(t.getIdentifier())
-            .setConfigurationFileName(this.fileNames.getDriverConfigurationPath())
-            .setClassPath(this.classpath.getDriverClasspath())
-            .setMemory(DRIVER_MEMORY)
-            .build();
-
-        if (LOG.isLoggable(Level.FINEST)) {
-          LOG.log(Level.FINEST, "REEF app command: {0}", StringUtils.join(command, ' '));
-        }
-
-        final RunnableProcess process = new RunnableProcess(command,
-            "driver",
-            driverFolder,
-            new LoggingRunnableProcessObserver(),
-            this.fileNames.getDriverStdoutFileName(),
-            this.fileNames.getDriverStderrFileName());
-        this.executor.submit(process);
-        this.executor.shutdown();
-
+        this.driverLauncher.launch(driverFolder, t.getIdentifier(), t.getRemoteId());
       } catch (final Exception e) {
         LOG.log(Level.SEVERE, "Unable to setup driver.", e);
         throw new RuntimeException("Unable to setup driver.", e);

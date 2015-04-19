@@ -74,7 +74,7 @@ namespace Org.Apache.REEF.Examples.MachineLearning.KMeans
             _dataPartition.LabelData(_centroids);
             _partialMeans = ComputePartialMeans();
 
-            // should be replaced with MPI
+            // should be replaced with Group Communication
             using (StreamWriter writer = new StreamWriter(
                     File.OpenWrite(Path.Combine(_kMeansExecutionDirectory, Constants.DataDirectory, Constants.PartialMeanFilePrefix + _dataPartition.Partition))))
             {

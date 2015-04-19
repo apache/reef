@@ -6,7 +6,11 @@ TestResults
 **/*.suo
 **/*.csproj.user
 **/obj
+**/x64
+**/*.opensdf
+**/*.sdf
 **/.nuget/nuspec
 **/.nuget/packages
+*.sln.GhostDoc.xml
 
 

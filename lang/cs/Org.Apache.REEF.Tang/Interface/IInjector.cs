@@ -136,7 +136,7 @@ namespace Org.Apache.REEF.Tang.Interface
         /// </summary>
         /// <param name="configurations">The configurations.</param>
         /// <returns></returns>
-        IInjector ForkInjector(IConfiguration[] configurations);
+        IInjector ForkInjector(params IConfiguration[] configurations);
 
         /// <summary>
         /// Binds the volatile instance.

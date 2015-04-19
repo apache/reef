@@ -49,7 +49,7 @@ namespace Org.Apache.REEF.Examples.MachineLearning.KMeans
         public KMeansMasterTask(
             [Parameter(typeof(KMeansConfiguratioinOptions.TotalNumEvaluators))] int totalNumEvaluators,
             [Parameter(Value = typeof(KMeansConfiguratioinOptions.ExecutionDirectory))] string executionDirectory,
-            IMpiClient mpiClient)
+            IGroupCommClient groupCommClient)
         {
             using (_logger.LogFunction("KMeansMasterTask"))
             {
@@ -57,7 +57,7 @@ namespace Org.Apache.REEF.Examples.MachineLearning.KMeans
                 {
                     throw new ArgumentException("There must be more than 1 Evaluators in total, but the total evaluators number provided is " + totalNumEvaluators);
                 }
-                _commGroup = mpiClient.GetCommunicationGroup(Constants.KMeansCommunicationGroupName);
+                _commGroup = groupCommClient.GetCommunicationGroup(Constants.KMeansCommunicationGroupName);
                 _dataBroadcastSender = _commGroup.GetBroadcastSender<Centroids>(Constants.CentroidsBroadcastOperatorName);
                 _meansReducerReceiver = _commGroup.GetReduceReceiver<ProcessedResults>(Constants.MeansReduceOperatorName);
                 _controlBroadcastSender = _commGroup.GetBroadcastSender<ControlMessage>(Constants.ControlMessageBroadcastOperatorName);

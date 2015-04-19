@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="12.0">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <!--Set configuration parameters usually set in the Solution. This is needed for build.props to work.-->
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..</SolutionDir>
+    <RootNamespace>Org.Apache.REEF.Bridge.JAR</RootNamespace>
+    <ProjectGuid>{62905C7C-1A7E-4923-B78D-1BF42D7FAD40}</ProjectGuid>
+    <AssemblyName>Org.Apache.REEF.Bridge.JAR</AssemblyName>
+    <RestorePackages>true</RestorePackages>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="Org.Apache.REEF.Bridge.JAR.nuspec" />
+  </ItemGroup>
+  <Import Project="$(SolutionDir)\build.props" />
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
+  <Import Project="$(MSBuildBinPath)\Microsoft.Common.targets" />
+  <!--
+    Check that maven is installed
+  -->
+  <Target Name="CheckMavenInstall">
+    <Error Condition=" '$(M2_HOME)' == '' " Text="$M2_HOME is not set. Please make sure that Maven is installed and configured. See https://cwiki.apache.org/confluence/display/REEF/Compiling+REEF for details." />
+    <Error Condition=" '$(JAVA_HOME)' == '' " Text="$JAVA_HOME is not set. Please make sure that Java is installed and configured. See https://cwiki.apache.org/confluence/display/REEF/Compiling+REEF for details." />
+    <Message Text="Using the maven installation found in $(M2_HOME)" />
+  </Target>
+  <Target Name="CheckJavaInstall">
+    <Error Condition=" '$(JAVA_HOME)' == '' " Text="$JAVA_HOME is not set. Please make sure that Java is installed and configured. See https://cwiki.apache.org/confluence/display/REEF/Compiling+REEF for details." />
+    <Message Text="Using the java installation found in $(JAVA_HOME)" />
+  </Target>
+  <Target Name="CheckProtocInstall">
+    <Exec ContinueOnError="True" IgnoreExitCode="true" Command="&quot;cmd /c where protoc.exe&quot;">
+      <Output TaskParameter="ExitCode" PropertyName="ErrorCode" />
+    </Exec>
+    <Message Text="The exit code is $(ErrorCode)" />
+    <Message Text="BuildPackage is $(BuildPackage)" />
+    <Error Text="protoc.exe not found. Please make sure that protoc.exe is on the path. See https://cwiki.apache.org/confluence/display/REEF/Compiling+REEF for details." Condition="'$(ErrorCode)' &gt; '0'" />
+  </Target>
+  <!--
+    Executes 'mvn install', if the JAR does not exist.
+  -->
+  <Target Name="Build" 
+          DependsOnTargets="CheckMavenInstall;CheckJavaInstall;CheckProtocInstall" 
+          Outputs="$(OutputPath)">
+    <PropertyGroup>
+      <!--The shaded jar of the bridge (driver side) -->
+      <Bridge_JAR_Name>reef-bridge-java-$(REEF_Version)-shaded.jar</Bridge_JAR_Name>
+      <Bridge_JAR>$(REEF_Source_Folder)\lang\java\reef-bridge-java\target\$(Bridge_JAR_Name)</Bridge_JAR>
+      <!--The shaded jar of the bridge (client side) -->
+      <Client_JAR_Name>reef-bridge-client-$(REEF_Version)-shaded.jar</Client_JAR_Name>
+      <Client_JAR>$(REEF_Source_Folder)\lang\java\reef-bridge-client\target\$(Client_JAR_Name)</Client_JAR>
+    </PropertyGroup>
+    <Exec Command="$(M2_HOME)\bin\mvn -TC1 -DskipTests install" Condition="!Exists('$(Bridge_JAR)')" WorkingDirectory="$(REEF_Source_Folder)" />
+    <Copy DestinationFolder="$(OutputPath)" SourceFiles="$(Bridge_JAR)" />
+    <Copy DestinationFolder="$(OutputPath)" SourceFiles="$(Client_JAR)" />
+  </Target>
+  <!--
+    Executes 'mvn clean', if the JAR exists.
+  -->
+  <Target Name="Clean" DependsOnTargets="CheckMavenInstall;CheckJavaInstall;CheckProtocInstall">
+    <PropertyGroup>
+      <!--The shaded jar of the bridge (driver side) -->
+      <Bridge_JAR_Name>reef-bridge-java-$(REEF_Version)-shaded.jar</Bridge_JAR_Name>
+      <Bridge_JAR>$(REEF_Source_Folder)\lang\java\reef-bridge-java\target\$(Bridge_JAR_Name)</Bridge_JAR>
+      <!--The shaded jar of the bridge (client side) -->
+      <Client_JAR_Name>reef-bridge-client-$(REEF_Version)-shaded.jar</Client_JAR_Name>
+      <Client_JAR>$(REEF_Source_Folder)\lang\java\reef-bridge-client\target\$(Client_JAR_Name)</Client_JAR>
+    </PropertyGroup>
+    <Exec Command="$(M2_HOME)\bin\mvn -TC1 -DskipTests clean" Condition="Exists('$(Bridge_JAR)')" WorkingDirectory="$(REEF_Source_Folder)" />
+    <Delete Files="$(OutputPath)\$(Bridge_JAR_Name)" />
+    <Delete Files="$(OutputPath)\$(Client_JAR_Name)" />
+
+  </Target>
+  <!--
+    Standard Rebuild target: Clean, then build
+  -->
+  <Target Name="Rebuild" DependsOnTargets="Clean;Build"/>
+  <Target Name="CheckPrerequisites" DependsOnTargets="Build"/>
+    <Target Name="BuildPackage" Condition="'$(BuildPackage)' == 'true'" DependsOnTargets="ExtractPOMVersion; CheckPrerequisites; FinalizeNuspecFiles" AfterTargets="Build">
+        <PropertyGroup>
+            <BuildCommand>$(NuGetCommand) pack "$(FinalizedNuspecFile)" -BasePath $(NugetProjectPath) -Properties "Configuration=$(Configuration);Platform=$(Platform);REEF_Version=$(REEF_Version)" $(NonInteractiveSwitch) -OutputDirectory "$(PackageOutputDir)" </BuildCommand>
+            <ReefVer>$([System.String]::Copy('$(REEF_NugetVersion)').Replace('-SNAPSHOT-',''))</ReefVer>
+        </PropertyGroup>
+
+  <ItemGroup>
+    <Line Include="line01"><Text>param($installPath, $toolsPath, $package, $project)</Text></Line>
+    <Line Include="line02"><Text>$file1 = $project.ProjectItems.Item("reef-bridge-java-$(ReefVer)-incubating-SNAPSHOT-shaded.jar")</Text></Line>
+    <Line Include="line03"><Text>$copyToOutput1 = $file1.Properties.Item("CopyToOutputDirectory")</Text></Line>
+    <Line Include="line04"><Text>$copyToOutput1.Value = 2</Text></Line>
+    <!--Copy the client JAR-->
+    <Line Include="line05"><Text>$file2 = $project.ProjectItems.Item("reef-bridge-client-$(ReefVer)-incubating-SNAPSHOT-shaded.jar")</Text></Line>
+    <Line Include="line06"><Text>$copyToOutput2 = $file2.Properties.Item("CopyToOutputDirectory")</Text></Line>
+    <Line Include="line07"><Text>$copyToOutput2.Value = 2</Text></Line>
+    <LineText Include="%(Line.Text)" />
+  </ItemGroup>
+  <WriteLinesToFile
+     File="$(SolutionDir)\bin\$(Platform)\$(Configuration)\$(AssemblyName)\install.ps1"
+     Lines="@(LineText)"
+     Overwrite="true"
+     />
+        <Exec Command="$(BuildCommand)" Condition=" '$(OS)' != 'Windows_NT' " />
+        <Exec Command="$(BuildCommand)" LogStandardErrorAsError="true" Condition=" '$(OS)' == 'Windows_NT' " />
+    </Target>
+    <Target Name="PushPackages" Condition="'$(PushPackages)' == 'true'" DependsOnTargets="BuildPackage"  AfterTargets="BuildPackage">
+        <ItemGroup>
+            <PackageFile Include="$(SolutionDir).nuget\packages\$(RootNamespace).$(REEF_NugetVersion)$(SnapshotNumber).nupkg" />
+        </ItemGroup>
+        <PropertyGroup>
+            <PushCommand Condition="'$(NuGetApiKey)' == '' OR '$(NuGetApiKey)' == '*Undefined*'">$(NuGetCommand) push @(PackageFile) -Source $(NuGetRepository)</PushCommand>
+            <PushCommand Condition="'$(NuGetApiKey)' != '' AND '$(NuGetApiKey)' != '*Undefined*'">$(NuGetCommand) push @(PackageFile) $(NuGetApiKey) -Source $(NuGetRepository)</PushCommand>
+        </PropertyGroup>
+       <Exec Condition="'$(BuildPackage)' == 'true'" Command="$(PushCommand)" LogStandardErrorAsError="true">
+        </Exec>
+    </Target>
+</Project>

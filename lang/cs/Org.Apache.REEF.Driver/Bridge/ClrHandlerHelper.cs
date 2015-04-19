@@ -24,7 +24,6 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using Org.Apache.REEF.Tang.Exceptions;
-using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Protobuf;
@@ -41,7 +40,7 @@ namespace Org.Apache.REEF.Driver.Bridge
         {
             get
             {
-                return new[] { "Microsoft.Hadoop.Avro.dll", "Org.Apache.REEF.Driver.dll", "Org.Apache.REEF.Common.dll", "Org.Apache.REEF.Utilities.dll", "Org.Apache.REEF.Network.dll", "Org.Apache.REEF.Tang.dll", "Org.Apache.REEF.Wake.dll", "Newtonsoft.Json.dll", "protobuf-net.dll" };
+                return new[] { "Microsoft.Hadoop.Avro.dll", "Org.Apache.REEF.Driver.dll", "Org.Apache.REEF.Common.dll", "Org.Apache.REEF.Utilities.dll", "Org.Apache.REEF.Network.dll", "Org.Apache.REEF.Tang.dll", "Org.Apache.REEF.Wake.dll", "Org.Apache.REEF.Bridge.dll", "Newtonsoft.Json.dll", "protobuf-net.dll" };
             }
         }
 
@@ -80,30 +79,16 @@ namespace Org.Apache.REEF.Driver.Bridge
         {
             using (LOGGER.LogFunction("ClrHandlerHelper::GetCommandLineArguments"))
             {
-                string bridgeConfiguration = Path.Combine(Directory.GetCurrentDirectory(), "reef", "global",
-                                                          Constants.DriverBridgeConfiguration);
-
-                if (!File.Exists(bridgeConfiguration))
-                {
-                    string error = "Configuraiton file not found: " + bridgeConfiguration;
-                    LOGGER.Log(Level.Error, error);
-                    Exceptions.Throw(new InvalidOperationException(error), LOGGER);
-                }
                 CommandLineArguments arguments;
-                IInjector injector;
                 try
-                {
-                    IConfiguration driverBridgeConfiguration =
-                        new AvroConfigurationSerializer().FromFile(bridgeConfiguration);
-                    injector = TangFactory.GetTang().NewInjector(driverBridgeConfiguration);
-                    arguments = injector.GetInstance<CommandLineArguments>();
+                {                       
+                    arguments = BridgeConfigurationProvider.GetBridgeInjector().GetInstance<CommandLineArguments>();
                 }
                 catch (InjectionException e)
                 {
                     string error = "Cannot inject command line arguments from driver bridge configuration. ";
-                    Exceptions.Caught(e, Level.Error, error, LOGGER);
-                    // return empty string set
-                    return new HashSet<string>();
+                    Exceptions.CaughtAndThrow(e, Level.Error, error, LOGGER);
+                    throw e;
                 }
                 return arguments.Arguments;
             }
@@ -116,7 +101,7 @@ namespace Org.Apache.REEF.Driver.Bridge
             File.WriteAllText(path, string.Join(",", classPaths));
         }
 
-        public static void GenerateClassHierarchy(HashSet<string> clrDlls)
+        public static void GenerateClassHierarchy(ISet<string> clrDlls)
         {
             using (LOGGER.LogFunction("ClrHandlerHelper::GenerateClassHierarchy"))
             {

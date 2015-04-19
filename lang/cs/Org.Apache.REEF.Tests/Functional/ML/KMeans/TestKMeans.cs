@@ -23,9 +23,13 @@ using System.Globalization;
 using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.Common.Io;
+using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Driver.Bridge;
 using Org.Apache.REEF.Examples.MachineLearning.KMeans;
+using Org.Apache.REEF.Network.Group.Config;
 using Org.Apache.REEF.Network.NetworkService;
+using Org.Apache.REEF.Tang.Implementations.Configuration;
+using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities.Logging;
@@ -140,14 +144,31 @@ namespace Org.Apache.REEF.Tests.Functional.ML.KMeans
 
         private IConfiguration DriverConfiguration()
         {
-            return DriverBridgeConfiguration.ConfigurationModule
-                 .Set(DriverBridgeConfiguration.OnDriverStarted, GenericType<KMeansDriverHandlers>.Class)
-                 .Set(DriverBridgeConfiguration.OnEvaluatorAllocated, GenericType<KMeansDriverHandlers>.Class)
-                 .Set(DriverBridgeConfiguration.OnEvaluatorRequested, GenericType<KMeansDriverHandlers>.Class)
-                 .Set(DriverBridgeConfiguration.OnContextActive, GenericType<KMeansDriverHandlers>.Class)
-                 .Set(DriverBridgeConfiguration.CommandLineArguments, "DataFile:" + _dataFile)
-                 .Set(DriverBridgeConfiguration.CustomTraceLevel, Level.Info.ToString())
-                 .Build();
+            int fanOut = 2;
+            int totalEvaluators = Partitions + 1;
+            string Identifier = "KMeansDriverId";
+
+            IConfiguration driverConfig = TangFactory.GetTang().NewConfigurationBuilder(
+                DriverBridgeConfiguration.ConfigurationModule
+                    .Set(DriverBridgeConfiguration.OnDriverStarted, GenericType<KMeansDriverHandlers>.Class)
+                    .Set(DriverBridgeConfiguration.OnEvaluatorAllocated, GenericType<KMeansDriverHandlers>.Class)
+                    .Set(DriverBridgeConfiguration.OnEvaluatorRequested, GenericType<KMeansDriverHandlers>.Class)
+                    .Set(DriverBridgeConfiguration.OnContextActive, GenericType<KMeansDriverHandlers>.Class)
+                    .Set(DriverBridgeConfiguration.CommandLineArguments, "DataFile:" + _dataFile)
+                    .Set(DriverBridgeConfiguration.CustomTraceLevel, Level.Info.ToString())
+                    .Build())
+                .BindIntNamedParam<NumPartitions>(Partitions.ToString())
+                .Build();
+
+            IConfiguration groupCommunicationDriverConfig = TangFactory.GetTang().NewConfigurationBuilder()
+                .BindStringNamedParam<GroupCommConfigurationOptions.DriverId>(Identifier)
+                .BindStringNamedParam<GroupCommConfigurationOptions.MasterTaskId>(Constants.MasterTaskId)
+                .BindStringNamedParam<GroupCommConfigurationOptions.GroupName>(Constants.KMeansCommunicationGroupName)
+                .BindIntNamedParam<GroupCommConfigurationOptions.FanOut>(fanOut.ToString(CultureInfo.InvariantCulture).ToString(CultureInfo.InvariantCulture))
+                .BindIntNamedParam<GroupCommConfigurationOptions.NumberOfTasks>(totalEvaluators.ToString())
+                .Build();
+
+            return Configurations.Merge(driverConfig, groupCommunicationDriverConfig);
         }
 
         private HashSet<string> AssembliesToCopy()

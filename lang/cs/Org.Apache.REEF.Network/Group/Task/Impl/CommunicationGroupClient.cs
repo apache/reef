@@ -36,7 +36,7 @@ using Org.Apache.REEF.Utilities.Logging;
 namespace Org.Apache.REEF.Network.Group.Task.Impl
 {
     /// <summary>
-    ///  Used by Tasks to fetch MPI Operators in the group configured by the driver.
+    ///  Used by Tasks to fetch Group Communication Operators in the group configured by the driver.
     /// </summary>
     public class CommunicationGroupClient : ICommunicationGroupClient
     {
@@ -48,7 +48,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         private readonly Dictionary<string, IInjector> _operatorInjectors; 
         private readonly Dictionary<string, object> _operators;
         private readonly NetworkService<GroupCommunicationMessage> _networkService; 
-        private readonly IMpiNetworkObserver _mpiNetworkHandler;
+        private readonly IGroupCommNetworkObserver _groupCommNetworkHandler;
         private readonly ICommunicationGroupNetworkObserver _commGroupNetworkHandler;
 
         /// <summary>
@@ -58,19 +58,20 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         /// <param name="groupName">The name of the CommunicationGroup</param>
         /// <param name="driverId">The identifier for the driver</param>
         /// <param name="operatorConfigs">The serialized operator configurations</param>
-        /// <param name="mpiNetworkObserver">The handler for all incoming messages
+        /// <param name="groupCommNetworkObserver">The handler for all incoming messages
         /// across all Communication Groups</param>
         /// <param name="networkService">The network service used to send messages.</param>
         /// <param name="configSerializer">Used to deserialize operator configuration.</param>
         [Inject]
         public CommunicationGroupClient(
             [Parameter(typeof(TaskConfigurationOptions.Identifier))] string taskId,
-            [Parameter(typeof(MpiConfigurationOptions.CommunicationGroupName))] string groupName,
-            [Parameter(typeof(MpiConfigurationOptions.DriverId))] string driverId,
-            [Parameter(typeof(MpiConfigurationOptions.SerializedOperatorConfigs))] ISet<string> operatorConfigs,
-            IMpiNetworkObserver mpiNetworkObserver,
+            [Parameter(typeof(GroupCommConfigurationOptions.CommunicationGroupName))] string groupName,
+            [Parameter(typeof(GroupCommConfigurationOptions.DriverId))] string driverId,
+            [Parameter(typeof(GroupCommConfigurationOptions.SerializedOperatorConfigs))] ISet<string> operatorConfigs,
+            IGroupCommNetworkObserver groupCommNetworkObserver,
             NetworkService<GroupCommunicationMessage> networkService,
-            AvroConfigurationSerializer configSerializer)
+            AvroConfigurationSerializer configSerializer,
+            CommunicationGroupNetworkObserver commGroupNetworkHandler)
         {
             _taskId = taskId;
             _driverId = driverId;
@@ -80,20 +81,20 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
             _operatorInjectors = new Dictionary<string, IInjector>();
 
             _networkService = networkService;
-            _mpiNetworkHandler = mpiNetworkObserver;
-            _commGroupNetworkHandler = new CommunicationGroupNetworkObserver();
-            _mpiNetworkHandler.Register(groupName, _commGroupNetworkHandler);
+            _groupCommNetworkHandler = groupCommNetworkObserver;
+            _commGroupNetworkHandler = commGroupNetworkHandler;
+            _groupCommNetworkHandler.Register(groupName, _commGroupNetworkHandler);
 
             // Deserialize operator configuration and store each injector.
-            // When user requests the MPI Operator, use type information to
+            // When user requests the Group Communication Operator, use type information to
             // create the instance.
             foreach (string operatorConfigStr in operatorConfigs)
             {
                 IConfiguration operatorConfig = configSerializer.FromString(operatorConfigStr);
 
                 IInjector injector = TangFactory.GetTang().NewInjector(operatorConfig);
-                string operatorName = injector.GetNamedInstance<MpiConfigurationOptions.OperatorName, string>(
-                    GenericType<MpiConfigurationOptions.OperatorName>.Class);
+                string operatorName = injector.GetNamedInstance<GroupCommConfigurationOptions.OperatorName, string>(
+                    GenericType<GroupCommConfigurationOptions.OperatorName>.Class);
                 _operatorInjectors[operatorName] = injector;
             }
         }
@@ -170,14 +171,14 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         }
 
         /// <summary>
-        /// Gets the MPI operator with the specified name and type.
+        /// Gets the Group Communication operator with the specified name and type.
         /// If the operator hasn't been instanciated yet, find the injector 
         /// associated with the given operator name and use the type information 
         /// to create a new operator of that type.
         /// </summary>
         /// <typeparam name="T">The type of operator to create</typeparam>
         /// <param name="operatorName">The name of the operator</param>
-        /// <returns>The newly created MPI Operator</returns>
+        /// <returns>The newly created Group Communication Operator</returns>
         private T GetOperatorInstance<T>(string operatorName) where T : class
         {
             if (string.IsNullOrEmpty(operatorName))
@@ -195,7 +196,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
                 IInjector injector = _operatorInjectors[operatorName];
 
                 injector.BindVolatileParameter(GenericType<TaskConfigurationOptions.Identifier>.Class, _taskId);
-                injector.BindVolatileParameter(GenericType<MpiConfigurationOptions.CommunicationGroupName>.Class, GroupName);
+                injector.BindVolatileParameter(GenericType<GroupCommConfigurationOptions.CommunicationGroupName>.Class, GroupName);
                 injector.BindVolatileInstance(GenericType<ICommunicationGroupNetworkObserver>.Class, _commGroupNetworkHandler);
                 injector.BindVolatileInstance(GenericType<NetworkService<GroupCommunicationMessage>>.Class, _networkService);
                 injector.BindVolatileInstance(GenericType<ICommunicationGroupClient>.Class, this);
@@ -207,7 +208,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
                 }
                 catch (InjectionException)
                 {
-                    LOGGER.Log(Level.Error, "Cannot inject MPI operator: No known operator of type: {0}", typeof(T));
+                    LOGGER.Log(Level.Error, "Cannot inject Group Communication operator: No known operator of type: {0}", typeof(T));
                     throw;
                 }
             }

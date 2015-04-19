@@ -18,8 +18,6 @@ under the License.
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{CDFB3464-4041-42B1-9271-83AF24CD5008}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
@@ -139,6 +137,7 @@ under the License.
     <Compile Include="WakeRuntimeException.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Org.Apache.REEF.Wake.nuspec" />
     <None Include="packages.config" />
     <None Include="Remote\Proto\RemoteProtocol.proto" />
   </ItemGroup>

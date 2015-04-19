@@ -17,6 +17,7 @@
  * under the License.
  */
 
+using System;
 using System.Collections.Generic;
 
 namespace Org.Apache.REEF.Driver
@@ -67,11 +68,12 @@ namespace Org.Apache.REEF.Driver
 
         public const string DriverRestartRunningTaskHandler = "DriverRestartRunningTask";
 
+        [Obsolete(message:"Use REEFFileNames instead.")]
         public const string DriverBridgeConfiguration = Common.Constants.ClrBridgeRuntimeConfiguration;
 
         public const string DriverAppDirectory = "ReefDriverAppDlls";
 
-        public const string BridgeJarFileName = "reef-bridge-0.11.0-incubating-SNAPSHOT-shaded.jar";
+        public const string JavaBridgeJarFileName = "reef-bridge-java-0.11.0-incubating-SNAPSHOT-shaded.jar";
 
         public const string BridgeLaunchClass = "org.apache.reef.javabridge.generic.Launch";
 

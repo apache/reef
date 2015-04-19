@@ -73,7 +73,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
             arguments.Add(runOnYarn.ToString());
             arguments.Add(Constants.BridgeLaunchClass);
             arguments.Add(".");
-            arguments.Add(Path.Combine(_binFolder, Constants.BridgeJarFileName));
+            arguments.Add(Path.Combine(_binFolder, Constants.JavaBridgeJarFileName));
             arguments.Add(Path.Combine(_binFolder, _cmdFile));
 
             ProcessStartInfo startInfo = new ProcessStartInfo()
@@ -85,7 +85,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
                 CreateNoWindow = false
             }; 
             
-            LOGGER.Log(Level.Info, "executing\r\n" + startInfo.FileName + "\r\n" + startInfo.Arguments);
+            LOGGER.Log(Level.Info, "Executing '" + startInfo.FileName + " " + startInfo.Arguments +"' in working directory '" + Directory.GetCurrentDirectory() +"'");
             using (Process process = Process.Start(startInfo))
             {
                 process.WaitForExit();

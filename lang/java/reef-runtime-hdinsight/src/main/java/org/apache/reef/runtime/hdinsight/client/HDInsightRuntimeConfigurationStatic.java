@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -19,19 +19,14 @@
 package org.apache.reef.runtime.hdinsight.client;
 
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.reef.client.REEF;
-import org.apache.reef.client.RunningJob;
-import org.apache.reef.runtime.common.client.REEFImplementation;
-import org.apache.reef.runtime.common.client.RunningJobImpl;
+import org.apache.reef.runtime.common.client.CommonRuntimeConfiguration;
 import org.apache.reef.runtime.common.client.api.JobSubmissionHandler;
 import org.apache.reef.runtime.common.files.RuntimeClasspathProvider;
-import org.apache.reef.runtime.common.launch.REEFMessageCodec;
 import org.apache.reef.runtime.hdinsight.HDInsightClasspathProvider;
 import org.apache.reef.runtime.hdinsight.client.sslhacks.DefaultClientConstructor;
 import org.apache.reef.tang.formats.ConfigurationModule;
 import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
 import org.apache.reef.util.logging.LoggingSetup;
-import org.apache.reef.wake.remote.RemoteConfiguration;
 
 /**
  * The static part of the HDInsightRuntimeConfiguration.
@@ -42,9 +37,7 @@ public final class HDInsightRuntimeConfigurationStatic extends ConfigurationModu
   }
 
   public static final ConfigurationModule CONF = new HDInsightRuntimeConfigurationStatic()
-      .bindImplementation(REEF.class, REEFImplementation.class)
-      .bindImplementation(RunningJob.class, RunningJobImpl.class)
-      .bindNamedParameter(RemoteConfiguration.MessageCodec.class, REEFMessageCodec.class)
+      .merge(CommonRuntimeConfiguration.CONF)
       .bindImplementation(JobSubmissionHandler.class, HDInsightJobSubmissionHandler.class)
       .bindConstructor(CloseableHttpClient.class, DefaultClientConstructor.class)
       .bindImplementation(RuntimeClasspathProvider.class, HDInsightClasspathProvider.class)

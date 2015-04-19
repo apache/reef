@@ -31,9 +31,9 @@ public final class REEFFileNames {
 
   private static final String REEF_BASE_FOLDER = "reef";
   private static final String GLOBAL_FOLDER = "global";
-  static final String GLOBAL_FOLDER_PATH = REEF_BASE_FOLDER + '/' + GLOBAL_FOLDER;
+  private static final String GLOBAL_FOLDER_PATH = REEF_BASE_FOLDER + '/' + GLOBAL_FOLDER;
   private static final String LOCAL_FOLDER = "local";
-  static final String LOCAL_FOLDER_PATH = REEF_BASE_FOLDER + '/' + LOCAL_FOLDER;
+  private static final String LOCAL_FOLDER_PATH = REEF_BASE_FOLDER + '/' + LOCAL_FOLDER;
   private static final String DRIVER_CONFIGURATION_NAME = "driver.conf";
   private static final String DRIVER_CONFIGURATION_PATH =
       LOCAL_FOLDER_PATH + '/' + DRIVER_CONFIGURATION_NAME;
@@ -47,14 +47,41 @@ public final class REEFFileNames {
   private static final String DRIVER_STDOUT = "driver.stdout";
   private static final String EVALUATOR_STDERR = "evaluator.stderr";
   private static final String EVALUATOR_STDOUT = "evaluator.stdout";
-  private static final String CPP_BRIDGE = "JavaClrBridge";
-  private static final String REEF_GLOBAL = "/reef/global";
+  @Deprecated
   private static final String REEF_DRIVER_APPDLL_DIR = "/ReefDriverAppDlls/";
+  @Deprecated
   private static final String TMP_LOAD_DIR = "/reef/CLRLoadingDirectory";
+  private static final String BRIDGE_DLL_NAME = "Org.Apache.REEF.Bridge.dll";
+
 
   @Inject
   public REEFFileNames() {
   }
+
+
+  /**
+   * @return the filename of the CPP DLL for the bridge.
+   */
+  public String getBridgeDLLName() {
+    return BRIDGE_DLL_NAME;
+  }
+
+  /**
+   * reef/local/BRIDGE_DLL_NAME
+   *
+   * @return the File pointing to the DLL containing the DLL for the bridge.
+   */
+  public File getBridgeDLLInLocalFolderFile() {
+    return new File(getLocalFolder(), getBridgeDLLName());
+  }
+
+  /**
+   * @return a File pointing to the Bridge DLL in the global folder.
+   */
+  public File getBridgeDLLInGlobalFolderFile() {
+    return new File(getGlobalFolder(), getBridgeDLLName());
+  }
+
 
   /**
    * The name of the REEF folder inside of the working directory of an Evaluator or Driver
@@ -194,23 +221,20 @@ public final class REEFFileNames {
     return EVALUATOR_STDOUT;
   }
 
-  /**
-   * @return the name of cpp bridge file
-   */
-  public String getCppBridge() { return CPP_BRIDGE; }
-
-  /**
-   * @return reeg global file folder
-   */
-  public String getReefGlobal() { return REEF_GLOBAL; }
 
   /**
    * @return reef driver app dll directory
    */
-  public String getReefDriverAppDllDir() { return REEF_DRIVER_APPDLL_DIR; }
+  @Deprecated
+  public String getReefDriverAppDllDir() {
+    return REEF_DRIVER_APPDLL_DIR;
+  }
 
   /**
    * @return temp load directory
    */
-  public String getLoadDir() { return TMP_LOAD_DIR; }
+  @Deprecated
+  public String getLoadDir() {
+    return TMP_LOAD_DIR;
+  }
 }

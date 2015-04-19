@@ -40,9 +40,6 @@ public class LibLoader {
   private static final String LIB_BIN = "/";
   private static final String DLL_EXTENSION = ".dll";
   private static final String USER_DIR = "user.dir";
-  private static final String[] MANAGED_DLLS = {
-      "ClrHandler"
-  };
 
   private final LoggingScopeFactory loggingScopeFactory;
 
@@ -60,50 +57,136 @@ public class LibLoader {
   public void loadLib() throws IOException {
     LOG.log(Level.INFO, "Loading DLLs for driver at time {0}." + new Date().toString());
     try (final LoggingScope lb = loggingScopeFactory.loadLib()) {
-      final String tempLoadDir = System.getProperty(USER_DIR) + this.reefFileNames.getLoadDir();
-      LOG.log(Level.INFO, "load Folder: " + tempLoadDir);
-      new File(tempLoadDir).mkdir();
 
-      loadFromReefJar(this.reefFileNames.getCppBridge(), false);
+      // Load the native library connecting C# and Java
+      this.loadBridgeDLL();
 
-      loadLibFromGlobal();
+      // Load all DLLs in local
+      this.loadAllManagedDLLs(this.reefFileNames.getLocalFolder());
 
-      for (int i = 0; i < MANAGED_DLLS.length; i++) {
-        loadFromReefJar(MANAGED_DLLS[i], true);
-      }
+      // Load all DLLs in global
+      this.loadAllManagedDLLs(this.reefFileNames.getGlobalFolder());
     }
     LOG.log(Level.INFO, "Done loading DLLs for Driver at time {0}." + new Date().toString());
   }
 
   /**
-   * Load assemblies at global folder
+   * Loads the Bridge DLL. First, it attempts to load from the reef/local folder. Second attempt is reef/global, last
+   * attempt is loading it from the JAR.
+   *
+   * @throws IOException If all attempts fail.
    */
-  private void loadLibFromGlobal() {
-    final String globalFilePath = System.getProperty(USER_DIR) + this.reefFileNames.getReefGlobal();
-    final File[] files = new File(globalFilePath).listFiles(new FilenameFilter() {
+  private void loadBridgeDLL() throws IOException {
+    try {
+      loadBridgeDLLFromLocal();
+    } catch (final Throwable t) {
+      LOG.log(Level.INFO, "Unable to load bridge DLL from local folder. Attempting global folder next.", t);
+      try {
+        loadBridgeDLLFromGlobal();
+      } catch (final Throwable t2) {
+        LOG.log(Level.WARNING, "Unable to load bridge DLL from global folder. Attempting jar next.", t2);
+        loadBridgeDLLFromJAR();
+      }
+    }
+  }
+
+
+  /**
+   * Attempts to load the bridge DLL from the global folder.
+   */
+  private void loadBridgeDLLFromGlobal() throws FileNotFoundException {
+    LOG.log(Level.INFO, "Attempting to load the bridge DLL from the global folder.");
+    loadBridgeDLLFromFile(reefFileNames.getBridgeDLLInGlobalFolderFile());
+  }
+
+  /**
+   * Attempts to load the bridge DLL from the local folder.
+   */
+  private void loadBridgeDLLFromLocal() throws FileNotFoundException {
+    LOG.log(Level.INFO, "Attempting to load the bridge DLL from the local folder.");
+    loadBridgeDLLFromFile(reefFileNames.getBridgeDLLInLocalFolderFile());
+  }
+
+  /**
+   * Attempts to load the bridge DLL from the given file.
+   *
+   * @param bridgeDLLFile
+   */
+  private static void loadBridgeDLLFromFile(final File bridgeDLLFile) throws FileNotFoundException {
+    if (!bridgeDLLFile.exists()) {
+      throw new FileNotFoundException("Unable to load Bridge DLL from " + bridgeDLLFile.getAbsolutePath() + " because the file can't be found.");
+    }
+    try {
+      LOG.log(Level.INFO, "Attempting to load the bridge DLL from {0}", bridgeDLLFile);
+      System.load(bridgeDLLFile.getAbsolutePath());
+      LOG.log(Level.INFO, "Successfully loaded the bridge DLL from {0}", bridgeDLLFile);
+    } catch (final Throwable t) {
+      LOG.log(Level.WARNING, "Unable to load " + bridgeDLLFile.getAbsolutePath(), t);
+      throw t;
+    }
+  }
+
+  /**
+   * Attempts to load the bridge DLL from the JAR file.
+   *
+   * @throws IOException
+   * @deprecated We should use the files instead.
+   */
+  @Deprecated
+  private void loadBridgeDLLFromJAR() throws IOException {
+    final String tempLoadDir = System.getProperty(USER_DIR) + this.reefFileNames.getLoadDir();
+    new File(tempLoadDir).mkdir();
+    LOG.log(Level.INFO, "loadBridgeDLL() - tempLoadDir created: {0} ", tempLoadDir);
+    final String bridgeMixedDLLName = this.reefFileNames.getBridgeDLLName();
+    LOG.log(Level.INFO, "loadBridgeDLL() - BridgeMixedDLLName: {0}", bridgeMixedDLLName);
+    loadFromReefJar(bridgeMixedDLLName, false);
+  }
+
+  /**
+   * Loads all managed DLLs found in the given folder.
+   *
+   * @param folder
+   */
+  private void loadAllManagedDLLs(final File folder) {
+    LOG.log(Level.INFO, "Loading all managed DLLs from {0}", folder.getAbsolutePath());
+    final File[] files = folder.listFiles(new FilenameFilter() {
       public boolean accept(File dir, String name) {
         return name.toLowerCase().endsWith(DLL_EXTENSION);
       }
     });
 
-    LOG.log(Level.INFO, "Total dll files to load from {0} is {1}.", new Object[] {globalFilePath, files.length} );
-    for (int i = 0; i < files.length; i++) {
-      try {
-        LOG.log(Level.INFO, "file to load : " + files[i].toString());
-        NativeInterop.loadClrAssembly(files[i].toString());
-      } catch (final Exception e) {
-        LOG.log(Level.SEVERE, "exception in loading dll library: ", files[i].toString());
-        throw e;
-      }
+    for (final File f : files) {
+      loadManagedDLL(f);
     }
   }
 
   /**
-   * Get file from jar file and copy it to temp dir and loads the library to memory
-  **/
-  private void loadFromReefJar(String name, final boolean managed) throws IOException {
+   * Loads the given DLL.
+   *
+   * @param dllFile
+   */
+  private void loadManagedDLL(final File dllFile) {
+    final String absolutePath = dllFile.getAbsolutePath();
+    try {
+      LOG.log(Level.FINE, "Loading Managed DLL {0} ", absolutePath);
+      NativeInterop.loadClrAssembly(absolutePath);
+    } catch (final Exception e) {
+      LOG.log(Level.SEVERE, "Unable to load managed DLL {0}", absolutePath);
+      throw e;
+    }
+  }
 
-    name = name + DLL_EXTENSION;
+  /**
+   * Get file from jar file and copy it to temp dir and loads the library to memory.
+   *
+   * @deprecated This is replaced by loading it from the folders directly.
+   */
+  @Deprecated
+  private void loadFromReefJar(String name, final boolean managed) throws IOException {
+    LOG.log(Level.SEVERE, "Consider upgrading your REEF client. Loading DLLs from the JAR is deprecated.");
+    if (!name.endsWith(".dll")) {
+      name = name + DLL_EXTENSION;
+    }
     try {
       File fileOut = null;
       // get input file from jar
@@ -122,7 +205,7 @@ public class LibLoader {
           LOG.log(Level.WARNING, "Cannot find " + path);
           return;
         }
-        try (final OutputStream out = new FileOutputStream(fileOut) ) {
+        try (final OutputStream out = new FileOutputStream(fileOut)) {
           IOUtils.copy(in, out);
         }
       }
@@ -138,6 +221,7 @@ public class LibLoader {
 
   /**
    * load assembly
+   *
    * @param fileOut
    * @param managed
    */

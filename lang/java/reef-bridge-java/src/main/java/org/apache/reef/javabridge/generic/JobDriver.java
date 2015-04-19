@@ -268,7 +268,7 @@ public final class JobDriver {
   /**
    * Handles AllocatedEvaluator: Submit an empty context
    */
-  final class AllocatedEvaluatorHandler implements EventHandler<AllocatedEvaluator> {
+  public final class AllocatedEvaluatorHandler implements EventHandler<AllocatedEvaluator> {
     @Override
     public void onNext(final AllocatedEvaluator allocatedEvaluator) {
       try (final LoggingScope ls = loggingScopeFactory.evaluatorAllocated(allocatedEvaluator.getId())) {
@@ -283,7 +283,7 @@ public final class JobDriver {
   /**
    * Receive notification that a new Context is available.
    */
-  final class ActiveContextHandler implements EventHandler<ActiveContext> {
+  public final class ActiveContextHandler implements EventHandler<ActiveContext> {
     @Override
     public void onNext(final ActiveContext context) {
       try (final LoggingScope ls = loggingScopeFactory.activeContextReceived(context.getId())) {
@@ -300,7 +300,7 @@ public final class JobDriver {
   /**
    * Receive notification that the Task has completed successfully.
    */
-  final class CompletedTaskHandler implements EventHandler<CompletedTask> {
+  public final class CompletedTaskHandler implements EventHandler<CompletedTask> {
     @Override
     public void onNext(final CompletedTask task) {
       LOG.log(Level.INFO, "Completed task: {0}", task.getId());
@@ -328,7 +328,7 @@ public final class JobDriver {
   /**
    * Receive notification that the entire Evaluator had failed.
    */
-  final class FailedEvaluatorHandler implements EventHandler<FailedEvaluator> {
+  public final class FailedEvaluatorHandler implements EventHandler<FailedEvaluator> {
     @Override
     public void onNext(final FailedEvaluator eval) {
       try (final LoggingScope ls = loggingScopeFactory.evaluatorFailed(eval.getId())) {
@@ -406,7 +406,10 @@ public final class JobDriver {
       try (final LoggingScope ls = loggingScopeFactory.httpRequest(parsedHttpRequest.getRequestUri())) {
         final AvroHttpSerializer httpSerializer = new AvroHttpSerializer();
         final AvroHttpRequest avroHttpRequest = httpSerializer.toAvro(parsedHttpRequest);
-        final byte[] requestBytes = httpSerializer.toBytes(avroHttpRequest);
+
+        final String requestString = httpSerializer.toString(avroHttpRequest);
+        final byte[] requestBytes = requestString.getBytes();
+        //final byte[] requestBytes = httpSerializer.toBytes(avroHttpRequest);
 
         try {
           final HttpServerEventBridge httpServerEventBridge = new HttpServerEventBridge(requestBytes);
@@ -425,7 +428,7 @@ public final class JobDriver {
   /**
    * Handle failed task.
    */
-  final class FailedTaskHandler implements EventHandler<FailedTask> {
+  public final class FailedTaskHandler implements EventHandler<FailedTask> {
     @Override
     public void onNext(final FailedTask task) throws RuntimeException {
       LOG.log(Level.SEVERE, "FailedTask received, will be handle in CLR handler, if set.");
@@ -446,7 +449,7 @@ public final class JobDriver {
   /**
    * Receive notification that the Task is running.
    */
-  final class RunningTaskHandler implements EventHandler<RunningTask> {
+  public final class RunningTaskHandler implements EventHandler<RunningTask> {
     @Override
     public void onNext(final RunningTask task) {
       try (final LoggingScope ls = loggingScopeFactory.taskRunning(task.getId())) {
@@ -469,7 +472,7 @@ public final class JobDriver {
   /**
    * Receive notification that the Task is running when driver restarted.
    */
-  final class DriverRestartRunningTaskHandler implements EventHandler<RunningTask> {
+  public final class DriverRestartRunningTaskHandler implements EventHandler<RunningTask> {
     @Override
     public void onNext(final RunningTask task) {
       try (final LoggingScope ls = loggingScopeFactory.driverRestartRunningTask(task.getId())) {
@@ -496,7 +499,7 @@ public final class JobDriver {
   /**
    * Receive notification that an context is active on Evaluator when the driver restarted
    */
-  final class DriverRestartActiveContextHandler implements EventHandler<ActiveContext> {
+  public final class DriverRestartActiveContextHandler implements EventHandler<ActiveContext> {
     @Override
     public void onNext(final ActiveContext context) {
       try (final LoggingScope ls = loggingScopeFactory.driverRestartActiveContextReceived(context.getId())) {
@@ -525,7 +528,7 @@ public final class JobDriver {
   /**
    * Job Driver is ready and the clock is set up: request the evaluators.
    */
-  final class StartHandler implements EventHandler<StartTime> {
+  public final class StartHandler implements EventHandler<StartTime> {
     @Override
     public void onNext(final StartTime startTime) {
       try (final LoggingScope ls = loggingScopeFactory.driverStart(startTime)) {
@@ -551,7 +554,7 @@ public final class JobDriver {
   /**
    * Job driver is restarted after previous crash
    */
-  final class RestartHandler implements EventHandler<StartTime> {
+  public final class RestartHandler implements EventHandler<StartTime> {
     @Override
     public void onNext(final StartTime startTime) {
       try (final LoggingScope ls = loggingScopeFactory.driverRestart(startTime)) {
@@ -570,7 +573,7 @@ public final class JobDriver {
   /**
    * Receive notification that driver restart has completed.
    */
-  final class DriverRestartCompletedHandler implements EventHandler<DriverRestartCompleted> {
+  public final class DriverRestartCompletedHandler implements EventHandler<DriverRestartCompleted> {
     @Override
     public void onNext(final DriverRestartCompleted driverRestartCompleted) {
       LOG.log(Level.INFO, "Java DriverRestartCompleted event received at time [{0}]. ", driverRestartCompleted.getTimeStamp());
@@ -601,7 +604,7 @@ public final class JobDriver {
     }
   }
 
-  final class TaskMessageHandler implements EventHandler<TaskMessage> {
+  public final class TaskMessageHandler implements EventHandler<TaskMessage> {
     @Override
     public void onNext(final TaskMessage taskMessage) {
       String msg = new String(taskMessage.get());
@@ -619,7 +622,7 @@ public final class JobDriver {
   /**
    * Receive notification that the Task has been suspended.
    */
-  final class SuspendedTaskHandler implements EventHandler<SuspendedTask> {
+  public final class SuspendedTaskHandler implements EventHandler<SuspendedTask> {
     @Override
     public final void onNext(final SuspendedTask task) {
       final String message = "Received notification that task [" + task.getId() + "] has been suspended.";
@@ -639,7 +642,7 @@ public final class JobDriver {
   /**
    * Receive notification that the Evaluator has been shut down.
    */
-  final class CompletedEvaluatorHandler implements EventHandler<CompletedEvaluator> {
+  public final class CompletedEvaluatorHandler implements EventHandler<CompletedEvaluator> {
     @Override
     public void onNext(final CompletedEvaluator evaluator) {
       LOG.log(Level.INFO, " Completed Evaluator {0}", evaluator.getId());
@@ -659,7 +662,7 @@ public final class JobDriver {
    * Receive notification that the Context had completed.
    * Remove context from the list of active context.
    */
-  final class ClosedContextHandler implements EventHandler<ClosedContext> {
+  public final class ClosedContextHandler implements EventHandler<ClosedContext> {
     @Override
     public void onNext(final ClosedContext context) {
       LOG.log(Level.INFO, "Completed Context: {0}", context.getId());
@@ -682,7 +685,7 @@ public final class JobDriver {
    * Receive notification that the Context had failed.
    * Remove context from the list of active context and notify the client.
    */
-  final class FailedContextHandler implements EventHandler<FailedContext> {
+  public final class FailedContextHandler implements EventHandler<FailedContext> {
     @Override
     public void onNext(final FailedContext context) {
       LOG.log(Level.SEVERE, "FailedContext", context);
@@ -707,7 +710,7 @@ public final class JobDriver {
   /**
    * Receive notification that a ContextMessage has been received
    */
-  final class ContextMessageHandler implements EventHandler<ContextMessage> {
+  public final class ContextMessageHandler implements EventHandler<ContextMessage> {
     @Override
     public void onNext(final ContextMessage message) {
       LOG.log(Level.SEVERE, "Received ContextMessage:", message.get());

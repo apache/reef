@@ -94,6 +94,26 @@ public final class ParsedHttpRequest {
   }
 
   /**
+   * get http header as a list of HeaderEntry
+   * @return
+   */
+  public List<HeaderEntry> getHeaderEntryList() {
+    final List<HeaderEntry> list = new ArrayList<HeaderEntry>();
+    final Iterator it = this.headers.entrySet().iterator();
+    while (it.hasNext()) {
+      final Map.Entry pair = (Map.Entry)it.next();
+      System.out.println(pair.getKey() + " = " + pair.getValue());
+      final HeaderEntry e = HeaderEntry.newBuilder()
+              .setKey((String) pair.getKey())
+              .setValue((String) pair.getValue())
+              .build();
+      list.add(e);
+      it.remove(); // avoids a ConcurrentModificationException
+    }
+    return list;
+  }
+
+  /**
    * get target to match specification like "Reef"
    *
    * @return specification

@@ -22,11 +22,11 @@ using System.Collections.Generic;
 namespace Org.Apache.REEF.Network.Group.Operators
 {
     /// <summary>
-    /// MPI operator used to scatter a list of elements to all
+    /// Group Communication operator used to scatter a list of elements to all
     /// of the IScatterReceivers.
     /// </summary>
     /// <typeparam name="T">The message type</typeparam>
-    public interface IScatterSender<T> : IMpiOperator<T>
+    public interface IScatterSender<T> : IGroupCommOperator<T>
     {
         /// <summary>
         /// Split up the list of elements evenly and scatter each chunk
