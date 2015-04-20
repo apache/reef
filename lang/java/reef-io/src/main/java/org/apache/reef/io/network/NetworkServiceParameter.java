@@ -35,6 +35,11 @@ public final class NetworkServiceParameter {
    */
   public final static String DEFAULT_DRIVER_NETWORK_SERVICE_ID = "##UNKNOWN##DRIVER##ID";
 
+  /**
+   * Default network service id in evaluator
+   */
+  public final static String DEFAULT_NETWORK_SERVICE_ID = "##UNKNOWN##NS##ID";
+
   @NamedParameter(doc = "port for the network service", default_value = "0")
   public final static class NetworkServicePort implements Name<Integer> {
   }
@@ -59,7 +64,7 @@ public final class NetworkServiceParameter {
   public final static class NetworkReceiveErrorHandler implements Name<EventHandler<Throwable>> {
   }
 
-  @NamedParameter(doc = "NetworkService's id to communicate with each other.")
+  @NamedParameter(doc = "NetworkService's id to communicate with each other.", default_value = DEFAULT_NETWORK_SERVICE_ID)
   public final static class NetworkServiceIdentifier implements Name<String> {
   }
 

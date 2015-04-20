@@ -49,7 +49,8 @@ public final class NetworkServiceConfigurationBuilderFactory {
 
   /**
    * Returns a NetworkServiceConfigurationBuilder. The built configuration will be merged
-   * with conf.
+   * with conf. If null is passed for id parameter, the network service in an evaluator bind
+   * and unbind its task's id rather than has unique identifier.
    *
    * @param conf the built configuration will be merged with this conf
    * @param id identifier for new network service

@@ -89,9 +89,21 @@ public final class DefaultNetworkServiceImplementation implements NetworkService
     this.senderStage = new NetworkSenderStage(transport, eventCodec, idFactory, networkPreconfiguredMap,
         senderThreadNum, connectingQueueSizeThreshold, connectingQueueWaitingTime);
 
-    final Identifier networkServiceId = idFactory.getNewInstance(serviceId);
-    namingProxy.registerMyId(networkServiceId, (InetSocketAddress) transport.getLocalAddress());
-    LOG.log(Level.INFO, networkServiceId + " is registered in NameServer.");
+    if (!serviceId.equals(NetworkServiceParameter.DEFAULT_NETWORK_SERVICE_ID)) {
+      final Identifier networkServiceId = idFactory.getNewInstance(serviceId);
+      registerId(networkServiceId);
+      LOG.log(Level.INFO, networkServiceId + " is registered in NameServer.");
+    }
+  }
+
+  @Override
+  public void registerId(Identifier id) {
+    namingProxy.registerMyId(id, (InetSocketAddress) transport.getLocalAddress());
+  }
+
+  @Override
+  public void unregisterId() {
+    namingProxy.unregisterMyId();
   }
 
   @Override
@@ -171,7 +183,7 @@ public final class DefaultNetworkServiceImplementation implements NetworkService
   @Override
   public void close() throws Exception {
     LOG.log(Level.FINE, "Shutting down");
-    this.namingProxy.unregisterMyId();
+    unregisterId();
     this.transport.close();
     this.namingProxy.close();
     this.receiverStage.close();

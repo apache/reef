@@ -35,6 +35,18 @@ import java.util.List;
 public interface NetworkService extends Stage {
 
   /**
+   * Register the identifier of this network service as id
+   *
+   * @param id new identifier
+   */
+  public void registerId(Identifier id);
+
+  /**
+   * Unregister the identifier of this network service
+   */
+  public void unregisterId();
+
+  /**
    * returns network service's identifier
    *
    * @return local identifier
