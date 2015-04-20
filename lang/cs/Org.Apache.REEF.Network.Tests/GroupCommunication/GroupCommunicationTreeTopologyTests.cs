@@ -649,21 +649,21 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
         private IConfiguration GetDefaulCodecConfig()
         {
             return CodecConfiguration<int>.Conf
-                .Set(CodecConfiguration<int>.CodecRequiredImpl, GenericType<IntCodec>.Class)
+                .Set(CodecConfiguration<int>.Codec, GenericType<IntCodec>.Class)
                 .Build();
         }
 
         private IConfiguration GetDefaulReduceFuncConfig()
         {
             return ReduceFunctionConfiguration<int>.Conf
-                .Set(ReduceFunctionConfiguration<int>.ReduceFunctionRequiredImpl, GenericType<SumFunction>.Class)
+                .Set(ReduceFunctionConfiguration<int>.ReduceFunction, GenericType<SumFunction>.Class)
                 .Build();
         }
 
         private IConfiguration GetDefaulDataConverterConfig()
         {
             return PipelineDataConverterConfiguration<int>.Conf
-                .Set(PipelineDataConverterConfiguration<int>.dataConverterRequiredImpl, GenericType<DefaultPipelineDataConverter<int>>.Class)
+                .Set(PipelineDataConverterConfiguration<int>.DataConverter, GenericType<DefaultPipelineDataConverter<int>>.Class)
                 .Build();
         }
     }

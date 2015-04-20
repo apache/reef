@@ -73,16 +73,16 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.PipelineBroadcastR
             _chunkSize = chunkSize;
 
             IConfiguration codecConfig = CodecConfiguration<int[]>.Conf
-                .Set(CodecConfiguration<int[]>.CodecRequiredImpl, GenericType<IntArrayCodec>.Class)
+                .Set(CodecConfiguration<int[]>.Codec, GenericType<IntArrayCodec>.Class)
                 .Build();
 
             IConfiguration reduceFunctionConfig = ReduceFunctionConfiguration<int[]>.Conf
-                .Set(ReduceFunctionConfiguration<int[]>.ReduceFunctionRequiredImpl, GenericType<ArraySumFunction>.Class)
+                .Set(ReduceFunctionConfiguration<int[]>.ReduceFunction, GenericType<ArraySumFunction>.Class)
                 .Build();
 
             IConfiguration dataConverterConfig = TangFactory.GetTang().NewConfigurationBuilder(
                 PipelineDataConverterConfiguration<int[]>.Conf
-                    .Set(PipelineDataConverterConfiguration<int[]>.dataConverterRequiredImpl,
+                    .Set(PipelineDataConverterConfiguration<int[]>.DataConverter,
                         GenericType<PipelineIntDataConverter>.Class)
                     .Build())
                 .BindNamedParameter<GroupTestConfig.ChunkSize, int>(
@@ -332,13 +332,6 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.PipelineBroadcastR
 
                 return data;
             }
-
-            //public IConfiguration GetConfiguration()
-            //{
-            //    return TangFactory.GetTang().NewConfigurationBuilder()
-            //    .BindNamedParameter<GroupTestConfig.ChunkSize, int>(GenericType<GroupTestConfig.ChunkSize>.Class, _chunkSize.ToString(CultureInfo.InvariantCulture))
-            //    .Build();
-            //}
         }
     }
 }

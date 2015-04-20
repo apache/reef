@@ -25,10 +25,16 @@ namespace Org.Apache.REEF.Network.Group.Config
 {
     public class PipelineDataConverterConfiguration<T> : ConfigurationModuleBuilder
     {
-        public static readonly RequiredImpl<IPipelineDataConverter<T>> dataConverterRequiredImpl = new RequiredImpl<IPipelineDataConverter<T>>();
+        /// <summary>
+        /// Required Imple parameter for Pipeline Data Converter. Client needs to set an implementation for it. 
+        /// </summary>
+        public static readonly RequiredImpl<IPipelineDataConverter<T>> DataConverter = new RequiredImpl<IPipelineDataConverter<T>>();
 
+        /// <summary>
+        /// Confgiuration Module for Pipeline Data Converter
+        /// </summary>
         public static ConfigurationModule Conf = new PipelineDataConverterConfiguration<T>()
-            .BindImplementation(GenericType<IPipelineDataConverter<T>>.Class, dataConverterRequiredImpl)
+            .BindImplementation(GenericType<IPipelineDataConverter<T>>.Class, DataConverter)
             .Build();
     }
 }

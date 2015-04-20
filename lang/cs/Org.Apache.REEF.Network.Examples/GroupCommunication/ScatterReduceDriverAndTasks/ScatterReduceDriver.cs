@@ -66,15 +66,15 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.ScatterReduceDrive
             _groupCommDriver = groupCommDriver;
 
             IConfiguration codecConfig = CodecConfiguration<int>.Conf
-                .Set(CodecConfiguration<int>.CodecRequiredImpl, GenericType<IntCodec>.Class)
+                .Set(CodecConfiguration<int>.Codec, GenericType<IntCodec>.Class)
                 .Build();
 
             IConfiguration reduceFunctionConfig = ReduceFunctionConfiguration<int>.Conf
-                .Set(ReduceFunctionConfiguration<int>.ReduceFunctionRequiredImpl, GenericType<SumFunction>.Class)
+                .Set(ReduceFunctionConfiguration<int>.ReduceFunction, GenericType<SumFunction>.Class)
                 .Build();
 
             IConfiguration dataConverterConfig = PipelineDataConverterConfiguration<int>.Conf
-                .Set(PipelineDataConverterConfiguration<int>.dataConverterRequiredImpl, GenericType<DefaultPipelineDataConverter<int>>.Class)
+                .Set(PipelineDataConverterConfiguration<int>.DataConverter, GenericType<DefaultPipelineDataConverter<int>>.Class)
                 .Build();
 
             _commGroup = _groupCommDriver.DefaultGroup

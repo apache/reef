@@ -30,10 +30,16 @@ namespace Org.Apache.REEF.Network.Group.Config
 {
     public class ReduceFunctionConfiguration<T> : ConfigurationModuleBuilder
     {
-        public static readonly RequiredImpl<IReduceFunction<T>> ReduceFunctionRequiredImpl = new RequiredImpl<IReduceFunction<T>>();
-
+        /// <summary>
+        /// RequiredImpl for Reduced Function. Client needs to set implementation for this paramter
+        /// </summary>
+        public static readonly RequiredImpl<IReduceFunction<T>> ReduceFunction = new RequiredImpl<IReduceFunction<T>>();
+        
+        /// <summary>
+        /// Configuration Module for Reduced Function
+        /// </summary>
         public static ConfigurationModule Conf = new ReduceFunctionConfiguration<T>()
-            .BindImplementation(GenericType<IReduceFunction<T>>.Class, ReduceFunctionRequiredImpl)
+            .BindImplementation(GenericType<IReduceFunction<T>>.Class, ReduceFunction)
             .Build();
     }
 }

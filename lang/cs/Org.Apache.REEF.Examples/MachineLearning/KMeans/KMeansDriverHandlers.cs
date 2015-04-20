@@ -84,31 +84,31 @@ namespace Org.Apache.REEF.Examples.MachineLearning.KMeans
             _groupCommDriver = groupCommDriver;
 
             IConfiguration conf1 = CodecConfiguration<Centroids>.Conf
-                .Set(CodecConfiguration<Centroids>.CodecRequiredImpl, GenericType<CentroidsCodec>.Class)
+                .Set(CodecConfiguration<Centroids>.Codec, GenericType<CentroidsCodec>.Class)
                 .Build();
 
             IConfiguration dataConverterConfig1 = PipelineDataConverterConfiguration<Centroids>.Conf
-                .Set(PipelineDataConverterConfiguration<Centroids>.dataConverterRequiredImpl, GenericType<DefaultPipelineDataConverter<Centroids>>.Class)
+                .Set(PipelineDataConverterConfiguration<Centroids>.DataConverter, GenericType<DefaultPipelineDataConverter<Centroids>>.Class)
                 .Build();
 
             IConfiguration conf2 = CodecConfiguration<ControlMessage>.Conf
-                .Set(CodecConfiguration<ControlMessage>.CodecRequiredImpl, GenericType<ControlMessageCodec>.Class)
+                .Set(CodecConfiguration<ControlMessage>.Codec, GenericType<ControlMessageCodec>.Class)
                 .Build();
 
             IConfiguration dataConverterConfig2 = PipelineDataConverterConfiguration<ControlMessage>.Conf
-                .Set(PipelineDataConverterConfiguration<ControlMessage>.dataConverterRequiredImpl, GenericType<DefaultPipelineDataConverter<ControlMessage>>.Class)
+                .Set(PipelineDataConverterConfiguration<ControlMessage>.DataConverter, GenericType<DefaultPipelineDataConverter<ControlMessage>>.Class)
                 .Build();
 
             IConfiguration conf3 = CodecConfiguration<ProcessedResults>.Conf
-                .Set(CodecConfiguration<ProcessedResults>.CodecRequiredImpl, GenericType<ProcessedResultsCodec>.Class)
+                .Set(CodecConfiguration<ProcessedResults>.Codec, GenericType<ProcessedResultsCodec>.Class)
                 .Build();
 
             IConfiguration reduceFunctionConfig = ReduceFunctionConfiguration<ProcessedResults>.Conf
-                .Set(ReduceFunctionConfiguration<ProcessedResults>.ReduceFunctionRequiredImpl, GenericType<KMeansMasterTask.AggregateMeans>.Class)
+                .Set(ReduceFunctionConfiguration<ProcessedResults>.ReduceFunction, GenericType<KMeansMasterTask.AggregateMeans>.Class)
                 .Build();
 
             IConfiguration dataConverterConfig3 = PipelineDataConverterConfiguration<ProcessedResults>.Conf
-                .Set(PipelineDataConverterConfiguration<ProcessedResults>.dataConverterRequiredImpl, GenericType<DefaultPipelineDataConverter<ProcessedResults>>.Class)
+                .Set(PipelineDataConverterConfiguration<ProcessedResults>.DataConverter, GenericType<DefaultPipelineDataConverter<ProcessedResults>>.Class)
                 .Build();
 
             _commGroup = _groupCommDriver.DefaultGroup

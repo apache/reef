@@ -350,11 +350,11 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
         {
             List<IConfiguration> list = new List<IConfiguration>(); 
             IConfiguration codecConfig = CodecConfiguration<int>.Conf
-                .Set(CodecConfiguration<int>.CodecRequiredImpl, GenericType<IntCodec>.Class)
+                .Set(CodecConfiguration<int>.Codec, GenericType<IntCodec>.Class)
                 .Build();
 
             IConfiguration dataConverterConfig = PipelineDataConverterConfiguration<int>.Conf
-                .Set(PipelineDataConverterConfiguration<int>.dataConverterRequiredImpl, GenericType<DefaultPipelineDataConverter<int>>.Class)
+                .Set(PipelineDataConverterConfiguration<int>.DataConverter, GenericType<DefaultPipelineDataConverter<int>>.Class)
                 .Build();
 
             list.Add(codecConfig);

@@ -26,10 +26,16 @@ namespace Org.Apache.REEF.Network.Group.Config
 {
     public class CodecConfiguration<T> : ConfigurationModuleBuilder
     {
-        public static readonly RequiredImpl<ICodec<T>> CodecRequiredImpl = new RequiredImpl<ICodec<T>>();
+        /// <summary>
+        /// RequiredImpl for Codec. Client needs to set implementation for this paramter
+        /// </summary>
+        public static readonly RequiredImpl<ICodec<T>> Codec = new RequiredImpl<ICodec<T>>();
 
+        /// <summary>
+        /// Configuration Module for Codec
+        /// </summary>
         public static ConfigurationModule Conf = new CodecConfiguration<T>()
-            .BindImplementation(GenericType<ICodec<T>>.Class, CodecRequiredImpl)
+            .BindImplementation(GenericType<ICodec<T>>.Class, Codec)
             .BindImplementation(GenericType<ICodec<PipelineMessage<T>>>.Class, GenericType<PipelineMessageCodec<T>>.Class)
             .Build();
     }

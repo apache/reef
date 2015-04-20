@@ -235,19 +235,19 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
             IGroupCommDriver groupCommDriver = GetInstanceOfGroupCommDriver(driverId, masterTaskId, groupName, 2, 5);
 
             IConfiguration conf1 = CodecConfiguration<Centroids>.Conf
-                .Set(CodecConfiguration<Centroids>.CodecRequiredImpl, GenericType<CentroidsCodec>.Class)
+                .Set(CodecConfiguration<Centroids>.Codec, GenericType<CentroidsCodec>.Class)
                 .Build();
 
             IConfiguration conf2 = CodecConfiguration<ControlMessage>.Conf
-                .Set(CodecConfiguration<ControlMessage>.CodecRequiredImpl, GenericType<ControlMessageCodec>.Class)
+                .Set(CodecConfiguration<ControlMessage>.Codec, GenericType<ControlMessageCodec>.Class)
                 .Build();
 
             IConfiguration conf3 = CodecConfiguration<ProcessedResults>.Conf
-                .Set(CodecConfiguration<ProcessedResults>.CodecRequiredImpl, GenericType<ProcessedResultsCodec>.Class)
+                .Set(CodecConfiguration<ProcessedResults>.Codec, GenericType<ProcessedResultsCodec>.Class)
                 .Build();
 
             IConfiguration reduceFunctionConfig = ReduceFunctionConfiguration<ProcessedResults>.Conf
-                .Set(ReduceFunctionConfiguration<ProcessedResults>.ReduceFunctionRequiredImpl, GenericType<KMeansMasterTask.AggregateMeans>.Class)
+                .Set(ReduceFunctionConfiguration<ProcessedResults>.ReduceFunction, GenericType<KMeansMasterTask.AggregateMeans>.Class)
                 .Build();
 
             IConfiguration merged = Configurations.Merge(conf3, reduceFunctionConfig);
@@ -770,21 +770,21 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
         private IConfiguration GetDefaulCodecConfig()
         {
             return CodecConfiguration<int>.Conf
-                .Set(CodecConfiguration<int>.CodecRequiredImpl, GenericType<IntCodec>.Class)
+                .Set(CodecConfiguration<int>.Codec, GenericType<IntCodec>.Class)
                 .Build();
         }
 
         private IConfiguration GetDefaulReduceFuncConfig()
         {
             return ReduceFunctionConfiguration<int>.Conf
-                .Set(ReduceFunctionConfiguration<int>.ReduceFunctionRequiredImpl, GenericType<SumFunction>.Class)
+                .Set(ReduceFunctionConfiguration<int>.ReduceFunction, GenericType<SumFunction>.Class)
                 .Build();
         }
 
         private IConfiguration GetDefaulDataConverterConfig()
         {
             return PipelineDataConverterConfiguration<int>.Conf
-                .Set(PipelineDataConverterConfiguration<int>.dataConverterRequiredImpl, GenericType<DefaultPipelineDataConverter<int>>.Class)
+                .Set(PipelineDataConverterConfiguration<int>.DataConverter, GenericType<DefaultPipelineDataConverter<int>>.Class)
                 .Build();
         }
     }
