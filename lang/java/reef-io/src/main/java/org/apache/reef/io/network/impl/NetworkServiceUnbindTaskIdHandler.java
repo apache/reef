@@ -30,7 +30,7 @@ import javax.inject.Inject;
  * the network service unbind task's id for their identifier when each
  * of task stops.
  */
-public class NetworkServiceUnbindTaskIdHandler implements EventHandler<TaskStop> {
+public final class NetworkServiceUnbindTaskIdHandler implements EventHandler<TaskStop> {
 
   private final InjectionFuture<NetworkService> networkService;
 

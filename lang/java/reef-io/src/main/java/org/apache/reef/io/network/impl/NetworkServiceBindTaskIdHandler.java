@@ -33,7 +33,7 @@ import javax.inject.Inject;
  * the network service bind task's id for their identifier when each
  * of task starts.
  */
-public class NetworkServiceBindTaskIdHandler implements EventHandler<TaskStart> {
+public final class NetworkServiceBindTaskIdHandler implements EventHandler<TaskStart> {
 
   private final InjectionFuture<NetworkService> networkService;
   private final IdentifierFactory idFactory;
