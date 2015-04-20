@@ -22,10 +22,8 @@ import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.driver.task.TaskConfiguration;
 import org.apache.reef.driver.task.TaskConfigurationOptions;
 import org.apache.reef.evaluator.context.parameters.ContextStopHandlers;
-import org.apache.reef.io.network.impl.NameClientProxy;
-import org.apache.reef.io.network.impl.NetworkServiceBindTaskIdHandler;
-import org.apache.reef.io.network.impl.NetworkServiceContextStopHandler;
-import org.apache.reef.io.network.impl.NetworkServiceUnbindTaskIdHandler;
+import org.apache.reef.evaluator.context.parameters.Services;
+import org.apache.reef.io.network.impl.*;
 import org.apache.reef.io.network.naming.NameServerParameters;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.JavaConfigurationBuilder;
@@ -137,6 +135,7 @@ public final class NetworkServiceConfigurationBuilder {
     }
 
    return builder
+       .bindSetEntry(Services.class, DefaultNetworkServiceImplementation.class)
        .bindSetEntry(ContextStopHandlers.class, NetworkServiceContextStopHandler.class)
        .bindNamedParameter(NetworkServiceParameter.DriverNetworkServiceIdentifier.class, namingProxy.getLocalIdentifier().toString())
        .bindNamedParameter(NameServerParameters.NameServerPort.class, namingProxy.getNameServerPort() + "")
