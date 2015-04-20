@@ -106,16 +106,20 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
 
             var groupCommunicationDriver = GetInstanceOfGroupCommDriver(driverId, masterTaskId, groupName, fanOut, numTasks);
 
-            IConfiguration conf = GetDefaulConfiguration();
             ICommunicationGroupDriver commGroup = groupCommunicationDriver.DefaultGroup
                 .AddBroadcast<int>(
-                    conf,       
                     broadcastOperatorName,
-                    masterTaskId)
+                    masterTaskId,
+                    TopologyTypes.Flat,
+                    GetDefaulCodecConfig(),
+                    GetDefaulDataConverterConfig())
                 .AddReduce<int>(
-                    conf,
                     reduceOperatorName,
-                    masterTaskId)
+                    masterTaskId,
+                    TopologyTypes.Flat,
+                    GetDefaulCodecConfig(),
+                    GetDefaulDataConverterConfig(),
+                    GetDefaulReduceFuncConfig())
                 .Build();
 
             var commGroups = CommGroupClients(groupName, numTasks, groupCommunicationDriver, commGroup);
@@ -163,16 +167,20 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
 
             IGroupCommDriver groupCommDriver = GetInstanceOfGroupCommDriver(driverId, masterTaskId, groupName, fanOut, numTasks);
 
-            IConfiguration conf = GetDefaulConfiguration();
             ICommunicationGroupDriver commGroup = groupCommDriver.DefaultGroup
                 .AddScatter<int>(
-                    conf,
                     scatterOperatorName,
-                    masterTaskId)
+                    masterTaskId,
+                    TopologyTypes.Flat,
+                    GetDefaulCodecConfig(),
+                    GetDefaulDataConverterConfig())
                 .AddReduce<int>(
-                        conf,
                         reduceOperatorName,
-                        masterTaskId)
+                        masterTaskId,
+                        TopologyTypes.Flat,
+                        GetDefaulCodecConfig(),
+                        GetDefaulReduceFuncConfig(),
+                        GetDefaulDataConverterConfig())
                 .Build();
 
             List<ICommunicationGroupClient> commGroups = CommGroupClients(groupName, numTasks, groupCommDriver, commGroup);
@@ -244,9 +252,9 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
 
             IConfiguration merged = Configurations.Merge(conf3, reduceFunctionConfig);
             var group = groupCommDriver.DefaultGroup
-                   .AddBroadcast<Centroids>(conf1, centroidsBroadcastOperatorName, masterTaskId)
-                   .AddBroadcast<ControlMessage>(conf2, controlMessageBroadcastOperatorName, masterTaskId)
-                   .AddReduce<ProcessedResults>(merged, meansReduceOperatorName, masterTaskId)
+                   .AddBroadcast<Centroids>(centroidsBroadcastOperatorName, masterTaskId, TopologyTypes.Flat, GetDefaulCodecConfig(), GetDefaulDataConverterConfig())
+                   .AddBroadcast<ControlMessage>(controlMessageBroadcastOperatorName, masterTaskId, TopologyTypes.Flat, GetDefaulCodecConfig(), GetDefaulDataConverterConfig())
+                   .AddReduce<ProcessedResults>(meansReduceOperatorName, masterTaskId, TopologyTypes.Flat, GetDefaulCodecConfig(), GetDefaulDataConverterConfig(), GetDefaulReduceFuncConfig())
                    .Build();
         }
 
@@ -373,7 +381,7 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
             IGroupCommDriver groupCommDriver = GetInstanceOfGroupCommDriver(driverId, masterTaskId, groupName, fanOut, numTasks);
 
             var commGroup = groupCommDriver.DefaultGroup
-                .AddReduce<int>(GetDefaulConfiguration(), operatorName, "task0")
+                .AddReduce<int>(operatorName, "task0", TopologyTypes.Flat, GetDefaulCodecConfig(), GetDefaulDataConverterConfig(), GetDefaulReduceFuncConfig())
                 .Build();
 
             List<ICommunicationGroupClient> commGroups = CommGroupClients(groupName, numTasks, groupCommDriver, commGroup);
@@ -408,7 +416,7 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
             IGroupCommDriver groupCommDriver = GetInstanceOfGroupCommDriver(driverId, masterTaskId, groupName, fanOut, numTasks);
 
             var commGroup = groupCommDriver.DefaultGroup
-                .AddReduce<int>(GetDefaulConfiguration(), operatorName, "task0")
+                .AddReduce<int>(operatorName, "task0", TopologyTypes.Flat, GetDefaulCodecConfig(),GetDefaulDataConverterConfig(), GetDefaulReduceFuncConfig())
                 .Build();
 
             List<ICommunicationGroupClient> commGroups = CommGroupClients(groupName, numTasks, groupCommDriver, commGroup);
@@ -530,7 +538,7 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
             IGroupCommDriver groupCommDriver = GetInstanceOfGroupCommDriver(driverId, masterTaskId, groupName, fanOut, numTasks);
 
             var commGroup = groupCommDriver.DefaultGroup
-                .AddScatter<int>(GetDefaulConfiguration(), operatorName, masterTaskId)
+                .AddScatter<int>(operatorName, masterTaskId, TopologyTypes.Flat, GetDefaulCodecConfig(), GetDefaulDataConverterConfig(), GetDefaulReduceFuncConfig())
                 .Build();
 
             List<ICommunicationGroupClient> commGroups = CommGroupClients(groupName, numTasks, groupCommDriver, commGroup);
@@ -580,7 +588,7 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
             IGroupCommDriver groupCommDriver = GetInstanceOfGroupCommDriver(driverId, masterTaskId, groupName, fanOut, numTasks);
 
             var commGroup = groupCommDriver.DefaultGroup
-                .AddScatter<int>(GetDefaulConfiguration(), operatorName, masterTaskId)
+                .AddScatter<int>(operatorName, masterTaskId, TopologyTypes.Flat, GetDefaulCodecConfig(), GetDefaulDataConverterConfig())
                 .Build();
 
             List<ICommunicationGroupClient> commGroups = CommGroupClients(groupName, numTasks, groupCommDriver, commGroup);
@@ -627,7 +635,7 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
             IGroupCommDriver groupCommDriver = GetInstanceOfGroupCommDriver(driverId, masterTaskId, groupName, fanOut, numTasks);
 
             var commGroup = groupCommDriver.DefaultGroup
-                .AddScatter<int>(GetDefaulConfiguration(), operatorName, masterTaskId)
+                .AddScatter<int>(operatorName, masterTaskId, TopologyTypes.Flat, GetDefaulCodecConfig(), GetDefaulDataConverterConfig())
                 .Build();
 
             List<ICommunicationGroupClient> commGroups = CommGroupClients(groupName, numTasks, groupCommDriver, commGroup);
@@ -665,7 +673,7 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
         public void TestConfigurationBroadcastSpec()
         {
             FlatTopology<int> topology = new FlatTopology<int>("Operator", "Operator", "task1", "driverid",
-                new BroadcastOperatorSpec("Sender", GetDefaulConfiguration()));
+                new BroadcastOperatorSpec("Sender", GetDefaulCodecConfig(), GetDefaulDataConverterConfig()));
 
             topology.AddTask("task1");
             var conf = topology.GetTaskConfiguration("task1");
@@ -678,7 +686,7 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
         public void TestConfigurationReduceSpec()
         {
             FlatTopology<int> topology = new FlatTopology<int>("Operator", "Group", "task1", "driverid",
-                new ReduceOperatorSpec("task1", GetDefaulConfiguration()));
+                new ReduceOperatorSpec("task1", Configurations.Merge(GetDefaulCodecConfig(), GetDefaulDataConverterConfig(),  GetDefaulReduceFuncConfig())));
 
             topology.AddTask("task1");
             var conf2 = topology.GetTaskConfiguration("task1");
@@ -758,21 +766,26 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
         {
             return Enumerable.Range(1, n).Sum();
         }
-        private IConfiguration GetDefaulConfiguration()
+
+        private IConfiguration GetDefaulCodecConfig()
         {
-            IConfiguration codecConfiguration = CodecConfiguration<int>.Conf
+            return CodecConfiguration<int>.Conf
                 .Set(CodecConfiguration<int>.CodecRequiredImpl, GenericType<IntCodec>.Class)
                 .Build();
+        }
 
-            IConfiguration reduceFunctionConfig = ReduceFunctionConfiguration<int>.Conf
+        private IConfiguration GetDefaulReduceFuncConfig()
+        {
+            return ReduceFunctionConfiguration<int>.Conf
                 .Set(ReduceFunctionConfiguration<int>.ReduceFunctionRequiredImpl, GenericType<SumFunction>.Class)
                 .Build();
+        }
 
-            IConfiguration dataConverterConfig = PipelineDataConverterConfiguration<int>.Conf
+        private IConfiguration GetDefaulDataConverterConfig()
+        {
+            return PipelineDataConverterConfiguration<int>.Conf
                 .Set(PipelineDataConverterConfiguration<int>.dataConverterRequiredImpl, GenericType<DefaultPipelineDataConverter<int>>.Class)
                 .Build();
-
-            return Configurations.Merge(codecConfiguration, reduceFunctionConfig, dataConverterConfig);
         }
     }
 

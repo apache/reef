@@ -90,23 +90,22 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.PipelineBroadcastR
                     GroupTestConstants.ChunkSize.ToString(CultureInfo.InvariantCulture))
                 .Build();
 
-            IConfiguration merged = Configurations.Merge(codecConfig, reduceFunctionConfig, dataConverterConfig);
-
             _groupCommDriver = groupCommDriver;
 
             _commGroup = _groupCommDriver.DefaultGroup
                 .AddBroadcast<int[]>(
-                    merged,
                     GroupTestConstants.BroadcastOperatorName,
                     GroupTestConstants.MasterTaskId,
-                    TopologyTypes.Tree)
-                    //new PipelineIntDataConverter(_chunkSize))
+                    TopologyTypes.Tree,
+                    codecConfig,
+                    dataConverterConfig)
                 .AddReduce<int[]>(
-                    merged,
                     GroupTestConstants.ReduceOperatorName,
                     GroupTestConstants.MasterTaskId,
-                    TopologyTypes.Tree)
-                    //new PipelineIntDataConverter(_chunkSize))
+                    TopologyTypes.Tree,
+                    codecConfig,
+                    reduceFunctionConfig,
+                    dataConverterConfig)
                 .Build();
 
             _groupCommTaskStarter = new TaskStarter(_groupCommDriver, numEvaluators);

@@ -44,6 +44,7 @@ using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities.Logging;
+using Org.Apache.REEF.Network.Group.Topology;
 
 namespace Org.Apache.REEF.Examples.MachineLearning.KMeans
 {
@@ -110,12 +111,10 @@ namespace Org.Apache.REEF.Examples.MachineLearning.KMeans
                 .Set(PipelineDataConverterConfiguration<ProcessedResults>.dataConverterRequiredImpl, GenericType<DefaultPipelineDataConverter<ProcessedResults>>.Class)
                 .Build();
 
-            IConfiguration merged = Configurations.Merge(conf3, reduceFunctionConfig, dataConverterConfig3);
-
             _commGroup = _groupCommDriver.DefaultGroup
-                   .AddBroadcast<Centroids>(Configurations.Merge(conf1, dataConverterConfig1), Constants.CentroidsBroadcastOperatorName, Constants.MasterTaskId)
-                   .AddBroadcast<ControlMessage>(Configurations.Merge(conf2, dataConverterConfig2), Constants.ControlMessageBroadcastOperatorName, Constants.MasterTaskId)
-                   .AddReduce<ProcessedResults>(merged, Constants.MeansReduceOperatorName, Constants.MasterTaskId)
+                   .AddBroadcast<Centroids>(Constants.CentroidsBroadcastOperatorName, Constants.MasterTaskId, TopologyTypes.Flat, conf1, dataConverterConfig1)
+                   .AddBroadcast<ControlMessage>(Constants.ControlMessageBroadcastOperatorName, Constants.MasterTaskId, TopologyTypes.Flat, conf2, dataConverterConfig2)
+                   .AddReduce<ProcessedResults>(Constants.MeansReduceOperatorName, Constants.MasterTaskId, TopologyTypes.Flat, conf3, reduceFunctionConfig, dataConverterConfig3)
                    .Build();
 
             _groupCommTaskStarter = new TaskStarter(_groupCommDriver, _totalEvaluators);

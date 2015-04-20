@@ -17,6 +17,7 @@
  * under the License.
  */
 
+using Org.Apache.REEF.Tang.Implementations.Configuration;
 using Org.Apache.REEF.Tang.Interface;
 
 namespace Org.Apache.REEF.Network.Group.Operators.Impl
@@ -30,11 +31,11 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
         /// Creates a new ScatterOperatorSpec.
         /// </summary>
         /// <param name="senderId">The identifier of the task that will be sending messages</param>
-        /// <param name="configuration">The configuration Codec, ReduceFunction and DataConverter used for group communication client</param>
-        public ScatterOperatorSpec(string senderId, IConfiguration configuration)
+        /// <param name="configurations">The configuration Codec, ReduceFunction and DataConverter used for group communication client</param>
+        public ScatterOperatorSpec(string senderId, params IConfiguration[] configurations)
         {
             SenderId = senderId;
-            Configiration = configuration;
+            Configiration = Configurations.Merge(configurations);
         }
 
         /// <summary>

@@ -21,6 +21,7 @@ using System;
 using Org.Apache.REEF.Wake.Remote;
 using Org.Apache.REEF.Network.Group.Pipelining.Impl;
 using Org.Apache.REEF.Network.Group.Pipelining;
+using Org.Apache.REEF.Tang.Implementations.Configuration;
 using Org.Apache.REEF.Tang.Interface;
 
 namespace Org.Apache.REEF.Network.Group.Operators.Impl
@@ -34,13 +35,13 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
         /// Creates a new ReduceOperatorSpec.
         /// </summary>
         /// <param name="receiverId">The identifier of the task that will receive and reduce incoming messages.</param>
-        /// <param name="configuration">The configuration used for Codec, ReduceFunction and DataConverter.</param>
+        /// <param name="configurations">The configuration used for Codec, ReduceFunction and DataConverter.</param>
         public ReduceOperatorSpec(
             string receiverId,
-            IConfiguration configuration)
+            params IConfiguration[] configurations)
         {
             ReceiverId = receiverId;
-            Configiration = configuration;
+            Configiration = Configurations.Merge(configurations);
         }
 
         /// <summary>

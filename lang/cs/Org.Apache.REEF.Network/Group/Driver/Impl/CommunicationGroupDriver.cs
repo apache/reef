@@ -19,6 +19,7 @@
 
 using System.Collections.Generic;
 using System.Reflection;
+using System.Threading;
 using Org.Apache.REEF.Network.Group.Config;
 using Org.Apache.REEF.Network.Group.Operators.Impl;
 using Org.Apache.REEF.Network.Group.Pipelining;
@@ -95,14 +96,13 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
         /// <summary>
         /// </summary>
         /// <typeparam name="T">The type of messages that operators will send</typeparam>
-        /// <param name="configuration">The configuration send to Evaluator</param>
+        /// <param name="configurations">The configuration send to Evaluator</param>
         /// <param name="operatorName">The name of the broadcast operator</param>
         /// <param name="masterTaskId">The master task id in broadcast operator</param>
         /// <param name="topologyType">The topology type for the operator</param>
         /// <returns>The same CommunicationGroupDriver with the added Broadcast operator info</returns>
         /// <returns></returns>
-        public ICommunicationGroupDriver AddBroadcast<T>(IConfiguration configuration,
-            string operatorName, string masterTaskId, TopologyTypes topologyType = TopologyTypes.Flat)
+        public ICommunicationGroupDriver AddBroadcast<T>(string operatorName, string masterTaskId, TopologyTypes topologyType, params IConfiguration[] configurations)
         {
             if (_finalized)
             {
@@ -111,7 +111,7 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
 
             var spec = new BroadcastOperatorSpec(
                 masterTaskId,
-                configuration);
+                configurations);
 
             ITopology<T> topology;
             if (topologyType == TopologyTypes.Flat)
@@ -141,23 +141,23 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
         /// <returns>The same CommunicationGroupDriver with the added Broadcast operator info</returns>
         public ICommunicationGroupDriver AddBroadcast(string operatorName, string masterTaskId, TopologyTypes topologyType = TopologyTypes.Flat)
         {
-            return AddBroadcast<int>(GetDefaulConfiguration(), operatorName, masterTaskId, topologyType);
+            return AddBroadcast<int>( operatorName, masterTaskId, topologyType, GetDefaulConfiguration());
         }
 
         /// <summary>
         /// Adds the Reduce Group Communication operator to the communication group.
         /// </summary>
         /// <typeparam name="T">The type of messages that operators will send</typeparam>
-        /// <param name="configuration">The configuration for the reduce operator</param>
+        /// <param name="configurations">The configuration for the reduce operator</param>
         /// <param name="operatorName">The name of the reduce operator</param>
         /// <param name="masterTaskId">The master task id for the typology</param>
         /// <param name="topologyType">The topology for the operator</param>
         /// <returns>The same CommunicationGroupDriver with the added Reduce operator info</returns>
         public ICommunicationGroupDriver AddReduce<T>(
-            IConfiguration configuration,
             string operatorName,
             string masterTaskId,
-            TopologyTypes topologyType = TopologyTypes.Flat) 
+            TopologyTypes topologyType,
+            params IConfiguration[] configurations) 
         {
             if (_finalized)
             {
@@ -166,7 +166,7 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
 
             var spec = new ReduceOperatorSpec(
                 masterTaskId,
-                configuration);
+                configurations);
 
             ITopology<T> topology;
 
@@ -192,20 +192,20 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
         /// Adds the Scatter Group Communication operator to the communication group.
         /// </summary>
         /// <typeparam name="T">The type of messages that operators will send</typeparam>
-        /// <param name="configuration">The configuration for the scatter operator</param>
+        /// <param name="configurations">The configuration for the scatter operator</param>
         /// <param name="operatorName">The name of the scatter operator</param>
         /// <param name="senderId">The sender id</param>
         /// <param name="topologyType">type of topology used in the operaor</param>
         /// <returns>The same CommunicationGroupDriver with the added Scatter operator info</returns>
-        public ICommunicationGroupDriver AddScatter<T>(IConfiguration configuration, string operatorName, string senderId,
-            TopologyTypes topologyType = TopologyTypes.Flat) 
+        public ICommunicationGroupDriver AddScatter<T>(string operatorName, string senderId,
+            TopologyTypes topologyType, params IConfiguration[] configurations) 
         {
             if (_finalized)
             {
                 throw new IllegalStateException("Can't add operators once the spec has been built.");
             }
 
-            var spec = new ScatterOperatorSpec(senderId, configuration);
+            var spec = new ScatterOperatorSpec(senderId, configurations);
 
             ITopology<T> topology;
 
@@ -236,7 +236,7 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
         public ICommunicationGroupDriver AddScatter(string operatorName, string senderId,
             TopologyTypes topologyType = TopologyTypes.Flat)
         {
-            return AddScatter<int>(GetDefaulConfiguration(), operatorName, senderId, topologyType);
+            return AddScatter<int>(operatorName, senderId, topologyType, GetDefaulConfiguration());
         }
 
         /// <summary>
@@ -346,8 +346,9 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
             return (IConfiguration) info.Invoke(topology, new[] {(object) taskId});
         }
 
-        private IConfiguration GetDefaulConfiguration()
+        private IConfiguration[] GetDefaulConfiguration()
         {
+            List<IConfiguration> list = new List<IConfiguration>(); 
             IConfiguration codecConfig = CodecConfiguration<int>.Conf
                 .Set(CodecConfiguration<int>.CodecRequiredImpl, GenericType<IntCodec>.Class)
                 .Build();
@@ -356,7 +357,10 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
                 .Set(PipelineDataConverterConfiguration<int>.dataConverterRequiredImpl, GenericType<DefaultPipelineDataConverter<int>>.Class)
                 .Build();
 
-            return Configurations.Merge(codecConfig, dataConverterConfig);
+            list.Add(codecConfig);
+            list.Add(dataConverterConfig);
+
+            return list.ToArray();
         }
     }
 }

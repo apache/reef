@@ -79,19 +79,20 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.BroadcastReduceDri
                 .Set(PipelineDataConverterConfiguration<int>.dataConverterRequiredImpl, GenericType<DefaultPipelineDataConverter<int>>.Class)
                 .Build();
 
-            IConfiguration merged = Configurations.Merge(codecConfig, reduceFunctionConfig, dataConverterConfig);
-
             _commGroup = _groupCommDriver.DefaultGroup
                     .AddBroadcast<int>(
-                        merged,
                         GroupTestConstants.BroadcastOperatorName,
                         GroupTestConstants.MasterTaskId, 
-                        TopologyTypes.Tree)
+                        TopologyTypes.Tree,
+                        codecConfig,
+                        dataConverterConfig)
                     .AddReduce<int>(
-                        merged,
                         GroupTestConstants.ReduceOperatorName,
                         GroupTestConstants.MasterTaskId,
-                        TopologyTypes.Tree)
+                        TopologyTypes.Tree,
+                        codecConfig,
+                        reduceFunctionConfig,
+                        dataConverterConfig)
                     .Build();
 
             _groupCommTaskStarter = new TaskStarter(_groupCommDriver, numEvaluators);

@@ -77,18 +77,21 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.ScatterReduceDrive
                 .Set(PipelineDataConverterConfiguration<int>.dataConverterRequiredImpl, GenericType<DefaultPipelineDataConverter<int>>.Class)
                 .Build();
 
-            IConfiguration merged = Configurations.Merge(codecConfig, reduceFunctionConfig, dataConverterConfig);
-
             _commGroup = _groupCommDriver.DefaultGroup
                     .AddScatter<int>(
-                        merged,
                         GroupTestConstants.ScatterOperatorName,
                             GroupTestConstants.MasterTaskId,
-                            TopologyTypes.Tree)
+                            TopologyTypes.Tree, 
+                            codecConfig,
+                            dataConverterConfig)
                     .AddReduce<int>(
-                        merged,
                         GroupTestConstants.ReduceOperatorName,
-                        GroupTestConstants.MasterTaskId)
+                        GroupTestConstants.MasterTaskId,
+                        TopologyTypes.Tree, 
+                        codecConfig,
+                        reduceFunctionConfig,
+                        dataConverterConfig)
+
                     .Build();
 
             _groupCommTaskStarter = new TaskStarter(_groupCommDriver, numEvaluators);

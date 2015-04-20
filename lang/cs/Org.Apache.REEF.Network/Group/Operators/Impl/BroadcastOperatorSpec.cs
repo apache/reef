@@ -17,6 +17,7 @@
  * under the License.
  */
 
+using Org.Apache.REEF.Tang.Implementations.Configuration;
 using Org.Apache.REEF.Tang.Interface;
 
 namespace Org.Apache.REEF.Network.Group.Operators.Impl
@@ -26,10 +27,15 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
     /// </summary>
     public class BroadcastOperatorSpec : IOperatorSpec
     {
-        public BroadcastOperatorSpec(string senderId, IConfiguration configuration)
+        /// <summary>
+        /// Specification for Broadcast Operator
+        /// </summary>
+        /// <param name="senderId"></param>
+        /// <param name="configurations"></param>
+        public BroadcastOperatorSpec(string senderId, params IConfiguration[] configurations)
         {
             SenderId = senderId;
-            Configiration = configuration;
+            Configiration = Configurations.Merge(configurations);
         }
 
         /// <summary>
