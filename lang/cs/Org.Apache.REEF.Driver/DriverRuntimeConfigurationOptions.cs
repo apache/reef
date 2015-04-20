@@ -17,11 +17,13 @@
  * under the License.
  */
 
+using System;
 using Org.Apache.REEF.Common;
 using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.Driver
 {
+    [Obsolete("Driver core logic no longer needed in.NET")]
     public class DriverRuntimeConfigurationOptions
     {
         [NamedParameter(documentation: "Job message handler (see ClientJobStatusHandler)")]

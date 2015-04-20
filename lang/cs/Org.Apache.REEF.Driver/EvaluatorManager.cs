@@ -55,6 +55,7 @@ namespace Org.Apache.REEF.Driver
     /// A (push-based) EventHandler channel is established EvaluatorManager -> EvaluatorRuntime.
     /// The EvaluatorManager uses this to forward Driver messages, launch Tasks, and initiate control information (e.g., shutdown, suspend).
     /// </summary>
+    [Obsolete("Driver core logic no longer needed in.NET")]
     public class EvaluatorManager : IDisposable, IIdentifiable
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(EvaluatorManager));
@@ -567,7 +568,7 @@ namespace Org.Apache.REEF.Driver
             if (taskState == State.INIT)
             {
                 EvaluatorContext evaluatorContext = GetEvaluatorContext(contextId);
-                _runningTask = new RunningTaskImpl(this, taskId, evaluatorContext);
+                _runningTask = new RunningTaskImpl(taskId, evaluatorContext);
                 // this.dispatcher.onNext(RunningTask.class, this.runningTask);
             }
             else if (taskState == State.SUSPEND)
