@@ -17,8 +17,11 @@
  * under the License.
  */
 
+using System;
+
 namespace Org.Apache.REEF.Driver.Contract
 {
+    [Obsolete("Tmp code never used")]
     public interface IBridgeContract
     {
         string InstanceId { get; set; }
