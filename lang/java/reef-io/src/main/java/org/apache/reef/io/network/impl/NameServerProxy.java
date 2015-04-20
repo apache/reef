@@ -19,7 +19,12 @@
 package org.apache.reef.io.network.impl;
 
 import org.apache.reef.io.network.NamingProxy;
+import org.apache.reef.io.network.NetworkServiceParameter;
+import org.apache.reef.io.network.naming.NameLookupClient;
 import org.apache.reef.io.network.naming.NameServer;
+import org.apache.reef.io.network.naming.NameServerParameters;
+import org.apache.reef.io.network.naming.exception.NamingException;
+import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.wake.Identifier;
 
 import javax.inject.Inject;
@@ -37,10 +42,17 @@ public final class NameServerProxy implements NamingProxy {
   private final NameServer nameServer;
   private Identifier myId;
   private InetSocketAddress myAddress;
+  private final int retryCount;
+  private final int retryTimeout;
 
   @Inject
-  public NameServerProxy(final NameServer nameServer){
+  public NameServerProxy(
+      final NameServer nameServer,
+      final @Parameter(NameLookupClient.RetryCount.class) int retryCount,
+      final @Parameter(NameLookupClient.RetryTimeout.class) int retryTimeout){
     this.nameServer = nameServer;
+    this.retryCount = retryCount;
+    this.retryTimeout = retryTimeout;
   }
 
   @Override
@@ -65,7 +77,27 @@ public final class NameServerProxy implements NamingProxy {
 
   @Override
   public InetSocketAddress lookup(Identifier id) throws Exception {
-    return nameServer.lookup(id);
+    final int origRetryCount = this.retryCount;
+    int retryCount = origRetryCount;
+    while (true) {
+      InetSocketAddress address = nameServer.lookup(id);
+      if (address != null) {
+        return address;
+      } else {
+        if (retryCount <= 0) {
+          throw new NamingException("The identifier " + id + " is not found in driver.");
+        } else {
+          final int retryTimeout = this.retryTimeout
+              * (origRetryCount - retryCount + 1);
+          LOG.log(Level.WARNING,
+              "Caught Naming Exception while looking up " + id
+                  + " with Name Server. Will retry " + retryCount
+                  + " time(s) after waiting for " + retryTimeout + " msec.");
+          Thread.sleep(retryTimeout * retryCount);
+          --retryCount;
+        }
+      }
+    }
   }
 
   @Override

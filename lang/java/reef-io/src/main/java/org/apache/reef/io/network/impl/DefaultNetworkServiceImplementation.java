@@ -55,6 +55,7 @@ public final class DefaultNetworkServiceImplementation implements NetworkService
   private final NetworkPreconfiguredMap preconfiguredMap;
   private final NamingProxy namingProxy;
   private final boolean transferSenderIdentifier;
+  private final boolean isUsingTaskId;
 
   @Inject
   public DefaultNetworkServiceImplementation(
@@ -88,8 +89,8 @@ public final class DefaultNetworkServiceImplementation implements NetworkService
         receiverStage, receiverStage, retryCount, retryTimeout);
     this.senderStage = new NetworkSenderStage(transport, eventCodec, idFactory, networkPreconfiguredMap,
         senderThreadNum, connectingQueueSizeThreshold, connectingQueueWaitingTime);
-
-    if (!serviceId.equals(NetworkServiceParameter.DEFAULT_NETWORK_SERVICE_ID)) {
+    this.isUsingTaskId = serviceId.equals(NetworkServiceParameter.DEFAULT_NETWORK_SERVICE_ID);
+    if (!isUsingTaskId) {
       final Identifier networkServiceId = idFactory.getNewInstance(serviceId);
       registerId(networkServiceId);
       LOG.log(Level.INFO, networkServiceId + " is registered in NameServer.");
@@ -183,7 +184,9 @@ public final class DefaultNetworkServiceImplementation implements NetworkService
   @Override
   public void close() throws Exception {
     LOG.log(Level.FINE, "Shutting down");
-    unregisterId();
+    if (!isUsingTaskId) {
+      unregisterId();
+    }
     this.transport.close();
     this.namingProxy.close();
     this.receiverStage.close();
