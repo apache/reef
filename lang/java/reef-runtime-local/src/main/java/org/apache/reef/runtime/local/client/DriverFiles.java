@@ -18,8 +18,9 @@
  */
 package org.apache.reef.runtime.local.client;
 
-import org.apache.reef.proto.ClientRuntimeProtocol;
-import org.apache.reef.proto.ReefServiceProtos;
+import org.apache.reef.runtime.common.client.api.JobSubmissionEvent;
+import org.apache.reef.runtime.common.files.FileResource;
+import org.apache.reef.runtime.common.files.FileType;
 import org.apache.reef.runtime.common.files.REEFFileNames;
 import org.apache.reef.tang.formats.ConfigurationModule;
 import org.apache.reef.tang.formats.OptionalParameter;
@@ -51,28 +52,28 @@ final class DriverFiles {
   /**
    * Instantiates an instance based on the given JobSubmissionProto.
    *
-   * @param jobSubmissionProto the JobSubmissionProto to parse.
+   * @param jobSubmissionEvent the JobSubmissionProto to parse.
    * @return a DriverFiles instance pre-populated with the information from the given JobSubmissionProto.
    * @throws IOException
    */
   public static DriverFiles fromJobSubmission(
-      final ClientRuntimeProtocol.JobSubmissionProto jobSubmissionProto,
+      final JobSubmissionEvent jobSubmissionEvent,
       final REEFFileNames fileNames) throws IOException {
 
     final DriverFiles driverFiles = new DriverFiles(fileNames);
 
-    for (final ReefServiceProtos.FileResourceProto frp : jobSubmissionProto.getGlobalFileList()) {
+    for (final FileResource frp : jobSubmissionEvent.getGlobalFileSet()) {
       final File f = new File(frp.getPath());
-      if (frp.getType() == ReefServiceProtos.FileType.LIB) {
+      if (frp.getType() == FileType.LIB) {
         driverFiles.addGlobalLib(f);
       } else {
         driverFiles.addGlobalFile(f);
       }
     }
 
-    for (final ReefServiceProtos.FileResourceProto frp : jobSubmissionProto.getLocalFileList()) {
+    for (final FileResource frp : jobSubmissionEvent.getLocalFileSet()) {
       final File f = new File(frp.getPath());
-      if (frp.getType() == ReefServiceProtos.FileType.LIB) {
+      if (frp.getType() == FileType.LIB) {
         driverFiles.addLocalLib(f);
       } else {
         driverFiles.addLocalFile(f);

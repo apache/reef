@@ -23,8 +23,9 @@ import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.driver.catalog.NodeDescriptor;
 import org.apache.reef.driver.catalog.ResourceCatalog;
 import org.apache.reef.driver.evaluator.EvaluatorType;
-import org.apache.reef.proto.DriverRuntimeProtocol;
 import org.apache.reef.runtime.common.driver.resourcemanager.NodeDescriptorHandler;
+import org.apache.reef.runtime.common.driver.resourcemanager.ResourceAllocationEvent;
+import org.apache.reef.runtime.common.driver.resourcemanager.ResourceStatusEvent;
 import org.apache.reef.tang.Injector;
 import org.apache.reef.tang.exceptions.BindException;
 import org.apache.reef.tang.exceptions.InjectionException;
@@ -80,26 +81,26 @@ public final class EvaluatorManagerFactory {
   /**
    * Instantiates a new EvaluatorManager based on a resource allocation.
    *
-   * @param resourceAllocationProto
+   * @param resourceAllocationEvent
    * @return
    */
-  public final EvaluatorManager getNewEvaluatorManager(final DriverRuntimeProtocol.ResourceAllocationProto resourceAllocationProto) {
-    final NodeDescriptor nodeDescriptor = this.resourceCatalog.getNode(resourceAllocationProto.getNodeId());
+  public final EvaluatorManager getNewEvaluatorManager(final ResourceAllocationEvent resourceAllocationEvent) {
+    final NodeDescriptor nodeDescriptor = this.resourceCatalog.getNode(resourceAllocationEvent.getNodeId());
 
     if (nodeDescriptor == null) {
-      throw new RuntimeException("Unknown resource: " + resourceAllocationProto.getNodeId());
+      throw new RuntimeException("Unknown resource: " + resourceAllocationEvent.getNodeId());
     }
     final EvaluatorDescriptorImpl evaluatorDescriptor = new EvaluatorDescriptorImpl(nodeDescriptor,
-        EvaluatorType.UNDECIDED, resourceAllocationProto.getResourceMemory(), resourceAllocationProto.getVirtualCores());
+        EvaluatorType.UNDECIDED, resourceAllocationEvent.getResourceMemory(), resourceAllocationEvent.getVirtualCores().get());
 
-    LOG.log(Level.FINEST, "Resource allocation: new evaluator id[{0}]", resourceAllocationProto.getIdentifier());
-    return this.getNewEvaluatorManagerInstance(resourceAllocationProto.getIdentifier(), evaluatorDescriptor);
+    LOG.log(Level.FINEST, "Resource allocation: new evaluator id[{0}]", resourceAllocationEvent.getIdentifier());
+    return this.getNewEvaluatorManagerInstance(resourceAllocationEvent.getIdentifier(), evaluatorDescriptor);
   }
 
-  public final EvaluatorManager createForEvaluatorFailedDuringDriverRestart(final DriverRuntimeProtocol.ResourceStatusProto resourceStatusProto) {
-    if (!resourceStatusProto.getIsFromPreviousDriver()) {
-      throw new RuntimeException("Invalid resourceStatusProto, must be status for resource from previous Driver.");
+  public final EvaluatorManager createForEvaluatorFailedDuringDriverRestart(final ResourceStatusEvent resourceStatusEvent) {
+    if (!resourceStatusEvent.getIsFromPreviousDriver().get()) {
+      throw new RuntimeException("Invalid resourceStatusEvent, must be status for resource from previous Driver.");
     }
-    return getNewEvaluatorManagerInstance(resourceStatusProto.getIdentifier(), new EvaluatorDescriptorImpl(null, EvaluatorType.UNDECIDED, 128, 1));
+    return getNewEvaluatorManagerInstance(resourceStatusEvent.getIdentifier(), new EvaluatorDescriptorImpl(null, EvaluatorType.UNDECIDED, 128, 1));
   }
 }

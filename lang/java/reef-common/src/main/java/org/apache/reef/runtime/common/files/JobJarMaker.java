@@ -21,8 +21,7 @@ package org.apache.reef.runtime.common.files;
 import org.apache.reef.annotations.audience.ClientSide;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.annotations.audience.RuntimeAuthor;
-import org.apache.reef.proto.ClientRuntimeProtocol;
-import org.apache.reef.proto.ReefServiceProtos;
+import org.apache.reef.runtime.common.client.api.JobSubmissionEvent;
 import org.apache.reef.runtime.common.parameters.DeleteTempFiles;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.annotations.Parameter;
@@ -59,13 +58,13 @@ public final class JobJarMaker {
     this.deleteTempFilesOnExit = deleteTempFilesOnExit;
   }
 
-  public static void copy(final Iterable<ReefServiceProtos.FileResourceProto> files, final File destinationFolder) {
+  public static void copy(final Iterable<FileResource> files, final File destinationFolder) {
 
     if (!destinationFolder.exists()) {
       destinationFolder.mkdirs();
     }
 
-    for (final ReefServiceProtos.FileResourceProto fileProto : files) {
+    for (final FileResource fileProto : files) {
       final File sourceFile = toFile(fileProto);
       final File destinationFile = new File(destinationFolder, fileProto.getName());
       if (destinationFile.exists()) {
@@ -89,12 +88,12 @@ public final class JobJarMaker {
     }
   }
 
-  private static File toFile(final ReefServiceProtos.FileResourceProto fileProto) {
+  private static File toFile(final FileResource fileProto) {
     return new File(fileProto.getPath());
   }
 
   public File createJobSubmissionJAR(
-      final ClientRuntimeProtocol.JobSubmissionProto jobSubmissionProto,
+      final JobSubmissionEvent jobSubmissionEvent,
       final Configuration driverConfiguration) throws IOException {
 
     // Copy all files to a local job submission folder
@@ -104,8 +103,8 @@ public final class JobJarMaker {
     final File localFolder = new File(jobSubmissionFolder, this.fileNames.getLocalFolderName());
     final File globalFolder = new File(jobSubmissionFolder, this.fileNames.getGlobalFolderName());
 
-    this.copy(jobSubmissionProto.getGlobalFileList(), globalFolder);
-    this.copy(jobSubmissionProto.getLocalFileList(), localFolder);
+    this.copy(jobSubmissionEvent.getGlobalFileSet(), globalFolder);
+    this.copy(jobSubmissionEvent.getLocalFileSet(), localFolder);
 
     // Store the Driver Configuration in the JAR file.
     this.configurationSerializer.toFile(

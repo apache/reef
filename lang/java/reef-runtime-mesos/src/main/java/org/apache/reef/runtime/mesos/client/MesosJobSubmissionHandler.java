@@ -20,10 +20,10 @@ package org.apache.reef.runtime.mesos.client;
 
 import org.apache.reef.annotations.audience.ClientSide;
 import org.apache.reef.annotations.audience.Private;
-import org.apache.reef.proto.ClientRuntimeProtocol;
-import org.apache.reef.proto.ReefServiceProtos.FileResourceProto;
+import org.apache.reef.runtime.common.client.api.JobSubmissionEvent;
 import org.apache.reef.runtime.common.client.api.JobSubmissionHandler;
 import org.apache.reef.runtime.common.files.ClasspathProvider;
+import org.apache.reef.runtime.common.files.FileResource;
 import org.apache.reef.runtime.common.files.REEFFileNames;
 import org.apache.reef.runtime.common.launch.JavaLaunchCommandBuilder;
 import org.apache.reef.runtime.common.parameters.JVMHeapSlack;
@@ -78,10 +78,10 @@ final class MesosJobSubmissionHandler implements JobSubmissionHandler {
   }
 
   @Override
-  public void onNext(final ClientRuntimeProtocol.JobSubmissionProto jobSubmissionProto) {
+  public void onNext(final JobSubmissionEvent jobSubmissionEvent) {
     try {
       final File jobFolder = new File(new File(this.rootFolderName),
-          "/" + jobSubmissionProto.getIdentifier() + "-" + System.currentTimeMillis() + "/");
+          "/" + jobSubmissionEvent.getIdentifier() + "-" + System.currentTimeMillis() + "/");
 
       final File driverFolder = new File(jobFolder, DRIVER_FOLDER_NAME);
       driverFolder.mkdirs();
@@ -91,7 +91,7 @@ final class MesosJobSubmissionHandler implements JobSubmissionHandler {
 
       final File localFolder = new File(reefFolder, this.fileNames.getLocalFolderName());
       localFolder.mkdirs();
-      for (final FileResourceProto file : jobSubmissionProto.getLocalFileList()) {
+      for (final FileResource file : jobSubmissionEvent.getLocalFileSet()) {
         final Path src = new File(file.getPath()).toPath();
         final Path dst = new File(driverFolder, this.fileNames.getLocalFolderPath() + "/" + file.getName()).toPath();
         Files.copy(src, dst, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
@@ -99,7 +99,7 @@ final class MesosJobSubmissionHandler implements JobSubmissionHandler {
 
       final File globalFolder = new File(reefFolder, this.fileNames.getGlobalFolderName());
       globalFolder.mkdirs();
-      for (final FileResourceProto file : jobSubmissionProto.getGlobalFileList()) {
+      for (final FileResource file : jobSubmissionEvent.getGlobalFileSet()) {
         final Path src = new File(file.getPath()).toPath();
         final Path dst = new File(driverFolder, this.fileNames.getGlobalFolderPath() + "/" + file.getName()).toPath();
         Files.copy(src, dst, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
@@ -108,21 +108,21 @@ final class MesosJobSubmissionHandler implements JobSubmissionHandler {
       final Configuration driverConfiguration =
           Configurations.merge(MesosDriverConfiguration.CONF
               .set(MesosDriverConfiguration.MESOS_MASTER_IP, this.masterIp)
-              .set(MesosDriverConfiguration.JOB_IDENTIFIER, jobSubmissionProto.getIdentifier())
-              .set(MesosDriverConfiguration.CLIENT_REMOTE_IDENTIFIER, jobSubmissionProto.getRemoteId())
+              .set(MesosDriverConfiguration.JOB_IDENTIFIER, jobSubmissionEvent.getIdentifier())
+              .set(MesosDriverConfiguration.CLIENT_REMOTE_IDENTIFIER, jobSubmissionEvent.getRemoteId())
               .set(MesosDriverConfiguration.JVM_HEAP_SLACK, this.jvmSlack)
               .set(MesosDriverConfiguration.SCHEDULER_DRIVER_CAPACITY, 1) // must be 1 as there is 1 scheduler at the same time
               .build(),
-          this.configurationSerializer.fromString(jobSubmissionProto.getConfiguration()));
+          jobSubmissionEvent.getConfiguration());
       final File runtimeConfigurationFile = new File(driverFolder, this.fileNames.getDriverConfigurationPath());
       this.configurationSerializer.toFile(driverConfiguration, runtimeConfigurationFile);
 
       final List<String> launchCommand = new JavaLaunchCommandBuilder()
-          .setErrorHandlerRID(jobSubmissionProto.getRemoteId())
-          .setLaunchID(jobSubmissionProto.getIdentifier())
+          .setErrorHandlerRID(jobSubmissionEvent.getRemoteId())
+          .setLaunchID(jobSubmissionEvent.getIdentifier())
           .setConfigurationFileName(this.fileNames.getDriverConfigurationPath())
           .setClassPath(this.classpath.getDriverClasspath())
-          .setMemory(jobSubmissionProto.getDriverMemory())
+          .setMemory(jobSubmissionEvent.getDriverMemory().get())
           .build();
 
       final File errFile = new File(driverFolder, fileNames.getDriverStderrFileName());

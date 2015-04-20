@@ -31,16 +31,18 @@ import org.apache.reef.driver.task.FailedTask;
 import org.apache.reef.exception.EvaluatorException;
 import org.apache.reef.exception.EvaluatorKilledByResourceManagerException;
 import org.apache.reef.io.naming.Identifiable;
-import org.apache.reef.proto.DriverRuntimeProtocol;
 import org.apache.reef.proto.EvaluatorRuntimeProtocol;
 import org.apache.reef.proto.ReefServiceProtos;
 import org.apache.reef.runtime.common.DriverRestartCompleted;
 import org.apache.reef.runtime.common.driver.DriverStatusManager;
+import org.apache.reef.runtime.common.driver.api.ResourceLaunchEvent;
+import org.apache.reef.runtime.common.driver.api.ResourceReleaseEventImpl;
 import org.apache.reef.runtime.common.driver.api.ResourceLaunchHandler;
 import org.apache.reef.runtime.common.driver.api.ResourceReleaseHandler;
 import org.apache.reef.runtime.common.driver.context.ContextControlHandler;
 import org.apache.reef.runtime.common.driver.context.ContextRepresenters;
 import org.apache.reef.runtime.common.driver.idle.EventHandlerIdlenessSource;
+import org.apache.reef.runtime.common.driver.resourcemanager.ResourceStatusEvent;
 import org.apache.reef.runtime.common.driver.task.TaskRepresenter;
 import org.apache.reef.runtime.common.utils.ExceptionCodec;
 import org.apache.reef.runtime.common.utils.RemoteManager;
@@ -162,10 +164,10 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
     return "REEF_LOCAL_RUNTIME";
   }
 
-  private static boolean isDoneOrFailedOrKilled(final DriverRuntimeProtocol.ResourceStatusProto resourceStatusProto) {
-    return resourceStatusProto.getState() == ReefServiceProtos.State.DONE ||
-        resourceStatusProto.getState() == ReefServiceProtos.State.FAILED ||
-        resourceStatusProto.getState() == ReefServiceProtos.State.KILLED;
+  private static boolean isDoneOrFailedOrKilled(final ResourceStatusEvent resourceStatusEvent) {
+    return resourceStatusEvent.getState() == ReefServiceProtos.State.DONE ||
+        resourceStatusEvent.getState() == ReefServiceProtos.State.FAILED ||
+        resourceStatusEvent.getState() == ReefServiceProtos.State.KILLED;
   }
 
   @Override
@@ -210,7 +212,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
             @Override
             public void onNext(final Alarm alarm) {
               EvaluatorManager.this.resourceReleaseHandler.onNext(
-                  DriverRuntimeProtocol.ResourceReleaseProto.newBuilder()
+                  ResourceReleaseEventImpl.newBuilder()
                       .setIdentifier(EvaluatorManager.this.evaluatorId).build()
               );
             }
@@ -218,7 +220,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
         } catch (final IllegalStateException e) {
           LOG.log(Level.WARNING, "Force resource release because the client closed the clock.", e);
           EvaluatorManager.this.resourceReleaseHandler.onNext(
-              DriverRuntimeProtocol.ResourceReleaseProto.newBuilder()
+              ResourceReleaseEventImpl.newBuilder()
                   .setIdentifier(EvaluatorManager.this.evaluatorId).build()
           );
         }
@@ -404,11 +406,11 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
     onEvaluatorException(evaluatorException);
   }
 
-  public void onResourceLaunch(final DriverRuntimeProtocol.ResourceLaunchProto resourceLaunchProto) {
+  public void onResourceLaunch(final ResourceLaunchEvent resourceLaunchEvent) {
     synchronized (this.evaluatorDescriptor) {
       if (this.stateManager.isAllocated()) {
         this.stateManager.setSubmitted();
-        this.resourceLaunchHandler.onNext(resourceLaunchProto);
+        this.resourceLaunchHandler.onNext(resourceLaunchEvent);
       } else {
         throw new RuntimeException("Evaluator manager expected " + EvaluatorState.ALLOCATED +
             " state but instead is in state " + this.stateManager);
@@ -475,13 +477,13 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
   /**
    * Resource status information from the (actual) resource manager.
    */
-  public void onResourceStatusMessage(final DriverRuntimeProtocol.ResourceStatusProto resourceStatusProto) {
+  public void onResourceStatusMessage(final ResourceStatusEvent resourceStatusEvent) {
     synchronized (this.evaluatorDescriptor) {
-      LOG.log(Level.FINEST, "Resource manager state update: {0}", resourceStatusProto.getState());
+      LOG.log(Level.FINEST, "Resource manager state update: {0}", resourceStatusEvent.getState());
       if (this.stateManager.isDoneOrFailedOrKilled()) {
         LOG.log(Level.FINE, "Ignoring resource status update for Evaluator {0} which is already in state {1}.",
             new Object[]{this.getId(), this.stateManager});
-      } else if (isDoneOrFailedOrKilled(resourceStatusProto) && this.stateManager.isAllocatedOrSubmittedOrRunning()) {
+      } else if (isDoneOrFailedOrKilled(resourceStatusEvent) && this.stateManager.isAllocatedOrSubmittedOrRunning()) {
         // something is wrong. The resource manager reports that the Evaluator is done or failed, but the Driver assumes
         // it to be alive.
         final StringBuilder messageBuilder = new StringBuilder("Evaluator [")
@@ -489,7 +491,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
             .append("] is assumed to be in state [")
             .append(this.stateManager.toString())
             .append("]. But the resource manager reports it to be in state [")
-            .append(resourceStatusProto.getState())
+            .append(resourceStatusEvent.getState())
             .append("].");
 
         if (this.stateManager.isSubmitted()) {
@@ -507,7 +509,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
         }
         this.isResourceReleased = true;
 
-        if (resourceStatusProto.getState() == ReefServiceProtos.State.KILLED) {
+        if (resourceStatusEvent.getState() == ReefServiceProtos.State.KILLED) {
           this.onEvaluatorException(new EvaluatorKilledByResourceManagerException(this.evaluatorId, messageBuilder.toString()));
         } else {
           this.onEvaluatorException(new EvaluatorException(this.evaluatorId, messageBuilder.toString()));

@@ -25,9 +25,11 @@ import org.apache.reef.driver.context.ContextConfiguration;
 import org.apache.reef.driver.evaluator.AllocatedEvaluator;
 import org.apache.reef.driver.evaluator.EvaluatorDescriptor;
 import org.apache.reef.driver.evaluator.EvaluatorType;
-import org.apache.reef.proto.DriverRuntimeProtocol;
-import org.apache.reef.proto.ReefServiceProtos;
+import org.apache.reef.runtime.common.driver.api.ResourceLaunchEventImpl;
 import org.apache.reef.runtime.common.evaluator.EvaluatorConfiguration;
+import org.apache.reef.runtime.common.files.FileResourceImpl;
+import org.apache.reef.runtime.common.files.FileType;
+import org.apache.reef.runtime.common.launch.ProcessType;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.ConfigurationBuilder;
 import org.apache.reef.tang.Tang;
@@ -184,35 +186,35 @@ final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
           evaluatorConfiguration = contextConfigurationModule.build();
         }
 
-        final DriverRuntimeProtocol.ResourceLaunchProto.Builder rbuilder =
-            DriverRuntimeProtocol.ResourceLaunchProto.newBuilder()
+        final ResourceLaunchEventImpl.Builder rbuilder =
+            ResourceLaunchEventImpl.newBuilder()
                 .setIdentifier(this.evaluatorManager.getId())
                 .setRemoteId(this.remoteID)
-                .setEvaluatorConf(configurationSerializer.toString(evaluatorConfiguration));
+                .setEvaluatorConf(evaluatorConfiguration);
 
         for (final File file : this.files) {
-          rbuilder.addFile(ReefServiceProtos.FileResourceProto.newBuilder()
-              .setName(file.getName())
-              .setPath(file.getPath())
-              .setType(ReefServiceProtos.FileType.PLAIN)
-              .build());
+          rbuilder.addFile(FileResourceImpl.newBuilder()
+                  .setName(file.getName())
+                  .setPath(file.getPath())
+                  .setType(FileType.PLAIN)
+                  .build());
         }
 
         for (final File lib : this.libraries) {
-          rbuilder.addFile(ReefServiceProtos.FileResourceProto.newBuilder()
-              .setName(lib.getName())
-              .setPath(lib.getPath().toString())
-              .setType(ReefServiceProtos.FileType.LIB)
-              .build());
+          rbuilder.addFile(FileResourceImpl.newBuilder()
+                  .setName(lib.getName())
+                  .setPath(lib.getPath().toString())
+                  .setType(FileType.LIB)
+                  .build());
         }
 
         { // Set the type
           switch (this.evaluatorManager.getEvaluatorDescriptor().getType()) {
             case CLR:
-              rbuilder.setType(ReefServiceProtos.ProcessType.CLR);
+              rbuilder.setType(ProcessType.CLR);
               break;
             default:
-              rbuilder.setType(ReefServiceProtos.ProcessType.JVM);
+              rbuilder.setType(ProcessType.JVM);
           }
         }
 

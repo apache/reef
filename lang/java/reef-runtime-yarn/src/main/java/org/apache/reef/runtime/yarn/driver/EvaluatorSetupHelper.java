@@ -23,7 +23,7 @@ import org.apache.hadoop.yarn.api.records.LocalResource;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.io.TempFileCreator;
 import org.apache.reef.io.WorkingDirectoryTempFileCreator;
-import org.apache.reef.proto.DriverRuntimeProtocol;
+import org.apache.reef.runtime.common.driver.api.ResourceLaunchEvent;
 import org.apache.reef.runtime.common.files.JobJarMaker;
 import org.apache.reef.runtime.common.files.REEFFileNames;
 import org.apache.reef.runtime.common.parameters.DeleteTempFiles;
@@ -88,12 +88,12 @@ final class EvaluatorSetupHelper {
   /**
    * Sets up the LocalResources for a new Evaluator.
    *
-   * @param resourceLaunchProto
+   * @param resourceLaunchEvent
    * @return
    * @throws IOException
    */
   Map<String, LocalResource> getResources(
-      final DriverRuntimeProtocol.ResourceLaunchProto resourceLaunchProto)
+      final ResourceLaunchEvent resourceLaunchEvent)
       throws IOException {
 
     final Map<String, LocalResource> result = new HashMap<>();
@@ -103,10 +103,10 @@ final class EvaluatorSetupHelper {
 
     // Write the configuration
     final File configurationFile = new File(localStagingFolder, this.fileNames.getEvaluatorConfigurationName());
-    this.configurationSerializer.toFile(makeEvaluatorConfiguration(resourceLaunchProto), configurationFile);
+    this.configurationSerializer.toFile(makeEvaluatorConfiguration(resourceLaunchEvent), configurationFile);
 
     // Copy files to the staging folder
-    JobJarMaker.copy(resourceLaunchProto.getFileList(), localStagingFolder);
+    JobJarMaker.copy(resourceLaunchEvent.getFileSet(), localStagingFolder);
 
     // Make a JAR file out of it
     final File localFile = tempFileCreator.createTempFile(
@@ -132,15 +132,15 @@ final class EvaluatorSetupHelper {
   /**
    * Assembles the configuration for an Evaluator.
    *
-   * @param resourceLaunchProto
+   * @param resourceLaunchEvent
    * @return
    * @throws IOException
    */
 
-  private Configuration makeEvaluatorConfiguration(final DriverRuntimeProtocol.ResourceLaunchProto resourceLaunchProto)
+  private Configuration makeEvaluatorConfiguration(final ResourceLaunchEvent resourceLaunchEvent)
       throws IOException {
     return Tang.Factory.getTang()
-        .newConfigurationBuilder(this.configurationSerializer.fromString(resourceLaunchProto.getEvaluatorConf()))
+        .newConfigurationBuilder(resourceLaunchEvent.getEvaluatorConf())
         .bindImplementation(TempFileCreator.class, WorkingDirectoryTempFileCreator.class)
         .build();
   }

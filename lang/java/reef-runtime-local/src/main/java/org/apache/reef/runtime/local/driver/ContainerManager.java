@@ -21,9 +21,10 @@ package org.apache.reef.runtime.local.driver;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.client.FailedRuntime;
-import org.apache.reef.proto.DriverRuntimeProtocol;
 import org.apache.reef.proto.ReefServiceProtos;
 import org.apache.reef.runtime.common.driver.api.RuntimeParameters;
+import org.apache.reef.runtime.common.driver.resourcemanager.NodeDescriptorEvent;
+import org.apache.reef.runtime.common.driver.resourcemanager.NodeDescriptorEventImpl;
 import org.apache.reef.runtime.common.files.REEFFileNames;
 import org.apache.reef.runtime.common.utils.RemoteManager;
 import org.apache.reef.runtime.local.client.parameters.MaxNumberOfEvaluators;
@@ -68,7 +69,7 @@ final class ContainerManager implements AutoCloseable {
 
   private final String errorHandlerRID;
   private final int capacity;
-  private final EventHandler<DriverRuntimeProtocol.NodeDescriptorProto> nodeDescriptorHandler;
+  private final EventHandler<NodeDescriptorEvent> nodeDescriptorHandler;
   private final File rootFolder;
   private final REEFFileNames fileNames;
   private final ReefRunnableProcessObserver processObserver;
@@ -81,7 +82,7 @@ final class ContainerManager implements AutoCloseable {
       final @Parameter(MaxNumberOfEvaluators.class) int capacity,
       final @Parameter(RootFolder.class) String rootFolderName,
       final @Parameter(RuntimeParameters.NodeDescriptorHandler.class)
-      EventHandler<DriverRuntimeProtocol.NodeDescriptorProto> nodeDescriptorHandler,
+      EventHandler<NodeDescriptorEvent> nodeDescriptorHandler,
       final ReefRunnableProcessObserver processObserver) {
 
     this.capacity = capacity;
@@ -128,7 +129,7 @@ final class ContainerManager implements AutoCloseable {
     for (int i = 0; i < capacity; i++) {
       final String id = idmaker.getNextID();
       this.freeNodeList.add(id);
-      nodeDescriptorHandler.onNext(DriverRuntimeProtocol.NodeDescriptorProto.newBuilder()
+      nodeDescriptorHandler.onNext(NodeDescriptorEventImpl.newBuilder()
           .setIdentifier(id)
           .setRackName("/default-rack")
           .setHostName(NetUtils.getLocalAddress())

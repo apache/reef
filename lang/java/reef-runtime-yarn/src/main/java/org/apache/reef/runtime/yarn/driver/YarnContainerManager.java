@@ -33,14 +33,13 @@ import org.apache.hadoop.yarn.client.api.async.NMClientAsync;
 import org.apache.hadoop.yarn.client.api.async.impl.NMClientAsyncImpl;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.exceptions.YarnException;
-import org.apache.reef.proto.DriverRuntimeProtocol;
-import org.apache.reef.proto.DriverRuntimeProtocol.NodeDescriptorProto;
-import org.apache.reef.proto.DriverRuntimeProtocol.ResourceAllocationProto;
-import org.apache.reef.proto.DriverRuntimeProtocol.ResourceStatusProto;
-import org.apache.reef.proto.DriverRuntimeProtocol.RuntimeStatusProto;
 import org.apache.reef.proto.ReefServiceProtos;
 import org.apache.reef.runtime.common.driver.DriverStatusManager;
 import org.apache.reef.runtime.common.driver.evaluator.EvaluatorManager;
+import org.apache.reef.runtime.common.driver.resourcemanager.NodeDescriptorEventImpl;
+import org.apache.reef.runtime.common.driver.resourcemanager.ResourceAllocationEventImpl;
+import org.apache.reef.runtime.common.driver.resourcemanager.ResourceStatusEventImpl;
+import org.apache.reef.runtime.common.driver.resourcemanager.RuntimeStatusEventImpl;
 import org.apache.reef.runtime.yarn.driver.parameters.YarnHeartbeatPeriod;
 import org.apache.reef.runtime.yarn.util.YarnTypes;
 import org.apache.reef.tang.annotations.Parameter;
@@ -140,7 +139,7 @@ final class YarnContainerManager
 
   @Override
   public void onShutdownRequest() {
-    this.reefEventHandlers.onRuntimeStatus(RuntimeStatusProto.newBuilder()
+    this.reefEventHandlers.onRuntimeStatus(RuntimeStatusEventImpl.newBuilder()
         .setName(RUNTIME_NAME).setState(ReefServiceProtos.State.DONE).build());
     this.driverStatusManager.onError(new Exception("Shutdown requested by YARN."));
   }
@@ -182,8 +181,8 @@ final class YarnContainerManager
   public final void onContainerStopped(final ContainerId containerId) {
     final boolean hasContainer = this.containers.hasContainer(containerId.toString());
     if (hasContainer) {
-      final ResourceStatusProto.Builder resourceStatusBuilder =
-          ResourceStatusProto.newBuilder().setIdentifier(containerId.toString());
+      final ResourceStatusEventImpl.Builder resourceStatusBuilder =
+          ResourceStatusEventImpl.newBuilder().setIdentifier(containerId.toString());
       resourceStatusBuilder.setState(ReefServiceProtos.State.DONE);
       this.reefEventHandlers.onResourceStatus(resourceStatusBuilder.build());
     }
@@ -292,7 +291,7 @@ final class YarnContainerManager
 
   private void onNodeReport(final NodeReport nodeReport) {
     LOG.log(Level.FINE, "Send node descriptor: {0}", nodeReport);
-    this.reefEventHandlers.onNodeDescriptor(NodeDescriptorProto.newBuilder()
+    this.reefEventHandlers.onNodeDescriptor(NodeDescriptorEventImpl.newBuilder()
         .setIdentifier(nodeReport.getNodeId().toString())
         .setHostName(nodeReport.getNodeId().getHost())
         .setPort(nodeReport.getNodeId().getPort())
@@ -303,8 +302,8 @@ final class YarnContainerManager
 
   private void handleContainerError(final ContainerId containerId, final Throwable throwable) {
 
-    final ResourceStatusProto.Builder resourceStatusBuilder =
-        ResourceStatusProto.newBuilder().setIdentifier(containerId.toString());
+    final ResourceStatusEventImpl.Builder resourceStatusBuilder =
+        ResourceStatusEventImpl.newBuilder().setIdentifier(containerId.toString());
 
     resourceStatusBuilder.setState(ReefServiceProtos.State.FAILED);
     resourceStatusBuilder.setExitCode(1);
@@ -364,8 +363,8 @@ final class YarnContainerManager
     if (hasContainer) {
       LOG.log(Level.FINE, "Received container status: {0}", containerId);
 
-      final ResourceStatusProto.Builder status =
-          ResourceStatusProto.newBuilder().setIdentifier(containerId);
+      final ResourceStatusEventImpl.Builder status =
+          ResourceStatusEventImpl.newBuilder().setIdentifier(containerId);
 
       switch (value.getState()) {
         case COMPLETE:
@@ -445,7 +444,7 @@ final class YarnContainerManager
           doHomogeneousRequests();
 
           LOG.log(Level.FINEST, "Allocated Container: memory = {0}, core number = {1}", new Object[]{container.getResource().getMemory(), container.getResource().getVirtualCores()});
-          this.reefEventHandlers.onResourceAllocation(ResourceAllocationProto.newBuilder()
+          this.reefEventHandlers.onResourceAllocation(ResourceAllocationEventImpl.newBuilder()
               .setIdentifier(container.getId().toString())
               .setNodeId(container.getNodeId().toString())
               .setResourceMemory(container.getResource().getMemory())
@@ -507,8 +506,8 @@ final class YarnContainerManager
    */
   private void updateRuntimeStatus() {
 
-    final DriverRuntimeProtocol.RuntimeStatusProto.Builder builder =
-        DriverRuntimeProtocol.RuntimeStatusProto.newBuilder()
+    final RuntimeStatusEventImpl.Builder builder =
+        RuntimeStatusEventImpl.newBuilder()
             .setName(RUNTIME_NAME)
             .setState(ReefServiceProtos.State.RUNNING)
             .setOutstandingContainerRequests(this.containerRequestCounter.get());
@@ -533,7 +532,7 @@ final class YarnContainerManager
       this.resourceManager.stop();
     }
 
-    final RuntimeStatusProto.Builder runtimeStatusBuilder = RuntimeStatusProto.newBuilder()
+    final RuntimeStatusEventImpl.Builder runtimeStatusBuilder = RuntimeStatusEventImpl.newBuilder()
         .setState(ReefServiceProtos.State.FAILED)
         .setName(RUNTIME_NAME);
 
@@ -590,7 +589,7 @@ final class YarnContainerManager
     LOG.log(Level.WARNING, "Container [" + containerId +
         "] has failed during driver restart process, FailedEvaluaorHandler will be triggered, but no additional evaluator can be requested due to YARN-2433.");
     // trigger a failed evaluator event
-    this.reefEventHandlers.onResourceStatus(ResourceStatusProto.newBuilder()
+    this.reefEventHandlers.onResourceStatus(ResourceStatusEventImpl.newBuilder()
         .setIdentifier(containerId)
         .setState(ReefServiceProtos.State.FAILED)
         .setExitCode(1)

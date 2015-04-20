@@ -23,7 +23,7 @@ import org.apache.reef.driver.catalog.RackDescriptor;
 import org.apache.reef.driver.catalog.ResourceCatalog;
 import org.apache.reef.driver.evaluator.EvaluatorRequest;
 import org.apache.reef.driver.evaluator.EvaluatorRequestor;
-import org.apache.reef.proto.DriverRuntimeProtocol;
+import org.apache.reef.runtime.common.driver.api.ResourceRequestEventImpl;
 import org.apache.reef.runtime.common.driver.api.ResourceRequestHandler;
 import org.apache.reef.util.logging.LoggingScope;
 import org.apache.reef.util.logging.LoggingScopeFactory;
@@ -72,7 +72,7 @@ public final class EvaluatorRequestorImpl implements EvaluatorRequestor {
     }
 
     try (LoggingScope ls = loggingScopeFactory.evaluatorSubmit(req.getNumber())) {
-      final DriverRuntimeProtocol.ResourceRequestProto.Builder request = DriverRuntimeProtocol.ResourceRequestProto
+      final ResourceRequestEventImpl.Builder request = ResourceRequestEventImpl
           .newBuilder()
           .setResourceCount(req.getNumber())
           .setVirtualCores(req.getNumberOfCores())
