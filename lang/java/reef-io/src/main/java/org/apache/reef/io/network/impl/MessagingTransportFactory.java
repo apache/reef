@@ -24,6 +24,7 @@ import org.apache.reef.wake.impl.SyncStage;
 import org.apache.reef.wake.remote.address.LocalAddressProvider;
 import org.apache.reef.wake.remote.address.LocalAddressProviderFactory;
 import org.apache.reef.wake.remote.impl.TransportEvent;
+import org.apache.reef.wake.remote.ports.RangeTcpPortProvider;
 import org.apache.reef.wake.remote.transport.Transport;
 import org.apache.reef.wake.remote.transport.netty.NettyMessagingTransport;
 
@@ -68,7 +69,7 @@ public class MessagingTransportFactory implements TransportFactory {
                           final EventHandler<Exception> exHandler) {
 
     final Transport transport = new NettyMessagingTransport(this.localAddress,
-        port, new SyncStage<>(clientHandler), new SyncStage<>(serverHandler), 3, 10000);
+        port, new SyncStage<>(clientHandler), new SyncStage<>(serverHandler), 3, 10000, RangeTcpPortProvider.Default);
 
     transport.registerErrorHandler(exHandler);
     return transport;

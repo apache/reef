@@ -25,6 +25,8 @@ import org.apache.reef.wake.impl.StageManager;
 import org.apache.reef.wake.remote.*;
 import org.apache.reef.wake.remote.address.LocalAddressProvider;
 import org.apache.reef.wake.remote.address.LocalAddressProviderFactory;
+import org.apache.reef.wake.remote.ports.RangeTcpPortProvider;
+import org.apache.reef.wake.remote.ports.TcpPortProvider;
 import org.apache.reef.wake.remote.transport.Transport;
 import org.apache.reef.wake.remote.transport.netty.NettyMessagingTransport;
 
@@ -82,7 +84,8 @@ public class DefaultRemoteManagerImplementation implements RemoteManager {
         orderingGuarantee,
         numberOfTries,
         retryTimeout,
-        LocalAddressProviderFactory.getInstance());
+        LocalAddressProviderFactory.getInstance(),
+        RangeTcpPortProvider.Default);
 
   }
 
@@ -100,7 +103,8 @@ public class DefaultRemoteManagerImplementation implements RemoteManager {
       final @Parameter(RemoteConfiguration.OrderingGuarantee.class) boolean orderingGuarantee,
       final @Parameter(RemoteConfiguration.NumberOfTries.class) int numberOfTries,
       final @Parameter(RemoteConfiguration.RetryTimeout.class) int retryTimeout,
-      final LocalAddressProvider localAddressProvider) {
+      final LocalAddressProvider localAddressProvider,
+      final TcpPortProvider tcpPortProvider) {
 
     this.name = name;
     this.handlerContainer = new HandlerContainer<>(name, codec);
@@ -109,13 +113,9 @@ public class DefaultRemoteManagerImplementation implements RemoteManager {
         new OrderedRemoteReceiverStage(this.handlerContainer, errorHandler) :
         new RemoteReceiverStage(this.handlerContainer, errorHandler, 10);
 
-    if ("##UNKNOWN##".equals(hostAddress)) {
-      this.transport = new NettyMessagingTransport(
-          localAddressProvider.getLocalAddress(), listeningPort, this.reRecvStage, this.reRecvStage, numberOfTries, retryTimeout);
-    } else {
-      this.transport = new NettyMessagingTransport(
-          hostAddress, listeningPort, this.reRecvStage, this.reRecvStage, numberOfTries, retryTimeout);
-    }
+    final String host = "##UNKNOWN##".equals(hostAddress) ? localAddressProvider.getLocalAddress() : hostAddress;
+    this.transport = new NettyMessagingTransport(
+            host, listeningPort, this.reRecvStage, this.reRecvStage, numberOfTries, retryTimeout, tcpPortProvider);
 
     this.handlerContainer.setTransport(this.transport);
 

@@ -27,6 +27,7 @@ import org.apache.reef.wake.remote.address.LocalAddressProvider;
 import org.apache.reef.wake.remote.address.LocalAddressProviderFactory;
 import org.apache.reef.wake.remote.impl.DefaultRemoteIdentifierFactoryImplementation;
 import org.apache.reef.wake.remote.impl.DefaultRemoteManagerImplementation;
+import org.apache.reef.wake.remote.ports.RangeTcpPortProvider;
 
 import javax.inject.Inject;
 import java.net.UnknownHostException;
@@ -46,7 +47,8 @@ public class TestRemote implements Runnable {
     int remotePort = 10001;
     Codec<TestEvent> codec = new TestEventCodec();
     try (RemoteManager rm = new DefaultRemoteManagerImplementation("name", hostAddress,
-        myPort, codec, new LoggingEventHandler<Throwable>(), false, 1, 10000, localAddressProvider)) {
+        myPort, codec, new LoggingEventHandler<Throwable>(), false, 1, 10000, localAddressProvider,
+            RangeTcpPortProvider.Default)) {
       // proxy handler
       RemoteIdentifierFactory factory = new DefaultRemoteIdentifierFactoryImplementation();
       RemoteIdentifier remoteId = factory.getNewInstance("socket://" + hostAddress + ":" + remotePort);

@@ -24,6 +24,7 @@ import org.apache.reef.wake.remote.RemoteIdentifierFactory;
 import org.apache.reef.wake.remote.RemoteManager;
 import org.apache.reef.wake.remote.RemoteMessage;
 import org.apache.reef.wake.remote.impl.DefaultRemoteManagerImplementation;
+import org.apache.reef.wake.remote.ports.RangeTcpPortProvider;
 
 import javax.inject.Inject;
 
@@ -43,7 +44,7 @@ public final class MesosRemoteManager {
                      final LocalAddressProvider localAddressProvider) {
     this.factory = factory;
     this.raw = new DefaultRemoteManagerImplementation("MESOS_EXECUTOR", "##UNKNOWN##", 0,
-        codec, mesosErrorHandler, false, 3, 10000, localAddressProvider);
+        codec, mesosErrorHandler, false, 3, 10000, localAddressProvider, RangeTcpPortProvider.Default);
   }
 
   public <T> EventHandler<T> getHandler(

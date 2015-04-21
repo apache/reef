@@ -30,29 +30,30 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.util.concurrent.GlobalEventExecutor;
-
-import java.io.IOException;
-import java.net.BindException;
-import java.net.ConnectException;
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
-import java.util.Random;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import org.apache.reef.wake.EStage;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.impl.DefaultThreadFactory;
 import org.apache.reef.wake.remote.Encoder;
 import org.apache.reef.wake.remote.exception.RemoteRuntimeException;
 import org.apache.reef.wake.remote.impl.TransportEvent;
+import org.apache.reef.wake.remote.ports.RangeTcpPortProvider;
+import org.apache.reef.wake.remote.ports.TcpPortProvider;
 import org.apache.reef.wake.remote.transport.Link;
 import org.apache.reef.wake.remote.transport.LinkListener;
 import org.apache.reef.wake.remote.transport.Transport;
 import org.apache.reef.wake.remote.transport.exception.TransportRuntimeException;
+
+import java.io.IOException;
+import java.net.BindException;
+import java.net.ConnectException;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+import java.util.Iterator;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Messaging transport implementation with Netty
@@ -65,9 +66,6 @@ public class NettyMessagingTransport implements Transport {
   private static final int SERVER_BOSS_NUM_THREADS = 3;
   private static final int SERVER_WORKER_NUM_THREADS = 20;
   private static final int CLIENT_WORKER_NUM_THREADS = 10;
-  private static final int PORT_START = 10000;
-  private static final int PORT_RANGE = 10000;
-  private static final Random randPort = new Random();
 
   private final ConcurrentMap<SocketAddress, LinkReference> addrToLinkRefMap = new ConcurrentHashMap<>();
 
@@ -100,12 +98,15 @@ public class NettyMessagingTransport implements Transport {
    * @param serverStage   the server-side stage that handles transport events
    * @param numberOfTries the number of tries of connection
    * @param retryTimeout  the timeout of reconnection
+   * @param tcpPortProvider  gives an iterator that produces random tcp ports in a range
+   *
    */
   public NettyMessagingTransport(final String hostAddress, int port,
                                  final EStage<TransportEvent> clientStage,
                                  final EStage<TransportEvent> serverStage,
                                  final int numberOfTries,
-                                 final int retryTimeout) {
+                                 final int retryTimeout,
+                                 final TcpPortProvider tcpPortProvider) {
 
     if (port < 0) {
       throw new RemoteRuntimeException("Invalid server port: " + port);
@@ -139,29 +140,31 @@ public class NettyMessagingTransport implements Transport {
 
     LOG.log(Level.FINE, "Binding to {0}", port);
 
-    Channel acceptor = null;
-    try {
-      if (port > 0) {
-        acceptor = this.serverBootstrap.bind(new InetSocketAddress(hostAddress, port)).sync().channel();
-      } else {
-        while (acceptor == null) {
-          port = randPort.nextInt(PORT_START) + PORT_RANGE;
-          LOG.log(Level.FINEST, "Try port {0}", port);
-          try {
-            acceptor = this.serverBootstrap.bind(new InetSocketAddress(hostAddress, port)).sync().channel();
-          } catch (final Exception ex) {
-            if (ex instanceof BindException) {
-              LOG.log(Level.FINEST, "The port {0} is already bound. Try again", port);
-            } else {
-              throw ex;
-            }
+  Channel acceptor = null;
+  try {
+    if (port > 0) {
+      acceptor = this.serverBootstrap.bind(new InetSocketAddress(hostAddress, port)).sync().channel();
+    } else {
+      Iterator<Integer> ports = tcpPortProvider.iterator();
+      while (acceptor == null) {
+        if (!ports.hasNext()) break;
+        port = ports.next();
+        LOG.log(Level.FINEST, "Try port {0}", port);
+        try {
+          acceptor = this.serverBootstrap.bind(new InetSocketAddress(hostAddress, port)).sync().channel();
+        } catch (final Exception ex) {
+          if (ex instanceof BindException) {
+            LOG.log(Level.FINEST, "The port {0} is already bound. Try again", port);
+          } else {
+            throw ex;
           }
         }
       }
-    } catch (final Exception ex) {
-      final RuntimeException transportException =
-          new TransportRuntimeException("Cannot bind to port " + port);
-      LOG.log(Level.SEVERE, "Cannot bind to port " + port, ex);
+    }
+  } catch (final Exception ex) {
+    final RuntimeException transportException =
+       new TransportRuntimeException("Cannot bind to port " + port);
+    LOG.log(Level.SEVERE, "Cannot bind to port " + port, ex);
 
       this.clientWorkerGroup.shutdownGracefully();
       this.serverBossGroup.shutdownGracefully();
@@ -174,6 +177,27 @@ public class NettyMessagingTransport implements Transport {
     this.localAddress = new InetSocketAddress(hostAddress, this.serverPort);
 
     LOG.log(Level.FINE, "Starting netty transport socket address: {0}", this.localAddress);
+  }
+
+  /**
+   * Constructs a messaging transport
+   *
+   * @param hostAddress   the server host address
+   * @param port          the server listening port; when it is 0, randomly assign a port number
+   * @param clientStage   the client-side stage that handles transport events
+   * @param serverStage   the server-side stage that handles transport events
+   * @param numberOfTries the number of tries of connection
+   * @param retryTimeout  the timeout of reconnection
+   * @deprecated use the constructor that takes a TcpProvider instead
+   */
+  @Deprecated
+  public NettyMessagingTransport(final String hostAddress, int port,
+                                 final EStage<TransportEvent> clientStage,
+                                 final EStage<TransportEvent> serverStage,
+                                 final int numberOfTries,
+                                 final int retryTimeout) {
+    this(hostAddress, port, clientStage, serverStage, numberOfTries, retryTimeout,
+            RangeTcpPortProvider.Default);
   }
 
   /**
