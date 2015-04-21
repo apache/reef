@@ -84,7 +84,7 @@ public class RemoteTest {
     // receiver stage
     final RemoteReceiverStage reRecvStage = new RemoteReceiverStage(null, null, 10);
 
-    final String hostAddress = this.localAddressProvider.toString();
+    final String hostAddress = this.localAddressProvider.getLocalAddress();
 
     // transport
     Transport transport1 = new NettyMessagingTransport(hostAddress, 0, reRecvStage, reRecvStage, 1, 10000);
@@ -129,7 +129,7 @@ public class RemoteTest {
     final RemoteReceiverStage reRecvStage = new RemoteReceiverStage(
         new RemoteEventHandler(decoder, handler), new LoggingEventHandler<Throwable>(), 10);
 
-    final String hostAddress = this.localAddressProvider.toString();
+    final String hostAddress = this.localAddressProvider.getLocalAddress();
 
     // transport
     Transport transport = new NettyMessagingTransport(hostAddress, port, reRecvStage, reRecvStage, 1, 10000);

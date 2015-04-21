@@ -58,7 +58,7 @@ public class TransportRaceTest {
     final ServerHandler serverHandler = new ServerHandler(monitor, msgsSent);
     EStage<TransportEvent> serverStage = new ThreadPoolStage<>("server@7001",
         serverHandler, 1, new LoggingEventHandler<Throwable>());
-    final String hostAddress = this.localAddressProvider.toString();
+    final String hostAddress = this.localAddressProvider.getLocalAddress();
     int port = 7001;
     NettyMessagingTransport transport = new NettyMessagingTransport(
         hostAddress, port, clientStage, serverStage, 1, 10000);

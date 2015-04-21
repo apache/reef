@@ -62,7 +62,7 @@ public class TransportTest {
     TimerStage timer = new TimerStage(new TimeoutHandler(monitor), 2000, 2000);
 
     final int expected = 2;
-    final String hostAddress = this.localAddressProvider.toString();
+    final String hostAddress = this.localAddressProvider.getLocalAddress();
     ;
     final int port = 9100;
 
@@ -94,7 +94,7 @@ public class TransportTest {
     TimerStage timer = new TimerStage(new TimeoutHandler(monitor), 2000, 2000);
 
     final int expected = 2;
-    final String hostAddress = this.localAddressProvider.toString();
+    final String hostAddress = this.localAddressProvider.getLocalAddress();
     final int port = 9100;
 
     // Codec<TestEvent>

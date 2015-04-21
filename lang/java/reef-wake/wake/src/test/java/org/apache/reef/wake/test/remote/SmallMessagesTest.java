@@ -84,7 +84,7 @@ public class SmallMessagesTest {
     final RemoteReceiverStage reRecvStage = new RemoteReceiverStage(
         new RemoteEventHandler(decoder, handler), null, 10);
 
-    final String hostAddress = this.localAddressProvider.toString();
+    final String hostAddress = this.localAddressProvider.getLocalAddress();
 
     // transport
     Transport transport = new NettyMessagingTransport(hostAddress, port, reRecvStage, reRecvStage, 1, 10000);
