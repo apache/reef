@@ -28,6 +28,7 @@ import org.apache.reef.wake.remote.*;
 import org.apache.reef.wake.remote.address.LocalAddressProvider;
 import org.apache.reef.wake.remote.impl.DefaultRemoteManagerImplementation;
 import org.apache.reef.wake.remote.impl.MultiCodec;
+import org.apache.reef.wake.remote.ports.RangeTcpPortProvider;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
@@ -70,7 +71,7 @@ public class RemoteIdentifierFactoryTest {
 
     try (final RemoteManager rm = new DefaultRemoteManagerImplementation("TestRemoteManager",
         localAddressProvider.getLocalAddress(), port, codec, new LoggingEventHandler<Throwable>(), false, 1, 10000,
-        localAddressProvider)) {
+        localAddressProvider, RangeTcpPortProvider.Default)) {
       final RemoteIdentifier id = rm.getMyIdentifier();
 
       final IdentifierFactory factory = new DefaultIdentifierFactory();

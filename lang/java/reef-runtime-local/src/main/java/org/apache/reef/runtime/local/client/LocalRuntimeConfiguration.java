@@ -32,6 +32,7 @@ import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
 import org.apache.reef.tang.formats.OptionalImpl;
 import org.apache.reef.tang.formats.OptionalParameter;
 import org.apache.reef.wake.remote.address.LocalAddressProvider;
+import org.apache.reef.wake.remote.ports.TcpPortProvider;
 
 import java.util.concurrent.ExecutorService;
 
@@ -74,21 +75,29 @@ public class LocalRuntimeConfiguration extends ConfigurationModuleBuilder {
   public static final OptionalImpl<LocalAddressProvider> LOCAL_ADDRESS_PROVIDER = new OptionalImpl<>();
 
   /**
+   * The class used to restrict tcp port ranges for listening
+   * Note that you will likely want to bind the same class also to DRIVER_CONFIGURATION_PROVIDERS to make sure that
+   * the Driver (and the Evaluators) also use it.
+   */
+  public static final OptionalImpl<TcpPortProvider> TCP_PORT_PROVIDER = new OptionalImpl<>();
+
+  /**
    * The ConfigurationModule for the local resourcemanager.
    */
   public static final ConfigurationModule CONF = new LocalRuntimeConfiguration()
-      .merge(CommonRuntimeConfiguration.CONF)
-          // Bind the local runtime
-      .bindImplementation(JobSubmissionHandler.class, LocalJobSubmissionHandler.class)
-      .bindConstructor(ExecutorService.class, ExecutorServiceConstructor.class)
+          .merge(CommonRuntimeConfiguration.CONF)
+                  // Bind the local runtime
+          .bindImplementation(JobSubmissionHandler.class, LocalJobSubmissionHandler.class)
+          .bindConstructor(ExecutorService.class, ExecutorServiceConstructor.class)
       .bindImplementation(RuntimeClasspathProvider.class, LocalClasspathProvider.class)
-          // Bind parameters of the local runtime
-      .bindNamedParameter(MaxNumberOfEvaluators.class, MAX_NUMBER_OF_EVALUATORS)
+              // Bind parameters of the local runtime
+          .bindNamedParameter(MaxNumberOfEvaluators.class, MAX_NUMBER_OF_EVALUATORS)
       .bindNamedParameter(RootFolder.class, RUNTIME_ROOT_FOLDER)
-      .bindNamedParameter(JVMHeapSlack.class, JVM_HEAP_SLACK)
-      .bindSetEntry(DriverConfigurationProviders.class, DRIVER_CONFIGURATION_PROVIDERS)
+          .bindNamedParameter(JVMHeapSlack.class, JVM_HEAP_SLACK)
+          .bindSetEntry(DriverConfigurationProviders.class, DRIVER_CONFIGURATION_PROVIDERS)
           // Bind LocalAddressProvider
       .bindImplementation(LocalAddressProvider.class, LOCAL_ADDRESS_PROVIDER)
+      .bindImplementation(TcpPortProvider.class, TCP_PORT_PROVIDER)
       .build();
 
 

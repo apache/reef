@@ -30,6 +30,7 @@ import org.apache.reef.wake.remote.impl.DefaultRemoteIdentifierFactoryImplementa
 import org.apache.reef.wake.remote.impl.DefaultRemoteManagerImplementation;
 import org.apache.reef.wake.remote.impl.MultiCodec;
 import org.apache.reef.wake.remote.impl.ObjectSerializableCodec;
+import org.apache.reef.wake.remote.ports.RangeTcpPortProvider;
 import org.apache.reef.wake.test.util.Monitor;
 import org.apache.reef.wake.test.util.TimeoutHandler;
 import org.junit.Assert;
@@ -80,7 +81,8 @@ public class RemoteManagerTest {
     final String hostAddress = localAddressProvider.getLocalAddress();
 
     final RemoteManager rm = new DefaultRemoteManagerImplementation(
-        "name", hostAddress, port, codec, new LoggingEventHandler<Throwable>(), false, 3, 10000, localAddressProvider);
+        "name", hostAddress, port, codec, new LoggingEventHandler<Throwable>(), false, 3, 10000,
+            localAddressProvider, RangeTcpPortProvider.Default);
 
     RemoteIdentifierFactory factory = new DefaultRemoteIdentifierFactoryImplementation();
     RemoteIdentifier remoteId = factory.getNewInstance("socket://" + hostAddress + ":" + port);
@@ -182,7 +184,8 @@ public class RemoteManagerTest {
     final String hostAddress = localAddressProvider.getLocalAddress();
 
     final RemoteManager rm = new DefaultRemoteManagerImplementation(
-        "name", hostAddress, port, codec, new LoggingEventHandler<Throwable>(), true, 3, 10000, localAddressProvider);
+        "name", hostAddress, port, codec, new LoggingEventHandler<Throwable>(), true, 3, 10000,
+            localAddressProvider, RangeTcpPortProvider.Default);
 
     RemoteIdentifierFactory factory = new DefaultRemoteIdentifierFactoryImplementation();
     RemoteIdentifier remoteId = factory.getNewInstance("socket://" + hostAddress + ":" + port);
@@ -225,7 +228,8 @@ public class RemoteManagerTest {
     String hostAddress = localAddressProvider.getLocalAddress();
 
     final RemoteManager rm = new DefaultRemoteManagerImplementation(
-        "name", hostAddress, port, codec, new LoggingEventHandler<Throwable>(), false, 3, 10000, localAddressProvider);
+        "name", hostAddress, port, codec, new LoggingEventHandler<Throwable>(), false, 3, 10000,
+            localAddressProvider, RangeTcpPortProvider.Default);
 
     RemoteIdentifierFactory factory = new DefaultRemoteIdentifierFactoryImplementation();
     RemoteIdentifier remoteId = factory.getNewInstance("socket://" + hostAddress + ":" + port);
@@ -264,7 +268,8 @@ public class RemoteManagerTest {
     ExceptionHandler errorHandler = new ExceptionHandler(monitor);
 
     try (final RemoteManager rm = new DefaultRemoteManagerImplementation(
-        "name", hostAddress, port, codec, errorHandler, false, 3, 10000, localAddressProvider)) {
+        "name", hostAddress, port, codec, errorHandler, false, 3, 10000, localAddressProvider,
+            RangeTcpPortProvider.Default)) {
 
       RemoteIdentifierFactory factory = new DefaultRemoteIdentifierFactoryImplementation();
       RemoteIdentifier remoteId = factory.getNewInstance("socket://" + hostAddress + ":" + port);
@@ -292,7 +297,8 @@ public class RemoteManagerTest {
 
     String hostAddress = localAddressProvider.getLocalAddress();
     return new DefaultRemoteManagerImplementation(name, hostAddress, localPort,
-        codec, new LoggingEventHandler<Throwable>(), false, retry, retryTimeout, localAddressProvider);
+        codec, new LoggingEventHandler<Throwable>(), false, retry, retryTimeout,
+            localAddressProvider, RangeTcpPortProvider.Default);
   }
 
   private class SendingRemoteManagerThread implements Callable<Integer> {
