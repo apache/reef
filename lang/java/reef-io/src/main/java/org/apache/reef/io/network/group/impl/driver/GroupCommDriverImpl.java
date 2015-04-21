@@ -108,6 +108,7 @@ public class GroupCommDriverImpl implements GroupCommServiceDriver {
    * @deprecated Have an instance injected instead.
    */
   @Deprecated
+  @Inject
   public GroupCommDriverImpl(final ConfigurationSerializer confSerializer,
                              @Parameter(DriverIdentifier.class) final String driverId,
                              @Parameter(TreeTopologyFanOut.class) final int fanOut) {
