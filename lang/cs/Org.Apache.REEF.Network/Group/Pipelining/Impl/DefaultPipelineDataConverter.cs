@@ -65,10 +65,5 @@ namespace Org.Apache.REEF.Network.Group.Pipelining.Impl
 
             return pipelineMessage[0].Data;
         }
-
-        public IConfiguration GetConfiguration()
-        {
-            return TangFactory.GetTang().NewConfigurationBuilder().Build();
-        }
     }
 }

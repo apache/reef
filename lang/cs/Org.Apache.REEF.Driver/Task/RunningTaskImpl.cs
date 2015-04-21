@@ -17,6 +17,7 @@
  * under the License.
  */
 
+using System;
 using System.Globalization;
 using Org.Apache.REEF.Common.Protobuf.ReefProtocol;
 using Org.Apache.REEF.Driver.Context;
@@ -24,21 +25,18 @@ using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Driver.Task
 {
-   public class RunningTaskImpl : IRunningTask
+    [Obsolete("Driver core logic no longer needed in.NET")]
+    public class RunningTaskImpl : IRunningTask
    {
        private static readonly Logger LOGGER = Logger.GetLogger(typeof(RunningTaskImpl));
        
        private readonly string _id;
 
-       private readonly EvaluatorManager _evaluatorManager;
-
        private readonly EvaluatorContext _evaluatorContext;
 
-       public RunningTaskImpl(EvaluatorManager evaluatorManager, string taskId, EvaluatorContext evaluatorContext)
+       public RunningTaskImpl(string taskId, EvaluatorContext evaluatorContext)
        {
-           LOGGER.Log(Level.Info, string.Format(CultureInfo.InvariantCulture, "INIT: TaskRuntime id [{0}] on evaluator id [{1}]", taskId, evaluatorManager.Id));
            _id = taskId;
-           _evaluatorManager = evaluatorManager;
            _evaluatorContext = evaluatorContext;
        }
 
@@ -68,44 +66,34 @@ namespace Org.Apache.REEF.Driver.Task
 
        public void Dispose()
        {
-           LOGGER.Log(Level.Info, string.Format(CultureInfo.InvariantCulture, "DISPOSE: TaskRuntime id [{0}] on evaluator id [{1}]", _id, _evaluatorManager.Id));
            ContextControlProto contextControlProto = new ContextControlProto();
            contextControlProto.stop_task = new StopTaskProto();
-           _evaluatorManager.Handle(contextControlProto);
        }
 
        public void Dispose(byte[] message)
        {
-           LOGGER.Log(Level.Info, string.Format(CultureInfo.InvariantCulture, "DISPOSE: TaskRuntime id [{0}] on evaluator id [{1}] with message", _id, _evaluatorManager.Id));
            ContextControlProto contextControlProto = new ContextControlProto();
            contextControlProto.stop_task = new StopTaskProto();
            contextControlProto.task_message = message;
-           _evaluatorManager.Handle(contextControlProto);
        }
 
        public void OnNext(byte[] message)
        {
-           LOGGER.Log(Level.Info, string.Format(CultureInfo.InvariantCulture, "MESSAGE: TaskRuntime id [{0}] on evaluator id [{1}]", _id, _evaluatorManager.Id));
            ContextControlProto contextControlProto = new ContextControlProto();
            contextControlProto.task_message = message;
-           _evaluatorManager.Handle(contextControlProto);
        }
 
        public void Suspend(byte[] message)
        {
-           LOGGER.Log(Level.Info, string.Format(CultureInfo.InvariantCulture, "SUSPEND: TaskRuntime id [{0}] on evaluator id [{1}] with message", _id, _evaluatorManager.Id));
            ContextControlProto contextControlProto = new ContextControlProto();
            contextControlProto.suspend_task = new SuspendTaskProto();
            contextControlProto.task_message = message;
-           _evaluatorManager.Handle(contextControlProto);
        }
 
        public void Suspend()
        {
-           LOGGER.Log(Level.Info, string.Format(CultureInfo.InvariantCulture, "SUSPEND: TaskRuntime id [{0}] on evaluator id [{1}]", _id, _evaluatorManager.Id));
            ContextControlProto contextControlProto = new ContextControlProto();
            contextControlProto.suspend_task = new SuspendTaskProto();
-           _evaluatorManager.Handle(contextControlProto);
        }
 
        public override string ToString()

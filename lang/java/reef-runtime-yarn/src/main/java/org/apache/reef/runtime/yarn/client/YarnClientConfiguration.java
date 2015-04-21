@@ -35,6 +35,7 @@ import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
 import org.apache.reef.tang.formats.OptionalImpl;
 import org.apache.reef.tang.formats.OptionalParameter;
 import org.apache.reef.util.logging.LoggingSetup;
+import org.apache.reef.wake.remote.address.LocalAddressProvider;
 
 /**
  * A ConfigurationModule for the YARN resourcemanager.
@@ -56,6 +57,13 @@ public class YarnClientConfiguration extends ConfigurationModuleBuilder {
    */
   public static final OptionalImpl<ConfigurationProvider> DRIVER_CONFIGURATION_PROVIDERS = new OptionalImpl<>();
 
+  /**
+   * The class used to resolve the local address for Wake and HTTP to bind to.
+   * Note that you will likely want to bind the same class also to DRIVER_CONFIGURATION_PROVIDERS to make sure that
+   * the Driver (and the Evaluators) also use it.
+   */
+  public static final OptionalImpl<LocalAddressProvider> LOCAL_ADDRESS_PROVIDER = new OptionalImpl<>();
+
   public static final ConfigurationModule CONF = new YarnClientConfiguration()
       .merge(CommonRuntimeConfiguration.CONF)
           // Bind YARN
@@ -68,6 +76,8 @@ public class YarnClientConfiguration extends ConfigurationModuleBuilder {
           // Bind external constructors. Taken from  YarnExternalConstructors.registerClientConstructors
       .bindConstructor(org.apache.hadoop.yarn.conf.YarnConfiguration.class, YarnConfigurationConstructor.class)
       .bindSetEntry(DriverConfigurationProviders.class, DRIVER_CONFIGURATION_PROVIDERS)
+          // Bind LocalAddressProvider
+      .bindImplementation(LocalAddressProvider.class, LOCAL_ADDRESS_PROVIDER)
       .build();
 
 }

@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -21,7 +21,10 @@ package org.apache.reef.runtime.common.client;
 import org.apache.reef.tang.formats.ConfigurationModule;
 import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
 
-
+/**
+ * @deprecated this class was never used.
+ */
+@Deprecated
 public class CommonClientConfigurationModule extends ConfigurationModuleBuilder {
   public final static ConfigurationModule CONF = new CommonClientConfigurationModule()
       .build();

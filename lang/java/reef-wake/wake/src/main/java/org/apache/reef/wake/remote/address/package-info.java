@@ -1,4 +1,4 @@
-﻿/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -16,29 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-using System;
-using Org.Apache.REEF.Common.Protobuf.ReefProtocol;
-
-// TODO
-namespace Org.Apache.REEF.Driver
-{
-    [Obsolete("Driver core logic no longer needed in.NET")]
-    public class ClientManager : IObserver<JobControlProto>
-    {
-        public void OnNext(JobControlProto value)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void OnError(Exception error)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void OnCompleted()
-        {
-            throw new NotImplementedException();
-        }
-    }
-}
+/**
+ * Local address resolution.
+ */
+package org.apache.reef.wake.remote.address;

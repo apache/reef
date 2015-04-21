@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -31,7 +31,8 @@ import org.apache.reef.wake.IdentifierFactory;
 import org.apache.reef.wake.Stage;
 import org.apache.reef.wake.impl.SyncStage;
 import org.apache.reef.wake.remote.Codec;
-import org.apache.reef.wake.remote.NetUtils;
+import org.apache.reef.wake.remote.address.LocalAddressProvider;
+import org.apache.reef.wake.remote.address.LocalAddressProviderFactory;
 import org.apache.reef.wake.remote.impl.TransportEvent;
 import org.apache.reef.wake.remote.transport.Transport;
 import org.apache.reef.wake.remote.transport.netty.NettyMessagingTransport;
@@ -54,6 +55,17 @@ public final class NameClient implements Stage, Naming {
   private NameRegistryClient registryClient;
   private Transport transport;
 
+
+  @Deprecated
+  public NameClient(final String serverAddr,
+                    final int serverPort,
+                    final IdentifierFactory factory,
+                    final int retryCount,
+                    final int retryTimeout,
+                    final Cache<Identifier, InetSocketAddress> cache) {
+    this(serverAddr, serverPort, 10000, factory, retryCount, retryTimeout, cache, LocalAddressProviderFactory.getInstance());
+  }
+
   /**
    * Constructs a naming client
    *
@@ -62,10 +74,32 @@ public final class NameClient implements Stage, Naming {
    * @param factory    an identifier factory
    * @param cache      a cache
    */
-  public NameClient(String serverAddr, int serverPort,
-                    IdentifierFactory factory, int retryCount, int retryTimeout,
-                    Cache<Identifier, InetSocketAddress> cache) {
-    this(serverAddr, serverPort, 10000, factory, retryCount, retryTimeout, cache);
+  public NameClient(final String serverAddr,
+                    final int serverPort,
+                    final IdentifierFactory factory,
+                    final int retryCount,
+                    final int retryTimeout,
+                    final Cache<Identifier, InetSocketAddress> cache,
+                    final LocalAddressProvider localAddressProvider) {
+    this(serverAddr, serverPort, 10000, factory, retryCount, retryTimeout, cache, localAddressProvider);
+  }
+
+  @Deprecated
+  public NameClient(final String serverAddr,
+                    final int serverPort,
+                    final long timeout,
+                    final IdentifierFactory factory,
+                    final int retryCount,
+                    final int retryTimeout,
+                    final Cache<Identifier, InetSocketAddress> cache) {
+    this(serverAddr,
+        serverPort,
+        timeout,
+        factory,
+        retryCount,
+        retryTimeout,
+        cache,
+        LocalAddressProviderFactory.getInstance());
   }
 
   /**
@@ -77,15 +111,20 @@ public final class NameClient implements Stage, Naming {
    * @param factory    an identifier factory
    * @param cache      a cache
    */
-  public NameClient(final String serverAddr, final int serverPort, final long timeout,
-                    final IdentifierFactory factory, final int retryCount, final int retryTimeout,
-                    final Cache<Identifier, InetSocketAddress> cache) {
+  public NameClient(final String serverAddr,
+                    final int serverPort,
+                    final long timeout,
+                    final IdentifierFactory factory,
+                    final int retryCount,
+                    final int retryTimeout,
+                    final Cache<Identifier, InetSocketAddress> cache,
+                    final LocalAddressProvider localAddressProvider) {
 
     final BlockingQueue<NamingLookupResponse> replyLookupQueue = new LinkedBlockingQueue<NamingLookupResponse>();
     final BlockingQueue<NamingRegisterResponse> replyRegisterQueue = new LinkedBlockingQueue<NamingRegisterResponse>();
     final Codec<NamingMessage> codec = NamingCodecFactory.createFullCodec(factory);
 
-    this.transport = new NettyMessagingTransport(NetUtils.getLocalAddress(), 0,
+    this.transport = new NettyMessagingTransport(localAddressProvider.getLocalAddress(), 0,
         new SyncStage<>(new NamingClientEventHandler(
             new NamingResponseHandler(replyLookupQueue, replyRegisterQueue), codec)),
         null, retryCount, retryTimeout);
@@ -132,7 +171,7 @@ public final class NameClient implements Stage, Naming {
   @Override
   public void register(final Identifier id, final InetSocketAddress addr)
       throws Exception {
-    LOG.log(Level.FINE, "Refister {0} : {1}", new Object[]{id, addr});
+    LOG.log(Level.FINE, "Register {0} : {1}", new Object[]{id, addr});
     this.registryClient.register(id, addr);
   }
 

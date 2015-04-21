@@ -47,12 +47,5 @@ namespace Org.Apache.REEF.Network.Group.Pipelining
         /// <param name="pipelineMessage">The enumerator over received pipelined messages</param>
         /// <returns>The full constructed message</returns>
         T FullMessage(List<PipelineMessage<T>> pipelineMessage);
-
-        /// <summary>
-        /// Constructs the configuration of the class. Basically the arguments of the class like chunksize
-        /// </summary>
-        /// <returns>The configuration for this data converter class</returns>
-        IConfiguration GetConfiguration();
-
     }
 }

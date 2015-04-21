@@ -22,6 +22,7 @@ using Org.Apache.REEF.Common.Protobuf.ReefProtocol;
 
 namespace Org.Apache.REEF.Common.Api
 {
+    [Obsolete("Driver core logic no longer needed in.NET")]
     public interface IResourceLaunchHandler : IObserver<ResourceLaunchProto>
     {
     }

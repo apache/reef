@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -18,11 +18,14 @@
  */
 package org.apache.reef.wake.test.remote;
 
+import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.impl.LoggingEventHandler;
 import org.apache.reef.wake.impl.LoggingUtils;
 import org.apache.reef.wake.impl.TimerStage;
 import org.apache.reef.wake.remote.*;
+import org.apache.reef.wake.remote.address.LocalAddressProvider;
+import org.apache.reef.wake.remote.address.LocalAddressProviderFactory;
 import org.apache.reef.wake.remote.impl.DefaultRemoteIdentifierFactoryImplementation;
 import org.apache.reef.wake.remote.impl.DefaultRemoteManagerImplementation;
 import org.apache.reef.wake.remote.impl.MultiCodec;
@@ -47,6 +50,12 @@ import java.util.logging.Level;
 
 public class RemoteManagerTest {
 
+  private final LocalAddressProvider localAddressProvider;
+
+  public RemoteManagerTest() throws InjectionException {
+    this.localAddressProvider = LocalAddressProviderFactory.getInstance();
+  }
+
   @Rule
   public final TestName name = new TestName();
 
@@ -68,10 +77,10 @@ public class RemoteManagerTest {
     clazzToCodecMap.put(TestEvent2.class, new ObjectSerializableCodec<TestEvent2>());
     Codec<?> codec = new MultiCodec<Object>(clazzToCodecMap);
 
-    String hostAddress = NetUtils.getLocalAddress();
+    final String hostAddress = localAddressProvider.getLocalAddress();
 
     final RemoteManager rm = new DefaultRemoteManagerImplementation(
-        "name", hostAddress, port, codec, new LoggingEventHandler<Throwable>(), false, 3, 10000);
+        "name", hostAddress, port, codec, new LoggingEventHandler<Throwable>(), false, 3, 10000, localAddressProvider);
 
     RemoteIdentifierFactory factory = new DefaultRemoteIdentifierFactoryImplementation();
     RemoteIdentifier remoteId = factory.getNewInstance("socket://" + hostAddress + ":" + port);
@@ -170,10 +179,10 @@ public class RemoteManagerTest {
     clazzToCodecMap.put(TestEvent2.class, new ObjectSerializableCodec<TestEvent2>());
     Codec<?> codec = new MultiCodec<Object>(clazzToCodecMap);
 
-    String hostAddress = NetUtils.getLocalAddress();
+    final String hostAddress = localAddressProvider.getLocalAddress();
 
     final RemoteManager rm = new DefaultRemoteManagerImplementation(
-        "name", hostAddress, port, codec, new LoggingEventHandler<Throwable>(), true, 3, 10000);
+        "name", hostAddress, port, codec, new LoggingEventHandler<Throwable>(), true, 3, 10000, localAddressProvider);
 
     RemoteIdentifierFactory factory = new DefaultRemoteIdentifierFactoryImplementation();
     RemoteIdentifier remoteId = factory.getNewInstance("socket://" + hostAddress + ":" + port);
@@ -213,10 +222,10 @@ public class RemoteManagerTest {
     clazzToCodecMap.put(TestEvent.class, new TestEventCodec());
     Codec<?> codec = new MultiCodec<Object>(clazzToCodecMap);
 
-    String hostAddress = NetUtils.getLocalAddress();
+    String hostAddress = localAddressProvider.getLocalAddress();
 
     final RemoteManager rm = new DefaultRemoteManagerImplementation(
-        "name", hostAddress, port, codec, new LoggingEventHandler<Throwable>(), false, 3, 10000);
+        "name", hostAddress, port, codec, new LoggingEventHandler<Throwable>(), false, 3, 10000, localAddressProvider);
 
     RemoteIdentifierFactory factory = new DefaultRemoteIdentifierFactoryImplementation();
     RemoteIdentifier remoteId = factory.getNewInstance("socket://" + hostAddress + ":" + port);
@@ -250,12 +259,12 @@ public class RemoteManagerTest {
     clazzToCodecMap.put(TestEvent.class, new ObjectSerializableCodec<TestEvent>());
     Codec<?> codec = new MultiCodec<Object>(clazzToCodecMap);
 
-    String hostAddress = NetUtils.getLocalAddress();
+    final String hostAddress = localAddressProvider.getLocalAddress();
 
     ExceptionHandler errorHandler = new ExceptionHandler(monitor);
 
     try (final RemoteManager rm = new DefaultRemoteManagerImplementation(
-        "name", hostAddress, port, codec, errorHandler, false, 3, 10000)) {
+        "name", hostAddress, port, codec, errorHandler, false, 3, 10000, localAddressProvider)) {
 
       RemoteIdentifierFactory factory = new DefaultRemoteIdentifierFactoryImplementation();
       RemoteIdentifier remoteId = factory.getNewInstance("socket://" + hostAddress + ":" + port);
@@ -281,9 +290,9 @@ public class RemoteManagerTest {
     clazzToCodecMap.put(TestEvent2.class, new ObjectSerializableCodec<TestEvent1>());
     Codec<?> codec = new MultiCodec<Object>(clazzToCodecMap);
 
-    String hostAddress = NetUtils.getLocalAddress();
+    String hostAddress = localAddressProvider.getLocalAddress();
     return new DefaultRemoteManagerImplementation(name, hostAddress, localPort,
-        codec, new LoggingEventHandler<Throwable>(), false, retry, retryTimeout);
+        codec, new LoggingEventHandler<Throwable>(), false, retry, retryTimeout, localAddressProvider);
   }
 
   private class SendingRemoteManagerThread implements Callable<Integer> {
@@ -304,7 +313,7 @@ public class RemoteManagerTest {
       Monitor monitor = new Monitor();
       TimerStage timer = new TimerStage(new TimeoutHandler(monitor), timeout, timeout);
 
-      String hostAddress = NetUtils.getLocalAddress();
+      final String hostAddress = localAddressProvider.getLocalAddress();
       RemoteIdentifierFactory factory = new DefaultRemoteIdentifierFactoryImplementation();
       RemoteIdentifier remoteId = factory.getNewInstance("socket://" + hostAddress + ":" + remotePort);
 

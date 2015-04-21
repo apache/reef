@@ -27,6 +27,8 @@ using Org.Apache.REEF.Driver;
 using Org.Apache.REEF.Driver.Bridge;
 using Org.Apache.REEF.Driver.Context;
 using Org.Apache.REEF.Driver.Evaluator;
+using Org.Apache.REEF.Network.Examples.GroupCommunication.BroadcastReduceDriverAndTasks;
+using Org.Apache.REEF.Network.Group.Config;
 using Org.Apache.REEF.Network.Group.Driver;
 using Org.Apache.REEF.Network.Group.Driver.Impl;
 using Org.Apache.REEF.Network.Group.Operators;
@@ -34,11 +36,13 @@ using Org.Apache.REEF.Network.Group.Pipelining;
 using Org.Apache.REEF.Network.Group.Topology;
 using Org.Apache.REEF.Network.NetworkService;
 using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Tang.Implementations.Configuration;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Wake.Remote;
+using Org.Apache.REEF.Wake.Remote.Impl;
 
 namespace Org.Apache.REEF.Network.Examples.GroupCommunication.PipelineBroadcastReduceDriverAndTasks
 {
@@ -61,27 +65,47 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.PipelineBroadcastR
             [Parameter(typeof(GroupTestConfig.ChunkSize))] int chunkSize,
             GroupCommDriver groupCommDriver)
         {
-            Logger.Log(Level.Info, "*******entering the driver code " + chunkSize);
+            Logger.Log(Level.Info, "entering the driver code " + chunkSize);
 
             Identifier = "BroadcastStartHandler";
             _numEvaluators = numEvaluators;
             _numIterations = numIterations;
             _chunkSize = chunkSize;
 
+            IConfiguration codecConfig = CodecConfiguration<int[]>.Conf
+                .Set(CodecConfiguration<int[]>.Codec, GenericType<IntArrayCodec>.Class)
+                .Build();
+
+            IConfiguration reduceFunctionConfig = ReduceFunctionConfiguration<int[]>.Conf
+                .Set(ReduceFunctionConfiguration<int[]>.ReduceFunction, GenericType<ArraySumFunction>.Class)
+                .Build();
+
+            IConfiguration dataConverterConfig = TangFactory.GetTang().NewConfigurationBuilder(
+                PipelineDataConverterConfiguration<int[]>.Conf
+                    .Set(PipelineDataConverterConfiguration<int[]>.DataConverter,
+                        GenericType<PipelineIntDataConverter>.Class)
+                    .Build())
+                .BindNamedParameter<GroupTestConfig.ChunkSize, int>(
+                    GenericType<GroupTestConfig.ChunkSize>.Class,
+                    GroupTestConstants.ChunkSize.ToString(CultureInfo.InvariantCulture))
+                .Build();
+
             _groupCommDriver = groupCommDriver;
 
             _commGroup = _groupCommDriver.DefaultGroup
-                .AddBroadcast<int[], IntArrayCodec>(
+                .AddBroadcast<int[]>(
                     GroupTestConstants.BroadcastOperatorName,
                     GroupTestConstants.MasterTaskId,
                     TopologyTypes.Tree,
-                    new PipelineIntDataConverter(_chunkSize))
-                .AddReduce<int[], IntArrayCodec>(
+                    codecConfig,
+                    dataConverterConfig)
+                .AddReduce<int[]>(
                     GroupTestConstants.ReduceOperatorName,
                     GroupTestConstants.MasterTaskId,
-                    new ArraySumFunction(),
                     TopologyTypes.Tree,
-                    new PipelineIntDataConverter(_chunkSize))
+                    codecConfig,
+                    reduceFunctionConfig,
+                    dataConverterConfig)
                 .Build();
 
             _groupCommTaskStarter = new TaskStarter(_groupCommDriver, numEvaluators);
@@ -307,13 +331,6 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.PipelineBroadcastR
                 }
 
                 return data;
-            }
-
-            public IConfiguration GetConfiguration()
-            {
-                return TangFactory.GetTang().NewConfigurationBuilder()
-                .BindNamedParameter<GroupTestConfig.ChunkSize, int>(GenericType<GroupTestConfig.ChunkSize>.Class, _chunkSize.ToString(CultureInfo.InvariantCulture))
-                .Build();
             }
         }
     }

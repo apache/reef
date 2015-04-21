@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -23,6 +23,8 @@ import org.apache.reef.wake.EStage;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.impl.StageManager;
 import org.apache.reef.wake.remote.*;
+import org.apache.reef.wake.remote.address.LocalAddressProvider;
+import org.apache.reef.wake.remote.address.LocalAddressProviderFactory;
 import org.apache.reef.wake.remote.transport.Transport;
 import org.apache.reef.wake.remote.transport.netty.NettyMessagingTransport;
 
@@ -58,6 +60,36 @@ public class DefaultRemoteManagerImplementation implements RemoteManager {
   private final RemoteSeqNumGenerator seqGen = new RemoteSeqNumGenerator();
   private RemoteIdentifier myIdentifier;
 
+
+  /**
+   * @deprecated have an instance injected instead.
+   */
+  @Deprecated
+  public <T> DefaultRemoteManagerImplementation(
+      final String name,
+      final String hostAddress,
+      final int listeningPort,
+      final Codec<T> codec,
+      final EventHandler<Throwable> errorHandler,
+      final boolean orderingGuarantee,
+      final int numberOfTries,
+      final int retryTimeout) {
+    this(name,
+        hostAddress,
+        listeningPort,
+        codec,
+        errorHandler,
+        orderingGuarantee,
+        numberOfTries,
+        retryTimeout,
+        LocalAddressProviderFactory.getInstance());
+
+  }
+
+  /**
+   * @deprecated have an instance injected instead.
+   */
+  @Deprecated
   @Inject
   public <T> DefaultRemoteManagerImplementation(
       final @Parameter(RemoteConfiguration.ManagerName.class) String name,
@@ -67,7 +99,8 @@ public class DefaultRemoteManagerImplementation implements RemoteManager {
       final @Parameter(RemoteConfiguration.ErrorHandler.class) EventHandler<Throwable> errorHandler,
       final @Parameter(RemoteConfiguration.OrderingGuarantee.class) boolean orderingGuarantee,
       final @Parameter(RemoteConfiguration.NumberOfTries.class) int numberOfTries,
-      final @Parameter(RemoteConfiguration.RetryTimeout.class) int retryTimeout) {
+      final @Parameter(RemoteConfiguration.RetryTimeout.class) int retryTimeout,
+      final LocalAddressProvider localAddressProvider) {
 
     this.name = name;
     this.handlerContainer = new HandlerContainer<>(name, codec);
@@ -78,7 +111,7 @@ public class DefaultRemoteManagerImplementation implements RemoteManager {
 
     if ("##UNKNOWN##".equals(hostAddress)) {
       this.transport = new NettyMessagingTransport(
-          NetUtils.getLocalAddress(), listeningPort, this.reRecvStage, this.reRecvStage, numberOfTries, retryTimeout);
+          localAddressProvider.getLocalAddress(), listeningPort, this.reRecvStage, this.reRecvStage, numberOfTries, retryTimeout);
     } else {
       this.transport = new NettyMessagingTransport(
           hostAddress, listeningPort, this.reRecvStage, this.reRecvStage, numberOfTries, retryTimeout);
@@ -93,10 +126,10 @@ public class DefaultRemoteManagerImplementation implements RemoteManager {
 
     StageManager.instance().register(this);
 
-    LOG.log(Level.FINEST, "RemoteManager {0} instantiated id {1} counter {2} listening on {3}:{4}",
+    LOG.log(Level.FINEST, "RemoteManager {0} instantiated id {1} counter {2} listening on {3}:{4}. Binding address provided by {5}",
         new Object[]{this.name, this.myIdentifier, counter.incrementAndGet(),
             this.transport.getLocalAddress().toString(),
-            this.transport.getListeningPort()}
+            this.transport.getListeningPort(), localAddressProvider}
     );
   }
 

@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -26,7 +26,8 @@ import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.wake.Identifier;
 import org.apache.reef.wake.IdentifierFactory;
-import org.apache.reef.wake.remote.NetUtils;
+import org.apache.reef.wake.remote.address.LocalAddressProvider;
+import org.apache.reef.wake.remote.address.LocalAddressProviderFactory;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
@@ -61,11 +62,16 @@ public class NamingTest {
     }
   }
 
+  private final LocalAddressProvider localAddressProvider;
   @Rule
   public final TestName name = new TestName();
   final long TTL = 30000;
   final IdentifierFactory factory = new StringIdentifierFactory();
   int port;
+
+  public NamingTest() throws InjectionException {
+    this.localAddressProvider = LocalAddressProviderFactory.getInstance();
+  }
 
   /**
    * NameServer and NameLookupClient test
@@ -75,23 +81,24 @@ public class NamingTest {
   @Test
   public void testNamingLookup() throws Exception {
 
+    final String localAddress = localAddressProvider.getLocalAddress();
     LOG.log(Level.FINEST, this.name.getMethodName());
 
     // names 
     final Map<Identifier, InetSocketAddress> idToAddrMap = new HashMap<Identifier, InetSocketAddress>();
-    idToAddrMap.put(this.factory.getNewInstance("task1"), new InetSocketAddress(NetUtils.getLocalAddress(), 7001));
-    idToAddrMap.put(this.factory.getNewInstance("task2"), new InetSocketAddress(NetUtils.getLocalAddress(), 7002));
+    idToAddrMap.put(this.factory.getNewInstance("task1"), new InetSocketAddress(localAddress, 7001));
+    idToAddrMap.put(this.factory.getNewInstance("task2"), new InetSocketAddress(localAddress, 7002));
 
     // run a server
-    final NameServer server = new NameServerImpl(0, this.factory);
+    final NameServer server = new NameServerImpl(0, this.factory, this.localAddressProvider);
     this.port = server.getPort();
     for (final Identifier id : idToAddrMap.keySet()) {
       server.register(id, idToAddrMap.get(id));
     }
 
     // run a client
-    final NameLookupClient client = new NameLookupClient(NetUtils.getLocalAddress(), this.port,
-        10000, this.factory, retryCount, retryTimeout, new NameCache(this.TTL));
+    final NameLookupClient client = new NameLookupClient(localAddress, this.port,
+        10000, this.factory, retryCount, retryTimeout, new NameCache(this.TTL), this.localAddressProvider);
 
     final Identifier id1 = this.factory.getNewInstance("task1");
     final Identifier id2 = this.factory.getNewInstance("task2");
@@ -122,6 +129,7 @@ public class NamingTest {
 
     LOG.log(Level.FINEST, this.name.getMethodName());
 
+    final String localAddress = localAddressProvider.getLocalAddress();
     // test it 3 times to make failure likely
     for (int i = 0; i < 3; i++) {
 
@@ -129,20 +137,20 @@ public class NamingTest {
 
       // names 
       final Map<Identifier, InetSocketAddress> idToAddrMap = new HashMap<Identifier, InetSocketAddress>();
-      idToAddrMap.put(this.factory.getNewInstance("task1"), new InetSocketAddress(NetUtils.getLocalAddress(), 7001));
-      idToAddrMap.put(this.factory.getNewInstance("task2"), new InetSocketAddress(NetUtils.getLocalAddress(), 7002));
-      idToAddrMap.put(this.factory.getNewInstance("task3"), new InetSocketAddress(NetUtils.getLocalAddress(), 7003));
+      idToAddrMap.put(this.factory.getNewInstance("task1"), new InetSocketAddress(localAddress, 7001));
+      idToAddrMap.put(this.factory.getNewInstance("task2"), new InetSocketAddress(localAddress, 7002));
+      idToAddrMap.put(this.factory.getNewInstance("task3"), new InetSocketAddress(localAddress, 7003));
 
       // run a server
-      final NameServer server = new NameServerImpl(0, this.factory);
+      final NameServer server = new NameServerImpl(0, this.factory, this.localAddressProvider);
       this.port = server.getPort();
       for (final Identifier id : idToAddrMap.keySet()) {
         server.register(id, idToAddrMap.get(id));
       }
 
       // run a client
-      final NameLookupClient client = new NameLookupClient(NetUtils.getLocalAddress(), this.port,
-          10000, this.factory, retryCount, retryTimeout, new NameCache(this.TTL));
+      final NameLookupClient client = new NameLookupClient(localAddress, this.port,
+          10000, this.factory, retryCount, retryTimeout, new NameCache(this.TTL), this.localAddressProvider);
 
       final Identifier id1 = this.factory.getNewInstance("task1");
       final Identifier id2 = this.factory.getNewInstance("task2");
@@ -217,18 +225,18 @@ public class NamingTest {
 
     LOG.log(Level.FINEST, this.name.getMethodName());
 
-    final NameServer server = new NameServerImpl(0, this.factory);
+    final NameServer server = new NameServerImpl(0, this.factory, this.localAddressProvider);
     this.port = server.getPort();
+    final String localAddress = localAddressProvider.getLocalAddress();
 
     // names to start with
     final Map<Identifier, InetSocketAddress> idToAddrMap = new HashMap<Identifier, InetSocketAddress>();
-    idToAddrMap.put(this.factory.getNewInstance("task1"), new InetSocketAddress(NetUtils.getLocalAddress(), 7001));
-    idToAddrMap.put(this.factory.getNewInstance("task2"), new InetSocketAddress(NetUtils.getLocalAddress(), 7002));
+    idToAddrMap.put(this.factory.getNewInstance("task1"), new InetSocketAddress(localAddress, 7001));
+    idToAddrMap.put(this.factory.getNewInstance("task2"), new InetSocketAddress(localAddress, 7002));
 
     // registration
     // invoke registration from the client side
-    final NameRegistryClient client = new NameRegistryClient(
-        NetUtils.getLocalAddress(), this.port, this.factory);
+    final NameRegistryClient client = new NameRegistryClient(localAddress, this.port, this.factory, this.localAddressProvider);
     for (final Identifier id : idToAddrMap.keySet()) {
       client.register(id, idToAddrMap.get(id));
     }
@@ -278,17 +286,18 @@ public class NamingTest {
 
     LOG.log(Level.FINEST, this.name.getMethodName());
 
-    final NameServer server = new NameServerImpl(0, this.factory);
+    final String localAddress = localAddressProvider.getLocalAddress();
+    final NameServer server = new NameServerImpl(0, this.factory, this.localAddressProvider);
     this.port = server.getPort();
 
     final Map<Identifier, InetSocketAddress> idToAddrMap = new HashMap<Identifier, InetSocketAddress>();
-    idToAddrMap.put(this.factory.getNewInstance("task1"), new InetSocketAddress(NetUtils.getLocalAddress(), 7001));
-    idToAddrMap.put(this.factory.getNewInstance("task2"), new InetSocketAddress(NetUtils.getLocalAddress(), 7002));
+    idToAddrMap.put(this.factory.getNewInstance("task1"), new InetSocketAddress(localAddress, 7001));
+    idToAddrMap.put(this.factory.getNewInstance("task2"), new InetSocketAddress(localAddress, 7002));
 
     // registration
     // invoke registration from the client side
-    final NameClient client = new NameClient(NetUtils.getLocalAddress(), this.port,
-        this.factory, retryCount, retryTimeout, new NameCache(this.TTL));
+    final NameClient client = new NameClient(localAddress, this.port,
+        this.factory, retryCount, retryTimeout, new NameCache(this.TTL), this.localAddressProvider);
     for (final Identifier id : idToAddrMap.keySet()) {
       client.register(id, idToAddrMap.get(id));
     }

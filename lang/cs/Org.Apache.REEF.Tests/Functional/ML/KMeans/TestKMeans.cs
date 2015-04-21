@@ -174,9 +174,9 @@ namespace Org.Apache.REEF.Tests.Functional.ML.KMeans
         private HashSet<string> AssembliesToCopy()
         {
             HashSet<string> appDlls = new HashSet<string>();
-            appDlls.Add(typeof(KMeansDriverHandlers).Assembly.GetName().Name);
             appDlls.Add(typeof(LegacyKMeansTask).Assembly.GetName().Name);
             appDlls.Add(typeof(INameClient).Assembly.GetName().Name);
+            appDlls.Add(typeof(KMeansDriverHandlers).Assembly.GetName().Name);
             appDlls.Add(typeof(INetworkService<>).Assembly.GetName().Name);
             return appDlls;
         }

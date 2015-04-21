@@ -27,6 +27,7 @@ using Org.Apache.REEF.Wake.Time.Event;
 
 namespace Org.Apache.REEF.Common
 {
+    [Obsolete("Driver core logic no longer needed in.NET")]
     public class ClientJobStatusHandler : IJobMessageObserver, IObserver<StartTime>
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(ClientJobStatusHandler));
