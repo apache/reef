@@ -24,7 +24,6 @@ import org.apache.reef.io.network.naming.exception.NamingRuntimeException;
 import org.apache.reef.io.network.naming.serialization.NamingLookupResponse;
 import org.apache.reef.io.network.naming.serialization.NamingMessage;
 import org.apache.reef.io.network.naming.serialization.NamingRegisterResponse;
-import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.Identifier;
 import org.apache.reef.wake.IdentifierFactory;
@@ -37,7 +36,6 @@ import org.apache.reef.wake.remote.impl.TransportEvent;
 import org.apache.reef.wake.remote.transport.Transport;
 import org.apache.reef.wake.remote.transport.netty.NettyMessagingTransport;
 
-import javax.inject.Inject;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.concurrent.BlockingQueue;
@@ -48,7 +46,7 @@ import java.util.logging.Logger;
 /**
  * Naming client
  */
-public final class NameClient implements Stage, Naming {
+public class NameClient implements Stage, Naming {
   private static final Logger LOG = Logger.getLogger(NameClient.class.getName());
 
   private NameLookupClient lookupClient;
@@ -136,32 +134,6 @@ public final class NameClient implements Stage, Naming {
         factory, replyRegisterQueue, this.transport);
   }
 
-  @Inject
-  public NameClient(
-      final @Parameter(NameServerParameters.NameServerIdentifierFactory.class) IdentifierFactory factory,
-      final @Parameter(NameServerParameters.NameServerAddr.class) String  serverAddr,
-      final @Parameter(NameServerParameters.NameServerPort.class) int serverPort,
-      final @Parameter(NameLookupClient.RetryCount.class) int retryCount,
-      final @Parameter(NameLookupClient.RetryTimeout.class) int retryTimeout,
-      final @Parameter(NameLookupClient.RequestTimeout.class) long timeout,
-      final @Parameter(NameLookupClient.CacheTimeout.class) long cacheTimeout){
-
-    final BlockingQueue<NamingLookupResponse> replyLookupQueue = new LinkedBlockingQueue<NamingLookupResponse>();
-    final BlockingQueue<NamingRegisterResponse> replyRegisterQueue = new LinkedBlockingQueue<NamingRegisterResponse>();
-    final Codec<NamingMessage> codec = NamingCodecFactory.createFullCodec(factory);
-
-    this.transport = new NettyMessagingTransport(NetUtils.getLocalAddress(), 0,
-        new SyncStage<>(new NamingClientEventHandler(
-            new NamingResponseHandler(replyLookupQueue, replyRegisterQueue), codec)),
-        null, retryCount, retryTimeout);
-
-    this.lookupClient = new NameLookupClient(serverAddr, serverPort, timeout,
-        factory, retryCount, retryTimeout, replyLookupQueue, this.transport, new NameCache(cacheTimeout));
-
-    this.registryClient = new NameRegistryClient(serverAddr, serverPort, timeout,
-        factory, replyRegisterQueue, this.transport);
-  }
-
   /**
    * Registers an (identifier, address) mapping
    *
@@ -230,7 +202,7 @@ public final class NameClient implements Stage, Naming {
 /**
  * Naming client transport event handler
  */
-final class NamingClientEventHandler implements EventHandler<TransportEvent> {
+class NamingClientEventHandler implements EventHandler<TransportEvent> {
 
   private static final Logger LOG = Logger.getLogger(NamingClientEventHandler.class.getName());
 
@@ -253,7 +225,7 @@ final class NamingClientEventHandler implements EventHandler<TransportEvent> {
 /**
  * Naming response message handler
  */
-final class NamingResponseHandler implements EventHandler<NamingMessage> {
+class NamingResponseHandler implements EventHandler<NamingMessage> {
 
   private final BlockingQueue<NamingLookupResponse> replyLookupQueue;
   private final BlockingQueue<NamingRegisterResponse> replyRegisterQueue;
@@ -273,5 +245,7 @@ final class NamingResponseHandler implements EventHandler<NamingMessage> {
     } else {
       throw new NamingRuntimeException("Unknown naming response message");
     }
+
   }
+
 }
