@@ -125,6 +125,7 @@ public final class NetworkService<T> implements Stage, ConnectionFactory<T> {
    * @deprecated have an instance injected instead.
    */
   @Deprecated
+  @Inject
   public NetworkService(
       final @Parameter(NetworkServiceParameters.NetworkServiceIdentifierFactory.class) IdentifierFactory factory,
       final @Parameter(NetworkServiceParameters.NetworkServicePort.class) int nsPort,
