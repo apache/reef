@@ -85,10 +85,14 @@ public class DefaultRemoteManagerImplementation implements RemoteManager {
         numberOfTries,
         retryTimeout,
         LocalAddressProviderFactory.getInstance(),
-            RangeTcpPortProvider.Default);
+        RangeTcpPortProvider.Default);
 
   }
 
+  /**
+   * @deprecated have an instance injected instead.
+   */
+  @Deprecated
   @Inject
   public <T> DefaultRemoteManagerImplementation(
       final @Parameter(RemoteConfiguration.ManagerName.class) String name,
@@ -101,9 +105,6 @@ public class DefaultRemoteManagerImplementation implements RemoteManager {
       final @Parameter(RemoteConfiguration.RetryTimeout.class) int retryTimeout,
       final LocalAddressProvider localAddressProvider,
       final TcpPortProvider tcpPortProvider) {
-
-    String fullStackTrace = org.apache.commons.lang.exception.ExceptionUtils.getFullStackTrace(new Exception());
-    LOG.log(Level.SEVERE, "zzzzz 3 " + tcpPortProvider.toString() + fullStackTrace);
 
     this.name = name;
     this.handlerContainer = new HandlerContainer<>(name, codec);

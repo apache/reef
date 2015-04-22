@@ -24,7 +24,7 @@ import org.apache.reef.tang.annotations.DefaultImplementation;
 import java.util.Iterator;
 
 /**
- * Gives out random tcp port numbers in a range.
+ * Provides an iterator that returns port numbers.
 */
 @DefaultImplementation(RangeTcpPortProvider.class)
 public interface TcpPortProvider extends Iterable<Integer> {
@@ -37,7 +37,8 @@ public interface TcpPortProvider extends Iterable<Integer> {
   Iterator<Integer> iterator();
 
   /**
-   * How was this TcpPortProvider configured ?
+   * returns a configuration for the class that implements TcpPortProvider so that class can be instantiated
+   * somewhere else
    *
    * @return Configuration.
    */

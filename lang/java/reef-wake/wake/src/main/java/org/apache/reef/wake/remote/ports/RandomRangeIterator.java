@@ -24,10 +24,11 @@ import java.util.Iterator;
 import java.util.Random;
 
 /**
- *
+ * This class will give out random port numbers between tcpPortRangeBegin and tcpPortRangeBegin+tcpPortRangeCount
+ * Max number of ports given is tryCount
  */
 @ThreadSafe
-class RandomRangeIterator implements Iterator<Integer> {
+final class RandomRangeIterator implements Iterator<Integer> {
   private final int tcpPortRangeBegin;
   private final int tcpPortRangeCount;
   private final int tryCount;
@@ -40,23 +41,11 @@ class RandomRangeIterator implements Iterator<Integer> {
     this.tryCount = tryCount;
   }
 
-  /**
-   * Returns {@code true} if the iteration has more elements.
-   * (In other words, returns {@code true} if {@link #next} would
-   * return an element rather than throwing an exception.)
-   *
-   * @return {@code true} if the iteration has more elements
-   */
   @Override
   public synchronized boolean hasNext() {
     return currentRetryCount++ < tryCount;
   }
 
-  /**
-   * Returns the next element in the iteration.
-   *
-   * @return the next element in the iteration
-   */
   @Override
   public synchronized Integer next() {
     return random.nextInt(tcpPortRangeCount) + tcpPortRangeBegin;
@@ -64,8 +53,7 @@ class RandomRangeIterator implements Iterator<Integer> {
 
   /**
    * always throws
-   * @throws UnsupportedOperationException if the {@code remove}
-   *                                       operation is not supported by this iterator
+   * @throws UnsupportedOperationException always.
    */
   @Override
   public void remove() {

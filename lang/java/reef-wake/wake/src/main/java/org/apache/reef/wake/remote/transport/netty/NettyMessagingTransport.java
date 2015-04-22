@@ -188,6 +188,7 @@ public class NettyMessagingTransport implements Transport {
      * @param serverStage   the server-side stage that handles transport events
      * @param numberOfTries the number of tries of connection
      * @param retryTimeout  the timeout of reconnection
+     * @deprecated use the constructor that takes a TcpProvider instead
      */
     @Deprecated
   public NettyMessagingTransport(final String hostAddress, int port,
