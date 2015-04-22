@@ -58,7 +58,6 @@ under the License.
                                     <arg value="src/main/proto/reef_service_protos.proto"/>
                                     <arg value="src/main/proto/evaluator_runtime.proto"/>
                                     <arg value="src/main/proto/client_runtime.proto"/>
-                                    <arg value="src/main/proto/driver_runtime.proto"/>
                                     <arg value="src/main/proto/reef_protocol.proto"/>
                                 </exec>
                             </tasks>

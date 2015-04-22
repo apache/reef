@@ -52,9 +52,7 @@ public final class REEFMessageCodec implements Codec<GeneratedMessage> {
   public GeneratedMessage decode(final byte[] bytes) {
     try {
       final REEFProtocol.REEFMessage message = REEFProtocol.REEFMessage.parseFrom(bytes);
-      if (message.hasJobSubmission()) {
-        return message.getJobSubmission();
-      } else if (message.hasJobControl()) {
+      if (message.hasJobControl()) {
         return message.getJobControl();
       } else if (message.hasRuntimeError()) {
         return message.getRuntimeError();
@@ -75,9 +73,7 @@ public final class REEFMessageCodec implements Codec<GeneratedMessage> {
   public byte[] encode(final GeneratedMessage msg) {
     final REEFProtocol.REEFMessage.Builder message = REEFProtocol.REEFMessage.newBuilder();
 
-    if (msg instanceof ClientRuntimeProtocol.JobSubmissionProto) {
-      message.setJobSubmission((ClientRuntimeProtocol.JobSubmissionProto) msg);
-    } else if (msg instanceof ClientRuntimeProtocol.JobControlProto) {
+    if (msg instanceof ClientRuntimeProtocol.JobControlProto) {
       message.setJobControl((ClientRuntimeProtocol.JobControlProto) msg);
     } else if (msg instanceof ReefServiceProtos.RuntimeErrorProto) {
       message.setRuntimeError((ReefServiceProtos.RuntimeErrorProto) msg);

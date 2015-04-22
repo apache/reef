@@ -20,21 +20,21 @@ package org.apache.reef.runtime.local.driver;
 
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
-import org.apache.reef.proto.DriverRuntimeProtocol;
+import org.apache.reef.runtime.common.driver.api.ResourceRequestEvent;
 
 /**
- * Manages a ResourceRequestProto and its satisfaction.
+ * Manages a ResourceRequestEvent and its satisfaction.
  */
 @Private
 @DriverSide
 final class ResourceRequest {
 
-  private final DriverRuntimeProtocol.ResourceRequestProto req;
+  private final ResourceRequestEvent req;
   private int satisfied = 0;
 
-  ResourceRequest(final DriverRuntimeProtocol.ResourceRequestProto req) {
+  ResourceRequest(final ResourceRequestEvent req) {
     if (null == req) {
-      throw new IllegalArgumentException("Can't instantiate a ResourceRequest without a ResourceRequestProto");
+      throw new IllegalArgumentException("Can't instantiate a ResourceRequest without a ResourceRequestEvent");
     }
     this.req = req;
   }
@@ -57,7 +57,7 @@ final class ResourceRequest {
     return this.satisfied == req.getResourceCount();
   }
 
-  final DriverRuntimeProtocol.ResourceRequestProto getRequestProto() {
+  final ResourceRequestEvent getRequestProto() {
     return this.req;
   }
 }

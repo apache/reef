@@ -22,7 +22,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.yarn.api.ApplicationConstants;
 import org.apache.reef.annotations.audience.ClientSide;
 import org.apache.reef.annotations.audience.Private;
-import org.apache.reef.proto.ClientRuntimeProtocol;
+import org.apache.reef.runtime.common.client.api.JobSubmissionEvent;
 import org.apache.reef.runtime.common.client.api.JobSubmissionHandler;
 import org.apache.reef.runtime.common.files.ClasspathProvider;
 import org.apache.reef.runtime.common.files.JobJarMaker;
@@ -33,7 +33,6 @@ import org.apache.reef.runtime.hdinsight.client.yarnrest.*;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Configurations;
 import org.apache.reef.tang.annotations.Parameter;
-import org.apache.reef.tang.formats.ConfigurationSerializer;
 
 import javax.inject.Inject;
 import java.io.File;
@@ -54,7 +53,6 @@ public final class HDInsightJobSubmissionHandler implements JobSubmissionHandler
   private final AzureUploader uploader;
   private final JobJarMaker jobJarMaker;
   private final HDInsightInstance hdInsightInstance;
-  private final ConfigurationSerializer configurationSerializer;
   private final REEFFileNames filenames;
   private final ClasspathProvider classpath;
   private final double jvmHeapSlack;
@@ -63,14 +61,12 @@ public final class HDInsightJobSubmissionHandler implements JobSubmissionHandler
   HDInsightJobSubmissionHandler(final AzureUploader uploader,
                                 final JobJarMaker jobJarMaker,
                                 final HDInsightInstance hdInsightInstance,
-                                final ConfigurationSerializer configurationSerializer,
                                 final REEFFileNames filenames,
                                 final ClasspathProvider classpath,
                                 final @Parameter(JVMHeapSlack.class) double jvmHeapSlack) {
     this.uploader = uploader;
     this.jobJarMaker = jobJarMaker;
     this.hdInsightInstance = hdInsightInstance;
-    this.configurationSerializer = configurationSerializer;
     this.filenames = filenames;
     this.classpath = classpath;
     this.jvmHeapSlack = jvmHeapSlack;
@@ -82,7 +78,7 @@ public final class HDInsightJobSubmissionHandler implements JobSubmissionHandler
   }
 
   @Override
-  public void onNext(final ClientRuntimeProtocol.JobSubmissionProto jobSubmissionProto) {
+  public void onNext(final JobSubmissionEvent jobSubmissionEvent) {
 
     try {
 
@@ -96,25 +92,25 @@ public final class HDInsightJobSubmissionHandler implements JobSubmissionHandler
 
       LOG.log(Level.FINE, "Assembling Configuration for the Driver.");
       final Configuration driverConfiguration =
-          makeDriverConfiguration(jobSubmissionProto, applicationID.getId(), jobFolderURL);
+          makeDriverConfiguration(jobSubmissionEvent, applicationID.getId(), jobFolderURL);
 
       LOG.log(Level.FINE, "Making Job JAR.");
       final File jobSubmissionJarFile =
-          this.jobJarMaker.createJobSubmissionJAR(jobSubmissionProto, driverConfiguration);
+          this.jobJarMaker.createJobSubmissionJAR(jobSubmissionEvent, driverConfiguration);
 
       LOG.log(Level.FINE, "Uploading Job JAR to Azure.");
       final FileResource uploadedFile = this.uploader.uploadFile(jobSubmissionJarFile);
 
       LOG.log(Level.FINE, "Assembling application submission.");
-      final String command = getCommandString(jobSubmissionProto);
+      final String command = getCommandString(jobSubmissionEvent);
 
       final ApplicationSubmission applicationSubmission = new ApplicationSubmission()
           .setApplicationId(applicationID.getId())
-          .setApplicationName(jobSubmissionProto.getIdentifier())
-          .setResource(getResource(jobSubmissionProto))
+          .setApplicationName(jobSubmissionEvent.getIdentifier())
+          .setResource(getResource(jobSubmissionEvent))
           .setContainerInfo(new ContainerInfo()
-              .addFileResource(this.filenames.getREEFFolderName(), uploadedFile)
-              .addCommand(command));
+                  .addFileResource(this.filenames.getREEFFolderName(), uploadedFile)
+                  .addCommand(command));
 
       this.hdInsightInstance.submitApplication(applicationSubmission);
       LOG.log(Level.INFO, "Submitted application to HDInsight. The application id is: {0}", applicationID.getId());
@@ -126,13 +122,13 @@ public final class HDInsightJobSubmissionHandler implements JobSubmissionHandler
   }
 
   /**
-   * Extracts the resource demands from the jobSubmissionProto.
+   * Extracts the resource demands from the jobSubmissionEvent.
    */
   private final Resource getResource(
-      final ClientRuntimeProtocol.JobSubmissionProto jobSubmissionProto) {
+      final JobSubmissionEvent jobSubmissionEvent) {
 
     return new Resource()
-        .setMemory(String.valueOf(jobSubmissionProto.getDriverMemory()))
+        .setMemory(String.valueOf(jobSubmissionEvent.getDriverMemory().get()))
         .setvCores("1");
   }
 
@@ -140,30 +136,30 @@ public final class HDInsightJobSubmissionHandler implements JobSubmissionHandler
    * Assembles the command to execute the Driver.
    */
   private String getCommandString(
-      final ClientRuntimeProtocol.JobSubmissionProto jobSubmissionProto) {
-    return StringUtils.join(getCommandList(jobSubmissionProto), ' ');
+      final JobSubmissionEvent jobSubmissionEvent) {
+    return StringUtils.join(getCommandList(jobSubmissionEvent), ' ');
   }
 
   /**
    * Assembles the command to execute the Driver in list form.
    */
   private List<String> getCommandList(
-      final ClientRuntimeProtocol.JobSubmissionProto jobSubmissionProto) {
+      final JobSubmissionEvent jobSubmissionEvent) {
 
     return new JavaLaunchCommandBuilder()
         .setJavaPath("%JAVA_HOME%/bin/java")
-        .setErrorHandlerRID(jobSubmissionProto.getRemoteId())
-        .setLaunchID(jobSubmissionProto.getIdentifier())
+        .setErrorHandlerRID(jobSubmissionEvent.getRemoteId())
+        .setLaunchID(jobSubmissionEvent.getIdentifier())
         .setConfigurationFileName(this.filenames.getDriverConfigurationPath())
         .setClassPath(this.classpath.getDriverClasspath())
-        .setMemory(jobSubmissionProto.getDriverMemory())
+        .setMemory(jobSubmissionEvent.getDriverMemory().get())
         .setStandardErr(ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/" + this.filenames.getDriverStderrFileName())
         .setStandardOut(ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/" + this.filenames.getDriverStdoutFileName())
         .build();
   }
 
   private Configuration makeDriverConfiguration(
-      final ClientRuntimeProtocol.JobSubmissionProto jobSubmissionProto,
+      final JobSubmissionEvent jobSubmissionEvent,
       final String applicationId,
       final String jobFolderURL) throws IOException {
 
@@ -174,7 +170,7 @@ public final class HDInsightJobSubmissionHandler implements JobSubmissionHandler
         .build();
 
     return Configurations.merge(
-        this.configurationSerializer.fromString(jobSubmissionProto.getConfiguration()),
+        jobSubmissionEvent.getConfiguration(),
         hdinsightDriverConfiguration);
   }
 }
