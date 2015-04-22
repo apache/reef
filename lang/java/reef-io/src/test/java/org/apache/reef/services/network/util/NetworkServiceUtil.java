@@ -22,18 +22,13 @@ import org.apache.reef.io.network.NetworkEventHandler;
 import org.apache.reef.io.network.NetworkLinkListener;
 import org.apache.reef.io.network.NetworkServiceParameter;
 import org.apache.reef.io.network.impl.*;
-import org.apache.reef.io.network.naming.NameCache;
-import org.apache.reef.io.network.naming.NameClient;
 import org.apache.reef.io.network.naming.NameLookupClient;
 import org.apache.reef.io.network.util.StringIdentifierFactory;
-import org.apache.reef.tang.InjectionFuture;
 import org.apache.reef.tang.Injector;
 import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.remote.Codec;
-import org.apache.reef.wake.remote.NetUtils;
-import org.apache.reef.wake.remote.address.HostnameBasedLocalAddressProvider;
 import org.apache.reef.wake.remote.address.LocalAddressProvider;
 
 import java.util.HashSet;
@@ -90,18 +85,11 @@ public final class NetworkServiceUtil {
     }
 
     NetworkPreconfiguredMap map = new NetworkPreconfiguredMap(events, eventHandlers, eventCodecs, linkListeners);
-    NameClient client = new NameClient(
-        addressProvider.getLocalAddress(),
-        nameServerPort,
-        requestTimeout,
-        new StringIdentifierFactory(),
-        nameLookupRetryCount,
-        nameLookupRetryTimeout,
-        new NameCache(cacheTimeout),
-        addressProvider
-    );
 
-    NameClientProxy namingProxy = new NameClientProxy(client, nameServerPort);
+    NameClientProxy namingProxy = new NameClientProxy(addressProvider.getLocalAddress(),
+        nameServerPort, requestTimeout,
+        new StringIdentifierFactory(),
+        nameLookupRetryCount, nameLookupRetryTimeout, addressProvider);
     Codec<NetworkServiceEvent> networkServiceEventCodec;
     networkServiceEventCodec = new NetworkServiceEventCodec(map);
 

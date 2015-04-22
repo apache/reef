@@ -24,10 +24,12 @@ import org.apache.reef.driver.task.TaskConfigurationOptions;
 import org.apache.reef.evaluator.context.parameters.ContextStopHandlers;
 import org.apache.reef.evaluator.context.parameters.Services;
 import org.apache.reef.io.network.impl.*;
+import org.apache.reef.io.network.naming.NameCache;
 import org.apache.reef.io.network.naming.NameServerParameters;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.JavaConfigurationBuilder;
 import org.apache.reef.tang.Tang;
+import org.apache.reef.util.cache.Cache;
 import org.apache.reef.wake.remote.Codec;
 
 import org.apache.reef.wake.remote.NetUtils;
@@ -141,6 +143,7 @@ public final class NetworkServiceConfigurationBuilder {
        .bindNamedParameter(NameServerParameters.NameServerPort.class, namingProxy.getNameServerPort() + "")
        .bindNamedParameter(NameServerParameters.NameServerAddr.class, NetUtils.getLocalAddress())
        .bindImplementation(NamingProxy.class, NameClientProxy.class)
+       .bindImplementation(Cache.class, NameCache.class)
        .build();
   }
 }

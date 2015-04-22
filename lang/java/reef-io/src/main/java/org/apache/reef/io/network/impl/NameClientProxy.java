@@ -20,13 +20,14 @@ package org.apache.reef.io.network.impl;
 
 import org.apache.reef.io.Tuple;
 import org.apache.reef.io.network.NamingProxy;
-import org.apache.reef.io.network.naming.NameClient;
-import org.apache.reef.io.network.naming.NameServerParameters;
+import org.apache.reef.io.network.naming.*;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.wake.EStage;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.Identifier;
+import org.apache.reef.wake.IdentifierFactory;
 import org.apache.reef.wake.impl.SingleThreadStage;
+import org.apache.reef.wake.remote.address.LocalAddressProvider;
 
 import javax.inject.Inject;
 import java.net.InetSocketAddress;
@@ -48,11 +49,17 @@ public final class NameClientProxy implements NamingProxy {
 
   @Inject
   public NameClientProxy(
-      final NameClient nameClient,
-      final @Parameter(NameServerParameters.NameServerPort.class) int serverPort) {
+      final @Parameter(NameServerParameters.NameServerAddr.class) String serverAddr,
+      final @Parameter(NameServerParameters.NameServerPort.class) int serverPort,
+      final @Parameter(NameLookupClient.CacheTimeout.class) long timeout,
+      final @Parameter(NameServerParameters.NameServerIdentifierFactory.class) IdentifierFactory factory,
+      final @Parameter(NameLookupClient.RetryCount.class) int retryCount,
+      final @Parameter(NameLookupClient.RetryTimeout.class) int retryTimeout,
+      final LocalAddressProvider addressProvider) {
 
     this.serverProt = serverPort;
-    this.nameClient = nameClient;
+    this.nameClient = new NameClient(serverAddr, serverProt, factory, retryCount,
+        retryTimeout, new NameCache(timeout), addressProvider);
     this.nameServiceRegisteringStage = new SingleThreadStage<>(
             "NameServiceRegisterer", new EventHandler<Tuple<Identifier, InetSocketAddress>>() {
       @Override
