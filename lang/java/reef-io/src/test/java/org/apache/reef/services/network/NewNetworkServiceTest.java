@@ -798,4 +798,9 @@ public final class NewNetworkServiceTest {
       }
     }
   }
+
+  public static void main(String args[]) throws Exception {
+    NewNetworkServiceTest t = new NewNetworkServiceTest();
+    t.testMessagingNetworkService();
+  }
 }
