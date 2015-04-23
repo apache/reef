@@ -19,6 +19,7 @@
 package org.apache.reef.tang.implementation.protobuf;
 
 import org.apache.reef.tang.ClassHierarchy;
+import org.apache.reef.tang.annotations.NamedParameter;
 import org.apache.reef.tang.exceptions.NameResolutionException;
 import org.apache.reef.tang.implementation.types.*;
 import org.apache.reef.tang.proto.ClassHierarchyProto;
@@ -384,13 +385,39 @@ public class ProtocolBufferClassHierarchy implements ClassHierarchy {
     if (this == ch) {
       return this;
     }
-    throw new UnsupportedOperationException(
-        "Cannot merge ExternalClassHierarchies yet!");
+    if (!(ch instanceof ProtocolBufferClassHierarchy)) {
+      throw new UnsupportedOperationException(
+          "Cannot merge ExternalClassHierarchies yet!");
+    }
+    final ProtocolBufferClassHierarchy pch = (ProtocolBufferClassHierarchy) ch;
+    for (final String key : pch.lookupTable.keySet()) {
+      if (!this.lookupTable.containsKey(key)) {
+        this.lookupTable.put(key, pch.lookupTable.get(key));
+      }
+
+      for (final Node n : ch.getNamespace().getChildren()) {
+        if (this.namespace.contains(n.getFullName())) {
+          if (n instanceof NamedParameter) {
+            final NamedParameterNode np = (NamedParameterNode) n;
+            new NamedParameterNodeImpl<>(this.namespace, np.getName(),
+                np.getFullName(), np.getFullArgName(), np.getSimpleArgName(),
+                np.isSet(), np.isList(), np.getDocumentation(), np.getShortName(),
+                np.getDefaultInstanceAsStrings());
+          } else if (n instanceof ClassNode) {
+            final ClassNode cn = (ClassNode) n;
+            new ClassNodeImpl(namespace, cn.getName(), cn.getFullName(),
+                cn.isUnit(), cn.isInjectionCandidate(),
+                cn.isExternalConstructor(), cn.getInjectableConstructors(),
+                cn.getAllConstructors(), cn.getDefaultImplementation());
+          }
+        }
+      }
+    }
+    return this;
   }
 
   @Override
   public Node getNamespace() {
     return namespace;
   }
-
 }
