@@ -387,8 +387,9 @@ public class ProtocolBufferClassHierarchy implements ClassHierarchy {
     }
     if (!(ch instanceof ProtocolBufferClassHierarchy)) {
       throw new UnsupportedOperationException(
-          "Cannot merge ExternalClassHierarchies yet!");
+          "Cannot merge with class hierarchies of type: " + ch.getClass().getName());
     }
+
     final ProtocolBufferClassHierarchy pch = (ProtocolBufferClassHierarchy) ch;
     for (final String key : pch.lookupTable.keySet()) {
       if (!this.lookupTable.containsKey(key)) {
@@ -396,7 +397,7 @@ public class ProtocolBufferClassHierarchy implements ClassHierarchy {
       }
 
       for (final Node n : ch.getNamespace().getChildren()) {
-        if (this.namespace.contains(n.getFullName())) {
+        if (!this.namespace.contains(n.getFullName())) {
           if (n instanceof NamedParameter) {
             final NamedParameterNode np = (NamedParameterNode) n;
             new NamedParameterNodeImpl<>(this.namespace, np.getName(),

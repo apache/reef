@@ -18,6 +18,7 @@
  */
 package org.apache.reef.tang;
 
+import org.apache.reef.tang.exceptions.BindException;
 import org.apache.reef.tang.exceptions.NameResolutionException;
 import org.apache.reef.tang.formats.AvroConfigurationSerializer;
 import org.apache.reef.tang.formats.ConfigurationSerializer;
@@ -44,7 +45,7 @@ public class ClassHierarchyDeserializationTest {
   public void testDeserializationForTasks() {
     try (final InputStream chin = Thread.currentThread().getContextClassLoader()
         .getResourceAsStream("Task.bin")) {
-      final ClassHierarchyProto.Node root = ClassHierarchyProto.Node.parseFrom(chin); // A
+      final ClassHierarchyProto.Node root = ClassHierarchyProto.Node.parseFrom(chin);
       final ClassHierarchy ch = new ProtocolBufferClassHierarchy(root);
       Node n1 = ch.getNode("Org.Apache.REEF.Examples.Tasks.StreamingTasks.StreamTask1, Org.Apache.REEF.Examples.Tasks, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null");
       Assert.assertTrue(n1.getFullName().equals("Org.Apache.REEF.Examples.Tasks.StreamingTasks.StreamTask1, Org.Apache.REEF.Examples.Tasks, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"));
@@ -64,6 +65,37 @@ public class ClassHierarchyDeserializationTest {
       final String message = "Unable to get node from class hierarchy.";
       throw new RuntimeException(message, e);
     }
+  }
+
+  /**
+   * This is to test CLR protocol Buffer class hierarchy merge
+   */
+  @Test
+  public void testProtocolClassHierarchyMerge() {
+    final ConfigurationBuilder taskConfigurationBuilder;
+    final ConfigurationBuilder eventConfigurationBuilder;
+
+    try (final InputStream chin = Thread.currentThread().getContextClassLoader()
+        .getResourceAsStream("Task.bin")) {
+      final ClassHierarchyProto.Node root = ClassHierarchyProto.Node.parseFrom(chin);
+      final ClassHierarchy ch = new ProtocolBufferClassHierarchy(root);
+      taskConfigurationBuilder = Tang.Factory.getTang().newConfigurationBuilder(ch);
+    } catch (final IOException e) {
+      final String message = "Unable to load class hierarchy from task.bin.";
+      throw new RuntimeException(message, e);
+    }
+
+    try (final InputStream chin = Thread.currentThread().getContextClassLoader()
+        .getResourceAsStream("Event.bin")) {
+      final ClassHierarchyProto.Node root = ClassHierarchyProto.Node.parseFrom(chin);
+      final ClassHierarchy ch = new ProtocolBufferClassHierarchy(root);
+      eventConfigurationBuilder = Tang.Factory.getTang().newConfigurationBuilder(ch);
+    } catch (final Exception e) {
+      final String message = "Unable to load class hierarchy from event.bin.";
+      throw new RuntimeException(message, e);
+    }
+
+    taskConfigurationBuilder.addConfiguration(eventConfigurationBuilder.build());
   }
 
   /**
