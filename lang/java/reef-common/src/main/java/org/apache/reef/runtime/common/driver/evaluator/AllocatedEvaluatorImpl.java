@@ -235,6 +235,13 @@ final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
    * @return
    */
   private Configuration makeRootContextConfiguration(final Configuration contextConfiguration) {
+
+    final EvaluatorType evaluatorType = this.evaluatorManager.getEvaluatorDescriptor().getType();
+    if (EvaluatorType.JVM != evaluatorType) {
+      LOG.log(Level.FINE, "Not using the ConfigurationProviders as we are configuring a {0} Evaluator.", evaluatorType);
+      return contextConfiguration;
+    }
+
     final ConfigurationBuilder configurationBuilder = Tang.Factory.getTang()
         .newConfigurationBuilder(contextConfiguration);
     for (final ConfigurationProvider configurationProvider : this.evaluatorConfigurationProviders) {
