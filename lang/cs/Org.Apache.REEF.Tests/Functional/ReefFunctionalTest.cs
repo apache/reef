@@ -32,6 +32,7 @@ using Org.Apache.REEF.Driver;
 using Org.Apache.REEF.Driver.Bridge;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Utilities;
+using Org.Apache.REEF.Utilities.Diagnostics;
 using Org.Apache.REEF.Utilities.Logging;
 using Timer = System.Timers.Timer;
 
@@ -43,9 +44,11 @@ namespace Org.Apache.REEF.Tests.Functional
         protected const string _stderr = "driver.stderr";
         protected const string _cmdFile = "run.cmd";
         protected const string _binFolder = ".";
-        // TODO: we will need a proper way to hide this when we are OSS'ed
-        protected const string _blobStorageConnectionString =
-            @"DefaultEndpointsProtocol=https;AccountName=reeftestlog;AccountKey=cuUmPRF9DiG56bciNc37O/SfHAoh1jFfJW6AsXAtWLPnjlOzXJGWgXhkyDFOGEHIMscqDU41ElUKnjcsJjWD9w==";
+        private const string StorageAccountKeyEnvironmentVariable = "REEFTestStorageAccountKey";
+        private const string StorageAccountNameEnvironmentVariable = "REEFTestStorageAccountName";
+
+        private static Logger Logger = Logger.GetLogger(typeof(ReefFunctionalTest));
+            
 
         private bool _testSuccess = false;
         private bool _onLocalRuntime = false;
@@ -181,7 +184,7 @@ namespace Org.Apache.REEF.Tests.Functional
         {
             string driverStdout = GetLogFile(_stdout);
             string driverStderr = GetLogFile(_stderr);
-            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(_blobStorageConnectionString);
+            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(GetStorageConnectionString());
             CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
             CloudBlobContainer container = blobClient.GetContainerReference(DateTime.Now.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));   
             container.CreateIfNotExists();
@@ -196,5 +199,45 @@ namespace Org.Apache.REEF.Tests.Functional
             blob.UploadFromStream(fs);
             fs.Close();
         }
+
+        /// <summary>
+        /// Assembles the storage account connection string from the envrionment.
+        /// </summary>
+        /// <returns>the storage account connection string assembled from the envrionment.</returns>
+        /// <exception cref="Exception">If the environment variables aren't set.</exception>
+        private static string GetStorageConnectionString()
+        {
+            var accountName = GetEnvironmentVariabe(StorageAccountNameEnvironmentVariable,
+                "Please set " + StorageAccountNameEnvironmentVariable +
+                " to the storage account name to be used for the tests");
+
+            var accountKey = GetEnvironmentVariabe(StorageAccountKeyEnvironmentVariable,
+                "Please set " + StorageAccountKeyEnvironmentVariable +
+                " to the key of the storage account to be used for the tests");
+
+            var result = @"DefaultEndpointsProtocol=https;AccountName=" + accountName + ";AccountKey=" + accountKey;
+            return result;
+        }
+
+        /// <summary>
+        /// Fetchs the value of the given environment variable
+        /// </summary>
+        /// <param name="variableName"></param>
+        /// <param name="errorMessageIfNotAvailable"></param>
+        /// <returns>the value of the given environment variable</returns>
+        /// <exception cref="Exception">
+        /// If the environment variables is not set. The message is taken from
+        /// errorMessageIfNotAvailable
+        /// </exception>
+        private static string GetEnvironmentVariabe(string variableName, string errorMessageIfNotAvailable)
+        {
+            var result = Environment.GetEnvironmentVariable(variableName);
+            if (string.IsNullOrWhiteSpace(result))
+            {
+                Exceptions.Throw(new Exception(errorMessageIfNotAvailable), Logger);
+            }
+            return result;
+        }
+
     }
 }
