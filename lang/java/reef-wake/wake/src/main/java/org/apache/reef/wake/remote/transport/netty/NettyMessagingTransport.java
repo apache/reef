@@ -179,18 +179,18 @@ public class NettyMessagingTransport implements Transport {
     LOG.log(Level.FINE, "Starting netty transport socket address: {0}", this.localAddress);
   }
 
-    /**
-     * Constructs a messaging transport
-     *
-     * @param hostAddress   the server host address
-     * @param port          the server listening port; when it is 0, randomly assign a port number
-     * @param clientStage   the client-side stage that handles transport events
-     * @param serverStage   the server-side stage that handles transport events
-     * @param numberOfTries the number of tries of connection
-     * @param retryTimeout  the timeout of reconnection
-     * @deprecated use the constructor that takes a TcpProvider instead
-     */
-    @Deprecated
+  /**
+   * Constructs a messaging transport
+   *
+   * @param hostAddress   the server host address
+   * @param port          the server listening port; when it is 0, randomly assign a port number
+   * @param clientStage   the client-side stage that handles transport events
+   * @param serverStage   the server-side stage that handles transport events
+   * @param numberOfTries the number of tries of connection
+   * @param retryTimeout  the timeout of reconnection
+   * @deprecated use the constructor that takes a TcpProvider instead
+   */
+  @Deprecated
   public NettyMessagingTransport(final String hostAddress, int port,
                                  final EStage<TransportEvent> clientStage,
                                  final EStage<TransportEvent> serverStage,
