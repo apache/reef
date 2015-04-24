@@ -79,22 +79,21 @@ under the License.
 
         <menu name="Documentation">
             <item name="Introduction to REEF" href="introduction.html"/>
-            <item name="REEF Tutorial" href="tutorial.html"/>
-            <item name="Further REEF Examples" href="reef-examples.html"/>
+            <item name="REEF Tutorial" href="https://cwiki.apache.org/confluence/display/REEF/Tutorials"/>
             <item name="Glossary" href="glossary.html"/>
             <item name="Tang" href="tang.html"/>
             <item name="Wake" href="wake.html"/>
         </menu>
         <menu name="Contribution">
-            <item name="Contributing" href="contributing.html"/>
-            <item name="Committer Guide" href="committer-guide.html"/>
-            <item name="Coding Guidelines" href="coding-guideline.html"/>
+            <item name="Contributing" href="https://cwiki.apache.org/confluence/display/REEF/Contributing"/>
+            <item name="Committer Guide" href="https://cwiki.apache.org/confluence/display/REEF/Committer+Guide"/>
+            <item name="Coding Guidelines" href="https://cwiki.apache.org/confluence/display/REEF/Coding+Guidelines"/>
         </menu>
         <menu name="Community">
             <item name="Team" href="team.html"/>
             <item name="Mailing List" href="mailing-list.html"/>
-            <item name="Issue Tracker" href="issue-tracker.html"/>
-            <item name="Powered By" href="powered-by.html"/>
+            <item name="Issue Tracker" href="https://issues.apache.org/jira/browse/REEF"/>
+            <item name="Powered By" href="https://cwiki.apache.org/confluence/display/REEF/Powered+by+REEF"/>
         </menu>
         <menu name="ASF">
             <item name="Apache Software Foundation" href="http://www.apache.org/foundation/"/>
