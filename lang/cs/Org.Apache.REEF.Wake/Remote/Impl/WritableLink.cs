@@ -30,24 +30,28 @@ using Org.Apache.REEF.Wake.Util;
 namespace Org.Apache.REEF.Wake.Remote.Impl
 {
     /// <summary>
-    /// Represents an open connection between remote hosts
+    /// Represents an open connection between remote hosts. This class is not thread safe
     /// </summary>
     /// <typeparam name="T">Generic Type of message. It is constrained to have implemented IWritable and IType interface</typeparam>
-    public class SerializableLink<T> : ILink<T> where T : IWritable, IType
+    public class WritableLink<T> : ILink<T> where T : IWritable
     {
-        private static readonly Logger Logger = Logger.GetLogger(typeof (Link<T>));
+        private static readonly Logger Logger = Logger.GetLogger(typeof (WritableLink<T>));
 
         private readonly IPEndPoint _localEndpoint;
-        //private readonly Channel _channel;
         private bool _disposed;
         private readonly NetworkStream _stream;
+        
+        /// <summary>
+        /// Cache structure to store the constructor functions for various types.
+        /// </summary>
+        private readonly TypeCache<T> _cache; 
 
         /// <summary>
         /// Constructs a Link object.
         /// Connects to the specified remote endpoint.
         /// </summary>
         /// <param name="remoteEndpoint">The remote endpoint to connect to</param>
-        public SerializableLink(IPEndPoint remoteEndpoint)
+        public WritableLink(IPEndPoint remoteEndpoint)
         {
             if (remoteEndpoint == null)
             {
@@ -60,6 +64,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
             _stream = Client.GetStream();
             _localEndpoint = GetLocalEndpoint();
             _disposed = false;
+            _cache = new TypeCache<T>();
         }
 
         /// <summary>
@@ -67,7 +72,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         /// Uses the already connected TcpClient.
         /// </summary>
         /// <param name="client">The already connected client</param>
-        public SerializableLink(TcpClient client)
+        public WritableLink(TcpClient client)
         {
             if (client == null)
             {
@@ -78,6 +83,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
             _stream = Client.GetStream();
             _localEndpoint = GetLocalEndpoint();
             _disposed = false;
+            _cache = new TypeCache<T>();
         }
 
         /// <summary>
@@ -116,7 +122,8 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
                 Exceptions.Throw(new IllegalStateException("Link has been closed."), Logger);
             }
 
-            AuxillaryStreamingFunctions.StringToStream(value.ClassType.FullName, _stream);
+            
+            AuxillaryStreamingFunctions.StringToStream(value.GetType().AssemblyQualifiedName, _stream);
             value.Write(_stream);
         }
 
@@ -132,7 +139,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
                 Exceptions.Throw(new IllegalStateException("Link has been closed."), Logger);
             }
 
-            await AuxillaryStreamingFunctions.StringToStreamAsync(value.ClassType.FullName, _stream, token);
+            await AuxillaryStreamingFunctions.StringToStreamAsync(value.GetType().AssemblyQualifiedName, _stream, token);
             await value.WriteAsync(_stream, token);
         }
 
@@ -147,8 +154,19 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
             }
 
             string dataType = AuxillaryStreamingFunctions.StreamToString(_stream);
-            Type type = Type.GetType(dataType);
-            T value = (T)Activator.CreateInstance(type); 
+
+            if (dataType == null)
+            {
+                return default(T);
+            }
+
+            T value = _cache.GetInstance(dataType);
+
+            if (value == null)
+            {
+                return default(T);
+            }
+            
             value.Read(_stream);
             return value;
         }
@@ -173,14 +191,13 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
                 return default(T);
             }
 
-            Type type = Type.GetType(dataType);
+            T value = _cache.GetInstance(dataType);
 
-            if (type == null)
+            if(value==null)
             {
                 return default(T);
             }
 
-            T value = (T)Activator.CreateInstance(type);
             await value.ReadAsync(_stream, token);
             return value;
         }

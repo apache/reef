@@ -32,11 +32,15 @@ using Org.Apache.REEF.Wake.Util;
 
 namespace Org.Apache.REEF.Wake.Tests
 {
+    /// <summary>
+    /// Tests the WritableTransportServer, WritableTransportClient and WritableLink.
+    /// Basically the Wake transport layer.
+    /// </summary>
     [TestClass]
-    public class SerializableTransportTest
+    public class WritableTransportTest
     {
         [TestMethod]
-        public void TestSerializableTransportServer()
+        public void TestWritableTransportServer()
         {
             int port = NetworkUtils.GenerateRandomPort(6000, 7000);
 
@@ -46,12 +50,12 @@ namespace Org.Apache.REEF.Wake.Tests
             IPEndPoint endpoint = new IPEndPoint(IPAddress.Any, port);
             var remoteHandler = Observer.Create<TransportEvent<WritableString>>(tEvent => queue.Add(tEvent.Data));
 
-            using (var server = new SerializableTransportServer<WritableString>(endpoint, remoteHandler))
+            using (var server = new WritableTransportServer<WritableString>(endpoint, remoteHandler))
             {
                 server.Run();
 
                 IPEndPoint remoteEndpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), port);
-                using (var client = new SerializableTransportClient<WritableString>(remoteEndpoint))
+                using (var client = new WritableTransportClient<WritableString>(remoteEndpoint))
                 {
                     client.Send(new WritableString("Hello"));
                     client.Send(new WritableString(", "));
@@ -64,10 +68,13 @@ namespace Org.Apache.REEF.Wake.Tests
             }
 
             Assert.AreEqual(3, events.Count);
+            Assert.AreEqual(events[0], "Hello");
+            Assert.AreEqual(events[1], ", ");
+            Assert.AreEqual(events[2], "World!");
         }
 
         [TestMethod]
-        public void TestSerializableTransportServerEvent()
+        public void TestWritableTransportServerEvent()
         {
             int port = NetworkUtils.GenerateRandomPort(6000, 7000);
 
@@ -77,12 +84,12 @@ namespace Org.Apache.REEF.Wake.Tests
             IPEndPoint endpoint = new IPEndPoint(IPAddress.Any, port);
             var remoteHandler = Observer.Create<TransportEvent<TestEvent>>(tEvent => queue.Add(tEvent.Data));
 
-            using (var server = new SerializableTransportServer<TestEvent>(endpoint, remoteHandler))
+            using (var server = new WritableTransportServer<TestEvent>(endpoint, remoteHandler))
             {
                 server.Run();
 
                 IPEndPoint remoteEndpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), port);
-                using (var client = new SerializableTransportClient<TestEvent>(remoteEndpoint))
+                using (var client = new WritableTransportClient<TestEvent>(remoteEndpoint))
                 {
                     client.Send(new TestEvent("Hello"));
                     client.Send(new TestEvent(", "));
@@ -95,10 +102,13 @@ namespace Org.Apache.REEF.Wake.Tests
             }
 
             Assert.AreEqual(3, events.Count);
+            Assert.AreEqual(events[0].Message, "Hello");
+            Assert.AreEqual(events[1].Message, ", ");
+            Assert.AreEqual(events[2].Message, "World!");
         }
 
         [TestMethod]
-        public void TestSerializableTransportSenderStage()
+        public void TestWritableTransportSenderStage()
         {
             int port = NetworkUtils.GenerateRandomPort(6000, 7000);
             IPEndPoint endpoint = new IPEndPoint(IPAddress.Any, port);
@@ -109,13 +119,13 @@ namespace Org.Apache.REEF.Wake.Tests
             // Server echoes the message back to the client
             var remoteHandler = Observer.Create<TransportEvent<WritableString>>(tEvent => tEvent.Link.Write(tEvent.Data));
 
-            using (SerializableTransportServer<WritableString> server = new SerializableTransportServer<WritableString>(endpoint, remoteHandler))
+            using (WritableTransportServer<WritableString> server = new WritableTransportServer<WritableString>(endpoint, remoteHandler))
             {
                 server.Run();
 
                 var clientHandler = Observer.Create<TransportEvent<WritableString>>(tEvent => queue.Add(tEvent.Data));
                 IPEndPoint remoteEndpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), port);
-                using (var client = new SerializableTransportClient<WritableString>(remoteEndpoint, clientHandler))
+                using (var client = new WritableTransportClient<WritableString>(remoteEndpoint, clientHandler))
                 {
                     client.Send(new WritableString("Hello"));
                     client.Send(new WritableString(", "));
@@ -128,10 +138,13 @@ namespace Org.Apache.REEF.Wake.Tests
             }
 
             Assert.AreEqual(3, events.Count);
+            Assert.AreEqual(events[0], "Hello");
+            Assert.AreEqual(events[1], ", ");
+            Assert.AreEqual(events[2], " World");
         }
 
         [TestMethod]
-        public void TestSerializableRaceCondition()
+        public void TestWritableRaceCondition()
         {
             int port = NetworkUtils.GenerateRandomPort(6000, 7000);
 
@@ -142,7 +155,7 @@ namespace Org.Apache.REEF.Wake.Tests
             IPEndPoint endpoint = new IPEndPoint(IPAddress.Any, port);
             var remoteHandler = Observer.Create<TransportEvent<WritableString>>(tEvent => queue.Add(tEvent.Data));
 
-            using (var server = new SerializableTransportServer<WritableString>(endpoint, remoteHandler))
+            using (var server = new WritableTransportServer<WritableString>(endpoint, remoteHandler))
             {
                 server.Run();
 
@@ -151,7 +164,7 @@ namespace Org.Apache.REEF.Wake.Tests
                     Task.Run(() =>
                     {
                         IPEndPoint remoteEndpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), port);
-                        using (var client = new SerializableTransportClient<WritableString>(remoteEndpoint))
+                        using (var client = new WritableTransportClient<WritableString>(remoteEndpoint))
                         {
                             client.Send(new WritableString("Hello"));
                             client.Send(new WritableString(", "));
@@ -167,6 +180,7 @@ namespace Org.Apache.REEF.Wake.Tests
             }
 
             Assert.AreEqual(numEventsExpected, events.Count);
+
         }
     }
 }

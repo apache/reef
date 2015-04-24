@@ -31,7 +31,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
     /// Server to handle incoming remote messages.
     /// </summary>
     /// <typeparam name="T">Generic Type of message. It is constrained to have implemented IWritable and IType interface</typeparam>
-    public class SerializableTransportServer<T> : IDisposable where T : IWritable, IType
+    public class WritableTransportServer<T> : IDisposable where T : IWritable
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof (TransportServer<>));
 
@@ -49,7 +49,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         /// <param name="port">Port to listen on</param>
         /// <param name="remoteHandler">The handler to invoke when receiving incoming
         /// remote messages</param>
-        public SerializableTransportServer(int port, IObserver<TransportEvent<T>> remoteHandler)
+        public WritableTransportServer(int port, IObserver<TransportEvent<T>> remoteHandler)
             : this(new IPEndPoint(NetworkUtils.LocalIPAddress, port), remoteHandler)
         {
         }
@@ -62,7 +62,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         /// <param name="localEndpoint">Endpoint to listen on</param>
         /// <param name="remoteHandler">The handler to invoke when receiving incoming
         /// remote messages</param>
-        public SerializableTransportServer(IPEndPoint localEndpoint,
+        public WritableTransportServer(IPEndPoint localEndpoint,
             IObserver<TransportEvent<T>> remoteHandler)
         {
             _listener = new TcpListener(localEndpoint.Address, localEndpoint.Port);
@@ -170,7 +170,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         {
             // Keep reading messages from client until they disconnect or timeout
             CancellationToken token = _cancellationSource.Token;
-            using (ILink<T> link = new SerializableLink<T>(client))
+            using (ILink<T> link = new WritableLink<T>(client))
             {
                 while (!token.IsCancellationRequested)
                 {

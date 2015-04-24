@@ -18,8 +18,14 @@ namespace Org.Apache.REEF.Wake.Remote
         /// <param name="buffer">byte buffer to read in to</param>
         /// <param name="offset">offset in the buffer where we should start writing</param>
         /// <returns>The number of bytes read if success otherwise -1</returns>
-        internal static int ReadBytes(Stream stream, int bytesToRead, byte[] buffer, int offset = 0)
+        internal static int ReadBytes(Stream stream, int bytesToRead, ref byte[] buffer, int offset = 0)
         {
+            //buffer = new byte[bytesToRead];
+            if (buffer == null || buffer.Length < bytesToRead)
+            {
+                buffer = new byte[bytesToRead];
+            }
+
             int totalBytesRead = 0;
             while (totalBytesRead < bytesToRead)
             {
@@ -33,7 +39,7 @@ namespace Org.Apache.REEF.Wake.Remote
                 totalBytesRead += bytesRead;
             }
 
-            return bytesToRead;
+            return totalBytesRead;
         }
 
         /// <summary>
@@ -81,7 +87,7 @@ namespace Org.Apache.REEF.Wake.Remote
         public static int? StreamToInt(Stream stream)
         {
             byte[] intBytes = new byte[sizeof(int)];
-            int readBytes = ReadBytes(stream, sizeof (int), intBytes);
+            int readBytes = ReadBytes(stream, sizeof (int), ref intBytes);
 
             if (readBytes == -1)
             {
@@ -108,7 +114,7 @@ namespace Org.Apache.REEF.Wake.Remote
         public static long? StreamToLong(Stream stream)
         {
             byte[] longBytes = new byte[sizeof(long)];
-            int readBytes = ReadBytes(stream, sizeof(long), longBytes);
+            int readBytes = ReadBytes(stream, sizeof(long), ref longBytes);
 
             if (readBytes == -1)
             {
@@ -148,7 +154,7 @@ namespace Org.Apache.REEF.Wake.Remote
 
             int length = stringLength.Value;
             byte[] stringByte = new byte[length];
-            int readBytes = ReadBytes(stream, stringByte.Length, stringByte);
+            int readBytes = ReadBytes(stream, stringByte.Length, ref stringByte);
 
             if (readBytes == -1)
             {
@@ -169,7 +175,7 @@ namespace Org.Apache.REEF.Wake.Remote
         /// <param name="token">the cancellation token</param>
         public static async Task IntToStreamAsync(int obj, Stream stream, CancellationToken token)
         {
-            await stream.WriteAsync(BitConverter.GetBytes(obj), 0, sizeof (int), token);
+            await stream.WriteAsync(BitConverter.GetBytes(obj), 0, sizeof(int), token);
         }
 
         /// <summary>

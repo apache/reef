@@ -1,21 +1,19 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using Org.Apache.REEF.Wake.Remote;
 
-namespace Org.Apache.REEF.Wake.Remote.Impl
+namespace Org.Apache.REEF.Wake.Tests
 {
-    public class TestEvent : IWritable, IType
+    public class TestEvent : IWritable
     {
         public TestEvent()
         {
-            ClassType = this.GetType();
         }
 
         public TestEvent(string message)
         {
             Message = message;
-            ClassType = this.GetType();
         }
 
         public string Message { get; set; }
@@ -50,7 +48,5 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
             WritableString stringClass = new WritableString(Message);
             await stringClass.WriteAsync(stream, token);
         }
-
-        public Type ClassType { get; set; }
     }
 }

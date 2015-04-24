@@ -2,13 +2,14 @@
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using Org.Apache.REEF.Wake.Remote;
 
-namespace Org.Apache.REEF.Wake.Remote.Impl
+namespace Org.Apache.REEF.Wake.Tests
 {
     /// <summary>
     /// Writable and Type wrapper around the string class
     /// </summary>
-    public class WritableString : IWritable, IType
+    public class WritableString : IWritable
     {
         /// <summary>
         /// Returns the actual string data
@@ -20,7 +21,6 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         /// </summary>
         public WritableString()
         {
-            ClassType = GetType();
         }
 
         /// <summary>
@@ -30,7 +30,6 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         public WritableString(string data)
         {
             Data = data;
-            ClassType = GetType();
         }
 
         /// <summary>
@@ -72,10 +71,5 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         {
             await AuxillaryStreamingFunctions.StringToStreamAsync(Data, stream, token);
         }
-
-        /// <summary>
-        /// The class type property from IType
-        /// </summary>
-        public Type ClassType { get; set; }
     }
 }
