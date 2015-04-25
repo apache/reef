@@ -146,9 +146,9 @@ public final class SchedulerDriver {
   }
 
   /**
-   * Non-retainable version of CompletedTaskHandler.
-   * When Task completes, it closes the active context to deallocate the evaluator
-   * and if there is outstanding commands, allocate another evaluator.
+   * When a Task completes, the task is marked as finished.
+   * The evaluator is reused for the next Task if retainable is set to {@code true}.
+   * Otherwise the evaluator is released.
    */
   final class CompletedTaskHandler implements EventHandler<CompletedTask> {
     @Override
