@@ -26,8 +26,7 @@ import org.junit.runners.Suite;
  */
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-    TestHelloREEF.class,
-    TestRetainedEvaluators.class
+    TestHelloREEF.class
 })
 public final class ExamplesTestSuite {
 }
