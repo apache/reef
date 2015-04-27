@@ -61,10 +61,14 @@ public class DefaultRemoteManagerImplementation implements RemoteManager {
   private final HandlerContainer handlerContainer;
   private final RemoteSeqNumGenerator seqGen = new RemoteSeqNumGenerator();
   private RemoteIdentifier myIdentifier;
+  /**
+   * Indicates a hostname that isn't set or known.
+   */
+  public static final String UNKNOWN_HOST_NAME = "##UNKNOWN##";
 
 
   /**
-   * @deprecated have an instance injected instead.
+   * @deprecated have an instance injected instead. Or use RemoteManagerFactory.getInstance()
    */
   @Deprecated
   public <T> DefaultRemoteManagerImplementation(
@@ -113,7 +117,7 @@ public class DefaultRemoteManagerImplementation implements RemoteManager {
         new OrderedRemoteReceiverStage(this.handlerContainer, errorHandler) :
         new RemoteReceiverStage(this.handlerContainer, errorHandler, 10);
 
-    final String host = "##UNKNOWN##".equals(hostAddress) ? localAddressProvider.getLocalAddress() : hostAddress;
+    final String host = UNKNOWN_HOST_NAME.equals(hostAddress) ? localAddressProvider.getLocalAddress() : hostAddress;
     this.transport = new NettyMessagingTransport(
             host, listeningPort, this.reRecvStage, this.reRecvStage, numberOfTries, retryTimeout, tcpPortProvider);
 
