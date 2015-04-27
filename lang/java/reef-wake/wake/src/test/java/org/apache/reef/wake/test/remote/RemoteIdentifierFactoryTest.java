@@ -18,17 +18,16 @@
  */
 package org.apache.reef.wake.test.remote;
 
-import org.apache.reef.tang.Injector;
 import org.apache.reef.tang.Tang;
 import org.apache.reef.wake.Identifier;
 import org.apache.reef.wake.IdentifierFactory;
 import org.apache.reef.wake.impl.DefaultIdentifierFactory;
 import org.apache.reef.wake.impl.LoggingEventHandler;
-import org.apache.reef.wake.remote.*;
-import org.apache.reef.wake.remote.address.LocalAddressProvider;
-import org.apache.reef.wake.remote.impl.DefaultRemoteManagerImplementation;
+import org.apache.reef.wake.remote.Codec;
+import org.apache.reef.wake.remote.RemoteIdentifier;
+import org.apache.reef.wake.remote.RemoteManager;
+import org.apache.reef.wake.remote.RemoteManagerFactory;
 import org.apache.reef.wake.remote.impl.MultiCodec;
-import org.apache.reef.wake.remote.ports.RangeTcpPortProvider;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
@@ -60,8 +59,8 @@ public class RemoteIdentifierFactoryTest {
 
   @Test
   public void testRemoteManagerIdentifier() throws Exception {
-    final Injector injector = Tang.Factory.getTang().newInjector();
-    final LocalAddressProvider localAddressProvider = injector.getInstance(LocalAddressProvider.class);
+    final RemoteManagerFactory remoteManagerFactory = Tang.Factory.getTang().newInjector()
+        .getInstance(RemoteManagerFactory.class);
 
     final int port = 9100;
     final Map<Class<?>, Codec<?>> clazzToCodecMap = new HashMap<Class<?>, Codec<?>>();
@@ -69,9 +68,8 @@ public class RemoteIdentifierFactoryTest {
     final Codec<?> codec = new MultiCodec<Object>(clazzToCodecMap);
 
 
-    try (final RemoteManager rm = new DefaultRemoteManagerImplementation("TestRemoteManager",
-        localAddressProvider.getLocalAddress(), port, codec, new LoggingEventHandler<Throwable>(), false, 1, 10000,
-        localAddressProvider, RangeTcpPortProvider.Default)) {
+    try (final RemoteManager rm =
+             remoteManagerFactory.getInstance("TestRemoteManager", port, codec, new LoggingEventHandler<Throwable>())) {
       final RemoteIdentifier id = rm.getMyIdentifier();
 
       final IdentifierFactory factory = new DefaultIdentifierFactory();

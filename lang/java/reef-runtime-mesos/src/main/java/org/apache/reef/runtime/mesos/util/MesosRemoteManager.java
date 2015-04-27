@@ -19,12 +19,10 @@
 package org.apache.reef.runtime.mesos.util;
 
 import org.apache.reef.wake.EventHandler;
-import org.apache.reef.wake.remote.address.LocalAddressProvider;
 import org.apache.reef.wake.remote.RemoteIdentifierFactory;
 import org.apache.reef.wake.remote.RemoteManager;
+import org.apache.reef.wake.remote.RemoteManagerFactory;
 import org.apache.reef.wake.remote.RemoteMessage;
-import org.apache.reef.wake.remote.impl.DefaultRemoteManagerImplementation;
-import org.apache.reef.wake.remote.ports.RangeTcpPortProvider;
 
 import javax.inject.Inject;
 
@@ -41,10 +39,11 @@ public final class MesosRemoteManager {
   MesosRemoteManager(final RemoteIdentifierFactory factory,
                      final MesosErrorHandler mesosErrorHandler,
                      final MesosRemoteManagerCodec codec,
-                     final LocalAddressProvider localAddressProvider) {
+                     final RemoteManagerFactory remoteManagerFactory) {
     this.factory = factory;
-    this.raw = new DefaultRemoteManagerImplementation("MESOS_EXECUTOR", "##UNKNOWN##", 0,
-        codec, mesosErrorHandler, false, 3, 10000, localAddressProvider, RangeTcpPortProvider.Default);
+    this.raw = remoteManagerFactory.getInstance("MESOS_EXECUTOR", codec, mesosErrorHandler);
+
+
   }
 
   public <T> EventHandler<T> getHandler(
