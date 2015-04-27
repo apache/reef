@@ -23,7 +23,7 @@ namespace Org.Apache.REEF.Wake.Tests
             return "TestEvent: " + Message;
         }
 
-        public void Read(Stream stream, params object[] optionalParameters)
+        public void Read(Stream stream)
         {
             WritableString stringClass = new WritableString();
             stringClass.Read(stream);
@@ -36,7 +36,7 @@ namespace Org.Apache.REEF.Wake.Tests
             stringClass.Write(stream);
         }
 
-        public async Task ReadAsync(Stream stream, CancellationToken token, params object[] optionalParameters)
+        public async Task ReadAsync(Stream stream, CancellationToken token)
         {
             WritableString stringClass = new WritableString();
             await stringClass.ReadAsync(stream, token);

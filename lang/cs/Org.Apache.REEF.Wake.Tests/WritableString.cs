@@ -37,7 +37,7 @@ namespace Org.Apache.REEF.Wake.Tests
         /// </summary>
         /// <param name="stream">stream from which reading is done</param>
         /// <param name="optionalParameters"></param>
-        public void Read(Stream stream, params object[] optionalParameters)
+        public void Read(Stream stream)
         {
             Data = AuxillaryStreamingFunctions.StreamToString(stream);
         }
@@ -57,7 +57,7 @@ namespace Org.Apache.REEF.Wake.Tests
         /// <param name="stream">stream from which reading is done</param>
         /// <param name="token">the cancellation token</param>
         /// <param name="optionalParameters"></param>
-        public async Task ReadAsync(Stream stream, CancellationToken token, params object[] optionalParameters)
+        public async Task ReadAsync(Stream stream, CancellationToken token)
         {
             Data = await AuxillaryStreamingFunctions.StreamToStringAsync(stream, token);
         }

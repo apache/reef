@@ -17,7 +17,7 @@ namespace Org.Apache.REEF.Wake.Remote
         /// <param name="stream">The stream from which to read</param>
         /// <param name="optionalParameters">The optional parameters to be passed to the reader.
         /// For example IIdentifierFactory for NsMessage</param>
-        void Read(Stream stream, params object[] optionalParameters);
+        void Read(Stream stream);
 
         /// <summary>
         /// Writes the class fields to the stream.
@@ -32,7 +32,7 @@ namespace Org.Apache.REEF.Wake.Remote
         /// <param name="token">The cancellation token</param>
         /// <param name="optionalParameters">The optional parameters to be passed to the reader.
         /// For example IIdentifierFactory for NsMessage</param>
-        Task ReadAsync(Stream stream, CancellationToken token, params object[] optionalParameters);
+        Task ReadAsync(Stream stream, CancellationToken token);
 
         /// <summary>
         /// Writes the class fields to the stream.
