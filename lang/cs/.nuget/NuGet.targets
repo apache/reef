@@ -80,7 +80,7 @@ under the License.
         <PaddedSolutionDir Condition=" '$(OS)' != 'Windows_NT' ">"$(SolutionDir)"</PaddedSolutionDir>
 
         <!-- Nuspec file -->
-        <FinalizedNuspecFile>$(SolutionDir)\.nuget\nuspec\$(AssemblyName).nuspec</FinalizedNuspecFile>
+        <FinalizedNuspecFile>$(SolutionDir)\$(AssemblyName)\$(AssemblyName).nuspec</FinalizedNuspecFile>
 
         <!-- Project path -->
         <NugetProjectPath>$(SolutionDir)\$(RootNamespace)</NugetProjectPath>
@@ -141,9 +141,9 @@ under the License.
               Condition="'$(OS)' == 'Windows_NT' And Exists('$(PackagesConfig)')" />
     </Target>
 
-    <Target Name="BuildPackage" DependsOnTargets="ExtractPOMVersion; CheckPrerequisites; FinalizeNuspecFiles">
+    <Target Name="BuildPackage" DependsOnTargets="ExtractPOMVersion; CheckPrerequisites">
         <PropertyGroup>
-            <BuildCommand>$(NuGetCommand) pack "$(FinalizedNuspecFile)" -BasePath $(NugetProjectPath) -Properties "Configuration=$(Configuration);Platform=$(Platform);REEF_Version=$(REEF_Version)" $(NonInteractiveSwitch) -OutputDirectory "$(PackageOutputDir)" </BuildCommand>
+            <BuildCommand>$(NuGetCommand) pack "$(FinalizedNuspecFile)" -BasePath $(NugetProjectPath) -Properties "Configuration=$(Configuration);Platform=$(Platform);REEF_Version=$(REEF_Version);Version=$(REEF_NugetVersion)" $(NonInteractiveSwitch) -OutputDirectory "$(PackageOutputDir)" </BuildCommand>
         </PropertyGroup>
 
         <Exec Command="$(BuildCommand)"
@@ -152,18 +152,6 @@ under the License.
         <Exec Command="$(BuildCommand)"
               LogStandardErrorAsError="true"
               Condition=" '$(OS)' == 'Windows_NT' " />
-    </Target>
-
-    <Target Name="FinalizeNuspecFiles">
-        <PropertyGroup>
-            <FinalizeNuspecScript>$(SolutionDir)\.nuget\finalizeNuspec.ps1</FinalizeNuspecScript>
-            <ScriptCommand Condition="'$(IsSnapshot)' == 'true'">$(FinalizeNuspecScript) -SolutionDir $(SolutionDir) -Snapshot -SnapshotNumber $(SnapshotNumber)</ScriptCommand>
-            <ScriptCommand Condition="'$(IsSnapshot)' == 'false'">$(FinalizeNuspecScript) -SolutionDir $(SolutionDir)</ScriptCommand>
-        </PropertyGroup>
-
-        <Exec Command="powershell -NonInteractive -NoProfile -Command $(ScriptCommand)"
-            LogStandardErrorAsError="true">
-        </Exec>
     </Target>
 
     <Target Name="CleanNugetPackages">
@@ -190,11 +178,11 @@ under the License.
 
     <Target Name="PushPackages" >
         <ItemGroup>
-            <PackageFile Include="$(SolutionDir2).nuget\packages\$(RootNamespace).$(REEF_NugetVersion)$(SnapshotNumber).nupkg" />
+            <PackageFile Include="$(SolutionDir2).nuget\packages\$(RootNamespace).$(REEF_NugetVersion).nupkg" />
         </ItemGroup>
 
         <PropertyGroup>
-           <PushCommand Condition="'$(NuGetApiKey)' == '' OR '$(NuGetApiKey)' == '*Undefined*'">$(NuGetCommand) push @(PackageFile) -Source $(NuGetRepository)</PushCommand>
+            <PushCommand Condition="'$(NuGetApiKey)' == '' OR '$(NuGetApiKey)' == '*Undefined*'">$(NuGetCommand) push @(PackageFile) -Source $(NuGetRepository)</PushCommand>
             <PushCommand Condition="'$(NuGetApiKey)' != '' AND '$(NuGetApiKey)' != '*Undefined*'">$(NuGetCommand) push @(PackageFile) $(NuGetApiKey) -Source $(NuGetRepository)</PushCommand>
 
         </PropertyGroup>
