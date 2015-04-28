@@ -35,7 +35,7 @@ namespace Org.Apache.REEF.Tests.Evaluator
 
             Assert.IsTrue(evaluatorConfigurations.ApplicationId.Equals("REEF_LOCAL_RUNTIME"));
 
-            string rootContextConfigString = evaluatorConfigurations.RootContextConfiguration;
+            string rootContextConfigString = evaluatorConfigurations.RootContextConfigurationString;
             Assert.IsFalse(string.IsNullOrWhiteSpace(rootContextConfigString));
         }
     }

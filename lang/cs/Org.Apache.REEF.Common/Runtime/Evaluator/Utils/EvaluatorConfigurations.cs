@@ -1,4 +1,4 @@
-﻿/**
+﻿/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -20,8 +20,12 @@
 using System;
 using System.IO;
 using System.Linq;
+using Org.Apache.REEF.Common.Runtime.Evaluator.Context;
+using Org.Apache.REEF.Common.Services;
+using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Formats.AvroConfigurationDataContract;
+using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Common.Runtime.Evaluator.Utils
@@ -62,7 +66,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Utils
             }
         }
 
-        public string TaskConfiguration
+        public string TaskConfigurationString
         {
             get
             {
@@ -70,6 +74,21 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Utils
                 return _taskConfiguration;
             }
         }
+
+        /// <summary>
+        /// The TaskConfiguration submitted with the evaluator configuration, if any.
+        /// </summary>
+        public Optional<TaskConfiguration> TaskConfiguration
+        {
+            get
+            {
+                var taskConfig = TaskConfigurationString;
+                return string.IsNullOrEmpty(taskConfig)
+                    ? Optional<TaskConfiguration>.Empty()
+                    : Optional<TaskConfiguration>.Of(
+                        new TaskConfiguration(taskConfig));
+            }
+        } 
 
         public string EvaluatorId
         {
@@ -89,7 +108,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Utils
             }
         }
 
-        public string RootContextConfiguration
+        public string RootContextConfigurationString
         {
             get
             {
@@ -97,8 +116,25 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Utils
                 return _rootContextConfiguration;
             }
         }
+        /// <summary>
+        /// The ContextConfiguration for the root context.
+        /// </summary>
+        /// <exception cref="ArgumentException">If the underlying string parameter isn't set.</exception>
+        public ContextConfiguration RootContextConfiguration
+        {
+            get
+            {
+                string rootContextConfigString = RootContextConfigurationString;
+                if (string.IsNullOrWhiteSpace(rootContextConfigString))
+                {
+                    Utilities.Diagnostics.Exceptions.Throw(
+                        new ArgumentException("empty or null rootContextConfigString"), LOGGER);
+                }
+                return new ContextConfiguration(rootContextConfigString);
+            }
+        }
 
-        public string RootServiceConfiguration
+        public string RootServiceConfigurationString
         {
             get
             {
@@ -106,6 +142,23 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Utils
                 return _rootServiceConfiguration;
             }
         }
+
+        /// <summary>
+        /// The ServiceConfiguration for the root context.
+        /// </summary>
+        /// <exception cref="ArgumentException">If the underlying string parameter isn't set.</exception>
+        public Optional<ServiceConfiguration> RootServiceConfiguration
+        {
+            get
+            {
+                var rootServiceConfigString = RootServiceConfigurationString;
+                return string.IsNullOrEmpty(rootServiceConfigString)
+                    ? Optional<ServiceConfiguration>.Empty()
+                    : Optional<ServiceConfiguration>.Of(
+                        new ServiceConfiguration(
+                            rootServiceConfigString));
+            }
+        } 
 
         private string GetSettingValue(string settingKey)
         {
