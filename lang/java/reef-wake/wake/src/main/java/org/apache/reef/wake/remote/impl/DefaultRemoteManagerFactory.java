@@ -64,7 +64,7 @@ public class DefaultRemoteManagerFactory implements RemoteManagerFactory {
   public RemoteManager getInstance(final String name) {
     return new DefaultRemoteManagerImplementation(name,
         DefaultRemoteManagerImplementation.UNKNOWN_HOST_NAME, // Indicate to use the localAddressProvider
-        -1, // Indicate to use the tcpPortProvider
+        0, // Indicate to use the tcpPortProvider
         this.codec,
         this.errorHandler,
         this.orderingGuarantee,
@@ -124,7 +124,7 @@ public class DefaultRemoteManagerFactory implements RemoteManagerFactory {
   public <T> RemoteManager getInstance(String name, Codec<T> codec, EventHandler<Throwable> errorHandler) {
     return new DefaultRemoteManagerImplementation(name,
         DefaultRemoteManagerImplementation.UNKNOWN_HOST_NAME, // Indicate to use the localAddressProvider
-        -1, // Indicate to use the tcpPortProvider,
+        0, // Indicate to use the tcpPortProvider,
         codec,
         errorHandler,
         this.orderingGuarantee,
