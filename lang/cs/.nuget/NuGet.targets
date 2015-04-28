@@ -80,7 +80,6 @@ under the License.
         <PaddedSolutionDir Condition=" '$(OS)' != 'Windows_NT' ">"$(SolutionDir)"</PaddedSolutionDir>
 
         <!-- Nuspec file -->
-<!--        <FinalizedNuspecFile>$(SolutionDir)\.nuget\nuspec\$(AssemblyName).nuspec</FinalizedNuspecFile>  -->
         <FinalizedNuspecFile>$(SolutionDir)\$(AssemblyName)\$(AssemblyName).nuspec</FinalizedNuspecFile>
 
         <!-- Project path -->
@@ -154,18 +153,6 @@ under the License.
               LogStandardErrorAsError="true"
               Condition=" '$(OS)' == 'Windows_NT' " />
     </Target>
-
-    <!--<Target Name="FinalizeNuspecFiles">
-        <PropertyGroup>
-            <FinalizeNuspecScript>$(SolutionDir)\.nuget\finalizeNuspec.ps1</FinalizeNuspecScript>
-            <ScriptCommand Condition="'$(IsSnapshot)' == 'true'">$(FinalizeNuspecScript) -SolutionDir $(SolutionDir) -Snapshot -SnapshotNumber $(SnapshotNumber)</ScriptCommand>
-            <ScriptCommand Condition="'$(IsSnapshot)' == 'false'">$(FinalizeNuspecScript) -SolutionDir $(SolutionDir)</ScriptCommand>
-        </PropertyGroup>
-
-        <Exec Command="powershell -NonInteractive -NoProfile -Command $(ScriptCommand)"
-            LogStandardErrorAsError="true">
-        </Exec>
-    </Target> -->
 
     <Target Name="CleanNugetPackages">
         <PropertyGroup>
