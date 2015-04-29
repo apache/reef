@@ -23,11 +23,12 @@ under the License.
     <parent>
         <groupId>org.apache.reef</groupId>
         <artifactId>reef-project</artifactId>
-        <version>0.11.0-incubating</version>
+        <version> 0.12.0-incubating-SNAPSHOT</version>
         <relativePath>../../..</relativePath>
     </parent>
 
     <artifactId>reef-runtime-local</artifactId>
+  <version>0.12.0-incubating-SNAPSHOT</version>
     <name>REEF Runtime Local</name>
     <description>A local implementation of REEF that uses local JVMs for execution.</description>
 

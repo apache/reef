@@ -22,11 +22,12 @@ under the License.
     <packaging>pom</packaging>
     <name>REEF Tang Project</name>
     <artifactId>tang-project</artifactId>
+  <version>0.12.0-incubating-SNAPSHOT</version>
 
     <parent>
         <groupId>org.apache.reef</groupId>
         <artifactId>reef-project</artifactId>
-        <version>0.11.0-incubating</version>
+        <version> 0.12.0-incubating-SNAPSHOT</version>
         <relativePath>../../..</relativePath>
     </parent>
 

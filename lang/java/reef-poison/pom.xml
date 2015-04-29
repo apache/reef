@@ -22,11 +22,12 @@ under the License.
     <parent>
         <groupId>org.apache.reef</groupId>
         <artifactId>reef-project</artifactId>
-        <version>0.11.0-incubating</version>
+        <version> 0.12.0-incubating-SNAPSHOT</version>
         <relativePath>../../..</relativePath>
     </parent>
 
     <artifactId>reef-poison</artifactId>
+  <version>0.12.0-incubating-SNAPSHOT</version>
     <name>REEF Poison</name>
     <description>Fault injection for REEF</description>
 

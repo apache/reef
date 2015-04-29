@@ -22,11 +22,12 @@ under the License.
     <parent>
         <groupId>org.apache.reef</groupId>
         <artifactId>reef-project</artifactId>
-        <version>0.11.0-incubating</version>
+        <version> 0.12.0-incubating-SNAPSHOT</version>
         <relativePath>../../..</relativePath>
     </parent>
 
     <artifactId>reef-utils-hadoop</artifactId>
+  <version>0.12.0-incubating-SNAPSHOT</version>
     <name>REEF Utils for Hadoop</name>
     <description>Utilities for using REEF on Hadoop.</description>
 
