@@ -53,7 +53,7 @@ under the License.
   <!-- REEF NuGet properties -->
   <PropertyGroup>
     <RemoveIncubating>true</RemoveIncubating>
-    <IsSnapshot>true</IsSnapshot>
+    <IsSnapshot>false</IsSnapshot>
     <SnapshotNumber>92</SnapshotNumber>
     <PushPackages>false</PushPackages>
     <NuGetRepository>https://www.nuget.org</NuGetRepository>
