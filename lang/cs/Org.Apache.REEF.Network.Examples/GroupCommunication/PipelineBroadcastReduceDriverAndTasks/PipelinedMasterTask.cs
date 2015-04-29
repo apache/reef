@@ -19,6 +19,7 @@
 
 using System;
 using System.Linq;
+using System.Diagnostics;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Network.Group.Operators;
 using Org.Apache.REEF.Network.Group.Task;
@@ -63,6 +64,10 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.PipelineBroadcastR
         {
             int[] intArr = new int[_arraySize];
 
+            Stopwatch watch1 = new Stopwatch();
+            Stopwatch watch2 = new Stopwatch();
+
+
             for (int i = 1; i <= _numIters; i++)
             {
                 for (int j = 0; j < _arraySize; j++)
@@ -70,10 +75,27 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.PipelineBroadcastR
                     intArr[j] = i;
                 }
 
+                if (i > 0)
+                {
+                    watch1.Start();
+                }
                 _broadcastSender.Send(intArr);
-                int[] sum = _sumReducer.Reduce();
+                if (i > 0)
+                {
+                    watch1.Stop();
+                }
 
-                Logger.Log(Level.Info, "Received sum: {0} on iteration: {1}", sum, i);
+                if (i > 0)
+                {
+                    watch2.Start();
+                }
+                int[] sum = _sumReducer.Reduce();
+                if (i > 0)
+                {
+                    watch2.Stop();
+                }
+
+                Logger.Log(Level.Info, "Received sum: {0} on iteration: {1} with array length: {2}", sum[0], i, sum.Length);
 
                 int expected = TriangleNumber(i) * _numReduceSenders;
 
@@ -85,6 +107,8 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.PipelineBroadcastR
                     }
                 }
             }
+
+            Logger.Log(Level.Info, "$$$$$$$$$$$ timings are {0} {1}", watch1.ElapsedMilliseconds / 1000.0, watch2.ElapsedMilliseconds / 1000.0);
 
             return null;
         }

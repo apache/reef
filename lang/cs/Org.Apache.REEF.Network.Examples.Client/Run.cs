@@ -29,28 +29,30 @@ namespace Org.Apache.REEF.Network.Examples.Client
             Console.WriteLine("start running client: " + DateTime.Now);
             bool runOnYarn = false;
             List<string> testToRun = new List<string>();
+            int numTasks = Convert.ToInt32(args[0]);
+            
             if (args != null)
             {
-                if (args.Length > 0)
+                if (args.Length > 1)
                 {
-                    runOnYarn = bool.Parse(args[0].ToLower());
+                    runOnYarn = bool.Parse(args[1].ToLower());
                 }
 
-                for (int i = 1; i < args.Length; i++)
+                for (int i = 2; i < args.Length; i++)
                 {
                     testToRun.Add(args[i].ToLower());
                 }
             }
 
-            if (testToRun.Contains("RunPipelineBroadcastAndReduce".ToLower()) || testToRun.Contains("all") || testToRun.Count == 0)
+            if (testToRun.Contains("c".ToLower()) || testToRun.Contains("all") || testToRun.Count == 0)
             {
-                new PipelineBroadcastAndReduceClient().RunPipelineBroadcastAndReduce(runOnYarn, 9);
+                new PipelineBroadcastAndReduceClient().RunPipelineBroadcastAndReduce(runOnYarn, numTasks);
                 Console.WriteLine("RunPipelineBroadcastAndReduce completed!!!");
             }
 
             if (testToRun.Contains("RunBroadcastAndReduce".ToLower()) || testToRun.Contains("all") || testToRun.Count == 0)
             {
-                new BroadcastAndReduceClient().RunBroadcastAndReduce(runOnYarn, 9);
+                new BroadcastAndReduceClient().RunBroadcastAndReduce(runOnYarn, numTasks);
                 Console.WriteLine("RunBroadcastAndReduce completed!!!");
             }           
         }
