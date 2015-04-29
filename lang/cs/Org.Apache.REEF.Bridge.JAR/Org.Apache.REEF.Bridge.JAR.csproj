@@ -104,8 +104,8 @@ under the License.
         <Line Include="line03"><Text>$copyToOutput1 = $file1.Properties.Item("CopyToOutputDirectory")</Text></Line>
         <Line Include="line04"><Text>$copyToOutput1.Value = 2</Text></Line>
         <!--Copy the client JAR-->
-       <Line Include="line05"><Text>$file2 = $project.ProjectItems.Item("reef-bridge-client-$(ReefVer)-incubating-SNAPSHOT-shaded.jar")</Text></Line>
         <Line Include="line05"><Text>$file2 = $project.ProjectItems.Item("reef-bridge-client-$(REEF_Version)-shaded.jar")</Text></Line>
+        <Line Include="line06"><Text>$copyToOutput2 = $file2.Properties.Item("CopyToOutputDirectory")</Text></Line>
         <Line Include="line07"><Text>$copyToOutput2.Value = 2</Text></Line>
         <LineText Include="%(Line.Text)" />
     </ItemGroup>
