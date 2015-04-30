@@ -27,19 +27,38 @@ namespace Org.Apache.REEF.Client.API
     /// <summary>
     /// Captures a submission of a REEF Job to a cluster.
     /// </summary>
-    public sealed class JobSubmission
+    internal sealed class JobSubmission : IJobSubmission
     {
-        private readonly ISet<IConfiguration> _driverConfigurations = new HashSet<IConfiguration>();
-        private readonly ISet<string> _globalAssemblies = new HashSet<string>();
-        private readonly ISet<string> _globalFiles = new HashSet<string>();
-        private readonly ISet<string> _localAssemblies = new HashSet<string>();
-        private readonly ISet<string> _localFiles = new HashSet<string>();
-        private int _driverMemory = 512;
+        private readonly ISet<IConfiguration> _driverConfigurations;
+        private readonly ISet<string> _globalAssemblies;
+        private readonly ISet<string> _globalFiles;
+        private readonly ISet<string> _localAssemblies;
+        private readonly ISet<string> _localFiles;
+        private int _driverMemory ;
+        private string _jobIdentifier;
+
+        internal JobSubmission(
+            ISet<IConfiguration> driverConfigurations,
+            ISet<string> globalAssemblies,
+            ISet<string> globalFiles,
+            ISet<string> localAssemblies,
+            ISet<string> localFiles,
+            int driverMemory,
+            string jobIdentifier)
+        {
+            _driverConfigurations = driverConfigurations;
+            _globalAssemblies = globalAssemblies;
+            _globalFiles = globalFiles;
+            _localAssemblies = localAssemblies;
+            _localFiles = localFiles;
+            _driverMemory = driverMemory;
+            _jobIdentifier = jobIdentifier;
+        }
 
         /// <summary>
         /// The assemblies to be made available to all containers.
         /// </summary>
-        internal ISet<string> GlobalAssemblies
+        ISet<string> IJobSubmission.GlobalAssemblies
         {
             get { return _globalAssemblies; }
         }
@@ -47,27 +66,27 @@ namespace Org.Apache.REEF.Client.API
         /// <summary>
         /// The driver configurations
         /// </summary>
-        internal ISet<IConfiguration> DriverConfigurations
+        ISet<IConfiguration> IJobSubmission.DriverConfigurations
         {
             get { return _driverConfigurations; }
         }
 
-        internal ISet<string> GlobalFiles
+        ISet<string> IJobSubmission.GlobalFiles
         {
             get { return _globalFiles; }
         }
 
-        internal ISet<string> LocalAssemblies
+        ISet<string> IJobSubmission.LocalAssemblies
         {
             get { return _localAssemblies; }
         }
 
-        internal ISet<string> LocalFiles
+        ISet<string> IJobSubmission.LocalFiles
         {
             get { return _localFiles; }
         }
 
-        internal int DriverMemory
+        int IJobSubmission.DriverMemory
         {
             get { return _driverMemory; }
         }
@@ -75,116 +94,9 @@ namespace Org.Apache.REEF.Client.API
         /// <summary>
         /// The Job's identifier
         /// </summary>
-        public string JobIdentifier { get; private set; }
-
-        /// <summary>
-        /// Add a file to be made available in all containers.
-        /// </summary>
-        /// <param name="fileName"></param>
-        /// <returns></returns>
-        public JobSubmission AddGlobalFile(string fileName)
-        {
-            _globalFiles.Add(fileName);
-            return this;
+        string IJobSubmission.JobIdentifier {
+            get { return _jobIdentifier; }
         }
 
-        /// <summary>
-        /// Add a file to be made available only on the driver.
-        /// </summary>
-        /// <param name="fileName"></param>
-        /// <returns></returns>
-        public JobSubmission AddLocalFile(string fileName)
-        {
-            _localFiles.Add(fileName);
-            return this;
-        }
-
-        /// <summary>
-        /// Add an assembly to be made available on all containers.
-        /// </summary>
-        /// <param name="fileName"></param>
-        /// <returns></returns>
-        public JobSubmission AddGlobalAssembly(string fileName)
-        {
-            _globalAssemblies.Add(fileName);
-            return this;
-        }
-
-        /// <summary>
-        /// Add an assembly to the driver only.
-        /// </summary>
-        /// <param name="fileName"></param>
-        /// <returns></returns>
-        public JobSubmission AddLocalAssembly(string fileName)
-        {
-            _localAssemblies.Add(fileName);
-            return this;
-        }
-
-        /// <summary>
-        /// Add a Configuration to the Driver.
-        /// </summary>
-        /// <param name="configuration"></param>
-        /// <returns></returns>
-        public JobSubmission AddDriverConfiguration(IConfiguration configuration)
-        {
-            _driverConfigurations.Add(configuration);
-            return this;
-        }
-
-        /// <summary>
-        /// Add the assembly needed for the given Type to the driver.
-        /// </summary>
-        /// <param name="type"></param>
-        /// <returns></returns>
-        public JobSubmission AddLocalAssemblyForType(Type type)
-        {
-            AddLocalAssembly(GetAssemblyPathForType(type));
-            return this;
-        }
-
-        /// <summary>
-        /// Add the assembly needed for the given Type to all containers.
-        /// </summary>
-        /// <param name="type"></param>
-        /// <returns></returns>
-        public JobSubmission AddGlobalAssemblyForType(Type type)
-        {
-            AddGlobalAssembly(GetAssemblyPathForType(type));
-            return this;
-        }
-
-        /// <summary>
-        /// Gives the job an identifier.
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
-        public JobSubmission SetJobIdentifier(string id)
-        {
-            JobIdentifier = id;
-            return this;
-        }
-
-        /// <summary>
-        /// Sets the amount of memory (in MB) to allocate for the Driver.
-        /// </summary>
-        /// <param name="driverMemoryInMb">The amount of memory (in MB) to allocate for the Driver.</param>
-        /// <returns>this</returns>
-        public JobSubmission SetDriverMemory(int driverMemoryInMb)
-        {
-            _driverMemory = driverMemoryInMb;
-            return this;
-        }
-
-        /// <summary>
-        /// Finds the path to the assembly the given Type was loaded from.
-        /// </summary>
-        /// <param name="type"></param>
-        /// <returns></returns>
-        private static string GetAssemblyPathForType(Type type)
-        {
-            var path = Uri.UnescapeDataString(new UriBuilder(type.Assembly.CodeBase).Path);
-            return Path.GetFullPath(path);
-        }
     }
 }

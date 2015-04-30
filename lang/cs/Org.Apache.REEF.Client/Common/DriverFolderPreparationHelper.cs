@@ -59,7 +59,7 @@ namespace Org.Apache.REEF.Client.Common
         /// </summary>
         /// <param name="jobSubmission"></param>
         /// <param name="driverFolderPath"></param>
-        internal void PrepareDriverFolder(JobSubmission jobSubmission, string driverFolderPath)
+        internal void PrepareDriverFolder(IJobSubmission jobSubmission, string driverFolderPath)
         {
             Logger.Log(Level.Info, "Preparing Driver filesystem layout in " + driverFolderPath);
 
@@ -88,7 +88,7 @@ namespace Org.Apache.REEF.Client.Common
         /// </summary>
         /// <param name="jobSubmission"></param>
         /// <param name="driverFolderPath"></param>
-        internal void CreateDriverConfiguration(JobSubmission jobSubmission, string driverFolderPath)
+        internal void CreateDriverConfiguration(IJobSubmission jobSubmission, string driverFolderPath)
         {
             var driverConfiguration = Configurations.Merge(jobSubmission.DriverConfigurations.ToArray());
 

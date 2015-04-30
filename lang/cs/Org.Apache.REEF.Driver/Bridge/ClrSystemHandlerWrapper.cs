@@ -52,7 +52,7 @@ namespace Org.Apache.REEF.Driver.Bridge
             {
                 GCHandle gc = GCHandle.FromIntPtr((IntPtr)handle);
                 ClrSystemHandler<IAllocatedEvaluator> obj = (ClrSystemHandler<IAllocatedEvaluator>)gc.Target;
-                obj.OnNext(new AllocatedEvaluator(clr2Java)); 
+                obj.OnNext(new AllocatedEvaluator(clr2Java, _driverBridge.ConfigurationProviders));
             }       
         }
 

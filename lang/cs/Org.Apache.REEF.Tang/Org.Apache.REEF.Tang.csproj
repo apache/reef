@@ -105,6 +105,7 @@ under the License.
     <Compile Include="Interface\ICsInternalConfigurationBuilder.cs" />
     <Compile Include="Interface\IExternalConstructor.cs" />
     <Compile Include="Interface\IInjector.cs" />
+    <Compile Include="Interface\IConfigurationProvider.cs" />
     <Compile Include="Interface\ITang.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Protobuf\class_hierarchy.cs" />

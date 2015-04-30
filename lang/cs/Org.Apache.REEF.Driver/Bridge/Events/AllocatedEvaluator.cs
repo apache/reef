@@ -26,6 +26,7 @@ using Org.Apache.REEF.Common.Evaluator;
 using Org.Apache.REEF.Driver.Bridge.Clr2java;
 using Org.Apache.REEF.Driver.Evaluator;
 using Org.Apache.REEF.Tang.Formats;
+using Org.Apache.REEF.Tang.Implementations.Configuration;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Utilities.Logging;
 
@@ -40,8 +41,11 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
 
         private IEvaluatorDescriptor _evaluatorDescriptor;
 
-        public AllocatedEvaluator(IAllocatedEvaluaotrClr2Java clr2Java)
+        private readonly ISet<IConfigurationProvider> _configurationProviders;
+
+        public AllocatedEvaluator(IAllocatedEvaluaotrClr2Java clr2Java, ISet<IConfigurationProvider> configurationProviders)
         {
+            _configurationProviders = configurationProviders;
             InstanceId = Guid.NewGuid().ToString("N");
             _serializer = new AvroConfigurationSerializer();
             Clr2Java = clr2Java;
@@ -77,6 +81,7 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
         {
             LOGGER.Log(Level.Info, "AllocatedEvaluator::SubmitContextAndTask");
 
+            contextConfiguration = MergeContextConfiguration(contextConfiguration);
             string context = _serializer.ToString(contextConfiguration);
             string task = _serializer.ToString(taskConfiguration);
 
@@ -90,6 +95,7 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
         {
             LOGGER.Log(Level.Info, "AllocatedEvaluator::SubmitContextAndService");
 
+            contextConfiguration = MergeContextConfiguration(contextConfiguration);
             string context = _serializer.ToString(contextConfiguration);
             string service = _serializer.ToString(serviceConfiguration);
 
@@ -103,6 +109,7 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
         {
             LOGGER.Log(Level.Info, "AllocatedEvaluator::SubmitContextAndServiceAndTask");
 
+            contextConfiguration = MergeContextConfiguration(contextConfiguration);
             string context = _serializer.ToString(contextConfiguration);
             string service = _serializer.ToString(serviceConfiguration);
             string task = _serializer.ToString(taskConfiguration);
@@ -170,6 +177,19 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
                     }
                 }
             }
+        }
+
+        private IConfiguration MergeContextConfiguration(IConfiguration contextConfiguration)
+        {
+            IConfiguration contextConfig = contextConfiguration;
+            if (_configurationProviders != null)
+            {
+                foreach (var configurationProvider in _configurationProviders)
+                {
+                    contextConfig = Configurations.Merge(contextConfig, configurationProvider.GetConfiguration());
+                }
+            }
+            return contextConfig;
         }
     }
 }

@@ -16,29 +16,34 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-using Org.Apache.REEF.Client.API;
-using Org.Apache.REEF.Client.Local.Parameters;
-using Org.Apache.REEF.Common.Io;
-using Org.Apache.REEF.Tang.Formats;
-using Org.Apache.REEF.Tang.Interface;
-using Org.Apache.REEF.Tang.Util;
-using Org.Apache.REEF.Wake.Remote;
 
-namespace Org.Apache.REEF.Client.YARN
+using System.Collections.Generic;
+using Org.Apache.REEF.Client.Local.Parameters;
+using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Tang.Interface;
+
+namespace Org.Apache.REEF.Client.API
 {
     /// <summary>
-    /// The Configuration for the YARN Client
+    /// Instantiates IJobSubmissionBuilder based on configurationProviders.
     /// </summary>
-    public sealed class YARNClientConfiguration : ConfigurationModuleBuilder
+    public sealed class JobSubmissionBuilderFactory
     {
-        /// <summary>
-        /// Configuration provides whose Configuration will be merged into all Driver Configuration.
-        /// </summary>
-        public static readonly OptionalImpl<IConfigurationProvider> DriverConfigurationProvider = new OptionalImpl<IConfigurationProvider>();
+        private readonly ISet<IConfigurationProvider> _configurationProviders;
 
-        public static ConfigurationModule ConfigurationModule = new YARNClientConfiguration()
-            .BindImplementation(GenericType<IREEFClient>.Class, GenericType<YARNClient>.Class)
-            .BindSetEntry(GenericType<DriverConfigurationProviders>.Class, DriverConfigurationProvider)
-            .Build();
+        [Inject]
+        internal JobSubmissionBuilderFactory(
+            [Parameter(typeof(DriverConfigurationProviders))] ISet<IConfigurationProvider> configurationProviders)
+        {
+            _configurationProviders = configurationProviders;
+        }
+
+        /// <summary>
+        /// Instantiates IJobSubmissionBuilder
+        /// </summary>
+        public IJobSubmissionBuilder GetJobSubmissionBuilder()
+        {
+            return new JobSubmissionBuilder(_configurationProviders);
+        }
     }
 }
