@@ -1,4 +1,4 @@
-﻿/**
+﻿/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -17,18 +17,16 @@
  * under the License.
  */
 
-namespace Org.Apache.REEF.Client.API
+namespace Org.Apache.REEF.Tang.Interface
 {
     /// <summary>
-    /// Interface for job submission on a REEF cluster
+    /// Provides configurations
     /// </summary>
-    // ReSharper disable once InconsistentNaming
-    public interface IREEFClient
+    public interface IConfigurationProvider
     {
         /// <summary>
-        /// Submit the job described in jobSubmission to the cluster.
+        /// <returns>The IConfiguration used for instantiation</returns>
         /// </summary>
-        /// <param name="jobSubmission"></param>
-        void Submit(IJobSubmission jobSubmission);
+        IConfiguration GetConfiguration();
     }
 }

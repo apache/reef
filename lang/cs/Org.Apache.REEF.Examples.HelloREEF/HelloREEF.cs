@@ -18,14 +18,19 @@
  */
 
 using System;
+using System.Linq;
+using System.Net;
+using System.Net.Sockets;
 using Org.Apache.REEF.Client.API;
 using Org.Apache.REEF.Client.Local;
 using Org.Apache.REEF.Client.YARN;
+using Org.Apache.REEF.Common.Io;
 using Org.Apache.REEF.Driver.Bridge;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
+using Org.Apache.REEF.Wake.Remote;
 
 namespace Org.Apache.REEF.Examples.HelloREEF
 {
@@ -37,11 +42,13 @@ namespace Org.Apache.REEF.Examples.HelloREEF
         private const string Local = "local";
         private const string YARN = "yarn";
         private readonly IREEFClient _reefClient;
+        private readonly JobSubmissionBuilderFactory _jobSubmissionBuilderFactory;
 
         [Inject]
-        private HelloREEF(IREEFClient reefClient)
+        private HelloREEF(IREEFClient reefClient, JobSubmissionBuilderFactory jobSubmissionBuilderFactory)
         {
             _reefClient = reefClient;
+            _jobSubmissionBuilderFactory = jobSubmissionBuilderFactory;
         }
 
         /// <summary>
@@ -56,10 +63,11 @@ namespace Org.Apache.REEF.Examples.HelloREEF
                 .Set(DriverBridgeConfiguration.OnDriverStarted, GenericType<HelloDriver>.Class)
                 .Build();
             // The JobSubmission contains the Driver configuration as well as the files needed on the Driver.
-            var helloJobSubmission = new JobSubmission()
+            var helloJobSubmission = _jobSubmissionBuilderFactory.GetJobSubmissionBuilder()
                 .AddDriverConfiguration(helloDriverConfiguration)
-                .AddGlobalAssemblyForType(typeof(HelloDriver))
-                .SetJobIdentifier("HelloREEF");
+                .AddGlobalAssemblyForType(typeof (HelloDriver))
+                .SetJobIdentifier("HelloREEF")
+                .Build();
 
             _reefClient.Submit(helloJobSubmission);
         }
@@ -85,7 +93,7 @@ namespace Org.Apache.REEF.Examples.HelloREEF
 
         public static void Main(string[] args)
         {
-            TangFactory.GetTang().NewInjector(GetRuntimeConfiguration(args[0])).GetInstance<HelloREEF>().Run();
+            TangFactory.GetTang().NewInjector(GetRuntimeConfiguration(args.Length > 0 ? args[0] : Local)).GetInstance<HelloREEF>().Run();
         }
     }
 }

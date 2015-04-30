@@ -19,8 +19,11 @@
 
 using Org.Apache.REEF.Client.API;
 using Org.Apache.REEF.Client.Local.Parameters;
+using Org.Apache.REEF.Common.Io;
 using Org.Apache.REEF.Tang.Formats;
+using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
+using Org.Apache.REEF.Wake.Remote;
 
 namespace Org.Apache.REEF.Client.Local
 {
@@ -45,10 +48,16 @@ namespace Org.Apache.REEF.Client.Local
         /// </remarks>
         public static readonly OptionalParameter<string> RuntimeFolder = new OptionalParameter<string>();
 
+        /// <summary>
+        /// Configuration provides whose Configuration will be merged into all Driver Configuration.
+        /// </summary>
+        public static readonly OptionalImpl<IConfigurationProvider> DriverConfigurationProvider = new OptionalImpl<IConfigurationProvider>();
+
         public static ConfigurationModule ConfigurationModule = new LocalRuntimeClientConfiguration()
             .BindImplementation(GenericType<IREEFClient>.Class, GenericType<LocalClient>.Class)
             .BindNamedParameter(GenericType<LocalRuntimeDirectory>.Class, RuntimeFolder)
             .BindNamedParameter(GenericType<NumberOfEvaluators>.Class, NumberOfEvaluators)
+            .BindSetEntry(GenericType<DriverConfigurationProviders>.Class,DriverConfigurationProvider)
             .Build();
     }
 }

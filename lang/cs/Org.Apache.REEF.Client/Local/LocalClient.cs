@@ -74,7 +74,7 @@ namespace Org.Apache.REEF.Client.Local
             // Intentionally left blank.
         }
 
-        public void Submit(JobSubmission jobSubmission)
+        public void Submit(IJobSubmission jobSubmission)
         {
             // Prepare the job submission folder
             var jobFolder = CreateJobFolder(jobSubmission.JobIdentifier);

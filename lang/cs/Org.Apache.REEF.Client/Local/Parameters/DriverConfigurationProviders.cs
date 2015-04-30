@@ -17,18 +17,14 @@
  * under the License.
  */
 
-namespace Org.Apache.REEF.Client.API
+using System.Collections.Generic;
+using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Tang.Interface;
+
+namespace Org.Apache.REEF.Client.Local.Parameters
 {
-    /// <summary>
-    /// Interface for job submission on a REEF cluster
-    /// </summary>
-    // ReSharper disable once InconsistentNaming
-    public interface IREEFClient
+    [NamedParameter]
+    public class DriverConfigurationProviders : Name<ISet<IConfigurationProvider>>
     {
-        /// <summary>
-        /// Submit the job described in jobSubmission to the cluster.
-        /// </summary>
-        /// <param name="jobSubmission"></param>
-        void Submit(IJobSubmission jobSubmission);
     }
 }

@@ -27,8 +27,10 @@ using Org.Apache.REEF.Driver.Context;
 using Org.Apache.REEF.Driver.Evaluator;
 using Org.Apache.REEF.Driver.Task;
 using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Wake.Time.Event;
+using Org.Apache.REEF.Common.Evaluator.Parameters;
 
 namespace Org.Apache.REEF.Driver.Bridge
 {
@@ -104,6 +106,8 @@ namespace Org.Apache.REEF.Driver.Bridge
 
         private readonly HttpServerHandler _httpServerHandler;
 
+        private readonly ISet<IConfigurationProvider> _configurationProviders;
+
         [Inject]
         public DriverBridge(
             [Parameter(Value = typeof(DriverBridgeConfigurationOptions.DriverRestartHandler))] IObserver<StartTime> driverRestartHandler,
@@ -123,6 +127,7 @@ namespace Org.Apache.REEF.Driver.Bridge
             [Parameter(Value = typeof(DriverBridgeConfigurationOptions.DriverRestartActiveContextHandlers))] ISet<IObserver<IActiveContext>> driverRestartActiveContextHandlers,
             [Parameter(Value = typeof(DriverBridgeConfigurationOptions.DriverRestartRunningTaskHandlers))] ISet<IObserver<IRunningTask>> driverRestartRunningTaskHandlers,
             [Parameter(Value = typeof(DriverBridgeConfigurationOptions.TraceListenersSet))] ISet<TraceListener> traceListeners,
+            [Parameter(Value = typeof(EvaluatorConfigurationProviders ))] ISet<IConfigurationProvider> configurationProviders,
             [Parameter(Value = typeof(DriverBridgeConfigurationOptions.TraceLevel))] string traceLevel,
             HttpServerHandler httpServerHandler)
         {
@@ -160,6 +165,7 @@ namespace Org.Apache.REEF.Driver.Bridge
             _driverRestartActiveContextHandlers = driverRestartActiveContextHandlers;
             _driverRestartRunningTaskHandlers = driverRestartRunningTaskHandlers;
             _httpServerHandler = httpServerHandler;
+            _configurationProviders = configurationProviders;
 
             _evaluatorRequestorSubscriber = new ClrSystemHandler<IEvaluatorRequestor>();
             _allocatedEvaluatorSubscriber = new ClrSystemHandler<IAllocatedEvaluator>();
@@ -316,5 +322,7 @@ namespace Org.Apache.REEF.Driver.Bridge
 
             return handlers;
         }
+
+        internal ISet<IConfigurationProvider> ConfigurationProviders { get { return _configurationProviders; } }
     }
 }

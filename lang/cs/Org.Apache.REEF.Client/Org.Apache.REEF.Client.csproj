@@ -42,8 +42,12 @@ under the License.
     <Compile Include="API\ClientFactory.cs" />
     <Compile Include="API\Exceptions\ClasspathException.cs" />
     <Compile Include="API\Exceptions\JavaNotFoundException.cs" />
+    <Compile Include="API\IJobSubmission.cs" />
+    <Compile Include="API\IJobSubmissionBuilder.cs" />
     <Compile Include="API\IREEFClient.cs" />
     <Compile Include="API\JobSubmission.cs" />
+    <Compile Include="API\JobSubmissionBuilder.cs" />
+    <Compile Include="API\JobSubmissionBuilderFactory.cs" />
     <Compile Include="CLRBridgeClient.cs" />
     <Compile Include="Common\ClientConstants.cs" />
     <Compile Include="Common\DriverFolderPreparationHelper.cs" />
@@ -51,6 +55,7 @@ under the License.
     <Compile Include="Common\JavaClientLauncher.cs" />
     <Compile Include="Local\LocalClient.cs" />
     <Compile Include="Local\LocalRuntimeClientConfiguration.cs" />
+    <Compile Include="Local\Parameters\DriverConfigurationProviders.cs" />
     <Compile Include="Local\Parameters\LocalRuntimeDirectory.cs" />
     <Compile Include="Local\Parameters\NumberOfEvaluators.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

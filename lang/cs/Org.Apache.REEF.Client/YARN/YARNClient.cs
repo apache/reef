@@ -47,7 +47,7 @@ namespace Org.Apache.REEF.Client.YARN
             _driverFolderPreparationHelper = driverFolderPreparationHelper;
         }
 
-        public void Submit(JobSubmission jobSubmission)
+        public void Submit(IJobSubmission jobSubmission)
         {
             // Prepare the job submission folder
             var driverFolderPath = CreateDriverFolder(jobSubmission.JobIdentifier);
