@@ -30,6 +30,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
     /// Establish connections to TransportServer for remote message passing
     /// </summary>
     /// <typeparam name="T">Generic Type of message. It is constrained to have implemented IWritable and IType interface</typeparam>
+    [Obsolete("Need to remove Iwritable and use IstreamingCodec. Please see Jira REEF-295 ", false)]
     public class WritableTransportClient<T> : IDisposable where T : IWritable
     {
         private readonly ILink<T> _link;

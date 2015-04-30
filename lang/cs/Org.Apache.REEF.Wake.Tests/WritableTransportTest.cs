@@ -37,6 +37,7 @@ namespace Org.Apache.REEF.Wake.Tests
     /// Basically the Wake transport layer.
     /// </summary>
     [TestClass]
+    [Obsolete("Need to remove Iwritable and use IstreamingCodec. Please see Jira REEF-295 ", false)]
     public class WritableTransportTest
     {
         /// <summary>

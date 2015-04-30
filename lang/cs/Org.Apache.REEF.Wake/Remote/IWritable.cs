@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -9,6 +10,7 @@ namespace Org.Apache.REEF.Wake.Remote
     /// from the stream. It is assumed that the classes inheriting this interface will have a 
     /// default empty constructor
     /// </summary>
+    [Obsolete("Need to remove Iwritable and use IstreamingCodec. Please see Jira REEF-295 ", false)]
     public interface IWritable
     {
         /// <summary>

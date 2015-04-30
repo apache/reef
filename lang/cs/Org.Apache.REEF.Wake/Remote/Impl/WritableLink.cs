@@ -33,6 +33,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
     /// Represents an open connection between remote hosts. This class is not thread safe
     /// </summary>
     /// <typeparam name="T">Generic Type of message. It is constrained to have implemented IWritable and IType interface</typeparam>
+    [Obsolete("Need to remove Iwritable and use IstreamingCodec. Please see Jira REEF-295 ", false)]
     public class WritableLink<T> : ILink<T> where T : IWritable
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof (WritableLink<T>));

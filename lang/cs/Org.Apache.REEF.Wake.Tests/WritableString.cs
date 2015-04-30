@@ -7,14 +7,15 @@ using Org.Apache.REEF.Wake.Remote;
 namespace Org.Apache.REEF.Wake.Tests
 {
     /// <summary>
-    /// Writable and Type wrapper around the string class
+    /// Writable wrapper around the string class
     /// </summary>
+    [Obsolete("Need to remove Iwritable and use IstreamingCodec. Please see Jira REEF-295 ", false)]
     public class WritableString : IWritable
     {
         /// <summary>
         /// Returns the actual string data
         /// </summary>
-        public string Data;
+        public string Data { get; set; }
         
         /// <summary>
         /// Empty constructor for instantiation with reflection
@@ -36,7 +37,6 @@ namespace Org.Apache.REEF.Wake.Tests
         /// Reads the string from the stream
         /// </summary>
         /// <param name="stream">stream from which reading is done</param>
-        /// <param name="optionalParameters"></param>
         public void Read(Stream stream)
         {
             Data = AuxillaryStreamingFunctions.StreamToString(stream);
@@ -56,7 +56,6 @@ namespace Org.Apache.REEF.Wake.Tests
         /// </summary>
         /// <param name="stream">stream from which reading is done</param>
         /// <param name="token">the cancellation token</param>
-        /// <param name="optionalParameters"></param>
         public async Task ReadAsync(Stream stream, CancellationToken token)
         {
             Data = await AuxillaryStreamingFunctions.StreamToStringAsync(stream, token);
