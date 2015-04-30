@@ -39,6 +39,10 @@ namespace Org.Apache.REEF.Wake.Tests
     [TestClass]
     public class WritableTransportTest
     {
+        /// <summary>
+        /// Tests whether WritableTransportServer receives 
+        /// string messages from WritableTransportClient
+        /// </summary>
         [TestMethod]
         public void TestWritableTransportServer()
         {
@@ -73,40 +77,10 @@ namespace Org.Apache.REEF.Wake.Tests
             Assert.AreEqual(events[2], "World!");
         }
 
-        [TestMethod]
-        public void TestWritableTransportServerEvent()
-        {
-            int port = NetworkUtils.GenerateRandomPort(6000, 7000);
-
-            BlockingCollection<TestEvent> queue = new BlockingCollection<TestEvent>();
-            List<TestEvent> events = new List<TestEvent>();
-
-            IPEndPoint endpoint = new IPEndPoint(IPAddress.Any, port);
-            var remoteHandler = Observer.Create<TransportEvent<TestEvent>>(tEvent => queue.Add(tEvent.Data));
-
-            using (var server = new WritableTransportServer<TestEvent>(endpoint, remoteHandler))
-            {
-                server.Run();
-
-                IPEndPoint remoteEndpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), port);
-                using (var client = new WritableTransportClient<TestEvent>(remoteEndpoint))
-                {
-                    client.Send(new TestEvent("Hello"));
-                    client.Send(new TestEvent(", "));
-                    client.Send(new TestEvent("World!"));
-
-                    events.Add(queue.Take());
-                    events.Add(queue.Take());
-                    events.Add(queue.Take());
-                } 
-            }
-
-            Assert.AreEqual(3, events.Count);
-            Assert.AreEqual(events[0].Message, "Hello");
-            Assert.AreEqual(events[1].Message, ", ");
-            Assert.AreEqual(events[2].Message, "World!");
-        }
-
+       
+        /// <summary>
+        /// Checks whether WritableTransportClient is able to receive messages from remote host
+        /// </summary>
         [TestMethod]
         public void TestWritableTransportSenderStage()
         {
@@ -143,6 +117,11 @@ namespace Org.Apache.REEF.Wake.Tests
             Assert.AreEqual(events[2], " World");
         }
 
+        /// <summary>
+        /// Checks whether WritableTransportClient and WritableTransportServer works 
+        /// in asynchronous condition while sending messages asynchronously from different 
+        /// threads
+        /// </summary>
         [TestMethod]
         public void TestWritableRaceCondition()
         {

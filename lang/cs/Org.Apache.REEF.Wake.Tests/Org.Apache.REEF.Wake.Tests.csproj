@@ -50,7 +50,6 @@ under the License.
     <Compile Include="PubSubSubjectTest.cs" />
     <Compile Include="RemoteManagerTest.cs" />
     <Compile Include="WritableTransportTest.cs" />
-    <Compile Include="TestEvent.cs" />
     <Compile Include="TransportTest.cs" />
     <Compile Include="WritableString.cs" />
   </ItemGroup>
