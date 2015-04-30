@@ -18,7 +18,6 @@
  */
 
 using System.Linq;
-using System.Diagnostics;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Network.Group.Operators;
 using Org.Apache.REEF.Network.Group.Task;
@@ -53,28 +52,16 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.PipelineBroadcastR
 
         public byte[] Call(byte[] memento)
         {
-            Stopwatch watch1 = new Stopwatch();
-            Stopwatch watch2 = new Stopwatch();
-
             for (int i = 0; i < _numIterations; i++)
             {
                 // Receive n from Master Task
-                if (i > 0)
-                {
-                    watch1.Start();
-                }
                 int[] intVec = _broadcastReceiver.Receive();
-
-                if (i > 0)
-                {
-                    watch1.Stop();
-                }
 
                 Logger.Log(Level.Info, "Calculating TriangleNumber({0}) on slave task...", intVec[0]);
 
                 // Calculate the nth Triangle number and send it back to driver
                 int triangleNum = TriangleNumber(intVec[0]);
-                Logger.Log(Level.Info, "Sending sum: {0} on iteration {1} with array length {2}.", triangleNum, i, intVec.Length);
+                Logger.Log(Level.Info, "Sending sum: {0} on iteration {1}.", triangleNum, i);
 
                 int[] resArr = new int[intVec.Length];
 
@@ -83,18 +70,8 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.PipelineBroadcastR
                     resArr[j] = triangleNum;
                 }
 
-                if (i > 0)
-                {
-                    watch2.Start();
-                }
                 _triangleNumberSender.Send(resArr);
-                if (i > 0)
-                {
-                    watch2.Stop();
-                }
             }
-
-            Logger.Log(Level.Info, "$$$$$$$$$$$ timings are {0} {1}", watch1.ElapsedMilliseconds / 1000.0, watch2.ElapsedMilliseconds / 1000.0);
 
             return null;
         }
