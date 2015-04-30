@@ -69,10 +69,6 @@ under the License.
     <Compile Include="MachineLearning\KMeans\LegacyKMeansTask.cs" />
     <Compile Include="MachineLearning\KMeans\PartialMean.cs" />
     <Compile Include="MachineLearning\KMeans\ProcessedResults.cs" />
-    <Compile Include="RetainedEvalCLRBridge\Handlers\RetainedEvalActiveContextHandler.cs" />
-    <Compile Include="RetainedEvalCLRBridge\Handlers\RetainedEvalAllocatedEvaluatorHandler.cs" />
-    <Compile Include="RetainedEvalCLRBridge\Handlers\RetainedEvalEvaluatorRequestorHandler.cs" />
-    <Compile Include="RetainedEvalCLRBridge\Handlers\RetainedEvalStartHandler.cs" />
     <Compile Include="Tasks\FailedTask\FailedTask.cs" />
     <Compile Include="Tasks\HelloTask\HelloService.cs" />
     <Compile Include="Tasks\HelloTask\HelloTask.cs" />

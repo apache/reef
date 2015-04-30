@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -20,14 +20,19 @@ package org.apache.reef.runtime.common.driver.evaluator;
 
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
+import org.apache.reef.tang.ConfigurationProvider;
 import org.apache.reef.driver.context.ContextConfiguration;
 import org.apache.reef.driver.evaluator.AllocatedEvaluator;
 import org.apache.reef.driver.evaluator.EvaluatorDescriptor;
 import org.apache.reef.driver.evaluator.EvaluatorType;
-import org.apache.reef.proto.DriverRuntimeProtocol;
-import org.apache.reef.proto.ReefServiceProtos;
+import org.apache.reef.runtime.common.driver.api.ResourceLaunchEventImpl;
 import org.apache.reef.runtime.common.evaluator.EvaluatorConfiguration;
+import org.apache.reef.runtime.common.files.FileResourceImpl;
+import org.apache.reef.runtime.common.files.FileType;
+import org.apache.reef.runtime.common.launch.ProcessType;
 import org.apache.reef.tang.Configuration;
+import org.apache.reef.tang.ConfigurationBuilder;
+import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.exceptions.BindException;
 import org.apache.reef.tang.formats.ConfigurationModule;
 import org.apache.reef.tang.formats.ConfigurationSerializer;
@@ -38,6 +43,7 @@ import org.apache.reef.util.logging.LoggingScopeFactory;
 import java.io.File;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -55,6 +61,7 @@ final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
   private final ConfigurationSerializer configurationSerializer;
   private final String jobIdentifier;
   private final LoggingScopeFactory loggingScopeFactory;
+  private final Set<ConfigurationProvider> evaluatorConfigurationProviders;
 
   /**
    * The set of files to be places on the Evaluator.
@@ -69,12 +76,14 @@ final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
                          final String remoteID,
                          final ConfigurationSerializer configurationSerializer,
                          final String jobIdentifier,
-                         final LoggingScopeFactory loggingScopeFactory) {
+                         final LoggingScopeFactory loggingScopeFactory,
+                         final Set<ConfigurationProvider> evaluatorConfigurationProviders) {
     this.evaluatorManager = evaluatorManager;
     this.remoteID = remoteID;
     this.configurationSerializer = configurationSerializer;
     this.jobIdentifier = jobIdentifier;
     this.loggingScopeFactory = loggingScopeFactory;
+    this.evaluatorConfigurationProviders = evaluatorConfigurationProviders;
   }
 
   @Override
@@ -146,12 +155,13 @@ final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
                             final Optional<Configuration> taskConfiguration) {
     try (final LoggingScope lb = loggingScopeFactory.evaluatorLaunch(this.getId())) {
       try {
+        final Configuration rootContextConfiguration = makeRootContextConfiguration(contextConfiguration);
         final ConfigurationModule evaluatorConfigurationModule = EvaluatorConfiguration.CONF
             .set(EvaluatorConfiguration.APPLICATION_IDENTIFIER, this.jobIdentifier)
             .set(EvaluatorConfiguration.DRIVER_REMOTE_IDENTIFIER, this.remoteID)
             .set(EvaluatorConfiguration.EVALUATOR_IDENTIFIER, this.getId());
 
-        final String encodedContextConfigurationString = this.configurationSerializer.toString(contextConfiguration);
+        final String encodedContextConfigurationString = this.configurationSerializer.toString(rootContextConfiguration);
         // Add the (optional) service configuration
         final ConfigurationModule contextConfigurationModule;
         if (serviceConfiguration.isPresent()) {
@@ -176,35 +186,35 @@ final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
           evaluatorConfiguration = contextConfigurationModule.build();
         }
 
-        final DriverRuntimeProtocol.ResourceLaunchProto.Builder rbuilder =
-            DriverRuntimeProtocol.ResourceLaunchProto.newBuilder()
+        final ResourceLaunchEventImpl.Builder rbuilder =
+            ResourceLaunchEventImpl.newBuilder()
                 .setIdentifier(this.evaluatorManager.getId())
                 .setRemoteId(this.remoteID)
-                .setEvaluatorConf(configurationSerializer.toString(evaluatorConfiguration));
+                .setEvaluatorConf(evaluatorConfiguration);
 
         for (final File file : this.files) {
-          rbuilder.addFile(ReefServiceProtos.FileResourceProto.newBuilder()
-              .setName(file.getName())
-              .setPath(file.getPath())
-              .setType(ReefServiceProtos.FileType.PLAIN)
-              .build());
+          rbuilder.addFile(FileResourceImpl.newBuilder()
+                  .setName(file.getName())
+                  .setPath(file.getPath())
+                  .setType(FileType.PLAIN)
+                  .build());
         }
 
         for (final File lib : this.libraries) {
-          rbuilder.addFile(ReefServiceProtos.FileResourceProto.newBuilder()
-              .setName(lib.getName())
-              .setPath(lib.getPath().toString())
-              .setType(ReefServiceProtos.FileType.LIB)
-              .build());
+          rbuilder.addFile(FileResourceImpl.newBuilder()
+                  .setName(lib.getName())
+                  .setPath(lib.getPath().toString())
+                  .setType(FileType.LIB)
+                  .build());
         }
 
         { // Set the type
           switch (this.evaluatorManager.getEvaluatorDescriptor().getType()) {
             case CLR:
-              rbuilder.setType(ReefServiceProtos.ProcessType.CLR);
+              rbuilder.setType(ProcessType.CLR);
               break;
             default:
-              rbuilder.setType(ReefServiceProtos.ProcessType.JVM);
+              rbuilder.setType(ProcessType.JVM);
           }
         }
 
@@ -215,6 +225,29 @@ final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
         throw new RuntimeException("Bad Evaluator configuration", ex);
       }
     }
+  }
+
+  /**
+   * Merges the Configurations provided by the evaluatorConfigurationProviders into the given
+   * contextConfiguration.
+   *
+   * @param contextConfiguration
+   * @return
+   */
+  private Configuration makeRootContextConfiguration(final Configuration contextConfiguration) {
+
+    final EvaluatorType evaluatorType = this.evaluatorManager.getEvaluatorDescriptor().getType();
+    if (EvaluatorType.JVM != evaluatorType) {
+      LOG.log(Level.FINE, "Not using the ConfigurationProviders as we are configuring a {0} Evaluator.", evaluatorType);
+      return contextConfiguration;
+    }
+
+    final ConfigurationBuilder configurationBuilder = Tang.Factory.getTang()
+        .newConfigurationBuilder(contextConfiguration);
+    for (final ConfigurationProvider configurationProvider : this.evaluatorConfigurationProviders) {
+      configurationBuilder.addConfiguration(configurationProvider.getConfiguration());
+    }
+    return configurationBuilder.build();
   }
 
   @Override

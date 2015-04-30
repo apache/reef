@@ -17,6 +17,7 @@
  * under the License.
  */
 
+using System;
 using Org.Apache.REEF.Common;
 using Org.Apache.REEF.Common.Catalog;
 using Org.Apache.REEF.Tang.Formats;
@@ -24,6 +25,7 @@ using Org.Apache.REEF.Tang.Util;
 
 namespace Org.Apache.REEF.Driver
 {
+    [Obsolete("Driver core logic no longer needed in.NET")]
     public class DriverRuntimeConfiguration : ConfigurationModuleBuilder
     {
         public static ConfigurationModule ConfigurationModule

@@ -20,7 +20,7 @@ package org.apache.reef.runtime.mesos.driver;
 
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
-import org.apache.reef.proto.DriverRuntimeProtocol;
+import org.apache.reef.runtime.common.driver.api.ResourceRequestEvent;
 import org.apache.reef.runtime.common.driver.api.ResourceRequestHandler;
 
 import javax.inject.Inject;
@@ -36,7 +36,7 @@ final class MesosResourceRequestHandler implements ResourceRequestHandler {
   }
 
   @Override
-  public void onNext(final DriverRuntimeProtocol.ResourceRequestProto resourceRequestProto) {
-    REEFScheduler.onResourceRequest(resourceRequestProto);
+  public void onNext(final ResourceRequestEvent resourceRequestEvent) {
+    REEFScheduler.onResourceRequest(resourceRequestEvent);
   }
 }

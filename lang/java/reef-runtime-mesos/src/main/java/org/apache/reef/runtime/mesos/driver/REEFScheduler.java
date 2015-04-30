@@ -20,22 +20,23 @@ package org.apache.reef.runtime.mesos.driver;
 
 import com.google.protobuf.ByteString;
 import org.apache.mesos.MesosSchedulerDriver;
-import org.apache.reef.proto.DriverRuntimeProtocol;
-import org.apache.reef.proto.DriverRuntimeProtocol.NodeDescriptorProto;
-import org.apache.reef.proto.DriverRuntimeProtocol.ResourceAllocationProto;
-import org.apache.reef.proto.DriverRuntimeProtocol.ResourceReleaseProto;
-import org.apache.reef.proto.DriverRuntimeProtocol.ResourceRequestProto;
-import org.apache.reef.proto.DriverRuntimeProtocol.RuntimeStatusProto;
-import org.apache.reef.proto.DriverRuntimeProtocol.RuntimeStatusProto.Builder;
 import org.apache.reef.proto.ReefServiceProtos;
 import org.apache.reef.proto.ReefServiceProtos.State;
 import org.apache.reef.runtime.common.driver.api.AbstractDriverRuntimeConfiguration;
+import org.apache.reef.runtime.common.driver.api.ResourceReleaseEvent;
+import org.apache.reef.runtime.common.driver.api.ResourceRequestEvent;
+import org.apache.reef.runtime.common.driver.api.ResourceRequestEventImpl;
+import org.apache.reef.runtime.common.driver.resourcemanager.NodeDescriptorEventImpl;
+import org.apache.reef.runtime.common.driver.resourcemanager.ResourceAllocationEvent;
+import org.apache.reef.runtime.common.driver.resourcemanager.ResourceAllocationEventImpl;
+import org.apache.reef.runtime.common.driver.resourcemanager.ResourceStatusEvent;
+import org.apache.reef.runtime.common.driver.resourcemanager.ResourceStatusEventImpl;
+import org.apache.reef.runtime.common.driver.resourcemanager.RuntimeStatusEventImpl;
 import org.apache.reef.runtime.common.files.ClasspathProvider;
 import org.apache.reef.runtime.common.files.REEFFileNames;
 import org.apache.reef.runtime.mesos.driver.parameters.MesosMasterIp;
 import org.apache.reef.runtime.mesos.evaluator.REEFExecutor;
 import org.apache.reef.runtime.mesos.util.EvaluatorControl;
-import org.apache.reef.runtime.mesos.util.EvaluatorLaunch;
 import org.apache.reef.runtime.mesos.util.EvaluatorRelease;
 import org.apache.reef.runtime.mesos.util.MesosRemoteManager;
 import org.apache.reef.tang.annotations.Parameter;
@@ -106,8 +107,8 @@ final class REEFScheduler implements Scheduler {
   private final Map<String, Offer> offers = new ConcurrentHashMap<>();
 
   private int outstandingRequestCounter = 0;
-  private final ConcurrentLinkedQueue<ResourceRequestProto> outstandingRequests = new ConcurrentLinkedQueue<>();
-  private final Map<String, ResourceRequestProto> executorIdToLaunchedRequests = new ConcurrentHashMap<>();
+  private final ConcurrentLinkedQueue<ResourceRequestEvent> outstandingRequests = new ConcurrentLinkedQueue<>();
+  private final Map<String, ResourceRequestEvent> executorIdToLaunchedRequests = new ConcurrentHashMap<>();
   private final REEFExecutors executors;
 
   @Inject
@@ -151,24 +152,24 @@ final class REEFScheduler implements Scheduler {
    */
   @Override
   public void resourceOffers(final SchedulerDriver driver, final List<Protos.Offer> offers) {
-    final Map<String, NodeDescriptorProto.Builder> nodeDescriptorProtos = new HashMap<>();
+    final Map<String, NodeDescriptorEventImpl.Builder> nodeDescriptorEvents = new HashMap<>();
 
     for (final Offer offer : offers) {
-      if (nodeDescriptorProtos.get(offer.getSlaveId().getValue()) == null) {
-        nodeDescriptorProtos.put(offer.getSlaveId().getValue(), NodeDescriptorProto.newBuilder()
-            .setIdentifier(offer.getSlaveId().getValue())
-            .setHostName(offer.getHostname())
-            .setPort(MESOS_SLAVE_PORT)
-            .setMemorySize(getMemory(offer)));
+      if (nodeDescriptorEvents.get(offer.getSlaveId().getValue()) == null) {
+        nodeDescriptorEvents.put(offer.getSlaveId().getValue(), NodeDescriptorEventImpl.newBuilder()
+                .setIdentifier(offer.getSlaveId().getValue())
+                .setHostName(offer.getHostname())
+                .setPort(MESOS_SLAVE_PORT)
+                .setMemorySize(getMemory(offer)));
       } else {
-        final NodeDescriptorProto.Builder builder = nodeDescriptorProtos.get(offer.getSlaveId().getValue());
-        builder.setMemorySize(builder.getMemorySize() + getMemory(offer));
+        final NodeDescriptorEventImpl.Builder builder = nodeDescriptorEvents.get(offer.getSlaveId().getValue());
+        builder.setMemorySize(builder.build().getMemorySize() + getMemory(offer));
       }
 
       this.offers.put(offer.getId().getValue(), offer);
     }
 
-    for (final NodeDescriptorProto.Builder ndpBuilder : nodeDescriptorProtos.values()) {
+    for (final NodeDescriptorEventImpl.Builder ndpBuilder : nodeDescriptorEvents.values()) {
       this.reefEventHandlers.onNodeDescriptor(ndpBuilder.build());
     }
 
@@ -190,8 +191,8 @@ final class REEFScheduler implements Scheduler {
   public void statusUpdate(final SchedulerDriver driver, final Protos.TaskStatus taskStatus) {
     LOG.log(Level.SEVERE, "Task Status Update:", taskStatus.toString());
 
-    final DriverRuntimeProtocol.ResourceStatusProto.Builder resourceStatus =
-        DriverRuntimeProtocol.ResourceStatusProto.newBuilder().setIdentifier(taskStatus.getTaskId().getValue());
+    final ResourceStatusEventImpl.Builder resourceStatus =
+        ResourceStatusEventImpl.newBuilder().setIdentifier(taskStatus.getTaskId().getValue());
 
     switch(taskStatus.getState()) {
       case TASK_STARTING:
@@ -251,8 +252,8 @@ final class REEFScheduler implements Scheduler {
                            final Protos.SlaveID slaveId,
                            final int status) {
     final String diagnostics = "Executor Lost. executorid: "+executorId.getValue()+" slaveid: "+slaveId.getValue();
-    final DriverRuntimeProtocol.ResourceStatusProto resourceStatus =
-        DriverRuntimeProtocol.ResourceStatusProto.newBuilder()
+    final ResourceStatusEvent resourceStatus =
+        ResourceStatusEventImpl.newBuilder()
             .setIdentifier(executorId.getValue())
             .setState(State.FAILED)
             .setExitCode(status)
@@ -283,39 +284,39 @@ final class REEFScheduler implements Scheduler {
     }
   }
 
-  public void onResourceRequest(final ResourceRequestProto resourceRequestProto) {
-    this.outstandingRequestCounter += resourceRequestProto.getResourceCount();
+  public void onResourceRequest(final ResourceRequestEvent resourceRequestEvent) {
+    this.outstandingRequestCounter += resourceRequestEvent.getResourceCount();
     updateRuntimeStatus();
-    doResourceRequest(resourceRequestProto);
+    doResourceRequest(resourceRequestEvent);
   }
 
-  public void onResourceRelease(final ResourceReleaseProto resourceReleaseProto) {
-    this.executors.releaseEvaluator(new EvaluatorRelease(resourceReleaseProto.getIdentifier()));
-    this.executors.remove(resourceReleaseProto.getIdentifier());
+  public void onResourceRelease(final ResourceReleaseEvent resourceReleaseEvent) {
+    this.executors.releaseEvaluator(new EvaluatorRelease(resourceReleaseEvent.getIdentifier()));
+    this.executors.remove(resourceReleaseEvent.getIdentifier());
     updateRuntimeStatus();
   }
 
   /**
    * Greedily acquire resources by launching a Mesos Task(w/ our custom MesosExecutor) on REEF Evaluator request.
    * Either called from onResourceRequest(for a new request) or resourceOffers(for an outstanding request).
-   * TODO: reflect priority and rack/node locality specified in resourceRequestProto.
+   * TODO: reflect priority and rack/node locality specified in resourceRequestEvent.
    */
-  private synchronized void doResourceRequest(final ResourceRequestProto resourceRequestProto) {
-    int tasksToLaunchCounter = resourceRequestProto.getResourceCount();
+  private synchronized void doResourceRequest(final ResourceRequestEvent resourceRequestEvent) {
+    int tasksToLaunchCounter = resourceRequestEvent.getResourceCount();
 
     for (final Offer offer : this.offers.values()) {
-      final int cpuSlots = getCpu(offer) / resourceRequestProto.getVirtualCores();
-      final int memSlots = getMemory(offer) / resourceRequestProto.getMemorySize();
+      final int cpuSlots = getCpu(offer) / resourceRequestEvent.getVirtualCores().get();
+      final int memSlots = getMemory(offer) / resourceRequestEvent.getMemorySize().get();
       final int taskNum = Math.min(Math.min(cpuSlots, memSlots), tasksToLaunchCounter);
 
-      if (taskNum > 0 && satisfySlaveConstraint(resourceRequestProto, offer)) {
+      if (taskNum > 0 && satisfySlaveConstraint(resourceRequestEvent, offer)) {
         final List<TaskInfo> tasksToLaunch = new ArrayList<>();
         tasksToLaunchCounter -= taskNum;
 
         // Launch as many MesosTasks on the same node(offer) as possible to exploit locality.
         for (int j = 0; j < taskNum; j++) {
           final String id = offer.getId().getValue() + "-" + String.valueOf(j);
-          final String executorLaunchCommand = getExecutorLaunchCommand(id, resourceRequestProto.getMemorySize());
+          final String executorLaunchCommand = getExecutorLaunchCommand(id, resourceRequestEvent.getMemorySize().get());
 
           final ExecutorInfo executorInfo = ExecutorInfo.newBuilder()
               .setExecutorId(ExecutorID.newBuilder()
@@ -334,24 +335,24 @@ final class REEFScheduler implements Scheduler {
               .setName(id)
               .setSlaveId(offer.getSlaveId())
               .addResources(Resource.newBuilder()
-                  .setName("mem")
-                  .setType(Type.SCALAR)
-                  .setScalar(Value.Scalar.newBuilder()
-                      .setValue(resourceRequestProto.getMemorySize())
+                      .setName("mem")
+                      .setType(Type.SCALAR)
+                      .setScalar(Value.Scalar.newBuilder()
+                              .setValue(resourceRequestEvent.getMemorySize().get())
+                              .build())
                       .build())
-                  .build())
               .addResources(Resource.newBuilder()
-                  .setName("cpus")
-                  .setType(Type.SCALAR)
-                  .setScalar(Value.Scalar.newBuilder()
-                      .setValue(resourceRequestProto.getVirtualCores())
+                      .setName("cpus")
+                      .setType(Type.SCALAR)
+                      .setScalar(Value.Scalar.newBuilder()
+                              .setValue(resourceRequestEvent.getVirtualCores().get())
+                              .build())
                       .build())
-                  .build())
               .setExecutor(executorInfo)
               .build();
 
           tasksToLaunch.add(taskInfo);
-          this.executorIdToLaunchedRequests.put(id, resourceRequestProto);
+          this.executorIdToLaunchedRequests.put(id, resourceRequestEvent);
         }
 
         final Filters filters = Filters.newBuilder().setRefuseSeconds(0).build();
@@ -365,24 +366,25 @@ final class REEFScheduler implements Scheduler {
     this.offers.clear();
 
     // Save leftovers that couldn't be launched
-    outstandingRequests.add(ResourceRequestProto.newBuilder()
-        .mergeFrom(resourceRequestProto)
+    outstandingRequests.add(ResourceRequestEventImpl.newBuilder()
+        .mergeFrom(resourceRequestEvent)
         .setResourceCount(tasksToLaunchCounter)
         .build());
   }
 
   private void handleNewExecutor(final Protos.TaskStatus taskStatus) {
-    final ResourceRequestProto resourceRequestProto =
+    final ResourceRequestEvent resourceRequestProto =
         this.executorIdToLaunchedRequests.remove(taskStatus.getTaskId().getValue());
 
     final EventHandler<EvaluatorControl> evaluatorControlHandler =
         this.mesosRemoteManager.getHandler(taskStatus.getMessage(), EvaluatorControl.class);
-    this.executors.add(taskStatus.getTaskId().getValue(), resourceRequestProto.getMemorySize(), evaluatorControlHandler);
+    this.executors.add(taskStatus.getTaskId().getValue(), resourceRequestProto.getMemorySize().get(), evaluatorControlHandler);
 
-    final ResourceAllocationProto alloc = DriverRuntimeProtocol.ResourceAllocationProto.newBuilder()
+    final ResourceAllocationEvent alloc = ResourceAllocationEventImpl.newBuilder()
         .setIdentifier(taskStatus.getTaskId().getValue())
         .setNodeId(taskStatus.getSlaveId().getValue())
-        .setResourceMemory(resourceRequestProto.getMemorySize())
+        .setResourceMemory(resourceRequestProto.getMemorySize().get())
+        .setVirtualCores(resourceRequestProto.getVirtualCores().get())
         .build();
     reefEventHandlers.onResourceAllocation(alloc);
 
@@ -391,7 +393,7 @@ final class REEFScheduler implements Scheduler {
   }
 
   private synchronized void updateRuntimeStatus() {
-    final Builder builder = DriverRuntimeProtocol.RuntimeStatusProto.newBuilder()
+    final RuntimeStatusEventImpl.Builder builder = RuntimeStatusEventImpl.newBuilder()
         .setName(RUNTIME_NAME)
         .setState(State.RUNNING)
         .setOutstandingContainerRequests(this.outstandingRequestCounter);
@@ -411,7 +413,7 @@ final class REEFScheduler implements Scheduler {
       throw new RuntimeException(e);
     }
 
-    final Builder runtimeStatusBuilder = RuntimeStatusProto.newBuilder()
+    final RuntimeStatusEventImpl.Builder runtimeStatusBuilder = RuntimeStatusEventImpl.newBuilder()
         .setState(State.FAILED)
         .setName(RUNTIME_NAME);
 
@@ -425,9 +427,9 @@ final class REEFScheduler implements Scheduler {
     this.reefEventHandlers.onRuntimeStatus(runtimeStatusBuilder.build());
   }
 
-  private boolean satisfySlaveConstraint(final ResourceRequestProto resourceRequestProto, final Offer offer) {
-    return resourceRequestProto.getNodeNameCount() == 0 ||
-        resourceRequestProto.getNodeNameList().contains(offer.getSlaveId().getValue());
+  private boolean satisfySlaveConstraint(final ResourceRequestEvent resourceRequestEvent, final Offer offer) {
+    return resourceRequestEvent.getNodeNameList().size() == 0 ||
+        resourceRequestEvent.getNodeNameList().contains(offer.getSlaveId().getValue());
   }
 
   private int getMemory(final Offer offer) {

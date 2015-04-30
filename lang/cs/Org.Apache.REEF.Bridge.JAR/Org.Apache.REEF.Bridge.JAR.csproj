@@ -91,40 +91,42 @@ under the License.
   -->
   <Target Name="Rebuild" DependsOnTargets="Clean;Build"/>
   <Target Name="CheckPrerequisites" DependsOnTargets="Build"/>
-    <Target Name="BuildPackage" Condition="'$(BuildPackage)' == 'true'" DependsOnTargets="ExtractPOMVersion; CheckPrerequisites; FinalizeNuspecFiles" AfterTargets="Build">
-        <PropertyGroup>
-            <BuildCommand>$(NuGetCommand) pack "$(FinalizedNuspecFile)" -BasePath $(NugetProjectPath) -Properties "Configuration=$(Configuration);Platform=$(Platform);REEF_Version=$(REEF_Version)" $(NonInteractiveSwitch) -OutputDirectory "$(PackageOutputDir)" </BuildCommand>
-            <ReefVer>$([System.String]::Copy('$(REEF_NugetVersion)').Replace('-SNAPSHOT-',''))</ReefVer>
-        </PropertyGroup>
+  <Target Name="BuildPackage" Condition="'$(BuildPackage)' == 'true'" DependsOnTargets="ExtractPOMVersion; CheckPrerequisites" AfterTargets="Build">
 
-  <ItemGroup>
-    <Line Include="line01"><Text>param($installPath, $toolsPath, $package, $project)</Text></Line>
-    <Line Include="line02"><Text>$file1 = $project.ProjectItems.Item("reef-bridge-java-$(ReefVer)-incubating-SNAPSHOT-shaded.jar")</Text></Line>
-    <Line Include="line03"><Text>$copyToOutput1 = $file1.Properties.Item("CopyToOutputDirectory")</Text></Line>
-    <Line Include="line04"><Text>$copyToOutput1.Value = 2</Text></Line>
-    <!--Copy the client JAR-->
-    <Line Include="line05"><Text>$file2 = $project.ProjectItems.Item("reef-bridge-client-$(ReefVer)-incubating-SNAPSHOT-shaded.jar")</Text></Line>
-    <Line Include="line06"><Text>$copyToOutput2 = $file2.Properties.Item("CopyToOutputDirectory")</Text></Line>
-    <Line Include="line07"><Text>$copyToOutput2.Value = 2</Text></Line>
-    <LineText Include="%(Line.Text)" />
-  </ItemGroup>
-  <WriteLinesToFile
-     File="$(SolutionDir)\bin\$(Platform)\$(Configuration)\$(AssemblyName)\install.ps1"
-     Lines="@(LineText)"
-     Overwrite="true"
-     />
-        <Exec Command="$(BuildCommand)" Condition=" '$(OS)' != 'Windows_NT' " />
-        <Exec Command="$(BuildCommand)" LogStandardErrorAsError="true" Condition=" '$(OS)' == 'Windows_NT' " />
-    </Target>
-    <Target Name="PushPackages" Condition="'$(PushPackages)' == 'true'" DependsOnTargets="BuildPackage"  AfterTargets="BuildPackage">
-        <ItemGroup>
-            <PackageFile Include="$(SolutionDir).nuget\packages\$(RootNamespace).$(REEF_NugetVersion)$(SnapshotNumber).nupkg" />
-        </ItemGroup>
-        <PropertyGroup>
-            <PushCommand Condition="'$(NuGetApiKey)' == '' OR '$(NuGetApiKey)' == '*Undefined*'">$(NuGetCommand) push @(PackageFile) -Source $(NuGetRepository)</PushCommand>
-            <PushCommand Condition="'$(NuGetApiKey)' != '' AND '$(NuGetApiKey)' != '*Undefined*'">$(NuGetCommand) push @(PackageFile) $(NuGetApiKey) -Source $(NuGetRepository)</PushCommand>
-        </PropertyGroup>
-       <Exec Condition="'$(BuildPackage)' == 'true'" Command="$(PushCommand)" LogStandardErrorAsError="true">
-        </Exec>
-    </Target>
+    <PropertyGroup>
+        <BuildCommand>$(NuGetCommand) pack "$(FinalizedNuspecFile)" -BasePath $(NugetProjectPath) -Properties "Configuration=$(Configuration);Platform=$(Platform);REEF_Version=$(REEF_Version);Version=$(REEF_NugetVersion)" $(NonInteractiveSwitch) -OutputDirectory "$(PackageOutputDir)" </BuildCommand>
+        <ReefVer>$([System.String]::Copy('$(REEF_NugetVersion)').Replace('-SNAPSHOT-',''))</ReefVer>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Line Include="line01"><Text>param($installPath, $toolsPath, $package, $project)</Text></Line>
+        <Line Include="line02"><Text>$file1 = $project.ProjectItems.Item("reef-bridge-java-$(REEF_Version)-shaded.jar")</Text></Line>
+        <Line Include="line03"><Text>$copyToOutput1 = $file1.Properties.Item("CopyToOutputDirectory")</Text></Line>
+        <Line Include="line04"><Text>$copyToOutput1.Value = 2</Text></Line>
+        <!--Copy the client JAR-->
+       <Line Include="line05"><Text>$file2 = $project.ProjectItems.Item("reef-bridge-client-$(ReefVer)-incubating-SNAPSHOT-shaded.jar")</Text></Line>
+        <Line Include="line05"><Text>$file2 = $project.ProjectItems.Item("reef-bridge-client-$(REEF_Version)-shaded.jar")</Text></Line>
+        <Line Include="line07"><Text>$copyToOutput2.Value = 2</Text></Line>
+        <LineText Include="%(Line.Text)" />
+    </ItemGroup>
+
+    <WriteLinesToFile
+        File="$(SolutionDir)\bin\$(Platform)\$(Configuration)\$(AssemblyName)\install.ps1"
+        Lines="@(LineText)"
+        Overwrite="true"
+    />
+    <Exec Command="$(BuildCommand)" Condition=" '$(OS)' != 'Windows_NT' " />
+    <Exec Command="$(BuildCommand)" LogStandardErrorAsError="true" Condition=" '$(OS)' == 'Windows_NT' " />
+  </Target>
+  <Target Name="PushPackages" Condition="'$(PushPackages)' == 'true'" DependsOnTargets="BuildPackage"  AfterTargets="BuildPackage">
+    <ItemGroup>
+        <PackageFile Include="$(SolutionDir).nuget\packages\$(RootNamespace).$(REEF_NugetVersion).nupkg" />
+    </ItemGroup>
+    <PropertyGroup>
+        <PushCommand Condition="'$(NuGetApiKey)' == '' OR '$(NuGetApiKey)' == '*Undefined*'">$(NuGetCommand) push @(PackageFile) -Source $(NuGetRepository)</PushCommand>
+        <PushCommand Condition="'$(NuGetApiKey)' != '' AND '$(NuGetApiKey)' != '*Undefined*'">$(NuGetCommand) push @(PackageFile) $(NuGetApiKey) -Source $(NuGetRepository)</PushCommand>
+    </PropertyGroup>
+    <Exec Condition="'$(BuildPackage)' == 'true'" Command="$(PushCommand)" LogStandardErrorAsError="true">
+    </Exec>
+  </Target>
 </Project>

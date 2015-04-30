@@ -216,65 +216,6 @@ under the License.
         </profile>
 
         <profile>
-            <id>RetainedEval</id>
-            <build>
-                <defaultGoal>exec:exec</defaultGoal>
-                <plugins>
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>exec-maven-plugin</artifactId>
-                        <configuration>
-                            <executable>java</executable>
-                            <arguments>
-                                <argument>-classpath</argument>
-                                <classpath/>
-                                <argument>-Djava.util.logging.config.class=org.apache.reef.util.logging.Config
-                                </argument>
-                                <argument>-Dcom.microsoft.reef.runtime.local.folder=${project.build.directory}
-                                </argument>
-                                <argument>org.apache.reef.examples.retained_eval.Launch</argument>
-                                <!-- <argument>-cmd</argument>
-                                <argument>date</argument>
-                                <argument>-num_runs</argument>
-                                <argument>20</argument>
-                                <argument>-local</argument>
-                                <argument>true</argument> -->
-                            </arguments>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
-            <id>RetainedEval_yarn</id>
-            <build>
-                <defaultGoal>exec:exec</defaultGoal>
-                <plugins>
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>exec-maven-plugin</artifactId>
-                        <configuration>
-                            <executable>java</executable>
-                            <arguments>
-                                <argument>-classpath</argument>
-                                <classpath/>
-                                <argument>-Djava.util.logging.config.class=org.apache.reef.util.logging.Config
-                                </argument>
-                                <argument>org.apache.reef.examples.retained_eval.Launch</argument>
-                                <argument>-cmd</argument>
-                                <argument>date</argument>
-                                <argument>-num_runs</argument>
-                                <argument>20</argument>
-                                <argument>-local</argument>
-                                <argument>false</argument>
-                            </arguments>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-
-        <profile>
             <id>SuspendDemo</id>
             <build>
                 <defaultGoal>exec:exec</defaultGoal>

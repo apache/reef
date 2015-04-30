@@ -29,6 +29,7 @@ using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Driver.Context
 {
+    [Obsolete("Driver core logic no longer needed in.NET")]
     public class EvaluatorContext : IActiveContext
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(EvaluatorContext));

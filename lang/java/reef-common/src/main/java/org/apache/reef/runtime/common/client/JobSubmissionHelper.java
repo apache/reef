@@ -19,8 +19,10 @@
 package org.apache.reef.runtime.common.client;
 
 import org.apache.reef.driver.parameters.*;
-import org.apache.reef.proto.ClientRuntimeProtocol;
-import org.apache.reef.proto.ReefServiceProtos;
+import org.apache.reef.runtime.common.client.api.JobSubmissionEventImpl;
+import org.apache.reef.runtime.common.files.FileResource;
+import org.apache.reef.runtime.common.files.FileResourceImpl;
+import org.apache.reef.runtime.common.files.FileType;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Injector;
 import org.apache.reef.tang.Tang;
@@ -71,34 +73,34 @@ final class JobSubmissionHelper {
    * @throws InjectionException
    * @throws IOException
    */
-  final ClientRuntimeProtocol.JobSubmissionProto.Builder getJobsubmissionProto(final Configuration driverConfiguration) throws InjectionException, IOException {
+  final JobSubmissionEventImpl.Builder getJobSubmissionBuilder(final Configuration driverConfiguration) throws InjectionException, IOException {
     final Injector injector = Tang.Factory.getTang().newInjector(driverConfiguration);
 
-    final ClientRuntimeProtocol.JobSubmissionProto.Builder jbuilder = ClientRuntimeProtocol.JobSubmissionProto.newBuilder()
+    final JobSubmissionEventImpl.Builder jbuilder = JobSubmissionEventImpl.newBuilder()
         .setIdentifier(returnOrGenerateDriverId(injector.getNamedInstance(DriverIdentifier.class)))
         .setDriverMemory(injector.getNamedInstance(DriverMemory.class))
         .setUserName(System.getProperty("user.name"))
-        .setConfiguration(configurationSerializer.toString(driverConfiguration));
+        .setConfiguration(driverConfiguration);
 
 
     for (final String globalFileName : injector.getNamedInstance(JobGlobalFiles.class)) {
       LOG.log(Level.FINEST, "Adding global file: {0}", globalFileName);
-      jbuilder.addGlobalFile(getFileResourceProto(globalFileName, ReefServiceProtos.FileType.PLAIN));
+      jbuilder.addGlobalFile(getFileResourceProto(globalFileName, FileType.PLAIN));
     }
 
     for (final String globalLibraryName : injector.getNamedInstance(JobGlobalLibraries.class)) {
       LOG.log(Level.FINEST, "Adding global library: {0}", globalLibraryName);
-      jbuilder.addGlobalFile(getFileResourceProto(globalLibraryName, ReefServiceProtos.FileType.LIB));
+      jbuilder.addGlobalFile(getFileResourceProto(globalLibraryName, FileType.LIB));
     }
 
     for (final String localFileName : injector.getNamedInstance(DriverLocalFiles.class)) {
       LOG.log(Level.FINEST, "Adding local file: {0}", localFileName);
-      jbuilder.addLocalFile(getFileResourceProto(localFileName, ReefServiceProtos.FileType.PLAIN));
+      jbuilder.addLocalFile(getFileResourceProto(localFileName, FileType.PLAIN));
     }
 
     for (final String localLibraryName : injector.getNamedInstance(DriverLocalLibraries.class)) {
       LOG.log(Level.FINEST, "Adding local library: {0}", localLibraryName);
-      jbuilder.addLocalFile(getFileResourceProto(localLibraryName, ReefServiceProtos.FileType.LIB));
+      jbuilder.addLocalFile(getFileResourceProto(localLibraryName, FileType.LIB));
     }
 
     return jbuilder;
@@ -130,7 +132,7 @@ final class JobSubmissionHelper {
    * @return
    * @throws IOException
    */
-  private static ReefServiceProtos.FileResourceProto getFileResourceProto(final String fileName, final ReefServiceProtos.FileType type) throws IOException {
+  private static FileResource getFileResourceProto(final String fileName, final FileType type) throws IOException {
     File file = new File(fileName);
     if (file.exists()) {
       // It is a local file and can be added.
@@ -138,7 +140,7 @@ final class JobSubmissionHelper {
         // If it is a directory, create a JAR file of it and add that instead.
         file = toJar(file);
       }
-      return ReefServiceProtos.FileResourceProto.newBuilder()
+      return FileResourceImpl.newBuilder()
           .setName(file.getName())
           .setPath(file.getPath())
           .setType(type)
@@ -150,7 +152,7 @@ final class JobSubmissionHelper {
         final URI uri = new URI(fileName);
         final String path = uri.getPath();
         final String name = path.substring(path.lastIndexOf('/') + 1);
-        return ReefServiceProtos.FileResourceProto.newBuilder()
+        return FileResourceImpl.newBuilder()
             .setName(name)
             .setPath(uri.toString())
             .setType(type)

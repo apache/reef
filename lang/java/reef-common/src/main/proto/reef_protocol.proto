@@ -30,8 +30,9 @@ option java_generate_equals_and_hash = true;
 option java_outer_classname = "REEFProtocol";
 
 message REEFMessage {
+    // Field 1 removed
+
     // Messages defined in client_runtime.proto
-    optional JobSubmissionProto jobSubmission = 1;
     optional JobControlProto jobControl = 2;
     // Messages defined in reef_service_protos.proto
     optional RuntimeErrorProto runtimeError = 3;

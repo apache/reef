@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -27,7 +27,8 @@ import org.apache.reef.wake.IdentifierFactory;
 import org.apache.reef.wake.impl.MultiEventHandler;
 import org.apache.reef.wake.impl.SyncStage;
 import org.apache.reef.wake.remote.Codec;
-import org.apache.reef.wake.remote.NetUtils;
+import org.apache.reef.wake.remote.address.LocalAddressProvider;
+import org.apache.reef.wake.remote.address.LocalAddressProviderFactory;
 import org.apache.reef.wake.remote.impl.TransportEvent;
 import org.apache.reef.wake.remote.transport.Transport;
 import org.apache.reef.wake.remote.transport.netty.NettyMessagingTransport;
@@ -35,7 +36,6 @@ import org.apache.reef.webserver.AvroReefServiceInfo;
 import org.apache.reef.webserver.ReefEventStateManager;
 
 import javax.inject.Inject;
-import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.*;
 import java.util.logging.Level;
@@ -52,6 +52,7 @@ public class NameServerImpl implements NameServer {
   private final Map<Identifier, InetSocketAddress> idToAddrMap;
   private final ReefEventStateManager reefEventStateManager;
   private final int port;
+  private final LocalAddressProvider localAddressProvider;
 
   /**
    * @param port    a listening port number
@@ -63,13 +64,15 @@ public class NameServerImpl implements NameServer {
   @Deprecated
   public NameServerImpl(
       final int port,
-      final IdentifierFactory factory) {
+      final IdentifierFactory factory,
+      final LocalAddressProvider localAddressProvider) {
 
+    this.localAddressProvider = localAddressProvider;
     this.reefEventStateManager = null;
     final Codec<NamingMessage> codec = NamingCodecFactory.createFullCodec(factory);
     final EventHandler<NamingMessage> handler = createEventHandler(codec);
 
-    this.transport = new NettyMessagingTransport(NetUtils.getLocalAddress(), port, null,
+    this.transport = new NettyMessagingTransport(localAddressProvider.getLocalAddress(), port, null,
         new SyncStage<>(new NamingServerHandler(handler, codec)), 3, 10000);
 
     this.port = transport.getListeningPort();
@@ -78,6 +81,25 @@ public class NameServerImpl implements NameServer {
     LOG.log(Level.FINE, "NameServer starting, listening at port {0}", this.port);
   }
 
+  /**
+   * @deprecated have an instance injected instead
+   */
+  @Deprecated
+  public NameServerImpl(final int port, final IdentifierFactory factory) {
+    this(port, factory, LocalAddressProviderFactory.getInstance());
+
+  }
+
+  /**
+   * @deprecated have an instance injected instead
+   */
+  @Deprecated
+  public NameServerImpl(
+      final int port,
+      final IdentifierFactory factory,
+      final ReefEventStateManager reefEventStateManager) {
+    this(port, factory, reefEventStateManager, LocalAddressProviderFactory.getInstance());
+  }
 
   /**
    * Constructs a name server
@@ -90,13 +112,16 @@ public class NameServerImpl implements NameServer {
   public NameServerImpl(
       final @Parameter(NameServerParameters.NameServerPort.class) int port,
       final @Parameter(NameServerParameters.NameServerIdentifierFactory.class) IdentifierFactory factory,
-      final ReefEventStateManager reefEventStateManager) {
+      final ReefEventStateManager reefEventStateManager,
+      final LocalAddressProvider localAddressProvider) {
+
+    this.localAddressProvider = localAddressProvider;
 
     this.reefEventStateManager = reefEventStateManager;
     final Codec<NamingMessage> codec = NamingCodecFactory.createFullCodec(factory);
     final EventHandler<NamingMessage> handler = createEventHandler(codec);
 
-    this.transport = new NettyMessagingTransport(NetUtils.getLocalAddress(), port, null,
+    this.transport = new NettyMessagingTransport(localAddressProvider.getLocalAddress(), port, null,
         new SyncStage<>(new NamingServerHandler(handler, codec)), 3, 10000);
 
     this.port = transport.getListeningPort();
@@ -195,7 +220,7 @@ public class NameServerImpl implements NameServer {
   }
 
   private String getNameServerId() {
-    return NetUtils.getLocalAddress() + ":" + getPort();
+    return this.localAddressProvider.getLocalAddress() + ":" + getPort();
   }
 }
 

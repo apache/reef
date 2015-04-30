@@ -19,7 +19,7 @@
 #
 
 # EXAMPLE USAGE 
-# ./run.sh org.apache.reef.examples.retained_eval.Launch -num_eval 2 -local false
+# ./run.sh org.apache.reef.examples.hello.HelloREEF
 
 # RUNTIME
 SELF_JAR=`echo $REEF_HOME/reef-examples/target/reef-examples-*-shaded.jar`

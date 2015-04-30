@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -24,6 +24,8 @@ import org.apache.reef.wake.impl.LoggingUtils;
 import org.apache.reef.wake.impl.MultiEventHandler;
 import org.apache.reef.wake.impl.TimerStage;
 import org.apache.reef.wake.remote.*;
+import org.apache.reef.wake.remote.address.LocalAddressProvider;
+import org.apache.reef.wake.remote.address.LocalAddressProviderFactory;
 import org.apache.reef.wake.remote.impl.*;
 import org.apache.reef.wake.remote.transport.Transport;
 import org.apache.reef.wake.remote.transport.netty.NettyMessagingTransport;
@@ -41,11 +43,16 @@ import java.util.*;
 import java.util.logging.Level;
 
 public class RemoteTest {
-
+  private final LocalAddressProvider localAddressProvider;
   @Rule
   public final TestName name = new TestName();
 
   final String logPrefix = "TEST ";
+
+
+  public RemoteTest() {
+    this.localAddressProvider = LocalAddressProviderFactory.getInstance();
+  }
 
   @Test
   public void testRemoteEventCodec() throws UnknownHostException {
@@ -54,8 +61,8 @@ public class RemoteTest {
     ObjectSerializableCodec<TestEvent> codec = new ObjectSerializableCodec<TestEvent>();
 
     RemoteEventCodec<TestEvent> reCodec = new RemoteEventCodec<TestEvent>(codec);
-    SocketAddress localAddr = new InetSocketAddress(NetUtils.getLocalAddress(), 8000);
-    SocketAddress remoteAddr = new InetSocketAddress(NetUtils.getLocalAddress(), 9000);
+    SocketAddress localAddr = new InetSocketAddress(this.localAddressProvider.getLocalAddress(), 8000);
+    SocketAddress remoteAddr = new InetSocketAddress(this.localAddressProvider.getLocalAddress(), 9000);
 
     RemoteEvent<TestEvent> e1 = new RemoteEvent<TestEvent>(
         localAddr, remoteAddr, "stage1", "stage2", 1, new TestEvent("hello", 0.0));
@@ -77,7 +84,7 @@ public class RemoteTest {
     // receiver stage
     final RemoteReceiverStage reRecvStage = new RemoteReceiverStage(null, null, 10);
 
-    String hostAddress = NetUtils.getLocalAddress();
+    final String hostAddress = this.localAddressProvider.getLocalAddress();
 
     // transport
     Transport transport1 = new NettyMessagingTransport(hostAddress, 0, reRecvStage, reRecvStage, 1, 10000);
@@ -122,7 +129,7 @@ public class RemoteTest {
     final RemoteReceiverStage reRecvStage = new RemoteReceiverStage(
         new RemoteEventHandler(decoder, handler), new LoggingEventHandler<Throwable>(), 10);
 
-    String hostAddress = NetUtils.getLocalAddress();
+    final String hostAddress = this.localAddressProvider.getLocalAddress();
 
     // transport
     Transport transport = new NettyMessagingTransport(hostAddress, port, reRecvStage, reRecvStage, 1, 10000);

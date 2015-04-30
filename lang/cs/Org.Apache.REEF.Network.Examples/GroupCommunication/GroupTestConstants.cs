@@ -30,7 +30,7 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication
         public const string SlaveTaskId = "SlaveTask-";
         public const int NumIterations = 10;
         public const int FanOut = 2;
-        public const int ChunkSize = 2;
-        public const int ArrayLength = 6;
+        public const int ChunkSize = 1000000;
+        public const int ArrayLength = 10000000;
     }
 }

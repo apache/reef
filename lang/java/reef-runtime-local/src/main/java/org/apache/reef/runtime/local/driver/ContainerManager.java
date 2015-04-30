@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -21,9 +21,10 @@ package org.apache.reef.runtime.local.driver;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.client.FailedRuntime;
-import org.apache.reef.proto.DriverRuntimeProtocol;
 import org.apache.reef.proto.ReefServiceProtos;
 import org.apache.reef.runtime.common.driver.api.RuntimeParameters;
+import org.apache.reef.runtime.common.driver.resourcemanager.NodeDescriptorEvent;
+import org.apache.reef.runtime.common.driver.resourcemanager.NodeDescriptorEventImpl;
 import org.apache.reef.runtime.common.files.REEFFileNames;
 import org.apache.reef.runtime.common.utils.RemoteManager;
 import org.apache.reef.runtime.local.client.parameters.MaxNumberOfEvaluators;
@@ -31,7 +32,7 @@ import org.apache.reef.runtime.local.client.parameters.RootFolder;
 import org.apache.reef.runtime.local.process.ReefRunnableProcessObserver;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.wake.EventHandler;
-import org.apache.reef.wake.remote.NetUtils;
+import org.apache.reef.wake.remote.address.LocalAddressProvider;
 import org.apache.reef.wake.remote.RemoteMessage;
 import org.apache.reef.wake.time.Time;
 import org.apache.reef.wake.time.runtime.RuntimeClock;
@@ -68,10 +69,11 @@ final class ContainerManager implements AutoCloseable {
 
   private final String errorHandlerRID;
   private final int capacity;
-  private final EventHandler<DriverRuntimeProtocol.NodeDescriptorProto> nodeDescriptorHandler;
+  private final EventHandler<NodeDescriptorEvent> nodeDescriptorHandler;
   private final File rootFolder;
   private final REEFFileNames fileNames;
   private final ReefRunnableProcessObserver processObserver;
+  private final String localAddress;
 
   @Inject
   ContainerManager(
@@ -81,15 +83,16 @@ final class ContainerManager implements AutoCloseable {
       final @Parameter(MaxNumberOfEvaluators.class) int capacity,
       final @Parameter(RootFolder.class) String rootFolderName,
       final @Parameter(RuntimeParameters.NodeDescriptorHandler.class)
-      EventHandler<DriverRuntimeProtocol.NodeDescriptorProto> nodeDescriptorHandler,
-      final ReefRunnableProcessObserver processObserver) {
-
+      EventHandler<NodeDescriptorEvent> nodeDescriptorHandler,
+      final ReefRunnableProcessObserver processObserver,
+      final LocalAddressProvider localAddressProvider) {
     this.capacity = capacity;
     this.fileNames = fileNames;
     this.processObserver = processObserver;
     this.errorHandlerRID = remoteManager.getMyIdentifier();
     this.nodeDescriptorHandler = nodeDescriptorHandler;
     this.rootFolder = new File(rootFolderName);
+    this.localAddress = localAddressProvider.getLocalAddress();
 
     LOG.log(Level.FINEST, "Initializing Container Manager with {0} containers", capacity);
 
@@ -128,10 +131,10 @@ final class ContainerManager implements AutoCloseable {
     for (int i = 0; i < capacity; i++) {
       final String id = idmaker.getNextID();
       this.freeNodeList.add(id);
-      nodeDescriptorHandler.onNext(DriverRuntimeProtocol.NodeDescriptorProto.newBuilder()
+      nodeDescriptorHandler.onNext(NodeDescriptorEventImpl.newBuilder()
           .setIdentifier(id)
           .setRackName("/default-rack")
-          .setHostName(NetUtils.getLocalAddress())
+          .setHostName(this.localAddress)
           .setPort(i)
           .setMemorySize(512) // TODO: Find the actual system memory on this machine.
           .build());

@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -20,13 +20,11 @@ package org.apache.reef.runtime.yarn.client;
 
 import org.apache.reef.annotations.audience.ClientSide;
 import org.apache.reef.annotations.audience.Public;
-import org.apache.reef.client.REEF;
-import org.apache.reef.client.RunningJob;
-import org.apache.reef.runtime.common.client.REEFImplementation;
-import org.apache.reef.runtime.common.client.RunningJobImpl;
+import org.apache.reef.client.parameters.DriverConfigurationProviders;
+import org.apache.reef.tang.ConfigurationProvider;
+import org.apache.reef.runtime.common.client.CommonRuntimeConfiguration;
 import org.apache.reef.runtime.common.client.api.JobSubmissionHandler;
 import org.apache.reef.runtime.common.files.RuntimeClasspathProvider;
-import org.apache.reef.runtime.common.launch.REEFMessageCodec;
 import org.apache.reef.runtime.common.parameters.JVMHeapSlack;
 import org.apache.reef.runtime.yarn.YarnClasspathProvider;
 import org.apache.reef.runtime.yarn.client.parameters.JobPriority;
@@ -34,9 +32,11 @@ import org.apache.reef.runtime.yarn.client.parameters.JobQueue;
 import org.apache.reef.runtime.yarn.util.YarnConfigurationConstructor;
 import org.apache.reef.tang.formats.ConfigurationModule;
 import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
+import org.apache.reef.tang.formats.OptionalImpl;
 import org.apache.reef.tang.formats.OptionalParameter;
 import org.apache.reef.util.logging.LoggingSetup;
-import org.apache.reef.wake.remote.RemoteConfiguration;
+import org.apache.reef.wake.remote.address.LocalAddressProvider;
+import org.apache.reef.wake.remote.ports.TcpPortProvider;
 
 /**
  * A ConfigurationModule for the YARN resourcemanager.
@@ -53,12 +53,27 @@ public class YarnClientConfiguration extends ConfigurationModuleBuilder {
 
   public static final OptionalParameter<Double> JVM_HEAP_SLACK = new OptionalParameter<>();
 
+  /**
+   * Configuration provides whose Configuration will be merged into all Driver Configuration.
+   */
+  public static final OptionalImpl<ConfigurationProvider> DRIVER_CONFIGURATION_PROVIDERS = new OptionalImpl<>();
+
+  /**
+   * The class used to restrict tcp port ranges for listening
+   * Note that you will likely want to bind the same class also to DRIVER_CONFIGURATION_PROVIDERS to make sure that
+   * the Driver (and the Evaluators) also use it.
+   */
+  public static final OptionalImpl<TcpPortProvider> TCP_PORT_PROVIDER = new OptionalImpl<>();
+
+  /**
+   * The class used to resolve the local address for Wake and HTTP to bind to.
+   * Note that you will likely want to bind the same class also to DRIVER_CONFIGURATION_PROVIDERS to make sure that
+   * the Driver (and the Evaluators) also use it.
+   */
+  public static final OptionalImpl<LocalAddressProvider> LOCAL_ADDRESS_PROVIDER = new OptionalImpl<>();
+
   public static final ConfigurationModule CONF = new YarnClientConfiguration()
-      // Bind the common resourcemanager
-      .bindImplementation(REEF.class, REEFImplementation.class)
-      .bindImplementation(RunningJob.class, RunningJobImpl.class)
-          // Bind the message codec for REEF.
-      .bindNamedParameter(RemoteConfiguration.MessageCodec.class, REEFMessageCodec.class)
+      .merge(CommonRuntimeConfiguration.CONF)
           // Bind YARN
       .bindImplementation(JobSubmissionHandler.class, YarnJobSubmissionHandler.class)
           // Bind the parameters given by the user
@@ -68,6 +83,10 @@ public class YarnClientConfiguration extends ConfigurationModuleBuilder {
       .bindImplementation(RuntimeClasspathProvider.class, YarnClasspathProvider.class)
           // Bind external constructors. Taken from  YarnExternalConstructors.registerClientConstructors
       .bindConstructor(org.apache.hadoop.yarn.conf.YarnConfiguration.class, YarnConfigurationConstructor.class)
+      .bindSetEntry(DriverConfigurationProviders.class, DRIVER_CONFIGURATION_PROVIDERS)
+          // Bind LocalAddressProvider
+      .bindImplementation(LocalAddressProvider.class, LOCAL_ADDRESS_PROVIDER)
+      .bindImplementation(TcpPortProvider.class, TCP_PORT_PROVIDER)
       .build();
 
 }

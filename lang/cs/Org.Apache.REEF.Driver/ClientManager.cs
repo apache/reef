@@ -23,6 +23,7 @@ using Org.Apache.REEF.Common.Protobuf.ReefProtocol;
 // TODO
 namespace Org.Apache.REEF.Driver
 {
+    [Obsolete("Driver core logic no longer needed in.NET")]
     public class ClientManager : IObserver<JobControlProto>
     {
         public void OnNext(JobControlProto value)

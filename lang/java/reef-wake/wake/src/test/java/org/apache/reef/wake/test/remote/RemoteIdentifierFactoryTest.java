@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -18,16 +18,17 @@
  */
 package org.apache.reef.wake.test.remote;
 
+import org.apache.reef.tang.Injector;
+import org.apache.reef.tang.Tang;
 import org.apache.reef.wake.Identifier;
 import org.apache.reef.wake.IdentifierFactory;
 import org.apache.reef.wake.impl.DefaultIdentifierFactory;
 import org.apache.reef.wake.impl.LoggingEventHandler;
-import org.apache.reef.wake.remote.Codec;
-import org.apache.reef.wake.remote.NetUtils;
-import org.apache.reef.wake.remote.RemoteIdentifier;
-import org.apache.reef.wake.remote.RemoteManager;
+import org.apache.reef.wake.remote.*;
+import org.apache.reef.wake.remote.address.LocalAddressProvider;
 import org.apache.reef.wake.remote.impl.DefaultRemoteManagerImplementation;
 import org.apache.reef.wake.remote.impl.MultiCodec;
+import org.apache.reef.wake.remote.ports.RangeTcpPortProvider;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
@@ -59,27 +60,25 @@ public class RemoteIdentifierFactoryTest {
 
   @Test
   public void testRemoteManagerIdentifier() throws Exception {
-    System.out.println(logPrefix + name.getMethodName());
+    final Injector injector = Tang.Factory.getTang().newInjector();
+    final LocalAddressProvider localAddressProvider = injector.getInstance(LocalAddressProvider.class);
 
-    int port = 9100;
-    Map<Class<?>, Codec<?>> clazzToCodecMap = new HashMap<Class<?>, Codec<?>>();
+    final int port = 9100;
+    final Map<Class<?>, Codec<?>> clazzToCodecMap = new HashMap<Class<?>, Codec<?>>();
     clazzToCodecMap.put(TestEvent.class, new TestEventCodec());
-    Codec<?> codec = new MultiCodec<Object>(clazzToCodecMap);
+    final Codec<?> codec = new MultiCodec<Object>(clazzToCodecMap);
 
-    String hostAddress = NetUtils.getLocalAddress();
 
-    RemoteManager rm = new DefaultRemoteManagerImplementation("TestRemoteManager",
-        hostAddress, port, codec, new LoggingEventHandler<Throwable>(), false, 1, 10000);
-    RemoteIdentifier id = rm.getMyIdentifier();
-    System.out.println(id.toString());
+    try (final RemoteManager rm = new DefaultRemoteManagerImplementation("TestRemoteManager",
+        localAddressProvider.getLocalAddress(), port, codec, new LoggingEventHandler<Throwable>(), false, 1, 10000,
+        localAddressProvider, RangeTcpPortProvider.Default)) {
+      final RemoteIdentifier id = rm.getMyIdentifier();
 
-    IdentifierFactory factory = new DefaultIdentifierFactory();
-    Identifier newid = factory.getNewInstance(id.toString());
-    System.out.println(newid.toString());
+      final IdentifierFactory factory = new DefaultIdentifierFactory();
+      final Identifier newId = factory.getNewInstance(id.toString());
 
-    Assert.assertTrue(id.equals(newid));
-
-    rm.close();
+      Assert.assertEquals(id, newId);
+    }
   }
 
 }

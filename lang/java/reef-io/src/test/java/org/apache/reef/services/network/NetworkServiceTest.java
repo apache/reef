@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -28,10 +28,13 @@ import org.apache.reef.io.network.naming.NameServerImpl;
 import org.apache.reef.io.network.util.StringIdentifierFactory;
 import org.apache.reef.services.network.util.Monitor;
 import org.apache.reef.services.network.util.StringCodec;
+import org.apache.reef.tang.Tang;
+import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.Identifier;
 import org.apache.reef.wake.IdentifierFactory;
-import org.apache.reef.wake.remote.NetUtils;
+import org.apache.reef.wake.remote.address.LocalAddressProvider;
+import org.apache.reef.wake.remote.address.LocalAddressProviderFactory;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
@@ -48,6 +51,14 @@ import java.util.logging.Logger;
 public class NetworkServiceTest {
   private static final Logger LOG = Logger.getLogger(NetworkServiceTest.class.getName());
 
+  private final LocalAddressProvider localAddressProvider;
+  private final String localAddress;
+
+  public NetworkServiceTest() throws InjectionException {
+    localAddressProvider = LocalAddressProviderFactory.getInstance();
+    localAddress = localAddressProvider.getLocalAddress();
+  }
+
   @Rule
   public TestName name = new TestName();
 
@@ -59,9 +70,8 @@ public class NetworkServiceTest {
     LOG.log(Level.FINEST, name.getMethodName());
 
     IdentifierFactory factory = new StringIdentifierFactory();
-    String nameServerAddr = NetUtils.getLocalAddress();
 
-    NameServer server = new NameServerImpl(0, factory);
+    NameServer server = new NameServerImpl(0, factory, localAddressProvider);
     int nameServerPort = server.getPort();
 
     final int numMessages = 10;
@@ -71,21 +81,21 @@ public class NetworkServiceTest {
     // network service
     final String name2 = "task2";
     NetworkService<String> ns2 = new NetworkService<String>(
-        factory, 0, nameServerAddr, nameServerPort,
-        new StringCodec(), new MessagingTransportFactory(),
-        new MessageHandler<String>(name2, monitor, numMessages), new ExceptionHandler());
+        factory, 0, this.localAddress, nameServerPort,
+        new StringCodec(), new MessagingTransportFactory(localAddressProvider),
+        new MessageHandler<String>(name2, monitor, numMessages), new ExceptionHandler(), localAddressProvider);
     ns2.registerId(factory.getNewInstance(name2));
     final int port2 = ns2.getTransport().getListeningPort();
-    server.register(factory.getNewInstance("task2"), new InetSocketAddress(nameServerAddr, port2));
+    server.register(factory.getNewInstance("task2"), new InetSocketAddress(this.localAddress, port2));
 
     LOG.log(Level.FINEST, "=== Test network service sender start");
     final String name1 = "task1";
-    final NetworkService<String> ns1 = new NetworkService<String>(factory, 0, nameServerAddr, nameServerPort,
-        new StringCodec(), new MessagingTransportFactory(),
-        new MessageHandler<String>(name1, null, 0), new ExceptionHandler());
+    final NetworkService<String> ns1 = new NetworkService<String>(factory, 0, this.localAddress, nameServerPort,
+        new StringCodec(), new MessagingTransportFactory(localAddressProvider),
+        new MessageHandler<String>(name1, null, 0), new ExceptionHandler(), localAddressProvider);
     ns1.registerId(factory.getNewInstance(name1));
     final int port1 = ns1.getTransport().getListeningPort();
-    server.register(factory.getNewInstance("task1"), new InetSocketAddress(nameServerAddr, port1));
+    server.register(factory.getNewInstance("task1"), new InetSocketAddress(this.localAddress, port1));
 
     final Identifier destId = factory.getNewInstance(name2);
     final Connection<String> conn = ns1.newConnection(destId);
@@ -115,9 +125,8 @@ public class NetworkServiceTest {
     LOG.log(Level.FINEST, name.getMethodName());
 
     IdentifierFactory factory = new StringIdentifierFactory();
-    String nameServerAddr = NetUtils.getLocalAddress();
 
-    NameServer server = new NameServerImpl(0, factory);
+    NameServer server = new NameServerImpl(0, factory, localAddressProvider);
     int nameServerPort = server.getPort();
 
     final int[] messageSizes = {1, 16, 32, 64, 512, 64 * 1024, 1024 * 1024};
@@ -130,22 +139,22 @@ public class NetworkServiceTest {
       // network service
       final String name2 = "task2";
       NetworkService<String> ns2 = new NetworkService<String>(
-          factory, 0, nameServerAddr, nameServerPort,
-          new StringCodec(), new MessagingTransportFactory(),
-          new MessageHandler<String>(name2, monitor, numMessages), new ExceptionHandler());
+          factory, 0, this.localAddress, nameServerPort,
+          new StringCodec(), new MessagingTransportFactory(localAddressProvider),
+          new MessageHandler<String>(name2, monitor, numMessages), new ExceptionHandler(), localAddressProvider);
       ns2.registerId(factory.getNewInstance(name2));
       final int port2 = ns2.getTransport().getListeningPort();
-      server.register(factory.getNewInstance("task2"), new InetSocketAddress(nameServerAddr, port2));
+      server.register(factory.getNewInstance("task2"), new InetSocketAddress(this.localAddress, port2));
 
       LOG.log(Level.FINEST, "=== Test network service sender start");
       final String name1 = "task1";
       NetworkService<String> ns1 = new NetworkService<String>(
-          factory, 0, nameServerAddr, nameServerPort,
-          new StringCodec(), new MessagingTransportFactory(),
-          new MessageHandler<String>(name1, null, 0), new ExceptionHandler());
+          factory, 0, this.localAddress, nameServerPort,
+          new StringCodec(), new MessagingTransportFactory(localAddressProvider),
+          new MessageHandler<String>(name1, null, 0), new ExceptionHandler(), localAddressProvider);
       ns1.registerId(factory.getNewInstance(name1));
       final int port1 = ns1.getTransport().getListeningPort();
-      server.register(factory.getNewInstance("task1"), new InetSocketAddress(nameServerAddr, port1));
+      server.register(factory.getNewInstance("task1"), new InetSocketAddress(this.localAddress, port1));
 
       Identifier destId = factory.getNewInstance(name2);
       Connection<String> conn = ns1.newConnection(destId);
@@ -187,9 +196,8 @@ public class NetworkServiceTest {
     LOG.log(Level.FINEST, name.getMethodName());
 
     final IdentifierFactory factory = new StringIdentifierFactory();
-    final String nameServerAddr = NetUtils.getLocalAddress();
 
-    final NameServer server = new NameServerImpl(0, factory);
+    final NameServer server = new NameServerImpl(0, factory, localAddressProvider);
     final int nameServerPort = server.getPort();
 
     BlockingQueue<Object> barrier = new LinkedBlockingQueue<Object>();
@@ -212,22 +220,22 @@ public class NetworkServiceTest {
             // network service
             final String name2 = "task2-" + tt;
             NetworkService<String> ns2 = new NetworkService<String>(
-                factory, 0, nameServerAddr, nameServerPort,
-                new StringCodec(), new MessagingTransportFactory(),
-                new MessageHandler<String>(name2, monitor, numMessages), new ExceptionHandler());
+                factory, 0, localAddress, nameServerPort,
+                new StringCodec(), new MessagingTransportFactory(localAddressProvider),
+                new MessageHandler<String>(name2, monitor, numMessages), new ExceptionHandler(), localAddressProvider);
             ns2.registerId(factory.getNewInstance(name2));
             final int port2 = ns2.getTransport().getListeningPort();
-            server.register(factory.getNewInstance(name2), new InetSocketAddress(nameServerAddr, port2));
+            server.register(factory.getNewInstance(name2), new InetSocketAddress(localAddress, port2));
 
             LOG.log(Level.FINEST, "=== Test network service sender start");
             final String name1 = "task1-" + tt;
             NetworkService<String> ns1 = new NetworkService<String>(
-                factory, 0, nameServerAddr, nameServerPort,
-                new StringCodec(), new MessagingTransportFactory(),
-                new MessageHandler<String>(name1, null, 0), new ExceptionHandler());
+                factory, 0, localAddress, nameServerPort,
+                new StringCodec(), new MessagingTransportFactory(localAddressProvider),
+                new MessageHandler<String>(name1, null, 0), new ExceptionHandler(), localAddressProvider);
             ns1.registerId(factory.getNewInstance(name1));
             final int port1 = ns1.getTransport().getListeningPort();
-            server.register(factory.getNewInstance(name1), new InetSocketAddress(nameServerAddr, port1));
+            server.register(factory.getNewInstance(name1), new InetSocketAddress(localAddress, port1));
 
             Identifier destId = factory.getNewInstance(name2);
             Connection<String> conn = ns1.newConnection(destId);
@@ -280,9 +288,8 @@ public class NetworkServiceTest {
     LOG.log(Level.FINEST, name.getMethodName());
 
     IdentifierFactory factory = new StringIdentifierFactory();
-    String nameServerAddr = NetUtils.getLocalAddress();
 
-    NameServer server = new NameServerImpl(0, factory);
+    NameServer server = new NameServerImpl(0, factory, localAddressProvider);
     int nameServerPort = server.getPort();
 
     final int[] messageSizes = {2000};// {1,16,32,64,512,64*1024,1024*1024};
@@ -297,22 +304,22 @@ public class NetworkServiceTest {
       // network service
       final String name2 = "task2";
       NetworkService<String> ns2 = new NetworkService<String>(
-          factory, 0, nameServerAddr, nameServerPort,
-          new StringCodec(), new MessagingTransportFactory(),
-          new MessageHandler<String>(name2, monitor, totalNumMessages), new ExceptionHandler());
+          factory, 0, this.localAddress, nameServerPort,
+          new StringCodec(), new MessagingTransportFactory(localAddressProvider),
+          new MessageHandler<String>(name2, monitor, totalNumMessages), new ExceptionHandler(), localAddressProvider);
       ns2.registerId(factory.getNewInstance(name2));
       final int port2 = ns2.getTransport().getListeningPort();
-      server.register(factory.getNewInstance("task2"), new InetSocketAddress(nameServerAddr, port2));
+      server.register(factory.getNewInstance("task2"), new InetSocketAddress(this.localAddress, port2));
 
       LOG.log(Level.FINEST, "=== Test network service sender start");
       final String name1 = "task1";
       NetworkService<String> ns1 = new NetworkService<String>(
-          factory, 0, nameServerAddr, nameServerPort,
-          new StringCodec(), new MessagingTransportFactory(),
-          new MessageHandler<String>(name1, null, 0), new ExceptionHandler());
+          factory, 0, this.localAddress, nameServerPort,
+          new StringCodec(), new MessagingTransportFactory(localAddressProvider),
+          new MessageHandler<String>(name1, null, 0), new ExceptionHandler(), localAddressProvider);
       ns1.registerId(factory.getNewInstance(name1));
       final int port1 = ns1.getTransport().getListeningPort();
-      server.register(factory.getNewInstance("task1"), new InetSocketAddress(nameServerAddr, port1));
+      server.register(factory.getNewInstance("task1"), new InetSocketAddress(this.localAddress, port1));
 
       Identifier destId = factory.getNewInstance(name2);
       final Connection<String> conn = ns1.newConnection(destId);
@@ -370,9 +377,8 @@ public class NetworkServiceTest {
     LOG.log(Level.FINEST, name.getMethodName());
 
     IdentifierFactory factory = new StringIdentifierFactory();
-    String nameServerAddr = NetUtils.getLocalAddress();
 
-    NameServer server = new NameServerImpl(0, factory);
+    NameServer server = new NameServerImpl(0, factory, localAddressProvider);
     int nameServerPort = server.getPort();
 
     final int batchSize = 1024 * 1024;
@@ -386,22 +392,22 @@ public class NetworkServiceTest {
       // network service
       final String name2 = "task2";
       NetworkService<String> ns2 = new NetworkService<String>(
-          factory, 0, nameServerAddr, nameServerPort,
-          new StringCodec(), new MessagingTransportFactory(),
-          new MessageHandler<String>(name2, monitor, numMessages), new ExceptionHandler());
+          factory, 0, this.localAddress, nameServerPort,
+          new StringCodec(), new MessagingTransportFactory(localAddressProvider),
+          new MessageHandler<String>(name2, monitor, numMessages), new ExceptionHandler(), localAddressProvider);
       ns2.registerId(factory.getNewInstance(name2));
       final int port2 = ns2.getTransport().getListeningPort();
-      server.register(factory.getNewInstance("task2"), new InetSocketAddress(nameServerAddr, port2));
+      server.register(factory.getNewInstance("task2"), new InetSocketAddress(this.localAddress, port2));
 
       LOG.log(Level.FINEST, "=== Test network service sender start");
       final String name1 = "task1";
       NetworkService<String> ns1 = new NetworkService<String>(
-          factory, 0, nameServerAddr, nameServerPort,
-          new StringCodec(), new MessagingTransportFactory(),
-          new MessageHandler<String>(name1, null, 0), new ExceptionHandler());
+          factory, 0, this.localAddress, nameServerPort,
+          new StringCodec(), new MessagingTransportFactory(localAddressProvider),
+          new MessageHandler<String>(name1, null, 0), new ExceptionHandler(), localAddressProvider);
       ns1.registerId(factory.getNewInstance(name1));
       final int port1 = ns1.getTransport().getListeningPort();
-      server.register(factory.getNewInstance("task1"), new InetSocketAddress(nameServerAddr, port1));
+      server.register(factory.getNewInstance("task1"), new InetSocketAddress(this.localAddress, port1));
 
       Identifier destId = factory.getNewInstance(name2);
       Connection<String> conn = ns1.newConnection(destId);
@@ -463,7 +469,7 @@ public class NetworkServiceTest {
 
       LOG.log(Level.FINEST,
           "OUT: {0} received {1} from {2} to {3}",
-          new Object[] { name, value.getData(), value.getSrcId(), value.getDestId() });
+          new Object[]{name, value.getData(), value.getSrcId(), value.getDestId()});
 
       for (final T obj : value.getData()) {
         LOG.log(Level.FINEST, "OUT: data: {0}", obj);

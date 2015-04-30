@@ -19,9 +19,10 @@
 package org.apache.reef.runtime.local.process;
 
 import net.jcip.annotations.ThreadSafe;
-import org.apache.reef.proto.DriverRuntimeProtocol;
 import org.apache.reef.proto.ReefServiceProtos;
 import org.apache.reef.runtime.common.driver.api.RuntimeParameters;
+import org.apache.reef.runtime.common.driver.resourcemanager.ResourceStatusEvent;
+import org.apache.reef.runtime.common.driver.resourcemanager.ResourceStatusEventImpl;
 import org.apache.reef.runtime.local.driver.ResourceManager;
 import org.apache.reef.tang.InjectionFuture;
 import org.apache.reef.tang.annotations.Parameter;
@@ -38,7 +39,7 @@ import java.util.logging.Logger;
 public final class ReefRunnableProcessObserver implements RunnableProcessObserver {
   private static final Logger LOG = Logger.getLogger(ReefRunnableProcessObserver.class.getName());
 
-  private final EventHandler<DriverRuntimeProtocol.ResourceStatusProto> resourceStatusHandler;
+  private final EventHandler<ResourceStatusEvent> resourceStatusHandler;
   private final InjectionFuture<ResourceManager> resourceManager;
 
   /**
@@ -46,7 +47,7 @@ public final class ReefRunnableProcessObserver implements RunnableProcessObserve
    */
   @Inject
   public ReefRunnableProcessObserver(final @Parameter(RuntimeParameters.ResourceStatusHandler.class)
-                                     EventHandler<DriverRuntimeProtocol.ResourceStatusProto> resourceStatusHandler,
+                                     EventHandler<ResourceStatusEvent> resourceStatusHandler,
                                      final InjectionFuture<ResourceManager> resourceManager) {
     this.resourceStatusHandler = resourceStatusHandler;
     this.resourceManager = resourceManager;
@@ -55,7 +56,7 @@ public final class ReefRunnableProcessObserver implements RunnableProcessObserve
   @Override
   public void onProcessStarted(final String processId) {
     this.onResourceStatus(
-        DriverRuntimeProtocol.ResourceStatusProto.newBuilder()
+        ResourceStatusEventImpl.newBuilder()
             .setIdentifier(processId)
             .setState(ReefServiceProtos.State.RUNNING)
             .build()
@@ -84,7 +85,7 @@ public final class ReefRunnableProcessObserver implements RunnableProcessObserve
    */
   private void onCleanExit(final String processId) {
     this.onResourceStatus(
-        DriverRuntimeProtocol.ResourceStatusProto.newBuilder()
+        ResourceStatusEventImpl.newBuilder()
             .setIdentifier(processId)
             .setState(ReefServiceProtos.State.DONE)
             .setExitCode(0)
@@ -100,7 +101,7 @@ public final class ReefRunnableProcessObserver implements RunnableProcessObserve
    */
   private void onUncleanExit(final String processId, final int exitCode) {
     this.onResourceStatus(
-        DriverRuntimeProtocol.ResourceStatusProto.newBuilder()
+        ResourceStatusEventImpl.newBuilder()
             .setIdentifier(processId)
             .setState(ReefServiceProtos.State.FAILED)
             .setExitCode(exitCode)
@@ -108,7 +109,7 @@ public final class ReefRunnableProcessObserver implements RunnableProcessObserve
     );
   }
 
-  private void onResourceStatus(final DriverRuntimeProtocol.ResourceStatusProto resourceStatus) {
+  private void onResourceStatus(final ResourceStatusEvent resourceStatus) {
     LOG.log(Level.INFO, "Sending resource status: {0} ", resourceStatus);
 
     // Here, we introduce an arbitrary wait. This is to make sure that at the exit of an Evaluator, the last

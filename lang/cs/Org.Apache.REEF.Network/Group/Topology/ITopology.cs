@@ -26,9 +26,9 @@ namespace Org.Apache.REEF.Network.Group.Topology
     /// <summary>
     /// Represents a topology graph for IGroupCommOperators.
     /// </summary>
-    public interface ITopology<T1, T2> where T2 : ICodec<T1>
+    public interface ITopology<T>
     {
-        IOperatorSpec<T1, T2> OperatorSpec { get; }
+        IOperatorSpec OperatorSpec { get; }
 
         IConfiguration GetTaskConfiguration(string taskId);
 

@@ -52,7 +52,10 @@ under the License.
   <ItemGroup>
     <Compile Include="Group\Codec\GcmMessageProto.cs" />
     <Compile Include="Group\Codec\GroupCommunicationMessageCodec.cs" />
+    <Compile Include="Group\Config\CodecConfiguration.cs" />
     <Compile Include="Group\Config\GroupCommConfigurationOptions.cs" />
+    <Compile Include="Group\Config\PipelineDataConverterConfiguration.cs" />
+    <Compile Include="Group\Config\ReduceFunctionConfiguration.cs" />
     <Compile Include="Group\Driver\ICommunicationGroupDriver.cs" />
     <Compile Include="Group\Driver\IGroupCommDriver.cs" />
     <Compile Include="Group\Driver\Impl\CommunicationGroupDriver.cs" />

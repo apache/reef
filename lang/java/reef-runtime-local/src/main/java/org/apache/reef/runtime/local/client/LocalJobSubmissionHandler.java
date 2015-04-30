@@ -20,14 +20,11 @@ package org.apache.reef.runtime.local.client;
 
 import org.apache.reef.annotations.audience.ClientSide;
 import org.apache.reef.annotations.audience.Private;
-import org.apache.reef.proto.ClientRuntimeProtocol;
+import org.apache.reef.runtime.common.client.api.JobSubmissionEvent;
 import org.apache.reef.runtime.common.client.api.JobSubmissionHandler;
 import org.apache.reef.runtime.common.files.ClasspathProvider;
 import org.apache.reef.runtime.common.files.REEFFileNames;
-import org.apache.reef.runtime.common.launch.JavaLaunchCommandBuilder;
 import org.apache.reef.runtime.local.client.parameters.RootFolder;
-import org.apache.reef.runtime.local.process.LoggingRunnableProcessObserver;
-import org.apache.reef.runtime.local.process.RunnableProcess;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.tang.formats.ConfigurationSerializer;
@@ -53,7 +50,6 @@ final class LocalJobSubmissionHandler implements JobSubmissionHandler {
   private final String rootFolderName;
   private final ConfigurationSerializer configurationSerializer;
   private final REEFFileNames fileNames;
-  private final ClasspathProvider classpath;
   private final PreparedDriverFolderLauncher driverLauncher;
   private final LoggingScopeFactory loggingScopeFactory;
   private final DriverConfigurationProvider driverConfigurationProvider;
@@ -64,7 +60,6 @@ final class LocalJobSubmissionHandler implements JobSubmissionHandler {
       final @Parameter(RootFolder.class) String rootFolderName,
       final ConfigurationSerializer configurationSerializer,
       final REEFFileNames fileNames,
-      final ClasspathProvider classpath,
 
       final PreparedDriverFolderLauncher driverLauncher,
       final LoggingScopeFactory loggingScopeFactory,
@@ -73,7 +68,6 @@ final class LocalJobSubmissionHandler implements JobSubmissionHandler {
     this.executor = executor;
     this.configurationSerializer = configurationSerializer;
     this.fileNames = fileNames;
-    this.classpath = classpath;
 
     this.driverLauncher = driverLauncher;
     this.driverConfigurationProvider = driverConfigurationProvider;
@@ -89,7 +83,7 @@ final class LocalJobSubmissionHandler implements JobSubmissionHandler {
   }
 
   @Override
-  public final void onNext(final ClientRuntimeProtocol.JobSubmissionProto t) {
+  public final void onNext(final JobSubmissionEvent t) {
     try (final LoggingScope lf = loggingScopeFactory.localJobSubmission()) {
       try {
         LOG.log(Level.FINEST, "Starting local job {0}", t.getIdentifier());
@@ -104,8 +98,7 @@ final class LocalJobSubmissionHandler implements JobSubmissionHandler {
         driverFiles.copyTo(driverFolder);
 
         final Configuration driverConfiguration = this.driverConfigurationProvider
-            .getDriverConfiguration(jobFolder, t.getRemoteId(), t.getIdentifier(),
-                configurationSerializer.fromString(t.getConfiguration()));
+            .getDriverConfiguration(jobFolder, t.getRemoteId(), t.getIdentifier(), t.getConfiguration());
 
         this.configurationSerializer.toFile(driverConfiguration,
             new File(driverFolder, this.fileNames.getDriverConfigurationPath()));

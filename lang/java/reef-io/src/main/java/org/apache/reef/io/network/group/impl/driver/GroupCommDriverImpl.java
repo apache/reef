@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -54,7 +54,8 @@ import org.apache.reef.wake.impl.LoggingEventHandler;
 import org.apache.reef.wake.impl.SingleThreadStage;
 import org.apache.reef.wake.impl.SyncStage;
 import org.apache.reef.wake.impl.ThreadPoolStage;
-import org.apache.reef.wake.remote.NetUtils;
+import org.apache.reef.wake.remote.address.LocalAddressProvider;
+import org.apache.reef.wake.remote.address.LocalAddressProviderFactory;
 
 import javax.inject.Inject;
 import java.util.HashMap;
@@ -79,7 +80,7 @@ public class GroupCommDriverImpl implements GroupCommServiceDriver {
 
   private final IdentifierFactory idFac = new StringIdentifierFactory();
 
-  private final NameServer nameService = new NameServerImpl(0, idFac);
+  private final NameServer nameService;
 
   private final String nameServiceAddr;
   private final int nameServicePort;
@@ -103,14 +104,31 @@ public class GroupCommDriverImpl implements GroupCommServiceDriver {
   private final EStage<GroupCommunicationMessage> groupCommMessageStage;
   private final int fanOut;
 
+  /**
+   * @deprecated Have an instance injected instead.
+   */
+  @Deprecated
   @Inject
   public GroupCommDriverImpl(final ConfigurationSerializer confSerializer,
                              @Parameter(DriverIdentifier.class) final String driverId,
                              @Parameter(TreeTopologyFanOut.class) final int fanOut) {
+    this(confSerializer, driverId, fanOut, LocalAddressProviderFactory.getInstance());
+  }
+
+  /**
+   * @deprecated Have an instance injected instead.
+   */
+  @Deprecated
+  @Inject
+  public GroupCommDriverImpl(final ConfigurationSerializer confSerializer,
+                             @Parameter(DriverIdentifier.class) final String driverId,
+                             @Parameter(TreeTopologyFanOut.class) final int fanOut,
+                             final LocalAddressProvider localAddressProvider) {
     assert (SingletonAsserter.assertSingleton(getClass()));
     this.driverId = driverId;
     this.fanOut = fanOut;
-    this.nameServiceAddr = NetUtils.getLocalAddress();
+    this.nameService = new NameServerImpl(0, idFac, localAddressProvider);
+    this.nameServiceAddr = localAddressProvider.getLocalAddress();
     this.nameServicePort = nameService.getPort();
     this.confSerializer = confSerializer;
     this.groupCommRunningTaskHandler = new BroadcastingEventHandler<>();
@@ -123,14 +141,14 @@ public class GroupCommDriverImpl implements GroupCommServiceDriver {
     this.groupCommMessageHandler = new GroupCommMessageHandler();
     this.groupCommMessageStage = new SingleThreadStage<>("GroupCommMessageStage", groupCommMessageHandler, 100 * 1000);
     this.netService = new NetworkService<>(idFac, 0, nameServiceAddr, nameServicePort,
-        new GroupCommunicationMessageCodec(), new MessagingTransportFactory(),
+        new GroupCommunicationMessageCodec(), new MessagingTransportFactory(localAddressProvider),
         new EventHandler<Message<GroupCommunicationMessage>>() {
 
           @Override
           public void onNext(final Message<GroupCommunicationMessage> msg) {
             groupCommMessageStage.onNext(Utils.getGCM(msg));
           }
-        }, new LoggingEventHandler<Exception>());
+        }, new LoggingEventHandler<Exception>(), localAddressProvider);
     this.netService.registerId(idFac.getNewInstance(driverId));
     this.senderStage = new ThreadPoolStage<>("SrcCtrlMsgSender", new CtrlMsgSender(idFac, netService), 5);
   }

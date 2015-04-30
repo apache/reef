@@ -18,7 +18,7 @@
  */
 package org.apache.reef.runtime.local.driver;
 
-import org.apache.reef.proto.DriverRuntimeProtocol;
+import org.apache.reef.runtime.common.driver.api.ResourceRequestEventImpl;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -56,6 +56,6 @@ public final class ResourceRequestTest {
   }
 
   private ResourceRequest get(final int n) {
-    return new ResourceRequest(DriverRuntimeProtocol.ResourceRequestProto.newBuilder().setResourceCount(n).setMemorySize(128).build());
+    return new ResourceRequest(ResourceRequestEventImpl.newBuilder().setResourceCount(n).setMemorySize(128).build());
   }
 }

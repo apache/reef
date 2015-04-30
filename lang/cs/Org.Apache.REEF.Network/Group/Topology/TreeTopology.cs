@@ -27,11 +27,16 @@ using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Wake.Remote;
 using Org.Apache.REEF.Network.Group.Pipelining;
+using Org.Apache.REEF.Network.Group.Task.Impl;
+using Org.Apache.REEF.Tang.Implementations.Configuration;
+using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Network.Group.Topology
 {
-    public class TreeTopology<T1, T2> : ITopology<T1, T2> where T2 : ICodec<T1>
+    public class TreeTopology<T> : ITopology<T> 
     {
+        private readonly Logger LOGGER = Logger.GetLogger(typeof(TreeTopology<T>));
+
         private readonly string _groupName;
         private readonly string _operatorName;
 
@@ -59,7 +64,7 @@ namespace Org.Apache.REEF.Network.Group.Topology
             string groupName, 
             string rootId,
             string driverId,
-            IOperatorSpec<T1, T2> operatorSpec,
+            IOperatorSpec operatorSpec,
             int fanOut)
         {
             _groupName = groupName;
@@ -73,7 +78,7 @@ namespace Org.Apache.REEF.Network.Group.Topology
             _nodes = new Dictionary<string, TaskNode>(); 
         }
 
-        public IOperatorSpec<T1, T2> OperatorSpec { get; set; }
+        public IOperatorSpec OperatorSpec { get; set; }
 
         /// <summary>
         /// Gets the task configuration for the operator topology.
@@ -105,8 +110,8 @@ namespace Org.Apache.REEF.Network.Group.Topology
             }
 
             //add parentid, if no parent, add itself
-            var confBuilder = TangFactory.GetTang().NewConfigurationBuilder()
-                .BindImplementation(typeof(ICodec<T1>), OperatorSpec.Codec)
+            ICsConfigurationBuilder confBuilder = TangFactory.GetTang().NewConfigurationBuilder()
+                //.BindImplementation(typeof(ICodec<T1>), OperatorSpec.Codec)
                 .BindNamedParameter<GroupCommConfigurationOptions.TopologyRootTaskId, string>(
                     GenericType<GroupCommConfigurationOptions.TopologyRootTaskId>.Class,
                     parentId);
@@ -119,48 +124,40 @@ namespace Org.Apache.REEF.Network.Group.Topology
                     childNode.TaskId);
             }
 
-            if (OperatorSpec is BroadcastOperatorSpec<T1, T2>)
+            if (OperatorSpec is BroadcastOperatorSpec)
             {
-                var broadcastSpec = OperatorSpec as BroadcastOperatorSpec<T1, T2>;
-                confBuilder.AddConfiguration(broadcastSpec.PipelineDataConverter.GetConfiguration());
-                confBuilder.BindImplementation(typeof(IPipelineDataConverter<T1>), broadcastSpec.PipelineDataConverter.GetType())
-                .BindImplementation(GenericType<ICodec<PipelineMessage<T1>>>.Class, GenericType<PipelineMessageCodec<T1>>.Class);
+                var broadcastSpec = OperatorSpec as BroadcastOperatorSpec;
                 if (taskId.Equals(broadcastSpec.SenderId))
                 {
-                    confBuilder.BindImplementation(GenericType<IGroupCommOperator<T1>>.Class, GenericType<BroadcastSender<T1>>.Class);
+                    confBuilder.BindImplementation(GenericType<IGroupCommOperator<T>>.Class, GenericType<BroadcastSender<T>>.Class);
                 }
                 else
                 {
-                    confBuilder.BindImplementation(GenericType<IGroupCommOperator<T1>>.Class, GenericType<BroadcastReceiver<T1>>.Class);
+                    confBuilder.BindImplementation(GenericType<IGroupCommOperator<T>>.Class, GenericType<BroadcastReceiver<T>>.Class);
                 }
             }
-            else if (OperatorSpec is ReduceOperatorSpec<T1, T2>)
+            else if (OperatorSpec is ReduceOperatorSpec)
             {
-                var reduceSpec = OperatorSpec as ReduceOperatorSpec<T1, T2>;
-                confBuilder.AddConfiguration(reduceSpec.PipelineDataConverter.GetConfiguration());
-                confBuilder.BindImplementation(typeof(IPipelineDataConverter<T1>), reduceSpec.PipelineDataConverter.GetType())
-                .BindImplementation(typeof(IReduceFunction<T1>), reduceSpec.ReduceFunction.GetType())
-                .BindImplementation(GenericType<ICodec<PipelineMessage<T1>>>.Class, GenericType<PipelineMessageCodec<T1>>.Class);
-
+                var reduceSpec = OperatorSpec as ReduceOperatorSpec;
                 if (taskId.Equals(reduceSpec.ReceiverId))
                 {
-                    confBuilder.BindImplementation(GenericType<IGroupCommOperator<T1>>.Class, GenericType<ReduceReceiver<T1>>.Class);
+                    confBuilder.BindImplementation(GenericType<IGroupCommOperator<T>>.Class, GenericType<ReduceReceiver<T>>.Class);
                 }
                 else
                 {
-                    confBuilder.BindImplementation(GenericType<IGroupCommOperator<T1>>.Class, GenericType<ReduceSender<T1>>.Class);
+                    confBuilder.BindImplementation(GenericType<IGroupCommOperator<T>>.Class, GenericType<ReduceSender<T>>.Class);
                 }
             }
-            else if (OperatorSpec is ScatterOperatorSpec<T1, T2>)
+            else if (OperatorSpec is ScatterOperatorSpec)
             {
-                ScatterOperatorSpec<T1, T2> scatterSpec = OperatorSpec as ScatterOperatorSpec<T1, T2>;
+                ScatterOperatorSpec scatterSpec = OperatorSpec as ScatterOperatorSpec;
                 if (taskId.Equals(scatterSpec.SenderId))
                 {
-                    confBuilder.BindImplementation(GenericType<IGroupCommOperator<T1>>.Class, GenericType<ScatterSender<T1>>.Class);
+                    confBuilder.BindImplementation(GenericType<IGroupCommOperator<T>>.Class, GenericType<ScatterSender<T>>.Class);
                 }
                 else
                 {
-                    confBuilder.BindImplementation(GenericType<IGroupCommOperator<T1>>.Class, GenericType<ScatterReceiver<T1>>.Class);
+                    confBuilder.BindImplementation(GenericType<IGroupCommOperator<T>>.Class, GenericType<ScatterReceiver<T>>.Class);
                 }
             }
             else
@@ -168,7 +165,7 @@ namespace Org.Apache.REEF.Network.Group.Topology
                 throw new NotSupportedException("Spec type not supported");
             }
 
-            return confBuilder.Build();
+            return Configurations.Merge(confBuilder.Build(), OperatorSpec.Configiration);
         }
 
         public void AddTask(string taskId)

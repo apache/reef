@@ -20,7 +20,7 @@ package org.apache.reef.runtime.mesos.driver;
 
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
-import org.apache.reef.proto.DriverRuntimeProtocol;
+import org.apache.reef.runtime.common.driver.api.ResourceReleaseEvent;
 import org.apache.reef.runtime.common.driver.api.ResourceReleaseHandler;
 
 import javax.inject.Inject;
@@ -36,7 +36,7 @@ final class MesosResourceReleaseHandler implements ResourceReleaseHandler {
   }
 
   @Override
-  public void onNext(final DriverRuntimeProtocol.ResourceReleaseProto resourceReleaseProto) {
-    REEFScheduler.onResourceRelease(resourceReleaseProto);
+  public void onNext(final ResourceReleaseEvent resourceReleaseEvent) {
+    REEFScheduler.onResourceRelease(resourceReleaseEvent);
   }
 }

@@ -19,7 +19,10 @@
 package org.apache.reef.runtime.common.driver.api;
 
 import org.apache.reef.annotations.audience.RuntimeAuthor;
-import org.apache.reef.proto.DriverRuntimeProtocol;
+import org.apache.reef.runtime.common.driver.resourcemanager.NodeDescriptorEvent;
+import org.apache.reef.runtime.common.driver.resourcemanager.ResourceAllocationEvent;
+import org.apache.reef.runtime.common.driver.resourcemanager.ResourceStatusEvent;
+import org.apache.reef.runtime.common.driver.resourcemanager.RuntimeStatusEvent;
 import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
 import org.apache.reef.wake.EventHandler;
@@ -32,19 +35,19 @@ import org.apache.reef.wake.EventHandler;
 public final class RuntimeParameters {
 
   @NamedParameter(doc = "The resource allocation handler that stub runtimes send along allocated resources e.g., containers.")
-  public final static class ResourceAllocationHandler implements Name<EventHandler<DriverRuntimeProtocol.ResourceAllocationProto>> {
+  public final static class ResourceAllocationHandler implements Name<EventHandler<ResourceAllocationEvent>> {
   }
 
   @NamedParameter(doc = "The node descriptor handler that stub runtimes send along node information.")
-  public final static class NodeDescriptorHandler implements Name<EventHandler<DriverRuntimeProtocol.NodeDescriptorProto>> {
+  public final static class NodeDescriptorHandler implements Name<EventHandler<NodeDescriptorEvent>> {
   }
 
   @NamedParameter(doc = "The resource status handler.")
-  public final static class ResourceStatusHandler implements Name<EventHandler<DriverRuntimeProtocol.ResourceStatusProto>> {
+  public final static class ResourceStatusHandler implements Name<EventHandler<ResourceStatusEvent>> {
   }
 
   @NamedParameter(doc = "The resourcemanager status handler.")
-  public final static class RuntimeStatusHandler implements Name<EventHandler<DriverRuntimeProtocol.RuntimeStatusProto>> {
+  public final static class RuntimeStatusHandler implements Name<EventHandler<RuntimeStatusEvent>> {
   }
 
 }

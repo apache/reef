@@ -49,6 +49,11 @@ under the License.
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Evaluator.cs" />
+    <Compile Include="Exceptions\ClockInstantiationException.cs" />
+    <Compile Include="Exceptions\EvaluatorConfigurationFileNotFoundException.cs" />
+    <Compile Include="Exceptions\EvaluatorConfigurationParseException.cs" />
+    <Compile Include="Exceptions\EvaluatorInjectorInstantiationException.cs" />
+    <Compile Include="Exceptions\UnhandledException.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

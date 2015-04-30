@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -21,8 +21,10 @@ package org.apache.reef.io.network.impl;
 import org.apache.reef.io.network.TransportFactory;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.impl.SyncStage;
-import org.apache.reef.wake.remote.NetUtils;
+import org.apache.reef.wake.remote.address.LocalAddressProvider;
+import org.apache.reef.wake.remote.address.LocalAddressProviderFactory;
 import org.apache.reef.wake.remote.impl.TransportEvent;
+import org.apache.reef.wake.remote.ports.RangeTcpPortProvider;
 import org.apache.reef.wake.remote.transport.Transport;
 import org.apache.reef.wake.remote.transport.netty.NettyMessagingTransport;
 
@@ -33,8 +35,23 @@ import javax.inject.Inject;
  */
 public class MessagingTransportFactory implements TransportFactory {
 
+  private final String localAddress;
+
+  /**
+   * @deprecated Have an instance injected instead.
+   */
+  @Deprecated
   @Inject
+  public MessagingTransportFactory(final LocalAddressProvider localAddressProvider) {
+    this.localAddress = localAddressProvider.getLocalAddress();
+  }
+
+  /**
+   * @deprecated Have an instance injected instead.
+   */
+  @Deprecated
   public MessagingTransportFactory() {
+    this.localAddress = LocalAddressProviderFactory.getInstance().getLocalAddress();
   }
 
   /**
@@ -51,8 +68,8 @@ public class MessagingTransportFactory implements TransportFactory {
                           final EventHandler<TransportEvent> serverHandler,
                           final EventHandler<Exception> exHandler) {
 
-    final Transport transport = new NettyMessagingTransport(NetUtils.getLocalAddress(),
-        port, new SyncStage<>(clientHandler), new SyncStage<>(serverHandler), 3, 10000);
+    final Transport transport = new NettyMessagingTransport(this.localAddress,
+        port, new SyncStage<>(clientHandler), new SyncStage<>(serverHandler), 3, 10000, RangeTcpPortProvider.Default);
 
     transport.registerErrorHandler(exHandler);
     return transport;

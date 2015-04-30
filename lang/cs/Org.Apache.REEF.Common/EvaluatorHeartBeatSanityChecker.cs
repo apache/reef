@@ -24,6 +24,7 @@ using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Common
 {
+    [Obsolete("Driver core logic no longer needed in.NET")]
     public class EvaluatorHeartBeatSanityChecker
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(EvaluatorHeartBeatSanityChecker));
