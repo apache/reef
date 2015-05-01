@@ -1,4 +1,23 @@
-﻿using System;
+﻿/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -34,41 +53,41 @@ namespace Org.Apache.REEF.Wake.Tests
         }
 
         /// <summary>
-        /// Reads the string from the stream
+        /// Reads the string
         /// </summary>
-        /// <param name="stream">stream from which reading is done</param>
-        public void Read(Stream stream)
+        /// <param name="reader">reader to read from</param>
+        public void Read(IDataReader reader)
         {
-            Data = AuxillaryStreamingFunctions.StreamToString(stream);
+            Data = reader.ReadString();
         }
 
         /// <summary>
-        /// Writes the string to the stream
+        /// Writes the string
         /// </summary>
-        /// <param name="stream">The stream to which string is written</param>
-        public void Write(Stream stream)
+        /// <param name="writer">Writer to write</param>
+        public void Write(IDataWriter writer)
         {
-            AuxillaryStreamingFunctions.StringToStream(Data, stream);
+            writer.WriteString(Data);
         }
 
         /// <summary>
-        /// Reads the string from the stream
+        /// Reads the string
         /// </summary>
-        /// <param name="stream">stream from which reading is done</param>
+        /// <param name="reader">reader to read from</param>
         /// <param name="token">the cancellation token</param>
-        public async Task ReadAsync(Stream stream, CancellationToken token)
+        public async Task ReadAsync(IDataReader reader, CancellationToken token)
         {
-            Data = await AuxillaryStreamingFunctions.StreamToStringAsync(stream, token);
+            Data = await reader.ReadStringAsync(token);
         }
 
         /// <summary>
-        /// Writes the string to the stream
+        /// Writes the string
         /// </summary>
-        /// <param name="stream">The stream to which string is written</param>
+        /// <param name="writer">Writer to write</param>
         /// <param name="token">the cancellation token</param>
-        public async Task WriteAsync(Stream stream, CancellationToken token)
+        public async Task WriteAsync(IDataWriter writer, CancellationToken token)
         {
-            await AuxillaryStreamingFunctions.StringToStreamAsync(Data, stream, token);
+            await writer.WriteStringAsync(Data, token);
         }
     }
 }

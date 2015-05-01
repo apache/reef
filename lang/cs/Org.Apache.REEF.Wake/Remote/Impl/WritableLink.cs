@@ -45,7 +45,17 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         /// <summary>
         /// Cache structure to store the constructor functions for various types.
         /// </summary>
-        private readonly TypeCache<T> _cache; 
+        private readonly TypeCache<T> _cache;
+
+        /// <summary>
+        /// Stream reader to be passed to IWritable
+        /// </summary>
+        private readonly StreamDataReader _reader;
+
+        /// <summary>
+        /// Stream writer from which to read from IWritable
+        /// </summary>
+        private readonly StreamDataWriter _writer;
 
         /// <summary>
         /// Constructs a Link object.
@@ -66,6 +76,8 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
             _localEndpoint = GetLocalEndpoint();
             _disposed = false;
             _cache = new TypeCache<T>();
+            _reader = new StreamDataReader(_stream);
+            _writer = new StreamDataWriter(_stream);
         }
 
         /// <summary>
@@ -85,6 +97,8 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
             _localEndpoint = GetLocalEndpoint();
             _disposed = false;
             _cache = new TypeCache<T>();
+            _reader = new StreamDataReader(_stream);
+            _writer = new StreamDataWriter(_stream);
         }
 
         /// <summary>
@@ -123,9 +137,8 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
                 Exceptions.Throw(new IllegalStateException("Link has been closed."), Logger);
             }
 
-            
-            AuxillaryStreamingFunctions.StringToStream(value.GetType().AssemblyQualifiedName, _stream);
-            value.Write(_stream);
+            _writer.WriteString(value.GetType().AssemblyQualifiedName);
+            value.Write(_writer);
         }
 
         /// <summary>
@@ -140,8 +153,8 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
                 Exceptions.Throw(new IllegalStateException("Link has been closed."), Logger);
             }
 
-            await AuxillaryStreamingFunctions.StringToStreamAsync(value.GetType().AssemblyQualifiedName, _stream, token);
-            await value.WriteAsync(_stream, token);
+            await _writer.WriteStringAsync(value.GetType().AssemblyQualifiedName, token);
+            await value.WriteAsync(_writer, token);
         }
 
         /// <summary>
@@ -154,7 +167,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
                 Exceptions.Throw(new IllegalStateException("Link has been disposed."), Logger);
             }
 
-            string dataType = AuxillaryStreamingFunctions.StreamToString(_stream);
+            string dataType = _reader.ReadString();
 
             if (dataType == null)
             {
@@ -168,7 +181,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
                 return default(T);
             }
             
-            value.Read(_stream);
+            value.Read(_reader);
             return value;
         }
 
@@ -185,7 +198,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
 
             string dataType = "";
 
-            dataType = await AuxillaryStreamingFunctions.StreamToStringAsync(_stream, token);
+            dataType = await _reader.ReadStringAsync(token);
 
             if (dataType == null)
             {
@@ -199,7 +212,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
                 return default(T);
             }
 
-            await value.ReadAsync(_stream, token);
+            await value.ReadAsync(_reader, token);
             return value;
         }
 
