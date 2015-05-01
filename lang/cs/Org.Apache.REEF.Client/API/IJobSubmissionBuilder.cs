@@ -23,12 +23,12 @@ using Org.Apache.REEF.Tang.Interface;
 namespace Org.Apache.REEF.Client.API
 {
     /// <summary>
-    ///     Facilitates building of job submissions
+    /// Facilitates building of job submissions
     /// </summary>
     public interface IJobSubmissionBuilder
     {
         /// <summary>
-        ///     Bake the information provided so far and return a IJobSubmission 
+        /// Bake the information provided so far and return a IJobSubmission 
         /// </summary>
         IJobSubmission Build();
 

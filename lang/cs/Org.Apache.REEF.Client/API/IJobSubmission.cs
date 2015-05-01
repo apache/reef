@@ -22,43 +22,43 @@ using Org.Apache.REEF.Tang.Interface;
 namespace Org.Apache.REEF.Client.API
 {
     /// <summary>
-    ///     This interfaces provides all the information that is needed for 
-    ///     a job submission
+    /// This interfaces provides all the information that is needed for 
+    /// a job submission
     /// </summary>
     public interface IJobSubmission
     {
         /// <summary>
-        ///     The assemblies to be made available to all containers.
+        /// The assemblies to be made available to all containers.
         /// </summary>
         ISet<string> GlobalAssemblies { get; }
 
         /// <summary>
-        ///     The driver configurations
+        /// The driver configurations
         /// </summary>
         ISet<IConfiguration> DriverConfigurations { get; }
 
         /// <summary>
-        ///     Global files. 
+        /// Global files. 
         /// </summary>
         ISet<string> GlobalFiles { get; }
 
         /// <summary>
-        ///     Local assemblies.
+        /// Local assemblies.
         /// </summary>
         ISet<string> LocalAssemblies { get; }
 
         /// <summary>
-        ///     Local files. 
+        /// Local files. 
         /// </summary>
         ISet<string> LocalFiles { get; }
 
         /// <summary>
-        ///     Driver memory in MegaBytes. 
+        /// Driver memory in MegaBytes. 
         /// </summary>
         int DriverMemory { get; }
 
         /// <summary>
-        ///     The Job's identifier
+        /// The Job's identifier
         /// </summary>
         string JobIdentifier { get; }
     }
