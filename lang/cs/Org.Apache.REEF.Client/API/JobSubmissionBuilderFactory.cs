@@ -33,7 +33,7 @@ namespace Org.Apache.REEF.Client.API
 
         [Inject]
         internal JobSubmissionBuilderFactory(
-            [Parameter(typeof (DriverConfigurationProviders))] ISet<IConfigurationProvider> configurationProviders)
+            [Parameter(typeof(DriverConfigurationProviders))] ISet<IConfigurationProvider> configurationProviders)
         {
             _configurationProviders = configurationProviders;
         }

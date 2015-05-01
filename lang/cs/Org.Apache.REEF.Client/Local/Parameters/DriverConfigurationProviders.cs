@@ -23,8 +23,11 @@ using Org.Apache.REEF.Tang.Interface;
 
 namespace Org.Apache.REEF.Client.Local.Parameters
 {
+    /// <summary>
+    // This name parameter is used to target receviers Configuration providers at driver level
+    /// </summary>
     [NamedParameter]
-    public class DriverConfigurationProviders : Name<ISet<IConfigurationProvider>>
+    public sealed class DriverConfigurationProviders : Name<ISet<IConfigurationProvider>>
     {
     }
 }

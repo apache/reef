@@ -42,7 +42,7 @@ namespace Org.Apache.REEF.Client.API
 
 
         /// <summary>
-        ///     Add a file to be made available in all containers.
+        /// Add a file to be made available in all containers.
         /// </summary>
         /// <param name="fileName"></param>
         /// <returns></returns>
@@ -53,7 +53,7 @@ namespace Org.Apache.REEF.Client.API
         }
 
         /// <summary>
-        ///     Add a file to be made available only on the driver.
+        /// Add a file to be made available only on the driver.
         /// </summary>
         /// <param name="fileName"></param>
         /// <returns></returns>
@@ -64,7 +64,7 @@ namespace Org.Apache.REEF.Client.API
         }
 
         /// <summary>
-        ///     Add an assembly to be made available on all containers.
+        /// Add an assembly to be made available on all containers.
         /// </summary>
         /// <param name="fileName"></param>
         /// <returns></returns>
@@ -75,7 +75,7 @@ namespace Org.Apache.REEF.Client.API
         }
 
         /// <summary>
-        ///     Add an assembly to the driver only.
+        /// Add an assembly to the driver only.
         /// </summary>
         /// <param name="fileName"></param>
         /// <returns></returns>
@@ -86,7 +86,7 @@ namespace Org.Apache.REEF.Client.API
         }
 
         /// <summary>
-        ///     Add a Configuration to the Driver.
+        /// Add a Configuration to the Driver.
         /// </summary>
         /// <param name="configuration"></param>
         /// <returns></returns>
@@ -97,7 +97,7 @@ namespace Org.Apache.REEF.Client.API
         }
 
         /// <summary>
-        ///     Add the assembly needed for the given Type to the driver.
+        /// Add the assembly needed for the given Type to the driver.
         /// </summary>
         /// <param name="type"></param>
         /// <returns></returns>
@@ -108,7 +108,7 @@ namespace Org.Apache.REEF.Client.API
         }
 
         /// <summary>
-        ///     Add the assembly needed for the given Type to all containers.
+        /// Add the assembly needed for the given Type to all containers.
         /// </summary>
         /// <param name="type"></param>
         /// <returns></returns>
@@ -119,7 +119,7 @@ namespace Org.Apache.REEF.Client.API
         }
 
         /// <summary>
-        ///     Gives the job an identifier.
+        /// Gives the job an identifier.
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
@@ -130,7 +130,7 @@ namespace Org.Apache.REEF.Client.API
         }
 
         /// <summary>
-        ///     Sets the amount of memory (in MB) to allocate for the Driver.
+        /// Sets the amount of memory (in MB) to allocate for the Driver.
         /// </summary>
         /// <param name="driverMemoryInMb">The amount of memory (in MB) to allocate for the Driver.</param>
         /// <returns>this</returns>
@@ -141,7 +141,7 @@ namespace Org.Apache.REEF.Client.API
         }
 
         /// <summary>
-        ///     Finds the path to the assembly the given Type was loaded from.
+        /// Finds the path to the assembly the given Type was loaded from.
         /// </summary>
         /// <param name="type"></param>
         /// <returns></returns>
@@ -152,7 +152,7 @@ namespace Org.Apache.REEF.Client.API
         }
 
         /// <summary>
-        ///     Builds the submission
+        /// Builds the submission
         /// </summary>
         /// <returns>IJobSubmission</returns>
         public IJobSubmission Build()

@@ -23,9 +23,12 @@ using Org.Apache.REEF.Tang.Interface;
 
 namespace Org.Apache.REEF.Common.Evaluator.Parameters
 {
+    /// <summary>
+    // This name parameter is used to target receviers Configuration providers at evaluator level
+    /// </summary>
     [NamedParameter(
-        Documentation = "Configuration provides whose Configurations will be mixed into the Evaluator Configuration.")]
-    public class EvaluatorConfigurationProviders : Name<ISet<IConfigurationProvider>>
+        Documentation = "Configuration providers whose Configurations will be mixed into the Evaluator Configuration.")]
+    public sealed class EvaluatorConfigurationProviders : Name<ISet<IConfigurationProvider>>
     {
     }
 }
