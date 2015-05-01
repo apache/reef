@@ -64,10 +64,14 @@ under the License.
     <Compile Include="Remote\IDataWriter.cs" />
     <Compile Include="Remote\Impl\StreamDataReader.cs" />
     <Compile Include="Remote\Impl\StreamDataWriter.cs" />
+    <Compile Include="Remote\Impl\WritableDefaultRemoteManager.cs" />
     <Compile Include="Remote\Impl\WritableLink.cs" />
+    <Compile Include="Remote\Impl\WritableObserverContainer.cs" />
+    <Compile Include="Remote\Impl\WritableRemoteEvent.cs" />
     <Compile Include="Remote\Impl\WritableTransportClient.cs" />
     <Compile Include="Remote\Impl\WritableTransportServer.cs" />
     <Compile Include="Remote\IWritable.cs" />
+    <Compile Include="Remote\IWritableRemoteEvent.cs" />
     <Compile Include="Remote\Proto\WakeRemoteProtosGen.cs" />
     <Compile Include="Remote\ICodec.cs" />
     <Compile Include="Remote\ICodecFactory.cs" />
