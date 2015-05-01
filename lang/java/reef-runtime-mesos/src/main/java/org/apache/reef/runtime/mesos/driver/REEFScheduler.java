@@ -384,6 +384,7 @@ final class REEFScheduler implements Scheduler {
         .setIdentifier(taskStatus.getTaskId().getValue())
         .setNodeId(taskStatus.getSlaveId().getValue())
         .setResourceMemory(resourceRequestProto.getMemorySize().get())
+        .setVirtualCores(resourceRequestProto.getVirtualCores().get())
         .build();
     reefEventHandlers.onResourceAllocation(alloc);
 
