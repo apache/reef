@@ -49,5 +49,19 @@ namespace Org.Apache.REEF.Wake.Impl
             return new DefaultRemoteManager<T>(codec);
 #pragma warning restore 618
         }
+
+        public IRemoteManager<T> GetWritableInstance<T>(IPAddress localAddress, int port) where T : IWritable
+        {
+#pragma warning disable 618
+            return new WritableRemoteManager<T>(localAddress, port);
+#pragma warning disable 618
+        }
+
+        public IRemoteManager<T> GetWritableInstance<T>() where T : IWritable
+        {
+#pragma warning disable 618
+            return new WritableRemoteManager<T>();
+#pragma warning disable 618
+        }
     }
 }

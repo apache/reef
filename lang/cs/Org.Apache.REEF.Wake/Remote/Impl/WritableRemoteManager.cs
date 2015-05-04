@@ -43,6 +43,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         /// available port.
         /// </summary>
         /// <param name="localAddress">The address to listen on</param>
+        [Obsolete("Use IRemoteManagerFactory.GetWritableInstance() instead.", false)]
         public WritableRemoteManager(IPAddress localAddress) : this(localAddress, 0)
         {
         }
@@ -51,6 +52,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         /// Constructs a DefaultRemoteManager listening on the specified IPEndPoint.
         /// </summary>
         /// <param name="localEndpoint">The endpoint to listen on</param>
+        [Obsolete("Use IRemoteManagerFactory.GetWritableInstance() instead.", false)]
         public WritableRemoteManager(IPEndPoint localEndpoint)
         {
             if (localEndpoint == null)
@@ -79,6 +81,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         /// </summary>
         /// <param name="localAddress">The address to listen on</param>
         /// <param name="port">The port to listen on</param>
+        [Obsolete("Use IRemoteManagerFactory.GetWritableInstance() instead.", false)]
         public WritableRemoteManager(IPAddress localAddress, int port)
         {
             if (localAddress == null)
@@ -106,6 +109,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         /// <summary>
         /// Constructs a DefaultRemoteManager. Does not listen for incoming messages.
         /// </summary>
+        [Obsolete("Use IRemoteManagerFactory.GetWritableInstance() instead.", false)]
         public WritableRemoteManager()
         {
             using (LOGGER.LogFunction("DefaultRemoteManager::DefaultRemoteManager"))
