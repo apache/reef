@@ -131,7 +131,7 @@ under the License.
     <Compile Include="Evaluator\IAllocatedEvaluator.cs" />
     <Compile Include="Evaluator\ICompletedEvaluator.cs" />
     <Compile Include="Evaluator\IEvaluatorDescriptor.cs" />
-    <Compile Include="Evaluator\IEvaluatorRequest .cs" />
+    <Compile Include="Evaluator\IEvaluatorRequest.cs" />
     <Compile Include="Evaluator\IEvaluatorRequestor.cs" />
     <Compile Include="Evaluator\IFailedEvaluator.cs" />
     <Compile Include="FailedJob.cs" />
