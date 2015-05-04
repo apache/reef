@@ -57,18 +57,20 @@ namespace Org.Apache.REEF.Network.NetworkService
         /// <param name="messageHandler">The observer to handle incoming messages</param>
         /// <param name="idFactory">The factory used to create IIdentifiers</param>
         /// <param name="codec">The codec used for serialization</param>
+        /// <param name="remoteManagerFactory">Used to instantiate remote manager instances.</param>
         [Inject]
         public NetworkService(
             [Parameter(typeof(NetworkServiceOptions.NetworkServicePort))] int nsPort,
             IObserver<NsMessage<T>> messageHandler,
             IIdentifierFactory idFactory,
             ICodec<T> codec,
-            INameClient nameClient)
+            INameClient nameClient,
+            IRemoteManagerFactory remoteManagerFactory)
         {
             _codec = new NsMessageCodec<T>(codec, idFactory);
 
             IPAddress localAddress = NetworkUtils.LocalIPAddress;
-            _remoteManager = new DefaultRemoteManager<NsMessage<T>>(localAddress, nsPort, _codec);
+            _remoteManager = remoteManagerFactory.GetInstance(localAddress, nsPort, _codec);
             _messageHandler = messageHandler;
 
             NamingClient = nameClient;

@@ -156,10 +156,11 @@ namespace Org.Apache.REEF.Network.Tests.NetworkService
                  nameServiceAddr)
              .BindImplementation(GenericType<INameClient>.Class, GenericType<NameClient>.Class)
              .Build();
-
-            var nameClient = TangFactory.GetTang().NewInjector(nameserverConf).GetInstance<NameClient>();
+            var injector = TangFactory.GetTang().NewInjector(nameserverConf);
+            var nameClient = injector.GetInstance<NameClient>();
+            var remoteManagerFactory = injector.GetInstance<IRemoteManagerFactory>();
             return new NetworkService<string>(networkServicePort,
-                handler, new StringIdentifierFactory(), new StringCodec(), nameClient);
+                handler, new StringIdentifierFactory(), new StringCodec(), nameClient, remoteManagerFactory);
         }
 
         private class MessageHandler : IObserver<NsMessage<string>>

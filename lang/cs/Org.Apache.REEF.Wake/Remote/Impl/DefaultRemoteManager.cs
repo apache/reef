@@ -28,7 +28,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
     /// <summary>
     /// Manages incoming and outgoing messages between remote hosts.
     /// </summary>
-    public class DefaultRemoteManager<T> : IRemoteManager<T>
+    public sealed class DefaultRemoteManager<T> : IRemoteManager<T>
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(DefaultRemoteManager<T>));
 
@@ -43,6 +43,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         /// </summary>
         /// <param name="localAddress">The address to listen on</param>
         /// <param name="codec">The codec used for serializing messages</param>
+        [Obsolete("Use IRemoteManagerFactory.GetInstance() instead.", false)]
         public DefaultRemoteManager(IPAddress localAddress, ICodec<T> codec) : this(localAddress, 0, codec)
         {
         }
@@ -52,6 +53,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         /// </summary>
         /// <param name="localEndpoint">The endpoint to listen on</param>
         /// <param name="codec">The codec used for serializing messages</param>
+        [Obsolete("Use IRemoteManagerFactory.GetInstance() instead.", false)]
         public DefaultRemoteManager(IPEndPoint localEndpoint, ICodec<T> codec)
         {
             if (localEndpoint == null)
@@ -86,6 +88,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         /// <param name="localAddress">The address to listen on</param>
         /// <param name="port">The port to listen on</param>
         /// <param name="codec">The codec used for serializing messages</param>
+        [Obsolete("Use IRemoteManagerFactory.GetInstance() instead.", false)]
         public DefaultRemoteManager(IPAddress localAddress, int port, ICodec<T> codec)
         {
             if (localAddress == null)
@@ -119,6 +122,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         /// Constructs a DefaultRemoteManager. Does not listen for incoming messages.
         /// </summary>
         /// <param name="codec">The codec used for serializing messages</param>
+        [Obsolete("Use IRemoteManagerFactory.GetInstance() instead.", false)]
         public DefaultRemoteManager(ICodec<T> codec)
         {
             using (LOGGER.LogFunction("DefaultRemoteManager::DefaultRemoteManager"))
