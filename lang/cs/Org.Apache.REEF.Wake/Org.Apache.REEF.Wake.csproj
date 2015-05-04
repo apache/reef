@@ -70,6 +70,7 @@ under the License.
     <Compile Include="Remote\Impl\WritableRemoteEvent.cs" />
     <Compile Include="Remote\Impl\WritableTransportClient.cs" />
     <Compile Include="Remote\Impl\WritableTransportServer.cs" />
+    <Compile Include="Remote\IRemoteManagerFactory.cs" />
     <Compile Include="Remote\IWritable.cs" />
     <Compile Include="Remote\IWritableRemoteEvent.cs" />
     <Compile Include="Remote\Proto\WakeRemoteProtosGen.cs" />
