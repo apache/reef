@@ -30,7 +30,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
     /// </summary>
     /// <typeparam name="T">Message type T. It is assumed to be IWritable</typeparam>
     [Obsolete("Need to remove Iwritable and use IstreamingCodec. Please see Jira REEF-295 ", false)]
-    public class WritableDefaultRemoteManager<T> : IRemoteManager<T> where T : IWritable
+    public sealed class WritableRemoteManager<T> : IRemoteManager<T> where T : IWritable
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof (DefaultRemoteManager<T>));
 
@@ -43,7 +43,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         /// available port.
         /// </summary>
         /// <param name="localAddress">The address to listen on</param>
-        public WritableDefaultRemoteManager(IPAddress localAddress) : this(localAddress, 0)
+        public WritableRemoteManager(IPAddress localAddress) : this(localAddress, 0)
         {
         }
 
@@ -51,7 +51,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         /// Constructs a DefaultRemoteManager listening on the specified IPEndPoint.
         /// </summary>
         /// <param name="localEndpoint">The endpoint to listen on</param>
-        public WritableDefaultRemoteManager(IPEndPoint localEndpoint)
+        public WritableRemoteManager(IPEndPoint localEndpoint)
         {
             if (localEndpoint == null)
             {
@@ -79,7 +79,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         /// </summary>
         /// <param name="localAddress">The address to listen on</param>
         /// <param name="port">The port to listen on</param>
-        public WritableDefaultRemoteManager(IPAddress localAddress, int port)
+        public WritableRemoteManager(IPAddress localAddress, int port)
         {
             if (localAddress == null)
             {
@@ -106,7 +106,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         /// <summary>
         /// Constructs a DefaultRemoteManager. Does not listen for incoming messages.
         /// </summary>
-        public WritableDefaultRemoteManager()
+        public WritableRemoteManager()
         {
             using (LOGGER.LogFunction("DefaultRemoteManager::DefaultRemoteManager"))
             {
