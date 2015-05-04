@@ -48,6 +48,7 @@ under the License.
     <Compile Include="IEventHandler.cs" />
     <Compile Include="IIdentifier.cs" />
     <Compile Include="IIdentifierFactory.cs" />
+    <Compile Include="Impl\DefaultRemoteManagerFactory.cs" />
     <Compile Include="Impl\LoggingEventHandler.cs" />
     <Compile Include="Impl\MissingStartHandlerHandler.cs" />
     <Compile Include="Impl\MultiEventHandler.cs" />
@@ -67,6 +68,7 @@ under the License.
     <Compile Include="Remote\Impl\WritableLink.cs" />
     <Compile Include="Remote\Impl\WritableTransportClient.cs" />
     <Compile Include="Remote\Impl\WritableTransportServer.cs" />
+    <Compile Include="Remote\IRemoteManagerFactory.cs" />
     <Compile Include="Remote\IWritable.cs" />
     <Compile Include="Remote\Proto\WakeRemoteProtosGen.cs" />
     <Compile Include="Remote\ICodec.cs" />
