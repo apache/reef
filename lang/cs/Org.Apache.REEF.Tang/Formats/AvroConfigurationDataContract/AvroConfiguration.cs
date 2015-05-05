@@ -27,9 +27,10 @@ namespace Org.Apache.REEF.Tang.Formats.AvroConfigurationDataContract
     [DataContract(Name = "AvroConfiguration", Namespace = "org.apache.reef.tang.formats.avro")]
     public class AvroConfiguration
     {
-        public AvroConfiguration(HashSet<ConfigurationEntry> bindings)
+        public AvroConfiguration(ISet<ConfigurationEntry> bindings)
         {
-            this.Bindings = bindings;
+            // Passing in a Set to ensure uniqueness of elements
+            this.Bindings = new List<ConfigurationEntry>(bindings);
         }
 
         public AvroConfiguration()
@@ -37,7 +38,7 @@ namespace Org.Apache.REEF.Tang.Formats.AvroConfigurationDataContract
         }
 
         [DataMember]
-        public HashSet<ConfigurationEntry> Bindings { get; set; }
+        public List<ConfigurationEntry> Bindings { get; set; }
 
         public static AvroConfiguration GetAvroConfigurationFromEmbeddedString(string jsonString)
         {

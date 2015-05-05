@@ -53,7 +53,6 @@ namespace Org.Apache.REEF.Tang.Tests.Configuration
 
         private AvroConfiguration ToAvroConfiguration()
         {
-            var a = new AvroConfiguration();
             HashSet<ConfigurationEntry> b = new HashSet<ConfigurationEntry>();
             ConfigurationEntry e1 = new ConfigurationEntry();
             e1.key = "a";
@@ -63,7 +62,7 @@ namespace Org.Apache.REEF.Tang.Tests.Configuration
             e2.value = "b1=b2";
             b.Add(e1);
             b.Add(e2);
-            a.Bindings = b;
+            var a = new AvroConfiguration(b);
             return a;
         }
     }
