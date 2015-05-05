@@ -25,6 +25,7 @@ using System.Net;
 using System.Reactive;
 using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Org.Apache.REEF.Common.Io;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Examples.MachineLearning.KMeans;
 using Org.Apache.REEF.Examples.MachineLearning.KMeans.codecs;
@@ -40,6 +41,7 @@ using Org.Apache.REEF.Network.Group.Topology;
 using Org.Apache.REEF.Network.Naming;
 using Org.Apache.REEF.Network.NetworkService;
 using Org.Apache.REEF.Network.NetworkService.Codec;
+using Org.Apache.REEF.Network.Tests.NamingService;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Implementations.Configuration;
@@ -58,7 +60,7 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
         [TestMethod]
         public void TestSender()
         {
-            using (NameServer nameServer = new NameServer(0))
+            using (var nameServer = NameServerTests.BuildNameServer())
             {
                 IPEndPoint endpoint = nameServer.LocalEndpoint;
                 BlockingCollection<GroupCommunicationMessage> messages1 = new BlockingCollection<GroupCommunicationMessage>();
@@ -261,8 +263,6 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
         [TestMethod]
         public void TestBroadcastOperator()
         {
-            NameServer nameServer = new NameServer(0);
-
             string groupName = "group1";
             string operatorName = "broadcast";
             string masterTaskId = "task0";
@@ -295,7 +295,7 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
         [TestMethod]
         public void TestBroadcastOperatorWithDefaultCodec()
         {
-            NameServer nameServer = new NameServer(0);
+            INameServer nameServer = NameServerTests.BuildNameServer();
 
             string groupName = "group1";
             string operatorName = "broadcast";
@@ -745,9 +745,15 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
         public static NetworkService<GroupCommunicationMessage> BuildNetworkService(
             IPEndPoint nameServerEndpoint, IObserver<NsMessage<GroupCommunicationMessage>> handler)
         {
-            var remoteManagerFactory = TangFactory.GetTang().NewInjector().GetInstance<IRemoteManagerFactory>();
+            var injector = TangFactory.GetTang().NewInjector();
+            var remoteManagerFactory = injector.GetInstance<IRemoteManagerFactory>();
             return new NetworkService<GroupCommunicationMessage>(
-                0, handler, new StringIdentifierFactory(), new GroupCommunicationMessageCodec(), new NameClient(nameServerEndpoint.Address.ToString(), nameServerEndpoint.Port), remoteManagerFactory);
+                0, handler, new StringIdentifierFactory(),
+                new GroupCommunicationMessageCodec(),
+                new NameClient(nameServerEndpoint.Address.ToString(),
+                    nameServerEndpoint.Port),
+                    remoteManagerFactory);
+                    
         }
 
         private GroupCommunicationMessage CreateGcm(string message, string from, string to)

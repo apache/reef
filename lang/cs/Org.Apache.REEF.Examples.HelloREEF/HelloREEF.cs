@@ -18,9 +18,6 @@
  */
 
 using System;
-using System.Linq;
-using System.Net;
-using System.Net.Sockets;
 using Org.Apache.REEF.Client.API;
 using Org.Apache.REEF.Client.Local;
 using Org.Apache.REEF.Client.YARN;
@@ -30,7 +27,6 @@ using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
-using Org.Apache.REEF.Wake.Remote;
 
 namespace Org.Apache.REEF.Examples.HelloREEF
 {

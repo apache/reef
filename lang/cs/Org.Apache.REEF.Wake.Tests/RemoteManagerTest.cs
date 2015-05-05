@@ -42,8 +42,8 @@ namespace Org.Apache.REEF.Wake.Tests
             BlockingCollection<string> queue = new BlockingCollection<string>();
             List<string> events = new List<string>();
 
-            using (var remoteManager1 = _remoteManagerFactory.GetInstance(listeningAddress, 0, new StringCodec()))
-            using (var remoteManager2 = _remoteManagerFactory.GetInstance(listeningAddress, 0, new StringCodec()))
+            using (var remoteManager1 = GetRemoteManager())
+            using (var remoteManager2 = GetRemoteManager())
             {
                 var observer = Observer.Create<string>(queue.Add);
                 IPEndPoint endpoint1 = new IPEndPoint(listeningAddress, 0);
@@ -65,14 +65,13 @@ namespace Org.Apache.REEF.Wake.Tests
         [TestMethod]
         public void TestOneWayCommunicationClientOnly()
         {
-            int listeningPort = NetworkUtils.GenerateRandomPort(6000, 7000);
             IPAddress listeningAddress = IPAddress.Parse("127.0.0.1");
 
             BlockingCollection<string> queue = new BlockingCollection<string>();
             List<string> events = new List<string>();
 
             using (var remoteManager1 = _remoteManagerFactory.GetInstance(new StringCodec()))
-            using (var remoteManager2 = _remoteManagerFactory.GetInstance(listeningAddress, listeningPort, new StringCodec()))
+            using (var remoteManager2 = _remoteManagerFactory.GetInstance(listeningAddress, new StringCodec()))
             {
                 IPEndPoint remoteEndpoint = new IPEndPoint(listeningAddress, 0);
                 var observer = Observer.Create<string>(queue.Add);
@@ -101,8 +100,8 @@ namespace Org.Apache.REEF.Wake.Tests
             List<string> events1 = new List<string>();
             List<string> events2 = new List<string>();
 
-            using (var remoteManager1 = _remoteManagerFactory.GetInstance(listeningAddress, 0, new StringCodec()))
-            using (var remoteManager2 = _remoteManagerFactory.GetInstance(listeningAddress, 0, new StringCodec()))
+            using (var remoteManager1 = GetRemoteManager())
+            using (var remoteManager2 = GetRemoteManager())
             {
                 // Register observers for remote manager 1 and remote manager 2
                 var remoteEndpoint = new IPEndPoint(listeningAddress, 0);
@@ -146,9 +145,9 @@ namespace Org.Apache.REEF.Wake.Tests
             BlockingCollection<string> queue = new BlockingCollection<string>();
             List<string> events = new List<string>();
 
-            using (var remoteManager1 = _remoteManagerFactory.GetInstance(listeningAddress, 0, new StringCodec()))
-            using (var remoteManager2 = _remoteManagerFactory.GetInstance(listeningAddress, 0, new StringCodec()))
-            using (var remoteManager3 = _remoteManagerFactory.GetInstance(listeningAddress, 0, new StringCodec()))
+            using (var remoteManager1 = GetRemoteManager())
+            using (var remoteManager2 = GetRemoteManager())
+            using (var remoteManager3 = GetRemoteManager())
             {
                 var remoteEndpoint = new IPEndPoint(listeningAddress, 0);
                 var observer = Observer.Create<string>(queue.Add);
@@ -184,9 +183,9 @@ namespace Org.Apache.REEF.Wake.Tests
             List<string> events2 = new List<string>();
             List<string> events3 = new List<string>();
 
-            using (var remoteManager1 = _remoteManagerFactory.GetInstance(listeningAddress, 0, new StringCodec()))
-            using (var remoteManager2 = _remoteManagerFactory.GetInstance(listeningAddress, 0, new StringCodec()))
-            using (var remoteManager3 = _remoteManagerFactory.GetInstance(listeningAddress, 0, new StringCodec()))
+            using (var remoteManager1 = GetRemoteManager())
+            using (var remoteManager2 = GetRemoteManager())
+            using (var remoteManager3 = GetRemoteManager())
             {
                 var remoteEndpoint = new IPEndPoint(listeningAddress, 0);
 
@@ -244,8 +243,8 @@ namespace Org.Apache.REEF.Wake.Tests
             BlockingCollection<string> queue = new BlockingCollection<string>();
             List<string> events = new List<string>();
 
-            using (var remoteManager1 = _remoteManagerFactory.GetInstance(listeningAddress, 0, new StringCodec()))
-            using (var remoteManager2 = _remoteManagerFactory.GetInstance(listeningAddress, 0, new StringCodec()))
+            using (var remoteManager1 = GetRemoteManager())
+            using (var remoteManager2 = GetRemoteManager())
             {
                 // Register handler for when remote manager 2 receives events; respond
                 // with an ack
@@ -285,8 +284,8 @@ namespace Org.Apache.REEF.Wake.Tests
             BlockingCollection<string> queue = new BlockingCollection<string>();
             List<string> events = new List<string>();
 
-            using (var remoteManager1 = _remoteManagerFactory.GetInstance(listeningAddress, 0, new StringCodec()))
-            using (var remoteManager2 = _remoteManagerFactory.GetInstance(listeningAddress, 0, new StringCodec()))
+            using (var remoteManager1 = GetRemoteManager())
+            using (var remoteManager2 = GetRemoteManager())
             {
                 // RemoteManager2 listens and records events of type IRemoteEvent<string>
                 var observer = Observer.Create<IRemoteMessage<string>>(message => queue.Add(message.Message));
@@ -314,8 +313,8 @@ namespace Org.Apache.REEF.Wake.Tests
             BlockingCollection<string> queue = new BlockingCollection<string>();
             List<string> events = new List<string>();
 
-            using (var remoteManager1 = _remoteManagerFactory.GetInstance(listeningAddress, 0, new StringCodec()))
-            using (var remoteManager2 = _remoteManagerFactory.GetInstance(listeningAddress, 0, new StringCodec()))
+            using (var remoteManager1 = GetRemoteManager())
+            using (var remoteManager2 = GetRemoteManager())
             {
                 var observer = Observer.Create<string>(queue.Add);
                 IPEndPoint endpoint1 = new IPEndPoint(listeningAddress, 0);
@@ -336,6 +335,12 @@ namespace Org.Apache.REEF.Wake.Tests
             }
 
             Assert.AreEqual(4, events.Count);
+        }
+
+        private IRemoteManager<string> GetRemoteManager()
+        {
+            IPAddress listeningAddress = IPAddress.Parse("127.0.0.1");
+            return _remoteManagerFactory.GetInstance(listeningAddress, new StringCodec());
         }
     }
 }

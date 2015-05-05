@@ -170,7 +170,7 @@ namespace Org.Apache.REEF.Tang.Util
 
             if (c.IsInterface)
             {
-                workQueue.Add(typeof (object));
+                workQueue.Add(typeof(object));
             }
 
             return workQueue;
@@ -209,39 +209,39 @@ namespace Org.Apache.REEF.Tang.Util
         /// <exception cref="System.NotSupportedException">Encountered unknown primitive type!</exception>
         public static Type BoxClass(Type c)
         {
-            if (c.IsPrimitive && c != typeof (Type))
+            if (c.IsPrimitive && c != typeof(Type))
             {
-                if (c == typeof (bool))
+                if (c == typeof(bool))
                 {
-                    return typeof (Boolean);
+                    return typeof(Boolean);
                 }
-                else if (c == typeof (byte))
+                else if (c == typeof(byte))
                 {
-                    return typeof (Byte);
+                    return typeof(Byte);
                 }
-                else if (c == typeof (char))
+                else if (c == typeof(char))
                 {
-                    return typeof (Char);
+                    return typeof(Char);
                 }
-                else if (c == typeof (short))
+                else if (c == typeof(short))
                 {
-                    return typeof (Int16);
+                    return typeof(Int16);
                 }
-                else if (c == typeof (int))
+                else if (c == typeof(int))
                 {
-                    return typeof (Int32);
+                    return typeof(Int32);
                 }
-                else if (c == typeof (long))
+                else if (c == typeof(long))
                 {
-                    return typeof (Int64);
+                    return typeof(Int64);
                 }
-                else if (c == typeof (float))
+                else if (c == typeof(float))
                 {
-                    return typeof (Single);
+                    return typeof(Single);
                 }
-                else if (c == typeof (double))
+                else if (c == typeof(double))
                 {
-                    return typeof (Double);
+                    return typeof(Double);
                 }
                 else
                 {
@@ -371,7 +371,8 @@ namespace Org.Apache.REEF.Tang.Util
             }
             if (t == null)
             {
-                Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(new ApplicationException("Not able to get Type from the name provided: " + name), LOGGER);
+                Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(
+                    new ApplicationException("Not able to get Type from the name provided: " + name), LOGGER);
             }
 
             return t;
@@ -480,7 +481,7 @@ namespace Org.Apache.REEF.Tang.Util
                     Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(ex, LOGGER);
                 }
 
-                return args[0];               
+                return args[0];
             }
 
             if (ImplementName(type)) //Implement Name<> but no  [NamedParameter] attribute

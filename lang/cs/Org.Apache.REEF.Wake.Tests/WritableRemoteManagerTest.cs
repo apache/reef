@@ -79,7 +79,7 @@ namespace Org.Apache.REEF.Wake.Tests
         [TestMethod]
         public void TestWritableOneWayCommunicationClientOnly()
         {
-            int listeningPort = NetworkUtils.GenerateRandomPort(6000, 7000);
+            int listeningPort = NetworkUtils.GenerateRandomPort(8900, 8940);
             IPAddress listeningAddress = IPAddress.Parse("127.0.0.1");
 
             BlockingCollection<WritableString> queue = new BlockingCollection<WritableString>();

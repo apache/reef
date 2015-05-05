@@ -45,7 +45,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         /// <param name="localAddress">The address to listen on</param>
         /// <param name="port">The port to listen on</param>
         [Obsolete("Use IRemoteManagerFactory.GetInstance() instead.", false)]
-        public WritableRemoteManager(IPAddress localAddress, int port)
+        public WritableRemoteManager(IPAddress localAddress, int port, ITcpPortProvider tcpPortProvider)
         {
             if (localAddress == null)
             {
@@ -62,7 +62,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
             IPEndPoint localEndpoint = new IPEndPoint(localAddress, port);
 
             // Begin to listen for incoming messages
-            _server = new WritableTransportServer<IWritableRemoteEvent<T>>(localEndpoint, _observerContainer);
+            _server = new WritableTransportServer<IWritableRemoteEvent<T>>(localEndpoint, _observerContainer, tcpPortProvider);
             _server.Run();
 
             LocalEndpoint = _server.LocalEndpoint;  

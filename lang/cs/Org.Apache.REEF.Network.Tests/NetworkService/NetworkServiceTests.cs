@@ -26,6 +26,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.Common.Io;
 using Org.Apache.REEF.Network.Naming;
 using Org.Apache.REEF.Network.NetworkService;
+using Org.Apache.REEF.Network.Tests.NamingService;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Util;
@@ -47,7 +48,7 @@ namespace Org.Apache.REEF.Network.Tests.NetworkService
 
             BlockingCollection<string> queue = new BlockingCollection<string>();
 
-            using (INameServer nameServer = new NameServer(0))
+            using (var nameServer = NameServerTests.BuildNameServer())
             {
                 IPEndPoint endpoint = nameServer.LocalEndpoint;
                 int nameServerPort = endpoint.Port;
@@ -84,7 +85,7 @@ namespace Org.Apache.REEF.Network.Tests.NetworkService
             BlockingCollection<string> queue1 = new BlockingCollection<string>();
             BlockingCollection<string> queue2 = new BlockingCollection<string>();
 
-            using (INameServer nameServer = new NameServer(0))
+            using (var nameServer = NameServerTests.BuildNameServer())
             {
                 IPEndPoint endpoint = nameServer.LocalEndpoint;
                 int nameServerPort = endpoint.Port;
