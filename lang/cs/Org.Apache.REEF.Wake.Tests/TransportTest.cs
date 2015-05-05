@@ -32,23 +32,25 @@ namespace Org.Apache.REEF.Wake.Tests
     [TestClass]
     public class TransportTest
     {
+        private readonly IPAddress _localIpAddress = IPAddress.Parse("127.0.0.1");
         [TestMethod]
         public void TestTransportServer()
         {
             ICodec<string> codec = new StringCodec();
-            int port = NetworkUtils.GenerateRandomPort(6000, 7000);
+            var portProvider = new DefaultTcpPortProviderFactory().GetInstance(6000, 1000);
 
             BlockingCollection<string> queue = new BlockingCollection<string>();
             List<string> events = new List<string>();
 
-            IPEndPoint endpoint = new IPEndPoint(IPAddress.Any, port);
+
+            IPEndPoint endpoint = new IPEndPoint(_localIpAddress, 0);
             var remoteHandler = Observer.Create<TransportEvent<string>>(tEvent => queue.Add(tEvent.Data));
 
-            using (var server = new TransportServer<string>(endpoint, remoteHandler, codec))
+            using (var server = new TransportServer<string>(endpoint, remoteHandler, codec, portProvider))
             {
                 server.Run();
 
-                IPEndPoint remoteEndpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), port);
+                IPEndPoint remoteEndpoint = new IPEndPoint(_localIpAddress, server.LocalEndpoint.Port);
                 using (var client = new TransportClient<string>(remoteEndpoint, codec))
                 {
                     client.Send("Hello");
@@ -68,19 +70,19 @@ namespace Org.Apache.REEF.Wake.Tests
         public void TestTransportServerEvent()
         {
             ICodec<TestEvent> codec = new TestEventCodec();
-            int port = NetworkUtils.GenerateRandomPort(6000, 7000);
+            var portProvider = new DefaultTcpPortProviderFactory().GetInstance(6000, 1000);
 
             BlockingCollection<TestEvent> queue = new BlockingCollection<TestEvent>();
             List<TestEvent> events = new List<TestEvent>();
 
-            IPEndPoint endpoint = new IPEndPoint(IPAddress.Any, port);
+            IPEndPoint endpoint = new IPEndPoint(_localIpAddress, 0);
             var remoteHandler = Observer.Create<TransportEvent<TestEvent>>(tEvent => queue.Add(tEvent.Data));
 
-            using (var server = new TransportServer<TestEvent>(endpoint, remoteHandler, codec))
+            using (var server = new TransportServer<TestEvent>(endpoint, remoteHandler, codec, portProvider))
             {
                 server.Run();
 
-                IPEndPoint remoteEndpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), port);
+                IPEndPoint remoteEndpoint = new IPEndPoint(_localIpAddress, server.LocalEndpoint.Port);
                 using (var client = new TransportClient<TestEvent>(remoteEndpoint, codec))
                 {
                     client.Send(new TestEvent("Hello"));
@@ -100,8 +102,9 @@ namespace Org.Apache.REEF.Wake.Tests
         public void TestTransportSenderStage()
         {
             ICodec<string> codec = new StringCodec();
-            int port = NetworkUtils.GenerateRandomPort(6000, 7000);
-            IPEndPoint endpoint = new IPEndPoint(IPAddress.Any, port);
+            var portProvider = new DefaultTcpPortProviderFactory().GetInstance(6000, 1000);
+
+            IPEndPoint endpoint = new IPEndPoint(_localIpAddress, 0);
 
             List<string> events = new List<string>();
             BlockingCollection<string> queue = new BlockingCollection<string>();
@@ -109,12 +112,12 @@ namespace Org.Apache.REEF.Wake.Tests
             // Server echoes the message back to the client
             var remoteHandler = Observer.Create<TransportEvent<string>>(tEvent => tEvent.Link.Write(tEvent.Data));
 
-            using (TransportServer<string> server = new TransportServer<string>(endpoint, remoteHandler, codec))
+            using (TransportServer<string> server = new TransportServer<string>(endpoint, remoteHandler, codec, portProvider))
             {
                 server.Run();
 
                 var clientHandler = Observer.Create<TransportEvent<string>>(tEvent => queue.Add(tEvent.Data));
-                IPEndPoint remoteEndpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), port);
+                IPEndPoint remoteEndpoint = new IPEndPoint(_localIpAddress, server.LocalEndpoint.Port);
                 using (var client = new TransportClient<string>(remoteEndpoint, codec, clientHandler))
                 {
                     client.Send("Hello");
@@ -134,7 +137,8 @@ namespace Org.Apache.REEF.Wake.Tests
         public void TestRaceCondition()
         {
             ICodec<string> codec = new StringCodec();
-            int port = NetworkUtils.GenerateRandomPort(6000, 7000);
+            var port = 0;
+            var portProvider = new DefaultTcpPortProviderFactory().GetInstance(6000, 1000);
 
             BlockingCollection<string> queue = new BlockingCollection<string>();
             List<string> events = new List<string>();
@@ -143,7 +147,7 @@ namespace Org.Apache.REEF.Wake.Tests
             IPEndPoint endpoint = new IPEndPoint(IPAddress.Any, port);
             var remoteHandler = Observer.Create<TransportEvent<string>>(tEvent => queue.Add(tEvent.Data));
 
-            using (var server = new TransportServer<string>(endpoint, remoteHandler, codec))
+            using (var server = new TransportServer<string>(endpoint, remoteHandler, codec, portProvider))
             {
                 server.Run();
 
@@ -151,7 +155,7 @@ namespace Org.Apache.REEF.Wake.Tests
                 {
                     Task.Run(() =>
                     {
-                        IPEndPoint remoteEndpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), port);
+                        IPEndPoint remoteEndpoint = new IPEndPoint(_localIpAddress, server.LocalEndpoint.Port);
                         using (var client = new TransportClient<string>(remoteEndpoint, codec))
                         {
                             client.Send("Hello");

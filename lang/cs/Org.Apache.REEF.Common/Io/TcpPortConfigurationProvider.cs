@@ -1,4 +1,4 @@
-﻿/**
+﻿/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -17,20 +17,30 @@
  * under the License.
  */
 
+using Org.Apache.REEF.Common.Evaluator.Parameters;
+using Org.Apache.REEF.Common.Protobuf.ReefProtocol;
 using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Tang.Implementations.Tang;
+using Org.Apache.REEF.Tang.Interface;
+using Org.Apache.REEF.Wake.Remote;
 
 namespace Org.Apache.REEF.Common.Io
 {
-    public class NamingConfigurationOptions
+    public class TcpPortConfigurationProvider : IConfigurationProvider
     {
-        [NamedParameter("IP address of NameServer")]
-        public class NameServerAddress : Name<string>
+        [Inject]
+        public TcpPortConfigurationProvider()
         {
         }
 
-        [NamedParameter("Port of NameServer", DefaultValue = "0")]
-        public class NameServerPort : Name<int>
+        IConfiguration IConfigurationProvider.GetConfiguration()
         {
+            return TangFactory.GetTang().NewConfigurationBuilder()
+                .BindImplementation<ITcpPortProvider, TcpPortProvider>()
+                .BindImplementation<ICodec<REEFMessage>, REEFMessageCodec>()
+                .BindSetEntry
+                <EvaluatorConfigurationProviders, TcpPortConfigurationProvider, IConfigurationProvider>()
+                .Build();
         }
     }
 }

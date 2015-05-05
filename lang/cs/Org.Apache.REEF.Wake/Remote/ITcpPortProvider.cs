@@ -1,4 +1,4 @@
-﻿/**
+﻿/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -17,20 +17,13 @@
  * under the License.
  */
 
+using System.Collections.Generic;
 using Org.Apache.REEF.Tang.Annotations;
 
-namespace Org.Apache.REEF.Common.Io
+namespace Org.Apache.REEF.Wake.Remote
 {
-    public class NamingConfigurationOptions
+    [DefaultImplementation(typeof(TcpPortProvider))]
+    public interface ITcpPortProvider : IEnumerable<int>
     {
-        [NamedParameter("IP address of NameServer")]
-        public class NameServerAddress : Name<string>
-        {
-        }
-
-        [NamedParameter("Port of NameServer", DefaultValue = "0")]
-        public class NameServerPort : Name<int>
-        {
-        }
     }
 }

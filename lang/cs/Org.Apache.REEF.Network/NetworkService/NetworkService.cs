@@ -58,6 +58,7 @@ namespace Org.Apache.REEF.Network.NetworkService
         /// <param name="idFactory">The factory used to create IIdentifiers</param>
         /// <param name="codec">The codec used for serialization</param>
         /// <param name="remoteManagerFactory">Used to instantiate remote manager instances.</param>
+        /// <param name="tcpPortProvider">Provides ports for tcp listeners.</param>
         [Inject]
         public NetworkService(
             [Parameter(typeof(NetworkServiceOptions.NetworkServicePort))] int nsPort,
@@ -65,12 +66,13 @@ namespace Org.Apache.REEF.Network.NetworkService
             IIdentifierFactory idFactory,
             ICodec<T> codec,
             INameClient nameClient,
-            IRemoteManagerFactory remoteManagerFactory)
+            IRemoteManagerFactory remoteManagerFactory,
+            ITcpPortProvider tcpPortProvider)
         {
             _codec = new NsMessageCodec<T>(codec, idFactory);
 
             IPAddress localAddress = NetworkUtils.LocalIPAddress;
-            _remoteManager = remoteManagerFactory.GetInstance(localAddress, nsPort, _codec);
+            _remoteManager = remoteManagerFactory.GetInstance(localAddress, nsPort, _codec, tcpPortProvider);
             _messageHandler = messageHandler;
 
             NamingClient = nameClient;

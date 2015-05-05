@@ -20,6 +20,7 @@
 using System;
 using System.Collections.Generic;
 using System.Net;
+using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Wake.Util;
 
@@ -43,8 +44,10 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         /// </summary>
         /// <param name="localAddress">The address to listen on</param>
         /// <param name="codec">The codec used for serializing messages</param>
+        /// <param name="tcpPortProvider">provides port numbers to listen</param>
         [Obsolete("Use IRemoteManagerFactory.GetInstance() instead.", false)]
-        public DefaultRemoteManager(IPAddress localAddress, ICodec<T> codec) : this(localAddress, 0, codec)
+        public DefaultRemoteManager(IPAddress localAddress, ICodec<T> codec, ITcpPortProvider tcpPortProvider) : 
+            this(localAddress, 0, codec, tcpPortProvider)
         {
         }
 
@@ -53,8 +56,9 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         /// </summary>
         /// <param name="localEndpoint">The endpoint to listen on</param>
         /// <param name="codec">The codec used for serializing messages</param>
+        /// <param name="tcpPortProvider">provides port numbers to listen</param>
         [Obsolete("Use IRemoteManagerFactory.GetInstance() instead.", false)]
-        public DefaultRemoteManager(IPEndPoint localEndpoint, ICodec<T> codec)
+        public DefaultRemoteManager(IPEndPoint localEndpoint, ICodec<T> codec, ITcpPortProvider tcpPortProvider)
         {
             if (localEndpoint == null)
             {
@@ -74,7 +78,8 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
             _cachedClients = new Dictionary<IPEndPoint, ProxyObserver>();
 
             // Begin to listen for incoming messages
-            _server = new TransportServer<IRemoteEvent<T>>(localEndpoint, _observerContainer, _codec);
+            _server = new TransportServer<IRemoteEvent<T>>(localEndpoint, _observerContainer, _codec, 
+                tcpPortProvider);
             _server.Run();
 
             LocalEndpoint = _server.LocalEndpoint;
@@ -88,8 +93,9 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         /// <param name="localAddress">The address to listen on</param>
         /// <param name="port">The port to listen on</param>
         /// <param name="codec">The codec used for serializing messages</param>
+        /// <param name="tcpPortProvider">provides port numbers to listen</param>
         [Obsolete("Use IRemoteManagerFactory.GetInstance() instead.", false)]
-        public DefaultRemoteManager(IPAddress localAddress, int port, ICodec<T> codec)
+        public DefaultRemoteManager(IPAddress localAddress, int port, ICodec<T> codec, ITcpPortProvider tcpPortProvider)
         {
             if (localAddress == null)
             {
@@ -111,7 +117,8 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
             IPEndPoint localEndpoint = new IPEndPoint(localAddress, port);
 
             // Begin to listen for incoming messages
-            _server = new TransportServer<IRemoteEvent<T>>(localEndpoint, _observerContainer, _codec);
+            _server = new TransportServer<IRemoteEvent<T>>(localEndpoint, _observerContainer, _codec,
+                tcpPortProvider);
             _server.Run();
 
             LocalEndpoint = _server.LocalEndpoint;

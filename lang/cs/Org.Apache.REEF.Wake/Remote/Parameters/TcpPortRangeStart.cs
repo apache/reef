@@ -19,18 +19,10 @@
 
 using Org.Apache.REEF.Tang.Annotations;
 
-namespace Org.Apache.REEF.Common.Io
+namespace Org.Apache.REEF.Wake.Remote.Parameters
 {
-    public class NamingConfigurationOptions
+    [NamedParameter(Documentation = "Port number range start for listening on tcp ports", DefaultValue = "8900")]
+    public class TcpPortRangeStart : Name<int>
     {
-        [NamedParameter("IP address of NameServer")]
-        public class NameServerAddress : Name<string>
-        {
-        }
-
-        [NamedParameter("Port of NameServer", DefaultValue = "0")]
-        public class NameServerPort : Name<int>
-        {
-        }
     }
 }

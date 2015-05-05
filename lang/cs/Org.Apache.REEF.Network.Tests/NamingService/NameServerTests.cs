@@ -28,6 +28,7 @@ using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
+using Org.Apache.REEF.Wake.Remote.Parameters;
 
 namespace Org.Apache.REEF.Network.Tests.NamingService
 {
@@ -37,7 +38,7 @@ namespace Org.Apache.REEF.Network.Tests.NamingService
         [TestMethod]
         public void TestNameServerNoRequests()
         {
-           using (var server = new NameServer(0))
+            using (var server = BuildNameServer())
            {
            }
         }
@@ -45,7 +46,7 @@ namespace Org.Apache.REEF.Network.Tests.NamingService
         [TestMethod]
         public void TestNameServerNoRequestsTwoClients()
         {
-           using (var server = new NameServer(0))
+            using (var server = BuildNameServer())
            {
                var nameClient = new NameClient(server.LocalEndpoint);
                var nameClient2 = new NameClient(server.LocalEndpoint);
@@ -57,7 +58,7 @@ namespace Org.Apache.REEF.Network.Tests.NamingService
         [TestMethod]
         public void TestNameServerNoRequestsTwoClients2()
         {
-           using (var server = new NameServer(0))
+            using (var server = BuildNameServer())
            {
                var nameClient = new NameClient(server.LocalEndpoint);
                var nameClient2 = new NameClient(server.LocalEndpoint);
@@ -69,7 +70,7 @@ namespace Org.Apache.REEF.Network.Tests.NamingService
         [TestMethod]
         public void TestNameServerMultipleRequestsTwoClients()
         {
-           using (var server = new NameServer(0))
+            using (var server = BuildNameServer())
            {
                var nameClient = new NameClient(server.LocalEndpoint);
                var nameClient2 = new NameClient(server.LocalEndpoint);
@@ -192,7 +193,7 @@ namespace Org.Apache.REEF.Network.Tests.NamingService
         {
             int oldPort = 6666;
             int newPort = 6662;
-            INameServer server = new NameServer(oldPort);
+            INameServer server = BuildNameServer(oldPort);
 
             using (INameClient client = BuildNameClient(server.LocalEndpoint))
             {
@@ -203,7 +204,7 @@ namespace Org.Apache.REEF.Network.Tests.NamingService
 
                 server.Dispose();
 
-                server = new NameServer(newPort);
+                server = BuildNameServer(newPort);
                 client.Restart(server.LocalEndpoint);
 
                 client.Register("b", endpoint);
@@ -217,7 +218,7 @@ namespace Org.Apache.REEF.Network.Tests.NamingService
         public void TestConstructorInjection()
         {
             int port = 6666;
-            using (INameServer server = new NameServer(port))
+            using (INameServer server = BuildNameServer(port))
             {
                 IConfiguration nameClientConfiguration = NamingConfiguration.ConfigurationModule
                     .Set(NamingConfiguration.NameServerAddress, server.LocalEndpoint.Address.ToString())
@@ -232,12 +233,18 @@ namespace Org.Apache.REEF.Network.Tests.NamingService
             }
         }
 
-        private INameServer BuildNameServer()
+        public static INameServer BuildNameServer(int listenPort = 0)
         {
+            var tcpPortRangeStart = ReflectionUtilities.GetDefaultValueOfIntNamedParameter(typeof(TcpPortRangeStart));
+            var tcpPortRangeCount = ReflectionUtilities.GetDefaultValueOfIntNamedParameter(typeof(TcpPortRangeCount));
+            var tcpPortRangeTryCount = ReflectionUtilities.GetDefaultValueOfIntNamedParameter(typeof(TcpPortRangeTryCount));
             var builder = TangFactory.GetTang()
-                                     .NewConfigurationBuilder()
-                                     .BindNamedParameter<NamingConfigurationOptions.NameServerPort, int>(
-                                         GenericType<NamingConfigurationOptions.NameServerPort>.Class, "0");
+                .NewConfigurationBuilder()
+                .BindIntNamedParam<NamingConfigurationOptions.NameServerPort>(listenPort.ToString())
+                .BindIntNamedParam<TcpPortRangeStart>(tcpPortRangeStart.ToString())
+                .BindIntNamedParam<TcpPortRangeCount>(tcpPortRangeCount.ToString())
+                .BindIntNamedParam<TcpPortRangeTryCount>(tcpPortRangeTryCount.ToString()
+                );
 
             return TangFactory.GetTang().NewInjector(builder.Build()).GetInstance<INameServer>();
         }

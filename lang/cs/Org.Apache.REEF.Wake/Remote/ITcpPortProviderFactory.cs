@@ -24,25 +24,31 @@ using Org.Apache.REEF.Wake.Impl;
 namespace Org.Apache.REEF.Wake.Remote
 {
     /// <summary>
-    /// Creates new instances of IRemoteManager.
+    /// Creates new instances of ITcpPortProvider .
     /// </summary>
-    [DefaultImplementation(typeof(DefaultRemoteManagerFactory))]
-    public interface IRemoteManagerFactory
+    [DefaultImplementation(typeof(DefaultTcpPortProviderFactory))]
+    public interface ITcpPortProviderFactory
     {
         /// <summary>
         /// Constructs a DefaultRemoteManager listening on the specified address and any
         /// available port.
         /// </summary>
-        /// <param name="localAddress">The address to listen on</param>
-        /// <param name="port">The port to listen on</param>
-        /// <param name="codec">The codec used for serializing messages</param>
-        /// <param name="tcpPortProvider">Provides ports for tcp listeners.</param>
-        IRemoteManager<T> GetInstance<T>(IPAddress localAddress, int port, ICodec<T> codec, ITcpPortProvider tcpPortProvider);
+        /// <param name="tcpPortRangeStart">Start port number for range provider</param>
+        /// <param name="tcpPortRangeCount">Number of ports available on the range</param>
+        /// <param name="tcpPortRangeTryCount">Max number of ports to be delivered</param>
+        ITcpPortProvider GetInstance(int tcpPortRangeStart, int tcpPortRangeCount);
 
         /// <summary>
         /// Constructs a DefaultRemoteManager. Does not listen for incoming messages.
         /// </summary>
-        /// <param name="codec">The codec used for serializing messages</param>
-        IRemoteManager<T> GetInstance<T>(ICodec<T> codec);
+        /// <param name="tcpPortRangeStart">Start port number for range provider</param>
+        /// <param name="tcpPortRangeCount">Number of ports available on the range</param>
+        /// <param name="tcpPortRangeTryCount">Max number of ports to be delivered</param>
+        ITcpPortProvider GetInstance(int tcpPortRangeStart, int tcpPortRangeCount, int tcpPortRangeTryCount);
+
+        /// <summary>
+        /// Constructs a TcpPortProvider 
+        /// </summary>        
+        ITcpPortProvider GetInstance();
     }
 }

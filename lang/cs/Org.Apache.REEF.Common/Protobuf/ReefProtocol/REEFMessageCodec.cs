@@ -17,12 +17,18 @@
  * under the License.
  */
 
+using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Wake.Remote;
 
 namespace Org.Apache.REEF.Common.Protobuf.ReefProtocol
 {
     public class REEFMessageCodec : ICodec<REEFMessage>
     {
+        [Inject]
+        public REEFMessageCodec()
+        {
+        }
+
         public byte[] Encode(REEFMessage obj)
         {
             return obj.Serialize();

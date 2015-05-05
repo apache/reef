@@ -32,6 +32,7 @@ using Org.Apache.REEF.Wake.Remote;
 using Org.Apache.REEF.Wake.Remote.Impl;
 using Org.Apache.REEF.Wake.RX;
 using Org.Apache.REEF.Wake.RX.Impl;
+using Org.Apache.REEF.Wake.Util;
 
 namespace Org.Apache.REEF.Network.Naming
 {
@@ -50,8 +51,13 @@ namespace Org.Apache.REEF.Network.Naming
         /// Create a new NameServer to run on the specified port.
         /// </summary>
         /// <param name="port">The port to listen for incoming connections on.</param>
+        /// <param name="tcpPortProvider">If port is 0, this interface provides 
+        /// a port range to try.
+        /// </param>
         [Inject]
-        public NameServer([Parameter(typeof(NamingConfigurationOptions.NameServerPort))] int port)
+        internal NameServer(
+            [Parameter(typeof(NamingConfigurationOptions.NameServerPort))] int port,
+            ITcpPortProvider tcpPortProvider)
         {
             IObserver<TransportEvent<NamingEvent>> handler = CreateServerHandler();
             _idToAddrMap = new Dictionary<string, IPEndPoint>();
@@ -59,7 +65,9 @@ namespace Org.Apache.REEF.Network.Naming
 
             // Start transport server, get listening IP endpoint
             _logger.Log(Level.Info, "Starting naming server");
-            _server = new TransportServer<NamingEvent>(port, handler, codec);
+            _server = new TransportServer<NamingEvent>(
+                new IPEndPoint(NetworkUtils.LocalIPAddress, port), handler, 
+                codec, tcpPortProvider);
             _server.Run();
             LocalEndpoint = _server.LocalEndpoint;
         }

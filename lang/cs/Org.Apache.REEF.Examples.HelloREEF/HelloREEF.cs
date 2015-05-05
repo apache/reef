@@ -31,6 +31,7 @@ using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Wake.Remote;
+using Org.Apache.REEF.Wake.Remote.Parameters;
 
 namespace Org.Apache.REEF.Examples.HelloREEF
 {
