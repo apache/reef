@@ -32,48 +32,11 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
     [Obsolete("Need to remove Iwritable and use IstreamingCodec. Please see Jira REEF-295 ", false)]
     public sealed class WritableRemoteManager<T> : IRemoteManager<T> where T : IWritable
     {
-        private static readonly Logger LOGGER = Logger.GetLogger(typeof (DefaultRemoteManager<T>));
+        private static readonly Logger LOGGER = Logger.GetLogger(typeof (WritableRemoteManager<T>));
 
         private readonly WritableObserverContainer<T> _observerContainer;
         private readonly WritableTransportServer<IWritableRemoteEvent<T>> _server;
         private readonly Dictionary<IPEndPoint, ProxyObserver> _cachedClients;
-
-        /// <summary>
-        /// Constructs a DefaultRemoteManager listening on the specified address and any
-        /// available port.
-        /// </summary>
-        /// <param name="localAddress">The address to listen on</param>
-        [Obsolete("Use IRemoteManagerFactory.GetWritableInstance() instead.", false)]
-        public WritableRemoteManager(IPAddress localAddress) : this(localAddress, 0)
-        {
-        }
-
-        /// <summary>
-        /// Constructs a DefaultRemoteManager listening on the specified IPEndPoint.
-        /// </summary>
-        /// <param name="localEndpoint">The endpoint to listen on</param>
-        [Obsolete("Use IRemoteManagerFactory.GetWritableInstance() instead.", false)]
-        public WritableRemoteManager(IPEndPoint localEndpoint)
-        {
-            if (localEndpoint == null)
-            {
-                throw new ArgumentNullException("localEndpoint");
-            }
-            if (localEndpoint.Port < 0)
-            {
-                throw new ArgumentException("Listening port must be greater than or equal to zero");
-            }
-
-            _observerContainer = new WritableObserverContainer<T>();
-            _cachedClients = new Dictionary<IPEndPoint, ProxyObserver>();
-
-            // Begin to listen for incoming messages
-            _server = new WritableTransportServer<IWritableRemoteEvent<T>>(localEndpoint, _observerContainer);
-            _server.Run();
-
-            LocalEndpoint = _server.LocalEndpoint;
-            Identifier = new SocketRemoteIdentifier(LocalEndpoint);
-        }
 
         /// <summary>
         /// Constructs a DefaultRemoteManager listening on the specified address and
@@ -81,7 +44,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         /// </summary>
         /// <param name="localAddress">The address to listen on</param>
         /// <param name="port">The port to listen on</param>
-        [Obsolete("Use IRemoteManagerFactory.GetWritableInstance() instead.", false)]
+        [Obsolete("Use IRemoteManagerFactory.GetInstance() instead.", false)]
         public WritableRemoteManager(IPAddress localAddress, int port)
         {
             if (localAddress == null)
@@ -102,17 +65,17 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
             _server = new WritableTransportServer<IWritableRemoteEvent<T>>(localEndpoint, _observerContainer);
             _server.Run();
 
-            LocalEndpoint = _server.LocalEndpoint;
+            LocalEndpoint = _server.LocalEndpoint;  
             Identifier = new SocketRemoteIdentifier(LocalEndpoint);
         }
 
         /// <summary>
         /// Constructs a DefaultRemoteManager. Does not listen for incoming messages.
         /// </summary>
-        [Obsolete("Use IRemoteManagerFactory.GetWritableInstance() instead.", false)]
+        [Obsolete("Use IRemoteManagerFactory.GetInstance() instead.", false)]
         public WritableRemoteManager()
         {
-            using (LOGGER.LogFunction("DefaultRemoteManager::DefaultRemoteManager"))
+            using (LOGGER.LogFunction("WritableRemoteManager::WritableRemoteManager"))
             {
                 _observerContainer = new WritableObserverContainer<T>();
                 _cachedClients = new Dictionary<IPEndPoint, ProxyObserver>();
@@ -195,6 +158,11 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
                 throw new ArgumentNullException("remoteEndpoint");
             }
 
+            if (observer == null)
+            {
+                throw new ArgumentNullException("observer");
+            }
+
             SocketRemoteIdentifier id = remoteEndpoint.Id as SocketRemoteIdentifier;
             if (id == null)
             {
@@ -265,7 +233,6 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         private class ProxyObserver : IObserver<T>, IDisposable
         {
             private readonly WritableTransportClient<IWritableRemoteEvent<T>> _client;
-            private int _messageCount;
 
             /// <summary>
             /// Create new ProxyObserver
@@ -275,7 +242,6 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
             public ProxyObserver(WritableTransportClient<IWritableRemoteEvent<T>> client)
             {
                 _client = client;
-                _messageCount = 0;
             }
 
             /// <summary>
@@ -284,15 +250,10 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
             /// <param name="message">The message to send</param>
             public void OnNext(T message)
             {
-                IWritableRemoteEvent<T> remoteEvent = new WritableRemoteEvent<T>(_client.Link.LocalEndpoint, _client.Link.RemoteEndpoint,
-                    message)
-                {
-                    Source = "default",
-                    Sink = "default",
-                    Sequence = _messageCount
-                };
+                IWritableRemoteEvent<T> remoteEvent = new WritableRemoteEvent<T>(_client.Link.LocalEndpoint,
+                    _client.Link.RemoteEndpoint,
+                    message);
 
-                _messageCount++;
                 _client.Send(remoteEvent);
             }
 
@@ -306,7 +267,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
 
             public void OnError(Exception error)
             {
-                throw new NotImplementedException();
+                throw error;
             }
 
             public void OnCompleted()

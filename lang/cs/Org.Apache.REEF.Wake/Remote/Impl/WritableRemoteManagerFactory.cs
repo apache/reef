@@ -32,20 +32,22 @@ namespace Org.Apache.REEF.Wake.Impl
     public sealed class WritableRemoteManagerFactory
     {
         [Inject]
-        public WritableRemoteManagerFactory()
+        private WritableRemoteManagerFactory()
         {
         }
 
-        public IRemoteManager<T> GetWritableInstance<T>(IPAddress localAddress, int port) where T : IWritable
+        public IRemoteManager<T> GetInstance<T>(IPAddress localAddress, int port) where T : IWritable
         {
 #pragma warning disable 618
+// This is the one place allowed to call this constructor. Hence, disabling the warning is OK.
             return new WritableRemoteManager<T>(localAddress, port);
 #pragma warning disable 618
         }
 
-        public IRemoteManager<T> GetWritableInstance<T>() where T : IWritable
+        public IRemoteManager<T> GetInstance<T>() where T : IWritable
         {
 #pragma warning disable 618
+// This is the one place allowed to call this constructor. Hence, disabling the warning is OK.
             return new WritableRemoteManager<T>();
 #pragma warning disable 618
         }

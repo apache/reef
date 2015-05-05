@@ -21,6 +21,8 @@ using System;
 using System.Collections.Concurrent;
 using System.Net;
 using Org.Apache.REEF.Wake.Util;
+using Org.Apache.REEF.Utilities.Diagnostics;
+using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Wake.Remote.Impl
 {
@@ -32,6 +34,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
     [Obsolete("Need to remove Iwritable and use IstreamingCodec. Please see Jira REEF-295 ", false)]
     internal class WritableObserverContainer<T> : IObserver<TransportEvent<IWritableRemoteEvent<T>>> where T : IWritable
     {
+        private static readonly Logger Logger = Logger.GetLogger(typeof(WritableObserverContainer<>));
         private readonly ConcurrentDictionary<IPEndPoint, IObserver<T>> _endpointMap;
         private readonly ConcurrentDictionary<Type, IObserver<IRemoteMessage<T>>> _typeMap;
         private IObserver<T> _universalObserver;
@@ -118,10 +121,12 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
 
         public void OnError(Exception error)
         {
+            throw error;
         }
 
         public void OnCompleted()
         {
+            Logger.Log(Level.Info, "Exiting the Writable Observer Container");
         }
     }
 }

@@ -28,7 +28,7 @@ namespace Org.Apache.REEF.Wake.Remote
     /// </summary>
     /// <typeparam name="T">Type of remote event message. It is assumed that T implements IWritable</typeparam>
     [Obsolete("Need to remove Iwritable and use IstreamingCodec. Please see Jira REEF-295 ", false)]
-    public interface IWritableRemoteEvent<T> : IWritable where T : IWritable
+    internal interface IWritableRemoteEvent<T> : IWritable where T : IWritable
     {
         /// <summary>
         /// Local Endpoint
@@ -40,12 +40,6 @@ namespace Org.Apache.REEF.Wake.Remote
         /// </summary>
         IPEndPoint RemoteEndPoint { get; set; }
 
-        string Source { get; }
-
-        string Sink { get; }
-
         T Value { get; }
-
-        long Sequence { get; }
     }
 }
