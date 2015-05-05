@@ -17,16 +17,16 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <artifactId>reef-examples</artifactId>
-  <version>0.12.0-incubating-SNAPSHOT</version>
     <name>REEF Examples</name>
 
     <parent>
         <groupId>org.apache.reef</groupId>
         <artifactId>reef-project</artifactId>
-        <version>0.12.0-incubating-SNAPSHOT</version>
+        <version>0.11.0-incubating-SNAPSHOT</version>
         <relativePath>../../..</relativePath>
     </parent>
 
@@ -151,7 +151,7 @@ under the License.
                             <executable>java</executable>
                             <arguments>
                                 <argument>-classpath</argument>
-                                <classpath />
+                                <classpath/>
                                 <argument>-Djava.util.logging.config.class=org.apache.reef.util.logging.Config
                                 </argument>
                                 <!-- <argument>-Dlog4j.debug=true</argument> -->
@@ -176,7 +176,7 @@ under the License.
                             <executable>java</executable>
                             <arguments>
                                 <argument>-classpath</argument>
-                                <classpath />
+                                <classpath/>
                                 <argument>-Djava.util.logging.config.class=org.apache.reef.util.logging.Config
                                 </argument>
                                 <!-- <argument>-Dlog4j.debug=true</argument> -->
@@ -201,7 +201,7 @@ under the License.
                             <executable>java</executable>
                             <arguments>
                                 <argument>-classpath</argument>
-                                <classpath />
+                                <classpath/>
                                 <argument>-Djava.util.logging.config.class=org.apache.reef.util.logging.Config
                                 </argument>
                                 <!-- <argument>-Dlog4j.debug=true</argument> -->
@@ -227,7 +227,7 @@ under the License.
                             <executable>java</executable>
                             <arguments>
                                 <argument>-classpath</argument>
-                                <classpath />
+                                <classpath/>
                                 <argument>-Djava.util.logging.config.class=org.apache.reef.util.logging.Config
                                 </argument>
                                 <argument>-Dcom.microsoft.reef.runtime.local.folder=${project.build.directory}
@@ -257,7 +257,7 @@ under the License.
                             <executable>java</executable>
                             <arguments>
                                 <argument>-classpath</argument>
-                                <classpath />
+                                <classpath/>
                                 <argument>-Djava.util.logging.config.class=org.apache.reef.util.logging.Config
                                 </argument>
                                 <argument>org.apache.reef.examples.retained_eval.Launch</argument>
@@ -286,7 +286,7 @@ under the License.
                             <executable>java</executable>
                             <arguments>
                                 <argument>-classpath</argument>
-                                <classpath />
+                                <classpath/>
                                 <argument>-Dcom.microsoft.reef.runtime.local.folder=${project.build.directory}
                                 </argument>
                                 <argument>-Djava.util.logging.config.class=org.apache.reef.util.logging.Config
@@ -317,7 +317,7 @@ under the License.
                             <executable>java</executable>
                             <arguments>
                                 <argument>-classpath</argument>
-                                <classpath />
+                                <classpath/>
                                 <argument>-Dcom.microsoft.reef.runtime.local.folder=${project.build.directory}
                                 </argument>
                                 <argument>-Djava.util.logging.config.class=org.apache.reef.util.logging.Config

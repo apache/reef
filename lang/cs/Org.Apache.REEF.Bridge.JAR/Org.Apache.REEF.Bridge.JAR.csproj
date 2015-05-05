@@ -95,7 +95,7 @@ under the License.
 
     <PropertyGroup>
         <BuildCommand>$(NuGetCommand) pack "$(FinalizedNuspecFile)" -BasePath $(NugetProjectPath) -Properties "Configuration=$(Configuration);Platform=$(Platform);REEF_Version=$(REEF_Version);Version=$(REEF_NugetVersion)" $(NonInteractiveSwitch) -OutputDirectory "$(PackageOutputDir)" </BuildCommand>
-        <ReefVer>$([System.String]::Copy('$(REEF_NugetVersion)').Replace('-SNAPSHOT-',''))</ReefVer>
+       <!-- <ReefVer>$([System.String]::Copy('$(REEF_NugetVersion)').Replace('-SNAPSHOT-',''))</ReefVer> -->
     </PropertyGroup>
 
     <ItemGroup>
