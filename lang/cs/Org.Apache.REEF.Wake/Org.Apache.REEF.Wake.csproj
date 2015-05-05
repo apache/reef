@@ -48,7 +48,8 @@ under the License.
     <Compile Include="IEventHandler.cs" />
     <Compile Include="IIdentifier.cs" />
     <Compile Include="IIdentifierFactory.cs" />
-    <Compile Include="Impl\DefaultRemoteManagerFactory.cs" />
+    <Compile Include="Remote\Impl\WritableRemoteManagerFactory.cs" />
+    <Compile Include="Remote\Impl\DefaultRemoteManagerFactory.cs" />
     <Compile Include="Impl\LoggingEventHandler.cs" />
     <Compile Include="Impl\MissingStartHandlerHandler.cs" />
     <Compile Include="Impl\MultiEventHandler.cs" />

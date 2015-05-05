@@ -43,18 +43,5 @@ namespace Org.Apache.REEF.Wake.Remote
         /// </summary>
         /// <param name="codec">The codec used for serializing messages</param>
         IRemoteManager<T> GetInstance<T>(ICodec<T> codec);
-
-        /// <summary>
-        /// Constructs a WritableRemoteManager listening on the specified address and any
-        /// available port.
-        /// </summary>
-        /// <param name="localAddress">The address to listen on</param>
-        /// <param name="port">The port to listen on</param>
-        IRemoteManager<T> GetWritableInstance<T>(IPAddress localAddress, int port) where T : IWritable;
-
-        /// <summary>
-        /// Constructs a WritableRemoteManager. Does not listen for incoming messages.
-        /// </summary>
-        IRemoteManager<T> GetWritableInstance<T>() where T:IWritable;
     }
 }

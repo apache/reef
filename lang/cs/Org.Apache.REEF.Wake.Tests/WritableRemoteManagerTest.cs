@@ -26,6 +26,7 @@ using System.Reactive;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.Tang.Implementations.Tang;
+using Org.Apache.REEF.Wake.Impl;
 using Org.Apache.REEF.Wake.Remote;
 using Org.Apache.REEF.Wake.Remote.Impl;
 using Org.Apache.REEF.Wake.Util;
@@ -36,8 +37,8 @@ namespace Org.Apache.REEF.Wake.Tests
     [Obsolete("Need to remove Iwritable and use IstreamingCodec. Please see Jira REEF-295 ", false)]
     public class WritableRemoteManagerTest
     {
-        private readonly IRemoteManagerFactory _remoteManagerFactory =
-            TangFactory.GetTang().NewInjector().GetInstance<IRemoteManagerFactory>();
+        private readonly WritableRemoteManagerFactory _remoteManagerFactory =
+            TangFactory.GetTang().NewInjector().GetInstance<WritableRemoteManagerFactory>();
         
         /// <summary>
         /// Tests one way communication between Remote Managers 
