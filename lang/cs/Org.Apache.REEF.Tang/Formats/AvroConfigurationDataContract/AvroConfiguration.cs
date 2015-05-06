@@ -27,9 +27,12 @@ namespace Org.Apache.REEF.Tang.Formats.AvroConfigurationDataContract
     [DataContract(Name = "AvroConfiguration", Namespace = "org.apache.reef.tang.formats.avro")]
     public class AvroConfiguration
     {
-        public AvroConfiguration(HashSet<ConfigurationEntry> bindings)
+        public AvroConfiguration(ISet<ConfigurationEntry> bindings)
         {
-            this.Bindings = bindings;
+            // TODO: [REEF-276] AvroSerializer currently does not serialize HashSets
+            // correctly, so using a List for now to get around the issue.
+            // An ISet is still passed in to guarantee configuration uniqueness.
+            this.Bindings = new List<ConfigurationEntry>(bindings);
         }
 
         public AvroConfiguration()
@@ -37,7 +40,7 @@ namespace Org.Apache.REEF.Tang.Formats.AvroConfigurationDataContract
         }
 
         [DataMember]
-        public HashSet<ConfigurationEntry> Bindings { get; set; }
+        public IList<ConfigurationEntry> Bindings { get; set; }
 
         public static AvroConfiguration GetAvroConfigurationFromEmbeddedString(string jsonString)
         {
