@@ -121,14 +121,14 @@ namespace Org.Apache.REEF.Network.Tests.NetworkService
 
                         connection2.Open();
                         connection2.Write(new WritableString("jkl"));
-                        connection2.Write(new WritableString("mno"));
+                        connection2.Write(new WritableString("nop"));
 
                         Assert.AreEqual("abc", queue2.Take().Data);
                         Assert.AreEqual("def", queue2.Take().Data);
                         Assert.AreEqual("ghi", queue2.Take().Data);
 
                         Assert.AreEqual("jkl", queue1.Take().Data);
-                        Assert.AreEqual("mno", queue1.Take().Data);
+                        Assert.AreEqual("nop", queue1.Take().Data);
                     }
                 }
             }
