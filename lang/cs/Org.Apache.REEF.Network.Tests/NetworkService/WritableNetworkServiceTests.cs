@@ -60,8 +60,9 @@ namespace Org.Apache.REEF.Network.Tests.NetworkService
                 IPEndPoint endpoint = nameServer.LocalEndpoint;
                 int nameServerPort = endpoint.Port;
                 string nameServerAddr = endpoint.Address.ToString();
-                using (INetworkService<WritableString> networkService1 = BuildNetworkService(networkServicePort1, nameServerPort, nameServerAddr, null))
-                using (INetworkService<WritableString> networkService2 = BuildNetworkService(networkServicePort2, nameServerPort, nameServerAddr, new MessageHandler(queue)))
+                IIdentifierFactory factory = new StringIdentifierFactory();
+                using (INetworkService<WritableString> networkService1 = BuildNetworkService(networkServicePort1, nameServerPort, nameServerAddr, null, null))
+                using (INetworkService<WritableString> networkService2 = BuildNetworkService(networkServicePort2, nameServerPort, nameServerAddr, factory, new MessageHandler(queue, factory)))
                 {
                     IIdentifier id1 = new StringIdentifier("service1");
                     IIdentifier id2 = new StringIdentifier("service2");
@@ -100,8 +101,10 @@ namespace Org.Apache.REEF.Network.Tests.NetworkService
                 IPEndPoint endpoint = nameServer.LocalEndpoint;
                 int nameServerPort = endpoint.Port;
                 string nameServerAddr = endpoint.Address.ToString();
-                using (INetworkService<WritableString> networkService1 = BuildNetworkService(networkServicePort1, nameServerPort, nameServerAddr, new MessageHandler(queue1)))
-                using (INetworkService<WritableString> networkService2 = BuildNetworkService(networkServicePort2, nameServerPort, nameServerAddr, new MessageHandler(queue2)))
+                IIdentifierFactory factory = new StringIdentifierFactory();
+
+                using (INetworkService<WritableString> networkService1 = BuildNetworkService(networkServicePort1, nameServerPort, nameServerAddr, factory, new MessageHandler(queue1, factory)))
+                using (INetworkService<WritableString> networkService2 = BuildNetworkService(networkServicePort2, nameServerPort, nameServerAddr, factory, new MessageHandler(queue2, factory)))
                 {
                     IIdentifier id1 = new StringIdentifier("service1");
                     IIdentifier id2 = new StringIdentifier("service2");
@@ -137,12 +140,14 @@ namespace Org.Apache.REEF.Network.Tests.NetworkService
         /// <param name="networkServicePort">The port that the NetworkService will listen on</param>
         /// <param name="nameServicePort">The port of the NameServer</param>
         /// <param name="nameServiceAddr">The ip address of the NameServer</param>
+        /// <param name="factory">Identifier factory for WritableString</param>
         /// <param name="handler">The observer to handle incoming messages</param>
         /// <returns></returns>
         private INetworkService<WritableString> BuildNetworkService(
             int networkServicePort,
             int nameServicePort,
             string nameServiceAddr,
+            IIdentifierFactory factory,
             IObserver<WritableNsMessage<WritableString>> handler)
         {
             // Test injection
@@ -187,14 +192,17 @@ namespace Org.Apache.REEF.Network.Tests.NetworkService
         private class MessageHandler : IObserver<WritableNsMessage<WritableString>>
         {
             private readonly BlockingCollection<WritableString> _queue;
+            private readonly IIdentifierFactory _factory;
 
-            public MessageHandler(BlockingCollection<WritableString> queue)
+            public MessageHandler(BlockingCollection<WritableString> queue, IIdentifierFactory factory)
             {
                 _queue = queue;
+                _factory = factory;
             }
 
             public void OnNext(WritableNsMessage<WritableString> value)
             {
+                value.ConvertStringToIdentifier(_factory);
                 _queue.Add(value.Data.First());
             }
 

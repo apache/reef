@@ -36,16 +36,14 @@ namespace Org.Apache.REEF.Network.NetworkService
     [Obsolete("Need to remove Iwritable and use IstreamingCodec. Please see Jira REEF-295 ", false)]
     public class WritableNsMessage<T> : IWritable where T : IWritable
     {
-        private readonly IIdentifierFactory _factory;
-        private IIdentifier _sourceId;
-        private IIdentifier _destId;
+        private string _sourceIdString;
+        private string _destIdString;
 
         /// <summary>
         /// Constructor to allow instantiation by reflection
         /// </summary>
-        public WritableNsMessage(IIdentifierFactory factory)
+        public WritableNsMessage()
         {
-            _factory = factory;
         }
         
         /// <summary>
@@ -55,8 +53,8 @@ namespace Org.Apache.REEF.Network.NetworkService
         /// <param name="destId">The identifier of the receiver</param>
         public WritableNsMessage(IIdentifier sourceId, IIdentifier destId)
         {
-            _sourceId = sourceId;
-            _destId = destId;
+            SourceId = sourceId;
+            DestId = destId;
             Data = new List<T>();
         }
 
@@ -68,10 +66,20 @@ namespace Org.Apache.REEF.Network.NetworkService
         /// <param name="message">The message to send</param>
         public WritableNsMessage(IIdentifier sourceId, IIdentifier destId, T message)
         {
-            _sourceId = sourceId;
-            _destId = destId;
+            SourceId = sourceId;
+            DestId = destId;
             Data = new List<T> {message};
         }
+
+        /// <summary>
+        /// The identifier of the sender of the message.
+        /// </summary>
+        internal IIdentifier SourceId { get; private set; }
+
+        /// <summary>
+        /// The identifier of the receiver of the message.
+        /// </summary>
+        internal IIdentifier DestId { get; private set; }
 
         /// <summary>
         /// A list of data being sent in the message.
@@ -84,8 +92,8 @@ namespace Org.Apache.REEF.Network.NetworkService
         /// <param name="reader">The reader from which to read </param>
         public void Read(IDataReader reader)
         {
-            _sourceId = _factory.Create(reader.ReadString());
-            _destId = _factory.Create(reader.ReadString());
+            _sourceIdString = reader.ReadString();
+            _destIdString = reader.ReadString();
             int messageCount = reader.ReadInt32();
 
             Data = new List<T>();
@@ -109,8 +117,8 @@ namespace Org.Apache.REEF.Network.NetworkService
         /// <param name="writer">The writer to which to write</param>
         public void Write(IDataWriter writer)
         {
-            writer.WriteString(_sourceId.ToString());
-            writer.WriteString(_destId.ToString());
+            writer.WriteString(SourceId.ToString());
+            writer.WriteString(DestId.ToString());
             writer.WriteInt32(Data.Count);
 
             foreach (var data in Data)
@@ -126,8 +134,8 @@ namespace Org.Apache.REEF.Network.NetworkService
         /// <param name="token">The cancellation token</param>
         public async Task ReadAsync(IDataReader reader, CancellationToken token)
         {
-            _sourceId = _factory.Create(await reader.ReadStringAsync(token));
-            _destId = _factory.Create(await reader.ReadStringAsync(token));
+            _sourceIdString = await reader.ReadStringAsync(token);
+            _destIdString = await reader.ReadStringAsync(token);
             int messageCount = await reader.ReadInt32Async(token);
 
             Data = new List<T>();
@@ -152,8 +160,8 @@ namespace Org.Apache.REEF.Network.NetworkService
         /// <param name="token">The cancellation token</param>
         public async Task WriteAsync(IDataWriter writer, CancellationToken token)
         {
-            await writer.WriteStringAsync(_sourceId.ToString(), token);
-            await writer.WriteStringAsync(_destId.ToString(), token);
+            await writer.WriteStringAsync(SourceId.ToString(), token);
+            await writer.WriteStringAsync(DestId.ToString(), token);
             await writer.WriteInt32Async(Data.Count, token);
 
             foreach (var data in Data)
@@ -161,5 +169,16 @@ namespace Org.Apache.REEF.Network.NetworkService
                 data.Write(writer);
             }
         }
+
+        /// <summary>
+        /// Converts Source and Destination strings to identifiers
+        /// </summary>
+        /// <param name="factory">Identifier factory</param>
+        public void ConvertStringToIdentifier(IIdentifierFactory factory)
+        {
+            SourceId = factory.Create(_sourceIdString);
+            DestId = factory.Create(_destIdString);
+        } 
+
     }
 }
