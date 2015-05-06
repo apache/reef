@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -22,16 +22,16 @@ import org.apache.reef.driver.task.SuspendedTask;
 import org.apache.reef.io.Message;
 import org.apache.reef.io.naming.Identifiable;
 
-public class SuspendedTaskBridge extends NativeBridge implements Identifiable, Message {
+public final class SuspendedTaskBridge extends NativeBridge implements Identifiable, Message {
 
   private final SuspendedTask jsuspendedTask;
   private final String taskId;
   private final ActiveContextBridge jactiveContext;
 
-  public SuspendedTaskBridge(SuspendedTask suspendedTask) {
+  public SuspendedTaskBridge(final SuspendedTask suspendedTask, final ActiveContextBridgeFactory activeContextBridgeFactory) {
     jsuspendedTask = suspendedTask;
     taskId = suspendedTask.getId();
-    jactiveContext = new ActiveContextBridge(jsuspendedTask.getActiveContext());
+    jactiveContext = activeContextBridgeFactory.getActiveContextBridge(jsuspendedTask.getActiveContext());
   }
 
   public ActiveContextBridge getActiveContext() {

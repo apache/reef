@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -18,21 +18,19 @@
  */
 package org.apache.reef.javabridge;
 
-import org.apache.reef.driver.context.ActiveContext;
 import org.apache.reef.driver.task.RunningTask;
 
 import java.util.logging.Logger;
 
-public class RunningTaskBridge extends NativeBridge {
+public final class RunningTaskBridge extends NativeBridge {
   private static final Logger LOG = Logger.getLogger(RunningTaskBridge.class.getName());
 
   final private RunningTask jrunningTask;
   final private ActiveContextBridge jactiveContext;
 
-  public RunningTaskBridge(RunningTask runningTask) {
-    jrunningTask = runningTask;
-    final ActiveContext activeContext = runningTask.getActiveContext();
-    jactiveContext = new ActiveContextBridge(activeContext);
+  public RunningTaskBridge(final RunningTask runningTask, final ActiveContextBridgeFactory factory) {
+    this.jrunningTask = runningTask;
+    this.jactiveContext = factory.getActiveContextBridge(runningTask.getActiveContext());
   }
 
   public final String getId() {

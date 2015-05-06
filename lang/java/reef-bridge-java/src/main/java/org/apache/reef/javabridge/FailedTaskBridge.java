@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -18,23 +18,24 @@
  */
 package org.apache.reef.javabridge;
 
-import org.apache.reef.driver.context.ActiveContext;
 import org.apache.reef.driver.task.FailedTask;
-import org.apache.reef.util.Optional;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class FailedTaskBridge extends NativeBridge {
+public final class FailedTaskBridge extends NativeBridge {
   private static final Logger LOG = Logger.getLogger(FailedTaskBridge.class.getName());
 
   private FailedTask jfailedTask;
   private ActiveContextBridge jactiveContext;
 
-  public FailedTaskBridge(FailedTask failedTask) {
-    jfailedTask = failedTask;
-    Optional<ActiveContext> activeContext = failedTask.getActiveContext();
-    jactiveContext = activeContext.isPresent() ? new ActiveContextBridge(activeContext.get()) : null;
+  public FailedTaskBridge(final FailedTask failedTask, final ActiveContextBridgeFactory factory) {
+    this.jfailedTask = failedTask;
+    if (failedTask.getActiveContext().isPresent()) {
+      this.jactiveContext = factory.getActiveContextBridge(failedTask.getActiveContext().get());
+    } else {
+      this.jactiveContext = null;
+    }
   }
 
   public String getFailedTaskString() {

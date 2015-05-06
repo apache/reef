@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -18,6 +18,7 @@
  */
 package org.apache.reef.javabridge;
 
+import org.apache.reef.driver.context.ActiveContext;
 import org.apache.reef.driver.context.ContextBase;
 import org.apache.reef.driver.context.FailedContext;
 import org.apache.reef.driver.evaluator.EvaluatorDescriptor;
@@ -26,7 +27,7 @@ import org.apache.reef.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class FailedContextBridge extends NativeBridge implements ContextBase {
+public final class FailedContextBridge extends NativeBridge implements ContextBase {
 
   private static final Logger LOG = Logger.getLogger(FailedContextBridge.class.getName());
 
@@ -37,14 +38,20 @@ public class FailedContextBridge extends NativeBridge implements ContextBase {
   private final String parentContextId;
   private final FailedContext jfailedContext;
 
-  public FailedContextBridge(final FailedContext failedContext) {
+  public FailedContextBridge(final FailedContext failedContext, final ActiveContextBridgeFactory factory) {
     jfailedContext = failedContext;
     evaluatorDescriptor = failedContext.getEvaluatorDescriptor();
     evaluatorId = failedContext.getEvaluatorId();
     contextId = failedContext.getId();
-    parentContext = failedContext.getParentContext().isPresent() ?
-        new ActiveContextBridge(failedContext.getParentContext().get()) : null;
-    parentContextId = parentContext != null ? parentContext.getId() : null;
+    if (failedContext.getParentContext().isPresent()) {
+      final ActiveContext parent = failedContext.getParentContext().get();
+      this.parentContextId = parent.getId();
+      this.parentContext = factory.getActiveContextBridge(parent);
+    } else {
+      this.parentContextId = null;
+      this.parentContext = null;
+    }
+
   }
 
   @Override
@@ -63,11 +70,7 @@ public class FailedContextBridge extends NativeBridge implements ContextBase {
 
   @Override
   public Optional<String> getParentId() {
-    if (parentContextId != null) {
-      return Optional.of(parentContextId);
-    } else {
-      return Optional.empty();
-    }
+    return Optional.ofNullable(this.parentContextId);
   }
 
   @Override
