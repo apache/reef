@@ -29,7 +29,9 @@ namespace Org.Apache.REEF.Tang.Formats.AvroConfigurationDataContract
     {
         public AvroConfiguration(ISet<ConfigurationEntry> bindings)
         {
-            // Passing in a Set to ensure uniqueness of elements
+            // TODO: [REEF-276] AvroSerializer currently does not serialize HashSets
+            // correctly, so using a List for now to get around the issue.
+            // An ISet is still passed in to guarantee configuration uniqueness.
             this.Bindings = new List<ConfigurationEntry>(bindings);
         }
 
