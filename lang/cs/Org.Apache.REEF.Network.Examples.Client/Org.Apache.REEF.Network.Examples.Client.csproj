@@ -49,7 +49,7 @@ under the License.
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="run.cmd">
+    <None Include="$(SolutionDir)\Org.Apache.REEF.Client\run.cmd">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

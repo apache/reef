@@ -745,8 +745,9 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
         public static NetworkService<GroupCommunicationMessage> BuildNetworkService(
             IPEndPoint nameServerEndpoint, IObserver<NsMessage<GroupCommunicationMessage>> handler)
         {
+            var remoteManagerFactory = TangFactory.GetTang().NewInjector().GetInstance<IRemoteManagerFactory>();
             return new NetworkService<GroupCommunicationMessage>(
-                0, handler, new StringIdentifierFactory(), new GroupCommunicationMessageCodec(), new NameClient(nameServerEndpoint.Address.ToString(), nameServerEndpoint.Port));
+                0, handler, new StringIdentifierFactory(), new GroupCommunicationMessageCodec(), new NameClient(nameServerEndpoint.Address.ToString(), nameServerEndpoint.Port), remoteManagerFactory);
         }
 
         private GroupCommunicationMessage CreateGcm(string message, string from, string to)
