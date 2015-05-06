@@ -27,6 +27,7 @@ using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Exceptions;
 using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Wake;
+using Org.Apache.REEF.Wake.Impl;
 using Org.Apache.REEF.Wake.Remote;
 using Org.Apache.REEF.Wake.Remote.Impl;
 using Org.Apache.REEF.Wake.Util;
@@ -34,56 +35,56 @@ using Org.Apache.REEF.Wake.Util;
 namespace Org.Apache.REEF.Network.NetworkService
 {
     /// <summary>
-    /// Network service used for Reef Task communication.
+    /// Writable Network service used for Reef Task communication.
     /// </summary>
     /// <typeparam name="T">The message type</typeparam>
-    public class NetworkService<T> : INetworkService<T>
+    [Obsolete("Need to remove Iwritable and use IstreamingCodec. Please see Jira REEF-295 ", false)]
+    public class WritableNetworkService<T> : INetworkService<T> where T : IWritable
     {
-        private readonly Logger LOGGER = Logger.GetLogger(typeof(NetworkService<>));
+        private static readonly Logger Logger = Logger.GetLogger(typeof(NetworkService<>));
 
-        private readonly IRemoteManager<NsMessage<T>> _remoteManager;
-        private readonly IObserver<NsMessage<T>> _messageHandler; 
-        private readonly ICodec<NsMessage<T>> _codec; 
+        private readonly IRemoteManager<WritableNsMessage<T>> _remoteManager;
+        private readonly IObserver<WritableNsMessage<T>> _messageHandler;
         private IIdentifier _localIdentifier;
         private IDisposable _messageHandlerDisposable;
-        private readonly Dictionary<IIdentifier, IConnection<T>> _connectionMap;  
+        private readonly Dictionary<IIdentifier, IConnection<T>> _connectionMap;
+        private readonly INameClient _nameClient;
 
         /// <summary>
-        /// Create a new NetworkService.
+        /// Create a new Writable NetworkService.
         /// </summary>
         /// <param name="nsPort">The port that the NetworkService will listen on</param>
-        /// <param name="nameServerAddr">The address of the NameServer</param>
-        /// <param name="nameServerPort">The port of the NameServer</param>
         /// <param name="messageHandler">The observer to handle incoming messages</param>
         /// <param name="idFactory">The factory used to create IIdentifiers</param>
-        /// <param name="codec">The codec used for serialization</param>
-        /// <param name="remoteManagerFactory">Used to instantiate remote manager instances.</param>
-        /// <param name="tcpPortProvider">Provides ports for tcp listeners.</param>
+        /// <param name="nameClient">The name client used to register Ids</param>
+        /// <param name="remoteManagerFactory">Writable RemoteManagerFactory to create a 
+        /// Writable RemoteManager</param>
         [Inject]
-        public NetworkService(
-            [Parameter(typeof(NetworkServiceOptions.NetworkServicePort))] int nsPort,
-            IObserver<NsMessage<T>> messageHandler,
+        private WritableNetworkService(
+            [Parameter(typeof (NetworkServiceOptions.NetworkServicePort))] int nsPort,
+            IObserver<WritableNsMessage<T>> messageHandler,
             IIdentifierFactory idFactory,
-            ICodec<T> codec,
             INameClient nameClient,
-            IRemoteManagerFactory remoteManagerFactory)
+            WritableRemoteManagerFactory remoteManagerFactory)
         {
-            _codec = new NsMessageCodec<T>(codec, idFactory);
-
+ 
             IPAddress localAddress = NetworkUtils.LocalIPAddress;
-            _remoteManager = remoteManagerFactory.GetInstance(localAddress, nsPort, _codec);
+            _remoteManager = remoteManagerFactory.GetInstance<WritableNsMessage<T>>(localAddress, nsPort);
             _messageHandler = messageHandler;
 
-            NamingClient = nameClient;
+            _nameClient = nameClient;
             _connectionMap = new Dictionary<IIdentifier, IConnection<T>>();
 
-            LOGGER.Log(Level.Info, "Started network service");
+            Logger.Log(Level.Info, "Started network service");
         }
 
         /// <summary>
         /// Name client for registering ids
         /// </summary>
-        public INameClient NamingClient { get; private set; }
+        public INameClient NamingClient
+        {
+            get { return _nameClient; }
+        }
 
         /// <summary>
         /// Open a new connection to the remote host registered to
@@ -103,12 +104,14 @@ namespace Org.Apache.REEF.Network.NetworkService
             {
                 return connection;
             }
+            else
+            {
+                connection = new WritableNsConnection<T>(_localIdentifier, destinationId,
+                    NamingClient, _remoteManager, _connectionMap);
 
-            connection = new NsConnection<T>(_localIdentifier, destinationId, 
-                NamingClient, _remoteManager, _connectionMap);
-
-            _connectionMap[destinationId] = connection;
-            return connection;
+                _connectionMap[destinationId] = connection;
+                return connection;
+            }
         }
 
         /// <summary>
@@ -117,16 +120,16 @@ namespace Org.Apache.REEF.Network.NetworkService
         /// <param name="id">The identifier to register</param>
         public void Register(IIdentifier id)
         {
-            LOGGER.Log(Level.Info, "Registering id {0} with network service.", id);
+            Logger.Log(Level.Info, "Registering id {0} with network service.", id);
 
             _localIdentifier = id;
             NamingClient.Register(id.ToString(), _remoteManager.LocalEndpoint);
 
             // Create and register incoming message handler
-            var anyEndpoint = new IPEndPoint(IPAddress.Any, 0);
+            var anyEndpoint = new IPEndPoint(_remoteManager.LocalEndpoint.Address, 0);
             _messageHandlerDisposable = _remoteManager.RegisterObserver(anyEndpoint, _messageHandler);
 
-            LOGGER.Log(Level.Info, "End of Registering id {0} with network service.", id);
+            Logger.Log(Level.Info, "End of Registering id {0} with network service.", id);
         }
 
         /// <summary>
@@ -152,7 +155,7 @@ namespace Org.Apache.REEF.Network.NetworkService
             NamingClient.Dispose();
             _remoteManager.Dispose();
 
-            LOGGER.Log(Level.Info, "Disposed of network service");
+            Logger.Log(Level.Info, "Disposed of network service");
         }
     }
 }
