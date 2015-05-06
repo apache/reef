@@ -29,16 +29,18 @@ namespace Org.Apache.REEF.Wake.Impl
     /// </summary>
     internal sealed class DefaultRemoteManagerFactory : IRemoteManagerFactory
     {
+        private readonly ITcpPortProvider _tcpPortProvider;
         [Inject]
-        private DefaultRemoteManagerFactory()
+        private DefaultRemoteManagerFactory(ITcpPortProvider tcpPortProvider)
         {
+            _tcpPortProvider = tcpPortProvider;
         }
 
-        public IRemoteManager<T> GetInstance<T>(IPAddress localAddress, int port, ICodec<T> codec, ITcpPortProvider tcpPortProvider)
+        public IRemoteManager<T> GetInstance<T>(IPAddress localAddress, int port, ICodec<T> codec)
         {
 #pragma warning disable 618
             // This is the one place allowed to call this constructor. Hence, disabling the warning is OK.
-            return new DefaultRemoteManager<T>(localAddress, port, codec, tcpPortProvider);
+            return new DefaultRemoteManager<T>(localAddress, port, codec, _tcpPortProvider);
 #pragma warning restore 618
         }
 

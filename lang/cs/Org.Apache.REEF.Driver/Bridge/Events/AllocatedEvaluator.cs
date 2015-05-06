@@ -81,7 +81,7 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
         {
             LOGGER.Log(Level.Info, "AllocatedEvaluator::SubmitContextAndTask");
 
-            contextConfiguration = MergeContextConfiguration(contextConfiguration);
+            taskConfiguration = MergeWithConfigurationProviders(taskConfiguration);
             string context = _serializer.ToString(contextConfiguration);
             string task = _serializer.ToString(taskConfiguration);
 
@@ -94,8 +94,7 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
         public void SubmitContextAndService(IConfiguration contextConfiguration, IConfiguration serviceConfiguration)
         {
             LOGGER.Log(Level.Info, "AllocatedEvaluator::SubmitContextAndService");
-
-            contextConfiguration = MergeContextConfiguration(contextConfiguration);
+            
             string context = _serializer.ToString(contextConfiguration);
             string service = _serializer.ToString(serviceConfiguration);
 
@@ -109,7 +108,7 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
         {
             LOGGER.Log(Level.Info, "AllocatedEvaluator::SubmitContextAndServiceAndTask");
 
-            contextConfiguration = MergeContextConfiguration(contextConfiguration);
+            taskConfiguration = MergeWithConfigurationProviders(taskConfiguration);
             string context = _serializer.ToString(contextConfiguration);
             string service = _serializer.ToString(serviceConfiguration);
             string task = _serializer.ToString(taskConfiguration);
@@ -179,9 +178,9 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
             }
         }
 
-        private IConfiguration MergeContextConfiguration(IConfiguration contextConfiguration)
+        private IConfiguration MergeWithConfigurationProviders(IConfiguration configuration)
         {
-            IConfiguration contextConfig = contextConfiguration;
+            IConfiguration contextConfig = configuration;
             if (_configurationProviders != null)
             {
                 foreach (var configurationProvider in _configurationProviders)

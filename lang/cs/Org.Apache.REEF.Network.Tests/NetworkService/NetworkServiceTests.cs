@@ -160,11 +160,8 @@ namespace Org.Apache.REEF.Network.Tests.NetworkService
             var injector = TangFactory.GetTang().NewInjector(nameserverConf);
             var nameClient = injector.GetInstance<NameClient>();
             var remoteManagerFactory = injector.GetInstance<IRemoteManagerFactory>();
-            var tcpPortProviderFactory = injector.GetInstance<ITcpPortProviderFactory>();
-            var tcpPortProvider = tcpPortProviderFactory.GetInstance();
             return new NetworkService<string>(networkServicePort,
-                handler, new StringIdentifierFactory(), new StringCodec(), nameClient, remoteManagerFactory, 
-                tcpPortProvider);
+                handler, new StringIdentifierFactory(), new StringCodec(), nameClient, remoteManagerFactory);
         }
 
         private class MessageHandler : IObserver<NsMessage<string>>

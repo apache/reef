@@ -66,6 +66,7 @@ under the License.
     <Compile Include="Remote\ITcpPortProvider.cs" />
     <Compile Include="Remote\ITcpPortProviderFactory.cs" />
     <Compile Include="Remote\Parameters\TcpPortRangeCount.cs" />
+    <Compile Include="Remote\Parameters\TcpPortRangeSeed.cs" />
     <Compile Include="Remote\Parameters\TcpPortRangeStart.cs" />
     <Compile Include="Remote\Parameters\TcpPortRangeTryCount.cs" />
     <Compile Include="Remote\IDataReader.cs" />

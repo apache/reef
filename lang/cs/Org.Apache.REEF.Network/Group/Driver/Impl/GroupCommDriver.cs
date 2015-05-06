@@ -70,28 +70,28 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
         /// <param name="fanOut">fanOut for tree topology</param>
         /// <param name="configSerializer">Used to serialize task configuration</param>
         /// <param name="nameServer">Used to map names to ip adresses</param>
-        [System.Obsolete("user the other constructor")]
-        [Inject]
-        public GroupCommDriver(
-            [Parameter(typeof(GroupCommConfigurationOptions.DriverId))] string driverId,
-            [Parameter(typeof(GroupCommConfigurationOptions.MasterTaskId))] string masterTaskId,
-            [Parameter(typeof(GroupCommConfigurationOptions.FanOut))] int fanOut,
-            AvroConfigurationSerializer configSerializer,
-            INameServer nameServer)
-        {
-            _driverId = driverId;
-            _contextIds = -1;
-            _fanOut = fanOut;
-            MasterTaskId = masterTaskId;
+        //[System.Obsolete("user the other constructor")]
+        //[Inject]
+        //public GroupCommDriver(
+        //    [Parameter(typeof(GroupCommConfigurationOptions.DriverId))] string driverId,
+        //    [Parameter(typeof(GroupCommConfigurationOptions.MasterTaskId))] string masterTaskId,
+        //    [Parameter(typeof(GroupCommConfigurationOptions.FanOut))] int fanOut,
+        //    AvroConfigurationSerializer configSerializer,
+        //    INameServer nameServer)
+        //{
+        //    _driverId = driverId;
+        //    _contextIds = -1;
+        //    _fanOut = fanOut;
+        //    MasterTaskId = masterTaskId;
 
-            _configSerializer = configSerializer;
-            _commGroups = new Dictionary<string, ICommunicationGroupDriver>();
-            _nameServer = nameServer;
+        //    _configSerializer = configSerializer;
+        //    _commGroups = new Dictionary<string, ICommunicationGroupDriver>();
+        //    _nameServer = nameServer;
 
-            IPEndPoint localEndpoint = _nameServer.LocalEndpoint;
-            _nameServerAddr = localEndpoint.Address.ToString();
-            _nameServerPort = localEndpoint.Port;
-        }
+        //    IPEndPoint localEndpoint = _nameServer.LocalEndpoint;
+        //    _nameServerAddr = localEndpoint.Address.ToString();
+        //    _nameServerPort = localEndpoint.Port;
+        //}
 
         /// <summary>
         /// Create a new GroupCommunicationDriver object.

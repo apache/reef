@@ -34,8 +34,7 @@ namespace Org.Apache.REEF.Wake.Tests
     {
         private readonly IRemoteManagerFactory _remoteManagerFactory =
             TangFactory.GetTang().NewInjector().GetInstance<IRemoteManagerFactory>();
-        private readonly ITcpPortProvider _tcpPortProvider =
-            TangFactory.GetTang().NewInjector().GetInstance<ITcpPortProvider>();
+        //private readonly ITcpPortProvider _tcpPortProvider = TangFactory.GetTang().NewInjector().GetInstance<ITcpPortProvider>();
         [TestMethod]
         public void TestOneWayCommunication()
         {
@@ -74,7 +73,7 @@ namespace Org.Apache.REEF.Wake.Tests
             List<string> events = new List<string>();
 
             using (var remoteManager1 = _remoteManagerFactory.GetInstance(new StringCodec()))
-            using (var remoteManager2 = _remoteManagerFactory.GetInstance(listeningAddress, listeningPort, new StringCodec(), _tcpPortProvider))
+            using (var remoteManager2 = _remoteManagerFactory.GetInstance(listeningAddress, listeningPort, new StringCodec()))
             {
                 IPEndPoint remoteEndpoint = new IPEndPoint(listeningAddress, 0);
                 var observer = Observer.Create<string>(queue.Add);
@@ -343,7 +342,7 @@ namespace Org.Apache.REEF.Wake.Tests
         IRemoteManager<string> GetRemoteManager()
         {
             IPAddress listeningAddress = IPAddress.Parse("127.0.0.1");
-            return _remoteManagerFactory.GetInstance(listeningAddress, 0, new StringCodec(), _tcpPortProvider);
+            return _remoteManagerFactory.GetInstance(listeningAddress, 0, new StringCodec());
         }
     }
 }

@@ -37,7 +37,7 @@ namespace Org.Apache.REEF.Wake.Remote
         /// <param name="port">The port to listen on</param>
         /// <param name="codec">The codec used for serializing messages</param>
         /// <param name="tcpPortProvider">Provides ports for tcp listeners.</param>
-        IRemoteManager<T> GetInstance<T>(IPAddress localAddress, int port, ICodec<T> codec, ITcpPortProvider tcpPortProvider);
+        IRemoteManager<T> GetInstance<T>(IPAddress localAddress, int port, ICodec<T> codec);
 
         /// <summary>
         /// Constructs a DefaultRemoteManager. Does not listen for incoming messages.

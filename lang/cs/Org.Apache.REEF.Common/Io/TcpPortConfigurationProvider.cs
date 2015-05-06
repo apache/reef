@@ -17,12 +17,13 @@
  * under the License.
  */
 
+using System;
 using Org.Apache.REEF.Common.Evaluator.Parameters;
-using Org.Apache.REEF.Common.Protobuf.ReefProtocol;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Wake.Remote;
+using Org.Apache.REEF.Wake.Remote.Parameters;
 
 namespace Org.Apache.REEF.Common.Io
 {
@@ -37,9 +38,11 @@ namespace Org.Apache.REEF.Common.Io
         {
             return TangFactory.GetTang().NewConfigurationBuilder()
                 .BindImplementation<ITcpPortProvider, TcpPortProvider>()
-                .BindImplementation<ICodec<REEFMessage>, REEFMessageCodec>()
-                .BindSetEntry
-                <EvaluatorConfigurationProviders, TcpPortConfigurationProvider, IConfigurationProvider>()
+                .BindIntNamedParam<TcpPortRangeStart>("11000")
+                .BindIntNamedParam<TcpPortRangeCount>("1000")
+                .BindIntNamedParam<TcpPortRangeTryCount>("20000")
+                .BindIntNamedParam<TcpPortRangeSeed>(((int)(DateTime.Now.Ticks)).ToString())
+                .BindSetEntry<EvaluatorConfigurationProviders, TcpPortConfigurationProvider, IConfigurationProvider>()
                 .Build();
         }
     }

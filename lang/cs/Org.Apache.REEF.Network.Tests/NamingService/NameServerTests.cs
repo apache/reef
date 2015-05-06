@@ -235,16 +235,9 @@ namespace Org.Apache.REEF.Network.Tests.NamingService
 
         public static INameServer BuildNameServer(int listenPort = 0)
         {
-            var tcpPortRangeStart = ReflectionUtilities.GetDefaultValueOfIntNamedParameter(typeof(TcpPortRangeStart));
-            var tcpPortRangeCount = ReflectionUtilities.GetDefaultValueOfIntNamedParameter(typeof(TcpPortRangeCount));
-            var tcpPortRangeTryCount = ReflectionUtilities.GetDefaultValueOfIntNamedParameter(typeof(TcpPortRangeTryCount));
             var builder = TangFactory.GetTang()
                 .NewConfigurationBuilder()
-                .BindIntNamedParam<NamingConfigurationOptions.NameServerPort>(listenPort.ToString())
-                .BindIntNamedParam<TcpPortRangeStart>(tcpPortRangeStart.ToString())
-                .BindIntNamedParam<TcpPortRangeCount>(tcpPortRangeCount.ToString())
-                .BindIntNamedParam<TcpPortRangeTryCount>(tcpPortRangeTryCount.ToString()
-                );
+                .BindIntNamedParam<NamingConfigurationOptions.NameServerPort>(listenPort.ToString());
 
             return TangFactory.GetTang().NewInjector(builder.Build()).GetInstance<INameServer>();
         }

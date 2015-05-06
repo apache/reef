@@ -25,6 +25,7 @@ using System.Net;
 using System.Reactive;
 using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Org.Apache.REEF.Common.Io;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Examples.MachineLearning.KMeans;
 using Org.Apache.REEF.Examples.MachineLearning.KMeans.codecs;
@@ -262,7 +263,7 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
         [TestMethod]
         public void TestBroadcastOperator()
         {
-            INameServer nameServer = NameServerTests.BuildNameServer();
+            //INameServer nameServer = NameServerTests.BuildNameServer();
 
             string groupName = "group1";
             string operatorName = "broadcast";
@@ -705,6 +706,8 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
                 .BindIntNamedParam<GroupCommConfigurationOptions.FanOut>(fanOut.ToString())
                 .BindIntNamedParam<GroupCommConfigurationOptions.NumberOfTasks>(numTasks.ToString())
                 .BindImplementation(GenericType<IConfigurationSerializer>.Class, GenericType<AvroConfigurationSerializer>.Class)
+                .BindImplementation(GenericType<ITcpPortProvider>.Class, GenericType<TcpPortProvider>.Class)
+                .BindIntNamedParam<NamingConfigurationOptions.NameServerPort>("0")
                 .Build();
 
             IGroupCommDriver groupCommDriver = TangFactory.GetTang().NewInjector(c).GetInstance<GroupCommDriver>();
@@ -748,15 +751,13 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
         {
             var injector = TangFactory.GetTang().NewInjector();
             var remoteManagerFactory = injector.GetInstance<IRemoteManagerFactory>();
-            var tcpPortProviderFactory = injector.GetInstance<ITcpPortProviderFactory>();
-            var tcpPortProvider = tcpPortProviderFactory.GetInstance();
             return new NetworkService<GroupCommunicationMessage>(
-                0, handler, new StringIdentifierFactory(), 
-                new GroupCommunicationMessageCodec(), 
-                new NameClient(nameServerEndpoint.Address.ToString(), 
-                    nameServerEndpoint.Port), 
-                    remoteManagerFactory,
-                    tcpPortProvider);
+                0, handler, new StringIdentifierFactory(),
+                new GroupCommunicationMessageCodec(),
+                new NameClient(nameServerEndpoint.Address.ToString(),
+                    nameServerEndpoint.Port),
+                    remoteManagerFactory);
+                    
         }
 
         private GroupCommunicationMessage CreateGcm(string message, string from, string to)

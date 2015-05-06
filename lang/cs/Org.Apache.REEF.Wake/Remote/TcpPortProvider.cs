@@ -20,7 +20,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Wake.Remote.Parameters;
 
 namespace Org.Apache.REEF.Wake.Remote
@@ -30,32 +32,37 @@ namespace Org.Apache.REEF.Wake.Remote
         private readonly int _tcpPortRangeStart;
         private readonly int _tcpPortRangeCount;
         private readonly int _tcpPortRangeTryCount;
+        private readonly int _tcpPortRangeSeed;
 
         [Inject]
-        public TcpPortProvider(
+        internal TcpPortProvider(
             [Parameter(typeof(TcpPortRangeStart))] int tcpPortRangeStart,
             [Parameter(typeof(TcpPortRangeCount))] int tcpPortRangeCount,
-            [Parameter(typeof(TcpPortRangeTryCount))] int tcpPortRangeTryCount
+            [Parameter(typeof(TcpPortRangeTryCount))] int tcpPortRangeTryCount,
+            [Parameter(typeof(TcpPortRangeSeed))] int tcpPortRangeSeed
             )
         {
             _tcpPortRangeStart = tcpPortRangeStart;
             _tcpPortRangeCount = tcpPortRangeCount;
             _tcpPortRangeTryCount = tcpPortRangeTryCount;
+            _tcpPortRangeSeed = tcpPortRangeSeed;
         }
 
         IEnumerator<int> IEnumerable<int>.GetEnumerator()
         {
-            return new TcpPortEnumerator(_tcpPortRangeStart, _tcpPortRangeCount, _tcpPortRangeTryCount);
+            return new TcpPortEnumerator(_tcpPortRangeStart, _tcpPortRangeCount, _tcpPortRangeTryCount,
+                _tcpPortRangeSeed);
         }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return new TcpPortEnumerator(_tcpPortRangeStart, _tcpPortRangeCount, _tcpPortRangeTryCount);
+            return new TcpPortEnumerator(_tcpPortRangeStart, _tcpPortRangeCount, _tcpPortRangeTryCount,
+                _tcpPortRangeSeed);
         }
 
         private class TcpPortEnumerator : IEnumerator<int>
         {
-            private readonly int _seed = (int) DateTime.Now.Ticks;
+            private readonly int _seed;
             private Random _random;
             private readonly int _tcpPortRangeStart;
             private readonly int _tcpPortRangeCount;
@@ -65,13 +72,14 @@ namespace Org.Apache.REEF.Wake.Remote
             internal TcpPortEnumerator(
                 int tcpPortRangeStart,
                 int tcpPortRangeCount,
-                int tcpPortRangeTryCount
-                )
+                int tcpPortRangeTryCount,
+                int tcpPortRangeSeed)
             {
                 _tcpPortRangeStart = tcpPortRangeStart;
                 _tcpPortRangeCount = tcpPortRangeCount;
                 _tcpPortRangeTryCount = tcpPortRangeTryCount;
                 _tcpPortRangeAttempt = 0;
+                _seed = tcpPortRangeSeed;
                 _random = new Random(_seed);
             }
 
@@ -100,4 +108,5 @@ namespace Org.Apache.REEF.Wake.Remote
             }
         }
     }
+    
 }

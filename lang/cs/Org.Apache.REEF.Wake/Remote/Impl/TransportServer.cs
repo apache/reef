@@ -82,7 +82,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         {
             if (LocalEndpoint.Port == 0)
             {
-                FindAPortAndStartListerner();
+                FindAPortAndStartListener();
             }
             else
             {
@@ -92,10 +92,10 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
             _serverTask = Task.Run(() => StartServer());
         }
 
-        private void FindAPortAndStartListerner()
+        private void FindAPortAndStartListener()
         {
             var foundAPort = false;
-            SocketException exception = new SocketException(2);
+            SocketException exception = new SocketException((int)SocketError.AddressAlreadyInUse);
             for (var enumerator = _tcpPortProvider.GetEnumerator();
                 !foundAPort && enumerator.MoveNext();
                 )
@@ -115,6 +115,8 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
             {
                 Exceptions.Throw(exception, "Could not find a port to listen on", LOGGER);
             }
+            LOGGER.Log(Level.Info,
+                String.Format("Listening on {0}", _listener.LocalEndpoint.ToString()));
         }
 
         /// <summary>

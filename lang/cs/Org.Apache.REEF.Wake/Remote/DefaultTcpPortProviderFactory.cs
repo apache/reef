@@ -43,12 +43,10 @@ namespace Org.Apache.REEF.Wake.Remote
         /// <param name="tcpPortRangeTryCount">Max number of ports to be delivered</param>
         public ITcpPortProvider GetInstance(int tcpPortRangeStart, int tcpPortRangeCount)
         {
-            var tcpPortRangeTryCount = ReflectionUtilities.GetDefaultValueOfIntNamedParameter(typeof(TcpPortRangeTryCount));
             var configuration = TangFactory.GetTang()
                 .NewConfigurationBuilder()
                 .BindIntNamedParam<TcpPortRangeStart>(tcpPortRangeStart.ToString())
                 .BindIntNamedParam<TcpPortRangeCount>(tcpPortRangeCount.ToString())
-                .BindIntNamedParam<TcpPortRangeTryCount>(tcpPortRangeTryCount.ToString())
                 .Build();
             return TangFactory.GetTang().NewInjector(configuration).GetInstance<ITcpPortProvider>();
         }
@@ -74,15 +72,9 @@ namespace Org.Apache.REEF.Wake.Remote
         /// </summary>
         public ITcpPortProvider GetInstance()
         {
-            var tcpPortRangeStart = ReflectionUtilities.GetDefaultValueOfIntNamedParameter(typeof(TcpPortRangeStart));
-            var tcpPortRangeCount = ReflectionUtilities.GetDefaultValueOfIntNamedParameter(typeof(TcpPortRangeCount));
-            var tcpPortRangeTryCount = ReflectionUtilities.GetDefaultValueOfIntNamedParameter(typeof(TcpPortRangeTryCount));
 
             var configuration = TangFactory.GetTang()
                 .NewConfigurationBuilder()
-                .BindIntNamedParam<TcpPortRangeStart>(tcpPortRangeStart.ToString())
-                .BindIntNamedParam<TcpPortRangeCount>(tcpPortRangeCount.ToString())
-                .BindIntNamedParam<TcpPortRangeTryCount>(tcpPortRangeTryCount.ToString())
                 .Build();
             return TangFactory.GetTang().NewInjector(configuration).GetInstance<ITcpPortProvider>();
         }

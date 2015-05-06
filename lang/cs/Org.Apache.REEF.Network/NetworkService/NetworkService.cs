@@ -66,13 +66,12 @@ namespace Org.Apache.REEF.Network.NetworkService
             IIdentifierFactory idFactory,
             ICodec<T> codec,
             INameClient nameClient,
-            IRemoteManagerFactory remoteManagerFactory,
-            ITcpPortProvider tcpPortProvider)
+            IRemoteManagerFactory remoteManagerFactory)
         {
             _codec = new NsMessageCodec<T>(codec, idFactory);
 
             IPAddress localAddress = NetworkUtils.LocalIPAddress;
-            _remoteManager = remoteManagerFactory.GetInstance(localAddress, nsPort, _codec, tcpPortProvider);
+            _remoteManager = remoteManagerFactory.GetInstance(localAddress, nsPort, _codec);
             _messageHandler = messageHandler;
 
             NamingClient = nameClient;

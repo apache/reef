@@ -28,7 +28,7 @@ namespace Org.Apache.REEF.Common.Io
         {
         }
 
-        [NamedParameter("Port of NameServer", DefaultValue = "0")]
+        [NamedParameter("Port of NameServer")]
         public class NameServerPort : Name<int>
         {
         }
