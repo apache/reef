@@ -30,27 +30,25 @@ import java.util.logging.Logger;
 public class ActiveContextBridge extends NativeBridge implements Identifiable {
   private static final Logger LOG = Logger.getLogger(ActiveContextBridge.class.getName());
 
-  private ActiveContext jactiveContext;
-
-  private AvroConfigurationSerializer serializer;
-
-  private String contextId;
-
-  private String evaluatorId;
+  private final ActiveContext jactiveContext;
+  private final AvroConfigurationSerializer serializer;
+  private final String contextId;
+  private final String evaluatorId;
+  private final ClassHierarchy clrClassHierarchy;
 
   public ActiveContextBridge(ActiveContext activeContext) {
     jactiveContext = activeContext;
     serializer = new AvroConfigurationSerializer();
     contextId = activeContext.getId();
     evaluatorId = activeContext.getEvaluatorId();
+    clrClassHierarchy = Utilities.loadClassHierarchy(NativeInterop.CLASS_HIERARCHY_FILENAME);
   }
 
   public void submitTaskString(final String taskConfigurationString) {
-
     if (taskConfigurationString.isEmpty()) {
       throw new RuntimeException("empty taskConfigurationString provided.");
     }
-    ClassHierarchy clrClassHierarchy = Utilities.loadClassHierarchy(NativeInterop.CLASS_HIERARCHY_FILENAME);
+
     Configuration taskConfiguration;
     try {
       taskConfiguration = serializer.fromString(taskConfigurationString, clrClassHierarchy);
