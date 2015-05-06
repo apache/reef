@@ -40,7 +40,7 @@ namespace Org.Apache.REEF.Tang.Formats.AvroConfigurationDataContract
         }
 
         [DataMember]
-        public List<ConfigurationEntry> Bindings { get; set; }
+        public IList<ConfigurationEntry> Bindings { get; set; }
 
         public static AvroConfiguration GetAvroConfigurationFromEmbeddedString(string jsonString)
         {
