@@ -109,7 +109,7 @@ namespace Org.Apache.REEF.Evaluator
                     Optional<ServiceConfiguration> rootServiceConfig = _evaluatorConfig.RootServiceConfiguration;
 
                     // remoteManager used as client-only in evaluator
-                    IRemoteManager<REEFMessage> remoteManager = new DefaultRemoteManager<REEFMessage>(new REEFMessageCodec());
+                    IRemoteManager<REEFMessage> remoteManager = _injector.GetInstance<IRemoteManagerFactory>().GetInstance((new REEFMessageCodec()));
                     IRemoteIdentifier remoteId = new SocketRemoteIdentifier(NetUtilities.ParseIpEndpoint(rId));
 
 
