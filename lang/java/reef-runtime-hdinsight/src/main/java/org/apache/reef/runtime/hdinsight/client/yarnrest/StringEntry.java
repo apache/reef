@@ -19,14 +19,21 @@
 package org.apache.reef.runtime.hdinsight.client.yarnrest;
 
 import org.codehaus.jackson.annotate.JsonProperty;
+import org.codehaus.jackson.map.ObjectMapper;
+
+import java.io.IOException;
+import java.io.StringWriter;
 
 /**
  * An Entry with String Key and String Value in the Environment field
- * and the ApplicationAcls field of an ApplicationSubmission
+ * and the ApplicationAcls field of an ApplicationSubmission.
+ * For detail information, please refer to
+ * https://hadoop.apache.org/docs/r2.6.0/hadoop-yarn/hadoop-yarn-site/ResourceManagerRest.html
  */
 public final class StringEntry {
 
-  private static final String STRING_ENTRY = "string-entry";
+  private static final String STRING_ENTRY = "stringEntry";
+  private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
   private String key;
   private String value;
 
@@ -55,10 +62,16 @@ public final class StringEntry {
 
   @Override
   public String toString() {
-    return STRING_ENTRY + "{" +
-        Constants.KEY + "='" + this.key + '\'' +
-        ", " + Constants.VALUE + "='" + this.value + '\'' +
-        '}';
+    StringWriter writer = new StringWriter();
+    String objectString;
+    try {
+      OBJECT_MAPPER.writeValue(writer, this);
+      objectString = writer.toString();
+    } catch (IOException e) {
+      return null;
+    }
+
+    return STRING_ENTRY + objectString;
   }
 
   @Override

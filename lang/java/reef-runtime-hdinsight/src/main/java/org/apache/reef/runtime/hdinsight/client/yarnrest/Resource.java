@@ -19,13 +19,20 @@
 package org.apache.reef.runtime.hdinsight.client.yarnrest;
 
 import org.codehaus.jackson.annotate.JsonProperty;
+import org.codehaus.jackson.map.ObjectMapper;
+
+import java.io.IOException;
+import java.io.StringWriter;
 
 /**
- * Represents the resoure field in the YARN REST API
+ * Represents the resoure field in the YARN REST API.
+ * For detailed information, please refer to
+ * https://hadoop.apache.org/docs/r2.6.0/hadoop-yarn/hadoop-yarn-site/ResourceManagerRest.html
  */
 public final class Resource {
 
-  private static final String RESOURCE = "resouce";
+  private static final String RESOURCE = "resource";
+  private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
   private int memory;
   private int vCores;
 
@@ -51,9 +58,15 @@ public final class Resource {
 
   @Override
   public String toString() {
-    return RESOURCE + "{" +
-        Constants.MEMORY + "=" + this.memory +
-        ", " + Constants.VCORES + "=" + this.vCores +
-        '}';
+    StringWriter writer = new StringWriter();
+    String objectString;
+    try {
+      OBJECT_MAPPER.writeValue(writer, this);
+      objectString = writer.toString();
+    } catch (IOException e) {
+      return null;
+    }
+
+    return RESOURCE + objectString;
   }
 }

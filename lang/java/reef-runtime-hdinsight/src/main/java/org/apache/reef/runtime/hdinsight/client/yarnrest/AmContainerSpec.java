@@ -20,19 +20,29 @@ package org.apache.reef.runtime.hdinsight.client.yarnrest;
 
 
 import org.codehaus.jackson.annotate.JsonProperty;
+import org.codehaus.jackson.map.ObjectMapper;
 
+import java.io.IOException;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 /**
- * Represents a AmContainerSpec in the YARN REST APIs.
+ * Represents the specifications for an application master
+ * container. Used in job submission to the Resource Manager
+ * via the YARN REST API.
+ * For detailed information, please refer to
+ * https://hadoop.apache.org/docs/r2.6.0/hadoop-yarn/hadoop-yarn-site/ResourceManagerRest.html
  */
 public final class AmContainerSpec {
 
   public static final String ACLS_VIEW_APP = "VIEW_APP";
   public static final String ACLS_MODIFY_APP = "MODIFY_APP";
+
+  private static final String AM_CONTAINER_SPEC = "AmContainerSpec";
+  private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
   private Commands commands = new Commands();
   private Map<String, List<StringEntry>> environment = new HashMap<>();
@@ -142,5 +152,19 @@ public final class AmContainerSpec {
   public AmContainerSpec setLocalResources(final Map<String, List<LocalResourcesEntry>> localResources) {
     this.localResources = localResources;
     return this;
+  }
+
+  @Override
+  public String toString() {
+    StringWriter writer = new StringWriter();
+    String objectString;
+    try {
+      OBJECT_MAPPER.writeValue(writer, this);
+      objectString = writer.toString();
+    } catch (IOException e) {
+      return null;
+    }
+
+    return AM_CONTAINER_SPEC + objectString;
   }
 }

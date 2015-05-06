@@ -19,13 +19,23 @@
 package org.apache.reef.runtime.hdinsight.client.yarnrest;
 
 import org.codehaus.jackson.annotate.JsonProperty;
+import org.codehaus.jackson.map.ObjectMapper;
+
+import java.io.IOException;
+import java.io.StringWriter;
 
 /**
- * Created by afchung on 4/4/15.
+ * Commands used to start an Application Master via the
+ * YARN Resource Manger REST API.
+ * For detailed information, please refer to
+ * https://hadoop.apache.org/docs/r2.6.0/hadoop-yarn/hadoop-yarn-site/ResourceManagerRest.html
  */
-public class Commands {
+public final class Commands {
 
     public static final String DEFAULT_COMMAND = "";
+
+    private static final String COMMANDS = "commands";
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     private String command = DEFAULT_COMMAND;
 
@@ -36,5 +46,19 @@ public class Commands {
 
     public void setCommand(final String command) {
         this.command = command;
+    }
+
+    @Override
+    public String toString() {
+        StringWriter writer = new StringWriter();
+        String objectString;
+        try {
+            OBJECT_MAPPER.writeValue(writer, this);
+            objectString = writer.toString();
+        } catch (IOException e) {
+            return null;
+        }
+
+        return COMMANDS + objectString;
     }
 }

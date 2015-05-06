@@ -19,8 +19,22 @@
 package org.apache.reef.runtime.hdinsight.client.yarnrest;
 
 import org.codehaus.jackson.annotate.JsonProperty;
+import org.codehaus.jackson.map.ObjectMapper;
 
+import java.io.IOException;
+import java.io.StringWriter;
+
+/**
+ * Represents a resource to be localized. The key represents
+ * the file name or folder name  after localization, while the value
+ * provides the details of the localized resource.
+ * For detailed information, please refer to
+ * https://hadoop.apache.org/docs/r2.6.0/hadoop-yarn/hadoop-yarn-site/ResourceManagerRest.html
+ */
 public final class LocalResourcesEntry {
+
+  private static final String LOCAL_RESOURCES_ENTRY = "localResourcesEntry";
+  private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
   private String key;
   private LocalResource value;
@@ -48,5 +62,19 @@ public final class LocalResourcesEntry {
   public LocalResourcesEntry setValue(final LocalResource value) {
     this.value = value;
     return this;
+  }
+
+  @Override
+  public String toString() {
+    StringWriter writer = new StringWriter();
+    String objectString;
+    try {
+      OBJECT_MAPPER.writeValue(writer, this);
+      objectString = writer.toString();
+    } catch (IOException e) {
+      return null;
+    }
+
+    return LOCAL_RESOURCES_ENTRY + objectString;
   }
 }

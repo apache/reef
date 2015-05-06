@@ -18,15 +18,26 @@
  */
 package org.apache.reef.runtime.hdinsight.client.yarnrest;
 
-import com.sun.xml.bind.v2.runtime.reflect.opt.Const;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.annotate.JsonProperty;
+import org.codehaus.jackson.map.ObjectMapper;
+
+import java.io.IOException;
+import java.io.StringWriter;
 
 /**
- * Created by marku_000 on 2014-06-30.
+ * An object representing the state of an application,
+ * used to deserialize queries for an application/list of applications
+ * to the Resource Manager on HDInsight via the YARN REST API.
+ * For detailed information, please refer to
+ * https://hadoop.apache.org/docs/r2.6.0/hadoop-yarn/hadoop-yarn-site/ResourceManagerRest.html
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ApplicationState {
+public final class ApplicationState {
+
+  private static String APPLICATION_STATE = "applicationState";
+  private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
   private String progress;
   private String queue;
   private String trackingUI;
@@ -246,5 +257,19 @@ public class ApplicationState {
 
   public void setVCoreSeconds(long vCoreSeconds) {
     this.vCoreSeconds = vCoreSeconds;
+  }
+
+  @Override
+  public String toString() {
+    StringWriter writer = new StringWriter();
+    String objectString;
+    try {
+      OBJECT_MAPPER.writeValue(writer, this);
+      objectString = writer.toString();
+    } catch (IOException e) {
+      return null;
+    }
+
+    return APPLICATION_STATE + objectString;
   }
 }

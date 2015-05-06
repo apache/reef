@@ -19,7 +19,6 @@
 package org.apache.reef.runtime.hdinsight.client.yarnrest;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.NotImplementedException;
 import org.apache.http.Header;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;

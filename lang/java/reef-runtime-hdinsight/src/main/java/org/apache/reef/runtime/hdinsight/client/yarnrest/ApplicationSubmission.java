@@ -19,16 +19,25 @@
 package org.apache.reef.runtime.hdinsight.client.yarnrest;
 
 import org.codehaus.jackson.annotate.JsonProperty;
+import org.codehaus.jackson.map.ObjectMapper;
 
+import java.io.IOException;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Represents an ApplicationSubmission to the YARN REST API.
+ * Represents an Application Submission object to the YARN REST API.
+ * Contains all the information needed to submit an application to the
+ * Resource Manager.
+ * For detailed information, please refer to
+ * https://hadoop.apache.org/docs/r2.6.0/hadoop-yarn/hadoop-yarn-site/ResourceManagerRest.html
  */
 public final class ApplicationSubmission {
 
   public static final String DEFAULT_QUEUE = "default";
+  private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+  private static final String APPLICATION_SUBMISSION = "applicationSubmission";
   private String queue = DEFAULT_QUEUE;
 
   public static final int DEFAULT_PRIORITY = 3;
@@ -169,18 +178,15 @@ public final class ApplicationSubmission {
 
   @Override
   public String toString() {
-    return Constants.APPLICATION_SUBMISSION + " {" +
-          ", " + Constants.APPLICATION_ID + "='" + applicationId + '\'' +
-          ", " + Constants.APPLICATION_NAME + "='" + applicationName + '\'' +
-          ", " + Constants.QUEUE + "='" + queue + '\'' +
-          ", " + Constants.PRIORITY + "=" + priority +
-          ", " + Constants.AM_CONTAINER_SPEC + "=" + amContainerSpec +
-          ", " + Constants.UNMANAGED_AM + "=" + isUnmanagedAM +
-          ", " + Constants.MAX_APP_ATTEMPTS + "=" + maxAppAttempts +
-          ", " + Constants.RESOURCE + "=" + resource +
-          ", " + Constants.APPLICATION_TYPE + "='" + applicationType + '\'' +
-          ", " + Constants.KEEP_CONTAINERS_ACROSS_APPLICATION_ATTEMPTS + "=" + keepContainers +
-          ", " + Constants.APPLICATION_TAGS + "=" + applicationTags +
-          '}';
+    StringWriter writer = new StringWriter();
+    String objectString;
+    try {
+      OBJECT_MAPPER.writeValue(writer, this);
+      objectString = writer.toString();
+    } catch (IOException e) {
+      return null;
+    }
+
+    return APPLICATION_SUBMISSION + objectString;
   }
 }

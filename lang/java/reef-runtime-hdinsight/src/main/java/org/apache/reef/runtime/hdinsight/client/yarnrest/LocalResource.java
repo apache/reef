@@ -19,18 +19,27 @@
 package org.apache.reef.runtime.hdinsight.client.yarnrest;
 
 import org.codehaus.jackson.annotate.JsonProperty;
+import org.codehaus.jackson.map.ObjectMapper;
 
+import java.io.IOException;
+import java.io.StringWriter;
+
+/**
+ * Represents a the details of a local resource used
+ * in an HDInsight job submission.
+ * For detailed information, please refer to
+ * https://hadoop.apache.org/docs/r2.6.0/hadoop-yarn/hadoop-yarn-site/ResourceManagerRest.html
+ */
 public final class LocalResource {
 
   public static final String TYPE_FILE = "FILE";
   public static final String TYPE_ARCHIVE = "ARCHIVE";
   public static final String TYPE_PATTERN = "PATTERN";
-
   public static final String VISIBILITY_PUBLIC = "PUBLIC";
   public static final String VISIBILITY_PRIVATE = "PRIVATE";
   public static final String VISIBILITY_APPLICATION = "APPLICATION";
-
-  private static final String LOCAL_RESOURCE = "local-resource";
+  private static final String LOCAL_RESOURCE = "localResource";
+  private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
   private String resource;
   private String type;
@@ -90,12 +99,15 @@ public final class LocalResource {
 
   @Override
   public String toString() {
-    return LOCAL_RESOURCE + "{" +
-        Constants.RESOURCE + "='" + resource + '\'' +
-        ", " + Constants.TYPE + "='" + type + '\'' +
-        ", " + Constants.VISIBILITY + "='" + visibility + '\'' +
-        ", " + Constants.SIZE + "=" + size +
-        ", " + Constants.TIMESTAMP + "=" + timestamp +
-        '}';
+    StringWriter writer = new StringWriter();
+    String objectString;
+    try {
+      OBJECT_MAPPER.writeValue(writer, this);
+      objectString = writer.toString();
+    } catch (IOException e) {
+      return null;
+    }
+
+    return LOCAL_RESOURCE + objectString;
   }
 }

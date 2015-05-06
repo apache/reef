@@ -35,7 +35,7 @@ import java.util.Map;
  * Details are documented at:
  * https://hadoop.apache.org/docs/r2.6.0/hadoop-yarn/hadoop-yarn-site/ResourceManagerRest.html
  */
-public class TestHDInsightRESTJsonSerialization {
+public final class TestHDInsightRESTJsonSerialization {
 
   @Test
   public void TestSerializeApplicationSubmission() throws IOException {

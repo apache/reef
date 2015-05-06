@@ -20,15 +20,24 @@ package org.apache.reef.runtime.hdinsight.client.yarnrest;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.annotate.JsonProperty;
+import org.codehaus.jackson.map.ObjectMapper;
 
+import java.io.IOException;
+import java.io.StringWriter;
 import java.util.List;
 import java.util.Map;
 
 /**
- * Created by afchung on 4/4/15.
+ * The data structure used to deserialize the REST response
+ * from a call to the Resource Manager to list applications.
+ * For detailed information, please refer to
+ * https://hadoop.apache.org/docs/r2.6.0/hadoop-yarn/hadoop-yarn-site/ResourceManagerRest.html
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ListApplicationResponse {
+public final class ListApplicationResponse {
+
+  private static final String LIST_APPLICATION_RESPONSE = "listApplicationResponse";
+  private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
   private Map<String, List<ApplicationState>> apps;
 
@@ -46,5 +55,19 @@ public class ListApplicationResponse {
       return null;
     }
     return apps.get(Constants.APP);
+  }
+
+  @Override
+  public String toString() {
+    StringWriter writer = new StringWriter();
+    String objectString;
+    try {
+      OBJECT_MAPPER.writeValue(writer, this);
+      objectString = writer.toString();
+    } catch (IOException e) {
+      return null;
+    }
+
+    return LIST_APPLICATION_RESPONSE + objectString;
   }
 }

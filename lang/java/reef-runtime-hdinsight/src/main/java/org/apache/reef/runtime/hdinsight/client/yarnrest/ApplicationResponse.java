@@ -20,12 +20,22 @@ package org.apache.reef.runtime.hdinsight.client.yarnrest;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.annotate.JsonProperty;
+import org.codehaus.jackson.map.ObjectMapper;
+
+import java.io.IOException;
+import java.io.StringWriter;
 
 /**
- * Created by marku_000 on 2014-06-30.
+ * A response object used in deserialization when querying
+ * the Resource Manager for an application via the YARN REST API.
+ * For detailed information, please refer to
+ * https://hadoop.apache.org/docs/r2.6.0/hadoop-yarn/hadoop-yarn-site/ResourceManagerRest.html
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ApplicationResponse {
+public final class ApplicationResponse {
+
+  private static String APPLICATION_RESPONSE = "applicationResponse";
+  private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
   private ApplicationState app;
 
@@ -40,5 +50,19 @@ public class ApplicationResponse {
 
   public ApplicationState getApplicationState() {
     return app;
+  }
+
+  @Override
+  public String toString() {
+    StringWriter writer = new StringWriter();
+    String objectString;
+    try {
+      OBJECT_MAPPER.writeValue(writer, this);
+      objectString = writer.toString();
+    } catch (IOException e) {
+      return null;
+    }
+
+    return APPLICATION_RESPONSE + objectString;
   }
 }

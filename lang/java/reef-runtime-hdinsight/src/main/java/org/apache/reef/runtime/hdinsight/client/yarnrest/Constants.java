@@ -19,9 +19,12 @@
 package org.apache.reef.runtime.hdinsight.client.yarnrest;
 
 /**
- * Created by afchung on 4/4/15.
+ * Constants used in serializing/deserializing REST calls to HDInsight's
+ * Resource Manager.
+ * For detailed information, please refer to
+ * https://hadoop.apache.org/docs/r2.6.0/hadoop-yarn/hadoop-yarn-site/ResourceManagerRest.html
  */
-public class Constants {
+public final class Constants {
     public static final String ID = "id";
     public static final String MAXIMUM_RESOURCE_CAPABILITY = "maximum-resource-capability";
     public static final String APPLICATION_ID = "application-id";
@@ -76,4 +79,7 @@ public class Constants {
     public static final String RUNNING_CONTAINERS = "runningContainers";
     public static final String MEMORY_SECONDS = "memorySeconds";
     public static final String VCORE_SECONDS = "vcoreSeconds";
+
+    private Constants() {
+    }
 }

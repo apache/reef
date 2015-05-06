@@ -19,16 +19,24 @@
 package org.apache.reef.runtime.hdinsight.client.yarnrest;
 
 import org.codehaus.jackson.annotate.JsonProperty;
+import org.codehaus.jackson.map.ObjectMapper;
 
+import java.io.IOException;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 /**
- * Created by afchung on 4/4/15.
+ * Represents credentials for an application in the YARN REST API.
+ * For detailed information, please refer to
+ * https://hadoop.apache.org/docs/r2.6.0/hadoop-yarn/hadoop-yarn-site/ResourceManagerRest.html
  */
 public class Credentials {
+
+    private static final String CREDENTIALS = "credentials";
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     private Map<String, List<StringEntry>> tokens = new HashMap<>();
     private Map<String, List<StringEntry>> secrets = new HashMap<>();
@@ -72,5 +80,19 @@ public class Credentials {
     public Credentials setTokens(final Map<String, List<StringEntry>> tokens) {
         this.tokens = tokens;
         return this;
+    }
+
+    @Override
+    public String toString() {
+        StringWriter writer = new StringWriter();
+        String objectString;
+        try {
+            OBJECT_MAPPER.writeValue(writer, this);
+            objectString = writer.toString();
+        } catch (IOException e) {
+            return null;
+        }
+
+        return CREDENTIALS + objectString;
     }
 }

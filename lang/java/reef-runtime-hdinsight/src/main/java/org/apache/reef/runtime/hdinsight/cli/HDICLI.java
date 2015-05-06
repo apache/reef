@@ -103,6 +103,7 @@ public final class HDICLI {
    * Kills the application with the given id.
    *
    * @param applicationId
+   * @throws IOException
    */
   private void kill(final String applicationId) throws IOException {
     LOG.log(Level.INFO, "Killing application [{0}]", applicationId);
