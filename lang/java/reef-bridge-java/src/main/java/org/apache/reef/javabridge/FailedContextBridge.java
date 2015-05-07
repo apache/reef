@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -6,9 +6,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * <p/>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p/>
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -27,26 +27,31 @@ import org.apache.reef.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class FailedContextBridge extends NativeBridge implements ContextBase {
+public final class FailedContextBridge extends NativeBridge implements ContextBase {
 
   private static final Logger LOG = Logger.getLogger(FailedContextBridge.class.getName());
 
+  private final ActiveContextBridge parentContext;
   private final EvaluatorDescriptor evaluatorDescriptor;
   private final String evaluatorId;
   private final String contextId;
   private final String parentContextId;
   private final FailedContext jfailedContext;
 
-  public FailedContextBridge(final FailedContext failedContext) {
+  public FailedContextBridge(final FailedContext failedContext, final ActiveContextBridgeFactory factory) {
     jfailedContext = failedContext;
     evaluatorDescriptor = failedContext.getEvaluatorDescriptor();
     evaluatorId = failedContext.getEvaluatorId();
     contextId = failedContext.getId();
     if (failedContext.getParentContext().isPresent()) {
-      this.parentContextId = failedContext.getParentContext().get().getId();
+      final ActiveContext parent = failedContext.getParentContext().get();
+      this.parentContextId = parent.getId();
+      this.parentContext = factory.getActiveContextBridge(parent);
     } else {
       this.parentContextId = null;
+      this.parentContext = null;
     }
+
   }
 
   @Override

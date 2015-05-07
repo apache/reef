@@ -323,7 +323,7 @@ public final class JobDriver {
           LOG.log(Level.INFO, "No CLR handler bound to handle completed task.");
         } else {
           LOG.log(Level.INFO, "CLR CompletedTaskHandler handler set, handling things with CLR handler.");
-          CompletedTaskBridge completedTaskBridge = new CompletedTaskBridge(task);
+          CompletedTaskBridge completedTaskBridge = new CompletedTaskBridge(task, activeContextBridgeFactory);
           NativeInterop.ClrSystemCompletedTaskHandlerOnNext(JobDriver.this.completedTaskHandler, completedTaskBridge, JobDriver.this.interopLogger);
         }
       }
@@ -442,7 +442,7 @@ public final class JobDriver {
         throw new RuntimeException("Failed Task Handler not initialized by CLR.");
       }
       try {
-        FailedTaskBridge failedTaskBridge = new FailedTaskBridge(task);
+        FailedTaskBridge failedTaskBridge = new FailedTaskBridge(task, activeContextBridgeFactory);
         NativeInterop.ClrSystemFailedTaskHandlerOnNext(JobDriver.this.failedTaskHandler, failedTaskBridge, JobDriver.this.interopLogger);
       } catch (final Exception ex) {
         LOG.log(Level.SEVERE, "Fail to invoke CLR failed task handler");
@@ -463,7 +463,7 @@ public final class JobDriver {
         } else {
           LOG.log(Level.INFO, "RunningTask will be handled by CLR handler. Task Id: {0}", task.getId());
           try {
-            final RunningTaskBridge runningTaskBridge = new RunningTaskBridge(task);
+            final RunningTaskBridge runningTaskBridge = new RunningTaskBridge(task, activeContextBridgeFactory);
             NativeInterop.ClrSystemRunningTaskHandlerOnNext(JobDriver.this.runningTaskHandler, runningTaskBridge, JobDriver.this.interopLogger);
           } catch (final Exception ex) {
             LOG.log(Level.WARNING, "Fail to invoke CLR running task handler");
@@ -487,7 +487,7 @@ public final class JobDriver {
             if (JobDriver.this.clrBridgeSetup) {
               if (JobDriver.this.driverRestartRunningTaskHandler != 0) {
                 LOG.log(Level.INFO, "CLR driver restart RunningTask handler implemented, now handle it in CLR.");
-                NativeInterop.ClrSystemDriverRestartRunningTaskHandlerOnNext(JobDriver.this.driverRestartRunningTaskHandler, new RunningTaskBridge(task));
+                NativeInterop.ClrSystemDriverRestartRunningTaskHandlerOnNext(JobDriver.this.driverRestartRunningTaskHandler, new RunningTaskBridge(task, activeContextBridgeFactory));
               } else {
                 LOG.log(Level.WARNING, "No CLR driver restart RunningTask handler implemented, done with DriverRestartRunningTaskHandler.");
               }
@@ -696,7 +696,7 @@ public final class JobDriver {
       LOG.log(Level.SEVERE, "FailedContext", context);
       try (final LoggingScope ls = loggingScopeFactory.evaluatorFailed(context.getId())) {
         if (JobDriver.this.failedContextHandler != 0) {
-          FailedContextBridge failedContextBridge = new FailedContextBridge(context);
+          FailedContextBridge failedContextBridge = new FailedContextBridge(context, activeContextBridgeFactory);
           // if CLR implements the failed context handler, handle it in CLR
           LOG.log(Level.INFO, "Handling the event of failed context in CLR bridge.");
           NativeInterop.ClrSystemFailedContextHandlerOnNext(JobDriver.this.failedContextHandler, failedContextBridge);
