@@ -23,6 +23,7 @@ import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.driver.context.ActiveContext;
 import org.apache.reef.driver.context.ClosedContext;
+import org.apache.reef.driver.context.ContextBase;
 import org.apache.reef.tang.ClassHierarchy;
 import org.apache.reef.tang.formats.AvroConfigurationSerializer;
 
@@ -63,7 +64,7 @@ public final class ActiveContextBridgeFactory {
    * @return a new ActiveContextBridge or returns the one created earlier.
    */
   public synchronized ActiveContextBridge getActiveContextBridge(final ActiveContext context) {
-    final String contextId = context.getId();
+    final String contextId = getUniqueContextId(context);
 
     ActiveContextBridge result = activeContextBridgeCache.get(contextId);
     if (null == result) {
@@ -79,10 +80,20 @@ public final class ActiveContextBridgeFactory {
    * @param context the context whose ActiveContextBridge instance shall be removed from the cache.
    */
   public synchronized void ForgetContext(final ClosedContext context) {
-    final String contextId = context.getEvaluatorId();
+    final String contextId = getUniqueContextId(context);
     final ActiveContextBridge removed = this.activeContextBridgeCache.remove(contextId);
     if (null != removed) {
       LOG.warning("Called with context previously unknown: " + contextId);
     }
+  }
+
+  /**
+   * Constructs a unique ID for the given context by combining the evaluator and context ids.
+   *
+   * @param contextBase
+   * @return
+   */
+  private static String getUniqueContextId(final ContextBase contextBase) {
+    return contextBase.getEvaluatorId() + "/" + contextBase.getId();
   }
 }
