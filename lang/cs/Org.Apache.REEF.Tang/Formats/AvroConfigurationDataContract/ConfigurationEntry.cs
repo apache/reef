@@ -40,5 +40,24 @@ namespace Org.Apache.REEF.Tang.Formats.AvroConfigurationDataContract
 
         [DataMember]
         public string value { get; set; }
+
+        public override bool Equals(object obj)
+        {
+            var that = obj as ConfigurationEntry;
+            return that != null && this.Equals(that);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                return ((this.key != null ? this.key.GetHashCode() : 0) * 397) ^ (this.value != null ? this.value.GetHashCode() : 0);
+            }
+        }
+
+        protected bool Equals(ConfigurationEntry that)
+        {
+            return this.key == that.key && this.value == that.value;
+        }
     }
 }
