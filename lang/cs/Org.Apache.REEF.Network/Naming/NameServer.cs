@@ -54,8 +54,9 @@ namespace Org.Apache.REEF.Network.Naming
         /// <param name="tcpPortProvider">If port is 0, this interface provides 
         /// a port range to try.
         /// </param>
+        [Obsolete("Please use TANG injection instead.")]
         [Inject]
-        internal NameServer(
+        public NameServer(
             [Parameter(typeof(NamingConfigurationOptions.NameServerPort))] int port,
             ITcpPortProvider tcpPortProvider)
         {

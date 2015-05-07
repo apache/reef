@@ -111,8 +111,6 @@ namespace Org.Apache.REEF.Evaluator
 
                     // remoteManager used as client-only in evaluator
                     IRemoteManager<REEFMessage> remoteManager = _injector.GetInstance<IRemoteManagerFactory>().GetInstance(new REEFMessageCodec());
-                    //var tcpPortProvider = _injector.GetInstance<ITcpPortProvider>();
-                    //var remoteManager2 = _injector.GetInstance<IRemoteManagerFactory>().GetInstance(NetworkUtils.LocalIPAddress, 0, new REEFMessageCodec());
                     IRemoteIdentifier remoteId = new SocketRemoteIdentifier(NetUtilities.ParseIpEndpoint(rId));
 
 

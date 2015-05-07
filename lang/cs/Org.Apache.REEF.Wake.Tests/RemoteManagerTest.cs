@@ -34,7 +34,6 @@ namespace Org.Apache.REEF.Wake.Tests
     {
         private readonly IRemoteManagerFactory _remoteManagerFactory =
             TangFactory.GetTang().NewInjector().GetInstance<IRemoteManagerFactory>();
-        //private readonly ITcpPortProvider _tcpPortProvider = TangFactory.GetTang().NewInjector().GetInstance<ITcpPortProvider>();
         [TestMethod]
         public void TestOneWayCommunication()
         {

@@ -23,6 +23,7 @@ using System.Net;
 using System.Reactive;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Wake.Remote;
 using Org.Apache.REEF.Wake.Remote.Impl;
 using Org.Apache.REEF.Wake.Util;
@@ -33,11 +34,12 @@ namespace Org.Apache.REEF.Wake.Tests
     public class TransportTest
     {
         private readonly IPAddress _localIpAddress = IPAddress.Parse("127.0.0.1");
+        private readonly ITcpPortProviderFactory _tcpPortProviderFactory = GetTcpPortProviderFactory();
         [TestMethod]
         public void TestTransportServer()
         {
             ICodec<string> codec = new StringCodec();
-            var portProvider = new DefaultTcpPortProviderFactory().GetInstance(6000, 1000);
+            var portProvider = _tcpPortProviderFactory.GetInstance(6000, 1000);
 
             BlockingCollection<string> queue = new BlockingCollection<string>();
             List<string> events = new List<string>();
@@ -70,7 +72,7 @@ namespace Org.Apache.REEF.Wake.Tests
         public void TestTransportServerEvent()
         {
             ICodec<TestEvent> codec = new TestEventCodec();
-            var portProvider = new DefaultTcpPortProviderFactory().GetInstance(6000, 1000);
+            var portProvider = _tcpPortProviderFactory.GetInstance(6000, 1000);
 
             BlockingCollection<TestEvent> queue = new BlockingCollection<TestEvent>();
             List<TestEvent> events = new List<TestEvent>();
@@ -102,7 +104,7 @@ namespace Org.Apache.REEF.Wake.Tests
         public void TestTransportSenderStage()
         {
             ICodec<string> codec = new StringCodec();
-            var portProvider = new DefaultTcpPortProviderFactory().GetInstance(6000, 1000);
+            var portProvider = _tcpPortProviderFactory.GetInstance(6000, 1000);
 
             IPEndPoint endpoint = new IPEndPoint(_localIpAddress, 0);
 
@@ -138,7 +140,7 @@ namespace Org.Apache.REEF.Wake.Tests
         {
             ICodec<string> codec = new StringCodec();
             var port = 0;
-            var portProvider = new DefaultTcpPortProviderFactory().GetInstance(6000, 1000);
+            var portProvider = _tcpPortProviderFactory.GetInstance(6000, 1000);
 
             BlockingCollection<string> queue = new BlockingCollection<string>();
             List<string> events = new List<string>();
@@ -200,6 +202,12 @@ namespace Org.Apache.REEF.Wake.Tests
             {
                 return new TestEvent(new StringCodec().Decode(data));
             }
+        }
+
+
+        private static ITcpPortProviderFactory GetTcpPortProviderFactory()
+        {
+            return TangFactory.GetTang().NewInjector().GetInstance<ITcpPortProviderFactory>();
         }
     }
 }

@@ -30,7 +30,7 @@ namespace Org.Apache.REEF.Wake.Tests
     public class DefaultTcpPortProviderFactory : ITcpPortProviderFactory
     {
         [Inject]
-        public DefaultTcpPortProviderFactory()
+        private DefaultTcpPortProviderFactory()
         {
         }
 

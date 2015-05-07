@@ -62,7 +62,7 @@ namespace Org.Apache.REEF.Wake.Tests
             {
                 server.Run();
 
-                IPEndPoint remoteEndpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 0);
+                IPEndPoint remoteEndpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), server.LocalEndpoint.Port);
                 using (var client = new WritableTransportClient<WritableString>(remoteEndpoint))
                 {
                     client.Send(new WritableString("Hello"));

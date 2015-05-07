@@ -81,6 +81,7 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
         {
             LOGGER.Log(Level.Info, "AllocatedEvaluator::SubmitContextAndTask");
 
+            //TODO: Change this to service configuration when REEF-289(https://issues.apache.org/jira/browse/REEF-289) is fixed.
             taskConfiguration = MergeWithConfigurationProviders(taskConfiguration);
             string context = _serializer.ToString(contextConfiguration);
             string task = _serializer.ToString(taskConfiguration);
@@ -108,6 +109,7 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
         {
             LOGGER.Log(Level.Info, "AllocatedEvaluator::SubmitContextAndServiceAndTask");
 
+            //TODO: Change this to service configuration when REEF-289(https://issues.apache.org/jira/browse/REEF-289) is fixed.
             taskConfiguration = MergeWithConfigurationProviders(taskConfiguration);
             string context = _serializer.ToString(contextConfiguration);
             string service = _serializer.ToString(serviceConfiguration);
@@ -180,15 +182,15 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
 
         private IConfiguration MergeWithConfigurationProviders(IConfiguration configuration)
         {
-            IConfiguration contextConfig = configuration;
+            IConfiguration config = configuration;
             if (_configurationProviders != null)
             {
                 foreach (var configurationProvider in _configurationProviders)
                 {
-                    contextConfig = Configurations.Merge(contextConfig, configurationProvider.GetConfiguration());
+                    config = Configurations.Merge(config, configurationProvider.GetConfiguration());
                 }
             }
-            return contextConfig;
+            return config;
         }
     }
 }

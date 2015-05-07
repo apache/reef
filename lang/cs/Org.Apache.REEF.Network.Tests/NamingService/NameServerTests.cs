@@ -38,7 +38,7 @@ namespace Org.Apache.REEF.Network.Tests.NamingService
         [TestMethod]
         public void TestNameServerNoRequests()
         {
-            using (var server = BuildNameServer())
+           using (var server = BuildNameServer())
            {
            }
         }
@@ -46,7 +46,7 @@ namespace Org.Apache.REEF.Network.Tests.NamingService
         [TestMethod]
         public void TestNameServerNoRequestsTwoClients()
         {
-            using (var server = BuildNameServer())
+           using (var server = BuildNameServer())
            {
                var nameClient = new NameClient(server.LocalEndpoint);
                var nameClient2 = new NameClient(server.LocalEndpoint);
@@ -58,7 +58,7 @@ namespace Org.Apache.REEF.Network.Tests.NamingService
         [TestMethod]
         public void TestNameServerNoRequestsTwoClients2()
         {
-            using (var server = BuildNameServer())
+           using (var server = BuildNameServer())
            {
                var nameClient = new NameClient(server.LocalEndpoint);
                var nameClient2 = new NameClient(server.LocalEndpoint);
@@ -70,7 +70,7 @@ namespace Org.Apache.REEF.Network.Tests.NamingService
         [TestMethod]
         public void TestNameServerMultipleRequestsTwoClients()
         {
-            using (var server = BuildNameServer())
+           using (var server = BuildNameServer())
            {
                var nameClient = new NameClient(server.LocalEndpoint);
                var nameClient2 = new NameClient(server.LocalEndpoint);

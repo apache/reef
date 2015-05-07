@@ -263,8 +263,6 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
         [TestMethod]
         public void TestBroadcastOperator()
         {
-            //INameServer nameServer = NameServerTests.BuildNameServer();
-
             string groupName = "group1";
             string operatorName = "broadcast";
             string masterTaskId = "task0";
@@ -706,7 +704,6 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
                 .BindIntNamedParam<GroupCommConfigurationOptions.FanOut>(fanOut.ToString())
                 .BindIntNamedParam<GroupCommConfigurationOptions.NumberOfTasks>(numTasks.ToString())
                 .BindImplementation(GenericType<IConfigurationSerializer>.Class, GenericType<AvroConfigurationSerializer>.Class)
-                .BindImplementation(GenericType<ITcpPortProvider>.Class, GenericType<TcpPortProvider>.Class)
                 .Build();
 
             IGroupCommDriver groupCommDriver = TangFactory.GetTang().NewInjector(c).GetInstance<GroupCommDriver>();

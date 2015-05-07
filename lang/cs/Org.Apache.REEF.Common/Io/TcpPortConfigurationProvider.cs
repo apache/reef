@@ -30,7 +30,7 @@ namespace Org.Apache.REEF.Common.Io
     public class TcpPortConfigurationProvider : IConfigurationProvider
     {
         [Inject]
-        public TcpPortConfigurationProvider()
+        private TcpPortConfigurationProvider()
         {
         }
 
