@@ -90,7 +90,6 @@ namespace Org.Apache.REEF.Tests.Functional.Group
                .BindStringNamedParam<GroupCommConfigurationOptions.GroupName>(GroupTestConstants.GroupName)
                .BindIntNamedParam<GroupCommConfigurationOptions.FanOut>(GroupTestConstants.FanOut.ToString(CultureInfo.InvariantCulture).ToString(CultureInfo.InvariantCulture))
                .BindIntNamedParam<GroupCommConfigurationOptions.NumberOfTasks>(numTasks.ToString())
-               .BindIntNamedParam<NamingConfigurationOptions.NameServerPort>("0")
                .Build();
 
             IConfiguration merged = Configurations.Merge(driverConfig, groupCommDriverConfig);

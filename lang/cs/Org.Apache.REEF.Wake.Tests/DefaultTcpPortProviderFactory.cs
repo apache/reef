@@ -17,16 +17,12 @@
  * under the License.
  */
 
-using System.Linq;
-using System.Net;
-using System.Reflection;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Implementations.Tang;
-using Org.Apache.REEF.Tang.Util;
-using Org.Apache.REEF.Wake.Impl;
+using Org.Apache.REEF.Wake.Remote;
 using Org.Apache.REEF.Wake.Remote.Parameters;
 
-namespace Org.Apache.REEF.Wake.Remote
+namespace Org.Apache.REEF.Wake.Tests
 {
     /// <summary>
     /// Creates new instances of ITcpPortProvider.
@@ -34,13 +30,15 @@ namespace Org.Apache.REEF.Wake.Remote
     public class DefaultTcpPortProviderFactory : ITcpPortProviderFactory
     {
         [Inject]
-        public DefaultTcpPortProviderFactory() { }
+        public DefaultTcpPortProviderFactory()
+        {
+        }
+
         /// <summary>
-        /// Constructs a TcpPortProvider 
+        /// Constructs a TcpPortProvider
         /// </summary>
         /// <param name="tcpPortRangeStart">Start port number for range provider</param>
         /// <param name="tcpPortRangeCount">Number of ports available on the range</param>
-        /// <param name="tcpPortRangeTryCount">Max number of ports to be delivered</param>
         public ITcpPortProvider GetInstance(int tcpPortRangeStart, int tcpPortRangeCount)
         {
             var configuration = TangFactory.GetTang()
@@ -52,7 +50,7 @@ namespace Org.Apache.REEF.Wake.Remote
         }
 
         /// <summary>
-        /// Constructs a TcpPortProvider 
+        /// Constructs a TcpPortProvider
         /// </summary>
         /// <param name="tcpPortRangeStart">Start port number for range provider</param>
         /// <param name="tcpPortRangeCount">Number of ports available on the range</param>
@@ -67,17 +65,16 @@ namespace Org.Apache.REEF.Wake.Remote
                 .Build();
             return TangFactory.GetTang().NewInjector(configuration).GetInstance<ITcpPortProvider>();
         }
+
         /// <summary>
-        /// Constructs a TcpPortProvider 
+        /// Constructs a TcpPortProvider
         /// </summary>
         public ITcpPortProvider GetInstance()
         {
-
             var configuration = TangFactory.GetTang()
                 .NewConfigurationBuilder()
                 .Build();
             return TangFactory.GetTang().NewInjector(configuration).GetInstance<ITcpPortProvider>();
         }
-
     }
 }

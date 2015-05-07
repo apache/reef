@@ -38,10 +38,6 @@ namespace Org.Apache.REEF.Common.Io
         {
             return TangFactory.GetTang().NewConfigurationBuilder()
                 .BindImplementation<ITcpPortProvider, TcpPortProvider>()
-                .BindIntNamedParam<TcpPortRangeStart>("11000")
-                .BindIntNamedParam<TcpPortRangeCount>("1000")
-                .BindIntNamedParam<TcpPortRangeTryCount>("20000")
-                .BindIntNamedParam<TcpPortRangeSeed>(((int)(DateTime.Now.Ticks)).ToString())
                 .BindSetEntry<EvaluatorConfigurationProviders, TcpPortConfigurationProvider, IConfigurationProvider>()
                 .Build();
         }

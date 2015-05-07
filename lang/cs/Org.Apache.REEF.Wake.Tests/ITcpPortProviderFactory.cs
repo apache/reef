@@ -17,11 +17,10 @@
  * under the License.
  */
 
-using System.Net;
 using Org.Apache.REEF.Tang.Annotations;
-using Org.Apache.REEF.Wake.Impl;
+using Org.Apache.REEF.Wake.Remote;
 
-namespace Org.Apache.REEF.Wake.Remote
+namespace Org.Apache.REEF.Wake.Tests
 {
     /// <summary>
     /// Creates new instances of ITcpPortProvider .
@@ -30,16 +29,15 @@ namespace Org.Apache.REEF.Wake.Remote
     public interface ITcpPortProviderFactory
     {
         /// <summary>
-        /// Constructs a DefaultRemoteManager listening on the specified address and any
+        /// Constructs a DefaultTcpPortProviderFactory
         /// available port.
         /// </summary>
         /// <param name="tcpPortRangeStart">Start port number for range provider</param>
         /// <param name="tcpPortRangeCount">Number of ports available on the range</param>
-        /// <param name="tcpPortRangeTryCount">Max number of ports to be delivered</param>
         ITcpPortProvider GetInstance(int tcpPortRangeStart, int tcpPortRangeCount);
 
         /// <summary>
-        /// Constructs a DefaultRemoteManager. Does not listen for incoming messages.
+        /// Constructs a DefaultTcpPortProviderFactory.
         /// </summary>
         /// <param name="tcpPortRangeStart">Start port number for range provider</param>
         /// <param name="tcpPortRangeCount">Number of ports available on the range</param>
@@ -47,8 +45,8 @@ namespace Org.Apache.REEF.Wake.Remote
         ITcpPortProvider GetInstance(int tcpPortRangeStart, int tcpPortRangeCount, int tcpPortRangeTryCount);
 
         /// <summary>
-        /// Constructs a TcpPortProvider 
-        /// </summary>        
+        /// Constructs a TcpPortProvider
+        /// </summary>
         ITcpPortProvider GetInstance();
     }
 }

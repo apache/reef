@@ -22,6 +22,9 @@ using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.Wake.Remote
 {
+    /// <summary>
+    /// Provides port numbers for tcp listeners
+    /// </summary>
     [DefaultImplementation(typeof(TcpPortProvider))]
     public interface ITcpPortProvider : IEnumerable<int>
     {

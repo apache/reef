@@ -339,7 +339,7 @@ namespace Org.Apache.REEF.Wake.Tests
             Assert.AreEqual(4, events.Count);
         }
 
-        IRemoteManager<string> GetRemoteManager()
+        private IRemoteManager<string> GetRemoteManager()
         {
             IPAddress listeningAddress = IPAddress.Parse("127.0.0.1");
             return _remoteManagerFactory.GetInstance(listeningAddress, 0, new StringCodec());

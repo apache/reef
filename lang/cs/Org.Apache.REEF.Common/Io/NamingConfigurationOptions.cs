@@ -17,6 +17,7 @@
  * under the License.
  */
 
+using System.ComponentModel;
 using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.Common.Io
@@ -28,7 +29,7 @@ namespace Org.Apache.REEF.Common.Io
         {
         }
 
-        [NamedParameter("Port of NameServer")]
+        [NamedParameter("Port of NameServer", DefaultValue = "0")]
         public class NameServerPort : Name<int>
         {
         }

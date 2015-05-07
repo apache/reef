@@ -707,7 +707,6 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
                 .BindIntNamedParam<GroupCommConfigurationOptions.NumberOfTasks>(numTasks.ToString())
                 .BindImplementation(GenericType<IConfigurationSerializer>.Class, GenericType<AvroConfigurationSerializer>.Class)
                 .BindImplementation(GenericType<ITcpPortProvider>.Class, GenericType<TcpPortProvider>.Class)
-                .BindIntNamedParam<NamingConfigurationOptions.NameServerPort>("0")
                 .Build();
 
             IGroupCommDriver groupCommDriver = TangFactory.GetTang().NewInjector(c).GetInstance<GroupCommDriver>();

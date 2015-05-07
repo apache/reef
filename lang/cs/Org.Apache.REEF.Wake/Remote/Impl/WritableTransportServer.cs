@@ -108,7 +108,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         private void FindAPortAndStartListener()
         {
             var foundAPort = false;
-            SocketException exception = new SocketException((int)SocketError.AddressAlreadyInUse);
+            var exception = new SocketException((int)SocketError.AddressAlreadyInUse);
             for (var enumerator = _tcpPortProvider.GetEnumerator();
                 !foundAPort && enumerator.MoveNext();
                 )
@@ -131,6 +131,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
             LOGGER.Log(Level.Info,
                 String.Format("Listening on {0}", _listener.LocalEndpoint.ToString()));
         }
+
 
         /// <summary>
         /// Close the TransportServer and all open connections
