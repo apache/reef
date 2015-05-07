@@ -32,6 +32,8 @@ public final class ActiveContextBridge extends NativeBridge implements Identifia
 
   private final ActiveContext jactiveContext;
   private final AvroConfigurationSerializer serializer;
+  private final String contextId;
+  private final String evaluatorId;
   private final ClassHierarchy clrClassHierarchy;
 
   ActiveContextBridge(final ActiveContext activeContext,
@@ -40,6 +42,8 @@ public final class ActiveContextBridge extends NativeBridge implements Identifia
     this.jactiveContext = activeContext;
     this.clrClassHierarchy = clrClassHierarchy;
     this.serializer = serializer;
+    this.contextId = activeContext.getId();
+    this.evaluatorId = activeContext.getEvaluatorId();
   }
 
   public void submitTaskString(final String taskConfigurationString) {
