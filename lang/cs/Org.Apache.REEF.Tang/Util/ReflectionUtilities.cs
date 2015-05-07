@@ -591,27 +591,5 @@ namespace Org.Apache.REEF.Tang.Util
             }
             return isInjectable;
         }
-
-        public static int GetDefaultValueOfIntNamedParameter(Type namedParamType)
-        {
-            if (namedParamType.GetInterfaces().Where(e => e == typeof(Name<int>)).FirstOrDefault() != null)
-            {
-                var attributes = namedParamType.GetCustomAttributes(false);
-                if (null != attributes)
-                {
-                    var attr = attributes.Where(e => e.GetType() == typeof(NamedParameterAttribute)).FirstOrDefault();
-                    if (attr != null)
-                    {
-                        var namedParameterAttribute = attr as NamedParameterAttribute;
-                        if (namedParameterAttribute != null && namedParameterAttribute.DefaultValue != null)
-                        {
-                            return Int32.Parse(namedParameterAttribute.DefaultValue);
-                        }
-                    }
-                }
-            }
-            throw new ArgumentException(namedParamType.FullName);
-        }
-
-    }
+        
 }
