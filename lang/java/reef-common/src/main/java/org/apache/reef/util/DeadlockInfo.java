@@ -33,7 +33,7 @@ import java.util.Map;
  * Provides a view into deadlocked threads for logging or debugging purposes.
  * Backed by ThreadMXBean
  */
-public final class DeadlockInfo {
+final class DeadlockInfo {
   private final ThreadMXBean mxBean;
   private final ThreadInfo[] deadlockedThreads;
   private final Map<ThreadInfo, Map<StackTraceElement, List<MonitorInfo>>> monitorLockedElements;

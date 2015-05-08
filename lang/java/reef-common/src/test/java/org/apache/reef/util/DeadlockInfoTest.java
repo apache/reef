@@ -18,10 +18,14 @@
  */
 package org.apache.reef.util;
 
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.lang.management.ThreadInfo;
+import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -30,18 +34,25 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
 /**
- * Test DeadlockInfo
+ * Test DeadlockInfo by creating a deadlock
  */
 public final class DeadlockInfoTest {
   private static final Logger LOG = Logger.getLogger(DeadlockInfoTest.class.getName());
 
-  private final long millisBeforeDeadlock = 100;
-  private final long millisBeforeLog = 5 * millisBeforeDeadlock;
+  private static final long timeoutMillis = 10;
 
-  @Before
-  public void setUp() {
-    createDeadlock(millisBeforeDeadlock);
-    threadSleep(millisBeforeLog);
+  /**
+   * Create a deadlock consisting of two threads.
+   * The threads wait on a barrier, and once the barrier is met they proceed to deadlock.
+   * setUpClass sleeps for timeoutMillis to allow the threads time to progress past the barrier into deadlock.
+   *
+   * One thread holds an Object and Long lock, and is waiting on an Integer lock.
+   * The other thread holds the Integer lock and is waiting on the Long lock.
+   */
+  @BeforeClass
+  public static void setUpClass() {
+    createDeadlock();
+    threadSleep(timeoutMillis);
   }
 
   /**
@@ -85,7 +96,9 @@ public final class DeadlockInfoTest {
     assertEquals(expected, sum);
   }
 
-  private static void createDeadlock(final long millis) {
+  private static void createDeadlock() {
+    final CyclicBarrier barrier = new CyclicBarrier(2);
+
     final Integer lock1 = new Integer(0);
     final Long lock2 = new Long(0);
 
@@ -93,7 +106,7 @@ public final class DeadlockInfoTest {
       @Override
       public void run() {
         synchronized (lock1) {
-          threadSleep(millis);
+          barrierAwait(barrier);
           lockLeaf(lock2);
         }
       }
@@ -104,7 +117,7 @@ public final class DeadlockInfoTest {
       public void run() {
         synchronized (new Object()) {
           synchronized (lock2) {
-            threadSleep(millis);
+            barrierAwait(barrier);
             lockLeaf(lock1);
           }
         }
@@ -115,18 +128,32 @@ public final class DeadlockInfoTest {
     thread2.start();
   }
 
-  private static void threadSleep(final long millis) {
+  private static void barrierAwait(final CyclicBarrier barrier) {
     try {
-      Thread.sleep(millis);
+      barrier.await(timeoutMillis, TimeUnit.MILLISECONDS);
     } catch (InterruptedException e) {
       e.printStackTrace();
-      fail("Interrupted");
+      fail("Unexpected exception");
+    } catch (BrokenBarrierException e) {
+      e.printStackTrace();
+      fail("Unexpected exception");
+    } catch (TimeoutException e) {
+      e.printStackTrace();
+      fail("Unexpected exception");
     }
   }
 
   private static void lockLeaf(final Object lock) {
     synchronized (lock) {
       fail("The unit test failed to create a deadlock");
+    }
+  }
+
+  private static void threadSleep(final long millis) {
+    try {
+      Thread.sleep(millis);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
     }
   }
 }
