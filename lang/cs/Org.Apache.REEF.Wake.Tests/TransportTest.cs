@@ -35,7 +35,7 @@ namespace Org.Apache.REEF.Wake.Tests
     public class TransportTest
     {
         private readonly IPAddress _localIpAddress = IPAddress.Parse("127.0.0.1");
-        private readonly ITcpPortProvider _tcpPortProvider = GetTcpProvider(6000, 7000);
+        private readonly ITcpPortProvider _tcpPortProvider = GetTcpProvider(8900, 8940);
         [TestMethod]
         public void TestTransportServer()
         {

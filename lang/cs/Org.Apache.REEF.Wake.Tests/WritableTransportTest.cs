@@ -43,7 +43,7 @@ namespace Org.Apache.REEF.Wake.Tests
     [Obsolete("Need to remove Iwritable and use IstreamingCodec. Please see Jira REEF-295 ", false)]
     public class WritableTransportTest
     {
-        private readonly ITcpPortProvider _tcpPortProvider = GetTcpProvider(6000,7000);
+        private readonly ITcpPortProvider _tcpPortProvider = GetTcpProvider(8900, 8940);
 
         /// <summary>
         /// Tests whether WritableTransportServer receives 

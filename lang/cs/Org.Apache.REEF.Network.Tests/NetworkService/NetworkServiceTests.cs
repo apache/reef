@@ -43,8 +43,8 @@ namespace Org.Apache.REEF.Network.Tests.NetworkService
         [TestMethod]
         public void TestNetworkServiceOneWayCommunication()
         {
-            int networkServicePort1 = NetworkUtils.GenerateRandomPort(6000, 7000);
-            int networkServicePort2 = NetworkUtils.GenerateRandomPort(7001, 8000);
+            int networkServicePort1 = NetworkUtils.GenerateRandomPort(8900, 8940);
+            int networkServicePort2 = NetworkUtils.GenerateRandomPort(8900, 8940);
 
             BlockingCollection<string> queue = new BlockingCollection<string>();
 
@@ -79,8 +79,8 @@ namespace Org.Apache.REEF.Network.Tests.NetworkService
         [TestMethod]
         public void TestNetworkServiceTwoWayCommunication()
         {
-            int networkServicePort1 = NetworkUtils.GenerateRandomPort(6000, 7000);
-            int networkServicePort2 = NetworkUtils.GenerateRandomPort(7001, 8000);
+            int networkServicePort1 = NetworkUtils.GenerateRandomPort(8900, 8940);
+            int networkServicePort2 = NetworkUtils.GenerateRandomPort(8900, 8940);
 
             BlockingCollection<string> queue1 = new BlockingCollection<string>();
             BlockingCollection<string> queue2 = new BlockingCollection<string>();
