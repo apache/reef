@@ -45,8 +45,6 @@ under the License.
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ClockTest.cs" />
-    <Compile Include="DefaultTcpPortProviderFactory.cs" />
-    <Compile Include="ITcpPortProviderFactory.cs" />
     <Compile Include="MultiCodecTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PubSubSubjectTest.cs" />

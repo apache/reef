@@ -46,8 +46,7 @@ namespace Org.Apache.REEF.Tang.Util
         {
             if (name == null)
             {
-                Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(
-                    new ArgumentException("null is passed in FullName() in ReflectionUtilities"), LOGGER);
+                Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(new ArgumentException("null is passed in FullName() in ReflectionUtilities"), LOGGER);
             }
 
             Type t = EnsureInterfaceType(name);
@@ -59,7 +58,7 @@ namespace Org.Apache.REEF.Tang.Util
 
             if (t.AssemblyQualifiedName == null && t.Name != null)
             {
-                return t.Name;
+                    return t.Name;
             }
 
             return t.AssemblyQualifiedName;
@@ -133,8 +132,8 @@ namespace Org.Apache.REEF.Tang.Util
             if (iface == null || type == null)
             {
                 var ex = new ApplicationException(string.Format(CultureInfo.CurrentCulture,
-                    "The type passed in IsGenericTypeof is null: iface : {0} type: {1}. ",
-                    iface, type));
+                                                             "The type passed in IsGenericTypeof is null: iface : {0} type: {1}. ",
+                                                             iface, type));
                 Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(ex, LOGGER);
             }
             if (type.IsGenericType)
@@ -407,8 +406,7 @@ namespace Org.Apache.REEF.Tang.Util
         {
             if (t == null)
             {
-                Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(
-                    new ApplicationException("The Type passed to GetEnclosingClassShortNames is null"), LOGGER);
+                Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(new ApplicationException("The Type passed to GetEnclosingClassShortNames is null"), LOGGER);
             }
             Type[] ts = GetEnclosingClasses(t);
             string[] result = new string[ts.Length];
@@ -430,8 +428,7 @@ namespace Org.Apache.REEF.Tang.Util
         {
             if (fullName == null)
             {
-                Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(
-                    new ApplicationException("The name passed to GetEnclosingClassShortNames is null"), LOGGER);
+                Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(new ApplicationException("The name passed to GetEnclosingClassShortNames is null"), LOGGER);
             }
             Type t = ReflectionUtilities.GetTypeByName(fullName);
             return GetEnclosingClassNames(t);
@@ -453,36 +450,34 @@ namespace Org.Apache.REEF.Tang.Util
                 if (intfs.Length > 1)
                 {
                     var ex = new ClassHierarchyException("Named parameter " + GetName(type) + " implements "
-                                                         +
-                                                         "multiple interfaces.  It is only allowed to implement Name<T>");
+                                  + "multiple interfaces.  It is only allowed to implement Name<T>");
                     Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(ex, LOGGER);
 
                 }
                 else if (intfs.Length == 0 || !IsName(intfs[0]))
                 {
                     var ex = new ClassHierarchyException("Found illegal [NamedParameter " + GetName(type)
-                                                         + " does not implement Name<T>");
+                                  + " does not implement Name<T>");
                     Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(ex, LOGGER);
                 }
                 Type[] args = intfs[0].GetGenericArguments();
                 if (args.Length > 1)
                 {
                     var ex = new ClassHierarchyException("Found illegal [NamedParameter " + GetName(type)
-                                                         + " that has more than one arguments");
+                        + " that has more than one arguments");
                     Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(ex, LOGGER);
                 }
                 if (args.Length == 0)
                 {
                     var ex = new ClassHierarchyException("Found illegal [NamedParameter " + GetName(type)
-                                                         + " that has no argument");
+                        + " that has no argument");
                     Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(ex, LOGGER);
                 }
                 if (HasConstructor(type) || HasInjectableConstructor(type))
                 {
                     var ex = new ClassHierarchyException("Named parameter " + GetName(type) + " has "
-                                                         + (HasInjectableConstructor(type) ? "an injectable" : "a") +
-                                                         " constructor. "
-                                                         + " Named parameters must not declare any constructors.");
+                                  + (HasInjectableConstructor(type) ? "an injectable" : "a") + " constructor. "
+                                  + " Named parameters must not declare any constructors.");
                     Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(ex, LOGGER);
                 }
 
@@ -492,7 +487,7 @@ namespace Org.Apache.REEF.Tang.Util
             if (ImplementName(type)) //Implement Name<> but no  [NamedParameter] attribute
             {
                 var ex = new ClassHierarchyException("Named parameter " + GetName(type)
-                                                     + " is missing its [NamedParameter] attribute.");
+                                  + " is missing its [NamedParameter] attribute.");
                 Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(ex, LOGGER);
             }
             return null;
@@ -516,9 +511,7 @@ namespace Org.Apache.REEF.Tang.Util
                 // HACK: The only way to detect anonymous types right now.
                 return Attribute.IsDefined(type, typeof(CompilerGeneratedAttribute), false)
                        && type.IsGenericType && type.Name.Contains("AnonymousType")
-                       &&
-                       (type.Name.StartsWith("<>", true, CultureInfo.CurrentCulture) ||
-                        type.Name.StartsWith("VB$", true, CultureInfo.CurrentCulture))
+                       && (type.Name.StartsWith("<>", true, CultureInfo.CurrentCulture) || type.Name.StartsWith("VB$", true, CultureInfo.CurrentCulture))
                        && (type.Attributes & TypeAttributes.NotPublic) == TypeAttributes.NotPublic;
             }
             return false;
@@ -540,7 +533,7 @@ namespace Org.Apache.REEF.Tang.Util
         {
             if (t.IsGenericType)
             {
-                return t.GetGenericTypeDefinition().AssemblyQualifiedName.Equals(typeof(Name<>).AssemblyQualifiedName);
+                return t.GetGenericTypeDefinition().AssemblyQualifiedName.Equals(typeof (Name<>).AssemblyQualifiedName);
             }
             return false;
         }

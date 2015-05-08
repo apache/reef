@@ -340,7 +340,7 @@ namespace Org.Apache.REEF.Wake.Tests
         private IRemoteManager<string> GetRemoteManager()
         {
             IPAddress listeningAddress = IPAddress.Parse("127.0.0.1");
-            return _remoteManagerFactory.GetInstance(listeningAddress, 0, new StringCodec());
+            return _remoteManagerFactory.GetInstance(listeningAddress, new StringCodec());
         }
     }
 }
