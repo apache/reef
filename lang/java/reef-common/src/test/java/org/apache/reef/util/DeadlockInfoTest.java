@@ -39,7 +39,7 @@ import static org.junit.Assert.fail;
 public final class DeadlockInfoTest {
   private static final Logger LOG = Logger.getLogger(DeadlockInfoTest.class.getName());
 
-  private static final long timeoutMillis = 10;
+  private static final long timeoutMillis = 50;
 
   /**
    * Create a deadlock consisting of two threads.
