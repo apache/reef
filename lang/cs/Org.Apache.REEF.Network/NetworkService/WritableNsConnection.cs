@@ -77,10 +77,10 @@ namespace Org.Apache.REEF.Network.NetworkService
             string destStr = _destId.ToString();
             Logger.Log(Level.Verbose, "Network service opening connection to {0}...", destStr);
 
-            IPEndPoint destAddr = _nameClient.Lookup(_destId.ToString());
-            if (destAddr == null)
+            IPEndPoint destAddr = _nameClient.Lookup(destStr);
+            if (null == destAddr)
             {
-                throw new RemotingException("Cannot register Identifier with NameService");
+                throw new RemotingException("Destination Address identifier cannot be found");
             }
 
             try

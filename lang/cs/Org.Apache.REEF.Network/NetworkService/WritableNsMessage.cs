@@ -20,6 +20,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
@@ -84,7 +85,7 @@ namespace Org.Apache.REEF.Network.NetworkService
         /// <summary>
         /// A list of data being sent in the message.
         /// </summary>
-        public List<T> Data { get; set; }
+        public IList<T> Data { get; set; }
 
         /// <summary>
         /// Read the class fields.
@@ -100,14 +101,15 @@ namespace Org.Apache.REEF.Network.NetworkService
 
             for (int index = 0; index < messageCount; index++)
             {
-                Data.Add(Activator.CreateInstance<T>());
+                var dataPoint = Activator.CreateInstance<T>();
 
-                if (Data[index] == null)
+                if (null == dataPoint)
                 {
                     throw new Exception("T type instance cannot be created from the stream data in Network Service Message");
                 }
 
-                Data[index].Read(reader);
+                dataPoint.Read(reader);
+                Data.Add(dataPoint);
             }
         }
 
@@ -142,14 +144,15 @@ namespace Org.Apache.REEF.Network.NetworkService
 
             for (int index = 0; index < messageCount; index++)
             {
-                Data.Add(Activator.CreateInstance<T>());
+                var dataPoint = Activator.CreateInstance<T>();
 
-                if (Data[index] == null)
+                if (null == dataPoint)
                 {
                     throw new Exception("T type instance cannot be created from the stream data in Network Service Message");
                 }
 
-                await Data[index].ReadAsync(reader, token);
+                await dataPoint.ReadAsync(reader, token);
+                Data.Add(dataPoint);
             }
         }
 

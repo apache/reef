@@ -183,7 +183,7 @@ namespace Org.Apache.REEF.Network.Tests.NetworkService
             var nameClient = injector.GetInstance<NameClient>();
             var remoteManager = injector.GetInstance<WritableRemoteManagerFactory>();
             return new WritableNetworkService<WritableString>(networkServicePort,
-                handler, new StringIdentifierFactory(), nameClient, remoteManager);
+                handler, factory, nameClient, remoteManager);
         }
 
         /// <summary>

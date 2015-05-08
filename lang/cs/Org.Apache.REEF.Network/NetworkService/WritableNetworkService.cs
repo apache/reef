@@ -41,16 +41,17 @@ namespace Org.Apache.REEF.Network.NetworkService
     [Obsolete("Need to remove Iwritable and use IstreamingCodec. Please see Jira REEF-295 ", false)]
     public class WritableNetworkService<T> : INetworkService<T> where T : IWritable
     {
-        private readonly Logger _logger = Logger.GetLogger(typeof (NetworkService<>));
+        private static readonly Logger Logger = Logger.GetLogger(typeof (NetworkService<>));
 
         private readonly IRemoteManager<WritableNsMessage<T>> _remoteManager;
         private readonly IObserver<WritableNsMessage<T>> _messageHandler;
         private IIdentifier _localIdentifier;
         private IDisposable _messageHandlerDisposable;
         private readonly Dictionary<IIdentifier, IConnection<T>> _connectionMap;
+        private readonly INameClient _nameClient;
 
         /// <summary>
-        /// Create a new NetworkFactory.
+        /// Create a new Writable NetworkService.
         /// </summary>
         /// <param name="nsPort">The port that the NetworkService will listen on</param>
         /// <param name="messageHandler">The observer to handle incoming messages</param>
@@ -70,16 +71,19 @@ namespace Org.Apache.REEF.Network.NetworkService
             _remoteManager = remoteManagerFactory.GetInstance<WritableNsMessage<T>>(localAddress, nsPort);
             _messageHandler = messageHandler;
 
-            NamingClient = nameClient;
+            _nameClient = nameClient;
             _connectionMap = new Dictionary<IIdentifier, IConnection<T>>();
 
-            _logger.Log(Level.Info, "Started network service");
+            Logger.Log(Level.Info, "Started network service");
         }
 
         /// <summary>
         /// Name client for registering ids
         /// </summary>
-        public INameClient NamingClient { get; private set; }
+        public INameClient NamingClient
+        {
+            get { return _nameClient; }
+        }
 
         /// <summary>
         /// Open a new connection to the remote host registered to
@@ -99,12 +103,14 @@ namespace Org.Apache.REEF.Network.NetworkService
             {
                 return connection;
             }
+            else
+            {
+                connection = new WritableNsConnection<T>(_localIdentifier, destinationId,
+                    NamingClient, _remoteManager, _connectionMap);
 
-            connection = new WritableNsConnection<T>(_localIdentifier, destinationId,
-                NamingClient, _remoteManager, _connectionMap);
-
-            _connectionMap[destinationId] = connection;
-            return connection;
+                _connectionMap[destinationId] = connection;
+                return connection;
+            }
         }
 
         /// <summary>
@@ -113,7 +119,7 @@ namespace Org.Apache.REEF.Network.NetworkService
         /// <param name="id">The identifier to register</param>
         public void Register(IIdentifier id)
         {
-            _logger.Log(Level.Info, "Registering id {0} with network service.", id);
+            Logger.Log(Level.Info, "Registering id {0} with network service.", id);
 
             _localIdentifier = id;
             NamingClient.Register(id.ToString(), _remoteManager.LocalEndpoint);
@@ -122,7 +128,7 @@ namespace Org.Apache.REEF.Network.NetworkService
             var anyEndpoint = new IPEndPoint(IPAddress.Any, 0);
             _messageHandlerDisposable = _remoteManager.RegisterObserver(anyEndpoint, _messageHandler);
 
-            _logger.Log(Level.Info, "End of Registering id {0} with network service.", id);
+            Logger.Log(Level.Info, "End of Registering id {0} with network service.", id);
         }
 
         /// <summary>
@@ -148,7 +154,7 @@ namespace Org.Apache.REEF.Network.NetworkService
             NamingClient.Dispose();
             _remoteManager.Dispose();
 
-            _logger.Log(Level.Info, "Disposed of network service");
+            Logger.Log(Level.Info, "Disposed of network service");
         }
     }
 }
