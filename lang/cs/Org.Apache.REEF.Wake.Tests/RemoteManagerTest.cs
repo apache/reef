@@ -65,14 +65,13 @@ namespace Org.Apache.REEF.Wake.Tests
         [TestMethod]
         public void TestOneWayCommunicationClientOnly()
         {
-            int listeningPort = NetworkUtils.GenerateRandomPort(6000, 7000);
             IPAddress listeningAddress = IPAddress.Parse("127.0.0.1");
 
             BlockingCollection<string> queue = new BlockingCollection<string>();
             List<string> events = new List<string>();
 
             using (var remoteManager1 = _remoteManagerFactory.GetInstance(new StringCodec()))
-            using (var remoteManager2 = _remoteManagerFactory.GetInstance(listeningAddress, listeningPort, new StringCodec()))
+            using (var remoteManager2 = _remoteManagerFactory.GetInstance(listeningAddress, new StringCodec()))
             {
                 IPEndPoint remoteEndpoint = new IPEndPoint(listeningAddress, 0);
                 var observer = Observer.Create<string>(queue.Add);

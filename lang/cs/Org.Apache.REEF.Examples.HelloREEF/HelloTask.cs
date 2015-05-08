@@ -20,6 +20,7 @@
 using System;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Wake.Remote;
 
 namespace Org.Apache.REEF.Examples.HelloREEF
 {
@@ -29,8 +30,13 @@ namespace Org.Apache.REEF.Examples.HelloREEF
     public sealed class HelloTask : ITask
     {
         [Inject]
-        private HelloTask()
+        private HelloTask(ITcpPortProvider provider)
         {
+            var x1 = provider.GetEnumerator();
+            while (x1.MoveNext())
+            {
+                Console.WriteLine("port no " + x1.Current);
+            }
         }
 
         public void Dispose()

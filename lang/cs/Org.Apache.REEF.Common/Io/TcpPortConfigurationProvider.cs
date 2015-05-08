@@ -29,17 +29,26 @@ namespace Org.Apache.REEF.Common.Io
 {
     public class TcpPortConfigurationProvider : IConfigurationProvider
     {
+        private readonly IConfiguration _configuration;
         [Inject]
-        private TcpPortConfigurationProvider()
+        private TcpPortConfigurationProvider(
+            [Parameter(typeof(TcpPortRangeStart))] int tcpPortRangeStart,
+            [Parameter(typeof(TcpPortRangeCount))] int tcpPortRangeCount,
+            [Parameter(typeof(TcpPortRangeTryCount))] int tcpPortRangeTryCount,
+            [Parameter(typeof(TcpPortRangeSeed))] int tcpPortRangeTrySeed)
         {
+            _configuration = TangFactory.GetTang().NewConfigurationBuilder()
+                .BindIntNamedParam<TcpPortRangeStart>(tcpPortRangeStart.ToString())
+                .BindIntNamedParam<TcpPortRangeCount>(tcpPortRangeCount.ToString())
+                .BindIntNamedParam<TcpPortRangeTryCount>(tcpPortRangeTryCount.ToString())
+                .BindIntNamedParam<TcpPortRangeSeed>(tcpPortRangeTrySeed.ToString())
+                .BindSetEntry<EvaluatorConfigurationProviders, TcpPortConfigurationProvider, IConfigurationProvider>()
+                .Build();
         }
 
         IConfiguration IConfigurationProvider.GetConfiguration()
         {
-            return TangFactory.GetTang().NewConfigurationBuilder()
-                .BindImplementation<ITcpPortProvider, TcpPortProvider>()
-                .BindSetEntry<EvaluatorConfigurationProviders, TcpPortConfigurationProvider, IConfigurationProvider>()
-                .Build();
+            return _configuration;
         }
     }
 }

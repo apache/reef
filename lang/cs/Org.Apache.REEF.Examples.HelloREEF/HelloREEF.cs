@@ -79,6 +79,8 @@ namespace Org.Apache.REEF.Examples.HelloREEF
                 case Local:
                     return LocalRuntimeClientConfiguration.ConfigurationModule
                         .Set(LocalRuntimeClientConfiguration.NumberOfEvaluators, "2")
+                        .Set(LocalRuntimeClientConfiguration.TcpPortRangeStartParameter, "14000")
+                        .Set(LocalRuntimeClientConfiguration.TcpPortRangeTryCountParameter, "10")
                         .Set(LocalRuntimeClientConfiguration.DriverConfigurationProvider, GenericType<TcpPortConfigurationProvider>.Class)
                         .Build();
                 case YARN:
