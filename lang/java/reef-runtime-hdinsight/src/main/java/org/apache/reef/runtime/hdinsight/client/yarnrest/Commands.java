@@ -20,6 +20,7 @@ package org.apache.reef.runtime.hdinsight.client.yarnrest;
 
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.annotate.JsonSerialize;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -40,6 +41,7 @@ public final class Commands {
     private String command = DEFAULT_COMMAND;
 
     @JsonProperty(Constants.COMMAND)
+    @JsonSerialize(include = JsonSerialize.Inclusion.NON_EMPTY)
     public String getCommand() {
         return this.command;
     }

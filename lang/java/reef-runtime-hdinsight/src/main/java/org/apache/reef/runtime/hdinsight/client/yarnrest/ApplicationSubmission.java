@@ -20,6 +20,7 @@ package org.apache.reef.runtime.hdinsight.client.yarnrest;
 
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.annotate.JsonSerialize;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -167,6 +168,7 @@ public final class ApplicationSubmission {
   }
 
   @JsonProperty(Constants.APPLICATION_TAGS)
+  @JsonSerialize(include = JsonSerialize.Inclusion.NON_EMPTY)
   public List<String> getApplicationTags() {
     return this.applicationTags;
   }

@@ -38,7 +38,6 @@ public final class Constants {
     public static final String QUEUE = "queue";
     public static final String RESOURCE = "resource";
     public static final String PRIORITY = "priority";
-    public static final String APPLICATION_SUBMISSION = "application-submission";
     public static final String LOCAL_RESOURCES = "local-resources";
     public static final String ENVIRONMENT = "environment";
     public static final String COMMANDS = "commands";

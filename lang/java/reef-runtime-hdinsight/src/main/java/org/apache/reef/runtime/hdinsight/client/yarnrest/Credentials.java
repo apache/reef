@@ -20,6 +20,7 @@ package org.apache.reef.runtime.hdinsight.client.yarnrest;
 
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.annotate.JsonSerialize;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -63,6 +64,7 @@ public class Credentials {
     }
 
     @JsonProperty(Constants.SECRETS)
+    @JsonSerialize(include = JsonSerialize.Inclusion.NON_DEFAULT)
     public Map<String, List<StringEntry>> getSecrets() {
         return this.secrets;
     }
@@ -73,6 +75,7 @@ public class Credentials {
     }
 
     @JsonProperty(Constants.TOKENS)
+    @JsonSerialize(include = JsonSerialize.Inclusion.NON_DEFAULT)
     public Map<String, List<StringEntry>> getTokens() {
         return this.tokens;
     }

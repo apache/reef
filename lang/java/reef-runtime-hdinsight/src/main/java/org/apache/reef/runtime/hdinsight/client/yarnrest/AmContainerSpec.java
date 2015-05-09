@@ -21,6 +21,7 @@ package org.apache.reef.runtime.hdinsight.client.yarnrest;
 
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.annotate.JsonSerialize;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -49,7 +50,7 @@ public final class AmContainerSpec {
   private Map<String, List<LocalResourcesEntry>> localResources = new HashMap<>();
   private Map<String, List<StringEntry>> applicationAcls = new HashMap<>();
   private Map<String, List<StringEntry>> serviceData = new HashMap<>();
-  private Credentials credentials = new Credentials();
+  private Credentials credentials;
 
   public AmContainerSpec(){
     this.localResources.put(Constants.ENTRY, new ArrayList<LocalResourcesEntry>());
@@ -96,6 +97,7 @@ public final class AmContainerSpec {
   }
 
   @JsonProperty(Constants.CREDENTIALS)
+  @JsonSerialize(include = JsonSerialize.Inclusion.NON_DEFAULT)
   public Credentials getCredentials() {
     return this.credentials;
   }
@@ -106,8 +108,9 @@ public final class AmContainerSpec {
   }
 
   @JsonProperty(Constants.SERVICE_DATA)
+  @JsonSerialize(include = JsonSerialize.Inclusion.NON_DEFAULT)
   public Map<String, List<StringEntry>> getServiceData() {
-    return this.applicationAcls;
+    return this.serviceData;
   }
 
   public AmContainerSpec setServiceData(final Map<String, List<StringEntry>> serviceData) {
@@ -116,6 +119,7 @@ public final class AmContainerSpec {
   }
 
   @JsonProperty(Constants.APPLICATION_ACLS)
+  @JsonSerialize(include = JsonSerialize.Inclusion.NON_DEFAULT)
   public Map<String, List<StringEntry>> getApplicationAcls() {
     return this.applicationAcls;
   }
@@ -126,6 +130,7 @@ public final class AmContainerSpec {
   }
 
   @JsonProperty(Constants.ENVIRONMENT)
+  @JsonSerialize(include = JsonSerialize.Inclusion.NON_DEFAULT)
   public Map<String, List<StringEntry>> getEnvironment() {
     return this.environment;
   }
