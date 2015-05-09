@@ -98,5 +98,15 @@ namespace Org.Apache.REEF.Network.Group.Config
         public class TopologyChildTaskIds : Name<ISet<string>>
         {
         }
+
+        [NamedParameter("Type of the message")]
+        public class MessageType : Name<string>
+        {
+        }
+
+        [NamedParameter("Wether or not to call topology initialize", defaultValue: "true")]
+        public class Initialize : Name<bool>
+        {
+        }
     }
 }

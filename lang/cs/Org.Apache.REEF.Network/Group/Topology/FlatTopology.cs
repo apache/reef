@@ -110,10 +110,12 @@ namespace Org.Apache.REEF.Network.Group.Topology
                 if (taskId.Equals(broadcastSpec.SenderId))
                 {
                     confBuilder.BindImplementation(GenericType<IGroupCommOperator<T>>.Class, GenericType<BroadcastSender<T>>.Class);
+                    SetMessageType(typeof(BroadcastSender<T>), confBuilder);
                 }
                 else
                 {
                     confBuilder.BindImplementation(GenericType<IGroupCommOperator<T>>.Class, GenericType<BroadcastReceiver<T>>.Class);
+                    SetMessageType(typeof(BroadcastReceiver<T>), confBuilder);
                 }
             }
             else if (OperatorSpec is ReduceOperatorSpec)
@@ -122,10 +124,12 @@ namespace Org.Apache.REEF.Network.Group.Topology
                 if (taskId.Equals(reduceSpec.ReceiverId))
                 {
                     confBuilder.BindImplementation(GenericType<IGroupCommOperator<T>>.Class, GenericType<ReduceReceiver<T>>.Class);
+                    SetMessageType(typeof(ReduceReceiver<T>), confBuilder);
                 }
                 else
                 {
                     confBuilder.BindImplementation(GenericType<IGroupCommOperator<T>>.Class, GenericType<ReduceSender<T>>.Class);
+                    SetMessageType(typeof(ReduceSender<T>), confBuilder);
                 }
             }
             else if (OperatorSpec is ScatterOperatorSpec)
@@ -134,10 +138,12 @@ namespace Org.Apache.REEF.Network.Group.Topology
                 if (taskId.Equals(scatterSpec.SenderId))
                 {
                     confBuilder.BindImplementation(GenericType<IGroupCommOperator<T>>.Class, GenericType<ScatterSender<T>>.Class);
+                    SetMessageType(typeof(ScatterSender<T>), confBuilder);
                 }
                 else
                 {
                     confBuilder.BindImplementation(GenericType<IGroupCommOperator<T>>.Class, GenericType<ScatterReceiver<T>>.Class);
+                    SetMessageType(typeof(ScatterReceiver<T>), confBuilder);
                 }
             }
             else
@@ -146,6 +152,17 @@ namespace Org.Apache.REEF.Network.Group.Topology
             }
 
             return Configurations.Merge(confBuilder.Build(), OperatorSpec.Configiration);
+        }
+
+        private static void SetMessageType(Type operatorType, ICsConfigurationBuilder confBuilder)
+        {
+            if (operatorType.IsGenericType)
+            {
+                var genericTypes = operatorType.GenericTypeArguments;
+                var msgType = genericTypes[0];
+                confBuilder.BindNamedParameter<GroupCommConfigurationOptions.MessageType, string>(
+                    GenericType<GroupCommConfigurationOptions.MessageType>.Class, msgType.AssemblyQualifiedName);
+            }
         }
 
         /// <summary>

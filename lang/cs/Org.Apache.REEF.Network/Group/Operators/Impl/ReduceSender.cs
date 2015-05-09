@@ -36,7 +36,7 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
     /// <typeparam name="T">The message type</typeparam>
     public class ReduceSender<T> : IReduceSender<T>
     {
-        private static readonly Logger Logger = Logger.GetLogger(typeof (ReduceSender<T>));
+        private static readonly Logger Logger = Logger.GetLogger(typeof(ReduceSender<T>));
         private const int PipelineVersion = 2;
         private readonly OperatorTopology<PipelineMessage<T>> _topology;
         private readonly PipelinedReduceFunction<T> _pipelinedReduceFunc;
@@ -46,15 +46,18 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
         /// </summary>
         /// <param name="operatorName">The name of the reduce operator</param>
         /// <param name="groupName">The name of the reduce operator's CommunicationGroup</param>
+        /// <param name="initialize">Require Topology Initialize to be called to wait for all task being registered. 
+        /// Default is true. For unit testing, it can be set to false.</param>
         /// <param name="topology">The Task's operator topology graph</param>
         /// <param name="networkHandler">The handler used to handle incoming messages</param>
         /// <param name="reduceFunction">The function used to reduce the incoming messages</param>
         /// <param name="dataConverter">The converter used to convert original
         /// message to pipelined ones and vice versa.</param>
         [Inject]
-        public ReduceSender(
+        private ReduceSender(
             [Parameter(typeof(GroupCommConfigurationOptions.OperatorName))] string operatorName,
             [Parameter(typeof(GroupCommConfigurationOptions.CommunicationGroupName))] string groupName,
+            [Parameter(typeof(GroupCommConfigurationOptions.Initialize))] bool initialize,
             OperatorTopology<PipelineMessage<T>> topology,
             ICommunicationGroupNetworkObserver networkHandler,
             IReduceFunction<T> reduceFunction,
@@ -68,12 +71,16 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
 
             _pipelinedReduceFunc = new PipelinedReduceFunction<T>(ReduceFunction);
             _topology = topology;
-            _topology.Initialize();
 
             var msgHandler = Observer.Create<GroupCommunicationMessage>(message => _topology.OnNext(message));
             networkHandler.Register(operatorName, msgHandler);
 
             PipelineDataConverter = dataConverter;
+
+            if (initialize)
+            {
+                topology.Initialize();
+            }
         }
 
         /// <summary>

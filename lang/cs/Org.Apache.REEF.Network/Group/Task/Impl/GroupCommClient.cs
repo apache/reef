@@ -25,15 +25,13 @@ using Org.Apache.REEF.Network.Group.Driver.Impl;
 using Org.Apache.REEF.Network.NetworkService;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Formats;
-using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
-using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Wake.Remote.Impl;
 
 namespace Org.Apache.REEF.Network.Group.Task.Impl
 {
     /// <summary>
-    /// Used by Tasks to fetch CommunicationGroupClients.
+    /// Container of ommunicationGroupClients
     /// </summary>
     public class GroupCommClient : IGroupCommClient
     {
@@ -43,20 +41,20 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
 
         /// <summary>
         /// Creates a new GroupCommClient and registers the task ID with the Name Server.
+        /// Currently the GroupCommClient is injected in task constructor. When work with REEF-289, we should put the injection at a proepr palce. 
         /// </summary>
         /// <param name="groupConfigs">The set of serialized Group Communication configurations</param>
-        /// <param name="taskId">The identifier for this task</param>
-        /// <param name="groupCommNetworkObserver">The network handler to receive incoming messages
-        /// for this task</param>
+        /// <param name="taskId">The identifier for this taskfor this task</param>
         /// <param name="networkService">The network service used to send messages</param>
         /// <param name="configSerializer">Used to deserialize Group Communication configuration</param>
+        /// <param name="injector">injector forked from the injector that creates this instance</param>
         [Inject]
-        public GroupCommClient(
+        private GroupCommClient(
             [Parameter(typeof(GroupCommConfigurationOptions.SerializedGroupConfigs))] ISet<string> groupConfigs,
             [Parameter(typeof(TaskConfigurationOptions.Identifier))] string taskId,
-            IGroupCommNetworkObserver groupCommNetworkObserver,
             NetworkService<GroupCommunicationMessage> networkService,
-            AvroConfigurationSerializer configSerializer)
+            AvroConfigurationSerializer configSerializer,
+            IInjector injector)
         {
             _commGroups = new Dictionary<string, ICommunicationGroupClient>();
             _networkService = networkService;
@@ -65,14 +63,9 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
             foreach (string serializedGroupConfig in groupConfigs)
             {
                 IConfiguration groupConfig = configSerializer.FromString(serializedGroupConfig);
-
-                IInjector injector = TangFactory.GetTang().NewInjector(groupConfig);
-                injector.BindVolatileParameter(GenericType<TaskConfigurationOptions.Identifier>.Class, taskId);
-                injector.BindVolatileInstance(GenericType<IGroupCommNetworkObserver>.Class, groupCommNetworkObserver);
-                injector.BindVolatileInstance(GenericType<NetworkService<GroupCommunicationMessage>>.Class, networkService);
-
-                ICommunicationGroupClient commGroup = injector.GetInstance<ICommunicationGroupClient>();
-                _commGroups[commGroup.GroupName] = commGroup;
+                IInjector groupInjector = injector.ForkInjector(groupConfig);
+                ICommunicationGroupClient commGroupClient = groupInjector.GetInstance<ICommunicationGroupClient>();
+                _commGroups[commGroupClient.GroupName] = commGroupClient;
             }
         }
 

@@ -304,6 +304,57 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
 
             Assert.IsNotNull(o.ExternalObject is ExternalClass);
         }
+
+        /// <summary>
+        /// In this test, interface is a generic of T. Implementations have different generic arguments such as int and string. 
+        /// When doing injection, we must specify the interface with a specified argument type
+        /// </summary>
+        [TestMethod]
+        public void TestInjectionWithGenericArguments()
+        {
+            var c = TangFactory.GetTang().NewConfigurationBuilder()
+                .BindImplementation(GenericType<IMyOperator<int>>.Class, GenericType<MyOperatorImpl<int>>.Class)
+                .BindImplementation(GenericType<IMyOperator<string>>.Class, GenericType<MyOperatorImpl<string>>.Class)
+                .Build();
+
+            var injector = TangFactory.GetTang().NewInjector(c);
+
+            //argument type must be specified in injection
+            var o1 = injector.GetInstance(typeof(IMyOperator<int>));
+            var o2 = injector.GetInstance(typeof(IMyOperator<string>));
+            var o3 = injector.GetInstance(typeof(MyOperatorTopology<int>));
+
+            Assert.IsTrue(o1 is MyOperatorImpl<int>);
+            Assert.IsTrue(o2 is MyOperatorImpl<string>);
+            Assert.IsTrue(o3 is MyOperatorTopology<int>);
+        }
+
+        /// <summary>
+        /// In this test, interface argument type is set through Configuration. We can get the argument type and then 
+        /// make the interface with the argument type on the fly so that to do the injection
+        /// </summary>
+        [TestMethod]
+        public void TestInjectionWithGenericArgumentType()
+        {
+            var c = TangFactory.GetTang().NewConfigurationBuilder()
+                .BindImplementation(GenericType<IMyOperator<int[]>>.Class, GenericType<MyOperatorImpl<int[]>>.Class)
+                .BindNamedParameter(typeof(MessageType), typeof(int[]).AssemblyQualifiedName)
+                .Build();
+
+            var injector = TangFactory.GetTang().NewInjector(c);
+
+            //get argument type from configuration
+            var messageTypeAsString = injector.GetNamedInstance<MessageType, string>(GenericType<MessageType>.Class);
+            Type messageType = Type.GetType(messageTypeAsString);
+
+            //creat interface with generic type on the fly
+            Type genericInterfaceType = typeof(IMyOperator<>);
+            Type interfaceOfMessageType = genericInterfaceType.MakeGenericType(messageType);
+
+            var o = injector.GetInstance(interfaceOfMessageType);
+
+            Assert.IsTrue(o is MyOperatorImpl<int[]>);
+        }
     }
 
     class AReferenceClass : IAInterface
@@ -384,6 +435,37 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
     {
         public ExternalClass()
         {            
+        }
+    }
+
+    interface IMyOperator<T>
+    {
+        string OperatorName { get; } 
+    }
+
+    class MyOperatorImpl<T> : IMyOperator<T>
+    {
+        [Inject]
+        public MyOperatorImpl()
+        {           
+        }
+
+        string IMyOperator<T>.OperatorName
+        {
+            get { throw new NotImplementedException(); }
+        }
+    }
+
+    [NamedParameter]
+    class MessageType : Name<string>
+    {        
+    }
+
+    class MyOperatorTopology<T>
+    {
+        [Inject]
+        public MyOperatorTopology(IMyOperator<T> op)
+        {           
         }
     }
 }

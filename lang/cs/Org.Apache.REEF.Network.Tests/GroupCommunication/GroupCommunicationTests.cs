@@ -20,6 +20,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Reactive;
@@ -29,12 +30,14 @@ using Org.Apache.REEF.Common.Io;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Examples.MachineLearning.KMeans;
 using Org.Apache.REEF.Examples.MachineLearning.KMeans.codecs;
+using Org.Apache.REEF.Network.Examples.GroupCommunication;
 using Org.Apache.REEF.Network.Group.Codec;
 using Org.Apache.REEF.Network.Group.Config;
 using Org.Apache.REEF.Network.Group.Driver;
 using Org.Apache.REEF.Network.Group.Driver.Impl;
 using Org.Apache.REEF.Network.Group.Operators;
 using Org.Apache.REEF.Network.Group.Operators.Impl;
+using Org.Apache.REEF.Network.Group.Pipelining;
 using Org.Apache.REEF.Network.Group.Pipelining.Impl;
 using Org.Apache.REEF.Network.Group.Task;
 using Org.Apache.REEF.Network.Group.Topology;
@@ -107,7 +110,6 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
             int fanOut = 2;
 
             var groupCommunicationDriver = GetInstanceOfGroupCommDriver(driverId, masterTaskId, groupName, fanOut, numTasks);
-
             ICommunicationGroupDriver commGroup = groupCommunicationDriver.DefaultGroup
                 .AddBroadcast<int>(
                     broadcastOperatorName,
@@ -155,7 +157,76 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
                 Assert.AreEqual(sum, expected);
             }
         }
- 
+
+        /// <summary>
+        /// This is to test operator injection in CommunicationGroupClient with int[] as message type
+        /// </summary>
+        [TestMethod]
+        public void TestGetBroadcastReduceOperatorsForIntArrayMessageType()
+        {
+            const string groupName = "group1";
+            const string broadcastOperatorName = "broadcast";
+            const string reduceOperatorName = "reduce";
+            const string masterTaskId = "task0";
+            const string driverId = "Driver Id";
+            const int numTasks = 3;
+            const int fanOut = 2;
+
+            IConfiguration codecConfig = CodecConfiguration<int[]>.Conf
+                .Set(CodecConfiguration<int[]>.Codec, GenericType<IntArrayCodec>.Class)
+                .Build();
+
+            IConfiguration reduceFunctionConfig = ReduceFunctionConfiguration<int[]>.Conf
+                .Set(ReduceFunctionConfiguration<int[]>.ReduceFunction, GenericType<ArraySumFunction>.Class)
+                .Build();
+
+            IConfiguration dataConverterConfig = TangFactory.GetTang().NewConfigurationBuilder(
+                PipelineDataConverterConfiguration<int[]>.Conf
+                    .Set(PipelineDataConverterConfiguration<int[]>.DataConverter,
+                        GenericType<PipelineIntDataConverter>.Class)
+                    .Build())
+                .BindNamedParameter<GroupTestConfig.ChunkSize, int>(
+                    GenericType<GroupTestConfig.ChunkSize>.Class,
+                    GroupTestConstants.ChunkSize.ToString(CultureInfo.InvariantCulture))
+                .Build();
+
+            var groupCommunicationDriver = GetInstanceOfGroupCommDriver(driverId, masterTaskId, groupName, fanOut, numTasks);
+            ICommunicationGroupDriver commGroup = groupCommunicationDriver.DefaultGroup
+                    .AddBroadcast<int[]>(
+                        broadcastOperatorName,
+                        masterTaskId,
+                        TopologyTypes.Flat,
+                        codecConfig,
+                        dataConverterConfig)
+                    .AddReduce<int[]>(
+                        reduceOperatorName,
+                        masterTaskId,
+                        TopologyTypes.Flat,
+                        codecConfig,
+                        dataConverterConfig,
+                        reduceFunctionConfig)
+                    .Build();
+
+            var commGroups = CommGroupClients(groupName, numTasks, groupCommunicationDriver, commGroup);
+
+            //for master task
+            IBroadcastSender<int[]> broadcastSender = commGroups[0].GetBroadcastSender<int[]>(broadcastOperatorName);
+            IReduceReceiver<int[]> sumReducer = commGroups[0].GetReduceReceiver<int[]>(reduceOperatorName);
+
+            IBroadcastReceiver<int[]> broadcastReceiver1 = commGroups[1].GetBroadcastReceiver<int[]>(broadcastOperatorName);
+            IReduceSender<int[]> triangleNumberSender1 = commGroups[1].GetReduceSender<int[]>(reduceOperatorName);
+
+            IBroadcastReceiver<int[]> broadcastReceiver2 = commGroups[2].GetBroadcastReceiver<int[]>(broadcastOperatorName);
+            IReduceSender<int[]> triangleNumberSender2 = commGroups[2].GetReduceSender<int[]>(reduceOperatorName);
+
+            Assert.IsNotNull(broadcastSender);
+            Assert.IsNotNull(sumReducer);
+            Assert.IsNotNull(broadcastReceiver1);
+            Assert.IsNotNull(triangleNumberSender1);
+            Assert.IsNotNull(broadcastReceiver2);
+            Assert.IsNotNull(triangleNumberSender2);
+        }
+
         [TestMethod]
         public void TestScatterReduceOperators()
         {
@@ -710,7 +781,7 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
             return groupCommDriver;
         }
 
-        public static List<ICommunicationGroupClient> CommGroupClients(string groupName, int numTasks, IGroupCommDriver groupCommDriver, ICommunicationGroupDriver commGroup)
+        public static List<ICommunicationGroupClient> CommGroupClients(string groupName, int numTasks, IGroupCommDriver groupCommDriver, ICommunicationGroupDriver commGroupDriver)
         {
             List<ICommunicationGroupClient> commGroups = new List<ICommunicationGroupClient>();
             IConfiguration serviceConfig = groupCommDriver.GetServiceConfiguration();
@@ -725,17 +796,24 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
                         .Set(TaskConfiguration.Task, GenericType<MyTask>.Class)
                         .Build())
                     .Build();
-                commGroup.AddTask(taskId);
+                commGroupDriver.AddTask(taskId);
                 partialConfigs.Add(partialTaskConfig);
             }
 
             for (int i = 0; i < numTasks; i++)
             {
+                //get task configuration at driver side
                 string taskId = "task" + i;
                 IConfiguration groupCommTaskConfig = groupCommDriver.GetGroupCommTaskConfiguration(taskId);
                 IConfiguration mergedConf = Configurations.Merge(groupCommTaskConfig, partialConfigs[i], serviceConfig);
-                IInjector injector = TangFactory.GetTang().NewInjector(mergedConf);
 
+                var conf = TangFactory.GetTang()
+                    .NewConfigurationBuilder(mergedConf)
+                    .BindNamedParameter(typeof(GroupCommConfigurationOptions.Initialize), "false")
+                    .Build();
+                IInjector injector = TangFactory.GetTang().NewInjector(conf);
+
+                //simulate injection at evaluator side
                 IGroupCommClient groupCommClient = injector.GetInstance<IGroupCommClient>();
                 commGroups.Add(groupCommClient.GetCommunicationGroup(groupName));
             }
@@ -819,6 +897,122 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
         public byte[] Call(byte[] memento)
         {
             throw new NotImplementedException();
+        }
+    }
+
+    class ArraySumFunction : IReduceFunction<int[]>
+    {
+        [Inject]
+        private ArraySumFunction()
+        {
+        }
+
+        public int[] Reduce(IEnumerable<int[]> elements)
+        {
+            int[] result = null;
+            int count = 0;
+
+            foreach (var element in elements)
+            {
+                if (count == 0)
+                {
+                    result = element.Clone() as int[];
+                }
+                else
+                {
+                    if (element.Length != result.Length)
+                    {
+                        throw new Exception("integer arrays are of different sizes");
+                    }
+
+                    for (int i = 0; i < result.Length; i++)
+                    {
+                        result[i] += element[i];
+                    }
+                }
+                count++;
+            }
+
+            return result;
+        }
+    }
+
+    class IntArrayCodec : ICodec<int[]>
+    {
+        [Inject]
+        private IntArrayCodec()
+        {
+        }
+
+        public byte[] Encode(int[] obj)
+        {
+            byte[] result = new byte[sizeof(Int32) * obj.Length];
+            Buffer.BlockCopy(obj, 0, result, 0, result.Length);
+            return result;
+        }
+
+        public int[] Decode(byte[] data)
+        {
+            if (data.Length % sizeof(Int32) != 0)
+            {
+                throw new Exception("error inside integer array decoder, byte array length not a multiple of interger size");
+            }
+
+            int[] result = new int[data.Length / sizeof(Int32)];
+            Buffer.BlockCopy(data, 0, result, 0, data.Length);
+            return result;
+        }
+    }
+
+    class PipelineIntDataConverter : IPipelineDataConverter<int[]>
+    {
+        readonly int _chunkSize;
+
+        [Inject]
+        private PipelineIntDataConverter([Parameter(typeof(GroupTestConfig.ChunkSize))] int chunkSize)
+        {
+            _chunkSize = chunkSize;
+        }
+
+        public List<PipelineMessage<int[]>> PipelineMessage(int[] message)
+        {
+            List<PipelineMessage<int[]>> messageList = new List<PipelineMessage<int[]>>();
+            int totalChunks = message.Length / _chunkSize;
+
+            if (message.Length % _chunkSize != 0)
+            {
+                totalChunks++;
+            }
+
+            int counter = 0;
+            for (int i = 0; i < message.Length; i += _chunkSize)
+            {
+                int[] data = new int[Math.Min(_chunkSize, message.Length - i)];
+                Buffer.BlockCopy(message, i * sizeof(int), data, 0, data.Length * sizeof(int));
+
+                messageList.Add(counter == totalChunks - 1
+                    ? new PipelineMessage<int[]>(data, true)
+                    : new PipelineMessage<int[]>(data, false));
+
+                counter++;
+            }
+
+            return messageList;
+        }
+
+        public int[] FullMessage(List<PipelineMessage<int[]>> pipelineMessage)
+        {
+            int size = pipelineMessage.Select(x => x.Data.Length).Sum();
+            int[] data = new int[size];
+            int offset = 0;
+
+            foreach (var message in pipelineMessage)
+            {
+                Buffer.BlockCopy(message.Data, 0, data, offset, message.Data.Length * sizeof(int));
+                offset += message.Data.Length * sizeof(int);
+            }
+
+            return data;
         }
     }
 }

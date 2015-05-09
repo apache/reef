@@ -35,20 +35,14 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(CommunicationGroupNetworkObserver));
         private readonly Dictionary<string, IObserver<GroupCommunicationMessage>> _handlers;
-        private readonly int _retryCount;
-        private readonly int _sleepTime;
 
         /// <summary>
         /// Creates a new CommunicationGroupNetworkObserver.
         /// </summary>
         [Inject]
-        public CommunicationGroupNetworkObserver(
-            [Parameter(typeof(GroupCommConfigurationOptions.RetryCountWaitingForHanler))] int retryCount,
-            [Parameter(typeof(GroupCommConfigurationOptions.SleepTimeWaitingForHandler))] int sleepTime)
+        public CommunicationGroupNetworkObserver()
         {
             _handlers = new Dictionary<string, IObserver<GroupCommunicationMessage>>();
-            _retryCount = retryCount;
-            _sleepTime = sleepTime;
         }
 
         /// <summary>
@@ -83,7 +77,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         {
             string operatorName = message.OperatorName;
 
-            IObserver<GroupCommunicationMessage> handler = GetOperatorHandler(operatorName, _retryCount, _sleepTime);
+            IObserver<GroupCommunicationMessage> handler = GetOperatorHandler(operatorName);
 
             if (handler == null)
             {
@@ -99,30 +93,15 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         /// GetOperatorHandler for operatorName
         /// </summary>
         /// <param name="operatorName"></param>
-        /// <param name="retry"></param>
-        /// <param name="sleepTime"></param>
         /// <returns></returns>
-        private IObserver<GroupCommunicationMessage> GetOperatorHandler(string operatorName, int retry, int sleepTime)
+        private IObserver<GroupCommunicationMessage> GetOperatorHandler(string operatorName)
         {
-            //registration of handler might be delayed while the Network Service has received message from other servers
-            for (int i = 0; i < retry; i++)
+            IObserver<GroupCommunicationMessage> handler;
+            if (!_handlers.TryGetValue(operatorName, out handler))
             {
-                if (!_handlers.ContainsKey(operatorName))
-                {
-                    LOGGER.Log(Level.Info, "handler for operator {0} has not been registered." + operatorName);
-                    Thread.Sleep(sleepTime);
-                }
-                else
-                {
-                    IObserver<GroupCommunicationMessage> handler;
-                    if (!_handlers.TryGetValue(operatorName, out handler))
-                    {
-                        Exceptions.Throw(new ArgumentException("No handler registered yet with the operator name: " + operatorName), LOGGER);
-                    }
-                    return handler;
-                }
+                Exceptions.Throw(new ApplicationException("No handler registered yet with the operator name: " + operatorName), LOGGER);
             }
-            return null;
+            return handler;
         }
 
         public void OnError(Exception error)
