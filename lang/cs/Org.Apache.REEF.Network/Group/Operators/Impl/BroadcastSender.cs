@@ -38,6 +38,7 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
         private static readonly Logger Logger = Logger.GetLogger(typeof(BroadcastSender<T>));
         private const int PipelineVersion = 2;
         private readonly OperatorTopology<PipelineMessage<T>> _topology;
+        private bool _isInitialize = false;
 
         /// <summary>
         /// Creates a new BroadcastSender to send messages to other Tasks.
@@ -57,17 +58,14 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
             ICommunicationGroupNetworkObserver networkHandler,
             IPipelineDataConverter<T> dataConverter)
         {
+            _topology = topology;
             OperatorName = operatorName;
             GroupName = groupName;
             Version = PipelineVersion;
-
-            _topology = topology;
-            _topology.Initialize();
+            PipelineDataConverter = dataConverter;
 
             var msgHandler = Observer.Create<GroupCommunicationMessage>(message => _topology.OnNext(message));
             networkHandler.Register(operatorName, msgHandler);
-
-            PipelineDataConverter = dataConverter;
         }
 
         /// <summary>
@@ -89,6 +87,18 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
         /// Returns the IPipelineDataConvert used to convert messages to pipeline form and vice-versa
         /// </summary>
         public IPipelineDataConverter<T> PipelineDataConverter { get; private set; }
+
+        /// <summary>
+        /// Initialize topology
+        /// </summary>
+        public void Initialize()
+        {
+            if (!_isInitialize)
+            {
+                _topology.Initialize();
+                _isInitialize = true;
+            }
+        }
 
         /// <summary>
         /// Send the data to all BroadcastReceivers.

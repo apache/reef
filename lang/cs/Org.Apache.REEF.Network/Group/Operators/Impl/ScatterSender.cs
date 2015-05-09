@@ -38,6 +38,7 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
 
         private readonly ICommunicationGroupNetworkObserver _networkHandler;
         private readonly OperatorTopology<T> _topology;
+        private bool _isInitialize = false;
 
         /// <summary>
         /// Creates a new ScatterSender.
@@ -59,7 +60,6 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
 
             _networkHandler = networkHandler;
             _topology = topology;
-            _topology.Initialize();
 
             var msgHandler = Observer.Create<GroupCommunicationMessage>(message => _topology.OnNext(message));
             _networkHandler.Register(operatorName, msgHandler);
@@ -70,6 +70,15 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
         public string GroupName { get; private set; }
 
         public int Version { get; private set; }
+
+        public void Initialize()
+        {
+            if (!_isInitialize)
+            {
+                _topology.Initialize();
+                _isInitialize = true;
+            }
+        }
 
         /// <summary>
         /// Split up the list of elements evenly and scatter each chunk

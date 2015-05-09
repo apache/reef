@@ -304,6 +304,55 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
 
             Assert.IsNotNull(o.ExternalObject is ExternalClass);
         }
+        
+        /// <summary>
+        /// In this test, interface is generic of T. Implementations use different T as type. 
+        /// When doing injection, we need to get type of generic type T so that to get generic interface
+        /// </summary>
+        [TestMethod]
+        public void TestInjectionWithT()
+        {
+            var c = TangFactory.GetTang().NewConfigurationBuilder()
+                .BindImplementation(GenericType<IMyOperator<int>>.Class, GenericType<MyOperatorImpl<int>>.Class)
+                .BindImplementation(GenericType<IMyOperator<int[]>>.Class, GenericType<MyOperatorImpl<int[]>>.Class)
+                .BindImplementation(GenericType<IMyOperator<string>>.Class, GenericType<MyOperatorImpl<string>>.Class)
+                .BindNamedParameter(typeof(MessageType), typeof(int[]).AssemblyQualifiedName)
+                .Build();
+
+            var injector = TangFactory.GetTang().NewInjector(c);
+
+            var msgType = (string)injector.GetNamedInstance(typeof(MessageType));
+            Type t3 = Type.GetType(msgType);
+
+            string str1 = typeof(int).AssemblyQualifiedName;
+            Type t1 = Type.GetType(str1);
+
+            var userType = typeof(IMyOperator<int>);
+            Type genericTypeArgument = null;
+            if (userType.IsGenericType)
+            {
+                var genericTypes = userType.GenericTypeArguments;
+                genericTypeArgument = genericTypes[0];
+            }
+
+            Type myGenericParam2 = typeof(string);
+
+            Type myGenericInterface1 = typeof (IMyOperator<>);
+            Type myBakedGenericInterface1 = myGenericInterface1.MakeGenericType(new Type[] { genericTypeArgument });
+            Type myBakedGenericInterface2 = myGenericInterface1.MakeGenericType(new Type[] { typeof(string) });
+            Type myBakedGenericInterface3 = myGenericInterface1.MakeGenericType(new Type[] { t3 });
+ 
+            //at the time of injection, you must specify which T to use. This is IMyOperator<int> and IMyOperator<strign> would reperent different interface
+            var o1 = TangFactory.GetTang().NewInjector(c).GetInstance(myBakedGenericInterface1);
+            var o2 = TangFactory.GetTang().NewInjector(c).GetInstance(myBakedGenericInterface2);
+            var o3 = TangFactory.GetTang().NewInjector(c).GetInstance(myBakedGenericInterface3);
+            var o4 = TangFactory.GetTang().NewInjector(c).GetInstance(typeof(MyOperatorTopology<int>));
+
+            Assert.IsNotNull(o1 is MyOperatorImpl<int>);
+            Assert.IsNotNull(o2 is MyOperatorImpl<string>);
+            Assert.IsNotNull(o3 is MyOperatorImpl<int[]>);
+            Assert.IsNotNull(o4 is MyOperatorTopology<int>);
+        }
     }
 
     class AReferenceClass : IAInterface
@@ -384,6 +433,39 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
     {
         public ExternalClass()
         {            
+        }
+    }
+
+    interface IMyOperator<T>
+    {
+        string OperatorName { get; } 
+    }
+
+    class MyOperatorImpl<T> : IMyOperator<T>
+    {
+        [Inject]
+        public MyOperatorImpl()
+        {
+            
+        }
+
+        string IMyOperator<T>.OperatorName
+        {
+            get { throw new NotImplementedException(); }
+        }
+    }
+
+    [NamedParameter]
+    class MessageType : Name<string>
+    {        
+    }
+
+    class MyOperatorTopology<T>
+    {
+        [Inject]
+        public MyOperatorTopology(IMyOperator<T> op)
+        {
+            
         }
     }
 }

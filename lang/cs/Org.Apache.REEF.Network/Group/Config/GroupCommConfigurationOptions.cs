@@ -98,5 +98,10 @@ namespace Org.Apache.REEF.Network.Group.Config
         public class TopologyChildTaskIds : Name<ISet<string>>
         {
         }
+
+        [NamedParameter("Type of the message")]
+        public class MessageType : Name<string>
+        {
+        }
     }
 }

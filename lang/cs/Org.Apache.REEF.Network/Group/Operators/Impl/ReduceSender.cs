@@ -40,6 +40,7 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
         private const int PipelineVersion = 2;
         private readonly OperatorTopology<PipelineMessage<T>> _topology;
         private readonly PipelinedReduceFunction<T> _pipelinedReduceFunc;
+        private bool _isInitialize = false;
 
         /// <summary>
         /// Creates a new ReduceSender.
@@ -68,7 +69,6 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
 
             _pipelinedReduceFunc = new PipelinedReduceFunction<T>(ReduceFunction);
             _topology = topology;
-            _topology.Initialize();
 
             var msgHandler = Observer.Create<GroupCommunicationMessage>(message => _topology.OnNext(message));
             networkHandler.Register(operatorName, msgHandler);
@@ -100,6 +100,15 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
         /// Returns the IPipelineDataConvert used to convert messages to pipeline form and vice-versa
         /// </summary>
         public IPipelineDataConverter<T> PipelineDataConverter { get; private set; }
+
+        public void Initialize()
+        {
+            if (!_isInitialize)
+            {
+                _topology.Initialize();
+                _isInitialize = true;
+            }
+        }
 
         /// <summary>
         /// Sends the data to the operator's ReduceReceiver to be aggregated.

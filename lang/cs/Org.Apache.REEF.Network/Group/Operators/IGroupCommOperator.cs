@@ -39,5 +39,7 @@ namespace Org.Apache.REEF.Network.Group.Operators
         /// The operator version number.
         /// </summary>
         int Version { get; }
+
+        void Initialize();
     }
 }

@@ -316,9 +316,6 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
             {
                 var innerConf =
                     TangFactory.GetTang().NewConfigurationBuilder(GetOperatorConfiguration(operatorName, taskId))
-                        .BindNamedParameter<GroupCommConfigurationOptions.DriverId, string>(
-                            GenericType<GroupCommConfigurationOptions.DriverId>.Class,
-                            _driverId)
                         .BindNamedParameter<GroupCommConfigurationOptions.OperatorName, string>(
                             GenericType<GroupCommConfigurationOptions.OperatorName>.Class,
                             operatorName)

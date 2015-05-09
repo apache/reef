@@ -109,7 +109,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
             {
                 if (!_handlers.ContainsKey(operatorName))
                 {
-                    LOGGER.Log(Level.Info, "handler for operator {0} has not been registered." + operatorName);
+                    LOGGER.Log(Level.Warning, "Handler for operator {0} has not been registered. You should never reach here!!!" + operatorName);
                     Thread.Sleep(sleepTime);
                 }
                 else

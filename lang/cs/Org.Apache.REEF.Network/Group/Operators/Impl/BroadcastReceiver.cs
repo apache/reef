@@ -38,7 +38,9 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
         private const int PipelineVersion = 2;
         private readonly ICommunicationGroupNetworkObserver _networkHandler;
         private readonly OperatorTopology<PipelineMessage<T>> _topology;
-        private static readonly Logger Logger = Logger.GetLogger(typeof(BroadcastReceiver<T>));
+        private static readonly Logger Logger = Logger.GetLogger(typeof (BroadcastReceiver<T>));
+        private bool _isInitialize = false;
+
         /// <summary>
         /// Creates a new BroadcastReceiver.
         /// </summary>
@@ -51,8 +53,8 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
         /// message to pipelined ones and vice versa.</param>
         [Inject]
         public BroadcastReceiver(
-            [Parameter(typeof(GroupCommConfigurationOptions.OperatorName))] string operatorName,
-            [Parameter(typeof(GroupCommConfigurationOptions.CommunicationGroupName))] string groupName,
+            [Parameter(typeof (GroupCommConfigurationOptions.OperatorName))] string operatorName,
+            [Parameter(typeof (GroupCommConfigurationOptions.CommunicationGroupName))] string groupName,
             OperatorTopology<PipelineMessage<T>> topology,
             ICommunicationGroupNetworkObserver networkHandler,
             IPipelineDataConverter<T> dataConverter)
@@ -63,7 +65,6 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
 
             _networkHandler = networkHandler;
             _topology = topology;
-            _topology.Initialize();
 
             var msgHandler = Observer.Create<GroupCommunicationMessage>(message => _topology.OnNext(message));
             _networkHandler.Register(operatorName, msgHandler);
@@ -91,6 +92,14 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
         /// </summary>
         public IPipelineDataConverter<T> PipelineDataConverter { get; private set; }
 
+        public void Initialize()
+        {
+            if (!_isInitialize)
+            {
+                _topology.Initialize();
+                _isInitialize = true;
+            }
+        }
 
         /// <summary>
         /// Receive a message from parent BroadcastSender.
@@ -115,6 +124,5 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
 
             return PipelineDataConverter.FullMessage(messageList);
         }
-
     }
 }

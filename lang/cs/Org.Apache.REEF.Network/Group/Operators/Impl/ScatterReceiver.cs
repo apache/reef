@@ -38,6 +38,7 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
 
         private readonly ICommunicationGroupNetworkObserver _networkHandler;
         private readonly OperatorTopology<T> _topology;
+        private bool _isInitialize = false;
 
         /// <summary>
         /// Creates a new ScatterReceiver.
@@ -59,7 +60,6 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
 
             _networkHandler = networkHandler;
             _topology = topology;
-            _topology.Initialize();
 
             var msgHandler = Observer.Create<GroupCommunicationMessage>(message => _topology.OnNext(message));
             _networkHandler.Register(operatorName, msgHandler);
@@ -79,6 +79,15 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
         /// Returns the operator version.
         /// </summary>
         public int Version { get; private set; }
+
+        public void Initialize()
+        {
+            if (!_isInitialize)
+            {
+                _topology.Initialize();
+                _isInitialize = true;
+            }
+        }
 
         /// <summary>
         /// Returns the class used to reduce incoming messages sent by ReduceSenders.
