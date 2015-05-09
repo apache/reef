@@ -41,7 +41,7 @@ namespace Org.Apache.REEF.Network.NetworkService
     [Obsolete("Need to remove Iwritable and use IstreamingCodec. Please see Jira REEF-295 ", false)]
     public class WritableNetworkService<T> : INetworkService<T> where T : IWritable
     {
-        private static readonly Logger Logger = Logger.GetLogger(typeof (NetworkService<>));
+        private static readonly Logger Logger = Logger.GetLogger(typeof(NetworkService<>));
 
         private readonly IRemoteManager<WritableNsMessage<T>> _remoteManager;
         private readonly IObserver<WritableNsMessage<T>> _messageHandler;
