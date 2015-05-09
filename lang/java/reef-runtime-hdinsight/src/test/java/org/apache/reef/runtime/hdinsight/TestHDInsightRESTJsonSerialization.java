@@ -151,7 +151,7 @@ public final class TestHDInsightRESTJsonSerialization {
       Assert.assertEquals(aclsKVNode.get(Constants.VALUE).asText(), aclsEntry.getValue());
     }
 
-    JsonNode sdatasNode = amSpecNode.get(Constants.APPLICATION_ACLS).get(Constants.ENTRY);
+    JsonNode sdatasNode = amSpecNode.get(Constants.SERVICE_DATA).get(Constants.ENTRY);
     Assert.assertNotNull(sdatasNode);
     Assert.assertTrue(sdatasNode.isArray());
     for (final JsonNode sdataKVNode : sdatasNode) {
