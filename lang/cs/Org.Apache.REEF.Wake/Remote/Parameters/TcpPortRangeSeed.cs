@@ -18,21 +18,11 @@
  */
 
 using Org.Apache.REEF.Tang.Annotations;
-using Org.Apache.REEF.Wake.Remote;
 
-namespace Org.Apache.REEF.Common.Protobuf.ReefProtocol
+namespace Org.Apache.REEF.Wake.Remote.Parameters
 {
-    public class REEFMessageCodec : ICodec<REEFMessage>
+    [NamedParameter(Documentation = "Seed for the random port number generator", DefaultValue = "0")]
+    public class TcpPortRangeSeed: Name<int>
     {
-        public byte[] Encode(REEFMessage obj)
-        {
-            return obj.Serialize();
-        }
-
-        public REEFMessage Decode(byte[] data)
-        {
-            REEFMessage pbuf = REEFMessage.Deserialize(data);
-            return pbuf;
-        }
     }
 }

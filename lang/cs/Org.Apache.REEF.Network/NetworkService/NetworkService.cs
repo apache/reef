@@ -58,6 +58,7 @@ namespace Org.Apache.REEF.Network.NetworkService
         /// <param name="idFactory">The factory used to create IIdentifiers</param>
         /// <param name="codec">The codec used for serialization</param>
         /// <param name="remoteManagerFactory">Used to instantiate remote manager instances.</param>
+        /// <param name="tcpPortProvider">Provides ports for tcp listeners.</param>
         [Inject]
         public NetworkService(
             [Parameter(typeof(NetworkServiceOptions.NetworkServicePort))] int nsPort,

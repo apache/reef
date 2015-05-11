@@ -18,6 +18,9 @@
  */
 package org.apache.reef.util;
 
+import java.lang.management.LockInfo;
+import java.lang.management.MonitorInfo;
+import java.lang.management.ThreadInfo;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -81,6 +84,51 @@ public final class ThreadLogger {
    */
   public static String getFormattedThreadList(final String prefix) {
     return getFormattedThreadList(prefix, "\n\t", "\n\t\t");
+  }
+
+  /**
+   * Produces a String representation of threads that are deadlocked, including lock information
+   * @param prefix             The prefix of the string returned.
+   * @param threadPrefix       Printed before each thread, e.g. "\n\t" to create an indented list.
+   * @param stackElementPrefix Printed before each stack trace element, e.g. "\n\t\t" to create an indented list.
+   * @return a String representation of threads that are deadlocked, including lock information
+   */
+  public static String getFormattedDeadlockInfo(
+      final String prefix, final String threadPrefix, final String stackElementPrefix) {
+    final StringBuilder message = new StringBuilder(prefix);
+
+    final DeadlockInfo deadlockInfo = new DeadlockInfo();
+    for (final ThreadInfo threadInfo : deadlockInfo.getDeadlockedThreads()) {
+      message.append(threadPrefix).append("Thread '").append(threadInfo.getThreadName())
+          .append("' with state ").append(threadInfo.getThreadState());
+
+      boolean firstElement = true;
+      for (final StackTraceElement stackTraceElement : threadInfo.getStackTrace()) {
+        message.append(stackElementPrefix).append("at ").append(stackTraceElement);
+        if (firstElement) {
+          final String waitingLockString = deadlockInfo.getWaitingLockString(threadInfo);
+          if (waitingLockString != null) {
+            message.append(stackElementPrefix).append("- waiting to lock: ").append(waitingLockString);
+          }
+          firstElement = false;
+        }
+        for (final MonitorInfo info : deadlockInfo.getMonitorLockedElements(threadInfo, stackTraceElement)) {
+          message.append(stackElementPrefix).append("- locked: ").append(info);
+        }
+      }
+      for (final LockInfo lockInfo : threadInfo.getLockedSynchronizers()) {
+        message.append(stackElementPrefix).append("* holds locked synchronizer: ").append(lockInfo);
+      }
+    }
+
+    return message.toString();
+  }
+
+  /**
+   * Same as <code>getFormattedDeadlockInfo(prefix, "\n\t", "\n\t\t")</code>
+   */
+  public static String getFormattedDeadlockInfo(final String prefix) {
+    return getFormattedDeadlockInfo(prefix, "\n\t", "\n\t\t");
   }
 
   /**
