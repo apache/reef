@@ -23,7 +23,7 @@ import org.apache.reef.io.naming.Naming;
 import org.apache.reef.io.network.Connection;
 import org.apache.reef.io.network.ConnectionFactory;
 import org.apache.reef.io.network.Message;
-import org.apache.reef.io.network.TransportFactory;
+import org.apache.reef.wake.remote.transport.netty.TransportFactory;
 import org.apache.reef.io.network.naming.NameCache;
 import org.apache.reef.io.network.naming.NameClient;
 import org.apache.reef.io.network.naming.NameLookupClient;
@@ -161,7 +161,7 @@ public final class NetworkService<T> implements Stage, ConnectionFactory<T> {
 
     this.factory = factory;
     this.codec = codec;
-    this.transport = tpFactory.create(nsPort,
+    this.transport = tpFactory.getInstance(nsPort,
         new LoggingEventHandler<TransportEvent>(),
         new MessageHandler<T>(recvHandler, codec, factory), exHandler);
 
