@@ -20,6 +20,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Net;
 using System.Reactive;
@@ -28,6 +29,7 @@ using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
+using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Wake.Remote;
 using Org.Apache.REEF.Wake.Remote.Impl;
 using Org.Apache.REEF.Wake.Remote.Parameters;
@@ -44,6 +46,7 @@ namespace Org.Apache.REEF.Wake.Tests
     public class WritableTransportTest
     {
         private readonly ITcpPortProvider _tcpPortProvider = GetTcpProvider(8900, 8940);
+        private readonly IInjector _injector = TangFactory.GetTang().NewInjector();
 
         /// <summary>
         /// Tests whether WritableTransportServer receives 
@@ -58,12 +61,12 @@ namespace Org.Apache.REEF.Wake.Tests
             IPEndPoint endpoint = new IPEndPoint(IPAddress.Any, 0);
             var remoteHandler = Observer.Create<TransportEvent<WritableString>>(tEvent => queue.Add(tEvent.Data));
 
-            using (var server = new WritableTransportServer<WritableString>(endpoint, remoteHandler, _tcpPortProvider))
+            using (var server = new WritableTransportServer<WritableString>(endpoint, remoteHandler, _tcpPortProvider, _injector))
             {
                 server.Run();
 
                 IPEndPoint remoteEndpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), server.LocalEndpoint.Port);
-                using (var client = new WritableTransportClient<WritableString>(remoteEndpoint))
+                using (var client = new WritableTransportClient<WritableString>(remoteEndpoint, _injector))
                 {
                     client.Send(new WritableString("Hello"));
                     client.Send(new WritableString(", "));
@@ -81,7 +84,50 @@ namespace Org.Apache.REEF.Wake.Tests
             Assert.AreEqual(events[2], "World!");
         }
 
-       
+
+        /// <summary>
+        /// Tests whether WritableTransportServer receives 
+        /// string messages from WritableTransportClient with non empty injector
+        /// </summary>
+        [TestMethod]
+        public void TestNonEmptyInjectionTransportServer()
+        {
+            int id = 5;
+            IConfiguration config = TangFactory.GetTang().NewConfigurationBuilder().BindNamedParameter<StringId, int>(
+                GenericType<StringId>.Class, id.ToString(CultureInfo.InvariantCulture)).Build();
+
+            IInjector injector = TangFactory.GetTang().NewInjector(config);
+
+            BlockingCollection<PrefixedStringWritable> queue = new BlockingCollection<PrefixedStringWritable>();
+            List<string> events = new List<string>();
+
+            IPEndPoint endpoint = new IPEndPoint(IPAddress.Any, 0);
+            var remoteHandler = Observer.Create<TransportEvent<PrefixedStringWritable>>(tEvent => queue.Add(tEvent.Data));
+
+            using (var server = new WritableTransportServer<PrefixedStringWritable>(endpoint, remoteHandler, _tcpPortProvider, injector.ForkInjector()))
+            {
+                server.Run();
+
+                IPEndPoint remoteEndpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), server.LocalEndpoint.Port);
+                using (var client = new WritableTransportClient<PrefixedStringWritable>(remoteEndpoint, injector.ForkInjector()))
+                {
+                    client.Send(new PrefixedStringWritable("Hello"));
+                    client.Send(new PrefixedStringWritable(", "));
+                    client.Send(new PrefixedStringWritable("World!"));
+
+                    events.Add(queue.Take().Data);
+                    events.Add(queue.Take().Data);
+                    events.Add(queue.Take().Data);
+                }
+            }
+
+            Assert.AreEqual(3, events.Count);
+            Assert.AreEqual(events[0], "Hello_" + id);
+            Assert.AreEqual(events[1], ", _" + id);
+            Assert.AreEqual(events[2], "World!_" + id);
+        }
+
+
         /// <summary>
         /// Checks whether WritableTransportClient is able to receive messages from remote host
         /// </summary>
@@ -97,13 +143,13 @@ namespace Org.Apache.REEF.Wake.Tests
             // Server echoes the message back to the client
             var remoteHandler = Observer.Create<TransportEvent<WritableString>>(tEvent => tEvent.Link.Write(tEvent.Data));
 
-            using (var server = new WritableTransportServer<WritableString>(endpoint, remoteHandler, _tcpPortProvider))
+            using (var server = new WritableTransportServer<WritableString>(endpoint, remoteHandler, _tcpPortProvider, _injector))
             {
                 server.Run();
 
                 var clientHandler = Observer.Create<TransportEvent<WritableString>>(tEvent => queue.Add(tEvent.Data));
                 IPEndPoint remoteEndpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), server.LocalEndpoint.Port);
-                using (var client = new WritableTransportClient<WritableString>(remoteEndpoint, clientHandler))
+                using (var client = new WritableTransportClient<WritableString>(remoteEndpoint, clientHandler, _injector))
                 {
                     client.Send(new WritableString("Hello"));
                     client.Send(new WritableString(", "));
@@ -136,7 +182,7 @@ namespace Org.Apache.REEF.Wake.Tests
             IPEndPoint endpoint = new IPEndPoint(IPAddress.Any, 0);
             var remoteHandler = Observer.Create<TransportEvent<WritableString>>(tEvent => queue.Add(tEvent.Data));
 
-            using (var server = new WritableTransportServer<WritableString>(endpoint, remoteHandler, _tcpPortProvider))
+            using (var server = new WritableTransportServer<WritableString>(endpoint, remoteHandler, _tcpPortProvider, _injector))
             {
                 server.Run();
 
@@ -145,7 +191,7 @@ namespace Org.Apache.REEF.Wake.Tests
                     Task.Run(() =>
                     {
                         IPEndPoint remoteEndpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), server.LocalEndpoint.Port);
-                        using (var client = new WritableTransportClient<WritableString>(remoteEndpoint))
+                        using (var client = new WritableTransportClient<WritableString>(remoteEndpoint, _injector))
                         {
                             client.Send(new WritableString("Hello"));
                             client.Send(new WritableString(", "));

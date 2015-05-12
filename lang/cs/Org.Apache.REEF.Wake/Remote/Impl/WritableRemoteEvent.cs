@@ -21,6 +21,8 @@ using System;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Tang.Interface;
 
 namespace Org.Apache.REEF.Wake.Remote.Impl
 {
@@ -31,6 +33,8 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
     [Obsolete("Need to remove Iwritable and use IstreamingCodec. Please see Jira REEF-295 ", false)]
     internal sealed class WritableRemoteEvent<T> : IWritableRemoteEvent<T> where T : IWritable
     {
+        private readonly IInjector _injector;
+
         /// <summary>
         /// Creates the Remote Event
         /// </summary>
@@ -47,8 +51,10 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         /// <summary>
         /// Creates empty Remote Event
         /// </summary>
-        public WritableRemoteEvent()
+        [Inject]
+        public WritableRemoteEvent(IInjector injector)
         {
+            _injector = injector;
         }
 
         /// <summary>
@@ -72,7 +78,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         /// <param name="reader">The reader from which to read </param>
         public void Read(IDataReader reader)
         {
-            Value = Activator.CreateInstance<T>();
+            Value = (T)_injector.ForkInjector().GetInstance(typeof(T));
             Value.Read(reader);         
         }
 
@@ -92,7 +98,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         /// <param name="token">The cancellation token</param>
         public async Task ReadAsync(IDataReader reader, CancellationToken token)
         {
-            Value = Activator.CreateInstance<T>();
+            Value = (T)_injector.ForkInjector().GetInstance(typeof(T));
             await Value.ReadAsync(reader, token);      
         }
 

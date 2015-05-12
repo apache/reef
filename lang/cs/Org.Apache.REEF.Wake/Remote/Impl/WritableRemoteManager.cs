@@ -20,6 +20,7 @@
 using System;
 using System.Collections.Generic;
 using System.Net;
+using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Wake.Util;
 
@@ -37,6 +38,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         private readonly WritableObserverContainer<T> _observerContainer;
         private readonly WritableTransportServer<IWritableRemoteEvent<T>> _server;
         private readonly Dictionary<IPEndPoint, ProxyObserver> _cachedClients;
+        private readonly IInjector _injector;
 
         /// <summary>
         /// Constructs a DefaultRemoteManager listening on the specified address and
@@ -44,8 +46,10 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         /// </summary>
         /// <param name="localAddress">The address to listen on</param>
         /// <param name="port">The port to listen on</param>
+        /// <param name="tcpPortProvider">Tcp port provider</param>
+        /// <param name="injector">The injector to pass arguments to incoming messages</param>
         [Obsolete("Use IRemoteManagerFactory.GetInstance() instead.", false)]
-        public WritableRemoteManager(IPAddress localAddress, int port, ITcpPortProvider tcpPortProvider)
+        public WritableRemoteManager(IPAddress localAddress, int port, ITcpPortProvider tcpPortProvider, IInjector injector)
         {
             if (localAddress == null)
             {
@@ -58,11 +62,12 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
 
             _observerContainer = new WritableObserverContainer<T>();
             _cachedClients = new Dictionary<IPEndPoint, ProxyObserver>();
+            _injector = injector;
 
             IPEndPoint localEndpoint = new IPEndPoint(localAddress, port);
 
             // Begin to listen for incoming messages
-            _server = new WritableTransportServer<IWritableRemoteEvent<T>>(localEndpoint, _observerContainer, tcpPortProvider);
+            _server = new WritableTransportServer<IWritableRemoteEvent<T>>(localEndpoint, _observerContainer, tcpPortProvider, injector);
             _server.Run();
 
             LocalEndpoint = _server.LocalEndpoint;  
@@ -72,13 +77,15 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         /// <summary>
         /// Constructs a DefaultRemoteManager. Does not listen for incoming messages.
         /// </summary>
+        /// <param name="injector">The injector to pass arguments to incoming messages</param>
         [Obsolete("Use IRemoteManagerFactory.GetInstance() instead.", false)]
-        public WritableRemoteManager()
+        public WritableRemoteManager(IInjector injector)
         {
             using (LOGGER.LogFunction("WritableRemoteManager::WritableRemoteManager"))
             {
                 _observerContainer = new WritableObserverContainer<T>();
                 _cachedClients = new Dictionary<IPEndPoint, ProxyObserver>();
+                _injector = injector;
 
                 LocalEndpoint = new IPEndPoint(NetworkUtils.LocalIPAddress, 0);
                 Identifier = new SocketRemoteIdentifier(LocalEndpoint);
@@ -134,7 +141,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
             if (!_cachedClients.TryGetValue(remoteEndpoint, out remoteObserver))
             {
                 WritableTransportClient<IWritableRemoteEvent<T>> client =
-                    new WritableTransportClient<IWritableRemoteEvent<T>>(remoteEndpoint, _observerContainer);
+                    new WritableTransportClient<IWritableRemoteEvent<T>>(remoteEndpoint, _observerContainer, _injector);
 
                 remoteObserver = new ProxyObserver(client);
                 _cachedClients[remoteEndpoint] = remoteObserver;
@@ -210,7 +217,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
 
             return _observerContainer.RegisterObserver(observer);
         }
-
+        
         /// <summary>
         /// Release all resources for the DefaultRemoteManager.
         /// </summary>

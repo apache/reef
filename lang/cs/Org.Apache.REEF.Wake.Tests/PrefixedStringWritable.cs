@@ -18,7 +18,6 @@
  */
 
 using System;
-using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Org.Apache.REEF.Tang.Annotations;
@@ -26,32 +25,46 @@ using Org.Apache.REEF.Wake.Remote;
 
 namespace Org.Apache.REEF.Wake.Tests
 {
+    [NamedParameter("identifier in PrefixedWritable")]
+    public class StringId : Name<int>
+    {
+    }
+       
     /// <summary>
-    /// Writable wrapper around the string class
+    /// Writable wrapper around the string class which takes integer prefix
+    /// This class is used to test non empty injector in TransportServer and Client
     /// </summary>
     [Obsolete("Need to remove Iwritable and use IstreamingCodec. Please see Jira REEF-295 ", false)]
-    public class WritableString : IWritable
+    public class PrefixedStringWritable : IWritable
     {
+        private readonly int _id;
+        private string _data;
+
         /// <summary>
         /// Returns the actual string data
         /// </summary>
-        public string Data { get; set; }
-        
+        public string Data
+        {
+            get { return _data + "_" + _id; }
+            set { _data = value; }
+        }
+
         /// <summary>
         /// Empty constructor for instantiation with reflection
         /// </summary>
         [Inject]
-        public WritableString()
+        public PrefixedStringWritable([Parameter(typeof(StringId))] int id)
         {
+            _id = id;
         }
 
         /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="data">The string data</param>
-        public WritableString(string data)
+        public PrefixedStringWritable(string data)
         {
-            Data = data;
+            _data = data;
         }
 
         /// <summary>
@@ -60,7 +73,7 @@ namespace Org.Apache.REEF.Wake.Tests
         /// <param name="reader">reader to read from</param>
         public void Read(IDataReader reader)
         {
-            Data = reader.ReadString();
+            _data = reader.ReadString();
         }
 
         /// <summary>
@@ -69,7 +82,7 @@ namespace Org.Apache.REEF.Wake.Tests
         /// <param name="writer">Writer to write</param>
         public void Write(IDataWriter writer)
         {
-            writer.WriteString(Data);
+            writer.WriteString(_data);
         }
 
         /// <summary>
@@ -79,7 +92,7 @@ namespace Org.Apache.REEF.Wake.Tests
         /// <param name="token">the cancellation token</param>
         public async Task ReadAsync(IDataReader reader, CancellationToken token)
         {
-            Data = await reader.ReadStringAsync(token);
+            _data = await reader.ReadStringAsync(token);
         }
 
         /// <summary>
@@ -89,7 +102,7 @@ namespace Org.Apache.REEF.Wake.Tests
         /// <param name="token">the cancellation token</param>
         public async Task WriteAsync(IDataWriter writer, CancellationToken token)
         {
-            await writer.WriteStringAsync(Data, token);
+            await writer.WriteStringAsync(_data, token);
         }
     }
 }
