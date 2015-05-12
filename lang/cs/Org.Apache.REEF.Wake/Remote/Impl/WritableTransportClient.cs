@@ -21,6 +21,7 @@ using System;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Utilities.Diagnostics;
 using Org.Apache.REEF.Utilities.Logging;
 
@@ -37,6 +38,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         private readonly IObserver<TransportEvent<T>> _observer;
         private readonly CancellationTokenSource _cancellationSource;
         private bool _disposed;
+        private readonly IInjector _injector;
         private static readonly Logger Logger = Logger.GetLogger(typeof(WritableTransportClient<T>));
 
         /// <summary>
@@ -44,12 +46,13 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         /// Used to send messages to the specified remote endpoint.
         /// </summary>
         /// <param name="remoteEndpoint">The endpoint of the remote server to connect to</param>
-        public WritableTransportClient(IPEndPoint remoteEndpoint)
+        public WritableTransportClient(IPEndPoint remoteEndpoint, IInjector injector = null)
         {
             Exceptions.ThrowIfArgumentNull(remoteEndpoint, "remoteEndpoint", Logger);
 
-            _link = new WritableLink<T>(remoteEndpoint);
+            _link = new WritableLink<T>(remoteEndpoint, injector);
             _cancellationSource = new CancellationTokenSource();
+            _injector = injector;
             _disposed = false;
         }
 
@@ -60,8 +63,9 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         /// <param name="remoteEndpoint">The endpoint of the remote server to connect to</param>
         /// <param name="observer">Callback used when receiving responses from remote host</param>
         public WritableTransportClient(IPEndPoint remoteEndpoint,
-            IObserver<TransportEvent<T>> observer)
-            : this(remoteEndpoint)
+            IObserver<TransportEvent<T>> observer,
+            IInjector injector = null)
+            : this(remoteEndpoint, injector)
         {
             _observer = observer;
             Task.Run(() => ResponseLoop());

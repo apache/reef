@@ -21,6 +21,7 @@ using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Wake.Remote;
 
 namespace Org.Apache.REEF.Wake.Tests
@@ -39,6 +40,7 @@ namespace Org.Apache.REEF.Wake.Tests
         /// <summary>
         /// Empty constructor for instantiation with reflection
         /// </summary>
+        [Inject]
         public WritableString()
         {
         }

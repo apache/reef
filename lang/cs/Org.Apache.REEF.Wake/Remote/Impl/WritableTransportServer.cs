@@ -22,6 +22,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
+using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Utilities.Diagnostics;
 using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Wake.Util;
@@ -41,6 +42,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         private readonly CancellationTokenSource _cancellationSource;
         private readonly IObserver<TransportEvent<T>> _remoteObserver;
         private readonly ITcpPortProvider _tcpPortProvider;
+        private readonly IInjector _injector;
         private bool _disposed;
         private Task _serverTask;
 
@@ -53,8 +55,8 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         /// <param name="remoteHandler">The handler to invoke when receiving incoming
         /// remote messages</param>
         /// <param name="tcpPortProvider">Find port numbers if listenport is 0</param>
-        public WritableTransportServer(int port, IObserver<TransportEvent<T>> remoteHandler, ITcpPortProvider tcpPortProvider)
-            : this(new IPEndPoint(NetworkUtils.LocalIPAddress, port), remoteHandler, tcpPortProvider)
+        public WritableTransportServer(int port, IObserver<TransportEvent<T>> remoteHandler, ITcpPortProvider tcpPortProvider, IInjector injector = null)
+            : this(new IPEndPoint(NetworkUtils.LocalIPAddress, port), remoteHandler, tcpPortProvider, injector)
         {
         }
 
@@ -70,13 +72,15 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         public WritableTransportServer(
             IPEndPoint localEndpoint,
             IObserver<TransportEvent<T>> remoteHandler,
-            ITcpPortProvider tcpPortProvider)
+            ITcpPortProvider tcpPortProvider,
+            IInjector injector = null)
         {
             _listener = new TcpListener(localEndpoint.Address, localEndpoint.Port);
             _remoteObserver = remoteHandler;
             _tcpPortProvider = tcpPortProvider;
             _cancellationSource = new CancellationTokenSource();
             _cancellationSource.Token.ThrowIfCancellationRequested();
+            _injector = injector;
             _disposed = false;
         }
 
@@ -214,7 +218,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         {
             // Keep reading messages from client until they disconnect or timeout
             CancellationToken token = _cancellationSource.Token;
-            using (ILink<T> link = new WritableLink<T>(client))
+            using (ILink<T> link = new WritableLink<T>(client, _injector))
             {
                 while (!token.IsCancellationRequested)
                 {
