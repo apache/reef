@@ -42,9 +42,6 @@ public class ClosedContextBridge extends NativeBridge implements ClosedContext {
     contextId = closedContext.getId();
     evaluatorId = closedContext.getEvaluatorId();
     evaluatorDescriptor = closedContext.getEvaluatorDescriptor();
-
-    // Inform the ActiveContextBridgeFactory that it can remove this context from the cache.
-    activeContextBridgeFactory.ForgetContext(closedContext);
   }
 
   @Override

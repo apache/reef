@@ -22,29 +22,20 @@ import net.jcip.annotations.ThreadSafe;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.driver.context.ActiveContext;
-import org.apache.reef.driver.context.ClosedContext;
-import org.apache.reef.driver.context.ContextBase;
 import org.apache.reef.tang.ClassHierarchy;
 import org.apache.reef.tang.formats.AvroConfigurationSerializer;
 
 import javax.inject.Inject;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.logging.Logger;
 
 /**
  * Factory for ActiveContextBridge instances.
- * <p/>
- * This class is thread safe because all its methods are synchronized. It should only be used within the bridge code.
  */
 @DriverSide
 @ThreadSafe
 @Private
 public final class ActiveContextBridgeFactory {
-  private static final Logger LOG = Logger.getLogger(ActiveContextBridge.class.getName());
-
-  private final Map<String, ActiveContextBridge> activeContextBridgeCache = new HashMap<>();
-  private final ClassHierarchy clrClassHierarchy = Utilities.loadClassHierarchy(NativeInterop.CLASS_HIERARCHY_FILENAME);
+  private final ClassHierarchy clrClassHierarchy;
   private final AvroConfigurationSerializer configurationSerializer;
 
   /**
@@ -55,45 +46,16 @@ public final class ActiveContextBridgeFactory {
   @Inject
   private ActiveContextBridgeFactory(final AvroConfigurationSerializer configurationSerializer) {
     this.configurationSerializer = configurationSerializer;
+    this.clrClassHierarchy = Utilities.loadClassHierarchy(NativeInterop.CLASS_HIERARCHY_FILENAME);
   }
 
   /**
-   * Instantiates a new ActiveContextBridge or returns the one created earlier.
+   * Instantiates a new ActiveContextBridge.
    *
    * @param context the context for which to return an ActiveContextBridge instance.
-   * @return a new ActiveContextBridge or returns the one created earlier.
+   * @return a new ActiveContextBridge.
    */
-  public synchronized ActiveContextBridge getActiveContextBridge(final ActiveContext context) {
-    final String contextId = getUniqueContextId(context);
-
-    ActiveContextBridge result = activeContextBridgeCache.get(contextId);
-    if (null == result) {
-      result = new ActiveContextBridge(context, this.clrClassHierarchy, this.configurationSerializer);
-      activeContextBridgeCache.put(contextId, result);
-    }
-    return result;
-  }
-
-  /**
-   * Removes the ActiveContextBridge associated with the given Context from the cache.
-   *
-   * @param context the context whose ActiveContextBridge instance shall be removed from the cache.
-   */
-  public synchronized void ForgetContext(final ClosedContext context) {
-    final String contextId = getUniqueContextId(context);
-    final ActiveContextBridge removed = this.activeContextBridgeCache.remove(contextId);
-    if (null != removed) {
-      LOG.warning("Called with context previously unknown: " + contextId);
-    }
-  }
-
-  /**
-   * Constructs a unique ID for the given context by combining the evaluator and context ids.
-   *
-   * @param contextBase
-   * @return
-   */
-  private static String getUniqueContextId(final ContextBase contextBase) {
-    return contextBase.getEvaluatorId() + "/" + contextBase.getId();
+  public ActiveContextBridge getActiveContextBridge(final ActiveContext context) {
+    return new ActiveContextBridge(context, this.clrClassHierarchy, this.configurationSerializer);
   }
 }
