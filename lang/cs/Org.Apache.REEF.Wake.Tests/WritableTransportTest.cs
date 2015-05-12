@@ -26,8 +26,11 @@ using System.Reactive;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Org.Apache.REEF.Tang.Implementations.Tang;
+using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Wake.Remote;
 using Org.Apache.REEF.Wake.Remote.Impl;
+using Org.Apache.REEF.Wake.Remote.Parameters;
 using Org.Apache.REEF.Wake.Util;
 
 namespace Org.Apache.REEF.Wake.Tests
@@ -40,6 +43,8 @@ namespace Org.Apache.REEF.Wake.Tests
     [Obsolete("Need to remove Iwritable and use IstreamingCodec. Please see Jira REEF-295 ", false)]
     public class WritableTransportTest
     {
+        private readonly ITcpPortProvider _tcpPortProvider = GetTcpProvider(8900, 8940);
+
         /// <summary>
         /// Tests whether WritableTransportServer receives 
         /// string messages from WritableTransportClient
@@ -47,19 +52,17 @@ namespace Org.Apache.REEF.Wake.Tests
         [TestMethod]
         public void TestWritableTransportServer()
         {
-            int port = NetworkUtils.GenerateRandomPort(6000, 7000);
-
             BlockingCollection<WritableString> queue = new BlockingCollection<WritableString>();
             List<string> events = new List<string>();
 
-            IPEndPoint endpoint = new IPEndPoint(IPAddress.Any, port);
+            IPEndPoint endpoint = new IPEndPoint(IPAddress.Any, 0);
             var remoteHandler = Observer.Create<TransportEvent<WritableString>>(tEvent => queue.Add(tEvent.Data));
 
-            using (var server = new WritableTransportServer<WritableString>(endpoint, remoteHandler))
+            using (var server = new WritableTransportServer<WritableString>(endpoint, remoteHandler, _tcpPortProvider))
             {
                 server.Run();
 
-                IPEndPoint remoteEndpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), port);
+                IPEndPoint remoteEndpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), server.LocalEndpoint.Port);
                 using (var client = new WritableTransportClient<WritableString>(remoteEndpoint))
                 {
                     client.Send(new WritableString("Hello"));
@@ -85,8 +88,8 @@ namespace Org.Apache.REEF.Wake.Tests
         [TestMethod]
         public void TestWritableTransportSenderStage()
         {
-            int port = NetworkUtils.GenerateRandomPort(6000, 7000);
-            IPEndPoint endpoint = new IPEndPoint(IPAddress.Any, port);
+            
+            IPEndPoint endpoint = new IPEndPoint(IPAddress.Any, 0);
 
             List<string> events = new List<string>();
             BlockingCollection<WritableString> queue = new BlockingCollection<WritableString>();
@@ -94,12 +97,12 @@ namespace Org.Apache.REEF.Wake.Tests
             // Server echoes the message back to the client
             var remoteHandler = Observer.Create<TransportEvent<WritableString>>(tEvent => tEvent.Link.Write(tEvent.Data));
 
-            using (WritableTransportServer<WritableString> server = new WritableTransportServer<WritableString>(endpoint, remoteHandler))
+            using (var server = new WritableTransportServer<WritableString>(endpoint, remoteHandler, _tcpPortProvider))
             {
                 server.Run();
 
                 var clientHandler = Observer.Create<TransportEvent<WritableString>>(tEvent => queue.Add(tEvent.Data));
-                IPEndPoint remoteEndpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), port);
+                IPEndPoint remoteEndpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), server.LocalEndpoint.Port);
                 using (var client = new WritableTransportClient<WritableString>(remoteEndpoint, clientHandler))
                 {
                     client.Send(new WritableString("Hello"));
@@ -126,16 +129,14 @@ namespace Org.Apache.REEF.Wake.Tests
         [TestMethod]
         public void TestWritableRaceCondition()
         {
-            int port = NetworkUtils.GenerateRandomPort(6000, 7000);
-
             BlockingCollection<WritableString> queue = new BlockingCollection<WritableString>();
             List<string> events = new List<string>();
             int numEventsExpected = 150;
 
-            IPEndPoint endpoint = new IPEndPoint(IPAddress.Any, port);
+            IPEndPoint endpoint = new IPEndPoint(IPAddress.Any, 0);
             var remoteHandler = Observer.Create<TransportEvent<WritableString>>(tEvent => queue.Add(tEvent.Data));
 
-            using (var server = new WritableTransportServer<WritableString>(endpoint, remoteHandler))
+            using (var server = new WritableTransportServer<WritableString>(endpoint, remoteHandler, _tcpPortProvider))
             {
                 server.Run();
 
@@ -143,7 +144,7 @@ namespace Org.Apache.REEF.Wake.Tests
                 {
                     Task.Run(() =>
                     {
-                        IPEndPoint remoteEndpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), port);
+                        IPEndPoint remoteEndpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), server.LocalEndpoint.Port);
                         using (var client = new WritableTransportClient<WritableString>(remoteEndpoint))
                         {
                             client.Send(new WritableString("Hello"));
@@ -161,6 +162,16 @@ namespace Org.Apache.REEF.Wake.Tests
 
             Assert.AreEqual(numEventsExpected, events.Count);
 
+        }
+
+        private static ITcpPortProvider GetTcpProvider(int portRangeStart, int portRangeEnd)
+        {
+            var configuration = TangFactory.GetTang().NewConfigurationBuilder()
+                .BindImplementation<ITcpPortProvider, TcpPortProvider>()
+                .BindIntNamedParam<TcpPortRangeStart>(portRangeStart.ToString())
+                .BindIntNamedParam<TcpPortRangeCount>((portRangeEnd - portRangeStart + 1).ToString())
+                .Build();
+            return TangFactory.GetTang().NewInjector(configuration).GetInstance<ITcpPortProvider>();
         }
     }
 }

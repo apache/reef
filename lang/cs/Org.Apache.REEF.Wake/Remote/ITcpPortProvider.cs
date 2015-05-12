@@ -1,4 +1,4 @@
-﻿/**
+﻿/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -17,22 +17,16 @@
  * under the License.
  */
 
+using System.Collections.Generic;
 using Org.Apache.REEF.Tang.Annotations;
-using Org.Apache.REEF.Wake.Remote;
 
-namespace Org.Apache.REEF.Common.Protobuf.ReefProtocol
+namespace Org.Apache.REEF.Wake.Remote
 {
-    public class REEFMessageCodec : ICodec<REEFMessage>
+    /// <summary>
+    /// Provides port numbers for tcp listeners
+    /// </summary>
+    [DefaultImplementation(typeof(TcpPortProvider))]
+    public interface ITcpPortProvider : IEnumerable<int>
     {
-        public byte[] Encode(REEFMessage obj)
-        {
-            return obj.Serialize();
-        }
-
-        public REEFMessage Decode(byte[] data)
-        {
-            REEFMessage pbuf = REEFMessage.Deserialize(data);
-            return pbuf;
-        }
     }
 }

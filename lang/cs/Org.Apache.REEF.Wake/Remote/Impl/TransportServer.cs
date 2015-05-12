@@ -22,6 +22,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
+using Org.Apache.REEF.Utilities.Diagnostics;
 using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Wake.Util;
 
@@ -34,26 +35,13 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(TransportServer<>));
 
-        private readonly TcpListener _listener;
+        private TcpListener _listener;
         private readonly CancellationTokenSource _cancellationSource;
         private readonly IObserver<TransportEvent<T>> _remoteObserver;
+        private readonly ITcpPortProvider _tcpPortProvider;
         private readonly ICodec<T> _codec; 
         private bool _disposed;
         private Task _serverTask;
-
-        /// <summary>
-        /// Constructs a TransportServer to listen for remote events.  
-        /// Listens on the specified remote endpoint.  When it recieves a remote
-        /// event, it will envoke the specified remote handler.
-        /// </summary>
-        /// <param name="port">Port to listen on</param>
-        /// <param name="remoteHandler">The handler to invoke when receiving incoming
-        /// remote messages</param>
-        /// <param name="codec">The codec to encode/decode"</param>
-        public TransportServer(int port, IObserver<TransportEvent<T>> remoteHandler, ICodec<T> codec)
-            : this(new IPEndPoint(NetworkUtils.LocalIPAddress, port), remoteHandler, codec)
-        {
-        }
 
         /// <summary>
         /// Constructs a TransportServer to listen for remote events.  
@@ -64,15 +52,18 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         /// <param name="remoteHandler">The handler to invoke when receiving incoming
         /// remote messages</param>
         /// <param name="codec">The codec to encode/decode"</param>
+         /// <param name="tcpPortProvider">provides port numbers to listen</param>
         public TransportServer(IPEndPoint localEndpoint, 
                                IObserver<TransportEvent<T>> remoteHandler, 
-                               ICodec<T> codec)
+                               ICodec<T> codec,
+                               ITcpPortProvider tcpPortProvider)
         {
             _listener = new TcpListener(localEndpoint.Address, localEndpoint.Port);
             _remoteObserver = remoteHandler;
             _cancellationSource = new CancellationTokenSource();
             _cancellationSource.Token.ThrowIfCancellationRequested();
             _codec = codec;
+            _tcpPortProvider = tcpPortProvider;
             _disposed = false;
         }
 
@@ -89,8 +80,43 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         /// </summary>
         public void Run()
         {
-            _listener.Start();
+            if (LocalEndpoint.Port == 0)
+            {
+                FindAPortAndStartListener();
+            }
+            else
+            {
+                _listener.Start();
+            }
+            
             _serverTask = Task.Run(() => StartServer());
+        }
+
+        private void FindAPortAndStartListener()
+        {
+            var foundAPort = false;
+            var exception = new SocketException((int)SocketError.AddressAlreadyInUse);
+            for (var enumerator = _tcpPortProvider.GetEnumerator();
+                !foundAPort && enumerator.MoveNext();
+                )
+            {
+                _listener = new TcpListener(LocalEndpoint.Address, enumerator.Current);
+                try
+                {
+                    _listener.Start();
+                    foundAPort = true;
+                }
+                catch (SocketException e)
+                {
+                    exception = e;
+                }
+            }
+            if (!foundAPort)
+            {
+                Exceptions.Throw(exception, "Could not find a port to listen on", LOGGER);
+            }
+            LOGGER.Log(Level.Info,
+                String.Format("Listening on {0}", _listener.LocalEndpoint.ToString()));
         }
 
         /// <summary>

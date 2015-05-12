@@ -45,6 +45,7 @@ using Org.Apache.REEF.Wake.Remote;
 using Org.Apache.REEF.Wake.Remote.Impl;
 using Org.Apache.REEF.Wake.Time.Runtime;
 using Org.Apache.REEF.Wake.Time.Runtime.Event;
+using Org.Apache.REEF.Wake.Util;
 
 namespace Org.Apache.REEF.Evaluator
 {
@@ -109,7 +110,7 @@ namespace Org.Apache.REEF.Evaluator
                     Optional<ServiceConfiguration> rootServiceConfig = _evaluatorConfig.RootServiceConfiguration;
 
                     // remoteManager used as client-only in evaluator
-                    IRemoteManager<REEFMessage> remoteManager = _injector.GetInstance<IRemoteManagerFactory>().GetInstance((new REEFMessageCodec()));
+                    IRemoteManager<REEFMessage> remoteManager = _injector.GetInstance<IRemoteManagerFactory>().GetInstance(new REEFMessageCodec());
                     IRemoteIdentifier remoteId = new SocketRemoteIdentifier(NetUtilities.ParseIpEndpoint(rId));
 
 

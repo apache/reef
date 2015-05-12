@@ -60,37 +60,9 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
 
         private readonly Dictionary<string, ICommunicationGroupDriver> _commGroups; 
         private readonly AvroConfigurationSerializer _configSerializer;
-        private readonly NameServer _nameServer;
+        private readonly INameServer _nameServer;
 
-        /// <summary>
-        /// Create a new GroupCommunicationDriver object.
-        /// </summary>
-        /// <param name="driverId">Identifer for the REEF driver</param>
-        /// <param name="masterTaskId">Identifer for Group Communication master task</param>
-        /// <param name="fanOut">fanOut for tree topology</param>
-        /// <param name="configSerializer">Used to serialize task configuration</param>
-        [System.Obsolete("user the other constructor")]
-        [Inject]
-        public GroupCommDriver(
-            [Parameter(typeof(GroupCommConfigurationOptions.DriverId))] string driverId,
-            [Parameter(typeof(GroupCommConfigurationOptions.MasterTaskId))] string masterTaskId,
-            [Parameter(typeof(GroupCommConfigurationOptions.FanOut))] int fanOut,
-            AvroConfigurationSerializer configSerializer)
-        {
-            _driverId = driverId;
-            _contextIds = -1;
-            _fanOut = fanOut;
-            MasterTaskId = masterTaskId;
-
-            _configSerializer = configSerializer;
-            _commGroups = new Dictionary<string, ICommunicationGroupDriver>();
-            _nameServer = new NameServer(0);
-
-            IPEndPoint localEndpoint = _nameServer.LocalEndpoint;
-            _nameServerAddr = localEndpoint.Address.ToString();
-            _nameServerPort = localEndpoint.Port;
-        }
-
+        
         /// <summary>
         /// Create a new GroupCommunicationDriver object.
         /// </summary>
@@ -100,6 +72,7 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
         /// <param name="groupName">default communication group name</param>
         /// <param name="numberOfTasks">Number of tasks in the default group</param>
         /// <param name="configSerializer">Used to serialize task configuration</param>
+        /// <param name="nameServer">Used to map names to ip adresses</param>
         [Inject]
         public GroupCommDriver(
             [Parameter(typeof(GroupCommConfigurationOptions.DriverId))] string driverId,
@@ -107,7 +80,8 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
             [Parameter(typeof(GroupCommConfigurationOptions.FanOut))] int fanOut,
             [Parameter(typeof(GroupCommConfigurationOptions.GroupName))] string groupName,
             [Parameter(typeof(GroupCommConfigurationOptions.NumberOfTasks))] int numberOfTasks,
-            AvroConfigurationSerializer configSerializer)
+            AvroConfigurationSerializer configSerializer,
+            INameServer nameServer)
         {
             _driverId = driverId;
             _contextIds = -1;
@@ -117,7 +91,7 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
 
             _configSerializer = configSerializer;
             _commGroups = new Dictionary<string, ICommunicationGroupDriver>();
-            _nameServer = new NameServer(0);
+            _nameServer = nameServer;
 
             IPEndPoint localEndpoint = _nameServer.LocalEndpoint;
             _nameServerAddr = localEndpoint.Address.ToString();

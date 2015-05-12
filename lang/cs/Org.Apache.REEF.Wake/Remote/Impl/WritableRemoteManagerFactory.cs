@@ -31,16 +31,18 @@ namespace Org.Apache.REEF.Wake.Impl
     [Obsolete("Need to remove Iwritable and use IstreamingCodec. Please see Jira REEF-295 ", false)]
     public sealed class WritableRemoteManagerFactory
     {
+        private readonly ITcpPortProvider _tcpPortProvider;
         [Inject]
-        private WritableRemoteManagerFactory()
+        private WritableRemoteManagerFactory(ITcpPortProvider tcpPortProvider)
         {
+            _tcpPortProvider = tcpPortProvider;
         }
 
         public IRemoteManager<T> GetInstance<T>(IPAddress localAddress, int port) where T : IWritable
         {
 #pragma warning disable 618
 // This is the one place allowed to call this constructor. Hence, disabling the warning is OK.
-            return new WritableRemoteManager<T>(localAddress, port);
+            return new WritableRemoteManager<T>(localAddress, port, _tcpPortProvider);
 #pragma warning disable 618
         }
 

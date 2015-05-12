@@ -38,9 +38,12 @@ public final class DefaultClientCloseHandler implements EventHandler<Void> {
 
   @Override
   public void onNext(final Void aVoid) {
-    final String message = ThreadLogger.getFormattedThreadList(
+    final String threads = ThreadLogger.getFormattedThreadList(
         "Received a close message from the client, but no handler was bound for it. Active threads: ");
-    LOG.log(Level.WARNING, message);
-    throw new RuntimeException(message);
+    LOG.log(Level.WARNING, threads);
+    final String deadlocks = ThreadLogger.getFormattedDeadlockInfo("Deadlocked threads: ");
+    LOG.log(Level.WARNING, deadlocks);
+
+    throw new RuntimeException(threads + "\n" + deadlocks);
   }
 }
