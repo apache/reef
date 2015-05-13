@@ -38,7 +38,6 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         private readonly IObserver<TransportEvent<T>> _observer;
         private readonly CancellationTokenSource _cancellationSource;
         private bool _disposed;
-        private readonly IInjector _injector;
         private static readonly Logger Logger = Logger.GetLogger(typeof(WritableTransportClient<T>));
 
         /// <summary>
@@ -53,7 +52,6 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
 
             _link = new WritableLink<T>(remoteEndpoint, injector);
             _cancellationSource = new CancellationTokenSource();
-            _injector = injector;
             _disposed = false;
         }
 

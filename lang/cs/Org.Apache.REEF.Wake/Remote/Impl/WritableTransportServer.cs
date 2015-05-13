@@ -238,7 +238,6 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
                 }
                 LOGGER.Log(Level.Error,
                     "ProcessClient close the Link. IsCancellationRequested: " + token.IsCancellationRequested);
-                
             }
         }
     }

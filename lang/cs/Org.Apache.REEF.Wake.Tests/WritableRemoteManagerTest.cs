@@ -173,8 +173,7 @@ namespace Org.Apache.REEF.Wake.Tests
         [TestMethod]
         public void TestNonEmptyArgumentInjectionWritableTwoWayCommunication()
         {
-            IPAddress listeningAddress = IPAddress.Parse("127.0.0.1");
-                
+            IPAddress listeningAddress = IPAddress.Parse("127.0.0.1");            
 
             BlockingCollection<PrefixedStringWritable> queue1 = new BlockingCollection<PrefixedStringWritable>();
             BlockingCollection<PrefixedStringWritable> queue2 = new BlockingCollection<PrefixedStringWritable>();

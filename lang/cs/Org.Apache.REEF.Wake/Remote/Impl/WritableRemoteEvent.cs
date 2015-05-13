@@ -78,7 +78,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         /// <param name="reader">The reader from which to read </param>
         public void Read(IDataReader reader)
         {
-            Value = (T) _injector.ForkInjector().GetInstance(typeof(T));
+            Value = (T)_injector.ForkInjector().GetInstance(typeof(T));
             Value.Read(reader);         
         }
 

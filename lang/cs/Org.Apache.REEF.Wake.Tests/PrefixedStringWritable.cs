@@ -29,8 +29,7 @@ namespace Org.Apache.REEF.Wake.Tests
     public class StringId : Name<int>
     {
     }
-    
-    
+       
     /// <summary>
     /// Writable wrapper around the string class which takes integer prefix
     /// This class is used to test non empty injector in TransportServer and Client
