@@ -107,7 +107,6 @@ namespace Org.Apache.REEF.Driver.Bridge
             {
                 IClassHierarchy ns = TangFactory.GetTang().GetClassHierarchy(clrDlls.ToArray());
                 ProtocolBufferClassHierarchy.Serialize(Constants.ClassHierarachyBin, ns);
-
                 LOGGER.Log(Level.Info, string.Format(CultureInfo.InvariantCulture, "Class hierarchy written to [{0}].", Path.Combine(Directory.GetCurrentDirectory(), Constants.ClassHierarachyBin)));
             }
         }

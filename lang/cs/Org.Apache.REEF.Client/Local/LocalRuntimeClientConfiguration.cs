@@ -59,7 +59,7 @@ namespace Org.Apache.REEF.Client.Local
         public static readonly OptionalParameter<int> TcpPortRangeStartParameter = new OptionalParameter<int>();
 
         /// <summary>
-        /// Number of port for the tcp port range for listening.
+        /// Number of ports for the tcp port range for listening.
         /// </summary>
         public static readonly OptionalParameter<int> TcpPortRangeCountParameter = new OptionalParameter<int>();
 

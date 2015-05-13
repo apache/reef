@@ -18,6 +18,7 @@
  */
 package org.apache.reef.bridge.client;
 
+import org.apache.reef.io.TcpPortConfigurationProvider;
 import org.apache.reef.runtime.common.driver.api.AbstractDriverRuntimeConfiguration;
 import org.apache.reef.runtime.common.files.REEFFileNames;
 import org.apache.reef.runtime.local.client.DriverConfigurationProvider;
@@ -27,6 +28,9 @@ import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.tang.formats.AvroConfigurationSerializer;
+import org.apache.reef.tang.formats.ConfigurationModule;
+import org.apache.reef.wake.remote.ports.RangeTcpPortProvider;
+import org.apache.reef.wake.remote.ports.TcpPortProvider;
 
 import javax.inject.Inject;
 import java.io.File;
@@ -82,15 +86,32 @@ public class LocalClient {
     // The number of evaluators the local runtime can create
     final int numberOfEvaluators = Integer.valueOf(args[2]);
 
-    final Configuration runtimeConfiguration = LocalRuntimeConfiguration.CONF
-        .set(LocalRuntimeConfiguration.MAX_NUMBER_OF_EVALUATORS, numberOfEvaluators)
-        .set(LocalRuntimeConfiguration.RUNTIME_ROOT_FOLDER, jobFolder.getParentFile().getAbsolutePath())
-        .build();
+    final Configuration runtimeConfiguration = getRuntimeConfiguration(args);
 
     final LocalClient client = Tang.Factory.getTang()
         .newInjector(runtimeConfiguration)
         .getInstance(LocalClient.class);
 
     client.submit(jobFolder, jobId);
+  }
+  private static Configuration getRuntimeConfiguration(String[] args){
+    final ConfigurationModule runtimeConfigurationModule  = getRuntimeConfigurationModule(args);
+    if (args.length <= 2){
+      return runtimeConfigurationModule.build();
+    }
+    else {
+      return runtimeConfigurationModule
+          .set(LocalRuntimeConfiguration.TCP_PORT_PROVIDER, RangeTcpPortProvider.class)
+          .set(LocalRuntimeConfiguration.DRIVER_CONFIGURATION_PROVIDERS, TcpPortConfigurationProvider.class)
+          .set(LocalRuntimeConfiguration.TCP_PORT_RANGE_START, args[3])
+          .set(LocalRuntimeConfiguration.TCP_PORT_RANGE_COUNT, args[4])
+          .set(LocalRuntimeConfiguration.TCP_PORT_RANGE_TRY_COUNT, args[5])
+          .build();
+    }
+  }
+  private static ConfigurationModule getRuntimeConfigurationModule(String[] args){
+      return LocalRuntimeConfiguration.CONF
+          .set(LocalRuntimeConfiguration.MAX_NUMBER_OF_EVALUATORS, args[2])
+          .set(LocalRuntimeConfiguration.RUNTIME_ROOT_FOLDER, new File(args[0]).getParentFile().getParentFile().getAbsolutePath());
   }
 }

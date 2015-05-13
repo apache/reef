@@ -35,7 +35,7 @@ import java.util.logging.Logger;
 @ThreadSafe
 @Private
 public final class ActiveContextBridgeFactory {
-  private final ClassHierarchy clrClassHierarchy;
+  private ClassHierarchy clrClassHierarchy;
   private final AvroConfigurationSerializer configurationSerializer;
 
   /**
@@ -46,7 +46,7 @@ public final class ActiveContextBridgeFactory {
   @Inject
   private ActiveContextBridgeFactory(final AvroConfigurationSerializer configurationSerializer) {
     this.configurationSerializer = configurationSerializer;
-    this.clrClassHierarchy = Utilities.loadClassHierarchy(NativeInterop.CLASS_HIERARCHY_FILENAME);
+
   }
 
   /**
@@ -56,6 +56,14 @@ public final class ActiveContextBridgeFactory {
    * @return a new ActiveContextBridge.
    */
   public ActiveContextBridge getActiveContextBridge(final ActiveContext context) {
+    ensureClassHierarchyIsLoaded();
     return new ActiveContextBridge(context, this.clrClassHierarchy, this.configurationSerializer);
+  }
+
+  private synchronized void ensureClassHierarchyIsLoaded() {
+    if (this.clrClassHierarchy == null)
+    {
+      this.clrClassHierarchy = Utilities.loadClassHierarchy(NativeInterop.CLASS_HIERARCHY_FILENAME);
+    }
   }
 }

@@ -37,6 +37,9 @@ import org.apache.reef.tang.formats.OptionalParameter;
 import org.apache.reef.util.logging.LoggingSetup;
 import org.apache.reef.wake.remote.address.LocalAddressProvider;
 import org.apache.reef.wake.remote.ports.TcpPortProvider;
+import org.apache.reef.wake.remote.ports.parameters.TcpPortRangeBegin;
+import org.apache.reef.wake.remote.ports.parameters.TcpPortRangeCount;
+import org.apache.reef.wake.remote.ports.parameters.TcpPortRangeTryCount;
 
 /**
  * A ConfigurationModule for the YARN resourcemanager.
@@ -71,6 +74,19 @@ public class YarnClientConfiguration extends ConfigurationModuleBuilder {
    * the Driver (and the Evaluators) also use it.
    */
   public static final OptionalImpl<LocalAddressProvider> LOCAL_ADDRESS_PROVIDER = new OptionalImpl<>();
+  /**
+   * Start of the tcp port range for listening.
+   */
+  public static final OptionalParameter<Integer> TCP_PORT_RANGE_START  = new OptionalParameter<>();
+  /**
+   * Number of ports for the tcp port range for listening.
+   */
+  public static final OptionalParameter<Integer> TCP_PORT_RANGE_COUNT  = new OptionalParameter<>();
+  /**
+   * Max number of times we will deliver a port from the tcp port range.
+   */
+  public static final OptionalParameter<Integer> TCP_PORT_RANGE_TRY_COUNT  = new OptionalParameter<>();
+
 
   public static final ConfigurationModule CONF = new YarnClientConfiguration()
       .merge(CommonRuntimeConfiguration.CONF)
@@ -87,6 +103,9 @@ public class YarnClientConfiguration extends ConfigurationModuleBuilder {
           // Bind LocalAddressProvider
       .bindImplementation(LocalAddressProvider.class, LOCAL_ADDRESS_PROVIDER)
       .bindImplementation(TcpPortProvider.class, TCP_PORT_PROVIDER)
+      .bindNamedParameter(TcpPortRangeBegin.class, TCP_PORT_RANGE_START)
+      .bindNamedParameter(TcpPortRangeCount.class, TCP_PORT_RANGE_COUNT)
+      .bindNamedParameter(TcpPortRangeTryCount.class, TCP_PORT_RANGE_TRY_COUNT)
       .build();
 
 }

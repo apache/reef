@@ -78,10 +78,18 @@ namespace Org.Apache.REEF.Examples.HelloREEF
             {
                 case Local:
                     return LocalRuntimeClientConfiguration.ConfigurationModule
+                        .Set(LocalRuntimeClientConfiguration.DriverConfigurationProvider, GenericType<TcpPortConfigurationProvider>.Class)
                         .Set(LocalRuntimeClientConfiguration.NumberOfEvaluators, "2")
+                        .Set(LocalRuntimeClientConfiguration.TcpPortRangeStartParameter, "12000")
+                        .Set(LocalRuntimeClientConfiguration.TcpPortRangeCountParameter, "10")
                         .Build();
                 case YARN:
-                    return YARNClientConfiguration.ConfigurationModule.Build();
+                    return YARNClientConfiguration.ConfigurationModule
+                        .Set(YARNClientConfiguration.DriverConfigurationProvider, GenericType<TcpPortConfigurationProvider>.Class)
+                        .Set(YARNClientConfiguration.TcpPortRangeStartParameter, "12000")
+                        .Set(YARNClientConfiguration.TcpPortRangeCountParameter, "10")
+
+                        .Build();
                 default:
                     throw new Exception("Unknown runtime: " + name);
             }

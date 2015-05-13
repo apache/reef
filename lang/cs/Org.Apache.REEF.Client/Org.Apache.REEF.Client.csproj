@@ -50,6 +50,7 @@ under the License.
     <Compile Include="API\JobSubmissionBuilderFactory.cs" />
     <Compile Include="CLRBridgeClient.cs" />
     <Compile Include="Common\ClientConstants.cs" />
+    <Compile Include="Common\ClrClient2JavaClientCuratedParameters.cs" />
     <Compile Include="Common\DriverFolderPreparationHelper.cs" />
     <Compile Include="Common\FileSets.cs" />
     <Compile Include="Common\JavaClientLauncher.cs" />

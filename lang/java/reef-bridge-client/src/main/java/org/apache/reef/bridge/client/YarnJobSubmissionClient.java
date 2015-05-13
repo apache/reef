@@ -21,6 +21,8 @@ package org.apache.reef.bridge.client;
 import org.apache.hadoop.yarn.api.records.LocalResource;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.exceptions.YarnException;
+import org.apache.reef.client.parameters.DriverConfigurationProviders;
+import org.apache.reef.io.TcpPortConfigurationProvider;
 import org.apache.reef.runtime.common.driver.api.AbstractDriverRuntimeConfiguration;
 import org.apache.reef.runtime.common.files.ClasspathProvider;
 import org.apache.reef.runtime.common.files.REEFFileNames;
@@ -29,17 +31,18 @@ import org.apache.reef.runtime.yarn.client.YarnSubmissionHelper;
 import org.apache.reef.runtime.yarn.client.uploader.JobFolder;
 import org.apache.reef.runtime.yarn.client.uploader.JobUploader;
 import org.apache.reef.runtime.yarn.driver.YarnDriverConfiguration;
-import org.apache.reef.tang.Configuration;
-import org.apache.reef.tang.Configurations;
-import org.apache.reef.tang.Tang;
+import org.apache.reef.tang.*;
+import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.tang.formats.ConfigurationSerializer;
 import org.apache.reef.util.JARFileMaker;
+import org.apache.reef.wake.remote.ports.RangeTcpPortProvider;
 
 import javax.inject.Inject;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -54,18 +57,21 @@ public final class YarnJobSubmissionClient {
   private final REEFFileNames fileNames;
   private final YarnConfiguration yarnConfiguration;
   private final ClasspathProvider classpath;
+  private final Set<ConfigurationProvider> configurationProviders;
 
   @Inject
   YarnJobSubmissionClient(final JobUploader uploader,
                           final YarnConfiguration yarnConfiguration,
                           final ConfigurationSerializer configurationSerializer,
                           final REEFFileNames fileNames,
-                          final ClasspathProvider classpath) {
+                          final ClasspathProvider classpath,
+                          final @Parameter(DriverConfigurationProviders.class) Set<ConfigurationProvider> configurationProviders) {
     this.uploader = uploader;
     this.configurationSerializer = configurationSerializer;
     this.fileNames = fileNames;
     this.yarnConfiguration = yarnConfiguration;
     this.classpath = classpath;
+    this.configurationProviders = configurationProviders;
   }
 
   private void addJVMConfiguration(final File driverFolder, final String jobId, final String jobSubmissionFolder) throws IOException {
@@ -77,9 +83,18 @@ public final class YarnJobSubmissionClient {
             .set(YarnDriverConfiguration.JOB_IDENTIFIER, jobId)
             .set(YarnDriverConfiguration.CLIENT_REMOTE_IDENTIFIER, AbstractDriverRuntimeConfiguration.ClientRemoteIdentifier.NONE)
             .set(YarnDriverConfiguration.JVM_HEAP_SLACK, 0.0)
-            .build());
+            .build(),
+        getProvidersConfig());
 
     this.configurationSerializer.toFile(driverConfiguration, driverConfigurationFile);
+  }
+
+  private Configuration getProvidersConfig() {
+    final ConfigurationBuilder configurationBuilder = Tang.Factory.getTang().newConfigurationBuilder();
+    for (final ConfigurationProvider configurationProvider : this.configurationProviders) {
+      configurationBuilder.addConfiguration(configurationProvider.getConfiguration());
+    }
+    return configurationBuilder.build();
   }
 
   /**
@@ -151,16 +166,30 @@ public final class YarnJobSubmissionClient {
     }
   }
 
+  private static Configuration getRuntimeConfiguration(String[] args){
+    if (args.length <= 2){
+      return YarnClientConfiguration.CONF.build();
+    }
+    else {
+      return YarnClientConfiguration.CONF
+          .set(YarnClientConfiguration.TCP_PORT_PROVIDER, RangeTcpPortProvider.class)
+          .set(YarnClientConfiguration.DRIVER_CONFIGURATION_PROVIDERS, TcpPortConfigurationProvider.class)
+          .set(YarnClientConfiguration.TCP_PORT_RANGE_START, args[3])
+          .set(YarnClientConfiguration.TCP_PORT_RANGE_COUNT, args[4])
+          .set(YarnClientConfiguration.TCP_PORT_RANGE_TRY_COUNT, args[5])
+          .build();
+    }
+  }
+
   public static void main(final String[] args) throws InjectionException, IOException, YarnException {
     final File driverFolder = new File(args[0]);
     final String jobId = args[1];
     final int driverMemory = Integer.valueOf(args[2]);
-
     // Static for now
     final int priority = 1;
     final String queue = "default";
 
-    final Configuration yarnConfiguration = YarnClientConfiguration.CONF.build();
+    final Configuration yarnConfiguration = getRuntimeConfiguration(args);
     final YarnJobSubmissionClient client = Tang.Factory.getTang()
         .newInjector(yarnConfiguration)
         .getInstance(YarnJobSubmissionClient.class);

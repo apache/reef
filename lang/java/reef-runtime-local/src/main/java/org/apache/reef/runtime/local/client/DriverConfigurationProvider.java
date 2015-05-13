@@ -18,15 +18,16 @@
  */
 package org.apache.reef.runtime.local.client;
 
+import org.apache.reef.client.parameters.DriverConfigurationProviders;
 import org.apache.reef.runtime.common.parameters.JVMHeapSlack;
 import org.apache.reef.runtime.local.client.parameters.MaxNumberOfEvaluators;
 import org.apache.reef.runtime.local.driver.LocalDriverConfiguration;
-import org.apache.reef.tang.Configuration;
-import org.apache.reef.tang.Configurations;
+import org.apache.reef.tang.*;
 import org.apache.reef.tang.annotations.Parameter;
 
 import javax.inject.Inject;
 import java.io.File;
+import java.util.Set;
 
 /**
  * Helper class that assembles the driver configuration when run on the local runtime.
@@ -35,12 +36,15 @@ public final class DriverConfigurationProvider {
 
   private final int maxEvaluators;
   private final double jvmHeapSlack;
+  private final Set<ConfigurationProvider> configurationProviders;
 
   @Inject
   DriverConfigurationProvider(final @Parameter(MaxNumberOfEvaluators.class) int maxEvaluators,
-                              final @Parameter(JVMHeapSlack.class) double jvmHeapSlack) {
+                              final @Parameter(JVMHeapSlack.class) double jvmHeapSlack,
+                              final @Parameter(DriverConfigurationProviders.class) Set<ConfigurationProvider> configurationProviders)  {
     this.maxEvaluators = maxEvaluators;
     this.jvmHeapSlack = jvmHeapSlack;
+    this.configurationProviders = configurationProviders;
   }
 
   private Configuration getDriverConfiguration(final File jobFolder,
@@ -69,6 +73,17 @@ public final class DriverConfigurationProvider {
                                               final String clientRemoteId,
                                               final String jobId,
                                               final Configuration applicationConfiguration) {
-    return Configurations.merge(getDriverConfiguration(jobFolder, clientRemoteId, jobId), applicationConfiguration);
+
+    Configuration driverConfiguration = getDriverConfiguration(jobFolder, clientRemoteId, jobId);
+
+    final ConfigurationBuilder configurationBuilder = Tang.Factory.getTang().newConfigurationBuilder();
+    for (final ConfigurationProvider configurationProvider : this.configurationProviders) {
+      configurationBuilder.addConfiguration(configurationProvider.getConfiguration());
+    }
+    final Configuration providedConfigurations =  configurationBuilder.build();
+    return Configurations.merge(
+        driverConfiguration,
+        applicationConfiguration,
+        providedConfigurations);
   }
 }
