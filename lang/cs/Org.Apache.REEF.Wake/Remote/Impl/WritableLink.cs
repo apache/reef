@@ -174,16 +174,16 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
                 return default(T);
             }
 
-            T value = (T) _injector.ForkInjector().GetInstance(dataType);
-            //T value = _cache.GetInstance(dataType);
-
-            if (value == null)
+            try
+            {
+                T value = (T) _injector.ForkInjector().GetInstance(dataType);
+                value.Read(_reader);
+                return value;
+            }
+            catch (InjectionException)
             {
                 return default(T);
             }
-            
-            value.Read(_reader);
-            return value;
         }
 
         /// <summary>
@@ -206,17 +206,16 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
                 return default(T);
             }
 
-            T value = (T)_injector.ForkInjector().GetInstance(dataType);
-
-            //T value = _cache.GetInstance(dataType);
-
-            if(value==null)
+            try
+            {
+                T value = (T) _injector.ForkInjector().GetInstance(dataType);
+                await value.ReadAsync(_reader, token);
+                return value;
+            }
+            catch (InjectionException)
             {
                 return default(T);
             }
-
-            await value.ReadAsync(_reader, token);
-            return value;
         }
 
         /// <summary>

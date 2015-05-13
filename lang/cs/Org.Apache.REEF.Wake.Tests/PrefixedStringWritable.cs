@@ -36,7 +36,7 @@ namespace Org.Apache.REEF.Wake.Tests
     /// This class is used to test non empty injector in TransportServer and Client
     /// </summary>
     [Obsolete("Need to remove Iwritable and use IstreamingCodec. Please see Jira REEF-295 ", false)]
-    public class PrefixedWritableString : IWritable
+    public class PrefixedStringWritable : IWritable
     {
         private readonly int _id;
         private string _data;
@@ -54,7 +54,7 @@ namespace Org.Apache.REEF.Wake.Tests
         /// Empty constructor for instantiation with reflection
         /// </summary>
         [Inject]
-        public PrefixedWritableString([Parameter(typeof(StringId))] int id)
+        public PrefixedStringWritable([Parameter(typeof(StringId))] int id)
         {
             _id = id;
         }
@@ -63,7 +63,7 @@ namespace Org.Apache.REEF.Wake.Tests
         /// Constructor
         /// </summary>
         /// <param name="data">The string data</param>
-        public PrefixedWritableString(string data)
+        public PrefixedStringWritable(string data)
         {
             _data = data;
         }

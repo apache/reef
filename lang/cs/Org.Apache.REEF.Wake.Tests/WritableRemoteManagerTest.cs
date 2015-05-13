@@ -176,33 +176,33 @@ namespace Org.Apache.REEF.Wake.Tests
             IPAddress listeningAddress = IPAddress.Parse("127.0.0.1");
                 
 
-            BlockingCollection<PrefixedWritableString> queue1 = new BlockingCollection<PrefixedWritableString>();
-            BlockingCollection<PrefixedWritableString> queue2 = new BlockingCollection<PrefixedWritableString>();
+            BlockingCollection<PrefixedStringWritable> queue1 = new BlockingCollection<PrefixedStringWritable>();
+            BlockingCollection<PrefixedStringWritable> queue2 = new BlockingCollection<PrefixedStringWritable>();
             List<string> events1 = new List<string>();
             List<string> events2 = new List<string>();
 
-            using (var remoteManager1 = _remoteManagerFactory2.GetInstance<PrefixedWritableString>(listeningAddress, 0))
-            using (var remoteManager2 = _remoteManagerFactory2.GetInstance<PrefixedWritableString>(listeningAddress, 0))
+            using (var remoteManager1 = _remoteManagerFactory2.GetInstance<PrefixedStringWritable>(listeningAddress, 0))
+            using (var remoteManager2 = _remoteManagerFactory2.GetInstance<PrefixedStringWritable>(listeningAddress, 0))
             {
                 // Register observers for remote manager 1 and remote manager 2
                 var remoteEndpoint = new IPEndPoint(listeningAddress, 0);
-                var observer1 = Observer.Create<PrefixedWritableString>(queue1.Add);
-                var observer2 = Observer.Create<PrefixedWritableString>(queue2.Add);
+                var observer1 = Observer.Create<PrefixedStringWritable>(queue1.Add);
+                var observer2 = Observer.Create<PrefixedStringWritable>(queue2.Add);
                 remoteManager1.RegisterObserver(remoteEndpoint, observer1);
                 remoteManager2.RegisterObserver(remoteEndpoint, observer2);
 
                 // Remote manager 1 sends 3 events to remote manager 2
                 var remoteObserver1 = remoteManager1.GetRemoteObserver(remoteManager2.LocalEndpoint);
-                remoteObserver1.OnNext(new PrefixedWritableString("abc"));
-                remoteObserver1.OnNext(new PrefixedWritableString("def"));
-                remoteObserver1.OnNext(new PrefixedWritableString("ghi"));
+                remoteObserver1.OnNext(new PrefixedStringWritable("abc"));
+                remoteObserver1.OnNext(new PrefixedStringWritable("def"));
+                remoteObserver1.OnNext(new PrefixedStringWritable("ghi"));
 
                 // Remote manager 2 sends 4 events to remote manager 1
                 var remoteObserver2 = remoteManager2.GetRemoteObserver(remoteManager1.LocalEndpoint);
-                remoteObserver2.OnNext(new PrefixedWritableString("jkl"));
-                remoteObserver2.OnNext(new PrefixedWritableString("mno"));
-                remoteObserver2.OnNext(new PrefixedWritableString("pqr"));
-                remoteObserver2.OnNext(new PrefixedWritableString("stu"));
+                remoteObserver2.OnNext(new PrefixedStringWritable("jkl"));
+                remoteObserver2.OnNext(new PrefixedStringWritable("mno"));
+                remoteObserver2.OnNext(new PrefixedStringWritable("pqr"));
+                remoteObserver2.OnNext(new PrefixedStringWritable("stu"));
 
                 events1.Add(queue1.Take().Data);
                 events1.Add(queue1.Take().Data);

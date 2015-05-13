@@ -46,7 +46,7 @@ under the License.
   <ItemGroup>
     <Compile Include="ClockTest.cs" />
     <Compile Include="MultiCodecTest.cs" />
-    <Compile Include="PrefixedWritableString.cs" />
+    <Compile Include="PrefixedStringWritable.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PubSubSubjectTest.cs" />
     <Compile Include="RemoteManagerTest.cs" />

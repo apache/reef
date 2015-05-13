@@ -98,22 +98,22 @@ namespace Org.Apache.REEF.Wake.Tests
 
             IInjector injector = TangFactory.GetTang().NewInjector(config);
 
-            BlockingCollection<PrefixedWritableString> queue = new BlockingCollection<PrefixedWritableString>();
+            BlockingCollection<PrefixedStringWritable> queue = new BlockingCollection<PrefixedStringWritable>();
             List<string> events = new List<string>();
 
             IPEndPoint endpoint = new IPEndPoint(IPAddress.Any, 0);
-            var remoteHandler = Observer.Create<TransportEvent<PrefixedWritableString>>(tEvent => queue.Add(tEvent.Data));
+            var remoteHandler = Observer.Create<TransportEvent<PrefixedStringWritable>>(tEvent => queue.Add(tEvent.Data));
 
-            using (var server = new WritableTransportServer<PrefixedWritableString>(endpoint, remoteHandler, _tcpPortProvider, injector.ForkInjector()))
+            using (var server = new WritableTransportServer<PrefixedStringWritable>(endpoint, remoteHandler, _tcpPortProvider, injector.ForkInjector()))
             {
                 server.Run();
 
                 IPEndPoint remoteEndpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), server.LocalEndpoint.Port);
-                using (var client = new WritableTransportClient<PrefixedWritableString>(remoteEndpoint, injector.ForkInjector()))
+                using (var client = new WritableTransportClient<PrefixedStringWritable>(remoteEndpoint, injector.ForkInjector()))
                 {
-                    client.Send(new PrefixedWritableString("Hello"));
-                    client.Send(new PrefixedWritableString(", "));
-                    client.Send(new PrefixedWritableString("World!"));
+                    client.Send(new PrefixedStringWritable("Hello"));
+                    client.Send(new PrefixedStringWritable(", "));
+                    client.Send(new PrefixedStringWritable("World!"));
 
                     events.Add(queue.Take().Data);
                     events.Add(queue.Take().Data);
