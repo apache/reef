@@ -46,7 +46,8 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         /// Used to send messages to the specified remote endpoint.
         /// </summary>
         /// <param name="remoteEndpoint">The endpoint of the remote server to connect to</param>
-        public WritableTransportClient(IPEndPoint remoteEndpoint, IInjector injector = null)
+        /// <param name="injector">The injector to pass arguments to incoming messages</param>
+        public WritableTransportClient(IPEndPoint remoteEndpoint, IInjector injector)
         {
             Exceptions.ThrowIfArgumentNull(remoteEndpoint, "remoteEndpoint", Logger);
 
@@ -62,9 +63,10 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         /// </summary>
         /// <param name="remoteEndpoint">The endpoint of the remote server to connect to</param>
         /// <param name="observer">Callback used when receiving responses from remote host</param>
+        /// <param name="injector">The injector to pass arguments to incoming messages</param>
         public WritableTransportClient(IPEndPoint remoteEndpoint,
             IObserver<TransportEvent<T>> observer,
-            IInjector injector = null)
+            IInjector injector)
             : this(remoteEndpoint, injector)
         {
             _observer = observer;

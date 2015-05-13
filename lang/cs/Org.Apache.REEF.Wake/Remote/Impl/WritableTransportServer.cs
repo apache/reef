@@ -18,6 +18,8 @@
  */
 
 using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
@@ -45,7 +47,6 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         private readonly IInjector _injector;
         private bool _disposed;
         private Task _serverTask;
-
         /// <summary>
         /// Constructs a TransportServer to listen for remote events.  
         /// Listens on the specified remote endpoint.  When it recieves a remote
@@ -55,7 +56,8 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         /// <param name="remoteHandler">The handler to invoke when receiving incoming
         /// remote messages</param>
         /// <param name="tcpPortProvider">Find port numbers if listenport is 0</param>
-        public WritableTransportServer(int port, IObserver<TransportEvent<T>> remoteHandler, ITcpPortProvider tcpPortProvider, IInjector injector = null)
+        /// <param name="injector">The injector to pass arguments to incoming messages</param>
+        public WritableTransportServer(int port, IObserver<TransportEvent<T>> remoteHandler, ITcpPortProvider tcpPortProvider, IInjector injector)
             : this(new IPEndPoint(NetworkUtils.LocalIPAddress, port), remoteHandler, tcpPortProvider, injector)
         {
         }
@@ -69,11 +71,12 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         /// <param name="remoteHandler">The handler to invoke when receiving incoming
         /// remote messages</param>
         /// <param name="tcpPortProvider">Find port numbers if listenport is 0</param>
+        /// <param name="injector">The injector to pass arguments to incoming messages</param>
         public WritableTransportServer(
             IPEndPoint localEndpoint,
             IObserver<TransportEvent<T>> remoteHandler,
             ITcpPortProvider tcpPortProvider,
-            IInjector injector = null)
+            IInjector injector)
         {
             _listener = new TcpListener(localEndpoint.Address, localEndpoint.Port);
             _remoteObserver = remoteHandler;
@@ -216,29 +219,26 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         /// <param name="client">The connected client</param>
         private async Task ProcessClient(TcpClient client)
         {
+            
             // Keep reading messages from client until they disconnect or timeout
             CancellationToken token = _cancellationSource.Token;
             using (ILink<T> link = new WritableLink<T>(client, _injector))
             {
                 while (!token.IsCancellationRequested)
                 {
-                    //T message = link.Read();
                     T message = await link.ReadAsync(token);
 
                     if (message == null)
                     {
-                        //LOGGER.Log(Level.Error,
-                   //         "ProcessClient, no message received, break." + link.RemoteEndpoint + " - " +
-                      //      link.LocalEndpoint);
                         break;
                     }
 
                     TransportEvent<T> transportEvent = new TransportEvent<T>(message, link);
-
                     _remoteObserver.OnNext(transportEvent);
                 }
                 LOGGER.Log(Level.Error,
                     "ProcessClient close the Link. IsCancellationRequested: " + token.IsCancellationRequested);
+                
             }
         }
     }

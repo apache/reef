@@ -20,6 +20,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Net;
 using System.Reactive;
@@ -28,6 +29,7 @@ using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
+using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Wake.Remote;
 using Org.Apache.REEF.Wake.Remote.Impl;
 using Org.Apache.REEF.Wake.Remote.Parameters;
@@ -82,7 +84,50 @@ namespace Org.Apache.REEF.Wake.Tests
             Assert.AreEqual(events[2], "World!");
         }
 
-       
+
+        /// <summary>
+        /// Tests whether WritableTransportServer receives 
+        /// string messages from WritableTransportClient with non empty injector
+        /// </summary>
+        [TestMethod]
+        public void TestNonEmptyInjectionTransportServer()
+        {
+            int id = 5;
+            IConfiguration config = TangFactory.GetTang().NewConfigurationBuilder().BindNamedParameter<StringId, int>(
+                GenericType<StringId>.Class, id.ToString(CultureInfo.InvariantCulture)).Build();
+
+            IInjector injector = TangFactory.GetTang().NewInjector(config);
+
+            BlockingCollection<PrefixedWritableString> queue = new BlockingCollection<PrefixedWritableString>();
+            List<string> events = new List<string>();
+
+            IPEndPoint endpoint = new IPEndPoint(IPAddress.Any, 0);
+            var remoteHandler = Observer.Create<TransportEvent<PrefixedWritableString>>(tEvent => queue.Add(tEvent.Data));
+
+            using (var server = new WritableTransportServer<PrefixedWritableString>(endpoint, remoteHandler, _tcpPortProvider, injector.ForkInjector()))
+            {
+                server.Run();
+
+                IPEndPoint remoteEndpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), server.LocalEndpoint.Port);
+                using (var client = new WritableTransportClient<PrefixedWritableString>(remoteEndpoint, injector.ForkInjector()))
+                {
+                    client.Send(new PrefixedWritableString("Hello"));
+                    client.Send(new PrefixedWritableString(", "));
+                    client.Send(new PrefixedWritableString("World!"));
+
+                    events.Add(queue.Take().Data);
+                    events.Add(queue.Take().Data);
+                    events.Add(queue.Take().Data);
+                }
+            }
+
+            Assert.AreEqual(3, events.Count);
+            Assert.AreEqual(events[0], "Hello_" + id);
+            Assert.AreEqual(events[1], ", _" + id);
+            Assert.AreEqual(events[2], "World!_" + id);
+        }
+
+
         /// <summary>
         /// Checks whether WritableTransportClient is able to receive messages from remote host
         /// </summary>
