@@ -18,51 +18,49 @@
  */
 package org.apache.reef.runtime.hdinsight.client.yarnrest;
 
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.annotate.JsonSerialize;
 
 import java.io.IOException;
 import java.io.StringWriter;
 
 /**
- * A response object used in deserialization when querying
- * the Resource Manager for an application via the YARN REST API.
+ * Commands used to start an Application Master via the
+ * YARN Resource Manger REST API.
  * For detailed information, please refer to
  * https://hadoop.apache.org/docs/r2.6.0/hadoop-yarn/hadoop-yarn-site/ResourceManagerRest.html
  */
-@JsonIgnoreProperties(ignoreUnknown = true)
-public final class ApplicationResponse {
+public final class Commands {
 
-  private static String APPLICATION_RESPONSE = "applicationResponse";
-  private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    public static final String DEFAULT_COMMAND = "";
 
-  private ApplicationState app;
+    private static final String COMMANDS = "commands";
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-  @JsonProperty(Constants.APP)
-  public ApplicationState getApp() {
-    return this.app;
-  }
+    private String command = DEFAULT_COMMAND;
 
-  public void setApp(final ApplicationState app) {
-    this.app = app;
-  }
-
-  public ApplicationState getApplicationState() {
-    return app;
-  }
-
-  @Override
-  public String toString() {
-    StringWriter writer = new StringWriter();
-    String objectString;
-    try {
-      OBJECT_MAPPER.writeValue(writer, this);
-      objectString = writer.toString();
-    } catch (IOException e) {
-      return null;
+    @JsonProperty(Constants.COMMAND)
+    @JsonSerialize(include = JsonSerialize.Inclusion.NON_EMPTY)
+    public String getCommand() {
+        return this.command;
     }
 
-    return APPLICATION_RESPONSE + objectString;
-  }
+    public void setCommand(final String command) {
+        this.command = command;
+    }
+
+    @Override
+    public String toString() {
+        StringWriter writer = new StringWriter();
+        String objectString;
+        try {
+            OBJECT_MAPPER.writeValue(writer, this);
+            objectString = writer.toString();
+        } catch (IOException e) {
+            return null;
+        }
+
+        return COMMANDS + objectString;
+    }
 }

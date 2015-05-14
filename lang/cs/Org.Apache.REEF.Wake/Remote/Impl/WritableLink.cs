@@ -23,6 +23,7 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using Org.Apache.REEF.Tang.Exceptions;
+using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Utilities.Diagnostics;
 using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Wake.Util;
@@ -41,11 +42,8 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         private readonly IPEndPoint _localEndpoint;
         private bool _disposed;
         private readonly NetworkStream _stream;
-        
-        /// <summary>
-        /// Cache structure to store the constructor functions for various types.
-        /// </summary>
-        private readonly TypeCache<T> _cache;
+        private readonly IInjector _injector;
+       
 
         /// <summary>
         /// Stream reader to be passed to IWritable
@@ -62,7 +60,8 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         /// Connects to the specified remote endpoint.
         /// </summary>
         /// <param name="remoteEndpoint">The remote endpoint to connect to</param>
-        public WritableLink(IPEndPoint remoteEndpoint)
+        /// <param name="injector">The injector to pass arguments to incoming messages</param>
+        public WritableLink(IPEndPoint remoteEndpoint, IInjector injector)
         {
             if (remoteEndpoint == null)
             {
@@ -75,9 +74,9 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
             _stream = Client.GetStream();
             _localEndpoint = GetLocalEndpoint();
             _disposed = false;
-            _cache = new TypeCache<T>();
             _reader = new StreamDataReader(_stream);
             _writer = new StreamDataWriter(_stream);
+            _injector = injector;
         }
 
         /// <summary>
@@ -85,7 +84,8 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         /// Uses the already connected TcpClient.
         /// </summary>
         /// <param name="client">The already connected client</param>
-        public WritableLink(TcpClient client)
+        /// <param name="injector">The injector to pass arguments to incoming messages</param>
+        public WritableLink(TcpClient client, IInjector injector)
         {
             if (client == null)
             {
@@ -96,9 +96,9 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
             _stream = Client.GetStream();
             _localEndpoint = GetLocalEndpoint();
             _disposed = false;
-            _cache = new TypeCache<T>();
             _reader = new StreamDataReader(_stream);
             _writer = new StreamDataWriter(_stream);
+            _injector = injector;
         }
 
         /// <summary>
@@ -174,15 +174,16 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
                 return default(T);
             }
 
-            T value = _cache.GetInstance(dataType);
-
-            if (value == null)
+            try
+            {
+                T value = (T) _injector.ForkInjector().GetInstance(dataType);
+                value.Read(_reader);
+                return value;
+            }
+            catch (InjectionException)
             {
                 return default(T);
             }
-            
-            value.Read(_reader);
-            return value;
         }
 
         /// <summary>
@@ -205,15 +206,16 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
                 return default(T);
             }
 
-            T value = _cache.GetInstance(dataType);
-
-            if(value==null)
+            try
+            {
+                T value = (T) _injector.ForkInjector().GetInstance(dataType);
+                await value.ReadAsync(_reader, token);
+                return value;
+            }
+            catch (InjectionException)
             {
                 return default(T);
             }
-
-            await value.ReadAsync(_reader, token);
-            return value;
         }
 
         /// <summary>

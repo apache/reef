@@ -26,7 +26,7 @@ import com.microsoft.windowsazure.storage.blob.CloudBlobContainer;
 import com.microsoft.windowsazure.storage.blob.CloudBlockBlob;
 import org.apache.reef.annotations.audience.ClientSide;
 import org.apache.reef.annotations.audience.Private;
-import org.apache.reef.runtime.hdinsight.client.yarnrest.FileResource;
+import org.apache.reef.runtime.hdinsight.client.yarnrest.LocalResource;
 import org.apache.reef.runtime.hdinsight.parameters.AzureStorageAccountContainerName;
 import org.apache.reef.runtime.hdinsight.parameters.AzureStorageAccountKey;
 import org.apache.reef.runtime.hdinsight.parameters.AzureStorageAccountName;
@@ -100,7 +100,7 @@ final class AzureUploader {
     }
   }
 
-  public FileResource uploadFile(final File file) throws IOException {
+  public LocalResource uploadFile(final File file) throws IOException {
 
     final String destination = this.jobFolderName + "/" + file.getName();
     LOG.log(Level.INFO, "Uploading [{0}] to [{1}]", new Object[]{file, destination});
@@ -121,14 +121,14 @@ final class AzureUploader {
       LOG.log(Level.FINE, "Uploaded to: {0}",
           jobJarBlob.getStorageUri().getPrimaryUri());
 
-      // Assemble the FileResource
+      // Assemble the LocalResource
       final BlobProperties blobProperties = jobJarBlob.getProperties();
-      return new FileResource()
-          .setType(FileResource.TYPE_ARCHIVE)
-          .setVisibility(FileResource.VISIBILITY_APPLICATION)
-          .setSize(String.valueOf(blobProperties.getLength()))
-          .setTimestamp(String.valueOf(blobProperties.getLastModified().getTime()))
-          .setUrl(getFileSystemURL(jobJarBlob));
+      return new LocalResource()
+          .setType(LocalResource.TYPE_ARCHIVE)
+          .setVisibility(LocalResource.VISIBILITY_APPLICATION)
+          .setSize(blobProperties.getLength())
+          .setTimestamp(blobProperties.getLastModified().getTime())
+          .setResource(getFileSystemURL(jobJarBlob));
 
     } catch (final URISyntaxException | StorageException e) {
       throw new IOException(e);

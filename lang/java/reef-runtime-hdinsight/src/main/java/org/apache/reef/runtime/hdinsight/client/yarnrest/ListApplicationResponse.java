@@ -18,50 +18,43 @@
  */
 package org.apache.reef.runtime.hdinsight.client.yarnrest;
 
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.List;
+import java.util.Map;
 
 /**
- * Represents a resource to be localized. The key represents
- * the file name or folder name  after localization, while the value
- * provides the details of the localized resource.
+ * The data structure used to deserialize the REST response
+ * from a call to the Resource Manager to list applications.
  * For detailed information, please refer to
  * https://hadoop.apache.org/docs/r2.6.0/hadoop-yarn/hadoop-yarn-site/ResourceManagerRest.html
  */
-public final class LocalResourcesEntry {
+@JsonIgnoreProperties(ignoreUnknown = true)
+public final class ListApplicationResponse {
 
-  private static final String LOCAL_RESOURCES_ENTRY = "localResourcesEntry";
+  private static final String LIST_APPLICATION_RESPONSE = "listApplicationResponse";
   private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-  private String key;
-  private LocalResource value;
+  private Map<String, List<ApplicationState>> apps;
 
-  public LocalResourcesEntry(final String key, final LocalResource value) {
-    this.key = key;
-    this.value = value;
+  @JsonProperty(Constants.APPS)
+  public Map<String, List<ApplicationState>> getApps() {
+    return apps;
   }
 
-  @JsonProperty(Constants.KEY)
-  public String getKey() {
-    return this.key;
+  public void setApps(final Map<String, List<ApplicationState>> apps) {
+    this.apps = apps;
   }
 
-  public LocalResourcesEntry setKey(final String key) {
-    this.key = key;
-    return this;
-  }
-
-  @JsonProperty(Constants.VALUE)
-  public LocalResource getValue() {
-    return this.value;
-  }
-
-  public LocalResourcesEntry setValue(final LocalResource value) {
-    this.value = value;
-    return this;
+  public List<ApplicationState> getApplicationStates() {
+    if (!this.apps.containsKey(Constants.APP)) {
+      return null;
+    }
+    return apps.get(Constants.APP);
   }
 
   @Override
@@ -75,6 +68,6 @@ public final class LocalResourcesEntry {
       return null;
     }
 
-    return LOCAL_RESOURCES_ENTRY + objectString;
+    return LIST_APPLICATION_RESPONSE + objectString;
   }
 }

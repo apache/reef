@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -22,16 +22,17 @@ import org.apache.reef.driver.task.CompletedTask;
 
 public class CompletedTaskBridge extends NativeBridge {
 
-  private CompletedTask jcompletedTask;
+  private final CompletedTask jcompletedTask;
 
-  private String taskId;
+  private final String taskId;
 
-  private ActiveContextBridge jactiveContext;
+  // used by the C++ code
+  private final ActiveContextBridge jactiveContext;
 
-  public CompletedTaskBridge(CompletedTask completedTask) {
+  public CompletedTaskBridge(final CompletedTask completedTask, final ActiveContextBridgeFactory factory) {
     jcompletedTask = completedTask;
     taskId = completedTask.getId();
-    jactiveContext = new ActiveContextBridge(completedTask.getActiveContext());
+    jactiveContext = factory.getActiveContextBridge(completedTask.getActiveContext());
   }
 
   @Override

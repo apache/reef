@@ -21,6 +21,7 @@ using System;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Utilities.Diagnostics;
 using Org.Apache.REEF.Utilities.Logging;
 
@@ -44,11 +45,12 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         /// Used to send messages to the specified remote endpoint.
         /// </summary>
         /// <param name="remoteEndpoint">The endpoint of the remote server to connect to</param>
-        public WritableTransportClient(IPEndPoint remoteEndpoint)
+        /// <param name="injector">The injector to pass arguments to incoming messages</param>
+        public WritableTransportClient(IPEndPoint remoteEndpoint, IInjector injector)
         {
             Exceptions.ThrowIfArgumentNull(remoteEndpoint, "remoteEndpoint", Logger);
 
-            _link = new WritableLink<T>(remoteEndpoint);
+            _link = new WritableLink<T>(remoteEndpoint, injector);
             _cancellationSource = new CancellationTokenSource();
             _disposed = false;
         }
@@ -59,9 +61,11 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         /// </summary>
         /// <param name="remoteEndpoint">The endpoint of the remote server to connect to</param>
         /// <param name="observer">Callback used when receiving responses from remote host</param>
+        /// <param name="injector">The injector to pass arguments to incoming messages</param>
         public WritableTransportClient(IPEndPoint remoteEndpoint,
-            IObserver<TransportEvent<T>> observer)
-            : this(remoteEndpoint)
+            IObserver<TransportEvent<T>> observer,
+            IInjector injector)
+            : this(remoteEndpoint, injector)
         {
             _observer = observer;
             Task.Run(() => ResponseLoop());

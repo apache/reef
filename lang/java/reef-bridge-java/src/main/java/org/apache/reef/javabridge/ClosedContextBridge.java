@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -36,9 +36,9 @@ public class ClosedContextBridge extends NativeBridge implements ClosedContext {
   private final String evaluatorId;
   private final EvaluatorDescriptor evaluatorDescriptor;
 
-  public ClosedContextBridge(final ClosedContext closedContext) {
+  public ClosedContextBridge(final ClosedContext closedContext, final ActiveContextBridgeFactory activeContextBridgeFactory) {
     jcloseContext = closedContext;
-    parentContext = new ActiveContextBridge(closedContext.getParentContext());
+    parentContext = activeContextBridgeFactory.getActiveContextBridge(closedContext.getParentContext());
     contextId = closedContext.getId();
     evaluatorId = closedContext.getEvaluatorId();
     evaluatorDescriptor = closedContext.getEvaluatorDescriptor();

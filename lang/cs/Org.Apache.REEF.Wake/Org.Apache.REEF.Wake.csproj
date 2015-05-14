@@ -120,7 +120,6 @@ under the License.
     <Compile Include="Remote\RemoteConfiguration.cs" />
     <Compile Include="Remote\RemoteRuntimeException.cs" />
     <Compile Include="Remote\TcpPortProvider.cs" />
-    <Compile Include="Remote\TypeCache.cs" />
     <Compile Include="RX\AbstractObserver.cs" />
     <Compile Include="RX\AbstractRxStage.cs" />
     <Compile Include="RX\Impl\PubSubSubject.cs" />

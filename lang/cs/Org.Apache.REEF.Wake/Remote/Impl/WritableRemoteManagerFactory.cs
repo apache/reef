@@ -20,10 +20,9 @@
 using System;
 using System.Net;
 using Org.Apache.REEF.Tang.Annotations;
-using Org.Apache.REEF.Wake.Remote;
-using Org.Apache.REEF.Wake.Remote.Impl;
+using Org.Apache.REEF.Tang.Interface;
 
-namespace Org.Apache.REEF.Wake.Impl
+namespace Org.Apache.REEF.Wake.Remote.Impl
 {
     /// <summary>
     /// WritableRemoteManagerFactory for WritableRemoteManager.
@@ -32,17 +31,20 @@ namespace Org.Apache.REEF.Wake.Impl
     public sealed class WritableRemoteManagerFactory
     {
         private readonly ITcpPortProvider _tcpPortProvider;
-        [Inject]
-        private WritableRemoteManagerFactory(ITcpPortProvider tcpPortProvider)
+        private readonly IInjector _injector;
+
+        [Inject]  
+        private WritableRemoteManagerFactory(ITcpPortProvider tcpPortProvider, IInjector injector)
         {
             _tcpPortProvider = tcpPortProvider;
+            _injector = injector;
         }
 
         public IRemoteManager<T> GetInstance<T>(IPAddress localAddress, int port) where T : IWritable
         {
 #pragma warning disable 618
 // This is the one place allowed to call this constructor. Hence, disabling the warning is OK.
-            return new WritableRemoteManager<T>(localAddress, port, _tcpPortProvider);
+            return new WritableRemoteManager<T>(localAddress, port, _tcpPortProvider, _injector);
 #pragma warning disable 618
         }
 
@@ -50,7 +52,7 @@ namespace Org.Apache.REEF.Wake.Impl
         {
 #pragma warning disable 618
 // This is the one place allowed to call this constructor. Hence, disabling the warning is OK.
-            return new WritableRemoteManager<T>();
+            return new WritableRemoteManager<T>(_injector);
 #pragma warning disable 618
         }
     }
