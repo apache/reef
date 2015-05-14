@@ -23,13 +23,15 @@ import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.tang.ConfigurationProvider;
 import org.apache.reef.driver.context.ContextConfiguration;
 import org.apache.reef.driver.evaluator.AllocatedEvaluator;
+import org.apache.reef.driver.evaluator.CLRProcessFactory;
 import org.apache.reef.driver.evaluator.EvaluatorDescriptor;
 import org.apache.reef.driver.evaluator.EvaluatorType;
+import org.apache.reef.driver.evaluator.EvaluatorProcess;
+import org.apache.reef.driver.evaluator.JVMProcessFactory;
 import org.apache.reef.runtime.common.driver.api.ResourceLaunchEventImpl;
 import org.apache.reef.runtime.common.evaluator.EvaluatorConfiguration;
 import org.apache.reef.runtime.common.files.FileResourceImpl;
 import org.apache.reef.runtime.common.files.FileType;
-import org.apache.reef.runtime.common.launch.ProcessType;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.ConfigurationBuilder;
 import org.apache.reef.tang.Tang;
@@ -62,6 +64,9 @@ final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
   private final String jobIdentifier;
   private final LoggingScopeFactory loggingScopeFactory;
   private final Set<ConfigurationProvider> evaluatorConfigurationProviders;
+  // TODO: The factories should be removed when deprecated setType is removed, as the process should not be created here
+  private final JVMProcessFactory jvmProcessFactory;
+  private final CLRProcessFactory clrProcessFactory;
 
   /**
    * The set of files to be places on the Evaluator.
@@ -77,13 +82,17 @@ final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
                          final ConfigurationSerializer configurationSerializer,
                          final String jobIdentifier,
                          final LoggingScopeFactory loggingScopeFactory,
-                         final Set<ConfigurationProvider> evaluatorConfigurationProviders) {
+                         final Set<ConfigurationProvider> evaluatorConfigurationProviders,
+                         final JVMProcessFactory jvmProcessFactory,
+                         final CLRProcessFactory clrProcessFactory) {
     this.evaluatorManager = evaluatorManager;
     this.remoteID = remoteID;
     this.configurationSerializer = configurationSerializer;
     this.jobIdentifier = jobIdentifier;
     this.loggingScopeFactory = loggingScopeFactory;
     this.evaluatorConfigurationProviders = evaluatorConfigurationProviders;
+    this.jvmProcessFactory = jvmProcessFactory;
+    this.clrProcessFactory = clrProcessFactory;
   }
 
   @Override
@@ -136,8 +145,21 @@ final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
   }
 
   @Override
+  @Deprecated
   public void setType(final EvaluatorType type) {
-    this.evaluatorManager.setType(type);
+    switch (type) {
+      case CLR:
+        this.evaluatorManager.setProcess(clrProcessFactory.newEvaluatorProcess());
+        break;
+      default:
+        this.evaluatorManager.setProcess(jvmProcessFactory.newEvaluatorProcess());
+        break;
+    }
+  }
+
+  @Override
+  public void setProcess(final EvaluatorProcess process) {
+    this.evaluatorManager.setProcess(process);
   }
 
   @Override
@@ -208,15 +230,7 @@ final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
                   .build());
         }
 
-        { // Set the type
-          switch (this.evaluatorManager.getEvaluatorDescriptor().getType()) {
-            case CLR:
-              rbuilder.setType(ProcessType.CLR);
-              break;
-            default:
-              rbuilder.setType(ProcessType.JVM);
-          }
-        }
+        rbuilder.setProcess(this.evaluatorManager.getEvaluatorDescriptor().getProcess());
 
         this.evaluatorManager.onResourceLaunch(rbuilder.build());
 
@@ -236,7 +250,7 @@ final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
    */
   private Configuration makeRootContextConfiguration(final Configuration contextConfiguration) {
 
-    final EvaluatorType evaluatorType = this.evaluatorManager.getEvaluatorDescriptor().getType();
+    final EvaluatorType evaluatorType = this.evaluatorManager.getEvaluatorDescriptor().getProcess().getType();
     if (EvaluatorType.JVM != evaluatorType) {
       LOG.log(Level.FINE, "Not using the ConfigurationProviders as we are configuring a {0} Evaluator.", evaluatorType);
       return contextConfiguration;

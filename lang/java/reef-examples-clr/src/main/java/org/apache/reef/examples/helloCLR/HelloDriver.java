@@ -25,6 +25,7 @@ import org.apache.reef.driver.evaluator.EvaluatorRequestor;
 import org.apache.reef.driver.evaluator.EvaluatorType;
 import org.apache.reef.driver.task.TaskConfiguration;
 import org.apache.reef.examples.hello.HelloTask;
+import org.apache.reef.driver.evaluator.CLRProcess;
 import org.apache.reef.tang.ClassHierarchy;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.ConfigurationBuilder;
@@ -107,7 +108,7 @@ public final class HelloDriver {
    */
   final void onNextCLR(final AllocatedEvaluator allocatedEvaluator) {
     try {
-      allocatedEvaluator.setType(EvaluatorType.CLR);
+      allocatedEvaluator.setProcess(new CLRProcess());
       final Configuration contextConfiguration = ContextConfiguration.CONF
           .set(ContextConfiguration.IDENTIFIER, "HelloREEFContext")
           .build();

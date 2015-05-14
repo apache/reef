@@ -65,7 +65,15 @@ public interface AllocatedEvaluator
    *
    * @param type
    */
+  @Deprecated
   void setType(final EvaluatorType type);
+
+  /**
+   * Specify the process to be instantiated for the Evaluator.
+   *
+   * @param process
+   */
+  void setProcess(final EvaluatorProcess process);
 
   /**
    * Releases the allocated evaluator back to the resource manager.

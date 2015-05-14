@@ -19,6 +19,7 @@
 package org.apache.reef.examples.hello;
 
 import org.apache.reef.driver.evaluator.AllocatedEvaluator;
+import org.apache.reef.driver.evaluator.EvaluatorProcessFactory;
 import org.apache.reef.driver.evaluator.EvaluatorRequest;
 import org.apache.reef.driver.evaluator.EvaluatorRequestor;
 import org.apache.reef.driver.task.TaskConfiguration;
@@ -40,6 +41,7 @@ public final class HelloDriver {
   private static final Logger LOG = Logger.getLogger(HelloDriver.class.getName());
 
   private final EvaluatorRequestor requestor;
+  private final EvaluatorProcessFactory processFactory;
 
   /**
    * Job driver constructor - instantiated via TANG.
@@ -47,8 +49,10 @@ public final class HelloDriver {
    * @param requestor evaluator requestor object used to create new evaluator containers.
    */
   @Inject
-  public HelloDriver(final EvaluatorRequestor requestor) {
+  public HelloDriver(final EvaluatorRequestor requestor,
+                     final EvaluatorProcessFactory processFactory) {
     this.requestor = requestor;
+    this.processFactory = processFactory;
     LOG.log(Level.FINE, "Instantiated 'HelloDriver'");
   }
 
@@ -78,6 +82,7 @@ public final class HelloDriver {
           .set(TaskConfiguration.IDENTIFIER, "HelloREEFTask")
           .set(TaskConfiguration.TASK, HelloTask.class)
           .build();
+      allocatedEvaluator.setProcess(processFactory.newEvaluatorProcess());
       allocatedEvaluator.submitTask(taskConfiguration);
     }
   }

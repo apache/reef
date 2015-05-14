@@ -25,11 +25,7 @@ import org.apache.hadoop.yarn.api.records.ContainerLaunchContext;
 import org.apache.hadoop.yarn.api.records.LocalResource;
 import org.apache.reef.runtime.common.driver.api.ResourceLaunchEvent;
 import org.apache.reef.runtime.common.driver.api.ResourceLaunchHandler;
-import org.apache.reef.runtime.common.files.ClasspathProvider;
 import org.apache.reef.runtime.common.files.REEFFileNames;
-import org.apache.reef.runtime.common.launch.CLRLaunchCommandBuilder;
-import org.apache.reef.runtime.common.launch.JavaLaunchCommandBuilder;
-import org.apache.reef.runtime.common.launch.LaunchCommandBuilder;
 import org.apache.reef.runtime.common.parameters.JVMHeapSlack;
 import org.apache.reef.runtime.yarn.util.YarnTypes;
 import org.apache.reef.tang.InjectionFuture;
@@ -52,7 +48,6 @@ public final class YARNResourceLaunchHandler implements ResourceLaunchHandler {
   private final InjectionFuture<YarnContainerManager> yarnContainerManager;
   private final EvaluatorSetupHelper evaluatorSetupHelper;
   private final REEFFileNames filenames;
-  private final ClasspathProvider classpath;
   private final double jvmHeapFactor;
 
   @Inject
@@ -60,7 +55,6 @@ public final class YARNResourceLaunchHandler implements ResourceLaunchHandler {
                             final InjectionFuture<YarnContainerManager> yarnContainerManager,
                             final EvaluatorSetupHelper evaluatorSetupHelper,
                             final REEFFileNames filenames,
-                            final ClasspathProvider classpath,
                             final @Parameter(JVMHeapSlack.class) double jvmHeapSlack) {
     this.jvmHeapFactor = 1.0 - jvmHeapSlack;
     LOG.log(Level.FINEST, "Instantiating 'YARNResourceLaunchHandler'");
@@ -68,7 +62,6 @@ public final class YARNResourceLaunchHandler implements ResourceLaunchHandler {
     this.yarnContainerManager = yarnContainerManager;
     this.evaluatorSetupHelper = evaluatorSetupHelper;
     this.filenames = filenames;
-    this.classpath = classpath;
     LOG.log(Level.FINE, "Instantiated 'YARNResourceLaunchHandler'");
   }
 
@@ -83,28 +76,14 @@ public final class YARNResourceLaunchHandler implements ResourceLaunchHandler {
       final Map<String, LocalResource> localResources =
           this.evaluatorSetupHelper.getResources(resourceLaunchEvent);
 
-      final LaunchCommandBuilder commandBuilder;
-      switch (resourceLaunchEvent.getType()) {
-        case JVM:
-          commandBuilder = new JavaLaunchCommandBuilder()
-              .setClassPath(this.classpath.getEvaluatorClasspath());
-          break;
-        case CLR:
-          commandBuilder = new CLRLaunchCommandBuilder();
-          break;
-        default:
-          throw new IllegalArgumentException(
-              "Unsupported container type: " + resourceLaunchEvent.getType());
-      }
-
-      final List<String> command = commandBuilder
+      final List<String> command = resourceLaunchEvent.getProcess()
           .setErrorHandlerRID(resourceLaunchEvent.getRemoteId())
           .setLaunchID(resourceLaunchEvent.getIdentifier())
           .setConfigurationFileName(this.filenames.getEvaluatorConfigurationPath())
           .setMemory((int) (this.jvmHeapFactor * container.getResource().getMemory()))
           .setStandardErr(ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/" + this.filenames.getEvaluatorStderrFileName())
           .setStandardOut(ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/" + this.filenames.getEvaluatorStdoutFileName())
-          .build();
+          .getCommandLine();
 
       if (LOG.isLoggable(Level.FINEST)) {
         LOG.log(Level.FINEST,

@@ -20,8 +20,9 @@ package org.apache.reef.webserver;
 
 import org.apache.reef.driver.catalog.NodeDescriptor;
 import org.apache.reef.driver.catalog.RackDescriptor;
+import org.apache.reef.driver.evaluator.CLRProcess;
 import org.apache.reef.driver.evaluator.EvaluatorDescriptor;
-import org.apache.reef.driver.evaluator.EvaluatorType;
+import org.apache.reef.driver.evaluator.EvaluatorProcess;
 import org.apache.reef.runtime.common.driver.api.AbstractDriverRuntimeConfiguration;
 import org.apache.reef.runtime.common.launch.REEFMessageCodec;
 import org.apache.reef.tang.Configuration;
@@ -104,8 +105,8 @@ final class MockEvaluatorDescriptor implements EvaluatorDescriptor {
   }
 
   @Override
-  public EvaluatorType getType() {
-    return EvaluatorType.CLR;
+  public EvaluatorProcess getProcess() {
+    return new CLRProcess();
   }
 
   @Override

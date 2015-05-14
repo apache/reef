@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -18,30 +18,16 @@
  */
 package org.apache.reef.driver.evaluator;
 
-import org.apache.reef.driver.catalog.NodeDescriptor;
+import org.apache.reef.annotations.audience.DriverSide;
+import org.apache.reef.annotations.audience.Public;
+import org.apache.reef.tang.annotations.DefaultImplementation;
 
 /**
- * Metadata about an Evaluator.
+ * Factory to create new evaluator process setups
  */
-public interface EvaluatorDescriptor {
-
-  /**
-   * @return the NodeDescriptor of the node where this Evaluator is running.
-   */
-  NodeDescriptor getNodeDescriptor();
-
-  /**
-   * @return the process to be run on the Evaluator.
-   */
-  EvaluatorProcess getProcess();
-
-  /**
-   * @return the amount of memory allocated to this Evaluator.
-   */
-  int getMemory();
-
-  /**
-   * @return the number of virtual core allocated to this Evaluator.
-   */
-  int getNumberOfCores();
+@Public
+@DriverSide
+@DefaultImplementation(JVMProcessFactory.class)
+public interface EvaluatorProcessFactory {
+  EvaluatorProcess newEvaluatorProcess();
 }

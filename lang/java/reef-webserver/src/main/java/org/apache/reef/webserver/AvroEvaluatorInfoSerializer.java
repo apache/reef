@@ -65,7 +65,7 @@ public class AvroEvaluatorInfoSerializer implements EvaluatorInfoSerializer {
         nodeName = evaluatorDescriptor.getNodeDescriptor().getName();
         address = evaluatorDescriptor.getNodeDescriptor().getInetSocketAddress();
         memory = evaluatorDescriptor.getMemory();
-        type = evaluatorDescriptor.getType().toString();
+        type = evaluatorDescriptor.getProcess().getType().toString();
       }
 
       evaluatorsInfo.add(AvroEvaluatorInfo.newBuilder()

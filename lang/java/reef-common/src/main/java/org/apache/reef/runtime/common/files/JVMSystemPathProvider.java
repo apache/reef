@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -16,32 +16,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.driver.evaluator;
+package org.apache.reef.runtime.common.files;
 
-import org.apache.reef.driver.catalog.NodeDescriptor;
+import javax.inject.Inject;
 
 /**
- * Metadata about an Evaluator.
+ * Supplies the java binary's path based on JAVA_HOME
  */
-public interface EvaluatorDescriptor {
+public final class JVMSystemPathProvider implements RuntimePathProvider {
+  @Inject
+  public JVMSystemPathProvider() {
+  }
 
-  /**
-   * @return the NodeDescriptor of the node where this Evaluator is running.
-   */
-  NodeDescriptor getNodeDescriptor();
-
-  /**
-   * @return the process to be run on the Evaluator.
-   */
-  EvaluatorProcess getProcess();
-
-  /**
-   * @return the amount of memory allocated to this Evaluator.
-   */
-  int getMemory();
-
-  /**
-   * @return the number of virtual core allocated to this Evaluator.
-   */
-  int getNumberOfCores();
+  @Override
+  public String getPath() {
+    return System.getenv("JAVA_HOME") + "/bin/" + "java";
+  }
 }
