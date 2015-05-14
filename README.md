@@ -1,28 +1,77 @@
-Apache REEF
-===========
+Apache REEF (incubating)
+========================
+Apache REEF (Retainable Evaluator Execution Framework) is a scale-out
+computing fabric that simplifies the development of Big Data
+applications on top of resource managers (e.g., Apache YARN and
+Mesos). For example, Azure Stream Analytics is built on REEF and
+Hadoop. Apache REEF is currently undergoing incubation at the [Apache
+Software Foundation](http://www.apache.org/).
 
-REEF (Retainable Evaluator Execution Framework) is a scale-out computing fabric that makes it easier to write Big Data applications on top of resource managers (e.g., Apache YARN and Mesos). For example, Azure Stream Analytics is built on REEF and Hadoop. Apache REEF is currently undergoing [incubation](http://reef.incubator.apache.org/) at the [Apache Software Foundation](http://www.apache.org/).
 
 Online Documentation
---------------------
+====================
+This file will cover the very basics of compiling and testing
+REEF. Much more detailed information can be found in the following
+places:
 
-You can find the latest REEF documentation, including tutorials, on the [project web page](http://reef.incubator.apache.org/). This README file contains only basic setup instructions.
+  * [The project website](http://reef.incubator.apache.org/)
+  * [The project wiki](https://cwiki.apache.org/confluence/display/REEF/Home)
+
+[The developer
+mailinglist](http://reef.incubator.apache.org/mailing-list.html) is
+the best way to reach REEF's developers when the above aren't
+sufficient.
 
 Building REEF
--------------
+=============
 
 Requirements
+------------
 
-* Java 7 Development Kit
-* [Apache Maven](http://maven.apache.org) 3 or newer. Make sure that mvn is in your PATH.
-* [Protocol Buffers](https://code.google.com/p/protobuf/) Compiler (protoc) 2.5. Make sure that `protoc` is in your PATH.
+  * Java 7 Development Kit
+  * [Apache Maven](http://maven.apache.org) 3 or newer. Make sure that
+    `mvn` is in your `PATH`.
+  * [Protocol Buffers](https://code.google.com/p/protobuf/) Compiler
+    version 2.5. Make sure that `protoc` is on your `PATH`.
+  * For REEF.NET, you will also need [Visual Studio
+    2013](http://www.visualstudio.com). Most REEF developers use the
+    free Community Edition
 
-Java REEF is built using Apache Maven. To build REEF and its example programs, run:
+REEF Java
+---------
+The Java side of REEF is built using Apache Maven. To build, execute:
 
     mvn -DskipTests clean install
-    
-.Net REEF is build using msbuild, Which internally trigers the maven build for Java:
 
-    msbuild $REEFSourcePath\lang\cs\Org.Apache.REEF.sln /p:Configuration="Release" /p:Platform="x64"
+To test, execute:
 
-More detailed documentation is available from the [project wiki](https://cwiki.apache.org/confluence/display/REEF/Compiling+REEF)
+    mvn test
+
+Note that the tests will take several minutes to complete. You will
+also see stack traces fly by. Not to worry: Those are part of the
+tests that test REEF's error reporting.
+
+REEF.NET
+--------
+REEF.NET uses REEF Java. In fact, the instructions below build REEF
+Java as part of building REEF.NET. Hence, the same requirements apply.
+
+To build and test in Visual Studio, open
+`lang\cs\Org.Apache.REEF.sln`.
+
+Alternatively, you can build REEF.NET from a developer command line
+via:
+
+    msbuild .\lang\cs\Org.Apache.REEF.sln
+
+To test, execute the following command thereafter:
+
+    vstest.console.exe .\lang\cs\bin\x64\Debug\Org.Apache.REEF.Tests\Org.Apache.REEF.Tests.dll /Platform:x64
+
+Additional Information
+----------------------
+More detailed documentation, including building from PowerShell and
+creating NuGets is available from the [project
+wiki](https://cwiki.apache.org/confluence/display/REEF/Home),
+specifcially the [building
+instructions](https://cwiki.apache.org/confluence/display/REEF/Compiling+REEF).
