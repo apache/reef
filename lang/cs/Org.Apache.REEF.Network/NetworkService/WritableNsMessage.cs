@@ -27,8 +27,10 @@ using System.Threading.Tasks;
 using Microsoft.Hadoop.Avro;
 using Org.Apache.REEF.Network.Group.Driver.Impl;
 using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Wake;
 using Org.Apache.REEF.Wake.Remote;
+
 
 namespace Org.Apache.REEF.Network.NetworkService
 {
@@ -39,14 +41,15 @@ namespace Org.Apache.REEF.Network.NetworkService
     public class WritableNsMessage<T> : IWritable where T : IWritable
     {
         private IIdentifierFactory _factory;
-
+        private IInjector _injection;
         /// <summary>
         /// Constructor to allow instantiation by reflection
         /// </summary>
         [Inject]
-        public WritableNsMessage(IIdentifierFactory factory)
+        public WritableNsMessage(IIdentifierFactory factory, IInjector injection)
         {
             _factory = factory;
+            _injection = injection;
         }
         
         /// <summary>
@@ -103,7 +106,7 @@ namespace Org.Apache.REEF.Network.NetworkService
 
             for (int index = 0; index < messageCount; index++)
             {
-                var dataPoint = Activator.CreateInstance<T>();
+                var dataPoint = (T)_injection.ForkInjector().GetInstance(typeof(T));
 
                 if (null == dataPoint)
                 {

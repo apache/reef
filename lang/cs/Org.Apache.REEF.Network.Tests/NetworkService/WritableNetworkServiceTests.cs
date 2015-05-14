@@ -26,11 +26,11 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.Common.Io;
 using Org.Apache.REEF.Network.Naming;
 using Org.Apache.REEF.Network.NetworkService;
+using Org.Apache.REEF.Network.Tests.NamingService;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Wake;
-using Org.Apache.REEF.Wake.Impl;
 using Org.Apache.REEF.Wake.Remote;
 using Org.Apache.REEF.Wake.Remote.Impl;
 using Org.Apache.REEF.Wake.Util;
@@ -55,14 +55,14 @@ namespace Org.Apache.REEF.Network.Tests.NetworkService
 
             BlockingCollection<WritableString> queue = new BlockingCollection<WritableString>();
 
-            using (INameServer nameServer = new NameServer(0))
+            using (var nameServer = NameServerTests.BuildNameServer())
             {
                 IPEndPoint endpoint = nameServer.LocalEndpoint;
                 int nameServerPort = endpoint.Port;
                 string nameServerAddr = endpoint.Address.ToString();
                 IIdentifierFactory factory = new StringIdentifierFactory();
-                using (INetworkService<WritableString> networkService1 = BuildNetworkService(networkServicePort1, nameServerPort, nameServerAddr, null, null))
-                using (INetworkService<WritableString> networkService2 = BuildNetworkService(networkServicePort2, nameServerPort, nameServerAddr, factory, new MessageHandler(queue, factory)))
+                using (INetworkService<WritableString> networkService1 = BuildNetworkService(networkServicePort1, nameServerPort, nameServerAddr, null))
+                using (INetworkService<WritableString> networkService2 = BuildNetworkService(networkServicePort2, nameServerPort, nameServerAddr, new MessageHandler(queue)))
                 {
                     IIdentifier id1 = new StringIdentifier("service1");
                     IIdentifier id2 = new StringIdentifier("service2");
@@ -96,15 +96,14 @@ namespace Org.Apache.REEF.Network.Tests.NetworkService
             BlockingCollection<WritableString> queue1 = new BlockingCollection<WritableString>();
             BlockingCollection<WritableString> queue2 = new BlockingCollection<WritableString>();
 
-            using (INameServer nameServer = new NameServer(0))
+            using (var nameServer = NameServerTests.BuildNameServer())
             {
                 IPEndPoint endpoint = nameServer.LocalEndpoint;
                 int nameServerPort = endpoint.Port;
                 string nameServerAddr = endpoint.Address.ToString();
-                IIdentifierFactory factory = new StringIdentifierFactory();
-
-                using (INetworkService<WritableString> networkService1 = BuildNetworkService(networkServicePort1, nameServerPort, nameServerAddr, factory, new MessageHandler(queue1, factory)))
-                using (INetworkService<WritableString> networkService2 = BuildNetworkService(networkServicePort2, nameServerPort, nameServerAddr, factory, new MessageHandler(queue2, factory)))
+                
+                using (INetworkService<WritableString> networkService1 = BuildNetworkService(networkServicePort1, nameServerPort, nameServerAddr, new MessageHandler(queue1)))
+                using (INetworkService<WritableString> networkService2 = BuildNetworkService(networkServicePort2, nameServerPort, nameServerAddr, new MessageHandler(queue2)))
                 {
                     IIdentifier id1 = new StringIdentifier("service1");
                     IIdentifier id2 = new StringIdentifier("service2");
@@ -147,7 +146,6 @@ namespace Org.Apache.REEF.Network.Tests.NetworkService
             int networkServicePort,
             int nameServicePort,
             string nameServiceAddr,
-            IIdentifierFactory factory,
             IObserver<WritableNsMessage<WritableString>> handler)
         {
             // Test injection
@@ -182,6 +180,7 @@ namespace Org.Apache.REEF.Network.Tests.NetworkService
             var injector = TangFactory.GetTang().NewInjector(nameserverConf);
             var nameClient = injector.GetInstance<NameClient>();
             var remoteManager = injector.GetInstance<WritableRemoteManagerFactory>();
+            var factory = injector.GetInstance<IIdentifierFactory>();
             return new WritableNetworkService<WritableString>(networkServicePort,
                 handler, factory, nameClient, remoteManager);
         }
@@ -192,17 +191,14 @@ namespace Org.Apache.REEF.Network.Tests.NetworkService
         private class MessageHandler : IObserver<WritableNsMessage<WritableString>>
         {
             private readonly BlockingCollection<WritableString> _queue;
-            private readonly IIdentifierFactory _factory;
-
-            public MessageHandler(BlockingCollection<WritableString> queue, IIdentifierFactory factory)
+            
+            public MessageHandler(BlockingCollection<WritableString> queue)
             {
                 _queue = queue;
-                _factory = factory;
             }
 
             public void OnNext(WritableNsMessage<WritableString> value)
             {
-                value.ConvertStringToIdentifier(_factory);
                 _queue.Add(value.Data.First());
             }
 

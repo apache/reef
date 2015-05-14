@@ -21,6 +21,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Org.Apache.REEF.Wake.Remote;
+using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.Network.Tests.NetworkService
 {
@@ -38,6 +39,7 @@ namespace Org.Apache.REEF.Network.Tests.NetworkService
         /// <summary>
         /// Empty constructor for instantiation with reflection
         /// </summary>
+        [Inject]
         public WritableString()
         {
         }
