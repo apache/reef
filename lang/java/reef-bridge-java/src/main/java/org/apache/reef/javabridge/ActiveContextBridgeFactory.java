@@ -18,6 +18,7 @@
  */
 package org.apache.reef.javabridge;
 
+import net.jcip.annotations.GuardedBy;
 import net.jcip.annotations.ThreadSafe;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
@@ -26,7 +27,6 @@ import org.apache.reef.tang.ClassHierarchy;
 import org.apache.reef.tang.formats.AvroConfigurationSerializer;
 
 import javax.inject.Inject;
-import java.util.logging.Logger;
 
 /**
  * Factory for ActiveContextBridge instances.
@@ -35,6 +35,7 @@ import java.util.logging.Logger;
 @ThreadSafe
 @Private
 public final class ActiveContextBridgeFactory {
+  @GuardedBy("this")
   private ClassHierarchy clrClassHierarchy;
   private final AvroConfigurationSerializer configurationSerializer;
 
@@ -46,7 +47,6 @@ public final class ActiveContextBridgeFactory {
   @Inject
   private ActiveContextBridgeFactory(final AvroConfigurationSerializer configurationSerializer) {
     this.configurationSerializer = configurationSerializer;
-
   }
 
   /**
@@ -56,14 +56,18 @@ public final class ActiveContextBridgeFactory {
    * @return a new ActiveContextBridge.
    */
   public ActiveContextBridge getActiveContextBridge(final ActiveContext context) {
-    ensureClassHierarchyIsLoaded();
-    return new ActiveContextBridge(context, this.clrClassHierarchy, this.configurationSerializer);
+    return new ActiveContextBridge(context, this.getClrClassHierarchy(), this.configurationSerializer);
   }
 
-  private synchronized void ensureClassHierarchyIsLoaded() {
-    if (this.clrClassHierarchy == null)
-    {
+  /**
+   * Returns the clr ClassHierarchy. Loads it if needed.
+   *
+   * @return the clr ClassHierarchy.
+   */
+  private synchronized ClassHierarchy getClrClassHierarchy() {
+    if (null == this.clrClassHierarchy) {
       this.clrClassHierarchy = Utilities.loadClassHierarchy(NativeInterop.CLASS_HIERARCHY_FILENAME);
     }
+    return this.clrClassHierarchy;
   }
 }
