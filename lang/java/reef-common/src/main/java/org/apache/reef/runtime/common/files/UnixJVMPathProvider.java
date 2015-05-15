@@ -23,9 +23,9 @@ import javax.inject.Inject;
 /**
  * Supplies the java binary's path for Unix systems based on JAVA_HOME
  */
-public final class UnixJVMSystemPathProvider implements RuntimePathProvider {
+public final class UnixJVMPathProvider implements RuntimePathProvider {
   @Inject
-  public UnixJVMSystemPathProvider() {
+  public UnixJVMPathProvider() {
   }
 
   @Override
