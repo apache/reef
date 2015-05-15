@@ -19,16 +19,18 @@
 package org.apache.reef.driver.evaluator;
 
 import org.apache.reef.annotations.audience.DriverSide;
+import org.apache.reef.annotations.audience.Private;
 
 import javax.inject.Inject;
 
 /**
  * Factory to setup new CLR processes
  */
+@Private
 @DriverSide
 public final class CLRProcessFactory implements EvaluatorProcessFactory {
   @Inject
-  public CLRProcessFactory() {
+  private CLRProcessFactory() {
   }
 
   @Override

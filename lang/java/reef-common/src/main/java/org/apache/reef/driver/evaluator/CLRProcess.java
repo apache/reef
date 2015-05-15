@@ -28,6 +28,12 @@ import java.util.List;
 public final class CLRProcess implements EvaluatorProcess {
   private final CLRLaunchCommandBuilder commandBuilder = new CLRLaunchCommandBuilder();
 
+  /**
+   * Instantiated via CLRProcessFactory
+   */
+  CLRProcess() {
+  }
+
   @Override
   public List<String> getCommandLine() {
     return commandBuilder

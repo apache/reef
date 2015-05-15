@@ -23,7 +23,7 @@ import org.apache.reef.tang.annotations.DefaultImplementation;
 /**
  * Supplies the path to the executable for process (Driver, Evaluator) launches.
  */
-@DefaultImplementation(JVMSystemPathProvider.class)
+@DefaultImplementation(UnixJVMSystemPathProvider.class)
 public interface RuntimePathProvider {
   String getPath();
 }

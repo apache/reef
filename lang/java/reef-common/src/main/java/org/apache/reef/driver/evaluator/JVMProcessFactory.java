@@ -33,7 +33,7 @@ public final class JVMProcessFactory implements EvaluatorProcessFactory {
   private final ClasspathProvider classpathProvider;
 
   @Inject
-  public JVMProcessFactory(final RuntimePathProvider pathProvider,
+  private JVMProcessFactory(final RuntimePathProvider pathProvider,
                            final ClasspathProvider classpathProvider) {
     this.pathProvider = pathProvider;
     this.classpathProvider = classpathProvider;

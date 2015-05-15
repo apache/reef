@@ -21,8 +21,10 @@ package org.apache.reef.webserver;
 import org.apache.reef.driver.catalog.NodeDescriptor;
 import org.apache.reef.driver.catalog.RackDescriptor;
 import org.apache.reef.driver.evaluator.CLRProcess;
+import org.apache.reef.driver.evaluator.CLRProcessFactory;
 import org.apache.reef.driver.evaluator.EvaluatorDescriptor;
 import org.apache.reef.driver.evaluator.EvaluatorProcess;
+import org.apache.reef.driver.evaluator.EvaluatorProcessFactory;
 import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.tang.formats.ConfigurationModule;
@@ -99,15 +101,19 @@ public class TestAvroSerializerForHttp {
     static final ConfigurationModule CONF = new EvaluatorDescriptorConfig()
         .bindImplementation(EvaluatorDescriptor.class, EvaluatorDescriptorMock.class)
         .bindImplementation(NodeDescriptor.class, NodeDescriptorMock.class)
+        .bindImplementation(EvaluatorProcessFactory.class, CLRProcessFactory.class)
         .build();
   }
 
   static class EvaluatorDescriptorMock implements EvaluatorDescriptor {
     final NodeDescriptor nodeDescriptor;
+    final EvaluatorProcessFactory evaluatorProcessFactory;
 
     @Inject
-    EvaluatorDescriptorMock(final NodeDescriptor nodeDescriptor) {
+    EvaluatorDescriptorMock(final NodeDescriptor nodeDescriptor,
+                            final EvaluatorProcessFactory evaluatorProcessFactory) {
       this.nodeDescriptor = nodeDescriptor;
+      this.evaluatorProcessFactory = evaluatorProcessFactory;
     }
 
     /**
@@ -123,7 +129,7 @@ public class TestAvroSerializerForHttp {
      */
     @Override
     public EvaluatorProcess getProcess() {
-      return new CLRProcess();
+      return evaluatorProcessFactory.newEvaluatorProcess();
     }
 
     /**

@@ -32,7 +32,10 @@ public final class JVMProcess implements EvaluatorProcess {
   private final RuntimePathProvider runtimePathProvider;
   private final ClasspathProvider classpathProvider;
 
-  public JVMProcess(final RuntimePathProvider runtimePathProvider,
+  /**
+   * Instantiated via JVMProcessFactory
+   */
+  JVMProcess(final RuntimePathProvider runtimePathProvider,
                     final ClasspathProvider classpathProvider) {
     this.runtimePathProvider = runtimePathProvider;
     this.classpathProvider = classpathProvider;

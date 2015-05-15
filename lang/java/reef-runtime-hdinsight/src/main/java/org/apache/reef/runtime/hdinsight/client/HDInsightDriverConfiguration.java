@@ -31,7 +31,7 @@ import org.apache.reef.runtime.common.files.RuntimePathProvider;
 import org.apache.reef.runtime.common.files.RuntimeClasspathProvider;
 import org.apache.reef.runtime.common.parameters.JVMHeapSlack;
 import org.apache.reef.runtime.hdinsight.HDInsightClasspathProvider;
-import org.apache.reef.runtime.hdinsight.HDInsightPathProvider;
+import org.apache.reef.runtime.hdinsight.HDInsightJVMPathProvider;
 import org.apache.reef.runtime.yarn.driver.*;
 import org.apache.reef.runtime.yarn.driver.parameters.JobSubmissionDirectory;
 import org.apache.reef.runtime.yarn.driver.parameters.YarnHeartbeatPeriod;
@@ -93,6 +93,6 @@ public final class HDInsightDriverConfiguration extends ConfigurationModuleBuild
       .bindNamedParameter(AbstractDriverRuntimeConfiguration.EvaluatorTimeout.class, EVALUATOR_TIMEOUT)
       .bindNamedParameter(JVMHeapSlack.class, JVM_HEAP_SLACK)
       .bindImplementation(RuntimeClasspathProvider.class, HDInsightClasspathProvider.class)
-      .bindImplementation(RuntimePathProvider.class, HDInsightPathProvider.class)
+      .bindImplementation(RuntimePathProvider.class, HDInsightJVMPathProvider.class)
       .build();
 }

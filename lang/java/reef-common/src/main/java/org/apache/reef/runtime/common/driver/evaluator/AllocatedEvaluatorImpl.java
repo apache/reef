@@ -149,10 +149,10 @@ final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
   public void setType(final EvaluatorType type) {
     switch (type) {
       case CLR:
-        this.evaluatorManager.setProcess(clrProcessFactory.newEvaluatorProcess());
+        setProcess(clrProcessFactory.newEvaluatorProcess());
         break;
       default:
-        this.evaluatorManager.setProcess(jvmProcessFactory.newEvaluatorProcess());
+        setProcess(jvmProcessFactory.newEvaluatorProcess());
         break;
     }
   }

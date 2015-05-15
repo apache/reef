@@ -16,21 +16,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.runtime.hdinsight;
+package org.apache.reef.runtime.common.files;
 
-import com.google.inject.Inject;
-import org.apache.reef.runtime.common.files.RuntimePathProvider;
+import javax.inject.Inject;
 
 /**
- * Supplies the java binary's path for HDInsight
+ * Supplies the java binary's path for Unix systems based on JAVA_HOME
  */
-public final class HDInsightPathProvider implements RuntimePathProvider {
+public final class UnixJVMSystemPathProvider implements RuntimePathProvider {
   @Inject
-  public HDInsightPathProvider() {
+  public UnixJVMSystemPathProvider() {
   }
 
   @Override
   public String getPath() {
-    return "%JAVA_HOME%/bin/java";
+    return System.getenv("JAVA_HOME") + "/bin/" + "java";
   }
 }
