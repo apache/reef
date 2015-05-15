@@ -60,13 +60,14 @@ namespace Org.Apache.REEF.Network.NetworkService
         /// <param name="remoteManagerFactory">Writable RemoteManagerFactory to create a 
         /// Writable RemoteManager</param>
         [Inject]
-        public WritableNetworkService(
+        private WritableNetworkService(
             [Parameter(typeof (NetworkServiceOptions.NetworkServicePort))] int nsPort,
             IObserver<WritableNsMessage<T>> messageHandler,
             IIdentifierFactory idFactory,
             INameClient nameClient,
             WritableRemoteManagerFactory remoteManagerFactory)
         {
+ 
             IPAddress localAddress = NetworkUtils.LocalIPAddress;
             _remoteManager = remoteManagerFactory.GetInstance<WritableNsMessage<T>>(localAddress, nsPort);
             _messageHandler = messageHandler;
@@ -125,7 +126,8 @@ namespace Org.Apache.REEF.Network.NetworkService
             NamingClient.Register(id.ToString(), _remoteManager.LocalEndpoint);
 
             // Create and register incoming message handler
-            var anyEndpoint = new IPEndPoint(IPAddress.Any, 0);
+            //var anyEndpoint = _remoteManager.LocalEndpoint;
+            var anyEndpoint = new IPEndPoint(_remoteManager.LocalEndpoint.Address, 0);
             _messageHandlerDisposable = _remoteManager.RegisterObserver(anyEndpoint, _messageHandler);
 
             Logger.Log(Level.Info, "End of Registering id {0} with network service.", id);

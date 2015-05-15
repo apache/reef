@@ -29,6 +29,7 @@ using Org.Apache.REEF.Network.NetworkService;
 using Org.Apache.REEF.Network.Tests.NamingService;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Implementations.Tang;
+using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Wake;
 using Org.Apache.REEF.Wake.Remote;
@@ -53,17 +54,38 @@ namespace Org.Apache.REEF.Network.Tests.NetworkService
             int networkServicePort1 = NetworkUtils.GenerateRandomPort(6000, 7000);
             int networkServicePort2 = NetworkUtils.GenerateRandomPort(7001, 8000);
 
-            BlockingCollection<WritableString> queue = new BlockingCollection<WritableString>();
+            BlockingCollection<WritableString> queue;
 
             using (var nameServer = NameServerTests.BuildNameServer())
             {
                 IPEndPoint endpoint = nameServer.LocalEndpoint;
                 int nameServerPort = endpoint.Port;
                 string nameServerAddr = endpoint.Address.ToString();
-                IIdentifierFactory factory = new StringIdentifierFactory();
-                using (INetworkService<WritableString> networkService1 = BuildNetworkService(networkServicePort1, nameServerPort, nameServerAddr, null))
-                using (INetworkService<WritableString> networkService2 = BuildNetworkService(networkServicePort2, nameServerPort, nameServerAddr, new MessageHandler(queue)))
+
+                var handlerConf1 =
+                    TangFactory.GetTang()
+                        .NewConfigurationBuilder()
+                        .BindImplementation(GenericType<IObserver<WritableNsMessage<WritableString>>>.Class,
+                            GenericType<NetworkMessageHandler>.Class)
+                        .Build();
+
+                var handlerConf2 =
+                    TangFactory.GetTang()
+                        .NewConfigurationBuilder()
+                        .BindImplementation(GenericType<IObserver<WritableNsMessage<WritableString>>>.Class,
+                            GenericType<MessageHandler>.Class)
+                        .Build();
+
+                var networkServiceInjection1 = BuildNetworkService(networkServicePort1, nameServerPort, nameServerAddr,
+                    handlerConf1);
+
+                var networkServiceInjection2 = BuildNetworkService(networkServicePort2, nameServerPort, nameServerAddr,
+                   handlerConf2);
+
+                using (INetworkService<WritableString> networkService1 = networkServiceInjection1.GetInstance<WritableNetworkService<WritableString>>())
+                using (INetworkService<WritableString> networkService2 = networkServiceInjection2.GetInstance<WritableNetworkService<WritableString>>())
                 {
+                    queue = networkServiceInjection2.GetInstance<MessageHandler>().Queue;
                     IIdentifier id1 = new StringIdentifier("service1");
                     IIdentifier id2 = new StringIdentifier("service2");
                     networkService1.Register(id1);
@@ -93,18 +115,34 @@ namespace Org.Apache.REEF.Network.Tests.NetworkService
             int networkServicePort1 = NetworkUtils.GenerateRandomPort(6000, 7000);
             int networkServicePort2 = NetworkUtils.GenerateRandomPort(7001, 8000);
 
-            BlockingCollection<WritableString> queue1 = new BlockingCollection<WritableString>();
-            BlockingCollection<WritableString> queue2 = new BlockingCollection<WritableString>();
+            BlockingCollection<WritableString> queue1;
+            BlockingCollection<WritableString> queue2;
 
             using (var nameServer = NameServerTests.BuildNameServer())
             {
                 IPEndPoint endpoint = nameServer.LocalEndpoint;
                 int nameServerPort = endpoint.Port;
                 string nameServerAddr = endpoint.Address.ToString();
-                
-                using (INetworkService<WritableString> networkService1 = BuildNetworkService(networkServicePort1, nameServerPort, nameServerAddr, new MessageHandler(queue1)))
-                using (INetworkService<WritableString> networkService2 = BuildNetworkService(networkServicePort2, nameServerPort, nameServerAddr, new MessageHandler(queue2)))
+
+                var handlerConf =
+                    TangFactory.GetTang()
+                        .NewConfigurationBuilder()
+                        .BindImplementation(GenericType<IObserver<WritableNsMessage<WritableString>>>.Class,
+                            GenericType<MessageHandler>.Class)
+                        .Build();
+
+                var networkServiceInjection1 = BuildNetworkService(networkServicePort1, nameServerPort, nameServerAddr,
+                    handlerConf);
+
+                var networkServiceInjection2 = BuildNetworkService(networkServicePort2, nameServerPort, nameServerAddr,
+                   handlerConf);
+
+                using (INetworkService<WritableString> networkService1 = networkServiceInjection1.GetInstance<WritableNetworkService<WritableString>>())
+                using (INetworkService<WritableString> networkService2 = networkServiceInjection2.GetInstance<WritableNetworkService<WritableString>>())
                 {
+                    queue1 = networkServiceInjection1.GetInstance<MessageHandler>().Queue;
+                    queue2 = networkServiceInjection2.GetInstance<MessageHandler>().Queue;
+
                     IIdentifier id1 = new StringIdentifier("service1");
                     IIdentifier id2 = new StringIdentifier("service2");
                     networkService1.Register(id1);
@@ -142,47 +180,26 @@ namespace Org.Apache.REEF.Network.Tests.NetworkService
         /// <param name="factory">Identifier factory for WritableString</param>
         /// <param name="handler">The observer to handle incoming messages</param>
         /// <returns></returns>
-        private INetworkService<WritableString> BuildNetworkService(
+        private IInjector BuildNetworkService(
             int networkServicePort,
             int nameServicePort,
             string nameServiceAddr,
-            IObserver<WritableNsMessage<WritableString>> handler)
+            IConfiguration handlerConf)
         {
-            // Test injection
-            if (handler == null)
-            {
-                var networkServiceConf = TangFactory.GetTang().NewConfigurationBuilder()
-                    .BindNamedParameter<NetworkServiceOptions.NetworkServicePort, int>(
-                        GenericType<NetworkServiceOptions.NetworkServicePort>.Class,
-                        networkServicePort.ToString(CultureInfo.CurrentCulture))
-                    .BindNamedParameter<NamingConfigurationOptions.NameServerPort, int>(
-                        GenericType<NamingConfigurationOptions.NameServerPort>.Class,
-                        nameServicePort.ToString(CultureInfo.CurrentCulture))
-                    .BindNamedParameter<NamingConfigurationOptions.NameServerAddress, string>(
-                        GenericType<NamingConfigurationOptions.NameServerAddress>.Class,
-                        nameServiceAddr)
-                    .BindImplementation(GenericType<INameClient>.Class, GenericType<NameClient>.Class)
-                    .BindImplementation(GenericType<IObserver<WritableNsMessage<WritableString>>>.Class, GenericType<NetworkMessageHandler>.Class)
-                    .Build();
+            var networkServiceConf = TangFactory.GetTang().NewConfigurationBuilder(handlerConf)
+                .BindNamedParameter<NetworkServiceOptions.NetworkServicePort, int>(
+                    GenericType<NetworkServiceOptions.NetworkServicePort>.Class,
+                    networkServicePort.ToString(CultureInfo.CurrentCulture))
+                .BindNamedParameter<NamingConfigurationOptions.NameServerPort, int>(
+                    GenericType<NamingConfigurationOptions.NameServerPort>.Class,
+                    nameServicePort.ToString(CultureInfo.CurrentCulture))
+                .BindNamedParameter<NamingConfigurationOptions.NameServerAddress, string>(
+                    GenericType<NamingConfigurationOptions.NameServerAddress>.Class,
+                    nameServiceAddr)
+                .BindImplementation(GenericType<INameClient>.Class, GenericType<NameClient>.Class)
+                .Build();
 
-                return TangFactory.GetTang().NewInjector(networkServiceConf).GetInstance<WritableNetworkService<WritableString>>();
-            }
-
-            var nameserverConf = TangFactory.GetTang().NewConfigurationBuilder()
-             .BindNamedParameter<NamingConfigurationOptions.NameServerPort, int>(
-                 GenericType<NamingConfigurationOptions.NameServerPort>.Class,
-                 nameServicePort.ToString(CultureInfo.CurrentCulture))
-             .BindNamedParameter<NamingConfigurationOptions.NameServerAddress, string>(
-                 GenericType<NamingConfigurationOptions.NameServerAddress>.Class,
-                 nameServiceAddr)
-             .BindImplementation(GenericType<INameClient>.Class, GenericType<NameClient>.Class)
-             .Build();
-            var injector = TangFactory.GetTang().NewInjector(nameserverConf);
-            var nameClient = injector.GetInstance<NameClient>();
-            var remoteManager = injector.GetInstance<WritableRemoteManagerFactory>();
-            var factory = injector.GetInstance<IIdentifierFactory>();
-            return new WritableNetworkService<WritableString>(networkServicePort,
-                handler, factory, nameClient, remoteManager);
+            return TangFactory.GetTang().NewInjector(networkServiceConf);
         }
 
         /// <summary>
@@ -191,10 +208,16 @@ namespace Org.Apache.REEF.Network.Tests.NetworkService
         private class MessageHandler : IObserver<WritableNsMessage<WritableString>>
         {
             private readonly BlockingCollection<WritableString> _queue;
-            
-            public MessageHandler(BlockingCollection<WritableString> queue)
+
+            public BlockingCollection<WritableString> Queue
             {
-                _queue = queue;
+                get { return _queue; }
+            } 
+
+            [Inject]
+            private MessageHandler()
+            {
+                _queue = new BlockingCollection<WritableString>();
             }
 
             public void OnNext(WritableNsMessage<WritableString> value)
