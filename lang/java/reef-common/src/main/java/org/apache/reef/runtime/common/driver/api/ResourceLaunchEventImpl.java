@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -19,10 +19,13 @@
 package org.apache.reef.runtime.common.driver.api;
 
 import org.apache.reef.runtime.common.files.FileResource;
+import org.apache.reef.runtime.common.files.FileResourceImpl;
+import org.apache.reef.runtime.common.files.FileType;
 import org.apache.reef.runtime.common.launch.ProcessType;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.util.BuilderUtils;
 
+import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -119,10 +122,47 @@ public final class ResourceLaunchEventImpl implements ResourceLaunchEvent {
 
     /**
      * Add an entry to the fileSet
+     *
      * @see ResourceLaunchEvent#getFileSet()
      */
     public Builder addFile(final FileResource file) {
       this.fileSet.add(file);
+      return this;
+    }
+
+    /**
+     * Utility method that adds files to the fileSet
+     *
+     * @param files the files to add.
+     * @return this
+     * @see ResourceLaunchEvent#getFileSet()
+     */
+    public Builder addFiles(final Iterable<File> files) {
+      for (final File file : files) {
+        this.addFile(FileResourceImpl.newBuilder()
+            .setName(file.getName())
+            .setPath(file.getPath())
+            .setType(FileType.PLAIN)
+            .build());
+      }
+      return this;
+    }
+
+    /**
+     * Utility method that adds Libraries to the fileSet
+     *
+     * @param files the files to add.
+     * @return this
+     * @see ResourceLaunchEvent#getFileSet()
+     */
+    public Builder addLibraries(final Iterable<File> files) {
+      for (final File file : files) {
+        this.addFile(FileResourceImpl.newBuilder()
+            .setName(file.getName())
+            .setPath(file.getPath())
+            .setType(FileType.LIB)
+            .build());
+      }
       return this;
     }
 
