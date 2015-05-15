@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -19,6 +19,7 @@
 package org.apache.reef.tests;
 
 import org.apache.reef.tests.close_eval.CloseEvaluatorTest;
+import org.apache.reef.tests.configurationproviders.ConfigurationProviderTest;
 import org.apache.reef.tests.driver.DriverTest;
 import org.apache.reef.tests.evaluatorfailure.EvaluatorFailureTest;
 import org.apache.reef.tests.evaluatorreuse.EvaluatorReuseTest;
@@ -48,7 +49,8 @@ import org.junit.runners.Suite;
     TaskResubmitTest.class,
     CloseEvaluatorTest.class,
     EvaluatorFailureTest.class,
-    ExamplesTestSuite.class
+    ExamplesTestSuite.class,
+    ConfigurationProviderTest.class
 })
 public final class AllTestsSuite {
 }
