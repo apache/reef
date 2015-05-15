@@ -126,7 +126,6 @@ namespace Org.Apache.REEF.Network.NetworkService
             NamingClient.Register(id.ToString(), _remoteManager.LocalEndpoint);
 
             // Create and register incoming message handler
-            //var anyEndpoint = _remoteManager.LocalEndpoint;
             var anyEndpoint = new IPEndPoint(_remoteManager.LocalEndpoint.Address, 0);
             _messageHandlerDisposable = _remoteManager.RegisterObserver(anyEndpoint, _messageHandler);
 
