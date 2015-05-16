@@ -184,10 +184,10 @@ final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
               .addFiles(this.files)
               .addLibraries(this.libraries);
 
-        rbuilder.setProcess(this.evaluatorManager.getEvaluatorDescriptor().getProcess());
-
-        this.evaluatorManager.onResourceLaunch(rbuilder.build());
-
+      rbuilder.setProcess(this.evaluatorManager.getEvaluatorDescriptor().getProcess());
+      this.evaluatorManager.onResourceLaunch(rbuilder.build());
+    }
+  }
 
   private Configuration makeEvaluatorConfiguration(final Configuration contextConfiguration,
                                                    final Optional<Configuration> serviceConfiguration,
