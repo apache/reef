@@ -20,7 +20,6 @@ package org.apache.reef.runtime.common.driver.evaluator;
 
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
-import org.apache.reef.tang.ConfigurationProvider;
 import org.apache.reef.driver.context.ContextConfiguration;
 import org.apache.reef.driver.evaluator.AllocatedEvaluator;
 import org.apache.reef.driver.evaluator.CLRProcessFactory;
@@ -30,12 +29,10 @@ import org.apache.reef.driver.evaluator.EvaluatorProcess;
 import org.apache.reef.driver.evaluator.JVMProcessFactory;
 import org.apache.reef.runtime.common.driver.api.ResourceLaunchEventImpl;
 import org.apache.reef.runtime.common.evaluator.EvaluatorConfiguration;
-import org.apache.reef.runtime.common.files.FileResourceImpl;
-import org.apache.reef.runtime.common.files.FileType;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.ConfigurationBuilder;
+import org.apache.reef.tang.ConfigurationProvider;
 import org.apache.reef.tang.Tang;
-import org.apache.reef.tang.exceptions.BindException;
 import org.apache.reef.tang.formats.ConfigurationModule;
 import org.apache.reef.tang.formats.ConfigurationSerializer;
 import org.apache.reef.util.Optional;
@@ -176,92 +173,85 @@ final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
                             final Optional<Configuration> serviceConfiguration,
                             final Optional<Configuration> taskConfiguration) {
     try (final LoggingScope lb = loggingScopeFactory.evaluatorLaunch(this.getId())) {
-      try {
-        final Configuration rootContextConfiguration = makeRootContextConfiguration(contextConfiguration);
-        final ConfigurationModule evaluatorConfigurationModule = EvaluatorConfiguration.CONF
-            .set(EvaluatorConfiguration.APPLICATION_IDENTIFIER, this.jobIdentifier)
-            .set(EvaluatorConfiguration.DRIVER_REMOTE_IDENTIFIER, this.remoteID)
-            .set(EvaluatorConfiguration.EVALUATOR_IDENTIFIER, this.getId());
+      final Configuration evaluatorConfiguration =
+          makeEvaluatorConfiguration(contextConfiguration, serviceConfiguration, taskConfiguration);
 
-        final String encodedContextConfigurationString = this.configurationSerializer.toString(rootContextConfiguration);
-        // Add the (optional) service configuration
-        final ConfigurationModule contextConfigurationModule;
-        if (serviceConfiguration.isPresent()) {
-          // With service configuration
-          final String encodedServiceConfigurationString = this.configurationSerializer.toString(serviceConfiguration.get());
-          contextConfigurationModule = evaluatorConfigurationModule
-              .set(EvaluatorConfiguration.ROOT_SERVICE_CONFIGURATION, encodedServiceConfigurationString)
-              .set(EvaluatorConfiguration.ROOT_CONTEXT_CONFIGURATION, encodedContextConfigurationString);
-        } else {
-          // No service configuration
-          contextConfigurationModule = evaluatorConfigurationModule
-              .set(EvaluatorConfiguration.ROOT_CONTEXT_CONFIGURATION, encodedContextConfigurationString);
-        }
-
-        // Add the (optional) task configuration
-        final Configuration evaluatorConfiguration;
-        if (taskConfiguration.isPresent()) {
-          final String encodedTaskConfigurationString = this.configurationSerializer.toString(taskConfiguration.get());
-          evaluatorConfiguration = contextConfigurationModule
-              .set(EvaluatorConfiguration.TASK_CONFIGURATION, encodedTaskConfigurationString).build();
-        } else {
-          evaluatorConfiguration = contextConfigurationModule.build();
-        }
-
-        final ResourceLaunchEventImpl.Builder rbuilder =
-            ResourceLaunchEventImpl.newBuilder()
-                .setIdentifier(this.evaluatorManager.getId())
-                .setRemoteId(this.remoteID)
-                .setEvaluatorConf(evaluatorConfiguration);
-
-        for (final File file : this.files) {
-          rbuilder.addFile(FileResourceImpl.newBuilder()
-                  .setName(file.getName())
-                  .setPath(file.getPath())
-                  .setType(FileType.PLAIN)
-                  .build());
-        }
-
-        for (final File lib : this.libraries) {
-          rbuilder.addFile(FileResourceImpl.newBuilder()
-                  .setName(lib.getName())
-                  .setPath(lib.getPath().toString())
-                  .setType(FileType.LIB)
-                  .build());
-        }
+      final ResourceLaunchEventImpl.Builder rbuilder =
+          ResourceLaunchEventImpl.newBuilder()
+              .setIdentifier(this.evaluatorManager.getId())
+              .setRemoteId(this.remoteID)
+              .setEvaluatorConf(evaluatorConfiguration)
+              .addFiles(this.files)
+              .addLibraries(this.libraries);
 
         rbuilder.setProcess(this.evaluatorManager.getEvaluatorDescriptor().getProcess());
 
         this.evaluatorManager.onResourceLaunch(rbuilder.build());
 
-      } catch (final BindException ex) {
-        LOG.log(Level.SEVERE, "Bad Evaluator configuration", ex);
-        throw new RuntimeException("Bad Evaluator configuration", ex);
-      }
+
+  private Configuration makeEvaluatorConfiguration(final Configuration contextConfiguration,
+                                                   final Optional<Configuration> serviceConfiguration,
+                                                   final Optional<Configuration> taskConfiguration) {
+
+    final String contextConfigurationString = this.configurationSerializer.toString(contextConfiguration);
+    ConfigurationModule evaluatorConfigurationModule = EvaluatorConfiguration.CONF
+        .set(EvaluatorConfiguration.APPLICATION_IDENTIFIER, this.jobIdentifier)
+        .set(EvaluatorConfiguration.DRIVER_REMOTE_IDENTIFIER, this.remoteID)
+        .set(EvaluatorConfiguration.EVALUATOR_IDENTIFIER, this.getId())
+        .set(EvaluatorConfiguration.ROOT_CONTEXT_CONFIGURATION, contextConfigurationString);
+
+    // Add the (optional) service configuration
+    final Optional<Configuration> mergedServiceConfiguration = makeRootServiceConfiguration(serviceConfiguration);
+    if (mergedServiceConfiguration.isPresent()) {
+      final String serviceConfigurationString = this.configurationSerializer.toString(mergedServiceConfiguration.get());
+      evaluatorConfigurationModule = evaluatorConfigurationModule
+          .set(EvaluatorConfiguration.ROOT_SERVICE_CONFIGURATION, serviceConfigurationString);
     }
+
+    // Add the (optional) task configuration
+    if (taskConfiguration.isPresent()) {
+      final String taskConfigurationString = this.configurationSerializer.toString(taskConfiguration.get());
+      evaluatorConfigurationModule = evaluatorConfigurationModule
+          .set(EvaluatorConfiguration.TASK_CONFIGURATION, taskConfigurationString);
+    }
+
+    // Create the evaluator configuration.
+    return evaluatorConfigurationModule.build();
   }
 
   /**
    * Merges the Configurations provided by the evaluatorConfigurationProviders into the given
-   * contextConfiguration.
-   *
-   * @param contextConfiguration
-   * @return
+   * serviceConfiguration, if any.
    */
-  private Configuration makeRootContextConfiguration(final Configuration contextConfiguration) {
-
+  private Optional<Configuration> makeRootServiceConfiguration(final Optional<Configuration> serviceConfiguration) {
     final EvaluatorType evaluatorType = this.evaluatorManager.getEvaluatorDescriptor().getProcess().getType();
-    if (EvaluatorType.JVM != evaluatorType) {
+    if (EvaluatorType.CLR == evaluatorType) {
       LOG.log(Level.FINE, "Not using the ConfigurationProviders as we are configuring a {0} Evaluator.", evaluatorType);
-      return contextConfiguration;
+      return serviceConfiguration;
     }
 
-    final ConfigurationBuilder configurationBuilder = Tang.Factory.getTang()
-        .newConfigurationBuilder(contextConfiguration);
-    for (final ConfigurationProvider configurationProvider : this.evaluatorConfigurationProviders) {
-      configurationBuilder.addConfiguration(configurationProvider.getConfiguration());
+    if ((!serviceConfiguration.isPresent()) && this.evaluatorConfigurationProviders.isEmpty()) {
+      // No configurations to merge.
+      LOG.info("No service configuration given and no ConfigurationProviders set.");
+      return Optional.empty();
+    } else {
+      final ConfigurationBuilder configurationBuilder = getConfigurationBuilder(serviceConfiguration);
+      for (final ConfigurationProvider configurationProvider : this.evaluatorConfigurationProviders) {
+        configurationBuilder.addConfiguration(configurationProvider.getConfiguration());
+      }
+      return Optional.of(configurationBuilder.build());
     }
-    return configurationBuilder.build();
+  }
+
+  /**
+   * Utility to build a ConfigurationBuilder from an Optional<Configuration></Configuration>
+   */
+  private static ConfigurationBuilder getConfigurationBuilder(final Optional<Configuration> configuration) {
+    if (configuration.isPresent()) {
+      return Tang.Factory.getTang().newConfigurationBuilder(configuration.get());
+    } else {
+      return Tang.Factory.getTang().newConfigurationBuilder();
+    }
   }
 
   @Override

@@ -96,11 +96,11 @@ public final class REEFImplementation implements REEF {
       final JobSubmissionEvent submissionMessage;
       try {
         if (this.clientWireUp.isClientPresent()) {
-          submissionMessage = this.jobSubmissionHelper.getJobSubmissionBuilder(driverConf)
+          submissionMessage = this.jobSubmissionHelper.getJobSubmissionBuilder(driverConfiguration)
               .setRemoteId(this.clientWireUp.getRemoteManagerIdentifier())
               .build();
         } else {
-          submissionMessage = this.jobSubmissionHelper.getJobSubmissionBuilder(driverConf)
+          submissionMessage = this.jobSubmissionHelper.getJobSubmissionBuilder(driverConfiguration)
               .setRemoteId(ErrorHandlerRID.NONE)
               .build();
         }
