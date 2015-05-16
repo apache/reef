@@ -20,8 +20,8 @@ package org.apache.reef.runtime.common.driver.api;
 
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.RuntimeAuthor;
+import org.apache.reef.driver.evaluator.EvaluatorProcess;
 import org.apache.reef.runtime.common.files.FileResource;
-import org.apache.reef.runtime.common.launch.ProcessType;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.annotations.DefaultImplementation;
 
@@ -52,9 +52,9 @@ public interface ResourceLaunchEvent {
     Configuration getEvaluatorConf();
 
     /**
-     * @return Type of process to launch
+     * @return Evaluator process to launch
      */
-    ProcessType getType();
+    EvaluatorProcess getProcess();
 
     /**
      * @return List of libraries local to this Evaluator

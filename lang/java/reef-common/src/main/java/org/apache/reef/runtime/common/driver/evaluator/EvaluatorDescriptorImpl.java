@@ -22,7 +22,7 @@ import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.driver.catalog.NodeDescriptor;
 import org.apache.reef.driver.evaluator.EvaluatorDescriptor;
-import org.apache.reef.driver.evaluator.EvaluatorType;
+import org.apache.reef.driver.evaluator.EvaluatorProcess;
 
 /**
  * A simple all-data implementation of EvaluatorDescriptor
@@ -34,16 +34,16 @@ final class EvaluatorDescriptorImpl implements EvaluatorDescriptor {
   private final NodeDescriptor nodeDescriptor;
   private final int megaBytes;
   private final int numberOfCores;
-  private EvaluatorType type;
+  private EvaluatorProcess process;
 
   public EvaluatorDescriptorImpl(final NodeDescriptor nodeDescriptor,
-                                 final EvaluatorType type,
                                  final int megaBytes,
-                                 final int numberOfCores) {
+                                 final int numberOfCores,
+                                 final EvaluatorProcess process) {
     this.nodeDescriptor = nodeDescriptor;
-    this.type = type;
     this.megaBytes = megaBytes;
     this.numberOfCores = numberOfCores;
+    this.process = process;
   }
 
   @Override
@@ -52,15 +52,15 @@ final class EvaluatorDescriptorImpl implements EvaluatorDescriptor {
   }
 
   @Override
-  public synchronized EvaluatorType getType() {
-    return this.type;
+  public synchronized EvaluatorProcess getProcess() {
+    if (null == this.process) {
+      throw new IllegalArgumentException("EvaluatorProcess must be set");
+    }
+    return this.process;
   }
 
-  public synchronized void setType(final EvaluatorType type) {
-    if (this.getType() != EvaluatorType.UNDECIDED) {
-      throw new RuntimeException("Unable to change state of an Evaluator of Type: " + this.getType());
-    }
-    this.type = type;
+  public synchronized void setProcess(final EvaluatorProcess process) {
+    this.process = process;
   }
 
   @Override

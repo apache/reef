@@ -29,6 +29,7 @@ import org.apache.reef.io.network.naming.NameServer;
 import org.apache.reef.javabridge.*;
 import org.apache.reef.runtime.common.DriverRestartCompleted;
 import org.apache.reef.runtime.common.driver.DriverStatusManager;
+import org.apache.reef.driver.evaluator.EvaluatorProcess;
 import org.apache.reef.tang.annotations.Unit;
 import org.apache.reef.util.Optional;
 import org.apache.reef.util.logging.CLRBufferedLogHandler;
@@ -98,6 +99,11 @@ public final class JobDriver {
   private final LibLoader libLoader;
 
   /**
+   * Factory to setup new CLR process configurations
+   */
+  private final CLRProcessFactory clrProcessFactory;
+
+  /**
    * Shell execution results from each Evaluator.
    */
   private final List<String> results = new ArrayList<>();
@@ -150,7 +156,8 @@ public final class JobDriver {
             final LoggingScopeFactory loggingScopeFactory,
             final LibLoader libLoader,
             final LocalAddressProvider localAddressProvider,
-            final ActiveContextBridgeFactory activeContextBridgeFactory) {
+            final ActiveContextBridgeFactory activeContextBridgeFactory,
+            final CLRProcessFactory clrProcessFactory) {
     this.clock = clock;
     this.httpServer = httpServer;
     this.jobMessageObserver = jobMessageObserver;
@@ -161,6 +168,7 @@ public final class JobDriver {
     this.nameServerInfo = localAddressProvider.getLocalAddress() + ":" + this.nameServer.getPort();
     this.loggingScopeFactory = loggingScopeFactory;
     this.libLoader = libLoader;
+    this.clrProcessFactory = clrProcessFactory;
   }
 
   private void setupBridge(final StartTime startTime) {
@@ -239,9 +247,9 @@ public final class JobDriver {
     return null;
   }
 
-  private void submitEvaluator(final AllocatedEvaluator eval, EvaluatorType type) {
+  private void submitEvaluator(final AllocatedEvaluator eval, final EvaluatorProcess process) {
     synchronized (JobDriver.this) {
-      eval.setType(type);
+      eval.setProcess(process);
       LOG.log(Level.INFO, "Allocated Evaluator: {0}, total running running {1}",
           new Object[]{eval.getId(), JobDriver.this.contexts.size()});
       if (JobDriver.this.allocatedEvaluatorHandler == 0) {
@@ -279,7 +287,7 @@ public final class JobDriver {
       try (final LoggingScope ls = loggingScopeFactory.evaluatorAllocated(allocatedEvaluator.getId())) {
         synchronized (JobDriver.this) {
           LOG.log(Level.INFO, "AllocatedEvaluatorHandler.OnNext");
-          JobDriver.this.submitEvaluator(allocatedEvaluator, EvaluatorType.CLR);
+          JobDriver.this.submitEvaluator(allocatedEvaluator, clrProcessFactory.newEvaluatorProcess());
         }
       }
     }

@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -18,30 +18,29 @@
  */
 package org.apache.reef.driver.evaluator;
 
-import org.apache.reef.driver.catalog.NodeDescriptor;
+import org.apache.reef.annotations.audience.DriverSide;
+import org.apache.reef.runtime.common.files.ClasspathProvider;
+import org.apache.reef.runtime.common.files.RuntimePathProvider;
+
+import javax.inject.Inject;
 
 /**
- * Metadata about an Evaluator.
+ * Factory to setup new JVM processes
  */
-public interface EvaluatorDescriptor {
+@DriverSide
+public final class JVMProcessFactory implements EvaluatorProcessFactory {
+  private final RuntimePathProvider pathProvider;
+  private final ClasspathProvider classpathProvider;
 
-  /**
-   * @return the NodeDescriptor of the node where this Evaluator is running.
-   */
-  NodeDescriptor getNodeDescriptor();
+  @Inject
+  private JVMProcessFactory(final RuntimePathProvider pathProvider,
+                           final ClasspathProvider classpathProvider) {
+    this.pathProvider = pathProvider;
+    this.classpathProvider = classpathProvider;
+  }
 
-  /**
-   * @return the process to be run on the Evaluator.
-   */
-  EvaluatorProcess getProcess();
-
-  /**
-   * @return the amount of memory allocated to this Evaluator.
-   */
-  int getMemory();
-
-  /**
-   * @return the number of virtual core allocated to this Evaluator.
-   */
-  int getNumberOfCores();
+  @Override
+  public EvaluatorProcess newEvaluatorProcess() {
+    return new JVMProcess(pathProvider, classpathProvider);
+  }
 }

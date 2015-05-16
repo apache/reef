@@ -27,9 +27,6 @@ import org.apache.reef.runtime.common.driver.api.ResourceLaunchHandler;
 import org.apache.reef.runtime.common.files.ClasspathProvider;
 import org.apache.reef.runtime.common.files.JobJarMaker;
 import org.apache.reef.runtime.common.files.REEFFileNames;
-import org.apache.reef.runtime.common.launch.CLRLaunchCommandBuilder;
-import org.apache.reef.runtime.common.launch.JavaLaunchCommandBuilder;
-import org.apache.reef.runtime.common.launch.LaunchCommandBuilder;
 import org.apache.reef.runtime.common.parameters.JVMHeapSlack;
 import org.apache.reef.runtime.common.utils.RemoteManager;
 import org.apache.reef.runtime.mesos.util.EvaluatorLaunch;
@@ -101,24 +98,12 @@ final class MesosResourceLaunchHandler implements ResourceLaunchHandler {
       FileUtil.copy(localStagingFolder, fileSystem, hdfsFolder, false, new org.apache.hadoop.conf.Configuration());
 
       // TODO: Replace REEFExecutor with a simple launch command (we only need to launch REEFExecutor)
-      final LaunchCommandBuilder commandBuilder;
-      switch (resourceLaunchEvent.getType()) {
-        case JVM:
-          commandBuilder = new JavaLaunchCommandBuilder().setClassPath(this.classpath.getEvaluatorClasspath());
-          break;
-        case CLR:
-          commandBuilder = new CLRLaunchCommandBuilder();
-          break;
-        default:
-          throw new IllegalArgumentException("Unsupported container type");
-      }
-
-      final List<String> command = commandBuilder
+      final List<String> command = resourceLaunchEvent.getProcess()
           .setErrorHandlerRID(this.remoteManager.getMyIdentifier())
           .setLaunchID(resourceLaunchEvent.getIdentifier())
           .setConfigurationFileName(this.fileNames.getEvaluatorConfigurationPath())
           .setMemory((int) (this.jvmHeapFactor * this.executors.getMemory(resourceLaunchEvent.getIdentifier())))
-          .build();
+          .getCommandLine();
 
       this.executors.launchEvaluator(
           new EvaluatorLaunch(resourceLaunchEvent.getIdentifier(), StringUtils.join(command, ' ')));
