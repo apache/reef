@@ -69,7 +69,7 @@ namespace Org.Apache.REEF.Tests.Functional.ML.KMeans
         [TestMethod, Priority(1), TestCategory("FunctionalGated")]
         [Description("Test KMeans clustering with things directly run without reef")]
         [DeploymentItem(@".")]
-        [DeploymentItem(@"Data", ".")]
+        [DeploymentItem(@"GenericData", ".")]
         [Ignore]
         [Timeout(180 * 1000)]
         public void TestKMeansOnDirectRunViaFileSystem()
@@ -120,7 +120,7 @@ namespace Org.Apache.REEF.Tests.Functional.ML.KMeans
         [TestMethod, Priority(1), TestCategory("FunctionalGated")]
         [Description("Test KMeans clustering on reef local runtime with group communications")]
         [DeploymentItem(@".")]
-        [DeploymentItem(@"Data", ".")]
+        [DeploymentItem(@"GenericData", ".")]
         [Ignore]
         [Timeout(180 * 1000)]
         public void TestKMeansOnLocalRuntimeWithGroupCommunications()
@@ -133,7 +133,7 @@ namespace Org.Apache.REEF.Tests.Functional.ML.KMeans
         [TestMethod, Priority(1), TestCategory("FunctionalGated")]
         [Description("Test KMeans clustering on reef YARN runtime - one box")]
         [DeploymentItem(@".")]
-        [DeploymentItem(@"Data", ".")]
+        [DeploymentItem(@"GenericData", ".")]
         [Timeout(180 * 1000)]
         [Ignore]    // ignored by default
         public void TestKMeansOnYarnOneBoxWithGroupCommunications()

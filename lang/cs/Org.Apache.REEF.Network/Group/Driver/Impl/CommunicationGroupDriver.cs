@@ -17,6 +17,7 @@
  * under the License.
  */
 
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading;
@@ -42,6 +43,7 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
     /// All operators in the same Communication Group run on the the 
     /// same set of tasks.
     /// </summary>
+    [Obsolete("Need to remove Iwritable and use IstreamingCodec. Please see Jira REEF-295 ", false)]
     public class CommunicationGroupDriver : ICommunicationGroupDriver
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof (CommunicationGroupDriver));
@@ -119,9 +121,20 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
                 topology = new FlatTopology<T>(operatorName, _groupName, spec.SenderId, _driverId,
                     spec);
             }
-            else
+            else if(topologyType == TopologyTypes.Tree)
             {
                 topology = new TreeTopology<T>(operatorName, _groupName, spec.SenderId, _driverId,
+                    spec,
+                    _fanOut);
+            }
+            else if (topologyType == TopologyTypes.WritableFlat)
+            {
+                topology = new WritableFlatTopology<T>(operatorName, _groupName, spec.SenderId, _driverId,
+                    spec);
+            }
+            else
+            {
+                topology = new WritableTreeTopology<T>(operatorName, _groupName, spec.SenderId, _driverId,
                     spec,
                     _fanOut);
             }
@@ -175,10 +188,21 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
                 topology = new FlatTopology<T>(operatorName, _groupName, spec.ReceiverId,
                     _driverId, spec);
             }
-            else
+            else if (topologyType == TopologyTypes.Tree)
             {
                 topology = new TreeTopology<T>(operatorName, _groupName, spec.ReceiverId,
                     _driverId, spec,
+                    _fanOut);
+            }
+            else if (topologyType == TopologyTypes.WritableFlat)
+            {
+                topology = new WritableFlatTopology<T>(operatorName, _groupName, spec.ReceiverId, _driverId,
+                    spec);
+            }
+            else
+            {
+                topology = new WritableTreeTopology<T>(operatorName, _groupName, spec.ReceiverId, _driverId,
+                    spec,
                     _fanOut);
             }
 
