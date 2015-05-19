@@ -39,7 +39,8 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
         private readonly ICommunicationGroupNetworkObserver _networkHandler;
         private readonly OperatorTopology<PipelineMessage<T>> _topology;
         private static readonly Logger Logger = Logger.GetLogger(typeof (BroadcastReceiver<T>));
-        private bool _isInitialize = false;
+        private bool _isInitialized = false;
+        private object initializeLock = new object();
 
         /// <summary>
         /// Creates a new BroadcastReceiver.
@@ -53,8 +54,8 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
         /// message to pipelined ones and vice versa.</param>
         [Inject]
         public BroadcastReceiver(
-            [Parameter(typeof (GroupCommConfigurationOptions.OperatorName))] string operatorName,
-            [Parameter(typeof (GroupCommConfigurationOptions.CommunicationGroupName))] string groupName,
+            [Parameter(typeof(GroupCommConfigurationOptions.OperatorName))] string operatorName,
+            [Parameter(typeof(GroupCommConfigurationOptions.CommunicationGroupName))] string groupName,
             OperatorTopology<PipelineMessage<T>> topology,
             ICommunicationGroupNetworkObserver networkHandler,
             IPipelineDataConverter<T> dataConverter)
@@ -92,12 +93,21 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
         /// </summary>
         public IPipelineDataConverter<T> PipelineDataConverter { get; private set; }
 
+        /// <summary>
+        /// It does necessary checks in topology to make sure the operator is ready to send/receive messages from/to tasks
+        /// </summary>
         public void Initialize()
         {
-            if (!_isInitialize)
+            if (!_isInitialized)
             {
-                _topology.Initialize();
-                _isInitialize = true;
+                lock (initializeLock)
+                {
+                    if (!_isInitialized)
+                    {
+                        _topology.Initialize();
+                        _isInitialized = true;
+                    }
+                }
             }
         }
 

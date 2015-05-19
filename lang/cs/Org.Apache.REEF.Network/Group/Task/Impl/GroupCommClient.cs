@@ -41,15 +41,15 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
 
         /// <summary>
         /// Creates a new GroupCommClient and registers the task ID with the Name Server.
+        /// Currently the GroupCommClient is injected in task constructor. When work with REEF-289, we should put the injection at a proepr palce. 
         /// </summary>
         /// <param name="groupConfigs">The set of serialized Group Communication configurations</param>
-        /// <param name="taskId">The identifier for this task</param>
-        /// for this task</param>
+        /// <param name="taskId">The identifier for this taskfor this task</param>
         /// <param name="networkService">The network service used to send messages</param>
         /// <param name="configSerializer">Used to deserialize Group Communication configuration</param>
         /// <param name="injector">injector forked from the injector that creates this instance</param>
         [Inject]
-        public GroupCommClient(
+        private GroupCommClient(
             [Parameter(typeof(GroupCommConfigurationOptions.SerializedGroupConfigs))] ISet<string> groupConfigs,
             [Parameter(typeof(TaskConfigurationOptions.Identifier))] string taskId,
             NetworkService<GroupCommunicationMessage> networkService,

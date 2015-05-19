@@ -17,6 +17,7 @@
  * under the License.
  */
 
+using System;
 using System.Collections.Generic;
 using System.Reactive;
 using Org.Apache.REEF.Network.Group.Config;
@@ -38,7 +39,8 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
 
         private readonly ICommunicationGroupNetworkObserver _networkHandler;
         private readonly OperatorTopology<T> _topology;
-        private bool _isInitialize = false;
+        private bool _isInitialized = false;
+        private object initializeLock = new object();
 
         /// <summary>
         /// Creates a new ScatterSender.
@@ -71,12 +73,21 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
 
         public int Version { get; private set; }
 
+        /// <summary>
+        /// It does necessary checks in topology to make sure the operator is ready to send/receive messages from/to tasks
+        /// </summary>
         public void Initialize()
         {
-            if (!_isInitialize)
+            if (!_isInitialized)
             {
-                _topology.Initialize();
-                _isInitialize = true;
+                lock (initializeLock)
+                {
+                    if (!_isInitialized)
+                    {
+                        _topology.Initialize();
+                        _isInitialized = true;
+                    }
+                }
             }
         }
 

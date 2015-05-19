@@ -38,7 +38,8 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
         private static readonly Logger Logger = Logger.GetLogger(typeof(BroadcastSender<T>));
         private const int PipelineVersion = 2;
         private readonly OperatorTopology<PipelineMessage<T>> _topology;
-        private bool _isInitialize = false;
+        private bool _isInitialized = false;
+        private object initializeLock = new object();
 
         /// <summary>
         /// Creates a new BroadcastSender to send messages to other Tasks.
@@ -89,14 +90,20 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
         public IPipelineDataConverter<T> PipelineDataConverter { get; private set; }
 
         /// <summary>
-        /// Initialize topology
+        /// It does necessary checks in topology to make sure the operator is ready to send/receive messages from/to tasks
         /// </summary>
         public void Initialize()
         {
-            if (!_isInitialize)
+            if (!_isInitialized)
             {
-                _topology.Initialize();
-                _isInitialize = true;
+                lock (initializeLock)
+                {
+                    if (!_isInitialized)
+                    {
+                        _topology.Initialize();
+                        _isInitialized = true;
+                    }
+                }
             }
         }
 

@@ -40,6 +40,9 @@ namespace Org.Apache.REEF.Network.Group.Operators
         /// </summary>
         int Version { get; }
 
+        /// <summary>
+        /// It does necessary checks to make sure the operator is ready to send/receive messages from/to tasks
+        /// </summary>
         void Initialize();
     }
 }
