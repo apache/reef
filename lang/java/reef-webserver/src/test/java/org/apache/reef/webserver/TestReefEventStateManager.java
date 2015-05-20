@@ -20,8 +20,11 @@ package org.apache.reef.webserver;
 
 import org.apache.reef.driver.catalog.NodeDescriptor;
 import org.apache.reef.driver.catalog.RackDescriptor;
+import org.apache.reef.driver.evaluator.CLRProcess;
+import org.apache.reef.driver.evaluator.CLRProcessFactory;
 import org.apache.reef.driver.evaluator.EvaluatorDescriptor;
-import org.apache.reef.driver.evaluator.EvaluatorType;
+import org.apache.reef.driver.evaluator.EvaluatorProcess;
+import org.apache.reef.driver.evaluator.EvaluatorProcessFactory;
 import org.apache.reef.runtime.common.driver.api.AbstractDriverRuntimeConfiguration;
 import org.apache.reef.runtime.common.launch.REEFMessageCodec;
 import org.apache.reef.tang.Configuration;
@@ -51,6 +54,7 @@ public class TestReefEventStateManager {
     final Configuration configuration = tang.newConfigurationBuilder()
         .bindImplementation(EvaluatorDescriptor.class, MockEvaluatorDescriptor.class)
         .bindImplementation(NodeDescriptor.class, MockNodeDescriptor.class)
+        .bindImplementation(EvaluatorProcessFactory.class, CLRProcessFactory.class)
         .bindNamedParameter(RemoteConfiguration.ManagerName.class, "REEF_TEST_REMOTE_MANAGER")
         .bindNamedParameter(RemoteConfiguration.MessageCodec.class, REEFMessageCodec.class)
         .bindNamedParameter(AbstractDriverRuntimeConfiguration.JobIdentifier.class, "my job")
@@ -92,10 +96,13 @@ public class TestReefEventStateManager {
 
 final class MockEvaluatorDescriptor implements EvaluatorDescriptor {
   final private NodeDescriptor nodeDescriptor;
+  final EvaluatorProcessFactory evaluatorProcessFactory;
 
   @Inject
-  public MockEvaluatorDescriptor(final NodeDescriptor nodeDescriptor) {
+  public MockEvaluatorDescriptor(final NodeDescriptor nodeDescriptor,
+                                 final EvaluatorProcessFactory evaluatorProcessFactory) {
     this.nodeDescriptor = nodeDescriptor;
+    this.evaluatorProcessFactory = evaluatorProcessFactory;
   }
 
   @Override
@@ -104,8 +111,8 @@ final class MockEvaluatorDescriptor implements EvaluatorDescriptor {
   }
 
   @Override
-  public EvaluatorType getType() {
-    return EvaluatorType.CLR;
+  public EvaluatorProcess getProcess() {
+    return evaluatorProcessFactory.newEvaluatorProcess();
   }
 
   @Override

@@ -20,11 +20,13 @@ package org.apache.reef.examples.helloCLR;
 
 import org.apache.reef.driver.context.ContextConfiguration;
 import org.apache.reef.driver.evaluator.AllocatedEvaluator;
+import org.apache.reef.driver.evaluator.CLRProcessFactory;
 import org.apache.reef.driver.evaluator.EvaluatorRequest;
 import org.apache.reef.driver.evaluator.EvaluatorRequestor;
 import org.apache.reef.driver.evaluator.EvaluatorType;
 import org.apache.reef.driver.task.TaskConfiguration;
 import org.apache.reef.examples.hello.HelloTask;
+import org.apache.reef.driver.evaluator.CLRProcess;
 import org.apache.reef.tang.ClassHierarchy;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.ConfigurationBuilder;
@@ -52,6 +54,7 @@ public final class HelloDriver {
   private static final Logger LOG = Logger.getLogger(HelloDriver.class.getName());
 
   private final EvaluatorRequestor requestor;
+  private final CLRProcessFactory clrProcessFactory;
 
   private int nJVMTasks = 1;  // guarded by this
   private int nCLRTasks = 1;  // guarded by this
@@ -63,8 +66,10 @@ public final class HelloDriver {
    * @param requestor evaluator requestor object used to create new evaluator containers.
    */
   @Inject
-  public HelloDriver(final EvaluatorRequestor requestor) {
+  public HelloDriver(final EvaluatorRequestor requestor,
+                     final CLRProcessFactory clrProcessFactory) {
     this.requestor = requestor;
+    this.clrProcessFactory = clrProcessFactory;
   }
 
   /**
@@ -107,7 +112,7 @@ public final class HelloDriver {
    */
   final void onNextCLR(final AllocatedEvaluator allocatedEvaluator) {
     try {
-      allocatedEvaluator.setType(EvaluatorType.CLR);
+      allocatedEvaluator.setProcess(clrProcessFactory.newEvaluatorProcess());
       final Configuration contextConfiguration = ContextConfiguration.CONF
           .set(ContextConfiguration.IDENTIFIER, "HelloREEFContext")
           .build();
@@ -129,7 +134,6 @@ public final class HelloDriver {
    */
   final void onNextJVM(final AllocatedEvaluator allocatedEvaluator) {
     try {
-      allocatedEvaluator.setType(EvaluatorType.JVM);
       final Configuration contextConfiguration = ContextConfiguration.CONF
           .set(ContextConfiguration.IDENTIFIER, "HelloREEFContext")
           .build();

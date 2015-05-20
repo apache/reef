@@ -18,10 +18,10 @@
  */
 package org.apache.reef.runtime.common.driver.api;
 
+import org.apache.reef.driver.evaluator.EvaluatorProcess;
 import org.apache.reef.runtime.common.files.FileResource;
 import org.apache.reef.runtime.common.files.FileResourceImpl;
 import org.apache.reef.runtime.common.files.FileType;
-import org.apache.reef.runtime.common.launch.ProcessType;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.util.BuilderUtils;
 
@@ -38,14 +38,14 @@ public final class ResourceLaunchEventImpl implements ResourceLaunchEvent {
   private final String identifier;
   private final String remoteId;
   private final Configuration evaluatorConf;
-  private final ProcessType type;
+  private final EvaluatorProcess process;
   private final Set<FileResource> fileSet;
 
   private ResourceLaunchEventImpl(final Builder builder) {
     this.identifier = BuilderUtils.notNull(builder.identifier);
     this.remoteId = BuilderUtils.notNull(builder.remoteId);
     this.evaluatorConf = BuilderUtils.notNull(builder.evaluatorConf);
-    this.type = BuilderUtils.notNull(builder.type);
+    this.process = BuilderUtils.notNull(builder.process);
     this.fileSet = BuilderUtils.notNull(builder.fileSet);
   }
 
@@ -65,8 +65,8 @@ public final class ResourceLaunchEventImpl implements ResourceLaunchEvent {
   }
 
   @Override
-  public ProcessType getType() {
-    return type;
+  public EvaluatorProcess getProcess() {
+    return process;
   }
 
   @Override
@@ -85,7 +85,7 @@ public final class ResourceLaunchEventImpl implements ResourceLaunchEvent {
     private String identifier;
     private String remoteId;
     private Configuration evaluatorConf;
-    private ProcessType type;
+    private EvaluatorProcess process;
     private Set<FileResource> fileSet = new HashSet<>();
 
     /**
@@ -113,10 +113,10 @@ public final class ResourceLaunchEventImpl implements ResourceLaunchEvent {
     }
 
     /**
-     * @see ResourceLaunchEvent#getType()
+     * @see ResourceLaunchEvent#getProcess()
      */
-    public Builder setType(final ProcessType type) {
-      this.type = type;
+    public Builder setProcess(final EvaluatorProcess process) {
+      this.process = process;
       return this;
     }
 
