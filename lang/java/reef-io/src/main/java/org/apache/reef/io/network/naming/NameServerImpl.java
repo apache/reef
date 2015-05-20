@@ -89,6 +89,7 @@ public class NameServerImpl implements NameServer {
   @Deprecated
   public NameServerImpl(final int port, final IdentifierFactory factory) {
     this(port, factory, LocalAddressProviderFactory.getInstance());
+
   }
 
   /**

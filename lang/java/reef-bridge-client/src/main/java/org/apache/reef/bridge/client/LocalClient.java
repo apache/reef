@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -6,9 +6,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * <p/>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p/>
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -25,13 +25,10 @@ import org.apache.reef.runtime.common.files.REEFFileNames;
 import org.apache.reef.runtime.local.client.DriverConfigurationProvider;
 import org.apache.reef.runtime.local.client.LocalRuntimeConfiguration;
 import org.apache.reef.runtime.local.client.PreparedDriverFolderLauncher;
-import org.apache.reef.tang.Configuration;
-import org.apache.reef.tang.Configurations;
-import org.apache.reef.tang.Tang;
+import org.apache.reef.tang.*;
+import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.tang.formats.AvroConfigurationSerializer;
-import org.apache.reef.tang.formats.ConfigurationModule;
-import org.apache.reef.wake.remote.ports.RangeTcpPortProvider;
 import org.apache.reef.wake.remote.ports.parameters.TcpPortRangeBegin;
 import org.apache.reef.wake.remote.ports.parameters.TcpPortRangeCount;
 import org.apache.reef.wake.remote.ports.parameters.TcpPortRangeTryCount;
@@ -39,6 +36,7 @@ import org.apache.reef.wake.remote.ports.parameters.TcpPortRangeTryCount;
 import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
+import java.util.Set;
 
 /**
  * Submits a folder containing a Driver to the local runtime.
@@ -50,16 +48,19 @@ public class LocalClient {
   private final PreparedDriverFolderLauncher launcher;
   private final REEFFileNames fileNames;
   private final DriverConfigurationProvider driverConfigurationProvider;
+  private final Set<ConfigurationProvider> configurationProviders;
 
   @Inject
   public LocalClient(final AvroConfigurationSerializer configurationSerializer,
                      final PreparedDriverFolderLauncher launcher,
                      final REEFFileNames fileNames,
-                     final DriverConfigurationProvider driverConfigurationProvider) {
+                     final DriverConfigurationProvider driverConfigurationProvider,
+                     final @Parameter(DriverConfigurationProviders.class) Set<ConfigurationProvider> configurationProviders)  {
     this.configurationSerializer = configurationSerializer;
     this.launcher = launcher;
     this.fileNames = fileNames;
     this.driverConfigurationProvider = driverConfigurationProvider;
+    this.configurationProviders = configurationProviders;
   }
 
   public void submit(final File jobFolder, final String jobId) throws IOException {
@@ -72,8 +73,17 @@ public class LocalClient {
       throw new IOException("The Driver folder " + driverFolder.getAbsolutePath() + " doesn't exist.");
     }
 
-    final Configuration driverConfiguration = driverConfigurationProvider
+    final Configuration driverConfiguration1 = driverConfigurationProvider
         .getDriverConfiguration(jobFolder, CLIENT_REMOTE_ID, jobId, Constants.DRIVER_CONFIGURATION_WITH_HTTP_AND_NAMESERVER);
+    final ConfigurationBuilder configurationBuilder = Tang.Factory.getTang().newConfigurationBuilder();
+    for (final ConfigurationProvider configurationProvider : this.configurationProviders) {
+      configurationBuilder.addConfiguration(configurationProvider.getConfiguration());
+    }
+    final Configuration providedConfigurations =  configurationBuilder.build();
+    final Configuration driverConfiguration = Configurations.merge(
+        driverConfiguration1,
+        providedConfigurations);
+
     final File driverConfigurationFile = new File(driverFolder, fileNames.getDriverConfigurationPath());
     configurationSerializer.toFile(driverConfiguration, driverConfigurationFile);
     launcher.launch(driverFolder, jobId, CLIENT_REMOTE_ID);

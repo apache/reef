@@ -18,18 +18,14 @@
  */
 
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Org.Apache.REEF.Client.API;
 using Org.Apache.REEF.Client.Common;
 using Org.Apache.REEF.Client.Local.Parameters;
 using Org.Apache.REEF.Tang.Annotations;
-using Org.Apache.REEF.Tang.Implementations.Configuration;
 using Org.Apache.REEF.Tang.Implementations.Tang;
-using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Utilities.Logging;
-using Org.Apache.REEF.Wake.Remote.Parameters;
 
 namespace Org.Apache.REEF.Client.Local
 {
@@ -48,7 +44,7 @@ namespace Org.Apache.REEF.Client.Local
         /// </summary>
         private const string DriverFolderName = "driver";
 
-        private static readonly Logger Logger = Logger.GetLogger(typeof (LocalClient));
+        private static readonly Logger Logger = Logger.GetLogger(typeof(LocalClient));
         private readonly DriverFolderPreparationHelper _driverFolderPreparationHelper;
         private readonly JavaClientLauncher _javaClientLauncher;
         private readonly int _numberOfEvaluators;
@@ -56,8 +52,8 @@ namespace Org.Apache.REEF.Client.Local
 
         [Inject]
         private LocalClient(DriverFolderPreparationHelper driverFolderPreparationHelper,
-            [Parameter(typeof (LocalRuntimeDirectory))] string runtimeFolder,
-            [Parameter(typeof (NumberOfEvaluators))] int numberOfEvaluators, JavaClientLauncher javaClientLauncher)
+            [Parameter(typeof(LocalRuntimeDirectory))] string runtimeFolder,
+            [Parameter(typeof(NumberOfEvaluators))] int numberOfEvaluators, JavaClientLauncher javaClientLauncher)
         {
             _driverFolderPreparationHelper = driverFolderPreparationHelper;
             _runtimeFolder = runtimeFolder;
@@ -74,7 +70,7 @@ namespace Org.Apache.REEF.Client.Local
         [Inject]
         private LocalClient(
             DriverFolderPreparationHelper driverFolderPreparationHelper,
-            [Parameter(typeof (NumberOfEvaluators))] int numberOfEvaluators, JavaClientLauncher javaClientLauncher)
+            [Parameter(typeof(NumberOfEvaluators))] int numberOfEvaluators, JavaClientLauncher javaClientLauncher)
             : this(driverFolderPreparationHelper, Path.GetTempPath(), numberOfEvaluators, javaClientLauncher)
         {
             // Intentionally left blank.

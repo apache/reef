@@ -90,7 +90,7 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
         {
             LOGGER.Log(Level.Info, "ActiveContext::SubmitTask");
             string task = _serializer.ToString(taskConfiguration);
-            LOGGER.Log(Level.Info, "serialized taskConfiguration: " + task);
+            LOGGER.Log(Level.Verbose, "serialized taskConfiguration: " + task);
             Clr2Java.SubmitTask(task);
         }
 

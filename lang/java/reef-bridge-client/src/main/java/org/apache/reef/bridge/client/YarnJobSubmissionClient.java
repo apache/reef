@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -6,9 +6,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * <p/>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p/>
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -32,12 +32,9 @@ import org.apache.reef.runtime.yarn.client.uploader.JobFolder;
 import org.apache.reef.runtime.yarn.client.uploader.JobUploader;
 import org.apache.reef.runtime.yarn.driver.YarnDriverConfiguration;
 import org.apache.reef.tang.*;
-import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.tang.formats.ConfigurationSerializer;
 import org.apache.reef.util.JARFileMaker;
-import org.apache.reef.wake.remote.ports.RangeTcpPortProvider;
-import org.apache.reef.wake.remote.ports.TcpPortProvider;
 import org.apache.reef.wake.remote.ports.parameters.TcpPortRangeBegin;
 import org.apache.reef.wake.remote.ports.parameters.TcpPortRangeCount;
 import org.apache.reef.wake.remote.ports.parameters.TcpPortRangeTryCount;
@@ -46,7 +43,6 @@ import javax.inject.Inject;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -61,21 +57,18 @@ public final class YarnJobSubmissionClient {
   private final REEFFileNames fileNames;
   private final YarnConfiguration yarnConfiguration;
   private final ClasspathProvider classpath;
-  private final Set<ConfigurationProvider> configurationProviders;
 
   @Inject
   YarnJobSubmissionClient(final JobUploader uploader,
                           final YarnConfiguration yarnConfiguration,
                           final ConfigurationSerializer configurationSerializer,
                           final REEFFileNames fileNames,
-                          final ClasspathProvider classpath,
-                          final @Parameter(DriverConfigurationProviders.class) Set<ConfigurationProvider> configurationProviders) {
+                          final ClasspathProvider classpath) {
     this.uploader = uploader;
     this.configurationSerializer = configurationSerializer;
     this.fileNames = fileNames;
     this.yarnConfiguration = yarnConfiguration;
     this.classpath = classpath;
-    this.configurationProviders = configurationProviders;
   }
 
   private void addJVMConfiguration(final File driverFolder, final String jobId, final String jobSubmissionFolder) throws IOException {
@@ -87,18 +80,9 @@ public final class YarnJobSubmissionClient {
             .set(YarnDriverConfiguration.JOB_IDENTIFIER, jobId)
             .set(YarnDriverConfiguration.CLIENT_REMOTE_IDENTIFIER, AbstractDriverRuntimeConfiguration.ClientRemoteIdentifier.NONE)
             .set(YarnDriverConfiguration.JVM_HEAP_SLACK, 0.0)
-            .build(),
-        getProvidersConfig());
+            .build());
 
     this.configurationSerializer.toFile(driverConfiguration, driverConfigurationFile);
-  }
-
-  private Configuration getProvidersConfig() {
-    final ConfigurationBuilder configurationBuilder = Tang.Factory.getTang().newConfigurationBuilder();
-    for (final ConfigurationProvider configurationProvider : this.configurationProviders) {
-      configurationBuilder.addConfiguration(configurationProvider.getConfiguration());
-    }
-    return configurationBuilder.build();
   }
 
   /**

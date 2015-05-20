@@ -48,7 +48,7 @@ public final class RangeTcpPortProvider implements TcpPortProvider {
     this.portRangeBegin = portRangeBegin;
     this.portRangeCount = portRangeCount;
     this.portRangeTryCount = portRangeTryCount;
-    LOG.log(Level.INFO, "Instantiating " + this.toString());
+    LOG.log(Level.FINE, "Instantiating " + this);
   }
 
   /**

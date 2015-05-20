@@ -73,7 +73,7 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
         {
             LOGGER.Log(Level.Info, "AllocatedEvaluator::SubmitContext");
             string context = _serializer.ToString(contextConfiguration);
-            LOGGER.Log(Level.Info, "serialized contextConfiguration: " + context);
+            LOGGER.Log(Level.Verbose, "serialized contextConfiguration: " + context);
             Clr2Java.SubmitContext(context);
         }
 
@@ -86,8 +86,8 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
             string context = _serializer.ToString(contextConfiguration);
             string task = _serializer.ToString(taskConfiguration);
 
-            LOGGER.Log(Level.Info, "serialized contextConfiguration: " + context);
-            LOGGER.Log(Level.Info, "serialized taskConfiguration: " + task);
+            LOGGER.Log(Level.Verbose, "serialized contextConfiguration: " + context);
+            LOGGER.Log(Level.Verbose, "serialized taskConfiguration: " + task);
 
             Clr2Java.SubmitContextAndTask(context, task);
         }
@@ -99,8 +99,8 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
             string context = _serializer.ToString(contextConfiguration);
             string service = _serializer.ToString(serviceConfiguration);
 
-            LOGGER.Log(Level.Info, "serialized contextConfiguration: " + context);
-            LOGGER.Log(Level.Info, "serialized serviceConfiguration: " + service);
+            LOGGER.Log(Level.Verbose, "serialized contextConfiguration: " + context);
+            LOGGER.Log(Level.Verbose, "serialized serviceConfiguration: " + service);
 
             Clr2Java.SubmitContextAndService(context, service);
         }
@@ -115,9 +115,9 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
             string service = _serializer.ToString(serviceConfiguration);
             string task = _serializer.ToString(taskConfiguration);
 
-            LOGGER.Log(Level.Info, "serialized contextConfiguration: " + context);
-            LOGGER.Log(Level.Info, "serialized serviceConfiguration: " + service);
-            LOGGER.Log(Level.Info, "serialized taskConfiguration: " + task);
+            LOGGER.Log(Level.Verbose, "serialized contextConfiguration: " + context);
+            LOGGER.Log(Level.Verbose, "serialized serviceConfiguration: " + service);
+            LOGGER.Log(Level.Verbose, "serialized taskConfiguration: " + task);
 
             Clr2Java.SubmitContextAndServiceAndTask(context, service, task);
         }
