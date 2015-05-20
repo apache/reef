@@ -37,6 +37,10 @@ import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.tang.formats.ConfigurationSerializer;
 import org.apache.reef.util.JARFileMaker;
 import org.apache.reef.wake.remote.ports.RangeTcpPortProvider;
+import org.apache.reef.wake.remote.ports.TcpPortProvider;
+import org.apache.reef.wake.remote.ports.parameters.TcpPortRangeBegin;
+import org.apache.reef.wake.remote.ports.parameters.TcpPortRangeCount;
+import org.apache.reef.wake.remote.ports.parameters.TcpPortRangeTryCount;
 
 import javax.inject.Inject;
 import java.io.File;
@@ -166,30 +170,32 @@ public final class YarnJobSubmissionClient {
     }
   }
 
-  private static Configuration getRuntimeConfiguration(String[] args){
-    if (args.length <= 2){
-      return YarnClientConfiguration.CONF.build();
-    }
-    else {
-      return YarnClientConfiguration.CONF
-          .set(YarnClientConfiguration.TCP_PORT_PROVIDER, RangeTcpPortProvider.class)
-          .set(YarnClientConfiguration.DRIVER_CONFIGURATION_PROVIDERS, TcpPortConfigurationProvider.class)
-          .set(YarnClientConfiguration.TCP_PORT_RANGE_START, args[3])
-          .set(YarnClientConfiguration.TCP_PORT_RANGE_COUNT, args[4])
-          .set(YarnClientConfiguration.TCP_PORT_RANGE_TRY_COUNT, args[5])
-          .build();
-    }
+  private static Configuration getRuntimeConfiguration(int tcpBeginPort, int tcpRangeCount, int tcpTryCount) {
+    Configuration yarnClientConfig = YarnClientConfiguration.CONF
+        .build();
+
+    Configuration providerConfig = Tang.Factory.getTang().newConfigurationBuilder()
+        .bindSetEntry(DriverConfigurationProviders.class, TcpPortConfigurationProvider.class)
+        .bindNamedParameter(TcpPortRangeBegin.class, Integer.toString(tcpBeginPort))
+        .bindNamedParameter(TcpPortRangeCount.class, Integer.toString(tcpRangeCount))
+        .bindNamedParameter(TcpPortRangeTryCount.class, Integer.toString(tcpTryCount))
+        .build();
+
+    return Configurations.merge(yarnClientConfig, providerConfig);
   }
 
   public static void main(final String[] args) throws InjectionException, IOException, YarnException {
     final File driverFolder = new File(args[0]);
     final String jobId = args[1];
     final int driverMemory = Integer.valueOf(args[2]);
+    final int tcpBeginPort = Integer.valueOf(args[3]);
+    final int tcpRangeCount = Integer.valueOf(args[4]);
+    final int tcpTryCount = Integer.valueOf(args[5]);
     // Static for now
     final int priority = 1;
     final String queue = "default";
 
-    final Configuration yarnConfiguration = getRuntimeConfiguration(args);
+    final Configuration yarnConfiguration = getRuntimeConfiguration(tcpBeginPort, tcpRangeCount, tcpTryCount);
     final YarnJobSubmissionClient client = Tang.Factory.getTang()
         .newInjector(yarnConfiguration)
         .getInstance(YarnJobSubmissionClient.class);

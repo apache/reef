@@ -20,13 +20,16 @@
 using System;
 using Org.Apache.REEF.Client.API;
 using Org.Apache.REEF.Client.Local;
+using Org.Apache.REEF.Client.Local.Parameters;
 using Org.Apache.REEF.Client.YARN;
 using Org.Apache.REEF.Common.Io;
 using Org.Apache.REEF.Driver.Bridge;
 using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Tang.Implementations.Configuration;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
+using Org.Apache.REEF.Wake.Remote.Parameters;
 
 namespace Org.Apache.REEF.Examples.HelloREEF
 {
@@ -74,25 +77,28 @@ namespace Org.Apache.REEF.Examples.HelloREEF
         /// <returns></returns>
         private static IConfiguration GetRuntimeConfiguration(string name)
         {
+            IConfiguration runtimeConfiguration = null;
             switch (name)
             {
                 case Local:
-                    return LocalRuntimeClientConfiguration.ConfigurationModule
-                        .Set(LocalRuntimeClientConfiguration.DriverConfigurationProvider, GenericType<TcpPortConfigurationProvider>.Class)
+                    runtimeConfiguration = LocalRuntimeClientConfiguration.ConfigurationModule
                         .Set(LocalRuntimeClientConfiguration.NumberOfEvaluators, "2")
-                        .Set(LocalRuntimeClientConfiguration.TcpPortRangeStartParameter, "12000")
-                        .Set(LocalRuntimeClientConfiguration.TcpPortRangeCountParameter, "10")
                         .Build();
+                        break;
                 case YARN:
-                    return YARNClientConfiguration.ConfigurationModule
-                        .Set(YARNClientConfiguration.DriverConfigurationProvider, GenericType<TcpPortConfigurationProvider>.Class)
-                        .Set(YARNClientConfiguration.TcpPortRangeStartParameter, "12000")
-                        .Set(YARNClientConfiguration.TcpPortRangeCountParameter, "10")
-
+                    runtimeConfiguration = YARNClientConfiguration.ConfigurationModule
                         .Build();
+                        break;
                 default:
                     throw new Exception("Unknown runtime: " + name);
             }
+            var userConfiguration = ((ICsConfigurationBuilder) TangFactory.GetTang().NewConfigurationBuilder())
+                        .BindSetEntry<DriverConfigurationProviders, TcpPortConfigurationProvider, IConfigurationProvider>(
+                              GenericType<DriverConfigurationProviders>.Class, GenericType<TcpPortConfigurationProvider>.Class)
+                        .BindIntNamedParam<TcpPortRangeStart>("8900")
+                        .BindIntNamedParam<TcpPortRangeCount>("10")
+                        .Build();
+            return Configurations.Merge(runtimeConfiguration, userConfiguration);
         }
 
         public static void Main(string[] args)
