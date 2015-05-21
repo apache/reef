@@ -447,8 +447,7 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
     {
         [Inject]
         public MyOperatorImpl()
-        {
-            
+        {           
         }
 
         string IMyOperator<T>.OperatorName
@@ -466,8 +465,7 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
     {
         [Inject]
         public MyOperatorTopology(IMyOperator<T> op)
-        {
-            
+        {           
         }
     }
 }

@@ -40,8 +40,6 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
         private const int PipelineVersion = 2;
         private readonly OperatorTopology<PipelineMessage<T>> _topology;
         private readonly PipelinedReduceFunction<T> _pipelinedReduceFunc;
-        private bool _isInitialized = false;
-        private object initializeLock = new object();
 
         /// <summary>
         /// Creates a new ReduceSender.
@@ -109,24 +107,6 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
         /// Returns the IPipelineDataConvert used to convert messages to pipeline form and vice-versa
         /// </summary>
         public IPipelineDataConverter<T> PipelineDataConverter { get; private set; }
-
-        /// <summary>
-        /// It does necessary checks in topology to make sure the operator is ready to send/receive messages from/to tasks
-        /// </summary>
-        public void Initialize()
-        {
-            if (!_isInitialized)
-            {
-                lock (initializeLock)
-                {
-                    if (!_isInitialized)
-                    {
-                        _topology.Initialize();
-                        _isInitialized = true;
-                    }
-                }
-            }
-        }
 
         /// <summary>
         /// Sends the data to the operator's ReduceReceiver to be aggregated.
