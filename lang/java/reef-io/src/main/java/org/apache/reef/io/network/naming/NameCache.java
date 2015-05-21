@@ -23,6 +23,7 @@ import org.apache.reef.util.cache.CacheImpl;
 import org.apache.reef.util.cache.SystemTime;
 import org.apache.reef.wake.Identifier;
 
+import javax.inject.Inject;
 import java.net.InetSocketAddress;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -39,6 +40,7 @@ public class NameCache implements Cache<Identifier, InetSocketAddress> {
    *
    * @param timeout a cache entry timeout after write
    */
+  @Inject
   public NameCache(long timeout) {
     cache = new CacheImpl<>(new SystemTime(), timeout);
   }
