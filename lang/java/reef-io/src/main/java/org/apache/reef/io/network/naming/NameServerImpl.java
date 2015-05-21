@@ -30,6 +30,8 @@ import org.apache.reef.wake.remote.Codec;
 import org.apache.reef.wake.remote.address.LocalAddressProvider;
 import org.apache.reef.wake.remote.address.LocalAddressProviderFactory;
 import org.apache.reef.wake.remote.impl.TransportEvent;
+import org.apache.reef.wake.remote.ports.RangeTcpPortProvider;
+import org.apache.reef.wake.remote.ports.TcpPortProvider;
 import org.apache.reef.wake.remote.transport.Transport;
 import org.apache.reef.wake.remote.transport.netty.NettyMessagingTransport;
 import org.apache.reef.webserver.AvroReefServiceInfo;
@@ -98,7 +100,7 @@ public class NameServerImpl implements NameServer {
       final int port,
       final IdentifierFactory factory,
       final ReefEventStateManager reefEventStateManager) {
-    this(port, factory, reefEventStateManager, LocalAddressProviderFactory.getInstance());
+    this(port, factory, reefEventStateManager, LocalAddressProviderFactory.getInstance(), RangeTcpPortProvider.Default);
   }
 
   /**
@@ -113,7 +115,8 @@ public class NameServerImpl implements NameServer {
       final @Parameter(NameServerParameters.NameServerPort.class) int port,
       final @Parameter(NameServerParameters.NameServerIdentifierFactory.class) IdentifierFactory factory,
       final ReefEventStateManager reefEventStateManager,
-      final LocalAddressProvider localAddressProvider) {
+      final LocalAddressProvider localAddressProvider,
+      final TcpPortProvider tcpPortProvider) {
 
     this.localAddressProvider = localAddressProvider;
 
@@ -122,7 +125,7 @@ public class NameServerImpl implements NameServer {
     final EventHandler<NamingMessage> handler = createEventHandler(codec);
 
     this.transport = new NettyMessagingTransport(localAddressProvider.getLocalAddress(), port, null,
-        new SyncStage<>(new NamingServerHandler(handler, codec)), 3, 10000);
+        new SyncStage<>(new NamingServerHandler(handler, codec)), 3, 10000, tcpPortProvider);
 
     this.port = transport.getListeningPort();
     this.idToAddrMap = Collections.synchronizedMap(new HashMap<Identifier, InetSocketAddress>());

@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -6,9 +6,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * <p/>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p/>
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -16,9 +16,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.wake.remote.ports;
+package org.apache.reef.io;
 
-
+import org.apache.reef.driver.parameters.EvaluatorConfigurationProviders;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.ConfigurationProvider;
 import org.apache.reef.tang.Tang;
@@ -28,51 +28,47 @@ import org.apache.reef.wake.remote.ports.parameters.TcpPortRangeCount;
 import org.apache.reef.wake.remote.ports.parameters.TcpPortRangeTryCount;
 
 import javax.inject.Inject;
-import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * A TcpPortProvider which gives out random ports in a range
+ * Implements ConfigurationProvider for RangeTcpPortProvider
  */
-public final class RangeTcpPortProvider implements TcpPortProvider {
+public class TcpPortConfigurationProvider implements ConfigurationProvider {
   private final int portRangeBegin;
   private final int portRangeCount;
   private final int portRangeTryCount;
-  private static final Logger LOG = Logger.getLogger(RangeTcpPortProvider.class.getName());
+  private static final Logger LOG = Logger.getLogger(TcpPortConfigurationProvider.class.getName());
 
   @Inject
-  public RangeTcpPortProvider(final @Parameter(TcpPortRangeBegin.class) int portRangeBegin,
-                              final @Parameter(TcpPortRangeCount.class) int portRangeCount,
-                              final @Parameter(TcpPortRangeTryCount.class) int portRangeTryCount) {
+  TcpPortConfigurationProvider(final @Parameter(TcpPortRangeBegin.class) int portRangeBegin,
+                               final @Parameter(TcpPortRangeCount.class) int portRangeCount,
+                               final @Parameter(TcpPortRangeTryCount.class) int portRangeTryCount) {
     this.portRangeBegin = portRangeBegin;
     this.portRangeCount = portRangeCount;
     this.portRangeTryCount = portRangeTryCount;
-    LOG.log(Level.FINE, "Instantiating " + this);
+    LOG.log(Level.INFO, "Instantiating " + this.toString());
   }
 
   /**
-   * Returns an iterator over a set of tcp ports
+   * returns a configuration for the class that implements TcpPortProvider so that class can be instantiated
+   * somewhere else
    *
-   * @return an Iterator.
+   * @return Configuration.
    */
   @Override
-  public Iterator<Integer> iterator() {
-    return new RandomRangeIterator(portRangeBegin, portRangeCount, portRangeTryCount);
+  public Configuration getConfiguration() {
+    return Tang.Factory.getTang().newConfigurationBuilder()
+        .bindNamedParameter(TcpPortRangeBegin.class, String.valueOf(portRangeBegin))
+        .bindNamedParameter(TcpPortRangeCount.class, String.valueOf(portRangeCount))
+        .bindNamedParameter(TcpPortRangeTryCount.class, String.valueOf(portRangeTryCount))
+        .bindSetEntry(EvaluatorConfigurationProviders.class, TcpPortConfigurationProvider.class)
+        .build();
   }
-
-  /**
-   * @deprecated have an instance injected instead.
-   */
-  @Deprecated
-  public static final RangeTcpPortProvider Default = new RangeTcpPortProvider(
-      Integer.parseInt(TcpPortRangeBegin.default_value),
-      Integer.parseInt(TcpPortRangeCount.default_value),
-          Integer.parseInt(TcpPortRangeTryCount.default_value));
 
   @Override
   public String toString() {
-    return "RangeTcpPortProvider{" +
+    return "TcpPortConfigurationProvider{" +
         "portRangeBegin=" + portRangeBegin +
         ", portRangeCount=" + portRangeCount +
         ", portRangeTryCount=" + portRangeTryCount +

@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -6,9 +6,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * <p/>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p/>
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -21,6 +21,8 @@ package org.apache.reef.bridge.client;
 import org.apache.hadoop.yarn.api.records.LocalResource;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.exceptions.YarnException;
+import org.apache.reef.client.parameters.DriverConfigurationProviders;
+import org.apache.reef.io.TcpPortConfigurationProvider;
 import org.apache.reef.runtime.common.driver.api.AbstractDriverRuntimeConfiguration;
 import org.apache.reef.runtime.common.files.ClasspathProvider;
 import org.apache.reef.runtime.common.files.REEFFileNames;
@@ -29,12 +31,13 @@ import org.apache.reef.runtime.yarn.client.YarnSubmissionHelper;
 import org.apache.reef.runtime.yarn.client.uploader.JobFolder;
 import org.apache.reef.runtime.yarn.client.uploader.JobUploader;
 import org.apache.reef.runtime.yarn.driver.YarnDriverConfiguration;
-import org.apache.reef.tang.Configuration;
-import org.apache.reef.tang.Configurations;
-import org.apache.reef.tang.Tang;
+import org.apache.reef.tang.*;
 import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.tang.formats.ConfigurationSerializer;
 import org.apache.reef.util.JARFileMaker;
+import org.apache.reef.wake.remote.ports.parameters.TcpPortRangeBegin;
+import org.apache.reef.wake.remote.ports.parameters.TcpPortRangeCount;
+import org.apache.reef.wake.remote.ports.parameters.TcpPortRangeTryCount;
 
 import javax.inject.Inject;
 import java.io.File;
@@ -151,16 +154,32 @@ public final class YarnJobSubmissionClient {
     }
   }
 
+  private static Configuration getRuntimeConfiguration(int tcpBeginPort, int tcpRangeCount, int tcpTryCount) {
+    Configuration yarnClientConfig = YarnClientConfiguration.CONF
+        .build();
+
+    Configuration providerConfig = Tang.Factory.getTang().newConfigurationBuilder()
+        .bindSetEntry(DriverConfigurationProviders.class, TcpPortConfigurationProvider.class)
+        .bindNamedParameter(TcpPortRangeBegin.class, Integer.toString(tcpBeginPort))
+        .bindNamedParameter(TcpPortRangeCount.class, Integer.toString(tcpRangeCount))
+        .bindNamedParameter(TcpPortRangeTryCount.class, Integer.toString(tcpTryCount))
+        .build();
+
+    return Configurations.merge(yarnClientConfig, providerConfig);
+  }
+
   public static void main(final String[] args) throws InjectionException, IOException, YarnException {
     final File driverFolder = new File(args[0]);
     final String jobId = args[1];
     final int driverMemory = Integer.valueOf(args[2]);
-
+    final int tcpBeginPort = Integer.valueOf(args[3]);
+    final int tcpRangeCount = Integer.valueOf(args[4]);
+    final int tcpTryCount = Integer.valueOf(args[5]);
     // Static for now
     final int priority = 1;
     final String queue = "default";
 
-    final Configuration yarnConfiguration = YarnClientConfiguration.CONF.build();
+    final Configuration yarnConfiguration = getRuntimeConfiguration(tcpBeginPort, tcpRangeCount, tcpTryCount);
     final YarnJobSubmissionClient client = Tang.Factory.getTang()
         .newInjector(yarnConfiguration)
         .getInstance(YarnJobSubmissionClient.class);
