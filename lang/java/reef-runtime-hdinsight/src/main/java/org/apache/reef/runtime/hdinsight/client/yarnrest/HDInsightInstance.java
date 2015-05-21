@@ -19,7 +19,6 @@
 package org.apache.reef.runtime.hdinsight.client.yarnrest;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.NotImplementedException;
 import org.apache.http.Header;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
@@ -29,6 +28,7 @@ import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
@@ -58,14 +58,13 @@ import java.util.logging.Logger;
 public final class HDInsightInstance {
 
   private static final Logger LOG = Logger.getLogger(HDInsightInstance.class.getName());
-  private static final String APPLICATION_KILL_MESSAGE = "{\"app:{\"state\":\"KILLED\"}}";
+  private static final String APPLICATION_KILL_MESSAGE = "{\"state\":\"KILLED\"}";
 
   private final ObjectMapper objectMapper = new ObjectMapper();
   private final Header[] headers;
   private final HttpClientContext httpClientContext;
 
   private final String instanceUrl;
-  private final String username;
   private final CloseableHttpClient httpClient;
 
   @Inject
@@ -75,7 +74,6 @@ public final class HDInsightInstance {
                     final CloseableHttpClient client) throws URISyntaxException, IOException {
     this.httpClient = client;
     this.instanceUrl = instanceUrl.endsWith("/") ? instanceUrl : instanceUrl + "/";
-    this.username = username;
     final String host = this.getHost();
     this.headers = new Header[]{
         new BasicHeader("Host", host)
@@ -90,7 +88,7 @@ public final class HDInsightInstance {
    * @throws IOException
    */
   public ApplicationID getApplicationID() throws IOException {
-    final String url = "ws/v1/cluster/appids?user.name=" + this.username;
+    final String url = "ws/v1/cluster/apps/new-application";
     final HttpPost post = preparePost(url);
     try (final CloseableHttpResponse response = this.httpClient.execute(post, this.httpClientContext)) {
       final String message = IOUtils.toString(response.getEntity().getContent());
@@ -106,9 +104,7 @@ public final class HDInsightInstance {
    * @throws IOException
    */
   public void submitApplication(final ApplicationSubmission applicationSubmission) throws IOException {
-
-    final String applicationId = applicationSubmission.getApplicationId();
-    final String url = "ws/v1/cluster/apps/" + applicationId + "?user.name=" + this.username;
+    final String url = "ws/v1/cluster/apps";
     final HttpPost post = preparePost(url);
 
     final StringWriter writer = new StringWriter();
@@ -132,8 +128,26 @@ public final class HDInsightInstance {
    *
    * @param applicationId
    */
-  public void killApplication(final String applicationId) {
-    throw new NotImplementedException();
+  public void killApplication(final String applicationId) throws IOException {
+    final String url = this.getApplicationURL(applicationId) + "/state";
+    final HttpPut put = preparePut(url);
+    put.setEntity(new StringEntity(APPLICATION_KILL_MESSAGE, ContentType.APPLICATION_JSON));
+    this.httpClient.execute(put, this.httpClientContext);
+  }
+
+  /**
+   * Gets the application state given a YARN application ID.
+   * @param applicationId
+   * @return Application state of the requested application.
+   */
+  public ApplicationState getApplication(final String applicationId) throws IOException {
+    final String url = this.getApplicationURL(applicationId);
+    final HttpGet get = prepareGet(url);
+    try (final CloseableHttpResponse response = this.httpClient.execute(get, this.httpClientContext)) {
+      final String message = IOUtils.toString(response.getEntity().getContent());
+      final ApplicationResponse result = this.objectMapper.readValue(message, ApplicationResponse.class);
+      return result.getApplicationState();
+    }
   }
 
   public List<ApplicationState> listApplications() throws IOException {
@@ -141,7 +155,7 @@ public final class HDInsightInstance {
     final HttpGet get = prepareGet(url);
     try (final CloseableHttpResponse response = this.httpClient.execute(get, this.httpClientContext)) {
       final String message = IOUtils.toString(response.getEntity().getContent());
-      final ApplicationResponse result = this.objectMapper.readValue(message, ApplicationResponse.class);
+      final ListApplicationResponse result = this.objectMapper.readValue(message, ListApplicationResponse.class);
       return result.getApplicationStates();
     }
   }
@@ -187,12 +201,26 @@ public final class HDInsightInstance {
     return httpPost;
   }
 
+  /**
+   * Creates a HttpPut request with all the common headers.
+   * @param url
+   * @return
+   */
+  private HttpPut preparePut(final String url) {
+    final HttpPut httpPut = new HttpPut(this.instanceUrl + url);
+    for (final Header header : this.headers) {
+      httpPut.addHeader(header);
+    }
+    return httpPut;
+  }
 
   private HttpClientContext getClientContext(final String hostname, final String username, final String password) throws IOException {
     final HttpHost targetHost = new HttpHost(hostname, 443, "https");
     final HttpClientContext result = HttpClientContext.create();
+
     // Setup credentials provider
     final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+
     credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(username, password));
     result.setCredentialsProvider(credentialsProvider);
 

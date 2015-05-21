@@ -187,27 +187,13 @@ public final class ResourceManager {
       }
 
       try (final LoggingScope lc = this.loggingScopeFactory.getNewLoggingScope("ResourceManager.onResourceLaunchRequest:runCommand")) {
-        // Assemble the command line
-        final LaunchCommandBuilder commandBuilder;
-        switch (launchRequest.getType()) {
-          case JVM:
-            commandBuilder = new JavaLaunchCommandBuilder()
-                .setClassPath(this.classpathProvider.getEvaluatorClasspath());
-            break;
-          case CLR:
-            commandBuilder = new CLRLaunchCommandBuilder();
-            break;
-          default:
-            throw new IllegalArgumentException(
-                "Unsupported container type: " + launchRequest.getType());
-        }
 
-        final List<String> command = commandBuilder
+        final List<String> command = launchRequest.getProcess()
             .setErrorHandlerRID(this.remoteManager.getMyIdentifier())
             .setLaunchID(c.getNodeID())
             .setConfigurationFileName(this.fileNames.getEvaluatorConfigurationPath())
             .setMemory((int) (this.jvmHeapFactor * c.getMemory()))
-            .build();
+            .getCommandLine();
 
         LOG.log(Level.FINEST, "Launching container: {0}", c);
         c.run(command);

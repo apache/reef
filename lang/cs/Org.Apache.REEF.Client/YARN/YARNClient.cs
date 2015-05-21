@@ -19,9 +19,11 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using Org.Apache.REEF.Client.API;
 using Org.Apache.REEF.Client.Common;
 using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Client.YARN
@@ -55,9 +57,18 @@ namespace Org.Apache.REEF.Client.YARN
 
             _driverFolderPreparationHelper.PrepareDriverFolder(jobSubmission, driverFolderPath);
 
+            //TODO: Remove this when we have a generalized way to pass config to java
+            var javaParams = TangFactory.GetTang()
+                .NewInjector(jobSubmission.DriverConfigurations.ToArray())
+                .GetInstance<ClrClient2JavaClientCuratedParameters>();
+
             // Submit the driver
             _javaClientLauncher.Launch(JavaClassName, driverFolderPath, jobSubmission.JobIdentifier,
-                jobSubmission.DriverMemory.ToString());
+                jobSubmission.DriverMemory.ToString(),
+                javaParams.TcpPortRangeStart.ToString(),
+                javaParams.TcpPortRangeCount.ToString(),
+                javaParams.TcpPortRangeTryCount.ToString()
+                );
             Logger.Log(Level.Info, "Submitted the Driver for execution.");
         }
 

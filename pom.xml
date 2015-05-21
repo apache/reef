@@ -22,7 +22,7 @@ under the License.
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.apache.reef</groupId>
-    <version>0.11.0-incubating-SNAPSHOT</version>
+    <version>0.12.0-incubating-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>REEF</name>
     <artifactId>reef-project</artifactId>
@@ -53,6 +53,8 @@ under the License.
         <jetty.version>6.1.26</jetty.version>
         <jackson.version>1.9.13</jackson.version>
         <protobuf.version>2.5.0</protobuf.version>
+        <maven-checkstyle-plugin.version>2.15</maven-checkstyle-plugin.version>
+        <checkstyle.version>6.6</checkstyle.version>
     </properties>
 
     <scm>
@@ -271,6 +273,18 @@ under the License.
                         </excludes>
                     </configuration>
                 </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-checkstyle-plugin</artifactId>
+                    <version>${maven-checkstyle-plugin.version}</version>
+                    <configuration>
+                        <configLocation>lang/java/reef-common/src/main/resources/checkstyle.xml</configLocation>
+                        <failOnViolation>false</failOnViolation>
+                        <format>xml</format>
+                        <format>html</format>
+                        <outputFile>${project.build.directory}/test/checkstyle-errors.xml</outputFile>
+                    </configuration>
+                </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
@@ -315,6 +329,11 @@ under the License.
             <plugin>
                 <groupId>org.apache.rat</groupId>
                 <artifactId>apache-rat-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>${maven-checkstyle-plugin.version}</version>
             </plugin>
         </plugins>
     </build>

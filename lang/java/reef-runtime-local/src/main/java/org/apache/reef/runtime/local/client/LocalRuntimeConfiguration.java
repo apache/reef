@@ -19,7 +19,6 @@
 package org.apache.reef.runtime.local.client;
 
 import org.apache.reef.client.parameters.DriverConfigurationProviders;
-import org.apache.reef.tang.ConfigurationProvider;
 import org.apache.reef.runtime.common.client.CommonRuntimeConfiguration;
 import org.apache.reef.runtime.common.client.api.JobSubmissionHandler;
 import org.apache.reef.runtime.common.files.RuntimeClasspathProvider;
@@ -27,12 +26,12 @@ import org.apache.reef.runtime.common.parameters.JVMHeapSlack;
 import org.apache.reef.runtime.local.LocalClasspathProvider;
 import org.apache.reef.runtime.local.client.parameters.MaxNumberOfEvaluators;
 import org.apache.reef.runtime.local.client.parameters.RootFolder;
+import org.apache.reef.tang.ConfigurationProvider;
 import org.apache.reef.tang.formats.ConfigurationModule;
 import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
 import org.apache.reef.tang.formats.OptionalImpl;
 import org.apache.reef.tang.formats.OptionalParameter;
 import org.apache.reef.wake.remote.address.LocalAddressProvider;
-import org.apache.reef.wake.remote.ports.TcpPortProvider;
 
 import java.util.concurrent.ExecutorService;
 
@@ -67,19 +66,8 @@ public class LocalRuntimeConfiguration extends ConfigurationModuleBuilder {
    */
   public static final OptionalImpl<ConfigurationProvider> DRIVER_CONFIGURATION_PROVIDERS = new OptionalImpl<>();
 
-  /**
-   * The class used to resolve the local address for Wake and HTTP to bind to.
-   * Note that you will likely want to bind the same class also to DRIVER_CONFIGURATION_PROVIDERS to make sure that
-   * the Driver (and the Evaluators) also use it.
-   */
-  public static final OptionalImpl<LocalAddressProvider> LOCAL_ADDRESS_PROVIDER = new OptionalImpl<>();
 
-  /**
-   * The class used to restrict tcp port ranges for listening
-   * Note that you will likely want to bind the same class also to DRIVER_CONFIGURATION_PROVIDERS to make sure that
-   * the Driver (and the Evaluators) also use it.
-   */
-  public static final OptionalImpl<TcpPortProvider> TCP_PORT_PROVIDER = new OptionalImpl<>();
+
 
   /**
    * The ConfigurationModule for the local resourcemanager.
@@ -95,9 +83,6 @@ public class LocalRuntimeConfiguration extends ConfigurationModuleBuilder {
       .bindNamedParameter(RootFolder.class, RUNTIME_ROOT_FOLDER)
       .bindNamedParameter(JVMHeapSlack.class, JVM_HEAP_SLACK)
       .bindSetEntry(DriverConfigurationProviders.class, DRIVER_CONFIGURATION_PROVIDERS)
-          // Bind LocalAddressProvider
-      .bindImplementation(LocalAddressProvider.class, LOCAL_ADDRESS_PROVIDER)
-      .bindImplementation(TcpPortProvider.class, TCP_PORT_PROVIDER)
       .build();
 
 

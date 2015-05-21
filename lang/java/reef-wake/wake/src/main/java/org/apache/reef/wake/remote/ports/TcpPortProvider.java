@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -35,12 +35,4 @@ public interface TcpPortProvider extends Iterable<Integer> {
    */
   @Override
   Iterator<Integer> iterator();
-
-  /**
-   * returns a configuration for the class that implements TcpPortProvider so that class can be instantiated
-   * somewhere else
-   *
-   * @return Configuration.
-   */
-  Configuration getConfiguration();
 }

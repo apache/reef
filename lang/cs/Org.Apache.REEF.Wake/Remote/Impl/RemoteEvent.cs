@@ -18,6 +18,7 @@
  */
 
 using System.Net;
+using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.Wake.Remote.Impl
 {
@@ -40,6 +41,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
             Value = value;
         }
 
+        [Inject]
         public RemoteEvent()
         {
         }

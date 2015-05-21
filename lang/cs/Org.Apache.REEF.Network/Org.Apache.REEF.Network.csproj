@@ -142,6 +142,9 @@ under the License.
     <Compile Include="NetworkService\NetworkServiceOptions.cs" />
     <Compile Include="NetworkService\NsConnection.cs" />
     <Compile Include="NetworkService\NsMessage.cs" />
+    <Compile Include="NetworkService\WritableNetworkService.cs" />
+    <Compile Include="NetworkService\WritableNsConnection.cs" />
+    <Compile Include="NetworkService\WritableNsMessage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utilities\BlockingCollectionExtensions.cs" />
     <Compile Include="Utilities\Utils.cs" />

@@ -23,7 +23,7 @@ under the License.
     <parent>
         <groupId>org.apache.reef</groupId>
         <artifactId>reef-project</artifactId>
-        <version>0.11.0-incubating-SNAPSHOT</version>
+        <version>0.12.0-incubating-SNAPSHOT</version>
         <relativePath>../../..</relativePath>
     </parent>
     <name>REEF Runtime for HDInsight</name>
@@ -77,7 +77,11 @@ under the License.
             <artifactId>hadoop-yarn-client</artifactId>
             <scope>provided</scope>
         </dependency>
-
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
 </project>

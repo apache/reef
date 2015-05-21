@@ -20,7 +20,6 @@ package org.apache.reef.runtime.hdinsight.client;
 
 import org.apache.reef.runtime.hdinsight.parameters.*;
 import org.apache.reef.tang.Configuration;
-import org.apache.reef.tang.Configurations;
 import org.apache.reef.tang.formats.AvroConfigurationSerializer;
 import org.apache.reef.tang.formats.ConfigurationModule;
 import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
@@ -87,9 +86,7 @@ public final class HDInsightRuntimeConfiguration extends ConfigurationModuleBuil
    * @throws IOException if the file can't be read
    */
   public static Configuration fromTextFile(final File file) throws IOException {
-    final Configuration loaded = new AvroConfigurationSerializer().fromTextFile(file);
-    final Configuration staticConfiguration = HDInsightRuntimeConfigurationStatic.CONF.build();
-    return Configurations.merge(loaded, staticConfiguration);
+    return new AvroConfigurationSerializer().fromTextFile(file);
   }
 
   /**

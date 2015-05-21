@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -27,7 +27,7 @@ import org.apache.reef.tang.formats.AvroConfigurationSerializer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class ActiveContextBridge extends NativeBridge implements Identifiable {
+public final class ActiveContextBridge extends NativeBridge implements Identifiable {
   private static final Logger LOG = Logger.getLogger(ActiveContextBridge.class.getName());
 
   private final ActiveContext jactiveContext;
@@ -36,12 +36,14 @@ public class ActiveContextBridge extends NativeBridge implements Identifiable {
   private final String evaluatorId;
   private final ClassHierarchy clrClassHierarchy;
 
-  public ActiveContextBridge(ActiveContext activeContext) {
-    jactiveContext = activeContext;
-    serializer = new AvroConfigurationSerializer();
-    contextId = activeContext.getId();
-    evaluatorId = activeContext.getEvaluatorId();
-    clrClassHierarchy = Utilities.loadClassHierarchy(NativeInterop.CLASS_HIERARCHY_FILENAME);
+  ActiveContextBridge(final ActiveContext activeContext,
+                      final ClassHierarchy clrClassHierarchy,
+                      final AvroConfigurationSerializer serializer) {
+    this.jactiveContext = activeContext;
+    this.clrClassHierarchy = clrClassHierarchy;
+    this.serializer = serializer;
+    this.contextId = activeContext.getId();
+    this.evaluatorId = activeContext.getEvaluatorId();
   }
 
   public void submitTaskString(final String taskConfigurationString) {
@@ -49,7 +51,7 @@ public class ActiveContextBridge extends NativeBridge implements Identifiable {
       throw new RuntimeException("empty taskConfigurationString provided.");
     }
 
-    Configuration taskConfiguration;
+    final Configuration taskConfiguration;
     try {
       taskConfiguration = serializer.fromString(taskConfigurationString, clrClassHierarchy);
     } catch (final Exception e) {
@@ -73,6 +75,6 @@ public class ActiveContextBridge extends NativeBridge implements Identifiable {
 
   @Override
   public String getId() {
-    return contextId;
+    return jactiveContext.getId();
   }
 }

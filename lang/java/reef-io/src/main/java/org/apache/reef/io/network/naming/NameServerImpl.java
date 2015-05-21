@@ -140,6 +140,7 @@ public class NameServerImpl implements NameServer {
       final LocalAddressProvider localAddressProvider,
       final TransportFactory tpFactory) {
 
+
     this.localAddressProvider = localAddressProvider;
 
     this.reefEventStateManager = reefEventStateManager;
@@ -148,6 +149,7 @@ public class NameServerImpl implements NameServer {
 
     this.transport = tpFactory.getInstance(localAddressProvider.getLocalAddress(), port, null,
         new SyncStage<>(new NamingServerHandler(handler, codec)), 3, 10000);
+
 
     this.port = transport.getListeningPort();
     this.idToAddrMap = Collections.synchronizedMap(new HashMap<Identifier, InetSocketAddress>());

@@ -49,7 +49,7 @@ namespace Org.Apache.REEF.Network.NetworkService
         private readonly Dictionary<IIdentifier, IConnection<T>> _connectionMap;  
 
         /// <summary>
-        /// Create a new NetworkFactory.
+        /// Create a new NetworkService.
         /// </summary>
         /// <param name="nsPort">The port that the NetworkService will listen on</param>
         /// <param name="nameServerAddr">The address of the NameServer</param>

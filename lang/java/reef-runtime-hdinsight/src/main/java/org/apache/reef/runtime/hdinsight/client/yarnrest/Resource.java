@@ -18,37 +18,55 @@
  */
 package org.apache.reef.runtime.hdinsight.client.yarnrest;
 
+import org.codehaus.jackson.annotate.JsonProperty;
+import org.codehaus.jackson.map.ObjectMapper;
+
+import java.io.IOException;
+import java.io.StringWriter;
+
 /**
- * Represents the resoure field in the YARN REST API
+ * Represents the resoure field in the YARN REST API.
+ * For detailed information, please refer to
+ * https://hadoop.apache.org/docs/r2.6.0/hadoop-yarn/hadoop-yarn-site/ResourceManagerRest.html
  */
 public final class Resource {
 
-  private String memory;
-  private String vCores;
+  private static final String RESOURCE = "resource";
+  private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+  private int memory;
+  private int vCores;
 
-  public String getMemory() {
+  @JsonProperty(Constants.MEMORY)
+  public int getMemory() {
     return this.memory;
   }
 
-  public Resource setMemory(final String memory) {
+  public Resource setMemory(final int memory) {
     this.memory = memory;
     return this;
   }
 
-  public String getvCores() {
+  @JsonProperty(Constants.VCORES)
+  public int getvCores() {
     return this.vCores;
   }
 
-  public Resource setvCores(final String vCores) {
+  public Resource setvCores(final int vCores) {
     this.vCores = vCores;
     return this;
   }
 
   @Override
   public String toString() {
-    return "Resource{" +
-        "memory=" + this.memory +
-        ", vCores=" + this.vCores +
-        '}';
+    StringWriter writer = new StringWriter();
+    String objectString;
+    try {
+      OBJECT_MAPPER.writeValue(writer, this);
+      objectString = writer.toString();
+    } catch (IOException e) {
+      return null;
+    }
+
+    return RESOURCE + objectString;
   }
 }

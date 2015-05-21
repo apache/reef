@@ -19,9 +19,6 @@
 package org.apache.reef.wake.remote.ports;
 
 
-import org.apache.reef.tang.Configuration;
-import org.apache.reef.tang.ConfigurationProvider;
-import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.wake.remote.ports.parameters.TcpPortRangeBegin;
 import org.apache.reef.wake.remote.ports.parameters.TcpPortRangeCount;
@@ -29,12 +26,13 @@ import org.apache.reef.wake.remote.ports.parameters.TcpPortRangeTryCount;
 
 import javax.inject.Inject;
 import java.util.Iterator;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
  * A TcpPortProvider which gives out random ports in a range
  */
-public final class RangeTcpPortProvider implements TcpPortProvider, ConfigurationProvider {
+public final class RangeTcpPortProvider implements TcpPortProvider {
   private final int portRangeBegin;
   private final int portRangeCount;
   private final int portRangeTryCount;
@@ -47,6 +45,7 @@ public final class RangeTcpPortProvider implements TcpPortProvider, Configuratio
     this.portRangeBegin = portRangeBegin;
     this.portRangeCount = portRangeCount;
     this.portRangeTryCount = portRangeTryCount;
+    LOG.log(Level.FINE, "Instantiating " + this);
   }
 
   /**
@@ -67,17 +66,6 @@ public final class RangeTcpPortProvider implements TcpPortProvider, Configuratio
       Integer.parseInt(TcpPortRangeBegin.default_value),
       Integer.parseInt(TcpPortRangeCount.default_value),
           Integer.parseInt(TcpPortRangeTryCount.default_value));
-
-
-  @Override
-  public Configuration getConfiguration() {
-    return Tang.Factory.getTang().newConfigurationBuilder()
-        .bindNamedParameter(TcpPortRangeBegin.class, String.valueOf(portRangeBegin))
-        .bindNamedParameter(TcpPortRangeCount.class, String.valueOf(portRangeCount))
-        .bindNamedParameter(TcpPortRangeTryCount.class, String.valueOf(portRangeTryCount))
-        .bindImplementation(TcpPortProvider.class, RangeTcpPortProvider.class)
-        .build();
-  }
 
   @Override
   public String toString() {

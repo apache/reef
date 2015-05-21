@@ -20,12 +20,13 @@ package org.apache.reef.runtime.common.driver.evaluator;
 
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
+import org.apache.reef.driver.evaluator.CLRProcessFactory;
 import org.apache.reef.tang.ConfigurationProvider;
 import org.apache.reef.driver.context.ActiveContext;
 import org.apache.reef.driver.context.FailedContext;
 import org.apache.reef.driver.evaluator.AllocatedEvaluator;
 import org.apache.reef.driver.evaluator.EvaluatorDescriptor;
-import org.apache.reef.driver.evaluator.EvaluatorType;
+import org.apache.reef.driver.evaluator.JVMProcessFactory;
 import org.apache.reef.driver.parameters.EvaluatorConfigurationProviders;
 import org.apache.reef.driver.task.FailedTask;
 import org.apache.reef.exception.EvaluatorException;
@@ -35,6 +36,7 @@ import org.apache.reef.proto.EvaluatorRuntimeProtocol;
 import org.apache.reef.proto.ReefServiceProtos;
 import org.apache.reef.runtime.common.DriverRestartCompleted;
 import org.apache.reef.runtime.common.driver.DriverStatusManager;
+import org.apache.reef.driver.evaluator.EvaluatorProcess;
 import org.apache.reef.runtime.common.driver.api.ResourceLaunchEvent;
 import org.apache.reef.runtime.common.driver.api.ResourceReleaseEventImpl;
 import org.apache.reef.runtime.common.driver.api.ResourceLaunchHandler;
@@ -96,8 +98,6 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
   private final ExceptionCodec exceptionCodec;
   private final DriverStatusManager driverStatusManager;
   private final EventHandlerIdlenessSource idlenessSource;
-  private final LoggingScopeFactory loggingScopeFactory;
-
 
   // Mutable fields
   private Optional<TaskRepresenter> task = Optional.empty();
@@ -121,7 +121,10 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
       final ExceptionCodec exceptionCodec,
       final EventHandlerIdlenessSource idlenessSource,
       final LoggingScopeFactory loggingScopeFactory,
-      final @Parameter(EvaluatorConfigurationProviders.class) Set<ConfigurationProvider> evaluatorConfigurationProviders) {
+      final @Parameter(EvaluatorConfigurationProviders.class) Set<ConfigurationProvider> evaluatorConfigurationProviders,
+      // TODO: Eventually remove the factories when they are removed from AllocatedEvaluatorImpl
+      final JVMProcessFactory jvmProcessFactory,
+      final CLRProcessFactory clrProcessFactory) {
     this.contextRepresenters = contextRepresenters;
     this.idlenessSource = idlenessSource;
     LOG.log(Level.FINEST, "Instantiating 'EvaluatorManager' for evaluator: {0}", evaluatorId);
@@ -137,10 +140,16 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
     this.stateManager = stateManager;
     this.driverStatusManager = driverStatusManager;
     this.exceptionCodec = exceptionCodec;
-    this.loggingScopeFactory = loggingScopeFactory;
 
     final AllocatedEvaluator allocatedEvaluator =
-        new AllocatedEvaluatorImpl(this, remoteManager.getMyIdentifier(), configurationSerializer, getJobIdentifier(), loggingScopeFactory, evaluatorConfigurationProviders);
+        new AllocatedEvaluatorImpl(this,
+            remoteManager.getMyIdentifier(),
+            configurationSerializer,
+            getJobIdentifier(),
+            loggingScopeFactory,
+            evaluatorConfigurationProviders,
+            jvmProcessFactory,
+            clrProcessFactory);
     LOG.log(Level.FINEST, "Firing AllocatedEvaluator event for Evaluator with ID [{0}]", evaluatorId);
     this.messageDispatcher.onEvaluatorAllocated(allocatedEvaluator);
     LOG.log(Level.FINEST, "Instantiated 'EvaluatorManager' for evaluator: [{0}]", this.getId());
@@ -175,8 +184,8 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
     return this.evaluatorId;
   }
 
-  public void setType(final EvaluatorType type) {
-    this.evaluatorDescriptor.setType(type);
+  public void setProcess(final EvaluatorProcess process) {
+    this.evaluatorDescriptor.setProcess(process);
   }
 
   public EvaluatorDescriptor getEvaluatorDescriptor() {

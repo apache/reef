@@ -28,20 +28,20 @@ public interface EvaluatorDescriptor {
   /**
    * @return the NodeDescriptor of the node where this Evaluator is running.
    */
-  public NodeDescriptor getNodeDescriptor();
+  NodeDescriptor getNodeDescriptor();
 
   /**
-   * @return the type of Evaluator.
+   * @return the process to be run on the Evaluator.
    */
-  public EvaluatorType getType();
+  EvaluatorProcess getProcess();
 
   /**
    * @return the amount of memory allocated to this Evaluator.
    */
-  public int getMemory();
+  int getMemory();
 
   /**
    * @return the number of virtual core allocated to this Evaluator.
    */
-  public int getNumberOfCores();
+  int getNumberOfCores();
 }
