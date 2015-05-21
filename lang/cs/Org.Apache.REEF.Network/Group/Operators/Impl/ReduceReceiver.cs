@@ -35,18 +35,18 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
     /// <typeparam name="T">The message type</typeparam>
     public class ReduceReceiver<T> : IReduceReceiver<T>
     {
-        private static readonly Logger Logger = Logger.GetLogger(typeof (ReduceReceiver<T>));
+        private static readonly Logger Logger = Logger.GetLogger(typeof(ReduceReceiver<T>));
         private const int PipelineVersion = 2;
         private readonly OperatorTopology<PipelineMessage<T>> _topology;
         private readonly PipelinedReduceFunction<T> _pipelinedReduceFunc;
-        private bool _isInitialized = false;
-        private object initializeLock = new object();
 
         /// <summary>
         /// Creates a new ReduceReceiver.
         /// </summary>
         /// <param name="operatorName">The name of the reduce operator</param>
         /// <param name="groupName">The name of the operator's CommunicationGroup</param>
+        /// <param name="initialize">Require Topology Initialize to be called to wait for all task being registered. 
+        /// Default is true. For unit testing, it can be set to false.</param>
         /// <param name="topology">The task's operator topology graph</param>
         /// <param name="networkHandler">Handles incoming messages from other tasks</param>
         /// <param name="reduceFunction">The class used to aggregate all incoming messages</param>
@@ -54,8 +54,9 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
         /// message to pipelined ones and vice versa.</param>
         [Inject]
         public ReduceReceiver(
-            [Parameter(typeof (GroupCommConfigurationOptions.OperatorName))] string operatorName,
-            [Parameter(typeof (GroupCommConfigurationOptions.CommunicationGroupName))] string groupName,
+            [Parameter(typeof(GroupCommConfigurationOptions.OperatorName))] string operatorName,
+            [Parameter(typeof(GroupCommConfigurationOptions.CommunicationGroupName))] string groupName,
+            [Parameter(typeof(GroupCommConfigurationOptions.Initialize))] bool initialize,
             OperatorTopology<PipelineMessage<T>> topology,
             ICommunicationGroupNetworkObserver networkHandler,
             IReduceFunction<T> reduceFunction,
@@ -65,6 +66,7 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
             GroupName = groupName;
             Version = PipelineVersion;
             ReduceFunction = reduceFunction;
+            PipelineDataConverter = dataConverter;
 
             _pipelinedReduceFunc = new PipelinedReduceFunction<T>(ReduceFunction);
             _topology = topology;
@@ -72,24 +74,9 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
             var msgHandler = Observer.Create<GroupCommunicationMessage>(message => _topology.OnNext(message));
             networkHandler.Register(operatorName, msgHandler);
 
-            PipelineDataConverter = dataConverter;
-        }
-
-        /// <summary>
-        /// It does necessary checks in topology to make sure the operator is ready to send/receive messages from/to tasks
-        /// </summary>
-        public void Initialize()
-        {
-            if (!_isInitialized)
+            if (initialize)
             {
-                lock (initializeLock)
-                {
-                    if (!_isInitialized)
-                    {
-                        _topology.Initialize();
-                        _isInitialized = true;
-                    }
-                }
+                topology.Initialize();
             }
         }
 

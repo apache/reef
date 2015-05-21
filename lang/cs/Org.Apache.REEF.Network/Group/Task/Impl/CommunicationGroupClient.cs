@@ -50,7 +50,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         /// <param name="commGroupNetworkHandler">Communication group network observer that holds all the handlers for each operator.</param>
         /// <param name="injector">injector forked from the injector that creates this instance</param>
         [Inject]
-        public CommunicationGroupClient(
+        private CommunicationGroupClient(
             [Parameter(typeof(GroupCommConfigurationOptions.CommunicationGroupName))] string groupName,
             [Parameter(typeof(GroupCommConfigurationOptions.SerializedOperatorConfigs))] ISet<string> operatorConfigs,
             IGroupCommNetworkObserver groupCommNetworkObserver,
@@ -74,9 +74,9 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
                     GenericType<GroupCommConfigurationOptions.MessageType>.Class);
 
                 Type groupCommOperatorGenericInterface = typeof(IGroupCommOperator<>);
-                Type groupCommOperatorInterface = groupCommOperatorGenericInterface.MakeGenericType(new Type[] { Type.GetType(msgType) });
-                var oeratorObj = operatorInjector.GetInstance(groupCommOperatorInterface);
-                _operators.Add(operatorName, oeratorObj);
+                Type groupCommOperatorInterface = groupCommOperatorGenericInterface.MakeGenericType(Type.GetType(msgType));
+                var operatorObj = operatorInjector.GetInstance(groupCommOperatorInterface);
+                _operators.Add(operatorName, operatorObj);
             }
         }
 
@@ -104,9 +104,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         /// <returns>The BroadcastReceiver</returns>
         public IBroadcastReceiver<T> GetBroadcastReceiver<T>(string operatorName)
         {
-            var o = GetOperatorInstance<BroadcastReceiver<T>>(operatorName);
-            o.Initialize();
-            return o;
+            return GetOperatorInstance<BroadcastReceiver<T>>(operatorName);
         }
 
         /// <summary>
@@ -117,9 +115,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         /// <returns>The ReduceSender</returns>
         public IReduceSender<T> GetReduceSender<T>(string operatorName)
         {
-            var o = GetOperatorInstance<ReduceSender<T>>(operatorName);
-            o.Initialize();
-            return o;
+            return GetOperatorInstance<ReduceSender<T>>(operatorName);
         }
 
         /// <summary>
@@ -130,9 +126,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         /// <returns>The ReduceReceiver</returns>
         public IReduceReceiver<T> GetReduceReceiver<T>(string operatorName)
         {
-            var o = GetOperatorInstance<ReduceReceiver<T>>(operatorName);
-            o.Initialize();
-            return o;
+            return GetOperatorInstance<ReduceReceiver<T>>(operatorName);
         }
 
         /// <summary>
@@ -143,9 +137,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         /// <returns>The ScatterSender</returns>
         public IScatterSender<T> GetScatterSender<T>(string operatorName)
         {
-            var o = GetOperatorInstance<ScatterSender<T>>(operatorName);
-            o.Initialize();
-            return o;
+            return GetOperatorInstance<ScatterSender<T>>(operatorName);
         }
 
         /// <summary>
@@ -156,9 +148,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         /// <returns>The ScatterReceiver</returns>
         public IScatterReceiver<T> GetScatterReceiver<T>(string operatorName)
         {
-            var o = GetOperatorInstance<ScatterReceiver<T>>(operatorName);
-            o.Initialize();
-            return o;
+            return GetOperatorInstance<ScatterReceiver<T>>(operatorName);
         }
 
         /// <summary>

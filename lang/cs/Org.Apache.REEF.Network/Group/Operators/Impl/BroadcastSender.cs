@@ -38,8 +38,6 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
         private static readonly Logger Logger = Logger.GetLogger(typeof(BroadcastSender<T>));
         private const int PipelineVersion = 2;
         private readonly OperatorTopology<PipelineMessage<T>> _topology;
-        private bool _isInitialized = false;
-        private object initializeLock = new object();
 
         /// <summary>
         /// Creates a new BroadcastSender to send messages to other Tasks.
@@ -47,14 +45,17 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
         /// <param name="operatorName">The identifier for the operator</param>
         /// <param name="groupName">The name of the CommunicationGroup that the operator
         /// belongs to</param>
+        /// <param name="initialize">Require Topology Initialize to be called to wait for all task being registered. 
+        /// Default is true. For unit testing, it can be set to false.</param>
         /// <param name="topology">The node's topology graph</param>
         /// <param name="networkHandler">The incoming message handler</param>
         /// <param name="dataConverter">The converter used to convert original
         /// message to pipelined ones and vice versa.</param>
         [Inject]
-        public BroadcastSender(
+        private  BroadcastSender(
             [Parameter(typeof(GroupCommConfigurationOptions.OperatorName))] string operatorName,
             [Parameter(typeof(GroupCommConfigurationOptions.CommunicationGroupName))] string groupName,
+            [Parameter(typeof(GroupCommConfigurationOptions.Initialize))] bool initialize,
             OperatorTopology<PipelineMessage<T>> topology,
             ICommunicationGroupNetworkObserver networkHandler,
             IPipelineDataConverter<T> dataConverter)
@@ -67,8 +68,13 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
 
             var msgHandler = Observer.Create<GroupCommunicationMessage>(message => _topology.OnNext(message));
             networkHandler.Register(operatorName, msgHandler);
-        }
 
+            if (initialize)
+            {
+                topology.Initialize();
+            }
+        }
+      
         /// <summary>
         /// Returns the identifier for the Group Communication operator.
         /// </summary>
@@ -88,24 +94,6 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
         /// Returns the IPipelineDataConvert used to convert messages to pipeline form and vice-versa
         /// </summary>
         public IPipelineDataConverter<T> PipelineDataConverter { get; private set; }
-
-        /// <summary>
-        /// It does necessary checks in topology to make sure the operator is ready to send/receive messages from/to tasks
-        /// </summary>
-        public void Initialize()
-        {
-            if (!_isInitialized)
-            {
-                lock (initializeLock)
-                {
-                    if (!_isInitialized)
-                    {
-                        _topology.Initialize();
-                        _isInitialized = true;
-                    }
-                }
-            }
-        }
 
         /// <summary>
         /// Send the data to all BroadcastReceivers.

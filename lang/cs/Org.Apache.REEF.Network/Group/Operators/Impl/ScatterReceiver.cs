@@ -35,35 +35,37 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
     public class ScatterReceiver<T> : IScatterReceiver<T>
     {
         private const int DefaultVersion = 1;
-
-        private readonly ICommunicationGroupNetworkObserver _networkHandler;
         private readonly OperatorTopology<T> _topology;
-        private bool _isInitialized = false;
-        private object initializeLock = new object();
 
         /// <summary>
         /// Creates a new ScatterReceiver.
         /// </summary>
         /// <param name="operatorName">The name of the scatter operator</param>
         /// <param name="groupName">The name of the operator's CommunicationGroup</param>
+        /// <param name="initialize">Require Topology Initialize to be called to wait for all task being registered. 
+        /// Default is true. For unit testing, it can be set to false.</param>
         /// <param name="topology">The task's operator topology graph</param>
         /// <param name="networkHandler">Handles incoming messages from other tasks</param>
         [Inject]
         public ScatterReceiver(
             [Parameter(typeof(GroupCommConfigurationOptions.OperatorName))] string operatorName,
             [Parameter(typeof(GroupCommConfigurationOptions.CommunicationGroupName))] string groupName,
+            [Parameter(typeof(GroupCommConfigurationOptions.Initialize))] bool initialize,
             OperatorTopology<T> topology, 
             ICommunicationGroupNetworkObserver networkHandler)
         {
             OperatorName = operatorName;
             GroupName = groupName;
             Version = DefaultVersion;
-
-            _networkHandler = networkHandler;
             _topology = topology;
 
             var msgHandler = Observer.Create<GroupCommunicationMessage>(message => _topology.OnNext(message));
-            _networkHandler.Register(operatorName, msgHandler);
+            networkHandler.Register(operatorName, msgHandler);
+
+            if (initialize)
+            {
+                topology.Initialize();
+            }
         }
 
         /// <summary>
@@ -80,24 +82,6 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
         /// Returns the operator version.
         /// </summary>
         public int Version { get; private set; }
-
-        /// <summary>
-        /// It does necessary checks in topology to make sure the operator is ready to send/receive messages from/to tasks
-        /// </summary>
-        public void Initialize()
-        {
-            if (!_isInitialized)
-            {
-                lock (initializeLock)
-                {
-                    if (!_isInitialized)
-                    {
-                        _topology.Initialize();
-                        _isInitialized = true;
-                    }
-                }
-            }
-        }
 
         /// <summary>
         /// Returns the class used to reduce incoming messages sent by ReduceSenders.

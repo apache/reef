@@ -158,16 +158,19 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
             }
         }
 
+        /// <summary>
+        /// This is to test operator injection in CommunicationGroupClient with int[] as message type
+        /// </summary>
         [TestMethod]
         public void TestGetBroadcastReduceOperatorsForIntArrayMessageType()
         {
-            string groupName = "group1";
-            string broadcastOperatorName = "broadcast";
-            string reduceOperatorName = "reduce";
-            string masterTaskId = "task0";
-            string driverId = "Driver Id";
-            int numTasks = 3;
-            int fanOut = 2;
+            const string groupName = "group1";
+            const string broadcastOperatorName = "broadcast";
+            const string reduceOperatorName = "reduce";
+            const string masterTaskId = "task0";
+            const string driverId = "Driver Id";
+            const int numTasks = 3;
+            const int fanOut = 2;
 
             IConfiguration codecConfig = CodecConfiguration<int[]>.Conf
                 .Set(CodecConfiguration<int[]>.Codec, GenericType<IntArrayCodec>.Class)
@@ -215,6 +218,13 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
 
             IBroadcastReceiver<int[]> broadcastReceiver2 = commGroups[2].GetBroadcastReceiver<int[]>(broadcastOperatorName);
             IReduceSender<int[]> triangleNumberSender2 = commGroups[2].GetReduceSender<int[]>(reduceOperatorName);
+
+            Assert.IsNotNull(broadcastSender);
+            Assert.IsNotNull(sumReducer);
+            Assert.IsNotNull(broadcastReceiver1);
+            Assert.IsNotNull(triangleNumberSender1);
+            Assert.IsNotNull(broadcastReceiver2);
+            Assert.IsNotNull(triangleNumberSender2);
         }
 
         [TestMethod]
@@ -796,7 +806,12 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
                 string taskId = "task" + i;
                 IConfiguration groupCommTaskConfig = groupCommDriver.GetGroupCommTaskConfiguration(taskId);
                 IConfiguration mergedConf = Configurations.Merge(groupCommTaskConfig, partialConfigs[i], serviceConfig);
-                IInjector injector = TangFactory.GetTang().NewInjector(mergedConf);
+
+                var conf = TangFactory.GetTang()
+                    .NewConfigurationBuilder(mergedConf)
+                    .BindNamedParameter(typeof(GroupCommConfigurationOptions.Initialize), "false")
+                    .Build();
+                IInjector injector = TangFactory.GetTang().NewInjector(conf);
 
                 //simulate injection at evaluator side
                 IGroupCommClient groupCommClient = injector.GetInstance<IGroupCommClient>();
