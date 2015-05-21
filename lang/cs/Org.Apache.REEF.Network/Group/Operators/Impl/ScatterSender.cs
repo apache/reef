@@ -43,11 +43,12 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
         /// </summary>
         /// <param name="operatorName">The name of the scatter operator</param>
         /// <param name="groupName">The name of the operator's Communication Group</param>
-        /// <param name="initialize">Require Topology Initialize to be called to wait for all task being registered. Default is true. For unit testing, it can be set to false.</param>
+        /// <param name="initialize">Require Topology Initialize to be called to wait for all task being registered. 
+        /// Default is true. For unit testing, it can be set to false.</param>
         /// <param name="topology">The operator topology</param>
         /// <param name="networkHandler">The network handler</param>
         [Inject]
-        public ScatterSender(
+        private ScatterSender(
             [Parameter(typeof(GroupCommConfigurationOptions.OperatorName))] string operatorName,
             [Parameter(typeof(GroupCommConfigurationOptions.CommunicationGroupName))] string groupName,
             [Parameter(typeof(GroupCommConfigurationOptions.Initialize))] bool initialize,

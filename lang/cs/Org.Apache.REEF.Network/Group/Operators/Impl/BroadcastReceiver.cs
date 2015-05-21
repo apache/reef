@@ -50,7 +50,7 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
         /// <param name="networkHandler">The incoming message handler</param>
         /// <param name="dataConverter">The converter used to convert original message to pipelined ones and vice versa.</param>
         [Inject]
-        public BroadcastReceiver(
+        private BroadcastReceiver(
             [Parameter(typeof(GroupCommConfigurationOptions.OperatorName))] string operatorName,
             [Parameter(typeof(GroupCommConfigurationOptions.CommunicationGroupName))] string groupName,
             [Parameter(typeof(GroupCommConfigurationOptions.Initialize))] bool initialize,
