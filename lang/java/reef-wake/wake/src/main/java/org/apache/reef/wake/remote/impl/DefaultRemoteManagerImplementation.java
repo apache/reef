@@ -64,8 +64,7 @@ public class DefaultRemoteManagerImplementation implements RemoteManager {
   /**
    * Indicates a hostname that isn't set or known.
    */
-  public static final String UNKNOWN_HOST_NAME = "##UNKNOWN##";
-
+  public static final String UNKNOWN_HOST_NAME = NettyMessagingTransport.UNKNOWN_HOST_NAME;
 
   /**
    * @deprecated have an instance injected instead. Or use RemoteManagerFactory.getInstance()
@@ -117,9 +116,8 @@ public class DefaultRemoteManagerImplementation implements RemoteManager {
         new OrderedRemoteReceiverStage(this.handlerContainer, errorHandler) :
         new RemoteReceiverStage(this.handlerContainer, errorHandler, 10);
 
-    final String host = UNKNOWN_HOST_NAME.equals(hostAddress) ? localAddressProvider.getLocalAddress() : hostAddress;
     this.transport = new NettyMessagingTransport(
-            host, listeningPort, this.reRecvStage, this.reRecvStage, numberOfTries, retryTimeout, tcpPortProvider);
+        hostAddress, listeningPort, this.reRecvStage, this.reRecvStage, numberOfTries, retryTimeout, tcpPortProvider, localAddressProvider);
 
     this.handlerContainer.setTransport(this.transport);
 
