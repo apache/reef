@@ -54,9 +54,6 @@ under the License.
     <Compile Include="Api\AbstractFailure.cs" />
     <Compile Include="Api\IAbstractFailure.cs" />
     <Compile Include="Api\IFailure.cs" />
-    <Compile Include="Api\IResourceLaunchHandler.cs" />
-    <Compile Include="Api\IResourceReleaseHandler.cs" />
-    <Compile Include="Api\IResourceRequestHandler.cs" />
     <Compile Include="Avro\AvroDriverInfo.cs" />
     <Compile Include="Avro\AvroHttpRequest.cs" />
     <Compile Include="Avro\AvroHttpSerializer.cs" />
@@ -72,13 +69,11 @@ under the License.
     <Compile Include="Catalog\NodeDescriptorImpl.cs" />
     <Compile Include="Catalog\RackDescriptorImpl.cs" />
     <Compile Include="Catalog\ResourceCatalogImpl.cs" />
-    <Compile Include="ClientJobStatusHandler.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="Context\ContextMessage.cs" />
     <Compile Include="Context\IContextMessage.cs" />
     <Compile Include="Context\IContextMessageHandler.cs" />
     <Compile Include="Context\IContextMessageSource.cs" />
-    <Compile Include="EvaluatorHeartBeatSanityChecker.cs" />
     <Compile Include="Evaluator\DefaultLocalHttpDriverConnection.cs" />
     <Compile Include="Evaluator\DefaultYarnClusterHttpDriverConnection.cs" />
     <Compile Include="Evaluator\DefaultYarnOneBoxHttpDriverConnection.cs" />
