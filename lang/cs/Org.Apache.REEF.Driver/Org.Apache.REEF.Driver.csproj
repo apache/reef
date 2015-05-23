@@ -84,14 +84,12 @@ under the License.
     <Compile Include="Bridge\ILogger.cs" />
     <Compile Include="Bridge\ReefHttpRequest.cs" />
     <Compile Include="Bridge\ReefHttpResponse.cs" />
-    <Compile Include="ClientManager.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="Context\ContextConfiguration.cs" />
     <Compile Include="Context\ContextConfigurationOptions.cs" />
     <Compile Include="Context\Defaults\DefaultContextMessageSource.cs" />
     <Compile Include="Context\Defaults\DefaultContextStartHandler.cs" />
     <Compile Include="Context\Defaults\DefaultContextStopHandler.cs" />
-    <Compile Include="Context\EvaluatorContext.cs" />
     <Compile Include="Context\IActiveContext.cs" />
     <Compile Include="Context\IClosedContext.cs" />
     <Compile Include="Context\IContext.cs" />
@@ -120,11 +118,7 @@ under the License.
     <Compile Include="Defaults\DefaultTaskSuspensionHandler.cs" />
     <Compile Include="DriverConfigGenerator.cs" />
     <Compile Include="DriverConfigurationSettings.cs" />
-    <Compile Include="DriverManager.cs" />
-    <Compile Include="DriverRuntimeConfiguration.cs" />
-    <Compile Include="DriverRuntimeConfigurationOptions.cs" />
     <Compile Include="DriverSubmissionSettings.cs" />
-    <Compile Include="EvaluatorManager.cs" />
     <Compile Include="Evaluator\EvaluatorDescriptorImpl.cs" />
     <Compile Include="Evaluator\EvaluatorRequest.cs" />
     <Compile Include="Evaluator\EvaluatorRequestBuilder.cs" />
@@ -143,7 +137,6 @@ under the License.
     <Compile Include="Task\IRunningTask.cs" />
     <Compile Include="Task\ISuspendedTask.cs" />
     <Compile Include="Task\ITaskMessage.cs" />
-    <Compile Include="Task\RunningTaskImpl.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Org.Apache.REEF.Driver.nuspec" />
