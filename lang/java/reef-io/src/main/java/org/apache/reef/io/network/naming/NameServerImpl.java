@@ -30,9 +30,9 @@ import org.apache.reef.wake.remote.Codec;
 import org.apache.reef.wake.remote.address.LocalAddressProvider;
 import org.apache.reef.wake.remote.address.LocalAddressProviderFactory;
 import org.apache.reef.wake.remote.impl.TransportEvent;
-import org.apache.reef.wake.remote.ports.RangeTcpPortProvider;
-import org.apache.reef.wake.remote.ports.TcpPortProvider;
 import org.apache.reef.wake.remote.transport.Transport;
+import org.apache.reef.wake.remote.transport.TransportFactory;
+import org.apache.reef.wake.remote.transport.netty.MessagingTransportFactory;
 import org.apache.reef.wake.remote.transport.netty.NettyMessagingTransport;
 import org.apache.reef.webserver.AvroReefServiceInfo;
 import org.apache.reef.webserver.ReefEventStateManager;
@@ -100,7 +100,7 @@ public class NameServerImpl implements NameServer {
       final int port,
       final IdentifierFactory factory,
       final ReefEventStateManager reefEventStateManager) {
-    this(port, factory, reefEventStateManager, LocalAddressProviderFactory.getInstance(), RangeTcpPortProvider.Default);
+    this(port, factory, reefEventStateManager, LocalAddressProviderFactory.getInstance());
   }
 
   /**
@@ -109,6 +109,27 @@ public class NameServerImpl implements NameServer {
    * @param port                  a listening port number
    * @param factory               an identifier factory
    * @param reefEventStateManager the event state manager used to register name server info
+   * @param localAddressProvider  a local address provider
+   * @deprecated have an instance injected instead
+   */
+  @Deprecated
+  public NameServerImpl(
+      final int port,
+      final IdentifierFactory factory,
+      final ReefEventStateManager reefEventStateManager,
+      final LocalAddressProvider localAddressProvider) {
+    this(port, factory, reefEventStateManager, localAddressProvider, new MessagingTransportFactory());
+  }
+
+
+  /**
+   * Constructs a name server
+   *
+   * @param port                  a listening port number
+   * @param factory               an identifier factory
+   * @param reefEventStateManager the event state manager used to register name server info
+   * @param localAddressProvider  a local address provider
+   * @param tpFactory             a transport factory
    */
   @Inject
   public NameServerImpl(
@@ -116,16 +137,14 @@ public class NameServerImpl implements NameServer {
       final @Parameter(NameServerParameters.NameServerIdentifierFactory.class) IdentifierFactory factory,
       final ReefEventStateManager reefEventStateManager,
       final LocalAddressProvider localAddressProvider,
-      final TcpPortProvider tcpPortProvider) {
-
+      final TransportFactory tpFactory) {
     this.localAddressProvider = localAddressProvider;
-
     this.reefEventStateManager = reefEventStateManager;
     final Codec<NamingMessage> codec = NamingCodecFactory.createFullCodec(factory);
     final EventHandler<NamingMessage> handler = createEventHandler(codec);
 
-    this.transport = new NettyMessagingTransport(localAddressProvider.getLocalAddress(), port, null,
-        new SyncStage<>(new NamingServerHandler(handler, codec)), 3, 10000, tcpPortProvider);
+    this.transport = tpFactory.getInstance(localAddressProvider.getLocalAddress(), port, null,
+        new SyncStage<>(new NamingServerHandler(handler, codec)), 3, 10000);
 
     this.port = transport.getListeningPort();
     this.idToAddrMap = Collections.synchronizedMap(new HashMap<Identifier, InetSocketAddress>());
@@ -137,6 +156,7 @@ public class NameServerImpl implements NameServer {
             .build());
     LOG.log(Level.FINE, "NameServer starting, listening at port {0}", this.port);
   }
+
 
   private EventHandler<NamingMessage> createEventHandler(final Codec<NamingMessage> codec) {
 
@@ -150,7 +170,6 @@ public class NameServerImpl implements NameServer {
 
     return handler;
   }
-
   /**
    * Gets port
    */

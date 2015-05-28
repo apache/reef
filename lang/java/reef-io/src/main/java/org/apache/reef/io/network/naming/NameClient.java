@@ -19,11 +19,11 @@
 package org.apache.reef.io.network.naming;
 
 import org.apache.reef.io.naming.Naming;
-import org.apache.reef.util.cache.Cache;
 import org.apache.reef.io.network.naming.exception.NamingRuntimeException;
 import org.apache.reef.io.network.naming.serialization.NamingLookupResponse;
 import org.apache.reef.io.network.naming.serialization.NamingMessage;
 import org.apache.reef.io.network.naming.serialization.NamingRegisterResponse;
+import org.apache.reef.util.cache.Cache;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.Identifier;
 import org.apache.reef.wake.IdentifierFactory;
@@ -34,7 +34,8 @@ import org.apache.reef.wake.remote.address.LocalAddressProvider;
 import org.apache.reef.wake.remote.address.LocalAddressProviderFactory;
 import org.apache.reef.wake.remote.impl.TransportEvent;
 import org.apache.reef.wake.remote.transport.Transport;
-import org.apache.reef.wake.remote.transport.netty.NettyMessagingTransport;
+import org.apache.reef.wake.remote.transport.netty.MessagingTransportFactory;
+import org.apache.reef.wake.remote.transport.TransportFactory;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -72,6 +73,7 @@ public class NameClient implements Stage, Naming {
    * @param factory    an identifier factory
    * @param cache      a cache
    */
+  @Deprecated
   public NameClient(final String serverAddr,
                     final int serverPort,
                     final IdentifierFactory factory,
@@ -108,7 +110,9 @@ public class NameClient implements Stage, Naming {
    * @param timeout    timeout in ms
    * @param factory    an identifier factory
    * @param cache      a cache
+   * @deprecated
    */
+  @Deprecated
   public NameClient(final String serverAddr,
                     final int serverPort,
                     final long timeout,
@@ -117,12 +121,35 @@ public class NameClient implements Stage, Naming {
                     final int retryTimeout,
                     final Cache<Identifier, InetSocketAddress> cache,
                     final LocalAddressProvider localAddressProvider) {
+     this(serverAddr, serverPort, timeout, factory, retryCount, retryTimeout,
+         cache, localAddressProvider, new MessagingTransportFactory());
+  }
+
+  /**
+   * Constructs a naming client
+   *
+   * @param serverAddr a server address
+   * @param serverPort a server port number
+   * @param timeout    timeout in ms
+   * @param factory    an identifier factory
+   * @param cache      a cache
+   * @param tpFactory  transport factory
+   */
+  public NameClient(final String serverAddr,
+                    final int serverPort,
+                    final long timeout,
+                    final IdentifierFactory factory,
+                    final int retryCount,
+                    final int retryTimeout,
+                    final Cache<Identifier, InetSocketAddress> cache,
+                    final LocalAddressProvider localAddressProvider,
+                    final TransportFactory tpFactory) {
 
     final BlockingQueue<NamingLookupResponse> replyLookupQueue = new LinkedBlockingQueue<NamingLookupResponse>();
     final BlockingQueue<NamingRegisterResponse> replyRegisterQueue = new LinkedBlockingQueue<NamingRegisterResponse>();
     final Codec<NamingMessage> codec = NamingCodecFactory.createFullCodec(factory);
 
-    this.transport = new NettyMessagingTransport(localAddressProvider.getLocalAddress(), 0,
+    this.transport = tpFactory.getInstance(localAddressProvider.getLocalAddress(), 0,
         new SyncStage<>(new NamingClientEventHandler(
             new NamingResponseHandler(replyLookupQueue, replyRegisterQueue), codec)),
         null, retryCount, retryTimeout);
