@@ -18,6 +18,7 @@
  */
 package org.apache.reef.wake.test.remote;
 
+import org.apache.reef.tang.Injector;
 import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.wake.EStage;
@@ -27,10 +28,10 @@ import org.apache.reef.wake.impl.LoggingUtils;
 import org.apache.reef.wake.impl.ThreadPoolStage;
 import org.apache.reef.wake.impl.TimerStage;
 import org.apache.reef.wake.remote.address.LocalAddressProvider;
-import org.apache.reef.wake.remote.address.LocalAddressProviderFactory;
 import org.apache.reef.wake.remote.impl.TransportEvent;
 import org.apache.reef.wake.remote.transport.Link;
-import org.apache.reef.wake.remote.transport.netty.NettyMessagingTransport;
+import org.apache.reef.wake.remote.transport.Transport;
+import org.apache.reef.wake.remote.transport.TransportFactory;
 import org.apache.reef.wake.test.util.Monitor;
 import org.apache.reef.wake.test.util.PassThroughEncoder;
 import org.apache.reef.wake.test.util.TimeoutHandler;
@@ -46,13 +47,16 @@ import java.util.logging.Level;
  */
 public class LargeMsgTest {
   private final LocalAddressProvider localAddressProvider;
+  private final TransportFactory tpFactory;
   private final static byte[][] values = new byte[3][];
   private final static int l0 = 1 << 25;
   private final static int l1 = 1 << 2;
   private final static int l2 = 1 << 21;
 
   public LargeMsgTest() throws InjectionException {
-    this.localAddressProvider = LocalAddressProviderFactory.getInstance();
+    final Injector injector = Tang.Factory.getTang().newInjector();
+    this.localAddressProvider = injector.getInstance(LocalAddressProvider.class);
+    this.tpFactory = injector.getInstance(TransportFactory.class);
   }
 
   @BeforeClass
@@ -87,7 +91,7 @@ public class LargeMsgTest {
 
     final String hostAddress = this.localAddressProvider.getLocalAddress();
     int port = 7001;
-    NettyMessagingTransport transport = new NettyMessagingTransport(hostAddress, port, clientStage, serverStage, 1, 10000);
+    Transport transport = tpFactory.newInstance(hostAddress, port, clientStage, serverStage, 1, 10000);
     final Link<byte[]> link = transport.open(new InetSocketAddress(hostAddress, port), new PassThroughEncoder(), null);
     EStage<byte[]> writeSubmitter = new ThreadPoolStage<>("Submitter", new EventHandler<byte[]>() {
 

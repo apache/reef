@@ -16,28 +16,23 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.io.network;
+package org.apache.reef.wake.remote.impl;
 
-import org.apache.reef.wake.EventHandler;
-import org.apache.reef.wake.remote.impl.TransportEvent;
-import org.apache.reef.wake.remote.transport.Transport;
+import org.apache.reef.wake.EStage;
 
-/**
- * Factory that creates a transport
- */
-public interface TransportFactory {
+import javax.inject.Inject;
 
-  /**
-   * Creates a transport
-   *
-   * @param port          a listening port
-   * @param clientHandler a transport client-side handler
-   * @param serverHandler a transport server-side handler
-   * @param exHandler     an exception handler
-   * @return
-   */
-  public Transport create(int port,
-                          EventHandler<TransportEvent> clientHandler,
-                          EventHandler<TransportEvent> serverHandler,
-                          EventHandler<Exception> exHandler);
+public class DefaultTransportEStage implements EStage<TransportEvent> {
+
+  @Inject
+  public DefaultTransportEStage() {
+  }
+
+  @Override
+  public void onNext(TransportEvent value) {
+  }
+
+  @Override
+  public void close() throws Exception {
+  }
 }

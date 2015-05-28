@@ -26,6 +26,7 @@ import org.apache.reef.wake.remote.RemoteManager;
 import org.apache.reef.wake.remote.RemoteManagerFactory;
 import org.apache.reef.wake.remote.address.LocalAddressProvider;
 import org.apache.reef.wake.remote.ports.TcpPortProvider;
+import org.apache.reef.wake.remote.transport.TransportFactory;
 
 import javax.inject.Inject;
 
@@ -40,7 +41,7 @@ public class DefaultRemoteManagerFactory implements RemoteManagerFactory {
   private final int numberOfTries;
   private final int retryTimeout;
   private final LocalAddressProvider localAddressProvider;
-  private final TcpPortProvider tcpPortProvider;
+  private final TransportFactory tpFactory;
 
   @Inject
   private DefaultRemoteManagerFactory(
@@ -50,14 +51,14 @@ public class DefaultRemoteManagerFactory implements RemoteManagerFactory {
       final @Parameter(RemoteConfiguration.NumberOfTries.class) int numberOfTries,
       final @Parameter(RemoteConfiguration.RetryTimeout.class) int retryTimeout,
       final LocalAddressProvider localAddressProvider,
-      final TcpPortProvider tcpPortProvider) {
+      final TransportFactory tpFactory) {
     this.codec = codec;
     this.errorHandler = errorHandler;
     this.orderingGuarantee = orderingGuarantee;
     this.numberOfTries = numberOfTries;
     this.retryTimeout = retryTimeout;
     this.localAddressProvider = localAddressProvider;
-    this.tcpPortProvider = tcpPortProvider;
+    this.tpFactory = tpFactory;
   }
 
   @Override
@@ -71,7 +72,7 @@ public class DefaultRemoteManagerFactory implements RemoteManagerFactory {
         this.numberOfTries,
         this.retryTimeout,
         this.localAddressProvider,
-        this.tcpPortProvider);
+        this.tpFactory);
   }
 
 
@@ -95,7 +96,7 @@ public class DefaultRemoteManagerFactory implements RemoteManagerFactory {
         numberOfTries,
         retryTimeout,
         localAddressProvider,
-        tcpPortProvider);
+        tpFactory);
   }
 
   @Override
@@ -116,7 +117,7 @@ public class DefaultRemoteManagerFactory implements RemoteManagerFactory {
         numberOfTries,
         retryTimeout,
         this.localAddressProvider,
-        this.tcpPortProvider);
+        this.tpFactory);
 
   }
 
@@ -131,7 +132,7 @@ public class DefaultRemoteManagerFactory implements RemoteManagerFactory {
         this.numberOfTries,
         this.retryTimeout,
         this.localAddressProvider,
-        this.tcpPortProvider);
+        this.tpFactory);
   }
 
   @Override
@@ -148,6 +149,6 @@ public class DefaultRemoteManagerFactory implements RemoteManagerFactory {
         this.numberOfTries,
         this.retryTimeout,
         this.localAddressProvider,
-        this.tcpPortProvider);
+        this.tpFactory);
   }
 }

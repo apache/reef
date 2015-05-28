@@ -18,18 +18,20 @@
  */
 package org.apache.reef.wake.test.remote;
 
+import org.apache.reef.tang.Injector;
+import org.apache.reef.tang.Tang;
+import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.wake.EStage;
 import org.apache.reef.wake.impl.LoggingUtils;
 import org.apache.reef.wake.impl.TimerStage;
 import org.apache.reef.wake.remote.Codec;
 import org.apache.reef.wake.remote.address.LocalAddressProvider;
-import org.apache.reef.wake.remote.address.LocalAddressProviderFactory;
 import org.apache.reef.wake.remote.impl.ObjectSerializableCodec;
 import org.apache.reef.wake.remote.impl.TransportEvent;
 import org.apache.reef.wake.remote.transport.Link;
 import org.apache.reef.wake.remote.transport.Transport;
 import org.apache.reef.wake.remote.transport.netty.LoggingLinkListener;
-import org.apache.reef.wake.remote.transport.netty.NettyMessagingTransport;
+import org.apache.reef.wake.remote.transport.TransportFactory;
 import org.apache.reef.wake.test.util.Monitor;
 import org.apache.reef.wake.test.util.TimeoutHandler;
 import org.junit.Assert;
@@ -44,9 +46,12 @@ import java.util.logging.Level;
 
 public class TransportTest {
   private final LocalAddressProvider localAddressProvider;
+  private final TransportFactory tpFactory;
 
-  public TransportTest() {
-    this.localAddressProvider = LocalAddressProviderFactory.getInstance();
+  public TransportTest() throws InjectionException {
+    final Injector injector = Tang.Factory.getTang().newInjector();
+    this.localAddressProvider = injector.getInstance(LocalAddressProvider.class);
+    this.tpFactory = injector.getInstance(TransportFactory.class);
   }
 
   final String logPrefix = "TEST ";
@@ -68,7 +73,7 @@ public class TransportTest {
 
     // Codec<String>
     ReceiverStage<String> stage = new ReceiverStage<String>(new ObjectSerializableCodec<String>(), monitor, expected);
-    Transport transport = new NettyMessagingTransport(hostAddress, port, stage, stage, 1, 10000);
+    Transport transport = tpFactory.newInstance(hostAddress, port, stage, stage, 1, 10000);
 
     // sending side
     Link<String> link = transport.open(
@@ -99,7 +104,7 @@ public class TransportTest {
 
     // Codec<TestEvent>
     ReceiverStage<TestEvent> stage = new ReceiverStage<TestEvent>(new ObjectSerializableCodec<TestEvent>(), monitor, expected);
-    Transport transport = new NettyMessagingTransport(hostAddress, port, stage, stage, 1, 10000);
+    Transport transport = tpFactory.newInstance(hostAddress, port, stage, stage, 1, 10000);
 
     // sending side
     Link<TestEvent> link = transport.open(

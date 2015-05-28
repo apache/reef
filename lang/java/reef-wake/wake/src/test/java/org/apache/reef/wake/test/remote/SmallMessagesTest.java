@@ -18,6 +18,9 @@
  */
 package org.apache.reef.wake.test.remote;
 
+import org.apache.reef.tang.Injector;
+import org.apache.reef.tang.Tang;
+import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.impl.LoggingUtils;
 import org.apache.reef.wake.impl.MultiEventHandler;
@@ -27,10 +30,9 @@ import org.apache.reef.wake.remote.Encoder;
 import org.apache.reef.wake.remote.RemoteIdentifier;
 import org.apache.reef.wake.remote.RemoteIdentifierFactory;
 import org.apache.reef.wake.remote.address.LocalAddressProvider;
-import org.apache.reef.wake.remote.address.LocalAddressProviderFactory;
 import org.apache.reef.wake.remote.impl.*;
 import org.apache.reef.wake.remote.transport.Transport;
-import org.apache.reef.wake.remote.transport.netty.NettyMessagingTransport;
+import org.apache.reef.wake.remote.transport.TransportFactory;
 import org.apache.reef.wake.test.util.Monitor;
 import org.apache.reef.wake.test.util.TimeoutHandler;
 import org.junit.Assert;
@@ -43,9 +45,12 @@ import java.util.logging.Level;
 
 public class SmallMessagesTest {
   private final LocalAddressProvider localAddressProvider;
+  private final TransportFactory tpFactory;
 
-  public SmallMessagesTest() {
-    this.localAddressProvider = LocalAddressProviderFactory.getInstance();
+  public SmallMessagesTest() throws InjectionException {
+    final Injector injector = Tang.Factory.getTang().newInjector();
+    this.localAddressProvider = injector.getInstance(LocalAddressProvider.class);
+    this.tpFactory = injector.getInstance(TransportFactory.class);
   }
 
   @Rule
@@ -87,7 +92,7 @@ public class SmallMessagesTest {
     final String hostAddress = this.localAddressProvider.getLocalAddress();
 
     // transport
-    Transport transport = new NettyMessagingTransport(hostAddress, port, reRecvStage, reRecvStage, 1, 10000);
+    Transport transport = tpFactory.newInstance(hostAddress, port, reRecvStage, reRecvStage, 1, 10000);
 
     // mux encoder with encoder map
     Map<Class<?>, Encoder<?>> clazzToEncoderMap = new HashMap<Class<?>, Encoder<?>>();

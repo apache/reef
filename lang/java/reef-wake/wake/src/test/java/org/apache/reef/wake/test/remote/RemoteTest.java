@@ -18,17 +18,22 @@
  */
 package org.apache.reef.wake.test.remote;
 
+import org.apache.reef.tang.Injector;
+import org.apache.reef.tang.Tang;
+import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.impl.LoggingEventHandler;
 import org.apache.reef.wake.impl.LoggingUtils;
 import org.apache.reef.wake.impl.MultiEventHandler;
 import org.apache.reef.wake.impl.TimerStage;
-import org.apache.reef.wake.remote.*;
+import org.apache.reef.wake.remote.Decoder;
+import org.apache.reef.wake.remote.Encoder;
+import org.apache.reef.wake.remote.RemoteIdentifier;
+import org.apache.reef.wake.remote.RemoteIdentifierFactory;
 import org.apache.reef.wake.remote.address.LocalAddressProvider;
-import org.apache.reef.wake.remote.address.LocalAddressProviderFactory;
 import org.apache.reef.wake.remote.impl.*;
 import org.apache.reef.wake.remote.transport.Transport;
-import org.apache.reef.wake.remote.transport.netty.NettyMessagingTransport;
+import org.apache.reef.wake.remote.transport.TransportFactory;
 import org.apache.reef.wake.test.util.Monitor;
 import org.apache.reef.wake.test.util.TimeoutHandler;
 import org.junit.Assert;
@@ -44,14 +49,17 @@ import java.util.logging.Level;
 
 public class RemoteTest {
   private final LocalAddressProvider localAddressProvider;
+  private final TransportFactory tpFactory;
   @Rule
   public final TestName name = new TestName();
 
   final String logPrefix = "TEST ";
 
 
-  public RemoteTest() {
-    this.localAddressProvider = LocalAddressProviderFactory.getInstance();
+  public RemoteTest() throws InjectionException {
+    final Injector injector = Tang.Factory.getTang().newInjector();
+    this.localAddressProvider = injector.getInstance(LocalAddressProvider.class);
+    this.tpFactory = injector.getInstance(TransportFactory.class);
   }
 
   @Test
@@ -87,10 +95,10 @@ public class RemoteTest {
     final String hostAddress = this.localAddressProvider.getLocalAddress();
 
     // transport
-    Transport transport1 = new NettyMessagingTransport(hostAddress, 0, reRecvStage, reRecvStage, 1, 10000);
+    Transport transport1 = tpFactory.newInstance(hostAddress, 0, reRecvStage, reRecvStage, 1, 10000);
     int port1 = transport1.getListeningPort();
 
-    Transport transport2 = new NettyMessagingTransport(hostAddress, 0, reRecvStage, reRecvStage, 1, 10000);
+    Transport transport2 = tpFactory.newInstance(hostAddress, 0, reRecvStage, reRecvStage, 1, 10000);
     int port2 = transport2.getListeningPort();
 
     transport1.close();
@@ -132,7 +140,7 @@ public class RemoteTest {
     final String hostAddress = this.localAddressProvider.getLocalAddress();
 
     // transport
-    Transport transport = new NettyMessagingTransport(hostAddress, port, reRecvStage, reRecvStage, 1, 10000);
+    Transport transport = tpFactory.newInstance(hostAddress, port, reRecvStage, reRecvStage, 1, 10000);
 
     // mux encoder with encoder map
     Map<Class<?>, Encoder<?>> clazzToEncoderMap = new HashMap<Class<?>, Encoder<?>>();
