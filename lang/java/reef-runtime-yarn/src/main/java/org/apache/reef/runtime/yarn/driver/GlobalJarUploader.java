@@ -29,6 +29,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Utility class that creates the JAR file with the global files on the driver and then uploads it to the job folder on
@@ -36,22 +38,34 @@ import java.util.concurrent.Callable;
  */
 final class GlobalJarUploader implements Callable<Map<String, LocalResource>> {
 
+  private static final Logger LOG = Logger.getLogger(GlobalJarUploader.class.getName());
+
   /**
    * Used for the file system constants.
    */
   private final REEFFileNames fileNames;
-  /**
-   * This will hold the actuall map to be used as the "global" resources when submitting Evaluators.
-   */
-  private final Map<String, LocalResource> globalResources = new HashMap<>(1);
+
   /**
    * Utility to actually perform the update.
    */
   private final UploaderToJobFolder uploader;
+
   /**
-   * True, if globalResources contains the valid information which is cached after the first call to call().
+   * True, if the global JAR has already been uploaded.
    */
-  private boolean isDone;
+  private boolean isUploaded;
+
+  /**
+   * Path to the uploaded global JAR.
+   */
+  private Path pathToGlobalJar;
+
+  /**
+   * The cached LocalResource for global JAR. The latest global JAR
+   * is still updated due to REEF-348.
+   * This is primarily used to detect change in JAR timestamps.
+   */
+  private LocalResource globalJarResource;
 
   @Inject
   GlobalJarUploader(final REEFFileNames fileNames,
@@ -69,13 +83,27 @@ final class GlobalJarUploader implements Callable<Map<String, LocalResource>> {
    */
   @Override
   public synchronized Map<String, LocalResource> call() throws IOException {
-    if (!this.isDone) {
-      final Path pathToGlobalJar = this.uploader.uploadToJobFolder(makeGlobalJar());
-      globalResources.put(this.fileNames.getGlobalFolderPath(),
-          this.uploader.makeLocalResourceForJarFile(pathToGlobalJar));
-      this.isDone = true;
+    final Map<String, LocalResource> globalResources = new HashMap<>(1);
+    if (!this.isUploaded){
+      this.pathToGlobalJar = this.uploader.uploadToJobFolder(makeGlobalJar());
+      this.isUploaded = true;
     }
-    return this.globalResources;
+
+    LocalResource updatedGlobalJarResource = this.uploader.makeLocalResourceForJarFile(this.pathToGlobalJar);
+
+    if (this.globalJarResource != null
+        && this.globalJarResource.getTimestamp() != updatedGlobalJarResource.getTimestamp()) {
+      LOG.log(Level.WARNING,
+              "The global JAR LocalResource timestamp has been changed from "
+              + this.globalJarResource.getTimestamp() + " to " + updatedGlobalJarResource.getTimestamp());
+    }
+
+    this.globalJarResource = updatedGlobalJarResource;
+
+    // For now, always rewrite the information due to REEF-348
+    globalResources.put(this.fileNames.getGlobalFolderPath(), updatedGlobalJarResource);
+
+    return globalResources;
   }
 
   /**
