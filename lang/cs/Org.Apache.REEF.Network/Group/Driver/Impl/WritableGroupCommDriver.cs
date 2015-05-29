@@ -75,7 +75,7 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
         /// <param name="configSerializer">Used to serialize task configuration</param>
         /// <param name="nameServer">Used to map names to ip adresses</param>
         [Inject]
-        public WritableGroupCommDriver(
+        private WritableGroupCommDriver(
             [Parameter(typeof(GroupCommConfigurationOptions.DriverId))] string driverId,
             [Parameter(typeof(GroupCommConfigurationOptions.MasterTaskId))] string masterTaskId,
             [Parameter(typeof(GroupCommConfigurationOptions.FanOut))] int fanOut,

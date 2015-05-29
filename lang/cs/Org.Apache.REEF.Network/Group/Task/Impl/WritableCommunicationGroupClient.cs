@@ -21,10 +21,8 @@ using System;
 using System.Collections.Generic;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Network.Group.Config;
-using Org.Apache.REEF.Network.Group.Driver.Impl;
 using Org.Apache.REEF.Network.Group.Operators;
 using Org.Apache.REEF.Network.Group.Operators.Impl;
-using Org.Apache.REEF.Network.NetworkService;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Exceptions;
 using Org.Apache.REEF.Tang.Formats;
@@ -46,7 +44,6 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         private readonly Logger LOGGER = Logger.GetLogger(typeof(WritableCommunicationGroupClient));
 
         private readonly Dictionary<string, object> _operators;
-        private readonly WritableNetworkService<WritableGeneralGroupCommunicationMessage> _networkService;
 
         /// <summary>
         /// Creates a new CommunicationGroupClient.

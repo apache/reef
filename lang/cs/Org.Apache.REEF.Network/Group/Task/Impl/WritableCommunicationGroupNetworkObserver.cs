@@ -42,7 +42,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         /// Creates a new CommunicationGroupNetworkObserver.
         /// </summary>
         [Inject]
-        public WritableCommunicationGroupNetworkObserver()
+        private WritableCommunicationGroupNetworkObserver()
         {
             _handlers = new Dictionary<string, IObserver<WritableGeneralGroupCommunicationMessage>>();
         }

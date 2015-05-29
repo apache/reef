@@ -41,7 +41,7 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
         /// <param name="networkService">The network services used to send messages.</param>
         /// <param name="idFactory">Used to create IIdentifier for GroupCommunicationMessages.</param>
         [Inject]
-        public WritableSender(
+        private WritableSender(
             WritableNetworkService<WritableGeneralGroupCommunicationMessage> networkService, 
             IIdentifierFactory idFactory)
         {

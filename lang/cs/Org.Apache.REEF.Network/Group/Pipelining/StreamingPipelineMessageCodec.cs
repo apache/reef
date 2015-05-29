@@ -38,7 +38,7 @@ namespace Org.Apache.REEF.Network.Group.Pipelining
         /// </summary>
         /// <param name="baseCodec">The codec for actual message in PipelineMessage</param>
         [Inject]
-        public StreamingPipelineMessageCodec(IStreamingCodec<T> baseCodec)
+        private StreamingPipelineMessageCodec(IStreamingCodec<T> baseCodec)
         {
             BaseCodec = baseCodec;
         }

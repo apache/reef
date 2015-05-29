@@ -49,26 +49,6 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
     public class WritableGroupCommunicationTests
     {
         /// <summary>
-        /// Checks construction of Tree topology
-        /// </summary>
-        [TestMethod]
-        public void TestWritableTreeTopology()
-        {
-            WritableTreeTopology<int> topology = new WritableTreeTopology<int>("Operator", "Operator", "task1", "driverid",
-                new BroadcastOperatorSpec("task1", GetDefaultCodecConfig(), GetDefaulDataConverterConfig()), 2);
-            for (int i = 1; i < 8; i++)
-            {
-                string taskid = "task" + i;
-                topology.AddTask(taskid);
-            }
-
-            for (int i = 1; i < 8; i++)
-            {
-                var conf = topology.GetTaskConfiguration("task" + i);
-            }
-        }
-
-        /// <summary>
         /// Tests reduce operator
         /// </summary>
         [TestMethod]

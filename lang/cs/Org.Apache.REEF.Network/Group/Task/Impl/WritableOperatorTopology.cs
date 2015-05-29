@@ -83,7 +83,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         /// <param name="sender">The Sender used to do point to point communication</param>
         /// <param name="codec">Streaming codec to encode objects</param>
         [Inject]
-        public WritableOperatorTopology(
+        private WritableOperatorTopology(
             [Parameter(typeof(GroupCommConfigurationOptions.OperatorName))] string operatorName,
             [Parameter(typeof(GroupCommConfigurationOptions.CommunicationGroupName))] string groupName,
             [Parameter(typeof(TaskConfigurationOptions.Identifier))] string taskId,
