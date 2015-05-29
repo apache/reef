@@ -193,10 +193,6 @@ public final class JobDriver {
       LOG.log(Level.INFO, "StartTime: {0}", new Object[]{startTime});
       String portNumber = httpServer == null ? null : Integer.toString((httpServer.getPort()));
       EvaluatorRequestorBridge evaluatorRequestorBridge = new EvaluatorRequestorBridge(JobDriver.this.evaluatorRequestor, false, loggingScopeFactory);
-      //NativeInterop.ClrSystemEvaluatorRequstorHandlerOnNext(JobDriver.this.evaluatorRequestorHandler, evaluatorRequestorBridge, JobDriver.this.interopLogger);
-      // get the evaluator numbers set by CLR handler
-      LOG.log(Level.INFO, "evaluator requested at start up: " + evaluatorRequestorBridge.getEvaluatorNumber());
-
       long[] handlers = NativeInterop.CallClrSystemOnStartHandler(startTime.toString(), portNumber, evaluatorRequestorBridge);
       if (handlers != null) {
         if (handlers.length != NativeInterop.nHandlers) {
