@@ -117,7 +117,6 @@ public final class JobDriver {
    */
   private final LoggingScopeFactory loggingScopeFactory;
 
-  private long evaluatorRequestorHandler = 0;
   private long allocatedEvaluatorHandler = 0;
   private long activeContextHandler = 0;
   private long taskMessageHandler = 0;
@@ -193,7 +192,12 @@ public final class JobDriver {
 
       LOG.log(Level.INFO, "StartTime: {0}", new Object[]{startTime});
       String portNumber = httpServer == null ? null : Integer.toString((httpServer.getPort()));
-      long[] handlers = NativeInterop.CallClrSystemOnStartHandler(startTime.toString(), portNumber);
+      EvaluatorRequestorBridge evaluatorRequestorBridge = new EvaluatorRequestorBridge(JobDriver.this.evaluatorRequestor, false, loggingScopeFactory);
+      //NativeInterop.ClrSystemEvaluatorRequstorHandlerOnNext(JobDriver.this.evaluatorRequestorHandler, evaluatorRequestorBridge, JobDriver.this.interopLogger);
+      // get the evaluator numbers set by CLR handler
+      LOG.log(Level.INFO, "evaluator requested at start up: " + evaluatorRequestorBridge.getEvaluatorNumber());
+
+      long[] handlers = NativeInterop.CallClrSystemOnStartHandler(startTime.toString(), portNumber, evaluatorRequestorBridge);
       if (handlers != null) {
         if (handlers.length != NativeInterop.nHandlers) {
           throw new RuntimeException(
@@ -201,7 +205,6 @@ public final class JobDriver {
                   String.valueOf(handlers.length),
                   String.valueOf(NativeInterop.nHandlers)));
         }
-        this.evaluatorRequestorHandler = handlers[NativeInterop.Handlers.get(NativeInterop.EvaluatorRequestorKey)];
         this.allocatedEvaluatorHandler = handlers[NativeInterop.Handlers.get(NativeInterop.AllocatedEvaluatorKey)];
         this.activeContextHandler = handlers[NativeInterop.Handlers.get(NativeInterop.ActiveContextKey)];
         this.taskMessageHandler = handlers[NativeInterop.Handlers.get(NativeInterop.TaskMessageKey)];
@@ -548,16 +551,7 @@ public final class JobDriver {
         synchronized (JobDriver.this) {
 
           setupBridge(startTime);
-
           LOG.log(Level.INFO, "Driver Started");
-
-          if (JobDriver.this.evaluatorRequestorHandler == 0) {
-            throw new RuntimeException("Evaluator Requestor Handler not initialized by CLR.");
-          }
-          EvaluatorRequestorBridge evaluatorRequestorBridge = new EvaluatorRequestorBridge(JobDriver.this.evaluatorRequestor, false, loggingScopeFactory);
-          NativeInterop.ClrSystemEvaluatorRequstorHandlerOnNext(JobDriver.this.evaluatorRequestorHandler, evaluatorRequestorBridge, JobDriver.this.interopLogger);
-          // get the evaluator numbers set by CLR handler
-          LOG.log(Level.INFO, "evaluator requested at start up: " + evaluatorRequestorBridge.getEvaluatorNumber());
         }
       }
     }

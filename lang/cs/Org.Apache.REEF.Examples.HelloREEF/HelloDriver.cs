@@ -34,7 +34,7 @@ namespace Org.Apache.REEF.Examples.HelloREEF
     /// <summary>
     /// The Driver for HelloREEF: It requests a single Evaluator and then submits the HelloTask to it.
     /// </summary>
-    public sealed class HelloDriver : IObserver<IAllocatedEvaluator>, IObserver<IEvaluatorRequestor>, IStartHandler
+    public sealed class HelloDriver : IObserver<IAllocatedEvaluator>, IStartHandler
     {
         /// <summary>
         /// Contexts contain configuration data used beyond a single task.
@@ -55,10 +55,11 @@ namespace Org.Apache.REEF.Examples.HelloREEF
         private readonly REEFFileNames _fileNames;
 
         [Inject]
-        private HelloDriver(REEFFileNames fileNames)
+        private HelloDriver(REEFFileNames fileNames, IEvaluatorRequestor evaluatorRequestor)
         {
             _fileNames = fileNames;
             ClrHandlerHelper.GenerateClassHierarchy(GetGlobalAssemblies());
+            evaluatorRequestor.Submit(new EvaluatorRequest(number: 1, megaBytes: 64));
         }
 
         /// <summary>
@@ -77,15 +78,6 @@ namespace Org.Apache.REEF.Examples.HelloREEF
 
         public void OnCompleted()
         {
-        }
-
-        /// <summary>
-        /// Ask for one Evaluator with 64MB of memory.
-        /// </summary>
-        /// <param name="evaluatorRequestor"></param>
-        public void OnNext(IEvaluatorRequestor evaluatorRequestor)
-        {
-            evaluatorRequestor.Submit(new EvaluatorRequest(number:1, megaBytes:64));
         }
 
         public string Identifier { get; set; }
