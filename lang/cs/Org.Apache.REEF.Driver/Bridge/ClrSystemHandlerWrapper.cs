@@ -229,28 +229,35 @@ namespace Org.Apache.REEF.Driver.Bridge
         }
 
         //Deprecate, remove after both Java and C# code gets checked in
-        public static ulong[] Call_ClrSystemStartHandler_OnStart(DateTime startTime)
+        public static ulong[] Call_ClrSystemStartHandler_OnStart(
+            DateTime startTime,
+            IEvaluatorRequestorClr2Java  evaluatorRequestorClr2Java)
         {
+            IEvaluatorRequestor evaluatorRequestor = new EvaluatorRequestor(evaluatorRequestorClr2Java);
             using (LOGGER.LogFunction("ClrSystemHandlerWrapper::Call_ClrSystemStartHandler_OnStart"))
             {
                 LOGGER.Log(Level.Info, "*** Start time is " + startTime);
-                return GetHandlers(null);
+                return GetHandlers(null, evaluatorRequestor);
             }
         }
 
-        public static ulong[] Call_ClrSystemStartHandler_OnStart(DateTime startTime, string httpServerPort)
+        public static ulong[] Call_ClrSystemStartHandler_OnStart(
+            DateTime startTime, 
+            string httpServerPort,
+            IEvaluatorRequestorClr2Java evaluatorRequestorClr2Java)
         {
+            IEvaluatorRequestor evaluatorRequestor = new EvaluatorRequestor(evaluatorRequestorClr2Java);
             using (LOGGER.LogFunction("ClrSystemHandlerWrapper::Call_ClrSystemStartHandler_OnStart"))
             {
                 LOGGER.Log(Level.Info, "*** Start time is " + startTime);
                 LOGGER.Log(Level.Info, "*** httpServerPort: " + httpServerPort);
-                return GetHandlers(httpServerPort);
+                return GetHandlers(httpServerPort, evaluatorRequestor);
             }   
         }
 
-        private static ulong[] GetHandlers(string httpServerPortNumber)
+        private static ulong[] GetHandlers(string httpServerPortNumber, IEvaluatorRequestor evaluatorRequestor)
         {
-            var injector = BridgeConfigurationProvider.GetBridgeInjector();
+            var injector = BridgeConfigurationProvider.GetBridgeInjector(evaluatorRequestor);
 
             try
             {
@@ -268,7 +275,9 @@ namespace Org.Apache.REEF.Driver.Bridge
                 Exceptions.CaughtAndThrow(e, Level.Error, "Cannot get instance.", LOGGER);
             }
 
-            return _driverBridge.Subscribe();
+            var handles = _driverBridge.Subscribe();
+            _driverBridge.ObsoleteEvaluatorRequestorOnNext(evaluatorRequestor);
+            return handles;
         }
     }
 }

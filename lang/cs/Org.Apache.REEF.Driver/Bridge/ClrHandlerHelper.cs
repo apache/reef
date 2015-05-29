@@ -23,6 +23,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using Org.Apache.REEF.Driver.Evaluator;
 using Org.Apache.REEF.Tang.Exceptions;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
@@ -82,7 +83,7 @@ namespace Org.Apache.REEF.Driver.Bridge
                 CommandLineArguments arguments;
                 try
                 {                       
-                    arguments = BridgeConfigurationProvider.GetBridgeInjector().GetInstance<CommandLineArguments>();
+                    arguments = BridgeConfigurationProvider.GetBridgeInjector(null).GetInstance<CommandLineArguments>();
                 }
                 catch (InjectionException e)
                 {

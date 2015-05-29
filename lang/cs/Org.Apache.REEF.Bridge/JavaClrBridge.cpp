@@ -97,10 +97,10 @@ JNIEXPORT void JNICALL Java_org_apache_reef_javabridge_NativeInterop_loadClrAsse
 /*
  * Class:     org_apache_reef_javabridge_NativeInterop
  * Method:    CallClrSystemOnStartHandler
- * Signature: (Ljava/lang/String;)V
+ * Signature: (Ljava/lang/String;Ljava/lang/String;Lorg/apache/reef/javabridge/EvaluatorRequestorBridge;)[J
  */
 JNIEXPORT jlongArray JNICALL Java_org_apache_reef_javabridge_NativeInterop_CallClrSystemOnStartHandler
-(JNIEnv * env, jclass jclassx, jstring dateTimeString, jstring httpServerPort) {
+(JNIEnv * env, jclass jclassx, jstring dateTimeString, jstring httpServerPort, jobject jevaluatorRequestorBridge) {
   try {
     ManagedLog::LOGGER->Log("+Java_org_apache_reef_javabridge_NativeInterop_CallClrSystemOnStartHandler");
     const wchar_t* charConfig = UnicodeCppStringFromJavaString (env, dateTimeString);
@@ -112,7 +112,8 @@ JNIEXPORT jlongArray JNICALL Java_org_apache_reef_javabridge_NativeInterop_CallC
     int lenPort = env->GetStringLength(httpServerPort);
     String^  strPort = Marshal::PtrToStringUni((IntPtr)(unsigned short*) charPort, lenPort);
 
-    array<unsigned long long>^ handlers = ClrSystemHandlerWrapper::Call_ClrSystemStartHandler_OnStart(dt, strPort);
+	EvaluatorRequestorClr2Java^ evaluatorRequestorBridge = gcnew EvaluatorRequestorClr2Java(env, jevaluatorRequestorBridge);
+	array<unsigned long long>^ handlers = ClrSystemHandlerWrapper::Call_ClrSystemStartHandler_OnStart(dt, strPort, evaluatorRequestorBridge);
     return JavaLongArrayFromManagedLongArray(env, handlers);
   }
   catch (System::Exception^ ex) {
