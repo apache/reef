@@ -255,7 +255,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
   public void onEvaluatorException(final EvaluatorException exception) {
     synchronized (this.evaluatorDescriptor) {
       if (this.stateManager.isDoneOrFailedOrKilled()) {
-        LOG.log(Level.FINE, "Ignoring an exception receivedfor Evaluator {0} which is already in state {1}.",
+        LOG.log(Level.FINE, "Ignoring an exception received for Evaluator {0} which is already in state {1}.",
             new Object[]{this.getId(), this.stateManager});
         return;
       }
@@ -460,8 +460,18 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
     if (!(this.task.isPresent() && this.task.get().getId().equals(taskStatusProto.getTaskId()))) {
       if (taskStatusProto.getState() == ReefServiceProtos.State.INIT ||
           taskStatusProto.getState() == ReefServiceProtos.State.FAILED ||
+          taskStatusProto.getState() == ReefServiceProtos.State.RUNNING ||
           taskStatusProto.getRecovery() // for task from recovered evaluators
           ) {
+
+        // [REEF-308] exposes a bug where the .NET evaluator does not send its states in the right order
+        // [REEF-289] is a related item which may fix the issue
+        if (taskStatusProto.getState() == ReefServiceProtos.State.RUNNING) {
+          LOG.log(Level.WARNING,
+                  "Received a message of state " + ReefServiceProtos.State.RUNNING +
+                  " for Task " + taskStatusProto.getTaskId() +
+                  " before receiving its " + ReefServiceProtos.State.INIT + " state");
+        }
 
         // FAILED is a legal first state of a Task as it could have failed during construction.
         this.task = Optional.of(
@@ -471,8 +481,9 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
                 this,
                 this.exceptionCodec));
       } else {
-        throw new RuntimeException("Received an message of state " + taskStatusProto.getState() +
-            ", not INIT or FAILED for Task " + taskStatusProto.getTaskId() + " which we haven't heard from before.");
+        throw new RuntimeException("Received a message of state " + taskStatusProto.getState() +
+            ", not INIT, RUNNING, or FAILED for Task " + taskStatusProto.getTaskId() +
+            " which we haven't heard from before.");
       }
     }
     this.task.get().onTaskStatusMessage(taskStatusProto);
