@@ -73,7 +73,7 @@ public class TransportTest {
 
     // Codec<String>
     ReceiverStage<String> stage = new ReceiverStage<String>(new ObjectSerializableCodec<String>(), monitor, expected);
-    Transport transport = tpFactory.getInstance(hostAddress, port, stage, stage, 1, 10000);
+    Transport transport = tpFactory.newTransport(hostAddress, port, stage, stage, 1, 10000);
 
     // sending side
     Link<String> link = transport.open(
@@ -104,7 +104,7 @@ public class TransportTest {
 
     // Codec<TestEvent>
     ReceiverStage<TestEvent> stage = new ReceiverStage<TestEvent>(new ObjectSerializableCodec<TestEvent>(), monitor, expected);
-    Transport transport = tpFactory.getInstance(hostAddress, port, stage, stage, 1, 10000);
+    Transport transport = tpFactory.newTransport(hostAddress, port, stage, stage, 1, 10000);
 
     // sending side
     Link<TestEvent> link = transport.open(

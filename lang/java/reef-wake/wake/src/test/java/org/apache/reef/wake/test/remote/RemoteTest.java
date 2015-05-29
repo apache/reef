@@ -33,7 +33,6 @@ import org.apache.reef.wake.remote.RemoteIdentifierFactory;
 import org.apache.reef.wake.remote.address.LocalAddressProvider;
 import org.apache.reef.wake.remote.impl.*;
 import org.apache.reef.wake.remote.transport.Transport;
-import org.apache.reef.wake.remote.transport.netty.NettyMessagingTransport;
 import org.apache.reef.wake.remote.transport.TransportFactory;
 import org.apache.reef.wake.test.util.Monitor;
 import org.apache.reef.wake.test.util.TimeoutHandler;
@@ -96,10 +95,10 @@ public class RemoteTest {
     final String hostAddress = this.localAddressProvider.getLocalAddress();
 
     // transport
-    Transport transport1 = tpFactory.getInstance(hostAddress, 0, reRecvStage, reRecvStage, 1, 10000);
+    Transport transport1 = tpFactory.newTransport(hostAddress, 0, reRecvStage, reRecvStage, 1, 10000);
     int port1 = transport1.getListeningPort();
 
-    Transport transport2 = tpFactory.getInstance(hostAddress, 0, reRecvStage, reRecvStage, 1, 10000);
+    Transport transport2 = tpFactory.newTransport(hostAddress, 0, reRecvStage, reRecvStage, 1, 10000);
     int port2 = transport2.getListeningPort();
 
     transport1.close();
@@ -141,7 +140,7 @@ public class RemoteTest {
     final String hostAddress = this.localAddressProvider.getLocalAddress();
 
     // transport
-    Transport transport = new NettyMessagingTransport(hostAddress, port, reRecvStage, reRecvStage, 1, 10000);
+    Transport transport = tpFactory.newTransport(hostAddress, port, reRecvStage, reRecvStage, 1, 10000);
 
     // mux encoder with encoder map
     Map<Class<?>, Encoder<?>> clazzToEncoderMap = new HashMap<Class<?>, Encoder<?>>();

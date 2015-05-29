@@ -18,9 +18,13 @@
  */
 package org.apache.reef.wake.remote.transport.netty;
 
+import org.apache.reef.tang.Injector;
+import org.apache.reef.tang.Tang;
+import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.wake.EStage;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.impl.SyncStage;
+import org.apache.reef.wake.remote.RemoteConfiguration;
 import org.apache.reef.wake.remote.address.LocalAddressProvider;
 import org.apache.reef.wake.remote.address.LocalAddressProviderFactory;
 import org.apache.reef.wake.remote.impl.TransportEvent;
@@ -64,42 +68,57 @@ public class MessagingTransportFactory implements TransportFactory {
    * @param exHandler     a exception handler
    */
   @Override
-  public Transport getInstance(final int port,
+  public Transport newTransport(final int port,
                                final EventHandler<TransportEvent> clientHandler,
                                final EventHandler<TransportEvent> serverHandler,
                                final EventHandler<Exception> exHandler) {
 
-    final Transport transport = new NettyMessagingTransport(this.localAddress,
-        port, new SyncStage<>(clientHandler), new SyncStage<>(serverHandler), 3, 10000, RangeTcpPortProvider.Default);
+    Injector injector = Tang.Factory.getTang().newInjector();
+    injector.bindVolatileParameter(RemoteConfiguration.HostAddress.class, this.localAddress);
+    injector.bindVolatileParameter(RemoteConfiguration.Port.class, port);
+    injector.bindVolatileParameter(RemoteConfiguration.RemoteClientStage.class, new SyncStage<>(clientHandler));
+    injector.bindVolatileParameter(RemoteConfiguration.RemoteServerStage.class, new SyncStage<>(serverHandler));
 
-    transport.registerErrorHandler(exHandler);
-    return transport;
+    final Transport transport;
+    try {
+      transport = injector.getInstance(NettyMessagingTransport.class);
+      transport.registerErrorHandler(exHandler);
+      return transport;
+    } catch (InjectionException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   @Override
-  public Transport getInstance(final String hostAddress, int port,
+  public Transport newTransport(final String hostAddress, int port,
                                final EStage<TransportEvent> clientStage,
                                final EStage<TransportEvent> serverStage,
                                final int numberOfTries,
                                final int retryTimeout) {
-    return getInstance(hostAddress, port, clientStage,
+    return newTransport(hostAddress, port, clientStage,
         serverStage, numberOfTries, retryTimeout, RangeTcpPortProvider.Default);
   }
 
   @Override
-  public Transport getInstance(final String hostAddress, int port,
+  public Transport newTransport(final String hostAddress, int port,
                                final EStage<TransportEvent> clientStage,
                                final EStage<TransportEvent> serverStage,
                                final int numberOfTries,
                                final int retryTimeout,
                                final TcpPortProvider tcpPortProvider) {
-    return new NettyMessagingTransport(hostAddress,
-        port,
-        clientStage,
-        serverStage,
-        numberOfTries,
-        retryTimeout,
-        tcpPortProvider);
-  }
 
+    Injector injector = Tang.Factory.getTang().newInjector();
+    injector.bindVolatileParameter(RemoteConfiguration.HostAddress.class, hostAddress);
+    injector.bindVolatileParameter(RemoteConfiguration.Port.class, port);
+    injector.bindVolatileParameter(RemoteConfiguration.RemoteClientStage.class, clientStage);
+    injector.bindVolatileParameter(RemoteConfiguration.RemoteServerStage.class, serverStage);
+    injector.bindVolatileParameter(RemoteConfiguration.NumberOfTries.class, numberOfTries);
+    injector.bindVolatileParameter(RemoteConfiguration.RetryTimeout.class, retryTimeout);
+    injector.bindVolatileInstance(TcpPortProvider.class, tcpPortProvider);
+    try {
+      return injector.getInstance(NettyMessagingTransport.class);
+    } catch (InjectionException e) {
+      throw new RuntimeException(e);
+    }
+  }
 }

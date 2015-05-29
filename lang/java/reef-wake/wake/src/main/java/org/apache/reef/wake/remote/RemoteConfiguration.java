@@ -22,6 +22,7 @@ import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
 import org.apache.reef.wake.EStage;
 import org.apache.reef.wake.EventHandler;
+import org.apache.reef.wake.remote.impl.DefaultTransportEStage;
 import org.apache.reef.wake.remote.impl.ObjectSerializableCodec;
 import org.apache.reef.wake.remote.impl.TransportEvent;
 
@@ -71,12 +72,12 @@ public final class RemoteConfiguration {
     // Intentionally empty       
   }
 
-  @NamedParameter(doc = "Client stage for messaging transport")
+  @NamedParameter(doc = "Client stage for messaging transport", default_class = DefaultTransportEStage.class)
   public static final class RemoteClientStage implements Name<EStage<TransportEvent>> {
     // Intentionally empty
   }
 
-  @NamedParameter(doc = "Server stage for messaging transport")
+  @NamedParameter(doc = "Server stage for messaging transport", default_class = DefaultTransportEStage.class)
   public static final class RemoteServerStage implements Name<EStage<TransportEvent>> {
     // Intentionally empty
   }

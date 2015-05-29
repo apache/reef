@@ -115,7 +115,7 @@ public class DefaultRemoteManagerImplementation implements RemoteManager {
         new OrderedRemoteReceiverStage(this.handlerContainer, errorHandler) :
         new RemoteReceiverStage(this.handlerContainer, errorHandler, 10);
 
-    this.transport = tpFactory.getInstance(
+    this.transport = tpFactory.newTransport(
         hostAddress, listeningPort, this.reRecvStage, this.reRecvStage, numberOfTries, retryTimeout);
 
     this.handlerContainer.setTransport(this.transport);

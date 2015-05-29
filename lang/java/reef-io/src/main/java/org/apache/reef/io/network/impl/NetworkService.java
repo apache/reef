@@ -160,7 +160,7 @@ public final class NetworkService<T> implements Stage, ConnectionFactory<T> {
 
     this.factory = factory;
     this.codec = codec;
-    this.transport = tpFactory.getInstance(nsPort,
+    this.transport = tpFactory.newTransport(nsPort,
         new LoggingEventHandler<TransportEvent>(),
         new MessageHandler<T>(recvHandler, codec, factory), exHandler);
 

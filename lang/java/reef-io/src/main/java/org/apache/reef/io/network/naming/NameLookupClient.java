@@ -76,7 +76,6 @@ public class NameLookupClient implements Stage, NamingLookup {
    * @param factory    an identifier factory
    * @param cache      an cache
    */
-  @Deprecated
   public NameLookupClient(final String serverAddr,
                           final int serverPort,
                           final IdentifierFactory factory,
@@ -95,7 +94,6 @@ public class NameLookupClient implements Stage, NamingLookup {
    * @param factory    an identifier factory
    * @param cache      an cache
    */
-  @Deprecated
   public NameLookupClient(final String serverAddr,
                           final int serverPort,
                           final IdentifierFactory factory,
@@ -133,7 +131,6 @@ public class NameLookupClient implements Stage, NamingLookup {
    * @param factory    an identifier factory
    * @param cache      an cache
    */
-  @Deprecated
   public NameLookupClient(final String serverAddr,
                           final int serverPort,
                           final long timeout,
@@ -172,7 +169,7 @@ public class NameLookupClient implements Stage, NamingLookup {
     this.codec = NamingCodecFactory.createLookupCodec(factory);
     this.replyQueue = new LinkedBlockingQueue<>();
 
-    this.transport = tpFactory.getInstance(localAddressProvider.getLocalAddress(), 0,
+    this.transport = tpFactory.newTransport(localAddressProvider.getLocalAddress(), 0,
         new SyncStage<>(new NamingLookupClientHandler(
             new NamingLookupResponseHandler(this.replyQueue), this.codec)),
         null, retryCount, retryTimeout);

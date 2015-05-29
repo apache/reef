@@ -61,7 +61,7 @@ public class SuspendClientControl implements AutoCloseable {
       }
     });
 
-    this.transport = tpFactory.getInstance("localhost", port, stage, stage, 1, 10000);
+    this.transport = tpFactory.newTransport("localhost", port, stage, stage, 1, 10000);
   }
 
   public synchronized void setRunningJob(final RunningJob job) {

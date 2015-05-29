@@ -73,7 +73,6 @@ public class NameClient implements Stage, Naming {
    * @param factory    an identifier factory
    * @param cache      a cache
    */
-  @Deprecated
   public NameClient(final String serverAddr,
                     final int serverPort,
                     final IdentifierFactory factory,
@@ -110,9 +109,7 @@ public class NameClient implements Stage, Naming {
    * @param timeout    timeout in ms
    * @param factory    an identifier factory
    * @param cache      a cache
-   * @deprecated
    */
-  @Deprecated
   public NameClient(final String serverAddr,
                     final int serverPort,
                     final long timeout,
@@ -149,7 +146,7 @@ public class NameClient implements Stage, Naming {
     final BlockingQueue<NamingRegisterResponse> replyRegisterQueue = new LinkedBlockingQueue<NamingRegisterResponse>();
     final Codec<NamingMessage> codec = NamingCodecFactory.createFullCodec(factory);
 
-    this.transport = tpFactory.getInstance(localAddressProvider.getLocalAddress(), 0,
+    this.transport = tpFactory.newTransport(localAddressProvider.getLocalAddress(), 0,
         new SyncStage<>(new NamingClientEventHandler(
             new NamingResponseHandler(replyLookupQueue, replyRegisterQueue), codec)),
         null, retryCount, retryTimeout);

@@ -40,7 +40,7 @@ public interface TransportFactory {
    * @param exHandler     an exception handler
    * @return transport
    */
-  public Transport getInstance(int port,
+  public Transport newTransport(int port,
                           EventHandler<TransportEvent> clientHandler,
                           EventHandler<TransportEvent> serverHandler,
                           EventHandler<Exception> exHandler);
@@ -56,7 +56,7 @@ public interface TransportFactory {
    * @param retryTimeout    retry timeout
    * @return transport
    */
-  public Transport getInstance(final String hostAddress, int port,
+  public Transport newTransport(final String hostAddress, int port,
                                final EStage<TransportEvent> clientStage,
                                final EStage<TransportEvent> serverStage,
                                final int numberOfTries,
@@ -74,7 +74,7 @@ public interface TransportFactory {
    * @param tcpPortProvider tcpPortProvider
    * @return transport
    */
-  public Transport getInstance(final String hostAddress,
+  public Transport newTransport(final String hostAddress,
                                int port,
                                final EStage<TransportEvent> clientStage,
                                final EStage<TransportEvent> serverStage,

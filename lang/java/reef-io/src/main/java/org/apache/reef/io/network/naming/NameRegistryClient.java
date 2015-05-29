@@ -24,12 +24,16 @@ import org.apache.reef.io.network.naming.serialization.NamingMessage;
 import org.apache.reef.io.network.naming.serialization.NamingRegisterRequest;
 import org.apache.reef.io.network.naming.serialization.NamingRegisterResponse;
 import org.apache.reef.io.network.naming.serialization.NamingUnregisterRequest;
+import org.apache.reef.tang.Injector;
+import org.apache.reef.tang.Tang;
+import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.Identifier;
 import org.apache.reef.wake.IdentifierFactory;
 import org.apache.reef.wake.Stage;
 import org.apache.reef.wake.impl.SyncStage;
 import org.apache.reef.wake.remote.Codec;
+import org.apache.reef.wake.remote.RemoteConfiguration;
 import org.apache.reef.wake.remote.address.LocalAddressProvider;
 import org.apache.reef.wake.remote.address.LocalAddressProviderFactory;
 import org.apache.reef.wake.remote.impl.TransportEvent;
@@ -90,9 +94,17 @@ public class NameRegistryClient implements Stage, NamingRegistry {
     this.timeout = timeout;
     this.codec = NamingCodecFactory.createRegistryCodec(factory);
     this.replyQueue = new LinkedBlockingQueue<>();
-    this.transport = new NettyMessagingTransport(localAddressProvider.getLocalAddress(), 0,
-        new SyncStage<>(new NamingRegistryClientHandler(new NamingRegistryResponseHandler(replyQueue), codec)),
-        null, 3, 10000);
+
+    Injector injector = Tang.Factory.getTang().newInjector();
+    injector.bindVolatileParameter(RemoteConfiguration.HostAddress.class, localAddressProvider.getLocalAddress());
+    injector.bindVolatileParameter(RemoteConfiguration.RemoteClientStage.class,
+        new SyncStage<>(new NamingRegistryClientHandler(new NamingRegistryResponseHandler(replyQueue), codec)));
+
+    try {
+      this.transport = injector.getInstance(NettyMessagingTransport.class);
+    } catch (InjectionException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   @Deprecated
