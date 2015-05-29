@@ -61,7 +61,7 @@ final class SchedulerHttpHandler implements HttpHandler {
    *   /status?id={id}      to query the status of such a task, given id
    *   /submit?cmd={cmd}    to submit a Task, which returns its id
    *   /cancel?id={id}      to cancel the task's execution
-   *   /num-eval?num={num}  to set the maximum number of evaluators
+   *   /max-eval?num={num}  to set the maximum number of evaluators
    *   /clear               to clear the waiting queue
    */
   @Override
