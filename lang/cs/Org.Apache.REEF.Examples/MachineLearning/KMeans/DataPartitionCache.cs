@@ -96,7 +96,7 @@ namespace Org.Apache.REEF.Examples.MachineLearning.KMeans
             return ReadDataFile(file);
         }
 
-        [NamedParameter("GenericData partition index", "partition", "")]
+        [NamedParameter("Data partition index", "partition", "")]
         public class PartitionIndex : Name<int>
         {
         }
