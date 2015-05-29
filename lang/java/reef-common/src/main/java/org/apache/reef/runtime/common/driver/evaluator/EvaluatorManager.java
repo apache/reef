@@ -464,7 +464,8 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
           taskStatusProto.getRecovery() // for task from recovered evaluators
           ) {
 
-        // REEF-308 exposes a bug where the .NET evaluator does not send its states in the right order
+        // [REEF-308] exposes a bug where the .NET evaluator does not send its states in the right order
+        // [REEF-289] is a related item which may fix the issue
         if (taskStatusProto.getState() == ReefServiceProtos.State.RUNNING) {
           LOG.log(Level.WARNING,
                   "Received a message of state " + ReefServiceProtos.State.RUNNING +
