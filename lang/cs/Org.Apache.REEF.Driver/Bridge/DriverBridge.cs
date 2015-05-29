@@ -312,10 +312,9 @@ namespace Org.Apache.REEF.Driver.Bridge
             return handlers;
         }
 
-        [Obsolete]
+        [Obsolete(@"Obsoleted at versioin 0.12 and will be removed at version 0.13. See https://issues.apache.org/jira/browse/REEF-168")]
         internal void ObsoleteEvaluatorRequestorOnNext(IEvaluatorRequestor evaluatorRequestor)
         {
-            // subscribe to Evaluator Requestor          
             foreach (var handler in _evaluatorRequestHandlers)
             {
                 handler.OnNext(evaluatorRequestor);

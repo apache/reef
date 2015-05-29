@@ -54,7 +54,7 @@ namespace Org.Apache.REEF.Driver.Bridge
         /// <summary>
         /// The event handler for requesting evaluator
         /// </summary>
-        [Obsolete]
+        [Obsolete(@"Obsoleted at versioin 0.12 and will be removed at version 0.13. See https://issues.apache.org/jira/browse/REEF-168")]
         [SuppressMessage("Microsoft.Security", "CA2104:Do not declare read only mutable reference types", Justification = "not applicable")]
         public static readonly OptionalImpl<IObserver<IEvaluatorRequestor>> OnEvaluatorRequested = new OptionalImpl<IObserver<IEvaluatorRequestor>>();
 
