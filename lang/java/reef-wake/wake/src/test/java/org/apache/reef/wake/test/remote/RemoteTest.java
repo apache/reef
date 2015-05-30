@@ -95,10 +95,10 @@ public class RemoteTest {
     final String hostAddress = this.localAddressProvider.getLocalAddress();
 
     // transport
-    Transport transport1 = tpFactory.newTransport(hostAddress, 0, reRecvStage, reRecvStage, 1, 10000);
+    Transport transport1 = tpFactory.newInstance(hostAddress, 0, reRecvStage, reRecvStage, 1, 10000);
     int port1 = transport1.getListeningPort();
 
-    Transport transport2 = tpFactory.newTransport(hostAddress, 0, reRecvStage, reRecvStage, 1, 10000);
+    Transport transport2 = tpFactory.newInstance(hostAddress, 0, reRecvStage, reRecvStage, 1, 10000);
     int port2 = transport2.getListeningPort();
 
     transport1.close();
@@ -140,7 +140,7 @@ public class RemoteTest {
     final String hostAddress = this.localAddressProvider.getLocalAddress();
 
     // transport
-    Transport transport = tpFactory.newTransport(hostAddress, port, reRecvStage, reRecvStage, 1, 10000);
+    Transport transport = tpFactory.newInstance(hostAddress, port, reRecvStage, reRecvStage, 1, 10000);
 
     // mux encoder with encoder map
     Map<Class<?>, Encoder<?>> clazzToEncoderMap = new HashMap<Class<?>, Encoder<?>>();

@@ -169,7 +169,7 @@ public class NameLookupClient implements Stage, NamingLookup {
     this.codec = NamingCodecFactory.createLookupCodec(factory);
     this.replyQueue = new LinkedBlockingQueue<>();
 
-    this.transport = tpFactory.newTransport(localAddressProvider.getLocalAddress(), 0,
+    this.transport = tpFactory.newInstance(localAddressProvider.getLocalAddress(), 0,
         new SyncStage<>(new NamingLookupClientHandler(
             new NamingLookupResponseHandler(this.replyQueue), this.codec)),
         null, retryCount, retryTimeout);

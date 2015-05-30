@@ -66,7 +66,7 @@ public class TransportRaceTest {
         serverHandler, 1, new LoggingEventHandler<Throwable>());
     final String hostAddress = this.localAddressProvider.getLocalAddress();
     int port = 7001;
-    Transport transport = tpFactory.newTransport(
+    Transport transport = tpFactory.newInstance(
         hostAddress, port, clientStage, serverStage, 1, 10000);
 
     String value = "Test Race";

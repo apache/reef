@@ -91,7 +91,7 @@ public class LargeMsgTest {
 
     final String hostAddress = this.localAddressProvider.getLocalAddress();
     int port = 7001;
-    Transport transport = tpFactory.newTransport(hostAddress, port, clientStage, serverStage, 1, 10000);
+    Transport transport = tpFactory.newInstance(hostAddress, port, clientStage, serverStage, 1, 10000);
     final Link<byte[]> link = transport.open(new InetSocketAddress(hostAddress, port), new PassThroughEncoder(), null);
     EStage<byte[]> writeSubmitter = new ThreadPoolStage<>("Submitter", new EventHandler<byte[]>() {
 

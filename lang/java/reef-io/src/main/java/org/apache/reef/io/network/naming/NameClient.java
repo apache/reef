@@ -146,7 +146,7 @@ public class NameClient implements Stage, Naming {
     final BlockingQueue<NamingRegisterResponse> replyRegisterQueue = new LinkedBlockingQueue<NamingRegisterResponse>();
     final Codec<NamingMessage> codec = NamingCodecFactory.createFullCodec(factory);
 
-    this.transport = tpFactory.newTransport(localAddressProvider.getLocalAddress(), 0,
+    this.transport = tpFactory.newInstance(localAddressProvider.getLocalAddress(), 0,
         new SyncStage<>(new NamingClientEventHandler(
             new NamingResponseHandler(replyLookupQueue, replyRegisterQueue), codec)),
         null, retryCount, retryTimeout);

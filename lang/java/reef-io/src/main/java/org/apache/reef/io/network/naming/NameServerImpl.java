@@ -156,7 +156,7 @@ public class NameServerImpl implements NameServer {
     final Codec<NamingMessage> codec = NamingCodecFactory.createFullCodec(factory);
     final EventHandler<NamingMessage> handler = createEventHandler(codec);
 
-    this.transport = tpFactory.newTransport(localAddressProvider.getLocalAddress(), port, null,
+    this.transport = tpFactory.newInstance(localAddressProvider.getLocalAddress(), port, null,
         new SyncStage<>(new NamingServerHandler(handler, codec)), 3, 10000);
 
     this.port = transport.getListeningPort();

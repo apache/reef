@@ -68,7 +68,7 @@ public class MessagingTransportFactory implements TransportFactory {
    * @param exHandler     a exception handler
    */
   @Override
-  public Transport newTransport(final int port,
+  public Transport newInstance(final int port,
                                final EventHandler<TransportEvent> clientHandler,
                                final EventHandler<TransportEvent> serverHandler,
                                final EventHandler<Exception> exHandler) {
@@ -90,17 +90,17 @@ public class MessagingTransportFactory implements TransportFactory {
   }
 
   @Override
-  public Transport newTransport(final String hostAddress, int port,
+  public Transport newInstance(final String hostAddress, int port,
                                final EStage<TransportEvent> clientStage,
                                final EStage<TransportEvent> serverStage,
                                final int numberOfTries,
                                final int retryTimeout) {
-    return newTransport(hostAddress, port, clientStage,
+    return newInstance(hostAddress, port, clientStage,
         serverStage, numberOfTries, retryTimeout, RangeTcpPortProvider.Default);
   }
 
   @Override
-  public Transport newTransport(final String hostAddress, int port,
+  public Transport newInstance(final String hostAddress, int port,
                                final EStage<TransportEvent> clientStage,
                                final EStage<TransportEvent> serverStage,
                                final int numberOfTries,
