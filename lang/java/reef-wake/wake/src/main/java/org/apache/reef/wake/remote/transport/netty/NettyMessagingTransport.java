@@ -134,11 +134,9 @@ public class NettyMessagingTransport implements Transport {
    * @param numberOfTries the number of tries of connection
    * @param retryTimeout  the timeout of reconnection
    * @param tcpPortProvider  gives an iterator that produces random tcp ports in a range
-   * @deprecated have an instance injected instead.
    */
-  @Deprecated
   @Inject
-  public NettyMessagingTransport(
+  NettyMessagingTransport(
       final @Parameter(RemoteConfiguration.HostAddress.class) String hostAddress,
       @Parameter(RemoteConfiguration.Port.class) int port,
       final @Parameter(RemoteConfiguration.RemoteClientStage.class) EStage<TransportEvent> clientStage,
