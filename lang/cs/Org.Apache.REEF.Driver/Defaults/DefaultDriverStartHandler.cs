@@ -18,17 +18,37 @@
  */
 
 using System;
-using Org.Apache.REEF.Driver.Defaults;
 using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Utilities.Logging;
+using Org.Apache.REEF.Wake.Time.Event;
 
-namespace Org.Apache.REEF.Driver
+namespace Org.Apache.REEF.Driver.Defaults
 {
-    [DefaultImplementation(typeof(DefaultObsoleteDriverStartHandler))]
-    [Obsolete(
-        "Implement IObserver<DateTime> instead. Please see Jira REEF-336. Obsoleted v0.12 and will be removed v0.13",
-        false)]
-    public interface IStartHandler
+    /// <summary>
+    ///  Default event handler for driver start: Logging it.
+    /// </summary>
+    public class DefaultDriverStartHandler : IObserver<DateTime>
     {
-        string Identifier { get; set; }
+        private static readonly Logger LOGGER = Logger.GetLogger(typeof(DefaultDriverStartHandler));
+
+        [Inject]
+        public DefaultDriverStartHandler()
+        {
+        }
+
+        public void OnNext(DateTime startTime)
+        {
+            LOGGER.Log(Level.Info, "Driver started at" + startTime);
+        }
+
+        public void OnError(Exception error)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void OnCompleted()
+        {
+            throw new NotImplementedException();
+        }
     }
 }
