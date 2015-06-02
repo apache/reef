@@ -71,13 +71,11 @@ namespace Org.Apache.REEF.Examples.HelloREEF
         /// Called to start the user mode driver
         /// </summary>
         /// <param name="startTime"></param>
-
         public void OnNext(DateTime startTime)
         {
             _Logger.Log(Level.Info, string.Format("HelloDriver started at {0}", startTime));
             _evaluatorRequestor.Submit(new EvaluatorRequest(number: 1, megaBytes: 64));
         }
-
 
         /// <summary>
         /// Submits the HelloTask to the Evaluator.

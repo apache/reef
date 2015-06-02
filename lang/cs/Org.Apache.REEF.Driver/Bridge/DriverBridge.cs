@@ -312,6 +312,7 @@ namespace Org.Apache.REEF.Driver.Bridge
             _httpServerEventSubscriber.Subscribe(_httpServerHandler);
             _logger.Log(Level.Info, "subscribed to IHttpMessage handler  :" + _httpServerHandler);
             handlers[Constants.Handlers[Constants.HttpServerHandler]] = ClrHandlerHelper.CreateHandler(_httpServerEventSubscriber);
+
             return handlers;
         }
 
@@ -336,7 +337,6 @@ namespace Org.Apache.REEF.Driver.Bridge
                 _logger.Log(Level.Info, "called OnDriverStart handler: " + handler);
             }
         }
-
 
         internal ISet<IConfigurationProvider> ConfigurationProviders { get { return _configurationProviders; } }
     }

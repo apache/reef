@@ -64,8 +64,6 @@ namespace Org.Apache.REEF.Driver
 
         public const string DriverRestartHandler = "DriverRestart";
 
-        public const string DriverStartHandler = "DriverStart";
-
         public const string DriverRestartActiveContextHandler = "DriverRestartActiveContext";
 
         public const string DriverRestartRunningTaskHandler = "DriverRestartRunningTask";
