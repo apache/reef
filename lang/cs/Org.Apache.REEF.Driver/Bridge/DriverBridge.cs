@@ -70,6 +70,8 @@ namespace Org.Apache.REEF.Driver.Bridge
 
         private static ClrSystemHandler<StartTime> _driverRestartSubscriber;
 
+        private readonly ISet<IObserver<DateTime>> _driverStartHandlers;
+
         private readonly IObserver<StartTime> _driverRestartHandler; 
 
         private readonly ISet<IObserver<IEvaluatorRequestor>> _evaluatorRequestHandlers;
@@ -108,6 +110,7 @@ namespace Org.Apache.REEF.Driver.Bridge
 
         [Inject]
         public DriverBridge(
+            [Parameter(Value = typeof(DriverBridgeConfigurationOptions.DriverStartHandlers))] ISet<IObserver<DateTime>> driverStartHandlers,
             [Parameter(Value = typeof(DriverBridgeConfigurationOptions.DriverRestartHandler))] IObserver<StartTime> driverRestartHandler,
             [Parameter(Value = typeof(DriverBridgeConfigurationOptions.EvaluatorRequestHandlers))] ISet<IObserver<IEvaluatorRequestor>> evaluatorRequestHandlers,
             [Parameter(Value = typeof(DriverBridgeConfigurationOptions.AllocatedEvaluatorHandlers))] ISet<IObserver<IAllocatedEvaluator>> allocatedEvaluatorHandlers,
@@ -145,7 +148,8 @@ namespace Org.Apache.REEF.Driver.Bridge
             {
                 Logger.SetCustomLevel(level);
             }
-            
+
+            _driverStartHandlers = driverStartHandlers;
             _evaluatorRequestHandlers = evaluatorRequestHandlers;
             _allocatedEvaluatorHandlers = allocatedEvaluatorHandlers;
             _activeContextHandlers = activeContextHandlers;
@@ -319,6 +323,18 @@ namespace Org.Apache.REEF.Driver.Bridge
             {
                 handler.OnNext(evaluatorRequestor);
                 _logger.Log(Level.Info, "called IEvaluatorRequestor handler: " + handler);
+            }
+        }
+
+        /// <summary>
+        /// Call start handlers
+        /// </summary>
+        internal void StartHandlersOnNext(DateTime startTime)
+        {
+            foreach (var handler in _driverStartHandlers)
+            {
+                handler.OnNext(startTime);
+                _logger.Log(Level.Info, "called OnDriverStart handler: " + handler);
             }
         }
 
