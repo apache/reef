@@ -18,17 +18,24 @@
  */
 
 using System;
-using Org.Apache.REEF.Driver.Defaults;
 using Org.Apache.REEF.Tang.Annotations;
 
-namespace Org.Apache.REEF.Driver
+namespace Org.Apache.REEF.Driver.Defaults
 {
-    [DefaultImplementation(typeof(DefaultObsoleteDriverStartHandler))]
+    /// <summary>
+    /// Default event handler for driver start: Logging it.
+    /// </summary>
     [Obsolete(
         "Implement IObserver<DateTime> instead. Please see Jira REEF-336. Obsoleted v0.12 and will be removed v0.13",
         false)]
-    public interface IStartHandler
+    public class DefaultObsoleteDriverStartHandler : IStartHandler
     {
-        string Identifier { get; set; }
+        [Inject]
+        public DefaultObsoleteDriverStartHandler()
+        {
+            Identifier = "DefaultObsoleteDriverStartHandler";
+        }
+
+        public string Identifier { get; set; }
     }
 }

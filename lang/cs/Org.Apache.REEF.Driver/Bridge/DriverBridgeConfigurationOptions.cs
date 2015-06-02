@@ -41,12 +41,18 @@ namespace Org.Apache.REEF.Driver.Bridge
         // Level.Verbose (since enum is not suppoted for TANG, we use a string here)
         private const string _verboseLevel = "Verbose";
 
+        // There is not supposed to be a default for Start handler but we need to provide one because all the existing apps would break;
+        [NamedParameter(documentation: "Called when driver is started, after CLR bridge is set up.", defaultClasses: new[] { typeof(DefaultDriverStartHandler) })]
+        public class DriverStartHandlers : Name<ISet<IObserver<DateTime>>>
+        {
+        }
+
         [NamedParameter(documentation: "Called when driver is restarted, after CLR bridge is set up.", defaultClasses: new[] { typeof(DefaultDriverRestartHandler) })]
         public class DriverRestartHandler : Name<IObserver<StartTime>>
         {
         }
 
-        [NamedParameter(documentation: "Called when evaluator is requested.", defaultClasses: new[] { typeof(DefaultEvaluatorRequestorHandler) })] 
+        [NamedParameter(documentation: "Called when evaluator is requested.")] 
         public class EvaluatorRequestHandlers : Name<ISet<IObserver<IEvaluatorRequestor>>>
         {
         }
