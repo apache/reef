@@ -106,11 +106,13 @@ under the License.
     <Compile Include="Defaults\DefaultDriverRestartContextActiveHandler.cs" />
     <Compile Include="Defaults\DefaultDriverRestartHandler.cs" />
     <Compile Include="Defaults\DefaultDriverRestartTaskRunningHandler.cs" />
+    <Compile Include="Defaults\DefaultDriverStartHandler.cs" />
     <Compile Include="Defaults\DefaultEvaluatorAllocationHandler.cs" />
     <Compile Include="Defaults\DefaultEvaluatorCompletionHandler.cs" />
     <Compile Include="Defaults\DefaultEvaluatorFailureHandler.cs" />
     <Compile Include="Defaults\DefaultEvaluatorRequestorHandler.cs" />
     <Compile Include="Defaults\DefaultHttpHandler.cs" />
+    <Compile Include="Defaults\DefaultObsoleteDriverStartHandler.cs" />
     <Compile Include="Defaults\DefaultTaskCompletionHandler.cs" />
     <Compile Include="Defaults\DefaultTaskFailureHandler.cs" />
     <Compile Include="Defaults\DefaultTaskMessageHandler.cs" />
