@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * The resource manager for the local resourcemanager
+ * The resource manager for the local resourcemanager.
  */
 package org.apache.reef.runtime.local.driver;

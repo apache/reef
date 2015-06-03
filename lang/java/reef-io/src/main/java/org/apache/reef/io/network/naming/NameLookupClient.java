@@ -54,7 +54,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Naming lookup client
+ * Naming lookup client.
  */
 public class NameLookupClient implements Stage, NamingLookup {
 
@@ -69,7 +69,7 @@ public class NameLookupClient implements Stage, NamingLookup {
   private final int retryTimeout;
 
   /**
-   * Constructs a naming lookup client
+   * Constructs a naming lookup client.
    *
    * @param serverAddr a server address
    * @param serverPort a server port number
@@ -87,7 +87,7 @@ public class NameLookupClient implements Stage, NamingLookup {
   }
 
   /**
-   * Constructs a naming lookup client
+   * Constructs a naming lookup client.
    *
    * @param serverAddr a server address
    * @param serverPort a server port number
@@ -123,7 +123,7 @@ public class NameLookupClient implements Stage, NamingLookup {
   }
 
   /**
-   * Constructs a naming lookup client
+   * Constructs a naming lookup client.
    *
    * @param serverAddr a server address
    * @param serverPort a server port number
@@ -144,7 +144,7 @@ public class NameLookupClient implements Stage, NamingLookup {
   }
 
   /**
-   * Constructs a naming lookup client
+   * Constructs a naming lookup client.
    *
    * @param serverAddr a server address
    * @param serverPort a server port number
@@ -195,7 +195,7 @@ public class NameLookupClient implements Stage, NamingLookup {
 
 
   /**
-   * Finds an address for an identifier
+   * Finds an address for an identifier.
    *
    * @param id an identifier
    * @return an Internet socket address
@@ -233,7 +233,7 @@ public class NameLookupClient implements Stage, NamingLookup {
   }
 
   /**
-   * Retrieves an address for an identifier remotely
+   * Retrieves an address for an identifier remotely.
    *
    * @param id an identifier
    * @return an Internet socket address
@@ -273,7 +273,7 @@ public class NameLookupClient implements Stage, NamingLookup {
   }
 
   /**
-   * Closes resources
+   * Closes resources.
    */
   @Override
   public void close() throws Exception {
@@ -291,7 +291,7 @@ public class NameLookupClient implements Stage, NamingLookup {
 }
 
 /**
- * Naming lookup client transport event handler
+ * Naming lookup client transport event handler.
  */
 class NamingLookupClientHandler implements EventHandler<TransportEvent> {
 
@@ -311,7 +311,7 @@ class NamingLookupClientHandler implements EventHandler<TransportEvent> {
 }
 
 /**
- * Naming lookup response handler
+ * Naming lookup response handler.
  */
 class NamingLookupResponseHandler implements EventHandler<NamingLookupResponse> {
 

@@ -26,7 +26,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Utility map class that wraps a CountingMap
+ * Utility map class that wraps a CountingMap.
  * in a ConcurrentMap
  * Equivalent to Map<K,Map<V,Integer>>
  */

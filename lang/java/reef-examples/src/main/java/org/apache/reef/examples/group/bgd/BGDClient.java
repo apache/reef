@@ -39,7 +39,7 @@ import org.apache.reef.util.EnvironmentUtils;
 import javax.inject.Inject;
 
 /**
- * A client to submit BGD Jobs
+ * A client to submit BGD Jobs.
  */
 public class BGDClient {
   private final String input;

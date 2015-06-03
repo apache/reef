@@ -34,7 +34,7 @@ final class AvroUtils {
   }
 
   /**
-   * Serializes the given avro object to a byte[]
+   * Serializes the given avro object to a byte[].
    *
    * @param avroObject
    * @param theClass

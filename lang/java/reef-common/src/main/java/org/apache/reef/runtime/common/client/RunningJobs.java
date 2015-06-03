@@ -25,7 +25,7 @@ import org.apache.reef.tang.annotations.DefaultImplementation;
 import org.apache.reef.wake.remote.RemoteMessage;
 
 /**
- * Manages the RunningJobs a client knows about
+ * Manages the RunningJobs a client knows about.
  */
 @Private
 @ClientSide

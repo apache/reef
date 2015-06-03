@@ -19,7 +19,7 @@
 package org.apache.reef.exception;
 
 /**
- * Reported as part of a FailedEvaluator when the resource manager killed the Evaluator
+ * Reported as part of a FailedEvaluator when the resource manager killed the Evaluator.
  */
 public final class EvaluatorKilledByResourceManagerException extends EvaluatorException {
 

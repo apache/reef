@@ -100,7 +100,7 @@ public final class RuntimeStatusEventImpl implements RuntimeStatusEvent {
     }
 
     /**
-     * Add an entry to containerAllocationList
+     * Add an entry to containerAllocationList.
      * @see RuntimeStatusEvent#getContainerAllocationList()
      */
     public Builder addContainerAllocation(final String containerAllocation) {

@@ -39,7 +39,7 @@ import javax.inject.Inject;
 import java.util.logging.Logger;
 
 /**
- * The Group Communication Service
+ * The Group Communication Service.
  */
 @Unit
 public class GroupCommService {

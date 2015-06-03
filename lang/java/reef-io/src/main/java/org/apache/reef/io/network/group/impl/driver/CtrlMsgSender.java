@@ -30,7 +30,7 @@ import org.apache.reef.wake.IdentifierFactory;
 import java.util.logging.Logger;
 
 /**
- * Event handler that receives ctrl msgs and
+ * Event handler that receives ctrl msgs and.
  * dispatched them using network service
  */
 public class CtrlMsgSender implements EventHandler<GroupCommunicationMessage> {

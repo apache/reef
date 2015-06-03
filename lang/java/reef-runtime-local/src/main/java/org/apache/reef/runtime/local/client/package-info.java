@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * client-side event handlers for the local resourcemanager
+ * client-side event handlers for the local resourcemanager.
  */
 package org.apache.reef.runtime.local.client;

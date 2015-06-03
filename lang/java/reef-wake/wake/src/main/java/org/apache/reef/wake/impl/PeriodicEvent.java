@@ -19,7 +19,7 @@
 package org.apache.reef.wake.impl;
 
 /**
- * Periodic event for timers
+ * Periodic event for timers.
  */
 public class PeriodicEvent {
 }

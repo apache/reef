@@ -24,12 +24,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Utility for logging
+ * Utility for logging.
  */
 public class LoggingUtils {
 
   /**
-   * Sets the logging level
+   * Sets the logging level.
    *
    * @param level the logging level
    */

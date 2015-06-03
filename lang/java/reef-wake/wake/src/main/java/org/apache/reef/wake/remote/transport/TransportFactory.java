@@ -26,13 +26,13 @@ import org.apache.reef.wake.remote.ports.TcpPortProvider;
 import org.apache.reef.wake.remote.transport.netty.MessagingTransportFactory;
 
 /**
- * Factory that creates a transport
+ * Factory that creates a transport.
  */
 @DefaultImplementation(MessagingTransportFactory.class)
 public interface TransportFactory {
 
   /**
-   * Creates a transport
+   * Creates a transport.
    *
    * @param port          a listening port
    * @param clientHandler a transport client-side handler
@@ -46,7 +46,7 @@ public interface TransportFactory {
                           EventHandler<Exception> exHandler);
 
   /**
-   * Creates a transport
+   * Creates a transport.
    *
    * @param hostAddress     a host address
    * @param port            a listening port
@@ -63,7 +63,7 @@ public interface TransportFactory {
                                final int retryTimeout);
 
   /**
-   * Creates a transport
+   * Creates a transport.
    *
    * @param hostAddress     a host address
    * @param port            a listening port

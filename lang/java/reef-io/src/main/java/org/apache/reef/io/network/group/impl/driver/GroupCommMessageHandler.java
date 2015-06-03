@@ -29,7 +29,7 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 /**
- * The network handler for the group communcation service on the driver side
+ * The network handler for the group communcation service on the driver side.
  */
 public class GroupCommMessageHandler implements EventHandler<GroupCommunicationMessage> {
 

@@ -24,13 +24,13 @@ import org.apache.reef.io.serialization.Codec;
 
 
 /**
- * The specification for the broadcast operator
+ * The specification for the broadcast operator.
  */
 public class BroadcastOperatorSpec implements OperatorSpec {
   private final String senderId;
 
   /**
-   * Codec to be used to serialize data
+   * Codec to be used to serialize data.
    */
   private final Class<? extends Codec> dataCodecClass;
 

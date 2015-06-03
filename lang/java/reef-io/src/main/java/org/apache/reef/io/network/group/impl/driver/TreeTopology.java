@@ -56,7 +56,7 @@ import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.logging.Logger;
 
 /**
- * Implements a tree topology with the specified Fan Out
+ * Implements a tree topology with the specified Fan Out.
  */
 public class TreeTopology implements Topology {
 

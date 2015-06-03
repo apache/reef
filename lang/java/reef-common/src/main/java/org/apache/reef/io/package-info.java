@@ -17,7 +17,7 @@
  * under the License.
  */
 /**
- * APIs for I/O in REEF: {@link org.apache.reef.io.Codec}s and {@link org.apache.reef.io.Serializer}s
+ * APIs for I/O in REEF: {@link org.apache.reef.io.Codec}s and {@link org.apache.reef.io.Serializer}s.
  */
 @Unstable package org.apache.reef.io;
 

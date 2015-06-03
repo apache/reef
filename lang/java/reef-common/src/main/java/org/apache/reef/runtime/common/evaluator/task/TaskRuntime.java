@@ -150,7 +150,7 @@ public final class TaskRuntime implements Runnable {
   }
 
   /**
-   * Called by heartbeat manager
+   * Called by heartbeat manager.
    *
    * @return current TaskStatusProto
    */

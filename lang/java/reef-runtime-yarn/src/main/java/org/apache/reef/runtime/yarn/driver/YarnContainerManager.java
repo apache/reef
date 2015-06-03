@@ -502,7 +502,7 @@ final class YarnContainerManager
   }
 
   /**
-   * Update the driver with my current status
+   * Update the driver with my current status.
    */
   private void updateRuntimeStatus() {
 

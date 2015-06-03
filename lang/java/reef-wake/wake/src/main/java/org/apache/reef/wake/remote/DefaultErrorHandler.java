@@ -23,7 +23,7 @@ import org.apache.reef.wake.EventHandler;
 import javax.inject.Inject;
 
 /**
- * The default RemoteConfiguration.ErrorHandler
+ * The default RemoteConfiguration.ErrorHandler.
  */
 final class DefaultErrorHandler implements EventHandler<Throwable> {
 

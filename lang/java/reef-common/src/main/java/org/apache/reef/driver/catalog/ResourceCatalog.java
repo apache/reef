@@ -42,7 +42,7 @@ public interface ResourceCatalog {
   public Collection<NodeDescriptor> getNodes();
 
   /**
-   * The global list of racks
+   * The global list of racks.
    *
    * @return list of all rack descriptors
    */

@@ -24,7 +24,7 @@ import org.apache.reef.tang.exceptions.InjectionException;
 import java.io.IOException;
 
 /**
- * HelloREEF running on HDInsight
+ * HelloREEF running on HDInsight.
  */
 public class HelloHDInsight {
   public static void main(final String[] args) throws InjectionException, IOException {

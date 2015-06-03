@@ -89,17 +89,17 @@ public final class JobDriver {
   private final EvaluatorRequestor evaluatorRequestor;
 
   /**
-   * Driver status manager to monitor driver status
+   * Driver status manager to monitor driver status.
    */
   private final DriverStatusManager driverStatusManager;
 
   /**
-   * NativeInterop has function to load libs when driver starts
+   * NativeInterop has function to load libs when driver starts.
    */
   private final LibLoader libLoader;
 
   /**
-   * Factory to setup new CLR process configurations
+   * Factory to setup new CLR process configurations.
    */
   private final CLRProcessFactory clrProcessFactory;
 
@@ -113,7 +113,7 @@ public final class JobDriver {
   private final Map<String, ActiveContext> contexts = new HashMap<>();
 
   /**
-   * Logging scope factory that provides LoggingScope
+   * Logging scope factory that provides LoggingScope.
    */
   private final LoggingScopeFactory loggingScopeFactory;
 
@@ -278,7 +278,7 @@ public final class JobDriver {
   }
 
   /**
-   * Handles AllocatedEvaluator: Submit an empty context
+   * Handles AllocatedEvaluator: Submit an empty context.
    */
   public final class AllocatedEvaluatorHandler implements EventHandler<AllocatedEvaluator> {
     @Override
@@ -398,7 +398,7 @@ public final class JobDriver {
     private String uriSpecification;
 
     /**
-     * returns URI specification for the handler
+     * returns URI specification for the handler.
      */
     @Override
     public String getUriSpecification() {
@@ -410,7 +410,7 @@ public final class JobDriver {
     }
 
     /**
-     * process http request
+     * process http request.
      */
     @Override
     public void onHttpRequest(final ParsedHttpRequest parsedHttpRequest, final HttpServletResponse response) throws IOException, ServletException {
@@ -509,7 +509,7 @@ public final class JobDriver {
   }
 
   /**
-   * Receive notification that an context is active on Evaluator when the driver restarted
+   * Receive notification that an context is active on Evaluator when the driver restarted.
    */
   public final class DriverRestartActiveContextHandler implements EventHandler<ActiveContext> {
     @Override
@@ -555,7 +555,7 @@ public final class JobDriver {
 
 
   /**
-   * Job driver is restarted after previous crash
+   * Job driver is restarted after previous crash.
    */
   public final class RestartHandler implements EventHandler<StartTime> {
     @Override
@@ -711,7 +711,7 @@ public final class JobDriver {
   }
 
   /**
-   * Receive notification that a ContextMessage has been received
+   * Receive notification that a ContextMessage has been received.
    */
   public final class ContextMessageHandler implements EventHandler<ContextMessage> {
     @Override

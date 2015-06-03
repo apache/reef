@@ -27,7 +27,7 @@ package org.apache.reef.wake.rx;
 public interface DynamicObservable<T> extends Observable {
 
   /**
-   * Subscribes the observer to this observable object
+   * Subscribes the observer to this observable object.
    *
    * @param o the observer
    * @return a subscription handle

@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * Named parameters used by the Driver
+ * Named parameters used by the Driver.
  */
 package org.apache.reef.driver.parameters;

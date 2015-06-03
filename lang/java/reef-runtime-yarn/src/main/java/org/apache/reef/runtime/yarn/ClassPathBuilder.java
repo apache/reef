@@ -65,7 +65,7 @@ final class ClassPathBuilder {
   }
 
   /**
-   * Adds the given classPathEntry to the classpath suffix
+   * Adds the given classPathEntry to the classpath suffix.
    *
    * @param classPathEntry
    */
@@ -74,7 +74,7 @@ final class ClassPathBuilder {
   }
 
   /**
-   * Adds the given classPathEntry to the classpath prefix
+   * Adds the given classPathEntry to the classpath prefix.
    *
    * @param classPathEntry
    */

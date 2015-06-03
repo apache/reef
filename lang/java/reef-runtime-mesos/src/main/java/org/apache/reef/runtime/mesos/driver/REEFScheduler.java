@@ -148,7 +148,7 @@ final class REEFScheduler implements Scheduler {
   }
 
   /**
-   * All offers in each batch of offers will be either be launched or declined
+   * All offers in each batch of offers will be either be launched or declined.
    */
   @Override
   public void resourceOffers(final SchedulerDriver driver, final List<Protos.Offer> offers) {

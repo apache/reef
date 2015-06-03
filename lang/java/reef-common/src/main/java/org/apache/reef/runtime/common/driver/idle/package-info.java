@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * Contains the Driver idle handling and extension APIs
+ * Contains the Driver idle handling and extension APIs.
  */
 package org.apache.reef.runtime.common.driver.idle;

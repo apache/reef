@@ -23,7 +23,7 @@ import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.client.CompletedJob;
 
 /**
- * An implementation of CompletedJob
+ * An implementation of CompletedJob.
  */
 @ClientSide
 @Private

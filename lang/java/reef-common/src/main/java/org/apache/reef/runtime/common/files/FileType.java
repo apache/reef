@@ -21,7 +21,7 @@ package org.apache.reef.runtime.common.files;
 import org.apache.reef.annotations.audience.RuntimeAuthor;
 
 /**
- * Type of a File Resource used by Runtimes
+ * Type of a File Resource used by Runtimes.
  */
 @RuntimeAuthor
 public enum FileType {

@@ -24,7 +24,7 @@ import org.apache.reef.wake.IdentifierFactory;
 import javax.inject.Inject;
 
 /**
- * Factory that creates StringIdentifier
+ * Factory that creates StringIdentifier.
  */
 public class StringIdentifierFactory implements IdentifierFactory {
 
@@ -33,7 +33,7 @@ public class StringIdentifierFactory implements IdentifierFactory {
   }
 
   /**
-   * Creates a StringIdentifier object
+   * Creates a StringIdentifier object.
    *
    * @param s a string
    * @return a string identifier

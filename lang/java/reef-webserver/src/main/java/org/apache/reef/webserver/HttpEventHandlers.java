@@ -24,7 +24,7 @@ import org.apache.reef.tang.annotations.NamedParameter;
 import java.util.Set;
 
 /**
- * HttpEventHandlers
+ * HttpEventHandlers.
  */
 @NamedParameter(doc = "Http Event Handlers")
 public class HttpEventHandlers implements Name<Set<HttpHandler>> {

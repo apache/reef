@@ -64,7 +64,7 @@ public final class HDInsightRuntimeConfiguration extends ConfigurationModuleBuil
   public static final RequiredParameter<String> PASSWORD = new RequiredParameter<>();
 
   /**
-   * The environment variable that holds the path to the default configuration file
+   * The environment variable that holds the path to the default configuration file.
    */
   public static final String HDINSIGHT_CONFIGURATION_FILE_ENVIRONMENT_VARIABLE = "REEF_HDI_CONF";
 

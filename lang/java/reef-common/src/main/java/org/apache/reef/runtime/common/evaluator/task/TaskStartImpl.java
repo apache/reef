@@ -25,7 +25,7 @@ import org.apache.reef.task.events.TaskStart;
 import javax.inject.Inject;
 
 /**
- * Injectable implementation of TaskStart
+ * Injectable implementation of TaskStart.
  */
 final class TaskStartImpl implements TaskStart {
 

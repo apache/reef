@@ -25,7 +25,7 @@ import org.apache.reef.wake.EventHandler;
 import javax.inject.Inject;
 
 /**
- * Default handler for SuspendEvent
+ * Default handler for SuspendEvent.
  */
 @Private
 public final class DefaultSuspendHandler implements EventHandler<SuspendEvent> {

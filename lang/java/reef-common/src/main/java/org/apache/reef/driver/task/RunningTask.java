@@ -25,7 +25,7 @@ import org.apache.reef.driver.context.ActiveContext;
 import org.apache.reef.io.naming.Identifiable;
 
 /**
- * Represents a running Task
+ * Represents a running Task.
  */
 @DriverSide
 @Public

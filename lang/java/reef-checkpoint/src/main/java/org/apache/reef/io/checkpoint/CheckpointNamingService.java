@@ -24,7 +24,7 @@ package org.apache.reef.io.checkpoint;
 public interface CheckpointNamingService {
 
   /**
-   * Generate a new checkpoint Name
+   * Generate a new checkpoint Name.
    *
    * @return the checkpoint name
    */

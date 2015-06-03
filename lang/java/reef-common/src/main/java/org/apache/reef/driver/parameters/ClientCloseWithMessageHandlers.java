@@ -26,7 +26,7 @@ import org.apache.reef.wake.EventHandler;
 import java.util.Set;
 
 /**
- * Handles client close requests
+ * Handles client close requests.
  */
 @NamedParameter(doc = "Handles client close requests", default_classes = DefaultClientCloseWithMessageHandler.class)
 public final class ClientCloseWithMessageHandlers implements Name<Set<EventHandler<byte[]>>> {

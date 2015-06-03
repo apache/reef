@@ -20,7 +20,7 @@
 package org.apache.reef.util.logging;
 
 /**
- * Log time elapsed for a scope
+ * Log time elapsed for a scope.
  */
 public interface LoggingScope extends AutoCloseable {
 

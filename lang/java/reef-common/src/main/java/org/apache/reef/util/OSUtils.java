@@ -89,7 +89,7 @@ public final class OSUtils {
   }
 
   /**
-   * Formats the given variable for expansion by Windows (<code>%VARIABE%</code>) or Linux (<code>$VARIABLE</code>)
+   * Formats the given variable for expansion by Windows (<code>%VARIABE%</code>) or Linux (<code>$VARIABLE</code>).
    *
    * @param variableName
    * @return

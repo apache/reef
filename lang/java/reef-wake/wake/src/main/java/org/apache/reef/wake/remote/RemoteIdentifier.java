@@ -21,7 +21,7 @@ package org.apache.reef.wake.remote;
 import org.apache.reef.wake.Identifier;
 
 /**
- * Wake remote identifier
+ * Wake remote identifier.
  */
 public interface RemoteIdentifier extends Identifier {
 }

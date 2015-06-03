@@ -56,7 +56,7 @@ public class EvaluatorToPartitionMapper<V extends InputSplit> {
   private final BlockingQueue<NumberedSplit<V>> unallocatedSplits = new LinkedBlockingQueue<>();
 
   /**
-   * Initializes the locations of splits mapping
+   * Initializes the locations of splits mapping.
    *
    * @param splits
    */
@@ -88,7 +88,7 @@ public class EvaluatorToPartitionMapper<V extends InputSplit> {
   }
 
   /**
-   * Get an input split to be assigned to this
+   * Get an input split to be assigned to this.
    * evaluator
    * <p/>
    * Allocates one if its not already allocated

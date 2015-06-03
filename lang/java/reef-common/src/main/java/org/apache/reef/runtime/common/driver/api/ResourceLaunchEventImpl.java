@@ -121,7 +121,7 @@ public final class ResourceLaunchEventImpl implements ResourceLaunchEvent {
     }
 
     /**
-     * Add an entry to the fileSet
+     * Add an entry to the fileSet.
      *
      * @see ResourceLaunchEvent#getFileSet()
      */
@@ -131,7 +131,7 @@ public final class ResourceLaunchEventImpl implements ResourceLaunchEvent {
     }
 
     /**
-     * Utility method that adds files to the fileSet
+     * Utility method that adds files to the fileSet.
      *
      * @param files the files to add.
      * @return this
@@ -149,7 +149,7 @@ public final class ResourceLaunchEventImpl implements ResourceLaunchEvent {
     }
 
     /**
-     * Utility method that adds Libraries to the fileSet
+     * Utility method that adds Libraries to the fileSet.
      *
      * @param files the files to add.
      * @return this

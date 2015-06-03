@@ -21,7 +21,7 @@ package org.apache.reef.wake.remote.impl;
 import java.util.Comparator;
 
 /**
- * Comparator for the remote event
+ * Comparator for the remote event.
  */
 public class RemoteEventComparator<T> implements Comparator<RemoteEvent<T>> {
 

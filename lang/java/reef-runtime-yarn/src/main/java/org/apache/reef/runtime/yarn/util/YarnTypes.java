@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Helper class that creates the various records in the YARN API
+ * Helper class that creates the various records in the YARN API.
  */
 @Private
 public final class YarnTypes {

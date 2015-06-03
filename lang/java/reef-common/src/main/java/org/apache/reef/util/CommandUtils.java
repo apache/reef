@@ -25,7 +25,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * run given command and return the result as string
+ * run given command and return the result as string.
  */
 final public class CommandUtils {
   /**

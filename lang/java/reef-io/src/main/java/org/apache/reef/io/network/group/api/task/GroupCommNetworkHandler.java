@@ -27,7 +27,7 @@ import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.wake.EventHandler;
 
 /**
- * The global EventHandler that receives the GroupCommunicationMsg
+ * The global EventHandler that receives the GroupCommunicationMsg.
  * and routes it to the relevant communication group
  */
 @TaskSide

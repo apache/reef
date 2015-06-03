@@ -31,7 +31,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Loading CLR libraries
+ * Loading CLR libraries.
  */
 public class LibLoader {
 
@@ -52,7 +52,7 @@ public class LibLoader {
   }
 
   /**
-   * Load CLR libraries
+   * Load CLR libraries.
    */
   public void loadLib() throws IOException {
     LOG.log(Level.INFO, "Loading DLLs for driver at time {0}." + new Date().toString());
@@ -220,7 +220,7 @@ public class LibLoader {
   }
 
   /**
-   * load assembly
+   * load assembly.
    *
    * @param fileOut
    * @param managed

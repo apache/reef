@@ -35,7 +35,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * A Container that runs an Evaluator in a Process
+ * A Container that runs an Evaluator in a Process.
  */
 @Private
 @TaskSide

@@ -54,7 +54,7 @@ import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.logging.Logger;
 
 /**
- * Implements a one level Tree Topology
+ * Implements a one level Tree Topology.
  */
 public class FlatTopology implements Topology {
 

@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * Generic java bridge driver/client
+ * Generic java bridge driver/client.
  */
 package org.apache.reef.javabridge.generic;

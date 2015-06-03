@@ -32,7 +32,7 @@ import static org.apache.reef.examples.scheduler.SchedulerREEF.runTaskScheduler;
  */
 public final class SchedulerREEFYarn {
   /**
-   * Launch the scheduler with YARN client configuration
+   * Launch the scheduler with YARN client configuration.
    * @param args
    * @throws InjectionException
    * @throws java.io.IOException

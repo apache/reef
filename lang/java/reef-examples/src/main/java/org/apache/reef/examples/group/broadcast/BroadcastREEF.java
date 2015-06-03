@@ -85,7 +85,7 @@ public class BroadcastREEF {
   }
 
   /**
-   * copy the parameters from the command line required for the Client configuration
+   * copy the parameters from the command line required for the Client configuration.
    */
   private static void storeCommandLineArgs(
       final Configuration commandLineConf) throws InjectionException {

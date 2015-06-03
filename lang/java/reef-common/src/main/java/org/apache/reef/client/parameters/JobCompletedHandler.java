@@ -25,7 +25,7 @@ import org.apache.reef.tang.annotations.NamedParameter;
 import org.apache.reef.wake.EventHandler;
 
 /**
- * Event handler for CompletedJob
+ * Event handler for CompletedJob.
  */
 @NamedParameter(doc = "Event handler for CompletedJob",
     default_classes = DefaultCompletedJobHandler.class)

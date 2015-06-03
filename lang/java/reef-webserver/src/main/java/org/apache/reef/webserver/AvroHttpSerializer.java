@@ -87,7 +87,7 @@ public class AvroHttpSerializer {
   }
 
   /**
-   * Conver AvroHttpRequest to a file
+   * Conver AvroHttpRequest to a file.
    * @param avroHttpRequest
    * @param file
    * @throws IOException
@@ -102,7 +102,7 @@ public class AvroHttpSerializer {
   }
 
   /**
-   * Convert a file to AvroHttpRequest
+   * Convert a file to AvroHttpRequest.
    * @param file
    * @return
    * @throws IOException

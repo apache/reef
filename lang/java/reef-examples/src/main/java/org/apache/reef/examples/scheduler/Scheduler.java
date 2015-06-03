@@ -106,7 +106,7 @@ final class Scheduler {
   }
 
   /**
-   * Clear the pending list
+   * Clear the pending list.
    */
   public synchronized SchedulerResponse clear() {
     final int count = taskQueue.size();

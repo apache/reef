@@ -21,13 +21,13 @@ package org.apache.reef.io.network.naming.serialization;
 import org.apache.reef.wake.remote.transport.Link;
 
 /**
- * An abstract base class for naming messages
+ * An abstract base class for naming messages.
  */
 public abstract class NamingMessage {
   private transient Link<byte[]> link;
 
   /**
-   * Gets a link
+   * Gets a link.
    *
    * @return a link
    */
@@ -36,7 +36,7 @@ public abstract class NamingMessage {
   }
 
   /**
-   * Sets the link
+   * Sets the link.
    *
    * @param link the link
    */

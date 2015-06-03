@@ -52,7 +52,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Naming registry client
+ * Naming registry client.
  */
 public class NameRegistryClient implements Stage, NamingRegistry {
 
@@ -65,7 +65,7 @@ public class NameRegistryClient implements Stage, NamingRegistry {
   private final long timeout;
 
   /**
-   * Constructs a naming registry client
+   * Constructs a naming registry client.
    *
    * @param serverAddr a name server address
    * @param serverPort a name server port
@@ -77,7 +77,7 @@ public class NameRegistryClient implements Stage, NamingRegistry {
   }
 
   /**
-   * Constructs a naming registry client
+   * Constructs a naming registry client.
    *
    * @param serverAddr a name server address
    * @param serverPort a name server port
@@ -132,7 +132,7 @@ public class NameRegistryClient implements Stage, NamingRegistry {
   }
 
   /**
-   * Registers an (identifier, address) mapping
+   * Registers an (identifier, address) mapping.
    *
    * @param id   an identifier
    * @param addr an Internet socket address
@@ -164,7 +164,7 @@ public class NameRegistryClient implements Stage, NamingRegistry {
   }
 
   /**
-   * Unregisters an identifier
+   * Unregisters an identifier.
    *
    * @param id an identifier
    */
@@ -176,7 +176,7 @@ public class NameRegistryClient implements Stage, NamingRegistry {
   }
 
   /**
-   * Closes resources
+   * Closes resources.
    */
   @Override
   public void close() throws Exception {
@@ -186,7 +186,7 @@ public class NameRegistryClient implements Stage, NamingRegistry {
 }
 
 /**
- * Naming registry client transport event handler
+ * Naming registry client transport event handler.
  */
 class NamingRegistryClientHandler implements EventHandler<TransportEvent> {
   private static final Logger LOG = Logger.getLogger(NamingRegistryClientHandler.class.getName());
@@ -207,7 +207,7 @@ class NamingRegistryClientHandler implements EventHandler<TransportEvent> {
 }
 
 /**
- * Naming register response handler
+ * Naming register response handler.
  */
 class NamingRegistryResponseHandler implements EventHandler<NamingRegisterResponse> {
 

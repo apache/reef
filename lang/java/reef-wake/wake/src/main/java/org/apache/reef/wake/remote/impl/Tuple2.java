@@ -19,7 +19,7 @@
 package org.apache.reef.wake.remote.impl;
 
 /**
- * Tuple with two values
+ * Tuple with two values.
  *
  * @param <T1>
  * @param <T2>

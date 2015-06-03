@@ -75,7 +75,7 @@ final class UploaderToJobFolder {
   }
 
   /**
-   * Creates a LocalResource instance for the JAR file referenced by the given Path
+   * Creates a LocalResource instance for the JAR file referenced by the given Path.
    *
    * @param path
    * @return

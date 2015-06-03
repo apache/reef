@@ -27,7 +27,7 @@ package org.apache.reef.wake.remote;
 public interface Decoder<T> {
 
   /**
-   * Decodes the given byte array into an object
+   * Decodes the given byte array into an object.
    *
    * @param buf
    * @return the decoded object

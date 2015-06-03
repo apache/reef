@@ -60,7 +60,7 @@ final class WrappedValue<V> {
   }
 
   /**
-   * Must only be called once, by the thread that created this WrappedValue
+   * Must only be called once, by the thread that created this WrappedValue.
    * @return The value returned by valueFetcher
    */
   public synchronized V loadAndGet() throws ExecutionException {

@@ -21,7 +21,7 @@ package org.apache.reef.wake;
 public interface IdentifierFactory {
 
   /**
-   * Creates a RemoteIdentifier object
+   * Creates a RemoteIdentifier object.
    *
    * @param str a string
    * @return an identifier

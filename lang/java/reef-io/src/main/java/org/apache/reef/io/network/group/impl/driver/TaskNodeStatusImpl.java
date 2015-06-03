@@ -108,7 +108,7 @@ public class TaskNodeStatusImpl implements TaskNodeStatus {
   }
 
   /**
-   * This needs to happen in line rather than in a stage because we need to note
+   * This needs to happen in line rather than in a stage because we need to note.
    * the messages we send to the tasks before we start processing msgs from the
    * nodes.(Acks & Topology msgs)
    */

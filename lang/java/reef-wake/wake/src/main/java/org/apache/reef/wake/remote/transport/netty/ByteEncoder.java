@@ -21,7 +21,7 @@ package org.apache.reef.wake.remote.transport.netty;
 import org.apache.reef.wake.remote.Encoder;
 
 /**
- * Wrapping encoder for byte[]
+ * Wrapping encoder for byte[].
  */
 public class ByteEncoder implements Encoder<byte[]> {
 

@@ -25,7 +25,7 @@ import org.apache.reef.task.events.TaskStop;
 import javax.inject.Inject;
 
 /**
- * Injectable implementation of TaskStop
+ * Injectable implementation of TaskStop.
  */
 final class TaskStopImpl implements TaskStop {
   private final String id;

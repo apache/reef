@@ -134,7 +134,7 @@ public class BroadcastDriver {
   }
 
   /**
-   * Handles AllocatedEvaluator: Submits a context with an id
+   * Handles AllocatedEvaluator: Submits a context with an id.
    */
   final class EvaluatorAllocatedHandler implements EventHandler<AllocatedEvaluator> {
     @Override

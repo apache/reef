@@ -17,7 +17,7 @@
  * under the License.
  */
 /**
- * Implementations of Driver-Side representations of Contexts running on an Evaluator
+ * Implementations of Driver-Side representations of Contexts running on an Evaluator.
  */
 @DriverSide
 @Private package org.apache.reef.runtime.common.driver.context;

@@ -32,7 +32,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * A Parser for SVMLight records
+ * A Parser for SVMLight records.
  */
 public class SVMLightParser implements Parser<String> {
 

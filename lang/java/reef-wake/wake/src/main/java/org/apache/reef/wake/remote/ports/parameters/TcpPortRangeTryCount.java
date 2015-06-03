@@ -22,7 +22,7 @@ import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
 
 /**
- * Max number tries for port numbers
+ * Max number tries for port numbers.
  */
 @NamedParameter(doc = "Max number tries for port numbers", default_value = TcpPortRangeTryCount.default_value)
 public class TcpPortRangeTryCount implements Name<Integer> {

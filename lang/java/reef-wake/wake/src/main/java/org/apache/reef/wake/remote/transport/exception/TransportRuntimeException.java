@@ -19,13 +19,13 @@
 package org.apache.reef.wake.remote.transport.exception;
 
 /**
- * Transport runtime exception
+ * Transport runtime exception.
  */
 public class TransportRuntimeException extends RuntimeException {
   private static final long serialVersionUID = 1L;
 
   /**
-   * Constructs a new runtime transport exception with the specified detail message and cause
+   * Constructs a new runtime transport exception with the specified detail message and cause.
    *
    * @param s the detailed message
    * @param e the cause
@@ -35,7 +35,7 @@ public class TransportRuntimeException extends RuntimeException {
   }
 
   /**
-   * Constructs a new runtime transport exception with the specified detail message
+   * Constructs a new runtime transport exception with the specified detail message.
    *
    * @param s the detailed message
    */
@@ -44,7 +44,7 @@ public class TransportRuntimeException extends RuntimeException {
   }
 
   /**
-   * Constructs a new runtime transport exception with the specified cause
+   * Constructs a new runtime transport exception with the specified cause.
    *
    * @param e the cause
    */

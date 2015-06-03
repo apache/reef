@@ -35,7 +35,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * An implementation of LocalAddressProvider using the (removed) code from NetUtils.getLocalAddress()
+ * An implementation of LocalAddressProvider using the (removed) code from NetUtils.getLocalAddress().
  */
 public final class LegacyLocalAddressProvider implements LocalAddressProvider {
   private static final Logger LOG = Logger.getLogger(LegacyLocalAddressProvider.class.getName());

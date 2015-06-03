@@ -27,7 +27,7 @@ package org.apache.reef.wake.remote;
 public interface Encoder<T> {
 
   /**
-   * Encodes the given object into a Byte Array
+   * Encodes the given object into a Byte Array.
    *
    * @param obj
    * @return a byte[] representation of the object

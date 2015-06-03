@@ -28,7 +28,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * A manager that manages all the stage
+ * A manager that manages all the stage.
  */
 public final class StageManager implements Stage {
 

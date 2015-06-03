@@ -45,7 +45,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Naming client
+ * Naming client.
  */
 public class NameClient implements Stage, Naming {
   private static final Logger LOG = Logger.getLogger(NameClient.class.getName());
@@ -66,7 +66,7 @@ public class NameClient implements Stage, Naming {
   }
 
   /**
-   * Constructs a naming client
+   * Constructs a naming client.
    *
    * @param serverAddr a server address
    * @param serverPort a server port number
@@ -102,7 +102,7 @@ public class NameClient implements Stage, Naming {
   }
 
   /**
-   * Constructs a naming client
+   * Constructs a naming client.
    *
    * @param serverAddr a server address
    * @param serverPort a server port number
@@ -123,7 +123,7 @@ public class NameClient implements Stage, Naming {
   }
 
   /**
-   * Constructs a naming client
+   * Constructs a naming client.
    *
    * @param serverAddr a server address
    * @param serverPort a server port number
@@ -159,7 +159,7 @@ public class NameClient implements Stage, Naming {
   }
 
   /**
-   * Registers an (identifier, address) mapping
+   * Registers an (identifier, address) mapping.
    *
    * @param id   an identifier
    * @param addr an Internet socket address
@@ -172,7 +172,7 @@ public class NameClient implements Stage, Naming {
   }
 
   /**
-   * Unregisters an identifier
+   * Unregisters an identifier.
    *
    * @param id an identifier
    */
@@ -182,7 +182,7 @@ public class NameClient implements Stage, Naming {
   }
 
   /**
-   * Finds an address for an identifier
+   * Finds an address for an identifier.
    *
    * @param id an identifier
    * @return an Internet socket address
@@ -193,7 +193,7 @@ public class NameClient implements Stage, Naming {
   }
 
   /**
-   * Retrieves an address for an identifier remotely
+   * Retrieves an address for an identifier remotely.
    *
    * @param id an identifier
    * @return an Internet socket address
@@ -204,7 +204,7 @@ public class NameClient implements Stage, Naming {
   }
 
   /**
-   * Closes resources
+   * Closes resources.
    */
   @Override
   public void close() throws Exception {
@@ -224,7 +224,7 @@ public class NameClient implements Stage, Naming {
 }
 
 /**
- * Naming client transport event handler
+ * Naming client transport event handler.
  */
 class NamingClientEventHandler implements EventHandler<TransportEvent> {
 
@@ -247,7 +247,7 @@ class NamingClientEventHandler implements EventHandler<TransportEvent> {
 }
 
 /**
- * Naming response message handler
+ * Naming response message handler.
  */
 class NamingResponseHandler implements EventHandler<NamingMessage> {
 

@@ -27,7 +27,7 @@ import javax.inject.Inject;
 import java.io.*;
 
 /**
- * Codec for {@link GroupCommMessage}
+ * Codec for {@link GroupCommMessage}.
  */
 public class GroupCommunicationMessageCodec implements StreamingCodec<GroupCommunicationMessage> {
 

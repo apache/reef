@@ -19,7 +19,7 @@
 package org.apache.reef.util;
 
 /**
- * Utility class to deal with Exceptions
+ * Utility class to deal with Exceptions.
  */
 public final class Exceptions {
   private Exceptions() {

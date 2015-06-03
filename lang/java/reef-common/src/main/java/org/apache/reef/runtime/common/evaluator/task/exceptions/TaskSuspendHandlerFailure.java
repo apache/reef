@@ -22,7 +22,7 @@ import org.apache.reef.annotations.audience.EvaluatorSide;
 import org.apache.reef.annotations.audience.Private;
 
 /**
- * Thrown when a Task Suspend Handler throws an exception
+ * Thrown when a Task Suspend Handler throws an exception.
  */
 @EvaluatorSide
 @Private

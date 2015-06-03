@@ -27,7 +27,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Default handler for ContextStart
+ * Default handler for ContextStart.
  */
 @EvaluatorSide
 public final class DefaultContextStartHandler implements EventHandler<ContextStart> {

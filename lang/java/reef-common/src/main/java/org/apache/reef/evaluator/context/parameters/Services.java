@@ -26,7 +26,7 @@ import org.apache.reef.util.ObjectInstantiationLogger;
 import java.util.Set;
 
 /**
- * A set of classes to be instantiated and shared as singletons within this context and all child context
+ * A set of classes to be instantiated and shared as singletons within this context and all child context.
  */
 @NamedParameter(doc = "A set of classes to be instantiated and shared as singletons within this context and all child context",
     default_classes = ObjectInstantiationLogger.class)

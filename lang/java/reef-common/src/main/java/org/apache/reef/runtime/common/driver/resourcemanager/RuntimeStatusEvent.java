@@ -27,7 +27,7 @@ import org.apache.reef.util.Optional;
 import java.util.List;
 
 /**
- * Event from Driver Runtime -> Driver Process
+ * Event from Driver Runtime -> Driver Process.
  * A status update from the Driver Runtime to the Driver Process
  */
 @RuntimeAuthor

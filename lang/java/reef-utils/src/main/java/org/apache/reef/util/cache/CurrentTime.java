@@ -19,7 +19,7 @@
 package org.apache.reef.util.cache;
 
 /**
- * Return the current time
+ * Return the current time.
  */
 public interface CurrentTime {
   long now();

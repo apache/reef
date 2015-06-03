@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * Commonly used event handlers and task implementations in our tests
+ * Commonly used event handlers and task implementations in our tests.
  */
 package org.apache.reef.tests.library;

@@ -22,12 +22,12 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 
 
 /**
- * Factory that creates a Netty channel handler
+ * Factory that creates a Netty channel handler.
  */
 interface NettyChannelHandlerFactory {
 
   /**
-   * Creates a channel inbound handler
+   * Creates a channel inbound handler.
    *
    * @return a channel inbound handler adapter
    */

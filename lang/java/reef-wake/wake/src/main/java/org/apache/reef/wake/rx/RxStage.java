@@ -21,7 +21,7 @@ package org.apache.reef.wake.rx;
 import org.apache.reef.wake.Stage;
 
 /**
- * Stage that executes the observer
+ * Stage that executes the observer.
  *
  * @param <T> type
  */

@@ -53,7 +53,7 @@ public final class EvaluatorManagerFactory {
   }
 
   /**
-   * Helper method to create a new EvaluatorManager instance
+   * Helper method to create a new EvaluatorManager instance.
    *
    * @param id   identifier of the Evaluator
    * @param desc NodeDescriptor on which the Evaluator executes.

@@ -21,13 +21,13 @@ package org.apache.reef.io;
 import org.apache.reef.annotations.audience.Public;
 
 /**
- * A message from a REEF component
+ * A message from a REEF component.
  */
 @Public
 public interface Message {
 
   /**
-   * Message payload
+   * Message payload.
    *
    * @return message payload
    */

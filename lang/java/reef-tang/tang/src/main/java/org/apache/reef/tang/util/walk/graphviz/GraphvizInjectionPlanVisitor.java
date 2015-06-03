@@ -32,7 +32,7 @@ import org.apache.reef.tang.util.walk.Walk;
 public final class GraphvizInjectionPlanVisitor
     extends AbstractInjectionPlanNodeVisitor implements EdgeVisitor<InjectionPlan<?>> {
   /**
-   * Legend for the configuration graph in Graphviz format
+   * Legend for the configuration graph in Graphviz format.
    */
   private static final String LEGEND =
       "  subgraph cluster_legend {\n"

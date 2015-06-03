@@ -26,7 +26,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Version information, retrieved from the pom (via a properties file reference)
+ * Version information, retrieved from the pom (via a properties file reference).
  */
 public final class REEFVersion {
 

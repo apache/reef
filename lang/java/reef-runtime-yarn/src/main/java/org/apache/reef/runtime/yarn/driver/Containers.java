@@ -55,7 +55,7 @@ final class Containers {
   }
 
   /**
-   * Registers the given container
+   * Registers the given container.
    *
    * @param container
    * @throws java.lang.RuntimeException if a container with the same ID had been registered before.

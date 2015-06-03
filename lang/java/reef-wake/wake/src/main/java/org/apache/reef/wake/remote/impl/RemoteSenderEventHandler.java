@@ -33,7 +33,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Remote sender event handler
+ * Remote sender event handler.
  *
  * @param <T> type
  */
@@ -48,7 +48,7 @@ class RemoteSenderEventHandler<T> implements EventHandler<RemoteEvent<T>> {
   private final ExecutorService executor;
 
   /**
-   * Constructs a remote sender event handler
+   * Constructs a remote sender event handler.
    *
    * @param encoder   the encoder
    * @param transport the transport to send events
@@ -82,7 +82,7 @@ class RemoteSenderEventHandler<T> implements EventHandler<RemoteEvent<T>> {
   }
 
   /**
-   * Handles the event to send to a remote node
+   * Handles the event to send to a remote node.
    *
    * @param value the event
    * @throws RemoteRuntimeException

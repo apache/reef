@@ -24,7 +24,7 @@ import org.apache.reef.tang.annotations.NamedParameter;
 import org.apache.reef.wake.EventHandler;
 
 /**
- * Houses the Driver resourcemanager configuration's NamedParameters
+ * Houses the Driver resourcemanager configuration's NamedParameters.
  */
 public class DriverRuntimeConfigurationOptions {
   @NamedParameter(doc = "Called when a job control message is received by the client.")
