@@ -22,7 +22,7 @@ import org.apache.reef.io.network.group.impl.GroupCommunicationMessage;
 import org.apache.reef.io.network.proto.ReefNetworkGroupCommProtos;
 
 /**
- * The key object used in map to aggregate msgs from
+ * The key object used in map to aggregate msgs from.
  * all the operators before updating state on driver
  */
 public class MsgKey {

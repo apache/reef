@@ -40,7 +40,7 @@ import java.util.logging.Logger;
 
 public final class FailureREEF {
   /**
-   * The upper limit on the number of Evaluators that the local resourcemanager will hand out concurrently
+   * The upper limit on the number of Evaluators that the local resourcemanager will hand out concurrently.
    */
   public static final int MAX_NUMBER_OF_EVALUATORS = 16;
 

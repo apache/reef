@@ -19,7 +19,7 @@
 package org.apache.reef.wake.rx;
 
 /**
- * Defines a provider for push-based notification
+ * Defines a provider for push-based notification.
  */
 public interface Observable {
 }

@@ -60,7 +60,7 @@ public class PreparedDriverFolderLauncher {
   }
 
   /**
-   * Launches the driver prepared in driverFolder
+   * Launches the driver prepared in driverFolder.
    *
    * @param driverFolder
    * @param jobId

@@ -36,7 +36,7 @@ final class LogFileEntry {
   }
 
   /**
-   * Writes the contents of the entry into the given outputWriter
+   * Writes the contents of the entry into the given outputWriter.
    *
    * @param outputWriter
    * @throws IOException

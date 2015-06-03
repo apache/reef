@@ -19,7 +19,7 @@
 package org.apache.reef.wake;
 
 /**
- * Stage that executes an event handler
+ * Stage that executes an event handler.
  *
  * @param <T> type
  */

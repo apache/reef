@@ -29,7 +29,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * A Handler for JobStatus messages from running jobs
+ * A Handler for JobStatus messages from running jobs.
  */
 @ClientSide
 @Private

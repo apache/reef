@@ -109,7 +109,7 @@ public final class RunnableProcess implements Runnable {
   }
 
   /**
-   * Checks whether a transition from State 'from' to state 'to' is legal
+   * Checks whether a transition from State 'from' to state 'to' is legal.
    *
    * @param from
    * @param to

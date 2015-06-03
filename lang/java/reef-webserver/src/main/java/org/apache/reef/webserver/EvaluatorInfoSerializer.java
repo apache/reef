@@ -28,7 +28,7 @@ import java.util.Map;
 public interface EvaluatorInfoSerializer {
 
   /**
-   * Build AvroEvaluatorsInfo object from raw data
+   * Build AvroEvaluatorsInfo object from raw data.
    */
   AvroEvaluatorsInfo toAvro(
       final List<String> ids, final Map<String, EvaluatorDescriptor> evaluators);

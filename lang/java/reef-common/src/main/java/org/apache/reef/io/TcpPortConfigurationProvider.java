@@ -32,7 +32,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Implements ConfigurationProvider for RangeTcpPortProvider
+ * Implements ConfigurationProvider for RangeTcpPortProvider.
  */
 public class TcpPortConfigurationProvider implements ConfigurationProvider {
   private final int portRangeBegin;
@@ -51,7 +51,7 @@ public class TcpPortConfigurationProvider implements ConfigurationProvider {
   }
 
   /**
-   * returns a configuration for the class that implements TcpPortProvider so that class can be instantiated
+   * returns a configuration for the class that implements TcpPortProvider so that class can be instantiated.
    * somewhere else
    *
    * @return Configuration.

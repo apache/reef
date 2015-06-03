@@ -32,14 +32,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Naming lookup response codec
+ * Naming lookup response codec.
  */
 public final class NamingLookupResponseCodec implements Codec<NamingLookupResponse> {
 
   private final IdentifierFactory factory;
 
   /**
-   * Constructs a naming lookup response codec
+   * Constructs a naming lookup response codec.
    *
    * @param factory the identifier factory
    */
@@ -49,7 +49,7 @@ public final class NamingLookupResponseCodec implements Codec<NamingLookupRespon
   }
 
   /**
-   * Encodes name assignments to bytes
+   * Encodes name assignments to bytes.
    *
    * @param obj the naming lookup response
    * @return a byte array
@@ -70,7 +70,7 @@ public final class NamingLookupResponseCodec implements Codec<NamingLookupRespon
   }
 
   /**
-   * Decodes bytes to an iterable of name assignments
+   * Decodes bytes to an iterable of name assignments.
    *
    * @param buf the byte array
    * @return a naming lookup response

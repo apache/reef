@@ -34,7 +34,7 @@ import org.apache.reef.tang.formats.OptionalParameter;
 import org.apache.reef.tang.formats.RequiredParameter;
 
 /**
- * A ConfigurationModule for the Mesos resource manager
+ * A ConfigurationModule for the Mesos resource manager.
  */
 @Public
 @ClientSide
@@ -46,7 +46,7 @@ public class MesosClientConfiguration extends ConfigurationModuleBuilder {
   public static final OptionalParameter<String> ROOT_FOLDER = new OptionalParameter<>();
 
   /**
-   * The ip address of Mesos Master
+   * The ip address of Mesos Master.
    */
   public static final RequiredParameter<String> MASTER_IP = new RequiredParameter<>();
 

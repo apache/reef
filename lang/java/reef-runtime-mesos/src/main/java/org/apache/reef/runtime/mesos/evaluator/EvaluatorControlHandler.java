@@ -28,7 +28,7 @@ import org.apache.reef.wake.remote.RemoteMessage;
 import javax.inject.Inject;
 
 /**
- * Handles evaluator launch requests via MesosRemoteManager from MesosResourceLaunchHandler
+ * Handles evaluator launch requests via MesosRemoteManager from MesosResourceLaunchHandler.
  */
 @EvaluatorSide
 @Private

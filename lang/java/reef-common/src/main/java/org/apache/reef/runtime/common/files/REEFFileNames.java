@@ -67,7 +67,7 @@ public final class REEFFileNames {
   }
 
   /**
-   * reef/local/BRIDGE_DLL_NAME
+   * reef/local/BRIDGE_DLL_NAME.
    *
    * @return the File pointing to the DLL containing the DLL for the bridge.
    */
@@ -84,7 +84,7 @@ public final class REEFFileNames {
 
 
   /**
-   * The name of the REEF folder inside of the working directory of an Evaluator or Driver
+   * The name of the REEF folder inside of the working directory of an Evaluator or Driver.
    */
   public String getREEFFolderName() {
     return REEF_BASE_FOLDER;
@@ -143,7 +143,7 @@ public final class REEFFileNames {
 
 
   /**
-   * The name under which the driver configuration will be stored in REEF_BASE_FOLDER/LOCAL_FOLDER
+   * The name under which the driver configuration will be stored in REEF_BASE_FOLDER/LOCAL_FOLDER.
    */
   public String getDriverConfigurationName() {
     return DRIVER_CONFIGURATION_NAME;

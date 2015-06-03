@@ -26,7 +26,7 @@ import org.apache.reef.wake.EventHandler;
 import java.util.Set;
 
 /**
- * Service handler for driver restart completed event
+ * Service handler for driver restart completed event.
  */
 @NamedParameter(doc = "Handler for driver restart completed event")
 public final class ServiceDriverRestartCompletedHandlers implements Name<Set<EventHandler<DriverRestartCompleted>>> {

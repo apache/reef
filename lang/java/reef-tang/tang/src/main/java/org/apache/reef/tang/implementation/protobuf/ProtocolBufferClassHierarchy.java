@@ -203,7 +203,7 @@ public class ProtocolBufferClassHierarchy implements ClassHierarchy {
   }
 
   /**
-   * serialize a class hierarchy into a file
+   * serialize a class hierarchy into a file.
    *
    * @param file
    * @param classHierarchy

@@ -34,7 +34,7 @@ import java.util.logging.Logger;
 public class ObjectWritableCodec<T extends Writable> implements Codec<T> {
 
   /**
-   * Standard Java logger
+   * Standard Java logger.
    */
   private static final Logger LOG = Logger.getLogger(ObjectWritableCodec.class.getName());
 

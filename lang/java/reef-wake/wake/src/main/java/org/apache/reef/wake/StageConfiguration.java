@@ -25,7 +25,7 @@ import org.apache.reef.wake.rx.Observer;
 import java.util.concurrent.ExecutorService;
 
 /**
- * Configuration options for Wake Stage
+ * Configuration options for Wake Stage.
  */
 public final class StageConfiguration {
 

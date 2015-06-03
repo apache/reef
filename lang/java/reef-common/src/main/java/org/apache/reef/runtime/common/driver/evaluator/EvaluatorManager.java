@@ -156,7 +156,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
   }
 
   /**
-   * Get the id of current job/application
+   * Get the id of current job/application.
    */
   public static String getJobIdentifier() {
     // TODO: currently we obtain the job id directly by parsing execution (container) directory path
@@ -248,7 +248,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
   }
 
   /**
-   * EvaluatorException will trigger is FailedEvaluator and state transition to FAILED
+   * EvaluatorException will trigger is FailedEvaluator and state transition to FAILED.
    *
    * @param exception on the EvaluatorRuntime
    */
@@ -428,7 +428,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
   }
 
   /**
-   * Packages the ContextControlProto in an EvaluatorControlProto and forward it to the EvaluatorRuntime
+   * Packages the ContextControlProto in an EvaluatorControlProto and forward it to the EvaluatorRuntime.
    *
    * @param contextControlProto message contains context control info.
    */
@@ -440,7 +440,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
   }
 
   /**
-   * Forward the EvaluatorControlProto to the EvaluatorRuntime
+   * Forward the EvaluatorControlProto to the EvaluatorRuntime.
    *
    * @param evaluatorControlProto message contains evaluator control information.
    */

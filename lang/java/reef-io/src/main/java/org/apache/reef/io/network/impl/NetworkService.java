@@ -50,7 +50,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Network service for Task
+ * Network service for Task.
  */
 public final class NetworkService<T> implements Stage, ConnectionFactory<T> {
 

@@ -26,7 +26,7 @@ import org.apache.reef.tang.annotations.Name;
 
 
 /**
- * The task side interface for the Group Communication Service
+ * The task side interface for the Group Communication Service.
  */
 @TaskSide
 @Provided

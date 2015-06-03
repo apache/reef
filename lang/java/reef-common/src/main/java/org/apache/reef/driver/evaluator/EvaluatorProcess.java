@@ -21,7 +21,7 @@ package org.apache.reef.driver.evaluator;
 import java.util.List;
 
 /**
- * Defines the setup of an evaluator's process
+ * Defines the setup of an evaluator's process.
  */
 public interface EvaluatorProcess {
   /**
@@ -35,7 +35,7 @@ public interface EvaluatorProcess {
   EvaluatorType getType();
 
   /**
-   * Set the error handler remote identifier
+   * Set the error handler remote identifier.
    *
    * @param errorHandlerRID
    * @return this
@@ -43,7 +43,7 @@ public interface EvaluatorProcess {
   EvaluatorProcess setErrorHandlerRID(final String errorHandlerRID);
 
   /**
-   * Set the launch identifier
+   * Set the launch identifier.
    *
    * @param launchID
    * @return this
@@ -51,7 +51,7 @@ public interface EvaluatorProcess {
   EvaluatorProcess setLaunchID(final String launchID);
 
   /**
-   * Set memory size of process in megabytes
+   * Set memory size of process in megabytes.
    *
    * @param megaBytes
    * @return this

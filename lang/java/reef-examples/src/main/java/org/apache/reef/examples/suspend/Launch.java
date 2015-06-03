@@ -42,11 +42,11 @@ import java.util.logging.Logger;
 public final class Launch {
 
   /**
-   * Standard Java logger
+   * Standard Java logger.
    */
   private static final Logger LOG = Logger.getLogger(Launch.class.getName());
   /**
-   * The upper limit on the number of Evaluators that the local resourcemanager will hand out concurrently
+   * The upper limit on the number of Evaluators that the local resourcemanager will hand out concurrently.
    */
   private static final int MAX_NUMBER_OF_EVALUATORS = 4;
 

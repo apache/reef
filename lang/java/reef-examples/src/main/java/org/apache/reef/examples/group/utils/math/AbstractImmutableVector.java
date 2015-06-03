@@ -25,7 +25,7 @@ import java.util.Formatter;
 import java.util.Locale;
 
 /**
- * Base class for implementing ImmutableVector
+ * Base class for implementing ImmutableVector.
  */
 abstract class AbstractImmutableVector implements ImmutableVector {
 

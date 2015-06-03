@@ -21,33 +21,33 @@ package org.apache.reef.webserver;
 import org.apache.reef.tang.annotations.DefaultImplementation;
 
 /**
- * HttpServer interface
+ * HttpServer interface.
  */
 public interface HttpServer {
 
   /**
-   * start the server
+   * start the server.
    *
    * @throws Exception
    */
   public void start() throws Exception;
 
   /**
-   * stop the server
+   * stop the server.
    *
    * @throws Exception
    */
   public void stop() throws Exception;
 
   /**
-   * get port number of the server
+   * get port number of the server.
    *
    * @return
    */
   public int getPort();
 
   /**
-   * Add a httpHandler to the server
+   * Add a httpHandler to the server.
    *
    * @param httpHandler
    */

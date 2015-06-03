@@ -41,7 +41,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Default remote manager implementation
+ * Default remote manager implementation.
  */
 public class DefaultRemoteManagerImplementation implements RemoteManager {
 
@@ -50,7 +50,7 @@ public class DefaultRemoteManagerImplementation implements RemoteManager {
   private static final AtomicInteger counter = new AtomicInteger(0);
 
   /**
-   * The timeout used for the execute running in close()
+   * The timeout used for the execute running in close().
    */
   private static final long CLOSE_EXECUTOR_TIMEOUT = 10000; //ms
   private final AtomicBoolean closed = new AtomicBoolean(false);
@@ -135,7 +135,7 @@ public class DefaultRemoteManagerImplementation implements RemoteManager {
   }
 
   /**
-   * Returns a proxy event handler for a remote identifier and a message type
+   * Returns a proxy event handler for a remote identifier and a message type.
    */
   @Override
   public <T> EventHandler<T> getHandler(
@@ -151,7 +151,7 @@ public class DefaultRemoteManagerImplementation implements RemoteManager {
   }
 
   /**
-   * Registers an event handler for a remote identifier and a message type and
+   * Registers an event handler for a remote identifier and a message type and.
    * returns a subscription
    */
   @Override
@@ -167,7 +167,7 @@ public class DefaultRemoteManagerImplementation implements RemoteManager {
   }
 
   /**
-   * Registers an event handler for a message type and returns a subscription
+   * Registers an event handler for a message type and returns a subscription.
    */
   @Override
   public <T, U extends T> AutoCloseable registerHandler(
@@ -180,7 +180,7 @@ public class DefaultRemoteManagerImplementation implements RemoteManager {
   }
 
   /**
-   * Registers an exception handler and returns a subscription
+   * Registers an exception handler and returns a subscription.
    */
   @Override
   public AutoCloseable registerErrorHandler(final EventHandler<Exception> theHandler) {
@@ -192,7 +192,7 @@ public class DefaultRemoteManagerImplementation implements RemoteManager {
   }
 
   /**
-   * Returns my identifier
+   * Returns my identifier.
    */
   @Override
   public RemoteIdentifier getMyIdentifier() {

@@ -32,7 +32,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * The Driver code for the Hello REEF Application
+ * The Driver code for the Hello REEF Application.
  */
 @Unit
 public final class HelloDriver {
@@ -68,7 +68,7 @@ public final class HelloDriver {
   }
 
   /**
-   * Handles AllocatedEvaluator: Submit the HelloTask
+   * Handles AllocatedEvaluator: Submit the HelloTask.
    */
   public final class EvaluatorAllocatedHandler implements EventHandler<AllocatedEvaluator> {
     @Override

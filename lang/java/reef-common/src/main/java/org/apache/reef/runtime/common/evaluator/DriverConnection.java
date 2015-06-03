@@ -19,7 +19,7 @@
 package org.apache.reef.runtime.common.evaluator;
 
 /**
- * Interface used for reconnecting to driver after driver restart
+ * Interface used for reconnecting to driver after driver restart.
  */
 public interface DriverConnection extends AutoCloseable {
 

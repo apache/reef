@@ -43,7 +43,7 @@ public class ShellTask implements Task {
   private final String command;
 
   /**
-   * Object Serializable Codec
+   * Object Serializable Codec.
    */
   private static final ObjectSerializableCodec<String> CODEC = new ObjectSerializableCodec<>();
 

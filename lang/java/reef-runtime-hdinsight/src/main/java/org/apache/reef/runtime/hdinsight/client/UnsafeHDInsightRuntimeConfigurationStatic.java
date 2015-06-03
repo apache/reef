@@ -34,7 +34,7 @@ import org.apache.reef.util.logging.LoggingSetup;
 import org.apache.reef.wake.remote.RemoteConfiguration;
 
 /**
- * The static part of the UnsafeHDInsightRuntimeConfiguration
+ * The static part of the UnsafeHDInsightRuntimeConfiguration.
  */
 public final class UnsafeHDInsightRuntimeConfigurationStatic extends ConfigurationModuleBuilder {
   static {

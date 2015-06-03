@@ -19,14 +19,14 @@
 package org.apache.reef.wake;
 
 /**
- * Handler to process an event
+ * Handler to process an event.
  *
  * @param <T> type
  */
 public interface EventHandler<T> {
 
   /**
-   * Handles an event
+   * Handles an event.
    *
    * @param value an event
    */

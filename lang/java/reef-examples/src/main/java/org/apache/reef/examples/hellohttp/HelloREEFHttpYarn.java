@@ -29,7 +29,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * HelloREEFHttp for running on Yarn
+ * HelloREEFHttp for running on Yarn.
  */
 public class HelloREEFHttpYarn {
 

@@ -29,7 +29,7 @@ import org.apache.reef.tang.annotations.Parameter;
 import javax.inject.Inject;
 
 /**
- * A Tang external constructor to inject an InputSplit
+ * A Tang external constructor to inject an InputSplit.
  * by deserializing the serialized input split assigned
  * to this evaluator
  */

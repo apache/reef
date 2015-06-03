@@ -25,7 +25,7 @@ import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.wake.EventHandler;
 
 /**
- * The EventHandler that receives the GroupCommunicationMsg
+ * The EventHandler that receives the GroupCommunicationMsg.
  * pertaining to a specific Communication Group
  */
 @DefaultImplementation(value = CommGroupNetworkHandlerImpl.class)

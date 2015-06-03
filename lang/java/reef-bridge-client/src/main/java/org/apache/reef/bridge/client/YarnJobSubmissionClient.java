@@ -47,7 +47,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * The Java-side of the C# YARN Job Submission API
+ * The Java-side of the C# YARN Job Submission API.
  */
 public final class YarnJobSubmissionClient {
 

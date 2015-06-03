@@ -25,7 +25,7 @@ import org.apache.reef.runtime.common.files.RuntimePathProvider;
 import javax.inject.Inject;
 
 /**
- * Factory to setup new JVM processes
+ * Factory to setup new JVM processes.
  */
 @DriverSide
 public final class JVMProcessFactory implements EvaluatorProcessFactory {

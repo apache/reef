@@ -23,7 +23,7 @@ import org.apache.reef.annotations.audience.Public;
 import org.apache.reef.tang.annotations.DefaultImplementation;
 
 /**
- * Factory to create new evaluator process setups
+ * Factory to create new evaluator process setups.
  */
 @Public
 @DriverSide

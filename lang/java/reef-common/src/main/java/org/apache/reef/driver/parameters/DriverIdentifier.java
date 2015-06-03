@@ -22,7 +22,7 @@ import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
 
 /**
- * Driver Identifier
+ * Driver Identifier.
  */
 @NamedParameter(doc = "Driver Identifier", default_value = DriverIdentifier.DEFAULT_VALUE)
 public final class DriverIdentifier implements Name<String> {

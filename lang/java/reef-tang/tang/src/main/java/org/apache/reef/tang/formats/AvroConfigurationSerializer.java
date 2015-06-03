@@ -231,7 +231,7 @@ public final class AvroConfigurationSerializer implements ConfigurationSerialize
   }
 
   /**
-   * Converts a given AvroConfiguration to Configuration
+   * Converts a given AvroConfiguration to Configuration.
    *
    * @param avroConfiguration
    * @return a Configuration version of the given AvroConfiguration
@@ -243,7 +243,7 @@ public final class AvroConfigurationSerializer implements ConfigurationSerialize
   }
 
   /**
-   * Converts a given AvroConfiguration to Configuration
+   * Converts a given AvroConfiguration to Configuration.
    *
    * @param avroConfiguration
    * @param classHierarchy    the class hierarchy used for validation.

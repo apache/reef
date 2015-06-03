@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * Logging handler for clr bridge
+ * Logging handler for clr bridge.
  */
 package org.apache.reef.util.logging;

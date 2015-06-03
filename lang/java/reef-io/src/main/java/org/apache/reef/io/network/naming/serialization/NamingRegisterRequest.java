@@ -21,13 +21,13 @@ package org.apache.reef.io.network.naming.serialization;
 import org.apache.reef.io.naming.NameAssignment;
 
 /**
- * naming registration request
+ * naming registration request.
  */
 public class NamingRegisterRequest extends NamingMessage {
   private final NameAssignment na;
 
   /**
-   * Constructs a naming registration request
+   * Constructs a naming registration request.
    *
    * @param na the name assignment
    */
@@ -36,7 +36,7 @@ public class NamingRegisterRequest extends NamingMessage {
   }
 
   /**
-   * Gets a name assignment
+   * Gets a name assignment.
    *
    * @return a name assignment
    */

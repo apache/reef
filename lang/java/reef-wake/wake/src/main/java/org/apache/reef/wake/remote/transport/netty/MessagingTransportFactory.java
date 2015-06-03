@@ -36,7 +36,7 @@ import org.apache.reef.wake.remote.transport.TransportFactory;
 import javax.inject.Inject;
 
 /**
- * Factory that creates a messaging transport
+ * Factory that creates a messaging transport.
  */
 public class MessagingTransportFactory implements TransportFactory {
 
@@ -60,7 +60,7 @@ public class MessagingTransportFactory implements TransportFactory {
   }
 
   /**
-   * Creates a transport
+   * Creates a transport.
    *
    * @param port          a listening port
    * @param clientHandler a transport client side handler

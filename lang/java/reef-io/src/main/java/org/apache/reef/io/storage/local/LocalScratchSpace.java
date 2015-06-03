@@ -31,7 +31,7 @@ public class LocalScratchSpace implements ScratchSpace {
   private final String evaluatorName;
   private final Set<File> tempFiles = new ConcurrentSkipListSet<File>();
   /**
-   * Zero denotes "unlimited"
+   * Zero denotes "unlimited".
    */
   private long quota;
 

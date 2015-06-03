@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * Annotations for interface audience
+ * Annotations for interface audience.
  */
 package org.apache.reef.annotations.audience;

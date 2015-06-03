@@ -19,7 +19,7 @@
 package org.apache.reef.wake;
 
 /**
- * Stage is an execution unit for events and provides a way to reclaim its resources
+ * Stage is an execution unit for events and provides a way to reclaim its resources.
  */
 public interface Stage extends AutoCloseable {
 }

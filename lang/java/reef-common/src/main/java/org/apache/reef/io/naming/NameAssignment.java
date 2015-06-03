@@ -23,19 +23,19 @@ import org.apache.reef.wake.Identifier;
 import java.net.InetSocketAddress;
 
 /**
- * Pair of an identifier and an address
+ * Pair of an identifier and an address.
  */
 public interface NameAssignment {
 
   /**
-   * Returns an identifier of this object
+   * Returns an identifier of this object.
    *
    * @return an identifier
    */
   public Identifier getIdentifier();
 
   /**
-   * Returns an address of this object
+   * Returns an address of this object.
    *
    * @return a socket address
    */

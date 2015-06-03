@@ -43,7 +43,7 @@ public interface Gather {
   }
 
   /**
-   * Receiver or Root
+   * Receiver or Root.
    */
   static interface Receiver<T> extends GroupCommOperator {
 
@@ -55,7 +55,7 @@ public interface Gather {
     List<T> receive() throws InterruptedException, NetworkException;
 
     /**
-     * Receive the elements sent by the senders in specified order
+     * Receive the elements sent by the senders in specified order.
      *
      * @return elements sent by senders as a List in specified order
      */

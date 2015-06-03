@@ -25,7 +25,7 @@ import org.apache.reef.driver.evaluator.EvaluatorDescriptor;
 import org.apache.reef.driver.evaluator.EvaluatorProcess;
 
 /**
- * A simple all-data implementation of EvaluatorDescriptor
+ * A simple all-data implementation of EvaluatorDescriptor.
  */
 @Private
 @DriverSide

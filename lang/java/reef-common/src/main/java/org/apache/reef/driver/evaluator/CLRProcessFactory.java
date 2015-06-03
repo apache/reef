@@ -24,7 +24,7 @@ import org.apache.reef.annotations.audience.Private;
 import javax.inject.Inject;
 
 /**
- * Factory to setup new CLR processes
+ * Factory to setup new CLR processes.
  */
 @Private
 @DriverSide

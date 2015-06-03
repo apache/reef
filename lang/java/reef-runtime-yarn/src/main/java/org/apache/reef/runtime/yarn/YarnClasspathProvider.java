@@ -111,7 +111,7 @@ public final class YarnClasspathProvider implements RuntimeClasspathProvider {
   }
 
   /**
-   * Fetches the string[] under the given key, if it exists and contains entries (.length >0)
+   * Fetches the string[] under the given key, if it exists and contains entries (.length >0).
    *
    * @param configuration
    * @param key

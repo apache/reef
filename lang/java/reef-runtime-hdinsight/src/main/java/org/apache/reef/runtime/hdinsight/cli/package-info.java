@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * A command line interface for HDInsight
+ * A command line interface for HDInsight.
  */
 package org.apache.reef.runtime.hdinsight.cli;

@@ -23,11 +23,11 @@ import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
 import org.apache.reef.wake.time.Clock;
 
 /**
- * Configuration Module Builder for HttpRuntime
+ * Configuration Module Builder for HttpRuntime.
  */
 public final class HttpRuntimeConfiguration extends ConfigurationModuleBuilder {
   /**
-   * HttpRuntimeConfiguration
+   * HttpRuntimeConfiguration.
    */
   public static final ConfigurationModule CONF = new HttpRuntimeConfiguration()
       .bindSetEntry(Clock.RuntimeStartHandler.class, HttpRuntimeStartHandler.class)

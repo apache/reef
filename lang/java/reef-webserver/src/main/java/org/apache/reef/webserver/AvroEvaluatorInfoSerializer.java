@@ -84,7 +84,7 @@ public class AvroEvaluatorInfoSerializer implements EvaluatorInfoSerializer {
   }
 
   /**
-   * Convert AvroEvaluatorsInfo object to JSON string
+   * Convert AvroEvaluatorsInfo object to JSON string.
    */
   @Override
   public String toString(final AvroEvaluatorsInfo avroEvaluatorsInfo) {

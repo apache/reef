@@ -27,7 +27,7 @@ import org.apache.reef.util.Optional;
 import java.util.Set;
 
 /**
- * Event sent to Driver Runtime
+ * Event sent to Driver Runtime.
  * Submission of a Job to the Driver Runtime
  */
 @RuntimeAuthor

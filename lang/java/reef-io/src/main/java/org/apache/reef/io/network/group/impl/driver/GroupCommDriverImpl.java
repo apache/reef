@@ -74,7 +74,7 @@ import java.util.logging.Logger;
 public class GroupCommDriverImpl implements GroupCommServiceDriver {
   private static final Logger LOG = Logger.getLogger(GroupCommDriverImpl.class.getName());
   /**
-   * TANG instance
+   * TANG instance.
    */
   private static final Tang tang = Tang.Factory.getTang();
 

@@ -22,7 +22,7 @@ import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
 
 /**
- * The service configuration for the root context
+ * The service configuration for the root context.
  */
 @NamedParameter(doc = "The service configuration for the root context")
 public final class RootServiceConfiguration implements Name<String> {

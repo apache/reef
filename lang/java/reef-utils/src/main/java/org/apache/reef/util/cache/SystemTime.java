@@ -19,7 +19,7 @@
 package org.apache.reef.util.cache;
 
 /**
- * Return the system time
+ * Return the system time.
  */
 public final class SystemTime implements CurrentTime {
 

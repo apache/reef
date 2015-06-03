@@ -21,12 +21,12 @@ package org.apache.reef.wake.remote.impl;
 import org.apache.reef.wake.remote.Codec;
 
 /**
- * Codec that performs identity transformation on bytes
+ * Codec that performs identity transformation on bytes.
  */
 public class ByteCodec implements Codec<byte[]> {
 
   /**
-   * Returns the byte array argument
+   * Returns the byte array argument.
    *
    * @param obj bytes
    * @return the same bytes
@@ -37,7 +37,7 @@ public class ByteCodec implements Codec<byte[]> {
   }
 
   /**
-   * Returns the byte array argument
+   * Returns the byte array argument.
    *
    * @param buf bytes
    * @return the same bytes

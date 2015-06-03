@@ -149,7 +149,7 @@ public final class JobSubmissionEventImpl implements JobSubmissionEvent {
     }
 
     /**
-     * Add an entry to the globalFileSet
+     * Add an entry to the globalFileSet.
      * @see JobSubmissionEvent#getGlobalFileSet()
      */
     public Builder addGlobalFile(final FileResource globalFile) {
@@ -158,7 +158,7 @@ public final class JobSubmissionEventImpl implements JobSubmissionEvent {
     }
 
     /**
-     * Add an entry to the localFileSet
+     * Add an entry to the localFileSet.
      * @see JobSubmissionEvent#getLocalFileSet()
      */
     public Builder addLocalFile(final FileResource localFile) {

@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * Contains naming serialization codecs
+ * Contains naming serialization codecs.
  */
 package org.apache.reef.io.network.naming.serialization;

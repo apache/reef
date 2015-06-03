@@ -126,7 +126,7 @@ public final class EvaluatorRequest {
     }
 
     /**
-     * set number of cores
+     * set number of cores.
      *
      * @param cores the number of cores
      * @return

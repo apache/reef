@@ -19,7 +19,7 @@
 package org.apache.reef.wake.time;
 
 /**
- * Time object
+ * Time object.
  */
 public abstract class Time implements Comparable<Time> {
 

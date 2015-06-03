@@ -22,7 +22,7 @@ import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
 
 /**
- * max port number range when generating a port number for the Http Server
+ * max port number range when generating a port number for the Http Server.
  */
 @NamedParameter(doc = "Max port number for Jetty Server", default_value = "49151")
 public class MaxPortNumber implements Name<Integer> {

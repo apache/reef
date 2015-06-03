@@ -28,7 +28,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * A LocalAddressProvider that uses <code>Inet4Address.getLocalHost().getHostAddress()</code>
+ * A LocalAddressProvider that uses <code>Inet4Address.getLocalHost().getHostAddress()</code>.
  */
 public final class HostnameBasedLocalAddressProvider implements LocalAddressProvider {
   private static final Logger LOG = Logger.getLogger(HostnameBasedLocalAddressProvider.class.getName());

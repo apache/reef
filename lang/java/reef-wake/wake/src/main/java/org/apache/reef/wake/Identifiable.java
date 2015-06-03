@@ -21,7 +21,7 @@ package org.apache.reef.wake;
 public interface Identifiable {
 
   /**
-   * Returns an identifier of this object
+   * Returns an identifier of this object.
    *
    * @return an identifier of this object
    */

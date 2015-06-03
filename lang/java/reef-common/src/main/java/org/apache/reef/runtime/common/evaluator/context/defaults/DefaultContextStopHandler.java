@@ -27,7 +27,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Default event handler for ContextStop
+ * Default event handler for ContextStop.
  */
 @EvaluatorSide
 public final class DefaultContextStopHandler implements EventHandler<ContextStop> {

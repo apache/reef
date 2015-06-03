@@ -61,7 +61,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Messaging transport implementation with Netty
+ * Messaging transport implementation with Netty.
  */
 public class NettyMessagingTransport implements Transport {
 
@@ -100,7 +100,7 @@ public class NettyMessagingTransport implements Transport {
 
 
   /**
-   * Constructs a messaging transport
+   * Constructs a messaging transport.
    *
    * @param hostAddress   the server host address
    * @param port          the server listening port; when it is 0, randomly assign a port number
@@ -125,7 +125,7 @@ public class NettyMessagingTransport implements Transport {
         retryTimeout, tcpPortProvider, LocalAddressProviderFactory.getInstance());
   }
   /**
-   * Constructs a messaging transport
+   * Constructs a messaging transport.
    *
    * @param hostAddress   the server host address
    * @param port          the server listening port; when it is 0, randomly assign a port number
@@ -220,7 +220,7 @@ public class NettyMessagingTransport implements Transport {
   }
 
   /**
-   * Constructs a messaging transport
+   * Constructs a messaging transport.
    *
    * @param hostAddress   the server host address
    * @param port          the server listening port; when it is 0, randomly assign a port number
@@ -241,7 +241,7 @@ public class NettyMessagingTransport implements Transport {
   }
 
   /**
-   * Closes all channels and releases all resources
+   * Closes all channels and releases all resources.
    */
   @Override
   public void close() throws Exception {
@@ -259,7 +259,7 @@ public class NettyMessagingTransport implements Transport {
   }
 
   /**
-   * Returns a link for the remote address if cached; otherwise opens, caches and returns
+   * Returns a link for the remote address if cached; otherwise opens, caches and returns.
    * When it opens a link for the remote address, only one attempt for the address is made at a given time
    *
    * @param remoteAddr the remote socket address
@@ -358,7 +358,7 @@ public class NettyMessagingTransport implements Transport {
   }
 
   /**
-   * Returns a link for the remote address if already cached; otherwise, returns null
+   * Returns a link for the remote address if already cached; otherwise, returns null.
    *
    * @param remoteAddr the remote address
    * @return a link if already cached; otherwise, null
@@ -369,7 +369,7 @@ public class NettyMessagingTransport implements Transport {
   }
 
   /**
-   * Gets a server local socket address of this transport
+   * Gets a server local socket address of this transport.
    *
    * @return a server local socket address
    */
@@ -379,7 +379,7 @@ public class NettyMessagingTransport implements Transport {
   }
 
   /**
-   * Gets a server listening port of this transport
+   * Gets a server listening port of this transport.
    *
    * @return a listening port number
    */
@@ -389,7 +389,7 @@ public class NettyMessagingTransport implements Transport {
   }
 
   /**
-   * Registers the exception event handler
+   * Registers the exception event handler.
    *
    * @param handler the exception event handler
    */

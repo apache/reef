@@ -19,7 +19,7 @@
 package org.apache.reef.runtime.common.launch;
 
 /**
- * The type of a process to be launched by the Runtime
+ * The type of a process to be launched by the Runtime.
  */
 public enum ProcessType {
     JVM,

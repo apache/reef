@@ -19,7 +19,7 @@
 package org.apache.reef.util.logging;
 
 /**
- * Configure Commons Logging
+ * Configure Commons Logging.
  */
 public final class LoggingSetup {
 

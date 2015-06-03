@@ -97,7 +97,7 @@ final class RunningJobsImpl implements RunningJobs {
 
 
   /**
-   * A guarded get() that throws an exception if the RunningJob isn't known
+   * A guarded get() that throws an exception if the RunningJob isn't known.
    *
    * @param jobIdentifier
    * @return

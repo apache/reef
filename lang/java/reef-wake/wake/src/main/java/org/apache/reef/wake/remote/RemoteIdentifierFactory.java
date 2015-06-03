@@ -24,7 +24,7 @@ import org.apache.reef.wake.IdentifierFactory;
 import org.apache.reef.wake.remote.impl.DefaultRemoteIdentifierFactoryImplementation;
 
 /**
- * Factory that creates a RemoteIdentifier
+ * Factory that creates a RemoteIdentifier.
  */
 @DefaultImplementation(DefaultRemoteIdentifierFactoryImplementation.class)
 public interface RemoteIdentifierFactory extends IdentifierFactory {

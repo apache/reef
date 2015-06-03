@@ -70,7 +70,7 @@ final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
    */
   private final Collection<File> files = new HashSet<>();
   /**
-   * The set of libraries
+   * The set of libraries.
    */
   private final Collection<File> libraries = new HashSet<>();
 
@@ -244,7 +244,7 @@ final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
   }
 
   /**
-   * Utility to build a ConfigurationBuilder from an Optional<Configuration></Configuration>
+   * Utility to build a ConfigurationBuilder from an Optional<Configuration></Configuration>.
    */
   private static ConfigurationBuilder getConfigurationBuilder(final Optional<Configuration> configuration) {
     if (configuration.isPresent()) {

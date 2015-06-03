@@ -21,7 +21,7 @@ package org.apache.reef.runtime.common.files;
 import javax.inject.Inject;
 
 /**
- * Supplies the java binary's path for Unix systems based on JAVA_HOME
+ * Supplies the java binary's path for Unix systems based on JAVA_HOME.
  */
 public final class UnixJVMPathProvider implements RuntimePathProvider {
   @Inject

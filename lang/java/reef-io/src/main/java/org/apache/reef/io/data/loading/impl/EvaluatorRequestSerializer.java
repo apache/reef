@@ -24,7 +24,7 @@ import org.apache.reef.driver.evaluator.EvaluatorRequest;
 import java.io.*;
 
 /**
- * Serialize and deserialize EvaluatorRequest objects
+ * Serialize and deserialize EvaluatorRequest objects.
  * Currently only supports number & memory
  * Does not take care of Resource Descriptor
  */

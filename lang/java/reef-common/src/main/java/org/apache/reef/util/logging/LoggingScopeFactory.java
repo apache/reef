@@ -29,7 +29,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Create Logging scope objects
+ * Create Logging scope objects.
  */
 public class LoggingScopeFactory {
 
@@ -68,7 +68,7 @@ public class LoggingScopeFactory {
   private final Level logLevel;
 
   /**
-   * User can inject a LoggingScopeFactory with injected log level as a string
+   * User can inject a LoggingScopeFactory with injected log level as a string.
    */
   @Inject
   private LoggingScopeFactory(@Parameter(LogLevelName.class) final String logLevelName) {
@@ -76,7 +76,7 @@ public class LoggingScopeFactory {
   }
 
   /**
-   * Get a new instance of LoggingScope with specified log level
+   * Get a new instance of LoggingScope with specified log level.
    * @param logLevel
    * @param msg
    * @return
@@ -86,7 +86,7 @@ public class LoggingScopeFactory {
   }
 
   /**
-   * Get a new instance of LoggingScope with injected LoggingScopeFactory instance
+   * Get a new instance of LoggingScope with injected LoggingScopeFactory instance.
    * @param msg
    * @return
    */
@@ -95,7 +95,7 @@ public class LoggingScopeFactory {
   }
 
   /**
-   * Get a new instance of LoggingScope with msg and params through new
+   * Get a new instance of LoggingScope with msg and params through new.
    * @param msg
    * @param params
    * @return
@@ -131,7 +131,7 @@ public class LoggingScopeFactory {
   }
 
   /**
-   * The method is to measure the time used to load global files and libraries
+   * The method is to measure the time used to load global files and libraries.
    * @return
    */
   public LoggingScope loadLib() {
@@ -156,7 +156,7 @@ public class LoggingScopeFactory {
   }
 
   /**
-   * The method is to measure the time used to submit a Evaluator request at java side
+   * The method is to measure the time used to submit a Evaluator request at java side.
    * @param evaluatorNumber
    * @return
    */
@@ -165,7 +165,7 @@ public class LoggingScopeFactory {
   }
 
   /**
-   * This is to measure the time on evaluatorAllocated handler
+   * This is to measure the time on evaluatorAllocated handler.
    * @param evaluatorId
    * @return
    */
@@ -174,7 +174,7 @@ public class LoggingScopeFactory {
   }
 
   /**
-   * This is to measure the time to launch an evaluator
+   * This is to measure the time to launch an evaluator.
    * @param evaluatorId
    * @return
    */
@@ -183,7 +183,7 @@ public class LoggingScopeFactory {
   }
 
   /**
-   * This is to measure the time in calling evaluatorCompleted handler
+   * This is to measure the time in calling evaluatorCompleted handler.
    * @param evaluatorId
    * @return
    */
@@ -192,7 +192,7 @@ public class LoggingScopeFactory {
   }
 
   /**
-   * This is to measure the time in calling evaluatorFailed handler
+   * This is to measure the time in calling evaluatorFailed handler.
    * @param evaluatorId
    * @return
    */
@@ -201,7 +201,7 @@ public class LoggingScopeFactory {
   }
 
   /**
-   * This is to measure the time in calling activeContext handler
+   * This is to measure the time in calling activeContext handler.
    * @param contextId
    * @return
    */
@@ -210,7 +210,7 @@ public class LoggingScopeFactory {
   }
 
   /**
-   * This is to measure the time in calling closedContext handler
+   * This is to measure the time in calling closedContext handler.
    * @param contextId
    * @return
    */
@@ -219,7 +219,7 @@ public class LoggingScopeFactory {
   }
 
   /**
-   * This is to measure the time in calling runningTaskHandler
+   * This is to measure the time in calling runningTaskHandler.
    * @param taskId
    * @return
    */
@@ -228,7 +228,7 @@ public class LoggingScopeFactory {
   }
 
   /**
-   * This is to measure the time in calling taskCompletedHandler
+   * This is to measure the time in calling taskCompletedHandler.
    * @param taskId
    * @return
    */
@@ -237,7 +237,7 @@ public class LoggingScopeFactory {
   }
 
   /**
-   * This is to measure the time in calling taskSuspendedHandler
+   * This is to measure the time in calling taskSuspendedHandler.
    * @param taskId
    * @return
    */
@@ -246,7 +246,7 @@ public class LoggingScopeFactory {
   }
 
   /**
-   * This is to measure the time in calling taskMessageReceivedHandler
+   * This is to measure the time in calling taskMessageReceivedHandler.
    * @param msg
    * @return
    */
@@ -255,7 +255,7 @@ public class LoggingScopeFactory {
   }
 
   /**
-   * This is to measure the time in calling contextMessageReceivedHandler
+   * This is to measure the time in calling contextMessageReceivedHandler.
    * @param msg
    * @return
    */
@@ -264,7 +264,7 @@ public class LoggingScopeFactory {
   }
 
   /**
-   * This is to measure the time in calling driverRestartHandler
+   * This is to measure the time in calling driverRestartHandler.
    * @param startTime
    * @return
    */
@@ -273,7 +273,7 @@ public class LoggingScopeFactory {
   }
 
   /**
-   * This is to measure the time in calling driverRestartCompletedHandler
+   * This is to measure the time in calling driverRestartCompletedHandler.
    * @param timeStamp
    * @return
    */
@@ -282,7 +282,7 @@ public class LoggingScopeFactory {
   }
 
   /**
-   * This is to measure the time in calling driverRestartRunningTaskHandler
+   * This is to measure the time in calling driverRestartRunningTaskHandler.
    * @param taskId
    * @return
    */
@@ -291,7 +291,7 @@ public class LoggingScopeFactory {
   }
 
   /**
-   * This is to measure the time in calling driverRestartActiveContextReceivedHandler
+   * This is to measure the time in calling driverRestartActiveContextReceivedHandler.
    * @param contextId
    * @return
    */
@@ -300,7 +300,7 @@ public class LoggingScopeFactory {
   }
 
   /**
-   * This is to measure the time in handling a http request
+   * This is to measure the time in handling a http request.
    * @param uri
    * @return
    */
@@ -309,7 +309,7 @@ public class LoggingScopeFactory {
   }
 
   /**
-   * This is to measure the time used to create HttpServer
+   * This is to measure the time used to create HttpServer.
    * @return
    */
   public LoggingScope httpServer() {
@@ -317,7 +317,7 @@ public class LoggingScopeFactory {
   }
 
   /**
-   * This is to measure the time to submit a driver
+   * This is to measure the time to submit a driver.
    * @param submitDriver
    * @return
    */
@@ -326,7 +326,7 @@ public class LoggingScopeFactory {
   }
 
   /**
-   * This is to measure the time to call Reef.Submit
+   * This is to measure the time to call Reef.Submit.
    * @return
    */
   public LoggingScope reefSubmit() {
@@ -334,7 +334,7 @@ public class LoggingScopeFactory {
   }
 
   /**
-   * This is to measure the time for a job submission
+   * This is to measure the time for a job submission.
    * @return
    */
   public LoggingScope localJobSubmission() {

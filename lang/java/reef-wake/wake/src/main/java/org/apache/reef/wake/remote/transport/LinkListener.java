@@ -21,14 +21,14 @@ package org.apache.reef.wake.remote.transport;
 import java.net.SocketAddress;
 
 /**
- * Link listener
+ * Link listener.
  *
  * @param <T> type
  */
 public interface LinkListener<T> {
 
   /**
-   * Called when the sent message is successfully transferred
+   * Called when the sent message is successfully transferred.
    *
    * @param message the sent message
    */

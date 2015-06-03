@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * Client-Side Event Handlers to be implemented by a specific resourcemanager
+ * Client-Side Event Handlers to be implemented by a specific resourcemanager.
  */
 package org.apache.reef.runtime.common.client.api;

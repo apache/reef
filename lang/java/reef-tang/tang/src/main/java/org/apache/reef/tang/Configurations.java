@@ -19,7 +19,7 @@
 package org.apache.reef.tang;
 
 /**
- * Helper class for Configurations
+ * Helper class for Configurations.
  */
 public final class Configurations {
 

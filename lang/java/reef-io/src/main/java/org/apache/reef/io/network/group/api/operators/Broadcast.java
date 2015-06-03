@@ -45,7 +45,7 @@ public interface Broadcast {
   }
 
   /**
-   * Receivers or Non-roots
+   * Receivers or Non-roots.
    */
   @DefaultImplementation(BroadcastReceiver.class)
   static interface Receiver<T> extends GroupCommOperator {

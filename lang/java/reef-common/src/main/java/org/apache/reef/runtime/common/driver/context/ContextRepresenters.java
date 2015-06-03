@@ -101,7 +101,7 @@ public final class ContextRepresenters {
 
 
   /**
-   * Process a heartbeat from a context
+   * Process a heartbeat from a context.
    *
    * @param contextStatusProto
    * @param notifyClientOnNewActiveContext

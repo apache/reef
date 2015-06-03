@@ -26,7 +26,7 @@ import org.apache.reef.wake.EventHandler;
 import java.util.Set;
 
 /**
- * Handler for FailedContext
+ * Handler for FailedContext.
  */
 @NamedParameter(doc = "Handler for FailedContext")
 public final class ServiceContextFailedHandlers implements Name<Set<EventHandler<FailedContext>>> {

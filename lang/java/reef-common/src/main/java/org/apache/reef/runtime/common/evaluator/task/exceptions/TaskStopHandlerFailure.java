@@ -24,7 +24,7 @@ import org.apache.reef.task.events.TaskStop;
 import org.apache.reef.wake.EventHandler;
 
 /**
- * Thrown when a TaskStop handler throws an exception
+ * Thrown when a TaskStop handler throws an exception.
  */
 @EvaluatorSide
 @Private

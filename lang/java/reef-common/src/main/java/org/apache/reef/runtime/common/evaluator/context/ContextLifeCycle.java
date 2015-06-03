@@ -76,7 +76,7 @@ final class ContextLifeCycle {
   }
 
   /**
-   * Deliver the driver message to the context message handler
+   * Deliver the driver message to the context message handler.
    *
    * @param message sent by the driver
    */

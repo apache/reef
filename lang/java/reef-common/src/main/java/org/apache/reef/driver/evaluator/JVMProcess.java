@@ -25,7 +25,7 @@ import org.apache.reef.runtime.common.launch.JavaLaunchCommandBuilder;
 import java.util.List;
 
 /**
- * Defines the setup of a JVM process
+ * Defines the setup of a JVM process.
  */
 public final class JVMProcess implements EvaluatorProcess {
   private final JavaLaunchCommandBuilder commandBuilder = new JavaLaunchCommandBuilder();
@@ -33,7 +33,7 @@ public final class JVMProcess implements EvaluatorProcess {
   private final ClasspathProvider classpathProvider;
 
   /**
-   * Instantiated via JVMProcessFactory
+   * Instantiated via JVMProcessFactory.
    */
   JVMProcess(final RuntimePathProvider runtimePathProvider,
                     final ClasspathProvider classpathProvider) {

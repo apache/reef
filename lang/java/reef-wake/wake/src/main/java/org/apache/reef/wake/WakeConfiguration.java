@@ -34,7 +34,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Wake parameter configuration
+ * Wake parameter configuration.
  */
 public final class WakeConfiguration {
   private final static Logger LOG = Logger.getLogger(WakeConfiguration.class.getName());

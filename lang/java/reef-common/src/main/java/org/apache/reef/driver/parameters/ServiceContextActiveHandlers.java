@@ -26,7 +26,7 @@ import org.apache.reef.wake.EventHandler;
 import java.util.Set;
 
 /**
- * Handler for ActiveContext
+ * Handler for ActiveContext.
  */
 @NamedParameter(doc = "Handler for ActiveContext")
 public final class ServiceContextActiveHandlers implements Name<Set<EventHandler<ActiveContext>>> {

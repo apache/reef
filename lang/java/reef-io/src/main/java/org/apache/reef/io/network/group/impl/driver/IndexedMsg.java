@@ -23,7 +23,7 @@ import org.apache.reef.io.network.group.impl.utils.Utils;
 import org.apache.reef.tang.annotations.Name;
 
 /**
- * Helper class to wrap msg and the operator name in the msg
+ * Helper class to wrap msg and the operator name in the msg.
  */
 public class IndexedMsg {
   private final Class<? extends Name<String>> operName;
