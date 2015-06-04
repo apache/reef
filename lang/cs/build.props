@@ -54,7 +54,7 @@ under the License.
   <PropertyGroup>
     <RemoveIncubating>true</RemoveIncubating>
     <IsSnapshot>true</IsSnapshot>
-    <SnapshotNumber>0</SnapshotNumber>
+    <SnapshotNumber>02</SnapshotNumber>
     <PushPackages>false</PushPackages>
     <NuGetRepository>https://www.nuget.org</NuGetRepository>
   </PropertyGroup>
@@ -102,7 +102,8 @@ under the License.
             .Where(x => x.Name.ToString().Contains("version"))
             .FirstOrDefault().Value;
           var shortVer = $(RemoveIncubating) ? Version.Replace("-incubating","") : Version ;
-          NugetVersion = $(IsSnapshot) ? shortVer + "-" + $(SnapshotNumber) : shortVer.Replace("-SNAPSHOT","");
+          var snapshortNumberAsString = ($(SnapshotNumber) >= 0 && $(SnapshotNumber) <=9) ? "0" + $(SnapshotNumber) : $(SnapshotNumber).ToString();
+          NugetVersion = $(IsSnapshot) ? shortVer + "-" + snapshortNumberAsString : shortVer.Replace("-SNAPSHOT","");
         ]]>
       </Code>
     </Task>
