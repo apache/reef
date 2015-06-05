@@ -73,39 +73,39 @@ public final class LibLoader {
   /**
    * Loads the Bridge DLL.
    * <p>
-   * If the file is found in the reef/local folder, it is used. Else, we load teh one in reef/global. If that isn't
+   * If the file is found in the reef/local folder, it is used. Else, we load the one in reef/global. If that isn't
    * present, this method throws an IOException
    *
    * @throws FileNotFoundException if neither file is available.
    * @throws Throwable             if the DLL is found, but System.load() throws an exception.
    */
   private void loadBridgeDLL() throws FileNotFoundException {
-    if (reefFileNames.getBridgeDLLInLocalFolderFile().exists()) {
-      loadBridgeDLLFromFile(reefFileNames.getBridgeDLLInLocalFolderFile());
-      LOG.log(Level.INFO, "Loaded the bridge DLL from the local folder.");
-    } else if (reefFileNames.getBridgeDLLInGlobalFolderFile().exists()) {
-      loadBridgeDLLFromFile(reefFileNames.getBridgeDLLInGlobalFolderFile());
-      LOG.log(Level.INFO, "Loaded the bridge DLL from " + reefFileNames.getBridgeDLLInGlobalFolderFile());
-    } else {
-      throw new FileNotFoundException("Couldn't find the bridge DLL in the local or global folder.");
-    }
+    final File bridgeDLLFile = this.getBridgeDllFile();
+    LOG.log(Level.FINEST, "Attempting to load the bridge DLL from {0}", bridgeDLLFile);
+    System.load(bridgeDLLFile.getAbsolutePath());
+    LOG.log(Level.INFO, "Loaded the bridge DLL from {0}", bridgeDLLFile);
   }
 
   /**
-   * Attempts to load the bridge DLL from the given file.
+   * Returns the File holding the bridge DLL.
+   * <p>
+   * This method prefers the one in reef/local. If that isn't found, the one in reef/global is used. If neither exists,
+   * a FileNotFoundException is thrown.
    *
-   * @param bridgeDLLFile
-   * @throws Throwable whenever System.load() applied to that file name throws.
+   * @throws FileNotFoundException if neither file is available.
    */
-  private static void loadBridgeDLLFromFile(final File bridgeDLLFile) {
-    try {
-      LOG.log(Level.FINEST, "Attempting to load the bridge DLL from {0}", bridgeDLLFile);
-      System.load(bridgeDLLFile.getAbsolutePath());
-      LOG.log(Level.FINEST, "Successfully loaded the bridge DLL from {0}", bridgeDLLFile);
-    } catch (final Throwable t) {
-      LOG.log(Level.WARNING, "Unable to load " + bridgeDLLFile, t);
-      throw t;
+  private File getBridgeDllFile() throws FileNotFoundException {
+    final File bridgeDllInLocal = reefFileNames.getBridgeDLLInLocalFolderFile();
+    if (bridgeDllInLocal.exists()) {
+      return bridgeDllInLocal;
+    } else {
+      final File bridgeDllInGlobal = reefFileNames.getBridgeDLLInGlobalFolderFile();
+      if (bridgeDllInGlobal.exists()) {
+        return bridgeDllInGlobal;
+      }
     }
+    // If we got here, neither file exists.
+    throw new FileNotFoundException("Couldn't find the bridge DLL in the local or global folder.");
   }
 
   /**
