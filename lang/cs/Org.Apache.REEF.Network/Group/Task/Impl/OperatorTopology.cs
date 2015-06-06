@@ -42,7 +42,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
     /// Communication Group.
     /// </summary>
     /// <typeparam name="T">The message type</typeparam>
-    public class OperatorTopology<T> : IObserver<GroupCommunicationMessage>
+    public class OperatorTopology<T> : IOperatorTopology<T>, IObserver<GroupCommunicationMessage>
     {
         private const int DefaultTimeout = 50000;
         private const int RetryCount = 10;
