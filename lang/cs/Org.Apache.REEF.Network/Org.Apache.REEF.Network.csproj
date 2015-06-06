@@ -79,6 +79,7 @@ under the License.
     <Compile Include="Group\Operators\Impl\ScatterSender.cs" />
     <Compile Include="Group\Operators\Impl\Sender.cs" />
     <Compile Include="Group\Operators\IOperatorSpec.cs" />
+    <Compile Include="Group\Task\IOperatorTopology.cs" />
     <Compile Include="Group\Operators\IReduceFunction.cs" />
     <Compile Include="Group\Operators\IReduceReceiver.cs" />
     <Compile Include="Group\Operators\IReduceSender.cs" />
