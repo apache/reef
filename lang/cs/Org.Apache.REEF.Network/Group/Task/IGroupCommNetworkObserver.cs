@@ -28,7 +28,7 @@ namespace Org.Apache.REEF.Network.Group.Task
     /// <summary>
     /// Handles all incoming messages for this Task.
     /// </summary>
-    [DefaultImplementation(typeof(GroupCommNetworkObserver))]
+    //[DefaultImplementation(typeof(GroupCommNetworkObserver))]
     public interface IGroupCommNetworkObserver : IObserver<NsMessage<GroupCommunicationMessage>>
     {
         /// <summary>

@@ -64,7 +64,7 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
             var groupCommDriver = GetInstanceOfGroupCommDriver(driverId, masterTaskId, groupName, fanOut, numTasks);
 
             ICommunicationGroupDriver commGroup = groupCommDriver.DefaultGroup
-                .AddReduce<int>(operatorName, masterTaskId, TopologyTypes.WritableTree, GetDefaulDataConverterConfig(), GetDefaulReduceFuncConfig())
+                .AddReduce<int>(operatorName, masterTaskId, TopologyTypes.Tree, GetDefaulDataConverterConfig(), GetDefaulReduceFuncConfig())
                 .Build();
 
             var commGroups = CommGroupClients(groupName, numTasks, groupCommDriver, commGroup);
@@ -124,7 +124,7 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
             var groupCommDriver = GetInstanceOfGroupCommDriver(driverId, masterTaskId, groupName, fanOut, numTasks);
 
             ICommunicationGroupDriver commGroup = groupCommDriver.DefaultGroup
-                .AddBroadcast<int>(operatorName, masterTaskId, TopologyTypes.WritableTree, GetDefaulDataConverterConfig(), GetDefaulReduceFuncConfig())
+                .AddBroadcast<int>(operatorName, masterTaskId, TopologyTypes.Tree, GetDefaulDataConverterConfig(), GetDefaulReduceFuncConfig())
                 .Build();
 
             var commGroups = CommGroupClients(groupName, numTasks, groupCommDriver, commGroup);
@@ -206,12 +206,12 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
                 .AddBroadcast<int>(
                     broadcastOperatorName,
                     masterTaskId,
-                    TopologyTypes.WritableTree,
+                    TopologyTypes.Tree,
                     GetDefaulDataConverterConfig())
                 .AddReduce<int>(
                     reduceOperatorName,
                     masterTaskId,
-                    TopologyTypes.WritableTree,
+                    TopologyTypes.Tree,
                     GetDefaulDataConverterConfig(),
                     GetDefaulReduceFuncConfig())
                 .Build();

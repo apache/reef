@@ -72,16 +72,12 @@ under the License.
     <Compile Include="Group\Operators\IBroadcastSender.cs" />
     <Compile Include="Group\Operators\IGroupCommOperator.cs" />
     <Compile Include="Group\Operators\Impl\BroadcastOperatorSpec.cs" />
-    <Compile Include="Group\Operators\Impl\WritableBroadcastReceiver.cs" />
     <Compile Include="Group\Operators\Impl\BroadcastReceiver.cs" />
-    <Compile Include="Group\Operators\Impl\WritableBroadcastSender.cs" />
     <Compile Include="Group\Operators\Impl\BroadcastSender.cs" />
     <Compile Include="Group\Operators\Impl\PipelinedReduceFunction.cs" />
     <Compile Include="Group\Operators\Impl\ReduceFunction.cs" />
     <Compile Include="Group\Operators\Impl\ReduceOperatorSpec.cs" />
-    <Compile Include="Group\Operators\Impl\WritableReduceReceiver.cs" />
     <Compile Include="Group\Operators\Impl\ReduceReceiver.cs" />
-    <Compile Include="Group\Operators\Impl\WritableReduceSender.cs" />
     <Compile Include="Group\Operators\Impl\ReduceSender.cs" />
     <Compile Include="Group\Operators\Impl\ScatterOperatorSpec.cs" />
     <Compile Include="Group\Operators\Impl\ScatterReceiver.cs" />
@@ -106,7 +102,6 @@ under the License.
     <Compile Include="Group\Task\IGroupCommClient.cs" />
     <Compile Include="Group\Task\IWritableGroupCommNetworkObserver.cs" />
     <Compile Include="Group\Task\IGroupCommNetworkObserver.cs" />
-    <Compile Include="Group\Task\Impl\WritableCommunicationGroupClient.cs" />
     <Compile Include="Group\Task\Impl\CommunicationGroupClient.cs" />
     <Compile Include="Group\Task\Impl\WritableOperatorTopology.cs" />
     <Compile Include="Group\Task\Impl\WritableGroupCommClient.cs" />
@@ -118,12 +113,10 @@ under the License.
     <Compile Include="Group\Task\Impl\GroupCommNetworkObserver.cs" />
     <Compile Include="Group\Task\Impl\NodeStruct.cs" />
     <Compile Include="Group\Task\Impl\OperatorTopology.cs" />
-    <Compile Include="Group\Topology\WritableFlatTopology.cs" />
     <Compile Include="Group\Topology\FlatTopology.cs" />
     <Compile Include="Group\Topology\ITopology.cs" />
     <Compile Include="Group\Topology\TaskNode.cs" />
     <Compile Include="Group\Topology\TopologyTypes.cs" />
-    <Compile Include="Group\Topology\WritableTreeTopology.cs" />
     <Compile Include="Group\Topology\TreeTopology.cs" />
     <Compile Include="Naming\Codec\NamingLookupRequestCodec.cs" />
     <Compile Include="Naming\Codec\NamingLookupResponseCodec.cs" />

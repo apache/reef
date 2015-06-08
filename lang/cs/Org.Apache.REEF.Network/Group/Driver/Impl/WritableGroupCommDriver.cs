@@ -27,6 +27,7 @@ using Org.Apache.REEF.Common.Services;
 using Org.Apache.REEF.Driver.Context;
 using Org.Apache.REEF.Network.Group.Codec;
 using Org.Apache.REEF.Network.Group.Config;
+using Org.Apache.REEF.Network.Group.Task;
 using Org.Apache.REEF.Network.Group.Task.Impl;
 using Org.Apache.REEF.Network.Naming;
 using Org.Apache.REEF.Network.NetworkService;
@@ -166,6 +167,12 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
                 .BindImplementation(
                     GenericType<IObserver<WritableNsMessage<WritableGeneralGroupCommunicationMessage>>>.Class,
                     GenericType<WritableGroupCommNetworkObserver>.Class)
+                .BindImplementation(
+                    GenericType<IWritableGroupCommNetworkObserver>.Class,
+                    GenericType<WritableGroupCommNetworkObserver>.Class)
+                .BindImplementation(
+                    GenericType<IWritableCommunicationGroupNetworkObserver>.Class,
+                    GenericType<WritableCommunicationGroupNetworkObserver>.Class)
                 .BindNamedParameter<NamingConfigurationOptions.NameServerAddress, string>(
                     GenericType<NamingConfigurationOptions.NameServerAddress>.Class, 
                     _nameServerAddr)

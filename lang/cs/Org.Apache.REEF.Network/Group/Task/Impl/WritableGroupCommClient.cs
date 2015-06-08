@@ -68,7 +68,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
             {
                 IConfiguration groupConfig = configSerializer.FromString(serializedGroupConfig);
                 IInjector groupInjector = injector.ForkInjector(groupConfig);
-                ICommunicationGroupClient commGroupClient = groupInjector.GetInstance<WritableCommunicationGroupClient>();
+                ICommunicationGroupClient commGroupClient = groupInjector.GetInstance<ICommunicationGroupClient>();
                 _commGroups[commGroupClient.GroupName] = commGroupClient;
             }
         }

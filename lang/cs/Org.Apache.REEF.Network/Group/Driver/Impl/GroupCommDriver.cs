@@ -27,6 +27,7 @@ using Org.Apache.REEF.Common.Services;
 using Org.Apache.REEF.Driver.Context;
 using Org.Apache.REEF.Network.Group.Codec;
 using Org.Apache.REEF.Network.Group.Config;
+using Org.Apache.REEF.Network.Group.Task;
 using Org.Apache.REEF.Network.Group.Task.Impl;
 using Org.Apache.REEF.Network.Naming;
 using Org.Apache.REEF.Network.NetworkService;
@@ -169,11 +170,17 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
                 .BindImplementation(
                     GenericType<ICodec<GroupCommunicationMessage>>.Class,
                     GenericType<GroupCommunicationMessageCodec>.Class)
+                .BindImplementation(
+                    GenericType<IGroupCommNetworkObserver>.Class, 
+                    GenericType<GroupCommNetworkObserver>.Class)
+                .BindImplementation(
+                    GenericType<ICommunicationGroupNetworkObserver>.Class,
+                    GenericType<CommunicationGroupNetworkObserver>.Class)
                 .BindNamedParameter<NamingConfigurationOptions.NameServerAddress, string>(
-                    GenericType<NamingConfigurationOptions.NameServerAddress>.Class, 
+                    GenericType<NamingConfigurationOptions.NameServerAddress>.Class,
                     _nameServerAddr)
                 .BindNamedParameter<NamingConfigurationOptions.NameServerPort, int>(
-                    GenericType<NamingConfigurationOptions.NameServerPort>.Class, 
+                    GenericType<NamingConfigurationOptions.NameServerPort>.Class,
                     _nameServerPort.ToString(CultureInfo.InvariantCulture))
                 .BindImplementation(GenericType<INameClient>.Class,
                     GenericType<NameClient>.Class)

@@ -28,7 +28,7 @@ namespace Org.Apache.REEF.Network.Group.Task
     /// Handles incoming messages sent to this Communication Group.
     /// Writable Version
     /// </summary>
-    [DefaultImplementation(typeof(WritableCommunicationGroupNetworkObserver))]
+  //  [DefaultImplementation(typeof(WritableCommunicationGroupNetworkObserver))]
     [Obsolete("Need to remove Iwritable and use IstreamingCodec. Please see Jira REEF-295 ", false)]
     public interface IWritableCommunicationGroupNetworkObserver : IObserver<WritableGeneralGroupCommunicationMessage>
     {

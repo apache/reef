@@ -22,8 +22,6 @@ namespace Org.Apache.REEF.Network.Group.Topology
     public enum TopologyTypes
     {
         Flat = 0,
-        Tree = 1,
-        WritableFlat=2,
-        WritableTree=3
+        Tree = 1
     }
 }

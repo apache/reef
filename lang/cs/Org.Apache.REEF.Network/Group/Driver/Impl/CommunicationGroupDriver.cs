@@ -121,20 +121,9 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
                 topology = new FlatTopology<T>(operatorName, _groupName, spec.SenderId, _driverId,
                     spec);
             }
-            else if(topologyType == TopologyTypes.Tree)
-            {
-                topology = new TreeTopology<T>(operatorName, _groupName, spec.SenderId, _driverId,
-                    spec,
-                    _fanOut);
-            }
-            else if (topologyType == TopologyTypes.WritableFlat)
-            {
-                topology = new WritableFlatTopology<T>(operatorName, _groupName, spec.SenderId, _driverId,
-                    spec);
-            }
             else
             {
-                topology = new WritableTreeTopology<T>(operatorName, _groupName, spec.SenderId, _driverId,
+                topology = new TreeTopology<T>(operatorName, _groupName, spec.SenderId, _driverId,
                     spec,
                     _fanOut);
             }
@@ -188,21 +177,10 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
                 topology = new FlatTopology<T>(operatorName, _groupName, spec.ReceiverId,
                     _driverId, spec);
             }
-            else if (topologyType == TopologyTypes.Tree)
+            else
             {
                 topology = new TreeTopology<T>(operatorName, _groupName, spec.ReceiverId,
                     _driverId, spec,
-                    _fanOut);
-            }
-            else if (topologyType == TopologyTypes.WritableFlat)
-            {
-                topology = new WritableFlatTopology<T>(operatorName, _groupName, spec.ReceiverId, _driverId,
-                    spec);
-            }
-            else
-            {
-                topology = new WritableTreeTopology<T>(operatorName, _groupName, spec.ReceiverId, _driverId,
-                    spec,
                     _fanOut);
             }
 

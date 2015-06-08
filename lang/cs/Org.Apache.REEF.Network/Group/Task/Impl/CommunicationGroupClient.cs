@@ -81,6 +81,47 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         }
 
         /// <summary>
+        /// Creates a new CommunicationGroupClient.
+        /// </summary>
+        /// <param name="groupName">The name of the CommunicationGroup</param>
+        /// <param name="operatorConfigs">The serialized operator configurations</param>
+        /// <param name="groupCommNetworkObserver">The handler for all incoming messages
+        /// across all Communication Groups</param>
+        /// <param name="configSerializer">Used to deserialize operator configuration.</param>
+        /// <param name="commGroupNetworkHandler">The observer of writable group communication messages</param>
+        /// <param name="injector">injector forked from the injector that creates this instance</param>
+        [Inject]
+        public CommunicationGroupClient(
+            [Parameter(typeof(GroupCommConfigurationOptions.CommunicationGroupName))] string groupName,
+            [Parameter(typeof(GroupCommConfigurationOptions.SerializedOperatorConfigs))] ISet<string> operatorConfigs,
+            IWritableGroupCommNetworkObserver groupCommNetworkObserver,
+            AvroConfigurationSerializer configSerializer,
+            WritableCommunicationGroupNetworkObserver commGroupNetworkHandler,
+            IInjector injector)
+        {
+            _operators = new Dictionary<string, object>();
+
+            GroupName = groupName;
+            groupCommNetworkObserver.Register(groupName, commGroupNetworkHandler);
+
+            foreach (string operatorConfigStr in operatorConfigs)
+            {
+                IConfiguration operatorConfig = configSerializer.FromString(operatorConfigStr);
+
+                IInjector operatorInjector = injector.ForkInjector(operatorConfig);
+                string operatorName = operatorInjector.GetNamedInstance<GroupCommConfigurationOptions.OperatorName, string>(
+                    GenericType<GroupCommConfigurationOptions.OperatorName>.Class);
+                string msgType = operatorInjector.GetNamedInstance<GroupCommConfigurationOptions.MessageType, string>(
+                    GenericType<GroupCommConfigurationOptions.MessageType>.Class);
+
+                Type groupCommOperatorGenericInterface = typeof(IGroupCommOperator<>);
+                Type groupCommOperatorInterface = groupCommOperatorGenericInterface.MakeGenericType(Type.GetType(msgType));
+                var operatorObj = operatorInjector.GetInstance(groupCommOperatorInterface);
+                _operators.Add(operatorName, operatorObj);
+            }
+        }
+
+        /// <summary>
         /// Returns the Communication Group name
         /// </summary>
         public string GroupName { get; private set; }

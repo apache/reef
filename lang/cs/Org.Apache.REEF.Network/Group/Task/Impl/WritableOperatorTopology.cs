@@ -33,7 +33,6 @@ using Org.Apache.REEF.Network.StreamingCodec;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Exceptions;
 using Org.Apache.REEF.Utilities.Logging;
-using Org.Apache.REEF.Wake.Remote;
 
 namespace Org.Apache.REEF.Network.Group.Task.Impl
 {
@@ -45,7 +44,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
     /// </summary>
     /// <typeparam name="T">The message type</typeparam>
     [Obsolete("Need to remove Iwritable and use IstreamingCodec. Please see Jira REEF-295 ", false)]
-    public class WritableOperatorTopology<T> : IObserver<WritableGeneralGroupCommunicationMessage>
+    public class WritableOperatorTopology<T> : IOperatorTopology<T>, IObserver<WritableGeneralGroupCommunicationMessage>
     {
         private const int DefaultTimeout = 50000;
         private const int RetryCount = 10;
@@ -218,19 +217,9 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         /// </summary>
         /// <param name="messages">The list of messages to scatter</param>
         /// <param name="type">The message type</param>
-        public void ScatterToChildren(List<T> messages, MessageType type)
+        public void ScatterToChildren(IList<T> messages, MessageType type)
         {
-            if (messages == null)
-            {
-                throw new ArgumentNullException("messages"); 
-            }
-            if (_children.Count <= 0)
-            {
-                return;
-            }
-
-            var count = (int) Math.Ceiling(((double) messages.Count) / _children.Count);
-            ScatterHelper(messages, _children, count);
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -240,18 +229,9 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         /// <param name="messages">The list of messages to scatter</param>
         /// <param name="count">The size of each sublist</param>
         /// <param name="type">The message type</param>
-        public void ScatterToChildren(List<T> messages, int count, MessageType type)
+        public void ScatterToChildren(IList<T> messages, int count, MessageType type)
         {
-            if (messages == null)
-            {
-                throw new ArgumentNullException("messages");
-            }
-            if (count <= 0)
-            {
-                throw new ArgumentException("Count must be positive");
-            }
-
-            ScatterHelper(messages, _children, count);
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -261,31 +241,9 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         /// <param name="messages">The list of messages to scatter</param>
         /// <param name="order">The order to send messages</param>
         /// <param name="type">The message type</param>
-        public void ScatterToChildren(List<T> messages, List<string> order, MessageType type)
+        public void ScatterToChildren(IList<T> messages, List<string> order, MessageType type)
         {
-            if (messages == null)
-            {
-                throw new ArgumentNullException("messages");
-            }
-            if (order == null || order.Count != _children.Count)
-            {
-                throw new ArgumentException("order cannot be null and must have the same number of elements as child tasks");
-            }
-
-            List<WritableNodeStruct<T>> nodes = new List<WritableNodeStruct<T>>(); 
-            foreach (string taskId in order)
-            {
-                WritableNodeStruct<T> node = FindNode(taskId);
-                if (node == null)
-                {
-                    throw new IllegalStateException("Received message from invalid task id: " + taskId);
-                }
-
-                nodes.Add(node);
-            }
-
-            int count = (int) Math.Ceiling(((double) messages.Count) / _children.Count);
-            ScatterHelper(messages, nodes, count);
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -294,7 +252,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         /// <returns>The parent Task's message</returns>
         public T ReceiveFromParent()
         {
-            var data = ReceiveFromNode(_parent);
+            T[] data = ReceiveFromNode(_parent);
             if (data == null || data.Length != 1)
             {
                 throw new InvalidOperationException("Cannot receive data from parent node");
@@ -303,19 +261,9 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
             return data[0];
         }
 
-        /// <summary>
-        /// Receive a list of incoming messages from the parent Task.
-        /// </summary>
-        /// <returns>The parent Task's list of messages</returns>
-        public List<T> ReceiveListFromParent()
+        public IList<T> ReceiveListFromParent()
         {
-            T[] data = ReceiveFromNode(_parent);
-            if (data == null || data.Length == 0)
-            {
-                throw new InvalidOperationException("Cannot receive data from parent node");
-            }
-
-            return new List<T>(data);
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -444,46 +392,6 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
                 _selfId, node.Identifier, message, msgType, _codec);
 
             _sender.Send(gcm);
-        }
-
-        /// <summary>
-        /// Sends the list of messages to the Task represented by the given NodeStruct.
-        /// </summary>
-        /// <param name="messages">The list of messages to send</param>
-        /// <param name="msgType">The message type</param>
-        /// <param name="node">The NodeStruct representing the Task to send to</param>
-        private void SendToNode(List<T> messages, MessageType msgType, WritableNodeStruct<T> node)
-        {
-            WritableGeneralGroupCommunicationMessage gcm = new WritableGroupCommunicationMessage<T>(_groupName, _operatorName,
-                _selfId, node.Identifier, messages.ToArray(), msgType, _codec);
-
-            _sender.Send(gcm);
-        }
-
-        private void ScatterHelper(List<T> messages, List<WritableNodeStruct<T>> order, int count)
-        {
-            if (count <= 0)
-            {
-                throw new ArgumentException("Count must be positive");
-            }
-
-            int i = 0;
-            foreach (WritableNodeStruct<T> nodeStruct in order)
-            {
-                // The last sublist might be smaller than count if the number of
-                // child tasks is not evenly divisible by count
-                int left = messages.Count - i;
-                int size = (left < count) ? left : count;
-                if (size <= 0)
-                {
-                    throw new ArgumentException("Scatter count must be positive");
-                }
-
-                List<T> sublist = messages.GetRange(i, size);
-                SendToNode(sublist, MessageType.Data, nodeStruct);
-
-                i += size;
-            }
         }
 
         /// <summary>
