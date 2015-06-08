@@ -17,23 +17,9 @@
  * under the License.
  */
 
-using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using Org.Apache.REEF.Common.Io;
-using Org.Apache.REEF.Common.Tasks;
-using Org.Apache.REEF.Network.Group.Config;
 using Org.Apache.REEF.Network.Group.Driver.Impl;
 using Org.Apache.REEF.Network.Group.Operators;
-using Org.Apache.REEF.Network.Group.Operators.Impl;
-using Org.Apache.REEF.Network.Group.Task.Impl;
-using Org.Apache.REEF.Network.NetworkService;
-using Org.Apache.REEF.Tang.Annotations;
-using Org.Apache.REEF.Tang.Exceptions;
-using Org.Apache.REEF.Utilities.Logging;
-using Org.Apache.REEF.Wake.Remote;
 
 namespace Org.Apache.REEF.Network.Group.Task
 {
@@ -42,7 +28,7 @@ namespace Org.Apache.REEF.Network.Group.Task
     /// Used to send or receive messages to/from operators in the same
     /// Communication Group.
     /// </summary>
-    /// <typeparam name="T">The message type</typeparam>
+    /// <typeparam name="T">The type of message</typeparam>
     public interface IOperatorTopology<T>
     {
         /// <summary>
@@ -65,7 +51,7 @@ namespace Org.Apache.REEF.Network.Group.Task
         /// </summary>
         /// <param name="messages">The list of messages to scatter</param>
         /// <param name="type">The message type</param>
-        void ScatterToChildren(List<T> messages, MessageType type);
+        void ScatterToChildren(IList<T> messages, MessageType type);
 
         /// <summary>
         /// Splits the list of messages up into chunks of the specified size 
@@ -74,7 +60,7 @@ namespace Org.Apache.REEF.Network.Group.Task
         /// <param name="messages">The list of messages to scatter</param>
         /// <param name="count">The size of each sublist</param>
         /// <param name="type">The message type</param>
-        void ScatterToChildren(List<T> messages, int count, MessageType type);
+        void ScatterToChildren(IList<T> messages, int count, MessageType type);
 
         /// <summary>
         /// Splits the list of messages up into chunks of the specified size 
@@ -83,7 +69,7 @@ namespace Org.Apache.REEF.Network.Group.Task
         /// <param name="messages">The list of messages to scatter</param>
         /// <param name="order">The order to send messages</param>
         /// <param name="type">The message type</param>
-        void ScatterToChildren(List<T> messages, List<string> order, MessageType type);
+        void ScatterToChildren(IList<T> messages, List<string> order, MessageType type);
 
         /// <summary>
         /// Receive an incoming message from the parent Task.
@@ -95,7 +81,7 @@ namespace Org.Apache.REEF.Network.Group.Task
         /// Receive a list of incoming messages from the parent Task.
         /// </summary>
         /// <returns>The parent Task's list of messages</returns>
-        List<T> ReceiveListFromParent();
+        IList<T> ReceiveListFromParent();
 
         /// <summary>
         /// Receives all messages from child Tasks and reduces them with the
