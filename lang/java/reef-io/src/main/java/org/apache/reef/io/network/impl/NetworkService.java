@@ -23,7 +23,7 @@ import org.apache.reef.io.naming.Naming;
 import org.apache.reef.io.network.Connection;
 import org.apache.reef.io.network.ConnectionFactory;
 import org.apache.reef.io.network.Message;
-import org.apache.reef.io.network.TransportFactory;
+import org.apache.reef.wake.remote.transport.TransportFactory;
 import org.apache.reef.io.network.naming.NameCache;
 import org.apache.reef.io.network.naming.NameClient;
 import org.apache.reef.io.network.naming.NameLookupClient;
@@ -50,7 +50,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Network service for Task
+ * Network service for Task.
  */
 public final class NetworkService<T> implements Stage, ConnectionFactory<T> {
 
@@ -125,18 +125,17 @@ public final class NetworkService<T> implements Stage, ConnectionFactory<T> {
    * @deprecated have an instance injected instead.
    */
   @Deprecated
-  @Inject
   public NetworkService(
-      final @Parameter(NetworkServiceParameters.NetworkServiceIdentifierFactory.class) IdentifierFactory factory,
-      final @Parameter(NetworkServiceParameters.NetworkServicePort.class) int nsPort,
-      final @Parameter(NameServerParameters.NameServerAddr.class) String nameServerAddr,
-      final @Parameter(NameServerParameters.NameServerPort.class) int nameServerPort,
-      final @Parameter(NameLookupClient.RetryCount.class) int retryCount,
-      final @Parameter(NameLookupClient.RetryTimeout.class) int retryTimeout,
-      final @Parameter(NetworkServiceParameters.NetworkServiceCodec.class) Codec<T> codec,
-      final @Parameter(NetworkServiceParameters.NetworkServiceTransportFactory.class) TransportFactory tpFactory,
-      final @Parameter(NetworkServiceParameters.NetworkServiceHandler.class) EventHandler<Message<T>> recvHandler,
-      final @Parameter(NetworkServiceParameters.NetworkServiceExceptionHandler.class) EventHandler<Exception> exHandler) {
+      final IdentifierFactory factory,
+      final int nsPort,
+      final String nameServerAddr,
+      final int nameServerPort,
+      final int retryCount,
+      final int retryTimeout,
+      final Codec<T> codec,
+      final TransportFactory tpFactory,
+      final EventHandler<Message<T>> recvHandler,
+      final EventHandler<Exception> exHandler) {
     this(factory, nsPort, nameServerAddr, nameServerPort, retryCount, retryTimeout, codec, tpFactory, recvHandler, exHandler,
         LocalAddressProviderFactory.getInstance());
   }
@@ -161,7 +160,7 @@ public final class NetworkService<T> implements Stage, ConnectionFactory<T> {
 
     this.factory = factory;
     this.codec = codec;
-    this.transport = tpFactory.create(nsPort,
+    this.transport = tpFactory.newInstance(nsPort,
         new LoggingEventHandler<TransportEvent>(),
         new MessageHandler<T>(recvHandler, codec, factory), exHandler);
 

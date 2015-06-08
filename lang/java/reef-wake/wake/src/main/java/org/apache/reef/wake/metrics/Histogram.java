@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -19,26 +19,26 @@
 package org.apache.reef.wake.metrics;
 
 /**
- * Histogram
+ * Histogram.
  */
 public interface Histogram {
 
   /**
-   * Updates the value in this histogram
+   * Updates the value in this histogram.
    *
    * @param value the new value
    */
   public void update(long value);
 
   /**
-   * Returns the number of recorded values
+   * Returns the number of recorded values.
    *
    * @return the number of recorded values
    */
   public long getCount();
 
   /**
-   * Returns the value of the index
+   * Returns the value of the index.
    *
    * @param index the histogram bin index
    * @return the value of the index
@@ -47,7 +47,7 @@ public interface Histogram {
   public long getValue(int index);
 
   /**
-   * Returns the number of bins
+   * Returns the number of bins.
    *
    * @return the number of bins
    */

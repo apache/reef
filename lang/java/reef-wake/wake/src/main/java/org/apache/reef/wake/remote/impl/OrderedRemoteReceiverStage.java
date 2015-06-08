@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -32,7 +32,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Receive incoming events and dispatch to correct handlers in order
+ * Receive incoming events and dispatch to correct handlers in order.
  */
 public class OrderedRemoteReceiverStage implements EStage<TransportEvent> {
 
@@ -47,7 +47,7 @@ public class OrderedRemoteReceiverStage implements EStage<TransportEvent> {
   private final ThreadPoolStage<OrderedEventStream> pullStage;
 
   /**
-   * Constructs a ordered remote receiver stage
+   * Constructs a ordered remote receiver stage.
    *
    * @param handler      the handler of remote events
    * @param errorHandler the exception handler

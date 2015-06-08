@@ -1,3 +1,25 @@
 # Commit text files using LF endings
 *.java text eol=lf whitespace=trailing-space,space-before-tab,tab-in-indent,blank-at-eof
+*.sh text eol=lf
+*.js text eol=lf
+site.xml text eol=lf
+*.apt text eol=lf
+DISCLAIMER text eol=lf
+HEADER text eol=lf
+LICENSE text eol=lf
+NOTICE text eol=lf
+*.md text eol=lf
+pom.xml text eol=lf
+*.h text eol=crlf
+*.cpp text eol=crlf
+*.rc text eol=crlf
+*.vcproj text eol=crlf
+*.csproj text eol=crlf
+*.bat text eol=crlf
+*.cs text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+*.psm1 eol=crlf
+*.png binary
+*.jpg binary
 * text=auto

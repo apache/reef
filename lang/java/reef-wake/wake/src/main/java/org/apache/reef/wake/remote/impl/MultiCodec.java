@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -26,7 +26,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Codec using the WakeTuple protocol buffer
+ * Codec using the WakeTuple protocol buffer.
  * (class name and bytes)
  *
  * @param <T>
@@ -37,7 +37,7 @@ public class MultiCodec<T> implements Codec<T> {
   private final Decoder<T> decoder;
 
   /**
-   * Constructs a codec that encodes/decodes an object to/from bytes based on the class name
+   * Constructs a codec that encodes/decodes an object to/from bytes based on the class name.
    *
    * @param clazzToDecoderMap
    */
@@ -53,7 +53,7 @@ public class MultiCodec<T> implements Codec<T> {
   }
 
   /**
-   * Encodes an object to a byte array
+   * Encodes an object to a byte array.
    *
    * @param obj
    */
@@ -63,7 +63,7 @@ public class MultiCodec<T> implements Codec<T> {
   }
 
   /**
-   * Decodes byte array
+   * Decodes byte array.
    *
    * @param data class name and byte payload
    */

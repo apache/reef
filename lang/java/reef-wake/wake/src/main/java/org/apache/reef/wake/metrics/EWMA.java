@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -22,7 +22,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * Exponentially weighted moving average
+ * Exponentially weighted moving average.
  */
 public class EWMA {
 
@@ -33,7 +33,7 @@ public class EWMA {
   private volatile double rate = 0.0;
 
   /**
-   * Constructs an EWMA object
+   * Constructs an EWMA object.
    *
    * @param alpha
    * @param interval
@@ -45,7 +45,7 @@ public class EWMA {
   }
 
   /**
-   * Updates the EWMA with a new value
+   * Updates the EWMA with a new value.
    *
    * @param n the new value
    */
@@ -54,7 +54,7 @@ public class EWMA {
   }
 
   /**
-   * Updates the rate
+   * Updates the rate.
    */
   public void tick() {
     final long count = uncounted.getAndSet(0);
@@ -68,7 +68,7 @@ public class EWMA {
   }
 
   /**
-   * Gets the rate
+   * Gets the rate.
    *
    * @param rateUnit the unit of the rate
    * @return the rate

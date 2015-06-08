@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -23,7 +23,7 @@ import org.apache.reef.wake.EventHandler;
 import javax.inject.Inject;
 
 /**
- * The default RemoteConfiguration.ErrorHandler
+ * The default RemoteConfiguration.ErrorHandler.
  */
 final class DefaultErrorHandler implements EventHandler<Throwable> {
 

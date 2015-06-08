@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -21,7 +21,7 @@ package org.apache.reef.wake.impl;
 import org.apache.reef.wake.EventHandler;
 
 /**
- * Exception handler for uncaught exceptions
+ * Exception handler for uncaught exceptions.
  */
 public final class WakeUncaughtExceptionHandler implements Thread.UncaughtExceptionHandler {
   private EventHandler<Throwable> errorHandler;

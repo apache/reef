@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -16,28 +16,26 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.io.network;
 
-import org.apache.reef.wake.EventHandler;
-import org.apache.reef.wake.remote.impl.TransportEvent;
-import org.apache.reef.wake.remote.transport.Transport;
+using System;
+using Org.Apache.REEF.Tang.Annotations;
 
-/**
- * Factory that creates a transport
- */
-public interface TransportFactory {
+namespace Org.Apache.REEF.Driver.Defaults
+{
+    /// <summary>
+    /// Default event handler for driver start: Logging it.
+    /// </summary>
+    [Obsolete(
+        "Implement IObserver<DateTime> instead. Please see Jira REEF-336. Obsoleted v0.12 and will be removed v0.13",
+        false)]
+    public class DefaultObsoleteDriverStartHandler : IStartHandler
+    {
+        [Inject]
+        public DefaultObsoleteDriverStartHandler()
+        {
+            Identifier = "DefaultObsoleteDriverStartHandler";
+        }
 
-  /**
-   * Creates a transport
-   *
-   * @param port          a listening port
-   * @param clientHandler a transport client-side handler
-   * @param serverHandler a transport server-side handler
-   * @param exHandler     an exception handler
-   * @return
-   */
-  public Transport create(int port,
-                          EventHandler<TransportEvent> clientHandler,
-                          EventHandler<TransportEvent> serverHandler,
-                          EventHandler<Exception> exHandler);
+        public string Identifier { get; set; }
+    }
 }

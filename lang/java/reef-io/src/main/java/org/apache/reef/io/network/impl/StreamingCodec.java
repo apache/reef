@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -24,7 +24,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 
 /**
- * A codec that can make serialization more efficient when an object has to be
+ * A codec that can make serialization more efficient when an object has to be.
  * codec'ed through a chain of codecs
  */
 public interface StreamingCodec<T> extends Codec<T> {

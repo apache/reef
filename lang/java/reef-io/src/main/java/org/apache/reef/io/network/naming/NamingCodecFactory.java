@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -27,12 +27,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Factory to create naming codecs
+ * Factory to create naming codecs.
  */
 class NamingCodecFactory {
 
   /**
-   * Creates a codec only for lookup
+   * Creates a codec only for lookup.
    *
    * @param factory an identifier factory
    * @return a codec
@@ -47,7 +47,7 @@ class NamingCodecFactory {
   }
 
   /**
-   * Creates a codec only for registration
+   * Creates a codec only for registration.
    *
    * @param factory an identifier factory
    * @return a codec
@@ -63,7 +63,7 @@ class NamingCodecFactory {
   }
 
   /**
-   * Creates a codec for both lookup and registration
+   * Creates a codec for both lookup and registration.
    *
    * @param factory an identifier factory
    * @return a codec

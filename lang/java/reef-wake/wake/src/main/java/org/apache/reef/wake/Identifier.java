@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -29,14 +29,14 @@ package org.apache.reef.wake;
 public interface Identifier {
 
   /**
-   * Returns a hash code for the object
+   * Returns a hash code for the object.
    *
    * @return a hash code value for this object
    */
   public int hashCode();
 
   /**
-   * Checks that another object is equal to this object
+   * Checks that another object is equal to this object.
    *
    * @param o another object
    * @return true if the object is the same as the object argument; false,

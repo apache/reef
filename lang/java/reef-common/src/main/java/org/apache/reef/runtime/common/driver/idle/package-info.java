@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * Contains the Driver idle handling and extension APIs
+ * Contains the Driver idle handling and extension APIs.
  */
 package org.apache.reef.runtime.common.driver.idle;

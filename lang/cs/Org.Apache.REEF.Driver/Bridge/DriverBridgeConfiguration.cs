@@ -43,7 +43,14 @@ namespace Org.Apache.REEF.Driver.Bridge
         ///  The event handler invoked right after the driver boots up. 
         /// </summary>
         [SuppressMessage("Microsoft.Security", "CA2104:Do not declare read only mutable reference types", Justification = "not applicable")]
-        public static readonly RequiredImpl<IStartHandler> OnDriverStarted = new RequiredImpl<IStartHandler>();
+        [Obsolete("Use OnDriverStart instead. Please see Jira REEF-336. Obsoleted v0.12 and will be removed v0.13", false)]
+        public static readonly OptionalImpl<IStartHandler> OnDriverStarted = new OptionalImpl<IStartHandler>();
+
+        /// <summary>
+        /// The event handler called on driver start
+        /// </summary>
+        [SuppressMessage("Microsoft.Security", "CA2104:Do not declare read only mutable reference types", Justification = "not applicable")]
+        public static readonly OptionalImpl<IObserver<DateTime>> OnDriverStart = new OptionalImpl<IObserver<DateTime>>();
 
         /// <summary>
         ///  The event handler invoked when driver restarts
@@ -54,6 +61,7 @@ namespace Org.Apache.REEF.Driver.Bridge
         /// <summary>
         /// The event handler for requesting evaluator
         /// </summary>
+        [Obsolete(@"Obsoleted at versioin 0.12 and will be removed at version 0.13. See https://issues.apache.org/jira/browse/REEF-168")]
         [SuppressMessage("Microsoft.Security", "CA2104:Do not declare read only mutable reference types", Justification = "not applicable")]
         public static readonly OptionalImpl<IObserver<IEvaluatorRequestor>> OnEvaluatorRequested = new OptionalImpl<IObserver<IEvaluatorRequestor>>();
 
@@ -205,6 +213,7 @@ namespace Org.Apache.REEF.Driver.Bridge
                 .BindImplementation(GenericType<IStartHandler>.Class, OnDriverStarted)
                 .BindNamedParameter(GenericType<DriverBridgeConfigurationOptions.DriverRestartHandler>.Class, OnDriverRestarted)
                 .BindImplementation(GenericType<IDriverConnection>.Class, OnDriverReconnect)
+                .BindSetEntry(GenericType<DriverBridgeConfigurationOptions.DriverStartHandlers>.Class, OnDriverStart)
                 .BindSetEntry(GenericType<DriverBridgeConfigurationOptions.EvaluatorRequestHandlers>.Class, OnEvaluatorRequested)
                 .BindSetEntry(GenericType<DriverBridgeConfigurationOptions.AllocatedEvaluatorHandlers>.Class, OnEvaluatorAllocated)
                 .BindSetEntry(GenericType<DriverBridgeConfigurationOptions.ActiveContextHandlers>.Class, OnContextActive)

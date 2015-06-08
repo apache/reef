@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -27,7 +27,7 @@ package org.apache.reef.wake.rx;
 public interface DynamicObservable<T> extends Observable {
 
   /**
-   * Subscribes the observer to this observable object
+   * Subscribes the observer to this observable object.
    *
    * @param o the observer
    * @return a subscription handle

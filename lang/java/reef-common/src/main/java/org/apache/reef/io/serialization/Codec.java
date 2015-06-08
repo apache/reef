@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -28,7 +28,7 @@ package org.apache.reef.io.serialization;
 public interface Codec<T> {
 
   /**
-   * Encodes the given object into a Byte Array
+   * Encodes the given object into a Byte Array.
    *
    * @param obj
    * @return a byte[] representation of the object
@@ -36,7 +36,7 @@ public interface Codec<T> {
   public byte[] encode(T obj);
 
   /**
-   * Decodes the given byte array into an object
+   * Decodes the given byte array into an object.
    *
    * @param buf
    * @return the decoded object

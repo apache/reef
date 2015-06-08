@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -31,7 +31,7 @@ public class LocalScratchSpace implements ScratchSpace {
   private final String evaluatorName;
   private final Set<File> tempFiles = new ConcurrentSkipListSet<File>();
   /**
-   * Zero denotes "unlimited"
+   * Zero denotes "unlimited".
    */
   private long quota;
 

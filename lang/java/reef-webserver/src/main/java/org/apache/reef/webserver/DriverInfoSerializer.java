@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -23,12 +23,12 @@ import org.apache.reef.tang.annotations.DefaultImplementation;
 import java.util.List;
 
 /**
- * Interface for DriverInfoSerializer
+ * Interface for DriverInfoSerializer.
  */
 @DefaultImplementation(AvroDriverInfoSerializer.class)
 public interface DriverInfoSerializer {
   /**
-   * Build AvroDriverInfo object from raw data
+   * Build AvroDriverInfo object from raw data.
    *
    * @param id
    * @param startTime
@@ -37,7 +37,7 @@ public interface DriverInfoSerializer {
   public AvroDriverInfo toAvro(final String id, final String startTime, final List<AvroReefServiceInfo> services);
 
   /**
-   * Convert AvroDriverInfo object to JSon string
+   * Convert AvroDriverInfo object to JSon string.
    *
    * @param avroDriverInfo
    * @return

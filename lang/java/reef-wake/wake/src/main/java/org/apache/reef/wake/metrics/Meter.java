@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -22,7 +22,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * Meter that monitors mean throughput and ewma (1m, 5m, 15m) throughput
+ * Meter that monitors mean throughput and ewma (1m, 5m, 15m) throughput.
  */
 public class Meter {
 
@@ -39,7 +39,7 @@ public class Meter {
   private final String name;
 
   /**
-   * Constructs a meter
+   * Constructs a meter.
    *
    * @param name the name of the meter
    */
@@ -53,7 +53,7 @@ public class Meter {
   }
 
   /**
-   * Gets the name of the meter
+   * Gets the name of the meter.
    *
    * @return the meter name
    */
@@ -62,7 +62,7 @@ public class Meter {
   }
 
   /**
-   * Marks the number of events
+   * Marks the number of events.
    *
    * @param n the number of events
    */
@@ -75,7 +75,7 @@ public class Meter {
   }
 
   /**
-   * Gets the count
+   * Gets the count.
    *
    * @return the count
    */
@@ -84,7 +84,7 @@ public class Meter {
   }
 
   /**
-   * Gets the mean throughput
+   * Gets the mean throughput.
    *
    * @return the mean throughput
    */
@@ -98,7 +98,7 @@ public class Meter {
   }
 
   /**
-   * Gets the 1-minute EWMA throughput
+   * Gets the 1-minute EWMA throughput.
    *
    * @return the 1-minute EWMA throughput
    */
@@ -108,7 +108,7 @@ public class Meter {
   }
 
   /**
-   * Gets the 5-minute EWMA throughput
+   * Gets the 5-minute EWMA throughput.
    *
    * @return the 5-minute EWMA throughput
    */
@@ -118,7 +118,7 @@ public class Meter {
   }
 
   /**
-   * Gets the 15-minute EWMA throughput
+   * Gets the 15-minute EWMA throughput.
    *
    * @return the 15-minute EWMA throughput
    */

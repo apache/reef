@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -48,7 +48,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * The Driver code for the Hello REEF Http Distributed Shell Application
+ * The Driver code for the Hello REEF Http Distributed Shell Application.
  */
 @Unit
 public final class HttpShellJobDriver {
@@ -60,7 +60,7 @@ public final class HttpShellJobDriver {
   public static final ObjectSerializableCodec<String> CODEC = new ObjectSerializableCodec<>();
   private static final Logger LOG = Logger.getLogger(HttpShellJobDriver.class.getName());
   /**
-   * Evaluator Requester
+   * Evaluator Requester.
    */
   private final EvaluatorRequestor evaluatorRequestor;
   /**
@@ -89,12 +89,12 @@ public final class HttpShellJobDriver {
    */
   private int expectCount = 0;
   /**
-   * Callback handler for http return message
+   * Callback handler for http return message.
    */
   private HttpServerShellCmdtHandler.ClientCallBackHandler httpCallbackHandler;
 
   /**
-   * Job Driver Constructor
+   * Job Driver Constructor.
    *
    * @param requestor
    * @param clientCallBackHandler

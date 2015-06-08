@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * A command line interface for HDInsight
+ * A command line interface for HDInsight.
  */
 package org.apache.reef.runtime.hdinsight.cli;

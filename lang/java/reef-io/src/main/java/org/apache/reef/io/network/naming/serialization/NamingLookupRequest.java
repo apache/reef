@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -21,13 +21,13 @@ package org.apache.reef.io.network.naming.serialization;
 import org.apache.reef.wake.Identifier;
 
 /**
- * Naming lookup request
+ * Naming lookup request.
  */
 public class NamingLookupRequest extends NamingMessage {
   private Iterable<Identifier> ids;
 
   /**
-   * Constructs a naming lookup request
+   * Constructs a naming lookup request.
    *
    * @param ids the iterable of identifiers
    */
@@ -36,7 +36,7 @@ public class NamingLookupRequest extends NamingMessage {
   }
 
   /**
-   * Gets identifiers
+   * Gets identifiers.
    *
    * @return an iterable of identifiers
    */

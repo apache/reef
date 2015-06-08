@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -22,7 +22,7 @@ import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
 
 /**
- * minimum port number range when generating a port number for the Http Server
+ * minimum port number range when generating a port number for the Http Server.
  */
 @NamedParameter(doc = "Minimum port number for Jetty Server", default_value = "1024")
 public class MinPortNumber implements Name<Integer> {

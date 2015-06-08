@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -25,7 +25,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Link listener that logs whether the message is sent successfully
+ * Link listener that logs whether the message is sent successfully.
  *
  * @param <T> type
  */
@@ -34,7 +34,7 @@ public class LoggingLinkListener<T> implements LinkListener<T> {
   private static final Logger LOG = Logger.getLogger(LoggingLinkListener.class.getName());
 
   /**
-   * Called when the sent message is transferred successfully
+   * Called when the sent message is transferred successfully.
    */
   @Override
   public void onSuccess(T message) {

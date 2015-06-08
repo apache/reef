@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -23,7 +23,7 @@ import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
 
 /**
- * Name of a log Level as a string such as "INFO", "FINE"
+ * Name of a log Level as a string such as "INFO", "FINE".
  */
 @NamedParameter(default_value = "FINE")
 public class LogLevelName implements Name<String> {

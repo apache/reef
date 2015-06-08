@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -25,20 +25,20 @@ import org.apache.reef.tang.formats.OptionalParameter;
 import org.apache.reef.wake.IdentifierFactory;
 
 /**
- * Configuration Module Builder for NameServer
+ * Configuration Module Builder for NameServer.
  */
 public final class NameServerConfiguration extends ConfigurationModuleBuilder {
 
   /**
-   * The port used by name server
+   * The port used by name server.
    */
   public static final OptionalParameter<Integer> NAME_SERVICE_PORT = new OptionalParameter<>();
   /**
-   * DNS hostname running the name service
+   * DNS hostname running the name service.
    */
   public static final OptionalParameter<String> NAME_SERVER_HOSTNAME = new OptionalParameter<>();
   /**
-   * Identifier factory for the name service
+   * Identifier factory for the name service.
    */
   public static final OptionalParameter<IdentifierFactory> NAME_SERVER_IDENTIFIER_FACTORY = new OptionalParameter<>();
 

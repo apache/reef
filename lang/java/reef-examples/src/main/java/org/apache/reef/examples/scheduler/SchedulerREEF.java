@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -39,12 +39,12 @@ import java.io.IOException;
  */
 public final class SchedulerREEF {
   /**
-   * The upper limit on the number of Evaluators that the local resourcemanager will hand out concurrently
+   * The upper limit on the number of Evaluators that the local resourcemanager will hand out concurrently.
    */
   private static final int MAX_NUMBER_OF_EVALUATORS = 3;
 
   /**
-   * Command line parameter = true to reuse evaluators,
+   * Command line parameter = true to reuse evaluators,.
    * or false to allocate/close for each iteration
    */
   @NamedParameter(doc = "Whether or not to reuse evaluators",
@@ -100,7 +100,7 @@ public final class SchedulerREEF {
   }
 
   /**
-   * Main program
+   * Main program.
    * @param args
    * @throws InjectionException
    */

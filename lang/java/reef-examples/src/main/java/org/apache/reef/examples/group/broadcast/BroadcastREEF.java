@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -85,7 +85,7 @@ public class BroadcastREEF {
   }
 
   /**
-   * copy the parameters from the command line required for the Client configuration
+   * copy the parameters from the command line required for the Client configuration.
    */
   private static void storeCommandLineArgs(
       final Configuration commandLineConf) throws InjectionException {

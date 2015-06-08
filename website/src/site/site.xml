@@ -58,7 +58,7 @@ under the License.
   
     <body>   
         <head>
-            <script src="js/test2.js" type="text/javascript"></script>
+            <script src="js/release.js" type="text/javascript"></script>
         </head>
         
 	    <breadcrumbs>
@@ -75,6 +75,8 @@ under the License.
             <item name="License" href="license.html"/>
             <item name="Downloads" href="downloads.html"/>
             <item name="0.10.0-incubating API" href="apidocs/0.10.0-incubating/index.html"/>
+            <item name="0.11.0-incubating API" href="apidocs/0.11.0-incubating/index.html"/>
+
         </menu>
 
         <menu name="Documentation">

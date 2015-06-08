@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -39,7 +39,7 @@ import org.apache.reef.util.EnvironmentUtils;
 import javax.inject.Inject;
 
 /**
- * A client to submit BGD Jobs
+ * A client to submit BGD Jobs.
  */
 public class BGDClient {
   private final String input;

@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -28,7 +28,7 @@ import org.apache.reef.wake.rx.Observer;
 import javax.inject.Inject;
 
 /**
- * Stage that executes the observer synchronously
+ * Stage that executes the observer synchronously.
  *
  * @param <T> type
  */
@@ -37,7 +37,7 @@ public final class RxSyncStage<T> extends AbstractRxStage<T> {
   private final Observer<T> observer;
 
   /**
-   * Constructs a Rx synchronous stage
+   * Constructs a Rx synchronous stage.
    *
    * @param observer the observer
    */
@@ -47,7 +47,7 @@ public final class RxSyncStage<T> extends AbstractRxStage<T> {
   }
 
   /**
-   * Constructs a Rx synchronous stage
+   * Constructs a Rx synchronous stage.
    *
    * @param name     the stage name
    * @param observer the observer
@@ -61,7 +61,7 @@ public final class RxSyncStage<T> extends AbstractRxStage<T> {
   }
 
   /**
-   * Provides the observer with the new value
+   * Provides the observer with the new value.
    *
    * @param value the new value
    */
@@ -93,7 +93,7 @@ public final class RxSyncStage<T> extends AbstractRxStage<T> {
   }
 
   /**
-   * Closes the stage
+   * Closes the stage.
    *
    * @throws Exception
    */

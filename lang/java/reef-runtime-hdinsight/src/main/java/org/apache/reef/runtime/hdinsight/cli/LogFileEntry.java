@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -36,7 +36,7 @@ final class LogFileEntry {
   }
 
   /**
-   * Writes the contents of the entry into the given outputWriter
+   * Writes the contents of the entry into the given outputWriter.
    *
    * @param outputWriter
    * @throws IOException

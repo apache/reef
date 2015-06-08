@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -25,7 +25,7 @@ import org.apache.reef.tang.annotations.NamedParameter;
 import org.apache.reef.wake.EventHandler;
 
 /**
- * Event handler for CompletedJob
+ * Event handler for CompletedJob.
  */
 @NamedParameter(doc = "Event handler for CompletedJob",
     default_classes = DefaultCompletedJobHandler.class)

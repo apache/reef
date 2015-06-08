@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -22,7 +22,7 @@ import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
 
 /**
- * Max retry times when generating a port number for the Http Server
+ * Max retry times when generating a port number for the Http Server.
  */
 @NamedParameter(doc = "Maximum retry attempts for port number of Jetty Server", default_value = "100")
 public class MaxRetryAttempts implements Name<Integer> {

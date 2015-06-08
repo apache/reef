@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -31,7 +31,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Event handler that provides publish/subscribe interfaces
+ * Event handler that provides publish/subscribe interfaces.
  *
  * @param <T> type
  */
@@ -42,14 +42,14 @@ public class PubSubEventHandler<T> implements EventHandler<T> {
   private final ReadWriteLock lock = new ReentrantReadWriteLock();
 
   /**
-   * Constructs a pub-sub event handler
+   * Constructs a pub-sub event handler.
    */
   public PubSubEventHandler() {
     this.clazzToListOfHandlersMap = new HashMap<Class<? extends T>, List<EventHandler<? extends T>>>();
   }
 
   /**
-   * Constructs a pub-sub event handler with initial subscribed event handlers
+   * Constructs a pub-sub event handler with initial subscribed event handlers.
    *
    * @param map a map of event class types to lists of event handlers
    */
@@ -58,7 +58,7 @@ public class PubSubEventHandler<T> implements EventHandler<T> {
   }
 
   /**
-   * Subscribes an event handler for an event class type
+   * Subscribes an event handler for an event class type.
    *
    * @param clazz   an event class
    * @param handler an event handler
@@ -78,7 +78,7 @@ public class PubSubEventHandler<T> implements EventHandler<T> {
   }
 
   /**
-   * Invokes subscribed handlers for the event class type
+   * Invokes subscribed handlers for the event class type.
    *
    * @param event an event
    * @throws WakeRuntimeException

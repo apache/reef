@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -97,7 +97,7 @@ final class RunningJobsImpl implements RunningJobs {
 
 
   /**
-   * A guarded get() that throws an exception if the RunningJob isn't known
+   * A guarded get() that throws an exception if the RunningJob isn't known.
    *
    * @param jobIdentifier
    * @return

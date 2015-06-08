@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -40,7 +40,7 @@ import org.apache.reef.wake.impl.SingleThreadStage;
 import org.apache.reef.wake.time.Clock;
 
 /**
- * Binds Driver's runtime event handlers
+ * Binds Driver's runtime event handlers.
  */
 public final class MesosDriverConfiguration extends ConfigurationModuleBuilder {
   /**
@@ -54,7 +54,7 @@ public final class MesosDriverConfiguration extends ConfigurationModuleBuilder {
   public static final OptionalParameter<Long> EVALUATOR_TIMEOUT = new OptionalParameter<>();
 
   /**
-   * The ip address of Mesos Master
+   * The ip address of Mesos Master.
    */
   public static final RequiredParameter<String> MESOS_MASTER_IP = new RequiredParameter<>();
 
@@ -69,7 +69,7 @@ public final class MesosDriverConfiguration extends ConfigurationModuleBuilder {
   public static final OptionalParameter<Double> JVM_HEAP_SLACK = new OptionalParameter<>();
 
   /**
-   * Capacity for runnning Mesos Scheduler Driver
+   * Capacity for runnning Mesos Scheduler Driver.
    */
   public static final RequiredParameter<Integer> SCHEDULER_DRIVER_CAPACITY = new RequiredParameter<>();
 

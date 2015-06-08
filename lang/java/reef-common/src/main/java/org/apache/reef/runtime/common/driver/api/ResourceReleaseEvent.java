@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -23,7 +23,7 @@ import org.apache.reef.annotations.audience.RuntimeAuthor;
 import org.apache.reef.tang.annotations.DefaultImplementation;
 
 /**
- * Event from Driver Process -> Driver Runtime
+ * Event from Driver Process -> Driver Runtime.
  * A request to the Driver Runtime to release this resource
  */
 @RuntimeAuthor

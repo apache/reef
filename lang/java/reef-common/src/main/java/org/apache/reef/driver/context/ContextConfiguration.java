@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -84,7 +84,7 @@ public class ContextConfiguration extends ConfigurationModuleBuilder {
   public static final OptionalImpl<ContextMessageHandler> ON_MESSAGE = new OptionalImpl<>();
 
   /**
-   * Implementation for reconnecting to driver after driver restart
+   * Implementation for reconnecting to driver after driver restart.
    */
   public static final OptionalImpl<DriverConnection> ON_DRIVER_RECONNECT = new OptionalImpl<>();
 

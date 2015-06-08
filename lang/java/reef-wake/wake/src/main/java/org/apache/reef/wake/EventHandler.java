@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -19,14 +19,14 @@
 package org.apache.reef.wake;
 
 /**
- * Handler to process an event
+ * Handler to process an event.
  *
  * @param <T> type
  */
 public interface EventHandler<T> {
 
   /**
-   * Handles an event
+   * Handles an event.
    *
    * @param value an event
    */

@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -22,7 +22,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicLongArray;
 
 /**
- * An {@link Histogram} that implements uniform binning of numbers (>=0)
+ * An {@link Histogram} that implements uniform binning of numbers (>=0).
  */
 public class UniformHistogram implements Histogram {
   private final AtomicLong count;
@@ -31,7 +31,7 @@ public class UniformHistogram implements Histogram {
   private final int numBins;
 
   /**
-   * Constructs a histogram
+   * Constructs a histogram.
    *
    * @param binWidth the width of each bin
    * @param numBins  the number of bins
@@ -44,7 +44,7 @@ public class UniformHistogram implements Histogram {
   }
 
   /**
-   * Updates the value
+   * Updates the value.
    *
    * @param value
    */
@@ -58,7 +58,7 @@ public class UniformHistogram implements Histogram {
   }
 
   /**
-   * Returns the number of recorded values
+   * Returns the number of recorded values.
    *
    * @return the number of recorded values
    */
@@ -68,7 +68,7 @@ public class UniformHistogram implements Histogram {
   }
 
   /**
-   * Returns the value of the index
+   * Returns the value of the index.
    *
    * @param index the index
    * @return the value of the index
@@ -79,7 +79,7 @@ public class UniformHistogram implements Histogram {
   }
 
   /**
-   * Returns the number of bins
+   * Returns the number of bins.
    *
    * @return the number of bins
    */

@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -18,7 +18,8 @@
  */
 package org.apache.reef.io.network.impl;
 
-import org.apache.reef.io.network.TransportFactory;
+import org.apache.reef.wake.remote.transport.netty.MessagingTransportFactory;
+import org.apache.reef.wake.remote.transport.TransportFactory;
 import org.apache.reef.io.network.util.StringIdentifierFactory;
 import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;

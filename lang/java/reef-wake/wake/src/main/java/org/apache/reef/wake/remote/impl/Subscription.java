@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -19,7 +19,7 @@
 package org.apache.reef.wake.remote.impl;
 
 /**
- * Subscription of a handler
+ * Subscription of a handler.
  *
  * @param <T> type
  */
@@ -29,7 +29,7 @@ public class Subscription<T> implements AutoCloseable {
   private final T token;
 
   /**
-   * Constructs a subscription
+   * Constructs a subscription.
    *
    * @param token            the token for finding the subscription
    * @param handlerContainer the container managing handlers
@@ -40,7 +40,7 @@ public class Subscription<T> implements AutoCloseable {
   }
 
   /**
-   * Gets the token of this subscription
+   * Gets the token of this subscription.
    *
    * @return the token of this subscription
    */
@@ -49,7 +49,7 @@ public class Subscription<T> implements AutoCloseable {
   }
 
   /**
-   * Unsubscribes this subscription
+   * Unsubscribes this subscription.
    *
    * @throws Exception
    */

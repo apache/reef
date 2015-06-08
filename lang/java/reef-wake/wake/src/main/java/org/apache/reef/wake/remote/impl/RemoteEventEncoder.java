@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -24,7 +24,7 @@ import org.apache.reef.wake.remote.exception.RemoteRuntimeException;
 import org.apache.reef.wake.remote.proto.WakeRemoteProtos.WakeMessagePBuf;
 
 /**
- * Remote event encoder using the WakeMessage protocol buffer
+ * Remote event encoder using the WakeMessage protocol buffer.
  *
  * @param <T> type
  */
@@ -33,7 +33,7 @@ public class RemoteEventEncoder<T> implements Encoder<RemoteEvent<T>> {
   private final Encoder<T> encoder;
 
   /**
-   * Constructs a remote event encoder
+   * Constructs a remote event encoder.
    *
    * @param encoder the encoder of the event
    */
@@ -42,7 +42,7 @@ public class RemoteEventEncoder<T> implements Encoder<RemoteEvent<T>> {
   }
 
   /**
-   * Encodes the remote event object to bytes
+   * Encodes the remote event object to bytes.
    *
    * @param obj the remote event
    * @return bytes

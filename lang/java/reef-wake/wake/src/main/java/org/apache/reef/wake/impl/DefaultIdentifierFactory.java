@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -43,7 +43,7 @@ public class DefaultIdentifierFactory implements IdentifierFactory {
   private final Map<String, Class<? extends Identifier>> typeToClazzMap;
 
   /**
-   * Constructs a default remote identifier factory
+   * Constructs a default remote identifier factory.
    */
   @Inject
   public DefaultIdentifierFactory() {
@@ -52,7 +52,7 @@ public class DefaultIdentifierFactory implements IdentifierFactory {
   }
 
   /**
-   * Constructs a default remote identifier factory
+   * Constructs a default remote identifier factory.
    *
    * @param typeToClazzMap the map of type strings to classes of remote identifiers
    */
@@ -61,7 +61,7 @@ public class DefaultIdentifierFactory implements IdentifierFactory {
   }
 
   /**
-   * Creates a new remote identifier instance
+   * Creates a new remote identifier instance.
    *
    * @param str a string representation
    * @return a remote identifier

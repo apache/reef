@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -32,7 +32,7 @@ import org.apache.reef.tang.Configuration;
 public interface Topology {
 
   /**
-   * Get the version of the Task 'taskId'
+   * Get the version of the Task 'taskId'.
    * that belongs to this topology
    *
    * @param taskId
@@ -41,14 +41,14 @@ public interface Topology {
   int getNodeVersion(String taskId);
 
   /**
-   * Get the id of the root task
+   * Get the id of the root task.
    *
    * @return
    */
   String getRootId();
 
   /**
-   * Set task with id 'senderId' as
+   * Set task with id 'senderId' as.
    * the root of this topology
    *
    * @param senderId
@@ -56,7 +56,7 @@ public interface Topology {
   void setRootTask(String senderId);
 
   /**
-   * Add task with id 'taskId' to
+   * Add task with id 'taskId' to.
    * the topology
    *
    * @param taskId
@@ -64,7 +64,7 @@ public interface Topology {
   void addTask(String taskId);
 
   /**
-   * Remove task with id 'taskId' from
+   * Remove task with id 'taskId' from.
    * the topology
    *
    * @param taskId
@@ -72,7 +72,7 @@ public interface Topology {
   void removeTask(String taskId);
 
   /**
-   * Update state on receipt of RunningTask
+   * Update state on receipt of RunningTask.
    * event for task with id 'id'
    *
    * @param id
@@ -80,7 +80,7 @@ public interface Topology {
   void onRunningTask(String id);
 
   /**
-   * Update state on receipt of FailedTask
+   * Update state on receipt of FailedTask.
    * event for task with id 'id'
    *
    * @param id
@@ -88,7 +88,7 @@ public interface Topology {
   void onFailedTask(String id);
 
   /**
-   * Set operator specification of the operator
+   * Set operator specification of the operator.
    * that is the owner of this topology instance
    *
    * @param spec
@@ -96,7 +96,7 @@ public interface Topology {
   void setOperatorSpecification(OperatorSpec spec);
 
   /**
-   * Get the topology portion of the Configuration
+   * Get the topology portion of the Configuration.
    * for the task 'taskId' that belongs to this
    * topology
    *
@@ -106,7 +106,7 @@ public interface Topology {
   Configuration getTaskConfiguration(String taskId);
 
   /**
-   * Update state on receipt of a message
+   * Update state on receipt of a message.
    * from the tasks
    *
    * @param msg

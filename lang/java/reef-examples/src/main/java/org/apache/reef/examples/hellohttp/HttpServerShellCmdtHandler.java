@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -36,7 +36,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Http Event handler for Shell Command
+ * Http Event handler for Shell Command.
  */
 @Unit
 class HttpServerShellCmdtHandler implements HttpHandler {
@@ -50,17 +50,17 @@ class HttpServerShellCmdtHandler implements HttpHandler {
   private static final int WAIT_TIME = 50;
 
   /**
-   * ClientMessageHandler
+   * ClientMessageHandler.
    */
   private final InjectionFuture<HttpShellJobDriver.ClientMessageHandler> messageHandler;
 
   /**
-   * uri specification
+   * uri specification.
    */
   private String uriSpecification = "Command";
 
   /**
-   * output for command
+   * output for command.
    */
   private String cmdOutput = null;
 
@@ -73,7 +73,7 @@ class HttpServerShellCmdtHandler implements HttpHandler {
   }
 
   /**
-   * returns URI specification for the handler
+   * returns URI specification for the handler.
    *
    * @return
    */
@@ -83,7 +83,7 @@ class HttpServerShellCmdtHandler implements HttpHandler {
   }
 
   /**
-   * set URI specification
+   * set URI specification.
    *
    * @param s
    */
@@ -92,7 +92,7 @@ class HttpServerShellCmdtHandler implements HttpHandler {
   }
 
   /**
-   * it is called when receiving a http request
+   * it is called when receiving a http request.
    *
    * @param parsedHttpRequest
    * @param response
@@ -132,7 +132,7 @@ class HttpServerShellCmdtHandler implements HttpHandler {
   }
 
   /**
-   * called after shell command is completed
+   * called after shell command is completed.
    *
    * @param message
    */
@@ -157,7 +157,7 @@ class HttpServerShellCmdtHandler implements HttpHandler {
   }
 
   /**
-   * Handler for client to call back
+   * Handler for client to call back.
    */
   final class ClientCallBackHandler implements EventHandler<byte[]> {
     @Override

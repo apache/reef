@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -99,7 +99,7 @@ public final class ResourceRequestEventImpl implements ResourceRequestEvent {
     private Boolean relaxLocality;
 
     /**
-     * Create a builder from an existing ResourceRequestEvent
+     * Create a builder from an existing ResourceRequestEvent.
      */
     public Builder mergeFrom(final ResourceRequestEvent resourceRequestEvent) {
       this.resourceCount = resourceRequestEvent.getResourceCount();
@@ -121,7 +121,7 @@ public final class ResourceRequestEventImpl implements ResourceRequestEvent {
     }
 
     /**
-     * Add an entry to the nodeNameList
+     * Add an entry to the nodeNameList.
      * @see ResourceRequestEvent#getNodeNameList()
      */
     public Builder addNodeName(final String nodeName) {
@@ -130,7 +130,7 @@ public final class ResourceRequestEventImpl implements ResourceRequestEvent {
     }
 
     /**
-     * Add an entry to rackNameList
+     * Add an entry to rackNameList.
      * @see ResourceRequestEvent#getRackNameList()
      */
     public Builder addRackName(final String rackName) {

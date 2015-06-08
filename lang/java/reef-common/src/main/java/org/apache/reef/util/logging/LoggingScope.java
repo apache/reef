@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -20,7 +20,7 @@
 package org.apache.reef.util.logging;
 
 /**
- * Log time elapsed for a scope
+ * Log time elapsed for a scope.
  */
 public interface LoggingScope extends AutoCloseable {
 

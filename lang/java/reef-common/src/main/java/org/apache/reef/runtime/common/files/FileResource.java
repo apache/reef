@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -22,7 +22,7 @@ import org.apache.reef.annotations.audience.RuntimeAuthor;
 import org.apache.reef.tang.annotations.DefaultImplementation;
 
 /**
- * A File Resource with a FileType for use by Runtimes
+ * A File Resource with a FileType for use by Runtimes.
  */
 @RuntimeAuthor
 @DefaultImplementation(FileResourceImpl.class)

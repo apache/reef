@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -26,7 +26,7 @@ import org.apache.reef.io.Tuple;
  */
 public interface ImmutableVector {
   /**
-   * Access the value of the Vector at dimension i
+   * Access the value of the Vector at dimension i.
    *
    * @param i index
    * @return the value at index i
@@ -34,7 +34,7 @@ public interface ImmutableVector {
   double get(int i);
 
   /**
-   * The size (dimensionality) of the Vector
+   * The size (dimensionality) of the Vector.
    *
    * @return the size of the Vector.
    */
@@ -70,7 +70,7 @@ public interface ImmutableVector {
   double norm2Sqr();
 
   /**
-   * Computes the min of all entries in the Vector
+   * Computes the min of all entries in the Vector.
    *
    * @return the min of all entries in this Vector
    */

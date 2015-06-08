@@ -30,9 +30,6 @@ using Org.Apache.REEF.Driver.Bridge.Events;
 using Org.Apache.REEF.Driver.Context;
 using Org.Apache.REEF.Driver.Evaluator;
 using Org.Apache.REEF.Driver.Task;
-using Org.Apache.REEF.Tang.Formats;
-using Org.Apache.REEF.Tang.Implementations.Tang;
-using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Utilities.Diagnostics;
 using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Wake.Time.Event;
@@ -229,28 +226,39 @@ namespace Org.Apache.REEF.Driver.Bridge
         }
 
         //Deprecate, remove after both Java and C# code gets checked in
-        public static ulong[] Call_ClrSystemStartHandler_OnStart(DateTime startTime)
+        public static ulong[] Call_ClrSystemStartHandler_OnStart(
+            DateTime startTime,
+            IEvaluatorRequestorClr2Java  evaluatorRequestorClr2Java)
         {
+            IEvaluatorRequestor evaluatorRequestor = new EvaluatorRequestor(evaluatorRequestorClr2Java);
             using (LOGGER.LogFunction("ClrSystemHandlerWrapper::Call_ClrSystemStartHandler_OnStart"))
             {
                 LOGGER.Log(Level.Info, "*** Start time is " + startTime);
-                return GetHandlers(null);
+                return GetHandlers(null, evaluatorRequestor);
             }
         }
 
-        public static ulong[] Call_ClrSystemStartHandler_OnStart(DateTime startTime, string httpServerPort)
+        public static ulong[] Call_ClrSystemStartHandler_OnStart(
+            DateTime startTime, 
+            string httpServerPort,
+            IEvaluatorRequestorClr2Java evaluatorRequestorClr2Java)
         {
+            IEvaluatorRequestor evaluatorRequestor = new EvaluatorRequestor(evaluatorRequestorClr2Java);
             using (LOGGER.LogFunction("ClrSystemHandlerWrapper::Call_ClrSystemStartHandler_OnStart"))
             {
                 LOGGER.Log(Level.Info, "*** Start time is " + startTime);
                 LOGGER.Log(Level.Info, "*** httpServerPort: " + httpServerPort);
-                return GetHandlers(httpServerPort);
+                var handlers = GetHandlers(httpServerPort, evaluatorRequestor);
+                _driverBridge.StartHandlersOnNext(startTime);
+                _driverBridge.ObsoleteEvaluatorRequestorOnNext(evaluatorRequestor);
+
+                return handlers;
             }   
         }
 
-        private static ulong[] GetHandlers(string httpServerPortNumber)
+        private static ulong[] GetHandlers(string httpServerPortNumber, IEvaluatorRequestor evaluatorRequestor)
         {
-            var injector = BridgeConfigurationProvider.GetBridgeInjector();
+            var injector = BridgeConfigurationProvider.GetBridgeInjector(evaluatorRequestor);
 
             try
             {
@@ -259,6 +267,7 @@ namespace Org.Apache.REEF.Driver.Bridge
                     ? 0
                     : int.Parse(httpServerPortNumber, CultureInfo.InvariantCulture);
 
+                //TODO: Remove next 2 lines after Obsolete period
                 var startHandler = injector.GetInstance<IStartHandler>();
                 LOGGER.Log(Level.Info, "Start handler set to be " + startHandler.Identifier);
                 _driverBridge = injector.GetInstance<DriverBridge>();

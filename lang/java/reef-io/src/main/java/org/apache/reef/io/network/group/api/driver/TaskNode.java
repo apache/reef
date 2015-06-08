@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -21,7 +21,7 @@ package org.apache.reef.io.network.group.api.driver;
 import org.apache.reef.io.network.group.impl.GroupCommunicationMessage;
 
 /**
- * A node in the Topology representing a Task on the driver
+ * A node in the Topology representing a Task on the driver.
  * Impl should maintain state relating to whether task is running/dead and
  * status of neighboring nodes and send ctrl msgs to the tasks indicating
  * topology changing events
@@ -63,20 +63,20 @@ public interface TaskNode {
   void onChildDead(String childId);
 
   /**
-   * Check if this node is ready for sending
+   * Check if this node is ready for sending.
    * TopologySetup
    */
   void checkAndSendTopologySetupMessage();
 
   /**
-   * Check if the neighbor node with id source
+   * Check if the neighbor node with id source.
    * is ready for sending TopologySetup
    * @param source
    */
   void checkAndSendTopologySetupMessageFor(String source);
 
   /**
-   * reset topology setup ensures that update topology is not sent to someone
+   * reset topology setup ensures that update topology is not sent to someone.
    * who is already updating topology which is usually when they are just
    * (re)starting
    *

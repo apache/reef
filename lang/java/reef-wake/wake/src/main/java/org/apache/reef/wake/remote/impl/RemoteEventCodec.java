@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -21,7 +21,7 @@ package org.apache.reef.wake.remote.impl;
 import org.apache.reef.wake.remote.Codec;
 
 /**
- * Codec of the event sent remotely
+ * Codec of the event sent remotely.
  *
  * @param <T> type
  */
@@ -31,7 +31,7 @@ public class RemoteEventCodec<T> implements Codec<RemoteEvent<T>> {
   private final RemoteEventDecoder<T> decoder;
 
   /**
-   * Constructs a remote event codec
+   * Constructs a remote event codec.
    *
    * @param codec the codec for the event
    */
@@ -41,7 +41,7 @@ public class RemoteEventCodec<T> implements Codec<RemoteEvent<T>> {
   }
 
   /**
-   * Encodes the remote event object to bytes
+   * Encodes the remote event object to bytes.
    *
    * @param obj the remote event object
    * @returns bytes
@@ -52,7 +52,7 @@ public class RemoteEventCodec<T> implements Codec<RemoteEvent<T>> {
   }
 
   /**
-   * Decodes a remote event object from the bytes
+   * Decodes a remote event object from the bytes.
    *
    * @param data the byte array
    * @return a remote event object

@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -33,7 +33,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Single thread stage that runs the event handler
+ * Single thread stage that runs the event handler.
  *
  * @param <T> type
  */
@@ -45,7 +45,7 @@ public final class SingleThreadStage<T> extends AbstractEStage<T> {
   private final AtomicBoolean interrupted;
 
   /**
-   * Constructs a single thread stage
+   * Constructs a single thread stage.
    *
    * @param handler  the event handler to execute
    * @param capacity the queue capacity
@@ -57,7 +57,7 @@ public final class SingleThreadStage<T> extends AbstractEStage<T> {
   }
 
   /**
-   * Constructs a single thread stage
+   * Constructs a single thread stage.
    *
    * @param name     the stage name
    * @param handler  the event handler to execute
@@ -77,7 +77,7 @@ public final class SingleThreadStage<T> extends AbstractEStage<T> {
   }
 
   /**
-   * Puts the value to the queue, which will be processed by the handler later
+   * Puts the value to the queue, which will be processed by the handler later.
    * if the queue is full, IllegalStateException is thrown
    *
    * @param value the value
@@ -90,7 +90,7 @@ public final class SingleThreadStage<T> extends AbstractEStage<T> {
   }
 
   /**
-   * Closes the stage
+   * Closes the stage.
    *
    * @throws Exception
    */
@@ -104,7 +104,7 @@ public final class SingleThreadStage<T> extends AbstractEStage<T> {
 
 
   /**
-   * Takes events from the queue and provides them to the handler
+   * Takes events from the queue and provides them to the handler.
    */
   private class Producer<U> implements Runnable {
 

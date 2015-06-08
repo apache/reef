@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -26,7 +26,7 @@ import org.apache.reef.util.Optional;
 import java.util.List;
 
 /**
- * Event from Driver Process -> Driver Runtime
+ * Event from Driver Process -> Driver Runtime.
  * A request to the Driver Runtime to allocate resources with the given specification
  */
 @RuntimeAuthor

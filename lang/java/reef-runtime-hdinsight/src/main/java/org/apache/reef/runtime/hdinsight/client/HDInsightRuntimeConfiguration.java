@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -64,7 +64,7 @@ public final class HDInsightRuntimeConfiguration extends ConfigurationModuleBuil
   public static final RequiredParameter<String> PASSWORD = new RequiredParameter<>();
 
   /**
-   * The environment variable that holds the path to the default configuration file
+   * The environment variable that holds the path to the default configuration file.
    */
   public static final String HDINSIGHT_CONFIGURATION_FILE_ENVIRONMENT_VARIABLE = "REEF_HDI_CONF";
 

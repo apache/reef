@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -34,7 +34,7 @@ final class AvroUtils {
   }
 
   /**
-   * Serializes the given avro object to a byte[]
+   * Serializes the given avro object to a byte[].
    *
    * @param avroObject
    * @param theClass

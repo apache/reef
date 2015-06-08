@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -24,7 +24,7 @@ import java.util.Iterator;
 import java.util.Random;
 
 /**
- * This class will give out random port numbers between tcpPortRangeBegin and tcpPortRangeBegin+tcpPortRangeCount
+ * This class will give out random port numbers between tcpPortRangeBegin and tcpPortRangeBegin+tcpPortRangeCount.
  * Max number of ports given is tryCount
  */
 @ThreadSafe
@@ -52,7 +52,7 @@ final class RandomRangeIterator implements Iterator<Integer> {
   }
 
   /**
-   * always throws
+   * always throws.
    * @throws UnsupportedOperationException always.
    */
   @Override

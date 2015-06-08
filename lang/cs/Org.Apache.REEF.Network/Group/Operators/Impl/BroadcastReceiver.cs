@@ -36,7 +36,7 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
     public class BroadcastReceiver<T> : IBroadcastReceiver<T>
     {
         private const int PipelineVersion = 2;
-        private readonly OperatorTopology<PipelineMessage<T>> _topology;
+        private readonly IOperatorTopology<PipelineMessage<T>> _topology;
         private static readonly Logger Logger = Logger.GetLogger(typeof(BroadcastReceiver<T>));
 
         /// <summary>
@@ -64,7 +64,7 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
             PipelineDataConverter = dataConverter;
             _topology = topology;
 
-            var msgHandler = Observer.Create<GroupCommunicationMessage>(message => _topology.OnNext(message));
+            var msgHandler = Observer.Create<GroupCommunicationMessage>(message => topology.OnNext(message));
             networkHandler.Register(operatorName, msgHandler);
 
             if (initialize)

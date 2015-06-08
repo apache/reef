@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -27,7 +27,7 @@ import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.wake.EventHandler;
 
 /**
- * The global EventHandler that receives the GroupCommunicationMsg
+ * The global EventHandler that receives the GroupCommunicationMsg.
  * and routes it to the relevant communication group
  */
 @TaskSide

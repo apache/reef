@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -21,7 +21,7 @@ package org.apache.reef.wake;
 public interface Identifiable {
 
   /**
-   * Returns an identifier of this object
+   * Returns an identifier of this object.
    *
    * @return an identifier of this object
    */

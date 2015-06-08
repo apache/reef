@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -28,7 +28,7 @@ import java.util.Map;
 public interface EvaluatorInfoSerializer {
 
   /**
-   * Build AvroEvaluatorsInfo object from raw data
+   * Build AvroEvaluatorsInfo object from raw data.
    */
   AvroEvaluatorsInfo toAvro(
       final List<String> ids, final Map<String, EvaluatorDescriptor> evaluators);

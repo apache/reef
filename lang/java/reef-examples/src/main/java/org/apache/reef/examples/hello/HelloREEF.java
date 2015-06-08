@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -37,7 +37,7 @@ public final class HelloREEF {
   private static final Logger LOG = Logger.getLogger(HelloREEF.class.getName());
 
   /**
-   * The upper limit on the number of Evaluators that the local resourcemanager will hand out concurrently
+   * The upper limit on the number of Evaluators that the local resourcemanager will hand out concurrently.
    */
   private static final int MAX_NUMBER_OF_EVALUATORS = 2;
 

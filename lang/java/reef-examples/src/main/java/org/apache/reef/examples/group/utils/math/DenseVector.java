@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -23,7 +23,7 @@ import java.util.Arrays;
 import java.util.Random;
 
 /**
- * A dense {@link Vector} implementation backed by a double[]
+ * A dense {@link Vector} implementation backed by a double[].
  */
 public class DenseVector extends AbstractVector implements Serializable {
 
@@ -31,7 +31,7 @@ public class DenseVector extends AbstractVector implements Serializable {
   private final double[] values;
 
   /**
-   * Creates a dense vector of the given size
+   * Creates a dense vector of the given size.
    */
   public DenseVector(final int size) {
     this(new double[size]);
@@ -79,7 +79,7 @@ public class DenseVector extends AbstractVector implements Serializable {
   }
 
   /**
-   * Creates a random Vector of size 'size' where each element is individually
+   * Creates a random Vector of size 'size' where each element is individually.
    * drawn from Math.random()
    *
    * @return a random Vector of the given size where each element is
@@ -90,7 +90,7 @@ public class DenseVector extends AbstractVector implements Serializable {
   }
 
   /**
-   * Creates a random Vector of size 'size' where each element is individually
+   * Creates a random Vector of size 'size' where each element is individually.
    * drawn from Math.random()
    *
    * @param random the random number generator to use.

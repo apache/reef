@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -19,11 +19,11 @@
 package org.apache.reef.util;
 
 /**
- * Utilities for creating Builders
+ * Utilities for creating Builders.
  */
 public final class BuilderUtils {
   /**
-   * Throws a runtime exception if the parameter is null
+   * Throws a runtime exception if the parameter is null.
    */
   public static <T> T notNull(final T parameter) {
     if (parameter == null) {

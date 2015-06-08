@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -39,7 +39,7 @@ public interface ExternalMap<T> {
   public boolean containsKey(final CharSequence key);
 
   /**
-   * Element access
+   * Element access.
    *
    * @param key
    * @return the object stored under key nor null if no such object exists
@@ -47,7 +47,7 @@ public interface ExternalMap<T> {
   public T get(final CharSequence key);
 
   /**
-   * Put a record into the map
+   * Put a record into the map.
    *
    * @param key
    * @param value

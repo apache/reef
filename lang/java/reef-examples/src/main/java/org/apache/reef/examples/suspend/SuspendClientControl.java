@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -28,7 +28,7 @@ import org.apache.reef.wake.impl.ThreadPoolStage;
 import org.apache.reef.wake.remote.impl.ObjectSerializableCodec;
 import org.apache.reef.wake.remote.impl.TransportEvent;
 import org.apache.reef.wake.remote.transport.Transport;
-import org.apache.reef.wake.remote.transport.netty.NettyMessagingTransport;
+import org.apache.reef.wake.remote.transport.TransportFactory;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -45,9 +45,11 @@ public class SuspendClientControl implements AutoCloseable {
   private final transient Transport transport;
   private transient RunningJob runningJob;
 
+
   @Inject
   public SuspendClientControl(
-      final @Parameter(SuspendClientControl.Port.class) int port) throws IOException {
+      final @Parameter(SuspendClientControl.Port.class) int port,
+      final TransportFactory tpFactory) throws IOException {
 
     LOG.log(Level.INFO, "Listen to control port {0}", port);
 
@@ -59,7 +61,7 @@ public class SuspendClientControl implements AutoCloseable {
       }
     });
 
-    this.transport = new NettyMessagingTransport("localhost", port, stage, stage, 1, 10000);
+    this.transport = tpFactory.newInstance("localhost", port, stage, stage, 1, 10000);
   }
 
   public synchronized void setRunningJob(final RunningJob job) {

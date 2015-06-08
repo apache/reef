@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -21,7 +21,7 @@ package org.apache.reef.io.data.loading.impl;
 import org.apache.hadoop.mapred.InputSplit;
 
 /**
- * A tuple of an object of type E and an integer index
+ * A tuple of an object of type E and an integer index.
  * Used inside {@link EvaluatorToPartitionMapper} to
  * mark the partitions associated with each {@link InputSplit}
  *

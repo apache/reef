@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -23,13 +23,13 @@ import org.apache.reef.io.naming.NameAssignment;
 import java.util.List;
 
 /**
- * Naming lookup response
+ * Naming lookup response.
  */
 public class NamingLookupResponse extends NamingMessage {
   private final List<NameAssignment> nas;
 
   /**
-   * Constructs a naming lookup response
+   * Constructs a naming lookup response.
    *
    * @param nas the list of name assignments
    */
@@ -38,7 +38,7 @@ public class NamingLookupResponse extends NamingMessage {
   }
 
   /**
-   * Gets name assignments
+   * Gets name assignments.
    *
    * @return a list of name assignments
    */

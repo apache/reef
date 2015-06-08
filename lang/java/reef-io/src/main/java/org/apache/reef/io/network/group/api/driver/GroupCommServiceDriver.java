@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -34,7 +34,7 @@ import org.apache.reef.wake.EStage;
 public interface GroupCommServiceDriver extends GroupCommDriver {
 
   /**
-   * Not user facing but used the Group Communication Service class
+   * Not user facing but used the Group Communication Service class.
    *
    * @return The running task stage that will handle the RunningTask
    * events
@@ -42,7 +42,7 @@ public interface GroupCommServiceDriver extends GroupCommDriver {
   EStage<RunningTask> getGroupCommRunningTaskStage();
 
   /**
-   * Not user facing but used the Group Communication Service class
+   * Not user facing but used the Group Communication Service class.
    *
    * @return The running task stage that will handle the FailedTask
    * events
@@ -50,7 +50,7 @@ public interface GroupCommServiceDriver extends GroupCommDriver {
   EStage<FailedTask> getGroupCommFailedTaskStage();
 
   /**
-   * Not user facing but used the Group Communication Service class
+   * Not user facing but used the Group Communication Service class.
    *
    * @return The running task stage that will handle the FailedEvaluator
    * events

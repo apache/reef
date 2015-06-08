@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -47,7 +47,7 @@ public class RemoteSenderStage implements Stage {
   private final Transport transport;
 
   /**
-   * Constructs a remote sender stage
+   * Constructs a remote sender stage.
    *
    * @param encoder    the encoder of the event
    * @param transport  the transport to send events
@@ -61,7 +61,7 @@ public class RemoteSenderStage implements Stage {
   }
 
   /**
-   * Returns a new remote sender event handler
+   * Returns a new remote sender event handler.
    *
    * @return a remote sender event handler
    */
@@ -70,7 +70,7 @@ public class RemoteSenderStage implements Stage {
   }
 
   /**
-   * Closes the stage
+   * Closes the stage.
    */
   @Override
   public void close() throws Exception {

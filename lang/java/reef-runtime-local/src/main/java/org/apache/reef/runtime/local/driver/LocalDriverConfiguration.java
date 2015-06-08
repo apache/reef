@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -51,7 +51,7 @@ public class LocalDriverConfiguration extends ConfigurationModuleBuilder {
   public static final OptionalParameter<Double> JVM_HEAP_SLACK = new OptionalParameter<>();
 
   /**
-   * The remote identifier to use for communications back to the client
+   * The remote identifier to use for communications back to the client.
    */
   public static final OptionalParameter<String> CLIENT_REMOTE_IDENTIFIER = new OptionalParameter<>();
 

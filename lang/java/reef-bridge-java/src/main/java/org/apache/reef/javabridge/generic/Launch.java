@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -46,11 +46,11 @@ import java.util.logging.Logger;
 public final class Launch {
 
   /**
-   * The upper limit on the number of Evaluators that the local resourcemanager will hand out concurrently
+   * The upper limit on the number of Evaluators that the local resourcemanager will hand out concurrently.
    */
   private static final int MAX_NUMBER_OF_EVALUATORS = 10;
   /**
-   * Standard Java logger
+   * Standard Java logger.
    */
   private static final Logger LOG = Logger.getLogger(Launch.class.getName());
 
@@ -136,7 +136,7 @@ public final class Launch {
   }
 
   /**
-   * Main method that starts the CLR Bridge from Java
+   * Main method that starts the CLR Bridge from Java.
    *
    * @param args command line parameters.
    */
@@ -202,7 +202,7 @@ public final class Launch {
   }
 
   /**
-   * Command line parameter, driver memory, in MB
+   * Command line parameter, driver memory, in MB.
    */
   @NamedParameter(doc = "memory allocated to driver JVM",
       short_name = "driver_memory", default_value = "512")
@@ -210,7 +210,7 @@ public final class Launch {
   }
 
   /**
-   * Command line parameter, driver identifier
+   * Command line parameter, driver identifier.
    */
   @NamedParameter(doc = "driver identifier for clr bridge",
       short_name = "driver_id", default_value = "ReefClrBridge")
@@ -218,7 +218,7 @@ public final class Launch {
   }
 
   /**
-   * Command line parameter = true to submit the job with driver config, or false to write config to current directory
+   * Command line parameter = true to submit the job with driver config, or false to write config to current directory.
    */
   @NamedParameter(doc = "Whether or not to submit the reef job after driver config is constructed",
       short_name = "submit", default_value = "true")
@@ -226,7 +226,7 @@ public final class Launch {
   }
 
   /**
-   * Command line parameter, job submission directory, if set, user should guarantee its uniqueness
+   * Command line parameter, job submission directory, if set, user should guarantee its uniqueness.
    */
   @NamedParameter(doc = "driver job submission directory",
       short_name = "submission_directory", default_value = "empty")

@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -19,13 +19,13 @@
 package org.apache.reef.io.network.naming.serialization;
 
 /**
- * naming registration response
+ * naming registration response.
  */
 public class NamingRegisterResponse extends NamingMessage {
   private final NamingRegisterRequest request;
 
   /**
-   * Constructs a naming register response
+   * Constructs a naming register response.
    *
    * @param request the naming register request
    */
@@ -34,7 +34,7 @@ public class NamingRegisterResponse extends NamingMessage {
   }
 
   /**
-   * Gets a naming register request
+   * Gets a naming register request.
    *
    * @return a naming register request
    */

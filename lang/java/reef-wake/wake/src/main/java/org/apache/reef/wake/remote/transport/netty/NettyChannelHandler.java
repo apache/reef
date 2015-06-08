@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -37,7 +37,7 @@ class NettyChannelHandler extends ChannelInboundHandlerAdapter {
   private final NettyEventListener listener;
 
   /**
-   * Constructs a Netty channel handler
+   * Constructs a Netty channel handler.
    *
    * @param tag          tag string
    * @param channelGroup the channel group
@@ -69,7 +69,7 @@ class NettyChannelHandler extends ChannelInboundHandlerAdapter {
   }
 
   /**
-   * Handles the channel active event
+   * Handles the channel active event.
    *
    * @param ctx the context object for this handler
    * @throws Exception
@@ -82,7 +82,7 @@ class NettyChannelHandler extends ChannelInboundHandlerAdapter {
   }
 
   /**
-   * Handles the channel inactive event
+   * Handles the channel inactive event.
    *
    * @param ctx the context object for this handler
    * @throws Exception
@@ -94,7 +94,7 @@ class NettyChannelHandler extends ChannelInboundHandlerAdapter {
   }
 
   /**
-   * Handles the exception event
+   * Handles the exception event.
    *
    * @param ctx   the context object for this handler
    * @param cause the cause

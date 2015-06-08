@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -32,7 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Network service message codec
+ * Network service message codec.
  *
  * @param <T> type
  */
@@ -43,7 +43,7 @@ public class NSMessageCodec<T> implements Codec<NSMessage<T>> {
   private final boolean isStreamingCodec;
 
   /**
-   * Constructs a network service message codec
+   * Constructs a network service message codec.
    *
    * @param codec   a codec
    * @param factory an identifier factory
@@ -55,7 +55,7 @@ public class NSMessageCodec<T> implements Codec<NSMessage<T>> {
   }
 
   /**
-   * Encodes a network service message to bytes
+   * Encodes a network service message to bytes.
    *
    * @param obj a message
    * @return bytes
@@ -91,7 +91,7 @@ public class NSMessageCodec<T> implements Codec<NSMessage<T>> {
   }
 
   /**
-   * Decodes a network service message from bytes
+   * Decodes a network service message from bytes.
    *
    * @param buf bytes
    * @return a message

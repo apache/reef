@@ -54,9 +54,8 @@ namespace Org.Apache.REEF.Examples.HelloREEF
         {
             // The driver configuration contains all the needed bindings.
             var helloDriverConfiguration = DriverBridgeConfiguration.ConfigurationModule
-                .Set(DriverBridgeConfiguration.OnEvaluatorRequested, GenericType<HelloDriver>.Class)
                 .Set(DriverBridgeConfiguration.OnEvaluatorAllocated, GenericType<HelloDriver>.Class)
-                .Set(DriverBridgeConfiguration.OnDriverStarted, GenericType<HelloDriver>.Class)
+                .Set(DriverBridgeConfiguration.OnDriverStart, GenericType<HelloDriver>.Class)
                 .Build();
             // The JobSubmission contains the Driver configuration as well as the files needed on the Driver.
             var helloJobSubmission = _jobSubmissionBuilderFactory.GetJobSubmissionBuilder()

@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -28,14 +28,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Naming lookup request codec
+ * Naming lookup request codec.
  */
 public final class NamingLookupRequestCodec implements Codec<NamingLookupRequest> {
 
   private final IdentifierFactory factory;
 
   /**
-   * Constructs a naming lookup request codec
+   * Constructs a naming lookup request codec.
    *
    * @param factory the identifier factory
    */
@@ -45,7 +45,7 @@ public final class NamingLookupRequestCodec implements Codec<NamingLookupRequest
   }
 
   /**
-   * Encodes the identifiers to bytes
+   * Encodes the identifiers to bytes.
    *
    * @param obj the naming lookup request
    * @return a byte array
@@ -60,7 +60,7 @@ public final class NamingLookupRequestCodec implements Codec<NamingLookupRequest
   }
 
   /**
-   * Decodes the bytes to a naming lookup request
+   * Decodes the bytes to a naming lookup request.
    *
    * @param buf the byte array
    * @return a naming lookup request

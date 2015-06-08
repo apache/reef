@@ -40,8 +40,6 @@ namespace Org.Apache.REEF.Driver.Bridge
         
         private static ClrSystemHandler<IAllocatedEvaluator> _allocatedEvaluatorSubscriber;
 
-        private static ClrSystemHandler<IEvaluatorRequestor> _evaluatorRequestorSubscriber;
-
         private static ClrSystemHandler<ITaskMessage> _taskMessageSubscriber;
 
         private static ClrSystemHandler<IActiveContext> _activeContextSubscriber;
@@ -71,6 +69,8 @@ namespace Org.Apache.REEF.Driver.Bridge
         private static ClrSystemHandler<IContextMessage> _contextMessageSubscriber;
 
         private static ClrSystemHandler<StartTime> _driverRestartSubscriber;
+
+        private readonly ISet<IObserver<DateTime>> _driverStartHandlers;
 
         private readonly IObserver<StartTime> _driverRestartHandler; 
 
@@ -110,6 +110,7 @@ namespace Org.Apache.REEF.Driver.Bridge
 
         [Inject]
         public DriverBridge(
+            [Parameter(Value = typeof(DriverBridgeConfigurationOptions.DriverStartHandlers))] ISet<IObserver<DateTime>> driverStartHandlers,
             [Parameter(Value = typeof(DriverBridgeConfigurationOptions.DriverRestartHandler))] IObserver<StartTime> driverRestartHandler,
             [Parameter(Value = typeof(DriverBridgeConfigurationOptions.EvaluatorRequestHandlers))] ISet<IObserver<IEvaluatorRequestor>> evaluatorRequestHandlers,
             [Parameter(Value = typeof(DriverBridgeConfigurationOptions.AllocatedEvaluatorHandlers))] ISet<IObserver<IAllocatedEvaluator>> allocatedEvaluatorHandlers,
@@ -147,7 +148,8 @@ namespace Org.Apache.REEF.Driver.Bridge
             {
                 Logger.SetCustomLevel(level);
             }
-            
+
+            _driverStartHandlers = driverStartHandlers;
             _evaluatorRequestHandlers = evaluatorRequestHandlers;
             _allocatedEvaluatorHandlers = allocatedEvaluatorHandlers;
             _activeContextHandlers = activeContextHandlers;
@@ -166,8 +168,7 @@ namespace Org.Apache.REEF.Driver.Bridge
             _driverRestartRunningTaskHandlers = driverRestartRunningTaskHandlers;
             _httpServerHandler = httpServerHandler;
             _configurationProviders = configurationProviders;
-
-            _evaluatorRequestorSubscriber = new ClrSystemHandler<IEvaluatorRequestor>();
+            
             _allocatedEvaluatorSubscriber = new ClrSystemHandler<IAllocatedEvaluator>();
             _completedEvaluatorSubscriber = new ClrSystemHandler<ICompletedEvaluator>();
             _taskMessageSubscriber = new ClrSystemHandler<ITaskMessage>();
@@ -194,14 +195,6 @@ namespace Org.Apache.REEF.Driver.Bridge
             _driverRestartSubscriber.Subscribe(_driverRestartHandler);
             _logger.Log(Level.Info, "subscribed to Driver restart handler: " + _driverRestartHandler);
             handlers[Constants.Handlers[Constants.DriverRestartHandler]] = ClrHandlerHelper.CreateHandler(_driverRestartSubscriber);
-
-            // subscribe to Evaluator Requestor          
-            foreach (var handler in _evaluatorRequestHandlers)
-            {
-                _evaluatorRequestorSubscriber.Subscribe(handler);
-                _logger.Log(Level.Info, "subscribed to IEvaluatorRequestor handler: " + handler);
-            }
-            handlers[Constants.Handlers[Constants.EvaluatorRequestorHandler]] = ClrHandlerHelper.CreateHandler(_evaluatorRequestorSubscriber);
 
             // subscribe to Allocated Evaluator
             foreach (var handler in _allocatedEvaluatorHandlers)
@@ -321,6 +314,28 @@ namespace Org.Apache.REEF.Driver.Bridge
             handlers[Constants.Handlers[Constants.HttpServerHandler]] = ClrHandlerHelper.CreateHandler(_httpServerEventSubscriber);
 
             return handlers;
+        }
+
+        [Obsolete(@"Obsoleted at versioin 0.12 and will be removed at version 0.13. See https://issues.apache.org/jira/browse/REEF-168")]
+        internal void ObsoleteEvaluatorRequestorOnNext(IEvaluatorRequestor evaluatorRequestor)
+        {
+            foreach (var handler in _evaluatorRequestHandlers)
+            {
+                handler.OnNext(evaluatorRequestor);
+                _logger.Log(Level.Info, "called IEvaluatorRequestor handler: " + handler);
+            }
+        }
+
+        /// <summary>
+        /// Call start handlers
+        /// </summary>
+        internal void StartHandlersOnNext(DateTime startTime)
+        {
+            foreach (var handler in _driverStartHandlers)
+            {
+                handler.OnNext(startTime);
+                _logger.Log(Level.Info, "called OnDriverStart handler: " + handler);
+            }
         }
 
         internal ISet<IConfigurationProvider> ConfigurationProviders { get { return _configurationProviders; } }

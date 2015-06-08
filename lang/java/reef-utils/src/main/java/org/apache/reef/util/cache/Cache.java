@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -28,7 +28,7 @@ import java.util.concurrent.ExecutionException;
  */
 public interface Cache<K, V> {
   /**
-   * Returns a value for the key if cached; otherwise creates, caches and returns
+   * Returns a value for the key if cached; otherwise creates, caches and returns.
    * When it creates a value for a key, only one callable for the key is executed
    *
    * @param key          a key
@@ -39,7 +39,7 @@ public interface Cache<K, V> {
   public V get(K key, Callable<V> valueFetcher) throws ExecutionException;
 
   /**
-   * Invalidates a key from the cache
+   * Invalidates a key from the cache.
    *
    * @param key a key
    */

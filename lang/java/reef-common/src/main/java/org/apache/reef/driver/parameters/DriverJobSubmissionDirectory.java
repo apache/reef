@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -22,7 +22,7 @@ import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
 
 /**
- * Job submission directory
+ * Job submission directory.
  */
 @NamedParameter(doc = "Job submission directory. This is the folder on the DFS used to stage the files for the Driver and subsequently for the Evaluators. It will be created if it doesn't exist yet.")
 public final class DriverJobSubmissionDirectory implements Name<String> {

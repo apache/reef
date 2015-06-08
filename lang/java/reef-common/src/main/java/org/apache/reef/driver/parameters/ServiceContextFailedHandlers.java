@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -26,7 +26,7 @@ import org.apache.reef.wake.EventHandler;
 import java.util.Set;
 
 /**
- * Handler for FailedContext
+ * Handler for FailedContext.
  */
 @NamedParameter(doc = "Handler for FailedContext")
 public final class ServiceContextFailedHandlers implements Name<Set<EventHandler<FailedContext>>> {

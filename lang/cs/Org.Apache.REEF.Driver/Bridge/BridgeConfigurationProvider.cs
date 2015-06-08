@@ -18,10 +18,12 @@
  */
 using System.IO;
 using Org.Apache.REEF.Common.Files;
+using Org.Apache.REEF.Driver.Evaluator;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
+using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities.Diagnostics;
 using Org.Apache.REEF.Utilities.Logging;
 
@@ -125,9 +127,14 @@ namespace Org.Apache.REEF.Driver.Bridge
         /// Instantiates an IInjector using the bridge configuration.
         /// </summary>
         /// <returns></returns>
-        internal static IInjector GetBridgeInjector()
+        internal static IInjector GetBridgeInjector(IEvaluatorRequestor evaluatorRequestor)
         {
-            return TangFactory.GetTang().NewInjector(GetBridgeConfiguration());
+            var injector = TangFactory.GetTang().NewInjector(GetBridgeConfiguration());
+            if (evaluatorRequestor != null)
+            {
+                injector.BindVolatileInstance(GenericType<IEvaluatorRequestor>.Class, evaluatorRequestor);
+            }
+            return injector;
         }
     }
 }

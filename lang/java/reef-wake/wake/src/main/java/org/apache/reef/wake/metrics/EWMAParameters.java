@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -21,7 +21,7 @@ package org.apache.reef.wake.metrics;
 import static java.lang.Math.exp;
 
 /**
- * Default EWMA parameters
+ * Default EWMA parameters.
  */
 public class EWMAParameters {
   public static final int INTERVAL = 5;

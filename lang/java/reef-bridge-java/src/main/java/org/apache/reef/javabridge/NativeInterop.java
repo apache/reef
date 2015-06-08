@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -23,7 +23,6 @@ import java.util.HashMap;
 public class NativeInterop {
   public static final String CLASS_HIERARCHY_FILENAME = "clrClassHierarchy.bin";
   public static final String GLOBAL_LIBRARIES_FILENAME = "userSuppliedGlobalLibraries.txt";
-  public static final String EvaluatorRequestorKey = "EvaluatorRequestor";
   public static final String AllocatedEvaluatorKey = "AllocatedEvaluator";
   public static final String ActiveContextKey = "ActiveContext";
   public static final String TaskMessageKey = "TaskMessage";
@@ -42,7 +41,6 @@ public class NativeInterop {
   public static final String DriverRestartRunningTaskKey = "DriverRestartRunningTask";
   public static final HashMap<String, Integer> Handlers = new HashMap<String, Integer>() {
     {
-      put(EvaluatorRequestorKey, 0);
       put(AllocatedEvaluatorKey, 1);
       put(ActiveContextKey, 2);
       put(TaskMessageKey, 3);
@@ -68,7 +66,10 @@ public class NativeInterop {
 
   public static native void ClrBufferedLog(int level, String message);
 
-  public static native long[] CallClrSystemOnStartHandler(String dateTime, String httpServerPortNumber);
+  public static native long[] CallClrSystemOnStartHandler(
+      String dateTime,
+      String httpServerPortNumber,
+      EvaluatorRequestorBridge javaEvaluatorRequestorBridge);
 
   public static native void ClrSystemAllocatedEvaluatorHandlerOnNext(
       long handle,
@@ -79,12 +80,6 @@ public class NativeInterop {
   public static native void ClrSystemActiveContextHandlerOnNext(
       long handle,
       ActiveContextBridge javaActiveContextBridge,
-      InteropLogger interopLogger
-  );
-
-  public static native void ClrSystemEvaluatorRequstorHandlerOnNext(
-      long handle,
-      EvaluatorRequestorBridge javaEvluatorRequstorBridge,
       InteropLogger interopLogger
   );
 

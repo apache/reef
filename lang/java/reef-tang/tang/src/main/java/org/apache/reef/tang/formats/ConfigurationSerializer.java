@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -90,7 +90,7 @@ public interface ConfigurationSerializer {
   public Configuration fromTextFile(final File file) throws IOException, BindException;
 
   /**
-   * Loads a Configuration from a File created with toFile() with ClassHierarchy
+   * Loads a Configuration from a File created with toFile() with ClassHierarchy.
    *
    * @param file
    * @param classHierarchy
@@ -132,7 +132,7 @@ public interface ConfigurationSerializer {
   public Configuration fromByteArray(final byte[] theBytes, final ClassHierarchy classHierarchy) throws IOException, BindException;
 
   /**
-   * Decodes a String generated via toString()
+   * Decodes a String generated via toString().
    *
    * @param theString to be parsed
    * @return the Configuration stored in theString.
@@ -142,7 +142,7 @@ public interface ConfigurationSerializer {
   public Configuration fromString(final String theString) throws IOException, BindException;
 
   /**
-   * Decodes a String generated via toString()
+   * Decodes a String generated via toString().
    *
    * @param theString      to be parsed
    * @param classHierarchy used to validate the configuration against

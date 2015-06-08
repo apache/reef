@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -35,7 +35,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Stage that executes an event handler with a thread pool
+ * Stage that executes an event handler with a thread pool.
  *
  * @param <T> type
  */
@@ -49,7 +49,7 @@ public final class ThreadPoolStage<T> extends AbstractEStage<T> {
   private final EventHandler<Throwable> errorHandler;
 
   /**
-   * Constructs a thread-pool stage
+   * Constructs a thread-pool stage.
    *
    * @param handler    the event handler to execute
    * @param numThreads the number of threads to use
@@ -62,7 +62,7 @@ public final class ThreadPoolStage<T> extends AbstractEStage<T> {
   }
 
   /**
-   * Constructs a thread-pool stage
+   * Constructs a thread-pool stage.
    *
    * @param name         the stage name
    * @param handler      the event handler to execute
@@ -86,7 +86,7 @@ public final class ThreadPoolStage<T> extends AbstractEStage<T> {
   }
 
   /**
-   * Constructs a thread-pool stage
+   * Constructs a thread-pool stage.
    *
    * @param name       the stage name
    * @param handler    the event handler to execute
@@ -101,7 +101,7 @@ public final class ThreadPoolStage<T> extends AbstractEStage<T> {
   }
 
   /**
-   * Constructs a thread-pool stage
+   * Constructs a thread-pool stage.
    *
    * @param handler  the event handler to execute
    * @param executor the external executor service provided
@@ -114,7 +114,7 @@ public final class ThreadPoolStage<T> extends AbstractEStage<T> {
 
 
   /**
-   * Constructs a thread-pool stage
+   * Constructs a thread-pool stage.
    *
    * @param handler      the event handler to execute
    * @param executor     the external executor service provided
@@ -128,7 +128,7 @@ public final class ThreadPoolStage<T> extends AbstractEStage<T> {
   }
 
   /**
-   * Constructs a thread-pool stage
+   * Constructs a thread-pool stage.
    *
    * @param name     the stage name
    * @param handler  the event handler to execute
@@ -143,7 +143,7 @@ public final class ThreadPoolStage<T> extends AbstractEStage<T> {
   }
 
   /**
-   * Constructs a thread-pool stage
+   * Constructs a thread-pool stage.
    *
    * @param name         the stage name
    * @param handler      the event handler to execute
@@ -165,7 +165,7 @@ public final class ThreadPoolStage<T> extends AbstractEStage<T> {
   }
 
   /**
-   * Handles the event using a thread in the thread pool
+   * Handles the event using a thread in the thread pool.
    *
    * @param value the event
    */
@@ -193,7 +193,7 @@ public final class ThreadPoolStage<T> extends AbstractEStage<T> {
   }
 
   /**
-   * Closes resources
+   * Closes resources.
    *
    * @return Exception
    */
@@ -212,7 +212,7 @@ public final class ThreadPoolStage<T> extends AbstractEStage<T> {
   }
 
   /**
-   * Gets the queue length of this stage
+   * Gets the queue length of this stage.
    *
    * @return the queue length
    */

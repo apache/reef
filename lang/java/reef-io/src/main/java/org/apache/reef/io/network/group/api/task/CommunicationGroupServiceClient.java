@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -26,7 +26,7 @@ import org.apache.reef.tang.annotations.DefaultImplementation;
 @DefaultImplementation(value = CommunicationGroupClientImpl.class)
 public interface CommunicationGroupServiceClient extends CommunicationGroupClient {
   /**
-   * Should not be used by user code
+   * Should not be used by user code.
    * Used for initialization of the
    * communication group
    */

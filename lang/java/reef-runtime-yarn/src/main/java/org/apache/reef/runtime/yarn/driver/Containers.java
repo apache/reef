@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -55,7 +55,7 @@ final class Containers {
   }
 
   /**
-   * Registers the given container
+   * Registers the given container.
    *
    * @param container
    * @throws java.lang.RuntimeException if a container with the same ID had been registered before.

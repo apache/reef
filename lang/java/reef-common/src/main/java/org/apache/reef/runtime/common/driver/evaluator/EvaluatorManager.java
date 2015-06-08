@@ -156,7 +156,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
   }
 
   /**
-   * Get the id of current job/application
+   * Get the id of current job/application.
    */
   public static String getJobIdentifier() {
     // TODO: currently we obtain the job id directly by parsing execution (container) directory path
@@ -248,14 +248,14 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
   }
 
   /**
-   * EvaluatorException will trigger is FailedEvaluator and state transition to FAILED
+   * EvaluatorException will trigger is FailedEvaluator and state transition to FAILED.
    *
    * @param exception on the EvaluatorRuntime
    */
   public void onEvaluatorException(final EvaluatorException exception) {
     synchronized (this.evaluatorDescriptor) {
       if (this.stateManager.isDoneOrFailedOrKilled()) {
-        LOG.log(Level.FINE, "Ignoring an exception receivedfor Evaluator {0} which is already in state {1}.",
+        LOG.log(Level.FINE, "Ignoring an exception received for Evaluator {0} which is already in state {1}.",
             new Object[]{this.getId(), this.stateManager});
         return;
       }
@@ -428,7 +428,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
   }
 
   /**
-   * Packages the ContextControlProto in an EvaluatorControlProto and forward it to the EvaluatorRuntime
+   * Packages the ContextControlProto in an EvaluatorControlProto and forward it to the EvaluatorRuntime.
    *
    * @param contextControlProto message contains context control info.
    */
@@ -440,7 +440,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
   }
 
   /**
-   * Forward the EvaluatorControlProto to the EvaluatorRuntime
+   * Forward the EvaluatorControlProto to the EvaluatorRuntime.
    *
    * @param evaluatorControlProto message contains evaluator control information.
    */
@@ -460,8 +460,18 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
     if (!(this.task.isPresent() && this.task.get().getId().equals(taskStatusProto.getTaskId()))) {
       if (taskStatusProto.getState() == ReefServiceProtos.State.INIT ||
           taskStatusProto.getState() == ReefServiceProtos.State.FAILED ||
+          taskStatusProto.getState() == ReefServiceProtos.State.RUNNING ||
           taskStatusProto.getRecovery() // for task from recovered evaluators
           ) {
+
+        // [REEF-308] exposes a bug where the .NET evaluator does not send its states in the right order
+        // [REEF-289] is a related item which may fix the issue
+        if (taskStatusProto.getState() == ReefServiceProtos.State.RUNNING) {
+          LOG.log(Level.WARNING,
+                  "Received a message of state " + ReefServiceProtos.State.RUNNING +
+                  " for Task " + taskStatusProto.getTaskId() +
+                  " before receiving its " + ReefServiceProtos.State.INIT + " state");
+        }
 
         // FAILED is a legal first state of a Task as it could have failed during construction.
         this.task = Optional.of(
@@ -471,8 +481,9 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
                 this,
                 this.exceptionCodec));
       } else {
-        throw new RuntimeException("Received an message of state " + taskStatusProto.getState() +
-            ", not INIT or FAILED for Task " + taskStatusProto.getTaskId() + " which we haven't heard from before.");
+        throw new RuntimeException("Received a message of state " + taskStatusProto.getState() +
+            ", not INIT, RUNNING, or FAILED for Task " + taskStatusProto.getTaskId() +
+            " which we haven't heard from before.");
       }
     }
     this.task.get().onTaskStatusMessage(taskStatusProto);

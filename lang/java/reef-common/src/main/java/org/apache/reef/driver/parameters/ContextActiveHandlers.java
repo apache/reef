@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -27,7 +27,7 @@ import org.apache.reef.wake.EventHandler;
 import java.util.Set;
 
 /**
- * Handler for ActiveContext
+ * Handler for ActiveContext.
  */
 @NamedParameter(doc = "Handler for ActiveContext", default_classes = DefaultContextActiveHandler.class)
 public final class ContextActiveHandlers implements Name<Set<EventHandler<ActiveContext>>> {

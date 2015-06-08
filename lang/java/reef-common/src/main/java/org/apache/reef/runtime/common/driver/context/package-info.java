@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -17,7 +17,7 @@
  * under the License.
  */
 /**
- * Implementations of Driver-Side representations of Contexts running on an Evaluator
+ * Implementations of Driver-Side representations of Contexts running on an Evaluator.
  */
 @DriverSide
 @Private package org.apache.reef.runtime.common.driver.context;

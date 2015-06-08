@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -30,7 +30,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Stage that synchronously executes an event handler
+ * Stage that synchronously executes an event handler.
  *
  * @param <T> type
  */
@@ -42,7 +42,7 @@ public final class SyncStage<T> extends AbstractEStage<T> {
   private final EventHandler<Throwable> errorHandler;
 
   /**
-   * Constructs a synchronous stage
+   * Constructs a synchronous stage.
    *
    * @param handler the event handler
    */
@@ -52,7 +52,7 @@ public final class SyncStage<T> extends AbstractEStage<T> {
   }
 
   /**
-   * Constructs a synchronous stage
+   * Constructs a synchronous stage.
    *
    * @param handler the event handler
    * @name name the stage name
@@ -64,7 +64,7 @@ public final class SyncStage<T> extends AbstractEStage<T> {
   }
 
   /**
-   * Constructs a synchronous stage
+   * Constructs a synchronous stage.
    *
    * @param handler      the event handler
    * @param errorHandler the error handler
@@ -81,7 +81,7 @@ public final class SyncStage<T> extends AbstractEStage<T> {
   }
 
   /**
-   * Invokes the handler for the event
+   * Invokes the handler for the event.
    *
    * @param value the event
    */
@@ -102,7 +102,7 @@ public final class SyncStage<T> extends AbstractEStage<T> {
   }
 
   /**
-   * Closes resources
+   * Closes resources.
    *
    * @throws Exception
    */

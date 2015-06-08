@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -33,7 +33,7 @@ public class SimpleSubject<T> implements Subject<T, T> {
   private final Observer<T> observer;
 
   /**
-   * Constructs a simple subject
+   * Constructs a simple subject.
    *
    * @param observer the observer
    */
@@ -43,7 +43,7 @@ public class SimpleSubject<T> implements Subject<T, T> {
   }
 
   /**
-   * Provides the observer with the new value
+   * Provides the observer with the new value.
    *
    * @param value the new value
    */
@@ -53,7 +53,7 @@ public class SimpleSubject<T> implements Subject<T, T> {
   }
 
   /**
-   * Provides the observer with the error
+   * Provides the observer with the error.
    *
    * @param error the error
    */

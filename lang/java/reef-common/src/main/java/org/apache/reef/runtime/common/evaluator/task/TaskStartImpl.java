@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -25,7 +25,7 @@ import org.apache.reef.task.events.TaskStart;
 import javax.inject.Inject;
 
 /**
- * Injectable implementation of TaskStart
+ * Injectable implementation of TaskStart.
  */
 final class TaskStartImpl implements TaskStart {
 

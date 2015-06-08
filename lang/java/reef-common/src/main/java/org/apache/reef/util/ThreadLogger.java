@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -38,7 +38,7 @@ public final class ThreadLogger {
   }
 
   /**
-   * Same as <code>logThreads(logger, level, prefix, "\n\t", "\n\t\t")</code>
+   * Same as <code>logThreads(logger, level, prefix, "\n\t", "\n\t\t")</code>.
    */
   public static void logThreads(final Logger logger, final Level level, final String prefix) {
     logThreads(logger, level, prefix, "\n\t", "\n\t\t");
@@ -80,14 +80,14 @@ public final class ThreadLogger {
   }
 
   /**
-   * Same as <code>getFormattedThreadList(prefix, "\n\t", "\n\t\t")</code>
+   * Same as <code>getFormattedThreadList(prefix, "\n\t", "\n\t\t")</code>.
    */
   public static String getFormattedThreadList(final String prefix) {
     return getFormattedThreadList(prefix, "\n\t", "\n\t\t");
   }
 
   /**
-   * Produces a String representation of threads that are deadlocked, including lock information
+   * Produces a String representation of threads that are deadlocked, including lock information.
    * @param prefix             The prefix of the string returned.
    * @param threadPrefix       Printed before each thread, e.g. "\n\t" to create an indented list.
    * @param stackElementPrefix Printed before each stack trace element, e.g. "\n\t\t" to create an indented list.
@@ -125,7 +125,7 @@ public final class ThreadLogger {
   }
 
   /**
-   * Same as <code>getFormattedDeadlockInfo(prefix, "\n\t", "\n\t\t")</code>
+   * Same as <code>getFormattedDeadlockInfo(prefix, "\n\t", "\n\t\t")</code>.
    */
   public static String getFormattedDeadlockInfo(final String prefix) {
     return getFormattedDeadlockInfo(prefix, "\n\t", "\n\t\t");

@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -22,7 +22,7 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * A default thread factory implementation that names created threads
+ * A default thread factory implementation that names created threads.
  */
 public final class DefaultThreadFactory implements ThreadFactory {
   private static final AtomicInteger poolNumber = new AtomicInteger(1);
@@ -32,7 +32,7 @@ public final class DefaultThreadFactory implements ThreadFactory {
   private Thread.UncaughtExceptionHandler uncaughtExceptionHandler;
 
   /**
-   * Constructs a default thread factory
+   * Constructs a default thread factory.
    *
    * @param prefix the name prefix of the created thread
    */
@@ -44,7 +44,7 @@ public final class DefaultThreadFactory implements ThreadFactory {
   }
 
   /**
-   * Constructs a default thread factory
+   * Constructs a default thread factory.
    *
    * @param prefix                   the name prefix of the created thread
    * @param uncaughtExceptionHandler the uncaught exception handler of the created thread
@@ -57,7 +57,7 @@ public final class DefaultThreadFactory implements ThreadFactory {
   }
 
   /**
-   * Sets a uncaught exception handler
+   * Sets a uncaught exception handler.
    *
    * @param uncaughtExceptionHandler the uncaught exception handler
    */
@@ -66,7 +66,7 @@ public final class DefaultThreadFactory implements ThreadFactory {
   }
 
   /**
-   * Creates a new thread
+   * Creates a new thread.
    *
    * @param r the runnable
    */

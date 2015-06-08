@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -89,7 +89,7 @@ public final class OSUtils {
   }
 
   /**
-   * Formats the given variable for expansion by Windows (<code>%VARIABE%</code>) or Linux (<code>$VARIABLE</code>)
+   * Formats the given variable for expansion by Windows (<code>%VARIABE%</code>) or Linux (<code>$VARIABLE</code>).
    *
    * @param variableName
    * @return

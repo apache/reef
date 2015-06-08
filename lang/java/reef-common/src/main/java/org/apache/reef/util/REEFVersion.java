@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -26,7 +26,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Version information, retrieved from the pom (via a properties file reference)
+ * Version information, retrieved from the pom (via a properties file reference).
  */
 public final class REEFVersion {
 

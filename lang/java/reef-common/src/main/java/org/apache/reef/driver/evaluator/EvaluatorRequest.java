@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -126,7 +126,7 @@ public final class EvaluatorRequest {
     }
 
     /**
-     * set number of cores
+     * set number of cores.
      *
      * @param cores the number of cores
      * @return

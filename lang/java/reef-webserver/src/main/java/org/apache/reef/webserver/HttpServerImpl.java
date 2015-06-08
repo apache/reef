@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -38,7 +38,7 @@ public final class HttpServerImpl implements HttpServer {
   private static final Logger LOG = Logger.getLogger(HttpServerImpl.class.getName());
 
   /**
-   *  JettyHandler injected in the constructor
+   *  JettyHandler injected in the constructor.
    */
   private JettyHandler jettyHandler;
 
@@ -48,17 +48,17 @@ public final class HttpServerImpl implements HttpServer {
   private final Server server;
 
   /**
-   * port number used in Jetty Server
+   * port number used in Jetty Server.
    */
   private final int port;
 
   /**
-   * Logging scope factory
+   * Logging scope factory.
    */
   private final LoggingScopeFactory loggingScopeFactory;
 
   /**
-   * Constructor of HttpServer that wraps Jetty Server
+   * Constructor of HttpServer that wraps Jetty Server.
    *
    * @param jettyHandler
    * @param portNumber
@@ -104,7 +104,7 @@ public final class HttpServerImpl implements HttpServer {
   }
 
   /**
-   * get a random port number in min and max range
+   * get a random port number in min and max range.
    *
    * @return
    */
@@ -137,7 +137,7 @@ public final class HttpServerImpl implements HttpServer {
   }
 
   /**
-   * Add a HttpHandler to Jetty Handler
+   * Add a HttpHandler to Jetty Handler.
    *
    * @param httpHandler
    */

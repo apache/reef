@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -59,7 +59,7 @@ public class SuspendDriver {
   private static final Logger LOG = Logger.getLogger(SuspendDriver.class.getName());
 
   /**
-   * Number of evaluators to request
+   * Number of evaluators to request.
    */
   private static final int NUM_EVALUATORS = 2;
 

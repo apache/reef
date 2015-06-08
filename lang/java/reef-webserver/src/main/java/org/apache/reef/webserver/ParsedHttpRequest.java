@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -25,7 +25,7 @@ import java.net.URLDecoder;
 import java.util.*;
 
 /**
- * Parsed HttpServletRequest
+ * Parsed HttpServletRequest.
  */
 public final class ParsedHttpRequest {
   private final String pathInfo;
@@ -42,7 +42,7 @@ public final class ParsedHttpRequest {
   private final Map<String, List<String>> queryPairs = new LinkedHashMap<>();
 
   /**
-   * parse HttpServletRequest
+   * parse HttpServletRequest.
    *
    * @param request
    * @throws IOException
@@ -94,7 +94,7 @@ public final class ParsedHttpRequest {
   }
 
   /**
-   * get http header as a list of HeaderEntry
+   * get http header as a list of HeaderEntry.
    * @return
    */
   public List<HeaderEntry> getHeaderEntryList() {
@@ -114,7 +114,7 @@ public final class ParsedHttpRequest {
   }
 
   /**
-   * get target to match specification like "Reef"
+   * get target to match specification like "Reef".
    *
    * @return specification
    */
@@ -132,7 +132,7 @@ public final class ParsedHttpRequest {
   }
 
   /**
-   * get target target entity like "Evaluators"
+   * get target target entity like "Evaluators".
    *
    * @return
    */
@@ -141,7 +141,7 @@ public final class ParsedHttpRequest {
   }
 
   /**
-   * get http request method like "Get"
+   * get http request method like "Get".
    *
    * @return
    */
@@ -150,7 +150,7 @@ public final class ParsedHttpRequest {
   }
 
   /**
-   * get input Stream
+   * get input Stream.
    *
    * @return
    */
@@ -159,7 +159,7 @@ public final class ParsedHttpRequest {
   }
 
   /**
-   * get request headers
+   * get request headers.
    *
    * @return
    */
@@ -168,7 +168,7 @@ public final class ParsedHttpRequest {
   }
 
   /**
-   * get parsed queries
+   * get parsed queries.
    *
    * @return
    */
@@ -177,7 +177,7 @@ public final class ParsedHttpRequest {
   }
 
   /**
-   * get URL like //http://localhost:8080/Reef/Evaluators/
+   * get URL like //http://localhost:8080/Reef/Evaluators/.
    *
    * @return
    */
@@ -186,7 +186,7 @@ public final class ParsedHttpRequest {
   }
 
   /**
-   * get path infor, like /Reef/Evaluators/
+   * get path infor, like /Reef/Evaluators/.
    *
    * @return
    */
@@ -195,7 +195,7 @@ public final class ParsedHttpRequest {
   }
 
   /**
-   * get URI, like /Reef/Evaluators/
+   * get URI, like /Reef/Evaluators/.
    *
    * @return
    */
@@ -204,7 +204,7 @@ public final class ParsedHttpRequest {
   }
 
   /**
-   * get version of the request for Rest API
+   * get version of the request for Rest API.
    *
    * @return
    */

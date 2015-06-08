@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -24,19 +24,19 @@ import org.apache.reef.io.network.group.impl.utils.Utils;
 import org.apache.reef.io.serialization.Codec;
 
 /**
- * The specification for the Reduce operator
+ * The specification for the Reduce operator.
  */
 public class ReduceOperatorSpec implements OperatorSpec {
 
   private final String receiverId;
 
   /**
-   * Codec to be used to serialize data
+   * Codec to be used to serialize data.
    */
   private final Class<? extends Codec> dataCodecClass;
 
   /**
-   * The reduce function to be used for operations that do reduction
+   * The reduce function to be used for operations that do reduction.
    */
   public final Class<? extends ReduceFunction> redFuncClass;
 

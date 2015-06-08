@@ -58,12 +58,12 @@ final class ContainerManager implements AutoCloseable {
   private final static Logger LOG = Logger.getLogger(ContainerManager.class.getName());
 
   /**
-   * Map from containerID -> Container
+   * Map from containerID -> Container.
    */
   private final Map<String, Container> containers = new HashMap<>();
 
   /**
-   * List of free, unallocated nodes by their Node ID
+   * List of free, unallocated nodes by their Node ID.
    */
   private final List<String> freeNodeList = new LinkedList<>();
 

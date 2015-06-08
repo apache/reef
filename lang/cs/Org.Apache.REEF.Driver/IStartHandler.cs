@@ -17,8 +17,16 @@
  * under the License.
  */
 
+using System;
+using Org.Apache.REEF.Driver.Defaults;
+using Org.Apache.REEF.Tang.Annotations;
+
 namespace Org.Apache.REEF.Driver
 {
+    [DefaultImplementation(typeof(DefaultObsoleteDriverStartHandler))]
+    [Obsolete(
+        "Implement IObserver<DateTime> instead. Please see Jira REEF-336. Obsoleted v0.12 and will be removed v0.13",
+        false)]
     public interface IStartHandler
     {
         string Identifier { get; set; }

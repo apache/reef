@@ -18,6 +18,7 @@
  */
 
 using System;
+using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -42,7 +43,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
     /// Communication Group.
     /// </summary>
     /// <typeparam name="T">The message type</typeparam>
-    public class OperatorTopology<T> : IObserver<GroupCommunicationMessage>
+    public class OperatorTopology<T> : IOperatorTopology<T>, IObserver<GroupCommunicationMessage>
     {
         private const int DefaultTimeout = 50000;
         private const int RetryCount = 10;
@@ -213,7 +214,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         /// </summary>
         /// <param name="messages">The list of messages to scatter</param>
         /// <param name="type">The message type</param>
-        public void ScatterToChildren(List<T> messages, MessageType type)
+        public void ScatterToChildren(IList<T> messages, MessageType type)
         {
             if (messages == null)
             {
@@ -235,7 +236,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         /// <param name="messages">The list of messages to scatter</param>
         /// <param name="count">The size of each sublist</param>
         /// <param name="type">The message type</param>
-        public void ScatterToChildren(List<T> messages, int count, MessageType type)
+        public void ScatterToChildren(IList<T> messages, int count, MessageType type)
         {
             if (messages == null)
             {
@@ -256,7 +257,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         /// <param name="messages">The list of messages to scatter</param>
         /// <param name="order">The order to send messages</param>
         /// <param name="type">The message type</param>
-        public void ScatterToChildren(List<T> messages, List<string> order, MessageType type)
+        public void ScatterToChildren(IList<T> messages, List<string> order, MessageType type)
         {
             if (messages == null)
             {
@@ -302,7 +303,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         /// Receive a list of incoming messages from the parent Task.
         /// </summary>
         /// <returns>The parent Task's list of messages</returns>
-        public List<T> ReceiveListFromParent()
+        public IList<T> ReceiveListFromParent()
         {
             byte[][] data = ReceiveFromNode(_parent);
             if (data == null || data.Length == 0)
@@ -428,35 +429,6 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         }
 
         /// <summary>
-        /// Get a node containing an incoming message.
-        /// </summary>
-        /// <returns>A NodeStruct with incoming data.</returns>
-        private NodeStruct GetNodeWithData()
-        {
-            CancellationTokenSource timeoutSource = new CancellationTokenSource(_timeout);
-
-            try
-            {
-                return _nodesWithData.Take(timeoutSource.Token);
-            }
-            catch (OperationCanceledException)
-            {
-                Logger.Log(Level.Error, "No data to read from child");
-                throw;
-            }
-            catch (ObjectDisposedException)
-            {
-                Logger.Log(Level.Error, "No data to read from child");
-                throw;
-            }
-            catch (InvalidOperationException)
-            {
-                Logger.Log(Level.Error, "No data to read from child");
-                throw;
-            }
-        }
-
-        /// <summary>
         /// Sends the message to the Task represented by the given NodeStruct.
         /// </summary>
         /// <param name="message">The message to send</param>
@@ -476,7 +448,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         /// <param name="messages">The list of messages to send</param>
         /// <param name="msgType">The message type</param>
         /// <param name="node">The NodeStruct representing the Task to send to</param>
-        private void SendToNode(List<T> messages, MessageType msgType, NodeStruct node)
+        private void SendToNode(IList<T> messages, MessageType msgType, NodeStruct node)
         {
             byte[][] encodedMessages = messages.Select(message => _codec.Encode(message)).ToArray();
             GroupCommunicationMessage gcm = new GroupCommunicationMessage(_groupName, _operatorName,
@@ -485,7 +457,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
             _sender.Send(gcm);
         }
 
-        private void ScatterHelper(List<T> messages, List<NodeStruct> order, int count)
+        private void ScatterHelper(IList<T> messages, List<NodeStruct> order, int count)
         {
             if (count <= 0)
             {
@@ -504,7 +476,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
                     throw new ArgumentException("Scatter count must be positive");
                 }
 
-                List<T> sublist = messages.GetRange(i, size);
+                IList<T> sublist = messages.ToList().GetRange(i, size);
                 SendToNode(sublist, MessageType.Data, nodeStruct);
 
                 i += size;

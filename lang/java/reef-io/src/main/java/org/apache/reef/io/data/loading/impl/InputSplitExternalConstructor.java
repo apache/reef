@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -29,7 +29,7 @@ import org.apache.reef.tang.annotations.Parameter;
 import javax.inject.Inject;
 
 /**
- * A Tang external constructor to inject an InputSplit
+ * A Tang external constructor to inject an InputSplit.
  * by deserializing the serialized input split assigned
  * to this evaluator
  */

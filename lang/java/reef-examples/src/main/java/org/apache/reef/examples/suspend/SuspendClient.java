@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -57,15 +57,15 @@ public class SuspendClient {
   private final SuspendClientControl controlListener;
 
   /**
-   * @param reef      reference to the REEF framework.
-   * @param port      port to listen to for suspend/resume commands.
-   * @param numCycles number of cycles to run in the task.
-   * @param delay     delay in seconds between cycles in the task.
+   * @param reef                 reference to the REEF framework.
+   * @param controlListener      suspend client control listener.
+   * @param numCycles            number of cycles to run in the task.
+   * @param delay                delay in seconds between cycles in the task.
    */
   @Inject
   SuspendClient(
       final REEF reef,
-      final @Parameter(SuspendClientControl.Port.class) int port,
+      final SuspendClientControl controlListener,
       final @Parameter(Launch.NumCycles.class) int numCycles,
       final @Parameter(Launch.Delay.class) int delay) throws BindException, IOException {
 
@@ -89,7 +89,7 @@ public class SuspendClient {
 
     this.driverConfig = cb.build();
     this.reef = reef;
-    this.controlListener = new SuspendClientControl(port);
+    this.controlListener = controlListener;
   }
 
   /**

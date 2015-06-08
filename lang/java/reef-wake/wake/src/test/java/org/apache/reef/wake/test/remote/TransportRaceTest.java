@@ -18,6 +18,9 @@
  */
 package org.apache.reef.wake.test.remote;
 
+import org.apache.reef.tang.Injector;
+import org.apache.reef.tang.Tang;
+import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.wake.EStage;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.impl.LoggingEventHandler;
@@ -25,10 +28,10 @@ import org.apache.reef.wake.impl.LoggingUtils;
 import org.apache.reef.wake.impl.ThreadPoolStage;
 import org.apache.reef.wake.impl.TimerStage;
 import org.apache.reef.wake.remote.address.LocalAddressProvider;
-import org.apache.reef.wake.remote.address.LocalAddressProviderFactory;
 import org.apache.reef.wake.remote.impl.TransportEvent;
 import org.apache.reef.wake.remote.transport.Link;
-import org.apache.reef.wake.remote.transport.netty.NettyMessagingTransport;
+import org.apache.reef.wake.remote.transport.Transport;
+import org.apache.reef.wake.remote.transport.TransportFactory;
 import org.apache.reef.wake.test.util.Monitor;
 import org.apache.reef.wake.test.util.PassThroughEncoder;
 import org.apache.reef.wake.test.util.TimeoutHandler;
@@ -41,9 +44,12 @@ import java.util.logging.Level;
 
 public class TransportRaceTest {
   private final LocalAddressProvider localAddressProvider;
+  private final TransportFactory tpFactory;
 
-  public TransportRaceTest() {
-    this.localAddressProvider = LocalAddressProviderFactory.getInstance();
+  public TransportRaceTest() throws InjectionException {
+    final Injector injector = Tang.Factory.getTang().newInjector();
+    this.localAddressProvider = injector.getInstance(LocalAddressProvider.class);
+    this.tpFactory = injector.getInstance(TransportFactory.class);
   }
 
   @Test
@@ -60,7 +66,7 @@ public class TransportRaceTest {
         serverHandler, 1, new LoggingEventHandler<Throwable>());
     final String hostAddress = this.localAddressProvider.getLocalAddress();
     int port = 7001;
-    NettyMessagingTransport transport = new NettyMessagingTransport(
+    Transport transport = tpFactory.newInstance(
         hostAddress, port, clientStage, serverStage, 1, 10000);
 
     String value = "Test Race";

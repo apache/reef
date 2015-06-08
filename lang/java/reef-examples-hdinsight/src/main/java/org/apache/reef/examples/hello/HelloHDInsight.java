@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -24,7 +24,7 @@ import org.apache.reef.tang.exceptions.InjectionException;
 import java.io.IOException;
 
 /**
- * HelloREEF running on HDInsight
+ * HelloREEF running on HDInsight.
  */
 public class HelloHDInsight {
   public static void main(final String[] args) throws InjectionException, IOException {

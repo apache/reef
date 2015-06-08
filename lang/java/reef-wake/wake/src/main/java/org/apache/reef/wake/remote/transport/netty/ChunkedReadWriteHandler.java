@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -135,7 +135,7 @@ public class ChunkedReadWriteHandler extends ChunkedWriteHandler {
   }
 
   /**
-   * Converts the int size into a byte[]
+   * Converts the int size into a byte[].
    *
    * @return the bit representation of size
    */
@@ -149,14 +149,14 @@ public class ChunkedReadWriteHandler extends ChunkedWriteHandler {
   }
 
   /**
-   * Get expected size encoded as the first 4 bytes of data
+   * Get expected size encoded as the first 4 bytes of data.
    */
   private int getSize(final byte[] data) {
     return getSize(data, 0);
   }
 
   /**
-   * Get expected size encoded as offset + 4 bytes of data
+   * Get expected size encoded as offset + 4 bytes of data.
    */
   private int getSize(final byte[] data, final int offset) {
 

@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -59,7 +59,7 @@ public final class RxThreadPoolStage<T> extends AbstractRxStage<T> {
   private DefaultThreadFactory tf;
 
   /**
-   * Constructs a Rx thread pool stage
+   * Constructs a Rx thread pool stage.
    *
    * @param observer   the observer to execute
    * @param numThreads the number of threads
@@ -71,7 +71,7 @@ public final class RxThreadPoolStage<T> extends AbstractRxStage<T> {
   }
 
   /**
-   * Constructs a Rx thread pool stage
+   * Constructs a Rx thread pool stage.
    *
    * @param name       the stage name
    * @param observer   the observer to execute
@@ -92,7 +92,7 @@ public final class RxThreadPoolStage<T> extends AbstractRxStage<T> {
   }
 
   /**
-   * Provides the observer with the new value
+   * Provides the observer with the new value.
    *
    * @param value the new value
    */
@@ -165,7 +165,7 @@ public final class RxThreadPoolStage<T> extends AbstractRxStage<T> {
   }
 
   /**
-   * Closes the stage
+   * Closes the stage.
    *
    * @return Exception
    */
@@ -188,7 +188,7 @@ public final class RxThreadPoolStage<T> extends AbstractRxStage<T> {
   }
 
   /**
-   * Gets the queue length of this stage
+   * Gets the queue length of this stage.
    *
    * @return the queue length
    */

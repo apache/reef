@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -22,7 +22,7 @@ import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
 
 /**
- * The regularization constant
+ * The regularization constant.
  */
 @NamedParameter(doc = "The regularization constant", short_name = "lambda", default_value = "1e-4")
 public final class Lambda implements Name<Double> {

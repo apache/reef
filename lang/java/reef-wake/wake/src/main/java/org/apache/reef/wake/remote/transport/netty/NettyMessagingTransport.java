@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -30,10 +30,14 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.util.concurrent.GlobalEventExecutor;
+import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.wake.EStage;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.impl.DefaultThreadFactory;
 import org.apache.reef.wake.remote.Encoder;
+import org.apache.reef.wake.remote.RemoteConfiguration;
+import org.apache.reef.wake.remote.address.LocalAddressProvider;
+import org.apache.reef.wake.remote.address.LocalAddressProviderFactory;
 import org.apache.reef.wake.remote.exception.RemoteRuntimeException;
 import org.apache.reef.wake.remote.impl.TransportEvent;
 import org.apache.reef.wake.remote.ports.RangeTcpPortProvider;
@@ -43,6 +47,7 @@ import org.apache.reef.wake.remote.transport.LinkListener;
 import org.apache.reef.wake.remote.transport.Transport;
 import org.apache.reef.wake.remote.transport.exception.TransportRuntimeException;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.net.BindException;
 import java.net.ConnectException;
@@ -56,7 +61,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Messaging transport implementation with Netty
+ * Messaging transport implementation with Netty.
  */
 public class NettyMessagingTransport implements Transport {
 
@@ -88,9 +93,14 @@ public class NettyMessagingTransport implements Transport {
 
   private final int numberOfTries;
   private final int retryTimeout;
+  /**
+   * Indicates a hostname that isn't set or known.
+   */
+  public static final String UNKNOWN_HOST_NAME = "##UNKNOWN##";
+
 
   /**
-   * Constructs a messaging transport
+   * Constructs a messaging transport.
    *
    * @param hostAddress   the server host address
    * @param port          the server listening port; when it is 0, randomly assign a port number
@@ -99,18 +109,48 @@ public class NettyMessagingTransport implements Transport {
    * @param numberOfTries the number of tries of connection
    * @param retryTimeout  the timeout of reconnection
    * @param tcpPortProvider  gives an iterator that produces random tcp ports in a range
-   *
+   * @deprecated use the constructor that takes a LocalAddressProvider instead.
    */
-  public NettyMessagingTransport(final String hostAddress, int port,
-                                 final EStage<TransportEvent> clientStage,
-                                 final EStage<TransportEvent> serverStage,
-                                 final int numberOfTries,
-                                 final int retryTimeout,
-                                 final TcpPortProvider tcpPortProvider) {
+  @Deprecated
+  public NettyMessagingTransport(
+      final String hostAddress,
+      int port,
+      final EStage<TransportEvent> clientStage,
+      final EStage<TransportEvent> serverStage,
+      final int numberOfTries,
+      final int retryTimeout,
+      final TcpPortProvider tcpPortProvider) {
+
+    this(hostAddress, port, clientStage, serverStage, numberOfTries,
+        retryTimeout, tcpPortProvider, LocalAddressProviderFactory.getInstance());
+  }
+  /**
+   * Constructs a messaging transport.
+   *
+   * @param hostAddress   the server host address
+   * @param port          the server listening port; when it is 0, randomly assign a port number
+   * @param clientStage   the client-side stage that handles transport events
+   * @param serverStage   the server-side stage that handles transport events
+   * @param numberOfTries the number of tries of connection
+   * @param retryTimeout  the timeout of reconnection
+   * @param tcpPortProvider  gives an iterator that produces random tcp ports in a range
+   */
+  @Inject
+  NettyMessagingTransport(
+      final @Parameter(RemoteConfiguration.HostAddress.class) String hostAddress,
+      @Parameter(RemoteConfiguration.Port.class) int port,
+      final @Parameter(RemoteConfiguration.RemoteClientStage.class) EStage<TransportEvent> clientStage,
+      final @Parameter(RemoteConfiguration.RemoteServerStage.class) EStage<TransportEvent> serverStage,
+      final @Parameter(RemoteConfiguration.NumberOfTries.class) int numberOfTries,
+      final @Parameter(RemoteConfiguration.RetryTimeout.class) int retryTimeout,
+      final TcpPortProvider tcpPortProvider,
+      final LocalAddressProvider localAddressProvider) {
 
     if (port < 0) {
       throw new RemoteRuntimeException("Invalid server port: " + port);
     }
+
+    final String host = UNKNOWN_HOST_NAME.equals(hostAddress) ? localAddressProvider.getLocalAddress() : hostAddress;
 
     this.numberOfTries = numberOfTries;
     this.retryTimeout = retryTimeout;
@@ -143,7 +183,7 @@ public class NettyMessagingTransport implements Transport {
   Channel acceptor = null;
   try {
     if (port > 0) {
-      acceptor = this.serverBootstrap.bind(new InetSocketAddress(hostAddress, port)).sync().channel();
+      acceptor = this.serverBootstrap.bind(new InetSocketAddress(host, port)).sync().channel();
     } else {
       Iterator<Integer> ports = tcpPortProvider.iterator();
       while (acceptor == null) {
@@ -151,7 +191,7 @@ public class NettyMessagingTransport implements Transport {
         port = ports.next();
         LOG.log(Level.FINEST, "Try port {0}", port);
         try {
-          acceptor = this.serverBootstrap.bind(new InetSocketAddress(hostAddress, port)).sync().channel();
+          acceptor = this.serverBootstrap.bind(new InetSocketAddress(host, port)).sync().channel();
         } catch (final Exception ex) {
           if (ex instanceof BindException) {
             LOG.log(Level.FINEST, "The port {0} is already bound. Try again", port);
@@ -174,13 +214,13 @@ public class NettyMessagingTransport implements Transport {
 
     this.acceptor = acceptor;
     this.serverPort = port;
-    this.localAddress = new InetSocketAddress(hostAddress, this.serverPort);
+    this.localAddress = new InetSocketAddress(host, this.serverPort);
 
     LOG.log(Level.FINE, "Starting netty transport socket address: {0}", this.localAddress);
   }
 
   /**
-   * Constructs a messaging transport
+   * Constructs a messaging transport.
    *
    * @param hostAddress   the server host address
    * @param port          the server listening port; when it is 0, randomly assign a port number
@@ -188,7 +228,7 @@ public class NettyMessagingTransport implements Transport {
    * @param serverStage   the server-side stage that handles transport events
    * @param numberOfTries the number of tries of connection
    * @param retryTimeout  the timeout of reconnection
-   * @deprecated use the constructor that takes a TcpProvider instead
+   * @deprecated use the constructor that takes a TcpProvider and LocalAddressProvider instead.
    */
   @Deprecated
   public NettyMessagingTransport(final String hostAddress, int port,
@@ -201,7 +241,7 @@ public class NettyMessagingTransport implements Transport {
   }
 
   /**
-   * Closes all channels and releases all resources
+   * Closes all channels and releases all resources.
    */
   @Override
   public void close() throws Exception {
@@ -219,7 +259,7 @@ public class NettyMessagingTransport implements Transport {
   }
 
   /**
-   * Returns a link for the remote address if cached; otherwise opens, caches and returns
+   * Returns a link for the remote address if cached; otherwise opens, caches and returns.
    * When it opens a link for the remote address, only one attempt for the address is made at a given time
    *
    * @param remoteAddr the remote socket address
@@ -318,7 +358,7 @@ public class NettyMessagingTransport implements Transport {
   }
 
   /**
-   * Returns a link for the remote address if already cached; otherwise, returns null
+   * Returns a link for the remote address if already cached; otherwise, returns null.
    *
    * @param remoteAddr the remote address
    * @return a link if already cached; otherwise, null
@@ -329,7 +369,7 @@ public class NettyMessagingTransport implements Transport {
   }
 
   /**
-   * Gets a server local socket address of this transport
+   * Gets a server local socket address of this transport.
    *
    * @return a server local socket address
    */
@@ -339,7 +379,7 @@ public class NettyMessagingTransport implements Transport {
   }
 
   /**
-   * Gets a server listening port of this transport
+   * Gets a server listening port of this transport.
    *
    * @return a listening port number
    */
@@ -349,7 +389,7 @@ public class NettyMessagingTransport implements Transport {
   }
 
   /**
-   * Registers the exception event handler
+   * Registers the exception event handler.
    *
    * @param handler the exception event handler
    */

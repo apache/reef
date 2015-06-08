@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -23,7 +23,7 @@ import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.client.CompletedJob;
 
 /**
- * An implementation of CompletedJob
+ * An implementation of CompletedJob.
  */
 @ClientSide
 @Private

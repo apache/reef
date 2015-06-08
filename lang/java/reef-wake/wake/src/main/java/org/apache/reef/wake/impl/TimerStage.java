@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -37,7 +37,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Stage that triggers an event handler periodically
+ * Stage that triggers an event handler periodically.
  */
 public final class TimerStage implements Stage {
   private static final Logger LOG = Logger.getLogger(TimerStage.class.getName());
@@ -48,7 +48,7 @@ public final class TimerStage implements Stage {
   private final long shutdownTimeout = WakeParameters.EXECUTOR_SHUTDOWN_TIMEOUT;
 
   /**
-   * Constructs a timer stage with no initial delay
+   * Constructs a timer stage with no initial delay.
    *
    * @param handler an event handler
    * @param period  a period in milli-seconds
@@ -60,7 +60,7 @@ public final class TimerStage implements Stage {
   }
 
   /**
-   * Constructs a timer stage with no initial delay
+   * Constructs a timer stage with no initial delay.
    *
    * @param handler an event handler
    * @param period  a period in milli-seconds
@@ -74,7 +74,7 @@ public final class TimerStage implements Stage {
   }
 
   /**
-   * Constructs a timer stage
+   * Constructs a timer stage.
    *
    * @param handler      an event handler
    * @param initialDelay an initial delay
@@ -88,7 +88,7 @@ public final class TimerStage implements Stage {
   }
 
   /**
-   * Constructs a timer stage
+   * Constructs a timer stage.
    *
    * @param name         the stage name
    * @param handler      an event handler
@@ -115,7 +115,7 @@ public final class TimerStage implements Stage {
 
 
   /**
-   * Closes resources
+   * Closes resources.
    *
    * @throws Exception
    */

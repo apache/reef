@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -19,13 +19,13 @@
 package org.apache.reef.io.network.exception;
 
 /**
- * Network service resourcemanager exception
+ * Network service resourcemanager exception.
  */
 public class NetworkRuntimeException extends RuntimeException {
   private static final long serialVersionUID = 1L;
 
   /**
-   * Constructs a new network resourcemanager exception with the specified detail message and cause
+   * Constructs a new network resourcemanager exception with the specified detail message and cause.
    *
    * @param s the detailed message
    * @param e the cause
@@ -35,7 +35,7 @@ public class NetworkRuntimeException extends RuntimeException {
   }
 
   /**
-   * Constructs a new network resourcemanager exception with the specified detail message
+   * Constructs a new network resourcemanager exception with the specified detail message.
    *
    * @param s the detailed message
    */
@@ -44,7 +44,7 @@ public class NetworkRuntimeException extends RuntimeException {
   }
 
   /**
-   * Constructs a new network resourcemanager exception with the specified cause
+   * Constructs a new network resourcemanager exception with the specified cause.
    *
    * @param e the cause
    */

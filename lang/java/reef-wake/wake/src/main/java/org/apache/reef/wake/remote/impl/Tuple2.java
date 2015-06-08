@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -19,7 +19,7 @@
 package org.apache.reef.wake.remote.impl;
 
 /**
- * Tuple with two values
+ * Tuple with two values.
  *
  * @param <T1>
  * @param <T2>

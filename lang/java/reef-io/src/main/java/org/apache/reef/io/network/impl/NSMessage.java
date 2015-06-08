@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Network service message that implements the Message interface
+ * Network service message that implements the Message interface.
  *
  * @param <T> type
  */
@@ -35,7 +35,7 @@ public class NSMessage<T> implements Message<T> {
   private final List<T> data;
 
   /**
-   * Constructs a network service message
+   * Constructs a network service message.
    *
    * @param srcId  a source identifier
    * @param destId a destination identifier
@@ -49,7 +49,7 @@ public class NSMessage<T> implements Message<T> {
   }
 
   /**
-   * Constructs a network service message
+   * Constructs a network service message.
    *
    * @param srcId  a source identifier
    * @param destId a destination identifier
@@ -62,7 +62,7 @@ public class NSMessage<T> implements Message<T> {
   }
 
   /**
-   * Gets a source identifier
+   * Gets a source identifier.
    *
    * @return an identifier
    */
@@ -71,7 +71,7 @@ public class NSMessage<T> implements Message<T> {
   }
 
   /**
-   * Gets a destination identifier
+   * Gets a destination identifier.
    *
    * @return an identifier
    */
@@ -80,7 +80,7 @@ public class NSMessage<T> implements Message<T> {
   }
 
   /**
-   * Gets data
+   * Gets data.
    *
    * @return data
    */

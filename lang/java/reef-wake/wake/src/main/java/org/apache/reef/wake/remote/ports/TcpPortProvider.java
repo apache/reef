@@ -29,7 +29,7 @@ import java.util.Iterator;
 @DefaultImplementation(RangeTcpPortProvider.class)
 public interface TcpPortProvider extends Iterable<Integer> {
   /**
-   * Returns an iterator over a set of tcp ports
+   * Returns an iterator over a set of tcp ports.
    *
    * @return an Iterator.
    */

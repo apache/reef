@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -45,7 +45,7 @@ public class NettyLink<T> implements Link<T> {
   private final LinkListener<? super T> listener;
 
   /**
-   * Constructs a link
+   * Constructs a link.
    *
    * @param channel the channel
    * @param encoder the encoder
@@ -55,7 +55,7 @@ public class NettyLink<T> implements Link<T> {
   }
 
   /**
-   * Constructs a link
+   * Constructs a link.
    *
    * @param channel  the channel
    * @param encoder  the encoder
@@ -70,7 +70,7 @@ public class NettyLink<T> implements Link<T> {
 
 
   /**
-   * Writes the message to this link
+   * Writes the message to this link.
    *
    * @param message the message
    */
@@ -88,7 +88,7 @@ public class NettyLink<T> implements Link<T> {
   }
 
   /**
-   * Gets a local address of the link
+   * Gets a local address of the link.
    *
    * @return a local socket address
    */
@@ -98,7 +98,7 @@ public class NettyLink<T> implements Link<T> {
   }
 
   /**
-   * Gets a remote address of the link
+   * Gets a remote address of the link.
    *
    * @return a remote socket address
    */

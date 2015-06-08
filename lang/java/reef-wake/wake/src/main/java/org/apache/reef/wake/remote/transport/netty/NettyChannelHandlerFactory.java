@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -22,12 +22,12 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 
 
 /**
- * Factory that creates a Netty channel handler
+ * Factory that creates a Netty channel handler.
  */
 interface NettyChannelHandlerFactory {
 
   /**
-   * Creates a channel inbound handler
+   * Creates a channel inbound handler.
    *
    * @return a channel inbound handler adapter
    */

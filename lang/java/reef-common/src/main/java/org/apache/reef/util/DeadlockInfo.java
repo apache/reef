@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -55,7 +55,7 @@ final class DeadlockInfo {
   }
 
   /**
-   * Get a list of monitor locks that were acquired by this thread at this stack element
+   * Get a list of monitor locks that were acquired by this thread at this stack element.
    * @param threadInfo The thread that created the stack element
    * @param stackTraceElement The stack element
    * @return List of monitor locks that were acquired by this thread at this stack element or an empty list if none were acquired
@@ -75,7 +75,7 @@ final class DeadlockInfo {
   }
 
   /**
-   * Get a string identifying the lock that this thread is waiting on
+   * Get a string identifying the lock that this thread is waiting on.
    * @param threadInfo
    * @return A string identifying the lock that this thread is waiting on, or null if the thread is not waiting on a lock
    */

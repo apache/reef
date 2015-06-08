@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -23,7 +23,7 @@ import org.apache.reef.wake.metrics.Meter;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * An {@link RxStage} that implements metering
+ * An {@link RxStage} that implements metering.
  *
  * @param <T> type
  */
@@ -35,7 +35,7 @@ public abstract class AbstractRxStage<T> implements RxStage<T> {
   protected final Meter outMeter;
 
   /**
-   * Constructs an abstact rxstage
+   * Constructs an abstact rxstage.
    *
    * @param stageName the stage name
    */
@@ -67,7 +67,7 @@ public abstract class AbstractRxStage<T> implements RxStage<T> {
   }
 
   /**
-   * Gets the input meter of this stage
+   * Gets the input meter of this stage.
    *
    * @return the input meter
    */
@@ -76,7 +76,7 @@ public abstract class AbstractRxStage<T> implements RxStage<T> {
   }
 
   /**
-   * Gets the output meter of this stage
+   * Gets the output meter of this stage.
    *
    * @return the output meter
    */

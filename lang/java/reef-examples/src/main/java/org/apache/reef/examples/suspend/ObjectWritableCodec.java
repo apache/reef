@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -34,7 +34,7 @@ import java.util.logging.Logger;
 public class ObjectWritableCodec<T extends Writable> implements Codec<T> {
 
   /**
-   * Standard Java logger
+   * Standard Java logger.
    */
   private static final Logger LOG = Logger.getLogger(ObjectWritableCodec.class.getName());
 

@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -35,7 +35,7 @@ import org.apache.reef.tang.annotations.Name;
 public interface CommunicationGroupDriver {
 
   /**
-   * Add the broadcast operator specified by the
+   * Add the broadcast operator specified by the.
    * 'spec' with name 'operatorName' into this
    * Communication Group
    *
@@ -46,7 +46,7 @@ public interface CommunicationGroupDriver {
   public CommunicationGroupDriver addBroadcast(Class<? extends Name<String>> operatorName, BroadcastOperatorSpec spec);
 
   /**
-   * Add the reduce operator specified by the
+   * Add the reduce operator specified by the.
    * 'spec' with name 'operatorName' into this
    * Communication Group
    *
@@ -57,7 +57,7 @@ public interface CommunicationGroupDriver {
   public CommunicationGroupDriver addReduce(Class<? extends Name<String>> operatorName, ReduceOperatorSpec spec);
 
   /**
-   * This signals to the service that no more
+   * This signals to the service that no more.
    * operator specs will be added to this communication
    * group and an attempt to do that will throw an
    * IllegalStateException

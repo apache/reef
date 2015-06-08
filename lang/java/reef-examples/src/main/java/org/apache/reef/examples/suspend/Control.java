@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -35,7 +35,7 @@ import org.apache.reef.wake.remote.impl.ObjectSerializableCodec;
 import org.apache.reef.wake.remote.impl.TransportEvent;
 import org.apache.reef.wake.remote.transport.Link;
 import org.apache.reef.wake.remote.transport.Transport;
-import org.apache.reef.wake.remote.transport.netty.NettyMessagingTransport;
+import org.apache.reef.wake.remote.transport.TransportFactory;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -49,14 +49,17 @@ public final class Control {
   private final transient String command;
   private final transient String taskId;
   private final transient int port;
+  private final TransportFactory tpFactory;
 
   @Inject
   public Control(@Parameter(SuspendClientControl.Port.class) final int port,
                  @Parameter(TaskId.class) final String taskId,
-                 @Parameter(Command.class) final String command) {
+                 @Parameter(Command.class) final String command,
+                 final TransportFactory tpFactory) {
     this.command = command.trim().toLowerCase();
     this.taskId = taskId;
     this.port = port;
+    this.tpFactory = tpFactory;
   }
 
   private static Configuration getConfig(final String[] args) throws IOException, BindException {
@@ -87,7 +90,7 @@ public final class Control {
       }
     });
 
-    try (final Transport transport = new NettyMessagingTransport("localhost", 0, stage, stage, 1, 10000)) {
+    try (final Transport transport = tpFactory.newInstance("localhost", 0, stage, stage, 1, 10000)) {
       final Link link = transport.open(new InetSocketAddress("localhost", this.port), codec, null);
       link.write(this.command + " " + this.taskId);
     }

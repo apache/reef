@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -19,7 +19,7 @@
 package org.apache.reef.util.logging;
 
 /**
- * Configure Commons Logging
+ * Configure Commons Logging.
  */
 public final class LoggingSetup {
 

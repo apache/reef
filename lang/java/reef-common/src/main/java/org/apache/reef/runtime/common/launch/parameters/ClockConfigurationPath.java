@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -22,7 +22,7 @@ import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
 
 /**
- * The path to the clock configuration
+ * The path to the clock configuration.
  */
 @NamedParameter(doc = "The path to process configuration.", short_name = ClockConfigurationPath.SHORT_NAME)
 public final class ClockConfigurationPath implements Name<String> {

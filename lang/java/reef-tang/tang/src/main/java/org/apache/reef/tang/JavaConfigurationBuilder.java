@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -51,7 +51,7 @@ public interface JavaConfigurationBuilder extends ConfigurationBuilder {
   public <T> JavaConfigurationBuilder bind(Class<T> iface, Class<?> impl) throws BindException;
 
   /**
-   * Binds the Class impl as the implementation of the interface iface
+   * Binds the Class impl as the implementation of the interface iface.
    *
    * @param <T>
    * @param iface

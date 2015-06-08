@@ -18,6 +18,7 @@
  */
 
 using System.Collections.Generic;
+using System.Linq;
 using System.Reactive;
 using Org.Apache.REEF.Network.Group.Config;
 using Org.Apache.REEF.Network.Group.Driver.Impl;
@@ -35,7 +36,7 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
     public class ScatterReceiver<T> : IScatterReceiver<T>
     {
         private const int DefaultVersion = 1;
-        private readonly OperatorTopology<T> _topology;
+        private readonly IOperatorTopology<T> _topology;
 
         /// <summary>
         /// Creates a new ScatterReceiver.
@@ -59,7 +60,7 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
             Version = DefaultVersion;
             _topology = topology;
 
-            var msgHandler = Observer.Create<GroupCommunicationMessage>(message => _topology.OnNext(message));
+            var msgHandler = Observer.Create<GroupCommunicationMessage>(message => topology.OnNext(message));
             networkHandler.Register(operatorName, msgHandler);
 
             if (initialize)
@@ -94,9 +95,9 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
         /// <returns>The sublist of messages</returns>
         public List<T> Receive()
         {
-            List<T> elements = _topology.ReceiveListFromParent();
+            IList<T> elements = _topology.ReceiveListFromParent();
             _topology.ScatterToChildren(elements, MessageType.Data);
-            return elements;
+            return elements.ToList();
         }
     }
 }

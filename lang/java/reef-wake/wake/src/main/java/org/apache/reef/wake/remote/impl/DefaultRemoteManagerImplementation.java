@@ -25,9 +25,9 @@ import org.apache.reef.wake.impl.StageManager;
 import org.apache.reef.wake.remote.*;
 import org.apache.reef.wake.remote.address.LocalAddressProvider;
 import org.apache.reef.wake.remote.address.LocalAddressProviderFactory;
-import org.apache.reef.wake.remote.ports.RangeTcpPortProvider;
-import org.apache.reef.wake.remote.ports.TcpPortProvider;
 import org.apache.reef.wake.remote.transport.Transport;
+import org.apache.reef.wake.remote.transport.TransportFactory;
+import org.apache.reef.wake.remote.transport.netty.MessagingTransportFactory;
 import org.apache.reef.wake.remote.transport.netty.NettyMessagingTransport;
 
 import javax.inject.Inject;
@@ -41,7 +41,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Default remote manager implementation
+ * Default remote manager implementation.
  */
 public class DefaultRemoteManagerImplementation implements RemoteManager {
 
@@ -50,7 +50,7 @@ public class DefaultRemoteManagerImplementation implements RemoteManager {
   private static final AtomicInteger counter = new AtomicInteger(0);
 
   /**
-   * The timeout used for the execute running in close()
+   * The timeout used for the execute running in close().
    */
   private static final long CLOSE_EXECUTOR_TIMEOUT = 10000; //ms
   private final AtomicBoolean closed = new AtomicBoolean(false);
@@ -64,8 +64,7 @@ public class DefaultRemoteManagerImplementation implements RemoteManager {
   /**
    * Indicates a hostname that isn't set or known.
    */
-  public static final String UNKNOWN_HOST_NAME = "##UNKNOWN##";
-
+  public static final String UNKNOWN_HOST_NAME = NettyMessagingTransport.UNKNOWN_HOST_NAME;
 
   /**
    * @deprecated have an instance injected instead. Or use RemoteManagerFactory.getInstance()
@@ -89,8 +88,7 @@ public class DefaultRemoteManagerImplementation implements RemoteManager {
         numberOfTries,
         retryTimeout,
         LocalAddressProviderFactory.getInstance(),
-        RangeTcpPortProvider.Default);
-
+        new MessagingTransportFactory());
   }
 
   /**
@@ -108,7 +106,7 @@ public class DefaultRemoteManagerImplementation implements RemoteManager {
       final @Parameter(RemoteConfiguration.NumberOfTries.class) int numberOfTries,
       final @Parameter(RemoteConfiguration.RetryTimeout.class) int retryTimeout,
       final LocalAddressProvider localAddressProvider,
-      final TcpPortProvider tcpPortProvider) {
+      final TransportFactory tpFactory) {
 
     this.name = name;
     this.handlerContainer = new HandlerContainer<>(name, codec);
@@ -117,9 +115,8 @@ public class DefaultRemoteManagerImplementation implements RemoteManager {
         new OrderedRemoteReceiverStage(this.handlerContainer, errorHandler) :
         new RemoteReceiverStage(this.handlerContainer, errorHandler, 10);
 
-    final String host = UNKNOWN_HOST_NAME.equals(hostAddress) ? localAddressProvider.getLocalAddress() : hostAddress;
-    this.transport = new NettyMessagingTransport(
-            host, listeningPort, this.reRecvStage, this.reRecvStage, numberOfTries, retryTimeout, tcpPortProvider);
+    this.transport = tpFactory.newInstance(
+        hostAddress, listeningPort, this.reRecvStage, this.reRecvStage, numberOfTries, retryTimeout);
 
     this.handlerContainer.setTransport(this.transport);
 
@@ -138,7 +135,7 @@ public class DefaultRemoteManagerImplementation implements RemoteManager {
   }
 
   /**
-   * Returns a proxy event handler for a remote identifier and a message type
+   * Returns a proxy event handler for a remote identifier and a message type.
    */
   @Override
   public <T> EventHandler<T> getHandler(
@@ -154,7 +151,7 @@ public class DefaultRemoteManagerImplementation implements RemoteManager {
   }
 
   /**
-   * Registers an event handler for a remote identifier and a message type and
+   * Registers an event handler for a remote identifier and a message type and.
    * returns a subscription
    */
   @Override
@@ -170,7 +167,7 @@ public class DefaultRemoteManagerImplementation implements RemoteManager {
   }
 
   /**
-   * Registers an event handler for a message type and returns a subscription
+   * Registers an event handler for a message type and returns a subscription.
    */
   @Override
   public <T, U extends T> AutoCloseable registerHandler(
@@ -183,7 +180,7 @@ public class DefaultRemoteManagerImplementation implements RemoteManager {
   }
 
   /**
-   * Registers an exception handler and returns a subscription
+   * Registers an exception handler and returns a subscription.
    */
   @Override
   public AutoCloseable registerErrorHandler(final EventHandler<Exception> theHandler) {
@@ -195,7 +192,7 @@ public class DefaultRemoteManagerImplementation implements RemoteManager {
   }
 
   /**
-   * Returns my identifier
+   * Returns my identifier.
    */
   @Override
   public RemoteIdentifier getMyIdentifier() {

@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -27,7 +27,7 @@ import org.apache.reef.tang.annotations.DefaultImplementation;
 import org.apache.reef.tang.annotations.Name;
 
 /**
- * The driver side interface of Group Communication
+ * The driver side interface of Group Communication.
  * which is the entry point for the service
  */
 @DriverSide
@@ -36,7 +36,7 @@ import org.apache.reef.tang.annotations.Name;
 public interface GroupCommDriver {
 
   /**
-   * Create a new communication group with the specified name
+   * Create a new communication group with the specified name.
    * and the minimum number of tasks needed in this group before
    * communication can start
    *
@@ -47,7 +47,7 @@ public interface GroupCommDriver {
   CommunicationGroupDriver newCommunicationGroup(Class<? extends Name<String>> groupName, int numberOfTasks);
 
   /**
-   * Tests whether the activeContext is a context configured
+   * Tests whether the activeContext is a context configured.
    * using the Group Communication Service
    *
    * @param activeContext

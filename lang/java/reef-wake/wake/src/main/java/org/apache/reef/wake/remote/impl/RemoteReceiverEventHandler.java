@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -24,7 +24,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Remote receiver event handler
+ * Remote receiver event handler.
  */
 class RemoteReceiverEventHandler implements EventHandler<TransportEvent> {
 
@@ -34,7 +34,7 @@ class RemoteReceiverEventHandler implements EventHandler<TransportEvent> {
   private final EventHandler<RemoteEvent<byte[]>> handler;
 
   /**
-   * Constructs a remote receiver event handler
+   * Constructs a remote receiver event handler.
    *
    * @param handler the upstream handler
    */
@@ -44,7 +44,7 @@ class RemoteReceiverEventHandler implements EventHandler<TransportEvent> {
   }
 
   /**
-   * Handles the event received from a remote node
+   * Handles the event received from a remote node.
    *
    * @param e the event
    */

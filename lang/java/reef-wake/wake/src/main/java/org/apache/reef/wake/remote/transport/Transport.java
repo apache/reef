@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -26,7 +26,7 @@ import java.io.IOException;
 import java.net.SocketAddress;
 
 /**
- * Transport for sending and receiving data
+ * Transport for sending and receiving data.
  */
 public interface Transport extends Stage {
 
@@ -35,7 +35,7 @@ public interface Transport extends Stage {
    */
 
   /**
-   * Returns a link for the remote address if cached; otherwise opens, caches and returns
+   * Returns a link for the remote address if cached; otherwise opens, caches and returns.
    * When it opens a link for the remote address, only one attempt for the address is made at a given time
    *
    * @param remoteAddr the remote socket address
@@ -47,7 +47,7 @@ public interface Transport extends Stage {
   public <T> Link<T> open(SocketAddress remoteAddr, Encoder<? super T> encoder, LinkListener<? super T> listener) throws IOException;
 
   /**
-   * Returns a link for the remote address if already cached; otherwise, returns null
+   * Returns a link for the remote address if already cached; otherwise, returns null.
    *
    * @param remoteAddr the remote address
    * @return a link if already cached; otherwise, null
@@ -55,21 +55,21 @@ public interface Transport extends Stage {
   public <T> Link<T> get(SocketAddress remoteAddr);
 
   /**
-   * Gets a server listening port of this transport
+   * Gets a server listening port of this transport.
    *
    * @return a listening port number
    */
   public int getListeningPort();
 
   /**
-   * Gets a server local socket address of this transport
+   * Gets a server local socket address of this transport.
    *
    * @return a server local socket address
    */
   public SocketAddress getLocalAddress();
 
   /**
-   * Registers the exception handler
+   * Registers the exception handler.
    *
    * @param handler the exception handler
    */

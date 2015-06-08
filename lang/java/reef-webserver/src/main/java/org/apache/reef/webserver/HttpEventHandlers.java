@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -24,7 +24,7 @@ import org.apache.reef.tang.annotations.NamedParameter;
 import java.util.Set;
 
 /**
- * HttpEventHandlers
+ * HttpEventHandlers.
  */
 @NamedParameter(doc = "Http Event Handlers")
 public class HttpEventHandlers implements Name<Set<HttpHandler>> {

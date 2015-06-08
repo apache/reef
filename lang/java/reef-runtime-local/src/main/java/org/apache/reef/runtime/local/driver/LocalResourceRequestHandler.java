@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -26,7 +26,7 @@ import org.apache.reef.runtime.common.driver.api.ResourceRequestHandler;
 import javax.inject.Inject;
 
 /**
- * Takes resource requests and patches them through to the ResourceManager
+ * Takes resource requests and patches them through to the ResourceManager.
  */
 @Private
 @DriverSide

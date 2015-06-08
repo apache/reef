@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -21,28 +21,28 @@ package org.apache.reef.io.network;
 import org.apache.reef.wake.Identifier;
 
 /**
- * Network message
+ * Network message.
  *
  * @param <T>
  */
 public interface Message<T> {
 
   /**
-   * Gets a source identifier
+   * Gets a source identifier.
    *
    * @return an identifier
    */
   Identifier getSrcId();
 
   /**
-   * Gets a destination identifier
+   * Gets a destination identifier.
    *
    * @return an identifier
    */
   Identifier getDestId();
 
   /**
-   * Gets data
+   * Gets data.
    *
    * @return an iterable of data objects
    */

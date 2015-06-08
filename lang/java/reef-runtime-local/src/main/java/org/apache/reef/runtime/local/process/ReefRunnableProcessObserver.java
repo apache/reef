@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -33,7 +33,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * a RunnableProcessObserver that relies events to REEF's ResourceStatusHandler
+ * a RunnableProcessObserver that relies events to REEF's ResourceStatusHandler.
  */
 @ThreadSafe
 public final class ReefRunnableProcessObserver implements RunnableProcessObserver {
@@ -94,7 +94,7 @@ public final class ReefRunnableProcessObserver implements RunnableProcessObserve
   }
 
   /**
-   * Inform REEF of an unclean process exit
+   * Inform REEF of an unclean process exit.
    *
    * @param processId
    * @param exitCode

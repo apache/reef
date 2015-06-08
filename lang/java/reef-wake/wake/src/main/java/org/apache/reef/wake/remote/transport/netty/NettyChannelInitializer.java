@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -26,7 +26,7 @@ import io.netty.handler.codec.bytes.ByteArrayDecoder;
 import io.netty.handler.codec.bytes.ByteArrayEncoder;
 
 /**
- * Netty channel initializer for Transport
+ * Netty channel initializer for Transport.
  * <p/>
  * MAXFRAMELENGTH : the buffer size of the frame decoder
  */

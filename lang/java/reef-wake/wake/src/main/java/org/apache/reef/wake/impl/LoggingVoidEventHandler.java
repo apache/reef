@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -25,7 +25,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * A logging void event handler
+ * A logging void event handler.
  */
 public class LoggingVoidEventHandler implements EventHandler<Void> {
   private static final Logger LOG = Logger.getLogger(LoggingVoidEventHandler.class.getName());
@@ -35,7 +35,7 @@ public class LoggingVoidEventHandler implements EventHandler<Void> {
   }
 
   /**
-   * Logs the event
+   * Logs the event.
    *
    * @param value an event
    */

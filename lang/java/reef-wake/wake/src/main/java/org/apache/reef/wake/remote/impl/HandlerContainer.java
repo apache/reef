@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -32,7 +32,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Main logic to dispatch messages
+ * Main logic to dispatch messages.
  */
 final class HandlerContainer<T> implements EventHandler<RemoteEvent<byte[]>> {
 
@@ -94,7 +94,7 @@ final class HandlerContainer<T> implements EventHandler<RemoteEvent<byte[]>> {
   }
 
   /**
-   * Unsubscribes a handler
+   * Unsubscribes a handler.
    *
    * @param subscription
    * @throws org.apache.reef.wake.remote.exception.RemoteRuntimeException if the Subscription type is unknown
@@ -115,7 +115,7 @@ final class HandlerContainer<T> implements EventHandler<RemoteEvent<byte[]>> {
   }
 
   /**
-   * Dispatches a message
+   * Dispatches a message.
    *
    * @param value
    */

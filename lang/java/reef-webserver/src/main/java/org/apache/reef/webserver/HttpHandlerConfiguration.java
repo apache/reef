@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -24,17 +24,17 @@ import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
 import org.apache.reef.tang.formats.OptionalParameter;
 
 /**
- * Configuration Module Builder for Http Handler
+ * Configuration Module Builder for Http Handler.
  */
 public final class HttpHandlerConfiguration extends ConfigurationModuleBuilder {
 
   /**
-   * Specify optional parameter for HttpEventHandlers
+   * Specify optional parameter for HttpEventHandlers.
    */
   public static final OptionalParameter<HttpHandler> HTTP_HANDLERS = new OptionalParameter<>();
 
   /**
-   * HttpHandlerConfiguration merged with HttpRuntimeConfiguration
+   * HttpHandlerConfiguration merged with HttpRuntimeConfiguration.
    */
   public static final ConfigurationModule CONF = new HttpHandlerConfiguration().merge(HttpRuntimeConfiguration.CONF)
       .bindSetEntry(HttpEventHandlers.class, HTTP_HANDLERS)

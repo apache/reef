@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -24,7 +24,7 @@ import org.apache.reef.wake.Identifier;
 import java.net.InetSocketAddress;
 
 /**
- * An implementation of the NameAssignment interface
+ * An implementation of the NameAssignment interface.
  */
 public class NameAssignmentTuple implements NameAssignment {
 
@@ -32,7 +32,7 @@ public class NameAssignmentTuple implements NameAssignment {
   private final InetSocketAddress addr;
 
   /**
-   * Constructs a name assignment tuple
+   * Constructs a name assignment tuple.
    *
    * @param id   an identifier
    * @param addr an Internet socket address
@@ -43,7 +43,7 @@ public class NameAssignmentTuple implements NameAssignment {
   }
 
   /**
-   * Gets an identifier
+   * Gets an identifier.
    *
    * @return an identifier
    */
@@ -53,7 +53,7 @@ public class NameAssignmentTuple implements NameAssignment {
   }
 
   /**
-   * Gets an address
+   * Gets an address.
    *
    * @return an Internet socket address
    */

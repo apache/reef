@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -28,14 +28,14 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 
 /**
- * Naming cache implementation
+ * Naming cache implementation.
  */
 public class NameCache implements Cache<Identifier, InetSocketAddress> {
 
   private final Cache<Identifier, InetSocketAddress> cache;
 
   /**
-   * Constructs a naming cache
+   * Constructs a naming cache.
    *
    * @param timeout a cache entry timeout after write
    */
@@ -44,7 +44,7 @@ public class NameCache implements Cache<Identifier, InetSocketAddress> {
   }
 
   /**
-   * Gets an address for an identifier
+   * Gets an address for an identifier.
    *
    * @param key          an identifier
    * @param valueFetcher a callable to load a value for the corresponding identifier
@@ -58,7 +58,7 @@ public class NameCache implements Cache<Identifier, InetSocketAddress> {
   }
 
   /**
-   * Invalidates the entry for an identifier
+   * Invalidates the entry for an identifier.
    *
    * @param key an identifier
    */

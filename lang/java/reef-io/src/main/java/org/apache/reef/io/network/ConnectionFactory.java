@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -21,14 +21,14 @@ package org.apache.reef.io.network;
 import org.apache.reef.wake.Identifier;
 
 /**
- * Factory that creates a new connection
+ * Factory that creates a new connection.
  *
  * @param <T> type
  */
 public interface ConnectionFactory<T> {
 
   /**
-   * Creates a new connection
+   * Creates a new connection.
    *
    * @param destId a destination identifier
    * @return a connection

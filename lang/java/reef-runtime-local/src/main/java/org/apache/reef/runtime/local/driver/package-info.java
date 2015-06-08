@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * The resource manager for the local resourcemanager
+ * The resource manager for the local resourcemanager.
  */
 package org.apache.reef.runtime.local.driver;

@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -40,7 +40,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Shared code between job submission with and without client
+ * Shared code between job submission with and without client.
  */
 final class JobSubmissionHelper {
 
@@ -164,7 +164,7 @@ final class JobSubmissionHelper {
   }
 
   /**
-   * Turns temporary folder "foo" into a jar file "foo.jar"
+   * Turns temporary folder "foo" into a jar file "foo.jar".
    *
    * @param file
    * @return

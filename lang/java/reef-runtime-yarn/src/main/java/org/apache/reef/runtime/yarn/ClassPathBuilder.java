@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -65,7 +65,7 @@ final class ClassPathBuilder {
   }
 
   /**
-   * Adds the given classPathEntry to the classpath suffix
+   * Adds the given classPathEntry to the classpath suffix.
    *
    * @param classPathEntry
    */
@@ -74,7 +74,7 @@ final class ClassPathBuilder {
   }
 
   /**
-   * Adds the given classPathEntry to the classpath prefix
+   * Adds the given classPathEntry to the classpath prefix.
    *
    * @param classPathEntry
    */

@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -26,7 +26,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Proxy of the event handler that runs remotely
+ * Proxy of the event handler that runs remotely.
  *
  * @param <T> type
  */
@@ -40,7 +40,7 @@ public class ProxyEventHandler<T> implements EventHandler<T> {
   private final RemoteSeqNumGenerator seqGen;
 
   /**
-   * Constructs a proxy event handler
+   * Constructs a proxy event handler.
    *
    * @param myId           my identifier
    * @param remoteId       the remote identifier
@@ -62,7 +62,7 @@ public class ProxyEventHandler<T> implements EventHandler<T> {
   }
 
   /**
-   * Sends the event to the event handler running remotely
+   * Sends the event to the event handler running remotely.
    *
    * @param event the event
    */
@@ -75,7 +75,7 @@ public class ProxyEventHandler<T> implements EventHandler<T> {
   }
 
   /**
-   * Returns a string representation of the object
+   * Returns a string representation of the object.
    *
    * @return a string representation of the object
    */

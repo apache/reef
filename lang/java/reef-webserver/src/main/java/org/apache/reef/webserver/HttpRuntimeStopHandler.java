@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -26,7 +26,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Http Runtime Stop Handler
+ * Http Runtime Stop Handler.
  */
 final class HttpRuntimeStopHandler implements EventHandler<RuntimeStop> {
   /**
@@ -35,7 +35,7 @@ final class HttpRuntimeStopHandler implements EventHandler<RuntimeStop> {
   private static final Logger LOG = Logger.getLogger(HttpRuntimeStopHandler.class.getName());
 
   /**
-   * HttpServer
+   * HttpServer.
    */
   private final HttpServer httpServer;
 
@@ -50,7 +50,7 @@ final class HttpRuntimeStopHandler implements EventHandler<RuntimeStop> {
   }
 
   /**
-   * Override EventHandler<RuntimeStop>
+   * Override EventHandler<RuntimeStop>.
    *
    * @param runtimeStop
    */

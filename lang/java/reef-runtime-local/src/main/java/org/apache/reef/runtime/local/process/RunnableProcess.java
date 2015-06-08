@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -109,7 +109,7 @@ public final class RunnableProcess implements Runnable {
   }
 
   /**
-   * Checks whether a transition from State 'from' to state 'to' is legal
+   * Checks whether a transition from State 'from' to state 'to' is legal.
    *
    * @param from
    * @param to

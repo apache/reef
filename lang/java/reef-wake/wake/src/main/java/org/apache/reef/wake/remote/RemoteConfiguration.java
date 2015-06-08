@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -20,8 +20,11 @@ package org.apache.reef.wake.remote;
 
 import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
+import org.apache.reef.wake.EStage;
 import org.apache.reef.wake.EventHandler;
+import org.apache.reef.wake.remote.impl.DefaultTransportEStage;
 import org.apache.reef.wake.remote.impl.ObjectSerializableCodec;
+import org.apache.reef.wake.remote.impl.TransportEvent;
 
 /**
  * Configuration options and helper methods for Wake remoting.
@@ -67,5 +70,15 @@ public final class RemoteConfiguration {
   @NamedParameter(doc = "The timeout of connection retrying", default_value = "10000")
   public static final class RetryTimeout implements Name<Integer> {
     // Intentionally empty       
+  }
+
+  @NamedParameter(doc = "Client stage for messaging transport", default_class = DefaultTransportEStage.class)
+  public static final class RemoteClientStage implements Name<EStage<TransportEvent>> {
+    // Intentionally empty
+  }
+
+  @NamedParameter(doc = "Server stage for messaging transport", default_class = DefaultTransportEStage.class)
+  public static final class RemoteServerStage implements Name<EStage<TransportEvent>> {
+    // Intentionally empty
   }
 }

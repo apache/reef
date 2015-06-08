@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -21,13 +21,13 @@ package org.apache.reef.io;
 import org.apache.reef.annotations.audience.Public;
 
 /**
- * A message from a REEF component
+ * A message from a REEF component.
  */
 @Public
 public interface Message {
 
   /**
-   * Message payload
+   * Message payload.
    *
    * @return message payload
    */

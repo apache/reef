@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -24,7 +24,7 @@ import org.apache.reef.wake.exception.WakeRuntimeException;
 import java.util.Map;
 
 /**
- * Event handler that dispatches an event to a specific handler based on an event class type
+ * Event handler that dispatches an event to a specific handler based on an event class type.
  *
  * @param <T> type
  */
@@ -33,7 +33,7 @@ public class MultiEventHandler<T> implements EventHandler<T> {
   private final Map<Class<? extends T>, EventHandler<? extends T>> map;
 
   /**
-   * Constructs a multi-event handler
+   * Constructs a multi-event handler.
    *
    * @param map a map of class types to event handlers
    */
@@ -42,7 +42,7 @@ public class MultiEventHandler<T> implements EventHandler<T> {
   }
 
   /**
-   * Invokes a specific handler for the event class type if it exists
+   * Invokes a specific handler for the event class type if it exists.
    *
    * @param an event
    * @throws WakeRuntimeException

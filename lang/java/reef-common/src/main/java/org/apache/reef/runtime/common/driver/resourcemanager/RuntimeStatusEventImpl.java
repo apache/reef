@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -100,7 +100,7 @@ public final class RuntimeStatusEventImpl implements RuntimeStatusEvent {
     }
 
     /**
-     * Add an entry to containerAllocationList
+     * Add an entry to containerAllocationList.
      * @see RuntimeStatusEvent#getContainerAllocationList()
      */
     public Builder addContainerAllocation(final String containerAllocation) {

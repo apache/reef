@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -21,7 +21,7 @@ package org.apache.reef.wake.remote.impl;
 import java.net.SocketAddress;
 
 /**
- * Event that are exchanged across process boundaries
+ * Event that are exchanged across process boundaries.
  *
  * @param <T> type
  */
@@ -36,7 +36,7 @@ public class RemoteEvent<T> {
   private String sink;
 
   /**
-   * Constructs a remote event
+   * Constructs a remote event.
    *
    * @param localAddr  the local socket address
    * @param remoteAddr the remote socket address
@@ -55,7 +55,7 @@ public class RemoteEvent<T> {
   }
 
   /**
-   * Gets the local socket address
+   * Gets the local socket address.
    *
    * @return the local socket address
    */
@@ -64,7 +64,7 @@ public class RemoteEvent<T> {
   }
 
   /**
-   * Gets the remote socket address
+   * Gets the remote socket address.
    *
    * @return the remote socket address
    */
@@ -73,7 +73,7 @@ public class RemoteEvent<T> {
   }
 
   /**
-   * Gets the source
+   * Gets the source.
    *
    * @return the source
    */
@@ -82,7 +82,7 @@ public class RemoteEvent<T> {
   }
 
   /**
-   * Sets the source
+   * Sets the source.
    *
    * @param name the source name
    */
@@ -91,7 +91,7 @@ public class RemoteEvent<T> {
   }
 
   /**
-   * Gets the sink
+   * Gets the sink.
    *
    * @return the sink
    */
@@ -100,7 +100,7 @@ public class RemoteEvent<T> {
   }
 
   /**
-   * Sets the sink
+   * Sets the sink.
    *
    * @param name the sink name
    */
@@ -109,7 +109,7 @@ public class RemoteEvent<T> {
   }
 
   /**
-   * Gets the actual event
+   * Gets the actual event.
    *
    * @return the event
    */
@@ -118,7 +118,7 @@ public class RemoteEvent<T> {
   }
 
   /**
-   * Gets the sequence number
+   * Gets the sequence number.
    *
    * @return the sequence number
    */
@@ -127,7 +127,7 @@ public class RemoteEvent<T> {
   }
 
   /**
-   * Sets the local socket address
+   * Sets the local socket address.
    *
    * @param addr the local socket address
    */
@@ -136,7 +136,7 @@ public class RemoteEvent<T> {
   }
 
   /**
-   * Sets the remote socket address
+   * Sets the remote socket address.
    *
    * @param addr the remote socket address
    */
@@ -145,7 +145,7 @@ public class RemoteEvent<T> {
   }
 
   /**
-   * Returns a string representation of this object
+   * Returns a string representation of this object.
    *
    * @return a string representation of this object
    */

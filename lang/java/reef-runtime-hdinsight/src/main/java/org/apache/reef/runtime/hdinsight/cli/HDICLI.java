@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -34,7 +34,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Main class for the HDInsight REST commandline
+ * Main class for the HDInsight REST commandline.
  */
 public final class HDICLI {
   private static final Logger LOG = Logger.getLogger(HDICLI.class.getName());

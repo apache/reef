@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -24,12 +24,12 @@ import org.apache.reef.tang.annotations.DefaultImplementation;
 import java.util.Map;
 
 /**
- * interface for EvaluatorListSerializer
+ * interface for EvaluatorListSerializer.
  */
 @DefaultImplementation(AvroEvaluatorListSerializer.class)
 public interface EvaluatorListSerializer {
   /**
-   * Build AvroEvaluatorList object
+   * Build AvroEvaluatorList object.
    *
    * @param evaluatorMap
    * @param totalEvaluators
@@ -39,7 +39,7 @@ public interface EvaluatorListSerializer {
   public AvroEvaluatorList toAvro(final Map<String, EvaluatorDescriptor> evaluatorMap, final int totalEvaluators, final String startTime);
 
   /**
-   * Convert AvroEvaluatorList to JSon string
+   * Convert AvroEvaluatorList to JSon string.
    *
    * @param avroEvaluatorList
    * @return

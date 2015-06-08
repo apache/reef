@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -21,13 +21,13 @@ package org.apache.reef.io.network.naming.exception;
 import org.apache.reef.exception.evaluator.NetworkException;
 
 /**
- * Naming exception
+ * Naming exception.
  */
 public class NamingException extends NetworkException {
   private static final long serialVersionUID = 1L;
 
   /**
-   * Constructs a new resourcemanager naming exception with the specified detail message and cause
+   * Constructs a new resourcemanager naming exception with the specified detail message and cause.
    *
    * @param s the detailed message
    * @param e the cause
@@ -37,7 +37,7 @@ public class NamingException extends NetworkException {
   }
 
   /**
-   * Constructs a new resourcemanager naming exception with the specified detail message
+   * Constructs a new resourcemanager naming exception with the specified detail message.
    *
    * @param s the detailed message
    */
@@ -46,7 +46,7 @@ public class NamingException extends NetworkException {
   }
 
   /**
-   * Constructs a new resourcemanager naming exception with the specified cause
+   * Constructs a new resourcemanager naming exception with the specified cause.
    *
    * @param e the cause
    */

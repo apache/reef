@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Helper class that creates the various records in the YARN API
+ * Helper class that creates the various records in the YARN API.
  */
 @Private
 public final class YarnTypes {

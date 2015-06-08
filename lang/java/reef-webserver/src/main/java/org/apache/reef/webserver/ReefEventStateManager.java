@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -38,7 +38,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Reef Event Manager that manages Reef states
+ * Reef Event Manager that manages Reef states.
  */
 @Unit
 public final class ReefEventStateManager {
@@ -48,12 +48,12 @@ public final class ReefEventStateManager {
   private static final Logger LOG = Logger.getLogger(ReefEventStateManager.class.getName());
 
   /**
-   * date format
+   * date format.
    */
   private static final Format format = new SimpleDateFormat("yyyy MM dd HH:mm:ss");
 
   /**
-   * Map of evaluators
+   * Map of evaluators.
    */
   private final Map<String, EvaluatorDescriptor> evaluators = new HashMap<>();
 
@@ -65,27 +65,27 @@ public final class ReefEventStateManager {
   private final List<AvroReefServiceInfo> serviceInfoList = new ArrayList<AvroReefServiceInfo>();
 
   /**
-   * Remote manager in driver the carries information such as driver endpoint identifier
+   * Remote manager in driver the carries information such as driver endpoint identifier.
    */
   private final RemoteManager remoteManager;
 
   /**
-   * Driver Status Manager that controls the driver status
+   * Driver Status Manager that controls the driver status.
    */
   private final DriverStatusManager driverStatusManager;
 
   /**
-   * Evaluator start time
+   * Evaluator start time.
    */
   private StartTime startTime;
 
   /**
-   * Evaluator stop time
+   * Evaluator stop time.
    */
   private StopTime stopTime;
 
   /**
-   * ReefEventStateManager that keeps the states of Reef components
+   * ReefEventStateManager that keeps the states of Reef components.
    */
   @Inject
   public ReefEventStateManager(final RemoteManager remoteManager, final DriverStatusManager driverStatusManager) {
@@ -94,7 +94,7 @@ public final class ReefEventStateManager {
   }
 
   /**
-   * get start time
+   * get start time.
    *
    * @return
    */
@@ -106,7 +106,7 @@ public final class ReefEventStateManager {
   }
 
   /**
-   * get stop time
+   * get stop time.
    *
    * @return
    */
@@ -118,7 +118,7 @@ public final class ReefEventStateManager {
   }
 
   /**
-   * convert time from long to formatted string
+   * convert time from long to formatted string.
    *
    * @param time
    * @return
@@ -129,7 +129,7 @@ public final class ReefEventStateManager {
   }
 
   /**
-   * get evaluator map
+   * get evaluator map.
    *
    * @return
    */
@@ -138,7 +138,7 @@ public final class ReefEventStateManager {
   }
 
   /**
-   * get driver endpoint identifier
+   * get driver endpoint identifier.
    */
   public String getDriverEndpointIdentifier() {
     return remoteManager.getMyIdentifier();
@@ -156,7 +156,7 @@ public final class ReefEventStateManager {
   }
 
   /**
-   * get a map of contexts
+   * get a map of contexts.
    *
    * @return
    */
@@ -165,7 +165,7 @@ public final class ReefEventStateManager {
   }
 
   /**
-   * pus a entry to evaluators
+   * pus a entry to evaluators.
    *
    * @param key
    * @param value
@@ -175,7 +175,7 @@ public final class ReefEventStateManager {
   }
 
   /**
-   * get a value from evaluators by key
+   * get a value from evaluators by key.
    *
    * @param key
    * @return
@@ -185,7 +185,7 @@ public final class ReefEventStateManager {
   }
 
   /**
-   * getEvaluatorDescriptor
+   * getEvaluatorDescriptor.
    *
    * @param evaluatorId
    * @return
@@ -195,7 +195,7 @@ public final class ReefEventStateManager {
   }
 
   /**
-   * get Evaluator NodeDescriptor
+   * get Evaluator NodeDescriptor.
    *
    * @param evaluatorId
    * @return
@@ -212,7 +212,7 @@ public final class ReefEventStateManager {
   }
 
   /**
-   * Job Driver is ready and the clock is set up
+   * Job Driver is ready and the clock is set up.
    */
   public final class StartStateHandler implements EventHandler<StartTime> {
     @Override
@@ -236,7 +236,7 @@ public final class ReefEventStateManager {
   }
 
   /**
-   * Receive notification that an Evaluator had been allocated
+   * Receive notification that an Evaluator had been allocated.
    */
   public final class AllocatedEvaluatorStateHandler implements EventHandler<AllocatedEvaluator> {
     @Override
@@ -248,7 +248,7 @@ public final class ReefEventStateManager {
   }
 
   /**
-   * Receive event when task is running
+   * Receive event when task is running.
    */
   public final class TaskRunningStateHandler implements EventHandler<RunningTask> {
     @Override
@@ -258,7 +258,7 @@ public final class ReefEventStateManager {
   }
 
   /**
-   * Receive event during driver restart that a task is running in previous evaluator
+   * Receive event during driver restart that a task is running in previous evaluator.
    */
   public final class DriverRestartTaskRunningStateHandler implements EventHandler<RunningTask> {
     @Override

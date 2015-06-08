@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -27,7 +27,7 @@ import org.apache.reef.util.Optional;
 import java.util.Set;
 
 /**
- * Event sent to Driver Runtime
+ * Event sent to Driver Runtime.
  * Submission of a Job to the Driver Runtime
  */
 @RuntimeAuthor

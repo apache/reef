@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -25,7 +25,7 @@ import javax.inject.Inject;
 import java.io.*;
 
 /**
- * Codec that uses Java serialization
+ * Codec that uses Java serialization.
  *
  * @param <T>
  */
@@ -36,7 +36,7 @@ public class ObjectSerializableCodec<T> implements Codec<T> {
   }
 
   /**
-   * Encodes the object to bytes
+   * Encodes the object to bytes.
    *
    * @param obj the object
    * @return bytes
@@ -54,7 +54,7 @@ public class ObjectSerializableCodec<T> implements Codec<T> {
   }
 
   /**
-   * Decodes an object from the bytes
+   * Decodes an object from the bytes.
    *
    * @param buf the bytes
    * @return an object

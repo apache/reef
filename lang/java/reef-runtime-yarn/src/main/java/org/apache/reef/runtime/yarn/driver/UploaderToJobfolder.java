@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -75,7 +75,7 @@ final class UploaderToJobFolder {
   }
 
   /**
-   * Creates a LocalResource instance for the JAR file referenced by the given Path
+   * Creates a LocalResource instance for the JAR file referenced by the given Path.
    *
    * @param path
    * @return

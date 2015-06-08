@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -24,13 +24,13 @@ import javax.inject.Inject;
 import java.io.*;
 
 /**
- * Codec for the Vector type Uses Data*Stream
+ * Codec for the Vector type Uses Data*Stream.
  *
  * @author shravan
  */
 public class VectorCodec implements Codec<Vector> {
   /**
-   * This class is instantiated by TANG
+   * This class is instantiated by TANG.
    */
   @Inject
   public VectorCodec() {

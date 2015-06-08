@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -25,7 +25,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 /**
- * Parse logs for reporting
+ * Parse logs for reporting.
  */
 public class LogParser {
 
@@ -57,7 +57,7 @@ public class LogParser {
   }
 
   /**
-   * Get lines from a given file with a specified filter, trim the line by removing strings before removeBeforeToken and after removeAfterToken
+   * Get lines from a given file with a specified filter, trim the line by removing strings before removeBeforeToken and after removeAfterToken.
    * @param fileName
    * @param filter
    * @return
@@ -99,7 +99,7 @@ public class LogParser {
   }
 
   /**
-   * get lines from given file with specified filter
+   * get lines from given file with specified filter.
    * @param fileName
    * @param filter
    * @return
@@ -110,7 +110,7 @@ public class LogParser {
   }
 
   /**
-   * filter array list of lines and get the last portion of the line separated by the token, like ":::"
+   * filter array list of lines and get the last portion of the line separated by the token, like ":::".
    * @param original
    * @param filter
    * @return

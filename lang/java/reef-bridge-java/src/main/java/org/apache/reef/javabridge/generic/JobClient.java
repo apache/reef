@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -68,7 +68,7 @@ public class JobClient {
   private ConfigurationModule driverConfigModule;
 
   /**
-   * A reference to the running job that allows client to send messages back to the job driver
+   * A reference to the running job that allows client to send messages back to the job driver.
    */
   private RunningJob runningJob;
 
@@ -84,7 +84,7 @@ public class JobClient {
   private String jobSubmissionDirectory = "reefTmp/job_" + System.currentTimeMillis();
 
   /**
-   * A factory that provides LoggingScope
+   * A factory that provides LoggingScope.
    */
   private final LoggingScopeFactory loggingScopeFactory;
   /**
@@ -211,7 +211,7 @@ public class JobClient {
   }
 
   /**
-   * Set the driver memory
+   * Set the driver memory.
    */
   public void setDriverInfo(final String identifier, final int memory, final String jobSubmissionDirectory) {
     if (identifier == null || identifier.isEmpty()) {

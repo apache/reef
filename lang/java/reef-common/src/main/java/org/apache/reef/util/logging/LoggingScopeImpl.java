@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -26,7 +26,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Log time and duration for a scope
+ * Log time and duration for a scope.
  */
 public class LoggingScopeImpl implements LoggingScope {
   public static final String TOKEN = ":::";
@@ -91,7 +91,7 @@ public class LoggingScopeImpl implements LoggingScope {
   }
 
   /**
-   * log massage
+   * log massage.
    * @param msg
    */
   private void log(final String msg) {

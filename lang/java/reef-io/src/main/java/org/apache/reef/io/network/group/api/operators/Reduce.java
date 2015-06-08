@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -36,7 +36,7 @@ import java.util.List;
 public interface Reduce {
 
   /**
-   * Receiver or Root
+   * Receiver or Root.
    */
   @DefaultImplementation(ReduceReceiver.class)
   static interface Receiver<T> extends GroupCommOperator {
@@ -58,7 +58,7 @@ public interface Reduce {
     T reduce(List<? extends Identifier> order) throws InterruptedException, NetworkException;
 
     /**
-     * The reduce function to be applied on the set of received values
+     * The reduce function to be applied on the set of received values.
      *
      * @return {@link ReduceFunction}
      */
@@ -66,7 +66,7 @@ public interface Reduce {
   }
 
   /**
-   * Senders or non roots
+   * Senders or non roots.
    */
   @DefaultImplementation(ReduceSender.class)
   static interface Sender<T> extends GroupCommOperator {
@@ -85,7 +85,7 @@ public interface Reduce {
   }
 
   /**
-   * Interface for a Reduce Function takes in an {@link Iterable} returns an
+   * Interface for a Reduce Function takes in an {@link Iterable} returns an.
    * aggregate value computed from the {@link Iterable}
    */
   static interface ReduceFunction<T> {

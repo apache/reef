@@ -84,7 +84,7 @@ under the License.
                     <tryUpdate>true</tryUpdate>
                     <pubScmUrl>scm:svn:https://svn.apache.org/repos/asf/incubator/reef/</pubScmUrl>
                     <ignorePathsToDelete>
-                        <ignorePathToDelete>apidocs</ignorePathToDelete>
+                        <ignorePathToDelete>apidocs/**</ignorePathToDelete>
                     </ignorePathsToDelete>
                 </configuration>
             </plugin>

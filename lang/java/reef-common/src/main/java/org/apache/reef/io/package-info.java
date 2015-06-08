@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -17,7 +17,7 @@
  * under the License.
  */
 /**
- * APIs for I/O in REEF: {@link org.apache.reef.io.Codec}s and {@link org.apache.reef.io.Serializer}s
+ * APIs for I/O in REEF: {@link org.apache.reef.io.Codec}s and {@link org.apache.reef.io.Serializer}s.
  */
 @Unstable package org.apache.reef.io;
 

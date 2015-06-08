@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -325,7 +325,7 @@ public final class ContextManager implements AutoCloseable {
   }
 
   /**
-   * THIS ASSUMES THAT IT IS CALLED ON A THREAD HOLDING THE LOCK ON THE HeartBeatManager
+   * THIS ASSUMES THAT IT IS CALLED ON A THREAD HOLDING THE LOCK ON THE HeartBeatManager.
    */
   private void handleTaskException(final TaskClientCodeException e) {
 
@@ -347,7 +347,7 @@ public final class ContextManager implements AutoCloseable {
   }
 
   /**
-   * THIS ASSUMES THAT IT IS CALLED ON A THREAD HOLDING THE LOCK ON THE HeartBeatManager
+   * THIS ASSUMES THAT IT IS CALLED ON A THREAD HOLDING THE LOCK ON THE HeartBeatManager.
    */
   private void handleContextException(final ContextClientCodeException e) {
 

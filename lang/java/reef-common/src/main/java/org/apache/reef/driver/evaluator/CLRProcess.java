@@ -23,13 +23,13 @@ import org.apache.reef.runtime.common.launch.CLRLaunchCommandBuilder;
 import java.util.List;
 
 /**
- * Defines the setup of a CLR process
+ * Defines the setup of a CLR process.
  */
 public final class CLRProcess implements EvaluatorProcess {
   private final CLRLaunchCommandBuilder commandBuilder = new CLRLaunchCommandBuilder();
 
   /**
-   * Instantiated via CLRProcessFactory
+   * Instantiated via CLRProcessFactory.
    */
   CLRProcess() {
   }

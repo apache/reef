@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -28,7 +28,7 @@ import org.apache.reef.wake.remote.RemoteMessage;
 import javax.inject.Inject;
 
 /**
- * Handles evaluator launch requests via MesosRemoteManager from MesosResourceLaunchHandler
+ * Handles evaluator launch requests via MesosRemoteManager from MesosResourceLaunchHandler.
  */
 @EvaluatorSide
 @Private

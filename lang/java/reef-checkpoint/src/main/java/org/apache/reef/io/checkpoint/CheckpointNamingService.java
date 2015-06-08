@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -24,7 +24,7 @@ package org.apache.reef.io.checkpoint;
 public interface CheckpointNamingService {
 
   /**
-   * Generate a new checkpoint Name
+   * Generate a new checkpoint Name.
    *
    * @return the checkpoint name
    */

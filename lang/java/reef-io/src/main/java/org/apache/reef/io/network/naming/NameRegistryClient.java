@@ -24,12 +24,16 @@ import org.apache.reef.io.network.naming.serialization.NamingMessage;
 import org.apache.reef.io.network.naming.serialization.NamingRegisterRequest;
 import org.apache.reef.io.network.naming.serialization.NamingRegisterResponse;
 import org.apache.reef.io.network.naming.serialization.NamingUnregisterRequest;
+import org.apache.reef.tang.Injector;
+import org.apache.reef.tang.Tang;
+import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.Identifier;
 import org.apache.reef.wake.IdentifierFactory;
 import org.apache.reef.wake.Stage;
 import org.apache.reef.wake.impl.SyncStage;
 import org.apache.reef.wake.remote.Codec;
+import org.apache.reef.wake.remote.RemoteConfiguration;
 import org.apache.reef.wake.remote.address.LocalAddressProvider;
 import org.apache.reef.wake.remote.address.LocalAddressProviderFactory;
 import org.apache.reef.wake.remote.impl.TransportEvent;
@@ -48,7 +52,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Naming registry client
+ * Naming registry client.
  */
 public class NameRegistryClient implements Stage, NamingRegistry {
 
@@ -61,7 +65,7 @@ public class NameRegistryClient implements Stage, NamingRegistry {
   private final long timeout;
 
   /**
-   * Constructs a naming registry client
+   * Constructs a naming registry client.
    *
    * @param serverAddr a name server address
    * @param serverPort a name server port
@@ -73,7 +77,7 @@ public class NameRegistryClient implements Stage, NamingRegistry {
   }
 
   /**
-   * Constructs a naming registry client
+   * Constructs a naming registry client.
    *
    * @param serverAddr a name server address
    * @param serverPort a name server port
@@ -90,9 +94,17 @@ public class NameRegistryClient implements Stage, NamingRegistry {
     this.timeout = timeout;
     this.codec = NamingCodecFactory.createRegistryCodec(factory);
     this.replyQueue = new LinkedBlockingQueue<>();
-    this.transport = new NettyMessagingTransport(localAddressProvider.getLocalAddress(), 0,
-        new SyncStage<>(new NamingRegistryClientHandler(new NamingRegistryResponseHandler(replyQueue), codec)),
-        null, 3, 10000);
+
+    Injector injector = Tang.Factory.getTang().newInjector();
+    injector.bindVolatileParameter(RemoteConfiguration.HostAddress.class, localAddressProvider.getLocalAddress());
+    injector.bindVolatileParameter(RemoteConfiguration.RemoteClientStage.class,
+        new SyncStage<>(new NamingRegistryClientHandler(new NamingRegistryResponseHandler(replyQueue), codec)));
+
+    try {
+      this.transport = injector.getInstance(NettyMessagingTransport.class);
+    } catch (InjectionException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   @Deprecated
@@ -120,7 +132,7 @@ public class NameRegistryClient implements Stage, NamingRegistry {
   }
 
   /**
-   * Registers an (identifier, address) mapping
+   * Registers an (identifier, address) mapping.
    *
    * @param id   an identifier
    * @param addr an Internet socket address
@@ -152,7 +164,7 @@ public class NameRegistryClient implements Stage, NamingRegistry {
   }
 
   /**
-   * Unregisters an identifier
+   * Unregisters an identifier.
    *
    * @param id an identifier
    */
@@ -164,7 +176,7 @@ public class NameRegistryClient implements Stage, NamingRegistry {
   }
 
   /**
-   * Closes resources
+   * Closes resources.
    */
   @Override
   public void close() throws Exception {
@@ -174,7 +186,7 @@ public class NameRegistryClient implements Stage, NamingRegistry {
 }
 
 /**
- * Naming registry client transport event handler
+ * Naming registry client transport event handler.
  */
 class NamingRegistryClientHandler implements EventHandler<TransportEvent> {
   private static final Logger LOG = Logger.getLogger(NamingRegistryClientHandler.class.getName());
@@ -195,7 +207,7 @@ class NamingRegistryClientHandler implements EventHandler<TransportEvent> {
 }
 
 /**
- * Naming register response handler
+ * Naming register response handler.
  */
 class NamingRegistryResponseHandler implements EventHandler<NamingRegisterResponse> {
 

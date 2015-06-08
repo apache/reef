@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -42,7 +42,7 @@ import java.util.Set;
 public interface Clock extends Runnable, AutoCloseable {
 
   /**
-   * Schedule a TimerEvent at the given future offset
+   * Schedule a TimerEvent at the given future offset.
    *
    * @param handler to be called
    * @param offset  into the future
@@ -71,35 +71,35 @@ public interface Clock extends Runnable, AutoCloseable {
   public boolean isIdle();
 
   /**
-   * Bind this to an event handler to statically subscribe to the StartTime Event
+   * Bind this to an event handler to statically subscribe to the StartTime Event.
    */
   @NamedParameter(default_class = MissingStartHandlerHandler.class, doc = "Will be called upon the start event")
   public class StartHandler implements Name<Set<EventHandler<StartTime>>> {
   }
 
   /**
-   * Bind this to an event handler to statically subscribe to the StopTime Event
+   * Bind this to an event handler to statically subscribe to the StopTime Event.
    */
   @NamedParameter(default_class = LoggingEventHandler.class, doc = "Will be called upon the stop event")
   public class StopHandler implements Name<Set<EventHandler<StopTime>>> {
   }
 
   /**
-   * Bind this to an event handler to statically subscribe to the RuntimeStart Event
+   * Bind this to an event handler to statically subscribe to the RuntimeStart Event.
    */
   @NamedParameter(default_class = LoggingEventHandler.class, doc = "Will be called upon the runtime start event")
   public class RuntimeStartHandler implements Name<Set<EventHandler<RuntimeStart>>> {
   }
 
   /**
-   * Bind this to an event handler to statically subscribe to the RuntimeStart Event
+   * Bind this to an event handler to statically subscribe to the RuntimeStart Event.
    */
   @NamedParameter(default_class = LoggingEventHandler.class, doc = "Will be called upon the runtime stop event")
   public class RuntimeStopHandler implements Name<Set<EventHandler<RuntimeStop>>> {
   }
 
   /**
-   * Bind this to an event handler to statically subscribe to the IdleClock Event
+   * Bind this to an event handler to statically subscribe to the IdleClock Event.
    */
   @NamedParameter(default_class = LoggingEventHandler.class, doc = "Will be called upon the Idle event")
   public class IdleHandler implements Name<Set<EventHandler<IdleClock>>> {

@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -22,7 +22,7 @@ import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
 
 /**
- * Driver Identifier
+ * Driver Identifier.
  */
 @NamedParameter(doc = "Driver Identifier", default_value = DriverIdentifier.DEFAULT_VALUE)
 public final class DriverIdentifier implements Name<String> {

@@ -19,6 +19,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using Org.Apache.REEF.Common.Files;
@@ -28,14 +29,17 @@ using Org.Apache.REEF.Driver.Evaluator;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
+using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Examples.HelloREEF
 {
     /// <summary>
     /// The Driver for HelloREEF: It requests a single Evaluator and then submits the HelloTask to it.
     /// </summary>
-    public sealed class HelloDriver : IObserver<IAllocatedEvaluator>, IObserver<IEvaluatorRequestor>, IStartHandler
+    public sealed class HelloDriver : IObserver<IAllocatedEvaluator>, IObserver<DateTime>
     {
+        private static readonly Logger _Logger = Logger.GetLogger(typeof(HelloDriver));
+
         /// <summary>
         /// Contexts contain configuration data used beyond a single task.
         /// </summary>
@@ -53,12 +57,24 @@ namespace Org.Apache.REEF.Examples.HelloREEF
             .Build();
 
         private readonly REEFFileNames _fileNames;
+        private readonly IEvaluatorRequestor _evaluatorRequestor;
 
         [Inject]
-        private HelloDriver(REEFFileNames fileNames)
+        private HelloDriver(REEFFileNames fileNames, IEvaluatorRequestor evaluatorRequestor)
         {
             _fileNames = fileNames;
             ClrHandlerHelper.GenerateClassHierarchy(GetGlobalAssemblies());
+            _evaluatorRequestor = evaluatorRequestor;
+        }
+
+        /// <summary>
+        /// Called to start the user mode driver
+        /// </summary>
+        /// <param name="startTime"></param>
+        public void OnNext(DateTime startTime)
+        {
+            _Logger.Log(Level.Info, string.Format("HelloDriver started at {0}", startTime));
+            _evaluatorRequestor.Submit(new EvaluatorRequest(number: 1, megaBytes: 64));
         }
 
         /// <summary>
@@ -78,17 +94,6 @@ namespace Org.Apache.REEF.Examples.HelloREEF
         public void OnCompleted()
         {
         }
-
-        /// <summary>
-        /// Ask for one Evaluator with 64MB of memory.
-        /// </summary>
-        /// <param name="evaluatorRequestor"></param>
-        public void OnNext(IEvaluatorRequestor evaluatorRequestor)
-        {
-            evaluatorRequestor.Submit(new EvaluatorRequest(number:1, megaBytes:64));
-        }
-
-        public string Identifier { get; set; }
 
         /// <summary>
         /// </summary>

@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -55,7 +55,7 @@ public interface JavaClassHierarchy extends ClassHierarchy {
   public <T> T parse(NamedParameterNode<T> name, String value) throws ParseException;
 
   /**
-   * Obtain a parsed instance of the default value of a named parameter
+   * Obtain a parsed instance of the default value of a named parameter.
    *
    * @param name The named parameter that should be checked for a default instance.
    * @return The default instance or null, unless T is a set type.  If T is a set,

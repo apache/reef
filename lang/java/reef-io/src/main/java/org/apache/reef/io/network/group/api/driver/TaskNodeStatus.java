@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -41,7 +41,7 @@ public interface TaskNodeStatus {
   boolean isActive(String neighborId);
 
   /**
-   * Process the msg that was received and update
+   * Process the msg that was received and update.
    * state accordingly
    */
   void processAcknowledgement(GroupCommunicationMessage msg);
@@ -58,7 +58,7 @@ public interface TaskNodeStatus {
   public void expectAckFor(final Type msgType, final String srcId);
 
   /**
-   * Used when the task has failed to clear all
+   * Used when the task has failed to clear all.
    * the state that is associated with this task
    * Also should release the locks held for implementing
    * the convenience wait* methods
@@ -66,7 +66,7 @@ public interface TaskNodeStatus {
   void clearStateAndReleaseLocks();
 
   /**
-   * This should remove state concerning neighboring tasks
+   * This should remove state concerning neighboring tasks.
    * that have failed
    */
   void updateFailureOf(String taskId);
@@ -74,7 +74,7 @@ public interface TaskNodeStatus {
   void waitForTopologySetup();
 
   /**
-   * Called to denote that a UpdateTopology msg will
+   * Called to denote that a UpdateTopology msg will.
    * be sent
    */
   void updatingTopology ();

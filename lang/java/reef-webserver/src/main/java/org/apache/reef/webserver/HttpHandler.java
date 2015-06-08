@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -23,7 +23,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * HttpHandler interface
+ * HttpHandler interface.
  */
 public interface HttpHandler {
   /**
@@ -41,7 +41,7 @@ public interface HttpHandler {
   public void setUriSpecification(final String s);
 
   /**
-   * Will be called when request comes
+   * Will be called when request comes.
    *
    * @param parsedHttpRequest
    * @param response

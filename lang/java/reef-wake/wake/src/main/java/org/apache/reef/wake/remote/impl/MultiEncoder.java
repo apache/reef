@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -26,7 +26,7 @@ import org.apache.reef.wake.remote.proto.WakeRemoteProtos.WakeTuplePBuf;
 import java.util.Map;
 
 /**
- * Encoder using the WakeTuple protocol buffer
+ * Encoder using the WakeTuple protocol buffer.
  * (class name and bytes)
  *
  * @param <T>
@@ -36,7 +36,7 @@ public class MultiEncoder<T> implements Encoder<T> {
   private final Map<Class<? extends T>, Encoder<? extends T>> clazzToEncoderMap;
 
   /**
-   * Constructs an encoder that encodes an object to bytes based on the class name
+   * Constructs an encoder that encodes an object to bytes based on the class name.
    *
    * @param clazzToDecoderMap
    */
@@ -45,7 +45,7 @@ public class MultiEncoder<T> implements Encoder<T> {
   }
 
   /**
-   * Encodes an object to a byte array
+   * Encodes an object to a byte array.
    *
    * @param obj
    */

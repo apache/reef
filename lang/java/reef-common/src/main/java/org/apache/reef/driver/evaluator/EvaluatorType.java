@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -23,11 +23,11 @@ package org.apache.reef.driver.evaluator;
  */
 public enum EvaluatorType {
   /**
-   * Indicates an Evaluator that runs on the JVM
+   * Indicates an Evaluator that runs on the JVM.
    */
   JVM,
   /**
-   * Indicates an Evaluator that runs on the CLR
+   * Indicates an Evaluator that runs on the CLR.
    */
   CLR,
   /**

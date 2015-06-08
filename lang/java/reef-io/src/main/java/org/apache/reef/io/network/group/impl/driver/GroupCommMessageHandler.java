@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -29,7 +29,7 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 /**
- * The network handler for the group communcation service on the driver side
+ * The network handler for the group communcation service on the driver side.
  */
 public class GroupCommMessageHandler implements EventHandler<GroupCommunicationMessage> {
 

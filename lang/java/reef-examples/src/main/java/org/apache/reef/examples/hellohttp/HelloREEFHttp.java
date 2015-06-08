@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -39,7 +39,7 @@ import java.util.logging.Logger;
  */
 public final class HelloREEFHttp {
   /**
-   * The upper limit on the number of Evaluators that the local resourcemanager will hand out concurrently
+   * The upper limit on the number of Evaluators that the local resourcemanager will hand out concurrently.
    */
   private static final int MAX_NUMBER_OF_EVALUATORS = 3;
 
@@ -88,7 +88,7 @@ public final class HelloREEFHttp {
   }
 
   /**
-   * Run Hello Reef with merged configuration
+   * Run Hello Reef with merged configuration.
    *
    * @param runtimeConf
    * @param timeOut
@@ -103,7 +103,7 @@ public final class HelloREEFHttp {
   }
 
   /**
-   * main program
+   * main program.
    *
    * @param args
    * @throws InjectionException

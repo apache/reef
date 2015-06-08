@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -57,7 +57,7 @@ public final class JobFolder {
   }
 
   /**
-   * Uploads the given file to the DFS
+   * Uploads the given file to the DFS.
    *
    * @param localFile
    * @return the Path representing the file on the DFS.
@@ -94,7 +94,7 @@ public final class JobFolder {
   }
 
   /**
-   * Creates a LocalResource instance for the JAR file referenced by the given Path
+   * Creates a LocalResource instance for the JAR file referenced by the given Path.
    */
   public LocalResource getLocalResourceForPath(final Path path) throws IOException {
     final LocalResource localResource = Records.newRecord(LocalResource.class);

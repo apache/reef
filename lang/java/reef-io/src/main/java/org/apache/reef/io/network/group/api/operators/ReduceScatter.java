@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -59,7 +59,7 @@ public interface ReduceScatter<T> extends GroupCommOperator {
                 List<? extends Identifier> order) throws InterruptedException, NetworkException;
 
   /**
-   * get {@link org.apache.reef.io.network.group.api.operators.Reduce.ReduceFunction} configured
+   * get {@link org.apache.reef.io.network.group.api.operators.Reduce.ReduceFunction} configured.
    *
    * @return {@link org.apache.reef.io.network.group.api.operators.Reduce.ReduceFunction}
    */

@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -25,7 +25,7 @@ import org.apache.reef.driver.context.ActiveContext;
 import org.apache.reef.io.naming.Identifiable;
 
 /**
- * Represents a running Task
+ * Represents a running Task.
  */
 @DriverSide
 @Public

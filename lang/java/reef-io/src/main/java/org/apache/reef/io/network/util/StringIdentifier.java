@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -22,14 +22,14 @@ import org.apache.reef.wake.ComparableIdentifier;
 import org.apache.reef.wake.Identifier;
 
 /**
- * String identifier
+ * String identifier.
  */
 public class StringIdentifier implements ComparableIdentifier {
 
   private final String str;
 
   /**
-   * Constructs a string identifier
+   * Constructs a string identifier.
    *
    * @param str a string
    */
@@ -38,7 +38,7 @@ public class StringIdentifier implements ComparableIdentifier {
   }
 
   /**
-   * Returns a hash code for the object
+   * Returns a hash code for the object.
    *
    * @return a hash code value for this object
    */
@@ -47,7 +47,7 @@ public class StringIdentifier implements ComparableIdentifier {
   }
 
   /**
-   * Checks that another object is equal to this object
+   * Checks that another object is equal to this object.
    *
    * @param o another object
    * @return true if the object is the same as the object argument; false, otherwise
@@ -57,7 +57,7 @@ public class StringIdentifier implements ComparableIdentifier {
   }
 
   /**
-   * Returns a string representation of the object
+   * Returns a string representation of the object.
    *
    * @return a string representation of the object
    */

@@ -26,10 +26,6 @@ import org.apache.reef.driver.parameters.DriverIdentifier;
 import org.apache.reef.driver.task.FailedTask;
 import org.apache.reef.driver.task.RunningTask;
 import org.apache.reef.io.network.Message;
-import org.apache.reef.io.network.impl.*;
-import org.apache.reef.io.network.naming.NameServer;
-import org.apache.reef.io.network.naming.NameServerImpl;
-import org.apache.reef.io.network.naming.NameServerParameters;
 import org.apache.reef.io.network.group.api.driver.CommunicationGroupDriver;
 import org.apache.reef.io.network.group.api.driver.GroupCommServiceDriver;
 import org.apache.reef.io.network.group.impl.GroupCommunicationMessage;
@@ -39,6 +35,10 @@ import org.apache.reef.io.network.group.impl.config.parameters.TreeTopologyFanOu
 import org.apache.reef.io.network.group.impl.task.GroupCommNetworkHandlerImpl;
 import org.apache.reef.io.network.group.impl.utils.BroadcastingEventHandler;
 import org.apache.reef.io.network.group.impl.utils.Utils;
+import org.apache.reef.io.network.impl.*;
+import org.apache.reef.io.network.naming.NameServer;
+import org.apache.reef.io.network.naming.NameServerImpl;
+import org.apache.reef.io.network.naming.NameServerParameters;
 import org.apache.reef.io.network.util.StringIdentifierFactory;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.JavaConfigurationBuilder;
@@ -56,6 +56,8 @@ import org.apache.reef.wake.impl.SyncStage;
 import org.apache.reef.wake.impl.ThreadPoolStage;
 import org.apache.reef.wake.remote.address.LocalAddressProvider;
 import org.apache.reef.wake.remote.address.LocalAddressProviderFactory;
+import org.apache.reef.wake.remote.transport.netty.MessagingTransportFactory;
+import org.apache.reef.wake.remote.transport.TransportFactory;
 
 import javax.inject.Inject;
 import java.util.HashMap;
@@ -72,7 +74,7 @@ import java.util.logging.Logger;
 public class GroupCommDriverImpl implements GroupCommServiceDriver {
   private static final Logger LOG = Logger.getLogger(GroupCommDriverImpl.class.getName());
   /**
-   * TANG instance
+   * TANG instance.
    */
   private static final Tang tang = Tang.Factory.getTang();
 
@@ -124,6 +126,19 @@ public class GroupCommDriverImpl implements GroupCommServiceDriver {
                              @Parameter(DriverIdentifier.class) final String driverId,
                              @Parameter(TreeTopologyFanOut.class) final int fanOut,
                              final LocalAddressProvider localAddressProvider) {
+    this(confSerializer, driverId, fanOut, localAddressProvider, new MessagingTransportFactory());
+  }
+
+  /**
+   * @deprecated Have an instance injected instead.
+   */
+  @Deprecated
+  @Inject
+  public GroupCommDriverImpl(final ConfigurationSerializer confSerializer,
+                             @Parameter(DriverIdentifier.class) final String driverId,
+                             @Parameter(TreeTopologyFanOut.class) final int fanOut,
+                             final LocalAddressProvider localAddressProvider,
+                             final TransportFactory tpFactory) {
     assert (SingletonAsserter.assertSingleton(getClass()));
     this.driverId = driverId;
     this.fanOut = fanOut;
@@ -141,7 +156,7 @@ public class GroupCommDriverImpl implements GroupCommServiceDriver {
     this.groupCommMessageHandler = new GroupCommMessageHandler();
     this.groupCommMessageStage = new SingleThreadStage<>("GroupCommMessageStage", groupCommMessageHandler, 100 * 1000);
     this.netService = new NetworkService<>(idFac, 0, nameServiceAddr, nameServicePort,
-        new GroupCommunicationMessageCodec(), new MessagingTransportFactory(localAddressProvider),
+        new GroupCommunicationMessageCodec(), tpFactory,
         new EventHandler<Message<GroupCommunicationMessage>>() {
 
           @Override

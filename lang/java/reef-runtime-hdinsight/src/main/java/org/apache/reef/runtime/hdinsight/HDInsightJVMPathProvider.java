@@ -22,7 +22,7 @@ import com.google.inject.Inject;
 import org.apache.reef.runtime.common.files.RuntimePathProvider;
 
 /**
- * Supplies the java binary's path for HDInsight
+ * Supplies the java binary's path for HDInsight.
  */
 public final class HDInsightJVMPathProvider implements RuntimePathProvider {
   @Inject

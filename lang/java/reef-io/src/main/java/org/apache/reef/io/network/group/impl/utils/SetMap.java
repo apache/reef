@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -23,7 +23,7 @@ import org.apache.reef.io.network.group.impl.driver.MsgKey;
 import java.util.*;
 
 /**
- * Map from K to Set<V>
+ * Map from K to Set<V>.
  */
 public class SetMap<K, V> {
   private final Map<K, Set<V>> map = new HashMap<>();

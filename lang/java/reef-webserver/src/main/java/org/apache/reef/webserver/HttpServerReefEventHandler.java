@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -58,7 +58,7 @@ public final class HttpServerReefEventHandler implements HttpHandler {
   private final LoggingScopeFactory loggingScopeFactory;
 
   /**
-   * Log level string prefix in the log lines
+   * Log level string prefix in the log lines.
    */
   private final String logLevelPrefix;
 
@@ -184,7 +184,7 @@ public final class HttpServerReefEventHandler implements HttpHandler {
   }
 
   /**
-   * handle HTTP queries
+   * handle HTTP queries.
    * Example of a query: http://localhost:8080/reef/Evaluators/?id=Node-2-1403225213803&id=Node-1-1403225213712
    */
   private void handleQueries(
@@ -286,7 +286,7 @@ public final class HttpServerReefEventHandler implements HttpHandler {
   }
 
   /**
-   * Get all evaluator ids and send it back to response so that can be displayed on web
+   * Get all evaluator ids and send it back to response so that can be displayed on web.
    *
    * @param response
    * @throws IOException
@@ -366,7 +366,7 @@ public final class HttpServerReefEventHandler implements HttpHandler {
   }
 
   /**
-   * Write lines in ArrayList to the response writer
+   * Write lines in ArrayList to the response writer.
    * @param response
    * @param lines
    * @param header

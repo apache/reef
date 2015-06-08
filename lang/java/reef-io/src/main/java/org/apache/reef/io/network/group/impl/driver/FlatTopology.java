@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -54,7 +54,7 @@ import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.logging.Logger;
 
 /**
- * Implements a one level Tree Topology
+ * Implements a one level Tree Topology.
  */
 public class FlatTopology implements Topology {
 

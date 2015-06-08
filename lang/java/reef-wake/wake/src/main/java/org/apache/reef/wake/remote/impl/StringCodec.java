@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -21,12 +21,12 @@ package org.apache.reef.wake.remote.impl;
 import org.apache.reef.wake.remote.Codec;
 
 /**
- * Codec that encodes/decodes a string
+ * Codec that encodes/decodes a string.
  */
 public class StringCodec implements Codec<String> {
 
   /**
-   * Returns a byte array representation of the string
+   * Returns a byte array representation of the string.
    *
    * @param obj the string
    * @return a byte array representation of the string
@@ -37,7 +37,7 @@ public class StringCodec implements Codec<String> {
   }
 
   /**
-   * Returns a string decoded from the byte array
+   * Returns a string decoded from the byte array.
    *
    * @param buf the byte array
    * @return a string

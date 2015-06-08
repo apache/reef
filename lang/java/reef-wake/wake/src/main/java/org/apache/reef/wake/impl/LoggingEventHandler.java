@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -25,7 +25,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * A logging event handler
+ * A logging event handler.
  *
  * @param <T> type
  */
@@ -37,7 +37,7 @@ public class LoggingEventHandler<T> implements EventHandler<T> {
   }
 
   /**
-   * Logs the event
+   * Logs the event.
    *
    * @param value an event
    */

@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -111,7 +111,7 @@ public final class YarnClasspathProvider implements RuntimeClasspathProvider {
   }
 
   /**
-   * Fetches the string[] under the given key, if it exists and contains entries (.length >0)
+   * Fetches the string[] under the given key, if it exists and contains entries (.length >0).
    *
    * @param configuration
    * @param key

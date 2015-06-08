@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -33,7 +33,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * A TcpPortProvider which gives out random ports in a range
+ * A TcpPortProvider which gives out random ports in a range.
  */
 public final class RangeTcpPortProvider implements TcpPortProvider {
   private final int portRangeBegin;
@@ -52,7 +52,7 @@ public final class RangeTcpPortProvider implements TcpPortProvider {
   }
 
   /**
-   * Returns an iterator over a set of tcp ports
+   * Returns an iterator over a set of tcp ports.
    *
    * @return an Iterator.
    */

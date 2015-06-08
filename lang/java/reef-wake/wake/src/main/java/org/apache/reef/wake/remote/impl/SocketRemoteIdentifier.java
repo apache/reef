@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -24,14 +24,14 @@ import org.apache.reef.wake.remote.exception.RemoteRuntimeException;
 import java.net.InetSocketAddress;
 
 /**
- * Remote identifier based on a socket address
+ * Remote identifier based on a socket address.
  */
 public class SocketRemoteIdentifier implements RemoteIdentifier {
 
   private InetSocketAddress addr;
 
   /**
-   * Constructs a remote identifier
+   * Constructs a remote identifier.
    *
    * @param addr the socket address
    */
@@ -40,7 +40,7 @@ public class SocketRemoteIdentifier implements RemoteIdentifier {
   }
 
   /**
-   * Constructs a remote identifier
+   * Constructs a remote identifier.
    *
    * @param str the string representation
    * @throws RemoteRuntimeException
@@ -64,7 +64,7 @@ public class SocketRemoteIdentifier implements RemoteIdentifier {
   }
 
   /**
-   * Gets the socket address
+   * Gets the socket address.
    *
    * @return the socket address
    */
@@ -73,7 +73,7 @@ public class SocketRemoteIdentifier implements RemoteIdentifier {
   }
 
   /**
-   * Returns a hash code for the object
+   * Returns a hash code for the object.
    *
    * @return a hash code value for this object
    */
@@ -83,7 +83,7 @@ public class SocketRemoteIdentifier implements RemoteIdentifier {
   }
 
   /**
-   * Checks that another object is equal to this object
+   * Checks that another object is equal to this object.
    *
    * @param o another object
    * @return true if the object is the same as the object argument; false, otherwise
@@ -94,7 +94,7 @@ public class SocketRemoteIdentifier implements RemoteIdentifier {
   }
 
   /**
-   * Returns a string representation of the object
+   * Returns a string representation of the object.
    *
    * @return a string representation of the object
    */

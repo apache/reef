@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -22,7 +22,7 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.group.ChannelGroup;
 
 /**
- * Default Netty channel handler factory
+ * Default Netty channel handler factory.
  */
 final class NettyDefaultChannelHandlerFactory implements NettyChannelHandlerFactory {
 
@@ -38,7 +38,7 @@ final class NettyDefaultChannelHandlerFactory implements NettyChannelHandlerFact
   }
 
   /**
-   * Creates a Netty channel handler
+   * Creates a Netty channel handler.
    *
    * @return a simple channel upstream handler.
    */

@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -22,7 +22,7 @@ import org.apache.reef.annotations.audience.EvaluatorSide;
 import org.apache.reef.annotations.audience.Private;
 
 /**
- * Thrown when a Task Message Handler throws an exception
+ * Thrown when a Task Message Handler throws an exception.
  */
 @EvaluatorSide
 @Private

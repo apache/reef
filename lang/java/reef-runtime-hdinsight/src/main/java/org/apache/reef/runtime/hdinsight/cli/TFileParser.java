@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -30,7 +30,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Parse TFile's content to key value pair
+ * Parse TFile's content to key value pair.
  */
 final class TFileParser {
   private static final Logger LOG = Logger.getLogger(TFileParser.class.getName());
@@ -59,7 +59,7 @@ final class TFileParser {
   }
 
   /**
-   * Parses the given file and stores the logs for each container in a file named after the container in the given
+   * Parses the given file and stores the logs for each container in a file named after the container in the given.
    * outputFolder
    *
    * @param inputPath

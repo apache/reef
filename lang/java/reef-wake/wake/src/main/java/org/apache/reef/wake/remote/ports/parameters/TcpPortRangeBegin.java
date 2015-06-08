@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -22,7 +22,7 @@ import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
 
 /**
- * First tcp port number to try
+ * First tcp port number to try.
  */
 @NamedParameter(doc = "First tcp port number to try", default_value = TcpPortRangeBegin.default_value)
 public class TcpPortRangeBegin implements Name<Integer> {

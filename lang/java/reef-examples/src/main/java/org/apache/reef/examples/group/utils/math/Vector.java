@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -26,7 +26,7 @@ import java.io.Serializable;
 public interface Vector extends ImmutableVector, Serializable {
 
   /**
-   * Set dimension i of the Vector to value v
+   * Set dimension i of the Vector to value v.
    *
    * @param i the index
    * @param v value
@@ -62,7 +62,7 @@ public interface Vector extends ImmutableVector, Serializable {
   public void normalize();
 
   /**
-   * Create a new instance of the current type
+   * Create a new instance of the current type.
    * with elements being zero
    *
    * @return zero vector of current dimensionality

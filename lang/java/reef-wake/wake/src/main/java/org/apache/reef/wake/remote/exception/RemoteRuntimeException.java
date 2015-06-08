@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -19,13 +19,13 @@
 package org.apache.reef.wake.remote.exception;
 
 /**
- * Wake remote runtime exception
+ * Wake remote runtime exception.
  */
 public class RemoteRuntimeException extends RuntimeException {
   private static final long serialVersionUID = 1L;
 
   /**
-   * Constructs a new runtime remote exception with the specified detail message and cause
+   * Constructs a new runtime remote exception with the specified detail message and cause.
    *
    * @param s the detailed message
    * @param e the cause
@@ -35,7 +35,7 @@ public class RemoteRuntimeException extends RuntimeException {
   }
 
   /**
-   * Constructs a new runtime remote exception with the specified detail message
+   * Constructs a new runtime remote exception with the specified detail message.
    *
    * @param s the detailed message
    */
@@ -44,7 +44,7 @@ public class RemoteRuntimeException extends RuntimeException {
   }
 
   /**
-   * Constructs a new runtime remote exception with the specified cause
+   * Constructs a new runtime remote exception with the specified cause.
    *
    * @param e the cause
    */

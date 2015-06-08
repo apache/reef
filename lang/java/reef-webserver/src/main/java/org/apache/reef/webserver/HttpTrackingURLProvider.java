@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -27,7 +27,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Http TrackingURLProvider
+ * Http TrackingURLProvider.
  */
 public final class HttpTrackingURLProvider implements TrackingURLProvider {
   /**
@@ -36,12 +36,12 @@ public final class HttpTrackingURLProvider implements TrackingURLProvider {
   private static final Logger LOG = Logger.getLogger(HttpTrackingURLProvider.class.getName());
 
   /**
-   * HttpServer
+   * HttpServer.
    */
   private final HttpServer httpServer;
 
   /**
-   * Constructor of HttpTrackingURLProvider
+   * Constructor of HttpTrackingURLProvider.
    *
    * @param httpServer
    */
@@ -51,7 +51,7 @@ public final class HttpTrackingURLProvider implements TrackingURLProvider {
   }
 
   /**
-   * get tracking URI
+   * get tracking URI.
    *
    * @return
    */

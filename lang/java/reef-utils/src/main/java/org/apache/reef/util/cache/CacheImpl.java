@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -54,7 +54,7 @@ public final class CacheImpl<K, V> implements Cache<K, V> {
   private long expireCheckedTime;
 
   /**
-   * Construct an expire-after-write cache
+   * Construct an expire-after-write cache.
    *
    * @param currentTime   class that returns the current time for timeout purposes
    * @param timeoutMillis a cache entry timeout after write

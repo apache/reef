@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -33,7 +33,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Receive incoming events and dispatch to correct handlers
+ * Receive incoming events and dispatch to correct handlers.
  */
 public class RemoteReceiverStage implements EStage<TransportEvent> {
 
@@ -46,7 +46,7 @@ public class RemoteReceiverStage implements EStage<TransportEvent> {
   private final long shutdownTimeout = WakeParameters.REMOTE_EXECUTOR_SHUTDOWN_TIMEOUT;
 
   /**
-   * Constructs a remote receiver stage
+   * Constructs a remote receiver stage.
    *
    * @param handler      the handler of remote events
    * @param errorHandler the exception handler
@@ -64,7 +64,7 @@ public class RemoteReceiverStage implements EStage<TransportEvent> {
   }
 
   /**
-   * Handles the received event
+   * Handles the received event.
    *
    * @param value the event
    */
@@ -75,7 +75,7 @@ public class RemoteReceiverStage implements EStage<TransportEvent> {
   }
 
   /**
-   * Closes the stage
+   * Closes the stage.
    */
   @Override
   public void close() throws Exception {

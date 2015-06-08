@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -21,13 +21,13 @@ package org.apache.reef.io.network.naming.serialization;
 import org.apache.reef.wake.remote.Codec;
 
 /**
- * naming registration response codec
+ * naming registration response codec.
  */
 public class NamingRegisterResponseCodec implements Codec<NamingRegisterResponse> {
   private final NamingRegisterRequestCodec codec;
 
   /**
-   * Constructs a naming register response codec
+   * Constructs a naming register response codec.
    *
    * @param codec the naming register request codec
    */
@@ -36,7 +36,7 @@ public class NamingRegisterResponseCodec implements Codec<NamingRegisterResponse
   }
 
   /**
-   * Encodes a naming register response to bytes
+   * Encodes a naming register response to bytes.
    *
    * @param obj the naming register response
    * @return bytes a byte array
@@ -47,7 +47,7 @@ public class NamingRegisterResponseCodec implements Codec<NamingRegisterResponse
   }
 
   /**
-   * Decodes a naming register response from the bytes
+   * Decodes a naming register response from the bytes.
    *
    * @param buf the byte array
    * @return a naming register response

@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -56,7 +56,7 @@ public final class DriverConfigurationProvider {
   }
 
   /**
-   * Assembles the driver configuration
+   * Assembles the driver configuration.
    *
    * @param jobFolder                The folder in which the local runtime will execute this job.
    * @param clientRemoteId           the remote identifier of the client. It is used by the Driver to establish a

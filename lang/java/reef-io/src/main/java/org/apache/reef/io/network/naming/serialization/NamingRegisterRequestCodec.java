@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -27,14 +27,14 @@ import org.apache.reef.wake.remote.Codec;
 import java.net.InetSocketAddress;
 
 /**
- * Naming registration request codec
+ * Naming registration request codec.
  */
 public class NamingRegisterRequestCodec implements Codec<NamingRegisterRequest> {
 
   private final IdentifierFactory factory;
 
   /**
-   * Constructs a naming registration request codec
+   * Constructs a naming registration request codec.
    *
    * @param factory the identifier factory
    */
@@ -43,7 +43,7 @@ public class NamingRegisterRequestCodec implements Codec<NamingRegisterRequest> 
   }
 
   /**
-   * Encodes the name assignment to bytes
+   * Encodes the name assignment to bytes.
    *
    * @param obj the naming registration request
    * @return a byte array
@@ -59,7 +59,7 @@ public class NamingRegisterRequestCodec implements Codec<NamingRegisterRequest> 
   }
 
   /**
-   * Decodes the bytes to a name assignment
+   * Decodes the bytes to a name assignment.
    *
    * @param buf the byte array
    * @return a naming registration request

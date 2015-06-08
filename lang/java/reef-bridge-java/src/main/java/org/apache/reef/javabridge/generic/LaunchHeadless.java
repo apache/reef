@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -39,7 +39,7 @@ import java.util.logging.Logger;
 public final class LaunchHeadless {
 
   /**
-   * Standard Java logger
+   * Standard Java logger.
    */
   private static final Logger LOG = Logger.getLogger(LaunchHeadless.class.getName());
 
@@ -62,7 +62,7 @@ public final class LaunchHeadless {
    */
 
   /**
-   * Main method that starts the CLR Bridge from Java
+   * Main method that starts the CLR Bridge from Java.
    *
    * @param args command line parameters.
    */

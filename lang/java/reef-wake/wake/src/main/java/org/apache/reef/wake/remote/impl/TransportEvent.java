@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -24,7 +24,7 @@ import java.net.SocketAddress;
 
 
 /**
- * Event sent from a remote node
+ * Event sent from a remote node.
  */
 public class TransportEvent {
   private final byte[] data;
@@ -33,7 +33,7 @@ public class TransportEvent {
   private final Link<byte[]> link;
 
   /**
-   * Constructs an object event
+   * Constructs an object event.
    *
    * @param data       the data
    * @param localAddr  the local socket address
@@ -47,7 +47,7 @@ public class TransportEvent {
   }
 
   /**
-   * Constructs the transport even object using link to
+   * Constructs the transport even object using link to.
    * initialize local and remote address if link not null
    *
    * @param data
@@ -66,7 +66,7 @@ public class TransportEvent {
   }
 
   /**
-   * Gets the data
+   * Gets the data.
    *
    * @return data
    */
@@ -75,7 +75,7 @@ public class TransportEvent {
   }
 
   /**
-   * Returns the link associated with the event
+   * Returns the link associated with the event.
    * which can be used to write back to the client
    * without creating a new link
    *
@@ -86,7 +86,7 @@ public class TransportEvent {
   }
 
   /**
-   * Gets the local socket address
+   * Gets the local socket address.
    *
    * @return the local socket address
    */
@@ -95,7 +95,7 @@ public class TransportEvent {
   }
 
   /**
-   * Gets the remote socket address
+   * Gets the remote socket address.
    *
    * @return the remote socket address
    */

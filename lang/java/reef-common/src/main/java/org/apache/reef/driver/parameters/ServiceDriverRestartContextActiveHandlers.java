@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -26,7 +26,7 @@ import org.apache.reef.wake.EventHandler;
 import java.util.Set;
 
 /**
- * Handler for ActiveContext received during driver restart
+ * Handler for ActiveContext received during driver restart.
  */
 @NamedParameter(doc = "Handler for ActiveContext received during driver restart")
 public final class ServiceDriverRestartContextActiveHandlers implements Name<Set<EventHandler<ActiveContext>>> {

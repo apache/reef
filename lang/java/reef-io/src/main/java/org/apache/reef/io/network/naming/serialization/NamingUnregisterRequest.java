@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -21,13 +21,13 @@ package org.apache.reef.io.network.naming.serialization;
 import org.apache.reef.wake.Identifier;
 
 /**
- * Naming un-registration request
+ * Naming un-registration request.
  */
 public class NamingUnregisterRequest extends NamingMessage {
   private final Identifier id;
 
   /**
-   * Constructs a naming un-registration request
+   * Constructs a naming un-registration request.
    *
    * @param id the identifier
    */
@@ -36,7 +36,7 @@ public class NamingUnregisterRequest extends NamingMessage {
   }
 
   /**
-   * Gets an identifier
+   * Gets an identifier.
    *
    * @return an identifier
    */

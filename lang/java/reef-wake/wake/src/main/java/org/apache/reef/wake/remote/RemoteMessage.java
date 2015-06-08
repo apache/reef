@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -19,21 +19,21 @@
 package org.apache.reef.wake.remote;
 
 /**
- * Message received from a remote handler
+ * Message received from a remote handler.
  *
  * @param <T> type
  */
 public interface RemoteMessage<T> {
 
   /**
-   * Returns a remote identifier of the sender
+   * Returns a remote identifier of the sender.
    *
    * @return a remote identifier
    */
   public RemoteIdentifier getIdentifier();
 
   /**
-   * Returns an actual message
+   * Returns an actual message.
    *
    * @return a message
    */

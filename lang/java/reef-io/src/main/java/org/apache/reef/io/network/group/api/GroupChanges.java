@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -21,7 +21,7 @@ package org.apache.reef.io.network.group.api;
 import org.apache.reef.annotations.audience.TaskSide;
 
 /**
- * Represents the changes in Topology that happened in a communication group
+ * Represents the changes in Topology that happened in a communication group.
  * from the last time the user asked for topology changes
  */
 @TaskSide

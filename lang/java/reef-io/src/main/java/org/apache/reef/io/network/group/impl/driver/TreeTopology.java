@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -56,7 +56,7 @@ import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.logging.Logger;
 
 /**
- * Implements a tree topology with the specified Fan Out
+ * Implements a tree topology with the specified Fan Out.
  */
 public class TreeTopology implements Topology {
 

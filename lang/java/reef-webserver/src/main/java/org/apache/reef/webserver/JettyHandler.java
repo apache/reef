@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -35,12 +35,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Jetty Event Handler
+ * Jetty Event Handler.
  */
 class JettyHandler extends AbstractHandler {
   private static final Logger LOG = Logger.getLogger(JettyHandler.class.getName());
   /**
-   * a map that contains eventHandler's specification and the reference
+   * a map that contains eventHandler's specification and the reference.
    */
   private final Map<String, HttpHandler> eventHandlers = new HashMap<>();
 
@@ -61,7 +61,7 @@ class JettyHandler extends AbstractHandler {
   }
 
   /**
-   * handle http request
+   * handle http request.
    *
    * @param target
    * @param request
@@ -97,7 +97,7 @@ class JettyHandler extends AbstractHandler {
   }
 
   /**
-   * Validate request and get http handler for the request
+   * Validate request and get http handler for the request.
    *
    * @param request
    * @param response
@@ -130,7 +130,7 @@ class JettyHandler extends AbstractHandler {
   }
 
   /**
-   * process write message and status on the response
+   * process write message and status on the response.
    *
    * @param response
    * @param message

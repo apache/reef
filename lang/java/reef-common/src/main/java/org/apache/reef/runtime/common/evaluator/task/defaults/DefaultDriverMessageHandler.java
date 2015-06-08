@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -25,7 +25,7 @@ import org.apache.reef.wake.EventHandler;
 import javax.inject.Inject;
 
 /**
- * A default implementation of EventHandler<DriverMessage>
+ * A default implementation of EventHandler<DriverMessage>.
  */
 @Private
 public final class DefaultDriverMessageHandler implements EventHandler<DriverMessage> {

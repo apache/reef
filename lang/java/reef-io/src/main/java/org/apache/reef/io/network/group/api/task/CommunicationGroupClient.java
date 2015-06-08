@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -27,7 +27,7 @@ import org.apache.reef.tang.annotations.DefaultImplementation;
 import org.apache.reef.tang.annotations.Name;
 
 /**
- * The Task side interface of a communication group
+ * The Task side interface of a communication group.
  * Lets one get the operators configured for this task
  * and use them for communication between tasks configured
  * in this communication group
@@ -42,7 +42,7 @@ public interface CommunicationGroupClient {
   Class<? extends Name<String>> getName();
 
   /**
-   * The broadcast sender configured on this communication group
+   * The broadcast sender configured on this communication group.
    * with the given oepratorName
    *
    * @param operatorName
@@ -51,7 +51,7 @@ public interface CommunicationGroupClient {
   Broadcast.Sender getBroadcastSender(Class<? extends Name<String>> operatorName);
 
   /**
-   * The broadcast receiver configured on this communication group
+   * The broadcast receiver configured on this communication group.
    * with the given oepratorName
    *
    * @param operatorName
@@ -60,7 +60,7 @@ public interface CommunicationGroupClient {
   Broadcast.Receiver getBroadcastReceiver(Class<? extends Name<String>> operatorName);
 
   /**
-   * The reduce receiver configured on this communication group
+   * The reduce receiver configured on this communication group.
    * with the given oepratorName
    *
    * @param operatorName
@@ -69,7 +69,7 @@ public interface CommunicationGroupClient {
   Reduce.Receiver getReduceReceiver(Class<? extends Name<String>> operatorName);
 
   /**
-   * The reduce sender configured on this communication group
+   * The reduce sender configured on this communication group.
    * with the given oepratorName
    *
    * @param operatorName

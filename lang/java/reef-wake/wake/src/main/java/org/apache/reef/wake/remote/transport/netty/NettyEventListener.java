@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -21,12 +21,12 @@ package org.apache.reef.wake.remote.transport.netty;
 import io.netty.channel.ChannelHandlerContext;
 
 /**
- * Netty event listener
+ * Netty event listener.
  */
 interface NettyEventListener {
 
   /**
-   * Handles the message
+   * Handles the message.
    *
    * @param ctx the channel handler context
    * @param msg the message
@@ -34,7 +34,7 @@ interface NettyEventListener {
   void channelRead(ChannelHandlerContext ctx, Object msg);
 
   /**
-   * Handles the exception event
+   * Handles the exception event.
    *
    * @param ctx   the channel handler context
    * @param cause the cause
@@ -42,14 +42,14 @@ interface NettyEventListener {
   void exceptionCaught(ChannelHandlerContext ctx, Throwable cause);
 
   /**
-   * Handles the channel active event
+   * Handles the channel active event.
    *
    * @param ctx the channel handler context
    */
   void channelActive(ChannelHandlerContext ctx);
 
   /**
-   * Handles the channel inactive event
+   * Handles the channel inactive event.
    *
    * @param ctx the channel handler context
    */

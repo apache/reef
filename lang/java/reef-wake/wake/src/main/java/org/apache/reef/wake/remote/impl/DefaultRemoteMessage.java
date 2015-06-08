@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -22,7 +22,7 @@ import org.apache.reef.wake.remote.RemoteIdentifier;
 import org.apache.reef.wake.remote.RemoteMessage;
 
 /**
- * Default remote message implementation
+ * Default remote message implementation.
  *
  * @param <T> type
  */
@@ -32,7 +32,7 @@ class DefaultRemoteMessage<T> implements RemoteMessage<T> {
   private final T message;
 
   /**
-   * Constructs a default remote message
+   * Constructs a default remote message.
    *
    * @param id      the remote identifier
    * @param message the message
@@ -43,7 +43,7 @@ class DefaultRemoteMessage<T> implements RemoteMessage<T> {
   }
 
   /**
-   * Gets the identifier part of this remote message
+   * Gets the identifier part of this remote message.
    *
    * @return the identifier
    */
@@ -53,7 +53,7 @@ class DefaultRemoteMessage<T> implements RemoteMessage<T> {
   }
 
   /**
-   * Gets the message part of this remote message
+   * Gets the message part of this remote message.
    *
    * @return the message
    */

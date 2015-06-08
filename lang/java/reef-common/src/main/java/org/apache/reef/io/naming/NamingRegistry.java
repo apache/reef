@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -28,7 +28,7 @@ import java.net.InetSocketAddress;
 public interface NamingRegistry {
 
   /**
-   * Register the given Address for the given Identifier
+   * Register the given Address for the given Identifier.
    *
    * @param id
    * @param addr
@@ -37,7 +37,7 @@ public interface NamingRegistry {
   public void register(final Identifier id, final InetSocketAddress addr) throws Exception;
 
   /**
-   * Unregister the given Identifier from the registry
+   * Unregister the given Identifier from the registry.
    *
    * @param id
    * @throws Exception

@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -25,7 +25,7 @@ import org.apache.reef.wake.rx.Observer;
 import java.util.concurrent.ExecutorService;
 
 /**
- * Configuration options for Wake Stage
+ * Configuration options for Wake Stage.
  */
 public final class StageConfiguration {
 
