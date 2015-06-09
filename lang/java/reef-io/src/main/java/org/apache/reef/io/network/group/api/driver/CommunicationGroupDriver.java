@@ -19,7 +19,6 @@
 package org.apache.reef.io.network.group.api.driver;
 
 import org.apache.reef.annotations.audience.DriverSide;
-import org.apache.reef.io.network.group.api.task.GroupCommClient;
 import org.apache.reef.io.network.group.impl.config.BroadcastOperatorSpec;
 import org.apache.reef.io.network.group.impl.config.ReduceOperatorSpec;
 import org.apache.reef.tang.Configuration;
@@ -69,7 +68,7 @@ public interface CommunicationGroupDriver {
    * configuration passed in as 'taskConf' and makes the
    * current communication group and the operators configured
    * on it available on the Task side. Provides for injection
-   * of {@link GroupCommClient}
+   * of {@link org.apache.reef.io.network.group.api.task.GroupCommClient}
    *
    * @param taskConf
    * @return

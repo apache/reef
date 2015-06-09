@@ -21,7 +21,6 @@ package org.apache.reef.tang;
 
 import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.exceptions.BindException;
-import org.apache.reef.tang.exceptions.NameResolutionException;
 
 import java.util.List;
 import java.util.Set;
@@ -67,7 +66,7 @@ public interface JavaConfigurationBuilder extends ConfigurationBuilder {
    * @param name  The dummy class that serves as the name of this parameter.
    * @param value A string representing the value of the parameter. Reef must know
    *              how to parse the parameter's type.
-   * @throws NameResolutionException
+   * @throws org.apache.reef.tang.exceptions.NameResolutionException
    */
   public JavaConfigurationBuilder bindNamedParameter(Class<? extends Name<?>> name, String value)
       throws BindException;

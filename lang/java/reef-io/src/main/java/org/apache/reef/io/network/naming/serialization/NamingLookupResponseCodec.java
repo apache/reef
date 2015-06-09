@@ -22,7 +22,6 @@ import org.apache.reef.io.naming.NameAssignment;
 import org.apache.reef.io.network.naming.NameAssignmentTuple;
 import org.apache.reef.io.network.naming.avro.AvroNamingAssignment;
 import org.apache.reef.io.network.naming.avro.AvroNamingLookupResponse;
-import org.apache.reef.io.network.naming.exception.NamingRuntimeException;
 import org.apache.reef.wake.IdentifierFactory;
 import org.apache.reef.wake.remote.Codec;
 
@@ -74,7 +73,7 @@ public final class NamingLookupResponseCodec implements Codec<NamingLookupRespon
    *
    * @param buf the byte array
    * @return a naming lookup response
-   * @throws NamingRuntimeException
+   * @throws org.apache.reef.io.network.naming.exception.NamingRuntimeException
    */
   @Override
   public NamingLookupResponse decode(final byte[] buf) {

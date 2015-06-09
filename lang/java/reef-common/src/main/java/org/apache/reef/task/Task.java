@@ -21,15 +21,13 @@ package org.apache.reef.task;
 import org.apache.reef.annotations.audience.Public;
 import org.apache.reef.annotations.audience.TaskSide;
 
-import java.util.concurrent.Callable;
-
 /**
  * The interface for Tasks.
  * <p/>
  * This interface is to be implemented for Tasks.
  * <p/>
  * The main entry point for a Task is the call() method inherited from
- * {@link Callable}. The REEF Evaluator will call this method in order to run
+ * {@link java.util.concurrent.Callable}. The REEF Evaluator will call this method in order to run
  * the Task. The byte[] returned by it will be pushed to the Job Driver.
  */
 @TaskSide

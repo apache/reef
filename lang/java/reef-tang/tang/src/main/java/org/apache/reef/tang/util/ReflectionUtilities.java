@@ -20,7 +20,6 @@ package org.apache.reef.tang.util;
 
 import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
-import org.apache.reef.tang.exceptions.BindException;
 import org.apache.reef.tang.exceptions.ClassHierarchyException;
 
 import javax.inject.Inject;
@@ -285,7 +284,7 @@ public class ReflectionUtilities {
   /**
    * @param clazz
    * @return T if clazz implements Name<T>, null otherwise
-   * @throws BindException If clazz's definition incorrectly uses Name or @NamedParameter
+   * @throws org.apache.reef.tang.exceptions.BindException If clazz's definition incorrectly uses Name or @NamedParameter
    */
   static public Type getNamedParameterTargetOrNull(Class<?> clazz)
       throws ClassHierarchyException {

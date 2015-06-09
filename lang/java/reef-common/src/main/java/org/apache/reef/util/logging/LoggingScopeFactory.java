@@ -19,8 +19,6 @@
 
 package org.apache.reef.util.logging;
 
-import org.apache.reef.tang.JavaConfigurationBuilder;
-import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.wake.time.event.StartTime;
 

@@ -18,8 +18,6 @@
  */
 package org.apache.reef.webserver;
 
-import org.apache.reef.tang.annotations.DefaultImplementation;
-
 /**
  * HttpServer interface.
  */
