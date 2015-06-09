@@ -26,7 +26,6 @@ import org.apache.reef.wake.remote.Codec;
 import org.apache.reef.wake.remote.transport.Link;
 import org.apache.reef.wake.remote.transport.LinkListener;
 
-import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.logging.Level;

@@ -21,7 +21,6 @@ package org.apache.reef.driver.evaluator;
 import org.apache.reef.annotations.Provided;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Public;
-import org.apache.reef.driver.catalog.NodeDescriptor;
 import org.apache.reef.driver.catalog.ResourceCatalog;
 
 /**
@@ -81,10 +80,10 @@ public final class EvaluatorRequest {
   }
 
   /**
-   * Access the {@link NodeDescriptor} used as the template for this
+   * Access the {@link org.apache.reef.driver.catalog.NodeDescriptor} used as the template for this
    * {@link EvaluatorRequest}.
    *
-   * @return the {@link NodeDescriptor} used as the template for this
+   * @return the {@link org.apache.reef.driver.catalog.NodeDescriptor} used as the template for this
    * {@link EvaluatorRequest}.
    */
   public final ResourceCatalog.Descriptor getDescriptor() {
@@ -157,7 +156,7 @@ public final class EvaluatorRequest {
 
     /**
      * Pre-fill this {@link EvaluatorRequest} from the given
-     * {@link NodeDescriptor}. Any value not changed in subsequent calls to
+     * {@link org.apache.reef.driver.catalog.NodeDescriptor}. Any value not changed in subsequent calls to
      * this Builder will be taken from the given descriptor.
      *
      * @param rd the descriptor used to pre-fill this request.

@@ -20,14 +20,13 @@ package org.apache.reef.io.network.group.impl;
 
 
 import org.apache.reef.io.network.impl.StreamingCodec;
-import org.apache.reef.io.network.proto.ReefNetworkGroupCommProtos.GroupCommMessage;
 import org.apache.reef.io.network.proto.ReefNetworkGroupCommProtos.GroupCommMessage.Type;
 
 import javax.inject.Inject;
 import java.io.*;
 
 /**
- * Codec for {@link GroupCommMessage}.
+ * Codec for {@link org.apache.reef.io.network.proto.ReefNetworkGroupCommProtos.GroupCommMessage}.
  */
 public class GroupCommunicationMessageCodec implements StreamingCodec<GroupCommunicationMessage> {
 

@@ -31,7 +31,6 @@ import org.apache.reef.tang.formats.ConfigurationModule;
 import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
 import org.apache.reef.tang.formats.OptionalImpl;
 import org.apache.reef.tang.formats.OptionalParameter;
-import org.apache.reef.wake.remote.address.LocalAddressProvider;
 
 import java.util.concurrent.ExecutorService;
 

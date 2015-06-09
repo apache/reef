@@ -25,7 +25,6 @@ import org.apache.reef.wake.remote.transport.Link;
 import org.apache.reef.wake.remote.transport.Transport;
 import org.apache.reef.wake.remote.transport.netty.LoggingLinkListener;
 
-import java.io.IOException;
 import java.net.SocketAddress;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicReference;

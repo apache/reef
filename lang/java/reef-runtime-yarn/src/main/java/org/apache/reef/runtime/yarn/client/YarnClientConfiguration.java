@@ -35,7 +35,6 @@ import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
 import org.apache.reef.tang.formats.OptionalImpl;
 import org.apache.reef.tang.formats.OptionalParameter;
 import org.apache.reef.util.logging.LoggingSetup;
-import org.apache.reef.wake.remote.address.LocalAddressProvider;
 
 /**
  * A ConfigurationModule for the YARN resourcemanager.

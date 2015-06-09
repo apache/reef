@@ -18,7 +18,6 @@
  */
 package org.apache.reef.webserver;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.net.URLDecoder;
@@ -46,7 +45,7 @@ public final class ParsedHttpRequest {
    *
    * @param request
    * @throws IOException
-   * @throws ServletException
+   * @throws javax.servlet.ServletException
    */
   public ParsedHttpRequest(final HttpServletRequest request) throws IOException {
     this.pathInfo = request.getPathInfo() != null ? request.getPathInfo() : "";

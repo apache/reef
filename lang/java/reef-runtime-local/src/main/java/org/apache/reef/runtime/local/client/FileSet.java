@@ -23,7 +23,6 @@ import org.apache.reef.tang.formats.OptionalParameter;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.CopyOption;
 import java.nio.file.Files;
 import java.util.HashSet;
 import java.util.Set;

@@ -19,9 +19,6 @@
 package org.apache.reef.wake.remote.ports;
 
 
-import org.apache.reef.tang.Configuration;
-import org.apache.reef.tang.ConfigurationProvider;
-import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.wake.remote.ports.parameters.TcpPortRangeBegin;
 import org.apache.reef.wake.remote.ports.parameters.TcpPortRangeCount;

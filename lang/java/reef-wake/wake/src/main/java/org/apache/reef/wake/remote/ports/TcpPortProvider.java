@@ -18,7 +18,6 @@
  */
 package org.apache.reef.wake.remote.ports;
 
-import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.annotations.DefaultImplementation;
 
 import java.util.Iterator;

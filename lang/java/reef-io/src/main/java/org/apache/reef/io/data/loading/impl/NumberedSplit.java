@@ -18,12 +18,10 @@
  */
 package org.apache.reef.io.data.loading.impl;
 
-import org.apache.hadoop.mapred.InputSplit;
-
 /**
  * A tuple of an object of type E and an integer index.
  * Used inside {@link EvaluatorToPartitionMapper} to
- * mark the partitions associated with each {@link InputSplit}
+ * mark the partitions associated with each {@link org.apache.hadoop.mapred.InputSplit}
  *
  * @param <E>
  */

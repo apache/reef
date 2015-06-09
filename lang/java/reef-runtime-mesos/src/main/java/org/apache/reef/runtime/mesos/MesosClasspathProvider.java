@@ -24,7 +24,6 @@ import org.apache.reef.runtime.common.files.RuntimeClasspathProvider;
 import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.List;
-import java.util.logging.Logger;
 
 /**
  * Access to the classpath according to the REEF file system standard.

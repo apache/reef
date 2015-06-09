@@ -19,7 +19,6 @@
 package org.apache.reef.io.network.naming.serialization;
 
 import org.apache.reef.io.network.naming.avro.AvroNamingUnRegisterRequest;
-import org.apache.reef.io.network.naming.exception.NamingRuntimeException;
 import org.apache.reef.wake.IdentifierFactory;
 import org.apache.reef.wake.remote.Codec;
 
@@ -61,7 +60,7 @@ public final class NamingUnregisterRequestCodec implements Codec<NamingUnregiste
    *
    * @param buf the byte array
    * @return a naming un-registration request
-   * @throws NamingRuntimeException
+   * @throws org.apache.reef.io.network.naming.exception.NamingRuntimeException
    */
   @Override
   public NamingUnregisterRequest decode(byte[] buf) {

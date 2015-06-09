@@ -28,7 +28,6 @@ import org.apache.reef.io.naming.Identifiable;
 import org.apache.reef.tang.Configuration;
 
 import java.io.File;
-import java.io.IOException;
 
 /**
  * Represents an Evaluator that is allocated, but is not running yet.
@@ -43,7 +42,7 @@ public interface AllocatedEvaluator
    * Puts the given file into the working directory of the Evaluator.
    *
    * @param file the file to be copied
-   * @throws IOException if the copy fails.
+   * @throws java.io.IOException if the copy fails.
    */
   void addFile(final File file);
 
@@ -51,7 +50,7 @@ public interface AllocatedEvaluator
    * Puts the given file into the working directory of the Evaluator and adds it to its classpath.
    *
    * @param file the file to be copied
-   * @throws IOException if the copy fails.
+   * @throws java.io.IOException if the copy fails.
    */
   void addLibrary(final File file);
 
