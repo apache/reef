@@ -23,18 +23,15 @@ using System.Reflection;
 using System.Threading;
 using Org.Apache.REEF.Network.Group.Config;
 using Org.Apache.REEF.Network.Group.Operators.Impl;
-using Org.Apache.REEF.Network.Group.Pipelining;
 using Org.Apache.REEF.Network.Group.Pipelining.Impl;
 using Org.Apache.REEF.Network.Group.Topology;
 using Org.Apache.REEF.Tang.Exceptions;
 using Org.Apache.REEF.Tang.Formats;
-using Org.Apache.REEF.Tang.Implementations.Configuration;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities.Logging;
-using Org.Apache.REEF.Wake.Remote;
-using Org.Apache.REEF.Wake.Remote.Impl;
+
 
 namespace Org.Apache.REEF.Network.Group.Driver.Impl
 {
@@ -348,15 +345,11 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
         private IConfiguration[] GetDefaultConfiguration()
         {
             List<IConfiguration> list = new List<IConfiguration>(); 
-            /*IConfiguration codecConfig = StreamingCodecConfiguration<int>.Conf
-                .Set(StreamingCodecConfiguration<int>.Codec, GenericType<IntStreamingCodec>.Class)
-                .Build();*/
 
             IConfiguration dataConverterConfig = PipelineDataConverterConfiguration<int>.Conf
                 .Set(PipelineDataConverterConfiguration<int>.DataConverter, GenericType<DefaultPipelineDataConverter<int>>.Class)
                 .Build();
 
-            //list.Add(codecConfig);
             list.Add(dataConverterConfig);
 
             return list.ToArray();

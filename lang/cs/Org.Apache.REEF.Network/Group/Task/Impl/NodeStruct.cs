@@ -19,11 +19,7 @@
 
 using System;
 using System.Collections.Concurrent;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.Linq;
 using Org.Apache.REEF.Network.Group.Driver.Impl;
-using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Network.Group.Task.Impl
 {

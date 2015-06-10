@@ -18,22 +18,10 @@
  */
 
 using System;
-using System.ComponentModel;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Runtime.Serialization;
-using System.Runtime.Serialization.Json;
 using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.Hadoop.Avro;
 using Org.Apache.REEF.Network.StreamingCodec;
 using Org.Apache.REEF.Wake.Remote;
-using System.Threading.Tasks;
 using Org.Apache.REEF.Tang.Annotations;
-using Org.Apache.REEF.Tang.Interface;
-
 
 namespace Org.Apache.REEF.Network.Group.Driver.Impl
 {

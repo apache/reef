@@ -19,8 +19,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Threading;
-using Org.Apache.REEF.Network.Group.Config;
 using Org.Apache.REEF.Network.Group.Driver.Impl;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities.Diagnostics;

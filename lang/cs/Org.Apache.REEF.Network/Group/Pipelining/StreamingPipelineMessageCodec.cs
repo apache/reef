@@ -19,8 +19,6 @@
 
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Wake.Remote;
-using System;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Org.Apache.REEF.Network.StreamingCodec;
