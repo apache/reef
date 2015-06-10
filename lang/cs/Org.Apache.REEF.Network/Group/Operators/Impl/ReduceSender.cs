@@ -72,49 +72,7 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
             _pipelinedReduceFunc = new PipelinedReduceFunction<T>(ReduceFunction);
             _topology = topology;
 
-            var msgHandler = Observer.Create<GroupCommunicationMessage>(message => topology.OnNext(message));
-            networkHandler.Register(operatorName, msgHandler);
-
-            PipelineDataConverter = dataConverter;
-
-            if (initialize)
-            {
-                topology.Initialize();
-            }
-        }
-
-        /// <summary>
-        /// Creates a new ReduceSender.
-        /// </summary>
-        /// <param name="operatorName">The name of the reduce operator</param>
-        /// <param name="groupName">The name of the reduce operator's CommunicationGroup</param>
-        /// <param name="initialize">Require Topology Initialize to be called to wait for all task being registered. 
-        /// Default is true. For unit testing, it can be set to false.</param>
-        /// <param name="topology">The Task's operator topology graph</param>
-        /// <param name="networkHandler">The handler used to handle incoming messages</param>
-        /// <param name="reduceFunction">The function used to reduce the incoming messages</param>
-        /// <param name="dataConverter">The converter used to convert original
-        /// message to pipelined ones and vice versa.</param>
-        [Inject]
-        private ReduceSender(
-            [Parameter(typeof(GroupCommConfigurationOptions.OperatorName))] string operatorName,
-            [Parameter(typeof(GroupCommConfigurationOptions.CommunicationGroupName))] string groupName,
-            [Parameter(typeof(GroupCommConfigurationOptions.Initialize))] bool initialize,
-            WritableOperatorTopology<PipelineMessage<T>> topology,
-            IWritableCommunicationGroupNetworkObserver networkHandler,
-            IReduceFunction<T> reduceFunction,
-            IPipelineDataConverter<T> dataConverter)
-        {
-            OperatorName = operatorName;
-            GroupName = groupName;
-            ReduceFunction = reduceFunction;
-
-            Version = PipelineVersion;
-
-            _pipelinedReduceFunc = new PipelinedReduceFunction<T>(ReduceFunction);
-            _topology = topology;
-            
-            var msgHandler = Observer.Create<WritableGeneralGroupCommunicationMessage>(message => topology.OnNext(message));
+            var msgHandler = Observer.Create<GeneralGroupCommunicationMessage>(message => topology.OnNext(message));
             networkHandler.Register(operatorName, msgHandler);
 
             PipelineDataConverter = dataConverter;

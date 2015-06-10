@@ -25,34 +25,38 @@ using Org.Apache.REEF.Network.Group.Driver.Impl;
 using Org.Apache.REEF.Network.NetworkService;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Formats;
+using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
+using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Wake.Remote.Impl;
 
 namespace Org.Apache.REEF.Network.Group.Task.Impl
 {
     /// <summary>
-    /// Container of ommunicationGroupClients
+    /// Used by Tasks to fetch CommunicationGroupClients.
+    /// Writable version
     /// </summary>
+    [Obsolete("Need to remove Iwritable and use IstreamingCodec. Please see Jira REEF-295 ", false)]
     public class GroupCommClient : IGroupCommClient
     {
         private readonly Dictionary<string, ICommunicationGroupClient> _commGroups;
 
-        private readonly INetworkService<GroupCommunicationMessage> _networkService;
+        private readonly INetworkService<GeneralGroupCommunicationMessage> _networkService;
 
         /// <summary>
-        /// Creates a new GroupCommClient and registers the task ID with the Name Server.
-        /// Currently the GroupCommClient is injected in task constructor. When work with REEF-289, we should put the injection at a proepr palce. 
+        /// Creates a new WritableGroupCommClient and registers the task ID with the Name Server.
         /// </summary>
         /// <param name="groupConfigs">The set of serialized Group Communication configurations</param>
-        /// <param name="taskId">The identifier for this taskfor this task</param>
-        /// <param name="networkService">The network service used to send messages</param>
+        /// <param name="taskId">The identifier for this task</param>
+        /// <param name="networkService">The writable network service used to send messages</param>
         /// <param name="configSerializer">Used to deserialize Group Communication configuration</param>
         /// <param name="injector">injector forked from the injector that creates this instance</param>
         [Inject]
-        private GroupCommClient(
+        [Obsolete("Need to remove Iwritable and use IstreamingCodec. Please see Jira REEF-295 ", false)]
+        public GroupCommClient(
             [Parameter(typeof(GroupCommConfigurationOptions.SerializedGroupConfigs))] ISet<string> groupConfigs,
             [Parameter(typeof(TaskConfigurationOptions.Identifier))] string taskId,
-            NetworkService<GroupCommunicationMessage> networkService,
+            WritableNetworkService<GeneralGroupCommunicationMessage> networkService,
             AvroConfigurationSerializer configSerializer,
             IInjector injector)
         {

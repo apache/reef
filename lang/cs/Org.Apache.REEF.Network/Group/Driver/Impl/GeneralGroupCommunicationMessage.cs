@@ -22,7 +22,6 @@ using System.ComponentModel;
 using System.IO;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using Org.Apache.REEF.Network.Group.Codec;
 using System.Runtime.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
@@ -41,13 +40,13 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
     /// WritableGroupCommunicationMessage but seen by Network Service
     /// </summary>
    [Obsolete("Need to remove Iwritable and use IstreamingCodec. Please see Jira REEF-295 ", false)]
-    public abstract class WritableGeneralGroupCommunicationMessage : IWritable
+    public abstract class GeneralGroupCommunicationMessage : IWritable
     {        
         /// <summary>
         /// Empty constructor to allow instantiation by reflection
         /// </summary>
         [Inject]
-        protected WritableGeneralGroupCommunicationMessage()
+        protected GeneralGroupCommunicationMessage()
         {
         }
 
@@ -59,7 +58,7 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
         /// <param name="source">The message source</param>
         /// <param name="destination">The message destination</param>
         /// <param name="messageType">The type of message to send</param>
-        protected WritableGeneralGroupCommunicationMessage(
+        protected GeneralGroupCommunicationMessage(
             string groupName,
             string operatorName,
             string source,

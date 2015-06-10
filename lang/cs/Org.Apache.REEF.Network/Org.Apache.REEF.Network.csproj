@@ -50,24 +50,20 @@ under the License.
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Group\Codec\GcmMessageProto.cs" />
-    <Compile Include="Group\Codec\GroupCommunicationMessageCodec.cs" />
     <Compile Include="Group\Config\StreamingCodecConfiguration.cs" />
     <Compile Include="Group\Config\CodecConfiguration.cs" />
     <Compile Include="Group\Config\GroupCommConfigurationOptions.cs" />
     <Compile Include="Group\Config\PipelineDataConverterConfiguration.cs" />
     <Compile Include="Group\Config\ReduceFunctionConfiguration.cs" />
     <Compile Include="Group\Driver\ICommunicationGroupDriver.cs" />
-    <Compile Include="Group\Driver\IWritableGroupCommDriver.cs" />
     <Compile Include="Group\Driver\IGroupCommDriver.cs" />
     <Compile Include="Group\Driver\Impl\CommunicationGroupDriver.cs" />
-    <Compile Include="Group\Driver\Impl\WritableGroupCommDriver.cs" />
     <Compile Include="Group\Driver\Impl\GroupCommunicationMessage.cs" />
+    <Compile Include="Group\Driver\Impl\IntStreamingCodec.cs" />
     <Compile Include="Group\Driver\Impl\MessageType.cs" />
     <Compile Include="Group\Driver\Impl\GroupCommDriver.cs" />
     <Compile Include="Group\Driver\Impl\TaskStarter.cs" />
-    <Compile Include="Group\Driver\Impl\WritableGeneralGroupCommunicationMessage.cs" />
-    <Compile Include="Group\Driver\Impl\WritableGroupCommunicationMessage.cs" />
+    <Compile Include="Group\Driver\Impl\GeneralGroupCommunicationMessage.cs" />
     <Compile Include="Group\Operators\IBroadcastReceiver.cs" />
     <Compile Include="Group\Operators\IBroadcastSender.cs" />
     <Compile Include="Group\Operators\IGroupCommOperator.cs" />
@@ -82,7 +78,6 @@ under the License.
     <Compile Include="Group\Operators\Impl\ScatterOperatorSpec.cs" />
     <Compile Include="Group\Operators\Impl\ScatterReceiver.cs" />
     <Compile Include="Group\Operators\Impl\ScatterSender.cs" />
-    <Compile Include="Group\Operators\Impl\WritableSender.cs" />
     <Compile Include="Group\Operators\Impl\Sender.cs" />
     <Compile Include="Group\Operators\IOperatorSpec.cs" />
     <Compile Include="Group\Task\IOperatorTopology.cs" />
@@ -97,19 +92,12 @@ under the License.
     <Compile Include="Group\Pipelining\StreamingPipelineMessageCodec.cs" />
     <Compile Include="Group\Pipelining\PipelineMessageCodec.cs" />
     <Compile Include="Group\Task\ICommunicationGroupClient.cs" />
-    <Compile Include="Group\Task\IWritableCommunicationGroupNetworkObserver.cs" />
     <Compile Include="Group\Task\ICommunicationGroupNetworkObserver.cs" />
     <Compile Include="Group\Task\IGroupCommClient.cs" />
-    <Compile Include="Group\Task\IWritableGroupCommNetworkObserver.cs" />
     <Compile Include="Group\Task\IGroupCommNetworkObserver.cs" />
     <Compile Include="Group\Task\Impl\CommunicationGroupClient.cs" />
-    <Compile Include="Group\Task\Impl\WritableOperatorTopology.cs" />
-    <Compile Include="Group\Task\Impl\WritableGroupCommClient.cs" />
-    <Compile Include="Group\Task\Impl\WritableNodeStruct.cs" />
-    <Compile Include="Group\Task\Impl\WritableCommunicationGroupNetworkObserver.cs" />
     <Compile Include="Group\Task\Impl\CommunicationGroupNetworkObserver.cs" />
     <Compile Include="Group\Task\Impl\GroupCommClient.cs" />
-    <Compile Include="Group\Task\Impl\WritableGroupCommNetworkObserver.cs" />
     <Compile Include="Group\Task\Impl\GroupCommNetworkObserver.cs" />
     <Compile Include="Group\Task\Impl\NodeStruct.cs" />
     <Compile Include="Group\Task\Impl\OperatorTopology.cs" />

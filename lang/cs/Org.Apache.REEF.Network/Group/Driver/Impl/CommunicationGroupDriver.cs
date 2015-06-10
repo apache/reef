@@ -143,7 +143,7 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
         /// <returns>The same CommunicationGroupDriver with the added Broadcast operator info</returns>
         public ICommunicationGroupDriver AddBroadcast(string operatorName, string masterTaskId, TopologyTypes topologyType = TopologyTypes.Flat)
         {
-            return AddBroadcast<int>( operatorName, masterTaskId, topologyType, GetDefaulConfiguration());
+            return AddBroadcast<int>( operatorName, masterTaskId, topologyType, GetDefaultConfiguration());
         }
 
         /// <summary>
@@ -238,7 +238,7 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
         public ICommunicationGroupDriver AddScatter(string operatorName, string senderId,
             TopologyTypes topologyType = TopologyTypes.Flat)
         {
-            return AddScatter<int>(operatorName, senderId, topologyType, GetDefaulConfiguration());
+            return AddScatter<int>(operatorName, senderId, topologyType, GetDefaultConfiguration());
         }
 
         /// <summary>
@@ -345,18 +345,18 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
             return (IConfiguration) info.Invoke(topology, new[] {(object) taskId});
         }
 
-        private IConfiguration[] GetDefaulConfiguration()
+        private IConfiguration[] GetDefaultConfiguration()
         {
             List<IConfiguration> list = new List<IConfiguration>(); 
-            IConfiguration codecConfig = CodecConfiguration<int>.Conf
-                .Set(CodecConfiguration<int>.Codec, GenericType<IntCodec>.Class)
-                .Build();
+            /*IConfiguration codecConfig = StreamingCodecConfiguration<int>.Conf
+                .Set(StreamingCodecConfiguration<int>.Codec, GenericType<IntStreamingCodec>.Class)
+                .Build();*/
 
             IConfiguration dataConverterConfig = PipelineDataConverterConfiguration<int>.Conf
                 .Set(PipelineDataConverterConfiguration<int>.DataConverter, GenericType<DefaultPipelineDataConverter<int>>.Class)
                 .Build();
 
-            list.Add(codecConfig);
+            //list.Add(codecConfig);
             list.Add(dataConverterConfig);
 
             return list.ToArray();

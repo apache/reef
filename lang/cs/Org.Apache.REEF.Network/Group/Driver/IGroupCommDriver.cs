@@ -92,5 +92,13 @@ namespace Org.Apache.REEF.Network.Group.Driver
         /// <returns>The Group Communication task configuration with communication group and
         /// operator configuration set.</returns>
         IConfiguration GetGroupCommTaskConfiguration(string taskId);
+
+        /// <summary>
+        /// Get the service configuration required for running Group Communication on Reef tasks.
+        /// </summary>
+        /// <param name="config">User specified configuration to be passed to service</param>
+        /// <returns>The service configuration for the Reef tasks</returns>
+        IConfiguration GetServiceConfiguration(params IConfiguration[] config);
+   
     }
 }
