@@ -36,7 +36,7 @@ namespace Org.Apache.REEF.Examples.HelloREEF
     /// <summary>
     /// The Driver for HelloREEF: It requests a single Evaluator and then submits the HelloTask to it.
     /// </summary>
-    public sealed class HelloDriver : IObserver<IAllocatedEvaluator>, IObserver<DateTime>
+    public sealed class HelloDriver : IObserver<IAllocatedEvaluator>, IObserver<IDriverStarted>
     {
         private static readonly Logger _Logger = Logger.GetLogger(typeof(HelloDriver));
 
@@ -70,10 +70,10 @@ namespace Org.Apache.REEF.Examples.HelloREEF
         /// <summary>
         /// Called to start the user mode driver
         /// </summary>
-        /// <param name="startTime"></param>
-        public void OnNext(DateTime startTime)
+        /// <param name="driverStarted"></param>
+        public void OnNext(IDriverStarted driverStarted)
         {
-            _Logger.Log(Level.Info, string.Format("HelloDriver started at {0}", startTime));
+            _Logger.Log(Level.Info, string.Format("HelloDriver started at {0}", driverStarted.StartTime));
             _evaluatorRequestor.Submit(new EvaluatorRequest(number: 1, megaBytes: 64));
         }
 
