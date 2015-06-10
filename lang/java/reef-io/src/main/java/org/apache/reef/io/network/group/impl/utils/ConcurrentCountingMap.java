@@ -34,7 +34,7 @@ public class ConcurrentCountingMap<K, V> {
 
   private final ConcurrentMap<K, CountingMap<V>> map = new ConcurrentHashMap<>();
 
-  public boolean remove (final K key, final V value) {
+  public boolean remove(final K key, final V value) {
     if (!map.containsKey(key)) {
       return false;
     }
@@ -45,31 +45,31 @@ public class ConcurrentCountingMap<K, V> {
     return retVal;
   }
 
-  public void add (final K key, final V value) {
+  public void add(final K key, final V value) {
     map.putIfAbsent(key, new CountingMap<V>());
     map.get(key).add(value);
   }
 
-  public CountingMap<V> get (final K key) {
+  public CountingMap<V> get(final K key) {
     return map.get(key);
   }
 
-  public boolean isEmpty () {
+  public boolean isEmpty() {
     return map.isEmpty();
   }
 
-  public boolean containsKey (final K key) {
+  public boolean containsKey(final K key) {
     return map.containsKey(key);
   }
 
-  public boolean contains (final K key, final V value) {
+  public boolean contains(final K key, final V value) {
     if (!map.containsKey(key)) {
       return false;
     }
     return map.get(key).containsKey(value);
   }
 
-  public boolean notContains (final V value) {
+  public boolean notContains(final V value) {
     for (final CountingMap<V> innerMap : map.values()) {
       if (innerMap.containsKey(value)) {
         return false;
@@ -79,18 +79,18 @@ public class ConcurrentCountingMap<K, V> {
   }
 
   @Override
-  public String toString () {
+  public String toString() {
     return map.toString();
   }
 
-  public void clear () {
+  public void clear() {
     for (final CountingMap<V> value : map.values()) {
       value.clear();
     }
     map.clear();
   }
 
-  public static void main (final String[] args) {
+  public static void main(final String[] args) {
     final Logger LOG = Logger.getLogger(ConcurrentCountingMap.class.getName());
     final ConcurrentCountingMap<ReefNetworkGroupCommProtos.GroupCommMessage.Type, String> strMap = new ConcurrentCountingMap<>();
     LOG.log(Level.INFO, "OUT: {0}", strMap.isEmpty());

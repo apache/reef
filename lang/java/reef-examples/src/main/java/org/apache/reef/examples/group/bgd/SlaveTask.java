@@ -93,7 +93,7 @@ public class SlaveTask implements Task {
      */
     loadData();
 
-    for (boolean repeat = true; repeat; ) {
+    for (boolean repeat = true; repeat;) {
 
       final ControlMessages controlMessage = controlMessageBroadcaster.receive();
       switch (controlMessage) {

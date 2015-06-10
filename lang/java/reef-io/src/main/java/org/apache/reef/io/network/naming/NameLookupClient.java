@@ -253,7 +253,7 @@ public class NameLookupClient implements Stage, NamingLookup {
       link.write(new NamingLookupRequest(ids));
 
       final NamingLookupResponse resp;
-      for (; ; ) {
+      for (;;) {
         try {
           resp = replyQueue.poll(timeout, TimeUnit.MILLISECONDS);
           break;

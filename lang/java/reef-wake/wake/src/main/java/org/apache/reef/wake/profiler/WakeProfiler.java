@@ -209,9 +209,8 @@ public class WakeProfiler implements Aspect {
         || (o instanceof Stage)
         || (o instanceof RxStage)
         || (o instanceof Observer)
-        || (o instanceof Observable))
+        || (o instanceof Observable));
 //        && !(o instanceof Set)
-        ;
   }
 
   public String objectGraphToString() {

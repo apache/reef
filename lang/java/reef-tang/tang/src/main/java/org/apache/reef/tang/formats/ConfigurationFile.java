@@ -238,7 +238,7 @@ public class ConfigurationFile {
       l.add(e.getKey().getFullName() + '=' + escape(val));
 //      s.append(e.getKey().getFullName()).append('=').append(val).append("\n");
     }
-    return l;//s.toString();
+    return l; //s.toString();
   }
 
   private static StringBuilder join(final StringBuilder sb, final String sep, final ConstructorArg[] types) {
