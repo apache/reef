@@ -23,14 +23,14 @@ import java.util.concurrent.CountDownLatch;
 public class ResettingCountDownLatch {
   private CountDownLatch latch;
 
-  public ResettingCountDownLatch (final int initialCount) {
+  public ResettingCountDownLatch(final int initialCount) {
     latch = new CountDownLatch(initialCount);
   }
 
   /**
    *
    */
-  public void await () {
+  public void await() {
     try {
       latch.await();
     } catch (final InterruptedException e) {
@@ -38,7 +38,7 @@ public class ResettingCountDownLatch {
     }
   }
 
-  public void awaitAndReset (final int resetCount) {
+  public void awaitAndReset(final int resetCount) {
     try {
       latch.await();
       latch = new CountDownLatch(resetCount);
@@ -50,7 +50,7 @@ public class ResettingCountDownLatch {
   /**
    *
    */
-  public void countDown () {
+  public void countDown() {
     latch.countDown();
   }
 

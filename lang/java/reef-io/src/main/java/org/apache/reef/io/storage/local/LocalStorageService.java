@@ -40,5 +40,4 @@ public class LocalStorageService implements StorageService {
     return scratchSpace;
   }
 
-  ;
 }

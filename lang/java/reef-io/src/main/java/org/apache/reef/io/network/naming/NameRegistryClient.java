@@ -151,7 +151,7 @@ public class NameRegistryClient implements Stage, NamingRegistry {
 
       link.write(new NamingRegisterRequest(new NameAssignmentTuple(id, addr)));
 
-      for (; ; ) {
+      for (;;) {
         try {
           this.replyQueue.poll(this.timeout, TimeUnit.MILLISECONDS);
           break;

@@ -307,7 +307,7 @@ public class TaskNodeImpl implements TaskNode {
 
   @Override
   public boolean resetTopologySetupSent() {
-    LOG.entering("TaskNodeImpl", "resetTopologySetupSent", new Object[]{getQualifiedName(),});
+    LOG.entering("TaskNodeImpl", "resetTopologySetupSent", new Object[]{getQualifiedName(), });
     final boolean retVal = topoSetupSent.compareAndSet(true, false);
     LOG.exiting("TaskNodeImpl", "resetTopologySetupSent", getQualifiedName() + retVal);
     return retVal;

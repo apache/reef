@@ -90,5 +90,5 @@ public interface TaskNode {
 
   TaskNode successor();
 
-  void updatingTopology ();
+  void updatingTopology();
 }
