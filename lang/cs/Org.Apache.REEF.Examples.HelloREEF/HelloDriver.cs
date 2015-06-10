@@ -18,13 +18,8 @@
  */
 
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using Org.Apache.REEF.Common.Files;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Driver;
-using Org.Apache.REEF.Driver.Bridge;
 using Org.Apache.REEF.Driver.Evaluator;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Util;
@@ -38,26 +33,12 @@ namespace Org.Apache.REEF.Examples.HelloREEF
     public sealed class HelloDriver : IObserver<IAllocatedEvaluator>, IObserver<IDriverStarted>
     {
         private static readonly Logger _Logger = Logger.GetLogger(typeof(HelloDriver));
-
-        private readonly REEFFileNames _fileNames;
         private readonly IEvaluatorRequestor _evaluatorRequestor;
 
         [Inject]
-        private HelloDriver(REEFFileNames fileNames, IEvaluatorRequestor evaluatorRequestor)
+        private HelloDriver(IEvaluatorRequestor evaluatorRequestor)
         {
-            _fileNames = fileNames;
-            ClrHandlerHelper.GenerateClassHierarchy(GetGlobalAssemblies());
             _evaluatorRequestor = evaluatorRequestor;
-        }
-
-        /// <summary>
-        /// Called to start the user mode driver
-        /// </summary>
-        /// <param name="driverStarted"></param>
-        public void OnNext(IDriverStarted driverStarted)
-        {
-            _Logger.Log(Level.Info, string.Format("HelloDriver started at {0}", driverStarted.StartTime));
-            _evaluatorRequestor.Submit(new EvaluatorRequest(number: 1, megaBytes: 64));
         }
 
         /// <summary>
@@ -83,30 +64,13 @@ namespace Org.Apache.REEF.Examples.HelloREEF
         }
 
         /// <summary>
+        /// Called to start the user mode driver
         /// </summary>
-        /// <returns>All DLLs in the global folder</returns>
-        private ISet<string> GetGlobalAssemblies()
+        /// <param name="driverStarted"></param>
+        public void OnNext(IDriverStarted driverStarted)
         {
-            return new HashSet<string>(Directory.GetFiles(_fileNames.GetGlobalFolderPath())
-                .Where(e => !(string.IsNullOrWhiteSpace(e)))
-                .Select(Path.GetFullPath)
-                .Where(File.Exists)
-                .Where(IsBinary)
-                .Select(Path.GetFileNameWithoutExtension));
-        }
-
-        /// <summary>
-        /// </summary>
-        /// <param name="path"></param>
-        /// <returns>True, if the path refers to an EXE or DLL</returns>
-        private static Boolean IsBinary(string path)
-        {
-            if (string.IsNullOrWhiteSpace(path))
-            {
-                return false;
-            }
-            var extension = Path.GetExtension(path).ToLower();
-            return extension.EndsWith("dll") || extension.EndsWith("exe");
+            _Logger.Log(Level.Info, string.Format("HelloDriver started at {0}", driverStarted.StartTime));
+            _evaluatorRequestor.Submit(new EvaluatorRequest(1, 64));
         }
     }
 }
