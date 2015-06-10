@@ -18,37 +18,14 @@
  */
 
 using System;
-using Org.Apache.REEF.Tang.Annotations;
-using Org.Apache.REEF.Utilities.Logging;
-using Org.Apache.REEF.Wake.Time.Event;
 
-namespace Org.Apache.REEF.Driver.Defaults
+namespace Org.Apache.REEF.Driver
 {
     /// <summary>
-    ///  Default event handler for driver start: Logging it.
+    /// Event fired when the Driver started.
     /// </summary>
-    public class DefaultDriverStartHandler : IObserver<DateTime>
+    public interface IDriverStarted
     {
-        private static readonly Logger LOGGER = Logger.GetLogger(typeof(DefaultDriverStartHandler));
-
-        [Inject]
-        public DefaultDriverStartHandler()
-        {
-        }
-
-        public void OnNext(DateTime startTime)
-        {
-            LOGGER.Log(Level.Info, "Driver started at" + startTime);
-        }
-
-        public void OnError(Exception error)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void OnCompleted()
-        {
-            throw new NotImplementedException();
-        }
+        DateTime StartTime { get; }
     }
 }

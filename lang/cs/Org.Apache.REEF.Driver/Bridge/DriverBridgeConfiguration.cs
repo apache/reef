@@ -37,6 +37,7 @@ using Org.Apache.REEF.Wake.Time.Event;
 
 namespace Org.Apache.REEF.Driver.Bridge
 {
+    [Obsolete(message:"Obsolete since 0.12, will be removed in 0,.13. Use DriverConfiguration instead.", error:false)]
     public class DriverBridgeConfiguration : ConfigurationModuleBuilder
     {
         /// <summary>
@@ -45,12 +46,6 @@ namespace Org.Apache.REEF.Driver.Bridge
         [SuppressMessage("Microsoft.Security", "CA2104:Do not declare read only mutable reference types", Justification = "not applicable")]
         [Obsolete("Use OnDriverStart instead. Please see Jira REEF-336. Obsoleted v0.12 and will be removed v0.13", false)]
         public static readonly OptionalImpl<IStartHandler> OnDriverStarted = new OptionalImpl<IStartHandler>();
-
-        /// <summary>
-        /// The event handler called on driver start
-        /// </summary>
-        [SuppressMessage("Microsoft.Security", "CA2104:Do not declare read only mutable reference types", Justification = "not applicable")]
-        public static readonly OptionalImpl<IObserver<DateTime>> OnDriverStart = new OptionalImpl<IObserver<DateTime>>();
 
         /// <summary>
         ///  The event handler invoked when driver restarts
@@ -213,7 +208,6 @@ namespace Org.Apache.REEF.Driver.Bridge
                 .BindImplementation(GenericType<IStartHandler>.Class, OnDriverStarted)
                 .BindNamedParameter(GenericType<DriverBridgeConfigurationOptions.DriverRestartHandler>.Class, OnDriverRestarted)
                 .BindImplementation(GenericType<IDriverConnection>.Class, OnDriverReconnect)
-                .BindSetEntry(GenericType<DriverBridgeConfigurationOptions.DriverStartHandlers>.Class, OnDriverStart)
                 .BindSetEntry(GenericType<DriverBridgeConfigurationOptions.EvaluatorRequestHandlers>.Class, OnEvaluatorRequested)
                 .BindSetEntry(GenericType<DriverBridgeConfigurationOptions.AllocatedEvaluatorHandlers>.Class, OnEvaluatorAllocated)
                 .BindSetEntry(GenericType<DriverBridgeConfigurationOptions.ActiveContextHandlers>.Class, OnContextActive)

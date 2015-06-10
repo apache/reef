@@ -62,12 +62,15 @@ under the License.
     <Compile Include="Bridge\DriverBridge.cs" />
     <Compile Include="Bridge\DriverBridgeConfiguration.cs" />
     <Compile Include="Bridge\DriverBridgeConfigurationOptions.cs" />
+    <Compile Include="Bridge\DriverRestartHandlerWrapper.cs" />
     <Compile Include="Bridge\Events\ActiveContext.cs" />
     <Compile Include="Bridge\Events\AllocatedEvaluator.cs" />
     <Compile Include="Bridge\Events\ClosedContext.cs" />
     <Compile Include="Bridge\Events\CompletedEvaluator.cs" />
     <Compile Include="Bridge\Events\CompletedTask.cs" />
     <Compile Include="Bridge\Events\ContextMessage.cs" />
+    <Compile Include="Bridge\Events\DriverRestarted.cs" />
+    <Compile Include="Bridge\Events\DriverStarted.cs" />
     <Compile Include="Bridge\Events\EvaluatorRequstor.cs" />
     <Compile Include="Bridge\Events\FailedContext.cs" />
     <Compile Include="Bridge\Events\FailedEvaluator.cs" />
@@ -104,9 +107,10 @@ under the License.
     <Compile Include="Defaults\DefaultContextMessageHandler.cs" />
     <Compile Include="Defaults\DefaultCustomTraceListener.cs" />
     <Compile Include="Defaults\DefaultDriverRestartContextActiveHandler.cs" />
+    <Compile Include="Defaults\DefaultDriverRestartedHandler.cs" />
     <Compile Include="Defaults\DefaultDriverRestartHandler.cs" />
     <Compile Include="Defaults\DefaultDriverRestartTaskRunningHandler.cs" />
-    <Compile Include="Defaults\DefaultDriverStartHandler.cs" />
+    <Compile Include="Defaults\DefaultDriverStartedHandler.cs" />
     <Compile Include="Defaults\DefaultEvaluatorAllocationHandler.cs" />
     <Compile Include="Defaults\DefaultEvaluatorCompletionHandler.cs" />
     <Compile Include="Defaults\DefaultEvaluatorFailureHandler.cs" />
@@ -119,6 +123,7 @@ under the License.
     <Compile Include="Defaults\DefaultTaskRunningHandler.cs" />
     <Compile Include="Defaults\DefaultTaskSuspensionHandler.cs" />
     <Compile Include="DriverConfigGenerator.cs" />
+    <Compile Include="DriverConfiguration.cs" />
     <Compile Include="DriverConfigurationSettings.cs" />
     <Compile Include="DriverSubmissionSettings.cs" />
     <Compile Include="Evaluator\EvaluatorDescriptorImpl.cs" />
@@ -132,6 +137,8 @@ under the License.
     <Compile Include="Evaluator\IFailedEvaluator.cs" />
     <Compile Include="FailedJob.cs" />
     <Compile Include="IDriver.cs" />
+    <Compile Include="IDriverRestarted.cs" />
+    <Compile Include="IDriverStarted.cs" />
     <Compile Include="IStartHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Task\ICompletedTask.cs" />
