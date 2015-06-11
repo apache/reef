@@ -63,7 +63,6 @@ public class FramingOutputStream extends OutputStream implements Accumulable<byt
   public void write(int b) throws IOException {
     baos.write(b);
     offset++;
-    ;
   }
 
   @Override
