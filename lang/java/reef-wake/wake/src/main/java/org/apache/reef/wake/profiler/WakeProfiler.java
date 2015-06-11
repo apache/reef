@@ -202,15 +202,7 @@ public class WakeProfiler implements Aspect {
   }
 
   private boolean whitelist(Object o) {
-    return (true
-        || (o instanceof InjectionFuture)
-        || (o instanceof Set)
-        || (o instanceof EventHandler)
-        || (o instanceof Stage)
-        || (o instanceof RxStage)
-        || (o instanceof Observer)
-        || (o instanceof Observable));
-//        && !(o instanceof Set)
+    return true;
   }
 
   public String objectGraphToString() {

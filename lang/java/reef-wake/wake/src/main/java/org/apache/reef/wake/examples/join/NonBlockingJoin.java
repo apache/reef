@@ -58,7 +58,7 @@ public class NonBlockingJoin implements StaticObservable {
             out.onNext(t);
           }
         }
-        if (sentCompleted.getAndSet(true) == false) {
+        if (!sentCompleted.getAndSet(true)) {
           out.onCompleted();
         }
       }

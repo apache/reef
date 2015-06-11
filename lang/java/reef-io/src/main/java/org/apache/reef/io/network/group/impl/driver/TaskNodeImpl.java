@@ -461,11 +461,7 @@ public class TaskNodeImpl implements TaskNode {
     if (obj != this) {
       if (obj instanceof TaskNodeImpl) {
         final TaskNodeImpl that = (TaskNodeImpl) obj;
-        if (this.taskId.equals(that.taskId) && this.version.get() == that.version.get()) {
-          return true;
-        } else {
-          return false;
-        }
+        return (this.taskId.equals(that.taskId) && this.version.get() == that.version.get());
       } else {
         return false;
       }
