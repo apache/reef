@@ -19,15 +19,14 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using Org.Apache.REEF.Common.Files;
+using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Driver;
 using Org.Apache.REEF.Driver.Bridge;
 using Org.Apache.REEF.Driver.Evaluator;
 using Org.Apache.REEF.Tang.Annotations;
-using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities.Logging;
 
@@ -39,22 +38,6 @@ namespace Org.Apache.REEF.Examples.HelloREEF
     public sealed class HelloDriver : IObserver<IAllocatedEvaluator>, IObserver<IDriverStarted>
     {
         private static readonly Logger _Logger = Logger.GetLogger(typeof(HelloDriver));
-
-        /// <summary>
-        /// Contexts contain configuration data used beyond a single task.
-        /// </summary>
-        private static readonly IConfiguration ContextConfiguration =
-            Driver.Context.ContextConfiguration.ConfigurationModule
-                .Set(Driver.Context.ContextConfiguration.Identifier, "HelloContext")
-                .Build();
-
-        /// <summary>
-        /// The TaskConfiguration contains the type of Task to run as well as the identifier of that task
-        /// </summary>
-        private static readonly IConfiguration TaskConfiguration = Common.Tasks.TaskConfiguration.ConfigurationModule
-            .Set(Common.Tasks.TaskConfiguration.Identifier, "HelloTask")
-            .Set(Common.Tasks.TaskConfiguration.Task, GenericType<HelloTask>.Class)
-            .Build();
 
         private readonly REEFFileNames _fileNames;
         private readonly IEvaluatorRequestor _evaluatorRequestor;
@@ -83,7 +66,11 @@ namespace Org.Apache.REEF.Examples.HelloREEF
         /// <param name="allocatedEvaluator"></param>
         public void OnNext(IAllocatedEvaluator allocatedEvaluator)
         {
-            allocatedEvaluator.SubmitContextAndTask(ContextConfiguration, TaskConfiguration);
+            var taskConfiguration = TaskConfiguration.ConfigurationModule
+                .Set(TaskConfiguration.Identifier, "HelloTask")
+                .Set(TaskConfiguration.Task, GenericType<HelloTask>.Class)
+                .Build();
+            allocatedEvaluator.SubmitTask(taskConfiguration);
         }
 
         public void OnError(Exception error)
