@@ -112,6 +112,10 @@ public final class RuntimeClock implements Clock {
   public final void close() {
     LOG.entering(RuntimeClock.class.getCanonicalName(), "close");
     synchronized (this.schedule) {
+      if (this.closed) {
+        LOG.log(Level.INFO, "Clock is already closed");
+        return;
+      }
       this.schedule.clear();
       this.schedule.add(new StopTime(findAcceptableStopTime()));
       this.schedule.notifyAll();
