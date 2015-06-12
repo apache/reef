@@ -32,8 +32,9 @@ public class SortingRamSpool<T> implements Spool<T> {
   private Accumulator<T> acc = new Accumulator<T>() {
     @Override
     public void add(T datum) throws StorageException {
-      if (ready)
+      if (ready) {
         throw new IllegalStateException("add called after close!");
+      }
       heap.add(datum);
     }
 

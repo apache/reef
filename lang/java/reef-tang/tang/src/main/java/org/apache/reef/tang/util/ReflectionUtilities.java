@@ -108,7 +108,9 @@ public class ReflectionUtilities {
       if (c instanceof Class) {
         Class<?> clz = (Class<?>) c;
         final Type sc = clz.getSuperclass();
-        if (sc != null) workQueue.add(sc); //c.getSuperclass());
+        if (sc != null) {
+          workQueue.add(sc); //c.getSuperclass());
+        }
         workQueue.addAll(Arrays.asList(clz.getGenericInterfaces()));
       } else if (c instanceof ParameterizedType) {
         ParameterizedType pt = (ParameterizedType) c;
@@ -116,7 +118,9 @@ public class ReflectionUtilities {
         final Type sc = rawPt.getSuperclass();
 //        workQueue.add(pt);
 //        workQueue.add(rawPt);
-        if (sc != null) workQueue.add(sc);
+        if (sc != null) {
+          workQueue.add(sc);
+        }
         workQueue.addAll(Arrays.asList(rawPt.getGenericInterfaces()));
       } else if (c instanceof WildcardType) {
         workQueue.add(Object.class); // XXX not really correct, but close enough?
@@ -262,7 +266,9 @@ public class ReflectionUtilities {
       ArrayList<Type> al = new ArrayList<>();
       al.addAll(Arrays.asList(clazz.getGenericInterfaces()));
       Type sc = clazz.getGenericSuperclass();
-      if (sc != null) al.add(sc);
+      if (sc != null) {
+        al.add(sc);
+      }
 
       final Type[] interfaces = al.toArray(new Type[0]);
 

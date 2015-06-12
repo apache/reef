@@ -78,8 +78,9 @@ public final class ThreadPoolStage<T> extends AbstractEStage<T> {
     super(name);
     this.handler = handler;
     this.errorHandler = errorHandler;
-    if (numThreads <= 0)
+    if (numThreads <= 0) {
       throw new WakeRuntimeException(name + " numThreads " + numThreads + " is less than or equal to 0");
+    }
     this.numThreads = numThreads;
     this.executor = Executors.newFixedThreadPool(numThreads, new DefaultThreadFactory(name));
     StageManager.instance().register(this);

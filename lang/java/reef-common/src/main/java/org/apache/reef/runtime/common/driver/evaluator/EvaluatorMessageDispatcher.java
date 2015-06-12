@@ -118,56 +118,52 @@ public final class EvaluatorMessageDispatcher {
     this.driverRestartApplicationDispatcher = new DispatchingEStage(this.serviceDispatcher);
     this.driverRestartServiceDispatcher = new DispatchingEStage(this.serviceDispatcher);
 
-    { // Application Context event handlers
-      this.applicationDispatcher.register(ActiveContext.class, contextActiveHandlers);
-      this.applicationDispatcher.register(ClosedContext.class, contextClosedHandlers);
-      this.applicationDispatcher.register(FailedContext.class, contextFailedHandlers);
-      this.applicationDispatcher.register(ContextMessage.class, contextMessageHandlers);
-    }
-    { // Service Context event handlers
-      this.serviceDispatcher.register(ActiveContext.class, serviceContextActiveHandlers);
-      this.serviceDispatcher.register(ClosedContext.class, serviceContextClosedHandlers);
-      this.serviceDispatcher.register(FailedContext.class, serviceContextFailedHandlers);
-      this.serviceDispatcher.register(ContextMessage.class, serviceContextMessageHandlers);
-    }
-    { // Application Task event handlers.
-      this.applicationDispatcher.register(RunningTask.class, taskRunningHandlers);
-      this.applicationDispatcher.register(CompletedTask.class, taskCompletedHandlers);
-      this.applicationDispatcher.register(SuspendedTask.class, taskSuspendedHandlers);
-      this.applicationDispatcher.register(TaskMessage.class, taskMessageEventHandlers);
-      this.applicationDispatcher.register(FailedTask.class, taskExceptionEventHandlers);
-    }
-    { // Service Task event handlers
-      this.serviceDispatcher.register(RunningTask.class, serviceTaskRunningEventHandlers);
-      this.serviceDispatcher.register(CompletedTask.class, serviceTaskCompletedEventHandlers);
-      this.serviceDispatcher.register(SuspendedTask.class, serviceTaskSuspendedEventHandlers);
-      this.serviceDispatcher.register(TaskMessage.class, serviceTaskMessageEventHandlers);
-      this.serviceDispatcher.register(FailedTask.class, serviceTaskExceptionEventHandlers);
-    }
-    { // Application Evaluator event handlers
-      this.applicationDispatcher.register(FailedEvaluator.class, evaluatorFailedHandlers);
-      this.applicationDispatcher.register(CompletedEvaluator.class, evaluatorCompletedHandlers);
-      this.applicationDispatcher.register(AllocatedEvaluator.class, evaluatorAllocatedHandlers);
-    }
-    { // Service Evaluator event handlers
-      this.serviceDispatcher.register(FailedEvaluator.class, serviceEvaluatorFailedHandlers);
-      this.serviceDispatcher.register(CompletedEvaluator.class, serviceEvaluatorCompletedHandlers);
-      this.serviceDispatcher.register(AllocatedEvaluator.class, serviceEvaluatorAllocatedEventHandlers);
-    }
+    // Application Context event handlers
+    this.applicationDispatcher.register(ActiveContext.class, contextActiveHandlers);
+    this.applicationDispatcher.register(ClosedContext.class, contextClosedHandlers);
+    this.applicationDispatcher.register(FailedContext.class, contextFailedHandlers);
+    this.applicationDispatcher.register(ContextMessage.class, contextMessageHandlers);
+
+    // Service Context event handlers
+    this.serviceDispatcher.register(ActiveContext.class, serviceContextActiveHandlers);
+    this.serviceDispatcher.register(ClosedContext.class, serviceContextClosedHandlers);
+    this.serviceDispatcher.register(FailedContext.class, serviceContextFailedHandlers);
+    this.serviceDispatcher.register(ContextMessage.class, serviceContextMessageHandlers);
+
+    // Application Task event handlers.
+    this.applicationDispatcher.register(RunningTask.class, taskRunningHandlers);
+    this.applicationDispatcher.register(CompletedTask.class, taskCompletedHandlers);
+    this.applicationDispatcher.register(SuspendedTask.class, taskSuspendedHandlers);
+    this.applicationDispatcher.register(TaskMessage.class, taskMessageEventHandlers);
+    this.applicationDispatcher.register(FailedTask.class, taskExceptionEventHandlers);
+
+    // Service Task event handlers
+    this.serviceDispatcher.register(RunningTask.class, serviceTaskRunningEventHandlers);
+    this.serviceDispatcher.register(CompletedTask.class, serviceTaskCompletedEventHandlers);
+    this.serviceDispatcher.register(SuspendedTask.class, serviceTaskSuspendedEventHandlers);
+    this.serviceDispatcher.register(TaskMessage.class, serviceTaskMessageEventHandlers);
+    this.serviceDispatcher.register(FailedTask.class, serviceTaskExceptionEventHandlers);
+
+    // Application Evaluator event handlers
+    this.applicationDispatcher.register(FailedEvaluator.class, evaluatorFailedHandlers);
+    this.applicationDispatcher.register(CompletedEvaluator.class, evaluatorCompletedHandlers);
+    this.applicationDispatcher.register(AllocatedEvaluator.class, evaluatorAllocatedHandlers);
+
+    // Service Evaluator event handlers
+    this.serviceDispatcher.register(FailedEvaluator.class, serviceEvaluatorFailedHandlers);
+    this.serviceDispatcher.register(CompletedEvaluator.class, serviceEvaluatorCompletedHandlers);
+    this.serviceDispatcher.register(AllocatedEvaluator.class, serviceEvaluatorAllocatedEventHandlers);
 
     // Application event handlers specific to a Driver restart
-    {
-      this.driverRestartApplicationDispatcher.register(RunningTask.class, driverRestartTaskRunningHandlers);
-      this.driverRestartApplicationDispatcher.register(ActiveContext.class, driverRestartActiveContextHandlers);
-      this.driverRestartApplicationDispatcher.register(DriverRestartCompleted.class, driverRestartCompletedHandlers);
-    }
+    this.driverRestartApplicationDispatcher.register(RunningTask.class, driverRestartTaskRunningHandlers);
+    this.driverRestartApplicationDispatcher.register(ActiveContext.class, driverRestartActiveContextHandlers);
+    this.driverRestartApplicationDispatcher.register(DriverRestartCompleted.class, driverRestartCompletedHandlers);
 
     // Service event handlers specific to a Driver restart
-    {
-      this.driverRestartServiceDispatcher.register(RunningTask.class, serviceDriverRestartTaskRunningHandlers);
-      this.driverRestartServiceDispatcher.register(ActiveContext.class, serviceDriverRestartActiveContextHandlers);
-      this.driverRestartServiceDispatcher.register(DriverRestartCompleted.class, serviceDriverRestartCompletedHandlers);
-    }
+    this.driverRestartServiceDispatcher.register(RunningTask.class, serviceDriverRestartTaskRunningHandlers);
+    this.driverRestartServiceDispatcher.register(ActiveContext.class, serviceDriverRestartActiveContextHandlers);
+    this.driverRestartServiceDispatcher.register(DriverRestartCompleted.class, serviceDriverRestartCompletedHandlers);
+
     LOG.log(Level.FINE, "Instantiated 'EvaluatorMessageDispatcher'");
   }
 

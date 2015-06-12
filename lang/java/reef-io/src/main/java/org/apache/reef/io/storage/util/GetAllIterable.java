@@ -62,8 +62,9 @@ public class GetAllIterable<T> implements
         final CharSequence key = curKey;
         curKey = findNextKey();
         lastKey = key;
-        if (key == null)
+        if (key == null) {
           throw new NoSuchElementException();
+        }
 
         final T v = map.get(key);
 

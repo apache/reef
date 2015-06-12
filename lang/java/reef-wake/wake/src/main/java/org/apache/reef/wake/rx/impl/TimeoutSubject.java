@@ -47,7 +47,9 @@ public class TimeoutSubject<T> implements Subject<T, T> {
           finishedCopy = finished;
           finished = true; // lock out the caller from putting event through now
         }
-        if (!finishedCopy) destination.onError(new TimeoutException("TimeoutSubject expired"));
+        if (!finishedCopy) {
+          destination.onError(new TimeoutException("TimeoutSubject expired"));
+        }
       }
     });
     this.timeBomb.start();

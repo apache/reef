@@ -75,7 +75,9 @@ public class BlockingJoin implements StaticObservable {
 
       @Override
       public void onNext(TupleEvent value) {
-        if (!leftDone) waitUntilLeftIsDone();
+        if (!leftDone) {
+          waitUntilLeftIsDone();
+        }
         if (left.contains(value)) {
           out.onNext(value);
         }

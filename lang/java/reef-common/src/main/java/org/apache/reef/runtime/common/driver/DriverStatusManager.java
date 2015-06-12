@@ -180,17 +180,17 @@ public final class DriverStatusManager {
     if (this.driverTerminationHasBeenCommunicatedToClient) {
       LOG.log(Level.SEVERE, ".sendJobEndingMessageToClient() called twice. Ignoring the second call");
     } else {
-      { // Log the shutdown situation
-        if (this.shutdownCause.isPresent()) {
-          LOG.log(Level.WARNING, "Sending message about an unclean driver shutdown.", this.shutdownCause.get());
-        }
-        if (exception.isPresent()) {
-          LOG.log(Level.WARNING, "There was an exception during clock.close().", exception.get());
-        }
-        if (this.shutdownCause.isPresent() && exception.isPresent()) {
-          LOG.log(Level.WARNING, "The driver is shutdown because of an exception (see above) and there was an exception during clock.close(). Only the first exception will be sent to the client");
-        }
+      // Log the shutdown situation
+      if (this.shutdownCause.isPresent()) {
+        LOG.log(Level.WARNING, "Sending message about an unclean driver shutdown.", this.shutdownCause.get());
       }
+      if (exception.isPresent()) {
+        LOG.log(Level.WARNING, "There was an exception during clock.close().", exception.get());
+      }
+      if (this.shutdownCause.isPresent() && exception.isPresent()) {
+        LOG.log(Level.WARNING, "The driver is shutdown because of an exception (see above) and there was an exception during clock.close(). Only the first exception will be sent to the client");
+      }
+
       if (this.shutdownCause.isPresent()) {
         // Send the earlier exception, if there was one
         this.clientConnection.send(getJobEndingMessage(this.shutdownCause));

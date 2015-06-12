@@ -299,6 +299,7 @@ public class ClassHierarchyImpl implements JavaClassHierarchy {
       Node n = getAlreadyBoundNode(c);
       return n;
     } catch (NameResolutionException e) {
+      // node not bound yet
     }
     // First, walk up the class hierarchy, registering all out parents. This
     // can't be loopy.
@@ -344,11 +345,8 @@ public class ClassHierarchyImpl implements JavaClassHierarchy {
             NamedParameterNode<?> np = (NamedParameterNode<?>) register(arg
                 .getNamedParameterName());
             try {
-              if (np.isSet()) {
-                /// XXX When handling sets, need to track target of generic parameter, and check the type here!
-              } else if (np.isList()) {
-
-              } else {
+              // TODO: When handling sets, need to track target of generic parameter, and check the type here!
+              if (!np.isSet() && !np.isList()) {
                 if (!ReflectionUtilities.isCoercable(classForName(arg.getType()),
                     classForName(np.getFullArgName()))) {
                   throw new ClassHierarchyException(
@@ -385,6 +383,7 @@ public class ClassHierarchyImpl implements JavaClassHierarchy {
     try {
       return getAlreadyBoundNode(c);
     } catch (NameResolutionException e) {
+      // node not bound yet
     }
 
     final Node n = buildPathToNode(c);

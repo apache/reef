@@ -68,12 +68,14 @@ public class StringIdentifier implements ComparableIdentifier {
   @Override
   public int compareTo(Identifier o) {
     if (o == null) {
-      if (str == null)
+      if (str == null) {
         return 0;
+      }
       return 1;
     } else {
-      if (str == null)
+      if (str == null) {
         return -1;
+      }
       return str.compareTo(o.toString());
     }
   }

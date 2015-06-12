@@ -65,7 +65,9 @@ public final class ContextRepresenters {
    */
   public synchronized EvaluatorContext getContext(final String contextId) {
     for (final EvaluatorContext context : this.contextStack) {
-      if (context.getId().equals(contextId)) return context;
+      if (context.getId().equals(contextId)) {
+        return context;
+      }
     }
     throw new RuntimeException("Unknown evaluator context " + contextId);
   }

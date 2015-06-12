@@ -110,8 +110,6 @@ public class WakeProfiler implements Aspect {
       Vertex<?> v = getVertex(o);
       if (o instanceof Set) {
         LOG.fine("Got a set arg for " + constructorDef + " length " + ((Set<?>) o).size());
-      } else if (o instanceof InjectionFuture) {
-//        LOG.info("Got injection future arg. "->" + o);
       }
       v_args[i] = v;
     }

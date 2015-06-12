@@ -108,7 +108,9 @@ public final class InjectionFuture<T> implements Future<T> {
   @SuppressWarnings("unchecked")
   @Override
   public T get() {
-    if (instance != null) return instance;
+    if (instance != null) {
+      return instance;
+    }
     try {
       synchronized (injector) {
         final T t;

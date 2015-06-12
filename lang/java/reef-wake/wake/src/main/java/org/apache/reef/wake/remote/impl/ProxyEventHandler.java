@@ -68,8 +68,9 @@ public class ProxyEventHandler<T> implements EventHandler<T> {
    */
   @Override
   public void onNext(T event) {
-    if (LOG.isLoggable(Level.FINE))
+    if (LOG.isLoggable(Level.FINE)) {
       LOG.log(Level.FINE, "remoteid: {0}\n{1}", new Object[]{remoteId.getSocketAddress(), event.toString()});
+    }
     handler.onNext(new RemoteEvent<T>(myId.getSocketAddress(), remoteId.getSocketAddress(), "", remoteSinkName,
         seqGen.getNextSeq(remoteId.getSocketAddress()), event));
   }

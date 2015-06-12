@@ -52,8 +52,9 @@ public class UniformHistogram implements Histogram {
   public void update(long value) {
     count.incrementAndGet();
     int index = (int) (value / binWidth);
-    if (index >= numBins)
+    if (index >= numBins) {
       index = numBins - 1;
+    }
     values.incrementAndGet(index);
   }
 

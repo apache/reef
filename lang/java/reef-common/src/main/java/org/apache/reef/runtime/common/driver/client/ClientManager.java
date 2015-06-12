@@ -114,8 +114,9 @@ public final class ClientManager implements EventHandler<ClientRuntimeProtocol.J
       return clientCloseDispatcher;
     } else {
       synchronized (this) {
-        if (clientCloseDispatcher == null)
+        if (clientCloseDispatcher == null) {
           clientCloseDispatcher = new BroadCastEventHandler<>(clientCloseHandlers.get());
+        }
       }
       return clientCloseDispatcher;
     }
@@ -126,8 +127,9 @@ public final class ClientManager implements EventHandler<ClientRuntimeProtocol.J
       return clientCloseWithMessageDispatcher;
     } else {
       synchronized (this) {
-        if (clientCloseWithMessageDispatcher == null)
+        if (clientCloseWithMessageDispatcher == null) {
           clientCloseWithMessageDispatcher = new BroadCastEventHandler<>(clientCloseWithMessageHandlers.get());
+        }
       }
       return clientCloseWithMessageDispatcher;
     }
@@ -138,8 +140,9 @@ public final class ClientManager implements EventHandler<ClientRuntimeProtocol.J
       return clientMessageDispatcher;
     } else {
       synchronized (this) {
-        if (clientMessageDispatcher == null)
+        if (clientMessageDispatcher == null) {
           clientMessageDispatcher = new BroadCastEventHandler<>(clientMessageHandlers.get());
+        }
       }
       return clientMessageDispatcher;
     }

@@ -53,11 +53,14 @@ final class NumberedSplit<E> implements Comparable<NumberedSplit<E>> {
 
   @Override
   public int compareTo(final NumberedSplit<E> o) {
-    if (this.index == o.index)
+    if (this.index == o.index) {
       return 0;
-    if (this.index < o.index)
+    }
+    if (this.index < o.index) {
       return -1;
-    else
+    }
+    else {
       return 1;
+    }
   }
 }

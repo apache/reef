@@ -81,8 +81,6 @@ public final class Pull2Push<T> implements Runnable, AutoCloseable {
           // The message source has returned null as the next message. We drop the message source in that case.
           Logger.getLogger(Pull2Push.class.getName()).log(Level.INFO, "Droping message source {0} from the queue", nextSource.toString());
         }
-      } else {
-        // No source where available. We could put a wait() here.
       }
     }
   }

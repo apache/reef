@@ -41,7 +41,9 @@ public final class LogicalTimer implements Timer {
 
   @Override
   public boolean isReady(long time) {
-    if (this.current < time) this.current = time;
+    if (this.current < time) {
+      this.current = time;
+    }
     return true;
   }
 

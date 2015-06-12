@@ -96,6 +96,7 @@ public final class MemoryUtils {
     }
   }
 
+  @SuppressWarnings("checkstyle:avoidnestedblocks")
   public static void main(final String[] args) {
     System.out.println(memPoolNames());
     {

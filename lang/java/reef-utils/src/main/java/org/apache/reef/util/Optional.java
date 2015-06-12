@@ -108,9 +108,13 @@ public final class Optional<T> implements Serializable {
   @Override
   public boolean equals(final Object obj) {
 
-    if (this == obj) return true;
+    if (this == obj) {
+      return true;
+    }
 
-    if (obj == null || getClass() != obj.getClass()) return false;
+    if (obj == null || getClass() != obj.getClass()) {
+      return false;
+    }
 
     final Optional that = (Optional) obj;
     return this.value == that.value || (this.value != null && this.value.equals(that.value));

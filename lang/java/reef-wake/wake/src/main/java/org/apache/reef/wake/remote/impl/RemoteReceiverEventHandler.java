@@ -54,8 +54,9 @@ class RemoteReceiverEventHandler implements EventHandler<TransportEvent> {
     re.setLocalAddress(e.getLocalAddress());
     re.setRemoteAddress(e.getRemoteAddress());
 
-    if (LOG.isLoggable(Level.FINER))
+    if (LOG.isLoggable(Level.FINER)) {
       LOG.log(Level.FINER, "{0} {1}", new Object[]{e, re});
+    }
     handler.onNext(re);
   }
 }

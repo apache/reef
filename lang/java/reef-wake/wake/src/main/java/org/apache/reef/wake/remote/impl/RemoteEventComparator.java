@@ -27,10 +27,12 @@ public class RemoteEventComparator<T> implements Comparator<RemoteEvent<T>> {
 
   @Override
   public int compare(RemoteEvent<T> o1, RemoteEvent<T> o2) {
-    if (o1.getSeq() < o2.getSeq())
+    if (o1.getSeq() < o2.getSeq()) {
       return -1;
-    if (o1.getSeq() > o2.getSeq())
+    }
+    if (o1.getSeq() > o2.getSeq()) {
       return 1;
+    }
     return 0;
   }
 

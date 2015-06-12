@@ -41,13 +41,21 @@ public final class Tuple<K, V> {
 
   @Override
   public boolean equals(final Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     final Tuple tuple = (Tuple) o;
 
-    if (!k.equals(tuple.k)) return false;
-    if (!v.equals(tuple.v)) return false;
+    if (!k.equals(tuple.k)) {
+      return false;
+    }
+    if (!v.equals(tuple.v)) {
+      return false;
+    }
 
     return true;
   }

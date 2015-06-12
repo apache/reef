@@ -44,8 +44,9 @@ public class VectorCodec implements Codec<Vector> {
     try (DataInputStream dais = new DataInputStream(bais)) {
       int size = dais.readInt();
       result = new DenseVector(size);
-      for (int i = 0; i < size; i++)
+      for (int i = 0; i < size; i++) {
         result.set(i, dais.readDouble());
+      }
     } catch (IOException e) {
       throw new RuntimeException(e.getCause());
     }

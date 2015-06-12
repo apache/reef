@@ -55,8 +55,12 @@ public abstract class AbstractNode implements Node {
 
   @Override
   public boolean equals(Object o) {
-    if (o == null) return false;
-    if (o == this) return true;
+    if (o == null) {
+      return false;
+    }
+    if (o == this) {
+      return true;
+    }
 
     AbstractNode n = (AbstractNode) o;
     final boolean parentsEqual;

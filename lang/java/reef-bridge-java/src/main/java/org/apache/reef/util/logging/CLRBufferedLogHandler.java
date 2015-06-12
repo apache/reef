@@ -74,16 +74,19 @@ public class CLRBufferedLogHandler extends Handler {
    */
   @Override
   public void publish(LogRecord record) {
-    if (record == null)
+    if (record == null) {
       return;
+    }
 
-    if (!isLoggable(record))
+    if (!isLoggable(record)) {
       return;
+    }
 
     synchronized (this) {
       this.logs.add(record);
-      if (!this.driverInitialized || this.logs.size() < BUFFER_LEN)
+      if (!this.driverInitialized || this.logs.size() < BUFFER_LEN) {
         return;
+      }
     }
 
     logAll();
