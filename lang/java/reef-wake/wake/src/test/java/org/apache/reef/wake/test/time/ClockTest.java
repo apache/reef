@@ -120,9 +120,9 @@ public class ClockTest {
     final int numThreads = 3;
     final RuntimeClock clock = buildClock();
     new Thread(clock).start();
-    ThreadPoolStage<Alarm> stage = new ThreadPoolStage<>(new EventHandler<Alarm>() {
+    final ThreadPoolStage<Alarm> stage = new ThreadPoolStage<>(new EventHandler<Alarm>() {
       @Override
-      public void onNext(Alarm value) {
+      public void onNext(final Alarm value) {
         clock.close();
       }
     }, numThreads);
