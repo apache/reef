@@ -135,7 +135,7 @@ public class ConstructorDefImpl<T> implements ConstructorDef<T> {
         }
       }
       // If not, then argument j from def is not in our list.  Return false.
-      if (found == false)
+      if (!found)
         return false;
     }
     // Everything in def's arg list is in ours.  Do we have at least one extra

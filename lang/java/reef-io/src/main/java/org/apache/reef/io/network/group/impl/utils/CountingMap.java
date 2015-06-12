@@ -34,31 +34,31 @@ public class CountingMap<L> {
 
   private final Map<L, Integer> map = new HashMap<>();
 
-  public boolean containsKey (final L value) {
+  public boolean containsKey(final L value) {
     return map.containsKey(value);
   }
 
-  public int get (final L value) {
+  public int get(final L value) {
     if (!containsKey(value)) {
       return 0;
     }
     return map.get(value);
   }
 
-  public boolean isEmpty () {
+  public boolean isEmpty() {
     return map.isEmpty();
   }
 
-  public void clear () {
+  public void clear() {
     map.clear();
   }
 
-  public void add (final L value) {
+  public void add(final L value) {
     int cnt = (map.containsKey(value)) ? map.get(value) : 0;
     map.put(value, ++cnt);
   }
 
-  public boolean remove (final L value) {
+  public boolean remove(final L value) {
     if (!map.containsKey(value)) {
       return false;
     }
@@ -73,11 +73,11 @@ public class CountingMap<L> {
   }
 
   @Override
-  public String toString () {
+  public String toString() {
     return map.toString();
   }
 
-  public static void main (final String[] args) {
+  public static void main(final String[] args) {
     final Logger LOG = Logger.getLogger(CountingMap.class.getName());
     final CountingMap<String> strMap = new CountingMap<>();
     strMap.add("Hello");

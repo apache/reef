@@ -47,28 +47,28 @@ final class SchedulerResponse {
    * Create a response with OK status.
    */
   public static SchedulerResponse OK(final String message){
-    return new SchedulerResponse (SC_OK, message);
+    return new SchedulerResponse(SC_OK, message);
   }
 
   /**
    * Create a response with BAD_REQUEST status.
    */
   public static SchedulerResponse BAD_REQUEST(final String message){
-    return new SchedulerResponse (SC_BAD_REQUEST, message);
+    return new SchedulerResponse(SC_BAD_REQUEST, message);
   }
 
   /**
    * Create a response with FORBIDDEN status.
    */
   public static SchedulerResponse FORBIDDEN(final String message){
-    return new SchedulerResponse (SC_FORBIDDEN, message);
+    return new SchedulerResponse(SC_FORBIDDEN, message);
   }
 
   /**
    * Create a response with NOT FOUND status.
    */
   public static SchedulerResponse NOT_FOUND(final String message){
-    return new SchedulerResponse (SC_NOT_FOUND, message);
+    return new SchedulerResponse(SC_NOT_FOUND, message);
   }
 
   /**

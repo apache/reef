@@ -90,7 +90,7 @@ public class SVMLightParser implements Parser<String> {
       }
 
       LOG.log(Level.INFO, "OUT: {0} {1} {2}",
-          new Object[] { examples.size(), avgFtLen, avgFtLen / examples.size() });
+          new Object[] {examples.size(), avgFtLen, avgFtLen / examples.size()});
 
       examples.clear();
     }

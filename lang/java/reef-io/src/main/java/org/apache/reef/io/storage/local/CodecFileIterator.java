@@ -65,7 +65,7 @@ final class CodecFileIterator<T> implements Iterator<T> {
     }
     try {
       final byte[] buf = new byte[this.sz];
-      for (int rem = buf.length; rem > 0; ) {
+      for (int rem = buf.length; rem > 0;) {
         rem -= this.in.read(buf, buf.length - rem, rem);
       }
       this.readNextSize();

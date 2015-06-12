@@ -77,5 +77,5 @@ public interface TaskNodeStatus {
    * Called to denote that a UpdateTopology msg will.
    * be sent
    */
-  void updatingTopology ();
+  void updatingTopology();
 }

@@ -54,7 +54,7 @@ public final class ParsedHttpRequest {
     this.requestUri = request.getRequestURI() != null ? request.getRequestURI() : "";
     this.requestUrl = request.getRequestURL().toString();
 
-    for (final Enumeration en = request.getHeaderNames(); en.hasMoreElements(); ) {
+    for (final Enumeration en = request.getHeaderNames(); en.hasMoreElements();) {
       final String headerName = en.nextElement().toString();
       this.headers.put(headerName, request.getHeader(headerName));
     }

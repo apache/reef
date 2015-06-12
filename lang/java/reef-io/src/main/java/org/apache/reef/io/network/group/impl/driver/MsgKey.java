@@ -30,37 +30,37 @@ public class MsgKey {
   private final String dst;
   private final ReefNetworkGroupCommProtos.GroupCommMessage.Type msgType;
 
-  public MsgKey (final String src, final String dst, final ReefNetworkGroupCommProtos.GroupCommMessage.Type msgType) {
+  public MsgKey(final String src, final String dst, final ReefNetworkGroupCommProtos.GroupCommMessage.Type msgType) {
     this.src = src;
     this.dst = dst;
     this.msgType = msgType;
   }
 
-  public MsgKey (final GroupCommunicationMessage msg) {
+  public MsgKey(final GroupCommunicationMessage msg) {
     this.src = msg.getSrcid() + ":" + msg.getSrcVersion();
     this.dst = msg.getDestid() + ":" + msg.getVersion();
     this.msgType = msg.getType();
   }
 
-  public String getSrc () {
-    return src.split(":",2)[0];
+  public String getSrc() {
+    return src.split(":", 2)[0];
   }
 
-  public String getDst () {
-    return dst.split(":",2)[0];
+  public String getDst() {
+    return dst.split(":", 2)[0];
   }
 
-  public ReefNetworkGroupCommProtos.GroupCommMessage.Type getMsgType () {
+  public ReefNetworkGroupCommProtos.GroupCommMessage.Type getMsgType() {
     return msgType;
   }
 
   @Override
-  public String toString () {
+  public String toString() {
     return "(" + src + "," + dst + "," + msgType + ")";
   }
 
   @Override
-  public boolean equals (final Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -81,7 +81,7 @@ public class MsgKey {
   }
 
   @Override
-  public int hashCode () {
+  public int hashCode() {
     int result = src.hashCode();
     result = 31 * result + dst.hashCode();
     result = 31 * result + msgType.hashCode();

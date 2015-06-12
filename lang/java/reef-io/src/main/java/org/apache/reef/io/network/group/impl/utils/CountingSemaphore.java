@@ -33,7 +33,7 @@ public class CountingSemaphore {
 
   private final int initCount;
 
-  public CountingSemaphore (final int initCount, final String name, final Object lock) {
+  public CountingSemaphore(final int initCount, final String name, final Object lock) {
     super();
     this.initCount = initCount;
     this.name = name;
@@ -46,7 +46,7 @@ public class CountingSemaphore {
     return initCount;
   }
 
-  public int increment () {
+  public int increment() {
     synchronized (lock) {
       final int retVal = counter.incrementAndGet();
       LOG.finest(name + "Incremented counter to " + retVal);
@@ -55,13 +55,13 @@ public class CountingSemaphore {
     }
   }
 
-  private void logStatus () {
+  private void logStatus() {
     final int yetToRun = counter.get();
     final int curRunning = initCount - yetToRun;
     LOG.fine(name + curRunning + " workers are running & " + yetToRun + " workers are yet to run");
   }
 
-  public int decrement () {
+  public int decrement() {
     synchronized (lock) {
       final int retVal = counter.decrementAndGet();
       LOG.finest(name + "Decremented counter to " + retVal);
@@ -79,13 +79,13 @@ public class CountingSemaphore {
     }
   }
 
-  public int get () {
+  public int get() {
     synchronized (lock) {
       return counter.get();
     }
   }
 
-  public void await () {
+  public void await() {
     synchronized (lock) {
       LOG.finest(name + "Waiting for workers to be done");
       while (counter.get() > 0) {
