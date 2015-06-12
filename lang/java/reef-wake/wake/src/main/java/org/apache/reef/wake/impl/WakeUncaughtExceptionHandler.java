@@ -40,7 +40,8 @@ public final class WakeUncaughtExceptionHandler implements Thread.UncaughtExcept
   @Override
   public void uncaughtException(Thread t, Throwable e) {
     final String msg = "Thread " + t.getName() + " threw an uncaught exception.";
-    if (errorHandler != null)
+    if (errorHandler != null) {
       errorHandler.onNext(new Exception(msg, e));
+    }
   }
 }

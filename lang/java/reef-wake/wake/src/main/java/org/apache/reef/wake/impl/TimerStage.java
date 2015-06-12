@@ -105,7 +105,9 @@ public final class TimerStage implements Stage {
 
       @Override
       public void run() {
-        if (LOG.isLoggable(Level.FINEST)) LOG.log(Level.FINEST, "{0} {1}", new Object[]{name, event});
+        if (LOG.isLoggable(Level.FINEST)) {
+          LOG.log(Level.FINEST, "{0} {1}", new Object[]{name, event});
+        }
         handler.onNext(event);
       }
 

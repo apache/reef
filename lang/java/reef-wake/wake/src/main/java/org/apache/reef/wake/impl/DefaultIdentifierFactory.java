@@ -70,8 +70,9 @@ public class DefaultIdentifierFactory implements IdentifierFactory {
   @Override
   public Identifier getNewInstance(String str) {
     int index = str.indexOf("://");
-    if (index < 0)
+    if (index < 0) {
       throw new RemoteRuntimeException("Invalid name " + str);
+    }
     String type = str.substring(0, index);
     Class<? extends Identifier> clazz = typeToClazzMap.get(type);
     Class<?>[] argTypes = {String.class};

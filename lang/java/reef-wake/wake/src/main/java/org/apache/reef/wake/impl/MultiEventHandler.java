@@ -50,8 +50,9 @@ public class MultiEventHandler<T> implements EventHandler<T> {
   @Override
   public void onNext(T event) {
     EventHandler<T> handler = (EventHandler<T>) map.get(event.getClass());
-    if (handler == null)
+    if (handler == null) {
       throw new WakeRuntimeException("No event " + event.getClass() + " handler");
+    }
     handler.onNext(event);
   }
 

@@ -48,7 +48,9 @@ final class REEFExecutors {
     this.executors.remove(id);
   }
 
-  public Set<String> getExecutorIds() { return executors.keySet(); }
+  public Set<String> getExecutorIds() {
+    return executors.keySet();
+  }
 
   public int getMemory(final String id) {
     return executors.get(id).getMemory();

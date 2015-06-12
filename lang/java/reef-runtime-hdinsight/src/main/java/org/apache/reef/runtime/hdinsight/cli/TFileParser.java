@@ -88,8 +88,9 @@ final class TFileParser {
     final TFile.Reader.Scanner scanner = reader.createScanner();
     for (int counter = 0;
          counter < 3 && !scanner.atEnd();
-         counter += 1, scanner.advance()) {
+         counter += 1) {
       //skip VERSION, APPLICATION_ACL, and APPLICATION_OWNER
+      scanner.advance();
     }
     LOG.log(Level.FINE, "Created Scanner for path {0}", path);
     return scanner;

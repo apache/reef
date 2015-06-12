@@ -148,7 +148,9 @@ public final class RuntimeClock implements Clock {
   public final boolean isIdle() {
     synchronized (this.schedule) {
       for (Time t : this.schedule) {
-        if (t instanceof ClientAlarm) return false;
+        if (t instanceof ClientAlarm) {
+          return false;
+        }
       }
       return true;
     }
@@ -228,9 +230,12 @@ public final class RuntimeClock implements Clock {
             alarm.handle();
           } else {
             this.handlers.onNext(time);
-            if (time instanceof StopTime) break; // we're done.
+            if (time instanceof StopTime) {
+              break; // we're done.
+            }
           }
         } catch (InterruptedException e) {
+          // waiting interrupted - return to loop
         }
       }
       this.handlers.onNext(new RuntimeStop(this.timer.getCurrent()));

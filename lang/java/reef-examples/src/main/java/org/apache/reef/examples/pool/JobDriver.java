@@ -227,7 +227,9 @@ public final class JobDriver {
 
       LOG.log(Level.INFO, "TIME: Active Context {0}", context.getId());
 
-      if (isPiggyback) return; // Task already submitted
+      if (isPiggyback) {
+        return; // Task already submitted
+      }
 
       final boolean runTask;
       final int nTask;

@@ -107,8 +107,9 @@ class RemoteSenderEventHandler<T> implements EventHandler<RemoteEvent<T>> {
         // encode and write bytes
         // consumeQueue();
 
-        if (LOG.isLoggable(Level.FINEST))
+        if (LOG.isLoggable(Level.FINEST)) {
           LOG.log(Level.FINEST, "Send an event from " + linkRef.get().getLocalAddress() + " to " + linkRef.get().getRemoteAddress() + " value " + value);
+        }
         linkRef.get().write(encoder.encode(value));
       }
     } catch (RemoteRuntimeException ex2) {

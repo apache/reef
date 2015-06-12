@@ -40,10 +40,18 @@ public abstract class Time implements Comparable<Time> {
 
   @Override
   public final int compareTo(Time o) {
-    if (this.timestamp < o.timestamp) return -1;
-    if (this.timestamp > o.timestamp) return 1;
-    if (this.hashCode() < o.hashCode()) return -1;
-    if (this.hashCode() > o.hashCode()) return 1;
+    if (this.timestamp < o.timestamp) {
+      return -1;
+    }
+    if (this.timestamp > o.timestamp) {
+      return 1;
+    }
+    if (this.hashCode() < o.hashCode()) {
+      return -1;
+    }
+    if (this.hashCode() > o.hashCode()) {
+      return 1;
+    }
     return 0;
   }
 

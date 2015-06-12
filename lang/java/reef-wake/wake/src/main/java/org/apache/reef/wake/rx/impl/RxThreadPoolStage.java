@@ -83,8 +83,9 @@ public final class RxThreadPoolStage<T> extends AbstractRxStage<T> {
                            @Parameter(NumberOfThreads.class) final int numThreads) {
     super(name);
     this.observer = observer;
-    if (numThreads <= 0)
+    if (numThreads <= 0) {
       throw new WakeRuntimeException(name + " numThreads " + numThreads + " is less than or equal to 0");
+    }
     tf = new DefaultThreadFactory(name);
     this.executor = Executors.newFixedThreadPool(numThreads, tf);
     this.completionExecutor = Executors.newSingleThreadExecutor(tf);

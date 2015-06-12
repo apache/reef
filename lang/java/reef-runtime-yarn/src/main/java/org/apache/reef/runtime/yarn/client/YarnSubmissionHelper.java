@@ -60,21 +60,19 @@ public final class YarnSubmissionHelper implements Closeable{
                               final ClasspathProvider classpath) throws IOException, YarnException {
     this.fileNames = fileNames;
     this.classpath = classpath;
-    {
-      LOG.log(Level.FINE, "Initializing YARN Client");
-      this.yarnClient = YarnClient.createYarnClient();
-      this.yarnClient.init(yarnConfiguration);
-      this.yarnClient.start();
-      LOG.log(Level.FINE, "Initialized YARN Client");
-    }
-    {
-      LOG.log(Level.FINE, "Requesting Application ID from YARN.");
-      this.yarnClientApplication = this.yarnClient.createApplication();
-      this.applicationResponse = yarnClientApplication.getNewApplicationResponse();
-      this.applicationSubmissionContext = yarnClientApplication.getApplicationSubmissionContext();
-      this.applicationId = applicationSubmissionContext.getApplicationId();
-      LOG.log(Level.FINEST, "YARN Application ID: {0}", applicationId);
-    }
+
+    LOG.log(Level.FINE, "Initializing YARN Client");
+    this.yarnClient = YarnClient.createYarnClient();
+    this.yarnClient.init(yarnConfiguration);
+    this.yarnClient.start();
+    LOG.log(Level.FINE, "Initialized YARN Client");
+
+    LOG.log(Level.FINE, "Requesting Application ID from YARN.");
+    this.yarnClientApplication = this.yarnClient.createApplication();
+    this.applicationResponse = yarnClientApplication.getNewApplicationResponse();
+    this.applicationSubmissionContext = yarnClientApplication.getApplicationSubmissionContext();
+    this.applicationId = applicationSubmissionContext.getApplicationId();
+    LOG.log(Level.FINEST, "YARN Application ID: {0}", applicationId);
   }
 
   /**

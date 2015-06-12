@@ -45,13 +45,21 @@ final class TaskEntity {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     TaskEntity that = (TaskEntity) o;
 
-    if (taskId != that.taskId) return false;
-    if (!command.equals(that.command)) return false;
+    if (taskId != that.taskId) {
+      return false;
+    }
+    if (!command.equals(that.command)) {
+      return false;
+    }
 
     return true;
   }

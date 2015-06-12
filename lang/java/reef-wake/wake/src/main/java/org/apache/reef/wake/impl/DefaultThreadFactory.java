@@ -73,12 +73,15 @@ public final class DefaultThreadFactory implements ThreadFactory {
   @Override
   public Thread newThread(Runnable r) {
     Thread t = new Thread(group, r, prefix + threadNumber.getAndIncrement(), 0);
-    if (t.isDaemon())
+    if (t.isDaemon()) {
       t.setDaemon(false);
-    if (t.getPriority() != Thread.NORM_PRIORITY)
+    }
+    if (t.getPriority() != Thread.NORM_PRIORITY) {
       t.setPriority(Thread.NORM_PRIORITY);
-    if (uncaughtExceptionHandler != null)
+    }
+    if (uncaughtExceptionHandler != null) {
       t.setUncaughtExceptionHandler(uncaughtExceptionHandler);
+    }
     return t;
   }
 

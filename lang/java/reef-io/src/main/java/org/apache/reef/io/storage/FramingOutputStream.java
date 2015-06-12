@@ -86,7 +86,9 @@ public class FramingOutputStream extends OutputStream implements Accumulable<byt
   public void close() throws IOException {
     if (!closed) {
       try {
-        if (this.offset > 0) nextFrame();
+        if (this.offset > 0) {
+          nextFrame();
+        }
       } catch (StorageException e) {
         throw (IOException) e.getCause();
       }

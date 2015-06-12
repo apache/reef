@@ -666,8 +666,7 @@ final class YarnContainerManager
     logContainerChange(entry);
   }
 
-  private void logContainerChange(final String entry)
-  {
+  private void logContainerChange(final String entry) {
     try {
       writeToEvaluatorLog(entry);
     } catch (final IOException e) {

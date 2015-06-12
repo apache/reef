@@ -125,8 +125,9 @@ class OrderedPushEventHandler implements EventHandler<TransportEvent> {
     re.setLocalAddress(value.getLocalAddress());
     re.setRemoteAddress(value.getRemoteAddress());
 
-    if (LOG.isLoggable(Level.FINER))
+    if (LOG.isLoggable(Level.FINER)) {
       LOG.log(Level.FINER, "{0} {1}", new Object[]{value, re});
+    }
 
     LOG.log(Level.FINER, "Value length is {0}", value.getData().length);
 
@@ -155,8 +156,9 @@ class OrderedPullEventHandler implements EventHandler<OrderedEventStream> {
 
   @Override
   public void onNext(OrderedEventStream stream) {
-    if (LOG.isLoggable(Level.FINER))
+    if (LOG.isLoggable(Level.FINER)) {
       LOG.log(Level.FINER, "{0}", stream);
+    }
 
     synchronized (stream) {
       RemoteEvent<byte[]> event;

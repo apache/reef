@@ -132,8 +132,9 @@ public class EvaluatorToPartitionMapper<V extends InputSplit> {
     }
     while (true) {
       final NumberedSplit<V> split = value.poll();
-      if (split == null)
+      if (split == null) {
         return null;
+      }
       if (value == unallocatedSplits || unallocatedSplits.remove(split)) {
         LOG.log(Level.FINE, "Found split-" + split.getIndex() + " in the queue");
         final NumberedSplit<V> old = evaluatorToSplits.putIfAbsent(evaluatorId, split);

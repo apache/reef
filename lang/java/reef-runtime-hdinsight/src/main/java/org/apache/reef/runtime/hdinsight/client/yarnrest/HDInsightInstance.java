@@ -233,6 +233,7 @@ public final class HDInsightInstance {
 
     // Prime the cache
     try (final CloseableHttpResponse response = this.httpClient.execute(targetHost, httpget, result)) {
+      // empty try block used to automatically close resources
     }
     return result;
   }

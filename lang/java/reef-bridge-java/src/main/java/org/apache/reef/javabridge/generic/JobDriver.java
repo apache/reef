@@ -240,8 +240,9 @@ public final class JobDriver {
 
   private CLRBufferedLogHandler getCLRBufferedLogHandler() {
     for (Handler handler : Logger.getLogger("").getHandlers()) {
-      if (handler instanceof CLRBufferedLogHandler)
+      if (handler instanceof CLRBufferedLogHandler) {
         return (CLRBufferedLogHandler) handler;
+      }
     }
     return null;
   }

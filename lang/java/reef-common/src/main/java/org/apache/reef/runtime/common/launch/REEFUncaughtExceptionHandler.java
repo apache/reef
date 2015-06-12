@@ -49,9 +49,9 @@ final class REEFUncaughtExceptionHandler implements Thread.UncaughtExceptionHand
     LOG.log(Level.SEVERE, msg, throwable);
     this.errorHandler.onNext(new Exception(msg, throwable));
     try {
-      this.wait(100); // TODO: Remove
+      this.wait(100);
     } catch (final InterruptedException e) {
-
+      // try-catch block used to wait and give process a chance to setup communication with its parent
     }
     this.errorHandler.close();
     LOG.log(Level.SEVERE, "System.exit(1)");

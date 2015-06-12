@@ -44,8 +44,9 @@ public class Window {
   }
 
   public double avg() {
-    if (list.size() == 0)
+    if (list.size() == 0) {
       return 0;
+    }
     double retVal = 0;
     for (double d : list) {
       retVal += d;
@@ -54,12 +55,14 @@ public class Window {
   }
 
   public double avgIfAdded(double d) {
-    if (list.isEmpty())
+    if (list.isEmpty()) {
       return d;
+    }
     int start = (list.size() < maxSize) ? 0 : 1;
     int numElems = (list.size() < maxSize) ? list.size() + 1 : maxSize;
-    for (int i = start; i < list.size(); i++)
+    for (int i = start; i < list.size(); i++) {
       d += list.get(i);
+    }
     return d / numElems;
   }
 

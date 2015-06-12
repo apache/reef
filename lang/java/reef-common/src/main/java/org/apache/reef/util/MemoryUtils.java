@@ -98,12 +98,11 @@ public final class MemoryUtils {
 
   public static void main(final String[] args) {
     System.out.println(memPoolNames());
-    {
-      final byte[] b = new byte[1 << 24];
-      System.out.println(currentEdenMemoryUsageMB()
-          + "," + currentOldMemoryUsageMB()
-          + "," + currentPermMemoryUsageMB());
-    }
+
+    final byte[] b = new byte[1 << 24];
+    System.out.println(currentEdenMemoryUsageMB()
+        + "," + currentOldMemoryUsageMB()
+        + "," + currentPermMemoryUsageMB());
 
     System.gc();
     System.out.println(currentEdenMemoryUsageMB()

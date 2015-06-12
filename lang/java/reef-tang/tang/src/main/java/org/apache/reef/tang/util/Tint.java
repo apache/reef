@@ -339,8 +339,9 @@ public class Tint {
           for (int j = 1; j < tok.length; j++) {
             if (tok[j].matches("^[A-Z].*") || j > 4) {
               break;
-            } else
+            } else {
               sb.append("." + tok[j]);
+            }
           }
           String pack = sb.toString();
           if (!currentPackage.equals(pack)) {
@@ -488,7 +489,7 @@ public class Tint {
                     }
                   }
                 } catch (NameResolutionException ex) {
-
+                  //
                 }
                 try {
                   String s = e.getValue();
@@ -505,7 +506,7 @@ public class Tint {
                     }
                   }
                 } catch (NameResolutionException ex) {
-
+                  //
                 }
               }
             }

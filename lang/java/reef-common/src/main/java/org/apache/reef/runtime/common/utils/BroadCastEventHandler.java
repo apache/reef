@@ -33,8 +33,9 @@ public class BroadCastEventHandler<E> implements EventHandler<E> {
 
   @Override
   public void onNext(final E event) {
-    for (final EventHandler<E> handler : handlers)
+    for (final EventHandler<E> handler : handlers) {
       handler.onNext(event);
+    }
   }
 
   public void addEventHandler(final EventHandler<E> eventHandler) {

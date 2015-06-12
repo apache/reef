@@ -187,7 +187,9 @@ public class NettyMessagingTransport implements Transport {
     } else {
       Iterator<Integer> ports = tcpPortProvider.iterator();
       while (acceptor == null) {
-        if (!ports.hasNext()) break;
+        if (!ports.hasNext()) {
+          break;
+        }
         port = ports.next();
         LOG.log(Level.FINEST, "Try port {0}", port);
         try {
