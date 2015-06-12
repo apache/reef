@@ -114,6 +114,30 @@ public class ClockTest {
   }
 
   @Test
+  public void testMultipleCloseCalls() throws Exception {
+    LoggingUtils.setLoggingLevel(Level.FINE);
+
+    final int numThreads = 3;
+    final RuntimeClock clock = buildClock();
+    new Thread(clock).start();
+    final ThreadPoolStage<Alarm> stage = new ThreadPoolStage<>(new EventHandler<Alarm>() {
+      @Override
+      public void onNext(final Alarm value) {
+        clock.close();
+      }
+    }, numThreads);
+
+    try {
+      for (int i = 0; i < numThreads; ++i)
+        stage.onNext(null);
+      Thread.sleep(1000);
+    } finally {
+      stage.close();
+      clock.close();
+    }
+  }
+
+  @Test
   public void testSimultaneousAlarms() throws Exception {
     LoggingUtils.setLoggingLevel(Level.FINE);
 
