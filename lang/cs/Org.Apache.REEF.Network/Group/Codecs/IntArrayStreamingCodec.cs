@@ -24,7 +24,7 @@ using Org.Apache.REEF.Network.StreamingCodec;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Wake.Remote;
 
-namespace Org.Apache.REEF.Network.Tests.GroupCommunication
+namespace Org.Apache.REEF.Network.Group.Codecs
 {
     /// <summary>
     /// Streaming codec for integer
@@ -89,7 +89,7 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
         /// <param name="obj">The integer to be encoded</param>
         /// <param name="writer">The writer to which to write</param>
         /// <param name="token">Cancellation token</param>
-        public async Task WriteAsync(int[] obj, IDataWriter writer, CancellationToken token)
+        public async System.Threading.Tasks.Task WriteAsync(int[] obj, IDataWriter writer, CancellationToken token)
         {
             await writer.WriteInt32Async(obj.Length, token);
             byte[] buffer = new byte[sizeof(int) * obj.Length];

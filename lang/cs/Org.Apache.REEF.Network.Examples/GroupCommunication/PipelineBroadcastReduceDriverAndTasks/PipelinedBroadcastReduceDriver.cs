@@ -28,6 +28,7 @@ using Org.Apache.REEF.Driver.Bridge;
 using Org.Apache.REEF.Driver.Context;
 using Org.Apache.REEF.Driver.Evaluator;
 using Org.Apache.REEF.Network.Examples.GroupCommunication.BroadcastReduceDriverAndTasks;
+using Org.Apache.REEF.Network.Group.Codecs;
 using Org.Apache.REEF.Network.Group.Config;
 using Org.Apache.REEF.Network.Group.Driver;
 using Org.Apache.REEF.Network.Group.Driver.Impl;
@@ -57,7 +58,7 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.PipelineBroadcastR
         private readonly IGroupCommDriver _groupCommDriver;
         private readonly ICommunicationGroupDriver _commGroup;
         private readonly TaskStarter _groupCommTaskStarter;
-
+        private readonly IConfiguration _codecConfig;
         [Inject]
         public PipelinedBroadcastReduceDriver(
             [Parameter(typeof (GroupTestConfig.NumEvaluators))] int numEvaluators,
@@ -72,8 +73,8 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.PipelineBroadcastR
             _numIterations = numIterations;
             _chunkSize = chunkSize;
 
-            IConfiguration codecConfig = CodecConfiguration<int[]>.Conf
-                .Set(CodecConfiguration<int[]>.Codec, GenericType<IntArrayCodec>.Class)
+            _codecConfig = StreamingCodecConfiguration<int[]>.Conf
+                .Set(StreamingCodecConfiguration<int[]>.Codec, GenericType<IntArrayStreamingCodec>.Class)
                 .Build();
 
             IConfiguration reduceFunctionConfig = ReduceFunctionConfiguration<int[]>.Conf
@@ -97,13 +98,11 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.PipelineBroadcastR
                     GroupTestConstants.BroadcastOperatorName,
                     GroupTestConstants.MasterTaskId,
                     TopologyTypes.Tree,
-                    codecConfig,
                     dataConverterConfig)
                 .AddReduce<int[]>(
                     GroupTestConstants.ReduceOperatorName,
                     GroupTestConstants.MasterTaskId,
                     TopologyTypes.Tree,
-                    codecConfig,
                     reduceFunctionConfig,
                     dataConverterConfig)
                 .Build();
@@ -124,7 +123,7 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.PipelineBroadcastR
         public void OnNext(IAllocatedEvaluator allocatedEvaluator)
         {
             IConfiguration contextConf = _groupCommDriver.GetContextConfiguration();
-            IConfiguration serviceConf = _groupCommDriver.GetServiceConfiguration();
+            IConfiguration serviceConf = _groupCommDriver.GetServiceConfiguration(_codecConfig);
             allocatedEvaluator.SubmitContextAndService(contextConf, serviceConf);
         }
 
@@ -250,34 +249,6 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.PipelineBroadcastR
                     count++;
                 }
 
-                return result;
-            }
-        }
-
-
-        private class IntArrayCodec : ICodec<int[]>
-        {
-            [Inject]
-            public IntArrayCodec()
-            {
-            }
-
-            public byte[] Encode(int[] obj)
-            {
-                byte[] result = new byte[sizeof(Int32) * obj.Length];
-                Buffer.BlockCopy(obj, 0, result, 0, result.Length);
-                return result;
-            }
-
-            public int[] Decode(byte[] data)
-            {
-                if (data.Length % sizeof(Int32) != 0)
-                {
-                    throw new Exception("error inside integer array decoder, byte array length not a multiple of interger size");
-                }
-
-                int[] result = new int[data.Length / sizeof(Int32)];
-                Buffer.BlockCopy(data, 0, result, 0, data.Length);
                 return result;
             }
         }

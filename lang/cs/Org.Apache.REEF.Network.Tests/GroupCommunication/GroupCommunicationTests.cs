@@ -32,6 +32,7 @@ using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Examples.MachineLearning.KMeans;
 using Org.Apache.REEF.Examples.MachineLearning.KMeans.codecs;
 using Org.Apache.REEF.Network.Examples.GroupCommunication;
+using Org.Apache.REEF.Network.Group.Codecs;
 using Org.Apache.REEF.Network.Group.Config;
 using Org.Apache.REEF.Network.Group.Driver;
 using Org.Apache.REEF.Network.Group.Driver.Impl;

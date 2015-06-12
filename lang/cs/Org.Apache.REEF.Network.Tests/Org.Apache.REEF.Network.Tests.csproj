@@ -51,7 +51,6 @@ under the License.
   <ItemGroup>
     <Compile Include="BlockingCollectionExtensionTests.cs" />
     <Compile Include="GroupCommunication\GroupCommunicationTests.cs" />
-    <Compile Include="GroupCommunication\IntArrayStreamingCodec.cs" />
     <Compile Include="GroupCommunication\GroupCommunicationTreeTopologyTests.cs" />
     <Compile Include="NamingService\NameServerTests.cs" />
     <Compile Include="NetworkService\WritableNetworkServiceTests.cs" />

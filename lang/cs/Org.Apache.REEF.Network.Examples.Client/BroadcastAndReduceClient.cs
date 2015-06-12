@@ -27,6 +27,7 @@ using Org.Apache.REEF.Network.Examples.GroupCommunication;
 using Org.Apache.REEF.Network.Examples.GroupCommunication.BroadcastReduceDriverAndTasks;
 using Org.Apache.REEF.Network.Group.Config;
 using Org.Apache.REEF.Network.NetworkService;
+using Org.Apache.REEF.Network.StreamingCodec;
 using Org.Apache.REEF.Tang.Implementations.Configuration;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
@@ -78,6 +79,7 @@ namespace Org.Apache.REEF.Network.Examples.Client
             appDlls.Add(typeof(BroadcastReduceDriver).Assembly.GetName().Name);
             appDlls.Add(typeof(INameClient).Assembly.GetName().Name);
             appDlls.Add(typeof(INetworkService<>).Assembly.GetName().Name);
+            appDlls.Add(typeof(IStreamingCodec<>).Assembly.GetName().Name);
 
             ClrClientHelper.Run(appDlls, merged, new DriverSubmissionSettings() { RunOnYarn = runOnYarn, JavaLogLevel = JavaLoggingSetting.VERBOSE });
         }

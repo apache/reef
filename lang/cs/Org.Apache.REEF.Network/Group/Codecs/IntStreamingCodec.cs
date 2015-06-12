@@ -23,7 +23,7 @@ using Org.Apache.REEF.Network.StreamingCodec;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Wake.Remote;
 
-namespace Org.Apache.REEF.Network.Group.Driver.Impl
+namespace Org.Apache.REEF.Network.Group.Codecs
 {
     /// <summary>
     /// Streaming codec for integer

@@ -50,6 +50,7 @@ under the License.
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Group\Codecs\IntArrayStreamingCodec.cs" />
     <Compile Include="Group\Config\StreamingCodecConfiguration.cs" />
     <Compile Include="Group\Config\CodecConfiguration.cs" />
     <Compile Include="Group\Config\GroupCommConfigurationOptions.cs" />
@@ -59,7 +60,7 @@ under the License.
     <Compile Include="Group\Driver\IGroupCommDriver.cs" />
     <Compile Include="Group\Driver\Impl\CommunicationGroupDriver.cs" />
     <Compile Include="Group\Driver\Impl\GroupCommunicationMessage.cs" />
-    <Compile Include="Group\Driver\Impl\IntStreamingCodec.cs" />
+    <Compile Include="Group\Codecs\IntStreamingCodec.cs" />
     <Compile Include="Group\Driver\Impl\MessageType.cs" />
     <Compile Include="Group\Driver\Impl\GroupCommDriver.cs" />
     <Compile Include="Group\Driver\Impl\TaskStarter.cs" />
