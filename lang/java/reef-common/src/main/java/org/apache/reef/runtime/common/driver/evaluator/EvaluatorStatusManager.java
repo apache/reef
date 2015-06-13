@@ -43,8 +43,47 @@ final class EvaluatorStatusManager {
   }
 
   private static boolean isLegal(final EvaluatorState from, final EvaluatorState to) {
-    // TODO
-    return true;
+    if (from == to) {
+      return true;
+    }
+
+    switch(from) {
+      case ALLOCATED: {
+        switch(to) {
+          case SUBMITTED:
+          case DONE:
+          case FAILED:
+          case KILLED:
+            return true;
+        }
+      }
+      case SUBMITTED: {
+        switch(to) {
+          case RUNNING:
+          case DONE:
+          case FAILED:
+          case KILLED:
+            return true;
+        }
+      }
+      case RUNNING: {
+        switch(to) {
+          case DONE:
+          case FAILED:
+          case KILLED:
+            return true;
+        }
+      }
+    }
+
+    LOG.warning("Illegal evaluator state transition from " + from + " to " + to + ".");
+    return false;
+  }
+
+  private static boolean isDoneOrFailedOrKilled(final EvaluatorState state) {
+    return (state == EvaluatorState.DONE ||
+            state == EvaluatorState.FAILED ||
+            state == EvaluatorState.KILLED);
   }
 
   synchronized void setRunning() {
@@ -72,9 +111,7 @@ final class EvaluatorStatusManager {
   }
 
   synchronized boolean isDoneOrFailedOrKilled() {
-    return (this.state == EvaluatorState.DONE ||
-        this.state == EvaluatorState.FAILED ||
-        this.state == EvaluatorState.KILLED);
+    return isDoneOrFailedOrKilled(this.state);
   }
 
   synchronized boolean isAllocatedOrSubmittedOrRunning() {
@@ -101,6 +138,5 @@ final class EvaluatorStatusManager {
       throw new IllegalStateException("Illegal state transition from '" + this.state + "' to '" + state + "'");
     }
     this.state = state;
-
   }
 }
