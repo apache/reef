@@ -43,8 +43,30 @@ final class EvaluatorStatusManager {
   }
 
   private static boolean isLegal(final EvaluatorState from, final EvaluatorState to) {
-    // TODO
-    return true;
+    switch(from) {
+      case ALLOCATED: {
+        if (to == EvaluatorState.SUBMITTED || to == EvaluatorState.FAILED || to == EvaluatorState.KILLED) {
+          return true;
+        }
+        break;
+      }
+      case SUBMITTED: {
+        if (to == EvaluatorState.RUNNING || to == EvaluatorState.FAILED ||
+            to == EvaluatorState.DONE || to == EvaluatorState.KILLED) {
+          return true;
+        }
+        break;
+      }
+      case RUNNING: {
+        if (to == EvaluatorState.DONE || to == EvaluatorState.FAILED || to == EvaluatorState.KILLED) {
+          return true;
+        }
+        break;
+      }
+    }
+
+    LOG.warning("Illegal evaluator state transition from " + from + " to " + to + ".");
+    return false;
   }
 
   synchronized void setRunning() {
@@ -101,6 +123,5 @@ final class EvaluatorStatusManager {
       throw new IllegalStateException("Illegal state transition from '" + this.state + "' to '" + state + "'");
     }
     this.state = state;
-
   }
 }
