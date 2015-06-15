@@ -203,7 +203,9 @@ namespace Org.Apache.REEF.Driver
                     .BindSetEntry(GenericType<DriverBridgeConfigurationOptions.DriverRestartRunningTaskHandlers>.Class,
                         OnDriverRestartTaskRunning)
                     .BindNamedParameter(GenericType<DriverBridgeConfigurationOptions.TraceLevel>.Class, CustomTraceLevel)
-                    .Build();
+                    .Build()
+                    // TODO: Move this up
+                    .Set(OnDriverStarted, GenericType<ClassHierarchyGeneratingDriverStartObserver>.Class);
             }
         }
     }

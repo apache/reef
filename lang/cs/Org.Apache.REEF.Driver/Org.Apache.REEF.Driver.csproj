@@ -87,6 +87,7 @@ under the License.
     <Compile Include="Bridge\ILogger.cs" />
     <Compile Include="Bridge\ReefHttpRequest.cs" />
     <Compile Include="Bridge\ReefHttpResponse.cs" />
+    <Compile Include="ClassHierarchyGeneratingDriverStartObserver.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="Context\ContextConfiguration.cs" />
     <Compile Include="Context\ContextConfigurationOptions.cs" />
