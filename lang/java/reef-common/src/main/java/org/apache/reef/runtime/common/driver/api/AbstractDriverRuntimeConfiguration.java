@@ -18,12 +18,13 @@
  */
 package org.apache.reef.runtime.common.driver.api;
 
-import org.apache.reef.runtime.common.launch.parameters.ErrorHandlerRID;
+import org.apache.reef.runtime.common.driver.parameters.ClientRemoteIdentifier;
+import org.apache.reef.runtime.common.driver.parameters.DriverProcessMemory;
+import org.apache.reef.runtime.common.driver.parameters.EvaluatorTimeout;
+import org.apache.reef.runtime.common.driver.parameters.JobIdentifier;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.JavaConfigurationBuilder;
 import org.apache.reef.tang.Tang;
-import org.apache.reef.tang.annotations.Name;
-import org.apache.reef.tang.annotations.NamedParameter;
 import org.apache.reef.tang.exceptions.BindException;
 import org.apache.reef.util.Builder;
 
@@ -98,27 +99,4 @@ public abstract class AbstractDriverRuntimeConfiguration implements Builder<Conf
     }
   }
 
-  @NamedParameter(doc = "The job identifier.")
-  public final static class JobIdentifier implements Name<String> {
-  }
-
-  @NamedParameter(doc = "The client remote identifier.", default_value = ClientRemoteIdentifier.NONE)
-  public final static class ClientRemoteIdentifier implements Name<String> {
-    /**
-     * Indicates that there is no Client.
-     */
-    public static final String NONE = ErrorHandlerRID.NONE;
-  }
-
-  @NamedParameter(doc = "The evaluator timeout (how long to wait before deciding an evaluator is dead.", default_value = "60000")
-  public final static class EvaluatorTimeout implements Name<Long> {
-  }
-
-  /**
-   * This parameter denotes that the driver process should actually be
-   * started in a separate process with the given amount of JVM memory.
-   */
-  @NamedParameter(doc = "The driver process memory.", default_value = "512")
-  public final static class DriverProcessMemory implements Name<Integer> {
-  }
 }

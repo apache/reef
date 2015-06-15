@@ -21,7 +21,8 @@ package org.apache.reef.runtime.common.driver.client;
 import com.google.protobuf.ByteString;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.proto.ReefServiceProtos;
-import org.apache.reef.runtime.common.driver.api.AbstractDriverRuntimeConfiguration;
+import org.apache.reef.runtime.common.driver.parameters.ClientRemoteIdentifier;
+import org.apache.reef.runtime.common.driver.parameters.JobIdentifier;
 import org.apache.reef.runtime.common.utils.RemoteManager;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.wake.EventHandler;
@@ -44,10 +45,10 @@ public final class ClientConnection {
   @Inject
   public ClientConnection(
       final RemoteManager remoteManager,
-      final @Parameter(AbstractDriverRuntimeConfiguration.ClientRemoteIdentifier.class) String clientRID,
-      final @Parameter(AbstractDriverRuntimeConfiguration.JobIdentifier.class) String jobIdentifier) {
+      final @Parameter(ClientRemoteIdentifier.class) String clientRID,
+      final @Parameter(JobIdentifier.class) String jobIdentifier) {
     this.jobIdentifier = jobIdentifier;
-    if (clientRID.equals(AbstractDriverRuntimeConfiguration.ClientRemoteIdentifier.NONE)) {
+    if (clientRID.equals(ClientRemoteIdentifier.NONE)) {
       LOG.log(Level.FINE, "Instantiated 'ClientConnection' without an actual connection to the client.");
       this.jobStatusHandler = new LoggingJobStatusHandler();
     } else {

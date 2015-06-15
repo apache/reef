@@ -20,12 +20,11 @@ package org.apache.reef.webserver;
 
 import org.apache.reef.driver.catalog.NodeDescriptor;
 import org.apache.reef.driver.catalog.RackDescriptor;
-import org.apache.reef.driver.evaluator.CLRProcess;
 import org.apache.reef.driver.evaluator.CLRProcessFactory;
 import org.apache.reef.driver.evaluator.EvaluatorDescriptor;
 import org.apache.reef.driver.evaluator.EvaluatorProcess;
 import org.apache.reef.driver.evaluator.EvaluatorProcessFactory;
-import org.apache.reef.runtime.common.driver.api.AbstractDriverRuntimeConfiguration;
+import org.apache.reef.runtime.common.driver.parameters.JobIdentifier;
 import org.apache.reef.runtime.common.launch.REEFMessageCodec;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Injector;
@@ -57,7 +56,7 @@ public class TestReefEventStateManager {
         .bindImplementation(EvaluatorProcessFactory.class, CLRProcessFactory.class)
         .bindNamedParameter(RemoteConfiguration.ManagerName.class, "REEF_TEST_REMOTE_MANAGER")
         .bindNamedParameter(RemoteConfiguration.MessageCodec.class, REEFMessageCodec.class)
-        .bindNamedParameter(AbstractDriverRuntimeConfiguration.JobIdentifier.class, "my job")
+        .bindNamedParameter(JobIdentifier.class, "my job")
         .build();
 
     injector = tang.newInjector(configuration);

@@ -20,8 +20,8 @@ package org.apache.reef.runtime.common.driver;
 
 import com.google.protobuf.ByteString;
 import org.apache.reef.proto.ReefServiceProtos;
-import org.apache.reef.runtime.common.driver.api.AbstractDriverRuntimeConfiguration;
 import org.apache.reef.runtime.common.driver.client.ClientConnection;
+import org.apache.reef.runtime.common.driver.parameters.JobIdentifier;
 import org.apache.reef.runtime.common.utils.ExceptionCodec;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.util.Optional;
@@ -57,7 +57,7 @@ public final class DriverStatusManager {
   @Inject
   DriverStatusManager(final Clock clock,
                       final ClientConnection clientConnection,
-                      final @Parameter(AbstractDriverRuntimeConfiguration.JobIdentifier.class) String jobIdentifier,
+                      final @Parameter(JobIdentifier.class) String jobIdentifier,
                       final ExceptionCodec exceptionCodec) {
     LOG.entering(DriverStatusManager.class.getCanonicalName(), "<init>");
     this.clock = clock;
