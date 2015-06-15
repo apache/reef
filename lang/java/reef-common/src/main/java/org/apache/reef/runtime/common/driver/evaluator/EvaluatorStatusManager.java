@@ -43,30 +43,34 @@ final class EvaluatorStatusManager {
   }
 
   private static boolean isLegal(final EvaluatorState from, final EvaluatorState to) {
+    if (from == to) {
+      return true;
+    }
+
+    if (!isDoneOrFailedOrKilled(from) && isDoneOrFailedOrKilled(to)) {
+      return true;
+    }
+
     switch(from) {
       case ALLOCATED: {
-        if (to == EvaluatorState.SUBMITTED || to == EvaluatorState.FAILED || to == EvaluatorState.KILLED) {
-          return true;
-        }
-        break;
+        return to == EvaluatorState.SUBMITTED;
       }
       case SUBMITTED: {
-        if (to == EvaluatorState.RUNNING || to == EvaluatorState.FAILED ||
-            to == EvaluatorState.DONE || to == EvaluatorState.KILLED) {
-          return true;
-        }
-        break;
+        return to == EvaluatorState.RUNNING;
       }
       case RUNNING: {
-        if (to == EvaluatorState.DONE || to == EvaluatorState.FAILED || to == EvaluatorState.KILLED) {
-          return true;
-        }
-        break;
+        return isDoneOrFailedOrKilled(to);
       }
     }
 
     LOG.warning("Illegal evaluator state transition from " + from + " to " + to + ".");
     return false;
+  }
+
+  private static boolean isDoneOrFailedOrKilled(final EvaluatorState state) {
+    return (state == EvaluatorState.DONE ||
+            state == EvaluatorState.FAILED ||
+            state == EvaluatorState.KILLED);
   }
 
   synchronized void setRunning() {
@@ -94,9 +98,7 @@ final class EvaluatorStatusManager {
   }
 
   synchronized boolean isDoneOrFailedOrKilled() {
-    return (this.state == EvaluatorState.DONE ||
-        this.state == EvaluatorState.FAILED ||
-        this.state == EvaluatorState.KILLED);
+    return isDoneOrFailedOrKilled(this.state);
   }
 
   synchronized boolean isAllocatedOrSubmittedOrRunning() {
