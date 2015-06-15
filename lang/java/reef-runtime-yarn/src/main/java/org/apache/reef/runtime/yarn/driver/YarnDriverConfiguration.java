@@ -21,10 +21,12 @@ package org.apache.reef.runtime.yarn.driver;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.reef.io.TempFileCreator;
 import org.apache.reef.io.WorkingDirectoryTempFileCreator;
-import org.apache.reef.runtime.common.driver.api.AbstractDriverRuntimeConfiguration;
 import org.apache.reef.runtime.common.driver.api.ResourceLaunchHandler;
 import org.apache.reef.runtime.common.driver.api.ResourceReleaseHandler;
 import org.apache.reef.runtime.common.driver.api.ResourceRequestHandler;
+import org.apache.reef.runtime.common.driver.parameters.ClientRemoteIdentifier;
+import org.apache.reef.runtime.common.driver.parameters.EvaluatorTimeout;
+import org.apache.reef.runtime.common.driver.parameters.JobIdentifier;
 import org.apache.reef.runtime.common.files.RuntimeClasspathProvider;
 import org.apache.reef.runtime.common.parameters.JVMHeapSlack;
 import org.apache.reef.runtime.yarn.YarnClasspathProvider;
@@ -51,12 +53,12 @@ public class YarnDriverConfiguration extends ConfigurationModuleBuilder {
   public static final OptionalParameter<Integer> YARN_HEARTBEAT_INTERVAL = new OptionalParameter<>();
 
   /**
-   * @see AbstractDriverRuntimeConfiguration.JobIdentifier.class
+   * @see JobIdentifier.class
    */
   public static final RequiredParameter<String> JOB_IDENTIFIER = new RequiredParameter<>();
 
   /**
-   * @see AbstractDriverRuntimeConfiguration.EvaluatorTimeout
+   * @see EvaluatorTimeout
    */
   public static final OptionalParameter<Long> EVALUATOR_TIMEOUT = new OptionalParameter<>();
 
@@ -86,9 +88,9 @@ public class YarnDriverConfiguration extends ConfigurationModuleBuilder {
       .bindNamedParameter(YarnHeartbeatPeriod.class, YARN_HEARTBEAT_INTERVAL)
 
           // Bind the fields bound in AbstractDriverRuntimeConfiguration
-      .bindNamedParameter(AbstractDriverRuntimeConfiguration.JobIdentifier.class, JOB_IDENTIFIER)
-      .bindNamedParameter(AbstractDriverRuntimeConfiguration.EvaluatorTimeout.class, EVALUATOR_TIMEOUT)
-      .bindNamedParameter(AbstractDriverRuntimeConfiguration.ClientRemoteIdentifier.class, CLIENT_REMOTE_IDENTIFIER)
+      .bindNamedParameter(JobIdentifier.class, JOB_IDENTIFIER)
+      .bindNamedParameter(EvaluatorTimeout.class, EVALUATOR_TIMEOUT)
+      .bindNamedParameter(ClientRemoteIdentifier.class, CLIENT_REMOTE_IDENTIFIER)
       .bindNamedParameter(JVMHeapSlack.class, JVM_HEAP_SLACK)
       .bindImplementation(RuntimeClasspathProvider.class, YarnClasspathProvider.class)
       .build();

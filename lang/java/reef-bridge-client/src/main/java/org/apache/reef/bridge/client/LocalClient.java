@@ -20,7 +20,7 @@ package org.apache.reef.bridge.client;
 
 import org.apache.reef.client.parameters.DriverConfigurationProviders;
 import org.apache.reef.io.TcpPortConfigurationProvider;
-import org.apache.reef.runtime.common.driver.api.AbstractDriverRuntimeConfiguration;
+import org.apache.reef.runtime.common.driver.parameters.ClientRemoteIdentifier;
 import org.apache.reef.runtime.common.files.REEFFileNames;
 import org.apache.reef.runtime.local.client.DriverConfigurationProvider;
 import org.apache.reef.runtime.local.client.LocalRuntimeConfiguration;
@@ -43,7 +43,7 @@ import java.util.Set;
  */
 public class LocalClient {
 
-  private static final String CLIENT_REMOTE_ID = AbstractDriverRuntimeConfiguration.ClientRemoteIdentifier.NONE;
+  private static final String CLIENT_REMOTE_ID = ClientRemoteIdentifier.NONE;
   private final AvroConfigurationSerializer configurationSerializer;
   private final PreparedDriverFolderLauncher launcher;
   private final REEFFileNames fileNames;

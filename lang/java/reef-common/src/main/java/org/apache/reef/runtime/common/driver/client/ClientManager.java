@@ -25,7 +25,7 @@ import org.apache.reef.driver.parameters.ClientCloseWithMessageHandlers;
 import org.apache.reef.driver.parameters.ClientMessageHandlers;
 import org.apache.reef.proto.ClientRuntimeProtocol;
 import org.apache.reef.runtime.common.driver.DriverStatusManager;
-import org.apache.reef.runtime.common.driver.api.AbstractDriverRuntimeConfiguration;
+import org.apache.reef.runtime.common.driver.parameters.ClientRemoteIdentifier;
 import org.apache.reef.runtime.common.utils.BroadCastEventHandler;
 import org.apache.reef.runtime.common.utils.RemoteManager;
 import org.apache.reef.tang.InjectionFuture;
@@ -66,7 +66,7 @@ public final class ClientManager implements EventHandler<ClientRuntimeProtocol.J
   ClientManager(final @Parameter(ClientCloseHandlers.class) InjectionFuture<Set<EventHandler<Void>>> clientCloseHandlers,
                 final @Parameter(ClientCloseWithMessageHandlers.class) InjectionFuture<Set<EventHandler<byte[]>>> clientCloseWithMessageHandlers,
                 final @Parameter(ClientMessageHandlers.class) InjectionFuture<Set<EventHandler<byte[]>>> clientMessageHandlers,
-                final @Parameter(AbstractDriverRuntimeConfiguration.ClientRemoteIdentifier.class) String clientRID,
+                final @Parameter(ClientRemoteIdentifier.class) String clientRID,
                 final RemoteManager remoteManager,
                 final DriverStatusManager driverStatusManager) {
     this.driverStatusManager = driverStatusManager;
@@ -74,7 +74,7 @@ public final class ClientManager implements EventHandler<ClientRuntimeProtocol.J
     this.clientCloseWithMessageHandlers = clientCloseWithMessageHandlers;
     this.clientMessageHandlers = clientMessageHandlers;
 
-    if (!clientRID.equals(AbstractDriverRuntimeConfiguration.ClientRemoteIdentifier.NONE)) {
+    if (!clientRID.equals(ClientRemoteIdentifier.NONE)) {
       remoteManager.registerHandler(clientRID, ClientRuntimeProtocol.JobControlProto.class, this);
     } else {
       LOG.log(Level.FINE, "Not registering a handler for JobControlProto, as there is no client.");
