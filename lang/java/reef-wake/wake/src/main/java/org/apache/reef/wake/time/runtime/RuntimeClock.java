@@ -197,12 +197,13 @@ public final class RuntimeClock implements Clock {
       while (true) {
         LOG.log(Level.FINEST, "Entering clock main loop iteration.");
         try {
+          if (this.isIdle()) {
+            // Handle an idle clock event, without locking this.schedule
+            this.handlers.onNext(new IdleClock(timer.getCurrent()));
+          }
+
           Time time = null;
           synchronized (this.schedule) {
-            if (this.isIdle()) {
-              this.handlers.onNext(new IdleClock(timer.getCurrent()));
-            }
-
             while (this.schedule.isEmpty()) {
               this.schedule.wait();
             }
