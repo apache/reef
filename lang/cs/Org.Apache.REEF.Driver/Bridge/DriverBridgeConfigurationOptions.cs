@@ -36,19 +36,25 @@ namespace Org.Apache.REEF.Driver.Bridge
     /// <summary>
     /// Hosts all named parameters for Drivers, including bridge handlers.
     /// </summary>
-    public class DriverBridgeConfigurationOptions
+    public sealed class DriverBridgeConfigurationOptions
     {
         // Level.Verbose (since enum is not suppoted for TANG, we use a string here)
         private const string _verboseLevel = "Verbose";
 
-        // There is not supposed to be a default for Start handler but we need to provide one because all the existing apps would break;
-        [NamedParameter(documentation: "Called when driver is started, after CLR bridge is set up.", defaultClasses: new[] { typeof(DefaultDriverStartHandler) })]
-        public class DriverStartHandlers : Name<ISet<IObserver<DateTime>>>
+        // TODO: Remove the default value in 0.13 when the DriverStartedHandler becomes mandatory
+        [NamedParameter(documentation:"The start point for application logic. Event fired after the Driver is done initializing.", defaultClasses: new []{typeof(DefaultDriverStartedHandler)})]
+        public class DriverStartedHandlers : Name<ISet<IObserver<IDriverStarted>>>
         {
         }
 
+        [Obsolete(message:"Since 0.12, Removed in 0.13. Use DriverRestartedHandler instead.")]
         [NamedParameter(documentation: "Called when driver is restarted, after CLR bridge is set up.", defaultClasses: new[] { typeof(DefaultDriverRestartHandler) })]
         public class DriverRestartHandler : Name<IObserver<StartTime>>
+        {
+        }
+
+        [NamedParameter(documentation: "Called when driver is restarted, after CLR bridge is set up.", defaultClasses: new[] { typeof(DefaultDriverRestartedHandler) })]
+        public class DriverRestartedHandler : Name<IObserver<IDriverRestarted>>
         {
         }
 
@@ -146,15 +152,5 @@ namespace Org.Apache.REEF.Driver.Bridge
         public class TraceLevel : Name<string>
         {
         }
-
-        //[NamedParameter(documentation: "Job message handler.", defaultClasses: new[] { typeof(DefaultClientMessageHandler) })]
-        //public class ClientMessageHandlers : Name<ISet<IObserver<byte[]>>>
-        //{
-        //}
-
-        //[NamedParameter(documentation: "Client close handler.", defaultClasses: new[] { typeof(DefaultClientCloseHandler) })]
-        //public class ClientCloseHandlers : Name<ISet<IObserver<byte[]>>>
-        //{
-        //}
     }
 }

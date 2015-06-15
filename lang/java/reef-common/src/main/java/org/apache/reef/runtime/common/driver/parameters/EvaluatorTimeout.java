@@ -16,16 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.runtime.common.client;
+package org.apache.reef.runtime.common.driver.parameters;
 
-import org.apache.reef.tang.formats.ConfigurationModule;
-import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
+import org.apache.reef.tang.annotations.Name;
+import org.apache.reef.tang.annotations.NamedParameter;
 
 /**
- * @deprecated this class was never used.
+ * The evaluator timeout (how long to wait before deciding an evaluator is dead.
  */
-@Deprecated
-public class CommonClientConfigurationModule extends ConfigurationModuleBuilder {
-  public final static ConfigurationModule CONF = new CommonClientConfigurationModule()
-      .build();
+@NamedParameter(doc = "The evaluator timeout (how long to wait before deciding an evaluator is dead.", default_value = "60000")
+public final class EvaluatorTimeout implements Name<Long> {
 }

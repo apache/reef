@@ -23,7 +23,7 @@ import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.exceptions.YarnException;
 import org.apache.reef.client.parameters.DriverConfigurationProviders;
 import org.apache.reef.io.TcpPortConfigurationProvider;
-import org.apache.reef.runtime.common.driver.api.AbstractDriverRuntimeConfiguration;
+import org.apache.reef.runtime.common.driver.parameters.ClientRemoteIdentifier;
 import org.apache.reef.runtime.common.files.ClasspathProvider;
 import org.apache.reef.runtime.common.files.REEFFileNames;
 import org.apache.reef.runtime.yarn.client.YarnClientConfiguration;
@@ -78,7 +78,7 @@ public final class YarnJobSubmissionClient {
         YarnDriverConfiguration.CONF
             .set(YarnDriverConfiguration.JOB_SUBMISSION_DIRECTORY, jobSubmissionFolder)
             .set(YarnDriverConfiguration.JOB_IDENTIFIER, jobId)
-            .set(YarnDriverConfiguration.CLIENT_REMOTE_IDENTIFIER, AbstractDriverRuntimeConfiguration.ClientRemoteIdentifier.NONE)
+            .set(YarnDriverConfiguration.CLIENT_REMOTE_IDENTIFIER, ClientRemoteIdentifier.NONE)
             .set(YarnDriverConfiguration.JVM_HEAP_SLACK, 0.0)
             .build());
 
@@ -150,7 +150,7 @@ public final class YarnJobSubmissionClient {
           .setDriverMemory(driverMemory)
           .setPriority(priority)
           .setQueue(queue)
-          .submit(AbstractDriverRuntimeConfiguration.ClientRemoteIdentifier.NONE);
+          .submit(ClientRemoteIdentifier.NONE);
     }
   }
 

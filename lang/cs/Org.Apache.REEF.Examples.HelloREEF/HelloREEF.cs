@@ -21,8 +21,7 @@ using System;
 using Org.Apache.REEF.Client.API;
 using Org.Apache.REEF.Client.Local;
 using Org.Apache.REEF.Client.YARN;
-using Org.Apache.REEF.Common.Io;
-using Org.Apache.REEF.Driver.Bridge;
+using Org.Apache.REEF.Driver;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
@@ -53,14 +52,14 @@ namespace Org.Apache.REEF.Examples.HelloREEF
         private void Run()
         {
             // The driver configuration contains all the needed bindings.
-            var helloDriverConfiguration = DriverBridgeConfiguration.ConfigurationModule
-                .Set(DriverBridgeConfiguration.OnEvaluatorAllocated, GenericType<HelloDriver>.Class)
-                .Set(DriverBridgeConfiguration.OnDriverStart, GenericType<HelloDriver>.Class)
+            var helloDriverConfiguration = DriverConfiguration.ConfigurationModule
+                .Set(DriverConfiguration.OnEvaluatorAllocated, GenericType<HelloDriver>.Class)
+                .Set(DriverConfiguration.OnDriverStarted, GenericType<HelloDriver>.Class)
                 .Build();
             // The JobSubmission contains the Driver configuration as well as the files needed on the Driver.
             var helloJobSubmission = _jobSubmissionBuilderFactory.GetJobSubmissionBuilder()
                 .AddDriverConfiguration(helloDriverConfiguration)
-                .AddGlobalAssemblyForType(typeof (HelloDriver))
+                .AddGlobalAssemblyForType(typeof(HelloDriver))
                 .SetJobIdentifier("HelloREEF")
                 .Build();
 

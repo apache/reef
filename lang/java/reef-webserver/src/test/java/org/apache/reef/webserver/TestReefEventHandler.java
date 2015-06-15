@@ -18,7 +18,7 @@
  */
 package org.apache.reef.webserver;
 
-import org.apache.reef.runtime.common.driver.api.AbstractDriverRuntimeConfiguration;
+import org.apache.reef.runtime.common.driver.parameters.JobIdentifier;
 import org.apache.reef.runtime.common.launch.REEFMessageCodec;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Configurations;
@@ -64,7 +64,7 @@ public class TestReefEventHandler {
     final Configuration remoteConfiguration = tang.newConfigurationBuilder()
         .bindNamedParameter(RemoteConfiguration.ManagerName.class, "REEF_TEST_REMOTE_MANAGER")
         .bindNamedParameter(RemoteConfiguration.MessageCodec.class, REEFMessageCodec.class)
-        .bindNamedParameter(AbstractDriverRuntimeConfiguration.JobIdentifier.class, "my job")
+        .bindNamedParameter(JobIdentifier.class, "my job")
         .build();
 
     final Configuration finalConfig =

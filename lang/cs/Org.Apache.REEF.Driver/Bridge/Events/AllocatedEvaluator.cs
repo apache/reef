@@ -24,6 +24,7 @@ using System.Runtime.Serialization;
 using Org.Apache.REEF.Common.Catalog;
 using Org.Apache.REEF.Common.Evaluator;
 using Org.Apache.REEF.Driver.Bridge.Clr2java;
+using Org.Apache.REEF.Driver.Context;
 using Org.Apache.REEF.Driver.Evaluator;
 using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Implementations.Configuration;
@@ -69,6 +70,14 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
         [DataMember]
         private IAllocatedEvaluaotrClr2Java Clr2Java { get; set; }
 
+        public void SubmitTask(IConfiguration taskConfiguration)
+        {
+            var contextConfiguration =
+                ContextConfiguration.ConfigurationModule.Set(ContextConfiguration.Identifier, "RootContext_" + this.Id)
+                    .Build();
+            SubmitContextAndTask(contextConfiguration, taskConfiguration);
+
+        }
         public void SubmitContext(IConfiguration contextConfiguration)
         {
             LOGGER.Log(Level.Info, "AllocatedEvaluator::SubmitContext");

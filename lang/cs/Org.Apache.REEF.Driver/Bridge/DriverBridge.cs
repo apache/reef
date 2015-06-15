@@ -31,6 +31,7 @@ using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Wake.Time.Event;
 using Org.Apache.REEF.Common.Evaluator.Parameters;
+using Org.Apache.REEF.Driver.Bridge.Events;
 
 namespace Org.Apache.REEF.Driver.Bridge
 {
@@ -70,9 +71,9 @@ namespace Org.Apache.REEF.Driver.Bridge
 
         private static ClrSystemHandler<StartTime> _driverRestartSubscriber;
 
-        private readonly ISet<IObserver<DateTime>> _driverStartHandlers;
+        private readonly ISet<IObserver<IDriverStarted>> _driverStartHandlers;
 
-        private readonly IObserver<StartTime> _driverRestartHandler; 
+        private readonly IObserver<StartTime> _legacyDriverRestartHandler;
 
         private readonly ISet<IObserver<IEvaluatorRequestor>> _evaluatorRequestHandlers;
 
@@ -110,8 +111,9 @@ namespace Org.Apache.REEF.Driver.Bridge
 
         [Inject]
         public DriverBridge(
-            [Parameter(Value = typeof(DriverBridgeConfigurationOptions.DriverStartHandlers))] ISet<IObserver<DateTime>> driverStartHandlers,
-            [Parameter(Value = typeof(DriverBridgeConfigurationOptions.DriverRestartHandler))] IObserver<StartTime> driverRestartHandler,
+            [Parameter(Value = typeof(DriverBridgeConfigurationOptions.DriverStartedHandlers))] ISet<IObserver<IDriverStarted>> driverStartHandlers,
+            [Parameter(Value = typeof(DriverBridgeConfigurationOptions.DriverRestartHandler))] IObserver<StartTime> legacyDriverRestartHandler,
+            [Parameter(Value = typeof(DriverBridgeConfigurationOptions.DriverRestartedHandler))] IObserver<IDriverRestarted> driverRestartedHandler,
             [Parameter(Value = typeof(DriverBridgeConfigurationOptions.EvaluatorRequestHandlers))] ISet<IObserver<IEvaluatorRequestor>> evaluatorRequestHandlers,
             [Parameter(Value = typeof(DriverBridgeConfigurationOptions.AllocatedEvaluatorHandlers))] ISet<IObserver<IAllocatedEvaluator>> allocatedEvaluatorHandlers,
             [Parameter(Value = typeof(DriverBridgeConfigurationOptions.ActiveContextHandlers))] ISet<IObserver<IActiveContext>> activeContextHandlers,
@@ -163,7 +165,7 @@ namespace Org.Apache.REEF.Driver.Bridge
             _closedContextHandlers = closedContextHandlers;
             _failedContextHandlers = failedContextHandlers;
             _contextMessageHandlers = contextMessageHandlers;
-            _driverRestartHandler = driverRestartHandler;
+            _legacyDriverRestartHandler = new DriverRestartHandlerWrapper(legacyDriverRestartHandler, driverRestartedHandler);
             _driverRestartActiveContextHandlers = driverRestartActiveContextHandlers;
             _driverRestartRunningTaskHandlers = driverRestartRunningTaskHandlers;
             _httpServerHandler = httpServerHandler;
@@ -191,9 +193,9 @@ namespace Org.Apache.REEF.Driver.Bridge
         {
             ulong[] handlers = Enumerable.Repeat(Constants.NullHandler, Constants.HandlersNumber).ToArray();
 
-            // subscribe to StartTime event for driver restart         
-            _driverRestartSubscriber.Subscribe(_driverRestartHandler);
-            _logger.Log(Level.Info, "subscribed to Driver restart handler: " + _driverRestartHandler);
+            // subscribe to StartTime event for driver restart
+            _driverRestartSubscriber.Subscribe(_legacyDriverRestartHandler);
+            _logger.Log(Level.Info, "subscribed to Driver restart handler: " + _legacyDriverRestartHandler);
             handlers[Constants.Handlers[Constants.DriverRestartHandler]] = ClrHandlerHelper.CreateHandler(_driverRestartSubscriber);
 
             // subscribe to Allocated Evaluator
@@ -331,9 +333,10 @@ namespace Org.Apache.REEF.Driver.Bridge
         /// </summary>
         internal void StartHandlersOnNext(DateTime startTime)
         {
+            var driverStarted = new DriverStarted(startTime);
             foreach (var handler in _driverStartHandlers)
             {
-                handler.OnNext(startTime);
+                handler.OnNext(driverStarted);
                 _logger.Log(Level.Info, "called OnDriverStart handler: " + handler);
             }
         }

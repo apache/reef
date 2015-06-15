@@ -27,7 +27,7 @@ namespace Org.Apache.REEF.Driver.Evaluator
     /// <summary>
     /// Represents an Evaluator that is allocated, but is not running yet.
     /// </summary>
-    public interface IAllocatedEvaluator : IDisposable, IIdentifiable, IContextSubmittable, IContextAndTaskSubmittable
+    public interface IAllocatedEvaluator : IDisposable, IIdentifiable, IContextSubmittable, IContextAndTaskSubmittable, ITaskSubmittable
     {
         EvaluatorType Type { get; set; }
 
