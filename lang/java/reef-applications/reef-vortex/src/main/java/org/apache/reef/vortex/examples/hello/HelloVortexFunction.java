@@ -16,7 +16,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.reef.vortex.examples.hello;
+
+import org.apache.reef.vortex.api.VortexFunction;
+
+import java.io.Serializable;
+
 /**
- * Vortex, a distributed runtime that makes efficient use of unreliable resources.
+ * Prints to stdout.
  */
-package org.apache.reef.vortex;
+final class HelloVortexFunction implements VortexFunction {
+  /**
+   * Prints to stdout.
+   */
+  @Override
+  public Serializable call(final Serializable serializable) throws Exception {
+    System.out.println("Hello, Vortex!");
+    return null;
+  }
+}

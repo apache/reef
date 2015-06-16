@@ -16,7 +16,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-/**
- * Vortex, a distributed runtime that makes efficient use of unreliable resources.
- */
-package org.apache.reef.vortex;
+package org.apache.reef.tests.applications;
+
+import org.apache.reef.tests.applications.vortex.VortexTestSuite;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
+
+@RunWith(Suite.class)
+@Suite.SuiteClasses({
+    VortexTestSuite.class
+    })
+public final class ApplicationTestSuite {
+}

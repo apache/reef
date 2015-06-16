@@ -16,7 +16,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.reef.vortex.examples.addone;
+
+import org.apache.reef.vortex.api.VortexFunction;
+
 /**
- * Vortex, a distributed runtime that makes efficient use of unreliable resources.
+ * Outputs input + 1.
  */
-package org.apache.reef.vortex;
+final class AddOneFunction implements VortexFunction<Integer, Integer> {
+  /**
+   * Outputs input + 1.
+   */
+  @Override
+  public Integer call(final Integer input) throws Exception {
+    return input + 1;
+  }
+}

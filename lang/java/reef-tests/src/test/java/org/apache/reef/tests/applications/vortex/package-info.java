@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * Vortex, a distributed runtime that makes efficient use of unreliable resources.
+ * Tests for Vortex.
  */
-package org.apache.reef.vortex;
+package org.apache.reef.tests.applications.vortex;

@@ -16,7 +16,27 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.reef.vortex.common;
+
+import org.apache.reef.annotations.Unstable;
+
+import java.io.Serializable;
+
 /**
- * Vortex, a distributed runtime that makes efficient use of unreliable resources.
+ * Worker -> Master protocol.
  */
-package org.apache.reef.vortex;
+@Unstable
+public interface WorkerReport extends Serializable {
+  /**
+   * Type of WorkerReport.
+   */
+  enum WorkerReportType {
+    TaskletResult,
+    TaskletFailure
+  }
+
+  /**
+   * @return the type of this WorkerReport.
+   */
+  WorkerReportType getType();
+}

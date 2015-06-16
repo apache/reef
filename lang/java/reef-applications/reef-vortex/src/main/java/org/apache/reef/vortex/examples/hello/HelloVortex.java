@@ -16,7 +16,21 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.reef.vortex.examples.hello;
+
+import org.apache.reef.vortex.driver.VortexLauncher;
+
 /**
- * Vortex, a distributed runtime that makes efficient use of unreliable resources.
+ * User's main function.
  */
-package org.apache.reef.vortex;
+final class HelloVortex {
+  private HelloVortex() {
+  }
+
+  /**
+   * Launch the vortex job, passing appropriate arguments.
+   */
+  public static void main(final String[] args) {
+    VortexLauncher.launchLocal("Vortex_Example_HelloVortex", HelloVortexStart.class, 1, 1024, 1);
+  }
+}

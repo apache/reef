@@ -16,7 +16,36 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.reef.vortex.driver;
+
+import net.jcip.annotations.ThreadSafe;
+import org.apache.reef.annotations.audience.DriverSide;
+
+import javax.inject.Inject;
+import java.util.concurrent.BlockingDeque;
+import java.util.concurrent.LinkedBlockingDeque;
+
 /**
- * Vortex, a distributed runtime that makes efficient use of unreliable resources.
+ * Keep tracks of all pending tasklets.
  */
-package org.apache.reef.vortex;
+@ThreadSafe
+@DriverSide
+final class PendingTasklets {
+  private final BlockingDeque<Tasklet> pendingTasklets = new LinkedBlockingDeque<>();
+
+  @Inject
+  PendingTasklets() {
+  }
+
+  void addLast(final Tasklet tasklet) {
+    pendingTasklets.addLast(tasklet);
+  }
+
+  void addFirst(final Tasklet tasklet) {
+    pendingTasklets.addFirst(tasklet);
+  }
+
+  Tasklet takeFirst() throws InterruptedException {
+    return pendingTasklets.takeFirst();
+  }
+}

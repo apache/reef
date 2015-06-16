@@ -16,7 +16,21 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.reef.vortex.examples.addone;
+
+import org.apache.reef.vortex.driver.VortexLauncher;
+
 /**
- * Vortex, a distributed runtime that makes efficient use of unreliable resources.
+ * User's main function.
  */
-package org.apache.reef.vortex;
+final class AddOne {
+  private AddOne() {
+  }
+
+  /**
+   * Launch the vortex job, passing appropriate arguments.
+   */
+  public static void main(final String[] args) {
+    VortexLauncher.launchLocal("Vortex_Example_AddOne", AddOneStart.class, 2, 1024, 4);
+  }
+}

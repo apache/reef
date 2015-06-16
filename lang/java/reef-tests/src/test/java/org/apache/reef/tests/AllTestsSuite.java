@@ -18,6 +18,7 @@
  */
 package org.apache.reef.tests;
 
+import org.apache.reef.tests.applications.ApplicationTestSuite;
 import org.apache.reef.tests.close_eval.CloseEvaluatorTest;
 import org.apache.reef.tests.configurationproviders.ConfigurationProviderTest;
 import org.apache.reef.tests.driver.DriverTest;
@@ -50,7 +51,8 @@ import org.junit.runners.Suite;
     CloseEvaluatorTest.class,
     EvaluatorFailureTest.class,
     ExamplesTestSuite.class,
-    ConfigurationProviderTest.class
+    ConfigurationProviderTest.class,
+    ApplicationTestSuite.class
     })
 public final class AllTestsSuite {
 }

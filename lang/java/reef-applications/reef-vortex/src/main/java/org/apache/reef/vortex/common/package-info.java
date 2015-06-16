@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * Vortex, a distributed runtime that makes efficient use of unreliable resources.
+ * Vortex Code used both in Vortex Driver and Vortex Evaluator.
  */
-package org.apache.reef.vortex;
+package org.apache.reef.vortex.common;
