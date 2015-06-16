@@ -378,6 +378,8 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
       case RUNNING:
       case SUSPEND:
         break;
+      default:
+        throw new RuntimeException("Unknown state: " + message.getState());
     }
   }
 

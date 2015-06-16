@@ -110,6 +110,8 @@ public final class Driver {
                 .set(TaskConfiguration.TASK, FailTaskClose.class)
                 .set(TaskConfiguration.ON_CLOSE, FailTaskClose.class);
             break;
+          default:
+            break;
         }
 
         eval.submitContextAndTask(contextConfig, taskConfig.build());
@@ -146,6 +148,8 @@ public final class Driver {
         case "FailTaskClose":
           LOG.log(Level.INFO, "TaskRuntime: Stop/Close: {0}", task);
           task.close();
+          break;
+        default:
           break;
       }
     }

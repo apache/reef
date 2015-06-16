@@ -182,8 +182,9 @@ public final class TaskStatus {
         return ReefServiceProtos.State.FAILED;
       case KILLED:
         return ReefServiceProtos.State.KILLED;
+      default:
+        throw new RuntimeException("Unknown state: " + this.state);
     }
-    throw new RuntimeException("Unknown state: " + this.state);
   }
 
   void setException(final Throwable throwable) {
