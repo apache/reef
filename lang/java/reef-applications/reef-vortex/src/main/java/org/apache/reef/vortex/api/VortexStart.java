@@ -16,7 +16,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.reef.vortex.api;
+
+import org.apache.reef.annotations.Unstable;
+
 /**
- * A distributed runtime that makes efficient use of unreliable resources.
+ * The starting point of Vortex user thread.
  */
-package org.apache.reef.vortex;
+@Unstable
+public interface VortexStart {
+  /**
+   * Implement this method, using VortexThreadPool to run jobs on Vortex.
+   * Your implementation of this interface will be instantiated by Tang
+   * and this method will be called upon the start of REEF Driver.
+   */
+  void start(final VortexThreadPool vortexThreadPool);
+}

@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * A distributed runtime that makes efficient use of unreliable resources.
+ * Code that runs as part of REEF Driver.
  */
-package org.apache.reef.vortex;
+package org.apache.reef.vortex.driver;

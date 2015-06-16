@@ -1,0 +1,97 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+package org.apache.reef.vortex.api;
+
+import org.apache.reef.annotations.Unstable;
+
+import java.util.concurrent.*;
+
+/**
+ * The interface between user code and submitted task.
+ * TODO[REEF-505]: Callback features for VortexFuture.
+ */
+@Unstable
+public class VortexFuture<TOutput> implements Future {
+  private TOutput userResult;
+  private Exception userException;
+  private final CountDownLatch countDownLatch = new CountDownLatch(1);
+
+  /**
+   * Called by VortexMaster to let the user know that the task completed.
+   */
+  public void completed(final TOutput result) {
+    this.userResult = result;
+    this.countDownLatch.countDown();
+  }
+
+  /**
+   * Called by VortexMaster to let the user know that the task threw an exception.
+   */
+  public void threwException(final Exception exception) {
+    this.userException = exception;
+    this.countDownLatch.countDown();
+  }
+
+  /**
+   * TODO[REEF-502]: Support Vortex Tasklet(s) cancellation by user.
+   */
+  @Override
+  public boolean cancel(final boolean mayInterruptIfRunning) {
+    throw new UnsupportedOperationException("Cancel not yet supported");
+  }
+
+  /**
+   * TODO[REEF-502]: Support Vortex Tasklet(s) cancellation by user.
+   */
+  @Override
+  public boolean isCancelled() {
+    throw new UnsupportedOperationException("Cancel not yet supported");
+  }
+
+  @Override
+  public boolean isDone() {
+    return countDownLatch.getCount() == 0;
+  }
+
+  @Override
+  public TOutput get() throws InterruptedException, ExecutionException {
+    countDownLatch.await();
+    if (userResult != null) {
+      return userResult;
+    } else {
+      assert(userException != null);
+      throw new ExecutionException(userException);
+    }
+  }
+
+  @Override
+  public TOutput get(final long timeout, final TimeUnit unit)
+      throws InterruptedException, ExecutionException, TimeoutException {
+    if (!countDownLatch.await(timeout, unit)) {
+      throw new TimeoutException();
+    }
+
+    if (userResult != null) {
+      return userResult;
+    } else {
+      assert(userException != null);
+      throw new ExecutionException(userException);
+    }
+  }
+}

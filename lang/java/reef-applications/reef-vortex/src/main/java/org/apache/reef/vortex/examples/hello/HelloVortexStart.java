@@ -16,7 +16,30 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.reef.vortex.examples.hello;
+
+import org.apache.reef.vortex.api.VortexFuture;
+import org.apache.reef.vortex.api.VortexStart;
+import org.apache.reef.vortex.api.VortexThreadPool;
+
+import javax.inject.Inject;
+import java.util.concurrent.ExecutionException;
+
 /**
- * A distributed runtime that makes efficient use of unreliable resources.
+ * HelloVortex User Code Example.
  */
-package org.apache.reef.vortex;
+final class HelloVortexStart implements VortexStart {
+  @Inject
+  public HelloVortexStart() {
+  }
+
+  @Override
+  public void start(final VortexThreadPool vortexThreadPool) {
+    final VortexFuture future = vortexThreadPool.submit(new HelloVortexFunction(), null);
+    try {
+      future.get();
+    } catch (InterruptedException | ExecutionException e) {
+      throw new RuntimeException(e);
+    }
+  }
+}

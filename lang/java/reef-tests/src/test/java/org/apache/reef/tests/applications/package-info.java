@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * A distributed runtime that makes efficient use of unreliable resources.
+ * Tests for REEF Applications.
  */
-package org.apache.reef.vortex;
+package org.apache.reef.tests.applications;

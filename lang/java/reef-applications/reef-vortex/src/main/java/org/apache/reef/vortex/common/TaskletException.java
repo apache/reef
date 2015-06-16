@@ -16,7 +16,33 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.reef.vortex.common;
+
+import org.apache.reef.annotations.Unstable;
+
 /**
- * A distributed runtime that makes efficient use of unreliable resources.
+ * Report of a tasklet exception.
  */
-package org.apache.reef.vortex;
+@Unstable
+public class TaskletException implements WorkerReport {
+  private final int taskletId;
+  private final Exception exception;
+
+  public TaskletException(final int taskletId, final Exception exception) {
+    this.taskletId = taskletId;
+    this.exception = exception;
+  }
+
+  public int getTaskletId() {
+    return taskletId;
+  }
+
+  public Exception getException() {
+    return exception;
+  }
+
+  @Override
+  public WorkerReportType getType() {
+    return WorkerReportType.TaskletException;
+  }
+}

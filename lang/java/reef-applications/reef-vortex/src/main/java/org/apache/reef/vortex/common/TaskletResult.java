@@ -16,7 +16,35 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.reef.vortex.common;
+
+import org.apache.reef.annotations.Unstable;
+
+import java.io.Serializable;
+
 /**
- * A distributed runtime that makes efficient use of unreliable resources.
+ * Report of a tasklet execution result.
  */
-package org.apache.reef.vortex;
+@Unstable
+public class TaskletResult<TOutput extends Serializable> implements WorkerReport {
+  private final int taskletId;
+  private final TOutput result;
+
+  public TaskletResult(final int taskletId, final TOutput result) {
+    this.taskletId = taskletId;
+    this.result = result;
+  }
+
+  public int getTaskletId() {
+    return taskletId;
+  }
+
+  public TOutput getResult() {
+    return result;
+  }
+
+  @Override
+  public WorkerReportType getType() {
+    return WorkerReportType.TaskletResult;
+  }
+}

@@ -16,7 +16,28 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.reef.vortex.api;
+
+import org.apache.reef.annotations.Unstable;
+import org.apache.reef.vortex.driver.VortexMaster;
+
+import javax.inject.Inject;
+import java.io.Serializable;
+
 /**
- * A distributed runtime that makes efficient use of unreliable resources.
+ * Distributed thread pool.
  */
-package org.apache.reef.vortex;
+@Unstable
+public class VortexThreadPool {
+  private final VortexMaster vortexMaster;
+
+  @Inject
+  public VortexThreadPool(final VortexMaster vortexMaster) {
+    this.vortexMaster = vortexMaster;
+  }
+
+  public <TInput extends Serializable, TOutput extends Serializable> VortexFuture<TOutput>
+      submit(final VortexFunction<TInput, TOutput> function, final TInput input) {
+    return vortexMaster.enqueueTasklet(function, input);
+  }
+}

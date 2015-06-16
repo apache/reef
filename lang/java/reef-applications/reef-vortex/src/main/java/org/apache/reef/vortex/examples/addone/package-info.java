@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * A distributed runtime that makes efficient use of unreliable resources.
+ * A Simple vector calculation example.
  */
-package org.apache.reef.vortex;
+package org.apache.reef.vortex.examples.addone;
