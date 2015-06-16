@@ -59,8 +59,6 @@ final class NumberedSplit<E> implements Comparable<NumberedSplit<E>> {
     if (this.index < o.index) {
       return -1;
     }
-    else {
-      return 1;
-    }
+    return 1;
   }
 }
