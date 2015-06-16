@@ -313,13 +313,18 @@ namespace Org.Apache.REEF.Tang.Formats
 
         private IConfiguration AddFromAvro(IConfigurationBuilder cb, AvroConfiguration avroConfiguration)
         {
+            if (avroConfiguration == null)
+            {
+                return null;
+            }
+
             IList<KeyValuePair<string, string>> settings = new List<KeyValuePair<string, string>>();
 
             foreach (ConfigurationEntry e in avroConfiguration.Bindings)
             {
                 settings.Add(new KeyValuePair<string, string>(e.key, e.value));
             }
-            ConfigurationFile.ProcessConfigData(cb, settings);   //TODO
+            ConfigurationFile.ProcessConfigData(cb, settings); //TODO
             return cb.Build();
         }
     }

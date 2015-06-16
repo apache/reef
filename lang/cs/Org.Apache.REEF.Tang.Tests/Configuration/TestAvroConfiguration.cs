@@ -32,23 +32,50 @@ namespace Org.Apache.REEF.Tang.Tests.Configuration
     [TestClass]
     public class TestAvroConfiguration
     {
+        private static IConfigurationSerializer _serializer;
+
+        [ClassInitialize]
+        public static void ClassSetup(TestContext context)
+        {
+            _serializer = TangFactory.GetTang().NewInjector().GetInstance<IConfigurationSerializer>();
+        }
+
         [TestMethod]
         public void TestFromJsonString()
         {
-            IConfigurationSerializer serializerImpl = (IConfigurationSerializer)TangFactory.GetTang().NewInjector().GetInstance(typeof(IConfigurationSerializer));
-
             ICsConfigurationBuilder cb = TangFactory.GetTang().NewConfigurationBuilder();
             cb.BindImplementation(GenericType<ITask>.Class, GenericType<HelloTask>.Class);
             IConfiguration conf = cb.Build();
-            string jsonStr = serializerImpl.ToString(conf);
+            string jsonStr = _serializer.ToString(conf);
 
-            IConfiguration c = serializerImpl.FromString(jsonStr);
+            IConfiguration c = _serializer.FromString(jsonStr);
             Assert.IsNotNull(c);
 
-            string jsonStr2 = serializerImpl.ToString(c);
+            string jsonStr2 = _serializer.ToString(c);
 
-            IConfiguration c1 = serializerImpl.FromString(jsonStr2);
+            IConfiguration c1 = _serializer.FromString(jsonStr2);
             Assert.IsNotNull(c1);
+        }
+
+        [TestMethod]
+        public void TestAddFromAvro()
+        {
+            var conf1 = TangFactory.GetTang().NewConfigurationBuilder()
+            .BindImplementation(GenericType<ITask>.Class, GenericType<HelloTask>.Class)
+            .BindNamedParameter<TaskConfigurationOptions.Identifier, string>(
+                GenericType<TaskConfigurationOptions.Identifier>.Class, "Hello Task")
+            .Build();
+
+            var s = (AvroConfigurationSerializer)_serializer;
+            var c = s.FromAvro(s.ToAvroConfiguration(conf1));
+            Assert.IsNotNull(c);
+        }
+
+        [TestMethod]
+        public void TestAddFromAvroWithNull()
+        {
+            var c = ((AvroConfigurationSerializer)_serializer).FromAvro(null);
+            Assert.IsNull(c);
         }
 
         private AvroConfiguration ToAvroConfiguration()

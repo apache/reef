@@ -189,10 +189,11 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
         }
 
         [TestMethod]
-        public void TestResolveDependencies() 
+        public void TestResolveDependencies()
         {
-            ns.GetNode(typeof(SimpleConstructors).AssemblyQualifiedName);
-            Assert.IsNotNull(ns.GetNode(typeof(string).AssemblyQualifiedName));
+            ns = TangFactory.GetTang().GetClassHierarchy(new string[] { FileNames.Examples });
+            var node = ns.GetNode(typeof(SimpleConstructors).AssemblyQualifiedName);
+            Assert.AreEqual(node.GetFullName(), ReflectionUtilities.GetAssemblyQualifiedName(typeof(SimpleConstructors)));
         }
 
         [TestMethod]
