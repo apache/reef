@@ -80,6 +80,12 @@ public final class ResourceManagerStatus implements EventHandler<RuntimeStatusEv
       case RUNNING:
         this.onRMRunning(runtimeStatusEvent);
         break;
+      case INIT:
+      case SUSPEND:
+      case KILLED:
+        break;
+      default:
+        throw new RuntimeException("Unknown state: " + newState);
     }
   }
 

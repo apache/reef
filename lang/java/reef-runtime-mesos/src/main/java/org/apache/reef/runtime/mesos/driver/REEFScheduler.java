@@ -434,9 +434,8 @@ final class REEFScheduler implements Scheduler {
 
   private int getMemory(final Offer offer) {
     for (final Resource resource : offer.getResourcesList()) {
-      switch (resource.getName()) {
-        case "mem":
-          return (int)resource.getScalar().getValue();
+      if (resource.getName().equals("mem")) {
+        return (int)resource.getScalar().getValue();
       }
     }
     return 0;
@@ -444,9 +443,8 @@ final class REEFScheduler implements Scheduler {
 
   private int getCpu(final Offer offer) {
     for (final Resource resource : offer.getResourcesList()) {
-      switch (resource.getName()) {
-        case "cpus":
-          return (int)resource.getScalar().getValue();
+      if (resource.getName().equals("cpus")) {
+        return (int)resource.getScalar().getValue();
       }
     }
     return 0;
