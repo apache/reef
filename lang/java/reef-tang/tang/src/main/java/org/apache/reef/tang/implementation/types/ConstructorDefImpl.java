@@ -23,6 +23,8 @@ import org.apache.reef.tang.types.ClassNode;
 import org.apache.reef.tang.types.ConstructorArg;
 import org.apache.reef.tang.types.ConstructorDef;
 
+import java.util.Arrays;
+
 public class ConstructorDefImpl<T> implements ConstructorDef<T> {
   private final ConstructorArg[] args;
   private final String className;
@@ -147,5 +149,12 @@ public class ConstructorDefImpl<T> implements ConstructorDef<T> {
   @Override
   public int compareTo(ConstructorDef<?> o) {
     return toString().compareTo(o.toString());
+  }
+
+  @Override
+  public int hashCode() {
+    ConstructorArg[] argsSort = getArgs().clone();
+    Arrays.sort(argsSort);
+    return Arrays.hashCode(argsSort);
   }
 }

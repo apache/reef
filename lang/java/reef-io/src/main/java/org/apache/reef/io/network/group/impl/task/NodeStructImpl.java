@@ -93,6 +93,10 @@ public abstract class NodeStructImpl implements NodeStruct {
     }
   }
 
-  public abstract boolean checkDead(final GroupCommunicationMessage gcm);
+  @Override
+  public int hashCode() {
+    return 31 * id.hashCode() + version;
+  }
 
+  public abstract boolean checkDead(final GroupCommunicationMessage gcm);
 }
