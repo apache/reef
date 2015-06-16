@@ -267,7 +267,7 @@ public class FlatTopology implements Topology {
     final EventHandler<List<TaskNode>> topoUpdateWaitHandler = new TopologyUpdateWaitHandler(senderStage, groupName,
         operName, driverId, 0,
         dstId, version,
-        getQualifiedName());
+        getQualifiedName(), TopologySerializer.encode(root));
     final EStage<List<TaskNode>> nodeTopologyUpdateWaitStage = new SingleThreadStage<>("NodeTopologyUpdateWaitStage",
         topoUpdateWaitHandler,
         nodes.size());

@@ -26,6 +26,7 @@ import org.apache.reef.io.serialization.Codec;
 import org.apache.reef.tang.annotations.Name;
 
 import java.util.Collection;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -65,9 +66,13 @@ public interface OperatorTopologyStruct {
 
   void sendToParent(byte[] data, ReefNetworkGroupCommProtos.GroupCommMessage.Type msgType);
 
-  byte[] recvFromParent();
+  byte[] recvFromParent(ReefNetworkGroupCommProtos.GroupCommMessage.Type msgType);
 
   void sendToChildren(byte[] data, ReefNetworkGroupCommProtos.GroupCommMessage.Type msgType);
 
+  void sendToChildren(Map<String, byte[]> dataMap, ReefNetworkGroupCommProtos.GroupCommMessage.Type msgType);
+
   <T> T recvFromChildren(ReduceFunction<T> redFunc, Codec<T> dataCodec);
+
+  byte[] recvFromChildren();
 }

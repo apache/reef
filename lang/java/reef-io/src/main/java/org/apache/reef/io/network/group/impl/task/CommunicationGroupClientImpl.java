@@ -21,9 +21,9 @@ package org.apache.reef.io.network.group.impl.task;
 import org.apache.reef.driver.parameters.DriverIdentifier;
 import org.apache.reef.driver.task.TaskConfigurationOptions;
 import org.apache.reef.exception.evaluator.NetworkException;
-import org.apache.reef.io.network.group.api.operators.Broadcast;
-import org.apache.reef.io.network.group.api.operators.GroupCommOperator;
-import org.apache.reef.io.network.group.api.operators.Reduce;
+import org.apache.reef.io.network.group.api.operators.*;
+import org.apache.reef.io.network.group.impl.driver.TopologySimpleNode;
+import org.apache.reef.io.network.group.impl.driver.TopologySerializer;
 import org.apache.reef.io.network.impl.NetworkService;
 import org.apache.reef.io.network.group.api.GroupChanges;
 import org.apache.reef.io.network.group.api.task.CommGroupNetworkHandler;
@@ -38,6 +38,7 @@ import org.apache.reef.io.network.group.impl.config.parameters.SerializedOperCon
 import org.apache.reef.io.network.group.impl.operators.Sender;
 import org.apache.reef.io.network.group.impl.utils.Utils;
 import org.apache.reef.io.network.proto.ReefNetworkGroupCommProtos;
+import org.apache.reef.io.network.util.Pair;
 import org.apache.reef.io.serialization.Codec;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Injector;
@@ -47,6 +48,8 @@ import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.tang.formats.ConfigurationSerializer;
 import org.apache.reef.wake.EStage;
+import org.apache.reef.wake.Identifier;
+import org.apache.reef.wake.IdentifierFactory;
 import org.apache.reef.wake.impl.ThreadPoolStage;
 
 import javax.inject.Inject;
@@ -65,6 +68,10 @@ public class CommunicationGroupClientImpl implements CommunicationGroupServiceCl
   private final Sender sender;
 
   private final String taskId;
+  private final boolean isScatterSender;
+  private final IdentifierFactory identifierFactory;
+  private List<Identifier> activeSlaveTasks;
+  private TopologySimpleNode topologySimpleNodeRoot;
 
   private final String driverId;
 
@@ -83,6 +90,7 @@ public class CommunicationGroupClientImpl implements CommunicationGroupServiceCl
     this.taskId = taskId;
     this.driverId = driverId;
     LOG.finest(groupName + " has GroupCommHandler-" + groupCommNetworkHandler.toString());
+    this.identifierFactory = netService.getIdentifierFactory();
     this.groupName = Utils.getClass(groupName);
     this.groupCommNetworkHandler = groupCommNetworkHandler;
     this.sender = new Sender(netService);
@@ -99,6 +107,7 @@ public class CommunicationGroupClientImpl implements CommunicationGroupServiceCl
       this.commGroupNetworkHandler = Tang.Factory.getTang().newInjector().getInstance(CommGroupNetworkHandler.class);
       this.groupCommNetworkHandler.register(this.groupName, commGroupNetworkHandler);
 
+      boolean operatorIsScatterSender = false;
       for (final String operatorConfigStr : operatorConfigs) {
 
         final Configuration operatorConfig = configSerializer.fromString(operatorConfigStr);
@@ -114,7 +123,13 @@ public class CommunicationGroupClientImpl implements CommunicationGroupServiceCl
         final String operName = injector.getNamedInstance(OperatorName.class);
         this.operators.put(Utils.getClass(operName), operator);
         LOG.finest(operName + " has CommGroupHandler-" + commGroupNetworkHandler.toString());
+
+        if (!operatorIsScatterSender && operator instanceof Scatter.Sender) {
+          LOG.fine(operName + " is a scatter sender. Will keep track of active slave tasks.");
+          operatorIsScatterSender = true;
+        }
       }
+      this.isScatterSender = operatorIsScatterSender;
     } catch (final InjectionException | IOException e) {
       throw new RuntimeException("Unable to deserialize operator config", e);
     }
@@ -147,6 +162,33 @@ public class CommunicationGroupClientImpl implements CommunicationGroupServiceCl
   }
 
   @Override
+  public Scatter.Sender getScatterSender(final Class<? extends Name<String>> operatorName) {
+    LOG.entering("CommunicationGroupClientImpl", "getScatterSender", new Object[]{getQualifiedName(),
+        Utils.simpleName(operatorName)});
+    final GroupCommOperator op = operators.get(operatorName);
+    if (!(op instanceof Scatter.Sender)) {
+      throw new RuntimeException("Configured operator is not a scatter sender");
+    }
+    commGroupNetworkHandler.addTopologyElement(operatorName);
+    LOG.exiting("CommunicationGroupClientImpl", "getScatterSender", getQualifiedName() + op);
+    return (Scatter.Sender) op;
+  }
+
+  @Override
+  public Gather.Receiver getGatherReceiver(final Class<? extends Name<String>> operatorName) {
+    LOG.entering("CommunicationGroupClientImpl", "getGatherReceiver", new Object[]{getQualifiedName(),
+        Utils.simpleName(operatorName)});
+    final GroupCommOperator op = operators.get(operatorName);
+    if (!(op instanceof Gather.Receiver)) {
+      throw new RuntimeException("Configured operator is not a gather receiver");
+    }
+    commGroupNetworkHandler.addTopologyElement(operatorName);
+    LOG.exiting("CommunicationGroupClientImpl", "getGatherReceiver", getQualifiedName() + op);
+    return (Gather.Receiver) op;
+  }
+
+
+  @Override
   public Broadcast.Receiver getBroadcastReceiver(final Class<? extends Name<String>> operatorName) {
     LOG.entering("CommunicationGroupClientImpl", "getBroadcastReceiver", new Object[]{getQualifiedName(),
         Utils.simpleName(operatorName)});
@@ -173,6 +215,32 @@ public class CommunicationGroupClientImpl implements CommunicationGroupServiceCl
   }
 
   @Override
+  public Scatter.Receiver getScatterReceiver(final Class<? extends Name<String>> operatorName) {
+    LOG.entering("CommunicationGroupClientImpl", "getScatterReceiver", new Object[]{getQualifiedName(),
+        Utils.simpleName(operatorName)});
+    final GroupCommOperator op = operators.get(operatorName);
+    if (!(op instanceof Scatter.Receiver)) {
+      throw new RuntimeException("Configured operator is not a scatter receiver");
+    }
+    commGroupNetworkHandler.addTopologyElement(operatorName);
+    LOG.exiting("CommunicationGroupClientImpl", "getScatterReceiver", getQualifiedName() + op);
+    return (Scatter.Receiver) op;
+  }
+
+  @Override
+  public Gather.Sender getGatherSender(final Class<? extends Name<String>> operatorName) {
+    LOG.entering("CommunicationGroupClientImpl", "getGatherSender", new Object[]{getQualifiedName(),
+        Utils.simpleName(operatorName)});
+    final GroupCommOperator op = operators.get(operatorName);
+    if (!(op instanceof Gather.Sender)) {
+      throw new RuntimeException("Configured operator is not a gather sender");
+    }
+    commGroupNetworkHandler.addTopologyElement(operatorName);
+    LOG.exiting("CommunicationGroupClientImpl", "getGatherSender", getQualifiedName() + op);
+    return (Gather.Sender) op;
+  }
+
+  @Override
   public void initialize() {
     LOG.entering("CommunicationGroupClientImpl", "initialize", getQualifiedName());
     if (init.compareAndSet(false, true)) {
@@ -189,6 +257,10 @@ public class CommunicationGroupClientImpl implements CommunicationGroupServiceCl
         initLatch.await();
       } catch (final InterruptedException e) {
         throw new RuntimeException("InterruptedException while waiting for initialization", e);
+      }
+
+      if (isScatterSender) {
+        updateTopology();
       }
 
       if (initHandler.getException() != null) {
@@ -261,8 +333,34 @@ public class CommunicationGroupClientImpl implements CommunicationGroupServiceCl
       do {
         msg = commGroupNetworkHandler.waitForTopologyUpdate(operName);
       } while (!isMsgVersionOk(msg));
+
+      if (isScatterSender) {
+        updateActiveTasks(msg);
+      }
     }
     LOG.exiting("CommunicationGroupClientImpl", "updateTopology", getQualifiedName());
+  }
+
+  private void updateActiveTasks(final GroupCommunicationMessage msg) {
+    LOG.entering("CommunicationGroupClientImpl", "updateActiveTasks", new Object[]{getQualifiedName(), msg});
+
+    final Pair<TopologySimpleNode, List<Identifier>> pair =
+        TopologySerializer.decode(msg.getData()[0], identifierFactory);
+
+    topologySimpleNodeRoot = pair.first;
+
+    activeSlaveTasks = pair.second;
+    // remove myself
+    activeSlaveTasks.remove(identifierFactory.getNewInstance(taskId));
+    // sort the tasks in lexicographical order on task ids
+    Collections.sort(activeSlaveTasks, new Comparator<Identifier>() {
+      @Override
+      public int compare(final Identifier o1, final Identifier o2) {
+        return o1.toString().compareTo(o2.toString());
+      }
+    });
+
+    LOG.exiting("CommunicationGroupClientImpl", "updateActiveTasks", new Object[]{getQualifiedName(), msg});
   }
 
   private boolean isMsgVersionOk(final GroupCommunicationMessage msg) {
@@ -285,6 +383,16 @@ public class CommunicationGroupClientImpl implements CommunicationGroupServiceCl
     } else {
       throw new RuntimeException(getQualifiedName() + "can only deal with versioned msgs");
     }
+  }
+
+  @Override
+  public List<Identifier> getActiveSlaveTasks() {
+    return this.activeSlaveTasks;
+  }
+
+  @Override
+  public TopologySimpleNode getTopologySimpleNodeRoot() {
+    return this.topologySimpleNodeRoot;
   }
 
   private String getQualifiedName() {
