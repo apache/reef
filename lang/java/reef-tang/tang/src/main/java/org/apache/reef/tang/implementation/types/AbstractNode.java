@@ -80,6 +80,11 @@ public abstract class AbstractNode implements Node {
   }
 
   @Override
+  public int hashCode() {
+    return getFullName().hashCode();
+  }
+
+  @Override
   public Node getParent() {
     return parent;
   }
