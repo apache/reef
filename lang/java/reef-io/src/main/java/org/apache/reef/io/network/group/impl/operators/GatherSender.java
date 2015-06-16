@@ -22,8 +22,7 @@ import org.apache.reef.driver.parameters.DriverIdentifier;
 import org.apache.reef.driver.task.TaskConfigurationOptions;
 import org.apache.reef.exception.evaluator.NetworkException;
 import org.apache.reef.io.network.exception.ParentDeadException;
-import org.apache.reef.io.network.group.api.operators.Broadcast;
-import org.apache.reef.io.network.impl.NetworkService;
+import org.apache.reef.io.network.group.api.operators.Gather;
 import org.apache.reef.io.network.group.api.task.CommGroupNetworkHandler;
 import org.apache.reef.io.network.group.api.task.CommunicationGroupServiceClient;
 import org.apache.reef.io.network.group.api.task.OperatorTopology;
@@ -34,6 +33,7 @@ import org.apache.reef.io.network.group.impl.config.parameters.OperatorName;
 import org.apache.reef.io.network.group.impl.config.parameters.TaskVersion;
 import org.apache.reef.io.network.group.impl.task.OperatorTopologyImpl;
 import org.apache.reef.io.network.group.impl.utils.Utils;
+import org.apache.reef.io.network.impl.NetworkService;
 import org.apache.reef.io.network.proto.ReefNetworkGroupCommProtos;
 import org.apache.reef.io.serialization.Codec;
 import org.apache.reef.tang.annotations.Name;
@@ -41,51 +41,45 @@ import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.wake.EventHandler;
 
 import javax.inject.Inject;
-import java.util.Arrays;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
-public class BroadcastReceiver<T> implements Broadcast.Receiver<T>, EventHandler<GroupCommunicationMessage> {
+public class GatherSender<T> implements Gather.Sender<T>, EventHandler<GroupCommunicationMessage> {
 
-  private static final Logger LOG = Logger.getLogger(BroadcastReceiver.class.getName());
+  private static final Logger LOG = Logger.getLogger(GatherSender.class.getName());
 
   private final Class<? extends Name<String>> groupName;
   private final Class<? extends Name<String>> operName;
-  private final CommGroupNetworkHandler commGroupNetworkHandler;
   private final Codec<T> dataCodec;
   private final NetworkService<GroupCommunicationMessage> netService;
-  private final Sender sender;
-
   private final OperatorTopology topology;
-
-  private final AtomicBoolean init = new AtomicBoolean(false);
-
   private final CommunicationGroupServiceClient commGroupClient;
-
+  private final AtomicBoolean init = new AtomicBoolean(false);
   private final int version;
 
   @Inject
-  public BroadcastReceiver(@Parameter(CommunicationGroupName.class) final String groupName,
-                           @Parameter(OperatorName.class) final String operName,
-                           @Parameter(TaskConfigurationOptions.Identifier.class) final String selfId,
-                           @Parameter(DataCodec.class) final Codec<T> dataCodec,
-                           @Parameter(DriverIdentifier.class) final String driverId,
-                           @Parameter(TaskVersion.class) final int version,
-                           final CommGroupNetworkHandler commGroupNetworkHandler,
-                           final NetworkService<GroupCommunicationMessage> netService,
-                           final CommunicationGroupServiceClient commGroupClient) {
-    super();
+  public GatherSender(@Parameter(CommunicationGroupName.class) final String groupName,
+                      @Parameter(OperatorName.class) final String operName,
+                      @Parameter(TaskConfigurationOptions.Identifier.class) final String selfId,
+                      @Parameter(DataCodec.class) final Codec<T> dataCodec,
+                      @Parameter(DriverIdentifier.class) final String driverId,
+                      @Parameter(TaskVersion.class) final int version,
+                      final CommGroupNetworkHandler commGroupNetworkHandler,
+                      final NetworkService<GroupCommunicationMessage> netService,
+                      final CommunicationGroupServiceClient commGroupClient) {
+    LOG.finest(operName + "has CommGroupHandler-" + commGroupNetworkHandler.toString());
     this.version = version;
-    LOG.finest(operName + " has CommGroupHandler-" + commGroupNetworkHandler.toString());
     this.groupName = Utils.getClass(groupName);
     this.operName = Utils.getClass(operName);
     this.dataCodec = dataCodec;
-    this.commGroupNetworkHandler = commGroupNetworkHandler;
     this.netService = netService;
-    this.sender = new Sender(this.netService);
-    this.topology = new OperatorTopologyImpl(this.groupName, this.operName, selfId, driverId, sender, version);
-    this.commGroupNetworkHandler.register(this.operName, this);
+    this.topology = new OperatorTopologyImpl(this.groupName, this.operName,
+                                             selfId, driverId, new Sender(netService), version);
     this.commGroupClient = commGroupClient;
+    commGroupNetworkHandler.register(this.operName, this);
   }
 
   @Override
@@ -110,7 +104,13 @@ public class BroadcastReceiver<T> implements Broadcast.Receiver<T>, EventHandler
 
   @Override
   public String toString() {
-    return "BroadcastReceiver:" + Utils.simpleName(groupName) + ":" + Utils.simpleName(operName) + ":" + version;
+    final StringBuilder sb = new StringBuilder("GatherSender:")
+        .append(Utils.simpleName(groupName))
+        .append(":")
+        .append(Utils.simpleName(operName))
+        .append(":")
+        .append(version);
+    return sb.toString();
   }
 
   @Override
@@ -119,41 +119,38 @@ public class BroadcastReceiver<T> implements Broadcast.Receiver<T>, EventHandler
   }
 
   @Override
-  public T receive() throws NetworkException, InterruptedException {
-    LOG.entering("BroadcastReceiver", "receive", this);
+  public void send(final T myData) throws NetworkException, InterruptedException {
+    LOG.entering("GatherSender", "send", myData);
+    // I am an intermediate node or a leaf.
     LOG.fine("I am " + this);
 
     if (init.compareAndSet(false, true)) {
-      LOG.fine(this + " Communication group initializing");
+      LOG.fine(this + " Communication group initializing.");
       commGroupClient.initialize();
-      LOG.fine(this + " Communication group initialized");
+      LOG.fine(this + " Communication group initialized.");
     }
-    // I am an intermediate node or leaf.
 
-    final T retVal;
-    // Wait for parent to send
-    LOG.fine(this + " Waiting to receive broadcast");
-    final byte[] data;
     try {
-      data = topology.recvFromParent(ReefNetworkGroupCommProtos.GroupCommMessage.Type.Broadcast);
-      // TODO: Should receive the identity element instead of null
-      if (data == null) {
-        LOG.fine(this + " Received null. Perhaps one of my ancestors is dead.");
-        retVal = null;
-      } else {
-        LOG.finest("Using " + dataCodec.getClass().getSimpleName() + " as codec");
-        retVal = dataCodec.decode(data);
-        LOG.finest("Decoded msg successfully");
-        LOG.fine(this + " Received: " + retVal);
-        LOG.finest(this + " Sending to children.");
-      }
+      LOG.finest(this + " Waiting for children.");
+      final byte[] gatheredData = topology.recvFromChildren();
+      final byte[] encodedMyData = dataCodec.encode(myData);
 
-      topology.sendToChildren(data, ReefNetworkGroupCommProtos.GroupCommMessage.Type.Broadcast);
+      try (final ByteArrayOutputStream bstream = new ByteArrayOutputStream();
+           final DataOutputStream dstream = new DataOutputStream(bstream)) {
+        dstream.writeUTF(netService.getMyId().toString());
+        dstream.writeInt(encodedMyData.length);
+        dstream.write(encodedMyData);
+        dstream.write(gatheredData);
+        final byte[] mergedData = bstream.toByteArray();
+
+        LOG.fine(this + " Sending merged value to parent.");
+        topology.sendToParent(mergedData, ReefNetworkGroupCommProtos.GroupCommMessage.Type.Gather);
+      }
     } catch (final ParentDeadException e) {
       throw new RuntimeException("ParentDeadException", e);
+    } catch (final IOException e) {
+      throw new RuntimeException("IOException", e);
     }
-    LOG.exiting("BroadcastReceiver", "receive", Arrays.toString(new Object[]{retVal, this}));
-    return retVal;
+    LOG.exiting("GatherSender", "send");
   }
-
 }

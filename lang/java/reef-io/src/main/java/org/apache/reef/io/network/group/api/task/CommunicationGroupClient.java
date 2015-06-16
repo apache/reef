@@ -20,11 +20,17 @@ package org.apache.reef.io.network.group.api.task;
 
 import org.apache.reef.annotations.audience.TaskSide;
 import org.apache.reef.io.network.group.api.operators.Broadcast;
+import org.apache.reef.io.network.group.api.operators.Gather;
 import org.apache.reef.io.network.group.api.operators.Reduce;
 import org.apache.reef.io.network.group.api.GroupChanges;
+import org.apache.reef.io.network.group.api.operators.Scatter;
+import org.apache.reef.io.network.group.impl.driver.TopologySimpleNode;
 import org.apache.reef.io.network.group.impl.task.CommunicationGroupClientImpl;
 import org.apache.reef.tang.annotations.DefaultImplementation;
 import org.apache.reef.tang.annotations.Name;
+import org.apache.reef.wake.Identifier;
+
+import java.util.List;
 
 /**
  * The Task side interface of a communication group.
@@ -78,10 +84,56 @@ public interface CommunicationGroupClient {
   Reduce.Sender getReduceSender(Class<? extends Name<String>> operatorName);
 
   /**
+   * Return the scatter sender configured on this communication group.
+   * {@code operatorName} is used to specify the scatter sender to return.
+   *
+   * @param operatorName
+   * @return
+   */
+  Scatter.Sender getScatterSender(Class<? extends Name<String>> operatorName);
+
+  /**
+   * Return the scatter receiver configured on this communication group.
+   * {@code operatorName} is used to specify the scatter receiver to return.
+   *
+   * @param operatorName
+   * @return
+   */
+  Scatter.Receiver getScatterReceiver(Class<? extends Name<String>> operatorName);
+
+  /**
+   * Return the gather receiver configured on this communication group.
+   * {@code operatorName} is used to specify the gather receiver to return.
+   *
+   * @param operatorName
+   * @return
+   */
+  Gather.Receiver getGatherReceiver(Class<? extends Name<String>> operatorName);
+
+  /**
+   * Return the gather sender configured on this communication group.
+   * {@code operatorName} is used to specify the gather sender to return.
+   *
+   * @param operatorName
+   * @return
+   */
+  Gather.Sender getGatherSender(Class<? extends Name<String>> operatorName);
+
+  /**
    * @return Changes in topology of this communication group since the last time
    * this method was called
    */
   GroupChanges getTopologyChanges();
+
+  /**
+   * @return list of current active tasks, last updated during updateTopology()
+   */
+  List<Identifier> getActiveSlaveTasks();
+
+  /**
+   * @return root node of simplified topology representation
+   */
+  TopologySimpleNode getTopologySimpleNodeRoot();
 
   /**
    * Asks the driver to update the topology of this communication group. This can

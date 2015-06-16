@@ -19,6 +19,9 @@
 package org.apache.reef.io.network.group.api.operators;
 
 import org.apache.reef.exception.evaluator.NetworkException;
+import org.apache.reef.io.network.group.impl.operators.GatherReceiver;
+import org.apache.reef.io.network.group.impl.operators.GatherSender;
+import org.apache.reef.tang.annotations.DefaultImplementation;
 import org.apache.reef.wake.Identifier;
 
 import java.util.List;
@@ -34,6 +37,7 @@ public interface Gather {
   /**
    * Senders or non-roots.
    */
+  @DefaultImplementation(GatherSender.class)
   interface Sender<T> extends GroupCommOperator {
 
     /**
@@ -45,6 +49,7 @@ public interface Gather {
   /**
    * Receiver or Root.
    */
+  @DefaultImplementation(GatherReceiver.class)
   interface Receiver<T> extends GroupCommOperator {
 
     /**

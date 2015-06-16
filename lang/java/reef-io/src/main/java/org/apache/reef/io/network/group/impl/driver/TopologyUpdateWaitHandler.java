@@ -43,6 +43,7 @@ public class TopologyUpdateWaitHandler implements EventHandler<List<TaskNode>> {
   private final String dstId;
   private final int dstVersion;
   private final String qualifiedName;
+  private final byte[] data;
 
 
   /**
@@ -59,7 +60,7 @@ public class TopologyUpdateWaitHandler implements EventHandler<List<TaskNode>> {
                                    final Class<? extends Name<String>> operName,
                                    final String driverId, final int driverVersion,
                                    final String dstId, final int dstVersion,
-                                   final String qualifiedName) {
+                                   final String qualifiedName, final byte[] data) {
     super();
     this.senderStage = senderStage;
     this.groupName = groupName;
@@ -69,6 +70,7 @@ public class TopologyUpdateWaitHandler implements EventHandler<List<TaskNode>> {
     this.dstId = dstId;
     this.dstVersion = dstVersion;
     this.qualifiedName = qualifiedName;
+    this.data = data;
   }
 
 
@@ -90,7 +92,7 @@ public class TopologyUpdateWaitHandler implements EventHandler<List<TaskNode>> {
         + dstId + "," + dstVersion + ")");
     senderStage.onNext(Utils.bldVersionedGCM(groupName, operName,
         ReefNetworkGroupCommProtos.GroupCommMessage.Type.TopologyUpdated, driverId, driverVersion, dstId,
-        dstVersion, Utils.EMPTY_BYTE_ARR));
+        dstVersion, data));
     LOG.exiting("TopologyUpdateWaitHandler", "onNext", qualifiedName);
   }
 

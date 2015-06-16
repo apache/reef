@@ -24,6 +24,8 @@ import org.apache.reef.io.network.group.impl.GroupCommunicationMessage;
 import org.apache.reef.io.network.proto.ReefNetworkGroupCommProtos;
 import org.apache.reef.io.serialization.Codec;
 
+import java.util.Map;
+
 /**
  * Represents the local topology of tasks for an operator. It
  * provides methods to send/rcv from parents & children
@@ -48,11 +50,16 @@ public interface OperatorTopology {
 
   void sendToParent(byte[] encode, ReefNetworkGroupCommProtos.GroupCommMessage.Type reduce) throws ParentDeadException;
 
-  byte[] recvFromParent() throws ParentDeadException;
+  byte[] recvFromParent(ReefNetworkGroupCommProtos.GroupCommMessage.Type msgType) throws ParentDeadException;
 
   void sendToChildren(byte[] data, ReefNetworkGroupCommProtos.GroupCommMessage.Type msgType) throws ParentDeadException;
 
+  void sendToChildren(Map<String, byte[]> dataMap,
+                      ReefNetworkGroupCommProtos.GroupCommMessage.Type msgType) throws ParentDeadException;
+
   <T> T recvFromChildren(ReduceFunction<T> redFunc, Codec<T> dataCodec) throws ParentDeadException;
+
+  byte[] recvFromChildren() throws ParentDeadException;
 
   void initialize() throws ParentDeadException;
 }

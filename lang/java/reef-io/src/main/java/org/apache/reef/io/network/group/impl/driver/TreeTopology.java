@@ -27,14 +27,13 @@ import org.apache.reef.io.network.group.impl.GroupChangesCodec;
 import org.apache.reef.io.network.group.impl.GroupChangesImpl;
 import org.apache.reef.io.network.group.impl.GroupCommunicationMessage;
 import org.apache.reef.io.network.group.impl.config.BroadcastOperatorSpec;
+import org.apache.reef.io.network.group.impl.config.GatherOperatorSpec;
 import org.apache.reef.io.network.group.impl.config.ReduceOperatorSpec;
+import org.apache.reef.io.network.group.impl.config.ScatterOperatorSpec;
 import org.apache.reef.io.network.group.impl.config.parameters.DataCodec;
 import org.apache.reef.io.network.group.impl.config.parameters.ReduceFunctionParam;
 import org.apache.reef.io.network.group.impl.config.parameters.TaskVersion;
-import org.apache.reef.io.network.group.impl.operators.BroadcastReceiver;
-import org.apache.reef.io.network.group.impl.operators.BroadcastSender;
-import org.apache.reef.io.network.group.impl.operators.ReduceReceiver;
-import org.apache.reef.io.network.group.impl.operators.ReduceSender;
+import org.apache.reef.io.network.group.impl.operators.*;
 import org.apache.reef.io.network.group.impl.utils.Utils;
 import org.apache.reef.io.network.proto.ReefNetworkGroupCommProtos;
 import org.apache.reef.io.serialization.Codec;
@@ -137,6 +136,20 @@ public class TreeTopology implements Topology {
         jcb.bindImplementation(GroupCommOperator.class, ReduceReceiver.class);
       } else {
         jcb.bindImplementation(GroupCommOperator.class, ReduceSender.class);
+      }
+    } else if (operatorSpec instanceof ScatterOperatorSpec) {
+      final ScatterOperatorSpec scatterOperatorSpec = (ScatterOperatorSpec) operatorSpec;
+      if (taskId.equals(scatterOperatorSpec.getSenderId())) {
+        jcb.bindImplementation(GroupCommOperator.class, ScatterSender.class);
+      } else {
+        jcb.bindImplementation(GroupCommOperator.class, ScatterReceiver.class);
+      }
+    } else if (operatorSpec instanceof GatherOperatorSpec) {
+      final GatherOperatorSpec gatherOperatorSpec = (GatherOperatorSpec) operatorSpec;
+      if (taskId.equals(gatherOperatorSpec.getReceiverId())) {
+        jcb.bindImplementation(GroupCommOperator.class, GatherReceiver.class);
+      } else {
+        jcb.bindImplementation(GroupCommOperator.class, GatherSender.class);
       }
     }
     final Configuration retConf = jcb.build();
@@ -298,7 +311,7 @@ public class TreeTopology implements Topology {
     final EventHandler<List<TaskNode>> topoUpdateWaitHandler = new TopologyUpdateWaitHandler(senderStage, groupName,
         operName, driverId, 0,
         dstId, version,
-        getQualifiedName());
+        getQualifiedName(), TopologySerializer.encode(root));
     final EStage<List<TaskNode>> nodeTopologyUpdateWaitStage = new SingleThreadStage<>("NodeTopologyUpdateWaitStage",
         topoUpdateWaitHandler,
         nodes.size());
