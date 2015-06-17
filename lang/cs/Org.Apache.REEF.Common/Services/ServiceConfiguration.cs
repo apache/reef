@@ -17,10 +17,14 @@
  * under the License.
  */
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Tang.Exceptions;
 using Org.Apache.REEF.Tang.Formats;
+using Org.Apache.REEF.Tang.Implementations.Configuration;
+using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 
@@ -49,7 +53,13 @@ namespace Org.Apache.REEF.Common.Services
 
         public ServiceConfiguration(string config)
         {
-            TangConfig = new AvroConfigurationSerializer().FromString(config);
+            AvroConfigurationSerializer serializer = new AvroConfigurationSerializer();
+
+            string serviceConfigString = (string)TangFactory.GetTang()
+                .NewInjector(serializer.FromString(config))
+                .GetNamedInstance(typeof(ServicesConfigurationOptions.ServiceConfigString));
+
+            TangConfig = serializer.FromString(serviceConfigString);
         }
 
         public static ConfigurationModule ConfigurationModule
