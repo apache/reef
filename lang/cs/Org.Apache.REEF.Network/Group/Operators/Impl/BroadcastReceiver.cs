@@ -64,7 +64,7 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
             PipelineDataConverter = dataConverter;
             _topology = topology;
 
-            var msgHandler = Observer.Create<GroupCommunicationMessage>(message => topology.OnNext(message));
+            var msgHandler = Observer.Create<GeneralGroupCommunicationMessage>(message => topology.OnNext(message));
             networkHandler.Register(operatorName, msgHandler);
 
             if (initialize)

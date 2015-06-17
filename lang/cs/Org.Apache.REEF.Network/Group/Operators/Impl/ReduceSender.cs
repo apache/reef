@@ -72,7 +72,7 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
             _pipelinedReduceFunc = new PipelinedReduceFunction<T>(ReduceFunction);
             _topology = topology;
 
-            var msgHandler = Observer.Create<GroupCommunicationMessage>(message => topology.OnNext(message));
+            var msgHandler = Observer.Create<GeneralGroupCommunicationMessage>(message => topology.OnNext(message));
             networkHandler.Register(operatorName, msgHandler);
 
             PipelineDataConverter = dataConverter;

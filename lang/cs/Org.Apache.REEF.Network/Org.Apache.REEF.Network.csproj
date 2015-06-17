@@ -50,8 +50,8 @@ under the License.
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Group\Codec\GcmMessageProto.cs" />
-    <Compile Include="Group\Codec\GroupCommunicationMessageCodec.cs" />
+    <Compile Include="Group\Codecs\IntArrayStreamingCodec.cs" />
+    <Compile Include="Group\Config\StreamingCodecConfiguration.cs" />
     <Compile Include="Group\Config\CodecConfiguration.cs" />
     <Compile Include="Group\Config\GroupCommConfigurationOptions.cs" />
     <Compile Include="Group\Config\PipelineDataConverterConfiguration.cs" />
@@ -60,9 +60,11 @@ under the License.
     <Compile Include="Group\Driver\IGroupCommDriver.cs" />
     <Compile Include="Group\Driver\Impl\CommunicationGroupDriver.cs" />
     <Compile Include="Group\Driver\Impl\GroupCommunicationMessage.cs" />
+    <Compile Include="Group\Codecs\IntStreamingCodec.cs" />
     <Compile Include="Group\Driver\Impl\MessageType.cs" />
     <Compile Include="Group\Driver\Impl\GroupCommDriver.cs" />
     <Compile Include="Group\Driver\Impl\TaskStarter.cs" />
+    <Compile Include="Group\Driver\Impl\GeneralGroupCommunicationMessage.cs" />
     <Compile Include="Group\Operators\IBroadcastReceiver.cs" />
     <Compile Include="Group\Operators\IBroadcastSender.cs" />
     <Compile Include="Group\Operators\IGroupCommOperator.cs" />
@@ -88,6 +90,7 @@ under the License.
     <Compile Include="Group\Pipelining\Impl\DefaultPipelineDataConverter.cs" />
     <Compile Include="Group\Pipelining\IPipelineDataConverter.cs" />
     <Compile Include="Group\Pipelining\PipelineMessage.cs" />
+    <Compile Include="Group\Pipelining\StreamingPipelineMessageCodec.cs" />
     <Compile Include="Group\Pipelining\PipelineMessageCodec.cs" />
     <Compile Include="Group\Task\ICommunicationGroupClient.cs" />
     <Compile Include="Group\Task\ICommunicationGroupNetworkObserver.cs" />
@@ -147,6 +150,7 @@ under the License.
     <Compile Include="NetworkService\WritableNsConnection.cs" />
     <Compile Include="NetworkService\WritableNsMessage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="StreamingCodec\IStreamingCodec.cs" />
     <Compile Include="Utilities\BlockingCollectionExtensions.cs" />
     <Compile Include="Utilities\Utils.cs" />
   </ItemGroup>
