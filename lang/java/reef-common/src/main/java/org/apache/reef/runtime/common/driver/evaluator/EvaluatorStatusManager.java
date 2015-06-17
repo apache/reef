@@ -47,19 +47,32 @@ final class EvaluatorStatusManager {
       return true;
     }
 
-    if (!isDoneOrFailedOrKilled(from) && isDoneOrFailedOrKilled(to)) {
-      return true;
-    }
-
     switch(from) {
       case ALLOCATED: {
-        return to == EvaluatorState.SUBMITTED;
+        switch(to) {
+          case SUBMITTED:
+          case DONE:
+          case FAILED:
+          case KILLED:
+            return true;
+        }
       }
       case SUBMITTED: {
-        return to == EvaluatorState.RUNNING;
+        switch(to) {
+          case RUNNING:
+          case DONE:
+          case FAILED:
+          case KILLED:
+            return true;
+        }
       }
       case RUNNING: {
-        return isDoneOrFailedOrKilled(to);
+        switch(to) {
+          case DONE:
+          case FAILED:
+          case KILLED:
+            return true;
+        }
       }
     }
 
