@@ -35,5 +35,5 @@ public interface CompletedJob extends Identifiable {
    * @return the ID of the completed job.
    */
   @Override
-  public String getId();
+  String getId();
 }

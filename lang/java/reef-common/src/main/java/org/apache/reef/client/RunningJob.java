@@ -38,25 +38,25 @@ public interface RunningJob extends Identifiable, AutoCloseable {
    * Cancels the running Job.
    */
   @Override
-  public void close();
+  void close();
 
   /**
    * Cancels the running Job.
    *
    * @param message delivered along with cancel request.
    */
-  public void close(final byte[] message);
+  void close(final byte[] message);
 
   /**
    * @return the ID of the running job.
    */
   @Override
-  public String getId();
+  String getId();
 
   /**
    * Send a message to the Driver.
    *
    * @param message to send to the running driver
    */
-  public void send(final byte[] message);
+  void send(final byte[] message);
 }

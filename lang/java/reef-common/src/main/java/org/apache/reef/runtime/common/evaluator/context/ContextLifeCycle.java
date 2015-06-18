@@ -58,7 +58,7 @@ final class ContextLifeCycle {
   /**
    * Fires ContextStart to all registered event handlers.
    */
-  final void start() {
+  void start() {
     final ContextStart contextStart = new ContextStartImpl(this.identifier);
     for (final EventHandler<ContextStart> startHandler : this.contextStartHandlers) {
       startHandler.onNext(contextStart);
@@ -68,7 +68,7 @@ final class ContextLifeCycle {
   /**
    * Fires ContextStop to all registered event handlers.
    */
-  final void close() {
+  void close() {
     final ContextStop contextStop = new ContextStopImpl(this.identifier);
     for (final EventHandler<ContextStop> stopHandler : this.contextStopHandlers) {
       stopHandler.onNext(contextStop);
@@ -80,18 +80,18 @@ final class ContextLifeCycle {
    *
    * @param message sent by the driver
    */
-  final void handleContextMessage(final byte[] message) {
+  void handleContextMessage(final byte[] message) {
     this.contextMessageHandler.onNext(message);
   }
 
   /**
    * @return (a shallow copy of) the set of ContextMessageSources configured.
    */
-  final Set<ContextMessageSource> getContextMessageSources() {
+  Set<ContextMessageSource> getContextMessageSources() {
     return Collections.unmodifiableSet(new LinkedHashSet<>(this.contextMessageSources));
   }
 
-  final String getIdentifier() {
+  String getIdentifier() {
     return this.identifier;
   }
 }

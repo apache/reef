@@ -44,7 +44,7 @@ final class REEFUncaughtExceptionHandler implements Thread.UncaughtExceptionHand
   }
 
   @Override
-  public final synchronized void uncaughtException(final Thread thread, final Throwable throwable) {
+  public synchronized void uncaughtException(final Thread thread, final Throwable throwable) {
     final String msg = "Thread " + thread.getName() + " threw an uncaught exception.";
     LOG.log(Level.SEVERE, msg, throwable);
     this.errorHandler.onNext(new Exception(msg, throwable));

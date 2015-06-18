@@ -42,10 +42,10 @@ public interface ContextAndTaskSubmittable {
    * @param contextConfiguration the Configuration of the EvaluatorContext. See ContextConfiguration for details.
    * @param taskConfiguration    the Configuration of the Task. See TaskConfiguration for details.
    */
-  public void submitContextAndTask(final Configuration contextConfiguration, final Configuration taskConfiguration);
+  void submitContextAndTask(final Configuration contextConfiguration, final Configuration taskConfiguration);
 
   /**
-   * Subkit a Context with Services and a Task.
+   * Submit a Context with Services and a Task.
    * <p/>
    * The semantics of this call are the same as first submitting the context and services and then, on the fired
    * ActiveContext event to submit the Task. The performance of this will be better, though as it potentially saves
@@ -57,8 +57,8 @@ public interface ContextAndTaskSubmittable {
    * @param serviceConfiguration
    * @param taskConfiguration
    */
-  public void submitContextAndServiceAndTask(final Configuration contextConfiguration,
-                                             final Configuration serviceConfiguration,
-                                             final Configuration taskConfiguration);
+  void submitContextAndServiceAndTask(final Configuration contextConfiguration,
+                                      final Configuration serviceConfiguration,
+                                      final Configuration taskConfiguration);
 
 }

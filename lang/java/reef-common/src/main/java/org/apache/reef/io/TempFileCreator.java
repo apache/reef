@@ -39,7 +39,7 @@ public interface TempFileCreator {
    * @return
    * @throws IOException
    */
-  public File createTempFile(final String prefix, final String suffix) throws IOException;
+  File createTempFile(final String prefix, final String suffix) throws IOException;
 
   /**
    * Creates a temporary folder.
@@ -49,7 +49,7 @@ public interface TempFileCreator {
    * @return
    * @throws IOException
    */
-  public File createTempDirectory(final String prefix, final FileAttribute<?> attrs) throws IOException;
+  File createTempDirectory(final String prefix, final FileAttribute<?> attrs) throws IOException;
 
 
   /**
@@ -59,7 +59,7 @@ public interface TempFileCreator {
    * @return
    * @throws IOException
    */
-  public File createTempDirectory(final String prefix) throws IOException;
+  File createTempDirectory(final String prefix) throws IOException;
 
 
 }

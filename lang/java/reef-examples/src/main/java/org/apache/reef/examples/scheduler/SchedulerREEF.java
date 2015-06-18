@@ -55,7 +55,7 @@ public final class SchedulerREEF {
   /**
    * @return The http configuration to use reef-webserver
    */
-  private final static Configuration getHttpConf() {
+  private static Configuration getHttpConf() {
     final Configuration httpHandlerConf = HttpHandlerConfiguration.CONF
       .set(HttpHandlerConfiguration.HTTP_HANDLERS, SchedulerHttpHandler.class)
       .build();
@@ -65,7 +65,7 @@ public final class SchedulerREEF {
   /**
    * @return The Driver configuration.
    */
-  private final static Configuration getDriverConf() {
+  private static Configuration getDriverConf() {
     final Configuration driverConf = DriverConfiguration.CONF
       .set(DriverConfiguration.GLOBAL_LIBRARIES, EnvironmentUtils.getClassLocation(SchedulerDriver.class))
       .set(DriverConfiguration.DRIVER_IDENTIFIER, "TaskScheduler")
@@ -104,7 +104,7 @@ public final class SchedulerREEF {
    * @param args
    * @throws InjectionException
    */
-  public final static void main(String[] args) throws InjectionException, IOException, ParseException {
+  public static void main(String[] args) throws InjectionException, IOException, ParseException {
     final Configuration runtimeConfiguration = LocalRuntimeConfiguration.CONF
       .set(LocalRuntimeConfiguration.MAX_NUMBER_OF_EVALUATORS, MAX_NUMBER_OF_EVALUATORS)
       .build();

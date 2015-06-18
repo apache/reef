@@ -34,5 +34,5 @@ public interface BindLocation {
    * trace, configuration file location, or other source of some
    * configuration data.
    */
-  public abstract String toString();
+  String toString();
 }

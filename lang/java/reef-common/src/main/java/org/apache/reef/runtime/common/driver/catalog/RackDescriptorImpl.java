@@ -37,7 +37,7 @@ public final class RackDescriptorImpl implements RackDescriptor {
     this.nodes = new ArrayList<>();
   }
 
-  public final String toString() {
+  public String toString() {
     final StringBuilder sb = new StringBuilder();
     sb.append("Rack " + this.name);
     for (final NodeDescriptorImpl node : nodes) {
@@ -46,11 +46,11 @@ public final class RackDescriptorImpl implements RackDescriptor {
     return sb.toString();
   }
 
-  public final int hashCode() {
+  public int hashCode() {
     return this.name.hashCode();
   }
 
-  public final boolean equals(final Object obj) {
+  public boolean equals(final Object obj) {
     if (obj instanceof RackDescriptorImpl) {
       return obj.toString().equals(this.name);
     } else {

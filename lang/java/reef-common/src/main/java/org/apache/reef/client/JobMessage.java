@@ -50,7 +50,7 @@ public final class JobMessage implements Message, Identifiable {
    * @return the message sent by the Job.
    */
   @Override
-  public final byte[] get() {
+  public byte[] get() {
     return this.value;
   }
 
@@ -60,7 +60,7 @@ public final class JobMessage implements Message, Identifiable {
    * @return the Identifier of the sending Job.
    */
   @Override
-  public final String getId() {
+  public String getId() {
     return this.id;
   }
 

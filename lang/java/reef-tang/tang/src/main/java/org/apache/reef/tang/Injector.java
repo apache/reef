@@ -37,9 +37,9 @@ public interface Injector {
    * @throws NameResolutionException
    * @throws ReflectiveOperationException
    */
-  public <U> U getInstance(Class<U> iface) throws InjectionException;
+  <U> U getInstance(Class<U> iface) throws InjectionException;
 
-  public <U> U getInstance(String iface) throws InjectionException,
+  <U> U getInstance(String iface) throws InjectionException,
       NameResolutionException;
 
   /**
@@ -51,7 +51,7 @@ public interface Injector {
    * given interface class.
    * @throws InjectionException
    */
-  public <U> U getNamedInstance(Class<? extends Name<U>> iface)
+  <U> U getNamedInstance(Class<? extends Name<U>> iface)
       throws InjectionException;
 
   /**
@@ -65,10 +65,10 @@ public interface Injector {
    * @return A copy of this injector that reflects the new binding.
    * @throws BindException
    */
-  public <T> void bindVolatileInstance(Class<T> iface, T inst)
+  <T> void bindVolatileInstance(Class<T> iface, T inst)
       throws BindException;
 
-  public <T> void bindVolatileParameter(Class<? extends Name<T>> iface, T inst)
+  <T> void bindVolatileParameter(Class<? extends Name<T>> iface, T inst)
       throws BindException;
 
   /**
@@ -81,7 +81,7 @@ public interface Injector {
    * @param a
    * @throws BindException
    */
-  public <T> void bindAspect(Aspect a) throws BindException;
+  <T> void bindAspect(Aspect a) throws BindException;
 
   /**
    * Allows InjectionFuture to tell the aspect when get() is invoked.  Package private.
@@ -107,7 +107,7 @@ public interface Injector {
    * @throws BindException If any of the configurations conflict with each other, or the
    *                       existing Injector's Configuration.
    */
-  public Injector forkInjector(Configuration... configurations) throws BindException;
+  Injector forkInjector(Configuration... configurations) throws BindException;
 
   /**
    * Returns true if this Injector is able to instantiate the object named by

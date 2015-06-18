@@ -49,7 +49,7 @@ public final class ContextMessageImpl implements ContextMessage {
   }
 
   @Override
-  public final String getMessageSourceID() {
+  public String getMessageSourceID() {
     return this.theMessageSourceId;
   }
 }

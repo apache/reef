@@ -34,6 +34,6 @@ public interface ContextStart extends Identifiable {
   /**
    * @return the ID of the EvaluatorContext that was just launched.
    */
-  public String getId();
+  String getId();
 
 }

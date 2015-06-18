@@ -63,7 +63,7 @@ public final class HDICLI {
   /**
    * Helper method to setup apache commons logging.
    */
-  private static final void setupLogging() {
+  private static void setupLogging() {
     System.setProperty("org.apache.commons.logging.Log", "org.apache.commons.logging.impl.Jdk14Logger");
     System.setProperty(".level", "INFO");
   }

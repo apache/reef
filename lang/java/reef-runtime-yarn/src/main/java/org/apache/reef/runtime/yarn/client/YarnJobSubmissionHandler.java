@@ -143,8 +143,8 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
    * <p/>
    * TODO: Revisit this. We also have a named parameter for the queue in YarnClientConfiguration.
    */
-  private final String getQueue(final JobSubmissionEvent jobSubmissionEvent,
-                                final String defaultQueue) {
+  private String getQueue(final JobSubmissionEvent jobSubmissionEvent,
+                          final String defaultQueue) {
     return jobSubmissionEvent.getQueue().orElse(defaultQueue);
   }
 }

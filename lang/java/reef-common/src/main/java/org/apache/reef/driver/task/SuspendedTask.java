@@ -36,6 +36,6 @@ public interface SuspendedTask extends Message, Identifiable {
    * @return the context the task ran on. This context is now available to run another task or to spwan new
    * child context
    */
-  public ActiveContext getActiveContext();
+  ActiveContext getActiveContext();
 
 }

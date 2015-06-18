@@ -49,16 +49,16 @@ import org.apache.reef.tang.Configuration;
 public interface ActiveContext extends Identifiable, AutoCloseable, ContextBase, TaskSubmittable, ContextSubmittable {
 
   @Override
-  public void close();
+  void close();
 
   @Override
-  public void submitTask(final Configuration taskConf);
+  void submitTask(final Configuration taskConf);
 
   @Override
-  public void submitContext(final Configuration contextConfiguration);
+  void submitContext(final Configuration contextConfiguration);
 
   @Override
-  public void submitContextAndService(final Configuration contextConfiguration, final Configuration serviceConfiguration);
+  void submitContextAndService(final Configuration contextConfiguration, final Configuration serviceConfiguration);
 
   /**
    * Send the active context the message, which will be delivered to all registered
@@ -66,6 +66,6 @@ public interface ActiveContext extends Identifiable, AutoCloseable, ContextBase,
    *
    * @param message
    */
-  public void sendMessage(final byte[] message);
+  void sendMessage(final byte[] message);
 
 }

@@ -34,5 +34,5 @@ public interface EvaluatorRequestor {
    * Submit the request for new evaluator.
    * The response will surface in the AllocatedEvaluator message handler.
    */
-  public void submit(final EvaluatorRequest req);
+  void submit(final EvaluatorRequest req);
 }

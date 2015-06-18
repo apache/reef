@@ -33,7 +33,7 @@ public interface ContextMessageSource {
   /**
    * @return a message to be sent back to the Driver.
    */
-  public Optional<ContextMessage> getMessage();
+  Optional<ContextMessage> getMessage();
 
 
 }

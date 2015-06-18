@@ -20,17 +20,17 @@ package org.apache.reef.tang.types;
 
 public interface NamedParameterNode<T> extends Node {
 
-  public String getDocumentation();
+  String getDocumentation();
 
-  public String getShortName();
+  String getShortName();
 
-  public String[] getDefaultInstanceAsStrings();
+  String[] getDefaultInstanceAsStrings();
 
-  public String getSimpleArgName();
+  String getSimpleArgName();
 
-  public String getFullArgName();
+  String getFullArgName();
 
-  public boolean isSet();
+  boolean isSet();
 
-  public boolean isList();
+  boolean isList();
 }

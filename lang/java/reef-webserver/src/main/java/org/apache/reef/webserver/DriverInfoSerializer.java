@@ -34,7 +34,7 @@ public interface DriverInfoSerializer {
    * @param startTime
    * @return AvroDriverInfo object
    */
-  public AvroDriverInfo toAvro(final String id, final String startTime, final List<AvroReefServiceInfo> services);
+  AvroDriverInfo toAvro(final String id, final String startTime, final List<AvroReefServiceInfo> services);
 
   /**
    * Convert AvroDriverInfo object to JSon string.
@@ -42,5 +42,5 @@ public interface DriverInfoSerializer {
    * @param avroDriverInfo
    * @return
    */
-  public String toString(final AvroDriverInfo avroDriverInfo);
+  String toString(final AvroDriverInfo avroDriverInfo);
 }

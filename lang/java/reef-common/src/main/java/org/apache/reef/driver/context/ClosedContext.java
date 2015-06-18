@@ -33,5 +33,5 @@ public interface ClosedContext extends ContextBase {
   /**
    * @return the new top of the stack of context.
    */
-  public ActiveContext getParentContext();
+  ActiveContext getParentContext();
 }

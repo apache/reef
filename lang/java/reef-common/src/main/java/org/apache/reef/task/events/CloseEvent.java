@@ -34,5 +34,5 @@ public interface CloseEvent {
   /**
    * @return the message sent with the close call, if any.
    */
-  public Optional<byte[]> get();
+  Optional<byte[]> get();
 }

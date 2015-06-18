@@ -29,5 +29,5 @@ public interface Identifiable {
    *
    * @return an identifier of this object
    */
-  public String getId();
+  String getId();
 }

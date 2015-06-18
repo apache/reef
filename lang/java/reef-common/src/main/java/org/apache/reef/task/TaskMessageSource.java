@@ -35,5 +35,5 @@ public interface TaskMessageSource {
   /**
    * @return a message to be sent back to the Driver, or Optional.empty() if no message shall be sent at this time.
    */
-  public Optional<TaskMessage> getMessage();
+  Optional<TaskMessage> getMessage();
 }

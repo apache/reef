@@ -74,7 +74,7 @@ public final class RuntimeClock implements Clock {
   }
 
   @Override
-  public final void scheduleAlarm(final int offset, final EventHandler<Alarm> handler) {
+  public void scheduleAlarm(final int offset, final EventHandler<Alarm> handler) {
     synchronized (this.schedule) {
       if (this.closed) {
         throw new IllegalStateException("Scheduling alarm on a closed clock");
@@ -85,11 +85,11 @@ public final class RuntimeClock implements Clock {
     }
   }
 
-  public final void registerEventHandler(final Class<? extends Time> clazz, final EventHandler<Time> handler) {
+  public void registerEventHandler(final Class<? extends Time> clazz, final EventHandler<Time> handler) {
     this.handlers.subscribe(clazz, handler);
   }
 
-  public final void scheduleRuntimeAlarm(final int offset, final EventHandler<Alarm> handler) {
+  public void scheduleRuntimeAlarm(final int offset, final EventHandler<Alarm> handler) {
     synchronized (this.schedule) {
       this.schedule.add(new RuntimeAlarm(this.timer.getCurrent() + offset, handler));
       this.schedule.notifyAll();
@@ -97,7 +97,7 @@ public final class RuntimeClock implements Clock {
   }
 
   @Override
-  public final void stop() {
+  public void stop() {
     LOG.entering(RuntimeClock.class.getCanonicalName(), "stop");
     synchronized (this.schedule) {
       this.schedule.clear();
@@ -109,7 +109,7 @@ public final class RuntimeClock implements Clock {
   }
 
   @Override
-  public final void close() {
+  public void close() {
     LOG.entering(RuntimeClock.class.getCanonicalName(), "close");
     synchronized (this.schedule) {
       if (this.closed) {
@@ -132,7 +132,7 @@ public final class RuntimeClock implements Clock {
    *
    * @return an acceptable stop time
    */
-  private final long findAcceptableStopTime() {
+  private long findAcceptableStopTime() {
     long time = timer.getCurrent();
     for (Time t : this.schedule) {
       if (t instanceof ClientAlarm) {
@@ -145,7 +145,7 @@ public final class RuntimeClock implements Clock {
 
 
   @Override
-  public final boolean isIdle() {
+  public boolean isIdle() {
     synchronized (this.schedule) {
       for (Time t : this.schedule) {
         if (t instanceof ClientAlarm) {
@@ -156,7 +156,7 @@ public final class RuntimeClock implements Clock {
     }
   }
 
-  private final <T extends Time> void subscribe(final Class<T> eventClass, final Set<EventHandler<T>> handlers) {
+  private <T extends Time> void subscribe(final Class<T> eventClass, final Set<EventHandler<T>> handlers) {
     for (final EventHandler<T> handler : handlers) {
       this.handlers.subscribe(eventClass, handler);
     }
@@ -178,7 +178,7 @@ public final class RuntimeClock implements Clock {
   }
 
   @Override
-  public final void run() {
+  public void run() {
     LOG.entering(RuntimeClock.class.getCanonicalName(), "run");
 
     try {

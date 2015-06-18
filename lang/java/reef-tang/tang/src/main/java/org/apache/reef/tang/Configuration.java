@@ -69,7 +69,7 @@ public interface Configuration {
    * This API is unstable and should be considered private.  Use the methods
    * in org.apache.reef.Tang instead.
    */
-  public ConfigurationBuilder newBuilder();
+  ConfigurationBuilder newBuilder();
 
   /**
    * Return the value of the given named parameter as an unparsed string.
@@ -81,7 +81,7 @@ public interface Configuration {
    * @return The validated string that this parameter is bound to, or null.
    * @see getClassHierarchy()
    */
-  public String getNamedParameter(NamedParameterNode<?> np);
+  String getNamedParameter(NamedParameterNode<?> np);
 
   /**
    * Obtain the set of class hierarchy nodes or strings that were bound to a given NamedParameterNode.
@@ -91,7 +91,7 @@ public interface Configuration {
    * @return A set of ClassHierarchy Node objects or a set of strings, depending on whether the NamedParameterNode refers to an interface or configuration options, respectively.
    * @see getClassHierarchy()
    */
-  public Set<Object> getBoundSet(NamedParameterNode<Set<?>> np);
+  Set<Object> getBoundSet(NamedParameterNode<Set<?>> np);
 
   /**
    * Get the list bound to a given NamedParameterNode. The list will be empty if nothing was bound.
@@ -99,17 +99,17 @@ public interface Configuration {
    * @param np Target NamedParameter
    * @return A list bound to np
    */
-  public List<Object> getBoundList(NamedParameterNode<List<?>> np);
+  List<Object> getBoundList(NamedParameterNode<List<?>> np);
 
   /**
    * @return the external constructor that cn has been explicitly bound to, or null.  Defaults are not returned.
    */
-  public <T> ClassNode<ExternalConstructor<T>> getBoundConstructor(ClassNode<T> cn);
+  <T> ClassNode<ExternalConstructor<T>> getBoundConstructor(ClassNode<T> cn);
 
   /**
    * @return the implementation that cn has been explicitly bound to, or null.  Defaults are not returned.
    */
-  public <T> ClassNode<T> getBoundImplementation(ClassNode<T> cn);
+  <T> ClassNode<T> getBoundImplementation(ClassNode<T> cn);
 
   /**
    * Return the LegacyConstructor that has been bound to this Class.  Such constructors are defined in the class, but missing their @Inject annotation.
@@ -118,7 +118,7 @@ public interface Configuration {
    * <p/>
    * TODO: Should this return Set<ConstructorDef<T>> instead?
    */
-  public <T> ConstructorDef<T> getLegacyConstructor(ClassNode<T> cn);
+  <T> ConstructorDef<T> getLegacyConstructor(ClassNode<T> cn);
 
   /**
    * @return the set of all interfaces (or super-classes) that have been explicitly
@@ -146,7 +146,7 @@ public interface Configuration {
    *
    * @return the ClassHierarchy that backs this Configuration.
    */
-  public ClassHierarchy getClassHierarchy();
+  ClassHierarchy getClassHierarchy();
 
   /**
    * Get the set bindings from set-valued NamedParameters to the values they were bound to.

@@ -20,11 +20,11 @@ package org.apache.reef.tang.types;
 
 public interface ConstructorArg {
 
-  public String getName();
+  String getName();
 
-  public String getType();
+  String getType();
 
-  public boolean isInjectionFuture();
+  boolean isInjectionFuture();
 
-  public String getNamedParameterName();
+  String getNamedParameterName();
 }

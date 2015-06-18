@@ -33,43 +33,43 @@ public final class HttpServerEventBridge extends NativeBridge {
     this.queryRequestData = queryRequestData;
   }
 
-  public final String getQueryString() {
+  public String getQueryString() {
     return queryString;
   }
 
-  public final void setQueryString(final String queryStr) {
+  public void setQueryString(final String queryStr) {
     this.queryString = queryStr;
   }
 
-  public final String getQueryResult() {
+  public String getQueryResult() {
     return queryResult;
   }
 
-  public final void setQueryResult(final String queryResult) {
+  public void setQueryResult(final String queryResult) {
     this.queryResult = queryResult;
   }
 
-  public final String getUriSpecification() {
+  public String getUriSpecification() {
     return uriSpecification;
   }
 
-  public final void setUriSpecification(final String uriSpecification) {
+  public void setUriSpecification(final String uriSpecification) {
     this.uriSpecification = uriSpecification;
   }
 
-  public final byte[] getQueryRequestData() {
+  public byte[] getQueryRequestData() {
     return queryRequestData;
   }
 
-  public final void setQueryRequestData(final byte[] queryRequestData) {
+  public void setQueryRequestData(final byte[] queryRequestData) {
     this.queryRequestData = queryRequestData;
   }
 
-  public final byte[] getQueryResponseData() {
+  public byte[] getQueryResponseData() {
     return queryResponseData;
   }
 
-  public final void setQueryResponseData(final byte[] responseData) {
+  public void setQueryResponseData(final byte[] responseData) {
     queryResponseData = responseData;
   }
 

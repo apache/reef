@@ -33,5 +33,5 @@ public interface Deserializer<ObjectType, InType> {
    * @param arg
    * @return
    */
-  public Iterable<ObjectType> create(InType arg);
+  Iterable<ObjectType> create(InType arg);
 }

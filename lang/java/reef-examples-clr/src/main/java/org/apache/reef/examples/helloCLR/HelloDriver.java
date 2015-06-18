@@ -77,7 +77,7 @@ public final class HelloDriver {
    * @return task configuration for the CLR Task.
    * @throws BindException
    */
-  private static final Configuration getCLRTaskConfiguration(final String taskId) throws BindException {
+  private static Configuration getCLRTaskConfiguration(final String taskId) throws BindException {
     final ConfigurationBuilder taskConfigurationBuilder = Tang.Factory.getTang()
         .newConfigurationBuilder(loadClassHierarchy());
     taskConfigurationBuilder.bind("Org.Apache.Reef.Tasks.TaskConfigurationOptions+Identifier,Org.Apache.Reef.Tasks.ITask, Version=1.0.0.0, Culture=neutral, PublicKeyToken=69c3241e6f0468ca", taskId);
@@ -108,7 +108,7 @@ public final class HelloDriver {
    *
    * @param allocatedEvaluator
    */
-  final void onNextCLR(final AllocatedEvaluator allocatedEvaluator) {
+  void onNextCLR(final AllocatedEvaluator allocatedEvaluator) {
     try {
       allocatedEvaluator.setProcess(clrProcessFactory.newEvaluatorProcess());
       final Configuration contextConfiguration = ContextConfiguration.CONF
@@ -130,7 +130,7 @@ public final class HelloDriver {
    *
    * @param allocatedEvaluator
    */
-  final void onNextJVM(final AllocatedEvaluator allocatedEvaluator) {
+  void onNextJVM(final AllocatedEvaluator allocatedEvaluator) {
     try {
       final Configuration contextConfiguration = ContextConfiguration.CONF
           .set(ContextConfiguration.IDENTIFIER, "HelloREEFContext")

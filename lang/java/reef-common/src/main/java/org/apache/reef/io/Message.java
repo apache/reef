@@ -31,6 +31,6 @@ public interface Message {
    *
    * @return message payload
    */
-  public byte[] get();
+  byte[] get();
 
 }

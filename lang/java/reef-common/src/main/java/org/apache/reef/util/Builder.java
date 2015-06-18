@@ -31,5 +31,5 @@ public interface Builder<T> {
    *
    * @return a fresh instance of the object.
    */
-  public T build();
+  T build();
 }

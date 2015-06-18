@@ -124,7 +124,7 @@ public final class HDInsightJobSubmissionHandler implements JobSubmissionHandler
   /**
    * Extracts the resource demands from the jobSubmissionEvent.
    */
-  private final Resource getResource(
+  private Resource getResource(
       final JobSubmissionEvent jobSubmissionEvent) {
 
     return new Resource()

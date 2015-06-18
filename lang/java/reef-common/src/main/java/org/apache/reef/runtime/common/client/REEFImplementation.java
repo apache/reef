@@ -84,7 +84,7 @@ public final class REEFImplementation implements REEF {
   }
 
   @Override
-  public final void close() {
+  public void close() {
     this.runningJobs.closeAllJobs();
     this.clientWireUp.close();
   }

@@ -32,7 +32,7 @@ public final class HelloTask implements Task {
   }
 
   @Override
-  public final byte[] call(final byte[] memento) {
+  public byte[] call(final byte[] memento) {
     System.out.println("Hello, REEF!");
     return null;
   }

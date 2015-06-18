@@ -132,7 +132,7 @@ public final class TaskStatus {
     }
   }
 
-  public final String getTaskId() {
+  public String getTaskId() {
     return this.taskId;
   }
 
@@ -285,7 +285,7 @@ public final class TaskStatus {
   /**
    * @return the messages to be sent on the Task's behalf in the next heartbeat.
    */
-  private final Collection<TaskMessage> getMessages() {
+  private Collection<TaskMessage> getMessages() {
     final List<TaskMessage> result = new ArrayList<>(this.evaluatorMessageSources.size());
     for (final TaskMessageSource messageSource : this.evaluatorMessageSources) {
       final Optional<TaskMessage> taskMessageOptional = messageSource.getMessage();

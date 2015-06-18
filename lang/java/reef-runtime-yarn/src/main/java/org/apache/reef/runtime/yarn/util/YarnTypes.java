@@ -39,7 +39,7 @@ public final class YarnTypes {
   /**
    * @return a ContainerLaunchContext with the given commands and LocalResources.
    */
-  public static final ContainerLaunchContext getContainerLaunchContext(
+  public static ContainerLaunchContext getContainerLaunchContext(
       final List<String> commands, final Map<String, LocalResource> localResources) {
     final ContainerLaunchContext context = Records.newRecord(ContainerLaunchContext.class);
     context.setLocalResources(localResources);

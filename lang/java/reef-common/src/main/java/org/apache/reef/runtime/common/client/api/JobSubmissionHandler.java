@@ -25,5 +25,5 @@ import org.apache.reef.wake.EventHandler;
 public interface JobSubmissionHandler extends EventHandler<JobSubmissionEvent>, AutoCloseable {
 
   @Override
-  public void close();
+  void close();
 }

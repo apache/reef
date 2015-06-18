@@ -34,7 +34,7 @@ public interface Gather {
   /**
    * Senders or non-roots.
    */
-  static interface Sender<T> extends GroupCommOperator {
+  interface Sender<T> extends GroupCommOperator {
 
     /**
      * Send the element to the root/receiver.
@@ -45,7 +45,7 @@ public interface Gather {
   /**
    * Receiver or Root.
    */
-  static interface Receiver<T> extends GroupCommOperator {
+  interface Receiver<T> extends GroupCommOperator {
 
     /**
      * Receive the elements sent by the senders in default order.

@@ -55,7 +55,7 @@ public final class TaskMessageImpl implements TaskMessage {
   }
 
   @Override
-  public final String getMessageSourceID() {
+  public String getMessageSourceID() {
     return this.theMessageSourceId;
   }
 }

@@ -272,7 +272,7 @@ public final class ContextRuntime {
    * Close this context. If there is a child context, this recursively closes it before closing this context. If
    * there is a Task currently running, that will be closed.
    */
-  final void close() {
+  void close() {
 
     synchronized (this.contextLifeCycle) {
 
@@ -369,7 +369,7 @@ public final class ContextRuntime {
    *
    * @param message sent by the driver
    */
-  final void handleContextMessage(final byte[] message) {
+  void handleContextMessage(final byte[] message) {
     this.contextLifeCycle.handleContextMessage(message);
   }
 

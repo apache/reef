@@ -125,7 +125,7 @@ final class EvaluatorRuntime implements EventHandler<EvaluatorControlProto> {
     }
   }
 
-  private final void onException(final Throwable exception) {
+  private void onException(final Throwable exception) {
     synchronized (this.heartBeatManager) {
       this.state = ReefServiceProtos.State.FAILED;
 
@@ -150,7 +150,7 @@ final class EvaluatorRuntime implements EventHandler<EvaluatorControlProto> {
     }
   }
 
-  final ReefServiceProtos.State getState() {
+  ReefServiceProtos.State getState() {
     return this.state;
   }
 
@@ -166,7 +166,7 @@ final class EvaluatorRuntime implements EventHandler<EvaluatorControlProto> {
   final class RuntimeStartHandler implements EventHandler<RuntimeStart> {
 
     @Override
-    public final void onNext(final RuntimeStart runtimeStart) {
+    public void onNext(final RuntimeStart runtimeStart) {
       synchronized (EvaluatorRuntime.this.heartBeatManager) {
         try {
           LOG.log(Level.FINEST, "runtime start");
@@ -184,7 +184,7 @@ final class EvaluatorRuntime implements EventHandler<EvaluatorControlProto> {
   final class RuntimeStopHandler implements EventHandler<RuntimeStop> {
 
     @Override
-    public final void onNext(final RuntimeStop runtimeStop) {
+    public void onNext(final RuntimeStop runtimeStop) {
       synchronized (EvaluatorRuntime.this.heartBeatManager) {
         LOG.log(Level.FINEST, "EvaluatorRuntime shutdown invoked for Evaluator {0} in state {1}",
             new Object[]{evaluatorIdentifier, state});

@@ -114,14 +114,14 @@ final class YarnContainerManager
   }
 
   @Override
-  public final void onContainersCompleted(final List<ContainerStatus> containerStatuses) {
+  public void onContainersCompleted(final List<ContainerStatus> containerStatuses) {
     for (final ContainerStatus containerStatus : containerStatuses) {
       onContainerStatus(containerStatus);
     }
   }
 
   @Override
-  public final void onContainersAllocated(final List<Container> containers) {
+  public void onContainersAllocated(final List<Container> containers) {
 
     // ID is used for logging only
     final String id = String.format("%s:%d",
@@ -153,17 +153,17 @@ final class YarnContainerManager
   }
 
   @Override
-  public final float getProgress() {
+  public float getProgress() {
     return 0; // TODO: return actual values for progress
   }
 
   @Override
-  public final void onError(final Throwable throwable) {
+  public void onError(final Throwable throwable) {
     onRuntimeError(throwable);
   }
 
   @Override
-  public final void onContainerStarted(
+  public void onContainerStarted(
       final ContainerId containerId, final Map<String, ByteBuffer> stringByteBufferMap) {
     final Optional<Container> container = this.containers.getOptional(containerId.toString());
     if (container.isPresent()) {
@@ -172,13 +172,13 @@ final class YarnContainerManager
   }
 
   @Override
-  public final void onContainerStatusReceived(
+  public void onContainerStatusReceived(
       final ContainerId containerId, final ContainerStatus containerStatus) {
     onContainerStatus(containerStatus);
   }
 
   @Override
-  public final void onContainerStopped(final ContainerId containerId) {
+  public void onContainerStopped(final ContainerId containerId) {
     final boolean hasContainer = this.containers.hasContainer(containerId.toString());
     if (hasContainer) {
       final ResourceStatusEventImpl.Builder resourceStatusBuilder =
@@ -189,19 +189,19 @@ final class YarnContainerManager
   }
 
   @Override
-  public final void onStartContainerError(
+  public void onStartContainerError(
       final ContainerId containerId, final Throwable throwable) {
     handleContainerError(containerId, throwable);
   }
 
   @Override
-  public final void onGetContainerStatusError(
+  public void onGetContainerStatusError(
       final ContainerId containerId, final Throwable throwable) {
     handleContainerError(containerId, throwable);
   }
 
   @Override
-  public final void onStopContainerError(
+  public void onStopContainerError(
       final ContainerId containerId, final Throwable throwable) {
     handleContainerError(containerId, throwable);
   }

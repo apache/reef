@@ -42,7 +42,7 @@ public interface RemoteManager extends Stage {
    * @param messageType           a message class type
    * @return an event handler
    */
-  public <T> EventHandler<T> getHandler(final RemoteIdentifier destinationIdentifier, final Class<? extends T> messageType);
+  <T> EventHandler<T> getHandler(final RemoteIdentifier destinationIdentifier, final Class<? extends T> messageType);
 
   /**
    * Registers the given EventHandler to be invoked when messages of Type T
@@ -56,7 +56,7 @@ public interface RemoteManager extends Stage {
    * @param theHandler       the event handler
    * @return the subscription that can be used to unsubscribe later
    */
-  public <T, U extends T> AutoCloseable registerHandler(final RemoteIdentifier sourceIdentifier, final Class<U> messageType, final EventHandler<T> theHandler);
+  <T, U extends T> AutoCloseable registerHandler(final RemoteIdentifier sourceIdentifier, final Class<U> messageType, final EventHandler<T> theHandler);
 
   /**
    * Registers the given EventHandler to be called for the given message type
@@ -69,7 +69,7 @@ public interface RemoteManager extends Stage {
    * @param theHandler  the event handler
    * @return the subscription that can be used to unsubscribe later
    */
-  public <T, U extends T> AutoCloseable registerHandler(final Class<U> messageType, final EventHandler<RemoteMessage<T>> theHandler);
+  <T, U extends T> AutoCloseable registerHandler(final Class<U> messageType, final EventHandler<RemoteMessage<T>> theHandler);
 
   /**
    * Register an EventHandler that gets called by Wake in the presence of
@@ -80,12 +80,12 @@ public interface RemoteManager extends Stage {
    * @return the subscription that can be used to unsubscribe later
    */
   @Deprecated
-  public AutoCloseable registerErrorHandler(final EventHandler<Exception> theHandler);
+  AutoCloseable registerErrorHandler(final EventHandler<Exception> theHandler);
 
   /**
    * Access the Identifier of this.
    *
    * @return the Identifier of this.
    */
-  public RemoteIdentifier getMyIdentifier();
+  RemoteIdentifier getMyIdentifier();
 }

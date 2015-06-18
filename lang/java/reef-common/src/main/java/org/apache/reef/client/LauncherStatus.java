@@ -43,11 +43,11 @@ public final class LauncherStatus {
     this.error = Optional.ofNullable(ex);
   }
 
-  public static final LauncherStatus FAILED(final Throwable ex) {
+  public static LauncherStatus FAILED(final Throwable ex) {
     return new LauncherStatus(State.FAILED, ex);
   }
 
-  public static final LauncherStatus FAILED(final Optional<Throwable> ex) {
+  public static LauncherStatus FAILED(final Optional<Throwable> ex) {
     return new LauncherStatus(State.FAILED, ex.orElse(null));
   }
 
@@ -72,7 +72,7 @@ public final class LauncherStatus {
    *
    * @return True if the job has been completed, false otherwise.
    */
-  public final boolean isDone() {
+  public boolean isDone() {
     switch (this.state) {
       case FAILED:
       case COMPLETED:
@@ -88,7 +88,7 @@ public final class LauncherStatus {
    *
    * @return True if the job has been completed successfully, false otherwise.
    */
-  public final boolean isSuccess() {
+  public boolean isSuccess() {
     return this.state == State.COMPLETED;
   }
 
@@ -97,7 +97,7 @@ public final class LauncherStatus {
    *
    * @return True if the job is still running, false otherwise.
    */
-  public final boolean isRunning() {
+  public boolean isRunning() {
     return this.state == State.RUNNING;
   }
 

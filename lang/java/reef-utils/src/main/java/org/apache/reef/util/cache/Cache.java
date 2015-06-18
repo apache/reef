@@ -36,13 +36,13 @@ public interface Cache<K, V> {
    * @return a value
    * @throws ExecutionException
    */
-  public V get(K key, Callable<V> valueFetcher) throws ExecutionException;
+  V get(K key, Callable<V> valueFetcher) throws ExecutionException;
 
   /**
    * Invalidates a key from the cache.
    *
    * @param key a key
    */
-  public void invalidate(K key);
+  void invalidate(K key);
 
 }

@@ -32,5 +32,5 @@ public interface TaskStop extends Identifiable {
   /**
    * @return the task identifier
    */
-  public String getId();
+  String getId();
 }

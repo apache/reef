@@ -39,6 +39,6 @@ public interface JobMessageObserver {
    *
    * @param message a message to be sent to the client
    */
-  public void sendMessageToClient(final byte[] message);
+  void sendMessageToClient(final byte[] message);
 
 }

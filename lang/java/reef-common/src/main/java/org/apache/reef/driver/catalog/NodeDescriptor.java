@@ -33,10 +33,10 @@ public interface NodeDescriptor extends ResourceCatalog.Descriptor, Identifiable
    *
    * @return the inet address of the Evaluator.
    */
-  public InetSocketAddress getInetSocketAddress();
+  InetSocketAddress getInetSocketAddress();
 
   /**
    * @return the rack descriptor that contains this node
    */
-  public RackDescriptor getRackDescriptor();
+  RackDescriptor getRackDescriptor();
 }

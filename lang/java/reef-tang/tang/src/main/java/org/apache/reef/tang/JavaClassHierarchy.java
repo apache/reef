@@ -38,9 +38,9 @@ public interface JavaClassHierarchy extends ClassHierarchy {
    * @param c The class to be looked up in the class hierarchy.
    * @return The associated NamedParameterNode or ClassNode.
    */
-  public Node getNode(Class<?> c);
+  Node getNode(Class<?> c);
 
-  public Class<?> classForName(String name) throws ClassNotFoundException;
+  Class<?> classForName(String name) throws ClassNotFoundException;
 
   /**
    * Parse a string value that has been passed into a named parameter.
@@ -52,7 +52,7 @@ public interface JavaClassHierarchy extends ClassHierarchy {
    *                        wrong type (such as when it specifies a class that does not implement
    *                        or extend T).
    */
-  public <T> T parse(NamedParameterNode<T> name, String value) throws ParseException;
+  <T> T parse(NamedParameterNode<T> name, String value) throws ParseException;
 
   /**
    * Obtain a parsed instance of the default value of a named parameter.
@@ -62,6 +62,6 @@ public interface JavaClassHierarchy extends ClassHierarchy {
    * then this method returns a (potentially empty) set of default instances.
    * @throws ClassHierarchyException if an instance failed to parse.
    */
-  public <T> T parseDefaultValue(NamedParameterNode<T> name) throws ClassHierarchyException;
+  <T> T parseDefaultValue(NamedParameterNode<T> name) throws ClassHierarchyException;
 
 }

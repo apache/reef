@@ -75,7 +75,7 @@ final class LogFileEntry {
    * @param outputWriter
    * @throws IOException
    */
-  private final void writeFiles(final DataInputStream valueStream, final Writer outputWriter) throws IOException {
+  private void writeFiles(final DataInputStream valueStream, final Writer outputWriter) throws IOException {
     while (valueStream.available() > 0) {
       final String strFileName = valueStream.readUTF();
       final int entryLength = Integer.parseInt(valueStream.readUTF());

@@ -169,9 +169,9 @@ final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
     this.libraries.add(file);
   }
 
-  private final void launch(final Configuration contextConfiguration,
-                            final Optional<Configuration> serviceConfiguration,
-                            final Optional<Configuration> taskConfiguration) {
+  private void launch(final Configuration contextConfiguration,
+                      final Optional<Configuration> serviceConfiguration,
+                      final Optional<Configuration> taskConfiguration) {
     try (final LoggingScope lb = loggingScopeFactory.evaluatorLaunch(this.getId())) {
       final Configuration evaluatorConfiguration =
           makeEvaluatorConfiguration(contextConfiguration, serviceConfiguration, taskConfiguration);

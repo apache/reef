@@ -56,7 +56,7 @@ public final class HttpTrackingURLProvider implements TrackingURLProvider {
    * @return
    */
   @Override
-  public final String getTrackingUrl() {
+  public String getTrackingUrl() {
     try {
       return InetAddress.getLocalHost().getHostAddress() + ":" + httpServer.getPort();
     } catch (final UnknownHostException e) {

@@ -59,7 +59,7 @@ public final class EvaluatorManagerFactory {
    * @param desc NodeDescriptor on which the Evaluator executes.
    * @return a new EvaluatorManager instance.
    */
-  private final EvaluatorManager getNewEvaluatorManagerInstance(final String id, final EvaluatorDescriptorImpl desc) {
+  private EvaluatorManager getNewEvaluatorManagerInstance(final String id, final EvaluatorDescriptorImpl desc) {
     LOG.log(Level.FINEST, "Creating Evaluator Manager for Evaluator ID {0}", id);
     final Injector child = this.injector.forkInjector();
 
@@ -85,7 +85,7 @@ public final class EvaluatorManagerFactory {
    * @param resourceAllocationEvent
    * @return
    */
-  public final EvaluatorManager getNewEvaluatorManager(final ResourceAllocationEvent resourceAllocationEvent) {
+  public EvaluatorManager getNewEvaluatorManager(final ResourceAllocationEvent resourceAllocationEvent) {
     final NodeDescriptor nodeDescriptor = this.resourceCatalog.getNode(resourceAllocationEvent.getNodeId());
 
     if (nodeDescriptor == null) {
@@ -98,7 +98,7 @@ public final class EvaluatorManagerFactory {
     return this.getNewEvaluatorManagerInstance(resourceAllocationEvent.getIdentifier(), evaluatorDescriptor);
   }
 
-  public final EvaluatorManager createForEvaluatorFailedDuringDriverRestart(final ResourceStatusEvent resourceStatusEvent) {
+  public EvaluatorManager createForEvaluatorFailedDuringDriverRestart(final ResourceStatusEvent resourceStatusEvent) {
     if (!resourceStatusEvent.getIsFromPreviousDriver().get()) {
       throw new RuntimeException("Invalid resourceStatusEvent, must be status for resource from previous Driver.");
     }

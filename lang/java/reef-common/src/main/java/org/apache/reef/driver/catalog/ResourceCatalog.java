@@ -39,14 +39,14 @@ public interface ResourceCatalog {
    * @return a list of all the static resources available. This is an upper
    * bound.
    */
-  public Collection<NodeDescriptor> getNodes();
+  Collection<NodeDescriptor> getNodes();
 
   /**
    * The global list of racks.
    *
    * @return list of all rack descriptors
    */
-  public Collection<RackDescriptor> getRacks();
+  Collection<RackDescriptor> getRacks();
 
   /**
    * Get the node descriptor with the given identifier.
@@ -54,11 +54,11 @@ public interface ResourceCatalog {
    * @param id of the node.
    * @return the node descriptor assigned to the identifier.
    */
-  public NodeDescriptor getNode(String nodeId);
+  NodeDescriptor getNode(String nodeId);
 
   public interface Descriptor {
 
-    public String getName();
+    String getName();
 
   }
 

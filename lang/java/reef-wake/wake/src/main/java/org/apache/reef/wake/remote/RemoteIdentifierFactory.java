@@ -37,5 +37,5 @@ public interface RemoteIdentifierFactory extends IdentifierFactory {
    * @return a remote identifier
    */
   @Override
-  public RemoteIdentifier getNewInstance(String str);
+  RemoteIdentifier getNewInstance(String str);
 }

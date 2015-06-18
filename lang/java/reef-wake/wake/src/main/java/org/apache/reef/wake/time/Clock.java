@@ -48,27 +48,27 @@ public interface Clock extends Runnable, AutoCloseable {
    * @param offset  into the future
    * @throws IllegalStateException when the clock has been already closed
    */
-  public void scheduleAlarm(final int offset, final EventHandler<Alarm> handler);
+  void scheduleAlarm(final int offset, final EventHandler<Alarm> handler);
 
   /**
    * This will stop the clock after all client alarms
    * finish executing.
    */
   @Override
-  public void close();
+  void close();
 
   /**
    * This stops the clock immediately, without waiting for
    * client alarms to finish.
    */
-  public void stop();
+  void stop();
 
   /**
    * Clock is idle if it has no future Alarms set.
    *
    * @return true if idle, otherwise false
    */
-  public boolean isIdle();
+  boolean isIdle();
 
   /**
    * Bind this to an event handler to statically subscribe to the StartTime Event.

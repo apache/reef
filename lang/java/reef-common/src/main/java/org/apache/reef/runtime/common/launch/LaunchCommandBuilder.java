@@ -29,13 +29,13 @@ public interface LaunchCommandBuilder {
   /**
    * @return the launch command line
    */
-  public List<String> build();
+  List<String> build();
 
-  public LaunchCommandBuilder setErrorHandlerRID(final String errorHandlerRID);
+  LaunchCommandBuilder setErrorHandlerRID(final String errorHandlerRID);
 
-  public LaunchCommandBuilder setLaunchID(final String launchID);
+  LaunchCommandBuilder setLaunchID(final String launchID);
 
-  public LaunchCommandBuilder setMemory(final int megaBytes);
+  LaunchCommandBuilder setMemory(final int megaBytes);
 
   /**
    * Set the name of the configuration file for the Launcher. This file is assumed to exist in the working directory of
@@ -44,7 +44,7 @@ public interface LaunchCommandBuilder {
    * @param configurationFileName
    * @return this
    */
-  public LaunchCommandBuilder setConfigurationFileName(final String configurationFileName);
+  LaunchCommandBuilder setConfigurationFileName(final String configurationFileName);
 
   /**
    * Names a file to which stdout will be redirected.
@@ -52,7 +52,7 @@ public interface LaunchCommandBuilder {
    * @param standardOut
    * @return this
    */
-  public LaunchCommandBuilder setStandardOut(final String standardOut);
+  LaunchCommandBuilder setStandardOut(final String standardOut);
 
   /**
    * Names a file to which stderr will be redirected.
@@ -60,7 +60,7 @@ public interface LaunchCommandBuilder {
    * @param standardErr
    * @return this
    */
-  public LaunchCommandBuilder setStandardErr(final String standardErr);
+  LaunchCommandBuilder setStandardErr(final String standardErr);
 
 
 }

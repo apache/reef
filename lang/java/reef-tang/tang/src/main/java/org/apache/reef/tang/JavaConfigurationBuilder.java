@@ -47,7 +47,7 @@ public interface JavaConfigurationBuilder extends ConfigurationBuilder {
    * @param iface
    * @param impl
    */
-  public <T> JavaConfigurationBuilder bind(Class<T> iface, Class<?> impl) throws BindException;
+  <T> JavaConfigurationBuilder bind(Class<T> iface, Class<?> impl) throws BindException;
 
   /**
    * Binds the Class impl as the implementation of the interface iface.
@@ -56,7 +56,7 @@ public interface JavaConfigurationBuilder extends ConfigurationBuilder {
    * @param iface
    * @param impl
    */
-  public <T> JavaConfigurationBuilder bindImplementation(Class<T> iface, Class<? extends T> impl)
+  <T> JavaConfigurationBuilder bindImplementation(Class<T> iface, Class<? extends T> impl)
       throws BindException;
 
 
@@ -68,18 +68,18 @@ public interface JavaConfigurationBuilder extends ConfigurationBuilder {
    *              how to parse the parameter's type.
    * @throws org.apache.reef.tang.exceptions.NameResolutionException
    */
-  public JavaConfigurationBuilder bindNamedParameter(Class<? extends Name<?>> name, String value)
+  JavaConfigurationBuilder bindNamedParameter(Class<? extends Name<?>> name, String value)
       throws BindException;
 
-  public <T> JavaConfigurationBuilder bindNamedParameter(Class<? extends Name<T>> iface,
-                                                         Class<? extends T> impl) throws BindException;
+  <T> JavaConfigurationBuilder bindNamedParameter(Class<? extends Name<T>> iface,
+                                                  Class<? extends T> impl) throws BindException;
 
-  public <T> JavaConfigurationBuilder bindConstructor(Class<T> c,
-                                                      Class<? extends ExternalConstructor<? extends T>> v) throws BindException;
+  <T> JavaConfigurationBuilder bindConstructor(Class<T> c,
+                                               Class<? extends ExternalConstructor<? extends T>> v) throws BindException;
 
-  public <T> JavaConfigurationBuilder bindSetEntry(Class<? extends Name<Set<T>>> iface, String value) throws BindException;
+  <T> JavaConfigurationBuilder bindSetEntry(Class<? extends Name<Set<T>>> iface, String value) throws BindException;
 
-  public <T> JavaConfigurationBuilder bindSetEntry(Class<? extends Name<Set<T>>> iface, Class<? extends T> impl) throws BindException;
+  <T> JavaConfigurationBuilder bindSetEntry(Class<? extends Name<Set<T>>> iface, Class<? extends T> impl) throws BindException;
 
   /**
    * Binds a specfic list to a named parameter. List's elements can be string values or class implementations.
@@ -92,6 +92,6 @@ public interface JavaConfigurationBuilder extends ConfigurationBuilder {
    * @return
    * @throws BindException
    */
-  public <T> JavaConfigurationBuilder bindList(Class<? extends Name<List<T>>> iface, List impl)
+  <T> JavaConfigurationBuilder bindList(Class<? extends Name<List<T>>> iface, List impl)
       throws BindException;
 }

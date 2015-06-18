@@ -30,13 +30,13 @@ public interface RemoteMessage<T> {
    *
    * @return a remote identifier
    */
-  public RemoteIdentifier getIdentifier();
+  RemoteIdentifier getIdentifier();
 
   /**
    * Returns an actual message.
    *
    * @return a message
    */
-  public T getMessage();
+  T getMessage();
 
 }

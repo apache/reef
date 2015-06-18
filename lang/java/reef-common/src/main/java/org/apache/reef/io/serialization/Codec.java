@@ -33,7 +33,7 @@ public interface Codec<T> {
    * @param obj
    * @return a byte[] representation of the object
    */
-  public byte[] encode(T obj);
+  byte[] encode(T obj);
 
   /**
    * Decodes the given byte array into an object.
@@ -41,5 +41,5 @@ public interface Codec<T> {
    * @param buf
    * @return the decoded object
    */
-  public T decode(byte[] buf);
+  T decode(byte[] buf);
 }

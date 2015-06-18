@@ -35,7 +35,7 @@ interface RunningJobs {
   /**
    * Closes all registered jobs forcefully.
    */
-  public void closeAllJobs();
+  void closeAllJobs();
 
   /**
    * Processes a status message from a Job. If the Job is already known, the message will be passed on. If it is a
@@ -43,13 +43,13 @@ interface RunningJobs {
    *
    * @param message
    */
-  public void onJobStatusMessage(final RemoteMessage<ReefServiceProtos.JobStatusProto> message);
+  void onJobStatusMessage(final RemoteMessage<ReefServiceProtos.JobStatusProto> message);
 
   /**
    * Processes a error message from the resource manager.
    *
    * @param runtimeFailure
    */
-  public void onRuntimeErrorMessage(final RemoteMessage<ReefServiceProtos.RuntimeErrorProto> runtimeFailure);
+  void onRuntimeErrorMessage(final RemoteMessage<ReefServiceProtos.RuntimeErrorProto> runtimeFailure);
 
 }

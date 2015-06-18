@@ -73,7 +73,7 @@ final class JobSubmissionHelper {
    * @throws InjectionException
    * @throws IOException
    */
-  final JobSubmissionEventImpl.Builder getJobSubmissionBuilder(final Configuration driverConfiguration) throws InjectionException, IOException {
+  JobSubmissionEventImpl.Builder getJobSubmissionBuilder(final Configuration driverConfiguration) throws InjectionException, IOException {
     final Injector injector = Tang.Factory.getTang().newInjector(driverConfiguration);
 
     final JobSubmissionEventImpl.Builder jbuilder = JobSubmissionEventImpl.newBuilder()

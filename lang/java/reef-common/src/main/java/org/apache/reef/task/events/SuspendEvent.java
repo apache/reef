@@ -34,5 +34,5 @@ public interface SuspendEvent {
   /**
    * @return the message sent with the suspend call, if any.
    */
-  public Optional<byte[]> get();
+  Optional<byte[]> get();
 }

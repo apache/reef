@@ -51,7 +51,7 @@ public final class BlockingEventHandler<T> implements EventHandler<T> {
   }
 
   @Override
-  public final void onNext(final T event) {
+  public void onNext(final T event) {
     this.events.add(event);
     int newCursor = this.cursor.incrementAndGet();
 

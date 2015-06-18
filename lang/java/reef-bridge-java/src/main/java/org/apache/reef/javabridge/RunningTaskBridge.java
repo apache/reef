@@ -33,11 +33,11 @@ public final class RunningTaskBridge extends NativeBridge {
     this.jactiveContext = factory.getActiveContextBridge(runningTask.getActiveContext());
   }
 
-  public final String getId() {
+  public String getId() {
     return jrunningTask.getId();
   }
 
-  public final void send(final byte[] message) {
+  public void send(final byte[] message) {
     jrunningTask.send(message);
   }
 

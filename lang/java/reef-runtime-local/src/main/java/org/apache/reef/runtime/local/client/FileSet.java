@@ -46,7 +46,7 @@ final class FileSet {
    *
    * @param file the file to be added.
    */
-  final void add(final File file) {
+  void add(final File file) {
     if (file.isFile()) {
       if (this.fileNames.contains(file.getName())) {
         LOG.log(Level.FINEST, "A file with this name has already been added: {0}", file.getName());
@@ -59,14 +59,14 @@ final class FileSet {
     }
   }
 
-  final boolean containsFileWithName(final String name) {
+  boolean containsFileWithName(final String name) {
     return this.fileNames.contains(name);
   }
 
   /**
    * @return an iterable over the filenames, sans the folder. e.g. "/tmp/foo.txt" is returned as "foo.txt"
    */
-  final Set<String> fileNames() {
+  Set<String> fileNames() {
     return this.fileNames;
   }
 
@@ -76,7 +76,7 @@ final class FileSet {
    * @param destinationFolder the folder where the files shall be copied to.
    * @throws IOException
    */
-  final void copyTo(final File destinationFolder) throws IOException {
+  void copyTo(final File destinationFolder) throws IOException {
     for (final File f : this.theFiles) {
       final File destinationFile = new File(destinationFolder, f.getName());
       Files.copy(f.toPath(), destinationFile.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
@@ -89,7 +89,7 @@ final class FileSet {
    * @param destinationFolder the folder where the symbolic links will be created.
    * @throws IOException
    */
-  final void createSymbolicLinkTo(final File destinationFolder) throws IOException {
+  void createSymbolicLinkTo(final File destinationFolder) throws IOException {
     for (final File f : this.theFiles) {
       final File destinationFile = new File(destinationFolder, f.getName());
       Files.createSymbolicLink(destinationFile.toPath(), f.toPath());
@@ -103,7 +103,7 @@ final class FileSet {
    * @param field the field to add the files in this set to.
    * @return the filled out ConfigurationModule
    */
-  final ConfigurationModule addNamesTo(final ConfigurationModule input, final OptionalParameter<String> field) {
+  ConfigurationModule addNamesTo(final ConfigurationModule input, final OptionalParameter<String> field) {
     ConfigurationModule result = input;
     for (final String fileName : this.fileNames()) {
       result = result.set(field, fileName);

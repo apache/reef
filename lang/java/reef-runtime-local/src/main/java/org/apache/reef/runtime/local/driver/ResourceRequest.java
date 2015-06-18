@@ -42,7 +42,7 @@ final class ResourceRequest {
   /**
    * Records that one resource has been allocated to this Request.
    */
-  final void satisfyOne() {
+  void satisfyOne() {
     this.satisfied += 1;
     if (this.satisfied > req.getResourceCount()) {
       throw new IllegalStateException("This request has been oversatisfied.");
@@ -53,11 +53,11 @@ final class ResourceRequest {
    * @return true if the request is satisfied with this additional unit of
    * resource, false otherwise.
    */
-  final boolean isSatisfied() {
+  boolean isSatisfied() {
     return this.satisfied == req.getResourceCount();
   }
 
-  final ResourceRequestEvent getRequestProto() {
+  ResourceRequestEvent getRequestProto() {
     return this.req;
   }
 }

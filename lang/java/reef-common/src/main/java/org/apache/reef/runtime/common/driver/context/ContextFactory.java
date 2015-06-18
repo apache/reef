@@ -76,7 +76,7 @@ final class ContextFactory {
    * @param parentID
    * @return a new Context representer with the given id and parent id.
    */
-  public final EvaluatorContext newContext(final String contextId, final Optional<String> parentID) {
+  public EvaluatorContext newContext(final String contextId, final Optional<String> parentID) {
     synchronized (this.priorIds) {
       if (this.priorIds.contains(contextId)) {
         throw new IllegalStateException("Creating second EvaluatorContext instance for id " + contextId);

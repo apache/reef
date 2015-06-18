@@ -36,7 +36,7 @@ public interface Broadcast {
    * Sender or Root.
    */
   @DefaultImplementation(BroadcastSender.class)
-  static interface Sender<T> extends GroupCommOperator {
+  interface Sender<T> extends GroupCommOperator {
 
     /**
      * Send element to all receivers.
@@ -48,7 +48,7 @@ public interface Broadcast {
    * Receivers or Non-roots.
    */
   @DefaultImplementation(BroadcastReceiver.class)
-  static interface Receiver<T> extends GroupCommOperator {
+  interface Receiver<T> extends GroupCommOperator {
 
     /**
      * Receiver the element broadcasted by sender.

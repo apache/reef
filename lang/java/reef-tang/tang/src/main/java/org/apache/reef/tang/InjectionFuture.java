@@ -91,17 +91,17 @@ public final class InjectionFuture<T> implements Future<T> {
   }
 
   @Override
-  public final boolean cancel(boolean mayInterruptIfRunning) {
+  public boolean cancel(boolean mayInterruptIfRunning) {
     return false;
   }
 
   @Override
-  public final boolean isCancelled() {
+  public boolean isCancelled() {
     return false;
   }
 
   @Override
-  public final boolean isDone() {
+  public boolean isDone() {
     return true;
   }
 

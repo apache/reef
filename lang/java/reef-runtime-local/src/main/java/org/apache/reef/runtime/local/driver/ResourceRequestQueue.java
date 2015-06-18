@@ -39,14 +39,14 @@ final class ResourceRequestQueue {
    *
    * @param req the request to be added.
    */
-  final void add(final ResourceRequest req) {
+  void add(final ResourceRequest req) {
     this.requestQueue.add(req);
   }
 
   /**
    * @return true if there are outstanding resource requests. false otherwise.
    */
-  final boolean hasOutStandingRequests() {
+  boolean hasOutStandingRequests() {
     return !this.requestQueue.isEmpty();
   }
 
@@ -54,7 +54,7 @@ final class ResourceRequestQueue {
    * Satisfies one resource for the front-most request. If that satisfies the
    * request, it is removed from the queue.
    */
-  final synchronized ResourceRequestEvent satisfyOne() {
+  synchronized ResourceRequestEvent satisfyOne() {
     final ResourceRequest req = this.requestQueue.element();
     req.satisfyOne();
     if (req.isSatisfied()) {
@@ -63,7 +63,7 @@ final class ResourceRequestQueue {
     return req.getRequestProto();
   }
 
-  final synchronized int getNumberOfOutstandingRequests() {
+  synchronized int getNumberOfOutstandingRequests() {
     return this.requestQueue.size();
   }
 

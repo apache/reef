@@ -25,6 +25,6 @@ public interface Identifiable {
    *
    * @return an identifier of this object
    */
-  public Identifier getId();
+  Identifier getId();
 
 }
