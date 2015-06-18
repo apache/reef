@@ -33,7 +33,7 @@ public interface Identifier {
    *
    * @return a hash code value for this object
    */
-  public int hashCode();
+  int hashCode();
 
   /**
    * Checks that another object is equal to this object.
@@ -42,13 +42,13 @@ public interface Identifier {
    * @return true if the object is the same as the object argument; false,
    * otherwise
    */
-  public boolean equals(Object o);
+  boolean equals(Object o);
 
   /**
    * Return a string representation of this object. This method should return a
    * URL-style string, that begins with "type://", where "type" is chosen to
    * uniquely identify this type of identifier.
    */
-  public String toString();
+  String toString();
 
 }

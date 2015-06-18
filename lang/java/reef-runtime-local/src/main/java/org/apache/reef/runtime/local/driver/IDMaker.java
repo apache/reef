@@ -40,7 +40,7 @@ public final class IDMaker {
   /**
    * @return the next ID
    */
-  public final String getNextID() {
+  public String getNextID() {
     this.counter += 1;
     return this.prefix + this.counter;
   }

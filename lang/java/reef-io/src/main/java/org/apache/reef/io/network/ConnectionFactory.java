@@ -33,5 +33,5 @@ public interface ConnectionFactory<T> {
    * @param destId a destination identifier
    * @return a connection
    */
-  public Connection<T> newConnection(Identifier destId);
+  Connection<T> newConnection(Identifier destId);
 }

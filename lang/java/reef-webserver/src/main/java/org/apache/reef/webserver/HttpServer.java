@@ -28,26 +28,26 @@ public interface HttpServer {
    *
    * @throws Exception
    */
-  public void start() throws Exception;
+  void start() throws Exception;
 
   /**
    * stop the server.
    *
    * @throws Exception
    */
-  public void stop() throws Exception;
+  void stop() throws Exception;
 
   /**
    * get port number of the server.
    *
    * @return
    */
-  public int getPort();
+  int getPort();
 
   /**
    * Add a httpHandler to the server.
    *
    * @param httpHandler
    */
-  public void addHttpHandler(final HttpHandler httpHandler);
+  void addHttpHandler(final HttpHandler httpHandler);
 }

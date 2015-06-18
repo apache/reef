@@ -426,7 +426,7 @@ public class Tint {
     }
   }
 
-  private final boolean classFilter(boolean checkTang, String s) {
+  private boolean classFilter(boolean checkTang, String s) {
     return (checkTang || /*s.startsWith("org.apache.reef.tang.examples.timer") ||*/ !s.startsWith("org.apache.reef.tang"));
   }
 

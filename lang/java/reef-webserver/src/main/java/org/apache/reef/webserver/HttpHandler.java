@@ -31,14 +31,14 @@ public interface HttpHandler {
    *
    * @return
    */
-  public String getUriSpecification();
+  String getUriSpecification();
 
   /**
    * return specification of the handler. e.g Reef
    *
    * @return
    */
-  public void setUriSpecification(final String s);
+  void setUriSpecification(final String s);
 
   /**
    * Will be called when request comes.

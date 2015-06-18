@@ -43,5 +43,5 @@ public interface FlexiblePreemptionEvent extends PreemptionEvent {
   /**
    * @return the set of EvaluatorRequests that the underlying resource manager seeks to satisfy.
    */
-  public Set<EvaluatorRequest> getEvaluatorRequest();
+  Set<EvaluatorRequest> getEvaluatorRequest();
 }

@@ -121,14 +121,14 @@ final class RootContextLauncher {
   /**
    * @return the root context for this evaluator.
    */
-  final ContextRuntime getRootContext() throws ContextClientCodeException {
+  ContextRuntime getRootContext() throws ContextClientCodeException {
     if (null == this.rootContext) {
       this.rootContext = getRootContext(this.injector, this.rootContextConfiguration, this.rootServiceConfiguration);
     }
     return this.rootContext;
   }
 
-  final Optional<Configuration> getInitialTaskConfiguration() {
+  Optional<Configuration> getInitialTaskConfiguration() {
     return this.initialTaskConfiguration;
   }
 }

@@ -218,7 +218,7 @@ public final class EvaluatorContext implements ActiveContext {
         ", parentID=" + this.parentID + '}';
   }
 
-  public synchronized final ClosedContext getClosedContext(final ActiveContext parentContext) {
+  public synchronized ClosedContext getClosedContext(final ActiveContext parentContext) {
     return new ClosedContextImpl(
         parentContext, this.getId(), this.getEvaluatorId(), this.getEvaluatorDescriptor());
   }

@@ -43,7 +43,7 @@ public interface Spool<T> extends Iterable<T>, Accumulable<T> {
    * @throws Exception
    */
   @Override
-  public Iterator<T> iterator();
+  Iterator<T> iterator();
 
   /**
    * Returns an Accumulator for the spool file.
@@ -56,5 +56,5 @@ public interface Spool<T> extends Iterable<T>, Accumulable<T> {
    * @throws ServiceException
    */
   @Override
-  public Accumulator<T> accumulator() throws ServiceException;
+  Accumulator<T> accumulator() throws ServiceException;
 }

@@ -25,5 +25,5 @@ import org.apache.reef.tang.annotations.DefaultImplementation;
  */
 @DefaultImplementation(DefaultTrackingURLProvider.class)
 public interface TrackingURLProvider {
-  public String getTrackingUrl();
+  String getTrackingUrl();
 }

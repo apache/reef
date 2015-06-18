@@ -35,5 +35,5 @@ public interface Accumulable<T> {
    * @return the new {@link Accumulator}
    * @throws ServiceException
    */
-  public Accumulator<T> accumulator() throws ServiceException;
+  Accumulator<T> accumulator() throws ServiceException;
 }

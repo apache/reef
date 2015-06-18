@@ -72,7 +72,7 @@ public class ConfigurationModule {
     return cm;
   }
 
-  private final <T> void processSet(Object impl) {
+  private <T> void processSet(Object impl) {
     Field f = builder.map.get(impl);
     if (f == null) { /* throw */
       throw new ClassHierarchyException("Unknown Impl/Param when setting " + ReflectionUtilities.getSimpleName(impl.getClass()) + ".  Did you pass in a field from some other module?");

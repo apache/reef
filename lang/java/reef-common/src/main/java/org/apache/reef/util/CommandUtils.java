@@ -33,7 +33,7 @@ final public class CommandUtils {
    */
   private static final Logger LOG = Logger.getLogger(CommandUtils.class.getName());
 
-  public final static String runCommand(final String command) {
+  public static String runCommand(final String command) {
     final StringBuilder sb = new StringBuilder();
     try {
       final String cmd = OSUtils.isWindows() ? "cmd.exe /c " + command : command;

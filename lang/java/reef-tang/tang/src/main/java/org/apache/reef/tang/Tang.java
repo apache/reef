@@ -35,18 +35,18 @@ public interface Tang {
    *
    * @throws BindException If the confs conflict, a BindException will be thrown.
    */
-  public Injector newInjector(final Configuration... confs)
+  Injector newInjector(final Configuration... confs)
       throws BindException;
 
   /**
    * Returns an Injector for the given Configuration.
    */
-  public Injector newInjector(final Configuration confs);
+  Injector newInjector(final Configuration confs);
 
   /**
    * Returns an Injector based on an empty Configuration.
    */
-  public Injector newInjector();
+  Injector newInjector();
 
   /**
    * Return a new ConfigurationBuilder that is backed by the provided
@@ -55,7 +55,7 @@ public interface Tang {
    * @param ch Any valid Tang ClassHierarchy, including ones derived from non-Java application binaries.
    * @return an instance of ConfigurationBuilder.  In Tang's default implementation this returns an instance or JavaConfigurationBuilder if ch is backed by a Java classloader.
    */
-  public ConfigurationBuilder newConfigurationBuilder(ClassHierarchy ch);
+  ConfigurationBuilder newConfigurationBuilder(ClassHierarchy ch);
 
   /**
    * Create a new ConfigurationBuilder that is backed by the default
@@ -66,7 +66,7 @@ public interface Tang {
    *
    * @return a new JavaConfigurationBuilder
    */
-  public JavaConfigurationBuilder newConfigurationBuilder(URL... jars);
+  JavaConfigurationBuilder newConfigurationBuilder(URL... jars);
 
   /**
    * Merge a set of configurations into a new JavaConfiurationBuilder.  If
@@ -82,7 +82,7 @@ public interface Tang {
    *                       conflicting bindings, or if the backing ClassHierarchy objects conflict
    *                       in some way.
    */
-  public JavaConfigurationBuilder newConfigurationBuilder(Configuration... confs)
+  JavaConfigurationBuilder newConfigurationBuilder(Configuration... confs)
       throws BindException;
 
   /**
@@ -92,7 +92,7 @@ public interface Tang {
    *
    * @return a new ConfigurationBuilder
    */
-  public JavaConfigurationBuilder newConfigurationBuilder(@SuppressWarnings("unchecked") Class<? extends ExternalConstructor<?>>... parameterParsers)
+  JavaConfigurationBuilder newConfigurationBuilder(@SuppressWarnings("unchecked") Class<? extends ExternalConstructor<?>>... parameterParsers)
       throws BindException;
 
   /**
@@ -104,21 +104,21 @@ public interface Tang {
    * this class for detailed information about each of the parameters to
    * this method.
    */
-  public JavaConfigurationBuilder newConfigurationBuilder(URL[] jars,
-                                                          Configuration[] confs, Class<? extends ExternalConstructor<?>>[] parameterParsers) throws BindException;
+  JavaConfigurationBuilder newConfigurationBuilder(URL[] jars,
+                                                   Configuration[] confs, Class<? extends ExternalConstructor<?>>[] parameterParsers) throws BindException;
 
   /**
    * Create a new empty ConfigurationBuilder that is backed by the default
    * classloader.
    */
-  public JavaConfigurationBuilder newConfigurationBuilder();
+  JavaConfigurationBuilder newConfigurationBuilder();
 
   /**
    * @return an instance of JavaClassHierarchy that is backed by the default
    * Java classloader.  ClassHierarchy objects are immutable, so multiple
    * invocations of this method may return the same instance.
    */
-  public JavaClassHierarchy getDefaultClassHierarchy();
+  JavaClassHierarchy getDefaultClassHierarchy();
 
   /**
    * @return a custom instance of JavaClassHierarchy.  ClassHierarchy objects
@@ -129,7 +129,7 @@ public interface Tang {
    * getDefaultClassHierarchy().  If so, we should add a new method like
    * getNonDefaultClassHiearchy() that takes the same options as this one.
    */
-  public JavaClassHierarchy getDefaultClassHierarchy(URL[] jars, Class<? extends ExternalConstructor<?>>[] parsers);
+  JavaClassHierarchy getDefaultClassHierarchy(URL[] jars, Class<? extends ExternalConstructor<?>>[] parsers);
 
   /**
    * A factory that returns the default implementation of the Tang interface.

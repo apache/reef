@@ -32,5 +32,5 @@ public interface Decoder<T> {
    * @param buf
    * @return the decoded object
    */
-  public T decode(byte[] data);
+  T decode(byte[] data);
 }

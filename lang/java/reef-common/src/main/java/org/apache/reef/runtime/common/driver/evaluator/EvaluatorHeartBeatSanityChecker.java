@@ -40,7 +40,7 @@ final class EvaluatorHeartBeatSanityChecker {
   EvaluatorHeartBeatSanityChecker() {
   }
 
-  final synchronized void check(final String id, final long timeStamp) {
+  synchronized void check(final String id, final long timeStamp) {
     if (knownTimeStamps.containsKey(id)) {
       final long oldTimeStamp = this.knownTimeStamps.get(id);
       LOG.log(Level.FINEST, "TIMESTAMP CHECKER: id [ " + id + " ], old timestamp [ " + oldTimeStamp + " ], new timestamp [ " + timeStamp + " ]");

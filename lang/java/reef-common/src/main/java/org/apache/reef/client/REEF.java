@@ -41,7 +41,7 @@ public interface REEF extends AutoCloseable {
    * Close the resourcemanager connection.
    */
   @Override
-  public void close();
+  void close();
 
   /**
    * Submits the Driver set up in the given Configuration for execution.
@@ -51,5 +51,5 @@ public interface REEF extends AutoCloseable {
    *
    * @param driverConf The driver configuration: including everything it needs to execute.  @see DriverConfiguration
    */
-  public void submit(final Configuration driverConf);
+  void submit(final Configuration driverConf);
 }

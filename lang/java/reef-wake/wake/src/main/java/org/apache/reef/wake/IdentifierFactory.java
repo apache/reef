@@ -26,6 +26,6 @@ public interface IdentifierFactory {
    * @param str a string
    * @return an identifier
    */
-  public Identifier getNewInstance(String str);
+  Identifier getNewInstance(String str);
 
 }

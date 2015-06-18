@@ -31,5 +31,5 @@ public interface RackDescriptor extends ResourceCatalog.Descriptor {
   /**
    * @return the list of nodes in this rack.
    */
-  public List<NodeDescriptor> getNodes();
+  List<NodeDescriptor> getNodes();
 }

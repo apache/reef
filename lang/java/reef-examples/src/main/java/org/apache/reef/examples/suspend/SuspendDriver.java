@@ -145,7 +145,7 @@ public class SuspendDriver {
    */
   final class RunningTaskHandler implements EventHandler<RunningTask> {
     @Override
-    public final void onNext(final RunningTask task) {
+    public void onNext(final RunningTask task) {
       LOG.log(Level.INFO, "Running task: {0}", task.getId());
       runningTasks.put(task.getId(), task);
       jobMessageObserver.sendMessageToClient(CODEC_STR.encode("start task: " + task.getId()));
@@ -157,7 +157,7 @@ public class SuspendDriver {
    */
   final class CompletedTaskHandler implements EventHandler<CompletedTask> {
     @Override
-    public final void onNext(final CompletedTask task) {
+    public void onNext(final CompletedTask task) {
 
       final EvaluatorDescriptor e = task.getActiveContext().getEvaluatorDescriptor();
       final String msg = "Task completed " + task.getId() + " on node " + e;
@@ -186,7 +186,7 @@ public class SuspendDriver {
    */
   final class SuspendedTaskHandler implements EventHandler<SuspendedTask> {
     @Override
-    public final void onNext(final SuspendedTask task) {
+    public void onNext(final SuspendedTask task) {
 
       final String msg = "Task suspended: " + task.getId();
       LOG.info(msg);

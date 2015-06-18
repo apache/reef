@@ -120,6 +120,7 @@ public final class CommandLine {
    * @throws ParseException
    */
   @SafeVarargs
+  @SuppressWarnings("checkstyle:redundantmodifier")
   final public <T> CommandLine processCommandLine(
       final String[] args, Class<? extends Name<?>>... argClasses)
       throws IOException, BindException {
@@ -212,6 +213,6 @@ public final class CommandLine {
   }
 
   public interface CommandLineCallback {
-    public void process(final Option option);
+    void process(final Option option);
   }
 }

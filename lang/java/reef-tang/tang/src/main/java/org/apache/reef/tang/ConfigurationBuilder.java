@@ -73,7 +73,7 @@ public interface ConfigurationBuilder {
    *
    * @param c
    */
-  public void addConfiguration(final Configuration c) throws BindException;
+  void addConfiguration(final Configuration c) throws BindException;
 
   /**
    * Each ConfigurationBuilder instance is associated with a ClassHierarchy.
@@ -84,7 +84,7 @@ public interface ConfigurationBuilder {
    * ConfigurationBuilder. No copy is made, since ClassHierarchy objects
    * are effectively immutable.
    */
-  public ClassHierarchy getClassHierarchy();
+  ClassHierarchy getClassHierarchy();
 
   /**
    * Force Tang to treat the specified constructor as though it had an @Inject
@@ -142,7 +142,7 @@ public interface ConfigurationBuilder {
    *                       and values) if iface is not a NamedParameter, or if impl
    *                       fails to parse as the type the iface expects.
    */
-  public <T> void bind(String iface, String impl)
+  <T> void bind(String iface, String impl)
       throws BindException;
 
   /**
@@ -189,21 +189,21 @@ public interface ConfigurationBuilder {
    * @param impl  The ExternalConstructor class that will be used to instantiate iface.
    * @throws BindException If impl does not instantiate a subclass of iface.
    */
-  public <T> void bindConstructor(ClassNode<T> iface,
-                                  ClassNode<? extends ExternalConstructor<? extends T>> impl)
+  <T> void bindConstructor(ClassNode<T> iface,
+                           ClassNode<? extends ExternalConstructor<? extends T>> impl)
       throws BindException;
 
   /**
    * Pretty print the default implementation / value of the provided class / NamedParamter.
    * This is used by Tang to produce human readable error messages.
    */
-  public String classPrettyDefaultString(String longName) throws BindException;
+  String classPrettyDefaultString(String longName) throws BindException;
 
   /**
    * Pretty print the human readable documentation of the provided class / NamedParamter.
    * This is used by Tang to produce human readable error messages.
    */
-  public String classPrettyDescriptionString(String longName)
+  String classPrettyDescriptionString(String longName)
       throws BindException;
 
   /**
@@ -218,17 +218,17 @@ public interface ConfigurationBuilder {
    *
    * @return
    */
-  public Configuration build();
+  Configuration build();
 
-  public <T> void bindSetEntry(NamedParameterNode<Set<T>> iface, Node impl)
+  <T> void bindSetEntry(NamedParameterNode<Set<T>> iface, Node impl)
       throws BindException;
 
-  public <T> void bindSetEntry(NamedParameterNode<Set<T>> iface, String impl)
+  <T> void bindSetEntry(NamedParameterNode<Set<T>> iface, String impl)
       throws BindException;
 
-  public void bindSetEntry(String iface, String impl) throws BindException;
+  void bindSetEntry(String iface, String impl) throws BindException;
 
-  public void bindSetEntry(String iface, Node impl) throws BindException;
+  void bindSetEntry(String iface, Node impl) throws BindException;
 
   /**
    * Bind an list of implementations(Class or String) to an given NamedParameter.
@@ -244,8 +244,8 @@ public interface ConfigurationBuilder {
    * @param implList The list of class or value will be used to instantiated the named parameter
    * @throws BindException
    */
-  public <T> void bindList(NamedParameterNode<List<T>> iface, List implList) throws BindException;
+  <T> void bindList(NamedParameterNode<List<T>> iface, List implList) throws BindException;
 
-  public void bindList(String iface, List implList) throws BindException;
+  void bindList(String iface, List implList) throws BindException;
 
 }

@@ -124,7 +124,7 @@ public final class ResourceManager {
    *
    * @param resourceRequest the resource request to be handled.
    */
-  final void onResourceRequest(final ResourceRequestEvent resourceRequest) {
+  void onResourceRequest(final ResourceRequestEvent resourceRequest) {
     synchronized (this.theContainers) {
       this.requestQueue.add(new ResourceRequest(resourceRequest));
       this.checkRequestQueue();
@@ -136,7 +136,7 @@ public final class ResourceManager {
    *
    * @param releaseRequest the release request to be processed
    */
-  final void onResourceReleaseRequest(final ResourceReleaseEvent releaseRequest) {
+  void onResourceReleaseRequest(final ResourceReleaseEvent releaseRequest) {
     synchronized (this.theContainers) {
       LOG.log(Level.FINEST, "Release container: {0}", releaseRequest.getIdentifier());
       this.theContainers.release(releaseRequest.getIdentifier());
@@ -149,7 +149,7 @@ public final class ResourceManager {
    *
    * @param evaluatorId the ID of the Evaluator that exited.
    */
-  public final void onEvaluatorExit(final String evaluatorId) {
+  public void onEvaluatorExit(final String evaluatorId) {
     synchronized (this.theContainers) {
       this.theContainers.release(evaluatorId);
       this.checkRequestQueue();
@@ -161,7 +161,7 @@ public final class ResourceManager {
    *
    * @param launchRequest the launch request to be processed.
    */
-  final void onResourceLaunchRequest(
+  void onResourceLaunchRequest(
       final ResourceLaunchEvent launchRequest) {
 
     synchronized (this.theContainers) {

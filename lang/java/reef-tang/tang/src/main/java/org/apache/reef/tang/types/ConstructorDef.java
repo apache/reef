@@ -19,11 +19,11 @@
 package org.apache.reef.tang.types;
 
 public interface ConstructorDef<T> extends Comparable<ConstructorDef<?>> {
-  public String getClassName();
+  String getClassName();
 
-  public ConstructorArg[] getArgs();
+  ConstructorArg[] getArgs();
 
-  public boolean isMoreSpecificThan(ConstructorDef<?> def);
+  boolean isMoreSpecificThan(ConstructorDef<?> def);
 
-  public boolean takesParameters(ClassNode<?>[] paramTypes);
+  boolean takesParameters(ClassNode<?>[] paramTypes);
 }

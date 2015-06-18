@@ -35,7 +35,7 @@ public interface Scatter {
   /**
    * Sender or Root.
    */
-  static interface Sender<T> extends GroupCommOperator {
+  interface Sender<T> extends GroupCommOperator {
 
     /**
      * Distributes evenly across task ids sorted lexicographically.
@@ -63,7 +63,7 @@ public interface Scatter {
   /**
    * Receiver or non-roots.
    */
-  static interface Receiver<T> extends GroupCommOperator {
+  interface Receiver<T> extends GroupCommOperator {
     /**
      * Receive the sub-list of elements targeted for the current receiver.
      *

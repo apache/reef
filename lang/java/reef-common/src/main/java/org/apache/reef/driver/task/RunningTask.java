@@ -36,7 +36,7 @@ public interface RunningTask extends Identifiable, AutoCloseable {
   /**
    * @return the context the task is running on.
    */
-  public ActiveContext getActiveContext();
+  ActiveContext getActiveContext();
 
 
   /**
@@ -44,30 +44,30 @@ public interface RunningTask extends Identifiable, AutoCloseable {
    *
    * @param message to be sent to the running task
    */
-  public void send(final byte[] message);
+  void send(final byte[] message);
 
   /**
    * Signal the task to suspend.
    *
    * @param message a message that is sent to the Task.
    */
-  public void suspend(final byte[] message);
+  void suspend(final byte[] message);
 
   /**
    * Signal the task to suspend.
    */
-  public void suspend();
+  void suspend();
 
   /**
    * Signal the task to shut down.
    *
    * @param message a message that is sent to the Task.
    */
-  public void close(final byte[] message);
+  void close(final byte[] message);
 
   /**
    * Signal the task to shut down.
    */
   @Override
-  public void close();
+  void close();
 }

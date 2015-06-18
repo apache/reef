@@ -28,6 +28,6 @@ public interface CheckpointNamingService {
    *
    * @return the checkpoint name
    */
-  public String getNewName();
+  String getNewName();
 
 }

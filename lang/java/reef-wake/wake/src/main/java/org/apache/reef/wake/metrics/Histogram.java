@@ -28,14 +28,14 @@ public interface Histogram {
    *
    * @param value the new value
    */
-  public void update(long value);
+  void update(long value);
 
   /**
    * Returns the number of recorded values.
    *
    * @return the number of recorded values
    */
-  public long getCount();
+  long getCount();
 
   /**
    * Returns the value of the index.
@@ -44,12 +44,12 @@ public interface Histogram {
    * @return the value of the index
    * @throws IndexOutOfBoundsException
    */
-  public long getValue(int index);
+  long getValue(int index);
 
   /**
    * Returns the number of bins.
    *
    * @return the number of bins
    */
-  public int getNumBins();
+  int getNumBins();
 }

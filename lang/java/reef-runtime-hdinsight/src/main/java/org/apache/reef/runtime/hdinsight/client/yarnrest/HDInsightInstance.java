@@ -168,7 +168,7 @@ public final class HDInsightInstance {
     return "ws/v1/cluster/apps/" + applicationId;
   }
 
-  private final String getHost() throws URISyntaxException {
+  private String getHost() throws URISyntaxException {
     final URI uri = new URI(this.instanceUrl);
     return uri.getHost();
   }

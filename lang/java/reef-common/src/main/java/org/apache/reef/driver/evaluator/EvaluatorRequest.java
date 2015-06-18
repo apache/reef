@@ -86,7 +86,7 @@ public final class EvaluatorRequest {
    * @return the {@link org.apache.reef.driver.catalog.NodeDescriptor} used as the template for this
    * {@link EvaluatorRequest}.
    */
-  public final ResourceCatalog.Descriptor getDescriptor() {
+  public ResourceCatalog.Descriptor getDescriptor() {
     return this.descriptor;
   }
 

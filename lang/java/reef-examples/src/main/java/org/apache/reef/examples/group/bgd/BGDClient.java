@@ -88,7 +88,7 @@ public class BGDClient {
     return DriverLauncher.getLauncher(runtimeConfiguration).run(driverConfiguration, timeout);
   }
 
-  private final Configuration getDriverConfiguration(final String jobName) {
+  private Configuration getDriverConfiguration(final String jobName) {
     return Configurations.merge(
         getDataLoadConfiguration(jobName),
         GroupCommService.getConfiguration(fanOut),

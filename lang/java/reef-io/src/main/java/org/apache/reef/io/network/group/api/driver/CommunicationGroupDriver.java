@@ -42,7 +42,7 @@ public interface CommunicationGroupDriver {
    * @param spec
    * @return
    */
-  public CommunicationGroupDriver addBroadcast(Class<? extends Name<String>> operatorName, BroadcastOperatorSpec spec);
+  CommunicationGroupDriver addBroadcast(Class<? extends Name<String>> operatorName, BroadcastOperatorSpec spec);
 
   /**
    * Add the reduce operator specified by the.
@@ -53,7 +53,7 @@ public interface CommunicationGroupDriver {
    * @param spec
    * @return
    */
-  public CommunicationGroupDriver addReduce(Class<? extends Name<String>> operatorName, ReduceOperatorSpec spec);
+  CommunicationGroupDriver addReduce(Class<? extends Name<String>> operatorName, ReduceOperatorSpec spec);
 
   /**
    * This signals to the service that no more.
@@ -61,7 +61,7 @@ public interface CommunicationGroupDriver {
    * group and an attempt to do that will throw an
    * IllegalStateException
    */
-  public void finalise();
+  void finalise();
 
   /**
    * Returns a configuration that includes the partial task
@@ -73,7 +73,7 @@ public interface CommunicationGroupDriver {
    * @param taskConf
    * @return
    */
-  public Configuration getTaskConfiguration(Configuration taskConf);
+  Configuration getTaskConfiguration(Configuration taskConf);
 
   /**
    * Add the task represented by this configuration to this
@@ -82,5 +82,5 @@ public interface CommunicationGroupDriver {
    *
    * @param partialTaskConf
    */
-  public void addTask(Configuration partialTaskConf);
+  void addTask(Configuration partialTaskConf);
 }

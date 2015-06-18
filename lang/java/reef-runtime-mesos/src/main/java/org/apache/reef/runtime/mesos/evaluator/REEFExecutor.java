@@ -82,7 +82,7 @@ public final class REEFExecutor implements Executor {
   }
 
   @Override
-  public final void registered(final ExecutorDriver driver,
+  public void registered(final ExecutorDriver driver,
                          final ExecutorInfo executorInfo,
                          final FrameworkInfo frameworkInfo,
                          final SlaveInfo slaveInfo) {
@@ -91,12 +91,12 @@ public final class REEFExecutor implements Executor {
   }
 
   @Override
-  public final void reregistered(final ExecutorDriver driver, final SlaveInfo slaveInfo) {
+  public void reregistered(final ExecutorDriver driver, final SlaveInfo slaveInfo) {
     LOG.log(Level.FINEST, "Executor reregistered. driver: {0}", driver);
   }
 
   @Override
-  public final void disconnected(final ExecutorDriver driver) {
+  public void disconnected(final ExecutorDriver driver) {
     this.onRuntimeError();
   }
 
@@ -104,7 +104,7 @@ public final class REEFExecutor implements Executor {
    * We assume a long-running Mesos Task that manages a REEF Evaluator process, leveraging Mesos Executor's interface.
    */
   @Override
-  public final void launchTask(final ExecutorDriver driver, final TaskInfo task) {
+  public void launchTask(final ExecutorDriver driver, final TaskInfo task) {
     driver.sendStatusUpdate(TaskStatus.newBuilder()
         .setTaskId(TaskID.newBuilder().setValue(this.mesosExecutorId).build())
         .setState(TaskState.TASK_STARTING)
@@ -114,23 +114,23 @@ public final class REEFExecutor implements Executor {
   }
 
   @Override
-  public final void killTask(final ExecutorDriver driver, final TaskID taskId) {
+  public void killTask(final ExecutorDriver driver, final TaskID taskId) {
     this.onStop();
   }
 
   @Override
-  public final void frameworkMessage(final ExecutorDriver driver, final byte[] data) {
+  public void frameworkMessage(final ExecutorDriver driver, final byte[] data) {
     LOG.log(Level.FINEST, "Framework Messge. ExecutorDriver: {0}, data: {1}.",
         new Object[]{driver, data});
   }
 
   @Override
-  public final void shutdown(final ExecutorDriver driver) {
+  public void shutdown(final ExecutorDriver driver) {
     this.onStop();
   }
 
   @Override
-  public final void error(final ExecutorDriver driver, final String message) {
+  public void error(final ExecutorDriver driver, final String message) {
     this.onRuntimeError();
   }
 
@@ -190,13 +190,13 @@ public final class REEFExecutor implements Executor {
     this.mesosExecutorDriver.stop();
   }
 
-  public final void onEvaluatorRelease(final EvaluatorRelease evaluatorRelease) {
+  public void onEvaluatorRelease(final EvaluatorRelease evaluatorRelease) {
     LOG.log(Level.INFO, "Release!!!! {0}", evaluatorRelease.toString());
     assert(evaluatorRelease.getIdentifier().toString().equals(this.mesosExecutorId));
     this.onStop();
   }
 
-  public final void onEvaluatorLaunch(final EvaluatorLaunch evaluatorLaunch) {
+  public void onEvaluatorLaunch(final EvaluatorLaunch evaluatorLaunch) {
     LOG.log(Level.INFO, "Launch!!!! {0}", evaluatorLaunch.toString());
     assert(evaluatorLaunch.getIdentifier().toString().equals(this.mesosExecutorId));
     final ExecutorService evaluatorLaunchExecutorService = Executors.newSingleThreadExecutor();

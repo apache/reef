@@ -42,7 +42,7 @@ public final class BlockingEventHandler<T> implements EventHandler<T> {
   }
 
   @Override
-  public final void onNext(final T event) {
+  public void onNext(final T event) {
     if (this.isComplete()) {
       throw new IllegalStateException("Received more Events than expected");
     }

@@ -36,11 +36,11 @@ public interface CompletedTask extends Message, Identifiable {
   /**
    * @return the context the Task ran on.
    */
-  public ActiveContext getActiveContext();
+  ActiveContext getActiveContext();
 
   /**
    * @return the id of the completed task.
    */
   @Override
-  public String getId();
+  String getId();
 }

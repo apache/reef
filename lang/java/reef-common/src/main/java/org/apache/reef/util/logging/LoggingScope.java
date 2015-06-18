@@ -25,5 +25,5 @@ package org.apache.reef.util.logging;
 public interface LoggingScope extends AutoCloseable {
 
   @Override
-  public void close();
+  void close();
 }

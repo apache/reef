@@ -32,7 +32,7 @@ public interface LinkListener<T> {
    *
    * @param message the sent message
    */
-  public void onSuccess(T message);
+  void onSuccess(T message);
 
   /**
    * Called when the sent message to remoteAddress is failed to be transferred.
@@ -41,5 +41,5 @@ public interface LinkListener<T> {
    * @param remoteAddress the exception occurred remote address
    * @param message the send message
    */
-  public void onException(Throwable cause, SocketAddress remoteAddress, T message);
+  void onException(Throwable cause, SocketAddress remoteAddress, T message);
 }

@@ -27,7 +27,7 @@ public interface RunnableProcessObserver {
    *
    * @param processId the id of the process that started.
    */
-  public void onProcessStarted(final String processId);
+  void onProcessStarted(final String processId);
 
   /**
    * This will be called right after the process exited.
@@ -35,5 +35,5 @@ public interface RunnableProcessObserver {
    * @param exitCode  the return code of the process.
    * @param processId the id of the process that exited.
    */
-  public void onProcessExit(final String processId, final int exitCode);
+  void onProcessExit(final String processId, final int exitCode);
 }

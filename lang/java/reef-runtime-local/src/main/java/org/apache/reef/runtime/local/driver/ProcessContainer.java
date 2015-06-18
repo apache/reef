@@ -129,17 +129,17 @@ final class ProcessContainer implements Container {
   }
 
   @Override
-  public final boolean isRunning() {
+  public boolean isRunning() {
     return null != this.theThread && this.theThread.isAlive();
   }
 
   @Override
-  public final int getMemory() {
+  public int getMemory() {
     return this.megaBytes;
   }
 
   @Override
-  public final int getNumberOfCores() {
+  public int getNumberOfCores() {
     return this.numberOfCores;
   }
 

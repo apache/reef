@@ -36,17 +36,17 @@ public interface ContextMessage extends Message, Identifiable {
    * @return the message sent by the Context.
    */
   @Override
-  public byte[] get();
+  byte[] get();
 
   /**
    * @return the ID of the sending Context.
    */
   @Override
-  public String getId();
+  String getId();
 
   /**
    * @return the ID of the ContextMessageSource that sent the message on the Context.
    */
-  public String getMessageSourceID();
+  String getMessageSourceID();
 
 }

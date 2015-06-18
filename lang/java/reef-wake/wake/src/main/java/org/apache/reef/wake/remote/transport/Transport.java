@@ -44,7 +44,7 @@ public interface Transport extends Stage {
    * @return a link associated with the address
    * @throws IOException
    */
-  public <T> Link<T> open(SocketAddress remoteAddr, Encoder<? super T> encoder, LinkListener<? super T> listener) throws IOException;
+  <T> Link<T> open(SocketAddress remoteAddr, Encoder<? super T> encoder, LinkListener<? super T> listener) throws IOException;
 
   /**
    * Returns a link for the remote address if already cached; otherwise, returns null.
@@ -52,26 +52,26 @@ public interface Transport extends Stage {
    * @param remoteAddr the remote address
    * @return a link if already cached; otherwise, null
    */
-  public <T> Link<T> get(SocketAddress remoteAddr);
+  <T> Link<T> get(SocketAddress remoteAddr);
 
   /**
    * Gets a server listening port of this transport.
    *
    * @return a listening port number
    */
-  public int getListeningPort();
+  int getListeningPort();
 
   /**
    * Gets a server local socket address of this transport.
    *
    * @return a server local socket address
    */
-  public SocketAddress getLocalAddress();
+  SocketAddress getLocalAddress();
 
   /**
    * Registers the exception handler.
    *
    * @param handler the exception handler
    */
-  public void registerErrorHandler(EventHandler<Exception> handler);
+  void registerErrorHandler(EventHandler<Exception> handler);
 }

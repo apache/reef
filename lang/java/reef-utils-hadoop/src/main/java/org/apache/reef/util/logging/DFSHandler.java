@@ -49,7 +49,7 @@ public final class DFSHandler extends Handler {
     this.streamHandler = new StreamHandler(logOutputStream, logFormatter);
   }
 
-  private static final <T> T getInstance(final String className, final T defaultValue) {
+  private static <T> T getInstance(final String className, final T defaultValue) {
     try {
       final Class aClass = ClassLoader.getSystemClassLoader().loadClass(className);
       return (T) aClass.newInstance();

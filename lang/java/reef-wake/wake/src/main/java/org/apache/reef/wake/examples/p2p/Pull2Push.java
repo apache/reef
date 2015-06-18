@@ -56,7 +56,7 @@ public final class Pull2Push<T> implements Runnable, AutoCloseable {
    * @param source The source that will be added to the queue of this
    *               Pull2Push
    */
-  public final void register(final EventSource<T> source) {
+  public void register(final EventSource<T> source) {
     this.sources.add(source);
   }
 

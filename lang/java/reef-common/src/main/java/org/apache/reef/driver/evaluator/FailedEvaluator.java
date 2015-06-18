@@ -40,16 +40,16 @@ public interface FailedEvaluator extends Identifiable {
   /**
    * @return the reason for the failure.
    */
-  public EvaluatorException getEvaluatorException();
+  EvaluatorException getEvaluatorException();
 
   /**
    * @return the list of all context that failed due to the evaluator failure.
    */
-  public List<FailedContext> getFailedContextList();
+  List<FailedContext> getFailedContextList();
 
   /**
    * @return the failed task, if there was one running at the time of the evaluator failure.
    */
-  public Optional<FailedTask> getFailedTask();
+  Optional<FailedTask> getFailedTask();
 
 }

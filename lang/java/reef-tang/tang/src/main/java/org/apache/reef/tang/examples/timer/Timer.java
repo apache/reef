@@ -24,7 +24,7 @@ import org.apache.reef.tang.annotations.NamedParameter;
 
 @DefaultImplementation(TimerImpl.class)
 public interface Timer {
-  public void sleep() throws Exception;
+  void sleep() throws Exception;
 
   @NamedParameter(default_value = "10",
       doc = "Number of seconds to sleep", short_name = "sec")

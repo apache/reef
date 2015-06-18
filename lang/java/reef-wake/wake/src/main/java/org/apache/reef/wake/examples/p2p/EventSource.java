@@ -29,5 +29,5 @@ public interface EventSource<T> {
   /**
    * @return a event or null if no more messages are available.
    */
-  public T getNext();
+  T getNext();
 }

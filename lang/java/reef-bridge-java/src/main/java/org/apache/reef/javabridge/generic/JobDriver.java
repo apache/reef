@@ -628,7 +628,7 @@ public final class JobDriver {
    */
   public final class SuspendedTaskHandler implements EventHandler<SuspendedTask> {
     @Override
-    public final void onNext(final SuspendedTask task) {
+    public void onNext(final SuspendedTask task) {
       final String message = "Received notification that task [" + task.getId() + "] has been suspended.";
       LOG.log(Level.INFO, message);
       try (final LoggingScope ls = loggingScopeFactory.taskSuspended(task.getId())) {

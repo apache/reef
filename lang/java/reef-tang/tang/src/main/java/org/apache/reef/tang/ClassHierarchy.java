@@ -44,12 +44,12 @@ public interface ClassHierarchy {
    * @throws NameResolutionException If the class is not found.
    * @throws ClassHierarchyException If the class does not pass Tang's static analysis.
    */
-  public Node getNode(String fullName) throws NameResolutionException;
+  Node getNode(String fullName) throws NameResolutionException;
 
   /**
    * @return true if impl is a subclass of inter.
    */
-  public boolean isImplementation(ClassNode<?> inter, ClassNode<?> impl);
+  boolean isImplementation(ClassNode<?> inter, ClassNode<?> impl);
 
   /**
    * Merge the contents of this ClassHierarchy and the provided one into a new
@@ -64,7 +64,7 @@ public interface ClassHierarchy {
    * ClassHierarchies derived from applications written in different languages
    * cannot be merged.
    */
-  public ClassHierarchy merge(ClassHierarchy ch);
+  ClassHierarchy merge(ClassHierarchy ch);
 
   /**
    * Return a reference to the root of the ClassHierarchy.  This is needed by

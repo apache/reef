@@ -309,7 +309,7 @@ public abstract class ConfigurationModuleBuilder {
     return c;
   }
 
-  private final <T> void processUse(Object impl) {
+  private <T> void processUse(Object impl) {
     Field f = map.get(impl);
     if (f == null) { /* throw */
       throw new ClassHierarchyException("Unknown Impl/Param when binding " + ReflectionUtilities.getSimpleName(impl.getClass()) + ".  Did you pass in a field from some other module?");

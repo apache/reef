@@ -34,6 +34,6 @@ public interface ContextStop extends Identifiable {
   /**
    * @return the ID of the EvaluatorContext.
    */
-  public String getId();
+  String getId();
 
 }

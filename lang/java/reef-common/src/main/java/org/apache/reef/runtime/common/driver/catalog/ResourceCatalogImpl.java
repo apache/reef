@@ -64,11 +64,11 @@ public final class ResourceCatalogImpl implements ResourceCatalog {
     return Collections.unmodifiableCollection(new ArrayList<RackDescriptor>(this.racks.values()));
   }
 
-  public synchronized final NodeDescriptor getNode(final String id) {
+  public synchronized NodeDescriptor getNode(final String id) {
     return this.nodes.get(id);
   }
 
-  public synchronized final void handle(final NodeDescriptorEvent node) {
+  public synchronized void handle(final NodeDescriptorEvent node) {
     final String rack_name = node.getRackName().orElse(DEFAULT_RACK);
 
     LOG.log(Level.FINEST, "Catalog new node: id[{0}], rack[{1}], host[{2}], port[{3}], memory[{4}]",

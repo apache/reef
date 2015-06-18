@@ -134,7 +134,7 @@ public class HeartBeatManager {
         this.contextManager.get().getTaskStatus());
   }
 
-  private final EvaluatorRuntimeProtocol.EvaluatorHeartbeatProto getEvaluatorHeartbeatProto(
+  private EvaluatorRuntimeProtocol.EvaluatorHeartbeatProto getEvaluatorHeartbeatProto(
       final ReefServiceProtos.EvaluatorStatusProto evaluatorStatusProto,
       final Iterable<ReefServiceProtos.ContextStatusProto> contextStatusProtos,
       final Optional<ReefServiceProtos.TaskStatusProto> taskStatusProto) {

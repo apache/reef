@@ -34,5 +34,5 @@ public interface Serializer<ObjectType, OutType> {
    * @param arg
    * @return
    */
-  public Accumulable<ObjectType> create(OutType arg);
+  Accumulable<ObjectType> create(OutType arg);
 }

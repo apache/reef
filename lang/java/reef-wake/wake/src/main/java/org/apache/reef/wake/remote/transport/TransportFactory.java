@@ -40,10 +40,10 @@ public interface TransportFactory {
    * @param exHandler     an exception handler
    * @return transport
    */
-  public Transport newInstance(int port,
-                          EventHandler<TransportEvent> clientHandler,
-                          EventHandler<TransportEvent> serverHandler,
-                          EventHandler<Exception> exHandler);
+  Transport newInstance(int port,
+                        EventHandler<TransportEvent> clientHandler,
+                        EventHandler<TransportEvent> serverHandler,
+                        EventHandler<Exception> exHandler);
 
   /**
    * Creates a transport.
@@ -56,11 +56,11 @@ public interface TransportFactory {
    * @param retryTimeout    retry timeout
    * @return transport
    */
-  public Transport newInstance(final String hostAddress, int port,
-                               final EStage<TransportEvent> clientStage,
-                               final EStage<TransportEvent> serverStage,
-                               final int numberOfTries,
-                               final int retryTimeout);
+  Transport newInstance(final String hostAddress, int port,
+                        final EStage<TransportEvent> clientStage,
+                        final EStage<TransportEvent> serverStage,
+                        final int numberOfTries,
+                        final int retryTimeout);
 
   /**
    * Creates a transport.
@@ -74,13 +74,13 @@ public interface TransportFactory {
    * @param tcpPortProvider tcpPortProvider
    * @return transport
    */
-  public Transport newInstance(final String hostAddress,
-                               int port,
-                               final EStage<TransportEvent> clientStage,
-                               final EStage<TransportEvent> serverStage,
-                               final int numberOfTries,
-                               final int retryTimeout,
-                               final TcpPortProvider tcpPortProvider);
+  Transport newInstance(final String hostAddress,
+                        int port,
+                        final EStage<TransportEvent> clientStage,
+                        final EStage<TransportEvent> serverStage,
+                        final int numberOfTries,
+                        final int retryTimeout,
+                        final TcpPortProvider tcpPortProvider);
 
 
 }

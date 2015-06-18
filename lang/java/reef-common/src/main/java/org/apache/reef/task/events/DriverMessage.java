@@ -34,5 +34,5 @@ public interface DriverMessage {
   /**
    * @return the message sent by the driver.
    */
-  public Optional<byte[]> get();
+  Optional<byte[]> get();
 }

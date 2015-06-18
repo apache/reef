@@ -32,13 +32,13 @@ public interface NameAssignment {
    *
    * @return an identifier
    */
-  public Identifier getIdentifier();
+  Identifier getIdentifier();
 
   /**
    * Returns an address of this object.
    *
    * @return a socket address
    */
-  public InetSocketAddress getAddress();
+  InetSocketAddress getAddress();
 
 }

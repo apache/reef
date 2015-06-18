@@ -181,7 +181,7 @@ public final class TaskRuntime implements Runnable {
    *
    * @param message the optional message for the close handler or null if there none.
    */
-  public final void close(final byte[] message) {
+  public void close(final byte[] message) {
     LOG.log(Level.FINEST, "Triggering Task close.");
     synchronized (this.heartBeatManager) {
       if (this.currentStatus.isNotRunning()) {

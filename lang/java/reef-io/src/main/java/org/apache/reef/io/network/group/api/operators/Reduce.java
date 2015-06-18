@@ -39,7 +39,7 @@ public interface Reduce {
    * Receiver or Root.
    */
   @DefaultImplementation(ReduceReceiver.class)
-  static interface Receiver<T> extends GroupCommOperator {
+  interface Receiver<T> extends GroupCommOperator {
 
     /**
      * Receive values sent by senders and pass them through the reduce
@@ -69,7 +69,7 @@ public interface Reduce {
    * Senders or non roots.
    */
   @DefaultImplementation(ReduceSender.class)
-  static interface Sender<T> extends GroupCommOperator {
+  interface Sender<T> extends GroupCommOperator {
 
     /**
      * Send the element to the root.
@@ -88,7 +88,7 @@ public interface Reduce {
    * Interface for a Reduce Function takes in an {@link Iterable} returns an.
    * aggregate value computed from the {@link Iterable}
    */
-  static interface ReduceFunction<T> {
+  interface ReduceFunction<T> {
     /**
      * Apply the function on elements.
      *

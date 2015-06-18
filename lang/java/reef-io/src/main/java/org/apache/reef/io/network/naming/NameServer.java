@@ -35,7 +35,7 @@ public interface NameServer extends Stage {
    * get port number.
    * @return
    */
-  public int getPort();
+  int getPort();
 
   /**
    * Registers an (identifier, address) mapping locally.
@@ -43,14 +43,14 @@ public interface NameServer extends Stage {
    * @param id   an identifier
    * @param addr an Internet socket address
    */
-  public void register(final Identifier id, final InetSocketAddress addr);
+  void register(final Identifier id, final InetSocketAddress addr);
 
   /**
    * Unregisters an identifier locally.
    *
    * @param id an identifier
    */
-  public void unregister(final Identifier id);
+  void unregister(final Identifier id);
 
   /**
    * Finds an address for an identifier locally.
@@ -58,7 +58,7 @@ public interface NameServer extends Stage {
    * @param id an identifier
    * @return an Internet socket address
    */
-  public InetSocketAddress lookup(final Identifier id);
+  InetSocketAddress lookup(final Identifier id);
 
   /**
    * Finds addresses for identifiers locally.
@@ -66,5 +66,5 @@ public interface NameServer extends Stage {
    * @param identifiers an Iterable of identifiers
    * @return a list of name assignments
    */
-  public List<NameAssignment> lookup(final Iterable<Identifier> identifiers);
+  List<NameAssignment> lookup(final Iterable<Identifier> identifiers);
 }

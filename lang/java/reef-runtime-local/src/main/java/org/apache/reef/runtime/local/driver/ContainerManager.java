@@ -141,11 +141,11 @@ final class ContainerManager implements AutoCloseable {
     }
   }
 
-  final boolean hasContainerAvailable() {
+  boolean hasContainerAvailable() {
     return this.freeNodeList.size() > 0;
   }
 
-  final Container allocateOne(final int megaBytes, final int numberOfCores) {
+  Container allocateOne(final int megaBytes, final int numberOfCores) {
     synchronized (this.containers) {
       final String nodeId = this.freeNodeList.remove(0);
       final String processID = nodeId + "-" + String.valueOf(System.currentTimeMillis());
@@ -159,7 +159,7 @@ final class ContainerManager implements AutoCloseable {
     }
   }
 
-  final void release(final String containerID) {
+  void release(final String containerID) {
     synchronized (this.containers) {
       final Container ctr = this.containers.get(containerID);
       if (null != ctr) {
@@ -175,7 +175,7 @@ final class ContainerManager implements AutoCloseable {
     }
   }
 
-  final Container get(final String containedID) {
+  Container get(final String containedID) {
     synchronized (this.containers) {
       return this.containers.get(containedID);
     }
@@ -184,7 +184,7 @@ final class ContainerManager implements AutoCloseable {
   /**
    * @return a List of the IDs of currently allocated Containers.
    */
-  final Iterable<String> getAllocatedContainerIDs() {
+  Iterable<String> getAllocatedContainerIDs() {
     return this.containers.keySet();
   }
 

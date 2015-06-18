@@ -36,50 +36,50 @@ interface Container extends AutoCloseable {
    *
    * @param commandLine the command line to execute. It will typically be joined by spaces to form the command line.
    */
-  public void run(final List<String> commandLine);
+  void run(final List<String> commandLine);
 
   /**
    * Copies the files to the working directory of the container.
    *
    * @param files the files to be added to the container.
    */
-  public void addLocalFiles(final Iterable<File> files);
+  void addLocalFiles(final Iterable<File> files);
 
-  public void addGlobalFiles(final File globalFolder);
+  void addGlobalFiles(final File globalFolder);
 
   /**
    * @return true if the Container is currently executing, false otherwise.
    */
-  public boolean isRunning();
+  boolean isRunning();
 
   /**
    * @return the ID of the node this Container is executing on.
    */
-  public String getNodeID();
+  String getNodeID();
 
   /**
    * @return the ID of this Container.
    */
-  public String getContainerID();
+  String getContainerID();
 
   /**
    * @return the main memory available to the Container.
    */
-  public int getMemory();
+  int getMemory();
 
   /**
    * @return the core available to the Container.
    */
-  public int getNumberOfCores();
+  int getNumberOfCores();
 
   /**
    * @return the working directory of the Container.
    */
-  public File getFolder();
+  File getFolder();
 
   /**
    * Kills the Container.
    */
   @Override
-  public void close();
+  void close();
 }

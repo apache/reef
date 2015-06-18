@@ -30,5 +30,5 @@ public interface EventHandler<T> {
    *
    * @param value an event
    */
-  public void onNext(T value);
+  void onNext(T value);
 }

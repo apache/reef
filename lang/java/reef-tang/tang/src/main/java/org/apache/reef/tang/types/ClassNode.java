@@ -24,24 +24,24 @@ import java.util.Set;
 
 public interface ClassNode<T> extends Node {
 
-  public ConstructorDef<T>[] getInjectableConstructors();
+  ConstructorDef<T>[] getInjectableConstructors();
 
-  public ConstructorDef<T> getConstructorDef(ClassNode<?>... args)
+  ConstructorDef<T> getConstructorDef(ClassNode<?>... args)
       throws BindException;
 
-  public ConstructorDef<T>[] getAllConstructors();
+  ConstructorDef<T>[] getAllConstructors();
 
-  public void putImpl(ClassNode<T> impl);
+  void putImpl(ClassNode<T> impl);
 
-  public Set<ClassNode<T>> getKnownImplementations();
+  Set<ClassNode<T>> getKnownImplementations();
 
-  public String getDefaultImplementation();
+  String getDefaultImplementation();
 
-  public boolean isUnit();
+  boolean isUnit();
 
-  public boolean isInjectionCandidate();
+  boolean isInjectionCandidate();
 
-  public boolean isExternalConstructor();
+  boolean isExternalConstructor();
 
-  public boolean isImplementationOf(ClassNode<?> inter);
+  boolean isImplementationOf(ClassNode<?> inter);
 }
