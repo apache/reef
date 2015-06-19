@@ -31,11 +31,11 @@ public class ReflectionUtilities {
   /**
    * This is used to split Java classnames.  Currently, we split on . and on $
    */
-  public final static String regexp = "[\\.\\$]";
+  public static final String regexp = "[\\.\\$]";
   /**
    * A map from numeric classes to the number of bits used by their representations.
    */
-  private final static Map<Class<?>, Integer> sizeof = new HashMap<>();
+  private static final Map<Class<?>, Integer> sizeof = new HashMap<>();
 
   static {
     sizeof.put(Byte.class, Byte.SIZE);
@@ -247,7 +247,7 @@ public class ReflectionUtilities {
    * @return The class implemented by the interface, or null(?) if the instantiation was not generic.
    * @throws IllegalArgumentException if clazz does not directly implement iface.
    */
-  static public Type getInterfaceTarget(final Class<?> iface, final Type type) throws IllegalArgumentException {
+  public static Type getInterfaceTarget(final Class<?> iface, final Type type) throws IllegalArgumentException {
     if (type instanceof ParameterizedType) {
       final ParameterizedType pt = (ParameterizedType) type;
       if (iface.isAssignableFrom((Class<?>) pt.getRawType())) {
@@ -292,7 +292,7 @@ public class ReflectionUtilities {
    * @return T if clazz implements Name<T>, null otherwise
    * @throws org.apache.reef.tang.exceptions.BindException If clazz's definition incorrectly uses Name or @NamedParameter
    */
-  static public Type getNamedParameterTargetOrNull(Class<?> clazz)
+  public static Type getNamedParameterTargetOrNull(Class<?> clazz)
       throws ClassHierarchyException {
     Annotation npAnnotation = clazz.getAnnotation(NamedParameter.class);
     boolean hasSuperClass = (clazz.getSuperclass() != Object.class);

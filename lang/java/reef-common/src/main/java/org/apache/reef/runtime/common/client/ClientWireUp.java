@@ -46,7 +46,7 @@ final class ClientWireUp {
 
   @Inject
   ClientWireUp(final RemoteManager remoteManager,
-               final @Parameter(ClientPresent.class) String clientPresent,
+               @Parameter(ClientPresent.class) final String clientPresent,
                final RuntimeErrorProtoHandler runtimeErrorProtoHandler,
                final JobStatusMessageHandler jobStatusMessageHandler) {
     this.remoteManager = Optional.ofNullable(remoteManager);
@@ -57,7 +57,7 @@ final class ClientWireUp {
   }
 
   @Inject
-  ClientWireUp(final @Parameter(ClientPresent.class) String clientPresent,
+  ClientWireUp(@Parameter(ClientPresent.class) final String clientPresent,
                final RuntimeErrorProtoHandler runtimeErrorProtoHandler,
                final JobStatusMessageHandler jobStatusMessageHandler) {
     this(null, clientPresent, runtimeErrorProtoHandler, jobStatusMessageHandler);

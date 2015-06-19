@@ -33,7 +33,7 @@ public class BindNSToTask implements EventHandler<TaskStart> {
   @Inject
   public BindNSToTask(
       final NetworkService<?> ns,
-      final @Parameter(NetworkServiceParameters.NetworkServiceIdentifierFactory.class) IdentifierFactory idFac) {
+      @Parameter(NetworkServiceParameters.NetworkServiceIdentifierFactory.class) final IdentifierFactory idFac) {
     this.ns = ns;
     this.idFac = idFac;
   }

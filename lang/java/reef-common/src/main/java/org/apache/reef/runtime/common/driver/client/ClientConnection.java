@@ -45,8 +45,8 @@ public final class ClientConnection {
   @Inject
   public ClientConnection(
       final RemoteManager remoteManager,
-      final @Parameter(ClientRemoteIdentifier.class) String clientRID,
-      final @Parameter(JobIdentifier.class) String jobIdentifier) {
+      @Parameter(ClientRemoteIdentifier.class) final String clientRID,
+      @Parameter(JobIdentifier.class) final String jobIdentifier) {
     this.jobIdentifier = jobIdentifier;
     if (clientRID.equals(ClientRemoteIdentifier.NONE)) {
       LOG.log(Level.FINE, "Instantiated 'ClientConnection' without an actual connection to the client.");

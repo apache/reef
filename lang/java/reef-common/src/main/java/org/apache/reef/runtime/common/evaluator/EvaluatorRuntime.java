@@ -44,7 +44,7 @@ import java.util.logging.Logger;
 @EvaluatorSide
 final class EvaluatorRuntime implements EventHandler<EvaluatorControlProto> {
 
-  private final static Logger LOG = Logger.getLogger(EvaluatorRuntime.class.getName());
+  private static final Logger LOG = Logger.getLogger(EvaluatorRuntime.class.getName());
 
   private final HeartBeatManager heartBeatManager;
   private final ContextManager contextManager;
@@ -58,9 +58,9 @@ final class EvaluatorRuntime implements EventHandler<EvaluatorControlProto> {
 
   @Inject
   private EvaluatorRuntime(
-      final @Parameter(HeartbeatPeriod.class) int heartbeatPeriod,
-      final @Parameter(EvaluatorIdentifier.class) String evaluatorIdentifier,
-      final @Parameter(DriverRemoteIdentifier.class) String driverRID,
+      @Parameter(HeartbeatPeriod.class) final int heartbeatPeriod,
+      @Parameter(EvaluatorIdentifier.class) final String evaluatorIdentifier,
+      @Parameter(DriverRemoteIdentifier.class) final String driverRID,
       final HeartBeatManager.HeartbeatAlarmHandler heartbeatAlarmHandler,
       final HeartBeatManager heartBeatManager,
       final Clock clock,

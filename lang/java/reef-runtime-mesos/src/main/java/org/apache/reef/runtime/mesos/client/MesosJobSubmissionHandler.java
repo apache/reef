@@ -59,12 +59,12 @@ final class MesosJobSubmissionHandler implements JobSubmissionHandler {
   private final double jvmSlack;
 
   @Inject
-  MesosJobSubmissionHandler(final @Parameter(RootFolder.class) String rootFolderName,
-                            final @Parameter(MasterIp.class) String masterIp,
+  MesosJobSubmissionHandler(@Parameter(RootFolder.class) final String rootFolderName,
+                            @Parameter(MasterIp.class) final String masterIp,
                             final ConfigurationSerializer configurationSerializer,
                             final REEFFileNames fileNames,
                             final ClasspathProvider classpath,
-                            final @Parameter(JVMHeapSlack.class) double jvmSlack) {
+                            @Parameter(JVMHeapSlack.class) final double jvmSlack) {
     this.rootFolderName = new File(rootFolderName).getAbsolutePath();
     this.masterIp = masterIp;
     this.configurationSerializer = configurationSerializer;

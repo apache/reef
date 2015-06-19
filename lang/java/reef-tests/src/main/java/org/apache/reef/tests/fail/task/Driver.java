@@ -49,7 +49,7 @@ public final class Driver {
   private transient String taskId;
 
   @Inject
-  public Driver(final @Parameter(FailTaskName.class) String failTaskName,
+  public Driver(@Parameter(FailTaskName.class) final String failTaskName,
                 final EvaluatorRequestor requestor) {
     this.failTaskName = failTaskName;
     this.requestor = requestor;

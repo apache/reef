@@ -41,7 +41,7 @@ import java.util.logging.Logger;
 @DriverSide
 public final class RunningTaskImpl implements RunningTask {
 
-  private final static Logger LOG = Logger.getLogger(RunningTask.class.getName());
+  private static final Logger LOG = Logger.getLogger(RunningTask.class.getName());
 
   private final EvaluatorManager evaluatorManager;
   private final EvaluatorContext evaluatorContext;

@@ -23,7 +23,7 @@ import org.apache.reef.tang.types.ConstructorDef;
 
 import java.util.*;
 
-final public class Constructor<T> extends InjectionPlan<T> {
+public final class Constructor<T> extends InjectionPlan<T> {
 
   final ConstructorDef<T> constructor;
   final InjectionPlan<?>[] args;

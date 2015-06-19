@@ -50,7 +50,7 @@ final class EvaluatorReuseTestDriver {
   private String lastMessage = null;
 
   @Inject
-  EvaluatorReuseTestDriver(final @Parameter(NumberOfIterations.class) int n,
+  EvaluatorReuseTestDriver(@Parameter(NumberOfIterations.class) final int n,
                            final JobMessageObserver client) {
     this.numberOfIterations = n;
     this.client = client;

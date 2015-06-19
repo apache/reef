@@ -57,7 +57,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public final class REEFExecutor implements Executor {
-  private final static Logger LOG = Logger.getLogger(REEFExecutor.class.getName());
+  private static final Logger LOG = Logger.getLogger(REEFExecutor.class.getName());
 
   private final MesosExecutorDriver mesosExecutorDriver;
   private final MesosRemoteManager mesosRemoteManager;
@@ -72,7 +72,7 @@ public final class REEFExecutor implements Executor {
   REEFExecutor(final EvaluatorControlHandler evaluatorControlHandler,
                final MesosRemoteManager mesosRemoteManager,
                final REEFFileNames fileNames,
-               final @Parameter(MesosExecutorId.class) String mesosExecutorId) {
+               @Parameter(MesosExecutorId.class) final String mesosExecutorId) {
     this.mesosRemoteManager = mesosRemoteManager;
     this.mesosRemoteManager.registerHandler(EvaluatorControl.class, evaluatorControlHandler);
     this.mesosExecutorDriver = new MesosExecutorDriver(this);

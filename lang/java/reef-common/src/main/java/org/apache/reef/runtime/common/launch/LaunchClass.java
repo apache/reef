@@ -56,10 +56,10 @@ public final class LaunchClass implements AutoCloseable, Runnable {
   @Inject
   LaunchClass(final REEFUncaughtExceptionHandler uncaughtExceptionHandler,
               final REEFErrorHandler errorHandler,
-              final @Parameter(LaunchID.class) String launchID,
-              final @Parameter(ErrorHandlerRID.class) String errorHandlerID,
-              final @Parameter(ClockConfigurationPath.class) String evaluatorConfigurationPath,
-              final @Parameter(ProfilingEnabled.class) boolean enableProfiling,
+              @Parameter(LaunchID.class) final String launchID,
+              @Parameter(ErrorHandlerRID.class) final String errorHandlerID,
+              @Parameter(ClockConfigurationPath.class) final String evaluatorConfigurationPath,
+              @Parameter(ProfilingEnabled.class) final boolean enableProfiling,
               final ConfigurationSerializer configurationSerializer,
               final REEFVersion reefVersion) {
     reefVersion.logVersion();
@@ -182,6 +182,6 @@ public final class LaunchClass implements AutoCloseable, Runnable {
   }
 
   @NamedParameter(doc = "If true, profiling will be enabled", short_name = "profiling", default_value = "false")
-  public final static class ProfilingEnabled implements Name<Boolean> {
+  public static final class ProfilingEnabled implements Name<Boolean> {
   }
 }

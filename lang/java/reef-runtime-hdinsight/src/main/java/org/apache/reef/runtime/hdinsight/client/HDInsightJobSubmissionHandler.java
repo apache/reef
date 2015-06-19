@@ -63,7 +63,7 @@ public final class HDInsightJobSubmissionHandler implements JobSubmissionHandler
                                 final HDInsightInstance hdInsightInstance,
                                 final REEFFileNames filenames,
                                 final ClasspathProvider classpath,
-                                final @Parameter(JVMHeapSlack.class) double jvmHeapSlack) {
+                                @Parameter(JVMHeapSlack.class) final double jvmHeapSlack) {
     this.uploader = uploader;
     this.jobJarMaker = jobJarMaker;
     this.hdInsightInstance = hdInsightInstance;

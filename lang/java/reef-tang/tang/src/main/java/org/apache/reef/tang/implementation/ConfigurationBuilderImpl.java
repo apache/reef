@@ -35,8 +35,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 public class ConfigurationBuilderImpl implements ConfigurationBuilder {
-  public final static String IMPORT = "import";
-  public final static String INIT = "<init>";
+  public static final String IMPORT = "import";
+  public static final String INIT = "<init>";
   final TracingMonotonicMap<ClassNode<?>, ClassNode<?>> boundImpls = new TracingMonotonicTreeMap<>();
   final TracingMonotonicMap<ClassNode<?>, ClassNode<? extends ExternalConstructor<?>>> boundConstructors = new TracingMonotonicTreeMap<>();
   final Map<NamedParameterNode<?>, String> namedParameters = new TracingMonotonicTreeMap<>();

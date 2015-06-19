@@ -83,9 +83,9 @@ public class DataLoader {
       final Clock clock,
       final EvaluatorRequestor requestor,
       final DataLoadingService dataLoadingService,
-      final @Parameter(DataLoadingRequestBuilder.DataLoadingEvaluatorMemoryMB.class) int dataEvalMemoryMB,
-      final @Parameter(DataLoadingRequestBuilder.DataLoadingEvaluatorNumberOfCores.class) int dataEvalCore,
-      final @Parameter(DataLoadingRequestBuilder.DataLoadingComputeRequest.class) String serializedComputeRequest) {
+      @Parameter(DataLoadingRequestBuilder.DataLoadingEvaluatorMemoryMB.class) final int dataEvalMemoryMB,
+      @Parameter(DataLoadingRequestBuilder.DataLoadingEvaluatorNumberOfCores.class) final int dataEvalCore,
+      @Parameter(DataLoadingRequestBuilder.DataLoadingComputeRequest.class) final String serializedComputeRequest) {
 
     // FIXME: Issue #855: We need this alarm to look busy for REEF.
     clock.scheduleAlarm(30000, new EventHandler<Alarm>() {

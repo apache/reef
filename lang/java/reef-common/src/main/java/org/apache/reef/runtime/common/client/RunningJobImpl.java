@@ -64,12 +64,12 @@ public final class RunningJobImpl implements RunningJob, EventHandler<JobStatusP
 
   @Inject
   RunningJobImpl(final RemoteManager remoteManager,
-                 final @Parameter(DriverIdentifier.class) String driverIdentifier,
-                 final @Parameter(REEFImplementation.DriverRemoteIdentifier.class) String driverRID,
-                 final @Parameter(JobRunningHandler.class) EventHandler<RunningJob> runningJobEventHandler,
-                 final @Parameter(JobCompletedHandler.class) EventHandler<CompletedJob> completedJobEventHandler,
-                 final @Parameter(JobFailedHandler.class) EventHandler<FailedJob> failedJobEventHandler,
-                 final @Parameter(JobMessageHandler.class) EventHandler<JobMessage> jobMessageEventHandler,
+                 @Parameter(DriverIdentifier.class) final String driverIdentifier,
+                 @Parameter(REEFImplementation.DriverRemoteIdentifier.class) final String driverRID,
+                 @Parameter(JobRunningHandler.class) final EventHandler<RunningJob> runningJobEventHandler,
+                 @Parameter(JobCompletedHandler.class) final EventHandler<CompletedJob> completedJobEventHandler,
+                 @Parameter(JobFailedHandler.class) final EventHandler<FailedJob> failedJobEventHandler,
+                 @Parameter(JobMessageHandler.class) final EventHandler<JobMessage> jobMessageEventHandler,
                  final ExceptionCodec exceptionCodec) {
 
     this.jobId = driverIdentifier;

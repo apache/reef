@@ -54,7 +54,7 @@ public final class EvaluatorConfiguration extends ConfigurationModuleBuilder {
       .bindNamedParameter(ApplicationIdentifier.class, APPLICATION_IDENTIFIER)
       .build();
 
-  private final static class ExecutorServiceConstructor implements ExternalConstructor<ExecutorService> {
+  private static final class ExecutorServiceConstructor implements ExternalConstructor<ExecutorService> {
 
     @Inject
     ExecutorServiceConstructor() {

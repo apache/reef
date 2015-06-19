@@ -33,7 +33,7 @@ import java.util.logging.Logger;
 @Private
 public final class ResourceCatalogImpl implements ResourceCatalog {
 
-  public final static String DEFAULT_RACK = "/default-rack";
+  public static final String DEFAULT_RACK = "/default-rack";
   private static final Logger LOG = Logger.getLogger(ResourceCatalog.class.getName());
   private final Map<String, RackDescriptorImpl> racks = new HashMap<>();
 

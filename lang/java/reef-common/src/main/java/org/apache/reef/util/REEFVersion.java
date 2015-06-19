@@ -30,11 +30,11 @@ import java.util.logging.Logger;
  */
 public final class REEFVersion {
 
-  private final static Logger LOG = Logger.getLogger(REEFVersion.class.getName());
+  private static final Logger LOG = Logger.getLogger(REEFVersion.class.getName());
 
-  private final static String FILENAME = "version.properties";
-  private final static String VERSION_KEY = "version";
-  private final static String VERSION_DEFAULT = "unknown";
+  private static final String FILENAME = "version.properties";
+  private static final String VERSION_KEY = "version";
+  private static final String VERSION_DEFAULT = "unknown";
 
   private final String version;
 

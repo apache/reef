@@ -48,7 +48,7 @@ final class RunningJobsImpl implements RunningJobs {
 
   @Inject
   RunningJobsImpl(final Injector injector,
-                  final @Parameter(ResourceManagerErrorHandler.class) InjectionFuture<EventHandler<FailedRuntime>> failedRuntimeEventHandler) {
+                  @Parameter(ResourceManagerErrorHandler.class) final InjectionFuture<EventHandler<FailedRuntime>> failedRuntimeEventHandler) {
     this.injector = injector;
     this.failedRuntimeEventHandler = failedRuntimeEventHandler;
     LOG.log(Level.FINE, "Instantiated 'RunningJobImpl'");

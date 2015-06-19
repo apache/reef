@@ -27,7 +27,7 @@ import java.util.logging.Logger;
 /**
  * run given command and return the result as string.
  */
-final public class CommandUtils {
+public final class CommandUtils {
   /**
    * Standard java logger.
    */

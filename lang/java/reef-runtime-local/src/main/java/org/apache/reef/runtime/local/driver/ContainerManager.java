@@ -55,7 +55,7 @@ import java.util.logging.Logger;
 @DriverSide
 final class ContainerManager implements AutoCloseable {
 
-  private final static Logger LOG = Logger.getLogger(ContainerManager.class.getName());
+  private static final Logger LOG = Logger.getLogger(ContainerManager.class.getName());
 
   /**
    * Map from containerID -> Container.
@@ -80,9 +80,9 @@ final class ContainerManager implements AutoCloseable {
       final RemoteManager remoteManager,
       final RuntimeClock clock,
       final REEFFileNames fileNames,
-      final @Parameter(MaxNumberOfEvaluators.class) int capacity,
-      final @Parameter(RootFolder.class) String rootFolderName,
-      final @Parameter(RuntimeParameters.NodeDescriptorHandler.class)
+      @Parameter(MaxNumberOfEvaluators.class) final int capacity,
+      @Parameter(RootFolder.class) final String rootFolderName,
+      @Parameter(RuntimeParameters.NodeDescriptorHandler.class) final 
       EventHandler<NodeDescriptorEvent> nodeDescriptorHandler,
       final ReefRunnableProcessObserver processObserver,
       final LocalAddressProvider localAddressProvider) {

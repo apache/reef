@@ -51,9 +51,9 @@ final class LogFetcher {
 
 
   @Inject
-  LogFetcher(final @Parameter(AzureStorageAccountName.class) String accountName,
-             final @Parameter(AzureStorageAccountKey.class) String accountKey,
-             final @Parameter(AzureStorageAccountContainerName.class) String azureStorageContainerName)
+  LogFetcher(@Parameter(AzureStorageAccountName.class) final String accountName,
+             @Parameter(AzureStorageAccountKey.class) final String accountKey,
+             @Parameter(AzureStorageAccountContainerName.class) final String azureStorageContainerName)
       throws URISyntaxException, InvalidKeyException, StorageException, IOException {
     this.container = getContainer(accountName, accountKey, azureStorageContainerName);
     this.hadoopConfiguration = new Configuration();

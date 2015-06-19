@@ -66,10 +66,10 @@ public final class HttpServerImpl implements HttpServer {
    */
   @Inject
   HttpServerImpl(final JettyHandler jettyHandler,
-                 final @Parameter(PortNumber.class) int portNumber,
-                 final @Parameter(MaxPortNumber.class) int maxPortNumber,
-                 final @Parameter(MinPortNumber.class) int minPortNumber,
-                 final @Parameter(MaxRetryAttempts.class) int maxRetryAttempts,
+                 @Parameter(PortNumber.class) final int portNumber,
+                 @Parameter(MaxPortNumber.class) final int maxPortNumber,
+                 @Parameter(MinPortNumber.class) final int minPortNumber,
+                 @Parameter(MaxRetryAttempts.class) final int maxRetryAttempts,
                  final LoggingScopeFactory loggingScopeFactory) throws Exception {
 
     this.loggingScopeFactory = loggingScopeFactory;

@@ -37,7 +37,7 @@ import java.util.logging.Logger;
  */
 public class IndependentIterationsThreadPoolStage<T> extends AbstractEStage<List<T>> {
 
-  final private int granularity;
+  private final int granularity;
   private EventHandler<T> handler;
   private ExecutorService executor;
 

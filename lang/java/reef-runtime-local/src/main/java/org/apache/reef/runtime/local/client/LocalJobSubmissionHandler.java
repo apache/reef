@@ -56,7 +56,7 @@ final class LocalJobSubmissionHandler implements JobSubmissionHandler {
   @Inject
   public LocalJobSubmissionHandler(
       final ExecutorService executor,
-      final @Parameter(RootFolder.class) String rootFolderName,
+      @Parameter(RootFolder.class) final String rootFolderName,
       final ConfigurationSerializer configurationSerializer,
       final REEFFileNames fileNames,
 

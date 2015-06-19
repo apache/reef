@@ -43,11 +43,11 @@ final class ContextLifeCycle {
   private final EventHandler<byte[]> contextMessageHandler;
 
   @Inject
-  ContextLifeCycle(final @Parameter(ContextIdentifier.class) String identifier,
-                   final @Parameter(ContextMessageHandlers.class) Set<EventHandler<byte[]>> contextMessageHandlers,
-                   final @Parameter(ContextStartHandlers.class) Set<EventHandler<ContextStart>> contextStartHandlers,
-                   final @Parameter(ContextStopHandlers.class) Set<EventHandler<ContextStop>> contextStopHandlers,
-                   final @Parameter(ContextMessageSources.class) Set<ContextMessageSource> contextMessageSources) {
+  ContextLifeCycle(@Parameter(ContextIdentifier.class) final String identifier,
+                   @Parameter(ContextMessageHandlers.class) final Set<EventHandler<byte[]>> contextMessageHandlers,
+                   @Parameter(ContextStartHandlers.class) final Set<EventHandler<ContextStart>> contextStartHandlers,
+                   @Parameter(ContextStopHandlers.class) final Set<EventHandler<ContextStop>> contextStopHandlers,
+                   @Parameter(ContextMessageSources.class) final Set<ContextMessageSource> contextMessageSources) {
     this.identifier = identifier;
     this.contextStartHandlers = contextStartHandlers;
     this.contextStopHandlers = contextStopHandlers;

@@ -34,7 +34,7 @@ public final class DefaultContextMessageHandler implements ContextMessageHandler
   private final String contextID;
 
   @Inject
-  DefaultContextMessageHandler(final @Parameter(ContextIdentifier.class) String contextID) {
+  DefaultContextMessageHandler(@Parameter(ContextIdentifier.class) final String contextID) {
     this.contextID = contextID;
   }
 

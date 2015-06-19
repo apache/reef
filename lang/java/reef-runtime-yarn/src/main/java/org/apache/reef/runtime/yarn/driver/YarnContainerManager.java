@@ -88,7 +88,7 @@ final class YarnContainerManager
   @Inject
   YarnContainerManager(
       final YarnConfiguration yarnConf,
-      final @Parameter(YarnHeartbeatPeriod.class) int yarnRMHeartbeatPeriod,
+      @Parameter(YarnHeartbeatPeriod.class) final int yarnRMHeartbeatPeriod,
       final REEFEventHandlers reefEventHandlers,
       final Containers containers,
       final ApplicationMasterRegistration registration,

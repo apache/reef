@@ -45,7 +45,7 @@ import java.util.logging.Logger;
 @EvaluatorSide
 public final class TaskRuntime implements Runnable {
 
-  private final static Logger LOG = Logger.getLogger(TaskRuntime.class.getName());
+  private static final Logger LOG = Logger.getLogger(TaskRuntime.class.getName());
 
   /**
    * User supplied Task code.
@@ -75,9 +75,9 @@ public final class TaskRuntime implements Runnable {
       final HeartBeatManager heartBeatManager,
       final Task task,
       final TaskStatus currentStatus,
-      final @Parameter(TaskConfigurationOptions.CloseHandler.class) InjectionFuture<EventHandler<CloseEvent>> f_closeHandler,
-      final @Parameter(TaskConfigurationOptions.SuspendHandler.class) InjectionFuture<EventHandler<SuspendEvent>> f_suspendHandler,
-      final @Parameter(TaskConfigurationOptions.MessageHandler.class) InjectionFuture<EventHandler<DriverMessage>> f_messageHandler,
+      @Parameter(TaskConfigurationOptions.CloseHandler.class) final InjectionFuture<EventHandler<CloseEvent>> f_closeHandler,
+      @Parameter(TaskConfigurationOptions.SuspendHandler.class) final InjectionFuture<EventHandler<SuspendEvent>> f_suspendHandler,
+      @Parameter(TaskConfigurationOptions.MessageHandler.class) final InjectionFuture<EventHandler<DriverMessage>> f_messageHandler,
       final TaskLifeCycleHandlers taskLifeCycleHandlers) {
     this(heartBeatManager, task, currentStatus, f_closeHandler, f_suspendHandler, f_messageHandler, null, taskLifeCycleHandlers);
   }
@@ -88,10 +88,10 @@ public final class TaskRuntime implements Runnable {
       final HeartBeatManager heartBeatManager,
       final Task task,
       final TaskStatus currentStatus,
-      final @Parameter(TaskConfigurationOptions.CloseHandler.class) InjectionFuture<EventHandler<CloseEvent>> f_closeHandler,
-      final @Parameter(TaskConfigurationOptions.SuspendHandler.class) InjectionFuture<EventHandler<SuspendEvent>> f_suspendHandler,
-      final @Parameter(TaskConfigurationOptions.MessageHandler.class) InjectionFuture<EventHandler<DriverMessage>> f_messageHandler,
-      final @Parameter(TaskConfigurationOptions.Memento.class) String memento,
+      @Parameter(TaskConfigurationOptions.CloseHandler.class) final InjectionFuture<EventHandler<CloseEvent>> f_closeHandler,
+      @Parameter(TaskConfigurationOptions.SuspendHandler.class) final InjectionFuture<EventHandler<SuspendEvent>> f_suspendHandler,
+      @Parameter(TaskConfigurationOptions.MessageHandler.class) final InjectionFuture<EventHandler<DriverMessage>> f_messageHandler,
+      @Parameter(TaskConfigurationOptions.Memento.class) final String memento,
       final TaskLifeCycleHandlers taskLifeCycleHandlers) {
 
     this.heartBeatManager = heartBeatManager;

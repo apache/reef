@@ -37,10 +37,10 @@ final class REEFEventHandlers {
   private final EventHandler<ResourceStatusEvent> resourceStatusHandlerEventHandler;
 
   @Inject
-  REEFEventHandlers(final @Parameter(RuntimeParameters.ResourceAllocationHandler.class) EventHandler<ResourceAllocationEvent> resourceAllocationEventHandler,
-                    final @Parameter(RuntimeParameters.RuntimeStatusHandler.class) EventHandler<RuntimeStatusEvent> runtimeStatusEventHandler,
-                    final @Parameter(RuntimeParameters.NodeDescriptorHandler.class) EventHandler<NodeDescriptorEvent> nodeDescriptorEventHandler,
-                    final @Parameter(RuntimeParameters.ResourceStatusHandler.class) EventHandler<ResourceStatusEvent> resourceStatusHandlerEventHandler) {
+  REEFEventHandlers(@Parameter(RuntimeParameters.ResourceAllocationHandler.class) final EventHandler<ResourceAllocationEvent> resourceAllocationEventHandler,
+                    @Parameter(RuntimeParameters.RuntimeStatusHandler.class) final EventHandler<RuntimeStatusEvent> runtimeStatusEventHandler,
+                    @Parameter(RuntimeParameters.NodeDescriptorHandler.class) final EventHandler<NodeDescriptorEvent> nodeDescriptorEventHandler,
+                    @Parameter(RuntimeParameters.ResourceStatusHandler.class) final EventHandler<ResourceStatusEvent> resourceStatusHandlerEventHandler) {
     this.resourceAllocationEventHandler = resourceAllocationEventHandler;
     this.runtimeStatusEventHandler = runtimeStatusEventHandler;
     this.nodeDescriptorEventHandler = nodeDescriptorEventHandler;

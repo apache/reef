@@ -68,9 +68,9 @@ public final class HDInsightInstance {
   private final CloseableHttpClient httpClient;
 
   @Inject
-  HDInsightInstance(final @Parameter(HDInsightUsername.class) String username,
-                    final @Parameter(HDInsightPassword.class) String password,
-                    final @Parameter(HDInsightInstanceURL.class) String instanceUrl,
+  HDInsightInstance(@Parameter(HDInsightUsername.class) final String username,
+                    @Parameter(HDInsightPassword.class) final String password,
+                    @Parameter(HDInsightInstanceURL.class) final String instanceUrl,
                     final CloseableHttpClient client) throws URISyntaxException, IOException {
     this.httpClient = client;
     this.instanceUrl = instanceUrl.endsWith("/") ? instanceUrl : instanceUrl + "/";

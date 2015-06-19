@@ -37,7 +37,7 @@ import java.util.logging.Logger;
 
 public final class RuntimeClock implements Clock {
 
-  private final static Logger LOG = Logger.getLogger(Clock.class.toString());
+  private static final Logger LOG = Logger.getLogger(Clock.class.toString());
 
   private final Timer timer;
 

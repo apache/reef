@@ -41,9 +41,9 @@ public class TcpPortConfigurationProvider implements ConfigurationProvider {
   private static final Logger LOG = Logger.getLogger(TcpPortConfigurationProvider.class.getName());
 
   @Inject
-  TcpPortConfigurationProvider(final @Parameter(TcpPortRangeBegin.class) int portRangeBegin,
-                               final @Parameter(TcpPortRangeCount.class) int portRangeCount,
-                               final @Parameter(TcpPortRangeTryCount.class) int portRangeTryCount) {
+  TcpPortConfigurationProvider(@Parameter(TcpPortRangeBegin.class) final int portRangeBegin,
+                               @Parameter(TcpPortRangeCount.class) final int portRangeCount,
+                               @Parameter(TcpPortRangeTryCount.class) final int portRangeTryCount) {
     this.portRangeBegin = portRangeBegin;
     this.portRangeCount = portRangeCount;
     this.portRangeTryCount = portRangeTryCount;

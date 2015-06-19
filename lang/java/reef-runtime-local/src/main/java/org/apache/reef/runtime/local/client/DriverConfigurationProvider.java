@@ -37,8 +37,8 @@ public final class DriverConfigurationProvider {
   private final double jvmHeapSlack;
 
   @Inject
-  DriverConfigurationProvider(final @Parameter(MaxNumberOfEvaluators.class) int maxEvaluators,
-                              final @Parameter(JVMHeapSlack.class) double jvmHeapSlack) {
+  DriverConfigurationProvider(@Parameter(MaxNumberOfEvaluators.class) final int maxEvaluators,
+                              @Parameter(JVMHeapSlack.class) final double jvmHeapSlack) {
     this.maxEvaluators = maxEvaluators;
     this.jvmHeapSlack = jvmHeapSlack;
   }

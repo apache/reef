@@ -31,7 +31,7 @@ final class TaskStopImpl implements TaskStop {
   private final String id;
 
   @Inject
-  TaskStopImpl(final @Parameter(TaskConfigurationOptions.Identifier.class) String id) {
+  TaskStopImpl(@Parameter(TaskConfigurationOptions.Identifier.class) final String id) {
     this.id = id;
   }
 

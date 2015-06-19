@@ -55,7 +55,7 @@ public final class YARNResourceLaunchHandler implements ResourceLaunchHandler {
                             final InjectionFuture<YarnContainerManager> yarnContainerManager,
                             final EvaluatorSetupHelper evaluatorSetupHelper,
                             final REEFFileNames filenames,
-                            final @Parameter(JVMHeapSlack.class) double jvmHeapSlack) {
+                            @Parameter(JVMHeapSlack.class) final double jvmHeapSlack) {
     this.jvmHeapFactor = 1.0 - jvmHeapSlack;
     LOG.log(Level.FINEST, "Instantiating 'YARNResourceLaunchHandler'");
     this.containers = containers;

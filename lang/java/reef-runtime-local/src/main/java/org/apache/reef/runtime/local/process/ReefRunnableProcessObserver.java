@@ -46,7 +46,7 @@ public final class ReefRunnableProcessObserver implements RunnableProcessObserve
    * @param resourceStatusHandler the event handler to inform of resource changes.
    */
   @Inject
-  public ReefRunnableProcessObserver(final @Parameter(RuntimeParameters.ResourceStatusHandler.class)
+  public ReefRunnableProcessObserver(@Parameter(RuntimeParameters.ResourceStatusHandler.class) final 
                                      EventHandler<ResourceStatusEvent> resourceStatusHandler,
                                      final InjectionFuture<ResourceManager> resourceManager) {
     this.resourceStatusHandler = resourceStatusHandler;

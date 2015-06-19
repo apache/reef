@@ -44,8 +44,8 @@ public final class PoisonedTaskStartHandler implements EventHandler<TaskStart> {
 
   @Inject
   public PoisonedTaskStartHandler(
-      final @Parameter(CrashProbability.class) double crashProbability,
-      final @Parameter(CrashTimeout.class) int timeOut,
+      @Parameter(CrashProbability.class) final double crashProbability,
+      @Parameter(CrashTimeout.class) final int timeOut,
       final Clock clock) {
 
     this.crashProbability = crashProbability;

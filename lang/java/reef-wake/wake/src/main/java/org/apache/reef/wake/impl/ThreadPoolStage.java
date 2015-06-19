@@ -56,8 +56,8 @@ public final class ThreadPoolStage<T> extends AbstractEStage<T> {
    * @throws WakeRuntimeException
    */
   @Inject
-  public ThreadPoolStage(final @Parameter(StageHandler.class) EventHandler<T> handler,
-                         final @Parameter(NumberOfThreads.class) int numThreads) {
+  public ThreadPoolStage(@Parameter(StageHandler.class) final EventHandler<T> handler,
+                         @Parameter(NumberOfThreads.class) final int numThreads) {
     this(handler.getClass().getName(), handler, numThreads, null);
   }
 
@@ -71,10 +71,10 @@ public final class ThreadPoolStage<T> extends AbstractEStage<T> {
    * @throws WakeRuntimeException
    */
   @Inject
-  public ThreadPoolStage(final @Parameter(StageName.class) String name,
-                         final @Parameter(StageHandler.class) EventHandler<T> handler,
-                         final @Parameter(NumberOfThreads.class) int numThreads,
-                         final @Parameter(ErrorHandler.class) EventHandler<Throwable> errorHandler) {
+  public ThreadPoolStage(@Parameter(StageName.class) final String name,
+                         @Parameter(StageHandler.class) final EventHandler<T> handler,
+                         @Parameter(NumberOfThreads.class) final int numThreads,
+                         @Parameter(ErrorHandler.class) final EventHandler<Throwable> errorHandler) {
     super(name);
     this.handler = handler;
     this.errorHandler = errorHandler;
@@ -95,9 +95,9 @@ public final class ThreadPoolStage<T> extends AbstractEStage<T> {
    * @throws WakeRuntimeException
    */
   @Inject
-  public ThreadPoolStage(final @Parameter(StageName.class) String name,
-                         final @Parameter(StageHandler.class) EventHandler<T> handler,
-                         final @Parameter(NumberOfThreads.class) int numThreads) {
+  public ThreadPoolStage(@Parameter(StageName.class) final String name,
+                         @Parameter(StageHandler.class) final EventHandler<T> handler,
+                         @Parameter(NumberOfThreads.class) final int numThreads) {
     this(name, handler, numThreads, null);
   }
 
@@ -108,8 +108,8 @@ public final class ThreadPoolStage<T> extends AbstractEStage<T> {
    * @param executor the external executor service provided
    */
   @Inject
-  public ThreadPoolStage(final @Parameter(StageHandler.class) EventHandler<T> handler,
-                         final @Parameter(StageExecutorService.class) ExecutorService executor) {
+  public ThreadPoolStage(@Parameter(StageHandler.class) final EventHandler<T> handler,
+                         @Parameter(StageExecutorService.class) final ExecutorService executor) {
     this(handler.getClass().getName(), handler, executor);
   }
 
@@ -122,9 +122,9 @@ public final class ThreadPoolStage<T> extends AbstractEStage<T> {
    * @param errorHandler the error handler
    */
   @Inject
-  public ThreadPoolStage(final @Parameter(StageHandler.class) EventHandler<T> handler,
-                         final @Parameter(StageExecutorService.class) ExecutorService executor,
-                         final @Parameter(ErrorHandler.class) EventHandler<Throwable> errorHandler) {
+  public ThreadPoolStage(@Parameter(StageHandler.class) final EventHandler<T> handler,
+                         @Parameter(StageExecutorService.class) final ExecutorService executor,
+                         @Parameter(ErrorHandler.class) final EventHandler<Throwable> errorHandler) {
     this(handler.getClass().getName(), handler, executor, errorHandler);
   }
 
@@ -137,9 +137,9 @@ public final class ThreadPoolStage<T> extends AbstractEStage<T> {
    *                 for consistent tracking, it is recommended to create executor with {@link DefaultThreadFactory}
    */
   @Inject
-  public ThreadPoolStage(final @Parameter(StageName.class) String name,
-                         final @Parameter(StageHandler.class) EventHandler<T> handler,
-                         final @Parameter(StageExecutorService.class) ExecutorService executor) {
+  public ThreadPoolStage(@Parameter(StageName.class) final String name,
+                         @Parameter(StageHandler.class) final EventHandler<T> handler,
+                         @Parameter(StageExecutorService.class) final ExecutorService executor) {
     this(name, handler, executor, null);
   }
 
@@ -153,10 +153,10 @@ public final class ThreadPoolStage<T> extends AbstractEStage<T> {
    * @param errorHandler the error handler
    */
   @Inject
-  public ThreadPoolStage(final @Parameter(StageName.class) String name,
-                         final @Parameter(StageHandler.class) EventHandler<T> handler,
-                         final @Parameter(StageExecutorService.class) ExecutorService executor,
-                         final @Parameter(ErrorHandler.class) EventHandler<Throwable> errorHandler) {
+  public ThreadPoolStage(@Parameter(StageName.class) final String name,
+                         @Parameter(StageHandler.class) final EventHandler<T> handler,
+                         @Parameter(StageExecutorService.class) final ExecutorService executor,
+                         @Parameter(ErrorHandler.class) final EventHandler<Throwable> errorHandler) {
     super(name);
     this.handler = handler;
     this.errorHandler = errorHandler;

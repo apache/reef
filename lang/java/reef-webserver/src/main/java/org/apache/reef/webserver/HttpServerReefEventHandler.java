@@ -70,8 +70,8 @@ public final class HttpServerReefEventHandler implements HttpHandler {
   @Inject
   public HttpServerReefEventHandler(
       final ReefEventStateManager reefStateManager,
-      final @Parameter(ClientCloseHandlers.class) Set<EventHandler<Void>> clientCloseHandlers,
-      final @Parameter(LogLevelName.class) String logLevel,
+      @Parameter(ClientCloseHandlers.class) final Set<EventHandler<Void>> clientCloseHandlers,
+      @Parameter(LogLevelName.class) final String logLevel,
       final LoggingScopeFactory loggingScopeFactory,
       final REEFFileNames reefFileNames) {
     this.reefStateManager = reefStateManager;

@@ -50,7 +50,7 @@ class JettyHandler extends AbstractHandler {
    * @param httpEventHandlers
    */
   @Inject
-  JettyHandler(final @Parameter(HttpEventHandlers.class) Set<HttpHandler> httpEventHandlers) {
+  JettyHandler(@Parameter(HttpEventHandlers.class) final Set<HttpHandler> httpEventHandlers) {
     for (final HttpHandler handler : httpEventHandlers) {
       if (!eventHandlers.containsKey(handler.getUriSpecification())) {
         eventHandlers.put(handler.getUriSpecification().toLowerCase(), handler);

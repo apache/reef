@@ -81,8 +81,8 @@ public class BroadcastDriver {
       final EvaluatorRequestor requestor,
       final GroupCommDriver groupCommDriver,
       final ConfigurationSerializer confSerializer,
-      final @Parameter(ModelDimensions.class) int dimensions,
-      final @Parameter(NumberOfReceivers.class) int numberOfReceivers) {
+      @Parameter(ModelDimensions.class) final int dimensions,
+      @Parameter(NumberOfReceivers.class) final int numberOfReceivers) {
 
     this.requestor = requestor;
     this.groupCommDriver = groupCommDriver;

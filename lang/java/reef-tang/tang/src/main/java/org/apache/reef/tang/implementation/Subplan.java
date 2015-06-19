@@ -22,7 +22,7 @@ import org.apache.reef.tang.types.Node;
 
 import java.util.*;
 
-final public class Subplan<T> extends InjectionPlan<T> {
+public final class Subplan<T> extends InjectionPlan<T> {
   final InjectionPlan<? extends T>[] alternatives;
   final int numAlternatives;
   final int selectedIndex;

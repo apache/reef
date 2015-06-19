@@ -19,7 +19,7 @@
 package org.apache.reef.javabridge;
 
 public class JavaBridge {
-  private final static String CPP_BRIDGE = "JavaClrBridge";
+  private static final String CPP_BRIDGE = "JavaClrBridge";
 
   static {
     try {

@@ -48,8 +48,8 @@ public final class REEFErrorHandler implements EventHandler<Throwable> {
 
   @Inject
   REEFErrorHandler(final InjectionFuture<RemoteManager> remoteManager,
-                   final @Parameter(ErrorHandlerRID.class) String errorHandlerRID,
-                   final @Parameter(LaunchID.class) String launchID,
+                   @Parameter(ErrorHandlerRID.class) final String errorHandlerRID,
+                   @Parameter(LaunchID.class) final String launchID,
                    final ExceptionCodec exceptionCodec) {
     this.errorHandlerRID = errorHandlerRID;
     this.remoteManager = remoteManager;

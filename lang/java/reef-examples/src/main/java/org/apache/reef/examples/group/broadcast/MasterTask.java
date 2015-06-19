@@ -54,7 +54,7 @@ public class MasterTask implements Task {
   @Inject
   public MasterTask(
       final GroupCommClient groupCommClient,
-      final @Parameter(ModelDimensions.class) int dimensions) {
+      @Parameter(ModelDimensions.class) final int dimensions) {
 
     this.dimensions = dimensions;
 

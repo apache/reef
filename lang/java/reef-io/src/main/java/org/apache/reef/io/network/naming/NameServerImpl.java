@@ -146,8 +146,8 @@ public class NameServerImpl implements NameServer {
    */
   @Inject
   public NameServerImpl(
-      final @Parameter(NameServerParameters.NameServerPort.class) int port,
-      final @Parameter(NameServerParameters.NameServerIdentifierFactory.class) IdentifierFactory factory,
+      @Parameter(NameServerParameters.NameServerPort.class) final int port,
+      @Parameter(NameServerParameters.NameServerIdentifierFactory.class) final IdentifierFactory factory,
       final ReefEventStateManager reefEventStateManager,
       final LocalAddressProvider localAddressProvider,
       final TransportFactory tpFactory) {
