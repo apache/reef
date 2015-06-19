@@ -72,17 +72,6 @@ namespace Org.Apache.REEF.Common.Services
             }
         }
 
-        public static string WrapServiceConfigAsString(IConfiguration serviceConfiguration)
-        {
-            AvroConfigurationSerializer serializer = new AvroConfigurationSerializer();
-            var wrappedConfig = TangFactory.GetTang().NewConfigurationBuilder()
-                .BindNamedParameter<ServicesConfigurationOptions.ServiceConfigString, string>(
-                    GenericType<ServicesConfigurationOptions.ServiceConfigString>.Class,
-                    serializer.ToString(serviceConfiguration))
-                .Build();
-            return serializer.ToString(wrappedConfig);
-        }
-
         public IConfiguration TangConfig { get; private set; }
     }
 
