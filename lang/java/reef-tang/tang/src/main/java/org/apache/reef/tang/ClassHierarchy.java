@@ -42,7 +42,6 @@ public interface ClassHierarchy {
    * @param fullName The full name of the class that will be looked up.
    * @return A non-null reference to a ClassNode or a NamedParameterNode.
    * @throws NameResolutionException If the class is not found.
-   * @throws ClassHierarchyException If the class does not pass Tang's static analysis.
    */
   Node getNode(String fullName) throws NameResolutionException;
 
