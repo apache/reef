@@ -46,7 +46,7 @@ public class SleepTask implements Task {
    * @param delay number of seconds to sleep.
    */
   @Inject
-  private SleepTask(final @Parameter(Launch.Delay.class) Integer delay) {
+  private SleepTask(@Parameter(Launch.Delay.class) final Integer delay) {
     this.delay = delay * 1000;
   }
 

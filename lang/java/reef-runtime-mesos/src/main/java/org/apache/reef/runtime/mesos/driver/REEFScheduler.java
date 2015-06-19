@@ -118,8 +118,8 @@ final class REEFScheduler implements Scheduler {
                 final REEFFileNames fileNames,
                 final EStage<SchedulerDriver> schedulerDriverEStage,
                 final ClasspathProvider classpath,
-                final @Parameter(JobIdentifier.class) String jobIdentifier,
-                final @Parameter(MesosMasterIp.class) String masterIp) {
+                @Parameter(JobIdentifier.class) final String jobIdentifier,
+                @Parameter(MesosMasterIp.class) final String masterIp) {
     this.mesosRemoteManager = mesosRemoteManager;
     this.reefEventHandlers = reefEventHandlers;
     this.executors = executors;

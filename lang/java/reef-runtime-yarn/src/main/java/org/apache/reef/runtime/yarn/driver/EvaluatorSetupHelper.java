@@ -61,7 +61,7 @@ final class EvaluatorSetupHelper {
       final REEFFileNames fileNames,
       final ConfigurationSerializer configurationSerializer,
       final TempFileCreator tempFileCreator,
-      final @Parameter(DeleteTempFiles.class) boolean deleteTempFiles,
+      @Parameter(DeleteTempFiles.class) final boolean deleteTempFiles,
       final UploaderToJobFolder uploader,
       final GlobalJarUploader globalJarUploader) throws IOException {
     this.tempFileCreator = tempFileCreator;

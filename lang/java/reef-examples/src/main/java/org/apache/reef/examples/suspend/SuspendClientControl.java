@@ -48,7 +48,7 @@ public class SuspendClientControl implements AutoCloseable {
 
   @Inject
   public SuspendClientControl(
-      final @Parameter(SuspendClientControl.Port.class) int port,
+      @Parameter(SuspendClientControl.Port.class) final int port,
       final TransportFactory tpFactory) throws IOException {
 
     LOG.log(Level.INFO, "Listen to control port {0}", port);

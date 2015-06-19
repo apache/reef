@@ -25,8 +25,8 @@ import java.util.logging.Logger;
 public final class RunningTaskBridge extends NativeBridge {
   private static final Logger LOG = Logger.getLogger(RunningTaskBridge.class.getName());
 
-  final private RunningTask jrunningTask;
-  final private ActiveContextBridge jactiveContext;
+  private final RunningTask jrunningTask;
+  private final ActiveContextBridge jactiveContext;
 
   public RunningTaskBridge(final RunningTask runningTask, final ActiveContextBridgeFactory factory) {
     this.jrunningTask = runningTask;

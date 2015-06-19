@@ -79,6 +79,6 @@ public class CodecRamMap<T> implements ExternalMap<T> {
   }
 
   @NamedParameter
-  static public class RamMapCodec implements Name<Codec<?>> {
+  public static class RamMapCodec implements Name<Codec<?>> {
   }
 }

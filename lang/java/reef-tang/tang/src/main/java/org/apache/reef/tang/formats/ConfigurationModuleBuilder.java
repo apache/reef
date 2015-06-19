@@ -37,9 +37,9 @@ import java.util.Set;
 
 public abstract class ConfigurationModuleBuilder {
 
-  private final static Set<Class<?>> paramBlacklist = new MonotonicHashSet<Class<?>>(
+  private static final Set<Class<?>> paramBlacklist = new MonotonicHashSet<Class<?>>(
       Param.class, Impl.class);
-  private final static Set<Class<?>> paramTypes = new MonotonicHashSet<Class<?>>(
+  private static final Set<Class<?>> paramTypes = new MonotonicHashSet<Class<?>>(
       RequiredImpl.class, OptionalImpl.class, RequiredParameter.class,
       OptionalParameter.class);
   final JavaConfigurationBuilder b = Tang.Factory.getTang()

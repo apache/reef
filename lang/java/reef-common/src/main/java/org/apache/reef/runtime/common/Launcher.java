@@ -46,7 +46,7 @@ import java.util.logging.Logger;
  */
 public final class Launcher {
 
-  private final static Logger LOG = Logger.getLogger(Launcher.class.getName());
+  private static final Logger LOG = Logger.getLogger(Launcher.class.getName());
 
   static {
     LoggingSetup.setupCommonsLogging();

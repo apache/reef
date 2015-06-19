@@ -50,10 +50,10 @@ public class BGDClient {
   private final int fanOut;
 
   @Inject
-  public BGDClient(final @Parameter(InputDir.class) String input,
-                   final @Parameter(NumSplits.class) int numSplits,
-                   final @Parameter(EvaluatorMemory.class) int memory,
-                   final @Parameter(TreeTopologyFanOut.class) int fanOut,
+  public BGDClient(@Parameter(InputDir.class) final String input,
+                   @Parameter(NumSplits.class) final int numSplits,
+                   @Parameter(EvaluatorMemory.class) final int memory,
+                   @Parameter(TreeTopologyFanOut.class) final int fanOut,
                    final BGDControlParameters bgdControlParameters) {
     this.input = input;
     this.fanOut = fanOut;

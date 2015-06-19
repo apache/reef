@@ -52,7 +52,7 @@ public final class JobJarMaker {
   @Inject
   JobJarMaker(final ConfigurationSerializer configurationSerializer,
               final REEFFileNames fileNames,
-              final @Parameter(DeleteTempFiles.class) boolean deleteTempFilesOnExit) {
+              @Parameter(DeleteTempFiles.class) final boolean deleteTempFilesOnExit) {
     this.configurationSerializer = configurationSerializer;
     this.fileNames = fileNames;
     this.deleteTempFilesOnExit = deleteTempFilesOnExit;

@@ -41,8 +41,8 @@ public class JobConfExternalConstructor implements ExternalConstructor<JobConf> 
 
   @Inject
   public JobConfExternalConstructor(
-      final @Parameter(InputFormatClass.class) String inputFormatClassName,
-      final @Parameter(InputPath.class) String inputPath) {
+      @Parameter(InputFormatClass.class) final String inputFormatClassName,
+      @Parameter(InputPath.class) final String inputPath) {
     this.inputFormatClassName = inputFormatClassName;
     this.inputPath = inputPath;
   }

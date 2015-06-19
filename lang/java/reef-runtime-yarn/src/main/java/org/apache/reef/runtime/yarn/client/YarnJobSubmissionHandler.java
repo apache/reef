@@ -69,7 +69,7 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
       final ClasspathProvider classpath,
       final ConfigurationSerializer configurationSerializer,
       final JobUploader uploader,
-      final @Parameter(JVMHeapSlack.class) double jvmSlack) throws IOException {
+      @Parameter(JVMHeapSlack.class) final double jvmSlack) throws IOException {
 
     this.yarnConfiguration = yarnConfiguration;
     this.jobJarMaker = jobJarMaker;

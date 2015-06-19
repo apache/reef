@@ -38,7 +38,7 @@ public final class DriverIdleManager {
   private final InjectionFuture<DriverStatusManager> driverStatusManager;
 
   @Inject
-  DriverIdleManager(final @Parameter(DriverIdleSources.class) Set<DriverIdlenessSource> idlenessSources,
+  DriverIdleManager(@Parameter(DriverIdleSources.class) final Set<DriverIdlenessSource> idlenessSources,
                     final InjectionFuture<DriverStatusManager> driverStatusManager) {
     this.idlenessSources = idlenessSources;
     this.driverStatusManager = driverStatusManager;

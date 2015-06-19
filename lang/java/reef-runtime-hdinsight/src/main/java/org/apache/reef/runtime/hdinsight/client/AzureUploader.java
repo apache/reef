@@ -63,10 +63,10 @@ final class AzureUploader {
 
   @Inject
   AzureUploader(
-      final @Parameter(AzureStorageAccountName.class) String accountName,
-      final @Parameter(AzureStorageAccountKey.class) String accountKey,
-      final @Parameter(AzureStorageAccountContainerName.class) String azureStorageContainerName,
-      final @Parameter(AzureStorageBaseFolder.class) String baseFolder)
+      @Parameter(AzureStorageAccountName.class) final String accountName,
+      @Parameter(AzureStorageAccountKey.class) final String accountKey,
+      @Parameter(AzureStorageAccountContainerName.class) final String azureStorageContainerName,
+      @Parameter(AzureStorageBaseFolder.class) final String baseFolder)
       throws URISyntaxException, InvalidKeyException, StorageException {
 
     this.storageAccount = CloudStorageAccount.parse(getStorageConnectionString(accountName, accountKey));

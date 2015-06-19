@@ -40,8 +40,8 @@ public final class DriverStartHandler implements EventHandler<StartTime> {
   private final DriverStatusManager driverStatusManager;
 
   @Inject
-  DriverStartHandler(final @Parameter(org.apache.reef.driver.parameters.DriverStartHandler.class) Set<EventHandler<StartTime>> startHandler,
-                     final @Parameter(DriverRestartHandler.class) EventHandler<StartTime> restartHandler,
+  DriverStartHandler(@Parameter(org.apache.reef.driver.parameters.DriverStartHandler.class) final Set<EventHandler<StartTime>> startHandler,
+                     @Parameter(DriverRestartHandler.class) final EventHandler<StartTime> restartHandler,
                      final DriverStatusManager driverStatusManager) {
     this.startHandlers = startHandler;
     this.restartHandler = Optional.of(restartHandler);
@@ -51,7 +51,7 @@ public final class DriverStartHandler implements EventHandler<StartTime> {
   }
 
   @Inject
-  DriverStartHandler(final @Parameter(org.apache.reef.driver.parameters.DriverStartHandler.class) Set<EventHandler<StartTime>> startHandler,
+  DriverStartHandler(@Parameter(org.apache.reef.driver.parameters.DriverStartHandler.class) final Set<EventHandler<StartTime>> startHandler,
                      final DriverStatusManager driverStatusManager) {
     this.startHandlers = startHandler;
     this.restartHandler = Optional.empty();

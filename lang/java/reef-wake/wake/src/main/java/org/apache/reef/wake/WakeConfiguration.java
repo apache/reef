@@ -37,10 +37,10 @@ import java.util.logging.Logger;
  * Wake parameter configuration.
  */
 public final class WakeConfiguration {
-  private final static Logger LOG = Logger.getLogger(WakeConfiguration.class.getName());
+  private static final Logger LOG = Logger.getLogger(WakeConfiguration.class.getName());
 
   @Inject
-  public WakeConfiguration(final @Parameter(FileName.class) String confFileName) {
+  public WakeConfiguration(@Parameter(FileName.class) final String confFileName) {
     if (confFileName.equals("")) {
       LOG.log(Level.WARNING, "The Wake configuration file is not specified.");
     } else {
@@ -57,6 +57,6 @@ public final class WakeConfiguration {
   }
 
   @NamedParameter(doc = "Configuration file name", default_value = "")
-  public final static class FileName implements Name<String> {
+  public static final class FileName implements Name<String> {
   }
 }

@@ -97,14 +97,14 @@ public class DefaultRemoteManagerImplementation implements RemoteManager {
   @Deprecated
   @Inject
   public <T> DefaultRemoteManagerImplementation(
-      final @Parameter(RemoteConfiguration.ManagerName.class) String name,
-      final @Parameter(RemoteConfiguration.HostAddress.class) String hostAddress,
-      final @Parameter(RemoteConfiguration.Port.class) int listeningPort,
-      final @Parameter(RemoteConfiguration.MessageCodec.class) Codec<T> codec,
-      final @Parameter(RemoteConfiguration.ErrorHandler.class) EventHandler<Throwable> errorHandler,
-      final @Parameter(RemoteConfiguration.OrderingGuarantee.class) boolean orderingGuarantee,
-      final @Parameter(RemoteConfiguration.NumberOfTries.class) int numberOfTries,
-      final @Parameter(RemoteConfiguration.RetryTimeout.class) int retryTimeout,
+      @Parameter(RemoteConfiguration.ManagerName.class) final String name,
+      @Parameter(RemoteConfiguration.HostAddress.class) final String hostAddress,
+      @Parameter(RemoteConfiguration.Port.class) final int listeningPort,
+      @Parameter(RemoteConfiguration.MessageCodec.class) final Codec<T> codec,
+      @Parameter(RemoteConfiguration.ErrorHandler.class) final EventHandler<Throwable> errorHandler,
+      @Parameter(RemoteConfiguration.OrderingGuarantee.class) final boolean orderingGuarantee,
+      @Parameter(RemoteConfiguration.NumberOfTries.class) final int numberOfTries,
+      @Parameter(RemoteConfiguration.RetryTimeout.class) final int retryTimeout,
       final LocalAddressProvider localAddressProvider,
       final TransportFactory tpFactory) {
 

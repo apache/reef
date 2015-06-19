@@ -82,7 +82,7 @@ import java.util.logging.Logger;
 @DriverSide
 public final class EvaluatorManager implements Identifiable, AutoCloseable {
 
-  private final static Logger LOG = Logger.getLogger(EvaluatorManager.class.getName());
+  private static final Logger LOG = Logger.getLogger(EvaluatorManager.class.getName());
 
   private final EvaluatorHeartBeatSanityChecker sanityChecker = new EvaluatorHeartBeatSanityChecker();
   private final Clock clock;
@@ -109,8 +109,8 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
       final RemoteManager remoteManager,
       final ResourceReleaseHandler resourceReleaseHandler,
       final ResourceLaunchHandler resourceLaunchHandler,
-      final @Parameter(EvaluatorIdentifier.class) String evaluatorId,
-      final @Parameter(EvaluatorDescriptorName.class) EvaluatorDescriptorImpl evaluatorDescriptor,
+      @Parameter(EvaluatorIdentifier.class) final String evaluatorId,
+      @Parameter(EvaluatorDescriptorName.class) final EvaluatorDescriptorImpl evaluatorDescriptor,
       final ContextRepresenters contextRepresenters,
       final ConfigurationSerializer configurationSerializer,
       final EvaluatorMessageDispatcher messageDispatcher,
@@ -121,7 +121,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
       final ExceptionCodec exceptionCodec,
       final EventHandlerIdlenessSource idlenessSource,
       final LoggingScopeFactory loggingScopeFactory,
-      final @Parameter(EvaluatorConfigurationProviders.class) Set<ConfigurationProvider> evaluatorConfigurationProviders,
+      @Parameter(EvaluatorConfigurationProviders.class) final Set<ConfigurationProvider> evaluatorConfigurationProviders,
       // TODO: Eventually remove the factories when they are removed from AllocatedEvaluatorImpl
       final JVMProcessFactory jvmProcessFactory,
       final CLRProcessFactory clrProcessFactory) {
@@ -550,10 +550,10 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
 
   // Dynamic Parameters
   @NamedParameter(doc = "The Evaluator Identifier.")
-  public final static class EvaluatorIdentifier implements Name<String> {
+  public static final class EvaluatorIdentifier implements Name<String> {
   }
 
   @NamedParameter(doc = "The Evaluator Host.")
-  public final static class EvaluatorDescriptorName implements Name<EvaluatorDescriptorImpl> {
+  public static final class EvaluatorDescriptorName implements Name<EvaluatorDescriptorImpl> {
   }
 }

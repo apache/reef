@@ -53,7 +53,7 @@ final class UploaderToJobFolder {
   private final FileSystem fileSystem;
 
   @Inject
-  UploaderToJobFolder(final @Parameter(JobSubmissionDirectory.class) String jobSubmissionDirectory,
+  UploaderToJobFolder(@Parameter(JobSubmissionDirectory.class) final String jobSubmissionDirectory,
                       final YarnConfiguration yarnConfiguration) throws IOException {
     this.jobSubmissionDirectory = jobSubmissionDirectory;
     this.fileSystem = FileSystem.get(yarnConfiguration);

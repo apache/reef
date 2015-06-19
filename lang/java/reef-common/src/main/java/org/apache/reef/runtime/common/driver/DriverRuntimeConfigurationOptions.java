@@ -28,6 +28,6 @@ import org.apache.reef.wake.EventHandler;
  */
 public class DriverRuntimeConfigurationOptions {
   @NamedParameter(doc = "Called when a job control message is received by the client.")
-  public final static class JobControlHandler implements Name<EventHandler<ClientRuntimeProtocol.JobControlProto>> {
+  public static final class JobControlHandler implements Name<EventHandler<ClientRuntimeProtocol.JobControlProto>> {
   }
 }

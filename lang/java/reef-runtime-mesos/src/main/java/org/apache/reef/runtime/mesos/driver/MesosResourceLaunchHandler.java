@@ -64,7 +64,7 @@ final class MesosResourceLaunchHandler implements ResourceLaunchHandler {
                              final REEFFileNames fileNames,
                              final REEFExecutors executors,
                              final ClasspathProvider classpath,
-                             final @Parameter(JVMHeapSlack.class) double jvmHeapSlack) {
+                             @Parameter(JVMHeapSlack.class) final double jvmHeapSlack) {
     this.configurationSerializer = configurationSerializer;
     this.remoteManager = remoteManager;
     this.fileNames = fileNames;

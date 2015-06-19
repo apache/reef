@@ -49,8 +49,8 @@ public class GroupCommClientImpl implements GroupCommClient {
 
   @Inject
   public GroupCommClientImpl(
-      final @Parameter(SerializedGroupConfigs.class) Set<String> groupConfigs,
-      final @Parameter(TaskConfigurationOptions.Identifier.class) String taskId,
+      @Parameter(SerializedGroupConfigs.class) final Set<String> groupConfigs,
+      @Parameter(TaskConfigurationOptions.Identifier.class) final String taskId,
       final GroupCommNetworkHandler groupCommNetworkHandler,
       final NetworkService<ReefNetworkGroupCommProtos.GroupCommMessage> netService,
       final ConfigurationSerializer configSerializer) {

@@ -32,7 +32,7 @@ final class TaskStartImpl implements TaskStart {
   private final String id;
 
   @Inject
-  TaskStartImpl(final @Parameter(TaskConfigurationOptions.Identifier.class) String id) {
+  TaskStartImpl(@Parameter(TaskConfigurationOptions.Identifier.class) final String id) {
     this.id = id;
   }
 

@@ -32,7 +32,7 @@ import java.util.logging.Logger;
  */
 final class RuntimeErrorProtoHandler implements EventHandler<RemoteMessage<ReefServiceProtos.RuntimeErrorProto>> {
 
-  private final static Logger LOG = Logger.getLogger(RuntimeErrorProtoHandler.class.getName());
+  private static final Logger LOG = Logger.getLogger(RuntimeErrorProtoHandler.class.getName());
 
   private final InjectionFuture<RunningJobs> runningJobs;
 

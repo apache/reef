@@ -39,7 +39,7 @@ final class ProfilingStopHandler implements EventHandler<StopTime> {
   private final String launchID;
 
   @Inject
-  public ProfilingStopHandler(final @Parameter(LaunchID.class) String launchID) {
+  public ProfilingStopHandler(@Parameter(LaunchID.class) final String launchID) {
     this.launchID = launchID;
   }
 

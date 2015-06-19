@@ -146,16 +146,16 @@ public final class NetworkService<T> implements Stage, ConnectionFactory<T> {
   @Deprecated
   @Inject
   public NetworkService(
-      final @Parameter(NetworkServiceParameters.NetworkServiceIdentifierFactory.class) IdentifierFactory factory,
-      final @Parameter(NetworkServiceParameters.NetworkServicePort.class) int nsPort,
-      final @Parameter(NameServerParameters.NameServerAddr.class) String nameServerAddr,
-      final @Parameter(NameServerParameters.NameServerPort.class) int nameServerPort,
-      final @Parameter(NameLookupClient.RetryCount.class) int retryCount,
-      final @Parameter(NameLookupClient.RetryTimeout.class) int retryTimeout,
-      final @Parameter(NetworkServiceParameters.NetworkServiceCodec.class) Codec<T> codec,
-      final @Parameter(NetworkServiceParameters.NetworkServiceTransportFactory.class) TransportFactory tpFactory,
-      final @Parameter(NetworkServiceParameters.NetworkServiceHandler.class) EventHandler<Message<T>> recvHandler,
-      final @Parameter(NetworkServiceParameters.NetworkServiceExceptionHandler.class) EventHandler<Exception> exHandler,
+      @Parameter(NetworkServiceParameters.NetworkServiceIdentifierFactory.class) final IdentifierFactory factory,
+      @Parameter(NetworkServiceParameters.NetworkServicePort.class) final int nsPort,
+      @Parameter(NameServerParameters.NameServerAddr.class) final String nameServerAddr,
+      @Parameter(NameServerParameters.NameServerPort.class) final int nameServerPort,
+      @Parameter(NameLookupClient.RetryCount.class) final int retryCount,
+      @Parameter(NameLookupClient.RetryTimeout.class) final int retryTimeout,
+      @Parameter(NetworkServiceParameters.NetworkServiceCodec.class) final Codec<T> codec,
+      @Parameter(NetworkServiceParameters.NetworkServiceTransportFactory.class) final TransportFactory tpFactory,
+      @Parameter(NetworkServiceParameters.NetworkServiceHandler.class) final EventHandler<Message<T>> recvHandler,
+      @Parameter(NetworkServiceParameters.NetworkServiceExceptionHandler.class) final EventHandler<Exception> exHandler,
       final LocalAddressProvider localAddressProvider) {
 
     this.factory = factory;

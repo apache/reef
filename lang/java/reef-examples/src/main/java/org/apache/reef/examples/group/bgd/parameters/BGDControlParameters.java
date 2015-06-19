@@ -41,14 +41,14 @@ public final class BGDControlParameters {
 
   @Inject
   public BGDControlParameters(
-      final @Parameter(ModelDimensions.class) int dimensions,
-      final @Parameter(Lambda.class) double lambda,
-      final @Parameter(Eps.class) double eps,
-      final @Parameter(Eta.class) double eta,
-      final @Parameter(ProbabilityOfSuccesfulIteration.class) double probOfSuccessfulIteration,
-      final @Parameter(Iterations.class) int iters,
-      final @Parameter(EnableRampup.class) boolean rampup,
-      final @Parameter(MinParts.class) int minParts,
+      @Parameter(ModelDimensions.class) final int dimensions,
+      @Parameter(Lambda.class) final double lambda,
+      @Parameter(Eps.class) final double eps,
+      @Parameter(Eta.class) final double eta,
+      @Parameter(ProbabilityOfSuccesfulIteration.class) final double probOfSuccessfulIteration,
+      @Parameter(Iterations.class) final int iters,
+      @Parameter(EnableRampup.class) final boolean rampup,
+      @Parameter(MinParts.class) final int minParts,
       final BGDLossType lossType) {
     this.dimensions = dimensions;
     this.lambda = lambda;

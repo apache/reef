@@ -50,7 +50,7 @@ public final class EvaluatorControlHandler {
   @Inject
   EvaluatorControlHandler(final EvaluatorStatusManager stateManager,
                           final RemoteManager remoteManager,
-                          final @Parameter(EvaluatorManager.EvaluatorIdentifier.class) String evaluatorId) {
+                          @Parameter(EvaluatorManager.EvaluatorIdentifier.class) final String evaluatorId) {
     this.stateManager = stateManager;
     this.remoteManager = remoteManager;
     this.evaluatorId = evaluatorId;

@@ -43,7 +43,7 @@ import java.util.logging.Logger;
 @Private
 public final class EvaluatorContext implements ActiveContext {
 
-  private final static Logger LOG = Logger.getLogger(EvaluatorContext.class.getName());
+  private static final Logger LOG = Logger.getLogger(EvaluatorContext.class.getName());
 
   private final String contextIdentifier;
   private final String evaluatorIdentifier;

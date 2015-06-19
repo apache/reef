@@ -137,12 +137,12 @@ public class NettyMessagingTransport implements Transport {
    */
   @Inject
   NettyMessagingTransport(
-      final @Parameter(RemoteConfiguration.HostAddress.class) String hostAddress,
+      @Parameter(RemoteConfiguration.HostAddress.class) final String hostAddress,
       @Parameter(RemoteConfiguration.Port.class) int port,
-      final @Parameter(RemoteConfiguration.RemoteClientStage.class) EStage<TransportEvent> clientStage,
-      final @Parameter(RemoteConfiguration.RemoteServerStage.class) EStage<TransportEvent> serverStage,
-      final @Parameter(RemoteConfiguration.NumberOfTries.class) int numberOfTries,
-      final @Parameter(RemoteConfiguration.RetryTimeout.class) int retryTimeout,
+      @Parameter(RemoteConfiguration.RemoteClientStage.class) final EStage<TransportEvent> clientStage,
+      @Parameter(RemoteConfiguration.RemoteServerStage.class) final EStage<TransportEvent> serverStage,
+      @Parameter(RemoteConfiguration.NumberOfTries.class) final int numberOfTries,
+      @Parameter(RemoteConfiguration.RetryTimeout.class) final int retryTimeout,
       final TcpPortProvider tcpPortProvider,
       final LocalAddressProvider localAddressProvider) {
 

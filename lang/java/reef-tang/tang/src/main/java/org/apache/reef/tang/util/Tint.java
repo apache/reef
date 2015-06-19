@@ -51,9 +51,9 @@ import java.util.Set;
 import java.util.TreeSet;
 
 public class Tint {
-  final private static String SETTERS = "setters";
-  final private static String USES = "uses";
-  final private static String FULLNAME = "fullName";
+  private static final String SETTERS = "setters";
+  private static final String USES = "uses";
+  private static final String FULLNAME = "fullName";
   final JavaClassHierarchy ch;
   final Map<Field, ConfigurationModule> modules = new MonotonicHashMap<>();
   final MonotonicMultiMap<String, String> setters = new MonotonicMultiMap<>();

@@ -83,7 +83,7 @@ public final class FailDriver {
   private transient DriverState state = DriverState.INIT;
 
   @Inject
-  public FailDriver(final @Parameter(FailMsgClassName.class) String failMsgClassName,
+  public FailDriver(@Parameter(FailMsgClassName.class) final String failMsgClassName,
                     final EvaluatorRequestor requestor, final Clock clock)
       throws ClassNotFoundException {
     this.failMsgClass = ClassLoader.getSystemClassLoader().loadClass(failMsgClassName);

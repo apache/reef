@@ -24,6 +24,6 @@ import org.apache.reef.tang.annotations.NamedParameter;
 public final class ClientRuntimeParameters {
 
   @NamedParameter(doc = "The runtime error handler RID.")
-  public final static class RuntimeErrorHandlerRID implements Name<String> {
+  public static final class RuntimeErrorHandlerRID implements Name<String> {
   }
 }

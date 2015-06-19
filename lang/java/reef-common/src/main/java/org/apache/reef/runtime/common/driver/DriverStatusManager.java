@@ -57,7 +57,7 @@ public final class DriverStatusManager {
   @Inject
   DriverStatusManager(final Clock clock,
                       final ClientConnection clientConnection,
-                      final @Parameter(JobIdentifier.class) String jobIdentifier,
+                      @Parameter(JobIdentifier.class) final String jobIdentifier,
                       final ExceptionCodec exceptionCodec) {
     LOG.entering(DriverStatusManager.class.getCanonicalName(), "<init>");
     this.clock = clock;

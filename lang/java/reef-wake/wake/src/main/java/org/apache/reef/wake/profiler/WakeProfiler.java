@@ -41,7 +41,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Logger;
 
 public class WakeProfiler implements Aspect {
-  private final static Logger LOG = Logger.getLogger(WakeProfiler.class.toString());
+  private static final Logger LOG = Logger.getLogger(WakeProfiler.class.toString());
   private final Map<Object, Vertex<?>> vertex_object = new MonotonicHashMap<>();
   private final Map<InjectionFuture<?>, Object> futures = new MonotonicHashMap<>();
   private final Map<Object, Stats> stats = new MonotonicHashMap<>();

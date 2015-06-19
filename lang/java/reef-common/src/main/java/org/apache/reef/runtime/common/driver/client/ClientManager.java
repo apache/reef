@@ -44,7 +44,7 @@ import java.util.logging.Logger;
 @DriverSide
 public final class ClientManager implements EventHandler<ClientRuntimeProtocol.JobControlProto> {
 
-  private final static Logger LOG = Logger.getLogger(ClientManager.class.getName());
+  private static final Logger LOG = Logger.getLogger(ClientManager.class.getName());
 
 
   private final InjectionFuture<Set<EventHandler<Void>>> clientCloseHandlers;
@@ -63,10 +63,10 @@ public final class ClientManager implements EventHandler<ClientRuntimeProtocol.J
 
 
   @Inject
-  ClientManager(final @Parameter(ClientCloseHandlers.class) InjectionFuture<Set<EventHandler<Void>>> clientCloseHandlers,
-                final @Parameter(ClientCloseWithMessageHandlers.class) InjectionFuture<Set<EventHandler<byte[]>>> clientCloseWithMessageHandlers,
-                final @Parameter(ClientMessageHandlers.class) InjectionFuture<Set<EventHandler<byte[]>>> clientMessageHandlers,
-                final @Parameter(ClientRemoteIdentifier.class) String clientRID,
+  ClientManager(@Parameter(ClientCloseHandlers.class) final InjectionFuture<Set<EventHandler<Void>>> clientCloseHandlers,
+                @Parameter(ClientCloseWithMessageHandlers.class) final InjectionFuture<Set<EventHandler<byte[]>>> clientCloseWithMessageHandlers,
+                @Parameter(ClientMessageHandlers.class) final InjectionFuture<Set<EventHandler<byte[]>>> clientMessageHandlers,
+                @Parameter(ClientRemoteIdentifier.class) final String clientRID,
                 final RemoteManager remoteManager,
                 final DriverStatusManager driverStatusManager) {
     this.driverStatusManager = driverStatusManager;

@@ -51,8 +51,8 @@ public final class SingleThreadStage<T> extends AbstractEStage<T> {
    * @param capacity the queue capacity
    */
   @Inject
-  public SingleThreadStage(final @Parameter(StageHandler.class) EventHandler<T> handler,
-                           final @Parameter(Capacity.class) int capacity) {
+  public SingleThreadStage(@Parameter(StageHandler.class) final EventHandler<T> handler,
+                           @Parameter(Capacity.class) final int capacity) {
     this(handler.getClass().getName(), handler, capacity);
   }
 
@@ -64,9 +64,9 @@ public final class SingleThreadStage<T> extends AbstractEStage<T> {
    * @param capacity the queue capacity
    */
   @Inject
-  public SingleThreadStage(final @Parameter(StageName.class) String name,
-                           final @Parameter(StageHandler.class) EventHandler<T> handler,
-                           final @Parameter(Capacity.class) int capacity) {
+  public SingleThreadStage(@Parameter(StageName.class) final String name,
+                           @Parameter(StageHandler.class) final EventHandler<T> handler,
+                           @Parameter(Capacity.class) final int capacity) {
     super(name);
     queue = new ArrayBlockingQueue<T>(capacity);
     interrupted = new AtomicBoolean(false);

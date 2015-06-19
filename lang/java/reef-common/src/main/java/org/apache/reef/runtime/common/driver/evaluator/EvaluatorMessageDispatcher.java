@@ -69,48 +69,48 @@ public final class EvaluatorMessageDispatcher {
   @Inject
   EvaluatorMessageDispatcher(
       // Application-provided Context event handlers
-      final @Parameter(ContextActiveHandlers.class) Set<EventHandler<ActiveContext>> contextActiveHandlers,
-      final @Parameter(ContextClosedHandlers.class) Set<EventHandler<ClosedContext>> contextClosedHandlers,
-      final @Parameter(ContextFailedHandlers.class) Set<EventHandler<FailedContext>> contextFailedHandlers,
-      final @Parameter(ContextMessageHandlers.class) Set<EventHandler<ContextMessage>> contextMessageHandlers,
+      @Parameter(ContextActiveHandlers.class) final Set<EventHandler<ActiveContext>> contextActiveHandlers,
+      @Parameter(ContextClosedHandlers.class) final Set<EventHandler<ClosedContext>> contextClosedHandlers,
+      @Parameter(ContextFailedHandlers.class) final Set<EventHandler<FailedContext>> contextFailedHandlers,
+      @Parameter(ContextMessageHandlers.class) final Set<EventHandler<ContextMessage>> contextMessageHandlers,
       // Service-provided Context event handlers
-      final @Parameter(ServiceContextActiveHandlers.class) Set<EventHandler<ActiveContext>> serviceContextActiveHandlers,
-      final @Parameter(ServiceContextClosedHandlers.class) Set<EventHandler<ClosedContext>> serviceContextClosedHandlers,
-      final @Parameter(ServiceContextFailedHandlers.class) Set<EventHandler<FailedContext>> serviceContextFailedHandlers,
-      final @Parameter(ServiceContextMessageHandlers.class) Set<EventHandler<ContextMessage>> serviceContextMessageHandlers,
+      @Parameter(ServiceContextActiveHandlers.class) final Set<EventHandler<ActiveContext>> serviceContextActiveHandlers,
+      @Parameter(ServiceContextClosedHandlers.class) final Set<EventHandler<ClosedContext>> serviceContextClosedHandlers,
+      @Parameter(ServiceContextFailedHandlers.class) final Set<EventHandler<FailedContext>> serviceContextFailedHandlers,
+      @Parameter(ServiceContextMessageHandlers.class) final Set<EventHandler<ContextMessage>> serviceContextMessageHandlers,
       // Application-provided Task event handlers
-      final @Parameter(TaskRunningHandlers.class) Set<EventHandler<RunningTask>> taskRunningHandlers,
-      final @Parameter(TaskCompletedHandlers.class) Set<EventHandler<CompletedTask>> taskCompletedHandlers,
-      final @Parameter(TaskSuspendedHandlers.class) Set<EventHandler<SuspendedTask>> taskSuspendedHandlers,
-      final @Parameter(TaskMessageHandlers.class) Set<EventHandler<TaskMessage>> taskMessageEventHandlers,
-      final @Parameter(TaskFailedHandlers.class) Set<EventHandler<FailedTask>> taskExceptionEventHandlers,
+      @Parameter(TaskRunningHandlers.class) final Set<EventHandler<RunningTask>> taskRunningHandlers,
+      @Parameter(TaskCompletedHandlers.class) final Set<EventHandler<CompletedTask>> taskCompletedHandlers,
+      @Parameter(TaskSuspendedHandlers.class) final Set<EventHandler<SuspendedTask>> taskSuspendedHandlers,
+      @Parameter(TaskMessageHandlers.class) final Set<EventHandler<TaskMessage>> taskMessageEventHandlers,
+      @Parameter(TaskFailedHandlers.class) final Set<EventHandler<FailedTask>> taskExceptionEventHandlers,
       // Service-provided Task event handlers
-      final @Parameter(ServiceTaskRunningHandlers.class) Set<EventHandler<RunningTask>> serviceTaskRunningEventHandlers,
-      final @Parameter(ServiceTaskCompletedHandlers.class) Set<EventHandler<CompletedTask>> serviceTaskCompletedEventHandlers,
-      final @Parameter(ServiceTaskSuspendedHandlers.class) Set<EventHandler<SuspendedTask>> serviceTaskSuspendedEventHandlers,
-      final @Parameter(ServiceTaskMessageHandlers.class) Set<EventHandler<TaskMessage>> serviceTaskMessageEventHandlers,
-      final @Parameter(ServiceTaskFailedHandlers.class) Set<EventHandler<FailedTask>> serviceTaskExceptionEventHandlers,
+      @Parameter(ServiceTaskRunningHandlers.class) final Set<EventHandler<RunningTask>> serviceTaskRunningEventHandlers,
+      @Parameter(ServiceTaskCompletedHandlers.class) final Set<EventHandler<CompletedTask>> serviceTaskCompletedEventHandlers,
+      @Parameter(ServiceTaskSuspendedHandlers.class) final Set<EventHandler<SuspendedTask>> serviceTaskSuspendedEventHandlers,
+      @Parameter(ServiceTaskMessageHandlers.class) final Set<EventHandler<TaskMessage>> serviceTaskMessageEventHandlers,
+      @Parameter(ServiceTaskFailedHandlers.class) final Set<EventHandler<FailedTask>> serviceTaskExceptionEventHandlers,
       // Application-provided Evaluator event handlers
-      final @Parameter(EvaluatorAllocatedHandlers.class) Set<EventHandler<AllocatedEvaluator>> evaluatorAllocatedHandlers,
-      final @Parameter(EvaluatorFailedHandlers.class) Set<EventHandler<FailedEvaluator>> evaluatorFailedHandlers,
-      final @Parameter(EvaluatorCompletedHandlers.class) Set<EventHandler<CompletedEvaluator>> evaluatorCompletedHandlers,
+      @Parameter(EvaluatorAllocatedHandlers.class) final Set<EventHandler<AllocatedEvaluator>> evaluatorAllocatedHandlers,
+      @Parameter(EvaluatorFailedHandlers.class) final Set<EventHandler<FailedEvaluator>> evaluatorFailedHandlers,
+      @Parameter(EvaluatorCompletedHandlers.class) final Set<EventHandler<CompletedEvaluator>> evaluatorCompletedHandlers,
       // Service-provided Evaluator event handlers
-      final @Parameter(ServiceEvaluatorAllocatedHandlers.class) Set<EventHandler<AllocatedEvaluator>> serviceEvaluatorAllocatedEventHandlers,
-      final @Parameter(ServiceEvaluatorFailedHandlers.class) Set<EventHandler<FailedEvaluator>> serviceEvaluatorFailedHandlers,
-      final @Parameter(ServiceEvaluatorCompletedHandlers.class) Set<EventHandler<CompletedEvaluator>> serviceEvaluatorCompletedHandlers,
+      @Parameter(ServiceEvaluatorAllocatedHandlers.class) final Set<EventHandler<AllocatedEvaluator>> serviceEvaluatorAllocatedEventHandlers,
+      @Parameter(ServiceEvaluatorFailedHandlers.class) final Set<EventHandler<FailedEvaluator>> serviceEvaluatorFailedHandlers,
+      @Parameter(ServiceEvaluatorCompletedHandlers.class) final Set<EventHandler<CompletedEvaluator>> serviceEvaluatorCompletedHandlers,
 
       // Application event handlers specific to a Driver restart
-      final @Parameter(DriverRestartTaskRunningHandlers.class) Set<EventHandler<RunningTask>> driverRestartTaskRunningHandlers,
-      final @Parameter(DriverRestartContextActiveHandlers.class) Set<EventHandler<ActiveContext>> driverRestartActiveContextHandlers,
-      final @Parameter(DriverRestartCompletedHandlers.class) Set<EventHandler<DriverRestartCompleted>> driverRestartCompletedHandlers,
+      @Parameter(DriverRestartTaskRunningHandlers.class) final Set<EventHandler<RunningTask>> driverRestartTaskRunningHandlers,
+      @Parameter(DriverRestartContextActiveHandlers.class) final Set<EventHandler<ActiveContext>> driverRestartActiveContextHandlers,
+      @Parameter(DriverRestartCompletedHandlers.class) final Set<EventHandler<DriverRestartCompleted>> driverRestartCompletedHandlers,
 
       // Service-provided event handlers specific to a Driver restart
-      final @Parameter(ServiceDriverRestartTaskRunningHandlers.class) Set<EventHandler<RunningTask>> serviceDriverRestartTaskRunningHandlers,
-      final @Parameter(ServiceDriverRestartContextActiveHandlers.class) Set<EventHandler<ActiveContext>> serviceDriverRestartActiveContextHandlers,
-      final @Parameter(ServiceDriverRestartCompletedHandlers.class) Set<EventHandler<DriverRestartCompleted>> serviceDriverRestartCompletedHandlers,
+      @Parameter(ServiceDriverRestartTaskRunningHandlers.class) final Set<EventHandler<RunningTask>> serviceDriverRestartTaskRunningHandlers,
+      @Parameter(ServiceDriverRestartContextActiveHandlers.class) final Set<EventHandler<ActiveContext>> serviceDriverRestartActiveContextHandlers,
+      @Parameter(ServiceDriverRestartCompletedHandlers.class) final Set<EventHandler<DriverRestartCompleted>> serviceDriverRestartCompletedHandlers,
 
-      final @Parameter(EvaluatorDispatcherThreads.class) int numberOfThreads,
-      final @Parameter(EvaluatorManager.EvaluatorIdentifier.class) String evaluatorIdentifier,
+      @Parameter(EvaluatorDispatcherThreads.class) final int numberOfThreads,
+      @Parameter(EvaluatorManager.EvaluatorIdentifier.class) final String evaluatorIdentifier,
       final DriverExceptionHandler driverExceptionHandler) {
 
     this.serviceDispatcher = new DispatchingEStage(driverExceptionHandler, numberOfThreads, evaluatorIdentifier);

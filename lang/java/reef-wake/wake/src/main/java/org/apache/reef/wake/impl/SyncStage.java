@@ -47,7 +47,7 @@ public final class SyncStage<T> extends AbstractEStage<T> {
    * @param handler the event handler
    */
   @Inject
-  public SyncStage(final @Parameter(StageHandler.class) EventHandler<T> handler) {
+  public SyncStage(@Parameter(StageHandler.class) final EventHandler<T> handler) {
     this(handler.getClass().getName(), handler, null);
   }
 
@@ -58,8 +58,8 @@ public final class SyncStage<T> extends AbstractEStage<T> {
    * @name name the stage name
    */
   @Inject
-  public SyncStage(final @Parameter(StageName.class) String name,
-                   final @Parameter(StageHandler.class) EventHandler<T> handler) {
+  public SyncStage(@Parameter(StageName.class) final String name,
+                   @Parameter(StageHandler.class) final EventHandler<T> handler) {
     this(name, handler, null);
   }
 
@@ -71,9 +71,9 @@ public final class SyncStage<T> extends AbstractEStage<T> {
    * @name name the stage name
    */
   @Inject
-  public SyncStage(final @Parameter(StageName.class) String name,
-                   final @Parameter(StageHandler.class) EventHandler<T> handler,
-                   final @Parameter(ErrorHandler.class) EventHandler<Throwable> errorHandler) {
+  public SyncStage(@Parameter(StageName.class) final String name,
+                   @Parameter(StageHandler.class) final EventHandler<T> handler,
+                   @Parameter(ErrorHandler.class) final EventHandler<Throwable> errorHandler) {
     super(name);
     this.handler = handler;
     this.errorHandler = errorHandler;

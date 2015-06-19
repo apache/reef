@@ -121,7 +121,7 @@ public final class CommandLine {
    */
   @SafeVarargs
   @SuppressWarnings("checkstyle:redundantmodifier")
-  final public <T> CommandLine processCommandLine(
+  public final <T> CommandLine processCommandLine(
       final String[] args, Class<? extends Name<?>>... argClasses)
       throws IOException, BindException {
 

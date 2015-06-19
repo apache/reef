@@ -44,9 +44,9 @@ final class RootContextLauncher {
   private ContextRuntime rootContext = null;
 
   @Inject
-  RootContextLauncher(final @Parameter(RootContextConfiguration.class) String rootContextConfiguration,
-                      final @Parameter(RootServiceConfiguration.class) String rootServiceConfiguration,
-                      final @Parameter(InitialTaskConfiguration.class) String initialTaskConfiguration,
+  RootContextLauncher(@Parameter(RootContextConfiguration.class) final String rootContextConfiguration,
+                      @Parameter(RootServiceConfiguration.class) final String rootServiceConfiguration,
+                      @Parameter(InitialTaskConfiguration.class) final String initialTaskConfiguration,
                       final Injector injector, final ConfigurationSerializer configurationSerializer) throws IOException, BindException {
     this.injector = injector;
     this.configurationSerializer = configurationSerializer;
@@ -56,9 +56,9 @@ final class RootContextLauncher {
   }
 
   @Inject
-  RootContextLauncher(final @Parameter(RootContextConfiguration.class) String rootContextConfiguration,
+  RootContextLauncher(@Parameter(RootContextConfiguration.class) final String rootContextConfiguration,
                       final Injector injector,
-                      final @Parameter(RootServiceConfiguration.class) String rootServiceConfiguration, final ConfigurationSerializer configurationSerializer) throws IOException, BindException {
+                      @Parameter(RootServiceConfiguration.class) final String rootServiceConfiguration, final ConfigurationSerializer configurationSerializer) throws IOException, BindException {
     this.injector = injector;
     this.configurationSerializer = configurationSerializer;
     this.rootContextConfiguration = this.configurationSerializer.fromString(rootContextConfiguration);
@@ -68,8 +68,8 @@ final class RootContextLauncher {
 
   @Inject
   RootContextLauncher(final Injector injector,
-                      final @Parameter(RootContextConfiguration.class) String rootContextConfiguration,
-                      final @Parameter(InitialTaskConfiguration.class) String initialTaskConfiguration, final ConfigurationSerializer configurationSerializer) throws IOException, BindException {
+                      @Parameter(RootContextConfiguration.class) final String rootContextConfiguration,
+                      @Parameter(InitialTaskConfiguration.class) final String initialTaskConfiguration, final ConfigurationSerializer configurationSerializer) throws IOException, BindException {
     this.injector = injector;
     this.configurationSerializer = configurationSerializer;
     this.rootContextConfiguration = this.configurationSerializer.fromString(rootContextConfiguration);
@@ -78,7 +78,7 @@ final class RootContextLauncher {
   }
 
   @Inject
-  RootContextLauncher(final @Parameter(RootContextConfiguration.class) String rootContextConfiguration,
+  RootContextLauncher(@Parameter(RootContextConfiguration.class) final String rootContextConfiguration,
                       final Injector injector, final ConfigurationSerializer configurationSerializer) throws IOException, BindException {
     this.injector = injector;
     this.configurationSerializer = configurationSerializer;

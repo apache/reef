@@ -53,7 +53,7 @@ import java.util.logging.Logger;
 @Private
 final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
 
-  private final static Logger LOG = Logger.getLogger(AllocatedEvaluatorImpl.class.getName());
+  private static final Logger LOG = Logger.getLogger(AllocatedEvaluatorImpl.class.getName());
 
   private final EvaluatorManager evaluatorManager;
   private final String remoteID;

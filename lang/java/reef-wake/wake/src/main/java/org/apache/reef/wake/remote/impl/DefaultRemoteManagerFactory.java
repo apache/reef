@@ -45,11 +45,11 @@ public class DefaultRemoteManagerFactory implements RemoteManagerFactory {
 
   @Inject
   private DefaultRemoteManagerFactory(
-      final @Parameter(RemoteConfiguration.MessageCodec.class) Codec<?> codec,
-      final @Parameter(RemoteConfiguration.ErrorHandler.class) EventHandler<Throwable> errorHandler,
-      final @Parameter(RemoteConfiguration.OrderingGuarantee.class) boolean orderingGuarantee,
-      final @Parameter(RemoteConfiguration.NumberOfTries.class) int numberOfTries,
-      final @Parameter(RemoteConfiguration.RetryTimeout.class) int retryTimeout,
+      @Parameter(RemoteConfiguration.MessageCodec.class) final Codec<?> codec,
+      @Parameter(RemoteConfiguration.ErrorHandler.class) final EventHandler<Throwable> errorHandler,
+      @Parameter(RemoteConfiguration.OrderingGuarantee.class) final boolean orderingGuarantee,
+      @Parameter(RemoteConfiguration.NumberOfTries.class) final int numberOfTries,
+      @Parameter(RemoteConfiguration.RetryTimeout.class) final int retryTimeout,
       final LocalAddressProvider localAddressProvider,
       final TransportFactory tpFactory) {
     this.codec = codec;

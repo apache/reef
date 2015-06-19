@@ -74,10 +74,10 @@ public class InputFormatLoadingService<K, V> implements DataLoadingService {
   public InputFormatLoadingService(
       final InputFormat<K, V> inputFormat,
       final JobConf jobConf,
-      final @Parameter(DataLoadingRequestBuilder.NumberOfDesiredSplits.class) int numberOfDesiredSplits,
-      final @Parameter(DataLoadingRequestBuilder.LoadDataIntoMemory.class) boolean inMemory,
-      final @Parameter(JobConfExternalConstructor.InputFormatClass.class) String inputFormatClass,
-      final @Parameter(JobConfExternalConstructor.InputPath.class) String inputPath) {
+      @Parameter(DataLoadingRequestBuilder.NumberOfDesiredSplits.class) final int numberOfDesiredSplits,
+      @Parameter(DataLoadingRequestBuilder.LoadDataIntoMemory.class) final boolean inMemory,
+      @Parameter(JobConfExternalConstructor.InputFormatClass.class) final String inputFormatClass,
+      @Parameter(JobConfExternalConstructor.InputPath.class) final String inputPath) {
 
     this.inMemory = inMemory;
     this.inputFormatClass = inputFormatClass;

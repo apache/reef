@@ -112,9 +112,9 @@ public class SuspendDriver {
   SuspendDriver(
       final JobMessageObserver jobMessageObserver,
       final EvaluatorRequestor evaluatorRequestor,
-      final @Parameter(Launch.Local.class) boolean isLocal,
-      final @Parameter(Launch.NumCycles.class) int numCycles,
-      final @Parameter(Launch.Delay.class) int delay) {
+      @Parameter(Launch.Local.class) final boolean isLocal,
+      @Parameter(Launch.NumCycles.class) final int numCycles,
+      @Parameter(Launch.Delay.class) final int delay) {
 
     this.jobMessageObserver = jobMessageObserver;
     this.evaluatorRequestor = evaluatorRequestor;

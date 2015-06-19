@@ -94,10 +94,10 @@ public final class JobDriver {
    */
   @Inject
   JobDriver(final EvaluatorRequestor evaluatorRequestor,
-            final @Parameter(Launch.Piggyback.class) Boolean isPiggyback,
-            final @Parameter(Launch.NumEvaluators.class) Integer numEvaluators,
-            final @Parameter(Launch.NumTasks.class) Integer numTasks,
-            final @Parameter(Launch.Delay.class) Integer delay) {
+            @Parameter(Launch.Piggyback.class) final Boolean isPiggyback,
+            @Parameter(Launch.NumEvaluators.class) final Integer numEvaluators,
+            @Parameter(Launch.NumTasks.class) final Integer numTasks,
+            @Parameter(Launch.Delay.class) final Integer delay) {
     this.evaluatorRequestor = evaluatorRequestor;
     this.isPiggyback = isPiggyback;
     this.numEvaluators = numEvaluators;

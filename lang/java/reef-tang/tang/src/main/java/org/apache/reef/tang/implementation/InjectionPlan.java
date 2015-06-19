@@ -61,9 +61,9 @@ public abstract class InjectionPlan<T> implements Traversable<InjectionPlan<?>> 
     return getNumAlternatives() > 0;
   }
 
-  abstract public boolean isAmbiguous();
+  public abstract boolean isAmbiguous();
 
-  abstract public boolean isInjectable();
+  public abstract boolean isInjectable();
 
   protected void pad(StringBuffer sb, int n) {
     for (int i = 0; i < n; i++) {

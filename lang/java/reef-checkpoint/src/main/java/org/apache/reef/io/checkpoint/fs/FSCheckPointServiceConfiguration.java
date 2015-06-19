@@ -89,7 +89,7 @@ public class FSCheckPointServiceConfiguration extends ConfigurationModuleBuilder
     private final boolean loadConfig;
 
     @Inject
-    public FileSystemConstructor(final @Parameter(IS_LOCAL.class) boolean isLocal) {
+    public FileSystemConstructor(@Parameter(IS_LOCAL.class) final boolean isLocal) {
       this.loadConfig = !isLocal;
     }
 

@@ -45,7 +45,7 @@ public class ContextControlHandler {
    */
   @Inject
   ContextControlHandler(final EvaluatorControlHandler evaluatorControlHandler,
-                        final @Parameter(EvaluatorManager.EvaluatorIdentifier.class) String evaluatorId) {
+                        @Parameter(EvaluatorManager.EvaluatorIdentifier.class) final String evaluatorId) {
     this.evaluatorControlHandler = evaluatorControlHandler;
     this.evaluatorId = evaluatorId;
     LOG.log(Level.FINE, "Instantiated 'ContextControlHandler'");

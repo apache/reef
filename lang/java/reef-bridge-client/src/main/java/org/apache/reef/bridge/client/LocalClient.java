@@ -55,7 +55,7 @@ public class LocalClient {
                      final PreparedDriverFolderLauncher launcher,
                      final REEFFileNames fileNames,
                      final DriverConfigurationProvider driverConfigurationProvider,
-                     final @Parameter(DriverConfigurationProviders.class) Set<ConfigurationProvider> configurationProviders)  {
+                     @Parameter(DriverConfigurationProviders.class) final Set<ConfigurationProvider> configurationProviders)  {
     this.configurationSerializer = configurationSerializer;
     this.launcher = launcher;
     this.fileNames = fileNames;

@@ -55,8 +55,8 @@ public class HeartBeatManager {
       final InjectionFuture<ContextManager> contextManager,
       final Clock clock,
       final RemoteManager remoteManager,
-      final @Parameter(HeartbeatPeriod.class) int heartbeatPeriod,
-      final @Parameter(DriverRemoteIdentifier.class) String driverRID) {
+      @Parameter(HeartbeatPeriod.class) final int heartbeatPeriod,
+      @Parameter(DriverRemoteIdentifier.class) final String driverRID) {
 
     this.evaluatorRuntime = evaluatorRuntime;
     this.contextManager = contextManager;

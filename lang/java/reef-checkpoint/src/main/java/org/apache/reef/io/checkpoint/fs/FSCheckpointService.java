@@ -49,9 +49,9 @@ public class FSCheckpointService implements CheckpointService {
 
   @Inject
   FSCheckpointService(final FileSystem fs,
-                      final @Parameter(PATH.class) String basePath,
+                      @Parameter(PATH.class) final String basePath,
                       final CheckpointNamingService namingPolicy,
-                      final @Parameter(REPLICATION_FACTOR.class) short replication) {
+                      @Parameter(REPLICATION_FACTOR.class) final short replication) {
     this.fs = fs;
     this.base = new Path(basePath);
     this.namingPolicy = namingPolicy;

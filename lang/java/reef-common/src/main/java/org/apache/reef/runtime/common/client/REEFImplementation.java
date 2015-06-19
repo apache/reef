@@ -46,7 +46,7 @@ import java.util.logging.Logger;
 @Private
 public final class REEFImplementation implements REEF {
 
-  private final static Logger LOG = Logger.getLogger(REEFImplementation.class.getName());
+  private static final Logger LOG = Logger.getLogger(REEFImplementation.class.getName());
 
   private final JobSubmissionHandler jobSubmissionHandler;
   private final RunningJobs runningJobs;
@@ -72,7 +72,7 @@ public final class REEFImplementation implements REEF {
                      final ClientWireUp clientWireUp,
                      final LoggingScopeFactory loggingScopeFactory,
                      final REEFVersion reefVersion,
-                     final @Parameter(DriverConfigurationProviders.class) Set<ConfigurationProvider> configurationProviders) {
+                     @Parameter(DriverConfigurationProviders.class) final Set<ConfigurationProvider> configurationProviders) {
     this.jobSubmissionHandler = jobSubmissionHandler;
     this.runningJobs = runningJobs;
     this.jobSubmissionHelper = jobSubmissionHelper;
@@ -128,7 +128,7 @@ public final class REEFImplementation implements REEF {
   }
 
   @NamedParameter(doc = "The driver remote identifier.")
-  public final static class DriverRemoteIdentifier implements Name<String> {
+  public static final class DriverRemoteIdentifier implements Name<String> {
   }
 
 

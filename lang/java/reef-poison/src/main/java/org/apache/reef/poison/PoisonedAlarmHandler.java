@@ -25,7 +25,7 @@ import org.apache.reef.wake.time.event.Alarm;
 /**
  * To be registered on the Clock to handle Alarms.
  */
-final public class PoisonedAlarmHandler implements EventHandler<Alarm> {
+public final class PoisonedAlarmHandler implements EventHandler<Alarm> {
   @Override
   public void onNext(final Alarm alarm) {
     throw new PoisonException("Crashed at: " + alarm.toString());

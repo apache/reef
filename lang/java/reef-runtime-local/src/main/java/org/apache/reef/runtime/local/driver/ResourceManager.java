@@ -58,7 +58,7 @@ import java.util.logging.Logger;
 @DriverSide
 public final class ResourceManager {
 
-  private final static Logger LOG = Logger.getLogger(ResourceManager.class.getName());
+  private static final Logger LOG = Logger.getLogger(ResourceManager.class.getName());
 
   private final ResourceRequestQueue requestQueue = new ResourceRequestQueue();
 
@@ -77,11 +77,11 @@ public final class ResourceManager {
   @Inject
   ResourceManager(
       final ContainerManager containerManager,
-      final @Parameter(RuntimeParameters.ResourceAllocationHandler.class) EventHandler<ResourceAllocationEvent> allocationHandler,
-      final @Parameter(RuntimeParameters.RuntimeStatusHandler.class) EventHandler<RuntimeStatusEvent> runtimeStatusHandlerEventHandler,
-      final @Parameter(DefaultMemorySize.class) int defaultMemorySize,
-      final @Parameter(DefaultNumberOfCores.class) int defaultNumberOfCores,
-      final @Parameter(JVMHeapSlack.class) double jvmHeapSlack,
+      @Parameter(RuntimeParameters.ResourceAllocationHandler.class) final EventHandler<ResourceAllocationEvent> allocationHandler,
+      @Parameter(RuntimeParameters.RuntimeStatusHandler.class) final EventHandler<RuntimeStatusEvent> runtimeStatusHandlerEventHandler,
+      @Parameter(DefaultMemorySize.class) final int defaultMemorySize,
+      @Parameter(DefaultNumberOfCores.class) final int defaultNumberOfCores,
+      @Parameter(JVMHeapSlack.class) final double jvmHeapSlack,
       final ConfigurationSerializer configurationSerializer,
       final RemoteManager remoteManager,
       final REEFFileNames fileNames,

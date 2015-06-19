@@ -68,13 +68,13 @@ public class ReduceSender<T> implements Reduce.Sender<T>, EventHandler<GroupComm
 
   @Inject
   public ReduceSender(
-      final @Parameter(CommunicationGroupName.class) String groupName,
-      final @Parameter(OperatorName.class) String operName,
-      final @Parameter(TaskConfigurationOptions.Identifier.class) String selfId,
-      final @Parameter(DataCodec.class) Codec<T> dataCodec,
-      final @Parameter(ReduceFunctionParam.class) ReduceFunction<T> reduceFunction,
-      final @Parameter(DriverIdentifier.class) String driverId,
-      final @Parameter(TaskVersion.class) int version,
+      @Parameter(CommunicationGroupName.class) final String groupName,
+      @Parameter(OperatorName.class) final String operName,
+      @Parameter(TaskConfigurationOptions.Identifier.class) final String selfId,
+      @Parameter(DataCodec.class) final Codec<T> dataCodec,
+      @Parameter(ReduceFunctionParam.class) final ReduceFunction<T> reduceFunction,
+      @Parameter(DriverIdentifier.class) final String driverId,
+      @Parameter(TaskVersion.class) final int version,
       final CommGroupNetworkHandler commGroupNetworkHandler,
       final NetworkService<GroupCommunicationMessage> netService,
       final CommunicationGroupServiceClient commGroupClient) {

@@ -39,7 +39,7 @@ public class SuspendClient {
   /**
    * Standard java logger.
    */
-  private final static Logger LOG = Logger.getLogger(SuspendClient.class.getName());
+  private static final Logger LOG = Logger.getLogger(SuspendClient.class.getName());
 
   /**
    * Job Driver configuration.
@@ -66,8 +66,8 @@ public class SuspendClient {
   SuspendClient(
       final REEF reef,
       final SuspendClientControl controlListener,
-      final @Parameter(Launch.NumCycles.class) int numCycles,
-      final @Parameter(Launch.Delay.class) int delay) throws BindException, IOException {
+      @Parameter(Launch.NumCycles.class) final int numCycles,
+      @Parameter(Launch.Delay.class) final int delay) throws BindException, IOException {
 
     final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder()
         .bindNamedParameter(Launch.NumCycles.class, Integer.toString(numCycles))
