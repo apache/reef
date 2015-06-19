@@ -67,6 +67,11 @@ public final class LauncherStatus {
         (other instanceof LauncherStatus && ((LauncherStatus) other).state == this.state);
   }
 
+  @Override
+  public int hashCode() {
+    return state.hashCode();
+  }
+
   /**
    * Has the job completed?
    *

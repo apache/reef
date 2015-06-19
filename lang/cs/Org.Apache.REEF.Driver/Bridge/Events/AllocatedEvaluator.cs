@@ -23,12 +23,15 @@ using System.Globalization;
 using System.Runtime.Serialization;
 using Org.Apache.REEF.Common.Catalog;
 using Org.Apache.REEF.Common.Evaluator;
+using Org.Apache.REEF.Common.Services;
 using Org.Apache.REEF.Driver.Bridge.Clr2java;
 using Org.Apache.REEF.Driver.Context;
 using Org.Apache.REEF.Driver.Evaluator;
 using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Implementations.Configuration;
+using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
+using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Driver.Bridge.Events
@@ -104,9 +107,9 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
         public void SubmitContextAndService(IConfiguration contextConfiguration, IConfiguration serviceConfiguration)
         {
             LOGGER.Log(Level.Info, "AllocatedEvaluator::SubmitContextAndService");
-            
+
             string context = _serializer.ToString(contextConfiguration);
-            string service = _serializer.ToString(serviceConfiguration);
+            string service = _serializer.ToString(WrapServiceConfigAsString(serviceConfiguration));
 
             LOGGER.Log(Level.Verbose, "serialized contextConfiguration: " + context);
             LOGGER.Log(Level.Verbose, "serialized serviceConfiguration: " + service);
@@ -121,7 +124,7 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
             //TODO: Change this to service configuration when REEF-289(https://issues.apache.org/jira/browse/REEF-289) is fixed.
             taskConfiguration = MergeWithConfigurationProviders(taskConfiguration);
             string context = _serializer.ToString(contextConfiguration);
-            string service = _serializer.ToString(serviceConfiguration);
+            string service = _serializer.ToString(WrapServiceConfigAsString(serviceConfiguration));
             string task = _serializer.ToString(taskConfiguration);
 
             LOGGER.Log(Level.Verbose, "serialized contextConfiguration: " + context);
@@ -200,6 +203,22 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
                 }
             }
             return config;
+        }
+
+        /// <summary>
+        /// This is to wrap entire service configuration in to a serialized string
+        /// At evaluator side, we will unwrap it to get the original Service Configuration string
+        /// It is to avoid issues that some C# class Node are dropped in the deserialized ClassHierarchy by Goold ProtoBuffer deserializer
+        /// </summary>
+        /// <param name="serviceConfiguration"></param>
+        /// <returns></returns>
+        private IConfiguration WrapServiceConfigAsString(IConfiguration serviceConfiguration)
+        {
+            return TangFactory.GetTang().NewConfigurationBuilder()
+                .BindNamedParameter<ServicesConfigurationOptions.ServiceConfigString, string>(
+                    GenericType<ServicesConfigurationOptions.ServiceConfigString>.Class,
+                    new AvroConfigurationSerializer().ToString(serviceConfiguration))
+                .Build();
         }
     }
 }

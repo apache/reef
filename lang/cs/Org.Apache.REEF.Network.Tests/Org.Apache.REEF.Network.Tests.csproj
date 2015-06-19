@@ -50,6 +50,7 @@ under the License.
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BlockingCollectionExtensionTests.cs" />
+    <Compile Include="GroupCommunication\GroupCommuDriverTests.cs" />
     <Compile Include="GroupCommunication\GroupCommunicationTests.cs" />
     <Compile Include="GroupCommunication\GroupCommunicationTreeTopologyTests.cs" />
     <Compile Include="NamingService\NameServerTests.cs" />

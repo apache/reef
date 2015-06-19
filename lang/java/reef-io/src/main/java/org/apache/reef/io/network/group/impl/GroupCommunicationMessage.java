@@ -164,4 +164,17 @@ public class GroupCommunicationMessage {
     }
 
   }
+
+  @Override
+  public int hashCode() {
+    int result = groupName.hashCode();
+    result = 31 * result + operName.hashCode();
+    result = 31 * result + msgType.hashCode();
+    result = 31 * result + from.hashCode();
+    result = 31 * result + srcVersion;
+    result = 31 * result + to.hashCode();
+    result = 31 * result + dstVersion;
+    result = 31 * result + Arrays.deepHashCode(data);
+    return result;
+  }
 }

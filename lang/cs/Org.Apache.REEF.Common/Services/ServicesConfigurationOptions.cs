@@ -27,5 +27,10 @@ namespace Org.Apache.REEF.Common.Services
         public class Services : Name<string>
         {
         }
+
+        [NamedParameter]
+        public class ServiceConfigString : Name<string>
+        {
+        }
     }
 }

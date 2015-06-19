@@ -32,6 +32,7 @@ using Org.Apache.REEF.Network.Naming;
 using Org.Apache.REEF.Network.NetworkService;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Formats;
+using Org.Apache.REEF.Tang.Implementations.Configuration;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
@@ -170,10 +171,10 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
                     GenericType<ICodec<GroupCommunicationMessage>>.Class,
                     GenericType<GroupCommunicationMessageCodec>.Class)
                 .BindNamedParameter<NamingConfigurationOptions.NameServerAddress, string>(
-                    GenericType<NamingConfigurationOptions.NameServerAddress>.Class, 
+                    GenericType<NamingConfigurationOptions.NameServerAddress>.Class,
                     _nameServerAddr)
                 .BindNamedParameter<NamingConfigurationOptions.NameServerPort, int>(
-                    GenericType<NamingConfigurationOptions.NameServerPort>.Class, 
+                    GenericType<NamingConfigurationOptions.NameServerPort>.Class,
                     _nameServerPort.ToString(CultureInfo.InvariantCulture))
                 .BindImplementation(GenericType<INameClient>.Class,
                     GenericType<NameClient>.Class)

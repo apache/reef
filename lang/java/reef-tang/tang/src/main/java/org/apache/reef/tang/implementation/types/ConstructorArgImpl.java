@@ -71,6 +71,13 @@ public class ConstructorArgImpl implements ConstructorArg {
   }
 
   @Override
+  public int hashCode() {
+    int result = type.hashCode();
+    result = 31 * result + (name != null ? name.hashCode() : 0);
+    return result;
+  }
+
+  @Override
   public boolean isInjectionFuture() {
     return isInjectionFuture;
   }
