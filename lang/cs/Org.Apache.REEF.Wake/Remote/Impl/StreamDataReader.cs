@@ -47,6 +47,11 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         /// <param name="stream">Stream from which to read</param>
         public StreamDataReader(Stream stream)
         {
+            if (stream == null)
+            {
+                throw new ArgumentNullException("stream", "input stream cannot be null");
+            }
+
             _stream = stream;
         }
 
