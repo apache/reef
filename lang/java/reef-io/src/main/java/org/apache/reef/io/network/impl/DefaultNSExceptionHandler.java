@@ -1,4 +1,4 @@
-/*
+/**
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -18,27 +18,25 @@
  */
 package org.apache.reef.io.network.impl;
 
-import org.apache.reef.evaluator.context.events.ContextStop;
-import org.apache.reef.io.network.NetworkService;
 import org.apache.reef.wake.EventHandler;
 
 import javax.inject.Inject;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-public class NetworkServiceClosingHandler implements EventHandler<ContextStop> {
-  private final NetworkService networkService;
+/**
+ * Default exception handler
+ */
+public final class DefaultNSExceptionHandler implements EventHandler<Exception> {
+
+  private static final Logger LOG = Logger.getLogger(DefaultNSExceptionHandler.class.getName());
 
   @Inject
-  public NetworkServiceClosingHandler(final NetworkService networkService) {
-    this.networkService = networkService;
+  public DefaultNSExceptionHandler() {
   }
 
   @Override
-  public void onNext(final ContextStop arg0) {
-    try {
-      networkService.close();
-    } catch (Exception e) {
-      throw new RuntimeException("Exception while closing NetworkService", e);
-    }
+  public void onNext(final Exception value) {
+    LOG.log(Level.WARNING, "An exception occurred in transport of NetworkService: {0}", value);
   }
-
 }

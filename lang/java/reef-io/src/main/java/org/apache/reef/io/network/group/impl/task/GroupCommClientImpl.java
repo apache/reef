@@ -19,13 +19,12 @@
 package org.apache.reef.io.network.group.impl.task;
 
 import org.apache.reef.driver.task.TaskConfigurationOptions;
-import org.apache.reef.io.network.impl.NetworkService;
+import org.apache.reef.io.network.NetworkService;
 import org.apache.reef.io.network.group.api.task.CommunicationGroupClient;
 import org.apache.reef.io.network.group.api.task.CommunicationGroupServiceClient;
 import org.apache.reef.io.network.group.api.task.GroupCommClient;
 import org.apache.reef.io.network.group.api.task.GroupCommNetworkHandler;
 import org.apache.reef.io.network.group.impl.config.parameters.SerializedGroupConfigs;
-import org.apache.reef.io.network.proto.ReefNetworkGroupCommProtos;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Injector;
 import org.apache.reef.tang.Tang;
@@ -52,7 +51,7 @@ public class GroupCommClientImpl implements GroupCommClient {
       @Parameter(SerializedGroupConfigs.class) final Set<String> groupConfigs,
       @Parameter(TaskConfigurationOptions.Identifier.class) final String taskId,
       final GroupCommNetworkHandler groupCommNetworkHandler,
-      final NetworkService<ReefNetworkGroupCommProtos.GroupCommMessage> netService,
+      final NetworkService netService,
       final ConfigurationSerializer configSerializer) {
 
     LOG.log(Level.FINEST, "GroupCommHandler-{0}", groupCommNetworkHandler);

@@ -1,4 +1,4 @@
-/*
+/**
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -21,70 +21,123 @@ package org.apache.reef.io.network.impl;
 import org.apache.reef.io.network.Message;
 import org.apache.reef.wake.Identifier;
 
-import java.util.ArrayList;
+import java.net.SocketAddress;
 import java.util.List;
 
 /**
- * Network service message that implements the Message interface.
  *
- * @param <T> type
  */
-public class NSMessage<T> implements Message<T> {
+final class NSMessage<T> implements Message<T> {
+
+  private final List<T> messages;
+  private SocketAddress remoteAddr;
+  private final String connectionFactoryId;
   private final Identifier srcId;
-  private final Identifier destId;
-  private final List<T> data;
+  private final Identifier remoteId;
 
   /**
    * Constructs a network service message.
    *
-   * @param srcId  a source identifier
-   * @param destId a destination identifier
-   * @param data   data of type T
+   * @param connectionFactoryId the connection factory identifier
+   * @param srcId      the source identifier
+   * @param remoteId   the remote identifier
+   * @param messages  the list of messages
    */
-  public NSMessage(final Identifier srcId, final Identifier destId, final T data) {
+  public NSMessage(
+      final String connectionFactoryId,
+      final Identifier srcId,
+      final Identifier remoteId,
+      final List<T> messages) {
+    this.connectionFactoryId = connectionFactoryId;
     this.srcId = srcId;
-    this.destId = destId;
-    this.data = new ArrayList<T>(1);
-    this.data.add(data);
+    this.remoteId = remoteId;
+    this.messages = messages;
+  }
+
+  void setRemoteAddress(final SocketAddress remoteAddress) {
+    this.remoteAddr = remoteAddress;
   }
 
   /**
-   * Constructs a network service message.
+   * Gets a remote socket address.
    *
-   * @param srcId  a source identifier
-   * @param destId a destination identifier
-   * @param data   a list of data of type T
+   * @return a remote socket address
    */
-  public NSMessage(final Identifier srcId, final Identifier destId, final List<T> data) {
-    this.srcId = srcId;
-    this.destId = destId;
-    this.data = data;
+  public SocketAddress getRemoteAddress() {
+    return remoteAddr;
   }
+
+
+  /**
+   * Gets a remote identifier.
+   *
+   * @return a remote id
+   */
+  public Identifier getDestId() {
+    return remoteId;
+  }
+
+  /**
+   * Gets a connection identifier.
+   *
+   * @return a connection factory id
+   */
+  public String getConnectionFactoryId() {
+    return connectionFactoryId;
+  }
+
 
   /**
    * Gets a source identifier.
    *
-   * @return an identifier
+   * @return a source id
    */
   public Identifier getSrcId() {
     return srcId;
   }
 
   /**
-   * Gets a destination identifier.
+   * Returns a message at the index of list.
+   * If index is bigger than size, it returns null.
    *
-   * @return an identifier
+   * @param index
+   * @return message at index
    */
-  public Identifier getDestId() {
-    return destId;
+  public T getDataAt(int index) {
+    if (index >= messages.size()) {
+      return null;
+    }
+    return messages.get(index);
   }
 
   /**
-   * Gets data.
+   * Returns a size of messages
    *
-   * @return data
+   * @return a size of messages
    */
+  public int getDataSize() {
+    return messages.size();
+  }
+
   public List<T> getData() {
-    return data;
+    return messages;
+  }
+
+  /**
+   * Returns a string representation of this object
+   *
+   * @return a string representation of this object
+   */
+  public String toString() {
+    StringBuilder builder = new StringBuilder();
+    builder.append("NSMessage");
+    builder.append(" remoteID=");
+    builder.append(remoteId);
+    builder.append(" message=[| ");
+    for (T message : messages) {
+      builder.append(message + " |");
+    }
+    builder.append("]");
+    return builder.toString();
   }
 }

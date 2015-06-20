@@ -23,7 +23,7 @@
  * Provides MPI style Group Communication operators for collective communication
  * between tasks. These should be primarily used for any form of
  * task to task messaging along with the point to point communication
- * provided by {@link org.apache.reef.io.network.impl.NetworkService}
+ * provided by {@link org.apache.reef.io.network.NetworkService}
  *
  * The interfaces for the operators are in org.apache.reef.io.network.group.api.operators
  * The fluent way to describe these operators is available org.apache.reef.io.network.group.config

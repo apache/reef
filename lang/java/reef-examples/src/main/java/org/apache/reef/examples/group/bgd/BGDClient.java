@@ -28,6 +28,7 @@ import org.apache.reef.examples.group.bgd.parameters.*;
 import org.apache.reef.io.data.loading.api.DataLoadingRequestBuilder;
 import org.apache.reef.io.network.group.impl.config.parameters.TreeTopologyFanOut;
 import org.apache.reef.io.network.group.impl.driver.GroupCommService;
+import org.apache.reef.io.network.impl.NetworkServiceConfiguration;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Configurations;
 import org.apache.reef.tang.JavaConfigurationBuilder;
@@ -92,6 +93,7 @@ public class BGDClient {
     return Configurations.merge(
         getDataLoadConfiguration(jobName),
         GroupCommService.getConfiguration(fanOut),
+        NetworkServiceConfiguration.getDriverServiceConfiguration(),
         this.bgdControlParameters.getConfiguration());
   }
 

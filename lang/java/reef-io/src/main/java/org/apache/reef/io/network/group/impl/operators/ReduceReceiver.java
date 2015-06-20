@@ -21,10 +21,10 @@ package org.apache.reef.io.network.group.impl.operators;
 import org.apache.reef.driver.parameters.DriverIdentifier;
 import org.apache.reef.driver.task.TaskConfigurationOptions;
 import org.apache.reef.exception.evaluator.NetworkException;
+import org.apache.reef.io.network.NetworkService;
 import org.apache.reef.io.network.exception.ParentDeadException;
 import org.apache.reef.io.network.group.api.operators.Reduce;
 import org.apache.reef.io.network.group.api.operators.Reduce.ReduceFunction;
-import org.apache.reef.io.network.impl.NetworkService;
 import org.apache.reef.io.network.group.api.task.CommGroupNetworkHandler;
 import org.apache.reef.io.network.group.api.task.CommunicationGroupServiceClient;
 import org.apache.reef.io.network.group.api.task.OperatorTopology;
@@ -52,7 +52,6 @@ public class ReduceReceiver<T> implements Reduce.Receiver<T>, EventHandler<Group
   private final Class<? extends Name<String>> operName;
   private final CommGroupNetworkHandler commGroupNetworkHandler;
   private final Codec<T> dataCodec;
-  private final NetworkService<GroupCommunicationMessage> netService;
   private final Sender sender;
   private final ReduceFunction<T> reduceFunction;
 
@@ -73,7 +72,7 @@ public class ReduceReceiver<T> implements Reduce.Receiver<T>, EventHandler<Group
                         @Parameter(DriverIdentifier.class) final String driverId,
                         @Parameter(TaskVersion.class) final int version,
                         final CommGroupNetworkHandler commGroupNetworkHandler,
-                        final NetworkService<GroupCommunicationMessage> netService,
+                        final NetworkService netService,
                         final CommunicationGroupServiceClient commGroupClient) {
     super();
     this.version = version;
@@ -83,8 +82,7 @@ public class ReduceReceiver<T> implements Reduce.Receiver<T>, EventHandler<Group
     this.dataCodec = dataCodec;
     this.reduceFunction = reduceFunction;
     this.commGroupNetworkHandler = commGroupNetworkHandler;
-    this.netService = netService;
-    this.sender = new Sender(this.netService);
+    this.sender = new Sender(netService);
     this.topology = new OperatorTopologyImpl(this.groupName, this.operName, selfId, driverId, sender, version);
     this.commGroupNetworkHandler.register(this.operName, this);
     this.commGroupClient = commGroupClient;

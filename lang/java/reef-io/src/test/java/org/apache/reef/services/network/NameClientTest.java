@@ -70,7 +70,7 @@ public class NameClientTest {
   }
 
   /**
-   * Test method for {@link org.apache.reef.io.network.naming.NameClient#close()}.
+   * Test method for {@link org.apache.reef.io.network.naming.NameClientRemoteImpl#close()}.
    *
    * @throws Exception
    */
@@ -80,7 +80,7 @@ public class NameClientTest {
     IdentifierFactory factory = new StringIdentifierFactory();
     try (NameServer server = new NameServerImpl(0, factory, this.localAddressProvider)) {
       int serverPort = server.getPort();
-      try (NameClient client = new NameClient(localAddress, serverPort, factory, retryCount, retryTimeout,
+      try (NameClientRemoteImpl client = new NameClientRemoteImpl(localAddress, serverPort, factory, retryCount, retryTimeout,
           new NameCache(10000), localAddressProvider)) {
         Identifier id = factory.getNewInstance("Task1");
         client.register(id, new InetSocketAddress(localAddress, 7001));
@@ -91,7 +91,7 @@ public class NameClientTest {
   }
 
   /**
-   * Test method for {@link org.apache.reef.io.network.naming.NameClient#lookup()}.
+   * Test method for {@link org.apache.reef.io.network.naming.NameClientRemoteImpl#lookup()}.
    * To check caching behavior with expireAfterAccess & expireAfterWrite
    * Changing NameCache's pattern to expireAfterAccess causes this test to fail
    *
@@ -103,7 +103,7 @@ public class NameClientTest {
     final String localAddress = localAddressProvider.getLocalAddress();
     try (NameServer server = new NameServerImpl(0, factory, this.localAddressProvider)) {
       int serverPort = server.getPort();
-      try (NameClient client = new NameClient(localAddress, serverPort, factory, retryCount, retryTimeout,
+      try (NameClientRemoteImpl client = new NameClientRemoteImpl(localAddress, serverPort, factory, retryCount, retryTimeout,
           new NameCache(150), localAddressProvider)) {
         Identifier id = factory.getNewInstance("Task1");
         client.register(id, new InetSocketAddress(localAddress, 7001));
