@@ -334,7 +334,7 @@ public class Tint {
 //      int numcols = 0;
         for (final Node n : t.getNamesUsedAndSet()) {
           String fullName = n.getFullName();
-          String tok[] = fullName.split("\\.");
+          String[] tok = fullName.split("\\.");
           StringBuffer sb = new StringBuffer(tok[0]);
           for (int j = 1; j < tok.length; j++) {
             if (tok[j].matches("^[A-Z].*") || j > 4) {

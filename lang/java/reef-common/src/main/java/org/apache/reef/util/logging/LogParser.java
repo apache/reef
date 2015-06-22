@@ -29,7 +29,7 @@ import java.util.ArrayList;
  */
 public class LogParser {
 
-  public static String endIndicators[] = {
+  public static String[] endIndicators = {
       LoggingScopeImpl.EXIT_PREFIX + LoggingScopeFactory.BRIDGE_SETUP,
       LoggingScopeImpl.EXIT_PREFIX + LoggingScopeFactory.EVALUATOR_SUBMIT,
       LoggingScopeImpl.EXIT_PREFIX + LoggingScopeFactory.EVALUATOR_BRIDGE_SUBMIT,
@@ -41,7 +41,7 @@ public class LogParser {
       LoggingScopeImpl.EXIT_PREFIX + LoggingScopeFactory.TASK_COMPLETE
   };
 
-  public static String startIndicators[] = {
+  public static String[] startIndicators = {
       LoggingScopeImpl.START_PREFIX + LoggingScopeFactory.DRIVER_START,
       LoggingScopeImpl.START_PREFIX + LoggingScopeFactory.BRIDGE_SETUP,
       LoggingScopeImpl.START_PREFIX + LoggingScopeFactory.EVALUATOR_BRIDGE_SUBMIT,
