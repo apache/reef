@@ -143,7 +143,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   @Override
   public void registerLegacyConstructor(ClassNode<?> c,
                                         final ConstructorArg... args) throws BindException {
-    String cn[] = new String[args.length];
+    String[] cn = new String[args.length];
     for (int i = 0; i < args.length; i++) {
       cn[i] = args[i].getType();
     }

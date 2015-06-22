@@ -109,7 +109,7 @@ public class ProtocolBufferInjectionPlan {
 
       final ClassNode<T> cn = (ClassNode<T>) ch.getNode(fullName);
 
-      final InjectionPlanProto.InjectionPlan protoBufArgs[] = cons
+      final InjectionPlanProto.InjectionPlan[] protoBufArgs = cons
           .getArgsList().toArray(new InjectionPlanProto.InjectionPlan[0]);
       final ClassNode<?>[] cnArgs = new ClassNode[protoBufArgs.length];
 
@@ -117,7 +117,7 @@ public class ProtocolBufferInjectionPlan {
         cnArgs[i] = (ClassNode<?>) ch.getNode(protoBufArgs[i].getName());
       }
 
-      final InjectionPlan<?> ipArgs[] = new InjectionPlan[protoBufArgs.length];
+      final InjectionPlan<?>[] ipArgs = new InjectionPlan[protoBufArgs.length];
 
       for (int i = 0; i < protoBufArgs.length; i++) {
         ipArgs[i] = (InjectionPlan<?>) deserialize(ch, protoBufArgs[i]);
@@ -131,10 +131,10 @@ public class ProtocolBufferInjectionPlan {
       return new JavaInstance<T>(ch.getNode(ip.getName()), instance);
     } else if (ip.hasSubplan()) {
       final InjectionPlanProto.Subplan subplan = ip.getSubplan();
-      final InjectionPlanProto.InjectionPlan protoBufPlans[] = subplan
+      final InjectionPlanProto.InjectionPlan[] protoBufPlans = subplan
           .getPlansList().toArray(new InjectionPlanProto.InjectionPlan[0]);
 
-      final InjectionPlan<T> subPlans[] = new InjectionPlan[protoBufPlans.length];
+      final InjectionPlan<T>[] subPlans = new InjectionPlan[protoBufPlans.length];
       for (int i = 0; i < protoBufPlans.length; i++) {
         subPlans[i] = (InjectionPlan<T>) deserialize(ch, protoBufPlans[i]);
       }

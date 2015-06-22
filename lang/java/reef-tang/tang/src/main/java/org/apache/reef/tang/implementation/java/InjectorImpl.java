@@ -556,7 +556,7 @@ public class InjectorImpl implements Injector {
     Class<T> clazz = (Class<T>) javaNamespace.classForName(constructor
         .getClassName());
     ConstructorArg[] args = constructor.getArgs();
-    Class<?> parameterTypes[] = new Class[args.length];
+    Class<?>[] parameterTypes = new Class[args.length];
     for (int i = 0; i < args.length; i++) {
       if (args[i].isInjectionFuture()) {
         parameterTypes[i] = InjectionFuture.class;

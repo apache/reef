@@ -98,7 +98,7 @@ public class LoggingScopeFactory {
    * @param params
    * @return
    */
-  public LoggingScope getNewLoggingScope(final String msg, final Object params[]) {
+  public LoggingScope getNewLoggingScope(final String msg, final Object[] params) {
     return new LoggingScopeImpl(LOG, logLevel, msg, params);
   }
 
