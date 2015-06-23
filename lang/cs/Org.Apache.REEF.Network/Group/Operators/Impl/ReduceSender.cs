@@ -34,7 +34,7 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
     /// Group Communication Operator used to send messages to be reduced by the ReduceReceiver in pipelined fashion.
     /// </summary>
     /// <typeparam name="T">The message type</typeparam>
-    public class ReduceSender<T> : IReduceSender<T>
+    public sealed class ReduceSender<T> : IReduceSender<T>
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(ReduceSender<T>));
         private const int PipelineVersion = 2;
@@ -72,7 +72,7 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
             _pipelinedReduceFunc = new PipelinedReduceFunction<T>(ReduceFunction);
             _topology = topology;
 
-            var msgHandler = Observer.Create<GroupCommunicationMessage>(message => topology.OnNext(message));
+            var msgHandler = Observer.Create<GeneralGroupCommunicationMessage>(message => topology.OnNext(message));
             networkHandler.Register(operatorName, msgHandler);
 
             PipelineDataConverter = dataConverter;

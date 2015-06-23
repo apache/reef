@@ -33,7 +33,7 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
     /// Group Communication Operator used to send messages to child Tasks in pipelined fashion.
     /// </summary>
     /// <typeparam name="T">The message type</typeparam>
-    public class BroadcastSender<T> : IBroadcastSender<T>
+    public sealed class BroadcastSender<T> : IBroadcastSender<T>
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(BroadcastSender<T>));
         private const int PipelineVersion = 2;
@@ -66,7 +66,7 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
             Version = PipelineVersion;
             PipelineDataConverter = dataConverter;
 
-            var msgHandler = Observer.Create<GroupCommunicationMessage>(message => topology.OnNext(message));
+            var msgHandler = Observer.Create<GeneralGroupCommunicationMessage>(message => topology.OnNext(message));
             networkHandler.Register(operatorName, msgHandler);
 
             if (initialize)

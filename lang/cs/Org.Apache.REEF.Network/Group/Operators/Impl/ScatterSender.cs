@@ -33,7 +33,7 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
     /// of the IScatterReceivers.
     /// </summary>
     /// <typeparam name="T">The message type</typeparam>
-    public class ScatterSender<T> : IScatterSender<T>
+    public sealed class ScatterSender<T> : IScatterSender<T>
     {
         private const int DefaultVersion = 1;
         private readonly IOperatorTopology<T> _topology;
@@ -60,7 +60,7 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
             Version = DefaultVersion;
             _topology = topology;
 
-            var msgHandler = Observer.Create<GroupCommunicationMessage>(message => topology.OnNext(message));
+            var msgHandler = Observer.Create<GeneralGroupCommunicationMessage>(message => topology.OnNext(message));
             networkHandler.Register(operatorName, msgHandler);
 
             if (initialize)

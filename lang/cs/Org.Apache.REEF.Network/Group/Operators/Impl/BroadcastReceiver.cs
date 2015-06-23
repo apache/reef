@@ -33,7 +33,7 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
     /// Group Communication Operator used to receive broadcast messages in pipelined fashion.
     /// </summary>
     /// <typeparam name="T">The type of message being sent.</typeparam>
-    public class BroadcastReceiver<T> : IBroadcastReceiver<T>
+    public sealed class BroadcastReceiver<T> : IBroadcastReceiver<T>
     {
         private const int PipelineVersion = 2;
         private readonly IOperatorTopology<PipelineMessage<T>> _topology;
@@ -64,7 +64,7 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
             PipelineDataConverter = dataConverter;
             _topology = topology;
 
-            var msgHandler = Observer.Create<GroupCommunicationMessage>(message => topology.OnNext(message));
+            var msgHandler = Observer.Create<GeneralGroupCommunicationMessage>(message => topology.OnNext(message));
             networkHandler.Register(operatorName, msgHandler);
 
             if (initialize)

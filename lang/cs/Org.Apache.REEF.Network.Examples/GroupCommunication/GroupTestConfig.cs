@@ -43,12 +43,12 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication
         {
         }
 
-        [NamedParameter("Size of the array")]
+        [NamedParameter(Documentation = "Size of the array", DefaultValue = "6")]
         public class ArraySize : Name<int>
         {
         }
 
-        [NamedParameter("Chunk size for pipelining")]
+        [NamedParameter(Documentation = "Chunk size for pipelining", DefaultValue = "2")]
         public class ChunkSize : Name<int>
         {
         }

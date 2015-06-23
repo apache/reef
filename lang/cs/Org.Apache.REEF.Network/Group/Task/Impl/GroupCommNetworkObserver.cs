@@ -29,29 +29,31 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
 {
     /// <summary>
     /// Handles all incoming messages for this Task.
+    /// Writable version
     /// </summary>
-    public class GroupCommNetworkObserver : IGroupCommNetworkObserver
+    // TODO: Need to remove Iwritable and use IstreamingCodec. Please see Jira REEF-295.
+    public sealed class GroupCommNetworkObserver : IGroupCommNetworkObserver
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(GroupCommNetworkObserver));
 
-        private readonly Dictionary<string, IObserver<GroupCommunicationMessage>> _commGroupHandlers;
-            
+        private readonly Dictionary<string, IObserver<GeneralGroupCommunicationMessage>> _commGroupHandlers;
+
         /// <summary>
         /// Creates a new GroupCommNetworkObserver.
         /// </summary>
         [Inject]
         public GroupCommNetworkObserver()
         {
-            _commGroupHandlers = new Dictionary<string, IObserver<GroupCommunicationMessage>>();
+            _commGroupHandlers = new Dictionary<string, IObserver<GeneralGroupCommunicationMessage>>();
         }
 
         /// <summary>
-        /// Handles the incoming NsMessage for this Task.
-        /// Delegates the GroupCommunicationMessage to the correct 
-        /// CommunicationGroupNetworkObserver.
+        /// Handles the incoming WritableNsMessage for this Task.
+        /// Delegates the GeneralGroupCommunicationMessage to the correct 
+        /// WritableCommunicationGroupNetworkObserver.
         /// </summary>
         /// <param name="nsMessage"></param>
-        public void OnNext(NsMessage<GroupCommunicationMessage> nsMessage)
+        public void OnNext(WritableNsMessage<GeneralGroupCommunicationMessage> nsMessage)
         {
             if (nsMessage == null)
             {
@@ -60,7 +62,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
 
             try
             {
-                GroupCommunicationMessage gcm = nsMessage.Data.First();
+                GeneralGroupCommunicationMessage gcm = nsMessage.Data.First();
                 _commGroupHandlers[gcm.GroupName].OnNext(gcm);
             }
             catch (InvalidOperationException)
@@ -83,7 +85,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         /// <param name="groupName">The group name for the network handler</param>
         /// <param name="commGroupHandler">The network handler to invoke when
         /// messages are sent to the given group.</param>
-        public void Register(string groupName, IObserver<GroupCommunicationMessage> commGroupHandler)
+        public void Register(string groupName, IObserver<GeneralGroupCommunicationMessage> commGroupHandler)
         {
             if (string.IsNullOrEmpty(groupName))
             {
