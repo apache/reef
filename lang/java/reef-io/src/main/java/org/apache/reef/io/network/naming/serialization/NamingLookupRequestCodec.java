@@ -52,7 +52,7 @@ public final class NamingLookupRequestCodec implements Codec<NamingLookupRequest
    */
   @Override
   public byte[] encode(final NamingLookupRequest obj) {
-    final List<String> ids = new ArrayList<>();
+    final List<CharSequence> ids = new ArrayList<>();
     for (final Identifier id : obj.getIdentifiers()) {
       ids.add(id.toString());
     }

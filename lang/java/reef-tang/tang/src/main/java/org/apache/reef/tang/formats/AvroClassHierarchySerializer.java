@@ -85,7 +85,7 @@ public final class AvroClassHierarchySerializer implements ClassHierarchySeriali
       for (final ConstructorDef<?> other : others) {
         otherConstructors.add(newConstructorDef(other));
       }
-      final List<String> implFullNames = new ArrayList<>();
+      final List<CharSequence> implFullNames = new ArrayList<>();
       for (final ClassNode<?> impl : cn.getKnownImplementations()) {
         implFullNames.add(impl.getFullName());
       }
@@ -94,9 +94,12 @@ public final class AvroClassHierarchySerializer implements ClassHierarchySeriali
               children);
     } else if (n instanceof NamedParameterNode) {
       final NamedParameterNode<?> np = (NamedParameterNode<?>) n;
+      final List<CharSequence> defaultInstances = new ArrayList<>();
+      for (final CharSequence defaultInstance : np.getDefaultInstanceAsStrings()) {
+        defaultInstances.add(defaultInstance);
+      }
       return newNamedParameterNode(np.getName(), np.getFullName(), np.getSimpleArgName(), np.getFullArgName(),
-              np.isSet(), np.isList(), np.getDocumentation(), np.getShortName(),
-              Arrays.asList(np.getDefaultInstanceAsStrings()), children);
+              np.isSet(), np.isList(), np.getDocumentation(), np.getShortName(), defaultInstances, children);
     } else if (n instanceof PackageNode) {
       return newPackageNode(n.getName(), n.getFullName(), children);
     } else {
@@ -111,7 +114,7 @@ public final class AvroClassHierarchySerializer implements ClassHierarchySeriali
                                        final boolean isUnit,
                                        final List<AvroConstructorDef> injectableConstructors,
                                        final List<AvroConstructorDef> otherConstructors,
-                                       final List<String> implFullNames,
+                                       final List<CharSequence> implFullNames,
                                        final String defaultImplementation,
                                        final List<AvroNode> children) {
     return AvroNode.newBuilder()
@@ -137,7 +140,7 @@ public final class AvroClassHierarchySerializer implements ClassHierarchySeriali
                                                 final boolean isList,
                                                 final String documentation,
                                                 final String shortName,
-                                                final List<String> instanceDefault,
+                                                final List<CharSequence> instanceDefault,
                                                 final List<AvroNode> children) {
 
     return AvroNode.newBuilder()

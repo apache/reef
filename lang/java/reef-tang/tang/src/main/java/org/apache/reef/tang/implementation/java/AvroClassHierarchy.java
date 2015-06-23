@@ -70,9 +70,12 @@ public final class AvroClassHierarchy implements ClassHierarchy {
   private static ConstructorDef<?> parseConstructorDef(final AvroConstructorDef def, final boolean isInjectable) {
     final List<ConstructorArg> args = new ArrayList<>();
     for (final AvroConstructorArg arg : def.getConstructorArg()) {
-      args.add(new ConstructorArgImpl(arg.getFullArgClassName(), arg.getNamedParameterName(), arg.getIsInjectionFuture()));
+      args.add(new ConstructorArgImpl(getString(arg.getFullArgClassName()), getString(arg.getNamedParameterName()),
+              arg.getIsInjectionFuture()));
     }
-    return new ConstructorDefImpl<>(def.getFullArgClassName(), args.toArray(new ConstructorArg[0]), isInjectable);
+    return new ConstructorDefImpl<>(getString(def.getFullArgClassName()), args.toArray(new ConstructorArg[0]),
+            isInjectable);
+
   }
 
   /**
@@ -81,12 +84,14 @@ public final class AvroClassHierarchy implements ClassHierarchy {
   private static void parseSubHierarchy(final Node parent, final AvroNode n) {
     final Node parsed;
     if (n.getPackageNode() != null) {
-      parsed = new PackageNodeImpl(parent, n.getName(), n.getFullName());
+      parsed = new PackageNodeImpl(parent, getString(n.getName()), getString(n.getFullName()));
     } else if (n.getNamedParameterNode() != null) {
       final AvroNamedParameterNode np = n.getNamedParameterNode();
-      parsed = new NamedParameterNodeImpl<>(parent, n.getName(), n.getFullName(),
-              np.getFullArgClassName(), np.getSimpleArgClassName(), np.getIsSet(), np.getIsList(),
-              np.getDocumentation(), np.getShortName(), np.getInstanceDefault().toArray(new String[0]));
+
+
+      parsed = new NamedParameterNodeImpl<>(parent, getString(n.getName()), getString(n.getFullName()),
+              getString(np.getFullArgClassName()), getString(np.getSimpleArgClassName()), np.getIsSet(), np.getIsList(),
+              getString(np.getDocumentation()), getString(np.getShortName()), getStringArray(np.getInstanceDefault()));
     } else if (n.getClassNode() != null) {
       final AvroClassNode cn = n.getClassNode();
       final List<ConstructorDef<?>> injectableConstructors = new ArrayList<>();
@@ -103,10 +108,9 @@ public final class AvroClassHierarchy implements ClassHierarchy {
       }
       @SuppressWarnings("unchecked")
       final ConstructorDef<Object>[] dummy = new ConstructorDef[0];
-      final String defaultImpl = cn.getDefaultImplementation() == null ? null : cn.getDefaultImplementation();
-      parsed = new ClassNodeImpl<>(parent, n.getName(), n.getFullName(), cn.getIsUnit(),
+      parsed = new ClassNodeImpl<>(parent, getString(n.getName()), getString(n.getFullName()), cn.getIsUnit(),
               cn.getIsInjectionCandidate(), cn.getIsExternalConstructor(), injectableConstructors.toArray(dummy),
-              allConstructors.toArray(dummy), defaultImpl);
+              allConstructors.toArray(dummy), getString(cn.getDefaultImplementation()));
     } else {
       throw new IllegalStateException("Bad avro node: got abstract node" + n);
     }
@@ -125,16 +129,16 @@ public final class AvroClassHierarchy implements ClassHierarchy {
       final AvroClassNode cn = n.getClassNode();
       final ClassNode iface;
       try {
-        iface = (ClassNode) getNode(n.getFullName());
+        iface = (ClassNode) getNode(getString(n.getFullName()));
       } catch (NameResolutionException e) {
         final String errorMessage = new StringBuilder()
                 .append("When reading avro node ").append(n.getFullName())
                 .append(" does not exist.  Full record is ").append(n).toString();
         throw new IllegalStateException(errorMessage, e);
       }
-      for (final String impl : cn.getImplFullNames()) {
+      for (final CharSequence impl : cn.getImplFullNames()) {
         try {
-          iface.putImpl((ClassNode) getNode(impl));
+          iface.putImpl((ClassNode) getNode(getString(impl)));
         } catch (NameResolutionException e) {
           final String errorMessage = new StringBuilder()
                   .append("When reading avro node ").append(n)
@@ -143,8 +147,8 @@ public final class AvroClassHierarchy implements ClassHierarchy {
         } catch (ClassCastException e) {
           try {
             final String errorMessage = new StringBuilder()
-                    .append("When reading avro node ").append(n).append(" found implementation").append(getNode(impl))
-                    .append(" which is not a ClassNode!").toString();
+                    .append("When reading avro node ").append(n).append(" found implementation")
+                    .append(getNode(getString(impl))).append(" which is not a ClassNode!").toString();
             throw new IllegalStateException(errorMessage, e);
           } catch (NameResolutionException e2) {
             final String errorMessage = new StringBuilder()
@@ -159,6 +163,29 @@ public final class AvroClassHierarchy implements ClassHierarchy {
     for (final AvroNode child : n.getChildren()) {
       wireUpInheritanceRelationships(child);
     }
+  }
+
+  /**
+   * Get the value of the CharSequence. Return null if the CharSequence is null.
+   */
+  private static String getString(final CharSequence charSeq) {
+    if (charSeq == null) {
+      return null;
+    } else {
+      return charSeq.toString();
+    }
+  }
+
+  /**
+   * Convert the CharSequence list into the String array.
+   */
+  private static String[] getStringArray(final List<CharSequence> charSeqList) {
+    final int length = charSeqList.size();
+    final String[] stringArray = new String[length];
+    for (int i = 0; i < length; i++) {
+      stringArray[i] = getString(charSeqList.get(i));
+    }
+    return stringArray;
   }
 
   @Override
