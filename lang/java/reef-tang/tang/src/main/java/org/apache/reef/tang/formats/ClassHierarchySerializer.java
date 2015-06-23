@@ -20,14 +20,14 @@ package org.apache.reef.tang.formats;
 
 import org.apache.reef.tang.ClassHierarchy;
 import org.apache.reef.tang.annotations.DefaultImplementation;
-import org.apache.reef.tang.formats.avro.AvroNode;
+import org.apache.reef.tang.implementation.avro.AvroClassHierarchySerializer;
 
 import java.io.*;
 
 /**
  * A base interface for ClassHierarchy serializers.
  */
-@DefaultImplementation(org.apache.reef.tang.formats.AvroClassHierarchySerializer.class)
+@DefaultImplementation(AvroClassHierarchySerializer.class)
 public interface ClassHierarchySerializer {
   /**
    * Writes a ClassHierarchy into a file.

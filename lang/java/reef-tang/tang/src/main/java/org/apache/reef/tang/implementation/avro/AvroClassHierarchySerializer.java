@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.tang.formats;
+package org.apache.reef.tang.implementation.avro;
 
 import org.apache.avro.file.DataFileReader;
 import org.apache.avro.file.DataFileWriter;
@@ -24,8 +24,9 @@ import org.apache.avro.io.*;
 import org.apache.avro.specific.SpecificDatumReader;
 import org.apache.avro.specific.SpecificDatumWriter;
 import org.apache.reef.tang.ClassHierarchy;
+import org.apache.reef.tang.formats.ClassHierarchySerializer;
 import org.apache.reef.tang.formats.avro.*;
-import org.apache.reef.tang.implementation.java.AvroClassHierarchy;
+import org.apache.reef.tang.implementation.avro.AvroClassHierarchy;
 import org.apache.reef.tang.types.*;
 
 import javax.inject.Inject;

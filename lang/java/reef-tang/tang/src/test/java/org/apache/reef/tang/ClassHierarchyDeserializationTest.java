@@ -19,7 +19,7 @@
 package org.apache.reef.tang;
 
 import org.apache.reef.tang.exceptions.NameResolutionException;
-import org.apache.reef.tang.formats.AvroClassHierarchySerializer;
+import org.apache.reef.tang.implementation.avro.AvroClassHierarchySerializer;
 import org.apache.reef.tang.formats.AvroConfigurationSerializer;
 import org.apache.reef.tang.formats.ClassHierarchySerializer;
 import org.apache.reef.tang.formats.ConfigurationSerializer;

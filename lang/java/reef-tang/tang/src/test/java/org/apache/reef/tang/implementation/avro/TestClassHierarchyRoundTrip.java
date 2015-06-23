@@ -16,13 +16,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.tang.formats;
+package org.apache.reef.tang.implementation.avro;
 
 import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.tang.exceptions.NameResolutionException;
+import org.apache.reef.tang.formats.ClassHierarchySerializer;
 import org.apache.reef.tang.implementation.TangImpl;
 import org.apache.reef.tang.implementation.TestClassHierarchy;
+import org.apache.reef.tang.implementation.avro.AvroClassHierarchySerializer;
 import org.junit.Assert;
 import org.junit.Test;
 

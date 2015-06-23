@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.tang.implementation.java;
+package org.apache.reef.tang.implementation.avro;
 
 import org.apache.reef.tang.ClassHierarchy;
 import org.apache.reef.tang.annotations.NamedParameter;
