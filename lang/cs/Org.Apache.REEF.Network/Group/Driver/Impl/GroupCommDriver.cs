@@ -25,19 +25,16 @@ using System.Threading;
 using Org.Apache.REEF.Common.Io;
 using Org.Apache.REEF.Common.Services;
 using Org.Apache.REEF.Driver.Context;
-using Org.Apache.REEF.Network.Group.Codec;
 using Org.Apache.REEF.Network.Group.Config;
 using Org.Apache.REEF.Network.Group.Task.Impl;
 using Org.Apache.REEF.Network.Naming;
 using Org.Apache.REEF.Network.NetworkService;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Formats;
-using Org.Apache.REEF.Tang.Implementations.Configuration;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities.Logging;
-using Org.Apache.REEF.Wake.Remote;
 
 namespace Org.Apache.REEF.Network.Group.Driver.Impl
 {
@@ -45,7 +42,8 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
     /// Used to create Communication Groups for Group Communication Operators on the Reef driver.
     /// Also manages configuration for Group Communication tasks/services.
     /// </summary>
-    public class GroupCommDriver : IGroupCommDriver
+    // TODO: Need to remove Iwritable and use IstreamingCodec. Please see Jira REEF-295.
+    public sealed class GroupCommDriver : IGroupCommDriver
     {
         private const string MasterTaskContextName = "MasterTaskContext";
         private const string SlaveTaskContextName = "SlaveTaskContext";
@@ -53,17 +51,16 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
         private static Logger LOGGER = Logger.GetLogger(typeof(GroupCommDriver));
 
         private readonly string _driverId;
-        private readonly string _nameServerAddr;           
+        private readonly string _nameServerAddr;
         private readonly int _nameServerPort;
         private int _contextIds;
-        private int _fanOut;
-        private string _groupName;
+        private readonly int _fanOut;
+        private readonly string _groupName;
 
-        private readonly Dictionary<string, ICommunicationGroupDriver> _commGroups; 
+        private readonly Dictionary<string, ICommunicationGroupDriver> _commGroups;
         private readonly AvroConfigurationSerializer _configSerializer;
-        private readonly INameServer _nameServer;
 
-        
+
         /// <summary>
         /// Create a new GroupCommunicationDriver object.
         /// </summary>
@@ -75,7 +72,7 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
         /// <param name="configSerializer">Used to serialize task configuration</param>
         /// <param name="nameServer">Used to map names to ip adresses</param>
         [Inject]
-        public GroupCommDriver(
+        private GroupCommDriver(
             [Parameter(typeof(GroupCommConfigurationOptions.DriverId))] string driverId,
             [Parameter(typeof(GroupCommConfigurationOptions.MasterTaskId))] string masterTaskId,
             [Parameter(typeof(GroupCommConfigurationOptions.FanOut))] int fanOut,
@@ -92,9 +89,8 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
 
             _configSerializer = configSerializer;
             _commGroups = new Dictionary<string, ICommunicationGroupDriver>();
-            _nameServer = nameServer;
 
-            IPEndPoint localEndpoint = _nameServer.LocalEndpoint;
+            IPEndPoint localEndpoint = nameServer.LocalEndpoint;
             _nameServerAddr = localEndpoint.Address.ToString();
             _nameServerPort = localEndpoint.Port;
 
@@ -123,11 +119,13 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
             {
                 throw new ArgumentNullException("groupName");
             }
-            else if (numTasks < 1)
+
+            if (numTasks < 1)
             {
-                throw new ArgumentException("NumTasks must be greater than 0");                
+                throw new ArgumentException("NumTasks must be greater than 0");
             }
-            else if (_commGroups.ContainsKey(groupName))
+            
+            if (_commGroups.ContainsKey(groupName))
             {
                 throw new ArgumentException("Group Name already registered with GroupCommunicationDriver");
             }
@@ -144,8 +142,8 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
         public IConfiguration GetContextConfiguration()
         {
             int contextNum = Interlocked.Increment(ref _contextIds);
-            string id = (contextNum == 0) 
-                ? MasterTaskContextName 
+            string id = (contextNum == 0)
+                ? MasterTaskContextName
                 : GetSlaveTaskContextName(contextNum);
 
             return ContextConfiguration.ConfigurationModule
@@ -160,16 +158,13 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
         public IConfiguration GetServiceConfiguration()
         {
             IConfiguration serviceConfig = ServiceConfiguration.ConfigurationModule
-                .Set(ServiceConfiguration.Services, GenericType<NetworkService<GroupCommunicationMessage>>.Class)
+                .Set(ServiceConfiguration.Services, GenericType<WritableNetworkService<GeneralGroupCommunicationMessage>>.Class)
                 .Build();
 
             return TangFactory.GetTang().NewConfigurationBuilder(serviceConfig)
                 .BindImplementation(
-                    GenericType<IObserver<NsMessage<GroupCommunicationMessage>>>.Class,
+                    GenericType<IObserver<WritableNsMessage<GeneralGroupCommunicationMessage>>>.Class,
                     GenericType<GroupCommNetworkObserver>.Class)
-                .BindImplementation(
-                    GenericType<ICodec<GroupCommunicationMessage>>.Class,
-                    GenericType<GroupCommunicationMessageCodec>.Class)
                 .BindNamedParameter<NamingConfigurationOptions.NameServerAddress, string>(
                     GenericType<NamingConfigurationOptions.NameServerAddress>.Class,
                     _nameServerAddr)

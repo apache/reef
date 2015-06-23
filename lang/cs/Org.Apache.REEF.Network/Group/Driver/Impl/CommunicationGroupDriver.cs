@@ -17,23 +17,20 @@
  * under the License.
  */
 
+using System;
 using System.Collections.Generic;
 using System.Reflection;
-using System.Threading;
 using Org.Apache.REEF.Network.Group.Config;
 using Org.Apache.REEF.Network.Group.Operators.Impl;
-using Org.Apache.REEF.Network.Group.Pipelining;
 using Org.Apache.REEF.Network.Group.Pipelining.Impl;
 using Org.Apache.REEF.Network.Group.Topology;
 using Org.Apache.REEF.Tang.Exceptions;
 using Org.Apache.REEF.Tang.Formats;
-using Org.Apache.REEF.Tang.Implementations.Configuration;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities.Logging;
-using Org.Apache.REEF.Wake.Remote;
-using Org.Apache.REEF.Wake.Remote.Impl;
+
 
 namespace Org.Apache.REEF.Network.Group.Driver.Impl
 {
@@ -42,7 +39,8 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
     /// All operators in the same Communication Group run on the the 
     /// same set of tasks.
     /// </summary>
-    public class CommunicationGroupDriver : ICommunicationGroupDriver
+    // TODO: Need to remove Iwritable and use IstreamingCodec. Please see Jira REEF-295.]
+    public sealed class CommunicationGroupDriver : ICommunicationGroupDriver
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof (CommunicationGroupDriver));
 
@@ -141,7 +139,7 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
         /// <returns>The same CommunicationGroupDriver with the added Broadcast operator info</returns>
         public ICommunicationGroupDriver AddBroadcast(string operatorName, string masterTaskId, TopologyTypes topologyType = TopologyTypes.Flat)
         {
-            return AddBroadcast<int>( operatorName, masterTaskId, topologyType, GetDefaulConfiguration());
+            return AddBroadcast<int>( operatorName, masterTaskId, topologyType, GetDefaultConfiguration());
         }
 
         /// <summary>
@@ -236,7 +234,7 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
         public ICommunicationGroupDriver AddScatter(string operatorName, string senderId,
             TopologyTypes topologyType = TopologyTypes.Flat)
         {
-            return AddScatter<int>(operatorName, senderId, topologyType, GetDefaulConfiguration());
+            return AddScatter<int>(operatorName, senderId, topologyType, GetDefaultConfiguration());
         }
 
         /// <summary>
@@ -343,18 +341,14 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
             return (IConfiguration) info.Invoke(topology, new[] {(object) taskId});
         }
 
-        private IConfiguration[] GetDefaulConfiguration()
+        private IConfiguration[] GetDefaultConfiguration()
         {
             List<IConfiguration> list = new List<IConfiguration>(); 
-            IConfiguration codecConfig = CodecConfiguration<int>.Conf
-                .Set(CodecConfiguration<int>.Codec, GenericType<IntCodec>.Class)
-                .Build();
 
             IConfiguration dataConverterConfig = PipelineDataConverterConfiguration<int>.Conf
                 .Set(PipelineDataConverterConfiguration<int>.DataConverter, GenericType<DefaultPipelineDataConverter<int>>.Class)
                 .Build();
 
-            list.Add(codecConfig);
             list.Add(dataConverterConfig);
 
             return list.ToArray();

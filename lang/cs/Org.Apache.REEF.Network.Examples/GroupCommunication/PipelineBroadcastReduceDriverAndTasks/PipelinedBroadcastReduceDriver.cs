@@ -27,6 +27,8 @@ using Org.Apache.REEF.Driver;
 using Org.Apache.REEF.Driver.Bridge;
 using Org.Apache.REEF.Driver.Context;
 using Org.Apache.REEF.Driver.Evaluator;
+using Org.Apache.REEF.Network.StreamingCodec.CommonStreamingCodecs;
+using Org.Apache.REEF.Network.Examples.GroupCommunication.BroadcastReduceDriverAndTasks;
 using Org.Apache.REEF.Network.Group.Config;
 using Org.Apache.REEF.Network.Group.Driver;
 using Org.Apache.REEF.Network.Group.Driver.Impl;
@@ -56,6 +58,7 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.PipelineBroadcastR
         private readonly int _numEvaluators;
         private readonly int _numIterations;
         private readonly IConfiguration _tcpPortProviderConfig;
+        private readonly IConfiguration _codecConfig;
 
         [Inject]
         public PipelinedBroadcastReduceDriver(
@@ -81,8 +84,8 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.PipelineBroadcastR
                     portRange.ToString(CultureInfo.InvariantCulture))
                 .Build();
 
-            var codecConfig = CodecConfiguration<int[]>.Conf
-                .Set(CodecConfiguration<int[]>.Codec, GenericType<IntArrayCodec>.Class)
+            _codecConfig = StreamingCodecConfiguration<int[]>.Conf
+                .Set(StreamingCodecConfiguration<int[]>.Codec, GenericType<IntArrayStreamingCodec>.Class)
                 .Build();
 
             var reduceFunctionConfig = ReduceFunctionConfiguration<int[]>.Conf
@@ -106,13 +109,11 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.PipelineBroadcastR
                     GroupTestConstants.BroadcastOperatorName,
                     GroupTestConstants.MasterTaskId,
                     TopologyTypes.Tree,
-                    codecConfig,
                     dataConverterConfig)
                 .AddReduce<int[]>(
                     GroupTestConstants.ReduceOperatorName,
                     GroupTestConstants.MasterTaskId,
                     TopologyTypes.Tree,
-                    codecConfig,
                     reduceFunctionConfig,
                     dataConverterConfig)
                 .Build();
@@ -121,7 +122,21 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.PipelineBroadcastR
 
             CreateClassHierarchy();
         }
+        public string Identifier { get; set; }
 
+        public void OnNext(IEvaluatorRequestor evaluatorRequestor)
+        {
+            EvaluatorRequest request = new EvaluatorRequest(_numEvaluators, 512, 2, "WonderlandRack", "BroadcastEvaluator");
+            evaluatorRequestor.Submit(request);
+        }
+
+        public void OnNext(IAllocatedEvaluator allocatedEvaluator)
+        {
+            IConfiguration contextConf = _groupCommDriver.GetContextConfiguration();
+            IConfiguration serviceConf = _groupCommDriver.GetServiceConfiguration();
+            serviceConf = Configurations.Merge(serviceConf, _codecConfig, _tcpPortProviderConfig);
+            allocatedEvaluator.SubmitContextAndService(contextConf, serviceConf);
+        }
         public void OnNext(IActiveContext activeContext)
         {
             if (_groupCommDriver.IsMasterTaskContext(activeContext))
@@ -173,20 +188,6 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.PipelineBroadcastR
             }
         }
 
-        public void OnNext(IAllocatedEvaluator allocatedEvaluator)
-        {
-            var contextConf = _groupCommDriver.GetContextConfiguration();
-            var serviceConf = _groupCommDriver.GetServiceConfiguration();
-            serviceConf = Configurations.Merge(serviceConf, _tcpPortProviderConfig);
-            allocatedEvaluator.SubmitContextAndService(contextConf, serviceConf);
-        }
-
-        public void OnNext(IEvaluatorRequestor evaluatorRequestor)
-        {
-            var request = new EvaluatorRequest(_numEvaluators, 512, 2, "WonderlandRack", "BroadcastEvaluator");
-            evaluatorRequestor.Submit(request);
-        }
-
         public void OnError(Exception error)
         {
         }
@@ -198,8 +199,6 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.PipelineBroadcastR
         public void OnNext(IFailedEvaluator value)
         {
         }
-
-        public string Identifier { get; set; }
 
         private void CreateClassHierarchy()
         {

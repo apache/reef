@@ -34,7 +34,8 @@ namespace Org.Apache.REEF.Network.Examples.Client
             int startPort = 8900;
             int portRange = 1000;
             string testToRun = "RunBroadcastAndReduce";
-            
+            testToRun = testToRun.ToLower();
+
             if (args != null)
             {
                 if (args.Length > 0)

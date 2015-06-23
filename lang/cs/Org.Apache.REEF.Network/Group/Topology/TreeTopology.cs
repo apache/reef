@@ -25,18 +25,12 @@ using Org.Apache.REEF.Network.Group.Operators.Impl;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
-using Org.Apache.REEF.Wake.Remote;
-using Org.Apache.REEF.Network.Group.Pipelining;
-using Org.Apache.REEF.Network.Group.Task.Impl;
 using Org.Apache.REEF.Tang.Implementations.Configuration;
-using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Network.Group.Topology
 {
     public class TreeTopology<T> : ITopology<T> 
     {
-        private readonly Logger LOGGER = Logger.GetLogger(typeof(TreeTopology<T>));
-
         private readonly string _groupName;
         private readonly string _operatorName;
 

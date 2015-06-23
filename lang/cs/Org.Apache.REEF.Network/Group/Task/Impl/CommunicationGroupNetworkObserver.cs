@@ -19,8 +19,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Threading;
-using Org.Apache.REEF.Network.Group.Config;
 using Org.Apache.REEF.Network.Group.Driver.Impl;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities.Diagnostics;
@@ -30,19 +28,21 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
 {
     /// <summary>
     /// Handles incoming messages sent to this Communication Group.
+    /// Writable version
     /// </summary>
-    public class CommunicationGroupNetworkObserver : ICommunicationGroupNetworkObserver
+    // TODO: Need to remove Iwritable and use IstreamingCodec. Please see Jira REEF-295.
+    public sealed class CommunicationGroupNetworkObserver : ICommunicationGroupNetworkObserver
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(CommunicationGroupNetworkObserver));
-        private readonly Dictionary<string, IObserver<GroupCommunicationMessage>> _handlers;
+        private readonly Dictionary<string, IObserver<GeneralGroupCommunicationMessage>> _handlers;
 
         /// <summary>
         /// Creates a new CommunicationGroupNetworkObserver.
         /// </summary>
         [Inject]
-        public CommunicationGroupNetworkObserver()
+        private CommunicationGroupNetworkObserver()
         {
-            _handlers = new Dictionary<string, IObserver<GroupCommunicationMessage>>();
+            _handlers = new Dictionary<string, IObserver<GeneralGroupCommunicationMessage>>();
         }
 
         /// <summary>
@@ -52,9 +52,9 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         /// </summary>
         /// <param name="operatorName">The name of the operator whose handler
         /// will be invoked</param>
-        /// <param name="observer">The handler to invoke when messages are sent
+        /// <param name="observer">The writable handler to invoke when messages are sent
         /// to the operator specified by operatorName</param>
-        public void Register(string operatorName, IObserver<GroupCommunicationMessage> observer)
+        public void Register(string operatorName, IObserver<GeneralGroupCommunicationMessage> observer)
         {
             if (string.IsNullOrEmpty(operatorName))
             {
@@ -69,16 +69,15 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         }
 
         /// <summary>
-        /// Handles the incoming GroupCommunicationMessage sent to this Communication Group.
+        /// Handles the incoming GeneralGroupCommunicationMessage sent to this Communication Group.
         /// Looks for the operator that the message is being sent to and invoke its handler.
         /// </summary>
         /// <param name="message">The incoming message</param>
-        public void OnNext(GroupCommunicationMessage message)
+        public void OnNext(GeneralGroupCommunicationMessage message)
         {
             string operatorName = message.OperatorName;
 
-            IObserver<GroupCommunicationMessage> handler = GetOperatorHandler(operatorName);
-
+            IObserver<GeneralGroupCommunicationMessage> handler = GetOperatorHandler(operatorName);
             if (handler == null)
             {
                 Exceptions.Throw(new ArgumentException("No handler registered with the operator name: " + operatorName), LOGGER);
@@ -94,14 +93,15 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         /// </summary>
         /// <param name="operatorName"></param>
         /// <returns></returns>
-        private IObserver<GroupCommunicationMessage> GetOperatorHandler(string operatorName)
+        private IObserver<GeneralGroupCommunicationMessage> GetOperatorHandler(string operatorName)
         {
-            IObserver<GroupCommunicationMessage> handler;
+            IObserver<GeneralGroupCommunicationMessage> handler;
             if (!_handlers.TryGetValue(operatorName, out handler))
             {
                 Exceptions.Throw(new ApplicationException("No handler registered yet with the operator name: " + operatorName), LOGGER);
             }
             return handler;
+
         }
 
         public void OnError(Exception error)

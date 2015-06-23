@@ -26,12 +26,14 @@ namespace Org.Apache.REEF.Network.Group.Task
 {
     /// <summary>
     /// Handles incoming messages sent to this Communication Group.
+    /// Writable Version
     /// </summary>
     [DefaultImplementation(typeof(CommunicationGroupNetworkObserver))]
-    public interface ICommunicationGroupNetworkObserver : IObserver<GroupCommunicationMessage>
+    // TODO: Need to remove Iwritable and use IstreamingCodec. Please see Jira REEF-295.
+    public interface ICommunicationGroupNetworkObserver : IObserver<GeneralGroupCommunicationMessage>
     {
         /// <summary>
-        /// Registers the handler with the CommunicationGroupNetworkObserver.
+        /// Registers the handler with the WritableCommunicationGroupNetworkObserver.
         /// Messages that are to be sent to the operator specified by operatorName
         /// are handled by the given observer.
         /// </summary>
@@ -39,6 +41,6 @@ namespace Org.Apache.REEF.Network.Group.Task
         /// will be invoked</param>
         /// <param name="observer">The handler to invoke when messages are sent
         /// to the operator specified by operatorName</param>
-        void Register(string operatorName, IObserver<GroupCommunicationMessage> observer);
+        void Register(string operatorName, IObserver<GeneralGroupCommunicationMessage> observer);
     }
 }

@@ -50,14 +50,15 @@ under the License.
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Group\Config\CodecToStreamingCodecConfiguration.cs" />
+    <Compile Include="Group\Driver\Impl\GeneralGroupCommunicationMessage.cs" />
     <Compile Include="StreamingCodec\CommonStreamingCodecs\FloatArrayStreamingCodec.cs" />
     <Compile Include="StreamingCodec\CommonStreamingCodecs\DoubleArrayStreamingCodec.cs" />
     <Compile Include="StreamingCodec\CommonStreamingCodecs\FloatStreamingCodec.cs" />
     <Compile Include="StreamingCodec\CommonStreamingCodecs\IntArrayStreamingCodec.cs" />
     <Compile Include="StreamingCodec\CommonStreamingCodecs\DoubleStreamingCodec.cs" />
+    <Compile Include="StreamingCodec\CommonStreamingCodecs\StringStreamingCodec.cs" />
     <Compile Include="StreamingCodec\CommonStreamingCodecs\IntStreamingCodec.cs" />
-    <Compile Include="Group\Codec\GcmMessageProto.cs" />
-    <Compile Include="Group\Codec\GroupCommunicationMessageCodec.cs" />
     <Compile Include="Group\Config\CodecConfiguration.cs" />
     <Compile Include="Group\Config\GroupCommConfigurationOptions.cs" />
     <Compile Include="Group\Config\PipelineDataConverterConfiguration.cs" />

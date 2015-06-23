@@ -19,7 +19,6 @@
 
 using Org.Apache.REEF.Network.Group.Operators;
 using Org.Apache.REEF.Tang.Interface;
-using Org.Apache.REEF.Wake.Remote;
 
 namespace Org.Apache.REEF.Network.Group.Topology
 {
