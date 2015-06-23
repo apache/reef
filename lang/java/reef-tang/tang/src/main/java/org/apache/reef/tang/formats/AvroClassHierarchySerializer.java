@@ -203,8 +203,6 @@ public final class AvroClassHierarchySerializer implements ClassHierarchySeriali
       requestWriter.write(toAvro(classHierarchy), encoder);
       encoder.flush();
       return out.toByteArray();
-    } catch (IOException e) {
-      throw new RuntimeException(e);
     }
   }
 
@@ -217,8 +215,6 @@ public final class AvroClassHierarchySerializer implements ClassHierarchySeriali
       encoder.flush();
       out.flush();
       return out.toString(JSON_CHARSET);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
     }
   }
 
@@ -241,24 +237,16 @@ public final class AvroClassHierarchySerializer implements ClassHierarchySeriali
 
   @Override
   public ClassHierarchy fromByteArray(final byte[] theBytes) throws IOException {
-    try {
-      final BinaryDecoder decoder = DecoderFactory.get().binaryDecoder(theBytes, null);
-      final SpecificDatumReader<AvroNode> reader = new SpecificDatumReader<>(AvroNode.class);
-      return fromAvro(reader.read(null, decoder));
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+    final BinaryDecoder decoder = DecoderFactory.get().binaryDecoder(theBytes, null);
+    final SpecificDatumReader<AvroNode> reader = new SpecificDatumReader<>(AvroNode.class);
+    return fromAvro(reader.read(null, decoder));
   }
 
   @Override
   public ClassHierarchy fromString(final String theString) throws IOException {
-    try {
-      final JsonDecoder decoder = DecoderFactory.get().jsonDecoder(AvroNode.getClassSchema(), theString);
-      final SpecificDatumReader<AvroNode> reader = new SpecificDatumReader<>(AvroNode.class);
-      return fromAvro(reader.read(null, decoder));
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+    final JsonDecoder decoder = DecoderFactory.get().jsonDecoder(AvroNode.getClassSchema(), theString);
+    final SpecificDatumReader<AvroNode> reader = new SpecificDatumReader<>(AvroNode.class);
+    return fromAvro(reader.read(null, decoder));
   }
 
   @Override
