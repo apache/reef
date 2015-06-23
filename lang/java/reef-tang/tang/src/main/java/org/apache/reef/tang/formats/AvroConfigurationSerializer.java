@@ -23,6 +23,7 @@ import org.apache.avro.file.DataFileWriter;
 import org.apache.avro.io.*;
 import org.apache.avro.specific.SpecificDatumReader;
 import org.apache.avro.specific.SpecificDatumWriter;
+import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.reef.tang.ClassHierarchy;
 import org.apache.reef.tang.Configuration;
@@ -39,6 +40,7 @@ import org.apache.reef.tang.types.Node;
 import org.apache.reef.tang.util.ReflectionUtilities;
 
 import javax.inject.Inject;
+
 import java.io.*;
 import java.util.*;
 
@@ -179,6 +181,10 @@ public final class AvroConfigurationSerializer implements ConfigurationSerialize
           .build());
     }
     // TODO: Implement list serialization
+    if (configuration.getBoundLists() != null && !configuration.getBoundLists().isEmpty()) {
+      throw new NotImplementedException("List serialization/deserialization is not supported");
+    }
+    
 
     return AvroConfiguration.newBuilder().setBindings(configurationEntries).build();
   }
