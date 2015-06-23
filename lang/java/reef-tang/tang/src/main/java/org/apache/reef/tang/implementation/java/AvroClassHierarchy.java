@@ -58,7 +58,7 @@ public final class AvroClassHierarchy implements ClassHierarchy {
    * Build a table that maps the name to the corresponding Node recursively.
    */
   private void buildLookupTable(final Node n) {
-    for(final Node child : n.getChildren()) {
+    for (final Node child : n.getChildren()) {
       lookupTable.put(child.getFullName(), child);
       buildLookupTable(child);
     }
