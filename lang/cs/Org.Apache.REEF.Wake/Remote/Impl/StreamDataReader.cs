@@ -18,10 +18,7 @@
  */
 
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Org.Apache.REEF.Utilities.Diagnostics;
@@ -47,6 +44,11 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         /// <param name="stream">Stream from which to read</param>
         public StreamDataReader(Stream stream)
         {
+            if (stream == null)
+            {
+                throw new ArgumentNullException("stream", "input stream cannot be null");
+            }
+
             _stream = stream;
         }
 

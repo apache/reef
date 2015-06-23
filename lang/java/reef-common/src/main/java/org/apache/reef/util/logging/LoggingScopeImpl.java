@@ -53,7 +53,7 @@ public class LoggingScopeImpl implements LoggingScope {
    * @param msg
    * @param params
    */
-  LoggingScopeImpl(final Logger logger, final Level logLevel, final String msg, final Object params[]) {
+  LoggingScopeImpl(final Logger logger, final Level logLevel, final String msg, final Object[] params) {
     this.logger = logger;
     this.logLevel = logLevel;
     this.msg = msg;

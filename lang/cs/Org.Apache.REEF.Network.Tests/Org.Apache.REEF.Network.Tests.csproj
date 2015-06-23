@@ -53,6 +53,7 @@ under the License.
     <Compile Include="GroupCommunication\GroupCommuDriverTests.cs" />
     <Compile Include="GroupCommunication\GroupCommunicationTests.cs" />
     <Compile Include="GroupCommunication\GroupCommunicationTreeTopologyTests.cs" />
+    <Compile Include="GroupCommunication\StreamingCodecTests.cs" />
     <Compile Include="NamingService\NameServerTests.cs" />
     <Compile Include="NetworkService\WritableNetworkServiceTests.cs" />
     <Compile Include="NetworkService\NetworkServiceTests.cs" />
