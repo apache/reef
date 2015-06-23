@@ -43,4 +43,10 @@ public final class WakeParameters {
   @NamedParameter(doc = "Remote send timeout", default_value = "" + REMOTE_EXECUTOR_SHUTDOWN_TIMEOUT)
   public static final class RemoteSendTimeout implements Name<Integer> {
   }
+
+  /**
+   * Empty private constructor to prohibit instantiation of utility class.
+   */
+  private WakeParameters() {
+  }
 }

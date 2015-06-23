@@ -25,6 +25,12 @@ import org.apache.reef.tang.annotations.NamedParameter;
  * First tcp port number to try.
  */
 @NamedParameter(doc = "First tcp port number to try", default_value = TcpPortRangeBegin.default_value)
-public class TcpPortRangeBegin implements Name<Integer> {
+public final class TcpPortRangeBegin implements Name<Integer> {
   public static final String default_value = "10000";
+
+  /**
+   * Empty private constructor to prohibit instantiation of utility class.
+   */
+  private TcpPortRangeBegin() {
+  }
 }

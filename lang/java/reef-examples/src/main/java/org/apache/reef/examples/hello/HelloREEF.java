@@ -78,4 +78,10 @@ public final class HelloREEF {
     final LauncherStatus status = runHelloReef(runtimeConfiguration, JOB_TIMEOUT);
     LOG.log(Level.INFO, "REEF job completed: {0}", status);
   }
+
+    /**
+     * Empty private constructor to prohibit instantiation of utility class.
+     */
+    private HelloREEF() {
+    }
 }

@@ -54,4 +54,10 @@ public final class Client {
 
     return TestDriverLauncher.getLauncher(runtimeConfig).run(cb.build(), timeOut);
   }
+
+  /**
+   * Empty private constructor to prohibit instantiation of utility class.
+   */
+  private Client() {
+  }
 }

@@ -27,4 +27,10 @@ import org.apache.reef.tang.annotations.NamedParameter;
 @NamedParameter(doc = "the probability with which a crash will occur.", default_value = "" + CrashProbability.DEFAULT_VALUE)
 public final class CrashProbability implements Name<Double> {
   public static final double DEFAULT_VALUE = 0.1;
+
+  /**
+   * Empty private constructor to prohibit instantiation of utility class.
+   */
+  private CrashProbability() {
+  }
 }

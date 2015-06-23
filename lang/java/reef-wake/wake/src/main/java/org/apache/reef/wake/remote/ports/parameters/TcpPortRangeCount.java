@@ -25,6 +25,12 @@ import org.apache.reef.tang.annotations.NamedParameter;
  * Number of tcp ports in the range.
  */
 @NamedParameter(doc = "Number of tcp ports in the range", default_value = TcpPortRangeCount.default_value)
-public class TcpPortRangeCount implements Name<Integer> {
+public final class TcpPortRangeCount implements Name<Integer> {
   public static final String default_value = "10000";
+
+  /**
+   * Empty private constructor to prohibit instantiation of utility class.
+   */
+  private TcpPortRangeCount() {
+  }
 }

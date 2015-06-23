@@ -23,7 +23,7 @@ import static java.lang.Math.exp;
 /**
  * Default EWMA parameters.
  */
-public class EWMAParameters {
+public final class EWMAParameters {
   public static final int INTERVAL = 5;
   public static final double SECONDS_PER_MINUTE = 60.0;
   public static final int ONE_MINUTE = 1;
@@ -32,4 +32,10 @@ public class EWMAParameters {
   public static final double M5_ALPHA = 1 - exp(-INTERVAL / SECONDS_PER_MINUTE / FIVE_MINUTES);
   public static final int FIFTEEN_MINUTES = 15;
   public static final double M15_ALPHA = 1 - exp(-INTERVAL / SECONDS_PER_MINUTE / FIFTEEN_MINUTES);
+
+  /**
+   * Empty private constructor to prohibit instantiation of utility class.
+   */
+  private EWMAParameters() {
+  }
 }

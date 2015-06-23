@@ -27,4 +27,10 @@ import org.apache.reef.tang.annotations.NamedParameter;
 @NamedParameter(doc = "The path to process configuration.", short_name = ClockConfigurationPath.SHORT_NAME)
 public final class ClockConfigurationPath implements Name<String> {
   public static final String SHORT_NAME = "runtime_configuration";
+
+  /**
+   * Empty private constructor to prohibit instantiation of utility class.
+   */
+  private ClockConfigurationPath() {
+  }
 }

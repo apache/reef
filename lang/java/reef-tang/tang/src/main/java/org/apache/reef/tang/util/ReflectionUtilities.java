@@ -27,7 +27,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.util.*;
 
-public class ReflectionUtilities {
+public final class ReflectionUtilities {
   /**
    * This is used to split Java classnames.  Currently, we split on . and on $
    */
@@ -398,5 +398,11 @@ public class ReflectionUtilities {
       System.err.println("Can't getRawClass for " + clazz + " of unknown type " + clazz.getClass());
       throw new IllegalArgumentException("Can't getRawClass for " + clazz + " of unknown type " + clazz.getClass());
     }
+  }
+
+  /**
+   * Empty private constructor to prohibit instantiation of utility class.
+   */
+  private ReflectionUtilities() {
   }
 }

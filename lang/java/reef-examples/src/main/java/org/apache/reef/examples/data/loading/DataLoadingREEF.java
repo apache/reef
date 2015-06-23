@@ -46,7 +46,7 @@ import java.util.logging.Logger;
  * Client for the data loading demo app.
  */
 @ClientSide
-public class DataLoadingREEF {
+public final class DataLoadingREEF {
 
   private static final Logger LOG = Logger.getLogger(DataLoadingREEF.class.getName());
 
@@ -128,5 +128,11 @@ public class DataLoadingREEF {
 
   @NamedParameter(short_name = "input")
   public static final class InputDir implements Name<String> {
+  }
+
+  /**
+   * Empty private constructor to prohibit instantiation of utility class.
+   */
+  private DataLoadingREEF() {
   }
 }

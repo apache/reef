@@ -28,7 +28,7 @@ import java.util.logging.Logger;
 /**
  * The EventHandler used as the default for the Clock.StartHandler event.
  */
-public class MissingStartHandlerHandler implements EventHandler<StartTime> {
+public final class MissingStartHandlerHandler implements EventHandler<StartTime> {
 
   @Inject
   private MissingStartHandlerHandler() {

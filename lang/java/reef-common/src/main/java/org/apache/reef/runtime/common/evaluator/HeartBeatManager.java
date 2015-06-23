@@ -39,7 +39,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @Unit
-public class HeartBeatManager {
+public final class HeartBeatManager {
 
   private static final Logger LOG = Logger.getLogger(HeartBeatManager.class.getName());
 

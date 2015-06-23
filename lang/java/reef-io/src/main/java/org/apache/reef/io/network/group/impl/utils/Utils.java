@@ -28,7 +28,7 @@ import java.util.Iterator;
 /**
  *
  */
-public class Utils {
+public final class Utils {
 
   public static final byte[] EmptyByteArr = new byte[0];
 
@@ -76,5 +76,11 @@ public class Utils {
     } else {
       throw new RuntimeException("Expecting exactly one GCM object inside Message but found none");
     }
+  }
+
+  /**
+   * Empty private constructor to prohibit instantiation of utility class.
+   */
+  private Utils() {
   }
 }

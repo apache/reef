@@ -43,7 +43,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @ClientSide
-public class BroadcastREEF {
+public final class BroadcastREEF {
   private static final Logger LOG = Logger.getLogger(BroadcastREEF.class.getName());
 
   private static final String MAX_NUMBER_OF_EVALUATORS = "20";
@@ -145,4 +145,10 @@ public class BroadcastREEF {
     final LauncherStatus state = runBGDReef(runtimeConfiguration);
     LOG.log(Level.INFO, "REEF job completed: {0}", state);
   }
+
+    /**
+     * Empty private constructor to prohibit instantiation of utility class.
+     */
+    private BroadcastREEF() {
+    }
 }

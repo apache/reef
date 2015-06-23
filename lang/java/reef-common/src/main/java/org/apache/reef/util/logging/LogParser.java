@@ -27,7 +27,7 @@ import java.util.ArrayList;
 /**
  * Parse logs for reporting.
  */
-public class LogParser {
+public final class LogParser {
 
   public static String[] endIndicators = {
       LoggingScopeImpl.EXIT_PREFIX + LoggingScopeFactory.BRIDGE_SETUP,

@@ -25,7 +25,7 @@ import javax.inject.Inject;
 /**
  * A Task that does nothing and returns null.
  */
-public class NoopTask implements Task {
+public final class NoopTask implements Task {
 
   @Inject
   private NoopTask() {

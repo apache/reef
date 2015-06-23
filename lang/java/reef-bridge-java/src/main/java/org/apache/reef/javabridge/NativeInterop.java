@@ -20,7 +20,7 @@ package org.apache.reef.javabridge;
 
 import java.util.HashMap;
 
-public class NativeInterop {
+public final class NativeInterop {
   public static final String CLASS_HIERARCHY_FILENAME = "clrClassHierarchy.bin";
   public static final String GLOBAL_LIBRARIES_FILENAME = "userSuppliedGlobalLibraries.txt";
   public static final String AllocatedEvaluatorKey = "AllocatedEvaluator";
@@ -158,4 +158,10 @@ public class NativeInterop {
       long handle,
       RunningTaskBridge runningTaskBridge
   );
+
+  /**
+   * Empty private constructor to prohibit instantiation of utility class.
+   */
+  private NativeInterop() {
+  }
 }

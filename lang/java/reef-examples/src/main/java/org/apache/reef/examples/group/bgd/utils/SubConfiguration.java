@@ -33,7 +33,7 @@ import org.apache.reef.tang.formats.ConfigurationSerializer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class SubConfiguration {
+public final class SubConfiguration {
 
   private static final Logger LOG = Logger.getLogger(SubConfiguration.class.getName());
 
@@ -69,5 +69,11 @@ public class SubConfiguration {
     final Configuration subConf = SubConfiguration.from(conf, TaskConfigurationOptions.Identifier.class);
     LOG.log(Level.INFO, "OUT: Base conf:\n{0}", confSerizalizer.toString(conf));
     LOG.log(Level.INFO, "OUT: Sub conf:\n{0}", confSerizalizer.toString(subConf));
+  }
+
+  /**
+   * Empty private constructor to prohibit instantiation of utility class.
+   */
+  private SubConfiguration() {
   }
 }
