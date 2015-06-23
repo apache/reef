@@ -36,7 +36,7 @@ import java.util.Set;
 
 /**
  * Test case for class hierarchy deserialization.
- * TODO The files should be created and deserialized by the AvroClassHierarchySerializer
+ * TODO: The files should be created and deserialized by the AvroClassHierarchySerializer (REEF-400)
  */
 public class ClassHierarchyDeserializationTest {
   private final ConfigurationSerializer configurationSerializer = new AvroConfigurationSerializer();
@@ -47,10 +47,10 @@ public class ClassHierarchyDeserializationTest {
    */
   @Test
   public void testDeserializationForTasks() {
-    // TODO The file should be written by Avro
+    // TODO: The file should be written by Avro (REEF-400)
     try (final InputStream chin = Thread.currentThread().getContextClassLoader()
         .getResourceAsStream("Task.bin")) {
-      // TODO Use AvroClassHierarchySerializer instead
+      // TODO: Use AvroClassHierarchySerializer instead (REEF-400)
       final ClassHierarchyProto.Node root = ClassHierarchyProto.Node.parseFrom(chin);
       final ClassHierarchy ch = new ProtocolBufferClassHierarchy(root);
       Node n1 = ch.getNode("Org.Apache.REEF.Examples.Tasks.StreamingTasks.StreamTask1, Org.Apache.REEF.Examples.Tasks, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null");
@@ -81,10 +81,10 @@ public class ClassHierarchyDeserializationTest {
     final ConfigurationBuilder taskConfigurationBuilder;
     final ConfigurationBuilder eventConfigurationBuilder;
 
-    // TODO The file should be written by Avro
+    // TODO: The file should be written by Avro (REEF-400)
     try (final InputStream chin = Thread.currentThread().getContextClassLoader()
         .getResourceAsStream("Task.bin")) {
-      // TODO Use AvroClassHierarchySerializer instead
+      // TODO: Use AvroClassHierarchySerializer instead (REEF-400)
       final ClassHierarchyProto.Node root = ClassHierarchyProto.Node.parseFrom(chin);
       final ClassHierarchy ch = new ProtocolBufferClassHierarchy(root);
       taskConfigurationBuilder = Tang.Factory.getTang().newConfigurationBuilder(ch);
@@ -93,10 +93,10 @@ public class ClassHierarchyDeserializationTest {
       throw new RuntimeException(message, e);
     }
 
-    // TODO The file should be written by Avro
+    // TODO: The file should be written by Avro (REEF-400)
     try (final InputStream chin = Thread.currentThread().getContextClassLoader()
         .getResourceAsStream("Event.bin")) {
-      // TODO Use AvroClassHierarchySerializer instead
+      // TODO: Use AvroClassHierarchySerializer instead (REEF-400)
       final ClassHierarchyProto.Node root = ClassHierarchyProto.Node.parseFrom(chin);
       final ClassHierarchy ch = new ProtocolBufferClassHierarchy(root);
       eventConfigurationBuilder = Tang.Factory.getTang().newConfigurationBuilder(ch);
@@ -113,10 +113,10 @@ public class ClassHierarchyDeserializationTest {
    */
   @Test
   public void testDeserializationForEvent() {
-    // TODO The file should be written by Avro
+    // TODO: The file should be written by Avro (REEF-400)
     try (final InputStream chin = Thread.currentThread().getContextClassLoader()
         .getResourceAsStream("Event.bin")) {
-      // TODO Use AvroClassHierarchySerializer instead
+      // TODO: Use AvroClassHierarchySerializer instead (REEF-400)
       final ClassHierarchyProto.Node root = ClassHierarchyProto.Node.parseFrom(chin);
       final ClassHierarchy ch = new ProtocolBufferClassHierarchy(root);
       final ConfigurationBuilder taskConfigurationBuilder = Tang.Factory.getTang()
