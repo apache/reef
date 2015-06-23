@@ -26,7 +26,6 @@ import org.apache.avro.specific.SpecificDatumWriter;
 import org.apache.reef.tang.ClassHierarchy;
 import org.apache.reef.tang.formats.ClassHierarchySerializer;
 import org.apache.reef.tang.formats.avro.*;
-import org.apache.reef.tang.implementation.avro.AvroClassHierarchy;
 import org.apache.reef.tang.types.*;
 
 import javax.inject.Inject;

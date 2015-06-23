@@ -24,7 +24,6 @@ import org.apache.reef.tang.exceptions.NameResolutionException;
 import org.apache.reef.tang.formats.ClassHierarchySerializer;
 import org.apache.reef.tang.implementation.TangImpl;
 import org.apache.reef.tang.implementation.TestClassHierarchy;
-import org.apache.reef.tang.implementation.avro.AvroClassHierarchySerializer;
 import org.junit.Assert;
 import org.junit.Test;
 
