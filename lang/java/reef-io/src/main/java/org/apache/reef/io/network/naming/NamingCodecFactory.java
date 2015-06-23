@@ -29,7 +29,7 @@ import java.util.Map;
 /**
  * Factory to create naming codecs.
  */
-class NamingCodecFactory {
+final class NamingCodecFactory {
 
   /**
    * Creates a codec only for lookup.

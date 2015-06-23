@@ -28,7 +28,7 @@ import java.io.*;
  * Currently only supports number & memory
  * Does not take care of Resource Descriptor
  */
-public class EvaluatorRequestSerializer {
+public final class EvaluatorRequestSerializer {
   public static String serialize(EvaluatorRequest request) {
     try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
       try (DataOutputStream daos = new DataOutputStream(baos)) {

@@ -46,7 +46,7 @@ import java.util.logging.Logger;
  * Client for the data loading demo app.
  */
 @ClientSide
-public class DataLoadingREEF {
+public final class DataLoadingREEF {
 
   private static final Logger LOG = Logger.getLogger(DataLoadingREEF.class.getName());
 

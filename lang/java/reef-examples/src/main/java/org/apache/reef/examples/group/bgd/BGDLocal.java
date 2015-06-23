@@ -29,7 +29,7 @@ import java.util.logging.Logger;
 /**
  * Runs BGD on the local runtime.
  */
-public class BGDLocal {
+public final class BGDLocal {
 
   private static final Logger LOG = Logger.getLogger(BGDLocal.class.getName());
 

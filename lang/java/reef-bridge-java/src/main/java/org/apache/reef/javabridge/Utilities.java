@@ -31,7 +31,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-public class Utilities {
+public final class Utilities {
   public static ClassHierarchy loadClassHierarchy(String classHierarchyFile) {
     Path p = Paths.get(classHierarchyFile);
     if (!Files.exists(p)) {

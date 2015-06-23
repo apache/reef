@@ -29,7 +29,7 @@ import java.util.logging.Logger;
 /**
  * Runs BGD on the YARN runtime.
  */
-public class BGDYarn {
+public final class BGDYarn {
 
   private static final Logger LOG = Logger.getLogger(BGDYarn.class.getName());
 

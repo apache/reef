@@ -43,7 +43,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @ClientSide
-public class BroadcastREEF {
+public final class BroadcastREEF {
   private static final Logger LOG = Logger.getLogger(BroadcastREEF.class.getName());
 
   private static final String MAX_NUMBER_OF_EVALUATORS = "20";

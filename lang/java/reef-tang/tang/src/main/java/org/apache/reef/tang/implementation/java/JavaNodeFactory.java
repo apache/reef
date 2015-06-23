@@ -38,7 +38,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-public class JavaNodeFactory {
+public final class JavaNodeFactory {
 
   @SuppressWarnings("unchecked")
   static <T> ClassNodeImpl<T> createClassNode(Node parent, Class<T> clazz) throws ClassHierarchyException {

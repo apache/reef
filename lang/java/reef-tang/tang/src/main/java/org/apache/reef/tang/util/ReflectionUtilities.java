@@ -27,7 +27,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.util.*;
 
-public class ReflectionUtilities {
+public final class ReflectionUtilities {
   /**
    * This is used to split Java classnames.  Currently, we split on . and on $
    */

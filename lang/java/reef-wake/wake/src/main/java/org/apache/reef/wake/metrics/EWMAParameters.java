@@ -23,7 +23,7 @@ import static java.lang.Math.exp;
 /**
  * Default EWMA parameters.
  */
-public class EWMAParameters {
+public final class EWMAParameters {
   public static final int INTERVAL = 5;
   public static final double SECONDS_PER_MINUTE = 60.0;
   public static final int ONE_MINUTE = 1;

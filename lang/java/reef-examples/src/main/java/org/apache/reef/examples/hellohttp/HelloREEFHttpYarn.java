@@ -31,7 +31,7 @@ import java.util.logging.Logger;
 /**
  * HelloREEFHttp for running on Yarn.
  */
-public class HelloREEFHttpYarn {
+public final class HelloREEFHttpYarn {
 
   private static final Logger LOG = Logger.getLogger(HelloREEFHttpYarn.class.getName());
 

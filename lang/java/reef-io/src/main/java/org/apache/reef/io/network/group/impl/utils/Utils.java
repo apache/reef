@@ -28,7 +28,7 @@ import java.util.Iterator;
 /**
  *
  */
-public class Utils {
+public final class Utils {
 
   public static final byte[] EmptyByteArr = new byte[0];
 
