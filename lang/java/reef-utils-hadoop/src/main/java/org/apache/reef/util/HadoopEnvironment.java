@@ -21,7 +21,7 @@ package org.apache.reef.util;
 /**
  * Constants for the various Hadoop environment variables.
  */
-public class HadoopEnvironment {
+public final class HadoopEnvironment {
 
   public static final String HADOOP_CONF_DIR = "HADOOP_CONF_DIR";
   public static final String HADOOP_HOME = "HADOOP_HOME";

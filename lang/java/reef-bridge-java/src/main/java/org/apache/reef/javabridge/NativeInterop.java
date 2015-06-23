@@ -158,4 +158,10 @@ public class NativeInterop {
       long handle,
       RunningTaskBridge runningTaskBridge
   );
+
+  /**
+   * Empty private constructor to prohibit instantiation of utility class.
+   */
+  private NativeInterop() {
+  }
 }

@@ -330,4 +330,9 @@ public class JavaNodeFactory {
         args, injectable);
   }
 
+  /**
+   * Empty private constructor to prohibit instantiation of utility class.
+   */
+  private JavaNodeFactory() {
+  }
 }

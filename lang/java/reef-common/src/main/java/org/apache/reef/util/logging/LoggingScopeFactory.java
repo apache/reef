@@ -29,7 +29,7 @@ import java.util.logging.Logger;
 /**
  * Create Logging scope objects.
  */
-public class LoggingScopeFactory {
+public final class LoggingScopeFactory {
 
   private static final Logger LOG = Logger.getLogger(LoggingScopeFactory.class.getName());
   public static final String DRIVER_START = "Driver Start Handler";

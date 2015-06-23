@@ -54,4 +54,10 @@ public class Utilities {
     InetSocketAddress socketAddress = evaluatorDescriptor.getNodeDescriptor().getInetSocketAddress();
     return "IP=" + socketAddress.getAddress() + ", Port=" + socketAddress.getPort() + ", HostName=" + socketAddress.getHostName() + ", Memory=" + evaluatorDescriptor.getMemory() + ", Core=" + evaluatorDescriptor.getNumberOfCores();
   }
+
+  /**
+   * Empty private constructor to prohibit instantiation of utility class.
+   */
+  private Utilities() {
+  }
 }

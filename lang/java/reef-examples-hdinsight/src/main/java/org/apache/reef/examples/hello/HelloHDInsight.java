@@ -30,4 +30,10 @@ public class HelloHDInsight {
   public static void main(final String[] args) throws InjectionException, IOException {
     HelloREEFNoClient.runHelloReefWithoutClient(UnsafeHDInsightRuntimeConfiguration.fromEnvironment());
   }
+
+  /**
+   * Empty private constructor to prohibit instantiation of utility class.
+   */
+  private HelloHDInsight() {
+  }
 }

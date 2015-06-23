@@ -49,6 +49,7 @@ import java.util.logging.Logger;
 /**
  * The Java-side of the C# YARN Job Submission API.
  */
+@SuppressWarnings("checkstyle:hideutilityclassconstructor")
 public final class YarnJobSubmissionClient {
 
   private static final Logger LOG = Logger.getLogger(YarnJobSubmissionClient.class.getName());

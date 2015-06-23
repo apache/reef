@@ -60,4 +60,10 @@ public class EvaluatorRequestSerializer {
       throw new RuntimeException("Unable to de-serialize compute request", e);
     }
   }
+
+  /**
+   * Empty private constructor to prohibit instantiation of utility class.
+   */
+  private EvaluatorRequestSerializer() {
+  }
 }

@@ -28,7 +28,7 @@ import java.util.logging.Logger;
 /**
  * Sleep for delay seconds and quit.
  */
-public class SleepTask implements Task {
+public final class SleepTask implements Task {
 
   /**
    * Standard java logger.

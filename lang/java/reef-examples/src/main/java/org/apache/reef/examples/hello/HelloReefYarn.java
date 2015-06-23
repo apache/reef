@@ -67,4 +67,10 @@ public final class HelloReefYarn {
         .run(getDriverConfiguration(), JOB_TIMEOUT);
     LOG.log(Level.INFO, "REEF job completed: {0}", status);
   }
+
+  /**
+   * Empty private constructor to prohibit instantiation of utility class.
+   */
+  private HelloReefYarn() {
+  }
 }

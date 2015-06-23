@@ -31,4 +31,10 @@ public final class ClientRemoteIdentifier implements Name<String> {
    * Indicates that there is no Client.
    */
   public static final String NONE = ErrorHandlerRID.NONE;
+
+  /**
+   * Empty private constructor to prohibit instantiation of utility class.
+   */
+  private ClientRemoteIdentifier() {
+  }
 }

@@ -52,4 +52,10 @@ public class HelloREEFMesos {
         .run(getDriverConfiguration());
     LOG.log(Level.INFO, "REEF job completed: {0}", status);
   }
+
+  /**
+   * Empty private constructor to prohibit instantiation of utility class.
+   */
+  private HelloREEFMesos() {
+  }
 }

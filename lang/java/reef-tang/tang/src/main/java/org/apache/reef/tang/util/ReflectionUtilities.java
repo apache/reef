@@ -399,4 +399,10 @@ public class ReflectionUtilities {
       throw new IllegalArgumentException("Can't getRawClass for " + clazz + " of unknown type " + clazz.getClass());
     }
   }
+
+  /**
+   * Empty private constructor to prohibit instantiation of utility class.
+   */
+  private ReflectionUtilities() {
+  }
 }

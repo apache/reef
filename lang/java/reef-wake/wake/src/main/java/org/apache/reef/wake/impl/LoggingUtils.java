@@ -49,4 +49,10 @@ public class LoggingUtils {
     ch.setLevel(level);
     Logger.getLogger("").setLevel(level);
   }
+
+  /**
+   * Empty private constructor to prohibit instantiation of utility class.
+   */
+  private LoggingUtils() {
+  }
 }

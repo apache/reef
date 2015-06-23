@@ -145,4 +145,10 @@ public class BroadcastREEF {
     final LauncherStatus state = runBGDReef(runtimeConfiguration);
     LOG.log(Level.INFO, "REEF job completed: {0}", state);
   }
+
+    /**
+     * Empty private constructor to prohibit instantiation of utility class.
+     */
+    private BroadcastREEF() {
+    }
 }

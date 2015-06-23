@@ -30,4 +30,10 @@ import org.apache.reef.tang.annotations.NamedParameter;
 public final class ClientPresent implements Name<String> {
   public static final String YES = "YES";
   public static final String NO = "NO";
+
+  /**
+   * Empty private constructor to prohibit instantiation of utility class.
+   */
+  private ClientPresent() {
+  }
 }

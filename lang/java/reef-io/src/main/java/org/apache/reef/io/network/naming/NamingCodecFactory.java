@@ -79,4 +79,10 @@ class NamingCodecFactory {
     Codec<NamingMessage> codec = new MultiCodec<NamingMessage>(clazzToCodecMap);
     return codec;
   }
+
+  /**
+   * Empty private constructor to prohibit instantiation of utility class.
+   */
+  private NamingCodecFactory() {
+  }
 }

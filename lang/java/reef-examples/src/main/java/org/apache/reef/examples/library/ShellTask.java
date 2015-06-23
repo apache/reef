@@ -30,7 +30,7 @@ import java.util.logging.Logger;
 /**
  * Execute command, capture its stdout, and return that string to the job driver.
  */
-public class ShellTask implements Task {
+public final class ShellTask implements Task {
 
   /**
    * Standard java logger.

@@ -77,4 +77,10 @@ public class Utils {
       throw new RuntimeException("Expecting exactly one GCM object inside Message but found none");
     }
   }
+
+  /**
+   * Empty private constructor to prohibit instantiation of utility class.
+   */
+  private Utils() {
+  }
 }

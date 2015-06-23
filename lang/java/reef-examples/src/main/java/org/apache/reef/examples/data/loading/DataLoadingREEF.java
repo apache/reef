@@ -129,4 +129,10 @@ public class DataLoadingREEF {
   @NamedParameter(short_name = "input")
   public static final class InputDir implements Name<String> {
   }
+
+  /**
+   * Empty private constructor to prohibit instantiation of utility class.
+   */
+  private DataLoadingREEF() {
+  }
 }

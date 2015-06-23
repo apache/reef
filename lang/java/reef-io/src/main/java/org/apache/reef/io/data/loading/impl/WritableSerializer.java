@@ -90,4 +90,9 @@ public class WritableSerializer {
     }
   }
 
+  /**
+   * Empty private constructor to prohibit instantiation of utility class.
+   */
+  private WritableSerializer() {
+  }
 }

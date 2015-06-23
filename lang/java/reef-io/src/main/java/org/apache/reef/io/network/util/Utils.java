@@ -116,4 +116,10 @@ public class Utils {
 
     return GCMBuilder.build();
   }
+
+  /**
+   * Empty private constructor to prohibit instantiation of utility class.
+   */
+  private Utils() {
+  }
 }

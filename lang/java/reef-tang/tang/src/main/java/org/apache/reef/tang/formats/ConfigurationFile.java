@@ -250,4 +250,10 @@ public class ConfigurationFile {
     }
     return sb;
   }
+
+  /**
+   * Empty private constructor to prohibit instantiation of utility class.
+   */
+  private ConfigurationFile() {
+  }
 }

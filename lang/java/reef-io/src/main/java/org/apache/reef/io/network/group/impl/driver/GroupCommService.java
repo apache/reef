@@ -41,6 +41,7 @@ import java.util.logging.Logger;
 /**
  * The Group Communication Service.
  */
+@SuppressWarnings("checkstyle:hideutilityclassconstructor")
 @Unit
 public class GroupCommService {
 

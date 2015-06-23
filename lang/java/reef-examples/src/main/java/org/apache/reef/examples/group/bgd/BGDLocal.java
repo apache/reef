@@ -50,4 +50,10 @@ public class BGDLocal {
 
     LOG.log(Level.INFO, "OUT: Status = {0}", status);
   }
+
+  /**
+   * Empty private constructor to prohibit instantiation of utility class.
+   */
+  private BGDLocal() {
+  }
 }

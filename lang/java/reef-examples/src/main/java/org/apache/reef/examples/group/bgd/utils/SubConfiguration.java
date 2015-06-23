@@ -70,4 +70,10 @@ public class SubConfiguration {
     LOG.log(Level.INFO, "OUT: Base conf:\n{0}", confSerizalizer.toString(conf));
     LOG.log(Level.INFO, "OUT: Sub conf:\n{0}", confSerizalizer.toString(subConf));
   }
+
+  /**
+   * Empty private constructor to prohibit instantiation of utility class.
+   */
+  private SubConfiguration() {
+  }
 }

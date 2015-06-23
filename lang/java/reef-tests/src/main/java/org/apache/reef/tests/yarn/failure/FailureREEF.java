@@ -108,6 +108,12 @@ public final class FailureREEF {
   }
 
   /**
+   * Empty private constructor to prohibit instantiation of utility class.
+   */
+  private FailureREEF() {
+  }
+
+  /**
    * Command line parameter = true to run locally, or false to run on YARN.
    */
   @NamedParameter(doc = "Whether or not to run on the local runtime",

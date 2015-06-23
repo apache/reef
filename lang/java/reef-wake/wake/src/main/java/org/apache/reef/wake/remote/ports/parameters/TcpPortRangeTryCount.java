@@ -27,4 +27,10 @@ import org.apache.reef.tang.annotations.NamedParameter;
 @NamedParameter(doc = "Max number tries for port numbers", default_value = TcpPortRangeTryCount.default_value)
 public class TcpPortRangeTryCount implements Name<Integer> {
   public static final String default_value = "1000";
+
+  /**
+   * Empty private constructor to prohibit instantiation of utility class.
+   */
+  private TcpPortRangeTryCount() {
+  }
 }

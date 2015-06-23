@@ -34,4 +34,9 @@ public final class ErrorHandlerRID implements Name<String> {
    */
   public static final String SHORT_NAME = "error_handler_rid";
 
+  /**
+   * Empty private constructor to prohibit instantiation of utility class.
+   */
+  private ErrorHandlerRID() {
+  }
 }
