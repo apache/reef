@@ -21,12 +21,11 @@ using Org.Apache.REEF.Network.Group.Pipelining;
 using Org.Apache.REEF.Network.StreamingCodec;
 using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Util;
-using Org.Apache.REEF.Wake.Remote;
 
 namespace Org.Apache.REEF.Network.Group.Config
 {
     /// <summary>
-    /// Defines configuration for streaming codecs and pipelie message 
+    /// Defines configuration for streaming codecs and pipeline message 
     /// streaming codecs by taking streaming codec as input.
     /// </summary>
     /// <typeparam name="T">Generic type of message</typeparam>

@@ -18,17 +18,12 @@
  */
 
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Org.Apache.REEF.Network.Group.Config;
 using Org.Apache.REEF.Network.StreamingCodec;
 using Org.Apache.REEF.Network.StreamingCodec.CommonStreamingCodecs;
-using Org.Apache.REEF.Tang.Implementations.InjectionPlan;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
