@@ -24,7 +24,7 @@ import org.apache.reef.tang.annotations.*;
 import org.apache.reef.tang.exceptions.ClassHierarchyException;
 import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.tang.exceptions.NameResolutionException;
-import org.apache.reef.tang.formats.ClassHierarchySerializer;
+import org.apache.reef.tang.ClassHierarchySerializer;
 import org.apache.reef.tang.types.ClassNode;
 import org.apache.reef.tang.types.ConstructorDef;
 import org.apache.reef.tang.types.Node;

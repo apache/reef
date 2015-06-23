@@ -16,9 +16,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.tang.formats;
+package org.apache.reef.tang;
 
-import org.apache.reef.tang.ClassHierarchy;
 import org.apache.reef.tang.annotations.DefaultImplementation;
 import org.apache.reef.tang.implementation.avro.AvroClassHierarchySerializer;
 

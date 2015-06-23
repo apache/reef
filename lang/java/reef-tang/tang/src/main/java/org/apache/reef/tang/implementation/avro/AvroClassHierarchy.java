@@ -32,7 +32,7 @@ import java.util.List;
 /**
  * Implementation of ClassHierarchy for Avro
  */
-public final class AvroClassHierarchy implements ClassHierarchy {
+final class AvroClassHierarchy implements ClassHierarchy {
   private final PackageNode namespace;
   private final HashMap<String, Node> lookupTable = new HashMap<>();
 

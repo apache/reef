@@ -24,7 +24,7 @@ import org.apache.avro.io.*;
 import org.apache.avro.specific.SpecificDatumReader;
 import org.apache.avro.specific.SpecificDatumWriter;
 import org.apache.reef.tang.ClassHierarchy;
-import org.apache.reef.tang.formats.ClassHierarchySerializer;
+import org.apache.reef.tang.ClassHierarchySerializer;
 import org.apache.reef.tang.formats.avro.*;
 import org.apache.reef.tang.types.*;
 
