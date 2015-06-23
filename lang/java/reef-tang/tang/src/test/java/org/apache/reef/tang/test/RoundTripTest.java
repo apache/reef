@@ -49,7 +49,8 @@ public abstract class RoundTripTest {
   public void testRoundTripWithClassHierarchy() throws Exception {
     // TODO: use 'getConfiguration' instead of 'getConfigurationWithoutList' after #192 is fixed
     final Configuration confBefore = ObjectTreeTest.getConfigurationWithoutList();
-    final ClassHierarchySerializer chSerializer = new AvroClassHierarchySerializer();
+    final ClassHierarchySerializer chSerializer =
+            Tang.Factory.getTang().newInjector().getInstance(ClassHierarchySerializer.class);
     final ClassHierarchy c = chSerializer.fromString(chSerializer.toString(confBefore.getClassHierarchy()));
     final Configuration confAfter = roundTrip(confBefore, c);
     Assert.assertEquals(confBefore.getNamedParameters().size(), confAfter.getNamedParameters().size());

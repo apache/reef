@@ -21,7 +21,6 @@ package org.apache.reef.tang.implementation.avro;
 import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.tang.exceptions.NameResolutionException;
-import org.apache.reef.tang.formats.ClassHierarchySerializer;
 import org.apache.reef.tang.implementation.TangImpl;
 import org.apache.reef.tang.implementation.TestClassHierarchy;
 import org.junit.Assert;
@@ -31,8 +30,6 @@ import java.io.File;
 import java.io.IOException;
 
 public class TestClassHierarchyRoundTrip extends TestClassHierarchy {
-  final ClassHierarchySerializer serializer = new AvroClassHierarchySerializer();
-
   // The default ClassHierarchy
   private void setup0() {
     TangImpl.reset();
