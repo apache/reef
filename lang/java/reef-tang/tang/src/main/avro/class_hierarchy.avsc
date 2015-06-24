@@ -18,7 +18,7 @@
  */
 [
 {
-    "namespace":"org.apache.reef.tang.formats.avro",
+    "namespace":"org.apache.reef.tang.implementation.avro",
     "type":"record",
     "name":"AvroConstructorArg",
     "fields":[
@@ -28,16 +28,16 @@
     ]
 },
 {
-    "namespace":"org.apache.reef.tang.formats.avro",
+    "namespace":"org.apache.reef.tang.implementation.avro",
     "type":"record",
     "name":"AvroConstructorDef",
     "fields":[
-        {"name":"fullArgClassName", "type":"string"},
-        {"name":"constructorArg", "type":{"type":"array", "items":"AvroConstructorArg"}}
+        {"name":"fullClassName", "type":"string"},
+        {"name":"constructorArgs", "type":{"type":"array", "items":"AvroConstructorArg"}}
     ]
 },
 {
-    "namespace":"org.apache.reef.tang.formats.avro",
+    "namespace":"org.apache.reef.tang.implementation.avro",
     "type":"record",
     "name":"AvroNamedParameterNode",
     "fields":[
@@ -51,7 +51,7 @@
     ]
 },
 {
-    "namespace":"org.apache.reef.tang.formats.avro",
+    "namespace":"org.apache.reef.tang.implementation.avro",
     "type":"record",
     "name":"AvroClassNode",
     "fields":[
@@ -65,35 +65,35 @@
     ]
 },
 /*
-    Intentionally left blank. Packages don't have any interesting
-    attributes except their names and children.
-*/
+ * Intentionally left blank. Packages don't have any interesting
+ * attributes except their names and children.
+ */
 {
-    "namespace":"org.apache.reef.tang.formats.avro",
+    "namespace":"org.apache.reef.tang.implementation.avro",
     "type":"record",
     "name":"AvroPackageNode",
     "fields":[]
 },
 /*
-  Node is the abstract base type for all the data encoded in a class hierarchy.
-  It is represented as an (un)tagged union, so only one of the three optional
-  fields can be non-null.
+ * Node is the abstract base type for all the data encoded in a class hierarchy.
+ * It is represented as an (un)tagged union, so only one of the three optional
+ * fields can be non-null.
  */
 {
-    "namespace":"org.apache.reef.tang.formats.avro",
+    "namespace":"org.apache.reef.tang.implementation.avro",
     "type":"record",
     "name":"AvroNode",
     "fields":[
         /*
-          The short name of this node (e.g., a class name without the enclosing
-          package, or a package name without the name of the enclosing package.
+         * The short name of this node (e.g., a class name without the enclosing
+         * package, or a package name without the name of the enclosing package.
          */
         {"name":"name", "type":"string"},
         /*
-          For some languages it can be difficult to map from a list of nodes to
-          the correct short name, so for now, the full name is (redundantly)
-          encoded here.  In Java, the full name is a bunch of short names that
-          have been concatenated with "." and/or "$".
+         * For some languages it can be difficult to map from a list of nodes to
+         * the correct short name, so for now, the full name is (redundantly)
+         * encoded here.  In Java, the full name is a bunch of short names that
+         * have been concatenated with "." and/or "$".
          */
         {"name":"fullName", "type":"string"},
 
@@ -104,15 +104,14 @@
         {"name":"classNode", "type":["null", "AvroClassNode"], "default":null},
         {"name":"namedParameterNode", "type":["null", "AvroNamedParameterNode"], "default":null},
         {"name":"packageNode", "type":["null", "AvroPackageNode"], "default":null},
-
         /*
-           Class hierarchy nodes are arranged in a tree that mirrors the language
-           namespaces / packages that contain class names (e.g., Java packages,
-           C++ namespaces).
-
-           A NamedParameterNode cannot have any children.  A ClassNode can not have
-           any package nodes as children.  PackageNodes cannot have PackageNodes as
-           children.
+         * Class hierarchy nodes are arranged in a tree that mirrors the language
+         * namespaces / packages that contain class names (e.g., Java packages,
+         * C++ namespaces).
+         *
+         * A NamedParameterNode cannot have any children.  A ClassNode can not have
+         * any package nodes as children.  PackageNodes cannot have PackageNodes as
+         * children.
          */
         {"name":"children", "type":{"type":"array","items":"AvroNode"}}
     ]

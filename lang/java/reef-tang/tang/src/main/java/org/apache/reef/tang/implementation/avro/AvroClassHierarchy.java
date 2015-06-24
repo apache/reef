@@ -21,7 +21,6 @@ package org.apache.reef.tang.implementation.avro;
 import org.apache.reef.tang.ClassHierarchy;
 import org.apache.reef.tang.annotations.NamedParameter;
 import org.apache.reef.tang.exceptions.NameResolutionException;
-import org.apache.reef.tang.formats.avro.*;
 import org.apache.reef.tang.implementation.types.*;
 import org.apache.reef.tang.types.*;
 
@@ -69,11 +68,11 @@ final class AvroClassHierarchy implements ClassHierarchy {
    */
   private static ConstructorDef<?> parseConstructorDef(final AvroConstructorDef def, final boolean isInjectable) {
     final List<ConstructorArg> args = new ArrayList<>();
-    for (final AvroConstructorArg arg : def.getConstructorArg()) {
+    for (final AvroConstructorArg arg : def.getConstructorArgs()) {
       args.add(new ConstructorArgImpl(getString(arg.getFullArgClassName()), getString(arg.getNamedParameterName()),
               arg.getIsInjectionFuture()));
     }
-    return new ConstructorDefImpl<>(getString(def.getFullArgClassName()), args.toArray(new ConstructorArg[0]),
+    return new ConstructorDefImpl<>(getString(def.getFullClassName()), args.toArray(new ConstructorArg[0]),
             isInjectable);
 
   }

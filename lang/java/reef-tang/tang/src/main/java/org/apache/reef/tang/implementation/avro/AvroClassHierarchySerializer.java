@@ -25,7 +25,6 @@ import org.apache.avro.specific.SpecificDatumReader;
 import org.apache.avro.specific.SpecificDatumWriter;
 import org.apache.reef.tang.ClassHierarchy;
 import org.apache.reef.tang.ClassHierarchySerializer;
-import org.apache.reef.tang.formats.avro.*;
 import org.apache.reef.tang.types.*;
 
 import javax.inject.Inject;
@@ -181,8 +180,8 @@ public final class AvroClassHierarchySerializer implements ClassHierarchySeriali
       args.add(newConstructorArg(arg.getType(), arg.getNamedParameterName(), arg.isInjectionFuture()));
     }
     return AvroConstructorDef.newBuilder()
-            .setFullArgClassName(def.getClassName())
-            .setConstructorArg(args).build();
+            .setFullClassName(def.getClassName())
+            .setConstructorArgs(args).build();
   }
 
   @Override
