@@ -52,7 +52,7 @@ public final class AvroClassHierarchySerializer implements ClassHierarchySeriali
    * Serialize the ClassHierarchy into the AvroNode.
    * @param ch ClassHierarchy to serialize
    */
-  private static AvroNode toAvro(final ClassHierarchy ch) {
+  private AvroNode toAvro(final ClassHierarchy ch) {
     return newAvroNode(ch.getNamespace());
   }
 
@@ -60,11 +60,11 @@ public final class AvroClassHierarchySerializer implements ClassHierarchySeriali
    * Deserialize the ClassHierarchy from the AvroNode.
    * @param n AvroNode to deserialize
    */
-  private static ClassHierarchy fromAvro(final AvroNode n) {
+  private ClassHierarchy fromAvro(final AvroNode n) {
     return new AvroClassHierarchy(n);
   }
 
-  private static AvroNode newAvroNode(final Node n) {
+  private AvroNode newAvroNode(final Node n) {
     final List<AvroNode> children = new ArrayList<>();
     for (final Node child : n.getChildren()) {
       children.add(newAvroNode(child));
@@ -106,7 +106,7 @@ public final class AvroClassHierarchySerializer implements ClassHierarchySeriali
     }
   }
 
-  private static AvroNode newClassNode(final String name,
+  private AvroNode newClassNode(final String name,
                                        final String fullName,
                                        final boolean isInjectionCandidate,
                                        final boolean isExternalConstructor,
@@ -131,7 +131,7 @@ public final class AvroClassHierarchySerializer implements ClassHierarchySeriali
             .setChildren(children).build();
   }
 
-  private static AvroNode newNamedParameterNode(final String name,
+  private AvroNode newNamedParameterNode(final String name,
                                                 final String fullName,
                                                 final String simpleArgClassName,
                                                 final String fullArgClassName,
@@ -157,7 +157,7 @@ public final class AvroClassHierarchySerializer implements ClassHierarchySeriali
             .setChildren(children).build();
   }
 
-  private static AvroNode newPackageNode(final String name,
+  private AvroNode newPackageNode(final String name,
                                          final String fullName,
                                          final List<AvroNode> children) {
     return AvroNode.newBuilder()
@@ -165,7 +165,7 @@ public final class AvroClassHierarchySerializer implements ClassHierarchySeriali
             .setName(name).setFullName(fullName).setChildren(children).build();
   }
 
-  private static AvroConstructorArg newConstructorArg(final String fullArgClassName,
+  private AvroConstructorArg newConstructorArg(final String fullArgClassName,
                                                       final String namedParameterName,
                                                       final boolean isFuture) {
     return AvroConstructorArg.newBuilder()
@@ -174,7 +174,7 @@ public final class AvroClassHierarchySerializer implements ClassHierarchySeriali
             .setNamedParameterName(namedParameterName).build();
   }
 
-  private static AvroConstructorDef newConstructorDef(final ConstructorDef<?> def) {
+  private AvroConstructorDef newConstructorDef(final ConstructorDef<?> def) {
     final List<AvroConstructorArg> args = new ArrayList<>();
     for (final ConstructorArg arg : def.getArgs()) {
       args.add(newConstructorArg(arg.getType(), arg.getNamedParameterName(), arg.isInjectionFuture()));

@@ -66,7 +66,7 @@ final class AvroClassHierarchy implements ClassHierarchy {
   /**
    * Parse the constructor definition.
    */
-  private static ConstructorDef<?> parseConstructorDef(final AvroConstructorDef def, final boolean isInjectable) {
+  private ConstructorDef<?> parseConstructorDef(final AvroConstructorDef def, final boolean isInjectable) {
     final List<ConstructorArg> args = new ArrayList<>();
     for (final AvroConstructorArg arg : def.getConstructorArgs()) {
       args.add(new ConstructorArgImpl(getString(arg.getFullArgClassName()), getString(arg.getNamedParameterName()),
@@ -80,7 +80,7 @@ final class AvroClassHierarchy implements ClassHierarchy {
   /**
    * Register the classes recursively.
    */
-  private static void parseSubHierarchy(final Node parent, final AvroNode n) {
+  private void parseSubHierarchy(final Node parent, final AvroNode n) {
     final Node parsed;
     if (n.getPackageNode() != null) {
       parsed = new PackageNodeImpl(parent, getString(n.getName()), getString(n.getFullName()));
@@ -167,7 +167,7 @@ final class AvroClassHierarchy implements ClassHierarchy {
   /**
    * Get the value of the CharSequence. Return null if the CharSequence is null.
    */
-  private static String getString(final CharSequence charSeq) {
+  private String getString(final CharSequence charSeq) {
     if (charSeq == null) {
       return null;
     } else {
@@ -178,7 +178,7 @@ final class AvroClassHierarchy implements ClassHierarchy {
   /**
    * Convert the CharSequence list into the String array.
    */
-  private static String[] getStringArray(final List<CharSequence> charSeqList) {
+  private String[] getStringArray(final List<CharSequence> charSeqList) {
     final int length = charSeqList.size();
     final String[] stringArray = new String[length];
     for (int i = 0; i < length; i++) {
