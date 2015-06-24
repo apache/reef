@@ -21,7 +21,7 @@ package org.apache.reef.tang.test;
 import org.apache.reef.tang.ClassHierarchy;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Tang;
-import org.apache.reef.tang.ClassHierarchySerializer;
+import org.apache.reef.tang.implementation.avro.AvroClassHierarchySerializer;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -48,9 +48,8 @@ public abstract class RoundTripTest {
   public void testRoundTripWithClassHierarchy() throws Exception {
     // TODO: use 'getConfiguration' instead of 'getConfigurationWithoutList' after #192 is fixed
     final Configuration confBefore = ObjectTreeTest.getConfigurationWithoutList();
-    final ClassHierarchySerializer chSerializer =
-            Tang.Factory.getTang().newInjector().getInstance(ClassHierarchySerializer.class);
-    final ClassHierarchy c = chSerializer.fromString(chSerializer.toString(confBefore.getClassHierarchy()));
+    final AvroClassHierarchySerializer chSerializer = new AvroClassHierarchySerializer();
+    final ClassHierarchy c = chSerializer.fromAvro(chSerializer.toAvro(confBefore.getClassHierarchy()));
     final Configuration confAfter = roundTrip(confBefore, c);
     Assert.assertEquals(confBefore.getNamedParameters().size(), confAfter.getNamedParameters().size());
     //For now, we cannot use ProtocolBufferClassHierarchy to do injection

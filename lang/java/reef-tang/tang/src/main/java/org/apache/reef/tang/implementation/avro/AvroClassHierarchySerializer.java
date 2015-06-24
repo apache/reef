@@ -52,7 +52,7 @@ public final class AvroClassHierarchySerializer implements ClassHierarchySeriali
    * Serialize the ClassHierarchy into the AvroNode.
    * @param ch ClassHierarchy to serialize
    */
-  private AvroNode toAvro(final ClassHierarchy ch) {
+  public AvroNode toAvro(final ClassHierarchy ch) {
     return newAvroNode(ch.getNamespace());
   }
 
@@ -60,7 +60,7 @@ public final class AvroClassHierarchySerializer implements ClassHierarchySeriali
    * Deserialize the ClassHierarchy from the AvroNode.
    * @param n AvroNode to deserialize
    */
-  private ClassHierarchy fromAvro(final AvroNode n) {
+  public ClassHierarchy fromAvro(final AvroNode n) {
     return new AvroClassHierarchy(n);
   }
 
