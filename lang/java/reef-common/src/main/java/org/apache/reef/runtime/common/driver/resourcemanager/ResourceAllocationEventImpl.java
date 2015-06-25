@@ -30,12 +30,15 @@ public final class ResourceAllocationEventImpl implements ResourceAllocationEven
   private final int resourceMemory;
   private final String nodeId;
   private final Optional<Integer> virtualCores;
+  private final Optional<String> rackName;
+
 
   private ResourceAllocationEventImpl(final Builder builder) {
     this.identifier = BuilderUtils.notNull(builder.identifier);
     this.resourceMemory = BuilderUtils.notNull(builder.resourceMemory);
     this.nodeId = BuilderUtils.notNull(builder.nodeId);
     this.virtualCores = Optional.ofNullable(builder.virtualCores);
+    this.rackName = Optional.ofNullable(builder.rackName);
   }
 
   @Override
@@ -58,6 +61,11 @@ public final class ResourceAllocationEventImpl implements ResourceAllocationEven
     return virtualCores;
   }
 
+  @Override
+  public Optional<String> getRackName() {
+    return rackName;
+  }
+
   public static Builder newBuilder() {
     return new Builder();
   }
@@ -70,6 +78,8 @@ public final class ResourceAllocationEventImpl implements ResourceAllocationEven
     private Integer resourceMemory;
     private String nodeId;
     private Integer virtualCores;
+    private String rackName;
+
 
     /**
      * @see ResourceAllocationEvent#getIdentifier()
@@ -100,6 +110,14 @@ public final class ResourceAllocationEventImpl implements ResourceAllocationEven
      */
     public Builder setVirtualCores(final int virtualCores) {
       this.virtualCores = virtualCores;
+      return this;
+    }
+
+    /**
+     * @see ResourceAllocationEvent#getRackName()
+     */
+    public Builder setRackName(final String rackName) {
+      this.rackName = rackName;
       return this;
     }
 

@@ -20,13 +20,17 @@ package org.apache.reef.runtime.local.client;
 
 import org.apache.reef.runtime.common.parameters.JVMHeapSlack;
 import org.apache.reef.runtime.local.client.parameters.MaxNumberOfEvaluators;
+import org.apache.reef.runtime.local.client.parameters.RackNames;
 import org.apache.reef.runtime.local.driver.LocalDriverConfiguration;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Configurations;
 import org.apache.reef.tang.annotations.Parameter;
+import org.apache.reef.tang.formats.ConfigurationModule;
 
 import javax.inject.Inject;
+
 import java.io.File;
+import java.util.Set;
 
 /**
  * Helper class that assembles the driver configuration when run on the local runtime.
@@ -35,24 +39,30 @@ public final class DriverConfigurationProvider {
 
   private final int maxEvaluators;
   private final double jvmHeapSlack;
+  private final Set<String> rackNames;
 
   @Inject
   DriverConfigurationProvider(@Parameter(MaxNumberOfEvaluators.class) final int maxEvaluators,
-                              @Parameter(JVMHeapSlack.class) final double jvmHeapSlack) {
+                              @Parameter(JVMHeapSlack.class) final double jvmHeapSlack,
+                              @Parameter(RackNames.class) final Set<String> rackNames) {
     this.maxEvaluators = maxEvaluators;
     this.jvmHeapSlack = jvmHeapSlack;
+    this.rackNames = rackNames;
   }
 
   private Configuration getDriverConfiguration(final File jobFolder,
                                                final String clientRemoteId,
                                                final String jobId) {
-    return LocalDriverConfiguration.CONF
+    ConfigurationModule configModule = LocalDriverConfiguration.CONF
         .set(LocalDriverConfiguration.MAX_NUMBER_OF_EVALUATORS, this.maxEvaluators)
         .set(LocalDriverConfiguration.ROOT_FOLDER, jobFolder.getAbsolutePath())
         .set(LocalDriverConfiguration.JVM_HEAP_SLACK, this.jvmHeapSlack)
         .set(LocalDriverConfiguration.CLIENT_REMOTE_IDENTIFIER, clientRemoteId)
-        .set(LocalDriverConfiguration.JOB_IDENTIFIER, jobId)
-        .build();
+        .set(LocalDriverConfiguration.JOB_IDENTIFIER, jobId);
+    for (final String rackName : rackNames) {
+      configModule = configModule.set(LocalDriverConfiguration.RACK_NAMES, rackName);
+    }
+    return configModule.build();
   }
 
   /**

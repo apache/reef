@@ -28,6 +28,7 @@ import org.apache.reef.runtime.common.driver.resourcemanager.NodeDescriptorEvent
 import org.apache.reef.runtime.common.files.REEFFileNames;
 import org.apache.reef.runtime.common.utils.RemoteManager;
 import org.apache.reef.runtime.local.client.parameters.MaxNumberOfEvaluators;
+import org.apache.reef.runtime.local.client.parameters.RackNames;
 import org.apache.reef.runtime.local.client.parameters.RootFolder;
 import org.apache.reef.runtime.local.process.ReefRunnableProcessObserver;
 import org.apache.reef.tang.annotations.Parameter;
@@ -40,11 +41,13 @@ import org.apache.reef.wake.time.runtime.event.RuntimeStart;
 import org.apache.reef.wake.time.runtime.event.RuntimeStop;
 
 import javax.inject.Inject;
+
 import java.io.File;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -74,6 +77,9 @@ final class ContainerManager implements AutoCloseable {
   private final REEFFileNames fileNames;
   private final ReefRunnableProcessObserver processObserver;
   private final String localAddress;
+  // for now is a single rack, it will be a set in the next commit
+  private final String availableRack;
+
 
   @Inject
   ContainerManager(
@@ -82,8 +88,9 @@ final class ContainerManager implements AutoCloseable {
       final REEFFileNames fileNames,
       @Parameter(MaxNumberOfEvaluators.class) final int capacity,
       @Parameter(RootFolder.class) final String rootFolderName,
-      @Parameter(RuntimeParameters.NodeDescriptorHandler.class) final 
+      @Parameter(RuntimeParameters.NodeDescriptorHandler.class) final
       EventHandler<NodeDescriptorEvent> nodeDescriptorHandler,
+      @Parameter(RackNames.class) final Set<String> rackNames,
       final ReefRunnableProcessObserver processObserver,
       final LocalAddressProvider localAddressProvider) {
     this.capacity = capacity;
@@ -93,6 +100,10 @@ final class ContainerManager implements AutoCloseable {
     this.nodeDescriptorHandler = nodeDescriptorHandler;
     this.rootFolder = new File(rootFolderName);
     this.localAddress = localAddressProvider.getLocalAddress();
+    // this is safe, we are guaranteed that this is not empty (default value)
+    // we will just 1 rack for now, the next commit will include creating
+    // containers in different racks.
+    this.availableRack = rackNames.iterator().next();
 
     LOG.log(Level.FINEST, "Initializing Container Manager with {0} containers", capacity);
 
@@ -133,7 +144,7 @@ final class ContainerManager implements AutoCloseable {
       this.freeNodeList.add(id);
       nodeDescriptorHandler.onNext(NodeDescriptorEventImpl.newBuilder()
           .setIdentifier(id)
-          .setRackName("/default-rack")
+          .setRackName(availableRack)
           .setHostName(this.localAddress)
           .setPort(i)
           .setMemorySize(512) // TODO: Find the actual system memory on this machine.
@@ -151,8 +162,9 @@ final class ContainerManager implements AutoCloseable {
       final String processID = nodeId + "-" + String.valueOf(System.currentTimeMillis());
       final File processFolder = new File(this.rootFolder, processID);
       processFolder.mkdirs();
+      // setting rackName to null for now, will end up using the default one
       final ProcessContainer container = new ProcessContainer(
-          this.errorHandlerRID, nodeId, processID, processFolder, megaBytes, numberOfCores, this.fileNames, this.processObserver);
+          this.errorHandlerRID, nodeId, processID, processFolder, megaBytes, numberOfCores, availableRack, this.fileNames, this.processObserver);
       this.containers.put(container.getContainerID(), container);
       LOG.log(Level.FINE, "Allocated {0}", container.getContainerID());
       return container;

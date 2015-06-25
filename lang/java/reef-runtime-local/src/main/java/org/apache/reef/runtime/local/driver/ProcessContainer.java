@@ -49,6 +49,7 @@ final class ProcessContainer implements Container {
   private final String containedID;
   private final int megaBytes;
   private final int numberOfCores;
+  private final String rackName;
   private final REEFFileNames fileNames;
   private final File reefFolder;
   private final File localFolder;
@@ -69,6 +70,7 @@ final class ProcessContainer implements Container {
                    final File folder,
                    final int megaBytes,
                    final int numberOfCores,
+                   final String rackName,
                    final REEFFileNames fileNames,
                    final ReefRunnableProcessObserver processObserver) {
     this.errorHandlerRID = errorHandlerRID;
@@ -77,6 +79,7 @@ final class ProcessContainer implements Container {
     this.folder = folder;
     this.megaBytes = megaBytes;
     this.numberOfCores = numberOfCores;
+    this.rackName = rackName;
     this.fileNames = fileNames;
     this.processObserver = processObserver;
     this.reefFolder = new File(folder, fileNames.getREEFFolderName());
@@ -144,6 +147,11 @@ final class ProcessContainer implements Container {
   }
 
   @Override
+  public String getRackName() {
+    return this.rackName;
+  }
+
+  @Override
   public File getFolder() {
     return this.folder;
   }
@@ -172,7 +180,8 @@ final class ProcessContainer implements Container {
         "containedID='" + containedID + '\'' +
         ", nodeID='" + nodeID + '\'' +
         ", errorHandlerRID='" + errorHandlerRID + '\'' +
-        ", folder=" + folder +
+        ", folder=" + folder + '\'' +
+        ", rack=" + rackName +
         '}';
   }
 }
