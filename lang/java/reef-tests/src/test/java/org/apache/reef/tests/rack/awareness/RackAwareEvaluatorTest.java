@@ -60,8 +60,6 @@ public final class RackAwareEvaluatorTest {
         .set(DriverConfiguration.GLOBAL_LIBRARIES, EnvironmentUtils.getClassLocation(RackAwareEvaluatorTestDriver.class))
         .set(DriverConfiguration.ON_DRIVER_STARTED, OnDriverStartedAllocateOne.class)
         .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, RackAwareEvaluatorTestDriver.EvaluatorAllocatedHandler.class)
-        .set(DriverConfiguration.ON_EVALUATOR_COMPLETED, RackAwareEvaluatorTestDriver.EvaluatorCompleteHandler.class)
-        .set(DriverConfiguration.ON_DRIVER_STOP, RackAwareEvaluatorTestDriver.StopHandler.class)
         .build();
 
     // When
