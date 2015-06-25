@@ -151,8 +151,9 @@ final class ContainerManager implements AutoCloseable {
       final String processID = nodeId + "-" + String.valueOf(System.currentTimeMillis());
       final File processFolder = new File(this.rootFolder, processID);
       processFolder.mkdirs();
+      // setting rackName to null for now, will end up using the default one
       final ProcessContainer container = new ProcessContainer(
-          this.errorHandlerRID, nodeId, processID, processFolder, megaBytes, numberOfCores, this.fileNames, this.processObserver);
+          this.errorHandlerRID, nodeId, processID, processFolder, megaBytes, numberOfCores, null, this.fileNames, this.processObserver);
       this.containers.put(container.getContainerID(), container);
       LOG.log(Level.FINE, "Allocated {0}", container.getContainerID());
       return container;
