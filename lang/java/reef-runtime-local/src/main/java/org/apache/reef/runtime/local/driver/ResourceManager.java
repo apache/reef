@@ -221,6 +221,7 @@ public final class ResourceManager {
               .setNodeId(container.getNodeID())
               .setResourceMemory(container.getMemory())
               .setVirtualCores(container.getNumberOfCores())
+              .setRackName(container.getRackName())
               .build();
 
       LOG.log(Level.FINEST, "Allocating container: {0}", container);

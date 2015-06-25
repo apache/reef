@@ -82,4 +82,10 @@ interface Container extends AutoCloseable {
    */
   @Override
   void close();
+
+  /**
+   * @return the rack name where this container is located
+   */
+  String getRackName();
+
 }
