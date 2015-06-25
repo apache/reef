@@ -51,4 +51,9 @@ public interface ResourceAllocationEvent {
    * @return Number of virtual CPU cores on the resource
    */
   Optional<Integer> getVirtualCores();
+
+  /**
+   * @return Rack name of the resource
+   */
+  Optional<String> getRackName();
 }
