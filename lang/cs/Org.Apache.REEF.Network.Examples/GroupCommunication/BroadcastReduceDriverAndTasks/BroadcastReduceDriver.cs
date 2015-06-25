@@ -42,6 +42,7 @@ using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Wake.Remote;
 using Org.Apache.REEF.Wake.Remote.Impl;
+using Org.Apache.REEF.Wake.Remote.Parameters;
 
 namespace Org.Apache.REEF.Network.Examples.GroupCommunication.BroadcastReduceDriverAndTasks
 {
@@ -55,17 +56,27 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.BroadcastReduceDri
         private readonly IGroupCommDriver _groupCommDriver;
         private readonly ICommunicationGroupDriver _commGroup;
         private readonly TaskStarter _groupCommTaskStarter;
+        private readonly IConfiguration _tcpPortProviderConfig;
 
         [Inject]
         public BroadcastReduceDriver(
             [Parameter(typeof(GroupTestConfig.NumEvaluators))] int numEvaluators,
             [Parameter(typeof(GroupTestConfig.NumIterations))] int numIterations,
+            [Parameter(typeof(GroupTestConfig.StartingPort))] int startingPort,
+            [Parameter(typeof(GroupTestConfig.PortRange))] int portRange,
             GroupCommDriver groupCommDriver)
         {
             Identifier = "BroadcastStartHandler";
             _numEvaluators = numEvaluators;
             _numIterations = numIterations;
             _groupCommDriver = groupCommDriver;
+
+            _tcpPortProviderConfig = TangFactory.GetTang().NewConfigurationBuilder()
+                .BindNamedParameter<TcpPortRangeStart, int>(GenericType<TcpPortRangeStart>.Class,
+                    startingPort.ToString(CultureInfo.InvariantCulture))
+                .BindNamedParameter<TcpPortRangeCount, int>(GenericType<TcpPortRangeCount>.Class,
+                    portRange.ToString(CultureInfo.InvariantCulture))
+                .Build();
 
             IConfiguration codecConfig = CodecConfiguration<int>.Conf
                 .Set(CodecConfiguration<int>.Codec, GenericType<IntCodec>.Class)
@@ -112,6 +123,7 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.BroadcastReduceDri
         {
             IConfiguration contextConf = _groupCommDriver.GetContextConfiguration();
             IConfiguration serviceConf = _groupCommDriver.GetServiceConfiguration();
+            serviceConf = Configurations.Merge(serviceConf, _tcpPortProviderConfig);
             allocatedEvaluator.SubmitContextAndService(contextConf, serviceConf);
         }
 
