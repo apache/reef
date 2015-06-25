@@ -55,4 +55,6 @@ public interface TestEnvironment {
   int getTestTimeout();
 
   LauncherStatus run(final Configuration driverConfiguration);
+
+  LauncherStatus run(final Configuration runtimeConfiguration, Configuration driverConfiguration);
 }

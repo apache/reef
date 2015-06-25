@@ -16,29 +16,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.tests;
+package org.apache.reef.runtime.local.client.parameters;
 
-import org.apache.reef.client.DriverLauncher;
-import org.apache.reef.client.LauncherStatus;
-import org.apache.reef.tang.Configuration;
-import org.apache.reef.tang.exceptions.InjectionException;
+import org.apache.reef.tang.annotations.Name;
+import org.apache.reef.tang.annotations.NamedParameter;
+
+import java.util.Set;
 
 /**
- * Abstract base class for TestEnvironments
+ * The name of the default racks available in the local runtime.
  */
-public abstract class TestEnvironmentBase implements TestEnvironment {
-
-  @Override
-  public LauncherStatus run(final Configuration driverConfiguration) {
-    return run(getRuntimeConfiguration(), driverConfiguration);
-  }
-
-  @Override
-  public LauncherStatus run(final Configuration runtimeConfiguration, Configuration driverConfiguration) {
-    try {
-      return DriverLauncher.getLauncher(runtimeConfiguration).run(driverConfiguration, getTestTimeout());
-    } catch (final InjectionException e) {
-      throw new RuntimeException(e);
-    }
-  }
+@NamedParameter(short_name = "racks", doc = "The name of the racks the containers will be placed on", default_values = {RackNames.DEFAULT_RACK_NAME})
+public class RackNames implements Name<Set<String>> {
+    private RackNames() {}
+    public static final String DEFAULT_RACK_NAME = "/default-rack";
 }
