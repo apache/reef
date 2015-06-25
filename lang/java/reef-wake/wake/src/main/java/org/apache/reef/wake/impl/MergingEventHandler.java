@@ -60,7 +60,7 @@ public final class MergingEventHandler<L, R> {
     leftEvent = null;
   }
 
-  public static class Pair<S1, S2> {
+  public static final class Pair<S1, S2> {
     public final S1 first;
     public final S2 second;
 

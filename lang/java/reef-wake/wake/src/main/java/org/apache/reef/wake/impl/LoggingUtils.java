@@ -26,7 +26,7 @@ import java.util.logging.Logger;
 /**
  * Utility for logging.
  */
-public class LoggingUtils {
+public final class LoggingUtils {
 
   /**
    * Sets the logging level.
@@ -48,5 +48,11 @@ public class LoggingUtils {
     }
     ch.setLevel(level);
     Logger.getLogger("").setLevel(level);
+  }
+
+  /**
+   * Empty private constructor to prohibit instantiation of utility class.
+   */
+  private LoggingUtils() {
   }
 }

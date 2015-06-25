@@ -114,4 +114,10 @@ public final class HelloREEFHttp {
         .build();
     final LauncherStatus status = runHelloReef(runtimeConfiguration, HelloREEFHttp.JOB_TIMEOUT);
   }
+
+  /**
+   * Empty private constructor to prohibit instantiation of utility class.
+   */
+  private HelloREEFHttp() {
+  }
 }

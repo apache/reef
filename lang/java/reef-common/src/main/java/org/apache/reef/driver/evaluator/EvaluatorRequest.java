@@ -100,7 +100,7 @@ public final class EvaluatorRequest {
   /**
    * {@link EvaluatorRequest}s are build using this Builder.
    */
-  public static class Builder implements org.apache.reef.util.Builder<EvaluatorRequest> {
+  public static final class Builder implements org.apache.reef.util.Builder<EvaluatorRequest> {
 
     private int n = 1;
     private ResourceCatalog.Descriptor descriptor = null;

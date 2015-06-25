@@ -150,4 +150,10 @@ public final class EnvironmentUtils {
   public static String getClassLocation(final Class<?> clazz) {
     return clazz.getProtectionDomain().getCodeSource().getLocation().getFile();
   }
+
+  /**
+   * Empty private constructor to prohibit instantiation of utility class.
+   */
+  private EnvironmentUtils() {
+  }
 }

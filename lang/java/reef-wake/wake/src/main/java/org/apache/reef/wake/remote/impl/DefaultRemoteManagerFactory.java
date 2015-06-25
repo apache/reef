@@ -33,7 +33,7 @@ import javax.inject.Inject;
 /**
  * Default implementation of RemoteManagerFactory.
  */
-public class DefaultRemoteManagerFactory implements RemoteManagerFactory {
+public final class DefaultRemoteManagerFactory implements RemoteManagerFactory {
 
   private final Codec<?> codec;
   private final EventHandler<Throwable> errorHandler;

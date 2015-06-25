@@ -29,7 +29,7 @@ import java.util.Map;
 /**
  * Factory to create naming codecs.
  */
-class NamingCodecFactory {
+final class NamingCodecFactory {
 
   /**
    * Creates a codec only for lookup.
@@ -78,5 +78,11 @@ class NamingCodecFactory {
     clazzToCodecMap.put(NamingUnregisterRequest.class, new NamingUnregisterRequestCodec(factory));
     Codec<NamingMessage> codec = new MultiCodec<NamingMessage>(clazzToCodecMap);
     return codec;
+  }
+
+  /**
+   * Empty private constructor to prohibit instantiation of utility class.
+   */
+  private NamingCodecFactory() {
   }
 }

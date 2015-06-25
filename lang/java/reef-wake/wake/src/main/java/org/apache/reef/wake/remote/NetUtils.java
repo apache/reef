@@ -35,4 +35,10 @@ public final class NetUtils {
   public static String getLocalAddress() {
     return localAddressProvider.getLocalAddress();
   }
+
+  /**
+   * Empty private constructor to prohibit instantiation of utility class.
+   */
+  private NetUtils() {
+  }
 }

@@ -32,4 +32,10 @@ public final class BuilderUtils {
       return parameter;
     }
   }
+
+  /**
+   * Empty private constructor to prohibit instantiation of utility class.
+   */
+  private BuilderUtils() {
+  }
 }

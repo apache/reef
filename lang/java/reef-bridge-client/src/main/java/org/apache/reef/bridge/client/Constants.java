@@ -89,4 +89,10 @@ public final class Constants {
       HTTP_SERVER_CONFIGURATION,
       NAME_SERVER_CONFIGURATION
   );
+
+  /**
+   * Empty private constructor to prohibit instantiation of utility class.
+   */
+  private Constants() {
+  }
 }

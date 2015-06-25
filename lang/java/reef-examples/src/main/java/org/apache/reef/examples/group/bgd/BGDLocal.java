@@ -29,7 +29,7 @@ import java.util.logging.Logger;
 /**
  * Runs BGD on the local runtime.
  */
-public class BGDLocal {
+public final class BGDLocal {
 
   private static final Logger LOG = Logger.getLogger(BGDLocal.class.getName());
 
@@ -49,5 +49,11 @@ public class BGDLocal {
     final LauncherStatus status = bgdClient.run(runtimeConfiguration, jobName, TIMEOUT);
 
     LOG.log(Level.INFO, "OUT: Status = {0}", status);
+  }
+
+  /**
+   * Empty private constructor to prohibit instantiation of utility class.
+   */
+  private BGDLocal() {
   }
 }

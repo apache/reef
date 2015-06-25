@@ -143,7 +143,12 @@ public interface Tang {
     public static Tang getTang() {
       return new TangImpl();
     }
-  }
 
+    /**
+     * Empty private constructor to prohibit instantiation of utility class.
+     */
+    private Factory() {
+    }
+  }
 
 }

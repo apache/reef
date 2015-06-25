@@ -29,7 +29,7 @@ import java.util.logging.Logger;
 /**
  * Runs BGD on the YARN runtime.
  */
-public class BGDYarn {
+public final class BGDYarn {
 
   private static final Logger LOG = Logger.getLogger(BGDYarn.class.getName());
 
@@ -48,5 +48,11 @@ public class BGDYarn {
     final LauncherStatus status = bgdClient.run(runtimeConfiguration, jobName, TIMEOUT);
 
     LOG.log(Level.INFO, "OUT: Status = {0}", status);
+  }
+
+  /**
+   * Empty private constructor to prohibit instantiation of utility class.
+   */
+  private BGDYarn() {
   }
 }

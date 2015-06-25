@@ -52,4 +52,10 @@ public final class CommandUtils {
     }
     return sb.toString();
   }
+
+  /**
+   * Empty private constructor to prohibit instantiation of utility class.
+   */
+  private CommandUtils() {
+  }
 }

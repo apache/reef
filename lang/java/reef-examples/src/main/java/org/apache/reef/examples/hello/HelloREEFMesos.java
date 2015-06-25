@@ -28,7 +28,7 @@ import org.apache.reef.tang.exceptions.InjectionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class HelloREEFMesos {
+public final class HelloREEFMesos {
   private static final Logger LOG = Logger.getLogger(HelloREEFMesos.class.getName());
 
   private static Configuration getDriverConfiguration() {
@@ -51,5 +51,11 @@ public class HelloREEFMesos {
             .build())
         .run(getDriverConfiguration());
     LOG.log(Level.INFO, "REEF job completed: {0}", status);
+  }
+
+  /**
+   * Empty private constructor to prohibit instantiation of utility class.
+   */
+  private HelloREEFMesos() {
   }
 }

@@ -110,4 +110,10 @@ public final class SchedulerREEF {
       .build();
     runTaskScheduler(runtimeConfiguration, args);
   }
+
+  /**
+   * Empty private constructor to prohibit instantiation of utility class.
+   */
+  private SchedulerREEF() {
+  }
 }

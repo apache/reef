@@ -31,7 +31,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-public class Utilities {
+public final class Utilities {
   public static ClassHierarchy loadClassHierarchy(String classHierarchyFile) {
     Path p = Paths.get(classHierarchyFile);
     if (!Files.exists(p)) {
@@ -53,5 +53,11 @@ public class Utilities {
   public static String getEvaluatorDescriptorString(EvaluatorDescriptor evaluatorDescriptor) {
     InetSocketAddress socketAddress = evaluatorDescriptor.getNodeDescriptor().getInetSocketAddress();
     return "IP=" + socketAddress.getAddress() + ", Port=" + socketAddress.getPort() + ", HostName=" + socketAddress.getHostName() + ", Memory=" + evaluatorDescriptor.getMemory() + ", Core=" + evaluatorDescriptor.getNumberOfCores();
+  }
+
+  /**
+   * Empty private constructor to prohibit instantiation of utility class.
+   */
+  private Utilities() {
   }
 }

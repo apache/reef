@@ -43,7 +43,7 @@ import java.util.Map.Entry;
  * @deprecated in Tang 0.2 Use AvroConfigurationSerializer instead.
  */
 @Deprecated
-public class ConfigurationFile {
+public final class ConfigurationFile {
 
   /**
    * Write Configuration to the given File.
@@ -249,5 +249,11 @@ public class ConfigurationFile {
       }
     }
     return sb;
+  }
+
+  /**
+   * Empty private constructor to prohibit instantiation of utility class.
+   */
+  private ConfigurationFile() {
   }
 }

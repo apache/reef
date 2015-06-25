@@ -28,7 +28,7 @@ import java.io.*;
  * Currently only supports number & memory
  * Does not take care of Resource Descriptor
  */
-public class EvaluatorRequestSerializer {
+public final class EvaluatorRequestSerializer {
   public static String serialize(EvaluatorRequest request) {
     try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
       try (DataOutputStream daos = new DataOutputStream(baos)) {
@@ -59,5 +59,11 @@ public class EvaluatorRequestSerializer {
     } catch (IOException e) {
       throw new RuntimeException("Unable to de-serialize compute request", e);
     }
+  }
+
+  /**
+   * Empty private constructor to prohibit instantiation of utility class.
+   */
+  private EvaluatorRequestSerializer() {
   }
 }

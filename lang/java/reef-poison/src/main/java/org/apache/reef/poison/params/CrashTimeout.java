@@ -24,4 +24,10 @@ import org.apache.reef.tang.annotations.NamedParameter;
 @NamedParameter(doc = "The time window (in seconds) after ContextStart in which the crash will occur", default_value = "" + CrashTimeout.DEFAULT_VALUE)
 public final class CrashTimeout implements Name<Integer> {
   public static final int DEFAULT_VALUE = 10;
+
+  /**
+   * Empty private constructor to prohibit instantiation of utility class.
+   */
+  private CrashTimeout() {
+  }
 }

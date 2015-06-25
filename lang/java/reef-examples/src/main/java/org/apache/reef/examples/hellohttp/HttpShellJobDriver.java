@@ -50,6 +50,7 @@ import java.util.logging.Logger;
 /**
  * The Driver code for the Hello REEF Http Distributed Shell Application.
  */
+@SuppressWarnings("checkstyle:hideutilityclassconstructor")
 @Unit
 public final class HttpShellJobDriver {
 

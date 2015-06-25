@@ -25,6 +25,12 @@ import org.apache.reef.tang.annotations.NamedParameter;
  * The folder where logs etc. shall be stored.
  */
 @NamedParameter(default_value = RootFolder.DEFAULT_VALUE, doc = "The folder where logs etc. shall be stored.")
-public class RootFolder implements Name<String> {
+public final class RootFolder implements Name<String> {
   public static final String DEFAULT_VALUE = "REEF_LOCAL_RUNTIME";
+
+  /**
+   * Empty private constructor to prohibit instantiation of utility class.
+   */
+  private RootFolder() {
+  }
 }

@@ -31,7 +31,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-public class Utils {
+public final class Utils {
 
   private static final String DELIMITER = "-";
 
@@ -115,5 +115,11 @@ public class Utils {
     }
 
     return GCMBuilder.build();
+  }
+
+  /**
+   * Empty private constructor to prohibit instantiation of utility class.
+   */
+  private Utils() {
   }
 }

@@ -43,4 +43,10 @@ public final class SchedulerREEFYarn {
       YarnClientConfiguration.CONF.build();
     runTaskScheduler(runtimeConfiguration, args);
   }
+
+  /**
+   * Empty private constructor to prohibit instantiation of utility class.
+   */
+  private SchedulerREEFYarn() {
+  }
 }

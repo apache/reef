@@ -24,4 +24,10 @@ import org.apache.reef.tang.annotations.NamedParameter;
 @NamedParameter(doc = "The launch identifier.", short_name = LaunchID.SHORT_NAME)
 public final class LaunchID implements Name<String> {
   public static final String SHORT_NAME = "launch_id";
+
+  /**
+   * Empty private constructor to prohibit instantiation of utility class.
+   */
+  private LaunchID() {
+  }
 }

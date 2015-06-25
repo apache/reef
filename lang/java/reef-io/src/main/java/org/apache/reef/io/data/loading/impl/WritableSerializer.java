@@ -35,7 +35,7 @@ import java.io.*;
  * de-serialization. However, this also needs the jobconf
  * to passed in while de-serialization
  */
-public class WritableSerializer {
+public final class WritableSerializer {
   public static <E extends Writable> String serialize(E writable) {
     final WritableCodec<E> writableCodec = new WritableCodec<>();
     return Base64.encodeBase64String(writableCodec.encode(writable));
@@ -90,4 +90,9 @@ public class WritableSerializer {
     }
   }
 
+  /**
+   * Empty private constructor to prohibit instantiation of utility class.
+   */
+  private WritableSerializer() {
+  }
 }
