@@ -73,7 +73,7 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.PipelineBroadcastR
                 _broadcastSender.Send(intArr);
                 int[] sum = _sumReducer.Reduce();
 
-                Logger.Log(Level.Info, "Received sum: {0} on iteration: {1}", sum, i);
+                Logger.Log(Level.Info, "Received sum: {0} on iteration: {1} with array length: {2}", sum[0], i, sum.Length);
 
                 int expected = TriangleNumber(i) * _numReduceSenders;
 

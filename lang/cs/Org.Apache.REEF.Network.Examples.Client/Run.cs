@@ -19,6 +19,7 @@
 
 using System;
 using System.Collections.Generic;
+using Org.Apache.REEF.Network.Examples.GroupCommunication;
 using Org.Apache.REEF.Wake.Remote.Parameters;
 
 namespace Org.Apache.REEF.Network.Examples.Client
@@ -32,8 +33,7 @@ namespace Org.Apache.REEF.Network.Examples.Client
             int numNodes = 9;
             int startPort = 8900;
             int portRange = 1000;
-
-            List<string> testToRun = new List<string>();
+            string testToRun = "RunBroadcastAndReduce";
             
             if (args != null)
             {
@@ -57,20 +57,29 @@ namespace Org.Apache.REEF.Network.Examples.Client
                     portRange = int.Parse(args[3]);
                 }
 
-                for (int i = 4; i < args.Length; i++)
+                if (args.Length > 4)
                 {
-                    testToRun.Add(args[i].ToLower());
+                    testToRun = args[4].ToLower();
                 }
             }
 
-            if (testToRun.Contains("RunPipelineBroadcastAndReduce".ToLower()) || testToRun.Contains("all") || testToRun.Count == 0)
+            if (testToRun.Equals("RunPipelineBroadcastAndReduce".ToLower()) || testToRun.Equals("all"))
             {
+                int arraySize = GroupTestConstants.ArrayLength;
+                int chunkSize = GroupTestConstants.ChunkSize;
+
+                if (args.Length > 5)
+                {
+                    arraySize = int.Parse(args[5]);
+                    chunkSize = int.Parse(args[6]);
+                }
+
                 new PipelineBroadcastAndReduceClient().RunPipelineBroadcastAndReduce(runOnYarn, numNodes, startPort,
-                    portRange);
+                    portRange, arraySize, chunkSize);
                 Console.WriteLine("RunPipelineBroadcastAndReduce completed!!!");
             }
 
-            if (testToRun.Contains("RunBroadcastAndReduce".ToLower()) || testToRun.Contains("all") || testToRun.Count == 0)
+            if (testToRun.Equals("RunBroadcastAndReduce".ToLower()) || testToRun.Equals("all"))
             {
                 new BroadcastAndReduceClient().RunBroadcastAndReduce(runOnYarn, numNodes, startPort, portRange);
                 Console.WriteLine("RunBroadcastAndReduce completed!!!");

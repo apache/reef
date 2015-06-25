@@ -53,12 +53,12 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.PipelineBroadcastR
 
         private readonly int _numEvaluators;
         private readonly int _numIterations;
-        private readonly int _chunkSize;
+        private readonly int _arraySize;
 
         private readonly IGroupCommDriver _groupCommDriver;
         private readonly ICommunicationGroupDriver _commGroup;
         private readonly TaskStarter _groupCommTaskStarter;
-        private IConfiguration _tcpPortProviderConfig;
+        private readonly IConfiguration _tcpPortProviderConfig;
 
         [Inject]
         public PipelinedBroadcastReduceDriver(
@@ -67,6 +67,7 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.PipelineBroadcastR
             [Parameter(typeof (GroupTestConfig.StartingPort))] int startingPort,
             [Parameter(typeof (GroupTestConfig.PortRange))] int portRange,
             [Parameter(typeof (GroupTestConfig.ChunkSize))] int chunkSize,
+            [Parameter(typeof(GroupTestConfig.ArraySize))] int arraySize,
             GroupCommDriver groupCommDriver)
         {
             Logger.Log(Level.Info, "entering the driver code " + chunkSize);
@@ -74,7 +75,7 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.PipelineBroadcastR
             Identifier = "BroadcastStartHandler";
             _numEvaluators = numEvaluators;
             _numIterations = numIterations;
-            _chunkSize = chunkSize;
+            _arraySize = arraySize;
 
             _tcpPortProviderConfig = TangFactory.GetTang().NewConfigurationBuilder()
                 .BindNamedParameter<TcpPortRangeStart, int>(GenericType<TcpPortRangeStart>.Class,
@@ -98,7 +99,7 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.PipelineBroadcastR
                     .Build())
                 .BindNamedParameter<GroupTestConfig.ChunkSize, int>(
                     GenericType<GroupTestConfig.ChunkSize>.Class,
-                    GroupTestConstants.ChunkSize.ToString(CultureInfo.InvariantCulture))
+                    chunkSize.ToString(CultureInfo.InvariantCulture))
                 .Build();
 
             _groupCommDriver = groupCommDriver;
@@ -160,7 +161,7 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.PipelineBroadcastR
                         _numIterations.ToString(CultureInfo.InvariantCulture))
                     .BindNamedParameter<GroupTestConfig.ArraySize, int>(
                         GenericType<GroupTestConfig.ArraySize>.Class,
-                        GroupTestConstants.ArrayLength.ToString(CultureInfo.InvariantCulture))
+                        _arraySize.ToString(CultureInfo.InvariantCulture))
                     .Build();
 
                 _commGroup.AddTask(GroupTestConstants.MasterTaskId);
@@ -183,7 +184,7 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.PipelineBroadcastR
                         _numIterations.ToString(CultureInfo.InvariantCulture))
                     .BindNamedParameter<GroupTestConfig.ArraySize, int>(
                         GenericType<GroupTestConfig.ArraySize>.Class,
-                        GroupTestConstants.ArrayLength.ToString(CultureInfo.InvariantCulture))
+                        _arraySize.ToString(CultureInfo.InvariantCulture))
                     .Build();
 
                 _commGroup.AddTask(slaveTaskId);

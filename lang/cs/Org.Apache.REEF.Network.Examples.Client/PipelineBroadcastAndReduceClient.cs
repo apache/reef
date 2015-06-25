@@ -41,7 +41,7 @@ namespace Org.Apache.REEF.Network.Examples.Client
 {
     public class PipelineBroadcastAndReduceClient
     {
-        public void RunPipelineBroadcastAndReduce(bool runOnYarn, int numTasks, int startingPortNo, int portRange)
+        public void RunPipelineBroadcastAndReduce(bool runOnYarn, int numTasks, int startingPortNo, int portRange, int arraySize, int chunkSize)
         {
             IConfiguration driverConfig = TangFactory.GetTang().NewConfigurationBuilder(
                 DriverBridgeConfiguration.ConfigurationModule
@@ -62,13 +62,16 @@ namespace Org.Apache.REEF.Network.Examples.Client
                     numTasks.ToString(CultureInfo.InvariantCulture))
                 .BindNamedParameter<GroupTestConfig.ChunkSize, int>(
                     GenericType<GroupTestConfig.ChunkSize>.Class,
-                    GroupTestConstants.ChunkSize.ToString(CultureInfo.InvariantCulture))
+                    chunkSize.ToString(CultureInfo.InvariantCulture))
                 .BindNamedParameter<GroupTestConfig.StartingPort, int>(
                     GenericType<GroupTestConfig.StartingPort>.Class,
                     startingPortNo.ToString(CultureInfo.InvariantCulture))
                 .BindNamedParameter<GroupTestConfig.PortRange, int>(
                     GenericType<GroupTestConfig.PortRange>.Class,
                     portRange.ToString(CultureInfo.InvariantCulture))
+                .BindNamedParameter<GroupTestConfig.ArraySize, int>(
+                    GenericType<GroupTestConfig.ArraySize>.Class,
+                    arraySize.ToString(CultureInfo.InvariantCulture))
                 .Build();
 
             IConfiguration groupCommDriverConfig = TangFactory.GetTang().NewConfigurationBuilder()
