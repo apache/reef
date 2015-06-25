@@ -27,6 +27,7 @@ import org.apache.reef.runtime.common.files.RuntimeClasspathProvider;
 import org.apache.reef.runtime.common.parameters.JVMHeapSlack;
 import org.apache.reef.runtime.local.LocalClasspathProvider;
 import org.apache.reef.runtime.local.client.parameters.MaxNumberOfEvaluators;
+import org.apache.reef.runtime.local.client.parameters.RackNames;
 import org.apache.reef.runtime.local.client.parameters.RootFolder;
 import org.apache.reef.tang.formats.ConfigurationModule;
 import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
@@ -52,6 +53,11 @@ public class LocalDriverConfiguration extends ConfigurationModuleBuilder {
   public static final OptionalParameter<Double> JVM_HEAP_SLACK = new OptionalParameter<>();
 
   /**
+   * The rack names that will be available in the local runtime
+   */
+  public static final OptionalParameter<String> RACK_NAMES = new OptionalParameter<>();
+
+  /**
    * The remote identifier to use for communications back to the client.
    */
   public static final OptionalParameter<String> CLIENT_REMOTE_IDENTIFIER = new OptionalParameter<>();
@@ -70,6 +76,7 @@ public class LocalDriverConfiguration extends ConfigurationModuleBuilder {
       .bindNamedParameter(MaxNumberOfEvaluators.class, MAX_NUMBER_OF_EVALUATORS)
       .bindNamedParameter(RootFolder.class, ROOT_FOLDER)
       .bindNamedParameter(JVMHeapSlack.class, JVM_HEAP_SLACK)
+      .bindSetEntry(RackNames.class, RACK_NAMES)
       .bindImplementation(RuntimeClasspathProvider.class, LocalClasspathProvider.class)
       .build();
 }
