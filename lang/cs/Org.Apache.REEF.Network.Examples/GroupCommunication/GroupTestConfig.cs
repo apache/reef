@@ -52,5 +52,15 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication
         public class ChunkSize : Name<int>
         {
         }
+
+        [NamedParameter(Documentation = "Starting port for TcpPortProvider", DefaultValue = "8900")]
+        public class StartingPort : Name<int>
+        {
+        }
+
+        [NamedParameter(Documentation = "Port Range count for TcpPortProvider", DefaultValue = "1000")]
+        public class PortRange : Name<int>
+        {
+        }
     }
 }

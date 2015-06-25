@@ -41,13 +41,15 @@ namespace Org.Apache.REEF.Network.Examples.Client
 {
     public class PipelineBroadcastAndReduceClient
     {
-        public void RunPipelineBroadcastAndReduce(bool runOnYarn, int numTasks)
+        public void RunPipelineBroadcastAndReduce(bool runOnYarn, int numTasks, int startingPortNo, int portRange, int arraySize, int chunkSize)
         {
             IConfiguration driverConfig = TangFactory.GetTang().NewConfigurationBuilder(
                 DriverBridgeConfiguration.ConfigurationModule
                     .Set(DriverBridgeConfiguration.OnDriverStarted, GenericType<PipelinedBroadcastReduceDriver>.Class)
-                    .Set(DriverBridgeConfiguration.OnEvaluatorAllocated, GenericType<PipelinedBroadcastReduceDriver>.Class)
-                    .Set(DriverBridgeConfiguration.OnEvaluatorRequested, GenericType<PipelinedBroadcastReduceDriver>.Class)
+                    .Set(DriverBridgeConfiguration.OnEvaluatorAllocated,
+                        GenericType<PipelinedBroadcastReduceDriver>.Class)
+                    .Set(DriverBridgeConfiguration.OnEvaluatorRequested,
+                        GenericType<PipelinedBroadcastReduceDriver>.Class)
                     .Set(DriverBridgeConfiguration.OnEvaluatorFailed, GenericType<PipelinedBroadcastReduceDriver>.Class)
                     .Set(DriverBridgeConfiguration.OnContextActive, GenericType<PipelinedBroadcastReduceDriver>.Class)
                     .Set(DriverBridgeConfiguration.CustomTraceLevel, Level.Info.ToString())
@@ -58,9 +60,18 @@ namespace Org.Apache.REEF.Network.Examples.Client
                 .BindNamedParameter<GroupTestConfig.NumEvaluators, int>(
                     GenericType<GroupTestConfig.NumEvaluators>.Class,
                     numTasks.ToString(CultureInfo.InvariantCulture))
-                 .BindNamedParameter<GroupTestConfig.ChunkSize, int>(
+                .BindNamedParameter<GroupTestConfig.ChunkSize, int>(
                     GenericType<GroupTestConfig.ChunkSize>.Class,
-                    GroupTestConstants.ChunkSize.ToString(CultureInfo.InvariantCulture))
+                    chunkSize.ToString(CultureInfo.InvariantCulture))
+                .BindNamedParameter<GroupTestConfig.StartingPort, int>(
+                    GenericType<GroupTestConfig.StartingPort>.Class,
+                    startingPortNo.ToString(CultureInfo.InvariantCulture))
+                .BindNamedParameter<GroupTestConfig.PortRange, int>(
+                    GenericType<GroupTestConfig.PortRange>.Class,
+                    portRange.ToString(CultureInfo.InvariantCulture))
+                .BindNamedParameter<GroupTestConfig.ArraySize, int>(
+                    GenericType<GroupTestConfig.ArraySize>.Class,
+                    arraySize.ToString(CultureInfo.InvariantCulture))
                 .Build();
 
             IConfiguration groupCommDriverConfig = TangFactory.GetTang().NewConfigurationBuilder()
