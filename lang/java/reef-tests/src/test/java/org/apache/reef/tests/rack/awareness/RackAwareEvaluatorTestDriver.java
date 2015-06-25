@@ -25,12 +25,8 @@ import org.junit.Assert;
 
 import javax.inject.Inject;
 
-import java.util.logging.Logger;
-
 @Unit
 final class RackAwareEvaluatorTestDriver {
-
-  private static final Logger LOG = Logger.getLogger(RackAwareEvaluatorTestDriver.class.getName());
 
   // hardcoded not to use the constant in ResourceCatalogImpl, which is local runtime dependent
   // TODO future iterations so change this
@@ -49,7 +45,6 @@ final class RackAwareEvaluatorTestDriver {
     public void onNext(final AllocatedEvaluator allocatedEvaluator) {
 
       final String actual = allocatedEvaluator.getEvaluatorDescriptor().getNodeDescriptor().getRackDescriptor().getName();
-      LOG.info("Received rack name " + actual);
       Assert.assertEquals(DEFAULT_RACK, actual);
       allocatedEvaluator.close();
     }

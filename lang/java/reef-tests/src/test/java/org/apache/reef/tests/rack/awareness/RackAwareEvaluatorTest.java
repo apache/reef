@@ -30,15 +30,12 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.logging.Logger;
-
 /**
  * Tests whether an Evaluator receives its rack information. For now, the rack name is hardcoded to "/default-rack".
  * In the future, when the user can specify which racks to execute on, this test will make more sense
  */
 public final class RackAwareEvaluatorTest {
 
-  private static final Logger LOG = Logger.getLogger(RackAwareEvaluatorTest.class.getName());
   private final TestEnvironment testEnvironment = TestEnvironmentFactory.getNewTestEnvironment();
 
 
@@ -66,7 +63,6 @@ public final class RackAwareEvaluatorTest {
     final LauncherStatus status = this.testEnvironment.run(driverConfiguration);
     // Then
     Assert.assertTrue("Job state after execution: " + status, status.isSuccess());
-    LOG.info("Success!!!");
   }
 
 }
