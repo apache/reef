@@ -158,10 +158,10 @@ public class Tint {
 
       @Override
       public boolean visit(NamedParameterNode<?> node) {
-        String node_s = node.getFullName();
+        String nodeS = node.getFullName();
         for (String s : node.getDefaultInstanceAsStrings()) {
-          if (!usages.contains(s, node_s)) {
-            usages.put(s, node_s);
+          if (!usages.contains(s, nodeS)) {
+            usages.put(s, nodeS);
           }
         }
         return true;
@@ -174,12 +174,12 @@ public class Tint {
 
       @Override
       public boolean visit(ClassNode<?> node) {
-        String node_s = node.getFullName();
+        String nodeS = node.getFullName();
         for (ConstructorDef<?> d : node.getInjectableConstructors()) {
           for (ConstructorArg a : d.getArgs()) {
             if (a.getNamedParameterName() != null &&
-                !usages.contains(a.getNamedParameterName(), node_s)) {
-              usages.put(a.getNamedParameterName(), node_s);
+                !usages.contains(a.getNamedParameterName(), nodeS)) {
+              usages.put(a.getNamedParameterName(), nodeS);
             }
           }
         }
@@ -210,12 +210,12 @@ public class Tint {
 
       for (Field f : modules.keySet()) {
         ConfigurationModule m = modules.get(f);
-        String f_s = ReflectionUtilities.getFullName(f);
+        String fS = ReflectionUtilities.getFullName(f);
         Set<NamedParameterNode<?>> nps = m.getBoundNamedParameters();
         for (NamedParameterNode<?> np : nps) {
-          String np_s = np.getFullName();
-          if (!setters.contains(np_s, f_s)) {
-            setters.put(np_s, f_s);
+          String npS = np.getFullName();
+          if (!setters.contains(npS, fS)) {
+            setters.put(npS, fS);
           }
         }
       }
@@ -436,9 +436,9 @@ public class Tint {
     if (di != null) {
       String diName = di.value() == Void.class ? di.name() : ReflectionUtilities.getFullName(di.value());
       ClassNode<?> cn = (ClassNode<?>) ch.getNode(cmb);
-      String cn_s = cn.getFullName();
-      if (!usages.contains(diName, cn_s)) {
-        usages.put(diName, cn_s);
+      String cnS = cn.getFullName();
+      if (!usages.contains(diName, cnS)) {
+        usages.put(diName, cnS);
         if (!knownClasses.contains(cn)) {
           knownClasses.add(cn);
         }
@@ -467,20 +467,20 @@ public class Tint {
 //          System.err.println("OK: " + f);
           try {
             f.setAccessible(true);
-            String f_s = ReflectionUtilities.getFullName(f);
+            String fS = ReflectionUtilities.getFullName(f);
             if (!modules.containsKey(f)) {
               modules.put(f, (ConfigurationModule) (f.get(null)));
               try {
                 modules.get(f).assertStaticClean();
               } catch (ClassHierarchyException e) {
-                System.err.println(f_s + ": " + e.getMessage());
+                System.err.println(fS + ": " + e.getMessage());
               }
               for (Entry<String, String> e : modules.get(f).toStringPairs()) {
                 //System.err.println("e: " + e.getKey() + "=" + e.getValue());
                 try {
                   Node n = ch.getNode(e.getKey());
-                  if (!setters.contains(e.getKey(), f_s)) {
-                    setters.put(e.getKey(), f_s);
+                  if (!setters.contains(e.getKey(), fS)) {
+                    setters.put(e.getKey(), fS);
                   }
                   if (n instanceof ClassNode) {
                     ClassNode<?> cn = (ClassNode<?>) n;
@@ -564,14 +564,14 @@ public class Tint {
 
       @Override
       public boolean visit(ClassNode<?> node) {
-        String node_s = node.getFullName();
-        if (userKeys.contains(node_s)) {
+        String nodeS = node.getFullName();
+        if (userKeys.contains(nodeS)) {
           names.add(node);
         }
-        if (setterKeys.contains(node_s)) {
+        if (setterKeys.contains(nodeS)) {
           names.add(node);
         }
-        if (usedKeys.contains(node_s)) {
+        if (usedKeys.contains(nodeS)) {
           if (!names.contains(node)) {
             names.add(node);
           }

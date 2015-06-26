@@ -50,18 +50,18 @@ public class AvroEvaluatorListSerializer implements EvaluatorListSerializer {
       final Map<String, EvaluatorDescriptor> evaluatorMap,
       final int totalEvaluators, final String startTime) {
 
-    final List<AvroEvaluatorEntry> EvaluatorEntities = new ArrayList<>();
+    final List<AvroEvaluatorEntry> evaluatorEntities = new ArrayList<>();
 
     for (final Map.Entry<String, EvaluatorDescriptor> entry : evaluatorMap.entrySet()) {
       final EvaluatorDescriptor descriptor = entry.getValue();
-      EvaluatorEntities.add(AvroEvaluatorEntry.newBuilder()
-          .setId(entry.getKey())
-          .setName(descriptor.getNodeDescriptor().getName())
-          .build());
+      evaluatorEntities.add(AvroEvaluatorEntry.newBuilder()
+              .setId(entry.getKey())
+              .setName(descriptor.getNodeDescriptor().getName())
+              .build());
     }
 
     return AvroEvaluatorList.newBuilder()
-        .setEvaluators(EvaluatorEntities)
+        .setEvaluators(evaluatorEntities)
         .setTotal(totalEvaluators)
         .setStartTime(startTime != null ? startTime : new Date().toString())
         .build();

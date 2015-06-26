@@ -35,7 +35,7 @@ import java.io.StringWriter;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public final class ApplicationState {
 
-  private static String APPLICATION_STATE = "applicationState";
+  private static final String APPLICATION_STATE = "applicationState";
   private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
   private String progress;

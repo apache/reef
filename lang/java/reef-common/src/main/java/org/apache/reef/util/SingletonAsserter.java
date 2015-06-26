@@ -27,7 +27,7 @@ import java.util.Set;
  */
 public final class SingletonAsserter {
 
-  private static final Set<Class> classes = Collections.synchronizedSet(new HashSet<Class>());
+  private static final Set<Class> CLASSES = Collections.synchronizedSet(new HashSet<Class>());
 
   /**
    * This class operates purely in static mode.
@@ -36,6 +36,6 @@ public final class SingletonAsserter {
   }
 
   public static boolean assertSingleton(final Class clazz) {
-    return classes.add(clazz);
+    return CLASSES.add(clazz);
   }
 }

@@ -37,7 +37,7 @@ import java.util.logging.Logger;
 
 public class WakeProfiler implements Aspect {
   private static final Logger LOG = Logger.getLogger(WakeProfiler.class.toString());
-  private final Map<Object, Vertex<?>> vertex_object = new MonotonicHashMap<>();
+  private final Map<Object, Vertex<?>> vertexObject = new MonotonicHashMap<>();
   private final Map<InjectionFuture<?>, Object> futures = new MonotonicHashMap<>();
   private final Map<Object, Stats> stats = new MonotonicHashMap<>();
 
@@ -51,11 +51,11 @@ public class WakeProfiler implements Aspect {
     if (t instanceof Set) {
       return (Vertex<T>) newSetVertex((Set<?>) t);
     } else {
-      Vertex<T> v = (Vertex<T>) vertex_object.get(t);
+      Vertex<T> v = (Vertex<T>) vertexObject.get(t);
       // Add dummy vertices for objects that were bound volatile.
       if (v == null) {
         v = new Vertex<>(t);
-        vertex_object.put(t, v);
+        vertexObject.put(t, v);
       }
       return v;
     }
@@ -68,26 +68,26 @@ public class WakeProfiler implements Aspect {
 
   @SuppressWarnings("unchecked")
   private <T> Vertex<?> newSetVertex(Set<T> s) {
-    if (vertex_object.containsKey(s)) {
-      return (Vertex<Set<T>>) vertex_object.get(s);
+    if (vertexObject.containsKey(s)) {
+      return (Vertex<Set<T>>) vertexObject.get(s);
     }
     if (s.size() > -1) {
       LOG.fine("new set of size " + s.size());
-      Vertex<?>[] s_args = new Vertex[s.size()];
+      Vertex<?>[] sArgs = new Vertex[s.size()];
       int k = 0;
       for (Object p : s) {
-        s_args[k] = getVertex(p);
+        sArgs[k] = getVertex(p);
         k++;
       }
-      Vertex<Set<T>> sv = new Vertex<>(s, null, s_args);
-      vertex_object.put(s, sv);
+      Vertex<Set<T>> sv = new Vertex<>(s, null, sArgs);
+      vertexObject.put(s, sv);
       return sv;
 //    } else if(s.size() == 1) {
     } else {
       Object p = s.iterator().next();
       Vertex<?> w = getVertex(p);
       // alias the singleton set to its member
-      vertex_object.put(s, w);
+      vertexObject.put(s, w);
       return w;
     }
 //    } else {
@@ -99,14 +99,14 @@ public class WakeProfiler implements Aspect {
   @Override
   public <T> T inject(ConstructorDef<T> constructorDef, Constructor<T> constructor, Object[] args) throws InvocationTargetException, IllegalAccessException, IllegalArgumentException, InstantiationException {
 //    LOG.info("inject" + constructor + "->" + args.length);
-    Vertex<?>[] v_args = new Vertex[args.length];
+    Vertex<?>[] vArgs = new Vertex[args.length];
     for (int i = 0; i < args.length; i++) {
       Object o = args[i];
       Vertex<?> v = getVertex(o);
       if (o instanceof Set) {
         LOG.fine("Got a set arg for " + constructorDef + " length " + ((Set<?>) o).size());
       }
-      v_args[i] = v;
+      vArgs[i] = v;
     }
 
     T ret;
@@ -156,8 +156,8 @@ public class WakeProfiler implements Aspect {
     } else {
       ret = constructor.newInstance(args);
     }
-    Vertex<T> v = new Vertex<T>(ret, constructorDef, v_args);
-    vertex_object.put(ret, v);
+    Vertex<T> v = new Vertex<T>(ret, constructorDef, vArgs);
+    vertexObject.put(ret, v);
     return ret;
   }
 
@@ -200,19 +200,19 @@ public class WakeProfiler implements Aspect {
 
   public String objectGraphToString() {
     List<Vertex<?>> vertices = new ArrayList<>();
-    Map<Vertex<?>, Integer> off_vertex = new MonotonicHashMap<>();
+    Map<Vertex<?>, Integer> offVertex = new MonotonicHashMap<>();
 
     StringBuffer sb = new StringBuffer("{\"nodes\":[\n");
 
     List<String> nodes = new ArrayList<String>();
     LinkedList<Vertex<?>> workQueue = new LinkedList<>();
-    for (Object o : vertex_object.keySet()) {
+    for (Object o : vertexObject.keySet()) {
       if (whitelist(o)) {
         workQueue.add(getVertex(o));
       }
     }
     for (Object o : futures.values()) {
-      if ((!vertex_object.containsKey(o)) && whitelist(o)) {
+      if ((!vertexObject.containsKey(o)) && whitelist(o)) {
         workQueue.add(getVertex(o));
       }
     }
@@ -250,7 +250,7 @@ public class WakeProfiler implements Aspect {
         s = removeEnhancements(o.getClass().getSimpleName());
       }
       if (s != null) {
-        off_vertex.put(v, vertices.size());
+        offVertex.put(v, vertices.size());
         vertices.add(v);
         if (tooltip == null) {
           nodes.add("{\"name\":\"" + jsonEscape(s) + "\"}");
@@ -269,19 +269,19 @@ public class WakeProfiler implements Aspect {
         LOG.fine("pointed to object " + w.getObject());
         if (w.getObject() instanceof InjectionFuture) {
           Vertex<?> futureTarget = getFuture((InjectionFuture<?>) w.getObject()); //futures.get(w.getObject());
-          Integer off = off_vertex.get(futureTarget);
+          Integer off = offVertex.get(futureTarget);
           LOG.fine("future target " + futureTarget + " off = " + off);
           if (off != null) {
-            links.add("{\"target\":" + off_vertex.get(v) + ",\"source\":" + off + ",\"value\":" + 1.0 + ",\"back\":true}");
+            links.add("{\"target\":" + offVertex.get(v) + ",\"source\":" + off + ",\"value\":" + 1.0 + ",\"back\":true}");
           }
         } else {
-          Integer off = off_vertex.get(w);
+          Integer off = offVertex.get(w);
           if (off != null) {
             Stats s = stats.get(w.getObject());
             if (s != null) {
-              links.add("{\"source\":" + off_vertex.get(v) + ",\"target\":" + off + ",\"value\":" + (s.messageCount.get() + 3.0) + "}");
+              links.add("{\"source\":" + offVertex.get(v) + ",\"target\":" + off + ",\"value\":" + (s.messageCount.get() + 3.0) + "}");
             } else {
-              links.add("{\"source\":" + off_vertex.get(v) + ",\"target\":" + off + ",\"value\":" + 1.0 + "}");
+              links.add("{\"source\":" + offVertex.get(v) + ",\"target\":" + off + ",\"value\":" + 1.0 + "}");
             }
           }
         }

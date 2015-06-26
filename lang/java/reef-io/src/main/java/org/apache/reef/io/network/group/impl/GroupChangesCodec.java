@@ -26,6 +26,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class GroupChangesCodec implements Codec<GroupChanges> {
+  private static final Logger LOG = Logger.getLogger(GroupChangesCodec.class.getName());
 
   @Inject
   public GroupChangesCodec() {
@@ -56,14 +57,11 @@ public class GroupChangesCodec implements Codec<GroupChanges> {
   }
 
   private static void test(final GroupChanges changes, final GroupChanges changes1) {
-
-    final Logger LOG = Logger.getLogger(GroupChangesCodec.class.getName());
-
     final boolean c1 = changes.exist();
     final boolean c2 = changes1.exist();
 
     if (c1 != c2) {
-      LOG.log(Level.SEVERE, "Something is wrong: {0} != {1}", new Object[] {c1, c2});
+      LOG.log(Level.SEVERE, "Something is wrong: {0} != {1}", new Object[]{c1, c2});
     } else {
       LOG.log(Level.INFO, "Codec is fine");
     }

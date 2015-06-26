@@ -81,7 +81,7 @@ public class GroupCommDriverImpl implements GroupCommServiceDriver {
   /**
    * TANG instance.
    */
-  private static final Tang tang = Tang.Factory.getTang();
+  private static final Tang TANG = Tang.Factory.getTang();
 
   private final AtomicInteger contextIds = new AtomicInteger(0);
 
@@ -256,7 +256,7 @@ public class GroupCommDriverImpl implements GroupCommServiceDriver {
             BindNSToTask.class)
         .set(ServiceConfiguration.ON_TASK_STOP,
             UnbindNSFromTask.class).build();
-    final Configuration retVal = tang.newConfigurationBuilder(serviceConfiguration)
+    final Configuration retVal = TANG.newConfigurationBuilder(serviceConfiguration)
         .bindNamedParameter(NetworkServiceParameters.NetworkServiceCodec.class,
             GroupCommunicationMessageCodec.class)
         .bindNamedParameter(NetworkServiceParameters.NetworkServiceHandler.class,

@@ -29,7 +29,7 @@ import java.util.List;
  */
 public final class MemoryUtils {
 
-  private static final int MBs = 1024 * 1024;
+  private static final int MBS = 1024 * 1024;
 
   private MemoryUtils() {
   }
@@ -61,7 +61,7 @@ public final class MemoryUtils {
     final List<MemoryPoolMXBean> memoryPoolMXBeans = ManagementFactory.getMemoryPoolMXBeans();
     for (final MemoryPoolMXBean bean : memoryPoolMXBeans) {
       if (bean.getName().toLowerCase().indexOf(name) != -1) {
-        return bean.getUsage().getUsed() / MBs;
+        return bean.getUsage().getUsed() / MBS;
       }
     }
     return 0;
@@ -83,7 +83,7 @@ public final class MemoryUtils {
     final List<MemoryPoolMXBean> memoryPoolMXBeans = ManagementFactory.getMemoryPoolMXBeans();
     for (final MemoryPoolMXBean bean : memoryPoolMXBeans) {
       if (bean.getName().toLowerCase().indexOf(name) != -1) {
-        return bean.getPeakUsage().getUsed() / MBs;
+        return bean.getPeakUsage().getUsed() / MBS;
       }
     }
     return 0;

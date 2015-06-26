@@ -178,7 +178,7 @@ public class OperatorTopologyStructImpl implements OperatorTopologyStruct {
       if (data.length > SMALL_MSG_LENGTH) {
         LOG.finest(getQualifiedName() + "Msg too big. Sending readiness to send " + msgType + " msg to " + nodeId);
         sender.send(Utils.bldVersionedGCM(groupName, operName, msgType, selfId, version, nodeId, node.getVersion(),
-            Utils.EmptyByteArr));
+            Utils.EMPTY_BYTE_ARR));
         final byte[] tmpVal = receiveFromNode(node, true);
         if (tmpVal != null) {
           LOG.finest(getQualifiedName() + "Got readiness to accept " + msgType + " msg from " + nodeId
@@ -265,12 +265,12 @@ public class OperatorTopologyStructImpl implements OperatorTopologyStruct {
     if (retVal != null && retVal.length == 0) {
       LOG.finest(getQualifiedName() + "Got msg that parent " + parent.getId()
           + " has large data and is ready to send data. Sending Ack to receive data");
-      sendToNode(Utils.EmptyByteArr, ReefNetworkGroupCommProtos.GroupCommMessage.Type.Broadcast, parent);
+      sendToNode(Utils.EMPTY_BYTE_ARR, ReefNetworkGroupCommProtos.GroupCommMessage.Type.Broadcast, parent);
       retVal = receiveFromNode(parent, true);
       if (retVal != null) {
         LOG.finest(getQualifiedName() + "Received large msg from Parent " + parent.getId()
             + ". Will return it after ACKing it");
-        sendToNode(Utils.EmptyByteArr, ReefNetworkGroupCommProtos.GroupCommMessage.Type.Broadcast, parent);
+        sendToNode(Utils.EMPTY_BYTE_ARR, ReefNetworkGroupCommProtos.GroupCommMessage.Type.Broadcast, parent);
       }
     }
     LOG.exiting("OperatorTopologyStructImpl", "recvFromParent",
@@ -299,12 +299,12 @@ public class OperatorTopologyStructImpl implements OperatorTopologyStruct {
       if (retVal != null && retVal.length == 0) {
         LOG.finest(getQualifiedName() + "Got msg that child " + child.getId()
             + " has large data and is ready to send data. Sending Ack to receive data");
-        sendToNode(Utils.EmptyByteArr, ReefNetworkGroupCommProtos.GroupCommMessage.Type.Reduce, child);
+        sendToNode(Utils.EMPTY_BYTE_ARR, ReefNetworkGroupCommProtos.GroupCommMessage.Type.Reduce, child);
         retVal = receiveFromNode(child, true);
         if (retVal != null) {
           LOG.finest(getQualifiedName() + "Received large msg from child " + child.getId()
               + ". Will reduce it after ACKing it");
-          sendToNode(Utils.EmptyByteArr, ReefNetworkGroupCommProtos.GroupCommMessage.Type.Reduce, child);
+          sendToNode(Utils.EMPTY_BYTE_ARR, ReefNetworkGroupCommProtos.GroupCommMessage.Type.Reduce, child);
         } else {
           LOG.finest(getQualifiedName() + "Will not reduce it");
         }

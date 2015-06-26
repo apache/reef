@@ -38,7 +38,7 @@ import java.util.logging.Logger;
 @Unit
 public final class MergingEventHandler<L, R> {
 
-  private static Logger LOG = Logger.getLogger(MergingEventHandler.class.getName());
+  private static final Logger LOG = Logger.getLogger(MergingEventHandler.class.getName());
   public final EventHandler<L> left = new Left();
   public final EventHandler<R> right = new Right();
   private final Object mutex = new Object();
