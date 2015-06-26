@@ -39,6 +39,9 @@ import org.apache.reef.io.network.group.api.driver.CommunicationGroupDriver;
 import org.apache.reef.io.network.group.api.driver.GroupCommDriver;
 import org.apache.reef.io.network.group.impl.config.BroadcastOperatorSpec;
 import org.apache.reef.io.network.group.impl.config.ReduceOperatorSpec;
+import org.apache.reef.io.network.impl.NetworkServiceConfiguration;
+import org.apache.reef.io.network.naming.NameClientConfiguration;
+import org.apache.reef.io.network.naming.NameServer;
 import org.apache.reef.io.serialization.Codec;
 import org.apache.reef.io.serialization.SerializableCodec;
 import org.apache.reef.poison.PoisonedConfiguration;
@@ -49,6 +52,7 @@ import org.apache.reef.tang.annotations.Unit;
 import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.tang.formats.ConfigurationSerializer;
 import org.apache.reef.wake.EventHandler;
+import org.apache.reef.wake.remote.address.LocalAddressProvider;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -80,6 +84,8 @@ public class BGDDriver {
   private final AtomicBoolean jobComplete = new AtomicBoolean(false);
   private final Codec<ArrayList<Double>> lossCodec = new SerializableCodec<>();
   private final BGDControlParameters bgdControlParameters;
+  private final NameServer nameServer;
+  private final LocalAddressProvider localAddressProvider;
 
   private String communicationsGroupMasterContextId;
 
@@ -87,11 +93,15 @@ public class BGDDriver {
   public BGDDriver(final DataLoadingService dataLoadingService,
                    final GroupCommDriver groupCommDriver,
                    final ConfigurationSerializer confSerializer,
-                   final BGDControlParameters bgdControlParameters) {
+                   final BGDControlParameters bgdControlParameters,
+                   final NameServer nameServer,
+                   final LocalAddressProvider localAddressProvider) {
     this.dataLoadingService = dataLoadingService;
     this.groupCommDriver = groupCommDriver;
     this.confSerializer = confSerializer;
     this.bgdControlParameters = bgdControlParameters;
+    this.nameServer = nameServer;
+    this.localAddressProvider = localAddressProvider;
 
     final int minNumOfPartitions =
         bgdControlParameters.isRampup()
@@ -177,11 +187,18 @@ public class BGDDriver {
         communicationsGroupMasterContextId = contextId;
         serviceConf = groupCommDriver.getServiceConfiguration();
       } else {
+        final Configuration netConf = Configurations.merge(NameClientConfiguration.CONF
+                .set(NameClientConfiguration.NAME_SERVER_HOSTNAME, localAddressProvider.getLocalAddress())
+                .set(NameClientConfiguration.NAME_SERVICE_PORT, nameServer.getPort())
+                .build(),
+            NetworkServiceConfiguration.getServiceConfiguration());
+
         final Configuration parsedDataServiceConf = ServiceConfiguration.CONF
             .set(ServiceConfiguration.SERVICES, ExampleList.class)
             .build();
         serviceConf = Tang.Factory.getTang()
-            .newConfigurationBuilder(groupCommDriver.getServiceConfiguration(), parsedDataServiceConf)
+            .newConfigurationBuilder(groupCommDriver.getServiceConfiguration(), parsedDataServiceConf,
+                netConf)
             .bindImplementation(Parser.class, SVMLightParser.class)
             .build();
       }

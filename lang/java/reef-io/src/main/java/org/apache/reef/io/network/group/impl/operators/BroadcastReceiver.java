@@ -23,7 +23,7 @@ import org.apache.reef.driver.task.TaskConfigurationOptions;
 import org.apache.reef.exception.evaluator.NetworkException;
 import org.apache.reef.io.network.exception.ParentDeadException;
 import org.apache.reef.io.network.group.api.operators.Broadcast;
-import org.apache.reef.io.network.impl.NetworkService;
+import org.apache.reef.io.network.NetworkService;
 import org.apache.reef.io.network.group.api.task.CommGroupNetworkHandler;
 import org.apache.reef.io.network.group.api.task.CommunicationGroupServiceClient;
 import org.apache.reef.io.network.group.api.task.OperatorTopology;
@@ -53,7 +53,6 @@ public class BroadcastReceiver<T> implements Broadcast.Receiver<T>, EventHandler
   private final Class<? extends Name<String>> operName;
   private final CommGroupNetworkHandler commGroupNetworkHandler;
   private final Codec<T> dataCodec;
-  private final NetworkService<GroupCommunicationMessage> netService;
   private final Sender sender;
 
   private final OperatorTopology topology;
@@ -72,7 +71,7 @@ public class BroadcastReceiver<T> implements Broadcast.Receiver<T>, EventHandler
                            @Parameter(DriverIdentifier.class) final String driverId,
                            @Parameter(TaskVersion.class) final int version,
                            final CommGroupNetworkHandler commGroupNetworkHandler,
-                           final NetworkService<GroupCommunicationMessage> netService,
+                           final NetworkService netService,
                            final CommunicationGroupServiceClient commGroupClient) {
     super();
     this.version = version;
@@ -81,8 +80,7 @@ public class BroadcastReceiver<T> implements Broadcast.Receiver<T>, EventHandler
     this.operName = Utils.getClass(operName);
     this.dataCodec = dataCodec;
     this.commGroupNetworkHandler = commGroupNetworkHandler;
-    this.netService = netService;
-    this.sender = new Sender(this.netService);
+    this.sender = new Sender(netService);
     this.topology = new OperatorTopologyImpl(this.groupName, this.operName, selfId, driverId, sender, version);
     this.commGroupNetworkHandler.register(this.operName, this);
     this.commGroupClient = commGroupClient;

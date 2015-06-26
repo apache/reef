@@ -16,39 +16,30 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.io.network.impl;
+package org.apache.reef.io.network.naming;
 
-import org.apache.reef.io.network.naming.NameClient;
-import org.apache.reef.io.network.util.StringIdentifierFactory;
 import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
 
 /**
  *
  */
-public final class NetworkServiceParameters {
+public final class NameClientParameters {
 
   /**
-   * NameClient
+   * Port number of NameServer
    */
-  @NamedParameter(doc = "NameClient")
-  public static final class NameClientImpl implements Name<NameClient> {
+  @NamedParameter()
+  public static final class NameServerPort implements Name<Integer> {
 
   }
 
   /**
-   * Port number of NetworkService
+   * Address of NameServer
    */
-  @NamedParameter(doc = "port number of NetworkService", default_value = "0")
-  public static final class Port implements Name<Integer> {
+  @NamedParameter()
+  public static final class NameServerAddr implements Name<String> {
 
   }
 
-  /**
-   * Identifier Factory of NetworkService
-   */
-  @NamedParameter(doc = "identifier factory of NetworkService", default_class = StringIdentifierFactory.class)
-  public static final class IdentifierFactory implements Name<org.apache.reef.wake.IdentifierFactory> {
-
-  }
 }

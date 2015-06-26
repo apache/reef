@@ -24,7 +24,7 @@ import org.apache.reef.exception.evaluator.NetworkException;
 import org.apache.reef.io.network.exception.ParentDeadException;
 import org.apache.reef.io.network.group.api.operators.Reduce;
 import org.apache.reef.io.network.group.api.operators.Reduce.ReduceFunction;
-import org.apache.reef.io.network.impl.NetworkService;
+import org.apache.reef.io.network.NetworkService;
 import org.apache.reef.io.network.group.api.task.CommGroupNetworkHandler;
 import org.apache.reef.io.network.group.api.task.CommunicationGroupServiceClient;
 import org.apache.reef.io.network.group.api.task.OperatorTopology;
@@ -54,7 +54,6 @@ public class ReduceSender<T> implements Reduce.Sender<T>, EventHandler<GroupComm
   private final Class<? extends Name<String>> operName;
   private final CommGroupNetworkHandler commGroupNetworkHandler;
   private final Codec<T> dataCodec;
-  private final NetworkService<GroupCommunicationMessage> netService;
   private final Sender sender;
   private final ReduceFunction<T> reduceFunction;
 
@@ -76,7 +75,7 @@ public class ReduceSender<T> implements Reduce.Sender<T>, EventHandler<GroupComm
       @Parameter(DriverIdentifier.class) final String driverId,
       @Parameter(TaskVersion.class) final int version,
       final CommGroupNetworkHandler commGroupNetworkHandler,
-      final NetworkService<GroupCommunicationMessage> netService,
+      final NetworkService netService,
       final CommunicationGroupServiceClient commGroupClient) {
 
     super();
@@ -90,8 +89,7 @@ public class ReduceSender<T> implements Reduce.Sender<T>, EventHandler<GroupComm
     this.dataCodec = dataCodec;
     this.reduceFunction = reduceFunction;
     this.commGroupNetworkHandler = commGroupNetworkHandler;
-    this.netService = netService;
-    this.sender = new Sender(this.netService);
+    this.sender = new Sender(netService);
     this.topology = new OperatorTopologyImpl(this.groupName, this.operName, selfId, driverId, sender, version);
     this.commGroupNetworkHandler.register(this.operName, this);
     this.commGroupClient = commGroupClient;

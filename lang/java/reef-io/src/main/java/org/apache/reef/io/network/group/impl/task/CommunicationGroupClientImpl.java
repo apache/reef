@@ -24,7 +24,7 @@ import org.apache.reef.exception.evaluator.NetworkException;
 import org.apache.reef.io.network.group.api.operators.Broadcast;
 import org.apache.reef.io.network.group.api.operators.GroupCommOperator;
 import org.apache.reef.io.network.group.api.operators.Reduce;
-import org.apache.reef.io.network.impl.NetworkService;
+import org.apache.reef.io.network.NetworkService;
 import org.apache.reef.io.network.group.api.GroupChanges;
 import org.apache.reef.io.network.group.api.task.CommGroupNetworkHandler;
 import org.apache.reef.io.network.group.api.task.CommunicationGroupServiceClient;
@@ -79,7 +79,7 @@ public class CommunicationGroupClientImpl implements CommunicationGroupServiceCl
                                       final GroupCommNetworkHandler groupCommNetworkHandler,
                                       @Parameter(SerializedOperConfigs.class) final Set<String> operatorConfigs,
                                       final ConfigurationSerializer configSerializer,
-                                      final NetworkService<GroupCommunicationMessage> netService) {
+                                      final NetworkService netService) {
     this.taskId = taskId;
     this.driverId = driverId;
     LOG.finest(groupName + " has GroupCommHandler-" + groupCommNetworkHandler.toString());

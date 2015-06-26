@@ -296,7 +296,7 @@ public class NamingTest {
 
     // registration
     // invoke registration from the client side
-    final NameClient client = new NameClient(localAddress, this.port,
+    final NameClientRemoteImpl client = new NameClientRemoteImpl(localAddress, this.port,
         this.factory, retryCount, retryTimeout, new NameCache(this.TTL), this.localAddressProvider);
     for (final Identifier id : idToAddrMap.keySet()) {
       client.register(id, idToAddrMap.get(id));

@@ -21,8 +21,10 @@ package org.apache.reef.io.network.group.impl.driver;
 
 import org.apache.reef.exception.evaluator.NetworkException;
 import org.apache.reef.io.network.Connection;
-import org.apache.reef.io.network.impl.NetworkService;
+import org.apache.reef.io.network.ConnectionFactory;
+import org.apache.reef.io.network.NetworkService;
 import org.apache.reef.io.network.group.impl.GroupCommunicationMessage;
+import org.apache.reef.io.network.group.impl.config.parameters.GroupCommServiceId;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.Identifier;
 import org.apache.reef.wake.IdentifierFactory;
@@ -37,19 +39,19 @@ public class CtrlMsgSender implements EventHandler<GroupCommunicationMessage> {
 
   private static final Logger LOG = Logger.getLogger(CtrlMsgSender.class.getName());
   private final IdentifierFactory idFac;
-  private final NetworkService<GroupCommunicationMessage> netService;
+  private final ConnectionFactory<GroupCommunicationMessage> connFactory;
 
-  public CtrlMsgSender(final IdentifierFactory idFac, final NetworkService<GroupCommunicationMessage> netService) {
+  public CtrlMsgSender(final IdentifierFactory idFac, final NetworkService netService) {
     this.idFac = idFac;
-    this.netService = netService;
+    this.connFactory = netService.getConnectionFactory(GroupCommServiceId.class);
   }
 
   @Override
   public void onNext(final GroupCommunicationMessage srcCtrlMsg) {
     LOG.entering("CtrlMsgSender", "onNext", srcCtrlMsg);
     final Identifier id = idFac.getNewInstance(srcCtrlMsg.getDestid());
-    final Connection<GroupCommunicationMessage> link = netService.newConnection(id);
     try {
+      final Connection<GroupCommunicationMessage> link = connFactory.newConnection(id);
       link.open();
       link.write(srcCtrlMsg);
     } catch (final NetworkException e) {

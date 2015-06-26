@@ -18,27 +18,26 @@
  */
 package org.apache.reef.io.network.impl;
 
-import org.apache.reef.evaluator.context.events.ContextStop;
-import org.apache.reef.io.network.NetworkService;
-import org.apache.reef.wake.EventHandler;
+
+import org.apache.reef.wake.remote.transport.LinkListener;
 
 import javax.inject.Inject;
+import java.net.SocketAddress;
 
-public class NetworkServiceClosingHandler implements EventHandler<ContextStop> {
-  private final NetworkService networkService;
+public final class DefaultNSLinkListener implements LinkListener<NSMessage<?>> {
 
   @Inject
-  public NetworkServiceClosingHandler(final NetworkService networkService) {
-    this.networkService = networkService;
+  public DefaultNSLinkListener() {
+
   }
 
   @Override
-  public void onNext(final ContextStop arg0) {
-    try {
-      networkService.close();
-    } catch (Exception e) {
-      throw new RuntimeException("Exception while closing NetworkService", e);
-    }
+  public void onSuccess(final NSMessage<?> message) {
+    // do nothing
   }
 
+  @Override
+  public void onException(final Throwable cause, final SocketAddress remoteAddress, final NSMessage<?> message) {
+    // do nothing
+  }
 }

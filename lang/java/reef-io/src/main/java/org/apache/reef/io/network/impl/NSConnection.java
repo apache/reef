@@ -1,4 +1,4 @@
-/*
+/**
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -20,114 +20,69 @@ package org.apache.reef.io.network.impl;
 
 import org.apache.reef.exception.evaluator.NetworkException;
 import org.apache.reef.io.network.Connection;
-import org.apache.reef.io.network.naming.exception.NamingException;
 import org.apache.reef.wake.Identifier;
-import org.apache.reef.wake.remote.Codec;
 import org.apache.reef.wake.remote.transport.Link;
-import org.apache.reef.wake.remote.transport.LinkListener;
 
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
-/**
- * A connection from the network service.
- */
-class NSConnection<T> implements Connection<T> {
+final class NSConnection<T> implements Connection<T> {
 
-  private static final Logger LOG = Logger.getLogger(NSConnection.class.getName());
-
-  private final Identifier srcId;
-  private final Identifier destId;
-  private final LinkListener<NSMessage<T>> listener;
-  private final NetworkService<T> service;
-  private final Codec<NSMessage<T>> codec;
-
-  // link can change when an endpoint physical address changes
   private Link<NSMessage<T>> link;
 
+  private final Identifier remoteId;
+  private final AtomicBoolean closed;
+  private final NSConnectionFactory connFactory;
+
   /**
-   * Constructs a connection.
-   *
-   * @param srcId    a source identifier
-   * @param destId   a destination identifier
-   * @param listener a link listener
-   * @param service  a network service
+   * Constructs a connection for remoteId.
+   * @param connFactory
+   * @param remoteId
    */
-  NSConnection(final Identifier srcId, final Identifier destId,
-               final LinkListener<T> listener, final NetworkService<T> service) {
-    this.srcId = srcId;
-    this.destId = destId;
-    this.listener = new NSMessageLinkListener<>(listener);
-    this.service = service;
-    this.codec = new NSMessageCodec<>(service.getCodec(), service.getIdentifierFactory());
+  NSConnection(
+      final NSConnectionFactory connFactory,
+      final Identifier remoteId) {
+
+    this.connFactory = connFactory;
+    this.remoteId = remoteId;
+    this.closed = new AtomicBoolean();
   }
 
-  /**
-   * Opens the connection.
-   */
   @Override
   public void open() throws NetworkException {
+    link = connFactory.openLink(remoteId);
+  }
 
-    LOG.log(Level.FINE, "looking up {0}", this.destId);
+  @Override
+  public void write(final List<T> messageList) throws NetworkException {
+    final NSMessage<T> nsMessage = new NSMessage<>(
+        connFactory.getConnectionFactoryId(),
+        connFactory.getSrcId(),
+        remoteId,
+        messageList);
 
-    try {
-      // naming lookup
-      final InetSocketAddress addr = this.service.getNameClient().lookup(this.destId);
-      if (addr == null) {
-        final NetworkException ex = new NamingException("Cannot resolve " + this.destId);
-        LOG.log(Level.WARNING, "Cannot resolve " + this.destId, ex);
-        throw ex;
-      }
+    link.write(nsMessage);
+  }
 
-      LOG.log(Level.FINE, "Resolved {0} to {1}", new Object[]{this.destId, addr});
+  @Override
+  public void write(final T message) throws NetworkException {
+    final List<T> messageList = new ArrayList<>(1);
+    messageList.add(message);
+    write(messageList);
+  }
 
-      // connect to a remote address
-      this.link = this.service.getTransport().open(addr, this.codec, this.listener);
-      LOG.log(Level.FINE, "Transport returned a link {0}", this.link);
-
-    } catch (final Exception ex) {
-      LOG.log(Level.WARNING, "Could not open " + this.destId, ex);
-      throw new NetworkException(ex);
+  @Override
+  public void close() {
+    if (closed.compareAndSet(false, true)) {
+      connFactory.removeConnection(this.remoteId);
+      link = null;   // TODO: Link should be closed. Current link interface does not have .close() method.
     }
   }
 
-  /**
-   * Writes an object to the connection.
-   *
-   * @param obj an object of type T
-   * @throws a network exception
-   */
   @Override
-  public void write(final T obj) throws NetworkException {
-    this.link.write(new NSMessage<T>(this.srcId, this.destId, obj));
-  }
-
-  /**
-   * Closes the connection and unregisters it from the service.
-   */
-  @Override
-  public void close() throws NetworkException {
-    this.service.remove(this.destId);
-  }
-}
-
-/**
- * No-op link listener.
- *
- * @param <T>
- */
-final class NSMessageLinkListener<T> implements LinkListener<NSMessage<T>> {
-
-  NSMessageLinkListener(final LinkListener<T> listener) {
-  }
-
-  @Override
-  public void onSuccess(final NSMessage<T> message) {
-  }
-
-  @Override
-  public void onException(final Throwable cause, final SocketAddress remoteAddress, final NSMessage<T> message) {
+  public String toString() {
+    return "Connection from" + connFactory.getSrcId() + ":" + connFactory.getConnectionFactoryId() + " to " +  remoteId + ":" + connFactory.getConnectionFactoryId()
+        ;
   }
 }

@@ -34,13 +34,17 @@ import org.apache.reef.examples.group.bgd.parameters.ModelDimensions;
 import org.apache.reef.examples.group.broadcast.parameters.ModelBroadcaster;
 import org.apache.reef.examples.group.broadcast.parameters.ModelReceiveAckReducer;
 import org.apache.reef.examples.group.broadcast.parameters.NumberOfReceivers;
+import org.apache.reef.io.network.impl.NetworkServiceConfiguration;
 import org.apache.reef.io.network.group.api.driver.CommunicationGroupDriver;
 import org.apache.reef.io.network.group.api.driver.GroupCommDriver;
 import org.apache.reef.io.network.group.impl.config.BroadcastOperatorSpec;
 import org.apache.reef.io.network.group.impl.config.ReduceOperatorSpec;
+import org.apache.reef.io.network.naming.NameClientConfiguration;
+import org.apache.reef.io.network.naming.NameServer;
 import org.apache.reef.io.serialization.SerializableCodec;
 import org.apache.reef.poison.PoisonedConfiguration;
 import org.apache.reef.tang.Configuration;
+import org.apache.reef.tang.Configurations;
 import org.apache.reef.tang.Injector;
 import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.annotations.Parameter;
@@ -48,6 +52,7 @@ import org.apache.reef.tang.annotations.Unit;
 import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.tang.formats.ConfigurationSerializer;
 import org.apache.reef.wake.EventHandler;
+import org.apache.reef.wake.remote.address.LocalAddressProvider;
 import org.apache.reef.wake.time.event.StartTime;
 
 import javax.inject.Inject;
@@ -73,6 +78,8 @@ public class BroadcastDriver {
   private final EvaluatorRequestor requestor;
   private final int numberOfReceivers;
   private final AtomicInteger numberOfAllocatedEvaluators;
+  private final LocalAddressProvider localAddressProvider;
+  private final NameServer nameServer;
 
   private String groupCommConfiguredMasterId;
 
@@ -81,8 +88,10 @@ public class BroadcastDriver {
       final EvaluatorRequestor requestor,
       final GroupCommDriver groupCommDriver,
       final ConfigurationSerializer confSerializer,
-      @Parameter(ModelDimensions.class) final int dimensions,
-      @Parameter(NumberOfReceivers.class) final int numberOfReceivers) {
+      final @Parameter(ModelDimensions.class) int dimensions,
+      final @Parameter(NumberOfReceivers.class) int numberOfReceivers,
+      final LocalAddressProvider localAddressProvider,
+      final NameServer nameServer) {
 
     this.requestor = requestor;
     this.groupCommDriver = groupCommDriver;
@@ -90,6 +99,8 @@ public class BroadcastDriver {
     this.dimensions = dimensions;
     this.numberOfReceivers = numberOfReceivers;
     this.numberOfAllocatedEvaluators = new AtomicInteger(numberOfReceivers + 1);
+    this.localAddressProvider = localAddressProvider;
+    this.nameServer = nameServer;
 
     this.allCommGroup = this.groupCommDriver.newCommunicationGroup(
         AllCommunicationGroup.class, numberOfReceivers + 1);
@@ -236,7 +247,11 @@ public class BroadcastDriver {
           activeContext.submitTask(taskConf);
         }
       } else {
-
+        final Configuration netServiceConf = Configurations.merge(NameClientConfiguration.CONF
+                .set(NameClientConfiguration.NAME_SERVER_HOSTNAME, localAddressProvider.getLocalAddress())
+                .set(NameClientConfiguration.NAME_SERVICE_PORT, nameServer.getPort())
+                .build(),
+            NetworkServiceConfiguration.getServiceConfiguration());
         final Configuration contextConf = groupCommDriver.getContextConfiguration();
         final String contextId = contextId(contextConf);
 
@@ -248,7 +263,7 @@ public class BroadcastDriver {
         LOG.log(Level.FINER, "Submit GCContext conf: {0}", confSerializer.toString(contextConf));
         LOG.log(Level.FINER, "Submit Service conf: {0}", confSerializer.toString(serviceConf));
 
-        activeContext.submitContextAndService(contextConf, serviceConf);
+        activeContext.submitContextAndService(contextConf, Configurations.merge(serviceConf, netServiceConf));
       }
     }
 

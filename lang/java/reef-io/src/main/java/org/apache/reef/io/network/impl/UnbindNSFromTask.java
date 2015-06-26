@@ -18,6 +18,7 @@
  */
 package org.apache.reef.io.network.impl;
 
+import org.apache.reef.io.network.NetworkService;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.task.events.TaskStop;
 import org.apache.reef.wake.EventHandler;
@@ -27,13 +28,13 @@ import javax.inject.Inject;
 
 public class UnbindNSFromTask implements EventHandler<TaskStop> {
 
-  private final NetworkService<?> ns;
+  private final NetworkService ns;
   private final IdentifierFactory idFac;
 
   @Inject
   public UnbindNSFromTask(
-      final NetworkService<?> ns,
-      @Parameter(NetworkServiceParameters.NetworkServiceIdentifierFactory.class) final IdentifierFactory idFac) {
+      final NetworkService ns,
+      final @Parameter(NetworkServiceParameters.IdentifierFactory.class) IdentifierFactory idFac) {
     this.ns = ns;
     this.idFac = idFac;
   }

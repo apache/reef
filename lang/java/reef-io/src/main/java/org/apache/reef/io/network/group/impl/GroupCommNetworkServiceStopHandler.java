@@ -16,29 +16,29 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.io.network.impl;
+
+package org.apache.reef.io.network.group.impl;
 
 import org.apache.reef.evaluator.context.events.ContextStop;
 import org.apache.reef.io.network.NetworkService;
+import org.apache.reef.io.network.group.impl.config.parameters.GroupCommServiceId;
 import org.apache.reef.wake.EventHandler;
 
 import javax.inject.Inject;
 
-public class NetworkServiceClosingHandler implements EventHandler<ContextStop> {
+public class GroupCommNetworkServiceStopHandler implements EventHandler<ContextStop> {
+
   private final NetworkService networkService;
 
   @Inject
-  public NetworkServiceClosingHandler(final NetworkService networkService) {
+  public GroupCommNetworkServiceStopHandler(
+      final NetworkService networkService) {
+
     this.networkService = networkService;
   }
 
   @Override
-  public void onNext(final ContextStop arg0) {
-    try {
-      networkService.close();
-    } catch (Exception e) {
-      throw new RuntimeException("Exception while closing NetworkService", e);
-    }
+  public void onNext(ContextStop value) {
+    networkService.unregisterConnectionFactory(GroupCommServiceId.class);
   }
-
 }

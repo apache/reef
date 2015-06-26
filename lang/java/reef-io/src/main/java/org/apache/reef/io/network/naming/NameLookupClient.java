@@ -288,6 +288,10 @@ public class NameLookupClient implements Stage, NamingLookup {
   @NamedParameter(doc = "How many times should I retry?", short_name = "retryCount", default_value = "10")
   public static class RetryCount implements Name<Integer> {
   }
+
+  @NamedParameter(doc = "How much time name lookup client caching(msec)?", default_value = "30000")
+  public final static class CacheTimeout implements Name<Long> {
+  }
 }
 
 /**

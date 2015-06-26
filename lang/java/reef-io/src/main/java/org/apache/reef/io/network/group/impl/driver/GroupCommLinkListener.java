@@ -18,9 +18,12 @@
  */
 package org.apache.reef.io.network.group.impl.driver;
 
-import org.apache.reef.wake.EventHandler;
+import org.apache.reef.io.network.Message;
+import org.apache.reef.io.network.group.impl.GroupCommunicationMessage;
+import org.apache.reef.wake.remote.transport.LinkListener;
 
 import javax.inject.Inject;
+import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -28,20 +31,12 @@ import java.util.logging.Logger;
 /**
  *
  */
-public class ExceptionHandler implements EventHandler<Exception> {
-  private static final Logger LOG = Logger.getLogger(ExceptionHandler.class.getName());
+public class GroupCommLinkListener implements LinkListener<Message<GroupCommunicationMessage>> {
+  private static final Logger LOG = Logger.getLogger(GroupCommLinkListener.class.getName());
   List<Exception> exceptions = new ArrayList<>();
 
   @Inject
-  public ExceptionHandler() {
-  }
-
-  @Override
-  public synchronized void onNext(final Exception ex) {
-    LOG.entering("ExceptionHandler", "onNext", new Object[]{ex});
-    exceptions.add(ex);
-    LOG.finest("Got an exception. Added it to list(" + exceptions.size() + ")");
-    LOG.exiting("ExceptionHandler", "onNext");
+  public GroupCommLinkListener() {
   }
 
   public synchronized boolean hasExceptions() {
@@ -53,4 +48,16 @@ public class ExceptionHandler implements EventHandler<Exception> {
     return ret;
   }
 
+  @Override
+  public void onSuccess(Message<GroupCommunicationMessage> message) {
+
+  }
+
+  @Override
+  public void onException(Throwable ex, SocketAddress remoteAddress, Message<GroupCommunicationMessage> message) {
+    LOG.entering("ExceptionHandler", "onNext", new Object[]{ex});
+    exceptions.add(new Exception(ex));
+    LOG.finest("Got an exception. Added it to list(" + exceptions.size() + ")");
+    LOG.exiting("ExceptionHandler", "onNext");
+  }
 }
