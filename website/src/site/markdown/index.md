@@ -42,9 +42,9 @@ The official home for the REEF (and Tang and Wake) source code is at the Apache 
 
 or directly access its GitHub page [here](https://github.com/apache/incubator-reef).
 
-Detailed information about REEF and using it can be found in the [FAQ](faq.html) and the [Tutorial](tutorial.html).
+Detailed information about REEF and using it can be found in the [FAQ](faq.html) and the [Tutorial](https://cwiki.apache.org/confluence/display/REEF/Tutorials).
 
-If you wish to contribute, start at the [Contributing](contributing.html) tutorial or the [Committer Guide](committer-guide.html)!
+If you wish to contribute, start at the [Contributing](https://cwiki.apache.org/confluence/display/REEF/Contributing) tutorial or the [Committer Guide](https://cwiki.apache.org/confluence/display/REEF/Committer+Guide)!
 
 ###Further questions?
 

@@ -58,4 +58,4 @@ ________________________________________________
 
 ###<a name="how"></a>How can I get started?
 
-Check out the [REEF Tutorial](tutorial.html) and the [Contributing](contributing.html) page and join the community! 
+Check out the [REEF Tutorial](https://cwiki.apache.org/confluence/display/REEF/Tutorials) and the [Contributing](https://cwiki.apache.org/confluence/display/REEF/Contributing) page and join the community!
