@@ -67,4 +67,13 @@ final class ResourceRequestQueue {
     return this.requestQueue.size();
   }
 
+  /**
+   * Retrieves but does not remove the head of the queue
+   * @return the head of the queue
+   *
+   */
+  synchronized ResourceRequest head() {
+    return requestQueue.element();
+  }
+
 }

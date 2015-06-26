@@ -33,23 +33,23 @@ import org.apache.reef.runtime.local.client.parameters.RootFolder;
 import org.apache.reef.runtime.local.process.ReefRunnableProcessObserver;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.wake.EventHandler;
-import org.apache.reef.wake.remote.address.LocalAddressProvider;
 import org.apache.reef.wake.remote.RemoteMessage;
+import org.apache.reef.wake.remote.address.LocalAddressProvider;
 import org.apache.reef.wake.time.Time;
 import org.apache.reef.wake.time.runtime.RuntimeClock;
 import org.apache.reef.wake.time.runtime.event.RuntimeStart;
 import org.apache.reef.wake.time.runtime.event.RuntimeStop;
 
-import javax.inject.Inject;
-
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import javax.inject.Inject;
 
 /**
  * Manages a set of Containers that each reference a Thread.
@@ -66,20 +66,21 @@ final class ContainerManager implements AutoCloseable {
   private final Map<String, Container> containers = new HashMap<>();
 
   /**
-   * List of free, unallocated nodes by their Node ID.
+   * Map of free, unallocated nodes by rack, by their Node ID.
    */
-  private final List<String> freeNodeList = new LinkedList<>();
+  private final Map<String, List<String>> freeNodesPerRack = new HashMap<>();
+  /**
+   * Capacity of each rack (as even as possible)
+   */
+  private final Map<String, Integer> capacityPerRack = new HashMap<>();
 
   private final String errorHandlerRID;
-  private final int capacity;
   private final EventHandler<NodeDescriptorEvent> nodeDescriptorHandler;
   private final File rootFolder;
   private final REEFFileNames fileNames;
   private final ReefRunnableProcessObserver processObserver;
   private final String localAddress;
-  // for now is a single rack, it will be a set in the next commit
-  private final String availableRack;
-
+  private final Set<String> availableRacks;
 
   @Inject
   ContainerManager(
@@ -93,17 +94,13 @@ final class ContainerManager implements AutoCloseable {
       @Parameter(RackNames.class) final Set<String> rackNames,
       final ReefRunnableProcessObserver processObserver,
       final LocalAddressProvider localAddressProvider) {
-    this.capacity = capacity;
     this.fileNames = fileNames;
     this.processObserver = processObserver;
     this.errorHandlerRID = remoteManager.getMyIdentifier();
     this.nodeDescriptorHandler = nodeDescriptorHandler;
     this.rootFolder = new File(rootFolderName);
     this.localAddress = localAddressProvider.getLocalAddress();
-    // this is safe, we are guaranteed that this is not empty (default value)
-    // we will just 1 rack for now, the next commit will include creating
-    // containers in different racks.
-    this.availableRack = rackNames.iterator().next();
+    this.availableRacks = rackNames;
 
     LOG.log(Level.FINEST, "Initializing Container Manager with {0} containers", capacity);
 
@@ -134,37 +131,65 @@ final class ContainerManager implements AutoCloseable {
       }
     });
 
+    init(capacity, rackNames);
+
     LOG.log(Level.FINE, "Initialized Container Manager with {0} containers", capacity);
   }
 
-  private void sendNodeDescriptors() {
-    final IDMaker idmaker = new IDMaker("Node-");
-    for (int i = 0; i < capacity; i++) {
-      final String id = idmaker.getNextID();
-      this.freeNodeList.add(id);
-      nodeDescriptorHandler.onNext(NodeDescriptorEventImpl.newBuilder()
-          .setIdentifier(id)
-          .setRackName(availableRack)
-          .setHostName(this.localAddress)
-          .setPort(i)
-          .setMemorySize(512) // TODO: Find the actual system memory on this machine.
-          .build());
+
+  private void init(final int capacity, final Set<String> rackNames) {
+    // evenly distribute the containers among the racks
+    // if rack names are not specified, the default rack will be used, so the denominator will always be > 0
+    final int capacityPerRack = capacity / rackNames.size();
+    int missing = capacity % rackNames.size();
+    // initialize the freeNodesPerRackList and the capacityPerRack
+    for (final String rackName : rackNames) {
+      this.freeNodesPerRack.put(rackName, new ArrayList<String>());
+      this.capacityPerRack.put(rackName, capacityPerRack);
+      if (missing > 0) {
+        this.capacityPerRack.put(rackName, this.capacityPerRack.get(rackName) + 1);
+        missing--;
+      }
     }
   }
 
-  boolean hasContainerAvailable() {
-    return this.freeNodeList.size() > 0;
+
+  private void sendNodeDescriptors() {
+    final IDMaker idmaker = new IDMaker("Node-");
+    int j = 0;
+    for (final String rackName : this.availableRacks) {
+      final int rackCapacity = this.capacityPerRack.get(rackName);
+      for (int i = 0; i < rackCapacity; i++) {
+        final String id = idmaker.getNextID();
+        this.freeNodesPerRack.get(rackName).add(id);
+        this.nodeDescriptorHandler.onNext(NodeDescriptorEventImpl.newBuilder()
+            .setIdentifier(id)
+            .setRackName(rackName)
+            .setHostName(this.localAddress)
+            .setPort(j)
+            .setMemorySize(512) // TODO: Find the actual system memory on this machine.
+            .build());
+        j++;
+      }
+    }
   }
 
-  Container allocateOne(final int megaBytes, final int numberOfCores) {
+  boolean hasContainerAvailable(final String rackName) {
+    // if rack name does not exist, return false
+    if (!freeNodesPerRack.containsKey(rackName)) {
+      return false;
+    }
+    return this.freeNodesPerRack.get(rackName).size() > 0;
+  }
+
+  Container allocateOne(final int megaBytes, final int numberOfCores, final String rackName) {
     synchronized (this.containers) {
-      final String nodeId = this.freeNodeList.remove(0);
+      final String nodeId = this.freeNodesPerRack.get(rackName).remove(0);
       final String processID = nodeId + "-" + String.valueOf(System.currentTimeMillis());
       final File processFolder = new File(this.rootFolder, processID);
       processFolder.mkdirs();
-      // setting rackName to null for now, will end up using the default one
       final ProcessContainer container = new ProcessContainer(
-          this.errorHandlerRID, nodeId, processID, processFolder, megaBytes, numberOfCores, availableRack, this.fileNames, this.processObserver);
+          this.errorHandlerRID, nodeId, processID, processFolder, megaBytes, numberOfCores, rackName, this.fileNames, this.processObserver);
       this.containers.put(container.getContainerID(), container);
       LOG.log(Level.FINE, "Allocated {0}", container.getContainerID());
       return container;
@@ -179,7 +204,7 @@ final class ContainerManager implements AutoCloseable {
         if (ctr.isRunning()) {
           ctr.close();
         }
-        this.freeNodeList.add(ctr.getNodeID());
+        this.freeNodesPerRack.get(ctr.getRackName()).add(ctr.getNodeID());
         this.containers.remove(ctr.getContainerID());
       } else {
         LOG.log(Level.INFO, "Ignoring release request for unknown containerID [{0}]", containerID);
