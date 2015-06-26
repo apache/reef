@@ -36,15 +36,20 @@ import org.apache.reef.io.network.group.impl.task.GroupCommNetworkHandlerImpl;
 import org.apache.reef.io.network.group.impl.utils.BroadcastingEventHandler;
 import org.apache.reef.io.network.group.impl.utils.Utils;
 import org.apache.reef.io.network.impl.*;
+import org.apache.reef.io.network.naming.NameResolver;
+import org.apache.reef.io.network.naming.NameResolverConfiguration;
 import org.apache.reef.io.network.naming.NameServer;
 import org.apache.reef.io.network.naming.NameServerImpl;
-import org.apache.reef.io.network.naming.NameServerParameters;
+import org.apache.reef.io.network.naming.parameters.NameResolverNameServerAddr;
+import org.apache.reef.io.network.naming.parameters.NameResolverNameServerPort;
 import org.apache.reef.io.network.util.StringIdentifierFactory;
 import org.apache.reef.tang.Configuration;
+import org.apache.reef.tang.Injector;
 import org.apache.reef.tang.JavaConfigurationBuilder;
 import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.Parameter;
+import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.tang.formats.ConfigurationSerializer;
 import org.apache.reef.util.SingletonAsserter;
 import org.apache.reef.wake.EStage;
@@ -170,7 +175,22 @@ public class GroupCommDriverImpl implements GroupCommServiceDriver {
         groupCommFailedEvaluatorHandler);
     this.groupCommMessageHandler = new GroupCommMessageHandler();
     this.groupCommMessageStage = new SingleThreadStage<>("GroupCommMessageStage", groupCommMessageHandler, 100 * 1000);
-    this.netService = new NetworkService<>(idFac, 0, nameServiceAddr, nameServicePort,
+
+    final Configuration nameResolverConf = Tang.Factory.getTang().newConfigurationBuilder(NameResolverConfiguration.CONF
+        .set(NameResolverConfiguration.NAME_SERVER_HOSTNAME, nameServiceAddr)
+        .set(NameResolverConfiguration.NAME_SERVICE_PORT, nameServicePort)
+        .build())
+        .build();
+
+    final Injector injector = Tang.Factory.getTang().newInjector(nameResolverConf);
+    NameResolver nameResolver = null;
+    try {
+      nameResolver = injector.getInstance(NameResolver.class);
+    } catch (InjectionException e) {
+      throw new RuntimeException(e);
+    }
+
+    this.netService = new NetworkService<>(idFac, 0, nameResolver,
         new GroupCommunicationMessageCodec(), tpFactory,
         new EventHandler<Message<GroupCommunicationMessage>>() {
 
@@ -243,8 +263,8 @@ public class GroupCommDriverImpl implements GroupCommServiceDriver {
             GroupCommNetworkHandlerImpl.class)
         .bindNamedParameter(NetworkServiceParameters.NetworkServiceExceptionHandler.class,
             ExceptionHandler.class)
-        .bindNamedParameter(NameServerParameters.NameServerAddr.class, nameServiceAddr)
-        .bindNamedParameter(NameServerParameters.NameServerPort.class, Integer.toString(nameServicePort))
+        .bindNamedParameter(NameResolverNameServerAddr.class, nameServiceAddr)
+        .bindNamedParameter(NameResolverNameServerPort.class, Integer.toString(nameServicePort))
         .bindNamedParameter(NetworkServiceParameters.NetworkServicePort.class, "0").build();
     LOG.exiting("GroupCommDriverImpl", "getServiceConf", confSerializer.toString(retVal));
     return retVal;

@@ -20,7 +20,10 @@ package org.apache.reef.services.network;
 
 import org.apache.reef.io.network.naming.*;
 import org.apache.reef.io.network.naming.exception.NamingException;
+import org.apache.reef.io.network.naming.parameters.NameResolverRetryCount;
+import org.apache.reef.io.network.naming.parameters.NameResolverRetryTimeout;
 import org.apache.reef.io.network.util.StringIdentifierFactory;
+import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Injector;
 import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.exceptions.InjectionException;
@@ -49,8 +52,8 @@ public class NameClientTest {
   static {
     Tang tang = Tang.Factory.getTang();
     try {
-      retryCount = tang.newInjector().getNamedInstance(NameLookupClient.RetryCount.class);
-      retryTimeout = tang.newInjector().getNamedInstance(NameLookupClient.RetryTimeout.class);
+      retryCount = tang.newInjector().getNamedInstance(NameResolverRetryCount.class);
+      retryTimeout = tang.newInjector().getNamedInstance(NameResolverRetryTimeout.class);
     } catch (InjectionException e1) {
       throw new RuntimeException("Exception while trying to find default values for retryCount & Timeout", e1);
     }
@@ -85,9 +88,16 @@ public class NameClientTest {
 
     try (final NameServer server = injector.getInstance(NameServer.class)) {
       int serverPort = server.getPort();
-      try (NameClient client = new NameClient(localAddress, serverPort, factory, retryCount, retryTimeout,
-          new NameCache(10000), localAddressProvider)) {
-        Identifier id = factory.getNewInstance("Task1");
+      final Configuration nameResolverConf = NameResolverConfiguration.CONF
+          .set(NameResolverConfiguration.NAME_SERVER_HOSTNAME, localAddress)
+          .set(NameResolverConfiguration.NAME_SERVICE_PORT, serverPort)
+          .set(NameResolverConfiguration.CACHE_TIMEOUT, 10000)
+          .set(NameResolverConfiguration.RETRY_TIMEOUT, retryTimeout)
+          .set(NameResolverConfiguration.RETRY_COUNT, retryCount)
+          .build();
+
+      try (final NameResolver client = Tang.Factory.getTang().newInjector(nameResolverConf).getInstance(NameClient.class)) {
+        final Identifier id = factory.getNewInstance("Task1");
         client.register(id, new InetSocketAddress(localAddress, 7001));
         client.unregister(id);
         Thread.sleep(100);
@@ -112,9 +122,16 @@ public class NameClientTest {
 
     try (final NameServer server = injector.getInstance(NameServer.class)) {
       int serverPort = server.getPort();
-      try (NameClient client = new NameClient(localAddress, serverPort, factory, retryCount, retryTimeout,
-          new NameCache(150), localAddressProvider)) {
-        Identifier id = factory.getNewInstance("Task1");
+      final Configuration nameResolverConf = NameResolverConfiguration.CONF
+          .set(NameResolverConfiguration.NAME_SERVER_HOSTNAME, localAddress)
+          .set(NameResolverConfiguration.NAME_SERVICE_PORT, serverPort)
+          .set(NameResolverConfiguration.CACHE_TIMEOUT, 150)
+          .set(NameResolverConfiguration.RETRY_TIMEOUT, retryTimeout)
+          .set(NameResolverConfiguration.RETRY_COUNT, retryCount)
+          .build();
+
+      try (final NameResolver client = Tang.Factory.getTang().newInjector(nameResolverConf).getInstance(NameClient.class)) {
+        final Identifier id = factory.getNewInstance("Task1");
         client.register(id, new InetSocketAddress(localAddress, 7001));
         client.lookup(id);// caches the entry
         client.unregister(id);

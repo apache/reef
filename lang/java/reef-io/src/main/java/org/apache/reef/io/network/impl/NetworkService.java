@@ -23,11 +23,12 @@ import org.apache.reef.io.naming.Naming;
 import org.apache.reef.io.network.Connection;
 import org.apache.reef.io.network.ConnectionFactory;
 import org.apache.reef.io.network.Message;
-import org.apache.reef.wake.remote.transport.TransportFactory;
-import org.apache.reef.io.network.naming.NameCache;
 import org.apache.reef.io.network.naming.NameClient;
-import org.apache.reef.io.network.naming.NameLookupClient;
-import org.apache.reef.io.network.naming.NameServerParameters;
+import org.apache.reef.io.network.naming.NameResolver;
+import org.apache.reef.io.network.naming.parameters.NameResolverNameServerAddr;
+import org.apache.reef.io.network.naming.parameters.NameResolverNameServerPort;
+import org.apache.reef.io.network.naming.parameters.NameResolverRetryCount;
+import org.apache.reef.io.network.naming.parameters.NameResolverRetryTimeout;
 import org.apache.reef.tang.Injector;
 import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.annotations.Parameter;
@@ -40,6 +41,7 @@ import org.apache.reef.wake.remote.address.LocalAddressProvider;
 import org.apache.reef.wake.remote.address.LocalAddressProviderFactory;
 import org.apache.reef.wake.remote.impl.TransportEvent;
 import org.apache.reef.wake.remote.transport.Transport;
+import org.apache.reef.wake.remote.transport.TransportFactory;
 import org.apache.reef.wake.remote.transport.netty.LoggingLinkListener;
 
 import javax.inject.Inject;
@@ -62,8 +64,8 @@ public final class NetworkService<T> implements Stage, ConnectionFactory<T> {
   static {
     try {
       final Injector injector = Tang.Factory.getTang().newInjector();
-      retryCount = injector.getNamedInstance(NameLookupClient.RetryCount.class);
-      retryTimeout = injector.getNamedInstance(NameLookupClient.RetryTimeout.class);
+      retryCount = injector.getNamedInstance(NameResolverRetryCount.class);
+      retryTimeout = injector.getNamedInstance(NameResolverRetryTimeout.class);
     } catch (final InjectionException ex) {
       final String msg = "Exception while trying to find default values for retryCount & Timeout";
       LOG.log(Level.SEVERE, msg, ex);
@@ -74,7 +76,7 @@ public final class NetworkService<T> implements Stage, ConnectionFactory<T> {
   private final IdentifierFactory factory;
   private final Codec<T> codec;
   private final Transport transport;
-  private final NameClient nameClient;
+  private final NameResolver nameResolver;
   private final ConcurrentMap<Identifier, Connection<T>> idToConnMap = new ConcurrentHashMap<>();
   private final EStage<Tuple<Identifier, InetSocketAddress>> nameServiceRegisteringStage;
   private final EStage<Identifier> nameServiceUnregisteringStage;
@@ -148,10 +150,29 @@ public final class NetworkService<T> implements Stage, ConnectionFactory<T> {
   public NetworkService(
       @Parameter(NetworkServiceParameters.NetworkServiceIdentifierFactory.class) final IdentifierFactory factory,
       @Parameter(NetworkServiceParameters.NetworkServicePort.class) final int nsPort,
-      @Parameter(NameServerParameters.NameServerAddr.class) final String nameServerAddr,
-      @Parameter(NameServerParameters.NameServerPort.class) final int nameServerPort,
-      @Parameter(NameLookupClient.RetryCount.class) final int retryCount,
-      @Parameter(NameLookupClient.RetryTimeout.class) final int retryTimeout,
+      @Parameter(NameResolverNameServerAddr.class) final String nameServerAddr,
+      @Parameter(NameResolverNameServerPort.class) final int nameServerPort,
+      @Parameter(NameResolverRetryCount.class) final int retryCount,
+      @Parameter(NameResolverRetryTimeout.class) final int retryTimeout,
+      @Parameter(NetworkServiceParameters.NetworkServiceCodec.class) final Codec<T> codec,
+      @Parameter(NetworkServiceParameters.NetworkServiceTransportFactory.class) final TransportFactory tpFactory,
+      @Parameter(NetworkServiceParameters.NetworkServiceHandler.class) final EventHandler<Message<T>> recvHandler,
+      @Parameter(NetworkServiceParameters.NetworkServiceExceptionHandler.class) final EventHandler<Exception> exHandler,
+      final LocalAddressProvider localAddressProvider) {
+    this(factory, nsPort, new NameClient(nameServerAddr, nameServerPort,
+        30000, factory, retryCount, retryTimeout, localAddressProvider, tpFactory),
+        codec, tpFactory, recvHandler, exHandler, localAddressProvider);
+  }
+
+  /**
+   * @deprecated in 0.12. Use Tang to obtain an instance of this instead.
+   */
+  @Deprecated
+  @Inject
+  public NetworkService(
+      @Parameter(NetworkServiceParameters.NetworkServiceIdentifierFactory.class) final IdentifierFactory factory,
+      @Parameter(NetworkServiceParameters.NetworkServicePort.class) final int nsPort,
+      final NameResolver nameResolver,
       @Parameter(NetworkServiceParameters.NetworkServiceCodec.class) final Codec<T> codec,
       @Parameter(NetworkServiceParameters.NetworkServiceTransportFactory.class) final TransportFactory tpFactory,
       @Parameter(NetworkServiceParameters.NetworkServiceHandler.class) final EventHandler<Message<T>> recvHandler,
@@ -164,15 +185,14 @@ public final class NetworkService<T> implements Stage, ConnectionFactory<T> {
         new LoggingEventHandler<TransportEvent>(),
         new MessageHandler<T>(recvHandler, codec, factory), exHandler);
 
-    this.nameClient = new NameClient(nameServerAddr, nameServerPort,
-        factory, retryCount, retryTimeout, new NameCache(30000), localAddressProvider);
+    this.nameResolver = nameResolver;
 
     this.nameServiceRegisteringStage = new SingleThreadStage<>(
         "NameServiceRegisterer", new EventHandler<Tuple<Identifier, InetSocketAddress>>() {
       @Override
       public void onNext(final Tuple<Identifier, InetSocketAddress> tuple) {
         try {
-          nameClient.register(tuple.getKey(), tuple.getValue());
+          nameResolver.register(tuple.getKey(), tuple.getValue());
           LOG.log(Level.FINEST, "Registered {0} with nameservice", tuple.getKey());
         } catch (final Exception ex) {
           final String msg = "Unable to register " + tuple.getKey() + "with name service";
@@ -187,7 +207,7 @@ public final class NetworkService<T> implements Stage, ConnectionFactory<T> {
       @Override
       public void onNext(final Identifier id) {
         try {
-          nameClient.unregister(id);
+          nameResolver.unregister(id);
           LOG.log(Level.FINEST, "Unregistered {0} with nameservice", id);
         } catch (final Exception ex) {
           final String msg = "Unable to unregister " + id + " with name service";
@@ -227,7 +247,7 @@ public final class NetworkService<T> implements Stage, ConnectionFactory<T> {
   }
 
   public Naming getNameClient() {
-    return this.nameClient;
+    return this.nameResolver;
   }
 
   public IdentifierFactory getIdentifierFactory() {
@@ -242,7 +262,7 @@ public final class NetworkService<T> implements Stage, ConnectionFactory<T> {
   public void close() throws Exception {
     LOG.log(Level.FINE, "Shutting down");
     this.transport.close();
-    this.nameClient.close();
+    this.nameResolver.close();
   }
 
   @Override
