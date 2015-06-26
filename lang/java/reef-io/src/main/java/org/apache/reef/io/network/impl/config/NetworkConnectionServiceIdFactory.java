@@ -16,45 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.io.network;
+package org.apache.reef.io.network.impl.config;
 
-import org.apache.reef.exception.evaluator.NetworkException;
+import org.apache.reef.io.network.util.StringIdentifierFactory;
+import org.apache.reef.tang.annotations.Name;
+import org.apache.reef.tang.annotations.NamedParameter;
+import org.apache.reef.wake.IdentifierFactory;
 
-import java.util.List;
-
-/**
- * Connection between two end-points named by identifiers.
- *
- * @param <T> type
- */
-public interface Connection<T> extends AutoCloseable {
-
-  /**
-   * Opens the connection.
-   *
-   * @throws NetworkException
-   */
-  void open() throws NetworkException;
-
-  /**
-   * Writes a message to the connection.
-   *
-   * @param message
-   */
-  void write(T message);
-
-  /**
-   * Writes a list of messages to the connection.
-   *
-   * @param messages
-   */
-  void write(List<T> messages);
-
-  /**
-   * Closes the connection.
-   *
-   * @throws NetworkException
-   */
-  @Override
-  void close() throws NetworkException;
+@NamedParameter(doc = "identifier factory for the service", short_name = "ncsfactory",
+    default_class = StringIdentifierFactory.class)
+public final class NetworkConnectionServiceIdFactory implements Name<IdentifierFactory> {
 }

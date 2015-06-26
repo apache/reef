@@ -16,45 +16,27 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.io.network;
+package org.apache.reef.io.network.impl;
 
-import org.apache.reef.exception.evaluator.NetworkException;
+import org.apache.reef.wake.EventHandler;
 
-import java.util.List;
+import javax.inject.Inject;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
- * Connection between two end-points named by identifiers.
- *
- * @param <T> type
+ * Default exception handler.
  */
-public interface Connection<T> extends AutoCloseable {
+public final class NetworkConnectionServiceExceptionHandler implements EventHandler<Exception> {
 
-  /**
-   * Opens the connection.
-   *
-   * @throws NetworkException
-   */
-  void open() throws NetworkException;
+  private static final Logger LOG = Logger.getLogger(NetworkConnectionServiceExceptionHandler.class.getName());
 
-  /**
-   * Writes a message to the connection.
-   *
-   * @param message
-   */
-  void write(T message);
+  @Inject
+  public NetworkConnectionServiceExceptionHandler() {
+  }
 
-  /**
-   * Writes a list of messages to the connection.
-   *
-   * @param messages
-   */
-  void write(List<T> messages);
-
-  /**
-   * Closes the connection.
-   *
-   * @throws NetworkException
-   */
   @Override
-  void close() throws NetworkException;
+  public void onNext(final Exception value) {
+    LOG.log(Level.WARNING, "An exception occurred in transport of NetworkConnectionService: {0}", value);
+  }
 }

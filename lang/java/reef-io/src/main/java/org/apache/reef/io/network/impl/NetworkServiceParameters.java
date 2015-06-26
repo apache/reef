@@ -39,7 +39,7 @@ public class NetworkServiceParameters {
   public static class NetworkServiceIdentifierFactory implements Name<IdentifierFactory> {
   }
 
-  @NamedParameter(doc = "port for the network service", short_name = "nsport", default_value = "7070")
+  @NamedParameter(doc = "port for the network service", short_name = "nsport", default_value = "0")
   public static class NetworkServicePort implements Name<Integer> {
   }
 

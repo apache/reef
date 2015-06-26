@@ -16,45 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.io.network;
-
-import org.apache.reef.exception.evaluator.NetworkException;
-
-import java.util.List;
-
 /**
- * Connection between two end-points named by identifiers.
- *
- * @param <T> type
+ * TODO: Document.
  */
-public interface Connection<T> extends AutoCloseable {
-
-  /**
-   * Opens the connection.
-   *
-   * @throws NetworkException
-   */
-  void open() throws NetworkException;
-
-  /**
-   * Writes a message to the connection.
-   *
-   * @param message
-   */
-  void write(T message);
-
-  /**
-   * Writes a list of messages to the connection.
-   *
-   * @param messages
-   */
-  void write(List<T> messages);
-
-  /**
-   * Closes the connection.
-   *
-   * @throws NetworkException
-   */
-  @Override
-  void close() throws NetworkException;
-}
+package org.apache.reef.io.network.impl.config;

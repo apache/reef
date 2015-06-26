@@ -16,45 +16,42 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.io.network;
+package org.apache.reef.services.network.util;
 
-import org.apache.reef.exception.evaluator.NetworkException;
+import org.apache.reef.io.network.impl.StreamingCodec;
 
-import java.util.List;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 
-/**
- * Connection between two end-points named by identifiers.
- *
- * @param <T> type
- */
-public interface Connection<T> extends AutoCloseable {
 
-  /**
-   * Opens the connection.
-   *
-   * @throws NetworkException
-   */
-  void open() throws NetworkException;
+public class StreamingIntegerCodec implements StreamingCodec<Integer> {
 
-  /**
-   * Writes a message to the connection.
-   *
-   * @param message
-   */
-  void write(T message);
-
-  /**
-   * Writes a list of messages to the connection.
-   *
-   * @param messages
-   */
-  void write(List<T> messages);
-
-  /**
-   * Closes the connection.
-   *
-   * @throws NetworkException
-   */
   @Override
-  void close() throws NetworkException;
+  public void encodeToStream(Integer obj, DataOutputStream stream) {
+    try {
+      stream.writeInt(obj);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  @Override
+  public Integer decodeFromStream(DataInputStream stream) {
+    try {
+      return stream.readInt();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  @Override
+  public Integer decode(byte[] data) {
+    return null;
+  }
+
+  @Override
+  public byte[] encode(Integer obj) {
+    return new byte[0];
+  }
 }

@@ -28,6 +28,7 @@ import org.apache.reef.wake.remote.transport.LinkListener;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -94,14 +95,19 @@ class NSConnection<T> implements Connection<T> {
   }
 
   /**
-   * Writes an object to the connection.
+   * Writes a message to the connection.
    *
-   * @param obj an object of type T
+   * @param message a message of type T
    * @throws a network exception
    */
   @Override
-  public void write(final T obj) throws NetworkException {
-    this.link.write(new NSMessage<T>(this.srcId, this.destId, obj));
+  public void write(final T message) {
+    this.link.write(new NSMessage<T>(this.srcId, this.destId, message));
+  }
+
+  @Override
+  public void write(List<T> messages) {
+    this.link.write(new NSMessage<T>(this.srcId, this.destId, messages));
   }
 
   /**
