@@ -29,7 +29,8 @@ import org.junit.Test;
 import java.io.File;
 import java.io.IOException;
 
-public class TestClassHierarchyRoundTrip extends TestClassHierarchy {
+public class TestAvroClassHierarchySerializerRoundTrip extends TestClassHierarchy {
+
   // The default ClassHierarchy
   private void setup0() {
     TangImpl.reset();
@@ -41,6 +42,7 @@ public class TestClassHierarchyRoundTrip extends TestClassHierarchy {
     TangImpl.reset();
     try {
       final File file = java.io.File.createTempFile("TangTest", "avroch");
+      final AvroClassHierarchySerializer serializer = new AvroClassHierarchySerializer();
       serializer.toFile(ns, file);
       ns = serializer.fromFile(file);
       file.delete();
@@ -54,6 +56,7 @@ public class TestClassHierarchyRoundTrip extends TestClassHierarchy {
     TangImpl.reset();
     try {
       final File textFile = java.io.File.createTempFile("TangTest", "avroch");
+      final AvroClassHierarchySerializer serializer = new AvroClassHierarchySerializer();
       serializer.toTextFile(ns, textFile);
       ns = serializer.fromTextFile(textFile);
       textFile.delete();
@@ -66,6 +69,7 @@ public class TestClassHierarchyRoundTrip extends TestClassHierarchy {
   private void setup3() {
     TangImpl.reset();
     try {
+      final AvroClassHierarchySerializer serializer = new AvroClassHierarchySerializer();
       ns = serializer.fromByteArray(serializer.toByteArray(ns));
     } catch (IOException e) {
       Assert.fail(String.format("IOException when serialize/deserialize the ClassHierarchy", e));
@@ -76,6 +80,7 @@ public class TestClassHierarchyRoundTrip extends TestClassHierarchy {
   private void setup4() {
     TangImpl.reset();
     try {
+      final AvroClassHierarchySerializer serializer = new AvroClassHierarchySerializer();
       ns = serializer.fromString(serializer.toString(ns));
     } catch (IOException e) {
       Assert.fail(String.format("IOException when serialize/deserialize the ClassHierarchy", e));
