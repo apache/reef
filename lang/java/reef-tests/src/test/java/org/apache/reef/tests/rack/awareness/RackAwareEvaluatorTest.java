@@ -78,7 +78,9 @@ public final class RackAwareEvaluatorTest {
    * Test whether the runtime passes the rack information to the driver
    * The success scenario is if it receives rack1, fails otherwise
    */
-  @Test
+  //@Test
+  // TODO Re-enable once we define the API to specify the information where resources should run on
+  // OnDriverStartedAllocateOne will need to be replaced, and contain that it wants to run in RACK1, which will be the only one available
   public void testRackAwareEvaluatorRunningOnRack1() throws InjectionException {
     //Given
     final Configuration driverConfiguration = DriverConfiguration.CONF
