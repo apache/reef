@@ -26,11 +26,6 @@ import org.apache.reef.tang.InjectionFuture;
 import org.apache.reef.tang.types.ConstructorDef;
 import org.apache.reef.tang.util.MonotonicHashMap;
 import org.apache.reef.tang.util.ReflectionUtilities;
-import org.apache.reef.wake.EventHandler;
-import org.apache.reef.wake.Stage;
-import org.apache.reef.wake.rx.Observable;
-import org.apache.reef.wake.rx.Observer;
-import org.apache.reef.wake.rx.RxStage;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;

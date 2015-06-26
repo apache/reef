@@ -279,7 +279,7 @@ under the License.
                     <version>${maven-checkstyle-plugin.version}</version>
                     <configuration>
                         <configLocation>lang/java/reef-common/src/main/resources/checkstyle.xml</configLocation>
-                        <failOnViolation>false</failOnViolation>
+                        <failOnViolation>true</failOnViolation>
                         <format>xml</format>
                         <format>html</format>
                         <outputFile>${project.build.directory}/test/checkstyle-errors.xml</outputFile>
@@ -334,6 +334,16 @@ under the License.
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
                 <version>${maven-checkstyle-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>validate</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>check</goal>
+                            <goal>checkstyle</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
