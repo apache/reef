@@ -55,15 +55,16 @@ public final class RackAwareEvaluatorTest {
   }
 
   /**
-  * Tests whether the runtime passes the rack information to the driver
-  * The success scenario is if it receives the default rack, fails otherwise
+  * Tests whether the runtime passes the rack information to the driver.
+  * The success scenario is if it receives the default rack, fails otherwise.
   */
   @Test
   public void testRackAwareEvaluatorRunningOnDefaultRack() {
     //Given
     final Configuration driverConfiguration = DriverConfiguration.CONF
         .set(DriverConfiguration.DRIVER_IDENTIFIER, "TEST_RackAwareEvaluator")
-        .set(DriverConfiguration.GLOBAL_LIBRARIES, EnvironmentUtils.getClassLocation(RackAwareEvaluatorTestDriver.class))
+        .set(DriverConfiguration.GLOBAL_LIBRARIES,
+            EnvironmentUtils.getClassLocation(RackAwareEvaluatorTestDriver.class))
         .set(DriverConfiguration.ON_DRIVER_STARTED, OnDriverStartedAllocateOne.class)
         .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, RackAwareEvaluatorTestDriver.EvaluatorAllocatedHandler.class)
         .build();
@@ -75,15 +76,20 @@ public final class RackAwareEvaluatorTest {
   }
 
   /**
-   * Test whether the runtime passes the rack information to the driver
+   * Test whether the runtime passes the rack information to the driver.
    * The success scenario is if it receives rack1, fails otherwise
    */
-  @Test
+  //@Test
+  // TODO Re-enable once we define the API to specify the information where
+  // resources should run on (JIRA REEF-416)
+  // OnDriverStartedAllocateOne will need to be replaced, and contain that it
+  // wants to run in RACK1, which will be the only one available
   public void testRackAwareEvaluatorRunningOnRack1() throws InjectionException {
     //Given
     final Configuration driverConfiguration = DriverConfiguration.CONF
         .set(DriverConfiguration.DRIVER_IDENTIFIER, "TEST_RackAwareEvaluator")
-        .set(DriverConfiguration.GLOBAL_LIBRARIES, EnvironmentUtils.getClassLocation(RackAwareEvaluatorTestDriver.class))
+        .set(DriverConfiguration.GLOBAL_LIBRARIES,
+            EnvironmentUtils.getClassLocation(RackAwareEvaluatorTestDriver.class))
         .set(DriverConfiguration.ON_DRIVER_STARTED, OnDriverStartedAllocateOne.class)
         .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, RackAwareEvaluatorTestDriver.EvaluatorAllocatedHandler.class)
         .build();
