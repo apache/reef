@@ -28,15 +28,15 @@ import javax.inject.Inject;
 @DriverSide
 @Private
 final class MesosResourceReleaseHandler implements ResourceReleaseHandler {
-  private final REEFScheduler REEFScheduler;
+  private final REEFScheduler reefScheduler;
 
   @Inject
-  MesosResourceReleaseHandler(final REEFScheduler REEFScheduler) {
-    this.REEFScheduler = REEFScheduler;
+  MesosResourceReleaseHandler(final REEFScheduler reefScheduler) {
+    this.reefScheduler = reefScheduler;
   }
 
   @Override
   public void onNext(final ResourceReleaseEvent resourceReleaseEvent) {
-    REEFScheduler.onResourceRelease(resourceReleaseEvent);
+    reefScheduler.onResourceRelease(resourceReleaseEvent);
   }
 }

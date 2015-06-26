@@ -56,14 +56,14 @@ public final class NetworkService<T> implements Stage, ConnectionFactory<T> {
 
   private static final Logger LOG = Logger.getLogger(NetworkService.class.getName());
 
-  private static final int retryCount;
-  private static final int retryTimeout;
+  private static final int RETRY_COUNT;
+  private static final int RETRY_TIMEOUT;
 
   static {
     try {
       final Injector injector = Tang.Factory.getTang().newInjector();
-      retryCount = injector.getNamedInstance(NameResolverRetryCount.class);
-      retryTimeout = injector.getNamedInstance(NameResolverRetryTimeout.class);
+      RETRY_COUNT = injector.getNamedInstance(NameResolverRetryCount.class);
+      RETRY_TIMEOUT = injector.getNamedInstance(NameResolverRetryTimeout.class);
     } catch (final InjectionException ex) {
       final String msg = "Exception while trying to find default values for retryCount & Timeout";
       LOG.log(Level.SEVERE, msg, ex);
@@ -102,7 +102,7 @@ public final class NetworkService<T> implements Stage, ConnectionFactory<T> {
                         final EventHandler<Exception> exHandler,
                         final LocalAddressProvider localAddressProvider) {
     this(factory, nsPort, nameServerAddr, nameServerPort,
-        retryCount, retryTimeout, codec, tpFactory, recvHandler, exHandler, localAddressProvider);
+            RETRY_COUNT, RETRY_TIMEOUT, codec, tpFactory, recvHandler, exHandler, localAddressProvider);
   }
 
   /**
@@ -118,7 +118,7 @@ public final class NetworkService<T> implements Stage, ConnectionFactory<T> {
                         final EventHandler<Message<T>> recvHandler,
                         final EventHandler<Exception> exHandler) {
     this(factory, nsPort, nameServerAddr, nameServerPort,
-        retryCount, retryTimeout, codec, tpFactory, recvHandler, exHandler, LocalAddressProviderFactory.getInstance());
+            RETRY_COUNT, RETRY_TIMEOUT, codec, tpFactory, recvHandler, exHandler, LocalAddressProviderFactory.getInstance());
   }
 
   /**

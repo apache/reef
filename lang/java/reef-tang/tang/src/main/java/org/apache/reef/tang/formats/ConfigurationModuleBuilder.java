@@ -37,9 +37,9 @@ import java.util.Set;
 
 public abstract class ConfigurationModuleBuilder {
 
-  private static final Set<Class<?>> paramBlacklist = new MonotonicHashSet<Class<?>>(
+  private static final Set<Class<?>> PARAM_BLACKLIST = new MonotonicHashSet<Class<?>>(
       Param.class, Impl.class);
-  private static final Set<Class<?>> paramTypes = new MonotonicHashSet<Class<?>>(
+  private static final Set<Class<?>> PARAM_TYPES = new MonotonicHashSet<Class<?>>(
       RequiredImpl.class, OptionalImpl.class, RequiredParameter.class,
       OptionalParameter.class);
   final JavaConfigurationBuilder b = Tang.Factory.getTang()
@@ -62,12 +62,12 @@ public abstract class ConfigurationModuleBuilder {
   protected ConfigurationModuleBuilder() {
     for (Field f : getClass().getDeclaredFields()) {
       Class<?> t = f.getType();
-      if (paramBlacklist.contains(t)) {
+      if (PARAM_BLACKLIST.contains(t)) {
         throw new ClassHierarchyException(
             "Found a field of type " + t + " which should be a Required/Optional Parameter/Implementation instead"
         );
       }
-      if (paramTypes.contains(t)) {
+      if (PARAM_TYPES.contains(t)) {
         if (!Modifier.isPublic(f.getModifiers())) {
           throw new ClassHierarchyException(
               "Found a non-public configuration option in " + getClass() + ": "

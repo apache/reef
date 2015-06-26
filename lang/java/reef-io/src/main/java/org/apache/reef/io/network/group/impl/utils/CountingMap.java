@@ -31,7 +31,7 @@ import java.util.logging.Logger;
  * and removing key on count==0
  */
 public class CountingMap<L> {
-
+  private static final Logger LOG = Logger.getLogger(CountingMap.class.getName());
   private final Map<L, Integer> map = new HashMap<>();
 
   public boolean containsKey(final L value) {
@@ -78,7 +78,6 @@ public class CountingMap<L> {
   }
 
   public static void main(final String[] args) {
-    final Logger LOG = Logger.getLogger(CountingMap.class.getName());
     final CountingMap<String> strMap = new CountingMap<>();
     strMap.add("Hello");
     LOG.log(Level.INFO, "OUT: {0}", strMap);

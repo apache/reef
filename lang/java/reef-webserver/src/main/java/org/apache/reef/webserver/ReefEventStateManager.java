@@ -48,9 +48,9 @@ public final class ReefEventStateManager {
   private static final Logger LOG = Logger.getLogger(ReefEventStateManager.class.getName());
 
   /**
-   * date format.
+   * Date format.
    */
-  private static final Format format = new SimpleDateFormat("yyyy MM dd HH:mm:ss");
+  private static final Format FORMAT = new SimpleDateFormat("yyyy MM dd HH:mm:ss");
 
   /**
    * Map of evaluators.
@@ -125,7 +125,7 @@ public final class ReefEventStateManager {
    */
   private String convertTime(final long time) {
     final Date date = new Date(time);
-    return format.format(date).toString();
+    return FORMAT.format(date).toString();
   }
 
   /**

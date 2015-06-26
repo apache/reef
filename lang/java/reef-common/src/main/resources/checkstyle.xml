@@ -92,22 +92,14 @@
         <module name="ConstantName">
             <property name="severity" value="warning"/>
         </module>
-        <module name="LocalFinalVariableName">
-            <property name="severity" value="warning"/>
-        </module>
-        <module name="LocalVariableName">
-            <property name="severity" value="warning"/>
-        </module>
-        <module name="MemberName">
-            <property name="severity" value="warning"/>
-        </module>
+        <module name="LocalFinalVariableName"/>
+        <module name="LocalVariableName"/>
+        <module name="MemberName"/>
         <module name="MethodName">
             <property name="severity" value="warning"/>
         </module>
         <module name="PackageName"/>
-        <module name="ParameterName">
-            <property name="severity" value="warning"/>
-        </module>
+        <module name="ParameterName"/>
         <module name="StaticVariableName">
             <property name="severity" value="warning"/>
         </module>

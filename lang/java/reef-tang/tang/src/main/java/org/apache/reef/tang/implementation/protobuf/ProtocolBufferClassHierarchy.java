@@ -37,7 +37,6 @@ import java.util.List;
 @Deprecated
 public class ProtocolBufferClassHierarchy implements ClassHierarchy {
 
-  private static final String regex = "[\\.\\$\\+]";
   private final PackageNode namespace;
   private HashMap<String, Node> lookupTable = new HashMap<>();
 
@@ -360,22 +359,6 @@ public class ProtocolBufferClassHierarchy implements ClassHierarchy {
   public Node getNode(String fullName) throws NameResolutionException {
 
     Node ret = lookupTable.get(fullName);
-/*    String[] tok = fullName.split(regex);
-
-    Node ret = namespace.get(fullName);
-    for (int i = 0; i < tok.length; i++) {
-      Node n = namespace.get(getNthPrefix(fullName, i));
-      if (n != null) {
-        for (i++; i < tok.length; i++) {
-          n = n.get(tok[i]);
-          if (n == null) {
-            throw new NameResolutionException(fullName, getNthPrefix(fullName,
-                i - 1));
-          }
-        }
-        return n;
-      }
-    } */
     if (ret != null) {
       return ret;
     } else {

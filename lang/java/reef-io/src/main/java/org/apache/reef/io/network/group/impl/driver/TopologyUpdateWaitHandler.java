@@ -87,7 +87,7 @@ public class TopologyUpdateWaitHandler implements EventHandler<List<TaskNode>> {
     LOG.fine(qualifiedName + "All affected parts of the topology are in TopologyUpdate phase. Will send a note to ("
         + dstId + "," + dstVersion + ")");
     senderStage.onNext(Utils.bldVersionedGCM(groupName, operName, ReefNetworkGroupCommProtos.GroupCommMessage.Type.TopologyUpdated, driverId, driverVersion, dstId,
-        dstVersion, Utils.EmptyByteArr));
+        dstVersion, Utils.EMPTY_BYTE_ARR));
     LOG.exiting("TopologyUpdateWaitHandler", "onNext", qualifiedName);
   }
 

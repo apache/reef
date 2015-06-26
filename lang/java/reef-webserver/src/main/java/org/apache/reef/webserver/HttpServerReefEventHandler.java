@@ -49,7 +49,7 @@ public final class HttpServerReefEventHandler implements HttpHandler {
 
   private static final Logger LOG = Logger.getLogger(HttpServerReefEventHandler.class.getName());
 
-  private static final String ver = "v1";
+  private static final String VER = "v1";
   private final String driverStdoutFile;
   private final String driverStderrFile;
 
@@ -122,7 +122,7 @@ public final class HttpServerReefEventHandler implements HttpHandler {
       case "evaluators": {
         final String queryStr = parsedHttpRequest.getQueryString();
         if (queryStr == null || queryStr.isEmpty()) {
-          if (version.equals(ver)) {
+          if (version.equals(VER)) {
             writeEvaluatorsJsonOutput(response);
           } else {
             writeEvaluatorsWebOutput(response);
@@ -133,7 +133,7 @@ public final class HttpServerReefEventHandler implements HttpHandler {
         break;
       }
       case "driver":
-        if (version.equals(ver)) {
+        if (version.equals(VER)) {
           writeDriverJsonInformation(response);
         } else {
           writeDriverWebInformation(response);
@@ -199,7 +199,7 @@ public final class HttpServerReefEventHandler implements HttpHandler {
 
       switch (queryTarget) {
         case "id":
-          if (version.equals(ver)) {
+          if (version.equals(VER)) {
             writeEvaluatorInfoJsonOutput(response, entry.getValue());
           } else {
             writeEvaluatorInfoWebOutput(response, entry.getValue());

@@ -60,8 +60,8 @@ public final class WeightedLogisticLossFunction implements LossFunction {
     if (predictedTimesLabel >= 0) {
       probability = 1 / (1 + Math.exp(-predictedTimesLabel));
     } else {
-      final double ExpVal = Math.exp(predictedTimesLabel);
-      probability = ExpVal / (1 + ExpVal);
+      final double expVal = Math.exp(predictedTimesLabel);
+      probability = expVal / (1 + expVal);
     }
 
     return (probability - 1) * y * weight;

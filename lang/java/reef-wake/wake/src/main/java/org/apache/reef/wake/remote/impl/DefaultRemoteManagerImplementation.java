@@ -47,7 +47,7 @@ public class DefaultRemoteManagerImplementation implements RemoteManager {
 
   private static final Logger LOG = Logger.getLogger(HandlerContainer.class.getName());
 
-  private static final AtomicInteger counter = new AtomicInteger(0);
+  private static final AtomicInteger COUNTER = new AtomicInteger(0);
 
   /**
    * The timeout used for the execute running in close().
@@ -128,7 +128,7 @@ public class DefaultRemoteManagerImplementation implements RemoteManager {
     StageManager.instance().register(this);
 
     LOG.log(Level.FINEST, "RemoteManager {0} instantiated id {1} counter {2} listening on {3}:{4}. Binding address provided by {5}",
-        new Object[]{this.name, this.myIdentifier, counter.incrementAndGet(),
+        new Object[]{this.name, this.myIdentifier, COUNTER.incrementAndGet(),
             this.transport.getLocalAddress().toString(),
             this.transport.getListeningPort(), localAddressProvider}
     );

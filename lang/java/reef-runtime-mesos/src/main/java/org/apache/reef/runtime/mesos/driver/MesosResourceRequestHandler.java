@@ -28,15 +28,15 @@ import javax.inject.Inject;
 @DriverSide
 @Private
 final class MesosResourceRequestHandler implements ResourceRequestHandler {
-  private final REEFScheduler REEFScheduler;
+  private final REEFScheduler reefScheduler;
 
   @Inject
-  MesosResourceRequestHandler(final REEFScheduler REEFScheduler) {
-    this.REEFScheduler = REEFScheduler;
+  MesosResourceRequestHandler(final REEFScheduler reefScheduler) {
+    this.reefScheduler = reefScheduler;
   }
 
   @Override
   public void onNext(final ResourceRequestEvent resourceRequestEvent) {
-    REEFScheduler.onResourceRequest(resourceRequestEvent);
+    reefScheduler.onResourceRequest(resourceRequestEvent);
   }
 }

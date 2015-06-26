@@ -34,7 +34,7 @@ public final class StageManager implements Stage {
 
   private static final Logger LOG = Logger.getLogger(StageManager.class.getName());
 
-  private static final StageManager instance = new StageManager();
+  private static final StageManager INSTANCE = new StageManager();
 
   private final List<Stage> stages = Collections.synchronizedList(new ArrayList<Stage>());
   private final AtomicBoolean closed = new AtomicBoolean(false);
@@ -58,7 +58,7 @@ public final class StageManager implements Stage {
   }
 
   public static StageManager instance() {
-    return instance;
+    return INSTANCE;
   }
 
   public void register(final Stage stage) {

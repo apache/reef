@@ -31,7 +31,7 @@ import java.util.logging.Logger;
  * Equivalent to Map<K,Map<V,Integer>>
  */
 public class ConcurrentCountingMap<K, V> {
-
+  private static final Logger LOG = Logger.getLogger(ConcurrentCountingMap.class.getName());
   private final ConcurrentMap<K, CountingMap<V>> map = new ConcurrentHashMap<>();
 
   public boolean remove(final K key, final V value) {
@@ -91,7 +91,6 @@ public class ConcurrentCountingMap<K, V> {
   }
 
   public static void main(final String[] args) {
-    final Logger LOG = Logger.getLogger(ConcurrentCountingMap.class.getName());
     final ConcurrentCountingMap<ReefNetworkGroupCommProtos.GroupCommMessage.Type, String> strMap = new ConcurrentCountingMap<>();
     LOG.log(Level.INFO, "OUT: {0}", strMap.isEmpty());
     strMap.add(ReefNetworkGroupCommProtos.GroupCommMessage.Type.ChildAdd, "ST0");

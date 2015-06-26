@@ -109,9 +109,9 @@ public class InjectorImpl implements Injector {
         throw new IllegalStateException();
       }
       try {
-        ClassNode<?> new_cn = (ClassNode<?>) i.namespace.getNode(cn
+        ClassNode<?> newCn = (ClassNode<?>) i.namespace.getNode(cn
             .getFullName());
-        i.instances.put(new_cn, old.instances.get(cn));
+        i.instances.put(newCn, old.instances.get(cn));
       } catch (BindException e) {
         throw new IllegalStateException("Could not resolve name "
             + cn.getFullName() + " when copying injector");
@@ -122,9 +122,9 @@ public class InjectorImpl implements Injector {
     for (NamedParameterNode<?> np : old.namedParameterInstances.keySet()) {
       // if (!builder.namedParameters.containsKey(np)) {
       Object o = old.namedParameterInstances.get(np);
-      NamedParameterNode<?> new_np = (NamedParameterNode<?>) i.namespace
+      NamedParameterNode<?> newNp = (NamedParameterNode<?>) i.namespace
           .getNode(np.getFullName());
-      i.namedParameterInstances.put(new_np, o);
+      i.namedParameterInstances.put(newNp, o);
     }
     // Fork the aspect (if any)
     if (old.aspect != null) {
@@ -171,7 +171,7 @@ public class InjectorImpl implements Injector {
       final List<ClassNode<T>> candidateImplementations,
       final Map<Node, InjectionPlan<?>> memo) {
 
-    final List<InjectionPlan<T>> sub_ips = new ArrayList<>();
+    final List<InjectionPlan<T>> subIps = new ArrayList<>();
     for (final ClassNode<T> thisCN : candidateImplementations) {
       final List<Constructor<T>> constructors = new ArrayList<>();
       final List<ConstructorDef<T>> constructorList = new ArrayList<>();
@@ -243,11 +243,11 @@ public class InjectorImpl implements Injector {
         }
       }
       if (constructors.size() > 0) {
-        sub_ips.add(wrapInjectionPlans(thisCN, constructors, false,
-            liveIndices.size() == 1 ? liveIndices.get(0) : -1));
+        subIps.add(wrapInjectionPlans(thisCN, constructors, false,
+                liveIndices.size() == 1 ? liveIndices.get(0) : -1));
       }
     }
-    return sub_ips;
+    return subIps;
   }
 
   @SuppressWarnings("unchecked")
@@ -276,11 +276,11 @@ public class InjectorImpl implements Injector {
       // other impls to the list of things to consider.
       final List<ClassNode<T>> candidateImplementations = new ArrayList<>();
       candidateImplementations.add(cn);
-      final List<InjectionPlan<T>> sub_ips = filterCandidateConstructors(candidateImplementations, memo);
-      if (sub_ips.size() == 1) {
-        return wrapInjectionPlans(cn, sub_ips, false, -1);
+      final List<InjectionPlan<T>> subIps = filterCandidateConstructors(candidateImplementations, memo);
+      if (subIps.size() == 1) {
+        return wrapInjectionPlans(cn, subIps, false, -1);
       } else {
-        return wrapInjectionPlans(cn, sub_ips, true, -1);
+        return wrapInjectionPlans(cn, subIps, true, -1);
       }
     }
   }

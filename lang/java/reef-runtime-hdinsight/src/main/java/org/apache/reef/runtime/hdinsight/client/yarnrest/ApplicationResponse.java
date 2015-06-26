@@ -34,7 +34,7 @@ import java.io.StringWriter;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public final class ApplicationResponse {
 
-  private static String APPLICATION_RESPONSE = "applicationResponse";
+  private static final String APPLICATION_RESPONSE = "applicationResponse";
   private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
   private ApplicationState app;

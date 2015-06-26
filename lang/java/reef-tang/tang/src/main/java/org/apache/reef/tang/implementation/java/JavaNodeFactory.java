@@ -166,43 +166,43 @@ public final class JavaNodeFactory {
     }
     final boolean hasStringDefault, hasClassDefault, hasStringSetDefault, hasClassSetDefault;
 
-    int default_count = 0;
+    int defaultCount = 0;
     if (!namedParameter.default_value().isEmpty()) {
       hasStringDefault = true;
-      default_count++;
+      defaultCount++;
     } else {
       hasStringDefault = false;
     }
     if (namedParameter.default_class() != Void.class) {
       hasClassDefault = true;
-      default_count++;
+      defaultCount++;
     } else {
       hasClassDefault = false;
     }
     if (namedParameter.default_values() != null && namedParameter.default_values().length > 0) {
       hasStringSetDefault = true;
-      default_count++;
+      defaultCount++;
     } else {
       hasStringSetDefault = false;
     }
     if (namedParameter.default_classes() != null && namedParameter.default_classes().length > 0) {
       hasClassSetDefault = true;
-      default_count++;
+      defaultCount++;
     } else {
       hasClassSetDefault = false;
     }
-    if (default_count > 1) {
+    if (defaultCount > 1) {
       throw new ClassHierarchyException("Named parameter " + fullName + " defines more than one of default_value, default_class, default_values and default_classes");
     }
 
     final String[] defaultInstanceAsStrings;
 
-    if (default_count == 0) {
+    if (defaultCount == 0) {
       defaultInstanceAsStrings = new String[]{};
     } else if (hasClassDefault) {
-      final Class<?> default_class = namedParameter.default_class();
-      assertIsSubclassOf(clazz, default_class, argClass);
-      defaultInstanceAsStrings = new String[]{ReflectionUtilities.getFullName(default_class)};
+      final Class<?> defaultClass = namedParameter.default_class();
+      assertIsSubclassOf(clazz, defaultClass, argClass);
+      defaultInstanceAsStrings = new String[]{ReflectionUtilities.getFullName(defaultClass)};
     } else if (hasStringDefault) {
       // Don't know if the string is a class or literal here, so don't bother validating.
       defaultInstanceAsStrings = new String[]{namedParameter.default_value()};
@@ -228,7 +228,7 @@ public final class JavaNodeFactory {
         fullArgName, simpleArgName, isSet, isList, documentation, shortName, defaultInstanceAsStrings);
   }
 
-  private static void assertIsSubclassOf(Class<?> named_parameter, Class<?> default_class,
+  private static void assertIsSubclassOf(Class<?> namedParameter, Class<?> defaultClass,
                                          Type argClass) {
     boolean isSubclass = false;
     boolean isGenericSubclass = false;
@@ -239,7 +239,7 @@ public final class JavaNodeFactory {
 
     /// If we have a Name that takes EventHandler<A>, we want to be able to pass in an EventHandler<Object>.
 
-    for (final Type c : ReflectionUtilities.classAndAncestors(default_class)) {
+    for (final Type c : ReflectionUtilities.classAndAncestors(defaultClass)) {
       if (ReflectionUtilities.getRawClass(c).equals(argRawClass)) {
         isSubclass = true;
         if (argClass instanceof ParameterizedType &&
@@ -267,12 +267,12 @@ public final class JavaNodeFactory {
     }
 
     if (!(isSubclass)) {
-      throw new ClassHierarchyException(named_parameter + " defines a default class "
-          + ReflectionUtilities.getFullName(default_class) + " with a raw type that does not extend of its target's raw type " + argRawClass);
+      throw new ClassHierarchyException(namedParameter + " defines a default class "
+          + ReflectionUtilities.getFullName(defaultClass) + " with a raw type that does not extend of its target's raw type " + argRawClass);
     }
     if (!(isGenericSubclass)) {
-      throw new ClassHierarchyException(named_parameter + " defines a default class "
-          + ReflectionUtilities.getFullName(default_class) + " with a type that does not extend its target's type " + argClass);
+      throw new ClassHierarchyException(namedParameter + " defines a default class "
+          + ReflectionUtilities.getFullName(defaultClass) + " with a type that does not extend its target's type " + argClass);
     }
   }
 

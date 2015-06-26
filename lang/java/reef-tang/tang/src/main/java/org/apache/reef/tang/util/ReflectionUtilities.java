@@ -35,15 +35,15 @@ public final class ReflectionUtilities {
   /**
    * A map from numeric classes to the number of bits used by their representations.
    */
-  private static final Map<Class<?>, Integer> sizeof = new HashMap<>();
+  private static final Map<Class<?>, Integer> SIZEOF = new HashMap<>();
 
   static {
-    sizeof.put(Byte.class, Byte.SIZE);
-    sizeof.put(Short.class, Short.SIZE);
-    sizeof.put(Integer.class, Integer.SIZE);
-    sizeof.put(Long.class, Long.SIZE);
-    sizeof.put(Float.class, Float.SIZE);
-    sizeof.put(Double.class, Double.SIZE);
+    SIZEOF.put(Byte.class, Byte.SIZE);
+    SIZEOF.put(Short.class, Short.SIZE);
+    SIZEOF.put(Integer.class, Integer.SIZE);
+    SIZEOF.put(Long.class, Long.SIZE);
+    SIZEOF.put(Float.class, Float.SIZE);
+    SIZEOF.put(Double.class, Double.SIZE);
   }
 
   /**
@@ -148,7 +148,7 @@ public final class ReflectionUtilities {
     from = boxClass(from);
     if (Number.class.isAssignableFrom(to)
         && Number.class.isAssignableFrom(from)) {
-      return sizeof.get(from) <= sizeof.get(to);
+      return SIZEOF.get(from) <= SIZEOF.get(to);
     }
     return to.isAssignableFrom(from);
   }
