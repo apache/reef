@@ -24,8 +24,6 @@ import org.apache.reef.io.network.naming.exception.NamingException;
 import org.apache.reef.io.network.naming.serialization.NamingLookupRequest;
 import org.apache.reef.io.network.naming.serialization.NamingLookupResponse;
 import org.apache.reef.io.network.naming.serialization.NamingMessage;
-import org.apache.reef.tang.annotations.Name;
-import org.apache.reef.tang.annotations.NamedParameter;
 import org.apache.reef.util.cache.Cache;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.Identifier;
@@ -38,9 +36,9 @@ import org.apache.reef.wake.remote.address.LocalAddressProviderFactory;
 import org.apache.reef.wake.remote.impl.TransportEvent;
 import org.apache.reef.wake.remote.transport.Link;
 import org.apache.reef.wake.remote.transport.Transport;
+import org.apache.reef.wake.remote.transport.TransportFactory;
 import org.apache.reef.wake.remote.transport.netty.LoggingLinkListener;
 import org.apache.reef.wake.remote.transport.netty.MessagingTransportFactory;
-import org.apache.reef.wake.remote.transport.TransportFactory;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
@@ -279,14 +277,6 @@ public class NameLookupClient implements Stage, NamingLookup {
   public void close() throws Exception {
     // Should not close transport as we did not
     // create it
-  }
-
-  @NamedParameter(doc = "When should a retry timeout(msec)?", short_name = "retryTimeout", default_value = "100")
-  public static class RetryTimeout implements Name<Integer> {
-  }
-
-  @NamedParameter(doc = "How many times should I retry?", short_name = "retryCount", default_value = "10")
-  public static class RetryCount implements Name<Integer> {
   }
 }
 

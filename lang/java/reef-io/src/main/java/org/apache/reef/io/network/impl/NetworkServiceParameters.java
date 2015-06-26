@@ -18,14 +18,14 @@
  */
 package org.apache.reef.io.network.impl;
 
-import org.apache.reef.wake.remote.transport.netty.MessagingTransportFactory;
-import org.apache.reef.wake.remote.transport.TransportFactory;
 import org.apache.reef.io.network.util.StringIdentifierFactory;
 import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.IdentifierFactory;
 import org.apache.reef.wake.remote.Codec;
+import org.apache.reef.wake.remote.transport.TransportFactory;
+import org.apache.reef.wake.remote.transport.netty.MessagingTransportFactory;
 
 public class NetworkServiceParameters {
 
@@ -57,5 +57,4 @@ public class NetworkServiceParameters {
   @NamedParameter(doc = "network exception handler for the network service", short_name = "exhandler")
   public static class NetworkServiceExceptionHandler implements Name<EventHandler<?>> {
   }
-
 }
