@@ -56,8 +56,8 @@ import org.apache.reef.wake.impl.SyncStage;
 import org.apache.reef.wake.impl.ThreadPoolStage;
 import org.apache.reef.wake.remote.address.LocalAddressProvider;
 import org.apache.reef.wake.remote.address.LocalAddressProviderFactory;
-import org.apache.reef.wake.remote.transport.netty.MessagingTransportFactory;
 import org.apache.reef.wake.remote.transport.TransportFactory;
+import org.apache.reef.wake.remote.transport.netty.MessagingTransportFactory;
 
 import javax.inject.Inject;
 import java.util.HashMap;
@@ -139,10 +139,25 @@ public class GroupCommDriverImpl implements GroupCommServiceDriver {
                              @Parameter(TreeTopologyFanOut.class) final int fanOut,
                              final LocalAddressProvider localAddressProvider,
                              final TransportFactory tpFactory) {
+    this(confSerializer, driverId, fanOut, localAddressProvider, tpFactory,
+        new NameServerImpl(0, new StringIdentifierFactory()));
+  }
+
+  /**
+   * @deprecated in 0.12. Use Tang to obtain an instance of this instead.
+   */
+  @Deprecated
+  @Inject
+  public GroupCommDriverImpl(final ConfigurationSerializer confSerializer,
+                             @Parameter(DriverIdentifier.class) final String driverId,
+                             @Parameter(TreeTopologyFanOut.class) final int fanOut,
+                             final LocalAddressProvider localAddressProvider,
+                             final TransportFactory tpFactory,
+                             final NameServer nameService) {
     assert (SingletonAsserter.assertSingleton(getClass()));
     this.driverId = driverId;
     this.fanOut = fanOut;
-    this.nameService = new NameServerImpl(0, idFac, localAddressProvider);
+    this.nameService = nameService;
     this.nameServiceAddr = localAddressProvider.getLocalAddress();
     this.nameServicePort = nameService.getPort();
     this.confSerializer = confSerializer;

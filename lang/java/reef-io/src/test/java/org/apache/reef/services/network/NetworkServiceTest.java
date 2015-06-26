@@ -21,19 +21,21 @@ package org.apache.reef.services.network;
 import org.apache.reef.exception.evaluator.NetworkException;
 import org.apache.reef.io.network.Connection;
 import org.apache.reef.io.network.Message;
-import org.apache.reef.wake.remote.transport.netty.MessagingTransportFactory;
 import org.apache.reef.io.network.impl.NetworkService;
 import org.apache.reef.io.network.naming.NameServer;
-import org.apache.reef.io.network.naming.NameServerImpl;
+import org.apache.reef.io.network.naming.NameServerParameters;
 import org.apache.reef.io.network.util.StringIdentifierFactory;
 import org.apache.reef.services.network.util.Monitor;
 import org.apache.reef.services.network.util.StringCodec;
+import org.apache.reef.tang.Injector;
+import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.Identifier;
 import org.apache.reef.wake.IdentifierFactory;
 import org.apache.reef.wake.remote.address.LocalAddressProvider;
 import org.apache.reef.wake.remote.address.LocalAddressProviderFactory;
+import org.apache.reef.wake.remote.transport.netty.MessagingTransportFactory;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
@@ -70,7 +72,10 @@ public class NetworkServiceTest {
 
     IdentifierFactory factory = new StringIdentifierFactory();
 
-    NameServer server = new NameServerImpl(0, factory, localAddressProvider);
+    final Injector injector = Tang.Factory.getTang().newInjector();
+    injector.bindVolatileParameter(NameServerParameters.NameServerIdentifierFactory.class, factory);
+    injector.bindVolatileInstance(LocalAddressProvider.class, this.localAddressProvider);
+    final NameServer server = injector.getInstance(NameServer.class);
     int nameServerPort = server.getPort();
 
     final int numMessages = 10;
@@ -125,7 +130,10 @@ public class NetworkServiceTest {
 
     IdentifierFactory factory = new StringIdentifierFactory();
 
-    NameServer server = new NameServerImpl(0, factory, localAddressProvider);
+    final Injector injector = Tang.Factory.getTang().newInjector();
+    injector.bindVolatileParameter(NameServerParameters.NameServerIdentifierFactory.class, factory);
+    injector.bindVolatileInstance(LocalAddressProvider.class, this.localAddressProvider);
+    final NameServer server = injector.getInstance(NameServer.class);
     int nameServerPort = server.getPort();
 
     final int[] messageSizes = {1, 16, 32, 64, 512, 64 * 1024, 1024 * 1024};
@@ -196,7 +204,10 @@ public class NetworkServiceTest {
 
     final IdentifierFactory factory = new StringIdentifierFactory();
 
-    final NameServer server = new NameServerImpl(0, factory, localAddressProvider);
+    final Injector injector = Tang.Factory.getTang().newInjector();
+    injector.bindVolatileParameter(NameServerParameters.NameServerIdentifierFactory.class, factory);
+    injector.bindVolatileInstance(LocalAddressProvider.class, this.localAddressProvider);
+    final NameServer server = injector.getInstance(NameServer.class);
     final int nameServerPort = server.getPort();
 
     BlockingQueue<Object> barrier = new LinkedBlockingQueue<Object>();
@@ -288,7 +299,10 @@ public class NetworkServiceTest {
 
     IdentifierFactory factory = new StringIdentifierFactory();
 
-    NameServer server = new NameServerImpl(0, factory, localAddressProvider);
+    final Injector injector = Tang.Factory.getTang().newInjector();
+    injector.bindVolatileParameter(NameServerParameters.NameServerIdentifierFactory.class, factory);
+    injector.bindVolatileInstance(LocalAddressProvider.class, this.localAddressProvider);
+    final NameServer server = injector.getInstance(NameServer.class);
     int nameServerPort = server.getPort();
 
     final int[] messageSizes = {2000};// {1,16,32,64,512,64*1024,1024*1024};
@@ -377,7 +391,10 @@ public class NetworkServiceTest {
 
     IdentifierFactory factory = new StringIdentifierFactory();
 
-    NameServer server = new NameServerImpl(0, factory, localAddressProvider);
+    final Injector injector = Tang.Factory.getTang().newInjector();
+    injector.bindVolatileParameter(NameServerParameters.NameServerIdentifierFactory.class, factory);
+    injector.bindVolatileInstance(LocalAddressProvider.class, this.localAddressProvider);
+    final NameServer server = injector.getInstance(NameServer.class);
     int nameServerPort = server.getPort();
 
     final int batchSize = 1024 * 1024;

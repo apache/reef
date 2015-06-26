@@ -50,7 +50,7 @@ import java.util.logging.Logger;
 /**
  * Naming server implementation.
  */
-public class NameServerImpl implements NameServer {
+public final class NameServerImpl implements NameServer {
 
   private static final Logger LOG = Logger.getLogger(NameServer.class.getName());
 
@@ -63,14 +63,15 @@ public class NameServerImpl implements NameServer {
   /**
    * @param port    a listening port number
    * @param factory an identifier factory
-   * @deprecated inject the NameServer instead of new it up
+   * @param localAddressProvider a local address provider
    * Constructs a name server
+   * @deprecated in 0.12. Use Tang to obtain an instance of this or, better, NameServer, instead.
    */
-  // TODO: All existing NameServer usage is currently new-up, need to make them injected as well.
   @Deprecated
+  @Inject
   public NameServerImpl(
-      final int port,
-      final IdentifierFactory factory,
+      @Parameter(NameServerParameters.NameServerPort.class) final int port,
+      @Parameter(NameServerParameters.NameServerIdentifierFactory.class) final IdentifierFactory factory,
       final LocalAddressProvider localAddressProvider) {
 
     Injector injector = Tang.Factory.getTang().newInjector();
@@ -102,7 +103,6 @@ public class NameServerImpl implements NameServer {
   @Deprecated
   public NameServerImpl(final int port, final IdentifierFactory factory) {
     this(port, factory, LocalAddressProviderFactory.getInstance());
-
   }
 
   /**
@@ -134,7 +134,6 @@ public class NameServerImpl implements NameServer {
     this(port, factory, reefEventStateManager, localAddressProvider, new MessagingTransportFactory());
   }
 
-
   /**
    * Constructs a name server.
    *
@@ -143,7 +142,9 @@ public class NameServerImpl implements NameServer {
    * @param reefEventStateManager the event state manager used to register name server info
    * @param localAddressProvider  a local address provider
    * @param tpFactory             a transport factory
+   * @deprecated in 0.12. Use Tang to obtain an instance of this or, better, NameServer, instead.
    */
+  @Deprecated
   @Inject
   public NameServerImpl(
       @Parameter(NameServerParameters.NameServerPort.class) final int port,
