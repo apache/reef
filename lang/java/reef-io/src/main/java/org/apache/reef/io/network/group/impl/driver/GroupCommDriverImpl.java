@@ -37,7 +37,6 @@ import org.apache.reef.io.network.group.impl.utils.BroadcastingEventHandler;
 import org.apache.reef.io.network.group.impl.utils.Utils;
 import org.apache.reef.io.network.impl.*;
 import org.apache.reef.io.network.naming.NameServer;
-import org.apache.reef.io.network.naming.NameServerImpl;
 import org.apache.reef.io.network.naming.NameServerParameters;
 import org.apache.reef.io.network.util.StringIdentifierFactory;
 import org.apache.reef.tang.Configuration;
@@ -56,8 +55,8 @@ import org.apache.reef.wake.impl.SyncStage;
 import org.apache.reef.wake.impl.ThreadPoolStage;
 import org.apache.reef.wake.remote.address.LocalAddressProvider;
 import org.apache.reef.wake.remote.address.LocalAddressProviderFactory;
-import org.apache.reef.wake.remote.transport.netty.MessagingTransportFactory;
 import org.apache.reef.wake.remote.transport.TransportFactory;
+import org.apache.reef.wake.remote.transport.netty.MessagingTransportFactory;
 
 import javax.inject.Inject;
 import java.util.HashMap;
@@ -113,20 +112,9 @@ public class GroupCommDriverImpl implements GroupCommServiceDriver {
   @Inject
   public GroupCommDriverImpl(final ConfigurationSerializer confSerializer,
                              @Parameter(DriverIdentifier.class) final String driverId,
-                             @Parameter(TreeTopologyFanOut.class) final int fanOut) {
-    this(confSerializer, driverId, fanOut, LocalAddressProviderFactory.getInstance());
-  }
-
-  /**
-   * @deprecated Have an instance injected instead.
-   */
-  @Deprecated
-  @Inject
-  public GroupCommDriverImpl(final ConfigurationSerializer confSerializer,
-                             @Parameter(DriverIdentifier.class) final String driverId,
                              @Parameter(TreeTopologyFanOut.class) final int fanOut,
-                             final LocalAddressProvider localAddressProvider) {
-    this(confSerializer, driverId, fanOut, localAddressProvider, new MessagingTransportFactory());
+                             final NameServer nameService) {
+    this(confSerializer, driverId, fanOut, LocalAddressProviderFactory.getInstance(), nameService);
   }
 
   /**
@@ -138,11 +126,25 @@ public class GroupCommDriverImpl implements GroupCommServiceDriver {
                              @Parameter(DriverIdentifier.class) final String driverId,
                              @Parameter(TreeTopologyFanOut.class) final int fanOut,
                              final LocalAddressProvider localAddressProvider,
-                             final TransportFactory tpFactory) {
+                             final NameServer nameService) {
+    this(confSerializer, driverId, fanOut, localAddressProvider, new MessagingTransportFactory(), nameService);
+  }
+
+  /**
+   * @deprecated Have an instance injected instead.
+   */
+  @Deprecated
+  @Inject
+  public GroupCommDriverImpl(final ConfigurationSerializer confSerializer,
+                             @Parameter(DriverIdentifier.class) final String driverId,
+                             @Parameter(TreeTopologyFanOut.class) final int fanOut,
+                             final LocalAddressProvider localAddressProvider,
+                             final TransportFactory tpFactory,
+                             final NameServer nameService) {
     assert (SingletonAsserter.assertSingleton(getClass()));
     this.driverId = driverId;
     this.fanOut = fanOut;
-    this.nameService = new NameServerImpl(0, idFac, localAddressProvider);
+    this.nameService = nameService;
     this.nameServiceAddr = localAddressProvider.getLocalAddress();
     this.nameServicePort = nameService.getPort();
     this.confSerializer = confSerializer;

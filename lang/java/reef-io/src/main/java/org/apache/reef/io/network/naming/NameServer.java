@@ -20,6 +20,7 @@
 package org.apache.reef.io.network.naming;
 
 import org.apache.reef.io.naming.NameAssignment;
+import org.apache.reef.tang.annotations.DefaultImplementation;
 import org.apache.reef.wake.Identifier;
 import org.apache.reef.wake.Stage;
 
@@ -29,6 +30,7 @@ import java.util.List;
 /**
  * Naming server interface.
  */
+@DefaultImplementation(NameServerImpl.class)
 public interface NameServer extends Stage {
 
   /**

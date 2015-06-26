@@ -32,11 +32,9 @@ import org.apache.reef.wake.impl.SyncStage;
 import org.apache.reef.wake.remote.Codec;
 import org.apache.reef.wake.remote.RemoteConfiguration;
 import org.apache.reef.wake.remote.address.LocalAddressProvider;
-import org.apache.reef.wake.remote.address.LocalAddressProviderFactory;
 import org.apache.reef.wake.remote.impl.TransportEvent;
 import org.apache.reef.wake.remote.transport.Transport;
 import org.apache.reef.wake.remote.transport.TransportFactory;
-import org.apache.reef.wake.remote.transport.netty.MessagingTransportFactory;
 import org.apache.reef.wake.remote.transport.netty.NettyMessagingTransport;
 import org.apache.reef.webserver.AvroReefServiceInfo;
 import org.apache.reef.webserver.ReefEventStateManager;
@@ -50,7 +48,7 @@ import java.util.logging.Logger;
 /**
  * Naming server implementation.
  */
-public class NameServerImpl implements NameServer {
+public final class NameServerImpl implements NameServer {
 
   private static final Logger LOG = Logger.getLogger(NameServer.class.getName());
 
@@ -63,14 +61,13 @@ public class NameServerImpl implements NameServer {
   /**
    * @param port    a listening port number
    * @param factory an identifier factory
-   * @deprecated inject the NameServer instead of new it up
+   * @param localAddressProvider a local address provider
    * Constructs a name server
    */
-  // TODO: All existing NameServer usage is currently new-up, need to make them injected as well.
-  @Deprecated
-  public NameServerImpl(
-      final int port,
-      final IdentifierFactory factory,
+  @Inject
+  private NameServerImpl(
+      @Parameter(NameServerParameters.NameServerPort.class) final int port,
+      @Parameter(NameServerParameters.NameServerIdentifierFactory.class) final IdentifierFactory factory,
       final LocalAddressProvider localAddressProvider) {
 
     Injector injector = Tang.Factory.getTang().newInjector();
@@ -96,44 +93,6 @@ public class NameServerImpl implements NameServer {
     LOG.log(Level.FINE, "NameServer starting, listening at port {0}", this.port);
   }
 
-  /**
-   * @deprecated have an instance injected instead
-   */
-  @Deprecated
-  public NameServerImpl(final int port, final IdentifierFactory factory) {
-    this(port, factory, LocalAddressProviderFactory.getInstance());
-
-  }
-
-  /**
-   * @deprecated have an instance injected instead
-   */
-  @Deprecated
-  public NameServerImpl(
-      final int port,
-      final IdentifierFactory factory,
-      final ReefEventStateManager reefEventStateManager) {
-    this(port, factory, reefEventStateManager, LocalAddressProviderFactory.getInstance());
-  }
-
-  /**
-   * Constructs a name server.
-   *
-   * @param port                  a listening port number
-   * @param factory               an identifier factory
-   * @param reefEventStateManager the event state manager used to register name server info
-   * @param localAddressProvider  a local address provider
-   * @deprecated have an instance injected instead
-   */
-  @Deprecated
-  public NameServerImpl(
-      final int port,
-      final IdentifierFactory factory,
-      final ReefEventStateManager reefEventStateManager,
-      final LocalAddressProvider localAddressProvider) {
-    this(port, factory, reefEventStateManager, localAddressProvider, new MessagingTransportFactory());
-  }
-
 
   /**
    * Constructs a name server.
@@ -145,7 +104,7 @@ public class NameServerImpl implements NameServer {
    * @param tpFactory             a transport factory
    */
   @Inject
-  public NameServerImpl(
+  private NameServerImpl(
       @Parameter(NameServerParameters.NameServerPort.class) final int port,
       @Parameter(NameServerParameters.NameServerIdentifierFactory.class) final IdentifierFactory factory,
       final ReefEventStateManager reefEventStateManager,

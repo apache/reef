@@ -21,6 +21,7 @@ package org.apache.reef.services.network;
 import org.apache.reef.io.network.naming.*;
 import org.apache.reef.io.network.naming.exception.NamingException;
 import org.apache.reef.io.network.util.StringIdentifierFactory;
+import org.apache.reef.tang.Injector;
 import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.wake.Identifier;
@@ -78,7 +79,11 @@ public class NameClientTest {
   public final void testClose() throws Exception {
     final String localAddress = localAddressProvider.getLocalAddress();
     IdentifierFactory factory = new StringIdentifierFactory();
-    try (NameServer server = new NameServerImpl(0, factory, this.localAddressProvider)) {
+    Injector injector = Tang.Factory.getTang().newInjector();
+    injector.bindVolatileParameter(NameServerParameters.NameServerIdentifierFactory.class, factory);
+    injector.bindVolatileInstance(LocalAddressProvider.class, this.localAddressProvider);
+
+    try (NameServer server = injector.getInstance(NameServer.class)) {
       int serverPort = server.getPort();
       try (NameClient client = new NameClient(localAddress, serverPort, factory, retryCount, retryTimeout,
           new NameCache(10000), localAddressProvider)) {
@@ -101,7 +106,11 @@ public class NameClientTest {
   public final void testLookup() throws Exception {
     IdentifierFactory factory = new StringIdentifierFactory();
     final String localAddress = localAddressProvider.getLocalAddress();
-    try (NameServer server = new NameServerImpl(0, factory, this.localAddressProvider)) {
+    Injector injector = Tang.Factory.getTang().newInjector();
+    injector.bindVolatileParameter(NameServerParameters.NameServerIdentifierFactory.class, factory);
+    injector.bindVolatileInstance(LocalAddressProvider.class, this.localAddressProvider);
+
+    try (NameServer server = injector.getInstance(NameServer.class)) {
       int serverPort = server.getPort();
       try (NameClient client = new NameClient(localAddress, serverPort, factory, retryCount, retryTimeout,
           new NameCache(150), localAddressProvider)) {

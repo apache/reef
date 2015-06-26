@@ -90,7 +90,10 @@ public class NamingTest {
     idToAddrMap.put(this.factory.getNewInstance("task2"), new InetSocketAddress(localAddress, 7002));
 
     // run a server
-    final NameServer server = new NameServerImpl(0, this.factory, this.localAddressProvider);
+    Injector injector = Tang.Factory.getTang().newInjector();
+    injector.bindVolatileParameter(NameServerParameters.NameServerIdentifierFactory.class, this.factory);
+    injector.bindVolatileInstance(LocalAddressProvider.class, this.localAddressProvider);
+    final NameServer server = injector.getInstance(NameServer.class);
     this.port = server.getPort();
     for (final Identifier id : idToAddrMap.keySet()) {
       server.register(id, idToAddrMap.get(id));
@@ -142,7 +145,10 @@ public class NamingTest {
       idToAddrMap.put(this.factory.getNewInstance("task3"), new InetSocketAddress(localAddress, 7003));
 
       // run a server
-      final NameServer server = new NameServerImpl(0, this.factory, this.localAddressProvider);
+      Injector injector = Tang.Factory.getTang().newInjector();
+      injector.bindVolatileParameter(NameServerParameters.NameServerIdentifierFactory.class, this.factory);
+      injector.bindVolatileInstance(LocalAddressProvider.class, this.localAddressProvider);
+      final NameServer server = injector.getInstance(NameServer.class);
       this.port = server.getPort();
       for (final Identifier id : idToAddrMap.keySet()) {
         server.register(id, idToAddrMap.get(id));
@@ -225,7 +231,10 @@ public class NamingTest {
 
     LOG.log(Level.FINEST, this.name.getMethodName());
 
-    final NameServer server = new NameServerImpl(0, this.factory, this.localAddressProvider);
+    Injector injector = Tang.Factory.getTang().newInjector();
+    injector.bindVolatileParameter(NameServerParameters.NameServerIdentifierFactory.class, this.factory);
+    injector.bindVolatileInstance(LocalAddressProvider.class, this.localAddressProvider);
+    final NameServer server = injector.getInstance(NameServer.class);
     this.port = server.getPort();
     final String localAddress = localAddressProvider.getLocalAddress();
 
@@ -287,7 +296,10 @@ public class NamingTest {
     LOG.log(Level.FINEST, this.name.getMethodName());
 
     final String localAddress = localAddressProvider.getLocalAddress();
-    final NameServer server = new NameServerImpl(0, this.factory, this.localAddressProvider);
+    Injector injector = Tang.Factory.getTang().newInjector();
+    injector.bindVolatileParameter(NameServerParameters.NameServerIdentifierFactory.class, this.factory);
+    injector.bindVolatileInstance(LocalAddressProvider.class, this.localAddressProvider);
+    final NameServer server = injector.getInstance(NameServer.class);
     this.port = server.getPort();
 
     final Map<Identifier, InetSocketAddress> idToAddrMap = new HashMap<Identifier, InetSocketAddress>();
