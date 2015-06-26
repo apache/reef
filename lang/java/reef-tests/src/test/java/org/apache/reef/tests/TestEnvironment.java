@@ -56,5 +56,4 @@ public interface TestEnvironment {
 
   LauncherStatus run(final Configuration driverConfiguration);
 
-  LauncherStatus run(final Configuration runtimeConfiguration, Configuration driverConfiguration);
 }

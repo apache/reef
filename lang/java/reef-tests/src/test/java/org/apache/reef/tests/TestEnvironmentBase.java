@@ -30,13 +30,8 @@ public abstract class TestEnvironmentBase implements TestEnvironment {
 
   @Override
   public LauncherStatus run(final Configuration driverConfiguration) {
-    return run(getRuntimeConfiguration(), driverConfiguration);
-  }
-
-  @Override
-  public LauncherStatus run(final Configuration runtimeConfiguration, Configuration driverConfiguration) {
     try {
-      return DriverLauncher.getLauncher(runtimeConfiguration).run(driverConfiguration, getTestTimeout());
+      return DriverLauncher.getLauncher(getRuntimeConfiguration()).run(driverConfiguration, getTestTimeout());
     } catch (final InjectionException e) {
       throw new RuntimeException(e);
     }

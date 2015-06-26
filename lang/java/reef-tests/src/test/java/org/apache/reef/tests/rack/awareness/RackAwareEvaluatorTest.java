@@ -19,10 +19,12 @@
 package org.apache.reef.tests.rack.awareness;
 
 import org.apache.reef.client.DriverConfiguration;
+import org.apache.reef.client.DriverLauncher;
 import org.apache.reef.client.LauncherStatus;
 import org.apache.reef.runtime.local.client.parameters.RackNames;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Tang;
+import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.tests.LocalTestEnvironment;
 import org.apache.reef.tests.TestEnvironment;
 import org.apache.reef.tests.library.driver.OnDriverStartedAllocateOne;
@@ -77,7 +79,7 @@ public final class RackAwareEvaluatorTest {
    * The success scenario is if it receives rack1, fails otherwise
    */
   @Test
-  public void testRackAwareEvaluatorRunningOnRack1() {
+  public void testRackAwareEvaluatorRunningOnRack1() throws InjectionException {
     //Given
     final Configuration driverConfiguration = DriverConfiguration.CONF
         .set(DriverConfiguration.DRIVER_IDENTIFIER, "TEST_RackAwareEvaluator")
@@ -96,7 +98,8 @@ public final class RackAwareEvaluatorTest {
         .build();
 
     // When
-    final LauncherStatus status = this.testEnvironment.run(testRuntimeConfig, testDriverConfig);
+    final LauncherStatus status = DriverLauncher.getLauncher(testRuntimeConfig)
+                                              .run(testDriverConfig, this.testEnvironment.getTestTimeout());
     // Then
     Assert.assertTrue("Job state after execution: " + status, status.isSuccess());
   }
