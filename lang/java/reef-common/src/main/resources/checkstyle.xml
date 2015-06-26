@@ -225,6 +225,11 @@
         </module>
         <module name="TodoComment">
             <property name="severity" value="warning"/>
+            <property name="format" value="TODO[^\[][^J][^I][^R][^A]"/>
+        </module>
+        <module name="TodoComment">
+            <property name="severity" value="info"/>
+            <property name="format" value="TODO\[JIRA"/>
         </module>
         <module name="UpperEll"/>
     </module>
