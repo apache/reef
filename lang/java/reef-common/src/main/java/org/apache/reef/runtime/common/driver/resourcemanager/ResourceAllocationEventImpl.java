@@ -39,7 +39,6 @@ public final class ResourceAllocationEventImpl implements ResourceAllocationEven
     this.nodeId = BuilderUtils.notNull(builder.nodeId);
     this.virtualCores = Optional.ofNullable(builder.virtualCores);
     this.rackName = Optional.ofNullable(builder.rackName);
-
   }
 
   @Override
@@ -117,7 +116,7 @@ public final class ResourceAllocationEventImpl implements ResourceAllocationEven
     /**
      * @see ResourceAllocationEvent#getRackName()
      */
-    public Builder setRackName(String rackName) {
+    public Builder setRackName(final String rackName) {
       this.rackName = rackName;
       return this;
     }

@@ -52,6 +52,11 @@ public final class RackAwareEvaluatorTest {
     this.testEnvironment.tearDown();
   }
 
+  /**
+  * Tests whether the runtime passes the rack information to the driver
+  * The success scenario is if it receives the default rack, fails otherwise
+  */
+  @Test
   public void testRackAwareEvaluatorRunningOnDefaultRack() {
     //Given
     final Configuration driverConfiguration = DriverConfiguration.CONF
@@ -67,6 +72,10 @@ public final class RackAwareEvaluatorTest {
     Assert.assertTrue("Job state after execution: " + status, status.isSuccess());
   }
 
+  /**
+   * Test whether the runtime passes the rack information to the driver
+   * The success scenario is if it receives rack1, fails otherwise
+   */
   @Test
   public void testRackAwareEvaluatorRunningOnRack1() {
     //Given
@@ -78,10 +87,13 @@ public final class RackAwareEvaluatorTest {
         .build();
 
     // update the drive config with the rack to assert on
-    final Configuration testDriverConfig = Tang.Factory.getTang().newConfigurationBuilder(driverConfiguration).bindNamedParameter(RackNameParameter.class, RACK1).build();
+    final Configuration testDriverConfig = Tang.Factory.getTang().newConfigurationBuilder(driverConfiguration)
+        .bindNamedParameter(RackNameParameter.class, RACK1).build();
 
     // update the runtime config with the rack available using the config module
-    final Configuration testRuntimeConfig = Tang.Factory.getTang().newConfigurationBuilder(this.testEnvironment.getRuntimeConfiguration()).bindSetEntry(RackNames.class, RACK1).build();
+    final Configuration testRuntimeConfig = Tang.Factory.getTang()
+        .newConfigurationBuilder(this.testEnvironment.getRuntimeConfiguration()).bindSetEntry(RackNames.class, RACK1)
+        .build();
 
     // When
     final LauncherStatus status = this.testEnvironment.run(testRuntimeConfig, testDriverConfig);

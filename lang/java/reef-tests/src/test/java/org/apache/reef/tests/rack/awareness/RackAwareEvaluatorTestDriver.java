@@ -21,9 +21,8 @@ package org.apache.reef.tests.rack.awareness;
 import org.apache.reef.driver.evaluator.AllocatedEvaluator;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.tang.annotations.Unit;
+import org.apache.reef.tests.library.exceptions.DriverSideFailure;
 import org.apache.reef.wake.EventHandler;
-import org.junit.Assert;
-
 import javax.inject.Inject;
 
 @Unit
@@ -47,7 +46,10 @@ final class RackAwareEvaluatorTestDriver {
     public void onNext(final AllocatedEvaluator allocatedEvaluator) {
 
       final String actual = allocatedEvaluator.getEvaluatorDescriptor().getNodeDescriptor().getRackDescriptor().getName();
-      Assert.assertEquals(expectedRackName, actual);
+      if (!expectedRackName.equals(actual)) {
+        throw new DriverSideFailure("The rack received is different that the expected one, received " + actual
+            + " expected " + expectedRackName);
+      }
       allocatedEvaluator.close();
     }
   }

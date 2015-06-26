@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * Tests whether the rack information is passed back to the evaluators.
+ * Tests whether the rack information is correctly carried from the runtime to the Driver
  */
 package org.apache.reef.tests.rack.awareness;
