@@ -37,6 +37,7 @@ import org.apache.reef.io.network.group.impl.utils.BroadcastingEventHandler;
 import org.apache.reef.io.network.group.impl.utils.Utils;
 import org.apache.reef.io.network.impl.*;
 import org.apache.reef.io.network.naming.NameServer;
+import org.apache.reef.io.network.naming.NameServerImpl;
 import org.apache.reef.io.network.naming.NameServerParameters;
 import org.apache.reef.io.network.util.StringIdentifierFactory;
 import org.apache.reef.tang.Configuration;
@@ -112,9 +113,20 @@ public class GroupCommDriverImpl implements GroupCommServiceDriver {
   @Inject
   public GroupCommDriverImpl(final ConfigurationSerializer confSerializer,
                              @Parameter(DriverIdentifier.class) final String driverId,
+                             @Parameter(TreeTopologyFanOut.class) final int fanOut) {
+    this(confSerializer, driverId, fanOut, LocalAddressProviderFactory.getInstance());
+  }
+
+  /**
+   * @deprecated Have an instance injected instead.
+   */
+  @Deprecated
+  @Inject
+  public GroupCommDriverImpl(final ConfigurationSerializer confSerializer,
+                             @Parameter(DriverIdentifier.class) final String driverId,
                              @Parameter(TreeTopologyFanOut.class) final int fanOut,
-                             final NameServer nameService) {
-    this(confSerializer, driverId, fanOut, LocalAddressProviderFactory.getInstance(), nameService);
+                             final LocalAddressProvider localAddressProvider) {
+    this(confSerializer, driverId, fanOut, localAddressProvider, new MessagingTransportFactory());
   }
 
   /**
@@ -126,8 +138,9 @@ public class GroupCommDriverImpl implements GroupCommServiceDriver {
                              @Parameter(DriverIdentifier.class) final String driverId,
                              @Parameter(TreeTopologyFanOut.class) final int fanOut,
                              final LocalAddressProvider localAddressProvider,
-                             final NameServer nameService) {
-    this(confSerializer, driverId, fanOut, localAddressProvider, new MessagingTransportFactory(), nameService);
+                             final TransportFactory tpFactory) {
+    this(confSerializer, driverId, fanOut, localAddressProvider, tpFactory,
+        new NameServerImpl(0, new StringIdentifierFactory()));
   }
 
   /**
