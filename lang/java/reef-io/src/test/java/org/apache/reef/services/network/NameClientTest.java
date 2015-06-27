@@ -78,12 +78,12 @@ public class NameClientTest {
   @Test
   public final void testClose() throws Exception {
     final String localAddress = localAddressProvider.getLocalAddress();
-    IdentifierFactory factory = new StringIdentifierFactory();
-    Injector injector = Tang.Factory.getTang().newInjector();
+    final IdentifierFactory factory = new StringIdentifierFactory();
+    final Injector injector = Tang.Factory.getTang().newInjector();
     injector.bindVolatileParameter(NameServerParameters.NameServerIdentifierFactory.class, factory);
     injector.bindVolatileInstance(LocalAddressProvider.class, this.localAddressProvider);
 
-    try (NameServer server = injector.getInstance(NameServer.class)) {
+    try (final NameServer server = injector.getInstance(NameServer.class)) {
       int serverPort = server.getPort();
       try (NameClient client = new NameClient(localAddress, serverPort, factory, retryCount, retryTimeout,
           new NameCache(10000), localAddressProvider)) {
@@ -104,13 +104,13 @@ public class NameClientTest {
    */
   @Test
   public final void testLookup() throws Exception {
-    IdentifierFactory factory = new StringIdentifierFactory();
     final String localAddress = localAddressProvider.getLocalAddress();
-    Injector injector = Tang.Factory.getTang().newInjector();
+    final IdentifierFactory factory = new StringIdentifierFactory();
+    final Injector injector = Tang.Factory.getTang().newInjector();
     injector.bindVolatileParameter(NameServerParameters.NameServerIdentifierFactory.class, factory);
     injector.bindVolatileInstance(LocalAddressProvider.class, this.localAddressProvider);
 
-    try (NameServer server = injector.getInstance(NameServer.class)) {
+    try (final NameServer server = injector.getInstance(NameServer.class)) {
       int serverPort = server.getPort();
       try (NameClient client = new NameClient(localAddress, serverPort, factory, retryCount, retryTimeout,
           new NameCache(150), localAddressProvider)) {

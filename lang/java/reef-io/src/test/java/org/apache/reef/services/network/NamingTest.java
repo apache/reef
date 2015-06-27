@@ -90,7 +90,7 @@ public class NamingTest {
     idToAddrMap.put(this.factory.getNewInstance("task2"), new InetSocketAddress(localAddress, 7002));
 
     // run a server
-    Injector injector = Tang.Factory.getTang().newInjector();
+    final Injector injector = Tang.Factory.getTang().newInjector();
     injector.bindVolatileParameter(NameServerParameters.NameServerIdentifierFactory.class, this.factory);
     injector.bindVolatileInstance(LocalAddressProvider.class, this.localAddressProvider);
     final NameServer server = injector.getInstance(NameServer.class);
@@ -145,7 +145,7 @@ public class NamingTest {
       idToAddrMap.put(this.factory.getNewInstance("task3"), new InetSocketAddress(localAddress, 7003));
 
       // run a server
-      Injector injector = Tang.Factory.getTang().newInjector();
+      final Injector injector = Tang.Factory.getTang().newInjector();
       injector.bindVolatileParameter(NameServerParameters.NameServerIdentifierFactory.class, this.factory);
       injector.bindVolatileInstance(LocalAddressProvider.class, this.localAddressProvider);
       final NameServer server = injector.getInstance(NameServer.class);
@@ -231,7 +231,7 @@ public class NamingTest {
 
     LOG.log(Level.FINEST, this.name.getMethodName());
 
-    Injector injector = Tang.Factory.getTang().newInjector();
+    final Injector injector = Tang.Factory.getTang().newInjector();
     injector.bindVolatileParameter(NameServerParameters.NameServerIdentifierFactory.class, this.factory);
     injector.bindVolatileInstance(LocalAddressProvider.class, this.localAddressProvider);
     final NameServer server = injector.getInstance(NameServer.class);
@@ -296,7 +296,7 @@ public class NamingTest {
     LOG.log(Level.FINEST, this.name.getMethodName());
 
     final String localAddress = localAddressProvider.getLocalAddress();
-    Injector injector = Tang.Factory.getTang().newInjector();
+    final Injector injector = Tang.Factory.getTang().newInjector();
     injector.bindVolatileParameter(NameServerParameters.NameServerIdentifierFactory.class, this.factory);
     injector.bindVolatileInstance(LocalAddressProvider.class, this.localAddressProvider);
     final NameServer server = injector.getInstance(NameServer.class);

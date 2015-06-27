@@ -72,7 +72,7 @@ public class NetworkServiceTest {
 
     IdentifierFactory factory = new StringIdentifierFactory();
 
-    Injector injector = Tang.Factory.getTang().newInjector();
+    final Injector injector = Tang.Factory.getTang().newInjector();
     injector.bindVolatileParameter(NameServerParameters.NameServerIdentifierFactory.class, factory);
     injector.bindVolatileInstance(LocalAddressProvider.class, this.localAddressProvider);
     final NameServer server = injector.getInstance(NameServer.class);
@@ -130,7 +130,7 @@ public class NetworkServiceTest {
 
     IdentifierFactory factory = new StringIdentifierFactory();
 
-    Injector injector = Tang.Factory.getTang().newInjector();
+    final Injector injector = Tang.Factory.getTang().newInjector();
     injector.bindVolatileParameter(NameServerParameters.NameServerIdentifierFactory.class, factory);
     injector.bindVolatileInstance(LocalAddressProvider.class, this.localAddressProvider);
     final NameServer server = injector.getInstance(NameServer.class);
@@ -204,7 +204,7 @@ public class NetworkServiceTest {
 
     final IdentifierFactory factory = new StringIdentifierFactory();
 
-    Injector injector = Tang.Factory.getTang().newInjector();
+    final Injector injector = Tang.Factory.getTang().newInjector();
     injector.bindVolatileParameter(NameServerParameters.NameServerIdentifierFactory.class, factory);
     injector.bindVolatileInstance(LocalAddressProvider.class, this.localAddressProvider);
     final NameServer server = injector.getInstance(NameServer.class);
@@ -299,7 +299,7 @@ public class NetworkServiceTest {
 
     IdentifierFactory factory = new StringIdentifierFactory();
 
-    Injector injector = Tang.Factory.getTang().newInjector();
+    final Injector injector = Tang.Factory.getTang().newInjector();
     injector.bindVolatileParameter(NameServerParameters.NameServerIdentifierFactory.class, factory);
     injector.bindVolatileInstance(LocalAddressProvider.class, this.localAddressProvider);
     final NameServer server = injector.getInstance(NameServer.class);
@@ -391,7 +391,7 @@ public class NetworkServiceTest {
 
     IdentifierFactory factory = new StringIdentifierFactory();
 
-    Injector injector = Tang.Factory.getTang().newInjector();
+    final Injector injector = Tang.Factory.getTang().newInjector();
     injector.bindVolatileParameter(NameServerParameters.NameServerIdentifierFactory.class, factory);
     injector.bindVolatileInstance(LocalAddressProvider.class, this.localAddressProvider);
     final NameServer server = injector.getInstance(NameServer.class);
