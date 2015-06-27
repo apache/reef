@@ -35,7 +35,7 @@ import java.util.Set;
 
 /**
  * Test case for class hierarchy deserialization.
- * TODO[REEF-400]
+ * TODO[REEF-400]: The files should be created and deserialized by the AvroClassHierarchySerializer
  */
 public class ClassHierarchyDeserializationTest {
   private final ConfigurationSerializer configurationSerializer = new AvroConfigurationSerializer();
@@ -45,10 +45,10 @@ public class ClassHierarchyDeserializationTest {
    */
   @Test
   public void testDeserializationForTasks() {
-    // TODO[REEF-400]
+    // TODO[REEF-400]: The file should be written by Avro
     try (final InputStream chin = Thread.currentThread().getContextClassLoader()
         .getResourceAsStream("Task.bin")) {
-      // TODO[REEF-400]
+      // TODO[REEF-400]: Use AvroClassHierarchySerializer instead
       final ClassHierarchyProto.Node root = ClassHierarchyProto.Node.parseFrom(chin);
       final ClassHierarchy ch = new ProtocolBufferClassHierarchy(root);
       Node n1 = ch.getNode("Org.Apache.REEF.Examples.Tasks.StreamingTasks.StreamTask1, Org.Apache.REEF.Examples.Tasks, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null");
@@ -79,10 +79,10 @@ public class ClassHierarchyDeserializationTest {
     final ConfigurationBuilder taskConfigurationBuilder;
     final ConfigurationBuilder eventConfigurationBuilder;
 
-    // TODO[REEF-400]
+    // TODO[REEF-400]: The file should be written by Avro
     try (final InputStream chin = Thread.currentThread().getContextClassLoader()
         .getResourceAsStream("Task.bin")) {
-      // TODO[REEF-400]
+      // TODO[REEF-400]: Use AvroClassHierarchySerializer instead
       final ClassHierarchyProto.Node root = ClassHierarchyProto.Node.parseFrom(chin);
       final ClassHierarchy ch = new ProtocolBufferClassHierarchy(root);
       taskConfigurationBuilder = Tang.Factory.getTang().newConfigurationBuilder(ch);
@@ -91,10 +91,10 @@ public class ClassHierarchyDeserializationTest {
       throw new RuntimeException(message, e);
     }
 
-    // TODO[REEF-400]
+    // TODO[REEF-400]: The file should be written by Avro
     try (final InputStream chin = Thread.currentThread().getContextClassLoader()
         .getResourceAsStream("Event.bin")) {
-      // TODO[REEF-400]
+      // TODO[REEF-400]: Use AvroClassHierarchySerializer instead
       final ClassHierarchyProto.Node root = ClassHierarchyProto.Node.parseFrom(chin);
       final ClassHierarchy ch = new ProtocolBufferClassHierarchy(root);
       eventConfigurationBuilder = Tang.Factory.getTang().newConfigurationBuilder(ch);
@@ -111,10 +111,10 @@ public class ClassHierarchyDeserializationTest {
    */
   @Test
   public void testDeserializationForEvent() {
-    // TODO[REEF-400]
+    // TODO[REEF-400]: The file should be written by Avro
     try (final InputStream chin = Thread.currentThread().getContextClassLoader()
         .getResourceAsStream("Event.bin")) {
-      // TODO[REEF-400]
+      // TODO[REEF-400]: Use AvroClassHierarchySerializer instead
       final ClassHierarchyProto.Node root = ClassHierarchyProto.Node.parseFrom(chin);
       final ClassHierarchy ch = new ProtocolBufferClassHierarchy(root);
       final ConfigurationBuilder taskConfigurationBuilder = Tang.Factory.getTang()
@@ -147,7 +147,7 @@ public class ClassHierarchyDeserializationTest {
   /**
    * Test bindSetEntry(NamedParameterNode<Set<T>> iface, String impl) in ConfigurationBuilderImpl
    * with the class hierarchy which is deserialized by Protocol buffer
-   * TODO[REEF-400]
+   * TODO[REEF-400]: Remove this test when we remove the protocol buffer version
    */
   @Test
   public void testBindSetEntryWithSetOfTProtobuf() throws IOException {
@@ -186,7 +186,7 @@ public class ClassHierarchyDeserializationTest {
   /**
    * Test public <T> void bindParameter(NamedParameterNode<T> name, String value) in ConfigurationBuilderImpl
    * with the class hierarchy which is deserialized by Protocol buffer
-   * TODO[REEF-400]
+   * TODO[REEF-400]: Remove this test when we remove the protocol buffer version
    */
    @Test
   public void testBindSetEntryWithSetOfStringProtobuf() throws IOException {
