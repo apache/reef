@@ -144,7 +144,7 @@ public class GroupCommDriverImpl implements GroupCommServiceDriver {
   }
 
   /**
-   * @deprecated Have an instance injected instead.
+   * @deprecated in 0.12. Use Tang to obtain an instance of this instead.
    */
   @Deprecated
   @Inject
