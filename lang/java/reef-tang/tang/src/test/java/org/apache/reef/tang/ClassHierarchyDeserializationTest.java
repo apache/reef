@@ -42,13 +42,22 @@ public class ClassHierarchyDeserializationTest {
 
   /**
    * generate task.bin from running .Net ClassHierarchyBuilder.exe
+   * and deserialize the class hierarchy by using Avro
+   * TODO[REEF-400]: Use the AvroClassHierarchySerializer to deserialize the task.bin
    */
   @Test
-  public void testDeserializationForTasks() {
-    // TODO[REEF-400]: The file should be written by Avro
+  public void testDeserializationForTasksAvro() {
+  }
+
+  /**
+   * generate task.bin from running .Net ClassHierarchyBuilder.exe
+   * and deserialize the class hierarchy by using protobuf
+   * TODO[REEF-400]: Remove this test when we remove the protocol buffer version
+   */
+  @Test
+  public void testDeserializationForTasksProtobuf() {
     try (final InputStream chin = Thread.currentThread().getContextClassLoader()
         .getResourceAsStream("Task.bin")) {
-      // TODO[REEF-400]: Use AvroClassHierarchySerializer instead
       final ClassHierarchyProto.Node root = ClassHierarchyProto.Node.parseFrom(chin);
       final ClassHierarchy ch = new ProtocolBufferClassHierarchy(root);
       Node n1 = ch.getNode("Org.Apache.REEF.Examples.Tasks.StreamingTasks.StreamTask1, Org.Apache.REEF.Examples.Tasks, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null");
@@ -71,18 +80,26 @@ public class ClassHierarchyDeserializationTest {
     }
   }
 
+
   /**
-   * This is to test CLR protocol Buffer class hierarchy merge
+   * This is to test CLR Avro class hierarchy merge
+   * TODO[REEF-400]: Use the AvroClassHierarchySerializer to deserialize two files and merge them
    */
   @Test
-  public void testProtocolClassHierarchyMerge() {
+  public void testClassHierarchyMergeAvro() {
+  }
+
+  /**
+   * This is to test CLR Protocol Buffer class hierarchy merge
+   * TODO[REEF-400]: Remove this test when we remove the protocol buffer version
+   */
+  @Test
+  public void testClassHierarchyMergeProtobuf() {
     final ConfigurationBuilder taskConfigurationBuilder;
     final ConfigurationBuilder eventConfigurationBuilder;
 
-    // TODO[REEF-400]: The file should be written by Avro
     try (final InputStream chin = Thread.currentThread().getContextClassLoader()
         .getResourceAsStream("Task.bin")) {
-      // TODO[REEF-400]: Use AvroClassHierarchySerializer instead
       final ClassHierarchyProto.Node root = ClassHierarchyProto.Node.parseFrom(chin);
       final ClassHierarchy ch = new ProtocolBufferClassHierarchy(root);
       taskConfigurationBuilder = Tang.Factory.getTang().newConfigurationBuilder(ch);
@@ -91,10 +108,8 @@ public class ClassHierarchyDeserializationTest {
       throw new RuntimeException(message, e);
     }
 
-    // TODO[REEF-400]: The file should be written by Avro
     try (final InputStream chin = Thread.currentThread().getContextClassLoader()
         .getResourceAsStream("Event.bin")) {
-      // TODO[REEF-400]: Use AvroClassHierarchySerializer instead
       final ClassHierarchyProto.Node root = ClassHierarchyProto.Node.parseFrom(chin);
       final ClassHierarchy ch = new ProtocolBufferClassHierarchy(root);
       eventConfigurationBuilder = Tang.Factory.getTang().newConfigurationBuilder(ch);
@@ -108,13 +123,20 @@ public class ClassHierarchyDeserializationTest {
 
   /**
    * generate event.bin from .Net Tang test case TestSerilization.TestGenericClass
+   * TODO[REEF-400]: Use the AvroClassHierarchySerializer to deserialize the event.bin
    */
   @Test
-  public void testDeserializationForEvent() {
-    // TODO[REEF-400]: The file should be written by Avro
+  public void testDeserializationForEventAvro() {
+  }
+
+  /**
+   * generate event.bin from .Net Tang test case TestSerilization.TestGenericClass
+   * TODO[REEF-400]: Remove this test when we remove the protocol buffer version
+   */
+  @Test
+  public void testDeserializationForEventProtobuf() {
     try (final InputStream chin = Thread.currentThread().getContextClassLoader()
         .getResourceAsStream("Event.bin")) {
-      // TODO[REEF-400]: Use AvroClassHierarchySerializer instead
       final ClassHierarchyProto.Node root = ClassHierarchyProto.Node.parseFrom(chin);
       final ClassHierarchy ch = new ProtocolBufferClassHierarchy(root);
       final ConfigurationBuilder taskConfigurationBuilder = Tang.Factory.getTang()
