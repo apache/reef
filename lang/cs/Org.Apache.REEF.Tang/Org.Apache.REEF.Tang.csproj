@@ -72,6 +72,14 @@ under the License.
     <Compile Include="Formats\RequiredImpl.cs" />
     <Compile Include="Formats\RequiredParameter.cs" />
     <Compile Include="Implementations\ClassHierarchy\AbstractNode.cs" />
+    <Compile Include="Implementations\ClassHierarchy\AvroClassHierarchy.cs" />
+    <Compile Include="Implementations\ClassHierarchy\AvroClassHierarchySerializer.cs" />
+    <Compile Include="Implementations\ClassHierarchy\AvroDataContract\AvroClassNode.cs" />
+    <Compile Include="Implementations\ClassHierarchy\AvroDataContract\AvroConstructorArg.cs" />
+    <Compile Include="Implementations\ClassHierarchy\AvroDataContract\AvroConstructorDef.cs" />
+    <Compile Include="Implementations\ClassHierarchy\AvroDataContract\AvroNamedParameterNode.cs" />
+    <Compile Include="Implementations\ClassHierarchy\AvroDataContract\AvroNode.cs" />
+    <Compile Include="Implementations\ClassHierarchy\AvroDataContract\AvroPackageNode.cs" />
     <Compile Include="Implementations\ClassHierarchy\ClassHierarchyImpl.cs" />
     <Compile Include="Implementations\ClassHierarchy\ClassNodeImpl.cs" />
     <Compile Include="Implementations\ClassHierarchy\ConstructorArgImpl.cs" />
@@ -98,6 +106,7 @@ under the License.
     <Compile Include="Implementations\Tang\TangImpl.cs" />
     <Compile Include="Interface\IAspect.cs" />
     <Compile Include="Interface\IClassHierarchy.cs" />
+    <Compile Include="Interface\IClassHierarchySerializer.cs" />
     <Compile Include="Interface\IConfiguration.cs" />
     <Compile Include="Interface\IConfigurationBuilder.cs" />
     <Compile Include="Interface\ICsClassHierarchy.cs" />
