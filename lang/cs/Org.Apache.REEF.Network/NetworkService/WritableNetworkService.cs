@@ -21,13 +21,10 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using Org.Apache.REEF.Common.Io;
-using Org.Apache.REEF.Network.Naming;
-using Org.Apache.REEF.Network.NetworkService.Codec;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Exceptions;
 using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Wake;
-using Org.Apache.REEF.Wake.Impl;
 using Org.Apache.REEF.Wake.Remote;
 using Org.Apache.REEF.Wake.Remote.Impl;
 using Org.Apache.REEF.Wake.Util;
@@ -126,7 +123,8 @@ namespace Org.Apache.REEF.Network.NetworkService
             NamingClient.Register(id.ToString(), _remoteManager.LocalEndpoint);
 
             // Create and register incoming message handler
-            var anyEndpoint = new IPEndPoint(_remoteManager.LocalEndpoint.Address, 0);
+            // TODO[REEF-419] This should use the TcpPortProvider mechanism
+            var anyEndpoint = new IPEndPoint(IPAddress.Any, 0);
             _messageHandlerDisposable = _remoteManager.RegisterObserver(anyEndpoint, _messageHandler);
 
             Logger.Log(Level.Info, "End of Registering id {0} with network service.", id);
