@@ -23,18 +23,18 @@ using System.Threading.Tasks;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Wake.Remote;
 
-namespace Org.Apache.REEF.Network.StreamingCodec.CommonStreamingCodecs
+namespace Org.Apache.REEF.Wake.StreamingCodec.CommonStreamingCodecs
 {
     /// <summary>
-    /// Streaming codec for double array
+    /// Streaming codec for float array
     /// </summary>
-    public sealed class DoubleArrayStreamingCodec : IStreamingCodec<double[]>
+    public sealed class FloatArrayStreamingCodec : IStreamingCodec<float[]>
     {
         /// <summary>
         /// Injectable constructor
         /// </summary>
         [Inject]
-        private DoubleArrayStreamingCodec()
+        private FloatArrayStreamingCodec()
         {
         }
 
@@ -42,31 +42,31 @@ namespace Org.Apache.REEF.Network.StreamingCodec.CommonStreamingCodecs
         /// Instantiate the class from the reader.
         /// </summary>
         /// <param name="reader">The reader from which to read</param>
-        ///<returns>The double array read from the reader</returns>
-        public double[] Read(IDataReader reader)
+        ///<returns>The float array read from the reader</returns>
+        public float[] Read(IDataReader reader)
         {
             int length = reader.ReadInt32();
-            byte[] buffer = new byte[sizeof(double)*length];
+            byte[] buffer = new byte[sizeof(float)*length];
             reader.Read(ref buffer, 0, buffer.Length);
-            double[] doubleArr = new double[length];
-            Buffer.BlockCopy(buffer, 0, doubleArr, 0, buffer.Length);
-            return doubleArr;
+            float[] floatArr = new float[length];
+            Buffer.BlockCopy(buffer, 0, floatArr, 0, buffer.Length);
+            return floatArr;
         }
 
         /// <summary>
-        /// Writes the double array to the writer.
+        /// Writes the float array to the writer.
         /// </summary>
-        /// <param name="obj">The double array to be encoded</param>
+        /// <param name="obj">The float array to be encoded</param>
         /// <param name="writer">The writer to which to write</param>
-        public void Write(double[] obj, IDataWriter writer)
+        public void Write(float[] obj, IDataWriter writer)
         {
             if (obj == null)
             {
-                throw new ArgumentNullException("obj", "double array is null");
+                throw new ArgumentNullException("obj", "float array is null");
             }
 
             writer.WriteInt32(obj.Length);
-            byte[] buffer = new byte[sizeof(double) * obj.Length];
+            byte[] buffer = new byte[sizeof(float) * obj.Length];
             Buffer.BlockCopy(obj, 0, buffer, 0, buffer.Length);
             writer.Write(buffer, 0, buffer.Length);
         }
@@ -76,33 +76,33 @@ namespace Org.Apache.REEF.Network.StreamingCodec.CommonStreamingCodecs
         ///  </summary>
         ///  <param name="reader">The reader from which to read</param>
         /// <param name="token">Cancellation token</param>
-        /// <returns>The double array read from the reader</returns>
-        public async Task<double[]> ReadAsync(IDataReader reader, CancellationToken token)
+        /// <returns>The float array read from the reader</returns>
+        public async Task<float[]> ReadAsync(IDataReader reader, CancellationToken token)
         {
             int length = await reader.ReadInt32Async(token);
-            byte[] buffer = new byte[sizeof(double) * length];
+            byte[] buffer = new byte[sizeof(float) * length];
             await reader.ReadAsync(buffer, 0, buffer.Length, token);
-            double[] doubleArr = new double[length];
-            Buffer.BlockCopy(buffer, 0, doubleArr, 0, sizeof(double) * length);
-            return doubleArr;
+            float[] floatArr = new float[length];
+            Buffer.BlockCopy(buffer, 0, floatArr, 0, sizeof(float) * length);
+            return floatArr;
         }
 
         /// <summary>
-        /// Writes the double array to the writer.
+        /// Writes the float array to the writer.
         /// </summary>
-        /// <param name="obj">The double array to be encoded</param>
+        /// <param name="obj">The float array to be encoded</param>
         /// <param name="writer">The writer to which to write</param>
         /// <param name="token">Cancellation token</param>
-        public async Task WriteAsync(double[] obj, IDataWriter writer, CancellationToken token)
+        public async Task WriteAsync(float[] obj, IDataWriter writer, CancellationToken token)
         {
             if (obj == null)
             {
-                throw new ArgumentNullException("obj", "double array is null");
+                throw new ArgumentNullException("obj", "float array is null");
             }
 
             await writer.WriteInt32Async(obj.Length, token);
-            byte[] buffer = new byte[sizeof(double) * obj.Length];
-            Buffer.BlockCopy(obj, 0, buffer, 0, sizeof(double) * obj.Length);
+            byte[] buffer = new byte[sizeof(float) * obj.Length];
+            Buffer.BlockCopy(obj, 0, buffer, 0, sizeof(float) * obj.Length);
             await writer.WriteAsync(buffer, 0, buffer.Length, token);
         }
     }

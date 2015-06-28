@@ -22,18 +22,18 @@ using System.Threading.Tasks;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Wake.Remote;
 
-namespace Org.Apache.REEF.Network.StreamingCodec.CommonStreamingCodecs
+namespace Org.Apache.REEF.Wake.StreamingCodec.CommonStreamingCodecs
 {
     /// <summary>
-    /// Streaming codec for float
+    /// Streaming codec for double
     /// </summary>
-    public sealed class FloatStreamingCodec : IStreamingCodec<float>
+    public sealed class DoubleStreamingCodec : IStreamingCodec<double>
     {
         /// <summary>
         /// Injectable constructor
         /// </summary>
         [Inject]
-        private FloatStreamingCodec()
+        private DoubleStreamingCodec()
         {
         }
 
@@ -41,20 +41,20 @@ namespace Org.Apache.REEF.Network.StreamingCodec.CommonStreamingCodecs
         /// Instantiate the class from the reader.
         /// </summary>
         /// <param name="reader">The reader from which to read</param>
-        ///<returns>The float read from the reader</returns>
-        public float Read(IDataReader reader)
+        ///<returns>The double read from the reader</returns>
+        public double Read(IDataReader reader)
         {
-            return reader.ReadFloat();
+            return reader.ReadDouble();
         }
 
         /// <summary>
-        /// Writes the float to the writer.
+        /// Writes the double to the writer.
         /// </summary>
-        /// <param name="obj">The float to be encoded</param>
+        /// <param name="obj">The double to be encoded</param>
         /// <param name="writer">The writer to which to write</param>
-        public void Write(float obj, IDataWriter writer)
+        public void Write(double obj, IDataWriter writer)
         {
-            writer.WriteFloat(obj);
+            writer.WriteDouble(obj);
         }
 
         ///  <summary>
@@ -62,21 +62,21 @@ namespace Org.Apache.REEF.Network.StreamingCodec.CommonStreamingCodecs
         ///  </summary>
         ///  <param name="reader">The reader from which to read</param>
         /// <param name="token">Cancellation token</param>
-        /// <returns>The float read from the reader</returns>
-        public async Task<float> ReadAsync(IDataReader reader, CancellationToken token)
+        /// <returns>The double read from the reader</returns>
+        public async Task<double> ReadAsync(IDataReader reader, CancellationToken token)
         {
-            return await reader.ReadFloatAsync(token);
+            return await reader.ReadDoubleAsync(token);
         }
 
         /// <summary>
-        /// Writes the float to the writer.
+        /// Writes the double to the writer.
         /// </summary>
-        /// <param name="obj">The float to be encoded</param>
+        /// <param name="obj">The double to be encoded</param>
         /// <param name="writer">The writer to which to write</param>
         /// <param name="token">Cancellation token</param>
-        public async Task WriteAsync(float obj, IDataWriter writer, CancellationToken token)
+        public async Task WriteAsync(double obj, IDataWriter writer, CancellationToken token)
         {
-            await writer.WriteFloatAsync(obj, token);
+            await writer.WriteDoubleAsync(obj, token);
         }
     }
 }

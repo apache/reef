@@ -22,7 +22,7 @@ using System.Threading.Tasks;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Wake.Remote;
 
-namespace Org.Apache.REEF.Network.StreamingCodec
+namespace Org.Apache.REEF.Wake.StreamingCodec
 {
     /// <summary>
     /// Converts codec to streaming codec

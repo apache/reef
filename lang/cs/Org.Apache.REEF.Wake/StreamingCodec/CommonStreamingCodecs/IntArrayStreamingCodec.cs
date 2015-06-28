@@ -23,7 +23,7 @@ using System.Threading.Tasks;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Wake.Remote;
 
-namespace Org.Apache.REEF.Network.StreamingCodec.CommonStreamingCodecs
+namespace Org.Apache.REEF.Wake.StreamingCodec.CommonStreamingCodecs
 {
     /// <summary>
     /// Streaming codec for integer array

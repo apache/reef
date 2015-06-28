@@ -18,9 +18,9 @@
  */
 
 using Org.Apache.REEF.Network.Group.Pipelining;
-using Org.Apache.REEF.Network.StreamingCodec;
 using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Util;
+using Org.Apache.REEF.Wake.StreamingCodec;
 
 namespace Org.Apache.REEF.Network.Group.Config
 {

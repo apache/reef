@@ -19,64 +19,43 @@
 
 using System.Threading;
 using System.Threading.Tasks;
-using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Wake.Remote;
 
-namespace Org.Apache.REEF.Network.StreamingCodec.CommonStreamingCodecs
+namespace Org.Apache.REEF.Wake.StreamingCodec
 {
     /// <summary>
-    /// Streaming codec for string
+    /// Codec Interface that external users should implement to directly write to the stream
     /// </summary>
-    public sealed class StringStreamingCodec : IStreamingCodec<string>
+    public interface IStreamingCodec<T>
     {
-        /// <summary>
-        /// Injectable constructor
-        /// </summary>
-        [Inject]
-        private StringStreamingCodec()
-        {
-        }
-
         /// <summary>
         /// Instantiate the class from the reader.
         /// </summary>
         /// <param name="reader">The reader from which to read</param>
-        ///<returns>The string read from the reader</returns>
-        public string Read(IDataReader reader)
-        {
-            return reader.ReadString();
-        }
+        ///<returns>The instance of type T read from the reader</returns>
+        T Read(IDataReader reader);
 
         /// <summary>
-        /// Writes the string to the writer.
+        /// Writes the class fields to the writer.
         /// </summary>
-        /// <param name="obj">The string to be encoded</param>
+        /// <param name="obj">The object of type T to be encoded</param>
         /// <param name="writer">The writer to which to write</param>
-        public void Write(string obj, IDataWriter writer)
-        {
-            writer.WriteString(obj);
-        }
+        void Write(T obj, IDataWriter writer);
 
         ///  <summary>
         ///  Instantiate the class from the reader.
         ///  </summary>
         ///  <param name="reader">The reader from which to read</param>
         /// <param name="token">Cancellation token</param>
-        /// <returns>The string read from the reader</returns>
-        public async Task<string> ReadAsync(IDataReader reader, CancellationToken token)
-        {
-            return await reader.ReadStringAsync(token);
-        }
+        /// <returns>The instance of type T read from the reader</returns>
+        Task<T> ReadAsync(IDataReader reader, CancellationToken token);
 
         /// <summary>
-        /// Writes the string to the writer.
+        /// Writes the class fields to the writer.
         /// </summary>
-        /// <param name="obj">The string to be encoded</param>
+        /// <param name="obj">The object of type T to be encoded</param>
         /// <param name="writer">The writer to which to write</param>
         /// <param name="token">Cancellation token</param>
-        public async Task WriteAsync(string obj, IDataWriter writer, CancellationToken token)
-        {
-            await writer.WriteStringAsync(obj, token);
-        }
+        Task WriteAsync(T obj, IDataWriter writer, CancellationToken token);
     }
 }

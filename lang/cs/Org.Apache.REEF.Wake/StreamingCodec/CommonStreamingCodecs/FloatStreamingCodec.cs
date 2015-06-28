@@ -19,43 +19,64 @@
 
 using System.Threading;
 using System.Threading.Tasks;
+using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Wake.Remote;
 
-namespace Org.Apache.REEF.Network.StreamingCodec
+namespace Org.Apache.REEF.Wake.StreamingCodec.CommonStreamingCodecs
 {
     /// <summary>
-    /// Codec Interface that external users should implement to directly write to the stream
+    /// Streaming codec for float
     /// </summary>
-    public interface IStreamingCodec<T>
+    public sealed class FloatStreamingCodec : IStreamingCodec<float>
     {
+        /// <summary>
+        /// Injectable constructor
+        /// </summary>
+        [Inject]
+        private FloatStreamingCodec()
+        {
+        }
+
         /// <summary>
         /// Instantiate the class from the reader.
         /// </summary>
         /// <param name="reader">The reader from which to read</param>
-        ///<returns>The instance of type T read from the reader</returns>
-        T Read(IDataReader reader);
+        ///<returns>The float read from the reader</returns>
+        public float Read(IDataReader reader)
+        {
+            return reader.ReadFloat();
+        }
 
         /// <summary>
-        /// Writes the class fields to the writer.
+        /// Writes the float to the writer.
         /// </summary>
-        /// <param name="obj">The object of type T to be encoded</param>
+        /// <param name="obj">The float to be encoded</param>
         /// <param name="writer">The writer to which to write</param>
-        void Write(T obj, IDataWriter writer);
+        public void Write(float obj, IDataWriter writer)
+        {
+            writer.WriteFloat(obj);
+        }
 
         ///  <summary>
         ///  Instantiate the class from the reader.
         ///  </summary>
         ///  <param name="reader">The reader from which to read</param>
         /// <param name="token">Cancellation token</param>
-        /// <returns>The instance of type T read from the reader</returns>
-        Task<T> ReadAsync(IDataReader reader, CancellationToken token);
+        /// <returns>The float read from the reader</returns>
+        public async Task<float> ReadAsync(IDataReader reader, CancellationToken token)
+        {
+            return await reader.ReadFloatAsync(token);
+        }
 
         /// <summary>
-        /// Writes the class fields to the writer.
+        /// Writes the float to the writer.
         /// </summary>
-        /// <param name="obj">The object of type T to be encoded</param>
+        /// <param name="obj">The float to be encoded</param>
         /// <param name="writer">The writer to which to write</param>
         /// <param name="token">Cancellation token</param>
-        Task WriteAsync(T obj, IDataWriter writer, CancellationToken token);
+        public async Task WriteAsync(float obj, IDataWriter writer, CancellationToken token)
+        {
+            await writer.WriteFloatAsync(obj, token);
+        }
     }
 }
