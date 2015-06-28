@@ -30,7 +30,6 @@ using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.Common.Io;
 using Org.Apache.REEF.Common.Tasks;
-using Org.Apache.REEF.Network.StreamingCodec.CommonStreamingCodecs;
 using Org.Apache.REEF.Network.Examples.GroupCommunication;
 using Org.Apache.REEF.Network.Group.Config;
 using Org.Apache.REEF.Network.Group.Driver;
@@ -43,7 +42,6 @@ using Org.Apache.REEF.Network.Group.Task;
 using Org.Apache.REEF.Network.Group.Topology;
 using Org.Apache.REEF.Network.Naming;
 using Org.Apache.REEF.Network.NetworkService;
-using Org.Apache.REEF.Network.StreamingCodec;
 using Org.Apache.REEF.Network.Tests.NamingService;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Formats;
@@ -53,6 +51,8 @@ using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Wake.Remote;
 using Org.Apache.REEF.Wake.Remote.Impl;
+using Org.Apache.REEF.Wake.StreamingCodec;
+using Org.Apache.REEF.Wake.StreamingCodec.CommonStreamingCodecs;
 
 namespace Org.Apache.REEF.Network.Tests.GroupCommunication
 {

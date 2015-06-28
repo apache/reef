@@ -22,18 +22,18 @@ using System.Threading.Tasks;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Wake.Remote;
 
-namespace Org.Apache.REEF.Network.StreamingCodec.CommonStreamingCodecs
+namespace Org.Apache.REEF.Wake.StreamingCodec.CommonStreamingCodecs
 {
     /// <summary>
-    /// Streaming codec for double
+    /// Streaming codec for string
     /// </summary>
-    public sealed class DoubleStreamingCodec : IStreamingCodec<double>
+    public sealed class StringStreamingCodec : IStreamingCodec<string>
     {
         /// <summary>
         /// Injectable constructor
         /// </summary>
         [Inject]
-        private DoubleStreamingCodec()
+        private StringStreamingCodec()
         {
         }
 
@@ -41,20 +41,20 @@ namespace Org.Apache.REEF.Network.StreamingCodec.CommonStreamingCodecs
         /// Instantiate the class from the reader.
         /// </summary>
         /// <param name="reader">The reader from which to read</param>
-        ///<returns>The double read from the reader</returns>
-        public double Read(IDataReader reader)
+        ///<returns>The string read from the reader</returns>
+        public string Read(IDataReader reader)
         {
-            return reader.ReadDouble();
+            return reader.ReadString();
         }
 
         /// <summary>
-        /// Writes the double to the writer.
+        /// Writes the string to the writer.
         /// </summary>
-        /// <param name="obj">The double to be encoded</param>
+        /// <param name="obj">The string to be encoded</param>
         /// <param name="writer">The writer to which to write</param>
-        public void Write(double obj, IDataWriter writer)
+        public void Write(string obj, IDataWriter writer)
         {
-            writer.WriteDouble(obj);
+            writer.WriteString(obj);
         }
 
         ///  <summary>
@@ -62,21 +62,21 @@ namespace Org.Apache.REEF.Network.StreamingCodec.CommonStreamingCodecs
         ///  </summary>
         ///  <param name="reader">The reader from which to read</param>
         /// <param name="token">Cancellation token</param>
-        /// <returns>The double read from the reader</returns>
-        public async Task<double> ReadAsync(IDataReader reader, CancellationToken token)
+        /// <returns>The string read from the reader</returns>
+        public async Task<string> ReadAsync(IDataReader reader, CancellationToken token)
         {
-            return await reader.ReadDoubleAsync(token);
+            return await reader.ReadStringAsync(token);
         }
 
         /// <summary>
-        /// Writes the double to the writer.
+        /// Writes the string to the writer.
         /// </summary>
-        /// <param name="obj">The double to be encoded</param>
+        /// <param name="obj">The string to be encoded</param>
         /// <param name="writer">The writer to which to write</param>
         /// <param name="token">Cancellation token</param>
-        public async Task WriteAsync(double obj, IDataWriter writer, CancellationToken token)
+        public async Task WriteAsync(string obj, IDataWriter writer, CancellationToken token)
         {
-            await writer.WriteDoubleAsync(obj, token);
+            await writer.WriteStringAsync(obj, token);
         }
     }
 }
