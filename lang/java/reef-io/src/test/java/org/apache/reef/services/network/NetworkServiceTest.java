@@ -84,17 +84,17 @@ public class NetworkServiceTest {
     LOG.log(Level.FINEST, "=== Test network service receiver start");
     // network service
     final String name2 = "task2";
-    final Configuration nameClientConf = Tang.Factory.getTang().newConfigurationBuilder(NameClientConfiguration.CONF
-        .set(NameClientConfiguration.NAME_SERVER_HOSTNAME, this.localAddress)
-        .set(NameClientConfiguration.NAME_SERVICE_PORT, nameServerPort)
+    final Configuration nameResolverConf = Tang.Factory.getTang().newConfigurationBuilder(NameResolverConfiguration.CONF
+        .set(NameResolverConfiguration.NAME_SERVER_HOSTNAME, this.localAddress)
+        .set(NameResolverConfiguration.NAME_SERVICE_PORT, nameServerPort)
         .build())
         .build();
 
-    final Injector injector2 = Tang.Factory.getTang().newInjector(nameClientConf);
-    final NameResolver nameClient = injector2.getInstance(NameResolver.class);
+    final Injector injector2 = Tang.Factory.getTang().newInjector(nameResolverConf);
+    final NameResolver nameResolver = injector2.getInstance(NameResolver.class);
 
     NetworkService<String> ns2 = new NetworkService<String>(
-        factory, 0, nameClient,
+        factory, 0, nameResolver,
         new StringCodec(), new MessagingTransportFactory(localAddressProvider),
         new MessageHandler<String>(name2, monitor, numMessages), new ExceptionHandler(), localAddressProvider);
     ns2.registerId(factory.getNewInstance(name2));
@@ -103,7 +103,7 @@ public class NetworkServiceTest {
 
     LOG.log(Level.FINEST, "=== Test network service sender start");
     final String name1 = "task1";
-    final NetworkService<String> ns1 = new NetworkService<String>(factory, 0, nameClient,
+    final NetworkService<String> ns1 = new NetworkService<String>(factory, 0, nameResolver,
         new StringCodec(), new MessagingTransportFactory(localAddressProvider),
         new MessageHandler<String>(name1, null, 0), new ExceptionHandler(), localAddressProvider);
     ns1.registerId(factory.getNewInstance(name1));
@@ -154,17 +154,17 @@ public class NetworkServiceTest {
       LOG.log(Level.FINEST, "=== Test network service receiver start");
       // network service
       final String name2 = "task2";
-      final Configuration nameClientConf = Tang.Factory.getTang().newConfigurationBuilder(NameClientConfiguration.CONF
-          .set(NameClientConfiguration.NAME_SERVER_HOSTNAME, this.localAddress)
-          .set(NameClientConfiguration.NAME_SERVICE_PORT, nameServerPort)
+      final Configuration nameResolverConf = Tang.Factory.getTang().newConfigurationBuilder(NameResolverConfiguration.CONF
+          .set(NameResolverConfiguration.NAME_SERVER_HOSTNAME, this.localAddress)
+          .set(NameResolverConfiguration.NAME_SERVICE_PORT, nameServerPort)
           .build())
           .build();
 
-      final Injector injector2 = Tang.Factory.getTang().newInjector(nameClientConf);
-      final NameResolver nameClient = injector2.getInstance(NameResolver.class);
+      final Injector injector2 = Tang.Factory.getTang().newInjector(nameResolverConf);
+      final NameResolver nameResolver = injector2.getInstance(NameResolver.class);
 
       NetworkService<String> ns2 = new NetworkService<String>(
-          factory, 0, nameClient,
+          factory, 0, nameResolver,
           new StringCodec(), new MessagingTransportFactory(localAddressProvider),
           new MessageHandler<String>(name2, monitor, numMessages), new ExceptionHandler(), localAddressProvider);
       ns2.registerId(factory.getNewInstance(name2));
@@ -174,7 +174,7 @@ public class NetworkServiceTest {
       LOG.log(Level.FINEST, "=== Test network service sender start");
       final String name1 = "task1";
       NetworkService<String> ns1 = new NetworkService<String>(
-          factory, 0, nameClient,
+          factory, 0, nameResolver,
           new StringCodec(), new MessagingTransportFactory(localAddressProvider),
           new MessageHandler<String>(name1, null, 0), new ExceptionHandler(), localAddressProvider);
       ns1.registerId(factory.getNewInstance(name1));
@@ -247,16 +247,16 @@ public class NetworkServiceTest {
             LOG.log(Level.FINEST, "=== Test network service receiver start");
             // network service
             final String name2 = "task2-" + tt;
-            final Configuration nameClientConf = Tang.Factory.getTang().newConfigurationBuilder(NameClientConfiguration.CONF
-                .set(NameClientConfiguration.NAME_SERVER_HOSTNAME, localAddress)
-                .set(NameClientConfiguration.NAME_SERVICE_PORT, nameServerPort)
+            final Configuration nameResolverConf = Tang.Factory.getTang().newConfigurationBuilder(NameResolverConfiguration.CONF
+                .set(NameResolverConfiguration.NAME_SERVER_HOSTNAME, localAddress)
+                .set(NameResolverConfiguration.NAME_SERVICE_PORT, nameServerPort)
                 .build())
                 .build();
 
-            final Injector injector = Tang.Factory.getTang().newInjector(nameClientConf);
-            final NameResolver nameClient = injector.getInstance(NameResolver.class);
+            final Injector injector = Tang.Factory.getTang().newInjector(nameResolverConf);
+            final NameResolver nameResolver = injector.getInstance(NameResolver.class);
             NetworkService<String> ns2 = new NetworkService<String>(
-                factory, 0, nameClient,
+                factory, 0, nameResolver,
                 new StringCodec(), new MessagingTransportFactory(localAddressProvider),
                 new MessageHandler<String>(name2, monitor, numMessages), new ExceptionHandler(), localAddressProvider);
             ns2.registerId(factory.getNewInstance(name2));
@@ -266,7 +266,7 @@ public class NetworkServiceTest {
             LOG.log(Level.FINEST, "=== Test network service sender start");
             final String name1 = "task1-" + tt;
             NetworkService<String> ns1 = new NetworkService<String>(
-                factory, 0, nameClient,
+                factory, 0, nameResolver,
                 new StringCodec(), new MessagingTransportFactory(localAddressProvider),
                 new MessageHandler<String>(name1, null, 0), new ExceptionHandler(), localAddressProvider);
             ns1.registerId(factory.getNewInstance(name1));
@@ -342,16 +342,16 @@ public class NetworkServiceTest {
       LOG.log(Level.FINEST, "=== Test network service receiver start");
       // network service
       final String name2 = "task2";
-      final Configuration nameClientConf = Tang.Factory.getTang().newConfigurationBuilder(NameClientConfiguration.CONF
-          .set(NameClientConfiguration.NAME_SERVER_HOSTNAME, this.localAddress)
-          .set(NameClientConfiguration.NAME_SERVICE_PORT, nameServerPort)
+      final Configuration nameResolverConf = Tang.Factory.getTang().newConfigurationBuilder(NameResolverConfiguration.CONF
+          .set(NameResolverConfiguration.NAME_SERVER_HOSTNAME, this.localAddress)
+          .set(NameResolverConfiguration.NAME_SERVICE_PORT, nameServerPort)
           .build())
           .build();
 
-      final Injector injector2 = Tang.Factory.getTang().newInjector(nameClientConf);
-      final NameResolver nameClient = injector2.getInstance(NameResolver.class);
+      final Injector injector2 = Tang.Factory.getTang().newInjector(nameResolverConf);
+      final NameResolver nameResolver = injector2.getInstance(NameResolver.class);
       NetworkService<String> ns2 = new NetworkService<String>(
-          factory, 0, nameClient,
+          factory, 0, nameResolver,
           new StringCodec(), new MessagingTransportFactory(localAddressProvider),
           new MessageHandler<String>(name2, monitor, totalNumMessages), new ExceptionHandler(), localAddressProvider);
       ns2.registerId(factory.getNewInstance(name2));
@@ -361,7 +361,7 @@ public class NetworkServiceTest {
       LOG.log(Level.FINEST, "=== Test network service sender start");
       final String name1 = "task1";
       NetworkService<String> ns1 = new NetworkService<String>(
-          factory, 0, nameClient,
+          factory, 0, nameResolver,
           new StringCodec(), new MessagingTransportFactory(localAddressProvider),
           new MessageHandler<String>(name1, null, 0), new ExceptionHandler(), localAddressProvider);
       ns1.registerId(factory.getNewInstance(name1));
@@ -441,16 +441,16 @@ public class NetworkServiceTest {
       LOG.log(Level.FINEST, "=== Test network service receiver start");
       // network service
       final String name2 = "task2";
-      final Configuration nameClientConf = Tang.Factory.getTang().newConfigurationBuilder(NameClientConfiguration.CONF
-          .set(NameClientConfiguration.NAME_SERVER_HOSTNAME, this.localAddress)
-          .set(NameClientConfiguration.NAME_SERVICE_PORT, nameServerPort)
+      final Configuration nameResolverConf = Tang.Factory.getTang().newConfigurationBuilder(NameResolverConfiguration.CONF
+          .set(NameResolverConfiguration.NAME_SERVER_HOSTNAME, this.localAddress)
+          .set(NameResolverConfiguration.NAME_SERVICE_PORT, nameServerPort)
           .build())
           .build();
 
-      final Injector injector2 = Tang.Factory.getTang().newInjector(nameClientConf);
-      final NameResolver nameClient = injector2.getInstance(NameResolver.class);
+      final Injector injector2 = Tang.Factory.getTang().newInjector(nameResolverConf);
+      final NameResolver nameResolver = injector2.getInstance(NameResolver.class);
       NetworkService<String> ns2 = new NetworkService<String>(
-          factory, 0, nameClient,
+          factory, 0, nameResolver,
           new StringCodec(), new MessagingTransportFactory(localAddressProvider),
           new MessageHandler<String>(name2, monitor, numMessages), new ExceptionHandler(), localAddressProvider);
       ns2.registerId(factory.getNewInstance(name2));
@@ -460,7 +460,7 @@ public class NetworkServiceTest {
       LOG.log(Level.FINEST, "=== Test network service sender start");
       final String name1 = "task1";
       NetworkService<String> ns1 = new NetworkService<String>(
-          factory, 0, nameClient,
+          factory, 0, nameResolver,
           new StringCodec(), new MessagingTransportFactory(localAddressProvider),
           new MessageHandler<String>(name1, null, 0), new ExceptionHandler(), localAddressProvider);
       ns1.registerId(factory.getNewInstance(name1));

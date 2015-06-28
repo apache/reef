@@ -88,15 +88,15 @@ public class NameClientTest {
 
     try (final NameServer server = injector.getInstance(NameServer.class)) {
       int serverPort = server.getPort();
-      final Configuration nameClientConf = NameClientConfiguration.CONF
-          .set(NameClientConfiguration.NAME_SERVER_HOSTNAME, localAddress)
-          .set(NameClientConfiguration.NAME_SERVICE_PORT, serverPort)
-          .set(NameClientConfiguration.CACHE_TIMEOUT, 10000)
-          .set(NameClientConfiguration.RETRY_TIMEOUT, retryTimeout)
-          .set(NameClientConfiguration.RETRY_COUNT, retryCount)
+      final Configuration nameResolverConf = NameResolverConfiguration.CONF
+          .set(NameResolverConfiguration.NAME_SERVER_HOSTNAME, localAddress)
+          .set(NameResolverConfiguration.NAME_SERVICE_PORT, serverPort)
+          .set(NameResolverConfiguration.CACHE_TIMEOUT, 10000)
+          .set(NameResolverConfiguration.RETRY_TIMEOUT, retryTimeout)
+          .set(NameResolverConfiguration.RETRY_COUNT, retryCount)
           .build();
 
-      try (final NameResolver client = Tang.Factory.getTang().newInjector(nameClientConf).getInstance(NameClient.class)) {
+      try (final NameResolver client = Tang.Factory.getTang().newInjector(nameResolverConf).getInstance(NameClient.class)) {
         final Identifier id = factory.getNewInstance("Task1");
         client.register(id, new InetSocketAddress(localAddress, 7001));
         client.unregister(id);
@@ -122,15 +122,15 @@ public class NameClientTest {
 
     try (final NameServer server = injector.getInstance(NameServer.class)) {
       int serverPort = server.getPort();
-      final Configuration nameClientConf = NameClientConfiguration.CONF
-          .set(NameClientConfiguration.NAME_SERVER_HOSTNAME, localAddress)
-          .set(NameClientConfiguration.NAME_SERVICE_PORT, serverPort)
-          .set(NameClientConfiguration.CACHE_TIMEOUT, 150)
-          .set(NameClientConfiguration.RETRY_TIMEOUT, retryTimeout)
-          .set(NameClientConfiguration.RETRY_COUNT, retryCount)
+      final Configuration nameResolverConf = NameResolverConfiguration.CONF
+          .set(NameResolverConfiguration.NAME_SERVER_HOSTNAME, localAddress)
+          .set(NameResolverConfiguration.NAME_SERVICE_PORT, serverPort)
+          .set(NameResolverConfiguration.CACHE_TIMEOUT, 150)
+          .set(NameResolverConfiguration.RETRY_TIMEOUT, retryTimeout)
+          .set(NameResolverConfiguration.RETRY_COUNT, retryCount)
           .build();
 
-      try (final NameResolver client = Tang.Factory.getTang().newInjector(nameClientConf).getInstance(NameClient.class)) {
+      try (final NameResolver client = Tang.Factory.getTang().newInjector(nameResolverConf).getInstance(NameClient.class)) {
         final Identifier id = factory.getNewInstance("Task1");
         client.register(id, new InetSocketAddress(localAddress, 7001));
         client.lookup(id);// caches the entry

@@ -37,7 +37,7 @@ import org.apache.reef.io.network.group.impl.utils.BroadcastingEventHandler;
 import org.apache.reef.io.network.group.impl.utils.Utils;
 import org.apache.reef.io.network.impl.*;
 import org.apache.reef.io.network.naming.NameResolver;
-import org.apache.reef.io.network.naming.NameClientConfiguration;
+import org.apache.reef.io.network.naming.NameResolverConfiguration;
 import org.apache.reef.io.network.naming.NameServer;
 import org.apache.reef.io.network.naming.NameServerImpl;
 import org.apache.reef.io.network.naming.parameters.NameResolverNameServerAddr;
@@ -176,21 +176,21 @@ public class GroupCommDriverImpl implements GroupCommServiceDriver {
     this.groupCommMessageHandler = new GroupCommMessageHandler();
     this.groupCommMessageStage = new SingleThreadStage<>("GroupCommMessageStage", groupCommMessageHandler, 100 * 1000);
 
-    final Configuration nameClientConf = Tang.Factory.getTang().newConfigurationBuilder(NameClientConfiguration.CONF
-        .set(NameClientConfiguration.NAME_SERVER_HOSTNAME, nameServiceAddr)
-        .set(NameClientConfiguration.NAME_SERVICE_PORT, nameServicePort)
+    final Configuration nameResolverConf = Tang.Factory.getTang().newConfigurationBuilder(NameResolverConfiguration.CONF
+        .set(NameResolverConfiguration.NAME_SERVER_HOSTNAME, nameServiceAddr)
+        .set(NameResolverConfiguration.NAME_SERVICE_PORT, nameServicePort)
         .build())
         .build();
 
-    final Injector injector = Tang.Factory.getTang().newInjector(nameClientConf);
-    NameResolver nameClient = null;
+    final Injector injector = Tang.Factory.getTang().newInjector(nameResolverConf);
+    NameResolver nameResolver = null;
     try {
-      nameClient = injector.getInstance(NameResolver.class);
+      nameResolver = injector.getInstance(NameResolver.class);
     } catch (InjectionException e) {
       throw new RuntimeException(e);
     }
 
-    this.netService = new NetworkService<>(idFac, 0, nameClient,
+    this.netService = new NetworkService<>(idFac, 0, nameResolver,
         new GroupCommunicationMessageCodec(), tpFactory,
         new EventHandler<Message<GroupCommunicationMessage>>() {
 

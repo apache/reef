@@ -76,7 +76,7 @@ public final class NetworkService<T> implements Stage, ConnectionFactory<T> {
   private final IdentifierFactory factory;
   private final Codec<T> codec;
   private final Transport transport;
-  private final NameResolver nameClient;
+  private final NameResolver nameResolver;
   private final ConcurrentMap<Identifier, Connection<T>> idToConnMap = new ConcurrentHashMap<>();
   private final EStage<Tuple<Identifier, InetSocketAddress>> nameServiceRegisteringStage;
   private final EStage<Identifier> nameServiceUnregisteringStage;
@@ -172,7 +172,7 @@ public final class NetworkService<T> implements Stage, ConnectionFactory<T> {
   public NetworkService(
       @Parameter(NetworkServiceParameters.NetworkServiceIdentifierFactory.class) final IdentifierFactory factory,
       @Parameter(NetworkServiceParameters.NetworkServicePort.class) final int nsPort,
-      final NameResolver nameClient,
+      final NameResolver nameResolver,
       @Parameter(NetworkServiceParameters.NetworkServiceCodec.class) final Codec<T> codec,
       @Parameter(NetworkServiceParameters.NetworkServiceTransportFactory.class) final TransportFactory tpFactory,
       @Parameter(NetworkServiceParameters.NetworkServiceHandler.class) final EventHandler<Message<T>> recvHandler,
@@ -185,14 +185,14 @@ public final class NetworkService<T> implements Stage, ConnectionFactory<T> {
         new LoggingEventHandler<TransportEvent>(),
         new MessageHandler<T>(recvHandler, codec, factory), exHandler);
 
-    this.nameClient = nameClient;
+    this.nameResolver = nameResolver;
 
     this.nameServiceRegisteringStage = new SingleThreadStage<>(
         "NameServiceRegisterer", new EventHandler<Tuple<Identifier, InetSocketAddress>>() {
       @Override
       public void onNext(final Tuple<Identifier, InetSocketAddress> tuple) {
         try {
-          nameClient.register(tuple.getKey(), tuple.getValue());
+          nameResolver.register(tuple.getKey(), tuple.getValue());
           LOG.log(Level.FINEST, "Registered {0} with nameservice", tuple.getKey());
         } catch (final Exception ex) {
           final String msg = "Unable to register " + tuple.getKey() + "with name service";
@@ -207,7 +207,7 @@ public final class NetworkService<T> implements Stage, ConnectionFactory<T> {
       @Override
       public void onNext(final Identifier id) {
         try {
-          nameClient.unregister(id);
+          nameResolver.unregister(id);
           LOG.log(Level.FINEST, "Unregistered {0} with nameservice", id);
         } catch (final Exception ex) {
           final String msg = "Unable to unregister " + id + " with name service";
@@ -247,7 +247,7 @@ public final class NetworkService<T> implements Stage, ConnectionFactory<T> {
   }
 
   public Naming getNameClient() {
-    return this.nameClient;
+    return this.nameResolver;
   }
 
   public IdentifierFactory getIdentifierFactory() {
@@ -262,7 +262,7 @@ public final class NetworkService<T> implements Stage, ConnectionFactory<T> {
   public void close() throws Exception {
     LOG.log(Level.FINE, "Shutting down");
     this.transport.close();
-    this.nameClient.close();
+    this.nameResolver.close();
   }
 
   @Override

@@ -27,9 +27,9 @@ import org.apache.reef.tang.formats.RequiredParameter;
 import org.apache.reef.wake.IdentifierFactory;
 
 /**
- * Configuration Module Builder for NameClient.
+ * Configuration Module Builder for NameResolver.
  */
-public final class NameClientConfiguration extends ConfigurationModuleBuilder {
+public final class NameResolverConfiguration extends ConfigurationModuleBuilder {
 
   /**
    * The port used by name server.
@@ -60,7 +60,7 @@ public final class NameClientConfiguration extends ConfigurationModuleBuilder {
    */
   public static final OptionalParameter<Integer> RETRY_COUNT = new OptionalParameter<>();
 
-  public static final ConfigurationModule CONF = new NameClientConfiguration()
+  public static final ConfigurationModule CONF = new NameResolverConfiguration()
       .bindNamedParameter(NameResolverNameServerPort.class, NAME_SERVICE_PORT)
       .bindNamedParameter(NameResolverNameServerAddr.class, NAME_SERVER_HOSTNAME)
       .bindNamedParameter(NameResolverIdentifierFactory.class, IDENTIFIER_FACTORY)

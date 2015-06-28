@@ -311,15 +311,15 @@ public class NamingTest {
 
     // registration
     // invoke registration from the client side
-    Configuration nameClientConf = NameClientConfiguration.CONF
-        .set(NameClientConfiguration.NAME_SERVER_HOSTNAME, localAddress)
-        .set(NameClientConfiguration.NAME_SERVICE_PORT, this.port)
-        .set(NameClientConfiguration.CACHE_TIMEOUT, this.TTL)
-        .set(NameClientConfiguration.RETRY_TIMEOUT, retryTimeout)
-        .set(NameClientConfiguration.RETRY_COUNT, retryCount)
+    Configuration nameResolverConf = NameResolverConfiguration.CONF
+        .set(NameResolverConfiguration.NAME_SERVER_HOSTNAME, localAddress)
+        .set(NameResolverConfiguration.NAME_SERVICE_PORT, this.port)
+        .set(NameResolverConfiguration.CACHE_TIMEOUT, this.TTL)
+        .set(NameResolverConfiguration.RETRY_TIMEOUT, retryTimeout)
+        .set(NameResolverConfiguration.RETRY_COUNT, retryCount)
         .build();
 
-    final NameResolver client = Tang.Factory.getTang().newInjector(nameClientConf).getInstance(NameClient.class);
+    final NameResolver client = Tang.Factory.getTang().newInjector(nameResolverConf).getInstance(NameClient.class);
     for (final Identifier id : idToAddrMap.keySet()) {
       client.register(id, idToAddrMap.get(id));
     }
