@@ -1,0 +1,49 @@
+﻿/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+using Org.Apache.REEF.IMRU.API;
+using Org.Apache.REEF.Tang.Annotations;
+
+namespace Org.Apache.REEF.IMRU.Examples.MapperCount
+{
+    /// <summary>
+    /// The Update function for the mapper counting job.
+    /// </summary>
+    /// <remarks>
+    /// Upon Initialize(), this sends `1` to all Map Function instances. Each of them returns `1`, which shows up as the
+    /// parameter passed into `Update`. At that point, we can immediately terminate.
+    /// </remarks>
+    public sealed class MapperCountUpdateFunction : IUpdateFunction<int, int, int>
+    {
+        [Inject]
+        private MapperCountUpdateFunction()
+        {
+        }
+
+        public UpdateResult<int, int> Update(int input)
+        {
+            return UpdateResult<int, int>.Done(input);
+        }
+
+        public UpdateResult<int, int> Initialize()
+        {
+            return UpdateResult<int, int>.AnotherRound(1);
+        }
+    }
+}
