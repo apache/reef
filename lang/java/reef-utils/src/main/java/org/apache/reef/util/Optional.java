@@ -25,7 +25,7 @@ import java.io.Serializable;
 
 /**
  * Represents an optional value. Loosely based on
- * <a href="http://download.java.net/jdk8/docs/api/java/util/Optional.html"></a>The Java 8 version</a>, but filtered for
+ * <a href="http://download.java.net/jdk8/docs/api/java/util/Optional.html">The Java 8 version</a>, but filtered for
  * Java 7 compatibility.
  */
 @Immutable
