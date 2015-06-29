@@ -78,8 +78,8 @@ public final class OutputServiceDriver {
   @Inject
   public OutputServiceDriver(
       final EvaluatorRequestor requestor,
-      final @Parameter(OutputServiceREEF.Local.class) Boolean isLocal,
-      final @Parameter(OutputServiceREEF.OutputDir.class) String outputDir) {
+      @Parameter(OutputServiceREEF.Local.class) final Boolean isLocal,
+      @Parameter(OutputServiceREEF.OutputDir.class) final String outputDir) {
     LOG.log(Level.FINE, "Instantiated 'OutputServiceDriver'");
     this.requestor = requestor;
     this.isLocal = isLocal;
@@ -102,7 +102,7 @@ public final class OutputServiceDriver {
   }
 
   /**
-   * Handles AllocatedEvaluator: Submit the output service and a context for it
+   * Handles AllocatedEvaluator: Submit the output service and a context for it.
    */
   public final class EvaluatorAllocatedHandler implements EventHandler<AllocatedEvaluator> {
     @Override

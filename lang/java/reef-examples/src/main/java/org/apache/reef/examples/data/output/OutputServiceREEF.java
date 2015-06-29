@@ -44,7 +44,7 @@ import java.util.logging.Logger;
  * Client for the output service demo app.
  */
 @ClientSide
-public class OutputServiceREEF {
+public final class OutputServiceREEF {
   private static final Logger LOG = Logger.getLogger(OutputServiceREEF.class.getName());
 
   public static void main(final String[] args)
@@ -126,5 +126,11 @@ public class OutputServiceREEF {
   @NamedParameter(doc = "Path of the output directory",
       short_name = "output")
   public static final class OutputDir implements Name<String> {
+  }
+
+  /**
+   * Empty private constructor to prohibit instantiation of utility class.
+   */
+  private OutputServiceREEF() {
   }
 }
