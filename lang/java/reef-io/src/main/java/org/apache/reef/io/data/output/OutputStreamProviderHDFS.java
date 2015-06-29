@@ -31,17 +31,12 @@ import java.io.IOException;
  * Implementation of {@link org.apache.reef.io.data.output.OutputStreamProvider}.
  * It provides FileOutputStreams on HDFS.
  */
-public final class OutputStreamProviderHDFS implements OutputStreamProvider {
+public final class OutputStreamProviderHDFS extends OutputStreamProvider {
 
   /**
    * Path of the output directory on HDFS to write outputs.
    */
   private final String outputPath;
-
-  /**
-   * Id of the current task.
-   */
-  private String taskId;
 
   /**
    * HDFS File system.
@@ -76,21 +71,11 @@ public final class OutputStreamProviderHDFS implements OutputStreamProvider {
     if (!fs.exists(new Path(directoryPath))) {
       fs.mkdirs(new Path(directoryPath));
     }
-    return fs.create(new Path(directoryPath + Path.SEPARATOR + taskId));
+    return fs.create(new Path(directoryPath + Path.SEPARATOR + getTaskId()));
   }
 
   @Override
   public void close() throws IOException {
     fs.close();
-  }
-
-  /**
-   * Set task id, which is used as a part of the output stream file path.
-   *
-   * @param taskId id of the current task
-   */
-  @Override
-  public void setTaskId(final String taskId) {
-    this.taskId = taskId;
   }
 }

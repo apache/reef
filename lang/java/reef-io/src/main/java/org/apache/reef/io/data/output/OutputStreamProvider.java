@@ -24,7 +24,30 @@ import java.io.IOException;
 /**
  * A provider through which users create output streams.
  */
-public interface OutputStreamProvider {
+public abstract class OutputStreamProvider {
+
+  /**
+   * id of the current task
+   */
+  private String taskId;
+
+  /**
+   * set the id of the current task.
+   *
+   * @param taskId id of the current task
+   */
+  protected final void setTaskId(final String taskId) {
+    this.taskId = taskId;
+  }
+
+  /**
+   * get the id of the current task.
+   *
+   * @return id of the current task
+   */
+  protected final String getTaskId() {
+    return this.taskId;
+  }
 
   /**
    * create an output stream using the given name.
@@ -34,19 +57,12 @@ public interface OutputStreamProvider {
    * @return created output stream
    * @throws java.io.IOException
    */
-  DataOutputStream create(final String name) throws IOException;
-
-  /**
-   * set the id of the current task.
-   *
-   * @param taskId id of the current task
-   */
-  void setTaskId(final String taskId);
+  public abstract DataOutputStream create(final String name) throws IOException;
 
   /**
    * release resources.
    *
    * @throws java.io.IOException
    */
-  void close() throws IOException;
+  public abstract void close() throws IOException;
 }

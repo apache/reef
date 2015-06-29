@@ -30,17 +30,12 @@ import java.io.IOException;
  * Implementation of {@link org.apache.reef.io.data.output.OutputStreamProvider}.
  * It provides FileOutputStreams on the local file system.
  */
-public final class OutputStreamProviderLocal implements OutputStreamProvider {
+public final class OutputStreamProviderLocal extends OutputStreamProvider {
 
   /**
    * Path of the output directory on the local disk to write outputs.
    */
   private final String outputPath;
-
-  /**
-   * Id of the current task.
-   */
-  private String taskId;
 
   /**
    * Constructor - instantiated via TANG.
@@ -73,21 +68,11 @@ public final class OutputStreamProviderLocal implements OutputStreamProvider {
       }
     }
 
-    final File file = new File(directoryPath + File.separator + taskId);
+    final File file = new File(directoryPath + File.separator + getTaskId());
     return new DataOutputStream(new FileOutputStream(file));
   }
 
   @Override
   public void close() throws IOException {
-  }
-
-  /**
-   * Set task id, which is used as a part of the output stream file path.
-   *
-   * @param taskId id of the current task
-   */
-  @Override
-  public void setTaskId(final String taskId) {
-    this.taskId = taskId;
   }
 }

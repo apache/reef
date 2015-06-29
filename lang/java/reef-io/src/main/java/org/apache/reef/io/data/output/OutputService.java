@@ -92,7 +92,7 @@ public final class OutputService {
       LOG.log(Level.INFO, "Context stopped, close the OutputStreamProvider.");
       try {
         outputStreamProvider.close();
-      } catch (IOException e) {
+      } catch (final IOException e) {
         throw new RuntimeException(e);
       }
     }
