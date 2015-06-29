@@ -23,7 +23,7 @@ import org.apache.reef.tang.annotations.DefaultImplementation;
 import org.apache.reef.wake.Stage;
 
 /**
- * NameClient interface
+ * NameClient interface.
  */
 @DefaultImplementation(NameClient.class)
 public interface NameResolver extends Stage, Naming {

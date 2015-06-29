@@ -16,4 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+/**
+ * TODO: Document.
+ */
 package org.apache.reef.io.network.naming.exception;

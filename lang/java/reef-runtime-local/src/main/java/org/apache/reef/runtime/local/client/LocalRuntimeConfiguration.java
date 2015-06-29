@@ -67,7 +67,7 @@ public class LocalRuntimeConfiguration extends ConfigurationModuleBuilder {
   public static final OptionalImpl<ConfigurationProvider> DRIVER_CONFIGURATION_PROVIDERS = new OptionalImpl<>();
 
   /**
-   * The rack names that will be available in the local runtime
+   * The rack names that will be available in the local runtime.
    */
   public static final OptionalParameter<String> RACK_NAMES = new OptionalParameter<>();
 

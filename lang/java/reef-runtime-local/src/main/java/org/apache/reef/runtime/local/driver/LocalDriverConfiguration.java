@@ -53,7 +53,7 @@ public class LocalDriverConfiguration extends ConfigurationModuleBuilder {
   public static final OptionalParameter<Double> JVM_HEAP_SLACK = new OptionalParameter<>();
 
   /**
-  * The rack names that will be available in the local runtime
+  * The rack names that will be available in the local runtime.
   */
   public static final OptionalParameter<String> RACK_NAMES = new OptionalParameter<>();
 

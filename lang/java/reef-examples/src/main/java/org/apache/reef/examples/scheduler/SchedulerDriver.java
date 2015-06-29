@@ -49,10 +49,10 @@ public final class SchedulerDriver {
   /**
    * Possible states of the job driver. Can be one of:
    * <dl>
-   * <du><code>INIT</code></du><dd>Initial state. Ready to request an evaluator.</dd>
-   * <du><code>WAIT_EVALUATORS</code></du><dd>Waiting for an evaluator allocated with no active evaluators.</dd>
-   * <du><code>READY</code></du><dd>Wait for the commands. Reactivated when a new Task arrives.</dd>
-   * <du><code>RUNNING</code></du><dd>Run commands in the queue. Go back to READY state when the queue is empty.</dd>
+   * <dt><code>INIT</code></dt><dd>Initial state. Ready to request an evaluator.</dd>
+   * <dt><code>WAIT_EVALUATORS</code></dt><dd>Waiting for an evaluator allocated with no active evaluators.</dd>
+   * <dt><code>READY</code></dt><dd>Wait for the commands. Reactivated when a new Task arrives.</dd>
+   * <dt><code>RUNNING</code></dt><dd>Run commands in the queue. Go back to READY state when the queue is empty.</dd>
    * </dl>
    */
   private enum State {
