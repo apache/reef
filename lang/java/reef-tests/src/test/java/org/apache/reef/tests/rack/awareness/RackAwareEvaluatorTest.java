@@ -81,7 +81,7 @@ public final class RackAwareEvaluatorTest {
    */
   //@Test
   // TODO Re-enable once we define the API to specify the information where
-  // resources should run on.
+  // resources should run on (JIRA REEF-416)
   // OnDriverStartedAllocateOne will need to be replaced, and contain that it
   // wants to run in RACK1, which will be the only one available
   public void testRackAwareEvaluatorRunningOnRack1() throws InjectionException {

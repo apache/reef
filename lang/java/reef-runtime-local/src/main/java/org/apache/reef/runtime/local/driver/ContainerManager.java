@@ -181,7 +181,7 @@ final class ContainerManager implements AutoCloseable {
    */
   private Collection<String> normalize(final Collection<String> rackNames,
       final boolean validateEnd) {
-    final List<String> normalizedRackNames = new ArrayList<>();
+    final List<String> normalizedRackNames = new ArrayList<>(rackNames.size());
     final Iterator<String> it = rackNames.iterator();
     while (it.hasNext()) {
       String rackName = it.next().trim();
