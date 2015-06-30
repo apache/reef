@@ -18,8 +18,6 @@
  */
 package org.apache.reef.runtime.common.driver;
 
-import org.apache.reef.driver.catalog.NodeDescriptor;
-import org.apache.reef.driver.catalog.RackDescriptor;
 import org.apache.reef.driver.catalog.ResourceCatalog;
 import org.apache.reef.driver.evaluator.EvaluatorRequest;
 import org.apache.reef.driver.evaluator.EvaluatorRequestor;
@@ -29,6 +27,7 @@ import org.apache.reef.util.logging.LoggingScope;
 import org.apache.reef.util.logging.LoggingScopeFactory;
 
 import javax.inject.Inject;
+
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -59,7 +58,8 @@ public final class EvaluatorRequestorImpl implements EvaluatorRequestor {
 
   @Override
   public synchronized void submit(final EvaluatorRequest req) {
-    LOG.log(Level.FINEST, "Got an EvaluatorRequest: number: {0}, memory = {1}, cores = {2}.", new Object[]{req.getNumber(), req.getMegaBytes(), req.getNumberOfCores()});
+    LOG.log(Level.FINEST, "Got an EvaluatorRequest: number: {0}, memory = {1}, cores = {2}.",
+        new Object[] {req.getNumber(), req.getMegaBytes(), req.getNumberOfCores()});
 
     if (req.getMegaBytes() <= 0) {
       throw new IllegalArgumentException("Given an unsupported memory size: " + req.getMegaBytes());
@@ -70,26 +70,27 @@ public final class EvaluatorRequestorImpl implements EvaluatorRequestor {
     if (req.getNumber() <= 0) {
       throw new IllegalArgumentException("Given an unsupported number of evaluators: " + req.getNumber());
     }
+    if (req.getNodeNames() == null) {
+      throw new IllegalArgumentException("Node names cannot be null");
+    }
+    if (req.getRackNames() == null) {
+      throw new IllegalArgumentException("Rack names cannot be null");
+    }
 
     try (LoggingScope ls = loggingScopeFactory.evaluatorSubmit(req.getNumber())) {
-      final ResourceRequestEventImpl.Builder request = ResourceRequestEventImpl
+      final ResourceRequestEventImpl.Builder requestBuilder = ResourceRequestEventImpl
           .newBuilder()
           .setResourceCount(req.getNumber())
           .setVirtualCores(req.getNumberOfCores())
           .setMemorySize(req.getMegaBytes());
 
-      final ResourceCatalog.Descriptor descriptor = req.getDescriptor();
-      if (descriptor != null) {
-        if (descriptor instanceof RackDescriptor) {
-          request.addRackName(descriptor.getName());
-        } else if (descriptor instanceof NodeDescriptor) {
-          request.addNodeName(descriptor.getName());
-        } else {
-          throw new IllegalArgumentException("Unable to operate on descriptors of type " + descriptor.getClass().getName());
-        }
+      for (final String nodeName : req.getNodeNames()) {
+        requestBuilder.addNodeName(nodeName);
       }
-
-      this.resourceRequestHandler.onNext(request.build());
+      for (final String rackName : req.getRackNames()) {
+        requestBuilder.addRackName(rackName);
+      }
+      this.resourceRequestHandler.onNext(requestBuilder.build());
     }
   }
 }
