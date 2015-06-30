@@ -36,6 +36,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+// TODO Clean up the code which are deprecated and commented out.
 public class ValidateConfiguration {
   private final String target;
   private final File ch;
@@ -85,6 +86,7 @@ public class ValidateConfiguration {
 
     final Tang t = Tang.Factory.getTang();
 
+    // TODO Use the AvroClassHierarchySerializer
     final ClassHierarchyProto.Node root;
     try (final InputStream chin = new FileInputStream(this.ch)) {
       root = ClassHierarchyProto.Node.parseFrom(chin);

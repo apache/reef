@@ -18,8 +18,8 @@
  */
 package org.apache.reef.tang;
 
-import org.apache.reef.tang.exceptions.BindException;
 import org.apache.reef.tang.exceptions.NameResolutionException;
+import org.apache.reef.tang.implementation.avro.AvroClassHierarchySerializer;
 import org.apache.reef.tang.formats.AvroConfigurationSerializer;
 import org.apache.reef.tang.formats.ConfigurationSerializer;
 import org.apache.reef.tang.implementation.protobuf.ProtocolBufferClassHierarchy;
@@ -35,14 +35,27 @@ import java.util.Set;
 
 /**
  * Test case for class hierarchy deserialization.
+ * TODO[REEF-400]: The files should be created and deserialized by the AvroClassHierarchySerializer
  */
 public class ClassHierarchyDeserializationTest {
+  private final ConfigurationSerializer configurationSerializer = new AvroConfigurationSerializer();
 
   /**
    * generate task.bin from running .Net ClassHierarchyBuilder.exe
+   * and deserialize the class hierarchy by using Avro
+   * TODO[REEF-400]: Use the AvroClassHierarchySerializer to deserialize the task.bin
    */
   @Test
-  public void testDeserializationForTasks() {
+  public void testDeserializationForTasksAvro() {
+  }
+
+  /**
+   * generate task.bin from running .Net ClassHierarchyBuilder.exe
+   * and deserialize the class hierarchy by using protobuf
+   * TODO[REEF-400]: Remove this test when we remove the protocol buffer version
+   */
+  @Test
+  public void testDeserializationForTasksProtobuf() {
     try (final InputStream chin = Thread.currentThread().getContextClassLoader()
         .getResourceAsStream("Task.bin")) {
       final ClassHierarchyProto.Node root = ClassHierarchyProto.Node.parseFrom(chin);
@@ -67,11 +80,21 @@ public class ClassHierarchyDeserializationTest {
     }
   }
 
+
   /**
-   * This is to test CLR protocol Buffer class hierarchy merge
+   * This is to test CLR Avro class hierarchy merge
+   * TODO[REEF-400]: Use the AvroClassHierarchySerializer to deserialize two files and merge them
    */
   @Test
-  public void testProtocolClassHierarchyMerge() {
+  public void testClassHierarchyMergeAvro() {
+  }
+
+  /**
+   * This is to test CLR Protocol Buffer class hierarchy merge
+   * TODO[REEF-400]: Remove this test when we remove the protocol buffer version
+   */
+  @Test
+  public void testClassHierarchyMergeProtobuf() {
     final ConfigurationBuilder taskConfigurationBuilder;
     final ConfigurationBuilder eventConfigurationBuilder;
 
@@ -100,9 +123,18 @@ public class ClassHierarchyDeserializationTest {
 
   /**
    * generate event.bin from .Net Tang test case TestSerilization.TestGenericClass
+   * TODO[REEF-400]: Use the AvroClassHierarchySerializer to deserialize the event.bin
    */
   @Test
-  public void testDeserializationForEvent() {
+  public void testDeserializationForEventAvro() {
+  }
+
+  /**
+   * generate event.bin from .Net Tang test case TestSerilization.TestGenericClass
+   * TODO[REEF-400]: Remove this test when we remove the protocol buffer version
+   */
+  @Test
+  public void testDeserializationForEventProtobuf() {
     try (final InputStream chin = Thread.currentThread().getContextClassLoader()
         .getResourceAsStream("Event.bin")) {
       final ClassHierarchyProto.Node root = ClassHierarchyProto.Node.parseFrom(chin);
@@ -115,9 +147,32 @@ public class ClassHierarchyDeserializationTest {
     }
   }
 
+  /**
+   * Test bindSetEntry(NamedParameterNode<Set<T>> iface, String impl) in ConfigurationBuilderImpl
+   * with the class hierarchy which is deserialized by AvroClassHierarchySerializer
+   */
   @Test
-  //Test bindSetEntry(NamedParameterNode<Set<T>> iface, String impl) in ConfigurationBuilderImpl with deserialized class hierarchy
-  public void testBindSetEntryWithSetOfT() throws IOException {
+  public void testBindSetEntryWithSetOfTAvro() throws IOException {
+    final ClassHierarchy ns1 = Tang.Factory.getTang().getDefaultClassHierarchy();
+    ns1.getNode(SetOfClasses.class.getName());
+    final AvroClassHierarchySerializer classHierarchySerializer = new AvroClassHierarchySerializer();
+    final ClassHierarchy ns2 = classHierarchySerializer.fromAvro(classHierarchySerializer.toAvro(ns1));
+    final ConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder(ns2);
+
+    final NamedParameterNode<Set<Number>> n2 = (NamedParameterNode<Set<Number>>) ns1.getNode(SetOfClasses.class.getName());
+    final Node fn = ns1.getNode(Float.class.getName());
+    cb.bindSetEntry(n2, fn);
+
+    final Configuration c = configurationSerializer.fromString(configurationSerializer.toString(cb.build()), ns2);
+  }
+
+  /**
+   * Test bindSetEntry(NamedParameterNode<Set<T>> iface, String impl) in ConfigurationBuilderImpl
+   * with the class hierarchy which is deserialized by Protocol buffer
+   * TODO[REEF-400]: Remove this test when we remove the protocol buffer version
+   */
+  @Test
+  public void testBindSetEntryWithSetOfTProtobuf() throws IOException {
     final ClassHierarchy ns1 = Tang.Factory.getTang().getDefaultClassHierarchy();
     ns1.getNode(SetOfClasses.class.getName());
     final ClassHierarchy ns2 = new ProtocolBufferClassHierarchy(ProtocolBufferClassHierarchy.serialize(ns1));
@@ -127,13 +182,36 @@ public class ClassHierarchyDeserializationTest {
     final Node fn = ns1.getNode(Float.class.getName());
     cb.bindSetEntry(n2, fn);
 
-    final ConfigurationSerializer serializer = new AvroConfigurationSerializer();
-    final Configuration c = serializer.fromString(serializer.toString(cb.build()), ns2);
+    final Configuration c = configurationSerializer.fromString(configurationSerializer.toString(cb.build()), ns2);
   }
 
+  /**
+   * Test public <T> void bindParameter(NamedParameterNode<T> name, String value) in ConfigurationBuilderImpl
+   * with the class hierarchy which is deserialized by AvroClassHierarchySerializer
+   */
   @Test
-  //Test public <T> void bindParameter(NamedParameterNode<T> name, String value) in ConfigurationBuilderImpl with deserialized class hierarchy
-  public void testBindSetEntryWithSetOfString() throws IOException {
+  public void testBindSetEntryWithSetOfStringAvro() throws IOException {
+    final ClassHierarchy ns1 = Tang.Factory.getTang().getDefaultClassHierarchy();
+    ns1.getNode(SetOfStrings.class.getName());
+    final AvroClassHierarchySerializer classHierarchySerializer = new AvroClassHierarchySerializer();
+    final ClassHierarchy ns2 = classHierarchySerializer.fromAvro(classHierarchySerializer.toAvro(ns1));
+    final ConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder(ns2);
+    cb.bindSetEntry(SetOfStrings.class.getName(), "four");
+    cb.bindSetEntry(SetOfStrings.class.getName(), "five");
+
+    final NamedParameterNode<Set<String>> n2 = (NamedParameterNode<Set<String>>) ns1.getNode(SetOfStrings.class.getName());
+    cb.bindSetEntry(n2, "six");
+
+    final Configuration c = configurationSerializer.fromString(configurationSerializer.toString(cb.build()), ns2);
+  }
+
+  /**
+   * Test public <T> void bindParameter(NamedParameterNode<T> name, String value) in ConfigurationBuilderImpl
+   * with the class hierarchy which is deserialized by Protocol buffer
+   * TODO[REEF-400]: Remove this test when we remove the protocol buffer version
+   */
+   @Test
+  public void testBindSetEntryWithSetOfStringProtobuf() throws IOException {
     final ClassHierarchy ns1 = Tang.Factory.getTang().getDefaultClassHierarchy();
     ns1.getNode(SetOfStrings.class.getName());
     final ClassHierarchy ns2 = new ProtocolBufferClassHierarchy(ProtocolBufferClassHierarchy.serialize(ns1));
@@ -144,7 +222,6 @@ public class ClassHierarchyDeserializationTest {
     final NamedParameterNode<Set<String>> n2 = (NamedParameterNode<Set<String>>) ns1.getNode(SetOfStrings.class.getName());
     cb.bindSetEntry(n2, "six");
 
-    final ConfigurationSerializer serializer = new AvroConfigurationSerializer();
-    final Configuration c = serializer.fromString(serializer.toString(cb.build()), ns2);
+    final Configuration c = configurationSerializer.fromString(configurationSerializer.toString(cb.build()), ns2);
   }
 }
