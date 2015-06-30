@@ -22,6 +22,7 @@ import org.apache.reef.annotations.audience.ClientSide;
 import org.apache.reef.client.DriverConfiguration;
 import org.apache.reef.client.DriverLauncher;
 import org.apache.reef.client.LauncherStatus;
+import org.apache.reef.io.data.output.*;
 import org.apache.reef.runtime.local.client.LocalRuntimeConfiguration;
 import org.apache.reef.runtime.yarn.client.YarnClientConfiguration;
 import org.apache.reef.tang.Configuration;
@@ -63,6 +64,22 @@ public final class OutputServiceREEF {
     final String outputDir = injector.getNamedInstance(OutputDir.class);
     final int jobTimeout = injector.getNamedInstance(TimeOut.class) * 60 * 1000;
 
+    final Configuration driverConf = getDriverConf();
+    final Configuration outputServiceConf = getOutputServiceConf(isLocal, outputDir);
+    final Configuration submittedConfiguration = Tang.Factory.getTang()
+        .newConfigurationBuilder(driverConf, outputServiceConf)
+        .build();
+    final LauncherStatus state = DriverLauncher.getLauncher(getRuntimeConf(isLocal))
+        .run(submittedConfiguration, jobTimeout);
+
+    LOG.log(Level.INFO, "REEF job completed: {0}", state);
+  }
+
+  /**
+   * @param isLocal true for local runtime, or false for YARN runtime.
+   * @return The runtime configuration
+   */
+  private static Configuration getRuntimeConf(final boolean isLocal) {
     final Configuration runtimeConf;
     if (isLocal) {
       LOG.log(Level.INFO, "Running the output service demo on the local runtime");
@@ -73,6 +90,13 @@ public final class OutputServiceREEF {
       LOG.log(Level.INFO, "Running the output service demo on YARN");
       runtimeConf = YarnClientConfiguration.CONF.build();
     }
+    return runtimeConf;
+  }
+
+  /**
+   * @return The Driver configuration.
+   */
+  private static Configuration getDriverConf() {
     final Configuration driverConf = DriverConfiguration.CONF
         .set(DriverConfiguration.GLOBAL_LIBRARIES, EnvironmentUtils.getClassLocation(OutputServiceDriver.class))
         .set(DriverConfiguration.DRIVER_IDENTIFIER, "OutputServiceREEF")
@@ -80,18 +104,30 @@ public final class OutputServiceREEF {
         .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, OutputServiceDriver.EvaluatorAllocatedHandler.class)
         .set(DriverConfiguration.ON_CONTEXT_ACTIVE, OutputServiceDriver.ActiveContextHandler.class)
         .build();
-    final Configuration submittedConfiguration = Tang.Factory.getTang()
-        .newConfigurationBuilder(driverConf,
-            Tang.Factory.getTang().newConfigurationBuilder()
-                .bindNamedParameter(Local.class, String.valueOf(isLocal))
-                .bindNamedParameter(OutputDir.class, String.valueOf(isLocal ? getAbsolutePath(outputDir) : outputDir))
-                .build()).
-            build();
 
-    final LauncherStatus state = DriverLauncher.getLauncher(runtimeConf)
-        .run(submittedConfiguration, jobTimeout);
+    return driverConf;
+  }
 
-    LOG.log(Level.INFO, "REEF job completed: {0}", state);
+  /**
+   * @param isLocal true for local runtime, or false for YARN runtime.
+   * @param outputDir path of the output directory.
+   * @return The configuration to use OutputService
+   */
+  private static Configuration getOutputServiceConf(final boolean isLocal, final String outputDir) {
+    final Configuration outputServiceConf;
+    if (isLocal) {
+      outputServiceConf = TaskOutputServiceBuilder.CONF
+          .set(TaskOutputServiceBuilder.TASK_OUTPUT_STREAM_PROVIDER, TaskOutputStreamProviderLocal.class)
+          .set(TaskOutputServiceBuilder.OUTPUT_PATH, getAbsolutePath(outputDir))
+          .build();
+    }
+    else {
+      outputServiceConf = TaskOutputServiceBuilder.CONF
+          .set(TaskOutputServiceBuilder.TASK_OUTPUT_STREAM_PROVIDER, TaskOutputStreamProviderHDFS.class)
+          .set(TaskOutputServiceBuilder.OUTPUT_PATH, outputDir)
+          .build();
+    }
+    return outputServiceConf;
   }
 
   /**

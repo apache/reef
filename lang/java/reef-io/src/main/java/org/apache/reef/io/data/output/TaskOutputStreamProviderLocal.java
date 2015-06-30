@@ -18,64 +18,61 @@
  */
 package org.apache.reef.io.data.output;
 
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.mapred.JobConf;
 import org.apache.reef.tang.annotations.Parameter;
 
 import javax.inject.Inject;
 import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 
 /**
- * Implementation of {@link org.apache.reef.io.data.output.OutputStreamProvider}.
- * It provides FileOutputStreams on HDFS.
+ * Implementation of {@link TaskOutputStreamProvider}.
+ * It provides FileOutputStreams on the local file system.
  */
-public final class OutputStreamProviderHDFS extends OutputStreamProvider {
+public final class TaskOutputStreamProviderLocal extends TaskOutputStreamProvider {
 
   /**
-   * Path of the output directory on HDFS to write outputs.
+   * Path of the output directory on the local disk to write outputs.
    */
   private final String outputPath;
 
   /**
-   * HDFS File system.
-   */
-  private FileSystem fs;
-
-  /**
    * Constructor - instantiated via TANG.
    *
-   * @param outputPath path of the output directory on HDFS to write outputs.
+   * @param outputPath path of the output directory on the local disk to write outputs.
    */
   @Inject
-  private OutputStreamProviderHDFS(
-      @Parameter(OutputService.OutputPath.class) final String outputPath) throws IOException {
+  private TaskOutputStreamProviderLocal(
+      @Parameter(TaskOutputService.OutputPath.class) final String outputPath) {
     this.outputPath = outputPath;
-    final JobConf jobConf = new JobConf();
-    fs = FileSystem.get(jobConf);
   }
 
   /**
    * create a file output stream using the given name.
-   * The path of the file on HDFS is 'outputPath/name/taskId'.
+   * The path of the file on the local file system is 'outputPath/name/taskId'.
    *
    * @param name name of the created output stream
    *             It is used as the name of the directory if the created output stream is a file output stream
-   * @return OutputStream to a file on HDFS. The path of the file is 'outputPath/name/taskId'
+   * @return OutputStream to a file on local file system. The path of the file is 'outputPath/name/taskId'
    * @throws java.io.IOException
    */
   @Override
   public DataOutputStream create(final String name) throws IOException {
-    final String directoryPath = outputPath + Path.SEPARATOR + name;
-    if (!fs.exists(new Path(directoryPath))) {
-      fs.mkdirs(new Path(directoryPath));
+    final String directoryPath = outputPath + File.separator + name;
+    final File directory = new File(directoryPath);
+
+    synchronized (TaskOutputStreamProviderLocal.class) {
+      if (!directory.exists()) {
+        directory.mkdirs();
+      }
     }
-    return fs.create(new Path(directoryPath + Path.SEPARATOR + getTaskId()));
+
+    final File file = new File(directoryPath + File.separator + getTaskId());
+    return new DataOutputStream(new FileOutputStream(file));
   }
 
   @Override
   public void close() throws IOException {
-    fs.close();
   }
 }

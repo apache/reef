@@ -25,11 +25,7 @@ import org.apache.reef.driver.evaluator.EvaluatorRequest;
 import org.apache.reef.driver.evaluator.EvaluatorRequestor;
 import org.apache.reef.driver.task.TaskConfiguration;
 import org.apache.reef.io.data.output.OutputService;
-import org.apache.reef.io.data.output.OutputStreamProvider;
-import org.apache.reef.io.data.output.OutputStreamProviderHDFS;
-import org.apache.reef.io.data.output.OutputStreamProviderLocal;
 import org.apache.reef.tang.Configuration;
-import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.tang.annotations.Unit;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.time.event.StartTime;
@@ -47,19 +43,14 @@ public final class OutputServiceDriver {
   private static final Logger LOG = Logger.getLogger(OutputServiceDriver.class.getName());
 
   /**
-   * evaluator requestor object used to create new evaluator containers.
+   * Evaluator requestor object used to create new evaluator containers.
    */
   private final EvaluatorRequestor requestor;
 
   /**
-   * true for local runtime, or false for YARN runtime.
+   * Output service object.
    */
-  private final Boolean isLocal;
-
-  /**
-   * path of the output directory.
-   */
-  private final String outputDir;
+  private final OutputService outputService;
 
   /**
    * Sub-id for Tasks.
@@ -72,18 +63,14 @@ public final class OutputServiceDriver {
    * Job driver constructor - instantiated via TANG.
    *
    * @param requestor evaluator requestor object used to create new evaluator containers.
-   * @param isLocal true for local runtime, or false for YARN runtime.
-   * @param outputDir path of the output directory.
+   * @param outputService output service object.
    */
   @Inject
-  public OutputServiceDriver(
-      final EvaluatorRequestor requestor,
-      @Parameter(OutputServiceREEF.Local.class) final Boolean isLocal,
-      @Parameter(OutputServiceREEF.OutputDir.class) final String outputDir) {
+  public OutputServiceDriver(final EvaluatorRequestor requestor,
+                             final OutputService outputService) {
     LOG.log(Level.FINE, "Instantiated 'OutputServiceDriver'");
     this.requestor = requestor;
-    this.isLocal = isLocal;
-    this.outputDir = outputDir;
+    this.outputService = outputService;
   }
 
   /**
@@ -108,14 +95,11 @@ public final class OutputServiceDriver {
     @Override
     public void onNext(final AllocatedEvaluator allocatedEvaluator) {
       LOG.log(Level.INFO, "Submitting Output Service to AllocatedEvaluator: {0}", allocatedEvaluator);
-      final Class<? extends OutputStreamProvider> outputStreamProviderClass =
-          isLocal ? OutputStreamProviderLocal.class : OutputStreamProviderHDFS.class;
       final Configuration contextConfiguration = ContextConfiguration.CONF
           .set(ContextConfiguration.IDENTIFIER, "OutputServiceContext")
           .build();
-      final Configuration serviceConfiguration =
-          OutputService.getServiceConfiguration(outputDir, outputStreamProviderClass);
-      allocatedEvaluator.submitContextAndService(contextConfiguration, serviceConfiguration);
+      allocatedEvaluator.submitContextAndService(
+          contextConfiguration, outputService.getServiceConfiguration());
     }
   }
 
