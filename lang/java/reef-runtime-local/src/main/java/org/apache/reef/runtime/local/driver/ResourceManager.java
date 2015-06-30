@@ -33,13 +33,10 @@ import org.apache.reef.runtime.common.files.FileResource;
 import org.apache.reef.runtime.common.files.REEFFileNames;
 import org.apache.reef.runtime.common.parameters.JVMHeapSlack;
 import org.apache.reef.runtime.common.utils.RemoteManager;
-import org.apache.reef.runtime.local.client.parameters.DefaultMemorySize;
-import org.apache.reef.runtime.local.client.parameters.DefaultNumberOfCores;
-import org.apache.reef.runtime.local.client.parameters.RackNames;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.tang.exceptions.BindException;
 import org.apache.reef.tang.formats.ConfigurationSerializer;
-import org.apache.reef.util.CollectionUtils;
+import org.apache.reef.util.Optional;
 import org.apache.reef.util.logging.LoggingScope;
 import org.apache.reef.util.logging.LoggingScopeFactory;
 import org.apache.reef.wake.EventHandler;
@@ -47,9 +44,7 @@ import org.apache.reef.wake.EventHandler;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -69,9 +64,6 @@ public final class ResourceManager {
   private final EventHandler<ResourceAllocationEvent> allocationHandler;
   private final ContainerManager theContainers;
   private final EventHandler<RuntimeStatusEvent> runtimeStatusHandlerEventHandler;
-  private final int defaultMemorySize;
-  private final int defaultNumberOfCores;
-  private final Set<String> availableRacks;
   private final ConfigurationSerializer configurationSerializer;
   private final RemoteManager remoteManager;
   private final REEFFileNames fileNames;
@@ -83,9 +75,6 @@ public final class ResourceManager {
       final ContainerManager containerManager,
       @Parameter(RuntimeParameters.ResourceAllocationHandler.class) final EventHandler<ResourceAllocationEvent> allocationHandler,
       @Parameter(RuntimeParameters.RuntimeStatusHandler.class) final EventHandler<RuntimeStatusEvent> runtimeStatusHandlerEventHandler,
-      @Parameter(DefaultMemorySize.class) final int defaultMemorySize,
-      @Parameter(DefaultNumberOfCores.class) final int defaultNumberOfCores,
-      @Parameter(RackNames.class) final Set<String> rackNames,
       @Parameter(JVMHeapSlack.class) final double jvmHeapSlack,
       final ConfigurationSerializer configurationSerializer,
       final RemoteManager remoteManager,
@@ -97,9 +86,6 @@ public final class ResourceManager {
     this.runtimeStatusHandlerEventHandler = runtimeStatusHandlerEventHandler;
     this.configurationSerializer = configurationSerializer;
     this.remoteManager = remoteManager;
-    this.defaultMemorySize = defaultMemorySize;
-    this.defaultNumberOfCores = defaultNumberOfCores;
-    this.availableRacks = rackNames;
     this.fileNames = fileNames;
     this.jvmHeapFactor = 1.0 - jvmHeapSlack;
     this.loggingScopeFactory = loggingScopeFactory;
@@ -203,23 +189,6 @@ public final class ResourceManager {
   }
 
   /**
-   * Check if the racks used in the request are the ones available in the local runtime, otherwise throw an exception
-   * @param rackNames the "user defined" rack names to simulate rack awareness in the local runtime
-   */
-  private void validateRackNames(final List<String> rackNames) {
-    for (final String rackName : rackNames) {
-      if (!availableRacks.contains(rackName)) {
-        throw new IllegalArgumentException("Rack requested for Evaluators does not exist in the local runtime: "
-            + rackName + ", available racks are: " + availableRacks.toString());
-      }
-    }
-  }
-
-  private List<String> getRackNamesOrDefault(final List<String> rackNames) {
-    return CollectionUtils.isNotEmpty(rackNames) ? rackNames : Arrays.asList(RackNames.DEFAULT_RACK_NAME);
-  }
-
-  /**
   /**
    * Checks the allocation queue for new allocations and if there are any
    * satisfies them.
@@ -229,59 +198,28 @@ public final class ResourceManager {
     if (requestQueue.hasOutStandingRequests()) {
       final ResourceRequest resourceRequest = requestQueue.head();
       final ResourceRequestEvent requestEvent = resourceRequest.getRequestProto();
-      final List<String> rackNames = getRackNamesOrDefault(requestEvent.getRackNameList());
-      validateRackNames(rackNames);
-      boolean allocated = false;
-      for (final String rackName : rackNames) {
-        if (theContainers.hasContainerAvailable(rackName)) {
-          requestQueue.satisfyOne();
-          // Allocate a Container
-          // Not taking into account the node names for now
-          final Container container = this.theContainers.allocateOne(
-                  requestEvent.getMemorySize().orElse(this.defaultMemorySize),
-                  requestEvent.getVirtualCores().orElse(this.defaultNumberOfCores),
-                  rackName);
+      final Optional<Container> cont = theContainers.allocateContainer(requestEvent);
+      if (cont.isPresent()) {
+        // Container has been allocated
+        requestQueue.satisfyOne();
+        final Container container = cont.get();
+        // Tell the receivers about it
+        final ResourceAllocationEvent alloc = ResourceAllocationEventImpl.newBuilder()
+            .setIdentifier(container.getContainerID()).setNodeId(container.getNodeID())
+            .setResourceMemory(container.getMemory()).setVirtualCores(container.getNumberOfCores())
+            .setRackName(container.getRackName()).build();
 
-          // Tell the receivers about it
-          final ResourceAllocationEvent alloc =
-              ResourceAllocationEventImpl.newBuilder()
-                  .setIdentifier(container.getContainerID())
-                  .setNodeId(container.getNodeID())
-                  .setResourceMemory(container.getMemory())
-                  .setVirtualCores(container.getNumberOfCores())
-                  .setRackName(container.getRackName())
-                  .build();
+        LOG.log(Level.FINEST, "Allocating container: {0}", container);
+        this.allocationHandler.onNext(alloc);
+        // update REEF
+        this.sendRuntimeStatus();
 
-          LOG.log(Level.FINEST, "Allocating container: {0}", container);
-          this.allocationHandler.onNext(alloc);
-          allocated = true;
-        }
-        // if we allocated the container, we break and update the status.
-        if (allocated) {
-          LOG.log(Level.FINEST, "Allocated on rack {0}", rackName);
-          break;
-        } else {
-          // if relax locality constraint is disabled, don't try on the other racks
-          if (Boolean.FALSE.equals(requestEvent.getRelaxLocality().get())) {
-            LOG.log(Level.FINEST, "Could not allocate on rack {0}, but relax locality constraint is disabled, breaking",
-                rackName);
-            break;
-          } else {
-            // if relax locality is enabled, keep on trying on the other racks
-            LOG.log(Level.FINEST,
-                "Could not allocate on rack {0}, but relax locality constraint is enabled, trying on other racks",
-                rackName);
-            continue;
-          }
-        }
-      }
-      // update REEF
-      this.sendRuntimeStatus();
-      if (allocated) {
         // Check whether we can satisfy another one.
         this.checkRequestQueue();
+      } else {
+        // could not allocate, update REEF
+        this.sendRuntimeStatus();
       }
-
     } else {
       // done
       this.sendRuntimeStatus();

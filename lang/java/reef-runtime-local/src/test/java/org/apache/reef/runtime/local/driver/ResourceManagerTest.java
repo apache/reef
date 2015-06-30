@@ -36,8 +36,10 @@ import org.apache.reef.tang.formats.ConfigurationSerializer;
 import org.apache.reef.util.logging.LoggingScopeFactory;
 import org.apache.reef.wake.EventHandler;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -105,49 +107,43 @@ public class ResourceManagerTest {
     }
   }
 
-  @Test(expected = IllegalArgumentException.class)
-  public void testInvalidRackPassedInTheRequest() throws InjectionException {
+  @Test(expected = InjectionException.class)
+  public void testInvalidRacksConfigured() throws InjectionException {
     // Given
-    containerManager = injector.getInstance(ContainerManager.class);
-    final Set<String> availableRacks = new HashSet<String>(Arrays.asList("rack1"));
-    resourceManager = new ResourceManager(containerManager, mockResourceAllocationHandler, mockRuntimeStatusHandler,
-        DEFAULT_MEMORY_SIZE, DEFAULT_CORES, availableRacks, JVM_HEAP_SLACK, configurationSerializer, remoteManager,
-        filenames, loggingScopeFactory);
-    final ResourceRequestEvent request = ResourceRequestEventImpl.newBuilder().setResourceCount(2).setVirtualCores(1)
-        .setMemorySize(64).build();
+    final Set<String> availableRacks = new HashSet<String>(Arrays.asList("/rack1/*"));
+    injector.bindVolatileParameter(RackNames.class, availableRacks);
     // When
-    resourceManager.onResourceRequest(request);
+    containerManager = injector.getInstance(ContainerManager.class);
     // Then
     // expect the exception to be thrown
   }
 
   @Test
-  public void testZeroAllocationsDueToContainersNotAvailableAndRelaxLocalityEnabled() throws InjectionException {
+  public void testOneAllocationsInDefaultRack() throws InjectionException {
     // Given
     containerManager = injector.getInstance(ContainerManager.class);
-    final Set<String> availableRacks = new HashSet<String>(Arrays.asList(RackNames.DEFAULT_RACK_NAME));
+    sendNodeDescriptors();
     resourceManager = new ResourceManager(containerManager, mockResourceAllocationHandler, mockRuntimeStatusHandler,
-        DEFAULT_MEMORY_SIZE, DEFAULT_CORES, availableRacks, JVM_HEAP_SLACK, configurationSerializer, remoteManager,
-        filenames, loggingScopeFactory);
-    final ResourceRequestEvent request = ResourceRequestEventImpl.newBuilder().setResourceCount(2).setVirtualCores(1)
+        JVM_HEAP_SLACK, configurationSerializer, remoteManager, filenames, loggingScopeFactory);
+    final ResourceRequestEvent request = ResourceRequestEventImpl.newBuilder().setResourceCount(1).setVirtualCores(1)
         .setMemorySize(64).build();
     // When
     resourceManager.onResourceRequest(request);
     // Then
-    verify(mockResourceAllocationHandler, times(0)).onNext(any(ResourceAllocationEvent.class));
-    verify(mockRuntimeStatusHandler, times(1)).onNext(any(RuntimeStatusEvent.class));
+    verify(mockResourceAllocationHandler, times(1)).onNext(any(ResourceAllocationEvent.class));
+    verify(mockRuntimeStatusHandler, times(2)).onNext(any(RuntimeStatusEvent.class));
   }
 
   @Test
   public void testZeroAllocationsDueToContainersNotAvailableAndRelaxLocalityDisabled() throws InjectionException {
     // Given
     containerManager = injector.getInstance(ContainerManager.class);
-    final Set<String> availableRacks = new HashSet<String>(Arrays.asList(RackNames.DEFAULT_RACK_NAME));
+    // not sending notifications, there are no available free slots in the container manager
     resourceManager = new ResourceManager(containerManager, mockResourceAllocationHandler, mockRuntimeStatusHandler,
-        DEFAULT_MEMORY_SIZE, DEFAULT_CORES, availableRacks, JVM_HEAP_SLACK, configurationSerializer, remoteManager,
+        JVM_HEAP_SLACK, configurationSerializer, remoteManager,
         filenames, loggingScopeFactory);
     final ResourceRequestEvent request = ResourceRequestEventImpl.newBuilder().setResourceCount(2).setVirtualCores(1)
-        .setMemorySize(64).setRelaxLocality(Boolean.FALSE).build();
+        .setMemorySize(64).build();
     // When
     resourceManager.onResourceRequest(request);
     // Then
@@ -156,23 +152,27 @@ public class ResourceManagerTest {
   }
 
   @Test
-  public void testTwoAllocationsInDifferentRacksDueToRelaxLocalityEnabled() throws InjectionException {
+  public void testTwoAllocationsInDifferentRacks() throws InjectionException {
     // Given
-    final List<String> availableRacks = Arrays.asList("rack1", "rack2");
+    final List<String> availableRacks = Arrays.asList("/rack1", "/rack2");
     final Set<String> availableRacksSet = new HashSet<String>(availableRacks);
     injector.bindVolatileParameter(RackNames.class, availableRacksSet); // 2 available racks
     injector.bindVolatileParameter(MaxNumberOfEvaluators.class, 2); // 1 evaluator per rack
     containerManager = injector.getInstance(ContainerManager.class); // inject containerManager with this updated info
     sendNodeDescriptors();
     resourceManager = new ResourceManager(containerManager, mockResourceAllocationHandler, mockRuntimeStatusHandler,
-        DEFAULT_MEMORY_SIZE, DEFAULT_CORES, availableRacksSet, JVM_HEAP_SLACK, configurationSerializer, remoteManager,
+        JVM_HEAP_SLACK, configurationSerializer, remoteManager,
         filenames, loggingScopeFactory);
     final ResourceRequestEvent request = ResourceRequestEventImpl.newBuilder().setResourceCount(2).setVirtualCores(1)
-        .setMemorySize(64).setRelaxLocality(Boolean.TRUE).addRackName(availableRacks.get(0)).addRackName(availableRacks.get(1)).build();
+        .setMemorySize(64).addRackName(availableRacks.get(0)).addRackName(availableRacks.get(1)).build();
     // When
     resourceManager.onResourceRequest(request);
     // Then
-    verify(mockResourceAllocationHandler, times(2)).onNext(any(ResourceAllocationEvent.class));
+    final ArgumentCaptor<ResourceAllocationEvent> argument = ArgumentCaptor.forClass(ResourceAllocationEvent.class);
+    verify(mockResourceAllocationHandler, times(2)).onNext(argument.capture());
+    final List<ResourceAllocationEvent> actualResourceAllocationEvent = argument.getAllValues();
+    Assert.assertEquals("/rack1", actualResourceAllocationEvent.get(0).getRackName().get());
+    Assert.assertEquals("/rack2", actualResourceAllocationEvent.get(1).getRackName().get());
     verify(mockRuntimeStatusHandler, times(3)).onNext(any(RuntimeStatusEvent.class));
   }
 
@@ -181,9 +181,8 @@ public class ResourceManagerTest {
     // Given
     containerManager = injector.getInstance(ContainerManager.class);
     sendNodeDescriptors();
-    final Set<String> availableRacks = new HashSet<String>(Arrays.asList(RackNames.DEFAULT_RACK_NAME));
     resourceManager = new ResourceManager(containerManager, mockResourceAllocationHandler, mockRuntimeStatusHandler,
-        DEFAULT_MEMORY_SIZE, DEFAULT_CORES, availableRacks, JVM_HEAP_SLACK, configurationSerializer, remoteManager,
+        JVM_HEAP_SLACK, configurationSerializer, remoteManager,
         filenames, loggingScopeFactory);
     final ResourceRequestEvent request = ResourceRequestEventImpl.newBuilder().setResourceCount(2).setVirtualCores(1)
         .setMemorySize(64).build();
@@ -193,5 +192,86 @@ public class ResourceManagerTest {
     verify(mockResourceAllocationHandler, times(2)).onNext(any(ResourceAllocationEvent.class));
     verify(mockRuntimeStatusHandler, times(3)).onNext(any(RuntimeStatusEvent.class));
   }
+
+  @Test
+  public void testOneAllocationInRack1AndTwoInDatacenter2() throws InjectionException {
+    // Given
+    final List<String> availableRacks = Arrays.asList("/dc1/rack1", "/dc2/rack1", "/dc2/rack2");
+    final Set<String> availableRacksSet = new HashSet<String>(availableRacks);
+    injector.bindVolatileParameter(RackNames.class, availableRacksSet); // 3 available racks
+    injector.bindVolatileParameter(MaxNumberOfEvaluators.class, 3); // 1 evaluator per rack
+    containerManager = injector.getInstance(ContainerManager.class);
+    sendNodeDescriptors();
+    resourceManager = new ResourceManager(containerManager, mockResourceAllocationHandler, mockRuntimeStatusHandler,
+        JVM_HEAP_SLACK, configurationSerializer, remoteManager,
+        filenames, loggingScopeFactory);
+    final ResourceRequestEvent request = ResourceRequestEventImpl.newBuilder().setResourceCount(3).setVirtualCores(1)
+        .setMemorySize(64).addRackName("dc1/*").addRackName("/dc2/*").build();
+    // When
+    resourceManager.onResourceRequest(request);
+    // Then
+    final ArgumentCaptor<ResourceAllocationEvent> argument = ArgumentCaptor.forClass(ResourceAllocationEvent.class);
+    verify(mockResourceAllocationHandler, times(3)).onNext(argument.capture());
+    final List<ResourceAllocationEvent> actualResourceAllocationEvent = argument.getAllValues();
+    Assert.assertTrue(actualResourceAllocationEvent.get(0).getRackName().get().contains("/dc1"));
+    Assert.assertTrue(actualResourceAllocationEvent.get(1).getRackName().get().contains("/dc2"));
+    Assert.assertTrue(actualResourceAllocationEvent.get(2).getRackName().get().contains("/dc2"));
+    verify(mockRuntimeStatusHandler, times(4)).onNext(any(RuntimeStatusEvent.class));
+  }
+
+  @Test
+  public void testAllocateNode8AndTwoRandomOnesInDefaultRack() throws InjectionException {
+    // Given
+    injector.bindVolatileParameter(MaxNumberOfEvaluators.class, 8); // 8 evaluator in the default rack
+    containerManager = injector.getInstance(ContainerManager.class);
+    sendNodeDescriptors();
+    resourceManager = new ResourceManager(containerManager, mockResourceAllocationHandler, mockRuntimeStatusHandler,
+        JVM_HEAP_SLACK, configurationSerializer, remoteManager,
+        filenames, loggingScopeFactory);
+    final ResourceRequestEvent request = ResourceRequestEventImpl.newBuilder().setResourceCount(3).setVirtualCores(1)
+        .setMemorySize(64).addNodeName("Node-8").build();
+    // When
+    resourceManager.onResourceRequest(request);
+    // Then
+    final ArgumentCaptor<ResourceAllocationEvent> argument = ArgumentCaptor.forClass(ResourceAllocationEvent.class);
+    verify(mockResourceAllocationHandler, times(3)).onNext(argument.capture());
+    final List<ResourceAllocationEvent> actualResourceAllocationEvent = argument.getAllValues();
+    Assert.assertEquals("Node-8", actualResourceAllocationEvent.get(0).getNodeId());
+    Assert.assertEquals(RackNames.DEFAULT_RACK_NAME, actualResourceAllocationEvent.get(0).getRackName().get());
+    Assert.assertNotEquals("Node-8", actualResourceAllocationEvent.get(1).getNodeId());
+    Assert.assertEquals(RackNames.DEFAULT_RACK_NAME, actualResourceAllocationEvent.get(1).getRackName().get());
+    Assert.assertNotEquals("Node-8", actualResourceAllocationEvent.get(2).getNodeId());
+    Assert.assertEquals(RackNames.DEFAULT_RACK_NAME, actualResourceAllocationEvent.get(2).getRackName().get());
+    verify(mockRuntimeStatusHandler, times(4)).onNext(any(RuntimeStatusEvent.class));
+
+  }
+
+  @Test
+  public void testOneAllocationInRack1AndTwoInDifferentRacksDueToRelaxLocality() throws InjectionException {
+    // Given
+    final List<String> availableRacks = Arrays.asList("/dc1/rack1", "/dc2/rack1", "/dc3/rack1");
+    final Set<String> availableRacksSet = new HashSet<String>(availableRacks);
+    injector.bindVolatileParameter(RackNames.class, availableRacksSet);
+    injector.bindVolatileParameter(MaxNumberOfEvaluators.class, 3); // 3 evaluators in three different racks
+    containerManager = injector.getInstance(ContainerManager.class);
+    sendNodeDescriptors();
+    resourceManager = new ResourceManager(containerManager, mockResourceAllocationHandler, mockRuntimeStatusHandler,
+        JVM_HEAP_SLACK, configurationSerializer, remoteManager,
+        filenames, loggingScopeFactory);
+    final ResourceRequestEvent request = ResourceRequestEventImpl.newBuilder().setResourceCount(3).setVirtualCores(1)
+        .setMemorySize(64).addRackName("/dc3/rack1").addRackName("/*").build();
+    // When
+    resourceManager.onResourceRequest(request);
+    // Then
+    final ArgumentCaptor<ResourceAllocationEvent> argument = ArgumentCaptor.forClass(ResourceAllocationEvent.class);
+    verify(mockResourceAllocationHandler, times(3)).onNext(argument.capture());
+    final List<ResourceAllocationEvent> actualResourceAllocationEvent = argument.getAllValues();
+    Assert.assertEquals("/dc3/rack1", actualResourceAllocationEvent.get(0).getRackName().get());
+    Assert.assertNotEquals("/dc3/rack1", actualResourceAllocationEvent.get(1).getRackName().get());
+    Assert.assertNotEquals("/dc3/rack1", actualResourceAllocationEvent.get(2).getRackName().get());
+    verify(mockRuntimeStatusHandler, times(4)).onNext(any(RuntimeStatusEvent.class));
+
+  }
+
 
 }
