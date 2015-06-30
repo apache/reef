@@ -68,7 +68,7 @@ final class ResourceRequestQueue {
   }
 
   /**
-   * Retrieves but does not remove the head of the queue
+   * Retrieves but does not remove the head of the queue.
    * @return the head of the queue
    *
    */
