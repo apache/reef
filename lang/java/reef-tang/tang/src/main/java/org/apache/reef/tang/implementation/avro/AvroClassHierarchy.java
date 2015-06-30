@@ -29,7 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- * Implementation of ClassHierarchy for Avro
+ * Implementation of ClassHierarchy for Avro.
  */
 final class AvroClassHierarchy implements ClassHierarchy {
   private final PackageNode namespace;
