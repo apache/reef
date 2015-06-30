@@ -25,13 +25,13 @@ import java.util.Collection;
  */
 public final class CollectionUtils {
 
-   private CollectionUtils() {
-     //avoid instantiation
-   }
+  private CollectionUtils() {
+    // avoid instantiation
+  }
 
 
   /**
-   * Checks if the collection is null or empty
+   * Checks if the collection is null or empty.
    * @param parameter the collection
    * @return true if the collection is null or empty
    */
@@ -40,7 +40,7 @@ public final class CollectionUtils {
   }
 
   /**
-   * Checks if the collection is not null and not empty
+   * Checks if the collection is not null and not empty.
    * @param parameter the collection
    * @return true if the collection is not null nor empty
    *

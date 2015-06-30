@@ -73,8 +73,10 @@ public final class ResourceManager {
   @Inject
   ResourceManager(
       final ContainerManager containerManager,
-      @Parameter(RuntimeParameters.ResourceAllocationHandler.class) final EventHandler<ResourceAllocationEvent> allocationHandler,
-      @Parameter(RuntimeParameters.RuntimeStatusHandler.class) final EventHandler<RuntimeStatusEvent> runtimeStatusHandlerEventHandler,
+      @Parameter(RuntimeParameters.ResourceAllocationHandler.class)
+      final EventHandler<ResourceAllocationEvent> allocationHandler,
+      @Parameter(RuntimeParameters.RuntimeStatusHandler.class)
+      final EventHandler<RuntimeStatusEvent> runtimeStatusHandlerEventHandler,
       @Parameter(JVMHeapSlack.class) final double jvmHeapSlack,
       final ConfigurationSerializer configurationSerializer,
       final RemoteManager remoteManager,
@@ -158,7 +160,8 @@ public final class ResourceManager {
 
       final Container c = this.theContainers.get(launchRequest.getIdentifier());
 
-      try (final LoggingScope lb = this.loggingScopeFactory.getNewLoggingScope("ResourceManager.onResourceLaunchRequest:evaluatorConfigurationFile")) {
+      try (final LoggingScope lb = this.loggingScopeFactory
+          .getNewLoggingScope("ResourceManager.onResourceLaunchRequest:evaluatorConfigurationFile")) {
         // Add the global files and libraries.
         c.addGlobalFiles(this.fileNames.getGlobalFolder());
         c.addLocalFiles(getLocalFiles(launchRequest));
@@ -173,7 +176,8 @@ public final class ResourceManager {
         }
       }
 
-      try (final LoggingScope lc = this.loggingScopeFactory.getNewLoggingScope("ResourceManager.onResourceLaunchRequest:runCommand")) {
+      try (final LoggingScope lc = this.loggingScopeFactory
+          .getNewLoggingScope("ResourceManager.onResourceLaunchRequest:runCommand")) {
 
         final List<String> command = launchRequest.getProcess()
             .setErrorHandlerRID(this.remoteManager.getMyIdentifier())

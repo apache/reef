@@ -52,9 +52,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.times;
 
+/**
+ * Unit test for Resource Manager (and ContainerManager) classes.
+ *
+ */
 public class ResourceManagerTest {
 
-  Injector injector;
+  private Injector injector;
 
   private ResourceManager resourceManager;
   private RemoteManager remoteManager;
@@ -65,8 +69,6 @@ public class ResourceManagerTest {
   private REEFFileNames filenames;
   private ContainerManager containerManager;
   private ConfigurationSerializer configurationSerializer;
-  private static final int DEFAULT_CORES = 2;
-  private static final int DEFAULT_MEMORY_SIZE = 512;
   private static final double JVM_HEAP_SLACK = 0.1;
   private LoggingScopeFactory loggingScopeFactory;
 
@@ -95,7 +97,7 @@ public class ResourceManagerTest {
 
   /**
    * Helper method to call the sendNodeDescriptors private method in the
-   * containerManager, which populates the available containers in each rack
+   * containerManager, which populates the available containers in each rack.
    */
   private void sendNodeDescriptors() {
     try {

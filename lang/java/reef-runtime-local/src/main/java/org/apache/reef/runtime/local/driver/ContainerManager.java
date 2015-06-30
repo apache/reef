@@ -86,14 +86,14 @@ final class ContainerManager implements AutoCloseable {
   private final Map<String, Map<String, Boolean>> freeNodesPerRack = new HashMap<>();
 
   /**
-   * Inverted index, map of <NodeId, RackName>
+   * Inverted index, map of <NodeId, RackName>.
    */
   private final Map<String, String> racksPerNode = new HashMap<>();
 
   /**
-   * Capacity of each rack (as even as possible)
+   * Capacity of each rack (as even as possible).
    */
-  private final Map<String, Integer> capacityPerRack = new HashMap<>();
+  private final Map<String, Integer> capacitiesPerRack = new HashMap<>();
 
   private final int capacity;
   private final int defaultMemorySize;
@@ -133,14 +133,15 @@ final class ContainerManager implements AutoCloseable {
 
     LOG.log(Level.FINEST, "Initializing Container Manager with {0} containers", capacity);
 
-    remoteManager.registerHandler(ReefServiceProtos.RuntimeErrorProto.class, new EventHandler<RemoteMessage<ReefServiceProtos.RuntimeErrorProto>>() {
-      @Override
-      public void onNext(final RemoteMessage<ReefServiceProtos.RuntimeErrorProto> value) {
-        final FailedRuntime error = new FailedRuntime(value.getMessage());
-        LOG.log(Level.SEVERE, "FailedRuntime: " + error, error.getReason().orElse(null));
-        release(error.getId());
-      }
-    });
+    remoteManager.registerHandler(ReefServiceProtos.RuntimeErrorProto.class,
+        new EventHandler<RemoteMessage<ReefServiceProtos.RuntimeErrorProto>>() {
+          @Override
+          public void onNext(final RemoteMessage<ReefServiceProtos.RuntimeErrorProto> value) {
+            final FailedRuntime error = new FailedRuntime(value.getMessage());
+            LOG.log(Level.SEVERE, "FailedRuntime: " + error, error.getReason().orElse(null));
+            release(error.getId());
+          }
+        });
     clock.registerEventHandler(RuntimeStart.class, new EventHandler<Time>() {
       @Override
       public void onNext(final Time value) {
@@ -209,9 +210,9 @@ final class ContainerManager implements AutoCloseable {
     // initialize the freeNodesPerRackList and the capacityPerRack
     for (final String rackName : rackNames) {
       this.freeNodesPerRack.put(rackName, new HashMap<String, Boolean>());
-      this.capacityPerRack.put(rackName, capacityPerRack);
+      this.capacitiesPerRack.put(rackName, capacityPerRack);
       if (missing > 0) {
-        this.capacityPerRack.put(rackName, this.capacityPerRack.get(rackName) + 1);
+        this.capacitiesPerRack.put(rackName, this.capacitiesPerRack.get(rackName) + 1);
         missing--;
       }
     }
@@ -222,7 +223,7 @@ final class ContainerManager implements AutoCloseable {
     final IDMaker idmaker = new IDMaker("Node-");
     int j = 0;
     for (final String rackName : this.availableRacks) {
-      final int rackCapacity = this.capacityPerRack.get(rackName);
+      final int rackCapacity = this.capacitiesPerRack.get(rackName);
       for (int i = 0; i < rackCapacity; i++) {
         final String id = idmaker.getNextID();
         this.racksPerNode.put(id, rackName);
@@ -232,7 +233,7 @@ final class ContainerManager implements AutoCloseable {
             .setRackName(rackName)
             .setHostName(this.localAddress)
             .setPort(j)
-            .setMemorySize(this.defaultMemorySize) // TODO: Find the actual system memory on this machine.
+            .setMemorySize(this.defaultMemorySize) // TODO Find the actual system memory on this machine.
             .build());
         j++;
       }
