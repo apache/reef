@@ -29,11 +29,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * The Client for Hello REEF example.
+ * The Client for running HelloREEF on YARN.
  */
-public final class HelloReefYarn {
+public final class HelloREEFYarn {
 
-  private static final Logger LOG = Logger.getLogger(HelloReefYarn.class.getName());
+  private static final Logger LOG = Logger.getLogger(HelloREEFYarn.class.getName());
 
   /**
    * Number of milliseconds to wait for the job to complete.
@@ -46,7 +46,7 @@ public final class HelloReefYarn {
    */
   private static Configuration getDriverConfiguration() {
     return DriverConfiguration.CONF
-        .set(DriverConfiguration.GLOBAL_LIBRARIES, HelloReefYarn.class.getProtectionDomain().getCodeSource().getLocation().getFile())
+        .set(DriverConfiguration.GLOBAL_LIBRARIES, HelloREEFYarn.class.getProtectionDomain().getCodeSource().getLocation().getFile())
         .set(DriverConfiguration.DRIVER_IDENTIFIER, "HelloREEF")
         .set(DriverConfiguration.ON_DRIVER_STARTED, HelloDriver.StartHandler.class)
         .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, HelloDriver.EvaluatorAllocatedHandler.class)
@@ -71,6 +71,6 @@ public final class HelloReefYarn {
   /**
    * Empty private constructor to prohibit instantiation of utility class.
    */
-  private HelloReefYarn() {
+  private HelloREEFYarn() {
   }
 }
