@@ -120,8 +120,7 @@ public final class OutputServiceREEF {
           .set(TaskOutputServiceBuilder.TASK_OUTPUT_STREAM_PROVIDER, TaskOutputStreamProviderLocal.class)
           .set(TaskOutputServiceBuilder.OUTPUT_PATH, getAbsolutePath(outputDir))
           .build();
-    }
-    else {
+    } else {
       outputServiceConf = TaskOutputServiceBuilder.CONF
           .set(TaskOutputServiceBuilder.TASK_OUTPUT_STREAM_PROVIDER, TaskOutputStreamProviderHDFS.class)
           .set(TaskOutputServiceBuilder.OUTPUT_PATH, outputDir)
