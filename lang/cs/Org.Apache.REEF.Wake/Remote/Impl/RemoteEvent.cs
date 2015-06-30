@@ -17,6 +17,7 @@
  * under the License.
  */
 
+using System;
 using System.Net;
 using Org.Apache.REEF.Tang.Annotations;
 
@@ -50,12 +51,15 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
 
         public IPEndPoint RemoteEndPoint { get; set; }
 
+        [Obsolete("This field is never used and will be removed as part of 0.13. See [REEF-445]", false)]
         public string Source { get; set; }
 
+        [Obsolete("This field is never used and will be removed as part of 0.13. See [REEF-445]", false)]
         public string Sink { get; set; }
 
         public T Value { get; set; }
 
+        [Obsolete("This field is never used and will be removed as part of 0.13. See [REEF-445]", false)]
         public long Sequence { get; set; }
     }
 }

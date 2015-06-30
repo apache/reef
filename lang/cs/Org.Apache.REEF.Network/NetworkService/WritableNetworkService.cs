@@ -62,7 +62,7 @@ namespace Org.Apache.REEF.Network.NetworkService
             IObserver<WritableNsMessage<T>> messageHandler,
             IIdentifierFactory idFactory,
             INameClient nameClient,
-            WritableRemoteManagerFactory remoteManagerFactory)
+            StreamingRemoteManagerFactory remoteManagerFactory)
         {
  
             IPAddress localAddress = NetworkUtils.LocalIPAddress;

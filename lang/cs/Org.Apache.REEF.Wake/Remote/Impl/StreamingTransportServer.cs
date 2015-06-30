@@ -18,15 +18,13 @@
  */
 
 using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
-using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Utilities.Diagnostics;
 using Org.Apache.REEF.Utilities.Logging;
+using Org.Apache.REEF.Wake.StreamingCodec;
 using Org.Apache.REEF.Wake.Util;
 
 namespace Org.Apache.REEF.Wake.Remote.Impl
@@ -35,8 +33,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
     /// Server to handle incoming remote messages.
     /// </summary>
     /// <typeparam name="T">Generic Type of message. It is constrained to have implemented IWritable and IType interface</typeparam>
-    [Obsolete("Need to remove Iwritable and use IstreamingCodec. Please see Jira REEF-295 ", false)]
-    public class WritableTransportServer<T> : IDisposable where T : IWritable
+    internal sealed class StreamingTransportServer<T> : IDisposable
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof (TransportServer<>));
 
@@ -44,46 +41,32 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         private readonly CancellationTokenSource _cancellationSource;
         private readonly IObserver<TransportEvent<T>> _remoteObserver;
         private readonly ITcpPortProvider _tcpPortProvider;
-        private readonly IInjector _injector;
+        private readonly IStreamingCodec<T> _streamingCodec;
         private bool _disposed;
         private Task _serverTask;
-        /// <summary>
-        /// Constructs a TransportServer to listen for remote events.  
-        /// Listens on the specified remote endpoint.  When it recieves a remote
-        /// event, it will envoke the specified remote handler.
-        /// </summary>
-        /// <param name="port">Port to listen on</param>
-        /// <param name="remoteHandler">The handler to invoke when receiving incoming
-        /// remote messages</param>
-        /// <param name="tcpPortProvider">Find port numbers if listenport is 0</param>
-        /// <param name="injector">The injector to pass arguments to incoming messages</param>
-        public WritableTransportServer(int port, IObserver<TransportEvent<T>> remoteHandler, ITcpPortProvider tcpPortProvider, IInjector injector)
-            : this(new IPEndPoint(NetworkUtils.LocalIPAddress, port), remoteHandler, tcpPortProvider, injector)
-        {
-        }
 
         /// <summary>
         /// Constructs a TransportServer to listen for remote events.  
         /// Listens on the specified remote endpoint.  When it recieves a remote
         /// event, it will envoke the specified remote handler.
         /// </summary>
-        /// <param name="localEndpoint">Endpoint to listen on</param>
+        /// <param name="address">Endpoint addres to listen on</param>
         /// <param name="remoteHandler">The handler to invoke when receiving incoming
         /// remote messages</param>
         /// <param name="tcpPortProvider">Find port numbers if listenport is 0</param>
-        /// <param name="injector">The injector to pass arguments to incoming messages</param>
-        public WritableTransportServer(
-            IPEndPoint localEndpoint,
+        /// <param name="streamingCodec">Streaming codec</param>
+        internal StreamingTransportServer(
+            IPAddress address,
             IObserver<TransportEvent<T>> remoteHandler,
             ITcpPortProvider tcpPortProvider,
-            IInjector injector)
+            IStreamingCodec<T> streamingCodec)
         {
-            _listener = new TcpListener(localEndpoint.Address, localEndpoint.Port);
+            _listener = new TcpListener(address, 0);
             _remoteObserver = remoteHandler;
             _tcpPortProvider = tcpPortProvider;
             _cancellationSource = new CancellationTokenSource();
             _cancellationSource.Token.ThrowIfCancellationRequested();
-            _injector = injector;
+            _streamingCodec = streamingCodec;
             _disposed = false;
         }
 
@@ -100,15 +83,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         /// </summary>
         public void Run()
         {
-            if (LocalEndpoint.Port == 0)
-            {
-                FindAPortAndStartListener();
-            }
-            else
-            {
-                _listener.Start();
-            }
-
+            FindAPortAndStartListener();
             _serverTask = Task.Run(() => StartServer());
         }
 
@@ -145,13 +120,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         /// </summary>
         public void Dispose()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        public void Dispose(bool disposing)
-        {
-            if (!_disposed && disposing)
+            if (!_disposed)
             {
                 _cancellationSource.Cancel();
 
@@ -219,10 +188,9 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         /// <param name="client">The connected client</param>
         private async Task ProcessClient(TcpClient client)
         {
-            
             // Keep reading messages from client until they disconnect or timeout
             CancellationToken token = _cancellationSource.Token;
-            using (ILink<T> link = new WritableLink<T>(client, _injector))
+            using (ILink<T> link = new StreamingLink<T>(client, _streamingCodec))
             {
                 while (!token.IsCancellationRequested)
                 {

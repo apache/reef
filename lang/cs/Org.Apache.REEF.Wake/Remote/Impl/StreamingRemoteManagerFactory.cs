@@ -17,7 +17,6 @@
  * under the License.
  */
 
-using System;
 using System.Net;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Interface;
@@ -25,34 +24,27 @@ using Org.Apache.REEF.Tang.Interface;
 namespace Org.Apache.REEF.Wake.Remote.Impl
 {
     /// <summary>
-    /// WritableRemoteManagerFactory for WritableRemoteManager.
+    /// StreamingRemoteManagerFactory for StreamingRemoteManager.
     /// </summary>
-    [Obsolete("Need to remove Iwritable and use IstreamingCodec. Please see Jira REEF-295 ", false)]
-    public sealed class WritableRemoteManagerFactory
+    public sealed class StreamingRemoteManagerFactory
     {
         private readonly ITcpPortProvider _tcpPortProvider;
         private readonly IInjector _injector;
 
         [Inject]  
-        private WritableRemoteManagerFactory(ITcpPortProvider tcpPortProvider, IInjector injector)
+        private StreamingRemoteManagerFactory(ITcpPortProvider tcpPortProvider, IInjector injector)
         {
             _tcpPortProvider = tcpPortProvider;
             _injector = injector;
         }
 
+        //ToDo: The port argument will be removed once changes are made in WritableNetworkService [REEF-447]
         public IRemoteManager<T> GetInstance<T>(IPAddress localAddress, int port) where T : IWritable
         {
 #pragma warning disable 618
 // This is the one place allowed to call this constructor. Hence, disabling the warning is OK.
-            return new WritableRemoteManager<T>(localAddress, port, _tcpPortProvider, _injector);
-#pragma warning disable 618
-        }
-
-        public IRemoteManager<T> GetInstance<T>() where T : IWritable
-        {
-#pragma warning disable 618
-// This is the one place allowed to call this constructor. Hence, disabling the warning is OK.
-            return new WritableRemoteManager<T>(_injector);
+            var codec = _injector.GetInstance<TemporaryWritableToStreamingCodec<T>>();
+            return new StreamingRemoteManager<T>(localAddress, _tcpPortProvider, codec);
 #pragma warning disable 618
         }
     }
