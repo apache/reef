@@ -46,12 +46,11 @@ under the License.
   <ItemGroup>
     <Compile Include="ClockTest.cs" />
     <Compile Include="MultiCodecTest.cs" />
-    <Compile Include="PrefixedStringWritable.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PubSubSubjectTest.cs" />
     <Compile Include="RemoteManagerTest.cs" />
-    <Compile Include="WritableRemoteManagerTest.cs" />
-    <Compile Include="WritableTransportTest.cs" />
+    <Compile Include="StreamingRemoteManagerTest.cs" />
+    <Compile Include="StreamingTransportTest.cs" />
     <Compile Include="TransportTest.cs" />
     <Compile Include="WritableString.cs" />
   </ItemGroup>
