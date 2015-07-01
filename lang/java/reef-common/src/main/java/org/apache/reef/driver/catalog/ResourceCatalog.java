@@ -56,13 +56,6 @@ public interface ResourceCatalog {
    */
   NodeDescriptor getNode(String nodeId);
 
-  /**
-   * We are not using this. It will be removed in the future. In order to do
-   * evaluator requests with specific rack names or node names, you should take
-   * a look at {@link EvaluatorRequest} new API.
-   *
-   */
-  @Deprecated
   public interface Descriptor {
 
     String getName();

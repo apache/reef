@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * Implementation of the Evaluator REEF APIs.
+ * Driver side implementation of the Evaluator.
  */
 package org.apache.reef.driver.evaluator;

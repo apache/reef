@@ -21,13 +21,13 @@ package org.apache.reef.runtime.common.driver;
 import org.apache.reef.driver.catalog.ResourceCatalog;
 import org.apache.reef.driver.evaluator.EvaluatorRequest;
 import org.apache.reef.driver.evaluator.EvaluatorRequestor;
+import org.apache.reef.runtime.common.driver.api.ResourceRequestEvent;
 import org.apache.reef.runtime.common.driver.api.ResourceRequestEventImpl;
 import org.apache.reef.runtime.common.driver.api.ResourceRequestHandler;
 import org.apache.reef.util.logging.LoggingScope;
 import org.apache.reef.util.logging.LoggingScopeFactory;
 
 import javax.inject.Inject;
-
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -78,19 +78,15 @@ public final class EvaluatorRequestorImpl implements EvaluatorRequestor {
     }
 
     try (LoggingScope ls = loggingScopeFactory.evaluatorSubmit(req.getNumber())) {
-      final ResourceRequestEventImpl.Builder requestBuilder = ResourceRequestEventImpl
+      final ResourceRequestEvent request = ResourceRequestEventImpl
           .newBuilder()
           .setResourceCount(req.getNumber())
           .setVirtualCores(req.getNumberOfCores())
-          .setMemorySize(req.getMegaBytes());
-
-      for (final String nodeName : req.getNodeNames()) {
-        requestBuilder.addNodeName(nodeName);
-      }
-      for (final String rackName : req.getRackNames()) {
-        requestBuilder.addRackName(rackName);
-      }
-      this.resourceRequestHandler.onNext(requestBuilder.build());
+          .setMemorySize(req.getMegaBytes())
+          .addNodeNames(req.getNodeNames())
+          .addRackNames(req.getRackNames())
+          .build();
+      this.resourceRequestHandler.onNext(request);
     }
   }
 }

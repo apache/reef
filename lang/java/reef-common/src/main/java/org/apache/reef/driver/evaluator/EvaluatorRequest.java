@@ -42,6 +42,14 @@ public final class EvaluatorRequest {
   private final List<String> nodeNames;
   private final List<String> rackNames;
 
+  /**
+   * Deprecated constructor. ResourceCatalog.Descriptor should not be used
+   * anymore. In order to specify the rack names and node names where evaluators
+   * should run on, you should use nodeNames and rackNames lists
+   *
+   * @deprecated since 0.12.0-incubating-SNAPSHOT, use constructor with node
+   *             names and rack names as parameters
+   */
   @Deprecated
   EvaluatorRequest(final int number,
                    final int megaBytes,
@@ -97,11 +105,14 @@ public final class EvaluatorRequest {
   }
 
   /**
-   * Access the {@link org.apache.reef.driver.catalog.NodeDescriptor} used as the template for this
-   * {@link EvaluatorRequest}.
+   * Access the {@link org.apache.reef.driver.catalog.NodeDescriptor} used as
+   * the template for this {@link EvaluatorRequest}.
    *
-   * @return the {@link org.apache.reef.driver.catalog.NodeDescriptor} used as the template for this
-   * {@link EvaluatorRequest}.
+   * @return the {@link org.apache.reef.driver.catalog.NodeDescriptor} used as
+   *         the template for this {@link EvaluatorRequest}.
+   * @deprecated since 0.12.0-incubating-SNAPSHOT. Should use instead
+   *             {@link EvaluatorRequest#getNodeNames()} and
+   *             {@link EvaluatorRequest#getRackNames()}
    */
   @Deprecated
   public ResourceCatalog.Descriptor getDescriptor() {
@@ -182,7 +193,9 @@ public final class EvaluatorRequest {
     }
 
     /**
-     * Add a node name.
+     * Adds a node name.It is the preferred location where the evaluator should
+     * run on. If the node is available, the RM will try to allocate the
+     * evaluator there
      */
     public Builder addNodeName(final String nodeName) {
       this.nodeNames.add(nodeName);
@@ -190,7 +203,10 @@ public final class EvaluatorRequest {
     }
 
     /**
-     * Add a rack name.
+     * Adds a rack name. It is the preferred location where the evaluator should
+     * run on. If the rack is available, the RM will try to allocate the
+     * evaluator in one of its nodes. The RM will try to match node names first,
+     * and then fallback to rack names
      */
     public Builder addRackName(final String rackName) {
       this.rackNames.add(rackName);
@@ -207,10 +223,15 @@ public final class EvaluatorRequest {
 
     /**
      * Pre-fill this {@link EvaluatorRequest} from the given
-     * {@link org.apache.reef.driver.catalog.NodeDescriptor}. Any value not changed in subsequent calls to
-     * this Builder will be taken from the given descriptor.
+     * {@link org.apache.reef.driver.catalog.NodeDescriptor}. Any value not
+     * changed in subsequent calls to this Builder will be taken from the given
+     * descriptor.
      *
-     * @param rd the descriptor used to pre-fill this request.
+     * @param rd
+     *          the descriptor used to pre-fill this request.
+     * @deprecated since 0.12.0-incubating-SNAPSHOT. Replace with
+     *             {@link EvaluatorRequest.Builder#addRackName} and
+     *             {@link EvaluatorRequest.Builder#addNodeName}
      * @return this
      */
     @Deprecated
