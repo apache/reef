@@ -37,6 +37,11 @@ public final class EvaluatorRequest {
   private final int megaBytes;
   private final int number;
   private final int cores;
+  /**
+   * @deprecated since 0.12.0, should use instead
+   *             {@link EvaluatorRequest#nodeNames} and
+   *             {@link EvaluatorRequest#rackNames}
+   */
   @Deprecated
   private final ResourceCatalog.Descriptor descriptor;
   private final List<String> nodeNames;
@@ -47,7 +52,7 @@ public final class EvaluatorRequest {
    * anymore. In order to specify the rack names and node names where evaluators
    * should run on, you should use nodeNames and rackNames lists
    *
-   * @deprecated since 0.12.0-incubating-SNAPSHOT, use constructor with node
+   * @deprecated since 0.12.0, use constructor with node
    *             names and rack names as parameters
    */
   @Deprecated
@@ -110,7 +115,7 @@ public final class EvaluatorRequest {
    *
    * @return the {@link org.apache.reef.driver.catalog.NodeDescriptor} used as
    *         the template for this {@link EvaluatorRequest}.
-   * @deprecated since 0.12.0-incubating-SNAPSHOT. Should use instead
+   * @deprecated since 0.12.0. Should use instead
    *             {@link EvaluatorRequest#getNodeNames()} and
    *             {@link EvaluatorRequest#getRackNames()}
    */
@@ -146,6 +151,11 @@ public final class EvaluatorRequest {
   public static final class Builder implements org.apache.reef.util.Builder<EvaluatorRequest> {
 
     private int n = 1;
+    /**
+     * @deprecated since 0.12.0, should use instead
+     *             {@link EvaluatorRequest.Builder#nodeNames} and
+     *             {@link EvaluatorRequest.Builder#rackNames}
+     */
     @Deprecated
     private ResourceCatalog.Descriptor descriptor = null;
     private int megaBytes = -1;
@@ -229,7 +239,7 @@ public final class EvaluatorRequest {
      *
      * @param rd
      *          the descriptor used to pre-fill this request.
-     * @deprecated since 0.12.0-incubating-SNAPSHOT. Replace with
+     * @deprecated since 0.12.0. Replace with
      *             {@link EvaluatorRequest.Builder#addRackName} and
      *             {@link EvaluatorRequest.Builder#addNodeName}
      * @return this
