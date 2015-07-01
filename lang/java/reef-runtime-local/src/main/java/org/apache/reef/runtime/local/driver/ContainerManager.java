@@ -161,7 +161,7 @@ final class ContainerManager implements AutoCloseable {
       }
     });
 
-    init(availableRacks);
+    init();
 
     LOG.log(Level.FINE, "Initialized Container Manager with {0} containers", capacity);
   }
@@ -202,13 +202,13 @@ final class ContainerManager implements AutoCloseable {
     return normalizedRackNames;
   }
 
-  private void init(final Collection<String> rackNames) {
+  private void init() {
     // evenly distribute the containers among the racks
     // if rack names are not specified, the default rack will be used, so the denominator will always be > 0
-    final int capacityPerRack = capacity / rackNames.size();
-    int missing = capacity % rackNames.size();
+    final int capacityPerRack = capacity / availableRacks.size();
+    int missing = capacity % availableRacks.size();
     // initialize the freeNodesPerRackList and the capacityPerRack
-    for (final String rackName : rackNames) {
+    for (final String rackName : availableRacks) {
       this.freeNodesPerRack.put(rackName, new HashMap<String, Boolean>());
       this.capacitiesPerRack.put(rackName, capacityPerRack);
       if (missing > 0) {
