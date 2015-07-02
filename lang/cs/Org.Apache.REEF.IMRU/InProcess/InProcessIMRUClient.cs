@@ -46,7 +46,7 @@ namespace Org.Apache.REEF.IMRU.InProcess
         /// </summary>
         /// <param name="numberOfMappers">The number of mappers to instantiate</param>
         [Inject]
-        private InProcessIMRUClient([Parameter(typeof (NumberOfMappers))] int numberOfMappers)
+        private InProcessIMRUClient([Parameter(typeof(NumberOfMappers))] int numberOfMappers)
         {
             Debug.Assert(numberOfMappers > 0);
             _numberOfMappers = numberOfMappers;
