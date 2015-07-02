@@ -101,12 +101,13 @@ namespace Org.Apache.REEF.Network.NetworkService
             SourceId = _factory.Create(reader.ReadString());
             DestId = _factory.Create(reader.ReadString());
             int messageCount = reader.ReadInt32();
+            string dataType = reader.ReadString();
 
             Data = new List<T>();
 
             for (int index = 0; index < messageCount; index++)
             {
-                var dataPoint = (T)_injection.ForkInjector().GetInstance(typeof(T));
+                var dataPoint = (T)_injection.ForkInjector().GetInstance(Type.GetType(dataType));
 
                 if (null == dataPoint)
                 {
@@ -127,6 +128,7 @@ namespace Org.Apache.REEF.Network.NetworkService
             writer.WriteString(SourceId.ToString());
             writer.WriteString(DestId.ToString());
             writer.WriteInt32(Data.Count);
+            writer.WriteString(Data[0].GetType().AssemblyQualifiedName);
 
             foreach (var data in Data)
             {
@@ -144,12 +146,13 @@ namespace Org.Apache.REEF.Network.NetworkService
             SourceId = _factory.Create(await reader.ReadStringAsync(token));
             DestId = _factory.Create(await reader.ReadStringAsync(token));
             int messageCount = await reader.ReadInt32Async(token);
+            string dataType = await reader.ReadStringAsync(token);
 
             Data = new List<T>();
 
             for (int index = 0; index < messageCount; index++)
             {
-                var dataPoint = Activator.CreateInstance<T>();
+                var dataPoint = (T) _injection.ForkInjector().GetInstance(Type.GetType(dataType));
 
                 if (null == dataPoint)
                 {
@@ -171,6 +174,7 @@ namespace Org.Apache.REEF.Network.NetworkService
             await writer.WriteStringAsync(SourceId.ToString(), token);
             await writer.WriteStringAsync(DestId.ToString(), token);
             await writer.WriteInt32Async(Data.Count, token);
+            await writer.WriteStringAsync(Data[0].GetType().AssemblyQualifiedName, token);
 
             foreach (var data in Data)
             {

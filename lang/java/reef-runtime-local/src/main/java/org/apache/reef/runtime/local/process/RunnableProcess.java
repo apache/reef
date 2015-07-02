@@ -233,8 +233,8 @@ public final class RunnableProcess implements Runnable {
    * @throws IOException if the file can't be read.
    */
   private long readPID() throws IOException {
-    final String PIDFileName = this.folder.getAbsolutePath() + "/" + PIDStoreStartHandler.PID_FILE_NAME;
-    try (final BufferedReader r = new BufferedReader(new FileReader(PIDFileName))) {
+    final String pidFileName = this.folder.getAbsolutePath() + "/" + PIDStoreStartHandler.PID_FILE_NAME;
+    try (final BufferedReader r = new BufferedReader(new FileReader(pidFileName))) {
       return Long.valueOf(r.readLine());
     }
   }

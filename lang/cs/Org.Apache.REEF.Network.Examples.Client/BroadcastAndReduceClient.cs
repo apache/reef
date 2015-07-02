@@ -37,7 +37,7 @@ namespace Org.Apache.REEF.Network.Examples.Client
 {
     class BroadcastAndReduceClient
     {
-        public void RunBroadcastAndReduce(bool runOnYarn, int numTasks)
+        public void RunBroadcastAndReduce(bool runOnYarn, int numTasks, int startingPortNo, int portRange)
         {
             const int numIterations = 10;
             const string driverId = "BroadcastReduceDriver";
@@ -60,6 +60,12 @@ namespace Org.Apache.REEF.Network.Examples.Client
                 .BindNamedParameter<GroupTestConfig.NumEvaluators, int>(
                     GenericType<GroupTestConfig.NumEvaluators>.Class,
                     numTasks.ToString(CultureInfo.InvariantCulture))
+                .BindNamedParameter<GroupTestConfig.StartingPort, int>(
+                    GenericType<GroupTestConfig.StartingPort>.Class,
+                    startingPortNo.ToString(CultureInfo.InvariantCulture))
+                .BindNamedParameter<GroupTestConfig.PortRange, int>(
+                    GenericType<GroupTestConfig.PortRange>.Class,
+                    portRange.ToString(CultureInfo.InvariantCulture))
                 .Build();
 
             IConfiguration groupCommDriverConfig = TangFactory.GetTang().NewConfigurationBuilder()

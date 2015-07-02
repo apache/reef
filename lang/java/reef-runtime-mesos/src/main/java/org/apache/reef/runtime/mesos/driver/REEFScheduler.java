@@ -451,13 +451,13 @@ final class REEFScheduler implements Scheduler {
   }
 
   private String getExecutorLaunchCommand(final String executorID, final int memorySize) {
-    final String DEFAULT_JAVA_PATH = System.getenv("JAVA_HOME") + "/bin/" +  "java";
+    final String defaultJavaPath = System.getenv("JAVA_HOME") + "/bin/" +  "java";
     final String classPath = "-classpath " + StringUtils.join(this.classpath.getEvaluatorClasspath(), ":");
     final String logging = "-Djava.util.logging.config.class=org.apache.reef.util.logging.Config";
     final String mesosExecutorId = "-mesos_executor_id " + executorID;
 
     return (new StringBuilder()
-        .append(DEFAULT_JAVA_PATH + " ")
+        .append(defaultJavaPath + " ")
         .append("-XX:PermSize=128m" + " ")
         .append("-XX:MaxPermSize=128m" + " ")
         .append("-Xmx" + String.valueOf(memorySize) + "m" + " ")

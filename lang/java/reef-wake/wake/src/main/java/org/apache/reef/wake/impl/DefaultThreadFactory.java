@@ -25,7 +25,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * A default thread factory implementation that names created threads.
  */
 public final class DefaultThreadFactory implements ThreadFactory {
-  private static final AtomicInteger poolNumber = new AtomicInteger(1);
+  private static final AtomicInteger POOL_NUMBER = new AtomicInteger(1);
   private final ThreadGroup group;
   private final AtomicInteger threadNumber = new AtomicInteger(1);
   private final String prefix;
@@ -39,7 +39,7 @@ public final class DefaultThreadFactory implements ThreadFactory {
   public DefaultThreadFactory(String prefix) {
     SecurityManager s = System.getSecurityManager();
     this.group = (s != null) ? s.getThreadGroup() : Thread.currentThread().getThreadGroup();
-    this.prefix = prefix + "-pool-" + poolNumber.getAndIncrement() + "-thread-";
+    this.prefix = prefix + "-pool-" + POOL_NUMBER.getAndIncrement() + "-thread-";
     this.uncaughtExceptionHandler = null;
   }
 
@@ -52,7 +52,7 @@ public final class DefaultThreadFactory implements ThreadFactory {
   public DefaultThreadFactory(String prefix, Thread.UncaughtExceptionHandler uncaughtExceptionHandler) {
     SecurityManager s = System.getSecurityManager();
     this.group = (s != null) ? s.getThreadGroup() : Thread.currentThread().getThreadGroup();
-    this.prefix = prefix + "-pool-" + poolNumber.getAndIncrement() + "-thread-";
+    this.prefix = prefix + "-pool-" + POOL_NUMBER.getAndIncrement() + "-thread-";
     this.uncaughtExceptionHandler = uncaughtExceptionHandler;
   }
 

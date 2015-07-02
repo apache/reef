@@ -31,9 +31,12 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
+/**
+ * @deprecated in 0.12. Use AvroClassHierarchy instead
+ */
+@Deprecated
 public class ProtocolBufferClassHierarchy implements ClassHierarchy {
 
-  private static final String regex = "[\\.\\$\\+]";
   private final PackageNode namespace;
   private HashMap<String, Node> lookupTable = new HashMap<>();
 
@@ -47,6 +50,7 @@ public class ProtocolBufferClassHierarchy implements ClassHierarchy {
    * object is immutable, and does not make use of reflection to fill in any
    * missing values.  This allows it to represent non-native classes as well
    * as snapshots of Java class hierarchies.
+   * @deprecated in 0.12. Use AvroClassHierarchy instead
    */
   public ProtocolBufferClassHierarchy(ClassHierarchyProto.Node root) {
     namespace = new PackageNodeImpl();
@@ -197,6 +201,7 @@ public class ProtocolBufferClassHierarchy implements ClassHierarchy {
    *
    * @param classHierarchy
    * @return
+   * @deprecated in 0.12. Use AvroClassHierarchySerializer instead
    */
   public static ClassHierarchyProto.Node serialize(ClassHierarchy classHierarchy) {
     return serializeNode(classHierarchy.getNamespace());
@@ -208,6 +213,7 @@ public class ProtocolBufferClassHierarchy implements ClassHierarchy {
    * @param file
    * @param classHierarchy
    * @throws IOException
+   * @deprecated in 0.12. Use AvroClassHierarchySerializer instead
    */
   public static void serialize(final File file, final ClassHierarchy classHierarchy) throws IOException {
     final ClassHierarchyProto.Node node = serializeNode(classHierarchy.getNamespace());
@@ -224,6 +230,7 @@ public class ProtocolBufferClassHierarchy implements ClassHierarchy {
    * @param file
    * @return
    * @throws IOException
+   * @deprecated in 0.12. Use AvroClassHierarchySerializer instead
    */
   public static ClassHierarchy deserialize(final File file) throws IOException {
     try (final InputStream stream = new FileInputStream(file)) {
@@ -352,22 +359,6 @@ public class ProtocolBufferClassHierarchy implements ClassHierarchy {
   public Node getNode(String fullName) throws NameResolutionException {
 
     Node ret = lookupTable.get(fullName);
-/*    String[] tok = fullName.split(regex);
-
-    Node ret = namespace.get(fullName);
-    for (int i = 0; i < tok.length; i++) {
-      Node n = namespace.get(getNthPrefix(fullName, i));
-      if (n != null) {
-        for (i++; i < tok.length; i++) {
-          n = n.get(tok[i]);
-          if (n == null) {
-            throw new NameResolutionException(fullName, getNthPrefix(fullName,
-                i - 1));
-          }
-        }
-        return n;
-      }
-    } */
     if (ret != null) {
       return ret;
     } else {

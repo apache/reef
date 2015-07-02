@@ -25,6 +25,8 @@ import org.apache.reef.wake.impl.StageManager;
 import org.apache.reef.wake.remote.*;
 import org.apache.reef.wake.remote.address.LocalAddressProvider;
 import org.apache.reef.wake.remote.address.LocalAddressProviderFactory;
+import org.apache.reef.wake.remote.ports.RangeTcpPortProvider;
+import org.apache.reef.wake.remote.ports.TcpPortProvider;
 import org.apache.reef.wake.remote.transport.Transport;
 import org.apache.reef.wake.remote.transport.TransportFactory;
 import org.apache.reef.wake.remote.transport.netty.MessagingTransportFactory;
@@ -47,7 +49,7 @@ public class DefaultRemoteManagerImplementation implements RemoteManager {
 
   private static final Logger LOG = Logger.getLogger(HandlerContainer.class.getName());
 
-  private static final AtomicInteger counter = new AtomicInteger(0);
+  private static final AtomicInteger COUNTER = new AtomicInteger(0);
 
   /**
    * The timeout used for the execute running in close().
@@ -107,32 +109,49 @@ public class DefaultRemoteManagerImplementation implements RemoteManager {
       @Parameter(RemoteConfiguration.RetryTimeout.class) final int retryTimeout,
       final LocalAddressProvider localAddressProvider,
       final TransportFactory tpFactory) {
-
-    this.name = name;
-    this.handlerContainer = new HandlerContainer<>(name, codec);
-
-    this.reRecvStage = orderingGuarantee ?
-        new OrderedRemoteReceiverStage(this.handlerContainer, errorHandler) :
-        new RemoteReceiverStage(this.handlerContainer, errorHandler, 10);
-
-    this.transport = tpFactory.newInstance(
-        hostAddress, listeningPort, this.reRecvStage, this.reRecvStage, numberOfTries, retryTimeout);
-
-    this.handlerContainer.setTransport(this.transport);
-
-    this.myIdentifier = new SocketRemoteIdentifier(
-        (InetSocketAddress) this.transport.getLocalAddress());
-
-    this.reSendStage = new RemoteSenderStage(codec, this.transport, 10);
-
-    StageManager.instance().register(this);
-
-    LOG.log(Level.FINEST, "RemoteManager {0} instantiated id {1} counter {2} listening on {3}:{4}. Binding address provided by {5}",
-        new Object[]{this.name, this.myIdentifier, counter.incrementAndGet(),
-            this.transport.getLocalAddress().toString(),
-            this.transport.getListeningPort(), localAddressProvider}
-    );
+      this(name, hostAddress, listeningPort, codec, errorHandler, orderingGuarantee, numberOfTries, retryTimeout,
+              localAddressProvider, tpFactory, RangeTcpPortProvider.Default);
   }
+
+    @Inject
+    private <T> DefaultRemoteManagerImplementation(
+            @Parameter(RemoteConfiguration.ManagerName.class) final String name,
+            @Parameter(RemoteConfiguration.HostAddress.class) final String hostAddress,
+            @Parameter(RemoteConfiguration.Port.class) final int listeningPort,
+            @Parameter(RemoteConfiguration.MessageCodec.class) final Codec<T> codec,
+            @Parameter(RemoteConfiguration.ErrorHandler.class) final EventHandler<Throwable> errorHandler,
+            @Parameter(RemoteConfiguration.OrderingGuarantee.class) final boolean orderingGuarantee,
+            @Parameter(RemoteConfiguration.NumberOfTries.class) final int numberOfTries,
+            @Parameter(RemoteConfiguration.RetryTimeout.class) final int retryTimeout,
+            final LocalAddressProvider localAddressProvider,
+            final TransportFactory tpFactory,
+            final TcpPortProvider tcpPortProvider) {
+
+        this.name = name;
+        this.handlerContainer = new HandlerContainer<>(name, codec);
+
+        this.reRecvStage = orderingGuarantee ?
+                new OrderedRemoteReceiverStage(this.handlerContainer, errorHandler) :
+                new RemoteReceiverStage(this.handlerContainer, errorHandler, 10);
+
+        this.transport = tpFactory.newInstance(
+                hostAddress, listeningPort, this.reRecvStage, this.reRecvStage, numberOfTries, retryTimeout, tcpPortProvider);
+
+        this.handlerContainer.setTransport(this.transport);
+
+        this.myIdentifier = new SocketRemoteIdentifier(
+                (InetSocketAddress) this.transport.getLocalAddress());
+
+        this.reSendStage = new RemoteSenderStage(codec, this.transport, 10);
+
+        StageManager.instance().register(this);
+        LOG.log(Level.FINEST, "RemoteManager {0} instantiated id {1} counter {2} listening on {3}:{4}. Binding address provided by {5}",
+                new Object[]{this.name, this.myIdentifier, COUNTER.incrementAndGet(),
+                        this.transport.getLocalAddress().toString(),
+                        this.transport.getListeningPort(), localAddressProvider}
+        );
+    }
+
 
   /**
    * Returns a proxy event handler for a remote identifier and a message type.

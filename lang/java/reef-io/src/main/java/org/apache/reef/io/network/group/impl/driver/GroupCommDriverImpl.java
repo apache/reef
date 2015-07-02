@@ -36,15 +36,20 @@ import org.apache.reef.io.network.group.impl.task.GroupCommNetworkHandlerImpl;
 import org.apache.reef.io.network.group.impl.utils.BroadcastingEventHandler;
 import org.apache.reef.io.network.group.impl.utils.Utils;
 import org.apache.reef.io.network.impl.*;
+import org.apache.reef.io.network.naming.NameResolver;
+import org.apache.reef.io.network.naming.NameResolverConfiguration;
 import org.apache.reef.io.network.naming.NameServer;
 import org.apache.reef.io.network.naming.NameServerImpl;
-import org.apache.reef.io.network.naming.NameServerParameters;
+import org.apache.reef.io.network.naming.parameters.NameResolverNameServerAddr;
+import org.apache.reef.io.network.naming.parameters.NameResolverNameServerPort;
 import org.apache.reef.io.network.util.StringIdentifierFactory;
 import org.apache.reef.tang.Configuration;
+import org.apache.reef.tang.Injector;
 import org.apache.reef.tang.JavaConfigurationBuilder;
 import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.Parameter;
+import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.tang.formats.ConfigurationSerializer;
 import org.apache.reef.util.SingletonAsserter;
 import org.apache.reef.wake.EStage;
@@ -56,8 +61,8 @@ import org.apache.reef.wake.impl.SyncStage;
 import org.apache.reef.wake.impl.ThreadPoolStage;
 import org.apache.reef.wake.remote.address.LocalAddressProvider;
 import org.apache.reef.wake.remote.address.LocalAddressProviderFactory;
-import org.apache.reef.wake.remote.transport.netty.MessagingTransportFactory;
 import org.apache.reef.wake.remote.transport.TransportFactory;
+import org.apache.reef.wake.remote.transport.netty.MessagingTransportFactory;
 
 import javax.inject.Inject;
 import java.util.HashMap;
@@ -76,7 +81,7 @@ public class GroupCommDriverImpl implements GroupCommServiceDriver {
   /**
    * TANG instance.
    */
-  private static final Tang tang = Tang.Factory.getTang();
+  private static final Tang TANG = Tang.Factory.getTang();
 
   private final AtomicInteger contextIds = new AtomicInteger(0);
 
@@ -139,10 +144,25 @@ public class GroupCommDriverImpl implements GroupCommServiceDriver {
                              @Parameter(TreeTopologyFanOut.class) final int fanOut,
                              final LocalAddressProvider localAddressProvider,
                              final TransportFactory tpFactory) {
+    this(confSerializer, driverId, fanOut, localAddressProvider, tpFactory,
+        new NameServerImpl(0, new StringIdentifierFactory()));
+  }
+
+  /**
+   * @deprecated in 0.12. Use Tang to obtain an instance of this instead.
+   */
+  @Deprecated
+  @Inject
+  public GroupCommDriverImpl(final ConfigurationSerializer confSerializer,
+                             @Parameter(DriverIdentifier.class) final String driverId,
+                             @Parameter(TreeTopologyFanOut.class) final int fanOut,
+                             final LocalAddressProvider localAddressProvider,
+                             final TransportFactory tpFactory,
+                             final NameServer nameService) {
     assert (SingletonAsserter.assertSingleton(getClass()));
     this.driverId = driverId;
     this.fanOut = fanOut;
-    this.nameService = new NameServerImpl(0, idFac, localAddressProvider);
+    this.nameService = nameService;
     this.nameServiceAddr = localAddressProvider.getLocalAddress();
     this.nameServicePort = nameService.getPort();
     this.confSerializer = confSerializer;
@@ -155,7 +175,22 @@ public class GroupCommDriverImpl implements GroupCommServiceDriver {
         groupCommFailedEvaluatorHandler);
     this.groupCommMessageHandler = new GroupCommMessageHandler();
     this.groupCommMessageStage = new SingleThreadStage<>("GroupCommMessageStage", groupCommMessageHandler, 100 * 1000);
-    this.netService = new NetworkService<>(idFac, 0, nameServiceAddr, nameServicePort,
+
+    final Configuration nameResolverConf = Tang.Factory.getTang().newConfigurationBuilder(NameResolverConfiguration.CONF
+        .set(NameResolverConfiguration.NAME_SERVER_HOSTNAME, nameServiceAddr)
+        .set(NameResolverConfiguration.NAME_SERVICE_PORT, nameServicePort)
+        .build())
+        .build();
+
+    final Injector injector = Tang.Factory.getTang().newInjector(nameResolverConf);
+    NameResolver nameResolver = null;
+    try {
+      nameResolver = injector.getInstance(NameResolver.class);
+    } catch (InjectionException e) {
+      throw new RuntimeException(e);
+    }
+
+    this.netService = new NetworkService<>(idFac, 0, nameResolver,
         new GroupCommunicationMessageCodec(), tpFactory,
         new EventHandler<Message<GroupCommunicationMessage>>() {
 
@@ -221,15 +256,15 @@ public class GroupCommDriverImpl implements GroupCommServiceDriver {
             BindNSToTask.class)
         .set(ServiceConfiguration.ON_TASK_STOP,
             UnbindNSFromTask.class).build();
-    final Configuration retVal = tang.newConfigurationBuilder(serviceConfiguration)
+    final Configuration retVal = TANG.newConfigurationBuilder(serviceConfiguration)
         .bindNamedParameter(NetworkServiceParameters.NetworkServiceCodec.class,
             GroupCommunicationMessageCodec.class)
         .bindNamedParameter(NetworkServiceParameters.NetworkServiceHandler.class,
             GroupCommNetworkHandlerImpl.class)
         .bindNamedParameter(NetworkServiceParameters.NetworkServiceExceptionHandler.class,
             ExceptionHandler.class)
-        .bindNamedParameter(NameServerParameters.NameServerAddr.class, nameServiceAddr)
-        .bindNamedParameter(NameServerParameters.NameServerPort.class, Integer.toString(nameServicePort))
+        .bindNamedParameter(NameResolverNameServerAddr.class, nameServiceAddr)
+        .bindNamedParameter(NameResolverNameServerPort.class, Integer.toString(nameServicePort))
         .bindNamedParameter(NetworkServiceParameters.NetworkServicePort.class, "0").build();
     LOG.exiting("GroupCommDriverImpl", "getServiceConf", confSerializer.toString(retVal));
     return retVal;

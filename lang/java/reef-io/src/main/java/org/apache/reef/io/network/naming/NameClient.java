@@ -18,25 +18,26 @@
  */
 package org.apache.reef.io.network.naming;
 
-import org.apache.reef.io.naming.Naming;
 import org.apache.reef.io.network.naming.exception.NamingRuntimeException;
+import org.apache.reef.io.network.naming.parameters.*;
 import org.apache.reef.io.network.naming.serialization.NamingLookupResponse;
 import org.apache.reef.io.network.naming.serialization.NamingMessage;
 import org.apache.reef.io.network.naming.serialization.NamingRegisterResponse;
+import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.util.cache.Cache;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.Identifier;
 import org.apache.reef.wake.IdentifierFactory;
-import org.apache.reef.wake.Stage;
 import org.apache.reef.wake.impl.SyncStage;
 import org.apache.reef.wake.remote.Codec;
 import org.apache.reef.wake.remote.address.LocalAddressProvider;
 import org.apache.reef.wake.remote.address.LocalAddressProviderFactory;
 import org.apache.reef.wake.remote.impl.TransportEvent;
 import org.apache.reef.wake.remote.transport.Transport;
-import org.apache.reef.wake.remote.transport.netty.MessagingTransportFactory;
 import org.apache.reef.wake.remote.transport.TransportFactory;
+import org.apache.reef.wake.remote.transport.netty.MessagingTransportFactory;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.concurrent.BlockingQueue;
@@ -45,15 +46,14 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Naming client.
+ * Naming client looking up remote server.
  */
-public class NameClient implements Stage, Naming {
+public final class NameClient implements NameResolver {
   private static final Logger LOG = Logger.getLogger(NameClient.class.getName());
 
   private NameLookupClient lookupClient;
   private NameRegistryClient registryClient;
   private Transport transport;
-
 
   @Deprecated
   public NameClient(final String serverAddr,
@@ -73,6 +73,7 @@ public class NameClient implements Stage, Naming {
    * @param factory    an identifier factory
    * @param cache      a cache
    */
+  @Deprecated
   public NameClient(final String serverAddr,
                     final int serverPort,
                     final IdentifierFactory factory,
@@ -110,6 +111,7 @@ public class NameClient implements Stage, Naming {
    * @param factory    an identifier factory
    * @param cache      a cache
    */
+  @Deprecated
   public NameClient(final String serverAddr,
                     final int serverPort,
                     final long timeout,
@@ -118,8 +120,8 @@ public class NameClient implements Stage, Naming {
                     final int retryTimeout,
                     final Cache<Identifier, InetSocketAddress> cache,
                     final LocalAddressProvider localAddressProvider) {
-     this(serverAddr, serverPort, timeout, factory, retryCount, retryTimeout,
-         cache, localAddressProvider, new MessagingTransportFactory());
+    this(serverAddr, serverPort, timeout, factory, retryCount, retryTimeout,
+        cache, localAddressProvider, new MessagingTransportFactory());
   }
 
   /**
@@ -132,6 +134,7 @@ public class NameClient implements Stage, Naming {
    * @param cache      a cache
    * @param tpFactory  transport factory
    */
+  @Deprecated
   public NameClient(final String serverAddr,
                     final int serverPort,
                     final long timeout,
@@ -141,7 +144,35 @@ public class NameClient implements Stage, Naming {
                     final Cache<Identifier, InetSocketAddress> cache,
                     final LocalAddressProvider localAddressProvider,
                     final TransportFactory tpFactory) {
+    this(serverAddr, serverPort, timeout, factory, retryCount, retryTimeout, localAddressProvider, tpFactory);
+  }
 
+    /**
+     * Constructs a naming client.
+     *
+     * @param serverAddr a server address
+     * @param serverPort a server port number
+     * @param timeout timeout in ms
+     * @param factory an identifier factory
+     * @param retryCount the number of retries
+     * @param retryTimeout retry timeout
+     * @param localAddressProvider a local address provider
+     * @param tpFactory transport factory
+     * @deprecated in 0.12. Use Tang to obtain an instance of this instead.
+     */
+  @Deprecated
+  @Inject
+  public NameClient(
+      @Parameter(NameResolverNameServerAddr.class) final String serverAddr,
+      @Parameter(NameResolverNameServerPort.class) final int serverPort,
+      @Parameter(NameResolverCacheTimeout.class) final long timeout,
+      @Parameter(NameResolverIdentifierFactory.class) final IdentifierFactory factory,
+      @Parameter(NameResolverRetryCount.class) final int retryCount,
+      @Parameter(NameResolverRetryTimeout.class) final int retryTimeout,
+      final LocalAddressProvider localAddressProvider,
+      final TransportFactory tpFactory) {
+
+    NameCache cache = new NameCache(timeout);
     final BlockingQueue<NamingLookupResponse> replyLookupQueue = new LinkedBlockingQueue<NamingLookupResponse>();
     final BlockingQueue<NamingRegisterResponse> replyRegisterQueue = new LinkedBlockingQueue<NamingRegisterResponse>();
     final Codec<NamingMessage> codec = NamingCodecFactory.createFullCodec(factory);

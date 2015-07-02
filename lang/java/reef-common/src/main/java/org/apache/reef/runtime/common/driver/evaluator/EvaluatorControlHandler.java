@@ -37,7 +37,7 @@ import java.util.logging.Logger;
 @Private
 public final class EvaluatorControlHandler {
 
-  private static Logger LOG = Logger.getLogger(EvaluatorControlHandler.class.getName());
+  private static final Logger LOG = Logger.getLogger(EvaluatorControlHandler.class.getName());
   private final EvaluatorStatusManager stateManager;
   private final RemoteManager remoteManager;
   private final String evaluatorId;
@@ -70,7 +70,7 @@ public final class EvaluatorControlHandler {
     }
     if (!this.stateManager.isRunning()) {
       LOG.log(Level.WARNING, "Trying to send an EvaluatorControlProto to Evaluator [{0}] that is in state [{1}], not [RUNNING]. The control message was: {2}",
-          new Object[]{this.evaluatorId, this.stateManager, evaluatorControlProto});
+              new Object[]{this.evaluatorId, this.stateManager, evaluatorControlProto});
       return;
     }
     this.wrapped.get().onNext(evaluatorControlProto);

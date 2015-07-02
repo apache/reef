@@ -29,27 +29,26 @@ import org.apache.reef.runtime.common.driver.resourcemanager.ResourceAllocationE
 import org.apache.reef.runtime.common.driver.resourcemanager.ResourceAllocationEventImpl;
 import org.apache.reef.runtime.common.driver.resourcemanager.RuntimeStatusEvent;
 import org.apache.reef.runtime.common.driver.resourcemanager.RuntimeStatusEventImpl;
-import org.apache.reef.runtime.common.files.ClasspathProvider;
 import org.apache.reef.runtime.common.files.FileResource;
 import org.apache.reef.runtime.common.files.REEFFileNames;
 import org.apache.reef.runtime.common.parameters.JVMHeapSlack;
 import org.apache.reef.runtime.common.utils.RemoteManager;
-import org.apache.reef.runtime.local.client.parameters.DefaultMemorySize;
-import org.apache.reef.runtime.local.client.parameters.DefaultNumberOfCores;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.tang.exceptions.BindException;
 import org.apache.reef.tang.formats.ConfigurationSerializer;
+import org.apache.reef.util.Optional;
 import org.apache.reef.util.logging.LoggingScope;
 import org.apache.reef.util.logging.LoggingScopeFactory;
 import org.apache.reef.wake.EventHandler;
 
-import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import javax.inject.Inject;
 
 /**
  * A resource manager that uses threads to execute containers.
@@ -65,27 +64,23 @@ public final class ResourceManager {
   private final EventHandler<ResourceAllocationEvent> allocationHandler;
   private final ContainerManager theContainers;
   private final EventHandler<RuntimeStatusEvent> runtimeStatusHandlerEventHandler;
-  private final int defaultMemorySize;
-  private final int defaultNumberOfCores;
   private final ConfigurationSerializer configurationSerializer;
   private final RemoteManager remoteManager;
   private final REEFFileNames fileNames;
-  private final ClasspathProvider classpathProvider;
   private final double jvmHeapFactor;
   private final LoggingScopeFactory loggingScopeFactory;
 
   @Inject
   ResourceManager(
       final ContainerManager containerManager,
-      @Parameter(RuntimeParameters.ResourceAllocationHandler.class) final EventHandler<ResourceAllocationEvent> allocationHandler,
-      @Parameter(RuntimeParameters.RuntimeStatusHandler.class) final EventHandler<RuntimeStatusEvent> runtimeStatusHandlerEventHandler,
-      @Parameter(DefaultMemorySize.class) final int defaultMemorySize,
-      @Parameter(DefaultNumberOfCores.class) final int defaultNumberOfCores,
+      @Parameter(RuntimeParameters.ResourceAllocationHandler.class)
+      final EventHandler<ResourceAllocationEvent> allocationHandler,
+      @Parameter(RuntimeParameters.RuntimeStatusHandler.class)
+      final EventHandler<RuntimeStatusEvent> runtimeStatusHandlerEventHandler,
       @Parameter(JVMHeapSlack.class) final double jvmHeapSlack,
       final ConfigurationSerializer configurationSerializer,
       final RemoteManager remoteManager,
       final REEFFileNames fileNames,
-      final ClasspathProvider classpathProvider,
       final LoggingScopeFactory loggingScopeFactory) {
 
     this.theContainers = containerManager;
@@ -93,10 +88,7 @@ public final class ResourceManager {
     this.runtimeStatusHandlerEventHandler = runtimeStatusHandlerEventHandler;
     this.configurationSerializer = configurationSerializer;
     this.remoteManager = remoteManager;
-    this.defaultMemorySize = defaultMemorySize;
-    this.defaultNumberOfCores = defaultNumberOfCores;
     this.fileNames = fileNames;
-    this.classpathProvider = classpathProvider;
     this.jvmHeapFactor = 1.0 - jvmHeapSlack;
     this.loggingScopeFactory = loggingScopeFactory;
 
@@ -168,7 +160,8 @@ public final class ResourceManager {
 
       final Container c = this.theContainers.get(launchRequest.getIdentifier());
 
-      try (final LoggingScope lb = this.loggingScopeFactory.getNewLoggingScope("ResourceManager.onResourceLaunchRequest:evaluatorConfigurationFile")) {
+      try (final LoggingScope lb = this.loggingScopeFactory
+          .getNewLoggingScope("ResourceManager.onResourceLaunchRequest:evaluatorConfigurationFile")) {
         // Add the global files and libraries.
         c.addGlobalFiles(this.fileNames.getGlobalFolder());
         c.addLocalFiles(getLocalFiles(launchRequest));
@@ -183,7 +176,8 @@ public final class ResourceManager {
         }
       }
 
-      try (final LoggingScope lc = this.loggingScopeFactory.getNewLoggingScope("ResourceManager.onResourceLaunchRequest:runCommand")) {
+      try (final LoggingScope lc = this.loggingScopeFactory
+          .getNewLoggingScope("ResourceManager.onResourceLaunchRequest:runCommand")) {
 
         final List<String> command = launchRequest.getProcess()
             .setErrorHandlerRID(this.remoteManager.getMyIdentifier())
@@ -199,40 +193,39 @@ public final class ResourceManager {
   }
 
   /**
+  /**
    * Checks the allocation queue for new allocations and if there are any
    * satisfies them.
    */
   private void checkRequestQueue() {
 
-    if (this.theContainers.hasContainerAvailable() && this.requestQueue.hasOutStandingRequests()) {
+    if (requestQueue.hasOutStandingRequests()) {
+      final ResourceRequest resourceRequest = requestQueue.head();
+      final ResourceRequestEvent requestEvent = resourceRequest.getRequestProto();
+      final Optional<Container> cont = theContainers.allocateContainer(requestEvent);
+      if (cont.isPresent()) {
+        // Container has been allocated
+        requestQueue.satisfyOne();
+        final Container container = cont.get();
+        // Tell the receivers about it
+        final ResourceAllocationEvent alloc = ResourceAllocationEventImpl.newBuilder()
+            .setIdentifier(container.getContainerID()).setNodeId(container.getNodeID())
+            .setResourceMemory(container.getMemory()).setVirtualCores(container.getNumberOfCores())
+            .setRackName(container.getRackName()).build();
 
-      // Record the satisfaction of one request and get its details.
-      final ResourceRequestEvent requestEvent = this.requestQueue.satisfyOne();
+        LOG.log(Level.FINEST, "Allocating container: {0}", container);
+        this.allocationHandler.onNext(alloc);
+        // update REEF
+        this.sendRuntimeStatus();
 
-      // Allocate a Container
-      final Container container = this.theContainers.allocateOne(
-              requestEvent.getMemorySize().orElse(this.defaultMemorySize),
-              requestEvent.getVirtualCores().orElse(this.defaultNumberOfCores));
-
-      // Tell the receivers about it
-      final ResourceAllocationEvent alloc =
-          ResourceAllocationEventImpl.newBuilder()
-              .setIdentifier(container.getContainerID())
-              .setNodeId(container.getNodeID())
-              .setResourceMemory(container.getMemory())
-              .setVirtualCores(container.getNumberOfCores())
-              .build();
-
-      LOG.log(Level.FINEST, "Allocating container: {0}", container);
-      this.allocationHandler.onNext(alloc);
-
-      // update REEF
-      this.sendRuntimeStatus();
-
-      // Check whether we can satisfy another one.
-      this.checkRequestQueue();
-
+        // Check whether we can satisfy another one.
+        this.checkRequestQueue();
+      } else {
+        // could not allocate, update REEF
+        this.sendRuntimeStatus();
+      }
     } else {
+      // done
       this.sendRuntimeStatus();
     }
   }

@@ -17,91 +17,191 @@
  * under the License.
  */
 
+using System;
+using System.Threading;
+using Org.Apache.REEF.Wake.Remote;
+using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Wake.StreamingCodec;
+
 namespace Org.Apache.REEF.Network.Group.Driver.Impl
 {
     /// <summary>
-    /// Messages sent by Group Communication Operators
+    /// Messages sent by MPI Operators. This is the Writable version of GroupCommunicationMessage
+    ///  class and will eventually replace it once everybody agrees with the design
     /// </summary>
-    public class GroupCommunicationMessage
+    // TODO: Need to remove Iwritable and use IstreamingCodec. Please see Jira REEF-295.
+    public sealed class GroupCommunicationMessage<T> : GeneralGroupCommunicationMessage
     {
+        private readonly IStreamingCodec<T> _codec;
+
         /// <summary>
-        /// Create new CommunicationGroupMessage.
+        /// Empty constructor to allow instantiation by reflection
         /// </summary>
-        /// <param name="groupName">The name of the communication group</param>
-        /// <param name="operatorName">The name of the Group Communication operator</param>
-        /// <param name="source">The message source</param>
-        /// <param name="destination">The message destination</param>
-        /// <param name="data">The actual byte array of data</param>
-        /// <param name="messageType">The type of message to send</param>
-        public GroupCommunicationMessage(
-            string groupName,
-            string operatorName,
-            string source,
-            string destination,
-            byte[] data,
-            MessageType messageType)
+        [Inject]
+        private GroupCommunicationMessage(IStreamingCodec<T> codec)
         {
-            GroupName = groupName;
-            OperatorName = operatorName;
-            Source = source;
-            Destination = destination;
-            Data = new[] { data };
-            MsgType = messageType;
+            _codec = codec;
         }
 
         /// <summary>
         /// Create new CommunicationGroupMessage.
         /// </summary>
         /// <param name="groupName">The name of the communication group</param>
-        /// <param name="operatorName">The name of the Group Communication operator</param>
+        /// <param name="operatorName">The name of the MPI operator</param>
         /// <param name="source">The message source</param>
         /// <param name="destination">The message destination</param>
-        /// <param name="data">The actual byte array of data</param>
+        /// <param name="message">The actual Writable message</param>
         /// <param name="messageType">The type of message to send</param>
+        /// <param name="codec">Streaming Codec</param>
         public GroupCommunicationMessage(
             string groupName,
             string operatorName,
             string source,
             string destination,
-            byte[][] data,
-            MessageType messageType)
+            T message,
+            MessageType messageType,
+            IStreamingCodec<T> codec)
+            : base(groupName, operatorName, source, destination, messageType)
         {
-            GroupName = groupName;
-            OperatorName = operatorName;
-            Source = source;
-            Destination = destination;
-            Data = data;
-            MsgType = messageType;
+            _codec = codec;
+            Data = new T[] { message };
         }
 
         /// <summary>
-        /// Returns the Communication Group name.
+        /// Create new CommunicationGroupMessage.
         /// </summary>
-        public string GroupName { get; private set; }
+        /// <param name="groupName">The name of the communication group</param>
+        /// <param name="operatorName">The name of the MPI operator</param>
+        /// <param name="source">The message source</param>
+        /// <param name="destination">The message destination</param>
+        /// <param name="message">The actual Writable message array</param>
+        /// <param name="messageType">The type of message to send</param>
+        /// <param name="codec">Streaming Codec</param>
+        public GroupCommunicationMessage(
+            string groupName,
+            string operatorName,
+            string source,
+            string destination,
+            T[] message,
+            MessageType messageType,
+            IStreamingCodec<T> codec)
+            : base(groupName, operatorName, source, destination, messageType)
+        {
+            _codec = codec;
+            Data = message;
+        }
 
         /// <summary>
-        /// Returns the Group Communication Operator name.
+        /// Returns the array of messages.
         /// </summary>
-        public string OperatorName { get; private set; }
+        public T[] Data
+        {
+            get;
+            set;
+        }
 
         /// <summary>
-        /// Returns the source of the message.
+        /// Read the class fields.
         /// </summary>
-        public string Source { get; private set; }
+        /// <param name="reader">The reader from which to read </param>
+        public override void Read(IDataReader reader)
+        {
+            GroupName = reader.ReadString();
+            OperatorName = reader.ReadString();
+            Source = reader.ReadString();
+            Destination = reader.ReadString();
+
+            int dataCount = reader.ReadInt32();
+
+            if (dataCount == 0)
+            {
+                throw new Exception("Data Count in Group COmmunication Message cannot be zero");
+            }
+
+            MsgType = (MessageType)Enum.Parse(typeof(MessageType), reader.ReadString());
+            Data = new T[dataCount];
+
+            for (int index = 0; index < dataCount; index++)
+            {
+                Data[index] = _codec.Read(reader);
+
+                if (Data[index] == null)
+                {
+                    throw new Exception("message instance cannot be created from the IDataReader in Group Communication Message");
+                }
+            }
+        }
 
         /// <summary>
-        /// Returns the destination of the message.
+        /// Writes the class fields.
         /// </summary>
-        public string Destination { get; private set; }
+        /// <param name="writer">The writer to which to write</param>
+        public override void Write(IDataWriter writer)
+        {
+            writer.WriteString(GroupName);
+            writer.WriteString(OperatorName);
+            writer.WriteString(Source);
+            writer.WriteString(Destination);
+            writer.WriteInt32(Data.Length);
+            writer.WriteString(MsgType.ToString());
+
+            foreach (var data in Data)
+            {
+                _codec.Write(data, writer);
+            }
+        }
 
         /// <summary>
-        /// Returns the message data.
+        /// Read the class fields.
         /// </summary>
-        public byte[][] Data { get; private set; }
+        /// <param name="reader">The reader from which to read </param>
+        /// <param name="token">The cancellation token</param>
+        public override async System.Threading.Tasks.Task ReadAsync(IDataReader reader, CancellationToken token)
+        {
+            GroupName = await reader.ReadStringAsync(token);
+            OperatorName = await reader.ReadStringAsync(token);
+            Source = await reader.ReadStringAsync(token);
+            Destination = await reader.ReadStringAsync(token);
+
+            int dataCount = await reader.ReadInt32Async(token);
+
+            if (dataCount == 0)
+            {
+                throw new Exception("Data Count in Group COmmunication Message cannot be zero");
+            }
+
+            MsgType = (MessageType)Enum.Parse(typeof(MessageType), await reader.ReadStringAsync(token));
+            Data = new T[dataCount];
+
+            for (int index = 0; index < dataCount; index++)
+            {
+                Data[index] = await _codec.ReadAsync(reader, token);
+
+                if (Data[index] == null)
+                {
+                    throw new Exception("message instance cannot be created from the IDataReader in Group Communication Message");
+                }
+            }
+        }
 
         /// <summary>
-        /// Returns the type of message being sent.
+        /// Writes the class fields.
         /// </summary>
-        public MessageType MsgType { get; private set; }
+        /// <param name="writer">The writer to which to write</param>
+        /// <param name="token">The cancellation token</param>
+        public override async System.Threading.Tasks.Task WriteAsync(IDataWriter writer, CancellationToken token)
+        {
+            await writer.WriteStringAsync(GroupName, token);
+            await writer.WriteStringAsync(OperatorName, token);
+            await writer.WriteStringAsync(Source, token);
+            await writer.WriteStringAsync(Destination, token);
+            await writer.WriteInt32Async(Data.Length, token);
+            await writer.WriteStringAsync(MsgType.ToString(), token);
+
+            foreach (var data in Data)
+            {
+                await _codec.WriteAsync(data, writer, token);
+            }
+        }
     }
 }

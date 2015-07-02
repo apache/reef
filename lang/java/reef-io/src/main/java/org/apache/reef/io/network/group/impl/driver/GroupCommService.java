@@ -46,7 +46,7 @@ import java.util.logging.Logger;
 public class GroupCommService {
 
   private static final Logger LOG = Logger.getLogger(GroupCommService.class.getName());
-  private static final ConfigurationSerializer confSer = new AvroConfigurationSerializer();
+  private static final ConfigurationSerializer CONF_SER = new AvroConfigurationSerializer();
 
   private final GroupCommServiceDriver groupCommDriver;
 
@@ -63,7 +63,7 @@ public class GroupCommService {
     jcb.bindSetEntry(ServiceEvaluatorFailedHandlers.class, FailedEvaluatorHandler.class);
     jcb.bindNamedParameter(EvaluatorDispatcherThreads.class, "1");
     final Configuration retVal = jcb.build();
-    LOG.exiting("GroupCommService", "getConfiguration", confSer.toString(retVal));
+    LOG.exiting("GroupCommService", "getConfiguration", CONF_SER.toString(retVal));
     return retVal;
   }
 
@@ -72,7 +72,7 @@ public class GroupCommService {
     final Configuration baseConf = getConfiguration();
     final Configuration retConf = Tang.Factory.getTang().newConfigurationBuilder(baseConf)
         .bindNamedParameter(TreeTopologyFanOut.class, Integer.toString(fanOut)).build();
-    LOG.exiting("GroupCommService", "getConfiguration", confSer.toString(retConf));
+    LOG.exiting("GroupCommService", "getConfiguration", CONF_SER.toString(retConf));
     return retConf;
   }
 

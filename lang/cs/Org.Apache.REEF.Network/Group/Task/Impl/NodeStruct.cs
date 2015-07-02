@@ -17,17 +17,22 @@
  * under the License.
  */
 
+using System;
 using System.Collections.Concurrent;
 using Org.Apache.REEF.Network.Group.Driver.Impl;
 
 namespace Org.Apache.REEF.Network.Group.Task.Impl
 {
+
     /// <summary>
     /// Stores all incoming messages sent by a particular Task.
+    /// Writable version
     /// </summary>
-    internal class NodeStruct
+    /// <typeparam name="T"> Generic type of message</typeparam>
+    // TODO: Need to remove Iwritable and use IstreamingCodec. Please see Jira REEF-295.
+    internal sealed class NodeStruct<T>
     {
-        private readonly BlockingCollection<GroupCommunicationMessage> _messageQueue;
+        private readonly BlockingCollection<GroupCommunicationMessage<T>> _messageQueue;
 
         /// <summary>
         /// Creates a new NodeStruct.
@@ -36,7 +41,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         public NodeStruct(string id)
         {
             Identifier = id;
-            _messageQueue = new BlockingCollection<GroupCommunicationMessage>();
+            _messageQueue = new BlockingCollection<GroupCommunicationMessage<T>>();
         }
 
         /// <summary>
@@ -49,7 +54,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         /// Gets the first message in the message queue.
         /// </summary>
         /// <returns>The first available message.</returns>
-        public byte[][] GetData()
+        public T[] GetData()
         {
             return _messageQueue.Take().Data;
         }
@@ -58,7 +63,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         /// Adds an incoming message to the message queue.
         /// </summary>
         /// <param name="gcm">The incoming message</param>
-        public void AddData(GroupCommunicationMessage gcm)
+        public void AddData(GroupCommunicationMessage<T> gcm)
         {
             _messageQueue.Add(gcm);
         }

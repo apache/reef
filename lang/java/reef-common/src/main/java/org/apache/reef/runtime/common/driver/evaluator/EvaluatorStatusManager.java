@@ -55,6 +55,10 @@ final class EvaluatorStatusManager {
           case FAILED:
           case KILLED:
             return true;
+          case RUNNING:
+            break;
+          default:
+            throw new RuntimeException("Unknown state: " + to);
         }
       }
       case SUBMITTED: {
@@ -64,6 +68,10 @@ final class EvaluatorStatusManager {
           case FAILED:
           case KILLED:
             return true;
+          case ALLOCATED:
+            break;
+          default:
+            throw new RuntimeException("Unknown state: " + to);
         }
       }
       case RUNNING: {
@@ -72,8 +80,19 @@ final class EvaluatorStatusManager {
           case FAILED:
           case KILLED:
             return true;
+          case ALLOCATED:
+          case SUBMITTED:
+            break;
+          default:
+            throw new RuntimeException("Unknown state: " + to);
         }
       }
+      case DONE:
+      case FAILED:
+      case KILLED:
+        break;
+      default:
+        throw new RuntimeException("Unknown state: " + from);
     }
 
     LOG.warning("Illegal evaluator state transition from " + from + " to " + to + ".");

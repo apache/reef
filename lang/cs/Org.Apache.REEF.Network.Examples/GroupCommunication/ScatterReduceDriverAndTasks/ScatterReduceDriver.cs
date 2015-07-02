@@ -43,6 +43,7 @@ using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Wake.Remote.Impl;
+using Org.Apache.REEF.Wake.StreamingCodec.CommonStreamingCodecs;
 
 namespace Org.Apache.REEF.Network.Examples.GroupCommunication.ScatterReduceDriverAndTasks
 {
@@ -55,6 +56,7 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.ScatterReduceDrive
         private readonly IGroupCommDriver _groupCommDriver;
         private readonly ICommunicationGroupDriver _commGroup;
         private readonly TaskStarter _groupCommTaskStarter;
+        private readonly IConfiguration _codecConfig;
 
         [Inject]
         public ScatterReduceDriver(
@@ -65,9 +67,9 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.ScatterReduceDrive
             _numEvaluators = numEvaluators;
             _groupCommDriver = groupCommDriver;
 
-            IConfiguration codecConfig = CodecConfiguration<int>.Conf
-                .Set(CodecConfiguration<int>.Codec, GenericType<IntCodec>.Class)
-                .Build();
+            _codecConfig = StreamingCodecConfiguration<int>.Conf
+               .Set(StreamingCodecConfiguration<int>.Codec, GenericType<IntStreamingCodec>.Class)
+               .Build();
 
             IConfiguration reduceFunctionConfig = ReduceFunctionConfiguration<int>.Conf
                 .Set(ReduceFunctionConfiguration<int>.ReduceFunction, GenericType<SumFunction>.Class)
@@ -82,13 +84,11 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.ScatterReduceDrive
                         GroupTestConstants.ScatterOperatorName,
                             GroupTestConstants.MasterTaskId,
                             TopologyTypes.Tree, 
-                            codecConfig,
                             dataConverterConfig)
                     .AddReduce<int>(
                         GroupTestConstants.ReduceOperatorName,
                         GroupTestConstants.MasterTaskId,
                         TopologyTypes.Tree, 
-                        codecConfig,
                         reduceFunctionConfig,
                         dataConverterConfig)
 
@@ -111,6 +111,7 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.ScatterReduceDrive
         {
             IConfiguration contextConf = _groupCommDriver.GetContextConfiguration();
             IConfiguration serviceConf = _groupCommDriver.GetServiceConfiguration();
+            serviceConf = Configurations.Merge(serviceConf, _codecConfig);
             allocatedEvaluator.SubmitContextAndService(contextConf, serviceConf);
         }
 

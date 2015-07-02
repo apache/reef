@@ -18,7 +18,6 @@
  */
 
 using System;
-using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -33,17 +32,19 @@ using Org.Apache.REEF.Network.NetworkService;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Exceptions;
 using Org.Apache.REEF.Utilities.Logging;
-using Org.Apache.REEF.Wake.Remote;
+using Org.Apache.REEF.Wake.StreamingCodec;
 
 namespace Org.Apache.REEF.Network.Group.Task.Impl
 {
     /// <summary>
     /// Contains the Operator's topology graph.
+    /// Writable version
     /// Used to send or receive messages to/from operators in the same
     /// Communication Group.
     /// </summary>
     /// <typeparam name="T">The message type</typeparam>
-    public class OperatorTopology<T> : IOperatorTopology<T>, IObserver<GroupCommunicationMessage>
+    // TODO: Need to remove Iwritable and use IstreamingCodec. Please see Jira REEF-295.
+    public sealed class OperatorTopology<T> : IOperatorTopology<T>, IObserver<GeneralGroupCommunicationMessage>
     {
         private const int DefaultTimeout = 50000;
         private const int RetryCount = 10;
@@ -57,14 +58,14 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         private readonly int _timeout;
         private readonly int _retryCount;
 
-        private readonly NodeStruct _parent;
-        private readonly List<NodeStruct> _children;
-        private readonly Dictionary<string, NodeStruct> _idToNodeMap;
-        private readonly ICodec<T> _codec;
+        private readonly NodeStruct<T> _parent;
+        private readonly List<NodeStruct<T>> _children;
+        private readonly Dictionary<string, NodeStruct<T>> _idToNodeMap;
         private readonly INameClient _nameClient;
         private readonly Sender _sender;
-        private readonly BlockingCollection<NodeStruct> _nodesWithData;
+        private readonly BlockingCollection<NodeStruct<T>> _nodesWithData;
         private readonly Object _thisLock = new Object();
+        private readonly IStreamingCodec<T> _codec;
 
         /// <summary>
         /// Creates a new OperatorTopology object.
@@ -73,37 +74,39 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         /// <param name="groupName">The name of the operator's Communication Group</param>
         /// <param name="taskId">The operator's Task identifier</param>
         /// <param name="driverId">The identifer for the driver</param>
+        /// <param name="timeout">Timeout value for cancellation token</param>
+        /// <param name="retryCount">Number of times to retry registration</param>
         /// <param name="rootId">The identifier for the root Task in the topology graph</param>
         /// <param name="childIds">The set of child Task identifiers in the topology graph</param>
         /// <param name="networkService">The network service</param>
-        /// <param name="codec">The codec used to serialize and deserialize messages</param>
         /// <param name="sender">The Sender used to do point to point communication</param>
+        /// <param name="codec">Streaming codec to encode objects</param>
         [Inject]
-        public OperatorTopology(
+        private OperatorTopology(
             [Parameter(typeof(GroupCommConfigurationOptions.OperatorName))] string operatorName,
             [Parameter(typeof(GroupCommConfigurationOptions.CommunicationGroupName))] string groupName,
             [Parameter(typeof(TaskConfigurationOptions.Identifier))] string taskId,
             [Parameter(typeof(GroupCommConfigurationOptions.DriverId))] string driverId,
-            [Parameter(typeof(GroupCommConfigurationOptions.Timeout))] int timrout,
+            [Parameter(typeof(GroupCommConfigurationOptions.Timeout))] int timeout,
             [Parameter(typeof(GroupCommConfigurationOptions.RetryCount))] int retryCount,
             [Parameter(typeof(GroupCommConfigurationOptions.TopologyRootTaskId))] string rootId,
             [Parameter(typeof(GroupCommConfigurationOptions.TopologyChildTaskIds))] ISet<string> childIds,
-            NetworkService<GroupCommunicationMessage> networkService,
-            ICodec<T> codec,
-            Sender sender)
+            WritableNetworkService<GeneralGroupCommunicationMessage> networkService,
+            Sender sender,
+            IStreamingCodec<T> codec)
         {
             _operatorName = operatorName;
             _groupName = groupName;
             _selfId = taskId;
             _driverId = driverId;
-            _timeout = timrout;
+            _timeout = timeout;
             _retryCount = retryCount;
-            _codec = codec;
             _nameClient = networkService.NamingClient;
             _sender = sender;
-            _nodesWithData = new BlockingCollection<NodeStruct>();
-            _children = new List<NodeStruct>();
-            _idToNodeMap = new Dictionary<string, NodeStruct>();
+            _nodesWithData = new BlockingCollection<NodeStruct<T>>();
+            _children = new List<NodeStruct<T>>();
+            _idToNodeMap = new Dictionary<string, NodeStruct<T>>();
+            _codec = codec;
 
             if (_selfId.Equals(rootId))
             {
@@ -111,12 +114,12 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
             }
             else
             {
-                _parent = new NodeStruct(rootId);
+                _parent = new NodeStruct<T>(rootId);
                 _idToNodeMap[rootId] = _parent;
             }
             foreach (var childId in childIds)
             {
-                var node = new NodeStruct(childId);
+                var node = new NodeStruct<T>(childId);
                 _children.Add(node);
                 _idToNodeMap[childId] = node;
             }
@@ -151,7 +154,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         /// Updates the sending node's message queue.
         /// </summary>
         /// <param name="gcm">The incoming message</param>
-        public void OnNext(GroupCommunicationMessage gcm)
+        public void OnNext(GeneralGroupCommunicationMessage gcm)
         {
             if (gcm == null)
             {
@@ -171,7 +174,14 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
             lock (_thisLock)
             {
                 _nodesWithData.Add(sourceNode);
-                sourceNode.AddData(gcm);
+                var message = gcm as GroupCommunicationMessage<T>;
+
+                if (message == null)
+                {
+                    throw new NullReferenceException("message passed not of type GroupCommunicationMessage");
+                }
+
+                sourceNode.AddData(message);
             }
         }
 
@@ -204,7 +214,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
 
             foreach (var child in _children)
             {
-                SendToNode(message, MessageType.Data, child); 
+                SendToNode(message, MessageType.Data, child);
             }
         }
 
@@ -218,14 +228,14 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         {
             if (messages == null)
             {
-                throw new ArgumentNullException("messages"); 
+                throw new ArgumentNullException("messages");
             }
             if (_children.Count <= 0)
             {
                 return;
             }
 
-            var count = (int) Math.Ceiling(((double) messages.Count) / _children.Count);
+            var count = (int)Math.Ceiling(((double)messages.Count) / _children.Count);
             ScatterHelper(messages, _children, count);
         }
 
@@ -268,10 +278,10 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
                 throw new ArgumentException("order cannot be null and must have the same number of elements as child tasks");
             }
 
-            List<NodeStruct> nodes = new List<NodeStruct>(); 
+            List<NodeStruct<T>> nodes = new List<NodeStruct<T>>();
             foreach (string taskId in order)
             {
-                NodeStruct node = FindNode(taskId);
+                NodeStruct<T> node = FindNode(taskId);
                 if (node == null)
                 {
                     throw new IllegalStateException("Received message from invalid task id: " + taskId);
@@ -280,7 +290,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
                 nodes.Add(node);
             }
 
-            int count = (int) Math.Ceiling(((double) messages.Count) / _children.Count);
+            int count = (int)Math.Ceiling(((double)messages.Count) / _children.Count);
             ScatterHelper(messages, nodes, count);
         }
 
@@ -290,28 +300,24 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         /// <returns>The parent Task's message</returns>
         public T ReceiveFromParent()
         {
-            byte[][] data = ReceiveFromNode(_parent);
+            T[] data = ReceiveFromNode(_parent);
             if (data == null || data.Length != 1)
             {
                 throw new InvalidOperationException("Cannot receive data from parent node");
             }
 
-            return _codec.Decode(data[0]);
+            return data[0];
         }
 
-        /// <summary>
-        /// Receive a list of incoming messages from the parent Task.
-        /// </summary>
-        /// <returns>The parent Task's list of messages</returns>
         public IList<T> ReceiveListFromParent()
         {
-            byte[][] data = ReceiveFromNode(_parent);
+            T[] data = ReceiveFromNode(_parent);
             if (data == null || data.Length == 0)
             {
                 throw new InvalidOperationException("Cannot receive data from parent node");
             }
 
-            return data.Select(b => _codec.Decode(b)).ToList();
+            return data.ToList();
         }
 
         /// <summary>
@@ -336,13 +342,13 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
 
                 foreach (var child in childrenWithData)
                 {
-                    byte[][] data = ReceiveFromNode(child);
+                    T[] data = ReceiveFromNode(child);
                     if (data == null || data.Length != 1)
                     {
                         throw new InvalidOperationException("Received invalid data from child with id: " + child.Identifier);
                     }
 
-                    receivedData.Add(_codec.Decode(data[0]));
+                    receivedData.Add(data[0]);
                     childrenToReceiveFrom.Remove(child.Identifier);
                 }
             }
@@ -368,10 +374,10 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         /// </summary>
         ///<param name="nodeSetIdentifier">Candidate set of nodes from which data is to be received</param>
         /// <returns>A Vector of NodeStruct with incoming data.</returns>
-        private IEnumerable<NodeStruct> GetNodeWithData(IEnumerable<string> nodeSetIdentifier)
+        private IEnumerable<NodeStruct<T>> GetNodeWithData(IEnumerable<string> nodeSetIdentifier)
         {
             CancellationTokenSource timeoutSource = new CancellationTokenSource(_timeout);
-            List<NodeStruct> nodesSubsetWithData = new List<NodeStruct>();
+            List<NodeStruct<T>> nodesSubsetWithData = new List<NodeStruct<T>>();
 
             try
             {
@@ -408,7 +414,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
                     potentialNode = _nodesWithData.Take();
                 }
 
-                return new NodeStruct[] { potentialNode };
+                return new NodeStruct<T>[] { potentialNode };
 
             }
             catch (OperationCanceledException)
@@ -434,10 +440,10 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         /// <param name="message">The message to send</param>
         /// <param name="msgType">The message type</param>
         /// <param name="node">The NodeStruct representing the Task to send to</param>
-        private void SendToNode(T message, MessageType msgType, NodeStruct node)
+        private void SendToNode(T message, MessageType msgType, NodeStruct<T> node)
         {
-            GroupCommunicationMessage gcm = new GroupCommunicationMessage(_groupName, _operatorName,
-                _selfId, node.Identifier, _codec.Encode(message), msgType);
+            GeneralGroupCommunicationMessage gcm = new GroupCommunicationMessage<T>(_groupName, _operatorName,
+                _selfId, node.Identifier, message, msgType, _codec);
 
             _sender.Send(gcm);
         }
@@ -448,16 +454,40 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         /// <param name="messages">The list of messages to send</param>
         /// <param name="msgType">The message type</param>
         /// <param name="node">The NodeStruct representing the Task to send to</param>
-        private void SendToNode(IList<T> messages, MessageType msgType, NodeStruct node)
+        private void SendToNode(IList<T> messages, MessageType msgType, NodeStruct<T> node)
         {
-            byte[][] encodedMessages = messages.Select(message => _codec.Encode(message)).ToArray();
-            GroupCommunicationMessage gcm = new GroupCommunicationMessage(_groupName, _operatorName,
-                _selfId, node.Identifier, encodedMessages, msgType);
+            T[] encodedMessages = messages.ToArray();
+
+            GroupCommunicationMessage<T> gcm = new GroupCommunicationMessage<T>(_groupName, _operatorName,
+                _selfId, node.Identifier, encodedMessages, msgType, _codec);
 
             _sender.Send(gcm);
         }
 
-        private void ScatterHelper(IList<T> messages, List<NodeStruct> order, int count)
+        /// <summary>
+        /// Receive a message from the Task represented by the given NodeStruct.
+        /// Removes the NodeStruct from the nodesWithData queue if requested.
+        /// </summary>
+        /// <param name="node">The node to receive from</param>
+        /// <returns>The byte array message from the node</returns>
+        private T[] ReceiveFromNode(NodeStruct<T> node)
+        {
+            var data = node.GetData();
+            return data;
+        }
+
+        /// <summary>
+        /// Find the NodeStruct with the given Task identifier.
+        /// </summary>
+        /// <param name="identifier">The identifier of the Task</param>
+        /// <returns>The NodeStruct</returns>
+        private NodeStruct<T> FindNode(string identifier)
+        {
+            NodeStruct<T> node;
+            return _idToNodeMap.TryGetValue(identifier, out node) ? node : null;
+        }
+
+        private void ScatterHelper(IList<T> messages, List<NodeStruct<T>> order, int count)
         {
             if (count <= 0)
             {
@@ -465,7 +495,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
             }
 
             int i = 0;
-            foreach (NodeStruct nodeStruct in order)
+            foreach (var nodeStruct in order)
             {
                 // The last sublist might be smaller than count if the number of
                 // child tasks is not evenly divisible by count
@@ -481,29 +511,6 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
 
                 i += size;
             }
-        }
-
-        /// <summary>
-        /// Receive a message from the Task represented by the given NodeStruct.
-        /// Removes the NodeStruct from the nodesWithData queue if requested.
-        /// </summary>
-        /// <param name="node">The node to receive from</param>
-        /// <returns>The byte array message from the node</returns>
-        private byte[][] ReceiveFromNode(NodeStruct node)
-        {
-            byte[][] data = node.GetData();
-            return data;
-        }
-
-        /// <summary>
-        /// Find the NodeStruct with the given Task identifier.
-        /// </summary>
-        /// <param name="identifier">The identifier of the Task</param>
-        /// <returns>The NodeStruct</returns>
-        private NodeStruct FindNode(string identifier)
-        {
-            NodeStruct node;
-            return _idToNodeMap.TryGetValue(identifier, out node) ? node : null;
         }
 
         /// <summary>

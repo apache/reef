@@ -42,27 +42,32 @@ using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Wake.Remote;
-using Org.Apache.REEF.Wake.Remote.Impl;
+using Org.Apache.REEF.Wake.Remote.Parameters;
+using Org.Apache.REEF.Wake.StreamingCodec.CommonStreamingCodecs;
 
 namespace Org.Apache.REEF.Network.Examples.GroupCommunication.PipelineBroadcastReduceDriverAndTasks
 {
-    public class PipelinedBroadcastReduceDriver : IStartHandler, IObserver<IEvaluatorRequestor>, IObserver<IAllocatedEvaluator>, IObserver<IActiveContext>, IObserver<IFailedEvaluator>
+    public class PipelinedBroadcastReduceDriver : IStartHandler, IObserver<IEvaluatorRequestor>,
+        IObserver<IAllocatedEvaluator>, IObserver<IActiveContext>, IObserver<IFailedEvaluator>
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(PipelinedBroadcastReduceDriver));
-
+        private readonly int _arraySize;
+        private readonly ICommunicationGroupDriver _commGroup;
+        private readonly IGroupCommDriver _groupCommDriver;
+        private readonly TaskStarter _groupCommTaskStarter;
         private readonly int _numEvaluators;
         private readonly int _numIterations;
-        private readonly int _chunkSize;
-
-        private readonly IGroupCommDriver _groupCommDriver;
-        private readonly ICommunicationGroupDriver _commGroup;
-        private readonly TaskStarter _groupCommTaskStarter;
+        private readonly IConfiguration _tcpPortProviderConfig;
+        private readonly IConfiguration _codecConfig;
 
         [Inject]
         public PipelinedBroadcastReduceDriver(
-            [Parameter(typeof (GroupTestConfig.NumEvaluators))] int numEvaluators,
+            [Parameter(typeof(GroupTestConfig.NumEvaluators))] int numEvaluators,
             [Parameter(typeof(GroupTestConfig.NumIterations))] int numIterations,
+            [Parameter(typeof(GroupTestConfig.StartingPort))] int startingPort,
+            [Parameter(typeof(GroupTestConfig.PortRange))] int portRange,
             [Parameter(typeof(GroupTestConfig.ChunkSize))] int chunkSize,
+            [Parameter(typeof(GroupTestConfig.ArraySize))] int arraySize,
             GroupCommDriver groupCommDriver)
         {
             Logger.Log(Level.Info, "entering the driver code " + chunkSize);
@@ -70,24 +75,31 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.PipelineBroadcastR
             Identifier = "BroadcastStartHandler";
             _numEvaluators = numEvaluators;
             _numIterations = numIterations;
-            _chunkSize = chunkSize;
+            _arraySize = arraySize;
 
-            IConfiguration codecConfig = CodecConfiguration<int[]>.Conf
-                .Set(CodecConfiguration<int[]>.Codec, GenericType<IntArrayCodec>.Class)
+            _tcpPortProviderConfig = TangFactory.GetTang().NewConfigurationBuilder()
+                .BindNamedParameter<TcpPortRangeStart, int>(GenericType<TcpPortRangeStart>.Class,
+                    startingPort.ToString(CultureInfo.InvariantCulture))
+                .BindNamedParameter<TcpPortRangeCount, int>(GenericType<TcpPortRangeCount>.Class,
+                    portRange.ToString(CultureInfo.InvariantCulture))
                 .Build();
 
-            IConfiguration reduceFunctionConfig = ReduceFunctionConfiguration<int[]>.Conf
+            _codecConfig = StreamingCodecConfiguration<int[]>.Conf
+                .Set(StreamingCodecConfiguration<int[]>.Codec, GenericType<IntArrayStreamingCodec>.Class)
+                .Build();
+
+            var reduceFunctionConfig = ReduceFunctionConfiguration<int[]>.Conf
                 .Set(ReduceFunctionConfiguration<int[]>.ReduceFunction, GenericType<ArraySumFunction>.Class)
                 .Build();
 
-            IConfiguration dataConverterConfig = TangFactory.GetTang().NewConfigurationBuilder(
+            var dataConverterConfig = TangFactory.GetTang().NewConfigurationBuilder(
                 PipelineDataConverterConfiguration<int[]>.Conf
                     .Set(PipelineDataConverterConfiguration<int[]>.DataConverter,
                         GenericType<PipelineIntDataConverter>.Class)
                     .Build())
                 .BindNamedParameter<GroupTestConfig.ChunkSize, int>(
                     GenericType<GroupTestConfig.ChunkSize>.Class,
-                    GroupTestConstants.ChunkSize.ToString(CultureInfo.InvariantCulture))
+                    chunkSize.ToString(CultureInfo.InvariantCulture))
                 .Build();
 
             _groupCommDriver = groupCommDriver;
@@ -97,13 +109,11 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.PipelineBroadcastR
                     GroupTestConstants.BroadcastOperatorName,
                     GroupTestConstants.MasterTaskId,
                     TopologyTypes.Tree,
-                    codecConfig,
                     dataConverterConfig)
                 .AddReduce<int[]>(
                     GroupTestConstants.ReduceOperatorName,
                     GroupTestConstants.MasterTaskId,
                     TopologyTypes.Tree,
-                    codecConfig,
                     reduceFunctionConfig,
                     dataConverterConfig)
                 .Build();
@@ -112,7 +122,6 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.PipelineBroadcastR
 
             CreateClassHierarchy();
         }
-
         public string Identifier { get; set; }
 
         public void OnNext(IEvaluatorRequestor evaluatorRequestor)
@@ -125,17 +134,17 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.PipelineBroadcastR
         {
             IConfiguration contextConf = _groupCommDriver.GetContextConfiguration();
             IConfiguration serviceConf = _groupCommDriver.GetServiceConfiguration();
+            serviceConf = Configurations.Merge(serviceConf, _codecConfig, _tcpPortProviderConfig);
             allocatedEvaluator.SubmitContextAndService(contextConf, serviceConf);
         }
-
         public void OnNext(IActiveContext activeContext)
         {
             if (_groupCommDriver.IsMasterTaskContext(activeContext))
             {
-                Logger.Log(Level.Info, "******* Master ID " + activeContext.Id );
+                Logger.Log(Level.Info, "******* Master ID " + activeContext.Id);
 
                 // Configure Master Task
-                IConfiguration partialTaskConf = TangFactory.GetTang().NewConfigurationBuilder(
+                var partialTaskConf = TangFactory.GetTang().NewConfigurationBuilder(
                     TaskConfiguration.ConfigurationModule
                         .Set(TaskConfiguration.Identifier, GroupTestConstants.MasterTaskId)
                         .Set(TaskConfiguration.Task, GenericType<PipelinedMasterTask>.Class)
@@ -148,7 +157,7 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.PipelineBroadcastR
                         _numIterations.ToString(CultureInfo.InvariantCulture))
                     .BindNamedParameter<GroupTestConfig.ArraySize, int>(
                         GenericType<GroupTestConfig.ArraySize>.Class,
-                        GroupTestConstants.ArrayLength.ToString(CultureInfo.InvariantCulture))
+                        _arraySize.ToString(CultureInfo.InvariantCulture))
                     .Build();
 
                 _commGroup.AddTask(GroupTestConstants.MasterTaskId);
@@ -157,8 +166,8 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.PipelineBroadcastR
             else
             {
                 // Configure Slave Task
-                string slaveTaskId = "SlaveTask-" + activeContext.Id;
-                IConfiguration partialTaskConf = TangFactory.GetTang().NewConfigurationBuilder(
+                var slaveTaskId = "SlaveTask-" + activeContext.Id;
+                var partialTaskConf = TangFactory.GetTang().NewConfigurationBuilder(
                     TaskConfiguration.ConfigurationModule
                         .Set(TaskConfiguration.Identifier, slaveTaskId)
                         .Set(TaskConfiguration.Task, GenericType<PipelinedSlaveTask>.Class)
@@ -171,16 +180,12 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.PipelineBroadcastR
                         _numIterations.ToString(CultureInfo.InvariantCulture))
                     .BindNamedParameter<GroupTestConfig.ArraySize, int>(
                         GenericType<GroupTestConfig.ArraySize>.Class,
-                        GroupTestConstants.ArrayLength.ToString(CultureInfo.InvariantCulture))
+                        _arraySize.ToString(CultureInfo.InvariantCulture))
                     .Build();
 
                 _commGroup.AddTask(slaveTaskId);
                 _groupCommTaskStarter.QueueTask(partialTaskConf, activeContext);
             }
-        }
-
-        public void OnNext(IFailedEvaluator value)
-        {
         }
 
         public void OnError(Exception error)
@@ -191,9 +196,13 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.PipelineBroadcastR
         {
         }
 
+        public void OnNext(IFailedEvaluator value)
+        {
+        }
+
         private void CreateClassHierarchy()
         {
-            HashSet<string> clrDlls = new HashSet<string>();
+            var clrDlls = new HashSet<string>();
             clrDlls.Add(typeof(IDriver).Assembly.GetName().Name);
             clrDlls.Add(typeof(ITask).Assembly.GetName().Name);
             clrDlls.Add(typeof(PipelinedBroadcastReduceDriver).Assembly.GetName().Name);
@@ -226,7 +235,7 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.PipelineBroadcastR
             public int[] Reduce(IEnumerable<int[]> elements)
             {
                 int[] result = null;
-                int count = 0;
+                var count = 0;
 
                 foreach (var element in elements)
                 {
@@ -241,7 +250,7 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.PipelineBroadcastR
                             throw new Exception("integer arrays are of different sizes");
                         }
 
-                        for (int i = 0; i < result.Length; i++)
+                        for (var i = 0; i < result.Length; i++)
                         {
                             result[i] += element[i];
                         }
@@ -254,7 +263,6 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.PipelineBroadcastR
             }
         }
 
-
         private class IntArrayCodec : ICodec<int[]>
         {
             [Inject]
@@ -264,19 +272,20 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.PipelineBroadcastR
 
             public byte[] Encode(int[] obj)
             {
-                byte[] result = new byte[sizeof(Int32) * obj.Length];
+                var result = new byte[sizeof (Int32)*obj.Length];
                 Buffer.BlockCopy(obj, 0, result, 0, result.Length);
                 return result;
             }
 
             public int[] Decode(byte[] data)
             {
-                if (data.Length % sizeof(Int32) != 0)
+                if (data.Length%sizeof (Int32) != 0)
                 {
-                    throw new Exception("error inside integer array decoder, byte array length not a multiple of interger size");
+                    throw new Exception(
+                        "error inside integer array decoder, byte array length not a multiple of interger size");
                 }
 
-                int[] result = new int[data.Length / sizeof(Int32)];
+                var result = new int[data.Length/sizeof (Int32)];
                 Buffer.BlockCopy(data, 0, result, 0, data.Length);
                 return result;
             }
@@ -284,8 +293,8 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.PipelineBroadcastR
 
         public class PipelineIntDataConverter : IPipelineDataConverter<int[]>
         {
-            readonly int _chunkSize;
-            
+            private readonly int _chunkSize;
+
             [Inject]
             public PipelineIntDataConverter([Parameter(typeof(GroupTestConfig.ChunkSize))] int chunkSize)
             {
@@ -294,19 +303,19 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.PipelineBroadcastR
 
             public List<PipelineMessage<int[]>> PipelineMessage(int[] message)
             {
-                List<PipelineMessage<int[]>> messageList = new List<PipelineMessage<int[]>>();
-                int totalChunks = message.Length / _chunkSize;
+                var messageList = new List<PipelineMessage<int[]>>();
+                var totalChunks = message.Length/_chunkSize;
 
-                if (message.Length % _chunkSize != 0)
+                if (message.Length%_chunkSize != 0)
                 {
                     totalChunks++;
                 }
 
-                int counter = 0;
-                for (int i = 0; i < message.Length; i += _chunkSize)
+                var counter = 0;
+                for (var i = 0; i < message.Length; i += _chunkSize)
                 {
-                    int[] data = new int[Math.Min(_chunkSize, message.Length - i)];
-                    Buffer.BlockCopy(message, i * sizeof(int), data, 0, data.Length * sizeof(int));
+                    var data = new int[Math.Min(_chunkSize, message.Length - i)];
+                    Buffer.BlockCopy(message, i*sizeof (int), data, 0, data.Length*sizeof (int));
 
                     messageList.Add(counter == totalChunks - 1
                         ? new PipelineMessage<int[]>(data, true)
@@ -320,14 +329,14 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.PipelineBroadcastR
 
             public int[] FullMessage(List<PipelineMessage<int[]>> pipelineMessage)
             {
-                int size = pipelineMessage.Select(x => x.Data.Length).Sum();
-                int[] data = new int[size];
-                int offset = 0;
+                var size = pipelineMessage.Select(x => x.Data.Length).Sum();
+                var data = new int[size];
+                var offset = 0;
 
                 foreach (var message in pipelineMessage)
                 {
-                    Buffer.BlockCopy(message.Data, 0, data, offset, message.Data.Length * sizeof(int));
-                    offset += message.Data.Length * sizeof(int);
+                    Buffer.BlockCopy(message.Data, 0, data, offset, message.Data.Length*sizeof (int));
+                    offset += message.Data.Length*sizeof (int);
                 }
 
                 return data;

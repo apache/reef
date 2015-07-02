@@ -244,7 +244,7 @@ final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
   }
 
   /**
-   * Utility to build a ConfigurationBuilder from an Optional<Configuration></Configuration>.
+   * Utility to build a ConfigurationBuilder from an Optional<Configuration>.
    */
   private static ConfigurationBuilder getConfigurationBuilder(final Optional<Configuration> configuration) {
     if (configuration.isPresent()) {

@@ -130,11 +130,33 @@ public final class ResourceRequestEventImpl implements ResourceRequestEvent {
     }
 
     /**
+     * Add a list of node names.
+     * @see {@link ResourceRequestEventImpl.Builder#addNodeName}
+     */
+    public Builder addNodeNames(final List<String> nodeNames) {
+      for (final String nodeName : nodeNames) {
+        addNodeName(nodeName);
+      }
+      return this;
+    }
+
+    /**
      * Add an entry to rackNameList.
      * @see ResourceRequestEvent#getRackNameList()
      */
     public Builder addRackName(final String rackName) {
       this.rackNameList.add(rackName);
+      return this;
+    }
+
+    /**
+     * Add a list of rack names.
+     * @see {@link ResourceRequestEventImpl.Builder#addRackName}
+     */
+    public Builder addRackNames(final List<String> rackNames) {
+      for (final String rackName : rackNames) {
+        addRackName(rackName);
+      }
       return this;
     }
 

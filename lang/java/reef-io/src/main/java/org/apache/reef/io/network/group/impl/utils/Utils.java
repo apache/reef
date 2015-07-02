@@ -30,7 +30,7 @@ import java.util.Iterator;
  */
 public final class Utils {
 
-  public static final byte[] EmptyByteArr = new byte[0];
+  public static final byte[] EMPTY_BYTE_ARR = new byte[0];
 
   public static GroupCommunicationMessage bldVersionedGCM(final Class<? extends Name<String>> groupName,
                                                           final Class<? extends Name<String>> operName,

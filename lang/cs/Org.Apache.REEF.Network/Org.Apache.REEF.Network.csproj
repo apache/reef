@@ -50,14 +50,8 @@ under the License.
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="StreamingCodec\CommonStreamingCodecs\FloatArrayStreamingCodec.cs" />
-    <Compile Include="StreamingCodec\CommonStreamingCodecs\DoubleArrayStreamingCodec.cs" />
-    <Compile Include="StreamingCodec\CommonStreamingCodecs\FloatStreamingCodec.cs" />
-    <Compile Include="StreamingCodec\CommonStreamingCodecs\IntArrayStreamingCodec.cs" />
-    <Compile Include="StreamingCodec\CommonStreamingCodecs\DoubleStreamingCodec.cs" />
-    <Compile Include="StreamingCodec\CommonStreamingCodecs\IntStreamingCodec.cs" />
-    <Compile Include="Group\Codec\GcmMessageProto.cs" />
-    <Compile Include="Group\Codec\GroupCommunicationMessageCodec.cs" />
+    <Compile Include="Group\Config\CodecToStreamingCodecConfiguration.cs" />
+    <Compile Include="Group\Driver\Impl\GeneralGroupCommunicationMessage.cs" />
     <Compile Include="Group\Config\CodecConfiguration.cs" />
     <Compile Include="Group\Config\GroupCommConfigurationOptions.cs" />
     <Compile Include="Group\Config\PipelineDataConverterConfiguration.cs" />
@@ -155,8 +149,6 @@ under the License.
     <Compile Include="NetworkService\WritableNsConnection.cs" />
     <Compile Include="NetworkService\WritableNsMessage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="StreamingCodec\CodecToStreamingCodec.cs" />
-    <Compile Include="StreamingCodec\IStreamingCodec.cs" />
     <Compile Include="Utilities\BlockingCollectionExtensions.cs" />
     <Compile Include="Utilities\Utils.cs" />
   </ItemGroup>

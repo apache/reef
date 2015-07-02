@@ -22,6 +22,9 @@ import org.apache.reef.annotations.Provided;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Public;
 import org.apache.reef.driver.catalog.ResourceCatalog;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * A request for one ore more Evaluators.
@@ -34,16 +37,43 @@ public final class EvaluatorRequest {
   private final int megaBytes;
   private final int number;
   private final int cores;
+  /**
+   * @deprecated since 0.12.0, should use instead
+   *             {@link EvaluatorRequest#nodeNames} and
+   *             {@link EvaluatorRequest#rackNames}
+   */
+  @Deprecated
   private final ResourceCatalog.Descriptor descriptor;
+  private final List<String> nodeNames;
+  private final List<String> rackNames;
 
+  /**
+   * Deprecated constructor. ResourceCatalog.Descriptor should not be used
+   * anymore. In order to specify the rack names and node names where evaluators
+   * should run on, you should use nodeNames and rackNames lists
+   *
+   * @deprecated since 0.12.0, use constructor with node
+   *             names and rack names as parameters
+   */
+  @Deprecated
   EvaluatorRequest(final int number,
                    final int megaBytes,
                    final int cores,
                    final ResourceCatalog.Descriptor descriptor) {
+    this(number, megaBytes, cores, new ArrayList<String>(), new ArrayList<String>());
+  }
+
+  EvaluatorRequest(final int number,
+      final int megaBytes,
+      final int cores,
+      final List<String> nodeNames,
+      final List<String> rackNames) {
     this.number = number;
     this.megaBytes = megaBytes;
     this.cores = cores;
-    this.descriptor = descriptor;
+    this.nodeNames = nodeNames;
+    this.rackNames = rackNames;
+    this.descriptor = null;
   }
 
   /**
@@ -80,12 +110,16 @@ public final class EvaluatorRequest {
   }
 
   /**
-   * Access the {@link org.apache.reef.driver.catalog.NodeDescriptor} used as the template for this
-   * {@link EvaluatorRequest}.
+   * Access the {@link org.apache.reef.driver.catalog.NodeDescriptor} used as
+   * the template for this {@link EvaluatorRequest}.
    *
-   * @return the {@link org.apache.reef.driver.catalog.NodeDescriptor} used as the template for this
-   * {@link EvaluatorRequest}.
+   * @return the {@link org.apache.reef.driver.catalog.NodeDescriptor} used as
+   *         the template for this {@link EvaluatorRequest}.
+   * @deprecated since 0.12.0. Should use instead
+   *             {@link EvaluatorRequest#getNodeNames()} and
+   *             {@link EvaluatorRequest#getRackNames()}
    */
+  @Deprecated
   public ResourceCatalog.Descriptor getDescriptor() {
     return this.descriptor;
   }
@@ -98,14 +132,36 @@ public final class EvaluatorRequest {
   }
 
   /**
+   * @return the node names that we prefer the Evaluator to run on
+   */
+  public List<String> getNodeNames() {
+    return Collections.unmodifiableList(nodeNames);
+  }
+
+  /**
+   * @return the rack names that we prefer the Evaluator to run on
+   */
+  public List<String> getRackNames() {
+    return Collections.unmodifiableList(rackNames);
+  }
+
+  /**
    * {@link EvaluatorRequest}s are build using this Builder.
    */
   public static final class Builder implements org.apache.reef.util.Builder<EvaluatorRequest> {
 
     private int n = 1;
+    /**
+     * @deprecated since 0.12.0, should use instead
+     *             {@link EvaluatorRequest.Builder#nodeNames} and
+     *             {@link EvaluatorRequest.Builder#rackNames}
+     */
+    @Deprecated
     private ResourceCatalog.Descriptor descriptor = null;
     private int megaBytes = -1;
     private int cores = 1; //if not set, default to 1
+    private final List<String> nodeNames = new ArrayList<>();
+    private final List<String> rackNames = new ArrayList<>();
 
     private Builder() {
     }
@@ -147,21 +203,48 @@ public final class EvaluatorRequest {
     }
 
     /**
+     * Adds a node name.It is the preferred location where the evaluator should
+     * run on. If the node is available, the RM will try to allocate the
+     * evaluator there
+     */
+    public Builder addNodeName(final String nodeName) {
+      this.nodeNames.add(nodeName);
+      return this;
+    }
+
+    /**
+     * Adds a rack name. It is the preferred location where the evaluator should
+     * run on. If the rack is available, the RM will try to allocate the
+     * evaluator in one of its nodes. The RM will try to match node names first,
+     * and then fallback to rack names
+     */
+    public Builder addRackName(final String rackName) {
+      this.rackNames.add(rackName);
+      return this;
+    }
+
+    /**
      * Builds the {@link EvaluatorRequest}.
      */
     @Override
     public EvaluatorRequest build() {
-      return new EvaluatorRequest(this.n, this.megaBytes, this.cores, this.descriptor);
+      return new EvaluatorRequest(this.n, this.megaBytes, this.cores, this.nodeNames, this.rackNames);
     }
 
     /**
      * Pre-fill this {@link EvaluatorRequest} from the given
-     * {@link org.apache.reef.driver.catalog.NodeDescriptor}. Any value not changed in subsequent calls to
-     * this Builder will be taken from the given descriptor.
+     * {@link org.apache.reef.driver.catalog.NodeDescriptor}. Any value not
+     * changed in subsequent calls to this Builder will be taken from the given
+     * descriptor.
      *
-     * @param rd the descriptor used to pre-fill this request.
+     * @param rd
+     *          the descriptor used to pre-fill this request.
+     * @deprecated since 0.12.0. Replace with
+     *             {@link EvaluatorRequest.Builder#addRackName} and
+     *             {@link EvaluatorRequest.Builder#addNodeName}
      * @return this
      */
+    @Deprecated
     public Builder fromDescriptor(final ResourceCatalog.Descriptor rd) {
       this.descriptor = rd;
       return this;

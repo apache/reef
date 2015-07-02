@@ -333,8 +333,8 @@ public class ClassHierarchyImpl implements JavaClassHierarchy {
     // Finally, do things that might introduce cycles that invlove c.
     // This has to be below registerClass, which ensures that any cycles
     // this stuff introduces are broken.
-    for (Class<?> inner_class : c.getDeclaredClasses()) {
-      register(ReflectionUtilities.getFullName(inner_class));
+    for (Class<?> innerClass : c.getDeclaredClasses()) {
+      register(ReflectionUtilities.getFullName(innerClass));
     }
     if (n instanceof ClassNode) {
       ClassNode<?> cls = (ClassNode<?>) n;

@@ -22,13 +22,13 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Org.Apache.REEF.Network.StreamingCodec;
-using Org.Apache.REEF.Network.StreamingCodec.CommonStreamingCodecs;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Wake.Remote;
 using Org.Apache.REEF.Wake.Remote.Impl;
+using Org.Apache.REEF.Wake.StreamingCodec;
+using Org.Apache.REEF.Wake.StreamingCodec.CommonStreamingCodecs;
 
 namespace Org.Apache.REEF.Network.Tests.GroupCommunication
 {
@@ -50,12 +50,15 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
             IStreamingCodec<double[]> doubleArrCodec = injector.GetInstance<DoubleArrayStreamingCodec>();
             IStreamingCodec<float[]> floatArrCodec = injector.GetInstance<FloatArrayStreamingCodec>();
 
+            IStreamingCodec<string> stringCodec = injector.GetInstance<StringStreamingCodec>();
+
             CancellationToken token = new CancellationToken();
 
             int obj = 5;
             int[] intArr = {1, 2};
             double[] doubleArr = { 1, 2 };
             float[] floatArr = { 1, 2 };
+            string stringObj = "hello";
 
             var stream = new MemoryStream();
             IDataWriter writer = new StreamDataWriter(stream);
@@ -71,6 +74,8 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
             await doubleArrCodec.WriteAsync(doubleArr, writer, token);
             floatArrCodec.Write(floatArr, writer);
             await floatArrCodec.WriteAsync(floatArr, writer, token);
+            stringCodec.Write(stringObj, writer);
+            await stringCodec.WriteAsync(stringObj, writer, token);
 
             stream.Position = 0;
             IDataReader reader = new StreamDataReader(stream);
@@ -86,13 +91,17 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
             double[] resArr4 = await doubleArrCodec.ReadAsync(reader, token);
             float[] resArr5 = floatArrCodec.Read(reader);
             float[] resArr6 = await floatArrCodec.ReadAsync(reader, token);
-            
+            string resArr7 = stringCodec.Read(reader);
+            string resArr8 = await stringCodec.ReadAsync(reader, token);
+
             Assert.AreEqual(obj, res1);
             Assert.AreEqual(obj + 1, res2);
             Assert.AreEqual(obj + 2, res3);
             Assert.AreEqual(obj + 3, res4);
             Assert.AreEqual(obj + 4, res5);
             Assert.AreEqual(obj + 5, res6);
+            Assert.AreEqual(stringObj, resArr7);
+            Assert.AreEqual(stringObj, resArr8);
 
             for (int i = 0; i < intArr.Length; i++)
             {
