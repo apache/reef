@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -25,7 +25,6 @@ import org.apache.reef.client.parameters.DriverConfigurationProviders;
 import org.apache.reef.io.TcpPortConfigurationProvider;
 import org.apache.reef.runtime.yarn.client.YarnClientConfiguration;
 import org.apache.reef.tang.Configuration;
-import org.apache.reef.tang.Configurations;
 import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.wake.remote.ports.parameters.TcpPortRangeBegin;
@@ -60,24 +59,21 @@ public final class HelloReefYarnTcp {
         .build();
   }
 
-
   private static Configuration getRuntimeConfiguration(
       int tcpBeginPort,
       int tcpRangeCount,
       int tcpTryCount) {
-    final Configuration runtimeConfiguration = YarnClientConfiguration.CONF.build();
-    final Configuration userproviderConfiguration = Tang.Factory.getTang().newConfigurationBuilder()
+
+    return Tang.Factory.getTang().newConfigurationBuilder(YarnClientConfiguration.CONF.build())
         .bindSetEntry(DriverConfigurationProviders.class, TcpPortConfigurationProvider.class)
         .bindNamedParameter(TcpPortRangeBegin.class, Integer.toString(tcpBeginPort))
         .bindNamedParameter(TcpPortRangeCount.class, Integer.toString(tcpRangeCount))
         .bindNamedParameter(TcpPortRangeTryCount.class, Integer.toString(tcpTryCount))
         .build();
-    return Configurations.merge(runtimeConfiguration, userproviderConfiguration);
   }
 
   /**
    * Start Hello REEF job. Runs method runHelloReef().
-   *
    * @param args command line parameters.
    * @throws org.apache.reef.tang.exceptions.BindException      configuration error.
    * @throws org.apache.reef.tang.exceptions.InjectionException configuration error.
