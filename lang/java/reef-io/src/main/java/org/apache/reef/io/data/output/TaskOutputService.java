@@ -43,7 +43,7 @@ import java.util.logging.Logger;
  */
 @Unit
 public final class TaskOutputService implements OutputService {
-  private static Logger LOG = Logger.getLogger(TaskOutputService.class.getName());
+  private static final Logger LOG = Logger.getLogger(TaskOutputService.class.getName());
 
   /**
    * Output stream provider object through which tasks create output streams.
