@@ -109,7 +109,7 @@ final class DefaultNSMessage<T> implements Message<T> {
   }
 
   /**
-   * Returns a size of messages
+   * Returns a size of messages.
    *
    * @return a size of messages
    */
@@ -122,7 +122,7 @@ final class DefaultNSMessage<T> implements Message<T> {
   }
 
   /**
-   * Returns a string representation of this object
+   * Returns a string representation of this object.
    *
    * @return a string representation of this object
    */

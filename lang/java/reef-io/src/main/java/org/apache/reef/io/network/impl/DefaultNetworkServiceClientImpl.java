@@ -47,11 +47,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Default NetworkServiceClient implementation
+ * Default NetworkServiceClient implementation.
  */
-public final class DefaultNetworkServiceImpl implements NetworkServiceClient {
+public final class DefaultNetworkServiceClientImpl implements NetworkServiceClient {
 
-  private static final Logger LOG = Logger.getLogger(DefaultNetworkServiceImpl.class.getName());
+  private static final Logger LOG = Logger.getLogger(DefaultNetworkServiceClientImpl.class.getName());
 
   private final IdentifierFactory idFactory;
   private final NameResolver nameResolver;
@@ -66,7 +66,7 @@ public final class DefaultNetworkServiceImpl implements NetworkServiceClient {
   private final EStage<Identifier> nameServiceUnregisteringStage;
 
   @Inject
-  private DefaultNetworkServiceImpl(
+  private DefaultNetworkServiceClientImpl(
       @Parameter(NetworkServiceParameters.NetworkServiceIdentifierFactory.class) final IdentifierFactory idFactory,
       @Parameter(NetworkServiceParameters.NetworkServicePort.class) final int nsPort,
       final TransportFactory transportFactory,
@@ -155,7 +155,7 @@ public final class DefaultNetworkServiceImpl implements NetworkServiceClient {
   }
 
   /**
-   * Open a channel for remoteId
+   * Open a channel for remoteId.
    * @param remoteId
    * @throws NetworkException
    */
@@ -173,7 +173,7 @@ public final class DefaultNetworkServiceImpl implements NetworkServiceClient {
   }
 
   /**
-   * Gets a ConnectionFactory
+   * Gets a ConnectionFactory.
    * @param connectionFactoryId the identifier of the ConnectionFActory
    */
 

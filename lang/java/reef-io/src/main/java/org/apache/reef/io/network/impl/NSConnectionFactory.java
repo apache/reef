@@ -42,10 +42,10 @@ final class NSConnectionFactory<T> implements ConnectionFactory<T> {
   private final Codec<T> eventCodec;
   private final EventHandler<Message<T>> eventHandler;
   private final LinkListener<Message<T>> eventListener;
-  private final DefaultNetworkServiceImpl networkService;
+  private final DefaultNetworkServiceClientImpl networkService;
 
   NSConnectionFactory(
-      final DefaultNetworkServiceImpl networkService,
+      final DefaultNetworkServiceClientImpl networkService,
       final String connectionFactoryId,
       final Codec<T> eventCodec,
       final EventHandler<Message<T>> eventHandler,

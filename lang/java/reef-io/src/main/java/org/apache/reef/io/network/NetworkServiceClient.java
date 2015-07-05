@@ -19,7 +19,7 @@
 package org.apache.reef.io.network;
 
 import org.apache.reef.exception.evaluator.NetworkException;
-import org.apache.reef.io.network.impl.DefaultNetworkServiceImpl;
+import org.apache.reef.io.network.impl.DefaultNetworkServiceClientImpl;
 import org.apache.reef.tang.annotations.DefaultImplementation;
 import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.wake.EventHandler;
@@ -29,7 +29,7 @@ import org.apache.reef.wake.remote.transport.LinkListener;
 
 import java.net.SocketAddress;
 
-@DefaultImplementation(DefaultNetworkServiceImpl.class)
+@DefaultImplementation(DefaultNetworkServiceClientImpl.class)
 /**
  * NetworkServiceClient.
  * It can bind multiple ConnectionFactory.
@@ -53,7 +53,7 @@ public interface NetworkServiceClient extends AutoCloseable {
   void unregisterConnectionFactory(final Class<? extends Name<String>> connectionFactoryId);
 
   /**
-   * Gets an instance of ConnectionFactory corresponding to the connectionFactoryId
+   * Gets an instance of ConnectionFactory corresponding to the connectionFactoryId.
    * @param connectionFactoryId the identifier of ConnectionFactory
    */
   <T> ConnectionFactory<T> getConnectionFactory(final Class<? extends Name<String>> connectionFactoryId);
@@ -71,12 +71,12 @@ public interface NetworkServiceClient extends AutoCloseable {
   void unregisterId(final Identifier nsId);
 
   /**
-   * Get network service id which is equal to the registered id
+   * Get network service id which is equal to the registered id.
    */
   Identifier getNetworkServiceId();
 
   /**
-   * Get local address
+   * Get local address.
    */
   SocketAddress getLocalAddress();
 }

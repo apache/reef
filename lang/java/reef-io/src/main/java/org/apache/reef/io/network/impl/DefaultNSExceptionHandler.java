@@ -25,7 +25,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Default exception handler
+ * Default exception handler.
  */
 public final class DefaultNSExceptionHandler implements EventHandler<Exception> {
 
