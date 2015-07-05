@@ -198,13 +198,8 @@ public final class DefaultNetworkServiceClientImpl implements NetworkServiceClie
   }
 
   @Override
-  public Identifier getNetworkServiceId() {
+  public Identifier getNetworkServiceClientId() {
     return this.myId;
-  }
-
-  @Override
-  public SocketAddress getLocalAddress() {
-    return transport.getLocalAddress();
   }
 
   @Override

@@ -80,7 +80,7 @@ final class NSConnectionFactory<T> implements ConnectionFactory<T> {
   }
 
   Identifier getSrcId() {
-    return this.networkService.getNetworkServiceId();
+    return this.networkService.getNetworkServiceClientId();
   }
 
   EventHandler<Message<T>> getEventHandler() {

@@ -27,18 +27,24 @@ import org.apache.reef.wake.Identifier;
 import org.apache.reef.wake.remote.Codec;
 import org.apache.reef.wake.remote.transport.LinkListener;
 
-import java.net.SocketAddress;
-
 @DefaultImplementation(DefaultNetworkServiceClientImpl.class)
 /**
  * NetworkServiceClient.
- * It can bind multiple ConnectionFactory.
+ *
+ * NetworkServiceClient is a service which is designed for communicating messages with each other.
+ * Users can send messages with NetworkServiceClient, by registering their Codec, EventHandler, and LinkListener.
  */
 public interface NetworkServiceClient extends AutoCloseable {
 
   /**
-   * Creates an instance of ConnectionFactory corresponding to the connectionFactoryId.
+   * Registers an instance of ConnectionFactory corresponding to the connectionFactoryId.
    * Binds Codec, EventHandler, and LinkListener to the ConnectionFactory.
+   * ConnectionFactory can create multiple connections between other NetworkServiceClients.
+   *
+   * @param connectionFactoryId a connection factory id
+   * @param codec a codec for type <T>
+   * @param eventHandler an event handler for type <T>
+   * @param linkListener a link listener
    * @throws NetworkException throws a NetworkException when duplicated connectionFactoryId exists.
    */
   <T> void registerConnectionFactory(final Class<? extends Name<String>> connectionFactoryId,
@@ -47,36 +53,33 @@ public interface NetworkServiceClient extends AutoCloseable {
                                             final LinkListener<Message<T>> linkListener) throws NetworkException;
 
   /**
-   * Unregisters connectionFactory
-   * @param connectionFactoryId
+   * Unregisters a connectionFactory corresponding to the connectionFactoryId.
+   * @param connectionFactoryId a connection factory id
    */
   void unregisterConnectionFactory(final Class<? extends Name<String>> connectionFactoryId);
 
   /**
-   * Gets an instance of ConnectionFactory corresponding to the connectionFactoryId.
-   * @param connectionFactoryId the identifier of ConnectionFactory
+   * Gets an instance of ConnectionFactory which is registered by the registerConnectionFactory method.
+   * @param connectionFactoryId a connection factory id
    */
   <T> ConnectionFactory<T> getConnectionFactory(final Class<? extends Name<String>> connectionFactoryId);
 
   /**
-   * Register task identifier.
-   * @param nsId
+   * Registers network service client identifier.
+   * This can be used for destination identifier
+   * @param nsId network service client identifier
    */
   void registerId(final Identifier nsId);
 
   /**
-   * Unregister task identifier.
-   * @param nsId
+   * Unregister network service client identifier.
+   * @param nsId network service client identifier
    */
   void unregisterId(final Identifier nsId);
 
   /**
-   * Get network service id which is equal to the registered id.
+   * Gets a network service client id which is equal to the registered id.
    */
-  Identifier getNetworkServiceId();
+  Identifier getNetworkServiceClientId();
 
-  /**
-   * Get local address.
-   */
-  SocketAddress getLocalAddress();
 }
