@@ -57,8 +57,7 @@ public final class DefaultNetworkServiceClientImpl implements NetworkServiceClie
   private final NameResolver nameResolver;
   private final Transport transport;
   private final EventHandler<TransportEvent> recvHandler;
-  private final ConcurrentMap<String, NSConnectionFactory> connectionFactoryMap;
-  private final ConcurrentMap<String, Boolean> isStreamingCodecMap;
+  private final ConcurrentMap<String, NSConnectionFactory> connFactoryMap;
   private Identifier myId;
   private final Codec<DefaultNSMessage> nsCodec;
   private final LinkListener<DefaultNSMessage> nsLinkListener;
@@ -71,13 +70,11 @@ public final class DefaultNetworkServiceClientImpl implements NetworkServiceClie
       @Parameter(NetworkServiceParameters.NetworkServicePort.class) final int nsPort,
       final TransportFactory transportFactory,
       final NameResolver nameResolver) {
-
     this.idFactory = idFactory;
-    this.connectionFactoryMap = new ConcurrentHashMap<>();
-    this.isStreamingCodecMap = new ConcurrentHashMap<>();
-    this.nsCodec = new DefaultNSMessageCodec(idFactory, connectionFactoryMap, isStreamingCodecMap);
-    this.nsLinkListener = new NetworkServiceLinkListener(connectionFactoryMap);
-    this.recvHandler = new NetworkServiceReceiveHandler(connectionFactoryMap, nsCodec);
+    this.connFactoryMap = new ConcurrentHashMap<>();
+    this.nsCodec = new DefaultNSMessageCodec(idFactory, connFactoryMap);
+    this.nsLinkListener = new NetworkServiceLinkListener(connFactoryMap);
+    this.recvHandler = new NetworkServiceReceiveHandler(connFactoryMap, nsCodec);
     this.nameResolver = nameResolver;
     this.transport = transportFactory.newInstance(nsPort, recvHandler, recvHandler, new DefaultNSExceptionHandler());
 
@@ -113,28 +110,25 @@ public final class DefaultNetworkServiceClientImpl implements NetworkServiceClie
   }
 
   @Override
-  public synchronized <T> void registerConnectionFactory(final Class<? extends Name<String>> connectionFactoryId,
+  public synchronized <T> void registerConnectionFactory(final Class<? extends Name<String>> connFactoryId,
                                                          final Codec<T> codec,
                                                          final EventHandler<Message<T>> eventHandler,
                                                          final LinkListener<Message<T>> linkListener) throws NetworkException {
-
-    final String connFactoryId = connectionFactoryId.getName();
-    if (connectionFactoryMap.get(connFactoryId) != null) {
-      throw new NetworkException("ConnectionFactory " + connectionFactoryId + " was already registered.");
+    final String id = connFactoryId.getName();
+    if (connFactoryMap.get(id) != null) {
+      throw new NetworkException("ConnectionFactory " + connFactoryId + " was already registered.");
     }
-
-    connectionFactoryMap.put(connFactoryId, new NSConnectionFactory<>(this, connFactoryId, codec, eventHandler, linkListener));
-    isStreamingCodecMap.put(connFactoryId, codec instanceof StreamingCodec);
+    connFactoryMap.put(id, new NSConnectionFactory<>(this, id, codec, eventHandler, linkListener));
   }
 
   @Override
-  public synchronized void unregisterConnectionFactory(final Class<? extends Name<String>> connectionFactoryId) {
-    final String connFactoryId = connectionFactoryId.getName();
-
-    final ConnectionFactory  connFactory = connectionFactoryMap.get(connFactoryId);
+  public synchronized void unregisterConnectionFactory(final Class<? extends Name<String>> connFactoryId) {
+    final String id = connFactoryId.getName();
+    final ConnectionFactory  connFactory = connFactoryMap.get(id);
     if (connFactory != null) {
-      connectionFactoryMap.remove(connFactoryId);
-      isStreamingCodecMap.remove(connFactoryId);
+      connFactoryMap.remove(id);
+    } else {
+      LOG.log(Level.WARNING, "ConnectionFactory of {0} is null", id);
     }
   }
 
@@ -174,16 +168,14 @@ public final class DefaultNetworkServiceClientImpl implements NetworkServiceClie
 
   /**
    * Gets a ConnectionFactory.
-   * @param connectionFactoryId the identifier of the ConnectionFActory
+   * @param connFactoryId the identifier of the ConnectionFActory
    */
 
   @Override
-  public <T> ConnectionFactory<T> getConnectionFactory(final Class<? extends Name<String>> connectionFactoryId) {
-
-    final ConnectionFactory<T> connFactory = connectionFactoryMap.get(connectionFactoryId.getName());
-
+  public <T> ConnectionFactory<T> getConnectionFactory(final Class<? extends Name<String>> connFactoryId) {
+    final ConnectionFactory<T> connFactory = connFactoryMap.get(connFactoryId.getName());
     if (connFactory == null) {
-      throw new RuntimeException("Cannot find ConnectionFactory of " + connectionFactoryId + ".");
+      throw new RuntimeException("Cannot find ConnectionFactory of " + connFactoryId + ".");
     }
 
     return connFactory;
@@ -191,9 +183,9 @@ public final class DefaultNetworkServiceClientImpl implements NetworkServiceClie
 
   @Override
   public void unregisterId(final Identifier nsId) {
-    this.myId = null;
     LOG.log(Level.FINEST, "Unbinding {0} to NetworkService@({1})",
         new Object[]{nsId, this.transport.getLocalAddress()});
+    this.myId = null;
     this.nameServiceUnregisteringStage.onNext(nsId);
   }
 

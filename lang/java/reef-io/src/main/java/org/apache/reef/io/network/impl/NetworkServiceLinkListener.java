@@ -23,19 +23,18 @@ import org.apache.reef.wake.remote.transport.LinkListener;
 import java.net.SocketAddress;
 import java.util.Map;
 
-
 final class NetworkServiceLinkListener implements LinkListener<DefaultNSMessage> {
 
-  private final Map<String, NSConnectionFactory> connectionFactoryMap;
+  private final Map<String, NSConnectionFactory> connFactoryMap;
 
   NetworkServiceLinkListener(
-      final Map<String, NSConnectionFactory> connectionFactoryMap) {
-    this.connectionFactoryMap = connectionFactoryMap;
+      final Map<String, NSConnectionFactory> connFactoryMap) {
+    this.connFactoryMap = connFactoryMap;
   }
 
   @Override
   public void onSuccess(final DefaultNSMessage message) {
-    final LinkListener listener = connectionFactoryMap.get(message.getConnectionFactoryId()).getLinkListener();
+    final LinkListener listener = connFactoryMap.get(message.getConnectionFactoryId()).getLinkListener();
     if (listener != null) {
       listener.onSuccess(message);
     }
@@ -44,7 +43,7 @@ final class NetworkServiceLinkListener implements LinkListener<DefaultNSMessage>
 
   @Override
   public void onException(final Throwable cause, final SocketAddress remoteAddress, final DefaultNSMessage message) {
-    final LinkListener listener = connectionFactoryMap.get(message.getConnectionFactoryId()).getLinkListener();
+    final LinkListener listener = connFactoryMap.get(message.getConnectionFactoryId()).getLinkListener();
     if (listener != null) {
       listener.onException(cause, remoteAddress, message);
     }

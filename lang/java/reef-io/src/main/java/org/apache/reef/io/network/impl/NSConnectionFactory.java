@@ -34,11 +34,10 @@ import java.util.concurrent.ConcurrentMap;
 /**
  * A connection factory which is created by NetworkService.
  */
-
 final class NSConnectionFactory<T> implements ConnectionFactory<T> {
 
   private final ConcurrentMap<Identifier, Connection<T>> connectionMap;
-  private final String connectionFactoryId;
+  private final String connFactoryId;
   private final Codec<T> eventCodec;
   private final EventHandler<Message<T>> eventHandler;
   private final LinkListener<Message<T>> eventListener;
@@ -46,14 +45,14 @@ final class NSConnectionFactory<T> implements ConnectionFactory<T> {
 
   NSConnectionFactory(
       final DefaultNetworkServiceClientImpl networkService,
-      final String connectionFactoryId,
+      final String connFactoryId,
       final Codec<T> eventCodec,
       final EventHandler<Message<T>> eventHandler,
       final LinkListener<Message<T>> eventListener) {
 
     this.networkService = networkService;
     this.connectionMap = new ConcurrentHashMap<>();
-    this.connectionFactoryId = connectionFactoryId;
+    this.connFactoryId = connFactoryId;
     this.eventCodec = eventCodec;
     this.eventHandler = eventHandler;
     this.eventListener = eventListener;
@@ -76,7 +75,7 @@ final class NSConnectionFactory<T> implements ConnectionFactory<T> {
   }
 
   String getConnectionFactoryId() {
-    return this.connectionFactoryId;
+    return this.connFactoryId;
   }
 
   Identifier getSrcId() {

@@ -26,28 +26,28 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
- * NSMessage codec.
- *
+ * DefaultDNSMessage codec.
+ * This codec encodes/decodes DefaultNSMessages.
  */
 final class DefaultNSMessageCodec implements Codec<DefaultNSMessage> {
 
   private final IdentifierFactory factory;
-  private final Map<String, NSConnectionFactory> connectionFactoryMap;
-  private final Map<String, Boolean> isStreamingCodecMap;
+  private final Map<String, NSConnectionFactory> connFactoryMap;
+  private final ConcurrentMap<String, Boolean> isStreamingCodecMap;
 
   /**
    * Constructs a network message codec.
    */
   DefaultNSMessageCodec(
       final IdentifierFactory factory,
-      final Map<String, NSConnectionFactory> connectionFactoryMap,
-      final Map<String, Boolean> isStreamingCodecMap) {
-
+      final Map<String, NSConnectionFactory> connFactoryMap) {
     this.factory = factory;
-    this.connectionFactoryMap = connectionFactoryMap;
-    this.isStreamingCodecMap = isStreamingCodecMap;
+    this.connFactoryMap = connFactoryMap;
+    this.isStreamingCodecMap = new ConcurrentHashMap<>();
   }
 
   /**
@@ -57,8 +57,12 @@ final class DefaultNSMessageCodec implements Codec<DefaultNSMessage> {
    */
   @Override
   public byte[] encode(final DefaultNSMessage obj) {
-    final Codec codec = connectionFactoryMap.get(obj.getConnectionFactoryId()).getCodec();
-    final Boolean isStreamingCodec = isStreamingCodecMap.get(obj.getConnectionFactoryId());
+    final Codec codec = connFactoryMap.get(obj.getConnectionFactoryId()).getCodec();
+    Boolean isStreamingCodec = isStreamingCodecMap.get(obj.getConnectionFactoryId());
+    if (isStreamingCodec == null) {
+      isStreamingCodec = codec instanceof StreamingCodec;
+      isStreamingCodecMap.putIfAbsent(obj.getConnectionFactoryId(), isStreamingCodec);
+    }
 
     try (final ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
       try (final DataOutputStream daos = new DataOutputStream(baos)) {
@@ -97,13 +101,17 @@ final class DefaultNSMessageCodec implements Codec<DefaultNSMessage> {
 
     try (final ByteArrayInputStream bais = new ByteArrayInputStream(data)) {
       try (final DataInputStream dais = new DataInputStream(bais)) {
-        final String connectionFactoryId = dais.readUTF();
+        final String connFactoryId = dais.readUTF();
         final Identifier srcId = factory.getNewInstance(dais.readUTF());
         final Identifier destId = factory.getNewInstance(dais.readUTF());
         final int size = dais.readInt();
         final List list = new ArrayList(size);
-        final boolean isStreamingCodec = isStreamingCodecMap.get(connectionFactoryId);
-        final Codec codec = connectionFactoryMap.get(connectionFactoryId).getCodec();
+        final Codec codec = connFactoryMap.get(connFactoryId).getCodec();
+        Boolean isStreamingCodec = isStreamingCodecMap.get(connFactoryId);
+        if (isStreamingCodec == null) {
+          isStreamingCodec = codec instanceof StreamingCodec;
+          isStreamingCodecMap.putIfAbsent(connFactoryId, isStreamingCodec);
+        }
 
         if (isStreamingCodec) {
           for (int i = 0; i < size; i++) {
@@ -119,7 +127,7 @@ final class DefaultNSMessageCodec implements Codec<DefaultNSMessage> {
         }
 
         return new DefaultNSMessage(
-            connectionFactoryId,
+            connFactoryId,
             srcId,
             destId,
             list

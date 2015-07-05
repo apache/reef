@@ -25,28 +25,32 @@ import java.net.SocketAddress;
 import java.util.List;
 
 
+/**
+ * DefaultNSMessage implementation.
+ * This is used for messages of NetworkServiceClient.
+ */
 final class DefaultNSMessage<T> implements Message<T> {
 
   private final List<T> messages;
   private SocketAddress remoteAddr;
-  private final String connectionFactoryId;
+  private final String connFactoryId;
   private final Identifier srcId;
   private final Identifier remoteId;
 
   /**
    * Constructs a network service message.
    *
-   * @param connectionFactoryId the connection factory identifier
+   * @param connFactoryId the connection factory identifier
    * @param srcId      the source identifier
    * @param remoteId   the remote identifier
    * @param messages  the list of messages
    */
   public DefaultNSMessage(
-      final String connectionFactoryId,
+      final String connFactoryId,
       final Identifier srcId,
       final Identifier remoteId,
       final List<T> messages) {
-    this.connectionFactoryId = connectionFactoryId;
+    this.connFactoryId = connFactoryId;
     this.srcId = srcId;
     this.remoteId = remoteId;
     this.messages = messages;
@@ -57,20 +61,11 @@ final class DefaultNSMessage<T> implements Message<T> {
   }
 
   /**
-   * Gets a remote socket address.
-   *
-   * @return a remote socket address
-   */
-  public SocketAddress getRemoteAddress() {
-    return remoteAddr;
-  }
-
-
-  /**
    * Gets a remote identifier.
    *
    * @return a remote id
    */
+  @Override
   public Identifier getDestId() {
     return remoteId;
   }
@@ -81,7 +76,7 @@ final class DefaultNSMessage<T> implements Message<T> {
    * @return a connection factory id
    */
   public String getConnectionFactoryId() {
-    return connectionFactoryId;
+    return connFactoryId;
   }
 
 
@@ -90,33 +85,12 @@ final class DefaultNSMessage<T> implements Message<T> {
    *
    * @return a source id
    */
+  @Override
   public Identifier getSrcId() {
     return srcId;
   }
 
-  /**
-   * Returns a message at the index of list.
-   * If index is bigger than size, it returns null.
-   *
-   * @param index
-   * @return message at index
-   */
-  public T getDataAt(final int index) {
-    if (index >= messages.size()) {
-      return null;
-    }
-    return messages.get(index);
-  }
-
-  /**
-   * Returns a size of messages.
-   *
-   * @return a size of messages
-   */
-  public int getDataSize() {
-    return messages.size();
-  }
-
+  @Override
   public List<T> getData() {
     return messages;
   }

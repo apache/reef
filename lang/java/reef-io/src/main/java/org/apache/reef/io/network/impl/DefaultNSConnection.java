@@ -37,8 +37,8 @@ final class DefaultNSConnection<T> implements Connection<T> {
 
   /**
    * Constructs a connection for remoteId.
-   * @param connFactory
-   * @param remoteId
+   * @param connFactory a connection factor of this connection.
+   * @param remoteId a remote identifier
    */
   DefaultNSConnection(
       final NSConnectionFactory connFactory,
@@ -54,6 +54,7 @@ final class DefaultNSConnection<T> implements Connection<T> {
     link = connFactory.openLink(remoteId);
   }
 
+  @Override
   public void write(final List<T> messageList) throws NetworkException {
     final DefaultNSMessage<T> nsMessage = new DefaultNSMessage<>(
         connFactory.getConnectionFactoryId(),
@@ -75,14 +76,21 @@ final class DefaultNSConnection<T> implements Connection<T> {
   public void close() {
     if (closed.compareAndSet(false, true)) {
       connFactory.removeConnection(this.remoteId);
-      link = null;   // TODO: Link should be closed. Current link interface does not have .close() method.
+      link = null;
     }
   }
 
   @Override
   public String toString() {
-    return "Connection from" + connFactory.getSrcId() + ":"
-        + connFactory.getConnectionFactoryId() + " to "
-        + remoteId + ":" + connFactory.getConnectionFactoryId();
+    StringBuilder sb = new StringBuilder();
+    sb.append("Connection from")
+        .append(connFactory.getSrcId())
+        .append(":")
+        .append(connFactory.getConnectionFactoryId())
+        .append(" to ")
+        .append(remoteId)
+        .append(":")
+        .append(connFactory.getConnectionFactoryId());
+    return sb.toString();
   }
 }

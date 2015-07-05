@@ -30,22 +30,22 @@ import java.util.Map;
  */
 final class NetworkServiceReceiveHandler implements EventHandler<TransportEvent> {
 
-  private final Map<String, NSConnectionFactory> connectionFactoryMap;
-  private final Codec<DefaultNSMessage> nsEventCodec;
+  private final Map<String, NSConnectionFactory> connFactoryMap;
+  private final Codec<DefaultNSMessage> codec;
 
   NetworkServiceReceiveHandler(
-      final Map<String, NSConnectionFactory> connectionFactoryMap,
-      final Codec<DefaultNSMessage> nsEventCodec) {
-    this.connectionFactoryMap = connectionFactoryMap;
-    this.nsEventCodec = nsEventCodec;
+      final Map<String, NSConnectionFactory> connFactoryMap,
+      final Codec<DefaultNSMessage> codec) {
+    this.connFactoryMap = connFactoryMap;
+    this.codec = codec;
   }
 
   @Override
   public void onNext(final TransportEvent transportEvent) {
-    final DefaultNSMessage decodedEvent = nsEventCodec.decode(transportEvent.getData());
-    decodedEvent.setRemoteAddress(transportEvent.getRemoteAddress());
-    final NSConnectionFactory connFactory = connectionFactoryMap.get(decodedEvent.getConnectionFactoryId());
+    final DefaultNSMessage nsMessage = codec.decode(transportEvent.getData());
+    nsMessage.setRemoteAddress(transportEvent.getRemoteAddress());
+    final NSConnectionFactory connFactory = connFactoryMap.get(nsMessage.getConnectionFactoryId());
     final EventHandler eventHandler = connFactory.getEventHandler();
-    eventHandler.onNext(decodedEvent);
+    eventHandler.onNext(nsMessage);
   }
 }
