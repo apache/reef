@@ -29,6 +29,8 @@ import org.apache.reef.io.network.naming.NameServer;
 import org.apache.reef.io.network.util.StringCodec;
 import org.apache.reef.io.network.util.StringIdentifierFactory;
 import org.apache.reef.services.network.util.Monitor;
+import org.apache.reef.services.network.util.StreamingIntegerCodec;
+import org.apache.reef.services.network.util.StreamingStringCodec;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Injector;
 import org.apache.reef.tang.Tang;
@@ -133,6 +135,64 @@ public class DefaultNetworkServiceTest {
   }
 
   /**
+   * NetworkService streaming messaging test
+   */
+  @Test
+  public void testStreamingMessagingNetworkService() throws Exception {
+    LOG.log(Level.FINEST, name.getMethodName());
+
+    // name server
+    final Injector injector = Tang.Factory.getTang().newInjector();
+    final NameServer nameServer = injector.getInstance(NameServer.class);
+    final Configuration netConf = NameResolverConfiguration.CONF
+        .set(NameResolverConfiguration.NAME_SERVER_HOSTNAME, localAddress)
+        .set(NameResolverConfiguration.NAME_SERVICE_PORT, nameServer.getPort())
+        .build();
+
+    final int numMessages = 2000;
+    final Monitor monitor = new Monitor();
+
+    LOG.log(Level.FINEST, "=== Test network service receiver start");
+    // network service for receiver
+    final String receiver = "receiver";
+    final Injector injectorReceiver = injector.forkInjector(netConf);
+    final NetworkServiceClient receiverNetworkService = injectorReceiver.getInstance(NetworkServiceClient.class);
+    final IdentifierFactory factory = injectorReceiver.getNamedInstance(NetworkServiceParameters.NetworkServiceIdentifierFactory.class);
+    receiverNetworkService.registerId(factory.getNewInstance(receiver));
+    receiverNetworkService.registerConnectionFactory(GroupCommClientId.class, new StreamingStringCodec(), new MessageHandler<String>(monitor, numMessages), new TestListener<String>());
+
+    // network service for sender
+    final String sender = "sender";
+    LOG.log(Level.FINEST, "=== Test network service sender start");
+    final Injector injectorSender = injector.forkInjector(netConf);
+    final NetworkServiceClient senderNetworkService = injectorSender.getInstance(NetworkServiceClient.class);
+    senderNetworkService.registerId(factory.getNewInstance(sender));
+    senderNetworkService.registerConnectionFactory(GroupCommClientId.class, new StreamingStringCodec(), new MessageHandler<String>(monitor, numMessages), new TestListener<String>());
+    // connection for sending messages
+    final ConnectionFactory<String> senderConnectionToReceiver = senderNetworkService.getConnectionFactory(GroupCommClientId.class);
+
+    final Identifier destId = factory.getNewInstance(receiver);
+    final org.apache.reef.io.network.Connection<String> conn = senderConnectionToReceiver.newConnection(destId);
+    try {
+      conn.open();
+      for (int count = 0; count < numMessages; ++count) {
+        conn.write("hello! " + count);
+      }
+      monitor.mwait();
+
+    } catch (NetworkException e) {
+      e.printStackTrace();
+    }
+    conn.close();
+
+    senderNetworkService.close();
+    receiverNetworkService.close();
+
+    nameServer.close();
+  }
+
+
+  /**
    * Test NetworkService registering multiple connection factories.
    */
   @Test
@@ -172,6 +232,92 @@ public class DefaultNetworkServiceTest {
     senderNetworkService.registerId(factory.getNewInstance(sender));
     senderNetworkService.registerConnectionFactory(GroupCommClientId.class, new StringCodec(), new MessageHandler<String>(monitor, groupcommMessages), new TestListener<String>());
     senderNetworkService.registerConnectionFactory(ShuffleClientId.class, new ObjectSerializableCodec<Integer>(), new MessageHandler<Integer>(monitor2, shuffleMessges), new TestListener<Integer>());
+
+    // connection for sending messages
+    final ConnectionFactory<String> gcSender = senderNetworkService.getConnectionFactory(GroupCommClientId.class);
+    final ConnectionFactory<Integer> shuffleSender = senderNetworkService.getConnectionFactory(ShuffleClientId.class);
+
+    final Identifier destId = factory.getNewInstance(receiver);
+    final Connection<String> gcConnectionToReceiver = gcSender.newConnection(destId);
+    final Connection<Integer> shuffleConnectionToReceiver = shuffleSender.newConnection(destId);
+    try {
+      gcConnectionToReceiver.open();
+      shuffleConnectionToReceiver.open();
+
+      executor.submit(new Runnable() {
+        @Override
+        public void run() {
+          for (int count = 0; count < groupcommMessages; ++count) {
+            gcConnectionToReceiver.write("hello! " + count);
+          }
+        }
+      });
+
+      executor.submit(new Runnable() {
+        @Override
+        public void run() {
+          for (int count = 0; count < shuffleMessges; ++count) {
+            shuffleConnectionToReceiver.write(count);
+          }
+        }
+      });
+
+      monitor.mwait();
+      monitor2.mwait();
+
+    } catch (NetworkException e) {
+      e.printStackTrace();
+    }
+    gcConnectionToReceiver.close();
+    shuffleConnectionToReceiver.close();
+
+    senderNetworkService.close();
+    receiverNetworkService.close();
+
+    executor.shutdown();
+    nameServer.close();
+  }
+
+  /**
+   * Test NetworkService registering multiple connection factories which contain streamingcodec.
+   */
+  @Test
+  public void testMultipleConnectionFactoriesStreamingTest() throws Exception {
+    LOG.log(Level.FINEST, name.getMethodName());
+
+    final ExecutorService executor = Executors.newFixedThreadPool(5);
+
+    // name server
+    final Injector injector = Tang.Factory.getTang().newInjector();
+    final NameServer nameServer = injector.getInstance(NameServer.class);
+    final Configuration netConf = NameResolverConfiguration.CONF
+        .set(NameResolverConfiguration.NAME_SERVER_HOSTNAME, localAddress)
+        .set(NameResolverConfiguration.NAME_SERVICE_PORT, nameServer.getPort())
+        .build();
+
+    final int groupcommMessages = 1000;
+    final int shuffleMessges = 2000;
+    final Monitor monitor = new Monitor();
+    final Monitor monitor2 = new Monitor();
+
+    LOG.log(Level.FINEST, "=== Test network service receiver start");
+    // network service for receiver
+    final String receiver = "receiver";
+    final Injector injectorReceiver = injector.forkInjector(netConf);
+    final NetworkServiceClient receiverNetworkService = injectorReceiver.getInstance(NetworkServiceClient.class);
+    final IdentifierFactory factory = injectorReceiver.getNamedInstance(NetworkServiceParameters.NetworkServiceIdentifierFactory.class);
+    receiverNetworkService.registerId(factory.getNewInstance(receiver));
+    receiverNetworkService.registerConnectionFactory(GroupCommClientId.class, new StreamingStringCodec(), new MessageHandler<String>(monitor, groupcommMessages), new TestListener<String>());
+    receiverNetworkService.registerConnectionFactory(ShuffleClientId.class, new StreamingIntegerCodec(), new MessageHandler<Integer>(monitor2, shuffleMessges), new TestListener<Integer>());
+
+    // network service for sender
+    LOG.log(Level.FINEST, "=== Test network service sender start");
+    final String sender = "sender";
+    final Injector injectorSender = injector.forkInjector(netConf);
+    final NetworkServiceClient senderNetworkService = injectorSender.getInstance(NetworkServiceClient.class);
+    senderNetworkService.registerId(factory.getNewInstance(sender));
+    senderNetworkService.registerConnectionFactory(GroupCommClientId.class, new StreamingStringCodec(), new MessageHandler<String>(monitor, groupcommMessages), new TestListener<String>());
+    senderNetworkService.registerConnectionFactory(ShuffleClientId.class, new StreamingIntegerCodec(), new MessageHandler<Integer>(monitor2, shuffleMessges), new TestListener<Integer>());
 
     // connection for sending messages
     final ConnectionFactory<String> gcSender = senderNetworkService.getConnectionFactory(GroupCommClientId.class);
