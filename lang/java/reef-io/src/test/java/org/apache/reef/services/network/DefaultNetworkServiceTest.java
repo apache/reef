@@ -94,27 +94,26 @@ public class DefaultNetworkServiceTest {
     final Monitor monitor = new Monitor();
 
     LOG.log(Level.FINEST, "=== Test network service receiver start");
-    // network service for task2
-    final Injector ij2 = injector.forkInjector(netConf);
-    final NetworkServiceClient ns2 = ij2.getInstance(NetworkServiceClient.class);
-    final IdentifierFactory factory = ij2.getNamedInstance(NetworkServiceParameters.NetworkServiceIdentifierFactory.class);
-    ns2.registerId(factory.getNewInstance("task2"));
-    ns2.registerConnectionFactory(GroupCommClientId.class, new StringCodec(), new MessageHandler<String>(monitor, numMessages), new TestListener<String>());
+    // network service for receiver
+    final String receiver = "receiver";
+    final Injector injectorReceiver = injector.forkInjector(netConf);
+    final NetworkServiceClient receiverNetworkService = injectorReceiver.getInstance(NetworkServiceClient.class);
+    final IdentifierFactory factory = injectorReceiver.getNamedInstance(NetworkServiceParameters.NetworkServiceIdentifierFactory.class);
+    receiverNetworkService.registerId(factory.getNewInstance(receiver));
+    receiverNetworkService.registerConnectionFactory(GroupCommClientId.class, new StringCodec(), new MessageHandler<String>(monitor, numMessages), new TestListener<String>());
 
-    // connection for receiving messages
-    final ConnectionFactory<String> receiver = ns2.getConnectionFactory(GroupCommClientId.class);
-
-    // network service for task1
+    // network service for sender
+    final String sender = "sender";
     LOG.log(Level.FINEST, "=== Test network service sender start");
-    final Injector ij3 = injector.forkInjector(netConf);
-    final NetworkServiceClient ns1 = ij3.getInstance(NetworkServiceClient.class);
-    ns1.registerId(factory.getNewInstance("task1"));
-    ns1.registerConnectionFactory(GroupCommClientId.class, new StringCodec(), new MessageHandler<String>(monitor, numMessages), new TestListener<String>());
+    final Injector injectorSender = injector.forkInjector(netConf);
+    final NetworkServiceClient senderNetworkService = injectorSender.getInstance(NetworkServiceClient.class);
+    senderNetworkService.registerId(factory.getNewInstance(sender));
+    senderNetworkService.registerConnectionFactory(GroupCommClientId.class, new StringCodec(), new MessageHandler<String>(monitor, numMessages), new TestListener<String>());
     // connection for sending messages
-    final ConnectionFactory<String> sender = ns1.getConnectionFactory(GroupCommClientId.class);
+    final ConnectionFactory<String> senderConnectionToReceiver = senderNetworkService.getConnectionFactory(GroupCommClientId.class);
 
-    final Identifier destId = factory.getNewInstance("task2");
-    final org.apache.reef.io.network.Connection<String> conn = sender.newConnection(destId);
+    final Identifier destId = factory.getNewInstance(receiver);
+    final org.apache.reef.io.network.Connection<String> conn = senderConnectionToReceiver.newConnection(destId);
     try {
       conn.open();
       for (int count = 0; count < numMessages; ++count) {
@@ -127,14 +126,14 @@ public class DefaultNetworkServiceTest {
     }
     conn.close();
 
-    ns1.close();
-    ns2.close();
+    senderNetworkService.close();
+    receiverNetworkService.close();
 
     nameServer.close();
   }
 
   /**
-   * Multiple connection factories test
+   * Test NetworkService registering multiple connection factories.
    */
   @Test
   public void testMultipleConnectionFactoriesTest() throws Exception {
@@ -156,42 +155,40 @@ public class DefaultNetworkServiceTest {
     final Monitor monitor2 = new Monitor();
 
     LOG.log(Level.FINEST, "=== Test network service receiver start");
-    // network service for task2
-    final Injector ij2 = injector.forkInjector(netConf);
-    final NetworkServiceClient ns2 = ij2.getInstance(NetworkServiceClient.class);
-    final IdentifierFactory factory = ij2.getNamedInstance(NetworkServiceParameters.NetworkServiceIdentifierFactory.class);
-    ns2.registerId(factory.getNewInstance("task2"));
-    ns2.registerConnectionFactory(GroupCommClientId.class, new StringCodec(), new MessageHandler<String>(monitor, groupcommMessages), new TestListener<String>());
-    ns2.registerConnectionFactory(ShuffleClientId.class, new ObjectSerializableCodec<Integer>(), new MessageHandler<Integer>(monitor2, shuffleMessges), new TestListener<Integer>());
+    // network service for receiver
+    final String receiver = "receiver";
+    final Injector injectorReceiver = injector.forkInjector(netConf);
+    final NetworkServiceClient receiverNetworkService = injectorReceiver.getInstance(NetworkServiceClient.class);
+    final IdentifierFactory factory = injectorReceiver.getNamedInstance(NetworkServiceParameters.NetworkServiceIdentifierFactory.class);
+    receiverNetworkService.registerId(factory.getNewInstance(receiver));
+    receiverNetworkService.registerConnectionFactory(GroupCommClientId.class, new StringCodec(), new MessageHandler<String>(monitor, groupcommMessages), new TestListener<String>());
+    receiverNetworkService.registerConnectionFactory(ShuffleClientId.class, new ObjectSerializableCodec<Integer>(), new MessageHandler<Integer>(monitor2, shuffleMessges), new TestListener<Integer>());
 
-    // connection for receiving messages
-    final ConnectionFactory<String> gcReceiver = ns2.getConnectionFactory(GroupCommClientId.class);
-    final ConnectionFactory<Integer> shuffleReceiver = ns2.getConnectionFactory(ShuffleClientId.class);
-
-    // network service for task1
+    // network service for sender
     LOG.log(Level.FINEST, "=== Test network service sender start");
-    final Injector ij3 = injector.forkInjector(netConf);
-    final NetworkServiceClient ns1 = ij3.getInstance(NetworkServiceClient.class);
-    ns1.registerId(factory.getNewInstance("task1"));
-    ns1.registerConnectionFactory(GroupCommClientId.class, new StringCodec(), new MessageHandler<String>(monitor, groupcommMessages), new TestListener<String>());
-    ns1.registerConnectionFactory(ShuffleClientId.class, new ObjectSerializableCodec<Integer>(), new MessageHandler<Integer>(monitor2, shuffleMessges), new TestListener<Integer>());
+    final String sender = "sender";
+    final Injector injectorSender = injector.forkInjector(netConf);
+    final NetworkServiceClient senderNetworkService = injectorSender.getInstance(NetworkServiceClient.class);
+    senderNetworkService.registerId(factory.getNewInstance(sender));
+    senderNetworkService.registerConnectionFactory(GroupCommClientId.class, new StringCodec(), new MessageHandler<String>(monitor, groupcommMessages), new TestListener<String>());
+    senderNetworkService.registerConnectionFactory(ShuffleClientId.class, new ObjectSerializableCodec<Integer>(), new MessageHandler<Integer>(monitor2, shuffleMessges), new TestListener<Integer>());
 
     // connection for sending messages
-    final ConnectionFactory<String> gcSender = ns1.getConnectionFactory(GroupCommClientId.class);
-    final ConnectionFactory<Integer> shuffleSender = ns1.getConnectionFactory(ShuffleClientId.class);
+    final ConnectionFactory<String> gcSender = senderNetworkService.getConnectionFactory(GroupCommClientId.class);
+    final ConnectionFactory<Integer> shuffleSender = senderNetworkService.getConnectionFactory(ShuffleClientId.class);
 
-    final Identifier destId = factory.getNewInstance("task2");
-    final Connection<String> conn = gcSender.newConnection(destId);
-    final Connection<Integer> conn2 = shuffleSender.newConnection(destId);
+    final Identifier destId = factory.getNewInstance(receiver);
+    final Connection<String> gcConnectionToReceiver = gcSender.newConnection(destId);
+    final Connection<Integer> shuffleConnectionToReceiver = shuffleSender.newConnection(destId);
     try {
-      conn.open();
-      conn2.open();
+      gcConnectionToReceiver.open();
+      shuffleConnectionToReceiver.open();
 
       executor.submit(new Runnable() {
         @Override
         public void run() {
           for (int count = 0; count < groupcommMessages; ++count) {
-            conn.write("hello! " + count);
+            gcConnectionToReceiver.write("hello! " + count);
           }
         }
       });
@@ -200,7 +197,7 @@ public class DefaultNetworkServiceTest {
         @Override
         public void run() {
           for (int count = 0; count < shuffleMessges; ++count) {
-            conn2.write(count);
+            shuffleConnectionToReceiver.write(count);
           }
         }
       });
@@ -211,10 +208,11 @@ public class DefaultNetworkServiceTest {
     } catch (NetworkException e) {
       e.printStackTrace();
     }
-    conn.close();
+    gcConnectionToReceiver.close();
+    shuffleConnectionToReceiver.close();
 
-    ns1.close();
-    ns2.close();
+    senderNetworkService.close();
+    receiverNetworkService.close();
 
     executor.shutdown();
     nameServer.close();
@@ -248,19 +246,19 @@ public class DefaultNetworkServiceTest {
       final String name2 = "receiver";
       final String name1 = "sender";
       LOG.log(Level.FINEST, "=== Test network service receiver start");
-      // network service for task2
-      final Injector ij2 = injector.forkInjector(netConf);
-      final NetworkServiceClient ns2 = ij2.getInstance(NetworkServiceClient.class);
-      ns2.registerId(factory.getNewInstance(name2));
-      ns2.registerConnectionFactory(GroupCommClientId.class, new StringCodec(), new MessageHandler<String>(monitor, numMessages), new TestListener<String>());
+      // network service for receiver
+      final Injector injectorReceiver = injector.forkInjector(netConf);
+      final NetworkServiceClient receiverNetworkService = injectorReceiver.getInstance(NetworkServiceClient.class);
+      receiverNetworkService.registerId(factory.getNewInstance(name2));
+      receiverNetworkService.registerConnectionFactory(GroupCommClientId.class, new StringCodec(), new MessageHandler<String>(monitor, numMessages), new TestListener<String>());
 
       LOG.log(Level.FINEST, "=== Test network service sender start");
-      final Injector ij3 = injector.forkInjector(netConf);
-      final NetworkServiceClient ns1 = ij3.getInstance(NetworkServiceClient.class);
-      ns1.registerId(factory.getNewInstance(name1));
-      ns1.registerConnectionFactory(GroupCommClientId.class, new StringCodec(), new MessageHandler<String>(monitor, numMessages), new TestListener<String>());
+      final Injector injectorSender = injector.forkInjector(netConf);
+      final NetworkServiceClient senderNetworkService = injectorSender.getInstance(NetworkServiceClient.class);
+      senderNetworkService.registerId(factory.getNewInstance(name1));
+      senderNetworkService.registerConnectionFactory(GroupCommClientId.class, new StringCodec(), new MessageHandler<String>(monitor, numMessages), new TestListener<String>());
       // connection for sending messages
-      final ConnectionFactory<String> sender = ns1.getConnectionFactory(GroupCommClientId.class);
+      final ConnectionFactory<String> sender = senderNetworkService.getConnectionFactory(GroupCommClientId.class);
       final Identifier destId = factory.getNewInstance(name2);
       final Connection<String> conn = sender.newConnection(destId);
 
@@ -286,8 +284,8 @@ public class DefaultNetworkServiceTest {
       LOG.log(Level.INFO, "size: " + size + "; messages/s: " + numMessages / runtime + " bandwidth(bytes/s): " + ((double) numMessages * 2 * size) / runtime);// x2 for unicode chars
       conn.close();
 
-      ns1.close();
-      ns2.close();
+      senderNetworkService.close();
+      receiverNetworkService.close();
 
     }
     server.close();
@@ -329,22 +327,21 @@ public class DefaultNetworkServiceTest {
             final Monitor monitor = new Monitor();
             final Injector injector = Tang.Factory.getTang().newInjector(netConf);
             // network service
-            final String name2 = "task2-" + tt;
-            final String name1 = "task1-" + tt;
+            final String name2 = "receiver-" + tt;
+            final String name1 = "sender-" + tt;
 
 
             LOG.log(Level.FINEST, "=== Test network service receiver start");
-            final NetworkServiceClient ns2 = injector.getInstance(NetworkServiceClient.class);
-            ns2.registerId(factory.getNewInstance(name2));
-            ns2.registerConnectionFactory(GroupCommClientId.class, new StringCodec(), new MessageHandler<String>(monitor, numMessages), new TestListener<String>());
-            final ConnectionFactory<String> receiver = ns2.getConnectionFactory(GroupCommClientId.class);
+            final NetworkServiceClient receiverNetworkService = injector.getInstance(NetworkServiceClient.class);
+            receiverNetworkService.registerId(factory.getNewInstance(name2));
+            receiverNetworkService.registerConnectionFactory(GroupCommClientId.class, new StringCodec(), new MessageHandler<String>(monitor, numMessages), new TestListener<String>());
 
             LOG.log(Level.FINEST, "=== Test network service sender start");
-            final Injector ij1 = Tang.Factory.getTang().newInjector(netConf);
-            final NetworkServiceClient ns1 = ij1.getInstance(NetworkServiceClient.class);
-            ns1.registerId(factory.getNewInstance(name1));
-            ns1.registerConnectionFactory(GroupCommClientId.class, new StringCodec(), new MessageHandler<String>(monitor, numMessages), new TestListener<String>());
-            final ConnectionFactory<String> sender = ns1.getConnectionFactory(GroupCommClientId.class);
+            final Injector injectorSender = Tang.Factory.getTang().newInjector(netConf);
+            final NetworkServiceClient senderNetworkService = injectorSender.getInstance(NetworkServiceClient.class);
+            senderNetworkService.registerId(factory.getNewInstance(name1));
+            senderNetworkService.registerConnectionFactory(GroupCommClientId.class, new StringCodec(), new MessageHandler<String>(monitor, numMessages), new TestListener<String>());
+            final ConnectionFactory<String> sender = senderNetworkService.getConnectionFactory(GroupCommClientId.class);
             final Identifier destId = factory.getNewInstance(name2);
             final Connection<String> conn = sender.newConnection(destId);
 
@@ -367,8 +364,8 @@ public class DefaultNetworkServiceTest {
             }
             conn.close();
 
-            ns1.close();
-            ns2.close();
+            senderNetworkService.close();
+            receiverNetworkService.close();
           } catch (Exception e) {
             e.printStackTrace();
 
@@ -419,18 +416,18 @@ public class DefaultNetworkServiceTest {
 
 
       LOG.log(Level.FINEST, "=== Test network service receiver start");
-      final NetworkServiceClient ns2 = injector.getInstance(NetworkServiceClient.class);
-      ns2.registerId(factory.getNewInstance(name2));
-      ns2.registerConnectionFactory(GroupCommClientId.class, new StringCodec(), new MessageHandler<String>(monitor, totalNumMessages), new TestListener<String>());
+      final NetworkServiceClient receiverNetworkService = injector.getInstance(NetworkServiceClient.class);
+      receiverNetworkService.registerId(factory.getNewInstance(name2));
+      receiverNetworkService.registerConnectionFactory(GroupCommClientId.class, new StringCodec(), new MessageHandler<String>(monitor, totalNumMessages), new TestListener<String>());
 
       LOG.log(Level.FINEST, "=== Test network service sender start");
       final Injector ij1 = Tang.Factory.getTang().newInjector(netConf);
-      final NetworkServiceClient ns1 = ij1.getInstance(NetworkServiceClient.class);
-      ns1.registerId(factory.getNewInstance(name1));
-      ns1.registerConnectionFactory(GroupCommClientId.class, new StringCodec(), new MessageHandler<String>(monitor, totalNumMessages), new TestListener<String>());
+      final NetworkServiceClient senderNetworkService = ij1.getInstance(NetworkServiceClient.class);
+      senderNetworkService.registerId(factory.getNewInstance(name1));
+      senderNetworkService.registerConnectionFactory(GroupCommClientId.class, new StringCodec(), new MessageHandler<String>(monitor, totalNumMessages), new TestListener<String>());
 
       final Identifier destId = factory.getNewInstance(name2);
-      final ConnectionFactory<String> connFactory = ns1.getConnectionFactory(GroupCommClientId.class);
+      final ConnectionFactory<String> connFactory = senderNetworkService.getConnectionFactory(GroupCommClientId.class);
       final Connection<String> conn = connFactory.newConnection(destId);
       conn.open();
 
@@ -467,8 +464,8 @@ public class DefaultNetworkServiceTest {
       LOG.log(Level.INFO, "size: " + size + "; messages/s: " + totalNumMessages / runtime + " bandwidth(bytes/s): " + ((double) totalNumMessages * 2 * size) / runtime);// x2 for unicode chars
       conn.close();
 
-      ns1.close();
-      ns2.close();
+      senderNetworkService.close();
+      receiverNetworkService.close();
     }
 
     server.close();
@@ -504,19 +501,19 @@ public class DefaultNetworkServiceTest {
       final String name1 = "sender";
 
       LOG.log(Level.FINEST, "=== Test network service receiver start");
-      final Injector ij2 = injector.forkInjector(netConf);
-      final NetworkServiceClient ns2 = ij2.getInstance(NetworkServiceClient.class);
-      ns2.registerId(factory.getNewInstance(name2));
-      ns2.registerConnectionFactory(GroupCommClientId.class, new StringCodec(), new MessageHandler<String>(monitor, numMessages), new TestListener<String>());
+      final Injector injectorReceiver = injector.forkInjector(netConf);
+      final NetworkServiceClient receiverNetworkService = injectorReceiver.getInstance(NetworkServiceClient.class);
+      receiverNetworkService.registerId(factory.getNewInstance(name2));
+      receiverNetworkService.registerConnectionFactory(GroupCommClientId.class, new StringCodec(), new MessageHandler<String>(monitor, numMessages), new TestListener<String>());
 
       LOG.log(Level.FINEST, "=== Test network service sender start");
-      final Injector ij1 = injector.forkInjector(netConf);
-      final NetworkServiceClient ns1 = ij1.getInstance(NetworkServiceClient.class);
-      ns1.registerId(factory.getNewInstance(name1));
-      ns1.registerConnectionFactory(GroupCommClientId.class, new StringCodec(), new MessageHandler<String>(monitor, numMessages), new TestListener<String>());
+      final Injector injectorSender = injector.forkInjector(netConf);
+      final NetworkServiceClient senderNetworkService = injectorSender.getInstance(NetworkServiceClient.class);
+      senderNetworkService.registerId(factory.getNewInstance(name1));
+      senderNetworkService.registerConnectionFactory(GroupCommClientId.class, new StringCodec(), new MessageHandler<String>(monitor, numMessages), new TestListener<String>());
 
       final Identifier destId = factory.getNewInstance(name2);
-      final ConnectionFactory<String> connFactory = ns1.getConnectionFactory(GroupCommClientId.class);
+      final ConnectionFactory<String> connFactory = senderNetworkService.getConnectionFactory(GroupCommClientId.class);
       final Connection<String> conn = connFactory.newConnection(destId);
       conn.open();
       // build the message
@@ -546,8 +543,8 @@ public class DefaultNetworkServiceTest {
       LOG.log(Level.INFO, "size: " + size + "; messages/s: " + numAppMessages / runtime + " bandwidth(bytes/s): " + ((double) numAppMessages * 2 * size) / runtime);// x2 for unicode chars
       conn.close();
 
-      ns1.close();
-      ns2.close();
+      senderNetworkService.close();
+      receiverNetworkService.close();
     }
 
     server.close();
