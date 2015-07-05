@@ -53,15 +53,41 @@ public final class DefaultNetworkServiceClientImpl implements NetworkServiceClie
 
   private static final Logger LOG = Logger.getLogger(DefaultNetworkServiceClientImpl.class.getName());
 
+  /**
+   * An identifier factory registering network service client id.
+   */
   private final IdentifierFactory idFactory;
+  /**
+   * A name resolver looking up nameserver.
+   */
   private final NameResolver nameResolver;
+  /**
+   * A messaging transport.
+   */
   private final Transport transport;
-  private final EventHandler<TransportEvent> recvHandler;
+  /**
+   * A map of (id of connection factory, a connection factory instance).
+   */
   private final ConcurrentMap<String, NSConnectionFactory> connFactoryMap;
+  /**
+   * NetworkServiceClient identifier.
+   */
   private Identifier myId;
+  /**
+   * NetworkServiceClient message codec.
+   */
   private final Codec<DefaultNSMessage> nsCodec;
+  /**
+   * NetworkServiceClient link listener.
+   */
   private final LinkListener<DefaultNSMessage> nsLinkListener;
+  /**
+   * A stage registering identifier to nameServer.
+   */
   private final EStage<Tuple<Identifier, InetSocketAddress>> nameServiceRegisteringStage;
+  /**
+   * A stage unregistering identifier from nameServer.
+   */
   private final EStage<Identifier> nameServiceUnregisteringStage;
 
   @Inject
@@ -74,7 +100,7 @@ public final class DefaultNetworkServiceClientImpl implements NetworkServiceClie
     this.connFactoryMap = new ConcurrentHashMap<>();
     this.nsCodec = new DefaultNSMessageCodec(idFactory, connFactoryMap);
     this.nsLinkListener = new NetworkServiceLinkListener(connFactoryMap);
-    this.recvHandler = new NetworkServiceReceiveHandler(connFactoryMap, nsCodec);
+    final EventHandler<TransportEvent> recvHandler = new NetworkServiceReceiveHandler(connFactoryMap, nsCodec);
     this.nameResolver = nameResolver;
     this.transport = transportFactory.newInstance(nsPort, recvHandler, recvHandler, new DefaultNSExceptionHandler());
 
