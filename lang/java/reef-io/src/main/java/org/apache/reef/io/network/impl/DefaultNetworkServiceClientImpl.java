@@ -136,7 +136,7 @@ public final class DefaultNetworkServiceClientImpl implements NetworkServiceClie
   }
 
   @Override
-  public synchronized <T> void registerConnectionFactory(final Class<? extends Name<String>> connFactoryId,
+  public <T> void registerConnectionFactory(final Class<? extends Name<String>> connFactoryId,
                                                          final Codec<T> codec,
                                                          final EventHandler<Message<T>> eventHandler,
                                                          final LinkListener<Message<T>> linkListener) throws NetworkException {
@@ -144,15 +144,24 @@ public final class DefaultNetworkServiceClientImpl implements NetworkServiceClie
     if (connFactoryMap.get(id) != null) {
       throw new NetworkException("ConnectionFactory " + connFactoryId + " was already registered.");
     }
-    connFactoryMap.put(id, new NSConnectionFactory<>(this, id, codec, eventHandler, linkListener));
+   final ConnectionFactory connFactory = connFactoryMap.putIfAbsent(id,
+        new NSConnectionFactory<>(this, id, codec, eventHandler, linkListener));
+
+    if (connFactory != null) {
+      throw new NetworkException("ConnectionFactory " + connFactoryId + " was already registered.");
+
+    }
   }
 
   @Override
-  public synchronized void unregisterConnectionFactory(final Class<? extends Name<String>> connFactoryId) {
+  public void unregisterConnectionFactory(final Class<? extends Name<String>> connFactoryId) {
     final String id = connFactoryId.getName();
     final ConnectionFactory  connFactory = connFactoryMap.get(id);
     if (connFactory != null) {
-      connFactoryMap.remove(id);
+      final ConnectionFactory cf = connFactoryMap.remove(id);
+      if (cf == null) {
+        LOG.log(Level.WARNING, "ConnectionFactory of {0} is null", id);
+      }
     } else {
       LOG.log(Level.WARNING, "ConnectionFactory of {0} is null", id);
     }
