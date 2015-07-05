@@ -40,17 +40,15 @@ public interface Connection<T> extends AutoCloseable {
    * Writes an message to the connection.
    *
    * @param message
-   * @throws NetworkException
    */
-  void write(T message) throws NetworkException;
+  void write(T message);
 
   /**
    * Writes a list of messages to the connection.
    *
    * @param messages
-   * @throws NetworkException
    */
-  void write(List<T> messages) throws NetworkException;
+  void write(List<T> messages);
 
   /**
    * Closes the connection.

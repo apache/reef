@@ -191,11 +191,7 @@ public class DefaultNetworkServiceTest {
         @Override
         public void run() {
           for (int count = 0; count < groupcommMessages; ++count) {
-            try {
-              conn.write("hello! " + count);
-            } catch (NetworkException e) {
-              throw new RuntimeException(e);
-            }
+            conn.write("hello! " + count);
           }
         }
       });
@@ -204,11 +200,7 @@ public class DefaultNetworkServiceTest {
         @Override
         public void run() {
           for (int count = 0; count < shuffleMessges; ++count) {
-            try {
-              conn2.write(count);
-            } catch (NetworkException e) {
-              throw new RuntimeException(e);
-            }
+            conn2.write(count);
           }
         }
       });
@@ -457,12 +449,8 @@ public class DefaultNetworkServiceTest {
 
           @Override
           public void run() {
-            try {
-              for (int i = 0; i < numMessages; i++) {
-                conn.write(message);
-              }
-            } catch (NetworkException e) {
-              e.printStackTrace();
+            for (int i = 0; i < numMessages; i++) {
+              conn.write(message);
             }
           }
         });

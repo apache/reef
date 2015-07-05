@@ -55,7 +55,7 @@ final class DefaultNSConnection<T> implements Connection<T> {
   }
 
   @Override
-  public void write(final List<T> messageList) throws NetworkException {
+  public void write(final List<T> messageList) {
     final DefaultNSMessage<T> nsMessage = new DefaultNSMessage<>(
         connFactory.getConnectionFactoryId(),
         connFactory.getSrcId(),
@@ -66,7 +66,7 @@ final class DefaultNSConnection<T> implements Connection<T> {
   }
 
   @Override
-  public void write(final T message) throws NetworkException {
+  public void write(final T message) {
     final List<T> messageList = new ArrayList<>(1);
     messageList.add(message);
     write(messageList);

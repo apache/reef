@@ -101,12 +101,12 @@ class NSConnection<T> implements Connection<T> {
    * @throws a network exception
    */
   @Override
-  public void write(final T obj) throws NetworkException {
+  public void write(final T obj) {
     this.link.write(new NSMessage<T>(this.srcId, this.destId, obj));
   }
 
   @Override
-  public void write(List<T> messages) throws NetworkException {
+  public void write(List<T> messages) {
     this.link.write(new NSMessage<T>(this.srcId, this.destId, messages));
   }
 

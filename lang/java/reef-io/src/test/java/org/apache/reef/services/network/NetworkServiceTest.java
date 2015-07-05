@@ -387,12 +387,8 @@ public class NetworkServiceTest {
 
           @Override
           public void run() {
-            try {
-              for (int i = 0; i < numMessages; i++) {
-                conn.write(message);
-              }
-            } catch (NetworkException e) {
-              e.printStackTrace();
+            for (int i = 0; i < numMessages; i++) {
+              conn.write(message);
             }
           }
         });

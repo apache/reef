@@ -37,11 +37,11 @@ final class DefaultNSMessageCodec implements Codec<DefaultNSMessage> {
 
   private final IdentifierFactory factory;
   /**
-   * Contains map of (id of connection factory, instance of connection factory)
+   * Contains entries of (id of connection factory, instance of connection factory)
    */
   private final Map<String, NSConnectionFactory> connFactoryMap;
   /**
-   * Contains map of (instance of codec, boolean whether the codec is streaming or not)
+   * Contains entries of (instance of codec, boolean whether the codec is streaming or not)
    */
   private final ConcurrentMap<Codec, Boolean> isStreamingCodecMap;
 
