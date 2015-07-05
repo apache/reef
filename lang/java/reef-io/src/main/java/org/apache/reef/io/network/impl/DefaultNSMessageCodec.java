@@ -36,8 +36,14 @@ import java.util.concurrent.ConcurrentMap;
 final class DefaultNSMessageCodec implements Codec<DefaultNSMessage> {
 
   private final IdentifierFactory factory;
+  /**
+   * Contains map of (id of connection factory, instance of connection factory)
+   */
   private final Map<String, NSConnectionFactory> connFactoryMap;
-  private final ConcurrentMap<String, Boolean> isStreamingCodecMap;
+  /**
+   * Contains map of (instance of codec, boolean whether the codec is streaming or not)
+   */
+  private final ConcurrentMap<Codec, Boolean> isStreamingCodecMap;
 
   /**
    * Constructs a network message codec.
@@ -58,10 +64,10 @@ final class DefaultNSMessageCodec implements Codec<DefaultNSMessage> {
   @Override
   public byte[] encode(final DefaultNSMessage obj) {
     final Codec codec = connFactoryMap.get(obj.getConnectionFactoryId()).getCodec();
-    Boolean isStreamingCodec = isStreamingCodecMap.get(obj.getConnectionFactoryId());
+    Boolean isStreamingCodec = isStreamingCodecMap.get(codec);
     if (isStreamingCodec == null) {
       isStreamingCodec = codec instanceof StreamingCodec;
-      isStreamingCodecMap.putIfAbsent(obj.getConnectionFactoryId(), isStreamingCodec);
+      isStreamingCodecMap.putIfAbsent(codec, isStreamingCodec);
     }
 
     try (final ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
@@ -107,10 +113,10 @@ final class DefaultNSMessageCodec implements Codec<DefaultNSMessage> {
         final int size = dais.readInt();
         final List list = new ArrayList(size);
         final Codec codec = connFactoryMap.get(connFactoryId).getCodec();
-        Boolean isStreamingCodec = isStreamingCodecMap.get(connFactoryId);
+        Boolean isStreamingCodec = isStreamingCodecMap.get(codec);
         if (isStreamingCodec == null) {
           isStreamingCodec = codec instanceof StreamingCodec;
-          isStreamingCodecMap.putIfAbsent(connFactoryId, isStreamingCodec);
+          isStreamingCodecMap.putIfAbsent(codec, isStreamingCodec);
         }
 
         if (isStreamingCodec) {
