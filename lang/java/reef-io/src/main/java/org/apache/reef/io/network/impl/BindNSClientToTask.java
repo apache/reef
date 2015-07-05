@@ -26,6 +26,10 @@ import org.apache.reef.wake.IdentifierFactory;
 
 import javax.inject.Inject;
 
+/**
+ * TaskStart event handler for registering NetworkServiceClient id.
+ * Users have to bind this handler into ServiceConfiguration.ON_TASK_STARTED.
+ */
 public final class BindNSClientToTask implements EventHandler<TaskStart> {
 
   private final NetworkServiceClient ns;
