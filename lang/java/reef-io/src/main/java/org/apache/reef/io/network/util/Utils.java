@@ -100,7 +100,7 @@ public final class Utils {
       final ReefNetworkGroupCommProtos.GroupCommMessage.Type msgType,
       final Identifier from, final Identifier to, final byte[]... elements) {
 
-    final ReefNetworkGroupCommProtos.GroupCommMessage.Builder GCMBuilder =
+    final ReefNetworkGroupCommProtos.GroupCommMessage.Builder gcmBuilder =
         ReefNetworkGroupCommProtos.GroupCommMessage.newBuilder()
             .setType(msgType)
             .setSrcid(from.toString())
@@ -111,10 +111,10 @@ public final class Utils {
 
     for (final byte[] element : elements) {
       bodyBuilder.setData(ByteString.copyFrom(element));
-      GCMBuilder.addMsgs(bodyBuilder.build());
+      gcmBuilder.addMsgs(bodyBuilder.build());
     }
 
-    return GCMBuilder.build();
+    return gcmBuilder.build();
   }
 
   /**

@@ -22,13 +22,13 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Org.Apache.REEF.Network.StreamingCodec;
-using Org.Apache.REEF.Network.StreamingCodec.CommonStreamingCodecs;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Wake.Remote;
 using Org.Apache.REEF.Wake.Remote.Impl;
+using Org.Apache.REEF.Wake.StreamingCodec;
+using Org.Apache.REEF.Wake.StreamingCodec.CommonStreamingCodecs;
 
 namespace Org.Apache.REEF.Network.Tests.GroupCommunication
 {

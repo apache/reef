@@ -52,9 +52,9 @@ public final class TaskRuntime implements Runnable {
    */
   private final Task task;
 
-  private final InjectionFuture<EventHandler<CloseEvent>> f_closeHandler;
-  private final InjectionFuture<EventHandler<SuspendEvent>> f_suspendHandler;
-  private final InjectionFuture<EventHandler<DriverMessage>> f_messageHandler;
+  private final InjectionFuture<EventHandler<CloseEvent>> fCloseHandler;
+  private final InjectionFuture<EventHandler<SuspendEvent>> fSuspendHandler;
+  private final InjectionFuture<EventHandler<DriverMessage>> fMessageHandler;
   private final TaskLifeCycleHandlers taskLifeCycleHandlers;
 
   /**
@@ -75,11 +75,11 @@ public final class TaskRuntime implements Runnable {
       final HeartBeatManager heartBeatManager,
       final Task task,
       final TaskStatus currentStatus,
-      @Parameter(TaskConfigurationOptions.CloseHandler.class) final InjectionFuture<EventHandler<CloseEvent>> f_closeHandler,
-      @Parameter(TaskConfigurationOptions.SuspendHandler.class) final InjectionFuture<EventHandler<SuspendEvent>> f_suspendHandler,
-      @Parameter(TaskConfigurationOptions.MessageHandler.class) final InjectionFuture<EventHandler<DriverMessage>> f_messageHandler,
+      @Parameter(TaskConfigurationOptions.CloseHandler.class) final InjectionFuture<EventHandler<CloseEvent>> fCloseHandler,
+      @Parameter(TaskConfigurationOptions.SuspendHandler.class) final InjectionFuture<EventHandler<SuspendEvent>> fSuspendHandler,
+      @Parameter(TaskConfigurationOptions.MessageHandler.class) final InjectionFuture<EventHandler<DriverMessage>> fMessageHandler,
       final TaskLifeCycleHandlers taskLifeCycleHandlers) {
-    this(heartBeatManager, task, currentStatus, f_closeHandler, f_suspendHandler, f_messageHandler, null, taskLifeCycleHandlers);
+    this(heartBeatManager, task, currentStatus, fCloseHandler, fSuspendHandler, fMessageHandler, null, taskLifeCycleHandlers);
   }
 
   // TODO: Document
@@ -88,9 +88,9 @@ public final class TaskRuntime implements Runnable {
       final HeartBeatManager heartBeatManager,
       final Task task,
       final TaskStatus currentStatus,
-      @Parameter(TaskConfigurationOptions.CloseHandler.class) final InjectionFuture<EventHandler<CloseEvent>> f_closeHandler,
-      @Parameter(TaskConfigurationOptions.SuspendHandler.class) final InjectionFuture<EventHandler<SuspendEvent>> f_suspendHandler,
-      @Parameter(TaskConfigurationOptions.MessageHandler.class) final InjectionFuture<EventHandler<DriverMessage>> f_messageHandler,
+      @Parameter(TaskConfigurationOptions.CloseHandler.class) final InjectionFuture<EventHandler<CloseEvent>> fCloseHandler,
+      @Parameter(TaskConfigurationOptions.SuspendHandler.class) final InjectionFuture<EventHandler<SuspendEvent>> fSuspendHandler,
+      @Parameter(TaskConfigurationOptions.MessageHandler.class) final InjectionFuture<EventHandler<DriverMessage>> fMessageHandler,
       @Parameter(TaskConfigurationOptions.Memento.class) final String memento,
       final TaskLifeCycleHandlers taskLifeCycleHandlers) {
 
@@ -101,9 +101,9 @@ public final class TaskRuntime implements Runnable {
     this.memento = null == memento ? Optional.<byte[]>empty() :
         Optional.of(DatatypeConverter.parseBase64Binary(memento));
 
-    this.f_closeHandler = f_closeHandler;
-    this.f_suspendHandler = f_suspendHandler;
-    this.f_messageHandler = f_messageHandler;
+    this.fCloseHandler = fCloseHandler;
+    this.fSuspendHandler = fSuspendHandler;
+    this.fMessageHandler = fMessageHandler;
 
     this.currentStatus = currentStatus;
   }
@@ -283,7 +283,7 @@ public final class TaskRuntime implements Runnable {
   private void closeTask(final byte[] message) throws TaskCloseHandlerFailure {
     LOG.log(Level.FINEST, "Invoking close handler.");
     try {
-      this.f_closeHandler.get().onNext(new CloseEventImpl(message));
+      this.fCloseHandler.get().onNext(new CloseEventImpl(message));
     } catch (final Throwable throwable) {
       throw new TaskCloseHandlerFailure(throwable);
     }
@@ -294,7 +294,7 @@ public final class TaskRuntime implements Runnable {
    */
   private void deliverMessageToTask(final byte[] message) throws TaskMessageHandlerFailure {
     try {
-      this.f_messageHandler.get().onNext(new DriverMessageImpl(message));
+      this.fMessageHandler.get().onNext(new DriverMessageImpl(message));
     } catch (final Throwable throwable) {
       throw new TaskMessageHandlerFailure(throwable);
     }
@@ -305,7 +305,7 @@ public final class TaskRuntime implements Runnable {
    */
   private void suspendTask(final byte[] message) throws TaskSuspendHandlerFailure {
     try {
-      this.f_suspendHandler.get().onNext(new SuspendEventImpl(message));
+      this.fSuspendHandler.get().onNext(new SuspendEventImpl(message));
     } catch (final Throwable throwable) {
       throw new TaskSuspendHandlerFailure(throwable);
     }

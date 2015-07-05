@@ -243,7 +243,7 @@ public final class REEFExecutor implements Executor {
    */
   public static void main(final String[] args) throws Exception {
     final Injector injector = Tang.Factory.getTang().newInjector(parseCommandLine(args));
-    final REEFExecutor REEFExecutor = injector.getInstance(REEFExecutor.class);
-    REEFExecutor.onStart();
+    final REEFExecutor reefExecutor = injector.getInstance(REEFExecutor.class);
+    reefExecutor.onStart();
   }
 }

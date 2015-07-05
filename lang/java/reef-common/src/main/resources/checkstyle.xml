@@ -56,9 +56,7 @@
 
     <!-- Checks that a package.html file exists for each package.     -->
     <!-- See http://checkstyle.sf.net/config_javadoc.html#PackageHtml -->
-    <module name="JavadocPackage">
-        <property name="severity" value="warning"/>
-    </module>
+    <module name="JavadocPackage"/>
 
     <!-- Checks whether files end with a new line.                        -->
     <!-- See http://checkstyle.sf.net/config_misc.html#NewlineAtEndOfFile -->
@@ -85,31 +83,21 @@
             <property name="allowMissingParamTags" value="true"/>
             <property name="severity" value="warning"/>
         </module>
-        <module name="JavadocStyle">
-            <property name="severity" value="warning"/>
-        </module>
+        <module name="JavadocStyle"/>
 
         <!-- Checks for Naming Conventions.                  -->
         <!-- See http://checkstyle.sf.net/config_naming.html -->
         <module name="ConstantName">
             <property name="severity" value="warning"/>
         </module>
-        <module name="LocalFinalVariableName">
-            <property name="severity" value="warning"/>
-        </module>
-        <module name="LocalVariableName">
-            <property name="severity" value="warning"/>
-        </module>
-        <module name="MemberName">
-            <property name="severity" value="warning"/>
-        </module>
+        <module name="LocalFinalVariableName"/>
+        <module name="LocalVariableName"/>
+        <module name="MemberName"/>
         <module name="MethodName">
             <property name="severity" value="warning"/>
         </module>
         <module name="PackageName"/>
-        <module name="ParameterName">
-            <property name="severity" value="warning"/>
-        </module>
+        <module name="ParameterName"/>
         <module name="StaticVariableName">
             <property name="severity" value="warning"/>
         </module>

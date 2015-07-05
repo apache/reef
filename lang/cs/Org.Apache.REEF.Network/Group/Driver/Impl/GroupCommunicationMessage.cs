@@ -19,9 +19,9 @@
 
 using System;
 using System.Threading;
-using Org.Apache.REEF.Network.StreamingCodec;
 using Org.Apache.REEF.Wake.Remote;
 using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Wake.StreamingCodec;
 
 namespace Org.Apache.REEF.Network.Group.Driver.Impl
 {

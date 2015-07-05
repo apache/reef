@@ -34,7 +34,7 @@ import java.util.logging.Logger;
 @ClientSide
 @Private
 final class JobStatusMessageHandler implements EventHandler<RemoteMessage<ReefServiceProtos.JobStatusProto>> {
-  private final Logger LOG = Logger.getLogger(JobStatusMessageHandler.class.getName());
+  private static final Logger LOG = Logger.getLogger(JobStatusMessageHandler.class.getName());
   private final RunningJobs runningJobs;
 
   @Inject

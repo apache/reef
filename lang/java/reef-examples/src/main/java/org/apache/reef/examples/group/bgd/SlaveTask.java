@@ -42,7 +42,7 @@ public class SlaveTask implements Task {
 
   private static final Logger LOG = Logger.getLogger(SlaveTask.class.getName());
 
-  private final double FAILURE_PROB;
+  private final double failureProb;
 
   private final CommunicationGroupClient communicationGroup;
   private final Broadcast.Receiver<ControlMessages> controlMessageBroadcaster;
@@ -70,8 +70,8 @@ public class SlaveTask implements Task {
 
     this.dataSet = dataSet;
     this.lossFunction = lossFunction;
-    this.FAILURE_PROB = pFailure;
-    LOG.info("Using pFailure=" + this.FAILURE_PROB);
+    this.failureProb = pFailure;
+    LOG.info("Using pFailure=" + this.failureProb);
     this.ts = ts;
 
     this.communicationGroup = groupCommClient.getCommunicationGroup(AllCommunicationGroup.class);
@@ -141,7 +141,7 @@ public class SlaveTask implements Task {
   }
 
   private void failPerhaps() {
-    if (Math.random() < FAILURE_PROB) {
+    if (Math.random() < failureProb) {
       throw new RuntimeException("Simulated Failure");
     }
   }

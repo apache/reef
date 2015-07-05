@@ -69,18 +69,18 @@ public final class ResourceCatalogImpl implements ResourceCatalog {
   }
 
   public synchronized void handle(final NodeDescriptorEvent node) {
-    final String rack_name = node.getRackName().orElse(DEFAULT_RACK);
+    final String rackName = node.getRackName().orElse(DEFAULT_RACK);
 
     LOG.log(Level.FINEST, "Catalog new node: id[{0}], rack[{1}], host[{2}], port[{3}], memory[{4}]",
-        new Object[]{node.getIdentifier(), rack_name, node.getHostName(), node.getPort(),
+        new Object[]{node.getIdentifier(), rackName, node.getHostName(), node.getPort(),
             node.getMemorySize()}
     );
 
-    if (!this.racks.containsKey(rack_name)) {
-      final RackDescriptorImpl rack = new RackDescriptorImpl(rack_name);
-      this.racks.put(rack_name, rack);
+    if (!this.racks.containsKey(rackName)) {
+      final RackDescriptorImpl rack = new RackDescriptorImpl(rackName);
+      this.racks.put(rackName, rack);
     }
-    final RackDescriptorImpl rack = this.racks.get(rack_name);
+    final RackDescriptorImpl rack = this.racks.get(rackName);
     final InetSocketAddress address = new InetSocketAddress(node.getHostName(), node.getPort());
     final NodeDescriptorImpl nodeDescriptor = new NodeDescriptorImpl(node.getIdentifier(), address, rack, node.getMemorySize());
     this.nodes.put(nodeDescriptor.getId(), nodeDescriptor);

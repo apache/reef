@@ -325,23 +325,23 @@ public class OperatorTopologyImpl implements OperatorTopology {
         switch (msg.getType()) {
           case UpdateTopology:
             sender.send(Utils.bldVersionedGCM(groupName, operName, ReefNetworkGroupCommProtos.GroupCommMessage.Type.TopologySetup, selfId, this.version, driverId,
-                srcVersion, Utils.EmptyByteArr));
+                srcVersion, Utils.EMPTY_BYTE_ARR));
             break;
           case ParentAdd:
             sender.send(Utils.bldVersionedGCM(groupName, operName, ReefNetworkGroupCommProtos.GroupCommMessage.Type.ParentAdded, selfId, this.version, srcId,
-                srcVersion, Utils.EmptyByteArr), driverId);
+                srcVersion, Utils.EMPTY_BYTE_ARR), driverId);
             break;
           case ParentDead:
             sender.send(Utils.bldVersionedGCM(groupName, operName, ReefNetworkGroupCommProtos.GroupCommMessage.Type.ParentRemoved, selfId, this.version, srcId,
-                srcVersion, Utils.EmptyByteArr), driverId);
+                srcVersion, Utils.EMPTY_BYTE_ARR), driverId);
             break;
           case ChildAdd:
             sender.send(Utils.bldVersionedGCM(groupName, operName, ReefNetworkGroupCommProtos.GroupCommMessage.Type.ChildAdded, selfId, this.version, srcId,
-                srcVersion, Utils.EmptyByteArr), driverId);
+                srcVersion, Utils.EMPTY_BYTE_ARR), driverId);
             break;
           case ChildDead:
             sender.send(Utils.bldVersionedGCM(groupName, operName, ReefNetworkGroupCommProtos.GroupCommMessage.Type.ChildRemoved, selfId, this.version, srcId,
-                srcVersion, Utils.EmptyByteArr), driverId);
+                srcVersion, Utils.EMPTY_BYTE_ARR), driverId);
             break;
           default:
             throw new RuntimeException("Received a non control message for acknowledgement");

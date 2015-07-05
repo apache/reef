@@ -179,10 +179,10 @@ public final class HttpShellJobDriver {
   /**
    * Possible states of the job driver. Can be one of:
    * <dl>
-   * <du><code>INIT</code></du><dd>initial state, ready to request the evaluators.</dd>
-   * <du><code>WAIT_EVALUATORS</code></du><dd>Wait for requested evaluators to initialize.</dd>
-   * <du><code>READY</code></du><dd>Ready to submitTask a new task.</dd>
-   * <du><code>WAIT_TASKS</code></du><dd>Wait for tasks to complete.</dd>
+   * <dt><code>INIT</code></dt><dd>initial state, ready to request the evaluators.</dd>
+   * <dt><code>WAIT_EVALUATORS</code></dt><dd>Wait for requested evaluators to initialize.</dd>
+   * <dt><code>READY</code></dt><dd>Ready to submitTask a new task.</dd>
+   * <dt><code>WAIT_TASKS</code></dt><dd>Wait for tasks to complete.</dd>
    * </dl>
    */
   private enum State {

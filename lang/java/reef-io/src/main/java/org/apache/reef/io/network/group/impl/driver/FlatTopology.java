@@ -280,7 +280,7 @@ public class FlatTopology implements Topology {
     for (final TaskNode node : toBeUpdatedNodes) {
       node.updatingTopology();
       senderStage.onNext(Utils.bldVersionedGCM(groupName, operName, ReefNetworkGroupCommProtos.GroupCommMessage.Type.UpdateTopology, driverId, 0, node.getTaskId(),
-          node.getVersion(), Utils.EmptyByteArr));
+          node.getVersion(), Utils.EMPTY_BYTE_ARR));
     }
     nodeTopologyUpdateWaitStage.onNext(toBeUpdatedNodes);
   }

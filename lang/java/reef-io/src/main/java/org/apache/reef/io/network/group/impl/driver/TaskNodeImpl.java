@@ -137,7 +137,7 @@ public class TaskNodeImpl implements TaskNode {
     if (parent != null && parent.isRunning()) {
       final GroupCommunicationMessage gcm = Utils.bldVersionedGCM(groupName, operName, ReefNetworkGroupCommProtos.GroupCommMessage.Type.ParentAdd, parent.getTaskId(),
           parent.getVersion(), taskId,
-          version, Utils.EmptyByteArr);
+          version, Utils.EMPTY_BYTE_ARR);
       taskNodeStatus.expectAckFor(gcm.getType(), gcm.getSrcid());
       senderStage.onNext(gcm);
       parent.onChildRunning(taskId);
@@ -148,7 +148,7 @@ public class TaskNodeImpl implements TaskNode {
       if (child.isRunning()) {
         final GroupCommunicationMessage gcm = Utils.bldVersionedGCM(groupName, operName, ReefNetworkGroupCommProtos.GroupCommMessage.Type.ChildAdd, child.getTaskId(),
             child.getVersion(), taskId, version,
-            Utils.EmptyByteArr);
+            Utils.EMPTY_BYTE_ARR);
         taskNodeStatus.expectAckFor(gcm.getType(), gcm.getSrcid());
         senderStage.onNext(gcm);
         child.onParentRunning();
@@ -169,7 +169,7 @@ public class TaskNodeImpl implements TaskNode {
       final String parentTaskId = parent.getTaskId();
       final GroupCommunicationMessage gcm = Utils.bldVersionedGCM(groupName, operName, ReefNetworkGroupCommProtos.GroupCommMessage.Type.ParentAdd, parentTaskId,
           parentVersion, taskId, version.get(),
-          Utils.EmptyByteArr);
+          Utils.EMPTY_BYTE_ARR);
       taskNodeStatus.expectAckFor(gcm.getType(), gcm.getSrcid());
       senderStage.onNext(gcm);
     } else {
@@ -188,7 +188,7 @@ public class TaskNodeImpl implements TaskNode {
       taskNodeStatus.updateFailureOf(parent.getTaskId());
       final GroupCommunicationMessage gcm = Utils.bldVersionedGCM(groupName, operName, ReefNetworkGroupCommProtos.GroupCommMessage.Type.ParentDead, parentTaskId,
           parentVersion, taskId, version.get(),
-          Utils.EmptyByteArr);
+          Utils.EMPTY_BYTE_ARR);
       taskNodeStatus.expectAckFor(gcm.getType(), gcm.getSrcid());
       senderStage.onNext(gcm);
     } else {
@@ -205,7 +205,7 @@ public class TaskNodeImpl implements TaskNode {
       final int childVersion = childTask.getVersion();
       final GroupCommunicationMessage gcm = Utils.bldVersionedGCM(groupName, operName, ReefNetworkGroupCommProtos.GroupCommMessage.Type.ChildAdd, childId,
           childVersion, taskId, version.get(),
-          Utils.EmptyByteArr);
+          Utils.EMPTY_BYTE_ARR);
       taskNodeStatus.expectAckFor(gcm.getType(), gcm.getSrcid());
       senderStage.onNext(gcm);
     } else {
@@ -225,7 +225,7 @@ public class TaskNodeImpl implements TaskNode {
       taskNodeStatus.updateFailureOf(childId);
       final GroupCommunicationMessage gcm = Utils.bldVersionedGCM(groupName, operName, ReefNetworkGroupCommProtos.GroupCommMessage.Type.ChildDead, childId,
           childVersion, taskId, version.get(),
-          Utils.EmptyByteArr);
+          Utils.EMPTY_BYTE_ARR);
       taskNodeStatus.expectAckFor(gcm.getType(), gcm.getSrcid());
       senderStage.onNext(gcm);
     } else {
@@ -328,7 +328,7 @@ public class TaskNodeImpl implements TaskNode {
     LOG.entering("TaskNodeImpl", "sendTopoSetupMsg", getQualifiedName() + taskId);
     LOG.fine(getQualifiedName() + "is an active participant in the topology");
     senderStage.onNext(Utils.bldVersionedGCM(groupName, operName, ReefNetworkGroupCommProtos.GroupCommMessage.Type.TopologySetup, driverId, 0, taskId,
-        version.get(), Utils.EmptyByteArr));
+        version.get(), Utils.EMPTY_BYTE_ARR));
     taskNodeStatus.onTopologySetupMessageSent();
     final boolean sentAlready = !topoSetupSent.compareAndSet(false, true);
     if (sentAlready) {

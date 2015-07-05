@@ -24,6 +24,7 @@ import org.apache.reef.tang.annotations.*;
 import org.apache.reef.tang.exceptions.ClassHierarchyException;
 import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.tang.exceptions.NameResolutionException;
+import org.apache.reef.tang.ClassHierarchySerializer;
 import org.apache.reef.tang.types.ClassNode;
 import org.apache.reef.tang.types.ConstructorDef;
 import org.apache.reef.tang.types.Node;
@@ -48,6 +49,7 @@ interface I1 {
 
 public class TestClassHierarchy {
   public ClassHierarchy ns;
+  public ClassHierarchySerializer serializer;
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
@@ -56,6 +58,7 @@ public class TestClassHierarchy {
   public void setUp() throws Exception {
     TangImpl.reset();
     ns = Tang.Factory.getTang().getDefaultClassHierarchy();
+    serializer = Tang.Factory.getTang().newInjector().getInstance(ClassHierarchySerializer.class);
   }
 
   public String s(Class<?> c) {

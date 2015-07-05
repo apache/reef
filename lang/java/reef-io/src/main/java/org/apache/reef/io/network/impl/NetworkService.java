@@ -25,8 +25,6 @@ import org.apache.reef.io.network.ConnectionFactory;
 import org.apache.reef.io.network.Message;
 import org.apache.reef.io.network.naming.NameClient;
 import org.apache.reef.io.network.naming.NameResolver;
-import org.apache.reef.io.network.naming.parameters.NameResolverNameServerAddr;
-import org.apache.reef.io.network.naming.parameters.NameResolverNameServerPort;
 import org.apache.reef.io.network.naming.parameters.NameResolverRetryCount;
 import org.apache.reef.io.network.naming.parameters.NameResolverRetryTimeout;
 import org.apache.reef.tang.Injector;
@@ -58,14 +56,14 @@ public final class NetworkService<T> implements Stage, ConnectionFactory<T> {
 
   private static final Logger LOG = Logger.getLogger(NetworkService.class.getName());
 
-  private static final int retryCount;
-  private static final int retryTimeout;
+  private static final int RETRY_COUNT;
+  private static final int RETRY_TIMEOUT;
 
   static {
     try {
       final Injector injector = Tang.Factory.getTang().newInjector();
-      retryCount = injector.getNamedInstance(NameResolverRetryCount.class);
-      retryTimeout = injector.getNamedInstance(NameResolverRetryTimeout.class);
+      RETRY_COUNT = injector.getNamedInstance(NameResolverRetryCount.class);
+      RETRY_TIMEOUT = injector.getNamedInstance(NameResolverRetryTimeout.class);
     } catch (final InjectionException ex) {
       final String msg = "Exception while trying to find default values for retryCount & Timeout";
       LOG.log(Level.SEVERE, msg, ex);
@@ -104,7 +102,7 @@ public final class NetworkService<T> implements Stage, ConnectionFactory<T> {
                         final EventHandler<Exception> exHandler,
                         final LocalAddressProvider localAddressProvider) {
     this(factory, nsPort, nameServerAddr, nameServerPort,
-        retryCount, retryTimeout, codec, tpFactory, recvHandler, exHandler, localAddressProvider);
+            RETRY_COUNT, RETRY_TIMEOUT, codec, tpFactory, recvHandler, exHandler, localAddressProvider);
   }
 
   /**
@@ -120,7 +118,7 @@ public final class NetworkService<T> implements Stage, ConnectionFactory<T> {
                         final EventHandler<Message<T>> recvHandler,
                         final EventHandler<Exception> exHandler) {
     this(factory, nsPort, nameServerAddr, nameServerPort,
-        retryCount, retryTimeout, codec, tpFactory, recvHandler, exHandler, LocalAddressProviderFactory.getInstance());
+            RETRY_COUNT, RETRY_TIMEOUT, codec, tpFactory, recvHandler, exHandler, LocalAddressProviderFactory.getInstance());
   }
 
   /**
@@ -146,18 +144,17 @@ public final class NetworkService<T> implements Stage, ConnectionFactory<T> {
    * @deprecated have an instance injected instead.
    */
   @Deprecated
-  @Inject
   public NetworkService(
-      @Parameter(NetworkServiceParameters.NetworkServiceIdentifierFactory.class) final IdentifierFactory factory,
-      @Parameter(NetworkServiceParameters.NetworkServicePort.class) final int nsPort,
-      @Parameter(NameResolverNameServerAddr.class) final String nameServerAddr,
-      @Parameter(NameResolverNameServerPort.class) final int nameServerPort,
-      @Parameter(NameResolverRetryCount.class) final int retryCount,
-      @Parameter(NameResolverRetryTimeout.class) final int retryTimeout,
-      @Parameter(NetworkServiceParameters.NetworkServiceCodec.class) final Codec<T> codec,
-      @Parameter(NetworkServiceParameters.NetworkServiceTransportFactory.class) final TransportFactory tpFactory,
-      @Parameter(NetworkServiceParameters.NetworkServiceHandler.class) final EventHandler<Message<T>> recvHandler,
-      @Parameter(NetworkServiceParameters.NetworkServiceExceptionHandler.class) final EventHandler<Exception> exHandler,
+      final IdentifierFactory factory,
+      final int nsPort,
+      final String nameServerAddr,
+      final int nameServerPort,
+      final int retryCount,
+      final int retryTimeout,
+      final Codec<T> codec,
+      final TransportFactory tpFactory,
+      final EventHandler<Message<T>> recvHandler,
+      final EventHandler<Exception> exHandler,
       final LocalAddressProvider localAddressProvider) {
     this(factory, nsPort, new NameClient(nameServerAddr, nameServerPort,
         30000, factory, retryCount, retryTimeout, localAddressProvider, tpFactory),

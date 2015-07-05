@@ -206,7 +206,7 @@ public class CommunicationGroupClientImpl implements CommunicationGroupServiceCl
       LOG.finest("Sending TopologyChanges msg to driver");
       try {
         sender.send(Utils.bldVersionedGCM(groupName, operName, ReefNetworkGroupCommProtos.GroupCommMessage.Type.TopologyChanges, taskId, op.getVersion(), driverId,
-            0, Utils.EmptyByteArr));
+            0, Utils.EMPTY_BYTE_ARR));
       } catch (final NetworkException e) {
         throw new RuntimeException("NetworkException while sending GetTopologyChanges", e);
       }
@@ -248,7 +248,7 @@ public class CommunicationGroupClientImpl implements CommunicationGroupServiceCl
       final Class<? extends Name<String>> operName = op.getOperName();
       try {
         sender.send(Utils.bldVersionedGCM(groupName, operName, ReefNetworkGroupCommProtos.GroupCommMessage.Type.UpdateTopology, taskId, op.getVersion(), driverId,
-            0, Utils.EmptyByteArr));
+            0, Utils.EMPTY_BYTE_ARR));
       } catch (final NetworkException e) {
         throw new RuntimeException("NetworkException while sending UpdateTopology", e);
       }

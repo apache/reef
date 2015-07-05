@@ -131,6 +131,15 @@ under the License.
     <Compile Include="RX\IStaticObservable.cs" />
     <Compile Include="RX\ISubject.cs" />
     <Compile Include="RX\ObserverCompletedException.cs" />
+    <Compile Include="StreamingCodec\CodecToStreamingCodec.cs" />
+    <Compile Include="StreamingCodec\CommonStreamingCodecs\DoubleArrayStreamingCodec.cs" />
+    <Compile Include="StreamingCodec\CommonStreamingCodecs\DoubleStreamingCodec.cs" />
+    <Compile Include="StreamingCodec\CommonStreamingCodecs\FloatArrayStreamingCodec.cs" />
+    <Compile Include="StreamingCodec\CommonStreamingCodecs\FloatStreamingCodec.cs" />
+    <Compile Include="StreamingCodec\CommonStreamingCodecs\IntArrayStreamingCodec.cs" />
+    <Compile Include="StreamingCodec\CommonStreamingCodecs\IntStreamingCodec.cs" />
+    <Compile Include="StreamingCodec\CommonStreamingCodecs\StringStreamingCodec.cs" />
+    <Compile Include="StreamingCodec\IStreamingCodec.cs" />
     <Compile Include="Time\Event\Alarm.cs" />
     <Compile Include="Time\Event\StartTime.cs" />
     <Compile Include="Time\Event\StopTime.cs" />

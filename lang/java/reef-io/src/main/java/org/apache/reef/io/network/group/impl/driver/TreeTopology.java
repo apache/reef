@@ -313,7 +313,7 @@ public class TreeTopology implements Topology {
       node.updatingTopology();
       LOG.fine(getQualifiedName() + "Asking " + node + " to UpdateTopology");
       senderStage.onNext(Utils.bldVersionedGCM(groupName, operName, ReefNetworkGroupCommProtos.GroupCommMessage.Type.UpdateTopology, driverId, 0, node.getTaskId(),
-          node.getVersion(), Utils.EmptyByteArr));
+          node.getVersion(), Utils.EMPTY_BYTE_ARR));
     }
     nodeTopologyUpdateWaitStage.onNext(toBeUpdatedNodes);
     LOG.exiting("TreeTopology", "onUpdateTopology", getQualifiedName() + msg);

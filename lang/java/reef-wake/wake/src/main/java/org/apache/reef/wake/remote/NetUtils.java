@@ -26,14 +26,14 @@ import org.apache.reef.wake.remote.address.LocalAddressProviderFactory;
  */
 @Deprecated
 public final class NetUtils {
-  private static final LocalAddressProvider localAddressProvider = LocalAddressProviderFactory.getInstance();
+  private static final LocalAddressProvider LOCAL_ADDRESS_PROVIDER = LocalAddressProviderFactory.getInstance();
 
   /**
    * @deprecated Use <code>org.apache.reef.wake.remote.address.LocalAddressProvider#getLocalAddress()</code> instead.
    */
   @Deprecated
   public static String getLocalAddress() {
-    return localAddressProvider.getLocalAddress();
+    return LOCAL_ADDRESS_PROVIDER.getLocalAddress();
   }
 
   /**
