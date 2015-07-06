@@ -1,4 +1,4 @@
-/*
+/**
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -16,34 +16,32 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.io.network.impl;
+package org.apache.reef.io.network.shuffle.grouping.impl;
 
-import org.apache.reef.tang.annotations.Parameter;
-import org.apache.reef.task.events.TaskStop;
-import org.apache.reef.wake.EventHandler;
-import org.apache.reef.wake.IdentifierFactory;
+import org.apache.reef.io.network.shuffle.grouping.Grouping;
+import org.apache.reef.io.network.shuffle.topology.NodePoolDescription;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * TaskStop event handler for unregistering NetworkServiceClient id.
- * Users have to bind this handler into ServiceConfiguration.ON_TASK_STOP.
+ *
  */
-public class UnbindNSFromTask implements EventHandler<TaskStop> {
-
-  private final NetworkService<?> ns;
-  private final IdentifierFactory idFac;
+public final class KeyGrouping<K> implements Grouping<K> {
 
   @Inject
-  public UnbindNSFromTask(
-      final NetworkService<?> ns,
-      @Parameter(NetworkServiceParameters.NetworkServiceIdentifierFactory.class) final IdentifierFactory idFac) {
-    this.ns = ns;
-    this.idFac = idFac;
+  public KeyGrouping() {
   }
 
   @Override
-  public void onNext(final TaskStop task) {
-    this.ns.unregisterId(this.idFac.getNewInstance(task.getId()));
+  public List<String> selectReceivers(K key, NodePoolDescription receiverPoolDescription) {
+    int index = key.hashCode() % receiverPoolDescription.getNodePoolSize();
+    if (index < 0) {
+      index += receiverPoolDescription.getNodePoolSize();
+    }
+    final List<String> list =  new ArrayList<>();
+    list.add(receiverPoolDescription.getNodeIdAt(index));
+    return list;
   }
 }

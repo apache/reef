@@ -1,4 +1,4 @@
-/*
+/**
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -16,45 +16,23 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.io.network;
+package org.apache.reef.io.network.shuffle.topology;
 
-import org.apache.reef.exception.evaluator.NetworkException;
-
-import java.util.List;
+import org.apache.reef.io.network.Message;
+import org.apache.reef.io.network.shuffle.ns.ShuffleControlMessage;
+import org.apache.reef.io.network.shuffle.ns.ShuffleMessage;
+import org.apache.reef.tang.annotations.Name;
+import org.apache.reef.wake.EventHandler;
+import org.apache.reef.wake.remote.transport.LinkListener;
 
 /**
- * Connection between two end-points named by identifiers.
  *
- * @param <T> type
  */
-public interface Connection<T> extends AutoCloseable {
+public interface ShuffleTopologyController {
 
-  /**
-   * Opens the connection.
-   *
-   * @throws NetworkException
-   */
-  void open() throws NetworkException;
+  Class<? extends Name<String>> getTopologyName();
 
-  /**
-   * Writes an message to the connection.
-   *
-   * @param message
-   */
-  void write(T message);
+  EventHandler<Message<ShuffleControlMessage>> getControlMessageHandler();
 
-  /**
-   * Writes a list of messages to the connection.
-   *
-   * @param messages
-   */
-  void write(List<T> messages);
-
-  /**
-   * Closes the connection.
-   *
-   * @throws NetworkException
-   */
-  @Override
-  void close() throws NetworkException;
+  LinkListener<Message<ShuffleControlMessage>> getControlLinkListener();
 }

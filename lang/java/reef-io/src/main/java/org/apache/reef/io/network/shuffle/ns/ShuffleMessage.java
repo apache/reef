@@ -1,4 +1,4 @@
-/*
+/**
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -16,45 +16,41 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.io.network;
-
-import org.apache.reef.exception.evaluator.NetworkException;
-
-import java.util.List;
+package org.apache.reef.io.network.shuffle.ns;
 
 /**
- * Connection between two end-points named by identifiers.
  *
- * @param <T> type
  */
-public interface Connection<T> extends AutoCloseable {
+public abstract class ShuffleMessage {
 
-  /**
-   * Opens the connection.
-   *
-   * @throws NetworkException
-   */
-  void open() throws NetworkException;
+  public static final int TUPLE_MESSAGE = 0;
 
-  /**
-   * Writes an message to the connection.
-   *
-   * @param message
-   */
-  void write(T message);
+  private final int code;
+  private final String topologyName;
+  private final String groupingName;
 
-  /**
-   * Writes a list of messages to the connection.
-   *
-   * @param messages
-   */
-  void write(List<T> messages);
+  public ShuffleMessage(
+      final int code,
+      final String topologyName,
+      final String groupingName) {
+    this.code = code;
+    this.topologyName = topologyName;
+    this.groupingName = groupingName;
+  }
 
-  /**
-   * Closes the connection.
-   *
-   * @throws NetworkException
-   */
-  @Override
-  void close() throws NetworkException;
+  public int getCode() {
+    return code;
+  }
+
+  public String getTopologyName() {
+    return topologyName;
+  }
+
+  public String getGroupingName() {
+    return groupingName;
+  }
+
+  public abstract int getDataLength();
+
+  public abstract Object getDataAt(final int index);
 }

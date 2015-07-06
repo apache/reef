@@ -1,4 +1,4 @@
-/*
+/**
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -16,45 +16,38 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.io.network;
-
-import org.apache.reef.exception.evaluator.NetworkException;
-
-import java.util.List;
+package org.apache.reef.io.network.shuffle.ns;
 
 /**
- * Connection between two end-points named by identifiers.
  *
- * @param <T> type
  */
-public interface Connection<T> extends AutoCloseable {
+public final class ShuffleControlMessage extends ShuffleMessage {
 
-  /**
-   * Opens the connection.
-   *
-   * @throws NetworkException
-   */
-  void open() throws NetworkException;
+  private final byte[][] data;
 
-  /**
-   * Writes an message to the connection.
-   *
-   * @param message
-   */
-  void write(T message);
+  public ShuffleControlMessage(
+      final int code,
+      final String topologyName,
+      final String groupingName,
+      final byte[][] data) {
+    super(code, topologyName, groupingName);
+    if (code == ShuffleMessage.TUPLE_MESSAGE) {
+      throw new RuntimeException("0 cannot be used as ShuffleControlMessage code since it is reserved for TUPLE_MESSAGE");
+    }
+    this.data = data;
+  }
 
-  /**
-   * Writes a list of messages to the connection.
-   *
-   * @param messages
-   */
-  void write(List<T> messages);
-
-  /**
-   * Closes the connection.
-   *
-   * @throws NetworkException
-   */
   @Override
-  void close() throws NetworkException;
+  public int getDataLength() {
+    if (data == null) {
+      return 0;
+    }
+
+    return data.length;
+  }
+
+  @Override
+  public byte[] getDataAt(final int index) {
+    return data[index];
+  }
 }

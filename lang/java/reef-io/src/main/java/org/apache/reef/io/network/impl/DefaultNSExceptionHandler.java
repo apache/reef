@@ -18,32 +18,25 @@
  */
 package org.apache.reef.io.network.impl;
 
-import org.apache.reef.tang.annotations.Parameter;
-import org.apache.reef.task.events.TaskStop;
 import org.apache.reef.wake.EventHandler;
-import org.apache.reef.wake.IdentifierFactory;
 
 import javax.inject.Inject;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
- * TaskStop event handler for unregistering NetworkServiceClient id.
- * Users have to bind this handler into ServiceConfiguration.ON_TASK_STOP.
+ * Default exception handler.
  */
-public class UnbindNSFromTask implements EventHandler<TaskStop> {
+public final class DefaultNSExceptionHandler implements EventHandler<Exception> {
 
-  private final NetworkService<?> ns;
-  private final IdentifierFactory idFac;
+  private static final Logger LOG = Logger.getLogger(DefaultNSExceptionHandler.class.getName());
 
   @Inject
-  public UnbindNSFromTask(
-      final NetworkService<?> ns,
-      @Parameter(NetworkServiceParameters.NetworkServiceIdentifierFactory.class) final IdentifierFactory idFac) {
-    this.ns = ns;
-    this.idFac = idFac;
+  public DefaultNSExceptionHandler() {
   }
 
   @Override
-  public void onNext(final TaskStop task) {
-    this.ns.unregisterId(this.idFac.getNewInstance(task.getId()));
+  public void onNext(final Exception value) {
+    LOG.log(Level.WARNING, "An exception occurred in transport of NetworkService: {0}", value);
   }
 }

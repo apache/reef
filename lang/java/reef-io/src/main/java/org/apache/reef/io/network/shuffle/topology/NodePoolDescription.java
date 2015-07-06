@@ -1,4 +1,4 @@
-/*
+/**
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -16,45 +16,26 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.io.network;
+package org.apache.reef.io.network.shuffle.topology;
 
-import org.apache.reef.exception.evaluator.NetworkException;
+import org.apache.reef.tang.Configuration;
 
 import java.util.List;
 
 /**
- * Connection between two end-points named by identifiers.
  *
- * @param <T> type
  */
-public interface Connection<T> extends AutoCloseable {
+public interface NodePoolDescription {
 
-  /**
-   * Opens the connection.
-   *
-   * @throws NetworkException
-   */
-  void open() throws NetworkException;
+  String getNodePoolName();
 
-  /**
-   * Writes an message to the connection.
-   *
-   * @param message
-   */
-  void write(T message);
+  List<String> getNodeIdList();
 
-  /**
-   * Writes a list of messages to the connection.
-   *
-   * @param messages
-   */
-  void write(List<T> messages);
+  int getNodePoolSize();
 
-  /**
-   * Closes the connection.
-   *
-   * @throws NetworkException
-   */
-  @Override
-  void close() throws NetworkException;
+  String getNodeIdAt(int index);
+
+  boolean hasNodeId(String nodeId);
+
+  Configuration convertToConfiguration();
 }

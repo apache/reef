@@ -1,4 +1,4 @@
-/*
+/**
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -16,45 +16,48 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.io.network;
-
-import org.apache.reef.exception.evaluator.NetworkException;
-
-import java.util.List;
+package org.apache.reef.io.network.shuffle.task;
 
 /**
- * Connection between two end-points named by identifiers.
  *
- * @param <T> type
  */
-public interface Connection<T> extends AutoCloseable {
+public final class Tuple<K, V> {
 
-  /**
-   * Opens the connection.
-   *
-   * @throws NetworkException
-   */
-  void open() throws NetworkException;
+  private final K key;
+  private final V value;
 
-  /**
-   * Writes an message to the connection.
-   *
-   * @param message
-   */
-  void write(T message);
+  public Tuple(K key, V value) {
+    this.key = key;
+    this.value = value;
+  }
 
-  /**
-   * Writes a list of messages to the connection.
-   *
-   * @param messages
-   */
-  void write(List<T> messages);
+  public K getKey() {
+    return key;
+  }
 
-  /**
-   * Closes the connection.
-   *
-   * @throws NetworkException
-   */
+  public int getKeyHash() {
+    return key.hashCode();
+  }
+
+  public V getValue() {
+    return value;
+  }
+
   @Override
-  void close() throws NetworkException;
+  public String toString() {
+    return "ShuffleTuple[ key : " + key + " , value : " + value + " ]";
+  }
+
+  @Override
+  public int hashCode() {
+    return 31 * key.hashCode() + value.hashCode();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (! (obj instanceof Tuple)) {
+      return false;
+    }
+    return key.equals(((Tuple) obj).getKey()) && value.equals(((Tuple) obj).getValue());
+  }
 }

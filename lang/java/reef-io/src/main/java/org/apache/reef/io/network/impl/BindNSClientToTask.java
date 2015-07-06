@@ -18,32 +18,33 @@
  */
 package org.apache.reef.io.network.impl;
 
+import org.apache.reef.io.network.NetworkServiceClient;
 import org.apache.reef.tang.annotations.Parameter;
-import org.apache.reef.task.events.TaskStop;
+import org.apache.reef.task.events.TaskStart;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.IdentifierFactory;
 
 import javax.inject.Inject;
 
 /**
- * TaskStop event handler for unregistering NetworkServiceClient id.
- * Users have to bind this handler into ServiceConfiguration.ON_TASK_STOP.
+ * TaskStart event handler for registering NetworkServiceClient id.
+ * Users have to bind this handler into ServiceConfiguration.ON_TASK_STARTED.
  */
-public class UnbindNSFromTask implements EventHandler<TaskStop> {
+public final class BindNSClientToTask implements EventHandler<TaskStart> {
 
-  private final NetworkService<?> ns;
+  private final NetworkServiceClient ns;
   private final IdentifierFactory idFac;
 
   @Inject
-  public UnbindNSFromTask(
-      final NetworkService<?> ns,
+  public BindNSClientToTask(
+      final NetworkServiceClient ns,
       @Parameter(NetworkServiceParameters.NetworkServiceIdentifierFactory.class) final IdentifierFactory idFac) {
     this.ns = ns;
     this.idFac = idFac;
   }
 
   @Override
-  public void onNext(final TaskStop task) {
-    this.ns.unregisterId(this.idFac.getNewInstance(task.getId()));
+  public void onNext(final TaskStart task) {
+    this.ns.registerId(this.idFac.getNewInstance(task.getId()));
   }
 }

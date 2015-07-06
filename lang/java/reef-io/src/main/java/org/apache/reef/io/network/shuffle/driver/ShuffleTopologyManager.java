@@ -1,4 +1,4 @@
-/*
+/**
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -16,45 +16,27 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.io.network;
+package org.apache.reef.io.network.shuffle.driver;
 
-import org.apache.reef.exception.evaluator.NetworkException;
-
-import java.util.List;
+import org.apache.reef.driver.task.CompletedTask;
+import org.apache.reef.driver.task.FailedTask;
+import org.apache.reef.driver.task.RunningTask;
+import org.apache.reef.io.network.shuffle.topology.ShuffleTopologyController;
+import org.apache.reef.io.network.shuffle.topology.TopologyDescription;
+import org.apache.reef.tang.Configuration;
 
 /**
- * Connection between two end-points named by identifiers.
  *
- * @param <T> type
  */
-public interface Connection<T> extends AutoCloseable {
+public interface ShuffleTopologyManager extends ShuffleTopologyController {
 
-  /**
-   * Opens the connection.
-   *
-   * @throws NetworkException
-   */
-  void open() throws NetworkException;
+  TopologyDescription getTopologyDescription();
 
-  /**
-   * Writes an message to the connection.
-   *
-   * @param message
-   */
-  void write(T message);
+  Configuration getTopologyConfigurationForTask(String taskId);
 
-  /**
-   * Writes a list of messages to the connection.
-   *
-   * @param messages
-   */
-  void write(List<T> messages);
+  void onRunningTask(RunningTask runningTask);
 
-  /**
-   * Closes the connection.
-   *
-   * @throws NetworkException
-   */
-  @Override
-  void close() throws NetworkException;
+  void onFailedTask(FailedTask failedTask);
+
+  void onCompletedTask(CompletedTask completedTask);
 }

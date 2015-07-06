@@ -1,4 +1,4 @@
-/*
+/**
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -16,45 +16,30 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.io.network;
+package org.apache.reef.io.network.shuffle.topology;
 
-import org.apache.reef.exception.evaluator.NetworkException;
+import org.apache.reef.io.network.shuffle.driver.ShuffleTopologyManager;
+import org.apache.reef.io.network.shuffle.task.ShuffleTopologyClient;
+import org.apache.reef.tang.Configuration;
+import org.apache.reef.tang.annotations.Name;
 
 import java.util.List;
+import java.util.Map;
 
 /**
- * Connection between two end-points named by identifiers.
  *
- * @param <T> type
  */
-public interface Connection<T> extends AutoCloseable {
+public interface TopologyDescription {
 
-  /**
-   * Opens the connection.
-   *
-   * @throws NetworkException
-   */
-  void open() throws NetworkException;
+  Class<? extends Name<String>> getTopologyName();
 
-  /**
-   * Writes an message to the connection.
-   *
-   * @param message
-   */
-  void write(T message);
+  Map<String, NodePoolDescription> getNodePoolDescriptionMap();
 
-  /**
-   * Writes a list of messages to the connection.
-   *
-   * @param messages
-   */
-  void write(List<T> messages);
+  List<GroupingDescription> getGroupingDescriptionList();
 
-  /**
-   * Closes the connection.
-   *
-   * @throws NetworkException
-   */
-  @Override
-  void close() throws NetworkException;
+  Class<? extends ShuffleTopologyManager> getManagerClass();
+
+  Configuration getManagerConfiguration();
+
+  Class<? extends ShuffleTopologyClient> getClientClass();
 }

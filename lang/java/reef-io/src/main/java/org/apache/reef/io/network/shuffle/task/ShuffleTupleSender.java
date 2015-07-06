@@ -1,4 +1,4 @@
-/*
+/**
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -16,45 +16,27 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.io.network;
+package org.apache.reef.io.network.shuffle.task;
 
-import org.apache.reef.exception.evaluator.NetworkException;
+import org.apache.reef.io.network.Message;
+import org.apache.reef.io.network.shuffle.ns.ShuffleTupleMessage;
+import org.apache.reef.tang.annotations.DefaultImplementation;
+import org.apache.reef.wake.remote.transport.LinkListener;
 
 import java.util.List;
 
 /**
- * Connection between two end-points named by identifiers.
  *
- * @param <T> type
  */
-public interface Connection<T> extends AutoCloseable {
+@DefaultImplementation(BaseTupleSender.class)
+public interface ShuffleTupleSender<K, V> extends ShuffleTupleOperator<K, V> {
 
-  /**
-   * Opens the connection.
-   *
-   * @throws NetworkException
-   */
-  void open() throws NetworkException;
+  int sendTuple(Tuple<K, V> tuple);
 
-  /**
-   * Writes an message to the connection.
-   *
-   * @param message
-   */
-  void write(T message);
+  int sendTuple(List<Tuple<K, V>> tupleList);
 
-  /**
-   * Writes a list of messages to the connection.
-   *
-   * @param messages
-   */
-  void write(List<T> messages);
+  int sendTuple(K key, List<V> valueList);
 
-  /**
-   * Closes the connection.
-   *
-   * @throws NetworkException
-   */
-  @Override
-  void close() throws NetworkException;
+  void registerLinkListener(LinkListener<Message<ShuffleTupleMessage<K, V>>> linkListener);
+
 }

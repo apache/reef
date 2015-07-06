@@ -1,4 +1,4 @@
-/*
+/**
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -16,34 +16,28 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.io.network.impl;
+package org.apache.reef.examples.shuffle.utils;
 
-import org.apache.reef.tang.annotations.Parameter;
-import org.apache.reef.task.events.TaskStop;
-import org.apache.reef.wake.EventHandler;
-import org.apache.reef.wake.IdentifierFactory;
+import org.apache.reef.wake.remote.Codec;
 
 import javax.inject.Inject;
 
 /**
- * TaskStop event handler for unregistering NetworkServiceClient id.
- * Users have to bind this handler into ServiceConfiguration.ON_TASK_STOP.
+ *
  */
-public class UnbindNSFromTask implements EventHandler<TaskStop> {
-
-  private final NetworkService<?> ns;
-  private final IdentifierFactory idFac;
+public final class IntegerCodec implements Codec<Integer> {
 
   @Inject
-  public UnbindNSFromTask(
-      final NetworkService<?> ns,
-      @Parameter(NetworkServiceParameters.NetworkServiceIdentifierFactory.class) final IdentifierFactory idFac) {
-    this.ns = ns;
-    this.idFac = idFac;
+  public IntegerCodec() {
   }
 
   @Override
-  public void onNext(final TaskStop task) {
-    this.ns.unregisterId(this.idFac.getNewInstance(task.getId()));
+  public byte[] encode(Integer obj) {
+    return Integer.toString(obj).getBytes();
+  }
+
+  @Override
+  public Integer decode(byte[] buf) {
+    return Integer.decode(new String(buf));
   }
 }
