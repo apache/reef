@@ -277,39 +277,39 @@ public class SuspendDriver {
 
         switch (command) {
 
-          case "suspend": {
-            final RunningTask task = runningTasks.get(taskId);
-            if (task != null) {
-              task.suspend();
-            } else {
-              throw new IllegalArgumentException("Suspend: Task not found: " + taskId);
-            }
-            break;
+        case "suspend": {
+          final RunningTask task = runningTasks.get(taskId);
+          if (task != null) {
+            task.suspend();
+          } else {
+            throw new IllegalArgumentException("Suspend: Task not found: " + taskId);
           }
+          break;
+        }
 
-          case "resume": {
-            final SuspendedTask suspendedTask;
+        case "resume": {
+          final SuspendedTask suspendedTask;
             synchronized (suspendedTasks) {
-              suspendedTask = suspendedTasks.remove(taskId);
-            }
-            if (suspendedTask != null) {
-              try {
-                suspendedTask.getActiveContext().submitTask(TaskConfiguration.CONF
+            suspendedTask = suspendedTasks.remove(taskId);
+          }
+          if (suspendedTask != null) {
+            try {
+              suspendedTask.getActiveContext().submitTask(TaskConfiguration.CONF
                     .set(TaskConfiguration.IDENTIFIER, taskId)
                     .set(TaskConfiguration.MEMENTO,
                         DatatypeConverter.printBase64Binary(suspendedTask.get()))
                     .build());
-              } catch (final BindException e) {
-                throw new RuntimeException(e);
-              }
-            } else {
-              throw new IllegalArgumentException("Resume: Task not found: " + taskId);
+            } catch (final BindException e) {
+              throw new RuntimeException(e);
             }
-            break;
+          } else {
+            throw new IllegalArgumentException("Resume: Task not found: " + taskId);
           }
+          break;
+        }
 
-          default:
-            throw new IllegalArgumentException("Bad command: " + command);
+        default:
+          throw new IllegalArgumentException("Bad command: " + command);
         }
       }
     }

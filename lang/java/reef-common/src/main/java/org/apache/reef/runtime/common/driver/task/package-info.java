@@ -20,7 +20,8 @@
  * Driver-Side representations of tasks.
  */
 @Private
-@DriverSide package org.apache.reef.runtime.common.driver.task;
+@DriverSide
+package org.apache.reef.runtime.common.driver.task;
 
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;

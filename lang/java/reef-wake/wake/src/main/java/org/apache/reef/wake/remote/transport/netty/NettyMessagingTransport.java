@@ -180,33 +180,33 @@ public class NettyMessagingTransport implements Transport {
 
     LOG.log(Level.FINE, "Binding to {0}", port);
 
-  Channel acceptor = null;
-  try {
-    if (port > 0) {
-      acceptor = this.serverBootstrap.bind(new InetSocketAddress(host, port)).sync().channel();
-    } else {
-      Iterator<Integer> ports = tcpPortProvider.iterator();
-      while (acceptor == null) {
-        if (!ports.hasNext()) {
-          break;
-        }
-        port = ports.next();
-        LOG.log(Level.FINEST, "Try port {0}", port);
-        try {
-          acceptor = this.serverBootstrap.bind(new InetSocketAddress(host, port)).sync().channel();
-        } catch (final Exception ex) {
-          if (ex instanceof BindException) {
-            LOG.log(Level.FINEST, "The port {0} is already bound. Try again", port);
-          } else {
-            throw ex;
+    Channel acceptor = null;
+    try {
+      if (port > 0) {
+        acceptor = this.serverBootstrap.bind(new InetSocketAddress(host, port)).sync().channel();
+      } else {
+        Iterator<Integer> ports = tcpPortProvider.iterator();
+        while (acceptor == null) {
+          if (!ports.hasNext()) {
+            break;
+          }
+          port = ports.next();
+          LOG.log(Level.FINEST, "Try port {0}", port);
+          try {
+            acceptor = this.serverBootstrap.bind(new InetSocketAddress(host, port)).sync().channel();
+          } catch (final Exception ex) {
+            if (ex instanceof BindException) {
+              LOG.log(Level.FINEST, "The port {0} is already bound. Try again", port);
+            } else {
+              throw ex;
+            }
           }
         }
       }
-    }
-  } catch (final Exception ex) {
-    final RuntimeException transportException =
-       new TransportRuntimeException("Cannot bind to port " + port);
-    LOG.log(Level.SEVERE, "Cannot bind to port " + port, ex);
+    } catch (final Exception ex) {
+      final RuntimeException transportException =
+          new TransportRuntimeException("Cannot bind to port " + port);
+      LOG.log(Level.SEVERE, "Cannot bind to port " + port, ex);
 
       this.clientWorkerGroup.shutdownGracefully();
       this.serverBossGroup.shutdownGracefully();

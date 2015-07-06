@@ -98,42 +98,42 @@ public class SlaveTask implements Task {
       final ControlMessages controlMessage = controlMessageBroadcaster.receive();
       switch (controlMessage) {
 
-        case Stop:
-          repeat = false;
-          break;
+      case Stop:
+        repeat = false;
+        break;
 
-        case ComputeGradientWithModel:
-          failPerhaps();
-          this.model = modelBroadcaster.receive();
-          lossAndGradientReducer.send(computeLossAndGradient());
-          break;
+      case ComputeGradientWithModel:
+        failPerhaps();
+        this.model = modelBroadcaster.receive();
+        lossAndGradientReducer.send(computeLossAndGradient());
+        break;
 
-        case ComputeGradientWithMinEta:
-          failPerhaps();
-          final double minEta = minEtaBroadcaster.receive();
+      case ComputeGradientWithMinEta:
+        failPerhaps();
+        final double minEta = minEtaBroadcaster.receive();
           assert (descentDirection != null);
-          this.descentDirection.scale(minEta);
+        this.descentDirection.scale(minEta);
           assert (model != null);
-          this.model.add(descentDirection);
-          lossAndGradientReducer.send(computeLossAndGradient());
-          break;
+        this.model.add(descentDirection);
+        lossAndGradientReducer.send(computeLossAndGradient());
+        break;
 
-        case DoLineSearch:
-          failPerhaps();
-          this.descentDirection = descentDirectionBroadcaster.receive();
-          lineSearchEvaluationsReducer.send(lineSearchEvals());
-          break;
+      case DoLineSearch:
+        failPerhaps();
+        this.descentDirection = descentDirectionBroadcaster.receive();
+        lineSearchEvaluationsReducer.send(lineSearchEvals());
+        break;
 
-        case DoLineSearchWithModel:
-          failPerhaps();
-          final Pair<Vector, Vector> modelAndDescentDir = modelAndDescentDirectionBroadcaster.receive();
-          this.model = modelAndDescentDir.first;
-          this.descentDirection = modelAndDescentDir.second;
-          lineSearchEvaluationsReducer.send(lineSearchEvals());
-          break;
+      case DoLineSearchWithModel:
+        failPerhaps();
+        final Pair<Vector, Vector> modelAndDescentDir = modelAndDescentDirectionBroadcaster.receive();
+        this.model = modelAndDescentDir.first;
+        this.descentDirection = modelAndDescentDir.second;
+        lineSearchEvaluationsReducer.send(lineSearchEvals());
+        break;
 
-        default:
-          break;
+      default:
+        break;
       }
     }
 

@@ -36,66 +36,66 @@ import java.util.Map;
  */
 public class Credentials {
 
-    private static final String CREDENTIALS = "credentials";
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+  private static final String CREDENTIALS = "credentials";
+  private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-    private Map<String, List<StringEntry>> tokens = new HashMap<>();
-    private Map<String, List<StringEntry>> secrets = new HashMap<>();
+  private Map<String, List<StringEntry>> tokens = new HashMap<>();
+  private Map<String, List<StringEntry>> secrets = new HashMap<>();
 
-    public Credentials() {
-        this.tokens.put(Constants.ENTRY, new ArrayList<StringEntry>());
-        this.secrets.put(Constants.ENTRY, new ArrayList<StringEntry>());
+  public Credentials() {
+    this.tokens.put(Constants.ENTRY, new ArrayList<StringEntry>());
+    this.secrets.put(Constants.ENTRY, new ArrayList<StringEntry>());
+  }
+
+  public Credentials addSecret(String key, String value) {
+    if (!this.secrets.containsKey(Constants.ENTRY)) {
+      this.secrets.put(Constants.ENTRY, new ArrayList<StringEntry>());
     }
+    this.secrets.get(Constants.ENTRY).add(new StringEntry(key, value));
+    return this;
+  }
 
-    public Credentials addSecret(String key, String value) {
-        if (!this.secrets.containsKey(Constants.ENTRY)) {
-            this.secrets.put(Constants.ENTRY, new ArrayList<StringEntry>());
-        }
-        this.secrets.get(Constants.ENTRY).add(new StringEntry(key, value));
-        return this;
+  public Credentials addToken(String key, String value) {
+    if (!this.tokens.containsKey(Constants.ENTRY)) {
+      this.tokens.put(Constants.ENTRY, new ArrayList<StringEntry>());
     }
+    this.tokens.get(Constants.ENTRY).add(new StringEntry(key, value));
+    return this;
+  }
 
-    public Credentials addToken(String key, String value) {
-        if (!this.tokens.containsKey(Constants.ENTRY)) {
-            this.tokens.put(Constants.ENTRY, new ArrayList<StringEntry>());
-        }
-        this.tokens.get(Constants.ENTRY).add(new StringEntry(key, value));
-        return this;
-    }
-
-    @JsonProperty(Constants.SECRETS)
+  @JsonProperty(Constants.SECRETS)
     @JsonSerialize(include = JsonSerialize.Inclusion.NON_DEFAULT)
     public Map<String, List<StringEntry>> getSecrets() {
-        return this.secrets;
-    }
+    return this.secrets;
+  }
 
-    public Credentials setSecrets(final Map<String, List<StringEntry>> secrets) {
-        this.secrets = secrets;
-        return this;
-    }
+  public Credentials setSecrets(final Map<String, List<StringEntry>> secrets) {
+    this.secrets = secrets;
+    return this;
+  }
 
-    @JsonProperty(Constants.TOKENS)
+  @JsonProperty(Constants.TOKENS)
     @JsonSerialize(include = JsonSerialize.Inclusion.NON_DEFAULT)
     public Map<String, List<StringEntry>> getTokens() {
-        return this.tokens;
-    }
+    return this.tokens;
+  }
 
-    public Credentials setTokens(final Map<String, List<StringEntry>> tokens) {
-        this.tokens = tokens;
-        return this;
-    }
+  public Credentials setTokens(final Map<String, List<StringEntry>> tokens) {
+    this.tokens = tokens;
+    return this;
+  }
 
-    @Override
+  @Override
     public String toString() {
-        StringWriter writer = new StringWriter();
-        String objectString;
-        try {
-            OBJECT_MAPPER.writeValue(writer, this);
-            objectString = writer.toString();
-        } catch (IOException e) {
-            return null;
-        }
-
-        return CREDENTIALS + objectString;
+    StringWriter writer = new StringWriter();
+    String objectString;
+    try {
+      OBJECT_MAPPER.writeValue(writer, this);
+      objectString = writer.toString();
+    } catch (IOException e) {
+      return null;
     }
+
+    return CREDENTIALS + objectString;
+  }
 }

@@ -76,59 +76,59 @@ public final class TaskStatus {
       return to == State.INIT;
     }
     switch (from) {
-      case PRE_INIT:
-        switch (to) {
-          case INIT:
-            return true;
-          default:
-            return false;
-        }
+    case PRE_INIT:
+      switch (to) {
       case INIT:
-        switch (to) {
-          case RUNNING:
-          case FAILED:
-          case KILLED:
-          case DONE:
-            return true;
-          default:
-            return false;
-        }
-      case RUNNING:
-        switch (to) {
-          case CLOSE_REQUESTED:
-          case SUSPEND_REQUESTED:
-          case FAILED:
-          case KILLED:
-          case DONE:
-            return true;
-          default:
-            return false;
-        }
-      case CLOSE_REQUESTED:
-        switch (to) {
-          case FAILED:
-          case KILLED:
-          case DONE:
-            return true;
-          default:
-            return false;
-        }
-      case SUSPEND_REQUESTED:
-        switch (to) {
-          case FAILED:
-          case KILLED:
-          case SUSPENDED:
-            return true;
-          default:
-            return false;
-        }
-
-      case FAILED:
-      case DONE:
-      case KILLED:
-        return false;
+        return true;
       default:
         return false;
+      }
+    case INIT:
+      switch (to) {
+      case RUNNING:
+      case FAILED:
+      case KILLED:
+      case DONE:
+        return true;
+      default:
+        return false;
+      }
+    case RUNNING:
+      switch (to) {
+      case CLOSE_REQUESTED:
+      case SUSPEND_REQUESTED:
+      case FAILED:
+      case KILLED:
+      case DONE:
+        return true;
+      default:
+        return false;
+      }
+    case CLOSE_REQUESTED:
+      switch (to) {
+      case FAILED:
+      case KILLED:
+      case DONE:
+        return true;
+      default:
+        return false;
+      }
+    case SUSPEND_REQUESTED:
+      switch (to) {
+      case FAILED:
+      case KILLED:
+      case SUSPENDED:
+        return true;
+      default:
+        return false;
+      }
+
+    case FAILED:
+    case DONE:
+    case KILLED:
+      return false;
+    default:
+      return false;
     }
   }
 
@@ -168,22 +168,22 @@ public final class TaskStatus {
 
   private ReefServiceProtos.State getProtoState() {
     switch (this.state) {
-      case INIT:
-        return ReefServiceProtos.State.INIT;
-      case CLOSE_REQUESTED:
-      case SUSPEND_REQUESTED:
-      case RUNNING:
-        return ReefServiceProtos.State.RUNNING;
-      case DONE:
-        return ReefServiceProtos.State.DONE;
-      case SUSPENDED:
-        return ReefServiceProtos.State.SUSPEND;
-      case FAILED:
-        return ReefServiceProtos.State.FAILED;
-      case KILLED:
-        return ReefServiceProtos.State.KILLED;
-      default:
-        throw new RuntimeException("Unknown state: " + this.state);
+    case INIT:
+      return ReefServiceProtos.State.INIT;
+    case CLOSE_REQUESTED:
+    case SUSPEND_REQUESTED:
+    case RUNNING:
+      return ReefServiceProtos.State.RUNNING;
+    case DONE:
+      return ReefServiceProtos.State.DONE;
+    case SUSPENDED:
+      return ReefServiceProtos.State.SUSPEND;
+    case FAILED:
+      return ReefServiceProtos.State.FAILED;
+    case KILLED:
+      return ReefServiceProtos.State.KILLED;
+    default:
+      throw new RuntimeException("Unknown state: " + this.state);
     }
   }
 
@@ -254,13 +254,13 @@ public final class TaskStatus {
 
   boolean hasEnded() {
     switch (this.state) {
-      case DONE:
-      case SUSPENDED:
-      case FAILED:
-      case KILLED:
-        return true;
-      default:
-        return false;
+    case DONE:
+    case SUSPENDED:
+    case FAILED:
+    case KILLED:
+      return true;
+    default:
+      return false;
     }
   }
 

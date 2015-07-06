@@ -113,18 +113,18 @@ public final class ContextRepresenters {
 
     LOG.log(Level.FINER, "Processing context status message for context {0}", contextStatusProto.getContextId());
     switch (contextStatusProto.getContextState()) {
-      case READY:
-        this.onContextReady(contextStatusProto, notifyClientOnNewActiveContext);
-        break;
-      case FAIL:
-        this.onContextFailed(contextStatusProto);
-        break;
-      case DONE:
-        this.onContextDone(contextStatusProto);
-        break;
-      default:
-        this.onUnknownContextStatus(contextStatusProto);
-        break;
+    case READY:
+      this.onContextReady(contextStatusProto, notifyClientOnNewActiveContext);
+      break;
+    case FAIL:
+      this.onContextFailed(contextStatusProto);
+      break;
+    case DONE:
+      this.onContextDone(contextStatusProto);
+      break;
+    default:
+      this.onUnknownContextStatus(contextStatusProto);
+      break;
     }
     LOG.log(Level.FINER, "Done processing context status message for context {0}", contextStatusProto.getContextId());
 

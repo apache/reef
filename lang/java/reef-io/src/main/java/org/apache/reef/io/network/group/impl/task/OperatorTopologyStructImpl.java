@@ -397,20 +397,20 @@ public class OperatorTopologyStructImpl implements OperatorTopologyStruct {
       LOG.finest(getQualifiedName() + "Before update: parent=" + ((parent != null) ? parent.getId() : "NULL"));
       LOG.finest(getQualifiedName() + "Before update: children=" + children);
       switch (msg.getType()) {
-        case ParentAdd:
-          updateParentAdd(srcId, srcVersion);
-          break;
-        case ParentDead:
-          updateParentDead(srcId, srcVersion);
-          break;
-        case ChildAdd:
-          updateChildAdd(srcId, srcVersion);
-          break;
-        case ChildDead:
-          updateChildDead(srcId, srcVersion);
-          break;
-        default:
-          throw new RuntimeException("Received a non control message in update");
+      case ParentAdd:
+        updateParentAdd(srcId, srcVersion);
+        break;
+      case ParentDead:
+        updateParentDead(srcId, srcVersion);
+        break;
+      case ChildAdd:
+        updateChildAdd(srcId, srcVersion);
+        break;
+      case ChildDead:
+        updateChildDead(srcId, srcVersion);
+        break;
+      default:
+        throw new RuntimeException("Received a non control message in update");
       }
       LOG.finest(getQualifiedName() + "After update: parent=" + ((parent != null) ? parent.getId() : "NULL"));
       LOG.finest(getQualifiedName() + "After update: children=" + children);
