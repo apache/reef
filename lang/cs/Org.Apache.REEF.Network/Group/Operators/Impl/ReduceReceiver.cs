@@ -33,12 +33,13 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
     /// Group Communication operator used to receive and reduce messages in pipelined fashion.
     /// </summary>
     /// <typeparam name="T">The message type</typeparam>
-    public sealed class ReduceReceiver<T> : IReduceReceiver<T>
+    public sealed class ReduceReceiver<T> : IReduceReceiver<T>, IGroupCommOperatorInternal
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(ReduceReceiver<T>));
         private const int PipelineVersion = 2;
         private readonly IOperatorTopology<PipelineMessage<T>> _topology;
         private readonly PipelinedReduceFunction<T> _pipelinedReduceFunc;
+        private readonly bool _initialize;
 
         /// <summary>
         /// Creates a new ReduceReceiver.
@@ -67,17 +68,13 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
             Version = PipelineVersion;
             ReduceFunction = reduceFunction;
             PipelineDataConverter = dataConverter;
+            _initialize = initialize;
 
             _pipelinedReduceFunc = new PipelinedReduceFunction<T>(ReduceFunction);
             _topology = topology;
 
             var msgHandler = Observer.Create<GeneralGroupCommunicationMessage>(message => topology.OnNext(message));
             networkHandler.Register(operatorName, msgHandler);
-
-            if (initialize)
-            {
-                topology.Initialize();
-            }
         }
 
         /// <summary>
@@ -122,6 +119,17 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
             } while (!message.IsLast);
 
             return PipelineDataConverter.FullMessage(messageList);
+        }
+
+        /// <summary>
+        /// Ensure all parent and children nodes in the topology are registered with teh Name Service.
+        /// </summary>
+        void IGroupCommOperatorInternal.WaitForRegistration()
+        {
+            if (_initialize)
+            {
+                _topology.Initialize();
+            }
         }
     }
 }

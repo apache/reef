@@ -57,6 +57,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         private string _driverId;
         private readonly int _timeout;
         private readonly int _retryCount;
+        private readonly int _sleepTime;
 
         private readonly NodeStruct<T> _parent;
         private readonly List<NodeStruct<T>> _children;
@@ -75,7 +76,8 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         /// <param name="taskId">The operator's Task identifier</param>
         /// <param name="driverId">The identifer for the driver</param>
         /// <param name="timeout">Timeout value for cancellation token</param>
-        /// <param name="retryCount">Number of times to retry registration</param>
+        /// <param name="retryCount">Number of times to retry wating for registration</param>
+        /// <param name="sleepTime">Sleep time between retry wating for registration</param>
         /// <param name="rootId">The identifier for the root Task in the topology graph</param>
         /// <param name="childIds">The set of child Task identifiers in the topology graph</param>
         /// <param name="networkService">The network service</param>
@@ -88,7 +90,8 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
             [Parameter(typeof(TaskConfigurationOptions.Identifier))] string taskId,
             [Parameter(typeof(GroupCommConfigurationOptions.DriverId))] string driverId,
             [Parameter(typeof(GroupCommConfigurationOptions.Timeout))] int timeout,
-            [Parameter(typeof(GroupCommConfigurationOptions.RetryCount))] int retryCount,
+            [Parameter(typeof(GroupCommConfigurationOptions.RetryCountWaitingForRegistration))] int retryCount,
+            [Parameter(typeof(GroupCommConfigurationOptions.SleepTimeWaitingForRegistration))] int sleepTime,
             [Parameter(typeof(GroupCommConfigurationOptions.TopologyRootTaskId))] string rootId,
             [Parameter(typeof(GroupCommConfigurationOptions.TopologyChildTaskIds))] ISet<string> childIds,
             WritableNetworkService<GeneralGroupCommunicationMessage> networkService,
@@ -101,6 +104,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
             _driverId = driverId;
             _timeout = timeout;
             _retryCount = retryCount;
+            _sleepTime = sleepTime;
             _nameClient = networkService.NamingClient;
             _sender = sender;
             _nodesWithData = new BlockingCollection<NodeStruct<T>>();
@@ -529,7 +533,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
                     return;
                 }
 
-                Thread.Sleep(500);
+                Thread.Sleep(_sleepTime);
             }
 
             throw new IllegalStateException("Failed to initialize operator topology for node: " + identifier);
