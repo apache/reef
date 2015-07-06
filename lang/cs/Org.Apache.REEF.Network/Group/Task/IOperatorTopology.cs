@@ -32,6 +32,13 @@ namespace Org.Apache.REEF.Network.Group.Task
     public interface IOperatorTopology<T>
     {
         /// <summary>
+        /// Initializes operator topology.
+        /// Waits until all Tasks in the CommunicationGroup have registered themselves
+        /// with the Name Service.
+        /// </summary>
+        void Initialize();
+
+        /// <summary>
         /// Sends the message to the parent Task.
         /// </summary>
         /// <param name="message">The message to send</param>

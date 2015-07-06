@@ -69,6 +69,11 @@ namespace Org.Apache.REEF.Network.NetworkService
             _remoteManager = remoteManagerFactory.GetInstance<WritableNsMessage<T>>(localAddress, nsPort);
             _messageHandler = messageHandler;
 
+            // Create and register incoming message handler
+            // TODO[REEF-419] This should use the TcpPortProvider mechanism
+            var anyEndpoint = new IPEndPoint(IPAddress.Any, 0);
+            _messageHandlerDisposable = _remoteManager.RegisterObserver(anyEndpoint, _messageHandler);
+
             _nameClient = nameClient;
             _connectionMap = new Dictionary<IIdentifier, IConnection<T>>();
 
@@ -121,11 +126,6 @@ namespace Org.Apache.REEF.Network.NetworkService
 
             _localIdentifier = id;
             NamingClient.Register(id.ToString(), _remoteManager.LocalEndpoint);
-
-            // Create and register incoming message handler
-            // TODO[REEF-419] This should use the TcpPortProvider mechanism
-            var anyEndpoint = new IPEndPoint(IPAddress.Any, 0);
-            _messageHandlerDisposable = _remoteManager.RegisterObserver(anyEndpoint, _messageHandler);
 
             Logger.Log(Level.Info, "End of Registering id {0} with network service.", id);
         }
