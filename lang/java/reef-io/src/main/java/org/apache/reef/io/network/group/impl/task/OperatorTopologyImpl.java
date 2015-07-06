@@ -123,43 +123,43 @@ public class OperatorTopologyImpl implements OperatorTopology {
     if (isMsgVersionOk(msg)) {
       try {
         switch (msg.getType()) {
-          case UpdateTopology:
-            updatingTopo.set(true);
-            baseTopologyUpdateStage.onNext(msg);
-            topologyLockAquired.awaitAndReset(1);
-            LOG.finest(getQualifiedName() + "topoLockAquired CDL released. Resetting it to new CDL");
-            sendAckToDriver(msg);
-            break;
+        case UpdateTopology:
+          updatingTopo.set(true);
+          baseTopologyUpdateStage.onNext(msg);
+          topologyLockAquired.awaitAndReset(1);
+          LOG.finest(getQualifiedName() + "topoLockAquired CDL released. Resetting it to new CDL");
+          sendAckToDriver(msg);
+          break;
 
-          case TopologySetup:
-            LOG.finest(getQualifiedName() + "Adding to deltas queue");
-            deltas.put(msg);
-            break;
+        case TopologySetup:
+          LOG.finest(getQualifiedName() + "Adding to deltas queue");
+          deltas.put(msg);
+          break;
 
-          case ParentAdd:
-          case ChildAdd:
-            LOG.finest(getQualifiedName() + "Adding to deltas queue");
-            deltas.put(msg);
-            break;
+        case ParentAdd:
+        case ChildAdd:
+          LOG.finest(getQualifiedName() + "Adding to deltas queue");
+          deltas.put(msg);
+          break;
 
-          case ParentDead:
-          case ChildDead:
-            LOG.finest(getQualifiedName() + "Adding to deltas queue");
-            deltas.put(msg);
+        case ParentDead:
+        case ChildDead:
+          LOG.finest(getQualifiedName() + "Adding to deltas queue");
+          deltas.put(msg);
 
-            LOG.finest(getQualifiedName() + "Adding to deletionDeltas queue");
-            deletionDeltas.put(msg);
+          LOG.finest(getQualifiedName() + "Adding to deletionDeltas queue");
+          deletionDeltas.put(msg);
 
-            if (effectiveTopology != null) {
-              LOG.finest(getQualifiedName() + "Adding as data msg to non-null effective topology struct");
-              effectiveTopology.addAsData(msg);
-            } else {
-              LOG.fine(getQualifiedName() + "Received a death message before effective topology was setup. CAUTION");
-            }
-            break;
+          if (effectiveTopology != null) {
+            LOG.finest(getQualifiedName() + "Adding as data msg to non-null effective topology struct");
+            effectiveTopology.addAsData(msg);
+          } else {
+            LOG.fine(getQualifiedName() + "Received a death message before effective topology was setup. CAUTION");
+          }
+          break;
 
-          default:
-            dataHandlingStage.onNext(msg);
+        default:
+          dataHandlingStage.onNext(msg);
         }
       } catch (final InterruptedException e) {
         throw new RuntimeException("InterruptedException while trying to put ctrl msg into delta queue", e);
@@ -323,28 +323,28 @@ public class OperatorTopologyImpl implements OperatorTopology {
       if (msg.hasVersion()) {
         final int srcVersion = msg.getSrcVersion();
         switch (msg.getType()) {
-          case UpdateTopology:
-            sender.send(Utils.bldVersionedGCM(groupName, operName, ReefNetworkGroupCommProtos.GroupCommMessage.Type.TopologySetup, selfId, this.version, driverId,
+        case UpdateTopology:
+          sender.send(Utils.bldVersionedGCM(groupName, operName, ReefNetworkGroupCommProtos.GroupCommMessage.Type.TopologySetup, selfId, this.version, driverId,
                 srcVersion, Utils.EMPTY_BYTE_ARR));
-            break;
-          case ParentAdd:
-            sender.send(Utils.bldVersionedGCM(groupName, operName, ReefNetworkGroupCommProtos.GroupCommMessage.Type.ParentAdded, selfId, this.version, srcId,
+          break;
+        case ParentAdd:
+          sender.send(Utils.bldVersionedGCM(groupName, operName, ReefNetworkGroupCommProtos.GroupCommMessage.Type.ParentAdded, selfId, this.version, srcId,
                 srcVersion, Utils.EMPTY_BYTE_ARR), driverId);
-            break;
-          case ParentDead:
-            sender.send(Utils.bldVersionedGCM(groupName, operName, ReefNetworkGroupCommProtos.GroupCommMessage.Type.ParentRemoved, selfId, this.version, srcId,
+          break;
+        case ParentDead:
+          sender.send(Utils.bldVersionedGCM(groupName, operName, ReefNetworkGroupCommProtos.GroupCommMessage.Type.ParentRemoved, selfId, this.version, srcId,
                 srcVersion, Utils.EMPTY_BYTE_ARR), driverId);
-            break;
-          case ChildAdd:
-            sender.send(Utils.bldVersionedGCM(groupName, operName, ReefNetworkGroupCommProtos.GroupCommMessage.Type.ChildAdded, selfId, this.version, srcId,
+          break;
+        case ChildAdd:
+          sender.send(Utils.bldVersionedGCM(groupName, operName, ReefNetworkGroupCommProtos.GroupCommMessage.Type.ChildAdded, selfId, this.version, srcId,
                 srcVersion, Utils.EMPTY_BYTE_ARR), driverId);
-            break;
-          case ChildDead:
-            sender.send(Utils.bldVersionedGCM(groupName, operName, ReefNetworkGroupCommProtos.GroupCommMessage.Type.ChildRemoved, selfId, this.version, srcId,
+          break;
+        case ChildDead:
+          sender.send(Utils.bldVersionedGCM(groupName, operName, ReefNetworkGroupCommProtos.GroupCommMessage.Type.ChildRemoved, selfId, this.version, srcId,
                 srcVersion, Utils.EMPTY_BYTE_ARR), driverId);
-            break;
-          default:
-            throw new RuntimeException("Received a non control message for acknowledgement");
+          break;
+        default:
+          throw new RuntimeException("Received a non control message for acknowledgement");
         }
       } else {
         throw new RuntimeException(getQualifiedName() + "Ack Sender can only deal with versioned msgs");

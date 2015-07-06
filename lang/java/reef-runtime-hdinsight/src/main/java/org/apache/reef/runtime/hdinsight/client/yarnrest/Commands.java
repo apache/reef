@@ -33,34 +33,34 @@ import java.io.StringWriter;
  */
 public final class Commands {
 
-    public static final String DEFAULT_COMMAND = "";
+  public static final String DEFAULT_COMMAND = "";
 
-    private static final String COMMANDS = "commands";
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+  private static final String COMMANDS = "commands";
+  private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-    private String command = DEFAULT_COMMAND;
+  private String command = DEFAULT_COMMAND;
 
-    @JsonProperty(Constants.COMMAND)
+  @JsonProperty(Constants.COMMAND)
     @JsonSerialize(include = JsonSerialize.Inclusion.NON_EMPTY)
     public String getCommand() {
-        return this.command;
-    }
+    return this.command;
+  }
 
-    public void setCommand(final String command) {
-        this.command = command;
-    }
+  public void setCommand(final String command) {
+    this.command = command;
+  }
 
-    @Override
+  @Override
     public String toString() {
-        StringWriter writer = new StringWriter();
-        String objectString;
-        try {
-            OBJECT_MAPPER.writeValue(writer, this);
-            objectString = writer.toString();
-        } catch (IOException e) {
-            return null;
-        }
-
-        return COMMANDS + objectString;
+    StringWriter writer = new StringWriter();
+    String objectString;
+    try {
+      OBJECT_MAPPER.writeValue(writer, this);
+      objectString = writer.toString();
+    } catch (IOException e) {
+      return null;
     }
+
+    return COMMANDS + objectString;
+  }
 }

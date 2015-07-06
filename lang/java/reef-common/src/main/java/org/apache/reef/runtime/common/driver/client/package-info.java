@@ -20,6 +20,7 @@
  * Objects representing the Client on the Driver.
  */
 
-@DriverSide package org.apache.reef.runtime.common.driver.client;
+@DriverSide
+package org.apache.reef.runtime.common.driver.client;
 
 import org.apache.reef.annotations.audience.DriverSide;

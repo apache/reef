@@ -77,33 +77,33 @@ public final class DriverStatusManager {
    */
   private static boolean isLegalTransition(final DriverStatus from, final DriverStatus to) {
     switch (from) {
-      case PRE_INIT:
-        switch (to) {
-          case INIT:
-            return true;
-          default:
-            return false;
-        }
+    case PRE_INIT:
+      switch (to) {
       case INIT:
-        switch (to) {
-          case RUNNING:
-            return true;
-          default:
-            return false;
-        }
-      case RUNNING:
-        switch (to) {
-          case SHUTTING_DOWN:
-          case FAILING:
-            return true;
-          default:
-            return false;
-        }
-      case FAILING:
-      case SHUTTING_DOWN:
-        return false;
+        return true;
       default:
-        throw new IllegalStateException("Unknown input state: " + from);
+        return false;
+      }
+    case INIT:
+      switch (to) {
+      case RUNNING:
+        return true;
+      default:
+        return false;
+      }
+    case RUNNING:
+      switch (to) {
+      case SHUTTING_DOWN:
+      case FAILING:
+        return true;
+      default:
+        return false;
+      }
+    case FAILING:
+    case SHUTTING_DOWN:
+      return false;
+    default:
+      throw new IllegalStateException("Unknown input state: " + from);
     }
   }
 

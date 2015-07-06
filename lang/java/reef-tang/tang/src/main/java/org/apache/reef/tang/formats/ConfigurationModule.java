@@ -292,7 +292,7 @@ public class ConfigurationModule {
             setParams.isEmpty() &&
             setImplLists.isEmpty() &&
             setParamLists.isEmpty()
-    )) {
+      )) {
       throw new ClassHierarchyException("Detected statically set ConfigurationModule Parameter / Implementation.  set() should only be used dynamically.  Use bind...() instead.");
     }
   }

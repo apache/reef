@@ -55,11 +55,11 @@ public class SuspendClientControl implements AutoCloseable {
 
     final EStage<TransportEvent> stage = new ThreadPoolStage<>(
         "suspend-control-server", new ControlMessageHandler(), 1, new EventHandler<Throwable>() {
-      @Override
-      public void onNext(final Throwable throwable) {
-        throw new RuntimeException(throwable);
-      }
-    });
+          @Override
+          public void onNext(final Throwable throwable) {
+            throw new RuntimeException(throwable);
+          }
+        });
 
     this.transport = tpFactory.newInstance("localhost", port, stage, stage, 1, 10000);
   }

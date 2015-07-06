@@ -149,6 +149,6 @@ public final class BroadcastREEF {
     /**
      * Empty private constructor to prohibit instantiation of utility class.
      */
-    private BroadcastREEF() {
-    }
+  private BroadcastREEF() {
+  }
 }

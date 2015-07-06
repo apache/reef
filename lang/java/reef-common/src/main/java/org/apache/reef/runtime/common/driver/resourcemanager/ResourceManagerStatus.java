@@ -71,21 +71,21 @@ public final class ResourceManagerStatus implements EventHandler<RuntimeStatusEv
     this.setState(runtimeStatusEvent.getState());
 
     switch (newState) {
-      case FAILED:
-        this.onRMFailure(runtimeStatusEvent);
-        break;
-      case DONE:
-        this.onRMDone(runtimeStatusEvent);
-        break;
-      case RUNNING:
-        this.onRMRunning(runtimeStatusEvent);
-        break;
-      case INIT:
-      case SUSPEND:
-      case KILLED:
-        break;
-      default:
-        throw new RuntimeException("Unknown state: " + newState);
+    case FAILED:
+      this.onRMFailure(runtimeStatusEvent);
+      break;
+    case DONE:
+      this.onRMDone(runtimeStatusEvent);
+      break;
+    case RUNNING:
+      this.onRMRunning(runtimeStatusEvent);
+      break;
+    case INIT:
+    case SUSPEND:
+    case KILLED:
+      break;
+    default:
+      throw new RuntimeException("Unknown state: " + newState);
     }
   }
 

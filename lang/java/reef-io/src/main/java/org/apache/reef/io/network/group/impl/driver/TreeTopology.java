@@ -273,16 +273,16 @@ public class TreeTopology implements Topology {
   public void onReceiptOfMessage(final GroupCommunicationMessage msg) {
     LOG.entering("TreeTopology", "onReceiptOfMessage", new Object[]{getQualifiedName(), msg});
     switch (msg.getType()) {
-      case TopologyChanges:
-        onTopologyChanges(msg);
-        break;
-      case UpdateTopology:
-        onUpdateTopology(msg);
-        break;
+    case TopologyChanges:
+      onTopologyChanges(msg);
+      break;
+    case UpdateTopology:
+      onUpdateTopology(msg);
+      break;
 
-      default:
-        nodes.get(msg.getSrcid()).onReceiptOfAcknowledgement(msg);
-        break;
+    default:
+      nodes.get(msg.getSrcid()).onReceiptOfAcknowledgement(msg);
+      break;
     }
     LOG.exiting("TreeTopology", "onReceiptOfMessage", getQualifiedName() + msg);
   }

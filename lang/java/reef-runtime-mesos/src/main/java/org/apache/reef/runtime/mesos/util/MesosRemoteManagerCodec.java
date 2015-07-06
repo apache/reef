@@ -36,7 +36,7 @@ public class MesosRemoteManagerCodec implements Codec<EvaluatorControl> {
   public MesosRemoteManagerCodec() {
   }
 
- @Override
+  @Override
   public byte[] encode(final EvaluatorControl evaluatorControl) {
     try {
       LOG.log(Level.INFO, "Before Eecoding: {0}", evaluatorControl.toString());

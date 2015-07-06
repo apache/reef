@@ -367,26 +367,26 @@ final class YarnContainerManager
           ResourceStatusEventImpl.newBuilder().setIdentifier(containerId);
 
       switch (value.getState()) {
-        case COMPLETE:
-          LOG.log(Level.FINE, "Container completed: status {0}", value.getExitStatus());
-          switch (value.getExitStatus()) {
-            case 0:
-              status.setState(ReefServiceProtos.State.DONE);
-              break;
-            case 143:
-              status.setState(ReefServiceProtos.State.KILLED);
-              break;
-            default:
-              status.setState(ReefServiceProtos.State.FAILED);
-          }
-          status.setExitCode(value.getExitStatus());
-          // remove the completed container (can be either done/killed/failed) from book keeping
-          this.containers.removeAndGet(containerId);
-          logContainerRemoval(containerId);
+      case COMPLETE:
+        LOG.log(Level.FINE, "Container completed: status {0}", value.getExitStatus());
+        switch (value.getExitStatus()) {
+        case 0:
+          status.setState(ReefServiceProtos.State.DONE);
+          break;
+        case 143:
+          status.setState(ReefServiceProtos.State.KILLED);
           break;
         default:
-          LOG.info("Container running");
-          status.setState(ReefServiceProtos.State.RUNNING);
+          status.setState(ReefServiceProtos.State.FAILED);
+        }
+        status.setExitCode(value.getExitStatus());
+          // remove the completed container (can be either done/killed/failed) from book keeping
+        this.containers.removeAndGet(containerId);
+        logContainerRemoval(containerId);
+        break;
+      default:
+        LOG.info("Container running");
+        status.setState(ReefServiceProtos.State.RUNNING);
       }
 
       if (value.getDiagnostics() != null) {
@@ -611,7 +611,7 @@ final class YarnContainerManager
             new BufferedWriter(new OutputStreamWriter(fs.append(path))) :
             new BufferedWriter(new OutputStreamWriter(fs.create(path)));
     ) {
-        bw.write(entry);
+      bw.write(entry);
     } catch (final IOException e) {
       if (appendToLog) {
         LOG.log(Level.FINE, "Unable to add an entry to the Evaluator log. Attempting append by delete and recreate", e);

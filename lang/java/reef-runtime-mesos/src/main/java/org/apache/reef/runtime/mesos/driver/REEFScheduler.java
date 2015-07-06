@@ -195,29 +195,29 @@ final class REEFScheduler implements Scheduler {
         ResourceStatusEventImpl.newBuilder().setIdentifier(taskStatus.getTaskId().getValue());
 
     switch(taskStatus.getState()) {
-      case TASK_STARTING:
-        handleNewExecutor(taskStatus); // As there is only one Mesos Task per Mesos Executor, this is a new executor.
+    case TASK_STARTING:
+      handleNewExecutor(taskStatus); // As there is only one Mesos Task per Mesos Executor, this is a new executor.
+      return;
+    case TASK_RUNNING:
+      resourceStatus.setState(State.RUNNING);
+      break;
+    case TASK_FINISHED:
+      if (taskStatus.getData().toStringUtf8().equals("eval_not_run")) { // TODO: a hack to pass closeEvaluator test, replace this with a better interface
         return;
-      case TASK_RUNNING:
-        resourceStatus.setState(State.RUNNING);
-        break;
-      case TASK_FINISHED:
-        if (taskStatus.getData().toStringUtf8().equals("eval_not_run")) { // TODO: a hack to pass closeEvaluator test, replace this with a better interface
-          return;
-        }
-        resourceStatus.setState(State.DONE);
-        break;
-      case TASK_KILLED:
-        resourceStatus.setState(State.KILLED);
-        break;
-      case TASK_LOST:
-      case TASK_FAILED:
-        resourceStatus.setState(State.FAILED);
-        break;
-      case TASK_STAGING:
-        throw new RuntimeException("TASK_STAGING should not be used for status update");
-      default:
-        throw new RuntimeException("Unknown TaskStatus");
+      }
+      resourceStatus.setState(State.DONE);
+      break;
+    case TASK_KILLED:
+      resourceStatus.setState(State.KILLED);
+      break;
+    case TASK_LOST:
+    case TASK_FAILED:
+      resourceStatus.setState(State.FAILED);
+      break;
+    case TASK_STAGING:
+      throw new RuntimeException("TASK_STAGING should not be used for status update");
+    default:
+      throw new RuntimeException("Unknown TaskStatus");
     }
 
     if (taskStatus.getMessage() != null) {

@@ -56,10 +56,10 @@ public final class EvaluatorRequestorBridge extends NativeBridge {
       clrEvaluatorsNumber += evaluatorsNumber;
 
       final EvaluatorRequest request = EvaluatorRequest.newBuilder()
-        .setNumber(evaluatorsNumber)
-        .setMemory(memory)
-        .setNumberOfCores(virtualCore)
-        .build();
+          .setNumber(evaluatorsNumber)
+          .setMemory(memory)
+          .setNumberOfCores(virtualCore)
+          .build();
 
       LOG.log(Level.FINE, "submitting evaluator request {0}", request);
       jevaluatorRequestor.submit(request);
