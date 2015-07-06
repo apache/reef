@@ -21,7 +21,6 @@ package org.apache.reef.io.network;
 import org.apache.reef.exception.evaluator.NetworkException;
 import org.apache.reef.io.network.impl.DefaultNetworkServiceClientImpl;
 import org.apache.reef.tang.annotations.DefaultImplementation;
-import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.Identifier;
 import org.apache.reef.wake.remote.Codec;
@@ -47,7 +46,7 @@ public interface NetworkServiceClient extends AutoCloseable {
    * @param linkListener a link listener
    * @throws NetworkException throws a NetworkException when duplicated connectionFactoryId exists.
    */
-  <T> void registerConnectionFactory(final Class<? extends Name<String>> connectionFactoryId,
+  <T> void registerConnectionFactory(final Identifier connectionFactoryId,
                                             final Codec<T> codec,
                                             final EventHandler<Message<T>> eventHandler,
                                             final LinkListener<Message<T>> linkListener) throws NetworkException;
@@ -56,13 +55,13 @@ public interface NetworkServiceClient extends AutoCloseable {
    * Unregisters a connectionFactory corresponding to the connectionFactoryId.
    * @param connectionFactoryId a connection factory id
    */
-  void unregisterConnectionFactory(final Class<? extends Name<String>> connectionFactoryId);
+  void unregisterConnectionFactory(final Identifier connectionFactoryId);
 
   /**
    * Gets an instance of ConnectionFactory which is registered by the registerConnectionFactory method.
    * @param connectionFactoryId a connection factory id
    */
-  <T> ConnectionFactory<T> getConnectionFactory(final Class<? extends Name<String>> connectionFactoryId);
+  <T> ConnectionFactory<T> getConnectionFactory(final Identifier connectionFactoryId);
 
   /**
    * Registers network service client identifier.

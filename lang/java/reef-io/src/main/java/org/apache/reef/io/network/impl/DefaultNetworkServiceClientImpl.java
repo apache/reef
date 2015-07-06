@@ -24,7 +24,6 @@ import org.apache.reef.io.network.ConnectionFactory;
 import org.apache.reef.io.network.Message;
 import org.apache.reef.io.network.NetworkServiceClient;
 import org.apache.reef.io.network.naming.NameResolver;
-import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.wake.EStage;
 import org.apache.reef.wake.EventHandler;
@@ -136,11 +135,11 @@ public final class DefaultNetworkServiceClientImpl implements NetworkServiceClie
   }
 
   @Override
-  public <T> void registerConnectionFactory(final Class<? extends Name<String>> connFactoryId,
+  public <T> void registerConnectionFactory(final Identifier connFactoryId,
                                                          final Codec<T> codec,
                                                          final EventHandler<Message<T>> eventHandler,
                                                          final LinkListener<Message<T>> linkListener) throws NetworkException {
-    final String id = connFactoryId.getName();
+    String id = connFactoryId.toString();
     if (connFactoryMap.get(id) != null) {
       throw new NetworkException("ConnectionFactory " + connFactoryId + " was already registered.");
     }
@@ -154,8 +153,8 @@ public final class DefaultNetworkServiceClientImpl implements NetworkServiceClie
   }
 
   @Override
-  public void unregisterConnectionFactory(final Class<? extends Name<String>> connFactoryId) {
-    final String id = connFactoryId.getName();
+  public void unregisterConnectionFactory(final Identifier connFactoryId) {
+    final String id = connFactoryId.toString();
     final ConnectionFactory  connFactory = connFactoryMap.get(id);
     if (connFactory != null) {
       final ConnectionFactory cf = connFactoryMap.remove(id);
@@ -207,8 +206,8 @@ public final class DefaultNetworkServiceClientImpl implements NetworkServiceClie
    */
 
   @Override
-  public <T> ConnectionFactory<T> getConnectionFactory(final Class<? extends Name<String>> connFactoryId) {
-    final ConnectionFactory<T> connFactory = connFactoryMap.get(connFactoryId.getName());
+  public <T> ConnectionFactory<T> getConnectionFactory(final Identifier connFactoryId) {
+    final ConnectionFactory<T> connFactory = connFactoryMap.get(connFactoryId.toString());
     if (connFactory == null) {
       throw new RuntimeException("Cannot find ConnectionFactory of " + connFactoryId + ".");
     }
