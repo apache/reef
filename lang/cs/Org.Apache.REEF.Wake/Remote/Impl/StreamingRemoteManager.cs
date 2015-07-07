@@ -20,7 +20,6 @@
 using System;
 using System.Collections.Generic;
 using System.Net;
-using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Wake.StreamingCodec;
 
 namespace Org.Apache.REEF.Wake.Remote.Impl

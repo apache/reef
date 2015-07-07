@@ -102,8 +102,6 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
                 _link.Dispose();
                 _disposed = true;
             }
-
-            GC.SuppressFinalize(this);
         }
 
         /// <summary>
