@@ -31,6 +31,7 @@ import org.apache.reef.runtime.common.files.ClasspathProvider;
 import org.apache.reef.runtime.common.files.JobJarMaker;
 import org.apache.reef.runtime.common.files.REEFFileNames;
 import org.apache.reef.runtime.common.parameters.JVMHeapSlack;
+import org.apache.reef.runtime.yarn.client.parameters.JobQueue;
 import org.apache.reef.runtime.yarn.client.uploader.JobFolder;
 import org.apache.reef.runtime.yarn.client.uploader.JobUploader;
 import org.apache.reef.runtime.yarn.driver.YarnDriverConfiguration;
@@ -39,7 +40,6 @@ import org.apache.reef.tang.Configurations;
 import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.tang.exceptions.InjectionException;
-import org.apache.reef.tang.formats.ConfigurationSerializer;
 import org.apache.reef.util.Optional;
 
 import javax.inject.Inject;
@@ -47,8 +47,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import static org.apache.reef.util.Optional.*;
 
 @Private
 @ClientSide
@@ -60,9 +58,9 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
   private final JobJarMaker jobJarMaker;
   private final REEFFileNames fileNames;
   private final ClasspathProvider classpath;
-  private final ConfigurationSerializer configurationSerializer;
   private final JobUploader uploader;
   private final double jvmSlack;
+  private final String defaultQueueName;
 
   @Inject
   YarnJobSubmissionHandler(
@@ -70,17 +68,17 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
       final JobJarMaker jobJarMaker,
       final REEFFileNames fileNames,
       final ClasspathProvider classpath,
-      final ConfigurationSerializer configurationSerializer,
       final JobUploader uploader,
-      @Parameter(JVMHeapSlack.class) final double jvmSlack) throws IOException {
+      @Parameter(JVMHeapSlack.class) final double jvmSlack,
+      @Parameter(JobQueue.class) String defaultQueueName) throws IOException {
 
     this.yarnConfiguration = yarnConfiguration;
     this.jobJarMaker = jobJarMaker;
     this.fileNames = fileNames;
     this.classpath = classpath;
-    this.configurationSerializer = configurationSerializer;
     this.uploader = uploader;
     this.jvmSlack = jvmSlack;
+    this.defaultQueueName = defaultQueueName;
   }
 
   @Override
@@ -110,7 +108,7 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
           .setApplicationName(jobSubmissionEvent.getIdentifier())
           .setDriverMemory(jobSubmissionEvent.getDriverMemory().get())
           .setPriority(getPriority(jobSubmissionEvent))
-          .setQueue(getQueue(jobSubmissionEvent, "default"))
+          .setQueue(getQueue(jobSubmissionEvent))
           .submit(jobSubmissionEvent.getRemoteId());
 
       LOG.log(Level.FINEST, "Submitted job with ID [{0}]", jobSubmissionEvent.getIdentifier());
@@ -141,12 +139,23 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
 
   /**
    * Extract the queue name from the jobSubmissionEvent or return default if none is set.
-   * <p/>
-   * TODO: Revisit this. We also have a named parameter for the queue in YarnClientConfiguration.
    */
-  private String getQueue(final JobSubmissionEvent jobSubmissionEvent,
-                          final String defaultQueue) {
-    return jobSubmissionEvent.getQueue().orElse(defaultQueue);
+  private String getQueue(final JobSubmissionEvent jobSubmissionEvent) {
+    return getQueue(jobSubmissionEvent.getConfiguration());
+  }
+
+  /**
+   * Extracts the queue name from the driverConfiguration or return default if none is set.
+   *
+   * @param driverConfiguration
+   * @return the queue name from the driverConfiguration or return default if none is set.
+   */
+  private String getQueue(final Configuration driverConfiguration) {
+    try {
+      return Tang.Factory.getTang().newInjector(driverConfiguration).getNamedInstance(JobQueue.class);
+    } catch (final Throwable t) {
+      return this.defaultQueueName;
+    }
   }
 
   private static Optional<String> getUserBoundJobSubmissionDirectory(final Configuration configuration) {
