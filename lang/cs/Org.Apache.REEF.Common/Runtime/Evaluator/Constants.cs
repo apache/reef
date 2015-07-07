@@ -33,6 +33,8 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
 
         public const string ApplicationIdentifier = "ApplicationIdentifier";
 
+        public const string ErrorHandlerRID = "ErrorHandlerRID";
+
         public const int DefaultEvaluatorHeartbeatPeriodInMs = 4000;
 
         public const int DefaultEvaluatorHeartbeatMaxRetry = 3;

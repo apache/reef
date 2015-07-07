@@ -119,8 +119,6 @@ final class MesosJobSubmissionHandler implements JobSubmissionHandler {
       this.configurationSerializer.toFile(driverConfiguration, runtimeConfigurationFile);
 
       final List<String> launchCommand = new JavaLaunchCommandBuilder()
-          .setErrorHandlerRID(jobSubmissionEvent.getRemoteId())
-          .setLaunchID(jobSubmissionEvent.getIdentifier())
           .setConfigurationFileName(this.fileNames.getDriverConfigurationPath())
           .setClassPath(this.classpath.getDriverClasspath())
           .setMemory(jobSubmissionEvent.getDriverMemory().get())

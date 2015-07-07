@@ -41,7 +41,9 @@ import java.util.logging.Logger;
 
 /**
  * This encapsulates processes started by REEF.
+ * @deprecated in 0.12.0. This class is exclusively used by the deprecated Launcher.
  */
+@Deprecated
 public final class LaunchClass implements AutoCloseable, Runnable {
 
   private static final Logger LOG = Logger.getLogger(LaunchClass.class.getName());

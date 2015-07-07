@@ -33,7 +33,7 @@ import java.util.logging.Logger;
 /**
  * An EventHandler that writes out the profiler results.
  */
-final class ProfilingStopHandler implements EventHandler<StopTime> {
+public final class ProfilingStopHandler implements EventHandler<StopTime> {
   private static final Logger LOG = Logger.getLogger(ProfilingStopHandler.class.getName());
   private static WakeProfiler profiler;
   private final String launchID;
@@ -43,7 +43,7 @@ final class ProfilingStopHandler implements EventHandler<StopTime> {
     this.launchID = launchID;
   }
 
-  static void setProfiler(final WakeProfiler profiler) {
+  public static void setProfiler(final WakeProfiler profiler) {
     ProfilingStopHandler.profiler = profiler;
   }
 

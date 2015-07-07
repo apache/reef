@@ -43,7 +43,10 @@ import java.util.logging.Logger;
 
 /**
  * The main entrance point into any REEF process. It is mostly instantiating LaunchClass and calling .run() on it.
+ * @deprecated in 0.12.0. Please use REEFLauncher, which reads ErrorHandlerRID and LaunchID from the \
+ *             configuration file rather than from the command line arguments.
  */
+@Deprecated
 public final class Launcher {
 
   private static final Logger LOG = Logger.getLogger(Launcher.class.getName());
@@ -95,6 +98,10 @@ public final class Launcher {
    * @throws Exception
    */
   public static void main(final String[] args) {
+    LOG.log(Level.WARNING, "Launcher is deprecated in REEF 0.12.0. Please use REEFLauncher, " +
+            "which reads ErrorHandlerRID and LaunchID from the " +
+            "configuration file rather than from the command line arguments");
+
     LOG.log(Level.FINE, "Launcher started with user name [{0}]", System.getProperty("user.name"));
 
     LOG.log(Level.FINE, "Launcher started. Assertions are {0} in this process.",

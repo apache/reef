@@ -26,10 +26,13 @@ import org.apache.reef.io.WorkingDirectoryTempFileCreator;
 import org.apache.reef.runtime.common.driver.api.ResourceLaunchHandler;
 import org.apache.reef.runtime.common.driver.api.ResourceReleaseHandler;
 import org.apache.reef.runtime.common.driver.api.ResourceRequestHandler;
+import org.apache.reef.runtime.common.driver.parameters.ClientRemoteIdentifier;
 import org.apache.reef.runtime.common.driver.parameters.EvaluatorTimeout;
 import org.apache.reef.runtime.common.driver.parameters.JobIdentifier;
 import org.apache.reef.runtime.common.files.RuntimePathProvider;
 import org.apache.reef.runtime.common.files.RuntimeClasspathProvider;
+import org.apache.reef.runtime.common.launch.parameters.ErrorHandlerRID;
+import org.apache.reef.runtime.common.launch.parameters.LaunchID;
 import org.apache.reef.runtime.common.parameters.JVMHeapSlack;
 import org.apache.reef.runtime.hdinsight.HDInsightClasspathProvider;
 import org.apache.reef.runtime.hdinsight.HDInsightJVMPathProvider;
@@ -65,6 +68,11 @@ public final class HDInsightDriverConfiguration extends ConfigurationModuleBuild
   public static final RequiredParameter<String> JOB_IDENTIFIER = new RequiredParameter<>();
 
   /**
+   * The client remote identifier.
+   */
+  public static final OptionalParameter<String> CLIENT_REMOTE_IDENTIFIER = new OptionalParameter<>();
+
+  /**
    * @see EvaluatorTimeout
    */
   public static final OptionalParameter<Long> EVALUATOR_TIMEOUT = new OptionalParameter<>();
@@ -91,6 +99,9 @@ public final class HDInsightDriverConfiguration extends ConfigurationModuleBuild
 
           // Bind the fields bound in AbstractDriverRuntimeConfiguration
       .bindNamedParameter(JobIdentifier.class, JOB_IDENTIFIER)
+      .bindNamedParameter(LaunchID.class, JOB_IDENTIFIER)
+      .bindNamedParameter(ClientRemoteIdentifier.class, CLIENT_REMOTE_IDENTIFIER)
+      .bindNamedParameter(ErrorHandlerRID.class, CLIENT_REMOTE_IDENTIFIER)
       .bindNamedParameter(EvaluatorTimeout.class, EVALUATOR_TIMEOUT)
       .bindNamedParameter(JVMHeapSlack.class, JVM_HEAP_SLACK)
       .bindImplementation(RuntimeClasspathProvider.class, HDInsightClasspathProvider.class)

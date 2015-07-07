@@ -77,8 +77,6 @@ public final class YARNResourceLaunchHandler implements ResourceLaunchHandler {
           this.evaluatorSetupHelper.getResources(resourceLaunchEvent);
 
       final List<String> command = resourceLaunchEvent.getProcess()
-          .setErrorHandlerRID(resourceLaunchEvent.getRemoteId())
-          .setLaunchID(resourceLaunchEvent.getIdentifier())
           .setConfigurationFileName(this.filenames.getEvaluatorConfigurationPath())
           .setMemory((int) (this.jvmHeapFactor * container.getResource().getMemory()))
           .setStandardErr(ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/" +

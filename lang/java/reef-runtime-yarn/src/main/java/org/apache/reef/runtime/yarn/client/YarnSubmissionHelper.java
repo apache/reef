@@ -137,8 +137,6 @@ public final class YarnSubmissionHelper implements Closeable{
   public void submit(final String clientRemoteIdentifier) throws IOException, YarnException {
     // SET EXEC COMMAND
     final List<String> launchCommand = new JavaLaunchCommandBuilder()
-        .setErrorHandlerRID(clientRemoteIdentifier)
-        .setLaunchID(this.applicationSubmissionContext.getApplicationName())
         .setConfigurationFileName(this.fileNames.getDriverConfigurationPath())
         .setClassPath(this.classpath.getDriverClasspath())
         .setMemory(this.applicationSubmissionContext.getResource().getMemory())

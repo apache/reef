@@ -87,24 +87,22 @@ namespace Org.Apache.REEF.Evaluator
                     // Fetch some settings from the ConfigurationManager
                     SetHeartbeatPeriod();
                     SetHeartbeatMaxRetry();
-                    
-                    
+
                     // Parse the command line
-                    if (args.Count() < 2)
+                    // The error handler RID should now be written in the configuration file instead
+                    if (args.Count() != 1)
                     {
-                        var e = new InvalidOperationException("must supply at least the rId and evaluator config file");
+                        var e = new InvalidOperationException("must supply only the evaluator config file!");
                         Utilities.Diagnostics.Exceptions.Throw(e, _logger);
                     }
 
-                    // remote driver Id
-                    string rId = args[0];
-
                     // evaluator configuraiton file
-                    string evaluatorConfigurationPath = args[1];
+                    string evaluatorConfigurationPath = args[0];
 
                     // Parse the evaluator configuration.
                     _evaluatorConfig = new EvaluatorConfigurations(evaluatorConfigurationPath);
 
+                    string rId = _evaluatorConfig.ErrorHandlerRID;
                     ContextConfiguration rootContextConfiguration = _evaluatorConfig.RootContextConfiguration;
                     Optional<TaskConfiguration> rootTaskConfig = _evaluatorConfig.TaskConfiguration;
                     Optional<ServiceConfiguration> rootServiceConfig = _evaluatorConfig.RootServiceConfiguration;

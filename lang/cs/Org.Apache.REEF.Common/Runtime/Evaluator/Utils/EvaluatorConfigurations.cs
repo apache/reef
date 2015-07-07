@@ -48,6 +48,8 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Utils
 
         private string _rootServiceConfiguration;
 
+        private string _errorHandlerRid;
+
         public EvaluatorConfigurations(string configFile)
         {
             using (LOGGER.LogFunction("EvaluatorConfigurations::EvaluatorConfigurations"))
@@ -105,6 +107,15 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Utils
             {
                 _applicationId = _applicationId ?? GetSettingValue(Constants.ApplicationIdentifier);
                 return _applicationId;
+            }
+        }
+
+        public string ErrorHandlerRID
+        {
+            get
+            {
+                _errorHandlerRid = _errorHandlerRid ?? GetSettingValue(Constants.ErrorHandlerRID);
+                return _errorHandlerRid;
             }
         }
 

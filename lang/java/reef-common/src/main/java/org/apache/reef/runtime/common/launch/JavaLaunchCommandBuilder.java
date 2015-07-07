@@ -19,10 +19,7 @@
 package org.apache.reef.runtime.common.launch;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.reef.runtime.common.Launcher;
-import org.apache.reef.runtime.common.launch.parameters.ClockConfigurationPath;
-import org.apache.reef.runtime.common.launch.parameters.ErrorHandlerRID;
-import org.apache.reef.runtime.common.launch.parameters.LaunchID;
+import org.apache.reef.runtime.common.REEFLauncher;
 import org.apache.reef.util.EnvironmentUtils;
 
 import java.io.File;
@@ -34,8 +31,6 @@ public final class JavaLaunchCommandBuilder implements LaunchCommandBuilder {
   private static final String DEFAULT_JAVA_PATH = System.getenv("JAVA_HOME") + "/bin/" + "java";
   private String stderrPath = null;
   private String stdoutPath = null;
-  private String errorHandlerRID = null;
-  private String launchID = null;
   private int megaBytes = 0;
   private String evaluatorConfigurationPath = null;
   private String javaPath = null;
@@ -67,17 +62,11 @@ public final class JavaLaunchCommandBuilder implements LaunchCommandBuilder {
           add(classPath);
         }
 
-        Launcher.propagateProperties(this, true, "proc_reef");
-        Launcher.propagateProperties(this, false,
+        REEFLauncher.propagateProperties(this, true, "proc_reef");
+        REEFLauncher.propagateProperties(this, false,
             "java.util.logging.config.file", "java.util.logging.config.class");
 
-        add(Launcher.class.getName());
-
-        add("-" + ErrorHandlerRID.SHORT_NAME);
-        add(errorHandlerRID);
-        add("-" + LaunchID.SHORT_NAME);
-        add(launchID);
-        add("-" + ClockConfigurationPath.SHORT_NAME);
+        add(REEFLauncher.class.getName());
         add(evaluatorConfigurationPath);
 
         if (stdoutPath != null && !stdoutPath.isEmpty()) {
@@ -90,18 +79,6 @@ public final class JavaLaunchCommandBuilder implements LaunchCommandBuilder {
           add(stderrPath);
         }
       }};
-  }
-
-  @Override
-  public JavaLaunchCommandBuilder setErrorHandlerRID(final String errorHandlerRID) {
-    this.errorHandlerRID = errorHandlerRID;
-    return this;
-  }
-
-  @Override
-  public JavaLaunchCommandBuilder setLaunchID(final String launchID) {
-    this.launchID = launchID;
-    return this;
   }
 
   @Override

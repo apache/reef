@@ -31,10 +31,6 @@ public interface LaunchCommandBuilder {
    */
   List<String> build();
 
-  LaunchCommandBuilder setErrorHandlerRID(final String errorHandlerRID);
-
-  LaunchCommandBuilder setLaunchID(final String launchID);
-
   LaunchCommandBuilder setMemory(final int megaBytes);
 
   /**

@@ -36,8 +36,6 @@ public class CLRLaunchCommandBuilder implements LaunchCommandBuilder {
 
   private String standardErrPath = null;
   private String standardOutPath = null;
-  private String errorHandlerRID = null;
-  private String launchID = null;
   private int megaBytes = 0;
   private String evaluatorConfigurationPath = null;
 
@@ -49,7 +47,6 @@ public class CLRLaunchCommandBuilder implements LaunchCommandBuilder {
       LOG.log(Level.WARNING, "file can NOT be found: {0}", f.getAbsolutePath());
     }
     result.add(f.getPath());
-    result.add(errorHandlerRID);
     result.add(evaluatorConfigurationPath);
     if ((null != this.standardOutPath) && (!standardOutPath.isEmpty())) {
       result.add(">" + this.standardOutPath);
@@ -59,18 +56,6 @@ public class CLRLaunchCommandBuilder implements LaunchCommandBuilder {
     }
     LOG.log(Level.FINE, "Launch Exe: {0}", StringUtils.join(result, ' '));
     return result;
-  }
-
-  @Override
-  public CLRLaunchCommandBuilder setErrorHandlerRID(final String errorHandlerRID) {
-    this.errorHandlerRID = errorHandlerRID;
-    return this;
-  }
-
-  @Override
-  public CLRLaunchCommandBuilder setLaunchID(final String launchID) {
-    this.launchID = launchID;
-    return this;
   }
 
   @Override

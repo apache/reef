@@ -36,7 +36,7 @@ import java.util.logging.Logger;
 /**
  * The error handler REEF registers with Wake.
  */
-public final class REEFErrorHandler implements EventHandler<Throwable> {
+public final class REEFErrorHandler implements EventHandler<Throwable>, AutoCloseable {
 
   private static final Logger LOG = Logger.getLogger(REEFErrorHandler.class.getName());
 
