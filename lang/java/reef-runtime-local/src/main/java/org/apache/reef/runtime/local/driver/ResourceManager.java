@@ -180,8 +180,6 @@ public final class ResourceManager {
           .getNewLoggingScope("ResourceManager.onResourceLaunchRequest:runCommand")) {
 
         final List<String> command = launchRequest.getProcess()
-            .setErrorHandlerRID(this.remoteManager.getMyIdentifier())
-            .setLaunchID(c.getNodeID())
             .setConfigurationFileName(this.fileNames.getEvaluatorConfigurationPath())
             .setMemory((int) (this.jvmHeapFactor * c.getMemory()))
             .getCommandLine();

@@ -87,7 +87,6 @@ namespace Org.Apache.REEF.Examples.HelloCLRBridge
         }
 
         /// <summary>
-        /// </summary>
         /// <param name="runOnYarn"></param>
         /// <param name="runtimeFolder"></param>
         /// <returns></returns>

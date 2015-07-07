@@ -19,6 +19,8 @@
 package org.apache.reef.runtime.common.evaluator;
 
 import org.apache.reef.runtime.common.evaluator.parameters.*;
+import org.apache.reef.runtime.common.launch.parameters.ErrorHandlerRID;
+import org.apache.reef.runtime.common.launch.parameters.LaunchID;
 import org.apache.reef.tang.ExternalConstructor;
 import org.apache.reef.tang.formats.ConfigurationModule;
 import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
@@ -46,12 +48,14 @@ public final class EvaluatorConfiguration extends ConfigurationModuleBuilder {
       .bindSetEntry(Clock.RuntimeStopHandler.class, EvaluatorRuntime.RuntimeStopHandler.class)
       .bindConstructor(ExecutorService.class, ExecutorServiceConstructor.class)
       .bindNamedParameter(DriverRemoteIdentifier.class, DRIVER_REMOTE_IDENTIFIER)
+      .bindNamedParameter(ErrorHandlerRID.class, DRIVER_REMOTE_IDENTIFIER)
       .bindNamedParameter(EvaluatorIdentifier.class, EVALUATOR_IDENTIFIER)
       .bindNamedParameter(HeartbeatPeriod.class, HEARTBEAT_PERIOD)
       .bindNamedParameter(RootContextConfiguration.class, ROOT_CONTEXT_CONFIGURATION)
       .bindNamedParameter(InitialTaskConfiguration.class, TASK_CONFIGURATION)
       .bindNamedParameter(RootServiceConfiguration.class, ROOT_SERVICE_CONFIGURATION)
       .bindNamedParameter(ApplicationIdentifier.class, APPLICATION_IDENTIFIER)
+      .bindNamedParameter(LaunchID.class, APPLICATION_IDENTIFIER)
       .build();
 
   private static final class ExecutorServiceConstructor implements ExternalConstructor<ExecutorService> {

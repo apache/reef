@@ -84,8 +84,6 @@ public class PreparedDriverFolderLauncher {
   private List<String> makeLaunchCommand(final String jobId, final String clientRemoteId) {
 
     final List<String> command = new JavaLaunchCommandBuilder()
-        .setErrorHandlerRID(clientRemoteId)
-        .setLaunchID(jobId)
         .setConfigurationFileName(this.fileNames.getDriverConfigurationPath())
         .setClassPath(this.classpath.getDriverClasspath())
         .setMemory(DRIVER_MEMORY)

@@ -35,22 +35,6 @@ public interface EvaluatorProcess {
   EvaluatorType getType();
 
   /**
-   * Set the error handler remote identifier.
-   *
-   * @param errorHandlerRID
-   * @return this
-   */
-  EvaluatorProcess setErrorHandlerRID(final String errorHandlerRID);
-
-  /**
-   * Set the launch identifier.
-   *
-   * @param launchID
-   * @return this
-   */
-  EvaluatorProcess setLaunchID(final String launchID);
-
-  /**
    * Set memory size of process in megabytes.
    *
    * @param megaBytes

@@ -46,18 +46,6 @@ public final class CLRProcess implements EvaluatorProcess {
   }
 
   @Override
-  public EvaluatorProcess setErrorHandlerRID(final String errorHandlerRID) {
-    commandBuilder.setErrorHandlerRID(errorHandlerRID);
-    return this;
-  }
-
-  @Override
-  public EvaluatorProcess setLaunchID(final String launchID) {
-    commandBuilder.setLaunchID(launchID);
-    return this;
-  }
-
-  @Override
   public EvaluatorProcess setMemory(final int megaBytes) {
     commandBuilder.setMemory(megaBytes);
     return this;

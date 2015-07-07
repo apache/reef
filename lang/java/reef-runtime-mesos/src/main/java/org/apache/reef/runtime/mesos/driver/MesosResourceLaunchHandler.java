@@ -99,8 +99,6 @@ final class MesosResourceLaunchHandler implements ResourceLaunchHandler {
 
       // TODO: Replace REEFExecutor with a simple launch command (we only need to launch REEFExecutor)
       final List<String> command = resourceLaunchEvent.getProcess()
-          .setErrorHandlerRID(this.remoteManager.getMyIdentifier())
-          .setLaunchID(resourceLaunchEvent.getIdentifier())
           .setConfigurationFileName(this.fileNames.getEvaluatorConfigurationPath())
           .setMemory((int) (this.jvmHeapFactor * this.executors.getMemory(resourceLaunchEvent.getIdentifier())))
           .getCommandLine();

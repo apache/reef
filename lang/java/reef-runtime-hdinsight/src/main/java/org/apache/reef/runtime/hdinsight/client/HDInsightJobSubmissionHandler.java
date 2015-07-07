@@ -149,8 +149,6 @@ public final class HDInsightJobSubmissionHandler implements JobSubmissionHandler
 
     return new JavaLaunchCommandBuilder()
         .setJavaPath("%JAVA_HOME%/bin/java")
-        .setErrorHandlerRID(jobSubmissionEvent.getRemoteId())
-        .setLaunchID(jobSubmissionEvent.getIdentifier())
         .setConfigurationFileName(this.filenames.getDriverConfigurationPath())
         .setClassPath(this.classpath.getDriverClasspath())
         .setMemory(jobSubmissionEvent.getDriverMemory().get())
@@ -166,6 +164,7 @@ public final class HDInsightJobSubmissionHandler implements JobSubmissionHandler
 
     final Configuration hdinsightDriverConfiguration = HDInsightDriverConfiguration.CONF
         .set(HDInsightDriverConfiguration.JOB_IDENTIFIER, applicationId)
+        .set(HDInsightDriverConfiguration.CLIENT_REMOTE_IDENTIFIER, jobSubmissionEvent.getRemoteId())
         .set(HDInsightDriverConfiguration.JOB_SUBMISSION_DIRECTORY, jobFolderURL)
         .set(HDInsightDriverConfiguration.JVM_HEAP_SLACK, this.jvmHeapSlack)
         .build();
