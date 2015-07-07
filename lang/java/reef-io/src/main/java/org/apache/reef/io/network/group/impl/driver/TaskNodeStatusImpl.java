@@ -153,12 +153,12 @@ public class TaskNodeStatusImpl implements TaskNodeStatus {
     final String sourceId = gcm.getDestid();
     switch (msgType) {
     case TopologySetup:
-        synchronized (topoUpdateStageLock) {
-      if (!updatingTopo.compareAndSet(true, false)) {
-        LOG.fine(getQualifiedName() + "Was expecting updateTopo to be true but it was false");
+      synchronized (topoUpdateStageLock) {
+        if (!updatingTopo.compareAndSet(true, false)) {
+          LOG.fine(getQualifiedName() + "Was expecting updateTopo to be true but it was false");
+        }
+        topoUpdateStageLock.notifyAll();
       }
-      topoUpdateStageLock.notifyAll();
-    }
       break;
     case ParentAdded:
     case ChildAdded:
