@@ -18,7 +18,6 @@
  */
 package org.apache.reef.io.network.shuffle.ns;
 
-import org.apache.reef.io.network.shuffle.task.ShuffleTopologyClient;
 import org.apache.reef.io.network.shuffle.task.Tuple;
 import org.apache.reef.tang.annotations.DefaultImplementation;
 import org.apache.reef.wake.remote.Codec;
@@ -31,5 +30,5 @@ public interface TupleCodecMap {
 
   Codec<Tuple> getTupleCodec(String topologyName, String groupingName);
 
-  public void registerTupleCodecs(ShuffleTopologyClient client);
+  public void registerTupleCodec(String shuffleName, String groupingName, Codec<Tuple> tupleCodec);
 }

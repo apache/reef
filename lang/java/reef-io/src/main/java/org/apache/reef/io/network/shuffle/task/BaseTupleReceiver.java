@@ -20,7 +20,7 @@ package org.apache.reef.io.network.shuffle.task;
 
 import org.apache.reef.io.network.Message;
 import org.apache.reef.io.network.shuffle.ns.ShuffleTupleMessage;
-import org.apache.reef.io.network.shuffle.topology.GroupingDescription;
+import org.apache.reef.io.network.shuffle.topology.GroupingDescriptor;
 import org.apache.reef.wake.EventHandler;
 
 import javax.inject.Inject;
@@ -28,15 +28,15 @@ import javax.inject.Inject;
 /**
  *
  */
-public class BaseTupleReceiver<K, V> implements ShuffleTupleReceiver<K, V> {
+public final class BaseTupleReceiver<K, V> implements ShuffleTupleReceiver<K, V> {
 
-  private final ShuffleTopologyClient topologyClient;
-  private final GroupingDescription<K, V> groupingDescription;
+  private final ShuffleClient topologyClient;
+  private final GroupingDescriptor<K, V> groupingDescription;
 
   @Inject
   public BaseTupleReceiver(
-      final ShuffleTopologyClient topologyClient,
-      final GroupingDescription<K, V> groupingDescription) {
+      final ShuffleClient topologyClient,
+      final GroupingDescriptor<K, V> groupingDescription) {
     this.groupingDescription = groupingDescription;
     this.topologyClient = topologyClient;
   }
@@ -52,7 +52,7 @@ public class BaseTupleReceiver<K, V> implements ShuffleTupleReceiver<K, V> {
   }
 
   @Override
-  public GroupingDescription<K, V> getGroupingDescription() {
+  public GroupingDescriptor<K, V> getGroupingDescription() {
     return groupingDescription;
   }
 }

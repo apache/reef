@@ -36,7 +36,7 @@ public final class AggregatorTask implements Task {
   @Inject
   public AggregatorTask(
       final ShuffleService shuffleService) {
-    final ShuffleTupleReceiver<String, Integer> tupleReceiver = shuffleService.getTopologyClient(WordCountTopology.class)
+    final ShuffleTupleReceiver<String, Integer> tupleReceiver = shuffleService.getClient(WordCountTopology.class)
         .getReceiver(WordCountDriver.AGGREGATING_GROUPING);
     tupleReceiver.registerMessageHandler(new MessageHandler());
   }

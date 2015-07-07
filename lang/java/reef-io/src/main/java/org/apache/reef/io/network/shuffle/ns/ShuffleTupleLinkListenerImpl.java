@@ -30,7 +30,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  *
  */
-public class ShuffleTupleLinkListenerImpl implements ShuffleTupleLinkListener {
+public final class ShuffleTupleLinkListenerImpl implements ShuffleTupleLinkListener {
 
   private final Map<String, LinkListener<Message<ShuffleTupleMessage>>> linkListenerMap;
 

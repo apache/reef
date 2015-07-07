@@ -16,23 +16,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.io.network.shuffle.topology;
+package org.apache.reef.io.network.shuffle.params;
 
-import org.apache.reef.io.network.Message;
-import org.apache.reef.io.network.shuffle.ns.ShuffleControlMessage;
-import org.apache.reef.io.network.shuffle.ns.ShuffleMessage;
 import org.apache.reef.tang.annotations.Name;
-import org.apache.reef.wake.EventHandler;
-import org.apache.reef.wake.remote.transport.LinkListener;
+import org.apache.reef.tang.annotations.NamedParameter;
+
+import java.util.Set;
 
 /**
  *
  */
-public interface ShuffleTopologyController {
-
-  Class<? extends Name<String>> getTopologyName();
-
-  EventHandler<Message<ShuffleControlMessage>> getControlMessageHandler();
-
-  LinkListener<Message<ShuffleControlMessage>> getControlLinkListener();
+@NamedParameter
+public final class GroupingReceiverIdSet implements Name<Set<String>> {
 }

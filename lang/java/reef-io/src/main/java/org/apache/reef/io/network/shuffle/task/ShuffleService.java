@@ -27,6 +27,7 @@ import org.apache.reef.tang.annotations.Name;
 @DefaultImplementation(ShuffleServiceImpl.class)
 public interface ShuffleService {
 
-  ShuffleTopologyClient getTopologyClient(Class<? extends Name<String>> topologyName);
+  ShuffleClient getClient(Class<? extends Name<String>> topologyName);
 
+  ShuffleClient getClient(String topologyName);
 }

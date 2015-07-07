@@ -19,7 +19,7 @@
 package org.apache.reef.io.network.shuffle.task;
 
 import org.apache.reef.io.network.shuffle.ns.*;
-import org.apache.reef.io.network.shuffle.params.SerializedTopologySet;
+import org.apache.reef.io.network.shuffle.params.SerializedShuffleSet;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Injector;
 import org.apache.reef.tang.annotations.Name;
@@ -33,7 +33,7 @@ import java.util.Set;
 
 final class ShuffleServiceImpl implements ShuffleService {
 
-  private final Map<String, ShuffleTopologyClient> clientMap;
+  private final Map<String, ShuffleClient> clientMap;
   private final TupleCodecMap tupleCodecMap;
 
   private final Injector rootInjector;
@@ -48,17 +48,18 @@ final class ShuffleServiceImpl implements ShuffleService {
   @Inject
   public ShuffleServiceImpl(
       final Injector rootInjector,
-      final @Parameter(SerializedTopologySet.class) Set<String> serializedTopologySet,
-      final TupleCodecMap tupleCodecMap,
+      final @Parameter(SerializedShuffleSet.class) Set<String> serializedTopologySet,
       final ConfigurationSerializer confSerializer,
       final ShuffleControlMessageHandler shuffleControlMessageHandler,
       final ShuffleControlLinkListener shuffleControlLinkListener,
       final ShuffleTupleMessageHandler shuffleTupleMessageHandler,
-      final ShuffleTupleLinkListener shuffleTupleLinkListener) {
+      final ShuffleTupleLinkListener shuffleTupleLinkListener,
+      final TupleCodecMap tupleCodecMap) {
+
     this.rootInjector = rootInjector;
-    this.tupleCodecMap = tupleCodecMap;
     this.confSerializer = confSerializer;
     this.clientMap = new HashMap<>();
+    this.tupleCodecMap = tupleCodecMap;
     this.shuffleControlLinkListener = shuffleControlLinkListener;
     this.shuffleControlMessageHandler = shuffleControlMessageHandler;
     this.shuffleTupleMessageHandler = shuffleTupleMessageHandler;
@@ -76,20 +77,31 @@ final class ShuffleServiceImpl implements ShuffleService {
     try {
       final Configuration topologyConfig = confSerializer.fromString(serializedTopology);
       final Injector injector = rootInjector.forkInjector(topologyConfig);
-      final ShuffleTopologyClient client = injector.getInstance(ShuffleTopologyClient.class);
-      shuffleControlLinkListener.registerLinkListener(client.getTopologyName(), client.getControlLinkListener());
-      shuffleControlMessageHandler.registerMessageHandler(client.getTopologyName(), client.getControlMessageHandler());
-      shuffleTupleLinkListener.registerLinkListener(client.getTopologyName(), client.getTupleLinkListener());
-      shuffleTupleMessageHandler.registerMessageHandler(client.getTopologyName(), client.getTupleMessageHandler());
-      clientMap.put(client.getTopologyName().getName(), client);
-      tupleCodecMap.registerTupleCodecs(client);
+      final ShuffleClient client = injector.getInstance(ShuffleClient.class);
+      shuffleControlLinkListener.registerLinkListener(client.getShuffleName(), client.getControlLinkListener());
+      shuffleControlMessageHandler.registerMessageHandler(client.getShuffleName(), client.getControlMessageHandler());
+      shuffleTupleLinkListener.registerLinkListener(client.getShuffleName(), client.getTupleLinkListener());
+      shuffleTupleMessageHandler.registerMessageHandler(client.getShuffleName(), client.getTupleMessageHandler());
+      clientMap.put(client.getShuffleName().getName(), client);
+      registTupleCodecs(client);
     } catch (final Exception exception) {
       throw new RuntimeException("An Exception occurred while deserializing topology " + serializedTopology, exception);
     }
   }
 
+  private void registTupleCodecs(final ShuffleClient client) {
+    for (final String groupingName : client.getGroupingNameList()) {
+      tupleCodecMap.registerTupleCodec(client.getShuffleName().getName(), groupingName, client.getTupleCodec(groupingName));
+    }
+  }
+
   @Override
-  public ShuffleTopologyClient getTopologyClient(final Class<? extends Name<String>> topologyName) {
-    return clientMap.get(topologyName.getName());
+  public ShuffleClient getClient(final Class<? extends Name<String>> clientName) {
+    return clientMap.get(clientName.getName());
+  }
+
+  @Override
+  public ShuffleClient getClient(final String topologyName) {
+    return clientMap.get(topologyName);
   }
 }

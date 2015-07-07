@@ -16,30 +16,24 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.io.network.shuffle.topology;
+package org.apache.reef.io.network.shuffle.grouping.impl;
 
-import org.apache.reef.io.network.shuffle.driver.ShuffleTopologyManager;
-import org.apache.reef.io.network.shuffle.task.ShuffleTopologyClient;
-import org.apache.reef.tang.Configuration;
-import org.apache.reef.tang.annotations.Name;
+import org.apache.reef.io.network.shuffle.grouping.GroupingStrategy;
 
+import javax.inject.Inject;
 import java.util.List;
-import java.util.Map;
 
 /**
  *
  */
-public interface TopologyDescription {
+public final class AllGroupingStrategy<K> implements GroupingStrategy<K> {
 
-  Class<? extends Name<String>> getTopologyName();
+  @Inject
+  public AllGroupingStrategy() {
+  }
 
-  Map<String, NodePoolDescription> getNodePoolDescriptionMap();
-
-  List<GroupingDescription> getGroupingDescriptionList();
-
-  Class<? extends ShuffleTopologyManager> getManagerClass();
-
-  Configuration getManagerConfiguration();
-
-  Class<? extends ShuffleTopologyClient> getClientClass();
+  @Override
+  public List<String> selectReceivers(K key, List<String> receiverIdList) {
+    return receiverIdList;
+  }
 }

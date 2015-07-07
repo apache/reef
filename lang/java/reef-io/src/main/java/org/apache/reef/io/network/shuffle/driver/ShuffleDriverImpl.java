@@ -28,11 +28,11 @@ import org.apache.reef.io.network.NetworkServiceClient;
 import org.apache.reef.io.network.shuffle.ns.ShuffleControlLinkListener;
 import org.apache.reef.io.network.shuffle.ns.ShuffleControlMessageCodec;
 import org.apache.reef.io.network.shuffle.ns.ShuffleControlMessageHandler;
-import org.apache.reef.io.network.shuffle.params.SerializedTopologySet;
+import org.apache.reef.io.network.shuffle.params.SerializedShuffleSet;
 import org.apache.reef.io.network.shuffle.params.ShuffleControlMessageNSId;
 import org.apache.reef.io.network.shuffle.task.ShuffleContextStartHandler;
 import org.apache.reef.io.network.shuffle.task.ShuffleContextStopHandler;
-import org.apache.reef.io.network.shuffle.topology.TopologyDescription;
+import org.apache.reef.io.network.shuffle.topology.ShuffleDescriptor;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Injector;
 import org.apache.reef.tang.JavaConfigurationBuilder;
@@ -54,7 +54,7 @@ final class ShuffleDriverImpl implements ShuffleDriver {
   private final ConfigurationSerializer confSerializer;
   private final ShuffleControlLinkListener linkListener;
   private final ShuffleControlMessageHandler messageHandler;
-  private final ConcurrentMap<Class<? extends Name>, ShuffleTopologyManager> topologyManagerMap;
+  private final ConcurrentMap<Class<? extends Name>, ShuffleManager> managerMap;
 
   @Inject
   public ShuffleDriverImpl(
@@ -68,7 +68,7 @@ final class ShuffleDriverImpl implements ShuffleDriver {
     this.confSerializer = confSerializer;
     this.linkListener = linkListener;
     this.messageHandler = messageHandler;
-    this.topologyManagerMap = new ConcurrentHashMap<>();
+    this.managerMap = new ConcurrentHashMap<>();
 
     try {
       nsClient.registerConnectionFactory(ShuffleControlMessageNSId.class, messageCodec, messageHandler, linkListener);
@@ -77,35 +77,41 @@ final class ShuffleDriverImpl implements ShuffleDriver {
     }
   }
 
+
   @Override
-  public ShuffleTopologyManager submitTopology(final TopologyDescription topologyDescription) {
+  public <K extends ShuffleManager> K registerManager(ShuffleDescriptor shuffleDescription, Class<K> managerClass) {
+    return registerManager(shuffleDescription, managerClass, null);
+  }
+
+  @Override
+  public <K extends ShuffleManager> K registerManager(ShuffleDescriptor shuffleDescription, Class<K> managerClass, Configuration managerConf) {
     try {
       final Injector forkedInjector;
 
-      if (topologyDescription.getManagerConfiguration() == null) {
+      if (managerConf == null) {
         forkedInjector = injector.forkInjector();
       } else {
-        forkedInjector = injector.forkInjector(topologyDescription.getManagerConfiguration());
+        forkedInjector = injector.forkInjector(managerConf);
       }
 
-      forkedInjector.bindVolatileInstance(TopologyDescription.class, topologyDescription);
-      final ShuffleTopologyManager manager = forkedInjector.getInstance(topologyDescription.getManagerClass());
-      if (topologyManagerMap.putIfAbsent(topologyDescription.getTopologyName(), manager) != null) {
-        throw new RuntimeException(topologyDescription.getTopologyName() + " was already submitted.");
+      forkedInjector.bindVolatileInstance(ShuffleDescriptor.class, shuffleDescription);
+      final K manager = forkedInjector.getInstance(managerClass);
+      if (managerMap.putIfAbsent(shuffleDescription.getShuffleName(), manager) != null) {
+        throw new RuntimeException(shuffleDescription.getShuffleName() + " was already submitted.");
       }
 
-      linkListener.registerLinkListener(manager.getTopologyName(), manager.getControlLinkListener());
-      messageHandler.registerMessageHandler(manager.getTopologyName(), manager.getControlMessageHandler());
+      linkListener.registerLinkListener(manager.getShuffleName(), manager.getControlLinkListener());
+      messageHandler.registerMessageHandler(manager.getShuffleName(), manager.getControlMessageHandler());
       return manager;
     } catch(final InjectionException exception) {
       throw new RuntimeException("An Injection error occurred while submitting topology "
-          + topologyDescription.getTopologyName(), exception);
+          + shuffleDescription.getShuffleName(), exception);
     }
   }
 
   @Override
-  public ShuffleTopologyManager getTopologyManager(final Class<? extends Name<String>> topologyName) {
-    return topologyManagerMap.get(topologyName);
+  public <K extends ShuffleManager> K getManager(final Class<? extends Name<String>> shuffleName) {
+    return (K) managerMap.get(shuffleName);
   }
 
   @Override
@@ -119,10 +125,10 @@ final class ShuffleDriverImpl implements ShuffleDriver {
   @Override
   public Configuration getTaskConfiguration(final String taskId) {
     final JavaConfigurationBuilder confBuilder = Tang.Factory.getTang().newConfigurationBuilder();
-    for (ShuffleTopologyManager manager : topologyManagerMap.values()) {
+    for (final ShuffleManager manager : managerMap.values()) {
       final Configuration topologyConf = manager.getTopologyConfigurationForTask(taskId);
       if (topologyConf != null) {
-        confBuilder.bindSetEntry(SerializedTopologySet.class, confSerializer.toString(topologyConf));
+        confBuilder.bindSetEntry(SerializedShuffleSet.class, confSerializer.toString(topologyConf));
       }
     }
     return confBuilder.build();
@@ -130,21 +136,21 @@ final class ShuffleDriverImpl implements ShuffleDriver {
 
   @Override
   public void onRunningTask(final RunningTask runningTask) {
-    for (final ShuffleTopologyManager manager : topologyManagerMap.values()) {
+    for (final ShuffleManager manager : managerMap.values()) {
       manager.onRunningTask(runningTask);
     }
   }
 
   @Override
   public void onFailedTask(final FailedTask failedTask) {
-    for (final ShuffleTopologyManager manager : topologyManagerMap.values()) {
+    for (final ShuffleManager manager : managerMap.values()) {
       manager.onFailedTask(failedTask);
     }
   }
 
   @Override
   public void onCompletedTask(final CompletedTask completedTask) {
-    for (final ShuffleTopologyManager manager : topologyManagerMap.values()) {
+    for (final ShuffleManager manager : managerMap.values()) {
       manager.onCompletedTask(completedTask);
     }
   }

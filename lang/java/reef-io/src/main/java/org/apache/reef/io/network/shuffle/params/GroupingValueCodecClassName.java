@@ -16,32 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.io.network.shuffle.grouping.impl;
+package org.apache.reef.io.network.shuffle.params;
 
-import org.apache.reef.io.network.shuffle.grouping.Grouping;
-import org.apache.reef.io.network.shuffle.topology.NodePoolDescription;
-
-import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.List;
+import org.apache.reef.tang.annotations.Name;
+import org.apache.reef.tang.annotations.NamedParameter;
 
 /**
  *
  */
-public final class KeyGrouping<K> implements Grouping<K> {
-
-  @Inject
-  public KeyGrouping() {
-  }
-
-  @Override
-  public List<String> selectReceivers(K key, NodePoolDescription receiverPoolDescription) {
-    int index = key.hashCode() % receiverPoolDescription.getNodePoolSize();
-    if (index < 0) {
-      index += receiverPoolDescription.getNodePoolSize();
-    }
-    final List<String> list =  new ArrayList<>();
-    list.add(receiverPoolDescription.getNodeIdAt(index));
-    return list;
-  }
+@NamedParameter
+public final class GroupingValueCodecClassName implements Name<String> {
 }

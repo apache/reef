@@ -23,10 +23,9 @@ import org.apache.reef.io.network.Connection;
 import org.apache.reef.io.network.ConnectionFactory;
 import org.apache.reef.io.network.Message;
 import org.apache.reef.io.network.naming.NameServerParameters;
-import org.apache.reef.io.network.shuffle.ns.ShuffleMessage;
 import org.apache.reef.io.network.shuffle.ns.ShuffleTupleMessage;
-import org.apache.reef.io.network.shuffle.topology.GroupingDescription;
-import org.apache.reef.io.network.shuffle.topology.NodePoolDescription;
+import org.apache.reef.io.network.shuffle.params.ReceiverIdList;
+import org.apache.reef.io.network.shuffle.topology.GroupingDescriptor;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.wake.IdentifierFactory;
 import org.apache.reef.wake.remote.transport.LinkListener;
@@ -41,35 +40,34 @@ import java.util.Map;
  */
 public final class BaseTupleSender<K, V> implements ShuffleTupleSender<K, V> {
 
-  private final ShuffleTopologyClient topologyClient;
+  private final ShuffleClient topologyClient;
   private final ConnectionFactory<ShuffleTupleMessage> connFactory;
   private final Map<String, Connection<ShuffleTupleMessage>> connMap;
   private final IdentifierFactory idFactory;
-  private final NodePoolDescription receiverPool;
-  private final GroupingDescription<K, V> groupingDescription;
+  private final List<String> receiverIdList;
+  private final GroupingDescriptor<K, V> groupingDescription;
   private final ShuffleTupleSerializer<K, V> tupleSerializer;
 
   @Inject
   public BaseTupleSender(
-      final ShuffleTopologyClient topologyClient,
+      final ShuffleClient topologyClient,
       final ConnectionFactory<ShuffleTupleMessage> connFactory,
       final @Parameter(NameServerParameters.NameServerIdentifierFactory.class) IdentifierFactory idFactory,
-      final NodePoolDescription receiverPool,
-      final GroupingDescription<K, V> groupingDescription,
+      final @Parameter(ReceiverIdList.class) List<String> receiverIdList,
+      final GroupingDescriptor<K, V> groupingDescription,
       final ShuffleTupleSerializer<K, V> tupleSerializer) {
-
     this.topologyClient = topologyClient;
     this.connFactory = connFactory;
     this.idFactory = idFactory;
     this.connMap = new HashMap<>();
-    this.receiverPool = receiverPool;
+    this.receiverIdList = receiverIdList;
     this.groupingDescription = groupingDescription;
     this.tupleSerializer = tupleSerializer;
     createConnections();
   }
 
   private void createConnections() {
-    for (final String nodeId : receiverPool.getNodeIdList()) {
+    for (final String nodeId : receiverIdList) {
       createConnection(nodeId);
     }
   }
@@ -114,7 +112,6 @@ public final class BaseTupleSender<K, V> implements ShuffleTupleSender<K, V> {
       connMap.get(messageTuple.getKey()).open();
       connMap.get(messageTuple.getKey()).write(messageTuple.getValue());
     } catch (NetworkException e) {
-      // TODO : This unnecessary try-catch clause should be removed by changing API of Link interface.
       throw new RuntimeException(e);
     }
   }
@@ -125,7 +122,7 @@ public final class BaseTupleSender<K, V> implements ShuffleTupleSender<K, V> {
   }
 
   @Override
-  public GroupingDescription<K, V> getGroupingDescription() {
+  public GroupingDescriptor<K, V> getGroupingDescription() {
     return groupingDescription;
   }
 }

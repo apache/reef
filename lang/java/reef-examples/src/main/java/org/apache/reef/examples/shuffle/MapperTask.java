@@ -43,12 +43,13 @@ public final class MapperTask implements Task {
   public MapperTask(
       final ShuffleService shuffleService,
       final @Parameter(InputString.class) String input) {
-    this.tupleSender = shuffleService.getTopologyClient(WordCountTopology.class).getSender(WordCountDriver.SHUFFLE_GROUPING);
+    this.tupleSender = shuffleService.getClient(WordCountTopology.class).getSender(WordCountDriver.SHUFFLE_GROUPING);
     this.input = input;
   }
 
   @Override
   public byte[] call(byte[] memento) throws Exception {
+    System.out.println("Mapper Task");
     final Map<String, Integer> reducedInputMap = new HashMap<>();
     for (final String word : input.split(" ")) {
       if (!reducedInputMap.containsKey(word)) {

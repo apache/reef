@@ -16,16 +16,25 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.io.network.shuffle.params;
+package org.apache.reef.io.network.shuffle.topology;
 
 import org.apache.reef.tang.annotations.Name;
-import org.apache.reef.tang.annotations.NamedParameter;
 
-import java.util.Set;
+import java.util.List;
 
 /**
  *
  */
-@NamedParameter
-public final class SerializedTopologySet implements Name<Set<String>> {
+public interface ShuffleDescriptor {
+
+  Class<? extends Name<String>> getShuffleName();
+
+  List<String> getGroupingNameList();
+
+  GroupingDescriptor getGroupingDescriptor(String groupingName);
+
+  List<String> getSenderIdList(String groupingName);
+
+  List<String> getReceiverIdList(String groupingName);
+
 }

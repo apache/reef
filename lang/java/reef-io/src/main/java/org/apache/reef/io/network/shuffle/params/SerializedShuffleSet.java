@@ -16,17 +16,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.io.network.shuffle.grouping;
+package org.apache.reef.io.network.shuffle.params;
 
-import org.apache.reef.io.network.shuffle.topology.NodePoolDescription;
+import org.apache.reef.tang.annotations.Name;
+import org.apache.reef.tang.annotations.NamedParameter;
 
-import java.util.List;
+import java.util.Set;
 
 /**
  *
  */
-public interface Grouping<K> {
-
-  List<String> selectReceivers(K key, NodePoolDescription receiverPoolDescription);
-
+@NamedParameter
+public final class SerializedShuffleSet implements Name<Set<String>> {
 }

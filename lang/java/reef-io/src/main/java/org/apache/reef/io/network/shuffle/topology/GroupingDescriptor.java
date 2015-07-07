@@ -16,36 +16,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.io.network.shuffle.ns;
+package org.apache.reef.io.network.shuffle.topology;
 
-import org.apache.reef.io.network.shuffle.task.Tuple;
+import org.apache.reef.io.network.shuffle.grouping.GroupingStrategy;
+import org.apache.reef.wake.remote.Codec;
 
 /**
  *
  */
-public final class ShuffleTupleMessage<K, V> extends ShuffleMessage {
+public interface GroupingDescriptor<K, V> {
 
-  private final Tuple<K, V>[] tuples;
+  String getGroupingName();
 
-  public ShuffleTupleMessage(
-      final String topologyName,
-      final String groupingName,
-      final Tuple<K, V>[] tuples) {
-    super(topologyName, groupingName);
-    this.tuples = tuples;
-  }
+  Class<? extends GroupingStrategy> getGroupingStrategyClass();
 
-  @Override
-  public int getDataLength() {
-    if (tuples == null) {
-      return 0;
-    }
+  Class<? extends Codec<K>> getKeyCodec();
 
-    return tuples.length;
-  }
+  Class<? extends Codec<V>> getValueCodec();
 
-  @Override
-  public Tuple<K, V> getDataAt(final int index) {
-    return tuples[index];
-  }
 }

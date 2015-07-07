@@ -31,15 +31,14 @@ import org.apache.reef.examples.shuffle.utils.StringCodec;
 import org.apache.reef.io.network.impl.BindNSClientToTask;
 import org.apache.reef.io.network.impl.UnbindNSClientFromTask;
 import org.apache.reef.io.network.naming.NameServer;
-import org.apache.reef.io.network.naming.NameServerParameters;
 import org.apache.reef.io.network.naming.parameters.NameResolverNameServerAddr;
 import org.apache.reef.io.network.naming.parameters.NameResolverNameServerPort;
 import org.apache.reef.io.network.shuffle.driver.ShuffleDriver;
-import org.apache.reef.io.network.shuffle.grouping.impl.AllGrouping;
-import org.apache.reef.io.network.shuffle.grouping.impl.KeyGrouping;
-import org.apache.reef.io.network.shuffle.topology.ImmutableGroupingDescription;
-import org.apache.reef.io.network.shuffle.topology.ImmutableNodePoolDescription;
-import org.apache.reef.io.network.shuffle.topology.ImmutableTopologyDescription;
+import org.apache.reef.io.network.shuffle.grouping.impl.AllGroupingStrategy;
+import org.apache.reef.io.network.shuffle.grouping.impl.KeyGroupingStrategy;
+import org.apache.reef.io.network.shuffle.impl.StaticShuffleManager;
+import org.apache.reef.io.network.shuffle.topology.GroupingDescription;
+import org.apache.reef.io.network.shuffle.topology.ShuffleDescription;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Configurations;
 import org.apache.reef.tang.Tang;
@@ -50,6 +49,8 @@ import org.apache.reef.wake.remote.address.LocalAddressProvider;
 import org.apache.reef.wake.time.event.StartTime;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -74,21 +75,16 @@ public final class WordCountDriver {
 
   private final String[] inputStringArr;
 
-  private final String[] mapperIds;
-  private final String[] reducerIds;
+  private final List<String> mapperIdList;
+  private final List<String> reducerIdList;
 
   public static final String MAPPER_ID_PREFIX = "WordCountMapper";
   public static final String REDUCER_ID_PREFIX = "WordCountReducer";
   public static final String AGGREGATOR_ID = "WordCountAggregator";
 
-  public static final String MAPPER_POOL_ID = "mapperPool";
-  public static final String REDUCER_POOL_ID = "reducerPool";
-  public static final String AGGREGATOR_POOL_ID = "aggregatorPool";
-
   public static final String SHUFFLE_GROUPING = "shuffleGrouping";
   public static final String AGGREGATING_GROUPING = "aggregatingGrouping";
 
-  private final ConfigurationSerializer confSerializer;
   @Inject
   public WordCountDriver(
       final ConfigurationSerializer confSerializer,
@@ -97,7 +93,6 @@ public final class WordCountDriver {
       final NameServer nameServer,
       final ShuffleDriver shuffleDriver) {
     LOG.log(Level.FINE, "Instantiated 'WordCountDriver'");
-    this.confSerializer = confSerializer;
     this.requestor = requestor;
     this.localAddressProvider = localAddressProvider;
     this.nameServer = nameServer;
@@ -105,8 +100,8 @@ public final class WordCountDriver {
 
     this.allocatedEvalNum = new AtomicInteger(0);
     this.inputStringArr = new String[mapperNum];
-    this.mapperIds = new String[mapperNum];
-    this.reducerIds = new String[reducerNum];
+    this.mapperIdList = new ArrayList<>(mapperNum);
+    this.reducerIdList = new ArrayList<>(reducerNum);
 
     createInputStrings();
     createTaskIds();
@@ -114,54 +109,59 @@ public final class WordCountDriver {
   }
 
   private void createInputStrings() {
-    final String input = InputString.INPUT.toLowerCase();
-    System.out.println(input);
-    final int delta = input.length() / mapperNum;
+    final String[] input = InputString.INPUT.toLowerCase().split(" ");
+
+    final int q = input.length / mapperNum;
+    final int r = input.length % mapperNum;
     int index = 0;
     for (int i = 0; i < mapperNum; i++) {
-      inputStringArr[i] = input.substring(index, Math.min(input.length(), index + delta));
-      index += delta;
+      int nextIndex = index + q;
+      if (i < r) {
+        nextIndex++;
+      }
+      final StringBuilder builder = new StringBuilder();
+      for (int j = index; j < nextIndex; j++) {
+        builder.append(' ').append(input[j]);
+      }
+      inputStringArr[i] = builder.toString();
+      index = nextIndex;
     }
   }
 
+
+
   private void createTaskIds() {
     for (int i = 0; i < mapperNum; i++) {
-      mapperIds[i] = MAPPER_ID_PREFIX + i;
+      mapperIdList.add(MAPPER_ID_PREFIX + i);
     }
 
     for (int i = 0; i < reducerNum; i++) {
-      reducerIds[i] = REDUCER_ID_PREFIX + i;
+      reducerIdList.add(REDUCER_ID_PREFIX + i);
     }
   }
 
   private void createWordCountTopology() {
-    shuffleDriver.submitTopology(
-        ImmutableTopologyDescription.newBuilder(WordCountTopology.class)
-            .addNodePoolDescription(ImmutableNodePoolDescription.newBuilder(MAPPER_POOL_ID)
-                .addNodeIds(mapperIds)
+    final List<String> aggregatorIdList = new ArrayList<>(1);
+    aggregatorIdList.add(AGGREGATOR_ID);
+    shuffleDriver.registerManager(ShuffleDescription.newBuilder(WordCountTopology.class)
+        .addGrouping(
+            mapperIdList,
+            reducerIdList,
+            GroupingDescription.newBuilder(SHUFFLE_GROUPING)
+                .setGroupingStrategy(KeyGroupingStrategy.class)
+                .setKeyCodec(StringCodec.class)
+                .setValueCodec(IntegerCodec.class)
                 .build())
-            .addNodePoolDescription(ImmutableNodePoolDescription.newBuilder(REDUCER_POOL_ID)
-                .addNodeIds(reducerIds)
+        .addGrouping(
+            reducerIdList,
+            aggregatorIdList,
+            GroupingDescription.newBuilder(AGGREGATING_GROUPING)
+                .setGroupingStrategy(AllGroupingStrategy.class)
+                .setKeyCodec(StringCodec.class)
+                .setValueCodec(IntegerCodec.class)
                 .build())
-            .addNodePoolDescription(ImmutableNodePoolDescription.newBuilder(AGGREGATOR_POOL_ID)
-                .addNodeId(AGGREGATOR_ID)
-                .build())
-            .addGroupingDescription(ImmutableGroupingDescription.newBuilder(SHUFFLE_GROUPING)
-                .setSenderPoolId(MAPPER_POOL_ID)
-                .setReceiverPoolId(REDUCER_POOL_ID)
-                .setGroupingClass(KeyGrouping.class)
-                .setKeyCodecClass(StringCodec.class)
-                .setValueCodecClass(IntegerCodec.class)
-                .build())
-            .addGroupingDescription(ImmutableGroupingDescription.newBuilder(AGGREGATING_GROUPING)
-                .setSenderPoolId(REDUCER_POOL_ID)
-                .setReceiverPoolId(AGGREGATOR_POOL_ID)
-                .setGroupingClass(AllGrouping.class)
-                .setKeyCodecClass(StringCodec.class)
-                .setValueCodecClass(IntegerCodec.class)
-                .build())
-            .build()
-    );
+        .build()
+        , StaticShuffleManager.class);
   }
 
   public final class StartHandler implements EventHandler<StartTime> {
@@ -183,7 +183,7 @@ public final class WordCountDriver {
       final Configuration partialTaskConf;
       final String taskId;
       if (allocatedNum < mapperNum) {
-        taskId = mapperIds[allocatedNum];
+        taskId = mapperIdList.get(allocatedNum);
         partialTaskConf = Tang.Factory.getTang().newConfigurationBuilder(TaskConfiguration.CONF
             .set(TaskConfiguration.IDENTIFIER, taskId)
             .set(TaskConfiguration.TASK, MapperTask.class)
@@ -191,7 +191,7 @@ public final class WordCountDriver {
             .bindNamedParameter(InputString.class, inputStringArr[allocatedNum])
             .build();
       } else if (allocatedNum < mapperNum + reducerNum) {
-        taskId = reducerIds[allocatedNum - mapperNum];
+        taskId = reducerIdList.get(allocatedNum - mapperNum);
         partialTaskConf = TaskConfiguration.CONF
             .set(TaskConfiguration.IDENTIFIER, taskId)
             .set(TaskConfiguration.TASK, ReducerTask.class)

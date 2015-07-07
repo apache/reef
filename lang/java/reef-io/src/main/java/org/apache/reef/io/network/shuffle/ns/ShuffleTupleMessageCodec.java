@@ -63,7 +63,6 @@ public final class ShuffleTupleMessageCodec implements StreamingCodec<ShuffleTup
   @Override
   public void encodeToStream(final ShuffleTupleMessage msg, final DataOutputStream stream) {
     try {
-      stream.writeInt(msg.getCode());
       if (msg.getTopologyName() == null) {
         stream.writeUTF("");
       } else {
@@ -97,7 +96,6 @@ public final class ShuffleTupleMessageCodec implements StreamingCodec<ShuffleTup
   @Override
   public ShuffleTupleMessage decodeFromStream(final DataInputStream stream) {
     try {
-      final int code = stream.readInt();
       String topologyName = stream.readUTF();
       String groupingName = stream.readUTF();
 
@@ -124,7 +122,7 @@ public final class ShuffleTupleMessageCodec implements StreamingCodec<ShuffleTup
         }
       }
 
-      return new ShuffleTupleMessage(code, topologyName, groupingName, tupleArr);
+      return new ShuffleTupleMessage(topologyName, groupingName, tupleArr);
     } catch(final IOException exception) {
       throw new RuntimeException(exception);
     }

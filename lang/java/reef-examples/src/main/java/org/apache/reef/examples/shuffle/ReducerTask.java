@@ -44,8 +44,8 @@ public final class ReducerTask implements Task {
   @Inject
   public ReducerTask(
       final ShuffleService shuffleService) {
-    this.tupleSender = shuffleService.getTopologyClient(WordCountTopology.class).getSender(WordCountDriver.AGGREGATING_GROUPING);
-    final ShuffleTupleReceiver<String, Integer> tupleReceiver = shuffleService.getTopologyClient(WordCountTopology.class)
+    this.tupleSender = shuffleService.getClient(WordCountTopology.class).getSender(WordCountDriver.AGGREGATING_GROUPING);
+    final ShuffleTupleReceiver<String, Integer> tupleReceiver = shuffleService.getClient(WordCountTopology.class)
         .getReceiver(WordCountDriver.SHUFFLE_GROUPING);
     tupleReceiver.registerMessageHandler(new MessageHandler());
     this.reduceMap = new HashMap<>();

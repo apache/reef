@@ -25,5 +25,5 @@ import org.apache.reef.tang.annotations.NamedParameter;
  *
  */
 @NamedParameter
-public class ShuffleTupleMessageNSId implements Name<String> {
+public final class ShuffleTupleMessageNSId implements Name<String> {
 }

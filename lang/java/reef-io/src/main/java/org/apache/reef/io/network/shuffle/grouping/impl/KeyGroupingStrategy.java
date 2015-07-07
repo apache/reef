@@ -16,26 +16,31 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.io.network.shuffle.topology;
+package org.apache.reef.io.network.shuffle.grouping.impl;
 
-import org.apache.reef.tang.Configuration;
+import org.apache.reef.io.network.shuffle.grouping.GroupingStrategy;
 
+import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  *
  */
-public interface NodePoolDescription {
+public final class KeyGroupingStrategy<K> implements GroupingStrategy<K> {
 
-  String getNodePoolName();
+  @Inject
+  public KeyGroupingStrategy() {
+  }
 
-  List<String> getNodeIdList();
-
-  int getNodePoolSize();
-
-  String getNodeIdAt(int index);
-
-  boolean hasNodeId(String nodeId);
-
-  Configuration convertToConfiguration();
+  @Override
+  public List<String> selectReceivers(K key, List<String> receiverIdList) {
+    int index = key.hashCode() % receiverIdList.size();
+    if (index < 0) {
+      index += receiverIdList.size();
+    }
+    final List<String> list =  new ArrayList<>();
+    list.add(receiverIdList.get(index));
+    return list;
+  }
 }

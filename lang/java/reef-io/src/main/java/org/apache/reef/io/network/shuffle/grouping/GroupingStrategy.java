@@ -16,36 +16,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.io.network.shuffle.ns;
+package org.apache.reef.io.network.shuffle.grouping;
 
-import org.apache.reef.io.network.shuffle.task.Tuple;
+import java.util.List;
 
 /**
  *
  */
-public final class ShuffleTupleMessage<K, V> extends ShuffleMessage {
+public interface GroupingStrategy<K> {
 
-  private final Tuple<K, V>[] tuples;
+  List<String> selectReceivers(K key, List<String> receiverIdList);
 
-  public ShuffleTupleMessage(
-      final String topologyName,
-      final String groupingName,
-      final Tuple<K, V>[] tuples) {
-    super(topologyName, groupingName);
-    this.tuples = tuples;
-  }
-
-  @Override
-  public int getDataLength() {
-    if (tuples == null) {
-      return 0;
-    }
-
-    return tuples.length;
-  }
-
-  @Override
-  public Tuple<K, V> getDataAt(final int index) {
-    return tuples[index];
-  }
 }

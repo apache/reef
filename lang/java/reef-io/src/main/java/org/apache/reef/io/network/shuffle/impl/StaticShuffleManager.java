@@ -24,65 +24,90 @@ import org.apache.reef.driver.task.RunningTask;
 import org.apache.reef.io.network.Message;
 import org.apache.reef.io.network.NetworkServiceClient;
 import org.apache.reef.io.network.naming.NameServerParameters;
-import org.apache.reef.io.network.shuffle.driver.ShuffleTopologyManager;
+import org.apache.reef.io.network.shuffle.driver.ShuffleManager;
 import org.apache.reef.io.network.shuffle.ns.ShuffleControlMessage;
 import org.apache.reef.io.network.shuffle.params.ShuffleControlMessageNSId;
-import org.apache.reef.io.network.shuffle.topology.NodePoolDescription;
-import org.apache.reef.io.network.shuffle.topology.TopologyDescription;
-import org.apache.reef.io.network.shuffle.utils.TopologyConfigurationSerializer;
+import org.apache.reef.io.network.shuffle.topology.GroupingDescriptor;
+import org.apache.reef.io.network.shuffle.topology.ShuffleDescriptor;
+import org.apache.reef.io.network.shuffle.utils.ClientConfigurationSerializer;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.Parameter;
-import org.apache.reef.tang.formats.ConfigurationSerializer;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.IdentifierFactory;
 import org.apache.reef.wake.remote.transport.LinkListener;
 
 import javax.inject.Inject;
 import java.net.SocketAddress;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
  *
  */
-public final class ImmutableShuffleTopologyManager implements ShuffleTopologyManager {
+public final class StaticShuffleManager implements ShuffleManager {
 
-  private static final Logger LOG = Logger.getLogger(ImmutableShuffleTopologyManager.class.getName());
+  private static final Logger LOG = Logger.getLogger(StaticShuffleManager.class.getName());
 
-  private final TopologyDescription topologyDescription;
-  private final ConfigurationSerializer confSerializer;
+  private final ShuffleDescriptor initialShuffleDescriptor;
+  private final ClientConfigurationSerializer confSerializer;
   private final ShuffleLinkListener shuffleLinkListener;
   private final ShuffleMessageHandler shuffleMessageHandler;
   private final TaskEntityMap taskEntityMap;
 
   @Inject
-  public ImmutableShuffleTopologyManager(
-      final TopologyDescription topologyDescription,
-      final ConfigurationSerializer confSerializer,
+  public StaticShuffleManager(
+      final ShuffleDescriptor initialShuffleDescriptor,
+      final ClientConfigurationSerializer confSerializer,
       final @Parameter(NameServerParameters.NameServerIdentifierFactory.class) IdentifierFactory idFactory,
       final NetworkServiceClient nsClient) {
-    this.topologyDescription = topologyDescription;
+    this.initialShuffleDescriptor = initialShuffleDescriptor;
     this.confSerializer = confSerializer;
     this.shuffleLinkListener = new ShuffleLinkListener();
     this.shuffleMessageHandler = new ShuffleMessageHandler();
-    this.taskEntityMap = new TaskEntityMap(topologyDescription, idFactory,
+    this.taskEntityMap = new TaskEntityMap(initialShuffleDescriptor, idFactory,
         nsClient.<ShuffleControlMessage>getConnectionFactory(ShuffleControlMessageNSId.class));
 
     createTaskEntityMap();
   }
 
   private void createTaskEntityMap() {
-    for (final NodePoolDescription description : topologyDescription.getNodePoolDescriptionMap().values()) {
-      for (final String nodeId : description.getNodeIdList()) {
-        taskEntityMap.putTaskIdIfAbsent(nodeId);
+    for (final String groupingName : initialShuffleDescriptor.getGroupingNameList()) {
+      final GroupingDescriptor descriptor = initialShuffleDescriptor.getGroupingDescriptor(groupingName);
+      for (final String senderId : initialShuffleDescriptor.getSenderIdList(descriptor.getGroupingName())) {
+        taskEntityMap.putTaskIdIfAbsent(senderId);
+      }
+
+      for (final String receiverId : initialShuffleDescriptor.getReceiverIdList(descriptor.getGroupingName())) {
+        taskEntityMap.putTaskIdIfAbsent(receiverId);
       }
     }
   }
 
   @Override
-  public Class<? extends Name<String>> getTopologyName() {
-    return topologyDescription.getTopologyName();
+  public Class<? extends Name<String>> getShuffleName() {
+    return initialShuffleDescriptor.getShuffleName();
+  }
+
+  @Override
+  public List<String> getGroupingNameList() {
+    return initialShuffleDescriptor.getGroupingNameList();
+  }
+
+  @Override
+  public GroupingDescriptor getGroupingDescriptor(final String groupingName) {
+    return initialShuffleDescriptor.getGroupingDescriptor(groupingName);
+  }
+
+  @Override
+  public List<String> getSenderIdList(final String groupingName) {
+    return initialShuffleDescriptor.getSenderIdList(groupingName);
+  }
+
+  @Override
+  public List<String> getReceiverIdList(final String groupingName) {
+    return initialShuffleDescriptor.getReceiverIdList(groupingName);
   }
 
   @Override
@@ -96,14 +121,8 @@ public final class ImmutableShuffleTopologyManager implements ShuffleTopologyMan
   }
 
   @Override
-  public TopologyDescription getTopologyDescription() {
-    return topologyDescription;
-  }
-
-  @Override
   public Configuration getTopologyConfigurationForTask(final String taskId) {
-    return new TopologyConfigurationSerializer(taskId, topologyDescription, confSerializer)
-        .getConfiguration();
+    return confSerializer.serialize(taskId, initialShuffleDescriptor, StaticShuffleClient.class);
   }
 
   @Override
@@ -121,7 +140,9 @@ public final class ImmutableShuffleTopologyManager implements ShuffleTopologyMan
     taskEntityMap.onTaskStop(completedTask.getId());
   }
 
+
   private final class ShuffleLinkListener implements LinkListener<Message<ShuffleControlMessage>> {
+
     @Override
     public void onSuccess(final Message<ShuffleControlMessage> message) {
       LOG.log(Level.FINE, "A ShuffleMessage was successfully sent : {0}", message);

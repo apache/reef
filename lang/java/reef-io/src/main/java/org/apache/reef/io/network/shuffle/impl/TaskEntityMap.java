@@ -22,7 +22,7 @@ import org.apache.reef.exception.evaluator.NetworkException;
 import org.apache.reef.io.network.Connection;
 import org.apache.reef.io.network.ConnectionFactory;
 import org.apache.reef.io.network.shuffle.ns.ShuffleControlMessage;
-import org.apache.reef.io.network.shuffle.topology.TopologyDescription;
+import org.apache.reef.io.network.shuffle.topology.ShuffleDescriptor;
 import org.apache.reef.wake.Identifier;
 import org.apache.reef.wake.IdentifierFactory;
 
@@ -35,19 +35,19 @@ import java.util.Map;
 
 final class TaskEntityMap {
 
-  private final TopologyDescription topologyDescription;
+  private final ShuffleDescriptor shuffleDescription;
   private final IdentifierFactory idFactory;
   private final ConnectionFactory<ShuffleControlMessage> connectionFactory;
   private final Map<String, TaskEntity> entityMap;
 
-  private boolean topologyInitailized;
+  private boolean topologyInitialized;
   private int waitingTaskNum;
 
   TaskEntityMap(
-      final TopologyDescription topologyDescription,
+      final ShuffleDescriptor shuffleDescription,
       final IdentifierFactory idFactory,
       final ConnectionFactory<ShuffleControlMessage> connectionFactory) {
-    this.topologyDescription = topologyDescription;
+    this.shuffleDescription = shuffleDescription;
     this.idFactory = idFactory;
     this.connectionFactory = connectionFactory;
     this.entityMap = new HashMap<>();
@@ -69,8 +69,8 @@ final class TaskEntityMap {
       waitingTaskNum--;
     }
 
-    if (!topologyInitailized && waitingTaskNum == 0) {
-      topologyInitailized = true;
+    if (!topologyInitialized && waitingTaskNum == 0) {
+      topologyInitialized = true;
       sendTopologySetupMessages();
     }
   }
@@ -85,8 +85,8 @@ final class TaskEntityMap {
 
   private void sendTopologySetupMessages() {
     final ShuffleControlMessage controlMessage = new ShuffleControlMessage(
-        ImmutableShuffleMessageCode.TOPOLOGY_SETUP,
-        topologyDescription.getTopologyName().getName(),
+        StaticShuffleMessageCode.TOPOLOGY_SETUP,
+        shuffleDescription.getShuffleName().getName(),
         null,
         null);
 

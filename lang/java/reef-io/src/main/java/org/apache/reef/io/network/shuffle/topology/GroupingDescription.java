@@ -18,26 +18,113 @@
  */
 package org.apache.reef.io.network.shuffle.topology;
 
-import org.apache.reef.io.network.shuffle.grouping.Grouping;
-import org.apache.reef.tang.Configuration;
+import org.apache.reef.io.network.shuffle.grouping.GroupingStrategy;
+import org.apache.reef.io.network.shuffle.params.GroupingKeyCodecClassName;
+import org.apache.reef.io.network.shuffle.params.GroupingName;
+import org.apache.reef.io.network.shuffle.params.GroupingStrategyClassName;
+import org.apache.reef.io.network.shuffle.params.GroupingValueCodecClassName;
+import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.wake.remote.Codec;
+
+import javax.inject.Inject;
 
 /**
  *
  */
-public interface GroupingDescription<K, V> {
+public final class GroupingDescription<K, V> implements GroupingDescriptor<K, V> {
 
-  String getGroupingName();
+  private final String groupingName;
+  private final Class<? extends GroupingStrategy> groupingClass;
+  private final Class<? extends Codec<K>> keyCodecClass;
+  private final Class<? extends Codec<V>> valueCodecClass;
 
-  Class<? extends Grouping> getGroupingClass();
+  @Inject
+  private GroupingDescription(
+      final @Parameter(GroupingName.class) String groupingName,
+      final @Parameter(GroupingStrategyClassName.class) String groupingClassName,
+      final @Parameter(GroupingKeyCodecClassName.class) String keyCodecClassName,
+      final @Parameter(GroupingValueCodecClassName.class) String valueCodecClassName) {
+    this.groupingName = groupingName;
+    try {
+      groupingClass = (Class<? extends GroupingStrategy>) Class.forName(groupingClassName);
+      keyCodecClass = (Class<? extends Codec<K>>) Class.forName(keyCodecClassName);
+      valueCodecClass = (Class<? extends Codec<V>>) Class.forName(valueCodecClassName);
+    } catch (final ClassNotFoundException exception) {
+      throw new RuntimeException("ClassNotFoundException in constructor of GroupingDescriptionImpl", exception);
+    }
+  }
 
-  String getSenderPoolId();
+  private GroupingDescription(
+      final String groupingName,
+      final Class<? extends GroupingStrategy> groupingClass,
+      final Class<? extends Codec<K>> keyCodecClass,
+      final Class<? extends Codec<V>> valueCodecClass) {
 
-  String getReceiverPoolId();
+    this.groupingName = groupingName;
+    this.groupingClass = groupingClass;
+    this.keyCodecClass = keyCodecClass;
+    this.valueCodecClass = valueCodecClass;
+  }
 
-  Class<? extends Codec<K>> getKeyCodec();
+  @Override
+  public String getGroupingName() {
+    return groupingName;
+  }
 
-  Class<? extends Codec<V>> getValueCodec();
+  @Override
+  public Class<? extends GroupingStrategy> getGroupingStrategyClass() {
+    return groupingClass;
+  }
 
-  Configuration convertToConfiguration();
+  @Override
+  public Class<? extends Codec<K>> getKeyCodec() {
+    return keyCodecClass;
+  }
+
+  @Override
+  public Class<? extends Codec<V>> getValueCodec() {
+    return valueCodecClass;
+  }
+
+  public static Builder newBuilder(final String groupingName) {
+    return new Builder(groupingName);
+  }
+
+  public static class Builder {
+    private final String groupingName;
+    private Class<? extends GroupingStrategy> groupingClass;
+    private Class<? extends Codec> keyCodecClass;
+    private Class<? extends Codec> valueCodecClass;
+
+    private Builder(final String groupingName) {
+      this.groupingName = groupingName;
+    }
+
+    public Builder setGroupingStrategy(final Class<? extends GroupingStrategy> groupingClass) {
+      this.groupingClass = groupingClass;
+      return this;
+    }
+
+    public Builder setKeyCodec(final Class<? extends Codec> keyCodecClass) {
+      this.keyCodecClass = keyCodecClass;
+      return this;
+    }
+
+    public Builder setValueCodec(final Class<? extends Codec> valueCodecClass) {
+      this.valueCodecClass = valueCodecClass;
+      return this;
+    }
+
+    public GroupingDescriptor build() {
+      if (groupingClass == null) {
+        throw new RuntimeException("You should set grouping class");
+      }
+
+      if (keyCodecClass == null || valueCodecClass == null) {
+        throw new RuntimeException("You should set codec for both key and value type");
+      }
+
+      return new GroupingDescription(groupingName, groupingClass, keyCodecClass, valueCodecClass);
+    }
+  }
 }

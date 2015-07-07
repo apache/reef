@@ -52,5 +52,5 @@ public final class InputString implements Name<String> {
     "have been implemented and upwards of one thousand " +
     "MapReduce jobs are executed on Google’s clusters " +
     "every day " +
-    "key key key value value ";
+    "key key key value value";
 }

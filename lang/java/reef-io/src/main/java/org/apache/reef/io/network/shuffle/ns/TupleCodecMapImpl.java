@@ -18,9 +18,7 @@
  */
 package org.apache.reef.io.network.shuffle.ns;
 
-import org.apache.reef.io.network.shuffle.task.ShuffleTopologyClient;
 import org.apache.reef.io.network.shuffle.task.Tuple;
-import org.apache.reef.io.network.shuffle.topology.GroupingDescription;
 import org.apache.reef.wake.remote.Codec;
 
 import javax.inject.Inject;
@@ -45,12 +43,11 @@ final class TupleCodecMapImpl implements TupleCodecMap {
   }
 
   @Override
-  public void registerTupleCodecs(final ShuffleTopologyClient client) {
-    final Map<String, Codec<Tuple>> tupleCodecMapForClient = new HashMap<>();
-    for (final GroupingDescription description : client.getGroupingDescriptionMap().values()) {
-      tupleCodecMapForClient.put(description.getGroupingName(), client.getTupleCodec(description.getGroupingName()));
+  public void registerTupleCodec(String shuffleName, String groupingName, Codec<Tuple> tupleCodec) {
+    if (!tupleCodecMap.containsKey(shuffleName)) {
+      tupleCodecMap.put(shuffleName, new HashMap<String, Codec<Tuple>>());
     }
 
-    tupleCodecMap.put(client.getTopologyName().getName(), tupleCodecMapForClient);
+    tupleCodecMap.get(shuffleName).put(groupingName, tupleCodec);
   }
 }

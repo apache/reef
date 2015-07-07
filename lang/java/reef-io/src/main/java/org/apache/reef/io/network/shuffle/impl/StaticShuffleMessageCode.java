@@ -16,14 +16,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.io.network.shuffle.params;
-
-import org.apache.reef.tang.annotations.Name;
-import org.apache.reef.tang.annotations.NamedParameter;
+package org.apache.reef.io.network.shuffle.impl;
 
 /**
  *
  */
-@NamedParameter
-public final class ShuffleTopologyName implements Name<String> {
+public final class StaticShuffleMessageCode {
+  public static final int TOPOLOGY_SETUP = 0;
 }

@@ -23,23 +23,14 @@ package org.apache.reef.io.network.shuffle.ns;
  */
 public abstract class ShuffleMessage {
 
-  public static final int TUPLE_MESSAGE = 0;
-
-  private final int code;
   private final String topologyName;
   private final String groupingName;
 
   public ShuffleMessage(
-      final int code,
       final String topologyName,
       final String groupingName) {
-    this.code = code;
     this.topologyName = topologyName;
     this.groupingName = groupingName;
-  }
-
-  public int getCode() {
-    return code;
   }
 
   public String getTopologyName() {

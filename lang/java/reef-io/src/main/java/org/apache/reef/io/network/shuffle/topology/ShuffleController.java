@@ -16,16 +16,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.io.network.shuffle.params;
+package org.apache.reef.io.network.shuffle.topology;
 
-import org.apache.reef.tang.annotations.Name;
-import org.apache.reef.tang.annotations.NamedParameter;
-
-import java.util.Set;
+import org.apache.reef.io.network.Message;
+import org.apache.reef.io.network.shuffle.ns.ShuffleControlMessage;
+import org.apache.reef.wake.EventHandler;
+import org.apache.reef.wake.remote.transport.LinkListener;
 
 /**
  *
  */
-@NamedParameter
-public final class SerializedReceiverNodePoolSet implements Name<Set<String>> {
+public interface ShuffleController extends ShuffleDescriptor {
+
+  EventHandler<Message<ShuffleControlMessage>> getControlMessageHandler();
+
+  LinkListener<Message<ShuffleControlMessage>> getControlLinkListener();
+
 }

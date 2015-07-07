@@ -16,36 +16,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.io.network.shuffle.ns;
+package org.apache.reef.io.network.shuffle.params;
 
-import org.apache.reef.io.network.shuffle.task.Tuple;
+import org.apache.reef.tang.annotations.Name;
+import org.apache.reef.tang.annotations.NamedParameter;
+
+import java.util.List;
 
 /**
  *
  */
-public final class ShuffleTupleMessage<K, V> extends ShuffleMessage {
-
-  private final Tuple<K, V>[] tuples;
-
-  public ShuffleTupleMessage(
-      final String topologyName,
-      final String groupingName,
-      final Tuple<K, V>[] tuples) {
-    super(topologyName, groupingName);
-    this.tuples = tuples;
-  }
-
-  @Override
-  public int getDataLength() {
-    if (tuples == null) {
-      return 0;
-    }
-
-    return tuples.length;
-  }
-
-  @Override
-  public Tuple<K, V> getDataAt(final int index) {
-    return tuples[index];
-  }
+@NamedParameter
+public final class ReceiverIdList implements Name<List<String>> {
 }

@@ -27,5 +27,5 @@ import java.util.Set;
  *
  */
 @NamedParameter
-public final class SerializedSenderNodePoolSet implements Name<Set<String>> {
+public final class GroupingSenderIdSet implements Name<Set<String>> {
 }

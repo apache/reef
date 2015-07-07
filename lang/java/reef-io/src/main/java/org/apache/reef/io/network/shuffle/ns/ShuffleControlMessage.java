@@ -23,6 +23,7 @@ package org.apache.reef.io.network.shuffle.ns;
  */
 public final class ShuffleControlMessage extends ShuffleMessage {
 
+  private int code;
   private final byte[][] data;
 
   public ShuffleControlMessage(
@@ -30,11 +31,13 @@ public final class ShuffleControlMessage extends ShuffleMessage {
       final String topologyName,
       final String groupingName,
       final byte[][] data) {
-    super(code, topologyName, groupingName);
-    if (code == ShuffleMessage.TUPLE_MESSAGE) {
-      throw new RuntimeException("0 cannot be used as ShuffleControlMessage code since it is reserved for TUPLE_MESSAGE");
-    }
+    super(topologyName, groupingName);
+    this.code = code;
     this.data = data;
+  }
+
+  public int getCode() {
+    return code;
   }
 
   @Override

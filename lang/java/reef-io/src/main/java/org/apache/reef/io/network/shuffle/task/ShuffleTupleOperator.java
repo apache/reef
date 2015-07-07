@@ -18,7 +18,7 @@
  */
 package org.apache.reef.io.network.shuffle.task;
 
-import org.apache.reef.io.network.shuffle.topology.GroupingDescription;
+import org.apache.reef.io.network.shuffle.topology.GroupingDescriptor;
 
 /**
  *
@@ -27,5 +27,5 @@ public interface ShuffleTupleOperator<K, V> {
 
   String getGroupingName();
 
-  GroupingDescription<K, V> getGroupingDescription();
+  GroupingDescriptor<K, V> getGroupingDescription();
 }

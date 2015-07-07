@@ -21,16 +21,13 @@ package org.apache.reef.io.network.shuffle.driver;
 import org.apache.reef.driver.task.CompletedTask;
 import org.apache.reef.driver.task.FailedTask;
 import org.apache.reef.driver.task.RunningTask;
-import org.apache.reef.io.network.shuffle.topology.ShuffleTopologyController;
-import org.apache.reef.io.network.shuffle.topology.TopologyDescription;
+import org.apache.reef.io.network.shuffle.topology.ShuffleController;
 import org.apache.reef.tang.Configuration;
 
 /**
  *
  */
-public interface ShuffleTopologyManager extends ShuffleTopologyController {
-
-  TopologyDescription getTopologyDescription();
+public interface ShuffleManager extends ShuffleController {
 
   Configuration getTopologyConfigurationForTask(String taskId);
 
