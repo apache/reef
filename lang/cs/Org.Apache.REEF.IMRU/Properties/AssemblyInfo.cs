@@ -33,4 +33,8 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyVersion("0.12.0.0")]
 [assembly: AssemblyFileVersion("0.12.0.0")]
 // Allow the tests project access to `internal` APIs
-[assembly: InternalsVisibleTo("Org.Apache.REEF.IMRU.Tests")]
+[assembly: InternalsVisibleTo("Org.Apache.REEF.IMRU.Tests, publickey=" +
+    "0024000004800000940000000602000000240000525341310004000001000100d992d80b9218bb" +
+    "93f8b05724c2e1976188a4886c4562bfb1aea2c3b9490329b5116f558d50ce6b05dc63824892ed" +
+    "0f63cfa12013f1b07ceac01ee9d49e53fa54b8575dc70787d873a564a737908aa399ff4e9471ca" +
+    "ff3ed9da0fc4e1a1441e16adaa38197aa24f7e3411df1f20c9407bfe85413402709f5bde23a53ca6fa16af")]
