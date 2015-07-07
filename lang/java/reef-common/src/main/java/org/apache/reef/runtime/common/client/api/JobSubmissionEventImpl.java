@@ -184,7 +184,9 @@ public final class JobSubmissionEventImpl implements JobSubmissionEvent {
 
     /**
      * @see JobSubmissionEvent#getQueue()
+     * @deprecated in 0.12. Use org.apache.reef.runtime.yarn.client.YarnDriverConfiguration#QUEUE instead.
      */
+    @Deprecated
     public Builder setQueue(final String queue) {
       this.queue = queue;
       return this;

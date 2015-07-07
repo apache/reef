@@ -76,6 +76,8 @@ public interface JobSubmissionEvent {
 
   /**
    * @return Queue to submit the Job to
+   * @deprecated in 0.12. Use org.apache.reef.runtime.yarn.client.YarnDriverConfiguration#QUEUE instead.
    */
+  @Deprecated
   Optional<String> getQueue();
 }
