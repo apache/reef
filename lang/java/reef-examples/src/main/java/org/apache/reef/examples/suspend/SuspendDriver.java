@@ -289,7 +289,7 @@ public class SuspendDriver {
 
         case "resume": {
           final SuspendedTask suspendedTask;
-            synchronized (suspendedTasks) {
+          synchronized (suspendedTasks) {
             suspendedTask = suspendedTasks.remove(taskId);
           }
           if (suspendedTask != null) {
