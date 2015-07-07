@@ -36,11 +36,20 @@ namespace Org.Apache.REEF.IMRU.Examples.MapperCount
         {
         }
 
+        /// <summary>
+        /// Update function
+        /// </summary>
+        /// <param name="input">Input containing sum of all mappers</param>
+        /// <returns>The Update Result with only result</returns>
         public UpdateResult<int, int> Update(int input)
         {
             return UpdateResult<int, int>.Done(input);
         }
 
+        /// <summary>
+        /// Initialize function. Sends 1 to all mappers
+        /// </summary>
+        /// <returns>Map input</returns>
         public UpdateResult<int, int> Initialize()
         {
             return UpdateResult<int, int>.AnotherRound(1);

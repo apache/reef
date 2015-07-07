@@ -28,7 +28,7 @@ namespace Org.Apache.REEF.IMRU.API
     /// <typeparam name="TMapInput">The type of the side information provided to the Map function</typeparam>
     /// <typeparam name="TMapOutput">The return type of the Map function</typeparam>
     /// <typeparam name="TResult">The return type of the computation.</typeparam>
-    public interface IUpdateFunction<TMapInput, TMapOutput, TResult>
+    public interface IUpdateFunction<TMapInput, in TMapOutput, TResult>
     {
         /// <summary>
         /// The Update task for IMRU.

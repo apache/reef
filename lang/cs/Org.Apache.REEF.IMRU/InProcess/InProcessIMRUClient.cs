@@ -17,11 +17,13 @@
  * under the License.
  */
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Org.Apache.REEF.IMRU.API;
 using Org.Apache.REEF.IMRU.InProcess.Parameters;
 using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Tang.Implementations.Configuration;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
@@ -52,9 +54,32 @@ namespace Org.Apache.REEF.IMRU.InProcess
             _numberOfMappers = numberOfMappers;
         }
 
+        /// <summary>
+        /// Submits the map job
+        /// </summary>
+        /// <param name="jobDefinition">Job definition given by the user</param>
+        /// <returns>The result of the job</returns>
         public IEnumerable<TResult> Submit(IMRUJobDefinition jobDefinition)
         {
-            var injector = TangFactory.GetTang().NewInjector(jobDefinition.Configuration);
+            var emptyConfig = TangFactory.GetTang().NewConfigurationBuilder().Build();
+            var updateFunctionCodecConfig = jobDefinition.UpdateFunctionCodecsConfiguration;
+            var mapInputPipelineConfig = jobDefinition.MapInputPipelineDataConverterConfiguration;
+            var mapOutputPipelineConfig = jobDefinition.MapOutputPipelineDataConverterConfiguration;
+
+            if (typeof (TMapInput) == typeof (TMapOutput))
+            {
+                mapOutputPipelineConfig = emptyConfig;
+            }
+
+            var mergedConfig = Configurations.Merge(
+                jobDefinition.MapFunctionConfiguration,
+                mapInputPipelineConfig,
+                updateFunctionCodecConfig,
+                mapOutputPipelineConfig,
+                jobDefinition.ReduceFunctionConfiguration,
+                jobDefinition.UpdateFunctionConfiguration);
+
+            var injector = TangFactory.GetTang().NewInjector(mergedConfig);
 
             injector.BindVolatileInstance(GenericType<MapFunctions<TMapInput, TMapOutput>>.Class,
                 MakeMapFunctions(injector));

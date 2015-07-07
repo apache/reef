@@ -41,25 +41,48 @@ under the License.
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="API\IMRUConfiguration.cs" />
+    <Compile Include="API\IMRUReduceFunctionConfiguration.cs" />
+    <Compile Include="API\IMRUUpdateConfiguration.cs" />
+    <Compile Include="API\IMRUGenericTypePipelineDataConverterConfiguration.cs" />
+    <Compile Include="API\IMRUGenericTypeCodecConfiguration.cs" />
+    <Compile Include="API\IMRUMapConfiguration.cs" />
     <Compile Include="API\IIMRUClient.cs" />
     <Compile Include="API\IMapFunction.cs" />
     <Compile Include="API\IMRUJobDefinition.cs" />
     <Compile Include="API\IMRUJobDefinitionBuilder.cs" />
     <Compile Include="API\IUpdateFunction.cs" />
-    <Compile Include="API\Parameters\MapInputCodec.cs" />
-    <Compile Include="API\Parameters\MapOutputCodec.cs" />
-    <Compile Include="API\Parameters\ResultCodec.cs" />
     <Compile Include="API\UpdateResult.cs" />
-    <Compile Include="Examples\MapperCount\MapperCount.cs" />
     <Compile Include="Examples\MapperCount\IdentityMapFunction.cs" />
     <Compile Include="Examples\MapperCount\IntSumReduceFunction.cs" />
+    <Compile Include="Examples\MapperCount\MapperCount.cs" />
     <Compile Include="Examples\MapperCount\MapperCountUpdateFunction.cs" />
     <Compile Include="InProcess\IMRURunner.cs" />
     <Compile Include="InProcess\InProcessIMRUClient.cs" />
     <Compile Include="InProcess\InProcessIMRUConfiguration.cs" />
     <Compile Include="InProcess\MapFunctions.cs" />
+    <Compile Include="OnREEF\Driver\ConfigurationManager.cs" />
+    <Compile Include="OnREEF\Driver\IMRUConstants.cs" />
+    <Compile Include="OnREEF\Driver\IMRUDriver.cs" />
+    <Compile Include="OnREEF\IMRUTasks\MapTaskHost.cs" />
+    <Compile Include="OnREEF\IMRUTasks\UpdateTaskHost.cs" />
+    <Compile Include="OnREEF\MapInputWithControlMessage\MapControlMessage.cs" />
+    <Compile Include="OnREEF\MapInputWithControlMessage\MapInputWithControlMessage.cs" />
+    <Compile Include="OnREEF\MapInputWithControlMessage\MapInputWithControlMessageCodec.cs" />
+    <Compile Include="OnREEF\MapInputWithControlMessage\MapInputwithControlMessagePipelineDataConverter.cs" />
+    <Compile Include="OnREEF\Client\OnREEFIMRURunTimeConfiguration.cs" />
     <Compile Include="InProcess\Parameters\NumberOfMappers.cs" />
+    <Compile Include="OnREEF\Parameters\MemoryForUpdateTask.cs" />
+    <Compile Include="OnREEF\Parameters\CoresForUpdateTask.cs" />
+    <Compile Include="OnREEF\Parameters\MemoryPerMapper.cs" />
+    <Compile Include="OnREEF\Parameters\SerializedMapConfiguration.cs" />
+    <Compile Include="OnREEF\Parameters\SerializedMapInputCodecConfiguration.cs" />
+    <Compile Include="OnREEF\Parameters\SerializedUpdateFunctionCodecsConfiguration.cs" />
+    <Compile Include="OnREEF\Parameters\SerializedMapInputPipelineDataConverterConfiguration.cs" />
+    <Compile Include="OnREEF\Parameters\CoresPerMapper.cs" />
+    <Compile Include="OnREEF\Parameters\SerializedReduceConfiguration.cs" />
+    <Compile Include="OnREEF\Parameters\SerializedMapOutputPipelineDataConverterConfiguration.cs" />
+    <Compile Include="OnREEF\Parameters\SerializedUpdateConfiguration.cs" />
+    <Compile Include="OnREEF\Client\REEFIMRUClient.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -91,8 +114,17 @@ under the License.
       <Project>{cdfb3464-4041-42b1-9271-83af24cd5008}</Project>
       <Name>Org.Apache.REEF.Wake</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Org.Apache.REEF.Client\Org.Apache.REEF.Client.csproj">
+      <Project>{5094c35b-4fdb-4322-ac05-45d684501cbf}</Project>
+      <Name>Org.Apache.REEF.Client</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Org.Apache.REEF.IO\Org.Apache.REEF.IO.csproj">
+      <Project>{dec0f0a8-dbef-4ebf-b69c-e2369c15abf1}</Project>
+      <Name>Org.Apache.REEF.IO</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="Org.Apache.REEF.IMRU.nuspec" />
   </ItemGroup>
+  <ItemGroup />
 </Project>
