@@ -34,7 +34,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
     /// Represents an open connection between remote hosts. This class is not thread safe
     /// </summary>
     /// <typeparam name="T">Generic Type of message.</typeparam>
-    internal class StreamingLink<T> : ILink<T>
+    internal sealed class StreamingLink<T> : ILink<T>
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof (StreamingLink<T>));
 
@@ -200,35 +200,21 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         /// </summary>
         public void Dispose()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        /// <summary>
-        /// Subclasses of Links should overwrite this to handle disposing
-        /// of the link
-        /// </summary>
-        /// <param name="disposing">To dispose or not</param>
-        public virtual void Dispose(bool disposing)
-        {
             if (_disposed)
             {
                 return;
             }
 
-            if (disposing)
+            try
             {
-                try
-                {
-                    _client.GetStream().Close();
-                }
-                catch (InvalidOperationException)
-                {
-                    Logger.Log(Level.Warning, "failed to close stream on a non-connected socket.");
-                }
-
-                _client.Close();
+                _client.GetStream().Close();
             }
+            catch (InvalidOperationException)
+            {
+                Logger.Log(Level.Warning, "failed to close stream on a non-connected socket.");
+            }
+
+            _client.Close();
             _disposed = true;
         }
 

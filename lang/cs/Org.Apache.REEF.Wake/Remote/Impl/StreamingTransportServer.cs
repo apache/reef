@@ -120,13 +120,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         /// </summary>
         public void Dispose()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        public void Dispose(bool disposing)
-        {
-            if (!_disposed && disposing)
+            if (!_disposed)
             {
                 _cancellationSource.Cancel();
 
