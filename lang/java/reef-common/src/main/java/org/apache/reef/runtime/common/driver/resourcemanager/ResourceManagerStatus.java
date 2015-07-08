@@ -66,7 +66,7 @@ public final class ResourceManagerStatus implements EventHandler<RuntimeStatusEv
   public synchronized void onNext(final RuntimeStatusEvent runtimeStatusEvent) {
     final ReefServiceProtos.State newState = runtimeStatusEvent.getState();
     LOG.log(Level.FINEST, "Runtime status " + runtimeStatusEvent);
-    this.outstandingContainerRequests = runtimeStatusEvent.getOutstandingContainerRequests().get();
+    this.outstandingContainerRequests = runtimeStatusEvent.getOutstandingContainerRequests().orElse(0);
     this.containerAllocationCount = runtimeStatusEvent.getContainerAllocationList().size();
     this.setState(runtimeStatusEvent.getState());
 
