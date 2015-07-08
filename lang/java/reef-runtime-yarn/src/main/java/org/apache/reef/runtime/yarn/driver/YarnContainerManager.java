@@ -599,6 +599,7 @@ final class YarnContainerManager
   }
 
   private synchronized void writeToEvaluatorLog(final String entry) throws IOException {
+    /*
     final org.apache.hadoop.conf.Configuration config = new org.apache.hadoop.conf.Configuration();
     config.setBoolean("dfs.support.append", true);
     config.setBoolean("dfs.support.broken.append", true);
@@ -618,6 +619,7 @@ final class YarnContainerManager
         appendByDeleteAndCreate(fs, path, entry);
       }
     }
+    */
   }
 
   private FileSystem getFileSystemInstance() throws IOException {
