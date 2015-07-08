@@ -56,7 +56,8 @@ public class ParameterParser {
     addParser((Class) tc, (Class) ec);
   }
 
-  public <T, U extends T> void addParser(Class<U> clazz, Class<? extends ExternalConstructor<T>> ec) throws BindException {
+  public <T, U extends T> void addParser(Class<U> clazz, Class<? extends ExternalConstructor<T>> ec)
+      throws BindException {
     Constructor<? extends ExternalConstructor<T>> c;
     try {
       c = ec.getDeclaredConstructor(String.class);
@@ -78,7 +79,8 @@ public class ParameterParser {
           throw new IllegalArgumentException(
               "Conflict detected when merging parameter parsers! To parse " + s
                   + " I have a: " + ReflectionUtilities.getFullName(parsers.get(s).getDeclaringClass())
-                  + " the other instance has a: " + ReflectionUtilities.getFullName(p.parsers.get(s).getDeclaringClass()));
+                  + " the other instance has a: "
+                  + ReflectionUtilities.getFullName(p.parsers.get(s).getDeclaringClass()));
         }
       }
     }

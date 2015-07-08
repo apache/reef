@@ -130,12 +130,14 @@ public abstract class ConfigurationModuleBuilder {
    */
   public final ConfigurationModuleBuilder merge(ConfigurationModule d) {
     if (d == null) {
-      throw new NullPointerException("If merge() was passed a static final field that is initialized to non-null, then this is almost certainly caused by a circular class dependency.");
+      throw new NullPointerException("If merge() was passed a static final field that is initialized to non-null, " +
+          "then this is almost certainly caused by a circular class dependency.");
     }
     try {
       d.assertStaticClean();
     } catch (ClassHierarchyException e) {
-      throw new ClassHierarchyException(ReflectionUtilities.getFullName(getClass()) + ": detected attempt to merge with ConfigurationModule that has had set() called on it", e);
+      throw new ClassHierarchyException(ReflectionUtilities.getFullName(getClass()) +
+          ": detected attempt to merge with ConfigurationModule that has had set() called on it", e);
     }
     ConfigurationModuleBuilder c = deepCopy();
     try {
@@ -173,7 +175,8 @@ public abstract class ConfigurationModuleBuilder {
     return c;
   }
 
-  public final <T> ConfigurationModuleBuilder bindSetEntry(Class<? extends Name<Set<T>>> iface, Class<? extends T> impl) {
+  public final <T> ConfigurationModuleBuilder bindSetEntry(Class<? extends Name<Set<T>>> iface,
+                                                           Class<? extends T> impl) {
     ConfigurationModuleBuilder c = deepCopy();
     try {
       c.b.bindSetEntry(iface, impl);
@@ -183,7 +186,8 @@ public abstract class ConfigurationModuleBuilder {
     return c;
   }
 
-  public final <T> ConfigurationModuleBuilder bindSetEntry(Class<? extends Name<Set<T>>> iface, Impl<? extends T> opt) {
+  public final <T> ConfigurationModuleBuilder bindSetEntry(Class<? extends Name<Set<T>>> iface,
+                                                           Impl<? extends T> opt) {
     ConfigurationModuleBuilder c = deepCopy();
     c.processUse(opt);
     c.freeImpls.put(iface, opt);
@@ -193,7 +197,8 @@ public abstract class ConfigurationModuleBuilder {
     return c;
   }
 
-  public final <T> ConfigurationModuleBuilder bindSetEntry(Class<? extends Name<Set<T>>> iface, Param<? extends T> opt) {
+  public final <T> ConfigurationModuleBuilder bindSetEntry(Class<? extends Name<Set<T>>> iface,
+                                                           Param<? extends T> opt) {
     ConfigurationModuleBuilder c = deepCopy();
     c.processUse(opt);
     c.freeParams.put(iface, opt);
@@ -269,7 +274,8 @@ public abstract class ConfigurationModuleBuilder {
   }
 
   public final <T> ConfigurationModuleBuilder bindConstructor(Class<T> clazz,
-                                                              Class<? extends ExternalConstructor<? extends T>> constructor) {
+                                                              Class<? extends ExternalConstructor<? extends T>>
+                                                              constructor) {
     ConfigurationModuleBuilder c = deepCopy();
     try {
       c.b.bindConstructor(clazz, constructor);
@@ -312,7 +318,8 @@ public abstract class ConfigurationModuleBuilder {
   private <T> void processUse(Object impl) {
     Field f = map.get(impl);
     if (f == null) { /* throw */
-      throw new ClassHierarchyException("Unknown Impl/Param when binding " + ReflectionUtilities.getSimpleName(impl.getClass()) + ".  Did you pass in a field from some other module?");
+      throw new ClassHierarchyException("Unknown Impl/Param when binding " +
+          ReflectionUtilities.getSimpleName(impl.getClass()) + ".  Did you pass in a field from some other module?");
     }
     if (!reqUsed.contains(f)) {
       reqUsed.add(f);
@@ -345,7 +352,8 @@ public abstract class ConfigurationModuleBuilder {
       try {
         c.b.bind(ReflectionUtilities.getFullName(clz), c.lateBindClazz.get(clz));
       } catch (NameResolutionException e) {
-        throw new ClassHierarchyException("ConfigurationModule refers to unknown class: " + c.lateBindClazz.get(clz), e);
+        throw new ClassHierarchyException("ConfigurationModule refers to unknown class: " +
+            c.lateBindClazz.get(clz), e);
       } catch (BindException e) {
         throw new ClassHierarchyException("bind failed while initializing ConfigurationModuleBuilder", e);
       }

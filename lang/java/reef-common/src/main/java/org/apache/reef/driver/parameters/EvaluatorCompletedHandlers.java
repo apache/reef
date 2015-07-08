@@ -29,7 +29,8 @@ import java.util.Set;
 /**
  * Called when an exception occurs on a running evaluator.
  */
-@NamedParameter(doc = "Called when an exception occurs on a running evaluator.", default_classes = DefaultEvaluatorCompletionHandler.class)
+@NamedParameter(doc = "Called when an exception occurs on a running evaluator.",
+    default_classes = DefaultEvaluatorCompletionHandler.class)
 public final class EvaluatorCompletedHandlers implements Name<Set<EventHandler<CompletedEvaluator>>> {
   private EvaluatorCompletedHandlers() {
   }

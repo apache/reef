@@ -150,12 +150,16 @@ public final class HttpServerReefEventHandler implements HttpHandler {
       response.getWriter().println("Killing");
       break;
     case "duration":
-      final ArrayList<String> lines = LogParser.getFilteredLinesFromFile(driverStderrFile, LoggingScopeImpl.DURATION, LoggingScopeImpl.TOKEN, null);
+      final ArrayList<String> lines =
+          LogParser.getFilteredLinesFromFile(driverStderrFile, LoggingScopeImpl.DURATION, LoggingScopeImpl.TOKEN, null);
       writeLines(response, lines, "Performance...");
       break;
     case "stages":
-      final ArrayList<String> starts = LogParser.getFilteredLinesFromFile(driverStderrFile, LoggingScopeImpl.START_PREFIX, logLevelPrefix, null);
-      final ArrayList<String> exits = LogParser.getFilteredLinesFromFile(driverStderrFile, LoggingScopeImpl.EXIT_PREFIX, logLevelPrefix, LoggingScopeImpl.DURATION);
+      final ArrayList<String> starts =
+          LogParser.getFilteredLinesFromFile(driverStderrFile, LoggingScopeImpl.START_PREFIX, logLevelPrefix, null);
+      final ArrayList<String> exits =
+          LogParser.getFilteredLinesFromFile(driverStderrFile, LoggingScopeImpl.EXIT_PREFIX, logLevelPrefix,
+              LoggingScopeImpl.DURATION);
       final ArrayList<String> startsStages = LogParser.findStages(starts, LogParser.startIndicators);
       final ArrayList<String> endStages = LogParser.findStages(exits, LogParser.endIndicators);
       final ArrayList<String> result = LogParser.mergeStages(startsStages, endStages);
@@ -324,7 +328,8 @@ public final class HttpServerReefEventHandler implements HttpHandler {
       final DriverInfoSerializer serializer =
           Tang.Factory.getTang().newInjector().getInstance(DriverInfoSerializer.class);
       final AvroDriverInfo driverInfo = serializer.toAvro(
-          this.reefStateManager.getDriverEndpointIdentifier(), this.reefStateManager.getStartTime(), this.reefStateManager.getServicesInfo());
+          this.reefStateManager.getDriverEndpointIdentifier(), this.reefStateManager.getStartTime(),
+          this.reefStateManager.getServicesInfo());
       writeResponse(response, serializer.toString(driverInfo));
     } catch (final InjectionException e) {
       LOG.log(Level.SEVERE, "Error in injecting DriverInfoSerializer.", e);
@@ -358,7 +363,8 @@ public final class HttpServerReefEventHandler implements HttpHandler {
     writer.println(String.format("Services registered on Driver:"));
     writer.write("<br/><br/>");
     for (final AvroReefServiceInfo service : this.reefStateManager.getServicesInfo()) {
-      writer.println(String.format("Service: [%s] , Information: [%s]", service.getServiceName(), service.getServiceInfo()));
+      writer.println(String.format("Service: [%s] , Information: [%s]", service.getServiceName(),
+          service.getServiceInfo()));
       writer.write("<br/><br/>");
     }
 
@@ -372,7 +378,8 @@ public final class HttpServerReefEventHandler implements HttpHandler {
    * @param header
    * @throws IOException
    */
-  private void writeLines(final HttpServletResponse response, final ArrayList<String> lines, final String header) throws IOException {
+  private void writeLines(final HttpServletResponse response, final ArrayList<String> lines, final String header)
+      throws IOException {
     LOG.log(Level.INFO, "HttpServerReefEventHandler writeLines is called");
 
     final PrintWriter writer = response.getWriter();

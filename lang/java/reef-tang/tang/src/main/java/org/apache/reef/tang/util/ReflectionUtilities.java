@@ -290,7 +290,8 @@ public final class ReflectionUtilities {
   /**
    * @param clazz
    * @return T if clazz implements Name<T>, null otherwise
-   * @throws org.apache.reef.tang.exceptions.BindException If clazz's definition incorrectly uses Name or @NamedParameter
+   * @throws org.apache.reef.tang.exceptions.BindException
+   * If clazz's definition incorrectly uses Name or @NamedParameter
    */
   public static Type getNamedParameterTargetOrNull(Class<?> clazz)
       throws ClassHierarchyException {

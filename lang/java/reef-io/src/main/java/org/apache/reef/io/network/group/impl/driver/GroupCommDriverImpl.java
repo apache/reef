@@ -206,11 +206,13 @@ public class GroupCommDriverImpl implements GroupCommServiceDriver {
   @Override
   public CommunicationGroupDriver newCommunicationGroup(final Class<? extends Name<String>> groupName,
                                                         final int numberOfTasks) {
-    LOG.entering("GroupCommDriverImpl", "newCommunicationGroup", new Object[]{Utils.simpleName(groupName), numberOfTasks});
+    LOG.entering("GroupCommDriverImpl", "newCommunicationGroup",
+        new Object[]{Utils.simpleName(groupName), numberOfTasks});
     final BroadcastingEventHandler<RunningTask> commGroupRunningTaskHandler = new BroadcastingEventHandler<>();
     final BroadcastingEventHandler<FailedTask> commGroupFailedTaskHandler = new BroadcastingEventHandler<>();
     final BroadcastingEventHandler<FailedEvaluator> commGroupFailedEvaluatorHandler = new BroadcastingEventHandler<>();
-    final BroadcastingEventHandler<GroupCommunicationMessage> commGroupMessageHandler = new BroadcastingEventHandler<>();
+    final BroadcastingEventHandler<GroupCommunicationMessage> commGroupMessageHandler =
+        new BroadcastingEventHandler<>();
     final CommunicationGroupDriver commGroupDriver = new CommunicationGroupDriverImpl(groupName, confSerializer,
         senderStage,
         commGroupRunningTaskHandler,
@@ -222,7 +224,8 @@ public class GroupCommDriverImpl implements GroupCommServiceDriver {
     groupCommRunningTaskHandler.addHandler(commGroupRunningTaskHandler);
     groupCommFailedTaskHandler.addHandler(commGroupFailedTaskHandler);
     groupCommMessageHandler.addHandler(groupName, commGroupMessageHandler);
-    LOG.exiting("GroupCommDriverImpl", "newCommunicationGroup", "Created communication group: " + Utils.simpleName(groupName));
+    LOG.exiting("GroupCommDriverImpl", "newCommunicationGroup",
+        "Created communication group: " + Utils.simpleName(groupName));
     return commGroupDriver;
   }
 
@@ -311,7 +314,7 @@ public class GroupCommDriverImpl implements GroupCommServiceDriver {
   @Override
   public EStage<FailedEvaluator> getGroupCommFailedEvaluatorStage() {
     LOG.entering("GroupCommDriverImpl", "getGroupCommFailedEvaluatorStage");
-    LOG.exiting("GroupCommDriverImpl", "getGroupCommFailedEvaluatorStage", "Returning GroupCommFaileEvaluatorStage");
+    LOG.exiting("GroupCommDriverImpl", "getGroupCommFailedEvaluatorStage", "Returning GroupCommFailedEvaluatorStage");
     return groupCommFailedEvaluatorStage;
   }
 

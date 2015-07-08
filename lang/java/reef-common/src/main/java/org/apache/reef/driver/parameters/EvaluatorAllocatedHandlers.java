@@ -29,7 +29,8 @@ import java.util.Set;
 /**
  * Called when an allocated evaluator is given to the client.
  */
-@NamedParameter(doc = "Called when an allocated evaluator is given to the client.", default_classes = DefaultEvaluatorAllocationHandler.class)
+@NamedParameter(doc = "Called when an allocated evaluator is given to the client.",
+    default_classes = DefaultEvaluatorAllocationHandler.class)
 public final class EvaluatorAllocatedHandlers implements Name<Set<EventHandler<AllocatedEvaluator>>> {
   private EvaluatorAllocatedHandlers() {
   }

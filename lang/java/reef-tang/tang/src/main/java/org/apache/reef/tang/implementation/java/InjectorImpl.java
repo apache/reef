@@ -135,7 +135,8 @@ public class InjectorImpl implements Injector {
 
   private void assertNotConcurrent() {
     if (concurrentModificationGuard) {
-      throw new ConcurrentModificationException("Detected attempt to use Injector from within an injected constructor!");
+      throw new ConcurrentModificationException("Detected attempt to use Injector " +
+          "from within an injected constructor!");
     }
   }
 
@@ -287,7 +288,9 @@ public class InjectorImpl implements Injector {
 
   @SuppressWarnings("unchecked")
   private <T> InjectionPlan<T> wrapInjectionPlans(ClassNode<T> infeasibleNode,
-                                                  List<? extends InjectionPlan<T>> list, boolean forceAmbiguous, int selectedIndex) {
+                                                  List<? extends InjectionPlan<T>> list,
+                                                  boolean forceAmbiguous,
+                                                  int selectedIndex) {
     if (list.size() == 0) {
       return new Subplan<>(infeasibleNode);
     } else if ((!forceAmbiguous) && list.size() == 1) {
@@ -317,12 +320,14 @@ public class InjectorImpl implements Injector {
             ret2.add(javaNamespace.parse(np, (String) o));
           } catch (ParseException e) {
             // Parsability is now pre-checked in bindSet, so it should not be reached!
-            throw new IllegalStateException("Could not parse " + o + " which was passed into " + np + " FIXME: Parsability is not currently checked by bindSetEntry(Node,String)");
+            throw new IllegalStateException("Could not parse " + o + " which was passed into " + np +
+                " FIXME: Parsability is not currently checked by bindSetEntry(Node,String)");
           }
         } else if (o instanceof Node) {
           ret2.add((T) o);
         } else {
-          throw new IllegalStateException("Unexpected object " + o + " in bound set.  Should consist of nodes and strings");
+          throw new IllegalStateException("Unexpected object " + o + " in bound set.  " +
+              "Should consist of nodes and strings");
         }
       }
       return (T) ret2;
@@ -372,7 +377,8 @@ public class InjectorImpl implements Injector {
       try {
         return (ClassNode<T>) javaNamespace.getNode(cn.getDefaultImplementation());
       } catch (ClassCastException | NameResolutionException e) {
-        throw new IllegalStateException("After validation, " + cn + " had a bad default implementation named " + cn.getDefaultImplementation(), e);
+        throw new IllegalStateException("After validation, " + cn + " had a bad default implementation named " +
+            cn.getDefaultImplementation(), e);
       }
     } else {
       return null;
@@ -635,7 +641,8 @@ public class InjectorImpl implements Injector {
             ret = c.newInstance(args);
           }
         } catch (IllegalArgumentException e) {
-          StringBuilder sb = new StringBuilder("Internal Tang error?  Could not call constructor " + constructor.getConstructorDef() + " with arguments [");
+          StringBuilder sb = new StringBuilder("Internal Tang error?  Could not call constructor " +
+              constructor.getConstructorDef() + " with arguments [");
           for (Object o : args) {
             sb.append("\n\t" + o);
           }
@@ -648,7 +655,8 @@ public class InjectorImpl implements Injector {
         instances.put(constructor.getNode(), ret);
         return ret;
       } catch (ReflectiveOperationException e) {
-        throw new InjectionException("Could not invoke constructor: " + plan, e instanceof InvocationTargetException ? e.getCause() : e);
+        throw new InjectionException("Could not invoke constructor: " + plan,
+            e instanceof InvocationTargetException ? e.getCause() : e);
       } finally {
         concurrentModificationGuard = false;
       }

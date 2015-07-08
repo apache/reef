@@ -55,7 +55,8 @@ public class LocalClient {
                      final PreparedDriverFolderLauncher launcher,
                      final REEFFileNames fileNames,
                      final DriverConfigurationProvider driverConfigurationProvider,
-                     @Parameter(DriverConfigurationProviders.class) final Set<ConfigurationProvider> configurationProviders)  {
+                     @Parameter(DriverConfigurationProviders.class)
+                     final Set<ConfigurationProvider> configurationProviders)  {
     this.configurationSerializer = configurationSerializer;
     this.launcher = launcher;
     this.fileNames = fileNames;
@@ -74,7 +75,8 @@ public class LocalClient {
     }
 
     final Configuration driverConfiguration1 = driverConfigurationProvider
-        .getDriverConfiguration(jobFolder, CLIENT_REMOTE_ID, jobId, Constants.DRIVER_CONFIGURATION_WITH_HTTP_AND_NAMESERVER);
+        .getDriverConfiguration(jobFolder, CLIENT_REMOTE_ID, jobId,
+            Constants.DRIVER_CONFIGURATION_WITH_HTTP_AND_NAMESERVER);
     final ConfigurationBuilder configurationBuilder = Tang.Factory.getTang().newConfigurationBuilder();
     for (final ConfigurationProvider configurationProvider : this.configurationProviders) {
       configurationBuilder.addConfiguration(configurationProvider.getConfiguration());
@@ -104,7 +106,8 @@ public class LocalClient {
     final int tcpTryCount = Integer.valueOf(args[5]);
 
 
-    final Configuration runtimeConfiguration = getRuntimeConfiguration(numberOfEvaluators, runtimeRootFolder, tcpBeginPort, tcpRangeCount, tcpTryCount);
+    final Configuration runtimeConfiguration = getRuntimeConfiguration(numberOfEvaluators, runtimeRootFolder,
+        tcpBeginPort, tcpRangeCount, tcpTryCount);
 
     final LocalClient client = Tang.Factory.getTang()
         .newInjector(runtimeConfiguration)

@@ -37,7 +37,10 @@ final class FailedEvaluatorImpl implements FailedEvaluator {
   private final List<FailedContext> ctx;
   private final Optional<FailedTask> task;
 
-  public FailedEvaluatorImpl(final EvaluatorException ex, final List<FailedContext> ctx, final Optional<FailedTask> task, final String id) {
+  public FailedEvaluatorImpl(final EvaluatorException ex,
+                             final List<FailedContext> ctx,
+                             final Optional<FailedTask> task,
+                             final String id) {
     this.ex = ex;
     this.ctx = ctx;
     this.task = task;

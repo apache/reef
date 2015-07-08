@@ -118,7 +118,8 @@ public final class NetworkService<T> implements Stage, ConnectionFactory<T> {
                         final EventHandler<Message<T>> recvHandler,
                         final EventHandler<Exception> exHandler) {
     this(factory, nsPort, nameServerAddr, nameServerPort,
-            RETRY_COUNT, RETRY_TIMEOUT, codec, tpFactory, recvHandler, exHandler, LocalAddressProviderFactory.getInstance());
+         RETRY_COUNT, RETRY_TIMEOUT, codec, tpFactory, recvHandler, exHandler,
+         LocalAddressProviderFactory.getInstance());
   }
 
   /**
@@ -136,8 +137,8 @@ public final class NetworkService<T> implements Stage, ConnectionFactory<T> {
       final TransportFactory tpFactory,
       final EventHandler<Message<T>> recvHandler,
       final EventHandler<Exception> exHandler) {
-    this(factory, nsPort, nameServerAddr, nameServerPort, retryCount, retryTimeout, codec, tpFactory, recvHandler, exHandler,
-        LocalAddressProviderFactory.getInstance());
+    this(factory, nsPort, nameServerAddr, nameServerPort, retryCount, retryTimeout, codec, tpFactory, recvHandler,
+         exHandler, LocalAddressProviderFactory.getInstance());
   }
 
   /**

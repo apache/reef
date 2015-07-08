@@ -226,8 +226,10 @@ public final class ContextRuntime {
    * Launches a Task on this context.
    *
    * @param taskConfig the configuration to be used for the task.
-   * @throws org.apache.reef.runtime.common.evaluator.task.TaskClientCodeException If the Task cannot be instantiated due to user code / configuration issues.
-   * @throws IllegalStateException                                                 If this method is called when there is either a task or child context already present.
+   * @throws org.apache.reef.runtime.common.evaluator.task.TaskClientCodeException If the Task cannot be instantiated
+   * due to user code / configuration issues.
+   * @throws IllegalStateException                                                 If this method is called when
+   * there is either a task or child context already present.
    */
   void startTask(final Configuration taskConfig) throws TaskClientCodeException {
 

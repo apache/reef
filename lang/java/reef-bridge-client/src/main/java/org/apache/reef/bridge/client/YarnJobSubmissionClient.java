@@ -72,7 +72,8 @@ public final class YarnJobSubmissionClient {
     this.classpath = classpath;
   }
 
-  private void addJVMConfiguration(final File driverFolder, final String jobId, final String jobSubmissionFolder) throws IOException {
+  private void addJVMConfiguration(final File driverFolder, final String jobId, final String jobSubmissionFolder)
+      throws IOException {
     final File driverConfigurationFile = new File(driverFolder, this.fileNames.getDriverConfigurationPath());
     final Configuration driverConfiguration = Configurations.merge(
         Constants.DRIVER_CONFIGURATION_WITH_HTTP_AND_NAMESERVER,

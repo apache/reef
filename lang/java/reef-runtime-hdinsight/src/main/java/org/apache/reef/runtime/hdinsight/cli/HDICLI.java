@@ -53,10 +53,14 @@ public final class HDICLI {
     this.hdInsightInstance = hdInsightInstance;
     this.logFetcher = logFetcher;
     final OptionGroup commands = new OptionGroup()
-        .addOption(OptionBuilder.withArgName(KILL).hasArg().withDescription("Kills the given application.").create(KILL))
-        .addOption(OptionBuilder.withArgName(LOGS).hasArg().withDescription("Fetches the logs for the given application.").create(LOGS))
-        .addOption(OptionBuilder.withArgName(STATUS).hasArg().withDescription("Fetches the status for the given application.").create(STATUS))
-        .addOption(OptionBuilder.withArgName(LIST).withDescription("Lists the application on the cluster.").create(LIST));
+        .addOption(OptionBuilder.withArgName(KILL).hasArg()
+            .withDescription("Kills the given application.").create(KILL))
+        .addOption(OptionBuilder.withArgName(LOGS).hasArg()
+            .withDescription("Fetches the logs for the given application.").create(LOGS))
+        .addOption(OptionBuilder.withArgName(STATUS).hasArg()
+            .withDescription("Fetches the status for the given application.").create(STATUS))
+        .addOption(OptionBuilder.withArgName(LIST)
+            .withDescription("Lists the application on the cluster.").create(LIST));
     this.options = new Options().addOptionGroup(commands);
   }
 

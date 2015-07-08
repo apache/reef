@@ -24,6 +24,7 @@ import org.apache.reef.tang.annotations.NamedParameter;
 /**
  * The evaluator timeout (how long to wait before deciding an evaluator is dead.
  */
-@NamedParameter(doc = "The evaluator timeout (how long to wait before deciding an evaluator is dead.", default_value = "60000")
+@NamedParameter(doc = "The evaluator timeout (how long to wait before deciding an evaluator is dead.",
+    default_value = "60000")
 public final class EvaluatorTimeout implements Name<Long> {
 }

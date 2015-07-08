@@ -41,10 +41,14 @@ final class REEFEventHandlers implements AutoCloseable {
   private final EventHandler<NodeDescriptorEvent> nodeDescriptorEventHandler;
 
   @Inject
-  REEFEventHandlers(@Parameter(RuntimeParameters.NodeDescriptorHandler.class) final EventHandler<NodeDescriptorEvent> nodeDescriptorEventHandler,
-                    @Parameter(RuntimeParameters.RuntimeStatusHandler.class) final EventHandler<RuntimeStatusEvent> runtimeStatusProtoEventHandler,
-                    @Parameter(RuntimeParameters.ResourceAllocationHandler.class) final EventHandler<ResourceAllocationEvent> resourceAllocationHandler,
-                    @Parameter(RuntimeParameters.ResourceStatusHandler.class) final EventHandler<ResourceStatusEvent> resourceStatusHandler) {
+  REEFEventHandlers(@Parameter(RuntimeParameters.NodeDescriptorHandler.class)
+                    final EventHandler<NodeDescriptorEvent> nodeDescriptorEventHandler,
+                    @Parameter(RuntimeParameters.RuntimeStatusHandler.class)
+                    final EventHandler<RuntimeStatusEvent> runtimeStatusProtoEventHandler,
+                    @Parameter(RuntimeParameters.ResourceAllocationHandler.class)
+                    final EventHandler<ResourceAllocationEvent> resourceAllocationHandler,
+                    @Parameter(RuntimeParameters.ResourceStatusHandler.class)
+                    final EventHandler<ResourceStatusEvent> resourceStatusHandler) {
     this.resourceAllocationHandler = resourceAllocationHandler;
     this.resourceStatusHandler = resourceStatusHandler;
     this.runtimeStatusHandler = runtimeStatusProtoEventHandler;

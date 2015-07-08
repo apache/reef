@@ -175,7 +175,8 @@ public final class DriverStatusManager {
    */
   public synchronized void sendJobEndingMessageToClient(final Optional<Throwable> exception) {
     if (this.isNotShuttingDownOrFailing()) {
-      LOG.log(Level.SEVERE, "Sending message in a state different that SHUTTING_DOWN or FAILING. This is likely a illegal call to clock.close() at play. Current state: " + this.driverStatus);
+      LOG.log(Level.SEVERE, "Sending message in a state different that SHUTTING_DOWN or FAILING. " +
+          "This is likely a illegal call to clock.close() at play. Current state: " + this.driverStatus);
     }
     if (this.driverTerminationHasBeenCommunicatedToClient) {
       LOG.log(Level.SEVERE, ".sendJobEndingMessageToClient() called twice. Ignoring the second call");
@@ -188,7 +189,8 @@ public final class DriverStatusManager {
         LOG.log(Level.WARNING, "There was an exception during clock.close().", exception.get());
       }
       if (this.shutdownCause.isPresent() && exception.isPresent()) {
-        LOG.log(Level.WARNING, "The driver is shutdown because of an exception (see above) and there was an exception during clock.close(). Only the first exception will be sent to the client");
+        LOG.log(Level.WARNING, "The driver is shutdown because of an exception (see above) and there was " +
+            "an exception during clock.close(). Only the first exception will be sent to the client");
       }
 
       if (this.shutdownCause.isPresent()) {
@@ -231,14 +233,16 @@ public final class DriverStatusManager {
    */
   public synchronized void setNumPreviousContainers(final int num) {
     if (this.numPreviousContainers >= 0) {
-      throw new IllegalStateException("Attempting to set the number of expected containers left from a previous container more than once.");
+      throw new IllegalStateException("Attempting to set the number of expected containers left " +
+          "from a previous container more than once.");
     } else {
       this.numPreviousContainers = num;
     }
   }
 
   /**
-   * @return the number of Evaluators from a previous Driver that have checked in with the Driver in a restart situation.
+   * @return the number of Evaluators from a previous Driver that have checked in with the Driver
+   * in a restart situation.
    */
   public synchronized int getNumRecoveredContainers() {
     return this.numRecoveredContainers;

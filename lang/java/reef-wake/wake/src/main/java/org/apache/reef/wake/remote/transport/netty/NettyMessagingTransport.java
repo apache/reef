@@ -157,9 +157,12 @@ public class NettyMessagingTransport implements Transport {
     this.clientEventListener = new NettyClientEventListener(this.addrToLinkRefMap, clientStage);
     this.serverEventListener = new NettyServerEventListener(this.addrToLinkRefMap, serverStage);
 
-    this.serverBossGroup = new NioEventLoopGroup(SERVER_BOSS_NUM_THREADS, new DefaultThreadFactory(CLASS_NAME + "ServerBoss"));
-    this.serverWorkerGroup = new NioEventLoopGroup(SERVER_WORKER_NUM_THREADS, new DefaultThreadFactory(CLASS_NAME + "ServerWorker"));
-    this.clientWorkerGroup = new NioEventLoopGroup(CLIENT_WORKER_NUM_THREADS, new DefaultThreadFactory(CLASS_NAME + "ClientWorker"));
+    this.serverBossGroup = new NioEventLoopGroup(SERVER_BOSS_NUM_THREADS,
+        new DefaultThreadFactory(CLASS_NAME + "ServerBoss"));
+    this.serverWorkerGroup = new NioEventLoopGroup(SERVER_WORKER_NUM_THREADS,
+        new DefaultThreadFactory(CLASS_NAME + "ServerWorker"));
+    this.clientWorkerGroup = new NioEventLoopGroup(CLIENT_WORKER_NUM_THREADS,
+        new DefaultThreadFactory(CLASS_NAME + "ClientWorker"));
 
     this.clientBootstrap = new Bootstrap();
     this.clientBootstrap.group(this.clientWorkerGroup)

@@ -72,7 +72,8 @@ public final class REEFImplementation implements REEF {
                      final ClientWireUp clientWireUp,
                      final LoggingScopeFactory loggingScopeFactory,
                      final REEFVersion reefVersion,
-                     @Parameter(DriverConfigurationProviders.class) final Set<ConfigurationProvider> configurationProviders) {
+                     @Parameter(DriverConfigurationProviders.class)
+                     final Set<ConfigurationProvider> configurationProviders) {
     this.jobSubmissionHandler = jobSubmissionHandler;
     this.runningJobs = runningJobs;
     this.jobSubmissionHelper = jobSubmissionHelper;

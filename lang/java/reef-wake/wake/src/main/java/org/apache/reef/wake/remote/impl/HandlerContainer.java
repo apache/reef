@@ -57,7 +57,8 @@ final class HandlerContainer<T> implements EventHandler<RemoteEvent<byte[]>> {
   }
 
   public AutoCloseable registerHandler(final RemoteIdentifier sourceIdentifier,
-                                       final Class<? extends T> messageType, final EventHandler<? extends T> theHandler) {
+                                       final Class<? extends T> messageType,
+                                       final EventHandler<? extends T> theHandler) {
 
     final Tuple2<RemoteIdentifier, Class<? extends T>> tuple =
         new Tuple2<RemoteIdentifier, Class<? extends T>>(sourceIdentifier, messageType);

@@ -98,8 +98,11 @@ class HttpServerShellCmdtHandler implements HttpHandler {
    * @param response
    */
   @Override
-  public final synchronized void onHttpRequest(final ParsedHttpRequest parsedHttpRequest, final HttpServletResponse response) throws IOException, ServletException {
-    LOG.log(Level.INFO, "HttpServeShellCmdtHandler in webserver onHttpRequest is called: {0}", parsedHttpRequest.getRequestUri());
+  public final synchronized void onHttpRequest(final ParsedHttpRequest parsedHttpRequest,
+                                               final HttpServletResponse response)
+      throws IOException, ServletException {
+    LOG.log(Level.INFO, "HttpServeShellCmdtHandler in webserver onHttpRequest is called: {0}",
+        parsedHttpRequest.getRequestUri());
     final Map<String, List<String>> queries = parsedHttpRequest.getQueryMap();
     final String queryStr = parsedHttpRequest.getQueryString();
 

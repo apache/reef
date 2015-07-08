@@ -53,7 +53,8 @@ public class RemoteEventDecoder<T> implements Decoder<RemoteEvent<T>> {
     WakeMessagePBuf pbuf;
     try {
       pbuf = WakeMessagePBuf.parseFrom(data);
-      return new RemoteEvent<T>(null, null, pbuf.getSource(), pbuf.getSink(), pbuf.getSeq(), decoder.decode(pbuf.getData().toByteArray()));
+      return new RemoteEvent<T>(null, null, pbuf.getSource(), pbuf.getSink(), pbuf.getSeq(),
+          decoder.decode(pbuf.getData().toByteArray()));
     } catch (InvalidProtocolBufferException e) {
       throw new RemoteRuntimeException(e);
     }

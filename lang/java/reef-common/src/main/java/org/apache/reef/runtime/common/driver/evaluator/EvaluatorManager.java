@@ -121,7 +121,8 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
       final ExceptionCodec exceptionCodec,
       final EventHandlerIdlenessSource idlenessSource,
       final LoggingScopeFactory loggingScopeFactory,
-      @Parameter(EvaluatorConfigurationProviders.class) final Set<ConfigurationProvider> evaluatorConfigurationProviders,
+      @Parameter(EvaluatorConfigurationProviders.class)
+      final Set<ConfigurationProvider> evaluatorConfigurationProviders,
       // TODO: Eventually remove the factories when they are removed from AllocatedEvaluatorImpl
       final JVMProcessFactory jvmProcessFactory,
       final CLRProcessFactory clrProcessFactory) {
@@ -274,14 +275,16 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
           final Optional<Throwable> taskException = Optional.<Throwable>of(new Exception("Evaluator crash"));
           final String message = "Evaluator crash";
           final Optional<String> description = Optional.empty();
-          final FailedTask failedTask = new FailedTask(taskId, message, description, taskException, bytes, evaluatorContext);
+          final FailedTask failedTask =
+              new FailedTask(taskId, message, description, taskException, bytes, evaluatorContext);
           failedTaskOptional = Optional.of(failedTask);
         } else {
           failedTaskOptional = Optional.empty();
         }
 
 
-        this.messageDispatcher.onEvaluatorFailed(new FailedEvaluatorImpl(exception, failedContextList, failedTaskOptional, this.evaluatorId));
+        this.messageDispatcher.onEvaluatorFailed(new FailedEvaluatorImpl(exception, failedContextList,
+            failedTaskOptional, this.evaluatorId));
 
       } catch (final Exception e) {
         LOG.log(Level.SEVERE, "Exception while handling FailedEvaluator", e);
@@ -325,7 +328,8 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
               new Object[]{expectedEvaluatorsNumber, numRecoveredContainers});
           throw new RuntimeException("More then expected number of evaluators are checking in during recovery.");
         } else if (numRecoveredContainers == expectedEvaluatorsNumber) {
-          LOG.log(Level.INFO, "All [{0}] expected evaluators have checked in. Recovery completed.", expectedEvaluatorsNumber);
+          LOG.log(Level.INFO, "All [{0}] expected evaluators have checked in. Recovery completed.",
+              expectedEvaluatorsNumber);
           this.driverStatusManager.setRestartCompleted();
           this.messageDispatcher.OnDriverRestartCompleted(new DriverRestartCompleted(System.currentTimeMillis()));
         } else {
@@ -405,11 +409,13 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
     assert (evaluatorStatusProto.getState() == ReefServiceProtos.State.FAILED);
     final EvaluatorException evaluatorException;
     if (evaluatorStatusProto.hasError()) {
-      final Optional<Throwable> exception = this.exceptionCodec.fromBytes(evaluatorStatusProto.getError().toByteArray());
+      final Optional<Throwable> exception =
+          this.exceptionCodec.fromBytes(evaluatorStatusProto.getError().toByteArray());
       if (exception.isPresent()) {
         evaluatorException = new EvaluatorException(getId(), exception.get());
       } else {
-        evaluatorException = new EvaluatorException(getId(), new Exception("Exception sent, but can't be deserialized"));
+        evaluatorException = new EvaluatorException(getId(),
+            new Exception("Exception sent, but can't be deserialized"));
       }
     } else {
       evaluatorException = new EvaluatorException(getId(), new Exception("No exception sent"));
@@ -518,11 +524,13 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
 
         if (this.stateManager.isSubmitted()) {
           messageBuilder
-              .append(" This most likely means that the Evaluator suffered a failure before establishing a communications link to the driver.");
+              .append(" This most likely means that the Evaluator suffered a failure before establishing " +
+                  "a communications link to the driver.");
         } else if (this.stateManager.isAllocated()) {
           messageBuilder.append(" This most likely means that the Evaluator suffered a failure before being used.");
         } else if (this.stateManager.isRunning()) {
-          messageBuilder.append(" This means that the Evaluator failed but wasn't able to send an error message back to the driver.");
+          messageBuilder.append(" This means that the Evaluator failed but wasn't able to send an error message " +
+              "back to the driver.");
         }
         if (this.task.isPresent()) {
           messageBuilder.append(" Task [")
@@ -532,7 +540,8 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
         this.isResourceReleased = true;
 
         if (resourceStatusEvent.getState() == ReefServiceProtos.State.KILLED) {
-          this.onEvaluatorException(new EvaluatorKilledByResourceManagerException(this.evaluatorId, messageBuilder.toString()));
+          this.onEvaluatorException(new EvaluatorKilledByResourceManagerException(this.evaluatorId,
+              messageBuilder.toString()));
         } else {
           this.onEvaluatorException(new EvaluatorException(this.evaluatorId, messageBuilder.toString()));
         }

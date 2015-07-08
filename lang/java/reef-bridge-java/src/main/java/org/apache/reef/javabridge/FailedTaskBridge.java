@@ -39,9 +39,12 @@ public final class FailedTaskBridge extends NativeBridge {
   }
 
   public String getFailedTaskString() {
-    final String description = jfailedTask.getDescription().isPresent() ? jfailedTask.getDescription().get().replace("=", "").replace(",", "") : "";
-    final String cause = jfailedTask.getReason().isPresent() ? jfailedTask.getReason().get().toString().replace("=", "").replace(",", "") : "";
-    final String data = jfailedTask.getData().isPresent() ? new String(jfailedTask.getData().get()).replace("=", "").replace(",", "") : "";
+    final String description = jfailedTask.getDescription().isPresent() ?
+        jfailedTask.getDescription().get().replace("=", "").replace(",", "") : "";
+    final String cause = jfailedTask.getReason().isPresent() ?
+        jfailedTask.getReason().get().toString().replace("=", "").replace(",", "") : "";
+    final String data = jfailedTask.getData().isPresent() ?
+        new String(jfailedTask.getData().get()).replace("=", "").replace(",", "") : "";
 
     // TODO: deserialize/serialize with proper Avro schema
     final String poorSerializedString = "Identifier=" + jfailedTask.getId().replace("=", "").replace(",", "")

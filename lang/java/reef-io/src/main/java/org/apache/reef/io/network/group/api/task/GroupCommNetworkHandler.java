@@ -34,5 +34,6 @@ import org.apache.reef.wake.EventHandler;
 @DefaultImplementation(value = GroupCommNetworkHandlerImpl.class)
 public interface GroupCommNetworkHandler extends EventHandler<Message<GroupCommunicationMessage>> {
 
-  void register(Class<? extends Name<String>> groupName, EventHandler<GroupCommunicationMessage> commGroupNetworkHandler);
+  void register(Class<? extends Name<String>> groupName,
+                EventHandler<GroupCommunicationMessage> commGroupNetworkHandler);
 }

@@ -256,7 +256,8 @@ final class YarnContainerManager
 
     // when supported, obtain the list of the containers previously allocated, and write info to driver folder
     if (YarnTypes.isAtOrAfterVersion(minVersionToGetPreviousContainer)) {
-      LOG.log(Level.FINEST, "Hadoop version is {0} or after with support to retain previous containers, processing previous containers.", minVersionToGetPreviousContainer);
+      LOG.log(Level.FINEST, "Hadoop version is {0} or after with support to retain previous containers, " +
+          "processing previous containers.", minVersionToGetPreviousContainer);
       processPreviousContainers();
     }
   }
@@ -321,7 +322,8 @@ final class YarnContainerManager
       final int numPreviousContainers = previousContainers.size();
       if (numExpectedContainers > numPreviousContainers) {
         // we expected more containers to be alive, some containers must have died during driver restart
-        LOG.log(Level.WARNING, "Expected {0} containers while only {1} are still alive", new Object[]{numExpectedContainers, numPreviousContainers});
+        LOG.log(Level.WARNING, "Expected {0} containers while only {1} are still alive",
+            new Object[]{numExpectedContainers, numPreviousContainers});
         final Set<String> previousContainersIds = new HashSet<>();
         for (final Container container : previousContainers) {
           previousContainersIds.add(container.getId().toString());
@@ -329,14 +331,16 @@ final class YarnContainerManager
         for (final String expectedContainerId : expectedContainers) {
           if (!previousContainersIds.contains(expectedContainerId)) {
             logContainerRemoval(expectedContainerId);
-            LOG.log(Level.WARNING, "Expected container [{0}] not alive, must have failed during driver restart.", expectedContainerId);
+            LOG.log(Level.WARNING, "Expected container [{0}] not alive, must have failed during driver restart.",
+                expectedContainerId);
             informAboutConatinerFailureDuringRestart(expectedContainerId);
           }
         }
       }
       if (numExpectedContainers < numPreviousContainers) {
         // somehow we have more alive evaluators, this should not happen
-        throw new RuntimeException("Expected only [" + numExpectedContainers + "] containers but resource manager believe that [" + numPreviousContainers + "] are outstanding for driver.");
+        throw new RuntimeException("Expected only [" + numExpectedContainers + "] containers " +
+            "but resource manager believe that [" + numPreviousContainers + "] are outstanding for driver.");
       }
 
       //  numExpectedContainers == numPreviousContainers
@@ -427,23 +431,27 @@ final class YarnContainerManager
 
           LOG.log(Level.FINEST, "{0} matched with {1}", new Object[]{container.toString(), matchedRequest.toString()});
 
-          // Due to the bug YARN-314 and the workings of AMRMCClientAsync, when x-priority m-capacity zero-container request
-          // and x-priority n-capacity nonzero-container request are sent together, where m > n, RM ignores the latter.
+          // Due to the bug YARN-314 and the workings of AMRMCClientAsync, when x-priority m-capacity zero-container
+          // request and x-priority n-capacity nonzero-container request are sent together, where m > n, RM ignores
+          // the latter.
           // Therefore it is necessary avoid sending zero-container request, even it means getting extra containers.
-          // It is okay to send nonzero m-capacity and n-capacity request together since bigger containers can be matched.
+          // It is okay to send nonzero m-capacity and n-capacity request together since bigger containers
+          // can be matched.
           // TODO: revisit this when implementing locality-strictness (i.e. a specific rack request can be ignored)
           if (this.requestsAfterSentToRM.size() > 1) {
             try {
               this.resourceManager.removeContainerRequest(matchedRequest);
             } catch (final Exception e) {
-              LOG.log(Level.WARNING, "Nothing to remove from Async AMRM client's queue, removal attempt failed with exception", e);
+              LOG.log(Level.WARNING, "Nothing to remove from Async AMRM client's queue, " +
+                  "removal attempt failed with exception", e);
             }
           }
 
           this.requestsAfterSentToRM.remove();
           doHomogeneousRequests();
 
-          LOG.log(Level.FINEST, "Allocated Container: memory = {0}, core number = {1}", new Object[]{container.getResource().getMemory(), container.getResource().getVirtualCores()});
+          LOG.log(Level.FINEST, "Allocated Container: memory = {0}, core number = {1}",
+              new Object[]{container.getResource().getMemory(), container.getResource().getVirtualCores()});
           this.reefEventHandlers.onResourceAllocation(ResourceAllocationEventImpl.newBuilder()
               .setIdentifier(container.getId().toString())
               .setNodeId(container.getNodeId().toString())
@@ -465,7 +473,8 @@ final class YarnContainerManager
     if (this.requestsAfterSentToRM.isEmpty()) {
       final AMRMClient.ContainerRequest firstRequest = this.requestsBeforeSentToRM.peek();
 
-      while (!this.requestsBeforeSentToRM.isEmpty() && isSameKindOfRequest(firstRequest, this.requestsBeforeSentToRM.peek())) {
+      while (!this.requestsBeforeSentToRM.isEmpty() &&
+             isSameKindOfRequest(firstRequest, this.requestsBeforeSentToRM.peek())) {
         final AMRMClient.ContainerRequest homogeneousRequest = this.requestsBeforeSentToRM.remove();
         this.resourceManager.addContainerRequest(homogeneousRequest);
         this.requestsAfterSentToRM.add(homogeneousRequest);
@@ -492,7 +501,8 @@ final class YarnContainerManager
     }
 
     final AMRMClient.ContainerRequest request = this.requestsAfterSentToRM.peek();
-    final boolean resourceCondition = container.getResource().getMemory() >= request.getCapability().getMemory(); // TODO: check vcores once YARN-2380 is resolved
+    final boolean resourceCondition = container.getResource().getMemory() >= request.getCapability().getMemory();
+    // TODO: check vcores once YARN-2380 is resolved
     final boolean nodeCondition = request.getNodes() == null
         || request.getNodes().contains(container.getNodeId().getHost());
     final boolean rackCondition = request.getRacks() == null
@@ -565,13 +575,15 @@ final class YarnContainerManager
           if (line.startsWith(ADD_FLAG)) {
             final String containerId = line.substring(ADD_FLAG.length());
             if (expectedContainers.contains(containerId)) {
-              throw new RuntimeException("Duplicated add container record found in the change log for container " + containerId);
+              throw new RuntimeException("Duplicated add container record found in the change log for container " +
+                  containerId);
             }
             expectedContainers.add(containerId);
           } else if (line.startsWith(REMOVE_FLAG)) {
             final String containerId = line.substring(REMOVE_FLAG.length());
             if (!expectedContainers.contains(containerId)) {
-              throw new RuntimeException("Change log includes record that try to remove non-exist or duplicate remove record for container + " + containerId);
+              throw new RuntimeException("Change log includes record that try to remove non-exist or duplicate " +
+                  "remove record for container + " + containerId);
             }
             expectedContainers.remove(containerId);
           }
@@ -587,7 +599,8 @@ final class YarnContainerManager
 
   private void informAboutConatinerFailureDuringRestart(final String containerId) {
     LOG.log(Level.WARNING, "Container [" + containerId +
-        "] has failed during driver restart process, FailedEvaluaorHandler will be triggered, but no additional evaluator can be requested due to YARN-2433.");
+        "] has failed during driver restart process, FailedEvaluatorHandler will be triggered, but " +
+        "no additional evaluator can be requested due to YARN-2433.");
     // trigger a failed evaluator event
     this.reefEventHandlers.onResourceStatus(ResourceStatusEventImpl.newBuilder()
         .setIdentifier(containerId)
@@ -635,7 +648,8 @@ final class YarnContainerManager
    * @throws java.io.IOException when the file can't be written.
    */
 
-  private void appendByDeleteAndCreate(final FileSystem fs, final Path path, final String appendEntry) throws IOException {
+  private void appendByDeleteAndCreate(final FileSystem fs, final Path path, final String appendEntry)
+      throws IOException {
     final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
     try (final InputStream inputStream = fs.open(path)) {

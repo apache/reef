@@ -71,7 +71,8 @@ public class ValidateConfiguration {
 
   public static void main(String[] argv) throws IOException, BindException, InjectionException {
     @SuppressWarnings("unchecked")
-    JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder((Class<? extends ExternalConstructor<?>>[]) new Class[]{FileParser.class});
+    JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder(
+        (Class<? extends ExternalConstructor<?>>[]) new Class[]{FileParser.class});
     CommandLine cl = new CommandLine(cb);
     cl.processCommandLine(argv,
         Target.class,

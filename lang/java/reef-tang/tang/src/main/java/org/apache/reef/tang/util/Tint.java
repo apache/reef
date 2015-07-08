@@ -99,11 +99,13 @@ public class Tint {
 //  for(Constructor<?> c : injectConstructors) {
 //    classes.add(c.getDeclaringClass());
 //  }
-    Set<String> injectConstructors = r.getStore().getConstructorsAnnotatedWith(ReflectionUtilities.getFullName(Inject.class));
+    Set<String> injectConstructors =
+        r.getStore().getConstructorsAnnotatedWith(ReflectionUtilities.getFullName(Inject.class));
     for (String s : injectConstructors) {
       strings.add(s.replaceAll("\\.<.+$", ""));
     }
-    Set<String> parameterConstructors = r.getStore().get(MethodParameterScanner.class, ReflectionUtilities.getFullName(Parameter.class));
+    Set<String> parameterConstructors =
+        r.getStore().get(MethodParameterScanner.class, ReflectionUtilities.getFullName(Parameter.class));
     for (String s : parameterConstructors) {
       strings.add(s.replaceAll("\\.<.+$", ""));
     }
@@ -111,9 +113,11 @@ public class Tint {
 //    for(Constructor<?> c : parameterConstructors) {
 //      classes.add(c.getDeclaringClass());
 //    }
-    Set<String> defaultStrings = r.getStore().get(TypeAnnotationsScanner.class, ReflectionUtilities.getFullName(DefaultImplementation.class));
+    Set<String> defaultStrings =
+        r.getStore().get(TypeAnnotationsScanner.class, ReflectionUtilities.getFullName(DefaultImplementation.class));
     strings.addAll(defaultStrings);
-    strings.addAll(r.getStore().get(TypeAnnotationsScanner.class, ReflectionUtilities.getFullName(NamedParameter.class)));
+    strings.addAll(r.getStore().get(TypeAnnotationsScanner.class,
+        ReflectionUtilities.getFullName(NamedParameter.class)));
     strings.addAll(r.getStore().get(TypeAnnotationsScanner.class, ReflectionUtilities.getFullName(Unit.class)));
 //    classes.addAll(r.getTypesAnnotatedWith(DefaultImplementation.class));
 //    classes.addAll(r.getTypesAnnotatedWith(NamedParameter.class));
@@ -121,10 +125,12 @@ public class Tint {
 
     strings.addAll(r.getStore().get(SubTypesScanner.class, ReflectionUtilities.getFullName(Name.class)));
 
-    moduleBuilders.addAll(r.getStore().get(SubTypesScanner.class, ReflectionUtilities.getFullName(ConfigurationModuleBuilder.class)));
+    moduleBuilders.addAll(r.getStore().get(SubTypesScanner.class,
+        ReflectionUtilities.getFullName(ConfigurationModuleBuilder.class)));
 //    classes.addAll(r.getSubTypesOf(Name.class));
 
-    ch = Tang.Factory.getTang().getDefaultClassHierarchy(jars, (Class<? extends ExternalConstructor<?>>[]) new Class[0]);
+    ch = Tang.Factory.getTang().getDefaultClassHierarchy(jars,
+        (Class<? extends ExternalConstructor<?>>[]) new Class[0]);
 //    for(String s : defaultStrings) {
 //      if(classFilter(checkTang, s)) {
 //        try {
@@ -312,7 +318,8 @@ public class Tint {
         out.println("<html><head><title>TangDoc</title>");
 
         out.println("<style>");
-        out.println("body { font-family: 'Segoe UI', 'Comic Sans MS'; font-size:12pt; font-weight: 200; margin: 1em; column-count: 2; }");
+        out.println("body { font-family: 'Segoe UI', 'Comic Sans MS'; font-size:12pt; font-weight: 200; " +
+            "margin: 1em; column-count: 2; }");
         out.println(".package { font-size:18pt; font-weight: 500; column-span: all; }");
 //      out.println(".class { break-after: never; }");
 //      out.println(".doc { break-before: never; }");
@@ -328,10 +335,8 @@ public class Tint {
         out.println("</style>");
 
         out.println("</head><body>");
-//      out.println("<table border='1'><tr><th>Type</th><th>Name</th><th>Default value</th><th>Documentation</th><th>Used by</th><th>Set by</th></tr>");
 
         String currentPackage = "";
-//      int numcols = 0;
         for (final Node n : t.getNamesUsedAndSet()) {
           String fullName = n.getFullName();
           String[] tok = fullName.split("\\.");
@@ -348,13 +353,7 @@ public class Tint {
             currentPackage = pack;
             out.println(t.endPackage());
             out.println(t.startPackage(currentPackage));
-//          numcols = 0;
-//          out.println("<div class='row'>");
           }
-//        numcols++;
-//        if(numcols == NUMCOLS) {
-//          out.println("</div><div class='row'>");
-//        }
           if (n instanceof NamedParameterNode<?>) {
             out.println(t.toHtmlString((NamedParameterNode<?>) n, currentPackage));
           } else if (n instanceof ClassNode<?>) {
@@ -365,12 +364,12 @@ public class Tint {
         }
         out.println("</div>");
         out.println(t.endPackage());
-//      out.println("</table>");
         out.println("<div class='package'>Module definitions</div>");
         for (final Field f : t.modules.keySet()) {
           String moduleName = ReflectionUtilities.getFullName(f);
 //        String declaringClassName = ReflectionUtilities.getFullName(f.getDeclaringClass());
-          out.println("<div class='module-margin' id='" + moduleName + "'><div class='decl'><span class='fullName'>" + moduleName + "</span>");
+          out.println("<div class='module-margin' id='" + moduleName + "'><div class='decl'><span class='fullName'>" +
+              moduleName + "</span>");
           out.println("<pre>");
           String conf = t.modules.get(f).toPrettyString();
           String[] tok = conf.split("\n");
@@ -398,14 +397,18 @@ public class Tint {
               e.printStackTrace();
             }
             String typ = clz.isInterface() ? "interface" : "class";
-            out.println("<div class='module-margin' id='" + c.getFullName() + "'><div class='decl'><span class='fullName'>" + typ + " " + c.getFullName() + "</span>");
+            out.println("<div class='module-margin' id='" + c.getFullName() + "'><div class='decl'>" +
+                "<span class='fullName'>" + typ + " " + c.getFullName() + "</span>");
             for (ConstructorDef<?> d : c.getInjectableConstructors()) {
               out.println("<div class='uses'>" + c.getFullName() + "(");
               for (ConstructorArg a : d.getArgs()) {
                 if (a.getNamedParameterName() != null) {
-                  out.print("<div class='constructorArg'><a href='#" + a.getType() + "'>" + stripPrefix(a.getType(), "xxx") + "</a> <a href='#" + a.getNamedParameterName() + "'>" + a.getNamedParameterName() + "</a></div>");
+                  out.print("<div class='constructorArg'><a href='#" + a.getType() + "'>" +
+                      stripPrefix(a.getType(), "xxx") + "</a> <a href='#" + a.getNamedParameterName() + "'>" +
+                      a.getNamedParameterName() + "</a></div>");
                 } else {
-                  out.print("<div class='constructorArg'><a href='#" + a.getType() + "'>" + stripPrefix(a.getType(), "xxx") + "</a></div>");
+                  out.print("<div class='constructorArg'><a href='#" + a.getType() + "'>" +
+                      stripPrefix(a.getType(), "xxx") + "</a></div>");
                 }
               }
               out.println(")</div>");
@@ -427,7 +430,7 @@ public class Tint {
   }
 
   private boolean classFilter(boolean checkTang, String s) {
-    return (checkTang || /*s.startsWith("org.apache.reef.tang.examples.timer") ||*/ !s.startsWith("org.apache.reef.tang"));
+    return (checkTang || !s.startsWith("org.apache.reef.tang"));
   }
 
   private void processDefaultAnnotation(Class<?> cmb) {

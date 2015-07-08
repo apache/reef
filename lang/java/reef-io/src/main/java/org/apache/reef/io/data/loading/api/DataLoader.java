@@ -66,7 +66,8 @@ public class DataLoader {
 
   private static final Logger LOG = Logger.getLogger(DataLoader.class.getName());
 
-  private final ConcurrentMap<String, Pair<Configuration, Configuration>> submittedDataEvalConfigs = new ConcurrentHashMap<>();
+  private final ConcurrentMap<String, Pair<Configuration, Configuration>> submittedDataEvalConfigs =
+      new ConcurrentHashMap<>();
   private final ConcurrentMap<String, Configuration> submittedComputeEvalConfigs = new ConcurrentHashMap<>();
   private final BlockingQueue<Configuration> failedComputeEvalConfigs = new LinkedBlockingQueue<>();
   private final BlockingQueue<Pair<Configuration, Configuration>> failedDataEvalConfigs = new LinkedBlockingQueue<>();
@@ -125,7 +126,8 @@ public class DataLoader {
       final Clock clock,
       final EvaluatorRequestor requestor,
       final DataLoadingService dataLoadingService,
-      @Parameter(DataLoadingRequestBuilder.DataLoadingComputeRequests.class) final Set<String> serializedComputeRequests,
+      @Parameter(DataLoadingRequestBuilder.DataLoadingComputeRequests.class)
+      final Set<String> serializedComputeRequests,
       @Parameter(DataLoadingRequestBuilder.DataLoadingDataRequests.class) final Set<String> serializedDataRequests) {
     // data requests should not be empty. This maintains previous functionality
     Validate.notEmpty(serializedDataRequests, "Should contain a data request object");

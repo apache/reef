@@ -136,11 +136,14 @@ public class JobClient {
         .build();
 
     Configuration driverConfigurationForHttpServer = DriverServiceConfiguration.CONF
-        .set(DriverServiceConfiguration.ON_EVALUATOR_ALLOCATED, ReefEventStateManager.AllocatedEvaluatorStateHandler.class)
+        .set(DriverServiceConfiguration.ON_EVALUATOR_ALLOCATED,
+            ReefEventStateManager.AllocatedEvaluatorStateHandler.class)
         .set(DriverServiceConfiguration.ON_CONTEXT_ACTIVE, ReefEventStateManager.ActiveContextStateHandler.class)
-        .set(DriverServiceConfiguration.ON_DRIVER_RESTART_CONTEXT_ACTIVE, ReefEventStateManager.DrivrRestartActiveContextStateHandler.class)
+        .set(DriverServiceConfiguration.ON_DRIVER_RESTART_CONTEXT_ACTIVE,
+            ReefEventStateManager.DrivrRestartActiveContextStateHandler.class)
         .set(DriverServiceConfiguration.ON_TASK_RUNNING, ReefEventStateManager.TaskRunningStateHandler.class)
-        .set(DriverServiceConfiguration.ON_DRIVER_RESTART_TASK_RUNNING, ReefEventStateManager.DriverRestartTaskRunningStateHandler.class)
+        .set(DriverServiceConfiguration.ON_DRIVER_RESTART_TASK_RUNNING,
+            ReefEventStateManager.DriverRestartTaskRunningStateHandler.class)
         .set(DriverServiceConfiguration.ON_DRIVER_STARTED, ReefEventStateManager.StartStateHandler.class)
         .set(DriverServiceConfiguration.ON_DRIVER_STOP, ReefEventStateManager.StopStateHandler.class)
         .build();
@@ -165,7 +168,8 @@ public class JobClient {
 
       Path globalLibFile = Paths.get(NativeInterop.GLOBAL_LIBRARIES_FILENAME);
       if (!Files.exists(globalLibFile)) {
-        LOG.log(Level.FINE, "Cannot find global classpath file at: {0}, assume there is none.", globalLibFile.toAbsolutePath());
+        LOG.log(Level.FINE, "Cannot find global classpath file at: {0}, assume there is none.",
+            globalLibFile.toAbsolutePath());
       } else {
         String globalLibString = "";
         try {
@@ -180,7 +184,8 @@ public class JobClient {
         }
       }
 
-      this.driverConfiguration = Configurations.merge(this.driverConfigModule.build(), getHTTPConfiguration(), getNameServerConfiguration());
+      this.driverConfiguration = Configurations.merge(this.driverConfigModule.build(), getHTTPConfiguration(),
+          getNameServerConfiguration());
     }
   }
 
@@ -201,7 +206,8 @@ public class JobClient {
       } else {
         File driverConfig = new File(System.getProperty("user.dir") + "/driver.config");
         try {
-          new AvroConfigurationSerializer().toFile(Configurations.merge(this.driverConfiguration, clientConfig), driverConfig);
+          new AvroConfigurationSerializer().toFile(Configurations.merge(this.driverConfiguration, clientConfig),
+              driverConfig);
           LOG.log(Level.INFO, "Driver configuration file created at " + driverConfig.getAbsolutePath());
         } catch (final IOException e) {
           throw new RuntimeException("Cannot create driver configuration file at " + driverConfig.getAbsolutePath());

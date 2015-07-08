@@ -46,7 +46,9 @@ public final class EvaluatorManagerFactory {
   private final EvaluatorProcessFactory processFactory;
 
   @Inject
-  EvaluatorManagerFactory(final Injector injector, final ResourceCatalog resourceCatalog, final EvaluatorProcessFactory processFactory) {
+  EvaluatorManagerFactory(final Injector injector,
+                          final ResourceCatalog resourceCatalog,
+                          final EvaluatorProcessFactory processFactory) {
     this.injector = injector;
     this.resourceCatalog = resourceCatalog;
     this.processFactory = processFactory;
@@ -92,7 +94,8 @@ public final class EvaluatorManagerFactory {
       throw new RuntimeException("Unknown resource: " + resourceAllocationEvent.getNodeId());
     }
     final EvaluatorDescriptorImpl evaluatorDescriptor = new EvaluatorDescriptorImpl(nodeDescriptor,
-        resourceAllocationEvent.getResourceMemory(), resourceAllocationEvent.getVirtualCores().get(), processFactory.newEvaluatorProcess());
+        resourceAllocationEvent.getResourceMemory(), resourceAllocationEvent.getVirtualCores().get(),
+        processFactory.newEvaluatorProcess());
 
     LOG.log(Level.FINEST, "Resource allocation: new evaluator id[{0}]", resourceAllocationEvent.getIdentifier());
     return this.getNewEvaluatorManagerInstance(resourceAllocationEvent.getIdentifier(), evaluatorDescriptor);
@@ -102,6 +105,7 @@ public final class EvaluatorManagerFactory {
     if (!resourceStatusEvent.getIsFromPreviousDriver().get()) {
       throw new RuntimeException("Invalid resourceStatusEvent, must be status for resource from previous Driver.");
     }
-    return getNewEvaluatorManagerInstance(resourceStatusEvent.getIdentifier(), new EvaluatorDescriptorImpl(null, 128, 1, processFactory.newEvaluatorProcess()));
+    return getNewEvaluatorManagerInstance(resourceStatusEvent.getIdentifier(),
+        new EvaluatorDescriptorImpl(null, 128, 1, processFactory.newEvaluatorProcess()));
   }
 }

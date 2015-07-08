@@ -83,7 +83,8 @@ public final class NameServerImpl implements NameServer {
 
     injector.bindVolatileParameter(RemoteConfiguration.HostAddress.class, localAddressProvider.getLocalAddress());
     injector.bindVolatileParameter(RemoteConfiguration.Port.class, port);
-    injector.bindVolatileParameter(RemoteConfiguration.RemoteServerStage.class, new SyncStage<>(new NamingServerHandler(handler, codec)));
+    injector.bindVolatileParameter(RemoteConfiguration.RemoteServerStage.class,
+        new SyncStage<>(new NamingServerHandler(handler, codec)));
 
     try {
       this.transport = injector.getInstance(NettyMessagingTransport.class);

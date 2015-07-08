@@ -129,7 +129,8 @@ public interface ConfigurationSerializer {
    * @throws IOException   if the byte[] can't be deserialized
    * @throws BindException if the byte[] contains an illegal Configuration.
    */
-  Configuration fromByteArray(final byte[] theBytes, final ClassHierarchy classHierarchy) throws IOException, BindException;
+  Configuration fromByteArray(final byte[] theBytes, final ClassHierarchy classHierarchy)
+      throws IOException, BindException;
 
   /**
    * Decodes a String generated via toString().
@@ -150,5 +151,6 @@ public interface ConfigurationSerializer {
    * @throws IOException   if theString can't be parsed.
    * @throws BindException if theString contains an illegal Configuration.
    */
-  Configuration fromString(final String theString, final ClassHierarchy classHierarchy) throws IOException, BindException;
+  Configuration fromString(final String theString, final ClassHierarchy classHierarchy)
+      throws IOException, BindException;
 }

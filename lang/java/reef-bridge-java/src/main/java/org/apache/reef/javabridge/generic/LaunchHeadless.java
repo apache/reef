@@ -83,7 +83,8 @@ public final class LaunchHeadless {
       }
 
       driverConfigModule = result;
-      Configuration driverConfiguration = Configurations.merge(driverConfigModule.build(), JobClient.getHTTPConfiguration());
+      Configuration driverConfiguration =
+          Configurations.merge(driverConfigModule.build(), JobClient.getHTTPConfiguration());
 
       LOG.log(Level.INFO, "Running on YARN");
 

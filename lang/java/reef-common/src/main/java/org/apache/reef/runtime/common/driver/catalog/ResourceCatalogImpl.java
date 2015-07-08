@@ -82,7 +82,8 @@ public final class ResourceCatalogImpl implements ResourceCatalog {
     }
     final RackDescriptorImpl rack = this.racks.get(rackName);
     final InetSocketAddress address = new InetSocketAddress(node.getHostName(), node.getPort());
-    final NodeDescriptorImpl nodeDescriptor = new NodeDescriptorImpl(node.getIdentifier(), address, rack, node.getMemorySize());
+    final NodeDescriptorImpl nodeDescriptor = new NodeDescriptorImpl(node.getIdentifier(), address, rack,
+        node.getMemorySize());
     this.nodes.put(nodeDescriptor.getId(), nodeDescriptor);
   }
 }

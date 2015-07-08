@@ -91,7 +91,8 @@ public class ConcurrentCountingMap<K, V> {
   }
 
   public static void main(final String[] args) {
-    final ConcurrentCountingMap<ReefNetworkGroupCommProtos.GroupCommMessage.Type, String> strMap = new ConcurrentCountingMap<>();
+    final ConcurrentCountingMap<ReefNetworkGroupCommProtos.GroupCommMessage.Type, String> strMap =
+        new ConcurrentCountingMap<>();
     LOG.log(Level.INFO, "OUT: {0}", strMap.isEmpty());
     strMap.add(ReefNetworkGroupCommProtos.GroupCommMessage.Type.ChildAdd, "ST0");
     LOG.log(Level.INFO, "OUT: {0}", strMap);

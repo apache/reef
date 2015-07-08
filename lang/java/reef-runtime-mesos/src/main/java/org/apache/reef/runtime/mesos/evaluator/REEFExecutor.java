@@ -164,7 +164,8 @@ public final class REEFExecutor implements Executor {
               .setValue(mesosExecutorId)
               .build())
           .setState(TaskState.TASK_FINISHED)
-          .setData(ByteString.copyFromUtf8("eval_not_run")) // TODO: a hack to pass closeEvaluator test, replace this with a better interface
+          .setData(ByteString.copyFromUtf8("eval_not_run"))
+          // TODO: a hack to pass closeEvaluator test, replace this with a better interface
           .setMessage("Evaluator Process exited with status " + String.valueOf(evaluatorProcessExitValue))
           .build());
     }

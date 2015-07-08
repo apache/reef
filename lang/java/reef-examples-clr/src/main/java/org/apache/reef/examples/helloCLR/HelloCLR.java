@@ -51,7 +51,9 @@ public final class HelloCLR {
    */
   private static final int JOB_TIMEOUT = 1000000; // 1000 sec.
 
-  private static ConfigurationModule addAll(final ConfigurationModule conf, final OptionalParameter<String> param, final File folder) {
+  private static ConfigurationModule addAll(final ConfigurationModule conf,
+                                            final OptionalParameter<String> param,
+                                            final File folder) {
     ConfigurationModule result = conf;
     for (final File f : folder.listFiles()) {
       if (f.canRead() && f.exists() && f.isFile()) {

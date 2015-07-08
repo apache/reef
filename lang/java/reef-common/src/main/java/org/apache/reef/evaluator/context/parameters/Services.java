@@ -28,7 +28,8 @@ import java.util.Set;
 /**
  * A set of classes to be instantiated and shared as singletons within this context and all child context.
  */
-@NamedParameter(doc = "A set of classes to be instantiated and shared as singletons within this context and all child context",
+@NamedParameter(doc = "A set of classes to be instantiated and shared as singletons within this context " +
+    "and all child context",
     default_classes = ObjectInstantiationLogger.class)
 @Private
 public class Services implements Name<Set<Object>> {

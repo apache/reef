@@ -55,11 +55,15 @@ public class OrderedRemoteReceiverStage implements EStage<TransportEvent> {
   public OrderedRemoteReceiverStage(EventHandler<RemoteEvent<byte[]>> handler, EventHandler<Throwable> errorHandler) {
     this.streamMap = new ConcurrentHashMap<SocketAddress, OrderedEventStream>();
 
-    this.pushExecutor = Executors.newCachedThreadPool(new DefaultThreadFactory(OrderedRemoteReceiverStage.class.getName() + "_Push"));
-    this.pullExecutor = Executors.newCachedThreadPool(new DefaultThreadFactory(OrderedRemoteReceiverStage.class.getName() + "_Pull"));
+    this.pushExecutor = Executors.newCachedThreadPool(
+        new DefaultThreadFactory(OrderedRemoteReceiverStage.class.getName() + "_Push"));
+    this.pullExecutor = Executors.newCachedThreadPool(
+        new DefaultThreadFactory(OrderedRemoteReceiverStage.class.getName() + "_Pull"));
 
-    this.pullStage = new ThreadPoolStage<OrderedEventStream>(new OrderedPullEventHandler(handler), this.pullExecutor, errorHandler);
-    this.pushStage = new ThreadPoolStage<TransportEvent>(new OrderedPushEventHandler(streamMap, pullStage), this.pushExecutor, errorHandler); // for decoupling
+    this.pullStage = new ThreadPoolStage<OrderedEventStream>(
+        new OrderedPullEventHandler(handler), this.pullExecutor, errorHandler);
+    this.pushStage = new ThreadPoolStage<TransportEvent>(
+        new OrderedPushEventHandler(streamMap, pullStage), this.pushExecutor, errorHandler); // for decoupling
   }
 
   @Override
@@ -192,7 +196,8 @@ class OrderedEventStream {
         ++nextSeq;
         return event;
       } else {
-        LOG.log(Level.FINER, "Event sequence is {0} does not match expected {1}", new Object[]{event.getSeq(), nextSeq});
+        LOG.log(Level.FINER, "Event sequence is {0} does not match expected {1}",
+            new Object[]{event.getSeq(), nextSeq});
       }
     } else {
       LOG.log(Level.FINER, "Event is null");

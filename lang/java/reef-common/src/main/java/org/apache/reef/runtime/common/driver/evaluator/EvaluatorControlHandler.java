@@ -69,7 +69,8 @@ public final class EvaluatorControlHandler {
       throw new IllegalStateException("Trying to send an EvaluatorControlProto before the Evaluator ID is set.");
     }
     if (!this.stateManager.isRunning()) {
-      LOG.log(Level.WARNING, "Trying to send an EvaluatorControlProto to Evaluator [{0}] that is in state [{1}], not [RUNNING]. The control message was: {2}",
+      LOG.log(Level.WARNING, "Trying to send an EvaluatorControlProto to Evaluator [{0}] that is in state [{1}], " +
+              "not [RUNNING]. The control message was: {2}",
               new Object[]{this.evaluatorId, this.stateManager, evaluatorControlProto});
       return;
     }
@@ -87,7 +88,8 @@ public final class EvaluatorControlHandler {
       throw new IllegalStateException("Trying to reset the evaluator ID. This isn't supported.");
     } else {
       LOG.log(Level.FINE, "Registering remoteId [{0}] for Evaluator [{1}]", new Object[]{evaluatorRID, evaluatorId});
-      this.wrapped = Optional.of(remoteManager.getHandler(evaluatorRID, EvaluatorRuntimeProtocol.EvaluatorControlProto.class));
+      this.wrapped = Optional.of(remoteManager.getHandler(evaluatorRID,
+          EvaluatorRuntimeProtocol.EvaluatorControlProto.class));
     }
   }
 

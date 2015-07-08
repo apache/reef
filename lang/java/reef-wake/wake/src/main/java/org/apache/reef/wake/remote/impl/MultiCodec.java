@@ -42,8 +42,10 @@ public class MultiCodec<T> implements Codec<T> {
    * @param clazzToDecoderMap
    */
   public MultiCodec(Map<Class<? extends T>, Codec<? extends T>> clazzToCodecMap) {
-    Map<Class<? extends T>, Encoder<? extends T>> clazzToEncoderMap = new HashMap<Class<? extends T>, Encoder<? extends T>>();
-    Map<Class<? extends T>, Decoder<? extends T>> clazzToDecoderMap = new HashMap<Class<? extends T>, Decoder<? extends T>>();
+    Map<Class<? extends T>, Encoder<? extends T>> clazzToEncoderMap =
+        new HashMap<Class<? extends T>, Encoder<? extends T>>();
+    Map<Class<? extends T>, Decoder<? extends T>> clazzToDecoderMap =
+        new HashMap<Class<? extends T>, Decoder<? extends T>>();
     for (Class<? extends T> clazz : clazzToCodecMap.keySet()) {
       clazzToEncoderMap.put(clazz, clazzToCodecMap.get(clazz));
       clazzToDecoderMap.put(clazz, clazzToCodecMap.get(clazz));

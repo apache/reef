@@ -72,7 +72,8 @@ public interface RemoteManagerFactory {
    * @param errorHandler      the error handler invoked for exceptions by the returned RemoteManager.
    * @param orderingGuarantee whether or not the returned RemoteManager should guarantee message orders.
    * @param numberOfTries     the number of retries before the returned RemoteManager declares sending a failure.
-   * @param retryTimeout      the time (in ms) after which the returned RemoteManager considers a sending attempt failed.
+   * @param retryTimeout      the time (in ms) after which the returned RemoteManager considers a sending attempt
+   *                          failed.
    * @param <T>               the message type sent / received by the returned RemoteManager.
    * @return a new instance of RemoteManager with all parameters but the given one injected via Tang.
    */
@@ -95,9 +96,12 @@ public interface RemoteManagerFactory {
    * @param errorHandler         the error handler invoked for exceptions by the returned RemoteManager.
    * @param orderingGuarantee    whether or not the returned RemoteManager should guarantee message orders.
    * @param numberOfTries        the number of retries before the returned RemoteManager declares sending a failure.
-   * @param retryTimeout         the time (in ms) after which the returned RemoteManager considers a sending attempt failed.
-   * @param localAddressProvider the LocalAddressProvider used by the returned RemoteManager to determine the address to bind to.
-   * @param tcpPortProvider      the TcpPortProvider used by the returned RemoteManager to determine the port to listen to.
+   * @param retryTimeout         the time (in ms) after which the returned RemoteManager considers a sending attempt
+   *                             failed.
+   * @param localAddressProvider the LocalAddressProvider used by the returned RemoteManager to determine the address
+   *                             to bind to.
+   * @param tcpPortProvider      the TcpPortProvider used by the returned RemoteManager to determine the port
+   *                             to listen to.
    * @param <T>                  the message type sent / received by the returned RemoteManager.
    * @return a new instance of RemoteManager with all parameters but the given one injected via Tang.
    */

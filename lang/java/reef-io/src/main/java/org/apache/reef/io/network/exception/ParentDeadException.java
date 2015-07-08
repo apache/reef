@@ -41,7 +41,8 @@ public class ParentDeadException extends Exception {
     super(message, cause);
   }
 
-  public ParentDeadException(final String message, final Throwable cause, final boolean enableSuppression, final boolean writableStackTrace) {
+  public ParentDeadException(final String message, final Throwable cause,
+                             final boolean enableSuppression, final boolean writableStackTrace) {
     super(message, cause, enableSuppression, writableStackTrace);
   }
 

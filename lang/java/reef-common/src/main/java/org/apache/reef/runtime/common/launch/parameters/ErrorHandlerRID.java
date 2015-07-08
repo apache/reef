@@ -21,7 +21,8 @@ package org.apache.reef.runtime.common.launch.parameters;
 import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
 
-@NamedParameter(doc = "The error handler remote identifier.", short_name = ErrorHandlerRID.SHORT_NAME, default_value = ErrorHandlerRID.NONE)
+@NamedParameter(doc = "The error handler remote identifier.", short_name = ErrorHandlerRID.SHORT_NAME,
+    default_value = ErrorHandlerRID.NONE)
 public final class ErrorHandlerRID implements Name<String> {
   /**
    * Indicates that no ErrorHandler is bound.

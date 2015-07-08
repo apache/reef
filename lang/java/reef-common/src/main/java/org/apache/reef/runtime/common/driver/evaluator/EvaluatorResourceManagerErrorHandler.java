@@ -35,7 +35,8 @@ import java.util.logging.Logger;
  * Its primary function is to dispatch these to the appropriate EvaluatorManager.
  */
 @Private
-public final class EvaluatorResourceManagerErrorHandler implements EventHandler<RemoteMessage<ReefServiceProtos.RuntimeErrorProto>> {
+public final class EvaluatorResourceManagerErrorHandler
+    implements EventHandler<RemoteMessage<ReefServiceProtos.RuntimeErrorProto>> {
   private static final Logger LOG = Logger.getLogger(EvaluatorResourceManagerErrorHandler.class.toString());
   private final Evaluators evaluators;
 

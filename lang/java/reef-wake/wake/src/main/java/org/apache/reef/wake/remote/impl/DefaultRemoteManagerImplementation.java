@@ -135,7 +135,8 @@ public class DefaultRemoteManagerImplementation implements RemoteManager {
                 new RemoteReceiverStage(this.handlerContainer, errorHandler, 10);
 
     this.transport = tpFactory.newInstance(
-                hostAddress, listeningPort, this.reRecvStage, this.reRecvStage, numberOfTries, retryTimeout, tcpPortProvider);
+                hostAddress, listeningPort, this.reRecvStage, this.reRecvStage, numberOfTries, retryTimeout,
+                tcpPortProvider);
 
     this.handlerContainer.setTransport(this.transport);
 
@@ -145,7 +146,8 @@ public class DefaultRemoteManagerImplementation implements RemoteManager {
     this.reSendStage = new RemoteSenderStage(codec, this.transport, 10);
 
     StageManager.instance().register(this);
-    LOG.log(Level.FINEST, "RemoteManager {0} instantiated id {1} counter {2} listening on {3}:{4}. Binding address provided by {5}",
+    LOG.log(Level.FINEST, "RemoteManager {0} instantiated id {1} counter {2} listening on {3}:{4}. " +
+                "Binding address provided by {5}",
                 new Object[]{this.name, this.myIdentifier, COUNTER.incrementAndGet(),
                         this.transport.getLocalAddress().toString(),
                         this.transport.getListeningPort(), localAddressProvider}

@@ -57,26 +57,39 @@ final class DriverSingletons {
       @Parameter(TaskSuspendedHandlers.class) final Set<EventHandler<SuspendedTask>> taskSuspendedEventHandlers,
       @Parameter(TaskMessageHandlers.class) final Set<EventHandler<TaskMessage>> taskMessageEventHandlers,
       @Parameter(TaskFailedHandlers.class) final Set<EventHandler<FailedTask>> taskExceptionEventHandlers,
-      @Parameter(EvaluatorAllocatedHandlers.class) final Set<EventHandler<AllocatedEvaluator>> evaluatorAllocatedEventHandlers,
+      @Parameter(EvaluatorAllocatedHandlers.class)
+      final Set<EventHandler<AllocatedEvaluator>> evaluatorAllocatedEventHandlers,
       @Parameter(EvaluatorFailedHandlers.class) final Set<EventHandler<FailedEvaluator>> evaluatorFailedHandlers,
-      @Parameter(EvaluatorCompletedHandlers.class) final Set<EventHandler<CompletedEvaluator>> evaluatorCompletedHandlers,
+      @Parameter(EvaluatorCompletedHandlers.class)
+      final Set<EventHandler<CompletedEvaluator>> evaluatorCompletedHandlers,
 
       // Service event handlers
-      @Parameter(ServiceContextActiveHandlers.class) final Set<EventHandler<ActiveContext>> serviceContextActiveEventHandlers,
-      @Parameter(ServiceContextClosedHandlers.class) final Set<EventHandler<ClosedContext>> serviceContextClosedEventHandlers,
-      @Parameter(ServiceContextFailedHandlers.class) final Set<EventHandler<FailedContext>> serviceContextFailedEventHandlers,
-      @Parameter(ServiceContextMessageHandlers.class) final Set<EventHandler<ContextMessage>> serviceContextMessageHandlers,
-      @Parameter(ServiceTaskRunningHandlers.class) final Set<EventHandler<RunningTask>> serviceTaskRunningEventHandlers,
-      @Parameter(ServiceTaskCompletedHandlers.class) final Set<EventHandler<CompletedTask>> serviceTaskCompletedEventHandlers,
-      @Parameter(ServiceTaskSuspendedHandlers.class) final Set<EventHandler<SuspendedTask>> serviceTaskSuspendedEventHandlers,
+      @Parameter(ServiceContextActiveHandlers.class)
+      final Set<EventHandler<ActiveContext>> serviceContextActiveEventHandlers,
+      @Parameter(ServiceContextClosedHandlers.class)
+      final Set<EventHandler<ClosedContext>> serviceContextClosedEventHandlers,
+      @Parameter(ServiceContextFailedHandlers.class)
+      final Set<EventHandler<FailedContext>> serviceContextFailedEventHandlers,
+      @Parameter(ServiceContextMessageHandlers.class)
+      final Set<EventHandler<ContextMessage>> serviceContextMessageHandlers,
+      @Parameter(ServiceTaskRunningHandlers.class)
+      final Set<EventHandler<RunningTask>> serviceTaskRunningEventHandlers,
+      @Parameter(ServiceTaskCompletedHandlers.class)
+      final Set<EventHandler<CompletedTask>> serviceTaskCompletedEventHandlers,
+      @Parameter(ServiceTaskSuspendedHandlers.class)
+      final Set<EventHandler<SuspendedTask>> serviceTaskSuspendedEventHandlers,
       @Parameter(ServiceTaskMessageHandlers.class) final Set<EventHandler<TaskMessage>> serviceTaskMessageEventHandlers,
       @Parameter(ServiceTaskFailedHandlers.class) final Set<EventHandler<FailedTask>> serviceTaskExceptionEventHandlers,
-      @Parameter(ServiceEvaluatorAllocatedHandlers.class) final Set<EventHandler<AllocatedEvaluator>> serviceEvaluatorAllocatedEventHandlers,
-      @Parameter(ServiceEvaluatorFailedHandlers.class) final Set<EventHandler<FailedEvaluator>> serviceEvaluatorFailedHandlers,
-      @Parameter(ServiceEvaluatorCompletedHandlers.class) final Set<EventHandler<CompletedEvaluator>> serviceEvaluatorCompletedHandlers,
+      @Parameter(ServiceEvaluatorAllocatedHandlers.class)
+      final Set<EventHandler<AllocatedEvaluator>> serviceEvaluatorAllocatedEventHandlers,
+      @Parameter(ServiceEvaluatorFailedHandlers.class)
+      final Set<EventHandler<FailedEvaluator>> serviceEvaluatorFailedHandlers,
+      @Parameter(ServiceEvaluatorCompletedHandlers.class)
+      final Set<EventHandler<CompletedEvaluator>> serviceEvaluatorCompletedHandlers,
 
       // Client event handler
-      @Parameter(DriverRuntimeConfigurationOptions.JobControlHandler.class) final EventHandler<ClientRuntimeProtocol.JobControlProto> jobControlHandler,
+      @Parameter(DriverRuntimeConfigurationOptions.JobControlHandler.class)
+      final EventHandler<ClientRuntimeProtocol.JobControlProto> jobControlHandler,
 
       // Resource*Handlers - Should be invoked once
       // The YarnResourceLaunchHandler creates and uploads
