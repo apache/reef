@@ -140,7 +140,8 @@ public final class TaskRepresenter {
       this.messageDispatcher.onDriverRestartTaskRunning(runningTask);
     }
 
-    for (final ReefServiceProtos.TaskStatusProto.TaskMessageProto taskMessageProto : taskStatusProto.getTaskMessageList()) {
+    for (final ReefServiceProtos.TaskStatusProto.TaskMessageProto
+             taskMessageProto : taskStatusProto.getTaskMessageList()) {
       this.messageDispatcher.onTaskMessage(
           new TaskMessageImpl(taskMessageProto.getMessage().toByteArray(),
               this.taskId, this.context.getId(), taskMessageProto.getSourceId()));

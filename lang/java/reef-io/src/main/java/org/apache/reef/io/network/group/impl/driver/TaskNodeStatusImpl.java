@@ -117,7 +117,8 @@ public class TaskNodeStatusImpl implements TaskNodeStatus {
     LOG.entering("TaskNodeStatusImpl", "expectAckFor", new Object[]{getQualifiedName(), msgType, srcId});
     LOG.finest(getQualifiedName() + "Adding " + srcId + " to sources");
     statusMap.add(msgType, srcId);
-    LOG.exiting("TaskNodeStatusImpl", "expectAckFor", getQualifiedName() + "Sources from which ACKs for " + msgType + " are expected: " + statusMap.get(msgType));
+    LOG.exiting("TaskNodeStatusImpl", "expectAckFor",
+        getQualifiedName() + "Sources from which ACKs for " + msgType + " are expected: " + statusMap.get(msgType));
   }
 
   @Override
@@ -236,7 +237,8 @@ public class TaskNodeStatusImpl implements TaskNodeStatus {
   }
 
   private String getQualifiedName() {
-    return Utils.simpleName(groupName) + ":" + Utils.simpleName(operName) + ":(" + taskId + "," + node.getVersion() + ") - ";
+    return Utils.simpleName(groupName) + ":" + Utils.simpleName(operName) + ":(" + taskId + "," +
+        node.getVersion() + ") - ";
   }
 
   @Override

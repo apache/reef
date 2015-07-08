@@ -92,7 +92,8 @@ final class REEFScheduler implements Scheduler {
   private static final Logger LOG = Logger.getLogger(REEFScheduler.class.getName());
   private static final String REEF_TAR = "reef.tar.gz";
   private static final String RUNTIME_NAME = "MESOS";
-  private static final int MESOS_SLAVE_PORT = 5051; //  Assumes for now that all slaves use port 5051(default) TODO: make it configurable.
+  private static final int MESOS_SLAVE_PORT = 5051;
+  //  Assumes for now that all slaves use port 5051(default) TODO: make it configurable.
   private static final String REEF_JOB_NAME_PREFIX = "reef-job-";
 
   private final String reefTarUri;
@@ -202,7 +203,8 @@ final class REEFScheduler implements Scheduler {
       resourceStatus.setState(State.RUNNING);
       break;
     case TASK_FINISHED:
-      if (taskStatus.getData().toStringUtf8().equals("eval_not_run")) { // TODO: a hack to pass closeEvaluator test, replace this with a better interface
+      if (taskStatus.getData().toStringUtf8().equals("eval_not_run")) {
+        // TODO: a hack to pass closeEvaluator test, replace this with a better interface
         return;
       }
       resourceStatus.setState(State.DONE);
@@ -378,7 +380,8 @@ final class REEFScheduler implements Scheduler {
 
     final EventHandler<EvaluatorControl> evaluatorControlHandler =
         this.mesosRemoteManager.getHandler(taskStatus.getMessage(), EvaluatorControl.class);
-    this.executors.add(taskStatus.getTaskId().getValue(), resourceRequestProto.getMemorySize().get(), evaluatorControlHandler);
+    this.executors.add(taskStatus.getTaskId().getValue(), resourceRequestProto.getMemorySize().get(),
+        evaluatorControlHandler);
 
     final ResourceAllocationEvent alloc = ResourceAllocationEventImpl.newBuilder()
         .setIdentifier(taskStatus.getTaskId().getValue())

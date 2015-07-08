@@ -38,8 +38,10 @@ public class CommGroupNetworkHandlerImpl implements
 
   private static final Logger LOG = Logger.getLogger(CommGroupNetworkHandlerImpl.class.getName());
 
-  private final Map<Class<? extends Name<String>>, EventHandler<GroupCommunicationMessage>> operHandlers = new ConcurrentHashMap<>();
-  private final Map<Class<? extends Name<String>>, BlockingQueue<GroupCommunicationMessage>> topologyNotifications = new ConcurrentHashMap<>();
+  private final Map<Class<? extends Name<String>>, EventHandler<GroupCommunicationMessage>> operHandlers =
+      new ConcurrentHashMap<>();
+  private final Map<Class<? extends Name<String>>, BlockingQueue<GroupCommunicationMessage>> topologyNotifications =
+      new ConcurrentHashMap<>();
 
   @Inject
   public CommGroupNetworkHandlerImpl() {
@@ -50,7 +52,8 @@ public class CommGroupNetworkHandlerImpl implements
                        final EventHandler<GroupCommunicationMessage> operHandler) {
     LOG.entering("CommGroupNetworkHandlerImpl", "register", new Object[]{Utils.simpleName(operName), operHandler});
     operHandlers.put(operName, operHandler);
-    LOG.exiting("CommGroupNetworkHandlerImpl", "register", Arrays.toString(new Object[]{Utils.simpleName(operName), operHandler}));
+    LOG.exiting("CommGroupNetworkHandlerImpl", "register",
+        Arrays.toString(new Object[]{Utils.simpleName(operName), operHandler}));
   }
 
   @Override
@@ -65,7 +68,8 @@ public class CommGroupNetworkHandlerImpl implements
   public void onNext(final GroupCommunicationMessage msg) {
     LOG.entering("CommGroupNetworkHandlerImpl", "onNext", msg);
     final Class<? extends Name<String>> operName = Utils.getClass(msg.getOperatorname());
-    if (msg.getType() == ReefNetworkGroupCommProtos.GroupCommMessage.Type.TopologyUpdated || msg.getType() == ReefNetworkGroupCommProtos.GroupCommMessage.Type.TopologyChanges) {
+    if (msg.getType() == ReefNetworkGroupCommProtos.GroupCommMessage.Type.TopologyUpdated ||
+        msg.getType() == ReefNetworkGroupCommProtos.GroupCommMessage.Type.TopologyChanges) {
       topologyNotifications.get(operName).add(msg);
     } else {
       operHandlers.get(operName).onNext(msg);

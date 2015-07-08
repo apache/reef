@@ -75,7 +75,8 @@ public final class LegacyLocalAddressProvider implements LocalAddressProvider {
           }
         }
         if (sortedAddrs.isEmpty()) {
-          throw new WakeRuntimeException("This machine apparently doesn't have any IP addresses (not even 127.0.0.1) on interfaces that are up.");
+          throw new WakeRuntimeException("This machine apparently doesn't have any IP addresses (not even 127.0.0.1) " +
+              "on interfaces that are up.");
         }
         cached.set(sortedAddrs.pollFirst().getHostAddress());
         LOG.log(Level.FINE, "Local address is {0}", cached.get());

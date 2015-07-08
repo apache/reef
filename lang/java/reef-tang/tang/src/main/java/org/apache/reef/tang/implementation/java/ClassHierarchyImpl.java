@@ -148,7 +148,8 @@ public class ClassHierarchyImpl implements JavaClassHierarchy {
     try {
       iface = (ClassNode<T>) getNode(np.getFullArgName());
     } catch (NameResolutionException e) {
-      throw new IllegalStateException("Could not parse validated named parameter argument type.  NamedParameter is " + np.getFullName() + " argument type is " + np.getFullArgName());
+      throw new IllegalStateException("Could not parse validated named parameter argument type.  NamedParameter is " +
+          np.getFullName() + " argument type is " + np.getFullArgName());
     }
     Class<?> clazz;
     String fullName;
@@ -173,9 +174,11 @@ public class ClassHierarchyImpl implements JavaClassHierarchy {
             return (T) impl;
           }
         }
-        throw new ParseException("Name<" + iface.getFullName() + "> " + np.getFullName() + " cannot take non-subclass " + impl.getFullName(), e);
+        throw new ParseException("Name<" + iface.getFullName() + "> " + np.getFullName() +
+            " cannot take non-subclass " + impl.getFullName(), e);
       } catch (NameResolutionException e2) {
-        throw new ParseException("Name<" + iface.getFullName() + "> " + np.getFullName() + " cannot take non-class " + value, e);
+        throw new ParseException("Name<" + iface.getFullName() + "> " + np.getFullName() +
+            " cannot take non-class " + value, e);
       }
     }
   }
@@ -216,7 +219,8 @@ public class ClassHierarchyImpl implements JavaClassHierarchy {
 
       if (parameterParser.canParse(ReflectionUtilities.getFullName(argType))) {
         if (clazz.getAnnotation(NamedParameter.class).default_class() != Void.class) {
-          throw new ClassHierarchyException("Named parameter " + ReflectionUtilities.getFullName(clazz) + " defines default implementation for parsable type " + ReflectionUtilities.getFullName(argType));
+          throw new ClassHierarchyException("Named parameter " + ReflectionUtilities.getFullName(clazz) +
+              " defines default implementation for parsable type " + ReflectionUtilities.getFullName(argType));
         }
       }
 

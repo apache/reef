@@ -52,7 +52,8 @@ public final class YarnResourceRequestHandler implements ResourceRequestHandler 
 
   @Override
   public synchronized void onNext(final ResourceRequestEvent resourceRequestEvent) {
-    LOG.log(Level.FINEST, "Got ResourceRequestEvent in YarnResourceRequestHandler: memory = {0}, cores = {1}.", new Object[]{resourceRequestEvent.getMemorySize(), resourceRequestEvent.getVirtualCores()});
+    LOG.log(Level.FINEST, "Got ResourceRequestEvent in YarnResourceRequestHandler: memory = {0}, cores = {1}.",
+        new Object[]{resourceRequestEvent.getMemorySize(), resourceRequestEvent.getVirtualCores()});
 
     final String[] nodes = resourceRequestEvent.getNodeNameList().size() == 0 ? null :
         resourceRequestEvent.getNodeNameList().toArray(new String[resourceRequestEvent.getNodeNameList().size()]);

@@ -28,7 +28,8 @@ public final class SuspendedTaskBridge extends NativeBridge implements Identifia
   private final String taskId;
   private final ActiveContextBridge jactiveContext;
 
-  public SuspendedTaskBridge(final SuspendedTask suspendedTask, final ActiveContextBridgeFactory activeContextBridgeFactory) {
+  public SuspendedTaskBridge(final SuspendedTask suspendedTask,
+                             final ActiveContextBridgeFactory activeContextBridgeFactory) {
     jsuspendedTask = suspendedTask;
     taskId = suspendedTask.getId();
     jactiveContext = activeContextBridgeFactory.getActiveContextBridge(jsuspendedTask.getActiveContext());

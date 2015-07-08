@@ -62,7 +62,8 @@ public final class AvroConfigurationSerializer implements ConfigurationSerialize
   public AvroConfigurationSerializer() {
   }
 
-  private static void fromAvro(final AvroConfiguration avroConfiguration, final ConfigurationBuilder configurationBuilder) throws BindException {
+  private static void fromAvro(final AvroConfiguration avroConfiguration,
+                               final ConfigurationBuilder configurationBuilder) throws BindException {
     // Note: This code is an adapted version of ConfigurationFile.processConfigFile();
     // TODO: This method should implement list deserialization. Implement it when C# side is ready.
     final Map<String, String> importedNames = new HashMap<>();
@@ -268,7 +269,8 @@ public final class AvroConfigurationSerializer implements ConfigurationSerialize
   }
 
   @Override
-  public Configuration fromFile(final File file, final ClassHierarchy classHierarchy) throws IOException, BindException {
+  public Configuration fromFile(final File file, final ClassHierarchy classHierarchy)
+      throws IOException, BindException {
     return fromAvro(avroFromFile(file), classHierarchy);
   }
 
@@ -279,7 +281,8 @@ public final class AvroConfigurationSerializer implements ConfigurationSerialize
   }
 
   @Override
-  public Configuration fromTextFile(final File file, final ClassHierarchy classHierarchy) throws IOException, BindException {
+  public Configuration fromTextFile(final File file, final ClassHierarchy classHierarchy)
+      throws IOException, BindException {
     final StringBuilder result = readFromTextFile(file);
     return this.fromString(result.toString(), classHierarchy);
   }
@@ -302,7 +305,8 @@ public final class AvroConfigurationSerializer implements ConfigurationSerialize
   }
 
   @Override
-  public Configuration fromByteArray(final byte[] theBytes, final ClassHierarchy classHierarchy) throws IOException, BindException {
+  public Configuration fromByteArray(final byte[] theBytes, final ClassHierarchy classHierarchy)
+      throws IOException, BindException {
     return fromAvro(avroFromBytes(theBytes), classHierarchy);
   }
 
@@ -312,7 +316,8 @@ public final class AvroConfigurationSerializer implements ConfigurationSerialize
   }
 
   @Override
-  public Configuration fromString(final String theString, final ClassHierarchy classHierarchy) throws IOException, BindException {
+  public Configuration fromString(final String theString, final ClassHierarchy classHierarchy)
+      throws IOException, BindException {
     return fromAvro(avroFromString(theString), classHierarchy);
   }
 

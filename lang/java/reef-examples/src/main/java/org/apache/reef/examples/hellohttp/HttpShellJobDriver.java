@@ -101,7 +101,8 @@ public final class HttpShellJobDriver {
    * @param clientCallBackHandler
    */
   @Inject
-  public HttpShellJobDriver(final EvaluatorRequestor requestor, final HttpServerShellCmdtHandler.ClientCallBackHandler clientCallBackHandler) {
+  public HttpShellJobDriver(final EvaluatorRequestor requestor,
+                            final HttpServerShellCmdtHandler.ClientCallBackHandler clientCallBackHandler) {
     this.evaluatorRequestor = requestor;
     this.httpCallbackHandler = clientCallBackHandler;
     LOG.log(Level.FINE, "Instantiated 'HelloDriver'");
@@ -270,7 +271,8 @@ public final class HttpShellJobDriver {
   final class HttpClientCloseHandler implements EventHandler<Void> {
     @Override
     public void onNext(final Void aVoid) throws RuntimeException {
-      LOG.log(Level.INFO, "Received a close message from the client. You can put code here to properly close drivers and evaluators.");
+      LOG.log(Level.INFO, "Received a close message from the client. " +
+          "You can put code here to properly close drivers and evaluators.");
       for (final ActiveContext c : contexts.values()) {
         c.close();
       }

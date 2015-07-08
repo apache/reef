@@ -60,7 +60,8 @@ public class ChunkedReadWriteHandler extends ChunkedWriteHandler {
   private byte[] retArr;
 
   /**
-   * @see org.jboss.netty.handler.stream.ChunkedWriteHandler#handleUpstream(org.jboss.netty.channel.ChannelHandlerContext, org.jboss.netty.channel.ChannelEvent)
+   * @see org.jboss.netty.handler.stream.ChunkedWriteHandler#handleUpstream(
+   *      org.jboss.netty.channel.ChannelHandlerContext, org.jboss.netty.channel.ChannelEvent)
    */
   @Override
   public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
@@ -72,21 +73,26 @@ public class ChunkedReadWriteHandler extends ChunkedWriteHandler {
       if (start) {
         //LOG.log(Level.FINEST, "{0} Starting dechunking of a chunked write", curThrName);
         expectedSize = getSize(data);
-        // LOG.log(Level.FINEST, "Expected Size = {0}. Wrapping byte[{1}] into a ChannelBuffer", new Object[]{expectedSize,expectedSize});
+        // LOG.log(Level.FINEST, "Expected Size = {0}. Wrapping byte[{1}] into a ChannelBuffer",
+        // new Object[]{expectedSize,expectedSize});
         retArr = new byte[expectedSize];
         readBuffer = Unpooled.wrappedBuffer(retArr);
         readBuffer.clear();
-        //if (LOG.isLoggable(Level.FINEST)) LOG.log(Level.FINEST, curThrName + "read buffer: cur sz = " + readBuffer.writerIndex() + " + " + (data.length - INT_SIZE) + " bytes will added by current chunk");
+        //if (LOG.isLoggable(Level.FINEST)) LOG.log(Level.FINEST, curThrName + "read buffer: cur sz = " +
+        // readBuffer.writerIndex() + " + " + (data.length - INT_SIZE) + " bytes will added by current chunk");
         readBuffer.writeBytes(data, INT_SIZE, data.length - INT_SIZE);
-        //if (LOG.isLoggable(Level.FINEST)) LOG.log(Level.FINEST, curThrName + "read buffer: new sz = " + readBuffer.writerIndex());
+        //if (LOG.isLoggable(Level.FINEST)) LOG.log(Level.FINEST, curThrName + "read buffer: new sz = " +
+        // readBuffer.writerIndex());
         start = false;
       } else {
         readBuffer.writeBytes(data);
       }
 
       if (readBuffer.writerIndex() == expectedSize) {
-        //if (LOG.isLoggable(Level.FINEST)) LOG.log(Level.FINEST, "{0} Dechunking complete. Creating upstream msg event with the dechunked byte[{1}]", new Object[]{curThrName, expectedSize});
-        //if (LOG.isLoggable(Level.FINEST)) LOG.log(Level.FINEST, "Resetting state to begin another dechunking", curThrName);
+        //if (LOG.isLoggable(Level.FINEST)) LOG.log(Level.FINEST, "{0} Dechunking complete." +
+        // "Creating upstream msg event with the dechunked byte[{1}]", new Object[]{curThrName, expectedSize});
+        //if (LOG.isLoggable(Level.FINEST)) LOG.log(Level.FINEST, "Resetting state to begin another dechunking",
+        // curThrName);
         byte[] temp = retArr;
         start = true;
         expectedSize = 0;

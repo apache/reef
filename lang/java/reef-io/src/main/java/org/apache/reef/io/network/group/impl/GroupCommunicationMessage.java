@@ -117,7 +117,8 @@ public class GroupCommunicationMessage {
 
   @Override
   public String toString() {
-    return "[" + msgType + " from " + getSource() + " to " + getDestination() + " for " + simpleGroupName + ":" + simpleOperName + "]";
+    return "[" + msgType + " from " + getSource() + " to " + getDestination() + " for " + simpleGroupName + ":" +
+        simpleOperName + "]";
   }
 
   @Override

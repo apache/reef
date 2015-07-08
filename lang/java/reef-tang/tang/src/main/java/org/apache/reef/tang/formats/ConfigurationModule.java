@@ -75,7 +75,8 @@ public class ConfigurationModule {
   private <T> void processSet(Object impl) {
     Field f = builder.map.get(impl);
     if (f == null) { /* throw */
-      throw new ClassHierarchyException("Unknown Impl/Param when setting " + ReflectionUtilities.getSimpleName(impl.getClass()) + ".  Did you pass in a field from some other module?");
+      throw new ClassHierarchyException("Unknown Impl/Param when setting " +
+          ReflectionUtilities.getSimpleName(impl.getClass()) + ".  Did you pass in a field from some other module?");
     }
     if (!reqSet.contains(f)) {
       reqSet.add(f);
@@ -260,10 +261,12 @@ public class ConfigurationModule {
 
     }
     for (Class<?> c : this.builder.freeParams.keySet()) {
-      ret.add(new MyEntry(ReflectionUtilities.getFullName(c), this.builder.map.get(this.builder.freeParams.get(c)).getName()));
+      ret.add(new MyEntry(ReflectionUtilities.getFullName(c),
+          this.builder.map.get(this.builder.freeParams.get(c)).getName()));
     }
     for (Class<?> c : this.builder.freeImpls.keySet()) {
-      ret.add(new MyEntry(ReflectionUtilities.getFullName(c), this.builder.map.get(this.builder.freeImpls.get(c)).getName()));
+      ret.add(new MyEntry(ReflectionUtilities.getFullName(c),
+          this.builder.map.get(this.builder.freeImpls.get(c)).getName()));
     }
     for (String s : ConfigurationFile.toConfigurationStringList(builder.b.build())) {
       String[] tok = s.split("=", 2);
@@ -293,7 +296,8 @@ public class ConfigurationModule {
             setImplLists.isEmpty() &&
             setParamLists.isEmpty()
       )) {
-      throw new ClassHierarchyException("Detected statically set ConfigurationModule Parameter / Implementation.  set() should only be used dynamically.  Use bind...() instead.");
+      throw new ClassHierarchyException("Detected statically set ConfigurationModule Parameter / Implementation.  " +
+          "set() should only be used dynamically.  Use bind...() instead.");
     }
   }
 }

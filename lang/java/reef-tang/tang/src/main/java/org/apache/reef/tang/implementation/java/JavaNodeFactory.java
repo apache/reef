@@ -72,7 +72,9 @@ public final class JavaNodeFactory {
     }
 
     if (unit && !foundNonStaticInnerClass) {
-      throw new ClassHierarchyException("Class " + ReflectionUtilities.getFullName(clazz) + " has an @Unit annotation, but no non-static inner classes.  Such @Unit annotations would have no effect, and are therefore disallowed.");
+      throw new ClassHierarchyException("Class " + ReflectionUtilities.getFullName(clazz) +
+          " has an @Unit annotation, but no non-static inner classes. " +
+          " Such @Unit annotations would have no effect, and are therefore disallowed.");
     }
 
     Constructor<T>[] constructors = (Constructor<T>[]) clazz
@@ -89,7 +91,8 @@ public final class JavaNodeFactory {
       }
       if (parentIsUnit && (constructorAnnotatedInjectable || constructors[k].getParameterTypes().length != 1)) {
         throw new ClassHierarchyException(
-            "Detected explicit constructor in class enclosed in @Unit " + fullName + "  Such constructors are disallowed.");
+            "Detected explicit constructor in class enclosed in @Unit " + fullName +
+                "  Such constructors are disallowed.");
       }
       boolean constructorInjectable = constructorAnnotatedInjectable || parentIsUnit;
       // ConstructorDef's constructor checks for duplicate
@@ -140,7 +143,8 @@ public final class JavaNodeFactory {
    * XXX: This method assumes that all generic types have exactly one type parameter.
    */
   public static <T> NamedParameterNode<T> createNamedParameterNode(Node parent,
-                                                                   Class<? extends Name<T>> clazz, Type argClass) throws ClassHierarchyException {
+                                                                   Class<? extends Name<T>> clazz, Type argClass)
+      throws ClassHierarchyException {
 
     Class<?> argRawClass = ReflectionUtilities.getRawClass(argClass);
 
@@ -192,7 +196,8 @@ public final class JavaNodeFactory {
       hasClassSetDefault = false;
     }
     if (defaultCount > 1) {
-      throw new ClassHierarchyException("Named parameter " + fullName + " defines more than one of default_value, default_class, default_values and default_classes");
+      throw new ClassHierarchyException("Named parameter " + fullName +
+          " defines more than one of default_value, default_class, default_values and default_classes");
     }
 
     final String[] defaultInstanceAsStrings;
@@ -268,11 +273,13 @@ public final class JavaNodeFactory {
 
     if (!(isSubclass)) {
       throw new ClassHierarchyException(namedParameter + " defines a default class "
-          + ReflectionUtilities.getFullName(defaultClass) + " with a raw type that does not extend of its target's raw type " + argRawClass);
+          + ReflectionUtilities.getFullName(defaultClass)
+          + " with a raw type that does not extend of its target's raw type " + argRawClass);
     }
     if (!(isGenericSubclass)) {
       throw new ClassHierarchyException(namedParameter + " defines a default class "
-          + ReflectionUtilities.getFullName(defaultClass) + " with a type that does not extend its target's type " + argClass);
+          + ReflectionUtilities.getFullName(defaultClass)
+          + " with a type that does not extend its target's type " + argClass);
     }
   }
 
@@ -286,7 +293,8 @@ public final class JavaNodeFactory {
     // We don't support injection of non-static member classes with @Inject
     // annotations.
     if (injectable && !isClassInjectionCandidate) {
-      throw new ClassHierarchyException("Cannot @Inject non-static member class unless the enclosing class an @Unit.  Nested class is:"
+      throw new ClassHierarchyException("Cannot @Inject non-static member class unless the enclosing class an @Unit. "
+          + " Nested class is:"
           + ReflectionUtilities.getFullName(constructor.getDeclaringClass()));
     }
     // TODO: When we use paramTypes below, we strip generic parameters.  Is that OK?

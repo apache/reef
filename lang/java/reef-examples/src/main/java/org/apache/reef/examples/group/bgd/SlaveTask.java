@@ -78,7 +78,8 @@ public class SlaveTask implements Task {
     this.controlMessageBroadcaster = communicationGroup.getBroadcastReceiver(ControlMessageBroadcaster.class);
     this.modelBroadcaster = communicationGroup.getBroadcastReceiver(ModelBroadcaster.class);
     this.lossAndGradientReducer = communicationGroup.getReduceSender(LossAndGradientReducer.class);
-    this.modelAndDescentDirectionBroadcaster = communicationGroup.getBroadcastReceiver(ModelAndDescentDirectionBroadcaster.class);
+    this.modelAndDescentDirectionBroadcaster =
+        communicationGroup.getBroadcastReceiver(ModelAndDescentDirectionBroadcaster.class);
     this.descentDirectionBroadcaster = communicationGroup.getBroadcastReceiver(DescentDirectionBroadcaster.class);
     this.lineSearchEvaluationsReducer = communicationGroup.getReduceSender(LineSearchEvaluationsReducer.class);
     this.minEtaBroadcaster = communicationGroup.getBroadcastReceiver(MinEtaBroadcaster.class);

@@ -85,7 +85,8 @@ public class MasterTask implements Task {
     this.controlMessageBroadcaster = communicationGroupClient.getBroadcastSender(ControlMessageBroadcaster.class);
     this.modelBroadcaster = communicationGroupClient.getBroadcastSender(ModelBroadcaster.class);
     this.lossAndGradientReducer = communicationGroupClient.getReduceReceiver(LossAndGradientReducer.class);
-    this.modelAndDescentDirectionBroadcaster = communicationGroupClient.getBroadcastSender(ModelAndDescentDirectionBroadcaster.class);
+    this.modelAndDescentDirectionBroadcaster =
+        communicationGroupClient.getBroadcastSender(ModelAndDescentDirectionBroadcaster.class);
     this.descentDriectionBroadcaster = communicationGroupClient.getBroadcastSender(DescentDirectionBroadcaster.class);
     this.lineSearchEvaluationsReducer = communicationGroupClient.getReduceReceiver(LineSearchEvaluationsReducer.class);
     this.minEtaBroadcaster = communicationGroupClient.getBroadcastSender(MinEtaBroadcaster.class);

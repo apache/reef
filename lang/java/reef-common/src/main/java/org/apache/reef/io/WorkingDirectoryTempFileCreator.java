@@ -43,7 +43,8 @@ public final class WorkingDirectoryTempFileCreator implements TempFileCreator {
     this.tempFolderAsFile = new File("./reef/temp");
     this.tempFolderAsFile.mkdirs();
     this.tempFolderAsPath = this.tempFolderAsFile.toPath();
-    LOG.log(Level.FINE, "Temporary files and folders will be created in [{0}]", this.tempFolderAsFile.getAbsolutePath());
+    LOG.log(Level.FINE, "Temporary files and folders will be created in [{0}]",
+        this.tempFolderAsFile.getAbsolutePath());
   }
 
 

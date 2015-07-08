@@ -75,11 +75,13 @@ public interface JavaConfigurationBuilder extends ConfigurationBuilder {
                                                   Class<? extends T> impl) throws BindException;
 
   <T> JavaConfigurationBuilder bindConstructor(Class<T> c,
-                                               Class<? extends ExternalConstructor<? extends T>> v) throws BindException;
+                                               Class<? extends ExternalConstructor<? extends T>> v)
+      throws BindException;
 
   <T> JavaConfigurationBuilder bindSetEntry(Class<? extends Name<Set<T>>> iface, String value) throws BindException;
 
-  <T> JavaConfigurationBuilder bindSetEntry(Class<? extends Name<Set<T>>> iface, Class<? extends T> impl) throws BindException;
+  <T> JavaConfigurationBuilder bindSetEntry(Class<? extends Name<Set<T>>> iface, Class<? extends T> impl)
+      throws BindException;
 
   /**
    * Binds a specfic list to a named parameter. List's elements can be string values or class implementations.

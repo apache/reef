@@ -21,7 +21,8 @@ package org.apache.reef.poison.params;
 import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
 
-@NamedParameter(doc = "The time window (in seconds) after ContextStart in which the crash will occur", default_value = "" + CrashTimeout.DEFAULT_VALUE)
+@NamedParameter(doc = "The time window (in seconds) after ContextStart in which the crash will occur",
+    default_value = "" + CrashTimeout.DEFAULT_VALUE)
 public final class CrashTimeout implements Name<Integer> {
   public static final int DEFAULT_VALUE = 10;
 

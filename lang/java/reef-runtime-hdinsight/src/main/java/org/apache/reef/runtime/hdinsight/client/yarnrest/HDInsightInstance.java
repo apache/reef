@@ -214,7 +214,8 @@ public final class HDInsightInstance {
     return httpPut;
   }
 
-  private HttpClientContext getClientContext(final String hostname, final String username, final String password) throws IOException {
+  private HttpClientContext getClientContext(final String hostname, final String username, final String password)
+      throws IOException {
     final HttpHost targetHost = new HttpHost(hostname, 443, "https");
     final HttpClientContext result = HttpClientContext.create();
 

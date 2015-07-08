@@ -98,7 +98,8 @@ public final class RunningTaskImpl implements RunningTask {
 
   @Override
   public void close(final byte[] message) {
-    LOG.log(Level.FINEST, "CLOSE: TaskRuntime id[" + taskId + "] on evaluator id[" + evaluatorManager.getId() + "] with message.");
+    LOG.log(Level.FINEST, "CLOSE: TaskRuntime id[" + taskId + "] on evaluator id[" + evaluatorManager.getId() +
+        "] with message.");
     if (this.taskRepresenter.isNotRunning()) {
       throw new RuntimeException("Trying to send a message to a Task that is no longer RUNNING.");
     }
@@ -112,7 +113,8 @@ public final class RunningTaskImpl implements RunningTask {
 
   @Override
   public void suspend(final byte[] message) {
-    LOG.log(Level.FINEST, "SUSPEND: TaskRuntime id[" + taskId + "] on evaluator id[" + evaluatorManager.getId() + "] with message.");
+    LOG.log(Level.FINEST, "SUSPEND: TaskRuntime id[" + taskId + "] on evaluator id[" + evaluatorManager.getId() +
+        "] with message.");
 
     final ContextControlProto contextControlProto = ContextControlProto.newBuilder()
         .setSuspendTask(SuspendTaskProto.newBuilder().build())

@@ -36,7 +36,8 @@ public final class JobSubmissionDirectoryProviderImpl implements JobSubmissionDi
   private final REEFFileNames fileNames;
 
   @Inject
-  JobSubmissionDirectoryProviderImpl(@Parameter(JobSubmissionDirectoryPrefix.class) final String jobSubmissionDirectoryPrefix,
+  JobSubmissionDirectoryProviderImpl(@Parameter(JobSubmissionDirectoryPrefix.class)
+                                     final String jobSubmissionDirectoryPrefix,
                                      final REEFFileNames fileNames) {
     this.jobSubmissionDirectory = jobSubmissionDirectoryPrefix;
     this.fileNames = fileNames;

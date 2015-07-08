@@ -26,7 +26,8 @@ import java.util.Set;
 /**
  * The name of the default racks available in the local runtime.
  */
-@NamedParameter(short_name = "racks", doc = "The name of the racks the containers will be placed on", default_values = {RackNames.DEFAULT_RACK_NAME})
+@NamedParameter(short_name = "racks", doc = "The name of the racks the containers will be placed on",
+    default_values = {RackNames.DEFAULT_RACK_NAME})
 public final class RackNames implements Name<Set<String>> {
   private RackNames() {}
   public static final String DEFAULT_RACK_NAME = "/default-rack";

@@ -34,7 +34,9 @@ public final class Utils {
 
   public static GroupCommunicationMessage bldVersionedGCM(final Class<? extends Name<String>> groupName,
                                                           final Class<? extends Name<String>> operName,
-                                                          final ReefNetworkGroupCommProtos.GroupCommMessage.Type msgType, final String from, final int srcVersion,
+                                                          final ReefNetworkGroupCommProtos.GroupCommMessage.Type
+                                                              msgType,
+                                                          final String from, final int srcVersion,
                                                           final String to, final int dstVersion, final byte[]... data) {
 
     return new GroupCommunicationMessage(groupName.getName(), operName.getName(), msgType, from, srcVersion, to,

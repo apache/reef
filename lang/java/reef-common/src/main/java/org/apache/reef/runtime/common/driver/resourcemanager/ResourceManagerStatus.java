@@ -42,7 +42,8 @@ public final class ResourceManagerStatus implements EventHandler<RuntimeStatusEv
   private static final Logger LOG = Logger.getLogger(ResourceManagerStatus.class.getName());
 
   private static final String COMPONENT_NAME = "ResourceManager";
-  private static final IdleMessage IDLE_MESSAGE = new IdleMessage(COMPONENT_NAME, "No outstanding requests or allocations", true);
+  private static final IdleMessage IDLE_MESSAGE =
+      new IdleMessage(COMPONENT_NAME, "No outstanding requests or allocations", true);
 
   private final ResourceManagerErrorHandler resourceManagerErrorHandler;
   private final DriverStatusManager driverStatusManager;

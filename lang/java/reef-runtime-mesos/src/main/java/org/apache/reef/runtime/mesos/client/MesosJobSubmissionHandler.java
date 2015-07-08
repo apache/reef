@@ -111,7 +111,8 @@ final class MesosJobSubmissionHandler implements JobSubmissionHandler {
               .set(MesosDriverConfiguration.JOB_IDENTIFIER, jobSubmissionEvent.getIdentifier())
               .set(MesosDriverConfiguration.CLIENT_REMOTE_IDENTIFIER, jobSubmissionEvent.getRemoteId())
               .set(MesosDriverConfiguration.JVM_HEAP_SLACK, this.jvmSlack)
-              .set(MesosDriverConfiguration.SCHEDULER_DRIVER_CAPACITY, 1) // must be 1 as there is 1 scheduler at the same time
+              .set(MesosDriverConfiguration.SCHEDULER_DRIVER_CAPACITY, 1)
+              // must be 1 as there is 1 scheduler at the same time
               .build(),
           jobSubmissionEvent.getConfiguration());
       final File runtimeConfigurationFile = new File(driverFolder, this.fileNames.getDriverConfigurationPath());
