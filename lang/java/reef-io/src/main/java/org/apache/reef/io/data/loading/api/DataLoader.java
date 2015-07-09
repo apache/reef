@@ -111,7 +111,7 @@ public class DataLoader {
 
   /**
    * Allows to specify compute and data evaluator requests in particular
-   * locations
+   * locations.
    *
    * @param clock
    *          the clock
@@ -235,21 +235,24 @@ public class DataLoader {
       if (evaluatorsForComputeRequest >= 0) {
         LOG.log(Level.FINE, "Evaluators for compute request: {0}", evaluatorsForComputeRequest);
         try {
-          final Configuration idConfiguration = ContextConfiguration.CONF
-              .set(ContextConfiguration.IDENTIFIER,
-                  dataLoadingService.getComputeContextIdPrefix() + evaluatorsForComputeRequest)
-              .build();
+          final Configuration idConfiguration = ContextConfiguration.CONF.set(
+              ContextConfiguration.IDENTIFIER,
+              dataLoadingService.getComputeContextIdPrefix()
+                  + evaluatorsForComputeRequest).build();
           LOG.log(Level.FINE, "Submitting Compute Context to {0}", evalId);
           allocatedEvaluator.submitContext(idConfiguration);
-          submittedComputeEvalConfigs.put(allocatedEvaluator.getId(), idConfiguration);
+          submittedComputeEvalConfigs.put(allocatedEvaluator.getId(),
+              idConfiguration);
           // should release the request gate when there are >= 0 compute
           // requests (now that we can have more than 1)
-          LOG.log(Level.FINE,
+          LOG.log(
+              Level.FINE,
               evaluatorsForComputeRequest > 0 ? "More Compute requests need to be satisfied"
                   : "All Compute requests satisfied." + " Releasing gate");
-            resourceRequestHandler.releaseResourceRequestGate();
+          resourceRequestHandler.releaseResourceRequestGate();
         } catch (final BindException e) {
-          throw new RuntimeException("Unable to bind context id for Compute request", e);
+          throw new RuntimeException(
+              "Unable to bind context id for Compute request", e);
         }
 
       } else {

@@ -99,7 +99,7 @@ public final class DataLoadingRequestBuilder
   }
 
   /**
-   * Adds the requests to the compute requests list
+   * Adds the requests to the compute requests list.
    *
    * @param computeRequests
    *          the compute requests to add
@@ -113,7 +113,7 @@ public final class DataLoadingRequestBuilder
   }
 
   /**
-   * Adds the requests to the data requests list
+   * Adds the requests to the data requests list.
    *
    * @param dataRequests
    *          the data requests to add
@@ -127,7 +127,7 @@ public final class DataLoadingRequestBuilder
   }
 
   /**
-   * Adds a single request to the compute requests list
+   * Adds a single request to the compute requests list.
    *
    * @param computeRequest
    *          the compute request to add
@@ -139,7 +139,7 @@ public final class DataLoadingRequestBuilder
   }
 
   /**
-   * Adds a single request to the data requests list
+   * Adds a single request to the data requests list.
    *
    * @param dataRequest
    *          the data request to add
