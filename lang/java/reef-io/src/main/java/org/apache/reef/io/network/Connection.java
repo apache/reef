@@ -37,7 +37,7 @@ public interface Connection<T> extends AutoCloseable {
   void open() throws NetworkException;
 
   /**
-   * Writes an message to the connection.
+   * Writes a message to the connection.
    *
    * @param message
    */

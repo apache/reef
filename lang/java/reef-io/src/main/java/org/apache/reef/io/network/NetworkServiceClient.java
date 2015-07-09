@@ -26,13 +26,13 @@ import org.apache.reef.wake.Identifier;
 import org.apache.reef.wake.remote.Codec;
 import org.apache.reef.wake.remote.transport.LinkListener;
 
-@DefaultImplementation(DefaultNetworkServiceClientImpl.class)
 /**
  * NetworkServiceClient.
  *
  * NetworkServiceClient is a service which is designed for communicating messages with each other.
  * Users can send messages with NetworkServiceClient, by registering their Codec, EventHandler, and LinkListener.
  */
+@DefaultImplementation(DefaultNetworkServiceClientImpl.class)
 public interface NetworkServiceClient extends AutoCloseable {
 
   /**
@@ -47,9 +47,9 @@ public interface NetworkServiceClient extends AutoCloseable {
    * @throws NetworkException throws a NetworkException when duplicated connectionFactoryId exists.
    */
   <T> void registerConnectionFactory(final Identifier connectionFactoryId,
-                                            final Codec<T> codec,
-                                            final EventHandler<Message<T>> eventHandler,
-                                            final LinkListener<Message<T>> linkListener) throws NetworkException;
+                                     final Codec<T> codec,
+                                     final EventHandler<Message<T>> eventHandler,
+                                     final LinkListener<Message<T>> linkListener) throws NetworkException;
 
   /**
    * Unregisters a connectionFactory corresponding to the connectionFactoryId.
