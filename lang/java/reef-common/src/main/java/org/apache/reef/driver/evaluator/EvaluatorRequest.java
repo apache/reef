@@ -166,9 +166,18 @@ public final class EvaluatorRequest {
     private Builder() {
     }
 
+    // setting builder to the values passed in the request
     private Builder(final EvaluatorRequest request) {
       setNumber(request.getNumber());
       fromDescriptor(request.getDescriptor());
+      setMemory(request.getMegaBytes());
+      setNumberOfCores(request.getNumberOfCores());
+      for (final String nodeName : request.getNodeNames()) {
+        addNodeName(nodeName);
+      }
+      for (final String rackName : request.getRackNames()) {
+        addRackName(rackName);
+      }
     }
 
     /**
