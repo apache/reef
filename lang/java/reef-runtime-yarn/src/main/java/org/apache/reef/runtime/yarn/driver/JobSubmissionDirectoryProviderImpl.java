@@ -26,11 +26,9 @@ import org.apache.reef.tang.annotations.Parameter;
 import javax.inject.Inject;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.logging.Logger;
 
 public final class JobSubmissionDirectoryProviderImpl implements JobSubmissionDirectoryProvider {
 
-  private static final Logger LOG = Logger.getLogger(JobSubmissionDirectoryProviderImpl.class.getName());
   /**
    * The path on (H)DFS which is used as the job's folder.
    */
@@ -46,9 +44,7 @@ public final class JobSubmissionDirectoryProviderImpl implements JobSubmissionDi
 
   @Override
   public Path getJobSubmissionDirectoryPath(String applicationId) {
-    return this.fileNames == null
-      ? new Path(jobSubmissionDirectory + "/")
-      : new Path(this.jobSubmissionDirectory +
+    return new Path(this.jobSubmissionDirectory +
         "/" +
         new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss_").format(Calendar.getInstance().getTime()) +
         this.fileNames.getJobFolderPrefix() +

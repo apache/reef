@@ -40,12 +40,15 @@ import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.tang.formats.ConfigurationSerializer;
+import org.apache.reef.util.Optional;
 
 import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import static org.apache.reef.util.Optional.*;
 
 @Private
 @ClientSide
@@ -93,10 +96,10 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
              new YarnSubmissionHelper(this.yarnConfiguration, this.fileNames, this.classpath)) {
 
       LOG.log(Level.FINE, "Assembling submission JAR for the Driver.");
-      final String userBoundJobSubmissionDirectory = getUserBoundJobSubmissionDirectory(jobSubmissionEvent.getConfiguration());
-      final JobFolder jobFolderOnDfs = userBoundJobSubmissionDirectory == null
-          ? this.uploader.createJobFolder(submissionHelper.getApplicationId())
-          : this.uploader.createJobFolder(userBoundJobSubmissionDirectory);
+      final Optional<String> userBoundJobSubmissionDirectory = getUserBoundJobSubmissionDirectory(jobSubmissionEvent.getConfiguration());
+      final JobFolder jobFolderOnDfs = userBoundJobSubmissionDirectory.isPresent()
+          ? this.uploader.createJobFolder(userBoundJobSubmissionDirectory.get())
+          : this.uploader.createJobFolder(submissionHelper.getApplicationId());
       final Configuration driverConfiguration = makeDriverConfiguration(jobSubmissionEvent, jobFolderOnDfs.getPath());
       final File jobSubmissionFile = this.jobJarMaker.createJobSubmissionJAR(jobSubmissionEvent, driverConfiguration);
       final LocalResource driverJarOnDfs = jobFolderOnDfs.uploadAsLocalResource(jobSubmissionFile);
@@ -145,11 +148,11 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
     return jobSubmissionEvent.getQueue().orElse(defaultQueue);
   }
 
-  private String getUserBoundJobSubmissionDirectory(Configuration configuration) {
+  private static org.apache.reef.util.Optional<String> getUserBoundJobSubmissionDirectory(final Configuration configuration) {
     try {
-      return Tang.Factory.getTang().newInjector(configuration).getNamedInstance(DriverJobSubmissionDirectory.class);
+      return Optional.ofNullable(Tang.Factory.getTang().newInjector(configuration).getNamedInstance(DriverJobSubmissionDirectory.class));
     } catch (InjectionException ex) {
-      return null;
+      return Optional.empty();
     }
 
   }
