@@ -30,9 +30,10 @@ import org.apache.reef.io.network.shuffle.ns.ShuffleControlMessageCodec;
 import org.apache.reef.io.network.shuffle.ns.ShuffleControlMessageHandler;
 import org.apache.reef.io.network.shuffle.params.SerializedShuffleSet;
 import org.apache.reef.io.network.shuffle.params.ShuffleControlMessageNSId;
+import org.apache.reef.io.network.shuffle.task.ShuffleClient;
 import org.apache.reef.io.network.shuffle.task.ShuffleContextStartHandler;
 import org.apache.reef.io.network.shuffle.task.ShuffleContextStopHandler;
-import org.apache.reef.io.network.shuffle.topology.ShuffleDescriptor;
+import org.apache.reef.io.network.shuffle.descriptor.ShuffleDescriptor;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Injector;
 import org.apache.reef.tang.JavaConfigurationBuilder;
@@ -79,12 +80,12 @@ final class ShuffleDriverImpl implements ShuffleDriver {
 
 
   @Override
-  public <K extends ShuffleManager> K registerManager(ShuffleDescriptor shuffleDescription, Class<K> managerClass) {
-    return registerManager(shuffleDescription, managerClass, null);
+  public <K extends ShuffleManager> K registerManager(ShuffleDescriptor shuffleDescriptor, Class<K> managerClass) {
+    return registerManager(shuffleDescriptor, managerClass, null);
   }
 
   @Override
-  public <K extends ShuffleManager> K registerManager(ShuffleDescriptor shuffleDescription, Class<K> managerClass, Configuration managerConf) {
+  public <K extends ShuffleManager> K registerManager(ShuffleDescriptor shuffleDescriptor, Class<K> managerClass, Configuration managerConf) {
     try {
       final Injector forkedInjector;
 
@@ -94,18 +95,18 @@ final class ShuffleDriverImpl implements ShuffleDriver {
         forkedInjector = injector.forkInjector(managerConf);
       }
 
-      forkedInjector.bindVolatileInstance(ShuffleDescriptor.class, shuffleDescription);
+      forkedInjector.bindVolatileInstance(ShuffleDescriptor.class, shuffleDescriptor);
       final K manager = forkedInjector.getInstance(managerClass);
-      if (managerMap.putIfAbsent(shuffleDescription.getShuffleName(), manager) != null) {
-        throw new RuntimeException(shuffleDescription.getShuffleName() + " was already submitted.");
+      if (managerMap.putIfAbsent(shuffleDescriptor.getShuffleName(), manager) != null) {
+        throw new RuntimeException(shuffleDescriptor.getShuffleName() + " was already submitted.");
       }
 
-      linkListener.registerLinkListener(manager.getShuffleName(), manager.getControlLinkListener());
-      messageHandler.registerMessageHandler(manager.getShuffleName(), manager.getControlMessageHandler());
+      linkListener.registerLinkListener(shuffleDescriptor.getShuffleName(), manager.getControlLinkListener());
+      messageHandler.registerMessageHandler(shuffleDescriptor.getShuffleName(), manager.getControlMessageHandler());
       return manager;
     } catch(final InjectionException exception) {
       throw new RuntimeException("An Injection error occurred while submitting topology "
-          + shuffleDescription.getShuffleName(), exception);
+          + shuffleDescriptor.getShuffleName(), exception);
     }
   }
 
@@ -126,9 +127,13 @@ final class ShuffleDriverImpl implements ShuffleDriver {
   public Configuration getTaskConfiguration(final String taskId) {
     final JavaConfigurationBuilder confBuilder = Tang.Factory.getTang().newConfigurationBuilder();
     for (final ShuffleManager manager : managerMap.values()) {
-      final Configuration topologyConf = manager.getTopologyConfigurationForTask(taskId);
-      if (topologyConf != null) {
-        confBuilder.bindSetEntry(SerializedShuffleSet.class, confSerializer.toString(topologyConf));
+      final Configuration descriptorConf = manager.getShuffleDescriptorConfigurationForTask(taskId);
+
+      if (descriptorConf != null) {
+        final Configuration shuffleConf = Tang.Factory.getTang().newConfigurationBuilder(descriptorConf)
+            .bindImplementation(ShuffleClient.class, manager.getClientClass())
+            .build();
+        confBuilder.bindSetEntry(SerializedShuffleSet.class, confSerializer.toString(shuffleConf));
       }
     }
     return confBuilder.build();

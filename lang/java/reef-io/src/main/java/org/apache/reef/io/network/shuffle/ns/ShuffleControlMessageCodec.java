@@ -26,7 +26,7 @@ import java.io.*;
 /**
  *
  */
-public class ShuffleControlMessageCodec implements StreamingCodec<ShuffleControlMessage> {
+public final class ShuffleControlMessageCodec implements StreamingCodec<ShuffleControlMessage> {
 
   @Inject
   public ShuffleControlMessageCodec() {

@@ -27,7 +27,7 @@ import org.apache.reef.wake.EventHandler;
  *
  */
 @DefaultImplementation(BaseTupleReceiver.class)
-public interface ShuffleTupleReceiver<K, V> extends ShuffleTupleOperator<K, V> {
+public interface TupleReceiver<K, V> extends TupleOperator<K, V> {
 
   void registerMessageHandler(EventHandler<Message<ShuffleTupleMessage<K, V>>> messageHandler);
 

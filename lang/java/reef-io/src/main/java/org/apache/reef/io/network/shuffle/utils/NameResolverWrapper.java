@@ -36,7 +36,7 @@ import java.net.InetSocketAddress;
 /**
  *
  */
-public class NameResolverWrapper implements NameResolver {
+public final class NameResolverWrapper implements NameResolver {
 
   private final NameClient nameClient;
 

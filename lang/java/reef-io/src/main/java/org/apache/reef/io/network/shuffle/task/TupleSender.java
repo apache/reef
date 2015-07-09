@@ -16,19 +16,29 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.io.network.shuffle.ns;
+package org.apache.reef.io.network.shuffle.task;
 
-import org.apache.reef.io.network.shuffle.task.Tuple;
+import org.apache.reef.io.network.Message;
+import org.apache.reef.io.network.shuffle.ns.ShuffleTupleMessage;
 import org.apache.reef.tang.annotations.DefaultImplementation;
-import org.apache.reef.wake.remote.Codec;
+import org.apache.reef.wake.remote.transport.LinkListener;
+
+import java.util.List;
 
 /**
  *
  */
-@DefaultImplementation(TupleCodecMapImpl.class)
-public interface TupleCodecMap {
+@DefaultImplementation(BaseTupleSender.class)
+public interface TupleSender<K, V> extends TupleOperator<K, V> {
 
-  Codec<Tuple> getTupleCodec(String topologyName, String groupingName);
+  int sendTuple(Tuple<K, V> tuple);
 
-  public void registerTupleCodec(String shuffleName, String groupingName, Codec<Tuple> tupleCodec);
+  int sendTuple(List<Tuple<K, V>> tupleList);
+
+  int sendTupleTo(String destNodeId, Tuple<K, V> tuple);
+
+  int sendTupleTo(String destNodeId, List<Tuple<K, V>> tupleList);
+
+  void registerLinkListener(LinkListener<Message<ShuffleTupleMessage<K, V>>> linkListener);
+
 }

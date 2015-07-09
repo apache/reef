@@ -16,25 +16,23 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.io.network.shuffle.topology;
+package org.apache.reef.io.network.shuffle.task;
 
-import org.apache.reef.tang.annotations.Name;
+import org.apache.reef.io.network.shuffle.descriptor.GroupingDescriptor;
+import org.apache.reef.io.network.shuffle.grouping.GroupingStrategy;
 
 import java.util.List;
 
 /**
  *
  */
-public interface ShuffleDescriptor {
+public interface TupleOperator<K, V> {
 
-  Class<? extends Name<String>> getShuffleName();
+  String getGroupingName();
 
-  List<String> getGroupingNameList();
+  GroupingDescriptor<K, V> getGroupingDescriptor();
 
-  GroupingDescriptor getGroupingDescriptor(String groupingName);
+  GroupingStrategy<K> getGroupingStrategy();
 
-  List<String> getSenderIdList(String groupingName);
-
-  List<String> getReceiverIdList(String groupingName);
-
+  List<String> getSelectedReceiverIdList(K key);
 }

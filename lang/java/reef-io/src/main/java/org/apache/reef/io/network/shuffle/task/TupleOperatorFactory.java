@@ -18,14 +18,16 @@
  */
 package org.apache.reef.io.network.shuffle.task;
 
-import org.apache.reef.io.network.shuffle.topology.GroupingDescriptor;
+import org.apache.reef.io.network.shuffle.descriptor.GroupingDescriptor;
+import org.apache.reef.tang.annotations.DefaultImplementation;
 
 /**
  *
  */
-public interface ShuffleTupleOperator<K, V> {
+@DefaultImplementation(BaseTupleOperatorFactory.class)
+public interface TupleOperatorFactory {
 
-  String getGroupingName();
+  <K, V> TupleReceiver<K, V> newTupleReceiver(final GroupingDescriptor groupingDescription);
 
-  GroupingDescriptor<K, V> getGroupingDescription();
+  <K, V> TupleSender<K, V> newTupleSender(final GroupingDescriptor groupingDescription);
 }

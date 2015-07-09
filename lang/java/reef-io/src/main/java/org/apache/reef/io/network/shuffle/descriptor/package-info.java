@@ -16,27 +16,4 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.io.network.shuffle.driver;
-
-import org.apache.reef.driver.task.CompletedTask;
-import org.apache.reef.driver.task.FailedTask;
-import org.apache.reef.driver.task.RunningTask;
-import org.apache.reef.io.network.shuffle.task.ShuffleClient;
-import org.apache.reef.io.network.shuffle.ShuffleController;
-import org.apache.reef.tang.Configuration;
-
-/**
- *
- */
-public interface ShuffleManager extends ShuffleController {
-
-  Configuration getShuffleDescriptorConfigurationForTask(String taskId);
-
-  Class<? extends ShuffleClient> getClientClass();
-
-  void onRunningTask(RunningTask runningTask);
-
-  void onFailedTask(FailedTask failedTask);
-
-  void onCompletedTask(CompletedTask completedTask);
-}
+package org.apache.reef.io.network.shuffle.descriptor;

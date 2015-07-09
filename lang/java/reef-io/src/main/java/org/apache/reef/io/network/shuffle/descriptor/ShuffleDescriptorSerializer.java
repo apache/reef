@@ -16,13 +16,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.io.network.shuffle.utils;
+package org.apache.reef.io.network.shuffle.descriptor;
 
 import org.apache.reef.io.network.shuffle.params.*;
-import org.apache.reef.io.network.shuffle.task.ShuffleClient;
-import org.apache.reef.io.network.shuffle.topology.GroupingDescription;
-import org.apache.reef.io.network.shuffle.topology.GroupingDescriptor;
-import org.apache.reef.io.network.shuffle.topology.ShuffleDescriptor;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.JavaConfigurationBuilder;
 import org.apache.reef.tang.Tang;
@@ -34,22 +30,18 @@ import java.util.List;
 /**
  *
  */
-public final class ClientConfigurationSerializer {
+public final class ShuffleDescriptorSerializer {
 
   private final ConfigurationSerializer confSerializer;
 
   @Inject
-  public ClientConfigurationSerializer(
+  public ShuffleDescriptorSerializer(
       final ConfigurationSerializer confSerializer) {
     this.confSerializer = confSerializer;
   }
 
-  public Configuration serialize(final String taskId, final ShuffleDescriptor shuffleDescriptor,
-                                 Class<? extends ShuffleClient> clientClass) {
-    final JavaConfigurationBuilder confBuilder = Tang.Factory.getTang().newConfigurationBuilder();
-    confBuilder.bindNamedParameter(SerializedShuffleName.class, shuffleDescriptor.getShuffleName().getName());
-    confBuilder.bindImplementation(ShuffleClient.class, clientClass);
-
+  public Configuration getConfigurationHasTaskId(final ShuffleDescriptor shuffleDescriptor, final String taskId, final Configuration baseConf) {
+    final JavaConfigurationBuilder confBuilder = getBaseConfigurationBuilder(shuffleDescriptor, baseConf);
     boolean isTaskIncludedSomeGrouping = false;
 
     for (final String groupingName : shuffleDescriptor.getGroupingNameList()) {
@@ -59,8 +51,7 @@ public final class ClientConfigurationSerializer {
       final List<String> receiverIdList = shuffleDescriptor.getReceiverIdList(groupingName);
       if (senderIdList.contains(taskId) || receiverIdList.contains(taskId)) {
         isTaskIncludedSomeGrouping = true;
-        confBuilder.bindSetEntry(SerializedGroupingSet.class,
-            confSerializer.toString(serializeGroupingDescriptorWithSenderReceiver(shuffleDescriptor, groupingDescriptor)));
+        bindGroupingDescription(confBuilder, shuffleDescriptor, groupingDescriptor);
       }
     }
 
@@ -71,13 +62,56 @@ public final class ClientConfigurationSerializer {
     return confBuilder.build();
   }
 
+  public Configuration getConfigurationHasTaskId(final ShuffleDescriptor shuffleDescriptor, final String taskId) {
+    return getConfigurationHasTaskId(shuffleDescriptor, taskId, null);
+  }
+
+  public Configuration getConfiguration(final ShuffleDescriptor shuffleDescriptor, final Configuration baseConf) {
+    final JavaConfigurationBuilder confBuilder = getBaseConfigurationBuilder(shuffleDescriptor, baseConf);
+
+    for (final String groupingName : shuffleDescriptor.getGroupingNameList()) {
+      final GroupingDescriptor groupingDescriptor = shuffleDescriptor.getGroupingDescriptor(groupingName);
+      bindGroupingDescription(confBuilder, shuffleDescriptor, groupingDescriptor);
+    }
+
+    return confBuilder.build();
+  }
+
+  public Configuration getConfiguration(final ShuffleDescriptor shuffleDescriptor) {
+    return getConfiguration(shuffleDescriptor, null);
+  }
+
+  private JavaConfigurationBuilder getBaseConfigurationBuilder(
+      final ShuffleDescriptor shuffleDescriptor,
+      final Configuration baseConf) {
+
+    final JavaConfigurationBuilder confBuilder;
+    if (baseConf != null) {
+      confBuilder = Tang.Factory.getTang().newConfigurationBuilder(baseConf);
+    } else {
+      confBuilder = Tang.Factory.getTang().newConfigurationBuilder();
+    }
+
+    confBuilder.bindNamedParameter(SerializedShuffleName.class, shuffleDescriptor.getShuffleName().getName());
+    return confBuilder;
+  }
+
+  private void bindGroupingDescription(
+      final JavaConfigurationBuilder confBuilder,
+      final ShuffleDescriptor shuffleDescriptor,
+      final GroupingDescriptor groupingDescriptor) {
+    final Configuration groupingConfiguration = serializeGroupingDescriptorWithSenderReceiver(
+        shuffleDescriptor, groupingDescriptor);
+
+    confBuilder.bindSetEntry(SerializedGroupingSet.class, confSerializer.toString(groupingConfiguration));
+  }
+
   private Configuration serializeGroupingDescriptorWithSenderReceiver(
       final ShuffleDescriptor shuffleDescriptor, final GroupingDescriptor groupingDescriptor) {
 
     final String groupingName = groupingDescriptor.getGroupingName();
 
     final JavaConfigurationBuilder confBuilder = Tang.Factory.getTang().newConfigurationBuilder();
-    confBuilder.bindImplementation(GroupingDescriptor.class, GroupingDescription.class);
     confBuilder.bindNamedParameter(GroupingName.class, groupingName);
     confBuilder.bindNamedParameter(GroupingStrategyClassName.class, groupingDescriptor.getGroupingStrategyClass().getName());
     confBuilder.bindNamedParameter(GroupingKeyCodecClassName.class, groupingDescriptor.getKeyCodec().getName());

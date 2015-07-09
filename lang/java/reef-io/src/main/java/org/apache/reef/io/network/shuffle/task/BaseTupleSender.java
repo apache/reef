@@ -18,19 +18,23 @@
  */
 package org.apache.reef.io.network.shuffle.task;
 
+import org.apache.reef.driver.task.TaskConfigurationOptions;
 import org.apache.reef.exception.evaluator.NetworkException;
 import org.apache.reef.io.network.Connection;
 import org.apache.reef.io.network.ConnectionFactory;
 import org.apache.reef.io.network.Message;
+import org.apache.reef.io.network.impl.NSMessage;
 import org.apache.reef.io.network.naming.NameServerParameters;
+import org.apache.reef.io.network.shuffle.grouping.GroupingStrategy;
 import org.apache.reef.io.network.shuffle.ns.ShuffleTupleMessage;
-import org.apache.reef.io.network.shuffle.params.ReceiverIdList;
-import org.apache.reef.io.network.shuffle.topology.GroupingDescriptor;
+import org.apache.reef.io.network.shuffle.descriptor.GroupingDescriptor;
 import org.apache.reef.tang.annotations.Parameter;
+import org.apache.reef.wake.Identifier;
 import org.apache.reef.wake.IdentifierFactory;
 import org.apache.reef.wake.remote.transport.LinkListener;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,43 +42,34 @@ import java.util.Map;
 /**
  *
  */
-public final class BaseTupleSender<K, V> implements ShuffleTupleSender<K, V> {
+public final class BaseTupleSender<K, V> implements TupleSender<K, V> {
 
-  private final ShuffleClient topologyClient;
+  private final ShuffleClient shuffleClient;
   private final ConnectionFactory<ShuffleTupleMessage> connFactory;
   private final Map<String, Connection<ShuffleTupleMessage>> connMap;
   private final IdentifierFactory idFactory;
-  private final List<String> receiverIdList;
-  private final GroupingDescriptor<K, V> groupingDescription;
+  private final Identifier taskId;
+  private final GroupingDescriptor<K, V> groupingDescriptor;
+  private final GroupingStrategy<K> groupingStrategy;
   private final ShuffleTupleSerializer<K, V> tupleSerializer;
 
   @Inject
   public BaseTupleSender(
-      final ShuffleClient topologyClient,
+      final ShuffleClient shuffleClient,
       final ConnectionFactory<ShuffleTupleMessage> connFactory,
       final @Parameter(NameServerParameters.NameServerIdentifierFactory.class) IdentifierFactory idFactory,
-      final @Parameter(ReceiverIdList.class) List<String> receiverIdList,
-      final GroupingDescriptor<K, V> groupingDescription,
+      final @Parameter(TaskConfigurationOptions.Identifier.class) String taskId,
+      final GroupingDescriptor<K, V> groupingDescriptor,
+      final GroupingStrategy<K> groupingStrategy,
       final ShuffleTupleSerializer<K, V> tupleSerializer) {
-    this.topologyClient = topologyClient;
+    this.shuffleClient = shuffleClient;
     this.connFactory = connFactory;
     this.idFactory = idFactory;
+    this.taskId = idFactory.getNewInstance(taskId);
     this.connMap = new HashMap<>();
-    this.receiverIdList = receiverIdList;
-    this.groupingDescription = groupingDescription;
+    this.groupingDescriptor = groupingDescriptor;
+    this.groupingStrategy = groupingStrategy;
     this.tupleSerializer = tupleSerializer;
-    createConnections();
-  }
-
-  private void createConnections() {
-    for (final String nodeId : receiverIdList) {
-      createConnection(nodeId);
-    }
-  }
-
-  private void createConnection(final String nodeId) {
-    final Connection<ShuffleTupleMessage> connection = connFactory.newConnection(idFactory.getNewInstance(nodeId));
-    connMap.put(nodeId, connection);
   }
 
   @Override
@@ -88,41 +83,71 @@ public final class BaseTupleSender<K, V> implements ShuffleTupleSender<K, V> {
   }
 
   @Override
-  public int sendTuple(final K key, final List<V> valueList) {
-    return sendShuffleMessageTupleList(tupleSerializer.serializeTuple(key, valueList));
+  public int sendTupleTo(final String destNodeId, final Tuple<K, V> tuple) {
+    final List<Tuple<String, ShuffleTupleMessage<K, V>>> shuffleMessageTupleList = new ArrayList<>(1);
+    shuffleMessageTupleList.add(new Tuple<>(destNodeId, tupleSerializer.createShuffleTupleMessage(tuple)));
+    return sendShuffleMessageTupleList(shuffleMessageTupleList);
+  }
+
+  @Override
+  public int sendTupleTo(final String destNodeId, final List<Tuple<K, V>> tupleList) {
+    final List<Tuple<String, ShuffleTupleMessage<K, V>>> shuffleMessageTupleList = new ArrayList<>(1);
+    shuffleMessageTupleList.add(new Tuple<>(destNodeId, tupleSerializer.createShuffleTupleMessage(tupleList)));
+    return sendShuffleMessageTupleList(shuffleMessageTupleList);
   }
 
   @Override
   public void registerLinkListener(final LinkListener<Message<ShuffleTupleMessage<K, V>>> linkListener) {
-    topologyClient.registerLinkListener(getGroupingName(), linkListener);
+    shuffleClient.registerLinkListener(getGroupingName(), linkListener);
   }
 
-  private int sendShuffleMessageTupleList(final List<Tuple<String, ShuffleTupleMessage>> messageTupleList) {
-    for (final Tuple<String, ShuffleTupleMessage> shuffleMessageTuple : messageTupleList) {
+  private int sendShuffleMessageTupleList(final List<Tuple<String, ShuffleTupleMessage<K, V>>> messageTupleList) {
+    for (final Tuple<String, ShuffleTupleMessage<K, V>> shuffleMessageTuple : messageTupleList) {
       sendShuffleMessageTuple(shuffleMessageTuple);
     }
 
     return messageTupleList.size();
   }
 
-  private void sendShuffleMessageTuple(final Tuple<String, ShuffleTupleMessage> messageTuple) {
-    topologyClient.waitForTopologySetup();
+  private void sendShuffleMessageTuple(final Tuple<String, ShuffleTupleMessage<K, V>> messageTuple) {
+    shuffleClient.waitForSetup();
 
-    try {
-      connMap.get(messageTuple.getKey()).open();
-      connMap.get(messageTuple.getKey()).write(messageTuple.getValue());
-    } catch (NetworkException e) {
-      throw new RuntimeException(e);
+    if (!connMap.containsKey(messageTuple.getKey())) {
+      try {
+        final Connection<ShuffleTupleMessage> connection = connFactory.newConnection(idFactory.getNewInstance(messageTuple.getKey()));
+        connection.open();
+        connMap.put(messageTuple.getKey(), connection);
+      } catch (final NetworkException exception) {
+        shuffleClient.getTupleLinkListener().onException(
+            exception, null, createShuffleTupleNetworkMessage(messageTuple.getKey(), messageTuple.getValue()));
+      }
     }
+
+    connMap.get(messageTuple.getKey()).write(messageTuple.getValue());
+  }
+
+  private Message<ShuffleTupleMessage> createShuffleTupleNetworkMessage(final String destId, final ShuffleTupleMessage message) {
+    return new NSMessage<>(taskId, idFactory.getNewInstance(destId), message);
   }
 
   @Override
   public String getGroupingName() {
-    return groupingDescription.getGroupingName();
+    return groupingDescriptor.getGroupingName();
   }
 
   @Override
-  public GroupingDescriptor<K, V> getGroupingDescription() {
-    return groupingDescription;
+  public GroupingDescriptor<K, V> getGroupingDescriptor() {
+    return groupingDescriptor;
+  }
+
+  @Override
+  public GroupingStrategy<K> getGroupingStrategy() {
+    return groupingStrategy;
+  }
+
+  @Override
+  public List<String> getSelectedReceiverIdList(K key) {
+    return groupingStrategy.selectReceivers(key,
+        shuffleClient.getShuffleDescriptor().getReceiverIdList(groupingDescriptor.getGroupingName()));
   }
 }

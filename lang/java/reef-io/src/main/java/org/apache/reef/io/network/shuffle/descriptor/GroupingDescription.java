@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.io.network.shuffle.topology;
+package org.apache.reef.io.network.shuffle.descriptor;
 
 import org.apache.reef.io.network.shuffle.grouping.GroupingStrategy;
 import org.apache.reef.io.network.shuffle.params.GroupingKeyCodecClassName;

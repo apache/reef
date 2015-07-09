@@ -20,6 +20,7 @@ package org.apache.reef.io.network.shuffle.task;
 
 import org.apache.reef.io.network.shuffle.ns.*;
 import org.apache.reef.io.network.shuffle.params.SerializedShuffleSet;
+import org.apache.reef.io.network.shuffle.descriptor.ShuffleDescriptor;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Injector;
 import org.apache.reef.tang.annotations.Name;
@@ -34,7 +35,7 @@ import java.util.Set;
 final class ShuffleServiceImpl implements ShuffleService {
 
   private final Map<String, ShuffleClient> clientMap;
-  private final TupleCodecMap tupleCodecMap;
+  private final GlobalTupleCodecMap globalTupleCodecMap;
 
   private final Injector rootInjector;
   private final ConfigurationSerializer confSerializer;
@@ -54,12 +55,12 @@ final class ShuffleServiceImpl implements ShuffleService {
       final ShuffleControlLinkListener shuffleControlLinkListener,
       final ShuffleTupleMessageHandler shuffleTupleMessageHandler,
       final ShuffleTupleLinkListener shuffleTupleLinkListener,
-      final TupleCodecMap tupleCodecMap) {
+      final GlobalTupleCodecMap globalTupleCodecMap) {
 
     this.rootInjector = rootInjector;
     this.confSerializer = confSerializer;
     this.clientMap = new HashMap<>();
-    this.tupleCodecMap = tupleCodecMap;
+    this.globalTupleCodecMap = globalTupleCodecMap;
     this.shuffleControlLinkListener = shuffleControlLinkListener;
     this.shuffleControlMessageHandler = shuffleControlMessageHandler;
     this.shuffleTupleMessageHandler = shuffleTupleMessageHandler;
@@ -78,11 +79,12 @@ final class ShuffleServiceImpl implements ShuffleService {
       final Configuration topologyConfig = confSerializer.fromString(serializedTopology);
       final Injector injector = rootInjector.forkInjector(topologyConfig);
       final ShuffleClient client = injector.getInstance(ShuffleClient.class);
-      shuffleControlLinkListener.registerLinkListener(client.getShuffleName(), client.getControlLinkListener());
-      shuffleControlMessageHandler.registerMessageHandler(client.getShuffleName(), client.getControlMessageHandler());
-      shuffleTupleLinkListener.registerLinkListener(client.getShuffleName(), client.getTupleLinkListener());
-      shuffleTupleMessageHandler.registerMessageHandler(client.getShuffleName(), client.getTupleMessageHandler());
-      clientMap.put(client.getShuffleName().getName(), client);
+      final ShuffleDescriptor descriptor = client.getShuffleDescriptor();
+      shuffleControlLinkListener.registerLinkListener(descriptor.getShuffleName(), client.getControlLinkListener());
+      shuffleControlMessageHandler.registerMessageHandler(descriptor.getShuffleName(), client.getControlMessageHandler());
+      shuffleTupleLinkListener.registerLinkListener(descriptor.getShuffleName(), client.getTupleLinkListener());
+      shuffleTupleMessageHandler.registerMessageHandler(descriptor.getShuffleName(), client.getTupleMessageHandler());
+      clientMap.put(descriptor.getShuffleName().getName(), client);
       registTupleCodecs(client);
     } catch (final Exception exception) {
       throw new RuntimeException("An Exception occurred while deserializing topology " + serializedTopology, exception);
@@ -90,8 +92,9 @@ final class ShuffleServiceImpl implements ShuffleService {
   }
 
   private void registTupleCodecs(final ShuffleClient client) {
-    for (final String groupingName : client.getGroupingNameList()) {
-      tupleCodecMap.registerTupleCodec(client.getShuffleName().getName(), groupingName, client.getTupleCodec(groupingName));
+    final ShuffleDescriptor descriptor = client.getShuffleDescriptor();
+    for (final String groupingName : descriptor.getGroupingNameList()) {
+      globalTupleCodecMap.registerTupleCodec(descriptor.getShuffleName().getName(), groupingName, client.getTupleCodec(groupingName));
     }
   }
 

@@ -16,4 +16,27 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.io.network.shuffle.topology;
+package org.apache.reef.io.network.shuffle.descriptor;
+
+import org.apache.reef.tang.annotations.DefaultImplementation;
+import org.apache.reef.tang.annotations.Name;
+
+import java.util.List;
+
+/**
+ *
+ */
+@DefaultImplementation(ShuffleDescription.class)
+public interface ShuffleDescriptor {
+
+  Class<? extends Name<String>> getShuffleName();
+
+  List<String> getGroupingNameList();
+
+  GroupingDescriptor getGroupingDescriptor(String groupingName);
+
+  List<String> getSenderIdList(String groupingName);
+
+  List<String> getReceiverIdList(String groupingName);
+
+}

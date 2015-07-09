@@ -18,25 +18,17 @@
  */
 package org.apache.reef.io.network.shuffle.task;
 
-import org.apache.reef.io.network.Message;
-import org.apache.reef.io.network.shuffle.ns.ShuffleTupleMessage;
+import org.apache.reef.io.network.shuffle.descriptor.GroupingDescriptor;
 import org.apache.reef.tang.annotations.DefaultImplementation;
-import org.apache.reef.wake.remote.transport.LinkListener;
-
-import java.util.List;
+import org.apache.reef.wake.remote.Codec;
 
 /**
  *
  */
-@DefaultImplementation(BaseTupleSender.class)
-public interface ShuffleTupleSender<K, V> extends ShuffleTupleOperator<K, V> {
+@DefaultImplementation(ClientTupleCodecMapImpl.class)
+public interface ClientTupleCodecMap {
 
-  int sendTuple(Tuple<K, V> tuple);
+  Codec<Tuple> getTupleCodec(String groupingName);
 
-  int sendTuple(List<Tuple<K, V>> tupleList);
-
-  int sendTuple(K key, List<V> valueList);
-
-  void registerLinkListener(LinkListener<Message<ShuffleTupleMessage<K, V>>> linkListener);
-
+  public void registerTupleCodec(GroupingDescriptor groupingDescriptor);
 }

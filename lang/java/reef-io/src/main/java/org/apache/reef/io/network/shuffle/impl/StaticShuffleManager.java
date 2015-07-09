@@ -27,11 +27,11 @@ import org.apache.reef.io.network.naming.NameServerParameters;
 import org.apache.reef.io.network.shuffle.driver.ShuffleManager;
 import org.apache.reef.io.network.shuffle.ns.ShuffleControlMessage;
 import org.apache.reef.io.network.shuffle.params.ShuffleControlMessageNSId;
-import org.apache.reef.io.network.shuffle.topology.GroupingDescriptor;
-import org.apache.reef.io.network.shuffle.topology.ShuffleDescriptor;
-import org.apache.reef.io.network.shuffle.utils.ClientConfigurationSerializer;
+import org.apache.reef.io.network.shuffle.task.ShuffleClient;
+import org.apache.reef.io.network.shuffle.descriptor.GroupingDescriptor;
+import org.apache.reef.io.network.shuffle.descriptor.ShuffleDescriptor;
+import org.apache.reef.io.network.shuffle.descriptor.ShuffleDescriptorSerializer;
 import org.apache.reef.tang.Configuration;
-import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.IdentifierFactory;
@@ -39,7 +39,6 @@ import org.apache.reef.wake.remote.transport.LinkListener;
 
 import javax.inject.Inject;
 import java.net.SocketAddress;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -51,7 +50,7 @@ public final class StaticShuffleManager implements ShuffleManager {
   private static final Logger LOG = Logger.getLogger(StaticShuffleManager.class.getName());
 
   private final ShuffleDescriptor initialShuffleDescriptor;
-  private final ClientConfigurationSerializer confSerializer;
+  private final ShuffleDescriptorSerializer shuffleDescriptorSerializer;
   private final ShuffleLinkListener shuffleLinkListener;
   private final ShuffleMessageHandler shuffleMessageHandler;
   private final TaskEntityMap taskEntityMap;
@@ -59,11 +58,11 @@ public final class StaticShuffleManager implements ShuffleManager {
   @Inject
   public StaticShuffleManager(
       final ShuffleDescriptor initialShuffleDescriptor,
-      final ClientConfigurationSerializer confSerializer,
+      final ShuffleDescriptorSerializer shuffleDescriptorSerializer,
       final @Parameter(NameServerParameters.NameServerIdentifierFactory.class) IdentifierFactory idFactory,
       final NetworkServiceClient nsClient) {
     this.initialShuffleDescriptor = initialShuffleDescriptor;
-    this.confSerializer = confSerializer;
+    this.shuffleDescriptorSerializer = shuffleDescriptorSerializer;
     this.shuffleLinkListener = new ShuffleLinkListener();
     this.shuffleMessageHandler = new ShuffleMessageHandler();
     this.taskEntityMap = new TaskEntityMap(initialShuffleDescriptor, idFactory,
@@ -86,31 +85,6 @@ public final class StaticShuffleManager implements ShuffleManager {
   }
 
   @Override
-  public Class<? extends Name<String>> getShuffleName() {
-    return initialShuffleDescriptor.getShuffleName();
-  }
-
-  @Override
-  public List<String> getGroupingNameList() {
-    return initialShuffleDescriptor.getGroupingNameList();
-  }
-
-  @Override
-  public GroupingDescriptor getGroupingDescriptor(final String groupingName) {
-    return initialShuffleDescriptor.getGroupingDescriptor(groupingName);
-  }
-
-  @Override
-  public List<String> getSenderIdList(final String groupingName) {
-    return initialShuffleDescriptor.getSenderIdList(groupingName);
-  }
-
-  @Override
-  public List<String> getReceiverIdList(final String groupingName) {
-    return initialShuffleDescriptor.getReceiverIdList(groupingName);
-  }
-
-  @Override
   public EventHandler<Message<ShuffleControlMessage>> getControlMessageHandler() {
     return shuffleMessageHandler;
   }
@@ -121,8 +95,18 @@ public final class StaticShuffleManager implements ShuffleManager {
   }
 
   @Override
-  public Configuration getTopologyConfigurationForTask(final String taskId) {
-    return confSerializer.serialize(taskId, initialShuffleDescriptor, StaticShuffleClient.class);
+  public ShuffleDescriptor getShuffleDescriptor() {
+    return initialShuffleDescriptor;
+  }
+
+  @Override
+  public Configuration getShuffleDescriptorConfigurationForTask(final String taskId) {
+    return shuffleDescriptorSerializer.getConfigurationHasTaskId(initialShuffleDescriptor, taskId);
+  }
+
+  @Override
+  public Class<? extends ShuffleClient> getClientClass() {
+    return StaticShuffleClient.class;
   }
 
   @Override
@@ -139,7 +123,6 @@ public final class StaticShuffleManager implements ShuffleManager {
   public void onCompletedTask(final CompletedTask completedTask) {
     taskEntityMap.onTaskStop(completedTask.getId());
   }
-
 
   private final class ShuffleLinkListener implements LinkListener<Message<ShuffleControlMessage>> {
 

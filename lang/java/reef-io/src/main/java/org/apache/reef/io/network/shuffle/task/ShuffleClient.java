@@ -19,10 +19,10 @@
 package org.apache.reef.io.network.shuffle.task;
 
 import org.apache.reef.io.network.Message;
-import org.apache.reef.io.network.impl.StreamingCodec;
 import org.apache.reef.io.network.shuffle.ns.ShuffleTupleMessage;
-import org.apache.reef.io.network.shuffle.topology.ShuffleController;
+import org.apache.reef.io.network.shuffle.ShuffleController;
 import org.apache.reef.wake.EventHandler;
+import org.apache.reef.wake.remote.Codec;
 import org.apache.reef.wake.remote.transport.LinkListener;
 
 /**
@@ -30,17 +30,17 @@ import org.apache.reef.wake.remote.transport.LinkListener;
  */
 public interface ShuffleClient extends ShuffleController {
 
-  boolean waitForTopologySetup();
+  boolean waitForSetup();
 
   EventHandler<Message<ShuffleTupleMessage>> getTupleMessageHandler();
 
   LinkListener<Message<ShuffleTupleMessage>> getTupleLinkListener();
 
-  StreamingCodec<Tuple> getTupleCodec(String groupingName);
+  Codec<Tuple> getTupleCodec(String groupingName);
 
-  <K, V> ShuffleTupleReceiver<K, V> getReceiver(String groupingName);
+  <K, V> TupleReceiver<K, V> getReceiver(String groupingName);
 
-  <K, V> ShuffleTupleSender<K, V> getSender(String groupingName);
+  <K, V> TupleSender<K, V> getSender(String groupingName);
 
   <K, V> void registerLinkListener(String groupingName, LinkListener<Message<ShuffleTupleMessage<K, V>>> linkListener);
 

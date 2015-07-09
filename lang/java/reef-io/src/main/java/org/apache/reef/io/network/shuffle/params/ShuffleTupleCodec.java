@@ -22,10 +22,11 @@ import org.apache.reef.io.network.impl.StreamingCodec;
 import org.apache.reef.io.network.shuffle.task.Tuple;
 import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
+import org.apache.reef.wake.remote.Codec;
 
 /**
  *
  */
 @NamedParameter
-public final class ShuffleTupleCodec implements Name<StreamingCodec<Tuple>> {
+public final class ShuffleTupleCodec implements Name<Codec<Tuple>> {
 }

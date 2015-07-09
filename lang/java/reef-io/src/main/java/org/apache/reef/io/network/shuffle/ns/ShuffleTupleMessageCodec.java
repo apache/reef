@@ -30,11 +30,11 @@ import java.io.*;
  */
 public final class ShuffleTupleMessageCodec implements StreamingCodec<ShuffleTupleMessage> {
 
-  private final TupleCodecMap tupleCodecMap;
+  private final GlobalTupleCodecMap globalTupleCodecMap;
 
   @Inject
-  public ShuffleTupleMessageCodec(final TupleCodecMap tupleCodecMap) {
-    this.tupleCodecMap = tupleCodecMap;
+  public ShuffleTupleMessageCodec(final GlobalTupleCodecMap globalTupleCodecMap) {
+    this.globalTupleCodecMap = globalTupleCodecMap;
   }
 
   @Override
@@ -78,7 +78,7 @@ public final class ShuffleTupleMessageCodec implements StreamingCodec<ShuffleTup
       stream.writeInt(msg.getDataLength());
 
       final int messageLength = msg.getDataLength();
-      final Codec<Tuple> tupleCodec = tupleCodecMap.getTupleCodec(msg.getTopologyName(), msg.getGroupingName());
+      final Codec<Tuple> tupleCodec = globalTupleCodecMap.getTupleCodec(msg.getTopologyName(), msg.getGroupingName());
       for (int i = 0; i < messageLength; i++) {
         if (tupleCodec instanceof StreamingCodec) {
           ((StreamingCodec<Tuple>)tupleCodec).encodeToStream(msg.getDataAt(i), stream);
@@ -110,7 +110,7 @@ public final class ShuffleTupleMessageCodec implements StreamingCodec<ShuffleTup
       final int dataNum = stream.readInt();
 
       final Tuple[] tupleArr = new Tuple[dataNum];
-      final Codec<Tuple> tupleCodec = tupleCodecMap.getTupleCodec(topologyName, groupingName);
+      final Codec<Tuple> tupleCodec = globalTupleCodecMap.getTupleCodec(topologyName, groupingName);
 
       for (int i = 0; i < dataNum; i++) {
         if (tupleCodec instanceof StreamingCodec) {

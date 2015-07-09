@@ -20,7 +20,7 @@ package org.apache.reef.examples.shuffle;
 
 import org.apache.reef.examples.shuffle.params.InputString;
 import org.apache.reef.examples.shuffle.params.WordCountTopology;
-import org.apache.reef.io.network.shuffle.task.ShuffleTupleSender;
+import org.apache.reef.io.network.shuffle.task.TupleSender;
 import org.apache.reef.io.network.shuffle.task.ShuffleService;
 import org.apache.reef.io.network.shuffle.task.Tuple;
 import org.apache.reef.tang.annotations.Parameter;
@@ -37,7 +37,7 @@ import java.util.Map;
  */
 public final class MapperTask implements Task {
 
-  private final ShuffleTupleSender<String, Integer> tupleSender;
+  private final TupleSender<String, Integer> tupleSender;
   private final String input;
   @Inject
   public MapperTask(

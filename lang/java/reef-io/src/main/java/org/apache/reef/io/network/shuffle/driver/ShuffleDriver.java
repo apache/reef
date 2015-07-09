@@ -21,7 +21,7 @@ package org.apache.reef.io.network.shuffle.driver;
 import org.apache.reef.driver.task.CompletedTask;
 import org.apache.reef.driver.task.FailedTask;
 import org.apache.reef.driver.task.RunningTask;
-import org.apache.reef.io.network.shuffle.topology.ShuffleDescriptor;
+import org.apache.reef.io.network.shuffle.descriptor.ShuffleDescriptor;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.annotations.DefaultImplementation;
 import org.apache.reef.tang.annotations.Name;

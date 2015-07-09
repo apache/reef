@@ -18,29 +18,19 @@
  */
 package org.apache.reef.io.network.shuffle.impl;
 
-import org.apache.reef.driver.task.TaskConfigurationOptions;
-import org.apache.reef.io.network.ConnectionFactory;
 import org.apache.reef.io.network.Message;
-import org.apache.reef.io.network.NetworkServiceClient;
-import org.apache.reef.io.network.impl.StreamingCodec;
 import org.apache.reef.io.network.shuffle.ns.ShuffleControlMessage;
 import org.apache.reef.io.network.shuffle.ns.ShuffleTupleMessage;
-import org.apache.reef.io.network.shuffle.params.*;
 import org.apache.reef.io.network.shuffle.task.*;
 import org.apache.reef.io.network.shuffle.task.Tuple;
-import org.apache.reef.io.network.shuffle.topology.GroupingDescriptor;
-import org.apache.reef.io.network.shuffle.utils.BaseTupleOperatorFactory;
-import org.apache.reef.io.network.shuffle.utils.ClientConfigurationDeserializer;
+import org.apache.reef.io.network.shuffle.descriptor.ShuffleDescriptor;
 import org.apache.reef.io.network.shuffle.utils.TupleMessageDispatcher;
-import org.apache.reef.tang.Injector;
-import org.apache.reef.tang.annotations.Name;
-import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.wake.EventHandler;
+import org.apache.reef.wake.remote.Codec;
 import org.apache.reef.wake.remote.transport.LinkListener;
 
 import javax.inject.Inject;
 import java.net.SocketAddress;
-import java.util.*;
 
 /**
  *
@@ -49,111 +39,50 @@ public final class StaticShuffleClient implements ShuffleClient {
 
   private boolean isTopologySetup;
 
-  private final Class<? extends Name<String>> shuffleName;
+  private final ShuffleDescriptor initialShuffleDescriptor;
+  private final ClientTupleCodecMap tupleCodecMap;
+  private final TupleOperatorFactory tupleOperatorFactory;
 
   private final TupleMessageDispatcher tupleMessageDispatcher;
-
   private final EventHandler<Message<ShuffleControlMessage>> controlMessageHandler;
   private final LinkListener<Message<ShuffleControlMessage>> controlLinkListener;
 
-  private final List<String> groupingNameList;
-  private final Map<String, GroupingDescriptor> groupingDescriptorMap;
-  private final Map<String, List<String>> senderIdListMap;
-  private final Map<String, List<String>> receiverIdListMap;
-  private final Map<String, StreamingCodec<Tuple>> tupleCodecMap;
-
-  private final BaseTupleOperatorFactory operatorFactory;
-  private final Map<String, BaseTupleReceiver> receiverMap;
-  private final Map<String, BaseTupleSender> senderMap;
-
   @Inject
   public StaticShuffleClient(
-      final @Parameter(SerializedShuffleName.class) String serializedShuffleName,
-      final @Parameter(TaskConfigurationOptions.Identifier.class) String taskId,
-      final NetworkServiceClient nsClient,
-      final Injector injector,
-      final ClientConfigurationDeserializer deserializer) {
+      final ShuffleDescriptor initialShuffleDescriptor,
+      final ClientTupleCodecMap tupleCodecMap,
+      final TupleOperatorFactory tupleOperatorFactory) {
 
-    try {
-      this.shuffleName = (Class<? extends Name<String>>) Class.forName(serializedShuffleName);
-    } catch (final ClassNotFoundException e) {
-      throw new RuntimeException(e);
-    }
-
+    this.initialShuffleDescriptor = initialShuffleDescriptor;
+    this.tupleOperatorFactory = tupleOperatorFactory;
+    this.tupleCodecMap = tupleCodecMap;
     this.tupleMessageDispatcher = new TupleMessageDispatcher();
-
-    this.isTopologySetup = false;
-
-    this.groupingDescriptorMap = deserializer.getGroupingDescriptorMap();
-    this.senderIdListMap = deserializer.getSenderIdListMap();
-    this.receiverIdListMap = deserializer.getReceiverIdListMap();
-    this.groupingNameList = deserializer.getGroupingNameList();
-    this.tupleCodecMap = deserializer.getTupleCodecMap();
-
-    this.senderMap = new HashMap<>();
-    this.receiverMap = new HashMap<>();
-
     this.controlMessageHandler = new ControlMessageHandler();
     this.controlLinkListener = new ControlLinkListener();
-
-    final ConnectionFactory<ShuffleTupleMessage> connFactory
-        = nsClient.getConnectionFactory(ShuffleTupleMessageNSId.class);
-
-    this.operatorFactory = new BaseTupleOperatorFactory(taskId, this, connFactory, injector);
-  }
-
-
-  @Override
-  public Class<? extends Name<String>> getShuffleName() {
-    return shuffleName;
   }
 
   @Override
-  public List<String> getGroupingNameList() {
-    return groupingNameList;
+  public ShuffleDescriptor getShuffleDescriptor() {
+    return initialShuffleDescriptor;
   }
 
   @Override
-  public GroupingDescriptor getGroupingDescriptor(String groupingName) {
-    return groupingDescriptorMap.get(groupingName);
-  }
-
-  @Override
-  public List<String> getSenderIdList(String groupingName) {
-    return senderIdListMap.get(groupingName);
-  }
-
-  @Override
-  public List<String> getReceiverIdList(String groupingName) {
-    return receiverIdListMap.get(groupingName);
-  }
-
-  @Override
-  public EventHandler<Message<ShuffleControlMessage>> getControlMessageHandler() {
-    return controlMessageHandler;
-  }
-
-  @Override
-  public LinkListener<Message<ShuffleControlMessage>> getControlLinkListener() {
-    return controlLinkListener;
-  }
-
-  @Override
-  public boolean waitForTopologySetup() {
-    synchronized(this) {
-      if (!isTopologySetup) {
+  public boolean waitForSetup() {
+    if (isTopologySetup) {
+      return false;
+    } else {
+      synchronized (this) {
         try {
           while (!isTopologySetup) {
             this.wait();
           }
+
+          return true;
         } catch (final InterruptedException e) {
           throw new RuntimeException("An InterruptedException occurred while waiting for topology set up", e);
         }
-
-        return true;
       }
     }
-    return false;
   }
 
   @Override
@@ -167,26 +96,18 @@ public final class StaticShuffleClient implements ShuffleClient {
   }
 
   @Override
-  public StreamingCodec<Tuple> getTupleCodec(String groupingName) {
-    return tupleCodecMap.get(groupingName);
+  public Codec<Tuple> getTupleCodec(String groupingName) {
+    return tupleCodecMap.getTupleCodec(groupingName);
   }
 
   @Override
-  public <K, V> ShuffleTupleReceiver<K, V> getReceiver(final String groupingName) {
-    if (!receiverMap.containsKey(groupingName)) {
-      receiverMap.put(groupingName, operatorFactory.createReceiverWith(groupingDescriptorMap.get(groupingName)));
-    }
-
-    return receiverMap.get(groupingName);
+  public <K, V> TupleReceiver<K, V> getReceiver(final String groupingName) {
+    return tupleOperatorFactory.newTupleReceiver(initialShuffleDescriptor.getGroupingDescriptor(groupingName));
   }
 
   @Override
-  public <K, V> ShuffleTupleSender<K, V> getSender(final String groupingName) {
-    if (!senderMap.containsKey(groupingName)) {
-      senderMap.put(groupingName, operatorFactory.createSenderWith(groupingDescriptorMap.get(groupingName)));
-    }
-
-    return senderMap.get(groupingName);
+  public <K, V> TupleSender<K, V> getSender(final String groupingName) {
+    return tupleOperatorFactory.newTupleSender(initialShuffleDescriptor.getGroupingDescriptor(groupingName));
   }
 
   @Override
@@ -197,6 +118,16 @@ public final class StaticShuffleClient implements ShuffleClient {
   @Override
   public <K, V> void registerMessageHandler(final String groupingName, final EventHandler<Message<ShuffleTupleMessage<K, V>>> messageHandler) {
     tupleMessageDispatcher.registerMessageHandler(groupingName, messageHandler);
+  }
+
+  @Override
+  public EventHandler<Message<ShuffleControlMessage>> getControlMessageHandler() {
+    return controlMessageHandler;
+  }
+
+  @Override
+  public LinkListener<Message<ShuffleControlMessage>> getControlLinkListener() {
+    return controlLinkListener;
   }
 
   private final class ControlMessageHandler implements EventHandler<Message<ShuffleControlMessage>> {

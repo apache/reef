@@ -16,20 +16,23 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.io.network.shuffle.topology;
+package org.apache.reef.io.network.shuffle;
 
 import org.apache.reef.io.network.Message;
 import org.apache.reef.io.network.shuffle.ns.ShuffleControlMessage;
+import org.apache.reef.io.network.shuffle.descriptor.ShuffleDescriptor;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.remote.transport.LinkListener;
 
 /**
  *
  */
-public interface ShuffleController extends ShuffleDescriptor {
+public interface ShuffleController {
 
   EventHandler<Message<ShuffleControlMessage>> getControlMessageHandler();
 
   LinkListener<Message<ShuffleControlMessage>> getControlLinkListener();
+
+  ShuffleDescriptor getShuffleDescriptor();
 
 }

@@ -28,22 +28,22 @@ import java.util.Map;
 /**
  *
  */
-final class TupleCodecMapImpl implements TupleCodecMap {
+final class GlobalTupleCodecMapImpl implements GlobalTupleCodecMap {
 
   private final Map<String, Map<String, Codec<Tuple>>> tupleCodecMap;
 
   @Inject
-  public TupleCodecMapImpl() {
+  public GlobalTupleCodecMapImpl() {
     this.tupleCodecMap = new HashMap<>();
   }
 
   @Override
-  public Codec<Tuple> getTupleCodec(final String topologyName, final String groupingName) {
-    return tupleCodecMap.get(topologyName).get(groupingName);
+  public Codec<Tuple> getTupleCodec(final String shuffleName, final String groupingName) {
+    return tupleCodecMap.get(shuffleName).get(groupingName);
   }
 
   @Override
-  public void registerTupleCodec(String shuffleName, String groupingName, Codec<Tuple> tupleCodec) {
+  public void registerTupleCodec(final String shuffleName, final String groupingName, final Codec<Tuple> tupleCodec) {
     if (!tupleCodecMap.containsKey(shuffleName)) {
       tupleCodecMap.put(shuffleName, new HashMap<String, Codec<Tuple>>());
     }

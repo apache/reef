@@ -37,8 +37,8 @@ import org.apache.reef.io.network.shuffle.driver.ShuffleDriver;
 import org.apache.reef.io.network.shuffle.grouping.impl.AllGroupingStrategy;
 import org.apache.reef.io.network.shuffle.grouping.impl.KeyGroupingStrategy;
 import org.apache.reef.io.network.shuffle.impl.StaticShuffleManager;
-import org.apache.reef.io.network.shuffle.topology.GroupingDescription;
-import org.apache.reef.io.network.shuffle.topology.ShuffleDescription;
+import org.apache.reef.io.network.shuffle.descriptor.GroupingDescription;
+import org.apache.reef.io.network.shuffle.descriptor.ShuffleDescription;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Configurations;
 import org.apache.reef.tang.Tang;
@@ -87,7 +87,6 @@ public final class WordCountDriver {
 
   @Inject
   public WordCountDriver(
-      final ConfigurationSerializer confSerializer,
       final EvaluatorRequestor requestor,
       final LocalAddressProvider localAddressProvider,
       final NameServer nameServer,

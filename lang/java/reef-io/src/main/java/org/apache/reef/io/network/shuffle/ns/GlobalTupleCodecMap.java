@@ -16,16 +16,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.io.network.shuffle.params;
+package org.apache.reef.io.network.shuffle.ns;
 
-import org.apache.reef.tang.annotations.Name;
-import org.apache.reef.tang.annotations.NamedParameter;
-
-import java.util.List;
+import org.apache.reef.io.network.shuffle.task.Tuple;
+import org.apache.reef.tang.annotations.DefaultImplementation;
+import org.apache.reef.wake.remote.Codec;
 
 /**
  *
  */
-@NamedParameter
-public final class ReceiverIdList implements Name<List<String>> {
+@DefaultImplementation(GlobalTupleCodecMapImpl.class)
+public interface GlobalTupleCodecMap {
+
+  Codec<Tuple> getTupleCodec(String shuffleName, String groupingName);
+
+  public void registerTupleCodec(String shuffleName, String groupingName, Codec<Tuple> tupleCodec);
 }
