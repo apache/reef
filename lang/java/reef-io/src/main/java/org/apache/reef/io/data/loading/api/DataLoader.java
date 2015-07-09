@@ -66,8 +66,6 @@ public class DataLoader {
 
   private static final Logger LOG = Logger.getLogger(DataLoader.class.getName());
 
-  private static final String NULL = "NULL";
-
   private final ConcurrentMap<String, Pair<Configuration, Configuration>> submittedDataEvalConfigs = new ConcurrentHashMap<>();
   private final ConcurrentMap<String, Configuration> submittedComputeEvalConfigs = new ConcurrentHashMap<>();
   private final BlockingQueue<Configuration> failedComputeEvalConfigs = new LinkedBlockingQueue<>();
@@ -99,11 +97,8 @@ public class DataLoader {
       @Parameter(DataLoadingRequestBuilder.DataLoadingEvaluatorMemoryMB.class) final int dataEvalMemoryMB,
       @Parameter(DataLoadingRequestBuilder.DataLoadingEvaluatorNumberOfCores.class) final int dataEvalCore,
       @Parameter(DataLoadingRequestBuilder.DataLoadingComputeRequest.class) final String serializedComputeRequest) {
-    // to disambiguate the constructors, DataLoadingRequestBuilder.DataLoadingComputeRequest has no default value
-    // instead, we pass the NULL string here to the other constructor and do the check there.
     this(clock, requestor, dataLoadingService, new HashSet<String>(
-        Arrays.asList(serializedComputeRequest == null ? NULL
-            : serializedComputeRequest)), new HashSet<String>(
+        Arrays.asList(serializedComputeRequest)), new HashSet<String>(
         Arrays.asList(EvaluatorRequestSerializer.serialize(EvaluatorRequest
             .newBuilder().setMemory(dataEvalMemoryMB)
             .setNumberOfCores(dataEvalCore).build()))));
@@ -150,11 +145,7 @@ public class DataLoader {
         this.resourceRequestHandler, serializedComputeRequests.size()
             + serializedDataRequests.size());
 
-    // check if the size == 1 and if equals to NULL to maintain previous functionality
-    // TODO once the other constructor is completely removed, we should just check for emptiness
-    if (serializedComputeRequests.isEmpty()
-        || serializedComputeRequests.size() == 1
-        && NULL.equals(serializedComputeRequests.iterator().next())) {
+    if (serializedComputeRequests.isEmpty()) {
       this.computeEvalMemoryMB = -1;
       this.computeEvalCore = 1;
     } else {

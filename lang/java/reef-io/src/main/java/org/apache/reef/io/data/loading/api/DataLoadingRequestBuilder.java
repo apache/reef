@@ -292,12 +292,18 @@ public final class DataLoadingRequestBuilder
   public static final class DataLoadingComputeRequest implements Name<String> {
   }
 
-  @NamedParameter
-  public static final class DataLoadingComputeRequests implements Name<Set<String>> {
+  /**
+   * Allows to specify a set of compute requests to send to the DataLoader
+   */
+  @NamedParameter(doc = "Sets of compute requests to request to the DataLoader, i.e. evaluators requests that will not load data")
+  static final class DataLoadingComputeRequests implements Name<Set<String>> {
   }
 
-  @NamedParameter
-  public static final class DataLoadingDataRequests implements Name<Set<String>> {
+  /**
+   * Allows to specify a set of data requests to send to the DataLoader
+   */
+  @NamedParameter(doc = "Sets of data requests to request to the DataLoader, i.e. evaluators requests that will load data")
+  static final class DataLoadingDataRequests implements Name<Set<String>> {
   }
 
   @NamedParameter(default_value = "false")
