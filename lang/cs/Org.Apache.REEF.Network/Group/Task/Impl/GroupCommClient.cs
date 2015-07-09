@@ -34,7 +34,6 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
     /// Used by Tasks to fetch CommunicationGroupClients.
     /// Writable version
     /// </summary>
-    // TODO: Need to remove Iwritable and use IstreamingCodec. Please see Jira REEF-295.
     public sealed class GroupCommClient : IGroupCommClient
     {
         private readonly Dictionary<string, ICommunicationGroupClientInternal> _commGroups;
@@ -50,11 +49,10 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         /// <param name="configSerializer">Used to deserialize Group Communication configuration</param>
         /// <param name="injector">injector forked from the injector that creates this instance</param>
         [Inject]
-        [Obsolete("Need to remove Iwritable and use IstreamingCodec. Please see Jira REEF-295 ", false)]
         public GroupCommClient(
             [Parameter(typeof(GroupCommConfigurationOptions.SerializedGroupConfigs))] ISet<string> groupConfigs,
             [Parameter(typeof(TaskConfigurationOptions.Identifier))] string taskId,
-            WritableNetworkService<GeneralGroupCommunicationMessage> networkService,
+            StreamingNetworkService<GeneralGroupCommunicationMessage> networkService,
             AvroConfigurationSerializer configSerializer,
             IInjector injector)
         {

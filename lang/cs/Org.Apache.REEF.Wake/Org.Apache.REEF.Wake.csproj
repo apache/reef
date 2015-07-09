@@ -49,7 +49,6 @@ under the License.
     <Compile Include="IIdentifier.cs" />
     <Compile Include="IIdentifierFactory.cs" />
     <Compile Include="Remote\Impl\RemoteEventStreamingCodec.cs" />
-    <Compile Include="Remote\Impl\TemporaryWritableToStreamingCodec.cs" />
     <Compile Include="Remote\Impl\StreamingRemoteManagerFactory.cs" />
     <Compile Include="Remote\Impl\DefaultRemoteManagerFactory.cs" />
     <Compile Include="Impl\LoggingEventHandler.cs" />
@@ -78,7 +77,6 @@ under the License.
     <Compile Include="Remote\Impl\StreamingTransportClient.cs" />
     <Compile Include="Remote\Impl\StreamingTransportServer.cs" />
     <Compile Include="Remote\IRemoteManagerFactory.cs" />
-    <Compile Include="Remote\IWritable.cs" />
     <Compile Include="Remote\Proto\WakeRemoteProtosGen.cs" />
     <Compile Include="Remote\ICodec.cs" />
     <Compile Include="Remote\ICodecFactory.cs" />

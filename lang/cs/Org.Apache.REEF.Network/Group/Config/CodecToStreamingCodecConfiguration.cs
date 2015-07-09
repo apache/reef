@@ -17,6 +17,7 @@
  * under the License.
  */
 
+using Org.Apache.REEF.Network.Group.Driver.Impl;
 using Org.Apache.REEF.Network.Group.Pipelining;
 using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Util;
@@ -38,7 +39,12 @@ namespace Org.Apache.REEF.Network.Group.Config
         public static ConfigurationModule Conf = new CodecToStreamingCodecConfiguration<T>()
             .BindImplementation(GenericType<ICodec<T>>.Class, Codec)
             .BindImplementation(GenericType<IStreamingCodec<T>>.Class, GenericType<CodecToStreamingCodec<T>>.Class)
-            .BindImplementation(GenericType<IStreamingCodec<PipelineMessage<T>>>.Class, GenericType<StreamingPipelineMessageCodec<T>>.Class)
+            .BindImplementation(GenericType<IStreamingCodec<PipelineMessage<T>>>.Class,
+                GenericType<StreamingPipelineMessageCodec<T>>.Class)
+            .BindImplementation(GenericType<IStreamingCodec<GroupCommunicationMessage<T>>>.Class,
+                GenericType<GroupCommunicationMessageStreamingCodec<T>>.Class)
+            .BindImplementation(GenericType<IStreamingCodec<GroupCommunicationMessage<PipelineMessage<T>>>>.Class,
+                GenericType<GroupCommunicationMessageStreamingCodec<PipelineMessage<T>>>.Class)
             .Build();
     }
 }

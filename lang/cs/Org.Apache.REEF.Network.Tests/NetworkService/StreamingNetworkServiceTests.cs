@@ -20,12 +20,16 @@
 using System;
 using System.Collections.Concurrent;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Net;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.Common.Io;
 using Org.Apache.REEF.Network.Naming;
 using Org.Apache.REEF.Network.NetworkService;
+using Org.Apache.REEF.Network.NetworkService.Codec;
 using Org.Apache.REEF.Network.Tests.NamingService;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Implementations.Tang;
@@ -34,27 +38,28 @@ using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Wake;
 using Org.Apache.REEF.Wake.Remote;
 using Org.Apache.REEF.Wake.Remote.Impl;
+using Org.Apache.REEF.Wake.StreamingCodec;
+using Org.Apache.REEF.Wake.StreamingCodec.CommonStreamingCodecs;
 using Org.Apache.REEF.Wake.Util;
 
 namespace Org.Apache.REEF.Network.Tests.NetworkService
 {
     /// <summary>
-    /// Tests for Writable Network Service
+    /// Tests for Streaming Network Service
     /// </summary>
     [TestClass]
-    [Obsolete("Need to remove Iwritable and use IstreamingCodec. Please see Jira REEF-295 ", false)]
-    public class WritableNetworkServiceTests
+    public class StreamingNetworkServiceTests
     {
         /// <summary>
         /// Tests one way communication between two network services
         /// </summary>
         [TestMethod]
-        public void TestWritableNetworkServiceOneWayCommunication()
+        public void TestStreamingNetworkServiceOneWayCommunication()
         {
             int networkServicePort1 = NetworkUtils.GenerateRandomPort(6000, 7000);
             int networkServicePort2 = NetworkUtils.GenerateRandomPort(7001, 8000);
 
-            BlockingCollection<WritableString> queue;
+            BlockingCollection<string> queue;
 
             using (var nameServer = NameServerTests.BuildNameServer())
             {
@@ -65,14 +70,14 @@ namespace Org.Apache.REEF.Network.Tests.NetworkService
                 var handlerConf1 =
                     TangFactory.GetTang()
                         .NewConfigurationBuilder()
-                        .BindImplementation(GenericType<IObserver<WritableNsMessage<WritableString>>>.Class,
+                        .BindImplementation(GenericType<IObserver<NsMessage<string>>>.Class,
                             GenericType<NetworkMessageHandler>.Class)
                         .Build();
 
                 var handlerConf2 =
                     TangFactory.GetTang()
                         .NewConfigurationBuilder()
-                        .BindImplementation(GenericType<IObserver<WritableNsMessage<WritableString>>>.Class,
+                        .BindImplementation(GenericType<IObserver<NsMessage<string>>>.Class,
                             GenericType<MessageHandler>.Class)
                         .Build();
 
@@ -82,8 +87,8 @@ namespace Org.Apache.REEF.Network.Tests.NetworkService
                 var networkServiceInjection2 = BuildNetworkService(networkServicePort2, nameServerPort, nameServerAddr,
                    handlerConf2);
 
-                using (INetworkService<WritableString> networkService1 = networkServiceInjection1.GetInstance<WritableNetworkService<WritableString>>())
-                using (INetworkService<WritableString> networkService2 = networkServiceInjection2.GetInstance<WritableNetworkService<WritableString>>())
+                using (INetworkService<string> networkService1 = networkServiceInjection1.GetInstance<StreamingNetworkService<string>>())
+                using (INetworkService<string> networkService2 = networkServiceInjection2.GetInstance<StreamingNetworkService<string>>())
                 {
                     queue = networkServiceInjection2.GetInstance<MessageHandler>().Queue;
                     IIdentifier id1 = new StringIdentifier("service1");
@@ -91,16 +96,16 @@ namespace Org.Apache.REEF.Network.Tests.NetworkService
                     networkService1.Register(id1);
                     networkService2.Register(id2);
 
-                    using (IConnection<WritableString> connection = networkService1.NewConnection(id2))
+                    using (IConnection<string> connection = networkService1.NewConnection(id2))
                     {
                         connection.Open();
-                        connection.Write(new WritableString("abc"));
-                        connection.Write(new WritableString("def"));
-                        connection.Write(new WritableString("ghi"));
+                        connection.Write("abc");
+                        connection.Write("def");
+                        connection.Write("ghi");
 
-                        Assert.AreEqual("abc", queue.Take().Data);
-                        Assert.AreEqual("def", queue.Take().Data);
-                        Assert.AreEqual("ghi", queue.Take().Data);
+                        Assert.AreEqual("abc", queue.Take());
+                        Assert.AreEqual("def", queue.Take());
+                        Assert.AreEqual("ghi", queue.Take());
                     }
                 }
             }
@@ -110,13 +115,13 @@ namespace Org.Apache.REEF.Network.Tests.NetworkService
         /// Tests two way communication between two network services
         /// </summary>
         [TestMethod]
-        public void TestWritableNetworkServiceTwoWayCommunication()
+        public void TestStreamingNetworkServiceTwoWayCommunication()
         {
             int networkServicePort1 = NetworkUtils.GenerateRandomPort(6000, 7000);
             int networkServicePort2 = NetworkUtils.GenerateRandomPort(7001, 8000);
 
-            BlockingCollection<WritableString> queue1;
-            BlockingCollection<WritableString> queue2;
+            BlockingCollection<string> queue1;
+            BlockingCollection<string> queue2;
 
             using (var nameServer = NameServerTests.BuildNameServer())
             {
@@ -127,7 +132,7 @@ namespace Org.Apache.REEF.Network.Tests.NetworkService
                 var handlerConf =
                     TangFactory.GetTang()
                         .NewConfigurationBuilder()
-                        .BindImplementation(GenericType<IObserver<WritableNsMessage<WritableString>>>.Class,
+                        .BindImplementation(GenericType<IObserver<NsMessage<string>>>.Class,
                             GenericType<MessageHandler>.Class)
                         .Build();
 
@@ -137,8 +142,8 @@ namespace Org.Apache.REEF.Network.Tests.NetworkService
                 var networkServiceInjection2 = BuildNetworkService(networkServicePort2, nameServerPort, nameServerAddr,
                    handlerConf);
 
-                using (INetworkService<WritableString> networkService1 = networkServiceInjection1.GetInstance<WritableNetworkService<WritableString>>())
-                using (INetworkService<WritableString> networkService2 = networkServiceInjection2.GetInstance<WritableNetworkService<WritableString>>())
+                using (INetworkService<string> networkService1 = networkServiceInjection1.GetInstance<StreamingNetworkService<string>>())
+                using (INetworkService<string> networkService2 = networkServiceInjection2.GetInstance<StreamingNetworkService<string>>())
                 {
                     queue1 = networkServiceInjection1.GetInstance<MessageHandler>().Queue;
                     queue2 = networkServiceInjection2.GetInstance<MessageHandler>().Queue;
@@ -148,27 +153,76 @@ namespace Org.Apache.REEF.Network.Tests.NetworkService
                     networkService1.Register(id1);
                     networkService2.Register(id2);
 
-                    using (IConnection<WritableString> connection1 = networkService1.NewConnection(id2))
-                    using (IConnection<WritableString> connection2 = networkService2.NewConnection(id1))
+                    using (IConnection<string> connection1 = networkService1.NewConnection(id2))
+                    using (IConnection<string> connection2 = networkService2.NewConnection(id1))
                     {
                         connection1.Open();
-                        connection1.Write(new WritableString("abc"));
-                        connection1.Write(new WritableString("def"));
-                        connection1.Write(new WritableString("ghi"));
+                        connection1.Write("abc");
+                        connection1.Write("def");
+                        connection1.Write("ghi");
 
                         connection2.Open();
-                        connection2.Write(new WritableString("jkl"));
-                        connection2.Write(new WritableString("nop"));
+                        connection2.Write("jkl");
+                        connection2.Write("nop");
 
-                        Assert.AreEqual("abc", queue2.Take().Data);
-                        Assert.AreEqual("def", queue2.Take().Data);
-                        Assert.AreEqual("ghi", queue2.Take().Data);
+                        Assert.AreEqual("abc", queue2.Take());
+                        Assert.AreEqual("def", queue2.Take());
+                        Assert.AreEqual("ghi", queue2.Take());
 
-                        Assert.AreEqual("jkl", queue1.Take().Data);
-                        Assert.AreEqual("nop", queue1.Take().Data);
+                        Assert.AreEqual("jkl", queue1.Take());
+                        Assert.AreEqual("nop", queue1.Take());
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Tests StreamingCodecFunctionCache
+        /// </summary>
+        [TestMethod]
+        public void TestStreamingCodecFunctionCache()
+        {
+            IConfiguration conf = TangFactory.GetTang().NewConfigurationBuilder()
+                .BindImplementation(GenericType<IStreamingCodec<B>>.Class, GenericType<BStreamingCodec>.Class)
+                .Build();
+            IInjector injector = TangFactory.GetTang().NewInjector(conf);
+            
+            StreamingCodecFunctionCache<A> cache = new StreamingCodecFunctionCache<A>(injector);
+
+            var readFunc = cache.ReadFunction(typeof(B));
+            var writeFunc = cache.WriteFunction(typeof (B));
+            var readAsyncFunc = cache.ReadAsyncFunction(typeof(B));
+            var writeAsyncFunc = cache.WriteAsyncFunction(typeof(B));
+
+            var stream = new MemoryStream();
+            IDataWriter writer = new StreamDataWriter(stream);
+            IDataReader reader = new StreamDataReader(stream);
+
+            B val = new B();
+            val.Value1 = "hello";
+            val.Value2 = "reef";
+
+            writeFunc(val, writer);
+
+            val.Value1 = "helloasync";
+            val.Value2 = "reefasync";
+            CancellationToken token = new CancellationToken();
+            
+            var asyncResult = writeAsyncFunc.BeginInvoke(val, writer, token, null, null);
+            writeAsyncFunc.EndInvoke(asyncResult);
+            
+            stream.Position = 0;
+            A res = readFunc(reader);
+            B resB1 = res as B;
+
+            asyncResult = readAsyncFunc.BeginInvoke(reader, token, null, null);
+            res = readAsyncFunc.EndInvoke(asyncResult);
+            B resB2 = res as B;
+            
+            Assert.AreEqual("hello", resB1.Value1);
+            Assert.AreEqual("reef", resB1.Value2);
+            Assert.AreEqual("helloasync", resB2.Value1);
+            Assert.AreEqual("reefasync", resB2.Value2);
         }
 
         /// <summary>
@@ -177,8 +231,7 @@ namespace Org.Apache.REEF.Network.Tests.NetworkService
         /// <param name="networkServicePort">The port that the NetworkService will listen on</param>
         /// <param name="nameServicePort">The port of the NameServer</param>
         /// <param name="nameServiceAddr">The ip address of the NameServer</param>
-        /// <param name="factory">Identifier factory for WritableString</param>
-        /// <param name="handler">The observer to handle incoming messages</param>
+        /// <param name="handlerConf">The configuration of observer to handle incoming messages</param>
         /// <returns></returns>
         private IInjector BuildNetworkService(
             int networkServicePort,
@@ -197,19 +250,65 @@ namespace Org.Apache.REEF.Network.Tests.NetworkService
                     GenericType<NamingConfigurationOptions.NameServerAddress>.Class,
                     nameServiceAddr)
                 .BindImplementation(GenericType<INameClient>.Class, GenericType<NameClient>.Class)
+                .BindImplementation(GenericType<IStreamingCodec<string>>.Class, GenericType<StringStreamingCodec>.Class)
                 .Build();
 
             return TangFactory.GetTang().NewInjector(networkServiceConf);
         }
 
-        /// <summary>
-        /// The observer to handle incoming messages for WritableString
-        /// </summary>
-        private class MessageHandler : IObserver<WritableNsMessage<WritableString>>
+        public class A
         {
-            private readonly BlockingCollection<WritableString> _queue;
+            public string Value1;
+        }
 
-            public BlockingCollection<WritableString> Queue
+        public class B : A
+        {
+            public string Value2;
+        }
+
+        public class BStreamingCodec : IStreamingCodec<B>
+        {
+            [Inject]
+            public BStreamingCodec()
+            {
+            }
+
+            public B Read(IDataReader reader)
+            {
+                B val = new B();
+                val.Value1 = reader.ReadString();
+                val.Value2 = reader.ReadString();
+                return val;
+            }
+
+            public void Write(B obj, IDataWriter writer)
+            {
+                writer.WriteString(obj.Value1);
+                writer.WriteString(obj.Value2);
+            }
+
+            public async Task<B> ReadAsync(IDataReader reader, CancellationToken token)
+            {
+                B val = new B();
+                val.Value1 = await reader.ReadStringAsync(token);
+                val.Value2 = await reader.ReadStringAsync(token);
+                return val;
+            }
+
+            public async Task WriteAsync(B obj, IDataWriter writer, CancellationToken token)
+            {
+                await writer.WriteStringAsync(obj.Value1, token);
+                await writer.WriteStringAsync(obj.Value2, token);
+            }
+        } 
+        /// <summary>
+        /// The observer to handle incoming messages for string
+        /// </summary>
+        private class MessageHandler : IObserver<NsMessage<string>>
+        {
+            private readonly BlockingCollection<string> _queue;
+
+            public BlockingCollection<string> Queue
             {
                 get { return _queue; }
             } 
@@ -217,10 +316,10 @@ namespace Org.Apache.REEF.Network.Tests.NetworkService
             [Inject]
             private MessageHandler()
             {
-                _queue = new BlockingCollection<WritableString>();
+                _queue = new BlockingCollection<string>();
             }
 
-            public void OnNext(WritableNsMessage<WritableString> value)
+            public void OnNext(NsMessage<string> value)
             {
                 _queue.Add(value.Data.First());
             }
@@ -237,16 +336,16 @@ namespace Org.Apache.REEF.Network.Tests.NetworkService
         }
 
         /// <summary>
-        /// The network handler to handle incoming Writable NsMessages
+        /// The network handler to handle incoming Streaming NsMessages
         /// </summary>
-        private class NetworkMessageHandler : IObserver<WritableNsMessage<WritableString>>
+        private class NetworkMessageHandler : IObserver<NsMessage<string>>
         {
             [Inject]
             public NetworkMessageHandler()
             {
             }
 
-            public void OnNext(WritableNsMessage<WritableString> value)
+            public void OnNext(NsMessage<string> value)
             {
             }
 

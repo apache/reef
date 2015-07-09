@@ -30,8 +30,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
     /// Handles incoming messages sent to this Communication Group.
     /// Writable version
     /// </summary>
-    // TODO: Need to remove Iwritable and use IstreamingCodec. Please see Jira REEF-295.
-    public sealed class CommunicationGroupNetworkObserver : ICommunicationGroupNetworkObserver
+    internal sealed class CommunicationGroupNetworkObserver : ICommunicationGroupNetworkObserver
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(CommunicationGroupNetworkObserver));
         private readonly Dictionary<string, IObserver<GeneralGroupCommunicationMessage>> _handlers;

@@ -25,11 +25,10 @@ using Org.Apache.REEF.Tang.Annotations;
 namespace Org.Apache.REEF.Network.Group.Driver.Impl
 {
     /// <summary>
-    /// Messages sent by MPI Operators. This is the abstract class inherited by 
-    /// WritableGroupCommunicationMessage but seen by Network Service
+    /// Messages sent by MPI Operators. This is the class inherited by 
+    /// GroupCommunicationMessage but seen by Network Service
     /// </summary>
-    // TODO: Need to remove Iwritable and use IstreamingCodec. Please see Jira REEF-295.
-    public abstract class GeneralGroupCommunicationMessage : IWritable
+    public class GeneralGroupCommunicationMessage
     {        
         /// <summary>
         /// Empty constructor to allow instantiation by reflection
@@ -45,70 +44,36 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
         /// <param name="operatorName">The name of the MPI operator</param>
         /// <param name="source">The message source</param>
         /// <param name="destination">The message destination</param>
-        /// <param name="messageType">The type of message to send</param>
         protected GeneralGroupCommunicationMessage(
             string groupName,
             string operatorName,
             string source,
-            string destination,
-            MessageType messageType)
+            string destination)
         {
             GroupName = groupName;
             OperatorName = operatorName;
             Source = source;
             Destination = destination;
-            MsgType = messageType;
         }
 
         /// <summary>
         /// Returns the Communication Group name.
         /// </summary>
-        public string GroupName { get; internal set; }
+        internal string GroupName { get; set; }
 
         /// <summary>
         /// Returns the MPI Operator name.
         /// </summary>
-        public string OperatorName { get; internal set; }
+        internal string OperatorName { get; set; }
 
         /// <summary>
         /// Returns the source of the message.
         /// </summary>
-        public string Source { get; internal set; }
+        internal string Source { get; set; }
 
         /// <summary>
         /// Returns the destination of the message.
         /// </summary>
-        public string Destination { get; internal set; }
-
-        /// <summary>
-        /// Returns the type of message being sent.
-        /// </summary>
-        public MessageType MsgType { get; internal set; }
-
-        /// <summary>
-        /// Read the class fields.
-        /// </summary>
-        /// <param name="reader">The reader from which to read </param>
-        public abstract void Read(IDataReader reader);
-
-        /// <summary>
-        /// Writes the class fields.
-        /// </summary>
-        /// <param name="writer">The writer to which to write</param>
-        public abstract void Write(IDataWriter writer);
-
-        /// <summary>
-        /// Read the class fields.
-        /// </summary>
-        /// <param name="reader">The reader from which to read </param>
-        /// <param name="token">The cancellation token</param>
-        public abstract System.Threading.Tasks.Task ReadAsync(IDataReader reader, CancellationToken token);
-
-        /// <summary>
-        /// Writes the class fields.
-        /// </summary>
-        /// <param name="writer">The writer to which to write</param>
-        /// <param name="token">The cancellation token</param>
-        public abstract System.Threading.Tasks.Task WriteAsync(IDataWriter writer, CancellationToken token);
+        internal string Destination { get; set; }
     }
 }

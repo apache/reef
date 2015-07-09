@@ -20,6 +20,7 @@
 using System.Net;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Interface;
+using Org.Apache.REEF.Wake.StreamingCodec;
 
 namespace Org.Apache.REEF.Wake.Remote.Impl
 {
@@ -38,12 +39,10 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
             _injector = injector;
         }
 
-        //ToDo: The port argument will be removed once changes are made in WritableNetworkService [REEF-447]
-        public IRemoteManager<T> GetInstance<T>(IPAddress localAddress, int port) where T : IWritable
+        public IRemoteManager<T> GetInstance<T>(IPAddress localAddress, IStreamingCodec<T> codec)
         {
 #pragma warning disable 618
 // This is the one place allowed to call this constructor. Hence, disabling the warning is OK.
-            var codec = _injector.GetInstance<TemporaryWritableToStreamingCodec<T>>();
             return new StreamingRemoteManager<T>(localAddress, _tcpPortProvider, codec);
 #pragma warning disable 618
         }
