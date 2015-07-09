@@ -31,8 +31,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
     /// Handles all incoming messages for this Task.
     /// Writable version
     /// </summary>
-    // TODO: Need to remove Iwritable and use IstreamingCodec. Please see Jira REEF-295.
-    public sealed class GroupCommNetworkObserver : IGroupCommNetworkObserver
+    internal sealed class GroupCommNetworkObserver : IGroupCommNetworkObserver
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(GroupCommNetworkObserver));
 
@@ -42,7 +41,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         /// Creates a new GroupCommNetworkObserver.
         /// </summary>
         [Inject]
-        public GroupCommNetworkObserver()
+        private GroupCommNetworkObserver()
         {
             _commGroupHandlers = new Dictionary<string, IObserver<GeneralGroupCommunicationMessage>>();
         }
@@ -53,7 +52,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         /// WritableCommunicationGroupNetworkObserver.
         /// </summary>
         /// <param name="nsMessage"></param>
-        public void OnNext(WritableNsMessage<GeneralGroupCommunicationMessage> nsMessage)
+        public void OnNext(NsMessage<GeneralGroupCommunicationMessage> nsMessage)
         {
             if (nsMessage == null)
             {

@@ -29,8 +29,7 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
     /// Group Communication operator used to do point-to-point communication between named Tasks.
     /// It uses Writable classes
     /// </summary>
-    [Obsolete("Need to remove Iwritable and use IstreamingCodec. Please see Jira REEF-295 ", false)]
-    public sealed class Sender
+    internal sealed class Sender
     {
         private readonly INetworkService<GeneralGroupCommunicationMessage> _networkService;
         private readonly IIdentifierFactory _idFactory;
@@ -42,7 +41,7 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
         /// <param name="idFactory">Used to create IIdentifier for GroupCommunicationMessages.</param>
         [Inject]
         private Sender(
-            WritableNetworkService<GeneralGroupCommunicationMessage> networkService,
+            StreamingNetworkService<GeneralGroupCommunicationMessage> networkService,
             IIdentifierFactory idFactory)
         {
             _networkService = networkService;
@@ -54,7 +53,7 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
         /// included in the message.
         /// </summary>
         /// <param name="message">The message to send.</param>
-        public void Send(GeneralGroupCommunicationMessage message)
+        internal void Send(GeneralGroupCommunicationMessage message)
         {
             if (message == null)
             {

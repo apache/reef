@@ -25,7 +25,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Wake.Remote;
 using Org.Apache.REEF.Wake.Remote.Impl;
-using Org.Apache.REEF.Wake.Util;
+using Org.Apache.REEF.Wake.StreamingCodec;
+using Org.Apache.REEF.Wake.StreamingCodec.CommonStreamingCodecs;
 
 namespace Org.Apache.REEF.Wake.Tests
 {
@@ -34,9 +35,6 @@ namespace Org.Apache.REEF.Wake.Tests
     {
         private readonly StreamingRemoteManagerFactory _remoteManagerFactory1 =
             TangFactory.GetTang().NewInjector().GetInstance<StreamingRemoteManagerFactory>();
-
-        private readonly StreamingRemoteManagerFactory _remoteManagerFactory2 =
-        TangFactory.GetTang().NewInjector().GetInstance<StreamingRemoteManagerFactory>();
         
         /// <summary>
         /// Tests one way communication between Remote Managers 
@@ -47,24 +45,25 @@ namespace Org.Apache.REEF.Wake.Tests
         {
             IPAddress listeningAddress = IPAddress.Parse("127.0.0.1");
 
-            BlockingCollection<WritableString> queue = new BlockingCollection<WritableString>();
+            BlockingCollection<string> queue = new BlockingCollection<string>();
             List<string> events = new List<string>();
+            IStreamingCodec<string> codec = TangFactory.GetTang().NewInjector().GetInstance<StringStreamingCodec>();
 
-            using (var remoteManager1 = _remoteManagerFactory1.GetInstance<WritableString>(listeningAddress, 0))
-            using (var remoteManager2 = _remoteManagerFactory1.GetInstance<WritableString>(listeningAddress, 0))
+            using (var remoteManager1 = _remoteManagerFactory1.GetInstance<string>(listeningAddress, codec))
+            using (var remoteManager2 = _remoteManagerFactory1.GetInstance<string>(listeningAddress, codec))
             {
-                var observer = Observer.Create<WritableString>(queue.Add);
+                var observer = Observer.Create<string>(queue.Add);
                 IPEndPoint endpoint1 = new IPEndPoint(listeningAddress, 0);
                 remoteManager2.RegisterObserver(endpoint1, observer);
 
                 var remoteObserver = remoteManager1.GetRemoteObserver(remoteManager2.LocalEndpoint);
-                remoteObserver.OnNext(new WritableString("abc"));
-                remoteObserver.OnNext(new WritableString("def"));
-                remoteObserver.OnNext(new WritableString("ghi"));
+                remoteObserver.OnNext("abc");
+                remoteObserver.OnNext("def");
+                remoteObserver.OnNext("ghi");
 
-                events.Add(queue.Take().Data);
-                events.Add(queue.Take().Data);
-                events.Add(queue.Take().Data);
+                events.Add(queue.Take());
+                events.Add(queue.Take());
+                events.Add(queue.Take());
             }
 
             Assert.AreEqual(3, events.Count);
@@ -78,42 +77,44 @@ namespace Org.Apache.REEF.Wake.Tests
         {
             IPAddress listeningAddress = IPAddress.Parse("127.0.0.1");
 
-            BlockingCollection<WritableString> queue1 = new BlockingCollection<WritableString>();
-            BlockingCollection<WritableString> queue2 = new BlockingCollection<WritableString>();
+            BlockingCollection<string> queue1 = new BlockingCollection<string>();
+            BlockingCollection<string> queue2 = new BlockingCollection<string>();
             List<string> events1 = new List<string>();
             List<string> events2 = new List<string>();
 
-            using (var remoteManager1 = _remoteManagerFactory1.GetInstance<WritableString>(listeningAddress, 0))
-            using (var remoteManager2 = _remoteManagerFactory1.GetInstance<WritableString>(listeningAddress, 0))
+            IStreamingCodec<string> codec = TangFactory.GetTang().NewInjector().GetInstance<StringStreamingCodec>();
+
+            using (var remoteManager1 = _remoteManagerFactory1.GetInstance<string>(listeningAddress, codec))
+            using (var remoteManager2 = _remoteManagerFactory1.GetInstance<string>(listeningAddress, codec))
             {
                 // Register observers for remote manager 1 and remote manager 2
                 var remoteEndpoint = new IPEndPoint(listeningAddress, 0);
-                var observer1 = Observer.Create<WritableString>(queue1.Add);
-                var observer2 = Observer.Create<WritableString>(queue2.Add);
+                var observer1 = Observer.Create<string>(queue1.Add);
+                var observer2 = Observer.Create<string>(queue2.Add);
                 remoteManager1.RegisterObserver(remoteEndpoint, observer1);
                 remoteManager2.RegisterObserver(remoteEndpoint, observer2);
 
                 // Remote manager 1 sends 3 events to remote manager 2
                 var remoteObserver1 = remoteManager1.GetRemoteObserver(remoteManager2.LocalEndpoint);
-                remoteObserver1.OnNext(new WritableString("abc"));
-                remoteObserver1.OnNext(new WritableString("def"));
-                remoteObserver1.OnNext(new WritableString("ghi"));
+                remoteObserver1.OnNext("abc");
+                remoteObserver1.OnNext("def");
+                remoteObserver1.OnNext("ghi");
 
                 // Remote manager 2 sends 4 events to remote manager 1
                 var remoteObserver2 = remoteManager2.GetRemoteObserver(remoteManager1.LocalEndpoint);
-                remoteObserver2.OnNext(new WritableString("jkl"));
-                remoteObserver2.OnNext(new WritableString("mno"));
-                remoteObserver2.OnNext(new WritableString("pqr"));
-                remoteObserver2.OnNext(new WritableString("stu"));
+                remoteObserver2.OnNext("jkl");
+                remoteObserver2.OnNext("mno");
+                remoteObserver2.OnNext("pqr");
+                remoteObserver2.OnNext("stu");
 
-                events1.Add(queue1.Take().Data);
-                events1.Add(queue1.Take().Data);
-                events1.Add(queue1.Take().Data);
-                events1.Add(queue1.Take().Data);
+                events1.Add(queue1.Take());
+                events1.Add(queue1.Take());
+                events1.Add(queue1.Take());
+                events1.Add(queue1.Take());
 
-                events2.Add(queue2.Take().Data);
-                events2.Add(queue2.Take().Data);
-                events2.Add(queue2.Take().Data);
+                events2.Add(queue2.Take());
+                events2.Add(queue2.Take());
+                events2.Add(queue2.Take());
             }
 
             Assert.AreEqual(4, events1.Count);
@@ -129,29 +130,30 @@ namespace Org.Apache.REEF.Wake.Tests
         {
             IPAddress listeningAddress = IPAddress.Parse("127.0.0.1");
 
-            BlockingCollection<WritableString> queue = new BlockingCollection<WritableString>();
+            BlockingCollection<string> queue = new BlockingCollection<string>();
             List<string> events = new List<string>();
+            IStreamingCodec<string> codec = TangFactory.GetTang().NewInjector().GetInstance<StringStreamingCodec>();
 
-            using (var remoteManager1 = _remoteManagerFactory1.GetInstance<WritableString>(listeningAddress, 0))
-            using (var remoteManager2 = _remoteManagerFactory1.GetInstance<WritableString>(listeningAddress, 0))
-            using (var remoteManager3 = _remoteManagerFactory1.GetInstance<WritableString>(listeningAddress, 0))
+            using (var remoteManager1 = _remoteManagerFactory1.GetInstance<string>(listeningAddress, codec))
+            using (var remoteManager2 = _remoteManagerFactory1.GetInstance<string>(listeningAddress, codec))
+            using (var remoteManager3 = _remoteManagerFactory1.GetInstance<string>(listeningAddress, codec))
             {
                 var remoteEndpoint = new IPEndPoint(listeningAddress, 0);
-                var observer = Observer.Create<WritableString>(queue.Add);
+                var observer = Observer.Create<string>(queue.Add);
                 remoteManager3.RegisterObserver(remoteEndpoint, observer);
 
                 var remoteObserver1 = remoteManager1.GetRemoteObserver(remoteManager3.LocalEndpoint);
                 var remoteObserver2 = remoteManager2.GetRemoteObserver(remoteManager3.LocalEndpoint);
 
-                remoteObserver2.OnNext(new WritableString("abc"));
-                remoteObserver1.OnNext(new WritableString("def"));
-                remoteObserver2.OnNext(new WritableString("ghi"));
-                remoteObserver1.OnNext(new WritableString("jkl"));
-                remoteObserver2.OnNext(new WritableString("mno"));
+                remoteObserver2.OnNext("abc");
+                remoteObserver1.OnNext("def");
+                remoteObserver2.OnNext("ghi");
+                remoteObserver1.OnNext("jkl");
+                remoteObserver2.OnNext("mno");
 
                 for (int i = 0; i < 5; i++)
                 {
-                    events.Add(queue.Take().Data);
+                    events.Add(queue.Take());
                 }
             }
 
@@ -167,58 +169,60 @@ namespace Org.Apache.REEF.Wake.Tests
         {
             IPAddress listeningAddress = IPAddress.Parse("127.0.0.1");
 
-            BlockingCollection<WritableString> queue1 = new BlockingCollection<WritableString>();
-            BlockingCollection<WritableString> queue2 = new BlockingCollection<WritableString>();
-            BlockingCollection<WritableString> queue3 = new BlockingCollection<WritableString>();
+            BlockingCollection<string> queue1 = new BlockingCollection<string>();
+            BlockingCollection<string> queue2 = new BlockingCollection<string>();
+            BlockingCollection<string> queue3 = new BlockingCollection<string>();
             List<string> events1 = new List<string>();
             List<string> events2 = new List<string>();
             List<string> events3 = new List<string>();
 
-            using (var remoteManager1 = _remoteManagerFactory1.GetInstance<WritableString>(listeningAddress, 0))
-            using (var remoteManager2 = _remoteManagerFactory1.GetInstance<WritableString>(listeningAddress, 0))
-            using (var remoteManager3 = _remoteManagerFactory1.GetInstance<WritableString>(listeningAddress, 0))
+            IStreamingCodec<string> codec = TangFactory.GetTang().NewInjector().GetInstance<StringStreamingCodec>();
+
+            using (var remoteManager1 = _remoteManagerFactory1.GetInstance<string>(listeningAddress, codec))
+            using (var remoteManager2 = _remoteManagerFactory1.GetInstance<string>(listeningAddress, codec))
+            using (var remoteManager3 = _remoteManagerFactory1.GetInstance<string>(listeningAddress, codec))
             {
                 var remoteEndpoint = new IPEndPoint(listeningAddress, 0);
 
-                var observer = Observer.Create<WritableString>(queue1.Add);
+                var observer = Observer.Create<string>(queue1.Add);
                 remoteManager1.RegisterObserver(remoteEndpoint, observer);
-                var observer2 = Observer.Create<WritableString>(queue2.Add);
+                var observer2 = Observer.Create<string>(queue2.Add);
                 remoteManager2.RegisterObserver(remoteEndpoint, observer2);
-                var observer3 = Observer.Create<WritableString>(queue3.Add);
+                var observer3 = Observer.Create<string>(queue3.Add);
                 remoteManager3.RegisterObserver(remoteEndpoint, observer3);
 
                 var remoteObserver1 = remoteManager1.GetRemoteObserver(remoteManager3.LocalEndpoint);
                 var remoteObserver2 = remoteManager2.GetRemoteObserver(remoteManager3.LocalEndpoint);
 
                 // Observer 1 and 2 send messages to observer 3
-                remoteObserver1.OnNext(new WritableString("abc"));
-                remoteObserver1.OnNext(new WritableString("abc"));
-                remoteObserver1.OnNext(new WritableString("abc"));
-                remoteObserver2.OnNext(new WritableString("def"));
-                remoteObserver2.OnNext(new WritableString("def"));
+                remoteObserver1.OnNext("abc");
+                remoteObserver1.OnNext("abc");
+                remoteObserver1.OnNext("abc");
+                remoteObserver2.OnNext("def");
+                remoteObserver2.OnNext("def");
 
                 // Observer 3 sends messages back to observers 1 and 2
                 var remoteObserver3A = remoteManager3.GetRemoteObserver(remoteManager1.LocalEndpoint);
                 var remoteObserver3B = remoteManager3.GetRemoteObserver(remoteManager2.LocalEndpoint);
 
-                remoteObserver3A.OnNext(new WritableString("ghi"));
-                remoteObserver3A.OnNext(new WritableString("ghi"));
-                remoteObserver3B.OnNext(new WritableString("jkl"));
-                remoteObserver3B.OnNext(new WritableString("jkl"));
-                remoteObserver3B.OnNext(new WritableString("jkl"));
+                remoteObserver3A.OnNext("ghi");
+                remoteObserver3A.OnNext("ghi");
+                remoteObserver3B.OnNext("jkl");
+                remoteObserver3B.OnNext("jkl");
+                remoteObserver3B.OnNext("jkl");
 
-                events1.Add(queue1.Take().Data);
-                events1.Add(queue1.Take().Data);
+                events1.Add(queue1.Take());
+                events1.Add(queue1.Take());
 
-                events2.Add(queue2.Take().Data);
-                events2.Add(queue2.Take().Data);
-                events2.Add(queue2.Take().Data);
+                events2.Add(queue2.Take());
+                events2.Add(queue2.Take());
+                events2.Add(queue2.Take());
 
-                events3.Add(queue3.Take().Data);
-                events3.Add(queue3.Take().Data);
-                events3.Add(queue3.Take().Data);
-                events3.Add(queue3.Take().Data);
-                events3.Add(queue3.Take().Data);
+                events3.Add(queue3.Take());
+                events3.Add(queue3.Take());
+                events3.Add(queue3.Take());
+                events3.Add(queue3.Take());
+                events3.Add(queue3.Take());
             }
 
             Assert.AreEqual(2, events1.Count);
@@ -234,34 +238,36 @@ namespace Org.Apache.REEF.Wake.Tests
         {
             IPAddress listeningAddress = IPAddress.Parse("127.0.0.1");
 
-            BlockingCollection<WritableString> queue = new BlockingCollection<WritableString>();
+            BlockingCollection<string> queue = new BlockingCollection<string>();
             List<string> events = new List<string>();
 
-            using (var remoteManager1 = _remoteManagerFactory1.GetInstance<WritableString>(listeningAddress, 0))
-            using (var remoteManager2 = _remoteManagerFactory1.GetInstance<WritableString>(listeningAddress, 0))
+            IStreamingCodec<string> codec = TangFactory.GetTang().NewInjector().GetInstance<StringStreamingCodec>();
+
+            using (var remoteManager1 = _remoteManagerFactory1.GetInstance<string>(listeningAddress, codec))
+            using (var remoteManager2 = _remoteManagerFactory1.GetInstance<string>(listeningAddress, codec))
             {
                 // Register handler for when remote manager 2 receives events; respond
                 // with an ack
                 var remoteEndpoint = new IPEndPoint(listeningAddress, 0);
                 var remoteObserver2 = remoteManager2.GetRemoteObserver(remoteManager1.LocalEndpoint);
 
-                var receiverObserver = Observer.Create<WritableString>(
-                    message => remoteObserver2.OnNext(new WritableString("received message: " + message.Data)));
+                var receiverObserver = Observer.Create<string>(
+                    message => remoteObserver2.OnNext("received message: " + message));
                 remoteManager2.RegisterObserver(remoteEndpoint, receiverObserver);
 
                 // Register handler for remote manager 1 to record the ack
-                var senderObserver = Observer.Create<WritableString>(queue.Add);
+                var senderObserver = Observer.Create<string>(queue.Add);
                 remoteManager1.RegisterObserver(remoteEndpoint, senderObserver);
 
                 // Begin to send messages
                 var remoteObserver1 = remoteManager1.GetRemoteObserver(remoteManager2.LocalEndpoint);
-                remoteObserver1.OnNext(new WritableString("hello"));
-                remoteObserver1.OnNext(new WritableString("there"));
-                remoteObserver1.OnNext(new WritableString("buddy"));
+                remoteObserver1.OnNext("hello");
+                remoteObserver1.OnNext("there");
+                remoteObserver1.OnNext("buddy");
 
-                events.Add(queue.Take().Data);
-                events.Add(queue.Take().Data);
-                events.Add(queue.Take().Data);
+                events.Add(queue.Take());
+                events.Add(queue.Take());
+                events.Add(queue.Take());
             }
 
             Assert.AreEqual(3, events.Count);
@@ -278,25 +284,27 @@ namespace Org.Apache.REEF.Wake.Tests
         {
             IPAddress listeningAddress = IPAddress.Parse("127.0.0.1");
 
-            BlockingCollection<WritableString> queue = new BlockingCollection<WritableString>();
+            BlockingCollection<string> queue = new BlockingCollection<string>();
             List<string> events = new List<string>();
 
-            using (var remoteManager1 = _remoteManagerFactory1.GetInstance<WritableString>(listeningAddress, 0))
-            using (var remoteManager2 = _remoteManagerFactory1.GetInstance<WritableString>(listeningAddress, 0))
+            IStreamingCodec<string> codec = TangFactory.GetTang().NewInjector().GetInstance<StringStreamingCodec>();
+
+            using (var remoteManager1 = _remoteManagerFactory1.GetInstance<string>(listeningAddress, codec))
+            using (var remoteManager2 = _remoteManagerFactory1.GetInstance<string>(listeningAddress, codec))
             {
-                // RemoteManager2 listens and records events of type IRemoteEvent<WritableString>
-                var observer = Observer.Create<IRemoteMessage<WritableString>>(message => queue.Add(message.Message));
+                // RemoteManager2 listens and records events of type IRemoteEvent<string>
+                var observer = Observer.Create<IRemoteMessage<string>>(message => queue.Add(message.Message));
                 remoteManager2.RegisterObserver(observer);
 
                 // Remote manager 1 sends 3 events to remote manager 2
                 var remoteObserver = remoteManager1.GetRemoteObserver(remoteManager2.LocalEndpoint);
-                remoteObserver.OnNext(new WritableString("abc"));
-                remoteObserver.OnNext(new WritableString("def"));
-                remoteObserver.OnNext(new WritableString("ghi"));
+                remoteObserver.OnNext("abc");
+                remoteObserver.OnNext("def");
+                remoteObserver.OnNext("ghi");
 
-                events.Add(queue.Take().Data);
-                events.Add(queue.Take().Data);
-                events.Add(queue.Take().Data);
+                events.Add(queue.Take());
+                events.Add(queue.Take());
+                events.Add(queue.Take());
             }
 
             Assert.AreEqual(3, events.Count);
@@ -310,28 +318,30 @@ namespace Org.Apache.REEF.Wake.Tests
         {
             IPAddress listeningAddress = IPAddress.Parse("127.0.0.1");
 
-            BlockingCollection<WritableString> queue = new BlockingCollection<WritableString>();
+            BlockingCollection<string> queue = new BlockingCollection<string>();
             List<string> events = new List<string>();
 
-            using (var remoteManager1 = _remoteManagerFactory1.GetInstance<WritableString>(listeningAddress, 0))
-            using (var remoteManager2 = _remoteManagerFactory1.GetInstance<WritableString>(listeningAddress, 0))
+            IStreamingCodec<string> codec = TangFactory.GetTang().NewInjector().GetInstance<StringStreamingCodec>();
+
+            using (var remoteManager1 = _remoteManagerFactory1.GetInstance<string>(listeningAddress, codec))
+            using (var remoteManager2 = _remoteManagerFactory1.GetInstance<string>(listeningAddress, codec))
             {
-                var observer = Observer.Create<WritableString>(queue.Add);
+                var observer = Observer.Create<string>(queue.Add);
                 IPEndPoint endpoint1 = new IPEndPoint(listeningAddress, 0);
                 remoteManager2.RegisterObserver(endpoint1, observer);
 
                 var remoteObserver = remoteManager1.GetRemoteObserver(remoteManager2.LocalEndpoint);
-                remoteObserver.OnNext(new WritableString("abc"));
-                remoteObserver.OnNext(new WritableString("def"));
+                remoteObserver.OnNext("abc");
+                remoteObserver.OnNext("def");
 
                 var cachedObserver = remoteManager1.GetRemoteObserver(remoteManager2.LocalEndpoint);
-                cachedObserver.OnNext(new WritableString("ghi"));
-                cachedObserver.OnNext(new WritableString("jkl"));
+                cachedObserver.OnNext("ghi");
+                cachedObserver.OnNext("jkl");
 
-                events.Add(queue.Take().Data);
-                events.Add(queue.Take().Data);
-                events.Add(queue.Take().Data);
-                events.Add(queue.Take().Data);
+                events.Add(queue.Take());
+                events.Add(queue.Take());
+                events.Add(queue.Take());
+                events.Add(queue.Take());
             }
 
             Assert.AreEqual(4, events.Count);

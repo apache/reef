@@ -72,17 +72,17 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
                     new BlockingCollection<GeneralGroupCommunicationMessage>();
 
                 var handler1 =
-                    Observer.Create<WritableNsMessage<GeneralGroupCommunicationMessage>>(msg => messages1.Add(msg.Data.First()));
+                    Observer.Create<NsMessage<GeneralGroupCommunicationMessage>>(msg => messages1.Add(msg.Data.First()));
                 var handler2 =
-                    Observer.Create<WritableNsMessage<GeneralGroupCommunicationMessage>>(msg => messages2.Add(msg.Data.First()));
+                    Observer.Create<NsMessage<GeneralGroupCommunicationMessage>>(msg => messages2.Add(msg.Data.First()));
 
                 var networkServiceInjector1 = BuildNetworkServiceInjector(endpoint, handler1);
                 var networkServiceInjector2 = BuildNetworkServiceInjector(endpoint, handler2);
 
                 var networkService1 = networkServiceInjector1.GetInstance<
-                  WritableNetworkService<GeneralGroupCommunicationMessage>>();
+                  StreamingNetworkService<GeneralGroupCommunicationMessage>>();
                 var networkService2 = networkServiceInjector2.GetInstance<
-                    WritableNetworkService<GeneralGroupCommunicationMessage>>();
+                    StreamingNetworkService<GeneralGroupCommunicationMessage>>();
                 networkService1.Register(new StringIdentifier("id1"));
                 networkService2.Register(new StringIdentifier("id2"));
 
@@ -822,7 +822,7 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
         }
 
         public static IInjector BuildNetworkServiceInjector(
-            IPEndPoint nameServerEndpoint, IObserver<WritableNsMessage<GeneralGroupCommunicationMessage>> handler)
+            IPEndPoint nameServerEndpoint, IObserver<NsMessage<GeneralGroupCommunicationMessage>> handler)
         {
             var config = TangFactory.GetTang().NewConfigurationBuilder()
                 .BindNamedParameter(typeof (NamingConfigurationOptions.NameServerAddress),
@@ -832,20 +832,24 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
                 .BindNamedParameter(typeof (NetworkServiceOptions.NetworkServicePort),
                     (0).ToString(CultureInfo.InvariantCulture))
                 .BindImplementation(GenericType<INameClient>.Class, GenericType<NameClient>.Class)
-                .BindImplementation(GenericType<IStreamingCodec<string>>.Class, GenericType<StringStreamingCodec>.Class)
                 .Build();
+
+            var codecConfig = StreamingCodecConfiguration<string>.Conf
+                .Set(StreamingCodecConfiguration<string>.Codec, GenericType<StringStreamingCodec>.Class)
+                .Build();
+
+            config = Configurations.Merge(config, codecConfig);
 
             var injector = TangFactory.GetTang().NewInjector(config);
             injector.BindVolatileInstance(
-                GenericType<IObserver<WritableNsMessage<GeneralGroupCommunicationMessage>>>.Class, handler);
+                GenericType<IObserver<NsMessage<GeneralGroupCommunicationMessage>>>.Class, handler);
 
             return injector;
         }
 
         private GroupCommunicationMessage<string> CreateGcmStringType(string message, string from, string to)
         {
-            var stringCodec = TangFactory.GetTang().NewInjector().GetInstance<StringStreamingCodec>();
-            return new GroupCommunicationMessage<string>("g1", "op1", from, to, message, MessageType.Data, stringCodec);
+            return new GroupCommunicationMessage<string>("g1", "op1", from, to, message);
         }
 
         private static void ScatterReceiveReduce(IScatterReceiver<int> receiver, IReduceSender<int> sumSender)

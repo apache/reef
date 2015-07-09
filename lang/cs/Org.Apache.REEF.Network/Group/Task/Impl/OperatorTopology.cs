@@ -32,7 +32,6 @@ using Org.Apache.REEF.Network.NetworkService;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Exceptions;
 using Org.Apache.REEF.Utilities.Logging;
-using Org.Apache.REEF.Wake.StreamingCodec;
 
 namespace Org.Apache.REEF.Network.Group.Task.Impl
 {
@@ -43,18 +42,13 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
     /// Communication Group.
     /// </summary>
     /// <typeparam name="T">The message type</typeparam>
-    // TODO: Need to remove Iwritable and use IstreamingCodec. Please see Jira REEF-295.
     public sealed class OperatorTopology<T> : IOperatorTopology<T>, IObserver<GeneralGroupCommunicationMessage>
     {
-        private const int DefaultTimeout = 50000;
-        private const int RetryCount = 10;
-
         private static readonly Logger Logger = Logger.GetLogger(typeof(OperatorTopology<>));
 
         private readonly string _groupName;
         private readonly string _operatorName;
         private readonly string _selfId;
-        private string _driverId;
         private readonly int _timeout;
         private readonly int _retryCount;
         private readonly int _sleepTime;
@@ -66,7 +60,6 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         private readonly Sender _sender;
         private readonly BlockingCollection<NodeStruct<T>> _nodesWithData;
         private readonly Object _thisLock = new Object();
-        private readonly IStreamingCodec<T> _codec;
 
         /// <summary>
         /// Creates a new OperatorTopology object.
@@ -74,7 +67,6 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         /// <param name="operatorName">The name of the Group Communication Operator</param>
         /// <param name="groupName">The name of the operator's Communication Group</param>
         /// <param name="taskId">The operator's Task identifier</param>
-        /// <param name="driverId">The identifer for the driver</param>
         /// <param name="timeout">Timeout value for cancellation token</param>
         /// <param name="retryCount">Number of times to retry wating for registration</param>
         /// <param name="sleepTime">Sleep time between retry wating for registration</param>
@@ -82,26 +74,22 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         /// <param name="childIds">The set of child Task identifiers in the topology graph</param>
         /// <param name="networkService">The network service</param>
         /// <param name="sender">The Sender used to do point to point communication</param>
-        /// <param name="codec">Streaming codec to encode objects</param>
         [Inject]
         private OperatorTopology(
             [Parameter(typeof(GroupCommConfigurationOptions.OperatorName))] string operatorName,
             [Parameter(typeof(GroupCommConfigurationOptions.CommunicationGroupName))] string groupName,
             [Parameter(typeof(TaskConfigurationOptions.Identifier))] string taskId,
-            [Parameter(typeof(GroupCommConfigurationOptions.DriverId))] string driverId,
             [Parameter(typeof(GroupCommConfigurationOptions.Timeout))] int timeout,
             [Parameter(typeof(GroupCommConfigurationOptions.RetryCountWaitingForRegistration))] int retryCount,
             [Parameter(typeof(GroupCommConfigurationOptions.SleepTimeWaitingForRegistration))] int sleepTime,
             [Parameter(typeof(GroupCommConfigurationOptions.TopologyRootTaskId))] string rootId,
             [Parameter(typeof(GroupCommConfigurationOptions.TopologyChildTaskIds))] ISet<string> childIds,
-            WritableNetworkService<GeneralGroupCommunicationMessage> networkService,
-            Sender sender,
-            IStreamingCodec<T> codec)
+            StreamingNetworkService<GeneralGroupCommunicationMessage> networkService,
+            Sender sender)
         {
             _operatorName = operatorName;
             _groupName = groupName;
             _selfId = taskId;
-            _driverId = driverId;
             _timeout = timeout;
             _retryCount = retryCount;
             _sleepTime = sleepTime;
@@ -110,7 +98,6 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
             _nodesWithData = new BlockingCollection<NodeStruct<T>>();
             _children = new List<NodeStruct<T>>();
             _idToNodeMap = new Dictionary<string, NodeStruct<T>>();
-            _codec = codec;
 
             if (_selfId.Equals(rootId))
             {
@@ -201,7 +188,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
                 throw new ArgumentException("No parent for node");
             }
 
-            SendToNode(message, MessageType.Data, _parent);
+            SendToNode(message, _parent);
         }
 
         /// <summary>
@@ -218,7 +205,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
 
             foreach (var child in _children)
             {
-                SendToNode(message, MessageType.Data, child);
+                SendToNode(message, child);
             }
         }
 
@@ -444,10 +431,10 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         /// <param name="message">The message to send</param>
         /// <param name="msgType">The message type</param>
         /// <param name="node">The NodeStruct representing the Task to send to</param>
-        private void SendToNode(T message, MessageType msgType, NodeStruct<T> node)
+        private void SendToNode(T message, NodeStruct<T> node)
         {
             GeneralGroupCommunicationMessage gcm = new GroupCommunicationMessage<T>(_groupName, _operatorName,
-                _selfId, node.Identifier, message, msgType, _codec);
+                _selfId, node.Identifier, message);
 
             _sender.Send(gcm);
         }
@@ -458,12 +445,12 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         /// <param name="messages">The list of messages to send</param>
         /// <param name="msgType">The message type</param>
         /// <param name="node">The NodeStruct representing the Task to send to</param>
-        private void SendToNode(IList<T> messages, MessageType msgType, NodeStruct<T> node)
+        private void SendToNode(IList<T> messages, NodeStruct<T> node)
         {
             T[] encodedMessages = messages.ToArray();
 
             GroupCommunicationMessage<T> gcm = new GroupCommunicationMessage<T>(_groupName, _operatorName,
-                _selfId, node.Identifier, encodedMessages, msgType, _codec);
+                _selfId, node.Identifier, encodedMessages);
 
             _sender.Send(gcm);
         }
@@ -511,7 +498,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
                 }
 
                 IList<T> sublist = messages.ToList().GetRange(i, size);
-                SendToNode(sublist, MessageType.Data, nodeStruct);
+                SendToNode(sublist, nodeStruct);
 
                 i += size;
             }

@@ -29,7 +29,6 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
     /// Writable version
     /// </summary>
     /// <typeparam name="T"> Generic type of message</typeparam>
-    // TODO: Need to remove Iwritable and use IstreamingCodec. Please see Jira REEF-295.
     internal sealed class NodeStruct<T>
     {
         private readonly BlockingCollection<GroupCommunicationMessage<T>> _messageQueue;
@@ -38,7 +37,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         /// Creates a new NodeStruct.
         /// </summary>
         /// <param name="id">The Task identifier</param>
-        public NodeStruct(string id)
+        internal NodeStruct(string id)
         {
             Identifier = id;
             _messageQueue = new BlockingCollection<GroupCommunicationMessage<T>>();
@@ -48,13 +47,13 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         /// Returns the identifier for the Task that sent all
         /// messages in the message queue.
         /// </summary>
-        public string Identifier { get; private set; }
+        internal string Identifier { get; private set; }
 
         /// <summary>
         /// Gets the first message in the message queue.
         /// </summary>
         /// <returns>The first available message.</returns>
-        public T[] GetData()
+        internal T[] GetData()
         {
             return _messageQueue.Take().Data;
         }
@@ -63,7 +62,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         /// Adds an incoming message to the message queue.
         /// </summary>
         /// <param name="gcm">The incoming message</param>
-        public void AddData(GroupCommunicationMessage<T> gcm)
+        internal void AddData(GroupCommunicationMessage<T> gcm)
         {
             _messageQueue.Add(gcm);
         }
@@ -72,7 +71,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         /// Tells whether there is a message in queue or not.
         /// </summary>
         /// <returns>True if queue is non empty, false otherwise.</returns>
-        public bool HasMessage()
+        internal bool HasMessage()
         {
             if (_messageQueue.Count != 0)
             {

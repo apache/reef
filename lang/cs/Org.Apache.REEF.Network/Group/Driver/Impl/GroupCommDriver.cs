@@ -42,7 +42,6 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
     /// Used to create Communication Groups for Group Communication Operators on the Reef driver.
     /// Also manages configuration for Group Communication tasks/services.
     /// </summary>
-    // TODO: Need to remove Iwritable and use IstreamingCodec. Please see Jira REEF-295.
     public sealed class GroupCommDriver : IGroupCommDriver
     {
         private const string MasterTaskContextName = "MasterTaskContext";
@@ -158,12 +157,12 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
         public IConfiguration GetServiceConfiguration()
         {
             IConfiguration serviceConfig = ServiceConfiguration.ConfigurationModule
-                .Set(ServiceConfiguration.Services, GenericType<WritableNetworkService<GeneralGroupCommunicationMessage>>.Class)
+                .Set(ServiceConfiguration.Services, GenericType<StreamingNetworkService<GeneralGroupCommunicationMessage>>.Class)
                 .Build();
 
             return TangFactory.GetTang().NewConfigurationBuilder(serviceConfig)
                 .BindImplementation(
-                    GenericType<IObserver<WritableNsMessage<GeneralGroupCommunicationMessage>>>.Class,
+                    GenericType<IObserver<NsMessage<GeneralGroupCommunicationMessage>>>.Class,
                     GenericType<GroupCommNetworkObserver>.Class)
                 .BindNamedParameter<NamingConfigurationOptions.NameServerAddress, string>(
                     GenericType<NamingConfigurationOptions.NameServerAddress>.Class,
