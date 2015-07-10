@@ -29,14 +29,16 @@ import org.apache.reef.driver.evaluator.AllocatedEvaluator;
 import org.apache.reef.io.data.loading.api.DataLoadingRequestBuilder;
 import org.apache.reef.io.data.loading.api.DataLoadingService;
 import org.apache.reef.io.data.loading.api.DataSet;
+import org.apache.reef.io.data.loading.api.EvaluatorToPartitionStrategy;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.tang.exceptions.BindException;
 
 import javax.inject.Inject;
-import java.io.IOException;
+
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -46,10 +48,10 @@ import java.util.logging.Logger;
  * that uses the Hadoop {@link InputFormat} to find
  * partitions of data & request resources.
  * <p/>
- * The InputFormat is injected using a Tang external constructor
+ * The InputFormat is taken from the job configurations
  * <p/>
- * It also tries to obtain data locality in a greedy
- * fashion using {@link EvaluatorToPartitionMapper}
+ * The {@link EvaluatorToPartitionStrategy} is injected via Tang,
+ * in order to support different ways to map evaluators to data
  */
 @DriverSide
 public class InputFormatLoadingService<K, V> implements DataLoadingService {
@@ -61,15 +63,20 @@ public class InputFormatLoadingService<K, V> implements DataLoadingService {
   private static final String COMPUTE_CONTEXT_PREFIX =
       "ComputeContext-" + new Random(3381).nextInt(1 << 20) + "-";
 
-  private final EvaluatorToPartitionMapper<InputSplit> evaluatorToPartitionMapper;
-  private final int numberOfPartitions;
+  private final EvaluatorToPartitionStrategy<InputSplit> evaluatorToPartitionStrategy;
 
   private final boolean inMemory;
 
   private final String inputFormatClass;
 
-  private final String inputPath;
 
+  /**
+   * @deprecated since 0.12. Should use the other constructor instead, which
+   *             allows to specify the strategy on how to assign partitions to
+   *             evaluators. This one by default uses {@link SingleDataCenterEvaluatorToPartitionStrategy}
+   *
+   */
+  @Deprecated
   @Inject
   public InputFormatLoadingService(
       final InputFormat<K, V> inputFormat,
@@ -78,40 +85,36 @@ public class InputFormatLoadingService<K, V> implements DataLoadingService {
       @Parameter(DataLoadingRequestBuilder.LoadDataIntoMemory.class) final boolean inMemory,
       @Parameter(JobConfExternalConstructor.InputFormatClass.class) final String inputFormatClass,
       @Parameter(JobConfExternalConstructor.InputPath.class) final String inputPath) {
-
-    this.inMemory = inMemory;
-    this.inputFormatClass = inputFormatClass;
-    this.inputPath = inputPath;
-
-
-    try {
-
-      final InputSplit[] inputSplits = inputFormat.getSplits(jobConf, numberOfDesiredSplits);
-      if (LOG.isLoggable(Level.FINEST)) {
-        LOG.log(Level.FINEST, "Splits: {0}", Arrays.toString(inputSplits));
-      }
-
-      this.numberOfPartitions = inputSplits.length;
-      LOG.log(Level.FINE, "Number of partitions: {0}", this.numberOfPartitions);
-
-      this.evaluatorToPartitionMapper = new EvaluatorToPartitionMapper<>(inputSplits);
-
-    } catch (final IOException e) {
-      throw new RuntimeException("Unable to get InputSplits using the specified InputFormat", e);
-    }
+    this(new SingleDataCenterEvaluatorToPartitionStrategy(inputFormatClass, new HashSet<String>(
+        Arrays.asList(DistributedDataSetPartitionSerializer.serialize(new DistributedDataSetPartition(inputPath,
+            DistributedDataSetPartition.LOAD_INTO_ANY_LOCATION, numberOfDesiredSplits))))), inMemory, inputFormatClass);
   }
 
+  @Inject
+  public InputFormatLoadingService(
+      final EvaluatorToPartitionStrategy<InputSplit> evaluatorToPartitionStrategy,
+      @Parameter(DataLoadingRequestBuilder.LoadDataIntoMemory.class) final boolean inMemory,
+      @Parameter(JobConfExternalConstructor.InputFormatClass.class) final String inputFormatClass) {
+    this.inMemory = inMemory;
+    this.inputFormatClass = inputFormatClass;
+    this.evaluatorToPartitionStrategy = evaluatorToPartitionStrategy;
+  }
+
+  /**
+   * This method actually returns the number of splits in all partition of the data.
+   * We should probably need to rename it in the future
+   */
   @Override
   public int getNumberOfPartitions() {
-    return this.numberOfPartitions;
+    return evaluatorToPartitionStrategy.getNumberOfSplits();
   }
 
   @Override
   public Configuration getContextConfiguration(final AllocatedEvaluator allocatedEvaluator) {
 
     final NumberedSplit<InputSplit> numberedSplit =
-        this.evaluatorToPartitionMapper.getInputSplit(
-            allocatedEvaluator.getEvaluatorDescriptor().getNodeDescriptor().getName(),
+        this.evaluatorToPartitionStrategy.getInputSplit(
+            allocatedEvaluator.getEvaluatorDescriptor().getNodeDescriptor(),
             allocatedEvaluator.getId());
 
     return ContextConfiguration.CONF
@@ -125,8 +128,8 @@ public class InputFormatLoadingService<K, V> implements DataLoadingService {
     try {
 
       final NumberedSplit<InputSplit> numberedSplit =
-          this.evaluatorToPartitionMapper.getInputSplit(
-              allocatedEvaluator.getEvaluatorDescriptor().getNodeDescriptor().getName(),
+          this.evaluatorToPartitionStrategy.getInputSplit(
+              allocatedEvaluator.getEvaluatorDescriptor().getNodeDescriptor(),
               allocatedEvaluator.getId());
 
       final Configuration serviceConfiguration = ServiceConfiguration.CONF
@@ -139,7 +142,7 @@ public class InputFormatLoadingService<K, V> implements DataLoadingService {
               DataSet.class,
               this.inMemory ? InMemoryInputFormatDataSet.class : InputFormatDataSet.class)
           .bindNamedParameter(JobConfExternalConstructor.InputFormatClass.class, inputFormatClass)
-          .bindNamedParameter(JobConfExternalConstructor.InputPath.class, inputPath)
+          .bindNamedParameter(JobConfExternalConstructor.InputPath.class, numberedSplit.getPath())
           .bindNamedParameter(
               InputSplitExternalConstructor.SerializedInputSplit.class,
               WritableSerializer.serialize(numberedSplit.getEntry()))

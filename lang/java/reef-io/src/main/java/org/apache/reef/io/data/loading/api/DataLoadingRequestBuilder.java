@@ -20,14 +20,16 @@ package org.apache.reef.io.data.loading.api;
 
 import org.apache.commons.lang.Validate;
 import org.apache.hadoop.mapred.InputFormat;
-import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.TextInputFormat;
 import org.apache.reef.client.DriverConfiguration;
 import org.apache.reef.driver.evaluator.EvaluatorRequest;
+import org.apache.reef.io.data.loading.impl.DistributedDataSetPartitionSerializer;
 import org.apache.reef.io.data.loading.impl.EvaluatorRequestSerializer;
-import org.apache.reef.io.data.loading.impl.InputFormatExternalConstructor;
+import org.apache.reef.io.data.loading.impl.SingleDataCenterEvaluatorToPartitionStrategy;
+import org.apache.reef.io.data.loading.impl.DistributedDataSetPartition;
 import org.apache.reef.io.data.loading.impl.InputFormatLoadingService;
 import org.apache.reef.io.data.loading.impl.JobConfExternalConstructor;
+import org.apache.reef.io.data.loading.impl.MultiDataCenterEvaluatorToPartitionStrategy;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.JavaConfigurationBuilder;
 import org.apache.reef.tang.Tang;
@@ -38,6 +40,7 @@ import org.apache.reef.tang.formats.ConfigurationModule;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -69,7 +72,16 @@ public final class DataLoadingRequestBuilder
   private boolean renewFailedEvaluators = true;
   private ConfigurationModule driverConfigurationModule = null;
   private String inputFormatClass;
-  private String inputPath;
+  /**
+   * Single data center loading strategy flag. Allows to specify if the data
+   * will be loaded in machines of a single data center or not. By
+   * default, is set to true.
+   */
+  private boolean singleDataCenterStrategy = true;
+  /**
+   * Distributed dataset that can contain many distributed partitions.
+   */
+  private DistributedDataSet distributedDataSet;
 
   public DataLoadingRequestBuilder setNumberOfDesiredSplits(final int numberOfDesiredSplits) {
     this.numberOfDesiredSplits = numberOfDesiredSplits;
@@ -188,8 +200,38 @@ public final class DataLoadingRequestBuilder
     return this;
   }
 
+  /**
+   * Sets the path of the folder where the data is. Internally it constructs a
+   * distributed data set with one partition, no splits and the data can be
+   * loaded from anywhere.
+   *
+   * @deprecated since 0.12. Should use instead
+   *             {@link DataLoadingRequestBuilder#setDistributedDataSet(DistributedDataSet)}
+   * @param inputPath
+   *          the input path
+   * @return this
+   */
+  @Deprecated
   public DataLoadingRequestBuilder setInputPath(final String inputPath) {
-    this.inputPath = inputPath;
+    final DistributedDataSet dds = new DistributedDataSet();
+    dds.addPartition(DistributedDataSetPartition.newBuilder().setPath(inputPath)
+        .setLocation(DistributedDataSetPartition.LOAD_INTO_ANY_LOCATION)
+        .setDesiredSplits(Integer.valueOf(NumberOfDesiredSplits.DEFAULT_DESIRED_SPLITS)).build());
+    this.singleDataCenterStrategy = true;
+    this.distributedDataSet = dds;
+    return this;
+  }
+
+  /**
+   * Sets the distributed data set.
+   *
+   * @param dataSet
+   *          the distributed data set
+   * @return this
+   */
+  public DataLoadingRequestBuilder setDistributedDataSet(final DistributedDataSet distributedDataSet) {
+    this.distributedDataSet = distributedDataSet;
+    this.singleDataCenterStrategy = false;
     return this;
   }
 
@@ -199,8 +241,8 @@ public final class DataLoadingRequestBuilder
       throw new BindException("Driver Configuration Module is a required parameter.");
     }
 
-    if (this.inputPath == null) {
-      throw new BindException("InputPath is a required parameter.");
+    if (this.distributedDataSet == null || this.distributedDataSet.isEmpty()) {
+      throw new BindException("Distributed Data Set is a required parameter.");
     }
 
     if (this.inputFormatClass == null) {
@@ -258,18 +300,32 @@ public final class DataLoadingRequestBuilder
       }
     }
 
-    return jcb
-        .bindNamedParameter(LoadDataIntoMemory.class, Boolean.toString(this.inMemory))
-        .bindConstructor(InputFormat.class, InputFormatExternalConstructor.class)
-        .bindConstructor(JobConf.class, JobConfExternalConstructor.class)
-        .bindNamedParameter(JobConfExternalConstructor.InputFormatClass.class, inputFormatClass)
-        .bindNamedParameter(JobConfExternalConstructor.InputPath.class, inputPath)
-        .bindImplementation(DataLoadingService.class, InputFormatLoadingService.class)
-        .build();
+    jcb.bindNamedParameter(LoadDataIntoMemory.class, Boolean.toString(this.inMemory))
+       .bindNamedParameter(JobConfExternalConstructor.InputFormatClass.class, inputFormatClass);
+
+    final Iterator<DistributedDataSetPartition> partitions = this.distributedDataSet.iterator();
+    while (partitions.hasNext()) {
+      jcb.bindSetEntry(
+          DistributedDataSetPartitionSerializer.DistributedDataSetPartitions.class,
+          DistributedDataSetPartitionSerializer.serialize(partitions.next()));
+    }
+
+    // we do this check for backwards compatibility, if the user defined it
+    // wants to use the single data center loading strategy, we bind that implementation.
+    if (this.singleDataCenterStrategy) {
+      jcb.bindImplementation(EvaluatorToPartitionStrategy.class, SingleDataCenterEvaluatorToPartitionStrategy.class);
+    } else {
+      // otherwise, we bind the strategy that will allow the user to specify
+      // which evaluators can load the different partitions in a multi data center network topology
+      jcb.bindImplementation(EvaluatorToPartitionStrategy.class, MultiDataCenterEvaluatorToPartitionStrategy.class);
+    }
+
+    return jcb.bindImplementation(DataLoadingService.class, InputFormatLoadingService.class).build();
   }
 
-  @NamedParameter(short_name = "num_splits", default_value = "0")
+  @NamedParameter(short_name = "num_splits", default_value = NumberOfDesiredSplits.DEFAULT_DESIRED_SPLITS)
   public static final class NumberOfDesiredSplits implements Name<Integer> {
+    static final String DEFAULT_DESIRED_SPLITS = "0";
   }
 
   @NamedParameter(short_name = "dataLoadingEvaluatorMemoryMB",

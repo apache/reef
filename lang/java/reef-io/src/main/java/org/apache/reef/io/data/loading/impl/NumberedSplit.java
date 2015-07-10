@@ -18,24 +18,34 @@
  */
 package org.apache.reef.io.data.loading.impl;
 
+import org.apache.commons.lang.Validate;
+
 /**
  * A tuple of an object of type E and an integer index.
- * Used inside {@link EvaluatorToPartitionMapper} to
+ * Used inside {@link EvaluatorToPartitionStrategy} implementations to
  * mark the partitions associated with each {@link org.apache.hadoop.mapred.InputSplit}
  *
  * @param <E>
  */
-final class NumberedSplit<E> implements Comparable<NumberedSplit<E>> {
+public final class NumberedSplit<E> implements Comparable<NumberedSplit<E>> {
   private final E entry;
   private final int index;
+  private final DistributedDataSetPartition partition;
 
-  public NumberedSplit(final E entry, final int index) {
-    super();
-    if (entry == null) {
-      throw new IllegalArgumentException("Entry cannot be null");
-    }
+  public NumberedSplit(final E entry, final int index, final DistributedDataSetPartition partition) {
+    Validate.notNull(entry, "Entry cannot be null");
+    Validate.notNull(partition, "Partition cannot be null");
     this.entry = entry;
     this.index = index;
+    this.partition = partition;
+  }
+
+  public String getPath() {
+    return partition.getPath();
+  }
+
+  public String getLocation() {
+    return partition.getLocation();
   }
 
   public E getEntry() {
@@ -48,7 +58,7 @@ final class NumberedSplit<E> implements Comparable<NumberedSplit<E>> {
 
   @Override
   public String toString() {
-    return "InputSplit-" + index;
+    return "InputSplit-" + partition + "-" + index;
   }
 
   @Override
