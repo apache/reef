@@ -27,16 +27,16 @@ import java.util.logging.Logger;
 /**
  * Default exception handler.
  */
-public final class DefaultNSExceptionHandler implements EventHandler<Exception> {
+public final class NetworkConnectionServiceExceptionHandler implements EventHandler<Exception> {
 
-  private static final Logger LOG = Logger.getLogger(DefaultNSExceptionHandler.class.getName());
+  private static final Logger LOG = Logger.getLogger(NetworkConnectionServiceExceptionHandler.class.getName());
 
   @Inject
-  public DefaultNSExceptionHandler() {
+  public NetworkConnectionServiceExceptionHandler() {
   }
 
   @Override
   public void onNext(final Exception value) {
-    LOG.log(Level.WARNING, "An exception occurred in transport of NetworkService: {0}", value);
+    LOG.log(Level.WARNING, "An exception occurred in transport of NetworkConnectionService: {0}", value);
   }
 }

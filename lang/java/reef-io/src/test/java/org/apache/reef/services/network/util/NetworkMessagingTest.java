@@ -21,8 +21,8 @@ package org.apache.reef.services.network.util;
 import org.apache.reef.exception.evaluator.NetworkException;
 import org.apache.reef.io.network.Connection;
 import org.apache.reef.io.network.Message;
-import org.apache.reef.io.network.NetworkServiceClient;
-import org.apache.reef.io.network.impl.NetworkServiceParameters;
+import org.apache.reef.io.network.NetworkConnectionService;
+import org.apache.reef.io.network.impl.NetworkConnectionServiceParameters;
 import org.apache.reef.io.network.naming.NameResolverConfiguration;
 import org.apache.reef.io.network.naming.NameServer;
 import org.apache.reef.tang.Configuration;
@@ -41,14 +41,14 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Helper class for NetworkService test.
+ * Helper class for NetworkConnectionService test.
  */
 public final class NetworkMessagingTest {
   private static final Logger LOG = Logger.getLogger(NetworkMessagingTest.class.getName());
 
   private final IdentifierFactory factory;
-  private final NetworkServiceClient receiverNetworkService;
-  private final NetworkServiceClient senderNetworkService;
+  private final NetworkConnectionService receiverNetworkConnService;
+  private final NetworkConnectionService senderNetworkConnService;
   private final String receiver;
   private final String sender;
   private final NameServer nameServer;
@@ -62,42 +62,41 @@ public final class NetworkMessagingTest {
         .set(NameResolverConfiguration.NAME_SERVICE_PORT, nameServer.getPort())
         .build();
 
-    LOG.log(Level.FINEST, "=== Test network service receiver start");
+    LOG.log(Level.FINEST, "=== Test network connection service receiver start");
     // network service for receiver
     this.receiver = "receiver";
     final Injector injectorReceiver = injector.forkInjector(netConf);
-    this.receiverNetworkService = injectorReceiver.getInstance(NetworkServiceClient.class);
-    this.factory = injectorReceiver.getNamedInstance(NetworkServiceParameters.NetworkServiceIdentifierFactory.class);
-    this.receiverNetworkService.registerId(this.factory.getNewInstance(receiver));
+    this.receiverNetworkConnService = injectorReceiver.getInstance(NetworkConnectionService.class);
+    this.factory = injectorReceiver.getNamedInstance(NetworkConnectionServiceParameters.NetworkConnectionServiceIdentifierFactory.class);
+    this.receiverNetworkConnService.registerId(this.factory.getNewInstance(receiver));
 
     // network service for sender
     this.sender = "sender";
-    LOG.log(Level.FINEST, "=== Test network service sender start");
+    LOG.log(Level.FINEST, "=== Test network connection service sender start");
     final Injector injectorSender = injector.forkInjector(netConf);
-    senderNetworkService = injectorSender.getInstance(NetworkServiceClient.class);
-    senderNetworkService.registerId(this.factory.getNewInstance(this.sender));
+    senderNetworkConnService = injectorSender.getInstance(NetworkConnectionService.class);
+    senderNetworkConnService.registerId(this.factory.getNewInstance(this.sender));
   }
 
   public <T> void registerTestConnectionFactory(final Identifier connFactoryId,
                                                 final int numMessages, final Monitor monitor,
                                                 final Codec<T> codec) throws NetworkException {
-    receiverNetworkService.registerConnectionFactory(connFactoryId, codec, new MessageHandler<T>(monitor, numMessages), new TestListener<T>());
-    senderNetworkService.registerConnectionFactory(connFactoryId, codec, new MessageHandler<T>(monitor, numMessages), new TestListener<T>());
+    receiverNetworkConnService.registerConnectionFactory(connFactoryId, codec, new MessageHandler<T>(monitor, numMessages), new TestListener<T>());
+    senderNetworkConnService.registerConnectionFactory(connFactoryId, codec, new MessageHandler<T>(monitor, numMessages), new TestListener<T>());
   }
 
   public <T> Connection<T> getConnectionFromSenderToReceiver(final Identifier connFactoryId) {
     final Identifier destId = factory.getNewInstance(receiver);
-    return (Connection<T>)senderNetworkService.getConnectionFactory(connFactoryId).newConnection(destId);
+    return (Connection<T>)senderNetworkConnService.getConnectionFactory(connFactoryId).newConnection(destId);
   }
 
   public void close() throws Exception {
-    senderNetworkService.close();
-    receiverNetworkService.close();
+    senderNetworkConnService.close();
+    receiverNetworkConnService.close();
     nameServer.close();
   }
 
   public static final class MessageHandler<T> implements EventHandler<Message<T>> {
-
     private final int expected;
     private final Monitor monitor;
     private AtomicInteger count = new AtomicInteger(0);

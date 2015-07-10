@@ -18,32 +18,17 @@
  */
 package org.apache.reef.io.network.impl;
 
-import org.apache.reef.io.network.NetworkServiceClient;
-import org.apache.reef.tang.annotations.Parameter;
-import org.apache.reef.task.events.TaskStop;
-import org.apache.reef.wake.EventHandler;
+import org.apache.reef.io.network.util.StringIdentifierFactory;
+import org.apache.reef.tang.annotations.Name;
+import org.apache.reef.tang.annotations.NamedParameter;
 import org.apache.reef.wake.IdentifierFactory;
 
-import javax.inject.Inject;
-/**
- * TaskStop event handler for unregistering NetworkServiceClient id.
- * Users have to bind this handler into ServiceConfiguration.ON_TASK_STOP.
- */
-public final class UnbindNSClientFromTask implements EventHandler<TaskStop> {
-
-  private final NetworkServiceClient ns;
-  private final IdentifierFactory idFac;
-
-  @Inject
-  public UnbindNSClientFromTask(
-      final NetworkServiceClient ns,
-      @Parameter(NetworkServiceParameters.NetworkServiceIdentifierFactory.class) final IdentifierFactory idFac) {
-    this.ns = ns;
-    this.idFac = idFac;
+public class NetworkConnectionServiceParameters {
+  @NamedParameter(doc = "identifier factory for the service", short_name = "ncsfactory", default_class = StringIdentifierFactory.class)
+  public static class NetworkConnectionServiceIdentifierFactory implements Name<IdentifierFactory> {
   }
 
-  @Override
-  public void onNext(final TaskStop task) {
-    this.ns.unregisterId(this.idFac.getNewInstance(task.getId()));
+  @NamedParameter(doc = "port for the network connection service", short_name = "ncsport", default_value = "0")
+  public static class NetworkConnectionServicePort implements Name<Integer> {
   }
 }

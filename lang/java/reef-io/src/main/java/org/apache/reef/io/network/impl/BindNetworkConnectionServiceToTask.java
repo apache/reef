@@ -18,7 +18,7 @@
  */
 package org.apache.reef.io.network.impl;
 
-import org.apache.reef.io.network.NetworkServiceClient;
+import org.apache.reef.io.network.NetworkConnectionService;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.task.events.TaskStart;
 import org.apache.reef.wake.EventHandler;
@@ -27,24 +27,24 @@ import org.apache.reef.wake.IdentifierFactory;
 import javax.inject.Inject;
 
 /**
- * TaskStart event handler for registering NetworkServiceClient id.
+ * TaskStart event handler for registering NetworkConnectionService.
  * Users have to bind this handler into ServiceConfiguration.ON_TASK_STARTED.
  */
-public final class BindNSClientToTask implements EventHandler<TaskStart> {
+public final class BindNetworkConnectionServiceToTask implements EventHandler<TaskStart> {
 
-  private final NetworkServiceClient ns;
+  private final NetworkConnectionService ncs;
   private final IdentifierFactory idFac;
 
   @Inject
-  public BindNSClientToTask(
-      final NetworkServiceClient ns,
+  public BindNetworkConnectionServiceToTask(
+      final NetworkConnectionService ncs,
       @Parameter(NetworkServiceParameters.NetworkServiceIdentifierFactory.class) final IdentifierFactory idFac) {
-    this.ns = ns;
+    this.ncs = ncs;
     this.idFac = idFac;
   }
 
   @Override
   public void onNext(final TaskStart task) {
-    this.ns.registerId(this.idFac.getNewInstance(task.getId()));
+    this.ncs.registerId(this.idFac.getNewInstance(task.getId()));
   }
 }

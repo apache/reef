@@ -32,19 +32,19 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * A connection factory which is created by NetworkService.
+ * A connection factory which is created by NetworkConnectionService.
  */
-final class NSConnectionFactory<T> implements ConnectionFactory<T> {
+final class NetworkConnectionFactory<T> implements ConnectionFactory<T> {
 
   private final ConcurrentMap<Identifier, Connection<T>> connectionMap;
   private final String connFactoryId;
   private final Codec<T> eventCodec;
   private final EventHandler<Message<T>> eventHandler;
   private final LinkListener<Message<T>> eventListener;
-  private final DefaultNetworkServiceClientImpl networkService;
+  private final NetworkConnectionServiceImpl networkService;
 
-  NSConnectionFactory(
-      final DefaultNetworkServiceClientImpl networkService,
+  NetworkConnectionFactory(
+      final NetworkConnectionServiceImpl networkService,
       final String connFactoryId,
       final Codec<T> eventCodec,
       final EventHandler<Message<T>> eventHandler,
@@ -57,19 +57,23 @@ final class NSConnectionFactory<T> implements ConnectionFactory<T> {
     this.eventListener = eventListener;
   }
 
+  /**
+   * Creates a new connection.
+   * @param destId a destination identifier of NetworkConnectionService.
+   */
   @Override
-  public Connection<T> newConnection(final Identifier remoteId) {
-    final Connection<T> connection = connectionMap.get(remoteId);
+  public Connection<T> newConnection(final Identifier destId) {
+    final Connection<T> connection = connectionMap.get(destId);
 
     if (connection == null) {
-      final Connection<T> newConnection = new DefaultNSConnection<>(this, remoteId);
-      connectionMap.putIfAbsent(remoteId, newConnection);
-      return connectionMap.get(remoteId);
+      final Connection<T> newConnection = new NetworkConnection<>(this, destId);
+      connectionMap.putIfAbsent(destId, newConnection);
+      return connectionMap.get(destId);
     }
     return connection;
   }
 
-  <T> Link<DefaultNSMessage<T>> openLink(final Identifier remoteId) throws NetworkException {
+  <T> Link<NetworkConnectionServiceMessage<T>> openLink(final Identifier remoteId) throws NetworkException {
     return networkService.openLink(remoteId);
   }
 
@@ -78,7 +82,7 @@ final class NSConnectionFactory<T> implements ConnectionFactory<T> {
   }
 
   Identifier getSrcId() {
-    return this.networkService.getNetworkServiceClientId();
+    return this.networkService.getNetworkConnectionServiceId();
   }
 
   EventHandler<Message<T>> getEventHandler() {

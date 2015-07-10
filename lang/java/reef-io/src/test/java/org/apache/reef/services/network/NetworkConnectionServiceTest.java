@@ -39,17 +39,17 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Default Network service test
+ * Default Network connection service test.
  */
-public class DefaultNetworkServiceTest {
-  private static final Logger LOG = Logger.getLogger(NetworkServiceTest.class.getName());
+public class NetworkConnectionServiceTest {
+  private static final Logger LOG = Logger.getLogger(NetworkConnectionServiceTest.class.getName());
 
   private final LocalAddressProvider localAddressProvider;
   private final String localAddress;
   private final Identifier groupCommClientId;
   private final Identifier shuffleClientId;
 
-  public DefaultNetworkServiceTest() throws InjectionException {
+  public NetworkConnectionServiceTest() throws InjectionException {
     localAddressProvider = LocalAddressProviderFactory.getInstance();
     localAddress = localAddressProvider.getLocalAddress();
 
@@ -61,7 +61,7 @@ public class DefaultNetworkServiceTest {
   @Rule
   public TestName name = new TestName();
 
-  private void runMessagingNetworkService(Codec<String> codec) throws Exception {
+  private void runMessagingNetworkConnectionService(Codec<String> codec) throws Exception {
     final int numMessages = 2000;
     final Monitor monitor = new Monitor();
     final NetworkMessagingTest messagingTest = new NetworkMessagingTest(localAddress);
@@ -84,24 +84,24 @@ public class DefaultNetworkServiceTest {
   }
 
   /**
-   * NetworkConnectionService messaging test
+   * NetworkConnectionService messaging test.
    */
   @Test
-  public void testMessagingNetworkService() throws Exception {
+  public void testMessagingNetworkConnectionService() throws Exception {
     LOG.log(Level.FINEST, name.getMethodName());
-    runMessagingNetworkService(new StringCodec());
+    runMessagingNetworkConnectionService(new StringCodec());
   }
 
   /**
-   * NetworkConnectionService streaming messaging test
+   * NetworkConnectionService streaming messaging test.
    */
   @Test
-  public void testStreamingMessagingNetworkService() throws Exception {
+  public void testStreamingMessagingNetworkConnectionService() throws Exception {
     LOG.log(Level.FINEST, name.getMethodName());
-    runMessagingNetworkService(new StreamingStringCodec());
+    runMessagingNetworkConnectionService(new StreamingStringCodec());
   }
 
-  public void runNetworkServiceWithMultipleConnFactories(Codec<String> stringCodec, Codec<Integer> integerCodec) throws Exception {
+  public void runNetworkConnServiceWithMultipleConnFactories(Codec<String> stringCodec, Codec<Integer> integerCodec) throws Exception {
     final ExecutorService executor = Executors.newFixedThreadPool(5);
 
     final int groupcommMessages = 1000;
@@ -164,7 +164,7 @@ public class DefaultNetworkServiceTest {
   @Test
   public void testMultipleConnectionFactoriesTest() throws Exception {
     LOG.log(Level.FINEST, name.getMethodName());
-    runNetworkServiceWithMultipleConnFactories(new StringCodec(), new ObjectSerializableCodec<Integer>());
+    runNetworkConnServiceWithMultipleConnFactories(new StringCodec(), new ObjectSerializableCodec<Integer>());
   }
 
   /**
@@ -173,14 +173,14 @@ public class DefaultNetworkServiceTest {
   @Test
   public void testMultipleConnectionFactoriesStreamingTest() throws Exception {
     LOG.log(Level.FINEST, name.getMethodName());
-    runNetworkServiceWithMultipleConnFactories(new StreamingStringCodec(), new StreamingIntegerCodec());
+    runNetworkConnServiceWithMultipleConnFactories(new StreamingStringCodec(), new StreamingIntegerCodec());
   }
 
   /**
-   * NetworkService messaging rate benchmark
+   * NetworkService messaging rate benchmark.
    */
   @Test
-  public void testMessagingNetworkServiceRate() throws Exception {
+  public void testMessagingNetworkConnServiceRate() throws Exception {
     LOG.log(Level.FINEST, name.getMethodName());
     final int[] messageSizes = {1, 16, 32, 64, 512, 64 * 1024, 1024 * 1024};
 
@@ -219,10 +219,10 @@ public class DefaultNetworkServiceTest {
   }
 
   /**
-   * NetworkService messaging rate benchmark
+   * NetworkService messaging rate benchmark.
    */
   @Test
-  public void testMessagingNetworkServiceRateDisjoint() throws Exception {
+  public void testMessagingNetworkConnServiceRateDisjoint() throws Exception {
     LOG.log(Level.FINEST, name.getMethodName());
     final BlockingQueue<Object> barrier = new LinkedBlockingQueue<Object>();
 
@@ -281,7 +281,7 @@ public class DefaultNetworkServiceTest {
   }
 
   @Test
-  public void testMultithreadedSharedConnMessagingNetworkServiceRate() throws Exception {
+  public void testMultithreadedSharedConnMessagingNetworkConnServiceRate() throws Exception {
     LOG.log(Level.FINEST, name.getMethodName());
     final int[] messageSizes = {2000};// {1,16,32,64,512,64*1024,1024*1024};
 
@@ -335,10 +335,10 @@ public class DefaultNetworkServiceTest {
   }
 
   /**
-   * NetworkService messaging rate benchmark
+   * NetworkService messaging rate benchmark.
    */
   @Test
-  public void testMessagingNetworkServiceBatchingRate() throws Exception {
+  public void testMessagingNetworkConnServiceBatchingRate() throws Exception {
     LOG.log(Level.FINEST, name.getMethodName());
 
     final int batchSize = 1024 * 1024;

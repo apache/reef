@@ -30,39 +30,39 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * DefaultNSMessage codec implementation.
- * This codec encodes/decodes DefaultNSMessages according to the type <T>.
+ * DefaultNetworkMessageCodec implementation.
+ * This codec encodes/decodes NetworkConnectionServiceMessageImpl according to the type <T>.
  */
-final class DefaultNSMessageCodec implements Codec<DefaultNSMessage> {
+final class NetworkConnectionServiceMessageCodec implements Codec<NetworkConnectionServiceMessage> {
 
   private final IdentifierFactory factory;
   /**
    * Contains entries of (id of connection factory, instance of connection factory).
    */
-  private final Map<String, NSConnectionFactory> connFactoryMap;
+  private final Map<String, NetworkConnectionFactory> connFactoryMap;
   /**
    * Contains entries of (instance of codec, boolean whether the codec is streaming or not).
    */
   private final ConcurrentMap<Codec, Boolean> isStreamingCodecMap;
 
   /**
-   * Constructs a network message codec.
+   * Constructs a network connection service message codec.
    */
-  DefaultNSMessageCodec(
+  NetworkConnectionServiceMessageCodec(
       final IdentifierFactory factory,
-      final Map<String, NSConnectionFactory> connFactoryMap) {
+      final Map<String, NetworkConnectionFactory> connFactoryMap) {
     this.factory = factory;
     this.connFactoryMap = connFactoryMap;
     this.isStreamingCodecMap = new ConcurrentHashMap<>();
   }
 
   /**
-   * Encodes a network service message to bytes.
+   * Encodes a network connection service message to bytes.
    * @param obj a message
    * @return bytes
    */
   @Override
-  public byte[] encode(final DefaultNSMessage obj) {
+  public byte[] encode(final NetworkConnectionServiceMessage obj) {
     final Codec codec = connFactoryMap.get(obj.getConnectionFactoryId()).getCodec();
     Boolean isStreamingCodec = isStreamingCodecMap.get(codec);
     if (isStreamingCodec == null) {
@@ -97,13 +97,13 @@ final class DefaultNSMessageCodec implements Codec<DefaultNSMessage> {
   }
 
   /**
-   * Decodes a network service message from bytes.
+   * Decodes a network connection service message from bytes.
    *
    * @param data bytes
    * @return a message
    */
   @Override
-  public DefaultNSMessage decode(final byte[] data) {
+  public NetworkConnectionServiceMessage decode(final byte[] data) {
     try (final ByteArrayInputStream bais = new ByteArrayInputStream(data)) {
       try (final DataInputStream dais = new DataInputStream(bais)) {
         final String connFactoryId = dais.readUTF();
@@ -131,7 +131,7 @@ final class DefaultNSMessageCodec implements Codec<DefaultNSMessage> {
           }
         }
 
-        return new DefaultNSMessage(
+        return new NetworkConnectionServiceMessage(
             connFactoryId,
             srcId,
             destId,

@@ -25,26 +25,26 @@ import org.apache.reef.wake.remote.impl.TransportEvent;
 import java.util.Map;
 
 /**
- * NetworkService event handler.
- * It dispatches events to corresponding eventHandler
+ * NetworkConnectionService event handler.
+ * It dispatches events to the corresponding eventHandler.
  */
-final class NetworkServiceReceiveHandler implements EventHandler<TransportEvent> {
+final class NetworkConnectionServiceReceiveHandler implements EventHandler<TransportEvent> {
 
-  private final Map<String, NSConnectionFactory> connFactoryMap;
-  private final Codec<DefaultNSMessage> codec;
+  private final Map<String, NetworkConnectionFactory> connFactoryMap;
+  private final Codec<NetworkConnectionServiceMessage> codec;
 
-  NetworkServiceReceiveHandler(
-      final Map<String, NSConnectionFactory> connFactoryMap,
-      final Codec<DefaultNSMessage> codec) {
+  NetworkConnectionServiceReceiveHandler(
+      final Map<String, NetworkConnectionFactory> connFactoryMap,
+      final Codec<NetworkConnectionServiceMessage> codec) {
     this.connFactoryMap = connFactoryMap;
     this.codec = codec;
   }
 
   @Override
   public void onNext(final TransportEvent transportEvent) {
-    final DefaultNSMessage nsMessage = codec.decode(transportEvent.getData());
+    final NetworkConnectionServiceMessage nsMessage = codec.decode(transportEvent.getData());
     nsMessage.setRemoteAddress(transportEvent.getRemoteAddress());
-    final NSConnectionFactory connFactory = connFactoryMap.get(nsMessage.getConnectionFactoryId());
+    final NetworkConnectionFactory connFactory = connFactoryMap.get(nsMessage.getConnectionFactoryId());
     final EventHandler eventHandler = connFactory.getEventHandler();
     eventHandler.onNext(nsMessage);
   }

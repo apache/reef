@@ -22,7 +22,7 @@ import org.apache.reef.exception.evaluator.NetworkException;
 import org.apache.reef.io.Tuple;
 import org.apache.reef.io.network.ConnectionFactory;
 import org.apache.reef.io.network.Message;
-import org.apache.reef.io.network.NetworkServiceClient;
+import org.apache.reef.io.network.NetworkConnectionService;
 import org.apache.reef.io.network.naming.NameResolver;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.wake.EStage;
@@ -46,14 +46,14 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Default NetworkServiceClient implementation.
+ * Default Network connection service implementation.
  */
-public final class DefaultNetworkServiceClientImpl implements NetworkServiceClient {
+public final class NetworkConnectionServiceImpl implements NetworkConnectionService {
 
-  private static final Logger LOG = Logger.getLogger(DefaultNetworkServiceClientImpl.class.getName());
+  private static final Logger LOG = Logger.getLogger(NetworkConnectionServiceImpl.class.getName());
 
   /**
-   * An identifier factory registering network service client id.
+   * An identifier factory registering network connection service id.
    */
   private final IdentifierFactory idFactory;
   /**
@@ -67,19 +67,19 @@ public final class DefaultNetworkServiceClientImpl implements NetworkServiceClie
   /**
    * A map of (id of connection factory, a connection factory instance).
    */
-  private final ConcurrentMap<String, NSConnectionFactory> connFactoryMap;
+  private final ConcurrentMap<String, NetworkConnectionFactory> connFactoryMap;
   /**
-   * A NetworkServiceClient identifier.
+   * A network connection service identifier.
    */
   private Identifier myId;
   /**
-   * A NetworkServiceClient message codec.
+   * A network connection service message codec.
    */
-  private final Codec<DefaultNSMessage> nsCodec;
+  private final Codec<NetworkConnectionServiceMessage> nsCodec;
   /**
-   * A NetworkServiceClient link listener.
+   * A network connection service link listener.
    */
-  private final LinkListener<DefaultNSMessage> nsLinkListener;
+  private final LinkListener<NetworkConnectionServiceMessage> nsLinkListener;
   /**
    * A stage registering identifiers to nameServer.
    */
@@ -90,18 +90,18 @@ public final class DefaultNetworkServiceClientImpl implements NetworkServiceClie
   private final EStage<Identifier> nameServiceUnregisteringStage;
 
   @Inject
-  private DefaultNetworkServiceClientImpl(
-      @Parameter(NetworkServiceParameters.NetworkServiceIdentifierFactory.class) final IdentifierFactory idFactory,
-      @Parameter(NetworkServiceParameters.NetworkServicePort.class) final int nsPort,
+  private NetworkConnectionServiceImpl(
+      @Parameter(NetworkConnectionServiceParameters.NetworkConnectionServiceIdentifierFactory.class) final IdentifierFactory idFactory,
+      @Parameter(NetworkConnectionServiceParameters.NetworkConnectionServicePort.class) final int nsPort,
       final TransportFactory transportFactory,
       final NameResolver nameResolver) {
     this.idFactory = idFactory;
     this.connFactoryMap = new ConcurrentHashMap<>();
-    this.nsCodec = new DefaultNSMessageCodec(idFactory, connFactoryMap);
-    this.nsLinkListener = new NetworkServiceLinkListener(connFactoryMap);
-    final EventHandler<TransportEvent> recvHandler = new NetworkServiceReceiveHandler(connFactoryMap, nsCodec);
+    this.nsCodec = new NetworkConnectionServiceMessageCodec(idFactory, connFactoryMap);
+    this.nsLinkListener = new NetworkConnectionServiceLinkListener(connFactoryMap);
+    final EventHandler<TransportEvent> recvHandler = new NetworkConnectionServiceReceiveHandler(connFactoryMap, nsCodec);
     this.nameResolver = nameResolver;
-    this.transport = transportFactory.newInstance(nsPort, recvHandler, recvHandler, new DefaultNSExceptionHandler());
+    this.transport = transportFactory.newInstance(nsPort, recvHandler, recvHandler, new NetworkConnectionServiceExceptionHandler());
 
     this.nameServiceRegisteringStage = new SingleThreadStage<>(
         "NameServiceRegisterer", new EventHandler<Tuple<Identifier, InetSocketAddress>>() {
@@ -144,7 +144,7 @@ public final class DefaultNetworkServiceClientImpl implements NetworkServiceClie
       throw new NetworkException("ConnectionFactory " + connFactoryId + " was already registered.");
     }
     final ConnectionFactory connFactory = connFactoryMap.putIfAbsent(id,
-        new NSConnectionFactory<>(this, id, codec, eventHandler, linkListener));
+        new NetworkConnectionFactory<>(this, id, codec, eventHandler, linkListener));
 
     if (connFactory != null) {
       throw new NetworkException("ConnectionFactory " + connFactoryId + " was already registered.");
@@ -166,31 +166,31 @@ public final class DefaultNetworkServiceClientImpl implements NetworkServiceClie
   }
 
   /**
-   * Registers an identifier of NetworkService.
-   * @param nsId
+   * Registers a source identifier of NetworkConnectionService.
+   * @param ncsId
    * @throws Exception
    */
   @Override
-  public void registerId(final Identifier nsId) {
-    LOG.log(Level.INFO, "Registering NetworkSerice " + nsId);
-    this.myId = nsId;
+  public void registerId(final Identifier ncsId) {
+    LOG.log(Level.INFO, "Registering NetworkConnectionService " + ncsId);
+    this.myId = ncsId;
     final Tuple<Identifier, InetSocketAddress> tuple =
-        new Tuple<>(nsId, (InetSocketAddress) this.transport.getLocalAddress());
-    LOG.log(Level.FINEST, "Binding {0} to NetworkService@({1})",
+        new Tuple<>(ncsId, (InetSocketAddress) this.transport.getLocalAddress());
+    LOG.log(Level.FINEST, "Binding {0} to NetworkConnectionService@({1})",
         new Object[]{tuple.getKey(), tuple.getValue()});
     this.nameServiceRegisteringStage.onNext(tuple);
   }
 
   /**
-   * Open a channel for remoteId.
-   * @param remoteId
+   * Open a channel for destination identifier of NetworkConnectionService.
+   * @param destId
    * @throws NetworkException
    */
-  <T> Link<DefaultNSMessage<T>> openLink(final Identifier remoteId) throws NetworkException {
+  <T> Link<NetworkConnectionServiceMessage<T>> openLink(final Identifier destId) throws NetworkException {
     try {
-      final SocketAddress address = nameResolver.lookup(remoteId);
+      final SocketAddress address = nameResolver.lookup(destId);
       if (address == null) {
-        throw new NetworkException("Lookup " + remoteId + " is null");
+        throw new NetworkException("Lookup " + destId + " is null");
       }
       return transport.open(address, nsCodec, nsLinkListener);
     } catch(Exception e) {
@@ -201,9 +201,8 @@ public final class DefaultNetworkServiceClientImpl implements NetworkServiceClie
 
   /**
    * Gets a ConnectionFactory.
-   * @param connFactoryId the identifier of the ConnectionFActory
+   * @param connFactoryId the identifier of the ConnectionFactory
    */
-
   @Override
   public <T> ConnectionFactory<T> getConnectionFactory(final Identifier connFactoryId) {
     final ConnectionFactory<T> connFactory = connFactoryMap.get(connFactoryId.toString());
@@ -214,15 +213,15 @@ public final class DefaultNetworkServiceClientImpl implements NetworkServiceClie
   }
 
   @Override
-  public void unregisterId(final Identifier nsId) {
-    LOG.log(Level.FINEST, "Unbinding {0} to NetworkService@({1})",
-        new Object[]{nsId, this.transport.getLocalAddress()});
+  public void unregisterId(final Identifier ncsId) {
+    LOG.log(Level.FINEST, "Unbinding {0} to NetworkConnectionService@({1})",
+        new Object[]{ncsId, this.transport.getLocalAddress()});
     this.myId = null;
-    this.nameServiceUnregisteringStage.onNext(nsId);
+    this.nameServiceUnregisteringStage.onNext(ncsId);
   }
 
   @Override
-  public Identifier getNetworkServiceClientId() {
+  public Identifier getNetworkConnectionServiceId() {
     return this.myId;
   }
 
