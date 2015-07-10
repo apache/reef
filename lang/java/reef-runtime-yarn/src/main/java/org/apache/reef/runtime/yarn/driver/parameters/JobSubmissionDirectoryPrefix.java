@@ -1,4 +1,4 @@
-﻿/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -16,30 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.reef.runtime.yarn.driver.parameters;
 
-using System;
-using System.Linq.Expressions;
-using System.Net;
+import org.apache.reef.tang.annotations.Name;
+import org.apache.reef.tang.annotations.NamedParameter;
 
-namespace Org.Apache.REEF.Wake.Remote
-{
-    /// <summary>
-    /// Interface for remote event
-    /// </summary>
-    /// <typeparam name="T">Type of remote event message. It is assumed that T implements IWritable</typeparam>
-    [Obsolete("Need to remove Iwritable and use IstreamingCodec. Please see Jira REEF-295 ", false)]
-    internal interface IWritableRemoteEvent<T> : IWritable where T : IWritable
-    {
-        /// <summary>
-        /// Local Endpoint
-        /// </summary>
-        IPEndPoint LocalEndPoint { get; set; }
-
-        /// <summary>
-        /// Remote Endpoint
-        /// </summary>
-        IPEndPoint RemoteEndPoint { get; set; }
-
-        T Value { get; }
-    }
+/**
+ * The job submission directory.
+ */
+@NamedParameter(doc = "The job submission directory prefix.", default_value = "/vol1/tmp")
+public final class JobSubmissionDirectoryPrefix implements Name<String> {
 }

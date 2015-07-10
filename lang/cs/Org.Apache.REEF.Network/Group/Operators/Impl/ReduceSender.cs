@@ -34,12 +34,13 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
     /// Group Communication Operator used to send messages to be reduced by the ReduceReceiver in pipelined fashion.
     /// </summary>
     /// <typeparam name="T">The message type</typeparam>
-    public sealed class ReduceSender<T> : IReduceSender<T>
+    public sealed class ReduceSender<T> : IReduceSender<T>, IGroupCommOperatorInternal
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(ReduceSender<T>));
         private const int PipelineVersion = 2;
         private readonly IOperatorTopology<PipelineMessage<T>> _topology;
         private readonly PipelinedReduceFunction<T> _pipelinedReduceFunc;
+        private readonly bool _initialize;
 
         /// <summary>
         /// Creates a new ReduceSender.
@@ -71,16 +72,12 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
 
             _pipelinedReduceFunc = new PipelinedReduceFunction<T>(ReduceFunction);
             _topology = topology;
+            _initialize = initialize;
 
             var msgHandler = Observer.Create<GeneralGroupCommunicationMessage>(message => topology.OnNext(message));
             networkHandler.Register(operatorName, msgHandler);
 
             PipelineDataConverter = dataConverter;
-
-            if (initialize)
-            {
-                topology.Initialize();
-            }
         }
 
         /// <summary>
@@ -141,6 +138,17 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
                 {
                     _topology.SendToParent(message, MessageType.Data);
                 }
+            }
+        }
+
+        /// <summary>
+        /// Ensure all parent and children nodes in the topology are registered with teh Name Service.
+        /// </summary>
+        void IGroupCommOperatorInternal.WaitForRegistration()
+        {
+            if (_initialize)
+            {
+                _topology.Initialize();
             }
         }
     }

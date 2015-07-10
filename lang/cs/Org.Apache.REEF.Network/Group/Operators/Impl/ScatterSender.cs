@@ -33,10 +33,11 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
     /// of the IScatterReceivers.
     /// </summary>
     /// <typeparam name="T">The message type</typeparam>
-    public sealed class ScatterSender<T> : IScatterSender<T>
+    public sealed class ScatterSender<T> : IScatterSender<T>, IGroupCommOperatorInternal
     {
         private const int DefaultVersion = 1;
         private readonly IOperatorTopology<T> _topology;
+        private readonly bool _initialize ;
 
         /// <summary>
         /// Creates a new ScatterSender.
@@ -59,14 +60,10 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
             GroupName = groupName;
             Version = DefaultVersion;
             _topology = topology;
+            _initialize = initialize;
 
             var msgHandler = Observer.Create<GeneralGroupCommunicationMessage>(message => topology.OnNext(message));
             networkHandler.Register(operatorName, msgHandler);
-
-            if (initialize)
-            {
-                topology.Initialize();
-            }
         }
 
         public string OperatorName { get; private set; }
@@ -107,6 +104,17 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
         public void Send(List<T> elements, List<string> order)
         {
             _topology.ScatterToChildren(elements, order, MessageType.Data);
+        }
+
+        /// <summary>
+        /// Ensure all parent and children nodes in the topology are registered with teh Name Service.
+        /// </summary>
+        void IGroupCommOperatorInternal.WaitForRegistration()
+        {
+            if (_initialize)
+            {
+                _topology.Initialize();
+            }
         }
     }
 }

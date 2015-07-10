@@ -20,7 +20,8 @@
  * Driver-Side representations of Evaluators.
  */
 @DriverSide
-@Private package org.apache.reef.runtime.common.driver.evaluator;
+@Private
+package org.apache.reef.runtime.common.driver.evaluator;
 
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;

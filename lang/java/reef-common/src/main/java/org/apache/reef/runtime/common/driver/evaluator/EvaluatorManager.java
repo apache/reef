@@ -367,19 +367,19 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
   private synchronized void onEvaluatorStatusMessage(final ReefServiceProtos.EvaluatorStatusProto message) {
 
     switch (message.getState()) {
-      case DONE:
-        this.onEvaluatorDone(message);
-        break;
-      case FAILED:
-        this.onEvaluatorFailed(message);
-        break;
-      case INIT:
-      case KILLED:
-      case RUNNING:
-      case SUSPEND:
-        break;
-      default:
-        throw new RuntimeException("Unknown state: " + message.getState());
+    case DONE:
+      this.onEvaluatorDone(message);
+      break;
+    case FAILED:
+      this.onEvaluatorFailed(message);
+      break;
+    case INIT:
+    case KILLED:
+    case RUNNING:
+    case SUSPEND:
+      break;
+    default:
+      throw new RuntimeException("Unknown state: " + message.getState());
     }
   }
 

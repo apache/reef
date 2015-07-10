@@ -138,11 +138,13 @@ public final class REEFExecutor implements Executor {
   // HELPER METHODS
 
   private void onStart() {
-    this.executorService.submit(new Thread() { public void run() {
-      final Status status;
-      status = mesosExecutorDriver.run();
-      LOG.log(Level.INFO, "MesosExecutorDriver ended with status {0}", status);
-    }});
+    this.executorService.submit(new Thread() {
+      public void run() {
+        final Status status;
+        status = mesosExecutorDriver.run();
+        LOG.log(Level.INFO, "MesosExecutorDriver ended with status {0}", status);
+      }
+    });
   }
 
   private void onStop() {

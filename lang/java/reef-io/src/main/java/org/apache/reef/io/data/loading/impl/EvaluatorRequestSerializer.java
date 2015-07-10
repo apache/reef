@@ -22,41 +22,59 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.reef.driver.evaluator.EvaluatorRequest;
 
 import java.io.*;
+import java.util.List;
 
 /**
  * Serialize and deserialize EvaluatorRequest objects.
- * Currently only supports number & memory
- * Does not take care of Resource Descriptor
+ * Supports number, memory, cores, nodeNames and rackNames serialization
  */
 public final class EvaluatorRequestSerializer {
-  public static String serialize(EvaluatorRequest request) {
+  public static String serialize(final EvaluatorRequest request) {
     try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
       try (DataOutputStream daos = new DataOutputStream(baos)) {
 
         daos.writeInt(request.getNumber());
         daos.writeInt(request.getMegaBytes());
         daos.writeInt(request.getNumberOfCores());
+        final List<String> nodeNames = request.getNodeNames();
+        final List<String> rackNames = request.getRackNames();
+        daos.writeInt(nodeNames.size());
+        daos.writeInt(rackNames.size());
+        for (final String nodeName : nodeNames) {
+          daos.writeUTF(nodeName);
+        }
+        for (final String rackName : rackNames) {
+          daos.writeUTF(rackName);
+        }
 
-      } catch (IOException e) {
+      } catch (final IOException e) {
         throw e;
       }
 
       return Base64.encodeBase64String(baos.toByteArray());
-    } catch (IOException e1) {
+    } catch (final IOException e1) {
       throw new RuntimeException("Unable to serialize compute request", e1);
     }
   }
 
-  public static EvaluatorRequest deserialize(String serializedRequest) {
+  public static EvaluatorRequest deserialize(final String serializedRequest) {
     try (ByteArrayInputStream bais = new ByteArrayInputStream(Base64.decodeBase64(serializedRequest))) {
       try (DataInputStream dais = new DataInputStream(bais)) {
-        return EvaluatorRequest.newBuilder()
+        final EvaluatorRequest.Builder builder = EvaluatorRequest.newBuilder()
             .setNumber(dais.readInt())
             .setMemory(dais.readInt())
-            .setNumberOfCores(dais.readInt())
-            .build();
+            .setNumberOfCores(dais.readInt());
+        final int numNodes = dais.readInt();
+        final int numRacks = dais.readInt();
+        for (int i = 0; i < numNodes; i++) {
+          builder.addNodeName(dais.readUTF());
+        }
+        for (int i = 0; i < numRacks; i++) {
+          builder.addRackName(dais.readUTF());
+        }
+        return builder.build();
       }
-    } catch (IOException e) {
+    } catch (final IOException e) {
       throw new RuntimeException("Unable to de-serialize compute request", e);
     }
   }

@@ -55,20 +55,20 @@ public class SlaveTask implements Task {
     while (!stop) {
       final ControlMessages controlMessage = controlMessageBroadcaster.receive();
       switch (controlMessage) {
-        case Stop:
-          stop = true;
-          break;
+      case Stop:
+        stop = true;
+        break;
 
-        case ReceiveModel:
-          modelBroadcaster.receive();
-          if (Math.random() < 0.1) {
-            throw new RuntimeException("Simulated Failure");
-          }
-          modelReceiveAckReducer.send(true);
-          break;
+      case ReceiveModel:
+        modelBroadcaster.receive();
+        if (Math.random() < 0.1) {
+          throw new RuntimeException("Simulated Failure");
+        }
+        modelReceiveAckReducer.send(true);
+        break;
 
-        default:
-          break;
+      default:
+        break;
       }
     }
     return null;

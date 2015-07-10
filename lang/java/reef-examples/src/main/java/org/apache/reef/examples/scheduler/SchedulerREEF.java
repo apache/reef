@@ -48,7 +48,7 @@ public final class SchedulerREEF {
    * or false to allocate/close for each iteration
    */
   @NamedParameter(doc = "Whether or not to reuse evaluators",
-    short_name = "retain", default_value = "true")
+      short_name = "retain", default_value = "true")
   public static final class Retain implements Name<Boolean> {
   }
 
@@ -57,8 +57,8 @@ public final class SchedulerREEF {
    */
   private static Configuration getHttpConf() {
     final Configuration httpHandlerConf = HttpHandlerConfiguration.CONF
-      .set(HttpHandlerConfiguration.HTTP_HANDLERS, SchedulerHttpHandler.class)
-      .build();
+        .set(HttpHandlerConfiguration.HTTP_HANDLERS, SchedulerHttpHandler.class)
+        .build();
     return httpHandlerConf;
   }
 
@@ -67,13 +67,13 @@ public final class SchedulerREEF {
    */
   private static Configuration getDriverConf() {
     final Configuration driverConf = DriverConfiguration.CONF
-      .set(DriverConfiguration.GLOBAL_LIBRARIES, EnvironmentUtils.getClassLocation(SchedulerDriver.class))
-      .set(DriverConfiguration.DRIVER_IDENTIFIER, "TaskScheduler")
-      .set(DriverConfiguration.ON_DRIVER_STARTED, SchedulerDriver.StartHandler.class)
-      .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, SchedulerDriver.EvaluatorAllocatedHandler.class)
-      .set(DriverConfiguration.ON_CONTEXT_ACTIVE, SchedulerDriver.ActiveContextHandler.class)
-      .set(DriverConfiguration.ON_TASK_COMPLETED, SchedulerDriver.CompletedTaskHandler.class)
-      .build();
+        .set(DriverConfiguration.GLOBAL_LIBRARIES, EnvironmentUtils.getClassLocation(SchedulerDriver.class))
+        .set(DriverConfiguration.DRIVER_IDENTIFIER, "TaskScheduler")
+        .set(DriverConfiguration.ON_DRIVER_STARTED, SchedulerDriver.StartHandler.class)
+        .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, SchedulerDriver.EvaluatorAllocatedHandler.class)
+        .set(DriverConfiguration.ON_CONTEXT_ACTIVE, SchedulerDriver.ActiveContextHandler.class)
+        .set(DriverConfiguration.ON_TASK_COMPLETED, SchedulerDriver.CompletedTaskHandler.class)
+        .build();
 
     return driverConf;
   }
@@ -106,8 +106,8 @@ public final class SchedulerREEF {
    */
   public static void main(String[] args) throws InjectionException, IOException, ParseException {
     final Configuration runtimeConfiguration = LocalRuntimeConfiguration.CONF
-      .set(LocalRuntimeConfiguration.MAX_NUMBER_OF_EVALUATORS, MAX_NUMBER_OF_EVALUATORS)
-      .build();
+        .set(LocalRuntimeConfiguration.MAX_NUMBER_OF_EVALUATORS, MAX_NUMBER_OF_EVALUATORS)
+        .build();
     runTaskScheduler(runtimeConfiguration, args);
   }
 

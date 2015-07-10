@@ -20,7 +20,8 @@
  * Implementations of Driver-Side representations of Contexts running on an Evaluator.
  */
 @DriverSide
-@Private package org.apache.reef.runtime.common.driver.context;
+@Private
+package org.apache.reef.runtime.common.driver.context;
 
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;

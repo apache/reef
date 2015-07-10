@@ -112,8 +112,8 @@ public final class SchedulerDriver {
       }
 
       evaluator.submitContext(ContextConfiguration.CONF
-        .set(ContextConfiguration.IDENTIFIER, "SchedulerContext")
-        .build());
+          .set(ContextConfiguration.IDENTIFIER, "SchedulerContext")
+          .build());
     }
   }
 
@@ -260,7 +260,7 @@ public final class SchedulerDriver {
 
       if (scheduler.hasPendingTasks()) {
         final int nToRequest =
-          Math.min(scheduler.getNumPendingTasks(), nMaxEval - nActiveEval) - nRequestedEval;
+            Math.min(scheduler.getNumPendingTasks(), nMaxEval - nActiveEval) - nRequestedEval;
         requestEvaluator(nToRequest);
       }
       return SchedulerResponse.OK("You can use evaluators up to " + nMaxEval + " evaluators.");
@@ -279,9 +279,9 @@ public final class SchedulerDriver {
     synchronized (SchedulerDriver.this) {
       nRequestedEval += numToRequest;
       requestor.submit(EvaluatorRequest.newBuilder()
-        .setMemory(32)
-        .setNumber(numToRequest)
-        .build());
+          .setMemory(32)
+          .setNumber(numToRequest)
+          .build());
     }
   }
 

@@ -78,40 +78,40 @@ public final class Driver {
             TaskConfiguration.CONF.set(TaskConfiguration.IDENTIFIER, taskId);
 
         switch (failTaskName) {
-          case "FailTask":
-            taskConfig = taskConfig.set(TaskConfiguration.TASK, FailTask.class);
-            break;
-          case "FailTaskCall":
-            taskConfig = taskConfig.set(TaskConfiguration.TASK, FailTaskCall.class);
-            break;
-          case "FailTaskMsg":
-            taskConfig = taskConfig
+        case "FailTask":
+          taskConfig = taskConfig.set(TaskConfiguration.TASK, FailTask.class);
+          break;
+        case "FailTaskCall":
+          taskConfig = taskConfig.set(TaskConfiguration.TASK, FailTaskCall.class);
+          break;
+        case "FailTaskMsg":
+          taskConfig = taskConfig
                 .set(TaskConfiguration.TASK, FailTaskMsg.class)
                 .set(TaskConfiguration.ON_MESSAGE, FailTaskMsg.class);
-            break;
-          case "FailTaskSuspend":
-            taskConfig = taskConfig
+          break;
+        case "FailTaskSuspend":
+          taskConfig = taskConfig
                 .set(TaskConfiguration.TASK, FailTaskSuspend.class)
                 .set(TaskConfiguration.ON_SUSPEND, FailTaskSuspend.class);
-            break;
-          case "FailTaskStart":
-            taskConfig = taskConfig
+          break;
+        case "FailTaskStart":
+          taskConfig = taskConfig
                 .set(TaskConfiguration.TASK, FailTaskStart.class)
                 .set(TaskConfiguration.ON_TASK_STARTED, FailTaskStart.class);
-            break;
-          case "FailTaskStop":
-            taskConfig = taskConfig
+          break;
+        case "FailTaskStop":
+          taskConfig = taskConfig
                 .set(TaskConfiguration.TASK, FailTaskStop.class)
                 .set(TaskConfiguration.ON_TASK_STOP, FailTaskStop.class)
                 .set(TaskConfiguration.ON_CLOSE, FailTaskStop.CloseEventHandler.class);
-            break;
-          case "FailTaskClose":
-            taskConfig = taskConfig
+          break;
+        case "FailTaskClose":
+          taskConfig = taskConfig
                 .set(TaskConfiguration.TASK, FailTaskClose.class)
                 .set(TaskConfiguration.ON_CLOSE, FailTaskClose.class);
-            break;
-          default:
-            break;
+          break;
+        default:
+          break;
         }
 
         eval.submitContextAndTask(contextConfig, taskConfig.build());
@@ -136,21 +136,21 @@ public final class Driver {
       }
 
       switch (failTaskName) {
-        case "FailTaskMsg":
-          LOG.log(Level.INFO, "TaskRuntime: Send message: {0}", task);
-          task.send(new byte[0]);
-          break;
-        case "FailTaskSuspend":
-          LOG.log(Level.INFO, "TaskRuntime: Suspend: {0}", task);
-          task.suspend();
-          break;
-        case "FailTaskStop":
-        case "FailTaskClose":
-          LOG.log(Level.INFO, "TaskRuntime: Stop/Close: {0}", task);
-          task.close();
-          break;
-        default:
-          break;
+      case "FailTaskMsg":
+        LOG.log(Level.INFO, "TaskRuntime: Send message: {0}", task);
+        task.send(new byte[0]);
+        break;
+      case "FailTaskSuspend":
+        LOG.log(Level.INFO, "TaskRuntime: Suspend: {0}", task);
+        task.suspend();
+        break;
+      case "FailTaskStop":
+      case "FailTaskClose":
+        LOG.log(Level.INFO, "TaskRuntime: Stop/Close: {0}", task);
+        task.close();
+        break;
+      default:
+        break;
       }
     }
   }

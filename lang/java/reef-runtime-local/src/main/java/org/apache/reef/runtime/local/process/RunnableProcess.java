@@ -117,26 +117,26 @@ public final class RunnableProcess implements Runnable {
    */
   private static boolean isLegal(final State from, final State to) {
     switch (from) {
+    case INIT:
+      switch (to) {
       case INIT:
-        switch (to) {
-          case INIT:
-          case RUNNING:
-          case ENDED:
-            return true;
-          default:
-            return false;
-        }
       case RUNNING:
-        switch (to) {
-          case ENDED:
-            return true;
-          default:
-            return false;
-        }
       case ENDED:
-        return false;
+        return true;
       default:
         return false;
+      }
+    case RUNNING:
+      switch (to) {
+      case ENDED:
+        return true;
+      default:
+        return false;
+      }
+    case ENDED:
+      return false;
+    default:
+      return false;
     }
   }
 

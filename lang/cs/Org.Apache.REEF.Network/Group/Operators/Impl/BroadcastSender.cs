@@ -33,11 +33,12 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
     /// Group Communication Operator used to send messages to child Tasks in pipelined fashion.
     /// </summary>
     /// <typeparam name="T">The message type</typeparam>
-    public sealed class BroadcastSender<T> : IBroadcastSender<T>
+    public sealed class BroadcastSender<T> : IBroadcastSender<T>, IGroupCommOperatorInternal
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(BroadcastSender<T>));
         private const int PipelineVersion = 2;
         private readonly IOperatorTopology<PipelineMessage<T>> _topology;
+        private readonly bool _initialize;
 
         /// <summary>
         /// Creates a new BroadcastSender to send messages to other Tasks.
@@ -65,16 +66,12 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
             GroupName = groupName;
             Version = PipelineVersion;
             PipelineDataConverter = dataConverter;
+            _initialize = initialize;
 
             var msgHandler = Observer.Create<GeneralGroupCommunicationMessage>(message => topology.OnNext(message));
             networkHandler.Register(operatorName, msgHandler);
-
-            if (initialize)
-            {
-                topology.Initialize();
-            }
         }
-      
+
         /// <summary>
         /// Returns the identifier for the Group Communication operator.
         /// </summary>
@@ -113,5 +110,16 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
                 _topology.SendToChildren(message, MessageType.Data);
             }
         }
+
+        /// <summary>
+        /// Ensure all parent and children nodes in the topology are registered with teh Name Service.
+        /// </summary>
+        void IGroupCommOperatorInternal.WaitForRegistration()
+        {
+            if (_initialize)
+            {
+                _topology.Initialize();
+            }
+        }      
     }
 }

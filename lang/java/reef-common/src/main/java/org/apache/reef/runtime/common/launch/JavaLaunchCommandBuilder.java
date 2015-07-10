@@ -46,50 +46,50 @@ public final class JavaLaunchCommandBuilder implements LaunchCommandBuilder {
   public List<String> build() {
     return new ArrayList<String>() {{
 
-      if (javaPath == null || javaPath.isEmpty()) {
-        add(DEFAULT_JAVA_PATH);
-      } else {
-        add(javaPath);
-      }
+        if (javaPath == null || javaPath.isEmpty()) {
+          add(DEFAULT_JAVA_PATH);
+        } else {
+          add(javaPath);
+        }
 
-      add("-XX:PermSize=128m");
-      add("-XX:MaxPermSize=128m");
-      // Set Xmx based on am memory size
-      add("-Xmx" + megaBytes + "m");
+        add("-XX:PermSize=128m");
+        add("-XX:MaxPermSize=128m");
+        // Set Xmx based on am memory size
+        add("-Xmx" + megaBytes + "m");
 
-      if ((assertionsEnabled != null && assertionsEnabled)
-          || EnvironmentUtils.areAssertionsEnabled()) {
-        add("-ea");
-      }
+        if ((assertionsEnabled != null && assertionsEnabled)
+            || EnvironmentUtils.areAssertionsEnabled()) {
+          add("-ea");
+        }
 
-      if (classPath != null && !classPath.isEmpty()) {
-        add("-classpath");
-        add(classPath);
-      }
+        if (classPath != null && !classPath.isEmpty()) {
+          add("-classpath");
+          add(classPath);
+        }
 
-      Launcher.propagateProperties(this, true, "proc_reef");
-      Launcher.propagateProperties(this, false,
-          "java.util.logging.config.file", "java.util.logging.config.class");
+        Launcher.propagateProperties(this, true, "proc_reef");
+        Launcher.propagateProperties(this, false,
+            "java.util.logging.config.file", "java.util.logging.config.class");
 
-      add(Launcher.class.getName());
+        add(Launcher.class.getName());
 
-      add("-" + ErrorHandlerRID.SHORT_NAME);
-      add(errorHandlerRID);
-      add("-" + LaunchID.SHORT_NAME);
-      add(launchID);
-      add("-" + ClockConfigurationPath.SHORT_NAME);
-      add(evaluatorConfigurationPath);
+        add("-" + ErrorHandlerRID.SHORT_NAME);
+        add(errorHandlerRID);
+        add("-" + LaunchID.SHORT_NAME);
+        add(launchID);
+        add("-" + ClockConfigurationPath.SHORT_NAME);
+        add(evaluatorConfigurationPath);
 
-      if (stdoutPath != null && !stdoutPath.isEmpty()) {
-        add("1>");
-        add(stdoutPath);
-      }
+        if (stdoutPath != null && !stdoutPath.isEmpty()) {
+          add("1>");
+          add(stdoutPath);
+        }
 
-      if (stderrPath != null && !stderrPath.isEmpty()) {
-        add("2>");
-        add(stderrPath);
-      }
-    }};
+        if (stderrPath != null && !stderrPath.isEmpty()) {
+          add("2>");
+          add(stderrPath);
+        }
+      }};
   }
 
   @Override

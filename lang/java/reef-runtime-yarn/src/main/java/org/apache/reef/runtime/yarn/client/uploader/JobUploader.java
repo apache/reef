@@ -21,23 +21,26 @@ package org.apache.reef.runtime.yarn.client.uploader;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
-import org.apache.reef.runtime.common.files.REEFFileNames;
-
+import org.apache.reef.runtime.yarn.driver.JobSubmissionDirectoryProvider;
 import javax.inject.Inject;
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Helper class to upload the driver files to HDFS.
  */
 public final class JobUploader {
 
+  private static final Logger LOG = Logger.getLogger(JobUploader.class.getName());
+
   private final FileSystem fileSystem;
-  private final REEFFileNames fileNames;
+  private final JobSubmissionDirectoryProvider jobSubmissionDirectoryProvider;
 
   @Inject
   JobUploader(final YarnConfiguration yarnConfiguration,
-              final REEFFileNames fileNames) throws IOException {
-    this.fileNames = fileNames;
+              JobSubmissionDirectoryProvider jobSubmissionDirectoryProvider) throws IOException {
+    this.jobSubmissionDirectoryProvider = jobSubmissionDirectoryProvider;
     this.fileSystem = FileSystem.get(yarnConfiguration);
   }
 
@@ -48,10 +51,24 @@ public final class JobUploader {
    * @return a reference to the JobFolder that can be used to upload files to it.
    * @throws IOException
    */
-  public JobFolder createJobFolder(final String applicationId) throws IOException {
-    // TODO: This really should be configurable, but wasn't in the code I moved as part of [REEF-228]
-    final Path jobFolderPath = new Path("/tmp/" + this.fileNames.getJobFolderPrefix() + applicationId + "/");
-    return new JobFolder(this.fileSystem, jobFolderPath);
+  public JobFolder createJobFolderWithApplicationId(final String applicationId) throws IOException {
+    final Path jobFolderPath = jobSubmissionDirectoryProvider.getJobSubmissionDirectoryPath(applicationId);
+    final String finalJobFolderPath = jobFolderPath.toString();
+    LOG.log(Level.FINE, "Final job submission Directory: " + finalJobFolderPath);
+    return createJobFolder(finalJobFolderPath);
+  }
+
+
+  /**
+   * Convenience override for int ids.
+   *
+   * @param finalJobFolderPath
+   * @return
+   * @throws IOException
+   */
+  public JobFolder createJobFolder(final String finalJobFolderPath) throws IOException {
+    LOG.log(Level.FINE, "Final job submission Directory: " + finalJobFolderPath);
+    return new JobFolder(this.fileSystem, new Path(finalJobFolderPath));
   }
 
   /**
@@ -62,6 +79,6 @@ public final class JobUploader {
    * @throws IOException
    */
   public JobFolder createJobFolder(final int applicationId) throws IOException {
-    return this.createJobFolder(Integer.toString(applicationId));
+    return this.createJobFolderWithApplicationId(Integer.toString(applicationId));
   }
 }

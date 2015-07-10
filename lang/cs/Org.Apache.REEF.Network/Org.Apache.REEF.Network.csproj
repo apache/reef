@@ -67,6 +67,7 @@ under the License.
     <Compile Include="Group\Operators\IBroadcastReceiver.cs" />
     <Compile Include="Group\Operators\IBroadcastSender.cs" />
     <Compile Include="Group\Operators\IGroupCommOperator.cs" />
+    <Compile Include="Group\Operators\IGroupCommOperatorInternal.cs" />
     <Compile Include="Group\Operators\Impl\BroadcastOperatorSpec.cs" />
     <Compile Include="Group\Operators\Impl\BroadcastReceiver.cs" />
     <Compile Include="Group\Operators\Impl\BroadcastSender.cs" />
@@ -81,6 +82,7 @@ under the License.
     <Compile Include="Group\Operators\Impl\Sender.cs" />
     <Compile Include="Group\Operators\IOperatorSpec.cs" />
     <Compile Include="Group\Pipelining\StreamingPipelineMessageCodec.cs" />
+    <Compile Include="Group\Task\ICommunicationGroupClientInternal.cs" />
     <Compile Include="Group\Task\IOperatorTopology.cs" />
     <Compile Include="Group\Operators\IReduceFunction.cs" />
     <Compile Include="Group\Operators\IReduceReceiver.cs" />
