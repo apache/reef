@@ -85,7 +85,8 @@ public final class RunnableProcess implements Runnable {
 
   /**
    * @param command               the command to execute.
-   * @param id                    The ID of the process. This is used to name files and in the logs created by this process.
+   * @param id                    The ID of the process. This is used to name files and in the logs created
+   *                              by this process.
    * @param folder                The folder in which this will store its stdout and stderr output
    * @param processObserver       will be informed of process state changes.
    * @param standardOutFileName   The name of the file used for redirecting STDOUT

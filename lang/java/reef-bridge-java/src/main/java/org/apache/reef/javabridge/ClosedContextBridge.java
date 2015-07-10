@@ -36,7 +36,8 @@ public class ClosedContextBridge extends NativeBridge implements ClosedContext {
   private final String evaluatorId;
   private final EvaluatorDescriptor evaluatorDescriptor;
 
-  public ClosedContextBridge(final ClosedContext closedContext, final ActiveContextBridgeFactory activeContextBridgeFactory) {
+  public ClosedContextBridge(final ClosedContext closedContext,
+                             final ActiveContextBridgeFactory activeContextBridgeFactory) {
     jcloseContext = closedContext;
     parentContext = activeContextBridgeFactory.getActiveContextBridge(closedContext.getParentContext());
     contextId = closedContext.getId();

@@ -88,7 +88,8 @@ public interface Configuration {
    * If nothing was explicitly bound, the set will be empty (it will not reflect any default values).
    *
    * @param np A NamedParameterNode from this Configuration's class hierarchy.
-   * @return A set of ClassHierarchy Node objects or a set of strings, depending on whether the NamedParameterNode refers to an interface or configuration options, respectively.
+   * @return A set of ClassHierarchy Node objects or a set of strings, depending on
+   * whether the NamedParameterNode refers to an interface or configuration options, respectively.
    * @see getClassHierarchy()
    */
   Set<Object> getBoundSet(NamedParameterNode<Set<?>> np);
@@ -112,7 +113,8 @@ public interface Configuration {
   <T> ClassNode<T> getBoundImplementation(ClassNode<T> cn);
 
   /**
-   * Return the LegacyConstructor that has been bound to this Class.  Such constructors are defined in the class, but missing their @Inject annotation.
+   * Return the LegacyConstructor that has been bound to this Class.
+   * Such constructors are defined in the class, but missing their @Inject annotation.
    * <p/>
    * For now, only one legacy constructor can be bound per class.
    * <p/>
@@ -151,9 +153,11 @@ public interface Configuration {
   /**
    * Get the set bindings from set-valued NamedParameters to the values they were bound to.
    * <p/>
-   * TODO: This API seems wonky.  Why not return a Set<NamedParameterNode<Set<?>>> instead, and let the caller invoke getBoundSet() above?
+   * TODO: This API seems wonky.
+   * Why not return a Set<NamedParameterNode<Set<?>>> instead, and let the caller invoke getBoundSet() above?
    *
-   * @return a flattened set with one entry for each binding (the same NamedParameterNode may be a key for multiple bindings.
+   * @return a flattened set with one entry for each binding
+   * (the same NamedParameterNode may be a key for multiple bindings.
    * @deprecated
    */
   @Deprecated

@@ -96,7 +96,8 @@ final class Scheduler {
 
     final TaskEntity task = getTask(taskId, taskQueue);
     if (task == null) {
-      final String message = new StringBuilder().append("Task with ID ").append(taskId).append(" is not found").toString();
+      final String message =
+          new StringBuilder().append("Task with ID ").append(taskId).append(" is not found").toString();
       return SchedulerResponse.NOT_FOUND(message);
     } else {
       taskQueue.remove(task);
@@ -172,7 +173,8 @@ final class Scheduler {
         return SchedulerResponse.OK("Canceled: " + finished.toString());
       }
     }
-    return SchedulerResponse.NOT_FOUND(new StringBuilder().append("Task with ID ").append(taskId).append(" is not found").toString());
+    return SchedulerResponse.NOT_FOUND(
+        new StringBuilder().append("Task with ID ").append(taskId).append(" is not found").toString());
   }
 
   /**

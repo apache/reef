@@ -94,7 +94,8 @@ public final class ContextRepresenters {
    * @param contextStatusProto
    * @param notifyClientOnNewActiveContext
    */
-  public synchronized void onContextStatusMessages(final Iterable<ReefServiceProtos.ContextStatusProto> contextStatusProtos,
+  public synchronized void onContextStatusMessages(final Iterable<ReefServiceProtos.ContextStatusProto>
+                                                       contextStatusProtos,
                                                    final boolean notifyClientOnNewActiveContext) {
     for (final ReefServiceProtos.ContextStatusProto contextStatusProto : contextStatusProtos) {
       this.onContextStatusMessage(contextStatusProto, notifyClientOnNewActiveContext);
@@ -185,7 +186,8 @@ public final class ContextRepresenters {
     }
 
     // Dispatch the messages to the application, if there are any.
-    for (final ReefServiceProtos.ContextStatusProto.ContextMessageProto contextMessageProto : contextStatusProto.getContextMessageList()) {
+    for (final ReefServiceProtos.ContextStatusProto.ContextMessageProto
+             contextMessageProto : contextStatusProto.getContextMessageList()) {
       final byte[] theMessage = contextMessageProto.getMessage().toByteArray();
       final String sourceID = contextMessageProto.getSourceId();
       this.messageDispatcher.onContextMessage(new ContextMessageImpl(theMessage, contextID, sourceID));

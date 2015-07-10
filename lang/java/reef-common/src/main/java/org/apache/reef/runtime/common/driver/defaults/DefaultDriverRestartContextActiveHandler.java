@@ -38,7 +38,8 @@ public final class DefaultDriverRestartContextActiveHandler implements EventHand
 
   @Override
   public void onNext(final ActiveContext activeContext) {
-    LOG.log(Level.INFO, "Received ActiveContext running on previous Evaluator during driver restart: {0} :: CLOSING", activeContext);
+    LOG.log(Level.INFO, "Received ActiveContext running on previous Evaluator during driver restart: {0} :: CLOSING",
+        activeContext);
     activeContext.close();
   }
 }

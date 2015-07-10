@@ -24,6 +24,7 @@ import org.apache.reef.tang.annotations.NamedParameter;
 /**
  * The maximum number of evaluators to allow to run at once.
  */
-@NamedParameter(default_value = "4", doc = "The maximum number of evaluators to allow to run at once", short_name = "maxEvaluators")
+@NamedParameter(default_value = "4", doc = "The maximum number of evaluators to allow to run at once",
+    short_name = "maxEvaluators")
 public final class MaxNumberOfEvaluators implements Name<Integer> {
 }

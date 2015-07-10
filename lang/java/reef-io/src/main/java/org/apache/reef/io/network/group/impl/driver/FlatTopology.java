@@ -71,7 +71,8 @@ public class FlatTopology implements Topology {
   private final ConcurrentMap<String, TaskNode> nodes = new ConcurrentSkipListMap<>();
 
   public FlatTopology(final EStage<GroupCommunicationMessage> senderStage,
-                      final Class<? extends Name<String>> groupName, final Class<? extends Name<String>> operatorName,
+                      final Class<? extends Name<String>> groupName,
+                      final Class<? extends Name<String>> operatorName,
                       final String driverId, final int numberOfTasks) {
     this.senderStage = senderStage;
     this.groupName = groupName;
@@ -279,7 +280,8 @@ public class FlatTopology implements Topology {
     }
     for (final TaskNode node : toBeUpdatedNodes) {
       node.updatingTopology();
-      senderStage.onNext(Utils.bldVersionedGCM(groupName, operName, ReefNetworkGroupCommProtos.GroupCommMessage.Type.UpdateTopology, driverId, 0, node.getTaskId(),
+      senderStage.onNext(Utils.bldVersionedGCM(groupName, operName,
+          ReefNetworkGroupCommProtos.GroupCommMessage.Type.UpdateTopology, driverId, 0, node.getTaskId(),
           node.getVersion(), Utils.EMPTY_BYTE_ARR));
     }
     nodeTopologyUpdateWaitStage.onNext(toBeUpdatedNodes);
@@ -297,7 +299,8 @@ public class FlatTopology implements Topology {
     }
     final GroupChanges changes = new GroupChangesImpl(hasTopologyChanged);
     final Codec<GroupChanges> changesCodec = new GroupChangesCodec();
-    senderStage.onNext(Utils.bldVersionedGCM(groupName, operName, ReefNetworkGroupCommProtos.GroupCommMessage.Type.TopologyChanges, driverId, 0, dstId, getNodeVersion(dstId),
+    senderStage.onNext(Utils.bldVersionedGCM(groupName, operName,
+        ReefNetworkGroupCommProtos.GroupCommMessage.Type.TopologyChanges, driverId, 0, dstId, getNodeVersion(dstId),
         changesCodec.encode(changes)));
   }
 

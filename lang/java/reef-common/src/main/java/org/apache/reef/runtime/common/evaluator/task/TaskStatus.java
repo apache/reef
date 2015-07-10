@@ -56,7 +56,8 @@ public final class TaskStatus {
   @Inject
   TaskStatus(@Parameter(TaskConfigurationOptions.Identifier.class) final String taskId,
              @Parameter(ContextIdentifier.class) final String contextId,
-             @Parameter(TaskConfigurationOptions.TaskMessageSources.class) final Set<TaskMessageSource> evaluatorMessageSources,
+             @Parameter(TaskConfigurationOptions.TaskMessageSources.class)
+             final Set<TaskMessageSource> evaluatorMessageSources,
              final HeartBeatManager heartBeatManager,
              final ExceptionCodec exceptionCodec) {
     this.taskId = taskId;

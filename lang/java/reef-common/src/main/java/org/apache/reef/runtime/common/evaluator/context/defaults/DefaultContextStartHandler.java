@@ -38,6 +38,7 @@ public final class DefaultContextStartHandler implements EventHandler<ContextSta
 
   @Override
   public void onNext(final ContextStart contextStart) {
-    Logger.getLogger(this.getClass().toString()).log(Level.INFO, "DefaultContextStartHandler received: " + contextStart);
+    Logger.getLogger(this.getClass().toString()).log(Level.INFO, "DefaultContextStartHandler received: " +
+        contextStart);
   }
 }

@@ -89,7 +89,8 @@ public class OperatorTopologyStructImpl implements OperatorTopologyStruct {
 
   @Override
   public String toString() {
-    return "OperatorTopologyStruct - " + Utils.simpleName(groupName) + ":" + Utils.simpleName(operName) + "(" + selfId + "," + version + ")";
+    return "OperatorTopologyStruct - " + Utils.simpleName(groupName) + ":" + Utils.simpleName(operName) +
+        "(" + selfId + "," + version + ")";
   }
 
   @Override
@@ -130,7 +131,8 @@ public class OperatorTopologyStructImpl implements OperatorTopologyStruct {
   @Override
   public boolean hasChanges() {
     LOG.entering("OperatorTopologyStructImpl", "hasChanges", getQualifiedName());
-    LOG.exiting("OperatorTopologyStructImpl", "hasChanges", Arrays.toString(new Object[]{this.changes, getQualifiedName()}));
+    LOG.exiting("OperatorTopologyStructImpl", "hasChanges",
+        Arrays.toString(new Object[]{this.changes, getQualifiedName()}));
     return this.changes;
   }
 
@@ -166,11 +168,14 @@ public class OperatorTopologyStructImpl implements OperatorTopologyStruct {
     } else {
       retVal = findChild(srcId);
     }
-    LOG.exiting("OperatorTopologyStructImpl", "findNode", Arrays.toString(new Object[]{retVal, getQualifiedName(), srcId}));
+    LOG.exiting("OperatorTopologyStructImpl", "findNode",
+        Arrays.toString(new Object[]{retVal, getQualifiedName(), srcId}));
     return retVal;
   }
 
-  private void sendToNode(final byte[] data, final ReefNetworkGroupCommProtos.GroupCommMessage.Type msgType, final NodeStruct node) {
+  private void sendToNode(final byte[] data,
+                          final ReefNetworkGroupCommProtos.GroupCommMessage.Type msgType,
+                          final NodeStruct node) {
     LOG.entering("OperatorTopologyStructImpl", "sendToNode", new Object[]{getQualifiedName(), data, msgType, node});
     final String nodeId = node.getId();
     try {
@@ -190,7 +195,8 @@ public class OperatorTopologyStructImpl implements OperatorTopologyStruct {
         }
       }
 
-      sender.send(Utils.bldVersionedGCM(groupName, operName, msgType, selfId, version, nodeId, node.getVersion(), data));
+      sender.send(Utils.bldVersionedGCM(groupName, operName, msgType, selfId, version, nodeId, node.getVersion(),
+          data));
 
       if (data.length > SMALL_MSG_LENGTH) {
         LOG.finest(getQualifiedName() + "Msg too big. Will wait for ACK before queing up one more msg");
@@ -230,8 +236,8 @@ public class OperatorTopologyStructImpl implements OperatorTopologyStruct {
         LOG.fine(msg);
       }
     }
-    LOG.exiting("OperatorTopologyStructImpl", "receiveFromNode", Arrays.toString(new Object[]{retVal, getQualifiedName(),
-        node, remove}));
+    LOG.exiting("OperatorTopologyStructImpl", "receiveFromNode",
+        Arrays.toString(new Object[]{retVal, getQualifiedName(), node, remove}));
     return retVal;
   }
 
@@ -320,8 +326,8 @@ public class OperatorTopologyStructImpl implements OperatorTopologyStruct {
       childrenToRcvFrom.remove(child.getId());
     }
     final T retVal = retLst.isEmpty() ? null : retLst.get(0);
-    LOG.exiting("OperatorTopologyStructImpl", "recvFromChildren", Arrays.toString(new Object[]{retVal, getQualifiedName(),
-        redFunc, dataCodec}));
+    LOG.exiting("OperatorTopologyStructImpl", "recvFromChildren",
+        Arrays.toString(new Object[]{retVal, getQualifiedName(), redFunc, dataCodec}));
     return retVal;
   }
 
@@ -358,11 +364,10 @@ public class OperatorTopologyStructImpl implements OperatorTopologyStruct {
     LOG.entering("OperatorTopologyStructImpl", "addedToDeadMsgs", new Object[]{getQualifiedName(), node, msgSrcId,
         msgSrcVersion});
     if (node == null) {
-      LOG.warning(getQualifiedName() + "Got dead msg when no node existed. OOS Queing up for add to handle");
+      LOG.warning(getQualifiedName() + "Got dead msg when no node existed. OOS Queuing up for add to handle");
       addToDeadMsgs(msgSrcId, msgSrcVersion);
-      LOG.exiting("OperatorTopologyStructImpl", "addedToDeadMsgs", Arrays.toString(new Object[]{true, getQualifiedName(),
-          node, msgSrcId,
-          msgSrcVersion}));
+      LOG.exiting("OperatorTopologyStructImpl", "addedToDeadMsgs",
+          Arrays.toString(new Object[]{true, getQualifiedName(), node, msgSrcId, msgSrcVersion}));
       return true;
     }
     final int nodeVersion = node.getVersion();
@@ -370,14 +375,12 @@ public class OperatorTopologyStructImpl implements OperatorTopologyStruct {
       LOG.warning(getQualifiedName() + "Got an OOS dead msg. " + "Has HIGHER ver-" + msgSrcVersion + " than node ver-"
           + nodeVersion + ". Queing up for add to handle");
       addToDeadMsgs(msgSrcId, msgSrcVersion);
-      LOG.exiting("OperatorTopologyStructImpl", "addedToDeadMsgs", Arrays.toString(new Object[]{true, getQualifiedName(),
-          node, msgSrcId,
-          msgSrcVersion}));
+      LOG.exiting("OperatorTopologyStructImpl", "addedToDeadMsgs",
+          Arrays.toString(new Object[]{true, getQualifiedName(), node, msgSrcId, msgSrcVersion}));
       return true;
     }
-    LOG.exiting("OperatorTopologyStructImpl", "addedToDeadMsgs", Arrays.toString(new Object[]{false, getQualifiedName(),
-        node, msgSrcId,
-        msgSrcVersion}));
+    LOG.exiting("OperatorTopologyStructImpl", "addedToDeadMsgs",
+        Arrays.toString(new Object[]{false, getQualifiedName(), node, msgSrcId, msgSrcVersion}));
     return false;
   }
 

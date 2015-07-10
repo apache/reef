@@ -40,7 +40,9 @@ import java.util.Set;
 public class JavaConfigurationBuilderImpl extends ConfigurationBuilderImpl
     implements JavaConfigurationBuilder {
 
-  public JavaConfigurationBuilderImpl(URL[] jars, Configuration[] confs, Class<? extends ExternalConstructor<?>>[] parsers)
+  public JavaConfigurationBuilderImpl(URL[] jars,
+                                      Configuration[] confs,
+                                      Class<? extends ExternalConstructor<?>>[] parsers)
       throws BindException {
     super(jars, confs, parsers);
   }
@@ -129,7 +131,8 @@ public class JavaConfigurationBuilderImpl extends ConfigurationBuilderImpl
 
   @SuppressWarnings({"unchecked"})
   public <T> JavaConfigurationBuilder bindConstructor(Class<T> c,
-                                                      Class<? extends ExternalConstructor<? extends T>> v) throws BindException {
+                                                      Class<? extends ExternalConstructor<? extends T>> v)
+      throws BindException {
     final Node n = getNode(c);
     final Node m = getNode(v);
     if (!(n instanceof ClassNode)) {
@@ -144,7 +147,8 @@ public class JavaConfigurationBuilderImpl extends ConfigurationBuilderImpl
 
   @SuppressWarnings("unchecked")
   @Override
-  public <T> JavaConfigurationBuilder bindSetEntry(Class<? extends Name<Set<T>>> iface, String value) throws BindException {
+  public <T> JavaConfigurationBuilder bindSetEntry(Class<? extends Name<Set<T>>> iface, String value)
+      throws BindException {
     final Node n = getNode(iface);
 
     if (!(n instanceof NamedParameterNode)) {
@@ -161,7 +165,8 @@ public class JavaConfigurationBuilderImpl extends ConfigurationBuilderImpl
 
   @SuppressWarnings("unchecked")
   @Override
-  public <T> JavaConfigurationBuilder bindSetEntry(Class<? extends Name<Set<T>>> iface, Class<? extends T> impl) throws BindException {
+  public <T> JavaConfigurationBuilder bindSetEntry(Class<? extends Name<Set<T>>> iface, Class<? extends T> impl)
+      throws BindException {
     final Node n = getNode(iface);
     final Node m = getNode(impl);
 
@@ -174,7 +179,8 @@ public class JavaConfigurationBuilderImpl extends ConfigurationBuilderImpl
     }
     final Type valType = ReflectionUtilities.getInterfaceTarget(Set.class, setType);
     if (!ReflectionUtilities.getRawClass(valType).isAssignableFrom(impl)) {
-      throw new BindException("BindSetEntry got implementation " + impl + " that is incompatible with expected type " + valType);
+      throw new BindException("BindSetEntry got implementation " + impl +
+          " that is incompatible with expected type " + valType);
     }
 
     super.bindSetEntry((NamedParameterNode<Set<T>>) n, m);

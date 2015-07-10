@@ -56,7 +56,9 @@ public interface RemoteManager extends Stage {
    * @param theHandler       the event handler
    * @return the subscription that can be used to unsubscribe later
    */
-  <T, U extends T> AutoCloseable registerHandler(final RemoteIdentifier sourceIdentifier, final Class<U> messageType, final EventHandler<T> theHandler);
+  <T, U extends T> AutoCloseable registerHandler(final RemoteIdentifier sourceIdentifier,
+                                                 final Class<U> messageType,
+                                                 final EventHandler<T> theHandler);
 
   /**
    * Registers the given EventHandler to be called for the given message type
@@ -69,7 +71,8 @@ public interface RemoteManager extends Stage {
    * @param theHandler  the event handler
    * @return the subscription that can be used to unsubscribe later
    */
-  <T, U extends T> AutoCloseable registerHandler(final Class<U> messageType, final EventHandler<RemoteMessage<T>> theHandler);
+  <T, U extends T> AutoCloseable registerHandler(final Class<U> messageType,
+                                                 final EventHandler<RemoteMessage<T>> theHandler);
 
   /**
    * Register an EventHandler that gets called by Wake in the presence of

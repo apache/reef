@@ -32,7 +32,8 @@ public class NamedParameterNodeImpl<T> extends AbstractNode implements
   private final boolean isList;
 
   public NamedParameterNodeImpl(Node parent, String simpleName,
-                                String fullName, String fullArgName, String simpleArgName, boolean isSet, boolean isList,
+                                String fullName, String fullArgName, String simpleArgName,
+                                boolean isSet, boolean isList,
                                 String documentation, String shortName, String[] defaultInstanceAsStrings) {
     super(parent, simpleName, fullName);
     this.fullArgName = fullArgName;

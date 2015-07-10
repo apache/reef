@@ -86,7 +86,9 @@ public class TangImpl implements Tang {
 
   @Override
   public JavaConfigurationBuilder newConfigurationBuilder(URL[] jars,
-                                                          Configuration[] confs, Class<? extends ExternalConstructor<?>>[] parameterParsers) throws BindException {
+                                                          Configuration[] confs,
+                                                          Class<? extends ExternalConstructor<?>>[] parameterParsers)
+      throws BindException {
     JavaConfigurationBuilder cb = new JavaConfigurationBuilderImpl(jars, confs, parameterParsers);
 //    for (Configuration c : confs) {
 //      cb.addConfiguration(c);
@@ -101,7 +103,8 @@ public class TangImpl implements Tang {
   }
 
   @Override
-  public JavaClassHierarchy getDefaultClassHierarchy(URL[] jars, Class<? extends ExternalConstructor<?>>[] parameterParsers) {
+  public JavaClassHierarchy getDefaultClassHierarchy(URL[] jars,
+                                                     Class<? extends ExternalConstructor<?>>[] parameterParsers) {
     SetValuedKey key = new SetValuedKey(jars, parameterParsers);
 
     JavaClassHierarchy ret = defaultClassHierarchy.get(key);

@@ -113,7 +113,8 @@ public class CommunicationGroupDriverImpl implements CommunicationGroupDriver {
   @Override
   public CommunicationGroupDriver addBroadcast(final Class<? extends Name<String>> operatorName,
                                                final BroadcastOperatorSpec spec) {
-    LOG.entering("CommunicationGroupDriverImpl", "addBroadcast", new Object[]{getQualifiedName(), Utils.simpleName(operatorName), spec});
+    LOG.entering("CommunicationGroupDriverImpl", "addBroadcast",
+        new Object[]{getQualifiedName(), Utils.simpleName(operatorName), spec});
     if (finalised) {
       throw new IllegalStateException("Can't add more operators to a finalised spec");
     }
@@ -122,14 +123,16 @@ public class CommunicationGroupDriverImpl implements CommunicationGroupDriver {
     topology.setRootTask(spec.getSenderId());
     topology.setOperatorSpecification(spec);
     topologies.put(operatorName, topology);
-    LOG.exiting("CommunicationGroupDriverImpl", "addBroadcast", Arrays.toString(new Object[]{getQualifiedName(), Utils.simpleName(operatorName), " added"}));
+    LOG.exiting("CommunicationGroupDriverImpl", "addBroadcast",
+        Arrays.toString(new Object[]{getQualifiedName(), Utils.simpleName(operatorName), " added"}));
     return this;
   }
 
   @Override
   public CommunicationGroupDriver addReduce(final Class<? extends Name<String>> operatorName,
                                             final ReduceOperatorSpec spec) {
-    LOG.entering("CommunicationGroupDriverImpl", "addReduce", new Object[]{getQualifiedName(), Utils.simpleName(operatorName), spec});
+    LOG.entering("CommunicationGroupDriverImpl", "addReduce",
+        new Object[]{getQualifiedName(), Utils.simpleName(operatorName), spec});
     if (finalised) {
       throw new IllegalStateException("Can't add more operators to a finalised spec");
     }
@@ -139,13 +142,15 @@ public class CommunicationGroupDriverImpl implements CommunicationGroupDriver {
     topology.setRootTask(spec.getReceiverId());
     topology.setOperatorSpecification(spec);
     topologies.put(operatorName, topology);
-    LOG.exiting("CommunicationGroupDriverImpl", "addReduce", Arrays.toString(new Object[]{getQualifiedName(), Utils.simpleName(operatorName), " added"}));
+    LOG.exiting("CommunicationGroupDriverImpl", "addReduce",
+        Arrays.toString(new Object[]{getQualifiedName(), Utils.simpleName(operatorName), " added"}));
     return this;
   }
 
   @Override
   public Configuration getTaskConfiguration(final Configuration taskConf) {
-    LOG.entering("CommunicationGroupDriverImpl", "getTaskConfiguration", new Object[]{getQualifiedName(), confSerializer.toString(taskConf)});
+    LOG.entering("CommunicationGroupDriverImpl", "getTaskConfiguration",
+        new Object[]{getQualifiedName(), confSerializer.toString(taskConf)});
     final JavaConfigurationBuilder jcb = Tang.Factory.getTang().newConfigurationBuilder();
     final String taskId = taskId(taskConf);
     if (perTaskState.containsKey(taskId)) {
@@ -182,7 +187,8 @@ public class CommunicationGroupDriverImpl implements CommunicationGroupDriver {
       return null;
     }
     final Configuration configuration = jcb.build();
-    LOG.exiting("CommunicationGroupDriverImpl", "getTaskConfiguration", Arrays.toString(new Object[]{getQualifiedName(), confSerializer.toString(configuration)}));
+    LOG.exiting("CommunicationGroupDriverImpl", "getTaskConfiguration",
+        Arrays.toString(new Object[]{getQualifiedName(), confSerializer.toString(configuration)}));
     return configuration;
   }
 
@@ -192,14 +198,17 @@ public class CommunicationGroupDriverImpl implements CommunicationGroupDriver {
     if (!taskState.equals(TaskState.NOT_STARTED)) {
       LOG.finest(getQualifiedName() + taskId + " has started.");
       if (taskState.equals(TaskState.RUNNING)) {
-        LOG.exiting("CommunicationGroupDriverImpl", "cantGetConfig", Arrays.toString(new Object[]{true, getQualifiedName(), taskId, " is running. We can't get config"}));
+        LOG.exiting("CommunicationGroupDriverImpl", "cantGetConfig",
+            Arrays.toString(new Object[]{true, getQualifiedName(), taskId, " is running. We can't get config"}));
         return true;
       } else {
-        LOG.exiting("CommunicationGroupDriverImpl", "cantGetConfig", Arrays.toString(new Object[]{false, getQualifiedName(), taskId, " has failed. We can get config"}));
+        LOG.exiting("CommunicationGroupDriverImpl", "cantGetConfig",
+            Arrays.toString(new Object[]{false, getQualifiedName(), taskId, " has failed. We can get config"}));
         return false;
       }
     } else {
-      LOG.exiting("CommunicationGroupDriverImpl", "cantGetConfig", Arrays.toString(new Object[]{false, getQualifiedName(), taskId, " has not started. We can get config"}));
+      LOG.exiting("CommunicationGroupDriverImpl", "cantGetConfig",
+          Arrays.toString(new Object[]{false, getQualifiedName(), taskId, " has not started. We can get config"}));
       return false;
     }
   }
@@ -211,7 +220,8 @@ public class CommunicationGroupDriverImpl implements CommunicationGroupDriver {
 
   @Override
   public void addTask(final Configuration partialTaskConf) {
-    LOG.entering("CommunicationGroupDriverImpl", "addTask", new Object[]{getQualifiedName(), confSerializer.toString(partialTaskConf)});
+    LOG.entering("CommunicationGroupDriverImpl", "addTask",
+        new Object[]{getQualifiedName(), confSerializer.toString(partialTaskConf)});
     final String taskId = taskId(partialTaskConf);
     LOG.finest(getQualifiedName() + "AddTask(" + taskId + "). Waiting to acquire toBeRemovedLock");
     synchronized (toBeRemovedLock) {
@@ -236,7 +246,8 @@ public class CommunicationGroupDriverImpl implements CommunicationGroupDriver {
       LOG.finest(getQualifiedName() + "Released topologiesLock");
     }
     LOG.fine(getQualifiedName() + "Added " + taskId + " to topology");
-    LOG.exiting("CommunicationGroupDriverImpl", "addTask", Arrays.toString(new Object[]{getQualifiedName(), "Added task: ", taskId}));
+    LOG.exiting("CommunicationGroupDriverImpl", "addTask",
+        Arrays.toString(new Object[]{getQualifiedName(), "Added task: ", taskId}));
   }
 
   public void removeTask(final String taskId) {
@@ -261,7 +272,8 @@ public class CommunicationGroupDriverImpl implements CommunicationGroupDriver {
       LOG.finest(getQualifiedName() + "Released toBeRemovedLock");
     }
     LOG.fine(getQualifiedName() + "Removed " + taskId + " to topology");
-    LOG.exiting("CommunicationGroupDriverImpl", "removeTask", Arrays.toString(new Object[]{getQualifiedName(), "Removed task: ", taskId}));
+    LOG.exiting("CommunicationGroupDriverImpl", "removeTask",
+        Arrays.toString(new Object[]{getQualifiedName(), "Removed task: ", taskId}));
   }
 
   public void runTask(final String id) {
@@ -290,10 +302,12 @@ public class CommunicationGroupDriverImpl implements CommunicationGroupDriver {
       LOG.finest(getQualifiedName() + "Released yetToRunLock");
     }
     if (nonMember) {
-      LOG.exiting("CommunicationGroupDriverImpl", "runTask", getQualifiedName() + id + " does not belong to this communication group. Ignoring");
+      LOG.exiting("CommunicationGroupDriverImpl", "runTask",
+          getQualifiedName() + id + " does not belong to this communication group. Ignoring");
     } else {
       LOG.fine(getQualifiedName() + "Status of task " + id + " changed to RUNNING");
-      LOG.exiting("CommunicationGroupDriverImpl", "runTask", Arrays.toString(new Object[]{getQualifiedName(), "Set running complete on task ", id}));
+      LOG.exiting("CommunicationGroupDriverImpl", "runTask",
+          Arrays.toString(new Object[]{getQualifiedName(), "Set running complete on task ", id}));
     }
   }
 
@@ -342,7 +356,8 @@ public class CommunicationGroupDriverImpl implements CommunicationGroupDriver {
       LOG.finest(getQualifiedName() + "Released configLock");
     }
     LOG.fine(getQualifiedName() + "Status of task " + id + " changed to FAILED");
-    LOG.exiting("CommunicationGroupDriverImpl", "failTask", Arrays.toString(new Object[]{getQualifiedName(), "Set failed complete on task ", id}));
+    LOG.exiting("CommunicationGroupDriverImpl", "failTask",
+        Arrays.toString(new Object[]{getQualifiedName(), "Set failed complete on task ", id}));
   }
 
   private boolean cantFailTask(final String taskId) {
@@ -351,14 +366,18 @@ public class CommunicationGroupDriverImpl implements CommunicationGroupDriver {
     if (!taskState.equals(TaskState.NOT_STARTED)) {
       LOG.finest(getQualifiedName() + taskId + " has started.");
       if (!taskState.equals(TaskState.RUNNING)) {
-        LOG.exiting("CommunicationGroupDriverImpl", "cantFailTask", Arrays.toString(new Object[]{true, getQualifiedName(), taskId, " is not running yet. Can't set failure"}));
+        LOG.exiting("CommunicationGroupDriverImpl", "cantFailTask",
+            Arrays.toString(new Object[]{true, getQualifiedName(), taskId, " is not running yet. Can't set failure"}));
         return true;
       } else {
-        LOG.exiting("CommunicationGroupDriverImpl", "cantFailTask", Arrays.toString(new Object[]{false, getQualifiedName(), taskId, " is running. Can set failure"}));
+        LOG.exiting("CommunicationGroupDriverImpl", "cantFailTask",
+            Arrays.toString(new Object[]{false, getQualifiedName(), taskId, " is running. Can set failure"}));
         return false;
       }
     } else {
-      LOG.exiting("CommunicationGroupDriverImpl", "cantFailTask", Arrays.toString(new Object[]{true, getQualifiedName(), taskId, " has not started. We can't fail a task that hasn't started"}));
+      LOG.exiting("CommunicationGroupDriverImpl", "cantFailTask",
+          Arrays.toString(new Object[]{true, getQualifiedName(), taskId,
+              " has not started. We can't fail a task that hasn't started"}));
       return true;
     }
   }
@@ -369,8 +388,8 @@ public class CommunicationGroupDriverImpl implements CommunicationGroupDriver {
     final Class<? extends Name<String>> operName = indMsg.getOperName();
     final MsgKey key = new MsgKey(msg);
     if (msgQue.contains(key, indMsg)) {
-      throw new RuntimeException(getQualifiedName() + "MsgQue already contains " + msg.getType() + " msg for " + key + " in "
-          + Utils.simpleName(operName));
+      throw new RuntimeException(getQualifiedName() + "MsgQue already contains " + msg.getType() + " msg for " + key +
+          " in " + Utils.simpleName(operName));
     }
     LOG.finest(getQualifiedName() + "Adding msg to que");
     msgQue.add(key, indMsg);
@@ -382,7 +401,8 @@ public class CommunicationGroupDriverImpl implements CommunicationGroupDriver {
       }
       LOG.finest(getQualifiedName() + "All msgs processed and removed");
     }
-    LOG.exiting("CommunicationGroupDriverImpl", "queNProcessMsg", Arrays.toString(new Object[]{getQualifiedName(), "Que & Process done for: ", msg}));
+    LOG.exiting("CommunicationGroupDriverImpl", "queNProcessMsg",
+        Arrays.toString(new Object[]{getQualifiedName(), "Que & Process done for: ", msg}));
   }
 
   private boolean isMsgVersionOk(final GroupCommunicationMessage msg) {
@@ -393,7 +413,8 @@ public class CommunicationGroupDriverImpl implements CommunicationGroupDriver {
       final int expSrcVersion = topologies.get(Utils.getClass(msg.getOperatorname())).getNodeVersion(srcId);
 
       final boolean srcVersionChk = chkVersion(rcvSrcVersion, expSrcVersion, "Src Version Check: ");
-      LOG.exiting("CommunicationGroupDriverImpl", "isMsgVersionOk", Arrays.toString(new Object[]{srcVersionChk, getQualifiedName(), msg}));
+      LOG.exiting("CommunicationGroupDriverImpl", "isMsgVersionOk",
+          Arrays.toString(new Object[]{srcVersionChk, getQualifiedName(), msg}));
       return srcVersionChk;
     } else {
       throw new RuntimeException(getQualifiedName() + "can only deal with versioned msgs");
@@ -423,8 +444,8 @@ public class CommunicationGroupDriverImpl implements CommunicationGroupDriver {
         return;
       }
       if (initializing.get() || msg.getType().equals(ReefNetworkGroupCommProtos.GroupCommMessage.Type.UpdateTopology)) {
-        LOG.fine(getQualifiedName() + msg.getSimpleOperName() + ": Waiting for all required(" + allTasksAdded.getInitialCount() +
-            ") nodes to run");
+        LOG.fine(getQualifiedName() + msg.getSimpleOperName() + ": Waiting for all required(" +
+            allTasksAdded.getInitialCount() + ") nodes to run");
         allTasksAdded.await();
         LOG.fine(getQualifiedName() + msg.getSimpleOperName() + ": All required(" + allTasksAdded.getInitialCount() +
             ") nodes are running");
@@ -433,7 +454,8 @@ public class CommunicationGroupDriverImpl implements CommunicationGroupDriver {
       queNProcessMsg(msg);
       LOG.finest(getQualifiedName() + "Released topologiesLock");
     }
-    LOG.exiting("CommunicationGroupDriverImpl", "processMsg", Arrays.toString(new Object[]{getQualifiedName(), "ProcessMsg done for: ", msg}));
+    LOG.exiting("CommunicationGroupDriverImpl", "processMsg",
+        Arrays.toString(new Object[]{getQualifiedName(), "ProcessMsg done for: ", msg}));
   }
 
   private String taskId(final Configuration partialTaskConf) {
@@ -441,7 +463,8 @@ public class CommunicationGroupDriverImpl implements CommunicationGroupDriver {
       final Injector injector = Tang.Factory.getTang().newInjector(partialTaskConf);
       return injector.getNamedInstance(TaskConfigurationOptions.Identifier.class);
     } catch (final InjectionException e) {
-      throw new RuntimeException(getQualifiedName() + "Injection exception while extracting taskId from partialTaskConf", e);
+      throw new RuntimeException(getQualifiedName() +
+          "Injection exception while extracting taskId from partialTaskConf", e);
     }
   }
 

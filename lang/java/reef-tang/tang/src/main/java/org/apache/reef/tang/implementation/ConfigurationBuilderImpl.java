@@ -38,7 +38,8 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   public static final String IMPORT = "import";
   public static final String INIT = "<init>";
   final TracingMonotonicMap<ClassNode<?>, ClassNode<?>> boundImpls = new TracingMonotonicTreeMap<>();
-  final TracingMonotonicMap<ClassNode<?>, ClassNode<? extends ExternalConstructor<?>>> boundConstructors = new TracingMonotonicTreeMap<>();
+  final TracingMonotonicMap<ClassNode<?>, ClassNode<? extends ExternalConstructor<?>>> boundConstructors =
+      new TracingMonotonicTreeMap<>();
   final Map<NamedParameterNode<?>, String> namedParameters = new TracingMonotonicTreeMap<>();
   final Map<ClassNode<?>, ConstructorDef<?>> legacyConstructors = new TracingMonotonicTreeMap<>();
   final MonotonicMultiMap<NamedParameterNode<Set<?>>, Object> boundSetEntries = new MonotonicMultiMap<>();
@@ -57,7 +58,9 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     this.namespace = namespace;
   }
 
-  protected ConfigurationBuilderImpl(URL[] jars, Configuration[] confs, Class<? extends ExternalConstructor<?>>[] parsers)
+  protected ConfigurationBuilderImpl(URL[] jars,
+                                     Configuration[] confs,
+                                     Class<? extends ExternalConstructor<?>>[] parsers)
       throws BindException {
     this.namespace = Tang.Factory.getTang().getDefaultClassHierarchy(jars, parsers);
     for (Configuration tc : confs) {
@@ -176,7 +179,8 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
       Node m = namespace.getNode(value);
       bind((ClassNode<?>) n, (ClassNode<?>) m);
     } else {
-      throw new IllegalStateException("getNode() returned " + n + " which is neither a ClassNode nor a NamedParameterNode");
+      throw new IllegalStateException("getNode() returned " + n +
+          " which is neither a ClassNode nor a NamedParameterNode");
     }
   }
 
@@ -343,7 +347,8 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
 
     ConfigurationBuilderImpl that = (ConfigurationBuilderImpl) o;
 
-    if (boundConstructors != null ? !boundConstructors.equals(that.boundConstructors) : that.boundConstructors != null) {
+    if (boundConstructors != null ?
+        !boundConstructors.equals(that.boundConstructors) : that.boundConstructors != null) {
       return false;
     }
     if (boundImpls != null ? !boundImpls.equals(that.boundImpls) : that.boundImpls != null) {
@@ -355,7 +360,8 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     if (boundLists != null ? !boundLists.equals(that.boundLists) : that.boundLists != null) {
       return false;
     }
-    if (legacyConstructors != null ? !legacyConstructors.equals(that.legacyConstructors) : that.legacyConstructors != null) {
+    if (legacyConstructors != null ?
+        !legacyConstructors.equals(that.legacyConstructors) : that.legacyConstructors != null) {
       return false;
     }
     if (namedParameters != null ? !namedParameters.equals(that.namedParameters) : that.namedParameters != null) {

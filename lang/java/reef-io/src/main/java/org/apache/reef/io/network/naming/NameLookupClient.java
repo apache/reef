@@ -98,7 +98,8 @@ public class NameLookupClient implements Stage, NamingLookup {
                           final int retryCount,
                           final int retryTimeout,
                           final Cache<Identifier, InetSocketAddress> cache) {
-    this(serverAddr, serverPort, 10000, factory, retryCount, retryTimeout, cache, LocalAddressProviderFactory.getInstance());
+    this(serverAddr, serverPort, 10000, factory, retryCount, retryTimeout, cache,
+         LocalAddressProviderFactory.getInstance());
   }
 
   @Deprecated

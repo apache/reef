@@ -53,7 +53,8 @@ public interface Tang {
    * ClassHierarchy object.
    *
    * @param ch Any valid Tang ClassHierarchy, including ones derived from non-Java application binaries.
-   * @return an instance of ConfigurationBuilder.  In Tang's default implementation this returns an instance or JavaConfigurationBuilder if ch is backed by a Java classloader.
+   * @return an instance of ConfigurationBuilder.  In Tang's default implementation this returns an instance
+   * or JavaConfigurationBuilder if ch is backed by a Java classloader.
    */
   ConfigurationBuilder newConfigurationBuilder(ClassHierarchy ch);
 
@@ -92,7 +93,8 @@ public interface Tang {
    *
    * @return a new ConfigurationBuilder
    */
-  JavaConfigurationBuilder newConfigurationBuilder(@SuppressWarnings("unchecked") Class<? extends ExternalConstructor<?>>... parameterParsers)
+  JavaConfigurationBuilder newConfigurationBuilder(
+      @SuppressWarnings("unchecked") Class<? extends ExternalConstructor<?>>... parameterParsers)
       throws BindException;
 
   /**
@@ -105,7 +107,9 @@ public interface Tang {
    * this method.
    */
   JavaConfigurationBuilder newConfigurationBuilder(URL[] jars,
-                                                   Configuration[] confs, Class<? extends ExternalConstructor<?>>[] parameterParsers) throws BindException;
+                                                   Configuration[] confs,
+                                                   Class<? extends ExternalConstructor<?>>[] parameterParsers)
+      throws BindException;
 
   /**
    * Create a new empty ConfigurationBuilder that is backed by the default

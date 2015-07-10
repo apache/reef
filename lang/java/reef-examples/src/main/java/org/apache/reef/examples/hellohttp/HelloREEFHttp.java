@@ -58,7 +58,8 @@ public final class HelloREEFHttp {
         .set(HttpHandlerConfiguration.HTTP_HANDLERS, HttpServerShellCmdtHandler.class)
         .build();
     final Configuration driverConfigurationForHttpServer = DriverServiceConfiguration.CONF
-        .set(DriverServiceConfiguration.ON_EVALUATOR_ALLOCATED, ReefEventStateManager.AllocatedEvaluatorStateHandler.class)
+        .set(DriverServiceConfiguration.ON_EVALUATOR_ALLOCATED,
+            ReefEventStateManager.AllocatedEvaluatorStateHandler.class)
         .set(DriverServiceConfiguration.ON_CONTEXT_ACTIVE, ReefEventStateManager.ActiveContextStateHandler.class)
         .set(DriverServiceConfiguration.ON_TASK_RUNNING, ReefEventStateManager.TaskRunningStateHandler.class)
         .set(DriverServiceConfiguration.ON_DRIVER_STARTED, ReefEventStateManager.StartStateHandler.class)
@@ -98,7 +99,8 @@ public final class HelloREEFHttp {
    */
   public static LauncherStatus runHelloReef(final Configuration runtimeConf, final int timeOut)
       throws BindException, InjectionException {
-    final Configuration driverConf = Configurations.merge(HelloREEFHttp.getDriverConfiguration(), getHTTPConfiguration());
+    final Configuration driverConf =
+        Configurations.merge(HelloREEFHttp.getDriverConfiguration(), getHTTPConfiguration());
     return DriverLauncher.getLauncher(runtimeConf).run(driverConf, timeOut);
   }
 

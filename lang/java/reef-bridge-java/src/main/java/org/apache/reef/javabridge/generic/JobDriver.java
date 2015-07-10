@@ -192,8 +192,10 @@ public final class JobDriver {
 
       LOG.log(Level.INFO, "StartTime: {0}", new Object[]{startTime});
       String portNumber = httpServer == null ? null : Integer.toString((httpServer.getPort()));
-      EvaluatorRequestorBridge evaluatorRequestorBridge = new EvaluatorRequestorBridge(JobDriver.this.evaluatorRequestor, false, loggingScopeFactory);
-      long[] handlers = NativeInterop.CallClrSystemOnStartHandler(startTime.toString(), portNumber, evaluatorRequestorBridge);
+      EvaluatorRequestorBridge evaluatorRequestorBridge =
+          new EvaluatorRequestorBridge(JobDriver.this.evaluatorRequestor, false, loggingScopeFactory);
+      long[] handlers =
+          NativeInterop.CallClrSystemOnStartHandler(startTime.toString(), portNumber, evaluatorRequestorBridge);
       if (handlers != null) {
         if (handlers.length != NativeInterop.nHandlers) {
           throw new RuntimeException(
@@ -215,13 +217,17 @@ public final class JobDriver {
         this.failedContextHandler = handlers[NativeInterop.Handlers.get(NativeInterop.FailedContextKey)];
         this.contextMessageHandler = handlers[NativeInterop.Handlers.get(NativeInterop.ContextMessageKey)];
         this.driverRestartHandler = handlers[NativeInterop.Handlers.get(NativeInterop.DriverRestartKey)];
-        this.driverRestartActiveContextHandler = handlers[NativeInterop.Handlers.get(NativeInterop.DriverRestartActiveContextKey)];
-        this.driverRestartRunningTaskHandler = handlers[NativeInterop.Handlers.get(NativeInterop.DriverRestartRunningTaskKey)];
+        this.driverRestartActiveContextHandler =
+            handlers[NativeInterop.Handlers.get(NativeInterop.DriverRestartActiveContextKey)];
+        this.driverRestartRunningTaskHandler =
+            handlers[NativeInterop.Handlers.get(NativeInterop.DriverRestartRunningTaskKey)];
       }
 
-      try (final LoggingScope lp = this.loggingScopeFactory.getNewLoggingScope("setupBridge::ClrSystemHttpServerHandlerOnNext")) {
+      try (final LoggingScope lp =
+               this.loggingScopeFactory.getNewLoggingScope("setupBridge::ClrSystemHttpServerHandlerOnNext")) {
         final HttpServerEventBridge httpServerEventBridge = new HttpServerEventBridge("SPEC");
-        NativeInterop.ClrSystemHttpServerHandlerOnNext(this.httpServerEventHandler, httpServerEventBridge, this.interopLogger);
+        NativeInterop.ClrSystemHttpServerHandlerOnNext(this.httpServerEventHandler, httpServerEventBridge,
+            this.interopLogger);
         final String specList = httpServerEventBridge.getUriSpecification();
         LOG.log(Level.INFO, "Starting http server, getUriSpecification: {0}", specList);
         if (specList != null) {
@@ -255,8 +261,10 @@ public final class JobDriver {
       if (JobDriver.this.allocatedEvaluatorHandler == 0) {
         throw new RuntimeException("Allocated Evaluator Handler not initialized by CLR.");
       }
-      AllocatedEvaluatorBridge allocatedEvaluatorBridge = new AllocatedEvaluatorBridge(eval, JobDriver.this.nameServerInfo);
-      NativeInterop.ClrSystemAllocatedEvaluatorHandlerOnNext(JobDriver.this.allocatedEvaluatorHandler, allocatedEvaluatorBridge, this.interopLogger);
+      AllocatedEvaluatorBridge allocatedEvaluatorBridge =
+          new AllocatedEvaluatorBridge(eval, JobDriver.this.nameServerInfo);
+      NativeInterop.ClrSystemAllocatedEvaluatorHandlerOnNext(JobDriver.this.allocatedEvaluatorHandler,
+          allocatedEvaluatorBridge, this.interopLogger);
     }
   }
 
@@ -270,7 +278,8 @@ public final class JobDriver {
         throw new RuntimeException("Active Context Handler not initialized by CLR.");
       }
       ActiveContextBridge activeContextBridge = activeContextBridgeFactory.getActiveContextBridge(context);
-      NativeInterop.ClrSystemActiveContextHandlerOnNext(JobDriver.this.activeContextHandler, activeContextBridge, JobDriver.this.interopLogger);
+      NativeInterop.ClrSystemActiveContextHandlerOnNext(JobDriver.this.activeContextHandler, activeContextBridge,
+          JobDriver.this.interopLogger);
     } catch (final Exception ex) {
       LOG.log(Level.SEVERE, "Fail to submit task to active context");
       context.close();
@@ -332,7 +341,8 @@ public final class JobDriver {
         } else {
           LOG.log(Level.INFO, "CLR CompletedTaskHandler handler set, handling things with CLR handler.");
           CompletedTaskBridge completedTaskBridge = new CompletedTaskBridge(task, activeContextBridgeFactory);
-          NativeInterop.ClrSystemCompletedTaskHandlerOnNext(JobDriver.this.completedTaskHandler, completedTaskBridge, JobDriver.this.interopLogger);
+          NativeInterop.ClrSystemCompletedTaskHandlerOnNext(JobDriver.this.completedTaskHandler, completedTaskBridge,
+              JobDriver.this.interopLogger);
         }
       }
     }
@@ -385,11 +395,14 @@ public final class JobDriver {
     private void handleFailedEvaluatorInCLR(final FailedEvaluator eval) {
       final String message = "CLR FailedEvaluator handler set, handling things with CLR handler.";
       LOG.log(Level.INFO, message);
-      FailedEvaluatorBridge failedEvaluatorBridge = new FailedEvaluatorBridge(eval, JobDriver.this.evaluatorRequestor, JobDriver.this.isRestarted, loggingScopeFactory);
-      NativeInterop.ClrSystemFailedEvaluatorHandlerOnNext(JobDriver.this.failedEvaluatorHandler, failedEvaluatorBridge, JobDriver.this.interopLogger);
+      FailedEvaluatorBridge failedEvaluatorBridge = new FailedEvaluatorBridge(eval, JobDriver.this.evaluatorRequestor,
+          JobDriver.this.isRestarted, loggingScopeFactory);
+      NativeInterop.ClrSystemFailedEvaluatorHandlerOnNext(JobDriver.this.failedEvaluatorHandler, failedEvaluatorBridge,
+          JobDriver.this.interopLogger);
       int additionalRequestedEvaluatorNumber = failedEvaluatorBridge.getNewlyRequestedEvaluatorNumber();
       if (additionalRequestedEvaluatorNumber > 0) {
-        LOG.log(Level.INFO, "number of additional evaluators requested after evaluator failure: " + additionalRequestedEvaluatorNumber);
+        LOG.log(Level.INFO, "number of additional evaluators requested after evaluator failure: " +
+            additionalRequestedEvaluatorNumber);
       }
       JobDriver.this.jobMessageObserver.sendMessageToClient(message.getBytes());
     }
@@ -414,7 +427,8 @@ public final class JobDriver {
      * process http request.
      */
     @Override
-    public void onHttpRequest(final ParsedHttpRequest parsedHttpRequest, final HttpServletResponse response) throws IOException, ServletException {
+    public void onHttpRequest(final ParsedHttpRequest parsedHttpRequest, final HttpServletResponse response)
+        throws IOException, ServletException {
       LOG.log(Level.INFO, "HttpServerBridgeEventHandler onHttpRequest: {0}", parsedHttpRequest.getRequestUri());
       try (final LoggingScope ls = loggingScopeFactory.httpRequest(parsedHttpRequest.getRequestUri())) {
         final AvroHttpSerializer httpSerializer = new AvroHttpSerializer();
@@ -426,7 +440,8 @@ public final class JobDriver {
 
         try {
           final HttpServerEventBridge httpServerEventBridge = new HttpServerEventBridge(requestBytes);
-          NativeInterop.ClrSystemHttpServerHandlerOnNext(JobDriver.this.httpServerEventHandler, httpServerEventBridge, JobDriver.this.interopLogger);
+          NativeInterop.ClrSystemHttpServerHandlerOnNext(JobDriver.this.httpServerEventHandler, httpServerEventBridge,
+              JobDriver.this.interopLogger);
           final String responseBody = new String(httpServerEventBridge.getQueryResponseData(), "UTF-8");
           response.getWriter().println(responseBody);
           LOG.log(Level.INFO, "HttpServerBridgeEventHandler onHttpRequest received response: {0}", responseBody);
@@ -451,7 +466,8 @@ public final class JobDriver {
       }
       try {
         FailedTaskBridge failedTaskBridge = new FailedTaskBridge(task, activeContextBridgeFactory);
-        NativeInterop.ClrSystemFailedTaskHandlerOnNext(JobDriver.this.failedTaskHandler, failedTaskBridge, JobDriver.this.interopLogger);
+        NativeInterop.ClrSystemFailedTaskHandlerOnNext(JobDriver.this.failedTaskHandler, failedTaskBridge,
+            JobDriver.this.interopLogger);
       } catch (final Exception ex) {
         LOG.log(Level.SEVERE, "Fail to invoke CLR failed task handler");
         throw new RuntimeException(ex);
@@ -472,7 +488,8 @@ public final class JobDriver {
           LOG.log(Level.INFO, "RunningTask will be handled by CLR handler. Task Id: {0}", task.getId());
           try {
             final RunningTaskBridge runningTaskBridge = new RunningTaskBridge(task, activeContextBridgeFactory);
-            NativeInterop.ClrSystemRunningTaskHandlerOnNext(JobDriver.this.runningTaskHandler, runningTaskBridge, JobDriver.this.interopLogger);
+            NativeInterop.ClrSystemRunningTaskHandlerOnNext(JobDriver.this.runningTaskHandler, runningTaskBridge,
+                JobDriver.this.interopLogger);
           } catch (final Exception ex) {
             LOG.log(Level.WARNING, "Fail to invoke CLR running task handler");
             throw new RuntimeException(ex);
@@ -495,12 +512,16 @@ public final class JobDriver {
             if (JobDriver.this.clrBridgeSetup) {
               if (JobDriver.this.driverRestartRunningTaskHandler != 0) {
                 LOG.log(Level.INFO, "CLR driver restart RunningTask handler implemented, now handle it in CLR.");
-                NativeInterop.ClrSystemDriverRestartRunningTaskHandlerOnNext(JobDriver.this.driverRestartRunningTaskHandler, new RunningTaskBridge(task, activeContextBridgeFactory));
+                NativeInterop.ClrSystemDriverRestartRunningTaskHandlerOnNext(
+                    JobDriver.this.driverRestartRunningTaskHandler,
+                    new RunningTaskBridge(task, activeContextBridgeFactory));
               } else {
-                LOG.log(Level.WARNING, "No CLR driver restart RunningTask handler implemented, done with DriverRestartRunningTaskHandler.");
+                LOG.log(Level.WARNING, "No CLR driver restart RunningTask handler implemented, " +
+                    "done with DriverRestartRunningTaskHandler.");
               }
             } else {
-              LOG.log(Level.INFO, "Waiting for driver to complete restart process before checking out CLR driver restart RunningTaskHandler...");
+              LOG.log(Level.INFO, "Waiting for driver to complete restart process " +
+                  "before checking out CLR driver restart RunningTaskHandler...");
               clock.scheduleAlarm(2000, this);
             }
           }
@@ -524,12 +545,16 @@ public final class JobDriver {
             if (JobDriver.this.clrBridgeSetup) {
               if (JobDriver.this.driverRestartActiveContextHandler != 0) {
                 LOG.log(Level.INFO, "CLR driver restart ActiveContext handler implemented, now handle it in CLR.");
-                NativeInterop.ClrSystemDriverRestartActiveContextHandlerOnNext(JobDriver.this.driverRestartActiveContextHandler, activeContextBridgeFactory.getActiveContextBridge(context));
+                NativeInterop.ClrSystemDriverRestartActiveContextHandlerOnNext(
+                    JobDriver.this.driverRestartActiveContextHandler,
+                    activeContextBridgeFactory.getActiveContextBridge(context));
               } else {
-                LOG.log(Level.WARNING, "No CLR driver restart ActiveContext handler implemented, done with DriverRestartActiveContextHandler.");
+                LOG.log(Level.WARNING, "No CLR driver restart ActiveContext handler implemented, " +
+                    "done with DriverRestartActiveContextHandler.");
               }
             } else {
-              LOG.log(Level.INFO, "Waiting for driver to complete restart process before checking out CLR driver restart DriverRestartActiveContextHandler...");
+              LOG.log(Level.INFO, "Waiting for driver to complete restart process " +
+                  "before checking out CLR driver restart DriverRestartActiveContextHandler...");
               clock.scheduleAlarm(2000, this);
             }
           }
@@ -580,7 +605,8 @@ public final class JobDriver {
   public final class DriverRestartCompletedHandler implements EventHandler<DriverRestartCompleted> {
     @Override
     public void onNext(final DriverRestartCompleted driverRestartCompleted) {
-      LOG.log(Level.INFO, "Java DriverRestartCompleted event received at time [{0}]. ", driverRestartCompleted.getTimeStamp());
+      LOG.log(Level.INFO, "Java DriverRestartCompleted event received at time [{0}]. ",
+          driverRestartCompleted.getTimeStamp());
       try (final LoggingScope ls = loggingScopeFactory.driverRestartCompleted(driverRestartCompleted.getTimeStamp())) {
         if (JobDriver.this.driverRestartHandler != 0) {
           LOG.log(Level.INFO, "CLR driver restart handler implemented, now handle it in CLR.");
@@ -617,7 +643,8 @@ public final class JobDriver {
       if (JobDriver.this.taskMessageHandler != 0) {
         TaskMessageBridge taskMessageBridge = new TaskMessageBridge(taskMessage);
         // if CLR implements the task message handler, handle the bytes in CLR handler
-        NativeInterop.ClrSystemTaskMessageHandlerOnNext(JobDriver.this.taskMessageHandler, taskMessage.get(), taskMessageBridge, JobDriver.this.interopLogger);
+        NativeInterop.ClrSystemTaskMessageHandlerOnNext(JobDriver.this.taskMessageHandler, taskMessage.get(),
+            taskMessageBridge, JobDriver.this.interopLogger);
       }
       //}
     }
@@ -723,7 +750,8 @@ public final class JobDriver {
           ContextMessageBridge contextMessageBridge = new ContextMessageBridge(message);
           // if CLR implements the context message handler, handle it in CLR
           LOG.log(Level.INFO, "Handling the event of context message in CLR bridge.");
-          NativeInterop.ClrSystemContextMessageHandlerOnNext(JobDriver.this.contextMessageHandler, contextMessageBridge);
+          NativeInterop.ClrSystemContextMessageHandlerOnNext(JobDriver.this.contextMessageHandler,
+              contextMessageBridge);
         }
       }
     }

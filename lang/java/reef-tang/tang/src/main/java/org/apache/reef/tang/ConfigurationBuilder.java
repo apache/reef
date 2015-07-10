@@ -121,7 +121,8 @@ public interface ConfigurationBuilder {
    * instance returned by getClassHierarchy().
    *
    * @param cn   The class the constructor instantiates.
-   * @param args The parsed ConstructorArg objects correspdonding to the types of the arguments taken by the constructor, in declaration order.
+   * @param args The parsed ConstructorArg objects corresponding to the types of the arguments taken by the constructor,
+   *             in declaration order.
    * @throws BindException if the constructor does not exist, or if it has already been bound as a legacy constructor.
    */
   void registerLegacyConstructor(ClassNode<?> c, ConstructorArg... args)

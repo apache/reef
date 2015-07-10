@@ -57,13 +57,17 @@ public final class LogParser {
   }
 
   /**
-   * Get lines from a given file with a specified filter, trim the line by removing strings before removeBeforeToken and after removeAfterToken.
+   * Get lines from a given file with a specified filter, trim the line by removing strings
+   * before removeBeforeToken and after removeAfterToken.
    * @param fileName
    * @param filter
    * @return
    * @throws IOException
    */
-  public static ArrayList<String> getFilteredLinesFromFile(final String fileName, final String filter, final String removeBeforeToken, final String removeAfterToken) throws IOException{
+  public static ArrayList<String> getFilteredLinesFromFile(final String fileName,
+                                                           final String filter,
+                                                           final String removeBeforeToken,
+                                                           final String removeAfterToken) throws IOException{
     final ArrayList<String> filteredLines = new ArrayList<String>();
     try (final FileReader fr =  new FileReader(fileName)) {
       try (final BufferedReader in = new BufferedReader(fr)) {
@@ -105,7 +109,8 @@ public final class LogParser {
    * @return
    * @throws IOException
    */
-  public static ArrayList<String> getFilteredLinesFromFile(final String fileName, final String filter) throws IOException {
+  public static ArrayList<String> getFilteredLinesFromFile(final String fileName, final String filter)
+      throws IOException {
     return getFilteredLinesFromFile(fileName, filter, null, null);
   }
 

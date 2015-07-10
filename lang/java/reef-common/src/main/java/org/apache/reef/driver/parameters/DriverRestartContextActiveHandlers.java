@@ -29,7 +29,8 @@ import java.util.Set;
 /**
  * Handler for ActiveContext during a driver restart.
  */
-@NamedParameter(doc = "Handler for ActiveContext received during a driver restart", default_classes = DefaultDriverRestartContextActiveHandler.class)
+@NamedParameter(doc = "Handler for ActiveContext received during a driver restart",
+    default_classes = DefaultDriverRestartContextActiveHandler.class)
 public final class DriverRestartContextActiveHandlers implements Name<Set<EventHandler<ActiveContext>>> {
   private DriverRestartContextActiveHandlers() {
   }

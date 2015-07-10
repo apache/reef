@@ -33,7 +33,8 @@ import java.util.logging.Logger;
  * can be fired in any order.
  *
  * @param numThreads  fixed number of threads available in the pool
- * @param granularity maximum number of events executed serially. The right choice will balance task spawn overhead with parallelism.
+ * @param granularity maximum number of events executed serially.
+ *                    The right choice will balance task spawn overhead with parallelism.
  */
 public class IndependentIterationsThreadPoolStage<T> extends AbstractEStage<List<T>> {
 

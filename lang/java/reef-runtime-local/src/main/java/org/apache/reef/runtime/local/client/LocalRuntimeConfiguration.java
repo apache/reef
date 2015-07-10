@@ -42,9 +42,9 @@ public class LocalRuntimeConfiguration extends ConfigurationModuleBuilder {
 
   /**
    * The number of threads or processes available to the resourcemanager. This is the upper limit on the number of
-   * Evaluators that the local resourcemanager will hand out concurrently. This simulates the size of a physical cluster in
-   * terms of the number of slots available on it with one important caveat: The Driver is not counted against this
-   * number.
+   * Evaluators that the local resourcemanager will hand out concurrently.
+   * This simulates the size of a physical cluster in terms of the number of slots available on it
+   * with one important caveat: The Driver is not counted against this number.
    */
   public static final OptionalParameter<Integer> MAX_NUMBER_OF_EVALUATORS = new OptionalParameter<>();
   /**

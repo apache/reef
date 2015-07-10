@@ -97,7 +97,8 @@ public class WakeProfiler implements Aspect {
 
   @SuppressWarnings("unchecked")
   @Override
-  public <T> T inject(ConstructorDef<T> constructorDef, Constructor<T> constructor, Object[] args) throws InvocationTargetException, IllegalAccessException, IllegalArgumentException, InstantiationException {
+  public <T> T inject(ConstructorDef<T> constructorDef, Constructor<T> constructor, Object[] args)
+      throws InvocationTargetException, IllegalAccessException, IllegalArgumentException, InstantiationException {
 //    LOG.info("inject" + constructor + "->" + args.length);
     Vertex<?>[] vArgs = new Vertex[args.length];
     for (int i = 0; i < args.length; i++) {
@@ -243,7 +244,8 @@ public class WakeProfiler implements Aspect {
         if (stat != null) {
           long cnt = stat.messageCount.get();
           long lat = stat.sumLatency.get();
-          tooltip = ",\"count\":" + cnt + ",\"latency\":\"" + (((double) lat) / (((double) cnt) * 1000000.0) + "\""); // quote the latency, since it might be nan
+          tooltip = ",\"count\":" + cnt + ",\"latency\":\"" + (((double) lat) / (((double) cnt) * 1000000.0) + "\"");
+          // quote the latency, since it might be nan
         } else {
           tooltip = null;
         }
@@ -272,14 +274,16 @@ public class WakeProfiler implements Aspect {
           Integer off = offVertex.get(futureTarget);
           LOG.fine("future target " + futureTarget + " off = " + off);
           if (off != null) {
-            links.add("{\"target\":" + offVertex.get(v) + ",\"source\":" + off + ",\"value\":" + 1.0 + ",\"back\":true}");
+            links.add("{\"target\":" + offVertex.get(v) + ",\"source\":" + off + ",\"value\":" + 1.0 +
+                ",\"back\":true}");
           }
         } else {
           Integer off = offVertex.get(w);
           if (off != null) {
             Stats s = stats.get(w.getObject());
             if (s != null) {
-              links.add("{\"source\":" + offVertex.get(v) + ",\"target\":" + off + ",\"value\":" + (s.messageCount.get() + 3.0) + "}");
+              links.add("{\"source\":" + offVertex.get(v) + ",\"target\":" + off + ",\"value\":" +
+                  (s.messageCount.get() + 3.0) + "}");
             } else {
               links.add("{\"source\":" + offVertex.get(v) + ",\"target\":" + off + ",\"value\":" + 1.0 + "}");
             }

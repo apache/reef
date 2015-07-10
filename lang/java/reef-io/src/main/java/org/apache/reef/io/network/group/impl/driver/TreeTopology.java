@@ -312,7 +312,8 @@ public class TreeTopology implements Topology {
     for (final TaskNode node : toBeUpdatedNodes) {
       node.updatingTopology();
       LOG.fine(getQualifiedName() + "Asking " + node + " to UpdateTopology");
-      senderStage.onNext(Utils.bldVersionedGCM(groupName, operName, ReefNetworkGroupCommProtos.GroupCommMessage.Type.UpdateTopology, driverId, 0, node.getTaskId(),
+      senderStage.onNext(Utils.bldVersionedGCM(groupName, operName,
+          ReefNetworkGroupCommProtos.GroupCommMessage.Type.UpdateTopology, driverId, 0, node.getTaskId(),
           node.getVersion(), Utils.EMPTY_BYTE_ARR));
     }
     nodeTopologyUpdateWaitStage.onNext(toBeUpdatedNodes);
@@ -334,7 +335,8 @@ public class TreeTopology implements Topology {
     final GroupChanges changes = new GroupChangesImpl(hasTopologyChanged);
     final Codec<GroupChanges> changesCodec = new GroupChangesCodec();
     LOG.fine(getQualifiedName() + "TopologyChanges: " + changes);
-    senderStage.onNext(Utils.bldVersionedGCM(groupName, operName, ReefNetworkGroupCommProtos.GroupCommMessage.Type.TopologyChanges, driverId, 0, dstId, getNodeVersion(dstId),
+    senderStage.onNext(Utils.bldVersionedGCM(groupName, operName,
+        ReefNetworkGroupCommProtos.GroupCommMessage.Type.TopologyChanges, driverId, 0, dstId, getNodeVersion(dstId),
         changesCodec.encode(changes)));
     LOG.exiting("TreeTopology", "onTopologyChanges", getQualifiedName() + msg);
   }

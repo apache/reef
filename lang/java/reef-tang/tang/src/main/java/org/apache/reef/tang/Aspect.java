@@ -53,7 +53,8 @@ public interface Aspect {
    * Note, it is inject()'s responsibility to call <tt>ret.getInstance() if ret instanceof ExternalConstructor</tt>.
    * @throws A number of exceptions which are passed-through from the wrapped call to newInstance().
    */
-  <T> T inject(ConstructorDef<T> def, Constructor<T> constructor, Object[] args) throws InvocationTargetException, IllegalAccessException, IllegalArgumentException, InstantiationException;
+  <T> T inject(ConstructorDef<T> def, Constructor<T> constructor, Object[] args)
+      throws InvocationTargetException, IllegalAccessException, IllegalArgumentException, InstantiationException;
 
   /**
    * TANG calls this the first time get() is called on an injection future.  This informs the aspect of

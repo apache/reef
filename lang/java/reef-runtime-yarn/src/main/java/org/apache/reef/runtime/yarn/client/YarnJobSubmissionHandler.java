@@ -96,7 +96,8 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
              new YarnSubmissionHelper(this.yarnConfiguration, this.fileNames, this.classpath)) {
 
       LOG.log(Level.FINE, "Assembling submission JAR for the Driver.");
-      final Optional<String> userBoundJobSubmissionDirectory = getUserBoundJobSubmissionDirectory(jobSubmissionEvent.getConfiguration());
+      final Optional<String> userBoundJobSubmissionDirectory =
+          getUserBoundJobSubmissionDirectory(jobSubmissionEvent.getConfiguration());
       final JobFolder jobFolderOnDfs = userBoundJobSubmissionDirectory.isPresent()
           ? this.uploader.createJobFolder(userBoundJobSubmissionDirectory.get())
           : this.uploader.createJobFolder(submissionHelper.getApplicationId());
@@ -148,9 +149,10 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
     return jobSubmissionEvent.getQueue().orElse(defaultQueue);
   }
 
-  private static org.apache.reef.util.Optional<String> getUserBoundJobSubmissionDirectory(final Configuration configuration) {
+  private static Optional<String> getUserBoundJobSubmissionDirectory(final Configuration configuration) {
     try {
-      return Optional.ofNullable(Tang.Factory.getTang().newInjector(configuration).getNamedInstance(DriverJobSubmissionDirectory.class));
+      return Optional.ofNullable(Tang.Factory.getTang().newInjector(configuration)
+          .getNamedInstance(DriverJobSubmissionDirectory.class));
     } catch (InjectionException ex) {
       return Optional.empty();
     }

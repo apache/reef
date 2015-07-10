@@ -64,11 +64,14 @@ public final class Constants {
           .set(HttpHandlerConfiguration.HTTP_HANDLERS, HttpServerReefEventHandler.class)
           .build(),
       DriverServiceConfiguration.CONF
-          .set(DriverServiceConfiguration.ON_EVALUATOR_ALLOCATED, ReefEventStateManager.AllocatedEvaluatorStateHandler.class)
+          .set(DriverServiceConfiguration.ON_EVALUATOR_ALLOCATED,
+              ReefEventStateManager.AllocatedEvaluatorStateHandler.class)
           .set(DriverServiceConfiguration.ON_CONTEXT_ACTIVE, ReefEventStateManager.ActiveContextStateHandler.class)
-          .set(DriverServiceConfiguration.ON_DRIVER_RESTART_CONTEXT_ACTIVE, ReefEventStateManager.DrivrRestartActiveContextStateHandler.class)
+          .set(DriverServiceConfiguration.ON_DRIVER_RESTART_CONTEXT_ACTIVE,
+              ReefEventStateManager.DrivrRestartActiveContextStateHandler.class)
           .set(DriverServiceConfiguration.ON_TASK_RUNNING, ReefEventStateManager.TaskRunningStateHandler.class)
-          .set(DriverServiceConfiguration.ON_DRIVER_RESTART_TASK_RUNNING, ReefEventStateManager.DriverRestartTaskRunningStateHandler.class)
+          .set(DriverServiceConfiguration.ON_DRIVER_RESTART_TASK_RUNNING,
+              ReefEventStateManager.DriverRestartTaskRunningStateHandler.class)
           .set(DriverServiceConfiguration.ON_DRIVER_STARTED, ReefEventStateManager.StartStateHandler.class)
           .set(DriverServiceConfiguration.ON_DRIVER_STOP, ReefEventStateManager.StopStateHandler.class)
           .build()

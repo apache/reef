@@ -200,7 +200,8 @@ public final class DriverConfiguration extends ConfigurationModuleBuilder {
   /**
    * Event handler for the event of driver restart completion, default to logging if not bound.
    */
-  public static final OptionalImpl<EventHandler<DriverRestartCompleted>> ON_DRIVER_RESTART_COMPLETED = new OptionalImpl<>();
+  public static final OptionalImpl<EventHandler<DriverRestartCompleted>> ON_DRIVER_RESTART_COMPLETED =
+      new OptionalImpl<>();
 
   /**
    * ConfigurationModule to fill out to get a legal Driver Configuration.

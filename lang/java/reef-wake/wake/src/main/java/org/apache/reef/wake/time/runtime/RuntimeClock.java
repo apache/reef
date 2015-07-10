@@ -57,8 +57,10 @@ public final class RuntimeClock implements Clock {
   RuntimeClock(final Timer timer,
                @Parameter(Clock.StartHandler.class) final InjectionFuture<Set<EventHandler<StartTime>>> startHandler,
                @Parameter(StopHandler.class) final InjectionFuture<Set<EventHandler<StopTime>>> stopHandler,
-               @Parameter(Clock.RuntimeStartHandler.class) final InjectionFuture<Set<EventHandler<RuntimeStart>>> runtimeStartHandler,
-               @Parameter(Clock.RuntimeStopHandler.class) final InjectionFuture<Set<EventHandler<RuntimeStop>>> runtimeStopHandler,
+               @Parameter(Clock.RuntimeStartHandler.class)
+               final InjectionFuture<Set<EventHandler<RuntimeStart>>> runtimeStartHandler,
+               @Parameter(Clock.RuntimeStopHandler.class)
+               final InjectionFuture<Set<EventHandler<RuntimeStop>>> runtimeStopHandler,
                @Parameter(IdleHandler.class) final InjectionFuture<Set<EventHandler<IdleClock>>> idleHandler) {
     this.timer = timer;
     this.schedule = new TreeSet<>();

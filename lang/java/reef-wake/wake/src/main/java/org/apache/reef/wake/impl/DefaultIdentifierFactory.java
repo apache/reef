@@ -82,7 +82,8 @@ public class DefaultIdentifierFactory implements IdentifierFactory {
       Object[] args = new Object[1];
       args[0] = str.substring(index + 3);
       return constructor.newInstance(args);
-    } catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+    } catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException |
+             IllegalArgumentException | InvocationTargetException e) {
       e.printStackTrace();
       throw new RemoteRuntimeException(e);
     }

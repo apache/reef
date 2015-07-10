@@ -48,7 +48,8 @@ final class RunningJobsImpl implements RunningJobs {
 
   @Inject
   RunningJobsImpl(final Injector injector,
-                  @Parameter(ResourceManagerErrorHandler.class) final InjectionFuture<EventHandler<FailedRuntime>> failedRuntimeEventHandler) {
+                  @Parameter(ResourceManagerErrorHandler.class)
+                  final InjectionFuture<EventHandler<FailedRuntime>> failedRuntimeEventHandler) {
     this.injector = injector;
     this.failedRuntimeEventHandler = failedRuntimeEventHandler;
     LOG.log(Level.FINE, "Instantiated 'RunningJobImpl'");
@@ -71,7 +72,8 @@ final class RunningJobsImpl implements RunningJobs {
 
     if (status.getState() == ReefServiceProtos.State.INIT) {
       try {
-        final RunningJobImpl runningJob = this.newRunningJob(status.getIdentifier(), message.getIdentifier().toString());
+        final RunningJobImpl runningJob =
+            this.newRunningJob(status.getIdentifier(), message.getIdentifier().toString());
         this.put(runningJob);
       } catch (final BindException | InjectionException configError) {
         throw new RuntimeException("Configuration error for: " + status, configError);
@@ -139,7 +141,8 @@ final class RunningJobsImpl implements RunningJobs {
    * @throws BindException
    * @throws InjectionException
    */
-  private synchronized RunningJobImpl newRunningJob(final String jobIdentifier, final String remoteIdentifier) throws BindException, InjectionException {
+  private synchronized RunningJobImpl newRunningJob(final String jobIdentifier, final String remoteIdentifier)
+      throws BindException, InjectionException {
     final Injector child = this.injector.forkInjector();
     child.bindVolatileParameter(REEFImplementation.DriverRemoteIdentifier.class, remoteIdentifier);
     child.bindVolatileParameter(DriverIdentifier.class, jobIdentifier);

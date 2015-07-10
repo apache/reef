@@ -26,6 +26,7 @@ import org.apache.reef.wake.time.event.StartTime;
 /**
  * The StartTime event is routed to this EventHandler if there is a restart, instead of to DriverStartHandler.
  */
-@NamedParameter(doc = "The StartTime event is routed to this EventHandler if there is a restart, instead of to DriverStartHandler.")
+@NamedParameter(doc = "The StartTime event is routed to this EventHandler if there is a restart, " +
+    "instead of to DriverStartHandler.")
 public final class DriverRestartHandler implements Name<EventHandler<StartTime>> {
 }

@@ -65,7 +65,8 @@ final class LogFetcher {
                                                  final String accountKey,
                                                  final String containerName)
       throws URISyntaxException, InvalidKeyException, StorageException {
-    final CloudStorageAccount cloudStorageAccount = CloudStorageAccount.parse(getStorageConnectionString(accountName, accountKey));
+    final CloudStorageAccount cloudStorageAccount =
+        CloudStorageAccount.parse(getStorageConnectionString(accountName, accountKey));
     final CloudBlobClient blobClient = cloudStorageAccount.createCloudBlobClient();
     return blobClient.getContainerReference(containerName);
   }
@@ -98,7 +99,8 @@ final class LogFetcher {
     }
   }
 
-  private FileStatus[] downloadLogs(final String applicationId) throws StorageException, IOException, URISyntaxException {
+  private FileStatus[] downloadLogs(final String applicationId)
+      throws StorageException, IOException, URISyntaxException {
     final File localFolder = downloadToTempFolder(applicationId);
     final Path localFolderPath = new Path(localFolder.getAbsolutePath());
     return this.fileSystem.listStatus(localFolderPath);
@@ -113,7 +115,8 @@ final class LogFetcher {
    * @throws StorageException
    * @throws IOException
    */
-  private File downloadToTempFolder(final String applicationId) throws URISyntaxException, StorageException, IOException {
+  private File downloadToTempFolder(final String applicationId)
+      throws URISyntaxException, StorageException, IOException {
     final File outputFolder = Files.createTempDirectory("reeflogs-" + applicationId).toFile();
     outputFolder.mkdirs();
     final CloudBlobDirectory logFolder = this.container.getDirectoryReference(LOG_FOLDER_PREFIX + applicationId + "/");

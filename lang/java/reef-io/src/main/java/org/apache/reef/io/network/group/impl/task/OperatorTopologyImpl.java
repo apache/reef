@@ -180,7 +180,8 @@ public class OperatorTopologyImpl implements OperatorTopology {
       } else {
         retVal = true;
       }
-      LOG.exiting("OperatorTopologyImpl", "isMsgVersionOk", Arrays.toString(new Object[]{retVal, getQualifiedName(), msg}));
+      LOG.exiting("OperatorTopologyImpl", "isMsgVersionOk",
+          Arrays.toString(new Object[]{retVal, getQualifiedName(), msg}));
       return retVal;
     } else {
       throw new RuntimeException(getQualifiedName() + "can only deal with versioned msgs");
@@ -195,21 +196,25 @@ public class OperatorTopologyImpl implements OperatorTopology {
   }
 
   @Override
-  public void sendToParent(final byte[] data, final ReefNetworkGroupCommProtos.GroupCommMessage.Type msgType) throws ParentDeadException {
+  public void sendToParent(final byte[] data, final ReefNetworkGroupCommProtos.GroupCommMessage.Type msgType)
+      throws ParentDeadException {
     LOG.entering("OperatorTopologyImpl", "sendToParent", new Object[]{getQualifiedName(), data, msgType});
     refreshEffectiveTopology();
     assert (effectiveTopology != null);
     effectiveTopology.sendToParent(data, msgType);
-    LOG.exiting("OperatorTopologyImpl", "sendToParent", Arrays.toString(new Object[]{getQualifiedName(), data, msgType}));
+    LOG.exiting("OperatorTopologyImpl", "sendToParent",
+        Arrays.toString(new Object[]{getQualifiedName(), data, msgType}));
   }
 
   @Override
-  public void sendToChildren(final byte[] data, final ReefNetworkGroupCommProtos.GroupCommMessage.Type msgType) throws ParentDeadException {
+  public void sendToChildren(final byte[] data, final ReefNetworkGroupCommProtos.GroupCommMessage.Type msgType)
+      throws ParentDeadException {
     LOG.entering("OperatorTopologyImpl", "sendToChildren", new Object[]{getQualifiedName(), data, msgType});
     refreshEffectiveTopology();
     assert (effectiveTopology != null);
     effectiveTopology.sendToChildren(data, msgType);
-    LOG.exiting("OperatorTopologyImpl", "sendToChildren", Arrays.toString(new Object[]{getQualifiedName(), data, msgType}));
+    LOG.exiting("OperatorTopologyImpl", "sendToChildren",
+        Arrays.toString(new Object[]{getQualifiedName(), data, msgType}));
   }
 
   @Override
@@ -223,7 +228,8 @@ public class OperatorTopologyImpl implements OperatorTopology {
   }
 
   @Override
-  public <T> T recvFromChildren(final Reduce.ReduceFunction<T> redFunc, final Codec<T> dataCodec) throws ParentDeadException {
+  public <T> T recvFromChildren(final Reduce.ReduceFunction<T> redFunc, final Codec<T> dataCodec)
+      throws ParentDeadException {
     LOG.entering("OperatorTopologyImpl", "recvFromChildren", getQualifiedName());
     refreshEffectiveTopology();
     assert (effectiveTopology != null);
@@ -288,9 +294,12 @@ public class OperatorTopologyImpl implements OperatorTopology {
         baseTopology.setChanges(true);
 
         LOG.finest(getQualifiedName() + "Waiting for ctrl msgs");
-        for (GroupCommunicationMessage msg = deltas.take(); msg.getType() != ReefNetworkGroupCommProtos.GroupCommMessage.Type.TopologySetup; msg = deltas.take()) {
+        for (GroupCommunicationMessage msg = deltas.take();
+             msg.getType() != ReefNetworkGroupCommProtos.GroupCommMessage.Type.TopologySetup;
+             msg = deltas.take()) {
           LOG.finest(getQualifiedName() + "Got " + msg.getType() + " msg from " + msg.getSrcid());
-          if (effectiveTopology == null && msg.getType() == ReefNetworkGroupCommProtos.GroupCommMessage.Type.ParentDead) {
+          if (effectiveTopology == null &&
+              msg.getType() == ReefNetworkGroupCommProtos.GroupCommMessage.Type.ParentDead) {
             /**
              * If effectiveTopology!=null, this method is being called from the BaseTopologyUpdateStage
              * And exception thrown will be caught by uncaughtExceptionHandler leading to System.exit
@@ -324,23 +333,28 @@ public class OperatorTopologyImpl implements OperatorTopology {
         final int srcVersion = msg.getSrcVersion();
         switch (msg.getType()) {
         case UpdateTopology:
-          sender.send(Utils.bldVersionedGCM(groupName, operName, ReefNetworkGroupCommProtos.GroupCommMessage.Type.TopologySetup, selfId, this.version, driverId,
+          sender.send(Utils.bldVersionedGCM(groupName, operName,
+              ReefNetworkGroupCommProtos.GroupCommMessage.Type.TopologySetup, selfId, this.version, driverId,
                 srcVersion, Utils.EMPTY_BYTE_ARR));
           break;
         case ParentAdd:
-          sender.send(Utils.bldVersionedGCM(groupName, operName, ReefNetworkGroupCommProtos.GroupCommMessage.Type.ParentAdded, selfId, this.version, srcId,
+          sender.send(Utils.bldVersionedGCM(groupName, operName,
+              ReefNetworkGroupCommProtos.GroupCommMessage.Type.ParentAdded, selfId, this.version, srcId,
                 srcVersion, Utils.EMPTY_BYTE_ARR), driverId);
           break;
         case ParentDead:
-          sender.send(Utils.bldVersionedGCM(groupName, operName, ReefNetworkGroupCommProtos.GroupCommMessage.Type.ParentRemoved, selfId, this.version, srcId,
+          sender.send(Utils.bldVersionedGCM(groupName, operName,
+              ReefNetworkGroupCommProtos.GroupCommMessage.Type.ParentRemoved, selfId, this.version, srcId,
                 srcVersion, Utils.EMPTY_BYTE_ARR), driverId);
           break;
         case ChildAdd:
-          sender.send(Utils.bldVersionedGCM(groupName, operName, ReefNetworkGroupCommProtos.GroupCommMessage.Type.ChildAdded, selfId, this.version, srcId,
+          sender.send(Utils.bldVersionedGCM(groupName, operName,
+              ReefNetworkGroupCommProtos.GroupCommMessage.Type.ChildAdded, selfId, this.version, srcId,
                 srcVersion, Utils.EMPTY_BYTE_ARR), driverId);
           break;
         case ChildDead:
-          sender.send(Utils.bldVersionedGCM(groupName, operName, ReefNetworkGroupCommProtos.GroupCommMessage.Type.ChildRemoved, selfId, this.version, srcId,
+          sender.send(Utils.bldVersionedGCM(groupName, operName,
+              ReefNetworkGroupCommProtos.GroupCommMessage.Type.ChildRemoved, selfId, this.version, srcId,
                 srcVersion, Utils.EMPTY_BYTE_ARR), driverId);
           break;
         default:
@@ -379,7 +393,8 @@ public class OperatorTopologyImpl implements OperatorTopology {
     for (final GroupCommunicationMessage msg : deletionDeltasForUpdate) {
       final ReefNetworkGroupCommProtos.GroupCommMessage.Type msgType = msg.getType();
       if (msgType == ReefNetworkGroupCommProtos.GroupCommMessage.Type.ParentDead) {
-        throw new ParentDeadException(getQualifiedName() + "Parent dead. Current behavior is for the child to die too.");
+        throw new ParentDeadException(getQualifiedName() +
+            "Parent dead. Current behavior is for the child to die too.");
       }
     }
     LOG.exiting("OperatorTopologyImpl", "copyDeletionDeltas", Arrays.toString(new Object[]{getQualifiedName(),

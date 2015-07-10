@@ -146,7 +146,8 @@ public final class YarnSubmissionHelper implements Closeable{
         .setStandardErr(ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/" + this.fileNames.getDriverStderrFileName())
         .build();
 
-    this.applicationSubmissionContext.setAMContainerSpec(YarnTypes.getContainerLaunchContext(launchCommand, this.resources));
+    this.applicationSubmissionContext.setAMContainerSpec(YarnTypes.getContainerLaunchContext(launchCommand,
+        this.resources));
 
     LOG.log(Level.INFO, "Submitting REEF Application to YARN. ID: {0}", this.applicationId);
 

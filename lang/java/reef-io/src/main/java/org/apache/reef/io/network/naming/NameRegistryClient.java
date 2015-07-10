@@ -72,7 +72,8 @@ public class NameRegistryClient implements Stage, NamingRegistry {
    * @param factory    an identifier factory
    */
   public NameRegistryClient(
-      final String serverAddr, final int serverPort, final IdentifierFactory factory, final LocalAddressProvider localAddressProvider) {
+      final String serverAddr, final int serverPort, final IdentifierFactory factory,
+      final LocalAddressProvider localAddressProvider) {
     this(serverAddr, serverPort, 10000, factory, localAddressProvider);
   }
 

@@ -71,7 +71,8 @@ final class DriverRuntimeStartHandler implements EventHandler<RuntimeStart> {
   public synchronized void onNext(final RuntimeStart runtimeStart) {
     LOG.log(Level.FINEST, "RuntimeStart: {0}", runtimeStart);
 
-    this.remoteManager.registerHandler(EvaluatorRuntimeProtocol.EvaluatorHeartbeatProto.class, evaluatorHeartbeatHandler);
+    this.remoteManager.registerHandler(EvaluatorRuntimeProtocol.EvaluatorHeartbeatProto.class,
+        evaluatorHeartbeatHandler);
     this.remoteManager.registerHandler(ReefServiceProtos.RuntimeErrorProto.class, evaluatorResourceManagerErrorHandler);
     this.resourceManagerStatus.setRunning();
     this.driverStatusManager.onRunning();

@@ -63,9 +63,12 @@ public final class ClientManager implements EventHandler<ClientRuntimeProtocol.J
 
 
   @Inject
-  ClientManager(@Parameter(ClientCloseHandlers.class) final InjectionFuture<Set<EventHandler<Void>>> clientCloseHandlers,
-                @Parameter(ClientCloseWithMessageHandlers.class) final InjectionFuture<Set<EventHandler<byte[]>>> clientCloseWithMessageHandlers,
-                @Parameter(ClientMessageHandlers.class) final InjectionFuture<Set<EventHandler<byte[]>>> clientMessageHandlers,
+  ClientManager(@Parameter(ClientCloseHandlers.class)
+                final InjectionFuture<Set<EventHandler<Void>>> clientCloseHandlers,
+                @Parameter(ClientCloseWithMessageHandlers.class)
+                final InjectionFuture<Set<EventHandler<byte[]>>> clientCloseWithMessageHandlers,
+                @Parameter(ClientMessageHandlers.class)
+                final InjectionFuture<Set<EventHandler<byte[]>>> clientMessageHandlers,
                 @Parameter(ClientRemoteIdentifier.class) final String clientRID,
                 final RemoteManager remoteManager,
                 final DriverStatusManager driverStatusManager) {

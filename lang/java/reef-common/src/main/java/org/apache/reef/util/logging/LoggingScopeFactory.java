@@ -103,7 +103,8 @@ public final class LoggingScopeFactory {
   }
 
   /**
-   * The method is to measure the time used to start the driver. It can be inserted to the code between start driver till it is started
+   * The method is to measure the time used to start the driver.
+   * It can be inserted to the code between start driver till it is started
    * @param startTime
    * @return
    */
@@ -112,7 +113,8 @@ public final class LoggingScopeFactory {
   }
 
   /**
-   * The method is to measure the time used to stop the driver. It can be inserted to the code between start driver stop till it is stopped
+   * The method is to measure the time used to stop the driver.
+   * It can be inserted to the code between start driver stop till it is stopped
    * @param timeStamp
    * @return
    */
@@ -121,7 +123,8 @@ public final class LoggingScopeFactory {
   }
 
   /**
-   * The method is to measure the time used to set up Java CRL bridge. It can be inserted to the code between beginning of bridge set up and the end of it
+   * The method is to measure the time used to set up Java CRL bridge.
+   * It can be inserted to the code between beginning of bridge set up and the end of it
    * @return
    */
   public LoggingScope setupBridge() {
@@ -137,7 +140,8 @@ public final class LoggingScopeFactory {
   }
 
   /**
-   * The method is to measure the time used to pass EvaluatorRequestor from Java to .Net. It can be inserted to the code between beginning to send EvaluatorRequestor to CLR until it is returned.
+   * The method is to measure the time used to pass EvaluatorRequestor from Java to .Net.
+   * It can be inserted to the code between beginning to send EvaluatorRequestor to CLR until it is returned.
    * @return
    */
   public LoggingScope evaluatorRequestorPassToCs() {
@@ -145,7 +149,8 @@ public final class LoggingScopeFactory {
   }
 
   /**
-   * The method is to measure the time used to submit Evaluator request from CLR to Java driver. It can be inserted to evaluator submit() method.
+   * The method is to measure the time used to submit Evaluator request from CLR to Java driver.
+   * It can be inserted to evaluator submit() method.
    * @param evaluatorsNumber
    * @return
    */

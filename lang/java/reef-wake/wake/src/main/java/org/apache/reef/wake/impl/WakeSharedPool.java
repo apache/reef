@@ -56,12 +56,13 @@ public class WakeSharedPool implements Stage {
 
   @Inject
   public WakeSharedPool(@Parameter(Parallelism.class) int parallelism) {
-    this.pool = new ForkJoinPool(parallelism, ForkJoinPool.defaultForkJoinWorkerThreadFactory, new Thread.UncaughtExceptionHandler() {
-      @Override
-      public void uncaughtException(Thread t, Throwable e) {
-        // TODO: need to pass this upwards to REEF can grab it
-      }
-    },
+    this.pool = new ForkJoinPool(parallelism, ForkJoinPool.defaultForkJoinWorkerThreadFactory,
+        new Thread.UncaughtExceptionHandler() {
+          @Override
+          public void uncaughtException(Thread t, Throwable e) {
+            // TODO: need to pass this upwards to REEF can grab it
+          }
+        },
         // async mode turned on so a task that invokes other tasks does not have to join on them.
         // this is appropriate for event-based tasks, where once you submit an event to a stage it
         // is always fire-and-forget.
@@ -83,7 +84,9 @@ public class WakeSharedPool implements Stage {
 
   public void submit(ForkJoinTask<?> t) {
     if (ForkJoinTask.inForkJoinPool()) {
-      ForkJoinTask.invokeAll(t);            // alternatively just pool().pool.execute(t), which simply forces it to be this pool (right now we expect only one anyway)
+      ForkJoinTask.invokeAll(t);
+      // alternatively just pool().pool.execute(t), which simply forces it to be this pool
+      // (right now we expect only one anyway)
     } else {
       pool.submit(t);
     }

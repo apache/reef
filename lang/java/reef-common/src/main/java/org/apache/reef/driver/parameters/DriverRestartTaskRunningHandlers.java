@@ -29,7 +29,8 @@ import java.util.Set;
 /**
  * Handler for RunningTask events during a Driver restart.
  */
-@NamedParameter(doc = "Handler for RunningTask events during a Driver restart.", default_classes = DefaultDriverRestartTaskRunningHandler.class)
+@NamedParameter(doc = "Handler for RunningTask events during a Driver restart.",
+    default_classes = DefaultDriverRestartTaskRunningHandler.class)
 public final class DriverRestartTaskRunningHandlers implements Name<Set<EventHandler<RunningTask>>> {
   private DriverRestartTaskRunningHandlers() {
   }

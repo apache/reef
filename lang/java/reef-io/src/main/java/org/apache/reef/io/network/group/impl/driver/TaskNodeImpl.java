@@ -56,7 +56,8 @@ public class TaskNodeImpl implements TaskNode {
   private final AtomicInteger version = new AtomicInteger(0);
 
   public TaskNodeImpl(final EStage<GroupCommunicationMessage> senderStage,
-                      final Class<? extends Name<String>> groupName, final Class<? extends Name<String>> operatorName,
+                      final Class<? extends Name<String>> groupName,
+                      final Class<? extends Name<String>> operatorName,
                       final String taskId, final String driverId, final boolean isRoot) {
     this.senderStage = senderStage;
     this.groupName = groupName;
@@ -102,7 +103,8 @@ public class TaskNodeImpl implements TaskNode {
     LOG.entering("TaskNodeImpl", "onFailedTask", getQualifiedName());
     if (!running.compareAndSet(true, false)) {
       LOG.fine(getQualifiedName() + "Trying to set failed on an already failed task. Something fishy!!!");
-      LOG.exiting("TaskNodeImpl", "onFailedTask", getQualifiedName() + "Trying to set failed on an already failed task. Something fishy!!!");
+      LOG.exiting("TaskNodeImpl", "onFailedTask", getQualifiedName() +
+          "Trying to set failed on an already failed task. Something fishy!!!");
       return;
     }
     taskNodeStatus.clearStateAndReleaseLocks();
@@ -129,13 +131,15 @@ public class TaskNodeImpl implements TaskNode {
     LOG.entering("TaskNodeImpl", "onRunningTask", getQualifiedName());
     if (!running.compareAndSet(false, true)) {
       LOG.fine(getQualifiedName() + "Trying to set running on an already running task. Something fishy!!!");
-      LOG.exiting("TaskNodeImpl", "onRunningTask", getQualifiedName() + "Trying to set running on an already running task. Something fishy!!!");
+      LOG.exiting("TaskNodeImpl", "onRunningTask", getQualifiedName() +
+          "Trying to set running on an already running task. Something fishy!!!");
       return;
     }
     final int version = this.version.get();
     LOG.finest(getQualifiedName() + "Changed status to running version-" + version);
     if (parent != null && parent.isRunning()) {
-      final GroupCommunicationMessage gcm = Utils.bldVersionedGCM(groupName, operName, ReefNetworkGroupCommProtos.GroupCommMessage.Type.ParentAdd, parent.getTaskId(),
+      final GroupCommunicationMessage gcm = Utils.bldVersionedGCM(groupName, operName,
+          ReefNetworkGroupCommProtos.GroupCommMessage.Type.ParentAdd, parent.getTaskId(),
           parent.getVersion(), taskId,
           version, Utils.EMPTY_BYTE_ARR);
       taskNodeStatus.expectAckFor(gcm.getType(), gcm.getSrcid());
@@ -146,7 +150,8 @@ public class TaskNodeImpl implements TaskNode {
     }
     for (final TaskNode child : children) {
       if (child.isRunning()) {
-        final GroupCommunicationMessage gcm = Utils.bldVersionedGCM(groupName, operName, ReefNetworkGroupCommProtos.GroupCommMessage.Type.ChildAdd, child.getTaskId(),
+        final GroupCommunicationMessage gcm = Utils.bldVersionedGCM(groupName, operName,
+            ReefNetworkGroupCommProtos.GroupCommMessage.Type.ChildAdd, child.getTaskId(),
             child.getVersion(), taskId, version,
             Utils.EMPTY_BYTE_ARR);
         taskNodeStatus.expectAckFor(gcm.getType(), gcm.getSrcid());
@@ -167,7 +172,8 @@ public class TaskNodeImpl implements TaskNode {
     if (parent != null && parent.isRunning()) {
       final int parentVersion = parent.getVersion();
       final String parentTaskId = parent.getTaskId();
-      final GroupCommunicationMessage gcm = Utils.bldVersionedGCM(groupName, operName, ReefNetworkGroupCommProtos.GroupCommMessage.Type.ParentAdd, parentTaskId,
+      final GroupCommunicationMessage gcm = Utils.bldVersionedGCM(groupName, operName,
+          ReefNetworkGroupCommProtos.GroupCommMessage.Type.ParentAdd, parentTaskId,
           parentVersion, taskId, version.get(),
           Utils.EMPTY_BYTE_ARR);
       taskNodeStatus.expectAckFor(gcm.getType(), gcm.getSrcid());
@@ -186,7 +192,8 @@ public class TaskNodeImpl implements TaskNode {
       final int parentVersion = parent.getVersion();
       final String parentTaskId = parent.getTaskId();
       taskNodeStatus.updateFailureOf(parent.getTaskId());
-      final GroupCommunicationMessage gcm = Utils.bldVersionedGCM(groupName, operName, ReefNetworkGroupCommProtos.GroupCommMessage.Type.ParentDead, parentTaskId,
+      final GroupCommunicationMessage gcm = Utils.bldVersionedGCM(groupName, operName,
+          ReefNetworkGroupCommProtos.GroupCommMessage.Type.ParentDead, parentTaskId,
           parentVersion, taskId, version.get(),
           Utils.EMPTY_BYTE_ARR);
       taskNodeStatus.expectAckFor(gcm.getType(), gcm.getSrcid());
@@ -203,7 +210,8 @@ public class TaskNodeImpl implements TaskNode {
     final TaskNode childTask = findTask(childId);
     if (childTask != null && childTask.isRunning()) {
       final int childVersion = childTask.getVersion();
-      final GroupCommunicationMessage gcm = Utils.bldVersionedGCM(groupName, operName, ReefNetworkGroupCommProtos.GroupCommMessage.Type.ChildAdd, childId,
+      final GroupCommunicationMessage gcm = Utils.bldVersionedGCM(groupName, operName,
+          ReefNetworkGroupCommProtos.GroupCommMessage.Type.ChildAdd, childId,
           childVersion, taskId, version.get(),
           Utils.EMPTY_BYTE_ARR);
       taskNodeStatus.expectAckFor(gcm.getType(), gcm.getSrcid());
@@ -223,13 +231,15 @@ public class TaskNodeImpl implements TaskNode {
     if (childTask != null) {
       final int childVersion = childTask.getVersion();
       taskNodeStatus.updateFailureOf(childId);
-      final GroupCommunicationMessage gcm = Utils.bldVersionedGCM(groupName, operName, ReefNetworkGroupCommProtos.GroupCommMessage.Type.ChildDead, childId,
+      final GroupCommunicationMessage gcm = Utils.bldVersionedGCM(groupName, operName,
+          ReefNetworkGroupCommProtos.GroupCommMessage.Type.ChildDead, childId,
           childVersion, taskId, version.get(),
           Utils.EMPTY_BYTE_ARR);
       taskNodeStatus.expectAckFor(gcm.getType(), gcm.getSrcid());
       senderStage.onNext(gcm);
     } else {
-      throw new RuntimeException(getQualifiedName() + "Don't expect task for " + childId + " to be null. Something wrong");
+      throw new RuntimeException(getQualifiedName() + "Don't expect task for " + childId +
+          " to be null. Something wrong");
     }
     LOG.exiting("TaskNodeImpl", "onChildDead", getQualifiedName() + childId);
   }
@@ -327,7 +337,8 @@ public class TaskNodeImpl implements TaskNode {
   private void sendTopoSetupMsg() {
     LOG.entering("TaskNodeImpl", "sendTopoSetupMsg", getQualifiedName() + taskId);
     LOG.fine(getQualifiedName() + "is an active participant in the topology");
-    senderStage.onNext(Utils.bldVersionedGCM(groupName, operName, ReefNetworkGroupCommProtos.GroupCommMessage.Type.TopologySetup, driverId, 0, taskId,
+    senderStage.onNext(Utils.bldVersionedGCM(groupName, operName,
+        ReefNetworkGroupCommProtos.GroupCommMessage.Type.TopologySetup, driverId, 0, taskId,
         version.get(), Utils.EMPTY_BYTE_ARR));
     taskNodeStatus.onTopologySetupMessageSent();
     final boolean sentAlready = !topoSetupSent.compareAndSet(false, true);
@@ -379,28 +390,35 @@ public class TaskNodeImpl implements TaskNode {
   private boolean parentActive() {
     LOG.entering("TaskNodeImpl", "parentActive", getQualifiedName());
     if (isRoot) {
-      LOG.exiting("TaskNodeImpl", "parentActive", Arrays.toString(new Object[]{true, getQualifiedName(), "I am root. Will never have parent. So signalling active"}));
+      LOG.exiting("TaskNodeImpl", "parentActive",
+          Arrays.toString(new Object[]{true, getQualifiedName(),
+              "I am root. Will never have parent. So signalling active"}));
       return true;
     }
     if (isNeighborActive(parent.getTaskId())) {
-      LOG.exiting("TaskNodeImpl", "parentActive", Arrays.toString(new Object[]{true, getQualifiedName(), parent, " is an active neghbor"}));
+      LOG.exiting("TaskNodeImpl", "parentActive",
+          Arrays.toString(new Object[]{true, getQualifiedName(), parent, " is an active neighbor"}));
       return true;
     }
-    LOG.exiting("TaskNodeImpl", "parentActive", getQualifiedName() + "Neither root Nor is " + parent + " an active neghbor");
+    LOG.exiting("TaskNodeImpl", "parentActive",
+        getQualifiedName() + "Neither root Nor is " + parent + " an active neighbor");
     return false;
   }
 
   private boolean activeNeighborOfParent() {
     LOG.entering("TaskNodeImpl", "activeNeighborOfParent", getQualifiedName());
     if (isRoot) {
-      LOG.exiting("TaskNodeImpl", "activeNeighborOfParent", Arrays.toString(new Object[]{true, getQualifiedName(), "I am root. Will never have parent. So signalling active"}));
+      LOG.exiting("TaskNodeImpl", "activeNeighborOfParent", Arrays.toString(new Object[]{true, getQualifiedName(),
+          "I am root. Will never have parent. So signalling active"}));
       return true;
     }
     if (parent.isNeighborActive(taskId)) {
-      LOG.exiting("TaskNodeImpl", "activeNeighborOfParent", Arrays.toString(new Object[]{true, getQualifiedName(), "I am an active neighbor of parent ", parent}));
+      LOG.exiting("TaskNodeImpl", "activeNeighborOfParent", Arrays.toString(new Object[]{true, getQualifiedName(),
+          "I am an active neighbor of parent ", parent}));
       return true;
     }
-    LOG.exiting("TaskNodeImpl", "activeNeighborOfParent", Arrays.toString(new Object[]{false, getQualifiedName(), "Neither is parent null Nor am I an active neighbor of parent ", parent}));
+    LOG.exiting("TaskNodeImpl", "activeNeighborOfParent", Arrays.toString(new Object[]{false, getQualifiedName(),
+        "Neither is parent null Nor am I an active neighbor of parent ", parent}));
     return false;
   }
 
@@ -409,11 +427,13 @@ public class TaskNodeImpl implements TaskNode {
     for (final TaskNode child : children) {
       final String childId = child.getTaskId();
       if (child.isRunning() && !isNeighborActive(childId)) {
-        LOG.exiting("TaskNodeImpl", "allChildrenActive", Arrays.toString(new Object[]{false, getQualifiedName(), childId, " not active yet"}));
+        LOG.exiting("TaskNodeImpl", "allChildrenActive",
+            Arrays.toString(new Object[]{false, getQualifiedName(), childId, " not active yet"}));
         return false;
       }
     }
-    LOG.exiting("TaskNodeImpl", "allChildrenActive", Arrays.toString(new Object[]{true, getQualifiedName(), "All children active"}));
+    LOG.exiting("TaskNodeImpl", "allChildrenActive",
+        Arrays.toString(new Object[]{true, getQualifiedName(), "All children active"}));
     return true;
   }
 
@@ -421,11 +441,13 @@ public class TaskNodeImpl implements TaskNode {
     LOG.entering("TaskNodeImpl", "activeNeighborOfAllChildren", getQualifiedName());
     for (final TaskNode child : children) {
       if (child.isRunning() && !child.isNeighborActive(taskId)) {
-        LOG.exiting("TaskNodeImpl", "activeNeighborOfAllChildren", Arrays.toString(new Object[]{false, getQualifiedName(), "Not an active neighbor of child ", child}));
+        LOG.exiting("TaskNodeImpl", "activeNeighborOfAllChildren",
+            Arrays.toString(new Object[]{false, getQualifiedName(), "Not an active neighbor of child ", child}));
         return false;
       }
     }
-    LOG.exiting("TaskNodeImpl", "activeNeighborOfAllChildren", Arrays.toString(new Object[]{true, getQualifiedName(), "Active neighbor of all children"}));
+    LOG.exiting("TaskNodeImpl", "activeNeighborOfAllChildren",
+        Arrays.toString(new Object[]{true, getQualifiedName(), "Active neighbor of all children"}));
     return true;
   }
 

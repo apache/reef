@@ -33,7 +33,8 @@ public final class Constants {
   public static final String MAX_APP_ATTEMPTS = "max-app-attempts";
   public static final String APPLICATION_TYPE = "application-type";
   public static final String AM_CONTAINER_SPEC = "am-container-spec";
-  public static final String KEEP_CONTAINERS_ACROSS_APPLICATION_ATTEMPTS = "keep-containers-across-application-attempts";
+  public static final String KEEP_CONTAINERS_ACROSS_APPLICATION_ATTEMPTS =
+      "keep-containers-across-application-attempts";
   public static final String APPLICATION_TAGS = "application-tags";
   public static final String QUEUE = "queue";
   public static final String RESOURCE = "resource";
