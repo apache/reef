@@ -135,7 +135,7 @@ public final class StaticShuffleClient implements ShuffleClient {
     @Override
     public void onNext(final Message<ShuffleControlMessage> message) {
       final ShuffleControlMessage shuffleMessage = message.getData().iterator().next();
-      if (shuffleMessage.getCode() == StaticShuffleMessageCode.TOPOLOGY_SETUP) {
+      if (shuffleMessage.getCode() == StaticShuffleMessageCode.SHUFFLE_SETUP) {
         synchronized (StaticShuffleClient.this) {
           isTopologySetup = true;
           StaticShuffleClient.this.notifyAll();

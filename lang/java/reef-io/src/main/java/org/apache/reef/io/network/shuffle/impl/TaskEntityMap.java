@@ -40,7 +40,7 @@ final class TaskEntityMap {
   private final ConnectionFactory<ShuffleControlMessage> connectionFactory;
   private final Map<String, TaskEntity> entityMap;
 
-  private boolean topologyInitialized;
+  private boolean shuffleInitialized;
   private int waitingTaskNum;
 
   TaskEntityMap(
@@ -69,9 +69,9 @@ final class TaskEntityMap {
       waitingTaskNum--;
     }
 
-    if (!topologyInitialized && waitingTaskNum == 0) {
-      topologyInitialized = true;
-      sendTopologySetupMessages();
+    if (!shuffleInitialized && waitingTaskNum == 0) {
+      shuffleInitialized = true;
+      sendSetupMessages();
     }
   }
 
@@ -83,9 +83,9 @@ final class TaskEntityMap {
     }
   }
 
-  private void sendTopologySetupMessages() {
+  private void sendSetupMessages() {
     final ShuffleControlMessage controlMessage = new ShuffleControlMessage(
-        StaticShuffleMessageCode.TOPOLOGY_SETUP,
+        StaticShuffleMessageCode.SHUFFLE_SETUP,
         shuffleDescription.getShuffleName().getName(),
         null,
         null);
@@ -129,7 +129,7 @@ final class TaskEntityMap {
         this.connection.open();
         this.connection.write(message);
       } catch (NetworkException e) {
-        // unnecessary try-catch clause.
+        throw new RuntimeException(e);
       }
     }
   }

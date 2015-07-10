@@ -26,14 +26,14 @@ import java.util.List;
 /**
  *
  */
-@DefaultImplementation(ShuffleTupleSerializerImpl.class)
-public interface ShuffleTupleSerializer<K, V> {
+@DefaultImplementation(ShuffleTupleMessageGeneratorImpl.class)
+public interface ShuffleTupleMessageGenerator<K, V> {
 
-  List<Tuple<String, ShuffleTupleMessage<K, V>>> serializeTuple(Tuple<K, V> tuple);
+  ShuffleTupleMessage<K, V> createTupleMessage(Tuple<K, V> tuple);
 
-  List<Tuple<String, ShuffleTupleMessage<K, V>>> serializeTupleList(List<Tuple<K, V>> tupleList);
+  ShuffleTupleMessage<K, V> createTupleMessage(List<Tuple<K, V>> tupleList);
 
-  ShuffleTupleMessage<K, V> createShuffleTupleMessage(Tuple<K, V> tuple);
+  List<Tuple<String, ShuffleTupleMessage<K, V>>> createClassifiedTupleMessageList(Tuple<K, V> tuple);
 
-  ShuffleTupleMessage<K, V> createShuffleTupleMessage(List<Tuple<K, V>> tupleList);
+  List<Tuple<String, ShuffleTupleMessage<K, V>>> createClassifiedTupleMessageList(List<Tuple<K, V>> tupleList);
 }
