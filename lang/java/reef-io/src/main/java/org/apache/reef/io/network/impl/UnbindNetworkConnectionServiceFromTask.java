@@ -19,6 +19,7 @@
 package org.apache.reef.io.network.impl;
 
 import org.apache.reef.io.network.NetworkConnectionService;
+import org.apache.reef.io.network.impl.config.NetworkConnectionServiceIdFactory;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.task.events.TaskStop;
 import org.apache.reef.wake.EventHandler;
@@ -37,7 +38,7 @@ public final class UnbindNetworkConnectionServiceFromTask implements EventHandle
   @Inject
   public UnbindNetworkConnectionServiceFromTask(
       final NetworkConnectionService ncs,
-      @Parameter(NetworkServiceParameters.NetworkServiceIdentifierFactory.class) final IdentifierFactory idFac) {
+      @Parameter(NetworkConnectionServiceIdFactory.class) final IdentifierFactory idFac) {
     this.ncs = ncs;
     this.idFac = idFac;
   }

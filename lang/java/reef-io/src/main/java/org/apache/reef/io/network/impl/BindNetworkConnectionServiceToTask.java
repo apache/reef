@@ -19,6 +19,7 @@
 package org.apache.reef.io.network.impl;
 
 import org.apache.reef.io.network.NetworkConnectionService;
+import org.apache.reef.io.network.impl.config.NetworkConnectionServiceIdFactory;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.task.events.TaskStart;
 import org.apache.reef.wake.EventHandler;
@@ -38,7 +39,7 @@ public final class BindNetworkConnectionServiceToTask implements EventHandler<Ta
   @Inject
   public BindNetworkConnectionServiceToTask(
       final NetworkConnectionService ncs,
-      @Parameter(NetworkServiceParameters.NetworkServiceIdentifierFactory.class) final IdentifierFactory idFac) {
+      @Parameter(NetworkConnectionServiceIdFactory.class) final IdentifierFactory idFac) {
     this.ncs = ncs;
     this.idFac = idFac;
   }

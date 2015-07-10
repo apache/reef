@@ -33,13 +33,18 @@ import org.apache.reef.wake.remote.transport.LinkListener;
  * It creates multiple ConnectionFactories, which create multiple connections.
  *
  * Flow of message transfer:
- * [Downstream]: connection.write(message) -> ConnectionFactory -> src NetworkConnectionService (encode) -> dest NetworkConnectionService.
+ * [Downstream]: connection.write(message) -> ConnectionFactory
+ * -> src NetworkConnectionService (encode) -> dest NetworkConnectionService.
  * [Upstream]: message -> dest NetworkConnectionService (decode) -> ConnectionFactory -> EventHandler.
  *
  * Users can register a ConnectionFactory by registering their Codec, EventHandler and LinkListener.
  * When users send messages via connections created by the ConnectionFactory,
- * NetworkConnectionService encodes the messages according to the Codec registered in the ConnectionFactory and sends them to the destination NetworkConnectionService.
- * Also, it receives the messages by decoding the messages and forwarding them to the corresponding EventHandler registered in the ConnectionFactory.
+ *
+ * NetworkConnectionService encodes the messages according to the Codec
+ * registered in the ConnectionFactory and sends them to the destination NetworkConnectionService.
+ *
+ * Also, it receives the messages by decoding the messages and forwarding them
+ * to the corresponding EventHandler registered in the ConnectionFactory.
  */
 @DefaultImplementation(NetworkConnectionServiceImpl.class)
 public interface NetworkConnectionService extends AutoCloseable {

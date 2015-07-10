@@ -23,6 +23,8 @@ import org.apache.reef.io.Tuple;
 import org.apache.reef.io.network.ConnectionFactory;
 import org.apache.reef.io.network.Message;
 import org.apache.reef.io.network.NetworkConnectionService;
+import org.apache.reef.io.network.impl.config.NetworkConnectionServiceIdFactory;
+import org.apache.reef.io.network.impl.config.NetworkConnectionServicePort;
 import org.apache.reef.io.network.naming.NameResolver;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.wake.EStage;
@@ -91,17 +93,19 @@ public final class NetworkConnectionServiceImpl implements NetworkConnectionServ
 
   @Inject
   private NetworkConnectionServiceImpl(
-      @Parameter(NetworkConnectionServiceParameters.NetworkConnectionServiceIdentifierFactory.class) final IdentifierFactory idFactory,
-      @Parameter(NetworkConnectionServiceParameters.NetworkConnectionServicePort.class) final int nsPort,
+      @Parameter(NetworkConnectionServiceIdFactory.class) final IdentifierFactory idFactory,
+      @Parameter(NetworkConnectionServicePort.class) final int nsPort,
       final TransportFactory transportFactory,
       final NameResolver nameResolver) {
     this.idFactory = idFactory;
     this.connFactoryMap = new ConcurrentHashMap<>();
     this.nsCodec = new NetworkConnectionServiceMessageCodec(idFactory, connFactoryMap);
     this.nsLinkListener = new NetworkConnectionServiceLinkListener(connFactoryMap);
-    final EventHandler<TransportEvent> recvHandler = new NetworkConnectionServiceReceiveHandler(connFactoryMap, nsCodec);
+    final EventHandler<TransportEvent> recvHandler =
+        new NetworkConnectionServiceReceiveHandler(connFactoryMap, nsCodec);
     this.nameResolver = nameResolver;
-    this.transport = transportFactory.newInstance(nsPort, recvHandler, recvHandler, new NetworkConnectionServiceExceptionHandler());
+    this.transport = transportFactory.newInstance(nsPort, recvHandler, recvHandler,
+        new NetworkConnectionServiceExceptionHandler());
 
     this.nameServiceRegisteringStage = new SingleThreadStage<>(
         "NameServiceRegisterer", new EventHandler<Tuple<Identifier, InetSocketAddress>>() {
@@ -136,9 +140,9 @@ public final class NetworkConnectionServiceImpl implements NetworkConnectionServ
 
   @Override
   public <T> void registerConnectionFactory(final Identifier connFactoryId,
-                                                         final Codec<T> codec,
-                                                         final EventHandler<Message<T>> eventHandler,
-                                                         final LinkListener<Message<T>> linkListener) throws NetworkException {
+                                            final Codec<T> codec,
+                                            final EventHandler<Message<T>> eventHandler,
+                                            final LinkListener<Message<T>> linkListener) throws NetworkException {
     String id = connFactoryId.toString();
     if (connFactoryMap.get(id) != null) {
       throw new NetworkException("ConnectionFactory " + connFactoryId + " was already registered.");

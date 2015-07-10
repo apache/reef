@@ -42,7 +42,8 @@ final class NetworkConnectionServiceLinkListener implements LinkListener<Network
   }
 
   @Override
-  public void onException(final Throwable cause, final SocketAddress remoteAddress, final NetworkConnectionServiceMessage message) {
+  public void onException(final Throwable cause, final SocketAddress remoteAddress,
+                          final NetworkConnectionServiceMessage message) {
     final LinkListener listener = connFactoryMap.get(message.getConnectionFactoryId()).getLinkListener();
     if (listener != null) {
       listener.onException(cause, remoteAddress, message);

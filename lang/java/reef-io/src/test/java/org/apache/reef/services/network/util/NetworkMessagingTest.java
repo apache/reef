@@ -22,7 +22,7 @@ import org.apache.reef.exception.evaluator.NetworkException;
 import org.apache.reef.io.network.Connection;
 import org.apache.reef.io.network.Message;
 import org.apache.reef.io.network.NetworkConnectionService;
-import org.apache.reef.io.network.impl.NetworkConnectionServiceParameters;
+import org.apache.reef.io.network.impl.config.NetworkConnectionServiceIdFactory;
 import org.apache.reef.io.network.naming.NameResolverConfiguration;
 import org.apache.reef.io.network.naming.NameServer;
 import org.apache.reef.tang.Configuration;
@@ -67,7 +67,7 @@ public final class NetworkMessagingTest {
     this.receiver = "receiver";
     final Injector injectorReceiver = injector.forkInjector(netConf);
     this.receiverNetworkConnService = injectorReceiver.getInstance(NetworkConnectionService.class);
-    this.factory = injectorReceiver.getNamedInstance(NetworkConnectionServiceParameters.NetworkConnectionServiceIdentifierFactory.class);
+    this.factory = injectorReceiver.getNamedInstance(NetworkConnectionServiceIdFactory.class);
     this.receiverNetworkConnService.registerId(this.factory.getNewInstance(receiver));
 
     // network service for sender

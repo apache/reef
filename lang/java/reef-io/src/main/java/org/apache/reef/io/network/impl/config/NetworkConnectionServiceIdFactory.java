@@ -16,19 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.io.network.impl;
+package org.apache.reef.io.network.impl.config;
 
 import org.apache.reef.io.network.util.StringIdentifierFactory;
 import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
 import org.apache.reef.wake.IdentifierFactory;
 
-public class NetworkConnectionServiceParameters {
-  @NamedParameter(doc = "identifier factory for the service", short_name = "ncsfactory", default_class = StringIdentifierFactory.class)
-  public static class NetworkConnectionServiceIdentifierFactory implements Name<IdentifierFactory> {
-  }
-
-  @NamedParameter(doc = "port for the network connection service", short_name = "ncsport", default_value = "0")
-  public static class NetworkConnectionServicePort implements Name<Integer> {
-  }
+@NamedParameter(doc = "identifier factory for the service", short_name = "ncsfactory",
+    default_class = StringIdentifierFactory.class)
+public final class NetworkConnectionServiceIdFactory implements Name<IdentifierFactory> {
 }
