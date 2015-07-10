@@ -30,13 +30,13 @@ namespace Org.Apache.REEF.IO.PartitionedData.Random
     /// </summary>
     internal sealed class RandomDataSet : IPartitionedDataSet
     {
-        private readonly Dictionary<string, RandomPartitionDescriptor> _partitions;
+        private readonly Dictionary<string, IPartitionDescriptor> _partitions;
 
         [Inject]
         private RandomDataSet([Parameter(typeof(NumberOfPartitions))] int numberOfPartitions,
             [Parameter(typeof(NumberOfDoublesPerPartition))] int numberOfDoublesPerPartition)
         {
-            _partitions = new Dictionary<string, RandomPartitionDescriptor>(numberOfPartitions);
+            _partitions = new Dictionary<string, IPartitionDescriptor>(numberOfPartitions);
             for (var i = 0; i < numberOfPartitions; ++i)
             {
                 var id = "RandomPartition-" + i;

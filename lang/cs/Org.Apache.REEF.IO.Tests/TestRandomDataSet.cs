@@ -51,18 +51,6 @@ namespace Org.Apache.REEF.IO.Tests
         private const int ExpectedNumberOfBytesPerPartition = NumberOfDoublesPerPartition*BytesPerDouble;
 
         /// <summary>
-        /// Make a DataSet instance using the RandomDataConfiguration.
-        /// </summary>
-        /// <returns></returns>
-        private IPartitionedDataSet MakeRandomDataSet()
-        {
-            return TangFactory.GetTang().NewInjector(RandomDataConfiguration.ConfigurationModule
-                .Set(RandomDataConfiguration.NumberOfDoublesPerPartition, NumberOfDoublesPerPartition.ToString())
-                .Set(RandomDataConfiguration.NumberOfPartitions, NumberOfPartitions.ToString())
-                .Build()).GetInstance<IPartitionedDataSet>();
-        }
-
-        /// <summary>
         /// Test for the driver side APIs of RandomDataSet.
         /// </summary>
         [TestMethod]
@@ -103,6 +91,18 @@ namespace Org.Apache.REEF.IO.Tests
                     Assert.AreEqual(ExpectedNumberOfBytesPerPartition, partitionStream.Length);
                 }
             }
+        }
+
+        /// <summary>
+        /// Make a DataSet instance using the RandomDataConfiguration.
+        /// </summary>
+        /// <returns></returns>
+        private IPartitionedDataSet MakeRandomDataSet()
+        {
+            return TangFactory.GetTang().NewInjector(RandomDataConfiguration.ConfigurationModule
+                .Set(RandomDataConfiguration.NumberOfDoublesPerPartition, NumberOfDoublesPerPartition.ToString())
+                .Set(RandomDataConfiguration.NumberOfPartitions, NumberOfPartitions.ToString())
+                .Build()).GetInstance<IPartitionedDataSet>();
         }
     }
 }
