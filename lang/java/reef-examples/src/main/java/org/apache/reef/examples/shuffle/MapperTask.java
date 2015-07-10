@@ -20,14 +20,12 @@ package org.apache.reef.examples.shuffle;
 
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
-import org.apache.reef.examples.shuffle.params.InputString;
 import org.apache.reef.examples.shuffle.params.WordCountTopology;
 import org.apache.reef.io.data.loading.api.DataSet;
 import org.apache.reef.io.network.shuffle.task.TupleSender;
 import org.apache.reef.io.network.shuffle.task.ShuffleService;
 import org.apache.reef.io.network.shuffle.task.Tuple;
 import org.apache.reef.io.network.util.Pair;
-import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.task.Task;
 
 import javax.inject.Inject;
@@ -60,7 +58,7 @@ public final class MapperTask implements Task {
   @Override
   public byte[] call(byte[] memento) throws Exception {
     System.out.println("Mapper Task");
-    Thread.sleep(60000);
+    // Thread.sleep(60000);
     createReducedInputMap();
 
     final List<Tuple<String, Integer>> tupleList = new ArrayList<>();

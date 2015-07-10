@@ -21,6 +21,7 @@ package org.apache.reef.examples.shuffle;
 import org.apache.reef.examples.shuffle.params.WordCountTopology;
 import org.apache.reef.io.network.Message;
 import org.apache.reef.io.network.shuffle.ns.ShuffleTupleMessage;
+import org.apache.reef.io.network.shuffle.task.ShuffleClient;
 import org.apache.reef.io.network.shuffle.task.ShuffleService;
 import org.apache.reef.io.network.shuffle.task.TupleReceiver;
 import org.apache.reef.task.Task;
@@ -33,10 +34,13 @@ import javax.inject.Inject;
  */
 public final class AggregatorTask implements Task {
 
+  private ShuffleClient shuffleClient;
+
   @Inject
   public AggregatorTask(
       final ShuffleService shuffleService) {
-    final TupleReceiver<String, Integer> tupleReceiver = shuffleService.getClient(WordCountTopology.class)
+    this.shuffleClient = shuffleService.getClient(WordCountTopology.class);
+    final TupleReceiver<String, Integer> tupleReceiver = shuffleClient
         .getReceiver(WordCountDriver.AGGREGATING_GROUPING);
     tupleReceiver.registerMessageHandler(new MessageHandler());
   }
@@ -44,7 +48,9 @@ public final class AggregatorTask implements Task {
   @Override
   public byte[] call(byte[] memento) throws Exception {
     System.out.println("AggregatorTask");
-    Thread.sleep(100000);
+    shuffleClient.waitForSetup();
+    Thread.sleep(10000);
+    // Thread.sleep(100000);
     return null;
   }
 

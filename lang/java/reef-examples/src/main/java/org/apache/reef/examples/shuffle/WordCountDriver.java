@@ -22,7 +22,6 @@ import org.apache.reef.driver.context.ActiveContext;
 import org.apache.reef.driver.context.ContextConfiguration;
 import org.apache.reef.driver.task.TaskConfiguration;
 import org.apache.reef.driver.task.TaskConfigurationOptions;
-import org.apache.reef.examples.shuffle.params.InputString;
 import org.apache.reef.examples.shuffle.params.WordCountTopology;
 import org.apache.reef.examples.shuffle.utils.IntegerCodec;
 import org.apache.reef.examples.shuffle.utils.StringCodec;
@@ -73,8 +72,6 @@ public final class WordCountDriver {
   private final int mapperNum;
   private final int reducerNum;
 
-  private final String[] inputStringArr;
-
   private final List<String> mapperIdList;
   private final List<String> reducerIdList;
 
@@ -104,33 +101,11 @@ public final class WordCountDriver {
     this.allocatedMapperNum = new AtomicInteger(0);
     this.allocatedReducerNum = new AtomicInteger(0);
 
-    this.inputStringArr = new String[mapperNum];
     this.mapperIdList = new ArrayList<>(mapperNum);
     this.reducerIdList = new ArrayList<>(reducerNum);
 
-    createInputStrings();
     createTaskIds();
     createWordCountTopology();
-  }
-
-  private void createInputStrings() {
-    final String[] input = InputString.INPUT.toLowerCase().split(" ");
-
-    final int q = input.length / mapperNum;
-    final int r = input.length % mapperNum;
-    int index = 0;
-    for (int i = 0; i < mapperNum; i++) {
-      int nextIndex = index + q;
-      if (i < r) {
-        nextIndex++;
-      }
-      final StringBuilder builder = new StringBuilder();
-      for (int j = index; j < nextIndex; j++) {
-        builder.append(' ').append(input[j]);
-      }
-      inputStringArr[i] = builder.toString();
-      index = nextIndex;
-    }
   }
 
   private void createTaskIds() {
@@ -171,7 +146,6 @@ public final class WordCountDriver {
 
     @Override
     public void onNext(final ActiveContext context) {
-      System.out.println(context.getId());
       if (dataLoadingService.isDataLoadedContext(context)) {
         final int mapperIndex = allocatedMapperNum.getAndIncrement();
         if (mapperIndex >= mapperNum) {

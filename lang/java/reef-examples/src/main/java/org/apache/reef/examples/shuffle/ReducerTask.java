@@ -21,10 +21,7 @@ package org.apache.reef.examples.shuffle;
 import org.apache.reef.examples.shuffle.params.WordCountTopology;
 import org.apache.reef.io.network.Message;
 import org.apache.reef.io.network.shuffle.ns.ShuffleTupleMessage;
-import org.apache.reef.io.network.shuffle.task.ShuffleService;
-import org.apache.reef.io.network.shuffle.task.TupleReceiver;
-import org.apache.reef.io.network.shuffle.task.TupleSender;
-import org.apache.reef.io.network.shuffle.task.Tuple;
+import org.apache.reef.io.network.shuffle.task.*;
 import org.apache.reef.task.Task;
 import org.apache.reef.wake.EventHandler;
 
@@ -39,13 +36,15 @@ import java.util.Map;
  */
 public final class ReducerTask implements Task {
 
+  private ShuffleClient shuffleClient;
   private final TupleSender<String, Integer> tupleSender;
   private final Map<String, Integer> reduceMap;
 
   @Inject
   public ReducerTask(
       final ShuffleService shuffleService) {
-    this.tupleSender = shuffleService.getClient(WordCountTopology.class).getSender(WordCountDriver.AGGREGATING_GROUPING);
+    this.shuffleClient = shuffleService.getClient(WordCountTopology.class);
+    this.tupleSender = shuffleClient.getSender(WordCountDriver.AGGREGATING_GROUPING);
     final TupleReceiver<String, Integer> tupleReceiver = shuffleService.getClient(WordCountTopology.class)
         .getReceiver(WordCountDriver.SHUFFLE_GROUPING);
     tupleReceiver.registerMessageHandler(new MessageHandler());
@@ -55,7 +54,8 @@ public final class ReducerTask implements Task {
   @Override
   public byte[] call(byte[] memento) throws Exception {
     System.out.println("ReducerTask");
-    Thread.sleep(80000);
+    shuffleClient.waitForSetup();
+    Thread.sleep(5000);
 
     List<Tuple<String, Integer>> tupleList = new ArrayList<>();
 

@@ -51,7 +51,7 @@ public final class BaseTupleSender<K, V> implements TupleSender<K, V> {
   private final Identifier taskId;
   private final GroupingDescriptor<K, V> groupingDescriptor;
   private final GroupingStrategy<K> groupingStrategy;
-  private final ShuffleTupleSerializer<K, V> tupleSerializer;
+  private final ShuffleTupleMessageGenerator<K, V> tupleMessageGenerator;
 
   @Inject
   public BaseTupleSender(
@@ -61,7 +61,7 @@ public final class BaseTupleSender<K, V> implements TupleSender<K, V> {
       final @Parameter(TaskConfigurationOptions.Identifier.class) String taskId,
       final GroupingDescriptor<K, V> groupingDescriptor,
       final GroupingStrategy<K> groupingStrategy,
-      final ShuffleTupleSerializer<K, V> tupleSerializer) {
+      final ShuffleTupleMessageGenerator<K, V> tupleMessageGenerator) {
     this.shuffleClient = shuffleClient;
     this.connFactory = connFactory;
     this.idFactory = idFactory;
@@ -69,30 +69,30 @@ public final class BaseTupleSender<K, V> implements TupleSender<K, V> {
     this.connMap = new HashMap<>();
     this.groupingDescriptor = groupingDescriptor;
     this.groupingStrategy = groupingStrategy;
-    this.tupleSerializer = tupleSerializer;
+    this.tupleMessageGenerator = tupleMessageGenerator;
   }
 
   @Override
   public int sendTuple(final Tuple<K, V> tuple) {
-    return sendShuffleMessageTupleList(tupleSerializer.serializeTuple(tuple));
+    return sendShuffleMessageTupleList(tupleMessageGenerator.createClassifiedTupleMessageList(tuple));
   }
 
   @Override
   public int sendTuple(final List<Tuple<K, V>> tupleList) {
-    return sendShuffleMessageTupleList(tupleSerializer.serializeTupleList(tupleList));
+    return sendShuffleMessageTupleList(tupleMessageGenerator.createClassifiedTupleMessageList(tupleList));
   }
 
   @Override
   public int sendTupleTo(final String destNodeId, final Tuple<K, V> tuple) {
     final List<Tuple<String, ShuffleTupleMessage<K, V>>> shuffleMessageTupleList = new ArrayList<>(1);
-    shuffleMessageTupleList.add(new Tuple<>(destNodeId, tupleSerializer.createShuffleTupleMessage(tuple)));
+    shuffleMessageTupleList.add(new Tuple<>(destNodeId, tupleMessageGenerator.createTupleMessage(tuple)));
     return sendShuffleMessageTupleList(shuffleMessageTupleList);
   }
 
   @Override
   public int sendTupleTo(final String destNodeId, final List<Tuple<K, V>> tupleList) {
     final List<Tuple<String, ShuffleTupleMessage<K, V>>> shuffleMessageTupleList = new ArrayList<>(1);
-    shuffleMessageTupleList.add(new Tuple<>(destNodeId, tupleSerializer.createShuffleTupleMessage(tupleList)));
+    shuffleMessageTupleList.add(new Tuple<>(destNodeId, tupleMessageGenerator.createTupleMessage(tupleList)));
     return sendShuffleMessageTupleList(shuffleMessageTupleList);
   }
 
@@ -117,13 +117,14 @@ public final class BaseTupleSender<K, V> implements TupleSender<K, V> {
         final Connection<ShuffleTupleMessage> connection = connFactory.newConnection(idFactory.getNewInstance(messageTuple.getKey()));
         connection.open();
         connMap.put(messageTuple.getKey(), connection);
+        connection.write(messageTuple.getValue());
       } catch (final NetworkException exception) {
         shuffleClient.getTupleLinkListener().onException(
             exception, null, createShuffleTupleNetworkMessage(messageTuple.getKey(), messageTuple.getValue()));
       }
+    } else {
+      connMap.get(messageTuple.getKey()).write(messageTuple.getValue());
     }
-
-    connMap.get(messageTuple.getKey()).write(messageTuple.getValue());
   }
 
   private Message<ShuffleTupleMessage> createShuffleTupleNetworkMessage(final String destId, final ShuffleTupleMessage message) {

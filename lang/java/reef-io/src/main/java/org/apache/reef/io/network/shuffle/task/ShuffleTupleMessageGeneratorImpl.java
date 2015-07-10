@@ -31,7 +31,7 @@ import java.util.Map;
 /**
  *
  */
-final class ShuffleTupleSerializerImpl<K, V> implements ShuffleTupleSerializer<K, V> {
+final class ShuffleTupleMessageGeneratorImpl<K, V> implements ShuffleTupleMessageGenerator<K, V> {
 
   private final ShuffleClient shuffleClient;
   private final String shuffleName;
@@ -39,7 +39,7 @@ final class ShuffleTupleSerializerImpl<K, V> implements ShuffleTupleSerializer<K
   private final GroupingStrategy<K> groupingStrategy;
 
   @Inject
-  public ShuffleTupleSerializerImpl(
+  public ShuffleTupleMessageGeneratorImpl(
       final ShuffleClient shuffleClient,
       final GroupingDescriptor<K, V> groupingDescription,
       final GroupingStrategy<K> groupingStrategy) {
@@ -50,7 +50,7 @@ final class ShuffleTupleSerializerImpl<K, V> implements ShuffleTupleSerializer<K
   }
 
   @Override
-  public List<Tuple<String, ShuffleTupleMessage<K, V>>> serializeTuple(final Tuple<K, V> tuple) {
+  public List<Tuple<String, ShuffleTupleMessage<K, V>>> createClassifiedTupleMessageList(final Tuple<K, V> tuple) {
     return serializeTupleWithData(tuple.getKey(), new Tuple[] { tuple });
   }
 
@@ -68,7 +68,7 @@ final class ShuffleTupleSerializerImpl<K, V> implements ShuffleTupleSerializer<K
   }
 
   @Override
-  public List<Tuple<String, ShuffleTupleMessage<K, V>>> serializeTupleList(final List<Tuple<K, V>> tupleList) {
+  public List<Tuple<String, ShuffleTupleMessage<K, V>>> createClassifiedTupleMessageList(final List<Tuple<K, V>> tupleList) {
     final Map<String, List<Tuple>> serializedTupleDataMap = new HashMap<>();
     for (final Tuple<K, V> tuple : tupleList) {
       for (final String nodeId : groupingStrategy.selectReceivers(tuple.getKey(), getReceiverIdList())) {
@@ -94,12 +94,12 @@ final class ShuffleTupleSerializerImpl<K, V> implements ShuffleTupleSerializer<K
   }
 
   @Override
-  public ShuffleTupleMessage<K, V> createShuffleTupleMessage(final Tuple<K, V> tuple) {
+  public ShuffleTupleMessage<K, V> createTupleMessage(final Tuple<K, V> tuple) {
     return createShuffleTupleMessage(new Tuple[]{tuple });
   }
 
   @Override
-  public ShuffleTupleMessage<K, V> createShuffleTupleMessage(final List<Tuple<K, V>> tupleList) {
+  public ShuffleTupleMessage<K, V> createTupleMessage(final List<Tuple<K, V>> tupleList) {
     return createShuffleTupleMessage((Tuple[]) tupleList.toArray());
   }
 

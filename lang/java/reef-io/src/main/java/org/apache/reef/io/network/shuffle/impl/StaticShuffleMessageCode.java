@@ -22,5 +22,5 @@ package org.apache.reef.io.network.shuffle.impl;
  *
  */
 public final class StaticShuffleMessageCode {
-  public static final int TOPOLOGY_SETUP = 0;
+  public static final int SHUFFLE_SETUP = 0;
 }
