@@ -44,7 +44,7 @@ public final class AggregatorTask implements Task {
   @Override
   public byte[] call(byte[] memento) throws Exception {
     System.out.println("AggregatorTask");
-    Thread.sleep(4000);
+    Thread.sleep(100000);
     return null;
   }
 

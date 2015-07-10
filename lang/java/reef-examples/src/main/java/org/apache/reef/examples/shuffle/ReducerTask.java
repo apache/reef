@@ -55,7 +55,7 @@ public final class ReducerTask implements Task {
   @Override
   public byte[] call(byte[] memento) throws Exception {
     System.out.println("ReducerTask");
-    Thread.sleep(2000);
+    Thread.sleep(80000);
 
     List<Tuple<String, Integer>> tupleList = new ArrayList<>();
 

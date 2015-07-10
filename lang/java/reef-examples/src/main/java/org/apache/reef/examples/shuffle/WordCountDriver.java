@@ -18,16 +18,15 @@
  */
 package org.apache.reef.examples.shuffle;
 
+import org.apache.reef.driver.context.ActiveContext;
 import org.apache.reef.driver.context.ContextConfiguration;
-import org.apache.reef.driver.evaluator.AllocatedEvaluator;
-import org.apache.reef.driver.evaluator.EvaluatorRequest;
-import org.apache.reef.driver.evaluator.EvaluatorRequestor;
 import org.apache.reef.driver.task.TaskConfiguration;
 import org.apache.reef.driver.task.TaskConfigurationOptions;
 import org.apache.reef.examples.shuffle.params.InputString;
 import org.apache.reef.examples.shuffle.params.WordCountTopology;
 import org.apache.reef.examples.shuffle.utils.IntegerCodec;
 import org.apache.reef.examples.shuffle.utils.StringCodec;
+import org.apache.reef.io.data.loading.api.DataLoadingService;
 import org.apache.reef.io.network.impl.BindNSClientToTask;
 import org.apache.reef.io.network.impl.UnbindNSClientFromTask;
 import org.apache.reef.io.network.naming.NameServer;
@@ -42,11 +41,11 @@ import org.apache.reef.io.network.shuffle.descriptor.ShuffleDescription;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Configurations;
 import org.apache.reef.tang.Tang;
+import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.tang.annotations.Unit;
-import org.apache.reef.tang.formats.ConfigurationSerializer;
+import org.apache.reef.task.Task;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.remote.address.LocalAddressProvider;
-import org.apache.reef.wake.time.event.StartTime;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -62,16 +61,17 @@ import java.util.logging.Logger;
 public final class WordCountDriver {
   private static final Logger LOG = Logger.getLogger(WordCountDriver.class.getName());
 
-  private final EvaluatorRequestor requestor;
+  private final DataLoadingService dataLoadingService;
   private final ShuffleDriver shuffleDriver;
   private final NameServer nameServer;
   private final LocalAddressProvider localAddressProvider;
 
 
-  private final AtomicInteger allocatedEvalNum;
+  private final AtomicInteger allocatedMapperNum;
+  private final AtomicInteger allocatedReducerNum;
 
-  private final int mapperNum = 3;
-  private final int reducerNum = 2;
+  private final int mapperNum;
+  private final int reducerNum;
 
   private final String[] inputStringArr;
 
@@ -87,17 +87,23 @@ public final class WordCountDriver {
 
   @Inject
   public WordCountDriver(
-      final EvaluatorRequestor requestor,
+      final @Parameter(WordCountREEF.MapperNum.class) int mapperNum,
+      final @Parameter(WordCountREEF.ReducerNum.class) int reducerNum,
+      final DataLoadingService dataLoadingService,
       final LocalAddressProvider localAddressProvider,
       final NameServer nameServer,
       final ShuffleDriver shuffleDriver) {
     LOG.log(Level.FINE, "Instantiated 'WordCountDriver'");
-    this.requestor = requestor;
+    this.mapperNum = mapperNum;
+    this.reducerNum = reducerNum;
+    this.dataLoadingService = dataLoadingService;
     this.localAddressProvider = localAddressProvider;
     this.nameServer = nameServer;
     this.shuffleDriver = shuffleDriver;
 
-    this.allocatedEvalNum = new AtomicInteger(0);
+    this.allocatedMapperNum = new AtomicInteger(0);
+    this.allocatedReducerNum = new AtomicInteger(0);
+
     this.inputStringArr = new String[mapperNum];
     this.mapperIdList = new ArrayList<>(mapperNum);
     this.reducerIdList = new ArrayList<>(reducerNum);
@@ -126,8 +132,6 @@ public final class WordCountDriver {
       index = nextIndex;
     }
   }
-
-
 
   private void createTaskIds() {
     for (int i = 0; i < mapperNum; i++) {
@@ -163,62 +167,84 @@ public final class WordCountDriver {
         , StaticShuffleManager.class);
   }
 
-  public final class StartHandler implements EventHandler<StartTime> {
+  public final class ContextActiveHandler implements EventHandler<ActiveContext> {
+
     @Override
-    public void onNext(final StartTime startTime) {
-      WordCountDriver.this.requestor.submit(EvaluatorRequest.newBuilder()
-          .setNumber(mapperNum + reducerNum + 1)
-          .setMemory(64)
-          .setNumberOfCores(1)
-          .build());
-      LOG.log(Level.INFO, "Requested Evaluator.");
+    public void onNext(final ActiveContext context) {
+      System.out.println(context.getId());
+      if (dataLoadingService.isDataLoadedContext(context)) {
+        final int mapperIndex = allocatedMapperNum.getAndIncrement();
+        if (mapperIndex >= mapperNum) {
+          throw new RuntimeException("The number of allocated mapper exceeds pre-defined number " + mapperNum);
+        }
+
+        context.submitContextAndService(getContextConfiguration(
+            mapperIdList.get(mapperIndex) + "-Context"), getServiceConfiguration());
+      } else if (dataLoadingService.isComputeContext(context)){
+        final int reducerIndex = allocatedReducerNum.getAndIncrement();
+        if (reducerIndex < reducerNum) {
+          context.submitContextAndService(getContextConfiguration(
+              reducerIdList.get(reducerIndex) + "-Context"), getServiceConfiguration());
+        } else if (reducerIndex == reducerNum) {
+          context.submitContextAndService(getContextConfiguration(
+              AGGREGATOR_ID + "-Context"), getServiceConfiguration());
+        } else {
+          throw new RuntimeException("The number of allocated reducer exceeds pre-defined number " + reducerNum);
+        }
+      } else if (isMapperContext(context)) {
+        submitTask(context, MapperTask.class);
+      } else if (isReducerContext(context)) {
+        submitTask(context, ReducerTask.class);
+      } else if (isAggregatorContext(context)) {
+        submitTask(context, AggregatorTask.class);
+      }
     }
   }
 
-  public final class EvaluatorAllocatedHandler implements EventHandler<AllocatedEvaluator> {
-    @Override
-    public void onNext(final AllocatedEvaluator allocatedEvaluator) {
-      final int allocatedNum = allocatedEvalNum.getAndIncrement();
-      final Configuration partialTaskConf;
-      final String taskId;
-      if (allocatedNum < mapperNum) {
-        taskId = mapperIdList.get(allocatedNum);
-        partialTaskConf = Tang.Factory.getTang().newConfigurationBuilder(TaskConfiguration.CONF
-            .set(TaskConfiguration.IDENTIFIER, taskId)
-            .set(TaskConfiguration.TASK, MapperTask.class)
-            .build())
-            .bindNamedParameter(InputString.class, inputStringArr[allocatedNum])
-            .build();
-      } else if (allocatedNum < mapperNum + reducerNum) {
-        taskId = reducerIdList.get(allocatedNum - mapperNum);
-        partialTaskConf = TaskConfiguration.CONF
-            .set(TaskConfiguration.IDENTIFIER, taskId)
-            .set(TaskConfiguration.TASK, ReducerTask.class)
-            .build();
-      } else {
-        taskId = AGGREGATOR_ID;
-        partialTaskConf = TaskConfiguration.CONF
-            .set(TaskConfiguration.IDENTIFIER, taskId)
-            .set(TaskConfiguration.TASK, AggregatorTask.class)
-            .build();
-      }
+  private Configuration getContextConfiguration(final String contextId) {
+    final Configuration partialContextConf = ContextConfiguration.CONF
+        .set(ContextConfiguration.IDENTIFIER, contextId)
+        .build();
 
-      final Configuration partialContextConf = ContextConfiguration.CONF
-          .set(ContextConfiguration.IDENTIFIER, "WordCountContext-" + allocatedNum)
-          .build();
+    return Configurations.merge(shuffleDriver.getContextConfiguration(), partialContextConf);
+  }
 
-      final Configuration netServiceConf = Tang.Factory.getTang().newConfigurationBuilder()
-          .bindNamedParameter(NameResolverNameServerAddr.class, localAddressProvider.getLocalAddress())
-          .bindNamedParameter(NameResolverNameServerPort.class, String.valueOf(nameServer.getPort()))
-          .bindSetEntry(TaskConfigurationOptions.StartHandlers.class, BindNSClientToTask.class)
-          .bindSetEntry(TaskConfigurationOptions.StopHandlers.class, UnbindNSClientFromTask.class)
-          .build();
+  private Configuration getServiceConfiguration() {
+    return Tang.Factory.getTang().newConfigurationBuilder()
+        .bindNamedParameter(NameResolverNameServerAddr.class, localAddressProvider.getLocalAddress())
+        .bindNamedParameter(NameResolverNameServerPort.class, String.valueOf(nameServer.getPort()))
+        .bindSetEntry(TaskConfigurationOptions.StartHandlers.class, BindNSClientToTask.class)
+        .bindSetEntry(TaskConfigurationOptions.StopHandlers.class, UnbindNSClientFromTask.class)
+        .build();
+  }
 
-      allocatedEvaluator.submitContextAndServiceAndTask(
-          Configurations.merge(shuffleDriver.getContextConfiguration(), partialContextConf),
-          netServiceConf,
-          Configurations.merge(shuffleDriver.getTaskConfiguration(taskId), partialTaskConf)
-      );
-    }
+  private boolean isMapperContext(final ActiveContext context) {
+    return context.getId().startsWith(MAPPER_ID_PREFIX);
+  }
+
+  private boolean isReducerContext(final ActiveContext context) {
+    return context.getId().startsWith(REDUCER_ID_PREFIX);
+  }
+
+  private boolean isAggregatorContext(final ActiveContext context) {
+    return context.getId().startsWith(AGGREGATOR_ID);
+  }
+
+  private void submitTask(final ActiveContext context, final Class<? extends Task> taskClass) {
+
+    final String taskId = getTaskId(context);
+    System.out.println("Submit " + taskId + " with " + taskClass);
+
+    final Configuration partialTaskConf = TaskConfiguration.CONF
+        .set(TaskConfiguration.IDENTIFIER, taskId)
+        .set(TaskConfiguration.TASK, taskClass)
+        .build();
+
+    context.submitTask(Configurations.merge(shuffleDriver.getTaskConfiguration(taskId), partialTaskConf));
+  }
+
+  private String getTaskId(final ActiveContext context) {
+    final int endIndex = context.getId().lastIndexOf("-Context");
+    return context.getId().substring(0, endIndex);
   }
 }

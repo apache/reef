@@ -18,11 +18,15 @@
  */
 package org.apache.reef.examples.shuffle;
 
+import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.Text;
 import org.apache.reef.examples.shuffle.params.InputString;
 import org.apache.reef.examples.shuffle.params.WordCountTopology;
+import org.apache.reef.io.data.loading.api.DataSet;
 import org.apache.reef.io.network.shuffle.task.TupleSender;
 import org.apache.reef.io.network.shuffle.task.ShuffleService;
 import org.apache.reef.io.network.shuffle.task.Tuple;
+import org.apache.reef.io.network.util.Pair;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.task.Task;
 
@@ -37,27 +41,27 @@ import java.util.Map;
  */
 public final class MapperTask implements Task {
 
+  private final DataSet<LongWritable, Text> dataSet;
   private final TupleSender<String, Integer> tupleSender;
-  private final String input;
+
+  private final Map<String, Integer> reducedInputMap;
+
   @Inject
   public MapperTask(
       final ShuffleService shuffleService,
-      final @Parameter(InputString.class) String input) {
+      final DataSet<LongWritable, Text> dataSet) {
+    this.dataSet = dataSet;
+    System.out.println(dataSet);
     this.tupleSender = shuffleService.getClient(WordCountTopology.class).getSender(WordCountDriver.SHUFFLE_GROUPING);
-    this.input = input;
+
+    reducedInputMap = new HashMap<>();
   }
 
   @Override
   public byte[] call(byte[] memento) throws Exception {
     System.out.println("Mapper Task");
-    final Map<String, Integer> reducedInputMap = new HashMap<>();
-    for (final String word : input.split(" ")) {
-      if (!reducedInputMap.containsKey(word)) {
-        reducedInputMap.put(word, 0);
-      }
-
-      reducedInputMap.put(word, 1 + reducedInputMap.get(word));
-    }
+    Thread.sleep(60000);
+    createReducedInputMap();
 
     final List<Tuple<String, Integer>> tupleList = new ArrayList<>();
 
@@ -69,5 +73,19 @@ public final class MapperTask implements Task {
 
     tupleSender.sendTuple(tupleList);
     return null;
+  }
+
+  private void createReducedInputMap() {
+    for (final Pair<LongWritable, Text> pair : dataSet) {
+      System.out.println(pair);
+      final String[] words = pair.second.toString().replaceAll("  ", " ").split(" ");
+      for (final String word : words) {
+        if (!reducedInputMap.containsKey(word)) {
+          reducedInputMap.put(word, 0);
+        }
+
+        reducedInputMap.put(word, 1 + reducedInputMap.get(word));
+      }
+    }
   }
 }
