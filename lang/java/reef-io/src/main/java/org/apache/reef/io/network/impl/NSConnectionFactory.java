@@ -49,7 +49,6 @@ final class NSConnectionFactory<T> implements ConnectionFactory<T> {
       final Codec<T> eventCodec,
       final EventHandler<Message<T>> eventHandler,
       final LinkListener<Message<T>> eventListener) {
-
     this.networkService = networkService;
     this.connectionMap = new ConcurrentHashMap<>();
     this.connFactoryId = connFactoryId;

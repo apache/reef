@@ -30,21 +30,30 @@ import org.apache.reef.wake.remote.transport.LinkListener;
  * NetworkServiceClient.
  *
  * NetworkServiceClient is a service which is designed for communicating messages with each other.
- * Users can send messages with NetworkServiceClient, by registering their Codec, EventHandler, and LinkListener.
+ * It creates multiple ConnectionFactories, which create multiple connections.
+ *
+ * Flow of message transfer:
+ * [Downstream]: connection.write(message) -> ConnectionFactory -> Src NetworkServiceClient (encode) -> destination NetworkServiceClient.
+ * [Upstream]: message -> Dest NetworkServiceClient (decode) -> ConnectionFactory -> EventHandler.
+ *
+ * Users can register a ConnectionFactory by registering their Codec, EventHandler and LinkListener.
+ * When users send messages via connections created by the ConnectionFactory,
+ * NetworkServiceClient encodes the messages according to the Codec registered in the ConnectionFactory and sends them to the destination NetworkServiceClient.
+ * Also, it receives the messages by decoding the messages and forwarding them to the corresponding EventHandler registered in the ConnectionFactory.
  */
 @DefaultImplementation(DefaultNetworkServiceClientImpl.class)
 public interface NetworkServiceClient extends AutoCloseable {
 
   /**
    * Registers an instance of ConnectionFactory corresponding to the connectionFactoryId.
-   * Binds Codec, EventHandler, and LinkListener to the ConnectionFactory.
+   * Binds Codec, EventHandler and LinkListener to the ConnectionFactory.
    * ConnectionFactory can create multiple connections between other NetworkServiceClients.
    *
    * @param connectionFactoryId a connection factory id
    * @param codec a codec for type <T>
    * @param eventHandler an event handler for type <T>
    * @param linkListener a link listener
-   * @throws NetworkException throws a NetworkException when duplicated connectionFactoryId exists.
+   * @throws NetworkException throws a NetworkException when multiple connectionFactoryIds exist.
    */
   <T> void registerConnectionFactory(final Identifier connectionFactoryId,
                                      final Codec<T> codec,
@@ -64,14 +73,14 @@ public interface NetworkServiceClient extends AutoCloseable {
   <T> ConnectionFactory<T> getConnectionFactory(final Identifier connectionFactoryId);
 
   /**
-   * Registers network service client identifier.
+   * Registers a network service client identifier.
    * This can be used for destination identifier
    * @param nsId network service client identifier
    */
   void registerId(final Identifier nsId);
 
   /**
-   * Unregister network service client identifier.
+   * Unregister a network service client identifier.
    * @param nsId network service client identifier
    */
   void unregisterId(final Identifier nsId);

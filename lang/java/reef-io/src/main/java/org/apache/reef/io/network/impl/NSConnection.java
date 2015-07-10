@@ -95,14 +95,14 @@ class NSConnection<T> implements Connection<T> {
   }
 
   /**
-   * Writes an object to the connection.
+   * Writes a message to the connection.
    *
-   * @param obj an object of type T
+   * @param message a message of type T
    * @throws a network exception
    */
   @Override
-  public void write(final T obj) {
-    this.link.write(new NSMessage<T>(this.srcId, this.destId, obj));
+  public void write(final T message) {
+    this.link.write(new NSMessage<T>(this.srcId, this.destId, message));
   }
 
   @Override

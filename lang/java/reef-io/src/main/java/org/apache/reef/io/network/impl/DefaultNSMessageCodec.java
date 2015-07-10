@@ -30,8 +30,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * DefaultDNSMessage codec.
- * This codec encodes/decodes DefaultNSMessages.
+ * DefaultNSMessage codec implementation.
+ * This codec encodes/decodes DefaultNSMessages according to the type <T>.
  */
 final class DefaultNSMessageCodec implements Codec<DefaultNSMessage> {
 
@@ -104,7 +104,6 @@ final class DefaultNSMessageCodec implements Codec<DefaultNSMessage> {
    */
   @Override
   public DefaultNSMessage decode(final byte[] data) {
-
     try (final ByteArrayInputStream bais = new ByteArrayInputStream(data)) {
       try (final DataInputStream dais = new DataInputStream(bais)) {
         final String connFactoryId = dais.readUTF();

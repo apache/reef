@@ -43,7 +43,6 @@ final class DefaultNSConnection<T> implements Connection<T> {
   DefaultNSConnection(
       final NSConnectionFactory connFactory,
       final Identifier remoteId) {
-
     this.connFactory = connFactory;
     this.remoteId = remoteId;
     this.closed = new AtomicBoolean();
@@ -61,7 +60,6 @@ final class DefaultNSConnection<T> implements Connection<T> {
         connFactory.getSrcId(),
         remoteId,
         messageList);
-
     link.write(nsMessage);
   }
 

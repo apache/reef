@@ -69,23 +69,23 @@ public final class DefaultNetworkServiceClientImpl implements NetworkServiceClie
    */
   private final ConcurrentMap<String, NSConnectionFactory> connFactoryMap;
   /**
-   * NetworkServiceClient identifier.
+   * A NetworkServiceClient identifier.
    */
   private Identifier myId;
   /**
-   * NetworkServiceClient message codec.
+   * A NetworkServiceClient message codec.
    */
   private final Codec<DefaultNSMessage> nsCodec;
   /**
-   * NetworkServiceClient link listener.
+   * A NetworkServiceClient link listener.
    */
   private final LinkListener<DefaultNSMessage> nsLinkListener;
   /**
-   * A stage registering identifier to nameServer.
+   * A stage registering identifiers to nameServer.
    */
   private final EStage<Tuple<Identifier, InetSocketAddress>> nameServiceRegisteringStage;
   /**
-   * A stage unregistering identifier from nameServer.
+   * A stage unregistering identifiers from nameServer.
    */
   private final EStage<Identifier> nameServiceUnregisteringStage;
 
@@ -143,12 +143,11 @@ public final class DefaultNetworkServiceClientImpl implements NetworkServiceClie
     if (connFactoryMap.get(id) != null) {
       throw new NetworkException("ConnectionFactory " + connFactoryId + " was already registered.");
     }
-   final ConnectionFactory connFactory = connFactoryMap.putIfAbsent(id,
+    final ConnectionFactory connFactory = connFactoryMap.putIfAbsent(id,
         new NSConnectionFactory<>(this, id, codec, eventHandler, linkListener));
 
     if (connFactory != null) {
       throw new NetworkException("ConnectionFactory " + connFactoryId + " was already registered.");
-
     }
   }
 
@@ -167,7 +166,7 @@ public final class DefaultNetworkServiceClientImpl implements NetworkServiceClie
   }
 
   /**
-   * Registers identifier of NetworkService.
+   * Registers an identifier of NetworkService.
    * @param nsId
    * @throws Exception
    */
@@ -211,7 +210,6 @@ public final class DefaultNetworkServiceClientImpl implements NetworkServiceClie
     if (connFactory == null) {
       throw new RuntimeException("Cannot find ConnectionFactory of " + connFactoryId + ".");
     }
-
     return connFactory;
   }
 

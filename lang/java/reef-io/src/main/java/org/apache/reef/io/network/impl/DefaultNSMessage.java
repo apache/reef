@@ -27,7 +27,7 @@ import java.util.List;
 
 /**
  * DefaultNSMessage implementation.
- * This is used for messages of NetworkServiceClient.
+ * This is a wrapper message of message type <T>.
  */
 final class DefaultNSMessage<T> implements Message<T> {
 

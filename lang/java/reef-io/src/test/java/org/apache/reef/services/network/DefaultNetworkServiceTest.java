@@ -34,7 +34,6 @@ import org.apache.reef.services.network.util.StreamingStringCodec;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Injector;
 import org.apache.reef.tang.Tang;
-import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.Identifier;
@@ -75,13 +74,6 @@ public class DefaultNetworkServiceTest {
 
   @Rule
   public TestName name = new TestName();
-
-  public static final class GroupCommClientId implements Name<String> {
-  }
-
-  public static final class ShuffleClientId implements Name<String> {
-
-  }
 
   /**
    * NetworkService messaging test
