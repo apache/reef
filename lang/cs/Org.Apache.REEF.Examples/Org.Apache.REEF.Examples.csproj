@@ -41,6 +41,7 @@ under the License.
     <Compile Include="HelloCLRBridge\Handlers\HelloCompletedEvaluatorHandler.cs" />
     <Compile Include="HelloCLRBridge\Handlers\HelloDriverRestartActiveContextHandler.cs" />
     <Compile Include="HelloCLRBridge\Handlers\HelloDriverRestartRunningTaskHandler.cs" />
+    <Compile Include="HelloCLRBridge\Handlers\HelloDriverStartHandler.cs" />
     <Compile Include="HelloCLRBridge\Handlers\HelloEvaluatorRequestorHandler.cs" />
     <Compile Include="HelloCLRBridge\Handlers\HelloFailedEvaluatorHandler.cs" />
     <Compile Include="HelloCLRBridge\Handlers\HelloFailedTaskHandler.cs" />
