@@ -45,6 +45,7 @@ public final class LocalTestEnvironment extends TestEnvironmentBase implements T
     if (null == rootFolder) {
       return LocalRuntimeConfiguration.CONF
           .set(LocalRuntimeConfiguration.MAX_NUMBER_OF_EVALUATORS, MAX_NUMBER_OF_EVALUATORS)
+          .set(LocalRuntimeConfiguration.RUNTIME_ROOT_FOLDER, "target/REEF_LOCAL_RUNTIME")
           .build();
     } else {
       return LocalRuntimeConfiguration.CONF

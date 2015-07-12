@@ -29,7 +29,9 @@ import org.apache.reef.runtime.common.files.REEFFileNames;
 import org.apache.reef.runtime.common.utils.RemoteManager;
 import org.apache.reef.runtime.local.client.parameters.MaxNumberOfEvaluators;
 import org.apache.reef.runtime.local.client.parameters.RackNames;
+import org.apache.reef.runtime.local.client.parameters.RootFolder;
 import org.apache.reef.tang.Injector;
+import org.apache.reef.tang.JavaConfigurationBuilder;
 import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.tang.formats.ConfigurationSerializer;
@@ -47,10 +49,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.*;
 
 /**
  * Unit test for Resource Manager (and ContainerManager) classes.
@@ -75,7 +74,9 @@ public class ResourceManagerTest {
   @SuppressWarnings("unchecked")
   @Before
   public void setUp() throws InjectionException {
-    injector = Tang.Factory.getTang().newInjector();
+    JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
+    cb.bindNamedParameter(RootFolder.class, "target/REEF_LOCAL_RUNTIME");
+    injector = Tang.Factory.getTang().newInjector(cb.build());
     remoteManager = injector.getInstance(RemoteManager.class);
     mockRuntimeResourceStatusHandler = mock(EventHandler.class);
     injector.bindVolatileParameter(RuntimeParameters.ResourceStatusHandler.class, mockRuntimeResourceStatusHandler);

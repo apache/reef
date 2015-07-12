@@ -33,6 +33,7 @@ public class HelloHttpTest {
 
     final Configuration runtimeConfiguration = LocalRuntimeConfiguration.CONF
         .set(LocalRuntimeConfiguration.MAX_NUMBER_OF_EVALUATORS, 2)
+        .set(LocalRuntimeConfiguration.RUNTIME_ROOT_FOLDER, "target/REEF_LOCAL_RUNTIME")
         .build();
 
     final LauncherStatus status = HelloREEFHttp.runHelloReef(runtimeConfiguration, 10 * 1000);
