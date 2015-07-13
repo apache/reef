@@ -18,8 +18,14 @@
  */
 package org.apache.reef.tests;
 
+import org.apache.reef.io.ConfigurableDirectoryTempFileCreator;
+import org.apache.reef.io.TempFileCreator;
+import org.apache.reef.io.parameters.TempFileRootFolder;
 import org.apache.reef.runtime.local.client.LocalRuntimeConfiguration;
 import org.apache.reef.tang.Configuration;
+import org.apache.reef.tang.Configurations;
+import org.apache.reef.tang.JavaConfigurationBuilder;
+import org.apache.reef.tang.Tang;
 
 /**
  * A TestEnvironment for the local resourcemanager.
@@ -42,17 +48,19 @@ public final class LocalTestEnvironment extends TestEnvironmentBase implements T
   public synchronized final Configuration getRuntimeConfiguration() {
     assert (this.ready);
     final String rootFolder = System.getProperty("org.apache.reef.runtime.local.folder");
+    final JavaConfigurationBuilder jcb = Tang.Factory.getTang().newConfigurationBuilder();
+    jcb.bindNamedParameter(TempFileRootFolder.class, "./target/reef/temp");
+    jcb.bindImplementation(TempFileCreator.class, ConfigurableDirectoryTempFileCreator.class);
     if (null == rootFolder) {
-      return LocalRuntimeConfiguration.CONF
+      return Configurations.merge(jcb.build(), LocalRuntimeConfiguration.CONF
           .set(LocalRuntimeConfiguration.MAX_NUMBER_OF_EVALUATORS, MAX_NUMBER_OF_EVALUATORS)
           .set(LocalRuntimeConfiguration.RUNTIME_ROOT_FOLDER, "target/REEF_LOCAL_RUNTIME")
-          .build();
+          .build());
     } else {
-      return LocalRuntimeConfiguration.CONF
+      return Configurations.merge(jcb.build(), LocalRuntimeConfiguration.CONF
           .set(LocalRuntimeConfiguration.MAX_NUMBER_OF_EVALUATORS, MAX_NUMBER_OF_EVALUATORS)
           .set(LocalRuntimeConfiguration.RUNTIME_ROOT_FOLDER, rootFolder)
-          .build();
-
+          .build());
     }
   }
 
