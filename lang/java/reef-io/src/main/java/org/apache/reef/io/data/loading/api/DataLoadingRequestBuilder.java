@@ -31,7 +31,6 @@ import org.apache.reef.io.data.loading.impl.InputFormatLoadingService;
 import org.apache.reef.io.data.loading.impl.JobConfExternalConstructor;
 import org.apache.reef.io.data.loading.impl.LocationAwareEvaluatorToSplitStrategy;
 import org.apache.reef.io.data.loading.impl.LocationAwareJobConfs;
-import org.apache.reef.io.data.loading.impl.LocationAwareJobConfsExternalConstructor;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.JavaConfigurationBuilder;
 import org.apache.reef.tang.Tang;
@@ -305,12 +304,11 @@ public final class DataLoadingRequestBuilder
     }
 
     jcb.bindNamedParameter(LoadDataIntoMemory.class, Boolean.toString(this.inMemory))
-       .bindConstructor(LocationAwareJobConfs.class, LocationAwareJobConfsExternalConstructor.class)
        .bindNamedParameter(JobConfExternalConstructor.InputFormatClass.class, inputFormatClass);
 
 
     for (final DataPartition partition : partitions) {
-      jcb.bindSetEntry(LocationAwareJobConfsExternalConstructor.DataPartitions.class, DataPartitionSerializer.serialize(partition));
+      jcb.bindSetEntry(LocationAwareJobConfs.DataPartitions.class, DataPartitionSerializer.serialize(partition));
     }
 
     // we do this check for backwards compatibility, if there's a single partition, we just use the

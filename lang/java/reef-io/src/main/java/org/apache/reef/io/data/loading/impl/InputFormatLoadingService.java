@@ -40,6 +40,7 @@ import javax.inject.Inject;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
@@ -93,9 +94,9 @@ public class InputFormatLoadingService<K, V> implements DataLoadingService {
       @Parameter(DataLoadingRequestBuilder.LoadDataIntoMemory.class) final boolean inMemory,
       @Parameter(JobConfExternalConstructor.InputFormatClass.class) final String inputFormatClass,
       @Parameter(JobConfExternalConstructor.InputPath.class) final String inputPath) {
-    this(new LocationAwareJobConfs(Arrays.asList(new LocationAwareJobConf(jobConf, new DataPartition(inputPath,
-        DataPartition.ANY)))), new GreedyEvaluatorToSplitStrategy(), numberOfDesiredSplits, inMemory,
-        inputFormatClass);
+    this(new LocationAwareJobConfs(inputFormatClass, new HashSet<>(Arrays.asList(DataPartitionSerializer
+        .serialize(new DataPartition(inputPath, DataPartition.ANY))))), new GreedyEvaluatorToSplitStrategy(),
+        numberOfDesiredSplits, inMemory, inputFormatClass);
   }
 
   @SuppressWarnings("rawtypes")

@@ -19,9 +19,19 @@
 package org.apache.reef.io.data.loading.impl;
 
 import org.apache.commons.lang.Validate;
+import org.apache.hadoop.mapred.JobConf;
+import org.apache.reef.tang.ExternalConstructor;
+import org.apache.reef.tang.annotations.Name;
+import org.apache.reef.tang.annotations.NamedParameter;
+import org.apache.reef.tang.annotations.Parameter;
+
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
+
+import javax.inject.Inject;
 
 /**
  * Has multiple {@link LocationAwareJobConf}. Allows to iterate over them via an
@@ -30,12 +40,20 @@ import java.util.List;
 public final class LocationAwareJobConfs implements
     Iterable<LocationAwareJobConf> {
 
-  private final List<LocationAwareJobConf> locationAwareJobConfs;
+  private final List<LocationAwareJobConf> locationAwareJobConfs = new ArrayList<>();
 
+  @Inject
   public LocationAwareJobConfs(
-      final List<LocationAwareJobConf> locationAwareJobConfs) {
-    Validate.notEmpty(locationAwareJobConfs);
-    this.locationAwareJobConfs = locationAwareJobConfs;
+      @Parameter(JobConfExternalConstructor.InputFormatClass.class) final String inputFormatClassName,
+      @Parameter(DataPartitions.class) final Set<String> serializedDataPartitions) {
+    Validate.notEmpty(inputFormatClassName);
+    Validate.notEmpty(serializedDataPartitions);
+    for (final String serializedDataPartition : serializedDataPartitions) {
+      final DataPartition dp = DataPartitionSerializer.deserialize(serializedDataPartition);
+      final ExternalConstructor<JobConf> jobConf = new JobConfExternalConstructor(inputFormatClassName,
+            dp.getPath());
+      locationAwareJobConfs.add(new LocationAwareJobConf(jobConf.newInstance(), dp));
+    }
   }
 
   int size() {
@@ -78,6 +96,10 @@ public final class LocationAwareJobConfs implements
       throw new UnsupportedOperationException(
           "Remove method has not been implemented in this iterator");
     }
+  }
+
+  @NamedParameter
+  public static final class DataPartitions implements Name<Set<String>> {
   }
 
 }
