@@ -20,14 +20,21 @@ package org.apache.reef.io.data.loading.impl;
 
 import org.apache.commons.lang.Validate;
 import org.apache.commons.math3.util.Pair;
+import org.apache.hadoop.mapred.InputFormat;
 import org.apache.hadoop.mapred.InputSplit;
+import org.apache.hadoop.mapred.JobConf;
+import org.apache.reef.annotations.Unstable;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.driver.catalog.NodeDescriptor;
-import org.apache.reef.io.data.loading.api.EvaluatorToSplitStrategy;
-
+import org.apache.reef.io.data.loading.api.EvaluatorToPartitionStrategy;
+import org.apache.reef.tang.ExternalConstructor;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Map.Entry;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
@@ -36,31 +43,56 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.inject.Inject;
-
 /**
- * This is an abstract class useful for {@link EvaluatorToSplitStrategy}
- * implementations. Contains template methods that call abstract ones, that
- * should be implemented by subclasses. If your implementation does not need this
- * logic, you should just implement the {@link EvaluatorToSplitStrategy}
- * interface and do not extend this class.
+ * This is an abstract class useful for {@link EvaluatorToPartitionStrategy}
+ * implementations. Contains a template implementation of
+ * {@link EvaluatorToPartitionStrategy#getInputSplit(NodeDescriptor, String)}
+ * that call abstract methods implemented by subclasses. If your implementation
+ * does not need this logic, you should just implement the
+ * {@link EvaluatorToPartitionStrategy} interface and do not extend this class.
  */
 @DriverSide
-public abstract class AbstractEvaluatorToSplitStrategy implements EvaluatorToSplitStrategy<InputSplit> {
-  private static final Logger LOG = Logger
-      .getLogger(AbstractEvaluatorToSplitStrategy.class.getName());
+@Unstable
+public abstract class AbstractEvaluatorToPartitionStrategy implements EvaluatorToPartitionStrategy<InputSplit> {
+  private static final Logger LOG = Logger.getLogger(AbstractEvaluatorToPartitionStrategy.class.getName());
 
   protected final ConcurrentMap<String, BlockingQueue<NumberedSplit<InputSplit>>> locationToSplits;;
   protected final ConcurrentMap<String, NumberedSplit<InputSplit>> evaluatorToSplits;
   protected final BlockingQueue<NumberedSplit<InputSplit>> unallocatedSplits;
 
+  private int totalNumberOfSplits;
 
-  @Inject
-  AbstractEvaluatorToSplitStrategy() {
-    LOG.fine("AbstractEvaluatorToSplitStrategy injected");
+  @SuppressWarnings("rawtypes")
+  AbstractEvaluatorToPartitionStrategy(
+      final String inputFormatClassName, final Set<String> serializedDataPartitions) {
+    LOG.fine("AbstractEvaluatorToPartitionStrategy injected");
+    Validate.notEmpty(inputFormatClassName);
+    Validate.notEmpty(serializedDataPartitions);
+
     locationToSplits = new ConcurrentHashMap<>();
-    evaluatorToSplits =  new ConcurrentHashMap<>();
+    evaluatorToSplits = new ConcurrentHashMap<>();
     unallocatedSplits = new LinkedBlockingQueue<>();
+
+    final Map<DistributedDataSetPartition, InputSplit[]> splitsPerPartition = new HashMap<>();
+    for (final String serializedDataPartition : serializedDataPartitions) {
+      final DistributedDataSetPartition dp = DistributedDataSetPartitionSerializer.deserialize(serializedDataPartition);
+      final ExternalConstructor<JobConf> jobConfExternalConstructor = new JobConfExternalConstructor(
+          inputFormatClassName, dp.getPath());
+      try {
+        final JobConf jobConf = jobConfExternalConstructor.newInstance();
+        final InputFormat inputFormat = jobConf.getInputFormat();
+        final InputSplit[] inputSplits = inputFormat.getSplits(jobConf, dp.getDesiredSplits());
+        if (LOG.isLoggable(Level.FINEST)) {
+          LOG.log(Level.FINEST, "Splits for partition: {0} {1}", new Object[] {dp, Arrays.toString(inputSplits)});
+        }
+        this.totalNumberOfSplits += inputSplits.length;
+        splitsPerPartition.put(dp, inputSplits);
+      } catch (final IOException e) {
+        throw new RuntimeException("Unable to get InputSplits using the specified InputFormat", e);
+      }
+    }
+    init(splitsPerPartition);
+    LOG.log(Level.FINE, "Total Number of splits: {0}", this.totalNumberOfSplits);
   }
 
   /**
@@ -70,11 +102,11 @@ public abstract class AbstractEvaluatorToSplitStrategy implements EvaluatorToSpl
    * @param splitsPerPartition
    *          a map containing the input splits per data partition
    */
-  @Override
-  public void init(final Map<DataPartition, InputSplit[]> splitsPerPartition) {
-    final Pair<InputSplit[], DataPartition[]> splitsAndPartitions = getSplitsAndPartitions(splitsPerPartition);
+  private void init(final Map<DistributedDataSetPartition, InputSplit[]> splitsPerPartition) {
+    final Pair<InputSplit[], DistributedDataSetPartition[]>
+                                      splitsAndPartitions = getSplitsAndPartitions(splitsPerPartition);
     final InputSplit[] splits = splitsAndPartitions.getFirst();
-    final DataPartition[] partitions = splitsAndPartitions.getSecond();
+    final DistributedDataSetPartition[] partitions = splitsAndPartitions.getSecond();
     Validate.isTrue(splits.length == partitions.length);
     for (int splitNum = 0; splitNum < splits.length; splitNum++) {
       LOG.log(Level.FINE, "Processing split: " + splitNum);
@@ -84,8 +116,10 @@ public abstract class AbstractEvaluatorToSplitStrategy implements EvaluatorToSpl
       unallocatedSplits.add(numberedSplit);
       updateLocations(split, numberedSplit);
     }
-    for (final Map.Entry<String, BlockingQueue<NumberedSplit<InputSplit>>> locSplit : locationToSplits.entrySet()) {
-      LOG.log(Level.FINE, locSplit.getKey() + ": " + locSplit.getValue().toString());
+    if (LOG.isLoggable(Level.FINE)) {
+      for (final Map.Entry<String, BlockingQueue<NumberedSplit<InputSplit>>> locSplit : locationToSplits.entrySet()) {
+        LOG.log(Level.FINE, locSplit.getKey() + ": " + locSplit.getValue().toString());
+      }
     }
   }
 
@@ -114,14 +148,14 @@ public abstract class AbstractEvaluatorToSplitStrategy implements EvaluatorToSpl
   protected abstract NumberedSplit<InputSplit> tryAllocate(NodeDescriptor nodeDescriptor, String evaluatorId);
 
   /**
-   * Get an input split to be assigned to this.
-   * evaluator
+   * Get an input split to be assigned to this evaluator.
    * <p/>
    * Allocates one if its not already allocated
    *
    * @param evaluatorId
    * @return a numberedSplit
-   * @throws RuntimeException if couldn't find any split
+   * @throws RuntimeException
+   *           if couldn't find any split
    */
   @Override
   public NumberedSplit<InputSplit> getInputSplit(final NodeDescriptor nodeDescriptor, final String evaluatorId) {
@@ -142,8 +176,8 @@ public abstract class AbstractEvaluatorToSplitStrategy implements EvaluatorToSpl
         return split;
       }
     }
-    LOG.log(Level.FINE,
-        "{0} does not host any splits or someone else took splits hosted here. Picking other ones", hostName);
+    LOG.log(Level.FINE, "{0} does not host any splits or someone else took splits hosted here. Picking other ones",
+        hostName);
     final NumberedSplit<InputSplit> split = tryAllocate(nodeDescriptor, evaluatorId);
     if (split == null) {
       throw new RuntimeException("Unable to find an input split to evaluator " + evaluatorId);
@@ -153,13 +187,17 @@ public abstract class AbstractEvaluatorToSplitStrategy implements EvaluatorToSpl
     return split;
   }
 
-  private Pair<InputSplit[], DataPartition[]> getSplitsAndPartitions(
-      final Map<DataPartition, InputSplit[]> splitsPerPartition) {
+  @Override
+  public int getNumberOfSplits() {
+    return this.totalNumberOfSplits;
+  }
+
+  private Pair<InputSplit[], DistributedDataSetPartition[]> getSplitsAndPartitions(
+      final Map<DistributedDataSetPartition, InputSplit[]> splitsPerPartition) {
     final List<InputSplit> inputSplits = new ArrayList<>();
-    final List<DataPartition> partitions = new ArrayList<>();
-    for (final Entry<DataPartition, InputSplit[]> entry : splitsPerPartition
-        .entrySet()) {
-      final DataPartition partition = entry.getKey();
+    final List<DistributedDataSetPartition> partitions = new ArrayList<>();
+    for (final Entry<DistributedDataSetPartition, InputSplit[]> entry : splitsPerPartition.entrySet()) {
+      final DistributedDataSetPartition partition = entry.getKey();
       final InputSplit[] splits = entry.getValue();
       for (final InputSplit split : splits) {
         inputSplits.add(split);
@@ -167,20 +205,20 @@ public abstract class AbstractEvaluatorToSplitStrategy implements EvaluatorToSpl
       }
     }
     return new Pair<>(inputSplits.toArray(new InputSplit[inputSplits.size()]),
-        partitions.toArray(new DataPartition[partitions.size()]));
+        partitions.toArray(new DistributedDataSetPartition[partitions.size()]));
   }
 
   /**
    * Allocates the first available split into the evaluator.
+   *
    * @param evaluatorId
-   *    the evaluator id
+   *          the evaluator id
    * @param value
-   *    the queue of splits
-   * @return
-   *    a numberedSplit or null if it cannot find one
+   *          the queue of splits
+   * @return a numberedSplit or null if it cannot find one
    */
   protected NumberedSplit<InputSplit> allocateSplit(final String evaluatorId,
-                                         final BlockingQueue<NumberedSplit<InputSplit>> value) {
+      final BlockingQueue<NumberedSplit<InputSplit>> value) {
     if (value == null) {
       LOG.log(Level.FINE, "Queue of splits can't be empty. Returning null");
       return null;

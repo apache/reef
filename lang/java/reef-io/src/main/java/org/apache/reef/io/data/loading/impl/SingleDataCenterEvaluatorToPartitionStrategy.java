@@ -21,8 +21,10 @@ package org.apache.reef.io.data.loading.impl;
 import org.apache.hadoop.mapred.InputSplit;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.driver.catalog.NodeDescriptor;
+import org.apache.reef.tang.annotations.Parameter;
 
 import java.io.IOException;
+import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Logger;
@@ -31,17 +33,19 @@ import javax.inject.Inject;
 
 /**
  * This is an online version which satisfies
- * requests in a greedy way.
- *
+ * requests in a greedy way, for single data center network topologies.
  */
 @DriverSide
-public final class GreedyEvaluatorToSplitStrategy extends AbstractEvaluatorToSplitStrategy {
+public final class SingleDataCenterEvaluatorToPartitionStrategy extends AbstractEvaluatorToPartitionStrategy {
   private static final Logger LOG = Logger
-      .getLogger(GreedyEvaluatorToSplitStrategy.class.getName());
+      .getLogger(SingleDataCenterEvaluatorToPartitionStrategy.class.getName());
 
   @Inject
-  GreedyEvaluatorToSplitStrategy() {
-    LOG.fine("GreedyEvaluatorToSplitStrategy injected");
+  SingleDataCenterEvaluatorToPartitionStrategy(
+      @Parameter(JobConfExternalConstructor.InputFormatClass.class) final String inputFormatClassName,
+      @Parameter(DistributedDataSetPartitionSerializer.DistributedDataSetPartitions.class)
+      final Set<String> serializedDataPartitions) {
+    super(inputFormatClassName, serializedDataPartitions);
   }
 
   @Override

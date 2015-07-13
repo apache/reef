@@ -19,15 +19,13 @@
 package org.apache.reef.io.data.loading.api;
 
 import org.apache.hadoop.mapred.InputSplit;
+import org.apache.reef.annotations.Unstable;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.driver.catalog.NodeDescriptor;
-import org.apache.reef.io.data.loading.impl.DataPartition;
 import org.apache.reef.io.data.loading.impl.NumberedSplit;
 
-import java.util.Map;
-
 /**
- * Interface that tracks the mapping between evaluators & the data splits
+ * Interface that tracks the mapping between evaluators & the data partitions
  * assigned to those evaluators. Its part of the implementation of a
  * {@link org.apache.reef.io.data.loading.api.DataLoadingService} that uses the
  * Hadoop {@link org.apache.hadoop.mapred.InputFormat} to partition the data and
@@ -36,14 +34,8 @@ import java.util.Map;
  * @param <V>
  */
 @DriverSide
-public interface EvaluatorToSplitStrategy<V extends InputSplit> {
-
-  /**
-   * Initializes the mapping between partitions and splits.
-   * @param splitsPerPartition
-   *    the splits per partition
-   */
-  void init(Map<DataPartition, V[]> splitsPerPartition);
+@Unstable
+public interface EvaluatorToPartitionStrategy<V extends InputSplit> {
 
   /**
    * Returns an input split for the given evaluator.
@@ -56,5 +48,12 @@ public interface EvaluatorToSplitStrategy<V extends InputSplit> {
    * @throws RuntimeException if no split could be allocated
    */
   NumberedSplit<V> getInputSplit(NodeDescriptor nodeDescriptor, String evalId);
+
+  /**
+   * Returns the total number of splits computed in this strategy.
+   * @return
+   *  the number of splits
+   */
+  int getNumberOfSplits();
 
 }

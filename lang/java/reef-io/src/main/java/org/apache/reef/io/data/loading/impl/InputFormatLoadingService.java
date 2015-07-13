@@ -29,7 +29,7 @@ import org.apache.reef.driver.evaluator.AllocatedEvaluator;
 import org.apache.reef.io.data.loading.api.DataLoadingRequestBuilder;
 import org.apache.reef.io.data.loading.api.DataLoadingService;
 import org.apache.reef.io.data.loading.api.DataSet;
-import org.apache.reef.io.data.loading.api.EvaluatorToSplitStrategy;
+import org.apache.reef.io.data.loading.api.EvaluatorToPartitionStrategy;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.annotations.Parameter;
@@ -37,12 +37,8 @@ import org.apache.reef.tang.exceptions.BindException;
 
 import javax.inject.Inject;
 
-import java.io.IOException;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -54,7 +50,7 @@ import java.util.logging.Logger;
  * <p/>
  * The InputFormat is taken from the job configurations
  * <p/>
- * The {@link EvaluatorToSplitStrategy} is injected via Tang,
+ * The {@link EvaluatorToPartitionStrategy} is injected via Tang,
  * in order to support different ways to map evaluators to data
  */
 @DriverSide
@@ -67,13 +63,8 @@ public class InputFormatLoadingService<K, V> implements DataLoadingService {
   private static final String COMPUTE_CONTEXT_PREFIX =
       "ComputeContext-" + new Random(3381).nextInt(1 << 20) + "-";
 
-  private final EvaluatorToSplitStrategy<InputSplit> evaluatorToSplitStrategy;
-  /**
-   * We have partitions (which are data folders) and splits within those
-   * partitions (how hadoop thinks it should divide the input). Just saving the
-   * total number of splits for now.
-   */
-  private int numberOfSplits;
+  private final EvaluatorToPartitionStrategy<InputSplit> evaluatorToPartitionStrategy;
+
   private final boolean inMemory;
 
   private final String inputFormatClass;
@@ -82,7 +73,7 @@ public class InputFormatLoadingService<K, V> implements DataLoadingService {
   /**
    * @deprecated since 0.12. Should use the other constructor instead, which
    *             allows to specify the strategy on how to assign partitions to
-   *             evaluators. This one by default uses {@link GreedyEvaluatorToSplitStrategy}
+   *             evaluators. This one by default uses {@link SingleDataCenterEvaluatorToPartitionStrategy}
    *
    */
   @Deprecated
@@ -94,49 +85,19 @@ public class InputFormatLoadingService<K, V> implements DataLoadingService {
       @Parameter(DataLoadingRequestBuilder.LoadDataIntoMemory.class) final boolean inMemory,
       @Parameter(JobConfExternalConstructor.InputFormatClass.class) final String inputFormatClass,
       @Parameter(JobConfExternalConstructor.InputPath.class) final String inputPath) {
-    this(new LocationAwareJobConfs(inputFormatClass, new HashSet<>(Arrays.asList(DataPartitionSerializer
-        .serialize(new DataPartition(inputPath, DataPartition.ANY))))), new GreedyEvaluatorToSplitStrategy(),
-        numberOfDesiredSplits, inMemory, inputFormatClass);
+    this(new SingleDataCenterEvaluatorToPartitionStrategy(inputFormatClass, new HashSet<String>(
+        Arrays.asList(DistributedDataSetPartitionSerializer.serialize(new DistributedDataSetPartition(inputPath,
+            DistributedDataSetPartition.LOAD_INTO_ANY_LOCATION, numberOfDesiredSplits))))), inMemory, inputFormatClass);
   }
 
-  @SuppressWarnings("rawtypes")
   @Inject
   public InputFormatLoadingService(
-      final LocationAwareJobConfs locAwareJobConfs,
-      final EvaluatorToSplitStrategy<InputSplit> evaluatorToPartitionStrategy,
-      @Parameter(DataLoadingRequestBuilder.NumberOfDesiredSplits.class) final int numberOfDesiredSplits,
+      final EvaluatorToPartitionStrategy<InputSplit> evaluatorToPartitionStrategy,
       @Parameter(DataLoadingRequestBuilder.LoadDataIntoMemory.class) final boolean inMemory,
       @Parameter(JobConfExternalConstructor.InputFormatClass.class) final String inputFormatClass) {
-
     this.inMemory = inMemory;
     this.inputFormatClass = inputFormatClass;
-    this.evaluatorToSplitStrategy = evaluatorToPartitionStrategy;
-
-    final Iterator<LocationAwareJobConf> it = locAwareJobConfs.iterator();
-    final Map<DataPartition, InputSplit[]> splitsPerPartition = new HashMap<>();
-    while (it.hasNext()) {
-      final LocationAwareJobConf locAwareJobConf = it.next();
-      try {
-        final JobConf jobConf = locAwareJobConf.getJobConf();
-        final DataPartition partition = locAwareJobConf.getDataPartition();
-        final InputFormat inputFormat = jobConf.getInputFormat();
-        final InputSplit[] inputSplits = inputFormat.getSplits(jobConf, numberOfDesiredSplits);
-        splitsPerPartition.put(partition, inputSplits);
-        if (LOG.isLoggable(Level.FINEST)) {
-          LOG.log(Level.FINEST, "Splits for partition: {0} {1}", new Object[]{partition, Arrays.toString(inputSplits)});
-        }
-        // for now we just keep the total number of partitions
-        // and not group them based on their locations
-        // clients of this service, e.g. DataLoader, might better allocate resources if we provide
-        // the latter information. Something to keep in mind
-        this.numberOfSplits += inputSplits.length;
-
-      } catch (final IOException e) {
-        throw new RuntimeException("Unable to get InputSplits using the specified InputFormat", e);
-      }
-    }
-    this.evaluatorToSplitStrategy.init(splitsPerPartition);
-    LOG.log(Level.FINE, "Number of splits: {0}", this.numberOfSplits);
+    this.evaluatorToPartitionStrategy = evaluatorToPartitionStrategy;
   }
 
   /**
@@ -145,14 +106,14 @@ public class InputFormatLoadingService<K, V> implements DataLoadingService {
    */
   @Override
   public int getNumberOfPartitions() {
-    return this.numberOfSplits;
+    return evaluatorToPartitionStrategy.getNumberOfSplits();
   }
 
   @Override
   public Configuration getContextConfiguration(final AllocatedEvaluator allocatedEvaluator) {
 
     final NumberedSplit<InputSplit> numberedSplit =
-        this.evaluatorToSplitStrategy.getInputSplit(
+        this.evaluatorToPartitionStrategy.getInputSplit(
             allocatedEvaluator.getEvaluatorDescriptor().getNodeDescriptor(),
             allocatedEvaluator.getId());
 
@@ -167,7 +128,7 @@ public class InputFormatLoadingService<K, V> implements DataLoadingService {
     try {
 
       final NumberedSplit<InputSplit> numberedSplit =
-          this.evaluatorToSplitStrategy.getInputSplit(
+          this.evaluatorToPartitionStrategy.getInputSplit(
               allocatedEvaluator.getEvaluatorDescriptor().getNodeDescriptor(),
               allocatedEvaluator.getId());
 

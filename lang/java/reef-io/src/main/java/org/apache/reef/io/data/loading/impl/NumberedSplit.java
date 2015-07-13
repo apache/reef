@@ -30,9 +30,9 @@ import org.apache.commons.lang.Validate;
 public final class NumberedSplit<E> implements Comparable<NumberedSplit<E>> {
   private final E entry;
   private final int index;
-  private final DataPartition partition;
+  private final DistributedDataSetPartition partition;
 
-  public NumberedSplit(final E entry, final int index, final DataPartition partition) {
+  public NumberedSplit(final E entry, final int index, final DistributedDataSetPartition partition) {
     Validate.notNull(entry, "Entry cannot be null");
     Validate.notNull(partition, "Partition cannot be null");
     this.entry = entry;

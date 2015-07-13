@@ -19,40 +19,48 @@
 package org.apache.reef.io.data.loading.impl;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.reef.tang.annotations.Name;
+import org.apache.reef.tang.annotations.NamedParameter;
+
 import java.io.*;
+import java.util.Set;
 
 /**
- * Serialize and deserialize DataPartition objects.
+ * Serialize and deserialize {@link DistributedDataSetPartition} objects.
  */
-public final class DataPartitionSerializer {
+public final class DistributedDataSetPartitionSerializer {
 
-  public static String serialize(final DataPartition partition) {
+  public static String serialize(final DistributedDataSetPartition partition) {
     try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-      try (DataOutputStream daos = new DataOutputStream(baos)) {
-        daos.writeUTF(partition.getPath());
-        daos.writeUTF(partition.getLocation());
-      } catch (final IOException e) {
-        throw e;
-      }
+      final DataOutputStream daos = new DataOutputStream(baos);
+      daos.writeUTF(partition.getPath());
+      daos.writeUTF(partition.getLocation());
+      daos.writeInt(partition.getDesiredSplits());
       return Base64.encodeBase64String(baos.toByteArray());
-    } catch (final IOException e1) {
-      throw new RuntimeException("Unable to serialize data partition", e1);
+    } catch (final IOException e) {
+      throw new RuntimeException("Unable to serialize distributed data partition", e);
     }
   }
 
-  public static DataPartition deserialize(final String serializedPartition) {
+  public static DistributedDataSetPartition deserialize(final String serializedPartition) {
     try (ByteArrayInputStream bais = new ByteArrayInputStream(Base64.decodeBase64(serializedPartition))) {
-      try (DataInputStream dais = new DataInputStream(bais)) {
-        return new DataPartition(dais.readUTF(), dais.readUTF());
-      }
+      final DataInputStream dais = new DataInputStream(bais);
+      return new DistributedDataSetPartition(dais.readUTF(), dais.readUTF(), dais.readInt());
     } catch (final IOException e) {
-      throw new RuntimeException("Unable to de-serialize data partition", e);
+      throw new RuntimeException("Unable to de-serialize distributed data partition", e);
     }
   }
 
   /**
    * Empty private constructor to prohibit instantiation of utility class.
    */
-  private DataPartitionSerializer() {
+  private DistributedDataSetPartitionSerializer() {
+  }
+
+  /**
+   * Allows to specify a set of distributed data set partitions.
+   */
+  @NamedParameter(doc = "Sets of distributed data set partitions")
+  public static final class DistributedDataSetPartitions implements Name<Set<String>> {
   }
 }

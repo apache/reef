@@ -19,8 +19,10 @@
 package org.apache.reef.io.data.loading.impl;
 
 import org.apache.hadoop.mapred.InputSplit;
+import org.apache.reef.annotations.Unstable;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.driver.catalog.NodeDescriptor;
+import org.apache.reef.tang.annotations.Parameter;
 
 import java.util.Collections;
 import java.util.Iterator;
@@ -37,12 +39,13 @@ import javax.inject.Inject;
 
 /**
  * This is an online version which satisfies requests based on the locations the
- * users ask the data to be loaded.
+ * users ask the data to be loaded, for multiple data center network topologies.
  *
  */
 @DriverSide
-public final class LocationAwareEvaluatorToSplitStrategy extends AbstractEvaluatorToSplitStrategy {
-  private static final Logger LOG = Logger.getLogger(LocationAwareEvaluatorToSplitStrategy.class.getName());
+@Unstable
+public final class MultiDataCenterEvaluatorToPartitionStrategy extends AbstractEvaluatorToPartitionStrategy {
+  private static final Logger LOG = Logger.getLogger(MultiDataCenterEvaluatorToPartitionStrategy.class.getName());
 
   private static final String PATH_SEPARATOR = "/";
   private static final String ANY = "*";
@@ -58,8 +61,11 @@ public final class LocationAwareEvaluatorToSplitStrategy extends AbstractEvaluat
 
 
   @Inject
-  LocationAwareEvaluatorToSplitStrategy() {
-    LOG.fine("LocationAwareEvaluatorToSplitStrategy injected");
+  MultiDataCenterEvaluatorToPartitionStrategy(
+      @Parameter(JobConfExternalConstructor.InputFormatClass.class) final String inputFormatClassName,
+      @Parameter(DistributedDataSetPartitionSerializer.DistributedDataSetPartitions.class)
+      final Set<String> serializedDataPartitions) {
+    super(inputFormatClassName, serializedDataPartitions);
     normalizedLocations = new TreeSet<>(Collections.reverseOrder());
     partialLocationsToSplits = new ConcurrentHashMap<>();
   }
@@ -125,6 +131,10 @@ public final class LocationAwareEvaluatorToSplitStrategy extends AbstractEvaluat
     // should start with a separator
     if (!location.startsWith(PATH_SEPARATOR)) {
       location = PATH_SEPARATOR + location;
+    }
+    // if it is just /*, return /
+    if (location.equals(PATH_SEPARATOR + ANY)) {
+      return PATH_SEPARATOR;
     }
     // remove the ending ANY or path separator
     while (location.endsWith(ANY) || location.endsWith(PATH_SEPARATOR)) {
