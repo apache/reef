@@ -41,6 +41,7 @@ under the License.
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TestLocalFileSystem.cs" />
     <Compile Include="TestRandomDataSet.cs" />
   </ItemGroup>
   <ItemGroup>
