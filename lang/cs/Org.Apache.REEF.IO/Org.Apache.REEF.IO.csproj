@@ -41,6 +41,9 @@ under the License.
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FileSystem\IFileSystem.cs" />
+    <Compile Include="FileSystem\Local\LocalFileSystem.cs" />
+    <Compile Include="FileSystem\Local\LocalFileSystemConfiguration.cs" />
     <Compile Include="PartitionedData\IPartition.cs" />
     <Compile Include="PartitionedData\IPartitionDescriptor.cs" />
     <Compile Include="PartitionedData\IPartitionedDataSet.cs" />
