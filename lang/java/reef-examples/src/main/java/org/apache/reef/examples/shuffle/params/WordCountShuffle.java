@@ -25,5 +25,5 @@ import org.apache.reef.tang.annotations.NamedParameter;
  *
  */
 @NamedParameter
-public final class WordCountTopology implements Name<String> {
+public final class WordCountShuffle implements Name<String> {
 }

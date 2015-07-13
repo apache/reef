@@ -21,17 +21,17 @@ package org.apache.reef.io.network.shuffle.ns;
 /**
  *
  */
-public final class ShuffleControlMessage extends ShuffleMessage {
+public final class ShuffleControlMessage extends ShuffleMessage<byte[]> {
 
   private int code;
   private final byte[][] data;
 
   public ShuffleControlMessage(
       final int code,
-      final String topologyName,
+      final String shuffleName,
       final String groupingName,
       final byte[][] data) {
-    super(topologyName, groupingName);
+    super(shuffleName, groupingName);
     this.code = code;
     this.data = data;
   }
@@ -41,7 +41,7 @@ public final class ShuffleControlMessage extends ShuffleMessage {
   }
 
   @Override
-  public int getDataLength() {
+  public int size() {
     if (data == null) {
       return 0;
     }
@@ -50,7 +50,7 @@ public final class ShuffleControlMessage extends ShuffleMessage {
   }
 
   @Override
-  public byte[] getDataAt(final int index) {
+  public byte[] get(final int index) {
     return data[index];
   }
 }

@@ -41,21 +41,21 @@ final class ShuffleControlLinkListenerImpl implements ShuffleControlLinkListener
 
   @Override
   public void onSuccess(final Message<ShuffleControlMessage> message) {
-    linkListenerMap.get(getTopologyNameFrom(message)).onSuccess(message);
+    linkListenerMap.get(getShuffleNameFrom(message)).onSuccess(message);
   }
 
   @Override
   public void onException(final Throwable cause, final SocketAddress remoteAddress, final Message<ShuffleControlMessage> message) {
-    linkListenerMap.get(getTopologyNameFrom(message)).onSuccess(message);
+    linkListenerMap.get(getShuffleNameFrom(message)).onSuccess(message);
   }
 
-  private String getTopologyNameFrom(final Message<ShuffleControlMessage> message) {
-    return message.getData().iterator().next().getTopologyName();
+  private String getShuffleNameFrom(final Message<ShuffleControlMessage> message) {
+    return message.getData().iterator().next().getShuffleName();
   }
 
   @Override
-  public void registerLinkListener(final Class<? extends Name<String>> topologyName,
+  public void registerLinkListener(final Class<? extends Name<String>> shuffleName,
                                    final LinkListener<Message<ShuffleControlMessage>> linkListener) {
-    linkListenerMap.put(topologyName.getName(), linkListener);
+    linkListenerMap.put(shuffleName.getName(), linkListener);
   }
 }

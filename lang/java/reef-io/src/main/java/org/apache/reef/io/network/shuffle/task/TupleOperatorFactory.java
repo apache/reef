@@ -24,10 +24,15 @@ import org.apache.reef.tang.annotations.DefaultImplementation;
 /**
  *
  */
-@DefaultImplementation(BaseTupleOperatorFactory.class)
+@DefaultImplementation(TupleOperatorFactoryImpl.class)
 public interface TupleOperatorFactory {
 
-  <K, V> TupleReceiver<K, V> newTupleReceiver(final GroupingDescriptor groupingDescription);
+  <K, V> TupleReceiver<K, V> newTupleReceiver(GroupingDescriptor groupingDescription);
 
-  <K, V> TupleSender<K, V> newTupleSender(final GroupingDescriptor groupingDescription);
+  <K, V, T extends TupleReceiver<K, V>> T newTupleReceiver(GroupingDescriptor groupingDescription, Class<T> receiverClass);
+
+  <K, V> TupleSender<K, V> newTupleSender(GroupingDescriptor groupingDescription);
+
+  <K, V, T extends TupleSender<K, V>> T newTupleSender(GroupingDescriptor groupingDescription, Class<T> senderClass);
+
 }

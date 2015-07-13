@@ -35,4 +35,6 @@ public interface TupleOperator<K, V> {
   GroupingStrategy<K> getGroupingStrategy();
 
   List<String> getSelectedReceiverIdList(K key);
+
+  void waitForGroupingSetup();
 }

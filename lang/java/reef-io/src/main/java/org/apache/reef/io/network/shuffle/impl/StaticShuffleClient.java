@@ -31,13 +31,17 @@ import org.apache.reef.wake.remote.transport.LinkListener;
 
 import javax.inject.Inject;
 import java.net.SocketAddress;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
 
 /**
  *
  */
 public final class StaticShuffleClient implements ShuffleClient {
 
-  private boolean isTopologySetup;
+  private final CountDownLatch clientSetupLatch;
+  private final Map<String, CountDownLatch> groupingSetupLatchMap;
 
   private final ShuffleDescriptor initialShuffleDescriptor;
   private final ClientTupleCodecMap tupleCodecMap;
@@ -59,6 +63,12 @@ public final class StaticShuffleClient implements ShuffleClient {
     this.tupleMessageDispatcher = new TupleMessageDispatcher();
     this.controlMessageHandler = new ControlMessageHandler();
     this.controlLinkListener = new ControlLinkListener();
+    this.groupingSetupLatchMap = new ConcurrentHashMap<>();
+    for (final String groupingName : initialShuffleDescriptor.getGroupingNameList()) {
+      groupingSetupLatchMap.put(groupingName, new CountDownLatch(1));
+    }
+
+    this.clientSetupLatch = new CountDownLatch(groupingSetupLatchMap.size());
   }
 
   @Override
@@ -67,21 +77,27 @@ public final class StaticShuffleClient implements ShuffleClient {
   }
 
   @Override
-  public boolean waitForSetup() {
-    if (isTopologySetup) {
-      return false;
-    } else {
-      synchronized (this) {
-        try {
-          while (!isTopologySetup) {
-            this.wait();
-          }
+  public void waitForGroupingSetup(final String groupingName) {
+    try {
+      groupingSetupLatchMap.get(groupingName).await();
+    } catch (final InterruptedException e) {
+      throw new RuntimeException(e);
+    }
+  }
 
-          return true;
-        } catch (final InterruptedException e) {
-          throw new RuntimeException("An InterruptedException occurred while waiting for topology set up", e);
-        }
-      }
+  @Override
+  public void waitForSetup() {
+    try {
+      clientSetupLatch.await();
+    } catch (final InterruptedException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  private synchronized void groupingInitialized(final String groupingName) {
+    if (groupingSetupLatchMap.get(groupingName).getCount() != 0) {
+      groupingSetupLatchMap.get(groupingName).countDown();
+      clientSetupLatch.countDown();
     }
   }
 
@@ -101,22 +117,37 @@ public final class StaticShuffleClient implements ShuffleClient {
   }
 
   @Override
-  public <K, V> TupleReceiver<K, V> getReceiver(final String groupingName) {
+  public <K, V> TupleReceiver<K, V> createReceiver(final String groupingName) {
     return tupleOperatorFactory.newTupleReceiver(initialShuffleDescriptor.getGroupingDescriptor(groupingName));
   }
 
   @Override
-  public <K, V> TupleSender<K, V> getSender(final String groupingName) {
+  public <K, V, T extends TupleReceiver<K, V>> T createReceiver(
+      final String groupingName, final Class<T> receiverClass) {
+    return tupleOperatorFactory.newTupleReceiver(
+        initialShuffleDescriptor.getGroupingDescriptor(groupingName), receiverClass);
+  }
+
+  @Override
+  public <K, V> TupleSender<K, V> createSender(final String groupingName) {
     return tupleOperatorFactory.newTupleSender(initialShuffleDescriptor.getGroupingDescriptor(groupingName));
   }
 
   @Override
-  public <K, V> void registerLinkListener(final String groupingName, final LinkListener<Message<ShuffleTupleMessage<K, V>>> linkListener) {
+  public <K, V, T extends TupleSender<K, V>> T createSender(final String groupingName, final Class<T> senderClass) {
+    return tupleOperatorFactory.newTupleSender(
+        initialShuffleDescriptor.getGroupingDescriptor(groupingName), senderClass);
+  }
+
+  @Override
+  public <K, V> void registerLinkListener(
+      final String groupingName, final LinkListener<Message<ShuffleTupleMessage<K, V>>> linkListener) {
     tupleMessageDispatcher.registerLinkListener(groupingName, linkListener);
   }
 
   @Override
-  public <K, V> void registerMessageHandler(final String groupingName, final EventHandler<Message<ShuffleTupleMessage<K, V>>> messageHandler) {
+  public <K, V> void registerMessageHandler(
+      final String groupingName, final EventHandler<Message<ShuffleTupleMessage<K, V>>> messageHandler) {
     tupleMessageDispatcher.registerMessageHandler(groupingName, messageHandler);
   }
 
@@ -135,11 +166,8 @@ public final class StaticShuffleClient implements ShuffleClient {
     @Override
     public void onNext(final Message<ShuffleControlMessage> message) {
       final ShuffleControlMessage shuffleMessage = message.getData().iterator().next();
-      if (shuffleMessage.getCode() == StaticShuffleMessageCode.SHUFFLE_SETUP) {
-        synchronized (StaticShuffleClient.this) {
-          isTopologySetup = true;
-          StaticShuffleClient.this.notifyAll();
-        }
+      if (shuffleMessage.getCode() == StaticShuffleMessageCode.GROUPING_SETUP) {
+        groupingInitialized(shuffleMessage.getGroupingName());
       }
     }
   }

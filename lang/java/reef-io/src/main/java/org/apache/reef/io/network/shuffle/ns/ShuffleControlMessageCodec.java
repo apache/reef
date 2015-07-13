@@ -59,10 +59,10 @@ public final class ShuffleControlMessageCodec implements StreamingCodec<ShuffleC
   public void encodeToStream(final ShuffleControlMessage msg, final DataOutputStream stream) {
     try {
       stream.writeInt(msg.getCode());
-      if (msg.getTopologyName() == null) {
+      if (msg.getShuffleName() == null) {
         stream.writeUTF("");
       } else {
-        stream.writeUTF(msg.getTopologyName());
+        stream.writeUTF(msg.getShuffleName());
       }
 
       if (msg.getGroupingName() == null) {
@@ -71,12 +71,12 @@ public final class ShuffleControlMessageCodec implements StreamingCodec<ShuffleC
         stream.writeUTF(msg.getGroupingName());
       }
 
-      stream.writeInt(msg.getDataLength());
+      stream.writeInt(msg.size());
 
-      final int messageLength = msg.getDataLength();
+      final int messageLength = msg.size();
       for (int i = 0; i < messageLength; i++) {
-        stream.writeInt(msg.getDataAt(i).length);
-        stream.write(msg.getDataAt(i));
+        stream.writeInt(msg.get(i).length);
+        stream.write(msg.get(i));
       }
     } catch(final IOException exception) {
       throw new RuntimeException(exception);
@@ -87,11 +87,11 @@ public final class ShuffleControlMessageCodec implements StreamingCodec<ShuffleC
   public ShuffleControlMessage decodeFromStream(final DataInputStream stream) {
     try {
       final int code = stream.readInt();
-      String topologyName = stream.readUTF();
+      String shuffleName = stream.readUTF();
       String groupingName = stream.readUTF();
 
-      if (topologyName.equals("")) {
-        topologyName = null;
+      if (shuffleName.equals("")) {
+        shuffleName = null;
       }
 
       if (groupingName.equals("")) {
@@ -108,7 +108,7 @@ public final class ShuffleControlMessageCodec implements StreamingCodec<ShuffleC
         dataArr[i] = byteArr;
       }
 
-      return new ShuffleControlMessage(code, topologyName, groupingName, dataArr);
+      return new ShuffleControlMessage(code, shuffleName, groupingName, dataArr);
 
     } catch(final IOException exception) {
       throw new RuntimeException(exception);

@@ -23,11 +23,13 @@ import org.apache.reef.exception.evaluator.NetworkException;
 import org.apache.reef.io.network.Connection;
 import org.apache.reef.io.network.ConnectionFactory;
 import org.apache.reef.io.network.Message;
+import org.apache.reef.io.network.NetworkServiceClient;
 import org.apache.reef.io.network.impl.NSMessage;
 import org.apache.reef.io.network.naming.NameServerParameters;
 import org.apache.reef.io.network.shuffle.grouping.GroupingStrategy;
 import org.apache.reef.io.network.shuffle.ns.ShuffleTupleMessage;
 import org.apache.reef.io.network.shuffle.descriptor.GroupingDescriptor;
+import org.apache.reef.io.network.shuffle.params.ShuffleTupleMessageNSId;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.wake.Identifier;
 import org.apache.reef.wake.IdentifierFactory;
@@ -56,14 +58,14 @@ public final class BaseTupleSender<K, V> implements TupleSender<K, V> {
   @Inject
   public BaseTupleSender(
       final ShuffleClient shuffleClient,
-      final ConnectionFactory<ShuffleTupleMessage> connFactory,
+      final NetworkServiceClient nsClient,
       final @Parameter(NameServerParameters.NameServerIdentifierFactory.class) IdentifierFactory idFactory,
       final @Parameter(TaskConfigurationOptions.Identifier.class) String taskId,
       final GroupingDescriptor<K, V> groupingDescriptor,
       final GroupingStrategy<K> groupingStrategy,
       final ShuffleTupleMessageGenerator<K, V> tupleMessageGenerator) {
     this.shuffleClient = shuffleClient;
-    this.connFactory = connFactory;
+    this.connFactory = nsClient.getConnectionFactory(ShuffleTupleMessageNSId.class);
     this.idFactory = idFactory;
     this.taskId = idFactory.getNewInstance(taskId);
     this.connMap = new HashMap<>();
@@ -110,7 +112,7 @@ public final class BaseTupleSender<K, V> implements TupleSender<K, V> {
   }
 
   private void sendShuffleMessageTuple(final Tuple<String, ShuffleTupleMessage<K, V>> messageTuple) {
-    shuffleClient.waitForSetup();
+    shuffleClient.waitForGroupingSetup(groupingDescriptor.getGroupingName());
 
     if (!connMap.containsKey(messageTuple.getKey())) {
       try {
@@ -150,5 +152,10 @@ public final class BaseTupleSender<K, V> implements TupleSender<K, V> {
   public List<String> getSelectedReceiverIdList(K key) {
     return groupingStrategy.selectReceivers(key,
         shuffleClient.getShuffleDescriptor().getReceiverIdList(groupingDescriptor.getGroupingName()));
+  }
+
+  @Override
+  public void waitForGroupingSetup() {
+    shuffleClient.waitForGroupingSetup(groupingDescriptor.getGroupingName());
   }
 }

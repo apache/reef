@@ -28,6 +28,6 @@ import org.apache.reef.wake.EventHandler;
  */
 @DefaultImplementation(ShuffleControlMessageHandlerImpl.class)
 public interface ShuffleControlMessageHandler extends EventHandler<Message<ShuffleControlMessage>> {
-  void registerMessageHandler(Class<? extends Name<String>> topologyName,
+  void registerMessageHandler(Class<? extends Name<String>> shuffleName,
                               EventHandler<Message<ShuffleControlMessage>> eventHandler);
 }

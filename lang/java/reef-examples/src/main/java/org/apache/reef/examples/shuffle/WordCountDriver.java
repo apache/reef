@@ -22,7 +22,7 @@ import org.apache.reef.driver.context.ActiveContext;
 import org.apache.reef.driver.context.ContextConfiguration;
 import org.apache.reef.driver.task.TaskConfiguration;
 import org.apache.reef.driver.task.TaskConfigurationOptions;
-import org.apache.reef.examples.shuffle.params.WordCountTopology;
+import org.apache.reef.examples.shuffle.params.WordCountShuffle;
 import org.apache.reef.examples.shuffle.utils.IntegerCodec;
 import org.apache.reef.examples.shuffle.utils.StringCodec;
 import org.apache.reef.io.data.loading.api.DataLoadingService;
@@ -121,7 +121,7 @@ public final class WordCountDriver {
   private void createWordCountTopology() {
     final List<String> aggregatorIdList = new ArrayList<>(1);
     aggregatorIdList.add(AGGREGATOR_ID);
-    shuffleDriver.registerManager(ShuffleDescription.newBuilder(WordCountTopology.class)
+    shuffleDriver.registerManager(ShuffleDescription.newBuilder(WordCountShuffle.class)
         .addGrouping(
             mapperIdList,
             reducerIdList,

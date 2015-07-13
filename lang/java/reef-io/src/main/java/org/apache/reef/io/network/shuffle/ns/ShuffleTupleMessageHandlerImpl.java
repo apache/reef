@@ -40,13 +40,13 @@ final class ShuffleTupleMessageHandlerImpl implements ShuffleTupleMessageHandler
 
   @Override
   public void onNext(final Message<ShuffleTupleMessage> message) {
-    final String topologyName = message.getData().iterator().next().getTopologyName();
+    final String topologyName = message.getData().iterator().next().getShuffleName();
     eventHandlerMap.get(topologyName).onNext(message);
   }
 
   @Override
-  public void registerMessageHandler(final Class<? extends Name<String>> topologyName,
+  public void registerMessageHandler(final Class<? extends Name<String>> shuffleName,
                                      final EventHandler<Message<ShuffleTupleMessage>> eventHandler) {
-    eventHandlerMap.put(topologyName.getName(), eventHandler);
+    eventHandlerMap.put(shuffleName.getName(), eventHandler);
   }
 }

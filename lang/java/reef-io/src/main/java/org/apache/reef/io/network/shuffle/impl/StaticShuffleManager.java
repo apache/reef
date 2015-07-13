@@ -21,6 +21,7 @@ package org.apache.reef.io.network.shuffle.impl;
 import org.apache.reef.driver.task.CompletedTask;
 import org.apache.reef.driver.task.FailedTask;
 import org.apache.reef.driver.task.RunningTask;
+import org.apache.reef.io.network.ConnectionFactory;
 import org.apache.reef.io.network.Message;
 import org.apache.reef.io.network.NetworkServiceClient;
 import org.apache.reef.io.network.naming.NameServerParameters;
@@ -39,6 +40,12 @@ import org.apache.reef.wake.remote.transport.LinkListener;
 
 import javax.inject.Inject;
 import java.net.SocketAddress;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -53,7 +60,7 @@ public final class StaticShuffleManager implements ShuffleManager {
   private final ShuffleDescriptorSerializer shuffleDescriptorSerializer;
   private final ShuffleLinkListener shuffleLinkListener;
   private final ShuffleMessageHandler shuffleMessageHandler;
-  private final TaskEntityMap taskEntityMap;
+  private final Map<String, GroupingSetupGate> groupingSetupGates;
 
   @Inject
   public StaticShuffleManager(
@@ -65,22 +72,35 @@ public final class StaticShuffleManager implements ShuffleManager {
     this.shuffleDescriptorSerializer = shuffleDescriptorSerializer;
     this.shuffleLinkListener = new ShuffleLinkListener();
     this.shuffleMessageHandler = new ShuffleMessageHandler();
-    this.taskEntityMap = new TaskEntityMap(initialShuffleDescriptor, idFactory,
-        nsClient.<ShuffleControlMessage>getConnectionFactory(ShuffleControlMessageNSId.class));
 
-    createTaskEntityMap();
+    this.groupingSetupGates = new ConcurrentHashMap<>();
+    createGroupingSetupGates(idFactory,
+        nsClient.<ShuffleControlMessage>getConnectionFactory(ShuffleControlMessageNSId.class));
   }
 
-  private void createTaskEntityMap() {
+  private void createGroupingSetupGates(
+      final IdentifierFactory idFactory, final ConnectionFactory<ShuffleControlMessage> connFactory) {
     for (final String groupingName : initialShuffleDescriptor.getGroupingNameList()) {
       final GroupingDescriptor descriptor = initialShuffleDescriptor.getGroupingDescriptor(groupingName);
+      final Set<String> taskIdSet = new HashSet<>();
       for (final String senderId : initialShuffleDescriptor.getSenderIdList(descriptor.getGroupingName())) {
-        taskEntityMap.putTaskIdIfAbsent(senderId);
+        taskIdSet.add(senderId);
       }
 
       for (final String receiverId : initialShuffleDescriptor.getReceiverIdList(descriptor.getGroupingName())) {
-        taskEntityMap.putTaskIdIfAbsent(receiverId);
+        taskIdSet.add(receiverId);
       }
+
+      groupingSetupGates.put(
+          groupingName,
+          new GroupingSetupGate(
+              initialShuffleDescriptor.getShuffleName().getName(),
+              groupingName,
+              taskIdSet,
+              idFactory,
+              connFactory
+          )
+      );
     }
   }
 
@@ -111,17 +131,25 @@ public final class StaticShuffleManager implements ShuffleManager {
 
   @Override
   public void onRunningTask(final RunningTask runningTask) {
-    taskEntityMap.onTaskStart(runningTask.getId());
+    for (final GroupingSetupGate gate : groupingSetupGates.values()) {
+      gate.onTaskStarted(runningTask.getId());
+    }
   }
 
   @Override
   public void onFailedTask(final FailedTask failedTask) {
-    taskEntityMap.onTaskStop(failedTask.getId());
+    onTaskStopped(failedTask.getId());
   }
 
   @Override
   public void onCompletedTask(final CompletedTask completedTask) {
-    taskEntityMap.onTaskStop(completedTask.getId());
+    onTaskStopped(completedTask.getId());
+  }
+
+  private void onTaskStopped(final String taskId) {
+    for (final GroupingSetupGate gate : groupingSetupGates.values()) {
+      gate.onTaskStopped(taskId);
+    }
   }
 
   private final class ShuffleLinkListener implements LinkListener<Message<ShuffleControlMessage>> {
@@ -132,9 +160,10 @@ public final class StaticShuffleManager implements ShuffleManager {
     }
 
     @Override
-    public void onException(final Throwable cause, final SocketAddress remoteAddress, final Message<ShuffleControlMessage> message) {
-      LOG.log(Level.FINE, "An exception occurred with a ShuffleMessage [{0}] caused by ", new Object[]{ message, cause });
-      taskEntityMap.onTaskStop(message.getDestId().toString());
+    public void onException(
+        final Throwable cause, final SocketAddress remoteAddress, final Message<ShuffleControlMessage> message) {
+      LOG.log(Level.FINE, "An exception occurred with a ShuffleMessage [{0}] caused by ",
+          new Object[]{ message, cause });
     }
   }
 

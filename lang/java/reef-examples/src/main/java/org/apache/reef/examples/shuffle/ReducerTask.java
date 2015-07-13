@@ -18,7 +18,7 @@
  */
 package org.apache.reef.examples.shuffle;
 
-import org.apache.reef.examples.shuffle.params.WordCountTopology;
+import org.apache.reef.examples.shuffle.params.WordCountShuffle;
 import org.apache.reef.io.network.Message;
 import org.apache.reef.io.network.shuffle.ns.ShuffleTupleMessage;
 import org.apache.reef.io.network.shuffle.task.*;
@@ -43,10 +43,10 @@ public final class ReducerTask implements Task {
   @Inject
   public ReducerTask(
       final ShuffleService shuffleService) {
-    this.shuffleClient = shuffleService.getClient(WordCountTopology.class);
-    this.tupleSender = shuffleClient.getSender(WordCountDriver.AGGREGATING_GROUPING);
-    final TupleReceiver<String, Integer> tupleReceiver = shuffleService.getClient(WordCountTopology.class)
-        .getReceiver(WordCountDriver.SHUFFLE_GROUPING);
+    this.shuffleClient = shuffleService.getClient(WordCountShuffle.class);
+    this.tupleSender = shuffleClient.createSender(WordCountDriver.AGGREGATING_GROUPING);
+    final TupleReceiver<String, Integer> tupleReceiver = shuffleService.getClient(WordCountShuffle.class)
+        .createReceiver(WordCountDriver.SHUFFLE_GROUPING);
     tupleReceiver.registerMessageHandler(new MessageHandler());
     this.reduceMap = new HashMap<>();
   }
@@ -81,9 +81,9 @@ public final class ReducerTask implements Task {
     public void onNext(Message<ShuffleTupleMessage<String, Integer>> msg) {
       System.out.println("message from " + msg.getSrcId());
       for (ShuffleTupleMessage<String, Integer> tupleMessage : msg.getData()) {
-        for (int i = 0; i < tupleMessage.getDataLength(); i++) {
-          System.out.println(tupleMessage.getDataAt(i));
-          addTuple(tupleMessage.getDataAt(i));
+        for (int i = 0; i < tupleMessage.size(); i++) {
+          System.out.println(tupleMessage.get(i));
+          addTuple(tupleMessage.get(i));
         }
       }
     }

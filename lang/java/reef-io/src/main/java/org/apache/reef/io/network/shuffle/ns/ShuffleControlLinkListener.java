@@ -28,6 +28,6 @@ import org.apache.reef.wake.remote.transport.LinkListener;
  */
 @DefaultImplementation(ShuffleControlLinkListenerImpl.class)
 public interface ShuffleControlLinkListener extends LinkListener<Message<ShuffleControlMessage>> {
-  void registerLinkListener(Class<? extends Name<String>> topologyName,
+  void registerLinkListener(Class<? extends Name<String>> shuffleName,
                             LinkListener<Message<ShuffleControlMessage>> linkListener);
 }

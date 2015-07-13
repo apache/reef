@@ -40,13 +40,13 @@ final class ShuffleControlMessageHandlerImpl implements ShuffleControlMessageHan
 
   @Override
   public void onNext(final Message<ShuffleControlMessage> message) {
-    final String topologyName = message.getData().iterator().next().getTopologyName();
-    eventHandlerMap.get(topologyName).onNext(message);
+    final String shuffleName = message.getData().iterator().next().getShuffleName();
+    eventHandlerMap.get(shuffleName).onNext(message);
   }
 
   @Override
-  public void registerMessageHandler(final Class<? extends Name<String>> topologyName,
+  public void registerMessageHandler(final Class<? extends Name<String>> shuffleName,
                                      final EventHandler<Message<ShuffleControlMessage>> eventHandler) {
-    eventHandlerMap.put(topologyName.getName(), eventHandler);
+    eventHandlerMap.put(shuffleName.getName(), eventHandler);
   }
 }

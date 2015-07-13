@@ -71,4 +71,9 @@ public final class BaseTupleReceiver<K, V> implements TupleReceiver<K, V> {
     return groupingStrategy.selectReceivers(key,
         shuffleClient.getShuffleDescriptor().getReceiverIdList(groupingDescriptor.getGroupingName()));
   }
+
+  @Override
+  public void waitForGroupingSetup() {
+    shuffleClient.waitForGroupingSetup(groupingDescriptor.getGroupingName());
+  }
 }
