@@ -44,8 +44,9 @@ public final class DistributedDataSetPartition {
   private final String path;
 
   /**
-   * The location (either a rackName or a nodeName) where we want the data
-   * in this distributed partition to be loaded into.
+   * The location (either a rackName or a nodeName) where we want the data in
+   * this distributed partition to be loaded into. It can contain a wildcard at
+   * the end, for example /datacenter1/*.
    */
   private final String location;
 
@@ -113,6 +114,7 @@ public final class DistributedDataSetPartition {
     return new HashCodeBuilder(17, 37).append(this.path).append(this.location).append(this.desiredSplits).toHashCode();
   }
 
+  @Override
   public String toString() {
     return "{" + this.path + "," + this.location + "," + this.desiredSplits + "}";
   }

@@ -161,8 +161,7 @@ public abstract class AbstractEvaluatorToPartitionStrategy implements EvaluatorT
   public NumberedSplit<InputSplit> getInputSplit(final NodeDescriptor nodeDescriptor, final String evaluatorId) {
     synchronized (evaluatorToSplits) {
       if (evaluatorToSplits.containsKey(evaluatorId)) {
-        LOG.log(Level.FINE, "Found an already allocated split");
-        LOG.log(Level.FINE, evaluatorToSplits.toString());
+        LOG.log(Level.FINE, "Found an already allocated split, {0}", evaluatorToSplits.toString());
         return evaluatorToSplits.get(evaluatorId);
       }
     }

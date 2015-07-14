@@ -22,8 +22,10 @@ import org.apache.reef.annotations.Unstable;
 import org.apache.reef.io.data.loading.impl.DistributedDataSetPartition;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -33,7 +35,7 @@ import java.util.Set;
  *
  */
 @Unstable
-public final class DistributedDataSet {
+public final class DistributedDataSet implements Iterable<DistributedDataSetPartition> {
 
 
   /**
@@ -70,12 +72,39 @@ public final class DistributedDataSet {
     return this.partitions.isEmpty();
   }
 
-  /**
-   * Returns the set of partitions this data set has.
-   *
-   * @return an unmodifiable set of partitions
-   */
-  public Set<DistributedDataSetPartition> getPartitions() {
-    return Collections.unmodifiableSet(this.partitions);
+  @Override
+  public Iterator<DistributedDataSetPartition> iterator() {
+    return new DistributedDataSetIterator(partitions);
+  }
+
+  static final class DistributedDataSetIterator implements Iterator<DistributedDataSetPartition> {
+
+    private final List<DistributedDataSetPartition> partitions;
+    private int position;
+
+    public DistributedDataSetIterator(
+        final Collection<DistributedDataSetPartition> partitions) {
+      this.partitions = new LinkedList<DistributedDataSetPartition>(partitions);
+      position = 0;
+    }
+
+    @Override
+    public boolean hasNext() {
+      return position < partitions.size();
+    }
+
+    @Override
+    public DistributedDataSetPartition next() {
+      final DistributedDataSetPartition partition = partitions
+          .get(position);
+      position++;
+      return partition;
+    }
+
+    @Override
+    public void remove() {
+      throw new UnsupportedOperationException(
+          "Remove method has not been implemented in this iterator");
+    }
   }
 }

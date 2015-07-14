@@ -40,6 +40,7 @@ import org.apache.reef.tang.formats.ConfigurationModule;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -200,21 +201,6 @@ public final class DataLoadingRequestBuilder
   }
 
   /**
-   * Allows to specify whether the user wants to use the single data center approach of
-   * loading the data into evaluators {@link SingleDataCenterEvaluatorToPartitionStrategy},
-   * or based on their specified locations in a multi data center topology
-   * {@link MultiDataCenterEvaluatorToPartitionStrategy}.
-   *
-   * @param singleDataCenterStrategy
-   *          true if wants to use the single data center strategy, false otherwise
-   * @return this
-   */
-  public DataLoadingRequestBuilder setSingleDataCenterStrategy(final boolean singleDataCenterStrategy) {
-    this.singleDataCenterStrategy = singleDataCenterStrategy;
-    return this;
-  }
-
-  /**
    * Sets the path of the folder where the data is. Internally it constructs a
    * distributed data set with one partition, no splits and the data can be
    * loaded from anywhere.
@@ -231,6 +217,7 @@ public final class DataLoadingRequestBuilder
     dds.addPartition(DistributedDataSetPartition.newBuilder().setPath(inputPath)
         .setLocation(DistributedDataSetPartition.LOAD_INTO_ANY_LOCATION)
         .setDesiredSplits(Integer.valueOf(NumberOfDesiredSplits.DEFAULT_DESIRED_SPLITS)).build());
+    this.singleDataCenterStrategy = true;
     return setDistributedDataSet(dds);
   }
 
@@ -243,6 +230,7 @@ public final class DataLoadingRequestBuilder
    */
   public DataLoadingRequestBuilder setDistributedDataSet(final DistributedDataSet distributedDataSet) {
     this.distributedDataSet = distributedDataSet;
+    this.singleDataCenterStrategy = false;
     return this;
   }
 
@@ -314,10 +302,11 @@ public final class DataLoadingRequestBuilder
     jcb.bindNamedParameter(LoadDataIntoMemory.class, Boolean.toString(this.inMemory))
        .bindNamedParameter(JobConfExternalConstructor.InputFormatClass.class, inputFormatClass);
 
-    final Set<DistributedDataSetPartition> partitions = this.distributedDataSet.getPartitions();
-    for (final DistributedDataSetPartition partition : partitions) {
-      jcb.bindSetEntry(DistributedDataSetPartitionSerializer.DistributedDataSetPartitions.class,
-          DistributedDataSetPartitionSerializer.serialize(partition));
+    final Iterator<DistributedDataSetPartition> partitions = this.distributedDataSet.iterator();
+    while (partitions.hasNext()) {
+      jcb.bindSetEntry(
+          DistributedDataSetPartitionSerializer.DistributedDataSetPartitions.class,
+          DistributedDataSetPartitionSerializer.serialize(partitions.next()));
     }
 
     // we do this check for backwards compatibility, if the user defined it
