@@ -97,7 +97,8 @@ final class LogFileEntry {
    * @param numberOfBytes
    * @throws IOException
    */
-  private void write(final DataInputStream stream, final Writer outputWriter, final int numberOfBytes) throws IOException {
+  private void write(final DataInputStream stream, final Writer outputWriter, final int numberOfBytes)
+      throws IOException {
     final byte[] buf = new byte[65535];
     int lenRemaining = numberOfBytes;
     while (lenRemaining > 0) {

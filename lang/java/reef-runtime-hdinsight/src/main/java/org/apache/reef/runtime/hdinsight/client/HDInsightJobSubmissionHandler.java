@@ -113,7 +113,8 @@ public final class HDInsightJobSubmissionHandler implements JobSubmissionHandler
                   .setCommand(command));
 
       this.hdInsightInstance.submitApplication(applicationSubmission);
-      LOG.log(Level.INFO, "Submitted application to HDInsight. The application id is: {0}", applicationID.getApplicationId());
+      LOG.log(Level.INFO, "Submitted application to HDInsight. The application id is: {0}",
+          applicationID.getApplicationId());
 
     } catch (final IOException ex) {
       LOG.log(Level.SEVERE, "Error submitting HDInsight request", ex);

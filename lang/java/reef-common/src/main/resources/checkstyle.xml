@@ -137,7 +137,6 @@
         <module name="LineLength">
             <property name="ignorePattern" value="^import"/>
             <property name="max" value="120"/>
-            <property name="severity" value="warning"/>
         </module>
         <module name="MethodLength"/>
         <module name="ParameterNumber">
@@ -209,7 +208,6 @@
         <module name="Indentation">
             <property name="basicOffset" value="2"/>
             <property name="caseIndent" value="0"/>
-            <property name="severity" value="warning"/>
         </module>
         <module name="TodoComment">
             <property name="severity" value="warning"/>

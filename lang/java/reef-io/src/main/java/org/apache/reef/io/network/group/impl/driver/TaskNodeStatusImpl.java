@@ -65,16 +65,16 @@ public class TaskNodeStatusImpl implements TaskNodeStatus {
 
   private Type getAckedMsg(final Type msgType) {
     switch (msgType) {
-      case ParentAdded:
-        return Type.ParentAdd;
-      case ChildAdded:
-        return Type.ChildAdd;
-      case ParentRemoved:
-        return Type.ParentDead;
-      case ChildRemoved:
-        return Type.ChildDead;
-      default:
-        return msgType;
+    case ParentAdded:
+      return Type.ParentAdd;
+    case ChildAdded:
+      return Type.ChildAdd;
+    case ParentRemoved:
+      return Type.ParentDead;
+    case ChildRemoved:
+      return Type.ChildDead;
+    default:
+      return msgType;
     }
   }
 
@@ -117,7 +117,8 @@ public class TaskNodeStatusImpl implements TaskNodeStatus {
     LOG.entering("TaskNodeStatusImpl", "expectAckFor", new Object[]{getQualifiedName(), msgType, srcId});
     LOG.finest(getQualifiedName() + "Adding " + srcId + " to sources");
     statusMap.add(msgType, srcId);
-    LOG.exiting("TaskNodeStatusImpl", "expectAckFor", getQualifiedName() + "Sources from which ACKs for " + msgType + " are expected: " + statusMap.get(msgType));
+    LOG.exiting("TaskNodeStatusImpl", "expectAckFor",
+        getQualifiedName() + "Sources from which ACKs for " + msgType + " are expected: " + statusMap.get(msgType));
   }
 
   @Override
@@ -152,24 +153,24 @@ public class TaskNodeStatusImpl implements TaskNodeStatus {
     final Type msgAcked = getAckedMsg(msgType);
     final String sourceId = gcm.getDestid();
     switch (msgType) {
-      case TopologySetup:
-        synchronized (topoUpdateStageLock) {
-          if (!updatingTopo.compareAndSet(true, false)) {
-            LOG.fine(getQualifiedName() + "Was expecting updateTopo to be true but it was false");
-          }
-          topoUpdateStageLock.notifyAll();
+    case TopologySetup:
+      synchronized (topoUpdateStageLock) {
+        if (!updatingTopo.compareAndSet(true, false)) {
+          LOG.fine(getQualifiedName() + "Was expecting updateTopo to be true but it was false");
         }
-        break;
-      case ParentAdded:
-      case ChildAdded:
-      case ParentRemoved:
-      case ChildRemoved:
-        processNeighborAcks(gcm, msgType, msgAcked, sourceId);
-        break;
+        topoUpdateStageLock.notifyAll();
+      }
+      break;
+    case ParentAdded:
+    case ChildAdded:
+    case ParentRemoved:
+    case ChildRemoved:
+      processNeighborAcks(gcm, msgType, msgAcked, sourceId);
+      break;
 
-      default:
-        LOG.fine(getQualifiedName() + "Non ACK msg " + gcm.getType() + " for " + gcm.getDestid() + " unexpected");
-        break;
+    default:
+      LOG.fine(getQualifiedName() + "Non ACK msg " + gcm.getType() + " for " + gcm.getDestid() + " unexpected");
+      break;
     }
     LOG.exiting("TaskNodeStatusImpl", "processMsg", getQualifiedName());
   }
@@ -236,7 +237,8 @@ public class TaskNodeStatusImpl implements TaskNodeStatus {
   }
 
   private String getQualifiedName() {
-    return Utils.simpleName(groupName) + ":" + Utils.simpleName(operName) + ":(" + taskId + "," + node.getVersion() + ") - ";
+    return Utils.simpleName(groupName) + ":" + Utils.simpleName(operName) + ":(" + taskId + "," +
+        node.getVersion() + ") - ";
   }
 
   @Override

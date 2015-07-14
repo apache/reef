@@ -54,7 +54,8 @@ final class ContextFactory {
 
   @Inject
   ContextFactory(@Parameter(EvaluatorManager.EvaluatorIdentifier.class) final String evaluatorId,
-                 @Parameter(EvaluatorManager.EvaluatorDescriptorName.class) final EvaluatorDescriptor evaluatorDescriptor,
+                 @Parameter(EvaluatorManager.EvaluatorDescriptorName.class)
+                 final EvaluatorDescriptor evaluatorDescriptor,
                  final ConfigurationSerializer configurationSerializer,
                  final ExceptionCodec exceptionCodec,
                  final EvaluatorMessageDispatcher messageDispatcher,

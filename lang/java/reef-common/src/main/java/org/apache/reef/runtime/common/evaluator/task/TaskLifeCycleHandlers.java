@@ -46,8 +46,10 @@ final class TaskLifeCycleHandlers {
   private final TaskStop taskStop;
 
   @Inject
-  TaskLifeCycleHandlers(@Parameter(TaskConfigurationOptions.StopHandlers.class) final Set<EventHandler<TaskStop>> taskStopHandlers,
-                        @Parameter(TaskConfigurationOptions.StartHandlers.class) final Set<EventHandler<TaskStart>> taskStartHandlers,
+  TaskLifeCycleHandlers(@Parameter(TaskConfigurationOptions.StopHandlers.class)
+                        final Set<EventHandler<TaskStop>> taskStopHandlers,
+                        @Parameter(TaskConfigurationOptions.StartHandlers.class)
+                        final Set<EventHandler<TaskStart>> taskStartHandlers,
                         final TaskStartImpl taskStart,
                         final TaskStopImpl taskStop) {
     this.taskStopHandlers = taskStopHandlers;

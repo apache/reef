@@ -74,7 +74,8 @@ public class ProtocolBufferClassHierarchy implements ClassHierarchy {
                                                        boolean isExternalConstructor, boolean isUnit,
                                                        List<ClassHierarchyProto.ConstructorDef> injectableConstructors,
                                                        List<ClassHierarchyProto.ConstructorDef> otherConstructors,
-                                                       List<String> implFullNames, Iterable<ClassHierarchyProto.Node> children) {
+                                                       List<String> implFullNames,
+                                                       Iterable<ClassHierarchyProto.Node> children) {
     return ClassHierarchyProto.Node
         .newBuilder()
         .setName(name)
@@ -91,7 +92,9 @@ public class ProtocolBufferClassHierarchy implements ClassHierarchy {
   }
 
   private static ClassHierarchyProto.Node newNamedParameterNode(String name,
-                                                                String fullName, String simpleArgClassName, String fullArgClassName,
+                                                                String fullName,
+                                                                String simpleArgClassName,
+                                                                String fullArgClassName,
                                                                 boolean isSet,
                                                                 boolean isList,
                                                                 String documentation, // can be null
@@ -121,7 +124,8 @@ public class ProtocolBufferClassHierarchy implements ClassHierarchy {
   }
 
   private static ClassHierarchyProto.Node newPackageNode(String name,
-                                                         String fullName, Iterable<ClassHierarchyProto.Node> children) {
+                                                         String fullName,
+                                                         Iterable<ClassHierarchyProto.Node> children) {
     return ClassHierarchyProto.Node.newBuilder()
         .setPackageNode(ClassHierarchyProto.PackageNode.newBuilder().build())
         .setName(name).setFullName(fullName).addAllChildren(children).build();

@@ -157,9 +157,12 @@ public class NettyMessagingTransport implements Transport {
     this.clientEventListener = new NettyClientEventListener(this.addrToLinkRefMap, clientStage);
     this.serverEventListener = new NettyServerEventListener(this.addrToLinkRefMap, serverStage);
 
-    this.serverBossGroup = new NioEventLoopGroup(SERVER_BOSS_NUM_THREADS, new DefaultThreadFactory(CLASS_NAME + "ServerBoss"));
-    this.serverWorkerGroup = new NioEventLoopGroup(SERVER_WORKER_NUM_THREADS, new DefaultThreadFactory(CLASS_NAME + "ServerWorker"));
-    this.clientWorkerGroup = new NioEventLoopGroup(CLIENT_WORKER_NUM_THREADS, new DefaultThreadFactory(CLASS_NAME + "ClientWorker"));
+    this.serverBossGroup = new NioEventLoopGroup(SERVER_BOSS_NUM_THREADS,
+        new DefaultThreadFactory(CLASS_NAME + "ServerBoss"));
+    this.serverWorkerGroup = new NioEventLoopGroup(SERVER_WORKER_NUM_THREADS,
+        new DefaultThreadFactory(CLASS_NAME + "ServerWorker"));
+    this.clientWorkerGroup = new NioEventLoopGroup(CLIENT_WORKER_NUM_THREADS,
+        new DefaultThreadFactory(CLASS_NAME + "ClientWorker"));
 
     this.clientBootstrap = new Bootstrap();
     this.clientBootstrap.group(this.clientWorkerGroup)
@@ -180,33 +183,33 @@ public class NettyMessagingTransport implements Transport {
 
     LOG.log(Level.FINE, "Binding to {0}", port);
 
-  Channel acceptor = null;
-  try {
-    if (port > 0) {
-      acceptor = this.serverBootstrap.bind(new InetSocketAddress(host, port)).sync().channel();
-    } else {
-      Iterator<Integer> ports = tcpPortProvider.iterator();
-      while (acceptor == null) {
-        if (!ports.hasNext()) {
-          break;
-        }
-        port = ports.next();
-        LOG.log(Level.FINEST, "Try port {0}", port);
-        try {
-          acceptor = this.serverBootstrap.bind(new InetSocketAddress(host, port)).sync().channel();
-        } catch (final Exception ex) {
-          if (ex instanceof BindException) {
-            LOG.log(Level.FINEST, "The port {0} is already bound. Try again", port);
-          } else {
-            throw ex;
+    Channel acceptor = null;
+    try {
+      if (port > 0) {
+        acceptor = this.serverBootstrap.bind(new InetSocketAddress(host, port)).sync().channel();
+      } else {
+        Iterator<Integer> ports = tcpPortProvider.iterator();
+        while (acceptor == null) {
+          if (!ports.hasNext()) {
+            break;
+          }
+          port = ports.next();
+          LOG.log(Level.FINEST, "Try port {0}", port);
+          try {
+            acceptor = this.serverBootstrap.bind(new InetSocketAddress(host, port)).sync().channel();
+          } catch (final Exception ex) {
+            if (ex instanceof BindException) {
+              LOG.log(Level.FINEST, "The port {0} is already bound. Try again", port);
+            } else {
+              throw ex;
+            }
           }
         }
       }
-    }
-  } catch (final Exception ex) {
-    final RuntimeException transportException =
-       new TransportRuntimeException("Cannot bind to port " + port);
-    LOG.log(Level.SEVERE, "Cannot bind to port " + port, ex);
+    } catch (final Exception ex) {
+      final RuntimeException transportException =
+          new TransportRuntimeException("Cannot bind to port " + port);
+      LOG.log(Level.SEVERE, "Cannot bind to port " + port, ex);
 
       this.clientWorkerGroup.shutdownGracefully();
       this.serverBossGroup.shutdownGracefully();

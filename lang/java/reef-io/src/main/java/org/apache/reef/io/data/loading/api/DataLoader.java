@@ -18,6 +18,7 @@
  */
 package org.apache.reef.io.data.loading.api;
 
+import org.apache.commons.lang.Validate;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.driver.context.ContextConfiguration;
 import org.apache.reef.driver.evaluator.AllocatedEvaluator;
@@ -37,6 +38,10 @@ import org.apache.reef.wake.time.event.Alarm;
 import org.apache.reef.wake.time.event.StartTime;
 
 import javax.inject.Inject;
+
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -61,23 +66,30 @@ public class DataLoader {
 
   private static final Logger LOG = Logger.getLogger(DataLoader.class.getName());
 
-  private final ConcurrentMap<String, Pair<Configuration, Configuration>> submittedDataEvalConfigs = new ConcurrentHashMap<>();
+  private final ConcurrentMap<String, Pair<Configuration, Configuration>> submittedDataEvalConfigs =
+      new ConcurrentHashMap<>();
   private final ConcurrentMap<String, Configuration> submittedComputeEvalConfigs = new ConcurrentHashMap<>();
   private final BlockingQueue<Configuration> failedComputeEvalConfigs = new LinkedBlockingQueue<>();
   private final BlockingQueue<Pair<Configuration, Configuration>> failedDataEvalConfigs = new LinkedBlockingQueue<>();
 
   private final AtomicInteger numComputeRequestsToSubmit = new AtomicInteger(0);
+  private final AtomicInteger numDataRequestsToSubmit = new AtomicInteger(0);
 
   private final DataLoadingService dataLoadingService;
-  private final int dataEvalMemoryMB;
-  private final int dataEvalCore;
-  private final EvaluatorRequest computeRequest;
+  private int dataEvalMemoryMB;
+  private int dataEvalCore;
   private final SingleThreadStage<EvaluatorRequest> resourceRequestStage;
   private final ResourceRequestHandler resourceRequestHandler;
-  private final int computeEvalMemoryMB;
-  private final int computeEvalCore;
+  private int computeEvalMemoryMB;
+  private int computeEvalCore;
   private final EvaluatorRequestor requestor;
 
+  /**
+   * @deprecated since 0.12. Should use the other constructor instead, which
+   *             allows to specify different compute requests (i.e. masters) and
+   *             data requests (i.e. slaves), in particular racks
+   */
+  @Deprecated
   @Inject
   public DataLoader(
       final Clock clock,
@@ -86,7 +98,39 @@ public class DataLoader {
       @Parameter(DataLoadingRequestBuilder.DataLoadingEvaluatorMemoryMB.class) final int dataEvalMemoryMB,
       @Parameter(DataLoadingRequestBuilder.DataLoadingEvaluatorNumberOfCores.class) final int dataEvalCore,
       @Parameter(DataLoadingRequestBuilder.DataLoadingComputeRequest.class) final String serializedComputeRequest) {
+    this(clock, requestor, dataLoadingService, new HashSet<String>(
+        Arrays.asList(serializedComputeRequest)), new HashSet<String>(
+        Arrays.asList(EvaluatorRequestSerializer.serialize(EvaluatorRequest
+            .newBuilder().setMemory(dataEvalMemoryMB)
+            .setNumberOfCores(dataEvalCore).build()))));
+  }
 
+  /**
+   * Allows to specify compute and data evaluator requests in particular
+   * locations.
+   *
+   * @param clock
+   *          the clock
+   * @param requestor
+   *          the evaluator requestor
+   * @param dataLoadingService
+   *          the data loading service
+   * @param serializedComputeRequests
+   *          serialized compute requests (evaluators that will not load data)
+   * @param serializedDataRequests
+   *          serialized data requests (evaluators that will load data). It
+   *          cannot be empty (to maintain previous functionality)
+   */
+  @Inject
+  public DataLoader(
+      final Clock clock,
+      final EvaluatorRequestor requestor,
+      final DataLoadingService dataLoadingService,
+      @Parameter(DataLoadingRequestBuilder.DataLoadingComputeRequests.class)
+      final Set<String> serializedComputeRequests,
+      @Parameter(DataLoadingRequestBuilder.DataLoadingDataRequests.class) final Set<String> serializedDataRequests) {
+    // data requests should not be empty. This maintains previous functionality
+    Validate.notEmpty(serializedDataRequests, "Should contain a data request object");
     // FIXME: Issue #855: We need this alarm to look busy for REEF.
     clock.scheduleAlarm(30000, new EventHandler<Alarm>() {
       @Override
@@ -97,33 +141,48 @@ public class DataLoader {
 
     this.requestor = requestor;
     this.dataLoadingService = dataLoadingService;
-    this.dataEvalMemoryMB = dataEvalMemoryMB;
-    this.dataEvalCore = dataEvalCore;
     this.resourceRequestHandler = new ResourceRequestHandler(requestor);
-    this.resourceRequestStage = new SingleThreadStage<>(this.resourceRequestHandler, 2);
+    // the resource request queue will have as many requests as compute and data requests.
+    this.resourceRequestStage = new SingleThreadStage<>(
+        this.resourceRequestHandler, serializedComputeRequests.size()
+            + serializedDataRequests.size());
 
-    if (serializedComputeRequest.equals("NULL")) {
-      this.computeRequest = null;
+    if (serializedComputeRequests.isEmpty()) {
       this.computeEvalMemoryMB = -1;
-      computeEvalCore = 1;
+      this.computeEvalCore = 1;
     } else {
-      this.computeRequest = EvaluatorRequestSerializer.deserialize(serializedComputeRequest);
-      this.computeEvalMemoryMB = this.computeRequest.getMegaBytes();
-      this.computeEvalCore = this.computeRequest.getNumberOfCores();
-      this.numComputeRequestsToSubmit.set(this.computeRequest.getNumber());
-
-      this.resourceRequestStage.onNext(this.computeRequest);
+      // Deserialize each compute request.
+      // Keep the maximum number of cores and memory requested, in case some
+      // evaluator fails, we will try to reallocate based on that.
+      for (final String serializedComputeRequest : serializedComputeRequests) {
+        final EvaluatorRequest computeRequest = EvaluatorRequestSerializer.deserialize(serializedComputeRequest);
+        this.numComputeRequestsToSubmit.addAndGet(computeRequest.getNumber());
+        this.computeEvalMemoryMB = Math.max(this.computeEvalMemoryMB, computeRequest.getMegaBytes());
+        this.computeEvalCore = Math.max(this.computeEvalCore, computeRequest.getNumberOfCores());
+        this.resourceRequestStage.onNext(computeRequest);
+      }
     }
-
-    this.resourceRequestStage.onNext(getDataLoadingRequest());
-  }
-
-  private EvaluatorRequest getDataLoadingRequest() {
-    return EvaluatorRequest.newBuilder()
-        .setNumber(this.dataLoadingService.getNumberOfPartitions())
-        .setMemory(this.dataEvalMemoryMB)
-        .setNumberOfCores(this.dataEvalCore)
-        .build();
+    // Deserialize each data requests.
+    // We distribute the partitions evenly accross the DCs.
+    // The number of partitions extracted from the dataLoadingService override
+    // the number of evaluators requested (this preserves previous functionality)
+    final int dcs = serializedDataRequests.size();
+    final int partitionsPerDataCenter = this.dataLoadingService.getNumberOfPartitions() / dcs;
+    int missing = this.dataLoadingService.getNumberOfPartitions() % dcs;
+    for (final String serializedDataRequest : serializedDataRequests) {
+      EvaluatorRequest dataRequest = EvaluatorRequestSerializer.deserialize(serializedDataRequest);
+      this.dataEvalMemoryMB = Math.max(this.dataEvalMemoryMB, dataRequest.getMegaBytes());
+      this.dataEvalCore = Math.max(this.dataEvalCore, dataRequest.getNumberOfCores());
+      // clone the request but update the number of evaluators based on the number of partitions
+      int number = partitionsPerDataCenter;
+      if (missing > 0) {
+        number++;
+        missing--;
+      }
+      dataRequest = EvaluatorRequest.newBuilder(dataRequest).setNumber(number).build();
+      this.numDataRequestsToSubmit.addAndGet(number);
+      this.resourceRequestStage.onNext(dataRequest);
+    }
   }
 
   public class StartHandler implements EventHandler<StartTime> {
@@ -165,26 +224,34 @@ public class DataLoader {
       }
 
       final int evaluatorsForComputeRequest = numComputeRequestsToSubmit.decrementAndGet();
-      LOG.log(Level.FINE, "Evaluators for compute request: {0}", evaluatorsForComputeRequest);
 
       if (evaluatorsForComputeRequest >= 0) {
+        LOG.log(Level.FINE, "Evaluators for compute request: {0}", evaluatorsForComputeRequest);
         try {
-          final Configuration idConfiguration = ContextConfiguration.CONF
-              .set(ContextConfiguration.IDENTIFIER,
-                  dataLoadingService.getComputeContextIdPrefix() + evaluatorsForComputeRequest)
-              .build();
+          final Configuration idConfiguration = ContextConfiguration.CONF.set(
+              ContextConfiguration.IDENTIFIER,
+              dataLoadingService.getComputeContextIdPrefix()
+                  + evaluatorsForComputeRequest).build();
           LOG.log(Level.FINE, "Submitting Compute Context to {0}", evalId);
           allocatedEvaluator.submitContext(idConfiguration);
-          submittedComputeEvalConfigs.put(allocatedEvaluator.getId(), idConfiguration);
-          if (evaluatorsForComputeRequest == 0) {
-            LOG.log(Level.FINE, "All Compute requests satisfied. Releasing gate");
-            resourceRequestHandler.releaseResourceRequestGate();
-          }
+          submittedComputeEvalConfigs.put(allocatedEvaluator.getId(),
+              idConfiguration);
+          // should release the request gate when there are >= 0 compute
+          // requests (now that we can have more than 1)
+          LOG.log(
+              Level.FINE,
+              evaluatorsForComputeRequest > 0 ? "More Compute requests need to be satisfied"
+                  : "All Compute requests satisfied." + " Releasing gate");
+          resourceRequestHandler.releaseResourceRequestGate();
         } catch (final BindException e) {
-          throw new RuntimeException("Unable to bind context id for Compute request", e);
+          throw new RuntimeException(
+              "Unable to bind context id for Compute request", e);
         }
 
       } else {
+
+        final int evaluatorsForDataRequest = numDataRequestsToSubmit.decrementAndGet();
+        LOG.log(Level.FINE, "Evaluators for data request: {0}", evaluatorsForDataRequest);
 
         final Pair<Configuration, Configuration> confPair = new Pair<>(
             dataLoadingService.getContextConfiguration(allocatedEvaluator),
@@ -193,6 +260,15 @@ public class DataLoader {
         LOG.log(Level.FINE, "Submitting data loading context to {0}", evalId);
         allocatedEvaluator.submitContextAndService(confPair.first, confPair.second);
         submittedDataEvalConfigs.put(allocatedEvaluator.getId(), confPair);
+
+        // release the gate to keep on asking for more "data" evaluators.
+        if (evaluatorsForDataRequest > 0) {
+          LOG.log(Level.FINE, "More Data requests need to be satisfied. Releasing gate");
+          resourceRequestHandler.releaseResourceRequestGate();
+        // don't need to release if it's 0
+        } else if (evaluatorsForDataRequest == 0) {
+          LOG.log(Level.FINE, "All Data requests satisfied");
+        }
       }
     }
   }

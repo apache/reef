@@ -36,7 +36,9 @@ public final class EvaluatorRequestorBridge extends NativeBridge {
   // of EvaluatorRequestorBridge
   private int clrEvaluatorsNumber;
 
-  public EvaluatorRequestorBridge(final EvaluatorRequestor evaluatorRequestor, final boolean isBlocked, final LoggingScopeFactory loggingScopeFactory) {
+  public EvaluatorRequestorBridge(final EvaluatorRequestor evaluatorRequestor,
+                                  final boolean isBlocked,
+                                  final LoggingScopeFactory loggingScopeFactory) {
     this.jevaluatorRequestor = evaluatorRequestor;
     this.clrEvaluatorsNumber = 0;
     this.isBlocked = isBlocked;
@@ -45,7 +47,8 @@ public final class EvaluatorRequestorBridge extends NativeBridge {
 
   public void submit(final int evaluatorsNumber, final int memory, final int virtualCore, final String rack) {
     if (this.isBlocked) {
-      throw new RuntimeException("Cannot request additional Evaluator, this is probably because the Driver has crashed and restarted, and cannot ask for new container due to YARN-2433.");
+      throw new RuntimeException("Cannot request additional Evaluator, this is probably because " +
+          "the Driver has crashed and restarted, and cannot ask for new container due to YARN-2433.");
     }
 
     if (rack != null && !rack.isEmpty()) {
@@ -56,10 +59,10 @@ public final class EvaluatorRequestorBridge extends NativeBridge {
       clrEvaluatorsNumber += evaluatorsNumber;
 
       final EvaluatorRequest request = EvaluatorRequest.newBuilder()
-        .setNumber(evaluatorsNumber)
-        .setMemory(memory)
-        .setNumberOfCores(virtualCore)
-        .build();
+          .setNumber(evaluatorsNumber)
+          .setMemory(memory)
+          .setNumberOfCores(virtualCore)
+          .build();
 
       LOG.log(Level.FINE, "submitting evaluator request {0}", request);
       jevaluatorRequestor.submit(request);

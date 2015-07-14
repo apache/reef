@@ -205,7 +205,8 @@ public class CommunicationGroupClientImpl implements CommunicationGroupServiceCl
       final Class<? extends Name<String>> operName = op.getOperName();
       LOG.finest("Sending TopologyChanges msg to driver");
       try {
-        sender.send(Utils.bldVersionedGCM(groupName, operName, ReefNetworkGroupCommProtos.GroupCommMessage.Type.TopologyChanges, taskId, op.getVersion(), driverId,
+        sender.send(Utils.bldVersionedGCM(groupName, operName,
+            ReefNetworkGroupCommProtos.GroupCommMessage.Type.TopologyChanges, taskId, op.getVersion(), driverId,
             0, Utils.EMPTY_BYTE_ARR));
       } catch (final NetworkException e) {
         throw new RuntimeException("NetworkException while sending GetTopologyChanges", e);
@@ -247,7 +248,8 @@ public class CommunicationGroupClientImpl implements CommunicationGroupServiceCl
     for (final GroupCommOperator op : operators.values()) {
       final Class<? extends Name<String>> operName = op.getOperName();
       try {
-        sender.send(Utils.bldVersionedGCM(groupName, operName, ReefNetworkGroupCommProtos.GroupCommMessage.Type.UpdateTopology, taskId, op.getVersion(), driverId,
+        sender.send(Utils.bldVersionedGCM(groupName, operName,
+            ReefNetworkGroupCommProtos.GroupCommMessage.Type.UpdateTopology, taskId, op.getVersion(), driverId,
             0, Utils.EMPTY_BYTE_ARR));
       } catch (final NetworkException e) {
         throw new RuntimeException("NetworkException while sending UpdateTopology", e);
@@ -277,7 +279,8 @@ public class CommunicationGroupClientImpl implements CommunicationGroupServiceCl
       } else {
         retVal = true;
       }
-      LOG.exiting("CommunicationGroupClientImpl", "isMsgVersionOk", Arrays.toString(new Object[]{retVal, getQualifiedName(), msg}));
+      LOG.exiting("CommunicationGroupClientImpl", "isMsgVersionOk",
+          Arrays.toString(new Object[]{retVal, getQualifiedName(), msg}));
       return retVal;
     } else {
       throw new RuntimeException(getQualifiedName() + "can only deal with versioned msgs");

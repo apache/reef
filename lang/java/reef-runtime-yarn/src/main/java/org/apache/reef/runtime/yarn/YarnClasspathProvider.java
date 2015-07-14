@@ -38,7 +38,8 @@ public final class YarnClasspathProvider implements RuntimeClasspathProvider {
   private static final Logger LOG = Logger.getLogger(YarnClasspathProvider.class.getName());
   private static final Level CLASSPATH_LOG_LEVEL = Level.FINE;
 
-  private static final String YARN_TOO_OLD_MESSAGE = "The version of YARN you are using is too old to support classpath assembly. Reverting to legacy method.";
+  private static final String YARN_TOO_OLD_MESSAGE =
+      "The version of YARN you are using is too old to support classpath assembly. Reverting to legacy method.";
   private static final String HADOOP_CONF_DIR = OSUtils.formatVariable("HADOOP_CONF_DIR");
   private static final String HADOOP_HOME = OSUtils.formatVariable("HADOOP_HOME");
   private static final String HADOOP_COMMON_HOME = OSUtils.formatVariable("HADOOP_COMMON_HOME");
@@ -73,22 +74,28 @@ public final class YarnClasspathProvider implements RuntimeClasspathProvider {
 
   @Inject
   YarnClasspathProvider(final YarnConfiguration yarnConfiguration) {
-    boolean needsLegacyClasspath = false; // will be set to true below whenever we encounter issues with the YARN Configuration
+    boolean needsLegacyClasspath = false;
+    // will be set to true below whenever we encounter issues with the YARN Configuration
     final ClassPathBuilder builder = new ClassPathBuilder();
 
 
     try {
       // Add the classpath actually configured on this cluster
-      final Optional<String[]> yarnClassPath = getTrimmedStrings(yarnConfiguration, YarnConfiguration.YARN_APPLICATION_CLASSPATH);
+      final Optional<String[]> yarnClassPath =
+          getTrimmedStrings(yarnConfiguration, YarnConfiguration.YARN_APPLICATION_CLASSPATH);
       final String[] yarnDefaultClassPath = YarnConfiguration.DEFAULT_YARN_CROSS_PLATFORM_APPLICATION_CLASSPATH;
 
       if (!yarnClassPath.isPresent()) {
-        LOG.log(Level.SEVERE, "YarnConfiguration.YARN_APPLICATION_CLASSPATH is empty. This indicates a broken cluster configuration.");
+        LOG.log(Level.SEVERE,
+            "YarnConfiguration.YARN_APPLICATION_CLASSPATH is empty. This indicates a broken cluster configuration.");
         needsLegacyClasspath = true;
       } else {
         if (LOG.isLoggable(CLASSPATH_LOG_LEVEL)) {
-          LOG.log(CLASSPATH_LOG_LEVEL, "YarnConfiguration.YARN_APPLICATION_CLASSPATH is [" + StringUtils.join(yarnClassPath.get(), '|') + "]");
-          LOG.log(CLASSPATH_LOG_LEVEL, "YarnConfiguration.DEFAULT_YARN_CROSS_PLATFORM_APPLICATION_CLASSPATH is [" + StringUtils.join(yarnDefaultClassPath, '|') + "]");
+          LOG.log(CLASSPATH_LOG_LEVEL,
+              "YarnConfiguration.YARN_APPLICATION_CLASSPATH is [" + StringUtils.join(yarnClassPath.get(), '|') + "]");
+          LOG.log(CLASSPATH_LOG_LEVEL,
+              "YarnConfiguration.DEFAULT_YARN_CROSS_PLATFORM_APPLICATION_CLASSPATH is [" +
+                  StringUtils.join(yarnDefaultClassPath, '|') + "]");
         }
         builder.addAll(yarnClassPath.get());
         builder.addAll(yarnDefaultClassPath);

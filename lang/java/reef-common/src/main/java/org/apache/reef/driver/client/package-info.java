@@ -20,6 +20,7 @@
  * Representations of the Client (i.e. the job submitter) to a Driver.
  * Note that as of REEF 0.3, the client is optional and may not be available to a driver.
  */
-@DriverSide package org.apache.reef.driver.client;
+@DriverSide
+package org.apache.reef.driver.client;
 
 import org.apache.reef.annotations.audience.DriverSide;

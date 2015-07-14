@@ -42,7 +42,8 @@ public final class ResourceManagerStatus implements EventHandler<RuntimeStatusEv
   private static final Logger LOG = Logger.getLogger(ResourceManagerStatus.class.getName());
 
   private static final String COMPONENT_NAME = "ResourceManager";
-  private static final IdleMessage IDLE_MESSAGE = new IdleMessage(COMPONENT_NAME, "No outstanding requests or allocations", true);
+  private static final IdleMessage IDLE_MESSAGE =
+      new IdleMessage(COMPONENT_NAME, "No outstanding requests or allocations", true);
 
   private final ResourceManagerErrorHandler resourceManagerErrorHandler;
   private final DriverStatusManager driverStatusManager;
@@ -66,26 +67,26 @@ public final class ResourceManagerStatus implements EventHandler<RuntimeStatusEv
   public synchronized void onNext(final RuntimeStatusEvent runtimeStatusEvent) {
     final ReefServiceProtos.State newState = runtimeStatusEvent.getState();
     LOG.log(Level.FINEST, "Runtime status " + runtimeStatusEvent);
-    this.outstandingContainerRequests = runtimeStatusEvent.getOutstandingContainerRequests().get();
+    this.outstandingContainerRequests = runtimeStatusEvent.getOutstandingContainerRequests().orElse(0);
     this.containerAllocationCount = runtimeStatusEvent.getContainerAllocationList().size();
     this.setState(runtimeStatusEvent.getState());
 
     switch (newState) {
-      case FAILED:
-        this.onRMFailure(runtimeStatusEvent);
-        break;
-      case DONE:
-        this.onRMDone(runtimeStatusEvent);
-        break;
-      case RUNNING:
-        this.onRMRunning(runtimeStatusEvent);
-        break;
-      case INIT:
-      case SUSPEND:
-      case KILLED:
-        break;
-      default:
-        throw new RuntimeException("Unknown state: " + newState);
+    case FAILED:
+      this.onRMFailure(runtimeStatusEvent);
+      break;
+    case DONE:
+      this.onRMDone(runtimeStatusEvent);
+      break;
+    case RUNNING:
+      this.onRMRunning(runtimeStatusEvent);
+      break;
+    case INIT:
+    case SUSPEND:
+    case KILLED:
+      break;
+    default:
+      throw new RuntimeException("Unknown state: " + newState);
     }
   }
 

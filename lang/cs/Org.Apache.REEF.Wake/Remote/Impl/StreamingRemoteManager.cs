@@ -20,76 +20,46 @@
 using System;
 using System.Collections.Generic;
 using System.Net;
-using Org.Apache.REEF.Tang.Interface;
-using Org.Apache.REEF.Utilities.Logging;
-using Org.Apache.REEF.Wake.Util;
+using Org.Apache.REEF.Wake.StreamingCodec;
 
 namespace Org.Apache.REEF.Wake.Remote.Impl
 {
     /// <summary>
     /// Manages incoming and outgoing messages between remote hosts.
     /// </summary>
-    /// <typeparam name="T">Message type T. It is assumed to be IWritable</typeparam>
-    [Obsolete("Need to remove Iwritable and use IstreamingCodec. Please see Jira REEF-295 ", false)]
-    public sealed class WritableRemoteManager<T> : IRemoteManager<T> where T : IWritable
+    /// <typeparam name="T">Message type T.</typeparam>
+    internal sealed class StreamingRemoteManager<T> : IRemoteManager<T>
     {
-        private static readonly Logger LOGGER = Logger.GetLogger(typeof (WritableRemoteManager<T>));
-
-        private readonly WritableObserverContainer<T> _observerContainer;
-        private readonly WritableTransportServer<IWritableRemoteEvent<T>> _server;
+        private readonly ObserverContainer<T> _observerContainer;
+        private readonly StreamingTransportServer<IRemoteEvent<T>> _server;
         private readonly Dictionary<IPEndPoint, ProxyObserver> _cachedClients;
-        private readonly IInjector _injector;
+        private readonly IStreamingCodec<IRemoteEvent<T>> _remoteEventCodec;
 
         /// <summary>
         /// Constructs a DefaultRemoteManager listening on the specified address and
         /// a specific port.
         /// </summary>
         /// <param name="localAddress">The address to listen on</param>
-        /// <param name="port">The port to listen on</param>
         /// <param name="tcpPortProvider">Tcp port provider</param>
-        /// <param name="injector">The injector to pass arguments to incoming messages</param>
+        /// <param name="streamingCodec">Streaming codec</param>
         [Obsolete("Use IRemoteManagerFactory.GetInstance() instead.", false)]
-        public WritableRemoteManager(IPAddress localAddress, int port, ITcpPortProvider tcpPortProvider, IInjector injector)
+        public StreamingRemoteManager(IPAddress localAddress, ITcpPortProvider tcpPortProvider, IStreamingCodec<T> streamingCodec)
         {
             if (localAddress == null)
             {
                 throw new ArgumentNullException("localAddress");
             }
-            if (port < 0)
-            {
-                throw new ArgumentException("Listening port must be greater than or equal to zero");
-            }
 
-            _observerContainer = new WritableObserverContainer<T>();
+            _observerContainer = new ObserverContainer<T>();
             _cachedClients = new Dictionary<IPEndPoint, ProxyObserver>();
-            _injector = injector;
-
-            IPEndPoint localEndpoint = new IPEndPoint(localAddress, port);
+            _remoteEventCodec = new RemoteEventStreamingCodec<T>(streamingCodec);
 
             // Begin to listen for incoming messages
-            _server = new WritableTransportServer<IWritableRemoteEvent<T>>(localEndpoint, _observerContainer, tcpPortProvider, injector);
+            _server = new StreamingTransportServer<IRemoteEvent<T>>(localAddress, _observerContainer, tcpPortProvider, _remoteEventCodec);
             _server.Run();
 
             LocalEndpoint = _server.LocalEndpoint;  
             Identifier = new SocketRemoteIdentifier(LocalEndpoint);
-        }
-
-        /// <summary>
-        /// Constructs a DefaultRemoteManager. Does not listen for incoming messages.
-        /// </summary>
-        /// <param name="injector">The injector to pass arguments to incoming messages</param>
-        [Obsolete("Use IRemoteManagerFactory.GetInstance() instead.", false)]
-        public WritableRemoteManager(IInjector injector)
-        {
-            using (LOGGER.LogFunction("WritableRemoteManager::WritableRemoteManager"))
-            {
-                _observerContainer = new WritableObserverContainer<T>();
-                _cachedClients = new Dictionary<IPEndPoint, ProxyObserver>();
-                _injector = injector;
-
-                LocalEndpoint = new IPEndPoint(NetworkUtils.LocalIPAddress, 0);
-                Identifier = new SocketRemoteIdentifier(LocalEndpoint);
-            }
         }
 
         /// <summary>
@@ -140,8 +110,8 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
             ProxyObserver remoteObserver;
             if (!_cachedClients.TryGetValue(remoteEndpoint, out remoteObserver))
             {
-                WritableTransportClient<IWritableRemoteEvent<T>> client =
-                    new WritableTransportClient<IWritableRemoteEvent<T>>(remoteEndpoint, _observerContainer, _injector);
+                StreamingTransportClient<IRemoteEvent<T>> client =
+                    new StreamingTransportClient<IRemoteEvent<T>>(remoteEndpoint, _observerContainer, _remoteEventCodec);
 
                 remoteObserver = new ProxyObserver(client);
                 _cachedClients[remoteEndpoint] = remoteObserver;
@@ -239,14 +209,14 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         /// </summary>
         private class ProxyObserver : IObserver<T>, IDisposable
         {
-            private readonly WritableTransportClient<IWritableRemoteEvent<T>> _client;
+            private readonly StreamingTransportClient<IRemoteEvent<T>> _client;
 
             /// <summary>
             /// Create new ProxyObserver
             /// </summary>
             /// <param name="client">The connected WritableTransport client used to send
             /// messages to remote host</param>
-            public ProxyObserver(WritableTransportClient<IWritableRemoteEvent<T>> client)
+            public ProxyObserver(StreamingTransportClient<IRemoteEvent<T>> client)
             {
                 _client = client;
             }
@@ -257,7 +227,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
             /// <param name="message">The message to send</param>
             public void OnNext(T message)
             {
-                IWritableRemoteEvent<T> remoteEvent = new WritableRemoteEvent<T>(_client.Link.LocalEndpoint,
+                IRemoteEvent<T> remoteEvent = new RemoteEvent<T>(_client.Link.LocalEndpoint,
                     _client.Link.RemoteEndpoint,
                     message);
 

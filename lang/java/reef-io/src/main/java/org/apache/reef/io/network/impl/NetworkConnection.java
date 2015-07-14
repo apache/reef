@@ -27,41 +27,39 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-final class DefaultNSConnection<T> implements Connection<T> {
+final class NetworkConnection<T> implements Connection<T> {
 
-  private Link<DefaultNSMessage<T>> link;
+  private Link<NetworkConnectionServiceMessage<T>> link;
 
-  private final Identifier remoteId;
+  private final Identifier destId;
   private final AtomicBoolean closed;
-  private final NSConnectionFactory connFactory;
+  private final NetworkConnectionFactory connFactory;
 
   /**
-   * Constructs a connection for remoteId.
-   * @param connFactory a connection factor of this connection.
-   * @param remoteId a remote identifier
+   * Constructs a connection for destination identifier of NetworkConnectionService.
+   * @param connFactory a connection factory of this connection.
+   * @param destId a destination identifier of NetworkConnectionService.
    */
-  DefaultNSConnection(
-      final NSConnectionFactory connFactory,
-      final Identifier remoteId) {
-
+  NetworkConnection(
+      final NetworkConnectionFactory connFactory,
+      final Identifier destId) {
     this.connFactory = connFactory;
-    this.remoteId = remoteId;
+    this.destId = destId;
     this.closed = new AtomicBoolean();
   }
 
   @Override
   public void open() throws NetworkException {
-    link = connFactory.openLink(remoteId);
+    link = connFactory.openLink(destId);
   }
 
   @Override
   public void write(final List<T> messageList) {
-    final DefaultNSMessage<T> nsMessage = new DefaultNSMessage<>(
+    final NetworkConnectionServiceMessage<T> nsMessage = new NetworkConnectionServiceMessage<>(
         connFactory.getConnectionFactoryId(),
         connFactory.getSrcId(),
-        remoteId,
+        destId,
         messageList);
-
     link.write(nsMessage);
   }
 
@@ -75,7 +73,7 @@ final class DefaultNSConnection<T> implements Connection<T> {
   @Override
   public void close() {
     if (closed.compareAndSet(false, true)) {
-      connFactory.removeConnection(this.remoteId);
+      connFactory.removeConnection(this.destId);
       link = null;
     }
   }
@@ -88,7 +86,7 @@ final class DefaultNSConnection<T> implements Connection<T> {
         .append(":")
         .append(connFactory.getConnectionFactoryId())
         .append(" to ")
-        .append(remoteId)
+        .append(destId)
         .append(":")
         .append(connFactory.getConnectionFactoryId());
     return sb.toString();

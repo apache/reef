@@ -51,7 +51,8 @@ public final class YarnTypes {
     final String hadoopVersion = VersionInfo.getVersion();
 
     if (hadoopVersion == null || hadoopVersion.length() < version.length()) {
-      throw new RuntimeException("unsupported or incomplete hadoop version number provided for comparison: " + hadoopVersion);
+      throw new RuntimeException("unsupported or incomplete hadoop version number provided for comparison: " +
+          hadoopVersion);
     }
 
     return hadoopVersion.substring(0, version.length()).compareTo(version) >= 0;

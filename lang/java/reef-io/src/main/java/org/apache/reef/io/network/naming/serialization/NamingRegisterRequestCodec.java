@@ -66,7 +66,8 @@ public class NamingRegisterRequestCodec implements Codec<NamingRegisterRequest> 
    */
   @Override
   public NamingRegisterRequest decode(byte[] buf) {
-    final AvroNamingRegisterRequest avroNamingRegisterRequest = AvroUtils.fromBytes(buf, AvroNamingRegisterRequest.class);
+    final AvroNamingRegisterRequest avroNamingRegisterRequest =
+        AvroUtils.fromBytes(buf, AvroNamingRegisterRequest.class);
     return new NamingRegisterRequest(
         new NameAssignmentTuple(factory.getNewInstance(avroNamingRegisterRequest.getId().toString()),
             new InetSocketAddress(avroNamingRegisterRequest.getHost().toString(), avroNamingRegisterRequest.getPort()))

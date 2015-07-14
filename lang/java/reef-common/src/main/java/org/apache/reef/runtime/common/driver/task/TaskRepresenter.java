@@ -91,23 +91,23 @@ public final class TaskRepresenter {
     }
     // Dispatch the message to the right method.
     switch (taskStatusProto.getState()) {
-      case INIT:
-        this.onTaskInit(taskStatusProto);
-        break;
-      case RUNNING:
-        this.onTaskRunning(taskStatusProto);
-        break;
-      case SUSPEND:
-        this.onTaskSuspend(taskStatusProto);
-        break;
-      case DONE:
-        this.onTaskDone(taskStatusProto);
-        break;
-      case FAILED:
-        this.onTaskFailed(taskStatusProto);
-        break;
-      default:
-        throw new IllegalStateException("Unknown task state: " + taskStatusProto.getState());
+    case INIT:
+      this.onTaskInit(taskStatusProto);
+      break;
+    case RUNNING:
+      this.onTaskRunning(taskStatusProto);
+      break;
+    case SUSPEND:
+      this.onTaskSuspend(taskStatusProto);
+      break;
+    case DONE:
+      this.onTaskDone(taskStatusProto);
+      break;
+    case FAILED:
+      this.onTaskFailed(taskStatusProto);
+      break;
+    default:
+      throw new IllegalStateException("Unknown task state: " + taskStatusProto.getState());
     }
   }
 
@@ -140,7 +140,8 @@ public final class TaskRepresenter {
       this.messageDispatcher.onDriverRestartTaskRunning(runningTask);
     }
 
-    for (final ReefServiceProtos.TaskStatusProto.TaskMessageProto taskMessageProto : taskStatusProto.getTaskMessageList()) {
+    for (final ReefServiceProtos.TaskStatusProto.TaskMessageProto
+             taskMessageProto : taskStatusProto.getTaskMessageList()) {
       this.messageDispatcher.onTaskMessage(
           new TaskMessageImpl(taskMessageProto.getMessage().toByteArray(),
               this.taskId, this.context.getId(), taskMessageProto.getSourceId()));

@@ -26,33 +26,33 @@ import java.util.List;
 
 
 /**
- * DefaultNSMessage implementation.
- * This is used for messages of NetworkServiceClient.
+ * NetworkConnectionServiceMessage implementation.
+ * This is a wrapper message of message type <T>.
  */
-final class DefaultNSMessage<T> implements Message<T> {
+final class NetworkConnectionServiceMessage<T> implements Message<T> {
 
   private final List<T> messages;
   private SocketAddress remoteAddr;
   private final String connFactoryId;
   private final Identifier srcId;
-  private final Identifier remoteId;
+  private final Identifier destId;
 
   /**
-   * Constructs a network service message.
+   * Constructs a network connection service message.
    *
    * @param connFactoryId the connection factory identifier
-   * @param srcId      the source identifier
-   * @param remoteId   the remote identifier
+   * @param srcId      the source identifier of NetworkConnectionService
+   * @param destId   the destination identifier of NetworkConnectionService
    * @param messages  the list of messages
    */
-  public DefaultNSMessage(
+  public NetworkConnectionServiceMessage(
       final String connFactoryId,
       final Identifier srcId,
-      final Identifier remoteId,
+      final Identifier destId,
       final List<T> messages) {
     this.connFactoryId = connFactoryId;
     this.srcId = srcId;
-    this.remoteId = remoteId;
+    this.destId = destId;
     this.messages = messages;
   }
 
@@ -61,17 +61,17 @@ final class DefaultNSMessage<T> implements Message<T> {
   }
 
   /**
-   * Gets a remote identifier.
+   * Gets a destination identifier.
    *
    * @return a remote id
    */
   @Override
   public Identifier getDestId() {
-    return remoteId;
+    return destId;
   }
 
   /**
-   * Gets a connection identifier.
+   * Gets a connection factory identifier.
    *
    * @return a connection factory id
    */
@@ -81,7 +81,7 @@ final class DefaultNSMessage<T> implements Message<T> {
 
 
   /**
-   * Gets a source identifier.
+   * Gets a source identifier of NetworkConnectionService.
    *
    * @return a source id
    */
@@ -104,7 +104,7 @@ final class DefaultNSMessage<T> implements Message<T> {
     StringBuilder builder = new StringBuilder();
     builder.append("NSMessage");
     builder.append(" remoteID=");
-    builder.append(remoteId);
+    builder.append(destId);
     builder.append(" message=[| ");
     for (T message : messages) {
       builder.append(message + " |");

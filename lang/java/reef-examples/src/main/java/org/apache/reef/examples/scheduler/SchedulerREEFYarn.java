@@ -40,7 +40,7 @@ public final class SchedulerREEFYarn {
   public static void main(String[] args)
     throws InjectionException, IOException, ParseException {
     final Configuration runtimeConfiguration =
-      YarnClientConfiguration.CONF.build();
+        YarnClientConfiguration.CONF.build();
     runTaskScheduler(runtimeConfiguration, args);
   }
 

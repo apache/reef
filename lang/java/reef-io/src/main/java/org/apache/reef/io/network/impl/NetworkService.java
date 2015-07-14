@@ -118,7 +118,8 @@ public final class NetworkService<T> implements Stage, ConnectionFactory<T> {
                         final EventHandler<Message<T>> recvHandler,
                         final EventHandler<Exception> exHandler) {
     this(factory, nsPort, nameServerAddr, nameServerPort,
-            RETRY_COUNT, RETRY_TIMEOUT, codec, tpFactory, recvHandler, exHandler, LocalAddressProviderFactory.getInstance());
+         RETRY_COUNT, RETRY_TIMEOUT, codec, tpFactory, recvHandler, exHandler,
+         LocalAddressProviderFactory.getInstance());
   }
 
   /**
@@ -136,8 +137,8 @@ public final class NetworkService<T> implements Stage, ConnectionFactory<T> {
       final TransportFactory tpFactory,
       final EventHandler<Message<T>> recvHandler,
       final EventHandler<Exception> exHandler) {
-    this(factory, nsPort, nameServerAddr, nameServerPort, retryCount, retryTimeout, codec, tpFactory, recvHandler, exHandler,
-        LocalAddressProviderFactory.getInstance());
+    this(factory, nsPort, nameServerAddr, nameServerPort, retryCount, retryTimeout, codec, tpFactory, recvHandler,
+         exHandler, LocalAddressProviderFactory.getInstance());
   }
 
   /**
@@ -186,33 +187,33 @@ public final class NetworkService<T> implements Stage, ConnectionFactory<T> {
 
     this.nameServiceRegisteringStage = new SingleThreadStage<>(
         "NameServiceRegisterer", new EventHandler<Tuple<Identifier, InetSocketAddress>>() {
-      @Override
-      public void onNext(final Tuple<Identifier, InetSocketAddress> tuple) {
-        try {
-          nameResolver.register(tuple.getKey(), tuple.getValue());
-          LOG.log(Level.FINEST, "Registered {0} with nameservice", tuple.getKey());
-        } catch (final Exception ex) {
-          final String msg = "Unable to register " + tuple.getKey() + "with name service";
-          LOG.log(Level.WARNING, msg, ex);
-          throw new RuntimeException(msg, ex);
-        }
-      }
-    }, 5);
+          @Override
+          public void onNext(final Tuple<Identifier, InetSocketAddress> tuple) {
+            try {
+              nameResolver.register(tuple.getKey(), tuple.getValue());
+              LOG.log(Level.FINEST, "Registered {0} with nameservice", tuple.getKey());
+            } catch (final Exception ex) {
+              final String msg = "Unable to register " + tuple.getKey() + "with name service";
+              LOG.log(Level.WARNING, msg, ex);
+              throw new RuntimeException(msg, ex);
+            }
+          }
+        }, 5);
 
     this.nameServiceUnregisteringStage = new SingleThreadStage<>(
         "NameServiceRegisterer", new EventHandler<Identifier>() {
-      @Override
-      public void onNext(final Identifier id) {
-        try {
-          nameResolver.unregister(id);
-          LOG.log(Level.FINEST, "Unregistered {0} with nameservice", id);
-        } catch (final Exception ex) {
-          final String msg = "Unable to unregister " + id + " with name service";
-          LOG.log(Level.WARNING, msg, ex);
-          throw new RuntimeException(msg, ex);
-        }
-      }
-    }, 5);
+          @Override
+          public void onNext(final Identifier id) {
+            try {
+              nameResolver.unregister(id);
+              LOG.log(Level.FINEST, "Unregistered {0} with nameservice", id);
+            } catch (final Exception ex) {
+              final String msg = "Unable to unregister " + id + " with name service";
+              LOG.log(Level.WARNING, msg, ex);
+              throw new RuntimeException(msg, ex);
+            }
+          }
+        }, 5);
   }
 
   public void registerId(final Identifier id) {

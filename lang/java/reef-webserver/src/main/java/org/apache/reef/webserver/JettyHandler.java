@@ -87,7 +87,8 @@ class JettyHandler extends AbstractHandler {
     final ParsedHttpRequest parsedHttpRequest = new ParsedHttpRequest(request);
     final HttpHandler handler = validate(request, response, parsedHttpRequest);
     if (handler != null) {
-      LOG.log(Level.INFO, "calling HttpHandler.onHttpRequest from JettyHandler.handle() for {0}.", handler.getUriSpecification());
+      LOG.log(Level.INFO, "calling HttpHandler.onHttpRequest from JettyHandler.handle() for {0}.",
+          handler.getUriSpecification());
       handler.onHttpRequest(parsedHttpRequest, response);
       response.setStatus(HttpServletResponse.SC_OK);
     }
@@ -118,7 +119,8 @@ class JettyHandler extends AbstractHandler {
 
     final HttpHandler handler = eventHandlers.get(specification.toLowerCase());
     if (handler == null) {
-      writeMessage(response, String.format("No event handler registered for: [%s].", specification), HttpServletResponse.SC_NOT_FOUND);
+      writeMessage(response, String.format("No event handler registered for: [%s].", specification),
+          HttpServletResponse.SC_NOT_FOUND);
       return null;
     }
 
@@ -137,7 +139,8 @@ class JettyHandler extends AbstractHandler {
    * @param status
    * @throws IOException
    */
-  private void writeMessage(final HttpServletResponse response, final String message, final int status) throws IOException {
+  private void writeMessage(final HttpServletResponse response, final String message, final int status)
+      throws IOException {
     response.getWriter().println(message);
     response.setStatus(status);
   }

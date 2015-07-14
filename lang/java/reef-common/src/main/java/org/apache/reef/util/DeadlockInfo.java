@@ -58,9 +58,11 @@ final class DeadlockInfo {
    * Get a list of monitor locks that were acquired by this thread at this stack element.
    * @param threadInfo The thread that created the stack element
    * @param stackTraceElement The stack element
-   * @return List of monitor locks that were acquired by this thread at this stack element or an empty list if none were acquired
+   * @return List of monitor locks that were acquired by this thread at this stack element
+   * or an empty list if none were acquired
    */
-  public List<MonitorInfo> getMonitorLockedElements(final ThreadInfo threadInfo, final StackTraceElement stackTraceElement) {
+  public List<MonitorInfo> getMonitorLockedElements(final ThreadInfo threadInfo,
+                                                    final StackTraceElement stackTraceElement) {
     final Map<StackTraceElement, List<MonitorInfo>> elementMap = monitorLockedElements.get(threadInfo);
     if (null == elementMap) {
       return Collections.EMPTY_LIST;
@@ -77,7 +79,8 @@ final class DeadlockInfo {
   /**
    * Get a string identifying the lock that this thread is waiting on.
    * @param threadInfo
-   * @return A string identifying the lock that this thread is waiting on, or null if the thread is not waiting on a lock
+   * @return A string identifying the lock that this thread is waiting on,
+   * or null if the thread is not waiting on a lock
    */
   @Nullable
   public String getWaitingLockString(final ThreadInfo threadInfo) {

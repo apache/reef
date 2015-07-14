@@ -44,7 +44,8 @@ public interface Transport extends Stage {
    * @return a link associated with the address
    * @throws IOException
    */
-  <T> Link<T> open(SocketAddress remoteAddr, Encoder<? super T> encoder, LinkListener<? super T> listener) throws IOException;
+  <T> Link<T> open(SocketAddress remoteAddr, Encoder<? super T> encoder, LinkListener<? super T> listener)
+      throws IOException;
 
   /**
    * Returns a link for the remote address if already cached; otherwise, returns null.

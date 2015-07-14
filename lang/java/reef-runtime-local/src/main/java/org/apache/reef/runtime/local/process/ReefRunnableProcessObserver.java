@@ -69,11 +69,11 @@ public final class ReefRunnableProcessObserver implements RunnableProcessObserve
     // and then release the resources. Otherwise, the Driver might be shutdown because of an idle condition before the
     // message about the evaluator exit could have been sent and processed.
     switch (exitCode) {
-      case 0:
-        this.onCleanExit(processId);
-        break;
-      default:
-        this.onUncleanExit(processId, exitCode);
+    case 0:
+      this.onCleanExit(processId);
+      break;
+    default:
+      this.onUncleanExit(processId, exitCode);
     }
     this.resourceManager.get().onEvaluatorExit(processId);
   }

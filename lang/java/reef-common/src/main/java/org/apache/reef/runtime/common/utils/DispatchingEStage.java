@@ -54,7 +54,8 @@ public final class DispatchingEStage implements AutoCloseable {
   /**
    * @param errorHandler used for exceptions thrown from the event handlers registered.
    * @param numThreads   number of threads to allocate to dispatch events.
-   * @param stageName    the name to use for the underlying stage. It will be carried over to name the Thread(s) spawned.
+   * @param stageName    the name to use for the underlying stage.
+   *                     It will be carried over to name the Thread(s) spawned.
    */
   public DispatchingEStage(final EventHandler<Throwable> errorHandler,
                            final int numThreads,

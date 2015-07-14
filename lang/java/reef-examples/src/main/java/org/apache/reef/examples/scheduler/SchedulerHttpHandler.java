@@ -72,26 +72,26 @@ final class SchedulerHttpHandler implements HttpHandler {
 
     final SchedulerResponse result;
     switch (target) {
-      case "list":
-        result = schedulerDriver.get().getList();
-        break;
-      case "clear":
-        result = schedulerDriver.get().clearList();
-        break;
-      case "status":
-        result = schedulerDriver.get().getTaskStatus(queryMap.get("id"));
-        break;
-      case "submit":
-        result = schedulerDriver.get().submitCommands(queryMap.get("cmd"));
-        break;
-      case "cancel":
-        result = schedulerDriver.get().cancelTask(queryMap.get("id"));
-        break;
-      case "max-eval":
-        result = schedulerDriver.get().setMaxEvaluators(queryMap.get("num"));
-        break;
-      default:
-        result = SchedulerResponse.NOT_FOUND("Unsupported operation");
+    case "list":
+      result = schedulerDriver.get().getList();
+      break;
+    case "clear":
+      result = schedulerDriver.get().clearList();
+      break;
+    case "status":
+      result = schedulerDriver.get().getTaskStatus(queryMap.get("id"));
+      break;
+    case "submit":
+      result = schedulerDriver.get().submitCommands(queryMap.get("cmd"));
+      break;
+    case "cancel":
+      result = schedulerDriver.get().cancelTask(queryMap.get("id"));
+      break;
+    case "max-eval":
+      result = schedulerDriver.get().setMaxEvaluators(queryMap.get("num"));
+      break;
+    default:
+      result = SchedulerResponse.NOT_FOUND("Unsupported operation");
     }
 
     // Send response to the http client

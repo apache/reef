@@ -75,11 +75,15 @@ public final class TaskRuntime implements Runnable {
       final HeartBeatManager heartBeatManager,
       final Task task,
       final TaskStatus currentStatus,
-      @Parameter(TaskConfigurationOptions.CloseHandler.class) final InjectionFuture<EventHandler<CloseEvent>> fCloseHandler,
-      @Parameter(TaskConfigurationOptions.SuspendHandler.class) final InjectionFuture<EventHandler<SuspendEvent>> fSuspendHandler,
-      @Parameter(TaskConfigurationOptions.MessageHandler.class) final InjectionFuture<EventHandler<DriverMessage>> fMessageHandler,
+      @Parameter(TaskConfigurationOptions.CloseHandler.class)
+      final InjectionFuture<EventHandler<CloseEvent>> fCloseHandler,
+      @Parameter(TaskConfigurationOptions.SuspendHandler.class)
+      final InjectionFuture<EventHandler<SuspendEvent>> fSuspendHandler,
+      @Parameter(TaskConfigurationOptions.MessageHandler.class)
+      final InjectionFuture<EventHandler<DriverMessage>> fMessageHandler,
       final TaskLifeCycleHandlers taskLifeCycleHandlers) {
-    this(heartBeatManager, task, currentStatus, fCloseHandler, fSuspendHandler, fMessageHandler, null, taskLifeCycleHandlers);
+    this(heartBeatManager, task, currentStatus, fCloseHandler, fSuspendHandler, fMessageHandler, null,
+        taskLifeCycleHandlers);
   }
 
   // TODO: Document
@@ -88,9 +92,12 @@ public final class TaskRuntime implements Runnable {
       final HeartBeatManager heartBeatManager,
       final Task task,
       final TaskStatus currentStatus,
-      @Parameter(TaskConfigurationOptions.CloseHandler.class) final InjectionFuture<EventHandler<CloseEvent>> fCloseHandler,
-      @Parameter(TaskConfigurationOptions.SuspendHandler.class) final InjectionFuture<EventHandler<SuspendEvent>> fSuspendHandler,
-      @Parameter(TaskConfigurationOptions.MessageHandler.class) final InjectionFuture<EventHandler<DriverMessage>> fMessageHandler,
+      @Parameter(TaskConfigurationOptions.CloseHandler.class)
+      final InjectionFuture<EventHandler<CloseEvent>> fCloseHandler,
+      @Parameter(TaskConfigurationOptions.SuspendHandler.class)
+      final InjectionFuture<EventHandler<SuspendEvent>> fSuspendHandler,
+      @Parameter(TaskConfigurationOptions.MessageHandler.class)
+      final InjectionFuture<EventHandler<DriverMessage>> fMessageHandler,
       @Parameter(TaskConfigurationOptions.Memento.class) final String memento,
       final TaskLifeCycleHandlers taskLifeCycleHandlers) {
 

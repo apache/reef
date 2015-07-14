@@ -119,67 +119,71 @@ public final class HttpServerReefEventHandler implements HttpHandler {
     final String target = parsedHttpRequest.getTargetEntity().toLowerCase();
 
     switch (target) {
-      case "evaluators": {
-        final String queryStr = parsedHttpRequest.getQueryString();
-        if (queryStr == null || queryStr.isEmpty()) {
-          if (version.equals(VER)) {
-            writeEvaluatorsJsonOutput(response);
-          } else {
-            writeEvaluatorsWebOutput(response);
-          }
-        } else {
-          handleQueries(response, parsedHttpRequest.getQueryMap(), version);
-        }
-        break;
-      }
-      case "driver":
+    case "evaluators": {
+      final String queryStr = parsedHttpRequest.getQueryString();
+      if (queryStr == null || queryStr.isEmpty()) {
         if (version.equals(VER)) {
-          writeDriverJsonInformation(response);
+          writeEvaluatorsJsonOutput(response);
         } else {
-          writeDriverWebInformation(response);
+          writeEvaluatorsWebOutput(response);
         }
-        break;
-      case "close":
-        for (final EventHandler<Void> e : clientCloseHandlers) {
-          e.onNext(null);
-        }
-        response.getWriter().println("Enforced closing");
-        break;
-      case "kill":
-        reefStateManager.OnClientKill();
-        response.getWriter().println("Killing");
-        break;
-      case "duration":
-        final ArrayList<String> lines = LogParser.getFilteredLinesFromFile(driverStderrFile, LoggingScopeImpl.DURATION, LoggingScopeImpl.TOKEN, null);
-        writeLines(response, lines, "Performance...");
-        break;
-      case "stages":
-        final ArrayList<String> starts = LogParser.getFilteredLinesFromFile(driverStderrFile, LoggingScopeImpl.START_PREFIX, logLevelPrefix, null);
-        final ArrayList<String> exits = LogParser.getFilteredLinesFromFile(driverStderrFile, LoggingScopeImpl.EXIT_PREFIX, logLevelPrefix, LoggingScopeImpl.DURATION);
-        final ArrayList<String> startsStages = LogParser.findStages(starts, LogParser.startIndicators);
-        final ArrayList<String> endStages = LogParser.findStages(exits, LogParser.endIndicators);
-        final ArrayList<String> result = LogParser.mergeStages(startsStages, endStages);
-        writeLines(response, result, "Current Stages...");
-        break;
-      case "logfile":
-        final List names = parsedHttpRequest.getQueryMap().get("filename");
-        if (names == null || names.size() == 0) {
-          response.getWriter().println(String.format("File name is not provided"));
-        }
+      } else {
+        handleQueries(response, parsedHttpRequest.getQueryMap(), version);
+      }
+      break;
+    }
+    case "driver":
+      if (version.equals(VER)) {
+        writeDriverJsonInformation(response);
+      } else {
+        writeDriverWebInformation(response);
+      }
+      break;
+    case "close":
+      for (final EventHandler<Void> e : clientCloseHandlers) {
+        e.onNext(null);
+      }
+      response.getWriter().println("Enforced closing");
+      break;
+    case "kill":
+      reefStateManager.OnClientKill();
+      response.getWriter().println("Killing");
+      break;
+    case "duration":
+      final ArrayList<String> lines =
+          LogParser.getFilteredLinesFromFile(driverStderrFile, LoggingScopeImpl.DURATION, LoggingScopeImpl.TOKEN, null);
+      writeLines(response, lines, "Performance...");
+      break;
+    case "stages":
+      final ArrayList<String> starts =
+          LogParser.getFilteredLinesFromFile(driverStderrFile, LoggingScopeImpl.START_PREFIX, logLevelPrefix, null);
+      final ArrayList<String> exits =
+          LogParser.getFilteredLinesFromFile(driverStderrFile, LoggingScopeImpl.EXIT_PREFIX, logLevelPrefix,
+              LoggingScopeImpl.DURATION);
+      final ArrayList<String> startsStages = LogParser.findStages(starts, LogParser.startIndicators);
+      final ArrayList<String> endStages = LogParser.findStages(exits, LogParser.endIndicators);
+      final ArrayList<String> result = LogParser.mergeStages(startsStages, endStages);
+      writeLines(response, result, "Current Stages...");
+      break;
+    case "logfile":
+      final List names = parsedHttpRequest.getQueryMap().get("filename");
+      if (names == null || names.size() == 0) {
+        response.getWriter().println(String.format("File name is not provided"));
+      }
 
-        final String fileName = (String)names.get(0);
-        if (!fileName.equals(driverStdoutFile) && !fileName.equals(driverStderrFile)) {
-          response.getWriter().println(String.format("Unsupported file names: [%s] ", fileName));
-        }
-        try {
-          final byte[] outputBody = readFile((String) names.get(0)).getBytes(Charset.forName("UTF-8"));
-          response.getOutputStream().write(outputBody);
-        } catch(IOException e) {
-          response.getWriter().println(String.format("Cannot find the log file: [%s].", fileName));
-        }
-        break;
-      default:
-        response.getWriter().println(String.format("Unsupported query for entity: [%s].", target));
+      final String fileName = (String)names.get(0);
+      if (!fileName.equals(driverStdoutFile) && !fileName.equals(driverStderrFile)) {
+        response.getWriter().println(String.format("Unsupported file names: [%s] ", fileName));
+      }
+      try {
+        final byte[] outputBody = readFile((String) names.get(0)).getBytes(Charset.forName("UTF-8"));
+        response.getOutputStream().write(outputBody);
+      } catch(IOException e) {
+        response.getWriter().println(String.format("Cannot find the log file: [%s].", fileName));
+      }
+      break;
+    default:
+      response.getWriter().println(String.format("Unsupported query for entity: [%s].", target));
     }
   }
 
@@ -198,16 +202,16 @@ public final class HttpServerReefEventHandler implements HttpHandler {
       final String queryTarget = entry.getKey().toLowerCase();
 
       switch (queryTarget) {
-        case "id":
-          if (version.equals(VER)) {
-            writeEvaluatorInfoJsonOutput(response, entry.getValue());
-          } else {
-            writeEvaluatorInfoWebOutput(response, entry.getValue());
-          }
-          break;
-        default:
-          response.getWriter().println("Unsupported query : " + queryTarget);
-          break;
+      case "id":
+        if (version.equals(VER)) {
+          writeEvaluatorInfoJsonOutput(response, entry.getValue());
+        } else {
+          writeEvaluatorInfoWebOutput(response, entry.getValue());
+        }
+        break;
+      default:
+        response.getWriter().println("Unsupported query : " + queryTarget);
+        break;
       }
     }
   }
@@ -324,7 +328,8 @@ public final class HttpServerReefEventHandler implements HttpHandler {
       final DriverInfoSerializer serializer =
           Tang.Factory.getTang().newInjector().getInstance(DriverInfoSerializer.class);
       final AvroDriverInfo driverInfo = serializer.toAvro(
-          this.reefStateManager.getDriverEndpointIdentifier(), this.reefStateManager.getStartTime(), this.reefStateManager.getServicesInfo());
+          this.reefStateManager.getDriverEndpointIdentifier(), this.reefStateManager.getStartTime(),
+          this.reefStateManager.getServicesInfo());
       writeResponse(response, serializer.toString(driverInfo));
     } catch (final InjectionException e) {
       LOG.log(Level.SEVERE, "Error in injecting DriverInfoSerializer.", e);
@@ -358,7 +363,8 @@ public final class HttpServerReefEventHandler implements HttpHandler {
     writer.println(String.format("Services registered on Driver:"));
     writer.write("<br/><br/>");
     for (final AvroReefServiceInfo service : this.reefStateManager.getServicesInfo()) {
-      writer.println(String.format("Service: [%s] , Information: [%s]", service.getServiceName(), service.getServiceInfo()));
+      writer.println(String.format("Service: [%s] , Information: [%s]", service.getServiceName(),
+          service.getServiceInfo()));
       writer.write("<br/><br/>");
     }
 
@@ -372,7 +378,8 @@ public final class HttpServerReefEventHandler implements HttpHandler {
    * @param header
    * @throws IOException
    */
-  private void writeLines(final HttpServletResponse response, final ArrayList<String> lines, final String header) throws IOException {
+  private void writeLines(final HttpServletResponse response, final ArrayList<String> lines, final String header)
+      throws IOException {
     LOG.log(Level.INFO, "HttpServerReefEventHandler writeLines is called");
 
     final PrintWriter writer = response.getWriter();

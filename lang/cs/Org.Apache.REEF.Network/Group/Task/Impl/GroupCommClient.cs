@@ -37,7 +37,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
     // TODO: Need to remove Iwritable and use IstreamingCodec. Please see Jira REEF-295.
     public sealed class GroupCommClient : IGroupCommClient
     {
-        private readonly Dictionary<string, ICommunicationGroupClient> _commGroups;
+        private readonly Dictionary<string, ICommunicationGroupClientInternal> _commGroups;
 
         private readonly INetworkService<GeneralGroupCommunicationMessage> _networkService;
 
@@ -58,16 +58,22 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
             AvroConfigurationSerializer configSerializer,
             IInjector injector)
         {
-            _commGroups = new Dictionary<string, ICommunicationGroupClient>();
+            _commGroups = new Dictionary<string, ICommunicationGroupClientInternal>();
             _networkService = networkService;
-            networkService.Register(new StringIdentifier(taskId));
 
             foreach (string serializedGroupConfig in groupConfigs)
             {
                 IConfiguration groupConfig = configSerializer.FromString(serializedGroupConfig);
                 IInjector groupInjector = injector.ForkInjector(groupConfig);
-                ICommunicationGroupClient commGroupClient = groupInjector.GetInstance<ICommunicationGroupClient>();
+                var commGroupClient = (ICommunicationGroupClientInternal)groupInjector.GetInstance<ICommunicationGroupClient>();
                 _commGroups[commGroupClient.GroupName] = commGroupClient;
+            }
+
+            networkService.Register(new StringIdentifier(taskId));
+
+            foreach (var group in _commGroups.Values)
+            {
+               group.WaitingForRegistration();
             }
         }
 

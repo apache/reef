@@ -16,27 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.io.network.impl;
+package org.apache.reef.runtime.yarn.driver.parameters;
 
-import org.apache.reef.wake.EventHandler;
-
-import javax.inject.Inject;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.apache.reef.tang.annotations.Name;
+import org.apache.reef.tang.annotations.NamedParameter;
 
 /**
- * Default exception handler.
+ * The job submission directory.
  */
-public final class DefaultNSExceptionHandler implements EventHandler<Exception> {
-
-  private static final Logger LOG = Logger.getLogger(DefaultNSExceptionHandler.class.getName());
-
-  @Inject
-  public DefaultNSExceptionHandler() {
-  }
-
-  @Override
-  public void onNext(final Exception value) {
-    LOG.log(Level.WARNING, "An exception occurred in transport of NetworkService: {0}", value);
-  }
+@NamedParameter(doc = "The job submission directory prefix.", default_value = "/vol1/tmp")
+public final class JobSubmissionDirectoryPrefix implements Name<String> {
 }

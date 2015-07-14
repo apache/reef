@@ -263,15 +263,15 @@ public final class FailDriver {
       checkMsgOrder(task);
       FailDriver.this.task = task;
       switch (state) {
-        case INIT:
-          state = DriverState.SEND_MSG;
-          break;
-        case RESUME:
-          state = DriverState.CLOSE;
-          break;
-        default:
-          LOG.log(Level.WARNING, "Unexpected state at TaskRuntime: {0}", state);
-          throw new DriverSideFailure("Unexpected state: " + state);
+      case INIT:
+        state = DriverState.SEND_MSG;
+        break;
+      case RESUME:
+        state = DriverState.CLOSE;
+        break;
+      default:
+        LOG.log(Level.WARNING, "Unexpected state at TaskRuntime: {0}", state);
+        throw new DriverSideFailure("Unexpected state: " + state);
       }
       // After a delay, send message or suspend the task:
       clock.scheduleAlarm(MSG_DELAY, new AlarmHandler());
@@ -345,18 +345,18 @@ public final class FailDriver {
     public void onNext(final Alarm time) {
       FailDriver.this.checkMsgOrder(time);
       switch (FailDriver.this.state) {
-        case SEND_MSG:
-          FailDriver.this.task.send(HELLO_STR);
-          break;
-        case SUSPEND:
-          FailDriver.this.task.suspend();
-          break;
-        case CLOSE:
-          FailDriver.this.task.close();
-          break;
-        default:
-          LOG.log(Level.WARNING, "Unexpected state at AlarmHandler: {0}", FailDriver.this.state);
-          throw new DriverSideFailure("Unexpected state: " + FailDriver.this.state);
+      case SEND_MSG:
+        FailDriver.this.task.send(HELLO_STR);
+        break;
+      case SUSPEND:
+        FailDriver.this.task.suspend();
+        break;
+      case CLOSE:
+        FailDriver.this.task.close();
+        break;
+      default:
+        LOG.log(Level.WARNING, "Unexpected state at AlarmHandler: {0}", FailDriver.this.state);
+        throw new DriverSideFailure("Unexpected state: " + FailDriver.this.state);
       }
     }
   }

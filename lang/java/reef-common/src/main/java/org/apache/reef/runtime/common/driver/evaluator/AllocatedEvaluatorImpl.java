@@ -145,12 +145,12 @@ final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
   @Deprecated
   public void setType(final EvaluatorType type) {
     switch (type) {
-      case CLR:
-        setProcess(clrProcessFactory.newEvaluatorProcess());
-        break;
-      default:
-        setProcess(jvmProcessFactory.newEvaluatorProcess());
-        break;
+    case CLR:
+      setProcess(clrProcessFactory.newEvaluatorProcess());
+      break;
+    default:
+      setProcess(jvmProcessFactory.newEvaluatorProcess());
+      break;
     }
   }
 

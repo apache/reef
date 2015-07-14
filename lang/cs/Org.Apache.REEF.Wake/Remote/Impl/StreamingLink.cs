@@ -23,9 +23,9 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using Org.Apache.REEF.Tang.Exceptions;
-using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Utilities.Diagnostics;
 using Org.Apache.REEF.Utilities.Logging;
+using Org.Apache.REEF.Wake.StreamingCodec;
 using Org.Apache.REEF.Wake.Util;
 
 namespace Org.Apache.REEF.Wake.Remote.Impl
@@ -33,25 +33,23 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
     /// <summary>
     /// Represents an open connection between remote hosts. This class is not thread safe
     /// </summary>
-    /// <typeparam name="T">Generic Type of message. It is constrained to have implemented IWritable and IType interface</typeparam>
-    [Obsolete("Need to remove Iwritable and use IstreamingCodec. Please see Jira REEF-295 ", false)]
-    public class WritableLink<T> : ILink<T> where T : IWritable
+    /// <typeparam name="T">Generic Type of message.</typeparam>
+    internal sealed class StreamingLink<T> : ILink<T>
     {
-        private static readonly Logger Logger = Logger.GetLogger(typeof (WritableLink<T>));
+        private static readonly Logger Logger = Logger.GetLogger(typeof (StreamingLink<T>));
 
         private readonly IPEndPoint _localEndpoint;
         private bool _disposed;
-        private readonly NetworkStream _stream;
-        private readonly IInjector _injector;
-       
+        private readonly IStreamingCodec<T> _streamingCodec;
+        private readonly TcpClient _client;
 
         /// <summary>
-        /// Stream reader to be passed to IWritable
+        /// Stream reader to be passed to codec
         /// </summary>
         private readonly StreamDataReader _reader;
 
         /// <summary>
-        /// Stream writer from which to read from IWritable
+        /// Stream writer from which to read from in codec
         /// </summary>
         private readonly StreamDataWriter _writer;
 
@@ -60,23 +58,23 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         /// Connects to the specified remote endpoint.
         /// </summary>
         /// <param name="remoteEndpoint">The remote endpoint to connect to</param>
-        /// <param name="injector">The injector to pass arguments to incoming messages</param>
-        public WritableLink(IPEndPoint remoteEndpoint, IInjector injector)
+        /// <param name="streamingCodec">Streaming codec</param>
+        internal StreamingLink(IPEndPoint remoteEndpoint, IStreamingCodec<T> streamingCodec)
         {
             if (remoteEndpoint == null)
             {
                 throw new ArgumentNullException("remoteEndpoint");
             }
 
-            Client = new TcpClient();
-            Client.Connect(remoteEndpoint);
+            _client = new TcpClient();
+            _client.Connect(remoteEndpoint);
 
-            _stream = Client.GetStream();
+            var stream = _client.GetStream();
             _localEndpoint = GetLocalEndpoint();
             _disposed = false;
-            _reader = new StreamDataReader(_stream);
-            _writer = new StreamDataWriter(_stream);
-            _injector = injector;
+            _reader = new StreamDataReader(stream);
+            _writer = new StreamDataWriter(stream);
+            _streamingCodec = streamingCodec;
         }
 
         /// <summary>
@@ -84,21 +82,21 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         /// Uses the already connected TcpClient.
         /// </summary>
         /// <param name="client">The already connected client</param>
-        /// <param name="injector">The injector to pass arguments to incoming messages</param>
-        public WritableLink(TcpClient client, IInjector injector)
+        /// <param name="streamingCodec">Streaming codec</param>
+        internal StreamingLink(TcpClient client, IStreamingCodec<T> streamingCodec)
         {
             if (client == null)
             {
                 throw new ArgumentNullException("client");
             }
 
-            Client = client;
-            _stream = Client.GetStream();
+            _client = client;
+            var stream = _client.GetStream();
             _localEndpoint = GetLocalEndpoint();
             _disposed = false;
-            _reader = new StreamDataReader(_stream);
-            _writer = new StreamDataWriter(_stream);
-            _injector = injector;
+            _reader = new StreamDataReader(stream);
+            _writer = new StreamDataWriter(stream);
+            _streamingCodec = streamingCodec;
         }
 
         /// <summary>
@@ -114,13 +112,8 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         /// </summary>
         public IPEndPoint RemoteEndpoint
         {
-            get { return (IPEndPoint) Client.Client.RemoteEndPoint; }
+            get { return (IPEndPoint) _client.Client.RemoteEndPoint; }
         }
-
-        /// <summary>
-        /// Gets the underlying TcpClient
-        /// </summary>
-        public TcpClient Client { get; private set; }
 
         /// <summary>
         /// Writes the message to the remote host
@@ -137,8 +130,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
                 Exceptions.Throw(new IllegalStateException("Link has been closed."), Logger);
             }
 
-            _writer.WriteString(value.GetType().AssemblyQualifiedName);
-            value.Write(_writer);
+            _streamingCodec.Write(value, _writer);
         }
 
         /// <summary>
@@ -153,8 +145,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
                 Exceptions.Throw(new IllegalStateException("Link has been closed."), Logger);
             }
 
-            await _writer.WriteStringAsync(value.GetType().AssemblyQualifiedName, token);
-            await value.WriteAsync(_writer, token);
+            await _streamingCodec.WriteAsync(value, _writer, token);
         }
 
         /// <summary>
@@ -167,22 +158,16 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
                 Exceptions.Throw(new IllegalStateException("Link has been disposed."), Logger);
             }
 
-            string dataType = _reader.ReadString();
-
-            if (dataType == null)
-            {
-                return default(T);
-            }
-
             try
             {
-                T value = (T) _injector.ForkInjector().GetInstance(dataType);
-                value.Read(_reader);
+                T value = _streamingCodec.Read(_reader);
                 return value;
             }
-            catch (InjectionException)
+            catch (Exception e)
             {
-                return default(T);
+                Logger.Log(Level.Warning, "In Read function unable to read the message.");
+                Exceptions.CaughtAndThrow(e, Level.Error, Logger);
+                throw;
             }
         }
 
@@ -197,24 +182,16 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
                 Exceptions.Throw(new IllegalStateException("Link has been disposed."), Logger);
             }
 
-            string dataType = "";
-
-            dataType = await _reader.ReadStringAsync(token);
-
-            if (dataType == null)
-            {
-                return default(T);
-            }
-
             try
             {
-                T value = (T) _injector.ForkInjector().GetInstance(dataType);
-                await value.ReadAsync(_reader, token);
+                T value = await _streamingCodec.ReadAsync(_reader, token);
                 return value;
             }
-            catch (InjectionException)
+            catch (Exception e)
             {
-                return default(T);
+                Logger.Log(Level.Warning, "In ReadAsync function unable to read the message.");
+                Exceptions.CaughtAndThrow(e, Level.Error, Logger);
+                throw;
             }
         }
 
@@ -223,35 +200,21 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         /// </summary>
         public void Dispose()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        /// <summary>
-        /// Subclasses of Links should overwrite this to handle disposing
-        /// of the link
-        /// </summary>
-        /// <param name="disposing">To dispose or not</param>
-        public virtual void Dispose(bool disposing)
-        {
             if (_disposed)
             {
                 return;
             }
 
-            if (disposing)
+            try
             {
-                try
-                {
-                    Client.GetStream().Close();
-                }
-                catch (InvalidOperationException)
-                {
-                    Logger.Log(Level.Warning, "failed to close stream on a non-connected socket.");
-                }
-
-                Client.Close();
+                _client.GetStream().Close();
             }
+            catch (InvalidOperationException)
+            {
+                Logger.Log(Level.Warning, "failed to close stream on a non-connected socket.");
+            }
+
+            _client.Close();
             _disposed = true;
         }
 
@@ -288,7 +251,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         private IPEndPoint GetLocalEndpoint()
         {
             IPAddress address = NetworkUtils.LocalIPAddress;
-            int port = ((IPEndPoint) Client.Client.LocalEndPoint).Port;
+            int port = ((IPEndPoint) _client.Client.LocalEndPoint).Port;
             return new IPEndPoint(address, port);
         }
     }

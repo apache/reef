@@ -85,7 +85,8 @@ public final class RunnableProcess implements Runnable {
 
   /**
    * @param command               the command to execute.
-   * @param id                    The ID of the process. This is used to name files and in the logs created by this process.
+   * @param id                    The ID of the process. This is used to name files and in the logs created
+   *                              by this process.
    * @param folder                The folder in which this will store its stdout and stderr output
    * @param processObserver       will be informed of process state changes.
    * @param standardOutFileName   The name of the file used for redirecting STDOUT
@@ -117,26 +118,26 @@ public final class RunnableProcess implements Runnable {
    */
   private static boolean isLegal(final State from, final State to) {
     switch (from) {
+    case INIT:
+      switch (to) {
       case INIT:
-        switch (to) {
-          case INIT:
-          case RUNNING:
-          case ENDED:
-            return true;
-          default:
-            return false;
-        }
       case RUNNING:
-        switch (to) {
-          case ENDED:
-            return true;
-          default:
-            return false;
-        }
       case ENDED:
-        return false;
+        return true;
       default:
         return false;
+      }
+    case RUNNING:
+      switch (to) {
+      case ENDED:
+        return true;
+      default:
+        return false;
+      }
+    case ENDED:
+      return false;
+    default:
+      return false;
     }
   }
 

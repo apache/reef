@@ -247,12 +247,13 @@ under the License.
                             <exclude>**/*.md</exclude>
                             <!-- The below are sometimes created during tests -->
                             <exclude>REEF_LOCAL_RUNTIME/**</exclude>
-                            <!-- The Visual Studio build files -->
+                            <!-- The Visual Studio and Nuget build files -->
                             <exclude>**/*.sln*</exclude>
                             <exclude>**/*.vcxproj*</exclude>
                             <exclude>**/*.csproj*</exclude>
                             <exclude>**/*.opensdf*</exclude>
                             <exclude>**/*.sdf*</exclude>
+                            <exclude>**/*.snk</exclude>
                             <!-- The below are auto generated during the .Net build -->
                             <exclude>**/bin/**</exclude>
                             <exclude>**/obj/**</exclude>
@@ -277,6 +278,13 @@ under the License.
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-checkstyle-plugin</artifactId>
                     <version>${maven-checkstyle-plugin.version}</version>
+                    <dependencies>
+                        <dependency>
+                            <groupId>com.puppycrawl.tools</groupId>
+                            <artifactId>checkstyle</artifactId>
+                            <version>${checkstyle.version}</version>
+                        </dependency>
+                    </dependencies>
                     <configuration>
                         <configLocation>lang/java/reef-common/src/main/resources/checkstyle.xml</configLocation>
                         <failOnViolation>true</failOnViolation>

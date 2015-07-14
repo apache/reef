@@ -47,7 +47,8 @@ public final class FailedRuntime extends AbstractFailure {
    * @param error Error message as a protocol buffers object.
    */
   public FailedRuntime(final RuntimeErrorProto error) {
-    super(error.getIdentifier(), error.getMessage(), Optional.<String>empty(), Optional.of(getThrowable(error)), Optional.<byte[]>empty());
+    super(error.getIdentifier(), error.getMessage(), Optional.<String>empty(), Optional.of(getThrowable(error)),
+        Optional.<byte[]>empty());
   }
 
   /**

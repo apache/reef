@@ -54,7 +54,9 @@ public final class Utilities {
 
   public static String getEvaluatorDescriptorString(EvaluatorDescriptor evaluatorDescriptor) {
     InetSocketAddress socketAddress = evaluatorDescriptor.getNodeDescriptor().getInetSocketAddress();
-    return "IP=" + socketAddress.getAddress() + ", Port=" + socketAddress.getPort() + ", HostName=" + socketAddress.getHostName() + ", Memory=" + evaluatorDescriptor.getMemory() + ", Core=" + evaluatorDescriptor.getNumberOfCores();
+    return "IP=" + socketAddress.getAddress() + ", Port=" + socketAddress.getPort() + ", HostName=" +
+        socketAddress.getHostName() + ", Memory=" + evaluatorDescriptor.getMemory() + ", Core=" +
+        evaluatorDescriptor.getNumberOfCores();
   }
 
   /**

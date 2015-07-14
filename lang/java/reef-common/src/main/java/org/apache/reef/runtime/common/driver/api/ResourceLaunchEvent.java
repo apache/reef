@@ -39,25 +39,25 @@ public interface ResourceLaunchEvent {
     /**
      * @return Id of the resource to launch the Evaluator on
      */
-    String getIdentifier();
+  String getIdentifier();
 
     /**
      * @return Remote Id for the error handler
      */
-    String getRemoteId();
+  String getRemoteId();
 
     /**
      * @return Evaluator configuration
      */
-    Configuration getEvaluatorConf();
+  Configuration getEvaluatorConf();
 
     /**
      * @return Evaluator process to launch
      */
-    EvaluatorProcess getProcess();
+  EvaluatorProcess getProcess();
 
     /**
      * @return List of libraries local to this Evaluator
      */
-    Set<FileResource> getFileSet();
+  Set<FileResource> getFileSet();
 }

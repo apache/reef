@@ -138,11 +138,13 @@ public final class REEFExecutor implements Executor {
   // HELPER METHODS
 
   private void onStart() {
-    this.executorService.submit(new Thread() { public void run() {
-      final Status status;
-      status = mesosExecutorDriver.run();
-      LOG.log(Level.INFO, "MesosExecutorDriver ended with status {0}", status);
-    }});
+    this.executorService.submit(new Thread() {
+      public void run() {
+        final Status status;
+        status = mesosExecutorDriver.run();
+        LOG.log(Level.INFO, "MesosExecutorDriver ended with status {0}", status);
+      }
+    });
   }
 
   private void onStop() {
@@ -162,7 +164,8 @@ public final class REEFExecutor implements Executor {
               .setValue(mesosExecutorId)
               .build())
           .setState(TaskState.TASK_FINISHED)
-          .setData(ByteString.copyFromUtf8("eval_not_run")) // TODO: a hack to pass closeEvaluator test, replace this with a better interface
+          .setData(ByteString.copyFromUtf8("eval_not_run"))
+          // TODO: a hack to pass closeEvaluator test, replace this with a better interface
           .setMessage("Evaluator Process exited with status " + String.valueOf(evaluatorProcessExitValue))
           .build());
     }

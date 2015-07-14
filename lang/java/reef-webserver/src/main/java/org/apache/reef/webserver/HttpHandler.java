@@ -46,5 +46,6 @@ public interface HttpHandler {
    * @param parsedHttpRequest
    * @param response
    */
-  void onHttpRequest(final ParsedHttpRequest parsedHttpRequest, final HttpServletResponse response) throws IOException, ServletException;
+  void onHttpRequest(final ParsedHttpRequest parsedHttpRequest, final HttpServletResponse response)
+      throws IOException, ServletException;
 }

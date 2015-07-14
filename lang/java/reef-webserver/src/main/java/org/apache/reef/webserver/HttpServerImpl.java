@@ -113,7 +113,8 @@ public final class HttpServerImpl implements HttpServer {
   }
 
   /**
-   * It will be called from RuntimeStartHandler. As the Jetty server has been started at initialization phase, no need to start here.
+   * It will be called from RuntimeStartHandler.
+   * As the Jetty server has been started at initialization phase, no need to start here.
    *
    * @throws Exception
    */

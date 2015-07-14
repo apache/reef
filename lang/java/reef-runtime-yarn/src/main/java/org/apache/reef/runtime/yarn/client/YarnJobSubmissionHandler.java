@@ -36,16 +36,19 @@ import org.apache.reef.runtime.yarn.client.uploader.JobUploader;
 import org.apache.reef.runtime.yarn.driver.YarnDriverConfiguration;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Configurations;
+import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.annotations.Parameter;
+import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.tang.formats.ConfigurationSerializer;
-import org.apache.reef.tang.types.NamedParameterNode;
-import org.apache.reef.tang.util.ReflectionUtilities;
+import org.apache.reef.util.Optional;
 
 import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import static org.apache.reef.util.Optional.*;
 
 @Private
 @ClientSide
@@ -93,7 +96,11 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
              new YarnSubmissionHelper(this.yarnConfiguration, this.fileNames, this.classpath)) {
 
       LOG.log(Level.FINE, "Assembling submission JAR for the Driver.");
-      final JobFolder jobFolderOnDfs = this.uploader.createJobFolder(submissionHelper.getApplicationId());
+      final Optional<String> userBoundJobSubmissionDirectory =
+          getUserBoundJobSubmissionDirectory(jobSubmissionEvent.getConfiguration());
+      final JobFolder jobFolderOnDfs = userBoundJobSubmissionDirectory.isPresent()
+          ? this.uploader.createJobFolder(userBoundJobSubmissionDirectory.get())
+          : this.uploader.createJobFolder(submissionHelper.getApplicationId());
       final Configuration driverConfiguration = makeDriverConfiguration(jobSubmissionEvent, jobFolderOnDfs.getPath());
       final File jobSubmissionFile = this.jobJarMaker.createJobSubmissionJAR(jobSubmissionEvent, driverConfiguration);
       final LocalResource driverJarOnDfs = jobFolderOnDfs.uploadAsLocalResource(jobSubmissionFile);
@@ -118,20 +125,14 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
   private Configuration makeDriverConfiguration(
       final JobSubmissionEvent jobSubmissionEvent,
       final Path jobFolderPath) throws IOException {
-    final Configuration config = jobSubmissionEvent.getConfiguration();
-    final String userBoundJobSubmissionDirectory = config.getNamedParameter((NamedParameterNode<?>) config.getClassHierarchy().getNode(ReflectionUtilities.getFullName(DriverJobSubmissionDirectory.class)));
-    LOG.log(Level.FINE, "user bound job submission Directory: " + userBoundJobSubmissionDirectory);
-    final String finalJobFolderPath =
-        (userBoundJobSubmissionDirectory == null || userBoundJobSubmissionDirectory.isEmpty())
-            ? jobFolderPath.toString() : userBoundJobSubmissionDirectory;
     return Configurations.merge(
         YarnDriverConfiguration.CONF
-            .set(YarnDriverConfiguration.JOB_SUBMISSION_DIRECTORY, finalJobFolderPath)
+            .set(YarnDriverConfiguration.JOB_SUBMISSION_DIRECTORY, jobFolderPath.toString())
             .set(YarnDriverConfiguration.JOB_IDENTIFIER, jobSubmissionEvent.getIdentifier())
             .set(YarnDriverConfiguration.CLIENT_REMOTE_IDENTIFIER, jobSubmissionEvent.getRemoteId())
             .set(YarnDriverConfiguration.JVM_HEAP_SLACK, this.jvmSlack)
             .build(),
-        config);
+        jobSubmissionEvent.getConfiguration());
   }
 
   private static int getPriority(final JobSubmissionEvent jobSubmissionEvent) {
@@ -147,4 +148,15 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
                           final String defaultQueue) {
     return jobSubmissionEvent.getQueue().orElse(defaultQueue);
   }
+
+  private static Optional<String> getUserBoundJobSubmissionDirectory(final Configuration configuration) {
+    try {
+      return Optional.ofNullable(Tang.Factory.getTang().newInjector(configuration)
+          .getNamedInstance(DriverJobSubmissionDirectory.class));
+    } catch (InjectionException ex) {
+      return Optional.empty();
+    }
+
+  }
+
 }

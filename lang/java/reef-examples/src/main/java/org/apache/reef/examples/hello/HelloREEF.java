@@ -82,6 +82,6 @@ public final class HelloREEF {
     /**
      * Empty private constructor to prohibit instantiation of utility class.
      */
-    private HelloREEF() {
-    }
+  private HelloREEF() {
+  }
 }

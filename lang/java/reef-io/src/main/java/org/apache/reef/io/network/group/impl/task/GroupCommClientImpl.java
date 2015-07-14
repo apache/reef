@@ -45,7 +45,8 @@ import java.util.logging.Logger;
 public class GroupCommClientImpl implements GroupCommClient {
   private static final Logger LOG = Logger.getLogger(GroupCommClientImpl.class.getName());
 
-  private final Map<Class<? extends Name<String>>, CommunicationGroupServiceClient> communicationGroups = new HashMap<>();
+  private final Map<Class<? extends Name<String>>, CommunicationGroupServiceClient> communicationGroups =
+      new HashMap<>();
 
   @Inject
   public GroupCommClientImpl(

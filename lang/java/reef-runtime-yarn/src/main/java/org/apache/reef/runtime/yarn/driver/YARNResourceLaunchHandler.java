@@ -81,8 +81,10 @@ public final class YARNResourceLaunchHandler implements ResourceLaunchHandler {
           .setLaunchID(resourceLaunchEvent.getIdentifier())
           .setConfigurationFileName(this.filenames.getEvaluatorConfigurationPath())
           .setMemory((int) (this.jvmHeapFactor * container.getResource().getMemory()))
-          .setStandardErr(ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/" + this.filenames.getEvaluatorStderrFileName())
-          .setStandardOut(ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/" + this.filenames.getEvaluatorStdoutFileName())
+          .setStandardErr(ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/" +
+              this.filenames.getEvaluatorStderrFileName())
+          .setStandardOut(ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/" +
+              this.filenames.getEvaluatorStdoutFileName())
           .getCommandLine();
 
       if (LOG.isLoggable(Level.FINEST)) {

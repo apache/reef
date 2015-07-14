@@ -84,11 +84,11 @@ public final class Control {
 
     final EStage<TransportEvent> stage = new ThreadPoolStage<>("suspend-control-client",
         new LoggingEventHandler<TransportEvent>(), 1, new EventHandler<Throwable>() {
-      @Override
-      public void onNext(final Throwable throwable) {
-        throw new RuntimeException(throwable);
-      }
-    });
+          @Override
+          public void onNext(final Throwable throwable) {
+            throw new RuntimeException(throwable);
+          }
+        });
 
     try (final Transport transport = tpFactory.newInstance("localhost", 0, stage, stage, 1, 10000)) {
       final Link link = transport.open(new InetSocketAddress("localhost", this.port), codec, null);

@@ -72,12 +72,12 @@ final class Scheduler {
     final String command = task.getCommand();
 
     final Configuration taskConf = TaskConfiguration.CONF
-      .set(TaskConfiguration.TASK, ShellTask.class)
-      .set(TaskConfiguration.IDENTIFIER, taskId.toString())
-      .build();
+        .set(TaskConfiguration.TASK, ShellTask.class)
+        .set(TaskConfiguration.IDENTIFIER, taskId.toString())
+        .build();
     final Configuration commandConf = Tang.Factory.getTang().newConfigurationBuilder()
-      .bindNamedParameter(Command.class, command)
-      .build();
+        .bindNamedParameter(Command.class, command)
+        .build();
 
     final Configuration merged = Configurations.merge(taskConf, commandConf);
     context.submitTask(merged);
@@ -96,7 +96,8 @@ final class Scheduler {
 
     final TaskEntity task = getTask(taskId, taskQueue);
     if (task == null) {
-      final String message = new StringBuilder().append("Task with ID ").append(taskId).append(" is not found").toString();
+      final String message =
+          new StringBuilder().append("Task with ID ").append(taskId).append(" is not found").toString();
       return SchedulerResponse.NOT_FOUND(message);
     } else {
       taskQueue.remove(task);
@@ -172,7 +173,8 @@ final class Scheduler {
         return SchedulerResponse.OK("Canceled: " + finished.toString());
       }
     }
-    return SchedulerResponse.NOT_FOUND(new StringBuilder().append("Task with ID ").append(taskId).append(" is not found").toString());
+    return SchedulerResponse.NOT_FOUND(
+        new StringBuilder().append("Task with ID ").append(taskId).append(" is not found").toString());
   }
 
   /**

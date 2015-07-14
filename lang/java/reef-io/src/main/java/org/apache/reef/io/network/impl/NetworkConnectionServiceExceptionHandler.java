@@ -1,4 +1,4 @@
-﻿/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -16,30 +16,27 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.reef.io.network.impl;
 
-using System;
-using System.Linq.Expressions;
-using System.Net;
+import org.apache.reef.wake.EventHandler;
 
-namespace Org.Apache.REEF.Wake.Remote
-{
-    /// <summary>
-    /// Interface for remote event
-    /// </summary>
-    /// <typeparam name="T">Type of remote event message. It is assumed that T implements IWritable</typeparam>
-    [Obsolete("Need to remove Iwritable and use IstreamingCodec. Please see Jira REEF-295 ", false)]
-    internal interface IWritableRemoteEvent<T> : IWritable where T : IWritable
-    {
-        /// <summary>
-        /// Local Endpoint
-        /// </summary>
-        IPEndPoint LocalEndPoint { get; set; }
+import javax.inject.Inject;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-        /// <summary>
-        /// Remote Endpoint
-        /// </summary>
-        IPEndPoint RemoteEndPoint { get; set; }
+/**
+ * Default exception handler.
+ */
+public final class NetworkConnectionServiceExceptionHandler implements EventHandler<Exception> {
 
-        T Value { get; }
-    }
+  private static final Logger LOG = Logger.getLogger(NetworkConnectionServiceExceptionHandler.class.getName());
+
+  @Inject
+  public NetworkConnectionServiceExceptionHandler() {
+  }
+
+  @Override
+  public void onNext(final Exception value) {
+    LOG.log(Level.WARNING, "An exception occurred in transport of NetworkConnectionService: {0}", value);
+  }
 }

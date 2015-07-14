@@ -25,10 +25,6 @@ import org.apache.reef.wake.IdentifierFactory;
 
 import javax.inject.Inject;
 
-/**
- * TaskStop event handler for unregistering NetworkServiceClient id.
- * Users have to bind this handler into ServiceConfiguration.ON_TASK_STOP.
- */
 public class UnbindNSFromTask implements EventHandler<TaskStop> {
 
   private final NetworkService<?> ns;

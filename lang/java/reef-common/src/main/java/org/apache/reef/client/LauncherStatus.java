@@ -79,12 +79,12 @@ public final class LauncherStatus {
    */
   public boolean isDone() {
     switch (this.state) {
-      case FAILED:
-      case COMPLETED:
-      case FORCE_CLOSED:
-        return true;
-      default:
-        return false;
+    case FAILED:
+    case COMPLETED:
+    case FORCE_CLOSED:
+      return true;
+    default:
+      return false;
     }
   }
 

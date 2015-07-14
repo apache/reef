@@ -19,6 +19,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using Org.Apache.REEF.Network.Group.Config;
 using Org.Apache.REEF.Network.Group.Operators;
 using Org.Apache.REEF.Network.Group.Operators.Impl;
@@ -34,7 +36,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
     /// <summary>
     ///  Used by Tasks to fetch Group Communication Operators in the group configured by the driver.
     /// </summary>
-    public class CommunicationGroupClient : ICommunicationGroupClient
+    public class CommunicationGroupClient : ICommunicationGroupClientInternal
     {
         private readonly Logger LOGGER = Logger.GetLogger(typeof(CommunicationGroupClient));
         private readonly Dictionary<string, object> _operators;
@@ -174,6 +176,18 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
             }
 
             return (T) op;
+        }
+
+        /// <summary>
+        /// Call each Operator to easure all the nodes in the topology group has been registered
+        /// </summary>
+        void ICommunicationGroupClientInternal.WaitingForRegistration()
+        {
+            foreach (var op in _operators.Values)
+            {
+                var method = op.GetType().GetMethod("Org.Apache.REEF.Network.Group.Operators.IGroupCommOperatorInternal.WaitForRegistration", BindingFlags.NonPublic | BindingFlags.Instance);
+                method.Invoke(op, null);
+            }
         }
     }
 }

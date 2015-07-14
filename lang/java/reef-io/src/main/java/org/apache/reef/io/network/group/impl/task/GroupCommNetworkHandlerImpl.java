@@ -35,7 +35,8 @@ public class GroupCommNetworkHandlerImpl implements GroupCommNetworkHandler {
 
   private static final Logger LOG = Logger.getLogger(GroupCommNetworkHandlerImpl.class.getName());
 
-  private final Map<Class<? extends Name<String>>, EventHandler<GroupCommunicationMessage>> commGroupHandlers = new ConcurrentHashMap<>();
+  private final Map<Class<? extends Name<String>>, EventHandler<GroupCommunicationMessage>> commGroupHandlers =
+      new ConcurrentHashMap<>();
 
   @Inject
   public GroupCommNetworkHandlerImpl() {

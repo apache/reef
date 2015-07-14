@@ -35,13 +35,16 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof (ClassHierarchyImpl));
         private readonly INode rootNode;
-        private readonly MonotonicTreeMap<String, INamedParameterNode> shortNames = new MonotonicTreeMap<String, INamedParameterNode>();
+        private readonly MonotonicTreeMap<string, INamedParameterNode> shortNames = new MonotonicTreeMap<string, INamedParameterNode>();
         private readonly IList<string> assemblies;
         private readonly AssemblyLoader loader = null;
+        private object _nodeLock = new object();
+        private object _mergeLock = new object();
+        private object _implLock = new object();
 
         public ParameterParser Parameterparser = new ParameterParser();
 
-        public ClassHierarchyImpl(String file) : this(new string[] { file }, new Type[0])
+        public ClassHierarchyImpl(string file) : this(new string[] { file }, new Type[0])
         {
         }
 
@@ -362,8 +365,11 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
 
         public INode GetNode(Type type)
         {
-            this.RegisterType(type);
-            return GetAlreadyBoundNode(type);
+            lock (_nodeLock)
+            {
+                RegisterType(type);
+                return GetAlreadyBoundNode(type);
+            }
         }
 
         public INode GetNamespace()
@@ -373,7 +379,10 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
 
         public bool IsImplementation(IClassNode inter, IClassNode impl)
         {
-            return impl.IsImplementationOf(inter);
+            lock (_implLock)
+            {
+                return impl.IsImplementationOf(inter);
+            }
         }
 
         public IClassHierarchy Merge(IClassHierarchy ch)
@@ -389,22 +398,25 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
             {
                 return ch;
             }
-    
-            ClassHierarchyImpl chi = (ClassHierarchyImpl)ch;
-            MonotonicHashSet<string> otherJars = new MonotonicHashSet<string>();
-            otherJars.AddAll(chi.assemblies);
-            MonotonicHashSet<string> myJars = new MonotonicHashSet<string>();
-            myJars.AddAll(this.assemblies);
-            if(myJars.ContainsAll(otherJars)) 
+
+            lock (_mergeLock)
             {
-                return this;
-            } 
-            if (otherJars.ContainsAll(myJars)) 
-            {
-                return ch;
-            } 
-            myJars.AddAll(otherJars);
-            return new ClassHierarchyImpl(myJars.ToArray());
+                ClassHierarchyImpl chi = (ClassHierarchyImpl) ch;
+                MonotonicHashSet<string> otherJars = new MonotonicHashSet<string>();
+                otherJars.AddAll(chi.assemblies);
+                MonotonicHashSet<string> myJars = new MonotonicHashSet<string>();
+                myJars.AddAll(this.assemblies);
+                if (myJars.ContainsAll(otherJars))
+                {
+                    return this;
+                }
+                if (otherJars.ContainsAll(myJars))
+                {
+                    return ch;
+                }
+                myJars.AddAll(otherJars);
+                return new ClassHierarchyImpl(myJars.ToArray());
+            }
         }
 
         public object Parse(INamedParameterNode np, string value)
@@ -421,7 +433,7 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
                 Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(ex, LOGGER);
             }
             Type clazz;
-            String fullName;
+            string fullName;
             try 
             {
                 clazz = (Type)ClassForName(iface.GetFullName());

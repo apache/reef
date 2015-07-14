@@ -58,7 +58,8 @@ public final class DriverIdleManager {
         for (final DriverIdlenessSource idlenessSource : this.idlenessSources) {
           final IdleMessage idleMessage = idlenessSource.getIdleStatus();
           LOG.log(IDLE_REASONS_LEVEL, "[{0}] is reporting {1} because [{2}]."
-              , new Object[]{idleMessage.getComponentName(), idleMessage.isIdle() ? "idle" : "not idle", idleMessage.getReason()}
+              , new Object[]{idleMessage.getComponentName(), idleMessage.isIdle() ? "idle" : "not idle",
+                  idleMessage.getReason()}
           );
           isIdle &= idleMessage.isIdle();
         }

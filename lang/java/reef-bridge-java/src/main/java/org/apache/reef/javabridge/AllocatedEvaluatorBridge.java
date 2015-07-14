@@ -44,7 +44,8 @@ public class AllocatedEvaluatorBridge extends NativeBridge {
     nameServerInfo = serverInfo;
   }
 
-  public void submitContextAndTaskString(final String contextConfigurationString, final String taskConfigurationString) {
+  public void submitContextAndTaskString(final String contextConfigurationString,
+                                         final String taskConfigurationString) {
     if (contextConfigurationString.isEmpty()) {
       throw new RuntimeException("empty contextConfigurationString provided.");
     }
@@ -79,7 +80,8 @@ public class AllocatedEvaluatorBridge extends NativeBridge {
     jallocatedEvaluator.submitContext(contextConfiguration);
   }
 
-  public void submitContextAndServiceString(final String contextConfigurationString, final String serviceConfigurationString) {
+  public void submitContextAndServiceString(final String contextConfigurationString,
+                                            final String serviceConfigurationString) {
     if (contextConfigurationString.isEmpty()) {
       throw new RuntimeException("empty contextConfigurationString provided.");
     }
@@ -121,7 +123,8 @@ public class AllocatedEvaluatorBridge extends NativeBridge {
       servicetConfiguration = serializer.fromString(serviceConfigurationString, clrClassHierarchy);
       taskConfiguration = serializer.fromString(taskConfigurationString, clrClassHierarchy);
     } catch (final Exception e) {
-      final String message = "Unable to de-serialize CLR context or service or task configurations using class hierarchy.";
+      final String message =
+          "Unable to de-serialize CLR context or service or task configurations using class hierarchy.";
       LOG.log(Level.SEVERE, message, e);
       throw new RuntimeException(message, e);
     }
