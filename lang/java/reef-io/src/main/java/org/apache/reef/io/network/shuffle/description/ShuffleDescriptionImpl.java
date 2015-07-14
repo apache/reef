@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.io.network.shuffle.descriptor;
+package org.apache.reef.io.network.shuffle.description;
 
 import org.apache.reef.io.network.shuffle.params.*;
 import org.apache.reef.tang.Injector;
@@ -31,17 +31,17 @@ import java.util.*;
 /**
  *
  */
-public final class ShuffleDescription implements ShuffleDescriptor {
+public final class ShuffleDescriptionImpl implements ShuffleDescription {
 
   private final Class<? extends Name<String>> shuffleName;
   private final Map<String, List<String>> senderIdListMap;
   private final Map<String, List<String>> receiverIdListMap;
-  private final Map<String, GroupingDescriptor> groupingDescriptorMap;
+  private final Map<String, GroupingDescription> groupingDescriptionMap;
   private final List<String> groupingNameList;
 
 
   @Inject
-  public ShuffleDescription(
+  public ShuffleDescriptionImpl(
       final @Parameter(SerializedShuffleName.class) String shuffleName,
       final @Parameter(SerializedGroupingSet.class) Set<String> serializedGroupings,
       final ConfigurationSerializer confSerializer) {
@@ -53,7 +53,7 @@ public final class ShuffleDescription implements ShuffleDescriptor {
 
     this.senderIdListMap = new HashMap<>();
     this.receiverIdListMap = new HashMap<>();
-    this.groupingDescriptorMap = new HashMap<>();
+    this.groupingDescriptionMap = new HashMap<>();
     this.groupingNameList = new ArrayList<>();
     for (final String serializedGrouping : serializedGroupings) {
       deserializeGrouping(serializedGrouping, confSerializer);
@@ -63,12 +63,12 @@ public final class ShuffleDescription implements ShuffleDescriptor {
   private void deserializeGrouping(final String serializedGrouping, final ConfigurationSerializer confSerializer) {
     try {
       final Injector injector = Tang.Factory.getTang().newInjector(confSerializer.fromString(serializedGrouping));
-      final GroupingDescriptor descriptor = injector.getInstance(GroupingDescriptor.class);
+      final GroupingDescription description = injector.getInstance(GroupingDescription.class);
       final Set<String> senderIdSet = injector.getNamedInstance(GroupingSenderIdSet.class);
       final Set<String> receiverIdSet = injector.getNamedInstance(GroupingReceiverIdSet.class);
 
-      final String groupingName = descriptor.getGroupingName();
-      groupingDescriptorMap.put(groupingName, descriptor);
+      final String groupingName = description.getGroupingName();
+      groupingDescriptionMap.put(groupingName, description);
       groupingNameList.add(groupingName);
       senderIdListMap.put(groupingName, getSortedListFromSet(senderIdSet));
       receiverIdListMap.put(groupingName, getSortedListFromSet(receiverIdSet));
@@ -83,16 +83,16 @@ public final class ShuffleDescription implements ShuffleDescriptor {
     return list;
   }
 
-  private ShuffleDescription(
+  private ShuffleDescriptionImpl(
       final Class<? extends Name<String>> shuffleName,
       final Map<String, List<String>> senderIdListMap,
       final Map<String, List<String>> receiverIdListMap,
-      final Map<String, GroupingDescriptor> groupingDescriptorMap,
+      final Map<String, GroupingDescription> groupingDescriptionMap,
       final List<String> groupingNameList) {
     this.shuffleName = shuffleName;
     this.senderIdListMap = senderIdListMap;
     this.receiverIdListMap = receiverIdListMap;
-    this.groupingDescriptorMap = groupingDescriptorMap;
+    this.groupingDescriptionMap = groupingDescriptionMap;
     this.groupingNameList = groupingNameList;
   }
 
@@ -107,8 +107,8 @@ public final class ShuffleDescription implements ShuffleDescriptor {
   }
 
   @Override
-  public GroupingDescriptor getGroupingDescriptor(final String groupingName) {
-    return groupingDescriptorMap.get(groupingName);
+  public GroupingDescription getGroupingDescription(final String groupingName) {
+    return groupingDescriptionMap.get(groupingName);
   }
 
   @Override
@@ -130,35 +130,35 @@ public final class ShuffleDescription implements ShuffleDescriptor {
     private final Class<? extends Name<String>> shuffleName;
     private final Map<String, List<String>> senderIdListMap;
     private final Map<String, List<String>> receiverIdListMap;
-    private final Map<String, GroupingDescriptor> groupingDescriptorMap;
+    private final Map<String, GroupingDescription> groupingDescriptionMap;
     private final List<String> groupingNameList;
 
     private Builder(Class<? extends Name<String>> shuffleName) {
       this.shuffleName = shuffleName;
       this.senderIdListMap = new HashMap<>();
       this.receiverIdListMap = new HashMap<>();
-      this.groupingDescriptorMap = new HashMap<>();
+      this.groupingDescriptionMap = new HashMap<>();
       this.groupingNameList = new ArrayList<>();
     }
 
-    public Builder addGrouping(final List<String> senderIdList, final List<String> receiverIdList, final GroupingDescriptor groupingDescriptor) {
-      if (groupingDescriptorMap.containsKey(groupingDescriptor.getGroupingName())) {
-        throw new RuntimeException(groupingDescriptor.getGroupingName() + " was already added.");
+    public Builder addGrouping(final List<String> senderIdList, final List<String> receiverIdList, final GroupingDescription groupingDescription) {
+      if (groupingDescriptionMap.containsKey(groupingDescription.getGroupingName())) {
+        throw new RuntimeException(groupingDescription.getGroupingName() + " was already added.");
       }
 
-      groupingDescriptorMap.put(groupingDescriptor.getGroupingName(), groupingDescriptor);
-      groupingNameList.add(groupingDescriptor.getGroupingName());
-      senderIdListMap.put(groupingDescriptor.getGroupingName(), senderIdList);
-      receiverIdListMap.put(groupingDescriptor.getGroupingName(), receiverIdList);
+      groupingDescriptionMap.put(groupingDescription.getGroupingName(), groupingDescription);
+      groupingNameList.add(groupingDescription.getGroupingName());
+      senderIdListMap.put(groupingDescription.getGroupingName(), senderIdList);
+      receiverIdListMap.put(groupingDescription.getGroupingName(), receiverIdList);
       return this;
     }
 
-    public ShuffleDescription build() {
-      return new ShuffleDescription(
+    public ShuffleDescriptionImpl build() {
+      return new ShuffleDescriptionImpl(
           shuffleName,
           senderIdListMap,
           receiverIdListMap,
-          groupingDescriptorMap,
+          groupingDescriptionMap,
           groupingNameList
       );
     }

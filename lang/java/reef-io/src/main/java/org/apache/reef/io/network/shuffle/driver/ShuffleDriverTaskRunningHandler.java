@@ -34,7 +34,7 @@ final class ShuffleDriverTaskRunningHandler implements EventHandler<RunningTask>
   }
 
   @Override
-  public void onNext(RunningTask runningTask) {
+  public void onNext(final RunningTask runningTask) {
     shuffleDriver.onRunningTask(runningTask);
   }
 }

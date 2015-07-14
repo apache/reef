@@ -35,8 +35,8 @@ import org.apache.reef.io.network.shuffle.driver.ShuffleDriver;
 import org.apache.reef.io.network.shuffle.grouping.impl.AllGroupingStrategy;
 import org.apache.reef.io.network.shuffle.grouping.impl.KeyGroupingStrategy;
 import org.apache.reef.io.network.shuffle.impl.StaticShuffleManager;
-import org.apache.reef.io.network.shuffle.descriptor.GroupingDescription;
-import org.apache.reef.io.network.shuffle.descriptor.ShuffleDescription;
+import org.apache.reef.io.network.shuffle.description.GroupingDescriptionImpl;
+import org.apache.reef.io.network.shuffle.description.ShuffleDescriptionImpl;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Configurations;
 import org.apache.reef.tang.Tang;
@@ -121,11 +121,11 @@ public final class WordCountDriver {
   private void createWordCountTopology() {
     final List<String> aggregatorIdList = new ArrayList<>(1);
     aggregatorIdList.add(AGGREGATOR_ID);
-    shuffleDriver.registerManager(ShuffleDescription.newBuilder(WordCountShuffle.class)
+    shuffleDriver.registerManager(ShuffleDescriptionImpl.newBuilder(WordCountShuffle.class)
         .addGrouping(
             mapperIdList,
             reducerIdList,
-            GroupingDescription.newBuilder(SHUFFLE_GROUPING)
+            GroupingDescriptionImpl.newBuilder(SHUFFLE_GROUPING)
                 .setGroupingStrategy(KeyGroupingStrategy.class)
                 .setKeyCodec(StringCodec.class)
                 .setValueCodec(IntegerCodec.class)
@@ -133,7 +133,7 @@ public final class WordCountDriver {
         .addGrouping(
             reducerIdList,
             aggregatorIdList,
-            GroupingDescription.newBuilder(AGGREGATING_GROUPING)
+            GroupingDescriptionImpl.newBuilder(AGGREGATING_GROUPING)
                 .setGroupingStrategy(AllGroupingStrategy.class)
                 .setKeyCodec(StringCodec.class)
                 .setValueCodec(IntegerCodec.class)

@@ -29,9 +29,9 @@ import org.apache.reef.io.network.shuffle.driver.ShuffleManager;
 import org.apache.reef.io.network.shuffle.ns.ShuffleControlMessage;
 import org.apache.reef.io.network.shuffle.params.ShuffleControlMessageNSId;
 import org.apache.reef.io.network.shuffle.task.ShuffleClient;
-import org.apache.reef.io.network.shuffle.descriptor.GroupingDescriptor;
-import org.apache.reef.io.network.shuffle.descriptor.ShuffleDescriptor;
-import org.apache.reef.io.network.shuffle.descriptor.ShuffleDescriptorSerializer;
+import org.apache.reef.io.network.shuffle.description.GroupingDescription;
+import org.apache.reef.io.network.shuffle.description.ShuffleDescription;
+import org.apache.reef.io.network.shuffle.description.ShuffleDescriptionSerializer;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.wake.EventHandler;
@@ -41,11 +41,9 @@ import org.apache.reef.wake.remote.transport.LinkListener;
 import javax.inject.Inject;
 import java.net.SocketAddress;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -56,20 +54,20 @@ public final class StaticShuffleManager implements ShuffleManager {
 
   private static final Logger LOG = Logger.getLogger(StaticShuffleManager.class.getName());
 
-  private final ShuffleDescriptor initialShuffleDescriptor;
-  private final ShuffleDescriptorSerializer shuffleDescriptorSerializer;
+  private final ShuffleDescription initialShuffleDescription;
+  private final ShuffleDescriptionSerializer shuffleDescriptionSerializer;
   private final ShuffleLinkListener shuffleLinkListener;
   private final ShuffleMessageHandler shuffleMessageHandler;
   private final Map<String, GroupingSetupGate> groupingSetupGates;
 
   @Inject
   public StaticShuffleManager(
-      final ShuffleDescriptor initialShuffleDescriptor,
-      final ShuffleDescriptorSerializer shuffleDescriptorSerializer,
+      final ShuffleDescription initialShuffleDescription,
+      final ShuffleDescriptionSerializer shuffleDescriptionSerializer,
       final @Parameter(NameServerParameters.NameServerIdentifierFactory.class) IdentifierFactory idFactory,
       final NetworkServiceClient nsClient) {
-    this.initialShuffleDescriptor = initialShuffleDescriptor;
-    this.shuffleDescriptorSerializer = shuffleDescriptorSerializer;
+    this.initialShuffleDescription = initialShuffleDescription;
+    this.shuffleDescriptionSerializer = shuffleDescriptionSerializer;
     this.shuffleLinkListener = new ShuffleLinkListener();
     this.shuffleMessageHandler = new ShuffleMessageHandler();
 
@@ -80,21 +78,21 @@ public final class StaticShuffleManager implements ShuffleManager {
 
   private void createGroupingSetupGates(
       final IdentifierFactory idFactory, final ConnectionFactory<ShuffleControlMessage> connFactory) {
-    for (final String groupingName : initialShuffleDescriptor.getGroupingNameList()) {
-      final GroupingDescriptor descriptor = initialShuffleDescriptor.getGroupingDescriptor(groupingName);
+    for (final String groupingName : initialShuffleDescription.getGroupingNameList()) {
+      final GroupingDescription description = initialShuffleDescription.getGroupingDescription(groupingName);
       final Set<String> taskIdSet = new HashSet<>();
-      for (final String senderId : initialShuffleDescriptor.getSenderIdList(descriptor.getGroupingName())) {
+      for (final String senderId : initialShuffleDescription.getSenderIdList(description.getGroupingName())) {
         taskIdSet.add(senderId);
       }
 
-      for (final String receiverId : initialShuffleDescriptor.getReceiverIdList(descriptor.getGroupingName())) {
+      for (final String receiverId : initialShuffleDescription.getReceiverIdList(description.getGroupingName())) {
         taskIdSet.add(receiverId);
       }
 
       groupingSetupGates.put(
           groupingName,
           new GroupingSetupGate(
-              initialShuffleDescriptor.getShuffleName().getName(),
+              initialShuffleDescription.getShuffleName().getName(),
               groupingName,
               taskIdSet,
               idFactory,
@@ -115,13 +113,13 @@ public final class StaticShuffleManager implements ShuffleManager {
   }
 
   @Override
-  public ShuffleDescriptor getShuffleDescriptor() {
-    return initialShuffleDescriptor;
+  public ShuffleDescription getShuffleDescription() {
+    return initialShuffleDescription;
   }
 
   @Override
-  public Configuration getShuffleDescriptorConfigurationForTask(final String taskId) {
-    return shuffleDescriptorSerializer.getConfigurationHasTaskId(initialShuffleDescriptor, taskId);
+  public Configuration getShuffleDescriptionConfigurationForTask(final String taskId) {
+    return shuffleDescriptionSerializer.getConfigurationHasTaskId(initialShuffleDescription, taskId);
   }
 
   @Override

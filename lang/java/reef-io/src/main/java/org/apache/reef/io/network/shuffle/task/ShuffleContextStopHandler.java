@@ -40,7 +40,7 @@ public final class ShuffleContextStopHandler implements EventHandler<ContextStop
   }
 
   @Override
-  public void onNext(ContextStop value) {
+  public void onNext(final ContextStop value) {
     nsClient.unregisterConnectionFactory(ShuffleControlMessageNSId.class);
   }
 }

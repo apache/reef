@@ -29,7 +29,7 @@ import org.apache.reef.io.network.naming.NameServerParameters;
 import org.apache.reef.io.network.shuffle.grouping.GroupingStrategy;
 import org.apache.reef.io.network.shuffle.ns.ShuffleControlMessage;
 import org.apache.reef.io.network.shuffle.ns.ShuffleTupleMessage;
-import org.apache.reef.io.network.shuffle.descriptor.GroupingDescriptor;
+import org.apache.reef.io.network.shuffle.description.GroupingDescription;
 import org.apache.reef.io.network.shuffle.params.ShuffleControlMessageNSId;
 import org.apache.reef.io.network.shuffle.params.ShuffleTupleMessageNSId;
 import org.apache.reef.io.network.shuffle.task.ShuffleClient;
@@ -61,7 +61,7 @@ public final class BaseTupleSender<K, V> implements TupleSender<K, V> {
   private final Map<String, Connection<ShuffleControlMessage>> controlMessageConnectionMap;
   private final IdentifierFactory idFactory;
   private final Identifier taskId;
-  private final GroupingDescriptor<K, V> groupingDescriptor;
+  private final GroupingDescription<K, V> groupingDescription;
   private final GroupingStrategy<K> groupingStrategy;
   private final ShuffleTupleMessageGenerator<K, V> tupleMessageGenerator;
 
@@ -71,11 +71,11 @@ public final class BaseTupleSender<K, V> implements TupleSender<K, V> {
       final NetworkServiceClient nsClient,
       final @Parameter(NameServerParameters.NameServerIdentifierFactory.class) IdentifierFactory idFactory,
       final @Parameter(TaskConfigurationOptions.Identifier.class) String taskId,
-      final GroupingDescriptor<K, V> groupingDescriptor,
+      final GroupingDescription<K, V> groupingDescription,
       final GroupingStrategy<K> groupingStrategy,
       final ShuffleTupleMessageGenerator<K, V> tupleMessageGenerator) {
-    this.shuffleName = shuffleClient.getShuffleDescriptor().getShuffleName().getName();
-    this.groupingName = groupingDescriptor.getGroupingName();
+    this.shuffleName = shuffleClient.getShuffleDescription().getShuffleName().getName();
+    this.groupingName = groupingDescription.getGroupingName();
     this.shuffleClient = shuffleClient;
     this.tupleMessageConnectionFactory = nsClient.getConnectionFactory(ShuffleTupleMessageNSId.class);
     this.controlMessageConnectionFactory = nsClient.getConnectionFactory(ShuffleControlMessageNSId.class);
@@ -83,7 +83,7 @@ public final class BaseTupleSender<K, V> implements TupleSender<K, V> {
     this.taskId = idFactory.getNewInstance(taskId);
     this.tupleMessageConnectionMap = new ConcurrentHashMap<>();
     this.controlMessageConnectionMap = new ConcurrentHashMap<>();
-    this.groupingDescriptor = groupingDescriptor;
+    this.groupingDescription = groupingDescription;
     this.groupingStrategy = groupingStrategy;
     this.tupleMessageGenerator = tupleMessageGenerator;
   }
@@ -158,8 +158,8 @@ public final class BaseTupleSender<K, V> implements TupleSender<K, V> {
   }
 
   @Override
-  public GroupingDescriptor<K, V> getGroupingDescriptor() {
-    return groupingDescriptor;
+  public GroupingDescription<K, V> getGroupingDescription() {
+    return groupingDescription;
   }
 
   @Override
@@ -170,7 +170,7 @@ public final class BaseTupleSender<K, V> implements TupleSender<K, V> {
   @Override
   public List<String> getSelectedReceiverIdList(K key) {
     return groupingStrategy.selectReceivers(key,
-        shuffleClient.getShuffleDescriptor().getReceiverIdList(groupingName));
+        shuffleClient.getShuffleDescription().getReceiverIdList(groupingName));
   }
 
   @Override
@@ -193,7 +193,7 @@ public final class BaseTupleSender<K, V> implements TupleSender<K, V> {
     final ShuffleControlMessage controlMessage = new ShuffleControlMessage(code, shuffleName,
         groupingName, data, false);
 
-    shuffleClient.waitForGroupingSetup(groupingDescriptor.getGroupingName());
+    shuffleClient.waitForGroupingSetup(groupingDescription.getGroupingName());
 
     if (!controlMessageConnectionMap.containsKey(destId)) {
       try {

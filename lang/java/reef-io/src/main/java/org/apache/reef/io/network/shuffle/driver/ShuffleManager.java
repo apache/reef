@@ -30,7 +30,7 @@ import org.apache.reef.tang.Configuration;
  */
 public interface ShuffleManager extends ShuffleController {
 
-  Configuration getShuffleDescriptorConfigurationForTask(String taskId);
+  Configuration getShuffleDescriptionConfigurationForTask(String taskId);
 
   Class<? extends ShuffleClient> getClientClass();
 

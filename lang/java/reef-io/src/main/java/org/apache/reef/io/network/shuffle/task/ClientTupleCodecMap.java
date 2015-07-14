@@ -18,7 +18,7 @@
  */
 package org.apache.reef.io.network.shuffle.task;
 
-import org.apache.reef.io.network.shuffle.descriptor.GroupingDescriptor;
+import org.apache.reef.io.network.shuffle.description.GroupingDescription;
 import org.apache.reef.tang.annotations.DefaultImplementation;
 import org.apache.reef.wake.remote.Codec;
 
@@ -30,5 +30,5 @@ public interface ClientTupleCodecMap {
 
   Codec<Tuple> getTupleCodec(String groupingName);
 
-  public void registerTupleCodec(GroupingDescriptor groupingDescriptor);
+  public void registerTupleCodec(GroupingDescription groupingDescription);
 }

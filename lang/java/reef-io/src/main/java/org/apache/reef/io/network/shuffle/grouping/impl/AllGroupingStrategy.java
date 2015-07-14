@@ -33,7 +33,7 @@ public final class AllGroupingStrategy<K> implements GroupingStrategy<K> {
   }
 
   @Override
-  public List<String> selectReceivers(K key, List<String> receiverIdList) {
+  public List<String> selectReceivers(final K key, final List<String> receiverIdList) {
     return receiverIdList;
   }
 }

@@ -34,7 +34,7 @@ final class ShuffleDriverTaskFailedHandler implements EventHandler<FailedTask> {
   }
 
   @Override
-  public void onNext(FailedTask failedTask) {
+  public void onNext(final FailedTask failedTask) {
     shuffleDriver.onFailedTask(failedTask);
   }
 }

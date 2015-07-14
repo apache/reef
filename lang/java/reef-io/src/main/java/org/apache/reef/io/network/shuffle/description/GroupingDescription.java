@@ -16,27 +16,24 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.io.network.shuffle.descriptor;
+package org.apache.reef.io.network.shuffle.description;
 
+import org.apache.reef.io.network.shuffle.grouping.GroupingStrategy;
 import org.apache.reef.tang.annotations.DefaultImplementation;
-import org.apache.reef.tang.annotations.Name;
-
-import java.util.List;
+import org.apache.reef.wake.remote.Codec;
 
 /**
  *
  */
-@DefaultImplementation(ShuffleDescription.class)
-public interface ShuffleDescriptor {
+@DefaultImplementation(GroupingDescriptionImpl.class)
+public interface GroupingDescription<K, V> {
 
-  Class<? extends Name<String>> getShuffleName();
+  String getGroupingName();
 
-  List<String> getGroupingNameList();
+  Class<? extends GroupingStrategy> getGroupingStrategyClass();
 
-  GroupingDescriptor getGroupingDescriptor(String groupingName);
+  Class<? extends Codec<K>> getKeyCodec();
 
-  List<String> getSenderIdList(String groupingName);
-
-  List<String> getReceiverIdList(String groupingName);
+  Class<? extends Codec<V>> getValueCodec();
 
 }

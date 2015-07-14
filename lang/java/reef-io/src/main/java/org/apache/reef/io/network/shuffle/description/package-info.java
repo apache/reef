@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -16,24 +16,4 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.io.network.shuffle.descriptor;
-
-import org.apache.reef.io.network.shuffle.grouping.GroupingStrategy;
-import org.apache.reef.tang.annotations.DefaultImplementation;
-import org.apache.reef.wake.remote.Codec;
-
-/**
- *
- */
-@DefaultImplementation(GroupingDescription.class)
-public interface GroupingDescriptor<K, V> {
-
-  String getGroupingName();
-
-  Class<? extends GroupingStrategy> getGroupingStrategyClass();
-
-  Class<? extends Codec<K>> getKeyCodec();
-
-  Class<? extends Codec<V>> getValueCodec();
-
-}
+package org.apache.reef.io.network.shuffle.description;

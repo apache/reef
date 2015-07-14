@@ -19,7 +19,7 @@
 package org.apache.reef.io.network.shuffle.task.operator;
 
 import org.apache.reef.io.network.Message;
-import org.apache.reef.io.network.shuffle.descriptor.GroupingDescriptor;
+import org.apache.reef.io.network.shuffle.description.GroupingDescription;
 import org.apache.reef.io.network.shuffle.grouping.GroupingStrategy;
 import org.apache.reef.io.network.shuffle.ns.ShuffleControlMessage;
 import org.apache.reef.wake.EventHandler;
@@ -34,7 +34,7 @@ public interface TupleOperator<K, V> {
 
   String getGroupingName();
 
-  GroupingDescriptor<K, V> getGroupingDescriptor();
+  GroupingDescription<K, V> getGroupingDescription();
 
   GroupingStrategy<K> getGroupingStrategy();
 

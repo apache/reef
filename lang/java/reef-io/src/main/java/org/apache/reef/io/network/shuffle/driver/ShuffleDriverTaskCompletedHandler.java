@@ -34,7 +34,7 @@ final class ShuffleDriverTaskCompletedHandler implements EventHandler<CompletedT
   }
 
   @Override
-  public void onNext(CompletedTask completedTask) {
+  public void onNext(final CompletedTask completedTask) {
     shuffleDriver.onCompletedTask(completedTask);
   }
 }

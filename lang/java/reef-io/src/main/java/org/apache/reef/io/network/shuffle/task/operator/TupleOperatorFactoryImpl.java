@@ -22,8 +22,8 @@ import org.apache.reef.driver.task.TaskConfigurationOptions;
 import org.apache.reef.io.network.NetworkServiceClient;
 import org.apache.reef.io.network.shuffle.grouping.GroupingStrategy;
 import org.apache.reef.io.network.shuffle.params.ShuffleTupleCodec;
-import org.apache.reef.io.network.shuffle.descriptor.GroupingDescriptor;
-import org.apache.reef.io.network.shuffle.descriptor.ShuffleDescriptor;
+import org.apache.reef.io.network.shuffle.description.GroupingDescription;
+import org.apache.reef.io.network.shuffle.description.ShuffleDescription;
 import org.apache.reef.io.network.shuffle.task.ShuffleClient;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.InjectionFuture;
@@ -64,12 +64,12 @@ final class TupleOperatorFactoryImpl implements TupleOperatorFactory {
   }
 
   @Override
-  public <K, V> TupleReceiver<K, V> newTupleReceiver(final GroupingDescriptor groupingDescription) {
+  public <K, V> TupleReceiver<K, V> newTupleReceiver(final GroupingDescription groupingDescription) {
     final String groupingName = groupingDescription.getGroupingName();
 
     if (!receiverMap.containsKey(groupingName)) {
-      final ShuffleDescriptor descriptor = client.get().getShuffleDescriptor();
-      if (!descriptor.getReceiverIdList(groupingName).contains(nodeId)) {
+      final ShuffleDescription description = client.get().getShuffleDescription();
+      if (!description.getReceiverIdList(groupingName).contains(nodeId)) {
         throw new RuntimeException(groupingName + " does not have " + nodeId + " as a receiver.");
       }
 
@@ -80,7 +80,7 @@ final class TupleOperatorFactoryImpl implements TupleOperatorFactory {
       final Injector forkedInjector = injector.forkInjector(receiverConfiguration);
       forkedInjector.bindVolatileInstance(ShuffleClient.class, client.get());
       forkedInjector.bindVolatileInstance(NetworkServiceClient.class, networkServiceClient);
-      forkedInjector.bindVolatileInstance(GroupingDescriptor.class, groupingDescription);
+      forkedInjector.bindVolatileInstance(GroupingDescription.class, groupingDescription);
 
       try {
         final TupleReceiver receiver = forkedInjector.getInstance(TupleReceiver.class);
@@ -95,12 +95,12 @@ final class TupleOperatorFactoryImpl implements TupleOperatorFactory {
   }
 
   @Override
-  public <K, V> TupleSender<K, V> newTupleSender(final GroupingDescriptor groupingDescription) {
+  public <K, V> TupleSender<K, V> newTupleSender(final GroupingDescription groupingDescription) {
     final String groupingName = groupingDescription.getGroupingName();
 
     if (!senderMap.containsKey(groupingName)) {
-      final ShuffleDescriptor descriptor = client.get().getShuffleDescriptor();
-      if (!descriptor.getSenderIdList(groupingName).contains(nodeId)) {
+      final ShuffleDescription description = client.get().getShuffleDescription();
+      if (!description.getSenderIdList(groupingName).contains(nodeId)) {
         throw new RuntimeException(groupingName + " does not have " + nodeId + " as a sender.");
       }
 
@@ -110,7 +110,7 @@ final class TupleOperatorFactoryImpl implements TupleOperatorFactory {
 
       final Injector forkedInjector = injector.forkInjector(senderConfiguration);
       forkedInjector.bindVolatileInstance(ShuffleClient.class, client.get());
-      forkedInjector.bindVolatileInstance(GroupingDescriptor.class, groupingDescription);
+      forkedInjector.bindVolatileInstance(GroupingDescription.class, groupingDescription);
       forkedInjector.bindVolatileInstance(NetworkServiceClient.class, networkServiceClient);
       forkedInjector.bindVolatileParameter(ShuffleTupleCodec.class, client.get().getTupleCodec(groupingName));
 

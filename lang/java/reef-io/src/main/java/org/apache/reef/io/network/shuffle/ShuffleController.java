@@ -20,7 +20,7 @@ package org.apache.reef.io.network.shuffle;
 
 import org.apache.reef.io.network.Message;
 import org.apache.reef.io.network.shuffle.ns.ShuffleControlMessage;
-import org.apache.reef.io.network.shuffle.descriptor.ShuffleDescriptor;
+import org.apache.reef.io.network.shuffle.description.ShuffleDescription;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.remote.transport.LinkListener;
 
@@ -33,6 +33,6 @@ public interface ShuffleController {
 
   LinkListener<Message<ShuffleControlMessage>> getControlLinkListener();
 
-  ShuffleDescriptor getShuffleDescriptor();
+  ShuffleDescription getShuffleDescription();
 
 }

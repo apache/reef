@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.io.network.shuffle.descriptor;
+package org.apache.reef.io.network.shuffle.description;
 
 import org.apache.reef.io.network.shuffle.grouping.GroupingStrategy;
 import org.apache.reef.io.network.shuffle.params.GroupingKeyCodecClassName;
@@ -31,7 +31,7 @@ import javax.inject.Inject;
 /**
  *
  */
-public final class GroupingDescription<K, V> implements GroupingDescriptor<K, V> {
+public final class GroupingDescriptionImpl<K, V> implements GroupingDescription<K, V> {
 
   private final String groupingName;
   private final Class<? extends GroupingStrategy> groupingClass;
@@ -39,7 +39,7 @@ public final class GroupingDescription<K, V> implements GroupingDescriptor<K, V>
   private final Class<? extends Codec<V>> valueCodecClass;
 
   @Inject
-  private GroupingDescription(
+  private GroupingDescriptionImpl(
       final @Parameter(GroupingName.class) String groupingName,
       final @Parameter(GroupingStrategyClassName.class) String groupingClassName,
       final @Parameter(GroupingKeyCodecClassName.class) String keyCodecClassName,
@@ -54,7 +54,7 @@ public final class GroupingDescription<K, V> implements GroupingDescriptor<K, V>
     }
   }
 
-  private GroupingDescription(
+  private GroupingDescriptionImpl(
       final String groupingName,
       final Class<? extends GroupingStrategy> groupingClass,
       final Class<? extends Codec<K>> keyCodecClass,
@@ -115,7 +115,7 @@ public final class GroupingDescription<K, V> implements GroupingDescriptor<K, V>
       return this;
     }
 
-    public GroupingDescriptor build() {
+    public GroupingDescription build() {
       if (groupingClass == null) {
         throw new RuntimeException("You should set grouping class");
       }
@@ -124,7 +124,7 @@ public final class GroupingDescription<K, V> implements GroupingDescriptor<K, V>
         throw new RuntimeException("You should set codec for both key and value type");
       }
 
-      return new GroupingDescription(groupingName, groupingClass, keyCodecClass, valueCodecClass);
+      return new GroupingDescriptionImpl(groupingName, groupingClass, keyCodecClass, valueCodecClass);
     }
   }
 }

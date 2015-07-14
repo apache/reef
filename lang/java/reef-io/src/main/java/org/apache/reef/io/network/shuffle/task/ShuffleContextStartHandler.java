@@ -61,7 +61,7 @@ public final class ShuffleContextStartHandler implements EventHandler<ContextSta
   }
 
   @Override
-  public void onNext(ContextStart value) {
+  public void onNext(final ContextStart value) {
     try {
       nsClient.registerConnectionFactory(ShuffleControlMessageNSId.class, controlCodec, controlHandler, controlLinkListener);
       nsClient.registerConnectionFactory(ShuffleTupleMessageNSId.class, tupleCodec, tupleHandler, tupleLinkListener);

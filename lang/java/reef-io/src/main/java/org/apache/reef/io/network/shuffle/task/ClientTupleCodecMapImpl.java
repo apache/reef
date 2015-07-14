@@ -21,8 +21,8 @@ package org.apache.reef.io.network.shuffle.task;
 import org.apache.reef.io.network.shuffle.ns.GlobalTupleCodecMap;
 import org.apache.reef.io.network.shuffle.params.ShuffleKeyCodec;
 import org.apache.reef.io.network.shuffle.params.ShuffleValueCodec;
-import org.apache.reef.io.network.shuffle.descriptor.GroupingDescriptor;
-import org.apache.reef.io.network.shuffle.descriptor.ShuffleDescriptor;
+import org.apache.reef.io.network.shuffle.description.GroupingDescription;
+import org.apache.reef.io.network.shuffle.description.ShuffleDescription;
 import org.apache.reef.tang.Injector;
 import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.exceptions.InjectionException;
@@ -40,13 +40,13 @@ public final class ClientTupleCodecMapImpl implements ClientTupleCodecMap {
 
   @Inject
   public ClientTupleCodecMapImpl(
-      final ShuffleDescriptor initialShuffleDescriptor,
+      final ShuffleDescription initialShuffleDescription,
       final GlobalTupleCodecMap globalTupleCodecMap) {
 
     this.globalTupleCodecMap = globalTupleCodecMap;
-    shuffleName = initialShuffleDescriptor.getShuffleName().getName();
-    for (final String groupingName : initialShuffleDescriptor.getGroupingNameList()) {
-      registerTupleCodec(initialShuffleDescriptor.getGroupingDescriptor(groupingName));
+    shuffleName = initialShuffleDescription.getShuffleName().getName();
+    for (final String groupingName : initialShuffleDescription.getGroupingNameList()) {
+      registerTupleCodec(initialShuffleDescription.getGroupingDescription(groupingName));
     }
   }
 
@@ -56,20 +56,20 @@ public final class ClientTupleCodecMapImpl implements ClientTupleCodecMap {
   }
 
   @Override
-  public void registerTupleCodec(final GroupingDescriptor groupingDescriptor) {
+  public void registerTupleCodec(final GroupingDescription groupingDescription) {
     final Injector injector = Tang.Factory.getTang().newInjector(
         Tang.Factory.getTang().newConfigurationBuilder()
-            .bindNamedParameter(ShuffleKeyCodec.class, groupingDescriptor.getKeyCodec())
-            .bindNamedParameter(ShuffleValueCodec.class, groupingDescriptor.getValueCodec())
+            .bindNamedParameter(ShuffleKeyCodec.class, groupingDescription.getKeyCodec())
+            .bindNamedParameter(ShuffleValueCodec.class, groupingDescription.getValueCodec())
             .build()
     );
 
     try {
       final Codec<Tuple> tupleCodec = injector.getInstance(TupleCodec.class);
-      globalTupleCodecMap.registerTupleCodec(shuffleName, groupingDescriptor.getGroupingName(), tupleCodec);
+      globalTupleCodecMap.registerTupleCodec(shuffleName, groupingDescription.getGroupingName(), tupleCodec);
     } catch (final InjectionException exception) {
       throw new RuntimeException("An InjectionException occurred while creating tuple codec for "
-          + groupingDescriptor.getGroupingName(), exception);
+          + groupingDescription.getGroupingName(), exception);
     }
   }
 }

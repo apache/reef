@@ -36,7 +36,7 @@ final class ShuffleEvaluatorFailedHandler implements EventHandler<FailedEvaluato
   }
 
   @Override
-  public void onNext(FailedEvaluator failedEvaluator) {
+  public void onNext(final FailedEvaluator failedEvaluator) {
     if (failedEvaluator.getFailedTask().isPresent()) {
       shuffleDriver.onFailedTask(failedEvaluator.getFailedTask().get());
     }

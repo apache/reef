@@ -18,7 +18,7 @@
  */
 package org.apache.reef.io.network.shuffle.task.operator;
 
-import org.apache.reef.io.network.shuffle.descriptor.GroupingDescriptor;
+import org.apache.reef.io.network.shuffle.description.GroupingDescription;
 import org.apache.reef.tang.annotations.DefaultImplementation;
 
 /**
@@ -27,8 +27,8 @@ import org.apache.reef.tang.annotations.DefaultImplementation;
 @DefaultImplementation(TupleOperatorFactoryImpl.class)
 public interface TupleOperatorFactory {
 
-  <K, V> TupleReceiver<K, V> newTupleReceiver(GroupingDescriptor groupingDescription);
+  <K, V> TupleReceiver<K, V> newTupleReceiver(GroupingDescription groupingDescription);
 
-  <K, V> TupleSender<K, V> newTupleSender(GroupingDescriptor groupingDescription);
+  <K, V> TupleSender<K, V> newTupleSender(GroupingDescription groupingDescription);
 
 }

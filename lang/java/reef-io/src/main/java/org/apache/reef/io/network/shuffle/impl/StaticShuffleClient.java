@@ -23,7 +23,7 @@ import org.apache.reef.io.network.shuffle.ns.ShuffleControlMessage;
 import org.apache.reef.io.network.shuffle.ns.ShuffleTupleMessage;
 import org.apache.reef.io.network.shuffle.task.*;
 import org.apache.reef.io.network.shuffle.task.Tuple;
-import org.apache.reef.io.network.shuffle.descriptor.ShuffleDescriptor;
+import org.apache.reef.io.network.shuffle.description.ShuffleDescription;
 import org.apache.reef.io.network.shuffle.task.operator.TupleOperatorFactory;
 import org.apache.reef.io.network.shuffle.task.operator.TupleReceiver;
 import org.apache.reef.io.network.shuffle.task.operator.TupleSender;
@@ -46,7 +46,7 @@ public final class StaticShuffleClient implements ShuffleClient {
   private final CountDownLatch clientSetupLatch;
   private final Map<String, CountDownLatch> groupingSetupLatchMap;
 
-  private final ShuffleDescriptor initialShuffleDescriptor;
+  private final ShuffleDescription initialShuffleDescription;
   private final ClientTupleCodecMap tupleCodecMap;
   private final TupleOperatorFactory tupleOperatorFactory;
 
@@ -56,18 +56,18 @@ public final class StaticShuffleClient implements ShuffleClient {
 
   @Inject
   public StaticShuffleClient(
-      final ShuffleDescriptor initialShuffleDescriptor,
+      final ShuffleDescription initialShuffleDescription,
       final ClientTupleCodecMap tupleCodecMap,
       final TupleOperatorFactory tupleOperatorFactory) {
 
-    this.initialShuffleDescriptor = initialShuffleDescriptor;
+    this.initialShuffleDescription = initialShuffleDescription;
     this.tupleOperatorFactory = tupleOperatorFactory;
     this.tupleCodecMap = tupleCodecMap;
     this.shuffleMessageDispatcher = new ShuffleMessageDispatcher();
     this.controlMessageHandler = new ControlMessageHandler();
     this.controlLinkListener = new ControlLinkListener();
     this.groupingSetupLatchMap = new ConcurrentHashMap<>();
-    for (final String groupingName : initialShuffleDescriptor.getGroupingNameList()) {
+    for (final String groupingName : initialShuffleDescription.getGroupingNameList()) {
       groupingSetupLatchMap.put(groupingName, new CountDownLatch(1));
     }
 
@@ -75,8 +75,8 @@ public final class StaticShuffleClient implements ShuffleClient {
   }
 
   @Override
-  public ShuffleDescriptor getShuffleDescriptor() {
-    return initialShuffleDescriptor;
+  public ShuffleDescription getShuffleDescription() {
+    return initialShuffleDescription;
   }
 
   @Override
@@ -121,18 +121,18 @@ public final class StaticShuffleClient implements ShuffleClient {
   }
 
   @Override
-  public Codec<Tuple> getTupleCodec(String groupingName) {
+  public Codec<Tuple> getTupleCodec(final String groupingName) {
     return tupleCodecMap.getTupleCodec(groupingName);
   }
 
   @Override
   public <K, V> TupleReceiver<K, V> getReceiver(final String groupingName) {
-    return tupleOperatorFactory.newTupleReceiver(initialShuffleDescriptor.getGroupingDescriptor(groupingName));
+    return tupleOperatorFactory.newTupleReceiver(initialShuffleDescription.getGroupingDescription(groupingName));
   }
 
   @Override
   public <K, V> TupleSender<K, V> getSender(final String groupingName) {
-    return tupleOperatorFactory.newTupleSender(initialShuffleDescriptor.getGroupingDescriptor(groupingName));
+    return tupleOperatorFactory.newTupleSender(initialShuffleDescription.getGroupingDescription(groupingName));
   }
 
   @Override

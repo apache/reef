@@ -20,7 +20,7 @@ package org.apache.reef.io.network.shuffle.task;
 
 import org.apache.reef.io.network.shuffle.grouping.GroupingStrategy;
 import org.apache.reef.io.network.shuffle.ns.ShuffleTupleMessage;
-import org.apache.reef.io.network.shuffle.descriptor.GroupingDescriptor;
+import org.apache.reef.io.network.shuffle.description.GroupingDescription;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -35,16 +35,16 @@ final class ShuffleTupleMessageGeneratorImpl<K, V> implements ShuffleTupleMessag
 
   private final ShuffleClient shuffleClient;
   private final String shuffleName;
-  private final GroupingDescriptor<K, V> groupingDescription;
+  private final GroupingDescription<K, V> groupingDescription;
   private final GroupingStrategy<K> groupingStrategy;
 
   @Inject
   public ShuffleTupleMessageGeneratorImpl(
       final ShuffleClient shuffleClient,
-      final GroupingDescriptor<K, V> groupingDescription,
+      final GroupingDescription<K, V> groupingDescription,
       final GroupingStrategy<K> groupingStrategy) {
     this.shuffleClient = shuffleClient;
-    this.shuffleName = shuffleClient.getShuffleDescriptor().getShuffleName().getName();
+    this.shuffleName = shuffleClient.getShuffleDescription().getShuffleName().getName();
     this.groupingDescription = groupingDescription;
     this.groupingStrategy = groupingStrategy;
   }
@@ -104,7 +104,7 @@ final class ShuffleTupleMessageGeneratorImpl<K, V> implements ShuffleTupleMessag
   }
 
   private List<String> getReceiverIdList() {
-    return shuffleClient.getShuffleDescriptor().getReceiverIdList(groupingDescription.getGroupingName());
+    return shuffleClient.getShuffleDescription().getReceiverIdList(groupingDescription.getGroupingName());
   }
 
   private ShuffleTupleMessage<K, V> createShuffleTupleMessage(final Tuple<K, V>[] data) {

@@ -21,7 +21,7 @@ package org.apache.reef.io.network.shuffle.driver;
 import org.apache.reef.driver.task.CompletedTask;
 import org.apache.reef.driver.task.FailedTask;
 import org.apache.reef.driver.task.RunningTask;
-import org.apache.reef.io.network.shuffle.descriptor.ShuffleDescriptor;
+import org.apache.reef.io.network.shuffle.description.ShuffleDescription;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.annotations.DefaultImplementation;
 import org.apache.reef.tang.annotations.Name;
@@ -32,9 +32,9 @@ import org.apache.reef.tang.annotations.Name;
 @DefaultImplementation(ShuffleDriverImpl.class)
 public interface ShuffleDriver {
 
-  <K extends ShuffleManager> K registerManager(ShuffleDescriptor shuffleDescription, Class<K> managerClass);
+  <K extends ShuffleManager> K registerManager(ShuffleDescription shuffleDescription, Class<K> managerClass);
 
-  <K extends ShuffleManager> K registerManager(ShuffleDescriptor shuffleDescription, Class<K> managerClass, Configuration managerConf);
+  <K extends ShuffleManager> K registerManager(ShuffleDescription shuffleDescription, Class<K> managerClass, Configuration managerConf);
 
   <K extends ShuffleManager> K getManager(Class<? extends Name<String>> shuffleName);
 
