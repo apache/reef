@@ -72,6 +72,7 @@ public abstract class AbstractEvaluatorToPartitionStrategy implements EvaluatorT
     locationToSplits = new ConcurrentHashMap<>();
     evaluatorToSplits = new ConcurrentHashMap<>();
     unallocatedSplits = new LinkedBlockingQueue<>();
+    setUp();
 
     final Map<DistributedDataSetPartition, InputSplit[]> splitsPerPartition = new HashMap<>();
     for (final String serializedDataPartition : serializedDataPartitions) {
@@ -146,6 +147,19 @@ public abstract class AbstractEvaluatorToPartitionStrategy implements EvaluatorT
    * @return a numberedSplit or null if couldn't allocate one
    */
   protected abstract NumberedSplit<InputSplit> tryAllocate(NodeDescriptor nodeDescriptor, String evaluatorId);
+
+  /**
+   * Called in the constructor. Allows children to setUp the objects they will
+   * need in
+   * {@link AbstractEvaluatorToPartitionStrategy#updateLocations(InputSplit, NumberedSplit)}
+   * and
+   * {@link AbstractEvaluatorToPartitionStrategy#tryAllocate(NodeDescriptor, String)}
+   * methods.
+   * By default we provide an empty implementation.
+   */
+  protected void setUp() {
+    // empty implementation by default
+  }
 
   /**
    * Get an input split to be assigned to this evaluator.

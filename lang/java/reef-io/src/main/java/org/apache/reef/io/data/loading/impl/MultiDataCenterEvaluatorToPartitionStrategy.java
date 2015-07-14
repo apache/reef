@@ -53,11 +53,11 @@ public final class MultiDataCenterEvaluatorToPartitionStrategy extends AbstractE
    * Sorted set in reverse order, to keep track of the locations from most to
    * least specific. For example: [/dc1/room1, /dc1].
    */
-  private final Set<String> normalizedLocations;
+  private Set<String> normalizedLocations;
   /**
    * Partial locations where we want to allocate, in case exact match does not work.
    */
-  private final ConcurrentMap<String, BlockingQueue<NumberedSplit<InputSplit>>> partialLocationsToSplits;
+  private ConcurrentMap<String, BlockingQueue<NumberedSplit<InputSplit>>> partialLocationsToSplits;
 
 
   @Inject
@@ -66,6 +66,13 @@ public final class MultiDataCenterEvaluatorToPartitionStrategy extends AbstractE
       @Parameter(DistributedDataSetPartitionSerializer.DistributedDataSetPartitions.class)
       final Set<String> serializedDataPartitions) {
     super(inputFormatClassName, serializedDataPartitions);
+  }
+
+  /**
+   * Creates the objects to be used in updateLocations and tryAllocate methods.
+   */
+  @Override
+  protected void setUp() {
     normalizedLocations = new TreeSet<>(Collections.reverseOrder());
     partialLocationsToSplits = new ConcurrentHashMap<>();
   }
