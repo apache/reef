@@ -16,25 +16,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.io.network.shuffle.task;
+package org.apache.reef.io.network.shuffle.task.operator;
 
 import org.apache.reef.io.network.shuffle.descriptor.GroupingDescriptor;
-import org.apache.reef.io.network.shuffle.grouping.GroupingStrategy;
-
-import java.util.List;
+import org.apache.reef.tang.annotations.DefaultImplementation;
 
 /**
  *
  */
-public interface TupleOperator<K, V> {
+@DefaultImplementation(TupleOperatorFactoryImpl.class)
+public interface TupleOperatorFactory {
 
-  String getGroupingName();
+  <K, V> TupleReceiver<K, V> newTupleReceiver(GroupingDescriptor groupingDescription);
 
-  GroupingDescriptor<K, V> getGroupingDescriptor();
+  <K, V> TupleSender<K, V> newTupleSender(GroupingDescriptor groupingDescription);
 
-  GroupingStrategy<K> getGroupingStrategy();
-
-  List<String> getSelectedReceiverIdList(K key);
-
-  void waitForGroupingSetup();
 }

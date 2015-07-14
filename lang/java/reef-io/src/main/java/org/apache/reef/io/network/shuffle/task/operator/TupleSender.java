@@ -16,19 +16,30 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.io.network.shuffle.task;
+package org.apache.reef.io.network.shuffle.task.operator;
 
 import org.apache.reef.io.network.Message;
 import org.apache.reef.io.network.shuffle.ns.ShuffleTupleMessage;
+import org.apache.reef.io.network.shuffle.task.Tuple;
 import org.apache.reef.tang.annotations.DefaultImplementation;
-import org.apache.reef.wake.EventHandler;
+import org.apache.reef.wake.remote.transport.LinkListener;
+
+import java.util.List;
 
 /**
  *
  */
-@DefaultImplementation(BaseTupleReceiver.class)
-public interface TupleReceiver<K, V> extends TupleOperator<K, V> {
+@DefaultImplementation(BaseTupleSender.class)
+public interface TupleSender<K, V> extends TupleOperator<K, V> {
 
-  void registerMessageHandler(EventHandler<Message<ShuffleTupleMessage<K, V>>> messageHandler);
+  int sendTuple(Tuple<K, V> tuple);
+
+  int sendTuple(List<Tuple<K, V>> tupleList);
+
+  int sendTupleTo(String destNodeId, Tuple<K, V> tuple);
+
+  int sendTupleTo(String destNodeId, List<Tuple<K, V>> tupleList);
+
+  void registerTupleLinkListener(LinkListener<Message<ShuffleTupleMessage<K, V>>> linkListener);
 
 }

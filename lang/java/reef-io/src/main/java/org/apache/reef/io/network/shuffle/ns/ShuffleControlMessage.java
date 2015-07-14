@@ -25,15 +25,18 @@ public final class ShuffleControlMessage extends ShuffleMessage<byte[]> {
 
   private int code;
   private final byte[][] data;
+  private boolean isDriverMessage;
 
   public ShuffleControlMessage(
       final int code,
       final String shuffleName,
       final String groupingName,
-      final byte[][] data) {
+      final byte[][] data,
+      final boolean isDriverMessage) {
     super(shuffleName, groupingName);
     this.code = code;
     this.data = data;
+    this.isDriverMessage = isDriverMessage;
   }
 
   public int getCode() {
@@ -52,5 +55,9 @@ public final class ShuffleControlMessage extends ShuffleMessage<byte[]> {
   @Override
   public byte[] get(final int index) {
     return data[index];
+  }
+
+  public boolean isDriverMessage() {
+    return isDriverMessage;
   }
 }

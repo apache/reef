@@ -16,11 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.io.network.shuffle.task;
+package org.apache.reef.io.network.shuffle.task.operator;
 
 import org.apache.reef.io.network.Message;
-import org.apache.reef.io.network.shuffle.ns.ShuffleTupleMessage;
-import org.apache.reef.tang.annotations.DefaultImplementation;
+import org.apache.reef.io.network.shuffle.descriptor.GroupingDescriptor;
+import org.apache.reef.io.network.shuffle.grouping.GroupingStrategy;
+import org.apache.reef.io.network.shuffle.ns.ShuffleControlMessage;
+import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.remote.transport.LinkListener;
 
 import java.util.List;
@@ -28,17 +30,21 @@ import java.util.List;
 /**
  *
  */
-@DefaultImplementation(BaseTupleSender.class)
-public interface TupleSender<K, V> extends TupleOperator<K, V> {
+public interface TupleOperator<K, V> {
 
-  int sendTuple(Tuple<K, V> tuple);
+  String getGroupingName();
 
-  int sendTuple(List<Tuple<K, V>> tupleList);
+  GroupingDescriptor<K, V> getGroupingDescriptor();
 
-  int sendTupleTo(String destNodeId, Tuple<K, V> tuple);
+  GroupingStrategy<K> getGroupingStrategy();
 
-  int sendTupleTo(String destNodeId, List<Tuple<K, V>> tupleList);
+  List<String> getSelectedReceiverIdList(K key);
 
-  void registerLinkListener(LinkListener<Message<ShuffleTupleMessage<K, V>>> linkListener);
+  void waitForGroupingSetup();
 
+  void registerControlMessageHandler(EventHandler<Message<ShuffleControlMessage>> messageHandler);
+
+  void registerControlLinkListener(LinkListener<Message<ShuffleControlMessage>> linkListener);
+
+  void sendControlMessage(final String destId, final int code, final byte[][] data);
 }

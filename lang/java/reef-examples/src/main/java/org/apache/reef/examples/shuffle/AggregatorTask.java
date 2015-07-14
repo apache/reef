@@ -23,7 +23,7 @@ import org.apache.reef.io.network.Message;
 import org.apache.reef.io.network.shuffle.ns.ShuffleTupleMessage;
 import org.apache.reef.io.network.shuffle.task.ShuffleClient;
 import org.apache.reef.io.network.shuffle.task.ShuffleService;
-import org.apache.reef.io.network.shuffle.task.TupleReceiver;
+import org.apache.reef.io.network.shuffle.task.operator.TupleReceiver;
 import org.apache.reef.task.Task;
 import org.apache.reef.wake.EventHandler;
 
@@ -41,8 +41,8 @@ public final class AggregatorTask implements Task {
       final ShuffleService shuffleService) {
     this.shuffleClient = shuffleService.getClient(WordCountShuffle.class);
     final TupleReceiver<String, Integer> tupleReceiver = shuffleClient
-        .createReceiver(WordCountDriver.AGGREGATING_GROUPING);
-    tupleReceiver.registerMessageHandler(new MessageHandler());
+        .getReceiver(WordCountDriver.AGGREGATING_GROUPING);
+    tupleReceiver.registerTupleMessageHandler(new MessageHandler());
   }
 
   @Override

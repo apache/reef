@@ -125,7 +125,8 @@ class GroupingSetupGate {
               StaticShuffleMessageCode.GROUPING_SETUP,
               shuffleName,
               groupingName,
-              null
+              null,
+              true
           )
       );
     } catch (final NetworkException e) {

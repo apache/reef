@@ -78,6 +78,8 @@ public final class ShuffleControlMessageCodec implements StreamingCodec<ShuffleC
         stream.writeInt(msg.get(i).length);
         stream.write(msg.get(i));
       }
+
+      stream.writeBoolean(msg.isDriverMessage());
     } catch(final IOException exception) {
       throw new RuntimeException(exception);
     }
@@ -108,7 +110,9 @@ public final class ShuffleControlMessageCodec implements StreamingCodec<ShuffleC
         dataArr[i] = byteArr;
       }
 
-      return new ShuffleControlMessage(code, shuffleName, groupingName, dataArr);
+      final boolean isDriverMessage = stream.readBoolean();
+
+      return new ShuffleControlMessage(code, shuffleName, groupingName, dataArr, isDriverMessage);
 
     } catch(final IOException exception) {
       throw new RuntimeException(exception);

@@ -22,6 +22,8 @@ import org.apache.reef.examples.shuffle.params.WordCountShuffle;
 import org.apache.reef.io.network.Message;
 import org.apache.reef.io.network.shuffle.ns.ShuffleTupleMessage;
 import org.apache.reef.io.network.shuffle.task.*;
+import org.apache.reef.io.network.shuffle.task.operator.TupleReceiver;
+import org.apache.reef.io.network.shuffle.task.operator.TupleSender;
 import org.apache.reef.task.Task;
 import org.apache.reef.wake.EventHandler;
 
@@ -44,10 +46,10 @@ public final class ReducerTask implements Task {
   public ReducerTask(
       final ShuffleService shuffleService) {
     this.shuffleClient = shuffleService.getClient(WordCountShuffle.class);
-    this.tupleSender = shuffleClient.createSender(WordCountDriver.AGGREGATING_GROUPING);
+    this.tupleSender = shuffleClient.getSender(WordCountDriver.AGGREGATING_GROUPING);
     final TupleReceiver<String, Integer> tupleReceiver = shuffleService.getClient(WordCountShuffle.class)
-        .createReceiver(WordCountDriver.SHUFFLE_GROUPING);
-    tupleReceiver.registerMessageHandler(new MessageHandler());
+        .getReceiver(WordCountDriver.SHUFFLE_GROUPING);
+    tupleReceiver.registerTupleMessageHandler(new MessageHandler());
     this.reduceMap = new HashMap<>();
   }
 

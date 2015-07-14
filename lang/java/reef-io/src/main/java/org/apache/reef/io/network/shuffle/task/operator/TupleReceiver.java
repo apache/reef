@@ -16,23 +16,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.io.network.shuffle.task;
+package org.apache.reef.io.network.shuffle.task.operator;
 
-import org.apache.reef.io.network.shuffle.descriptor.GroupingDescriptor;
+import org.apache.reef.io.network.Message;
+import org.apache.reef.io.network.shuffle.ns.ShuffleTupleMessage;
 import org.apache.reef.tang.annotations.DefaultImplementation;
+import org.apache.reef.wake.EventHandler;
 
 /**
  *
  */
-@DefaultImplementation(TupleOperatorFactoryImpl.class)
-public interface TupleOperatorFactory {
+@DefaultImplementation(BaseTupleReceiver.class)
+public interface TupleReceiver<K, V> extends TupleOperator<K, V> {
 
-  <K, V> TupleReceiver<K, V> newTupleReceiver(GroupingDescriptor groupingDescription);
-
-  <K, V, T extends TupleReceiver<K, V>> T newTupleReceiver(GroupingDescriptor groupingDescription, Class<T> receiverClass);
-
-  <K, V> TupleSender<K, V> newTupleSender(GroupingDescriptor groupingDescription);
-
-  <K, V, T extends TupleSender<K, V>> T newTupleSender(GroupingDescriptor groupingDescription, Class<T> senderClass);
+  void registerTupleMessageHandler(EventHandler<Message<ShuffleTupleMessage<K, V>>> messageHandler);
 
 }
