@@ -218,7 +218,8 @@ public final class DataLoadingRequestBuilder
         .setLocation(DistributedDataSetPartition.LOAD_INTO_ANY_LOCATION)
         .setDesiredSplits(Integer.valueOf(NumberOfDesiredSplits.DEFAULT_DESIRED_SPLITS)).build());
     this.singleDataCenterStrategy = true;
-    return setDistributedDataSet(dds);
+    this.distributedDataSet = dds;
+    return this;
   }
 
   /**
