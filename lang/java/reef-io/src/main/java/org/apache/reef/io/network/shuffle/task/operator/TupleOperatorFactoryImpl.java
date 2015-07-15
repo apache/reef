@@ -19,7 +19,7 @@
 package org.apache.reef.io.network.shuffle.task.operator;
 
 import org.apache.reef.driver.task.TaskConfigurationOptions;
-import org.apache.reef.io.network.NetworkServiceClient;
+import org.apache.reef.io.network.NetworkConnectionService;
 import org.apache.reef.io.network.shuffle.grouping.GroupingStrategy;
 import org.apache.reef.io.network.shuffle.params.ShuffleTupleCodec;
 import org.apache.reef.io.network.shuffle.description.GroupingDescription;
@@ -43,7 +43,7 @@ final class TupleOperatorFactoryImpl implements TupleOperatorFactory {
 
   private final String nodeId;
   private final InjectionFuture<ShuffleClient> client;
-  private final NetworkServiceClient networkServiceClient;
+  private final NetworkConnectionService networkConnectionService;
   private final Injector injector;
 
   private Map<String, TupleSender> senderMap;
@@ -53,11 +53,11 @@ final class TupleOperatorFactoryImpl implements TupleOperatorFactory {
   public TupleOperatorFactoryImpl(
       final @Parameter(TaskConfigurationOptions.Identifier.class) String nodeId,
       final InjectionFuture<ShuffleClient> client,
-      final NetworkServiceClient networkServiceClient,
+      final NetworkConnectionService networkConnectionService,
       final Injector injector) {
     this.nodeId = nodeId;
     this.client = client;
-    this.networkServiceClient = networkServiceClient;
+    this.networkConnectionService = networkConnectionService;
     this.injector = injector;
     this.senderMap = new ConcurrentHashMap<>();
     this.receiverMap = new ConcurrentHashMap<>();
@@ -79,7 +79,7 @@ final class TupleOperatorFactoryImpl implements TupleOperatorFactory {
 
       final Injector forkedInjector = injector.forkInjector(receiverConfiguration);
       forkedInjector.bindVolatileInstance(ShuffleClient.class, client.get());
-      forkedInjector.bindVolatileInstance(NetworkServiceClient.class, networkServiceClient);
+      forkedInjector.bindVolatileInstance(NetworkConnectionService.class, networkConnectionService);
       forkedInjector.bindVolatileInstance(GroupingDescription.class, groupingDescription);
 
       try {
@@ -111,7 +111,7 @@ final class TupleOperatorFactoryImpl implements TupleOperatorFactory {
       final Injector forkedInjector = injector.forkInjector(senderConfiguration);
       forkedInjector.bindVolatileInstance(ShuffleClient.class, client.get());
       forkedInjector.bindVolatileInstance(GroupingDescription.class, groupingDescription);
-      forkedInjector.bindVolatileInstance(NetworkServiceClient.class, networkServiceClient);
+      forkedInjector.bindVolatileInstance(NetworkConnectionService.class, networkConnectionService);
       forkedInjector.bindVolatileParameter(ShuffleTupleCodec.class, client.get().getTupleCodec(groupingName));
 
       try {

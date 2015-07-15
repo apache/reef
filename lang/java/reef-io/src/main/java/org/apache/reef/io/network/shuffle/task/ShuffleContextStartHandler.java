@@ -20,11 +20,13 @@ package org.apache.reef.io.network.shuffle.task;
 
 import org.apache.reef.evaluator.context.events.ContextStart;
 import org.apache.reef.exception.evaluator.NetworkException;
-import org.apache.reef.io.network.NetworkServiceClient;
+import org.apache.reef.io.network.NetworkConnectionService;
+import org.apache.reef.io.network.naming.NameServerParameters;
 import org.apache.reef.io.network.shuffle.ns.*;
-import org.apache.reef.io.network.shuffle.params.ShuffleControlMessageNSId;
-import org.apache.reef.io.network.shuffle.params.ShuffleTupleMessageNSId;
+import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.wake.EventHandler;
+import org.apache.reef.wake.Identifier;
+import org.apache.reef.wake.IdentifierFactory;
 
 import javax.inject.Inject;
 
@@ -33,28 +35,34 @@ import javax.inject.Inject;
  */
 public final class ShuffleContextStartHandler implements EventHandler<ContextStart> {
 
-  private final NetworkServiceClient nsClient;
+  private final NetworkConnectionService networkConnectionService;
+
+  private final Identifier controlMessageConnectionId;
   private final ShuffleControlMessageCodec controlCodec;
   private final ShuffleControlMessageHandler controlHandler;
   private final ShuffleControlLinkListener controlLinkListener;
 
+  private final Identifier tupleMessageConnectionId;
   private final ShuffleTupleMessageCodec tupleCodec;
   private final ShuffleTupleMessageHandler tupleHandler;
   private final ShuffleTupleLinkListener tupleLinkListener;
 
   @Inject
   public ShuffleContextStartHandler(
-      final NetworkServiceClient nsClient,
+      final @Parameter(NameServerParameters.NameServerIdentifierFactory.class) IdentifierFactory idFactory,
+      final NetworkConnectionService networkConnectionService,
       final ShuffleControlMessageCodec controlCodec,
       final ShuffleControlMessageHandler controlHandler,
       final ShuffleControlLinkListener controlLinkListener,
       final ShuffleTupleMessageCodec tupleCodec,
       final ShuffleTupleMessageHandler tupleHandler,
       final ShuffleTupleLinkListener tupleLinkListener) {
-    this.nsClient = nsClient;
+    this.networkConnectionService = networkConnectionService;
+    this.controlMessageConnectionId = idFactory.getNewInstance(ShuffleNetworkConnectionId.CONTROL_MESSAGE);
     this.controlCodec = controlCodec;
     this.controlHandler = controlHandler;
     this.controlLinkListener = controlLinkListener;
+    this.tupleMessageConnectionId = idFactory.getNewInstance(ShuffleNetworkConnectionId.TUPLE_MESSAGE);
     this.tupleCodec = tupleCodec;
     this.tupleHandler = tupleHandler;
     this.tupleLinkListener = tupleLinkListener;
@@ -63,8 +71,10 @@ public final class ShuffleContextStartHandler implements EventHandler<ContextSta
   @Override
   public void onNext(final ContextStart value) {
     try {
-      nsClient.registerConnectionFactory(ShuffleControlMessageNSId.class, controlCodec, controlHandler, controlLinkListener);
-      nsClient.registerConnectionFactory(ShuffleTupleMessageNSId.class, tupleCodec, tupleHandler, tupleLinkListener);
+      networkConnectionService
+          .registerConnectionFactory(controlMessageConnectionId, controlCodec, controlHandler, controlLinkListener);
+      networkConnectionService
+          .registerConnectionFactory(tupleMessageConnectionId, tupleCodec, tupleHandler, tupleLinkListener);
     } catch (NetworkException e) {
       throw new RuntimeException(e);
     }

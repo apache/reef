@@ -24,12 +24,13 @@ import org.apache.reef.driver.task.RunningTask;
 import org.apache.reef.evaluator.context.parameters.ContextStartHandlers;
 import org.apache.reef.evaluator.context.parameters.ContextStopHandlers;
 import org.apache.reef.exception.evaluator.NetworkException;
-import org.apache.reef.io.network.NetworkServiceClient;
+import org.apache.reef.io.network.NetworkConnectionService;
+import org.apache.reef.io.network.naming.NameServerParameters;
 import org.apache.reef.io.network.shuffle.ns.ShuffleControlLinkListener;
 import org.apache.reef.io.network.shuffle.ns.ShuffleControlMessageCodec;
 import org.apache.reef.io.network.shuffle.ns.ShuffleControlMessageHandler;
+import org.apache.reef.io.network.shuffle.ns.ShuffleNetworkConnectionId;
 import org.apache.reef.io.network.shuffle.params.SerializedShuffleSet;
-import org.apache.reef.io.network.shuffle.params.ShuffleControlMessageNSId;
 import org.apache.reef.io.network.shuffle.task.ShuffleClient;
 import org.apache.reef.io.network.shuffle.task.ShuffleContextStartHandler;
 import org.apache.reef.io.network.shuffle.task.ShuffleContextStopHandler;
@@ -39,8 +40,10 @@ import org.apache.reef.tang.Injector;
 import org.apache.reef.tang.JavaConfigurationBuilder;
 import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.annotations.Name;
+import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.tang.formats.ConfigurationSerializer;
+import org.apache.reef.wake.IdentifierFactory;
 
 import javax.inject.Inject;
 import java.util.concurrent.ConcurrentHashMap;
@@ -61,7 +64,8 @@ final class ShuffleDriverImpl implements ShuffleDriver {
   public ShuffleDriverImpl(
       final Injector injector,
       final ConfigurationSerializer confSerializer,
-      final NetworkServiceClient nsClient,
+      final @Parameter(NameServerParameters.NameServerIdentifierFactory.class) IdentifierFactory idFactory,
+      final NetworkConnectionService networkConnectionService,
       final ShuffleControlMessageCodec messageCodec,
       final ShuffleControlLinkListener linkListener,
       final ShuffleControlMessageHandler messageHandler) {
@@ -72,8 +76,10 @@ final class ShuffleDriverImpl implements ShuffleDriver {
     this.managerMap = new ConcurrentHashMap<>();
 
     try {
-      nsClient.registerConnectionFactory(ShuffleControlMessageNSId.class, messageCodec, messageHandler, linkListener);
-    } catch (NetworkException e) {
+      networkConnectionService
+          .registerConnectionFactory(idFactory.getNewInstance(ShuffleNetworkConnectionId.CONTROL_MESSAGE)
+              , messageCodec, messageHandler, linkListener);
+    } catch (final NetworkException e) {
       throw new RuntimeException(e);
     }
   }

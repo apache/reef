@@ -18,9 +18,13 @@
  */
 package org.apache.reef.io.network.shuffle.driver;
 
-import org.apache.reef.io.network.NetworkServiceClient;
-import org.apache.reef.io.network.shuffle.params.ShuffleControlMessageNSId;
+import org.apache.reef.io.network.NetworkConnectionService;
+import org.apache.reef.io.network.naming.NameServerParameters;
+import org.apache.reef.io.network.shuffle.ns.ShuffleNetworkConnectionId;
+import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.wake.EventHandler;
+import org.apache.reef.wake.Identifier;
+import org.apache.reef.wake.IdentifierFactory;
 import org.apache.reef.wake.time.event.StopTime;
 
 import javax.inject.Inject;
@@ -30,15 +34,20 @@ import javax.inject.Inject;
  */
 final class ShuffleDriverStopHandler implements EventHandler<StopTime> {
 
-  private final NetworkServiceClient nsClient;
+  private final NetworkConnectionService networkConnectionService;
+
+  private final Identifier controlMessageConnectionId;
+
   @Inject
   public ShuffleDriverStopHandler(
-      final NetworkServiceClient nsClient) {
-    this.nsClient = nsClient;
+      final @Parameter(NameServerParameters.NameServerIdentifierFactory.class) IdentifierFactory idFactory,
+      final NetworkConnectionService networkConnectionService) {
+    this.networkConnectionService = networkConnectionService;
+    this.controlMessageConnectionId = idFactory.getNewInstance(ShuffleNetworkConnectionId.CONTROL_MESSAGE);
   }
 
   @Override
   public void onNext(final StopTime value) {
-    nsClient.unregisterConnectionFactory(ShuffleControlMessageNSId.class);
+    networkConnectionService.unregisterConnectionFactory(controlMessageConnectionId);
   }
 }

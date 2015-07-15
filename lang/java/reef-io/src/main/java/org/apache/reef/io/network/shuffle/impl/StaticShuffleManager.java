@@ -23,11 +23,11 @@ import org.apache.reef.driver.task.FailedTask;
 import org.apache.reef.driver.task.RunningTask;
 import org.apache.reef.io.network.ConnectionFactory;
 import org.apache.reef.io.network.Message;
-import org.apache.reef.io.network.NetworkServiceClient;
+import org.apache.reef.io.network.NetworkConnectionService;
 import org.apache.reef.io.network.naming.NameServerParameters;
 import org.apache.reef.io.network.shuffle.driver.ShuffleManager;
 import org.apache.reef.io.network.shuffle.ns.ShuffleControlMessage;
-import org.apache.reef.io.network.shuffle.params.ShuffleControlMessageNSId;
+import org.apache.reef.io.network.shuffle.ns.ShuffleNetworkConnectionId;
 import org.apache.reef.io.network.shuffle.task.ShuffleClient;
 import org.apache.reef.io.network.shuffle.description.GroupingDescription;
 import org.apache.reef.io.network.shuffle.description.ShuffleDescription;
@@ -65,7 +65,7 @@ public final class StaticShuffleManager implements ShuffleManager {
       final ShuffleDescription initialShuffleDescription,
       final ShuffleDescriptionSerializer shuffleDescriptionSerializer,
       final @Parameter(NameServerParameters.NameServerIdentifierFactory.class) IdentifierFactory idFactory,
-      final NetworkServiceClient nsClient) {
+      final NetworkConnectionService networkConnectionService) {
     this.initialShuffleDescription = initialShuffleDescription;
     this.shuffleDescriptionSerializer = shuffleDescriptionSerializer;
     this.shuffleLinkListener = new ShuffleLinkListener();
@@ -73,7 +73,8 @@ public final class StaticShuffleManager implements ShuffleManager {
 
     this.groupingSetupGates = new ConcurrentHashMap<>();
     createGroupingSetupGates(idFactory,
-        nsClient.<ShuffleControlMessage>getConnectionFactory(ShuffleControlMessageNSId.class));
+        networkConnectionService.<ShuffleControlMessage>getConnectionFactory(
+            idFactory.getNewInstance(ShuffleNetworkConnectionId.CONTROL_MESSAGE)));
   }
 
   private void createGroupingSetupGates(

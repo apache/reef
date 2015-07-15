@@ -16,14 +16,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.io.network.shuffle.params;
-
-import org.apache.reef.tang.annotations.Name;
-import org.apache.reef.tang.annotations.NamedParameter;
+package org.apache.reef.io.network.shuffle.ns;
 
 /**
- * NetworkService identifier for shuffle
+ *
  */
-@NamedParameter(doc = "network service id for shuffle")
-public final class ShuffleControlMessageNSId implements Name<String> {
+public final class ShuffleNetworkConnectionId {
+  public static final String TUPLE_MESSAGE = "IO_NETWORK_SHUFFLE_TUPLE_MESSAGE";
+  public static final String CONTROL_MESSAGE = "IO_NETWORK_SHUFFLE_CONTROL_MESSAGE";
 }

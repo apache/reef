@@ -23,14 +23,14 @@ import org.apache.reef.exception.evaluator.NetworkException;
 import org.apache.reef.io.network.Connection;
 import org.apache.reef.io.network.ConnectionFactory;
 import org.apache.reef.io.network.Message;
-import org.apache.reef.io.network.NetworkServiceClient;
+import org.apache.reef.io.network.NetworkConnectionService;
 import org.apache.reef.io.network.impl.NSMessage;
 import org.apache.reef.io.network.naming.NameServerParameters;
 import org.apache.reef.io.network.shuffle.grouping.GroupingStrategy;
 import org.apache.reef.io.network.shuffle.ns.ShuffleControlMessage;
+import org.apache.reef.io.network.shuffle.ns.ShuffleNetworkConnectionId;
 import org.apache.reef.io.network.shuffle.ns.ShuffleTupleMessage;
 import org.apache.reef.io.network.shuffle.description.GroupingDescription;
-import org.apache.reef.io.network.shuffle.params.ShuffleControlMessageNSId;
 import org.apache.reef.io.network.shuffle.task.ShuffleClient;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.wake.EventHandler;
@@ -61,14 +61,15 @@ public final class BaseTupleReceiver<K, V> implements TupleReceiver<K, V> {
   @Inject
   public BaseTupleReceiver(
       final ShuffleClient shuffleClient,
-      final NetworkServiceClient nsClient,
+      final NetworkConnectionService networkConnectionService,
       final @Parameter(NameServerParameters.NameServerIdentifierFactory.class) IdentifierFactory idFactory,
       final @Parameter(TaskConfigurationOptions.Identifier.class) String taskId,
       final GroupingDescription<K, V> groupingDescription,
       final GroupingStrategy<K> groupingStrategy) {
     this.shuffleName = shuffleClient.getShuffleDescription().getShuffleName().getName();
     this.groupingName = groupingDescription.getGroupingName();
-    this.controlMessageConnectionFactory = nsClient.getConnectionFactory(ShuffleControlMessageNSId.class);
+    this.controlMessageConnectionFactory = networkConnectionService
+        .getConnectionFactory(idFactory.getNewInstance(ShuffleNetworkConnectionId.CONTROL_MESSAGE));
     this.idFactory = idFactory;
     this.taskId = idFactory.getNewInstance(taskId);
     this.controlMessageConnectionMap = new ConcurrentHashMap<>();

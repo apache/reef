@@ -26,8 +26,8 @@ import org.apache.reef.examples.shuffle.params.WordCountShuffle;
 import org.apache.reef.examples.shuffle.utils.IntegerCodec;
 import org.apache.reef.examples.shuffle.utils.StringCodec;
 import org.apache.reef.io.data.loading.api.DataLoadingService;
-import org.apache.reef.io.network.impl.BindNSClientToTask;
-import org.apache.reef.io.network.impl.UnbindNSClientFromTask;
+import org.apache.reef.io.network.impl.BindNetworkConnectionServiceToTask;
+import org.apache.reef.io.network.impl.UnbindNetworkConnectionServiceFromTask;
 import org.apache.reef.io.network.naming.NameServer;
 import org.apache.reef.io.network.naming.parameters.NameResolverNameServerAddr;
 import org.apache.reef.io.network.naming.parameters.NameResolverNameServerPort;
@@ -187,8 +187,8 @@ public final class WordCountDriver {
     return Tang.Factory.getTang().newConfigurationBuilder()
         .bindNamedParameter(NameResolverNameServerAddr.class, localAddressProvider.getLocalAddress())
         .bindNamedParameter(NameResolverNameServerPort.class, String.valueOf(nameServer.getPort()))
-        .bindSetEntry(TaskConfigurationOptions.StartHandlers.class, BindNSClientToTask.class)
-        .bindSetEntry(TaskConfigurationOptions.StopHandlers.class, UnbindNSClientFromTask.class)
+        .bindSetEntry(TaskConfigurationOptions.StartHandlers.class, BindNetworkConnectionServiceToTask.class)
+        .bindSetEntry(TaskConfigurationOptions.StopHandlers.class, UnbindNetworkConnectionServiceFromTask.class)
         .build();
   }
 

@@ -23,15 +23,14 @@ import org.apache.reef.exception.evaluator.NetworkException;
 import org.apache.reef.io.network.Connection;
 import org.apache.reef.io.network.ConnectionFactory;
 import org.apache.reef.io.network.Message;
-import org.apache.reef.io.network.NetworkServiceClient;
+import org.apache.reef.io.network.NetworkConnectionService;
 import org.apache.reef.io.network.impl.NSMessage;
 import org.apache.reef.io.network.naming.NameServerParameters;
 import org.apache.reef.io.network.shuffle.grouping.GroupingStrategy;
 import org.apache.reef.io.network.shuffle.ns.ShuffleControlMessage;
+import org.apache.reef.io.network.shuffle.ns.ShuffleNetworkConnectionId;
 import org.apache.reef.io.network.shuffle.ns.ShuffleTupleMessage;
 import org.apache.reef.io.network.shuffle.description.GroupingDescription;
-import org.apache.reef.io.network.shuffle.params.ShuffleControlMessageNSId;
-import org.apache.reef.io.network.shuffle.params.ShuffleTupleMessageNSId;
 import org.apache.reef.io.network.shuffle.task.ShuffleClient;
 import org.apache.reef.io.network.shuffle.task.ShuffleTupleMessageGenerator;
 import org.apache.reef.io.network.shuffle.task.Tuple;
@@ -68,7 +67,7 @@ public final class BaseTupleSender<K, V> implements TupleSender<K, V> {
   @Inject
   public BaseTupleSender(
       final ShuffleClient shuffleClient,
-      final NetworkServiceClient nsClient,
+      final NetworkConnectionService networkConnectionService,
       final @Parameter(NameServerParameters.NameServerIdentifierFactory.class) IdentifierFactory idFactory,
       final @Parameter(TaskConfigurationOptions.Identifier.class) String taskId,
       final GroupingDescription<K, V> groupingDescription,
@@ -77,8 +76,10 @@ public final class BaseTupleSender<K, V> implements TupleSender<K, V> {
     this.shuffleName = shuffleClient.getShuffleDescription().getShuffleName().getName();
     this.groupingName = groupingDescription.getGroupingName();
     this.shuffleClient = shuffleClient;
-    this.tupleMessageConnectionFactory = nsClient.getConnectionFactory(ShuffleTupleMessageNSId.class);
-    this.controlMessageConnectionFactory = nsClient.getConnectionFactory(ShuffleControlMessageNSId.class);
+    this.tupleMessageConnectionFactory = networkConnectionService
+        .getConnectionFactory(idFactory.getNewInstance(ShuffleNetworkConnectionId.TUPLE_MESSAGE));
+    this.controlMessageConnectionFactory = networkConnectionService
+        .getConnectionFactory(idFactory.getNewInstance(ShuffleNetworkConnectionId.CONTROL_MESSAGE));
     this.idFactory = idFactory;
     this.taskId = idFactory.getNewInstance(taskId);
     this.tupleMessageConnectionMap = new ConcurrentHashMap<>();

@@ -18,7 +18,7 @@
  */
 package org.apache.reef.io.network.shuffle.driver;
 
-import org.apache.reef.io.network.NetworkServiceClient;
+import org.apache.reef.io.network.NetworkConnectionService;
 import org.apache.reef.io.network.naming.NameServerParameters;
 import org.apache.reef.io.network.shuffle.ns.*;
 import org.apache.reef.tang.annotations.Parameter;
@@ -33,7 +33,7 @@ import javax.inject.Inject;
  */
 final class ShuffleDriverStartHandler implements EventHandler<StartTime> {
 
-  private final NetworkServiceClient nsClient;
+  private final NetworkConnectionService networkConnectionService;
   private final IdentifierFactory idFactory;
   private final ShuffleControlMessageCodec codec;
   private final ShuffleControlMessageHandler handler;
@@ -41,12 +41,12 @@ final class ShuffleDriverStartHandler implements EventHandler<StartTime> {
 
   @Inject
   public ShuffleDriverStartHandler(
-      final NetworkServiceClient nsClient,
+      final NetworkConnectionService networkConnectionService,
       final ShuffleControlMessageCodec codec,
       final ShuffleControlMessageHandler handler,
       final ShuffleControlLinkListener linkListener,
       final @Parameter(NameServerParameters.NameServerIdentifierFactory.class) IdentifierFactory idFactory) {
-    this.nsClient = nsClient;
+    this.networkConnectionService = networkConnectionService;
     this.codec = codec;
     this.handler = handler;
     this.linkListener = linkListener;
@@ -56,6 +56,6 @@ final class ShuffleDriverStartHandler implements EventHandler<StartTime> {
   @Override
   public void onNext(final StartTime value) {
     // TODO : It should be removed by including an API setting driver network service id through NetworkService driverConfiguration.
-    nsClient.registerId(idFactory.getNewInstance(ShuffleDriverConfiguration.SHUFFLE_DRIVER_IDENTIFIER));
+    networkConnectionService.registerId(idFactory.getNewInstance(ShuffleDriverConfiguration.SHUFFLE_DRIVER_IDENTIFIER));
   }
 }
