@@ -22,6 +22,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Wake;
 using Org.Apache.REEF.Wake.Remote;
@@ -43,7 +44,8 @@ namespace Org.Apache.REEF.Network.NetworkService.Codec
         /// </summary>
         /// <param name="idFactory">Used to create identifier from string.</param>
         /// <param name="injector">Injector to instantiate codecs.</param>
-        internal NsMessageStreamingCodec(IIdentifierFactory idFactory, IInjector injector)
+        [Inject]
+        private NsMessageStreamingCodec(IIdentifierFactory idFactory, IInjector injector)
         {
             _idFactory = idFactory;
             _codecFunctionsCache = new StreamingCodecFunctionCache<T>(injector);

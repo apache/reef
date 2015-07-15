@@ -56,6 +56,7 @@ namespace Org.Apache.REEF.Network.NetworkService
         /// <param name="nameClient">The name client used to register Ids</param>
         /// <param name="remoteManagerFactory">Writable RemoteManagerFactory to create a 
         /// Writable RemoteManager</param>
+        /// <param name="codec">Codec for Network Service message</param>
         /// <param name="injector">Fork of the injector that created the Network service</param>
         [Inject]
         private StreamingNetworkService(
@@ -63,10 +64,10 @@ namespace Org.Apache.REEF.Network.NetworkService
             IIdentifierFactory idFactory,
             INameClient nameClient,
             StreamingRemoteManagerFactory remoteManagerFactory,
+            NsMessageStreamingCodec<T> codec,
             IInjector injector)
         {
             IPAddress localAddress = NetworkUtils.LocalIPAddress;
-            IStreamingCodec<NsMessage<T>> codec = new NsMessageStreamingCodec<T>(idFactory, injector);
             _remoteManager = remoteManagerFactory.GetInstance(localAddress, codec);
 
             // Create and register incoming message handler
