@@ -115,7 +115,7 @@ public abstract class AbstractEvaluatorToPartitionStrategy implements EvaluatorT
       final NumberedSplit<InputSplit> numberedSplit = new NumberedSplit<InputSplit>(split, splitNum,
           partitions[splitNum]);
       unallocatedSplits.add(numberedSplit);
-      updateLocations(split, numberedSplit);
+      updateLocations(numberedSplit);
     }
     if (LOG.isLoggable(Level.FINE)) {
       for (final Map.Entry<String, BlockingQueue<NumberedSplit<InputSplit>>> locSplit : locationToSplits.entrySet()) {
@@ -129,12 +129,10 @@ public abstract class AbstractEvaluatorToPartitionStrategy implements EvaluatorT
    * loaded into. For example, the split physical location, certain node,
    * certain rack
    *
-   * @param split
-   *          the inputSplit
    * @param numberedSplit
    *          the numberedSplit
    */
-  protected abstract void updateLocations(final InputSplit split, final NumberedSplit<InputSplit> numberedSplit);
+  protected abstract void updateLocations(final NumberedSplit<InputSplit> numberedSplit);
 
   /**
    * Tries to allocate a split in an evaluator based on some particular rule.

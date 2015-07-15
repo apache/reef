@@ -82,7 +82,7 @@ public final class MultiDataCenterEvaluatorToPartitionStrategy extends AbstractE
    * Saves locationToSplits and partialLocations as well.
    */
   @Override
-  protected void updateLocations(final InputSplit split, final NumberedSplit<InputSplit> numberedSplit) {
+  protected void updateLocations(final NumberedSplit<InputSplit> numberedSplit) {
     final String location = numberedSplit.getLocation();
     addLocationMapping(locationToSplits, numberedSplit, location);
     final String normalizedLocation = normalize(location);

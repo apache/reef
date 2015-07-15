@@ -49,8 +49,9 @@ public final class SingleDataCenterEvaluatorToPartitionStrategy extends Abstract
   }
 
   @Override
-  protected void updateLocations(final InputSplit split, final NumberedSplit<InputSplit> numberedSplit) {
+  protected void updateLocations(final NumberedSplit<InputSplit> numberedSplit) {
     try {
+      final InputSplit split = numberedSplit.getEntry();
       final String[] locations = split.getLocations();
       for (final String location : locations) {
         BlockingQueue<NumberedSplit<InputSplit>> newSplitQue = new LinkedBlockingQueue<NumberedSplit<InputSplit>>();
