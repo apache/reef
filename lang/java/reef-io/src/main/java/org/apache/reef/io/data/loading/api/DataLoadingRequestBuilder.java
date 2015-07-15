@@ -24,7 +24,7 @@ import org.apache.hadoop.mapred.TextInputFormat;
 import org.apache.reef.client.DriverConfiguration;
 import org.apache.reef.driver.evaluator.EvaluatorRequest;
 import org.apache.reef.io.data.loading.impl.DistributedDataSetPartitionSerializer;
-import org.apache.reef.io.data.loading.impl.EvaluatorRequestSerializer;
+import org.apache.reef.io.data.loading.impl.AvroEvaluatorRequestSerializer;
 import org.apache.reef.io.data.loading.impl.SingleDataCenterEvaluatorToPartitionStrategy;
 import org.apache.reef.io.data.loading.impl.DistributedDataSetPartition;
 import org.apache.reef.io.data.loading.impl.InputFormatLoadingService;
@@ -229,7 +229,7 @@ public final class DataLoadingRequestBuilder
   /**
    * Sets the distributed data set.
    *
-   * @param dataSet
+   * @param distributedDataSet
    *          the distributed data set
    * @return this
    */
@@ -294,13 +294,13 @@ public final class DataLoadingRequestBuilder
     // at this point data requests cannot be empty, either we use the one we created based on the
     // deprecated fields, or the ones created by the user
     for (final EvaluatorRequest request : this.dataRequests) {
-      jcb.bindSetEntry(DataLoadingDataRequests.class, EvaluatorRequestSerializer.serialize(request));
+      jcb.bindSetEntry(DataLoadingDataRequests.class, AvroEvaluatorRequestSerializer.toString(request));
     }
 
     // compute requests can be empty to maintain compatibility with previous code.
     if (!this.computeRequests.isEmpty()) {
       for (final EvaluatorRequest request : this.computeRequests) {
-        jcb.bindSetEntry(DataLoadingComputeRequests.class, EvaluatorRequestSerializer.serialize(request));
+        jcb.bindSetEntry(DataLoadingComputeRequests.class, AvroEvaluatorRequestSerializer.toString(request));
       }
     }
 
