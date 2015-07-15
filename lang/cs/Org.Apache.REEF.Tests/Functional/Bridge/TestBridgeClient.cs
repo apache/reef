@@ -79,7 +79,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
         [TestMethod, Priority(1), TestCategory("FunctionalGated")]
         [DeploymentItem(@".")]
         [Timeout(180 * 1000)]
-        public void TestLoadAssemliesFromTestFolder()
+        public void TestLoadAssembliesFromTestFolder()
         {
             var files = new HashSet<string>(Directory.GetFiles(Directory.GetCurrentDirectory())
                 .Where(e => !(string.IsNullOrWhiteSpace(e)))
