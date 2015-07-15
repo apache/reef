@@ -25,7 +25,7 @@ import org.apache.reef.driver.evaluator.AllocatedEvaluator;
 import org.apache.reef.driver.evaluator.EvaluatorRequest;
 import org.apache.reef.driver.evaluator.EvaluatorRequestor;
 import org.apache.reef.driver.evaluator.FailedEvaluator;
-import org.apache.reef.io.data.loading.impl.EvaluatorRequestSerializer;
+import org.apache.reef.io.data.loading.impl.AvroEvaluatorRequestSerializer;
 import org.apache.reef.io.network.util.Pair;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.annotations.Parameter;
@@ -100,7 +100,7 @@ public class DataLoader {
       @Parameter(DataLoadingRequestBuilder.DataLoadingComputeRequest.class) final String serializedComputeRequest) {
     this(clock, requestor, dataLoadingService, new HashSet<String>(
         Arrays.asList(serializedComputeRequest)), new HashSet<String>(
-        Arrays.asList(EvaluatorRequestSerializer.serialize(EvaluatorRequest
+        Arrays.asList(AvroEvaluatorRequestSerializer.toString(EvaluatorRequest
             .newBuilder().setMemory(dataEvalMemoryMB)
             .setNumberOfCores(dataEvalCore).build()))));
   }
@@ -155,7 +155,7 @@ public class DataLoader {
       // Keep the maximum number of cores and memory requested, in case some
       // evaluator fails, we will try to reallocate based on that.
       for (final String serializedComputeRequest : serializedComputeRequests) {
-        final EvaluatorRequest computeRequest = EvaluatorRequestSerializer.deserialize(serializedComputeRequest);
+        final EvaluatorRequest computeRequest = AvroEvaluatorRequestSerializer.fromString(serializedComputeRequest);
         this.numComputeRequestsToSubmit.addAndGet(computeRequest.getNumber());
         this.computeEvalMemoryMB = Math.max(this.computeEvalMemoryMB, computeRequest.getMegaBytes());
         this.computeEvalCore = Math.max(this.computeEvalCore, computeRequest.getNumberOfCores());
@@ -163,14 +163,14 @@ public class DataLoader {
       }
     }
     // Deserialize each data requests.
-    // We distribute the partitions evenly accross the DCs.
+    // We distribute the partitions evenly across the DCs.
     // The number of partitions extracted from the dataLoadingService override
     // the number of evaluators requested (this preserves previous functionality)
     final int dcs = serializedDataRequests.size();
     final int partitionsPerDataCenter = this.dataLoadingService.getNumberOfPartitions() / dcs;
     int missing = this.dataLoadingService.getNumberOfPartitions() % dcs;
     for (final String serializedDataRequest : serializedDataRequests) {
-      EvaluatorRequest dataRequest = EvaluatorRequestSerializer.deserialize(serializedDataRequest);
+      EvaluatorRequest dataRequest = AvroEvaluatorRequestSerializer.fromString(serializedDataRequest);
       this.dataEvalMemoryMB = Math.max(this.dataEvalMemoryMB, dataRequest.getMegaBytes());
       this.dataEvalCore = Math.max(this.dataEvalCore, dataRequest.getNumberOfCores());
       // clone the request but update the number of evaluators based on the number of partitions
