@@ -87,7 +87,7 @@ namespace Org.Apache.REEF.Examples.HelloCLRBridge
             switch (name)
             {
                 case Local:
-                    var dir = Path.Combine(Directory.GetCurrentDirectory(), "REEF_LOCAL_RUNTIME");
+                    var dir = Path.Combine(".", "REEF_LOCAL_RUNTIME");
                     return LocalRuntimeClientConfiguration.ConfigurationModule
                         .Set(LocalRuntimeClientConfiguration.NumberOfEvaluators, "2")
                         .Set(LocalRuntimeClientConfiguration.RuntimeFolder, dir)
@@ -100,6 +100,11 @@ namespace Org.Apache.REEF.Examples.HelloCLRBridge
         }
 
         public static void Main(string[] args)
+        {
+            Run(args);
+        }
+
+        public static void Run(string[] args)
         {
             TangFactory.GetTang().NewInjector(GetRuntimeConfiguration(args.Length > 0 ? args[0] : Local)).GetInstance<ClrBridgeClient>().Run();
         }
