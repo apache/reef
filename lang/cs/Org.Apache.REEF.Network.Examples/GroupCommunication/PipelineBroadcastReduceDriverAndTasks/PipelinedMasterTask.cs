@@ -18,6 +18,7 @@
  */
 
 using System;
+using System.Diagnostics;
 using System.Linq;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Network.Group.Operators;
@@ -63,26 +64,48 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.PipelineBroadcastR
         {
             int[] intArr = new int[_arraySize];
 
+            for (int j = 0; j < _arraySize; j++)
+            {
+                intArr[j] = j;
+            }
+
+            Stopwatch broadcastTime = new Stopwatch();
+            Stopwatch reduceTime = new Stopwatch();
+
             for (int i = 1; i <= _numIters; i++)
             {
-                for (int j = 0; j < _arraySize; j++)
+                intArr[0] = i;
+
+                if (i == 2)
                 {
-                    intArr[j] = i;
+                    broadcastTime.Reset();
+                    reduceTime.Reset();
                 }
 
+                broadcastTime.Start();
                 _broadcastSender.Send(intArr);
+                broadcastTime.Stop();
+
+                reduceTime.Start();
                 int[] sum = _sumReducer.Reduce();
+                reduceTime.Stop();
 
-                Logger.Log(Level.Info, "Received sum: {0} on iteration: {1} with array length: {2}", sum[0], i, sum.Length);
+                Logger.Log(Level.Info, "Received sum: {0} on iteration: {1} with array length: {2}", sum[0], i,
+                    sum.Length);
 
-                int expected = TriangleNumber(i) * _numReduceSenders;
+                int expected = TriangleNumber(i)*_numReduceSenders;
 
-                for (int j = 0; j < intArr.Length; j++)
+                if (sum[0] != TriangleNumber(i)*_numReduceSenders)
                 {
-                    if (sum[j] != TriangleNumber(i) * _numReduceSenders)
-                    {
-                        throw new Exception("Expected " + expected + " but got " + sum);
-                    }
+                    throw new Exception("Expected " + expected + " but got " + sum[0]);
+                }
+
+                if (i >= 2)
+                {
+                    Logger.Log(Level.Info,
+                        "Average time (milliseconds) taken for broadcast: " +
+                        broadcastTime.ElapsedMilliseconds / ((double)(i - 1)) +
+                        " and reduce: " + reduceTime.ElapsedMilliseconds / ((double)(i - 1)));
                 }
             }
 

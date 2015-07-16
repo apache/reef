@@ -18,6 +18,7 @@
  */
 
 using System;
+using System.Diagnostics;
 using System.Linq;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Network.Group.Operators;
@@ -29,7 +30,7 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.BroadcastReduceDri
 {
     public class MasterTask : ITask
     {
-        private static readonly Logger _logger = Logger.GetLogger(typeof(MasterTask));
+        private static readonly Logger Logger = Logger.GetLogger(typeof(MasterTask));
 
         private readonly int _numIters;
         private readonly int _numReduceSenders;
@@ -45,7 +46,7 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.BroadcastReduceDri
             [Parameter(typeof(GroupTestConfig.NumEvaluators))] int numEvaluators,
             IGroupCommClient groupCommClient)
         {
-            _logger.Log(Level.Info, "Hello from master task");
+            Logger.Log(Level.Info, "Hello from master task");
             _numIters = numIters;
             _numReduceSenders = numEvaluators - 1;
             _groupCommClient = groupCommClient;
@@ -57,19 +58,41 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.BroadcastReduceDri
 
         public byte[] Call(byte[] memento)
         {
+            Stopwatch broadcastTime = new Stopwatch();
+            Stopwatch reduceTime = new Stopwatch();
+
             for (int i = 1; i <= _numIters; i++)
             {
+                if (i == 2)
+                {
+                    broadcastTime.Reset();
+                    reduceTime.Reset();
+                }
+
+                broadcastTime.Start();
                 // Each slave task calculates the nth triangle number
                 _broadcastSender.Send(i);
-                
+                broadcastTime.Stop();
+
+                reduceTime.Start();
                 // Sum up all of the calculated triangle numbers
                 int sum = _sumReducer.Reduce();
-                _logger.Log(Level.Info, "Received sum: {0} on iteration: {1}", sum, i);
+                reduceTime.Stop();
+
+                Logger.Log(Level.Info, "Received sum: {0} on iteration: {1}", sum, i);
 
                 int expected = TriangleNumber(i) * _numReduceSenders;
                 if (sum != TriangleNumber(i) * _numReduceSenders)
                 {
                     throw new Exception("Expected " + expected + " but got " + sum);
+                }
+
+                if (i >= 2)
+                {
+                    Logger.Log(Level.Info,
+                        "Average time (milliseconds) taken for broadcast: " +
+                        broadcastTime.ElapsedMilliseconds/((double) (i - 1)) +
+                        " and reduce: " + reduceTime.ElapsedMilliseconds/((double) (i - 1)));
                 }
             }
 

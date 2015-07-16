@@ -17,6 +17,7 @@
  * under the License.
  */
 
+using System.Diagnostics;
 using System.Linq;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Network.Group.Operators;
@@ -35,14 +36,17 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.PipelineBroadcastR
         private readonly ICommunicationGroupClient _commGroup;
         private readonly IBroadcastReceiver<int[]> _broadcastReceiver;
         private readonly IReduceSender<int[]> _triangleNumberSender;
+        private readonly int _arraySize;
 
         [Inject]
         public PipelinedSlaveTask(
             [Parameter(typeof(GroupTestConfig.NumIterations))] int numIters,
+            [Parameter(typeof(GroupTestConfig.ArraySize))] int arraySize,
             IGroupCommClient groupCommClient)
         {
             Logger.Log(Level.Info, "Hello from slave task");
 
+            _arraySize = arraySize;
             _numIterations = numIters;
             _groupCommClient = groupCommClient;
             _commGroup = _groupCommClient.GetCommunicationGroup(GroupTestConstants.GroupName);
@@ -52,25 +56,48 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.PipelineBroadcastR
 
         public byte[] Call(byte[] memento)
         {
+            int[] resArr = new int[_arraySize];
+
+            for (int j = 0; j < resArr.Length; j++)
+            {
+                resArr[j] = j;
+            }
+
+            Stopwatch broadcastTime = new Stopwatch();
+            Stopwatch reduceTime = new Stopwatch();
+
             for (int i = 0; i < _numIterations; i++)
             {
+                if (i == 1)
+                {
+                    broadcastTime.Reset();
+                    reduceTime.Reset();
+                }
+
+                broadcastTime.Start();
                 // Receive n from Master Task
                 int[] intVec = _broadcastReceiver.Receive();
+                broadcastTime.Stop();
 
                 Logger.Log(Level.Info, "Calculating TriangleNumber({0}) on slave task...", intVec[0]);
 
                 // Calculate the nth Triangle number and send it back to driver
                 int triangleNum = TriangleNumber(intVec[0]);
+
                 Logger.Log(Level.Info, "Sending sum: {0} on iteration {1}.", triangleNum, i);
 
-                int[] resArr = new int[intVec.Length];
+                resArr[0] = triangleNum;
 
-                for (int j = 0; j < resArr.Length; j++)
-                {
-                    resArr[j] = triangleNum;
-                }
-
+                reduceTime.Start();
                 _triangleNumberSender.Send(resArr);
+                reduceTime.Stop();
+
+                if (i >= 1)
+                {
+                    Logger.Log(Level.Info,
+                        "Average time (milliseconds) taken for broadcast: " + broadcastTime.ElapsedMilliseconds / ((double)i) +
+                        " and reduce: " + reduceTime.ElapsedMilliseconds / ((double)i));
+                }
             }
 
             return null;
