@@ -48,7 +48,8 @@ namespace Org.Apache.REEF.Tests.Functional
         private const string StorageAccountNameEnvironmentVariable = "REEFTestStorageAccountName";
 
         private static Logger Logger = Logger.GetLogger(typeof(ReefFunctionalTest));
-            
+        protected static int testNumber = 1;
+        protected const string defaultRuntimeFolder = "REEF_LOCAL_RUNTIME";
 
         private bool _testSuccess = false;
         private bool _onLocalRuntime = false;
@@ -111,7 +112,7 @@ namespace Org.Apache.REEF.Tests.Functional
             ClrClientHelper.Run(appDlls, driverBridgeConfig, new DriverSubmissionSettings() { RunOnYarn = runOnYarn, JavaLogLevel = javaLogSettings }, _reefJar, _runCommand, _clrFolder, _className);
         }
 
-        protected void CleanUp()
+        protected void CleanUp(string testFolder = defaultRuntimeFolder)
         {
             Console.WriteLine("Cleaning up test.");
 
@@ -125,7 +126,7 @@ namespace Org.Apache.REEF.Tests.Functional
             // Wait for file upload task to complete
             Thread.Sleep(500);
 
-            string dir = Path.Combine(Directory.GetCurrentDirectory(), "REEF_LOCAL_RUNTIME");
+            string dir = Path.Combine(Directory.GetCurrentDirectory(), testFolder);
             try
             {
                 if (Directory.Exists(dir))
@@ -139,12 +140,12 @@ namespace Org.Apache.REEF.Tests.Functional
             }   
         }
 
-        protected void ValidateSuccessForLocalRuntime(int numberOfEvaluatorsToClose)
+        protected void ValidateSuccessForLocalRuntime(int numberOfEvaluatorsToClose, string testFolder = defaultRuntimeFolder)
         {
             const string successIndication = "EXIT: ActiveContextClr2Java::Close";
             const string failedTaskIndication = "Java_com_microsoft_reef_javabridge_NativeInterop_ClrSystemFailedTaskHandlerOnNext";
             const string failedEvaluatorIndication = "Java_com_microsoft_reef_javabridge_NativeInterop_ClrSystemFailedEvaluatorHandlerOnNext";
-            string[] lines = File.ReadAllLines(GetLogFile(_stdout));
+            string[] lines = File.ReadAllLines(GetLogFile(_stdout, testFolder));
             string[] successIndicators = lines.Where(s => s.Contains(successIndication)).ToArray();
             string[] failedTaskIndicators = lines.Where(s => s.Contains(failedTaskIndication)).ToArray();
             string[] failedIndicators = lines.Where(s => s.Contains(failedEvaluatorIndication)).ToArray();
@@ -165,9 +166,11 @@ namespace Org.Apache.REEF.Tests.Functional
             }
         }
 
-        protected string GetLogFile(string logFileName)
+        protected string GetLogFile(string logFileName, string testFolder = defaultRuntimeFolder)
         {
-            string driverContainerDirectory = Directory.GetDirectories(Path.Combine(Directory.GetCurrentDirectory(), "REEF_LOCAL_RUNTIME"), "driver", SearchOption.AllDirectories).SingleOrDefault();
+            string driverContainerDirectory = Directory.GetDirectories(Path.Combine(Directory.GetCurrentDirectory(), testFolder), "driver", SearchOption.AllDirectories).SingleOrDefault();
+            Console.WriteLine("GetLogFile, driverContainerDirectory:" + driverContainerDirectory);
+
             if (string.IsNullOrWhiteSpace(driverContainerDirectory))
             {
                 throw new InvalidOperationException("Cannot find driver container directory");
@@ -201,9 +204,9 @@ namespace Org.Apache.REEF.Tests.Functional
         }
 
         /// <summary>
-        /// Assembles the storage account connection string from the envrionment.
+        /// Assembles the storage account connection string from the environment.
         /// </summary>
-        /// <returns>the storage account connection string assembled from the envrionment.</returns>
+        /// <returns>the storage account connection string assembled from the environment.</returns>
         /// <exception cref="Exception">If the environment variables aren't set.</exception>
         private static string GetStorageConnectionString()
         {
@@ -220,7 +223,7 @@ namespace Org.Apache.REEF.Tests.Functional
         }
 
         /// <summary>
-        /// Fetchs the value of the given environment variable
+        /// Fetch the value of the given environment variable
         /// </summary>
         /// <param name="variableName"></param>
         /// <param name="errorMessageIfNotAvailable"></param>

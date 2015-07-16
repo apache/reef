@@ -80,14 +80,15 @@ namespace Org.Apache.REEF.Examples.HelloCLRBridge
 
         /// <summary>
         /// </summary>
-        /// <param name="name"></param>
+        /// <param name="runOnYarn"></param>
+        /// <param name="runtimeFolder"></param>
         /// <returns></returns>
-        private static IConfiguration GetRuntimeConfiguration(string name)
+        private static IConfiguration GetRuntimeConfiguration(string runOnYarn, string runtimeFolder)
         {
-            switch (name)
+            switch (runOnYarn)
             {
                 case Local:
-                    var dir = Path.Combine(".", "REEF_LOCAL_RUNTIME");
+                    var dir = Path.Combine(".", runtimeFolder);
                     return LocalRuntimeClientConfiguration.ConfigurationModule
                         .Set(LocalRuntimeClientConfiguration.NumberOfEvaluators, "2")
                         .Set(LocalRuntimeClientConfiguration.RuntimeFolder, dir)
@@ -95,7 +96,7 @@ namespace Org.Apache.REEF.Examples.HelloCLRBridge
                 case YARN:
                     return YARNClientConfiguration.ConfigurationModule.Build();
                 default:
-                    throw new Exception("Unknown runtime: " + name);
+                    throw new Exception("Unknown runtime: " + runOnYarn);
             }
         }
 
@@ -106,7 +107,9 @@ namespace Org.Apache.REEF.Examples.HelloCLRBridge
 
         public static void Run(string[] args)
         {
-            TangFactory.GetTang().NewInjector(GetRuntimeConfiguration(args.Length > 0 ? args[0] : Local)).GetInstance<ClrBridgeClient>().Run();
+            string runOnYarn = args.Length > 0 ? args[0] : Local;
+            string runtimeFolder = args.Length > 1 ? args[1] : "REEF_LOCAL_RUNTIME";
+            TangFactory.GetTang().NewInjector(GetRuntimeConfiguration(runOnYarn, runtimeFolder)).GetInstance<ClrBridgeClient>().Run();
         }
     }
 }
