@@ -53,6 +53,15 @@ namespace Org.Apache.REEF.Common.Io
         IPEndPoint Lookup(string id);
 
         /// <summary>
+        /// Looks up the IPEndpoint for the registered identifier.
+        /// Use cache if it has entry
+        /// </summary>
+        /// <param name="id">The identifier to look up</param>
+        /// <returns>The mapped IPEndpoint for the identifier, or null if
+        /// the identifier has not been registered with the NameService</returns>
+        IPEndPoint CacheLookup(string id);
+
+        /// <summary>
         /// Looks up the IPEndpoint for each of the registered identifiers in the list.
         /// </summary>
         /// <param name="ids">The list of identifiers to look up</param>

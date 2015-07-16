@@ -46,6 +46,7 @@ under the License.
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Caching" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml" />
   </ItemGroup>
@@ -129,6 +130,8 @@ under the License.
     <Compile Include="Naming\Events\NamingUnregisterRequest.cs" />
     <Compile Include="Naming\Events\NamingUnregisterResponse.cs" />
     <Compile Include="Naming\INameServer.cs" />
+    <Compile Include="Naming\NameCache.cs" />
+    <Compile Include="Naming\Parameters\NameCacheConfiguration.cs" />
     <Compile Include="Naming\NameClient.cs" />
     <Compile Include="Naming\NameLookupClient.cs" />
     <Compile Include="Naming\NameRegisterClient.cs" />
