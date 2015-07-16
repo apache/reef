@@ -19,11 +19,14 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Net;
 using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.Common.Io;
+using Org.Apache.REEF.Examples.Tasks.StreamingTasks;
 using Org.Apache.REEF.Network.Naming;
+using Org.Apache.REEF.Network.Naming.Parameters;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
@@ -48,8 +51,8 @@ namespace Org.Apache.REEF.Network.Tests.NamingService
         {
            using (var server = BuildNameServer())
            {
-               var nameClient = new NameClient(server.LocalEndpoint);
-               var nameClient2 = new NameClient(server.LocalEndpoint);
+               var nameClient = GetNameClientInstance(server.LocalEndpoint);
+               var nameClient2 = GetNameClientInstance(server.LocalEndpoint);
                nameClient2.Register("1", new IPEndPoint(IPAddress.Any, 8080));
                nameClient.Lookup("1");
            }
@@ -60,8 +63,8 @@ namespace Org.Apache.REEF.Network.Tests.NamingService
         {
            using (var server = BuildNameServer())
            {
-               var nameClient = new NameClient(server.LocalEndpoint);
-               var nameClient2 = new NameClient(server.LocalEndpoint);
+               var nameClient = GetNameClientInstance(server.LocalEndpoint);
+               var nameClient2 = GetNameClientInstance(server.LocalEndpoint);
                nameClient2.Register("1", new IPEndPoint(IPAddress.Any, 8080));
                nameClient.Lookup("1");
            }
@@ -72,8 +75,8 @@ namespace Org.Apache.REEF.Network.Tests.NamingService
         {
            using (var server = BuildNameServer())
            {
-               var nameClient = new NameClient(server.LocalEndpoint);
-               var nameClient2 = new NameClient(server.LocalEndpoint);
+               var nameClient = GetNameClientInstance(server.LocalEndpoint);
+               var nameClient2 = GetNameClientInstance(server.LocalEndpoint);
                nameClient.Register("1", new IPEndPoint(IPAddress.Any, 8080));
                nameClient2.Lookup("1");
            }
@@ -233,6 +236,33 @@ namespace Org.Apache.REEF.Network.Tests.NamingService
             }
         }
 
+        [TestMethod]
+        public void TestNameCache()
+        {
+            double interval = 50;
+            var config =
+                TangFactory.GetTang()
+                    .NewConfigurationBuilder()
+                    .BindNamedParameter<NameCacheConfiguration.CacheEntryExpiryTime, double>(
+                        GenericType<NameCacheConfiguration.CacheEntryExpiryTime>.Class,
+                        interval.ToString(CultureInfo.InvariantCulture))
+                    .Build();
+            
+            var injector = TangFactory.GetTang().NewInjector(config);
+            var cache = injector.GetInstance<NameCache>();
+
+            cache.Set("dst1", new IPEndPoint(IPAddress.Any, 0));
+            Thread.Sleep(100);
+            var value = cache.Get("dst1");
+            Assert.IsNull(value);
+
+            IPAddress address = new IPAddress(1234);
+            cache.Set("dst1", new IPEndPoint(address, 0));
+            value = cache.Get("dst1");
+            Assert.IsNotNull(value);
+            Assert.AreEqual(address, value.Address);
+        }
+
         public static INameServer BuildNameServer(int listenPort = 0)
         {
             var builder = TangFactory.GetTang()
@@ -252,6 +282,20 @@ namespace Org.Apache.REEF.Network.Tests.NamingService
                 .Build();
 
             return TangFactory.GetTang().NewInjector(nameClientConfiguration).GetInstance<NameClient>();
+        }
+
+        private NameClient GetNameClientInstance(IPEndPoint endPoint)
+        {
+            var config1 = TangFactory.GetTang().NewConfigurationBuilder()
+                   .BindNamedParameter<NamingConfigurationOptions.NameServerAddress, string>(
+                       GenericType<NamingConfigurationOptions.NameServerAddress>.Class,
+                       endPoint.Address.ToString())
+                   .BindNamedParameter<NamingConfigurationOptions.NameServerPort, int>(
+                       GenericType<NamingConfigurationOptions.NameServerPort>.Class,
+                       endPoint.Port.ToString())
+                   .Build();
+
+            return TangFactory.GetTang().NewInjector(config1).GetInstance<NameClient>();
         }
 
         private class ConstructorInjection

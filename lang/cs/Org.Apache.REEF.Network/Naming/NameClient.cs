@@ -27,6 +27,7 @@ using Org.Apache.REEF.Common.Io;
 using Org.Apache.REEF.Network.Naming.Codec;
 using Org.Apache.REEF.Network.Naming.Events;
 using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Utilities.Diagnostics;
 using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Wake;
@@ -54,8 +55,8 @@ namespace Org.Apache.REEF.Network.Naming
 
         private NameLookupClient _lookupClient;
         private NameRegisterClient _registerClient;
-
         private bool _disposed;
+        private readonly NameCache _cache;
 
         /// <summary>
         /// Constructs a NameClient to register, lookup, and unregister IPEndpoints
@@ -63,14 +64,35 @@ namespace Org.Apache.REEF.Network.Naming
         /// </summary>
         /// <param name="remoteAddress">The ip address of the NameServer</param>
         /// <param name="remotePort">The port of the NameServer</param>
+        [Obsolete("This constructor will be made private in 0.13 version", false)]
         [Inject]
         public NameClient(
-            [Parameter(typeof(NamingConfigurationOptions.NameServerAddress))] string remoteAddress, 
-            [Parameter(typeof(NamingConfigurationOptions.NameServerPort))] int remotePort)
+            [Parameter(typeof (NamingConfigurationOptions.NameServerAddress))] string remoteAddress,
+            [Parameter(typeof (NamingConfigurationOptions.NameServerPort))] int remotePort)
         {
             IPEndPoint remoteEndpoint = new IPEndPoint(IPAddress.Parse(remoteAddress), remotePort);
             Initialize(remoteEndpoint);
             _disposed = false;
+            _cache = TangFactory.GetTang().NewInjector().GetInstance<NameCache>();
+        }
+
+        /// <summary>
+        /// Constructs a NameClient to register, lookup, and unregister IPEndpoints
+        /// with the NameServer.
+        /// </summary>
+        /// <param name="remoteAddress">The ip address of the NameServer</param>
+        /// <param name="remotePort">The port of the NameServer</param>
+        /// <param name="cache">The NameCache for caching IpAddresses</param>
+        [Inject]
+        private NameClient(
+            [Parameter(typeof(NamingConfigurationOptions.NameServerAddress))] string remoteAddress,
+            [Parameter(typeof(NamingConfigurationOptions.NameServerPort))] int remotePort,
+            NameCache cache)
+        {
+            IPEndPoint remoteEndpoint = new IPEndPoint(IPAddress.Parse(remoteAddress), remotePort);
+            Initialize(remoteEndpoint);
+            _disposed = false;
+            _cache = cache;
         }
 
         /// <summary>
@@ -78,9 +100,11 @@ namespace Org.Apache.REEF.Network.Naming
         /// with the NameServer.
         /// </summary>
         /// <param name="remoteEndpoint">The endpoint of the NameServer</param>
-        public NameClient(IPEndPoint remoteEndpoint) 
+        [Obsolete("This constructor will be removed in the 0.13 version", false)]
+        public NameClient(IPEndPoint remoteEndpoint)
         {
             Initialize(remoteEndpoint);
+            _cache = TangFactory.GetTang().NewInjector().GetInstance<NameCache>();
             _disposed = false;
         }
 
@@ -123,6 +147,31 @@ namespace Org.Apache.REEF.Network.Naming
 
         /// <summary>
         /// Synchronously looks up the IPEndpoint for the registered identifier.
+        /// Uses cache if it has entry 
+        /// </summary>
+        /// <param name="id">The identifier to look up</param>
+        /// <returns>The mapped IPEndpoint for the identifier, or null if
+        /// the identifier has not been registered with the NameService</returns>
+        public IPEndPoint CacheLookup(string id)
+        {
+            if (id == null)
+            {
+                Exceptions.Throw(new ArgumentNullException("id"), _logger);
+            }
+
+            IPEndPoint value = _cache.Get(id);
+
+            if (value != null)
+            {
+                return value;
+            }
+
+            return Lookup(id);
+        }
+
+        /// <summary>
+        /// Synchronously looks up the IPEndpoint for the registered identifier.
+        /// Does not use cache
         /// </summary>
         /// <param name="id">The identifier to look up</param>
         /// <returns>The mapped IPEndpoint for the identifier, or null if
@@ -137,6 +186,7 @@ namespace Org.Apache.REEF.Network.Naming
             List<NameAssignment> assignments = Lookup(new List<string> { id });
             if (assignments != null && assignments.Count > 0)
             {
+                _cache.Set(id, assignments.First().Endpoint);
                 return assignments.First().Endpoint;
             }
 
@@ -145,6 +195,7 @@ namespace Org.Apache.REEF.Network.Naming
 
         /// <summary>
         /// Synchronously looks up the IPEndpoint for each of the registered identifiers in the list.
+        /// Do not use cache
         /// </summary>
         /// <param name="ids">The list of identifiers to look up</param>
         /// <returns>The list of NameAssignments representing a pair of identifer
