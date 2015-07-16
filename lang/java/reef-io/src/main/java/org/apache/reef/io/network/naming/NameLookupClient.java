@@ -207,22 +207,22 @@ public class NameLookupClient implements Stage, NamingLookup {
       @Override
       public InetSocketAddress call() throws Exception {
         final int origRetryCount = NameLookupClient.this.retryCount;
-        int retryCount = origRetryCount;
+        int retriesLeft = origRetryCount;
         while (true) {
           try {
             return remoteLookup(id);
           } catch (final NamingException e) {
-            if (retryCount <= 0) {
+            if (retriesLeft <= 0) {
               throw e;
             } else {
-              final int retryTimeout = NameLookupClient.this.retryTimeout
-                  * (origRetryCount - retryCount + 1);
+              final int currentRetryTimeout = NameLookupClient.this.retryTimeout
+                  * (origRetryCount - retriesLeft + 1);
               LOG.log(Level.WARNING,
                   "Caught Naming Exception while looking up " + id
-                      + " with Name Server. Will retry " + retryCount
-                      + " time(s) after waiting for " + retryTimeout + " msec.");
-              Thread.sleep(retryTimeout * retryCount);
-              --retryCount;
+                      + " with Name Server. Will retry " + retriesLeft
+                      + " time(s) after waiting for " + currentRetryTimeout + " msec.");
+              Thread.sleep(currentRetryTimeout * retriesLeft);
+              --retriesLeft;
             }
           }
         }

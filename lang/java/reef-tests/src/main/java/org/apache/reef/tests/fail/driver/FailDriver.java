@@ -259,6 +259,7 @@ public final class FailDriver {
 
   final class RunningTaskHandler implements EventHandler<RunningTask> {
     @Override
+    @SuppressWarnings("checkstyle:hiddenfield")
     public void onNext(final RunningTask task) {
       checkMsgOrder(task);
       FailDriver.this.task = task;
@@ -280,6 +281,7 @@ public final class FailDriver {
 
   final class SuspendedTaskHandler implements EventHandler<SuspendedTask> {
     @Override
+    @SuppressWarnings("checkstyle:hiddenfield")
     public void onNext(final SuspendedTask task) {
       checkMsgOrder(task);
       state = DriverState.RESUME;
@@ -314,6 +316,7 @@ public final class FailDriver {
 
   final class FailedTaskHandler implements EventHandler<FailedTask> {
     @Override
+    @SuppressWarnings("checkstyle:hiddenfield")
     public void onNext(final FailedTask task) {
       LOG.log(Level.WARNING, "Task failed: " + task.getId(), task.getReason().orElse(null));
       checkMsgOrder(task);
@@ -325,6 +328,7 @@ public final class FailDriver {
 
   final class CompletedTaskHandler implements EventHandler<CompletedTask> {
     @Override
+    @SuppressWarnings("checkstyle:hiddenfield")
     public void onNext(final CompletedTask task) {
       checkMsgOrder(task);
       task.getActiveContext().close();

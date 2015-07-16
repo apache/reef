@@ -68,13 +68,13 @@ public class FramingOutputStream extends OutputStream implements Accumulable<byt
   @Override
   public void write(byte[] b) throws IOException {
     baos.write(b);
-    offset += b.length;
+    this.offset += b.length;
   }
 
   @Override
-  public void write(byte[] b, int offset, int length) throws IOException {
-    baos.write(b, offset, length);
-    offset += length;
+  public void write(byte[] b, int offsetToWrite, int length) throws IOException {
+    baos.write(b, offsetToWrite, length);
+    this.offset += length;
   }
 
   @Override

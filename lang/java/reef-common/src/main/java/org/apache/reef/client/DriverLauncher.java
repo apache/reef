@@ -158,6 +158,7 @@ public final class DriverLauncher {
   /**
    * Update job status and notify the waiting thread.
    */
+  @SuppressWarnings("checkstyle:hiddenfield")
   public synchronized void setStatusAndNotify(final LauncherStatus status) {
     LOG.log(Level.FINEST, "Set status: {0} -> {1}", new Object[]{this.status, status});
     this.status = status;

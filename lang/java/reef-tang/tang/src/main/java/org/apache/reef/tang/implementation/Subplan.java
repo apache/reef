@@ -38,11 +38,11 @@ public final class Subplan<T> extends InjectionPlan<T> {
     if (selectedIndex != -1) {
       this.numAlternatives = alternatives[selectedIndex].getNumAlternatives();
     } else {
-      int numAlternatives = 0;
+      int numAlternativesSum = 0;
       for (InjectionPlan<? extends T> a : alternatives) {
-        numAlternatives += a.getNumAlternatives();
+        numAlternativesSum += a.getNumAlternatives();
       }
-      this.numAlternatives = numAlternatives;
+      this.numAlternatives = numAlternativesSum;
     }
   }
 

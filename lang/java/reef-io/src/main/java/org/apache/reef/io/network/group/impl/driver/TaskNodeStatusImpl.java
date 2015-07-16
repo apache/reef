@@ -138,10 +138,10 @@ public class TaskNodeStatusImpl implements TaskNodeStatus {
   }
 
   @Override
-  public void updateFailureOf(final String taskId) {
-    LOG.entering("TaskNodeStatusImpl", "updateFailureOf", new Object[]{getQualifiedName(), taskId});
-    activeNeighbors.remove(taskId);
-    neighborStatus.remove(taskId);
+  public void updateFailureOf(final String failTaskId) {
+    LOG.entering("TaskNodeStatusImpl", "updateFailureOf", new Object[]{getQualifiedName(), failTaskId});
+    activeNeighbors.remove(failTaskId);
+    neighborStatus.remove(failTaskId);
     LOG.exiting("TaskNodeStatusImpl", "updateFailureOf", getQualifiedName());
   }
 

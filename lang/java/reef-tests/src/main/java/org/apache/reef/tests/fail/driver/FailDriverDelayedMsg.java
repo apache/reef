@@ -95,6 +95,7 @@ public final class FailDriverDelayedMsg {
 
   public final class RunningTaskHandler implements EventHandler<RunningTask> {
     @Override
+    @SuppressWarnings("checkstyle:hiddenfield")
     public void onNext(final RunningTask task) {
       FailDriverDelayedMsg.this.task = task;
       LOG.log(Level.INFO, "ENTER: FailDriverDelayedMsg.send(TaskRuntime): {0}", task);

@@ -252,11 +252,11 @@ public class OperatorTopologyImpl implements OperatorTopology {
 
       assert (effectiveTopology != null);
 
-      final Set<GroupCommunicationMessage> deletionDeltas = new HashSet<>();
-      copyDeletionDeltas(deletionDeltas);
+      final Set<GroupCommunicationMessage> deletionDeltasSet = new HashSet<>();
+      copyDeletionDeltas(deletionDeltasSet);
 
       LOG.finest(getQualifiedName() + "Updating effective topology struct with deletion msgs");
-      effectiveTopology.update(deletionDeltas);
+      effectiveTopology.update(deletionDeltasSet);
       LOG.finest(getQualifiedName() + "Released topoLock");
     }
     LOG.exiting("OperatorTopologyImpl", "refreshEffectiveTopology", getQualifiedName());

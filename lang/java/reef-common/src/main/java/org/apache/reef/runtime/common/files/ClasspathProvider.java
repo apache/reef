@@ -47,24 +47,24 @@ public final class ClasspathProvider {
     // Assemble the driver classpath
     final List<String> runtimeDriverClasspathPrefix = runtimeClasspathProvider.getDriverClasspathPrefix();
     final List<String> runtimeDriverClasspathSuffix = runtimeClasspathProvider.getDriverClasspathSuffix();
-    final List<String> driverClasspath = new ArrayList<>(baseClasspath.size() +
+    final List<String> driverClasspathList = new ArrayList<>(baseClasspath.size() +
         runtimeDriverClasspathPrefix.size() +
         runtimeDriverClasspathSuffix.size());
-    driverClasspath.addAll(runtimeDriverClasspathPrefix);
-    driverClasspath.addAll(baseClasspath);
-    driverClasspath.addAll(runtimeDriverClasspathSuffix);
-    this.driverClasspath = Collections.unmodifiableList(driverClasspath);
+    driverClasspathList.addAll(runtimeDriverClasspathPrefix);
+    driverClasspathList.addAll(baseClasspath);
+    driverClasspathList.addAll(runtimeDriverClasspathSuffix);
+    this.driverClasspath = Collections.unmodifiableList(driverClasspathList);
 
     // Assemble the evaluator classpath
     final List<String> runtimeEvaluatorClasspathPrefix = runtimeClasspathProvider.getEvaluatorClasspathPrefix();
     final List<String> runtimeEvaluatorClasspathSuffix = runtimeClasspathProvider.getEvaluatorClasspathSuffix();
-    final List<String> evaluatorClasspath = new ArrayList<>(runtimeEvaluatorClasspathPrefix.size() +
+    final List<String> evaluatorClasspathList = new ArrayList<>(runtimeEvaluatorClasspathPrefix.size() +
         baseClasspath.size() +
         runtimeEvaluatorClasspathSuffix.size());
-    evaluatorClasspath.addAll(runtimeEvaluatorClasspathPrefix);
-    evaluatorClasspath.addAll(baseClasspath);
-    evaluatorClasspath.addAll(runtimeEvaluatorClasspathSuffix);
-    this.evaluatorClasspath = Collections.unmodifiableList(evaluatorClasspath);
+    evaluatorClasspathList.addAll(runtimeEvaluatorClasspathPrefix);
+    evaluatorClasspathList.addAll(baseClasspath);
+    evaluatorClasspathList.addAll(runtimeEvaluatorClasspathSuffix);
+    this.evaluatorClasspath = Collections.unmodifiableList(evaluatorClasspathList);
   }
 
   /**

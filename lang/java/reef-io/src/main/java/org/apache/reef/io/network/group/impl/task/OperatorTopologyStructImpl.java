@@ -352,12 +352,12 @@ public class OperatorTopologyStructImpl implements OperatorTopologyStruct {
     return retVal;
   }
 
-  private void addToDeadMsgs(final String srcId, final int version) {
-    LOG.entering("OperatorTopologyStructImpl", "addToDeadMsgs", new Object[]{getQualifiedName(), srcId, version});
+  private void addToDeadMsgs(final String srcId, final int srcVersion) {
+    LOG.entering("OperatorTopologyStructImpl", "addToDeadMsgs", new Object[]{getQualifiedName(), srcId, srcVersion});
     deadMsgs.putIfAbsent(srcId, new HashSet<Integer>());
-    deadMsgs.get(srcId).add(version);
+    deadMsgs.get(srcId).add(srcVersion);
     LOG.exiting("OperatorTopologyStructImpl", "addToDeadMsgs", Arrays.toString(new Object[]{getQualifiedName(),
-        srcId, version}));
+        srcId, srcVersion}));
   }
 
   private boolean addedToDeadMsgs(final NodeStruct node, final String msgSrcId, final int msgSrcVersion) {

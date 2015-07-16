@@ -139,26 +139,26 @@ public final class TaskStatus {
 
   ReefServiceProtos.TaskStatusProto toProto() {
     this.check();
-    final ReefServiceProtos.TaskStatusProto.Builder result = ReefServiceProtos.TaskStatusProto.newBuilder()
+    final ReefServiceProtos.TaskStatusProto.Builder resultBuilder = ReefServiceProtos.TaskStatusProto.newBuilder()
         .setContextId(this.contextId)
         .setTaskId(this.taskId)
         .setState(this.getProtoState());
 
     if (this.result.isPresent()) {
-      result.setResult(ByteString.copyFrom(this.result.get()));
+      resultBuilder.setResult(ByteString.copyFrom(this.result.get()));
     } else if (this.lastException.isPresent()) {
       final byte[] error = this.exceptionCodec.toBytes(this.lastException.get());
-      result.setResult(ByteString.copyFrom(error));
+      resultBuilder.setResult(ByteString.copyFrom(error));
     } else if (this.state == State.RUNNING) {
       for (final TaskMessage taskMessage : this.getMessages()) {
-        result.addTaskMessage(ReefServiceProtos.TaskStatusProto.TaskMessageProto.newBuilder()
+        resultBuilder.addTaskMessage(ReefServiceProtos.TaskStatusProto.TaskMessageProto.newBuilder()
             .setSourceId(taskMessage.getMessageSourceID())
             .setMessage(ByteString.copyFrom(taskMessage.get()))
             .build());
       }
     }
 
-    return result.build();
+    return resultBuilder.build();
   }
 
   private void check() {
@@ -287,14 +287,14 @@ public final class TaskStatus {
    * @return the messages to be sent on the Task's behalf in the next heartbeat.
    */
   private Collection<TaskMessage> getMessages() {
-    final List<TaskMessage> result = new ArrayList<>(this.evaluatorMessageSources.size());
+    final List<TaskMessage> messageList = new ArrayList<>(this.evaluatorMessageSources.size());
     for (final TaskMessageSource messageSource : this.evaluatorMessageSources) {
       final Optional<TaskMessage> taskMessageOptional = messageSource.getMessage();
       if (taskMessageOptional.isPresent()) {
-        result.add(taskMessageOptional.get());
+        messageList.add(taskMessageOptional.get());
       }
     }
-    return result;
+    return messageList;
   }
 
 

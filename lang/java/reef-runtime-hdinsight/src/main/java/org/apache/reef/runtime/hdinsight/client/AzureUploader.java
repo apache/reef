@@ -87,6 +87,7 @@ final class AzureUploader {
     return "DefaultEndpointsProtocol=http;AccountName=" + accountName + ";AccountKey=" + accountKey;
   }
 
+  @SuppressWarnings("checkstyle:hiddenfield")
   public String createJobFolder(final String applicationID) throws IOException {
     try {
       this.applicationID = applicationID;
@@ -145,7 +146,7 @@ final class AzureUploader {
     return "wasb://" + this.azureStorageContainerName + "@" + primaryURI.getHost() + path;
   }
 
-  private String assembleJobFolderName(final String applicationID) {
-    return this.baseFolder + (this.baseFolder.endsWith("/") ? "" : "/") + applicationID;
+  private String assembleJobFolderName(final String jobApplicationID) {
+    return this.baseFolder + (this.baseFolder.endsWith("/") ? "" : "/") + jobApplicationID;
   }
 }

@@ -75,9 +75,9 @@ public final class TaskMessagingTask implements Task, TaskMessageSource {
   public class DriverMessageHandler implements EventHandler<DriverMessage> {
     @Override
     public void onNext(DriverMessage driverMessage) {
-      final byte[] message = driverMessage.get().get();
-      LOG.log(Level.INFO, "TaskMsg.send() invoked: {0}", CODEC.decode(message));
-      TaskMessagingTask.this.message = Optional.of(TaskMessage.from(this.toString(), message));
+      final byte[] driverMsg = driverMessage.get().get();
+      LOG.log(Level.INFO, "TaskMsg.send() invoked: {0}", CODEC.decode(driverMsg));
+      TaskMessagingTask.this.message = Optional.of(TaskMessage.from(this.toString(), driverMsg));
     }
   }
 }

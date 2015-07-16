@@ -677,11 +677,11 @@ public class Tint {
       uses.append("<a href='#" + u + "'>" + stripPrefix(u, pack) + "</a> ");
     }
     sb.append(cell(uses, USES));
-    StringBuffer setters = new StringBuffer();
+    StringBuffer settersStr = new StringBuffer();
     for (String f : getSettersOf(n)) {
-      setters.append("<a href='#" + f + "'>" + stripPrefix(f, pack) + "</a> ");
+      settersStr.append("<a href='#" + f + "'>" + stripPrefix(f, pack) + "</a> ");
     }
-    sb.append(cell(setters, SETTERS));
+    sb.append(cell(settersStr, SETTERS));
     sb.append("</div>");
     sb.append("</div>");
     return row(sb);
@@ -718,11 +718,11 @@ public class Tint {
       uses.append("<a href='#" + u + "'>" + stripPrefix(u, pack) + "</a> ");
     }
     sb.append(cell(uses, USES));
-    StringBuffer setters = new StringBuffer();
+    StringBuffer settersStr = new StringBuffer();
     for (String f : getSettersOf(n)) {
-      setters.append("<a href='#" + f + "'>" + stripPrefix(f, pack) + "</a> ");
+      settersStr.append("<a href='#" + f + "'>" + stripPrefix(f, pack) + "</a> ");
     }
-    sb.append(cell(setters, SETTERS));
+    sb.append(cell(settersStr, SETTERS));
     sb.append("</div>");
     sb.append("</div>");
     return row(sb);

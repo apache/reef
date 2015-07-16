@@ -37,6 +37,7 @@ public final class SetOnce<T> {
     return value.get();
   }
 
+  @SuppressWarnings("checkstyle:hiddenfield")
   public synchronized void set(final T value) {
     if (this.value.isPresent()) {
       throw new IllegalStateException("Trying to set new value " + value +
