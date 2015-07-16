@@ -189,6 +189,7 @@ public final class EvaluatorRequest {
      * @param megaBytes the amount of megabytes to request for the Evaluator.
      * @return this builder
      */
+    @SuppressWarnings("checkstyle:hiddenfield")
     public Builder setMemory(final int megaBytes) {
       this.megaBytes = megaBytes;
       return this;
@@ -200,6 +201,7 @@ public final class EvaluatorRequest {
      * @param cores the number of cores
      * @return
      */
+    @SuppressWarnings("checkstyle:hiddenfield")
     public Builder setNumberOfCores(final int cores) {
       this.cores = cores;
       return this;
@@ -211,6 +213,7 @@ public final class EvaluatorRequest {
      * @param n
      * @return this Builder.
      */
+    @SuppressWarnings("checkstyle:hiddenfield")
     public Builder setNumber(final int n) {
       this.n = n;
       return this;

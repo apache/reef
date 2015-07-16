@@ -133,6 +133,7 @@ public final class TracingMonotonicTreeMap<K, V> implements TracingMonotonicMap<
     }
 
     @Override
+    @SuppressWarnings("checkstyle:hiddenfield")
     public BindLocation setValue(BindLocation value) {
       throw new UnsupportedOperationException();
     }

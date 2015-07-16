@@ -218,10 +218,10 @@ public class MasterTask implements Task {
     return iters >= maxIters || Math.abs(gradNorm) <= 1e-3;
   }
 
-  private double findMinEta(final Vector model, final Vector descentDir, final Vector lineSearchEvals) {
-    final double wNormSqr = model.norm2Sqr();
+  private double findMinEta(final Vector theModel, final Vector descentDir, final Vector lineSearchEvals) {
+    final double wNormSqr = theModel.norm2Sqr();
     final double dNormSqr = descentDir.norm2Sqr();
-    final double wDotd = model.dot(descentDir);
+    final double wDotd = theModel.dot(descentDir);
     final double[] t = ts.getT();
     int i = 0;
     for (final double eta : t) {

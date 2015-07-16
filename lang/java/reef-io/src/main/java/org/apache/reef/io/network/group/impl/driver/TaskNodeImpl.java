@@ -121,8 +121,8 @@ public class TaskNodeImpl implements TaskNode {
         child.onParentDead();
       }
     }
-    final int version = this.version.incrementAndGet();
-    LOG.finest(getQualifiedName() + "Bumping up to version-" + version);
+    final int newVersion = this.version.incrementAndGet();
+    LOG.finest(getQualifiedName() + "Bumping up to version-" + newVersion);
     LOG.exiting("TaskNodeImpl", "onFailedTask", getQualifiedName());
   }
 
@@ -135,13 +135,13 @@ public class TaskNodeImpl implements TaskNode {
           "Trying to set running on an already running task. Something fishy!!!");
       return;
     }
-    final int version = this.version.get();
-    LOG.finest(getQualifiedName() + "Changed status to running version-" + version);
+    final int newVersion = this.version.get();
+    LOG.finest(getQualifiedName() + "Changed status to running version-" + newVersion);
     if (parent != null && parent.isRunning()) {
       final GroupCommunicationMessage gcm = Utils.bldVersionedGCM(groupName, operName,
           ReefNetworkGroupCommProtos.GroupCommMessage.Type.ParentAdd, parent.getTaskId(),
           parent.getVersion(), taskId,
-          version, Utils.EMPTY_BYTE_ARR);
+          newVersion, Utils.EMPTY_BYTE_ARR);
       taskNodeStatus.expectAckFor(gcm.getType(), gcm.getSrcid());
       senderStage.onNext(gcm);
       parent.onChildRunning(taskId);
@@ -152,7 +152,7 @@ public class TaskNodeImpl implements TaskNode {
       if (child.isRunning()) {
         final GroupCommunicationMessage gcm = Utils.bldVersionedGCM(groupName, operName,
             ReefNetworkGroupCommProtos.GroupCommMessage.Type.ChildAdd, child.getTaskId(),
-            child.getVersion(), taskId, version,
+            child.getVersion(), taskId, newVersion,
             Utils.EMPTY_BYTE_ARR);
         taskNodeStatus.expectAckFor(gcm.getType(), gcm.getSrcid());
         senderStage.onNext(gcm);

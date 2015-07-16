@@ -219,6 +219,7 @@ public class JobClient {
   /**
    * Set the driver memory.
    */
+  @SuppressWarnings("checkstyle:hiddenfield")
   public void setDriverInfo(final String identifier, final int memory, final String jobSubmissionDirectory) {
     if (identifier == null || identifier.isEmpty()) {
       throw new RuntimeException("driver id cannot be null or empty");

@@ -158,6 +158,7 @@ public final class RuntimeClock implements Clock {
     }
   }
 
+  @SuppressWarnings("checkstyle:hiddenfield")
   private <T extends Time> void subscribe(final Class<T> eventClass, final Set<EventHandler<T>> handlers) {
     for (final EventHandler<T> handler : handlers) {
       this.handlers.subscribe(eventClass, handler);

@@ -166,11 +166,11 @@ public final class ContextRuntime {
         final Injector childServiceInjector =
             this.serviceInjector.forkInjector(serviceConfiguration);
 
-        final ContextRuntime childContext =
+        final ContextRuntime newChildContext =
             new ContextRuntime(childServiceInjector, contextConfiguration, Optional.of(this));
 
-        this.childContext = Optional.of(childContext);
-        return childContext;
+        this.childContext = Optional.of(newChildContext);
+        return newChildContext;
 
       } catch (final BindException e) {
 
@@ -214,11 +214,11 @@ public final class ContextRuntime {
       }
 
       final Injector childServiceInjector = this.serviceInjector.forkInjector();
-      final ContextRuntime childContext =
+      final ContextRuntime newChildContext =
           new ContextRuntime(childServiceInjector, contextConfiguration, Optional.of(this));
 
-      this.childContext = Optional.of(childContext);
-      return childContext;
+      this.childContext = Optional.of(newChildContext);
+      return newChildContext;
     }
   }
 

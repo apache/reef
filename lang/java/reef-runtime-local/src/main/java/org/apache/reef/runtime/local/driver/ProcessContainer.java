@@ -111,6 +111,7 @@ final class ProcessContainer implements Container {
   }
 
   @Override
+  @SuppressWarnings("checkstyle:hiddenfield")
   public void addGlobalFiles(final File globalFolder) {
     try {
       copy(Arrays.asList(globalFolder.listFiles()), this.globalFolder);

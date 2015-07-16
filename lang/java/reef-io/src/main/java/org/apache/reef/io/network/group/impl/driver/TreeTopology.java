@@ -90,6 +90,7 @@ public class TreeTopology implements Topology {
   }
 
   @Override
+  @SuppressWarnings("checkstyle:hiddenfield")
   public void setRootTask(final String rootId) {
     LOG.entering("TreeTopology", "setRootTask", new Object[]{getQualifiedName(), rootId});
     this.rootId = rootId;
@@ -219,9 +220,9 @@ public class TreeTopology implements Topology {
     LOG.exiting("TreeTopology", "removeChild", getQualifiedName() + taskId);
   }
 
-  private void setRootNode(final String rootId) {
-    LOG.entering("TreeTopology", "setRootNode", new Object[]{getQualifiedName(), rootId});
-    final TaskNode node = new TaskNodeImpl(senderStage, groupName, operName, rootId, driverId, true);
+  private void setRootNode(final String newRootId) {
+    LOG.entering("TreeTopology", "setRootNode", new Object[]{getQualifiedName(), newRootId});
+    final TaskNode node = new TaskNodeImpl(senderStage, groupName, operName, newRootId, driverId, true);
     this.root = node;
     this.logicalRoot = this.root;
     this.prev = this.root;
@@ -231,8 +232,8 @@ public class TreeTopology implements Topology {
       addTaskNode(leaf);
       this.prev = leaf;
     }
-    nodes.put(rootId, root);
-    LOG.exiting("TreeTopology", "setRootNode", getQualifiedName() + rootId);
+    nodes.put(newRootId, root);
+    LOG.exiting("TreeTopology", "setRootNode", getQualifiedName() + newRootId);
   }
 
   private void unsetRootNode(final String taskId) {

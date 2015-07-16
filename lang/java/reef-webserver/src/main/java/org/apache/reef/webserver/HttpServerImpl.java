@@ -75,28 +75,28 @@ public final class HttpServerImpl implements HttpServer {
     this.loggingScopeFactory = loggingScopeFactory;
     try (final LoggingScope ls = this.loggingScopeFactory.httpServer()) {
       this.jettyHandler = jettyHandler;
-      int port = portNumber;
+      int availablePort = portNumber;
       Server srv = null;
       boolean found = false;
       for (int attempt = 0; attempt < maxRetryAttempts; ++attempt) {
         if (attempt > 0) {
-          port = getNextPort(maxPortNumber, minPortNumber);
+          availablePort = getNextPort(maxPortNumber, minPortNumber);
         }
-        srv = new Server(port);
+        srv = new Server(availablePort);
         try {
           srv.start();
           found = true;
           break;
         } catch (final BindException ex) {
-          LOG.log(Level.FINEST, "Cannot use port: {0}. Will try another", port);
+          LOG.log(Level.FINEST, "Cannot use port: {0}. Will try another", availablePort);
         }
       }
 
       if (found) {
         this.server = srv;
-        this.port = port;
+        this.port = availablePort;
         this.server.setHandler(jettyHandler);
-        LOG.log(Level.INFO, "Jetty Server started with port: {0}", port);
+        LOG.log(Level.INFO, "Jetty Server started with port: {0}", availablePort);
       } else {
         throw new RuntimeException("Could not find available port in " + maxRetryAttempts + " attempts");
       }

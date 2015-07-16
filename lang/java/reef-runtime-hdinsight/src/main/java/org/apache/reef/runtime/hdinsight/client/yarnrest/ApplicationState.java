@@ -255,6 +255,7 @@ public final class ApplicationState {
     return vCoreSeconds;
   }
 
+  @SuppressWarnings("checkstyle:hiddenfield")
   public void setVCoreSeconds(long vCoreSeconds) {
     this.vCoreSeconds = vCoreSeconds;
   }
