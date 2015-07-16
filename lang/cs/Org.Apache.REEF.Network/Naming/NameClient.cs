@@ -54,7 +54,7 @@ namespace Org.Apache.REEF.Network.Naming
 
         private NameLookupClient _lookupClient;
         private NameRegisterClient _registerClient;
-
+        private Dictionary<string, NameAssignment> _lookUpCache;
         private bool _disposed;
 
         /// <summary>
@@ -125,18 +125,27 @@ namespace Org.Apache.REEF.Network.Naming
         /// Synchronously looks up the IPEndpoint for the registered identifier.
         /// </summary>
         /// <param name="id">The identifier to look up</param>
+        /// <param name="useCache">flag for using cache</param>
         /// <returns>The mapped IPEndpoint for the identifier, or null if
         /// the identifier has not been registered with the NameService</returns>
-        public IPEndPoint Lookup(string id)
+        public IPEndPoint Lookup(string id, bool useCache = false)
         {
             if (id == null)
             {
                 Exceptions.Throw(new ArgumentNullException("id"), _logger);
             }
 
+            NameAssignment value;
+
+            if (useCache && _lookUpCache.TryGetValue(id, out value))
+            {
+                return value.Endpoint;
+            }
+
             List<NameAssignment> assignments = Lookup(new List<string> { id });
             if (assignments != null && assignments.Count > 0)
             {
+                _lookUpCache[id] = assignments.First();
                 return assignments.First().Endpoint;
             }
 
@@ -217,6 +226,7 @@ namespace Org.Apache.REEF.Network.Naming
 
             _lookupClient = new NameLookupClient(_client, _lookupResponseQueue, _getAllResponseQueue);
             _registerClient = new NameRegisterClient(_client, _registerResponseQueue, _unregisterResponseQueue);
+            _lookUpCache = new Dictionary<string, NameAssignment>();
         }
 
         /// <summary>
