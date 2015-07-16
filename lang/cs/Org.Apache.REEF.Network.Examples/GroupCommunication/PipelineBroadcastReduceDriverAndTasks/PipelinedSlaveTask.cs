@@ -95,8 +95,9 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.PipelineBroadcastR
                 if (i >= 1)
                 {
                     Logger.Log(Level.Info,
-                        "Average time (milliseconds) taken for broadcast: " + broadcastTime.ElapsedMilliseconds / ((double)i) +
-                        " and reduce: " + reduceTime.ElapsedMilliseconds / ((double)i));
+                        string.Format("Average time (milliseconds) taken for broadcast: {0} and reduce: {1}",
+                            broadcastTime.ElapsedMilliseconds/((double) i),
+                            reduceTime.ElapsedMilliseconds/((double) i)));
                 }
             }
 

@@ -90,9 +90,9 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.BroadcastReduceDri
                 if (i >= 2)
                 {
                     Logger.Log(Level.Info,
-                        "Average time (milliseconds) taken for broadcast: " +
-                        broadcastTime.ElapsedMilliseconds/((double) (i - 1)) +
-                        " and reduce: " + reduceTime.ElapsedMilliseconds/((double) (i - 1)));
+                        string.Format("Average time (milliseconds) taken for broadcast: {0} and reduce: {1}",
+                            broadcastTime.ElapsedMilliseconds/((double) (i - 1)),
+                            reduceTime.ElapsedMilliseconds/((double) (i - 1))));
                 }
             }
 
