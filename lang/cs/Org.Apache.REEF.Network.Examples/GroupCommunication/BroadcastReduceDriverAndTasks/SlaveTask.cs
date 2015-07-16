@@ -17,6 +17,7 @@
  * under the License.
  */
 
+using System.Diagnostics;
 using System.Linq;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Network.Group.Operators;
@@ -28,7 +29,7 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.BroadcastReduceDri
 {
     public class SlaveTask : ITask
     {
-        private static readonly Logger _logger = Logger.GetLogger(typeof(SlaveTask));
+        private static readonly Logger Logger = Logger.GetLogger(typeof(SlaveTask));
 
         private readonly int _numIterations;
         private readonly IGroupCommClient _groupCommClient;
@@ -41,7 +42,7 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.BroadcastReduceDri
             [Parameter(typeof(GroupTestConfig.NumIterations))] int numIters,
             IGroupCommClient groupCommClient)
         {
-            _logger.Log(Level.Info, "Hello from slave task");
+            Logger.Log(Level.Info, "Hello from slave task");
 
             _numIterations = numIters;
             _groupCommClient = groupCommClient;
@@ -52,16 +53,33 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.BroadcastReduceDri
 
         public byte[] Call(byte[] memento)
         {
+            Stopwatch broadcastTime = new Stopwatch();
+            Stopwatch reduceTime = new Stopwatch();
+
             for (int i = 0; i < _numIterations; i++)
             {
+                broadcastTime.Start();
                 // Receive n from Master Task
                 int n = _broadcastReceiver.Receive();
-                _logger.Log(Level.Info, "Calculating TriangleNumber({0}) on slave task...", n);
+                broadcastTime.Stop();
+
+                Logger.Log(Level.Info, "Calculating TriangleNumber({0}) on slave task...", n);
 
                 // Calculate the nth Triangle number and send it back to driver
                 int triangleNum = TriangleNumber(n);
-                _logger.Log(Level.Info, "Sending sum: {0} on iteration {1}.", triangleNum, i);
+                Logger.Log(Level.Info, "Sending sum: {0} on iteration {1}.", triangleNum, i);
+                
+                reduceTime.Start();
                 _triangleNumberSender.Send(triangleNum);
+                reduceTime.Stop();
+                
+                if (i >= 1)
+                {
+                    Logger.Log(Level.Info,
+                        string.Format("Average time (milliseconds) taken for broadcast: {0} and reduce: {1}",
+                            broadcastTime.ElapsedMilliseconds / ((double)i),
+                            reduceTime.ElapsedMilliseconds / ((double)i)));
+                }
             }
 
             return null;
