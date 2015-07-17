@@ -24,6 +24,7 @@ using System.Linq;
 using Org.Apache.REEF.Common.Files;
 using Org.Apache.REEF.Driver.Bridge;
 using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Driver
 {
@@ -32,7 +33,11 @@ namespace Org.Apache.REEF.Driver
     /// </summary>
     internal sealed class ClassHierarchyGeneratingDriverStartObserver : IObserver<IDriverStarted>
     {
+        private static readonly Logger _Logger = Logger.GetLogger(typeof(ClassHierarchyGeneratingDriverStartObserver));
+
         private readonly REEFFileNames _fileNames;
+        private ISet<string> _assemblies;
+
 
         [Inject]
         private ClassHierarchyGeneratingDriverStartObserver(REEFFileNames fileNames)
@@ -40,13 +45,27 @@ namespace Org.Apache.REEF.Driver
             _fileNames = fileNames;
         }
 
+        [Inject]
+        private ClassHierarchyGeneratingDriverStartObserver(REEFFileNames fileNames, [Parameter(typeof(SetOfAssemblies))] ISet<string> assemlies)
+        {
+            _assemblies = assemlies;
+            _fileNames = fileNames;            
+        }
+
         /// <summary>
-        /// Generates the class hieararchy file
+        /// Generates the class hierarchy file
         /// </summary>
         /// <param name="value"></param>
         public void OnNext(IDriverStarted value)
         {
-            ClrHandlerHelper.GenerateClassHierarchy(GetAssembliesInGlobalFolder());
+            if (_assemblies != null && _assemblies.Count > 0)
+            {
+                ClrHandlerHelper.GenerateClassHierarchy(_assemblies);
+            }
+            else
+            {
+                ClrHandlerHelper.GenerateClassHierarchy(GetAssembliesInGlobalFolder());
+            }
         }
 
         /// <summary>
@@ -92,5 +111,10 @@ namespace Org.Apache.REEF.Driver
             var extension = Path.GetExtension(path).ToLower();
             return extension.EndsWith("dll") || extension.EndsWith("exe");
         }
+    }
+
+    [NamedParameter]
+    public class SetOfAssemblies : Name<ISet<string>>
+    {
     }
 }

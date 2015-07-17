@@ -19,10 +19,11 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Org.Apache.REEF.Driver;
+using Org.Apache.REEF.Examples.HelloCLRBridge;
+using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Tests.Functional.Bridge
@@ -35,7 +36,6 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
         [TestInitialize()]
         public void TestSetup()
         {
-            CleanUp();
             Init();
         }
 
@@ -43,57 +43,70 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
         public void TestCleanup()
         {
             Console.WriteLine("Post test check and clean up");
-            CleanUp();
         }
 
         [TestMethod, Priority(1), TestCategory("FunctionalGated")]
         [Description("Run CLR Bridge on local runtime")]
         [DeploymentItem(@".")]
-        [Ignore] // This is diabled by default on builds
-        public void CanRunClrBridgeOnYarn()
+        [Ignore] //This test needs to be run on Yarn environment with test framework installed.
+        public void CanRunClrBridgeExampleOnYarn()
         {
-            RunClrBridgeClient(runOnYarn: true);
+            RunClrBridgeClient(true);
         }
 
         [TestMethod, Priority(1), TestCategory("FunctionalGated")]
         [Description("Run CLR Bridge on local runtime")]
         [DeploymentItem(@".")]
         [Timeout(180 * 1000)]
-        public void CanRunClrBridgeOnLocalRuntime()
+        public void CanRunClrBridgeExampleOnLocalRuntime()
         {
-            IsOnLocalRuntiime = true;
-            RunClrBridgeClient(runOnYarn: false);
-            ValidateSuccessForLocalRuntime(2);
+            RunClrBridgeClient(false);
         }
 
         private void RunClrBridgeClient(bool runOnYarn)
         {
-            const string clrBridgeClient = "Org.Apache.REEF.Client.exe";
-            List<string> arguments = new List<string>();
-            arguments.Add(runOnYarn.ToString());
-            arguments.Add(Constants.BridgeLaunchClass);
-            arguments.Add(".");
-            arguments.Add(Path.Combine(_binFolder, Constants.JavaBridgeJarFileName));
-            arguments.Add(Path.Combine(_binFolder, _cmdFile));
+            string testRuntimeFolder = defaultRuntimeFolder + testNumber++;
+            string[] a = new[] { runOnYarn ? "yarn" : "local", testRuntimeFolder };
+            ClrBridgeClient.Run(a);
+            ValidateSuccessForLocalRuntime(2, testRuntimeFolder);
+            CleanUp(testRuntimeFolder);
+        }
 
-            ProcessStartInfo startInfo = new ProcessStartInfo()
+        /// <summary>
+        /// This is to test all the assemblies in the test bin folder can be loaded when creating class hierarchy
+        /// </summary>
+        [TestMethod, Priority(1), TestCategory("FunctionalGated")]
+        [DeploymentItem(@".")]
+        [Timeout(180 * 1000)]
+        public void TestLoadAssembliesFromTestFolder()
+        {
+            var files = new HashSet<string>(Directory.GetFiles(Directory.GetCurrentDirectory())
+                .Where(e => !(string.IsNullOrWhiteSpace(e)))
+                .Select(Path.GetFullPath)
+                .Where(File.Exists)
+                .Where(IsAssembly)
+                .Select(Path.GetFileNameWithoutExtension));
+
+            var loader = new AssemblyLoader(files.ToArray());
+            List<Type> types = new List<Type>();
+            foreach (var g in loader.Assemblies)
             {
-                FileName = clrBridgeClient,
-                Arguments = string.Join(" ", arguments),
-                RedirectStandardOutput = true,
-                UseShellExecute = false,
-                CreateNoWindow = false
-            }; 
-            
-            LOGGER.Log(Level.Info, "Executing '" + startInfo.FileName + " " + startInfo.Arguments +"' in working directory '" + Directory.GetCurrentDirectory() +"'");
-            using (Process process = Process.Start(startInfo))
-            {
-                process.WaitForExit();
-                if (process.ExitCode != 0)
+                var ts = g.GetTypes();
+                foreach (var t in ts)
                 {
-                    throw new InvalidOperationException("CLR client exited with error code " + process.ExitCode);
+                    types.Add(t);
                 }
             }
+        }
+
+        private static Boolean IsAssembly(string path)
+        {
+            if (string.IsNullOrWhiteSpace(path))
+            {
+                return false;
+            }
+            var extension = Path.GetExtension(path).ToLower();
+            return extension.EndsWith("dll") || extension.EndsWith("exe");
         }
     }
 }
