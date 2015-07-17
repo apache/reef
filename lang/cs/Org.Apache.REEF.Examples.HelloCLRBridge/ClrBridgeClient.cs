@@ -23,9 +23,13 @@ using Org.Apache.REEF.Client.API;
 using Org.Apache.REEF.Client.Local;
 using Org.Apache.REEF.Client.YARN;
 using Org.Apache.REEF.Common.Evaluator;
+using Org.Apache.REEF.Common.Io;
+using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Driver;
 using Org.Apache.REEF.Driver.Defaults;
 using Org.Apache.REEF.Examples.HelloCLRBridge.Handlers;
+using Org.Apache.REEF.Examples.Tasks.HelloTask;
+using Org.Apache.REEF.Network.Naming;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
@@ -69,8 +73,21 @@ namespace Org.Apache.REEF.Examples.HelloCLRBridge
                 .Set(DriverConfiguration.OnDriverRestartTaskRunning, GenericType<HelloDriverRestartRunningTaskHandler>.Class)
                 .Build();
 
+            var driverCondig = TangFactory.GetTang().NewConfigurationBuilder(helloDriverConfiguration)
+                .BindSetEntry<SetOfAssemblies, string>(GenericType<SetOfAssemblies>.Class,
+                    typeof (IDriver).Assembly.GetName().Name)
+                .BindSetEntry<SetOfAssemblies, string>(GenericType<SetOfAssemblies>.Class,
+                    typeof (ITask).Assembly.GetName().Name)
+                .BindSetEntry<SetOfAssemblies, string>(GenericType<SetOfAssemblies>.Class,
+                    typeof (HelloTask).Assembly.GetName().Name)
+                .BindSetEntry<SetOfAssemblies, string>(GenericType<SetOfAssemblies>.Class,
+                    typeof (INameClient).Assembly.GetName().Name)
+                .BindSetEntry<SetOfAssemblies, string>(GenericType<SetOfAssemblies>.Class,
+                    typeof (NameClient).Assembly.GetName().Name)
+                .Build();
+
             var helloJobSubmission = _jobSubmissionBuilderFactory.GetJobSubmissionBuilder()
-                .AddDriverConfiguration(helloDriverConfiguration)
+                .AddDriverConfiguration(driverCondig)
                 .AddGlobalAssemblyForType(typeof(HelloDriverStartHandler))
                 .SetJobIdentifier("HelloDriver")
                 .Build();
