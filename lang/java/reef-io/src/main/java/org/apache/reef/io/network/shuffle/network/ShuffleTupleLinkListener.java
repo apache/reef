@@ -19,17 +19,46 @@
 package org.apache.reef.io.network.shuffle.network;
 
 import org.apache.reef.io.network.Message;
-import org.apache.reef.tang.annotations.DefaultImplementation;
-import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.wake.remote.transport.LinkListener;
+
+import javax.inject.Inject;
+import java.net.SocketAddress;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  *
  */
-@DefaultImplementation(ShuffleTupleLinkListenerImpl.class)
-public interface ShuffleTupleLinkListener extends LinkListener<Message<ShuffleTupleMessage>> {
-  void registerLinkListener(Class<? extends Name<String>> shuffleName,
-                            LinkListener<Message<ShuffleTupleMessage>> linkListener);
+public class ShuffleTupleLinkListener implements LinkListener<Message<ShuffleTupleMessage>> {
 
-  void remove(Class<? extends Name<String>> shuffleName);
+  private final Map<String, Map<String, LinkListener>> linkListenerMap;
+
+  @Inject
+  public ShuffleTupleLinkListener() {
+    this.linkListenerMap = new ConcurrentHashMap<>();
+  }
+
+  public <K, V> void registerLinkListener(final String shuffleName, final String groupingName,
+                            final LinkListener<Message<ShuffleTupleMessage<K, V>>> linkListener) {
+    if (!linkListenerMap.containsKey(shuffleName)) {
+      linkListenerMap.put(shuffleName, new ConcurrentHashMap<String, LinkListener>());
+    }
+
+    linkListenerMap.get(shuffleName).put(groupingName, linkListener);
+  }
+
+  @Override
+  public void onSuccess(final Message<ShuffleTupleMessage> message) {
+    final ShuffleTupleMessage tupleMessage = message.getData().iterator().next();
+    linkListenerMap.get(tupleMessage.getShuffleName()).get(tupleMessage.getGroupingName())
+        .onSuccess(message);
+  }
+
+  @Override
+  public void onException(
+      final Throwable cause, final SocketAddress remoteAddress, final Message<ShuffleTupleMessage> message) {
+    final ShuffleTupleMessage tupleMessage = message.getData().iterator().next();
+    linkListenerMap.get(tupleMessage.getShuffleName()).get(tupleMessage.getGroupingName())
+        .onException(cause, remoteAddress, message);
+  }
 }

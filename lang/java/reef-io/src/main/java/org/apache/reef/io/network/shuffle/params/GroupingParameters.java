@@ -26,6 +26,28 @@ import java.util.Set;
 /**
  *
  */
-@NamedParameter
-public final class SerializedShuffleSet implements Name<Set<String>> {
+public class GroupingParameters {
+  @NamedParameter
+  public static final class GroupingName implements Name<String> {
+  }
+
+  @NamedParameter
+  public final class GroupingReceiverIdSet implements Name<Set<String>> {
+  }
+
+  @NamedParameter
+  public final class GroupingSenderIdSet implements Name<Set<String>> {
+  }
+
+  @NamedParameter
+  public final class GroupingStrategyClassName implements Name<String> {
+  }
+
+  @NamedParameter
+  public static final class GroupingKeyCodecClassName implements Name<String> {
+  }
+
+  @NamedParameter
+  public final class GroupingValueCodecClassName implements Name<String> {
+  }
 }

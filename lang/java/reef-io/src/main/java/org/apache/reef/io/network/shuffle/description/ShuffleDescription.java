@@ -29,7 +29,7 @@ import java.util.List;
 @DefaultImplementation(ShuffleDescriptionImpl.class)
 public interface ShuffleDescription {
 
-  Class<? extends Name<String>> getShuffleName();
+  String getShuffleName();
 
   List<String> getGroupingNameList();
 

@@ -18,24 +18,34 @@
  */
 package org.apache.reef.io.network.shuffle.network;
 
-import org.apache.reef.io.network.shuffle.task.Tuple;
+import org.apache.reef.io.Tuple;
 
 /**
  *
  */
-public final class ShuffleTupleMessage<K, V> extends ShuffleMessage<Tuple<K, V>> {
+public final class ShuffleTupleMessage<K, V> {
 
+  private final String shuffleName;
+  private final String groupingName;
   private final Tuple<K, V>[] tuples;
 
   public ShuffleTupleMessage(
       final String shuffleName,
       final String groupingName,
       final Tuple<K, V>[] tuples) {
-    super(shuffleName, groupingName);
+    this.shuffleName = shuffleName;
+    this.groupingName = groupingName;
     this.tuples = tuples;
   }
 
-  @Override
+  public String getShuffleName() {
+    return shuffleName;
+  }
+
+  public String getGroupingName() {
+    return groupingName;
+  }
+
   public int size() {
     if (tuples == null) {
       return 0;
@@ -44,7 +54,6 @@ public final class ShuffleTupleMessage<K, V> extends ShuffleMessage<Tuple<K, V>>
     return tuples.length;
   }
 
-  @Override
   public Tuple<K, V> get(final int index) {
     return tuples[index];
   }

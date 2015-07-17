@@ -16,14 +16,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.io.network.shuffle.params;
+package org.apache.reef.io.network.shuffle.task;
 
-import org.apache.reef.tang.annotations.Name;
-import org.apache.reef.tang.annotations.NamedParameter;
+import org.apache.reef.io.network.shuffle.description.GroupingDescription;
+
+import java.util.List;
 
 /**
  *
  */
-@NamedParameter
-public final class GroupingValueCodecClassName implements Name<String> {
+public interface TupleOperator<K, V> {
+
+  GroupingDescription<K, V> getGroupingDescription();
+
+  List<String> getSelectedReceiverIdList(K key);
+
 }

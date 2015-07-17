@@ -18,23 +18,32 @@
  */
 package org.apache.reef.io.network.shuffle.network;
 
+import org.apache.reef.io.Tuple;
 import org.apache.reef.io.network.impl.StreamingCodec;
-import org.apache.reef.io.network.shuffle.task.Tuple;
 import org.apache.reef.wake.remote.Codec;
 
 import javax.inject.Inject;
 import java.io.*;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  *
  */
 public final class ShuffleTupleMessageCodec implements StreamingCodec<ShuffleTupleMessage> {
 
-  private final GlobalTupleCodecMap globalTupleCodecMap;
+  private Map<String, Map<String, Codec<Tuple>>> tupleCodecMap;
 
   @Inject
-  public ShuffleTupleMessageCodec(final GlobalTupleCodecMap globalTupleCodecMap) {
-    this.globalTupleCodecMap = globalTupleCodecMap;
+  public ShuffleTupleMessageCodec() {
+    tupleCodecMap = new ConcurrentHashMap<>();
+  }
+
+  public void registerTupleCodec(final String shuffleName, final String groupingName, final Codec<Tuple> tupleCodec) {
+    if (!tupleCodecMap.containsKey(shuffleName)) {
+      tupleCodecMap.put(shuffleName, new ConcurrentHashMap<String, Codec<Tuple>>());
+    }
+    tupleCodecMap.get(shuffleName).put(groupingName, tupleCodec);
   }
 
   @Override
@@ -78,7 +87,7 @@ public final class ShuffleTupleMessageCodec implements StreamingCodec<ShuffleTup
       stream.writeInt(msg.size());
 
       final int messageLength = msg.size();
-      final Codec<Tuple> tupleCodec = globalTupleCodecMap.getTupleCodec(msg.getShuffleName(), msg.getGroupingName());
+      final Codec<Tuple> tupleCodec = tupleCodecMap.get(msg.getShuffleName()).get(msg.getGroupingName());
       for (int i = 0; i < messageLength; i++) {
         if (tupleCodec instanceof StreamingCodec) {
           ((StreamingCodec<Tuple>)tupleCodec).encodeToStream(msg.get(i), stream);
@@ -110,7 +119,7 @@ public final class ShuffleTupleMessageCodec implements StreamingCodec<ShuffleTup
       final int dataNum = stream.readInt();
 
       final Tuple[] tupleArr = new Tuple[dataNum];
-      final Codec<Tuple> tupleCodec = globalTupleCodecMap.getTupleCodec(shuffleName, groupingName);
+      final Codec<Tuple> tupleCodec = tupleCodecMap.get(shuffleName).get(groupingName);
 
       for (int i = 0; i < dataNum; i++) {
         if (tupleCodec instanceof StreamingCodec) {

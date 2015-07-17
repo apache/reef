@@ -21,15 +21,13 @@ package org.apache.reef.io.network.shuffle.driver;
 import org.apache.reef.driver.task.CompletedTask;
 import org.apache.reef.driver.task.FailedTask;
 import org.apache.reef.driver.task.RunningTask;
-import org.apache.reef.io.network.shuffle.GroupingController;
 import org.apache.reef.io.network.shuffle.task.ShuffleClient;
-import org.apache.reef.io.network.shuffle.ShuffleController;
 import org.apache.reef.tang.Configuration;
 
 /**
  *
  */
-public interface ShuffleManager extends ShuffleController {
+public interface ShuffleManager {
 
   Configuration getShuffleDescriptionConfigurationForTask(String taskId);
 
@@ -41,7 +39,4 @@ public interface ShuffleManager extends ShuffleController {
 
   void onCompletedTask(CompletedTask completedTask);
 
-  void registerGroupingController(GroupingController groupingController);
-
-  void sendControlMessage(String destId, int code, String groupingName, byte[][] data, byte sourceType, byte sinkType);
 }

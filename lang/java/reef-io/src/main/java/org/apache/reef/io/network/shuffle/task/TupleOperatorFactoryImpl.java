@@ -16,21 +16,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.io.network.shuffle.task.operator;
+package org.apache.reef.io.network.shuffle.task;
 
 import org.apache.reef.driver.task.TaskConfigurationOptions;
+import org.apache.reef.io.Tuple;
 import org.apache.reef.io.network.NetworkConnectionService;
-import org.apache.reef.io.network.shuffle.grouping.GroupingStrategy;
-import org.apache.reef.io.network.shuffle.params.ShuffleTupleCodec;
 import org.apache.reef.io.network.shuffle.description.GroupingDescription;
 import org.apache.reef.io.network.shuffle.description.ShuffleDescription;
-import org.apache.reef.io.network.shuffle.task.ShuffleClient;
-import org.apache.reef.tang.Configuration;
-import org.apache.reef.tang.InjectionFuture;
-import org.apache.reef.tang.Injector;
-import org.apache.reef.tang.Tang;
+import org.apache.reef.io.network.shuffle.grouping.GroupingStrategy;
+import org.apache.reef.io.network.shuffle.network.ShuffleTupleMessageCodec;
+import org.apache.reef.io.network.shuffle.params.ShuffleParameters;
+import org.apache.reef.tang.*;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.tang.exceptions.InjectionException;
+import org.apache.reef.wake.remote.Codec;
 
 import javax.inject.Inject;
 import java.util.Map;
@@ -39,9 +38,10 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  *
  */
-final class TupleOperatorFactoryImpl implements TupleOperatorFactory {
+public class TupleOperatorFactoryImpl implements TupleOperatorFactory {
 
   private final String nodeId;
+  private final ShuffleTupleMessageCodec globalTupleCodec;
   private final InjectionFuture<ShuffleClient> client;
   private final NetworkConnectionService networkConnectionService;
   private final Injector injector;
@@ -52,15 +52,33 @@ final class TupleOperatorFactoryImpl implements TupleOperatorFactory {
   @Inject
   public TupleOperatorFactoryImpl(
       final @Parameter(TaskConfigurationOptions.Identifier.class) String nodeId,
+      final ShuffleTupleMessageCodec globalTupleCodec,
       final InjectionFuture<ShuffleClient> client,
       final NetworkConnectionService networkConnectionService,
       final Injector injector) {
     this.nodeId = nodeId;
+    this.globalTupleCodec = globalTupleCodec;
     this.client = client;
     this.networkConnectionService = networkConnectionService;
     this.injector = injector;
     this.senderMap = new ConcurrentHashMap<>();
     this.receiverMap = new ConcurrentHashMap<>();
+  }
+
+  private void addTupleCodec(final GroupingDescription groupingDescription) {
+    final JavaConfigurationBuilder confBuilder = Tang.Factory.getTang().newConfigurationBuilder();
+    final Configuration tupleCodecConf = confBuilder
+        .bindImplementation(ShuffleParameters.ShuffleKeyCodec.class, groupingDescription.getKeyCodecClass())
+        .bindImplementation(ShuffleParameters.ShuffleValueCodec.class, groupingDescription.getValueCodecClass())
+        .build();
+
+    try {
+      final Codec<Tuple> tupleCodec = Tang.Factory.getTang().newInjector(tupleCodecConf).getInstance(TupleCodec.class);
+      globalTupleCodec.registerTupleCodec(client.get().getShuffleDescription().getShuffleName(),
+          groupingDescription.getGroupingName(), tupleCodec);
+    } catch (final InjectionException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   @Override
@@ -79,20 +97,13 @@ final class TupleOperatorFactoryImpl implements TupleOperatorFactory {
 
       final Injector forkedInjector = injector.forkInjector(receiverConfiguration);
       forkedInjector.bindVolatileInstance(ShuffleClient.class, client.get());
-      forkedInjector.bindVolatileInstance(NetworkConnectionService.class, networkConnectionService);
       forkedInjector.bindVolatileInstance(GroupingDescription.class, groupingDescription);
 
       try {
-        final TupleReceiver receiver;
-        if (groupingDescription.getTupleReceiverClass() != null) {
-          receiver = (TupleReceiver) forkedInjector.getInstance(groupingDescription.getTupleReceiverClass());
-        } else {
-          receiver = forkedInjector.getInstance(TupleReceiver.class);
-        }
-        receiverMap.put(groupingName, receiver);
+        receiverMap.put(groupingName, forkedInjector.getInstance(TupleReceiver.class));
+        addTupleCodec(groupingDescription);
       } catch (final InjectionException e) {
-        throw new RuntimeException("An InjectionException occurred while injecting receiver with "
-            + groupingDescription, e);
+        throw new RuntimeException("An InjectionException occurred while injecting receiver with " + groupingDescription, e);
       }
     }
 
@@ -117,19 +128,13 @@ final class TupleOperatorFactoryImpl implements TupleOperatorFactory {
       forkedInjector.bindVolatileInstance(ShuffleClient.class, client.get());
       forkedInjector.bindVolatileInstance(GroupingDescription.class, groupingDescription);
       forkedInjector.bindVolatileInstance(NetworkConnectionService.class, networkConnectionService);
-      forkedInjector.bindVolatileParameter(ShuffleTupleCodec.class, client.get().getTupleCodec(groupingName));
 
       try {
-        final TupleSender sender;
-        if (groupingDescription.getTupleSenderClass() != null) {
-          sender = (TupleSender) forkedInjector.getInstance(groupingDescription.getTupleSenderClass());
-        } else {
-          sender = forkedInjector.getInstance(TupleSender.class);
-        }
-        senderMap.put(groupingName, sender);
+        senderMap.put(groupingName, forkedInjector.getInstance(TupleSender.class));
+        addTupleCodec(groupingDescription);
       } catch (final InjectionException e) {
-        throw new RuntimeException("An InjectionException occurred while injecting sender with "
-            + groupingDescription, e);
+        throw new RuntimeException("An InjectionException occurred while injecting sender with " +
+            groupingDescription, e);
       }
     }
 

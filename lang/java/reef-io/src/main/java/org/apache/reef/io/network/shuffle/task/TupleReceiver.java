@@ -16,15 +16,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.io.network.shuffle.params;
+package org.apache.reef.io.network.shuffle.task;
 
-import org.apache.reef.tang.annotations.Name;
-import org.apache.reef.tang.annotations.NamedParameter;
-import org.apache.reef.wake.remote.Codec;
+import org.apache.reef.io.network.Message;
+import org.apache.reef.io.network.shuffle.network.ShuffleTupleMessage;
+import org.apache.reef.tang.annotations.DefaultImplementation;
+import org.apache.reef.wake.EventHandler;
 
 /**
  *
  */
-@NamedParameter
-public final class ShuffleKeyCodec implements Name<Codec<?>> {
+@DefaultImplementation(BaseTupleReceiver.class)
+public interface TupleReceiver<K, V> extends TupleOperator<K, V> {
+
+  void registerTupleMessageHandler(EventHandler<Message<ShuffleTupleMessage<K, V>>> messageHandler);
+
 }

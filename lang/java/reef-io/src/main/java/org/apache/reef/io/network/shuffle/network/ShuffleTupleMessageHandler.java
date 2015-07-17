@@ -19,17 +19,36 @@
 package org.apache.reef.io.network.shuffle.network;
 
 import org.apache.reef.io.network.Message;
-import org.apache.reef.tang.annotations.DefaultImplementation;
-import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.wake.EventHandler;
+
+import javax.inject.Inject;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  *
  */
-@DefaultImplementation(ShuffleTupleMessageHandlerImpl.class)
-public interface ShuffleTupleMessageHandler extends EventHandler<Message<ShuffleTupleMessage>> {
-  void registerMessageHandler(Class<? extends Name<String>> shuffleName,
-                              EventHandler<Message<ShuffleTupleMessage>> eventHandler);
+public class ShuffleTupleMessageHandler implements EventHandler<Message<ShuffleTupleMessage>> {
 
-  void remove(Class<? extends Name<String>> shuffleName);
+  private final Map<String, Map<String, EventHandler>> eventHandlerMap;
+
+  @Inject
+  public ShuffleTupleMessageHandler() {
+    eventHandlerMap = new ConcurrentHashMap<>();
+  }
+
+  public <K, V> void registerMessageHandler(String shuffleName, String groupingName,
+                              EventHandler<Message<ShuffleTupleMessage<K, V>>> eventHandler) {
+    if (!eventHandlerMap.containsKey(shuffleName)) {
+      eventHandlerMap.put(shuffleName, new ConcurrentHashMap<String, EventHandler>());
+    }
+
+    eventHandlerMap.get(shuffleName).put(groupingName, eventHandler);
+  }
+
+  @Override
+  public void onNext(final Message<ShuffleTupleMessage> message) {
+    final ShuffleTupleMessage tupleMessage = message.getData().iterator().next();
+    eventHandlerMap.get(tupleMessage.getShuffleName()).get(tupleMessage.getGroupingName()).onNext(message);
+  }
 }

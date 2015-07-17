@@ -16,12 +16,36 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.io.network.shuffle.network;
+package org.apache.reef.io.network.shuffle.params;
+
+import org.apache.reef.tang.annotations.Name;
+import org.apache.reef.tang.annotations.NamedParameter;
+import org.apache.reef.wake.remote.Codec;
+
+import java.util.Set;
 
 /**
  *
  */
-public final class ShuffleNetworkConnectionId {
-  public static final String TUPLE_MESSAGE = "IO_NETWORK_SHUFFLE_TUPLE_MESSAGE";
-  public static final String CONTROL_MESSAGE = "IO_NETWORK_SHUFFLE_CONTROL_MESSAGE";
+public class ShuffleParameters {
+
+  @NamedParameter
+  public static final class ShuffleKeyCodec implements Name<Codec> {
+  }
+
+  @NamedParameter
+  public static final class ShuffleValueCodec implements Name<Codec> {
+  }
+
+  @NamedParameter
+  public static final class SerializedGroupingSet implements Name<Set<String>> {
+  }
+
+  @NamedParameter
+  public static final class SerializedShuffleName implements Name<String> {
+  }
+
+  @NamedParameter
+  public static final class SerializedShuffleSet implements Name<Set<String>> {
+  }
 }

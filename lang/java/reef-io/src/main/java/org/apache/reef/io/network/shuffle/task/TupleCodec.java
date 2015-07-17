@@ -18,9 +18,9 @@
  */
 package org.apache.reef.io.network.shuffle.task;
 
+import org.apache.reef.io.Tuple;
 import org.apache.reef.io.network.impl.StreamingCodec;
-import org.apache.reef.io.network.shuffle.params.ShuffleKeyCodec;
-import org.apache.reef.io.network.shuffle.params.ShuffleValueCodec;
+import org.apache.reef.io.network.shuffle.params.ShuffleParameters;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.wake.remote.Codec;
 
@@ -40,8 +40,8 @@ public final class TupleCodec<K, V> implements StreamingCodec<Tuple<K, V>> {
 
   @Inject
   public TupleCodec(
-      final @Parameter(ShuffleKeyCodec.class) Codec<K> keyCodec,
-      final @Parameter(ShuffleValueCodec.class) Codec<V> valueCodec) {
+      final @Parameter(ShuffleParameters.ShuffleKeyCodec.class) Codec<K> keyCodec,
+      final @Parameter(ShuffleParameters.ShuffleValueCodec.class) Codec<V> valueCodec) {
     this.keyCodec = keyCodec;
     this.valueCodec = valueCodec;
   }

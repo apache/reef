@@ -21,7 +21,7 @@ package org.apache.reef.io.network.shuffle.task;
 import org.apache.reef.evaluator.context.events.ContextStop;
 import org.apache.reef.io.network.NetworkConnectionService;
 import org.apache.reef.io.network.naming.NameServerParameters;
-import org.apache.reef.io.network.shuffle.network.ShuffleNetworkConnectionId;
+import org.apache.reef.io.network.shuffle.driver.ShuffleDriverConfiguration;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.Identifier;
@@ -36,7 +36,6 @@ public final class ShuffleContextStopHandler implements EventHandler<ContextStop
 
   private final NetworkConnectionService networkConnectionService;
 
-  private final Identifier controlMessageConnectionId;
   private final Identifier tupleMessageConnectionId;
 
   @Inject
@@ -45,13 +44,11 @@ public final class ShuffleContextStopHandler implements EventHandler<ContextStop
       final NetworkConnectionService networkConnectionService) {
 
     this.networkConnectionService = networkConnectionService;
-    this.controlMessageConnectionId = idFactory.getNewInstance(ShuffleNetworkConnectionId.CONTROL_MESSAGE);
-    this.tupleMessageConnectionId = idFactory.getNewInstance(ShuffleNetworkConnectionId.TUPLE_MESSAGE);
+    this.tupleMessageConnectionId = idFactory.getNewInstance(ShuffleDriverConfiguration.NETWORK_CONNECTION_SERVICE_ID);
   }
 
   @Override
   public void onNext(final ContextStop value) {
-    networkConnectionService.unregisterConnectionFactory(controlMessageConnectionId);
-    networkConnectionService.unregisterId(tupleMessageConnectionId);
+    networkConnectionService.unregisterConnectionFactory(tupleMessageConnectionId);
   }
 }

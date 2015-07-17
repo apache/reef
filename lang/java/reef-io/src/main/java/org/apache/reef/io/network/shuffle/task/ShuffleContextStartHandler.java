@@ -22,6 +22,7 @@ import org.apache.reef.evaluator.context.events.ContextStart;
 import org.apache.reef.exception.evaluator.NetworkException;
 import org.apache.reef.io.network.NetworkConnectionService;
 import org.apache.reef.io.network.naming.NameServerParameters;
+import org.apache.reef.io.network.shuffle.driver.ShuffleDriverConfiguration;
 import org.apache.reef.io.network.shuffle.network.*;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.wake.EventHandler;
@@ -37,11 +38,6 @@ public final class ShuffleContextStartHandler implements EventHandler<ContextSta
 
   private final NetworkConnectionService networkConnectionService;
 
-  private final Identifier controlMessageConnectionId;
-  private final ShuffleControlMessageCodec controlCodec;
-  private final ShuffleControlMessageHandler controlHandler;
-  private final ShuffleControlLinkListener controlLinkListener;
-
   private final Identifier tupleMessageConnectionId;
   private final ShuffleTupleMessageCodec tupleCodec;
   private final ShuffleTupleMessageHandler tupleHandler;
@@ -51,18 +47,11 @@ public final class ShuffleContextStartHandler implements EventHandler<ContextSta
   public ShuffleContextStartHandler(
       final @Parameter(NameServerParameters.NameServerIdentifierFactory.class) IdentifierFactory idFactory,
       final NetworkConnectionService networkConnectionService,
-      final ShuffleControlMessageCodec controlCodec,
-      final ShuffleControlMessageHandler controlHandler,
-      final ShuffleControlLinkListener controlLinkListener,
       final ShuffleTupleMessageCodec tupleCodec,
       final ShuffleTupleMessageHandler tupleHandler,
       final ShuffleTupleLinkListener tupleLinkListener) {
     this.networkConnectionService = networkConnectionService;
-    this.controlMessageConnectionId = idFactory.getNewInstance(ShuffleNetworkConnectionId.CONTROL_MESSAGE);
-    this.controlCodec = controlCodec;
-    this.controlHandler = controlHandler;
-    this.controlLinkListener = controlLinkListener;
-    this.tupleMessageConnectionId = idFactory.getNewInstance(ShuffleNetworkConnectionId.TUPLE_MESSAGE);
+    this.tupleMessageConnectionId = idFactory.getNewInstance(ShuffleDriverConfiguration.NETWORK_CONNECTION_SERVICE_ID);
     this.tupleCodec = tupleCodec;
     this.tupleHandler = tupleHandler;
     this.tupleLinkListener = tupleLinkListener;
@@ -72,10 +61,8 @@ public final class ShuffleContextStartHandler implements EventHandler<ContextSta
   public void onNext(final ContextStart value) {
     try {
       networkConnectionService
-          .registerConnectionFactory(controlMessageConnectionId, controlCodec, controlHandler, controlLinkListener);
-      networkConnectionService
           .registerConnectionFactory(tupleMessageConnectionId, tupleCodec, tupleHandler, tupleLinkListener);
-    } catch (NetworkException e) {
+    } catch (final NetworkException e) {
       throw new RuntimeException(e);
     }
   }

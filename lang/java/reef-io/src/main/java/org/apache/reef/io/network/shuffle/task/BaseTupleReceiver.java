@@ -16,15 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.io.network.shuffle.task.operator;
+package org.apache.reef.io.network.shuffle.task;
 
 import org.apache.reef.io.network.Message;
-import org.apache.reef.io.network.shuffle.GroupingController;
 import org.apache.reef.io.network.shuffle.grouping.GroupingStrategy;
-import org.apache.reef.io.network.shuffle.network.ShuffleControlMessage;
 import org.apache.reef.io.network.shuffle.network.ShuffleTupleMessage;
 import org.apache.reef.io.network.shuffle.description.GroupingDescription;
-import org.apache.reef.io.network.shuffle.task.ShuffleClient;
+import org.apache.reef.io.network.shuffle.network.ShuffleTupleMessageHandler;
 import org.apache.reef.wake.EventHandler;
 
 import javax.inject.Inject;
@@ -35,25 +33,30 @@ import java.util.List;
  */
 public final class BaseTupleReceiver<K, V> implements TupleReceiver<K, V> {
 
+  private final String shuffleName;
   private final String groupingName;
   private final ShuffleClient shuffleClient;
   private final GroupingDescription<K, V> groupingDescription;
   private final GroupingStrategy<K> groupingStrategy;
+  private final ShuffleTupleMessageHandler globalTupleMessageHandler;
 
   @Inject
   public BaseTupleReceiver(
       final ShuffleClient shuffleClient,
       final GroupingDescription<K, V> groupingDescription,
-      final GroupingStrategy<K> groupingStrategy) {
+      final GroupingStrategy<K> groupingStrategy,
+      final ShuffleTupleMessageHandler globalTupleMessageHandler) {
+    this.shuffleName = shuffleClient.getShuffleDescription().getShuffleName();
     this.groupingName = groupingDescription.getGroupingName();
     this.groupingDescription = groupingDescription;
     this.shuffleClient = shuffleClient;
     this.groupingStrategy = groupingStrategy;
+    this.globalTupleMessageHandler = globalTupleMessageHandler;
   }
 
   @Override
   public void registerTupleMessageHandler(final EventHandler<Message<ShuffleTupleMessage<K, V>>> messageHandler) {
-    shuffleClient.registerTupleMessageHandler(groupingName, messageHandler);
+    globalTupleMessageHandler.registerMessageHandler(shuffleName, groupingName, messageHandler);
   }
 
   @Override
@@ -65,26 +68,5 @@ public final class BaseTupleReceiver<K, V> implements TupleReceiver<K, V> {
   public List<String> getSelectedReceiverIdList(K key) {
     return groupingStrategy.selectReceivers(key,
         shuffleClient.getShuffleDescription().getReceiverIdList(groupingDescription.getGroupingName()));
-  }
-
-  @Override
-  public void waitForGroupingSetup() {
-    shuffleClient.waitForGroupingSetup(groupingDescription.getGroupingName());
-  }
-
-  @Override
-  public void registerGroupingController(GroupingController groupingController) {
-    shuffleClient.registerReceiverGroupingController(groupingController);
-  }
-
-
-  @Override
-  public void sendControlMessage(String destId, int code, byte[][] data, byte sinkType) {
-    shuffleClient.sendControlMessage(destId, code, groupingName, data, ShuffleControlMessage.RECEIVER, sinkType);
-  }
-
-  @Override
-  public void sendControlMessageToDriver(int code, byte[][] data, byte sinkType) {
-    shuffleClient.sendControlMessageToDriver(code, groupingName, data, ShuffleControlMessage.RECEIVER, sinkType);
   }
 }

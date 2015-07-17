@@ -31,14 +31,12 @@ import org.apache.reef.wake.time.Clock;
  */
 public final class ShuffleDriverConfiguration extends ConfigurationModuleBuilder {
 
-  public static final String SHUFFLE_DRIVER_IDENTIFIER = "SHUFFLE_DRIVER_IDENTIFIER";
+  public static final String NETWORK_CONNECTION_SERVICE_ID = "IO_NETWORK_SHUFFLE_TUPLE_MESSAGE";
 
   public static ConfigurationModule CONF = new ShuffleDriverConfiguration()
       .bindSetEntry(ServiceTaskRunningHandlers.class, ShuffleDriverTaskRunningHandler.class)
       .bindSetEntry(ServiceTaskFailedHandlers.class, ShuffleDriverTaskFailedHandler.class)
       .bindSetEntry(ServiceTaskCompletedHandlers.class, ShuffleDriverTaskCompletedHandler.class)
       .bindSetEntry(ServiceEvaluatorFailedHandlers.class, ShuffleEvaluatorFailedHandler.class)
-      .bindSetEntry(Clock.StartHandler.class, ShuffleDriverStartHandler.class)
-      .bindSetEntry(Clock.StopHandler.class, ShuffleDriverStopHandler.class)
       .build();
 }

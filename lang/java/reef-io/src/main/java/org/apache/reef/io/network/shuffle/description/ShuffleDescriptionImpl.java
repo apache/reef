@@ -21,7 +21,6 @@ package org.apache.reef.io.network.shuffle.description;
 import org.apache.reef.io.network.shuffle.params.*;
 import org.apache.reef.tang.Injector;
 import org.apache.reef.tang.Tang;
-import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.tang.formats.ConfigurationSerializer;
 
@@ -33,7 +32,7 @@ import java.util.*;
  */
 public final class ShuffleDescriptionImpl implements ShuffleDescription {
 
-  private final Class<? extends Name<String>> shuffleName;
+  private final String shuffleName;
   private final Map<String, List<String>> senderIdListMap;
   private final Map<String, List<String>> receiverIdListMap;
   private final Map<String, GroupingDescription> groupingDescriptionMap;
@@ -42,15 +41,11 @@ public final class ShuffleDescriptionImpl implements ShuffleDescription {
 
   @Inject
   public ShuffleDescriptionImpl(
-      final @Parameter(SerializedShuffleName.class) String shuffleName,
-      final @Parameter(SerializedGroupingSet.class) Set<String> serializedGroupings,
+      final @Parameter(ShuffleParameters.SerializedShuffleName.class) String shuffleName,
+      final @Parameter(ShuffleParameters.SerializedGroupingSet.class) Set<String> serializedGroupings,
       final ConfigurationSerializer confSerializer) {
-    try {
-      this.shuffleName = (Class<? extends Name<String>>) Class.forName(shuffleName);
-    } catch (final ClassNotFoundException e) {
-      throw new RuntimeException(e);
-    }
 
+    this.shuffleName = shuffleName;
     this.senderIdListMap = new HashMap<>();
     this.receiverIdListMap = new HashMap<>();
     this.groupingDescriptionMap = new HashMap<>();
@@ -64,8 +59,8 @@ public final class ShuffleDescriptionImpl implements ShuffleDescription {
     try {
       final Injector injector = Tang.Factory.getTang().newInjector(confSerializer.fromString(serializedGrouping));
       final GroupingDescription description = injector.getInstance(GroupingDescription.class);
-      final Set<String> senderIdSet = injector.getNamedInstance(GroupingSenderIdSet.class);
-      final Set<String> receiverIdSet = injector.getNamedInstance(GroupingReceiverIdSet.class);
+      final Set<String> senderIdSet = injector.getNamedInstance(GroupingParameters.GroupingSenderIdSet.class);
+      final Set<String> receiverIdSet = injector.getNamedInstance(GroupingParameters.GroupingReceiverIdSet.class);
 
       final String groupingName = description.getGroupingName();
       groupingDescriptionMap.put(groupingName, description);
@@ -84,7 +79,7 @@ public final class ShuffleDescriptionImpl implements ShuffleDescription {
   }
 
   private ShuffleDescriptionImpl(
-      final Class<? extends Name<String>> shuffleName,
+      final String shuffleName,
       final Map<String, List<String>> senderIdListMap,
       final Map<String, List<String>> receiverIdListMap,
       final Map<String, GroupingDescription> groupingDescriptionMap,
@@ -97,7 +92,7 @@ public final class ShuffleDescriptionImpl implements ShuffleDescription {
   }
 
   @Override
-  public Class<? extends Name<String>> getShuffleName() {
+  public String getShuffleName() {
     return shuffleName;
   }
 
@@ -121,19 +116,19 @@ public final class ShuffleDescriptionImpl implements ShuffleDescription {
     return receiverIdListMap.get(groupingName);
   }
 
-  public static Builder newBuilder(final Class<? extends Name<String>> shuffleName) {
+  public static Builder newBuilder(final String shuffleName) {
     return new Builder(shuffleName);
   }
 
   public static class Builder {
 
-    private final Class<? extends Name<String>> shuffleName;
+    private final String shuffleName;
     private final Map<String, List<String>> senderIdListMap;
     private final Map<String, List<String>> receiverIdListMap;
     private final Map<String, GroupingDescription> groupingDescriptionMap;
     private final List<String> groupingNameList;
 
-    private Builder(Class<? extends Name<String>> shuffleName) {
+    private Builder(final String shuffleName) {
       this.shuffleName = shuffleName;
       this.senderIdListMap = new HashMap<>();
       this.receiverIdListMap = new HashMap<>();

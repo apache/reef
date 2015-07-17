@@ -18,7 +18,8 @@
  */
 package org.apache.reef.io.network.shuffle.description;
 
-import org.apache.reef.io.network.shuffle.params.*;
+import org.apache.reef.io.network.shuffle.params.GroupingParameters;
+import org.apache.reef.io.network.shuffle.params.ShuffleParameters;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.JavaConfigurationBuilder;
 import org.apache.reef.tang.Tang;
@@ -92,7 +93,7 @@ public final class ShuffleDescriptionSerializer {
       confBuilder = Tang.Factory.getTang().newConfigurationBuilder();
     }
 
-    confBuilder.bindNamedParameter(SerializedShuffleName.class, shuffleDescription.getShuffleName().getName());
+    confBuilder.bindNamedParameter(ShuffleParameters.SerializedShuffleName.class, shuffleDescription.getShuffleName());
     return confBuilder;
   }
 
@@ -103,7 +104,7 @@ public final class ShuffleDescriptionSerializer {
     final Configuration groupingConfiguration = serializeGroupingDescriptionWithSenderReceiver(
         shuffleDescription, groupingDescription);
 
-    confBuilder.bindSetEntry(SerializedGroupingSet.class, confSerializer.toString(groupingConfiguration));
+    confBuilder.bindSetEntry(ShuffleParameters.SerializedGroupingSet.class, confSerializer.toString(groupingConfiguration));
   }
 
   private Configuration serializeGroupingDescriptionWithSenderReceiver(
@@ -112,28 +113,17 @@ public final class ShuffleDescriptionSerializer {
     final String groupingName = groupingDescription.getGroupingName();
 
     final JavaConfigurationBuilder confBuilder = Tang.Factory.getTang().newConfigurationBuilder();
-    confBuilder.bindNamedParameter(GroupingName.class, groupingName);
-    confBuilder.bindNamedParameter(GroupingStrategyClassName.class, groupingDescription.getGroupingStrategyClass().getName());
-    confBuilder.bindNamedParameter(GroupingKeyCodecClassName.class, groupingDescription.getKeyCodecClass().getName());
-    confBuilder.bindNamedParameter(GroupingValueCodecClassName.class, groupingDescription.getValueCodecClass().getName());
-    if (groupingDescription.getTupleSenderClass() != null) {
-      confBuilder.bindNamedParameter(GroupingTupleSenderClassName.class, groupingDescription.getTupleSenderClass().getName());
-    }
-
-    if (groupingDescription.getTupleReceiverClass() != null) {
-      confBuilder.bindNamedParameter(GroupingTupleReceiverClassName.class, groupingDescription.getTupleReceiverClass().getName());
-    }
-
-    if (groupingDescription.getGroupingControllerClass() != null) {
-      confBuilder.bindNamedParameter(GroupingControllerClassName.class, groupingDescription.getGroupingControllerClass().getName());
-    }
+    confBuilder.bindNamedParameter(GroupingParameters.GroupingName.class, groupingName);
+    confBuilder.bindNamedParameter(GroupingParameters.GroupingStrategyClassName.class, groupingDescription.getGroupingStrategyClass().getName());
+    confBuilder.bindNamedParameter(GroupingParameters.GroupingKeyCodecClassName.class, groupingDescription.getKeyCodecClass().getName());
+    confBuilder.bindNamedParameter(GroupingParameters.GroupingValueCodecClassName.class, groupingDescription.getValueCodecClass().getName());
 
     for (final String senderId : shuffleDescription.getSenderIdList(groupingName)) {
-      confBuilder.bindSetEntry(GroupingSenderIdSet.class, senderId);
+      confBuilder.bindSetEntry(GroupingParameters.GroupingSenderIdSet.class, senderId);
     }
 
     for (final String receiverId : shuffleDescription.getReceiverIdList(groupingName)) {
-      confBuilder.bindSetEntry(GroupingReceiverIdSet.class, receiverId);
+      confBuilder.bindSetEntry(GroupingParameters.GroupingReceiverIdSet.class, receiverId);
     }
 
     return confBuilder.build();

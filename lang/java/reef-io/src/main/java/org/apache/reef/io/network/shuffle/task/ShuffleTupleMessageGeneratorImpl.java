@@ -18,6 +18,7 @@
  */
 package org.apache.reef.io.network.shuffle.task;
 
+import org.apache.reef.io.Tuple;
 import org.apache.reef.io.network.shuffle.grouping.GroupingStrategy;
 import org.apache.reef.io.network.shuffle.network.ShuffleTupleMessage;
 import org.apache.reef.io.network.shuffle.description.GroupingDescription;
@@ -44,7 +45,7 @@ final class ShuffleTupleMessageGeneratorImpl<K, V> implements ShuffleTupleMessag
       final GroupingDescription<K, V> groupingDescription,
       final GroupingStrategy<K> groupingStrategy) {
     this.shuffleClient = shuffleClient;
-    this.shuffleName = shuffleClient.getShuffleDescription().getShuffleName().getName();
+    this.shuffleName = shuffleClient.getShuffleDescription().getShuffleName();
     this.groupingDescription = groupingDescription;
     this.groupingStrategy = groupingStrategy;
   }

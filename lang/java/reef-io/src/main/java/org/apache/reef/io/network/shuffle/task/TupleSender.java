@@ -18,46 +18,28 @@
  */
 package org.apache.reef.io.network.shuffle.task;
 
+import org.apache.reef.io.Tuple;
+import org.apache.reef.io.network.Message;
+import org.apache.reef.io.network.shuffle.network.ShuffleTupleMessage;
+import org.apache.reef.tang.annotations.DefaultImplementation;
+import org.apache.reef.wake.remote.transport.LinkListener;
+
+import java.util.List;
+
 /**
  *
  */
-public final class Tuple<K, V> {
+@DefaultImplementation(BaseTupleSender.class)
+public interface TupleSender<K, V> extends TupleOperator<K, V> {
 
-  private final K key;
-  private final V value;
+  List<String> sendTuple(Tuple<K, V> tuple);
 
-  public Tuple(K key, V value) {
-    this.key = key;
-    this.value = value;
-  }
+  List<String> sendTuple(List<Tuple<K, V>> tupleList);
 
-  public K getKey() {
-    return key;
-  }
+  void sendTupleTo(String destNodeId, Tuple<K, V> tuple);
 
-  public int getKeyHash() {
-    return key.hashCode();
-  }
+  void sendTupleTo(String destNodeId, List<Tuple<K, V>> tupleList);
 
-  public V getValue() {
-    return value;
-  }
+  void registerTupleLinkListener(LinkListener<Message<ShuffleTupleMessage<K, V>>> linkListener);
 
-  @Override
-  public String toString() {
-    return "ShuffleTuple[ key : " + key + " , value : " + value + " ]";
-  }
-
-  @Override
-  public int hashCode() {
-    return 31 * key.hashCode() + value.hashCode();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (! (obj instanceof Tuple)) {
-      return false;
-    }
-    return key.equals(((Tuple) obj).getKey()) && value.equals(((Tuple) obj).getValue());
-  }
 }
