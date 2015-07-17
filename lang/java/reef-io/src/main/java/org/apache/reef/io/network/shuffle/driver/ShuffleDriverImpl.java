@@ -18,9 +18,6 @@
  */
 package org.apache.reef.io.network.shuffle.driver;
 
-import org.apache.reef.driver.task.CompletedTask;
-import org.apache.reef.driver.task.FailedTask;
-import org.apache.reef.driver.task.RunningTask;
 import org.apache.reef.evaluator.context.parameters.ContextStartHandlers;
 import org.apache.reef.evaluator.context.parameters.ContextStopHandlers;
 import org.apache.reef.io.network.shuffle.params.ShuffleParameters;
@@ -103,26 +100,5 @@ final class ShuffleDriverImpl implements ShuffleDriver {
       }
     }
     return confBuilder.build();
-  }
-
-  @Override
-  public void onRunningTask(final RunningTask runningTask) {
-    for (final ShuffleManager manager : managerMap.values()) {
-      manager.onRunningTask(runningTask);
-    }
-  }
-
-  @Override
-  public void onFailedTask(final FailedTask failedTask) {
-    for (final ShuffleManager manager : managerMap.values()) {
-      manager.onFailedTask(failedTask);
-    }
-  }
-
-  @Override
-  public void onCompletedTask(final CompletedTask completedTask) {
-    for (final ShuffleManager manager : managerMap.values()) {
-      manager.onCompletedTask(completedTask);
-    }
   }
 }

@@ -25,11 +25,11 @@ import org.apache.reef.io.network.ConnectionFactory;
 import org.apache.reef.io.network.Message;
 import org.apache.reef.io.network.NetworkConnectionService;
 import org.apache.reef.io.network.naming.NameServerParameters;
-import org.apache.reef.io.network.shuffle.driver.ShuffleDriverConfiguration;
 import org.apache.reef.io.network.shuffle.grouping.GroupingStrategy;
 import org.apache.reef.io.network.shuffle.network.ShuffleTupleLinkListener;
 import org.apache.reef.io.network.shuffle.network.ShuffleTupleMessage;
 import org.apache.reef.io.network.shuffle.description.GroupingDescription;
+import org.apache.reef.io.network.shuffle.params.ShuffleParameters;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.wake.IdentifierFactory;
 import org.apache.reef.wake.remote.transport.LinkListener;
@@ -67,7 +67,7 @@ public final class BaseTupleSender<K, V> implements TupleSender<K, V> {
     this.shuffleClient = shuffleClient;
     this.globalTupleLinkListener = globalTupleLinkListener;
     this.tupleMessageConnectionFactory = networkConnectionService
-        .getConnectionFactory(idFactory.getNewInstance(ShuffleDriverConfiguration.NETWORK_CONNECTION_SERVICE_ID));
+        .getConnectionFactory(idFactory.getNewInstance(ShuffleParameters.NETWORK_CONNECTION_SERVICE_ID));
     this.idFactory = idFactory;
     this.groupingDescription = groupingDescription;
     this.groupingStrategy = groupingStrategy;

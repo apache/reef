@@ -27,7 +27,15 @@ import java.util.Set;
 /**
  *
  */
-public class ShuffleParameters {
+public final class ShuffleParameters {
+
+  /**
+   *
+   */
+  private ShuffleParameters() {
+  }
+
+  public static final String NETWORK_CONNECTION_SERVICE_ID = "SHUFFLE_NETWORK_CONNECTION_IDENTIFIER";
 
   @NamedParameter
   public static final class ShuffleKeyCodec implements Name<Codec> {

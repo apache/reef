@@ -18,9 +18,6 @@
  */
 package org.apache.reef.io.network.shuffle.driver;
 
-import org.apache.reef.driver.task.CompletedTask;
-import org.apache.reef.driver.task.FailedTask;
-import org.apache.reef.driver.task.RunningTask;
 import org.apache.reef.io.network.shuffle.description.ShuffleDescription;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.annotations.DefaultImplementation;
@@ -38,10 +35,4 @@ public interface ShuffleDriver {
   Configuration getContextConfiguration();
 
   Configuration getTaskConfiguration(String taskId);
-
-  void onRunningTask(RunningTask runningTask);
-
-  void onFailedTask(FailedTask failedTask);
-
-  void onCompletedTask(CompletedTask completedTask);
 }

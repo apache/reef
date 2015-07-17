@@ -22,7 +22,6 @@ import org.apache.reef.client.DriverConfiguration;
 import org.apache.reef.client.DriverLauncher;
 import org.apache.reef.client.LauncherStatus;
 import org.apache.reef.io.network.naming.NameResolver;
-import org.apache.reef.io.network.shuffle.driver.ShuffleDriverConfiguration;
 import org.apache.reef.io.network.shuffle.utils.NameResolverWrapper;
 import org.apache.reef.runtime.local.client.LocalRuntimeConfiguration;
 import org.apache.reef.runtime.yarn.client.YarnClientConfiguration;
@@ -70,9 +69,7 @@ public final class MessageExchangeREEF {
         .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, MessageExchangeDriver.AllocatedHandler.class)
         .build();
 
-    final Configuration shuffleConf = ShuffleDriverConfiguration.CONF.build();
-
-    return Configurations.merge(taskNumberConf, driverConf, shuffleConf);
+    return Configurations.merge(taskNumberConf, driverConf);
   }
 
   public static void main(final String[] args) throws Exception {
