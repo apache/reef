@@ -25,11 +25,15 @@ import javax.inject.Inject;
 import java.net.SocketAddress;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
  */
 public class ShuffleTupleLinkListener implements LinkListener<Message<ShuffleTupleMessage>> {
+
+  private static final Logger LOG = Logger.getLogger(ShuffleTupleLinkListener.class.getName());
 
   private final Map<String, Map<String, LinkListener>> linkListenerMap;
 
@@ -50,15 +54,27 @@ public class ShuffleTupleLinkListener implements LinkListener<Message<ShuffleTup
   @Override
   public void onSuccess(final Message<ShuffleTupleMessage> message) {
     final ShuffleTupleMessage tupleMessage = message.getData().iterator().next();
-    linkListenerMap.get(tupleMessage.getShuffleName()).get(tupleMessage.getGroupingName())
-        .onSuccess(message);
+    final LinkListener<Message<ShuffleTupleMessage>> linkListener = linkListenerMap
+        .get(tupleMessage.getShuffleName()).get(tupleMessage.getGroupingName());
+    if (linkListener != null) {
+      linkListener.onSuccess(message);
+    } else {
+      LOG.log(Level.INFO, "There is no registered link listener for {0}:{1}. An message was successfully sent {2}.",
+          new Object[]{tupleMessage.getShuffleName(), tupleMessage.getGroupingName(), message});
+    }
   }
 
   @Override
   public void onException(
       final Throwable cause, final SocketAddress remoteAddress, final Message<ShuffleTupleMessage> message) {
     final ShuffleTupleMessage tupleMessage = message.getData().iterator().next();
-    linkListenerMap.get(tupleMessage.getShuffleName()).get(tupleMessage.getGroupingName())
-        .onException(cause, remoteAddress, message);
+    final LinkListener<Message<ShuffleTupleMessage>> linkListener = linkListenerMap
+        .get(tupleMessage.getShuffleName()).get(tupleMessage.getGroupingName());
+    if (linkListener != null) {
+      linkListener.onException(cause, remoteAddress, message);
+    } else {
+      LOG.log(Level.INFO, "There is no registered link listener for {0}:{1}. An exception occurred while sending {2}.",
+          new Object[]{tupleMessage.getShuffleName(), tupleMessage.getGroupingName(), message});
+    }
   }
 }

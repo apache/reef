@@ -24,6 +24,8 @@ import org.apache.reef.wake.remote.Codec;
 
 import javax.inject.Inject;
 import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -118,12 +120,12 @@ public final class ShuffleTupleMessageCodec implements StreamingCodec<ShuffleTup
 
       final int dataNum = stream.readInt();
 
-      final Tuple[] tupleArr = new Tuple[dataNum];
+      final List<Tuple> tupleList = new ArrayList<>(dataNum);
       final Codec<Tuple> tupleCodec = tupleCodecMap.get(shuffleName).get(groupingName);
 
       for (int i = 0; i < dataNum; i++) {
         if (tupleCodec instanceof StreamingCodec) {
-          tupleArr[i] = ((StreamingCodec<Tuple>)tupleCodec).decodeFromStream(stream);
+          tupleList.add(((StreamingCodec<Tuple>)tupleCodec).decodeFromStream(stream));
         } else {
           final int length = stream.readInt();
           final byte[] serializedTuple = new byte[length];
@@ -131,7 +133,7 @@ public final class ShuffleTupleMessageCodec implements StreamingCodec<ShuffleTup
         }
       }
 
-      return new ShuffleTupleMessage(shuffleName, groupingName, tupleArr);
+      return new ShuffleTupleMessage(shuffleName, groupingName, tupleList);
     } catch(final IOException exception) {
       throw new RuntimeException(exception);
     }

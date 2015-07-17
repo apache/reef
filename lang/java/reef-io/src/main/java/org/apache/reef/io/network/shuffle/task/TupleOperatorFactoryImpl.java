@@ -68,8 +68,8 @@ public class TupleOperatorFactoryImpl implements TupleOperatorFactory {
   private void addTupleCodec(final GroupingDescription groupingDescription) {
     final JavaConfigurationBuilder confBuilder = Tang.Factory.getTang().newConfigurationBuilder();
     final Configuration tupleCodecConf = confBuilder
-        .bindImplementation(ShuffleParameters.ShuffleKeyCodec.class, groupingDescription.getKeyCodecClass())
-        .bindImplementation(ShuffleParameters.ShuffleValueCodec.class, groupingDescription.getValueCodecClass())
+        .bindNamedParameter(ShuffleParameters.ShuffleKeyCodec.class, groupingDescription.getKeyCodecClass())
+        .bindNamedParameter(ShuffleParameters.ShuffleValueCodec.class, groupingDescription.getValueCodecClass())
         .build();
 
     try {

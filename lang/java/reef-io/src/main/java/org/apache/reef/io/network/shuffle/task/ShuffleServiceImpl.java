@@ -40,35 +40,36 @@ final class ShuffleServiceImpl implements ShuffleService {
   @Inject
   public ShuffleServiceImpl(
       final Injector rootInjector,
-      @Parameter(ShuffleParameters.SerializedShuffleSet.class) final Set<String> serializedTopologySet,
+      @Parameter(ShuffleParameters.SerializedShuffleSet.class) final Set<String> serializedShuffleSet,
       final ConfigurationSerializer confSerializer) {
 
     this.rootInjector = rootInjector;
     this.confSerializer = confSerializer;
     this.clientMap = new ConcurrentHashMap<>();
-    deserializeClients(serializedTopologySet);
+    System.out.println(serializedShuffleSet);
+    deserializeClients(serializedShuffleSet);
   }
 
-  private void deserializeClients(final Set<String> serializedTopologySet) {
-    for (final String serializedTopology : serializedTopologySet) {
-      deserializeClient(serializedTopology);
+  private void deserializeClients(final Set<String> serializedShuffleSet) {
+    for (final String serializedShuffle : serializedShuffleSet) {
+      deserializeClient(serializedShuffle);
     }
   }
 
-  private void deserializeClient(final String serializedTopology) {
+  private void deserializeClient(final String serializedShuffle) {
     try {
-      final Configuration topologyConfig = confSerializer.fromString(serializedTopology);
-      final Injector injector = rootInjector.forkInjector(topologyConfig);
+      final Configuration clientConfig = confSerializer.fromString(serializedShuffle);
+      final Injector injector = rootInjector.forkInjector(clientConfig);
       final ShuffleClient client = injector.getInstance(ShuffleClient.class);
       final ShuffleDescription description = client.getShuffleDescription();
       clientMap.put(description.getShuffleName(), client);
     } catch (final Exception exception) {
-      throw new RuntimeException("An Exception occurred while deserializing topology " + serializedTopology, exception);
+      throw new RuntimeException("An Exception occurred while deserializing client " + serializedShuffle, exception);
     }
   }
 
   @Override
-  public ShuffleClient getClient(final String topologyName) {
-    return clientMap.get(topologyName);
+  public ShuffleClient getClient(final String shuffleName) {
+    return clientMap.get(shuffleName);
   }
 }

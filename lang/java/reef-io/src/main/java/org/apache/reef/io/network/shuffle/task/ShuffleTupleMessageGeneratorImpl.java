@@ -52,10 +52,12 @@ final class ShuffleTupleMessageGeneratorImpl<K, V> implements ShuffleTupleMessag
 
   @Override
   public List<Tuple<String, ShuffleTupleMessage<K, V>>> createClassifiedTupleMessageList(final Tuple<K, V> tuple) {
-    return serializeTupleWithData(tuple.getKey(), new Tuple[]{tuple});
+
+    return serializeTupleWithData(tuple.getKey(), createSingleList(tuple));
   }
 
-  private List<Tuple<String, ShuffleTupleMessage<K, V>>> serializeTupleWithData(final K key, final Tuple<K, V>[] data) {
+  private List<Tuple<String, ShuffleTupleMessage<K, V>>> serializeTupleWithData(
+      final K key, final List<Tuple<K, V>> data) {
     final List<String> nodeIdList = groupingStrategy.selectReceivers(key, getReceiverIdList());
     final List<Tuple<String, ShuffleTupleMessage<K, V>>> messageList = new ArrayList<>(nodeIdList.size());
     for (final String nodeId : nodeIdList) {
@@ -84,10 +86,9 @@ final class ShuffleTupleMessageGeneratorImpl<K, V> implements ShuffleTupleMessag
     final List<Tuple<String, ShuffleTupleMessage<K, V>>>
         serializedTupleList = new ArrayList<>(serializedTupleDataMap.size());
     for (Map.Entry<String, List<Tuple>> entry : serializedTupleDataMap.entrySet()) {
-      int i = 0;
-      final Tuple[] data = new Tuple[entry.getValue().size()];
+      final List<Tuple<K, V>> data = new ArrayList<>(entry.getValue().size());
       for (final Tuple tuple : entry.getValue()) {
-        data[i++] = tuple;
+        data.add(tuple);
       }
 
       serializedTupleList.add(new Tuple<>(entry.getKey(), createShuffleTupleMessage(data)));
@@ -98,19 +99,25 @@ final class ShuffleTupleMessageGeneratorImpl<K, V> implements ShuffleTupleMessag
 
   @Override
   public ShuffleTupleMessage<K, V> createTupleMessage(final Tuple<K, V> tuple) {
-    return createShuffleTupleMessage(new Tuple[]{tuple });
+    return createShuffleTupleMessage(createSingleList(tuple));
+  }
+
+  private List<Tuple<K, V>> createSingleList(final Tuple<K, V> tuple) {
+    final List<Tuple<K, V>> list = new ArrayList<>(1);
+    list.add(tuple);
+    return list;
   }
 
   @Override
   public ShuffleTupleMessage<K, V> createTupleMessage(final List<Tuple<K, V>> tupleList) {
-    return createShuffleTupleMessage((Tuple[]) tupleList.toArray());
+    return createShuffleTupleMessage(tupleList);
   }
 
   private List<String> getReceiverIdList() {
     return shuffleClient.getShuffleDescription().getReceiverIdList(groupingDescription.getGroupingName());
   }
 
-  private ShuffleTupleMessage<K, V> createShuffleTupleMessage(final Tuple<K, V>[] data) {
+  private ShuffleTupleMessage<K, V> createShuffleTupleMessage(final List<Tuple<K, V>> data) {
     return new ShuffleTupleMessage<>(shuffleName, groupingDescription.getGroupingName(), data);
   }
 }

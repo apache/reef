@@ -16,47 +16,28 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.io.network.shuffle.network;
+package org.apache.reef.examples.shuffle;
 
-import org.apache.reef.io.Tuple;
+import org.apache.reef.wake.remote.Codec;
 
-import java.util.List;
+import javax.inject.Inject;
 
 /**
  *
  */
-public final class ShuffleTupleMessage<K, V> {
+public class IntegerCodec implements Codec<Integer> {
 
-  private final String shuffleName;
-  private final String groupingName;
-  private final List<Tuple<K, V>> tuples;
-
-  public ShuffleTupleMessage(
-      final String shuffleName,
-      final String groupingName,
-      final List<Tuple<K, V>> tuples) {
-    this.shuffleName = shuffleName;
-    this.groupingName = groupingName;
-    this.tuples = tuples;
+  @Inject
+  public IntegerCodec() {
   }
 
-  public String getShuffleName() {
-    return shuffleName;
+  @Override
+  public Integer decode(byte[] buf) {
+    return Integer.decode(new String(buf));
   }
 
-  public String getGroupingName() {
-    return groupingName;
-  }
-
-  public int size() {
-    if (tuples == null) {
-      return 0;
-    }
-
-    return tuples.size();
-  }
-
-  public Tuple<K, V> get(final int index) {
-    return tuples.get(index);
+  @Override
+  public byte[] encode(Integer obj) {
+    return Integer.toString(obj).getBytes();
   }
 }
