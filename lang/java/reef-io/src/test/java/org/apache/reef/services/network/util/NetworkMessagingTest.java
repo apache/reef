@@ -23,6 +23,7 @@ import org.apache.reef.io.network.Connection;
 import org.apache.reef.io.network.Message;
 import org.apache.reef.io.network.NetworkConnectionService;
 import org.apache.reef.io.network.impl.config.NetworkConnectionServiceIdFactory;
+import org.apache.reef.io.network.naming.NameResolver;
 import org.apache.reef.io.network.naming.NameResolverConfiguration;
 import org.apache.reef.io.network.naming.NameServer;
 import org.apache.reef.tang.Configuration;
@@ -43,7 +44,7 @@ import java.util.logging.Logger;
 /**
  * Helper class for NetworkConnectionService test.
  */
-public final class NetworkMessagingTest {
+public final class NetworkMessagingTest implements AutoCloseable{
   private static final Logger LOG = Logger.getLogger(NetworkMessagingTest.class.getName());
 
   private final IdentifierFactory factory;
@@ -52,6 +53,8 @@ public final class NetworkMessagingTest {
   private final String receiver;
   private final String sender;
   private final NameServer nameServer;
+  private final NameResolver receiverResolver;
+  private final NameResolver senderResolver;
 
   public NetworkMessagingTest(final String localAddress) throws InjectionException {
     // name server
@@ -67,6 +70,7 @@ public final class NetworkMessagingTest {
     this.receiver = "receiver";
     final Injector injectorReceiver = injector.forkInjector(netConf);
     this.receiverNetworkConnService = injectorReceiver.getInstance(NetworkConnectionService.class);
+    this.receiverResolver = injectorReceiver.getInstance(NameResolver.class);
     this.factory = injectorReceiver.getNamedInstance(NetworkConnectionServiceIdFactory.class);
     this.receiverNetworkConnService.registerId(this.factory.getNewInstance(receiver));
 
@@ -76,6 +80,7 @@ public final class NetworkMessagingTest {
     final Injector injectorSender = injector.forkInjector(netConf);
     senderNetworkConnService = injectorSender.getInstance(NetworkConnectionService.class);
     senderNetworkConnService.registerId(this.factory.getNewInstance(this.sender));
+    this.senderResolver = injectorSender.getInstance(NameResolver.class);
   }
 
   public <T> void registerTestConnectionFactory(final Identifier connFactoryId,
@@ -94,6 +99,8 @@ public final class NetworkMessagingTest {
     senderNetworkConnService.close();
     receiverNetworkConnService.close();
     nameServer.close();
+    receiverResolver.close();
+    senderResolver.close();
   }
 
   public static final class MessageHandler<T> implements EventHandler<Message<T>> {
