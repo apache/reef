@@ -21,6 +21,7 @@ package org.apache.reef.io.network.shuffle.driver;
 import org.apache.reef.driver.task.CompletedTask;
 import org.apache.reef.driver.task.FailedTask;
 import org.apache.reef.driver.task.RunningTask;
+import org.apache.reef.io.network.shuffle.GroupingController;
 import org.apache.reef.io.network.shuffle.description.ShuffleDescription;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.annotations.DefaultImplementation;
@@ -37,6 +38,12 @@ public interface ShuffleDriver {
   <K extends ShuffleManager> K registerManager(ShuffleDescription shuffleDescription, Class<K> managerClass, Configuration managerConf);
 
   <K extends ShuffleManager> K getManager(Class<? extends Name<String>> shuffleName);
+
+  <K extends ShuffleManager> K getManager(String shuffleName);
+
+  void registerGroupingController(String shuffleName, GroupingController groupingController);
+
+  void sendControlMessage(String destId, int code, String shuffleName, String groupingName, byte[][] data, byte sourceType, byte sinkType);
 
   Configuration getContextConfiguration();
 

@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.io.network.shuffle.ns;
+package org.apache.reef.io.network.shuffle.network;
 
 import org.apache.reef.io.network.Message;
 import org.apache.reef.tang.annotations.DefaultImplementation;
@@ -30,4 +30,6 @@ import org.apache.reef.wake.EventHandler;
 public interface ShuffleTupleMessageHandler extends EventHandler<Message<ShuffleTupleMessage>> {
   void registerMessageHandler(Class<? extends Name<String>> shuffleName,
                               EventHandler<Message<ShuffleTupleMessage>> eventHandler);
+
+  void remove(Class<? extends Name<String>> shuffleName);
 }

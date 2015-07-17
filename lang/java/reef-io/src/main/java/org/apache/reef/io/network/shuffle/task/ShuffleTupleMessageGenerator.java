@@ -18,7 +18,7 @@
  */
 package org.apache.reef.io.network.shuffle.task;
 
-import org.apache.reef.io.network.shuffle.ns.ShuffleTupleMessage;
+import org.apache.reef.io.network.shuffle.network.ShuffleTupleMessage;
 import org.apache.reef.tang.annotations.DefaultImplementation;
 
 import java.util.List;

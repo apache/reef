@@ -18,61 +18,34 @@
  */
 package org.apache.reef.io.network.shuffle.task.operator;
 
-import org.apache.reef.driver.task.TaskConfigurationOptions;
-import org.apache.reef.exception.evaluator.NetworkException;
-import org.apache.reef.io.network.Connection;
-import org.apache.reef.io.network.ConnectionFactory;
 import org.apache.reef.io.network.Message;
-import org.apache.reef.io.network.NetworkConnectionService;
-import org.apache.reef.io.network.impl.NSMessage;
-import org.apache.reef.io.network.naming.NameServerParameters;
+import org.apache.reef.io.network.shuffle.GroupingController;
 import org.apache.reef.io.network.shuffle.grouping.GroupingStrategy;
-import org.apache.reef.io.network.shuffle.ns.ShuffleControlMessage;
-import org.apache.reef.io.network.shuffle.ns.ShuffleNetworkConnectionId;
-import org.apache.reef.io.network.shuffle.ns.ShuffleTupleMessage;
+import org.apache.reef.io.network.shuffle.network.ShuffleControlMessage;
+import org.apache.reef.io.network.shuffle.network.ShuffleTupleMessage;
 import org.apache.reef.io.network.shuffle.description.GroupingDescription;
 import org.apache.reef.io.network.shuffle.task.ShuffleClient;
-import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.wake.EventHandler;
-import org.apache.reef.wake.Identifier;
-import org.apache.reef.wake.IdentifierFactory;
-import org.apache.reef.wake.remote.transport.LinkListener;
 
 import javax.inject.Inject;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  *
  */
 public final class BaseTupleReceiver<K, V> implements TupleReceiver<K, V> {
 
-  private final String shuffleName;
   private final String groupingName;
   private final ShuffleClient shuffleClient;
-  private final ConnectionFactory<ShuffleControlMessage> controlMessageConnectionFactory;
-  private final Map<String, Connection<ShuffleControlMessage>> controlMessageConnectionMap;
-  private final IdentifierFactory idFactory;
-  private final Identifier taskId;
   private final GroupingDescription<K, V> groupingDescription;
   private final GroupingStrategy<K> groupingStrategy;
 
   @Inject
   public BaseTupleReceiver(
       final ShuffleClient shuffleClient,
-      final NetworkConnectionService networkConnectionService,
-      final @Parameter(NameServerParameters.NameServerIdentifierFactory.class) IdentifierFactory idFactory,
-      final @Parameter(TaskConfigurationOptions.Identifier.class) String taskId,
       final GroupingDescription<K, V> groupingDescription,
       final GroupingStrategy<K> groupingStrategy) {
-    this.shuffleName = shuffleClient.getShuffleDescription().getShuffleName().getName();
     this.groupingName = groupingDescription.getGroupingName();
-    this.controlMessageConnectionFactory = networkConnectionService
-        .getConnectionFactory(idFactory.getNewInstance(ShuffleNetworkConnectionId.CONTROL_MESSAGE));
-    this.idFactory = idFactory;
-    this.taskId = idFactory.getNewInstance(taskId);
-    this.controlMessageConnectionMap = new ConcurrentHashMap<>();
     this.groupingDescription = groupingDescription;
     this.shuffleClient = shuffleClient;
     this.groupingStrategy = groupingStrategy;
@@ -80,22 +53,12 @@ public final class BaseTupleReceiver<K, V> implements TupleReceiver<K, V> {
 
   @Override
   public void registerTupleMessageHandler(final EventHandler<Message<ShuffleTupleMessage<K, V>>> messageHandler) {
-    shuffleClient.registerTupleMessageHandler(getGroupingName(), messageHandler);
-  }
-
-  @Override
-  public String getGroupingName() {
-    return groupingDescription.getGroupingName();
+    shuffleClient.registerTupleMessageHandler(groupingName, messageHandler);
   }
 
   @Override
   public GroupingDescription<K, V> getGroupingDescription() {
     return groupingDescription;
-  }
-
-  @Override
-  public GroupingStrategy<K> getGroupingStrategy() {
-    return groupingStrategy;
   }
 
   @Override
@@ -110,39 +73,18 @@ public final class BaseTupleReceiver<K, V> implements TupleReceiver<K, V> {
   }
 
   @Override
-  public void registerControlMessageHandler(final EventHandler<Message<ShuffleControlMessage>> messageHandler) {
-    shuffleClient.registerControlMessageHandler(groupingName, messageHandler);
+  public void registerGroupingController(GroupingController groupingController) {
+    shuffleClient.registerReceiverGroupingController(groupingController);
+  }
+
+
+  @Override
+  public void sendControlMessage(String destId, int code, byte[][] data, byte sinkType) {
+    shuffleClient.sendControlMessage(destId, code, groupingName, data, ShuffleControlMessage.RECEIVER, sinkType);
   }
 
   @Override
-  public void registerControlLinkListener(final LinkListener<Message<ShuffleControlMessage>> linkListener) {
-    shuffleClient.registerControlLinkListener(groupingName, linkListener);
-  }
-
-  @Override
-  public void sendControlMessage(final String destId, final int code, final byte[][] data) {
-    final ShuffleControlMessage controlMessage = new ShuffleControlMessage(code, shuffleName,
-        groupingName, data, false);
-
-    shuffleClient.waitForGroupingSetup(groupingDescription.getGroupingName());
-
-    if (!controlMessageConnectionMap.containsKey(destId)) {
-      try {
-        final Connection<ShuffleControlMessage> connection = controlMessageConnectionFactory
-            .newConnection(idFactory.getNewInstance(destId));
-        connection.open();
-        controlMessageConnectionMap.put(destId, connection);
-        connection.write(controlMessage);
-      } catch (final NetworkException exception) {
-        shuffleClient.getControlLinkListener().onException(
-            exception, null, createShuffleControlNetworkMessage(destId, controlMessage));
-      }
-    } else {
-      controlMessageConnectionMap.get(destId).write(controlMessage);
-    }
-  }
-
-  private Message<ShuffleControlMessage> createShuffleControlNetworkMessage(final String destId, final ShuffleControlMessage message) {
-    return new NSMessage<>(taskId, idFactory.getNewInstance(destId), message);
+  public void sendControlMessageToDriver(int code, byte[][] data, byte sinkType) {
+    shuffleClient.sendControlMessageToDriver(code, groupingName, data, ShuffleControlMessage.RECEIVER, sinkType);
   }
 }

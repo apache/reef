@@ -20,10 +20,9 @@ package org.apache.reef.examples.shuffle;
 
 import org.apache.reef.examples.shuffle.params.WordCountShuffle;
 import org.apache.reef.io.network.Message;
-import org.apache.reef.io.network.shuffle.ns.ShuffleTupleMessage;
+import org.apache.reef.io.network.shuffle.network.ShuffleTupleMessage;
 import org.apache.reef.io.network.shuffle.task.*;
-import org.apache.reef.io.network.shuffle.task.operator.TupleReceiver;
-import org.apache.reef.io.network.shuffle.task.operator.TupleSender;
+import org.apache.reef.io.network.shuffle.task.operator.*;
 import org.apache.reef.task.Task;
 import org.apache.reef.wake.EventHandler;
 
@@ -39,34 +38,34 @@ import java.util.Map;
 public final class ReducerTask implements Task {
 
   private ShuffleClient shuffleClient;
-  private final TupleSender<String, Integer> tupleSender;
+  private final SynchronizedTupleSender<String, Integer> tupleSender;
+  private final SynchronizedTupleReceiver<String, Integer> tupleReceiver;
   private final Map<String, Integer> reduceMap;
 
   @Inject
   public ReducerTask(
       final ShuffleService shuffleService) {
     this.shuffleClient = shuffleService.getClient(WordCountShuffle.class);
-    this.tupleSender = shuffleClient.getSender(WordCountDriver.AGGREGATING_GROUPING);
-    final TupleReceiver<String, Integer> tupleReceiver = shuffleService.getClient(WordCountShuffle.class)
-        .getReceiver(WordCountDriver.SHUFFLE_GROUPING);
-    tupleReceiver.registerTupleMessageHandler(new MessageHandler());
+    this.tupleSender = (SynchronizedTupleSender<String, Integer>) shuffleClient.<String, Integer>getSender(WordCountDriver.AGGREGATING_GROUPING);
+    this.tupleReceiver = (SynchronizedTupleReceiver<String, Integer>) shuffleService.getClient(WordCountShuffle.class)
+        .<String, Integer>getReceiver(WordCountDriver.SHUFFLE_GROUPING);
     this.reduceMap = new HashMap<>();
   }
 
   @Override
   public byte[] call(byte[] memento) throws Exception {
     System.out.println("ReducerTask");
-    shuffleClient.waitForSetup();
-    Thread.sleep(5000);
-
-    List<Tuple<String, Integer>> tupleList = new ArrayList<>();
-
-    for (final Map.Entry<String, Integer> entry : reduceMap.entrySet()) {
-      tupleList.add(new Tuple<>(entry.getKey(), entry.getValue()));
+    for (final Tuple<String, Integer> tuple : tupleReceiver.receiveTuples()) {
+      addTuple(tuple);
     }
 
-    tupleSender.sendTuple(tupleList);
+    List<Tuple<String, Integer>> reducedTupleList = new ArrayList<>();
 
+    for (final Map.Entry<String, Integer> entry : reduceMap.entrySet()) {
+      reducedTupleList.add(new Tuple<>(entry.getKey(), entry.getValue()));
+    }
+
+    tupleSender.sendTuple(reducedTupleList);
     return null;
   }
 
@@ -76,18 +75,5 @@ public final class ReducerTask implements Task {
     }
 
     reduceMap.put(tuple.getKey(), tuple.getValue() + reduceMap.get(tuple.getKey()));
-  }
-
-  private final class MessageHandler implements EventHandler<Message<ShuffleTupleMessage<String, Integer>>> {
-    @Override
-    public void onNext(Message<ShuffleTupleMessage<String, Integer>> msg) {
-      System.out.println("message from " + msg.getSrcId());
-      for (ShuffleTupleMessage<String, Integer> tupleMessage : msg.getData()) {
-        for (int i = 0; i < tupleMessage.size(); i++) {
-          System.out.println(tupleMessage.get(i));
-          addTuple(tupleMessage.get(i));
-        }
-      }
-    }
   }
 }

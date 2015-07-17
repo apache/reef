@@ -16,12 +16,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.io.network.shuffle.ns;
+package org.apache.reef.io.network.shuffle;
+
+import org.apache.reef.io.network.Message;
+import org.apache.reef.io.network.shuffle.description.GroupingDescription;
+import org.apache.reef.io.network.shuffle.network.ShuffleControlMessage;
+import org.apache.reef.wake.EventHandler;
+import org.apache.reef.wake.remote.transport.LinkListener;
 
 /**
  *
  */
-public final class ShuffleNetworkConnectionId {
-  public static final String TUPLE_MESSAGE = "IO_NETWORK_SHUFFLE_TUPLE_MESSAGE";
-  public static final String CONTROL_MESSAGE = "IO_NETWORK_SHUFFLE_CONTROL_MESSAGE";
+public interface GroupingController extends EventHandler<Message<ShuffleControlMessage>>,
+    LinkListener<Message<ShuffleControlMessage>> {
+
+  GroupingDescription getGroupingDescription();
+
 }

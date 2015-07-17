@@ -16,20 +16,32 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.io.network.shuffle;
-
-import org.apache.reef.io.network.Message;
-import org.apache.reef.io.network.shuffle.network.ShuffleControlMessage;
-import org.apache.reef.io.network.shuffle.description.ShuffleDescription;
-import org.apache.reef.wake.EventHandler;
-import org.apache.reef.wake.remote.transport.LinkListener;
+package org.apache.reef.io.network.shuffle.network;
 
 /**
  *
  */
-public interface ShuffleController extends EventHandler<Message<ShuffleControlMessage>>,
-    LinkListener<Message<ShuffleControlMessage>> {
+public abstract class ShuffleMessage<T> {
 
-  ShuffleDescription getShuffleDescription();
+  private final String shuffleName;
+  private final String groupingName;
 
+  public ShuffleMessage(
+      final String shuffleName,
+      final String groupingName) {
+    this.shuffleName = shuffleName;
+    this.groupingName = groupingName;
+  }
+
+  public String getShuffleName() {
+    return shuffleName;
+  }
+
+  public String getGroupingName() {
+    return groupingName;
+  }
+
+  public abstract int size();
+
+  public abstract T get(final int index);
 }

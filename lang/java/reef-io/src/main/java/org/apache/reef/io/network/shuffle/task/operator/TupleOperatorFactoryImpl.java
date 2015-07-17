@@ -83,7 +83,12 @@ final class TupleOperatorFactoryImpl implements TupleOperatorFactory {
       forkedInjector.bindVolatileInstance(GroupingDescription.class, groupingDescription);
 
       try {
-        final TupleReceiver receiver = forkedInjector.getInstance(TupleReceiver.class);
+        final TupleReceiver receiver;
+        if (groupingDescription.getTupleReceiverClass() != null) {
+          receiver = (TupleReceiver) forkedInjector.getInstance(groupingDescription.getTupleReceiverClass());
+        } else {
+          receiver = forkedInjector.getInstance(TupleReceiver.class);
+        }
         receiverMap.put(groupingName, receiver);
       } catch (final InjectionException e) {
         throw new RuntimeException("An InjectionException occurred while injecting receiver with "
@@ -115,7 +120,12 @@ final class TupleOperatorFactoryImpl implements TupleOperatorFactory {
       forkedInjector.bindVolatileParameter(ShuffleTupleCodec.class, client.get().getTupleCodec(groupingName));
 
       try {
-        final TupleSender sender = forkedInjector.getInstance(TupleSender.class);
+        final TupleSender sender;
+        if (groupingDescription.getTupleSenderClass() != null) {
+          sender = (TupleSender) forkedInjector.getInstance(groupingDescription.getTupleSenderClass());
+        } else {
+          sender = forkedInjector.getInstance(TupleSender.class);
+        }
         senderMap.put(groupingName, sender);
       } catch (final InjectionException e) {
         throw new RuntimeException("An InjectionException occurred while injecting sender with "

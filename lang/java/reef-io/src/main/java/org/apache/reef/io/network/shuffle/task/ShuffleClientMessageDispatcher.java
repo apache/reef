@@ -16,11 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.io.network.shuffle.utils;
+package org.apache.reef.io.network.shuffle.task;
 
 import org.apache.reef.io.network.Message;
-import org.apache.reef.io.network.shuffle.ns.ShuffleControlMessage;
-import org.apache.reef.io.network.shuffle.ns.ShuffleTupleMessage;
+import org.apache.reef.io.network.shuffle.network.ShuffleControlMessage;
+import org.apache.reef.io.network.shuffle.network.ShuffleTupleMessage;
+import org.apache.reef.io.network.shuffle.utils.BroadcastEventHandler;
+import org.apache.reef.io.network.shuffle.utils.BroadcastLinkListener;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.remote.transport.LinkListener;
 
@@ -33,28 +35,36 @@ import java.util.logging.Logger;
 /**
  *
  */
-public final class ShuffleMessageDispatcher {
+public final class ShuffleClientMessageDispatcher {
 
-  private static final Logger LOG = Logger.getLogger(ShuffleMessageDispatcher.class.getName());
+  private static final Logger LOG = Logger.getLogger(ShuffleClientMessageDispatcher.class.getName());
+
+  private final ShuffleClient client;
 
   private final EventHandler<Message<ShuffleControlMessage>> controlMessageHandler;
   private final LinkListener<Message<ShuffleControlMessage>> controlLinkListener;
   private final EventHandler<Message<ShuffleTupleMessage>> tupleMessageHandler;
   private final LinkListener<Message<ShuffleTupleMessage>> tupleLinkListener;
 
-  private final Map<String, BroadcastEventHandler<Message<ShuffleControlMessage>>> controlMessageHandlerMap;
-  private final Map<String, BroadcastLinkListener<Message<ShuffleControlMessage>>> controlLinkListenerMap;
+  private final Map<String, BroadcastEventHandler<Message<ShuffleControlMessage>>> senderControlMessageHandlerMap;
+  private final Map<String, BroadcastLinkListener<Message<ShuffleControlMessage>>> senderControlLinkListenerMap;
+  private final Map<String, BroadcastEventHandler<Message<ShuffleControlMessage>>> receiverControlMessageHandlerMap;
+  private final Map<String, BroadcastLinkListener<Message<ShuffleControlMessage>>> receiverControlLinkListenerMap;
   private final Map<String, BroadcastEventHandler<Message<ShuffleTupleMessage>>> tupleMessageHandlerMap;
   private final Map<String, BroadcastLinkListener<Message<ShuffleTupleMessage>>> tupleLinkListenerMap;
 
-  public ShuffleMessageDispatcher() {
+  public ShuffleClientMessageDispatcher(final ShuffleClient client) {
+    this.client = client;
+
     this.controlMessageHandler = new ControlMessageHandler();
     this.controlLinkListener = new ControlLinkListener();
     this.tupleMessageHandler = new TupleMessageHandler();
     this.tupleLinkListener = new TupleLinkListener();
 
-    this.controlMessageHandlerMap = new ConcurrentHashMap<>();
-    this.controlLinkListenerMap = new ConcurrentHashMap<>();
+    this.senderControlMessageHandlerMap = new ConcurrentHashMap<>();
+    this.senderControlLinkListenerMap = new ConcurrentHashMap<>();
+    this.receiverControlMessageHandlerMap = new ConcurrentHashMap<>();
+    this.receiverControlLinkListenerMap = new ConcurrentHashMap<>();
     this.tupleMessageHandlerMap = new ConcurrentHashMap<>();
     this.tupleLinkListenerMap = new ConcurrentHashMap<>();
   }
@@ -76,21 +86,38 @@ public final class ShuffleMessageDispatcher {
     tupleMessageHandlerMap.get(groupingName).addEventHandler(messageHandler);
   }
 
-  public void registerControlLinkListener(
+  public void registerSenderControlLinkListener(
       final String groupingName, final LinkListener<Message<ShuffleControlMessage>> linkListener) {
-    if (!controlLinkListenerMap.containsKey(groupingName)) {
-      controlLinkListenerMap.put(groupingName, new BroadcastLinkListener());
+    if (!senderControlLinkListenerMap.containsKey(groupingName)) {
+      senderControlLinkListenerMap.put(groupingName, new BroadcastLinkListener());
     }
 
-    controlLinkListenerMap.get(groupingName).addLinkListener(linkListener);
+    senderControlLinkListenerMap.get(groupingName).addLinkListener(linkListener);
   }
 
-  public void registerControlMessageHandler(
+  public void registerSenderControlMessageHandler(
       final String groupingName, final EventHandler<Message<ShuffleControlMessage>> messageHandler) {
-    if (!controlMessageHandlerMap.containsKey(groupingName)) {
-      controlMessageHandlerMap.put(groupingName, new BroadcastEventHandler());
+    if (!senderControlMessageHandlerMap.containsKey(groupingName)) {
+      senderControlMessageHandlerMap.put(groupingName, new BroadcastEventHandler());
     }
-    controlMessageHandlerMap.get(groupingName).addEventHandler(messageHandler);
+    senderControlMessageHandlerMap.get(groupingName).addEventHandler(messageHandler);
+  }
+
+  public void registerReceiverControlLinkListener(
+      final String groupingName, final LinkListener<Message<ShuffleControlMessage>> linkListener) {
+    if (!receiverControlLinkListenerMap.containsKey(groupingName)) {
+      receiverControlLinkListenerMap.put(groupingName, new BroadcastLinkListener());
+    }
+
+    receiverControlLinkListenerMap.get(groupingName).addLinkListener(linkListener);
+  }
+
+  public void registerReceiverControlMessageHandler(
+      final String groupingName, final EventHandler<Message<ShuffleControlMessage>> messageHandler) {
+    if (!receiverControlMessageHandlerMap.containsKey(groupingName)) {
+      receiverControlMessageHandlerMap.put(groupingName, new BroadcastEventHandler());
+    }
+    receiverControlMessageHandlerMap.get(groupingName).addEventHandler(messageHandler);
   }
 
   public EventHandler<Message<ShuffleTupleMessage>> getTupleMessageHandler() {
@@ -114,14 +141,26 @@ public final class ShuffleMessageDispatcher {
 
     @Override
     public void onNext(final Message<ShuffleControlMessage> message) {
-      final String groupingName = message.getData().iterator().next().getGroupingName();
-      final EventHandler<Message<ShuffleControlMessage>> messageHandler = controlMessageHandlerMap.get(groupingName);
+      final ShuffleControlMessage controlMessage = message.getData().iterator().next();
+      if (controlMessage.isMessageToClient()) {
+        client.onNext(message);
+        return;
+      }
+
+      final EventHandler<Message<ShuffleControlMessage>> messageHandler;
+      if (controlMessage.isMessageToSender()) {
+        messageHandler = senderControlMessageHandlerMap.get(controlMessage.getGroupingName());
+      } else if (controlMessage.isMessageToReceiver()) {
+        messageHandler = receiverControlMessageHandlerMap.get(controlMessage.getGroupingName());
+      } else {
+        messageHandler = null;
+      }
 
       if (messageHandler != null) {
         messageHandler.onNext(message);
       } else {
         LOG.log(Level.FINE, "There is no message handler registered for {0}. The arrived message is {1}",
-            new Object[]{ groupingName, message});
+            new Object[]{ controlMessage.getGroupingName(), message});
       }
     }
   }
@@ -130,27 +169,51 @@ public final class ShuffleMessageDispatcher {
 
     @Override
     public void onSuccess(final Message<ShuffleControlMessage> message) {
-      final String groupingName = message.getData().iterator().next().getGroupingName();
-      final LinkListener<Message<ShuffleControlMessage>> linkListener = controlLinkListenerMap.get(groupingName);
+      final ShuffleControlMessage controlMessage = message.getData().iterator().next();
+      if (controlMessage.isMessageToClient()) {
+        client.onSuccess(message);
+        return;
+      }
+
+      final LinkListener<Message<ShuffleControlMessage>> linkListener;
+      if (controlMessage.isMessageToSender()) {
+        linkListener = senderControlLinkListenerMap.get(controlMessage.getGroupingName());
+      } else if (controlMessage.isMessageToReceiver()) {
+        linkListener = receiverControlLinkListenerMap.get(controlMessage.getGroupingName());
+      } else {
+        linkListener = null;
+      }
 
       if (linkListener != null) {
         linkListener.onSuccess(message);
       } else {
         LOG.log(Level.FINE, "The message [ {0} ] was successfully sent to {1}",
-            new Object[]{ message, groupingName });
+            new Object[]{ message, controlMessage.getGroupingName() });
       }
     }
 
     @Override
     public void onException(final Throwable cause, final SocketAddress remoteAddress, final Message<ShuffleControlMessage> message) {
-      final String groupingName = message.getData().iterator().next().getGroupingName();
-      final LinkListener<Message<ShuffleControlMessage>> linkListener = controlLinkListenerMap.get(groupingName);
+      final ShuffleControlMessage controlMessage = message.getData().iterator().next();
+      if (controlMessage.isMessageToClient()) {
+        client.onException(cause, remoteAddress, message);
+        return;
+      }
+
+      final LinkListener<Message<ShuffleControlMessage>> linkListener;
+      if (controlMessage.isMessageToSender()) {
+        linkListener = senderControlLinkListenerMap.get(controlMessage.getGroupingName());
+      } else if (controlMessage.isMessageToReceiver()) {
+        linkListener = receiverControlLinkListenerMap.get(controlMessage.getGroupingName());
+      } else {
+        linkListener = null;
+      }
 
       if (linkListener != null) {
         linkListener.onException(cause, remoteAddress, message);
       } else {
         LOG.log(Level.FINE, "An exception occurred while sending message [ {0} ] to {1}, cause [ {2} ], remote address [ {3} ].",
-            new Object[]{ message, groupingName, cause, remoteAddress });
+            new Object[]{ message, controlMessage.getGroupingName(), cause, remoteAddress });
       }
     }
   }

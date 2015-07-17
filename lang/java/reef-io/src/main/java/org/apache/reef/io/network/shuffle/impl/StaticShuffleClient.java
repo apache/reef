@@ -19,15 +19,15 @@
 package org.apache.reef.io.network.shuffle.impl;
 
 import org.apache.reef.io.network.Message;
-import org.apache.reef.io.network.shuffle.ns.ShuffleControlMessage;
-import org.apache.reef.io.network.shuffle.ns.ShuffleTupleMessage;
+import org.apache.reef.io.network.shuffle.GroupingController;
+import org.apache.reef.io.network.shuffle.network.ShuffleControlMessage;
+import org.apache.reef.io.network.shuffle.network.ShuffleTupleMessage;
 import org.apache.reef.io.network.shuffle.task.*;
 import org.apache.reef.io.network.shuffle.task.Tuple;
 import org.apache.reef.io.network.shuffle.description.ShuffleDescription;
 import org.apache.reef.io.network.shuffle.task.operator.TupleOperatorFactory;
 import org.apache.reef.io.network.shuffle.task.operator.TupleReceiver;
 import org.apache.reef.io.network.shuffle.task.operator.TupleSender;
-import org.apache.reef.io.network.shuffle.utils.ShuffleMessageDispatcher;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.remote.Codec;
 import org.apache.reef.wake.remote.transport.LinkListener;
@@ -43,29 +43,27 @@ import java.util.concurrent.CountDownLatch;
  */
 public final class StaticShuffleClient implements ShuffleClient {
 
-  private final CountDownLatch clientSetupLatch;
-  private final Map<String, CountDownLatch> groupingSetupLatchMap;
-
+  private final ShuffleService shuffleService;
+  private final String shuffleName;
   private final ShuffleDescription initialShuffleDescription;
   private final ClientTupleCodecMap tupleCodecMap;
   private final TupleOperatorFactory tupleOperatorFactory;
 
-  private final ShuffleMessageDispatcher shuffleMessageDispatcher;
-  private final EventHandler<Message<ShuffleControlMessage>> controlMessageHandler;
-  private final LinkListener<Message<ShuffleControlMessage>> controlLinkListener;
+  private final CountDownLatch clientSetupLatch;
+  private final Map<String, CountDownLatch> groupingSetupLatchMap;
 
   @Inject
   public StaticShuffleClient(
+      final ShuffleService shuffleService,
       final ShuffleDescription initialShuffleDescription,
       final ClientTupleCodecMap tupleCodecMap,
       final TupleOperatorFactory tupleOperatorFactory) {
-
+    this.shuffleService = shuffleService;
+    this.shuffleName = initialShuffleDescription.getShuffleName().getName();
     this.initialShuffleDescription = initialShuffleDescription;
     this.tupleOperatorFactory = tupleOperatorFactory;
     this.tupleCodecMap = tupleCodecMap;
-    this.shuffleMessageDispatcher = new ShuffleMessageDispatcher();
-    this.controlMessageHandler = new ControlMessageHandler();
-    this.controlLinkListener = new ControlLinkListener();
+
     this.groupingSetupLatchMap = new ConcurrentHashMap<>();
     for (final String groupingName : initialShuffleDescription.getGroupingNameList()) {
       groupingSetupLatchMap.put(groupingName, new CountDownLatch(1));
@@ -111,16 +109,6 @@ public final class StaticShuffleClient implements ShuffleClient {
   }
 
   @Override
-  public EventHandler<Message<ShuffleTupleMessage>> getTupleMessageHandler() {
-    return shuffleMessageDispatcher.getTupleMessageHandler();
-  }
-
-  @Override
-  public LinkListener<Message<ShuffleTupleMessage>> getTupleLinkListener() {
-    return shuffleMessageDispatcher.getTupleLinkListener();
-  }
-
-  @Override
   public Codec<Tuple> getTupleCodec(final String groupingName) {
     return tupleCodecMap.getTupleCodec(groupingName);
   }
@@ -136,69 +124,47 @@ public final class StaticShuffleClient implements ShuffleClient {
   }
 
   @Override
+  public void sendControlMessage(String destId, int code, String groupingName, byte[][] data, byte sourceType, byte sinkType) {
+    shuffleService.sendControlMessage(destId, code, shuffleName, groupingName, data, sourceType, sinkType);
+  }
+
+  @Override
+  public void sendControlMessageToDriver(int code, String groupingName, byte[][] data, byte sourceType, byte sinkType) {
+    shuffleService.sendControlMessageToDriver(code, shuffleName, groupingName, data, sourceType, sinkType);
+  }
+
+  @Override
   public <K, V> void registerTupleLinkListener(
       final String groupingName, final LinkListener<Message<ShuffleTupleMessage<K, V>>> linkListener) {
-    shuffleMessageDispatcher.registerTupleLinkListener(groupingName, linkListener);
+    shuffleService.registerTupleLinkListener(shuffleName, groupingName, linkListener);
   }
 
   @Override
   public <K, V> void registerTupleMessageHandler(
       final String groupingName, final EventHandler<Message<ShuffleTupleMessage<K, V>>> messageHandler) {
-    shuffleMessageDispatcher.registerTupleMessageHandler(groupingName, messageHandler);
+    shuffleService.registerTupleMessageHandler(shuffleName, groupingName, messageHandler);
   }
 
   @Override
-  public void registerControlLinkListener(
-      final String groupingName, final LinkListener<Message<ShuffleControlMessage>> linkListener) {
-    shuffleMessageDispatcher.registerControlLinkListener(groupingName, linkListener);
+  public void registerSenderGroupingController(GroupingController groupingController) {
+    shuffleService.registerSenderGroupingController(shuffleName, groupingController);
   }
 
   @Override
-  public void registerControlMessageHandler(
-      final String groupingName, final EventHandler<Message<ShuffleControlMessage>> messageHandler) {
-    shuffleMessageDispatcher.registerControlMessageHandler(groupingName, messageHandler);
+  public void registerReceiverGroupingController(GroupingController groupingController) {
+    shuffleService.registerReceiverGroupingController(shuffleName, groupingController);
   }
 
   @Override
-  public EventHandler<Message<ShuffleControlMessage>> getControlMessageHandler() {
-    return controlMessageHandler;
+  public void onNext(Message<ShuffleControlMessage> value) {
+    onDriverMessage(value.getData().iterator().next());
   }
 
   @Override
-  public LinkListener<Message<ShuffleControlMessage>> getControlLinkListener() {
-    return controlLinkListener;
+  public void onSuccess(Message<ShuffleControlMessage> message) {
   }
 
-  private final class ControlMessageHandler implements EventHandler<Message<ShuffleControlMessage>> {
-
-    @Override
-    public void onNext(final Message<ShuffleControlMessage> message) {
-      final ShuffleControlMessage shuffleMessage = message.getData().iterator().next();
-      if (shuffleMessage.isDriverMessage()) {
-        onDriverMessage(shuffleMessage);
-      } else {
-        shuffleMessageDispatcher.getControlMessageHandler().onNext(message);
-      }
-    }
-  }
-
-  private final class ControlLinkListener implements LinkListener<Message<ShuffleControlMessage>> {
-
-    @Override
-    public void onSuccess(final Message<ShuffleControlMessage> message) {
-      final ShuffleControlMessage shuffleMessage = message.getData().iterator().next();
-      if (!shuffleMessage.isDriverMessage()) {
-        shuffleMessageDispatcher.getControlLinkListener().onSuccess(message);
-      }
-    }
-
-    @Override
-    public void onException(
-        final Throwable cause, final SocketAddress remoteAddress, final Message<ShuffleControlMessage> message) {
-      final ShuffleControlMessage shuffleMessage = message.getData().iterator().next();
-      if (!shuffleMessage.isDriverMessage()) {
-        shuffleMessageDispatcher.getControlLinkListener().onException(cause, remoteAddress, message);
-      }
-    }
+  @Override
+  public void onException(Throwable cause, SocketAddress remoteAddress, Message<ShuffleControlMessage> message) {
   }
 }

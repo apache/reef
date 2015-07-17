@@ -18,7 +18,7 @@
  */
 package org.apache.reef.io.network.shuffle.task;
 
-import org.apache.reef.io.network.shuffle.ns.GlobalTupleCodecMap;
+import org.apache.reef.io.network.shuffle.network.GlobalTupleCodecMap;
 import org.apache.reef.io.network.shuffle.params.ShuffleKeyCodec;
 import org.apache.reef.io.network.shuffle.params.ShuffleValueCodec;
 import org.apache.reef.io.network.shuffle.description.GroupingDescription;
@@ -59,8 +59,8 @@ public final class ClientTupleCodecMapImpl implements ClientTupleCodecMap {
   public void registerTupleCodec(final GroupingDescription groupingDescription) {
     final Injector injector = Tang.Factory.getTang().newInjector(
         Tang.Factory.getTang().newConfigurationBuilder()
-            .bindNamedParameter(ShuffleKeyCodec.class, groupingDescription.getKeyCodec())
-            .bindNamedParameter(ShuffleValueCodec.class, groupingDescription.getValueCodec())
+            .bindNamedParameter(ShuffleKeyCodec.class, groupingDescription.getKeyCodecClass())
+            .bindNamedParameter(ShuffleValueCodec.class, groupingDescription.getValueCodecClass())
             .build()
     );
 

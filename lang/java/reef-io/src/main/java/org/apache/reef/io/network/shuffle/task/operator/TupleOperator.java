@@ -18,12 +18,8 @@
  */
 package org.apache.reef.io.network.shuffle.task.operator;
 
-import org.apache.reef.io.network.Message;
+import org.apache.reef.io.network.shuffle.GroupingController;
 import org.apache.reef.io.network.shuffle.description.GroupingDescription;
-import org.apache.reef.io.network.shuffle.grouping.GroupingStrategy;
-import org.apache.reef.io.network.shuffle.ns.ShuffleControlMessage;
-import org.apache.reef.wake.EventHandler;
-import org.apache.reef.wake.remote.transport.LinkListener;
 
 import java.util.List;
 
@@ -32,19 +28,15 @@ import java.util.List;
  */
 public interface TupleOperator<K, V> {
 
-  String getGroupingName();
-
   GroupingDescription<K, V> getGroupingDescription();
-
-  GroupingStrategy<K> getGroupingStrategy();
 
   List<String> getSelectedReceiverIdList(K key);
 
   void waitForGroupingSetup();
 
-  void registerControlMessageHandler(EventHandler<Message<ShuffleControlMessage>> messageHandler);
+  void registerGroupingController(GroupingController groupingController);
 
-  void registerControlLinkListener(LinkListener<Message<ShuffleControlMessage>> linkListener);
+  void sendControlMessage(String destId, int code, byte[][] data, byte sinkType);
 
-  void sendControlMessage(final String destId, final int code, final byte[][] data);
+  void sendControlMessageToDriver(int code, byte[][] data, byte sinkType);
 }

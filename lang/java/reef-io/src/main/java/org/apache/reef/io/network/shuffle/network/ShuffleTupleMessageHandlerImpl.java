@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.io.network.shuffle.ns;
+package org.apache.reef.io.network.shuffle.network;
 
 import org.apache.reef.io.network.Message;
 import org.apache.reef.tang.annotations.Name;
@@ -48,5 +48,10 @@ final class ShuffleTupleMessageHandlerImpl implements ShuffleTupleMessageHandler
   public void registerMessageHandler(final Class<? extends Name<String>> shuffleName,
                                      final EventHandler<Message<ShuffleTupleMessage>> eventHandler) {
     eventHandlerMap.put(shuffleName.getName(), eventHandler);
+  }
+
+  @Override
+  public void remove(Class<? extends Name<String>> shuffleName) {
+    eventHandlerMap.remove(shuffleName);
   }
 }

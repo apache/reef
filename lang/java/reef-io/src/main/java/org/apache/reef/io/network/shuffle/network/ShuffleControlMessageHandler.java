@@ -16,32 +16,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.io.network.shuffle.ns;
+package org.apache.reef.io.network.shuffle.network;
+
+import org.apache.reef.io.network.Message;
+import org.apache.reef.tang.annotations.DefaultImplementation;
+import org.apache.reef.tang.annotations.Name;
+import org.apache.reef.wake.EventHandler;
 
 /**
  *
  */
-public abstract class ShuffleMessage<T> {
+@DefaultImplementation(ShuffleControlMessageHandlerImpl.class)
+public interface ShuffleControlMessageHandler extends EventHandler<Message<ShuffleControlMessage>> {
+  void registerMessageHandler(Class<? extends Name<String>> shuffleName,
+                              EventHandler<Message<ShuffleControlMessage>> eventHandler);
 
-  private final String shuffleName;
-  private final String groupingName;
-
-  public ShuffleMessage(
-      final String shuffleName,
-      final String groupingName) {
-    this.shuffleName = shuffleName;
-    this.groupingName = groupingName;
-  }
-
-  public String getShuffleName() {
-    return shuffleName;
-  }
-
-  public String getGroupingName() {
-    return groupingName;
-  }
-
-  public abstract int size();
-
-  public abstract T get(final int index);
+  void remove(Class<? extends Name<String>> shuffleName);
 }

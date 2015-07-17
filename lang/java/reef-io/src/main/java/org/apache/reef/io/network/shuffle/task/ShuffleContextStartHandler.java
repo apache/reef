@@ -22,7 +22,7 @@ import org.apache.reef.evaluator.context.events.ContextStart;
 import org.apache.reef.exception.evaluator.NetworkException;
 import org.apache.reef.io.network.NetworkConnectionService;
 import org.apache.reef.io.network.naming.NameServerParameters;
-import org.apache.reef.io.network.shuffle.ns.*;
+import org.apache.reef.io.network.shuffle.network.*;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.Identifier;

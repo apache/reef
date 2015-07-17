@@ -21,22 +21,16 @@ package org.apache.reef.io.network.shuffle.impl;
 import org.apache.reef.driver.task.CompletedTask;
 import org.apache.reef.driver.task.FailedTask;
 import org.apache.reef.driver.task.RunningTask;
-import org.apache.reef.io.network.ConnectionFactory;
 import org.apache.reef.io.network.Message;
-import org.apache.reef.io.network.NetworkConnectionService;
-import org.apache.reef.io.network.naming.NameServerParameters;
+import org.apache.reef.io.network.shuffle.GroupingController;
+import org.apache.reef.io.network.shuffle.driver.ShuffleDriver;
 import org.apache.reef.io.network.shuffle.driver.ShuffleManager;
-import org.apache.reef.io.network.shuffle.ns.ShuffleControlMessage;
-import org.apache.reef.io.network.shuffle.ns.ShuffleNetworkConnectionId;
+import org.apache.reef.io.network.shuffle.network.ShuffleControlMessage;
 import org.apache.reef.io.network.shuffle.task.ShuffleClient;
 import org.apache.reef.io.network.shuffle.description.GroupingDescription;
 import org.apache.reef.io.network.shuffle.description.ShuffleDescription;
 import org.apache.reef.io.network.shuffle.description.ShuffleDescriptionSerializer;
 import org.apache.reef.tang.Configuration;
-import org.apache.reef.tang.annotations.Parameter;
-import org.apache.reef.wake.EventHandler;
-import org.apache.reef.wake.IdentifierFactory;
-import org.apache.reef.wake.remote.transport.LinkListener;
 
 import javax.inject.Inject;
 import java.net.SocketAddress;
@@ -44,7 +38,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -54,31 +47,27 @@ public final class StaticShuffleManager implements ShuffleManager {
 
   private static final Logger LOG = Logger.getLogger(StaticShuffleManager.class.getName());
 
+  private final ShuffleDriver shuffleDriver;
+
   private final ShuffleDescription initialShuffleDescription;
+  private final String shuffleName;
   private final ShuffleDescriptionSerializer shuffleDescriptionSerializer;
-  private final ShuffleLinkListener shuffleLinkListener;
-  private final ShuffleMessageHandler shuffleMessageHandler;
   private final Map<String, GroupingSetupGate> groupingSetupGates;
 
   @Inject
   public StaticShuffleManager(
+      final ShuffleDriver shuffleDriver,
       final ShuffleDescription initialShuffleDescription,
-      final ShuffleDescriptionSerializer shuffleDescriptionSerializer,
-      final @Parameter(NameServerParameters.NameServerIdentifierFactory.class) IdentifierFactory idFactory,
-      final NetworkConnectionService networkConnectionService) {
+      final ShuffleDescriptionSerializer shuffleDescriptionSerializer) {
+    this.shuffleDriver = shuffleDriver;
     this.initialShuffleDescription = initialShuffleDescription;
+    this.shuffleName = initialShuffleDescription.getShuffleName().getName();
     this.shuffleDescriptionSerializer = shuffleDescriptionSerializer;
-    this.shuffleLinkListener = new ShuffleLinkListener();
-    this.shuffleMessageHandler = new ShuffleMessageHandler();
-
     this.groupingSetupGates = new ConcurrentHashMap<>();
-    createGroupingSetupGates(idFactory,
-        networkConnectionService.<ShuffleControlMessage>getConnectionFactory(
-            idFactory.getNewInstance(ShuffleNetworkConnectionId.CONTROL_MESSAGE)));
+    createGroupingSetupGates();
   }
 
-  private void createGroupingSetupGates(
-      final IdentifierFactory idFactory, final ConnectionFactory<ShuffleControlMessage> connFactory) {
+  private void createGroupingSetupGates() {
     for (final String groupingName : initialShuffleDescription.getGroupingNameList()) {
       final GroupingDescription description = initialShuffleDescription.getGroupingDescription(groupingName);
       final Set<String> taskIdSet = new HashSet<>();
@@ -93,24 +82,12 @@ public final class StaticShuffleManager implements ShuffleManager {
       groupingSetupGates.put(
           groupingName,
           new GroupingSetupGate(
-              initialShuffleDescription.getShuffleName().getName(),
+              this,
               groupingName,
-              taskIdSet,
-              idFactory,
-              connFactory
+              taskIdSet
           )
       );
     }
-  }
-
-  @Override
-  public EventHandler<Message<ShuffleControlMessage>> getControlMessageHandler() {
-    return shuffleMessageHandler;
-  }
-
-  @Override
-  public LinkListener<Message<ShuffleControlMessage>> getControlLinkListener() {
-    return shuffleLinkListener;
   }
 
   @Override
@@ -145,32 +122,31 @@ public final class StaticShuffleManager implements ShuffleManager {
     onTaskStopped(completedTask.getId());
   }
 
+  @Override
+  public void registerGroupingController(GroupingController groupingController) {
+    shuffleDriver.registerGroupingController(shuffleName, groupingController);
+  }
+
+  @Override
+  public void sendControlMessage(String destId, int code, String groupingName, byte[][] data, byte sourceType, byte sinkType) {
+    shuffleDriver.sendControlMessage(destId, code, shuffleName, groupingName, data, sourceType, sinkType);
+  }
+
   private void onTaskStopped(final String taskId) {
     for (final GroupingSetupGate gate : groupingSetupGates.values()) {
       gate.onTaskStopped(taskId);
     }
   }
 
-  private final class ShuffleLinkListener implements LinkListener<Message<ShuffleControlMessage>> {
-
-    @Override
-    public void onSuccess(final Message<ShuffleControlMessage> message) {
-      LOG.log(Level.FINE, "A ShuffleMessage was successfully sent : {0}", message);
-    }
-
-    @Override
-    public void onException(
-        final Throwable cause, final SocketAddress remoteAddress, final Message<ShuffleControlMessage> message) {
-      LOG.log(Level.FINE, "An exception occurred with a ShuffleMessage [{0}] caused by ",
-          new Object[]{ message, cause });
-    }
+  @Override
+  public void onNext(Message<ShuffleControlMessage> value) {
   }
 
-  private final class ShuffleMessageHandler implements EventHandler<Message<ShuffleControlMessage>> {
+  @Override
+  public void onSuccess(Message<ShuffleControlMessage> message) {
+  }
 
-    @Override
-    public void onNext(final Message<ShuffleControlMessage> message) {
-      LOG.log(Level.FINE, "A ShuffleMessage was arrived {0}", message);
-    }
+  @Override
+  public void onException(Throwable cause, SocketAddress remoteAddress, Message<ShuffleControlMessage> message) {
   }
 }

@@ -16,36 +16,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.io.network.shuffle.ns;
+package org.apache.reef.io.network.shuffle.network;
 
-import org.apache.reef.io.network.shuffle.task.Tuple;
+import org.apache.reef.io.network.Message;
+import org.apache.reef.tang.annotations.DefaultImplementation;
+import org.apache.reef.tang.annotations.Name;
+import org.apache.reef.wake.remote.transport.LinkListener;
 
 /**
  *
  */
-public final class ShuffleTupleMessage<K, V> extends ShuffleMessage<Tuple<K, V>> {
+@DefaultImplementation(ShuffleTupleLinkListenerImpl.class)
+public interface ShuffleTupleLinkListener extends LinkListener<Message<ShuffleTupleMessage>> {
+  void registerLinkListener(Class<? extends Name<String>> shuffleName,
+                            LinkListener<Message<ShuffleTupleMessage>> linkListener);
 
-  private final Tuple<K, V>[] tuples;
-
-  public ShuffleTupleMessage(
-      final String shuffleName,
-      final String groupingName,
-      final Tuple<K, V>[] tuples) {
-    super(shuffleName, groupingName);
-    this.tuples = tuples;
-  }
-
-  @Override
-  public int size() {
-    if (tuples == null) {
-      return 0;
-    }
-
-    return tuples.length;
-  }
-
-  @Override
-  public Tuple<K, V> get(final int index) {
-    return tuples[index];
-  }
+  void remove(Class<? extends Name<String>> shuffleName);
 }

@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -16,18 +16,4 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.io.network.shuffle.ns;
-
-import org.apache.reef.io.network.Message;
-import org.apache.reef.tang.annotations.DefaultImplementation;
-import org.apache.reef.tang.annotations.Name;
-import org.apache.reef.wake.EventHandler;
-
-/**
- *
- */
-@DefaultImplementation(ShuffleControlMessageHandlerImpl.class)
-public interface ShuffleControlMessageHandler extends EventHandler<Message<ShuffleControlMessage>> {
-  void registerMessageHandler(Class<? extends Name<String>> shuffleName,
-                              EventHandler<Message<ShuffleControlMessage>> eventHandler);
-}
+package org.apache.reef.io.network.shuffle.network;

@@ -37,6 +37,9 @@ import org.apache.reef.io.network.shuffle.grouping.impl.KeyGroupingStrategy;
 import org.apache.reef.io.network.shuffle.impl.StaticShuffleManager;
 import org.apache.reef.io.network.shuffle.description.GroupingDescriptionImpl;
 import org.apache.reef.io.network.shuffle.description.ShuffleDescriptionImpl;
+import org.apache.reef.io.network.shuffle.task.operator.SynchronizedGroupingController;
+import org.apache.reef.io.network.shuffle.task.operator.SynchronizedTupleReceiver;
+import org.apache.reef.io.network.shuffle.task.operator.SynchronizedTupleSender;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Configurations;
 import org.apache.reef.tang.Tang;
@@ -129,6 +132,9 @@ public final class WordCountDriver {
                 .setGroupingStrategy(KeyGroupingStrategy.class)
                 .setKeyCodec(StringCodec.class)
                 .setValueCodec(IntegerCodec.class)
+                .setTupleSender(SynchronizedTupleSender.class)
+                .setTupleReceiver(SynchronizedTupleReceiver.class)
+                .setGroupingController(SynchronizedGroupingController.class)
                 .build())
         .addGrouping(
             reducerIdList,
@@ -137,6 +143,9 @@ public final class WordCountDriver {
                 .setGroupingStrategy(AllGroupingStrategy.class)
                 .setKeyCodec(StringCodec.class)
                 .setValueCodec(IntegerCodec.class)
+                .setTupleSender(SynchronizedTupleSender.class)
+                .setTupleReceiver(SynchronizedTupleReceiver.class)
+                .setGroupingController(SynchronizedGroupingController.class)
                 .build())
         .build()
         , StaticShuffleManager.class);

@@ -16,27 +16,37 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.io.network.shuffle.ns;
+package org.apache.reef.io.network.shuffle.network;
 
 /**
  *
  */
 public final class ShuffleControlMessage extends ShuffleMessage<byte[]> {
 
+  public static final byte MANAGER = 0;
+  public static final byte CONTROLLER = 1;
+  public static final byte CLIENT = 2;
+  public static final byte SENDER = 3;
+  public static final byte RECEIVER = 4;
+
   private int code;
   private final byte[][] data;
-  private boolean isDriverMessage;
+
+  private byte sourceType;
+  private byte sinkType;
 
   public ShuffleControlMessage(
       final int code,
       final String shuffleName,
       final String groupingName,
       final byte[][] data,
-      final boolean isDriverMessage) {
+      final byte sourceType,
+      final byte sinkType) {
     super(shuffleName, groupingName);
     this.code = code;
     this.data = data;
-    this.isDriverMessage = isDriverMessage;
+    this.sourceType = sourceType;
+    this.sinkType = sinkType;
   }
 
   public int getCode() {
@@ -57,7 +67,51 @@ public final class ShuffleControlMessage extends ShuffleMessage<byte[]> {
     return data[index];
   }
 
-  public boolean isDriverMessage() {
-    return isDriverMessage;
+  public byte getSourceType() {
+    return sourceType;
+  }
+
+  public byte getSinkType() {
+    return sinkType;
+  }
+
+  public boolean isMessageFromManager() {
+    return sourceType == MANAGER;
+  }
+
+  public boolean isMessageFromController() {
+    return sourceType == CONTROLLER;
+  }
+
+  public boolean isMessageFromClient() {
+    return sourceType == CLIENT;
+  }
+
+  public boolean isMessageFromSender() {
+    return sourceType == SENDER;
+  }
+
+  public boolean isMessageFromReceiver() {
+    return sourceType == RECEIVER;
+  }
+
+  public boolean isMessageToManager() {
+    return sinkType == MANAGER;
+  }
+
+  public boolean isMessageToController() {
+    return sinkType == CONTROLLER;
+  }
+
+  public boolean isMessageToClient() {
+    return sinkType == CLIENT;
+  }
+
+  public boolean isMessageToSender() {
+    return sinkType == SENDER;
+  }
+
+  public boolean isMessageToReceiver() {
+    return sinkType == RECEIVER;
   }
 }

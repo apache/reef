@@ -16,11 +16,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.io.network.shuffle.ns;
+package org.apache.reef.io.network.shuffle.network;
 
-import org.apache.reef.io.network.Message;
-import org.apache.reef.tang.annotations.Name;
-import org.apache.reef.wake.EventHandler;
+import org.apache.reef.io.network.shuffle.task.Tuple;
+import org.apache.reef.wake.remote.Codec;
 
 import javax.inject.Inject;
 import java.util.HashMap;
@@ -29,24 +28,26 @@ import java.util.Map;
 /**
  *
  */
-final class ShuffleControlMessageHandlerImpl implements ShuffleControlMessageHandler {
+final class GlobalTupleCodecMapImpl implements GlobalTupleCodecMap {
 
-  private final Map<String, EventHandler<Message<ShuffleControlMessage>>> eventHandlerMap;
+  private final Map<String, Map<String, Codec<Tuple>>> tupleCodecMap;
 
   @Inject
-  public ShuffleControlMessageHandlerImpl() {
-    eventHandlerMap = new HashMap<>();
+  public GlobalTupleCodecMapImpl() {
+    this.tupleCodecMap = new HashMap<>();
   }
 
   @Override
-  public void onNext(final Message<ShuffleControlMessage> message) {
-    final String shuffleName = message.getData().iterator().next().getShuffleName();
-    eventHandlerMap.get(shuffleName).onNext(message);
+  public Codec<Tuple> getTupleCodec(final String shuffleName, final String groupingName) {
+    return tupleCodecMap.get(shuffleName).get(groupingName);
   }
 
   @Override
-  public void registerMessageHandler(final Class<? extends Name<String>> shuffleName,
-                                     final EventHandler<Message<ShuffleControlMessage>> eventHandler) {
-    eventHandlerMap.put(shuffleName.getName(), eventHandler);
+  public void registerTupleCodec(final String shuffleName, final String groupingName, final Codec<Tuple> tupleCodec) {
+    if (!tupleCodecMap.containsKey(shuffleName)) {
+      tupleCodecMap.put(shuffleName, new HashMap<String, Codec<Tuple>>());
+    }
+
+    tupleCodecMap.get(shuffleName).put(groupingName, tupleCodec);
   }
 }

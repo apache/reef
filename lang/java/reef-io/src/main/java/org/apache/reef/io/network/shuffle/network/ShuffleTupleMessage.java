@@ -16,38 +16,36 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.io.network.shuffle.ns;
+package org.apache.reef.io.network.shuffle.network;
 
 import org.apache.reef.io.network.shuffle.task.Tuple;
-import org.apache.reef.wake.remote.Codec;
-
-import javax.inject.Inject;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  *
  */
-final class GlobalTupleCodecMapImpl implements GlobalTupleCodecMap {
+public final class ShuffleTupleMessage<K, V> extends ShuffleMessage<Tuple<K, V>> {
 
-  private final Map<String, Map<String, Codec<Tuple>>> tupleCodecMap;
+  private final Tuple<K, V>[] tuples;
 
-  @Inject
-  public GlobalTupleCodecMapImpl() {
-    this.tupleCodecMap = new HashMap<>();
+  public ShuffleTupleMessage(
+      final String shuffleName,
+      final String groupingName,
+      final Tuple<K, V>[] tuples) {
+    super(shuffleName, groupingName);
+    this.tuples = tuples;
   }
 
   @Override
-  public Codec<Tuple> getTupleCodec(final String shuffleName, final String groupingName) {
-    return tupleCodecMap.get(shuffleName).get(groupingName);
-  }
-
-  @Override
-  public void registerTupleCodec(final String shuffleName, final String groupingName, final Codec<Tuple> tupleCodec) {
-    if (!tupleCodecMap.containsKey(shuffleName)) {
-      tupleCodecMap.put(shuffleName, new HashMap<String, Codec<Tuple>>());
+  public int size() {
+    if (tuples == null) {
+      return 0;
     }
 
-    tupleCodecMap.get(shuffleName).put(groupingName, tupleCodec);
+    return tuples.length;
+  }
+
+  @Override
+  public Tuple<K, V> get(final int index) {
+    return tuples[index];
   }
 }

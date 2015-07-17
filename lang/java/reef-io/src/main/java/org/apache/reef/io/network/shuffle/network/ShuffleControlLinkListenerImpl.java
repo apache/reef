@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.io.network.shuffle.ns;
+package org.apache.reef.io.network.shuffle.network;
 
 import org.apache.reef.io.network.Message;
 import org.apache.reef.tang.annotations.Name;
@@ -30,32 +30,37 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  *
  */
-public final class ShuffleTupleLinkListenerImpl implements ShuffleTupleLinkListener {
+final class ShuffleControlLinkListenerImpl implements ShuffleControlLinkListener {
 
-  private final Map<String, LinkListener<Message<ShuffleTupleMessage>>> linkListenerMap;
+  private final Map<String, LinkListener<Message<ShuffleControlMessage>>> linkListenerMap;
 
   @Inject
-  public ShuffleTupleLinkListenerImpl() {
+  public ShuffleControlLinkListenerImpl() {
     linkListenerMap = new ConcurrentHashMap<>();
   }
 
   @Override
-  public void onSuccess(final Message<ShuffleTupleMessage> message) {
+  public void onSuccess(final Message<ShuffleControlMessage> message) {
     linkListenerMap.get(getShuffleNameFrom(message)).onSuccess(message);
   }
 
   @Override
-  public void onException(final Throwable cause, final SocketAddress remoteAddress, final Message<ShuffleTupleMessage> message) {
+  public void onException(final Throwable cause, final SocketAddress remoteAddress, final Message<ShuffleControlMessage> message) {
     linkListenerMap.get(getShuffleNameFrom(message)).onSuccess(message);
   }
 
-  private String getShuffleNameFrom(final Message<ShuffleTupleMessage> message) {
+  private String getShuffleNameFrom(final Message<ShuffleControlMessage> message) {
     return message.getData().iterator().next().getShuffleName();
   }
 
   @Override
   public void registerLinkListener(final Class<? extends Name<String>> shuffleName,
-                                   final LinkListener<Message<ShuffleTupleMessage>> linkListener) {
+                                   final LinkListener<Message<ShuffleControlMessage>> linkListener) {
     linkListenerMap.put(shuffleName.getName(), linkListener);
+  }
+
+  @Override
+  public void remove(Class<? extends Name<String>> shuffleName) {
+    linkListenerMap.remove(shuffleName);
   }
 }

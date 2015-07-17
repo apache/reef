@@ -334,6 +334,7 @@ under the License.
                     <linksource>true</linksource>
                 </configuration>
             </plugin>
+            <!--
             <plugin>
                 <groupId>org.apache.rat</groupId>
                 <artifactId>apache-rat-plugin</artifactId>
@@ -362,6 +363,7 @@ under the License.
                     </execution>
                 </executions>
             </plugin>
+            -->
         </plugins>
     </build>
 

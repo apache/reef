@@ -1,4 +1,4 @@
-/*
+/**
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -16,4 +16,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.io.network.shuffle.ns;
+package org.apache.reef.io.network.shuffle.network;
+
+/**
+ *
+ */
+public final class ShuffleNetworkConnectionId {
+  public static final String TUPLE_MESSAGE = "IO_NETWORK_SHUFFLE_TUPLE_MESSAGE";
+  public static final String CONTROL_MESSAGE = "IO_NETWORK_SHUFFLE_CONTROL_MESSAGE";
+}

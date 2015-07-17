@@ -19,8 +19,8 @@
 package org.apache.reef.io.network.shuffle.task;
 
 import org.apache.reef.io.network.Message;
-import org.apache.reef.io.network.shuffle.ns.ShuffleControlMessage;
-import org.apache.reef.io.network.shuffle.ns.ShuffleTupleMessage;
+import org.apache.reef.io.network.shuffle.GroupingController;
+import org.apache.reef.io.network.shuffle.network.ShuffleTupleMessage;
 import org.apache.reef.io.network.shuffle.ShuffleController;
 import org.apache.reef.io.network.shuffle.task.operator.TupleReceiver;
 import org.apache.reef.io.network.shuffle.task.operator.TupleSender;
@@ -37,22 +37,22 @@ public interface ShuffleClient extends ShuffleController {
 
   void waitForSetup();
 
-  EventHandler<Message<ShuffleTupleMessage>> getTupleMessageHandler();
-
-  LinkListener<Message<ShuffleTupleMessage>> getTupleLinkListener();
-
   Codec<Tuple> getTupleCodec(String groupingName);
 
   <K, V> TupleReceiver<K, V> getReceiver(String groupingName);
 
   <K, V> TupleSender<K, V> getSender(String groupingName);
 
+  void sendControlMessage(String destId, int code, String groupingName, byte[][] data, byte sourceType, byte sinkType);
+
+  void sendControlMessageToDriver(int code, String groupingName, byte[][] data, byte sourceType, byte sinkType);
+
   <K, V> void registerTupleLinkListener(String groupingName, LinkListener<Message<ShuffleTupleMessage<K, V>>> linkListener);
 
   <K, V> void registerTupleMessageHandler(String groupingName, EventHandler<Message<ShuffleTupleMessage<K, V>>> messageHandler);
 
-  void registerControlLinkListener(String groupingName, LinkListener<Message<ShuffleControlMessage>> linkListener);
+  void registerSenderGroupingController(GroupingController groupingController);
 
-  void registerControlMessageHandler(String groupingName, EventHandler<Message<ShuffleControlMessage>> messageHandler);
+  void registerReceiverGroupingController(GroupingController groupingController);
 
 }

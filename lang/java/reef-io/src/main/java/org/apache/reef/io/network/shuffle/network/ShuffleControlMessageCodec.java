@@ -16,11 +16,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.io.network.shuffle.ns;
+package org.apache.reef.io.network.shuffle.network;
 
 import org.apache.reef.io.network.impl.StreamingCodec;
-import org.apache.reef.io.network.shuffle.task.Tuple;
-import org.apache.reef.wake.remote.Codec;
 
 import javax.inject.Inject;
 import java.io.*;
@@ -28,17 +26,14 @@ import java.io.*;
 /**
  *
  */
-public final class ShuffleTupleMessageCodec implements StreamingCodec<ShuffleTupleMessage> {
-
-  private final GlobalTupleCodecMap globalTupleCodecMap;
+public final class ShuffleControlMessageCodec implements StreamingCodec<ShuffleControlMessage> {
 
   @Inject
-  public ShuffleTupleMessageCodec(final GlobalTupleCodecMap globalTupleCodecMap) {
-    this.globalTupleCodecMap = globalTupleCodecMap;
+  public ShuffleControlMessageCodec() {
   }
 
   @Override
-  public byte[] encode(final ShuffleTupleMessage msg) {
+  public byte[] encode(final ShuffleControlMessage msg) {
     try (final ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
       try (final DataOutputStream daos = new DataOutputStream(baos)) {
         encodeToStream(msg, daos);
@@ -50,7 +45,7 @@ public final class ShuffleTupleMessageCodec implements StreamingCodec<ShuffleTup
   }
 
   @Override
-  public ShuffleTupleMessage decode(final byte[] data) {
+  public ShuffleControlMessage decode(final byte[] data) {
     try (final ByteArrayInputStream bais = new ByteArrayInputStream(data)) {
       try (final DataInputStream dais = new DataInputStream(bais)) {
         return decodeFromStream(dais);
@@ -61,8 +56,9 @@ public final class ShuffleTupleMessageCodec implements StreamingCodec<ShuffleTup
   }
 
   @Override
-  public void encodeToStream(final ShuffleTupleMessage msg, final DataOutputStream stream) {
+  public void encodeToStream(final ShuffleControlMessage msg, final DataOutputStream stream) {
     try {
+      stream.writeInt(msg.getCode());
       if (msg.getShuffleName() == null) {
         stream.writeUTF("");
       } else {
@@ -78,24 +74,22 @@ public final class ShuffleTupleMessageCodec implements StreamingCodec<ShuffleTup
       stream.writeInt(msg.size());
 
       final int messageLength = msg.size();
-      final Codec<Tuple> tupleCodec = globalTupleCodecMap.getTupleCodec(msg.getShuffleName(), msg.getGroupingName());
       for (int i = 0; i < messageLength; i++) {
-        if (tupleCodec instanceof StreamingCodec) {
-          ((StreamingCodec<Tuple>)tupleCodec).encodeToStream(msg.get(i), stream);
-        } else {
-          final byte[] serializedTuple = tupleCodec.encode(msg.get(i));
-          stream.writeInt(serializedTuple.length);
-          stream.write(serializedTuple);
-        }
+        stream.writeInt(msg.get(i).length);
+        stream.write(msg.get(i));
       }
+
+      stream.writeByte(msg.getSourceType());
+      stream.writeByte(msg.getSinkType());
     } catch(final IOException exception) {
       throw new RuntimeException(exception);
     }
   }
 
   @Override
-  public ShuffleTupleMessage decodeFromStream(final DataInputStream stream) {
+  public ShuffleControlMessage decodeFromStream(final DataInputStream stream) {
     try {
+      final int code = stream.readInt();
       String shuffleName = stream.readUTF();
       String groupingName = stream.readUTF();
 
@@ -108,21 +102,20 @@ public final class ShuffleTupleMessageCodec implements StreamingCodec<ShuffleTup
       }
 
       final int dataNum = stream.readInt();
-
-      final Tuple[] tupleArr = new Tuple[dataNum];
-      final Codec<Tuple> tupleCodec = globalTupleCodecMap.getTupleCodec(shuffleName, groupingName);
+      final byte[][] dataArr = new byte[dataNum][];
 
       for (int i = 0; i < dataNum; i++) {
-        if (tupleCodec instanceof StreamingCodec) {
-          tupleArr[i] = ((StreamingCodec<Tuple>)tupleCodec).decodeFromStream(stream);
-        } else {
-          final int length = stream.readInt();
-          final byte[] serializedTuple = new byte[length];
-          stream.readFully(serializedTuple);
-        }
+        final int dataSize = stream.readInt();
+        final byte[] byteArr = new byte[dataSize];
+        stream.readFully(byteArr);
+        dataArr[i] = byteArr;
       }
 
-      return new ShuffleTupleMessage(shuffleName, groupingName, tupleArr);
+      final byte sourceType = stream.readByte();
+      final byte sinkType = stream.readByte();
+
+      return new ShuffleControlMessage(code, shuffleName, groupingName, dataArr, sourceType, sinkType);
+
     } catch(final IOException exception) {
       throw new RuntimeException(exception);
     }

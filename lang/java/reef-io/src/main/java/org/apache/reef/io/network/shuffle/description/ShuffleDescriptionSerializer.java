@@ -114,8 +114,19 @@ public final class ShuffleDescriptionSerializer {
     final JavaConfigurationBuilder confBuilder = Tang.Factory.getTang().newConfigurationBuilder();
     confBuilder.bindNamedParameter(GroupingName.class, groupingName);
     confBuilder.bindNamedParameter(GroupingStrategyClassName.class, groupingDescription.getGroupingStrategyClass().getName());
-    confBuilder.bindNamedParameter(GroupingKeyCodecClassName.class, groupingDescription.getKeyCodec().getName());
-    confBuilder.bindNamedParameter(GroupingValueCodecClassName.class, groupingDescription.getValueCodec().getName());
+    confBuilder.bindNamedParameter(GroupingKeyCodecClassName.class, groupingDescription.getKeyCodecClass().getName());
+    confBuilder.bindNamedParameter(GroupingValueCodecClassName.class, groupingDescription.getValueCodecClass().getName());
+    if (groupingDescription.getTupleSenderClass() != null) {
+      confBuilder.bindNamedParameter(GroupingTupleSenderClassName.class, groupingDescription.getTupleSenderClass().getName());
+    }
+
+    if (groupingDescription.getTupleReceiverClass() != null) {
+      confBuilder.bindNamedParameter(GroupingTupleReceiverClassName.class, groupingDescription.getTupleReceiverClass().getName());
+    }
+
+    if (groupingDescription.getGroupingControllerClass() != null) {
+      confBuilder.bindNamedParameter(GroupingControllerClassName.class, groupingDescription.getGroupingControllerClass().getName());
+    }
 
     for (final String senderId : shuffleDescription.getSenderIdList(groupingName)) {
       confBuilder.bindSetEntry(GroupingSenderIdSet.class, senderId);

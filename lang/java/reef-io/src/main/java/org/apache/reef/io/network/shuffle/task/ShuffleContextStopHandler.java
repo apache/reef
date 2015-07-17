@@ -21,7 +21,7 @@ package org.apache.reef.io.network.shuffle.task;
 import org.apache.reef.evaluator.context.events.ContextStop;
 import org.apache.reef.io.network.NetworkConnectionService;
 import org.apache.reef.io.network.naming.NameServerParameters;
-import org.apache.reef.io.network.shuffle.ns.ShuffleNetworkConnectionId;
+import org.apache.reef.io.network.shuffle.network.ShuffleNetworkConnectionId;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.Identifier;

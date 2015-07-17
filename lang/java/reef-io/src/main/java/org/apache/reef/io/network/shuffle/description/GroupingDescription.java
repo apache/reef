@@ -18,7 +18,10 @@
  */
 package org.apache.reef.io.network.shuffle.description;
 
+import org.apache.reef.io.network.shuffle.GroupingController;
 import org.apache.reef.io.network.shuffle.grouping.GroupingStrategy;
+import org.apache.reef.io.network.shuffle.task.operator.TupleReceiver;
+import org.apache.reef.io.network.shuffle.task.operator.TupleSender;
 import org.apache.reef.tang.annotations.DefaultImplementation;
 import org.apache.reef.wake.remote.Codec;
 
@@ -32,8 +35,13 @@ public interface GroupingDescription<K, V> {
 
   Class<? extends GroupingStrategy> getGroupingStrategyClass();
 
-  Class<? extends Codec<K>> getKeyCodec();
+  Class<? extends Codec<K>> getKeyCodecClass();
 
-  Class<? extends Codec<V>> getValueCodec();
+  Class<? extends Codec<V>> getValueCodecClass();
 
+  Class<? extends TupleSender<K, V>> getTupleSenderClass();
+
+  Class<? extends TupleReceiver<K, V>> getTupleReceiverClass();
+
+  Class<? extends GroupingController> getGroupingControllerClass();
 }

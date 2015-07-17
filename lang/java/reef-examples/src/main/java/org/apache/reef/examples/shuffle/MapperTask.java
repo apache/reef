@@ -22,6 +22,7 @@ import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.reef.examples.shuffle.params.WordCountShuffle;
 import org.apache.reef.io.data.loading.api.DataSet;
+import org.apache.reef.io.network.shuffle.task.operator.SynchronizedTupleSender;
 import org.apache.reef.io.network.shuffle.task.operator.TupleSender;
 import org.apache.reef.io.network.shuffle.task.ShuffleService;
 import org.apache.reef.io.network.shuffle.task.Tuple;
@@ -40,7 +41,7 @@ import java.util.Map;
 public final class MapperTask implements Task {
 
   private final DataSet<LongWritable, Text> dataSet;
-  private final TupleSender<String, Integer> tupleSender;
+  private final SynchronizedTupleSender<String, Integer> tupleSender;
 
   private final Map<String, Integer> reducedInputMap;
 
@@ -50,7 +51,8 @@ public final class MapperTask implements Task {
       final DataSet<LongWritable, Text> dataSet) {
     this.dataSet = dataSet;
     System.out.println(dataSet);
-    this.tupleSender = shuffleService.getClient(WordCountShuffle.class).getSender(WordCountDriver.SHUFFLE_GROUPING);
+    this.tupleSender = (SynchronizedTupleSender<String, Integer>)shuffleService.getClient(WordCountShuffle.class)
+        .<String, Integer>getSender(WordCountDriver.SHUFFLE_GROUPING);
 
     reducedInputMap = new HashMap<>();
   }
@@ -58,7 +60,6 @@ public final class MapperTask implements Task {
   @Override
   public byte[] call(byte[] memento) throws Exception {
     System.out.println("Mapper Task");
-    // Thread.sleep(60000);
     createReducedInputMap();
 
     final List<Tuple<String, Integer>> tupleList = new ArrayList<>();

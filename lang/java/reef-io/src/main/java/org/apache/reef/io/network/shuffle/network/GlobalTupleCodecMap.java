@@ -16,18 +16,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.io.network.shuffle.ns;
+package org.apache.reef.io.network.shuffle.network;
 
-import org.apache.reef.io.network.Message;
+import org.apache.reef.io.network.shuffle.task.Tuple;
 import org.apache.reef.tang.annotations.DefaultImplementation;
-import org.apache.reef.tang.annotations.Name;
-import org.apache.reef.wake.remote.transport.LinkListener;
+import org.apache.reef.wake.remote.Codec;
 
 /**
  *
  */
-@DefaultImplementation(ShuffleControlLinkListenerImpl.class)
-public interface ShuffleControlLinkListener extends LinkListener<Message<ShuffleControlMessage>> {
-  void registerLinkListener(Class<? extends Name<String>> shuffleName,
-                            LinkListener<Message<ShuffleControlMessage>> linkListener);
+@DefaultImplementation(GlobalTupleCodecMapImpl.class)
+public interface GlobalTupleCodecMap {
+
+  Codec<Tuple> getTupleCodec(String shuffleName, String groupingName);
+
+  public void registerTupleCodec(String shuffleName, String groupingName, Codec<Tuple> tupleCodec);
 }

@@ -18,13 +18,9 @@
  */
 package org.apache.reef.io.network.shuffle.impl;
 
-import org.apache.reef.exception.evaluator.NetworkException;
-import org.apache.reef.io.network.Connection;
-import org.apache.reef.io.network.ConnectionFactory;
-import org.apache.reef.io.network.shuffle.ns.ShuffleControlMessage;
-import org.apache.reef.wake.IdentifierFactory;
+import org.apache.reef.io.network.shuffle.driver.ShuffleManager;
+import org.apache.reef.io.network.shuffle.network.ShuffleControlMessage;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -32,34 +28,26 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  *
  */
-class GroupingSetupGate {
+final class GroupingSetupGate {
 
   private boolean isOpened;
 
-  private final String shuffleName;
-  private final String groupingName;
+  private ShuffleManager shuffleManager;
+  private String groupingName;
   private final Map<String, Boolean> taskStartedMap;
   private int startedTaskNum;
-  private final IdentifierFactory idFactory;
-  private final ConnectionFactory<ShuffleControlMessage> connFactory;
-  private final Map<String, Connection<ShuffleControlMessage>> connMap;
 
   GroupingSetupGate(
-      final String shuffleName,
+      final ShuffleManager shuffleManager,
       final String groupingName,
-      final Set<String> taskIdSet,
-      final IdentifierFactory idFactory,
-      final ConnectionFactory<ShuffleControlMessage> connFactory) {
+      final Set<String> taskIdSet) {
 
-    this.shuffleName = shuffleName;
+    this.shuffleManager = shuffleManager;
     this.groupingName = groupingName;
     this.taskStartedMap = new ConcurrentHashMap<>(taskIdSet.size());
     for (final String taskId : taskIdSet) {
       taskStartedMap.put(taskId, false);
     }
-    this.idFactory = idFactory;
-    this.connFactory = connFactory;
-    this.connMap = new HashMap<>();
   }
 
   synchronized boolean isOpened() {
@@ -71,7 +59,6 @@ class GroupingSetupGate {
       return;
     }
 
-    connMap.put(taskId, connFactory.newConnection(idFactory.getNewInstance(taskId)));
     if (isOpened) {
       sendGroupingSetupMessage(taskId);
       return;
@@ -117,20 +104,7 @@ class GroupingSetupGate {
   }
 
   private void sendGroupingSetupMessage(final String taskId) {
-    try {
-      final Connection<ShuffleControlMessage> connection = connMap.get(taskId);
-      connection.open();
-      connection.write(
-          new ShuffleControlMessage(
-              StaticShuffleMessageCode.GROUPING_SETUP,
-              shuffleName,
-              groupingName,
-              null,
-              true
-          )
-      );
-    } catch (final NetworkException e) {
-      throw new RuntimeException(e);
-    }
+    shuffleManager.sendControlMessage(
+        taskId, StaticShuffleMessageCode.GROUPING_SETUP, groupingName, null, ShuffleControlMessage.MANAGER, ShuffleControlMessage.CLIENT);
   }
 }

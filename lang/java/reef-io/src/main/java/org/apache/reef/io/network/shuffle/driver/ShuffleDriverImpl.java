@@ -24,12 +24,15 @@ import org.apache.reef.driver.task.RunningTask;
 import org.apache.reef.evaluator.context.parameters.ContextStartHandlers;
 import org.apache.reef.evaluator.context.parameters.ContextStopHandlers;
 import org.apache.reef.exception.evaluator.NetworkException;
+import org.apache.reef.io.network.Connection;
+import org.apache.reef.io.network.ConnectionFactory;
+import org.apache.reef.io.network.Message;
 import org.apache.reef.io.network.NetworkConnectionService;
+import org.apache.reef.io.network.impl.NSMessage;
 import org.apache.reef.io.network.naming.NameServerParameters;
-import org.apache.reef.io.network.shuffle.ns.ShuffleControlLinkListener;
-import org.apache.reef.io.network.shuffle.ns.ShuffleControlMessageCodec;
-import org.apache.reef.io.network.shuffle.ns.ShuffleControlMessageHandler;
-import org.apache.reef.io.network.shuffle.ns.ShuffleNetworkConnectionId;
+import org.apache.reef.io.network.shuffle.GroupingController;
+import org.apache.reef.io.network.shuffle.description.GroupingDescription;
+import org.apache.reef.io.network.shuffle.network.*;
 import org.apache.reef.io.network.shuffle.params.SerializedShuffleSet;
 import org.apache.reef.io.network.shuffle.task.ShuffleClient;
 import org.apache.reef.io.network.shuffle.task.ShuffleContextStartHandler;
@@ -43,6 +46,7 @@ import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.tang.formats.ConfigurationSerializer;
+import org.apache.reef.wake.Identifier;
 import org.apache.reef.wake.IdentifierFactory;
 
 import javax.inject.Inject;
@@ -58,7 +62,11 @@ final class ShuffleDriverImpl implements ShuffleDriver {
   private final ConfigurationSerializer confSerializer;
   private final ShuffleControlLinkListener linkListener;
   private final ShuffleControlMessageHandler messageHandler;
-  private final ConcurrentMap<Class<? extends Name>, ShuffleManager> managerMap;
+  private final ConnectionFactory<ShuffleControlMessage> connectionFactory;
+  private final IdentifierFactory idFactory;
+  private final Identifier driverIdentifier;
+  private final ConcurrentMap<String, ShuffleManager> managerMap;
+  private final ConcurrentMap<String, ShuffleManagerMessageDispatcher> messageDispatcherMap;
 
   @Inject
   public ShuffleDriverImpl(
@@ -74,16 +82,19 @@ final class ShuffleDriverImpl implements ShuffleDriver {
     this.linkListener = linkListener;
     this.messageHandler = messageHandler;
     this.managerMap = new ConcurrentHashMap<>();
-
+    this.messageDispatcherMap = new ConcurrentHashMap<>();
+    this.idFactory = idFactory;
+    this.driverIdentifier = idFactory.getNewInstance(ShuffleDriverConfiguration.SHUFFLE_DRIVER_IDENTIFIER);
+    final Identifier controlMessageIdentifier = idFactory.getNewInstance(ShuffleNetworkConnectionId.CONTROL_MESSAGE);
     try {
       networkConnectionService
-          .registerConnectionFactory(idFactory.getNewInstance(ShuffleNetworkConnectionId.CONTROL_MESSAGE)
-              , messageCodec, messageHandler, linkListener);
+          .registerConnectionFactory(controlMessageIdentifier, messageCodec, messageHandler, linkListener);
     } catch (final NetworkException e) {
       throw new RuntimeException(e);
     }
-  }
 
+    this.connectionFactory = networkConnectionService.getConnectionFactory(controlMessageIdentifier);
+  }
 
   @Override
   public <K extends ShuffleManager> K registerManager(
@@ -95,22 +106,39 @@ final class ShuffleDriverImpl implements ShuffleDriver {
   public <K extends ShuffleManager> K registerManager(
       final ShuffleDescription shuffleDescription, Class<K> managerClass, final Configuration managerConf) {
     try {
+      final JavaConfigurationBuilder confBuilder = Tang.Factory.getTang().newConfigurationBuilder();
+      confBuilder.bindImplementation(ShuffleManager.class, managerClass);
       final Injector forkedInjector;
 
       if (managerConf == null) {
-        forkedInjector = injector.forkInjector();
+        forkedInjector = injector.forkInjector(confBuilder.build());
       } else {
-        forkedInjector = injector.forkInjector(managerConf);
+        forkedInjector = injector.forkInjector(confBuilder.build(), managerConf);
       }
 
       forkedInjector.bindVolatileInstance(ShuffleDescription.class, shuffleDescription);
-      final K manager = forkedInjector.getInstance(managerClass);
-      if (managerMap.putIfAbsent(shuffleDescription.getShuffleName(), manager) != null) {
+      forkedInjector.bindVolatileInstance(ShuffleDriver.class, this);
+      final K manager = (K) forkedInjector.getInstance(ShuffleManager.class);
+      if (managerMap.putIfAbsent(shuffleDescription.getShuffleName().getName(), manager) != null) {
         throw new RuntimeException(shuffleDescription.getShuffleName() + " was already submitted.");
       }
 
-      linkListener.registerLinkListener(shuffleDescription.getShuffleName(), manager.getControlLinkListener());
-      messageHandler.registerMessageHandler(shuffleDescription.getShuffleName(), manager.getControlMessageHandler());
+      final ShuffleManagerMessageDispatcher messageDispatcher = new ShuffleManagerMessageDispatcher(manager);
+
+      linkListener.registerLinkListener(shuffleDescription.getShuffleName(), messageDispatcher.getControlLinkListener());
+      messageHandler.registerMessageHandler(shuffleDescription.getShuffleName(), messageDispatcher.getControlMessageHandler());
+      messageDispatcherMap.put(shuffleDescription.getShuffleName().getName(), messageDispatcher);
+
+      for (final String groupingName : shuffleDescription.getGroupingNameList()) {
+        final GroupingDescription groupingDescription = shuffleDescription.getGroupingDescription(groupingName);
+        if (groupingDescription.getGroupingControllerClass() != null) {
+          final Injector groupingControllerInjector = forkedInjector.forkInjector();
+          groupingControllerInjector.bindVolatileInstance(GroupingDescription.class, groupingDescription);
+          final GroupingController groupingController = (GroupingController) groupingControllerInjector.getInstance(groupingDescription.getGroupingControllerClass());
+          registerGroupingController(shuffleDescription.getShuffleName().getName(), groupingController);
+        }
+      }
+
       return manager;
     } catch(final InjectionException exception) {
       throw new RuntimeException("An Injection error occurred while submitting topology "
@@ -120,7 +148,40 @@ final class ShuffleDriverImpl implements ShuffleDriver {
 
   @Override
   public <K extends ShuffleManager> K getManager(final Class<? extends Name<String>> shuffleName) {
+    return (K) managerMap.get(shuffleName.getName());
+  }
+
+  @Override
+  public <K extends ShuffleManager> K getManager(String shuffleName) {
     return (K) managerMap.get(shuffleName);
+  }
+
+  @Override
+  public void registerGroupingController(String shuffleName, GroupingController groupingController) {
+    final String groupingName = groupingController.getGroupingDescription().getGroupingName();
+    final ShuffleManagerMessageDispatcher dispatcher = messageDispatcherMap.get(shuffleName);
+    dispatcher.registerControlMessageHandler(groupingName, groupingController);
+    dispatcher.registerControlLinkListener(groupingName, groupingController);
+  }
+
+
+  @Override
+  public void sendControlMessage(String destId, int code, String shuffleName, String groupingName, byte[][] data, byte sourceType, byte sinkType) {
+    final ShuffleControlMessage controlMessage = new ShuffleControlMessage(code, shuffleName, groupingName, data, sourceType, sinkType);
+    final Identifier destIdentifier = idFactory.getNewInstance(destId);
+    try {
+      final Connection<ShuffleControlMessage> connection = connectionFactory.newConnection(destIdentifier);
+      connection.open();
+      connection.write(new ShuffleControlMessage(code, shuffleName, groupingName, data, sourceType, sinkType));
+    } catch (final NetworkException e) {
+      messageDispatcherMap.get(shuffleName).getControlLinkListener()
+          .onException(e, null, createNetworkShuffleControlMessage(destIdentifier, controlMessage));
+    }
+  }
+
+  private Message<ShuffleControlMessage> createNetworkShuffleControlMessage(
+      final Identifier destIdentifier, final ShuffleControlMessage controlMessage) {
+    return new NSMessage<>(driverIdentifier, destIdentifier, controlMessage);
   }
 
   @Override
