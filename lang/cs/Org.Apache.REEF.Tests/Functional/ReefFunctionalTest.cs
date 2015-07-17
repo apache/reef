@@ -59,7 +59,7 @@ namespace Org.Apache.REEF.Tests.Functional
         private readonly string _runCommand = Path.Combine(_binFolder, _cmdFile);
 
         // TODO: once things stablize, we would like to toggle this to be false and only enable when needed for debugging test failures.
-        private readonly bool _enableRealtimeLogUpload = true; 
+        private readonly bool _enableRealtimeLogUpload = false; 
 
         protected string TestId { get; set; }
 
@@ -146,6 +146,7 @@ namespace Org.Apache.REEF.Tests.Functional
             const string failedTaskIndication = "Java_com_microsoft_reef_javabridge_NativeInterop_ClrSystemFailedTaskHandlerOnNext";
             const string failedEvaluatorIndication = "Java_com_microsoft_reef_javabridge_NativeInterop_ClrSystemFailedEvaluatorHandlerOnNext";
             string[] lines = File.ReadAllLines(GetLogFile(_stdout, testFolder));
+            Console.WriteLine("Lines read from log file : " + lines.Count());
             string[] successIndicators = lines.Where(s => s.Contains(successIndication)).ToArray();
             string[] failedTaskIndicators = lines.Where(s => s.Contains(failedTaskIndication)).ToArray();
             string[] failedIndicators = lines.Where(s => s.Contains(failedEvaluatorIndication)).ToArray();

@@ -20,6 +20,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using Org.Apache.REEF.Client.API.Exceptions;
@@ -57,6 +58,11 @@ namespace Org.Apache.REEF.Client.Common
                 RedirectStandardOutput = true,
                 RedirectStandardError = true
             };
+
+            string cmd = string.Format(CultureInfo.CurrentCulture, "Launch Java with command: {0} {1}",
+                startInfo.FileName, startInfo.Arguments);
+            Logger.Log(Level.Info, cmd);
+
             var process = Process.Start(startInfo);
             if (process != null)
             {

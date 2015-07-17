@@ -33,6 +33,18 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(TestBridgeClient));
 
+        [TestInitialize()]
+        public void TestSetup()
+        {
+            Init();
+        }
+
+        [TestCleanup]
+        public void TestCleanup()
+        {
+            Console.WriteLine("Post test check and clean up");
+        }
+
         [TestMethod, Priority(1), TestCategory("FunctionalGated")]
         [Description("Run CLR Bridge on local runtime")]
         [DeploymentItem(@".")]
@@ -57,6 +69,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
             string[] a = new[] { runOnYarn ? "yarn" : "local", testRuntimeFolder };
             ClrBridgeClient.Run(a);
             ValidateSuccessForLocalRuntime(2, testRuntimeFolder);
+            CleanUp(testRuntimeFolder);
         }
 
         /// <summary>

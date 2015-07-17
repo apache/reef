@@ -72,7 +72,7 @@ namespace Org.Apache.REEF.Examples.HelloCLRBridge
             var helloJobSubmission = _jobSubmissionBuilderFactory.GetJobSubmissionBuilder()
                 .AddDriverConfiguration(helloDriverConfiguration)
                 .AddGlobalAssemblyForType(typeof(HelloDriverStartHandler))
-                .SetJobIdentifier("HelloDriverStartHandler")
+                .SetJobIdentifier("HelloDriver")
                 .Build();
 
             _reefClient.Submit(helloJobSubmission);
