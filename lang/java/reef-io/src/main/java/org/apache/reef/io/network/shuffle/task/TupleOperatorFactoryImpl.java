@@ -51,7 +51,7 @@ public class TupleOperatorFactoryImpl implements TupleOperatorFactory {
 
   @Inject
   public TupleOperatorFactoryImpl(
-      final @Parameter(TaskConfigurationOptions.Identifier.class) String nodeId,
+      @Parameter(TaskConfigurationOptions.Identifier.class) final String nodeId,
       final ShuffleTupleMessageCodec globalTupleCodec,
       final InjectionFuture<ShuffleClient> client,
       final NetworkConnectionService networkConnectionService,
@@ -103,7 +103,7 @@ public class TupleOperatorFactoryImpl implements TupleOperatorFactory {
         receiverMap.put(groupingName, forkedInjector.getInstance(TupleReceiver.class));
         addTupleCodec(groupingDescription);
       } catch (final InjectionException e) {
-        throw new RuntimeException("An InjectionException occurred while injecting receiver with " + groupingDescription, e);
+        throw new RuntimeException("An Exception occurred while injecting receiver with " + groupingDescription, e);
       }
     }
 

@@ -40,7 +40,7 @@ final class ShuffleServiceImpl implements ShuffleService {
   @Inject
   public ShuffleServiceImpl(
       final Injector rootInjector,
-      final @Parameter(ShuffleParameters.SerializedShuffleSet.class) Set<String> serializedTopologySet,
+      @Parameter(ShuffleParameters.SerializedShuffleSet.class) final Set<String> serializedTopologySet,
       final ConfigurationSerializer confSerializer) {
 
     this.rootInjector = rootInjector;

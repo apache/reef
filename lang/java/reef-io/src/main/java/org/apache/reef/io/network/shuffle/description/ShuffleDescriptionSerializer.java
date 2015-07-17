@@ -41,7 +41,8 @@ public final class ShuffleDescriptionSerializer {
     this.confSerializer = confSerializer;
   }
 
-  public Configuration getConfigurationHasTaskId(final ShuffleDescription shuffleDescription, final String taskId, final Configuration baseConf) {
+  public Configuration getConfigurationHasTaskId(
+      final ShuffleDescription shuffleDescription, final String taskId, final Configuration baseConf) {
     final JavaConfigurationBuilder confBuilder = getBaseConfigurationBuilder(shuffleDescription, baseConf);
     boolean isTaskIncludedSomeGrouping = false;
 
@@ -104,7 +105,8 @@ public final class ShuffleDescriptionSerializer {
     final Configuration groupingConfiguration = serializeGroupingDescriptionWithSenderReceiver(
         shuffleDescription, groupingDescription);
 
-    confBuilder.bindSetEntry(ShuffleParameters.SerializedGroupingSet.class, confSerializer.toString(groupingConfiguration));
+    confBuilder.bindSetEntry(
+        ShuffleParameters.SerializedGroupingSet.class, confSerializer.toString(groupingConfiguration));
   }
 
   private Configuration serializeGroupingDescriptionWithSenderReceiver(
@@ -114,9 +116,12 @@ public final class ShuffleDescriptionSerializer {
 
     final JavaConfigurationBuilder confBuilder = Tang.Factory.getTang().newConfigurationBuilder();
     confBuilder.bindNamedParameter(GroupingParameters.GroupingName.class, groupingName);
-    confBuilder.bindNamedParameter(GroupingParameters.GroupingStrategyClassName.class, groupingDescription.getGroupingStrategyClass().getName());
-    confBuilder.bindNamedParameter(GroupingParameters.GroupingKeyCodecClassName.class, groupingDescription.getKeyCodecClass().getName());
-    confBuilder.bindNamedParameter(GroupingParameters.GroupingValueCodecClassName.class, groupingDescription.getValueCodecClass().getName());
+    confBuilder.bindNamedParameter(
+        GroupingParameters.GroupingStrategyClassName.class, groupingDescription.getGroupingStrategyClass().getName());
+    confBuilder.bindNamedParameter(
+        GroupingParameters.GroupingKeyCodecClassName.class, groupingDescription.getKeyCodecClass().getName());
+    confBuilder.bindNamedParameter(
+        GroupingParameters.GroupingValueCodecClassName.class, groupingDescription.getValueCodecClass().getName());
 
     for (final String senderId : shuffleDescription.getSenderIdList(groupingName)) {
       confBuilder.bindSetEntry(GroupingParameters.GroupingSenderIdSet.class, senderId);

@@ -45,7 +45,7 @@ public final class ShuffleContextStartHandler implements EventHandler<ContextSta
 
   @Inject
   public ShuffleContextStartHandler(
-      final @Parameter(NameServerParameters.NameServerIdentifierFactory.class) IdentifierFactory idFactory,
+      @Parameter(NameServerParameters.NameServerIdentifierFactory.class) final IdentifierFactory idFactory,
       final NetworkConnectionService networkConnectionService,
       final ShuffleTupleMessageCodec tupleCodec,
       final ShuffleTupleMessageHandler tupleHandler,

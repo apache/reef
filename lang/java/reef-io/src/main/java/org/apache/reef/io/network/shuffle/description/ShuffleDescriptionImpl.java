@@ -41,8 +41,8 @@ public final class ShuffleDescriptionImpl implements ShuffleDescription {
 
   @Inject
   public ShuffleDescriptionImpl(
-      final @Parameter(ShuffleParameters.SerializedShuffleName.class) String shuffleName,
-      final @Parameter(ShuffleParameters.SerializedGroupingSet.class) Set<String> serializedGroupings,
+      @Parameter(ShuffleParameters.SerializedShuffleName.class) final String shuffleName,
+      @Parameter(ShuffleParameters.SerializedGroupingSet.class) final Set<String> serializedGroupings,
       final ConfigurationSerializer confSerializer) {
 
     this.shuffleName = shuffleName;
@@ -120,7 +120,7 @@ public final class ShuffleDescriptionImpl implements ShuffleDescription {
     return new Builder(shuffleName);
   }
 
-  public static class Builder {
+  public static final class Builder {
 
     private final String shuffleName;
     private final Map<String, List<String>> senderIdListMap;
@@ -136,7 +136,10 @@ public final class ShuffleDescriptionImpl implements ShuffleDescription {
       this.groupingNameList = new ArrayList<>();
     }
 
-    public Builder addGrouping(final List<String> senderIdList, final List<String> receiverIdList, final GroupingDescription groupingDescription) {
+    public Builder addGrouping(
+        final List<String> senderIdList,
+        final List<String> receiverIdList,
+        final GroupingDescription groupingDescription) {
       if (groupingDescriptionMap.containsKey(groupingDescription.getGroupingName())) {
         throw new RuntimeException(groupingDescription.getGroupingName() + " was already added.");
       }

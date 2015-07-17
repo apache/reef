@@ -52,7 +52,7 @@ final class ShuffleTupleMessageGeneratorImpl<K, V> implements ShuffleTupleMessag
 
   @Override
   public List<Tuple<String, ShuffleTupleMessage<K, V>>> createClassifiedTupleMessageList(final Tuple<K, V> tuple) {
-    return serializeTupleWithData(tuple.getKey(), new Tuple[] { tuple });
+    return serializeTupleWithData(tuple.getKey(), new Tuple[]{tuple});
   }
 
   private List<Tuple<String, ShuffleTupleMessage<K, V>>> serializeTupleWithData(final K key, final Tuple<K, V>[] data) {
@@ -69,7 +69,8 @@ final class ShuffleTupleMessageGeneratorImpl<K, V> implements ShuffleTupleMessag
   }
 
   @Override
-  public List<Tuple<String, ShuffleTupleMessage<K, V>>> createClassifiedTupleMessageList(final List<Tuple<K, V>> tupleList) {
+  public List<Tuple<String, ShuffleTupleMessage<K, V>>> createClassifiedTupleMessageList(
+      final List<Tuple<K, V>> tupleList) {
     final Map<String, List<Tuple>> serializedTupleDataMap = new HashMap<>();
     for (final Tuple<K, V> tuple : tupleList) {
       for (final String nodeId : groupingStrategy.selectReceivers(tuple.getKey(), getReceiverIdList())) {
@@ -80,7 +81,8 @@ final class ShuffleTupleMessageGeneratorImpl<K, V> implements ShuffleTupleMessag
       }
     }
 
-    final List<Tuple<String, ShuffleTupleMessage<K, V>>> serializedTupleList = new ArrayList<>(serializedTupleDataMap.size());
+    final List<Tuple<String, ShuffleTupleMessage<K, V>>>
+        serializedTupleList = new ArrayList<>(serializedTupleDataMap.size());
     for (Map.Entry<String, List<Tuple>> entry : serializedTupleDataMap.entrySet()) {
       int i = 0;
       final Tuple[] data = new Tuple[entry.getValue().size()];

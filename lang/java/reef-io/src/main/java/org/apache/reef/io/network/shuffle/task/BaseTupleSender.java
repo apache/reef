@@ -58,7 +58,7 @@ public final class BaseTupleSender<K, V> implements TupleSender<K, V> {
       final ShuffleClient shuffleClient,
       final ShuffleTupleLinkListener globalTupleLinkListener,
       final NetworkConnectionService networkConnectionService,
-      final @Parameter(NameServerParameters.NameServerIdentifierFactory.class) IdentifierFactory idFactory,
+      @Parameter(NameServerParameters.NameServerIdentifierFactory.class) final IdentifierFactory idFactory,
       final GroupingDescription<K, V> groupingDescription,
       final GroupingStrategy<K> groupingStrategy,
       final ShuffleTupleMessageGenerator<K, V> tupleMessageGenerator) {
@@ -103,8 +103,9 @@ public final class BaseTupleSender<K, V> implements TupleSender<K, V> {
     globalTupleLinkListener.registerLinkListener(shuffleName, groupingName, linkListener);
   }
 
-  private List<String> sendShuffleMessageTupleList(final List<Tuple<String, ShuffleTupleMessage<K, V>>> messageTupleList) {
-    List<String> receiverList = new ArrayList<>(messageTupleList.size());
+  private List<String> sendShuffleMessageTupleList(
+      final List<Tuple<String, ShuffleTupleMessage<K, V>>> messageTupleList) {
+    final List<String> receiverList = new ArrayList<>(messageTupleList.size());
     for (final Tuple<String, ShuffleTupleMessage<K, V>> shuffleMessageTuple : messageTupleList) {
       sendShuffleMessageTuple(shuffleMessageTuple);
       receiverList.add(shuffleMessageTuple.getKey());

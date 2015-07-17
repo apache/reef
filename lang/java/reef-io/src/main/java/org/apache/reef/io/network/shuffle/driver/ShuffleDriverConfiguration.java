@@ -24,7 +24,6 @@ import org.apache.reef.driver.parameters.ServiceTaskFailedHandlers;
 import org.apache.reef.driver.parameters.ServiceTaskRunningHandlers;
 import org.apache.reef.tang.formats.ConfigurationModule;
 import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
-import org.apache.reef.wake.time.Clock;
 
 /**
  *

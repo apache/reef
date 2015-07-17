@@ -19,7 +19,6 @@
 package org.apache.reef.io.network.shuffle.description;
 
 import org.apache.reef.tang.annotations.DefaultImplementation;
-import org.apache.reef.tang.annotations.Name;
 
 import java.util.List;
 

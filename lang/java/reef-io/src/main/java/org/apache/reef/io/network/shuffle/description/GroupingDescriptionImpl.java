@@ -37,10 +37,10 @@ public final class GroupingDescriptionImpl<K, V> implements GroupingDescription<
 
   @Inject
   private GroupingDescriptionImpl(
-      final @Parameter(GroupingParameters.GroupingName.class) String groupingName,
-      final @Parameter(GroupingParameters.GroupingStrategyClassName.class) String groupingClassName,
-      final @Parameter(GroupingParameters.GroupingKeyCodecClassName.class) String keyCodecClassName,
-      final @Parameter(GroupingParameters.GroupingValueCodecClassName.class) String valueCodecClassName) {
+      @Parameter(GroupingParameters.GroupingName.class) final String groupingName,
+      @Parameter(GroupingParameters.GroupingStrategyClassName.class) final String groupingClassName,
+      @Parameter(GroupingParameters.GroupingKeyCodecClassName.class) final String keyCodecClassName,
+      @Parameter(GroupingParameters.GroupingValueCodecClassName.class) final String valueCodecClassName) {
     this.groupingName = groupingName;
     try {
       groupingClass = (Class<? extends GroupingStrategy>) Class.forName(groupingClassName);
@@ -87,7 +87,7 @@ public final class GroupingDescriptionImpl<K, V> implements GroupingDescription<
     return new Builder(groupingName);
   }
 
-  public static class Builder {
+  public static final class Builder {
     private final String groupingName;
     private Class<? extends GroupingStrategy> groupingClass;
     private Class<? extends Codec> keyCodecClass;

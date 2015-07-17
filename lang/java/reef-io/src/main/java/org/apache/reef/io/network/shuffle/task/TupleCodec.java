@@ -40,8 +40,8 @@ public final class TupleCodec<K, V> implements StreamingCodec<Tuple<K, V>> {
 
   @Inject
   public TupleCodec(
-      final @Parameter(ShuffleParameters.ShuffleKeyCodec.class) Codec<K> keyCodec,
-      final @Parameter(ShuffleParameters.ShuffleValueCodec.class) Codec<V> valueCodec) {
+      @Parameter(ShuffleParameters.ShuffleKeyCodec.class) final Codec<K> keyCodec,
+      @Parameter(ShuffleParameters.ShuffleValueCodec.class) final Codec<V> valueCodec) {
     this.keyCodec = keyCodec;
     this.valueCodec = valueCodec;
   }

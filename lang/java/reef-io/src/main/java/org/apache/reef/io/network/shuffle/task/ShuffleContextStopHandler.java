@@ -40,7 +40,7 @@ public final class ShuffleContextStopHandler implements EventHandler<ContextStop
 
   @Inject
   public ShuffleContextStopHandler(
-      final @Parameter(NameServerParameters.NameServerIdentifierFactory.class) IdentifierFactory idFactory,
+      @Parameter(NameServerParameters.NameServerIdentifierFactory.class) final IdentifierFactory idFactory,
       final NetworkConnectionService networkConnectionService) {
 
     this.networkConnectionService = networkConnectionService;
