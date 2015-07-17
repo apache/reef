@@ -22,8 +22,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Org.Apache.REEF.Common.Files;
+using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Driver.Bridge;
 using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Driver
 {
@@ -32,21 +34,36 @@ namespace Org.Apache.REEF.Driver
     /// </summary>
     internal sealed class ClassHierarchyGeneratingDriverStartObserver : IObserver<IDriverStarted>
     {
+        private static readonly Logger Logger = Logger.GetLogger(typeof(ClassHierarchyGeneratingDriverStartObserver));
+
         private readonly REEFFileNames _fileNames;
+        private ISet<string> _assemblies;
 
         [Inject]
-        private ClassHierarchyGeneratingDriverStartObserver(REEFFileNames fileNames)
+        private ClassHierarchyGeneratingDriverStartObserver(REEFFileNames fileNames, [Parameter(typeof(DriverBridgeConfigurationOptions.SetOfAssemblies))] ISet<string> assemlies)
         {
+            _assemblies = assemlies;
             _fileNames = fileNames;
         }
 
         /// <summary>
-        /// Generates the class hieararchy file
+        /// Generates the class hierarchy file
         /// </summary>
         /// <param name="value"></param>
         public void OnNext(IDriverStarted value)
         {
-            ClrHandlerHelper.GenerateClassHierarchy(GetAssembliesInGlobalFolder());
+            if (_assemblies != null && _assemblies.Count > 0)
+            {
+                //adding system level assemblies
+                _assemblies.Add(typeof(IDriver).Assembly.GetName().Name);
+                _assemblies.Add(typeof(ITask).Assembly.GetName().Name);
+
+                ClrHandlerHelper.GenerateClassHierarchy(_assemblies);
+            }
+            else
+            {
+                ClrHandlerHelper.GenerateClassHierarchy(GetAssembliesInGlobalFolder());
+            }
         }
 
         /// <summary>

@@ -18,11 +18,8 @@
  */
 
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Org.Apache.REEF.Driver;
+using Org.Apache.REEF.Examples.HelloCLRBridge;
 using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Tests.Functional.Bridge
@@ -35,7 +32,6 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
         [TestInitialize()]
         public void TestSetup()
         {
-            CleanUp();
             Init();
         }
 
@@ -43,57 +39,33 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
         public void TestCleanup()
         {
             Console.WriteLine("Post test check and clean up");
-            CleanUp();
         }
 
         [TestMethod, Priority(1), TestCategory("FunctionalGated")]
         [Description("Run CLR Bridge on local runtime")]
         [DeploymentItem(@".")]
-        [Ignore] // This is diabled by default on builds
-        public void CanRunClrBridgeOnYarn()
+        [Ignore] //This test needs to be run on Yarn environment with test framework installed.
+        public void CanRunClrBridgeExampleOnYarn()
         {
-            RunClrBridgeClient(runOnYarn: true);
+            RunClrBridgeClient(true);
         }
 
         [TestMethod, Priority(1), TestCategory("FunctionalGated")]
         [Description("Run CLR Bridge on local runtime")]
         [DeploymentItem(@".")]
         [Timeout(180 * 1000)]
-        public void CanRunClrBridgeOnLocalRuntime()
+        public void CanRunClrBridgeExampleOnLocalRuntime()
         {
-            IsOnLocalRuntiime = true;
-            RunClrBridgeClient(runOnYarn: false);
-            ValidateSuccessForLocalRuntime(2);
+            RunClrBridgeClient(false);
         }
 
         private void RunClrBridgeClient(bool runOnYarn)
         {
-            const string clrBridgeClient = "Org.Apache.REEF.Client.exe";
-            List<string> arguments = new List<string>();
-            arguments.Add(runOnYarn.ToString());
-            arguments.Add(Constants.BridgeLaunchClass);
-            arguments.Add(".");
-            arguments.Add(Path.Combine(_binFolder, Constants.JavaBridgeJarFileName));
-            arguments.Add(Path.Combine(_binFolder, _cmdFile));
-
-            ProcessStartInfo startInfo = new ProcessStartInfo()
-            {
-                FileName = clrBridgeClient,
-                Arguments = string.Join(" ", arguments),
-                RedirectStandardOutput = true,
-                UseShellExecute = false,
-                CreateNoWindow = false
-            }; 
-            
-            LOGGER.Log(Level.Info, "Executing '" + startInfo.FileName + " " + startInfo.Arguments +"' in working directory '" + Directory.GetCurrentDirectory() +"'");
-            using (Process process = Process.Start(startInfo))
-            {
-                process.WaitForExit();
-                if (process.ExitCode != 0)
-                {
-                    throw new InvalidOperationException("CLR client exited with error code " + process.ExitCode);
-                }
-            }
+            string testRuntimeFolder = DefaultRuntimeFolder + TestNumber++;
+            string[] a = new[] { runOnYarn ? "yarn" : "local", testRuntimeFolder };
+            ClrBridgeClient.Run(a);
+            ValidateSuccessForLocalRuntime(2, testRuntimeFolder);
+            CleanUp(testRuntimeFolder);
         }
     }
 }

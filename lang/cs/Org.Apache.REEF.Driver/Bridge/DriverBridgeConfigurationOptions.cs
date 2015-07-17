@@ -152,5 +152,10 @@ namespace Org.Apache.REEF.Driver.Bridge
         public class TraceLevel : Name<string>
         {
         }
+
+        [NamedParameter]
+        public class SetOfAssemblies : Name<ISet<string>>
+        {
+        }
     }
 }

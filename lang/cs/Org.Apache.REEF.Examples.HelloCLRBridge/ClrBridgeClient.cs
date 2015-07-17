@@ -24,8 +24,11 @@ using Org.Apache.REEF.Client.Local;
 using Org.Apache.REEF.Client.YARN;
 using Org.Apache.REEF.Common.Evaluator;
 using Org.Apache.REEF.Driver;
+using Org.Apache.REEF.Driver.Bridge;
 using Org.Apache.REEF.Driver.Defaults;
 using Org.Apache.REEF.Examples.HelloCLRBridge.Handlers;
+using Org.Apache.REEF.Examples.Tasks.HelloTask;
+using Org.Apache.REEF.Network.Naming;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
@@ -69,10 +72,15 @@ namespace Org.Apache.REEF.Examples.HelloCLRBridge
                 .Set(DriverConfiguration.OnDriverRestartTaskRunning, GenericType<HelloDriverRestartRunningTaskHandler>.Class)
                 .Build();
 
+            var driverCondig = TangFactory.GetTang().NewConfigurationBuilder(helloDriverConfiguration)
+                .BindSetEntry<DriverBridgeConfigurationOptions.SetOfAssemblies, string>(typeof(HelloTask).Assembly.GetName().Name)
+                .BindSetEntry<DriverBridgeConfigurationOptions.SetOfAssemblies, string>(typeof(NameClient).Assembly.GetName().Name)
+                .Build();
+
             var helloJobSubmission = _jobSubmissionBuilderFactory.GetJobSubmissionBuilder()
-                .AddDriverConfiguration(helloDriverConfiguration)
+                .AddDriverConfiguration(driverCondig)
                 .AddGlobalAssemblyForType(typeof(HelloDriverStartHandler))
-                .SetJobIdentifier("HelloDriverStartHandler")
+                .SetJobIdentifier("HelloDriver")
                 .Build();
 
             _reefClient.Submit(helloJobSubmission);
@@ -80,14 +88,15 @@ namespace Org.Apache.REEF.Examples.HelloCLRBridge
 
         /// <summary>
         /// </summary>
-        /// <param name="name"></param>
+        /// <param name="runOnYarn"></param>
+        /// <param name="runtimeFolder"></param>
         /// <returns></returns>
-        private static IConfiguration GetRuntimeConfiguration(string name)
+        private static IConfiguration GetRuntimeConfiguration(string runOnYarn, string runtimeFolder)
         {
-            switch (name)
+            switch (runOnYarn)
             {
                 case Local:
-                    var dir = Path.Combine(Directory.GetCurrentDirectory(), "REEF_LOCAL_RUNTIME");
+                    var dir = Path.Combine(".", runtimeFolder);
                     return LocalRuntimeClientConfiguration.ConfigurationModule
                         .Set(LocalRuntimeClientConfiguration.NumberOfEvaluators, "2")
                         .Set(LocalRuntimeClientConfiguration.RuntimeFolder, dir)
@@ -95,13 +104,20 @@ namespace Org.Apache.REEF.Examples.HelloCLRBridge
                 case YARN:
                     return YARNClientConfiguration.ConfigurationModule.Build();
                 default:
-                    throw new Exception("Unknown runtime: " + name);
+                    throw new Exception("Unknown runtime: " + runOnYarn);
             }
         }
 
         public static void Main(string[] args)
         {
-            TangFactory.GetTang().NewInjector(GetRuntimeConfiguration(args.Length > 0 ? args[0] : Local)).GetInstance<ClrBridgeClient>().Run();
+            Run(args);
+        }
+
+        public static void Run(string[] args)
+        {
+            string runOnYarn = args.Length > 0 ? args[0] : Local;
+            string runtimeFolder = args.Length > 1 ? args[1] : "REEF_LOCAL_RUNTIME";
+            TangFactory.GetTang().NewInjector(GetRuntimeConfiguration(runOnYarn, runtimeFolder)).GetInstance<ClrBridgeClient>().Run();
         }
     }
 }
