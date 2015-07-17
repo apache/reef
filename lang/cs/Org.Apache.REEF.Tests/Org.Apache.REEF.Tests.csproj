@@ -120,6 +120,10 @@ under the License.
       <Project>{b1b43b60-ddd0-4805-a9b4-ba84a0ccb7c7}</Project>
       <Name>Org.Apache.REEF.Network.Examples</Name>
     </ProjectReference>
+    <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.Examples.HelloCLRBridge\Org.Apache.REEF.Examples.HelloCLRBridge.csproj">
+      <Project>{159f7d70-8acc-4d97-9f6d-2fc4ca0d8682}</Project>
+      <Name>Org.Apache.REEF.Examples.HelloCLRBridge</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
