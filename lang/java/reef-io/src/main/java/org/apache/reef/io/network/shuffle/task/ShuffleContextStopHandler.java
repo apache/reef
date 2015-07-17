@@ -35,7 +35,6 @@ import javax.inject.Inject;
 public final class ShuffleContextStopHandler implements EventHandler<ContextStop> {
 
   private final NetworkConnectionService networkConnectionService;
-
   private final Identifier tupleMessageConnectionId;
 
   @Inject

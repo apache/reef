@@ -18,7 +18,7 @@
  */
 package org.apache.reef.io.network.shuffle.driver;
 
-import org.apache.reef.io.network.shuffle.description.ShuffleDescription;
+import org.apache.reef.io.network.shuffle.description.ShuffleGroupDescription;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.annotations.DefaultImplementation;
 
@@ -28,7 +28,7 @@ import org.apache.reef.tang.annotations.DefaultImplementation;
 @DefaultImplementation(ShuffleDriverImpl.class)
 public interface ShuffleDriver {
 
-  <K extends ShuffleManager> K registerManager(ShuffleDescription shuffleDescription, Class<K> managerClass);
+  <K extends ShuffleManager> K registerManager(ShuffleGroupDescription shuffleGroupDescription, Class<K> managerClass);
 
   <K extends ShuffleManager> K getManager(String shuffleName);
 

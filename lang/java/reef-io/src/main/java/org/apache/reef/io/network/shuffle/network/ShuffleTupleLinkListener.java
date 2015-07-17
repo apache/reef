@@ -42,25 +42,25 @@ public class ShuffleTupleLinkListener implements LinkListener<Message<ShuffleTup
     this.linkListenerMap = new ConcurrentHashMap<>();
   }
 
-  public <K, V> void registerLinkListener(final String shuffleName, final String groupingName,
+  public <K, V> void registerLinkListener(final String shuffleGroupName, final String shuffleName,
                             final LinkListener<Message<ShuffleTupleMessage<K, V>>> linkListener) {
-    if (!linkListenerMap.containsKey(shuffleName)) {
-      linkListenerMap.put(shuffleName, new ConcurrentHashMap<String, LinkListener>());
+    if (!linkListenerMap.containsKey(shuffleGroupName)) {
+      linkListenerMap.put(shuffleGroupName, new ConcurrentHashMap<String, LinkListener>());
     }
 
-    linkListenerMap.get(shuffleName).put(groupingName, linkListener);
+    linkListenerMap.get(shuffleGroupName).put(shuffleName, linkListener);
   }
 
   @Override
   public void onSuccess(final Message<ShuffleTupleMessage> message) {
     final ShuffleTupleMessage tupleMessage = message.getData().iterator().next();
     final LinkListener<Message<ShuffleTupleMessage>> linkListener = linkListenerMap
-        .get(tupleMessage.getShuffleName()).get(tupleMessage.getGroupingName());
+        .get(tupleMessage.getShuffleGroupName()).get(tupleMessage.getShuffleName());
     if (linkListener != null) {
       linkListener.onSuccess(message);
     } else {
       LOG.log(Level.INFO, "There is no registered link listener for {0}:{1}. An message was successfully sent {2}.",
-          new Object[]{tupleMessage.getShuffleName(), tupleMessage.getGroupingName(), message});
+          new Object[]{tupleMessage.getShuffleGroupName(), tupleMessage.getShuffleName(), message});
     }
   }
 
@@ -69,12 +69,12 @@ public class ShuffleTupleLinkListener implements LinkListener<Message<ShuffleTup
       final Throwable cause, final SocketAddress remoteAddress, final Message<ShuffleTupleMessage> message) {
     final ShuffleTupleMessage tupleMessage = message.getData().iterator().next();
     final LinkListener<Message<ShuffleTupleMessage>> linkListener = linkListenerMap
-        .get(tupleMessage.getShuffleName()).get(tupleMessage.getGroupingName());
+        .get(tupleMessage.getShuffleGroupName()).get(tupleMessage.getShuffleName());
     if (linkListener != null) {
       linkListener.onException(cause, remoteAddress, message);
     } else {
       LOG.log(Level.INFO, "There is no registered link listener for {0}:{1}. An exception occurred while sending {2}.",
-          new Object[]{tupleMessage.getShuffleName(), tupleMessage.getGroupingName(), message});
+          new Object[]{tupleMessage.getShuffleGroupName(), tupleMessage.getShuffleName(), message});
     }
   }
 }

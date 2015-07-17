@@ -16,24 +16,29 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.io.network.shuffle.grouping.impl;
-
-import org.apache.reef.io.network.shuffle.grouping.GroupingStrategy;
+package org.apache.reef.io.network.shuffle.strategy;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  *
  */
-public final class AllGroupingStrategy<K> implements GroupingStrategy<K> {
+public final class KeyShuffleStrategy<K> implements ShuffleStrategy<K> {
 
   @Inject
-  public AllGroupingStrategy() {
+  public KeyShuffleStrategy() {
   }
 
   @Override
   public List<String> selectReceivers(final K key, final List<String> receiverIdList) {
-    return receiverIdList;
+    int index = key.hashCode() % receiverIdList.size();
+    if (index < 0) {
+      index += receiverIdList.size();
+    }
+    final List<String> list =  new ArrayList<>();
+    list.add(receiverIdList.get(index));
+    return list;
   }
 }

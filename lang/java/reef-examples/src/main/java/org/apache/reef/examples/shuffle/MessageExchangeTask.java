@@ -57,13 +57,13 @@ public final class MessageExchangeTask implements Task {
   @Inject
   private MessageExchangeTask(
       final ShuffleService shuffleService) {
-    this.shuffleClient = shuffleService.getClient(MessageExchangeDriver.MESSAGE_EXCHANGE_SHUFFLE_NAME);
-    this.tupleSender = shuffleClient.getSender(MessageExchangeDriver.MESSAGE_EXCHANGE_GROUPING_NAME);
+    this.shuffleClient = shuffleService.getClient(MessageExchangeDriver.MESSAGE_EXCHANGE_SHUFFLE_GROUP_NAME);
+    this.tupleSender = shuffleClient.getSender(MessageExchangeDriver.MESSAGE_EXCHANGE_SHUFFLE_NAME);
     tupleSender.registerTupleLinkListener(new TupleLinkListener());
-    this.tupleReceiver = shuffleClient.getReceiver(MessageExchangeDriver.MESSAGE_EXCHANGE_GROUPING_NAME);
+    this.tupleReceiver = shuffleClient.getReceiver(MessageExchangeDriver.MESSAGE_EXCHANGE_SHUFFLE_NAME);
     tupleReceiver.registerTupleMessageHandler(new TupleMessageHandler());
-    this.receiverList = shuffleClient.getShuffleDescription()
-        .getReceiverIdList(MessageExchangeDriver.MESSAGE_EXCHANGE_GROUPING_NAME);
+    this.receiverList = shuffleClient.getShuffleGroupDescription()
+        .getReceiverIdList(MessageExchangeDriver.MESSAGE_EXCHANGE_SHUFFLE_NAME);
     this.taskNumber = receiverList.size();
     this.counter = new AtomicInteger(taskNumber);
     this.arrivedMessageSenderIdList = Collections.synchronizedList(new ArrayList<String>());
@@ -72,7 +72,7 @@ public final class MessageExchangeTask implements Task {
   @Override
   public byte[] call(byte[] memento) throws Exception {
     // TODO: Currently MessageExchangeTasks are sleep 3 seconds to wait the other tasks start. I will add
-    // synchronization logic for all tasks in same grouping via another pull request.
+    // synchronization logic for all tasks in same strategy via another pull request.
     Thread.sleep(3000);
     final List<String> messageSentIdList = tupleSender.sendTuple(generateRandomTuples());
     for (final String receiver : receiverList) {
@@ -103,7 +103,7 @@ public final class MessageExchangeTask implements Task {
 
     @Override
     public void onSuccess(final Message<ShuffleTupleMessage<Integer, Integer>> message) {
-
+      LOG.log(Level.FINE, "{0} was successfully sent.", message);
     }
 
     @Override

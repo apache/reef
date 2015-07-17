@@ -20,10 +20,9 @@ package org.apache.reef.io.network.shuffle.task;
 
 import org.apache.reef.driver.task.TaskConfigurationOptions;
 import org.apache.reef.io.Tuple;
-import org.apache.reef.io.network.NetworkConnectionService;
-import org.apache.reef.io.network.shuffle.description.GroupingDescription;
 import org.apache.reef.io.network.shuffle.description.ShuffleDescription;
-import org.apache.reef.io.network.shuffle.grouping.GroupingStrategy;
+import org.apache.reef.io.network.shuffle.description.ShuffleGroupDescription;
+import org.apache.reef.io.network.shuffle.strategy.ShuffleStrategy;
 import org.apache.reef.io.network.shuffle.network.ShuffleTupleMessageCodec;
 import org.apache.reef.io.network.shuffle.params.ShuffleParameters;
 import org.apache.reef.tang.*;
@@ -43,7 +42,6 @@ public class TupleOperatorFactoryImpl implements TupleOperatorFactory {
   private final String nodeId;
   private final ShuffleTupleMessageCodec globalTupleCodec;
   private final InjectionFuture<ShuffleClient> client;
-  private final NetworkConnectionService networkConnectionService;
   private final Injector injector;
 
   private Map<String, TupleSender> senderMap;
@@ -54,90 +52,86 @@ public class TupleOperatorFactoryImpl implements TupleOperatorFactory {
       @Parameter(TaskConfigurationOptions.Identifier.class) final String nodeId,
       final ShuffleTupleMessageCodec globalTupleCodec,
       final InjectionFuture<ShuffleClient> client,
-      final NetworkConnectionService networkConnectionService,
       final Injector injector) {
     this.nodeId = nodeId;
     this.globalTupleCodec = globalTupleCodec;
     this.client = client;
-    this.networkConnectionService = networkConnectionService;
     this.injector = injector;
     this.senderMap = new ConcurrentHashMap<>();
     this.receiverMap = new ConcurrentHashMap<>();
   }
 
-  private void addTupleCodec(final GroupingDescription groupingDescription) {
+  private void addTupleCodec(final ShuffleDescription shuffleDescription) {
     final JavaConfigurationBuilder confBuilder = Tang.Factory.getTang().newConfigurationBuilder();
     final Configuration tupleCodecConf = confBuilder
-        .bindNamedParameter(ShuffleParameters.ShuffleKeyCodec.class, groupingDescription.getKeyCodecClass())
-        .bindNamedParameter(ShuffleParameters.ShuffleValueCodec.class, groupingDescription.getValueCodecClass())
+        .bindNamedParameter(ShuffleParameters.ShuffleKeyCodec.class, shuffleDescription.getKeyCodecClass())
+        .bindNamedParameter(ShuffleParameters.ShuffleValueCodec.class, shuffleDescription.getValueCodecClass())
         .build();
-
     try {
       final Codec<Tuple> tupleCodec = Tang.Factory.getTang().newInjector(tupleCodecConf).getInstance(TupleCodec.class);
-      globalTupleCodec.registerTupleCodec(client.get().getShuffleDescription().getShuffleName(),
-          groupingDescription.getGroupingName(), tupleCodec);
+      globalTupleCodec.registerTupleCodec(client.get().getShuffleGroupDescription().getShuffleGroupName(),
+          shuffleDescription.getShuffleName(), tupleCodec);
     } catch (final InjectionException e) {
       throw new RuntimeException(e);
     }
   }
 
   @Override
-  public <K, V> TupleReceiver<K, V> newTupleReceiver(final GroupingDescription groupingDescription) {
-    final String groupingName = groupingDescription.getGroupingName();
+  public <K, V> TupleReceiver<K, V> newTupleReceiver(final ShuffleDescription shuffleDescription) {
+    final String shuffleName = shuffleDescription.getShuffleName();
 
-    if (!receiverMap.containsKey(groupingName)) {
-      final ShuffleDescription description = client.get().getShuffleDescription();
-      if (!description.getReceiverIdList(groupingName).contains(nodeId)) {
-        throw new RuntimeException(groupingName + " does not have " + nodeId + " as a receiver.");
+    if (!receiverMap.containsKey(shuffleName)) {
+      final ShuffleGroupDescription description = client.get().getShuffleGroupDescription();
+      if (!description.getReceiverIdList(shuffleName).contains(nodeId)) {
+        throw new RuntimeException(shuffleName + " does not have " + nodeId + " as a receiver.");
       }
 
       final Configuration receiverConfiguration = Tang.Factory.getTang().newConfigurationBuilder()
-          .bindImplementation(GroupingStrategy.class, groupingDescription.getGroupingStrategyClass())
+          .bindImplementation(ShuffleStrategy.class, shuffleDescription.getShuffleStrategyClass())
           .build();
 
       final Injector forkedInjector = injector.forkInjector(receiverConfiguration);
       forkedInjector.bindVolatileInstance(ShuffleClient.class, client.get());
-      forkedInjector.bindVolatileInstance(GroupingDescription.class, groupingDescription);
+      forkedInjector.bindVolatileInstance(ShuffleDescription.class, shuffleDescription);
 
       try {
-        receiverMap.put(groupingName, forkedInjector.getInstance(TupleReceiver.class));
-        addTupleCodec(groupingDescription);
+        receiverMap.put(shuffleName, forkedInjector.getInstance(TupleReceiver.class));
+        addTupleCodec(shuffleDescription);
       } catch (final InjectionException e) {
-        throw new RuntimeException("An Exception occurred while injecting receiver with " + groupingDescription, e);
+        throw new RuntimeException("An Exception occurred while injecting receiver with " + shuffleDescription, e);
       }
     }
 
-    return receiverMap.get(groupingName);
+    return receiverMap.get(shuffleName);
   }
 
   @Override
-  public <K, V> TupleSender<K, V> newTupleSender(final GroupingDescription groupingDescription) {
-    final String groupingName = groupingDescription.getGroupingName();
+  public <K, V> TupleSender<K, V> newTupleSender(final ShuffleDescription shuffleDescription) {
+    final String shuffleName = shuffleDescription.getShuffleName();
 
-    if (!senderMap.containsKey(groupingName)) {
-      final ShuffleDescription description = client.get().getShuffleDescription();
-      if (!description.getSenderIdList(groupingName).contains(nodeId)) {
-        throw new RuntimeException(groupingName + " does not have " + nodeId + " as a sender.");
+    if (!senderMap.containsKey(shuffleName)) {
+      final ShuffleGroupDescription description = client.get().getShuffleGroupDescription();
+      if (!description.getSenderIdList(shuffleName).contains(nodeId)) {
+        throw new RuntimeException(shuffleName + " does not have " + nodeId + " as a sender.");
       }
 
       final Configuration senderConfiguration = Tang.Factory.getTang().newConfigurationBuilder()
-          .bindImplementation(GroupingStrategy.class, groupingDescription.getGroupingStrategyClass())
+          .bindImplementation(ShuffleStrategy.class, shuffleDescription.getShuffleStrategyClass())
           .build();
 
       final Injector forkedInjector = injector.forkInjector(senderConfiguration);
       forkedInjector.bindVolatileInstance(ShuffleClient.class, client.get());
-      forkedInjector.bindVolatileInstance(GroupingDescription.class, groupingDescription);
-      forkedInjector.bindVolatileInstance(NetworkConnectionService.class, networkConnectionService);
+      forkedInjector.bindVolatileInstance(ShuffleDescription.class, shuffleDescription);
 
       try {
-        senderMap.put(groupingName, forkedInjector.getInstance(TupleSender.class));
-        addTupleCodec(groupingDescription);
+        senderMap.put(shuffleName, forkedInjector.getInstance(TupleSender.class));
+        addTupleCodec(shuffleDescription);
       } catch (final InjectionException e) {
         throw new RuntimeException("An InjectionException occurred while injecting sender with " +
-            groupingDescription, e);
+            shuffleDescription, e);
       }
     }
 
-    return senderMap.get(groupingName);
+    return senderMap.get(shuffleName);
   }
 }

@@ -18,77 +18,48 @@
  */
 package org.apache.reef.io.network.shuffle.description;
 
-import org.apache.reef.io.network.shuffle.params.*;
-import org.apache.reef.tang.Injector;
-import org.apache.reef.tang.Tang;
+import org.apache.reef.io.network.shuffle.params.ShuffleParameters;
+import org.apache.reef.io.network.shuffle.strategy.ShuffleStrategy;
 import org.apache.reef.tang.annotations.Parameter;
-import org.apache.reef.tang.formats.ConfigurationSerializer;
+import org.apache.reef.wake.remote.Codec;
 
 import javax.inject.Inject;
-import java.util.*;
 
 /**
  *
  */
-public final class ShuffleDescriptionImpl implements ShuffleDescription {
+public final class ShuffleDescriptionImpl<K, V> implements ShuffleDescription<K, V> {
 
   private final String shuffleName;
-  private final Map<String, List<String>> senderIdListMap;
-  private final Map<String, List<String>> receiverIdListMap;
-  private final Map<String, GroupingDescription> groupingDescriptionMap;
-  private final List<String> groupingNameList;
-
+  private final Class<? extends ShuffleStrategy> shuffleStrategyClass;
+  private final Class<? extends Codec<K>> keyCodecClass;
+  private final Class<? extends Codec<V>> valueCodecClass;
 
   @Inject
-  public ShuffleDescriptionImpl(
-      @Parameter(ShuffleParameters.SerializedShuffleName.class) final String shuffleName,
-      @Parameter(ShuffleParameters.SerializedGroupingSet.class) final Set<String> serializedGroupings,
-      final ConfigurationSerializer confSerializer) {
-
+  private ShuffleDescriptionImpl(
+      @Parameter(ShuffleParameters.ShuffleName.class) final String shuffleName,
+      @Parameter(ShuffleParameters.ShuffleStrategyClassName.class) final String shuffleStrategyClassName,
+      @Parameter(ShuffleParameters.ShuffleKeyCodecClassName.class) final String keyCodecClassName,
+      @Parameter(ShuffleParameters.ShuffleValueCodecClassName.class) final String valueCodecClassName) {
     this.shuffleName = shuffleName;
-    this.senderIdListMap = new HashMap<>();
-    this.receiverIdListMap = new HashMap<>();
-    this.groupingDescriptionMap = new HashMap<>();
-    this.groupingNameList = new ArrayList<>();
-    for (final String serializedGrouping : serializedGroupings) {
-      deserializeGrouping(serializedGrouping, confSerializer);
-    }
-  }
-
-  private void deserializeGrouping(final String serializedGrouping, final ConfigurationSerializer confSerializer) {
     try {
-      final Injector injector = Tang.Factory.getTang().newInjector(confSerializer.fromString(serializedGrouping));
-      final GroupingDescription description = injector.getInstance(GroupingDescription.class);
-      final Set<String> senderIdSet = injector.getNamedInstance(GroupingParameters.GroupingSenderIdSet.class);
-      final Set<String> receiverIdSet = injector.getNamedInstance(GroupingParameters.GroupingReceiverIdSet.class);
-
-      final String groupingName = description.getGroupingName();
-      groupingDescriptionMap.put(groupingName, description);
-      groupingNameList.add(groupingName);
-      senderIdListMap.put(groupingName, getSortedListFromSet(senderIdSet));
-      receiverIdListMap.put(groupingName, getSortedListFromSet(receiverIdSet));
-    } catch (final Exception exception) {
-      throw new RuntimeException("An Exception occurred while deserializing grouping " + serializedGrouping, exception);
+      shuffleStrategyClass = (Class<? extends ShuffleStrategy>) Class.forName(shuffleStrategyClassName);
+      keyCodecClass = (Class<? extends Codec<K>>) Class.forName(keyCodecClassName);
+      valueCodecClass = (Class<? extends Codec<V>>) Class.forName(valueCodecClassName);
+    } catch (final ClassNotFoundException exception) {
+      throw new RuntimeException("ClassNotFoundException occurred in constructor of ShuffleDescriptionImpl", exception);
     }
-  }
-
-  private List<String> getSortedListFromSet(final Set<String> set) {
-    final List<String> list = new ArrayList<>(set);
-    Collections.sort(list);
-    return list;
   }
 
   private ShuffleDescriptionImpl(
       final String shuffleName,
-      final Map<String, List<String>> senderIdListMap,
-      final Map<String, List<String>> receiverIdListMap,
-      final Map<String, GroupingDescription> groupingDescriptionMap,
-      final List<String> groupingNameList) {
+      final Class<? extends ShuffleStrategy> shuffleStrategyClass,
+      final Class<? extends Codec<K>> keyCodecClass,
+      final Class<? extends Codec<V>> valueCodecClass) {
     this.shuffleName = shuffleName;
-    this.senderIdListMap = senderIdListMap;
-    this.receiverIdListMap = receiverIdListMap;
-    this.groupingDescriptionMap = groupingDescriptionMap;
-    this.groupingNameList = groupingNameList;
+    this.shuffleStrategyClass = shuffleStrategyClass;
+    this.keyCodecClass = keyCodecClass;
+    this.valueCodecClass = valueCodecClass;
   }
 
   @Override
@@ -97,23 +68,18 @@ public final class ShuffleDescriptionImpl implements ShuffleDescription {
   }
 
   @Override
-  public List<String> getGroupingNameList() {
-    return groupingNameList;
+  public Class<? extends ShuffleStrategy> getShuffleStrategyClass() {
+    return shuffleStrategyClass;
   }
 
   @Override
-  public GroupingDescription getGroupingDescription(final String groupingName) {
-    return groupingDescriptionMap.get(groupingName);
+  public Class<? extends Codec<K>> getKeyCodecClass() {
+    return keyCodecClass;
   }
 
   @Override
-  public List<String> getSenderIdList(final String groupingName) {
-    return senderIdListMap.get(groupingName);
-  }
-
-  @Override
-  public List<String> getReceiverIdList(final String groupingName) {
-    return receiverIdListMap.get(groupingName);
+  public Class<? extends Codec<V>> getValueCodecClass() {
+    return valueCodecClass;
   }
 
   public static Builder newBuilder(final String shuffleName) {
@@ -121,44 +87,41 @@ public final class ShuffleDescriptionImpl implements ShuffleDescription {
   }
 
   public static final class Builder {
-
     private final String shuffleName;
-    private final Map<String, List<String>> senderIdListMap;
-    private final Map<String, List<String>> receiverIdListMap;
-    private final Map<String, GroupingDescription> groupingDescriptionMap;
-    private final List<String> groupingNameList;
+    private Class<? extends ShuffleStrategy> shuffleStrategyClass;
+    private Class<? extends Codec> keyCodecClass;
+    private Class<? extends Codec> valueCodecClass;
 
     private Builder(final String shuffleName) {
       this.shuffleName = shuffleName;
-      this.senderIdListMap = new HashMap<>();
-      this.receiverIdListMap = new HashMap<>();
-      this.groupingDescriptionMap = new HashMap<>();
-      this.groupingNameList = new ArrayList<>();
     }
 
-    public Builder addGrouping(
-        final List<String> senderIdList,
-        final List<String> receiverIdList,
-        final GroupingDescription groupingDescription) {
-      if (groupingDescriptionMap.containsKey(groupingDescription.getGroupingName())) {
-        throw new RuntimeException(groupingDescription.getGroupingName() + " was already added.");
-      }
-
-      groupingDescriptionMap.put(groupingDescription.getGroupingName(), groupingDescription);
-      groupingNameList.add(groupingDescription.getGroupingName());
-      senderIdListMap.put(groupingDescription.getGroupingName(), senderIdList);
-      receiverIdListMap.put(groupingDescription.getGroupingName(), receiverIdList);
+    public Builder setShuffleStrategy(final Class<? extends ShuffleStrategy> shuffleStrategyClass) {
+      this.shuffleStrategyClass = shuffleStrategyClass;
       return this;
     }
 
-    public ShuffleDescriptionImpl build() {
+    public Builder setKeyCodec(final Class<? extends Codec> keyCodecClass) {
+      this.keyCodecClass = keyCodecClass;
+      return this;
+    }
+
+    public Builder setValueCodec(final Class<? extends Codec> valueCodecClass) {
+      this.valueCodecClass = valueCodecClass;
+      return this;
+    }
+
+    public ShuffleDescription build() {
+      if (shuffleStrategyClass == null) {
+        throw new RuntimeException("You should set strategy class");
+      }
+
+      if (keyCodecClass == null || valueCodecClass == null) {
+        throw new RuntimeException("You should set codec for both key and value type");
+      }
+
       return new ShuffleDescriptionImpl(
-          shuffleName,
-          senderIdListMap,
-          receiverIdListMap,
-          groupingDescriptionMap,
-          groupingNameList
-      );
+          shuffleName, shuffleStrategyClass, keyCodecClass, valueCodecClass);
     }
   }
 }

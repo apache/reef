@@ -24,7 +24,7 @@ import org.apache.reef.io.network.shuffle.params.ShuffleParameters;
 import org.apache.reef.io.network.shuffle.task.ShuffleClient;
 import org.apache.reef.io.network.shuffle.task.ShuffleContextStartHandler;
 import org.apache.reef.io.network.shuffle.task.ShuffleContextStopHandler;
-import org.apache.reef.io.network.shuffle.description.ShuffleDescription;
+import org.apache.reef.io.network.shuffle.description.ShuffleGroupDescription;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Injector;
 import org.apache.reef.tang.JavaConfigurationBuilder;
@@ -56,15 +56,16 @@ final class ShuffleDriverImpl implements ShuffleDriver {
 
   @Override
   public <K extends ShuffleManager> K registerManager(
-      final ShuffleDescription shuffleDescription, final Class<K> managerClass) {
-    if (managerMap.containsKey(shuffleDescription.getShuffleName())) {
-      throw new RuntimeException(shuffleDescription.getShuffleName() + " was already registered in ShuffleDriver");
+      final ShuffleGroupDescription shuffleGroupDescription, final Class<K> managerClass) {
+    if (managerMap.containsKey(shuffleGroupDescription.getShuffleGroupName())) {
+      throw new RuntimeException(shuffleGroupDescription.getShuffleGroupName()
+          + " was already registered in ShuffleDriver");
     }
     final Injector forkedInjector = rootInjector.forkInjector();
-    forkedInjector.bindVolatileInstance(ShuffleDescription.class, shuffleDescription);
+    forkedInjector.bindVolatileInstance(ShuffleGroupDescription.class, shuffleGroupDescription);
     try {
       final K manager = forkedInjector.getInstance(managerClass);
-      managerMap.put(shuffleDescription.getShuffleName(), manager);
+      managerMap.put(shuffleGroupDescription.getShuffleGroupName(), manager);
       return manager;
     } catch (final InjectionException e) {
       throw new RuntimeException(e);
@@ -72,7 +73,7 @@ final class ShuffleDriverImpl implements ShuffleDriver {
   }
 
   @Override
-  public <K extends ShuffleManager> K getManager(String shuffleName) {
+  public <K extends ShuffleManager> K getManager(final String shuffleName) {
     return (K) managerMap.get(shuffleName);
   }
 
@@ -87,16 +88,14 @@ final class ShuffleDriverImpl implements ShuffleDriver {
   @Override
   public Configuration getTaskConfiguration(final String taskId) {
     final JavaConfigurationBuilder confBuilder = Tang.Factory.getTang().newConfigurationBuilder();
-    System.out.println(taskId + " " + managerMap.values());
     for (final ShuffleManager manager : managerMap.values()) {
-      final Configuration descriptionConf = manager.getShuffleDescriptionConfigurationForTask(taskId);
+      final Configuration clientConf = manager.getClientConfigurationForTask(taskId);
 
-      if (descriptionConf != null) {
-        final Configuration shuffleConf = Tang.Factory.getTang().newConfigurationBuilder(descriptionConf)
+      if (clientConf != null) {
+        final Configuration conf = Tang.Factory.getTang().newConfigurationBuilder(clientConf)
             .bindImplementation(ShuffleClient.class, manager.getClientClass())
             .build();
-        System.out.println(confSerializer.toString(shuffleConf));
-        confBuilder.bindSetEntry(ShuffleParameters.SerializedShuffleSet.class, confSerializer.toString(shuffleConf));
+        confBuilder.bindSetEntry(ShuffleParameters.SerializedClientSet.class, confSerializer.toString(conf));
       }
     }
     return confBuilder.build();

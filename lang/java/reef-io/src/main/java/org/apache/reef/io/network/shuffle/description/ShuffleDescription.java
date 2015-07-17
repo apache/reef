@@ -18,24 +18,22 @@
  */
 package org.apache.reef.io.network.shuffle.description;
 
+import org.apache.reef.io.network.shuffle.strategy.ShuffleStrategy;
 import org.apache.reef.tang.annotations.DefaultImplementation;
-
-import java.util.List;
+import org.apache.reef.wake.remote.Codec;
 
 /**
  *
  */
 @DefaultImplementation(ShuffleDescriptionImpl.class)
-public interface ShuffleDescription {
+public interface ShuffleDescription<K, V> {
 
   String getShuffleName();
 
-  List<String> getGroupingNameList();
+  Class<? extends ShuffleStrategy> getShuffleStrategyClass();
 
-  GroupingDescription getGroupingDescription(String groupingName);
+  Class<? extends Codec<K>> getKeyCodecClass();
 
-  List<String> getSenderIdList(String groupingName);
-
-  List<String> getReceiverIdList(String groupingName);
+  Class<? extends Codec<V>> getValueCodecClass();
 
 }

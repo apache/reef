@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -16,38 +16,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.io.network.shuffle.params;
-
-import org.apache.reef.tang.annotations.Name;
-import org.apache.reef.tang.annotations.NamedParameter;
-
-import java.util.Set;
 
 /**
  *
  */
-public class GroupingParameters {
-  @NamedParameter
-  public static final class GroupingName implements Name<String> {
-  }
-
-  @NamedParameter
-  public final class GroupingReceiverIdSet implements Name<Set<String>> {
-  }
-
-  @NamedParameter
-  public final class GroupingSenderIdSet implements Name<Set<String>> {
-  }
-
-  @NamedParameter
-  public final class GroupingStrategyClassName implements Name<String> {
-  }
-
-  @NamedParameter
-  public static final class GroupingKeyCodecClassName implements Name<String> {
-  }
-
-  @NamedParameter
-  public final class GroupingValueCodecClassName implements Name<String> {
-  }
-}
+package org.apache.reef.io.network.shuffle.strategy;

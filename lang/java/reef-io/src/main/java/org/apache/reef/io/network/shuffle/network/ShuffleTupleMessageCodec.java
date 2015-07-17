@@ -41,11 +41,12 @@ public final class ShuffleTupleMessageCodec implements StreamingCodec<ShuffleTup
     tupleCodecMap = new ConcurrentHashMap<>();
   }
 
-  public void registerTupleCodec(final String shuffleName, final String groupingName, final Codec<Tuple> tupleCodec) {
-    if (!tupleCodecMap.containsKey(shuffleName)) {
-      tupleCodecMap.put(shuffleName, new ConcurrentHashMap<String, Codec<Tuple>>());
+  public void registerTupleCodec(
+      final String shuffleGroupName, final String shuffleName, final Codec<Tuple> tupleCodec) {
+    if (!tupleCodecMap.containsKey(shuffleGroupName)) {
+      tupleCodecMap.put(shuffleGroupName, new ConcurrentHashMap<String, Codec<Tuple>>());
     }
-    tupleCodecMap.get(shuffleName).put(groupingName, tupleCodec);
+    tupleCodecMap.get(shuffleGroupName).put(shuffleName, tupleCodec);
   }
 
   @Override
@@ -74,22 +75,22 @@ public final class ShuffleTupleMessageCodec implements StreamingCodec<ShuffleTup
   @Override
   public void encodeToStream(final ShuffleTupleMessage msg, final DataOutputStream stream) {
     try {
+      if (msg.getShuffleGroupName() == null) {
+        stream.writeUTF("");
+      } else {
+        stream.writeUTF(msg.getShuffleGroupName());
+      }
+
       if (msg.getShuffleName() == null) {
         stream.writeUTF("");
       } else {
         stream.writeUTF(msg.getShuffleName());
       }
 
-      if (msg.getGroupingName() == null) {
-        stream.writeUTF("");
-      } else {
-        stream.writeUTF(msg.getGroupingName());
-      }
-
       stream.writeInt(msg.size());
 
       final int messageLength = msg.size();
-      final Codec<Tuple> tupleCodec = tupleCodecMap.get(msg.getShuffleName()).get(msg.getGroupingName());
+      final Codec<Tuple> tupleCodec = tupleCodecMap.get(msg.getShuffleGroupName()).get(msg.getShuffleName());
       for (int i = 0; i < messageLength; i++) {
         if (tupleCodec instanceof StreamingCodec) {
           ((StreamingCodec<Tuple>)tupleCodec).encodeToStream(msg.get(i), stream);
@@ -107,21 +108,21 @@ public final class ShuffleTupleMessageCodec implements StreamingCodec<ShuffleTup
   @Override
   public ShuffleTupleMessage decodeFromStream(final DataInputStream stream) {
     try {
+      String shuffleGroupName = stream.readUTF();
       String shuffleName = stream.readUTF();
-      String groupingName = stream.readUTF();
+
+      if (shuffleGroupName.equals("")) {
+        shuffleGroupName = null;
+      }
 
       if (shuffleName.equals("")) {
         shuffleName = null;
       }
 
-      if (groupingName.equals("")) {
-        groupingName = null;
-      }
-
       final int dataNum = stream.readInt();
 
       final List<Tuple> tupleList = new ArrayList<>(dataNum);
-      final Codec<Tuple> tupleCodec = tupleCodecMap.get(shuffleName).get(groupingName);
+      final Codec<Tuple> tupleCodec = tupleCodecMap.get(shuffleGroupName).get(shuffleName);
 
       for (int i = 0; i < dataNum; i++) {
         if (tupleCodec instanceof StreamingCodec) {
@@ -133,7 +134,7 @@ public final class ShuffleTupleMessageCodec implements StreamingCodec<ShuffleTup
         }
       }
 
-      return new ShuffleTupleMessage(shuffleName, groupingName, tupleList);
+      return new ShuffleTupleMessage(shuffleGroupName, shuffleName, tupleList);
     } catch(final IOException exception) {
       throw new RuntimeException(exception);
     }

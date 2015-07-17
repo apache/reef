@@ -18,16 +18,16 @@
  */
 package org.apache.reef.io.network.shuffle.task;
 
-import org.apache.reef.io.network.shuffle.description.ShuffleDescription;
+import org.apache.reef.io.network.shuffle.description.ShuffleGroupDescription;
 
 /**
  *
  */
 public interface ShuffleClient {
 
-  <K, V> TupleReceiver<K, V> getReceiver(String groupingName);
+  <K, V> TupleReceiver<K, V> getReceiver(String shuffleName);
 
-  <K, V> TupleSender<K, V> getSender(String groupingName);
+  <K, V> TupleSender<K, V> getSender(String shuffleName);
 
-  ShuffleDescription getShuffleDescription();
+  ShuffleGroupDescription getShuffleGroupDescription();
 }

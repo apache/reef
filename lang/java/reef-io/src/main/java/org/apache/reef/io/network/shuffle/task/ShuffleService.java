@@ -26,6 +26,6 @@ import org.apache.reef.tang.annotations.DefaultImplementation;
 @DefaultImplementation(ShuffleServiceImpl.class)
 public interface ShuffleService {
 
-  ShuffleClient getClient(String shuffleName);
+  ShuffleClient getClient(String shuffleGroupName);
 
 }

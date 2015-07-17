@@ -18,7 +18,7 @@
  */
 package org.apache.reef.io.network.shuffle.task;
 
-import org.apache.reef.io.network.shuffle.description.ShuffleDescription;
+import org.apache.reef.io.network.shuffle.description.ShuffleGroupDescription;
 import org.apache.reef.io.network.shuffle.params.ShuffleParameters;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Injector;
@@ -34,42 +34,41 @@ final class ShuffleServiceImpl implements ShuffleService {
 
   private final Injector rootInjector;
   private final ConfigurationSerializer confSerializer;
-
   private final Map<String, ShuffleClient> clientMap;
 
   @Inject
   public ShuffleServiceImpl(
       final Injector rootInjector,
-      @Parameter(ShuffleParameters.SerializedShuffleSet.class) final Set<String> serializedShuffleSet,
+      @Parameter(ShuffleParameters.SerializedClientSet.class) final Set<String> serializedClientSet,
       final ConfigurationSerializer confSerializer) {
 
     this.rootInjector = rootInjector;
     this.confSerializer = confSerializer;
     this.clientMap = new ConcurrentHashMap<>();
-    System.out.println(serializedShuffleSet);
-    deserializeClients(serializedShuffleSet);
+    deserializeClientSet(serializedClientSet);
   }
 
-  private void deserializeClients(final Set<String> serializedShuffleSet) {
-    for (final String serializedShuffle : serializedShuffleSet) {
-      deserializeClient(serializedShuffle);
+  private void deserializeClientSet(final Set<String> serializedClientSet) {
+    for (final String serializedClient : serializedClientSet) {
+      deserializeClient(serializedClient);
     }
   }
 
-  private void deserializeClient(final String serializedShuffle) {
+  private void deserializeClient(final String serializedClient) {
     try {
-      final Configuration clientConfig = confSerializer.fromString(serializedShuffle);
+      final Configuration clientConfig = confSerializer.fromString(serializedClient);
       final Injector injector = rootInjector.forkInjector(clientConfig);
       final ShuffleClient client = injector.getInstance(ShuffleClient.class);
-      final ShuffleDescription description = client.getShuffleDescription();
-      clientMap.put(description.getShuffleName(), client);
+      final ShuffleGroupDescription description = client.getShuffleGroupDescription();
+      clientMap.put(description.getShuffleGroupName(), client);
     } catch (final Exception exception) {
-      throw new RuntimeException("An Exception occurred while deserializing client " + serializedShuffle, exception);
+      throw new RuntimeException("An Exception occurred while deserializing client "
+          + serializedClient, exception);
     }
   }
 
   @Override
-  public ShuffleClient getClient(final String shuffleName) {
-    return clientMap.get(shuffleName);
+  public ShuffleClient getClient(final String shuffleGroupName) {
+    return clientMap.get(shuffleGroupName);
   }
 }

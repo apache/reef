@@ -19,7 +19,7 @@
 package org.apache.reef.io.network.shuffle.impl;
 
 import org.apache.reef.io.network.shuffle.task.*;
-import org.apache.reef.io.network.shuffle.description.ShuffleDescription;
+import org.apache.reef.io.network.shuffle.description.ShuffleGroupDescription;
 import org.apache.reef.io.network.shuffle.task.TupleReceiver;
 import org.apache.reef.io.network.shuffle.task.TupleSender;
 
@@ -30,28 +30,28 @@ import javax.inject.Inject;
  */
 public final class BasicShuffleClient implements ShuffleClient {
 
-  private final ShuffleDescription initialShuffleDescription;
+  private final ShuffleGroupDescription initialShuffleGroupDescription;
   private final TupleOperatorFactory operatorFactory;
   @Inject
   public BasicShuffleClient(
-      final ShuffleDescription initialShuffleDescription,
+      final ShuffleGroupDescription initialShuffleGroupDescription,
       final TupleOperatorFactory operatorFactory) {
-    this.initialShuffleDescription = initialShuffleDescription;
+    this.initialShuffleGroupDescription = initialShuffleGroupDescription;
     this.operatorFactory = operatorFactory;
   }
 
   @Override
-  public <K, V> TupleReceiver<K, V> getReceiver(final String groupingName) {
-    return operatorFactory.newTupleReceiver(initialShuffleDescription.getGroupingDescription(groupingName));
+  public <K, V> TupleReceiver<K, V> getReceiver(final String shuffleName) {
+    return operatorFactory.newTupleReceiver(initialShuffleGroupDescription.getShuffleDescription(shuffleName));
   }
 
   @Override
-  public <K, V> TupleSender<K, V> getSender(final String groupingName) {
-    return operatorFactory.newTupleSender(initialShuffleDescription.getGroupingDescription(groupingName));
+  public <K, V> TupleSender<K, V> getSender(final String shuffleName) {
+    return operatorFactory.newTupleSender(initialShuffleGroupDescription.getShuffleDescription(shuffleName));
   }
 
   @Override
-  public ShuffleDescription getShuffleDescription() {
-    return initialShuffleDescription;
+  public ShuffleGroupDescription getShuffleGroupDescription() {
+    return initialShuffleGroupDescription;
   }
 }

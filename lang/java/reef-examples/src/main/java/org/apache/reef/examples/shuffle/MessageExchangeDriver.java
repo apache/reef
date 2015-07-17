@@ -30,10 +30,10 @@ import org.apache.reef.io.network.impl.UnbindNetworkConnectionServiceFromTask;
 import org.apache.reef.io.network.naming.NameServer;
 import org.apache.reef.io.network.naming.parameters.NameResolverNameServerAddr;
 import org.apache.reef.io.network.naming.parameters.NameResolverNameServerPort;
-import org.apache.reef.io.network.shuffle.description.GroupingDescriptionImpl;
 import org.apache.reef.io.network.shuffle.description.ShuffleDescriptionImpl;
+import org.apache.reef.io.network.shuffle.description.ShuffleGroupDescriptionImpl;
 import org.apache.reef.io.network.shuffle.driver.ShuffleDriver;
-import org.apache.reef.io.network.shuffle.grouping.impl.KeyGroupingStrategy;
+import org.apache.reef.io.network.shuffle.strategy.KeyShuffleStrategy;
 import org.apache.reef.io.network.shuffle.impl.BasicShuffleManager;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Configurations;
@@ -58,8 +58,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Unit
 public final class MessageExchangeDriver {
 
-  public static final String MESSAGE_EXCHANGE_SHUFFLE_NAME = "MESSAGE_EXCHANGE_SHUFFLE";
-  public static final String MESSAGE_EXCHANGE_GROUPING_NAME = "MESSAGE_EXCHANGE_GROUPING";
+  public static final String MESSAGE_EXCHANGE_SHUFFLE_GROUP_NAME = "MESSAGE_EXCHANGE_SHUFFLE_GROUP_NAME";
+  public static final String MESSAGE_EXCHANGE_SHUFFLE_NAME = "MESSAGE_EXCHANGE_SHUFFLE_NAME";
   public static final String TASK_PREFIX = "TASK";
 
   private final AtomicInteger allocatedNum;
@@ -85,16 +85,16 @@ public final class MessageExchangeDriver {
     this.shuffleDriver = shuffleDriver;
     this.localAddressProvider = localAddressProvider;
     this.nameServer = nameServer;
-    createShuffle();
+    createShuffleGroup();
   }
 
-  private void createShuffle() {
+  private void createShuffleGroup() {
     shuffleDriver.registerManager(
-        ShuffleDescriptionImpl.newBuilder(MESSAGE_EXCHANGE_SHUFFLE_NAME)
-            .addGrouping(taskIds, taskIds, GroupingDescriptionImpl.newBuilder(MESSAGE_EXCHANGE_GROUPING_NAME)
+        ShuffleGroupDescriptionImpl.newBuilder(MESSAGE_EXCHANGE_SHUFFLE_GROUP_NAME)
+            .addShuffle(taskIds, taskIds, ShuffleDescriptionImpl.newBuilder(MESSAGE_EXCHANGE_SHUFFLE_NAME)
                 .setKeyCodec(IntegerCodec.class)
                 .setValueCodec(IntegerCodec.class)
-                .setGroupingStrategy(KeyGroupingStrategy.class)
+                .setShuffleStrategy(KeyShuffleStrategy.class)
                 .build())
         .build(), BasicShuffleManager.class
     );

@@ -37,7 +37,6 @@ import javax.inject.Inject;
 public final class ShuffleContextStartHandler implements EventHandler<ContextStart> {
 
   private final NetworkConnectionService networkConnectionService;
-
   private final Identifier tupleMessageConnectionId;
   private final ShuffleTupleMessageCodec tupleCodec;
   private final ShuffleTupleMessageHandler tupleHandler;

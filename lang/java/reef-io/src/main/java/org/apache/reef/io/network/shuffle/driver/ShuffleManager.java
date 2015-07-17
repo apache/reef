@@ -18,9 +18,6 @@
  */
 package org.apache.reef.io.network.shuffle.driver;
 
-import org.apache.reef.driver.task.CompletedTask;
-import org.apache.reef.driver.task.FailedTask;
-import org.apache.reef.driver.task.RunningTask;
 import org.apache.reef.io.network.shuffle.task.ShuffleClient;
 import org.apache.reef.tang.Configuration;
 
@@ -29,14 +26,8 @@ import org.apache.reef.tang.Configuration;
  */
 public interface ShuffleManager {
 
-  Configuration getShuffleDescriptionConfigurationForTask(String taskId);
+  Configuration getClientConfigurationForTask(String taskId);
 
   Class<? extends ShuffleClient> getClientClass();
-
-  void onRunningTask(RunningTask runningTask);
-
-  void onFailedTask(FailedTask failedTask);
-
-  void onCompletedTask(CompletedTask completedTask);
 
 }

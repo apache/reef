@@ -27,25 +27,25 @@ import java.util.List;
  */
 public final class ShuffleTupleMessage<K, V> {
 
+  private final String shuffleGroupName;
   private final String shuffleName;
-  private final String groupingName;
   private final List<Tuple<K, V>> tuples;
 
   public ShuffleTupleMessage(
+      final String shuffleGroupName,
       final String shuffleName,
-      final String groupingName,
       final List<Tuple<K, V>> tuples) {
+    this.shuffleGroupName = shuffleGroupName;
     this.shuffleName = shuffleName;
-    this.groupingName = groupingName;
     this.tuples = tuples;
+  }
+
+  public String getShuffleGroupName() {
+    return shuffleGroupName;
   }
 
   public String getShuffleName() {
     return shuffleName;
-  }
-
-  public String getGroupingName() {
-    return groupingName;
   }
 
   public int size() {

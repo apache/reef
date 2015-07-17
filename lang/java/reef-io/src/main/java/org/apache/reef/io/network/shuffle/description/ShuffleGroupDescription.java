@@ -16,31 +16,26 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.io.network.shuffle.grouping.impl;
+package org.apache.reef.io.network.shuffle.description;
 
-import org.apache.reef.io.network.shuffle.grouping.GroupingStrategy;
+import org.apache.reef.tang.annotations.DefaultImplementation;
 
-import javax.inject.Inject;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
  *
  */
-public final class KeyGroupingStrategy<K> implements GroupingStrategy<K> {
+@DefaultImplementation(ShuffleGroupDescriptionImpl.class)
+public interface ShuffleGroupDescription {
 
-  @Inject
-  public KeyGroupingStrategy() {
-  }
+  String getShuffleGroupName();
 
-  @Override
-  public List<String> selectReceivers(final K key, final List<String> receiverIdList) {
-    int index = key.hashCode() % receiverIdList.size();
-    if (index < 0) {
-      index += receiverIdList.size();
-    }
-    final List<String> list =  new ArrayList<>();
-    list.add(receiverIdList.get(index));
-    return list;
-  }
+  List<String> getShuffleNameList();
+
+  ShuffleDescription getShuffleDescription(String shuffleName);
+
+  List<String> getSenderIdList(String shuffleName);
+
+  List<String> getReceiverIdList(String shuffleName);
+
 }

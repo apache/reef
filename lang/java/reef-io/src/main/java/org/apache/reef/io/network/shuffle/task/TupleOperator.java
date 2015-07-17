@@ -18,7 +18,7 @@
  */
 package org.apache.reef.io.network.shuffle.task;
 
-import org.apache.reef.io.network.shuffle.description.GroupingDescription;
+import org.apache.reef.io.network.shuffle.description.ShuffleDescription;
 
 import java.util.List;
 
@@ -27,7 +27,7 @@ import java.util.List;
  */
 public interface TupleOperator<K, V> {
 
-  GroupingDescription<K, V> getGroupingDescription();
+  ShuffleDescription<K, V> getShuffleDescription();
 
   List<String> getSelectedReceiverIdList(K key);
 

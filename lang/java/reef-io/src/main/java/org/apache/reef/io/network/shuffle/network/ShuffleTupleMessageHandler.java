@@ -49,6 +49,6 @@ public class ShuffleTupleMessageHandler implements EventHandler<Message<ShuffleT
   @Override
   public void onNext(final Message<ShuffleTupleMessage> message) {
     final ShuffleTupleMessage tupleMessage = message.getData().iterator().next();
-    eventHandlerMap.get(tupleMessage.getShuffleName()).get(tupleMessage.getGroupingName()).onNext(message);
+    eventHandlerMap.get(tupleMessage.getShuffleGroupName()).get(tupleMessage.getShuffleName()).onNext(message);
   }
 }

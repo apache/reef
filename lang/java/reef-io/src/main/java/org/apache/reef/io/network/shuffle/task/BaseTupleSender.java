@@ -25,10 +25,10 @@ import org.apache.reef.io.network.ConnectionFactory;
 import org.apache.reef.io.network.Message;
 import org.apache.reef.io.network.NetworkConnectionService;
 import org.apache.reef.io.network.naming.NameServerParameters;
-import org.apache.reef.io.network.shuffle.grouping.GroupingStrategy;
+import org.apache.reef.io.network.shuffle.strategy.ShuffleStrategy;
 import org.apache.reef.io.network.shuffle.network.ShuffleTupleLinkListener;
 import org.apache.reef.io.network.shuffle.network.ShuffleTupleMessage;
-import org.apache.reef.io.network.shuffle.description.GroupingDescription;
+import org.apache.reef.io.network.shuffle.description.ShuffleDescription;
 import org.apache.reef.io.network.shuffle.params.ShuffleParameters;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.wake.IdentifierFactory;
@@ -43,14 +43,14 @@ import java.util.List;
  */
 public final class BaseTupleSender<K, V> implements TupleSender<K, V> {
 
+  private final String shuffleGroupName;
   private final String shuffleName;
-  private final String groupingName;
   private final ShuffleClient shuffleClient;
   private final ShuffleTupleLinkListener globalTupleLinkListener;
   private final ConnectionFactory<ShuffleTupleMessage> tupleMessageConnectionFactory;
   private final IdentifierFactory idFactory;
-  private final GroupingDescription<K, V> groupingDescription;
-  private final GroupingStrategy<K> groupingStrategy;
+  private final ShuffleDescription<K, V> shuffleDescription;
+  private final ShuffleStrategy<K> shuffleStrategy;
   private final ShuffleTupleMessageGenerator<K, V> tupleMessageGenerator;
 
   @Inject
@@ -59,18 +59,18 @@ public final class BaseTupleSender<K, V> implements TupleSender<K, V> {
       final ShuffleTupleLinkListener globalTupleLinkListener,
       final NetworkConnectionService networkConnectionService,
       @Parameter(NameServerParameters.NameServerIdentifierFactory.class) final IdentifierFactory idFactory,
-      final GroupingDescription<K, V> groupingDescription,
-      final GroupingStrategy<K> groupingStrategy,
+      final ShuffleDescription<K, V> shuffleDescription,
+      final ShuffleStrategy<K> shuffleStrategy,
       final ShuffleTupleMessageGenerator<K, V> tupleMessageGenerator) {
-    this.shuffleName = shuffleClient.getShuffleDescription().getShuffleName();
-    this.groupingName = groupingDescription.getGroupingName();
+    this.shuffleGroupName = shuffleClient.getShuffleGroupDescription().getShuffleGroupName();
+    this.shuffleName = shuffleDescription.getShuffleName();
     this.shuffleClient = shuffleClient;
     this.globalTupleLinkListener = globalTupleLinkListener;
     this.tupleMessageConnectionFactory = networkConnectionService
         .getConnectionFactory(idFactory.getNewInstance(ShuffleParameters.NETWORK_CONNECTION_SERVICE_ID));
     this.idFactory = idFactory;
-    this.groupingDescription = groupingDescription;
-    this.groupingStrategy = groupingStrategy;
+    this.shuffleDescription = shuffleDescription;
+    this.shuffleStrategy = shuffleStrategy;
     this.tupleMessageGenerator = tupleMessageGenerator;
   }
 
@@ -100,7 +100,7 @@ public final class BaseTupleSender<K, V> implements TupleSender<K, V> {
 
   @Override
   public void registerTupleLinkListener(final LinkListener<Message<ShuffleTupleMessage<K, V>>> linkListener) {
-    globalTupleLinkListener.registerLinkListener(shuffleName, groupingName, linkListener);
+    globalTupleLinkListener.registerLinkListener(shuffleGroupName, shuffleName, linkListener);
   }
 
   private List<String> sendShuffleMessageTupleList(
@@ -126,13 +126,13 @@ public final class BaseTupleSender<K, V> implements TupleSender<K, V> {
   }
 
   @Override
-  public GroupingDescription<K, V> getGroupingDescription() {
-    return groupingDescription;
+  public ShuffleDescription<K, V> getShuffleDescription() {
+    return shuffleDescription;
   }
 
   @Override
-  public List<String> getSelectedReceiverIdList(K key) {
-    return groupingStrategy.selectReceivers(key,
-        shuffleClient.getShuffleDescription().getReceiverIdList(groupingName));
+  public List<String> getSelectedReceiverIdList(final K key) {
+    return shuffleStrategy.selectReceivers(key,
+        shuffleClient.getShuffleGroupDescription().getReceiverIdList(shuffleName));
   }
 }

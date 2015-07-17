@@ -46,14 +46,38 @@ public final class ShuffleParameters {
   }
 
   @NamedParameter
-  public static final class SerializedGroupingSet implements Name<Set<String>> {
+  public static final class ShuffleName implements Name<String> {
   }
 
   @NamedParameter
-  public static final class SerializedShuffleName implements Name<String> {
+  public final class ShuffleReceiverIdSet implements Name<Set<String>> {
+  }
+
+  @NamedParameter
+  public final class ShuffleSenderIdSet implements Name<Set<String>> {
+  }
+
+  @NamedParameter
+  public final class ShuffleStrategyClassName implements Name<String> {
+  }
+
+  @NamedParameter
+  public static final class ShuffleKeyCodecClassName implements Name<String> {
+  }
+
+  @NamedParameter
+  public final class ShuffleValueCodecClassName implements Name<String> {
   }
 
   @NamedParameter
   public static final class SerializedShuffleSet implements Name<Set<String>> {
+  }
+
+  @NamedParameter
+  public static final class SerializedShuffleGroupName implements Name<String> {
+  }
+
+  @NamedParameter
+  public static final class SerializedClientSet implements Name<Set<String>> {
   }
 }
