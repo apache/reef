@@ -26,9 +26,9 @@ public class StackBindLocation implements BindLocation {
   final StackTraceElement[] stack;
 
   public StackBindLocation() {
-    StackTraceElement[] stack = new Throwable().getStackTrace();
-    if (stack.length != 0) {
-      this.stack = Arrays.copyOfRange(stack, 1, stack.length);
+    StackTraceElement[] stackTrace = new Throwable().getStackTrace();
+    if (stackTrace.length != 0) {
+      this.stack = Arrays.copyOfRange(stackTrace, 1, stackTrace.length);
     } else {
       this.stack = new StackTraceElement[0];
     }

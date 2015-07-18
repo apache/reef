@@ -81,6 +81,7 @@ public class FlatTopology implements Topology {
   }
 
   @Override
+  @SuppressWarnings("checkstyle:hiddenfield")
   public void setRootTask(final String rootId) {
     this.rootId = rootId;
   }
@@ -192,9 +193,9 @@ public class FlatTopology implements Topology {
     nodes.remove(taskId);
   }
 
-  private void setRootNode(final String rootId) {
-    LOG.finest(getQualifiedName() + "Setting " + rootId + " as root");
-    final TaskNode node = new TaskNodeImpl(senderStage, groupName, operName, rootId, driverId, true);
+  private void setRootNode(final String newRootId) {
+    LOG.finest(getQualifiedName() + "Setting " + newRootId + " as root");
+    final TaskNode node = new TaskNodeImpl(senderStage, groupName, operName, newRootId, driverId, true);
     this.root = node;
 
     for (final Map.Entry<String, TaskNode> nodeEntry : nodes.entrySet()) {
@@ -204,7 +205,7 @@ public class FlatTopology implements Topology {
       root.addChild(leaf);
       leaf.setParent(root);
     }
-    nodes.put(rootId, root);
+    nodes.put(newRootId, root);
   }
 
   /**

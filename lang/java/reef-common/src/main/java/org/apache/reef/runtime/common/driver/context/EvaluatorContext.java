@@ -238,11 +238,10 @@ public final class EvaluatorContext implements ActiveContext {
         Optional.<ActiveContext>of(this.contextRepresenters.getContext(getParentId().get())) :
         Optional.<ActiveContext>empty();
 
-    final EvaluatorDescriptor evaluatorDescriptor = getEvaluatorDescriptor();
     final String evaluatorID = getEvaluatorId();
 
     return new FailedContextImpl(
-        id, message, description, cause, data, parentContext, evaluatorDescriptor, evaluatorID);
+        id, message, description, cause, data, parentContext, this.evaluatorDescriptor, evaluatorID);
   }
 
   public synchronized FailedContext getFailedContext(
@@ -267,11 +266,10 @@ public final class EvaluatorContext implements ActiveContext {
         Optional.<ActiveContext>of(this.contextRepresenters.getContext(getParentId().get())) :
         Optional.<ActiveContext>empty();
 
-    final EvaluatorDescriptor evaluatorDescriptor = getEvaluatorDescriptor();
     final String evaluatorID = getEvaluatorId();
 
     return new FailedContextImpl(
-        id, message, description, cause, data, parentContext, evaluatorDescriptor, evaluatorID);
+        id, message, description, cause, data, parentContext, this.evaluatorDescriptor, evaluatorID);
   }
 
   public synchronized boolean isRootContext() {

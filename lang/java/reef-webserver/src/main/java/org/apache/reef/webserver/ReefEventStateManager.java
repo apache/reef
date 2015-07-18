@@ -217,6 +217,7 @@ public final class ReefEventStateManager {
    */
   public final class StartStateHandler implements EventHandler<StartTime> {
     @Override
+    @SuppressWarnings("checkstyle:hiddenfield")
     public void onNext(final StartTime startTime) {
       LOG.log(Level.INFO,
           "StartStateHandler: Driver started with endpoint identifier [{0}]  and StartTime [{1}]",
@@ -230,6 +231,7 @@ public final class ReefEventStateManager {
    */
   public final class StopStateHandler implements EventHandler<StopTime> {
     @Override
+    @SuppressWarnings("checkstyle:hiddenfield")
     public void onNext(final StopTime stopTime) {
       LOG.log(Level.INFO, "StopStateHandler called. StopTime: {0}", stopTime);
       ReefEventStateManager.this.stopTime = stopTime;

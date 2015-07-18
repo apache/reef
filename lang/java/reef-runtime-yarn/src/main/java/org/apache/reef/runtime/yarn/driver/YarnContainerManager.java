@@ -121,6 +121,7 @@ final class YarnContainerManager
   }
 
   @Override
+  @SuppressWarnings("checkstyle:hiddenfield")
   public void onContainersAllocated(final List<Container> containers) {
 
     // ID is used for logging only

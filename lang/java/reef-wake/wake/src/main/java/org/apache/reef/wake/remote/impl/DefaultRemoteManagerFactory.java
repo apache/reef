@@ -77,6 +77,7 @@ public final class DefaultRemoteManagerFactory implements RemoteManagerFactory {
 
 
   @Override
+  @SuppressWarnings("checkstyle:hiddenfield")
   public <T> RemoteManager getInstance(final String name,
                                        final String hostAddress,
                                        final int listeningPort,
@@ -100,6 +101,7 @@ public final class DefaultRemoteManagerFactory implements RemoteManagerFactory {
   }
 
   @Override
+  @SuppressWarnings("checkstyle:hiddenfield")
   public <T> RemoteManager getInstance(final String name,
                                        final String hostAddress,
                                        final int listeningPort,
@@ -122,6 +124,7 @@ public final class DefaultRemoteManagerFactory implements RemoteManagerFactory {
   }
 
   @Override
+  @SuppressWarnings("checkstyle:hiddenfield")
   public <T> RemoteManager getInstance(String name, Codec<T> codec, EventHandler<Throwable> errorHandler) {
     return new DefaultRemoteManagerImplementation(name,
         DefaultRemoteManagerImplementation.UNKNOWN_HOST_NAME, // Indicate to use the localAddressProvider
@@ -136,6 +139,7 @@ public final class DefaultRemoteManagerFactory implements RemoteManagerFactory {
   }
 
   @Override
+  @SuppressWarnings("checkstyle:hiddenfield")
   public <T> RemoteManager getInstance(final String name,
                                        final int listeningPort,
                                        final Codec<T> codec,

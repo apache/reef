@@ -94,6 +94,7 @@ public class ReduceOperatorSpec implements OperatorSpec {
       return this;
     }
 
+    @SuppressWarnings("checkstyle:hiddenfield")
     public Builder setReduceFunctionClass(final Class<? extends ReduceFunction> redFuncClass) {
       this.redFuncClass = redFuncClass;
       return this;

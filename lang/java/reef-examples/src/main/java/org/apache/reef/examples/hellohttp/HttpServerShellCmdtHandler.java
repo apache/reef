@@ -129,8 +129,8 @@ class HttpServerShellCmdtHandler implements HttpHandler {
       response.getOutputStream().write(cmdOutput.getBytes(Charset.forName("UTF-8")));
       cmdOutput = null;
     } else if (parsedHttpRequest.getTargetEntity().equalsIgnoreCase("Driver")) {
-      final String cmdOutput = CommandUtils.runCommand(queryStr);
-      response.getOutputStream().write(cmdOutput.getBytes(Charset.forName("UTF-8")));
+      final String commandOutput = CommandUtils.runCommand(queryStr);
+      response.getOutputStream().write(commandOutput.getBytes(Charset.forName("UTF-8")));
     }
   }
 

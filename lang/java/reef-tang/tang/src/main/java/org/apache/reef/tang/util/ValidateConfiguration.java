@@ -93,8 +93,8 @@ public class ValidateConfiguration {
       root = ClassHierarchyProto.Node.parseFrom(chin);
     }
 
-    final ClassHierarchy ch = new ProtocolBufferClassHierarchy(root);
-    final ConfigurationBuilder cb = t.newConfigurationBuilder(ch);
+    final ClassHierarchy classHierarchy = new ProtocolBufferClassHierarchy(root);
+    final ConfigurationBuilder cb = t.newConfigurationBuilder(classHierarchy);
 
     if (!inConfig.canRead()) {
       throw new IOException("Cannot read input config file: " + inConfig);

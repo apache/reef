@@ -107,6 +107,7 @@ public final class ApplicationSubmission {
     return isUnmanagedAM;
   }
 
+  @SuppressWarnings("checkstyle:hiddenfield")
   public ApplicationSubmission setUnmanagedAM(boolean isUnmanagedAM) {
     this.isUnmanagedAM = isUnmanagedAM;
     return this;

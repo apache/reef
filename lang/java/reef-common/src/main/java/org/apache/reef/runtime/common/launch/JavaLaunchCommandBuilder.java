@@ -105,6 +105,7 @@ public final class JavaLaunchCommandBuilder implements LaunchCommandBuilder {
   }
 
   @Override
+  @SuppressWarnings("checkstyle:hiddenfield")
   public JavaLaunchCommandBuilder setMemory(final int megaBytes) {
     this.megaBytes = megaBytes;
     return this;
@@ -156,6 +157,7 @@ public final class JavaLaunchCommandBuilder implements LaunchCommandBuilder {
    * @param assertionsEnabled
    * @return this
    */
+  @SuppressWarnings("checkstyle:hiddenfield")
   public JavaLaunchCommandBuilder enableAssertions(final boolean assertionsEnabled) {
     this.assertionsEnabled = assertionsEnabled;
     return this;

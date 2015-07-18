@@ -32,17 +32,17 @@ public class SetInjectionPlan<T> extends InjectionPlan<T> {
   public SetInjectionPlan(Node name, Set<InjectionPlan<T>> entries) {
     super(name);
     this.entries.addAll(entries);
-    int numAlternatives = 1;
-    boolean isAmbiguous = false;
-    boolean isInjectable = true;
+    int numAlternativesAccumulator = 1;
+    boolean isAmbiguousAccumulator = false;
+    boolean isInjectableAccumulator = true;
     for (InjectionPlan<T> ip : entries) {
-      numAlternatives *= ip.getNumAlternatives();
-      isAmbiguous |= ip.isAmbiguous();
-      isInjectable &= ip.isInjectable();
+      numAlternativesAccumulator *= ip.getNumAlternatives();
+      isAmbiguousAccumulator |= ip.isAmbiguous();
+      isInjectableAccumulator &= ip.isInjectable();
     }
-    this.numAlternatives = numAlternatives;
-    this.isAmbiguous = isAmbiguous;
-    this.isInjectable = isInjectable;
+    this.numAlternatives = numAlternativesAccumulator;
+    this.isAmbiguous = isAmbiguousAccumulator;
+    this.isInjectable = isInjectableAccumulator;
   }
 
   @Override

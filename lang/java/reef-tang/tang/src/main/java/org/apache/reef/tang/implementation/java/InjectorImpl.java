@@ -633,12 +633,12 @@ public class InjectorImpl implements Injector {
         T ret;
         try {
           ConstructorDef<T> def = (ConstructorDef<T>) constructor.getConstructorDef();
-          java.lang.reflect.Constructor<T> c = getConstructor(def);
+          java.lang.reflect.Constructor<T> construct = getConstructor(def);
 
           if (aspect != null) {
-            ret = aspect.inject(def, c, args);
+            ret = aspect.inject(def, construct, args);
           } else {
-            ret = c.newInstance(args);
+            ret = construct.newInstance(args);
           }
         } catch (IllegalArgumentException e) {
           StringBuilder sb = new StringBuilder("Internal Tang error?  Could not call constructor " +
@@ -683,19 +683,19 @@ public class InjectorImpl implements Injector {
   }
 
   @Override
-  public <T> void bindVolatileInstance(Class<T> c, T o) throws BindException {
-    bindVolatileInstanceNoCopy(c, o);
+  public <T> void bindVolatileInstance(Class<T> cl, T o) throws BindException {
+    bindVolatileInstanceNoCopy(cl, o);
   }
 
   @Override
-  public <T> void bindVolatileParameter(Class<? extends Name<T>> c, T o)
+  public <T> void bindVolatileParameter(Class<? extends Name<T>> cl, T o)
       throws BindException {
-    bindVolatileParameterNoCopy(c, o);
+    bindVolatileParameterNoCopy(cl, o);
   }
 
-  <T> void bindVolatileInstanceNoCopy(Class<T> c, T o) throws BindException {
+  <T> void bindVolatileInstanceNoCopy(Class<T> cl, T o) throws BindException {
     assertNotConcurrent();
-    Node n = javaNamespace.getNode(c);
+    Node n = javaNamespace.getNode(cl);
     if (n instanceof ClassNode) {
       ClassNode<?> cn = (ClassNode<?>) n;
       Object old = getCachedInstance(cn);
@@ -705,33 +705,33 @@ public class InjectorImpl implements Injector {
       }
       instances.put(cn, o);
     } else {
-      throw new IllegalArgumentException("Expected Class but got " + c
+      throw new IllegalArgumentException("Expected Class but got " + cl
           + " (probably a named parameter).");
     }
   }
 
-  <T> void bindVolatileParameterNoCopy(Class<? extends Name<T>> c, T o)
+  <T> void bindVolatileParameterNoCopy(Class<? extends Name<T>> cl, T o)
       throws BindException {
-    Node n = javaNamespace.getNode(c);
+    Node n = javaNamespace.getNode(cl);
     if (n instanceof NamedParameterNode) {
       NamedParameterNode<?> np = (NamedParameterNode<?>) n;
       Object old = this.c.getNamedParameter(np);
       if (old != null) {
         // XXX need to get the binding site here!
         throw new BindException(
-            "Attempt to re-bind named parameter " + ReflectionUtilities.getFullName(c) + ".  Old value was [" + old
+            "Attempt to re-bind named parameter " + ReflectionUtilities.getFullName(cl) + ".  Old value was [" + old
                 + "] new value is [" + o + "]");
       }
       try {
         namedParameterInstances.put(np, o);
       } catch (IllegalArgumentException e) {
         throw new BindException(
-            "Attempt to re-bind named parameter " + ReflectionUtilities.getFullName(c) + ".  Old value was [" + old
+            "Attempt to re-bind named parameter " + ReflectionUtilities.getFullName(cl) + ".  Old value was [" + old
                 + "] new value is [" + o + "]");
 
       }
     } else {
-      throw new IllegalArgumentException("Expected Name, got " + c
+      throw new IllegalArgumentException("Expected Name, got " + cl
           + " (probably a class)");
     }
   }

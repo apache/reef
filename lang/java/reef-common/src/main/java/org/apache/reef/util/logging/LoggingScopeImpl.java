@@ -91,14 +91,14 @@ public class LoggingScopeImpl implements LoggingScope {
   }
 
   /**
-   * log massage.
-   * @param msg
+   * Log message.
+   * @param message
    */
-  private void log(final String msg) {
+  private void log(final String message) {
     if (this.optionalParams.isPresent()) {
-      logger.log(logLevel, msg, params);
+      logger.log(logLevel, message, params);
     } else {
-      logger.log(logLevel, msg);
+      logger.log(logLevel, message);
     }
   }
 }

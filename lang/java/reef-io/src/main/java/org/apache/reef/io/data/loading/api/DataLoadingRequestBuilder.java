@@ -117,6 +117,7 @@ public final class DataLoadingRequestBuilder
    *          the compute requests to add
    * @return this
    */
+  @SuppressWarnings("checkstyle:hiddenfield")
   public DataLoadingRequestBuilder addComputeRequests(final List<EvaluatorRequest> computeRequests) {
     for (final EvaluatorRequest computeRequest : computeRequests) {
       addComputeRequest(computeRequest);
@@ -131,6 +132,7 @@ public final class DataLoadingRequestBuilder
    *          the data requests to add
    * @return this
    */
+  @SuppressWarnings("checkstyle:hiddenfield")
   public DataLoadingRequestBuilder addDataRequests(final List<EvaluatorRequest> dataRequests) {
     for (final EvaluatorRequest dataRequest : dataRequests) {
       addDataRequest(dataRequest);
@@ -178,11 +180,13 @@ public final class DataLoadingRequestBuilder
     return this;
   }
 
+  @SuppressWarnings("checkstyle:hiddenfield")
   public DataLoadingRequestBuilder loadIntoMemory(final boolean inMemory) {
     this.inMemory = inMemory;
     return this;
   }
 
+  @SuppressWarnings("checkstyle:hiddenfield")
   public DataLoadingRequestBuilder renewFailedEvaluators(final boolean renewFailedEvaluators) {
     this.renewFailedEvaluators = renewFailedEvaluators;
     return this;

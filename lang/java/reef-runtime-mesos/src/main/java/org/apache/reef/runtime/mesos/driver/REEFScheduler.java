@@ -152,6 +152,7 @@ final class REEFScheduler implements Scheduler {
    * All offers in each batch of offers will be either be launched or declined.
    */
   @Override
+  @SuppressWarnings("checkstyle:hiddenfield")
   public void resourceOffers(final SchedulerDriver driver, final List<Protos.Offer> offers) {
     final Map<String, NodeDescriptorEventImpl.Builder> nodeDescriptorEvents = new HashMap<>();
 
@@ -497,11 +498,11 @@ final class REEFScheduler implements Scheduler {
       // Upload REEF_TAR to HDFS
       final FileSystem fileSystem = FileSystem.get(new Configuration());
       final org.apache.hadoop.fs.Path src = new org.apache.hadoop.fs.Path(REEF_TAR);
-      final String reefTarUri = fileSystem.getUri().toString() + "/" + jobIdentifier + "/" + REEF_TAR;
-      final org.apache.hadoop.fs.Path dst = new org.apache.hadoop.fs.Path(reefTarUri);
+      final String reefTarUriValue = fileSystem.getUri().toString() + "/" + jobIdentifier + "/" + REEF_TAR;
+      final org.apache.hadoop.fs.Path dst = new org.apache.hadoop.fs.Path(reefTarUriValue);
       fileSystem.copyFromLocalFile(src, dst);
 
-      return reefTarUri;
+      return reefTarUriValue;
     } catch (IOException e) {
       throw new RuntimeException(e);
     }

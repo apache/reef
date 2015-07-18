@@ -96,9 +96,9 @@ public final class JobFolder {
   /**
    * Creates a LocalResource instance for the JAR file referenced by the given Path.
    */
-  public LocalResource getLocalResourceForPath(final Path path) throws IOException {
+  public LocalResource getLocalResourceForPath(final Path jarPath) throws IOException {
     final LocalResource localResource = Records.newRecord(LocalResource.class);
-    final FileStatus status = FileContext.getFileContext(fileSystem.getUri()).getFileStatus(path);
+    final FileStatus status = FileContext.getFileContext(fileSystem.getUri()).getFileStatus(jarPath);
     localResource.setType(LocalResourceType.ARCHIVE);
     localResource.setVisibility(LocalResourceVisibility.APPLICATION);
     localResource.setResource(ConverterUtils.getYarnUrlFromPath(status.getPath()));

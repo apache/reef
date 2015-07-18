@@ -59,6 +59,7 @@ public final class DistributedDataSet implements Iterable<DistributedDataSetPart
    * @param partitions
    *          the partitions to add
    */
+  @SuppressWarnings("checkstyle:hiddenfield")
   public void addPartitions(final Collection<DistributedDataSetPartition> partitions) {
     this.partitions.addAll(partitions);
   }
