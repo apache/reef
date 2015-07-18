@@ -36,16 +36,18 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
 public class ClockTest {
 
   private static RuntimeClock buildClock() throws Exception {
     final JavaConfigurationBuilder builder = Tang.Factory.getTang()
-        .newConfigurationBuilder();
+            .newConfigurationBuilder();
 
     final Injector injector = Tang.Factory.getTang()
-        .newInjector(builder.build());
+            .newInjector(builder.build());
 
     return injector.getInstance(RuntimeClock.class);
   }
@@ -65,17 +67,17 @@ public class ClockTest {
   public void testClock() throws Exception {
     LoggingUtils.setLoggingLevel(Level.FINE);
 
+    final int minEvents = 40;
+    final CountDownLatch eventCountLatch = new CountDownLatch(minEvents);
+
     final RuntimeClock clock = buildClock();
     new Thread(clock).start();
-    final RandomAlarmProducer alarmProducer = new RandomAlarmProducer(clock);
-    ThreadPoolStage<Alarm> stage = new ThreadPoolStage<>(alarmProducer, 10);
+    final RandomAlarmProducer alarmProducer = new RandomAlarmProducer(clock, eventCountLatch);
 
-    try {
+    try (ThreadPoolStage<Alarm> stage = new ThreadPoolStage<>(alarmProducer, 10)) {
       stage.onNext(null);
-      Thread.sleep(5000);
-      Assert.assertTrue(alarmProducer.getEventCount() > 40);
+      Assert.assertTrue(eventCountLatch.await(10, TimeUnit.SECONDS));
     } finally {
-      stage.close();
       clock.close();
     }
   }
@@ -94,20 +96,24 @@ public class ClockTest {
       // Schedule an Alarm that's far in the future
       clock.scheduleAlarm(5000, laterAlarmRecorder);
       Thread.sleep(1000);
+
       // By now, RuntimeClockImpl should be in a timed wait() for 5000 ms.
       // Scheduler an Alarm that should fire before the existing Alarm:
       clock.scheduleAlarm(2000, earlierAlarmRecorder);
       Thread.sleep(1000);
+
       // The earlier Alarm shouldn't have fired yet (we've only slept 1/2 time):
-      Assert.assertEquals(0, earlierAlarmRecorder.events.size());
+      Assert.assertEquals(0, earlierAlarmRecorder.getEventCount());
       Thread.sleep(1500);
+
       // The earlier Alarm should have fired, since 3500 > 2000 ms have passed:
-      Assert.assertEquals(1, earlierAlarmRecorder.events.size());
+      Assert.assertEquals(1, earlierAlarmRecorder.getEventCount());
       // And the later Alarm shouldn't have fired yet:
-      Assert.assertEquals(0, laterAlarmRecorder.events.size());
-      Thread.sleep(2000);
-      // The later Alarm should have fired, since 5500 > 5000 ms have passed:
-      Assert.assertEquals(1, laterAlarmRecorder.events.size());
+      Assert.assertEquals(0, laterAlarmRecorder.getEventCount());
+      Thread.sleep(2500);
+
+      // The later Alarm should have fired, since 6000 > 5000 ms have passed:
+      Assert.assertEquals(1, laterAlarmRecorder.getEventCount());
     } finally {
       clock.close();
     }
@@ -118,19 +124,22 @@ public class ClockTest {
     LoggingUtils.setLoggingLevel(Level.FINE);
 
     final int numThreads = 3;
+    final CountDownLatch eventCountLatch = new CountDownLatch(numThreads);
+
     final RuntimeClock clock = buildClock();
     new Thread(clock).start();
     final ThreadPoolStage<Alarm> stage = new ThreadPoolStage<>(new EventHandler<Alarm>() {
       @Override
       public void onNext(final Alarm value) {
         clock.close();
+        eventCountLatch.countDown();
       }
     }, numThreads);
 
     try {
       for (int i = 0; i < numThreads; ++i)
         stage.onNext(null);
-      Thread.sleep(1000);
+      eventCountLatch.await(10, TimeUnit.SECONDS);
     } finally {
       stage.close();
       clock.close();
@@ -141,15 +150,18 @@ public class ClockTest {
   public void testSimultaneousAlarms() throws Exception {
     LoggingUtils.setLoggingLevel(Level.FINE);
 
+    final int expectedEvent = 2;
+    final CountDownLatch eventCountLatch = new CountDownLatch(expectedEvent);
+
     final RuntimeClock clock = buildLogicalClock();
     new Thread(clock).start();
 
-    final EventRecorder alarmRecorder = new EventRecorder();
+    final EventRecorder alarmRecorder = new EventRecorder(eventCountLatch);
     try {
-      clock.scheduleAlarm(1000, alarmRecorder);
-      clock.scheduleAlarm(1000, alarmRecorder);
-      Thread.sleep(2000);
-      Assert.assertEquals(2, alarmRecorder.events.size());
+      clock.scheduleAlarm(500, alarmRecorder);
+      clock.scheduleAlarm(500, alarmRecorder);
+      eventCountLatch.await(10, TimeUnit.SECONDS);
+      Assert.assertEquals(expectedEvent, alarmRecorder.getEventCount());
     } finally {
       clock.close();
     }
@@ -159,22 +171,24 @@ public class ClockTest {
   public void testAlarmOrder() throws Exception {
     LoggingUtils.setLoggingLevel(Level.FINE);
 
+    final int numAlarms = 10;
+    final CountDownLatch eventCountLatch = new CountDownLatch(numAlarms);
+
     final RuntimeClock clock = buildLogicalClock();
     new Thread(clock).start();
 
-    final EventRecorder alarmRecorder = new EventRecorder();
+    final EventRecorder alarmRecorder = new EventRecorder(eventCountLatch);
     try {
-      int numAlarms = 10;
       long[] expected = new long[numAlarms];
       for (int i = 0; i < numAlarms; ++i) {
         clock.scheduleAlarm(i * 100, alarmRecorder);
         expected[i] = i * 100;
       }
 
-      Thread.sleep(2000);
+      eventCountLatch.await(10, TimeUnit.SECONDS);
 
       Long[] actualLong = new Long[numAlarms];
-      alarmRecorder.timestamps.toArray(actualLong);
+      alarmRecorder.getTimestamps().toArray(actualLong);
       long[] actual = new long[numAlarms];
       for (int i = 0; i < numAlarms; ++i) {
         actual[i] = actualLong[i];
@@ -193,37 +207,54 @@ public class ClockTest {
     /**
      * A synchronized List of the events recorded by this EventRecorder.
      */
-    public final List<Time> events = Collections.synchronizedList(new ArrayList<Time>());
-    public final List<Long> timestamps = Collections.synchronizedList(new ArrayList<Long>());
+    private final List<Time> events = Collections.synchronizedList(new ArrayList<Time>());
+    private final List<Long> timestamps = Collections.synchronizedList(new ArrayList<Long>());
+
+    private final CountDownLatch eventCountLatch;
+
+    public EventRecorder() {
+      this(null);
+    }
+
+    public EventRecorder(CountDownLatch latch) {
+      eventCountLatch = latch;
+    }
+
+    public int getEventCount() {
+      return events.size();
+    }
+
+    public List<Long> getTimestamps() {
+      return timestamps;
+    }
 
     @Override
     public void onNext(final Alarm event) {
       timestamps.add(event.getTimeStamp());
       events.add(event);
+      if (eventCountLatch != null) {
+        eventCountLatch.countDown();
+      }
     }
   }
 
   private static class RandomAlarmProducer implements EventHandler<Alarm> {
 
     private final RuntimeClock clock;
+    private final CountDownLatch eventCountLatch;
     private final Random rand;
-    private int eventCount = 0;
 
-    public RandomAlarmProducer(RuntimeClock clock) {
+    public RandomAlarmProducer(RuntimeClock clock, CountDownLatch latch) {
       this.clock = clock;
+      this.eventCountLatch = latch;
       this.rand = new Random();
-      this.eventCount = 0;
-    }
-
-    int getEventCount() {
-      return eventCount;
     }
 
     @Override
     public void onNext(final Alarm value) {
-      eventCount += 1;
       int duration = rand.nextInt(100) + 1;
       clock.scheduleAlarm(duration, this);
+      eventCountLatch.countDown();
     }
   }
 }
