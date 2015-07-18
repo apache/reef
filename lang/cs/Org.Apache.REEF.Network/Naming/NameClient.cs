@@ -27,6 +27,7 @@ using Org.Apache.REEF.Common.Io;
 using Org.Apache.REEF.Network.Naming.Codec;
 using Org.Apache.REEF.Network.Naming.Events;
 using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Utilities.Diagnostics;
 using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Wake;
@@ -54,8 +55,8 @@ namespace Org.Apache.REEF.Network.Naming
 
         private NameLookupClient _lookupClient;
         private NameRegisterClient _registerClient;
-        private Dictionary<string, NameAssignment> _lookUpCache;
         private bool _disposed;
+        private readonly NameCache _cache;
 
         /// <summary>
         /// Constructs a NameClient to register, lookup, and unregister IPEndpoints
@@ -64,13 +65,33 @@ namespace Org.Apache.REEF.Network.Naming
         /// <param name="remoteAddress">The ip address of the NameServer</param>
         /// <param name="remotePort">The port of the NameServer</param>
         [Inject]
-        public NameClient(
+        private NameClient(
             [Parameter(typeof(NamingConfigurationOptions.NameServerAddress))] string remoteAddress, 
             [Parameter(typeof(NamingConfigurationOptions.NameServerPort))] int remotePort)
         {
             IPEndPoint remoteEndpoint = new IPEndPoint(IPAddress.Parse(remoteAddress), remotePort);
             Initialize(remoteEndpoint);
             _disposed = false;
+            _cache = TangFactory.GetTang().NewInjector().GetInstance<NameCache>();
+        }
+
+        /// <summary>
+        /// Constructs a NameClient to register, lookup, and unregister IPEndpoints
+        /// with the NameServer.
+        /// </summary>
+        /// <param name="remoteAddress">The ip address of the NameServer</param>
+        /// <param name="remotePort">The port of the NameServer</param>
+        /// <param name="cache">The NameCache for caching IpAddresses</param>
+        [Inject]
+        private NameClient(
+            [Parameter(typeof(NamingConfigurationOptions.NameServerAddress))] string remoteAddress,
+            [Parameter(typeof(NamingConfigurationOptions.NameServerPort))] int remotePort,
+            NameCache cache)
+        {
+            IPEndPoint remoteEndpoint = new IPEndPoint(IPAddress.Parse(remoteAddress), remotePort);
+            Initialize(remoteEndpoint);
+            _disposed = false;
+            _cache = cache;
         }
 
         /// <summary>
@@ -81,6 +102,7 @@ namespace Org.Apache.REEF.Network.Naming
         public NameClient(IPEndPoint remoteEndpoint) 
         {
             Initialize(remoteEndpoint);
+            _cache = TangFactory.GetTang().NewInjector().GetInstance<NameCache>();
             _disposed = false;
         }
 
@@ -125,27 +147,26 @@ namespace Org.Apache.REEF.Network.Naming
         /// Synchronously looks up the IPEndpoint for the registered identifier.
         /// </summary>
         /// <param name="id">The identifier to look up</param>
-        /// <param name="useCache">flag for using cache</param>
         /// <returns>The mapped IPEndpoint for the identifier, or null if
         /// the identifier has not been registered with the NameService</returns>
-        public IPEndPoint Lookup(string id, bool useCache = false)
+        public IPEndPoint Lookup(string id)
         {
             if (id == null)
             {
                 Exceptions.Throw(new ArgumentNullException("id"), _logger);
             }
 
-            NameAssignment value;
+            IPEndPoint value = _cache.Get(id);
 
-            if (useCache && _lookUpCache.TryGetValue(id, out value))
+            if (value != null)
             {
-                return value.Endpoint;
+                return value;
             }
 
             List<NameAssignment> assignments = Lookup(new List<string> { id });
             if (assignments != null && assignments.Count > 0)
             {
-                _lookUpCache[id] = assignments.First();
+                _cache.Set(id, assignments.First().Endpoint);
                 return assignments.First().Endpoint;
             }
 
@@ -226,7 +247,6 @@ namespace Org.Apache.REEF.Network.Naming
 
             _lookupClient = new NameLookupClient(_client, _lookupResponseQueue, _getAllResponseQueue);
             _registerClient = new NameRegisterClient(_client, _registerResponseQueue, _unregisterResponseQueue);
-            _lookUpCache = new Dictionary<string, NameAssignment>();
         }
 
         /// <summary>

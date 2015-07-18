@@ -51,7 +51,7 @@ namespace Org.Apache.REEF.Common.Io
         /// <param name="useCache">flag for using cache</param>
         /// <returns>The mapped IPEndpoint for the identifier, or null if
         /// the identifier has not been registered with the NameService</returns>
-        IPEndPoint Lookup(string id, bool useCache = false);
+        IPEndPoint Lookup(string id);
 
         /// <summary>
         /// Looks up the IPEndpoint for each of the registered identifiers in the list.
