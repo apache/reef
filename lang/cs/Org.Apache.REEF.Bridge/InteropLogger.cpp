@@ -33,7 +33,7 @@ namespace Org {
 						fwprintf(stdout, formatBuf);
 						fflush(stdout);
 					}
-					_jmidLog = env->GetMethodID(_jclassInteropLogger, "Log", "(ILjava/lang/String;)V");
+					_jmidLog = env->GetMethodID(_jclassInteropLogger, "log", "(ILjava/lang/String;)V");
 					if (NULL == _jmidLog) {
 						swprintf_s(formatBuf, sizeof(formatBuf) / sizeof(wchar_t), L"_jmidLog %p\n", _jmidLog);
 						fwprintf(stdout, formatBuf);

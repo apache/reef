@@ -31,7 +31,15 @@ public final class ReflectionUtilities {
   /**
    * This is used to split Java classnames.  Currently, we split on . and on $
    */
+  public static final String REGEXP = "[\\.\\$]";
+  /**
+   * This is used to split Java classnames.  Currently, we split on . and on $
+   * @deprecated in 0.12. Use onClientKill instead
+   */
+  @Deprecated
+  @SuppressWarnings("checkstyle:constantname")
   public static final String regexp = "[\\.\\$]";
+
   /**
    * A map from numeric classes to the number of bits used by their representations.
    */
@@ -198,7 +206,7 @@ public final class ReflectionUtilities {
    */
   public static String getSimpleName(Type name) {
     final Class<?> clazz = getRawClass(name);
-    final String[] nameArray = clazz.getName().split(regexp);
+    final String[] nameArray = clazz.getName().split(REGEXP);
     final String ret = nameArray[nameArray.length - 1];
     if (ret.length() == 0) {
       throw new IllegalArgumentException("Class " + name + " has zero-length simple name.  Can't happen?!?");

@@ -59,13 +59,14 @@ public final class RangeTcpPortProvider implements TcpPortProvider {
   }
 
   /**
-   * @deprecated have an instance injected instead.
+   * @deprecated in 0.12 have an instance injected instead.
    */
   @Deprecated
+  @SuppressWarnings("checkstyle:constantname")
   public static final RangeTcpPortProvider Default = new RangeTcpPortProvider(
-      Integer.parseInt(TcpPortRangeBegin.default_value),
-      Integer.parseInt(TcpPortRangeCount.default_value),
-          Integer.parseInt(TcpPortRangeTryCount.default_value));
+      Integer.parseInt(TcpPortRangeBegin.DEFAULT_VALUE),
+      Integer.parseInt(TcpPortRangeCount.DEFAULT_VALUE),
+      Integer.parseInt(TcpPortRangeTryCount.DEFAULT_VALUE));
 
   @Override
   public String toString() {

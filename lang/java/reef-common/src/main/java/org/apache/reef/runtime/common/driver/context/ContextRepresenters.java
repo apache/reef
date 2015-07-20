@@ -212,7 +212,7 @@ public final class ContextRepresenters {
     this.addContext(context);
     if (contextStatusProto.getRecovery()) {
       // when we get a recovered active context, always notify application
-      this.messageDispatcher.OnDriverRestartContextActive(context);
+      this.messageDispatcher.onDriverRestartContextActive(context);
     } else {
       if (notifyClientOnNewActiveContext) {
         this.messageDispatcher.onContextActive(context);

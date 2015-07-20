@@ -51,7 +51,7 @@ public class FSCheckpointService implements CheckpointService {
   FSCheckpointService(final FileSystem fs,
                       @Parameter(PATH.class) final String basePath,
                       final CheckpointNamingService namingPolicy,
-                      @Parameter(REPLICATION_FACTOR.class) final short replication) {
+                      @Parameter(ReplicationFactor.class) final short replication) {
     this.fs = fs;
     this.base = new Path(basePath);
     this.namingPolicy = namingPolicy;
@@ -155,7 +155,7 @@ public class FSCheckpointService implements CheckpointService {
   }
 
   @NamedParameter(doc = "The replication factor to be used for the stored checkpoints", default_value = "3")
-  static class REPLICATION_FACTOR implements Name<Short> {
+  static class ReplicationFactor implements Name<Short> {
   }
 
   private static class FSCheckpointWriteChannel

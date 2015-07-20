@@ -87,23 +87,15 @@
 
         <!-- Checks for Naming Conventions.                  -->
         <!-- See http://checkstyle.sf.net/config_naming.html -->
-        <module name="ConstantName">
-            <property name="severity" value="warning"/>
-        </module>
+        <module name="ConstantName"/>
         <module name="LocalFinalVariableName"/>
         <module name="LocalVariableName"/>
         <module name="MemberName"/>
-        <module name="MethodName">
-            <property name="severity" value="warning"/>
-        </module>
+        <module name="MethodName"/>
         <module name="PackageName"/>
         <module name="ParameterName"/>
-        <module name="StaticVariableName">
-            <property name="severity" value="warning"/>
-        </module>
-        <module name="TypeName">
-            <property name="severity" value="warning"/>
-        </module>
+        <module name="StaticVariableName"/>
+        <module name="TypeName"/>
 
 
         <!-- Checks for Headers                                -->

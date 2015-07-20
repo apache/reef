@@ -208,8 +208,18 @@ public final class ReefEventStateManager {
   /**
    * Kill driver by calling onComplete() . This method is called when client wants to kill the driver and evaluators.
    */
-  public void OnClientKill() {
+  public void onClientKill() {
     driverStatusManager.onComplete();
+  }
+
+  /**
+   * Kill driver by calling onComplete() . This method is called when client wants to kill the driver and evaluators.
+   * @deprecated in 0.12. Use onClientKill instead
+   */
+  @Deprecated
+  @SuppressWarnings("checkstyle:methodname")
+  public void OnClientKill() {
+    onClientKill();
   }
 
   /**

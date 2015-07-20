@@ -118,7 +118,7 @@ public final class ConfigurationFile {
         try {
           if (key.equals(ConfigurationBuilderImpl.IMPORT)) {
             ci.getClassHierarchy().getNode(value);
-            final String[] tok = value.split(ReflectionUtilities.regexp);
+            final String[] tok = value.split(ReflectionUtilities.REGEXP);
             final String lastTok = tok[tok.length - 1];
             try {
               // ci.namespace.getNode(lastTok);

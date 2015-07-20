@@ -114,7 +114,7 @@ public final class TestDriverLauncher {
     @Override
     public void onNext(final FailedRuntime error) {
       LOG.log(Level.INFO, "Received a runtime error: {0}", error);
-      launcher.setStatusAndNotify(LauncherStatus.FAILED(error.getReason()));
+      launcher.setStatusAndNotify(LauncherStatus.failed(error.getReason()));
     }
   }
 
@@ -126,7 +126,7 @@ public final class TestDriverLauncher {
     public void onNext(final FailedJob job) {
       final Optional<Throwable> ex = job.getReason();
       LOG.log(Level.INFO, "Received an error for job {0}: {1}", new Object[]{job.getId(), ex});
-      launcher.setStatusAndNotify(LauncherStatus.FAILED(ex));
+      launcher.setStatusAndNotify(LauncherStatus.failed(ex));
     }
   }
 }

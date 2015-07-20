@@ -24,9 +24,15 @@ import org.apache.reef.tang.annotations.NamedParameter;
 /**
  * Max number tries for port numbers.
  */
-@NamedParameter(doc = "Max number tries for port numbers", default_value = TcpPortRangeTryCount.default_value)
+@NamedParameter(doc = "Max number tries for port numbers", default_value = TcpPortRangeTryCount.DEFAULT_VALUE)
 public final class TcpPortRangeTryCount implements Name<Integer> {
-  public static final String default_value = "1000";
+  public static final String DEFAULT_VALUE = "1000";
+  /**
+   * @deprecated in 0.12. Use DEFAULT_VALUE instead
+   */
+  @Deprecated
+  @SuppressWarnings("checkstyle:constantname")
+  public static final String default_value = DEFAULT_VALUE;
 
   /**
    * Empty private constructor to prohibit instantiation of utility class.

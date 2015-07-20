@@ -191,7 +191,7 @@ public final class DriverLauncher {
       final Optional<Throwable> ex = job.getReason();
       LOG.log(Level.SEVERE, "Received an error for job " + job.getId(), ex);
       theJob = null;
-      setStatusAndNotify(LauncherStatus.FAILED(ex));
+      setStatusAndNotify(LauncherStatus.failed(ex));
     }
   }
 
@@ -215,7 +215,7 @@ public final class DriverLauncher {
     public void onNext(final FailedRuntime error) {
       LOG.log(Level.SEVERE, "Received a resourcemanager error", error.getReason());
       theJob = null;
-      setStatusAndNotify(LauncherStatus.FAILED(error.getReason()));
+      setStatusAndNotify(LauncherStatus.failed(error.getReason()));
     }
   }
 }

@@ -154,7 +154,7 @@ public final class DriverMessaging {
     public void onNext(final FailedJob job) {
       LOG.log(Level.SEVERE, "Received an error for job " + job.getId(), job.getReason().orElse(null));
       synchronized (DriverMessaging.this) {
-        DriverMessaging.this.status = LauncherStatus.FAILED(job.getReason());
+        DriverMessaging.this.status = LauncherStatus.failed(job.getReason());
         DriverMessaging.this.notify();
       }
     }
@@ -165,7 +165,7 @@ public final class DriverMessaging {
     public void onNext(final FailedRuntime error) {
       LOG.log(Level.SEVERE, "Received a runtime error: " + error, error.getReason().orElse(null));
       synchronized (DriverMessaging.this) {
-        DriverMessaging.this.status = LauncherStatus.FAILED(error.getReason());
+        DriverMessaging.this.status = LauncherStatus.failed(error.getReason());
         DriverMessaging.this.notify();
       }
     }

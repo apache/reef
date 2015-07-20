@@ -150,8 +150,8 @@ namespace Org.Apache.REEF.Tests.Functional
         protected void ValidateSuccessForLocalRuntime(int numberOfEvaluatorsToClose, string testFolder = DefaultRuntimeFolder)
         {
             const string successIndication = "EXIT: ActiveContextClr2Java::Close";
-            const string failedTaskIndication = "Java_com_microsoft_reef_javabridge_NativeInterop_ClrSystemFailedTaskHandlerOnNext";
-            const string failedEvaluatorIndication = "Java_com_microsoft_reef_javabridge_NativeInterop_ClrSystemFailedEvaluatorHandlerOnNext";
+            const string failedTaskIndication = "Java_com_microsoft_reef_javabridge_NativeInterop_clrSystemFailedTaskHandlerOnNext";
+            const string failedEvaluatorIndication = "Java_com_microsoft_reef_javabridge_NativeInterop_clrSystemFailedEvaluatorHandlerOnNext";
             string[] lines = File.ReadAllLines(GetLogFile(_stdout, testFolder));
             Console.WriteLine("Lines read from log file : " + lines.Count());
             string[] successIndicators = lines.Where(s => s.Contains(successIndication)).ToArray();

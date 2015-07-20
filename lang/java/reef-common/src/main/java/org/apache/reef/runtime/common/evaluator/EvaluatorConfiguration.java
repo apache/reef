@@ -45,9 +45,9 @@ public final class EvaluatorConfiguration extends ConfigurationModuleBuilder {
   public static final OptionalParameter<String> APPLICATION_IDENTIFIER = new OptionalParameter<>();
 
   /**
-   * The EvaluatorConfigModuleBuilder which contains bindings shared for all kinds of Evaluators.
+   * The EVALUATOR_CONFIG_MODULE_BUILDER which contains bindings shared for all kinds of Evaluators.
    */
-  private static final ConfigurationModuleBuilder EvaluatorConfigModuleBuilder = new EvaluatorConfiguration()
+  private static final ConfigurationModuleBuilder EVALUATOR_CONFIG_MODULE_BUILDER = new EvaluatorConfiguration()
       .bindSetEntry(Clock.RuntimeStartHandler.class, EvaluatorRuntime.RuntimeStartHandler.class)
       .bindSetEntry(Clock.RuntimeStopHandler.class, EvaluatorRuntime.RuntimeStopHandler.class)
       .bindNamedParameter(DriverRemoteIdentifier.class, DRIVER_REMOTE_IDENTIFIER)
@@ -63,12 +63,12 @@ public final class EvaluatorConfiguration extends ConfigurationModuleBuilder {
   /**
    * This is ConfigurationModule for CLR Evaluator.
    */
-  public static final ConfigurationModule CONFCLR = EvaluatorConfigModuleBuilder.build();
+  public static final ConfigurationModule CONFCLR = EVALUATOR_CONFIG_MODULE_BUILDER.build();
 
   /**
    * This is ConfigurationModule for Java Evaluator.
    */
-  public static final ConfigurationModule CONF = EvaluatorConfigModuleBuilder
+  public static final ConfigurationModule CONF = EVALUATOR_CONFIG_MODULE_BUILDER
       .bindConstructor(ExecutorService.class, ExecutorServiceConstructor.class)
       .build();
 

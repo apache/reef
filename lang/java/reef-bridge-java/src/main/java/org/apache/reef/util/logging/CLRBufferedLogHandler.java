@@ -141,7 +141,7 @@ public class CLRBufferedLogHandler extends Handler {
       }
       try {
         final int level = getLevel(highestLevel);
-        NativeInterop.ClrBufferedLog(level, sb.toString());
+        NativeInterop.clrBufferedLog(level, sb.toString());
       } catch (Exception e) {
         System.err.println("Failed to perform CLRBufferedLogHandler");
       }
