@@ -44,8 +44,8 @@ import java.util.logging.Logger;
 /**
  * Helper class for NetworkConnectionService test.
  */
-public final class NetworkMessagingTest implements AutoCloseable{
-  private static final Logger LOG = Logger.getLogger(NetworkMessagingTest.class.getName());
+public final class NetworkMessagingTestService implements AutoCloseable {
+  private static final Logger LOG = Logger.getLogger(NetworkMessagingTestService.class.getName());
 
   private final IdentifierFactory factory;
   private final NetworkConnectionService receiverNetworkConnService;
@@ -56,7 +56,7 @@ public final class NetworkMessagingTest implements AutoCloseable{
   private final NameResolver receiverResolver;
   private final NameResolver senderResolver;
 
-  public NetworkMessagingTest(final String localAddress) throws InjectionException {
+  public NetworkMessagingTestService(final String localAddress) throws InjectionException {
     // name server
     final Injector injector = Tang.Factory.getTang().newInjector();
     this.nameServer = injector.getInstance(NameServer.class);

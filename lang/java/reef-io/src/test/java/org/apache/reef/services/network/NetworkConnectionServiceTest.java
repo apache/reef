@@ -64,10 +64,10 @@ public class NetworkConnectionServiceTest {
   private void runMessagingNetworkConnectionService(Codec<String> codec) throws Exception {
     final int numMessages = 2000;
     final Monitor monitor = new Monitor();
-    try (final NetworkMessagingTest messagingTest = new NetworkMessagingTest(localAddress)) {
-      messagingTest.registerTestConnectionFactory(groupCommClientId, numMessages, monitor, codec);
+    try (final NetworkMessagingTestService messagingTestService = new NetworkMessagingTestService(localAddress)) {
+      messagingTestService.registerTestConnectionFactory(groupCommClientId, numMessages, monitor, codec);
 
-      try (final Connection<String> conn = messagingTest.getConnectionFromSenderToReceiver(groupCommClientId)) {
+      try (final Connection<String> conn = messagingTestService.getConnectionFromSenderToReceiver(groupCommClientId)) {
         try {
           conn.open();
           for (int count = 0; count < numMessages; ++count) {
@@ -105,18 +105,18 @@ public class NetworkConnectionServiceTest {
 
     final int groupcommMessages = 1000;
     final Monitor monitor = new Monitor();
-    try (final NetworkMessagingTest messagingTest = new NetworkMessagingTest(localAddress)) {
+    try (final NetworkMessagingTestService messagingTestService = new NetworkMessagingTestService(localAddress)) {
 
-      messagingTest.registerTestConnectionFactory(groupCommClientId, groupcommMessages, monitor, stringCodec);
+      messagingTestService.registerTestConnectionFactory(groupCommClientId, groupcommMessages, monitor, stringCodec);
 
       final int shuffleMessages = 2000;
       final Monitor monitor2 = new Monitor();
-      messagingTest.registerTestConnectionFactory(shuffleClientId, shuffleMessages, monitor2, integerCodec);
+      messagingTestService.registerTestConnectionFactory(shuffleClientId, shuffleMessages, monitor2, integerCodec);
 
       executor.submit(new Runnable() {
         @Override
         public void run() {
-          try (final Connection<String> conn = messagingTest.getConnectionFromSenderToReceiver(groupCommClientId)) {
+          try (final Connection<String> conn = messagingTestService.getConnectionFromSenderToReceiver(groupCommClientId)) {
             conn.open();
             for (int count = 0; count < groupcommMessages; ++count) {
               // send messages to the receiver.
@@ -133,7 +133,7 @@ public class NetworkConnectionServiceTest {
       executor.submit(new Runnable() {
         @Override
         public void run() {
-          try (final Connection<Integer> conn = messagingTest.getConnectionFromSenderToReceiver(shuffleClientId)) {
+          try (final Connection<Integer> conn = messagingTestService.getConnectionFromSenderToReceiver(shuffleClientId)) {
             conn.open();
             for (int count = 0; count < shuffleMessages; ++count) {
               // send messages to the receiver.
@@ -183,8 +183,8 @@ public class NetworkConnectionServiceTest {
       final int numMessages = 300000 / (Math.max(1, size / 512));
       final Monitor monitor = new Monitor();
       final Codec<String> codec = new StringCodec();
-      try (final NetworkMessagingTest messagingTest = new NetworkMessagingTest(localAddress)) {
-        messagingTest.registerTestConnectionFactory(groupCommClientId, numMessages, monitor, codec);
+      try (final NetworkMessagingTestService messagingTestService = new NetworkMessagingTestService(localAddress)) {
+        messagingTestService.registerTestConnectionFactory(groupCommClientId, numMessages, monitor, codec);
 
         // build the message
         final StringBuilder msb = new StringBuilder();
@@ -193,7 +193,7 @@ public class NetworkConnectionServiceTest {
         }
         final String message = msb.toString();
 
-        try (final Connection<String> conn = messagingTest.getConnectionFromSenderToReceiver(groupCommClientId)) {
+        try (final Connection<String> conn = messagingTestService.getConnectionFromSenderToReceiver(groupCommClientId)) {
 
           long start = System.currentTimeMillis();
           try {
@@ -234,12 +234,12 @@ public class NetworkConnectionServiceTest {
 
       e.submit(new Runnable() {
         public void run() {
-          try (final NetworkMessagingTest messagingTest = new NetworkMessagingTest(localAddress)) {
+          try (final NetworkMessagingTestService messagingTestService = new NetworkMessagingTestService(localAddress)) {
             final Monitor monitor = new Monitor();
             final Codec<String> codec = new StringCodec();
 
-            messagingTest.registerTestConnectionFactory(groupCommClientId, numMessages, monitor, codec);
-            try (final Connection<String> conn = messagingTest.getConnectionFromSenderToReceiver(groupCommClientId)) {
+            messagingTestService.registerTestConnectionFactory(groupCommClientId, numMessages, monitor, codec);
+            try (final Connection<String> conn = messagingTestService.getConnectionFromSenderToReceiver(groupCommClientId)) {
 
               // build the message
               final StringBuilder msb = new StringBuilder();
@@ -288,8 +288,8 @@ public class NetworkConnectionServiceTest {
       final int totalNumMessages = numMessages * numThreads;
       final Monitor monitor = new Monitor();
       final Codec<String> codec = new StringCodec();
-      try (final NetworkMessagingTest messagingTest = new NetworkMessagingTest(localAddress)) {
-        messagingTest.registerTestConnectionFactory(groupCommClientId, totalNumMessages, monitor, codec);
+      try (final NetworkMessagingTestService messagingTestService = new NetworkMessagingTestService(localAddress)) {
+        messagingTestService.registerTestConnectionFactory(groupCommClientId, totalNumMessages, monitor, codec);
 
         final ExecutorService e = Executors.newCachedThreadPool();
 
@@ -299,7 +299,7 @@ public class NetworkConnectionServiceTest {
           msb.append("1");
         }
         final String message = msb.toString();
-        try (final Connection<String> conn = messagingTest.getConnectionFromSenderToReceiver(groupCommClientId)) {
+        try (final Connection<String> conn = messagingTestService.getConnectionFromSenderToReceiver(groupCommClientId)) {
 
           final long start = System.currentTimeMillis();
           for (int i = 0; i < numThreads; i++) {
@@ -345,9 +345,9 @@ public class NetworkConnectionServiceTest {
       final int numMessages = 300 / (Math.max(1, size / 512));
       final Monitor monitor = new Monitor();
       final Codec<String> codec = new StringCodec();
-      try (final NetworkMessagingTest messagingTest = new NetworkMessagingTest(localAddress)) {
-        messagingTest.registerTestConnectionFactory(groupCommClientId, numMessages, monitor, codec);
-        try (final Connection<String> conn = messagingTest.getConnectionFromSenderToReceiver(groupCommClientId)) {
+      try (final NetworkMessagingTestService messagingTestService = new NetworkMessagingTestService(localAddress)) {
+        messagingTestService.registerTestConnectionFactory(groupCommClientId, numMessages, monitor, codec);
+        try (final Connection<String> conn = messagingTestService.getConnectionFromSenderToReceiver(groupCommClientId)) {
 
           // build the message
           final StringBuilder msb = new StringBuilder();
