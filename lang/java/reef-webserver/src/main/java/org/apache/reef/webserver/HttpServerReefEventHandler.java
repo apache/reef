@@ -146,7 +146,7 @@ public final class HttpServerReefEventHandler implements HttpHandler {
       response.getWriter().println("Enforced closing");
       break;
     case "kill":
-      reefStateManager.OnClientKill();
+      reefStateManager.onClientKill();
       response.getWriter().println("Killing");
       break;
     case "duration":

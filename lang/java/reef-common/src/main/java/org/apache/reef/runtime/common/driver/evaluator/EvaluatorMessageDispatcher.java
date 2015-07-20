@@ -236,12 +236,30 @@ public final class EvaluatorMessageDispatcher {
     this.dispatchForRestartedDriver(RunningTask.class, runningTask);
   }
 
-  public void OnDriverRestartContextActive(final ActiveContext activeContext) {
+  public void onDriverRestartContextActive(final ActiveContext activeContext) {
     this.dispatchForRestartedDriver(ActiveContext.class, activeContext);
   }
 
-  public void OnDriverRestartCompleted(final DriverRestartCompleted restartCompleted) {
+  /*
+   * @deprecated in 0.12. Use onDriverRestartContextActive instead
+   */
+  @Deprecated
+  @SuppressWarnings("checkstyle:methodname")
+  public void OnDriverRestartContextActive1(final ActiveContext activeContext) {
+    onDriverRestartContextActive(activeContext);
+  }
+
+  public void onDriverRestartCompleted(final DriverRestartCompleted restartCompleted) {
     this.dispatchForRestartedDriver(DriverRestartCompleted.class, restartCompleted);
+  }
+
+  /*
+   * @deprecated in 0.12. Use onDriverRestartCompleted instead
+   */
+  @Deprecated
+  @SuppressWarnings("checkstyle:methodname")
+  public void OnDriverRestartCompleted1(final DriverRestartCompleted restartCompleted) {
+    onDriverRestartCompleted(restartCompleted);
   }
 
   boolean isEmpty() {

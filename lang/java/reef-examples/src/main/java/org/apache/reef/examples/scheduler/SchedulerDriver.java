@@ -189,7 +189,7 @@ public final class SchedulerDriver {
    */
   public SchedulerResponse getTaskStatus(List<String> args) {
     if (args.size() != 1) {
-      return SchedulerResponse.BAD_REQUEST("Usage : only one ID at a time");
+      return SchedulerResponse.badRequest("Usage : only one ID at a time");
     }
 
     final Integer taskId = Integer.valueOf(args.get(0));
@@ -205,7 +205,7 @@ public final class SchedulerDriver {
    */
   public SchedulerResponse cancelTask(final List<String> args) {
     if (args.size() != 1) {
-      return SchedulerResponse.BAD_REQUEST("Usage : only one ID at a time");
+      return SchedulerResponse.badRequest("Usage : only one ID at a time");
     }
 
     final Integer taskId = Integer.valueOf(args.get(0));
@@ -220,7 +220,7 @@ public final class SchedulerDriver {
    */
   public SchedulerResponse submitCommands(final List<String> args) {
     if (args.size() != 1) {
-      return SchedulerResponse.BAD_REQUEST("Usage : only one command at a time");
+      return SchedulerResponse.badRequest("Usage : only one command at a time");
     }
 
     final String command = args.get(0);
@@ -236,7 +236,7 @@ public final class SchedulerDriver {
         requestEvaluator(1);
       }
     }
-    return SchedulerResponse.OK("Task ID : " + id);
+    return SchedulerResponse.ok("Task ID : " + id);
   }
 
   /**
@@ -246,15 +246,15 @@ public final class SchedulerDriver {
    */
   public SchedulerResponse setMaxEvaluators(final List<String> args) {
     if (args.size() != 1) {
-      return SchedulerResponse.BAD_REQUEST("Usage : Only one value can be used");
+      return SchedulerResponse.badRequest("Usage : Only one value can be used");
     }
 
     final int nTarget = Integer.valueOf(args.get(0));
 
     synchronized (SchedulerDriver.this) {
       if (nTarget < nActiveEval + nRequestedEval) {
-        return SchedulerResponse.FORBIDDEN(nActiveEval + nRequestedEval +
-          " evaluators are used now. Should be larger than that.");
+        return SchedulerResponse.forbidden(nActiveEval + nRequestedEval +
+            " evaluators are used now. Should be larger than that.");
       }
       nMaxEval = nTarget;
 
@@ -263,7 +263,7 @@ public final class SchedulerDriver {
             Math.min(scheduler.getNumPendingTasks(), nMaxEval - nActiveEval) - nRequestedEval;
         requestEvaluator(nToRequest);
       }
-      return SchedulerResponse.OK("You can use evaluators up to " + nMaxEval + " evaluators.");
+      return SchedulerResponse.ok("You can use evaluators up to " + nMaxEval + " evaluators.");
     }
   }
 

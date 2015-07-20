@@ -89,20 +89,20 @@ final class Scheduler {
    */
   public synchronized SchedulerResponse cancelTask(final int taskId) {
     if (getTask(taskId, runningTasks) != null) {
-      return SchedulerResponse.FORBIDDEN("The task " + taskId + " is running");
+      return SchedulerResponse.forbidden("The task " + taskId + " is running");
     } else if (getTask(taskId, finishedTasks) != null) {
-      return SchedulerResponse.FORBIDDEN("The task " + taskId + " has been finished");
+      return SchedulerResponse.forbidden("The task " + taskId + " has been finished");
     }
 
     final TaskEntity task = getTask(taskId, taskQueue);
     if (task == null) {
       final String message =
           new StringBuilder().append("Task with ID ").append(taskId).append(" is not found").toString();
-      return SchedulerResponse.NOT_FOUND(message);
+      return SchedulerResponse.notFound(message);
     } else {
       taskQueue.remove(task);
       canceledTasks.add(task);
-      return SchedulerResponse.OK("Canceled " + taskId);
+      return SchedulerResponse.ok("Canceled " + taskId);
     }
   }
 
@@ -115,7 +115,7 @@ final class Scheduler {
       canceledTasks.add(task);
     }
     taskQueue.clear();
-    return SchedulerResponse.OK(count + " tasks removed.");
+    return SchedulerResponse.ok(count + " tasks removed.");
   }
 
   /**
@@ -142,7 +142,7 @@ final class Scheduler {
     for (final TaskEntity canceled : canceledTasks) {
       sb.append(" ").append(canceled.getId());
     }
-    return SchedulerResponse.OK(sb.toString());
+    return SchedulerResponse.ok(sb.toString());
   }
 
   /**
@@ -152,28 +152,28 @@ final class Scheduler {
 
     for (final TaskEntity running : runningTasks) {
       if (taskId == running.getId()) {
-        return SchedulerResponse.OK("Running : " + running.toString());
+        return SchedulerResponse.ok("Running : " + running.toString());
       }
     }
 
     for (final TaskEntity waiting : taskQueue) {
       if (taskId == waiting.getId()) {
-        return SchedulerResponse.OK("Waiting : " + waiting.toString());
+        return SchedulerResponse.ok("Waiting : " + waiting.toString());
       }
     }
 
     for (final TaskEntity finished : finishedTasks) {
       if (taskId == finished.getId()) {
-        return SchedulerResponse.OK("Finished : " + finished.toString());
+        return SchedulerResponse.ok("Finished : " + finished.toString());
       }
     }
 
     for (final TaskEntity finished : canceledTasks) {
       if (taskId == finished.getId()) {
-        return SchedulerResponse.OK("Canceled: " + finished.toString());
+        return SchedulerResponse.ok("Canceled: " + finished.toString());
       }
     }
-    return SchedulerResponse.NOT_FOUND(
+    return SchedulerResponse.notFound(
         new StringBuilder().append("Task with ID ").append(taskId).append(" is not found").toString());
   }
 

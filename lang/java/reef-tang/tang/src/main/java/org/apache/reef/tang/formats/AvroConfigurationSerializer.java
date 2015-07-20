@@ -87,7 +87,7 @@ public final class AvroConfigurationSerializer implements ConfigurationSerialize
         String value = rawValue.toString();
         if (key.equals(ConfigurationBuilderImpl.IMPORT)) {
           configurationBuilder.getClassHierarchy().getNode(value);
-          final String[] tok = value.split(ReflectionUtilities.regexp);
+          final String[] tok = value.split(ReflectionUtilities.REGEXP);
           final String lastTok = tok[tok.length - 1];
           try {
             configurationBuilder.getClassHierarchy().getNode(lastTok);

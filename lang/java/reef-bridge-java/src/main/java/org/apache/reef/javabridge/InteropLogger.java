@@ -41,15 +41,13 @@ public class InteropLogger {
     levelHashMap.put(Level.ALL.intValue(), Level.ALL);
   }
 
-  public void Log(int intLevel, String message) {
+  public void log(int intLevel, String message) {
     if (levelHashMap.containsKey(intLevel)) {
       Level level = levelHashMap.get(intLevel);
       LOG.log(level, message);
     } else {
-
       LOG.log(Level.WARNING, "Level " + intLevel + " is not a valid Log level");
       LOG.log(Level.WARNING, message);
     }
-
   }
 }

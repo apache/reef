@@ -75,7 +75,7 @@ public class YarnDriverConfiguration extends ConfigurationModuleBuilder {
   public static final OptionalParameter<Double> JVM_HEAP_SLACK = new OptionalParameter<>();
 
 
-  public static ConfigurationModule CONF = new YarnDriverConfiguration()
+  public static final ConfigurationModule CONF = new YarnDriverConfiguration()
       // Bind the YARN runtime for the resource manager.
       .bindImplementation(ResourceLaunchHandler.class, YARNResourceLaunchHandler.class)
       .bindImplementation(ResourceReleaseHandler.class, YARNResourceReleaseHandler.class)

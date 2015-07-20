@@ -79,13 +79,13 @@ public final class HelloReefYarnTcp {
    * @throws org.apache.reef.tang.exceptions.BindException      configuration error.
    * @throws org.apache.reef.tang.exceptions.InjectionException configuration error.
    */
-  public static final int defaultTcpBeginPort = 8900;
-  public static final int defaultTcpRangeCount = 10;
-  public static final int defaultTcpRangeTryCount = 1111;
+  public static final int DEFAULT_TCP_BEGIN_PORT = 8900;
+  public static final int DEFAULT_TCP_RANGE_COUNT = 10;
+  public static final int DEFAULT_TCP_RANGE_TRY_COUNT = 1111;
   public static void main(final String[] args) throws InjectionException {
-    final int tcpBeginPort = args.length > 0 ? Integer.valueOf(args[0]) : defaultTcpBeginPort;
-    final int tcpRangeCount = args.length > 1 ? Integer.valueOf(args[1]) : defaultTcpRangeCount;
-    final int tcpTryCount = args.length > 2 ? Integer.valueOf(args[2]) : defaultTcpRangeTryCount;
+    final int tcpBeginPort = args.length > 0 ? Integer.valueOf(args[0]) : DEFAULT_TCP_BEGIN_PORT;
+    final int tcpRangeCount = args.length > 1 ? Integer.valueOf(args[1]) : DEFAULT_TCP_RANGE_COUNT;
+    final int tcpTryCount = args.length > 2 ? Integer.valueOf(args[2]) : DEFAULT_TCP_RANGE_TRY_COUNT;
     Configuration runtimeConfiguration = getRuntimeConfiguration(tcpBeginPort, tcpRangeCount, tcpTryCount);
     final LauncherStatus status = DriverLauncher
         .getLauncher(runtimeConfiguration)

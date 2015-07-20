@@ -331,7 +331,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
           LOG.log(Level.INFO, "All [{0}] expected evaluators have checked in. Recovery completed.",
               expectedEvaluatorsNumber);
           this.driverStatusManager.setRestartCompleted();
-          this.messageDispatcher.OnDriverRestartCompleted(new DriverRestartCompleted(System.currentTimeMillis()));
+          this.messageDispatcher.onDriverRestartCompleted(new DriverRestartCompleted(System.currentTimeMillis()));
         } else {
           LOG.log(Level.INFO, "expecting [{0}] recovered evaluators, [{1}] evaluators have checked in.",
               new Object[]{expectedEvaluatorsNumber, numRecoveredContainers});

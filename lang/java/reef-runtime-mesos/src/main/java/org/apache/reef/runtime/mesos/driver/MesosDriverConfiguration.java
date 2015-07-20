@@ -73,11 +73,11 @@ public final class MesosDriverConfiguration extends ConfigurationModuleBuilder {
   public static final OptionalParameter<Double> JVM_HEAP_SLACK = new OptionalParameter<>();
 
   /**
-   * Capacity for runnning Mesos Scheduler Driver.
+   * Capacity for running Mesos Scheduler Driver.
    */
   public static final RequiredParameter<Integer> SCHEDULER_DRIVER_CAPACITY = new RequiredParameter<>();
 
-  public static ConfigurationModule CONF = new MesosDriverConfiguration()
+  public static final ConfigurationModule CONF = new MesosDriverConfiguration()
       .bindImplementation(ResourceLaunchHandler.class, MesosResourceLaunchHandler.class)
       .bindImplementation(ResourceReleaseHandler.class, MesosResourceReleaseHandler.class)
       .bindImplementation(ResourceRequestHandler.class, MesosResourceRequestHandler.class)

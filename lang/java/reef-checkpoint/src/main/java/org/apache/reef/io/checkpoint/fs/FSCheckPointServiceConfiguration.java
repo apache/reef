@@ -66,13 +66,13 @@ public class FSCheckPointServiceConfiguration extends ConfigurationModuleBuilder
    */
   public static final OptionalParameter<String> PREFIX = new OptionalParameter<>();
   public static final ConfigurationModule CONF = new FSCheckPointServiceConfiguration()
-      .bindImplementation(CheckpointService.class, FSCheckpointService.class) // Use the HDFS based ccheckpoints
+      .bindImplementation(CheckpointService.class, FSCheckpointService.class) // Use the HDFS based checkpoints
       .bindImplementation(CheckpointNamingService.class, RandomNameCNS.class) // Use Random Names for the checkpoints
       .bindImplementation(CheckpointID.class, FSCheckpointID.class)
       .bindConstructor(FileSystem.class, FileSystemConstructor.class)
-      .bindNamedParameter(FileSystemConstructor.IS_LOCAL.class, IS_LOCAL)
+      .bindNamedParameter(FileSystemConstructor.IsLocal.class, IS_LOCAL)
       .bindNamedParameter(FSCheckpointService.PATH.class, PATH)
-      .bindNamedParameter(FSCheckpointService.REPLICATION_FACTOR.class, REPLICATION_FACTOR)
+      .bindNamedParameter(FSCheckpointService.ReplicationFactor.class, REPLICATION_FACTOR)
       .bindNamedParameter(RandomNameCNS.PREFIX.class, PREFIX)
       .build();
 
@@ -89,7 +89,7 @@ public class FSCheckPointServiceConfiguration extends ConfigurationModuleBuilder
     private final boolean loadConfig;
 
     @Inject
-    public FileSystemConstructor(@Parameter(IS_LOCAL.class) final boolean isLocal) {
+    public FileSystemConstructor(@Parameter(IsLocal.class) final boolean isLocal) {
       this.loadConfig = !isLocal;
     }
 
@@ -104,7 +104,7 @@ public class FSCheckPointServiceConfiguration extends ConfigurationModuleBuilder
     }
 
     @NamedParameter(doc = "Use local file system if true; otherwise, use HDFS.")
-    static class IS_LOCAL implements Name<Boolean> {
+    static class IsLocal implements Name<Boolean> {
     }
   }
 }
