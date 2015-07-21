@@ -237,6 +237,17 @@ public final class ReefEventStateManager {
   }
 
   /**
+   * Job Driver has been restarted.
+   */
+  public final class DriverRestartHandler implements EventHandler<StartTime> {
+    @Override
+    @SuppressWarnings("checkstyle:hiddenfield")
+    public void onNext(final StartTime restartTime) {
+      LOG.log(Level.INFO, "DriverRestartHandler called. StartTime: {0}", restartTime);
+    }
+  }
+
+  /**
    * Job driver stopped, log the stop time.
    */
   public final class StopStateHandler implements EventHandler<StopTime> {
@@ -296,7 +307,7 @@ public final class ReefEventStateManager {
   /**
    * Receive notification that a new Context is available.
    */
-  public final class DrivrRestartActiveContextStateHandler implements EventHandler<ActiveContext> {
+  public final class DriverRestartActiveContextStateHandler implements EventHandler<ActiveContext> {
     @Override
     public void onNext(final ActiveContext context) {
       synchronized (ReefEventStateManager.this) {

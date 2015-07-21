@@ -37,19 +37,19 @@ public final class DriverStartHandler implements EventHandler<StartTime> {
   private static final Logger LOG = Logger.getLogger(DriverStartHandler.class.getName());
 
   private final Set<EventHandler<StartTime>> startHandlers;
-  private final Optional<EventHandler<StartTime>> restartHandler;
+  private final Optional<Set<EventHandler<StartTime>>> restartHandlers;
   private final DriverStatusManager driverStatusManager;
 
   @Inject
   DriverStartHandler(@Parameter(org.apache.reef.driver.parameters.DriverStartHandler.class)
                      final Set<EventHandler<StartTime>> startHandler,
-                     @Parameter(DriverRestartHandler.class) final EventHandler<StartTime> restartHandler,
+                     @Parameter(DriverRestartHandler.class) final Set<EventHandler<StartTime>> restartHandlers,
                      final DriverStatusManager driverStatusManager) {
     this.startHandlers = startHandler;
-    this.restartHandler = Optional.of(restartHandler);
+    this.restartHandlers = Optional.of(restartHandlers);
     this.driverStatusManager = driverStatusManager;
     LOG.log(Level.FINE, "Instantiated `DriverStartHandler with StartHandler [{0}] and RestartHandler [{1}]",
-        new String[]{this.startHandlers.toString(), this.restartHandler.toString()});
+        new String[]{this.startHandlers.toString(), this.restartHandlers.toString()});
   }
 
   @Inject
@@ -57,7 +57,7 @@ public final class DriverStartHandler implements EventHandler<StartTime> {
                      final Set<EventHandler<StartTime>> startHandler,
                      final DriverStatusManager driverStatusManager) {
     this.startHandlers = startHandler;
-    this.restartHandler = Optional.empty();
+    this.restartHandlers = Optional.empty();
     this.driverStatusManager = driverStatusManager;
     LOG.log(Level.FINE, "Instantiated `DriverStartHandler with StartHandler [{0}] and no RestartHandler",
         this.startHandlers.toString());
@@ -73,8 +73,10 @@ public final class DriverStartHandler implements EventHandler<StartTime> {
   }
 
   private void onRestart(final StartTime startTime) {
-    if (restartHandler.isPresent()) {
-      this.restartHandler.get().onNext(startTime);
+    if (restartHandlers.isPresent()) {
+      for (EventHandler<StartTime> restartHandler : this.restartHandlers.get()) {
+        restartHandler.onNext(startTime);
+      }
     } else {
       throw new DriverFatalRuntimeException("Driver restart happened, but no ON_DRIVER_RESTART handler is bound.");
     }
