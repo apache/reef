@@ -153,6 +153,7 @@ public final class Launch {
       final Injector commandLineInjector = Tang.Factory.getTang().newInjector(parseCommandLine(removedArgs));
       final int waitTime = commandLineInjector.getNamedInstance(WaitTimeForDriver.class);
       final int driverMemory = commandLineInjector.getNamedInstance(DriverMemoryInMb.class);
+      final boolean isLocal = commandLineInjector.getNamedInstance(Local.class);
       final String driverIdentifier = commandLineInjector.getNamedInstance(DriverIdentifier.class);
       final String jobSubmissionDirectory = commandLineInjector.getNamedInstance(DriverJobSubmissionDirectory.class);
       final boolean submit = commandLineInjector.getNamedInstance(Submit.class);
@@ -161,10 +162,10 @@ public final class Launch {
       client.setDriverInfo(driverIdentifier, driverMemory, jobSubmissionDirectory);
 
       if (submit) {
-        client.submit(dotNetFolder, true, null);
+        client.submit(dotNetFolder, true, isLocal, null);
         client.waitForCompletion(waitTime);
       } else {
-        client.submit(dotNetFolder, false, config);
+        client.submit(dotNetFolder, false, isLocal, config);
         client.waitForCompletion(0);
       }
 

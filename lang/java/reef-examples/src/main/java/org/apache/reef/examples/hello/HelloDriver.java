@@ -68,6 +68,31 @@ public final class HelloDriver {
   }
 
   /**
+   * Handles the StartTime event: Fails intentionally.
+   */
+  public final class FailureToStartHandler implements EventHandler<StartTime> {
+    @Override
+    public void onNext(final StartTime startTime) {
+      throw new RuntimeException("Driver intentionally failed!");
+    }
+  }
+
+  /**
+   * Handles the StartTime event: Request as single Evaluator.
+   */
+  public final class RestartHandler implements EventHandler<StartTime> {
+    @Override
+    public void onNext(final StartTime startTime) {
+      HelloDriver.this.requestor.submit(EvaluatorRequest.newBuilder()
+          .setNumber(1)
+          .setMemory(64)
+          .setNumberOfCores(1)
+          .build());
+      LOG.log(Level.INFO, "Driver restarted and requested Evaluator.");
+    }
+  }
+
+  /**
    * Handles AllocatedEvaluator: Submit the HelloTask.
    */
   public final class EvaluatorAllocatedHandler implements EventHandler<AllocatedEvaluator> {

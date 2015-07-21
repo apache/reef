@@ -30,7 +30,6 @@ import org.apache.reef.driver.evaluator.CompletedEvaluator;
 import org.apache.reef.driver.evaluator.FailedEvaluator;
 import org.apache.reef.driver.parameters.*;
 import org.apache.reef.driver.task.*;
-import org.apache.reef.runtime.common.DriverRestartCompleted;
 import org.apache.reef.runtime.common.driver.DriverRuntimeConfiguration;
 import org.apache.reef.tang.formats.*;
 import org.apache.reef.wake.EventHandler;
@@ -89,11 +88,6 @@ public final class DriverConfiguration extends ConfigurationModuleBuilder {
   public static final RequiredImpl<EventHandler<StartTime>> ON_DRIVER_STARTED = new RequiredImpl<>();
 
   /**
-   * This event is fired in place of the ON_DRIVER_STARTED when the Driver is in fact restarted after failure.
-   */
-  public static final OptionalImpl<EventHandler<StartTime>> ON_DRIVER_RESTARTED = new OptionalImpl<>();
-
-  /**
    * The event handler invoked right before the driver shuts down. Defaults to ignore.
    */
   public static final OptionalImpl<EventHandler<StopTime>> ON_DRIVER_STOP = new OptionalImpl<>();
@@ -138,11 +132,6 @@ public final class DriverConfiguration extends ConfigurationModuleBuilder {
   public static final OptionalImpl<EventHandler<RunningTask>> ON_TASK_RUNNING = new OptionalImpl<>();
 
   /**
-   * Event handler for running tasks in previous evaluator, when driver restarted. Defaults to crash if not bound.
-   */
-  public static final OptionalImpl<EventHandler<RunningTask>> ON_DRIVER_RESTART_TASK_RUNNING = new OptionalImpl<>();
-
-  /**
    * Event handler for suspended tasks. Defaults to job failure if not bound. Rationale: many jobs don't support
    * task suspension. Hence, this parameter should be optional. The only sane default is to crash the job, then.
    */
@@ -173,11 +162,6 @@ public final class DriverConfiguration extends ConfigurationModuleBuilder {
   public static final OptionalImpl<EventHandler<ActiveContext>> ON_CONTEXT_ACTIVE = new OptionalImpl<>();
 
   /**
-   * Event handler for active context when driver restart. Defaults to closing the context if not bound.
-   */
-  public static final OptionalImpl<EventHandler<ActiveContext>> ON_DRIVER_RESTART_CONTEXT_ACTIVE = new OptionalImpl<>();
-
-  /**
    * Event handler for closed context. Defaults to logging if not bound.
    */
   public static final OptionalImpl<EventHandler<ClosedContext>> ON_CONTEXT_CLOSED = new OptionalImpl<>();
@@ -198,16 +182,9 @@ public final class DriverConfiguration extends ConfigurationModuleBuilder {
   public static final OptionalParameter<Integer> EVALUATOR_DISPATCHER_THREADS = new OptionalParameter<>();
 
   /**
-   * Event handler for the event of driver restart completion, default to logging if not bound.
-   */
-  public static final OptionalImpl<EventHandler<DriverRestartCompleted>> ON_DRIVER_RESTART_COMPLETED =
-      new OptionalImpl<>();
-
-  /**
    * ConfigurationModule to fill out to get a legal Driver Configuration.
    */
   public static final ConfigurationModule CONF = new DriverConfiguration().merge(DriverRuntimeConfiguration.CONF)
-
       .bindNamedParameter(DriverIdentifier.class, DRIVER_IDENTIFIER)
       .bindNamedParameter(DriverMemory.class, DRIVER_MEMORY)
       .bindNamedParameter(DriverJobSubmissionDirectory.class, DRIVER_JOB_SUBMISSION_DIRECTORY)
@@ -218,7 +195,6 @@ public final class DriverConfiguration extends ConfigurationModuleBuilder {
 
           // Driver start/stop handlers
       .bindSetEntry(DriverStartHandler.class, ON_DRIVER_STARTED)
-      .bindNamedParameter(DriverRestartHandler.class, ON_DRIVER_RESTARTED)
       .bindSetEntry(Clock.StartHandler.class, org.apache.reef.runtime.common.driver.DriverStartHandler.class)
       .bindSetEntry(Clock.StopHandler.class, ON_DRIVER_STOP)
 
@@ -229,7 +205,6 @@ public final class DriverConfiguration extends ConfigurationModuleBuilder {
 
           // Task handlers
       .bindSetEntry(TaskRunningHandlers.class, ON_TASK_RUNNING)
-      .bindSetEntry(DriverRestartTaskRunningHandlers.class, ON_DRIVER_RESTART_TASK_RUNNING)
       .bindSetEntry(TaskFailedHandlers.class, ON_TASK_FAILED)
       .bindSetEntry(TaskMessageHandlers.class, ON_TASK_MESSAGE)
       .bindSetEntry(TaskCompletedHandlers.class, ON_TASK_COMPLETED)
@@ -237,7 +212,6 @@ public final class DriverConfiguration extends ConfigurationModuleBuilder {
 
           // Context handlers
       .bindSetEntry(ContextActiveHandlers.class, ON_CONTEXT_ACTIVE)
-      .bindSetEntry(DriverRestartContextActiveHandlers.class, ON_DRIVER_RESTART_CONTEXT_ACTIVE)
       .bindSetEntry(ContextClosedHandlers.class, ON_CONTEXT_CLOSED)
       .bindSetEntry(ContextMessageHandlers.class, ON_CONTEXT_MESSAGE)
       .bindSetEntry(ContextFailedHandlers.class, ON_CONTEXT_FAILED)
@@ -249,6 +223,5 @@ public final class DriverConfiguration extends ConfigurationModuleBuilder {
 
           // Various parameters
       .bindNamedParameter(EvaluatorDispatcherThreads.class, EVALUATOR_DISPATCHER_THREADS)
-      .bindSetEntry(DriverRestartCompletedHandlers.class, ON_DRIVER_RESTART_COMPLETED)
       .build();
 }

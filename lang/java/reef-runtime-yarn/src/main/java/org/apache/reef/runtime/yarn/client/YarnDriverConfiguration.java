@@ -18,7 +18,6 @@
  */
 package org.apache.reef.runtime.yarn.client;
 
-import org.apache.reef.annotations.audience.ClientSide;
 import org.apache.reef.annotations.audience.Public;
 import org.apache.reef.runtime.yarn.client.parameters.JobQueue;
 import org.apache.reef.tang.formats.ConfigurationModule;
@@ -29,7 +28,6 @@ import org.apache.reef.tang.formats.OptionalParameter;
  * Additional YARN-Specific configuration options to be merged with DriverConfiguration.
  */
 @Public
-@ClientSide
 public final class YarnDriverConfiguration extends ConfigurationModuleBuilder {
 
   /**

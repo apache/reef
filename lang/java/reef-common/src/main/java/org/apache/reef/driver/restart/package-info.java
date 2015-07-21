@@ -16,19 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.driver.parameters;
-
-import org.apache.reef.tang.annotations.Name;
-import org.apache.reef.tang.annotations.NamedParameter;
-import org.apache.reef.wake.EventHandler;
-import org.apache.reef.wake.time.event.StartTime;
-
-import java.util.Set;
-
 /**
- * The StartTime event is routed to this EventHandler if there is a restart, instead of to DriverStartHandler.
+ * This package provides restart event service handlers.
  */
-@NamedParameter(doc = "The StartTime event is routed to this EventHandler if there is a restart, " +
-    "instead of to DriverStartHandler.")
-public final class DriverRestartHandler implements Name<Set<EventHandler<StartTime>>> {
-}
+package org.apache.reef.driver.restart;

@@ -52,6 +52,7 @@ public final class RuntimeClock implements Clock {
   private final InjectionFuture<Set<EventHandler<IdleClock>>> idleHandler;
 
   private boolean closed = false;
+  private Throwable failedOnException = null;
 
   @Inject
   RuntimeClock(final Timer timer,
@@ -158,6 +159,11 @@ public final class RuntimeClock implements Clock {
     }
   }
 
+  @Override
+  public Throwable runFailedOnException() {
+    return this.failedOnException;
+  }
+
   @SuppressWarnings("checkstyle:hiddenfield")
   private <T extends Time> void subscribe(final Class<T> eventClass, final Set<EventHandler<T>> handlers) {
     for (final EventHandler<T> handler : handlers) {
@@ -244,6 +250,7 @@ public final class RuntimeClock implements Clock {
       this.handlers.onNext(new RuntimeStop(this.timer.getCurrent()));
     } catch (Exception e) {
       e.printStackTrace();
+      this.failedOnException = e;
       this.handlers.onNext(new RuntimeStop(this.timer.getCurrent(), e));
     } finally {
       logThreads(Level.FINE, "Threads running after exiting the clock main loop: ");

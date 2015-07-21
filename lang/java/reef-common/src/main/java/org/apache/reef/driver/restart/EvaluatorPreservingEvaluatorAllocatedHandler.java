@@ -16,19 +16,23 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.driver.parameters;
+package org.apache.reef.driver.restart;
 
-import org.apache.reef.tang.annotations.Name;
-import org.apache.reef.tang.annotations.NamedParameter;
+import org.apache.reef.driver.evaluator.AllocatedEvaluator;
 import org.apache.reef.wake.EventHandler;
-import org.apache.reef.wake.time.event.StartTime;
 
-import java.util.Set;
+import javax.inject.Inject;
 
-/**
- * The StartTime event is routed to this EventHandler if there is a restart, instead of to DriverStartHandler.
- */
-@NamedParameter(doc = "The StartTime event is routed to this EventHandler if there is a restart, " +
-    "instead of to DriverStartHandler.")
-public final class DriverRestartHandler implements Name<Set<EventHandler<StartTime>>> {
+public final class EvaluatorPreservingEvaluatorAllocatedHandler implements EventHandler<AllocatedEvaluator> {
+  private final DriverRestartManager driverRestartManager;
+
+  @Inject
+  EvaluatorPreservingEvaluatorAllocatedHandler(final DriverRestartManager driverRestartManager) {
+    this.driverRestartManager = driverRestartManager;
+  }
+
+  @Override
+  public void onNext(final AllocatedEvaluator value) {
+    this.driverRestartManager.recordAllocatedEvaluator(value.getId());
+  }
 }

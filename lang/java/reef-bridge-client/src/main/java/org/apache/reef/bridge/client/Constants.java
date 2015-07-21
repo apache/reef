@@ -20,6 +20,7 @@ package org.apache.reef.bridge.client;
 
 import org.apache.reef.client.DriverConfiguration;
 import org.apache.reef.client.DriverServiceConfiguration;
+import org.apache.reef.client.parameters.DriverRestartHandlersConfiguration;
 import org.apache.reef.io.network.naming.NameServerConfiguration;
 import org.apache.reef.javabridge.generic.JobDriver;
 import org.apache.reef.tang.Configuration;
@@ -40,18 +41,14 @@ public final class Constants {
       .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, JobDriver.AllocatedEvaluatorHandler.class)
       .set(DriverConfiguration.ON_EVALUATOR_FAILED, JobDriver.FailedEvaluatorHandler.class)
       .set(DriverConfiguration.ON_CONTEXT_ACTIVE, JobDriver.ActiveContextHandler.class)
-      .set(DriverConfiguration.ON_DRIVER_RESTART_CONTEXT_ACTIVE, JobDriver.DriverRestartActiveContextHandler.class)
       .set(DriverConfiguration.ON_CONTEXT_CLOSED, JobDriver.ClosedContextHandler.class)
       .set(DriverConfiguration.ON_CONTEXT_FAILED, JobDriver.FailedContextHandler.class)
       .set(DriverConfiguration.ON_CONTEXT_MESSAGE, JobDriver.ContextMessageHandler.class)
       .set(DriverConfiguration.ON_TASK_MESSAGE, JobDriver.TaskMessageHandler.class)
       .set(DriverConfiguration.ON_TASK_FAILED, JobDriver.FailedTaskHandler.class)
       .set(DriverConfiguration.ON_TASK_RUNNING, JobDriver.RunningTaskHandler.class)
-      .set(DriverConfiguration.ON_DRIVER_RESTART_TASK_RUNNING, JobDriver.DriverRestartRunningTaskHandler.class)
-      .set(DriverConfiguration.ON_DRIVER_RESTART_COMPLETED, JobDriver.DriverRestartCompletedHandler.class)
       .set(DriverConfiguration.ON_TASK_COMPLETED, JobDriver.CompletedTaskHandler.class)
       .set(DriverConfiguration.ON_DRIVER_STARTED, JobDriver.StartHandler.class)
-      .set(DriverConfiguration.ON_DRIVER_RESTARTED, JobDriver.RestartHandler.class)
       .set(DriverConfiguration.ON_TASK_SUSPENDED, JobDriver.SuspendedTaskHandler.class)
       .set(DriverConfiguration.ON_EVALUATOR_COMPLETED, JobDriver.CompletedEvaluatorHandler.class)
       .build();
@@ -67,13 +64,15 @@ public final class Constants {
           .set(DriverServiceConfiguration.ON_EVALUATOR_ALLOCATED,
               ReefEventStateManager.AllocatedEvaluatorStateHandler.class)
           .set(DriverServiceConfiguration.ON_CONTEXT_ACTIVE, ReefEventStateManager.ActiveContextStateHandler.class)
-          .set(DriverServiceConfiguration.ON_DRIVER_RESTART_CONTEXT_ACTIVE,
-              ReefEventStateManager.DrivrRestartActiveContextStateHandler.class)
           .set(DriverServiceConfiguration.ON_TASK_RUNNING, ReefEventStateManager.TaskRunningStateHandler.class)
-          .set(DriverServiceConfiguration.ON_DRIVER_RESTART_TASK_RUNNING,
-              ReefEventStateManager.DriverRestartTaskRunningStateHandler.class)
           .set(DriverServiceConfiguration.ON_DRIVER_STARTED, ReefEventStateManager.StartStateHandler.class)
           .set(DriverServiceConfiguration.ON_DRIVER_STOP, ReefEventStateManager.StopStateHandler.class)
+          .build(),
+      DriverRestartHandlersConfiguration.CONF
+          .set(DriverRestartHandlersConfiguration.ON_DRIVER_RESTART_CONTEXT_ACTIVE,
+              ReefEventStateManager.DriverRestartActiveContextStateHandler.class)
+          .set(DriverRestartHandlersConfiguration.ON_DRIVER_RESTART_TASK_RUNNING,
+              ReefEventStateManager.DriverRestartTaskRunningStateHandler.class)
           .build()
   );
 
