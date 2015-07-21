@@ -16,19 +16,30 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.driver.parameters;
+package org.apache.reef.examples.hello;
 
-import org.apache.reef.tang.annotations.Name;
-import org.apache.reef.tang.annotations.NamedParameter;
+import org.apache.reef.tang.annotations.Unit;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.time.event.StartTime;
 
-import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
- * The StartTime event is routed to this EventHandler if there is a restart, instead of to DriverStartHandler.
+ * The Restart code for the Hello REEF Application.
  */
-@NamedParameter(doc = "The StartTime event is routed to this EventHandler if there is a restart, " +
-    "instead of to DriverStartHandler.")
-public final class DriverRestartHandler implements Name<Set<EventHandler<StartTime>>> {
+@Unit
+public final class HelloDriverRestart {
+
+  private static final Logger LOG = Logger.getLogger(HelloDriverRestart.class.getName());
+
+  /**
+   * Handles Restarts. Prints a message.
+   */
+  public final class DriverRestartHandler implements EventHandler<StartTime> {
+    @Override
+    public void onNext(final StartTime value) {
+      LOG.log(Level.INFO, "Hello, driver restarted at " + value);
+    }
+  }
 }

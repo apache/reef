@@ -16,19 +16,23 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.driver.parameters;
+package org.apache.reef.runtime.common.driver;
 
-import org.apache.reef.tang.annotations.Name;
-import org.apache.reef.tang.annotations.NamedParameter;
-import org.apache.reef.wake.EventHandler;
-import org.apache.reef.wake.time.event.StartTime;
-
-import java.util.Set;
+import org.apache.reef.annotations.audience.ClientSide;
+import org.apache.reef.annotations.audience.Private;
+import org.apache.reef.tang.formats.*;
 
 /**
- * The StartTime event is routed to this EventHandler if there is a restart, instead of to DriverStartHandler.
+ * The base configuration module for driver restart configurations of all runtimes.
+ * <p/>
  */
-@NamedParameter(doc = "The StartTime event is routed to this EventHandler if there is a restart, " +
-    "instead of to DriverStartHandler.")
-public final class DriverRestartHandler implements Name<Set<EventHandler<StartTime>>> {
+@Private
+@ClientSide
+public final class DriverRuntimeRestartConfiguration extends ConfigurationModuleBuilder {
+
+  private DriverRuntimeRestartConfiguration() {
+  }
+
+  // TODO: bind service handlers in REEF-483
+  public static final ConfigurationModule CONF = new DriverRuntimeRestartConfiguration().build();
 }
