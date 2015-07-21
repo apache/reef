@@ -35,23 +35,6 @@ under the License.
     <Reference Include="System.Runtime.Serialization" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="HelloCLRBridge\Handlers\AnotherHelloAllocatedEvaluatorHandler.cs" />
-    <Compile Include="HelloCLRBridge\Handlers\HelloActiveContextHandler.cs" />
-    <Compile Include="HelloCLRBridge\Handlers\HelloAllocatedEvaluatorHandler.cs" />
-    <Compile Include="HelloCLRBridge\Handlers\HelloCompletedEvaluatorHandler.cs" />
-    <Compile Include="HelloCLRBridge\Handlers\HelloDriverRestartActiveContextHandler.cs" />
-    <Compile Include="HelloCLRBridge\Handlers\HelloDriverRestartRunningTaskHandler.cs" />
-    <Compile Include="HelloCLRBridge\Handlers\HelloDriverStartHandler.cs" />
-    <Compile Include="HelloCLRBridge\Handlers\HelloEvaluatorRequestorHandler.cs" />
-    <Compile Include="HelloCLRBridge\Handlers\HelloFailedEvaluatorHandler.cs" />
-    <Compile Include="HelloCLRBridge\Handlers\HelloFailedTaskHandler.cs" />
-    <Compile Include="HelloCLRBridge\Handlers\HelloHttpHandler.cs" />
-    <Compile Include="HelloCLRBridge\Handlers\HelloRestartHandler.cs" />
-    <Compile Include="HelloCLRBridge\Handlers\HelloRunningTaskHandler.cs" />
-    <Compile Include="HelloCLRBridge\Handlers\HelloSimpleEventHandlers.cs" />
-    <Compile Include="HelloCLRBridge\Handlers\HelloStartHandler.cs" />
-    <Compile Include="HelloCLRBridge\Handlers\HelloTaskMessageHandler.cs" />
-    <Compile Include="HelloCLRBridge\HelloTraceListener.cs" />
     <Compile Include="MachineLearning\KMeans\Centroids.cs" />
     <Compile Include="MachineLearning\KMeans\codecs\CentroidsCodec.cs" />
     <Compile Include="MachineLearning\KMeans\codecs\DataVectorCodec.cs" />
@@ -104,6 +87,9 @@ under the License.
       <Project>{cdfb3464-4041-42b1-9271-83af24cd5008}</Project>
       <Name>Org.Apache.REEF.Wake</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="HelloCLRBridge\Handlers\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />

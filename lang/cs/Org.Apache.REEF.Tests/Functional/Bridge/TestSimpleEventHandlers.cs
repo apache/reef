@@ -18,16 +18,15 @@
  */
 
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Org.Apache.REEF.Common.Evaluator;
 using Org.Apache.REEF.Driver.Bridge;
 using Org.Apache.REEF.Driver.Defaults;
-using Org.Apache.REEF.Examples.HelloCLRBridge.Handlers;
+using Org.Apache.REEF.Examples.AllHandlers;
 using Org.Apache.REEF.Examples.Tasks.HelloTask;
 using Org.Apache.REEF.Network.Naming;
+using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities.Logging;
@@ -40,69 +39,54 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
         [TestInitialize()]
         public void TestSetup()
         {
-            CleanUp();
             Init();
         }
 
-        [TestCleanup]
-        public void TestCleanup()
-        {
-            Console.WriteLine("Post test check and clean up");
-            CleanUp();
-        }
-
-        //[TestMethod, Priority(1), TestCategory("FunctionalGated")]
+        [TestMethod, Priority(1), TestCategory("FunctionalGated")]
         [Description("Test Hello Handler on local runtime")]
         [DeploymentItem(@".")]
         [Timeout(180 * 1000)]
         public void RunSimpleEventHandlerOnLocalRuntime()
         {
-            IsOnLocalRuntiime = true;
-            TestRun(AssembliesToCopy(), DriverConfiguration());
-            ValidateSuccessForLocalRuntime(2);
-            ValidateEvaluatorSetting();
+            string testFolder = DefaultRuntimeFolder + TestNumber++;
+            TestRun(DriverConfiguration(), typeof(HelloSimpleEventHandlers), "simpleHandler", "local", testFolder);
+            ValidateSuccessForLocalRuntime(1, testFolder);
+            ValidateEvaluatorSetting(testFolder);
+            CleanUp(testFolder);
         }
 
         public IConfiguration DriverConfiguration()
         {
-            return DriverBridgeConfiguration.ConfigurationModule
-                .Set(DriverBridgeConfiguration.OnDriverStarted, GenericType<HelloSimpleEventHandlers>.Class)
-                .Set(DriverBridgeConfiguration.OnEvaluatorAllocated, GenericType<HelloSimpleEventHandlers>.Class)
-                .Set(DriverBridgeConfiguration.OnEvaluatorAllocated, GenericType<AnotherHelloAllocatedEvaluatorHandler>.Class)
-                .Set(DriverBridgeConfiguration.OnContextActive, GenericType<HelloSimpleEventHandlers>.Class)
-                .Set(DriverBridgeConfiguration.OnTaskMessage, GenericType<HelloTaskMessageHandler>.Class)
-                .Set(DriverBridgeConfiguration.OnEvaluatorFailed, GenericType<HelloSimpleEventHandlers>.Class)
-                .Set(DriverBridgeConfiguration.OnTaskCompleted, GenericType<HelloSimpleEventHandlers>.Class)
-                .Set(DriverBridgeConfiguration.OnTaskFailed, GenericType<HelloSimpleEventHandlers>.Class)
-                .Set(DriverBridgeConfiguration.OnTaskRunning, GenericType<HelloSimpleEventHandlers>.Class)
-                .Set(DriverBridgeConfiguration.OnEvaluatorRequested, GenericType<HelloSimpleEventHandlers>.Class)
-                .Set(DriverBridgeConfiguration.OnHttpEvent, GenericType<HelloSimpleEventHandlers>.Class)
-                .Set(DriverBridgeConfiguration.OnEvaluatorCompleted, GenericType<HelloSimpleEventHandlers>.Class)
-                .Set(DriverBridgeConfiguration.CustomTraceListeners, GenericType<DefaultCustomTraceListener>.Class)
-                .Set(DriverBridgeConfiguration.CustomTraceLevel, Level.Info.ToString())
-                .Set(DriverBridgeConfiguration.CommandLineArguments, "submitContextAndTask") 
-                .Set(DriverBridgeConfiguration.OnDriverRestarted, GenericType<HelloRestartHandler>.Class)
-                .Set(DriverBridgeConfiguration.OnDriverReconnect, GenericType<DefaultLocalHttpDriverConnection>.Class)
-                .Set(DriverBridgeConfiguration.OnDirverRestartContextActive, GenericType<HelloDriverRestartActiveContextHandler>.Class)
-                .Set(DriverBridgeConfiguration.OnDriverRestartTaskRunning, GenericType<HelloDriverRestartRunningTaskHandler>.Class)
+            var helloDriverConfiguration = REEF.Driver.DriverConfiguration.ConfigurationModule
+                .Set(REEF.Driver.DriverConfiguration.OnDriverStarted, GenericType<HelloSimpleEventHandlers>.Class)
+                .Set(REEF.Driver.DriverConfiguration.OnEvaluatorAllocated, GenericType<HelloSimpleEventHandlers>.Class)
+                .Set(REEF.Driver.DriverConfiguration.OnContextActive, GenericType<HelloSimpleEventHandlers>.Class)
+                .Set(REEF.Driver.DriverConfiguration.OnTaskMessage, GenericType<HelloTaskMessageHandler>.Class)
+                .Set(REEF.Driver.DriverConfiguration.OnEvaluatorFailed, GenericType<HelloSimpleEventHandlers>.Class)
+                .Set(REEF.Driver.DriverConfiguration.OnTaskCompleted, GenericType<HelloSimpleEventHandlers>.Class)
+                .Set(REEF.Driver.DriverConfiguration.OnTaskFailed, GenericType<HelloSimpleEventHandlers>.Class)
+                .Set(REEF.Driver.DriverConfiguration.OnTaskRunning, GenericType<HelloSimpleEventHandlers>.Class)
+                .Set(REEF.Driver.DriverConfiguration.OnHttpEvent, GenericType<HelloSimpleEventHandlers>.Class)
+                .Set(REEF.Driver.DriverConfiguration.OnEvaluatorCompleted, GenericType<HelloSimpleEventHandlers>.Class)
+                .Set(REEF.Driver.DriverConfiguration.CustomTraceListeners, GenericType<DefaultCustomTraceListener>.Class)
+                .Set(REEF.Driver.DriverConfiguration.CustomTraceLevel, Level.Info.ToString())
+                .Set(REEF.Driver.DriverConfiguration.CommandLineArguments, "submitContextAndTask")
+                .Build();
+
+            return TangFactory.GetTang().NewConfigurationBuilder(helloDriverConfiguration)
+                .BindSetEntry<DriverBridgeConfigurationOptions.SetOfAssemblies, string>(typeof(HelloTask).Assembly.GetName().Name)
+                .BindSetEntry<DriverBridgeConfigurationOptions.SetOfAssemblies, string>(typeof(NameClient).Assembly.GetName().Name)
+                .BindNamedParameter<IsRetain, bool>(GenericType<IsRetain>.Class, "false")
+                .BindNamedParameter<NumberOfEvaluators, Int32>(GenericType<NumberOfEvaluators>.Class, "1")
                 .Build();
         }
 
-        public HashSet<string> AssembliesToCopy()
+        private void ValidateEvaluatorSetting(string testFolder)
         {
-            HashSet<string> appDlls = new HashSet<string>();
-            appDlls.Add(typeof(HelloSimpleEventHandlers).Assembly.GetName().Name);
-            appDlls.Add(typeof(HelloTask).Assembly.GetName().Name);
-            appDlls.Add(typeof(INameServer).Assembly.GetName().Name);
-            return appDlls;
-        }
-
-        private void ValidateEvaluatorSetting()
-        {
-            const string successIndication = "Evaluator is assigned with 512 MB of memory and 2 cores.";
-            string[] lines = File.ReadAllLines(GetLogFile(_stdout));
+            const string successIndication = "Evaluator is assigned with 3072 MB of memory and 1 cores.";
+            string[] lines = File.ReadAllLines(GetLogFile(_stdout, testFolder));
             string[] successIndicators = lines.Where(s => s.Contains(successIndication)).ToArray();
-            Assert.IsTrue(successIndicators.Count() >= 1);
+            Assert.IsTrue(successIndicators.Any());
         }
     }
 }

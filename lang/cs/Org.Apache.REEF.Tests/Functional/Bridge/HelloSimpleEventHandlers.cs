@@ -22,7 +22,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Net;
 using System.Text;
-using Org.Apache.REEF.Common.Io;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Driver;
 using Org.Apache.REEF.Driver.Bridge;
@@ -30,7 +29,6 @@ using Org.Apache.REEF.Driver.Context;
 using Org.Apache.REEF.Driver.Evaluator;
 using Org.Apache.REEF.Driver.Task;
 using Org.Apache.REEF.Examples.Tasks.HelloTask;
-using Org.Apache.REEF.Network.Naming;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
@@ -38,7 +36,7 @@ using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Utilities.Logging;
 using IRunningTask = Org.Apache.REEF.Driver.Task.IRunningTask;
 
-namespace Org.Apache.REEF.Examples.HelloCLRBridge.Handlers
+namespace Org.Apache.REEF.Tests.Functional.Bridge
 {
     enum DriverStatus
     {
@@ -56,11 +54,13 @@ namespace Org.Apache.REEF.Examples.HelloCLRBridge.Handlers
     }
 
     /// <summary>
-    /// A demo class that contains basic handlers. It runs given tasks and is able to get request from http server and start to ren the tasks again. 
+    /// A demo class that contains basic handlers. It runs given tasks and is able to get request from http server and start to run the tasks again. 
     /// It handle various http requests. It also monitoring task status and driver status.
+    /// When IsRetain is configured as false. Context will be closed after executing all the tasks. 
+    /// The default of IsRetain is true, that would retain the evaluators and wait for http requests to submit more jobs.
     /// </summary>
     public class HelloSimpleEventHandlers :
-        IObserver<IEvaluatorRequestor>,
+        IObserver<IDriverStarted>,
         IObserver<IAllocatedEvaluator>,
         IObserver<IActiveContext>,
         IObserver<ICompletedTask>,
@@ -68,36 +68,37 @@ namespace Org.Apache.REEF.Examples.HelloCLRBridge.Handlers
         IObserver<IFailedTask>,
         IObserver<IFailedEvaluator>,
         IObserver<ICompletedEvaluator>,
-        IStartHandler,
         IHttpHandler
     {
         private const int NumberOfTasks = 5;
-        private static readonly Logger LOGGER = Logger.GetLogger(typeof(HelloSimpleEventHandlers));
-        private IAllocatedEvaluator _allocatedEvaluator;
-        private IActiveContext _activeContext;
+        private static readonly Logger Logger = Logger.GetLogger(typeof(HelloSimpleEventHandlers));
         private readonly IList<IActiveContext> _activeContexts = new List<IActiveContext>();
-        private DriverStatus driveStatus;
+        private DriverStatus _driveStatus;
         private TaskContext _taskContext;
+        private readonly bool _isRetain;
+        private readonly int _numberOfEvaluators;
+        private readonly IEvaluatorRequestor _evaluatorRequestor;
 
         [Inject]
-        public HelloSimpleEventHandlers()
+        private HelloSimpleEventHandlers(IEvaluatorRequestor evaluatorRequestor, 
+            [Parameter(typeof(NumberOfEvaluators))] int numberOfEvaluators, 
+            [Parameter(typeof(IsRetain))] bool isRetain)
         {
-            LOGGER.Log(Level.Info, "HelloSimpleEventHandlers constructor");
-            CreateClassHierarchy();
-            Identifier = "HelloSimpleEventHandlers";
+            Logger.Log(Level.Info, "HelloSimpleEventHandlers constructor");
             _taskContext = new TaskContext();
             _taskContext.TotalTasks = NumberOfTasks;
-            driveStatus = DriverStatus.Init;
+            _driveStatus = DriverStatus.Init;
+            _isRetain = isRetain;
+            _numberOfEvaluators = numberOfEvaluators;
+            _evaluatorRequestor = evaluatorRequestor;
         }
-
-        public string Identifier { get; set; }
 
         public static string ParsePathInfo(string pathInfo)
         {
             string[] p = pathInfo.Split('/');
             foreach (string s in p)
             {
-                LOGGER.Log(Level.Info, s);
+                Logger.Log(Level.Info, s);
             }
             if (p.Length > 3)
             {
@@ -124,52 +125,50 @@ namespace Org.Apache.REEF.Examples.HelloCLRBridge.Handlers
             response.OutputStream = bytesResponse;
         }
 
-        public void OnNext(IEvaluatorRequestor evalutorRequestor)
+        public void OnNext(IDriverStarted driverStarted)
         {
-            using (LOGGER.LogFunction("HelloSimpleEventHandlers::evalutorRequestor received"))
+            using (Logger.LogFunction("HelloSimpleEventHandlers::evalutorRequestor received"))
             {
-                int evaluatorsNumber = 2;
+                int evaluatorsNumber = _numberOfEvaluators;
                 int memory = 1024 * 3;
                 int cpuCoreCount = 1;
                 string rack = "WonderlandRack";
                 string evaluatorBatchId = "evaluatorThatRequires3GBofMemory";
                 EvaluatorRequest request = new EvaluatorRequest(evaluatorsNumber, memory, cpuCoreCount, rack, evaluatorBatchId);
 
-                evalutorRequestor.Submit(request);
+                _evaluatorRequestor.Submit(request);
             }
         }
 
         public void OnNext(IAllocatedEvaluator allocatedEvaluator)
         {
             string taskId = "Task_" + allocatedEvaluator.Id;
-            using (LOGGER.LogFunction("HelloSimpleEventHandlers::allocatedEvaluator received {0}.", taskId))
+            var descriptor = allocatedEvaluator.GetEvaluatorDescriptor();
+            Logger.Log(Level.Info, string.Format(CultureInfo.InvariantCulture, "Evaluator is assigned with {0} MB of memory and {1} cores.", descriptor.Memory, descriptor.VirtualCore));
+
+            using (Logger.LogFunction("HelloSimpleEventHandlers::allocatedEvaluator received {0}.", taskId))
             {
-                _allocatedEvaluator = allocatedEvaluator;
-
                 IConfiguration contextConfiguration = ContextConfiguration.ConfigurationModule.Set(ContextConfiguration.Identifier, "HelloSimpleEventHandlersContext_" + Guid.NewGuid().ToString("N")).Build();
-
                 allocatedEvaluator.SubmitContext(contextConfiguration);
             }
         }
 
         public void OnNext(IActiveContext activeContext)
         {
-            using (LOGGER.LogFunction("HelloSimpleEventHandlers::activeContext received"))
+            using (Logger.LogFunction("HelloSimpleEventHandlers::activeContext received"))
             {
-                LOGGER.Log(Level.Info, string.Format(CultureInfo.InvariantCulture, "Received activeContext, EvaluatorId id: {0}", activeContext.EvaluatorId));
-                _activeContext = activeContext;
+                Logger.Log(Level.Info, string.Format(CultureInfo.InvariantCulture, "Received activeContext, EvaluatorId id: {0}", activeContext.EvaluatorId));
                 _activeContexts.Add(activeContext);
-                driveStatus = DriverStatus.RunningTasks;
+                _driveStatus = DriverStatus.RunningTasks;
                 SubmitNextTask(activeContext);
             }
         }
 
         public void OnNext(ICompletedTask value)
         {
-            using (LOGGER.LogFunction("HelloSimpleEventHandlers::CompletedTask received"))
+            using (Logger.LogFunction("HelloSimpleEventHandlers::CompletedTask received"))
             {
-                LOGGER.Log(Level.Info, string.Format(CultureInfo.InvariantCulture, "Received CompletedTask: {0}, task id: {1}", value.Id, _taskContext.CurrentTaskId()));
-                _activeContext = value.ActiveContext;
+                Logger.Log(Level.Info, string.Format(CultureInfo.InvariantCulture, "Received CompletedTask: {0}, task id: {1}", value.Id, _taskContext.CurrentTaskId()));
                 _taskContext.UpdateTaskStatus(value.Id, TaskStatus.Completed);
                 _taskContext.TaskCompleted++;
                 SubmitNextTask(value.ActiveContext);
@@ -178,7 +177,7 @@ namespace Org.Apache.REEF.Examples.HelloCLRBridge.Handlers
 
         public void OnError(Exception error)
         {
-            LOGGER.Log(Level.Error, string.Format(CultureInfo.InvariantCulture, "Exception in coral handlers Msg: {1} Stack: {2}", error.Message, error.StackTrace));
+            Logger.Log(Level.Error, string.Format(CultureInfo.InvariantCulture, "Exception in coral handlers Msg: {1} Stack: {2}", error.Message, error.StackTrace));
         }
 
         public void OnCompleted()
@@ -215,30 +214,29 @@ namespace Org.Apache.REEF.Examples.HelloCLRBridge.Handlers
         public void OnHttpRequest(ReefHttpRequest request, ReefHttpResponse response)
         {
             string target = ParsePathInfo(request.PathInfo);
-            LOGGER.Log(Level.Info, "Target: " + target + ". PathInfo: " + request.PathInfo);
-            //if (target != null && target.ToLower(CultureInfo.CurrentCulture).Equals("driverstatus"))
+            Logger.Log(Level.Info, "Target: " + target + ". PathInfo: " + request.PathInfo);
             if (target != null && target.Equals("driverstatus"))
                 {
-                LOGGER.Log(Level.Info, "Target: " + target + ". Driver status: " + driveStatus.ToString());
-                string msg = string.Format(CultureInfo.CurrentCulture, "Current Driver status: {0} ", driveStatus.ToString());
+                Logger.Log(Level.Info, "Target: " + target + ". Driver status: " + _driveStatus.ToString());
+                string msg = string.Format(CultureInfo.CurrentCulture, "Current Driver status: {0} ", _driveStatus.ToString());
                 BuildHttpResponse(response, HttpStatusCode.OK, msg);
                 return;
             }
 
             if (target != null && target.Equals("taskstatus"))
             {
-                LOGGER.Log(Level.Info, "Target: " + target + ". TaskStatus string: " + _taskContext.TaskStatusString());
+                Logger.Log(Level.Info, "Target: " + target + ". TaskStatus string: " + _taskContext.TaskStatusString());
                 BuildHttpResponse(response, HttpStatusCode.OK, _taskContext.TaskStatusString());
                 return;
             }
 
-            if (target != null && target.ToLower(CultureInfo.CurrentCulture).Equals("run") && driveStatus == DriverStatus.Init)
+            if (target != null && target.ToLower(CultureInfo.CurrentCulture).Equals("run") && _driveStatus == DriverStatus.Init)
             {
                 BuildHttpResponse(response, HttpStatusCode.OK, "Driver is not ready, wait a few second then send request again!!!");
                 return;
             }
 
-            if (target != null && target.ToLower(CultureInfo.CurrentCulture).Equals("run") && driveStatus == DriverStatus.RunningTasks)
+            if (target != null && target.ToLower(CultureInfo.CurrentCulture).Equals("run") && _driveStatus == DriverStatus.RunningTasks)
             {
                 string msg = string.Format(CultureInfo.CurrentCulture,
                                            "A job is running. Please check driver status and then submit your job again.");
@@ -246,17 +244,17 @@ namespace Org.Apache.REEF.Examples.HelloCLRBridge.Handlers
                 return;
             }
 
-            if (target != null && target.ToLower(CultureInfo.CurrentCulture).Equals("run") && driveStatus == DriverStatus.Idle)
+            if (target != null && target.ToLower(CultureInfo.CurrentCulture).Equals("run") && _driveStatus == DriverStatus.Idle)
             {
-                string numberOfTasks = getQueryValue(request.Querystring, "numberoftasks");
+                string numberOfTasks = GetQueryValue(request.Querystring, "numberoftasks");
                 if (numberOfTasks == null)
                 {
                     BuildHttpResponse(response, HttpStatusCode.OK, "Please specify number of tasks to run");
                     return;
                 }
 
-                driveStatus = DriverStatus.RunningTasks;
-                using (LOGGER.LogFunction("HelloSimpleEventHandlers::Processing a new Job from web request"))
+                _driveStatus = DriverStatus.RunningTasks;
+                using (Logger.LogFunction("HelloSimpleEventHandlers::Processing a new Job from web request"))
                 {
                     _taskContext = new TaskContext();
                     _taskContext.TotalTasks = int.Parse(numberOfTasks, CultureInfo.CurrentCulture);
@@ -275,7 +273,7 @@ namespace Org.Apache.REEF.Examples.HelloCLRBridge.Handlers
         private static IDictionary<string, string> ParseQueryString(string queryString)
         {
             IDictionary<string, string> queryPairs = new Dictionary<string, string>();
-            if (queryString != null && queryString.Length > 0)
+            if (!string.IsNullOrEmpty(queryString))
             {
                 string[] queries = queryString.Split('&');
                 foreach (string query in queries)
@@ -284,14 +282,14 @@ namespace Org.Apache.REEF.Examples.HelloCLRBridge.Handlers
                     if (pairs.Length == 2 && !pairs[0].Equals(string.Empty) && !pairs[1].Equals(string.Empty))
                     {
                         queryPairs[pairs[0]] = pairs[1];
-                        LOGGER.Log(Level.Info, string.Format(CultureInfo.CurrentCulture, "query key: {0}, Query value: {1}.", pairs[0], pairs[1]));
+                        Logger.Log(Level.Info, string.Format(CultureInfo.CurrentCulture, "query key: {0}, Query value: {1}.", pairs[0], pairs[1]));
                     }
                 }
             }
             return queryPairs;
         }
 
-        private static string getQueryValue(string queryString, string name)
+        private static string GetQueryValue(string queryString, string name)
         {
             IDictionary<string, string> pairs = ParseQueryString(queryString);
             string v;
@@ -299,26 +297,14 @@ namespace Org.Apache.REEF.Examples.HelloCLRBridge.Handlers
             return v;
         }
 
-        private void CreateClassHierarchy()
-        {
-            HashSet<string> clrDlls = new HashSet<string>();
-            clrDlls.Add(typeof(IDriver).Assembly.GetName().Name);
-            clrDlls.Add(typeof(ITask).Assembly.GetName().Name);
-            clrDlls.Add(typeof(HelloTask).Assembly.GetName().Name);
-            clrDlls.Add(typeof(INameClient).Assembly.GetName().Name);
-            clrDlls.Add(typeof(NameClient).Assembly.GetName().Name);
-
-            ClrHandlerHelper.GenerateClassHierarchy(clrDlls);
-        }
-
         private void SubmitNextTask(IActiveContext activeContext)
         {
-            LOGGER.Log(Level.Info, "SubmitNextTask with evaluatorid: " + activeContext.EvaluatorId);
+            Logger.Log(Level.Info, "SubmitNextTask with evaluator id: " + activeContext.EvaluatorId);
             IConfiguration finalConfiguration = GetNextTaskConfiguration();
             if (null != finalConfiguration)
             {
-                LOGGER.Log(Level.Info, "Executing task id " + _taskContext.CurrentTaskId());
-                LOGGER.Log(Level.Info, string.Format(CultureInfo.InvariantCulture, "Submitting Task {0}", _taskContext.CurrentTaskId()));
+                Logger.Log(Level.Info, "Executing task id " + _taskContext.CurrentTaskId());
+                Logger.Log(Level.Info, string.Format(CultureInfo.InvariantCulture, "Submitting Task {0}", _taskContext.CurrentTaskId()));
 
                 activeContext.SubmitTask(finalConfiguration);
             }
@@ -326,8 +312,12 @@ namespace Org.Apache.REEF.Examples.HelloCLRBridge.Handlers
             {
                 if (_taskContext.TaskCompleted == _taskContext.TotalTasks)
                 {
-                    LOGGER.Log(Level.Info, "All tasks submitted and completed, active context remian idle");
-                    driveStatus = DriverStatus.Idle;
+                    Logger.Log(Level.Info, "All tasks submitted and completed, active context remains idle");
+                    _driveStatus = DriverStatus.Idle;
+                    if (!_isRetain)
+                    {
+                        activeContext.Dispose();
+                    }
                 }
             }
         }
@@ -335,7 +325,7 @@ namespace Org.Apache.REEF.Examples.HelloCLRBridge.Handlers
         private IConfiguration GetNextTaskConfiguration()
         {
             string nextTaskId = _taskContext.NextTaskId();
-            LOGGER.Log(Level.Info, "GetNextTaskConfiguration, nextTaskId: " + nextTaskId);
+            Logger.Log(Level.Info, "GetNextTaskConfiguration, nextTaskId: " + nextTaskId);
             if (nextTaskId != null)
             {
                 IConfiguration taskConfiguration = TaskConfiguration.ConfigurationModule
@@ -352,9 +342,9 @@ namespace Org.Apache.REEF.Examples.HelloCLRBridge.Handlers
 
     class TaskContext
     {
-        private readonly IList<string> taskIds = new List<string>();
-
-        private readonly IDictionary<string, TaskStatus> tasks = new Dictionary<string, TaskStatus>();
+        private static readonly Logger Logger = Logger.GetLogger(typeof(TaskContext));
+        private readonly IList<string> _taskIds = new List<string>();
+        private readonly IDictionary<string, TaskStatus> _tasks = new Dictionary<string, TaskStatus>();
 
         public TaskContext()
         {
@@ -370,12 +360,12 @@ namespace Org.Apache.REEF.Examples.HelloCLRBridge.Handlers
 
         public string NextTaskId()
         {
-            Console.WriteLine("NextTaskId: " + NextTaskIndex);
+           Logger.Log(Level.Verbose, "NextTaskId: " + NextTaskIndex);
            if (NextTaskIndex < TotalTasks)
            {
                string id = "Jan7DemoTask_" + DateTime.Now.Ticks;
-               taskIds.Add(id);
-               tasks.Add(id, TaskStatus.Submitting);
+               _taskIds.Add(id);
+               _tasks.Add(id, TaskStatus.Submitting);
                NextTaskIndex++;
                return id;
            }
@@ -384,28 +374,28 @@ namespace Org.Apache.REEF.Examples.HelloCLRBridge.Handlers
 
         public string CurrentTaskId()
         {
-            Console.WriteLine("CurrentTaskIndex: " + (NextTaskIndex - 1));
+            Logger.Log(Level.Verbose, "CurrentTaskIndex: " + (NextTaskIndex - 1));
             if (NextTaskIndex <= TotalTasks)
             {
-                Console.WriteLine("CurrentTaskId: " + taskIds[NextTaskIndex - 1]);
-                return taskIds[NextTaskIndex - 1];
+                Logger.Log(Level.Verbose, "CurrentTaskId: " + _taskIds[NextTaskIndex - 1]);
+                return _taskIds[NextTaskIndex - 1];
             }
             return null; //either not started or completed
         }
 
         public void UpdateTaskStatus(string taskId, TaskStatus status)
         {
-            tasks[taskId] = status;
+            _tasks[taskId] = status;
         }
 
         public string TaskStatusString()
         {
-            Console.WriteLine("TaskStatusString 1, nextTaskIndex: " + NextTaskIndex);
+            Logger.Log(Level.Verbose, "TaskStatusString 1, nextTaskIndex: " + NextTaskIndex);
             StringBuilder sb = new StringBuilder();
 
-            if (tasks.Count > 0)
+            if (_tasks.Count > 0)
             {
-                foreach (var pair in tasks)
+                foreach (var pair in _tasks)
                 {
                     sb.AppendLine("Task id: " + pair.Key + " Task status: " + pair.Value.ToString());
                 }
@@ -417,5 +407,15 @@ namespace Org.Apache.REEF.Examples.HelloCLRBridge.Handlers
 
             return sb.ToString();
         }
+    }
+
+    [NamedParameter(Documentation = "NumberOfTasks", ShortName = "NumberOfTasks", DefaultValue = "2")]
+    class NumberOfEvaluators : Name<Int32>
+    {        
+    }
+
+    [NamedParameter(Documentation = "Retain", ShortName = "Retain", DefaultValue = "true")]
+    class IsRetain : Name<bool>
+    {
     }
 }

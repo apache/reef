@@ -28,8 +28,13 @@ using System.Timers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
+using Org.Apache.REEF.Client.API;
+using Org.Apache.REEF.Client.Local;
+using Org.Apache.REEF.Client.YARN;
 using Org.Apache.REEF.Driver;
 using Org.Apache.REEF.Driver.Bridge;
+using Org.Apache.REEF.Examples.AllHandlers;
+using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Utilities.Diagnostics;
@@ -47,6 +52,9 @@ namespace Org.Apache.REEF.Tests.Functional
 
         protected static int TestNumber = 1;
         protected const string DefaultRuntimeFolder = "REEF_LOCAL_RUNTIME";
+
+        private const string Local = "local";
+        private const string YARN = "yarn";
 
         private readonly static Logger Logger = Logger.GetLogger(typeof(ReefFunctionalTest));
         private const string StorageAccountKeyEnvironmentVariable = "REEFTestStorageAccountKey";
@@ -240,6 +248,37 @@ namespace Org.Apache.REEF.Tests.Functional
                 Exceptions.Throw(new Exception(errorMessageIfNotAvailable), Logger);
             }
             return result;
+        }
+
+        protected void TestRun(IConfiguration driverCondig, Type globalAssemblyType, string jobIdentifier = "myDriver", string runOnYarn = "local", string runtimeFolder = DefaultRuntimeFolder)
+        {
+            IInjector injector = TangFactory.GetTang().NewInjector(GetRuntimeConfiguration(runOnYarn, runtimeFolder));
+            var reefClient = injector.GetInstance<IREEFClient>();
+            var jobSubmissionBuilderFactory = injector.GetInstance<JobSubmissionBuilderFactory>();
+            var jobSubmission = jobSubmissionBuilderFactory.GetJobSubmissionBuilder()
+                .AddDriverConfiguration(driverCondig)
+                .AddGlobalAssemblyForType(globalAssemblyType)
+                .SetJobIdentifier(jobIdentifier)
+                .Build();
+
+            reefClient.Submit(jobSubmission);
+        }
+
+        private IConfiguration GetRuntimeConfiguration(string runOnYarn, string runtimeFolder)
+        {
+            switch (runOnYarn)
+            {
+                case Local:
+                    var dir = Path.Combine(".", runtimeFolder);
+                    return LocalRuntimeClientConfiguration.ConfigurationModule
+                        .Set(LocalRuntimeClientConfiguration.NumberOfEvaluators, "2")
+                        .Set(LocalRuntimeClientConfiguration.RuntimeFolder, dir)
+                        .Build();
+                case YARN:
+                    return YARNClientConfiguration.ConfigurationModule.Build();
+                default:
+                    throw new Exception("Unknown runtime: " + runOnYarn);
+            }
         }
     }
 }

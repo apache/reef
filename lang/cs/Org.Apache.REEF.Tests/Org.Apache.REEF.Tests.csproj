@@ -49,8 +49,8 @@ under the License.
   <ItemGroup>
     <Compile Include="Evaluator\EvaluatorConfigurationsTests.cs" />
     <Compile Include="Evaluator\EvaluatorTests.cs" />
+    <Compile Include="Functional\Bridge\HelloSimpleEventHandlers.cs" />
     <Compile Include="Functional\Bridge\TestBridgeClient.cs" />
-    <Compile Include="Functional\Bridge\TestHelloBridgeHandlers.cs" />
     <Compile Include="Functional\Bridge\TestSimpleEventHandlers.cs" />
     <Compile Include="Functional\Driver\DriverTestStartHandler.cs" />
     <Compile Include="Functional\Driver\TestDriver.cs" />
@@ -120,9 +120,9 @@ under the License.
       <Project>{b1b43b60-ddd0-4805-a9b4-ba84a0ccb7c7}</Project>
       <Name>Org.Apache.REEF.Network.Examples</Name>
     </ProjectReference>
-    <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.Examples.HelloCLRBridge\Org.Apache.REEF.Examples.HelloCLRBridge.csproj">
+    <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.Examples.AllHandlers\Org.Apache.REEF.Examples.AllHandlers.csproj">
       <Project>{159f7d70-8acc-4d97-9f6d-2fc4ca0d8682}</Project>
-      <Name>Org.Apache.REEF.Examples.HelloCLRBridge</Name>
+      <Name>Org.Apache.REEF.Examples.AllHandlers</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

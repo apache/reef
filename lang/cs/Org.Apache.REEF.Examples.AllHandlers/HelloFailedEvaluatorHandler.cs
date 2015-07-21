@@ -21,8 +21,11 @@ using System;
 using Org.Apache.REEF.Driver.Evaluator;
 using Org.Apache.REEF.Tang.Annotations;
 
-namespace Org.Apache.REEF.Examples.HelloCLRBridge.Handlers
+namespace Org.Apache.REEF.Examples.AllHandlers
 {
+    /// <summary>
+    /// A sample implementation of FailedEvaluatorHandler
+    /// </summary>
     public class HelloFailedEvaluatorHandler : IObserver<IFailedEvaluator>
     {
         private static int _failureCount = 0;
@@ -30,10 +33,14 @@ namespace Org.Apache.REEF.Examples.HelloCLRBridge.Handlers
         private static readonly int _maxTrial = 2;
 
         [Inject]
-        public HelloFailedEvaluatorHandler()
+        private HelloFailedEvaluatorHandler()
         {
         }
 
+        /// <summary>
+        /// Sample code to resubmit a request
+        /// </summary>
+        /// <param name="failedEvaluator"></param>
         public void OnNext(IFailedEvaluator failedEvaluator)
         {
             Console.WriteLine("Receive a failed evaluator: " + failedEvaluator.Id);
