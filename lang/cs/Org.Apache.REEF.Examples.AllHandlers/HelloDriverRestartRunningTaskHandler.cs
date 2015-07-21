@@ -19,28 +19,43 @@
 
 using System;
 using System.Globalization;
-using Org.Apache.REEF.Driver.Evaluator;
+using Org.Apache.REEF.Driver.Context;
+using Org.Apache.REEF.Driver.Task;
 using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Utilities;
 
-namespace Org.Apache.REEF.Examples.HelloCLRBridge.Handlers
+namespace Org.Apache.REEF.Examples.AllHandlers
 {
     /// <summary>
-    /// Sample implementaion of RunningTaskHandler
+    /// Sample implementation of RunningTaskHandler when driver is restarted
     /// </summary>
-    public class HelloCompletedEvaluatorHandler : IObserver<ICompletedEvaluator>
+    public class HelloDriverRestartRunningTaskHandler : IObserver<IRunningTask>
     {
         [Inject]
-        public HelloCompletedEvaluatorHandler()
+        private HelloDriverRestartRunningTaskHandler()
         {
         }
 
-        public void OnNext(ICompletedEvaluator completedEvaluator)
+        /// <summary>
+        /// Sending message to running task
+        /// </summary>
+        /// <param name="runningTask"></param>
+        public void OnNext(IRunningTask runningTask)
         {
-            string messageStr = string.Format(
+            IActiveContext context = runningTask.ActiveContext;
+
+            Console.WriteLine(string.Format(
                 CultureInfo.InvariantCulture,
-                "HelloCompletedEvaluatorHandler: Evaluator [{0}] is done.",
-                completedEvaluator.Id);
-            Console.WriteLine(messageStr);
+                "HelloDriverRestartRunningTaskHandler: Task [{0}] is running after driver restart. Evaluator id: [{1}].",
+                runningTask.Id,
+                context.EvaluatorId));
+
+            runningTask.Send(ByteUtilities.StringToByteArrays(
+                string.Format(
+                CultureInfo.InvariantCulture,
+                "Hello, task {0}! Glad to know that you are still running in Evaluator {1} after driver restart!",
+                runningTask.Id,
+                context.EvaluatorId)));
         }
 
         public void OnError(Exception error)

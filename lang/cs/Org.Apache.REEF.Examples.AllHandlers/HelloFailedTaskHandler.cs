@@ -23,15 +23,22 @@ using Org.Apache.REEF.Driver.Task;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities;
 
-namespace Org.Apache.REEF.Examples.HelloCLRBridge.Handlers
+namespace Org.Apache.REEF.Examples.AllHandlers
 {
+    /// <summary>
+    /// A sample implementation of FailedTask Handler
+    /// </summary>
     public class HelloFailedTaskHandler : IObserver<IFailedTask>
     {
         [Inject]
-        public HelloFailedTaskHandler()
+        private HelloFailedTaskHandler()
         {
         }
 
+        /// <summary>
+        /// Sample code close the active context when task is failed
+        /// </summary>
+        /// <param name="failedTask"></param>
         public void OnNext(IFailedTask failedTask)
         {
             string errorMessage = string.Format(

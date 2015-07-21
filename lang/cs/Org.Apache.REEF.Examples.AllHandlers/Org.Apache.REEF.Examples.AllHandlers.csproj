@@ -23,8 +23,8 @@ under the License.
     <ProjectGuid>{159F7D70-8ACC-4D97-9F6D-2FC4CA0D8682}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Org.Apache.REEF.Examples.HelloCLRBridge</RootNamespace>
-    <AssemblyName>Org.Apache.REEF.Examples.HelloCLRBridge</AssemblyName>
+    <RootNamespace>Org.Apache.REEF.Examples.AllHandlers</RootNamespace>
+    <AssemblyName>Org.Apache.REEF.Examples.AllHandlers</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <RestorePackages>true</RestorePackages>
@@ -47,7 +47,21 @@ under the License.
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ClrBridgeClient.cs" />
+    <Compile Include="AllHandlers.cs" />
+    <Compile Include="AnotherHelloAllocatedEvaluatorHandler.cs" />
+    <Compile Include="HelloActiveContextHandler.cs" />
+    <Compile Include="HelloAllocatedEvaluatorHandler.cs" />
+    <Compile Include="HelloCompletedEvaluatorHandler.cs" />
+    <Compile Include="HelloDriverRestartActiveContextHandler.cs" />
+    <Compile Include="HelloDriverRestartRunningTaskHandler.cs" />
+    <Compile Include="HelloDriverStartHandler.cs" />
+    <Compile Include="HelloFailedEvaluatorHandler.cs" />
+    <Compile Include="HelloFailedTaskHandler.cs" />
+    <Compile Include="HelloHttpHandler.cs" />
+    <Compile Include="HelloRestartHandler.cs" />
+    <Compile Include="HelloRunningTaskHandler.cs" />
+    <Compile Include="HelloTaskMessageHandler.cs" />
+    <Compile Include="HelloTraceListener.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -91,6 +105,9 @@ under the License.
       <Project>{cdfb3464-4041-42b1-9271-83af24cd5008}</Project>
       <Name>Org.Apache.REEF.Wake</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Readme.md" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!--begin jar reference-->

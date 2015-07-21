@@ -24,14 +24,17 @@ using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Utilities.Logging;
 
-namespace Org.Apache.REEF.Examples.HelloCLRBridge.Handlers
+namespace Org.Apache.REEF.Examples.AllHandlers
 {
+    /// <summary>
+    /// A sample implementation of HttpHandler
+    /// </summary>
     public class HelloHttpHandler : IHttpHandler
     {
-        private static readonly Logger LOGGER = Logger.GetLogger(typeof(HttpServerHandler));
+        private static readonly Logger Logger = Logger.GetLogger(typeof(HttpServerHandler));
 
         [Inject]
-        public HelloHttpHandler()
+        private HelloHttpHandler()
         {           
         }
 
@@ -40,9 +43,14 @@ namespace Org.Apache.REEF.Examples.HelloCLRBridge.Handlers
             return "NRT"; //Client Example 
         }
 
+        /// <summary>
+        /// Sample code after receiving http request and send back the http response
+        /// </summary>
+        /// <param name="requet"></param>
+        /// <param name="response"></param>
         public void OnHttpRequest(ReefHttpRequest requet, ReefHttpResponse response)  
         {
-            LOGGER.Log(Level.Info, string.Format(CultureInfo.CurrentCulture, "HelloHttpHandler OnHttpRequest: URL: {0}, QueryString: {1}, inputStream: {2}.", requet.Url, requet.Querystring, ByteUtilities.ByteArrarysToString(requet.InputStream)));
+            Logger.Log(Level.Info, string.Format(CultureInfo.CurrentCulture, "HelloHttpHandler OnHttpRequest: URL: {0}, QueryString: {1}, inputStream: {2}.", requet.Url, requet.Querystring, ByteUtilities.ByteArrarysToString(requet.InputStream)));
             response.Status = HttpStatusCode.OK;
             response.OutputStream =
                 ByteUtilities.StringToByteArrays("Byte array returned from HelloHttpHandler in CLR!!!");

@@ -18,21 +18,34 @@
  */
 
 using System;
-using Org.Apache.REEF.Driver.Evaluator;
+using System.Globalization;
+using System.Text;
+using Org.Apache.REEF.Driver.Task;
 using Org.Apache.REEF.Tang.Annotations;
 
-namespace Org.Apache.REEF.Examples.HelloCLRBridge.Handlers
+namespace Org.Apache.REEF.Examples.AllHandlers
 {
-    public class AnotherHelloAllocatedEvaluatorHandler : IObserver<IAllocatedEvaluator>
+    /// <summary>
+    /// A sample implementation of TaskMessage Handler
+    /// </summary>
+    public class HelloTaskMessageHandler : IObserver<ITaskMessage>
     {
         [Inject]
-        public AnotherHelloAllocatedEvaluatorHandler()
+        private HelloTaskMessageHandler()
         {
         }
 
-        public void OnNext(IAllocatedEvaluator allocatedEvaluator)
+        /// <summary>
+        /// It is called when receiving a task message
+        /// </summary>
+        /// <param name="taskMessage"></param>
+        public void OnNext(ITaskMessage taskMessage)
         {
-            Console.WriteLine("I am just here for the ride.");
+            Console.WriteLine(string.Format(
+                CultureInfo.InvariantCulture,
+                "CLR HelloTaskMessageHandler received following message from Task: {0}, Message: {1}.",
+                taskMessage.TaskId,
+                Encoding.UTF8.GetString(taskMessage.Message)));           
         }
 
         public void OnCompleted()

@@ -27,15 +27,23 @@ using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 
-namespace Org.Apache.REEF.Examples.HelloCLRBridge.Handlers
+namespace Org.Apache.REEF.Examples.AllHandlers
 {
+    /// <summary>
+    /// A sample implementation of ActiveContext handler
+    /// </summary>
     public class HelloActiveContextHandler : IObserver<IActiveContext>
     {
         [Inject]
-        public HelloActiveContextHandler()
+        private HelloActiveContextHandler()
         {
         }
 
+        /// <summary>
+        /// This method prepare a Task Configuration and submit the task to the active context
+        /// 
+        /// </summary>
+        /// <param name="activeContext"></param>
         public void OnNext(IActiveContext activeContext)
         {
             Console.WriteLine(

@@ -18,46 +18,33 @@
  */
 
 using System;
-using System.Globalization;
-using Org.Apache.REEF.Driver.Context;
-using Org.Apache.REEF.Driver.Task;
+using Org.Apache.REEF.Driver.Evaluator;
 using Org.Apache.REEF.Tang.Annotations;
-using Org.Apache.REEF.Utilities;
 
-namespace Org.Apache.REEF.Examples.HelloCLRBridge.Handlers
+namespace Org.Apache.REEF.Examples.AllHandlers
 {
     /// <summary>
-    /// Sample implementaion of RunningTaskHandler
+    /// A sample implementation of Another AllocatedEvaluator Handler
+    /// User can register multiple handlers
     /// </summary>
-    public class HelloRunningTaskHandler : IObserver<IRunningTask>
+    public class AnotherHelloAllocatedEvaluatorHandler : IObserver<IAllocatedEvaluator>
     {
         [Inject]
-        public HelloRunningTaskHandler()
+        private AnotherHelloAllocatedEvaluatorHandler()
         {
         }
 
-        public void OnNext(IRunningTask runningTask)
+        public void OnNext(IAllocatedEvaluator allocatedEvaluator)
         {
-            IActiveContext context = runningTask.ActiveContext;
-
-            string messageStr = string.Format(
-                CultureInfo.InvariantCulture,
-                "HelloRunningTaskHandler: Task [{0}] is running. Evaluator id: [{1}].",
-                runningTask.Id,
-                context.EvaluatorId);
-            Console.WriteLine(messageStr);
-
-            byte[] message = ByteUtilities.StringToByteArrays(messageStr);
-
-            runningTask.Send(message);
+            Console.WriteLine("I am just here for the ride.");
         }
 
-        public void OnError(Exception error)
+        public void OnCompleted()
         {
             throw new NotImplementedException();
         }
 
-        public void OnCompleted()
+        public void OnError(Exception error)
         {
             throw new NotImplementedException();
         }

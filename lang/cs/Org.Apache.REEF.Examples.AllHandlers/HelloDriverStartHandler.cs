@@ -18,20 +18,46 @@
  */
 
 using System;
+
+using Org.Apache.REEF.Driver;
 using Org.Apache.REEF.Driver.Evaluator;
 using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Utilities.Logging;
 
-namespace Org.Apache.REEF.Examples.HelloCLRBridge.Handlers
+namespace Org.Apache.REEF.Examples.AllHandlers
 {
-    public class HelloEvaluatorRequestorHandler : IObserver<IEvaluatorRequestor>
+    /// <summary>
+    /// A sample implementation of driver start handler
+    /// </summary>
+    public sealed class HelloDriverStartHandler : IObserver<IDriverStarted>
     {
+        private static readonly Logger Logger = Logger.GetLogger(typeof(HelloDriverStartHandler));
+        private readonly IEvaluatorRequestor _evaluatorRequestor;
+
         [Inject]
-        public HelloEvaluatorRequestorHandler()
+        private HelloDriverStartHandler(IEvaluatorRequestor evaluatorRequestor)
+        {
+            _evaluatorRequestor = evaluatorRequestor;
+        }
+
+        public void OnError(Exception error)
+        {
+            throw error;
+        }
+
+        public void OnCompleted()
         {
         }
 
-        public void OnNext(IEvaluatorRequestor evalutorRequestor)
+        /// <summary>
+        /// Called to start the user mode driver
+        /// Sample code to create EvaluatorRequest and submit it
+        /// </summary>
+        /// <param name="driverStarted"></param>
+        public void OnNext(IDriverStarted driverStarted)
         {
+            Logger.Log(Level.Info, string.Format("HelloDriver started at {0}", driverStarted.StartTime));
+
             int evaluatorsNumber = 1;
             int memory = 512;
             int core = 2;
@@ -39,7 +65,7 @@ namespace Org.Apache.REEF.Examples.HelloCLRBridge.Handlers
             string evaluatorBatchId = "evaluatorThatRequires512MBofMemory";
             EvaluatorRequest request = new EvaluatorRequest(evaluatorsNumber, memory, core, rack, evaluatorBatchId);
 
-            evalutorRequestor.Submit(request);
+            _evaluatorRequestor.Submit(request);
 
             evaluatorsNumber = 1;
             memory = 1999;
@@ -47,17 +73,7 @@ namespace Org.Apache.REEF.Examples.HelloCLRBridge.Handlers
             rack = "WonderlandRack";
             evaluatorBatchId = "evaluatorThatRequires1999MBofMemory";
             request = new EvaluatorRequest(evaluatorsNumber, memory, core, rack, evaluatorBatchId);
-            evalutorRequestor.Submit(request);
-        }
-
-        public void OnCompleted()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void OnError(Exception error)
-        {
-            throw new NotImplementedException();
+            _evaluatorRequestor.Submit(request);
         }
     }
 }

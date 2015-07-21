@@ -21,15 +21,22 @@ using System;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Wake.Time.Event;
 
-namespace Org.Apache.REEF.Examples.HelloCLRBridge.Handlers
+namespace Org.Apache.REEF.Examples.AllHandlers
 {
+    /// <summary>
+    /// A sample implementation of driver restart handler
+    /// </summary>
     public class HelloRestartHandler : IObserver<StartTime>
     {
         [Inject]
-        public HelloRestartHandler()
+        private HelloRestartHandler()
         {
         }
 
+        /// <summary>
+        /// It is called when the driver is restarted
+        /// </summary>
+        /// <param name="value"></param>
         public void OnNext(StartTime value)
         {
             Console.WriteLine("Hello from CLR: we are informed that Driver has restarted at " + new DateTime(value.TimeStamp));

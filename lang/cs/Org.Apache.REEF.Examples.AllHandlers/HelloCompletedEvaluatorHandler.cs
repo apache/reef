@@ -19,39 +19,32 @@
 
 using System;
 using System.Globalization;
-using Org.Apache.REEF.Driver.Context;
-using Org.Apache.REEF.Driver.Task;
+using Org.Apache.REEF.Driver.Evaluator;
 using Org.Apache.REEF.Tang.Annotations;
-using Org.Apache.REEF.Utilities;
 
-namespace Org.Apache.REEF.Examples.HelloCLRBridge.Handlers
+namespace Org.Apache.REEF.Examples.AllHandlers
 {
     /// <summary>
-    /// Sample implementaion of RunningTaskHandler
+    /// Sample implementation of RunningTaskHandler
     /// </summary>
-    public class HelloDriverRestartRunningTaskHandler : IObserver<IRunningTask>
+    public class HelloCompletedEvaluatorHandler : IObserver<ICompletedEvaluator>
     {
         [Inject]
-        public HelloDriverRestartRunningTaskHandler()
+        private HelloCompletedEvaluatorHandler()
         {
         }
 
-        public void OnNext(IRunningTask runningTask)
+        /// <summary>
+        /// It is called when evaluator is completed. 
+        /// </summary>
+        /// <param name="completedEvaluator"></param>
+        public void OnNext(ICompletedEvaluator completedEvaluator)
         {
-            IActiveContext context = runningTask.ActiveContext;
-
-            Console.WriteLine(string.Format(
+            string messageStr = string.Format(
                 CultureInfo.InvariantCulture,
-                "HelloDriverRestartRunningTaskHandler: Task [{0}] is running after driver restart. Evaluator id: [{1}].",
-                runningTask.Id,
-                context.EvaluatorId));
-
-            runningTask.Send(ByteUtilities.StringToByteArrays(
-                string.Format(
-                CultureInfo.InvariantCulture,
-                "Hello, task {0}! Glad to know that you are still running in Evaluator {1} after driver restart!",
-                runningTask.Id,
-                context.EvaluatorId)));
+                "HelloCompletedEvaluatorHandler: Evaluator [{0}] is done.",
+                completedEvaluator.Id);
+            Console.WriteLine(messageStr);
         }
 
         public void OnError(Exception error)

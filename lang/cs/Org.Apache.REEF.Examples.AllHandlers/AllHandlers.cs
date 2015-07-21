@@ -26,7 +26,6 @@ using Org.Apache.REEF.Common.Evaluator;
 using Org.Apache.REEF.Driver;
 using Org.Apache.REEF.Driver.Bridge;
 using Org.Apache.REEF.Driver.Defaults;
-using Org.Apache.REEF.Examples.HelloCLRBridge.Handlers;
 using Org.Apache.REEF.Examples.Tasks.HelloTask;
 using Org.Apache.REEF.Network.Naming;
 using Org.Apache.REEF.Tang.Annotations;
@@ -35,9 +34,9 @@ using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities.Logging;
 
-namespace Org.Apache.REEF.Examples.HelloCLRBridge
+namespace Org.Apache.REEF.Examples.AllHandlers
 {
-    public sealed class ClrBridgeClient
+    public sealed class AllHandlers
     {
         private const string Local = "local";
         private const string YARN = "yarn";
@@ -45,7 +44,7 @@ namespace Org.Apache.REEF.Examples.HelloCLRBridge
         private readonly JobSubmissionBuilderFactory _jobSubmissionBuilderFactory;
 
         [Inject]
-        private ClrBridgeClient(IREEFClient reefClient, JobSubmissionBuilderFactory jobSubmissionBuilderFactory)
+        private AllHandlers(IREEFClient reefClient, JobSubmissionBuilderFactory jobSubmissionBuilderFactory)
         {
             _reefClient = reefClient;
             _jobSubmissionBuilderFactory = jobSubmissionBuilderFactory;
@@ -86,7 +85,7 @@ namespace Org.Apache.REEF.Examples.HelloCLRBridge
             _reefClient.Submit(helloJobSubmission);
         }
 
-        /// <summary>
+        /// <summary></summary>
         /// <param name="runOnYarn"></param>
         /// <param name="runtimeFolder"></param>
         /// <returns></returns>
@@ -107,16 +106,27 @@ namespace Org.Apache.REEF.Examples.HelloCLRBridge
             }
         }
 
+        /// <summary>
+        /// console application for driver with most of sample handlers
+        /// </summary>
+        /// <param name="args"></param>
         public static void Main(string[] args)
         {
             Run(args);
         }
 
+        /// <summary>
+        /// </summary>
+        /// <param name="args"></param>
+        /// <remarks>
+        /// args[0] specify either running local or YARN. Default is local
+        /// args[1] specify running folder. Default is REEF_LOCAL_RUNTIME
+        /// </remarks>
         public static void Run(string[] args)
         {
             string runOnYarn = args.Length > 0 ? args[0] : Local;
             string runtimeFolder = args.Length > 1 ? args[1] : "REEF_LOCAL_RUNTIME";
-            TangFactory.GetTang().NewInjector(GetRuntimeConfiguration(runOnYarn, runtimeFolder)).GetInstance<ClrBridgeClient>().Run();
+            TangFactory.GetTang().NewInjector(GetRuntimeConfiguration(runOnYarn, runtimeFolder)).GetInstance<AllHandlers>().Run();
         }
     }
 }

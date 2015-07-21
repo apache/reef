@@ -19,34 +19,49 @@
 
 using System;
 using System.Globalization;
-using System.Text;
+using Org.Apache.REEF.Driver.Context;
 using Org.Apache.REEF.Driver.Task;
 using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Utilities;
 
-namespace Org.Apache.REEF.Examples.HelloCLRBridge.Handlers
+namespace Org.Apache.REEF.Examples.AllHandlers
 {
-    public class HelloTaskMessageHandler : IObserver<ITaskMessage>
+    /// <summary>
+    /// Sample implementation of RunningTaskHandler
+    /// </summary>
+    public class HelloRunningTaskHandler : IObserver<IRunningTask>
     {
         [Inject]
-        public HelloTaskMessageHandler()
+        private HelloRunningTaskHandler()
         {
         }
 
-        public void OnNext(ITaskMessage taskMessage)
+        /// <summary>
+        /// Sample code to send message to running task
+        /// </summary>
+        /// <param name="runningTask"></param>
+        public void OnNext(IRunningTask runningTask)
         {
-            Console.WriteLine(string.Format(
+            IActiveContext context = runningTask.ActiveContext;
+
+            string messageStr = string.Format(
                 CultureInfo.InvariantCulture,
-                "CLR HelloTaskMessageHandler received following message from Task: {0}, Message: {1}.",
-                taskMessage.TaskId,
-                Encoding.UTF8.GetString(taskMessage.Message)));           
+                "HelloRunningTaskHandler: Task [{0}] is running. Evaluator id: [{1}].",
+                runningTask.Id,
+                context.EvaluatorId);
+            Console.WriteLine(messageStr);
+
+            byte[] message = ByteUtilities.StringToByteArrays(messageStr);
+
+            runningTask.Send(message);
         }
 
-        public void OnCompleted()
+        public void OnError(Exception error)
         {
             throw new NotImplementedException();
         }
 
-        public void OnError(Exception error)
+        public void OnCompleted()
         {
             throw new NotImplementedException();
         }

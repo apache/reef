@@ -23,15 +23,22 @@ using Org.Apache.REEF.Driver.Context;
 using Org.Apache.REEF.Driver.Evaluator;
 using Org.Apache.REEF.Tang.Annotations;
 
-namespace Org.Apache.REEF.Examples.HelloCLRBridge.Handlers
+namespace Org.Apache.REEF.Examples.AllHandlers
 {
+    /// <summary>
+    /// A sample implementation of DriverRestartActiveContextHandler
+    /// </summary>
     public class HelloDriverRestartActiveContextHandler : IObserver<IActiveContext>
     {
         [Inject]
-        public HelloDriverRestartActiveContextHandler()
+        private HelloDriverRestartActiveContextHandler()
         {
         }
 
+        /// <summary>
+        /// It is called when receiving an active context
+        /// </summary>
+        /// <param name="activeContext"></param>
         public void OnNext(IActiveContext activeContext)
         {
             Console.WriteLine(

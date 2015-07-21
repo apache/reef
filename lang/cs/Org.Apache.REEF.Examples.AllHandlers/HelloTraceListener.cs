@@ -20,17 +20,17 @@
 using System.Diagnostics;
 using Org.Apache.REEF.Tang.Annotations;
 
-namespace Org.Apache.REEF.Examples.HelloCLRBridge
+namespace Org.Apache.REEF.Examples.AllHandlers
 {
     /// <summary>
-    /// This is a sample implemenation on how custom trace listner can be implemented
+    /// This is a sample implementation on how custom trace listener can be implemented
     /// </summary>
     public class HelloTraceListener : TraceListener
     {
         private readonly TraceListener _listener;
 
         [Inject]
-        public HelloTraceListener()
+        private HelloTraceListener()
         {
             _listener = new ConsoleTraceListener();
         }

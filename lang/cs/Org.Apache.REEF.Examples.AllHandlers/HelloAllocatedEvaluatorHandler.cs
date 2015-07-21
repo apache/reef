@@ -37,15 +37,22 @@ using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities;
 
-namespace Org.Apache.REEF.Examples.HelloCLRBridge.Handlers
+namespace Org.Apache.REEF.Examples.AllHandlers
 {
+    /// <summary>
+    /// A sample implementation of allocatedEvaluator handler
+    /// </summary>
     public class HelloAllocatedEvaluatorHandler : IObserver<IAllocatedEvaluator>
     {
         [Inject]
-        public HelloAllocatedEvaluatorHandler()
+        private HelloAllocatedEvaluatorHandler()
         {
         }
 
+        /// <summary>
+        /// This method create Service/context/task configuration and submit them to the allocatedEvaluator
+        /// </summary>
+        /// <param name="allocatedEvaluator"></param>
         public void OnNext(IAllocatedEvaluator allocatedEvaluator)
         {
             string control = string.Empty;
