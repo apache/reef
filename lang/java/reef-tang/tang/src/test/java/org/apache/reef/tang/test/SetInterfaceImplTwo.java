@@ -36,12 +36,18 @@ final class SetInterfaceImplTwo implements SetInterface {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     SetInterfaceImplTwo that = (SetInterfaceImplTwo) o;
 
-    if (Double.compare(that.magicNumber, magicNumber) != 0) return false;
+    if (Double.compare(that.magicNumber, magicNumber) != 0) {
+      return false;
+    }
 
     return true;
   }

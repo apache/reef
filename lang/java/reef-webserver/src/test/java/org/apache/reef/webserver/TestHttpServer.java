@@ -30,12 +30,12 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * Test Http Server
+ * Test Http Server.
  */
 public class TestHttpServer {
 
   /**
-   * This is to test the case when using HttpRuntimeConfiguration.CONF with all the ther default bindings
+   * This is to test the case when using HttpRuntimeConfiguration.CONF with all the ther default bindings.
    * @throws Exception
    */
   @Test

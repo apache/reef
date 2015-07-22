@@ -137,9 +137,10 @@ public class SpoolFileTest {
     final Tang t = Tang.Factory.getTang();
     final ConfigurationBuilder configurationBuilderOne = t.newConfigurationBuilder(RamConf.CONF.build());
 
-    final AvroConfigurationSerializer serializer = new AvroConfigurationSerializer();
-    final String serializedConfiguration = serializer.toString(configurationBuilderOne.build());
-    final ConfigurationBuilder configurationBuilderTwo = t.newConfigurationBuilder(serializer.fromString(serializedConfiguration));
+    final AvroConfigurationSerializer avroSerializer = new AvroConfigurationSerializer();
+    final String serializedConfiguration = avroSerializer.toString(configurationBuilderOne.build());
+    final ConfigurationBuilder configurationBuilderTwo =
+        t.newConfigurationBuilder(avroSerializer.fromString(serializedConfiguration));
 
     @SuppressWarnings("unchecked")
     final Spool<Integer> f = (Spool<Integer>) t.newInjector(configurationBuilderTwo.build()).getInstance(

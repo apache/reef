@@ -28,4 +28,9 @@ import org.apache.reef.tang.annotations.NamedParameter;
 public final class DriverAndEvaluatorParameter implements Name<String> {
   public static final String TEST_VALUE = "This is a parameter to be bound in the Driver and Evaluator config";
 
+  /**
+   * Empty private constructor to prohibit instantiation of utility class.
+   */
+  private DriverAndEvaluatorParameter() {
+  }
 }

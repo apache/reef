@@ -29,15 +29,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class TestCombiner {
 
-  int bucketCount = 1000;
-  int bucketSleepMillis = 100;
-  int threadCount = 1;
-  int eventsCount = 2 * 1000000;
-  int eventsPerThread = eventsCount / threadCount;
+  private static final int BUCKET_COUNT = 1000;
+  private static final int THREAD_COUNT = 1;
+  private static final int EVENTS_COUNT = 2 * 1000000;
+  private static final int EVENTS_PER_THREAD = EVENTS_COUNT / THREAD_COUNT;
 
-  Observer<Entry<Integer, Integer>> o;
+  private Observer<Entry<Integer, Integer>> o;
 
-  volatile boolean done = false;
+  private volatile boolean done = false;
 
   @Test
   public void test() throws Exception {
@@ -54,45 +53,46 @@ public class TestCombiner {
           }
 
         }, new Observer<Entry<Integer, Integer>>() {
-      private AtomicInteger x = new AtomicInteger(0);
+          private AtomicInteger x = new AtomicInteger(0);
 
-      @Override
-      public void onNext(Entry<Integer, Integer> value) {
-        System.out.println(value.getKey() + "=" + value.getValue());
-        x.incrementAndGet();
-        try {
-          if (!done)
-            Thread.sleep(10);
-        } catch (InterruptedException e) {
-          throw new IllegalStateException(e);
-        }
-      }
+          @Override
+          public void onNext(Entry<Integer, Integer> value) {
+            System.out.println(value.getKey() + "=" + value.getValue());
+            x.incrementAndGet();
+            try {
+              if (!done) {
+                Thread.sleep(10);
+              }
+            } catch (InterruptedException e) {
+              throw new IllegalStateException(e);
+            }
+          }
 
-      @Override
-      public void onError(Exception error) {
-        System.err.println("onError called!");
-        error.printStackTrace();
-      }
+          @Override
+          public void onError(Exception error) {
+            System.err.println("onError called!");
+            error.printStackTrace();
+          }
 
-      @Override
-      public void onCompleted() {
-        System.out.println("onCompleted " + x);
-      }
+          @Override
+          public void onCompleted() {
+            System.out.println("onCompleted " + x);
+          }
 
-    });
+        });
 
     o = stage.wireIn();
 
-    WorkerThread[] workers = new WorkerThread[threadCount];
+    WorkerThread[] workers = new WorkerThread[THREAD_COUNT];
 
-    for (int i = 0; i < threadCount; i++) {
+    for (int i = 0; i < THREAD_COUNT; i++) {
       workers[i] = new WorkerThread();
     }
     long start = System.currentTimeMillis();
-    for (int i = 0; i < threadCount; i++) {
+    for (int i = 0; i < THREAD_COUNT; i++) {
       workers[i].start();
     }
-    for (int i = 0; i < threadCount; i++) {
+    for (int i = 0; i < THREAD_COUNT; i++) {
       workers[i].join();
     }
     o.onCompleted();
@@ -103,7 +103,7 @@ public class TestCombiner {
     stage.close();
     long outStop = System.currentTimeMillis();
 
-    long eventCount = threadCount * eventsPerThread;
+    long eventCount = THREAD_COUNT * EVENTS_PER_THREAD;
     double inelapsed = ((double) (inStop - start)) / 1000.0;
     double inoutelapsed = ((double) (outStop - start)) / 1000.0;
     System.out.println("Emitted " + eventCount + " events in " + inelapsed
@@ -113,14 +113,12 @@ public class TestCombiner {
 
   }
 
-  ;
-
   private class WorkerThread extends Thread {
     @Override
     public void run() {
       Random rand = new Random();
-      for (int i = 0; i < eventsPerThread; i++) {
-        int r = rand.nextInt(bucketCount);
+      for (int i = 0; i < EVENTS_PER_THREAD; i++) {
+        int r = rand.nextInt(BUCKET_COUNT);
         o.onNext(new CombinerStage.Pair<Integer, Integer>(r, 1));
       }
 

@@ -22,18 +22,22 @@ import com.google.protobuf.ByteString;
 import org.apache.reef.io.network.proto.ReefNetworkGroupCommProtos;
 import org.apache.reef.wake.Identifier;
 
-public class TestUtils {
-  public static ReefNetworkGroupCommProtos.GroupCommMessage bldGCM(final ReefNetworkGroupCommProtos.GroupCommMessage.Type msgType, final Identifier from, final Identifier to, final byte[]... elements) {
-    final ReefNetworkGroupCommProtos.GroupCommMessage.Builder GCMBuilder = ReefNetworkGroupCommProtos.GroupCommMessage.newBuilder();
-    GCMBuilder.setType(msgType);
-    GCMBuilder.setSrcid(from.toString());
-    GCMBuilder.setDestid(to.toString());
-    final ReefNetworkGroupCommProtos.GroupMessageBody.Builder bodyBuilder = ReefNetworkGroupCommProtos.GroupMessageBody.newBuilder();
+public final class TestUtils {
+  public static ReefNetworkGroupCommProtos.GroupCommMessage bldGCM(
+      final ReefNetworkGroupCommProtos.GroupCommMessage.Type msgType,
+      final Identifier from, final Identifier to, final byte[]... elements) {
+    final ReefNetworkGroupCommProtos.GroupCommMessage.Builder gcmBuilder =
+        ReefNetworkGroupCommProtos.GroupCommMessage.newBuilder();
+    gcmBuilder.setType(msgType);
+    gcmBuilder.setSrcid(from.toString());
+    gcmBuilder.setDestid(to.toString());
+    final ReefNetworkGroupCommProtos.GroupMessageBody.Builder bodyBuilder =
+        ReefNetworkGroupCommProtos.GroupMessageBody.newBuilder();
     for (final byte[] element : elements) {
       bodyBuilder.setData(ByteString.copyFrom(element));
-      GCMBuilder.addMsgs(bodyBuilder.build());
+      gcmBuilder.addMsgs(bodyBuilder.build());
     }
-    final ReefNetworkGroupCommProtos.GroupCommMessage msg = GCMBuilder.build();
+    final ReefNetworkGroupCommProtos.GroupCommMessage msg = gcmBuilder.build();
     return msg;
   }
 
@@ -44,17 +48,23 @@ public class TestUtils {
   public static boolean controlMessage(final ReefNetworkGroupCommProtos.GroupCommMessage.Type type) {
 
     switch (type) {
-      case AllGather:
-      case AllReduce:
-      case Broadcast:
-      case Gather:
-      case Reduce:
-      case ReduceScatter:
-      case Scatter:
-        return false;
+    case AllGather:
+    case AllReduce:
+    case Broadcast:
+    case Gather:
+    case Reduce:
+    case ReduceScatter:
+    case Scatter:
+      return false;
 
-      default:
-        return true;
+    default:
+      return true;
     }
+  }
+
+  /**
+   * Empty private constructor to prohibit instantiation of utility class.
+   */
+  private TestUtils() {
   }
 }

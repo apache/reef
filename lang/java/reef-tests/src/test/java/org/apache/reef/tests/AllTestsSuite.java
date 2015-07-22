@@ -51,6 +51,6 @@ import org.junit.runners.Suite;
     EvaluatorFailureTest.class,
     ExamplesTestSuite.class,
     ConfigurationProviderTest.class
-})
+    })
 public final class AllTestsSuite {
 }

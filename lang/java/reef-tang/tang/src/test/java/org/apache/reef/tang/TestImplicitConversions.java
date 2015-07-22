@@ -44,15 +44,14 @@ public class TestImplicitConversions {
     ConfigurationFile.addConfiguration(b2, s);
     Configuration c2 = b2.build();
 
-    Assert.assertEquals("b://b", c2.getNamedParameter((NamedParameterNode<?>) c2.getClassHierarchy().getNode(ReflectionUtilities.getFullName(IdName.class))));
+    Assert.assertEquals("b://b", c2.getNamedParameter(
+        (NamedParameterNode<?>) c2.getClassHierarchy().getNode(ReflectionUtilities.getFullName(IdName.class))));
     Injector i = Tang.Factory.getTang().newInjector(c2);
 
     Assert.assertEquals("b://b", i.getNamedInstance(IdName.class).toString());
     Assert.assertTrue(i.getNamedInstance(IdName.class) instanceof BIdentifier);
 
   }
-
-  ;
 
   @SuppressWarnings("unchecked")
   @Test
@@ -68,7 +67,8 @@ public class TestImplicitConversions {
     ConfigurationFile.addConfiguration(b2, s);
     Configuration c2 = b2.build();
 
-    Assert.assertEquals("b://b", c2.getNamedParameter((NamedParameterNode<?>) c2.getClassHierarchy().getNode(ReflectionUtilities.getFullName(BIdName.class))));
+    Assert.assertEquals("b://b", c2.getNamedParameter(
+        (NamedParameterNode<?>) c2.getClassHierarchy().getNode(ReflectionUtilities.getFullName(BIdName.class))));
     Injector i = Tang.Factory.getTang().newInjector(c2);
 
     Assert.assertEquals("b://b", i.getNamedInstance(BIdName.class).toString());
@@ -84,8 +84,6 @@ public class TestImplicitConversions {
     b.bindNamedParameter(AIdName.class, "b://b");
   }
 
-  ;
-
   @Test(expected = InjectionException.class)
   public void testInjectUnboundParsable() throws BindException, InjectionException {
     @SuppressWarnings("unchecked")
@@ -93,17 +91,15 @@ public class TestImplicitConversions {
     Tang.Factory.getTang().newInjector(b.build()).getNamedInstance(IdName.class);
   }
 
-  static interface Identifier {
+  interface Identifier {
 
   }
 
-  ;
-
-  static interface AIdentifier extends Identifier {
+  interface AIdentifier extends Identifier {
 
   }
 
-  static interface BIdentifier extends Identifier {
+  interface BIdentifier extends Identifier {
 
   }
 
@@ -136,11 +132,13 @@ public class TestImplicitConversions {
   }
 
   static class IdentifierParser implements ExternalConstructor<Identifier> {
-    final Identifier id;
+    private final Identifier id;
 
     @Inject
     public IdentifierParser(String id) {
-      this.id = id.startsWith("a://") ? new AIdentifierImpl(id) : id.startsWith("b://") ? new BIdentifierImpl(id) : null;
+      this.id = id.startsWith("a://") ? new AIdentifierImpl(id) :
+                id.startsWith("b://") ? new BIdentifierImpl(id) :
+                    null;
       if (this.id == null) {
         throw new IllegalArgumentException("Need string that starts with a:// or b://!");
       }

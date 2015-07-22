@@ -38,54 +38,49 @@ public class TestNamedParameterRoundTrip {
     b.bindNamedParameter(Eps.class, String.valueOf(eps));
     final Configuration conf = b.build();
 
-    {
-      final Injector i = Tang.Factory.getTang().newInjector(conf);
+    final Injector i1 = Tang.Factory.getTang().newInjector(conf);
 
-      final int readD = i.getNamedInstance(Dimensionality.class).intValue();
-      final double readEps = i.getNamedInstance(Eps.class).doubleValue();
+    final int readD1 = i1.getNamedInstance(Dimensionality.class).intValue();
+    final double readEps1 = i1.getNamedInstance(Eps.class).doubleValue();
 
-      assertEquals(eps, readEps, 1e-12);
-      assertEquals(d, readD);
-    }
+    assertEquals(eps, readEps1, 1e-12);
+    assertEquals(d, readD1);
 
 
-    {
-      JavaConfigurationBuilder roundTrip = Tang.Factory.getTang().newConfigurationBuilder();
-      ConfigurationFile.addConfiguration(roundTrip, ConfigurationFile.toConfigurationString(conf));
-      final Injector i = Tang.Factory.getTang().newInjector(roundTrip.build());
+    JavaConfigurationBuilder roundTrip2 = Tang.Factory.getTang().newConfigurationBuilder();
+    ConfigurationFile.addConfiguration(roundTrip2, ConfigurationFile.toConfigurationString(conf));
+    final Injector i2 = Tang.Factory.getTang().newInjector(roundTrip2.build());
 
-      final int readD = i.getNamedInstance(Dimensionality.class).intValue();
-      final double readEps = i.getNamedInstance(Eps.class).doubleValue();
+    final int readD2 = i2.getNamedInstance(Dimensionality.class).intValue();
+    final double readEps2 = i2.getNamedInstance(Eps.class).doubleValue();
 
-      assertEquals(eps, readEps, 1e-12);
-      assertEquals(d, readD);
-    }
+    assertEquals(eps, readEps2, 1e-12);
+    assertEquals(d, readD2);
 
-    {
-      final Injector parent = Tang.Factory.getTang().newInjector(Tang.Factory.getTang().newConfigurationBuilder().build());
-      final Injector i = parent.forkInjector(conf);
 
-      final int readD = i.getNamedInstance(Dimensionality.class).intValue();
-      final double readEps = i.getNamedInstance(Eps.class).doubleValue();
+    final Injector parent3 =
+        Tang.Factory.getTang().newInjector(Tang.Factory.getTang().newConfigurationBuilder().build());
+    final Injector i3 = parent3.forkInjector(conf);
 
-      assertEquals(eps, readEps, 1e-12);
-      assertEquals(d, readD);
-    }
+    final int readD3 = i3.getNamedInstance(Dimensionality.class).intValue();
+    final double readEps3 = i3.getNamedInstance(Eps.class).doubleValue();
 
-    {
-      final Injector parent = Tang.Factory.getTang().newInjector(Tang.Factory.getTang().newConfigurationBuilder().build());
-      final JavaConfigurationBuilder roundTrip = Tang.Factory.getTang().newConfigurationBuilder();
-      ConfigurationFile.addConfiguration(roundTrip,
-          ConfigurationFile.toConfigurationString(conf));
-      final Injector i = parent.forkInjector(roundTrip.build());
+    assertEquals(eps, readEps3, 1e-12);
+    assertEquals(d, readD3);
 
-      final int readD = i.getNamedInstance(Dimensionality.class).intValue();
-      final double readEps = i.getNamedInstance(Eps.class).doubleValue();
 
-      assertEquals(eps, readEps, 1e-12);
-      assertEquals(d, readD);
-    }
+    final Injector parent4 =
+        Tang.Factory.getTang().newInjector(Tang.Factory.getTang().newConfigurationBuilder().build());
+    final JavaConfigurationBuilder roundTrip4 = Tang.Factory.getTang().newConfigurationBuilder();
+    ConfigurationFile.addConfiguration(roundTrip4,
+        ConfigurationFile.toConfigurationString(conf));
+    final Injector i4 = parent4.forkInjector(roundTrip4.build());
 
+    final int readD4 = i4.getNamedInstance(Dimensionality.class).intValue();
+    final double readEps4 = i4.getNamedInstance(Eps.class).doubleValue();
+
+    assertEquals(eps, readEps4, 1e-12);
+    assertEquals(d, readD4);
   }
 
   @NamedParameter()

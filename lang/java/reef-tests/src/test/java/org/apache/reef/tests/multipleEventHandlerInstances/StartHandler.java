@@ -29,7 +29,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * The start handler
+ * The start handler.
  */
 public final class StartHandler implements EventHandler<StartTime> {
 
@@ -46,8 +46,9 @@ public final class StartHandler implements EventHandler<StartTime> {
   public StartHandler(final EvaluatorRequestor requestor) {
     this.requestor = requestor;
     ++countInstances;
-    if (countInstances > 1)
+    if (countInstances > 1) {
       throw new DriverSideFailure("Expect StartHandler be created only once");
+    }
   }
 
   @Override

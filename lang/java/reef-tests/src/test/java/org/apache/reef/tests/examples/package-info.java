@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * Tests of the REEF Examples
+ * Tests of the REEF Examples.
  */
 package org.apache.reef.tests.examples;

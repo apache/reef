@@ -33,7 +33,8 @@ public abstract class RoundTripTest {
 
   public abstract Configuration roundTrip(final Configuration configuration) throws Exception;
 
-  public abstract Configuration roundTrip(final Configuration configuration, final ClassHierarchy classHierarchy) throws Exception;
+  public abstract Configuration roundTrip(final Configuration configuration, final ClassHierarchy classHierarchy)
+      throws Exception;
 
   @Test
   public void testRoundTrip() throws Exception {

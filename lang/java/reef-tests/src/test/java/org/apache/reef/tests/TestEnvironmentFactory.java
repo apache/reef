@@ -26,7 +26,7 @@ import java.util.logging.Logger;
  */
 public final class TestEnvironmentFactory {
 
-  private final static Logger LOG = Logger.getLogger(TestEnvironmentFactory.class.getName());
+  private static final Logger LOG = Logger.getLogger(TestEnvironmentFactory.class.getName());
 
   /**
    * If $REEF_TEST_YARN environment variable is not set or is set to false,
@@ -50,5 +50,11 @@ public final class TestEnvironmentFactory {
       LOG.log(Level.INFO, "Running tests on Local");
       return new LocalTestEnvironment();
     }
+  }
+
+  /**
+   * Empty private constructor to prohibit instantiation of utility class.
+   */
+  private TestEnvironmentFactory() {
   }
 }

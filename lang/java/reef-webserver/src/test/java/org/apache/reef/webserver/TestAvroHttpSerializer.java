@@ -32,7 +32,7 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 
 /**
- * Test Avro Http Serializer
+ * Test Avro Http Serializer.
  */
 public final class TestAvroHttpSerializer {
   @Rule
@@ -70,7 +70,7 @@ public final class TestAvroHttpSerializer {
   }
 
   /**
-   * Test serialize to file then deserialize from file
+   * Test serialize to file then deserialize from file.
    * @throws IOException
    * @throws ServletException
    */
@@ -85,7 +85,7 @@ public final class TestAvroHttpSerializer {
 
 
   /**
-   * Test serialize to bytes, then write to file, then read from file, finally deserialize
+   * Test serialize to bytes, then write to file, then read from file, finally deserialize.
    * @throws IOException
    * @throws ServletException
    */
@@ -110,7 +110,7 @@ public final class TestAvroHttpSerializer {
   }
 
   /**
-   * Test serialize to string, then write to file, then read from file, finally deserialize
+   * Test serialize to string, then write to file, then read from file, finally deserialize.
    * @throws IOException
    * @throws ServletException
    */
@@ -119,7 +119,7 @@ public final class TestAvroHttpSerializer {
     final String serializedString = avroHttpSerializer.toString(avroRequest);
 
     final File f = new File("httpRequestData.txt");
-    final OutputStream os = new FileOutputStream(f);//"httpRequestData.txt");
+    final OutputStream os = new FileOutputStream(f); //"httpRequestData.txt");
     final OutputStreamWriter sw = new OutputStreamWriter(os);
     sw.write(serializedString);
     sw.flush();
@@ -137,7 +137,7 @@ public final class TestAvroHttpSerializer {
   }
 
   /**
-   * Test serialize to JSon string, the deserialize from it
+   * Test serialize to JSon string, the deserialize from it.
    */
   @Test
   public void testJSonsStringRoundTrip() {
@@ -147,7 +147,7 @@ public final class TestAvroHttpSerializer {
   }
 
   /**
-   * Test serialize to bytes, the deserialize from it
+   * Test serialize to bytes, the deserialize from it.
    */
   @Test
   public void testBytesRoundTrip() {
@@ -165,7 +165,7 @@ public final class TestAvroHttpSerializer {
   }
 
   /**
-   * Test null incomplete request
+   * Test null incomplete request.
    */
   @Test
   public void testIncompleteData() {
@@ -183,7 +183,7 @@ public final class TestAvroHttpSerializer {
   }
 
   /**
-   * Test null query string
+   * Test null query string.
    */
   @Test
   public void testNullData() {
@@ -202,7 +202,7 @@ public final class TestAvroHttpSerializer {
   }
 
   /**
-   * Test null bytes
+   * Test null bytes.
    */
   @Test
   public void testNullBytes() {
@@ -222,7 +222,7 @@ public final class TestAvroHttpSerializer {
   }
 
   /**
-   * Test empty string
+   * Test empty string.
    */
   @Test
   public void testEmptyString() {
@@ -245,7 +245,7 @@ public final class TestAvroHttpSerializer {
   }
 
   /**
-   * Test empty bytes
+   * Test empty bytes.
    */
   @Test
   public void testEmptyBytes() {

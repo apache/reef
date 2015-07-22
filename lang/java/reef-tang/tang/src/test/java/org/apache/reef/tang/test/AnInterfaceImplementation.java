@@ -35,12 +35,18 @@ final class AnInterfaceImplementation implements AnInterface {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     AnInterfaceImplementation that = (AnInterfaceImplementation) o;
 
-    if (aMagicNumber != that.aMagicNumber) return false;
+    if (aMagicNumber != that.aMagicNumber) {
+      return false;
+    }
 
     return true;
   }

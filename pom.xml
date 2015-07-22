@@ -290,6 +290,7 @@ under the License.
                         <format>xml</format>
                         <format>html</format>
                         <outputFile>${project.build.directory}/test/checkstyle-errors.xml</outputFile>
+                        <includeTestSourceDirectory>true</includeTestSourceDirectory>
                     </configuration>
                 </plugin>
             </plugins>

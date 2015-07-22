@@ -44,7 +44,7 @@ final class TaskCountingDriver {
   TaskCountingDriver() {
   }
 
-  private final Configuration getTaskConfiguration(final String taskId) {
+  private Configuration getTaskConfiguration(final String taskId) {
     return TaskConfiguration.CONF
         .set(TaskConfiguration.IDENTIFIER, taskId)
         .set(TaskConfiguration.TASK, NoopTask.class)

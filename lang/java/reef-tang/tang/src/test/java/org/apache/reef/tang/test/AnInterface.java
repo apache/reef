@@ -21,7 +21,7 @@ package org.apache.reef.tang.test;
 import org.apache.reef.tang.annotations.DefaultImplementation;
 
 /**
- * An interface with a default implementation
+ * An interface with a default implementation.
  */
 @DefaultImplementation(AnInterfaceImplementation.class)
 interface AnInterface {

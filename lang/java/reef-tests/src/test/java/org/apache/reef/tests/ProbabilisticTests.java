@@ -28,6 +28,6 @@ import org.junit.runners.Suite;
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
     TaskCountingTest.class
-})
+    })
 public final class ProbabilisticTests {
 }

@@ -29,7 +29,7 @@ import org.junit.*;
 import javax.inject.Inject;
 
 public class TestTweetExample {
-  Tang tang;
+  private Tang tang;
 
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
@@ -50,16 +50,17 @@ public class TestTweetExample {
 
   @Test
   public void test() throws Exception {
-    Tweeter tw = (Tweeter) tang.newInjector(TweetConfig.CONF.set(TweetConfig.PHONE_NUMBER, new Long(867 - 5309)).build()).getInstance(Tweeter.class);
+    Tweeter tw = (Tweeter) tang.newInjector(TweetConfig.CONF.set(TweetConfig.PHONE_NUMBER,
+        new Long(867 - 5309)).build()).getInstance(Tweeter.class);
     tw.sendMessage();
   }
 
-  static interface TweetFactory {
-    public String getTweet();
+  interface TweetFactory {
+    String getTweet();
   }
 
-  static interface SMS {
-    public void sendSMS(String msg, long phoneNumber);
+  interface SMS {
+    void sendSMS(String msg, long phoneNumber);
   }
 
   static class MockTweetFactory implements TweetFactory {
@@ -88,9 +89,9 @@ public class TestTweetExample {
   }
 
   static class Tweeter {
-    final TweetFactory tw;
-    final SMS sms;
-    final long phoneNumber;
+    private final TweetFactory tw;
+    private final SMS sms;
+    private final long phoneNumber;
 
     @Inject
     public Tweeter(TweetFactory tw, SMS sms,

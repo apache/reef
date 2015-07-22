@@ -60,4 +60,10 @@ public final class TestUtils {
     }
     return false;
   }
+
+  /**
+   * Empty private constructor to prohibit instantiation of utility class.
+   */
+  private TestUtils() {
+  }
 }

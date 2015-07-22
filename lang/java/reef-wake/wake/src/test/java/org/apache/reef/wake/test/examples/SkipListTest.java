@@ -51,7 +51,9 @@ public class SkipListTest {
     long inend = System.currentTimeMillis();
 
     long outstart = System.currentTimeMillis();
-    while (x.pollFirstEntry() != null) ;
+    while (x.pollFirstEntry() != null) {
+      //
+    }
     long outend = System.currentTimeMillis();
 
 
@@ -78,7 +80,9 @@ public class SkipListTest {
 
     long outstart = System.currentTimeMillis();
     Integer k = x.pollFirstEntry().getKey();
-    while ((k = x.higherKey(k)) != null) ;
+    while ((k = x.higherKey(k)) != null) {
+      //
+    }
     long outend = System.currentTimeMillis();
 
 
@@ -90,7 +94,7 @@ public class SkipListTest {
         + " seconds (" + ((double) unique) / (outelapsed * 1000.0 * 1000.0) + " million events/sec)");
   }
 
-  public boolean n_threads(int n, Runnable r, long timeout, TimeUnit t) {
+  public boolean nThreads(int n, Runnable r, long timeout, TimeUnit t) {
     ExecutorService e = Executors.newCachedThreadPool();
     for (int i = 0; i < n; i++) {
       e.submit(r);
@@ -120,7 +124,9 @@ public class SkipListTest {
     long outstart = System.currentTimeMillis();
     Integer k = x.pollFirstEntry().getKey();
     x.remove(k);
-    while ((k = x.higherKey(k)) != null) x.remove(k);
+    while ((k = x.higherKey(k)) != null) {
+      x.remove(k);
+    }
     long outend = System.currentTimeMillis();
 
 
@@ -147,13 +153,15 @@ public class SkipListTest {
     System.gc();
 
     long outstart = System.currentTimeMillis();
-    Assert.assertTrue(n_threads(numOutW, new Runnable() {
+    Assert.assertTrue(nThreads(numOutW, new Runnable() {
 
       @Override
       public void run() {
         Integer k = x.pollFirstEntry().getKey();
         x.remove(k);
-        while ((k = x.higherKey(k)) != null) x.remove(k);
+        while ((k = x.higherKey(k)) != null) {
+          x.remove(k);
+        }
       }
     }, 30, TimeUnit.SECONDS));
     long outend = System.currentTimeMillis();
@@ -184,7 +192,7 @@ public class SkipListTest {
       long outstart = System.currentTimeMillis();
       final AtomicInteger uid = new AtomicInteger(0);
       final int blockSize = unique / numOutW;
-      Assert.assertTrue(n_threads(numOutW, new Runnable() {
+      Assert.assertTrue(nThreads(numOutW, new Runnable() {
 
         @Override
         public void run() {
@@ -192,7 +200,9 @@ public class SkipListTest {
           final Integer startK = x.ceilingKey(blockSize * id);
           Integer k = startK;
           x.remove(k);
-          while ((k = x.higherKey(k)) != null) x.remove(k);
+          while ((k = x.higherKey(k)) != null) {
+            x.remove(k);
+          }
         }
       }, 30, TimeUnit.SECONDS));
       long outend = System.currentTimeMillis();
@@ -224,7 +234,7 @@ public class SkipListTest {
       long outstart = System.currentTimeMillis();
       final AtomicInteger uid = new AtomicInteger(0);
       final int blockSize = unique / numOutW;
-      Assert.assertTrue(n_threads(numOutW, new Runnable() {
+      Assert.assertTrue(nThreads(numOutW, new Runnable() {
 
         @Override
         public void run() {
@@ -232,8 +242,10 @@ public class SkipListTest {
           final Integer startK = x.ceilingKey(blockSize * id);
           final Integer endK = x.ceilingKey(blockSize * (id + 1));
           Integer k = startK;
-          x.remove(k);
-          while ((k = x.higherKey(k)) != null && k < endK) x.remove(k);
+          do {
+            x.remove(k);
+            k = x.higherKey(k);
+          } while (k != null && k < endK);
         }
       }, 30, TimeUnit.SECONDS));
       long outend = System.currentTimeMillis();
@@ -265,7 +277,7 @@ public class SkipListTest {
       long outstart = System.currentTimeMillis();
       final AtomicInteger uid = new AtomicInteger(0);
       final int blockSize = unique / numOutW;
-      Assert.assertTrue(n_threads(numOutW, new Runnable() {
+      Assert.assertTrue(nThreads(numOutW, new Runnable() {
 
         @Override
         public void run() {
@@ -273,7 +285,13 @@ public class SkipListTest {
           ConcurrentNavigableMap<Integer, Integer> myView = x.tailMap(blockSize * id);
           final Integer endK = x.ceilingKey(blockSize * (id + 1));
           Integer k = myView.pollFirstEntry().getKey();
-          while ((k = x.higherKey(k)) != null && k < endK) x.remove(k);
+          do {
+            k = x.higherKey(k);
+            if (k == null || k >= endK) {
+              break;
+            }
+            x.remove(k);
+          } while (true);
         }
       }, 30, TimeUnit.SECONDS));
       long outend = System.currentTimeMillis();
@@ -289,6 +307,7 @@ public class SkipListTest {
   }
 
   //@Test
+  @SuppressWarnings("checkstyle:avoidnestedblocks")
   public void testSeparateMaps() {
     for (int numOutW = 1; numOutW <= 24; numOutW += 1) {
       System.out.println("separate maps " + numOutW);
@@ -297,7 +316,7 @@ public class SkipListTest {
       long instart = System.currentTimeMillis();
       {
         final AtomicInteger uid = new AtomicInteger(0);
-        n_threads(numOutW, new Runnable() {
+        nThreads(numOutW, new Runnable() {
 
           @Override
           public void run() {
@@ -317,7 +336,7 @@ public class SkipListTest {
 
       long outstart = System.currentTimeMillis();
       final AtomicInteger uid = new AtomicInteger(0);
-      Assert.assertTrue(n_threads(numOutW, new Runnable() {
+      Assert.assertTrue(nThreads(numOutW, new Runnable() {
 
         @Override
         public void run() {
@@ -326,7 +345,9 @@ public class SkipListTest {
           final Integer startK = mm.pollFirstEntry().getKey();
           Integer k = startK;
           mm.remove(k);
-          while ((k = mm.higherKey(k)) != null) mm.remove(k);
+          while ((k = mm.higherKey(k)) != null) {
+            mm.remove(k);
+          }
         }
       }, 30, TimeUnit.SECONDS));
       long outend = System.currentTimeMillis();
@@ -356,13 +377,15 @@ public class SkipListTest {
     System.gc();
 
     long outstart = System.currentTimeMillis();
-    Assert.assertTrue(n_threads(numOutW, new Runnable() {
+    Assert.assertTrue(nThreads(numOutW, new Runnable() {
 
       @Override
       public void run() {
         Integer k = x.pollFirstEntry().getKey();
         x.remove(k);
-        while ((k = x.higherKey(k)) != null) x.remove(k);
+        while ((k = x.higherKey(k)) != null) {
+          x.remove(k);
+        }
       }
     }, 30, TimeUnit.SECONDS));
     long outend = System.currentTimeMillis();

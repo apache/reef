@@ -33,20 +33,20 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class TimerStageTest {
 
-  final String logPrefix = "TEST ";
-  final long shutdownTimeout = 1000;
+  private static final String LOG_PREFIX = "TEST ";
+  private static final long SHUTDOWN_TIMEOUT = 1000;
   @Rule
   public TestName name = new TestName();
 
   @Test
   public void testTimerStage() throws Exception {
-    System.out.println(logPrefix + name.getMethodName());
+    System.out.println(LOG_PREFIX + name.getMethodName());
 
     Monitor monitor = new Monitor();
     int expected = 10;
 
     TestEventHandler handler = new TestEventHandler(monitor, expected);
-    Stage stage = new TimerStage(handler, 100, shutdownTimeout);
+    Stage stage = new TimerStage(handler, 100, SHUTDOWN_TIMEOUT);
 
     monitor.mwait();
 
@@ -69,8 +69,9 @@ public class TimerStageTest {
     public void onNext(PeriodicEvent e) {
       count.incrementAndGet();
       System.out.println(count.get() + " " + e + " scheduled event at " + System.currentTimeMillis());
-      if (count.get() == expected)
+      if (count.get() == expected) {
         monitor.mnotify();
+      }
     }
 
     public int getCount() {

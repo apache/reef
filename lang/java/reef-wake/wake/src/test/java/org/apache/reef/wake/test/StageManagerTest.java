@@ -25,8 +25,6 @@ import org.junit.Test;
 import org.junit.rules.TestName;
 
 public class StageManagerTest {
-
-  final String logPrefix = "TEST ";
   @Rule
   public TestName name = new TestName();
 

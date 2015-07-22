@@ -86,8 +86,10 @@ public final class NetworkMessagingTestService implements AutoCloseable {
   public <T> void registerTestConnectionFactory(final Identifier connFactoryId,
                                                 final int numMessages, final Monitor monitor,
                                                 final Codec<T> codec) throws NetworkException {
-    receiverNetworkConnService.registerConnectionFactory(connFactoryId, codec, new MessageHandler<T>(monitor, numMessages), new TestListener<T>());
-    senderNetworkConnService.registerConnectionFactory(connFactoryId, codec, new MessageHandler<T>(monitor, numMessages), new TestListener<T>());
+    receiverNetworkConnService.registerConnectionFactory(connFactoryId, codec,
+        new MessageHandler<T>(monitor, numMessages), new TestListener<T>());
+    senderNetworkConnService.registerConnectionFactory(connFactoryId, codec,
+        new MessageHandler<T>(monitor, numMessages), new TestListener<T>());
   }
 
   public <T> Connection<T> getConnectionFromSenderToReceiver(final Identifier connFactoryId) {

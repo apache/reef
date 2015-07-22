@@ -150,7 +150,7 @@ public final class Subplan<T> extends InjectionPlan<T> {
           ambig.add(alt);
         }
       }
-      StringBuffer sb = new StringBuffer("Ambigous subplan " + getNode().getFullName());
+      StringBuffer sb = new StringBuffer("Ambiguous subplan " + getNode().getFullName());
       for (InjectionPlan<?> alt : alts) {
         sb.append("\n  " + alt.toShallowString() + " ");
       }

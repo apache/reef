@@ -36,8 +36,8 @@ final class SubContextDriver {
 
   private static final Logger LOG = Logger.getLogger(SubContextDriver.class.getName());
 
-  private static String CONTEXT_1_IDENTIFIER = "CONTEXT_1";
-  private static String CONTEXT_2_IDENTIFIER = "CONTEXT_2";
+  private static final String CONTEXT_1_IDENTIFIER = "CONTEXT_1";
+  private static final String CONTEXT_2_IDENTIFIER = "CONTEXT_2";
 
   private State state = State.INIT; // lock: this
 

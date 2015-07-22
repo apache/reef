@@ -40,7 +40,7 @@ import java.io.IOException;
 import java.util.Set;
 
 /**
- * TestRuntimeStartHandler
+ * TestRuntimeStartHandler.
  */
 public class TestRuntimeStartHandler {
 
@@ -60,7 +60,8 @@ public class TestRuntimeStartHandler {
   }
 
   /**
-   * With HttpHandlerConfiguration merged with HttpRuntimeConfiguration and binding for http handlers, when inject RuntimeClock
+   * With HttpHandlerConfiguration merged with HttpRuntimeConfiguration and binding for http handlers,
+   * when inject RuntimeClock.
    * all the nested objects including HeetServer, JettyHandler, HttpRuntimeStartHandler and  HttpRuntimeStopHandler
    *
    * @throws BindException
@@ -73,7 +74,7 @@ public class TestRuntimeStartHandler {
   }
 
   /**
-   * This test is to get RuntimeStartHandler, simulate the call to onNext to so tah tto start Jetty server
+   * This test is to get RuntimeStartHandler, simulate the call to onNext to so tah tto start Jetty server.
    *
    * @throws BindException
    * @throws InjectionException
@@ -81,9 +82,10 @@ public class TestRuntimeStartHandler {
   @Test
   public void testRunTimeStartStopHandler() throws BindException, InjectionException {
     final Injector injector = Tang.Factory.getTang().newInjector(this.configuation);
-    final Set<EventHandler<RuntimeStart>> startEventHandlers = injector.getNamedInstance(RuntimeClock.RuntimeStartHandler.class);
-    for (final EventHandler<RuntimeStart> enventHandler : startEventHandlers) {
-      final HttpRuntimeStartHandler runtimeStartHandler = (HttpRuntimeStartHandler) enventHandler;
+    final Set<EventHandler<RuntimeStart>> startEventHandlers =
+        injector.getNamedInstance(RuntimeClock.RuntimeStartHandler.class);
+    for (final EventHandler<RuntimeStart> eventHandler : startEventHandlers) {
+      final HttpRuntimeStartHandler runtimeStartHandler = (HttpRuntimeStartHandler) eventHandler;
       try {
         runtimeStartHandler.onNext(null);
       } catch (final Exception e) {
@@ -91,9 +93,10 @@ public class TestRuntimeStartHandler {
       }
     }
 
-    final Set<EventHandler<RuntimeStop>> stopEventHandlers = injector.getNamedInstance(RuntimeClock.RuntimeStopHandler.class);
-    for (final EventHandler<RuntimeStop> enventHandler : stopEventHandlers) {
-      final HttpRuntimeStopHandler runtimeStopHandler = (HttpRuntimeStopHandler) enventHandler;
+    final Set<EventHandler<RuntimeStop>> stopEventHandlers =
+        injector.getNamedInstance(RuntimeClock.RuntimeStopHandler.class);
+    for (final EventHandler<RuntimeStop> eventHandler : stopEventHandlers) {
+      final HttpRuntimeStopHandler runtimeStopHandler = (HttpRuntimeStopHandler) eventHandler;
       try {
         runtimeStopHandler.onNext(null);
       } catch (final Exception e) {

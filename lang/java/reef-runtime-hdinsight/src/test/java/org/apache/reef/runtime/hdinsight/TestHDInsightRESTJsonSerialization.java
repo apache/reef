@@ -38,7 +38,7 @@ import java.util.Map;
 public final class TestHDInsightRESTJsonSerialization {
 
   @Test
-  public void TestSerializeApplicationSubmission() throws IOException {
+  public void testSerializeApplicationSubmission() throws IOException {
     // Define expected values
     final Map<String, LocalResource> localResourceMap = new HashMap<>();
     final String archiveKey = "archive";
@@ -84,7 +84,8 @@ public final class TestHDInsightRESTJsonSerialization {
     Assert.assertEquals(rootJsonNode.get(Constants.APPLICATION_ID).asText(), submission.getApplicationId());
     Assert.assertEquals(rootJsonNode.get(Constants.APPLICATION_NAME).asText(), submission.getApplicationName());
     Assert.assertEquals(rootJsonNode.get(Constants.MAX_APP_ATTEMPTS).asInt(), submission.getMaxAppAttempts());
-    Assert.assertEquals(rootJsonNode.get(Constants.KEEP_CONTAINERS_ACROSS_APPLICATION_ATTEMPTS).asBoolean(), submission.isKeepContainers());
+    Assert.assertEquals(rootJsonNode.get(Constants.KEEP_CONTAINERS_ACROSS_APPLICATION_ATTEMPTS).asBoolean(),
+        submission.isKeepContainers());
     Assert.assertEquals(rootJsonNode.get(Constants.QUEUE).asText(), submission.getQueue());
     Assert.assertEquals(rootJsonNode.get(Constants.PRIORITY).asInt(), submission.getPriority());
     Assert.assertEquals(rootJsonNode.get(Constants.UNMANAGED_AM).asBoolean(), submission.isUnmanagedAM());
@@ -96,7 +97,8 @@ public final class TestHDInsightRESTJsonSerialization {
 
     JsonNode amSpecNode = rootJsonNode.get(Constants.AM_CONTAINER_SPEC);
     Assert.assertNotNull(amSpecNode);
-    Assert.assertEquals(amSpecNode.get(Constants.COMMANDS).get(Constants.COMMAND).asText(), containerSpec.getCommands().getCommand());
+    Assert.assertEquals(amSpecNode.get(Constants.COMMANDS).get(Constants.COMMAND).asText(),
+        containerSpec.getCommands().getCommand());
     JsonNode locResourcesNode = amSpecNode.get(Constants.LOCAL_RESOURCES).get(Constants.ENTRY);
     Assert.assertTrue(locResourcesNode.isArray());
     for (final JsonNode localResourceKVNode : locResourcesNode) {
@@ -162,7 +164,7 @@ public final class TestHDInsightRESTJsonSerialization {
   }
 
   @Test
-  public void TestDeserializeGetApplicationId() throws IOException {
+  public void testDeserializeGetApplicationId() throws IOException {
     final String appIdStr = "application_1404198295326_0003";
     final int memory = 8192;
     final int vCores = 32;
@@ -183,9 +185,10 @@ public final class TestHDInsightRESTJsonSerialization {
   }
 
   @Test
-  public void TestDeserializeGetApplication() throws IOException {
+  public void testDeserializeGetApplication() throws IOException {
     final long finishedTime = 1326824991300L;
-    final String amContainerLogs = "http://host.domain.com:8042/node/containerlogs/container_1326821518301_0005_01_000001";
+    final String amContainerLogs =
+        "http://host.domain.com:8042/node/containerlogs/container_1326821518301_0005_01_000001";
     final String trackingUI = "History";
     final String state = "FINISHED";
     final String user = "user1";
@@ -199,7 +202,8 @@ public final class TestHDInsightRESTJsonSerialization {
     final long startedTime = 1326824544552L;
     final long elapsedTime = 446748L;
     final String diagnostics = "";
-    final String trackingUrl = "http://host.domain.com:8088/proxy/application_1326821518301_0005/jobhistory/job/job_1326821518301_5_5";
+    final String trackingUrl =
+        "http://host.domain.com:8088/proxy/application_1326821518301_0005/jobhistory/job/job_1326821518301_5_5";
     final String queue = "a1";
     final long memorySeconds = 151730L;
     final long vcoreSeconds = 103L;
@@ -252,7 +256,7 @@ public final class TestHDInsightRESTJsonSerialization {
   }
 
   @Test
-  public void TestDeserializeListApplications() throws IOException {
+  public void testDeserializeListApplications() throws IOException {
     final String listAppsBody = "{\n" +
         "  \"apps\":\n" +
         "  {\n" +
@@ -260,7 +264,8 @@ public final class TestHDInsightRESTJsonSerialization {
         "    [\n" +
         "       {\n" +
         "          \"finishedTime\" : 1326815598530,\n" +
-        "          \"amContainerLogs\" : \"http://host.domain.com:8042/node/containerlogs/container_1326815542473_0001_01_000001\",\n" +
+        "          \"amContainerLogs\" : " +
+        "\"http://host.domain.com:8042/node/containerlogs/container_1326815542473_0001_01_000001\",\n" +
         "          \"trackingUI\" : \"History\",\n" +
         "          \"state\" : \"FINISHED\",\n" +
         "          \"user\" : \"user1\",\n" +
@@ -273,7 +278,8 @@ public final class TestHDInsightRESTJsonSerialization {
         "          \"startedTime\" : 1326815573334,\n" +
         "          \"elapsedTime\" : 25196,\n" +
         "          \"diagnostics\" : \"\",\n" +
-        "          \"trackingUrl\" : \"http://host.domain.com:8088/proxy/application_1326815542473_0001/jobhistory/job/job_1326815542473_1_1\",\n" +
+        "          \"trackingUrl\" : " +
+        "\"http://host.domain.com:8088/proxy/application_1326815542473_0001/jobhistory/job/job_1326815542473_1_1\",\n" +
         "          \"queue\" : \"default\",\n" +
         "          \"allocatedMB\" : 0,\n" +
         "          \"allocatedVCores\" : 0,\n" +
@@ -283,7 +289,8 @@ public final class TestHDInsightRESTJsonSerialization {
         "       },\n" +
         "       {\n" +
         "          \"finishedTime\" : 1326815789546,\n" +
-        "          \"amContainerLogs\" : \"http://host.domain.com:8042/node/containerlogs/container_1326815542473_0002_01_000001\",\n" +
+        "          \"amContainerLogs\" : " +
+        "\"http://host.domain.com:8042/node/containerlogs/container_1326815542473_0002_01_000001\",\n" +
         "          \"trackingUI\" : \"History\",\n" +
         "          \"state\" : \"FINISHED\",\n" +
         "          \"user\" : \"user1\",\n" +
@@ -296,7 +303,8 @@ public final class TestHDInsightRESTJsonSerialization {
         "          \"startedTime\" : 1326815641380,\n" +
         "          \"elapsedTime\" : 148166,\n" +
         "          \"diagnostics\" : \"\",\n" +
-        "          \"trackingUrl\" : \"http://host.domain.com:8088/proxy/application_1326815542473_0002/jobhistory/job/job_1326815542473_2_2\",\n" +
+        "          \"trackingUrl\" : " +
+        "\"http://host.domain.com:8088/proxy/application_1326815542473_0002/jobhistory/job/job_1326815542473_2_2\",\n" +
         "          \"queue\" : \"default\",\n" +
         "          \"allocatedMB\" : 0,\n" +
         "          \"allocatedVCores\" : 0,\n" +
@@ -308,7 +316,8 @@ public final class TestHDInsightRESTJsonSerialization {
         "  }\n" +
         "}";
 
-    ListApplicationResponse listAppsResponse = new ObjectMapper().readValue(listAppsBody, ListApplicationResponse.class);
+    ListApplicationResponse listAppsResponse =
+        new ObjectMapper().readValue(listAppsBody, ListApplicationResponse.class);
     Assert.assertTrue(listAppsResponse.getApps().containsKey(Constants.APP));
     Assert.assertEquals(listAppsResponse.getApplicationStates().size(), 2);
     for (ApplicationState state : listAppsResponse.getApplicationStates()) {

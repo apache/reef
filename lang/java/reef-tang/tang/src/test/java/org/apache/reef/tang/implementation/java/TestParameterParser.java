@@ -89,7 +89,10 @@ public class TestParameterParser {
   @Test
   public void testBadMerge() throws BindException {
     thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Conflict detected when merging parameter parsers! To parse org.apache.reef.tang.implementation.java.TestParameterParser$Foo I have a: org.apache.reef.tang.implementation.java.TestParameterParser$FooParser the other instance has a: org.apache.reef.tang.implementation.java.TestParameterParser$BarParser");
+    thrown.expectMessage("Conflict detected when merging parameter parsers! To parse " +
+        "org.apache.reef.tang.implementation.java.TestParameterParser$Foo I have a: " +
+        "org.apache.reef.tang.implementation.java.TestParameterParser$FooParser the other instance has a: " +
+        "org.apache.reef.tang.implementation.java.TestParameterParser$BarParser");
     ParameterParser old = new ParameterParser();
     old.addParser(BarParser.class);
     ParameterParser nw = new ParameterParser();

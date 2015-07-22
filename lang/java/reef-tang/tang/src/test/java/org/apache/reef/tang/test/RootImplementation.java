@@ -115,35 +115,59 @@ final class RootImplementation implements RootInterface {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     RootImplementation that = (RootImplementation) o;
 
-    if (Double.compare(that.aDouble, aDouble) != 0) return false;
-    if (anInt != that.anInt) return false;
-    if (anInterface != null ? !anInterface.equals(that.anInterface) : that.anInterface != null) return false;
-    if (integerHandler != null ? !integerHandler.equals(that.integerHandler) : that.integerHandler != null)
+    if (Double.compare(that.aDouble, aDouble) != 0) {
       return false;
-    if (optionalString != null ? !optionalString.equals(that.optionalString) : that.optionalString != null)
+    }
+    if (anInt != that.anInt) {
       return false;
-    if (requiredString != null ? !requiredString.equals(that.requiredString) : that.requiredString != null)
+    }
+    if (anInterface != null ? !anInterface.equals(that.anInterface) : that.anInterface != null) {
       return false;
-    if (stringHandler != null ? !stringHandler.equals(that.stringHandler) : that.stringHandler != null) return false;
-    if (unit != null ? !unit.equals(that.unit) : that.unit != null) return false;
-    if (injectableClass != null ? !injectableClass.equals(that.injectableClass) : that.injectableClass != null)
+    }
+    if (integerHandler != null ? !integerHandler.equals(that.integerHandler) : that.integerHandler != null) {
       return false;
-    if (setOfImplementations != null ? !setOfImplementations.equals(that.setOfImplementations) : that.setOfImplementations != null)
+    }
+    if (optionalString != null ? !optionalString.equals(that.optionalString) : that.optionalString != null) {
       return false;
-    if (setOfBaseTypes != null ? !setOfBaseTypes.equals(that.setOfBaseTypes) : that.setOfBaseTypes != null)
+    }
+    if (requiredString != null ? !requiredString.equals(that.requiredString) : that.requiredString != null) {
       return false;
-    if (listOfImplementations != null ? !listOfImplementations.equals(that.listOfImplementations) : that
-        .listOfImplementations != null)
+    }
+    if (stringHandler != null ? !stringHandler.equals(that.stringHandler) : that.stringHandler != null) {
       return false;
-    if (listOfBaseTypes != null ? !listOfBaseTypes.equals(that.listOfBaseTypes) : that.listOfBaseTypes != null)
+    }
+    if (unit != null ? !unit.equals(that.unit) : that.unit != null) {
       return false;
-    if (cyclicDependency != null ? !cyclicDependency.equals(that.cyclicDependency) : that.cyclicDependency != null)
+    }
+    if (injectableClass != null ? !injectableClass.equals(that.injectableClass) : that.injectableClass != null) {
       return false;
+    }
+    if (setOfImplementations != null ? !setOfImplementations.equals(that.setOfImplementations)
+                                     : that.setOfImplementations != null) {
+      return false;
+    }
+    if (setOfBaseTypes != null ? !setOfBaseTypes.equals(that.setOfBaseTypes) : that.setOfBaseTypes != null) {
+      return false;
+    }
+    if (listOfImplementations != null ? !listOfImplementations.equals(that.listOfImplementations)
+                                      : that.listOfImplementations != null) {
+      return false;
+    }
+    if (listOfBaseTypes != null ? !listOfBaseTypes.equals(that.listOfBaseTypes) : that.listOfBaseTypes != null) {
+      return false;
+    }
+    if (cyclicDependency != null ? !cyclicDependency.equals(that.cyclicDependency) : that.cyclicDependency != null) {
+      return false;
+    }
 
     return true;
   }

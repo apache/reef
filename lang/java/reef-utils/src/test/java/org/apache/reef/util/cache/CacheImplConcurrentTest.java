@@ -31,7 +31,7 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
- * Test concurrent access of CacheImpl
+ * Test concurrent access of CacheImpl.
  */
 public final class CacheImplConcurrentTest {
 

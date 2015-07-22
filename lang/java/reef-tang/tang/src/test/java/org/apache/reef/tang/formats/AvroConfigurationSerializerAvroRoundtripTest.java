@@ -34,7 +34,8 @@ public final class AvroConfigurationSerializerAvroRoundtripTest extends RoundTri
   }
 
   @Override
-  public Configuration roundTrip(final Configuration configuration, final ClassHierarchy classHierarchy) throws Exception {
+  public Configuration roundTrip(final Configuration configuration, final ClassHierarchy classHierarchy)
+      throws Exception {
     final AvroConfiguration aConf = new AvroConfigurationSerializer().toAvro(configuration);
     return new AvroConfigurationSerializer().fromAvro(aConf, classHierarchy);
   }

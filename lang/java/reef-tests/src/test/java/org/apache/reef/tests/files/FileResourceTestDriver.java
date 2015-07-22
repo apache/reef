@@ -49,7 +49,8 @@ final class FileResourceTestDriver {
   private final File localFolder;
 
   @Inject
-  public FileResourceTestDriver(@Parameter(FileResourceTestDriverConfiguration.FileNamesToExpect.class) final Set<String> fileNamesToExpect,
+  public FileResourceTestDriver(@Parameter(FileResourceTestDriverConfiguration.FileNamesToExpect.class)
+                                final Set<String> fileNamesToExpect,
                                 final EvaluatorRequestor requestor,
                                 final REEFFileNames fileNames) {
     this.fileNamesToExpect = fileNamesToExpect;

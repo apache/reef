@@ -56,11 +56,11 @@ public class SmallMessagesTest {
   @Rule
   public final TestName name = new TestName();
 
-  final String logPrefix = "TEST ";
+  private static final String LOG_PREFIX = "TEST ";
 
   @Test
   public void testRemoteTest() throws Exception {
-    System.out.println(logPrefix + name.getMethodName());
+    System.out.println(LOG_PREFIX + name.getMethodName());
     LoggingUtils.setLoggingLevel(Level.FINEST);
 
     Monitor monitor = new Monitor();
@@ -118,9 +118,10 @@ public class SmallMessagesTest {
 
     monitor.mwait();
     long end = System.nanoTime();
-    long runtime_ns = end - start;
-    double runtime_s = ((double) runtime_ns) / (1000 * 1000 * 1000);
-    System.out.println("msgs/s: " + finalSize / runtime_s);// most time is spent in netty.channel.socket.nio.SelectorUtil.select()
+    long runtimeNs = end - start;
+    double runtimeS = ((double) runtimeNs) / (1000 * 1000 * 1000);
+    System.out.println("msgs/s: " + finalSize / runtimeS);
+    // most time is spent in netty.channel.socket.nio.SelectorUtil.select()
 
     if (set.size() != finalSize) {
       Assert.fail(name.getMethodName() +

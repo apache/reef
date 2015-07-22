@@ -34,13 +34,14 @@ import java.util.logging.Logger;
  * An Task that checks the presence of a set of files and throws TaskSideFailure if they cannot be found or read.
  */
 final class FileResourceTestTask implements Task {
-  private final Logger LOG = Logger.getLogger(FileResourceTestTask.class.getName());
+  private static final Logger LOG = Logger.getLogger(FileResourceTestTask.class.getName());
   private final Set<String> expectedFileNames;
   private final Clock clock;
   private final File localFolder;
 
   @Inject
-  FileResourceTestTask(@Parameter(FileResourceTestTaskConfiguration.FileNamesToExpect.class) final Set<String> expectedFileNames,
+  FileResourceTestTask(@Parameter(FileResourceTestTaskConfiguration.FileNamesToExpect.class)
+                       final Set<String> expectedFileNames,
                        final Clock clock,
                        final REEFFileNames fileNames) {
     this.expectedFileNames = expectedFileNames;

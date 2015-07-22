@@ -30,7 +30,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * The ActiveContext handler
+ * The ActiveContext handler.
  */
 public final class ActiveContextHandler implements EventHandler<ActiveContext> {
 

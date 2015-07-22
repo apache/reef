@@ -177,13 +177,16 @@ public class BlockingEventHandlerTest {
     };
 
     Thread[] workers = new Thread[num];
-    for (int ii = 0; ii < workers.length; ii++)
+    for (int ii = 0; ii < workers.length; ii++) {
       workers[ii] = new Thread(r);
-    for (Thread w : workers)
+    }
+    for (Thread w : workers) {
       w.start();
+    }
     try {
-      for (Thread w : workers)
+      for (Thread w : workers) {
         w.join();
+      }
     } catch (InterruptedException e) {
       fail(e.toString());
     }

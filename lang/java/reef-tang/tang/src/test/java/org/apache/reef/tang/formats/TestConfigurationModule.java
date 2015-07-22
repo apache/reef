@@ -224,7 +224,8 @@ public class TestConfigurationModule {
   @Test
   public void foreignSetTest() throws Throwable {
     thrown.expect(ClassHierarchyException.class);
-    thrown.expectMessage("Unknown Impl/Param when setting RequiredImpl.  Did you pass in a field from some other module?");
+    thrown.expectMessage("Unknown Impl/Param when setting RequiredImpl. " +
+        " Did you pass in a field from some other module?");
     try {
       // Pass in something from the wrong module, watch it fail.
       MultiBindConfigurationModule.CONF.set(MyConfigurationModule.THE_FOO, FooImpl.class);
@@ -236,7 +237,8 @@ public class TestConfigurationModule {
   @Test
   public void foreignBindTest() throws Throwable {
     thrown.expect(ClassHierarchyException.class);
-    thrown.expectMessage("Unknown Impl/Param when binding RequiredImpl.  Did you pass in a field from some other module?");
+    thrown.expectMessage("Unknown Impl/Param when binding RequiredImpl. " +
+        " Did you pass in a field from some other module?");
     try {
       // Pass in something from the wrong module, watch it fail.
       new MyConfigurationModule().bindImplementation(Object.class, MultiBindConfigurationModule.THE_FOO);
@@ -346,8 +348,8 @@ public class TestConfigurationModule {
   }
 
 
-  static interface Foo {
-    public int getFooness();
+  interface Foo {
+    int getFooness();
   }
 
   static class FooImpl implements Foo {
@@ -406,7 +408,7 @@ class SetName implements Name<Set<String>> {
 }
 
 class SetConfigurationModule extends ConfigurationModuleBuilder {
-  public final static RequiredParameter<String> P = new RequiredParameter<>();
+  public static final RequiredParameter<String> P = new RequiredParameter<>();
 
   public static final ConfigurationModule CONF = new SetConfigurationModule()
       .bindSetEntry(SetName.class, SetConfigurationModule.P)
@@ -418,7 +420,7 @@ class SetClass implements Name<Set<Super>> {
 }
 
 class SetClassConfigurationModule extends ConfigurationModuleBuilder {
-  public final static RequiredParameter<Super> P = new RequiredParameter<>();
+  public static final RequiredParameter<Super> P = new RequiredParameter<>();
   public static final ConfigurationModule CONF = new SetClassConfigurationModule()
       .bindSetEntry(SetClass.class, SetClassConfigurationModule.P)
       .build();

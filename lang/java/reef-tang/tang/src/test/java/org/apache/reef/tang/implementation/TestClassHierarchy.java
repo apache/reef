@@ -92,7 +92,7 @@ public class TestClassHierarchy {
   public void testSimpleConstructors() throws NameResolutionException {
     ClassNode<?> cls = (ClassNode<?>) ns.getNode(s(SimpleConstructors.class));
     Assert.assertTrue(cls.getChildren().size() == 0);
-    ConstructorDef<?> def[] = cls.getInjectableConstructors();
+    ConstructorDef<?>[] def = cls.getInjectableConstructors();
     Assert.assertEquals(3, def.length);
   }
 
@@ -111,14 +111,17 @@ public class TestClassHierarchy {
   @Test
   public void testRepeatConstructorArg() throws NameResolutionException {
     thrown.expect(ClassHierarchyException.class);
-    thrown.expectMessage("Repeated constructor parameter detected.  Cannot inject constructor org.apache.reef.tang.implementation.RepeatConstructorArg(int,int)");
+    thrown.expectMessage("Repeated constructor parameter detected. " +
+        " Cannot inject constructor org.apache.reef.tang.implementation.RepeatConstructorArg(int,int)");
     ns.getNode(s(RepeatConstructorArg.class));
   }
 
   @Test
   public void testRepeatConstructorArgClasses() throws NameResolutionException {
     thrown.expect(ClassHierarchyException.class);
-    thrown.expectMessage("Repeated constructor parameter detected.  Cannot inject constructor org.apache.reef.tang.implementation.RepeatConstructorArgClasses(org.apache.reef.tang.implementation.A,org.apache.reef.tang.implementation.A)");
+    thrown.expectMessage("Repeated constructor parameter detected. " +
+        " Cannot inject constructor org.apache.reef.tang.implementation.RepeatConstructorArgClasses" +
+        "(org.apache.reef.tang.implementation.A,org.apache.reef.tang.implementation.A)");
     ns.getNode(s(RepeatConstructorArgClasses.class));
   }
 
@@ -147,14 +150,17 @@ public class TestClassHierarchy {
   @Test
   public void testNamedParameterTypeMismatch() throws NameResolutionException {
     thrown.expect(ClassHierarchyException.class);
-    thrown.expectMessage("Named parameter type mismatch in org.apache.reef.tang.implementation.NamedParameterTypeMismatch.  Constructor expects a java.lang.String but Foo is a java.lang.Integer");
+    thrown.expectMessage("Named parameter type mismatch in " +
+        "org.apache.reef.tang.implementation.NamedParameterTypeMismatch. " +
+        " Constructor expects a java.lang.String but Foo is a java.lang.Integer");
     ns.getNode(s(NamedParameterTypeMismatch.class));
   }
 
   @Test
   public void testUnannotatedName() throws NameResolutionException {
     thrown.expect(ClassHierarchyException.class);
-    thrown.expectMessage("Named parameter org.apache.reef.tang.implementation.UnannotatedName is missing its @NamedParameter annotation.");
+    thrown.expectMessage("Named parameter org.apache.reef.tang.implementation.UnannotatedName " +
+        "is missing its @NamedParameter annotation.");
     ns.getNode(s(UnannotatedName.class));
   }
 
@@ -162,49 +168,56 @@ public class TestClassHierarchy {
   @Test
   public void testAnnotatedNotName() throws NameResolutionException {
     thrown.expect(ClassHierarchyException.class);
-    thrown.expectMessage("Found illegal @NamedParameter org.apache.reef.tang.implementation.AnnotatedNotName does not implement Name<?>");
+    thrown.expectMessage("Found illegal @NamedParameter org.apache.reef.tang.implementation.AnnotatedNotName " +
+        "does not implement Name<?>");
     ns.getNode(s(AnnotatedNotName.class));
   }
 
   @Test
   public void testAnnotatedNameWrongInterface() throws NameResolutionException {
     thrown.expect(ClassHierarchyException.class);
-    thrown.expectMessage("Found illegal @NamedParameter org.apache.reef.tang.implementation.AnnotatedNameWrongInterface does not implement Name<?>");
+    thrown.expectMessage("Found illegal @NamedParameter " +
+        "org.apache.reef.tang.implementation.AnnotatedNameWrongInterface does not implement Name<?>");
     ns.getNode(s(AnnotatedNameWrongInterface.class));
   }
 
   @Test
   public void testAnnotatedNameNotGenericInterface() throws NameResolutionException {
     thrown.expect(ClassHierarchyException.class);
-    thrown.expectMessage("Found illegal @NamedParameter org.apache.reef.tang.implementation.AnnotatedNameNotGenericInterface does not implement Name<?>");
+    thrown.expectMessage("Found illegal @NamedParameter " +
+        "org.apache.reef.tang.implementation.AnnotatedNameNotGenericInterface does not implement Name<?>");
     ns.getNode(s(AnnotatedNameNotGenericInterface.class));
   }
 
   @Test
   public void testAnnotatedNameMultipleInterfaces() throws NameResolutionException {
     thrown.expect(ClassHierarchyException.class);
-    thrown.expectMessage("Named parameter org.apache.reef.tang.implementation.AnnotatedNameMultipleInterfaces implements multiple interfaces.  It is only allowed to implement Name<T>");
+    thrown.expectMessage("Named parameter org.apache.reef.tang.implementation.AnnotatedNameMultipleInterfaces " +
+        "implements multiple interfaces.  It is only allowed to implement Name<T>");
     ns.getNode(s(AnnotatedNameMultipleInterfaces.class));
   }
 
   @Test
   public void testUnAnnotatedNameMultipleInterfaces() throws NameResolutionException {
     thrown.expect(ClassHierarchyException.class);
-    thrown.expectMessage("Named parameter org.apache.reef.tang.implementation.UnAnnotatedNameMultipleInterfaces is missing its @NamedParameter annotation.");
+    thrown.expectMessage("Named parameter org.apache.reef.tang.implementation.UnAnnotatedNameMultipleInterfaces " +
+        "is missing its @NamedParameter annotation.");
     ns.getNode(s(UnAnnotatedNameMultipleInterfaces.class));
   }
 
   @Test
   public void testNameWithConstructor() throws NameResolutionException {
     thrown.expect(ClassHierarchyException.class);
-    thrown.expectMessage("Named parameter org.apache.reef.tang.implementation.NameWithConstructor has a constructor.  Named parameters must not declare any constructors.");
+    thrown.expectMessage("Named parameter org.apache.reef.tang.implementation.NameWithConstructor has a constructor. " +
+        " Named parameters must not declare any constructors.");
     ns.getNode(s(NameWithConstructor.class));
   }
 
   @Test
   public void testNameWithZeroArgInject() throws NameResolutionException {
     thrown.expect(ClassHierarchyException.class);
-    thrown.expectMessage("Named parameter org.apache.reef.tang.implementation.NameWithZeroArgInject has an injectable constructor.  Named parameters must not declare any constructors.");
+    thrown.expectMessage("Named parameter org.apache.reef.tang.implementation.NameWithZeroArgInject has " +
+        "an injectable constructor.  Named parameters must not declare any constructors.");
     ns.getNode(s(NameWithZeroArgInject.class));
   }
 
@@ -315,7 +328,8 @@ public class TestClassHierarchy {
   @Test
   public void testBadUnitDecl() throws NameResolutionException {
     thrown.expect(ClassHierarchyException.class);
-    thrown.expectMessage("Detected explicit constructor in class enclosed in @Unit org.apache.reef.tang.implementation.OuterUnitBad$InA  Such constructors are disallowed.");
+    thrown.expectMessage("Detected explicit constructor in class enclosed in @Unit " +
+        "org.apache.reef.tang.implementation.OuterUnitBad$InA  Such constructors are disallowed.");
 
     ns.getNode(s(OuterUnitBad.class));
   }
@@ -323,7 +337,8 @@ public class TestClassHierarchy {
   @Test
   public void nameCantBindWrongSubclassAsDefault() throws NameResolutionException {
     thrown.expect(ClassHierarchyException.class);
-    thrown.expectMessage("class org.apache.reef.tang.implementation.BadName defines a default class java.lang.Integer with a raw type that does not extend of its target's raw type class java.lang.String");
+    thrown.expectMessage("class org.apache.reef.tang.implementation.BadName defines a default class " +
+        "java.lang.Integer with a raw type that does not extend of its target's raw type class java.lang.String");
 
     ns.getNode(s(BadName.class));
   }
@@ -331,21 +346,24 @@ public class TestClassHierarchy {
   @Test
   public void ifaceCantBindWrongImplAsDefault() throws NameResolutionException {
     thrown.expect(ClassHierarchyException.class);
-    thrown.expectMessage("interface org.apache.reef.tang.implementation.BadIfaceDefault declares its default implementation to be non-subclass class java.lang.String");
+    thrown.expectMessage("interface org.apache.reef.tang.implementation.BadIfaceDefault declares " +
+        "its default implementation to be non-subclass class java.lang.String");
     ns.getNode(s(BadIfaceDefault.class));
   }
 
   @Test
   public void testParseableDefaultClassNotOK() throws NameResolutionException {
     thrown.expect(ClassHierarchyException.class);
-    thrown.expectMessage("Named parameter org.apache.reef.tang.implementation.BadParsableDefaultClass defines default implementation for parsable type java.lang.String");
+    thrown.expectMessage("Named parameter org.apache.reef.tang.implementation.BadParsableDefaultClass " +
+        "defines default implementation for parsable type java.lang.String");
     ns.getNode(s(BadParsableDefaultClass.class));
   }
 
   @Test
   public void testDanglingUnit() throws NameResolutionException {
     thrown.expect(ClassHierarchyException.class);
-    thrown.expectMessage("Class org.apache.reef.tang.implementation.DanglingUnit has an @Unit annotation, but no non-static inner classes.  Such @Unit annotations would have no effect, and are therefore disallowed.");
+    thrown.expectMessage("Class org.apache.reef.tang.implementation.DanglingUnit has an @Unit annotation, " +
+        "but no non-static inner classes.  Such @Unit annotations would have no effect, and are therefore disallowed.");
 
     ns.getNode(s(DanglingUnit.class));
 
@@ -354,7 +372,8 @@ public class TestClassHierarchy {
   @Test
   public void testNonInjectableParam() throws NameResolutionException {
     thrown.expect(ClassHierarchyException.class);
-    thrown.expectMessage("public org.apache.reef.tang.implementation.NonInjectableParam(int) is not injectable, but it has an @Parameter annotation.");
+    thrown.expectMessage("public org.apache.reef.tang.implementation.NonInjectableParam(int) is not injectable, " +
+        "but it has an @Parameter annotation.");
     ns.getNode(s(NonInjectableParam.class));
   }
 
@@ -392,17 +411,14 @@ class NamedParameterConstructors {
   public NamedParameterConstructors(String x, @Parameter(X.class) String y) {
   }
 
-  ;
-
   @NamedParameter()
   class X implements Name<String> {
   }
 }
 
 class RepeatConstructorArg {
-  public
   @Inject
-  RepeatConstructorArg(int x, int y) {
+  public RepeatConstructorArg(int x, int y) {
   }
 }
 
@@ -410,9 +426,8 @@ class A {
 }
 
 class RepeatConstructorArgClasses {
-  public
   @Inject
-  RepeatConstructorArgClasses(A x, A y) {
+  public RepeatConstructorArgClasses(A x, A y) {
   }
 }
 
@@ -444,10 +459,9 @@ class BB implements Name<A> {
 }
 
 class NamedRepeatConstructorArgClasses {
-  public
   @Inject
-  NamedRepeatConstructorArgClasses(@Parameter(AA.class) A x,
-                                   @Parameter(BB.class) A y) {
+  public NamedRepeatConstructorArgClasses(@Parameter(AA.class) A x,
+                                          @Parameter(BB.class) A y) {
   }
 }
 
@@ -497,7 +511,7 @@ class AnnotatedNameMultipleInterfaces implements Name<Object>, I1 {
 }
 
 @NamedParameter()
-class NameWithConstructor implements Name<Object> {
+final class NameWithConstructor implements Name<Object> {
   private NameWithConstructor(int i) {
   }
 }
@@ -591,6 +605,7 @@ class Nested {
   }
 }
 
+@SuppressWarnings("checkstyle:hideutilityclassconstructor")
 class AnonNested {
   static X x = new X() {
     @SuppressWarnings("unused")
@@ -601,7 +616,7 @@ class AnonNested {
     int j;
   };
 
-  static interface X {
+  interface X {
   }
 }
 

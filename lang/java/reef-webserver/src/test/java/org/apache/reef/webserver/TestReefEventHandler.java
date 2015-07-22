@@ -37,7 +37,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * Test Http Server Reef Event Handler
+ * Test Http Server Reef Event Handler.
  */
 public class TestReefEventHandler {
   private Request request;

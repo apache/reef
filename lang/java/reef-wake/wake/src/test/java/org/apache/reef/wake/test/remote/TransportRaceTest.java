@@ -79,9 +79,9 @@ public class TransportRaceTest {
 
     monitor.mwait();
     int msgsRcvd = serverHandler.getAccSize();
-    if (msgsRcvd != msgsSent)
-      Assert.assertEquals("Num Msgs transmitted==Num Msgs received", msgsSent,
-          msgsRcvd);
+    if (msgsRcvd != msgsSent) {
+      Assert.assertEquals("Num Msgs transmitted==Num Msgs received", msgsSent, msgsRcvd);
+    }
     transport.close();
     clientStage.close();
     serverStage.close();
@@ -107,8 +107,9 @@ public class TransportRaceTest {
     @Override
     public void onNext(TransportEvent value) {
       ++accSize;
-      if (accSize == expectedSize)
+      if (accSize == expectedSize) {
         monitor.mnotify();
+      }
     }
 
   }

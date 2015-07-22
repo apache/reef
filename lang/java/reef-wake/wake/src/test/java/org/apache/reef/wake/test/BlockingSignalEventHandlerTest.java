@@ -63,12 +63,13 @@ public class BlockingSignalEventHandlerTest {
     final AtomicInteger cnt = new AtomicInteger(0);
 
     final int num = 1000;
-    final BlockingSignalEventHandler<Integer> h = new BlockingSignalEventHandler<>(2 * num, new EventHandler<Integer>() {
-      @Override
-      public void onNext(Integer value) {
-        cnt.incrementAndGet();
-      }
-    });
+    final BlockingSignalEventHandler<Integer> h =
+        new BlockingSignalEventHandler<>(2 * num, new EventHandler<Integer>() {
+          @Override
+          public void onNext(Integer value) {
+            cnt.incrementAndGet();
+          }
+        });
 
     Runnable r = new Runnable() {
       @Override
@@ -98,12 +99,13 @@ public class BlockingSignalEventHandlerTest {
 
     final int num = 1000;
     final int events = 10;
-    final BlockingSignalEventHandler<Integer> h = new BlockingSignalEventHandler<>(2 * num, new EventHandler<Integer>() {
-      @Override
-      public void onNext(Integer value) {
-        cnt.incrementAndGet();
-      }
-    });
+    final BlockingSignalEventHandler<Integer> h = new BlockingSignalEventHandler<>(2 * num,
+        new EventHandler<Integer>() {
+          @Override
+          public void onNext(Integer value) {
+            cnt.incrementAndGet();
+          }
+        });
 
     Runnable r = new Runnable() {
       @Override
@@ -148,13 +150,16 @@ public class BlockingSignalEventHandlerTest {
     };
 
     Thread[] workers = new Thread[num];
-    for (int ii = 0; ii < workers.length; ii++)
+    for (int ii = 0; ii < workers.length; ii++) {
       workers[ii] = new Thread(r);
-    for (Thread w : workers)
+    }
+    for (Thread w : workers) {
       w.start();
+    }
     try {
-      for (Thread w : workers)
+      for (Thread w : workers) {
         w.join();
+      }
     } catch (InterruptedException e) {
       fail(e.toString());
     }

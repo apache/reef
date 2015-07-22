@@ -95,7 +95,7 @@ public class TestConfFileParser {
   }
 
   @NamedParameter(doc = "remote id.")
-  private final static class RemoteIdentifier implements Name<String> {
+  private static final class RemoteIdentifier implements Name<String> {
   }
 
   @NamedParameter()

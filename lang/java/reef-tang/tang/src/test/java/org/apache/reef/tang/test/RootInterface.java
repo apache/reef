@@ -26,6 +26,6 @@ public interface RootInterface {
   /**
    * @return true, if the object graph has been instantiated correctly, false otherwise.
    */
-  public boolean isValid();
+  boolean isValid();
 
 }

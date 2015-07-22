@@ -24,7 +24,7 @@ import org.apache.reef.wake.remote.exception.RemoteRuntimeException;
 import org.apache.reef.wake.test.proto.TestProtos.TestEventPBuf;
 
 /**
- * TestEvent codec using the protocol buffer
+ * TestEvent codec using the protocol buffer.
  */
 public class TestEventCodec implements Codec<TestEvent> {
 

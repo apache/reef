@@ -47,14 +47,24 @@ final class SetOfBaseTypes {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     SetOfBaseTypes that = (SetOfBaseTypes) o;
 
-    if (!doubles.equals(that.doubles)) return false;
-    if (!integers.equals(that.integers)) return false;
-    if (!strings.equals(that.strings)) return false;
+    if (!doubles.equals(that.doubles)) {
+      return false;
+    }
+    if (!integers.equals(that.integers)) {
+      return false;
+    }
+    if (!strings.equals(that.strings)) {
+      return false;
+    }
 
     return true;
   }

@@ -28,13 +28,13 @@ import java.util.concurrent.Future;
 import static org.junit.Assert.*;
 
 public final class WrappedValueTest {
-  private static final CurrentTime systemTime = new SystemTime();
-  private static final int numThreads = 10;
+  private static final CurrentTime SYSTEM_TIME = new SystemTime();
+  private static final int NUM_THREADS = 10;
 
   @Test
   public void testLoadAndGet() throws ExecutionException {
     final Integer value = 5;
-    final WrappedValue<Integer> wrappedValue = new WrappedValue<>(new ImmediateInteger(value), systemTime);
+    final WrappedValue<Integer> wrappedValue = new WrappedValue<>(new ImmediateInteger(value), SYSTEM_TIME);
 
     assertFalse(wrappedValue.getValue().isPresent());
 
@@ -47,7 +47,7 @@ public final class WrappedValueTest {
   @Test
   public void testWaitAndGetOnPreviouslyLoadedValue() throws ExecutionException {
     final Integer value = 5;
-    final WrappedValue<Integer> wrappedValue = new WrappedValue<>(new ImmediateInteger(value), systemTime);
+    final WrappedValue<Integer> wrappedValue = new WrappedValue<>(new ImmediateInteger(value), SYSTEM_TIME);
     final Integer loadedValue = wrappedValue.loadAndGet();
     final Integer waitedValue = wrappedValue.waitAndGet();
 
@@ -62,14 +62,14 @@ public final class WrappedValueTest {
   public void testConcurrentLoadWaitAndGet() throws ExecutionException, InterruptedException {
     final Integer value = 5;
     final long sleepMillis = 2000;
-    final ExecutorService executorService = Executors.newFixedThreadPool(numThreads);
+    final ExecutorService executorService = Executors.newFixedThreadPool(NUM_THREADS);
 
     final WrappedValue<Integer> wrappedValue = new WrappedValue<>(
-            new SleepingInteger(value, sleepMillis), systemTime);
+            new SleepingInteger(value, sleepMillis), SYSTEM_TIME);
     final Integer loadedValue = wrappedValue.loadAndGet();
 
-    final Future<?>[] futures = new Future<?>[numThreads];
-    for (int i = 0; i < numThreads; i++) {
+    final Future<?>[] futures = new Future<?>[NUM_THREADS];
+    for (int i = 0; i < NUM_THREADS; i++) {
       futures[i] = executorService.submit(new Runnable() {
         @Override
         public void run() {
@@ -79,7 +79,7 @@ public final class WrappedValueTest {
         }
       });
     }
-    for (int i = 0; i < numThreads; i++) {
+    for (int i = 0; i < NUM_THREADS; i++) {
       futures[i].get();
     }
 

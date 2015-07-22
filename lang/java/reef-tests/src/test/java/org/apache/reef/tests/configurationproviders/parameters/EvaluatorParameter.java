@@ -25,6 +25,12 @@ import org.apache.reef.tang.annotations.NamedParameter;
  * This is a parameter only to be bound in the Evaluator config.
  */
 @NamedParameter
-public class EvaluatorParameter implements Name<String> {
+public final class EvaluatorParameter implements Name<String> {
   public static final String TEST_VALUE = "This is a parameter only to be bound in the Evaluator config";
+
+  /**
+   * Empty private constructor to prohibit instantiation of utility class.
+   */
+  private EvaluatorParameter() {
+  }
 }

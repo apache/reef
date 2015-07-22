@@ -43,15 +43,15 @@ import java.net.InetSocketAddress;
 import java.util.logging.Level;
 
 /**
- * Test transferring large messages
+ * Test transferring large messages.
  */
 public class LargeMsgTest {
   private final LocalAddressProvider localAddressProvider;
   private final TransportFactory tpFactory;
-  private final static byte[][] values = new byte[3][];
-  private final static int l0 = 1 << 25;
-  private final static int l1 = 1 << 2;
-  private final static int l2 = 1 << 21;
+  private static final byte[][] VALUES = new byte[3][];
+  private static final int L_0 = 1 << 25;
+  private static final int L_1 = 1 << 2;
+  private static final int L_2 = 1 << 21;
 
   public LargeMsgTest() throws InjectionException {
     final Injector injector = Tang.Factory.getTang().newInjector();
@@ -61,18 +61,18 @@ public class LargeMsgTest {
 
   @BeforeClass
   public static void setUpBeforeClass() {
-    values[0] = new byte[l0];
+    VALUES[0] = new byte[L_0];
     for (int i = 1; i < 25; i += 3) {
-      values[0][1 << i] = (byte) i;
+      VALUES[0][1 << i] = (byte) i;
     }
 
-    values[1] = new byte[l1];
-    values[1][0] = (byte) 5;
-    values[1][3] = (byte) 94;
+    VALUES[1] = new byte[L_1];
+    VALUES[1][0] = (byte) 5;
+    VALUES[1][3] = (byte) 94;
 
-    values[2] = new byte[l2];
+    VALUES[2] = new byte[L_2];
     for (int i = 1; i < 21; i += 4) {
-      values[2][1 << i] = (byte) (i * 2);
+      VALUES[2][1 << i] = (byte) (i * 2);
     }
   }
 
@@ -82,7 +82,7 @@ public class LargeMsgTest {
     Monitor monitor = new Monitor();
     TimerStage timer = new TimerStage(new TimeoutHandler(monitor), 20000, 20000);
 
-    long dataSize = values[0].length + values[1].length + values[2].length;
+    long dataSize = VALUES[0].length + VALUES[1].length + VALUES[2].length;
 
     EStage<TransportEvent> clientStage = new ThreadPoolStage<>("client1",
         new LoggingEventHandler<TransportEvent>(), 1, new LoggingEventHandler<Throwable>());
@@ -100,9 +100,9 @@ public class LargeMsgTest {
         link.write(value);
       }
     }, 3, new LoggingEventHandler<Throwable>());
-    writeSubmitter.onNext(values[0]);
-    writeSubmitter.onNext(values[1]);
-    writeSubmitter.onNext(values[2]);
+    writeSubmitter.onNext(VALUES[0]);
+    writeSubmitter.onNext(VALUES[1]);
+    writeSubmitter.onNext(VALUES[2]);
 
     monitor.mwait();
 
@@ -129,19 +129,22 @@ public class LargeMsgTest {
       byte[] data = value.getData();
 
       switch (data.length) {
-        case l0:
-          Assert.assertArrayEquals(values[0], data);
-          break;
-        case l1:
-          Assert.assertArrayEquals(values[1], data);
-          break;
-        case l2:
-          Assert.assertArrayEquals(values[2], data);
-          break;
+      case L_0:
+        Assert.assertArrayEquals(VALUES[0], data);
+        break;
+      case L_1:
+        Assert.assertArrayEquals(VALUES[1], data);
+        break;
+      case L_2:
+        Assert.assertArrayEquals(VALUES[2], data);
+        break;
+      default:
+        break;
       }
       accSize += data.length;
-      if (accSize == expectedSize)
+      if (accSize == expectedSize) {
         monitor.mnotify();
+      }
     }
 
   }

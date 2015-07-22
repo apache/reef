@@ -20,7 +20,6 @@ package org.apache.reef.webserver;
 
 import org.apache.reef.driver.catalog.NodeDescriptor;
 import org.apache.reef.driver.catalog.RackDescriptor;
-import org.apache.reef.driver.evaluator.CLRProcess;
 import org.apache.reef.driver.evaluator.CLRProcessFactory;
 import org.apache.reef.driver.evaluator.EvaluatorDescriptor;
 import org.apache.reef.driver.evaluator.EvaluatorProcess;
@@ -40,58 +39,70 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Test Avro Serializer for http schema
+ * Test Avro Serializer for http schema.
  */
 public class TestAvroSerializerForHttp {
 
   @Test
-  public void DriverInfoSerializerInjectionTest() {
+  public void driverInfoSerializerInjectionTest() {
     try {
-      final DriverInfoSerializer serializer = Tang.Factory.getTang().newInjector().getInstance(DriverInfoSerializer.class);
+      final DriverInfoSerializer serializer =
+          Tang.Factory.getTang().newInjector().getInstance(DriverInfoSerializer.class);
       final ArrayList<AvroReefServiceInfo> services = new ArrayList<>();
-      final AvroReefServiceInfo exampleService = AvroReefServiceInfo.newBuilder().setServiceName("exampleService").setServiceInfo("serviceInformation").build();
+      final AvroReefServiceInfo exampleService =
+          AvroReefServiceInfo.newBuilder().setServiceName("exampleService").setServiceInfo("serviceInformation")
+              .build();
       services.add(exampleService);
       final AvroDriverInfo driverInfo = serializer.toAvro("abc", "xxxxxx", services);
       final String driverInfoString = serializer.toString(driverInfo);
-      Assert.assertEquals(driverInfoString, "{\"remoteId\":\"abc\",\"startTime\":\"xxxxxx\",\"services\":[{\"serviceName\":\"exampleService\",\"serviceInfo\":\"serviceInformation\"}]}");
+      Assert.assertEquals(driverInfoString, "{\"remoteId\":\"abc\",\"startTime\":\"xxxxxx\"," +
+          "\"services\":[{\"serviceName\":\"exampleService\",\"serviceInfo\":\"serviceInformation\"}]}");
     } catch (final InjectionException e) {
       Assert.fail("Not able to inject DriverInfoSerializer");
     }
   }
 
   @Test
-  public void EvaluatorInfoSerializerInjectionTest() {
+  public void evaluatorInfoSerializerInjectionTest() {
     try {
-      final EvaluatorInfoSerializer serializer = Tang.Factory.getTang().newInjector().getInstance(EvaluatorInfoSerializer.class);
+      final EvaluatorInfoSerializer serializer =
+          Tang.Factory.getTang().newInjector().getInstance(EvaluatorInfoSerializer.class);
 
       final List<String> ids = new ArrayList<>();
       ids.add("abc");
-      final EvaluatorDescriptor evaluatorDescriptor = Tang.Factory.getTang().newInjector(EvaluatorDescriptorConfig.CONF.build()).getInstance(EvaluatorDescriptor.class);
+      final EvaluatorDescriptor evaluatorDescriptor =
+          Tang.Factory.getTang().newInjector(EvaluatorDescriptorConfig.CONF.build())
+              .getInstance(EvaluatorDescriptor.class);
       final Map<String, EvaluatorDescriptor> data = new HashMap<>();
       data.put("abc", evaluatorDescriptor);
 
       final AvroEvaluatorsInfo evaluatorInfo = serializer.toAvro(ids, data);
       final String evaluatorInfoString = serializer.toString(evaluatorInfo);
-      Assert.assertEquals(evaluatorInfoString, "{\"evaluatorsInfo\":[{\"evaluatorId\":\"abc\",\"nodeId\":\"\",\"nodeName\":\"mock\",\"memory\":64,\"type\":\"CLR\",\"internetAddress\":\"\"}]}");
+      Assert.assertEquals(evaluatorInfoString, "{\"evaluatorsInfo\":[{\"evaluatorId\":\"abc\",\"nodeId\":\"\"," +
+          "\"nodeName\":\"mock\",\"memory\":64,\"type\":\"CLR\",\"internetAddress\":\"\"}]}");
     } catch (final InjectionException e) {
       Assert.fail("Not able to inject EvaluatorInfoSerializer");
     }
   }
 
   @Test
-  public void EvaluatorListSerializerInjectionTest() {
+  public void evaluatorListSerializerInjectionTest() {
     try {
-      final EvaluatorListSerializer serializer = Tang.Factory.getTang().newInjector().getInstance(EvaluatorListSerializer.class);
+      final EvaluatorListSerializer serializer =
+          Tang.Factory.getTang().newInjector().getInstance(EvaluatorListSerializer.class);
 
       final List<String> ids = new ArrayList<>();
       ids.add("abc");
-      final EvaluatorDescriptor evaluatorDescriptor = Tang.Factory.getTang().newInjector(EvaluatorDescriptorConfig.CONF.build()).getInstance(EvaluatorDescriptor.class);
+      final EvaluatorDescriptor evaluatorDescriptor =
+          Tang.Factory.getTang().newInjector(EvaluatorDescriptorConfig.CONF.build())
+              .getInstance(EvaluatorDescriptor.class);
       final Map<String, EvaluatorDescriptor> data = new HashMap<>();
       data.put("abc", evaluatorDescriptor);
 
       final AvroEvaluatorList evaluatorList = serializer.toAvro(data, 1, "xxxxxx");
       final String evaluatorListString = serializer.toString(evaluatorList);
-      Assert.assertEquals(evaluatorListString, "{\"evaluators\":[{\"id\":\"abc\",\"name\":\"mock\"}],\"total\":1,\"startTime\":\"xxxxxx\"}");
+      Assert.assertEquals(evaluatorListString,
+          "{\"evaluators\":[{\"id\":\"abc\",\"name\":\"mock\"}],\"total\":1,\"startTime\":\"xxxxxx\"}");
     } catch (final InjectionException e) {
       Assert.fail("Not able to inject EvaluatorListSerializer");
     }
@@ -174,7 +185,7 @@ public class TestAvroSerializerForHttp {
     }
 
     /**
-     * Returns an identifier of this object
+     * Returns an identifier of this object.
      *
      * @return an identifier of this object
      */

@@ -30,11 +30,11 @@ import org.junit.Test;
 import java.net.UnknownHostException;
 
 /**
- * Tracking Uri test
+ * Tracking Uri test.
  */
 public class TestTrackingUri {
   /**
-   * Get Default Tracking URI
+   * Get Default Tracking URI.
    *
    * @throws InjectionException
    * @throws UnknownHostException
@@ -46,7 +46,7 @@ public class TestTrackingUri {
   }
 
   /**
-   * Get Tracking URI with specified port number and HttpTrackingURLProvider
+   * Get Tracking URI with specified port number and HttpTrackingURLProvider.
    *
    * @throws InjectionException
    * @throws UnknownHostException
@@ -66,7 +66,7 @@ public class TestTrackingUri {
   }
 
   /**
-   * Get Tracking URI with HttpTrackingURLProvider and defualt port number
+   * Get Tracking URI with HttpTrackingURLProvider and defualt port number.
    *
    * @throws InjectionException
    * @throws UnknownHostException
@@ -85,7 +85,7 @@ public class TestTrackingUri {
   }
 
   /**
-   * Http Tracking URI using default binding test
+   * Http Tracking URI using default binding test.
    *
    * @throws InjectionException
    * @throws UnknownHostException
@@ -100,7 +100,7 @@ public class TestTrackingUri {
   }
 
   /**
-   * Verify if URI is correct
+   * Verify if URI is correct.
    *
    * @param uri
    * @param port

@@ -96,7 +96,8 @@ public class NameClientTest {
           .set(NameResolverConfiguration.RETRY_COUNT, retryCount)
           .build();
 
-      try (final NameResolver client = Tang.Factory.getTang().newInjector(nameResolverConf).getInstance(NameClient.class)) {
+      try (final NameResolver client =
+               Tang.Factory.getTang().newInjector(nameResolverConf).getInstance(NameClient.class)) {
         final Identifier id = factory.getNewInstance("Task1");
         client.register(id, new InetSocketAddress(localAddress, 7001));
         client.unregister(id);
@@ -130,10 +131,11 @@ public class NameClientTest {
           .set(NameResolverConfiguration.RETRY_COUNT, retryCount)
           .build();
 
-      try (final NameResolver client = Tang.Factory.getTang().newInjector(nameResolverConf).getInstance(NameClient.class)) {
+      try (final NameResolver client =
+               Tang.Factory.getTang().newInjector(nameResolverConf).getInstance(NameClient.class)) {
         final Identifier id = factory.getNewInstance("Task1");
         client.register(id, new InetSocketAddress(localAddress, 7001));
-        client.lookup(id);// caches the entry
+        client.lookup(id); // caches the entry
         client.unregister(id);
         Thread.sleep(100);
         try {
@@ -147,9 +149,11 @@ public class NameClientTest {
           Assert.assertNull("client.lookup(id)", addr);
         } catch (Exception e) {
           if (e instanceof ExecutionException) {
-            Assert.assertTrue("Execution Exception cause is instanceof NamingException", e.getCause() instanceof NamingException);
-          } else
+            Assert.assertTrue("Execution Exception cause is instanceof NamingException",
+                e.getCause() instanceof NamingException);
+          } else {
             throw e;
+          }
         }
       }
     }

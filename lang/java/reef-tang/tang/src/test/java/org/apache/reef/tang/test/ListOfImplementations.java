@@ -34,12 +34,18 @@ public class ListOfImplementations {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     ListOfImplementations that = (ListOfImplementations) o;
 
-    if (!theInstances.equals(that.theInstances)) return false;
+    if (!theInstances.equals(that.theInstances)) {
+      return false;
+    }
 
     return true;
   }

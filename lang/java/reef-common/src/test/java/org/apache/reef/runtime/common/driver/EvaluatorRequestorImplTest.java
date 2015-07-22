@@ -51,9 +51,11 @@ public class EvaluatorRequestorImplTest {
   public void testMemoryOnly() {
     final int memory = 777;
     final DummyRequestHandler requestHandler = new DummyRequestHandler();
-    final EvaluatorRequestor evaluatorRequestor = new EvaluatorRequestorImpl(resourceCatalog, requestHandler, loggingScopeFactory);
+    final EvaluatorRequestor evaluatorRequestor =
+        new EvaluatorRequestorImpl(resourceCatalog, requestHandler, loggingScopeFactory);
     evaluatorRequestor.submit(EvaluatorRequest.newBuilder().setMemory(memory).build());
-    Assert.assertEquals("Memory request did not make it", memory, requestHandler.get().getMemorySize().get().intValue());
+    Assert.assertEquals("Memory request did not make it",
+        memory, requestHandler.get().getMemorySize().get().intValue());
     Assert.assertEquals("Number of requests did not make it", 1, requestHandler.get().getResourceCount());
   }
 
@@ -65,9 +67,11 @@ public class EvaluatorRequestorImplTest {
     final int memory = 777;
     final int count = 9;
     final DummyRequestHandler requestHandler = new DummyRequestHandler();
-    final EvaluatorRequestor evaluatorRequestor = new EvaluatorRequestorImpl(resourceCatalog, requestHandler, loggingScopeFactory);
+    final EvaluatorRequestor evaluatorRequestor =
+        new EvaluatorRequestorImpl(resourceCatalog, requestHandler, loggingScopeFactory);
     evaluatorRequestor.submit(EvaluatorRequest.newBuilder().setMemory(memory).setNumber(count).build());
-    Assert.assertEquals("Memory request did not make it", memory, requestHandler.get().getMemorySize().get().intValue());
+    Assert.assertEquals("Memory request did not make it",
+        memory, requestHandler.get().getMemorySize().get().intValue());
     Assert.assertEquals("Number of requests did not make it", count, requestHandler.get().getResourceCount());
   }
 
@@ -79,8 +83,10 @@ public class EvaluatorRequestorImplTest {
     final int memory = 0;
     final int count = 1;
     final DummyRequestHandler requestHandler = new DummyRequestHandler();
-    final EvaluatorRequestor evaluatorRequestor = new EvaluatorRequestorImpl(resourceCatalog, requestHandler, loggingScopeFactory);
-    evaluatorRequestor.submit(EvaluatorRequest.newBuilder().setMemory(memory).setNumberOfCores(1).setNumber(count).build());
+    final EvaluatorRequestor evaluatorRequestor =
+        new EvaluatorRequestorImpl(resourceCatalog, requestHandler, loggingScopeFactory);
+    evaluatorRequestor.submit(EvaluatorRequest.newBuilder().setMemory(memory).setNumberOfCores(1).setNumber(count)
+        .build());
   }
 
   /**
@@ -91,8 +97,10 @@ public class EvaluatorRequestorImplTest {
     final int memory = 128;
     final int count = 0;
     final DummyRequestHandler requestHandler = new DummyRequestHandler();
-    final EvaluatorRequestor evaluatorRequestor = new EvaluatorRequestorImpl(resourceCatalog, requestHandler, loggingScopeFactory);
-    evaluatorRequestor.submit(EvaluatorRequest.newBuilder().setMemory(memory).setNumberOfCores(1).setNumber(count).build());
+    final EvaluatorRequestor evaluatorRequestor =
+        new EvaluatorRequestorImpl(resourceCatalog, requestHandler, loggingScopeFactory);
+    evaluatorRequestor.submit(EvaluatorRequest.newBuilder().setMemory(memory).setNumberOfCores(1).setNumber(count)
+        .build());
   }
 
   private class DummyRequestHandler implements ResourceRequestHandler {

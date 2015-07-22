@@ -50,7 +50,8 @@ public class GroupCommunicationMessageCodecTest {
 
   @Test(timeout = 100)
   public final void testInstantiation() throws InjectionException {
-    final GroupCommunicationMessageCodec codec = Tang.Factory.getTang().newInjector().getInstance(GroupCommunicationMessageCodec.class);
+    final GroupCommunicationMessageCodec codec =
+        Tang.Factory.getTang().newInjector().getInstance(GroupCommunicationMessageCodec.class);
     Assert.assertNotNull("tang.getInstance(GroupCommunicationMessageCodec.class): ", codec);
   }
 
@@ -59,14 +60,16 @@ public class GroupCommunicationMessageCodecTest {
     final Random r = new Random();
     final byte[] data = new byte[100];
     r.nextBytes(data);
-    final GroupCommunicationMessage expMsg = Utils.bldVersionedGCM(GroupName.class, OperName.class, ReefNetworkGroupCommProtos.GroupCommMessage.Type.ChildAdd, "From", 0, "To", 1, data);
+    final GroupCommunicationMessage expMsg = Utils.bldVersionedGCM(GroupName.class, OperName.class,
+        ReefNetworkGroupCommProtos.GroupCommMessage.Type.ChildAdd, "From", 0, "To", 1, data);
     final GroupCommunicationMessageCodec codec = new GroupCommunicationMessageCodec();
     final GroupCommunicationMessage actMsg1 = codec.decode(codec.encode(expMsg));
     Assert.assertEquals("decode(encode(msg)): ", expMsg, actMsg1);
     final ByteArrayOutputStream baos = new ByteArrayOutputStream();
     final DataOutputStream daos = new DataOutputStream(baos);
     codec.encodeToStream(expMsg, daos);
-    final GroupCommunicationMessage actMsg2 = codec.decodeFromStream(new DataInputStream(new ByteArrayInputStream(baos.toByteArray())));
+    final GroupCommunicationMessage actMsg2 =
+        codec.decodeFromStream(new DataInputStream(new ByteArrayInputStream(baos.toByteArray())));
     Assert.assertEquals("decodeFromStream(encodeToStream(msg)): ", expMsg, actMsg2);
   }
 }

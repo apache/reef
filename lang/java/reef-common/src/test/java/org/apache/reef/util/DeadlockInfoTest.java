@@ -34,17 +34,17 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
 /**
- * Test DeadlockInfo by creating a deadlock
+ * Test DeadlockInfo by creating a deadlock.
  */
 public final class DeadlockInfoTest {
   private static final Logger LOG = Logger.getLogger(DeadlockInfoTest.class.getName());
 
-  private static final long timeoutMillis = 50;
+  private static final long TIMEOUT_MILLIS = 50;
 
   /**
    * Create a deadlock consisting of two threads.
    * The threads wait on a barrier, and once the barrier is met they proceed to deadlock.
-   * setUpClass sleeps for timeoutMillis to allow the threads time to progress past the barrier into deadlock.
+   * setUpClass sleeps for TIMEOUT_MILLIS to allow the threads time to progress past the barrier into deadlock.
    *
    * One thread holds an Object and Long lock, and is waiting on an Integer lock.
    * The other thread holds the Integer lock and is waiting on the Long lock.
@@ -52,7 +52,7 @@ public final class DeadlockInfoTest {
   @BeforeClass
   public static void setUpClass() {
     createDeadlock();
-    threadSleep(timeoutMillis);
+    threadSleep(TIMEOUT_MILLIS);
   }
 
   /**
@@ -130,7 +130,7 @@ public final class DeadlockInfoTest {
 
   private static void barrierAwait(final CyclicBarrier barrier) {
     try {
-      barrier.await(timeoutMillis, TimeUnit.MILLISECONDS);
+      barrier.await(TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
     } catch (InterruptedException e) {
       e.printStackTrace();
       fail("Unexpected exception");

@@ -44,7 +44,8 @@ public class ResourceRequestQueueTest {
       q.add(getAlmostSatisfied());
       Assert.assertTrue("A queue should not be empty after an insert.", q.hasOutStandingRequests());
       q.satisfyOne();
-      Assert.assertFalse("The queue should be empty after all requests have been satisfied", q.hasOutStandingRequests());
+      Assert.assertFalse("The queue should be empty after all requests have been satisfied",
+          q.hasOutStandingRequests());
     }
 
     final int nInsert = 10;
