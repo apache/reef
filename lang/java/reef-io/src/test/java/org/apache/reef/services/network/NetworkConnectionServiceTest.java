@@ -77,6 +77,7 @@ public class NetworkConnectionServiceTest {
           monitor.mwait();
         } catch (NetworkException e) {
           e.printStackTrace();
+          throw new RuntimeException(e);
         }
       }
     }
@@ -205,6 +206,7 @@ public class NetworkConnectionServiceTest {
             monitor.mwait();
           } catch (NetworkException e) {
             e.printStackTrace();
+            throw new RuntimeException(e);
           }
           final long end = System.currentTimeMillis();
 
@@ -257,6 +259,7 @@ public class NetworkConnectionServiceTest {
                 monitor.mwait();
               } catch (NetworkException e) {
                 e.printStackTrace();
+                throw new RuntimeException(e);
               }
             }
           } catch (Exception e) {
