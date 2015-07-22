@@ -75,59 +75,57 @@ public class NetworkServiceTest {
     final Injector injector = Tang.Factory.getTang().newInjector();
     injector.bindVolatileParameter(NameServerParameters.NameServerIdentifierFactory.class, factory);
     injector.bindVolatileInstance(LocalAddressProvider.class, this.localAddressProvider);
-    final NameServer server = injector.getInstance(NameServer.class);
-    int nameServerPort = server.getPort();
 
-    final int numMessages = 10;
-    final Monitor monitor = new Monitor();
+    try (final NameServer server = injector.getInstance(NameServer.class)) {
+      int nameServerPort = server.getPort();
 
-    LOG.log(Level.FINEST, "=== Test network service receiver start");
-    // network service
-    final String name2 = "task2";
-    final Configuration nameResolverConf = Tang.Factory.getTang().newConfigurationBuilder(NameResolverConfiguration.CONF
-        .set(NameResolverConfiguration.NAME_SERVER_HOSTNAME, this.localAddress)
-        .set(NameResolverConfiguration.NAME_SERVICE_PORT, nameServerPort)
-        .build())
-        .build();
+      final int numMessages = 10;
+      final Monitor monitor = new Monitor();
 
-    final Injector injector2 = Tang.Factory.getTang().newInjector(nameResolverConf);
-    final NameResolver nameResolver = injector2.getInstance(NameResolver.class);
+      // network service
+      final String name2 = "task2";
+      final String name1 = "task1";
+      final Configuration nameResolverConf = Tang.Factory.getTang().newConfigurationBuilder(NameResolverConfiguration.CONF
+          .set(NameResolverConfiguration.NAME_SERVER_HOSTNAME, this.localAddress)
+          .set(NameResolverConfiguration.NAME_SERVICE_PORT, nameServerPort)
+          .build())
+          .build();
 
-    NetworkService<String> ns2 = new NetworkService<String>(
-        factory, 0, nameResolver,
-        new StringCodec(), new MessagingTransportFactory(localAddressProvider),
-        new MessageHandler<String>(name2, monitor, numMessages), new ExceptionHandler(), localAddressProvider);
-    ns2.registerId(factory.getNewInstance(name2));
-    final int port2 = ns2.getTransport().getListeningPort();
-    server.register(factory.getNewInstance("task2"), new InetSocketAddress(this.localAddress, port2));
+      final Injector injector2 = Tang.Factory.getTang().newInjector(nameResolverConf);
 
-    LOG.log(Level.FINEST, "=== Test network service sender start");
-    final String name1 = "task1";
-    final NetworkService<String> ns1 = new NetworkService<String>(factory, 0, nameResolver,
-        new StringCodec(), new MessagingTransportFactory(localAddressProvider),
-        new MessageHandler<String>(name1, null, 0), new ExceptionHandler(), localAddressProvider);
-    ns1.registerId(factory.getNewInstance(name1));
-    final int port1 = ns1.getTransport().getListeningPort();
-    server.register(factory.getNewInstance("task1"), new InetSocketAddress(this.localAddress, port1));
+      LOG.log(Level.FINEST, "=== Test network service receiver start");
+      LOG.log(Level.FINEST, "=== Test network service sender start");
+      try (final NameResolver nameResolver = injector2.getInstance(NameResolver.class);
+           NetworkService<String> ns2 = new NetworkService<String>(factory, 0, nameResolver,
+               new StringCodec(), new MessagingTransportFactory(localAddressProvider),
+               new MessageHandler<String>(name2, monitor, numMessages), new ExceptionHandler(), localAddressProvider);
+           final NetworkService<String> ns1 = new NetworkService<String>(factory, 0, nameResolver,
+               new StringCodec(), new MessagingTransportFactory(localAddressProvider),
+               new MessageHandler<String>(name1, null, 0), new ExceptionHandler(), localAddressProvider)) {
 
-    final Identifier destId = factory.getNewInstance(name2);
-    final Connection<String> conn = ns1.newConnection(destId);
-    try {
-      conn.open();
-      for (int count = 0; count < numMessages; ++count) {
-        conn.write("hello! " + count);
+        ns2.registerId(factory.getNewInstance(name2));
+        final int port2 = ns2.getTransport().getListeningPort();
+        server.register(factory.getNewInstance("task2"), new InetSocketAddress(this.localAddress, port2));
+
+        ns1.registerId(factory.getNewInstance(name1));
+        final int port1 = ns1.getTransport().getListeningPort();
+        server.register(factory.getNewInstance("task1"), new InetSocketAddress(this.localAddress, port1));
+
+        final Identifier destId = factory.getNewInstance(name2);
+
+        try (final Connection<String> conn = ns1.newConnection(destId)) {
+          conn.open();
+          for (int count = 0; count < numMessages; ++count) {
+            conn.write("hello! " + count);
+          }
+          monitor.mwait();
+
+        } catch (NetworkException e) {
+          e.printStackTrace();
+          throw new RuntimeException(e);
+        }
       }
-      monitor.mwait();
-
-    } catch (NetworkException e) {
-      e.printStackTrace();
     }
-    conn.close();
-
-    ns1.close();
-    ns2.close();
-
-    server.close();
   }
 
   /**
@@ -142,75 +140,71 @@ public class NetworkServiceTest {
     final Injector injector = Tang.Factory.getTang().newInjector();
     injector.bindVolatileParameter(NameServerParameters.NameServerIdentifierFactory.class, factory);
     injector.bindVolatileInstance(LocalAddressProvider.class, this.localAddressProvider);
-    final NameServer server = injector.getInstance(NameServer.class);
-    int nameServerPort = server.getPort();
 
-    final int[] messageSizes = {1, 16, 32, 64, 512, 64 * 1024, 1024 * 1024};
+    try (final NameServer server = injector.getInstance(NameServer.class)) {
+      int nameServerPort = server.getPort();
 
-    for (int size : messageSizes) {
-      final int numMessages = 300000 / (Math.max(1, size / 512));
-      final Monitor monitor = new Monitor();
+      final int[] messageSizes = {1, 16, 32, 64, 512, 64 * 1024, 1024 * 1024};
 
-      LOG.log(Level.FINEST, "=== Test network service receiver start");
-      // network service
-      final String name2 = "task2";
-      final Configuration nameResolverConf = Tang.Factory.getTang().newConfigurationBuilder(NameResolverConfiguration.CONF
-          .set(NameResolverConfiguration.NAME_SERVER_HOSTNAME, this.localAddress)
-          .set(NameResolverConfiguration.NAME_SERVICE_PORT, nameServerPort)
-          .build())
-          .build();
+      for (int size : messageSizes) {
+        final int numMessages = 300000 / (Math.max(1, size / 512));
+        final Monitor monitor = new Monitor();
 
-      final Injector injector2 = Tang.Factory.getTang().newInjector(nameResolverConf);
-      final NameResolver nameResolver = injector2.getInstance(NameResolver.class);
+        // network service
+        final String name2 = "task2";
+        final String name1 = "task1";
+        final Configuration nameResolverConf = Tang.Factory.getTang().newConfigurationBuilder(NameResolverConfiguration.CONF
+            .set(NameResolverConfiguration.NAME_SERVER_HOSTNAME, this.localAddress)
+            .set(NameResolverConfiguration.NAME_SERVICE_PORT, nameServerPort)
+            .build())
+            .build();
 
-      NetworkService<String> ns2 = new NetworkService<String>(
-          factory, 0, nameResolver,
-          new StringCodec(), new MessagingTransportFactory(localAddressProvider),
-          new MessageHandler<String>(name2, monitor, numMessages), new ExceptionHandler(), localAddressProvider);
-      ns2.registerId(factory.getNewInstance(name2));
-      final int port2 = ns2.getTransport().getListeningPort();
-      server.register(factory.getNewInstance("task2"), new InetSocketAddress(this.localAddress, port2));
+        final Injector injector2 = Tang.Factory.getTang().newInjector(nameResolverConf);
 
-      LOG.log(Level.FINEST, "=== Test network service sender start");
-      final String name1 = "task1";
-      NetworkService<String> ns1 = new NetworkService<String>(
-          factory, 0, nameResolver,
-          new StringCodec(), new MessagingTransportFactory(localAddressProvider),
-          new MessageHandler<String>(name1, null, 0), new ExceptionHandler(), localAddressProvider);
-      ns1.registerId(factory.getNewInstance(name1));
-      final int port1 = ns1.getTransport().getListeningPort();
-      server.register(factory.getNewInstance("task1"), new InetSocketAddress(this.localAddress, port1));
+        LOG.log(Level.FINEST, "=== Test network service receiver start");
+        LOG.log(Level.FINEST, "=== Test network service sender start");
+        try (final NameResolver nameResolver = injector2.getInstance(NameResolver.class);
+             NetworkService<String> ns2 = new NetworkService<String>(factory, 0, nameResolver,
+                 new StringCodec(), new MessagingTransportFactory(localAddressProvider),
+                 new MessageHandler<String>(name2, monitor, numMessages), new ExceptionHandler(), localAddressProvider);
+             NetworkService<String> ns1 = new NetworkService<String>(factory, 0, nameResolver,
+                 new StringCodec(), new MessagingTransportFactory(localAddressProvider),
+                 new MessageHandler<String>(name1, null, 0), new ExceptionHandler(), localAddressProvider)) {
 
-      Identifier destId = factory.getNewInstance(name2);
-      Connection<String> conn = ns1.newConnection(destId);
+          ns2.registerId(factory.getNewInstance(name2));
+          final int port2 = ns2.getTransport().getListeningPort();
+          server.register(factory.getNewInstance("task2"), new InetSocketAddress(this.localAddress, port2));
 
-      // build the message
-      StringBuilder msb = new StringBuilder();
-      for (int i = 0; i < size; i++) {
-        msb.append("1");
-      }
-      String message = msb.toString();
+          ns1.registerId(factory.getNewInstance(name1));
+          final int port1 = ns1.getTransport().getListeningPort();
+          server.register(factory.getNewInstance("task1"), new InetSocketAddress(this.localAddress, port1));
 
-      long start = System.currentTimeMillis();
-      try {
-        for (int i = 0; i < numMessages; i++) {
-          conn.open();
-          conn.write(message);
+          Identifier destId = factory.getNewInstance(name2);
+
+          // build the message
+          StringBuilder msb = new StringBuilder();
+          for (int i = 0; i < size; i++) {
+            msb.append("1");
+          }
+          String message = msb.toString();
+
+          long start = System.currentTimeMillis();
+          try (Connection<String> conn = ns1.newConnection(destId)) {
+            for (int i = 0; i < numMessages; i++) {
+              conn.open();
+              conn.write(message);
+            }
+            monitor.mwait();
+          } catch (NetworkException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+          }
+          long end = System.currentTimeMillis();
+          double runtime = ((double) end - start) / 1000;
+          LOG.log(Level.FINEST, "size: " + size + "; messages/s: " + numMessages / runtime + " bandwidth(bytes/s): " + ((double) numMessages * 2 * size) / runtime);// x2 for unicode chars
         }
-        monitor.mwait();
-      } catch (NetworkException e) {
-        e.printStackTrace();
       }
-      long end = System.currentTimeMillis();
-      double runtime = ((double) end - start) / 1000;
-      LOG.log(Level.FINEST, "size: " + size + "; messages/s: " + numMessages / runtime + " bandwidth(bytes/s): " + ((double) numMessages * 2 * size) / runtime);// x2 for unicode chars
-      conn.close();
-
-      ns1.close();
-      ns2.close();
     }
-
-    server.close();
   }
 
   /**
@@ -225,98 +219,95 @@ public class NetworkServiceTest {
     final Injector injector = Tang.Factory.getTang().newInjector();
     injector.bindVolatileParameter(NameServerParameters.NameServerIdentifierFactory.class, factory);
     injector.bindVolatileInstance(LocalAddressProvider.class, this.localAddressProvider);
-    final NameServer server = injector.getInstance(NameServer.class);
-    final int nameServerPort = server.getPort();
 
-    BlockingQueue<Object> barrier = new LinkedBlockingQueue<Object>();
+    try (final NameServer server = injector.getInstance(NameServer.class)) {
+      final int nameServerPort = server.getPort();
 
-    int numThreads = 4;
-    final int size = 2000;
-    final int numMessages = 300000 / (Math.max(1, size / 512));
-    final int totalNumMessages = numMessages * numThreads;
+      BlockingQueue<Object> barrier = new LinkedBlockingQueue<Object>();
 
-    ExecutorService e = Executors.newCachedThreadPool();
-    for (int t = 0; t < numThreads; t++) {
-      final int tt = t;
+      int numThreads = 4;
+      final int size = 2000;
+      final int numMessages = 300000 / (Math.max(1, size / 512));
+      final int totalNumMessages = numMessages * numThreads;
 
-      e.submit(new Runnable() {
-        public void run() {
-          try {
-            Monitor monitor = new Monitor();
+      ExecutorService e = Executors.newCachedThreadPool();
+      for (int t = 0; t < numThreads; t++) {
+        final int tt = t;
 
-            LOG.log(Level.FINEST, "=== Test network service receiver start");
-            // network service
-            final String name2 = "task2-" + tt;
-            final Configuration nameResolverConf = Tang.Factory.getTang().newConfigurationBuilder(NameResolverConfiguration.CONF
-                .set(NameResolverConfiguration.NAME_SERVER_HOSTNAME, localAddress)
-                .set(NameResolverConfiguration.NAME_SERVICE_PORT, nameServerPort)
-                .build())
-                .build();
-
-            final Injector injector = Tang.Factory.getTang().newInjector(nameResolverConf);
-            final NameResolver nameResolver = injector.getInstance(NameResolver.class);
-            NetworkService<String> ns2 = new NetworkService<String>(
-                factory, 0, nameResolver,
-                new StringCodec(), new MessagingTransportFactory(localAddressProvider),
-                new MessageHandler<String>(name2, monitor, numMessages), new ExceptionHandler(), localAddressProvider);
-            ns2.registerId(factory.getNewInstance(name2));
-            final int port2 = ns2.getTransport().getListeningPort();
-            server.register(factory.getNewInstance(name2), new InetSocketAddress(localAddress, port2));
-
-            LOG.log(Level.FINEST, "=== Test network service sender start");
-            final String name1 = "task1-" + tt;
-            NetworkService<String> ns1 = new NetworkService<String>(
-                factory, 0, nameResolver,
-                new StringCodec(), new MessagingTransportFactory(localAddressProvider),
-                new MessageHandler<String>(name1, null, 0), new ExceptionHandler(), localAddressProvider);
-            ns1.registerId(factory.getNewInstance(name1));
-            final int port1 = ns1.getTransport().getListeningPort();
-            server.register(factory.getNewInstance(name1), new InetSocketAddress(localAddress, port1));
-
-            Identifier destId = factory.getNewInstance(name2);
-            Connection<String> conn = ns1.newConnection(destId);
-
-            // build the message
-            StringBuilder msb = new StringBuilder();
-            for (int i = 0; i < size; i++) {
-              msb.append("1");
-            }
-            String message = msb.toString();
-
-
+        e.submit(new Runnable() {
+          @Override
+          public void run() {
             try {
-              for (int i = 0; i < numMessages; i++) {
-                conn.open();
-                conn.write(message);
+              Monitor monitor = new Monitor();
+
+              // network service
+              final String name2 = "task2-" + tt;
+              final String name1 = "task1-" + tt;
+              final Configuration nameResolverConf = Tang.Factory.getTang().newConfigurationBuilder(NameResolverConfiguration.CONF
+                  .set(NameResolverConfiguration.NAME_SERVER_HOSTNAME, localAddress)
+                  .set(NameResolverConfiguration.NAME_SERVICE_PORT, nameServerPort)
+                  .build())
+                  .build();
+
+              final Injector injector = Tang.Factory.getTang().newInjector(nameResolverConf);
+
+              LOG.log(Level.FINEST, "=== Test network service receiver start");
+              LOG.log(Level.FINEST, "=== Test network service sender start");
+              try (final NameResolver nameResolver = injector.getInstance(NameResolver.class);
+                   NetworkService<String> ns2 = new NetworkService<String>(factory, 0, nameResolver,
+                       new StringCodec(), new MessagingTransportFactory(localAddressProvider),
+                       new MessageHandler<String>(name2, monitor, numMessages), new ExceptionHandler(), localAddressProvider);
+                   NetworkService<String> ns1 = new NetworkService<String>(factory, 0, nameResolver,
+                       new StringCodec(), new MessagingTransportFactory(localAddressProvider),
+                       new MessageHandler<String>(name1, null, 0), new ExceptionHandler(), localAddressProvider)) {
+
+                ns2.registerId(factory.getNewInstance(name2));
+                final int port2 = ns2.getTransport().getListeningPort();
+                server.register(factory.getNewInstance(name2), new InetSocketAddress(localAddress, port2));
+
+                ns1.registerId(factory.getNewInstance(name1));
+                final int port1 = ns1.getTransport().getListeningPort();
+                server.register(factory.getNewInstance(name1), new InetSocketAddress(localAddress, port1));
+
+                Identifier destId = factory.getNewInstance(name2);
+
+                // build the message
+                StringBuilder msb = new StringBuilder();
+                for (int i = 0; i < size; i++) {
+                  msb.append("1");
+                }
+                String message = msb.toString();
+
+                try (Connection<String> conn = ns1.newConnection(destId)) {
+                  for (int i = 0; i < numMessages; i++) {
+                    conn.open();
+                    conn.write(message);
+                  }
+                  monitor.mwait();
+                } catch (NetworkException e) {
+                  e.printStackTrace();
+                  throw new RuntimeException(e);
+                }
               }
-              monitor.mwait();
-            } catch (NetworkException e) {
+            } catch (Exception e) {
               e.printStackTrace();
+              throw new RuntimeException(e);
             }
-            conn.close();
-
-            ns1.close();
-            ns2.close();
-          } catch (Exception e) {
-            e.printStackTrace();
-
           }
-        }
-      });
+        });
+      }
+
+      // start and time
+      long start = System.currentTimeMillis();
+      Object ignore = new Object();
+      for (int i = 0; i < numThreads; i++) barrier.add(ignore);
+      e.shutdown();
+      e.awaitTermination(100, TimeUnit.SECONDS);
+      long end = System.currentTimeMillis();
+
+      double runtime = ((double) end - start) / 1000;
+      LOG.log(Level.FINEST, "size: " + size + "; messages/s: " + totalNumMessages / runtime + " bandwidth(bytes/s): " + ((double) totalNumMessages * 2 * size) / runtime);// x2 for unicode chars
     }
-
-    // start and time
-    long start = System.currentTimeMillis();
-    Object ignore = new Object();
-    for (int i = 0; i < numThreads; i++) barrier.add(ignore);
-    e.shutdown();
-    e.awaitTermination(100, TimeUnit.SECONDS);
-    long end = System.currentTimeMillis();
-
-    double runtime = ((double) end - start) / 1000;
-    LOG.log(Level.FINEST, "size: " + size + "; messages/s: " + totalNumMessages / runtime + " bandwidth(bytes/s): " + ((double) totalNumMessages * 2 * size) / runtime);// x2 for unicode chars
-
-    server.close();
   }
 
   @Test
@@ -328,88 +319,87 @@ public class NetworkServiceTest {
     final Injector injector = Tang.Factory.getTang().newInjector();
     injector.bindVolatileParameter(NameServerParameters.NameServerIdentifierFactory.class, factory);
     injector.bindVolatileInstance(LocalAddressProvider.class, this.localAddressProvider);
-    final NameServer server = injector.getInstance(NameServer.class);
-    int nameServerPort = server.getPort();
+    try (final NameServer server = injector.getInstance(NameServer.class)) {
+      int nameServerPort = server.getPort();
 
-    final int[] messageSizes = {2000};// {1,16,32,64,512,64*1024,1024*1024};
+      final int[] messageSizes = {2000};// {1,16,32,64,512,64*1024,1024*1024};
 
-    for (int size : messageSizes) {
-      final int numMessages = 300000 / (Math.max(1, size / 512));
-      int numThreads = 2;
-      int totalNumMessages = numMessages * numThreads;
-      final Monitor monitor = new Monitor();
+      for (int size : messageSizes) {
+        final int numMessages = 300000 / (Math.max(1, size / 512));
+        int numThreads = 2;
+        int totalNumMessages = numMessages * numThreads;
+        final Monitor monitor = new Monitor();
 
-      LOG.log(Level.FINEST, "=== Test network service receiver start");
-      // network service
-      final String name2 = "task2";
-      final Configuration nameResolverConf = Tang.Factory.getTang().newConfigurationBuilder(NameResolverConfiguration.CONF
-          .set(NameResolverConfiguration.NAME_SERVER_HOSTNAME, this.localAddress)
-          .set(NameResolverConfiguration.NAME_SERVICE_PORT, nameServerPort)
-          .build())
-          .build();
 
-      final Injector injector2 = Tang.Factory.getTang().newInjector(nameResolverConf);
-      final NameResolver nameResolver = injector2.getInstance(NameResolver.class);
-      NetworkService<String> ns2 = new NetworkService<String>(
-          factory, 0, nameResolver,
-          new StringCodec(), new MessagingTransportFactory(localAddressProvider),
-          new MessageHandler<String>(name2, monitor, totalNumMessages), new ExceptionHandler(), localAddressProvider);
-      ns2.registerId(factory.getNewInstance(name2));
-      final int port2 = ns2.getTransport().getListeningPort();
-      server.register(factory.getNewInstance("task2"), new InetSocketAddress(this.localAddress, port2));
+        // network service
+        final String name2 = "task2";
+        final String name1 = "task1";
+        final Configuration nameResolverConf = Tang.Factory.getTang().newConfigurationBuilder(NameResolverConfiguration.CONF
+            .set(NameResolverConfiguration.NAME_SERVER_HOSTNAME, this.localAddress)
+            .set(NameResolverConfiguration.NAME_SERVICE_PORT, nameServerPort)
+            .build())
+            .build();
 
-      LOG.log(Level.FINEST, "=== Test network service sender start");
-      final String name1 = "task1";
-      NetworkService<String> ns1 = new NetworkService<String>(
-          factory, 0, nameResolver,
-          new StringCodec(), new MessagingTransportFactory(localAddressProvider),
-          new MessageHandler<String>(name1, null, 0), new ExceptionHandler(), localAddressProvider);
-      ns1.registerId(factory.getNewInstance(name1));
-      final int port1 = ns1.getTransport().getListeningPort();
-      server.register(factory.getNewInstance("task1"), new InetSocketAddress(this.localAddress, port1));
+        final Injector injector2 = Tang.Factory.getTang().newInjector(nameResolverConf);
 
-      Identifier destId = factory.getNewInstance(name2);
-      final Connection<String> conn = ns1.newConnection(destId);
-      conn.open();
+        LOG.log(Level.FINEST, "=== Test network service receiver start");
+        LOG.log(Level.FINEST, "=== Test network service sender start");
+        try (final NameResolver nameResolver = injector2.getInstance(NameResolver.class);
+             NetworkService<String> ns2 = new NetworkService<String>(factory, 0, nameResolver,
+                 new StringCodec(), new MessagingTransportFactory(localAddressProvider),
+                 new MessageHandler<String>(name2, monitor, totalNumMessages), new ExceptionHandler(), localAddressProvider);
+             NetworkService<String> ns1 = new NetworkService<String>(factory, 0, nameResolver,
+                 new StringCodec(), new MessagingTransportFactory(localAddressProvider),
+                 new MessageHandler<String>(name1, null, 0), new ExceptionHandler(), localAddressProvider)) {
 
-      // build the message
-      StringBuilder msb = new StringBuilder();
-      for (int i = 0; i < size; i++) {
-        msb.append("1");
-      }
-      final String message = msb.toString();
+          ns2.registerId(factory.getNewInstance(name2));
+          final int port2 = ns2.getTransport().getListeningPort();
+          server.register(factory.getNewInstance("task2"), new InetSocketAddress(this.localAddress, port2));
 
-      ExecutorService e = Executors.newCachedThreadPool();
+          ns1.registerId(factory.getNewInstance(name1));
+          final int port1 = ns1.getTransport().getListeningPort();
+          server.register(factory.getNewInstance("task1"), new InetSocketAddress(this.localAddress, port1));
 
-      long start = System.currentTimeMillis();
-      for (int i = 0; i < numThreads; i++) {
-        e.submit(new Runnable() {
+          Identifier destId = factory.getNewInstance(name2);
 
-          @Override
-          public void run() {
-            for (int i = 0; i < numMessages; i++) {
-              conn.write(message);
+          try (final Connection<String> conn = ns1.newConnection(destId)) {
+            conn.open();
+
+            // build the message
+            StringBuilder msb = new StringBuilder();
+            for (int i = 0; i < size; i++) {
+              msb.append("1");
             }
+            final String message = msb.toString();
+
+            ExecutorService e = Executors.newCachedThreadPool();
+
+            long start = System.currentTimeMillis();
+            for (int i = 0; i < numThreads; i++) {
+              e.submit(new Runnable() {
+
+                @Override
+                public void run() {
+                  for (int i = 0; i < numMessages; i++) {
+                    conn.write(message);
+                  }
+                }
+              });
+            }
+
+
+            e.shutdown();
+            e.awaitTermination(30, TimeUnit.SECONDS);
+            monitor.mwait();
+
+            long end = System.currentTimeMillis();
+            double runtime = ((double) end - start) / 1000;
+
+            LOG.log(Level.FINEST, "size: " + size + "; messages/s: " + totalNumMessages / runtime + " bandwidth(bytes/s): " + ((double) totalNumMessages * 2 * size) / runtime);// x2 for unicode chars
           }
-        });
+        }
       }
-
-
-      e.shutdown();
-      e.awaitTermination(30, TimeUnit.SECONDS);
-      monitor.mwait();
-
-      long end = System.currentTimeMillis();
-      double runtime = ((double) end - start) / 1000;
-
-      LOG.log(Level.FINEST, "size: " + size + "; messages/s: " + totalNumMessages / runtime + " bandwidth(bytes/s): " + ((double) totalNumMessages * 2 * size) / runtime);// x2 for unicode chars
-      conn.close();
-
-      ns1.close();
-      ns2.close();
     }
-
-    server.close();
   }
 
   /**
@@ -424,80 +414,77 @@ public class NetworkServiceTest {
     final Injector injector = Tang.Factory.getTang().newInjector();
     injector.bindVolatileParameter(NameServerParameters.NameServerIdentifierFactory.class, factory);
     injector.bindVolatileInstance(LocalAddressProvider.class, this.localAddressProvider);
-    final NameServer server = injector.getInstance(NameServer.class);
-    int nameServerPort = server.getPort();
 
-    final int batchSize = 1024 * 1024;
-    final int[] messageSizes = {32, 64, 512};
+    try (final NameServer server = injector.getInstance(NameServer.class)) {
+      int nameServerPort = server.getPort();
 
-    for (int size : messageSizes) {
-      final int numMessages = 300 / (Math.max(1, size / 512));
-      final Monitor monitor = new Monitor();
+      final int batchSize = 1024 * 1024;
+      final int[] messageSizes = {32, 64, 512};
 
-      LOG.log(Level.FINEST, "=== Test network service receiver start");
-      // network service
-      final String name2 = "task2";
-      final Configuration nameResolverConf = Tang.Factory.getTang().newConfigurationBuilder(NameResolverConfiguration.CONF
-          .set(NameResolverConfiguration.NAME_SERVER_HOSTNAME, this.localAddress)
-          .set(NameResolverConfiguration.NAME_SERVICE_PORT, nameServerPort)
-          .build())
-          .build();
+      for (int size : messageSizes) {
+        final int numMessages = 300 / (Math.max(1, size / 512));
+        final Monitor monitor = new Monitor();
 
-      final Injector injector2 = Tang.Factory.getTang().newInjector(nameResolverConf);
-      final NameResolver nameResolver = injector2.getInstance(NameResolver.class);
-      NetworkService<String> ns2 = new NetworkService<String>(
-          factory, 0, nameResolver,
-          new StringCodec(), new MessagingTransportFactory(localAddressProvider),
-          new MessageHandler<String>(name2, monitor, numMessages), new ExceptionHandler(), localAddressProvider);
-      ns2.registerId(factory.getNewInstance(name2));
-      final int port2 = ns2.getTransport().getListeningPort();
-      server.register(factory.getNewInstance("task2"), new InetSocketAddress(this.localAddress, port2));
+        // network service
+        final String name2 = "task2";
+        final String name1 = "task1";
+        final Configuration nameResolverConf = Tang.Factory.getTang().newConfigurationBuilder(NameResolverConfiguration.CONF
+            .set(NameResolverConfiguration.NAME_SERVER_HOSTNAME, this.localAddress)
+            .set(NameResolverConfiguration.NAME_SERVICE_PORT, nameServerPort)
+            .build())
+            .build();
 
-      LOG.log(Level.FINEST, "=== Test network service sender start");
-      final String name1 = "task1";
-      NetworkService<String> ns1 = new NetworkService<String>(
-          factory, 0, nameResolver,
-          new StringCodec(), new MessagingTransportFactory(localAddressProvider),
-          new MessageHandler<String>(name1, null, 0), new ExceptionHandler(), localAddressProvider);
-      ns1.registerId(factory.getNewInstance(name1));
-      final int port1 = ns1.getTransport().getListeningPort();
-      server.register(factory.getNewInstance("task1"), new InetSocketAddress(this.localAddress, port1));
+        final Injector injector2 = Tang.Factory.getTang().newInjector(nameResolverConf);
 
-      Identifier destId = factory.getNewInstance(name2);
-      Connection<String> conn = ns1.newConnection(destId);
+        LOG.log(Level.FINEST, "=== Test network service receiver start");
+        LOG.log(Level.FINEST, "=== Test network service sender start");
+        try (final NameResolver nameResolver = injector2.getInstance(NameResolver.class);
+             NetworkService<String> ns2 = new NetworkService<String>(factory, 0, nameResolver,
+                 new StringCodec(), new MessagingTransportFactory(localAddressProvider),
+                 new MessageHandler<String>(name2, monitor, numMessages), new ExceptionHandler(), localAddressProvider);
+             NetworkService<String> ns1 = new NetworkService<String>(factory, 0, nameResolver,
+                 new StringCodec(), new MessagingTransportFactory(localAddressProvider),
+                 new MessageHandler<String>(name1, null, 0), new ExceptionHandler(), localAddressProvider)) {
 
-      // build the message
-      StringBuilder msb = new StringBuilder();
-      for (int i = 0; i < size; i++) {
-        msb.append("1");
-      }
-      String message = msb.toString();
+          ns2.registerId(factory.getNewInstance(name2));
+          final int port2 = ns2.getTransport().getListeningPort();
+          server.register(factory.getNewInstance("task2"), new InetSocketAddress(this.localAddress, port2));
 
-      long start = System.currentTimeMillis();
-      try {
-        for (int i = 0; i < numMessages; i++) {
-          StringBuilder sb = new StringBuilder();
-          for (int j = 0; j < batchSize / size; j++) {
-            sb.append(message);
+          ns1.registerId(factory.getNewInstance(name1));
+          final int port1 = ns1.getTransport().getListeningPort();
+          server.register(factory.getNewInstance("task1"), new InetSocketAddress(this.localAddress, port1));
+
+          Identifier destId = factory.getNewInstance(name2);
+
+          // build the message
+          StringBuilder msb = new StringBuilder();
+          for (int i = 0; i < size; i++) {
+            msb.append("1");
           }
-          conn.open();
-          conn.write(sb.toString());
+          String message = msb.toString();
+
+          long start = System.currentTimeMillis();
+          try (Connection<String> conn = ns1.newConnection(destId)) {
+            for (int i = 0; i < numMessages; i++) {
+              StringBuilder sb = new StringBuilder();
+              for (int j = 0; j < batchSize / size; j++) {
+                sb.append(message);
+              }
+              conn.open();
+              conn.write(sb.toString());
+            }
+            monitor.mwait();
+          } catch (NetworkException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+          }
+          long end = System.currentTimeMillis();
+          double runtime = ((double) end - start) / 1000;
+          long numAppMessages = numMessages * batchSize / size;
+          LOG.log(Level.FINEST, "size: " + size + "; messages/s: " + numAppMessages / runtime + " bandwidth(bytes/s): " + ((double) numAppMessages * 2 * size) / runtime);// x2 for unicode chars
         }
-        monitor.mwait();
-      } catch (NetworkException e) {
-        e.printStackTrace();
       }
-      long end = System.currentTimeMillis();
-      double runtime = ((double) end - start) / 1000;
-      long numAppMessages = numMessages * batchSize / size;
-      LOG.log(Level.FINEST, "size: " + size + "; messages/s: " + numAppMessages / runtime + " bandwidth(bytes/s): " + ((double) numAppMessages * 2 * size) / runtime);// x2 for unicode chars
-      conn.close();
-
-      ns1.close();
-      ns2.close();
     }
-
-    server.close();
   }
 
   /**
