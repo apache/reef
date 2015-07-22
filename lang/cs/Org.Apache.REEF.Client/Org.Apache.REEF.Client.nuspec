@@ -41,8 +41,8 @@ under the License.
     </dependencies>
   </metadata>
   <files>
-    <file src="..\bin\$Platform$\$Configuration$\Org.Apache.REEF.Client\Org.Apache.REEF.Client.exe" target="tools" />
-    <file src="..\bin\$Platform$\$Configuration$\Org.Apache.REEF.Client\NugetExeFix.txt" target="lib\net45" />
+    <file src="..\bin\$Platform$\$Configuration$\Org.Apache.REEF.Client\Org.Apache.REEF.Client.dll" target="lib\net45" />
+    <file src="..\bin\$Platform$\$Configuration$\Org.Apache.REEF.Client\Org.Apache.REEF.Client.pdb" target="lib\net45" />
   </files>
 </package>
 

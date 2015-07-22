@@ -19,7 +19,7 @@ under the License.
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <ProjectGuid>{5094C35B-4FDB-4322-AC05-45D684501CBF}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Org.Apache.REEF.Client</RootNamespace>
     <AssemblyName>Org.Apache.REEF.Client</AssemblyName>
@@ -27,6 +27,9 @@ under the License.
     <FileAlignment>512</FileAlignment>
     <RestorePackages>true</RestorePackages>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..</SolutionDir>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
   </PropertyGroup>
   <Import Project="$(SolutionDir)\build.props" />
   <PropertyGroup>
@@ -48,7 +51,6 @@ under the License.
     <Compile Include="API\JobSubmission.cs" />
     <Compile Include="API\JobSubmissionBuilder.cs" />
     <Compile Include="API\JobSubmissionBuilderFactory.cs" />
-    <Compile Include="CLRBridgeClient.cs" />
     <Compile Include="Common\ClientConstants.cs" />
     <Compile Include="Common\ClrClient2JavaClientCuratedParameters.cs" />
     <Compile Include="Common\DriverFolderPreparationHelper.cs" />
@@ -65,16 +67,8 @@ under the License.
     <Compile Include="YARN\YarnCommandLineEnvironment.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="NugetExeFix.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="packages.config" />
     <None Include="Org.Apache.REEF.Client.nuspec" />
-    <None Include="run.cmd">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.Utilities\Org.Apache.REEF.Utilities.csproj">
