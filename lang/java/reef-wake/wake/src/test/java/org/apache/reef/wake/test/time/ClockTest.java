@@ -139,7 +139,7 @@ public class ClockTest {
     try {
       for (int i = 0; i < numThreads; ++i)
         stage.onNext(null);
-      eventCountLatch.await(10, TimeUnit.SECONDS);
+      Assert.assertTrue(eventCountLatch.await(10, TimeUnit.SECONDS));
     } finally {
       stage.close();
       clock.close();
