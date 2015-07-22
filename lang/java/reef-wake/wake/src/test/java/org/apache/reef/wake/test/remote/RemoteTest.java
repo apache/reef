@@ -53,7 +53,7 @@ public class RemoteTest {
   @Rule
   public final TestName name = new TestName();
 
-  final String logPrefix = "TEST ";
+  private static final String LOG_PREFIX = "TEST ";
 
 
   public RemoteTest() throws InjectionException {
@@ -64,7 +64,7 @@ public class RemoteTest {
 
   @Test
   public void testRemoteEventCodec() throws UnknownHostException {
-    System.out.println(logPrefix + name.getMethodName());
+    System.out.println(LOG_PREFIX + name.getMethodName());
 
     ObjectSerializableCodec<TestEvent> codec = new ObjectSerializableCodec<TestEvent>();
 
@@ -86,7 +86,7 @@ public class RemoteTest {
 
   @Test
   public void testRandomPort() throws Exception {
-    System.out.println(logPrefix + name.getMethodName());
+    System.out.println(LOG_PREFIX + name.getMethodName());
     LoggingUtils.setLoggingLevel(Level.FINEST);
 
     // receiver stage
@@ -109,7 +109,7 @@ public class RemoteTest {
 
   @Test
   public void testRemoteTest() throws Exception {
-    System.out.println(logPrefix + name.getMethodName());
+    System.out.println(LOG_PREFIX + name.getMethodName());
     LoggingUtils.setLoggingLevel(Level.FINEST);
 
     Monitor monitor = new Monitor();
@@ -174,8 +174,10 @@ public class RemoteTest {
 
     monitor.mwait();
 
-    if (set.size() != finalSize)
-      Assert.fail(name.getMethodName() + " takes too long and times out : " + set.size() + " out of " + finalSize + " events");
+    if (set.size() != finalSize) {
+      Assert.fail(name.getMethodName() + " takes too long and times out : " +
+          set.size() + " out of " + finalSize + " events");
+    }
 
     // shutdown
     reSendStage.close();

@@ -33,19 +33,19 @@ import org.apache.reef.tang.Tang;
 public final class LocalTestEnvironment extends TestEnvironmentBase implements TestEnvironment {
 
   /**
-   * The upper limit on the number of Evaluators that the local resourcemanager will hand out concurrently
+   * The upper limit on the number of Evaluators that the local resourcemanager will hand out concurrently.
    */
   public static final int MAX_NUMBER_OF_EVALUATORS = 4;
   // Used to make sure the tests call the methods in the right order.
   private boolean ready = false;
 
   @Override
-  public synchronized final void setUp() {
+  public synchronized void setUp() {
     this.ready = true;
   }
 
   @Override
-  public synchronized final Configuration getRuntimeConfiguration() {
+  public synchronized Configuration getRuntimeConfiguration() {
     assert (this.ready);
     final String rootFolder = System.getProperty("org.apache.reef.runtime.local.folder");
     final JavaConfigurationBuilder jcb = Tang.Factory.getTang().newConfigurationBuilder();
@@ -65,7 +65,7 @@ public final class LocalTestEnvironment extends TestEnvironmentBase implements T
   }
 
   @Override
-  public synchronized final void tearDown() {
+  public synchronized void tearDown() {
     assert (this.ready);
     this.ready = false;
   }

@@ -28,7 +28,7 @@ import org.apache.reef.tang.formats.RequiredParameter;
 import java.util.Set;
 
 /**
- * All the configuration parameters and options for the test without list
+ * All the configuration parameters and options for the test without list.
  */
 public class TestConfigurationWithoutList extends ConfigurationModuleBuilder {
   public static final String REQUIRED_STRING_VALUE = "Required String Value";

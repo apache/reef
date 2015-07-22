@@ -127,14 +127,16 @@ public class TestTang {
   @Test
   public void testOneNamedFailArgs() throws InjectionException {
     thrown.expect(InjectionException.class);
-    thrown.expectMessage("Cannot inject org.apache.reef.tang.OneNamedSingletonArgs: org.apache.reef.tang.OneNamedSingletonArgs missing argument org.apache.reef.tang.OneNamedSingletonArgs$A");
+    thrown.expectMessage("Cannot inject org.apache.reef.tang.OneNamedSingletonArgs: " +
+        "org.apache.reef.tang.OneNamedSingletonArgs missing argument org.apache.reef.tang.OneNamedSingletonArgs$A");
     tang.newInjector().getInstance(OneNamedSingletonArgs.class);
   }
 
   @Test
   public void testOneNamedOKArgs() throws InjectionException {
     thrown.expect(InjectionException.class);
-    thrown.expectMessage("Cannot inject org.apache.reef.tang.OneNamedSingletonArgs: org.apache.reef.tang.OneNamedSingletonArgs missing argument org.apache.reef.tang.OneNamedSingletonArgs$A");
+    thrown.expectMessage("Cannot inject org.apache.reef.tang.OneNamedSingletonArgs: " +
+        "org.apache.reef.tang.OneNamedSingletonArgs missing argument org.apache.reef.tang.OneNamedSingletonArgs$A");
     tang.newInjector().getInstance(OneNamedSingletonArgs.class);
   }
 
@@ -142,7 +144,8 @@ public class TestTang {
   @Test
   public void testOneNamedSingletonFailArgs() throws InjectionException {
     thrown.expect(InjectionException.class);
-    thrown.expectMessage("Cannot inject org.apache.reef.tang.OneNamedSingletonArgs: org.apache.reef.tang.OneNamedSingletonArgs missing argument org.apache.reef.tang.OneNamedSingletonArgs$A");
+    thrown.expectMessage("Cannot inject org.apache.reef.tang.OneNamedSingletonArgs: " +
+        "org.apache.reef.tang.OneNamedSingletonArgs missing argument org.apache.reef.tang.OneNamedSingletonArgs$A");
     tang.newInjector().getInstance(OneNamedSingletonArgs.class);
   }
 
@@ -189,7 +192,8 @@ public class TestTang {
   public void testOneNamedStringArgCantRebind() throws BindException,
       InjectionException {
     thrown.expect(BindException.class);
-    thrown.expectMessage("Attempt to re-bind named parameter org.apache.reef.tang.OneNamedStringArg$A.  Old value was [not default] new value is [volatile]");
+    thrown.expectMessage("Attempt to re-bind named parameter org.apache.reef.tang.OneNamedStringArg$A. " +
+        " Old value was [not default] new value is [volatile]");
     JavaConfigurationBuilder cb = tang.newConfigurationBuilder();
     OneNamedStringArg a = tang.newInjector(cb.build()).getInstance(
         OneNamedStringArg.class);
@@ -265,7 +269,8 @@ public class TestTang {
   public void testTwoNamedStringArgsReBindVolatileFail() throws BindException,
       InjectionException {
     thrown.expect(BindException.class);
-    thrown.expectMessage("Attempt to re-bind named parameter org.apache.reef.tang.TwoNamedStringArgs$A.  Old value was [not defaultA] new value is [not defaultA]");
+    thrown.expectMessage("Attempt to re-bind named parameter org.apache.reef.tang.TwoNamedStringArgs$A. " +
+        " Old value was [not defaultA] new value is [not defaultA]");
     JavaConfigurationBuilder cb = tang.newConfigurationBuilder();
     TwoNamedStringArgs a = tang.newInjector(cb.build()).getInstance(
         TwoNamedStringArgs.class);
@@ -344,7 +349,8 @@ public class TestTang {
   @Test
   public void testWrongNamedImpl() throws BindException {
     thrown.expect(BindException.class);
-    thrown.expectMessage("Name<org.apache.reef.tang.NamedImpl$A> org.apache.reef.tang.NamedImpl$AImplName cannot take non-subclass org.apache.reef.tang.NamedImpl$Cimpl");
+    thrown.expectMessage("Name<org.apache.reef.tang.NamedImpl$A> " +
+        "org.apache.reef.tang.NamedImpl$AImplName cannot take non-subclass org.apache.reef.tang.NamedImpl$Cimpl");
     JavaConfigurationBuilder cb = tang.newConfigurationBuilder();
     cb.bindNamedParameter((Class) NamedImpl.AImplName.class, (Class) NamedImpl.Cimpl.class);
   }
@@ -360,7 +366,8 @@ public class TestTang {
   @Test
   public void testMissedUnit() throws BindException, InjectionException {
     thrown.expect(InjectionException.class);
-    thrown.expectMessage("Cannot inject org.apache.reef.tang.MissOuterUnit$InA: No known implementations / injectable constructors for org.apache.reef.tang.MissOuterUnit$InA");
+    thrown.expectMessage("Cannot inject org.apache.reef.tang.MissOuterUnit$InA: " +
+        "No known implementations / injectable constructors for org.apache.reef.tang.MissOuterUnit$InA");
     Injector inj = tang.newInjector();
     MissOuterUnit.InA a = inj.getInstance(MissOuterUnit.InA.class);
   }
@@ -368,7 +375,8 @@ public class TestTang {
   @Test
   public void testMissedUnitButWithInjectInnerClass() throws BindException, InjectionException {
     thrown.expect(ClassHierarchyException.class);
-    thrown.expectMessage("Cannot @Inject non-static member class unless the enclosing class an @Unit.  Nested class is:org.apache.reef.tang.MissOuterUnit$InB");
+    thrown.expectMessage("Cannot @Inject non-static member class unless the enclosing class an @Unit. " +
+        " Nested class is:org.apache.reef.tang.MissOuterUnit$InB");
     Injector inj = tang.newInjector();
     MissOuterUnit.InB b = inj.getInstance(MissOuterUnit.InB.class);
   }
@@ -405,8 +413,8 @@ public class TestTang {
   @Test
   public void testThreeConstructorsAmbiguous() throws BindException, InjectionException {
     thrown.expect(InjectionException.class);
-    thrown.expectMessage("Cannot inject org.apache.reef.tang.ThreeConstructors Ambigous subplan org.apache.reef.tang.ThreeConstructors");
-//    thrown.expectMessage("Cannot inject org.apache.reef.tang.ThreeConstructors Multiple ways to inject org.apache.reef.tang.ThreeConstructors");
+    thrown.expectMessage("Cannot inject org.apache.reef.tang.ThreeConstructors " +
+        "Ambiguous subplan org.apache.reef.tang.ThreeConstructors");
 
     final JavaConfigurationBuilder cb = tang.newConfigurationBuilder();
     cb.bindNamedParameter(TCString.class, "s");
@@ -420,7 +428,8 @@ public class TestTang {
   @Test
   public void testTwoConstructorsAmbiguous() throws BindException, InjectionException {
     thrown.expect(InjectionException.class);
-    thrown.expectMessage("Cannot inject org.apache.reef.tang.TwoConstructors: Multiple infeasible plans: org.apache.reef.tang.TwoConstructors:");
+    thrown.expectMessage("Cannot inject org.apache.reef.tang.TwoConstructors: " +
+        "Multiple infeasible plans: org.apache.reef.tang.TwoConstructors:");
     final JavaConfigurationBuilder cb = tang.newConfigurationBuilder();
     cb.bindNamedParameter(TCString.class, "s");
     cb.bindNamedParameter(TCInt.class, "1");
@@ -439,7 +448,8 @@ public class TestTang {
   @Test
   public void testCantGetInstanceOfNamedParameter() throws BindException, InjectionException {
     thrown.expect(InjectionException.class);
-    thrown.expectMessage("getInstance() called on Name org.apache.reef.tang.IfaceWithDefaultName Did you mean to call getNamedInstance() instead?");
+    thrown.expectMessage("getInstance() called on Name org.apache.reef.tang.IfaceWithDefaultName " +
+        "Did you mean to call getNamedInstance() instead?");
     ConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
     Injector i = Tang.Factory.getTang().newInjector(cb.build());
     @SuppressWarnings("unused")
@@ -523,7 +533,8 @@ public class TestTang {
   @Test
   public void testGenericEventHandlerDefaultsBadTreeIndirection() throws BindException, InjectionException {
     thrown.expect(ClassHierarchyException.class);
-    thrown.expectMessage("class org.apache.reef.tang.XNameDAA defines a default class org.apache.reef.tang.XCC with a raw type that does not extend of its target's raw type class org.apache.reef.tang.XBB");
+    thrown.expectMessage("class org.apache.reef.tang.XNameDAA defines a default class org.apache.reef.tang.XCC " +
+        "with a raw type that does not extend of its target's raw type class org.apache.reef.tang.XBB");
 
     JavaConfigurationBuilder cba = Tang.Factory.getTang().newConfigurationBuilder();
     Tang.Factory.getTang().newInjector(cba.build()).getNamedInstance(XNameDAA.class);
@@ -538,7 +549,9 @@ public class TestTang {
   @Test
   public void testGenericUnrelatedGenericTypeParameters() throws BindException, InjectionException {
     thrown.expect(ClassHierarchyException.class);
-    thrown.expectMessage("class org.apache.reef.tang.WaterBottleName defines a default class org.apache.reef.tang.GasCan with a type that does not extend its target's type org.apache.reef.tang.Bottle<org.apache.reef.tang.Water");
+    thrown.expectMessage("class org.apache.reef.tang.WaterBottleName defines a default class " +
+        "org.apache.reef.tang.GasCan with a type that does not extend its target's type " +
+        "org.apache.reef.tang.Bottle<org.apache.reef.tang.Water");
 
     JavaConfigurationBuilder cba = Tang.Factory.getTang().newConfigurationBuilder();
     Tang.Factory.getTang().newInjector(cba.build()).getNamedInstance(WaterBottleName.class);
@@ -559,7 +572,8 @@ public class TestTang {
   @Test
   public void testGenericInterfaceUnboundTypeParametersIface() throws BindException, InjectionException {
     thrown.expect(ClassHierarchyException.class);
-    thrown.expectMessage("interface org.apache.reef.tang.MyEventHandlerIface declares its default implementation to be non-subclass class org.apache.reef.tang.MyEventHandler");
+    thrown.expectMessage("interface org.apache.reef.tang.MyEventHandlerIface declares its default implementation " +
+        "to be non-subclass class org.apache.reef.tang.MyEventHandler");
 
     JavaConfigurationBuilder cba = Tang.Factory.getTang().newConfigurationBuilder();
     Tang.Factory.getTang().newInjector(cba.build()).isInjectable(MyEventHandlerIface.class);
@@ -613,7 +627,8 @@ public class TestTang {
   @Test
   public void testUnitMixedCantInject() throws BindException, InjectionException {
     thrown.expect(InjectionException.class);
-    thrown.expectMessage("Cannot inject org.apache.reef.tang.OuterUnitWithStatic$InnerStaticClass: No known implementations / injectable constructors for org.apache.reef.tang.OuterUnitWithStatic$InnerStaticClass");
+    thrown.expectMessage("Cannot inject org.apache.reef.tang.OuterUnitWithStatic$InnerStaticClass: No known " +
+        "implementations / injectable constructors for org.apache.reef.tang.OuterUnitWithStatic$InnerStaticClass");
 
     //testing that you should be able to have @Unit and also static inner classes not included
     JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
@@ -678,7 +693,8 @@ public class TestTang {
   /**
    * This is to test multiple inheritance case.
    * When CheckChildImplImpl is bound to an interface, the CheckChildImplImpl instance will be created in injection
-   * When CheckChildImpl is then bound to the same interface, even class hierarchy already knows it has an subclass CheckChildImplImpl,
+   * When CheckChildImpl is then bound to the same interface, even class hierarchy already knows
+   * it has an subclass CheckChildImplImpl,
    * Tang will only look at the constructors in CheckChildImpl
    *
    * @throws BindException
@@ -713,6 +729,7 @@ class Pass {
   }
 }
 
+@SuppressWarnings("checkstyle:hideutilityclassconstructor")
 class IsFuture {
   static boolean instantiated;
 
@@ -789,6 +806,7 @@ class Impl implements Interf {
   }
 }
 
+@SuppressWarnings("checkstyle:hideutilityclassconstructor")
 class MustBeSingleton {
   static boolean alreadyInstantiated;
 
@@ -946,10 +964,10 @@ class LegacyConstructor {
 }
 
 class NamedImpl {
-  static interface A {
+  interface A {
   }
 
-  static interface C {
+  interface C {
 
   }
 
@@ -1280,7 +1298,8 @@ class WantSomeFutureHandlers {
 
 class WantSomeFutureHandlersUnit {
   @Inject
-  WantSomeFutureHandlersUnit(InjectionFuture<DefaultHandlerUnit.AHandler> a, InjectionFuture<DefaultHandlerUnit.BHandler> b) {
+  WantSomeFutureHandlersUnit(InjectionFuture<DefaultHandlerUnit.AHandler> a,
+                             InjectionFuture<DefaultHandlerUnit.BHandler> b) {
   }
 }
 

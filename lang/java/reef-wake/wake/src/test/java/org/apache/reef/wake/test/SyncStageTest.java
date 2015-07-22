@@ -32,13 +32,13 @@ import java.util.*;
 
 public class SyncStageTest {
 
-  final String logPrefix = "TEST ";
+  private static final String LOG_PREFIX = "TEST ";
   @Rule
   public TestName name = new TestName();
 
   @Test
   public void testSyncStage() throws Exception {
-    System.out.println(logPrefix + name.getMethodName());
+    System.out.println(LOG_PREFIX + name.getMethodName());
 
     Set<TestEvent> procSet = Collections.synchronizedSet(new HashSet<TestEvent>());
     Set<TestEvent> orgSet = Collections.synchronizedSet(new HashSet<TestEvent>());

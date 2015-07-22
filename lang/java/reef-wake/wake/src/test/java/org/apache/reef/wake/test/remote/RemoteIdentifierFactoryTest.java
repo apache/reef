@@ -40,18 +40,18 @@ public class RemoteIdentifierFactoryTest {
   @Rule
   public final TestName name = new TestName();
 
-  final String logPrefix = "TEST ";
+  private static final String LOG_PREFIX = "TEST ";
 
   @Test
   public void testRemoteIdentifierFactory() {
-    System.out.println(logPrefix + name.getMethodName());
+    System.out.println(LOG_PREFIX + name.getMethodName());
 
     Map<String, Class<? extends Identifier>> typeToIdMap = new HashMap<String, Class<? extends Identifier>>();
     typeToIdMap.put("test", TestRemoteIdentifier.class);
     IdentifierFactory factory = new DefaultIdentifierFactory(typeToIdMap);
 
-    String name = "test://name";
-    Identifier id = factory.getNewInstance(name);
+    String idName = "test://name";
+    Identifier id = factory.getNewInstance(idName);
     System.out.println(id.toString());
 
     Assert.assertTrue(id instanceof TestRemoteIdentifier);

@@ -21,7 +21,7 @@ package org.apache.reef.tang.test;
 import javax.inject.Inject;
 
 /**
- * Part of a cyclic dependency
+ * Part of a cyclic dependency.
  */
 final class CyclicDependency {
   private final CyclicDependencyClassOne one;
@@ -36,13 +36,21 @@ final class CyclicDependency {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     CyclicDependency that = (CyclicDependency) o;
 
-    if (!one.equals(that.one)) return false;
-    if (!two.equals(that.two)) return false;
+    if (!one.equals(that.one)) {
+      return false;
+    }
+    if (!two.equals(that.two)) {
+      return false;
+    }
 
     return true;
   }

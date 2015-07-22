@@ -29,13 +29,13 @@ import java.util.Random;
 
 public class MetricsTest {
 
-  final String logPrefix = "TEST ";
+  private static final String LOG_PREFIX = "TEST ";
   @Rule
   public TestName name = new TestName();
 
   @Test
   public void testHistogram() throws Exception {
-    System.out.println(logPrefix + name.getMethodName());
+    System.out.println(LOG_PREFIX + name.getMethodName());
 
     Histogram histogram = new UniformHistogram(10, 100);
     Random rand = new Random(1);

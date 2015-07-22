@@ -33,13 +33,13 @@ import java.util.*;
 
 public class ForkPoolStageTest {
 
-  final String logPrefix = "TEST ";
+  private static final String LOG_PREFIX = "TEST ";
   @Rule
   public TestName name = new TestName();
 
   @Test
   public void testPoolStage() throws Exception {
-    System.out.println(logPrefix + name.getMethodName());
+    System.out.println(LOG_PREFIX + name.getMethodName());
 
     Set<TestEvent> procSet = Collections.synchronizedSet(new HashSet<TestEvent>());
     Set<TestEvent> orgSet = Collections.synchronizedSet(new HashSet<TestEvent>());
@@ -58,6 +58,7 @@ public class ForkPoolStageTest {
     }
 
     while (procSet.size() < 10) {
+      //
     }
 
     p.close();
@@ -68,7 +69,7 @@ public class ForkPoolStageTest {
 
   @Test
   public void testSharedPoolStage() throws Exception {
-    System.out.println(logPrefix + name.getMethodName());
+    System.out.println(LOG_PREFIX + name.getMethodName());
 
     Set<TestEvent> procSet = Collections.synchronizedSet(new HashSet<TestEvent>());
     Set<TestEvent> orgSet = Collections.synchronizedSet(new HashSet<TestEvent>());
@@ -94,6 +95,7 @@ public class ForkPoolStageTest {
     }
 
     while (procSet.size() < 20) {
+      //
     }
 
     p.close();
@@ -105,7 +107,7 @@ public class ForkPoolStageTest {
 
   @Test
   public void testMultiSharedPoolStage() throws Exception {
-    System.out.println(logPrefix + name.getMethodName());
+    System.out.println(LOG_PREFIX + name.getMethodName());
 
     Set<TestEvent> procSet = Collections.synchronizedSet(new HashSet<TestEvent>());
     Set<TestEvent> orgSet = Collections.synchronizedSet(new HashSet<TestEvent>());
@@ -130,6 +132,7 @@ public class ForkPoolStageTest {
     }
 
     while (procSet.size() < 20) {
+      //
     }
 
     p.close();
@@ -140,7 +143,7 @@ public class ForkPoolStageTest {
 
   @Test
   public void testMeter() throws Exception {
-    System.out.println(logPrefix + name.getMethodName());
+    System.out.println(LOG_PREFIX + name.getMethodName());
     WakeSharedPool p = new WakeSharedPool(10);
     EventHandler<TestEvent> eventHandler = new TestEventHandler();
     ForkPoolStage<TestEvent> stage = new ForkPoolStage<TestEvent>(eventHandler, p);
@@ -157,7 +160,7 @@ public class ForkPoolStageTest {
 
   @Test
   public void testMeterTwoStages() throws Exception {
-    System.out.println(logPrefix + name.getMethodName());
+    System.out.println(LOG_PREFIX + name.getMethodName());
     WakeSharedPool p = new WakeSharedPool(10);
     EventHandler<TestEvent> eventHandler = new TestEventHandler();
     ForkPoolStage<TestEvent> stage2 = new ForkPoolStage<TestEvent>(eventHandler, p);

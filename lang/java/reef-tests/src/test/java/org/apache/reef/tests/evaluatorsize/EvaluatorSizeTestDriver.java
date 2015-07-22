@@ -44,7 +44,7 @@ final class EvaluatorSizeTestDriver {
 
   @Inject
   public EvaluatorSizeTestDriver(final EvaluatorRequestor evaluatorRequestor,
-                                 final @Parameter(EvaluatorSizeTestConfiguration.MemorySize.class) int memorySize) {
+                                 @Parameter(EvaluatorSizeTestConfiguration.MemorySize.class) final int memorySize) {
     this.evaluatorRequestor = evaluatorRequestor;
     this.memorySize = memorySize;
   }

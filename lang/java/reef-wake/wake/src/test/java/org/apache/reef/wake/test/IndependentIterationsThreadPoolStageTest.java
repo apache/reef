@@ -36,12 +36,13 @@ public class IndependentIterationsThreadPoolStageTest {
   public void testOneIteration() {
     final AtomicInteger x = new AtomicInteger(0);
     final int val = 101;
-    IndependentIterationsThreadPoolStage<Integer> dut = new IndependentIterationsThreadPoolStage<>(new EventHandler<Integer>() {
-      @Override
-      public void onNext(Integer value) {
-        x.addAndGet(value);
-      }
-    }, 1, 1);
+    IndependentIterationsThreadPoolStage<Integer> dut = new IndependentIterationsThreadPoolStage<>(
+        new EventHandler<Integer>() {
+          @Override
+          public void onNext(Integer value) {
+            x.addAndGet(value);
+          }
+        }, 1, 1);
     List<Integer> ll = new ArrayList<>();
     ll.add(val);
     dut.onNext(ll);
@@ -62,13 +63,14 @@ public class IndependentIterationsThreadPoolStageTest {
       ll.add(i);
     }
 
-    IndependentIterationsThreadPoolStage<Integer> dut = new IndependentIterationsThreadPoolStage<>(new EventHandler<Integer>() {
-      @Override
-      public void onNext(Integer value) {
-        Logger.getAnonymousLogger().info("Yow" + value);
-        x.addAndGet(value);
-      }
-    }, num, 1);
+    IndependentIterationsThreadPoolStage<Integer> dut = new IndependentIterationsThreadPoolStage<>(
+        new EventHandler<Integer>() {
+          @Override
+          public void onNext(Integer value) {
+            Logger.getAnonymousLogger().info("Yow" + value);
+            x.addAndGet(value);
+          }
+        }, num, 1);
 
     dut.onNext(ll);
 

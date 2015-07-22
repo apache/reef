@@ -21,7 +21,7 @@ package org.apache.reef.util.cache;
 import java.util.concurrent.Callable;
 
 /**
- * A mock computation that immediately returns an integer
+ * A mock computation that immediately returns an integer.
  */
 class ImmediateInteger implements Callable<Integer> {
   private final int returnValue;

@@ -30,7 +30,7 @@ public final class CatalogTest {
    * that they exist.
    */
   @Test
-  public final void TestResourceCatalog() {
+  public void testResourceCatalog() {
     final int nodes = 10;
     final ResourceCatalogImpl catalog = new ResourceCatalogImpl();
 

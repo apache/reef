@@ -35,7 +35,7 @@ import org.apache.reef.wake.time.event.StopTime;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+import org.apache.commons.lang.NotImplementedException;
 
 import javax.inject.Inject;
 import java.text.Format;
@@ -44,11 +44,11 @@ import java.util.Date;
 import java.util.Map;
 
 /**
- * Test Http Configuration and runtime handlers
+ * Test Http Configuration and runtime handlers.
  */
 public class TestHttpConfiguration {
 
-  private final static Format DATE_TIME_FORMAT = new SimpleDateFormat("yyyy MM dd HH:mm:ss");
+  private static final Format DATE_TIME_FORMAT = new SimpleDateFormat("yyyy MM dd HH:mm:ss");
 
   private Injector injector;
 
@@ -60,7 +60,8 @@ public class TestHttpConfiguration {
         .build();
 
     final Configuration driverConfigurationForHttpServer = DriverServiceConfiguration.CONF
-        .set(DriverServiceConfiguration.ON_EVALUATOR_ALLOCATED, ReefEventStateManager.AllocatedEvaluatorStateHandler.class)
+        .set(DriverServiceConfiguration.ON_EVALUATOR_ALLOCATED,
+            ReefEventStateManager.AllocatedEvaluatorStateHandler.class)
         .set(DriverServiceConfiguration.ON_CONTEXT_ACTIVE, ReefEventStateManager.ActiveContextStateHandler.class)
         .set(DriverServiceConfiguration.ON_TASK_RUNNING, ReefEventStateManager.TaskRunningStateHandler.class)
         .set(DriverServiceConfiguration.ON_DRIVER_STARTED, ReefEventStateManager.StartStateHandler.class)
@@ -173,7 +174,8 @@ final class MockActiveContext implements ActiveContext {
   }
 
   @Override
-  public void submitContextAndService(final Configuration contextConfiguration, final Configuration serviceConfiguration) {
+  public void submitContextAndService(final Configuration contextConfiguration,
+                                      final Configuration serviceConfiguration) {
     throw new NotImplementedException();
   }
 

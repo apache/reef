@@ -30,12 +30,18 @@ final class InjectableClass {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     InjectableClass that = (InjectableClass) o;
 
-    if (magicNumber != that.magicNumber) return false;
+    if (magicNumber != that.magicNumber) {
+      return false;
+    }
 
     return true;
   }

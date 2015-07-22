@@ -33,13 +33,13 @@ import java.util.*;
 
 public class ThreadPoolStageTest {
 
-  final String logPrefix = "TEST ";
+  private static final String LOG_PREFIX = "TEST ";
   @Rule
   public TestName name = new TestName();
 
   @Test
   public void testSingleThreadStage() throws Exception {
-    System.out.println(logPrefix + name.getMethodName());
+    System.out.println(LOG_PREFIX + name.getMethodName());
 
     Set<TestEvent> procSet = Collections.synchronizedSet(new HashSet<TestEvent>());
     Set<TestEvent> orgSet = Collections.synchronizedSet(new HashSet<TestEvent>());
@@ -55,6 +55,7 @@ public class ThreadPoolStageTest {
     }
 
     while (procSet.size() < 10) {
+      //
     }
 
     stage.close();
@@ -64,7 +65,7 @@ public class ThreadPoolStageTest {
 
   @Test(expected = IllegalStateException.class)
   public void testSingleThreadStageQueueFull() {
-    System.out.println(logPrefix + name.getMethodName());
+    System.out.println(LOG_PREFIX + name.getMethodName());
 
     Set<TestEvent> procSet = Collections.synchronizedSet(new HashSet<TestEvent>());
     final EventHandler<TestEventA> eventHandler = new TestEventHandlerA(procSet);
@@ -80,7 +81,7 @@ public class ThreadPoolStageTest {
 
   @Test
   public void testThreadPoolStage() throws Exception {
-    System.out.println(logPrefix + name.getMethodName());
+    System.out.println(LOG_PREFIX + name.getMethodName());
 
     Set<TestEvent> procSet = Collections.synchronizedSet(new HashSet<TestEvent>());
     Set<TestEvent> orgSet = Collections.synchronizedSet(new HashSet<TestEvent>());
@@ -97,6 +98,7 @@ public class ThreadPoolStageTest {
     }
 
     while (procSet.size() < 10) {
+      //
     }
 
     stage.close();
@@ -106,7 +108,7 @@ public class ThreadPoolStageTest {
 
   @Test
   public void testMultiThreadPoolStage() throws Exception {
-    System.out.println(logPrefix + name.getMethodName());
+    System.out.println(LOG_PREFIX + name.getMethodName());
 
     Set<TestEvent> procSet = Collections.synchronizedSet(new HashSet<TestEvent>());
     Set<TestEvent> orgSet = Collections.synchronizedSet(new HashSet<TestEvent>());
@@ -130,6 +132,7 @@ public class ThreadPoolStageTest {
     }
 
     while (procSet.size() < 20) {
+      //
     }
 
     stage.close();
@@ -139,7 +142,7 @@ public class ThreadPoolStageTest {
 
   @Test
   public void testMeter() throws Exception {
-    System.out.println(logPrefix + name.getMethodName());
+    System.out.println(LOG_PREFIX + name.getMethodName());
     EventHandler<TestEvent> eventHandler = new TestEventHandler();
     ThreadPoolStage<TestEvent> stage = new ThreadPoolStage<TestEvent>(eventHandler, 10);
 
@@ -155,7 +158,7 @@ public class ThreadPoolStageTest {
 
   @Test
   public void testMeterTwoStages() throws Exception {
-    System.out.println(logPrefix + name.getMethodName());
+    System.out.println(LOG_PREFIX + name.getMethodName());
     EventHandler<TestEvent> eventHandler = new TestEventHandler();
     ThreadPoolStage<TestEvent> stage2 = new ThreadPoolStage<TestEvent>(eventHandler, 5);
     ThreadPoolStage<TestEvent> stage1 = new ThreadPoolStage<TestEvent>(stage2, 5);

@@ -31,12 +31,12 @@ public final class YarnTestEnvironment extends TestEnvironmentBase implements Te
   private boolean ready = false;
 
   @Override
-  public synchronized final void setUp() {
+  public synchronized void setUp() {
     this.ready = true;
   }
 
   @Override
-  public synchronized final Configuration getRuntimeConfiguration() {
+  public synchronized Configuration getRuntimeConfiguration() {
     assert (this.ready);
     try {
       return YarnClientConfiguration.CONF.build();
@@ -46,7 +46,7 @@ public final class YarnTestEnvironment extends TestEnvironmentBase implements Te
   }
 
   @Override
-  public synchronized final void tearDown() {
+  public synchronized void tearDown() {
     assert (this.ready);
     this.ready = false;
   }

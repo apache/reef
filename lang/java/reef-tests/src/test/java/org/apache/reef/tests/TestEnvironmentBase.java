@@ -24,7 +24,7 @@ import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.exceptions.InjectionException;
 
 /**
- * Abstract base class for TestEnvironments
+ * Abstract base class for TestEnvironments.
  */
 public abstract class TestEnvironmentBase implements TestEnvironment {
 

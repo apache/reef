@@ -45,19 +45,19 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Naming server and client test
+ * Naming server and client test.
  */
 public class NamingTest {
 
   private static final Logger LOG = Logger.getLogger(NamingTest.class.getName());
-  private static final int retryCount;
-  private static final int retryTimeout;
+  private static final int RETRY_COUNT;
+  private static final int RETRY_TIMEOUT;
 
   static {
     try {
       final Injector injector = Tang.Factory.getTang().newInjector();
-      retryCount = injector.getNamedInstance(NameResolverRetryCount.class);
-      retryTimeout = injector.getNamedInstance(NameResolverRetryTimeout.class);
+      RETRY_COUNT = injector.getNamedInstance(NameResolverRetryCount.class);
+      RETRY_TIMEOUT = injector.getNamedInstance(NameResolverRetryTimeout.class);
     } catch (final InjectionException ex) {
       final String msg = "Exception while trying to find default values for retryCount & Timeout";
       LOG.log(Level.SEVERE, msg, ex);
@@ -68,7 +68,7 @@ public class NamingTest {
   private final LocalAddressProvider localAddressProvider;
   @Rule
   public final TestName name = new TestName();
-  final long TTL = 30000;
+  static final long TTL = 30000;
   final IdentifierFactory factory = new StringIdentifierFactory();
   int port;
 
@@ -77,7 +77,7 @@ public class NamingTest {
   }
 
   /**
-   * NameServer and NameLookupClient test
+   * NameServer and NameLookupClient test.
    *
    * @throws Exception
    */
@@ -104,7 +104,7 @@ public class NamingTest {
 
       // run a client
       try (final NameLookupClient client = new NameLookupClient(localAddress, this.port,
-          10000, this.factory, retryCount, retryTimeout, new NameCache(this.TTL), this.localAddressProvider)) {
+          10000, this.factory, RETRY_COUNT, RETRY_TIMEOUT, new NameCache(this.TTL), this.localAddressProvider)) {
 
         final Identifier id1 = this.factory.getNewInstance("task1");
         final Identifier id2 = this.factory.getNewInstance("task2");
@@ -125,7 +125,7 @@ public class NamingTest {
   }
 
   /**
-   * Test concurrent lookups (threads share a client)
+   * Test concurrent lookups (threads share a client).
    *
    * @throws Exception
    */
@@ -158,7 +158,7 @@ public class NamingTest {
 
         // run a client
         try (final NameLookupClient client = new NameLookupClient(localAddress, this.port,
-            10000, this.factory, retryCount, retryTimeout, new NameCache(this.TTL), this.localAddressProvider)) {
+            10000, this.factory, RETRY_COUNT, RETRY_TIMEOUT, new NameCache(this.TTL), this.localAddressProvider)) {
 
           final Identifier id1 = this.factory.getNewInstance("task1");
           final Identifier id2 = this.factory.getNewInstance("task2");
@@ -166,7 +166,8 @@ public class NamingTest {
 
           final ExecutorService e = Executors.newCachedThreadPool();
 
-          final ConcurrentMap<Identifier, InetSocketAddress> respMap = new ConcurrentHashMap<Identifier, InetSocketAddress>();
+          final ConcurrentMap<Identifier, InetSocketAddress> respMap = 
+              new ConcurrentHashMap<Identifier, InetSocketAddress>();
 
           final Future<?> f1 = e.submit(new Runnable() {
             @Override
@@ -223,7 +224,7 @@ public class NamingTest {
   }
 
   /**
-   * NameServer and NameRegistryClient test
+   * NameServer and NameRegistryClient test.
    *
    * @throws Exception
    */
@@ -246,8 +247,8 @@ public class NamingTest {
 
       // registration
       // invoke registration from the client side
-      try (final NameRegistryClient client = new NameRegistryClient(localAddress,
-          this.port, this.factory, this.localAddressProvider)) {
+      try (final NameRegistryClient client = 
+          new NameRegistryClient(localAddress, this.port, this.factory, this.localAddressProvider)) {
         for (final Identifier id : idToAddrMap.keySet()) {
           client.register(id, idToAddrMap.get(id));
         }
@@ -278,8 +279,9 @@ public class NamingTest {
 
         serverMap = new HashMap<Identifier, InetSocketAddress>();
         nas = server.lookup(ids);
-        for (final NameAssignment na : nas)
+        for (final NameAssignment na : nas) {
           serverMap.put(na.getIdentifier(), na.getAddress());
+        }
 
         Assert.assertEquals(0, serverMap.size());
       }
@@ -287,7 +289,7 @@ public class NamingTest {
   }
 
   /**
-   * NameServer and NameClient test
+   * NameServer and NameClient test.
    *
    * @throws Exception
    */
@@ -313,8 +315,8 @@ public class NamingTest {
           .set(NameResolverConfiguration.NAME_SERVER_HOSTNAME, localAddress)
           .set(NameResolverConfiguration.NAME_SERVICE_PORT, this.port)
           .set(NameResolverConfiguration.CACHE_TIMEOUT, this.TTL)
-          .set(NameResolverConfiguration.RETRY_TIMEOUT, retryTimeout)
-          .set(NameResolverConfiguration.RETRY_COUNT, retryCount)
+          .set(NameResolverConfiguration.RETRY_TIMEOUT, RETRY_TIMEOUT)
+          .set(NameResolverConfiguration.RETRY_COUNT, RETRY_COUNT)
           .build();
 
       try (final NameResolver client
@@ -353,9 +355,13 @@ public class NamingTest {
 
         final Map<Identifier, InetSocketAddress> serverMap = new HashMap<Identifier, InetSocketAddress>();
         addr1 = server.lookup(id1);
-        if (addr1 != null) serverMap.put(id1, addr1);
+        if (addr1 != null) {
+          serverMap.put(id1, addr1);
+        }
         addr2 = server.lookup(id1);
-        if (addr2 != null) serverMap.put(id2, addr2);
+        if (addr2 != null) {
+          serverMap.put(id2, addr2);
+        }
 
         Assert.assertEquals(0, serverMap.size());
       }
@@ -382,9 +388,9 @@ public class NamingTest {
 
   private void busyWait(final NameServer server, final int expected, final Set<Identifier> ids) {
     int count = 0;
-    for (; ; ) {
+    for (;;) {
       final Iterable<NameAssignment> nas = server.lookup(ids);
-      for (final @SuppressWarnings("unused") NameAssignment na : nas) {
+      for (@SuppressWarnings("unused") final NameAssignment na : nas) {
         ++count;
       }
       if (count == expected) {

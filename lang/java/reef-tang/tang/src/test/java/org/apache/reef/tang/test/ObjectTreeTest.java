@@ -53,8 +53,10 @@ public class ObjectTreeTest {
 
   @Test
   public void testTwoInstantiations() throws BindException, InjectionException {
-    final RootInterface firstRoot = Tang.Factory.getTang().newInjector(getConfiguration()).getInstance(RootInterface.class);
-    final RootInterface secondRoot = Tang.Factory.getTang().newInjector(getConfiguration()).getInstance(RootInterface.class);
+    final RootInterface firstRoot =
+        Tang.Factory.getTang().newInjector(getConfiguration()).getInstance(RootInterface.class);
+    final RootInterface secondRoot =
+        Tang.Factory.getTang().newInjector(getConfiguration()).getInstance(RootInterface.class);
     Assert.assertNotSame("Two instantiations of the object tree should not be the same", firstRoot, secondRoot);
     Assert.assertEquals("Two instantiations of the object tree should be equal", firstRoot, secondRoot);
   }

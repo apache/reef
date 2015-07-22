@@ -27,6 +27,6 @@ import org.junit.runners.Suite;
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
     TestHelloREEF.class
-})
+    })
 public final class ExamplesTestSuite {
 }

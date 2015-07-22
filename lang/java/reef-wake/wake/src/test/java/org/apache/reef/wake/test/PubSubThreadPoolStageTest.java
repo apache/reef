@@ -37,13 +37,13 @@ import java.util.Set;
 
 public class PubSubThreadPoolStageTest {
 
-  final String logPrefix = "TEST ";
+  private static final String LOG_PREFIX = "TEST ";
   @Rule
   public TestName name = new TestName();
 
   @Test
   public void testPubSubThreadPoolStage() throws Exception {
-    System.out.println(logPrefix + name.getMethodName());
+    System.out.println(LOG_PREFIX + name.getMethodName());
 
     Monitor monitor = new Monitor();
     TimerStage timer = new TimerStage(new TimeoutHandler(monitor), 5000, 5000);
@@ -107,8 +107,9 @@ public class PubSubThreadPoolStageTest {
     public void onNext(TestEvent e) {
       set.add(e);
       System.out.println(name + " " + e + " " + e.getMsg());
-      if (set.size() == expected)
+      if (set.size() == expected) {
         monitor.mnotify();
+      }
     }
   }
 

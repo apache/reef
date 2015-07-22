@@ -39,8 +39,9 @@ public class RxTest {
 
     int i = 0;
     try {
-      for (i = 0; i < 20; ++i)
+      for (i = 0; i < 20; ++i) {
         stage.onNext(new TestEvent(i));
+      }
       stage.onCompleted();
     } catch (Exception e) {
       stage.onError(e);
@@ -84,7 +85,5 @@ public class RxTest {
       System.out.println(name + " Completed");
     }
   }
-
-  ;
 
 }

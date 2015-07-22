@@ -39,12 +39,18 @@ final class SetInterfaceImplOne implements SetInterface {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     SetInterfaceImplOne that = (SetInterfaceImplOne) o;
 
-    if (magicNumber != that.magicNumber) return false;
+    if (magicNumber != that.magicNumber) {
+      return false;
+    }
 
     return true;
   }

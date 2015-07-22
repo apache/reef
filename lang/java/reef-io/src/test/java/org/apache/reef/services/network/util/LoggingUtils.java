@@ -23,7 +23,7 @@ import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class LoggingUtils {
+public final class LoggingUtils {
   public static void setLoggingLevel(Level level) {
     Handler[] handlers = Logger.getLogger("").getHandlers();
     ConsoleHandler ch = null;
@@ -39,5 +39,11 @@ public class LoggingUtils {
     }
     ch.setLevel(level);
     Logger.getLogger("").setLevel(level);
+  }
+
+  /**
+   * Empty private constructor to prohibit instantiation of utility class.
+   */
+  private LoggingUtils() {
   }
 }

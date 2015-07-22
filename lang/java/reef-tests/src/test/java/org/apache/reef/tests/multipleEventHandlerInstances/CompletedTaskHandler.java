@@ -38,8 +38,9 @@ public class CompletedTaskHandler implements EventHandler<CompletedTask> {
   @Inject
   public CompletedTaskHandler() {
     ++countInstances;
-    if (countInstances > 1)
+    if (countInstances > 1) {
       throw new DriverSideFailure("Expect CompletedTaskHandler to be created only once");
+    }
   }
 
   @Override

@@ -38,14 +38,15 @@ final class RackAwareEvaluatorTestDriver {
   }
 
   /**
-   * Verifies whether the rack received is the default rack
+   * Verifies whether the rack received is the default rack.
    */
   final class EvaluatorAllocatedHandler implements EventHandler<AllocatedEvaluator> {
 
     @Override
     public void onNext(final AllocatedEvaluator allocatedEvaluator) {
 
-      final String actual = allocatedEvaluator.getEvaluatorDescriptor().getNodeDescriptor().getRackDescriptor().getName();
+      final String actual =
+          allocatedEvaluator.getEvaluatorDescriptor().getNodeDescriptor().getRackDescriptor().getName();
       if (!expectedRackName.equals(actual)) {
         throw new DriverSideFailure("The rack received is different that the expected one, received " + actual
             + " expected " + expectedRackName);

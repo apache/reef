@@ -54,13 +54,13 @@ public class TransportTest {
     this.tpFactory = injector.getInstance(TransportFactory.class);
   }
 
-  final String logPrefix = "TEST ";
+  private static final String LOG_PREFIX = "TEST ";
   @Rule
   public TestName name = new TestName();
 
   @Test
   public void testTransportString() throws Exception {
-    System.out.println(logPrefix + name.getMethodName());
+    System.out.println(LOG_PREFIX + name.getMethodName());
     LoggingUtils.setLoggingLevel(Level.INFO);
 
     Monitor monitor = new Monitor();
@@ -68,7 +68,6 @@ public class TransportTest {
 
     final int expected = 2;
     final String hostAddress = this.localAddressProvider.getLocalAddress();
-    ;
     final int port = 9100;
 
     // Codec<String>
@@ -92,7 +91,7 @@ public class TransportTest {
 
   @Test
   public void testTransportTestEvent() throws Exception {
-    System.out.println(logPrefix + name.getMethodName());
+    System.out.println(LOG_PREFIX + name.getMethodName());
     LoggingUtils.setLoggingLevel(Level.INFO);
 
     Monitor monitor = new Monitor();
@@ -103,7 +102,8 @@ public class TransportTest {
     final int port = 9100;
 
     // Codec<TestEvent>
-    ReceiverStage<TestEvent> stage = new ReceiverStage<TestEvent>(new ObjectSerializableCodec<TestEvent>(), monitor, expected);
+    ReceiverStage<TestEvent> stage =
+        new ReceiverStage<TestEvent>(new ObjectSerializableCodec<TestEvent>(), monitor, expected);
     Transport transport = tpFactory.newInstance(hostAddress, port, stage, stage, 1, 10000);
 
     // sending side
@@ -143,8 +143,9 @@ public class TransportTest {
       codec.decode(value.getData());
       //System.out.println(value + " " + obj);      
 
-      if (count.incrementAndGet() == expected)
+      if (count.incrementAndGet() == expected) {
         monitor.mnotify();
+      }
     }
 
     @Override

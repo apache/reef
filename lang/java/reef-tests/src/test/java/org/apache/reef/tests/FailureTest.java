@@ -47,7 +47,8 @@ public class FailureTest {
   public void testFailureRestart() throws InjectionException {
     final Configuration runtimeConfiguration = this.testEnvironment.getRuntimeConfiguration();
 
-    final LauncherStatus status = FailureREEF.runFailureReef(runtimeConfiguration, this.testEnvironment.getTestTimeout());
+    final LauncherStatus status =
+        FailureREEF.runFailureReef(runtimeConfiguration, this.testEnvironment.getTestTimeout());
 
     Assert.assertTrue("FailureReef failed: " + status, status.isSuccess());
   }

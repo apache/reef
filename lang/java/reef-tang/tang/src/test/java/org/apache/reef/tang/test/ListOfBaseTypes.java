@@ -44,14 +44,24 @@ final class ListOfBaseTypes {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     ListOfBaseTypes that = (ListOfBaseTypes) o;
 
-    if (!doubles.equals(that.doubles)) return false;
-    if (!integers.equals(that.integers)) return false;
-    if (!strings.equals(that.strings)) return false;
+    if (!doubles.equals(that.doubles)) {
+      return false;
+    }
+    if (!integers.equals(that.integers)) {
+      return false;
+    }
+    if (!strings.equals(that.strings)) {
+      return false;
+    }
 
     return true;
   }

@@ -38,7 +38,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * Unit Test for Jetty Handler
+ * Unit Test for Jetty Handler.
  */
 public class TestJettyHandler {
 

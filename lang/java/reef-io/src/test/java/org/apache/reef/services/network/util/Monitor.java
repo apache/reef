@@ -25,8 +25,9 @@ public class Monitor {
 
   public void mwait() throws InterruptedException {
     synchronized (this) {
-      while (!finished.get())
+      while (!finished.get()) {
         this.wait();
+      }
     }
   }
 

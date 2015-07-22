@@ -25,6 +25,12 @@ import org.apache.reef.tang.annotations.NamedParameter;
  * This is a parameter only to be bound in the Driver config.
  */
 @NamedParameter
-public class DriverParameter implements Name<String> {
+public final class DriverParameter implements Name<String> {
   public static final String TEST_VALUE = "This is a parameter only to be bound in the Driver config.";
+
+  /**
+   * Empty private constructor to prohibit instantiation of utility class.
+   */
+  private DriverParameter() {
+  }
 }

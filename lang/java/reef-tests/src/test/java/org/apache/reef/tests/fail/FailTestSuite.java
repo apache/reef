@@ -27,6 +27,6 @@ import org.junit.runners.Suite;
     FailDriverTest.class,
     FailDriverDelayedMsgTest.class,
     DriverFailOnFailTest.class
-})
+    })
 public final class FailTestSuite {
 }

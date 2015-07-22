@@ -30,7 +30,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * The allocated evaluator handler
+ * The allocated evaluator handler.
  */
 public final class AllocatedEvaluatorHandler implements EventHandler<AllocatedEvaluator> {
 
@@ -41,8 +41,9 @@ public final class AllocatedEvaluatorHandler implements EventHandler<AllocatedEv
   @Inject
   public AllocatedEvaluatorHandler() {
     ++countInstances;
-    if (countInstances > 1)
+    if (countInstances > 1) {
       throw new DriverSideFailure("Expect AllocatedEvaluatorHandler to be created only once");
+    }
   }
 
   @Override

@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * Parameters used in ConfigurationProviderTest
+ * Parameters used in ConfigurationProviderTest.
  */
 package org.apache.reef.tests.configurationproviders.parameters;

@@ -23,7 +23,7 @@ import org.apache.reef.task.Task;
 import javax.inject.Inject;
 
 /**
- * Merely calls System.exit()
+ * Merely calls System.exit().
  */
 final class EvaluatorExitTestTask implements Task {
 

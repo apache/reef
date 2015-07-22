@@ -45,7 +45,7 @@ public final class TestCommandLine {
   }
 
   /**
-   * Tests for parseToConfiguration() with a named parameter that is set
+   * Tests for parseToConfiguration() with a named parameter that is set.
    *
    * @throws ParseException
    * @throws InjectionException
@@ -62,7 +62,7 @@ public final class TestCommandLine {
   }
 
   /**
-   * Tests for parseToConfiguration() with a named parameter that is not set
+   * Tests for parseToConfiguration() with a named parameter that is not set.
    *
    * @throws ParseException
    * @throws InjectionException

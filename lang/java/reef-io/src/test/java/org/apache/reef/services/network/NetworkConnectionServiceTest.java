@@ -101,7 +101,8 @@ public class NetworkConnectionServiceTest {
     runMessagingNetworkConnectionService(new StreamingStringCodec());
   }
 
-  public void runNetworkConnServiceWithMultipleConnFactories(Codec<String> stringCodec, Codec<Integer> integerCodec) throws Exception {
+  public void runNetworkConnServiceWithMultipleConnFactories(Codec<String> stringCodec, Codec<Integer> integerCodec)
+      throws Exception {
     final ExecutorService executor = Executors.newFixedThreadPool(5);
 
     final int groupcommMessages = 1000;
@@ -117,7 +118,8 @@ public class NetworkConnectionServiceTest {
       executor.submit(new Runnable() {
         @Override
         public void run() {
-          try (final Connection<String> conn = messagingTestService.getConnectionFromSenderToReceiver(groupCommClientId)) {
+          try (final Connection<String> conn =
+                   messagingTestService.getConnectionFromSenderToReceiver(groupCommClientId)) {
             conn.open();
             for (int count = 0; count < groupcommMessages; ++count) {
               // send messages to the receiver.
@@ -134,7 +136,8 @@ public class NetworkConnectionServiceTest {
       executor.submit(new Runnable() {
         @Override
         public void run() {
-          try (final Connection<Integer> conn = messagingTestService.getConnectionFromSenderToReceiver(shuffleClientId)) {
+          try (final Connection<Integer> conn =
+                   messagingTestService.getConnectionFromSenderToReceiver(shuffleClientId)) {
             conn.open();
             for (int count = 0; count < shuffleMessages; ++count) {
               // send messages to the receiver.
@@ -194,7 +197,8 @@ public class NetworkConnectionServiceTest {
         }
         final String message = msb.toString();
 
-        try (final Connection<String> conn = messagingTestService.getConnectionFromSenderToReceiver(groupCommClientId)) {
+        try (final Connection<String> conn =
+                 messagingTestService.getConnectionFromSenderToReceiver(groupCommClientId)) {
 
           long start = System.currentTimeMillis();
           try {
@@ -211,7 +215,8 @@ public class NetworkConnectionServiceTest {
           final long end = System.currentTimeMillis();
 
           final double runtime = ((double) end - start) / 1000;
-          LOG.log(Level.INFO, "size: " + size + "; messages/s: " + numMessages / runtime + " bandwidth(bytes/s): " + ((double) numMessages * 2 * size) / runtime);// x2 for unicode chars
+          LOG.log(Level.INFO, "size: " + size + "; messages/s: " + numMessages / runtime +
+              " bandwidth(bytes/s): " + ((double) numMessages * 2 * size) / runtime); // x2 for unicode chars
         }
       }
     }
@@ -241,7 +246,8 @@ public class NetworkConnectionServiceTest {
             final Codec<String> codec = new StringCodec();
 
             messagingTestService.registerTestConnectionFactory(groupCommClientId, numMessages, monitor, codec);
-            try (final Connection<String> conn = messagingTestService.getConnectionFromSenderToReceiver(groupCommClientId)) {
+            try (final Connection<String> conn =
+                     messagingTestService.getConnectionFromSenderToReceiver(groupCommClientId)) {
 
               // build the message
               final StringBuilder msb = new StringBuilder();
@@ -272,18 +278,21 @@ public class NetworkConnectionServiceTest {
     // start and time
     final long start = System.currentTimeMillis();
     final Object ignore = new Object();
-    for (int i = 0; i < numThreads; i++) barrier.add(ignore);
+    for (int i = 0; i < numThreads; i++) {
+      barrier.add(ignore);
+    }
     e.shutdown();
     e.awaitTermination(100, TimeUnit.SECONDS);
     final long end = System.currentTimeMillis();
     final double runtime = ((double) end - start) / 1000;
-    LOG.log(Level.INFO, "size: " + size + "; messages/s: " + totalNumMessages / runtime + " bandwidth(bytes/s): " + ((double) totalNumMessages * 2 * size) / runtime);// x2 for unicode chars
+    LOG.log(Level.INFO, "size: " + size + "; messages/s: " + totalNumMessages / runtime +
+        " bandwidth(bytes/s): " + ((double) totalNumMessages * 2 * size) / runtime); // x2 for unicode chars
   }
 
   @Test
   public void testMultithreadedSharedConnMessagingNetworkConnServiceRate() throws Exception {
     LOG.log(Level.FINEST, name.getMethodName());
-    final int[] messageSizes = {2000};// {1,16,32,64,512,64*1024,1024*1024};
+    final int[] messageSizes = {2000}; // {1,16,32,64,512,64*1024,1024*1024};
 
     for (int size : messageSizes) {
       final int numMessages = 300000 / (Math.max(1, size / 512));
@@ -302,7 +311,8 @@ public class NetworkConnectionServiceTest {
           msb.append("1");
         }
         final String message = msb.toString();
-        try (final Connection<String> conn = messagingTestService.getConnectionFromSenderToReceiver(groupCommClientId)) {
+        try (final Connection<String> conn =
+                 messagingTestService.getConnectionFromSenderToReceiver(groupCommClientId)) {
 
           final long start = System.currentTimeMillis();
           for (int i = 0; i < numThreads; i++) {
@@ -328,7 +338,8 @@ public class NetworkConnectionServiceTest {
           monitor.mwait();
           final long end = System.currentTimeMillis();
           final double runtime = ((double) end - start) / 1000;
-          LOG.log(Level.INFO, "size: " + size + "; messages/s: " + totalNumMessages / runtime + " bandwidth(bytes/s): " + ((double) totalNumMessages * 2 * size) / runtime);// x2 for unicode chars
+          LOG.log(Level.INFO, "size: " + size + "; messages/s: " + totalNumMessages / runtime + 
+              " bandwidth(bytes/s): " + ((double) totalNumMessages * 2 * size) / runtime); // x2 for unicode chars
         }
       }
     }
@@ -350,7 +361,8 @@ public class NetworkConnectionServiceTest {
       final Codec<String> codec = new StringCodec();
       try (final NetworkMessagingTestService messagingTestService = new NetworkMessagingTestService(localAddress)) {
         messagingTestService.registerTestConnectionFactory(groupCommClientId, numMessages, monitor, codec);
-        try (final Connection<String> conn = messagingTestService.getConnectionFromSenderToReceiver(groupCommClientId)) {
+        try (final Connection<String> conn =
+                 messagingTestService.getConnectionFromSenderToReceiver(groupCommClientId)) {
 
           // build the message
           final StringBuilder msb = new StringBuilder();
@@ -378,7 +390,8 @@ public class NetworkConnectionServiceTest {
           final long end = System.currentTimeMillis();
           final double runtime = ((double) end - start) / 1000;
           final long numAppMessages = numMessages * batchSize / size;
-          LOG.log(Level.INFO, "size: " + size + "; messages/s: " + numAppMessages / runtime + " bandwidth(bytes/s): " + ((double) numAppMessages * 2 * size) / runtime);// x2 for unicode chars
+          LOG.log(Level.INFO, "size: " + size + "; messages/s: " + numAppMessages / runtime +
+              " bandwidth(bytes/s): " + ((double) numAppMessages * 2 * size) / runtime); // x2 for unicode chars
         }
       }
     }

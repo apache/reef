@@ -26,7 +26,7 @@ import java.util.concurrent.ExecutionException;
 import static org.junit.Assert.assertEquals;
 
 /**
- * Test basic access of CacheImpl
+ * Test basic access of CacheImpl.
  */
 public final class CacheImplTest {
 
@@ -40,7 +40,7 @@ public final class CacheImplTest {
   }
 
   /**
-   * Test that an immediate get on the same key returns the cached value instead of triggering a new computation
+   * Test that an immediate get on the same key returns the cached value instead of triggering a new computation.
    */
   @Test
   public void testGet() throws ExecutionException, InterruptedException {
@@ -58,7 +58,7 @@ public final class CacheImplTest {
   }
 
   /**
-   * Test that an invalidate clears the cached value, so the next access triggers a new computation
+   * Test that an invalidate clears the cached value, so the next access triggers a new computation.
    */
   @Test
   public void testInvalidate() throws ExecutionException {

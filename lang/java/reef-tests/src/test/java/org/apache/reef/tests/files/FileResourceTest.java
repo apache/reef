@@ -79,7 +79,7 @@ public final class FileResourceTest {
   }
 
   /**
-   * Assembles the configuration based on TestDriverConfiguration
+   * Assembles the configuration based on TestDriverConfiguration.
    *
    * @param theFiles
    * @return
@@ -90,7 +90,8 @@ public final class FileResourceTest {
     ConfigurationModule testDriverConfigurationModule = FileResourceTestDriverConfiguration.CONF;
     for (final File f : theFiles) {
       LOG.log(Level.FINEST, "Adding a file to the TestDriverConfiguration: " + f.getName());
-      testDriverConfigurationModule = testDriverConfigurationModule.set(FileResourceTestDriverConfiguration.EXPECTED_FILE_NAME, f.getName());
+      testDriverConfigurationModule =
+          testDriverConfigurationModule.set(FileResourceTestDriverConfiguration.EXPECTED_FILE_NAME, f.getName());
     }
 
     final Configuration testDriverConfiguration = testDriverConfigurationModule.build();

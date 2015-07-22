@@ -119,30 +119,30 @@ public class TestInjectionFuture {
 
   @DefaultImplementation(Futurist.class)
   public static class Futurist {
-    private final InjectionFuture<FlyingCar> f_car;
+    private final InjectionFuture<FlyingCar> fCar;
 
     @Inject
     public Futurist(InjectionFuture<FlyingCar> car) {
-      this.f_car = car;
+      this.fCar = car;
     }
 
     public FlyingCar getMyCar() {
-      FlyingCar c = f_car.get();
+      FlyingCar c = fCar.get();
       return c;
     }
   }
 
   public static class PickyFuturist extends Futurist {
-    private final InjectionFuture<FlyingCar> f_car;
+    private final InjectionFuture<FlyingCar> fCar;
 
     @Inject
     public PickyFuturist(@Parameter(MyFlyingCar.class) InjectionFuture<FlyingCar> myFlyingCar) {
       super(myFlyingCar);
-      f_car = myFlyingCar;
+      fCar = myFlyingCar;
     }
 
     public FlyingCar getMyCar() {
-      FlyingCar c = f_car.get();
+      FlyingCar c = fCar.get();
       return c;
     }
   }

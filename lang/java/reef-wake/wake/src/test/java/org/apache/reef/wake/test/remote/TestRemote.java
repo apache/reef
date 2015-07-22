@@ -46,7 +46,8 @@ public class TestRemote implements Runnable {
     int myPort = 10011;
     int remotePort = 10001;
     Codec<TestEvent> codec = new TestEventCodec();
-    try (RemoteManager rm = remoteManagerFactory.getInstance("name", myPort, codec, new LoggingEventHandler<Throwable>())) {
+    try (RemoteManager rm =
+             remoteManagerFactory.getInstance("name", myPort, codec, new LoggingEventHandler<Throwable>())) {
       // proxy handler
       RemoteIdentifierFactory factory = new DefaultRemoteIdentifierFactoryImplementation();
       RemoteIdentifier remoteId = factory.getNewInstance("socket://" + hostAddress + ":" + remotePort);

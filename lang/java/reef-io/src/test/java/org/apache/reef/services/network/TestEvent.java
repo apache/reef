@@ -21,7 +21,7 @@ package org.apache.reef.services.network;
 import java.io.Serializable;
 
 /**
- * Event for testing
+ * Event for testing.
  */
 public class TestEvent implements Serializable {
 

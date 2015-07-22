@@ -33,7 +33,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Tests the ConfigurationProvider mechanism
+ * Tests the ConfigurationProvider mechanism.
  */
 public final class ConfigurationProviderTest {
   private final TestEnvironment testEnvironment = TestEnvironmentFactory.getNewTestEnvironment();
@@ -43,7 +43,7 @@ public final class ConfigurationProviderTest {
    *
    * @return the runtime configuration.
    */
-  private final Configuration getRuntimeConfiguration() {
+  private Configuration getRuntimeConfiguration() {
     return Tang.Factory.getTang()
         .newConfigurationBuilder(testEnvironment.getRuntimeConfiguration())
         .bindSetEntry(DriverConfigurationProviders.class, TestDriverConfigurationProvider.class)
@@ -55,12 +55,14 @@ public final class ConfigurationProviderTest {
    *
    * @return the Driver configuration.
    */
-  private final Configuration getDriverConfiguration() {
+  private Configuration getDriverConfiguration() {
     return DriverConfiguration.CONF
         .set(DriverConfiguration.DRIVER_IDENTIFIER, "ConfigurationProviderTest")
-        .set(DriverConfiguration.GLOBAL_LIBRARIES, EnvironmentUtils.getClassLocation(ConfigurationProviderTestDriver.class))
+        .set(DriverConfiguration.GLOBAL_LIBRARIES,
+            EnvironmentUtils.getClassLocation(ConfigurationProviderTestDriver.class))
         .set(DriverConfiguration.ON_DRIVER_STARTED, ConfigurationProviderTestDriver.StartHandler.class)
-        .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, ConfigurationProviderTestDriver.EvaluatorAllocatedHandler.class)
+        .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED,
+            ConfigurationProviderTestDriver.EvaluatorAllocatedHandler.class)
         .build();
   }
 

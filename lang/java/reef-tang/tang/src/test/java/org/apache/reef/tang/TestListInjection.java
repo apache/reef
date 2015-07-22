@@ -40,7 +40,7 @@ import java.util.List;
 public class TestListInjection {
 
   /**
-   * Test code for injecting default list with string elements
+   * Test code for injecting default list with string elements.
    *
    * @throws InjectionException
    */
@@ -55,7 +55,7 @@ public class TestListInjection {
   }
 
   /**
-   * Test code for injecting default list with non-string values
+   * Test code for injecting default list with non-string values.
    *
    * @throws InjectionException
    */
@@ -70,7 +70,7 @@ public class TestListInjection {
   }
 
   /**
-   * Test code for injecting default list with implementations
+   * Test code for injecting default list with implementations.
    *
    * @throws InjectionException
    */
@@ -90,7 +90,7 @@ public class TestListInjection {
   }
 
   /**
-   * Test code for injecting list with String elements
+   * Test code for injecting list with String elements.
    *
    * @throws InjectionException
    */
@@ -111,7 +111,7 @@ public class TestListInjection {
   }
 
   /**
-   * Test code for injecting list with parsable non-string values
+   * Test code for injecting list with parsable non-string values.
    *
    * @throws InjectionException
    */
@@ -133,7 +133,7 @@ public class TestListInjection {
   }
 
   /**
-   * Test code for injecting list with implementations
+   * Test code for injecting list with implementations.
    *
    * @throws InjectionException
    */
@@ -201,7 +201,7 @@ public class TestListInjection {
   }
 
   /**
-   * Test code for injecting list of strings with ConfigurationBuilder
+   * Test code for injecting list of strings with ConfigurationBuilder.
    *
    * @throws InjectionException
    */
@@ -225,7 +225,7 @@ public class TestListInjection {
   }
 
   /**
-   * Test code for injecting list of implementations with ConfigurationBuilder
+   * Test code for injecting list of implementations with ConfigurationBuilder.
    *
    * @throws InjectionException
    */
@@ -254,7 +254,7 @@ public class TestListInjection {
   }
 
   /**
-   * Test code for injectiong list with ConfigurationModule
+   * Test code for injectiong list with ConfigurationModule.
    *
    * @throws InjectionException
    */

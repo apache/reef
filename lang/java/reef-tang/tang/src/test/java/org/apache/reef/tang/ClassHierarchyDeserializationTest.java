@@ -42,7 +42,7 @@ public class ClassHierarchyDeserializationTest {
   private final ClassHierarchySerializer classHierarchySerializer = new AvroClassHierarchySerializer();
 
   /**
-   * generate task.bin from running .Net ClassHierarchyBuilder.exe
+   * generate task.bin from running .Net ClassHierarchyBuilder.exe.
    */
   @Test
   public void testDeserializationForTasks() {
@@ -52,11 +52,15 @@ public class ClassHierarchyDeserializationTest {
       // TODO: Use AvroClassHierarchySerializer instead (REEF-400)
       final ClassHierarchyProto.Node root = ClassHierarchyProto.Node.parseFrom(chin);
       final ClassHierarchy ch = new ProtocolBufferClassHierarchy(root);
-      Node n1 = ch.getNode("Org.Apache.REEF.Examples.Tasks.StreamingTasks.StreamTask1, Org.Apache.REEF.Examples.Tasks, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null");
-      Assert.assertTrue(n1.getFullName().equals("Org.Apache.REEF.Examples.Tasks.StreamingTasks.StreamTask1, Org.Apache.REEF.Examples.Tasks, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"));
+      Node n1 = ch.getNode("Org.Apache.REEF.Examples.Tasks.StreamingTasks.StreamTask1, " +
+          "Org.Apache.REEF.Examples.Tasks, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null");
+      Assert.assertTrue(n1.getFullName().equals("Org.Apache.REEF.Examples.Tasks.StreamingTasks.StreamTask1, " +
+          "Org.Apache.REEF.Examples.Tasks, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"));
 
-      Node n2 = ch.getNode("Org.Apache.REEF.Examples.Tasks.HelloTask.HelloTask, Org.Apache.REEF.Examples.Tasks, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null");
-      Assert.assertTrue(n2.getFullName().equals("Org.Apache.REEF.Examples.Tasks.HelloTask.HelloTask, Org.Apache.REEF.Examples.Tasks, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"));
+      Node n2 = ch.getNode("Org.Apache.REEF.Examples.Tasks.HelloTask.HelloTask, " +
+          "Org.Apache.REEF.Examples.Tasks, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null");
+      Assert.assertTrue(n2.getFullName().equals("Org.Apache.REEF.Examples.Tasks.HelloTask.HelloTask, " +
+          "Org.Apache.REEF.Examples.Tasks, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"));
 
       final ConfigurationBuilder taskConfigurationBuilder1 = Tang.Factory.getTang()
           .newConfigurationBuilder(ch);
@@ -73,7 +77,7 @@ public class ClassHierarchyDeserializationTest {
   }
 
   /**
-   * This is to test CLR protocol Buffer class hierarchy merge
+   * This is to test CLR protocol Buffer class hierarchy merge.
    */
   @Test
   public void testProtocolClassHierarchyMerge() {
@@ -108,7 +112,7 @@ public class ClassHierarchyDeserializationTest {
   }
 
   /**
-   * generate event.bin from .Net Tang test case TestSerilization.TestGenericClass
+   * generate event.bin from .Net Tang test case TestSerilization.TestGenericClass.
    */
   @Test
   public void testDeserializationForEvent() {
@@ -127,14 +131,16 @@ public class ClassHierarchyDeserializationTest {
   }
 
   @Test
-  //Test bindSetEntry(NamedParameterNode<Set<T>> iface, String impl) in ConfigurationBuilderImpl with deserialized class hierarchy
+  // Test bindSetEntry(NamedParameterNode<Set<T>> iface, String impl) in ConfigurationBuilderImpl
+  // with deserialized class hierarchy
   public void testBindSetEntryWithSetOfT() throws IOException {
     final ClassHierarchy ns1 = Tang.Factory.getTang().getDefaultClassHierarchy();
     ns1.getNode(SetOfClasses.class.getName());
     final ClassHierarchy ns2 = classHierarchySerializer.fromString(classHierarchySerializer.toString(ns1));
     final ConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder(ns2);
 
-    final NamedParameterNode<Set<Number>> n2 = (NamedParameterNode<Set<Number>>) ns1.getNode(SetOfClasses.class.getName());
+    final NamedParameterNode<Set<Number>> n2 =
+        (NamedParameterNode<Set<Number>>) ns1.getNode(SetOfClasses.class.getName());
     final Node fn = ns1.getNode(Float.class.getName());
     cb.bindSetEntry(n2, fn);
 
@@ -142,7 +148,8 @@ public class ClassHierarchyDeserializationTest {
   }
 
   @Test
-  //Test public <T> void bindParameter(NamedParameterNode<T> name, String value) in ConfigurationBuilderImpl with deserialized class hierarchy
+  // Test public <T> void bindParameter(NamedParameterNode<T> name, String value) in ConfigurationBuilderImpl
+  // with deserialized class hierarchy
   public void testBindSetEntryWithSetOfString() throws IOException {
     final ClassHierarchy ns1 = Tang.Factory.getTang().getDefaultClassHierarchy();
     ns1.getNode(SetOfStrings.class.getName());
@@ -151,7 +158,8 @@ public class ClassHierarchyDeserializationTest {
     cb.bindSetEntry(SetOfStrings.class.getName(), "four");
     cb.bindSetEntry(SetOfStrings.class.getName(), "five");
 
-    final NamedParameterNode<Set<String>> n2 = (NamedParameterNode<Set<String>>) ns1.getNode(SetOfStrings.class.getName());
+    final NamedParameterNode<Set<String>> n2 =
+        (NamedParameterNode<Set<String>>) ns1.getNode(SetOfStrings.class.getName());
     cb.bindSetEntry(n2, "six");
 
     final Configuration c = configurationSerializer.fromString(configurationSerializer.toString(cb.build()), ns2);

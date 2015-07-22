@@ -47,7 +47,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Network service test
+ * Network service test.
  */
 public class NetworkServiceTest {
   private static final Logger LOG = Logger.getLogger(NetworkServiceTest.class.getName());
@@ -64,7 +64,7 @@ public class NetworkServiceTest {
   public TestName name = new TestName();
 
   /**
-   * NetworkService messaging test
+   * NetworkService messaging test.
    */
   @Test
   public void testMessagingNetworkService() throws Exception {
@@ -85,7 +85,8 @@ public class NetworkServiceTest {
       // network service
       final String name2 = "task2";
       final String name1 = "task1";
-      final Configuration nameResolverConf = Tang.Factory.getTang().newConfigurationBuilder(NameResolverConfiguration.CONF
+      final Configuration nameResolverConf =
+          Tang.Factory.getTang().newConfigurationBuilder(NameResolverConfiguration.CONF
           .set(NameResolverConfiguration.NAME_SERVER_HOSTNAME, this.localAddress)
           .set(NameResolverConfiguration.NAME_SERVICE_PORT, nameServerPort)
           .build())
@@ -129,7 +130,7 @@ public class NetworkServiceTest {
   }
 
   /**
-   * NetworkService messaging rate benchmark
+   * NetworkService messaging rate benchmark.
    */
   @Test
   public void testMessagingNetworkServiceRate() throws Exception {
@@ -153,7 +154,8 @@ public class NetworkServiceTest {
         // network service
         final String name2 = "task2";
         final String name1 = "task1";
-        final Configuration nameResolverConf = Tang.Factory.getTang().newConfigurationBuilder(NameResolverConfiguration.CONF
+        final Configuration nameResolverConf =
+            Tang.Factory.getTang().newConfigurationBuilder(NameResolverConfiguration.CONF
             .set(NameResolverConfiguration.NAME_SERVER_HOSTNAME, this.localAddress)
             .set(NameResolverConfiguration.NAME_SERVICE_PORT, nameServerPort)
             .build())
@@ -201,14 +203,15 @@ public class NetworkServiceTest {
           }
           long end = System.currentTimeMillis();
           double runtime = ((double) end - start) / 1000;
-          LOG.log(Level.FINEST, "size: " + size + "; messages/s: " + numMessages / runtime + " bandwidth(bytes/s): " + ((double) numMessages * 2 * size) / runtime);// x2 for unicode chars
+          LOG.log(Level.FINEST, "size: " + size + "; messages/s: " + numMessages / runtime +
+              " bandwidth(bytes/s): " + ((double) numMessages * 2 * size) / runtime); // x2 for unicode chars
         }
       }
     }
   }
 
   /**
-   * NetworkService messaging rate benchmark
+   * NetworkService messaging rate benchmark.
    */
   @Test
   public void testMessagingNetworkServiceRateDisjoint() throws Exception {
@@ -243,7 +246,8 @@ public class NetworkServiceTest {
               // network service
               final String name2 = "task2-" + tt;
               final String name1 = "task1-" + tt;
-              final Configuration nameResolverConf = Tang.Factory.getTang().newConfigurationBuilder(NameResolverConfiguration.CONF
+              final Configuration nameResolverConf =
+                  Tang.Factory.getTang().newConfigurationBuilder(NameResolverConfiguration.CONF
                   .set(NameResolverConfiguration.NAME_SERVER_HOSTNAME, localAddress)
                   .set(NameResolverConfiguration.NAME_SERVICE_PORT, nameServerPort)
                   .build())
@@ -256,7 +260,8 @@ public class NetworkServiceTest {
               try (final NameResolver nameResolver = injector.getInstance(NameResolver.class);
                    NetworkService<String> ns2 = new NetworkService<String>(factory, 0, nameResolver,
                        new StringCodec(), new MessagingTransportFactory(localAddressProvider),
-                       new MessageHandler<String>(name2, monitor, numMessages), new ExceptionHandler(), localAddressProvider);
+                       new MessageHandler<String>(name2, monitor, numMessages),
+                       new ExceptionHandler(), localAddressProvider);
                    NetworkService<String> ns1 = new NetworkService<String>(factory, 0, nameResolver,
                        new StringCodec(), new MessagingTransportFactory(localAddressProvider),
                        new MessageHandler<String>(name1, null, 0), new ExceptionHandler(), localAddressProvider)) {
@@ -300,13 +305,16 @@ public class NetworkServiceTest {
       // start and time
       long start = System.currentTimeMillis();
       Object ignore = new Object();
-      for (int i = 0; i < numThreads; i++) barrier.add(ignore);
+      for (int i = 0; i < numThreads; i++) {
+        barrier.add(ignore);
+      }
       e.shutdown();
       e.awaitTermination(100, TimeUnit.SECONDS);
       long end = System.currentTimeMillis();
 
       double runtime = ((double) end - start) / 1000;
-      LOG.log(Level.FINEST, "size: " + size + "; messages/s: " + totalNumMessages / runtime + " bandwidth(bytes/s): " + ((double) totalNumMessages * 2 * size) / runtime);// x2 for unicode chars
+      LOG.log(Level.FINEST, "size: " + size + "; messages/s: " + totalNumMessages / runtime + 
+          " bandwidth(bytes/s): " + ((double) totalNumMessages * 2 * size) / runtime); // x2 for unicode chars
     }
   }
 
@@ -322,7 +330,7 @@ public class NetworkServiceTest {
     try (final NameServer server = injector.getInstance(NameServer.class)) {
       int nameServerPort = server.getPort();
 
-      final int[] messageSizes = {2000};// {1,16,32,64,512,64*1024,1024*1024};
+      final int[] messageSizes = {2000}; // {1,16,32,64,512,64*1024,1024*1024};
 
       for (int size : messageSizes) {
         final int numMessages = 300000 / (Math.max(1, size / 512));
@@ -334,7 +342,8 @@ public class NetworkServiceTest {
         // network service
         final String name2 = "task2";
         final String name1 = "task1";
-        final Configuration nameResolverConf = Tang.Factory.getTang().newConfigurationBuilder(NameResolverConfiguration.CONF
+        final Configuration nameResolverConf =
+            Tang.Factory.getTang().newConfigurationBuilder(NameResolverConfiguration.CONF
             .set(NameResolverConfiguration.NAME_SERVER_HOSTNAME, this.localAddress)
             .set(NameResolverConfiguration.NAME_SERVICE_PORT, nameServerPort)
             .build())
@@ -347,7 +356,8 @@ public class NetworkServiceTest {
         try (final NameResolver nameResolver = injector2.getInstance(NameResolver.class);
              NetworkService<String> ns2 = new NetworkService<String>(factory, 0, nameResolver,
                  new StringCodec(), new MessagingTransportFactory(localAddressProvider),
-                 new MessageHandler<String>(name2, monitor, totalNumMessages), new ExceptionHandler(), localAddressProvider);
+                 new MessageHandler<String>(name2, monitor, totalNumMessages),
+                 new ExceptionHandler(), localAddressProvider);
              NetworkService<String> ns1 = new NetworkService<String>(factory, 0, nameResolver,
                  new StringCodec(), new MessagingTransportFactory(localAddressProvider),
                  new MessageHandler<String>(name1, null, 0), new ExceptionHandler(), localAddressProvider)) {
@@ -395,7 +405,8 @@ public class NetworkServiceTest {
             long end = System.currentTimeMillis();
             double runtime = ((double) end - start) / 1000;
 
-            LOG.log(Level.FINEST, "size: " + size + "; messages/s: " + totalNumMessages / runtime + " bandwidth(bytes/s): " + ((double) totalNumMessages * 2 * size) / runtime);// x2 for unicode chars
+            LOG.log(Level.FINEST, "size: " + size + "; messages/s: " + totalNumMessages / runtime + 
+                " bandwidth(bytes/s): " + ((double) totalNumMessages * 2 * size) / runtime); // x2 for unicode chars
           }
         }
       }
@@ -403,7 +414,7 @@ public class NetworkServiceTest {
   }
 
   /**
-   * NetworkService messaging rate benchmark
+   * NetworkService messaging rate benchmark.
    */
   @Test
   public void testMessagingNetworkServiceBatchingRate() throws Exception {
@@ -428,7 +439,8 @@ public class NetworkServiceTest {
         // network service
         final String name2 = "task2";
         final String name1 = "task1";
-        final Configuration nameResolverConf = Tang.Factory.getTang().newConfigurationBuilder(NameResolverConfiguration.CONF
+        final Configuration nameResolverConf =
+            Tang.Factory.getTang().newConfigurationBuilder(NameResolverConfiguration.CONF
             .set(NameResolverConfiguration.NAME_SERVER_HOSTNAME, this.localAddress)
             .set(NameResolverConfiguration.NAME_SERVICE_PORT, nameServerPort)
             .build())
@@ -481,14 +493,15 @@ public class NetworkServiceTest {
           long end = System.currentTimeMillis();
           double runtime = ((double) end - start) / 1000;
           long numAppMessages = numMessages * batchSize / size;
-          LOG.log(Level.FINEST, "size: " + size + "; messages/s: " + numAppMessages / runtime + " bandwidth(bytes/s): " + ((double) numAppMessages * 2 * size) / runtime);// x2 for unicode chars
+          LOG.log(Level.FINEST, "size: " + size + "; messages/s: " + numAppMessages / runtime +
+              " bandwidth(bytes/s): " + ((double) numAppMessages * 2 * size) / runtime); // x2 for unicode chars
         }
       }
     }
   }
 
   /**
-   * Test message handler
+   * Test message handler.
    */
   class MessageHandler<T> implements EventHandler<Message<T>> {
 
@@ -523,7 +536,7 @@ public class NetworkServiceTest {
   }
 
   /**
-   * Test exception handler
+   * Test exception handler.
    */
   class ExceptionHandler implements EventHandler<Exception> {
     @Override

@@ -57,10 +57,12 @@ public class EvaluatorFailureTest {
     final Configuration runtimeConfiguration = this.testEnvironment.getRuntimeConfiguration();
 
     final Configuration driverConfiguration = DriverConfiguration.CONF
-        .set(DriverConfiguration.GLOBAL_LIBRARIES, EnvironmentUtils.getClassLocation(EvaluatorFailureDuringAlarmDriver.class))
+        .set(DriverConfiguration.GLOBAL_LIBRARIES,
+            EnvironmentUtils.getClassLocation(EvaluatorFailureDuringAlarmDriver.class))
         .set(DriverConfiguration.DRIVER_IDENTIFIER, "TEST_EvaluatorFailureTest")
         .set(DriverConfiguration.ON_DRIVER_STARTED, OnDriverStartedAllocateOne.class)
-        .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, EvaluatorFailureDuringAlarmDriver.EvaluatorAllocatedHandler.class)
+        .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED,
+            EvaluatorFailureDuringAlarmDriver.EvaluatorAllocatedHandler.class)
         .set(DriverConfiguration.ON_EVALUATOR_FAILED, EvaluatorFailureDuringAlarmDriver.EvaluatorFailureHandler.class)
         .set(DriverConfiguration.ON_CONTEXT_FAILED, EvaluatorFailureDuringAlarmDriver.ContextFailureHandler.class)
         .set(DriverConfiguration.ON_TASK_FAILED, EvaluatorFailureDuringAlarmDriver.TaskFailureHandler.class)
@@ -70,6 +72,7 @@ public class EvaluatorFailureTest {
     final LauncherStatus status = DriverLauncher.getLauncher(runtimeConfiguration)
         .run(driverConfiguration, this.testEnvironment.getTestTimeout());
 
-    Assert.assertTrue("EvaluatorFailureTest.testEvaluatorFailureByAlarmHandler() state = " + status, status.isSuccess());
+    Assert.assertTrue("EvaluatorFailureTest.testEvaluatorFailureByAlarmHandler() state = " + status,
+        status.isSuccess());
   }
 }

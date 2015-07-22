@@ -40,7 +40,7 @@ import java.net.InetSocketAddress;
 import java.util.Map;
 
 /**
- * Test ReefEventStateManager
+ * Test ReefEventStateManager.
  */
 public class TestReefEventStateManager {
   private Injector injector;
@@ -94,7 +94,7 @@ public class TestReefEventStateManager {
 }
 
 final class MockEvaluatorDescriptor implements EvaluatorDescriptor {
-  final private NodeDescriptor nodeDescriptor;
+  private final NodeDescriptor nodeDescriptor;
   final EvaluatorProcessFactory evaluatorProcessFactory;
 
   @Inject

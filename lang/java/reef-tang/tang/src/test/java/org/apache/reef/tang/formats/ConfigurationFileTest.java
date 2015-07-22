@@ -43,7 +43,8 @@ public final class ConfigurationFileTest extends RoundTripTest {
   }
 
   @Override
-  public Configuration roundTrip(final Configuration configuration, final ClassHierarchy classHierarchy) throws Exception {
+  public Configuration roundTrip(final Configuration configuration, final ClassHierarchy classHierarchy)
+      throws Exception {
     final File tempFile = java.io.File.createTempFile("TangTest", "txt");
     final ConfigurationSerializer serializer = new AvroConfigurationSerializer();
     serializer.toTextFile(configuration, tempFile);

@@ -98,8 +98,10 @@ public class TestClassLoaders {
         "../tang-test-jarA/target/tang-test-jarA-1.0-SNAPSHOT.jar").toURI()
         .toURL());
 
-    Assert.assertEquals(1, ((ClassNode<?>) (cbA1.getClassHierarchy().getNode("org.apache.reef.tang.examples.A"))).getInjectableConstructors().length);
-    Assert.assertEquals(0, ((ClassNode<?>) (cbAother.getClassHierarchy().getNode("org.apache.reef.tang.examples.A"))).getInjectableConstructors().length);
+    Assert.assertEquals(1, ((ClassNode<?>) (cbA1.getClassHierarchy().getNode("org.apache.reef.tang.examples.A")))
+        .getInjectableConstructors().length);
+    Assert.assertEquals(0, ((ClassNode<?>) (cbAother.getClassHierarchy().getNode("org.apache.reef.tang.examples.A")))
+        .getInjectableConstructors().length);
 
   }
 

@@ -29,7 +29,7 @@ import org.junit.rules.ExpectedException;
 import javax.inject.Inject;
 
 /**
- * TestConfigurationBuilder
+ * TestConfigurationBuilder.
  */
 public class TestConfigurationBuilder {
   @Rule
@@ -38,7 +38,8 @@ public class TestConfigurationBuilder {
   @Test
   public void nullStringVaueTest() {
     thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("The value null set to the named parameter is illegal: class org.apache.reef.tang.implementation.java.TestConfigurationBuilder$NamedParamterNoDefault$NamedString");
+    thrown.expectMessage("The value null set to the named parameter is illegal: class " +
+        "org.apache.reef.tang.implementation.java.TestConfigurationBuilder$NamedParamterNoDefault$NamedString");
 
     Tang.Factory.getTang().newConfigurationBuilder()
         .bindNamedParameter(NamedParamterNoDefault.NamedString.class, (String) null)
@@ -46,7 +47,7 @@ public class TestConfigurationBuilder {
   }
 
   static class NamedParamterNoDefault {
-    final private String str;
+    private final String str;
 
     @Inject
     NamedParamterNoDefault(@Parameter(NamedString.class) String str) {

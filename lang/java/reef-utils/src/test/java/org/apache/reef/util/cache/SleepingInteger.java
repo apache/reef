@@ -21,14 +21,14 @@ package org.apache.reef.util.cache;
 import java.util.concurrent.Callable;
 
 /**
- * A mock computation that simulates computation time by sleeping and returns an integer
+ * A mock computation that simulates computation time by sleeping and returns an integer.
  */
 class SleepingInteger implements Callable<Integer> {
   private final int returnValue;
   private final long sleepMillis;
 
   /**
-   * Construct the mock value fetcher
+   * Construct the mock value fetcher.
    *
    * @param returnValue value to return
    * @param sleepMillis amount to sleep

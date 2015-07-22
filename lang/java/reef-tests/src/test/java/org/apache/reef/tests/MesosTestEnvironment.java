@@ -19,7 +19,6 @@
 package org.apache.reef.tests;
 
 import org.apache.reef.runtime.mesos.client.MesosClientConfiguration;
-import org.apache.reef.runtime.yarn.client.YarnClientConfiguration;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.exceptions.BindException;
 
@@ -32,12 +31,12 @@ public final class MesosTestEnvironment extends TestEnvironmentBase implements T
   private boolean ready = false;
 
   @Override
-  public synchronized final void setUp() {
+  public synchronized void setUp() {
     this.ready = true;
   }
 
   @Override
-  public synchronized final Configuration getRuntimeConfiguration() {
+  public synchronized Configuration getRuntimeConfiguration() {
     assert (this.ready);
     try {
       if (System.getenv("REEF_TEST_MESOS_MASTER_IP").equals("")) {
@@ -54,7 +53,7 @@ public final class MesosTestEnvironment extends TestEnvironmentBase implements T
   }
 
   @Override
-  public synchronized final void tearDown() {
+  public synchronized void tearDown() {
     assert (this.ready);
     this.ready = false;
   }
