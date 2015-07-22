@@ -18,16 +18,33 @@
  */
 package org.apache.reef.driver.evaluator;
 
-import org.apache.reef.annotations.audience.DriverSide;
-import org.apache.reef.annotations.audience.Public;
-import org.apache.reef.tang.annotations.DefaultImplementation;
+import org.junit.Test;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
- * Factory to create new evaluator process setups.
+ * Tests for JVMProcess.
  */
-@Public
-@DriverSide
-@DefaultImplementation(JVMProcessFactory.class)
-public interface EvaluatorProcessFactory<T> {
-  <T extends EvaluatorProcess> T newEvaluatorProcess();
+public final class JVMProcessTest {
+
+  @Test
+  public void testIsOptionSetFalse() {
+    final JVMProcess jvmProcess = new JVMProcess(null, null);
+    assertFalse("Option not set", jvmProcess.isOptionSet());
+  }
+
+  @Test
+  public void testIsOptionSet() {
+    final JVMProcess jvmProcess = new JVMProcess(null, null)
+        .addOption("-XX:+HeapDumpOnOutOfMemory");
+    assertTrue("Option set", jvmProcess.isOptionSet());
+  }
+
+  @Test
+  public void testIsOptionSetOnMemory() {
+    final JVMProcess jvmProcess = new JVMProcess(null, null)
+        .setMemory(500);
+    assertTrue("Option set", jvmProcess.isOptionSet());
+  }
 }

@@ -20,6 +20,7 @@ package org.apache.reef.runtime.local.driver;
 
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
+import org.apache.reef.driver.evaluator.EvaluatorProcess;
 import org.apache.reef.proto.ReefServiceProtos;
 import org.apache.reef.runtime.common.driver.api.ResourceLaunchEvent;
 import org.apache.reef.runtime.common.driver.api.ResourceReleaseEvent;
@@ -179,14 +180,24 @@ public final class ResourceManager {
       try (final LoggingScope lc = this.loggingScopeFactory
           .getNewLoggingScope("ResourceManager.onResourceLaunchRequest:runCommand")) {
 
-        final List<String> command = launchRequest.getProcess()
-            .setConfigurationFileName(this.fileNames.getEvaluatorConfigurationPath())
-            .setMemory((int) (this.jvmHeapFactor * c.getMemory()))
-            .getCommandLine();
-
+        final List<String> command = getLaunchCommand(launchRequest, c.getMemory());
         LOG.log(Level.FINEST, "Launching container: {0}", c);
         c.run(command);
       }
+    }
+  }
+
+  private List<String> getLaunchCommand(final ResourceLaunchEvent launchRequest,
+                                        final int containerMemory) {
+    final EvaluatorProcess process = launchRequest.getProcess()
+        .setConfigurationFileName(this.fileNames.getEvaluatorConfigurationPath());
+
+    if (process.isOptionSet()) {
+      return process.getCommandLine();
+    } else {
+      return process
+          .setMemory((int) (this.jvmHeapFactor * containerMemory))
+          .getCommandLine();
     }
   }
 

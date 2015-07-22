@@ -20,6 +20,7 @@ package org.apache.reef.runtime.mesos.driver;
 
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
+import org.apache.reef.driver.evaluator.EvaluatorProcess;
 import org.apache.reef.io.TempFileCreator;
 import org.apache.reef.io.WorkingDirectoryTempFileCreator;
 import org.apache.reef.runtime.common.driver.api.ResourceLaunchEvent;
@@ -98,15 +99,26 @@ final class MesosResourceLaunchHandler implements ResourceLaunchHandler {
       FileUtil.copy(localStagingFolder, fileSystem, hdfsFolder, false, new org.apache.hadoop.conf.Configuration());
 
       // TODO: Replace REEFExecutor with a simple launch command (we only need to launch REEFExecutor)
-      final List<String> command = resourceLaunchEvent.getProcess()
-          .setConfigurationFileName(this.fileNames.getEvaluatorConfigurationPath())
-          .setMemory((int) (this.jvmHeapFactor * this.executors.getMemory(resourceLaunchEvent.getIdentifier())))
-          .getCommandLine();
-
+      final List<String> command =
+          getLaunchCommand(resourceLaunchEvent, this.executors.getMemory(resourceLaunchEvent.getIdentifier()));
       this.executors.launchEvaluator(
           new EvaluatorLaunch(resourceLaunchEvent.getIdentifier(), StringUtils.join(command, ' ')));
     } catch (final IOException e) {
       throw new RuntimeException(e);
+    }
+  }
+
+  private List<String> getLaunchCommand(final ResourceLaunchEvent resourceLaunchEvent,
+                                        final int executorMemory) {
+    final EvaluatorProcess process = resourceLaunchEvent.getProcess()
+        .setConfigurationFileName(this.fileNames.getEvaluatorConfigurationPath());
+
+    if (process.isOptionSet()) {
+      return process.getCommandLine();
+    } else {
+      return process
+          .setMemory((int) (this.jvmHeapFactor * executorMemory))
+          .getCommandLine();
     }
   }
 }

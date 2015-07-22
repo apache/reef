@@ -26,17 +26,21 @@ import java.util.List;
 
 /**
  * Defines the setup of a JVM process.
+ * Users can set JVM options via {@link #setMemory(int)} and {@link #addOption(String)}.
+ * Runtimes can also set JVM options, but should not do so if users have set options by
+ * checking {@link #isOptionSet()}.
  */
 public final class JVMProcess implements EvaluatorProcess {
   private final JavaLaunchCommandBuilder commandBuilder = new JavaLaunchCommandBuilder();
   private final RuntimePathProvider runtimePathProvider;
   private final ClasspathProvider classpathProvider;
+  private boolean optionSet = false;
 
   /**
    * Instantiated via JVMProcessFactory.
    */
   JVMProcess(final RuntimePathProvider runtimePathProvider,
-                    final ClasspathProvider classpathProvider) {
+             final ClasspathProvider classpathProvider) {
     this.runtimePathProvider = runtimePathProvider;
     this.classpathProvider = classpathProvider;
   }
@@ -55,26 +59,43 @@ public final class JVMProcess implements EvaluatorProcess {
   }
 
   @Override
-  public EvaluatorProcess setMemory(final int megaBytes) {
+  public JVMProcess setMemory(final int megaBytes) {
     commandBuilder.setMemory(megaBytes);
+    optionSet = true;
     return this;
   }
 
   @Override
-  public EvaluatorProcess setConfigurationFileName(final String configurationFileName) {
+  public boolean isOptionSet() {
+    return optionSet;
+  }
+
+  @Override
+  public JVMProcess setConfigurationFileName(final String configurationFileName) {
     commandBuilder.setConfigurationFileName(configurationFileName);
     return this;
   }
 
   @Override
-  public EvaluatorProcess setStandardOut(final String standardOut) {
+  public JVMProcess setStandardOut(final String standardOut) {
     commandBuilder.setStandardOut(standardOut);
     return this;
   }
 
   @Override
-  public EvaluatorProcess setStandardErr(final String standardErr) {
+  public JVMProcess setStandardErr(final String standardErr) {
     commandBuilder.setStandardErr(standardErr);
+    return this;
+  }
+
+  /**
+   * Add a JVM option.
+   * @param option The full option, e.g. "-XX:+PrintGCDetails", "-Xms500m"
+   * @return this
+   */
+  public JVMProcess addOption(final String option) {
+    commandBuilder.addOption(option);
+    optionSet = true;
     return this;
   }
 }

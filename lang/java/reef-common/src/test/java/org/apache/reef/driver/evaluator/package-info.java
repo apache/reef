@@ -16,18 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.driver.evaluator;
-
-import org.apache.reef.annotations.audience.DriverSide;
-import org.apache.reef.annotations.audience.Public;
-import org.apache.reef.tang.annotations.DefaultImplementation;
-
 /**
- * Factory to create new evaluator process setups.
+ * Tests for Evaluator management on the Driver.
  */
-@Public
-@DriverSide
-@DefaultImplementation(JVMProcessFactory.class)
-public interface EvaluatorProcessFactory<T> {
-  <T extends EvaluatorProcess> T newEvaluatorProcess();
-}
+package org.apache.reef.driver.evaluator;

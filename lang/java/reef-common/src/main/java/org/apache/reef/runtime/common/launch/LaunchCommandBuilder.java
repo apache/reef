@@ -31,6 +31,11 @@ public interface LaunchCommandBuilder {
    */
   List<String> build();
 
+  /**
+   * Set the size of the launched process in megabytes.
+   * @param megaBytes
+   * @return this
+   */
   LaunchCommandBuilder setMemory(final int megaBytes);
 
   /**

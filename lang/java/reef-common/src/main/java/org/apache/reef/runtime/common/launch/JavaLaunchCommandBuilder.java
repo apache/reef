@@ -25,17 +25,34 @@ import org.apache.reef.util.EnvironmentUtils;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public final class JavaLaunchCommandBuilder implements LaunchCommandBuilder {
+  private static final Logger LOG = Logger.getLogger(JavaLaunchCommandBuilder.class.getName());
+
   private static final String DEFAULT_JAVA_PATH = System.getenv("JAVA_HOME") + "/bin/" + "java";
+  private static final String[] DEFAULT_OPTIONS = {"-XX:PermSize=128m", "-XX:MaxPermSize=128m"};
   private String stderrPath = null;
   private String stdoutPath = null;
-  private int megaBytes = 0;
   private String evaluatorConfigurationPath = null;
   private String javaPath = null;
   private String classPath = null;
   private Boolean assertionsEnabled = null;
+  private Map<String, JVMOption> options = new HashMap<>();
+
+  /**
+   * Constructor that populates default options.
+   */
+  public JavaLaunchCommandBuilder() {
+    for (final String defaultOption : DEFAULT_OPTIONS) {
+      addOption(defaultOption);
+    }
+  }
 
   @Override
   public List<String> build() {
@@ -47,14 +64,13 @@ public final class JavaLaunchCommandBuilder implements LaunchCommandBuilder {
           add(javaPath);
         }
 
-        add("-XX:PermSize=128m");
-        add("-XX:MaxPermSize=128m");
-        // Set Xmx based on am memory size
-        add("-Xmx" + megaBytes + "m");
-
         if ((assertionsEnabled != null && assertionsEnabled)
             || EnvironmentUtils.areAssertionsEnabled()) {
-          add("-ea");
+          addOption("-ea");
+        }
+
+        for (final JVMOption jvmOption : options.values()) {
+          add(jvmOption.toString());
         }
 
         if (classPath != null && !classPath.isEmpty()) {
@@ -84,8 +100,7 @@ public final class JavaLaunchCommandBuilder implements LaunchCommandBuilder {
   @Override
   @SuppressWarnings("checkstyle:hiddenfield")
   public JavaLaunchCommandBuilder setMemory(final int megaBytes) {
-    this.megaBytes = megaBytes;
-    return this;
+    return addOption(JVMOption.parse("-Xmx" + megaBytes + "m"));
   }
 
   @Override
@@ -128,6 +143,23 @@ public final class JavaLaunchCommandBuilder implements LaunchCommandBuilder {
   }
 
   /**
+   * Add a JVM option.
+   * @param option The full option, e.g. "-XX:+PrintGCDetails"
+   * @return this
+   */
+  public JavaLaunchCommandBuilder addOption(final String option) {
+    return addOption(JVMOption.parse(option));
+  }
+
+  private JavaLaunchCommandBuilder addOption(final JVMOption jvmOption) {
+    if (options.containsKey(jvmOption.option)) {
+      LOG.warning("Replaced option " + options.get(jvmOption.option) + " with " + jvmOption);
+    }
+    options.put(jvmOption.option, jvmOption);
+    return this;
+  }
+
+  /**
    * Enable or disable assertions on the child process.
    * If not set, the setting is taken from the JVM that executes the code.
    *
@@ -138,5 +170,78 @@ public final class JavaLaunchCommandBuilder implements LaunchCommandBuilder {
   public JavaLaunchCommandBuilder enableAssertions(final boolean assertionsEnabled) {
     this.assertionsEnabled = assertionsEnabled;
     return this;
+  }
+
+  /**
+   * Represents the JVM option as a option and value, combined by a separator.
+   * There are many different JVM option formats. This implementation only recognizes
+   * equals-separated and -Xm[nsx] memory options. All other option formats are
+   * represented with an option and empty value and separator.
+   */
+  static final class JVMOption {
+    static final Pattern EQUALS = Pattern.compile("(.+)=(.+)");
+    static final Pattern MEMORY = Pattern.compile("(\\-Xm[nsx])(.+)");
+
+    public final String option;
+    public final String value;
+    public final String separator;
+
+    private JVMOption(final String option, final String value,
+                     final String separator) {
+      this.option = option;
+      this.value = value;
+      this.separator = separator;
+    }
+
+    static JVMOption parse(final String string) {
+
+      final String trimmed = string.trim();
+
+      final Matcher equalsMatcher = EQUALS.matcher(trimmed);
+      if (equalsMatcher.matches()) {
+        return new JVMOption(equalsMatcher.group(1), equalsMatcher.group(2), "=");
+      }
+
+      final Matcher memoryMatcher = MEMORY.matcher(trimmed);
+      if (memoryMatcher.matches()) {
+        return new JVMOption(memoryMatcher.group(1), memoryMatcher.group(2), "");
+      }
+
+      // Unknown options return the entire string as the option
+      return new JVMOption(trimmed, "", "");
+    }
+
+    public String toString() {
+      return option + separator + value;
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
+
+      final JVMOption jvmOption = (JVMOption) o;
+
+      if (!option.equals(jvmOption.option)) {
+        return false;
+      }
+      if (!value.equals(jvmOption.value)) {
+        return false;
+      }
+      return separator.equals(jvmOption.separator);
+
+    }
+
+    @Override
+    public int hashCode() {
+      int result = option.hashCode();
+      result = 31 * result + value.hashCode();
+      result = 31 * result + separator.hashCode();
+      return result;
+    }
   }
 }

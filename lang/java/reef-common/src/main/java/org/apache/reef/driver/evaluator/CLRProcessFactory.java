@@ -28,13 +28,13 @@ import javax.inject.Inject;
  */
 @Private
 @DriverSide
-public final class CLRProcessFactory implements EvaluatorProcessFactory {
+public final class CLRProcessFactory implements EvaluatorProcessFactory<CLRProcess> {
   @Inject
   private CLRProcessFactory() {
   }
 
   @Override
-  public EvaluatorProcess newEvaluatorProcess() {
+  public CLRProcess newEvaluatorProcess() {
     return new CLRProcess();
   }
 }
