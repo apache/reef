@@ -55,26 +55,54 @@ public final class JVMProcess implements EvaluatorProcess {
   }
 
   @Override
-  public EvaluatorProcess setMemory(final int megaBytes) {
+  public JVMProcess setMemory(final int megaBytes) {
     commandBuilder.setMemory(megaBytes);
     return this;
   }
 
   @Override
-  public EvaluatorProcess setConfigurationFileName(final String configurationFileName) {
+  public JVMProcess setDefaultMemory(int megaBytes) {
+    commandBuilder.setDefaultMemory(megaBytes);
+    return this;
+  }
+
+  @Override
+  public JVMProcess setConfigurationFileName(final String configurationFileName) {
     commandBuilder.setConfigurationFileName(configurationFileName);
     return this;
   }
 
   @Override
-  public EvaluatorProcess setStandardOut(final String standardOut) {
+  public JVMProcess setStandardOut(final String standardOut) {
     commandBuilder.setStandardOut(standardOut);
     return this;
   }
 
   @Override
-  public EvaluatorProcess setStandardErr(final String standardErr) {
+  public JVMProcess setStandardErr(final String standardErr) {
     commandBuilder.setStandardErr(standardErr);
+    return this;
+  }
+
+  /**
+   * Add a JVM option.
+   * @param option The full option, e.g. "-XX:+PrintGCDetails"
+   * @return this
+   */
+  public JVMProcess addOption(final String option) {
+    commandBuilder.addOption(option);
+    return this;
+  }
+
+  /**
+   * Add a default JVM option.
+   * An example use of this method: The runtime sets a sensible default
+   * value that is picked up if the user does not set the same option.
+   * @param option The full option, e.g. "-Xms500m"
+   * @return this
+   */
+  public JVMProcess addDefaultOption(final String option) {
+    commandBuilder.addDefaultOption(option);
     return this;
   }
 }

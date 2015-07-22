@@ -28,6 +28,6 @@ import org.apache.reef.tang.annotations.DefaultImplementation;
 @Public
 @DriverSide
 @DefaultImplementation(JVMProcessFactory.class)
-public interface EvaluatorProcessFactory {
-  EvaluatorProcess newEvaluatorProcess();
+public interface EvaluatorProcessFactory<T> {
+  <T extends EvaluatorProcess> T newEvaluatorProcess();
 }

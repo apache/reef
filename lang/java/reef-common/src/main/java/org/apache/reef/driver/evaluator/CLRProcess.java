@@ -46,25 +46,31 @@ public final class CLRProcess implements EvaluatorProcess {
   }
 
   @Override
-  public EvaluatorProcess setMemory(final int megaBytes) {
+  public CLRProcess setMemory(final int megaBytes) {
     commandBuilder.setMemory(megaBytes);
     return this;
   }
 
   @Override
-  public EvaluatorProcess setConfigurationFileName(final String configurationFileName) {
+  public CLRProcess setDefaultMemory(int megaBytes) {
+    commandBuilder.setDefaultMemory(megaBytes);
+    return this;
+  }
+
+  @Override
+  public CLRProcess setConfigurationFileName(final String configurationFileName) {
     commandBuilder.setConfigurationFileName(configurationFileName);
     return this;
   }
 
   @Override
-  public EvaluatorProcess setStandardOut(final String standardOut) {
+  public CLRProcess setStandardOut(final String standardOut) {
     commandBuilder.setStandardOut(standardOut);
     return this;
   }
 
   @Override
-  public EvaluatorProcess setStandardErr(final String standardErr) {
+  public CLRProcess setStandardErr(final String standardErr) {
     commandBuilder.setStandardErr(standardErr);
     return this;
   }

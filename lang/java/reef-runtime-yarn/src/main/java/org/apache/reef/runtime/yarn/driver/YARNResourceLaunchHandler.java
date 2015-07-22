@@ -78,7 +78,7 @@ public final class YARNResourceLaunchHandler implements ResourceLaunchHandler {
 
       final List<String> command = resourceLaunchEvent.getProcess()
           .setConfigurationFileName(this.filenames.getEvaluatorConfigurationPath())
-          .setMemory((int) (this.jvmHeapFactor * container.getResource().getMemory()))
+          .setDefaultMemory((int) (this.jvmHeapFactor * container.getResource().getMemory()))
           .setStandardErr(ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/" +
               this.filenames.getEvaluatorStderrFileName())
           .setStandardOut(ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/" +

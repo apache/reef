@@ -181,7 +181,7 @@ public final class ResourceManager {
 
         final List<String> command = launchRequest.getProcess()
             .setConfigurationFileName(this.fileNames.getEvaluatorConfigurationPath())
-            .setMemory((int) (this.jvmHeapFactor * c.getMemory()))
+            .setDefaultMemory((int) (this.jvmHeapFactor * c.getMemory()))
             .getCommandLine();
 
         LOG.log(Level.FINEST, "Launching container: {0}", c);

@@ -28,7 +28,7 @@ import javax.inject.Inject;
  * Factory to setup new JVM processes.
  */
 @DriverSide
-public final class JVMProcessFactory implements EvaluatorProcessFactory {
+public final class JVMProcessFactory implements EvaluatorProcessFactory<JVMProcess> {
   private final RuntimePathProvider pathProvider;
   private final ClasspathProvider classpathProvider;
 
@@ -40,7 +40,7 @@ public final class JVMProcessFactory implements EvaluatorProcessFactory {
   }
 
   @Override
-  public EvaluatorProcess newEvaluatorProcess() {
+  public JVMProcess newEvaluatorProcess() {
     return new JVMProcess(pathProvider, classpathProvider);
   }
 }

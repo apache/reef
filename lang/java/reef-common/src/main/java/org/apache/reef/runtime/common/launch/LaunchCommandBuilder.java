@@ -31,7 +31,20 @@ public interface LaunchCommandBuilder {
    */
   List<String> build();
 
+  /**
+   * Set the size of the launched process in megabytes.
+   * @param megaBytes
+   * @return this
+   */
   LaunchCommandBuilder setMemory(final int megaBytes);
+
+  /**
+   * Set the default size of the launched process in megabytes.
+   * This value is used if a value is not set with {@link #setMemory(int)}.
+   * @param megaBytes
+   * @return this
+   */
+  LaunchCommandBuilder setDefaultMemory(final int megaBytes);
 
   /**
    * Set the name of the configuration file for the Launcher. This file is assumed to exist in the working directory of

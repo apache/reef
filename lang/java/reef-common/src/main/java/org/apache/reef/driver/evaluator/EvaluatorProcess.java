@@ -43,6 +43,16 @@ public interface EvaluatorProcess {
   EvaluatorProcess setMemory(final int megaBytes);
 
   /**
+   * Set default memory size of process in megabytes.
+   * This value is used if a value is not set with {@link #setMemory(int)}.
+   * An example use of this method: The runtime sets a sensible default
+   * memory that is picked up if the user does not set the memory size.
+   * @param megaBytes
+   * @return this
+   */
+  EvaluatorProcess setDefaultMemory(final int megaBytes);
+
+  /**
    * Set the name of the configuration file for the Launcher. This file is assumed to exist in the working directory of
    * the process launched with this command line.
    *
