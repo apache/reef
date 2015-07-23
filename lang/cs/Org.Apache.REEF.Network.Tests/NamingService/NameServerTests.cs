@@ -19,6 +19,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Net;
 using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -231,6 +232,33 @@ namespace Org.Apache.REEF.Network.Tests.NamingService
 
                 Assert.IsNotNull(c);
             }
+        }
+
+        [TestMethod]
+        public void TestNameCache()
+        {
+            double interval = 1000;
+            var config =
+                TangFactory.GetTang()
+                    .NewConfigurationBuilder()
+                    .BindNamedParameter<NameCacheConfiguration.CacheEntryExpiryTime, double>(
+                        GenericType<NameCacheConfiguration.CacheEntryExpiryTime>.Class,
+                        interval.ToString(CultureInfo.InvariantCulture))
+                    .Build();
+            
+            var injector = TangFactory.GetTang().NewInjector(config);
+            var cache = injector.GetInstance<NameCache>();
+
+            cache.Set("dst1", new IPEndPoint(IPAddress.Any, 0));
+            Thread.Sleep(2000);
+            var value = cache.Get("dst1");
+            Assert.IsNull(value);
+
+            IPAddress address = new IPAddress(1234);
+            cache.Set("dst1", new IPEndPoint(address, 0));
+            value = cache.Get("dst1");
+            Assert.IsNotNull(value);
+            Assert.AreEqual(address, value.Address);
         }
 
         public static INameServer BuildNameServer(int listenPort = 0)
