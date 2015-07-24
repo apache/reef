@@ -44,9 +44,9 @@ public final class JavaLaunchCommandBuilder implements LaunchCommandBuilder {
   private Boolean assertionsEnabled = null;
   private Map<String, JVMOption> options = new HashMap<>();
   private Map<String, JVMOption> defaultOptions = new HashMap<String, JVMOption>() {{
-      final JVMOption permSize = JVMOption.parseJVMOption("-XX:PermSize=128m");
+      final JVMOption permSize = JVMOption.parse("-XX:PermSize=128m");
       put(permSize.option, permSize);
-      final JVMOption maxPermSize = JVMOption.parseJVMOption("-XX:MaxPermSize=128m");
+      final JVMOption maxPermSize = JVMOption.parse("-XX:MaxPermSize=128m");
       put(maxPermSize.option, maxPermSize);
     }};
 
@@ -93,13 +93,13 @@ public final class JavaLaunchCommandBuilder implements LaunchCommandBuilder {
   @Override
   @SuppressWarnings("checkstyle:hiddenfield")
   public JavaLaunchCommandBuilder setMemory(final int megaBytes) {
-    return addOption(JVMOption.parseJVMOption("-Xmx" + megaBytes + "m"));
+    return addOption(JVMOption.parse("-Xmx" + megaBytes + "m"));
   }
 
   @Override
   @SuppressWarnings("checkstyle:hiddenfield")
   public JavaLaunchCommandBuilder setDefaultMemory(final int defaultMegaBytes) {
-    return addDefaultOption(JVMOption.parseJVMOption("-Xmx" + defaultMegaBytes + "m"));
+    return addDefaultOption(JVMOption.parse("-Xmx" + defaultMegaBytes + "m"));
   }
 
   @Override
@@ -147,7 +147,7 @@ public final class JavaLaunchCommandBuilder implements LaunchCommandBuilder {
    * @return this
    */
   public JavaLaunchCommandBuilder addOption(final String option) {
-    return addOption(JVMOption.parseJVMOption(option));
+    return addOption(JVMOption.parse(option));
   }
 
   /**
@@ -158,7 +158,7 @@ public final class JavaLaunchCommandBuilder implements LaunchCommandBuilder {
    * @return this
    */
   public JavaLaunchCommandBuilder addDefaultOption(final String option) {
-    return addDefaultOption(JVMOption.parseJVMOption(option));
+    return addDefaultOption(JVMOption.parse(option));
   }
 
   private void applyDefaultOptions() {
@@ -168,7 +168,7 @@ public final class JavaLaunchCommandBuilder implements LaunchCommandBuilder {
 
     if ((assertionsEnabled != null && assertionsEnabled)
         || EnvironmentUtils.areAssertionsEnabled()) {
-      applyDefaultOption(JVMOption.parseJVMOption("-ea"));
+      applyDefaultOption(JVMOption.parse("-ea"));
     }
   }
 
@@ -221,14 +221,14 @@ public final class JavaLaunchCommandBuilder implements LaunchCommandBuilder {
     public final String value;
     public final String separator;
 
-    public JVMOption(final String option, final String value,
+    private JVMOption(final String option, final String value,
                      final String separator) {
       this.option = option;
       this.value = value;
       this.separator = separator;
     }
 
-    public static JVMOption parseJVMOption(final String string) {
+    static JVMOption parse(final String string) {
 
       final String trimmed = string.trim();
 
@@ -248,6 +248,35 @@ public final class JavaLaunchCommandBuilder implements LaunchCommandBuilder {
 
     public String toString() {
       return option + separator + value;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
+
+      final JVMOption jvmOption = (JVMOption) o;
+
+      if (!option.equals(jvmOption.option)) {
+        return false;
+      }
+      if (!value.equals(jvmOption.value)) {
+        return false;
+      }
+      return separator.equals(jvmOption.separator);
+
+    }
+
+    @Override
+    public int hashCode() {
+      int result = option.hashCode();
+      result = 31 * result + value.hashCode();
+      result = 31 * result + separator.hashCode();
+      return result;
     }
   }
 }

@@ -29,7 +29,7 @@ public final class JavaLaunchCommandBuilderTest {
 
   @Test
   public void testParseEqualsOption() {
-    final JVMOption equals = JVMOption.parseJVMOption("-XX:PermSize=128m");
+    final JVMOption equals = JVMOption.parse("-XX:PermSize=128m");
     assertEquals("-XX:PermSize", equals.option);
     assertEquals("128m", equals.value);
     assertEquals("=", equals.separator);
@@ -38,7 +38,7 @@ public final class JavaLaunchCommandBuilderTest {
 
   @Test
   public void testParseMemoryOption() {
-    final JVMOption xmx = JVMOption.parseJVMOption("-Xmx500m");
+    final JVMOption xmx = JVMOption.parse("-Xmx500m");
     assertEquals("-Xmx", xmx.option);
     assertEquals("500m", xmx.value);
     assertEquals("", xmx.separator);
@@ -47,11 +47,43 @@ public final class JavaLaunchCommandBuilderTest {
 
   @Test
   public void testParseUnknownOption() {
-    final JVMOption unknown = JVMOption.parseJVMOption("-XX:+HeapDumpOnOutOfMemory");
+    final JVMOption unknown = JVMOption.parse("-XX:+HeapDumpOnOutOfMemory");
     assertEquals("-XX:+HeapDumpOnOutOfMemory", unknown.option);
     assertEquals("", unknown.value);
     assertEquals("", unknown.separator);
     assertEquals("-XX:+HeapDumpOnOutOfMemory", unknown.toString());
+  }
+
+  @Test
+  public void testJVMOptionEquals() {
+    // Option parsed with the EQUALS pattern
+    final JVMOption permSize1 = JVMOption.parse("-XX:PermSize=128m");
+    final JVMOption permSize2 = JVMOption.parse("-XX:PermSize=128m");
+    assertTrue(permSize1.equals(permSize2));
+    assertTrue(permSize2.equals(permSize1));
+    final JVMOption permSize3 = JVMOption.parse("-XX:PermSize=64m");
+    assertFalse(permSize1.equals(permSize3));
+    assertFalse(permSize3.equals(permSize1));
+
+    // Option parsed with the MEMORY pattern
+    final JVMOption memory1 = JVMOption.parse("-Xmx500m");
+    final JVMOption memory2 = JVMOption.parse("-Xmx500m");
+    assertTrue(memory1.equals(memory2));
+    assertTrue(memory2.equals(memory1));
+
+    final JVMOption memory3 = JVMOption.parse("-Xmx300m");
+    assertFalse(memory1.equals(memory3));
+    assertFalse(memory3.equals(memory1));
+
+    // Option with an unknown pattern
+    final JVMOption unknown1 = JVMOption.parse("-XX:+HeapDumpOnOutOfMemory");
+    final JVMOption unknown2 = JVMOption.parse("-XX:+HeapDumpOnOutOfMemory");
+    assertTrue(unknown1.equals(unknown2));
+    assertTrue(unknown2.equals(unknown1));
+
+    final JVMOption unknown3 = JVMOption.parse("-XX:+PrintGCDetails");
+    assertFalse(unknown1.equals(unknown3));
+    assertFalse(unknown3.equals(unknown1));
   }
 
   @Test

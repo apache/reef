@@ -68,7 +68,7 @@ public class CLRLaunchCommandBuilder implements LaunchCommandBuilder {
 
   @Override
   @SuppressWarnings("checkstyle:hiddenfield")
-  public CLRLaunchCommandBuilder setDefaultMemory(final int deafaultMegaBytes) {
+  public CLRLaunchCommandBuilder setDefaultMemory(final int defaultMegaBytes) {
     this.defaultMegaBytes = defaultMegaBytes;
     return this;
   }
