@@ -38,6 +38,14 @@ namespace Org.Apache.REEF.Evaluator.Tests
         {
             EvaluatorConfigurations evaluatorConfigurations = new EvaluatorConfigurations("evaluator.conf");
 
+            var eId = evaluatorConfigurations.EvaluatorId;
+            var aId = evaluatorConfigurations.ApplicationId;
+            var rId = evaluatorConfigurations.ErrorHandlerRID;
+
+            Logger.Log(Level.Info, "EvaluatorId = " + eId);
+            Logger.Log(Level.Info, "ApplicationId = " + aId);
+            Logger.Log(Level.Info, "ErrorHandlerRID = " + rId);
+
             Assert.IsTrue(evaluatorConfigurations.EvaluatorId.Equals("Node-1-1437686223482"));
             Assert.IsTrue(evaluatorConfigurations.ApplicationId.Equals("REEF_LOCAL_RUNTIME"));
             Assert.IsTrue(evaluatorConfigurations.ErrorHandlerRID.Equals("socket://10.130.68.76:9267"));
