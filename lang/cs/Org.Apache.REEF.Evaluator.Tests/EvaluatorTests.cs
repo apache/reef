@@ -30,7 +30,7 @@ using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 
-namespace Org.Apache.REEF.Tests.Evaluator
+namespace Org.Apache.REEF.Evaluator.Tests
 {
     [TestClass]
     public class EvaluatorTests
@@ -83,11 +83,11 @@ namespace Org.Apache.REEF.Tests.Evaluator
         }
 
         [TestMethod, Priority(0), TestCategory("Unit")]
-        [Description("Test driver information extacted from Http server")]
+        [Description("Test driver information extracted from Http server")]
         public void CanExtractDriverInformaiton()
         {
-            const string InfoString = "{\"remoteId\":\"socket://10.121.136.231:14272\",\"startTime\":\"2014 08 28 10:50:32\",\"services\":[{\"serviceName\":\"NameServer\",\"serviceInfo\":\"10.121.136.231:16663\"}]}";
-            AvroDriverInfo info = AvroJsonSerializer<AvroDriverInfo>.FromString(InfoString);
+            const string infoString = "{\"remoteId\":\"socket://10.121.136.231:14272\",\"startTime\":\"2014 08 28 10:50:32\",\"services\":[{\"serviceName\":\"NameServer\",\"serviceInfo\":\"10.121.136.231:16663\"}]}";
+            AvroDriverInfo info = AvroJsonSerializer<AvroDriverInfo>.FromString(infoString);
             Assert.IsTrue(info.remoteId.Equals("socket://10.121.136.231:14272"));
             Assert.IsTrue(info.startTime.Equals("2014 08 28 10:50:32"));
             Assert.IsTrue(new DriverInformation(info.remoteId, info.startTime, info.services).NameServerId.Equals("10.121.136.231:16663"));
