@@ -47,8 +47,6 @@ under the License.
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Evaluator\EvaluatorConfigurationsTests.cs" />
-    <Compile Include="Evaluator\EvaluatorTests.cs" />
     <Compile Include="Functional\Bridge\HelloSimpleEventHandlers.cs" />
     <Compile Include="Functional\Bridge\TestBridgeClient.cs" />
     <Compile Include="Functional\Bridge\TestSimpleEventHandlers.cs" />
@@ -67,9 +65,6 @@ under the License.
     <Compile Include="Utility\TestExceptions.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="ConfigFiles\evaluator.conf">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Include="$(SolutionDir)\Org.Apache.REEF.Client\run.cmd">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
