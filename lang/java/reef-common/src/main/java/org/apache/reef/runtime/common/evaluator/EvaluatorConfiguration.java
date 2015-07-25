@@ -43,10 +43,13 @@ public final class EvaluatorConfiguration extends ConfigurationModuleBuilder {
   public static final OptionalParameter<String> TASK_CONFIGURATION = new OptionalParameter<>();
   public static final OptionalParameter<Integer> HEARTBEAT_PERIOD = new OptionalParameter<>();
   public static final OptionalParameter<String> APPLICATION_IDENTIFIER = new OptionalParameter<>();
-  public static final ConfigurationModule CONF = new EvaluatorConfiguration()
+
+  /**
+   * The EvaluatorConfigModuleBuilder which contains bindings shared for all kinds of Evaluators.
+   */
+  private static final ConfigurationModuleBuilder EvaluatorConfigModuleBuilder = new EvaluatorConfiguration()
       .bindSetEntry(Clock.RuntimeStartHandler.class, EvaluatorRuntime.RuntimeStartHandler.class)
       .bindSetEntry(Clock.RuntimeStopHandler.class, EvaluatorRuntime.RuntimeStopHandler.class)
-      .bindConstructor(ExecutorService.class, ExecutorServiceConstructor.class)
       .bindNamedParameter(DriverRemoteIdentifier.class, DRIVER_REMOTE_IDENTIFIER)
       .bindNamedParameter(ErrorHandlerRID.class, DRIVER_REMOTE_IDENTIFIER)
       .bindNamedParameter(EvaluatorIdentifier.class, EVALUATOR_IDENTIFIER)
@@ -55,7 +58,18 @@ public final class EvaluatorConfiguration extends ConfigurationModuleBuilder {
       .bindNamedParameter(InitialTaskConfiguration.class, TASK_CONFIGURATION)
       .bindNamedParameter(RootServiceConfiguration.class, ROOT_SERVICE_CONFIGURATION)
       .bindNamedParameter(ApplicationIdentifier.class, APPLICATION_IDENTIFIER)
-      .bindNamedParameter(LaunchID.class, APPLICATION_IDENTIFIER)
+      .bindNamedParameter(LaunchID.class, APPLICATION_IDENTIFIER);
+
+  /**
+   * This is ConfigurationModule for CLR Evaluator.
+   */
+  public static final ConfigurationModule CONFCLR = EvaluatorConfigModuleBuilder.build();
+
+  /**
+   * This is ConfigurationModule for Java Evaluator.
+   */
+  public static final ConfigurationModule CONF = EvaluatorConfigModuleBuilder
+      .bindConstructor(ExecutorService.class, ExecutorServiceConstructor.class)
       .build();
 
   private static final class ExecutorServiceConstructor implements ExternalConstructor<ExecutorService> {
