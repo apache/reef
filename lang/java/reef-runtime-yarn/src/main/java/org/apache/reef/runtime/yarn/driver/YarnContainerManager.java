@@ -264,7 +264,7 @@ final class YarnContainerManager
     }
   }
 
-  void onStop(Exception exception) {
+  void onStop(final Exception exception) {
 
     LOG.log(Level.FINE, "Stop Runtime: RM status {0}", this.resourceManager.getServiceState());
 

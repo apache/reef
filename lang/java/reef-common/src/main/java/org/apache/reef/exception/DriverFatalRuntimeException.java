@@ -25,11 +25,11 @@ package org.apache.reef.exception;
 public final class DriverFatalRuntimeException extends RuntimeException {
   private static final long serialVersionUID = 1L;
 
-  public DriverFatalRuntimeException(String msg, Throwable cause) {
+  public DriverFatalRuntimeException(final String msg, final Throwable cause) {
     super(msg, cause);
   }
 
-  public DriverFatalRuntimeException(String msg) {
+  public DriverFatalRuntimeException(final String msg) {
     super(msg);
   }
 }
