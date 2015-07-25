@@ -33,6 +33,7 @@ import org.apache.hadoop.yarn.client.api.async.NMClientAsync;
 import org.apache.hadoop.yarn.client.api.async.impl.NMClientAsyncImpl;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.exceptions.YarnException;
+import org.apache.reef.exception.DriverFatalRuntimeException;
 import org.apache.reef.proto.ReefServiceProtos;
 import org.apache.reef.runtime.common.driver.DriverStatusManager;
 import org.apache.reef.runtime.common.driver.evaluator.EvaluatorManager;
@@ -263,7 +264,7 @@ final class YarnContainerManager
     }
   }
 
-  void onStop() {
+  void onStop(final Exception exception) {
 
     LOG.log(Level.FINE, "Stop Runtime: RM status {0}", this.resourceManager.getServiceState());
 
@@ -271,8 +272,14 @@ final class YarnContainerManager
       // invariant: if RM is still running then we declare success.
       try {
         this.reefEventHandlers.close();
-        this.resourceManager.unregisterApplicationMaster(
-            FinalApplicationStatus.SUCCEEDED, null, null);
+        if (exception == null) {
+          this.resourceManager.unregisterApplicationMaster(
+              FinalApplicationStatus.SUCCEEDED, null, null);
+        } else if (exception instanceof DriverFatalRuntimeException) {
+          this.resourceManager.unregisterApplicationMaster(
+              FinalApplicationStatus.FAILED, null, null);
+        }
+
         this.resourceManager.close();
       } catch (final Exception e) {
         LOG.log(Level.WARNING, "Error shutting down YARN application", e);
@@ -348,7 +355,7 @@ final class YarnContainerManager
       for (final Container container : previousContainers) {
         LOG.log(Level.FINE, "Previous container: [{0}]", container.toString());
         if (!expectedContainers.contains(container.getId().toString())) {
-          throw new RuntimeException("Not expecting container " + container.getId().toString());
+          throw new DriverFatalRuntimeException("Not expecting container " + container.getId().toString());
         }
         handleNewContainer(container, true);
       }
@@ -576,15 +583,15 @@ final class YarnContainerManager
           if (line.startsWith(ADD_FLAG)) {
             final String containerId = line.substring(ADD_FLAG.length());
             if (expectedContainers.contains(containerId)) {
-              throw new RuntimeException("Duplicated add container record found in the change log for container " +
-                  containerId);
+              throw new DriverFatalRuntimeException("Duplicated add container record found in the " +
+                  "change log for container " + containerId);
             }
             expectedContainers.add(containerId);
           } else if (line.startsWith(REMOVE_FLAG)) {
             final String containerId = line.substring(REMOVE_FLAG.length());
             if (!expectedContainers.contains(containerId)) {
-              throw new RuntimeException("Change log includes record that try to remove non-exist or duplicate " +
-                  "remove record for container + " + containerId);
+              throw new DriverFatalRuntimeException("Change log includes record that try to " +
+                  "remove non-exist or duplicate remove record for container + " + containerId);
             }
             expectedContainers.remove(containerId);
           }
@@ -593,7 +600,7 @@ final class YarnContainerManager
         br.close();
       }
     } catch (final IOException e) {
-      throw new RuntimeException("Cannot read from log file", e);
+      throw new DriverFatalRuntimeException("Cannot read from log file", e);
     }
     return expectedContainers;
   }
@@ -688,7 +695,7 @@ final class YarnContainerManager
       final String errorMsg = "Unable to log the change of container [" + entry +
           "] to the container log. Driver restart won't work properly.";
       LOG.log(Level.WARNING, errorMsg, e);
-      throw new RuntimeException(errorMsg);
+      throw new DriverFatalRuntimeException(errorMsg);
     }
   }
 }

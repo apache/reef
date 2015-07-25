@@ -16,27 +16,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.runtime.yarn.driver;
-
-import org.apache.reef.wake.EventHandler;
-import org.apache.reef.wake.time.runtime.event.RuntimeStop;
-
-import javax.inject.Inject;
+package org.apache.reef.exception;
 
 /**
- * Shuts down the YARN resource manager.
+ * A special RuntimeException we throw to indicate to the resource manager to never attempt to restart us
+ * if this exception is thrown.
  */
-public final class YARNRuntimeStopHandler implements EventHandler<RuntimeStop> {
+public final class DriverFatalRuntimeException extends RuntimeException {
+  private static final long serialVersionUID = 1L;
 
-  private final YarnContainerManager yarnContainerManager;
-
-  @Inject
-  YARNRuntimeStopHandler(final YarnContainerManager yarnContainerManager) {
-    this.yarnContainerManager = yarnContainerManager;
+  public DriverFatalRuntimeException(final String msg, final Throwable cause) {
+    super(msg, cause);
   }
 
-  @Override
-  public void onNext(final RuntimeStop runtimeStop) {
-    this.yarnContainerManager.onStop(runtimeStop.getException());
+  public DriverFatalRuntimeException(final String msg) {
+    super(msg);
   }
 }

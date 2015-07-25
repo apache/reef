@@ -19,6 +19,7 @@
 package org.apache.reef.runtime.common.driver;
 
 import org.apache.reef.driver.parameters.DriverRestartHandler;
+import org.apache.reef.exception.DriverFatalRuntimeException;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.util.Optional;
 import org.apache.reef.wake.EventHandler;
@@ -75,8 +76,7 @@ public final class DriverStartHandler implements EventHandler<StartTime> {
     if (restartHandler.isPresent()) {
       this.restartHandler.get().onNext(startTime);
     } else {
-      // TODO: We might have to indicate this to YARN somehow such that it doesn't try another time.
-      throw new RuntimeException("Driver restart happened, but no ON_DRIVER_RESTART handler is bound.");
+      throw new DriverFatalRuntimeException("Driver restart happened, but no ON_DRIVER_RESTART handler is bound.");
     }
   }
 
