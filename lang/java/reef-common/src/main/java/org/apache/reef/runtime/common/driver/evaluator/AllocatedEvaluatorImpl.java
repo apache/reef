@@ -27,6 +27,7 @@ import org.apache.reef.driver.evaluator.EvaluatorDescriptor;
 import org.apache.reef.driver.evaluator.EvaluatorType;
 import org.apache.reef.driver.evaluator.EvaluatorProcess;
 import org.apache.reef.driver.evaluator.JVMProcessFactory;
+import org.apache.reef.driver.evaluator.CLRProcess;
 import org.apache.reef.runtime.common.driver.api.ResourceLaunchEventImpl;
 import org.apache.reef.runtime.common.evaluator.EvaluatorConfiguration;
 import org.apache.reef.tang.Configuration;
@@ -194,7 +195,13 @@ final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
                                                    final Optional<Configuration> taskConfiguration) {
 
     final String contextConfigurationString = this.configurationSerializer.toString(contextConfiguration);
-    ConfigurationModule evaluatorConfigurationModule = EvaluatorConfiguration.CONF
+    final ConfigurationModule evaluatorConfigModule;
+    if (this.evaluatorManager.getEvaluatorDescriptor().getProcess() instanceof CLRProcess) {
+      evaluatorConfigModule = EvaluatorConfiguration.CONFCLR;
+    } else {
+      evaluatorConfigModule = EvaluatorConfiguration.CONF;
+    }
+    ConfigurationModule evaluatorConfigurationModule = evaluatorConfigModule
         .set(EvaluatorConfiguration.APPLICATION_IDENTIFIER, this.jobIdentifier)
         .set(EvaluatorConfiguration.DRIVER_REMOTE_IDENTIFIER, this.remoteID)
         .set(EvaluatorConfiguration.EVALUATOR_IDENTIFIER, this.getId())
