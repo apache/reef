@@ -44,6 +44,9 @@ public final class EvaluatorConfiguration extends ConfigurationModuleBuilder {
   public static final OptionalParameter<Integer> HEARTBEAT_PERIOD = new OptionalParameter<>();
   public static final OptionalParameter<String> APPLICATION_IDENTIFIER = new OptionalParameter<>();
 
+  /**
+   * The EvaluatorConfigModuleBuilder which contains bindings shared for all kinds of Evaluators.
+   */
   private static final ConfigurationModuleBuilder EvaluatorConfigModuleBuilder = new EvaluatorConfiguration()
       .bindSetEntry(Clock.RuntimeStartHandler.class, EvaluatorRuntime.RuntimeStartHandler.class)
       .bindSetEntry(Clock.RuntimeStopHandler.class, EvaluatorRuntime.RuntimeStopHandler.class)
@@ -57,8 +60,15 @@ public final class EvaluatorConfiguration extends ConfigurationModuleBuilder {
       .bindNamedParameter(ApplicationIdentifier.class, APPLICATION_IDENTIFIER)
       .bindNamedParameter(LaunchID.class, APPLICATION_IDENTIFIER);
 
+  /**
+   * This is ConfigurationModule for CLR Evaluator where ExecutorServiceConstructor is not needed and
+   * C# code won't be able to understand Java class ExecutorServiceConstructor
+   */
   public static final ConfigurationModule CONFCLR = EvaluatorConfigModuleBuilder.build();
 
+  /**
+   * This is ConfigurationModule for Java Evaluator
+   */
   public static final ConfigurationModule CONF = EvaluatorConfigModuleBuilder
       .bindConstructor(ExecutorService.class, ExecutorServiceConstructor.class)
       .build();
