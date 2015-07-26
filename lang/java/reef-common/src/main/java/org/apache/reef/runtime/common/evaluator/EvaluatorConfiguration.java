@@ -61,13 +61,12 @@ public final class EvaluatorConfiguration extends ConfigurationModuleBuilder {
       .bindNamedParameter(LaunchID.class, APPLICATION_IDENTIFIER);
 
   /**
-   * This is ConfigurationModule for CLR Evaluator where ExecutorServiceConstructor is not needed and
-   * C# code won't be able to understand Java class ExecutorServiceConstructor
+   * This is ConfigurationModule for CLR Evaluator.
    */
   public static final ConfigurationModule CONFCLR = EvaluatorConfigModuleBuilder.build();
 
   /**
-   * This is ConfigurationModule for Java Evaluator
+   * This is ConfigurationModule for Java Evaluator.
    */
   public static final ConfigurationModule CONF = EvaluatorConfigModuleBuilder
       .bindConstructor(ExecutorService.class, ExecutorServiceConstructor.class)
