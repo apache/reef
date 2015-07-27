@@ -41,6 +41,13 @@ under the License.
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FileSystem\Hadoop\CommandResult.cs" />
+    <Compile Include="FileSystem\Hadoop\HadoopFileSystemConfiguration.cs" />
+    <Compile Include="FileSystem\Hadoop\HDFSCommandRunner.cs" />
+    <Compile Include="FileSystem\Hadoop\HadoopFileSystem.cs" />
+    <Compile Include="FileSystem\Hadoop\Parameters\CommandTimeOut.cs" />
+    <Compile Include="FileSystem\Hadoop\Parameters\HadoopHome.cs" />
+    <Compile Include="FileSystem\Hadoop\Parameters\NumberOfRetries.cs" />
     <Compile Include="FileSystem\IFileSystem.cs" />
     <Compile Include="FileSystem\Local\LocalFileSystem.cs" />
     <Compile Include="FileSystem\Local\LocalFileSystemConfiguration.cs" />
@@ -63,6 +70,14 @@ under the License.
     <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.Tang\Org.Apache.REEF.Tang.csproj">
       <Project>{97DBB573-3994-417A-9F69-FFA25F00D2A6}</Project>
       <Name>Org.Apache.REEF.Tang</Name>
+    </ProjectReference>
+    <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.Utilities\Org.Apache.REEF.Utilities.csproj">
+      <Project>{79E7F89A-1DFB-45E1-8D43-D71A954AEB98}</Project>
+      <Name>Org.Apache.REEF.Utilities</Name>
+    </ProjectReference>
+    <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.Common\Org.Apache.REEF.Common.csproj">
+      <Project>{545A0582-4105-44CE-B99C-B1379514A630}</Project>
+      <Name>Org.Apache.REEF.Common</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup />
