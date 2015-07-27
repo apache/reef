@@ -30,7 +30,7 @@ import java.io.OutputStream;
 public class StringSerializer implements
     Serializer<String, OutputStream> {
   @Override
-  public Accumulable<String> create(OutputStream arg) {
+  public Accumulable<String> create(final OutputStream arg) {
     final DataOutputStream dos = new DataOutputStream(arg);
     return new Accumulable<String>() {
 
@@ -39,12 +39,12 @@ public class StringSerializer implements
         return new Accumulator<String>() {
 
           @Override
-          public void add(String datum) throws ServiceException {
-            byte[] b = datum.getBytes();
+          public void add(final String datum) throws ServiceException {
+            final byte[] b = datum.getBytes();
             try {
               dos.writeInt(b.length);
               dos.write(b);
-            } catch (IOException e) {
+            } catch (final IOException e) {
               throw new ServiceException(e);
             }
 
@@ -54,7 +54,7 @@ public class StringSerializer implements
           public void close() throws ServiceException {
             try {
               dos.close();
-            } catch (IOException e) {
+            } catch (final IOException e) {
               throw new ServiceException(e);
             }
           }

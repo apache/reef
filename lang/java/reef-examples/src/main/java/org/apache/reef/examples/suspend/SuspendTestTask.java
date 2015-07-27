@@ -167,7 +167,7 @@ public class SuspendTestTask implements Task, TaskMessageSource {
   public class SuspendHandler implements EventHandler<SuspendEvent> {
 
     @Override
-    public void onNext(SuspendEvent suspendEvent) {
+    public void onNext(final SuspendEvent suspendEvent) {
       final byte[] message = suspendEvent.get().get();
       LOG.log(Level.INFO, "Suspend: {0} with: {1} bytes; counter: {2}",
           new Object[]{this, message.length, SuspendTestTask.this.counter});

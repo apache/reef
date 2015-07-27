@@ -117,11 +117,11 @@ public class LocalClient {
   }
 
   private static Configuration getRuntimeConfiguration(
-      int numberOfEvaluators,
-      String runtimeRootFolder,
-      int tcpBeginPort,
-      int tcpRangeCount,
-      int tcpTryCount) {
+      final int numberOfEvaluators,
+      final String runtimeRootFolder,
+      final int tcpBeginPort,
+      final int tcpRangeCount,
+      final int tcpTryCount) {
     final Configuration runtimeConfiguration = getRuntimeConfiguration(numberOfEvaluators, runtimeRootFolder);
     final Configuration userproviderConfiguration = Tang.Factory.getTang().newConfigurationBuilder()
         .bindSetEntry(DriverConfigurationProviders.class, TcpPortConfigurationProvider.class)
@@ -132,7 +132,7 @@ public class LocalClient {
     return Configurations.merge(runtimeConfiguration, userproviderConfiguration);
   }
 
-  private static Configuration getRuntimeConfiguration(int numberOfEvaluators, String runtimeRootFolder) {
+  private static Configuration getRuntimeConfiguration(final int numberOfEvaluators, final String runtimeRootFolder) {
     return LocalRuntimeConfiguration.CONF
         .set(LocalRuntimeConfiguration.MAX_NUMBER_OF_EVALUATORS, Integer.toString(numberOfEvaluators))
         .set(LocalRuntimeConfiguration.RUNTIME_ROOT_FOLDER, runtimeRootFolder)

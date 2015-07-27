@@ -23,14 +23,14 @@ public class TupleEvent implements Comparable<TupleEvent> {
   private final int key;
   private final String val;
 
-  public TupleEvent(int key, String val) {
+  public TupleEvent(final int key, final String val) {
     this.key = key;
     this.val = val;
   }
 
   @Override
-  public int compareTo(TupleEvent o) {
-    int keycmp = Integer.compare(key, o.key);
+  public int compareTo(final TupleEvent o) {
+    final int keycmp = Integer.compare(key, o.key);
     if (keycmp != 0) {
       return keycmp;
     }

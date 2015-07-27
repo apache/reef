@@ -180,7 +180,7 @@ public class ClockTest {
 
     final EventRecorder alarmRecorder = new EventRecorder(eventCountLatch);
     try {
-      long[] expected = new long[numAlarms];
+      final long[] expected = new long[numAlarms];
       for (int i = 0; i < numAlarms; ++i) {
         clock.scheduleAlarm(i * 100, alarmRecorder);
         expected[i] = i * 100;
@@ -188,9 +188,9 @@ public class ClockTest {
 
       eventCountLatch.await(10, TimeUnit.SECONDS);
 
-      Long[] actualLong = new Long[numAlarms];
+      final Long[] actualLong = new Long[numAlarms];
       alarmRecorder.getTimestamps().toArray(actualLong);
-      long[] actual = new long[numAlarms];
+      final long[] actual = new long[numAlarms];
       for (int i = 0; i < numAlarms; ++i) {
         actual[i] = actualLong[i];
       }
@@ -217,7 +217,7 @@ public class ClockTest {
       this(null);
     }
 
-    public EventRecorder(CountDownLatch latch) {
+    public EventRecorder(final CountDownLatch latch) {
       eventCountLatch = latch;
     }
 
@@ -245,7 +245,7 @@ public class ClockTest {
     private final CountDownLatch eventCountLatch;
     private final Random rand;
 
-    public RandomAlarmProducer(RuntimeClock clock, CountDownLatch latch) {
+    public RandomAlarmProducer(final RuntimeClock clock, final CountDownLatch latch) {
       this.clock = clock;
       this.eventCountLatch = latch;
       this.rand = new Random();
@@ -253,7 +253,7 @@ public class ClockTest {
 
     @Override
     public void onNext(final Alarm value) {
-      int duration = rand.nextInt(100) + 1;
+      final int duration = rand.nextInt(100) + 1;
       clock.scheduleAlarm(duration, this);
       eventCountLatch.countDown();
     }

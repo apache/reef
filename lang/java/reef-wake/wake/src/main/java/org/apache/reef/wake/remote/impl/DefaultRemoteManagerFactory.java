@@ -125,7 +125,8 @@ public final class DefaultRemoteManagerFactory implements RemoteManagerFactory {
 
   @Override
   @SuppressWarnings("checkstyle:hiddenfield")
-  public <T> RemoteManager getInstance(String name, Codec<T> codec, EventHandler<Throwable> errorHandler) {
+  public <T> RemoteManager getInstance(
+      final String name, final Codec<T> codec, final EventHandler<Throwable> errorHandler) {
     return new DefaultRemoteManagerImplementation(name,
         DefaultRemoteManagerImplementation.UNKNOWN_HOST_NAME, // Indicate to use the localAddressProvider
         0, // Indicate to use the tcpPortProvider,

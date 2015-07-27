@@ -29,22 +29,22 @@ import java.security.cert.X509Certificate;
 final class UnsafeHostNameVerifier implements X509HostnameVerifier {
 
   @Override
-  public void verify(String host, SSLSocket ssl) throws IOException {
+  public void verify(final String host, final SSLSocket ssl) throws IOException {
 
   }
 
   @Override
-  public void verify(String host, X509Certificate cert) throws SSLException {
+  public void verify(final String host, final X509Certificate cert) throws SSLException {
 
   }
 
   @Override
-  public void verify(String host, String[] cns, String[] subjectAlts) throws SSLException {
+  public void verify(final String host, final String[] cns, final String[] subjectAlts) throws SSLException {
 
   }
 
   @Override
-  public boolean verify(String s, SSLSession sslSession) {
+  public boolean verify(final String s, final SSLSession sslSession) {
     return true;
   }
 }

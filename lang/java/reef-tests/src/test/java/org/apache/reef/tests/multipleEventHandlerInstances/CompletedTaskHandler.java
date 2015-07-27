@@ -44,7 +44,7 @@ public class CompletedTaskHandler implements EventHandler<CompletedTask> {
   }
 
   @Override
-  public void onNext(CompletedTask completedTask) {
+  public void onNext(final CompletedTask completedTask) {
     LOG.log(Level.FINEST, "Received a completed task");
     completedTask.getActiveContext().close();
   }

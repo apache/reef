@@ -36,7 +36,7 @@ import java.util.List;
 public class ProtocolBufferInjectionPlan {
 
   <T> InjectionPlanProto.InjectionPlan newConstructor(final String fullName,
-                                                      List<InjectionPlanProto.InjectionPlan> plans) {
+                                                      final List<InjectionPlanProto.InjectionPlan> plans) {
     return InjectionPlanProto.InjectionPlan
         .newBuilder()
         .setName(fullName)
@@ -46,7 +46,8 @@ public class ProtocolBufferInjectionPlan {
   }
 
   <T> InjectionPlanProto.InjectionPlan newSubplan(final String fullName,
-                                                  int selectedPlan, List<InjectionPlanProto.InjectionPlan> plans) {
+                                                  final int selectedPlan,
+                                                  final List<InjectionPlanProto.InjectionPlan> plans) {
     return InjectionPlanProto.InjectionPlan
         .newBuilder()
         .setName(fullName)
@@ -63,27 +64,27 @@ public class ProtocolBufferInjectionPlan {
         .build();
   }
 
-  public <T> InjectionPlanProto.InjectionPlan serialize(InjectionPlan<T> ip) {
+  public <T> InjectionPlanProto.InjectionPlan serialize(final InjectionPlan<T> ip) {
     if (ip instanceof Constructor) {
-      Constructor<T> cons = (Constructor<T>) ip;
-      InjectionPlan<?>[] args = cons.getArgs();
-      InjectionPlanProto.InjectionPlan[] protoArgs = new InjectionPlanProto.InjectionPlan[args.length];
+      final Constructor<T> cons = (Constructor<T>) ip;
+      final InjectionPlan<?>[] args = cons.getArgs();
+      final InjectionPlanProto.InjectionPlan[] protoArgs = new InjectionPlanProto.InjectionPlan[args.length];
       for (int i = 0; i < args.length; i++) {
         protoArgs[i] = serialize(args[i]);
       }
       return newConstructor(ip.getNode().getFullName(),
           Arrays.asList(protoArgs));
     } else if (ip instanceof Subplan) {
-      Subplan<T> sp = (Subplan<T>) ip;
-      InjectionPlan<?>[] args = sp.getPlans();
-      InjectionPlanProto.InjectionPlan[] subPlans = new InjectionPlanProto.InjectionPlan[args.length];
+      final Subplan<T> sp = (Subplan<T>) ip;
+      final InjectionPlan<?>[] args = sp.getPlans();
+      final InjectionPlanProto.InjectionPlan[] subPlans = new InjectionPlanProto.InjectionPlan[args.length];
       for (int i = 0; i < args.length; i++) {
         subPlans[i] = serialize(args[i]);
       }
       return newSubplan(ip.getNode().getFullName(), sp.getSelectedIndex(),
           Arrays.asList(subPlans));
     } else if (ip instanceof JavaInstance) {
-      JavaInstance<T> ji = (JavaInstance<T>) ip;
+      final JavaInstance<T> ji = (JavaInstance<T>) ip;
       return newInstance(ip.getNode().getFullName(), ji.getInstanceAsString());
     } else {
       throw new IllegalStateException(
@@ -91,7 +92,7 @@ public class ProtocolBufferInjectionPlan {
     }
   }
 
-  private Object parse(String type, String value) {
+  private Object parse(final String type, final String value) {
     // XXX this is a placeholder for now.  We need a parser API that will
     // either produce a live java object or (partially) validate stuff to
     // see if it looks like the target language will be able to handle this
@@ -100,8 +101,8 @@ public class ProtocolBufferInjectionPlan {
   }
 
   @SuppressWarnings("unchecked")
-  public <T> InjectionPlan<T> deserialize(ClassHierarchy ch,
-                                          InjectionPlanProto.InjectionPlan ip) throws NameResolutionException,
+  public <T> InjectionPlan<T> deserialize(final ClassHierarchy ch,
+                                          final InjectionPlanProto.InjectionPlan ip) throws NameResolutionException,
       BindException {
     final String fullName = ip.getName();
     if (ip.hasConstructor()) {
@@ -126,8 +127,8 @@ public class ProtocolBufferInjectionPlan {
       final ConstructorDef<T> constructor = cn.getConstructorDef(cnArgs);
       return new Constructor<T>(cn, constructor, ipArgs);
     } else if (ip.hasInstance()) {
-      InjectionPlanProto.Instance ins = ip.getInstance();
-      T instance = (T) parse(ip.getName(), ins.getValue());
+      final InjectionPlanProto.Instance ins = ip.getInstance();
+      final T instance = (T) parse(ip.getName(), ins.getValue());
       return new JavaInstance<T>(ch.getNode(ip.getName()), instance);
     } else if (ip.hasSubplan()) {
       final InjectionPlanProto.Subplan subplan = ip.getSubplan();
@@ -138,7 +139,7 @@ public class ProtocolBufferInjectionPlan {
       for (int i = 0; i < protoBufPlans.length; i++) {
         subPlans[i] = (InjectionPlan<T>) deserialize(ch, protoBufPlans[i]);
       }
-      Node n = ch.getNode(fullName);
+      final Node n = ch.getNode(fullName);
       return new Subplan<T>(n, subPlans);
     } else {
       throw new IllegalStateException(

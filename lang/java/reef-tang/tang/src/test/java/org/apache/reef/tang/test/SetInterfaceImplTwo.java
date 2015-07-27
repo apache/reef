@@ -35,7 +35,7 @@ final class SetInterfaceImplTwo implements SetInterface {
   }
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(final Object o) {
     if (this == o) {
       return true;
     }
@@ -43,7 +43,7 @@ final class SetInterfaceImplTwo implements SetInterface {
       return false;
     }
 
-    SetInterfaceImplTwo that = (SetInterfaceImplTwo) o;
+    final SetInterfaceImplTwo that = (SetInterfaceImplTwo) o;
 
     if (Double.compare(that.magicNumber, magicNumber) != 0) {
       return false;
@@ -54,7 +54,7 @@ final class SetInterfaceImplTwo implements SetInterface {
 
   @Override
   public int hashCode() {
-    long temp = Double.doubleToLongBits(magicNumber);
+    final long temp = Double.doubleToLongBits(magicNumber);
     return (int) (temp ^ (temp >>> 32));
   }
 }

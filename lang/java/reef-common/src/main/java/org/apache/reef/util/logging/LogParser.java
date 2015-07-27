@@ -122,7 +122,7 @@ public final class LogParser {
    */
   public static ArrayList<String> filter(final ArrayList<String> original, final String filter, final String token) {
     final ArrayList<String> result = new ArrayList<String>();
-    for (String line : original) {
+    for (final String line : original) {
       if (line.contains(filter)) {
         final String[] p = line.split(token);
         if (p.length > 1) {
@@ -140,10 +140,10 @@ public final class LogParser {
    * @return
    */
   public static ArrayList<String> findStages(final ArrayList<String> lines, final String[] stageIndicators) {
-    ArrayList<String> stages = new ArrayList<String>();
+    final ArrayList<String> stages = new ArrayList<String>();
 
     int i = 0;
-    for (String line: lines) {
+    for (final String line: lines) {
       if (line.contains(stageIndicators[i])){
         stages.add(stageIndicators[i]);
         if (i < stageIndicators.length - 1) {
@@ -154,10 +154,10 @@ public final class LogParser {
     return stages;
   }
 
-  public static ArrayList<String> mergeStages(ArrayList<String> startStages, ArrayList<String> endStages) {
-    ArrayList<String> mergeStage = new ArrayList<String>();
+  public static ArrayList<String> mergeStages(final ArrayList<String> startStages, final ArrayList<String> endStages) {
+    final ArrayList<String> mergeStage = new ArrayList<String>();
     for (int i = 0; i < startStages.size(); i++) {
-      String end = startStages.get(i).replace(LoggingScopeImpl.START_PREFIX, LoggingScopeImpl.EXIT_PREFIX);
+      final String end = startStages.get(i).replace(LoggingScopeImpl.START_PREFIX, LoggingScopeImpl.EXIT_PREFIX);
       if (endStages.contains(end)) {
         mergeStage.add(startStages.get(i)  + "   " + end);
       } else {

@@ -37,7 +37,7 @@ class DefaultRemoteMessage<T> implements RemoteMessage<T> {
    * @param id      the remote identifier
    * @param message the message
    */
-  DefaultRemoteMessage(RemoteIdentifier id, T message) {
+  DefaultRemoteMessage(final RemoteIdentifier id, final T message) {
     this.id = id;
     this.message = message;
   }

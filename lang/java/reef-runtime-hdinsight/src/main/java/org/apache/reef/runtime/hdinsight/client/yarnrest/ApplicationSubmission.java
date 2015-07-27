@@ -67,7 +67,7 @@ public final class ApplicationSubmission {
     return applicationId;
   }
 
-  public ApplicationSubmission setApplicationId(String applicationId) {
+  public ApplicationSubmission setApplicationId(final String applicationId) {
     this.applicationId = applicationId;
     return this;
   }
@@ -77,7 +77,7 @@ public final class ApplicationSubmission {
     return applicationName;
   }
 
-  public ApplicationSubmission setApplicationName(String applicationName) {
+  public ApplicationSubmission setApplicationName(final String applicationName) {
     this.applicationName = applicationName;
     return this;
   }
@@ -87,7 +87,7 @@ public final class ApplicationSubmission {
     return applicationType;
   }
 
-  public ApplicationSubmission setApplicationType(String applicationType) {
+  public ApplicationSubmission setApplicationType(final String applicationType) {
     this.applicationType = applicationType;
     return this;
   }
@@ -97,7 +97,7 @@ public final class ApplicationSubmission {
     return amContainerSpec;
   }
 
-  public ApplicationSubmission setAmContainerSpec(AmContainerSpec amContainerSpec) {
+  public ApplicationSubmission setAmContainerSpec(final AmContainerSpec amContainerSpec) {
     this.amContainerSpec = amContainerSpec;
     return this;
   }
@@ -108,7 +108,7 @@ public final class ApplicationSubmission {
   }
 
   @SuppressWarnings("checkstyle:hiddenfield")
-  public ApplicationSubmission setUnmanagedAM(boolean isUnmanagedAM) {
+  public ApplicationSubmission setUnmanagedAM(final boolean isUnmanagedAM) {
     this.isUnmanagedAM = isUnmanagedAM;
     return this;
   }
@@ -118,7 +118,7 @@ public final class ApplicationSubmission {
     return keepContainers;
   }
 
-  public ApplicationSubmission setKeepContainers(boolean keepContainers) {
+  public ApplicationSubmission setKeepContainers(final boolean keepContainers) {
     this.keepContainers = keepContainers;
     return this;
   }
@@ -128,7 +128,7 @@ public final class ApplicationSubmission {
     return maxAppAttempts;
   }
 
-  public ApplicationSubmission setMaxAppAttempts(int maxAppAttempts) {
+  public ApplicationSubmission setMaxAppAttempts(final int maxAppAttempts) {
     this.maxAppAttempts = maxAppAttempts;
     return this;
   }
@@ -138,7 +138,7 @@ public final class ApplicationSubmission {
     return priority;
   }
 
-  public ApplicationSubmission setPriority(int priority) {
+  public ApplicationSubmission setPriority(final int priority) {
     this.priority = priority;
     return this;
   }
@@ -148,7 +148,7 @@ public final class ApplicationSubmission {
     return queue;
   }
 
-  public ApplicationSubmission setQueue(String queue) {
+  public ApplicationSubmission setQueue(final String queue) {
     this.queue = queue;
     return this;
   }
@@ -158,12 +158,12 @@ public final class ApplicationSubmission {
     return resource;
   }
 
-  public ApplicationSubmission setResource(Resource resource) {
+  public ApplicationSubmission setResource(final Resource resource) {
     this.resource = resource;
     return this;
   }
 
-  public ApplicationSubmission addApplicationTag(String tag) {
+  public ApplicationSubmission addApplicationTag(final String tag) {
     this.applicationTags.add(tag);
     return this;
   }
@@ -181,12 +181,12 @@ public final class ApplicationSubmission {
 
   @Override
   public String toString() {
-    StringWriter writer = new StringWriter();
-    String objectString;
+    final StringWriter writer = new StringWriter();
+    final String objectString;
     try {
       OBJECT_MAPPER.writeValue(writer, this);
       objectString = writer.toString();
-    } catch (IOException e) {
+    } catch (final IOException e) {
       return null;
     }
 

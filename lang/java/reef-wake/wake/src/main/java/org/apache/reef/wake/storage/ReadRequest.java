@@ -27,7 +27,7 @@ public class ReadRequest implements Identifiable {
   final byte[] buf;
   final Identifier id;
 
-  public ReadRequest(StorageIdentifier f, long offset, byte[] buf, Identifier id) {
+  public ReadRequest(final StorageIdentifier f, final long offset, final byte[] buf, final Identifier id) {
     this.f = f;
     this.offset = offset;
     this.buf = buf;

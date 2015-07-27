@@ -29,19 +29,19 @@ import org.apache.reef.wake.test.proto.TestProtos.TestEventPBuf;
 public class TestEventCodec implements Codec<TestEvent> {
 
   @Override
-  public byte[] encode(TestEvent obj) {
-    TestEventPBuf.Builder builder = TestEventPBuf.newBuilder();
+  public byte[] encode(final TestEvent obj) {
+    final TestEventPBuf.Builder builder = TestEventPBuf.newBuilder();
     builder.setMessage(obj.getMessage());
     builder.setLoad(obj.getLoad());
     return builder.build().toByteArray();
   }
 
   @Override
-  public TestEvent decode(byte[] data) {
-    TestEventPBuf pbuf;
+  public TestEvent decode(final byte[] data) {
+    final TestEventPBuf pbuf;
     try {
       pbuf = TestEventPBuf.parseFrom(data);
-    } catch (InvalidProtocolBufferException e) {
+    } catch (final InvalidProtocolBufferException e) {
       e.printStackTrace();
       throw new RemoteRuntimeException(e);
     }

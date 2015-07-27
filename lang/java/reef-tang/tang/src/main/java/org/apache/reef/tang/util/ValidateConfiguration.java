@@ -47,9 +47,9 @@ public class ValidateConfiguration {
 
   @Inject
   public ValidateConfiguration(
-      @Parameter(ClassHierarchyIn.class) File ch,
-      @Parameter(ConfigurationIn.class) File inConfig,
-      @Parameter(ConfigurationOut.class) File outConfig) {
+      @Parameter(ClassHierarchyIn.class) final File ch,
+      @Parameter(ConfigurationIn.class) final File inConfig,
+      @Parameter(ConfigurationOut.class) final File outConfig) {
     this.target = null;
     this.ch = ch;
     this.inConfig = inConfig;
@@ -59,27 +59,27 @@ public class ValidateConfiguration {
 
   @Inject
   public ValidateConfiguration(
-      @Parameter(Target.class) String injectedClass,
-      @Parameter(ClassHierarchyIn.class) File ch,
-      @Parameter(ConfigurationIn.class) File inConfig,
-      @Parameter(ConfigurationOut.class) File outConfig) {
+      @Parameter(Target.class) final String injectedClass,
+      @Parameter(ClassHierarchyIn.class) final File ch,
+      @Parameter(ConfigurationIn.class) final File inConfig,
+      @Parameter(ConfigurationOut.class) final File outConfig) {
     this.target = injectedClass;
     this.ch = ch;
     this.inConfig = inConfig;
     this.outConfig = outConfig;
   }
 
-  public static void main(String[] argv) throws IOException, BindException, InjectionException {
-    @SuppressWarnings("unchecked")
-    JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder(
+  public static void main(final String[] argv) throws IOException, BindException, InjectionException {
+    @SuppressWarnings("unchecked") final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder(
         (Class<? extends ExternalConstructor<?>>[]) new Class[]{FileParser.class});
-    CommandLine cl = new CommandLine(cb);
+    final CommandLine cl = new CommandLine(cb);
     cl.processCommandLine(argv,
         Target.class,
         ClassHierarchyIn.class,
         ConfigurationIn.class,
         ConfigurationOut.class);
-    ValidateConfiguration bip = Tang.Factory.getTang().newInjector(cb.build()).getInstance(ValidateConfiguration.class);
+    final ValidateConfiguration bip =
+        Tang.Factory.getTang().newInjector(cb.build()).getInstance(ValidateConfiguration.class);
     bip.validatePlan();
   }
 
@@ -123,7 +123,7 @@ public class ValidateConfiguration {
     private final File f;
 
     @Inject
-    FileParser(String name) {
+    FileParser(final String name) {
       f = new File(name);
     }
 

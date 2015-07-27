@@ -53,7 +53,7 @@ public final class BlockingEventHandler<T> implements EventHandler<T> {
   @Override
   public void onNext(final T event) {
     this.events.add(event);
-    int newCursor = this.cursor.incrementAndGet();
+    final int newCursor = this.cursor.incrementAndGet();
 
     if (newCursor % expectedSize == 0) {
       // FIXME: There is a race here where the person draining the events might
@@ -61,7 +61,7 @@ public final class BlockingEventHandler<T> implements EventHandler<T> {
       // matter, since all events will still be drained exactly once by someone in
       // the proper order
 
-      ArrayList<T> nonConcurrent = new ArrayList<>(expectedSize);
+      final ArrayList<T> nonConcurrent = new ArrayList<>(expectedSize);
       synchronized (events) {
 
         // drainTo(maxElements) does not suffice because it has undefined behavior for

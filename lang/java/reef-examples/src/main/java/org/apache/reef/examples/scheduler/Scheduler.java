@@ -187,7 +187,7 @@ final class Scheduler {
   /**
    * Add a task to the queue.
    */
-  public synchronized void addTask(TaskEntity task) {
+  public synchronized void addTask(final TaskEntity task) {
     taskQueue.add(task);
   }
 

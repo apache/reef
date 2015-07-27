@@ -74,7 +74,7 @@ public class ResourceManagerTest {
   @SuppressWarnings("unchecked")
   @Before
   public void setUp() throws InjectionException {
-    JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
+    final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
     cb.bindNamedParameter(RootFolder.class, "target/REEF_LOCAL_RUNTIME");
     injector = Tang.Factory.getTang().newInjector(cb.build());
     remoteManager = injector.getInstance(RemoteManager.class);

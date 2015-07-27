@@ -34,12 +34,12 @@ public final class TracingMonotonicTreeMap<K, V> implements TracingMonotonicMap<
   }
 
   @Override
-  public boolean containsKey(Object key) {
+  public boolean containsKey(final Object key) {
     return innerMap.containsKey(key);
   }
 
   @Override
-  public boolean containsValue(Object value) {
+  public boolean containsValue(final Object value) {
     throw new UnsupportedOperationException();
   }
 
@@ -49,8 +49,8 @@ public final class TracingMonotonicTreeMap<K, V> implements TracingMonotonicMap<
   }
 
   @Override
-  public V get(Object key) {
-    EntryImpl ret = innerMap.get(key);
+  public V get(final Object key) {
+    final EntryImpl ret = innerMap.get(key);
     return ret != null ? ret.getKey() : null;
   }
 
@@ -65,18 +65,18 @@ public final class TracingMonotonicTreeMap<K, V> implements TracingMonotonicMap<
   }
 
   @Override
-  public V put(K key, V value) {
-    EntryImpl ret = innerMap.put(key, new EntryImpl(value, new StackBindLocation()));
+  public V put(final K key, final V value) {
+    final EntryImpl ret = innerMap.put(key, new EntryImpl(value, new StackBindLocation()));
     return ret != null ? ret.getKey() : null;
   }
 
   @Override
-  public void putAll(Map<? extends K, ? extends V> m) {
+  public void putAll(final Map<? extends K, ? extends V> m) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public V remove(Object key) {
+  public V remove(final Object key) {
     throw new UnsupportedOperationException();
   }
 
@@ -91,7 +91,7 @@ public final class TracingMonotonicTreeMap<K, V> implements TracingMonotonicMap<
   }
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(final Object o) {
     if (this == o) {
       return true;
     }
@@ -117,7 +117,7 @@ public final class TracingMonotonicTreeMap<K, V> implements TracingMonotonicMap<
     private final V key;
     private final BindLocation value;
 
-    EntryImpl(V key, BindLocation value) {
+    EntryImpl(final V key, final BindLocation value) {
       this.key = key;
       this.value = value;
     }
@@ -134,7 +134,7 @@ public final class TracingMonotonicTreeMap<K, V> implements TracingMonotonicMap<
 
     @Override
     @SuppressWarnings("checkstyle:hiddenfield")
-    public BindLocation setValue(BindLocation value) {
+    public BindLocation setValue(final BindLocation value) {
       throw new UnsupportedOperationException();
     }
 

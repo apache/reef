@@ -37,11 +37,11 @@ public class ClassNodeImpl<T> extends AbstractNode implements ClassNode<T> {
   private final MonotonicSet<ClassNode<T>> knownImpls;
   private final String defaultImpl;
 
-  public ClassNodeImpl(Node parent, String simpleName, String fullName,
-                       boolean unit, boolean injectable, boolean externalConstructor,
-                       ConstructorDef<T>[] injectableConstructors,
-                       ConstructorDef<T>[] allConstructors,
-                       String defaultImplementation) {
+  public ClassNodeImpl(final Node parent, final String simpleName, final String fullName,
+                       final boolean unit, final boolean injectable, final boolean externalConstructor,
+                       final ConstructorDef<T>[] injectableConstructors,
+                       final ConstructorDef<T>[] allConstructors,
+                       final String defaultImplementation) {
     super(parent, simpleName, fullName);
     this.unit = unit;
     this.injectable = injectable;
@@ -74,9 +74,9 @@ public class ClassNodeImpl<T> extends AbstractNode implements ClassNode<T> {
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder(super.toString() + ": ");
+    final StringBuilder sb = new StringBuilder(super.toString() + ": ");
     if (getInjectableConstructors() != null) {
-      for (ConstructorDef<T> c : getInjectableConstructors()) {
+      for (final ConstructorDef<T> c : getInjectableConstructors()) {
         sb.append(c.toString() + ", ");
       }
     } else {
@@ -85,13 +85,13 @@ public class ClassNodeImpl<T> extends AbstractNode implements ClassNode<T> {
     return sb.toString();
   }
 
-  public ConstructorDef<T> getConstructorDef(ClassNode<?>... paramTypes)
+  public ConstructorDef<T> getConstructorDef(final ClassNode<?>... paramTypes)
       throws BindException {
     if (!isInjectionCandidate()) {
       throw new BindException("Cannot @Inject non-static member/local class: "
           + getFullName());
     }
-    for (ConstructorDef<T> c : getAllConstructors()) {
+    for (final ConstructorDef<T> c : getAllConstructors()) {
       if (c.takesParameters(paramTypes)) {
         return c;
       }
@@ -101,7 +101,7 @@ public class ClassNodeImpl<T> extends AbstractNode implements ClassNode<T> {
   }
 
   @Override
-  public void putImpl(ClassNode<T> impl) {
+  public void putImpl(final ClassNode<T> impl) {
     knownImpls.add(impl);
   }
 
@@ -116,16 +116,15 @@ public class ClassNodeImpl<T> extends AbstractNode implements ClassNode<T> {
   }
 
   @Override
-  public boolean isImplementationOf(ClassNode<?> inter) {
-    List<ClassNode<?>> worklist = new ArrayList<>();
+  public boolean isImplementationOf(final ClassNode<?> inter) {
+    final List<ClassNode<?>> worklist = new ArrayList<>();
     if (this.equals(inter)) {
       return true;
     }
     worklist.add(inter);
     while (!worklist.isEmpty()) {
-      ClassNode<?> cn = worklist.remove(worklist.size() - 1);
-      @SuppressWarnings({"rawtypes", "unchecked"})
-      Set<ClassNode<?>> impls = (Set) cn.getKnownImplementations();
+      final ClassNode<?> cn = worklist.remove(worklist.size() - 1);
+      @SuppressWarnings({"rawtypes", "unchecked"}) final Set<ClassNode<?>> impls = (Set) cn.getKnownImplementations();
       if (impls.contains(this)) {
         return true;
       }

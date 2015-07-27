@@ -38,31 +38,31 @@ public class VectorCodec implements Codec<Vector> {
   }
 
   @Override
-  public Vector decode(byte[] data) {
-    ByteArrayInputStream bais = new ByteArrayInputStream(data);
-    Vector result;
+  public Vector decode(final byte[] data) {
+    final ByteArrayInputStream bais = new ByteArrayInputStream(data);
+    final Vector result;
     try (DataInputStream dais = new DataInputStream(bais)) {
-      int size = dais.readInt();
+      final int size = dais.readInt();
       result = new DenseVector(size);
       for (int i = 0; i < size; i++) {
         result.set(i, dais.readDouble());
       }
-    } catch (IOException e) {
+    } catch (final IOException e) {
       throw new RuntimeException(e.getCause());
     }
     return result;
   }
 
   @Override
-  public byte[] encode(Vector vec) {
-    ByteArrayOutputStream baos = new ByteArrayOutputStream(vec.size()
+  public byte[] encode(final Vector vec) {
+    final ByteArrayOutputStream baos = new ByteArrayOutputStream(vec.size()
         * (Double.SIZE / Byte.SIZE));
     try (DataOutputStream daos = new DataOutputStream(baos)) {
       daos.writeInt(vec.size());
       for (int i = 0; i < vec.size(); i++) {
         daos.writeDouble(vec.get(i));
       }
-    } catch (IOException e) {
+    } catch (final IOException e) {
       throw new RuntimeException(e.getCause());
     }
     return baos.toByteArray();

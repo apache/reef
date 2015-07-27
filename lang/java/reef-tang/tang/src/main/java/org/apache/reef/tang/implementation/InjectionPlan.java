@@ -32,7 +32,7 @@ public abstract class InjectionPlan<T> implements Traversable<InjectionPlan<?>> 
     this.node = node;
   }
 
-  private static void newline(StringBuffer pretty, int indent) {
+  private static void newline(final StringBuffer pretty, final int indent) {
     pretty.append('\n');
     for (int j = 0; j < indent * 2; j++) {
       pretty.append(' ');
@@ -65,18 +65,18 @@ public abstract class InjectionPlan<T> implements Traversable<InjectionPlan<?>> 
 
   public abstract boolean isInjectable();
 
-  protected void pad(StringBuffer sb, int n) {
+  protected void pad(final StringBuffer sb, final int n) {
     for (int i = 0; i < n; i++) {
       sb.append("  ");
     }
   }
 
   public String toPrettyString() {
-    String ugly = node.getFullName() + ":\n" + toString();
-    StringBuffer pretty = new StringBuffer();
+    final String ugly = node.getFullName() + ":\n" + toString();
+    final StringBuffer pretty = new StringBuffer();
     int currentIndent = 1;
     for (int i = 0; i < ugly.length(); i++) {
-      char c = ugly.charAt(i);
+      final char c = ugly.charAt(i);
       if (c == '(') {
         if (ugly.charAt(i + 1) == ')') {
           pretty.append("()");

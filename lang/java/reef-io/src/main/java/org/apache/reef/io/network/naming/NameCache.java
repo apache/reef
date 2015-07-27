@@ -39,7 +39,7 @@ public class NameCache implements Cache<Identifier, InetSocketAddress> {
    *
    * @param timeout a cache entry timeout after write
    */
-  public NameCache(long timeout) {
+  public NameCache(final long timeout) {
     cache = new CacheImpl<>(new SystemTime(), timeout);
   }
 
@@ -52,8 +52,8 @@ public class NameCache implements Cache<Identifier, InetSocketAddress> {
    * @throws ExecutionException
    */
   @Override
-  public InetSocketAddress get(Identifier key,
-                               Callable<InetSocketAddress> valueFetcher) throws ExecutionException {
+  public InetSocketAddress get(final Identifier key,
+                               final Callable<InetSocketAddress> valueFetcher) throws ExecutionException {
     return cache.get(key, valueFetcher);
   }
 
@@ -63,7 +63,7 @@ public class NameCache implements Cache<Identifier, InetSocketAddress> {
    * @param key an identifier
    */
   @Override
-  public void invalidate(Identifier key) {
+  public void invalidate(final Identifier key) {
     cache.invalidate(key);
   }
 

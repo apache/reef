@@ -27,7 +27,7 @@ public class TimerImpl implements Timer {
   private final int seconds;
 
   @Inject
-  public TimerImpl(@Parameter(Timer.Seconds.class) int seconds) {
+  public TimerImpl(@Parameter(Timer.Seconds.class) final int seconds) {
     if (seconds < 0) {
       throw new IllegalArgumentException("Cannot sleep for negative time!");
     }

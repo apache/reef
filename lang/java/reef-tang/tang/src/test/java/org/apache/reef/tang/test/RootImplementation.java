@@ -49,7 +49,7 @@ final class RootImplementation implements RootInterface {
                             @Parameter(TestConfiguration.StringHandler.class) final Handler<String> stringHandler,
                             @Parameter(TestConfiguration.IntegerHandler.class) final Handler<Integer> integerHandler,
                             @Parameter(TestConfiguration.NamedParameterInteger.class) final int anInt,
-                            @Parameter(TestConfiguration.NamedParameterDouble.class) double aDouble,
+                            @Parameter(TestConfiguration.NamedParameterDouble.class) final double aDouble,
                             final UnitClass unit,
                             final AnInterface anInterface,
                             final InjectableClass injectableClass,
@@ -57,7 +57,7 @@ final class RootImplementation implements RootInterface {
                             final SetOfBaseTypes setOfBaseTypes,
                             final ListOfImplementations listOfImplementations,
                             final ListOfBaseTypes listOfBaseTypes,
-                            CyclicDependency cyclicDependency) {
+                            final CyclicDependency cyclicDependency) {
     this.requiredString = requiredString;
     this.optionalString = optionalString;
     this.unit = unit;
@@ -114,7 +114,7 @@ final class RootImplementation implements RootInterface {
 
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(final Object o) {
     if (this == o) {
       return true;
     }
@@ -122,7 +122,7 @@ final class RootImplementation implements RootInterface {
       return false;
     }
 
-    RootImplementation that = (RootImplementation) o;
+    final RootImplementation that = (RootImplementation) o;
 
     if (Double.compare(that.aDouble, aDouble) != 0) {
       return false;
@@ -175,7 +175,7 @@ final class RootImplementation implements RootInterface {
   @Override
   public int hashCode() {
     int result;
-    long temp;
+    final long temp;
     result = requiredString != null ? requiredString.hashCode() : 0;
     result = 31 * result + (optionalString != null ? optionalString.hashCode() : 0);
     result = 31 * result + (unit != null ? unit.hashCode() : 0);

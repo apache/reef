@@ -52,8 +52,8 @@ public class AllocatedEvaluatorBridge extends NativeBridge {
     if (taskConfigurationString.isEmpty()) {
       throw new RuntimeException("empty taskConfigurationString provided.");
     }
-    Configuration contextConfiguration;
-    Configuration taskConfiguration;
+    final Configuration contextConfiguration;
+    final Configuration taskConfiguration;
     try {
       contextConfiguration = serializer.fromString(contextConfigurationString, clrClassHierarchy);
       taskConfiguration = serializer.fromString(taskConfigurationString, clrClassHierarchy);
@@ -69,7 +69,7 @@ public class AllocatedEvaluatorBridge extends NativeBridge {
     if (contextConfigurationString.isEmpty()) {
       throw new RuntimeException("empty contextConfigurationString provided.");
     }
-    Configuration contextConfiguration;
+    final Configuration contextConfiguration;
     try {
       contextConfiguration = serializer.fromString(contextConfigurationString, clrClassHierarchy);
     } catch (final Exception e) {
@@ -89,8 +89,8 @@ public class AllocatedEvaluatorBridge extends NativeBridge {
       throw new RuntimeException("empty serviceConfigurationString provided.");
     }
 
-    Configuration contextConfiguration;
-    Configuration servicetConfiguration;
+    final Configuration contextConfiguration;
+    final Configuration servicetConfiguration;
     try {
       contextConfiguration = serializer.fromString(contextConfigurationString, clrClassHierarchy);
       servicetConfiguration = serializer.fromString(serviceConfigurationString, clrClassHierarchy);
@@ -115,9 +115,9 @@ public class AllocatedEvaluatorBridge extends NativeBridge {
     if (taskConfigurationString.isEmpty()) {
       throw new RuntimeException("empty taskConfigurationString provided.");
     }
-    Configuration contextConfiguration;
-    Configuration servicetConfiguration;
-    Configuration taskConfiguration;
+    final Configuration contextConfiguration;
+    final Configuration servicetConfiguration;
+    final Configuration taskConfiguration;
     try {
       contextConfiguration = serializer.fromString(contextConfigurationString, clrClassHierarchy);
       servicetConfiguration = serializer.fromString(serviceConfigurationString, clrClassHierarchy);
@@ -132,7 +132,8 @@ public class AllocatedEvaluatorBridge extends NativeBridge {
   }
 
   public String getEvaluatorDescriptorSring() {
-    String descriptorString = Utilities.getEvaluatorDescriptorString(jallocatedEvaluator.getEvaluatorDescriptor());
+    final String descriptorString =
+        Utilities.getEvaluatorDescriptorString(jallocatedEvaluator.getEvaluatorDescriptor());
     LOG.log(Level.INFO, "allocated evaluator - serialized evaluator descriptor: " + descriptorString);
     return descriptorString;
   }

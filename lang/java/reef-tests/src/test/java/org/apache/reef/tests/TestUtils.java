@@ -52,9 +52,10 @@ public final class TestUtils {
    * @param clazz class inherited from type Throwable.
    * @return True if ex or any other exception in its cause chain is instance of class clazz.
    */
-  public static boolean hasCause(Throwable ex, final Class<? extends Throwable> clazz) {
-    for (; ex != null; ex = ex.getCause()) {
-      if (clazz.isInstance(ex)) {
+  public static boolean hasCause(final Throwable ex, final Class<? extends Throwable> clazz) {
+    Throwable exception = ex;
+    for (; exception != null; exception = exception.getCause()) {
+      if (clazz.isInstance(exception)) {
         return true;
       }
     }

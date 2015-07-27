@@ -40,11 +40,11 @@ public class TestCombiner {
 
   @Test
   public void test() throws Exception {
-    CombinerStage<Integer, Integer> stage = new CombinerStage<Integer, Integer>(
+    final CombinerStage<Integer, Integer> stage = new CombinerStage<Integer, Integer>(
         new Combiner<Integer, Integer>() {
 
           @Override
-          public Integer combine(Integer key, Integer old, Integer cur) {
+          public Integer combine(final Integer key, final Integer old, final Integer cur) {
             if (old != null) {
               return old.intValue() + cur.intValue();
             } else {
@@ -56,20 +56,20 @@ public class TestCombiner {
           private AtomicInteger x = new AtomicInteger(0);
 
           @Override
-          public void onNext(Entry<Integer, Integer> value) {
+          public void onNext(final Entry<Integer, Integer> value) {
             System.out.println(value.getKey() + "=" + value.getValue());
             x.incrementAndGet();
             try {
               if (!done) {
                 Thread.sleep(10);
               }
-            } catch (InterruptedException e) {
+            } catch (final InterruptedException e) {
               throw new IllegalStateException(e);
             }
           }
 
           @Override
-          public void onError(Exception error) {
+          public void onError(final Exception error) {
             System.err.println("onError called!");
             error.printStackTrace();
           }
@@ -83,12 +83,12 @@ public class TestCombiner {
 
     o = stage.wireIn();
 
-    WorkerThread[] workers = new WorkerThread[THREAD_COUNT];
+    final WorkerThread[] workers = new WorkerThread[THREAD_COUNT];
 
     for (int i = 0; i < THREAD_COUNT; i++) {
       workers[i] = new WorkerThread();
     }
-    long start = System.currentTimeMillis();
+    final long start = System.currentTimeMillis();
     for (int i = 0; i < THREAD_COUNT; i++) {
       workers[i].start();
     }
@@ -97,15 +97,15 @@ public class TestCombiner {
     }
     o.onCompleted();
 
-    long inStop = System.currentTimeMillis();
+    final long inStop = System.currentTimeMillis();
     done = true;
 
     stage.close();
-    long outStop = System.currentTimeMillis();
+    final long outStop = System.currentTimeMillis();
 
-    long eventCount = THREAD_COUNT * EVENTS_PER_THREAD;
-    double inelapsed = ((double) (inStop - start)) / 1000.0;
-    double inoutelapsed = ((double) (outStop - start)) / 1000.0;
+    final long eventCount = THREAD_COUNT * EVENTS_PER_THREAD;
+    final double inelapsed = ((double) (inStop - start)) / 1000.0;
+    final double inoutelapsed = ((double) (outStop - start)) / 1000.0;
     System.out.println("Emitted " + eventCount + " events in " + inelapsed
         + " seconds (" + ((double) eventCount) / (inelapsed * 1000.0 * 1000.0) + " million events/sec)");
     System.out.println("Emitted/output " + eventCount + " events in " + inoutelapsed
@@ -116,9 +116,9 @@ public class TestCombiner {
   private class WorkerThread extends Thread {
     @Override
     public void run() {
-      Random rand = new Random();
+      final Random rand = new Random();
       for (int i = 0; i < EVENTS_PER_THREAD; i++) {
-        int r = rand.nextInt(BUCKET_COUNT);
+        final int r = rand.nextInt(BUCKET_COUNT);
         o.onNext(new CombinerStage.Pair<Integer, Integer>(r, 1));
       }
 

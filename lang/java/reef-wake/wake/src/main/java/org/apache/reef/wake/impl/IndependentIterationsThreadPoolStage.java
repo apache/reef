@@ -42,7 +42,8 @@ public class IndependentIterationsThreadPoolStage<T> extends AbstractEStage<List
   private EventHandler<T> handler;
   private ExecutorService executor;
 
-  public IndependentIterationsThreadPoolStage(EventHandler<T> handler, int numThreads, int granularity) {
+  public IndependentIterationsThreadPoolStage(
+      final EventHandler<T> handler, final int numThreads, final int granularity) {
     super(handler.getClass().getName());
     this.handler = handler;
     this.executor = Executors.newFixedThreadPool(numThreads);
@@ -53,7 +54,7 @@ public class IndependentIterationsThreadPoolStage<T> extends AbstractEStage<List
     return new Runnable() {
       @Override
       public void run() {
-        for (T e : iterations) {
+        for (final T e : iterations) {
           handler.onNext(e);
         }
       }

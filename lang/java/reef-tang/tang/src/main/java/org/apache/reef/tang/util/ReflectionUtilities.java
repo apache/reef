@@ -64,7 +64,7 @@ public final class ReflectionUtilities {
    * @param c The class to be boxed.
    * @return The boxed version of c, or c if it is not a primitive type.
    */
-  public static Class<?> boxClass(Class<?> c) {
+  public static Class<?> boxClass(final Class<?> c) {
     if (c.isPrimitive() && c != Class.class) {
       if (c == boolean.class) {
         return Boolean.class;
@@ -103,26 +103,27 @@ public final class ReflectionUtilities {
    * HashSet<T> -> {HashSet<T>, Set<T>, Collection<T>, Object}
    * FooEventHandler -> {FooEventHandler, EventHandler<Foo>, Object}
    */
-  public static Iterable<Type> classAndAncestors(Type c) {
-    List<Type> workQueue = new ArrayList<>();
+  public static Iterable<Type> classAndAncestors(final Type c) {
+    final List<Type> workQueue = new ArrayList<>();
 
-    workQueue.add(c);
-    if (getRawClass(c).isInterface()) {
+    Type clazz = c;
+    workQueue.add(clazz);
+    if (getRawClass(clazz).isInterface()) {
       workQueue.add(Object.class);
     }
     for (int i = 0; i < workQueue.size(); i++) {
-      c = workQueue.get(i);
+      clazz = workQueue.get(i);
 
-      if (c instanceof Class) {
-        Class<?> clz = (Class<?>) c;
+      if (clazz instanceof Class) {
+        final Class<?> clz = (Class<?>) clazz;
         final Type sc = clz.getSuperclass();
         if (sc != null) {
           workQueue.add(sc); //c.getSuperclass());
         }
         workQueue.addAll(Arrays.asList(clz.getGenericInterfaces()));
-      } else if (c instanceof ParameterizedType) {
-        ParameterizedType pt = (ParameterizedType) c;
-        Class<?> rawPt = (Class<?>) pt.getRawType();
+      } else if (clazz instanceof ParameterizedType) {
+        final ParameterizedType pt = (ParameterizedType) clazz;
+        final Class<?> rawPt = (Class<?>) pt.getRawType();
         final Type sc = rawPt.getSuperclass();
 //        workQueue.add(pt);
 //        workQueue.add(rawPt);
@@ -130,12 +131,12 @@ public final class ReflectionUtilities {
           workQueue.add(sc);
         }
         workQueue.addAll(Arrays.asList(rawPt.getGenericInterfaces()));
-      } else if (c instanceof WildcardType) {
+      } else if (clazz instanceof WildcardType) {
         workQueue.add(Object.class); // XXX not really correct, but close enough?
-      } else if (c instanceof TypeVariable) {
+      } else if (clazz instanceof TypeVariable) {
         workQueue.add(Object.class); // XXX not really correct, but close enough?
       } else {
-        throw new RuntimeException(c.getClass() + " " + c + " is of unknown type!");
+        throw new RuntimeException(clazz.getClass() + " " + clazz + " is of unknown type!");
       }
     }
     return workQueue;
@@ -151,14 +152,14 @@ public final class ReflectionUtilities {
    * <p/>
    * TODO: Float and double are currently coercible to int and long.  This is a bug.
    */
-  public static boolean isCoercable(Class<?> to, Class<?> from) {
-    to = boxClass(to);
-    from = boxClass(from);
-    if (Number.class.isAssignableFrom(to)
-        && Number.class.isAssignableFrom(from)) {
-      return SIZEOF.get(from) <= SIZEOF.get(to);
+  public static boolean isCoercable(final Class<?> to, final Class<?> from) {
+    final Class<?> boxedTo = boxClass(to);
+    final Class<?> boxedFrom = boxClass(from);
+    if (Number.class.isAssignableFrom(boxedTo)
+        && Number.class.isAssignableFrom(boxedFrom)) {
+      return SIZEOF.get(boxedFrom) <= SIZEOF.get(boxedTo);
     }
-    return to.isAssignableFrom(from);
+    return boxedTo.isAssignableFrom(boxedFrom);
   }
 
   /**
@@ -168,7 +169,7 @@ public final class ReflectionUtilities {
    *
    * @throws ClassNotFoundException
    */
-  public static Class<?> classForName(String name, ClassLoader loader)
+  public static Class<?> classForName(final String name, final ClassLoader loader)
       throws ClassNotFoundException {
     if (name.startsWith("[")) {
       throw new UnsupportedOperationException("No support for arrays, etc.  Name was: " + name);
@@ -204,7 +205,7 @@ public final class ReflectionUtilities {
    * @param name
    * @return
    */
-  public static String getSimpleName(Type name) {
+  public static String getSimpleName(final Type name) {
     final Class<?> clazz = getRawClass(name);
     final String[] nameArray = clazz.getName().split(REGEXP);
     final String ret = nameArray[nameArray.length - 1];
@@ -225,7 +226,7 @@ public final class ReflectionUtilities {
    * @param name
    * @return
    */
-  public static String getFullName(Type name) {
+  public static String getFullName(final Type name) {
     return getRawClass(name).getName();
   }
 
@@ -238,7 +239,7 @@ public final class ReflectionUtilities {
    * <p/>
    * Set<X> { int size; } -> java.util.Set.size
    */
-  public static String getFullName(Field f) {
+  public static String getFullName(final Field f) {
     return getFullName(f.getDeclaringClass()) + "." + f.getName();
   }
 
@@ -259,7 +260,7 @@ public final class ReflectionUtilities {
     if (type instanceof ParameterizedType) {
       final ParameterizedType pt = (ParameterizedType) type;
       if (iface.isAssignableFrom((Class<?>) pt.getRawType())) {
-        Type t = pt.getActualTypeArguments()[0];
+        final Type t = pt.getActualTypeArguments()[0];
         return t;
       } else {
         throw new IllegalArgumentException("Parameterized type " + type + " does not extend " + iface);
@@ -271,20 +272,20 @@ public final class ReflectionUtilities {
         throw new IllegalArgumentException();
       }
 
-      ArrayList<Type> al = new ArrayList<>();
+      final ArrayList<Type> al = new ArrayList<>();
       al.addAll(Arrays.asList(clazz.getGenericInterfaces()));
-      Type sc = clazz.getGenericSuperclass();
+      final Type sc = clazz.getGenericSuperclass();
       if (sc != null) {
         al.add(sc);
       }
 
       final Type[] interfaces = al.toArray(new Type[0]);
 
-      for (Type genericNameType : interfaces) {
+      for (final Type genericNameType : interfaces) {
         if (genericNameType instanceof ParameterizedType) {
-          ParameterizedType ptype = (ParameterizedType) genericNameType;
+          final ParameterizedType ptype = (ParameterizedType) genericNameType;
           if (ptype.getRawType().equals(iface)) {
-            Type t = ptype.getActualTypeArguments()[0];
+            final Type t = ptype.getActualTypeArguments()[0];
             return t;
           }
         }
@@ -301,22 +302,22 @@ public final class ReflectionUtilities {
    * @throws org.apache.reef.tang.exceptions.BindException
    * If clazz's definition incorrectly uses Name or @NamedParameter
    */
-  public static Type getNamedParameterTargetOrNull(Class<?> clazz)
+  public static Type getNamedParameterTargetOrNull(final Class<?> clazz)
       throws ClassHierarchyException {
-    Annotation npAnnotation = clazz.getAnnotation(NamedParameter.class);
-    boolean hasSuperClass = (clazz.getSuperclass() != Object.class);
+    final Annotation npAnnotation = clazz.getAnnotation(NamedParameter.class);
+    final boolean hasSuperClass = (clazz.getSuperclass() != Object.class);
 
     boolean isInjectable = false;
     boolean hasConstructor = false;
     // TODO Figure out how to properly differentiate between default and
     // non-default zero-arg constructors?
-    Constructor<?>[] constructors = clazz.getDeclaredConstructors();
+    final Constructor<?>[] constructors = clazz.getDeclaredConstructors();
     if (constructors.length > 1) {
       hasConstructor = true;
     }
     if (constructors.length == 1) {
-      Constructor<?> c = constructors[0];
-      Class<?>[] p = c.getParameterTypes();
+      final Constructor<?> c = constructors[0];
+      final Class<?>[] p = c.getParameterTypes();
       if (p.length > 1) {
         // Multiple args. Definitely not implicit.
         hasConstructor = true;
@@ -329,23 +330,23 @@ public final class ReflectionUtilities {
         }
       }
     }
-    for (Constructor<?> c : constructors) {
-      for (Annotation a : c.getDeclaredAnnotations()) {
+    for (final Constructor<?> c : constructors) {
+      for (final Annotation a : c.getDeclaredAnnotations()) {
         if (a instanceof Inject) {
           isInjectable = true;
         }
       }
     }
 
-    Class<?>[] allInterfaces = clazz.getInterfaces();
+    final Class<?>[] allInterfaces = clazz.getInterfaces();
 
-    boolean hasMultipleInterfaces = (allInterfaces.length > 1);
+    final boolean hasMultipleInterfaces = (allInterfaces.length > 1);
     boolean implementsName;
     Type parameterClass = null;
     try {
       parameterClass = getInterfaceTarget(Name.class, clazz);
       implementsName = true;
-    } catch (IllegalArgumentException e) {
+    } catch (final IllegalArgumentException e) {
       implementsName = false;
     }
 
@@ -394,7 +395,7 @@ public final class ReflectionUtilities {
    * T -> Object
    * ? -> Object
    */
-  public static Class<?> getRawClass(Type clazz) {
+  public static Class<?> getRawClass(final Type clazz) {
     if (clazz instanceof Class) {
       return (Class<?>) clazz;
     } else if (clazz instanceof ParameterizedType) {

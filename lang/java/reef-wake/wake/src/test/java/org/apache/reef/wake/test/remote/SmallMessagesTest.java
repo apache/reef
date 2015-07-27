@@ -63,27 +63,27 @@ public class SmallMessagesTest {
     System.out.println(LOG_PREFIX + name.getMethodName());
     LoggingUtils.setLoggingLevel(Level.FINEST);
 
-    Monitor monitor = new Monitor();
-    TimerStage timer = new TimerStage(new TimeoutHandler(monitor), 60000, 60000);
+    final Monitor monitor = new Monitor();
+    final TimerStage timer = new TimerStage(new TimeoutHandler(monitor), 60000, 60000);
 
     // port
-    int port = 9101;
+    final int port = 9101;
 
     // receiver stage
     // decoder map
-    Map<Class<?>, Decoder<?>> clazzToDecoderMap = new HashMap<Class<?>, Decoder<?>>();
+    final Map<Class<?>, Decoder<?>> clazzToDecoderMap = new HashMap<Class<?>, Decoder<?>>();
     clazzToDecoderMap.put(TestEvent.class, new ObjectSerializableCodec<TestEvent>());
     clazzToDecoderMap.put(TestEvent2.class, new ObjectSerializableCodec<TestEvent2>());
-    Decoder<Object> decoder = new MultiDecoder<Object>(clazzToDecoderMap);
+    final Decoder<Object> decoder = new MultiDecoder<Object>(clazzToDecoderMap);
 
     // receive handlers
-    int finalSize = 6; // 6 events will be sent
+    final int finalSize = 6; // 6 events will be sent
     //int finalSize = 200000; // 6 events will be sent
-    Map<Class<?>, EventHandler<?>> clazzToHandlerMap = new HashMap<Class<?>, EventHandler<?>>();
-    Set<Object> set = Collections.synchronizedSet(new HashSet<Object>());
+    final Map<Class<?>, EventHandler<?>> clazzToHandlerMap = new HashMap<Class<?>, EventHandler<?>>();
+    final Set<Object> set = Collections.synchronizedSet(new HashSet<Object>());
     clazzToHandlerMap.put(TestEvent.class, new ConsoleEventHandler<TestEvent>("recvEH1", set, finalSize, monitor));
     clazzToHandlerMap.put(TestEvent2.class, new ConsoleEventHandler<TestEvent2>("recvEH2", set, finalSize, monitor));
-    EventHandler<Object> handler = new MultiEventHandler<Object>(clazzToHandlerMap);
+    final EventHandler<Object> handler = new MultiEventHandler<Object>(clazzToHandlerMap);
 
     // receiver stage
     final RemoteReceiverStage reRecvStage = new RemoteReceiverStage(
@@ -92,34 +92,34 @@ public class SmallMessagesTest {
     final String hostAddress = this.localAddressProvider.getLocalAddress();
 
     // transport
-    Transport transport = tpFactory.newInstance(hostAddress, port, reRecvStage, reRecvStage, 1, 10000);
+    final Transport transport = tpFactory.newInstance(hostAddress, port, reRecvStage, reRecvStage, 1, 10000);
 
     // mux encoder with encoder map
-    Map<Class<?>, Encoder<?>> clazzToEncoderMap = new HashMap<Class<?>, Encoder<?>>();
+    final Map<Class<?>, Encoder<?>> clazzToEncoderMap = new HashMap<Class<?>, Encoder<?>>();
     clazzToEncoderMap.put(TestEvent.class, new ObjectSerializableCodec<TestEvent>());
     clazzToEncoderMap.put(TestEvent2.class, new ObjectSerializableCodec<TestEvent2>());
-    Encoder<Object> encoder = new MultiEncoder<Object>(clazzToEncoderMap);
+    final Encoder<Object> encoder = new MultiEncoder<Object>(clazzToEncoderMap);
 
     // sender stage
     final RemoteSenderStage reSendStage = new RemoteSenderStage(encoder, transport, 10);
 
-    RemoteIdentifierFactory factory = new DefaultRemoteIdentifierFactoryImplementation();
-    RemoteIdentifier myId = factory.getNewInstance("socket://" + hostAddress + ":" + 8000);
-    RemoteIdentifier remoteId = factory.getNewInstance("socket://" + hostAddress + ":" + port);
+    final RemoteIdentifierFactory factory = new DefaultRemoteIdentifierFactoryImplementation();
+    final RemoteIdentifier myId = factory.getNewInstance("socket://" + hostAddress + ":" + 8000);
+    final RemoteIdentifier remoteId = factory.getNewInstance("socket://" + hostAddress + ":" + port);
 
 
     // proxy handler for a remotely running handler
-    ProxyEventHandler<TestEvent> proxyHandler1 = new ProxyEventHandler<TestEvent>(
+    final ProxyEventHandler<TestEvent> proxyHandler1 = new ProxyEventHandler<TestEvent>(
         myId, remoteId, "recvEH1", reSendStage.<TestEvent>getHandler(), new RemoteSeqNumGenerator());
-    long start = System.nanoTime();
+    final long start = System.nanoTime();
     for (int i = 0; i < finalSize; i++) {
       proxyHandler1.onNext(new TestEvent("0", i));
     }
 
     monitor.mwait();
-    long end = System.nanoTime();
-    long runtimeNs = end - start;
-    double runtimeS = ((double) runtimeNs) / (1000 * 1000 * 1000);
+    final long end = System.nanoTime();
+    final long runtimeNs = end - start;
+    final double runtimeS = ((double) runtimeNs) / (1000 * 1000 * 1000);
     System.out.println("msgs/s: " + finalSize / runtimeS);
     // most time is spent in netty.channel.socket.nio.SelectorUtil.select()
 
@@ -140,13 +140,13 @@ public class SmallMessagesTest {
     private final Decoder<Object> decoder;
     private final EventHandler<Object> handler;
 
-    RemoteEventHandler(Decoder<Object> decoder, EventHandler<Object> handler) {
+    RemoteEventHandler(final Decoder<Object> decoder, final EventHandler<Object> handler) {
       this.decoder = decoder;
       this.handler = handler;
     }
 
     @Override
-    public void onNext(RemoteEvent<byte[]> value) {
+    public void onNext(final RemoteEvent<byte[]> value) {
       handler.onNext(decoder.decode(value.getEvent()));
     }
   }
@@ -158,7 +158,7 @@ public class SmallMessagesTest {
     private final int finalSize;
     private final Monitor monitor;
 
-    ConsoleEventHandler(String name, Set<Object> set, int finalSize, Monitor monitor) {
+    ConsoleEventHandler(final String name, final Set<Object> set, final int finalSize, final Monitor monitor) {
       this.name = name;
       this.set = set;
       this.finalSize = finalSize;
@@ -166,7 +166,7 @@ public class SmallMessagesTest {
     }
 
     @Override
-    public void onNext(T event) {
+    public void onNext(final T event) {
       //System.out.println(name + " " + event);
       set.add(event);
       if (set.size() == finalSize) {

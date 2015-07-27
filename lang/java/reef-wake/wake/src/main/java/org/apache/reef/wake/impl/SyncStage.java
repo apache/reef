@@ -90,7 +90,7 @@ public final class SyncStage<T> extends AbstractEStage<T> {
     beforeOnNext();
     try {
       handler.onNext(value);
-    } catch (Throwable t) {
+    } catch (final Throwable t) {
       if (errorHandler != null) {
         errorHandler.onNext(t);
       } else {

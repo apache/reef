@@ -32,7 +32,7 @@ public class EmptyTask implements Task {
   }
 
   @Override
-  public byte[] call(byte[] memento) throws Exception {
+  public byte[] call(final byte[] memento) throws Exception {
     return null;
   }
 

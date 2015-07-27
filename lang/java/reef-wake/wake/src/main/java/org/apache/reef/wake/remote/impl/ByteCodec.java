@@ -32,7 +32,7 @@ public class ByteCodec implements Codec<byte[]> {
    * @return the same bytes
    */
   @Override
-  public byte[] encode(byte[] obj) {
+  public byte[] encode(final byte[] obj) {
     return obj;
   }
 
@@ -43,7 +43,7 @@ public class ByteCodec implements Codec<byte[]> {
    * @return the same bytes
    */
   @Override
-  public byte[] decode(byte[] buf) {
+  public byte[] decode(final byte[] buf) {
     return buf;
   }
 

@@ -61,7 +61,7 @@ public class NetworkConnectionServiceTest {
   @Rule
   public TestName name = new TestName();
 
-  private void runMessagingNetworkConnectionService(Codec<String> codec) throws Exception {
+  private void runMessagingNetworkConnectionService(final Codec<String> codec) throws Exception {
     final int numMessages = 2000;
     final Monitor monitor = new Monitor();
     try (final NetworkMessagingTestService messagingTestService = new NetworkMessagingTestService(localAddress)) {
@@ -75,7 +75,7 @@ public class NetworkConnectionServiceTest {
             conn.write("hello" + count);
           }
           monitor.mwait();
-        } catch (NetworkException e) {
+        } catch (final NetworkException e) {
           e.printStackTrace();
           throw new RuntimeException(e);
         }
@@ -101,7 +101,8 @@ public class NetworkConnectionServiceTest {
     runMessagingNetworkConnectionService(new StreamingStringCodec());
   }
 
-  public void runNetworkConnServiceWithMultipleConnFactories(Codec<String> stringCodec, Codec<Integer> integerCodec)
+  public void runNetworkConnServiceWithMultipleConnFactories(final Codec<String> stringCodec,
+                                                             final Codec<Integer> integerCodec)
       throws Exception {
     final ExecutorService executor = Executors.newFixedThreadPool(5);
 
@@ -126,7 +127,7 @@ public class NetworkConnectionServiceTest {
               conn.write("hello" + count);
             }
             monitor.mwait();
-          } catch (Exception e) {
+          } catch (final Exception e) {
             e.printStackTrace();
             throw new RuntimeException(e);
           }
@@ -144,7 +145,7 @@ public class NetworkConnectionServiceTest {
               conn.write(count);
             }
             monitor2.mwait();
-          } catch (Exception e) {
+          } catch (final Exception e) {
             e.printStackTrace();
             throw new RuntimeException(e);
           }
@@ -183,7 +184,7 @@ public class NetworkConnectionServiceTest {
     LOG.log(Level.FINEST, name.getMethodName());
     final int[] messageSizes = {1, 16, 32, 64, 512, 64 * 1024, 1024 * 1024};
 
-    for (int size : messageSizes) {
+    for (final int size : messageSizes) {
       final int numMessages = 300000 / (Math.max(1, size / 512));
       final Monitor monitor = new Monitor();
       final Codec<String> codec = new StringCodec();
@@ -200,7 +201,7 @@ public class NetworkConnectionServiceTest {
         try (final Connection<String> conn =
                  messagingTestService.getConnectionFromSenderToReceiver(groupCommClientId)) {
 
-          long start = System.currentTimeMillis();
+          final long start = System.currentTimeMillis();
           try {
             conn.open();
             for (int count = 0; count < numMessages; ++count) {
@@ -208,7 +209,7 @@ public class NetworkConnectionServiceTest {
               conn.write(message);
             }
             monitor.mwait();
-          } catch (NetworkException e) {
+          } catch (final NetworkException e) {
             e.printStackTrace();
             throw new RuntimeException(e);
           }
@@ -263,12 +264,12 @@ public class NetworkConnectionServiceTest {
                   conn.write(message);
                 }
                 monitor.mwait();
-              } catch (NetworkException e) {
+              } catch (final NetworkException e) {
                 e.printStackTrace();
                 throw new RuntimeException(e);
               }
             }
-          } catch (Exception e) {
+          } catch (final Exception e) {
             throw new RuntimeException(e);
           }
         }
@@ -294,7 +295,7 @@ public class NetworkConnectionServiceTest {
     LOG.log(Level.FINEST, name.getMethodName());
     final int[] messageSizes = {2000}; // {1,16,32,64,512,64*1024,1024*1024};
 
-    for (int size : messageSizes) {
+    for (final int size : messageSizes) {
       final int numMessages = 300000 / (Math.max(1, size / 512));
       final int numThreads = 2;
       final int totalNumMessages = numMessages * numThreads;
@@ -326,7 +327,7 @@ public class NetworkConnectionServiceTest {
                     // send messages to the receiver.
                     conn.write(message);
                   }
-                } catch (Exception e) {
+                } catch (final Exception e) {
                   throw new RuntimeException(e);
                 }
               }
@@ -355,7 +356,7 @@ public class NetworkConnectionServiceTest {
     final int batchSize = 1024 * 1024;
     final int[] messageSizes = {32, 64, 512};
 
-    for (int size : messageSizes) {
+    for (final int size : messageSizes) {
       final int numMessages = 300 / (Math.max(1, size / 512));
       final Monitor monitor = new Monitor();
       final Codec<String> codec = new StringCodec();
@@ -382,7 +383,7 @@ public class NetworkConnectionServiceTest {
               conn.write(sb.toString());
             }
             monitor.mwait();
-          } catch (NetworkException e) {
+          } catch (final NetworkException e) {
             e.printStackTrace();
             throw new RuntimeException(e);
           }

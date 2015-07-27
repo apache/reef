@@ -39,7 +39,7 @@ public final class JobUploader {
 
   @Inject
   JobUploader(final YarnConfiguration yarnConfiguration,
-              JobSubmissionDirectoryProvider jobSubmissionDirectoryProvider) throws IOException {
+              final JobSubmissionDirectoryProvider jobSubmissionDirectoryProvider) throws IOException {
     this.jobSubmissionDirectoryProvider = jobSubmissionDirectoryProvider;
     this.fileSystem = FileSystem.get(yarnConfiguration);
   }

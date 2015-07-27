@@ -33,7 +33,7 @@ public class ListOfImplementations {
   }
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(final Object o) {
     if (this == o) {
       return true;
     }
@@ -41,7 +41,7 @@ public class ListOfImplementations {
       return false;
     }
 
-    ListOfImplementations that = (ListOfImplementations) o;
+    final ListOfImplementations that = (ListOfImplementations) o;
 
     if (!theInstances.equals(that.theInstances)) {
       return false;

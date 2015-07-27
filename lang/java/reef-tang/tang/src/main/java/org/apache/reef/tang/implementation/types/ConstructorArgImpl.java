@@ -25,7 +25,7 @@ public class ConstructorArgImpl implements ConstructorArg {
   private final String name;
   private final boolean isInjectionFuture;
 
-  public ConstructorArgImpl(String type, String namedParameterName, boolean isInjectionFuture) {
+  public ConstructorArgImpl(final String type, final String namedParameterName, final boolean isInjectionFuture) {
     this.type = type;
     this.name = namedParameterName;
     this.isInjectionFuture = isInjectionFuture;
@@ -52,8 +52,8 @@ public class ConstructorArgImpl implements ConstructorArg {
   }
 
   @Override
-  public boolean equals(Object o) {
-    ConstructorArgImpl arg = (ConstructorArgImpl) o;
+  public boolean equals(final Object o) {
+    final ConstructorArgImpl arg = (ConstructorArgImpl) o;
     if (!type.equals(arg.type)) {
       return false;
     }

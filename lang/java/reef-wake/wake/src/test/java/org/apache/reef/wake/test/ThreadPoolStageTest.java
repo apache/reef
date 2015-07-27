@@ -41,14 +41,14 @@ public class ThreadPoolStageTest {
   public void testSingleThreadStage() throws Exception {
     System.out.println(LOG_PREFIX + name.getMethodName());
 
-    Set<TestEvent> procSet = Collections.synchronizedSet(new HashSet<TestEvent>());
-    Set<TestEvent> orgSet = Collections.synchronizedSet(new HashSet<TestEvent>());
+    final Set<TestEvent> procSet = Collections.synchronizedSet(new HashSet<TestEvent>());
+    final Set<TestEvent> orgSet = Collections.synchronizedSet(new HashSet<TestEvent>());
 
-    EventHandler<TestEventA> eventHandler = new TestEventHandlerA(procSet);
-    EStage<TestEventA> stage = new SingleThreadStage<TestEventA>(eventHandler, 20);
+    final EventHandler<TestEventA> eventHandler = new TestEventHandlerA(procSet);
+    final EStage<TestEventA> stage = new SingleThreadStage<TestEventA>(eventHandler, 20);
 
     for (int i = 0; i < 10; ++i) {
-      TestEventA a = new TestEventA();
+      final TestEventA a = new TestEventA();
       orgSet.add(a);
 
       stage.onNext(a);
@@ -67,12 +67,12 @@ public class ThreadPoolStageTest {
   public void testSingleThreadStageQueueFull() {
     System.out.println(LOG_PREFIX + name.getMethodName());
 
-    Set<TestEvent> procSet = Collections.synchronizedSet(new HashSet<TestEvent>());
+    final Set<TestEvent> procSet = Collections.synchronizedSet(new HashSet<TestEvent>());
     final EventHandler<TestEventA> eventHandler = new TestEventHandlerA(procSet);
     final EStage<TestEventA> stage = new SingleThreadStage<TestEventA>(eventHandler, 1);
 
     for (int i = 0; i < 10000; ++i) {
-      TestEventA a = new TestEventA();
+      final TestEventA a = new TestEventA();
       stage.onNext(a);
     }
 
@@ -83,15 +83,15 @@ public class ThreadPoolStageTest {
   public void testThreadPoolStage() throws Exception {
     System.out.println(LOG_PREFIX + name.getMethodName());
 
-    Set<TestEvent> procSet = Collections.synchronizedSet(new HashSet<TestEvent>());
-    Set<TestEvent> orgSet = Collections.synchronizedSet(new HashSet<TestEvent>());
+    final Set<TestEvent> procSet = Collections.synchronizedSet(new HashSet<TestEvent>());
+    final Set<TestEvent> orgSet = Collections.synchronizedSet(new HashSet<TestEvent>());
 
-    EventHandler<TestEventA> eventHandler = new TestEventHandlerA(procSet);
+    final EventHandler<TestEventA> eventHandler = new TestEventHandlerA(procSet);
 
-    EStage<TestEventA> stage = new ThreadPoolStage<TestEventA>(eventHandler, 10);
+    final EStage<TestEventA> stage = new ThreadPoolStage<TestEventA>(eventHandler, 10);
 
     for (int i = 0; i < 10; ++i) {
-      TestEventA a = new TestEventA();
+      final TestEventA a = new TestEventA();
       orgSet.add(a);
 
       stage.onNext(a);
@@ -110,20 +110,20 @@ public class ThreadPoolStageTest {
   public void testMultiThreadPoolStage() throws Exception {
     System.out.println(LOG_PREFIX + name.getMethodName());
 
-    Set<TestEvent> procSet = Collections.synchronizedSet(new HashSet<TestEvent>());
-    Set<TestEvent> orgSet = Collections.synchronizedSet(new HashSet<TestEvent>());
+    final Set<TestEvent> procSet = Collections.synchronizedSet(new HashSet<TestEvent>());
+    final Set<TestEvent> orgSet = Collections.synchronizedSet(new HashSet<TestEvent>());
 
-    Map<Class<? extends TestEvent>, EventHandler<? extends TestEvent>> map
+    final Map<Class<? extends TestEvent>, EventHandler<? extends TestEvent>> map
         = new HashMap<Class<? extends TestEvent>, EventHandler<? extends TestEvent>>();
     map.put(TestEventA.class, new TestEventHandlerA(procSet));
     map.put(TestEventB.class, new TestEventHandlerB(procSet));
-    EventHandler<TestEvent> eventHandler = new MultiEventHandler<TestEvent>(map);
+    final EventHandler<TestEvent> eventHandler = new MultiEventHandler<TestEvent>(map);
 
-    EStage<TestEvent> stage = new ThreadPoolStage<TestEvent>(eventHandler, 10);
+    final EStage<TestEvent> stage = new ThreadPoolStage<TestEvent>(eventHandler, 10);
 
     for (int i = 0; i < 10; ++i) {
-      TestEventA a = new TestEventA();
-      TestEventB b = new TestEventB();
+      final TestEventA a = new TestEventA();
+      final TestEventB b = new TestEventB();
       orgSet.add(a);
       orgSet.add(b);
 
@@ -143,10 +143,10 @@ public class ThreadPoolStageTest {
   @Test
   public void testMeter() throws Exception {
     System.out.println(LOG_PREFIX + name.getMethodName());
-    EventHandler<TestEvent> eventHandler = new TestEventHandler();
-    ThreadPoolStage<TestEvent> stage = new ThreadPoolStage<TestEvent>(eventHandler, 10);
+    final EventHandler<TestEvent> eventHandler = new TestEventHandler();
+    final ThreadPoolStage<TestEvent> stage = new ThreadPoolStage<TestEvent>(eventHandler, 10);
 
-    TestEvent e = new TestEvent();
+    final TestEvent e = new TestEvent();
     for (int i = 0; i < 1000000; ++i) {
       stage.onNext(e);
     }
@@ -159,11 +159,11 @@ public class ThreadPoolStageTest {
   @Test
   public void testMeterTwoStages() throws Exception {
     System.out.println(LOG_PREFIX + name.getMethodName());
-    EventHandler<TestEvent> eventHandler = new TestEventHandler();
-    ThreadPoolStage<TestEvent> stage2 = new ThreadPoolStage<TestEvent>(eventHandler, 5);
-    ThreadPoolStage<TestEvent> stage1 = new ThreadPoolStage<TestEvent>(stage2, 5);
+    final EventHandler<TestEvent> eventHandler = new TestEventHandler();
+    final ThreadPoolStage<TestEvent> stage2 = new ThreadPoolStage<TestEvent>(eventHandler, 5);
+    final ThreadPoolStage<TestEvent> stage1 = new ThreadPoolStage<TestEvent>(stage2, 5);
 
-    TestEvent e = new TestEvent();
+    final TestEvent e = new TestEvent();
     for (int i = 0; i < 1000000; ++i) {
       stage1.onNext(e);
     }
@@ -190,7 +190,7 @@ public class ThreadPoolStageTest {
     TestEventHandler() {
     }
 
-    public void onNext(TestEvent e) {
+    public void onNext(final TestEvent e) {
       // no op
     }
   }
@@ -198,11 +198,11 @@ public class ThreadPoolStageTest {
   class TestEventHandlerA implements EventHandler<TestEventA> {
     private final Set<TestEvent> set;
 
-    TestEventHandlerA(Set<TestEvent> set) {
+    TestEventHandlerA(final Set<TestEvent> set) {
       this.set = set;
     }
 
-    public void onNext(TestEventA e) {
+    public void onNext(final TestEventA e) {
       set.add(e);
       System.out.println("TestEventHandlerA " + e);
     }
@@ -211,11 +211,11 @@ public class ThreadPoolStageTest {
   class TestEventHandlerB implements EventHandler<TestEventB> {
     private final Set<TestEvent> set;
 
-    TestEventHandlerB(Set<TestEvent> set) {
+    TestEventHandlerB(final Set<TestEvent> set) {
       this.set = set;
     }
 
-    public void onNext(TestEventB e) {
+    public void onNext(final TestEventB e) {
       set.add(e);
       System.out.println("TestEventHandlerB " + e);
     }

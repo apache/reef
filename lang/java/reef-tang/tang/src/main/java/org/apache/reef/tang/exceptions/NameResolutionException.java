@@ -34,7 +34,7 @@ package org.apache.reef.tang.exceptions;
 public class NameResolutionException extends BindException {
   private static final long serialVersionUID = 1L;
 
-  public NameResolutionException(String name, String longestPrefix) {
+  public NameResolutionException(final String name, final String longestPrefix) {
     super("Could not resolve " + name + ".  Search ended at prefix " + longestPrefix +
         " This can happen due to typos in class names that are passed as strings, or because Tang is configured " +
         "to use a classloader other than the one that generated the class reference " +

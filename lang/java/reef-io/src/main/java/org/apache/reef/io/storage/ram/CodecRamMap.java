@@ -36,7 +36,7 @@ public class CodecRamMap<T> implements ExternalMap<T> {
   private final ConcurrentSkipListMap<CharSequence, byte[]> map;
 
   @Inject
-  public CodecRamMap(RamStorageService ramStore,
+  public CodecRamMap(final RamStorageService ramStore,
                      @Parameter(RamMapCodec.class) final Codec<T> c) {
     this.c = c;
     this.map = new ConcurrentSkipListMap<CharSequence, byte[]>();
@@ -54,7 +54,7 @@ public class CodecRamMap<T> implements ExternalMap<T> {
   }
 
   @Override
-  public T put(final CharSequence key, T value) {
+  public T put(final CharSequence key, final T value) {
     final byte[] ret = map.put(key, c.encode(value));
     return ret != null ? c.decode(ret) : null;
   }

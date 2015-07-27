@@ -39,7 +39,7 @@ public abstract class AbstractRxStage<T> implements RxStage<T> {
    *
    * @param stageName the stage name
    */
-  public AbstractRxStage(String stageName) {
+  public AbstractRxStage(final String stageName) {
     this.closed = new AtomicBoolean(false);
     this.name = stageName;
     this.inMeter = new Meter(stageName + "_in");

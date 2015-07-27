@@ -29,17 +29,17 @@ public class MonotonicHashSet<T> extends HashSet<T> {
     super();
   }
 
-  public MonotonicHashSet(Collection<T> c) {
+  public MonotonicHashSet(final Collection<T> c) {
     super(c);
   }
 
   @SafeVarargs
-  public MonotonicHashSet(T... c) {
+  public MonotonicHashSet(final T... c) {
     super(Arrays.asList(c));
   }
 
   @Override
-  public boolean add(T e) {
+  public boolean add(final T e) {
     if (super.contains(e)) {
       throw new IllegalArgumentException("Attempt to re-add " + e
           + " to MonotonicSet!");
@@ -53,34 +53,34 @@ public class MonotonicHashSet<T> extends HashSet<T> {
   }
 
   @Override
-  public boolean remove(Object o) {
+  public boolean remove(final Object o) {
     throw new UnsupportedOperationException("Attempt to remove " + o
         + " from MonotonicSet!");
   }
 
   @Override
-  public boolean removeAll(Collection<?> c) {
+  public boolean removeAll(final Collection<?> c) {
     throw new UnsupportedOperationException(
         "removeAll() doesn't make sense for MonotonicSet!");
   }
 
   @Override
-  public boolean retainAll(Collection<?> c) {
+  public boolean retainAll(final Collection<?> c) {
     throw new UnsupportedOperationException(
         "retainAll() doesn't make sense for MonotonicSet!");
   }
 
   @Override
-  public boolean addAll(Collection<? extends T> c) {
-    for (T t : c) {
+  public boolean addAll(final Collection<? extends T> c) {
+    for (final T t : c) {
       add(t);
     }
     return c.size() != 0;
   }
 
-  public boolean addAllIgnoreDuplicates(Collection<? extends T> c) {
+  public boolean addAllIgnoreDuplicates(final Collection<? extends T> c) {
     boolean ret = false;
-    for (T t : c) {
+    for (final T t : c) {
       if (!contains(t)) {
         add(t);
         ret = true;

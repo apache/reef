@@ -25,8 +25,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class SkipListTest {
 
-  public static void main(String[] arg) {
-    SkipListTest t = new SkipListTest();
+  public static void main(final String[] arg) {
+    final SkipListTest t = new SkipListTest();
 
     t.testPoll();
     t.testHigher();
@@ -43,22 +43,22 @@ public class SkipListTest {
   public void testPoll() {
     System.out.println("poll");
     final int unique = 2000000;
-    ConcurrentSkipListMap<Integer, Integer> x = new ConcurrentSkipListMap<>();
-    long instart = System.currentTimeMillis();
+    final ConcurrentSkipListMap<Integer, Integer> x = new ConcurrentSkipListMap<>();
+    final long instart = System.currentTimeMillis();
     for (int i = 0; i < unique; i++) {
       x.put(i, i);
     }
-    long inend = System.currentTimeMillis();
+    final long inend = System.currentTimeMillis();
 
-    long outstart = System.currentTimeMillis();
+    final long outstart = System.currentTimeMillis();
     while (x.pollFirstEntry() != null) {
       //
     }
-    long outend = System.currentTimeMillis();
+    final long outend = System.currentTimeMillis();
 
 
-    double inelapsed = ((double) (inend - instart)) / 1000.0;
-    double outelapsed = ((double) (outend - outstart)) / 1000.0;
+    final double inelapsed = ((double) (inend - instart)) / 1000.0;
+    final double outelapsed = ((double) (outend - outstart)) / 1000.0;
     System.out.println("insert " + unique + " events in " + inelapsed
         + " seconds (" + ((double) unique) / (inelapsed * 1000.0 * 1000.0) + " million events/sec)");
     System.out.println("output " + unique + " events in " + outelapsed
@@ -69,40 +69,40 @@ public class SkipListTest {
   public void testHigher() {
     System.out.println("higher");
     final int unique = 2000000;
-    ConcurrentSkipListMap<Integer, Integer> x = new ConcurrentSkipListMap<>();
-    long instart = System.currentTimeMillis();
+    final ConcurrentSkipListMap<Integer, Integer> x = new ConcurrentSkipListMap<>();
+    final long instart = System.currentTimeMillis();
     for (int i = 0; i < unique; i++) {
       x.put(i, i);
     }
-    long inend = System.currentTimeMillis();
+    final long inend = System.currentTimeMillis();
 
     System.gc();
 
-    long outstart = System.currentTimeMillis();
+    final long outstart = System.currentTimeMillis();
     Integer k = x.pollFirstEntry().getKey();
     while ((k = x.higherKey(k)) != null) {
       //
     }
-    long outend = System.currentTimeMillis();
+    final long outend = System.currentTimeMillis();
 
 
-    double inelapsed = ((double) (inend - instart)) / 1000.0;
-    double outelapsed = ((double) (outend - outstart)) / 1000.0;
+    final double inelapsed = ((double) (inend - instart)) / 1000.0;
+    final double outelapsed = ((double) (outend - outstart)) / 1000.0;
     System.out.println("insert " + unique + " events in " + inelapsed
         + " seconds (" + ((double) unique) / (inelapsed * 1000.0 * 1000.0) + " million events/sec)");
     System.out.println("output " + unique + " events in " + outelapsed
         + " seconds (" + ((double) unique) / (outelapsed * 1000.0 * 1000.0) + " million events/sec)");
   }
 
-  public boolean nThreads(int n, Runnable r, long timeout, TimeUnit t) {
-    ExecutorService e = Executors.newCachedThreadPool();
+  public boolean nThreads(final int n, final Runnable r, final long timeout, final TimeUnit t) {
+    final ExecutorService e = Executors.newCachedThreadPool();
     for (int i = 0; i < n; i++) {
       e.submit(r);
     }
     e.shutdown();
     try {
       return e.awaitTermination(timeout, t);
-    } catch (InterruptedException e1) {
+    } catch (final InterruptedException e1) {
       e1.printStackTrace();
       return false;
     }
@@ -112,26 +112,26 @@ public class SkipListTest {
   public void testHigherRemove() {
     System.out.println("higher/remove");
     final int unique = 2000000;
-    ConcurrentSkipListMap<Integer, Integer> x = new ConcurrentSkipListMap<>();
-    long instart = System.currentTimeMillis();
+    final ConcurrentSkipListMap<Integer, Integer> x = new ConcurrentSkipListMap<>();
+    final long instart = System.currentTimeMillis();
     for (int i = 0; i < unique; i++) {
       x.put(i, i);
     }
-    long inend = System.currentTimeMillis();
+    final long inend = System.currentTimeMillis();
 
     System.gc();
 
-    long outstart = System.currentTimeMillis();
+    final long outstart = System.currentTimeMillis();
     Integer k = x.pollFirstEntry().getKey();
     x.remove(k);
     while ((k = x.higherKey(k)) != null) {
       x.remove(k);
     }
-    long outend = System.currentTimeMillis();
+    final long outend = System.currentTimeMillis();
 
 
-    double inelapsed = ((double) (inend - instart)) / 1000.0;
-    double outelapsed = ((double) (outend - outstart)) / 1000.0;
+    final double inelapsed = ((double) (inend - instart)) / 1000.0;
+    final double outelapsed = ((double) (outend - outstart)) / 1000.0;
     System.out.println("insert " + unique + " events in " + inelapsed
         + " seconds (" + ((double) unique) / (inelapsed * 1000.0 * 1000.0) + " million events/sec)");
     System.out.println("output " + unique + " events in " + outelapsed
@@ -144,15 +144,15 @@ public class SkipListTest {
     System.out.println("higher/remove " + numOutW);
     final int unique = 2000000;
     final ConcurrentSkipListMap<Integer, Integer> x = new ConcurrentSkipListMap<>();
-    long instart = System.currentTimeMillis();
+    final long instart = System.currentTimeMillis();
     for (int i = 0; i < unique; i++) {
       x.put(i, i);
     }
-    long inend = System.currentTimeMillis();
+    final long inend = System.currentTimeMillis();
 
     System.gc();
 
-    long outstart = System.currentTimeMillis();
+    final long outstart = System.currentTimeMillis();
     Assert.assertTrue(nThreads(numOutW, new Runnable() {
 
       @Override
@@ -164,11 +164,11 @@ public class SkipListTest {
         }
       }
     }, 30, TimeUnit.SECONDS));
-    long outend = System.currentTimeMillis();
+    final long outend = System.currentTimeMillis();
 
 
-    double inelapsed = ((double) (inend - instart)) / 1000.0;
-    double outelapsed = ((double) (outend - outstart)) / 1000.0;
+    final double inelapsed = ((double) (inend - instart)) / 1000.0;
+    final double outelapsed = ((double) (outend - outstart)) / 1000.0;
     System.out.println("insert " + unique + " events in " + inelapsed
         + " seconds (" + ((double) unique) / (inelapsed * 1000.0 * 1000.0) + " million events/sec)");
     System.out.println("output " + unique + " events in " + outelapsed
@@ -181,22 +181,22 @@ public class SkipListTest {
       System.out.println("higher/remove seek " + numOutW);
       final int unique = 2000000;
       final ConcurrentSkipListMap<Integer, Integer> x = new ConcurrentSkipListMap<>();
-      long instart = System.currentTimeMillis();
+      final long instart = System.currentTimeMillis();
       for (int i = 0; i < unique; i++) {
         x.put(i, i);
       }
-      long inend = System.currentTimeMillis();
+      final long inend = System.currentTimeMillis();
 
       System.gc();
 
-      long outstart = System.currentTimeMillis();
+      final long outstart = System.currentTimeMillis();
       final AtomicInteger uid = new AtomicInteger(0);
       final int blockSize = unique / numOutW;
       Assert.assertTrue(nThreads(numOutW, new Runnable() {
 
         @Override
         public void run() {
-          int id = uid.getAndIncrement();
+          final int id = uid.getAndIncrement();
           final Integer startK = x.ceilingKey(blockSize * id);
           Integer k = startK;
           x.remove(k);
@@ -205,11 +205,11 @@ public class SkipListTest {
           }
         }
       }, 30, TimeUnit.SECONDS));
-      long outend = System.currentTimeMillis();
+      final long outend = System.currentTimeMillis();
 
 
-      double inelapsed = ((double) (inend - instart)) / 1000.0;
-      double outelapsed = ((double) (outend - outstart)) / 1000.0;
+      final double inelapsed = ((double) (inend - instart)) / 1000.0;
+      final double outelapsed = ((double) (outend - outstart)) / 1000.0;
       System.out.println("insert " + unique + " events in " + inelapsed
           + " seconds (" + ((double) unique) / (inelapsed * 1000.0 * 1000.0) + " million events/sec)");
       System.out.println("output " + unique + " events in " + outelapsed
@@ -223,22 +223,22 @@ public class SkipListTest {
       System.out.println("higher/remove seek " + numOutW);
       final int unique = 2000000;
       final ConcurrentSkipListMap<Integer, Integer> x = new ConcurrentSkipListMap<>();
-      long instart = System.currentTimeMillis();
+      final long instart = System.currentTimeMillis();
       for (int i = 0; i < unique; i++) {
         x.put(i, i);
       }
-      long inend = System.currentTimeMillis();
+      final long inend = System.currentTimeMillis();
 
       System.gc();
 
-      long outstart = System.currentTimeMillis();
+      final long outstart = System.currentTimeMillis();
       final AtomicInteger uid = new AtomicInteger(0);
       final int blockSize = unique / numOutW;
       Assert.assertTrue(nThreads(numOutW, new Runnable() {
 
         @Override
         public void run() {
-          int id = uid.getAndIncrement();
+          final int id = uid.getAndIncrement();
           final Integer startK = x.ceilingKey(blockSize * id);
           final Integer endK = x.ceilingKey(blockSize * (id + 1));
           Integer k = startK;
@@ -248,11 +248,11 @@ public class SkipListTest {
           } while (k != null && k < endK);
         }
       }, 30, TimeUnit.SECONDS));
-      long outend = System.currentTimeMillis();
+      final long outend = System.currentTimeMillis();
 
 
-      double inelapsed = ((double) (inend - instart)) / 1000.0;
-      double outelapsed = ((double) (outend - outstart)) / 1000.0;
+      final double inelapsed = ((double) (inend - instart)) / 1000.0;
+      final double outelapsed = ((double) (outend - outstart)) / 1000.0;
       System.out.println("insert " + unique + " events in " + inelapsed
           + " seconds (" + ((double) unique) / (inelapsed * 1000.0 * 1000.0) + " million events/sec)");
       System.out.println("output " + unique + " events in " + outelapsed
@@ -266,23 +266,23 @@ public class SkipListTest {
       System.out.println("higher/remove view " + numOutW);
       final int unique = 2000000;
       final ConcurrentSkipListMap<Integer, Integer> x = new ConcurrentSkipListMap<>();
-      long instart = System.currentTimeMillis();
+      final long instart = System.currentTimeMillis();
       for (int i = 0; i < unique; i++) {
         x.put(i, i);
       }
-      long inend = System.currentTimeMillis();
+      final long inend = System.currentTimeMillis();
 
       System.gc();
 
-      long outstart = System.currentTimeMillis();
+      final long outstart = System.currentTimeMillis();
       final AtomicInteger uid = new AtomicInteger(0);
       final int blockSize = unique / numOutW;
       Assert.assertTrue(nThreads(numOutW, new Runnable() {
 
         @Override
         public void run() {
-          int id = uid.getAndIncrement();
-          ConcurrentNavigableMap<Integer, Integer> myView = x.tailMap(blockSize * id);
+          final int id = uid.getAndIncrement();
+          final ConcurrentNavigableMap<Integer, Integer> myView = x.tailMap(blockSize * id);
           final Integer endK = x.ceilingKey(blockSize * (id + 1));
           Integer k = myView.pollFirstEntry().getKey();
           do {
@@ -294,11 +294,11 @@ public class SkipListTest {
           } while (true);
         }
       }, 30, TimeUnit.SECONDS));
-      long outend = System.currentTimeMillis();
+      final long outend = System.currentTimeMillis();
 
 
-      double inelapsed = ((double) (inend - instart)) / 1000.0;
-      double outelapsed = ((double) (outend - outstart)) / 1000.0;
+      final double inelapsed = ((double) (inend - instart)) / 1000.0;
+      final double outelapsed = ((double) (outend - outstart)) / 1000.0;
       System.out.println("insert " + unique + " events in " + inelapsed
           + " seconds (" + ((double) unique) / (inelapsed * 1000.0 * 1000.0) + " million events/sec)");
       System.out.println("output " + unique + " events in " + outelapsed
@@ -313,7 +313,7 @@ public class SkipListTest {
       System.out.println("separate maps " + numOutW);
       final int unique = 2000000 / numOutW;
       final ConcurrentSkipListMap<Integer, Integer>[] x = new ConcurrentSkipListMap[numOutW];
-      long instart = System.currentTimeMillis();
+      final long instart = System.currentTimeMillis();
       {
         final AtomicInteger uid = new AtomicInteger(0);
         nThreads(numOutW, new Runnable() {
@@ -330,18 +330,18 @@ public class SkipListTest {
         }
             , 10, TimeUnit.SECONDS);
       }
-      long inend = System.currentTimeMillis();
+      final long inend = System.currentTimeMillis();
 
       System.gc();
 
-      long outstart = System.currentTimeMillis();
+      final long outstart = System.currentTimeMillis();
       final AtomicInteger uid = new AtomicInteger(0);
       Assert.assertTrue(nThreads(numOutW, new Runnable() {
 
         @Override
         public void run() {
-          int id = uid.getAndIncrement();
-          ConcurrentSkipListMap<Integer, Integer> mm = x[id];
+          final int id = uid.getAndIncrement();
+          final ConcurrentSkipListMap<Integer, Integer> mm = x[id];
           final Integer startK = mm.pollFirstEntry().getKey();
           Integer k = startK;
           mm.remove(k);
@@ -350,11 +350,11 @@ public class SkipListTest {
           }
         }
       }, 30, TimeUnit.SECONDS));
-      long outend = System.currentTimeMillis();
+      final long outend = System.currentTimeMillis();
 
       final int total = unique * numOutW;
-      double inelapsed = ((double) (inend - instart)) / 1000.0;
-      double outelapsed = ((double) (outend - outstart)) / 1000.0;
+      final double inelapsed = ((double) (inend - instart)) / 1000.0;
+      final double outelapsed = ((double) (outend - outstart)) / 1000.0;
       System.out.println("insert " + total + " events in " + inelapsed
           + " seconds (" + ((double) total) / (inelapsed * 1000.0 * 1000.0) + " million events/sec)");
       System.out.println("output " + total + " events in " + outelapsed
@@ -368,15 +368,15 @@ public class SkipListTest {
     System.out.println("poll " + numOutW);
     final int unique = 2000000;
     final ConcurrentSkipListMap<Integer, Integer> x = new ConcurrentSkipListMap<>();
-    long instart = System.currentTimeMillis();
+    final long instart = System.currentTimeMillis();
     for (int i = 0; i < unique; i++) {
       x.put(i, i);
     }
-    long inend = System.currentTimeMillis();
+    final long inend = System.currentTimeMillis();
 
     System.gc();
 
-    long outstart = System.currentTimeMillis();
+    final long outstart = System.currentTimeMillis();
     Assert.assertTrue(nThreads(numOutW, new Runnable() {
 
       @Override
@@ -388,11 +388,11 @@ public class SkipListTest {
         }
       }
     }, 30, TimeUnit.SECONDS));
-    long outend = System.currentTimeMillis();
+    final long outend = System.currentTimeMillis();
 
 
-    double inelapsed = ((double) (inend - instart)) / 1000.0;
-    double outelapsed = ((double) (outend - outstart)) / 1000.0;
+    final double inelapsed = ((double) (inend - instart)) / 1000.0;
+    final double outelapsed = ((double) (outend - outstart)) / 1000.0;
     System.out.println("insert " + unique + " events in " + inelapsed
         + " seconds (" + ((double) unique) / (inelapsed * 1000.0 * 1000.0) + " million events/sec)");
     System.out.println("output " + unique + " events in " + outelapsed

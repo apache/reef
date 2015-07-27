@@ -21,11 +21,11 @@ package org.apache.reef.wake.storage;
 import java.io.FileInputStream;
 
 public class FileHandlePool {
-  public FileInputStream get(StorageIdentifier f) {
+  public FileInputStream get(final StorageIdentifier f) {
     return null;
   }
 
-  public void release(StorageIdentifier f, FileInputStream is) {
+  public void release(final StorageIdentifier f, final FileInputStream is) {
 
   }
 }

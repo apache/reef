@@ -30,7 +30,7 @@ public class NetworkRuntimeException extends RuntimeException {
    * @param s the detailed message
    * @param e the cause
    */
-  public NetworkRuntimeException(String s, Throwable e) {
+  public NetworkRuntimeException(final String s, final Throwable e) {
     super(s, e);
   }
 
@@ -39,7 +39,7 @@ public class NetworkRuntimeException extends RuntimeException {
    *
    * @param s the detailed message
    */
-  public NetworkRuntimeException(String s) {
+  public NetworkRuntimeException(final String s) {
     super(s);
   }
 
@@ -48,7 +48,7 @@ public class NetworkRuntimeException extends RuntimeException {
    *
    * @param e the cause
    */
-  public NetworkRuntimeException(Throwable e) {
+  public NetworkRuntimeException(final Throwable e) {
     super(e);
   }
 }

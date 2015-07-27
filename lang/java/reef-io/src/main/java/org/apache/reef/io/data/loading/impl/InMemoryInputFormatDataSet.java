@@ -35,7 +35,7 @@ public class InMemoryInputFormatDataSet<K extends WritableComparable<K>, V exten
   private List<Pair<K, V>> recordsList = null;
 
   @Inject
-  public InMemoryInputFormatDataSet(InputFormatDataSet<K, V> inputFormatDataSet) {
+  public InMemoryInputFormatDataSet(final InputFormatDataSet<K, V> inputFormatDataSet) {
     this.inputFormatDataSet = inputFormatDataSet;
   }
 

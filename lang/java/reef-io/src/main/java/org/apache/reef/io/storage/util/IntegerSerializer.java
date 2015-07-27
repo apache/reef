@@ -30,7 +30,7 @@ import java.io.OutputStream;
 public class IntegerSerializer implements
     Serializer<Integer, OutputStream> {
   @Override
-  public Accumulable<Integer> create(OutputStream arg) {
+  public Accumulable<Integer> create(final OutputStream arg) {
     final DataOutputStream dos = new DataOutputStream(arg);
     return new Accumulable<Integer>() {
 
@@ -38,10 +38,10 @@ public class IntegerSerializer implements
       public Accumulator<Integer> accumulator() throws ServiceException {
         return new Accumulator<Integer>() {
           @Override
-          public void add(Integer datum) throws ServiceException {
+          public void add(final Integer datum) throws ServiceException {
             try {
               dos.writeInt(datum);
-            } catch (IOException e) {
+            } catch (final IOException e) {
               throw new ServiceException(e);
             }
           }
@@ -50,7 +50,7 @@ public class IntegerSerializer implements
           public void close() throws ServiceException {
             try {
               dos.close();
-            } catch (IOException e) {
+            } catch (final IOException e) {
               throw new ServiceException(e);
             }
           }

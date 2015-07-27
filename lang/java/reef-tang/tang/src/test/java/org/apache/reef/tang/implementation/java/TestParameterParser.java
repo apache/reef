@@ -42,9 +42,9 @@ public class TestParameterParser {
 
   @Test
   public void testParameterParser() throws BindException {
-    ParameterParser p = new ParameterParser();
+    final ParameterParser p = new ParameterParser();
     p.addParser(FooParser.class);
-    Foo f = p.parse(Foo.class, "woot");
+    final Foo f = p.parse(Foo.class, "woot");
     Assert.assertEquals(f.s, "woot");
   }
 
@@ -52,35 +52,35 @@ public class TestParameterParser {
   public void testUnregisteredParameterParser() throws BindException {
     thrown.expect(UnsupportedOperationException.class);
     thrown.expectMessage("Don't know how to parse a org.apache.reef.tang.implementation.java.TestParameterParser$Foo");
-    ParameterParser p = new ParameterParser();
+    final ParameterParser p = new ParameterParser();
     //p.addParser(FooParser.class);
-    Foo f = p.parse(Foo.class, "woot");
+    final Foo f = p.parse(Foo.class, "woot");
     Assert.assertEquals(f.s, "woot");
   }
 
   @Test
   public void testReturnSubclass() throws BindException {
-    ParameterParser p = new ParameterParser();
+    final ParameterParser p = new ParameterParser();
     p.addParser(BarParser.class);
-    Bar f = (Bar) p.parse(Foo.class, "woot");
+    final Bar f = (Bar) p.parse(Foo.class, "woot");
     Assert.assertEquals(f.s, "woot");
 
   }
 
   @Test
   public void testGoodMerge() throws BindException {
-    ParameterParser old = new ParameterParser();
+    final ParameterParser old = new ParameterParser();
     old.addParser(BarParser.class);
-    ParameterParser nw = new ParameterParser();
+    final ParameterParser nw = new ParameterParser();
     nw.mergeIn(old);
     nw.parse(Foo.class, "woot");
   }
 
   @Test
   public void testGoodMerge2() throws BindException {
-    ParameterParser old = new ParameterParser();
+    final ParameterParser old = new ParameterParser();
     old.addParser(BarParser.class);
-    ParameterParser nw = new ParameterParser();
+    final ParameterParser nw = new ParameterParser();
     nw.addParser(BarParser.class);
     nw.mergeIn(old);
     nw.parse(Foo.class, "woot");
@@ -93,9 +93,9 @@ public class TestParameterParser {
         "org.apache.reef.tang.implementation.java.TestParameterParser$Foo I have a: " +
         "org.apache.reef.tang.implementation.java.TestParameterParser$FooParser the other instance has a: " +
         "org.apache.reef.tang.implementation.java.TestParameterParser$BarParser");
-    ParameterParser old = new ParameterParser();
+    final ParameterParser old = new ParameterParser();
     old.addParser(BarParser.class);
-    ParameterParser nw = new ParameterParser();
+    final ParameterParser nw = new ParameterParser();
     nw.addParser(FooParser.class);
     nw.mergeIn(old);
   }
@@ -103,24 +103,24 @@ public class TestParameterParser {
   @SuppressWarnings("unchecked")
   @Test
   public void testEndToEnd() throws BindException, InjectionException {
-    Tang tang = Tang.Factory.getTang();
-    JavaConfigurationBuilder cb = tang.newConfigurationBuilder(BarParser.class);
+    final Tang tang = Tang.Factory.getTang();
+    final JavaConfigurationBuilder cb = tang.newConfigurationBuilder(BarParser.class);
     cb.bindNamedParameter(SomeNamedFoo.class, "hdfs://woot");
-    ILikeBars ilb = tang.newInjector(cb.build()).getInstance(ILikeBars.class);
+    final ILikeBars ilb = tang.newInjector(cb.build()).getInstance(ILikeBars.class);
     Assert.assertNotNull(ilb);
   }
 
   @SuppressWarnings("unchecked")
   @Test
   public void testDelegatingParser() throws BindException, InjectionException, ClassNotFoundException {
-    Tang tang = Tang.Factory.getTang();
-    JavaConfigurationBuilder cb = tang.newConfigurationBuilder(TypeParser.class);
+    final Tang tang = Tang.Factory.getTang();
+    final JavaConfigurationBuilder cb = tang.newConfigurationBuilder(TypeParser.class);
 
     JavaConfigurationBuilder cb2 = tang.newConfigurationBuilder(cb.build());
 
     cb2.bind(ReflectionUtilities.getFullName(ParseName.class), "a");
 
-    ParseableType t = tang.newInjector(cb2.build()).getNamedInstance(ParseName.class);
+    final ParseableType t = tang.newInjector(cb2.build()).getNamedInstance(ParseName.class);
     Assert.assertTrue(t instanceof ParseTypeA);
 
     cb2 = tang.newConfigurationBuilder(cb.build());
@@ -136,7 +136,7 @@ public class TestParameterParser {
     private final Foo foo;
 
     @Inject
-    public FooParser(String s) {
+    public FooParser(final String s) {
       this.foo = new Foo(s);
     }
 
@@ -150,7 +150,7 @@ public class TestParameterParser {
     private final Bar bar;
 
     @Inject
-    public BarParser(String s) {
+    public BarParser(final String s) {
       this.bar = new Bar(s);
     }
 
@@ -163,13 +163,13 @@ public class TestParameterParser {
   private static class Foo {
     public final String s;
 
-    public Foo(String s) {
+    public Foo(final String s) {
       this.s = s;
     }
   }
 
   private static class Bar extends Foo {
-    public Bar(String s) {
+    public Bar(final String s) {
       super(s);
     }
   }
@@ -180,8 +180,8 @@ public class TestParameterParser {
 
   private static class ILikeBars {
     @Inject
-    ILikeBars(@Parameter(SomeNamedFoo.class) Foo bar) {
-      Bar b = (Bar) bar;
+    ILikeBars(@Parameter(SomeNamedFoo.class) final Foo bar) {
+      final Bar b = (Bar) bar;
       Assert.assertEquals(b.s, "hdfs://woot");
     }
   }
@@ -201,7 +201,7 @@ public class TestParameterParser {
     ParseableType instance;
 
     @Inject
-    public TypeParser(String s) {
+    public TypeParser(final String s) {
       if (s.equals("a")) {
         instance = new ParseTypeA();
       }
@@ -234,14 +234,14 @@ public class TestParameterParser {
 
   private static class NeedsA {
     @Inject
-    public NeedsA(@Parameter(ParseNameA.class) ParseableType a) {
+    public NeedsA(@Parameter(ParseNameA.class) final ParseableType a) {
       Assert.assertTrue(a instanceof ParseTypeA);
     }
   }
 
   private static class NeedsB {
     @Inject
-    public NeedsB(@Parameter(ParseNameB.class) ParseTypeB b) {
+    public NeedsB(@Parameter(ParseNameB.class) final ParseTypeB b) {
       Assert.assertTrue(b instanceof ParseTypeB);
     }
   }

@@ -33,9 +33,9 @@ public class BlockingSignalEventHandlerTest {
   public void testSingle() {
     final AtomicInteger cnt = new AtomicInteger(0);
 
-    BlockingSignalEventHandler<Integer> h = new BlockingSignalEventHandler<>(1, new EventHandler<Integer>() {
+    final BlockingSignalEventHandler<Integer> h = new BlockingSignalEventHandler<>(1, new EventHandler<Integer>() {
       @Override
-      public void onNext(Integer value) {
+      public void onNext(final Integer value) {
         cnt.incrementAndGet();
       }
     });
@@ -47,9 +47,9 @@ public class BlockingSignalEventHandlerTest {
   public void testMultiple() {
     final AtomicInteger cnt = new AtomicInteger(0);
 
-    BlockingSignalEventHandler<Integer> h = new BlockingSignalEventHandler<>(2, new EventHandler<Integer>() {
+    final BlockingSignalEventHandler<Integer> h = new BlockingSignalEventHandler<>(2, new EventHandler<Integer>() {
       @Override
-      public void onNext(Integer value) {
+      public void onNext(final Integer value) {
         cnt.incrementAndGet();
       }
     });
@@ -66,12 +66,12 @@ public class BlockingSignalEventHandlerTest {
     final BlockingSignalEventHandler<Integer> h =
         new BlockingSignalEventHandler<>(2 * num, new EventHandler<Integer>() {
           @Override
-          public void onNext(Integer value) {
+          public void onNext(final Integer value) {
             cnt.incrementAndGet();
           }
         });
 
-    Runnable r = new Runnable() {
+    final Runnable r = new Runnable() {
       @Override
       public void run() {
         for (int i = 0; i < num; i++) {
@@ -79,14 +79,14 @@ public class BlockingSignalEventHandlerTest {
         }
       }
     };
-    Thread a = new Thread(r);
-    Thread b = new Thread(r);
+    final Thread a = new Thread(r);
+    final Thread b = new Thread(r);
     a.start();
     b.start();
     try {
       a.join();
       b.join();
-    } catch (InterruptedException e) {
+    } catch (final InterruptedException e) {
       fail(e.toString());
     }
 
@@ -102,12 +102,12 @@ public class BlockingSignalEventHandlerTest {
     final BlockingSignalEventHandler<Integer> h = new BlockingSignalEventHandler<>(2 * num,
         new EventHandler<Integer>() {
           @Override
-          public void onNext(Integer value) {
+          public void onNext(final Integer value) {
             cnt.incrementAndGet();
           }
         });
 
-    Runnable r = new Runnable() {
+    final Runnable r = new Runnable() {
       @Override
       public void run() {
         for (int i = 0; i < num * events; i++) {
@@ -115,14 +115,14 @@ public class BlockingSignalEventHandlerTest {
         }
       }
     };
-    Thread a = new Thread(r);
-    Thread b = new Thread(r);
+    final Thread a = new Thread(r);
+    final Thread b = new Thread(r);
     a.start();
     b.start();
     try {
       a.join();
       b.join();
-    } catch (InterruptedException e) {
+    } catch (final InterruptedException e) {
       fail(e.toString());
     }
 
@@ -136,31 +136,31 @@ public class BlockingSignalEventHandlerTest {
     final int num = 1000;
     final BlockingSignalEventHandler<Integer> h = new BlockingSignalEventHandler<>(num, new EventHandler<Integer>() {
       @Override
-      public void onNext(Integer value) {
+      public void onNext(final Integer value) {
         cnt.incrementAndGet();
       }
     });
 
     final int val = 7;
-    Runnable r = new Runnable() {
+    final Runnable r = new Runnable() {
       @Override
       public void run() {
         h.onNext(val);
       }
     };
 
-    Thread[] workers = new Thread[num];
+    final Thread[] workers = new Thread[num];
     for (int ii = 0; ii < workers.length; ii++) {
       workers[ii] = new Thread(r);
     }
-    for (Thread w : workers) {
+    for (final Thread w : workers) {
       w.start();
     }
     try {
-      for (Thread w : workers) {
+      for (final Thread w : workers) {
         w.join();
       }
-    } catch (InterruptedException e) {
+    } catch (final InterruptedException e) {
       fail(e.toString());
     }
 

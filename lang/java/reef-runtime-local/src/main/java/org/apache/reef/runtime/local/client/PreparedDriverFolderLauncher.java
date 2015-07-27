@@ -53,7 +53,8 @@ public class PreparedDriverFolderLauncher {
   private static final Logger LOG = Logger.getLogger(PreparedDriverFolderLauncher.class.getName());
 
   @Inject
-  PreparedDriverFolderLauncher(final ExecutorService executor, REEFFileNames fileNames, ClasspathProvider classpath) {
+  PreparedDriverFolderLauncher(final ExecutorService executor, final REEFFileNames fileNames,
+                               final ClasspathProvider classpath) {
     this.executor = executor;
     this.fileNames = fileNames;
     this.classpath = classpath;

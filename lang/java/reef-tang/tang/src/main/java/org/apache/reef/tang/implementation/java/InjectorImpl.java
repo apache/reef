@@ -83,46 +83,46 @@ public class InjectorImpl implements Injector {
   private boolean concurrentModificationGuard = false;
   private Aspect aspect;
 
-  public InjectorImpl(Configuration c) throws BindException {
+  public InjectorImpl(final Configuration c) throws BindException {
     this.c = c;
     this.namespace = c.getClassHierarchy();
     this.javaNamespace = (ClassHierarchyImpl) this.namespace;
   }
 
-  private static InjectorImpl copy(InjectorImpl old,
-                                   Configuration... configurations) throws BindException {
+  private static InjectorImpl copy(final InjectorImpl old,
+                                   final Configuration... configurations) throws BindException {
     final InjectorImpl i;
     try {
       final ConfigurationBuilder cb = old.c.newBuilder();
-      for (Configuration c : configurations) {
+      for (final Configuration c : configurations) {
         cb.addConfiguration(c);
       }
       i = new InjectorImpl(cb.build());
-    } catch (BindException e) {
+    } catch (final BindException e) {
       throw new IllegalStateException(
           "Unexpected error copying configuration!", e);
     }
-    for (ClassNode<?> cn : old.instances.keySet()) {
+    for (final ClassNode<?> cn : old.instances.keySet()) {
       if (cn.getFullName().equals(ReflectionUtilities.getFullName(Injector.class))
           || cn.getFullName().equals(ReflectionUtilities.getFullName(InjectorImpl.class))) {
         // This would imply that we're treating injector as a singleton somewhere.  It should be copied fresh each time.
         throw new IllegalStateException();
       }
       try {
-        ClassNode<?> newCn = (ClassNode<?>) i.namespace.getNode(cn
+        final ClassNode<?> newCn = (ClassNode<?>) i.namespace.getNode(cn
             .getFullName());
         i.instances.put(newCn, old.instances.get(cn));
-      } catch (BindException e) {
+      } catch (final BindException e) {
         throw new IllegalStateException("Could not resolve name "
             + cn.getFullName() + " when copying injector");
       }
     }
     // Copy references to the remaining (which must have been set with
     // bindVolatileParameter())
-    for (NamedParameterNode<?> np : old.namedParameterInstances.keySet()) {
+    for (final NamedParameterNode<?> np : old.namedParameterInstances.keySet()) {
       // if (!builder.namedParameters.containsKey(np)) {
-      Object o = old.namedParameterInstances.get(np);
-      NamedParameterNode<?> newNp = (NamedParameterNode<?>) i.namespace
+      final Object o = old.namedParameterInstances.get(np);
+      final NamedParameterNode<?> newNp = (NamedParameterNode<?>) i.namespace
           .getNode(np.getFullName());
       i.namedParameterInstances.put(newNp, o);
     }
@@ -141,11 +141,11 @@ public class InjectorImpl implements Injector {
   }
 
   @SuppressWarnings("unchecked")
-  private <T> T getCachedInstance(ClassNode<T> cn) {
+  private <T> T getCachedInstance(final ClassNode<T> cn) {
     if (cn.getFullName().equals("org.apache.reef.tang.Injector")) {
       return (T) this; // TODO: We should be insisting on injection futures here! .forkInjector();
     } else {
-      T t = (T) instances.get(cn);
+      final T t = (T) instances.get(cn);
       if (t instanceof InjectionFuture) {
         throw new IllegalStateException("Found an injection future in getCachedInstance: " + cn);
       }
@@ -182,7 +182,7 @@ public class InjectorImpl implements Injector {
       constructorList
           .addAll(Arrays.asList(thisCN.getInjectableConstructors()));
 
-      for (ConstructorDef<T> def : constructorList) {
+      for (final ConstructorDef<T> def : constructorList) {
         final List<InjectionPlan<?>> args = new ArrayList<InjectionPlan<?>>();
         final ConstructorArg[] defArgs = def.getArgs();
 
@@ -192,7 +192,7 @@ public class InjectorImpl implements Injector {
               final Node argNode = namespace.getNode(arg.getName());
               buildInjectionPlan(argNode, memo);
               args.add(memo.get(argNode));
-            } catch (NameResolutionException e) {
+            } catch (final NameResolutionException e) {
               throw new IllegalStateException("Detected unresolvable "
                   + "constructor arg while building injection plan.  "
                   + "This should have been caught earlier!", e);
@@ -201,7 +201,7 @@ public class InjectorImpl implements Injector {
             try {
               args.add(new InjectionFuturePlan<>(namespace.getNode(arg
                   .getName())));
-            } catch (NameResolutionException e) {
+            } catch (final NameResolutionException e) {
               throw new IllegalStateException("Detected unresolvable "
                   + "constructor arg while building injection plan.  "
                   + "This should have been caught earlier!", e);
@@ -252,12 +252,12 @@ public class InjectorImpl implements Injector {
   }
 
   @SuppressWarnings("unchecked")
-  private <T> InjectionPlan<T> buildClassNodeInjectionPlan(ClassNode<T> cn,
-                                                           T cachedInstance,
-                                                           ClassNode<ExternalConstructor<T>> externalConstructor,
-                                                           ClassNode<T> boundImpl,
-                                                           ClassNode<T> defaultImpl,
-                                                           Map<Node, InjectionPlan<?>> memo) {
+  private <T> InjectionPlan<T> buildClassNodeInjectionPlan(final ClassNode<T> cn,
+                                                           final T cachedInstance,
+                                                           final ClassNode<ExternalConstructor<T>> externalConstructor,
+                                                           final ClassNode<T> boundImpl,
+                                                           final ClassNode<T> defaultImpl,
+                                                           final Map<Node, InjectionPlan<?>> memo) {
 
     if (cachedInstance != null) {
       return new JavaInstance<T>(cn, cachedInstance);
@@ -287,10 +287,10 @@ public class InjectorImpl implements Injector {
   }
 
   @SuppressWarnings("unchecked")
-  private <T> InjectionPlan<T> wrapInjectionPlans(ClassNode<T> infeasibleNode,
-                                                  List<? extends InjectionPlan<T>> list,
-                                                  boolean forceAmbiguous,
-                                                  int selectedIndex) {
+  private <T> InjectionPlan<T> wrapInjectionPlans(final ClassNode<T> infeasibleNode,
+                                                  final List<? extends InjectionPlan<T>> list,
+                                                  final boolean forceAmbiguous,
+                                                  final int selectedIndex) {
     if (list.size() == 0) {
       return new Subplan<>(infeasibleNode);
     } else if ((!forceAmbiguous) && list.size() == 1) {
@@ -307,18 +307,18 @@ public class InjectorImpl implements Injector {
    * @throws ParseException
    */
   @SuppressWarnings("unchecked")
-  private <T> T parseBoundNamedParameter(NamedParameterNode<T> np) {
+  private <T> T parseBoundNamedParameter(final NamedParameterNode<T> np) {
     final T ret;
 
     @SuppressWarnings("rawtypes")
     final Set<Object> boundSet = c.getBoundSet((NamedParameterNode) np);
     if (!boundSet.isEmpty()) {
-      Set<T> ret2 = new MonotonicSet<>();
-      for (Object o : boundSet) {
+      final Set<T> ret2 = new MonotonicSet<>();
+      for (final Object o : boundSet) {
         if (o instanceof String) {
           try {
             ret2.add(javaNamespace.parse(np, (String) o));
-          } catch (ParseException e) {
+          } catch (final ParseException e) {
             // Parsability is now pre-checked in bindSet, so it should not be reached!
             throw new IllegalStateException("Could not parse " + o + " which was passed into " + np +
                 " FIXME: Parsability is not currently checked by bindSetEntry(Node,String)");
@@ -334,12 +334,12 @@ public class InjectorImpl implements Injector {
     }
     final List<Object> boundList = c.getBoundList((NamedParameterNode) np);
     if (boundList != null) {
-      List<T> ret2 = new ArrayList<>();
-      for (Object o : boundList) {
+      final List<T> ret2 = new ArrayList<>();
+      for (final Object o : boundList) {
         if (o instanceof String) {
           try {
             ret2.add(javaNamespace.parse(np, (String) o));
-          } catch (ParseException e) {
+          } catch (final ParseException e) {
             // Parsability is now pre-checked in bindList, so it should not be reached!
             throw new IllegalStateException("Could not parse " + o + " which was passed into " + np + " FIXME: " +
                 "Parsability is not currently checked by bindList(Node,List)");
@@ -362,7 +362,7 @@ public class InjectorImpl implements Injector {
         try {
           ret = javaNamespace.parse(np, value);
           namedParameterInstances.put(np, ret);
-        } catch (BindException e) {
+        } catch (final BindException e) {
           throw new IllegalStateException(
               "Could not parse pre-validated value", e);
         }
@@ -372,7 +372,7 @@ public class InjectorImpl implements Injector {
   }
 
   @SuppressWarnings("unchecked")
-  private <T> ClassNode<T> parseDefaultImplementation(ClassNode<T> cn) {
+  private <T> ClassNode<T> parseDefaultImplementation(final ClassNode<T> cn) {
     if (cn.getDefaultImplementation() != null) {
       try {
         return (ClassNode<T>) javaNamespace.getNode(cn.getDefaultImplementation());
@@ -387,11 +387,11 @@ public class InjectorImpl implements Injector {
 
   @SuppressWarnings({"unchecked"})
   private <T> void buildInjectionPlan(final Node n,
-                                      Map<Node, InjectionPlan<?>> memo) {
+                                      final Map<Node, InjectionPlan<?>> memo) {
     if (memo.containsKey(n)) {
       if (BUILDING == memo.get(n)) {
-        StringBuilder loopyList = new StringBuilder("[");
-        for (Node node : memo.keySet()) {
+        final StringBuilder loopyList = new StringBuilder("[");
+        for (final Node node : memo.keySet()) {
           if (memo.get(node) == BUILDING) {
             loopyList.append(" " + node.getFullName());
           }
@@ -416,9 +416,9 @@ public class InjectorImpl implements Injector {
         buildInjectionPlan((Node) instance, memo);
         ip = new Subplan<T>(n, 0, (InjectionPlan<T>) memo.get(instance));
       } else if (instance instanceof Set) {
-        Set<T> entries = (Set<T>) instance;
-        Set<InjectionPlan<T>> plans = new MonotonicHashSet<>();
-        for (T entry : entries) {
+        final Set<T> entries = (Set<T>) instance;
+        final Set<InjectionPlan<T>> plans = new MonotonicHashSet<>();
+        for (final T entry : entries) {
           if (entry instanceof ClassNode) {
             buildInjectionPlan((ClassNode<?>) entry, memo);
             plans.add((InjectionPlan<T>) memo.get(entry));
@@ -429,9 +429,9 @@ public class InjectorImpl implements Injector {
         }
         ip = new SetInjectionPlan<T>(n, plans);
       } else if (instance instanceof List) {
-        List<T> entries = (List<T>) instance;
-        List<InjectionPlan<T>> plans = new ArrayList<>();
-        for (T entry : entries) {
+        final List<T> entries = (List<T>) instance;
+        final List<InjectionPlan<T>> plans = new ArrayList<>();
+        for (final T entry : entries) {
           if (entry instanceof ClassNode) {
             buildInjectionPlan((ClassNode<?>) entry, memo);
             plans.add((InjectionPlan<T>) memo.get(entry));
@@ -471,56 +471,55 @@ public class InjectorImpl implements Injector {
    * @throws NameResolutionException
    */
   public InjectionPlan<?> getInjectionPlan(final Node n) {
-    Map<Node, InjectionPlan<?>> memo = new HashMap<>();
+    final Map<Node, InjectionPlan<?>> memo = new HashMap<>();
     buildInjectionPlan(n, memo);
     return memo.get(n);
   }
 
   @Override
-  public InjectionPlan<?> getInjectionPlan(String name) throws NameResolutionException {
+  public InjectionPlan<?> getInjectionPlan(final String name) throws NameResolutionException {
     return getInjectionPlan(namespace.getNode(name));
   }
 
   @SuppressWarnings("unchecked")
-  public <T> InjectionPlan<T> getInjectionPlan(Class<T> name) {
+  public <T> InjectionPlan<T> getInjectionPlan(final Class<T> name) {
     return (InjectionPlan<T>) getInjectionPlan(javaNamespace.getNode(name));
   }
 
   @Override
-  public boolean isInjectable(String name) throws NameResolutionException {
+  public boolean isInjectable(final String name) throws NameResolutionException {
     return getInjectionPlan(namespace.getNode(name)).isInjectable();
   }
 
   @Override
-  public boolean isInjectable(Class<?> clazz) {
+  public boolean isInjectable(final Class<?> clazz) {
     try {
       return isInjectable(ReflectionUtilities.getFullName(clazz));
-    } catch (NameResolutionException e) {
+    } catch (final NameResolutionException e) {
       throw new IllegalStateException("Could not round trip " + clazz + " through ClassHierarchy", e);
     }
   }
 
   @Override
-  public boolean isParameterSet(String name) throws NameResolutionException {
-    InjectionPlan<?> p = getInjectionPlan(namespace.getNode(name));
+  public boolean isParameterSet(final String name) throws NameResolutionException {
+    final InjectionPlan<?> p = getInjectionPlan(namespace.getNode(name));
     return p.isInjectable();
   }
 
   @Override
-  public boolean isParameterSet(Class<? extends Name<?>> name)
+  public boolean isParameterSet(final Class<? extends Name<?>> name)
       throws BindException {
     return isParameterSet(name.getName());
   }
 
-  private <U> U getInstance(Node n) throws InjectionException {
+  private <U> U getInstance(final Node n) throws InjectionException {
     assertNotConcurrent();
-    @SuppressWarnings("unchecked")
-    InjectionPlan<U> plan = (InjectionPlan<U>) getInjectionPlan(n);
-    U u = (U) injectFromPlan(plan);
+    @SuppressWarnings("unchecked") final InjectionPlan<U> plan = (InjectionPlan<U>) getInjectionPlan(n);
+    final U u = (U) injectFromPlan(plan);
 
     while (!pendingFutures.isEmpty()) {
-      Iterator<InjectionFuture<?>> i = pendingFutures.iterator();
-      InjectionFuture<?> f = i.next();
+      final Iterator<InjectionFuture<?>> i = pendingFutures.iterator();
+      final InjectionFuture<?> f = i.next();
       pendingFutures.remove(f);
       f.get();
     }
@@ -528,7 +527,7 @@ public class InjectorImpl implements Injector {
   }
 
   @Override
-  public <U> U getInstance(Class<U> clazz) throws InjectionException {
+  public <U> U getInstance(final Class<U> clazz) throws InjectionException {
     if (Name.class.isAssignableFrom(clazz)) {
       throw new InjectionException("getInstance() called on Name "
           + ReflectionUtilities.getFullName(clazz)
@@ -539,30 +538,29 @@ public class InjectorImpl implements Injector {
 
   @SuppressWarnings("unchecked")
   @Override
-  public <U> U getInstance(String clazz) throws InjectionException, NameResolutionException {
+  public <U> U getInstance(final String clazz) throws InjectionException, NameResolutionException {
     return (U) getInstance(namespace.getNode(clazz));
   }
 
   @Override
   @SuppressWarnings("unchecked")
-  public <T> T getNamedInstance(Class<? extends Name<T>> clazz)
+  public <T> T getNamedInstance(final Class<? extends Name<T>> clazz)
       throws InjectionException {
     return (T) getInstance(javaNamespace.getNode(clazz));
   }
 
-  public <T> T getNamedParameter(Class<? extends Name<T>> clazz)
+  public <T> T getNamedParameter(final Class<? extends Name<T>> clazz)
       throws InjectionException {
     return getNamedInstance(clazz);
   }
 
   private <T> java.lang.reflect.Constructor<T> getConstructor(
-      ConstructorDef<T> constructor) throws ClassNotFoundException,
+      final ConstructorDef<T> constructor) throws ClassNotFoundException,
       NoSuchMethodException, SecurityException {
-    @SuppressWarnings("unchecked")
-    Class<T> clazz = (Class<T>) javaNamespace.classForName(constructor
-        .getClassName());
-    ConstructorArg[] args = constructor.getArgs();
-    Class<?>[] parameterTypes = new Class[args.length];
+    @SuppressWarnings("unchecked") final Class<T> clazz =
+        (Class<T>) javaNamespace.classForName(constructor.getClassName());
+    final ConstructorArg[] args = constructor.getArgs();
+    final Class<?>[] parameterTypes = new Class[args.length];
     for (int i = 0; i < args.length; i++) {
       if (args[i].isInjectionFuture()) {
         parameterTypes[i] = InjectionFuture.class;
@@ -570,7 +568,7 @@ public class InjectorImpl implements Injector {
         parameterTypes[i] = javaNamespace.classForName(args[i].getType());
       }
     }
-    java.lang.reflect.Constructor<T> cons = clazz
+    final java.lang.reflect.Constructor<T> cons = clazz
         .getDeclaredConstructor(parameterTypes);
     cons.setAccessible(true);
     return cons;
@@ -594,7 +592,7 @@ public class InjectorImpl implements Injector {
    * @throws InjectionException
    */
   @SuppressWarnings("unchecked")
-  private <T> T injectFromPlan(InjectionPlan<T> plan) throws InjectionException {
+  private <T> T injectFromPlan(final InjectionPlan<T> plan) throws InjectionException {
 
     if (!plan.isFeasible()) {
       throw new InjectionException("Cannot inject " + plan.getNode().getFullName() + ": "
@@ -605,13 +603,14 @@ public class InjectorImpl implements Injector {
           + plan.toCantInjectString());
     }
     if (plan instanceof InjectionFuturePlan) {
-      InjectionFuturePlan<T> fut = (InjectionFuturePlan<T>) plan;
+      final InjectionFuturePlan<T> fut = (InjectionFuturePlan<T>) plan;
       final String key = fut.getNode().getFullName();
       try {
-        InjectionFuture<?> ret = new InjectionFuture<>(this, javaNamespace.classForName(fut.getNode().getFullName()));
+        final InjectionFuture<?> ret = new InjectionFuture<>(
+            this, javaNamespace.classForName(fut.getNode().getFullName()));
         pendingFutures.add(ret);
         return (T) ret;
-      } catch (ClassNotFoundException e) {
+      } catch (final ClassNotFoundException e) {
         throw new InjectionException("Could not get class for " + key);
       }
     } else if (plan.getNode() instanceof ClassNode && null != getCachedInstance((ClassNode<T>) plan.getNode())) {
@@ -632,18 +631,18 @@ public class InjectorImpl implements Injector {
         concurrentModificationGuard = true;
         T ret;
         try {
-          ConstructorDef<T> def = (ConstructorDef<T>) constructor.getConstructorDef();
-          java.lang.reflect.Constructor<T> construct = getConstructor(def);
+          final ConstructorDef<T> def = (ConstructorDef<T>) constructor.getConstructorDef();
+          final java.lang.reflect.Constructor<T> construct = getConstructor(def);
 
           if (aspect != null) {
             ret = aspect.inject(def, construct, args);
           } else {
             ret = construct.newInstance(args);
           }
-        } catch (IllegalArgumentException e) {
-          StringBuilder sb = new StringBuilder("Internal Tang error?  Could not call constructor " +
+        } catch (final IllegalArgumentException e) {
+          final StringBuilder sb = new StringBuilder("Internal Tang error?  Could not call constructor " +
               constructor.getConstructorDef() + " with arguments [");
-          for (Object o : args) {
+          for (final Object o : args) {
             sb.append("\n\t" + o);
           }
           sb.append("]");
@@ -654,26 +653,26 @@ public class InjectorImpl implements Injector {
         }
         instances.put(constructor.getNode(), ret);
         return ret;
-      } catch (ReflectiveOperationException e) {
+      } catch (final ReflectiveOperationException e) {
         throw new InjectionException("Could not invoke constructor: " + plan,
             e instanceof InvocationTargetException ? e.getCause() : e);
       } finally {
         concurrentModificationGuard = false;
       }
     } else if (plan instanceof Subplan) {
-      Subplan<T> ambiguous = (Subplan<T>) plan;
+      final Subplan<T> ambiguous = (Subplan<T>) plan;
       return injectFromPlan(ambiguous.getDelegatedPlan());
     } else if (plan instanceof SetInjectionPlan) {
-      SetInjectionPlan<T> setPlan = (SetInjectionPlan<T>) plan;
-      Set<T> ret = new MonotonicHashSet<>();
-      for (InjectionPlan<T> subplan : setPlan.getEntryPlans()) {
+      final SetInjectionPlan<T> setPlan = (SetInjectionPlan<T>) plan;
+      final Set<T> ret = new MonotonicHashSet<>();
+      for (final InjectionPlan<T> subplan : setPlan.getEntryPlans()) {
         ret.add(injectFromPlan(subplan));
       }
       return (T) ret;
     } else if (plan instanceof ListInjectionPlan) {
-      ListInjectionPlan<T> listPlan = (ListInjectionPlan<T>) plan;
-      List<T> ret = new ArrayList<>();
-      for (InjectionPlan<T> subplan : listPlan.getEntryPlans()) {
+      final ListInjectionPlan<T> listPlan = (ListInjectionPlan<T>) plan;
+      final List<T> ret = new ArrayList<>();
+      for (final InjectionPlan<T> subplan : listPlan.getEntryPlans()) {
         ret.add(injectFromPlan(subplan));
       }
       return (T) ret;
@@ -683,22 +682,22 @@ public class InjectorImpl implements Injector {
   }
 
   @Override
-  public <T> void bindVolatileInstance(Class<T> cl, T o) throws BindException {
+  public <T> void bindVolatileInstance(final Class<T> cl, final T o) throws BindException {
     bindVolatileInstanceNoCopy(cl, o);
   }
 
   @Override
-  public <T> void bindVolatileParameter(Class<? extends Name<T>> cl, T o)
+  public <T> void bindVolatileParameter(final Class<? extends Name<T>> cl, final T o)
       throws BindException {
     bindVolatileParameterNoCopy(cl, o);
   }
 
-  <T> void bindVolatileInstanceNoCopy(Class<T> cl, T o) throws BindException {
+  <T> void bindVolatileInstanceNoCopy(final Class<T> cl, final T o) throws BindException {
     assertNotConcurrent();
-    Node n = javaNamespace.getNode(cl);
+    final Node n = javaNamespace.getNode(cl);
     if (n instanceof ClassNode) {
-      ClassNode<?> cn = (ClassNode<?>) n;
-      Object old = getCachedInstance(cn);
+      final ClassNode<?> cn = (ClassNode<?>) n;
+      final Object old = getCachedInstance(cn);
       if (old != null) {
         throw new BindException("Attempt to re-bind instance.  Old value was "
             + old + " new value is " + o);
@@ -710,12 +709,12 @@ public class InjectorImpl implements Injector {
     }
   }
 
-  <T> void bindVolatileParameterNoCopy(Class<? extends Name<T>> cl, T o)
+  <T> void bindVolatileParameterNoCopy(final Class<? extends Name<T>> cl, final T o)
       throws BindException {
-    Node n = javaNamespace.getNode(cl);
+    final Node n = javaNamespace.getNode(cl);
     if (n instanceof NamedParameterNode) {
-      NamedParameterNode<?> np = (NamedParameterNode<?>) n;
-      Object old = this.c.getNamedParameter(np);
+      final NamedParameterNode<?> np = (NamedParameterNode<?>) n;
+      final Object old = this.c.getNamedParameter(np);
       if (old != null) {
         // XXX need to get the binding site here!
         throw new BindException(
@@ -724,7 +723,7 @@ public class InjectorImpl implements Injector {
       }
       try {
         namedParameterInstances.put(np, o);
-      } catch (IllegalArgumentException e) {
+      } catch (final IllegalArgumentException e) {
         throw new BindException(
             "Attempt to re-bind named parameter " + ReflectionUtilities.getFullName(cl) + ".  Old value was [" + old
                 + "] new value is [" + o + "]");
@@ -740,21 +739,21 @@ public class InjectorImpl implements Injector {
   public Injector forkInjector() {
     try {
       return forkInjector(new Configuration[0]);
-    } catch (BindException e) {
+    } catch (final BindException e) {
       throw new IllegalStateException(e);
     }
   }
 
   @Override
-  public Injector forkInjector(Configuration... configurations)
+  public Injector forkInjector(final Configuration... configurations)
       throws BindException {
-    InjectorImpl ret;
+    final InjectorImpl ret;
     ret = copy(this, configurations);
     return ret;
   }
 
   @Override
-  public <T> void bindAspect(Aspect a) throws BindException {
+  public <T> void bindAspect(final Aspect a) throws BindException {
     if (aspect != null) {
       throw new BindException("Attempt to re-bind aspect! old=" + aspect + " new=" + a);
     }

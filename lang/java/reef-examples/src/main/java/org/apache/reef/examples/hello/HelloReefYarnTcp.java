@@ -61,9 +61,9 @@ public final class HelloReefYarnTcp {
   }
 
   private static Configuration getRuntimeConfiguration(
-      int tcpBeginPort,
-      int tcpRangeCount,
-      int tcpTryCount) {
+      final int tcpBeginPort,
+      final int tcpRangeCount,
+      final int tcpTryCount) {
 
     return Tang.Factory.getTang().newConfigurationBuilder(YarnClientConfiguration.CONF.build())
         .bindSetEntry(DriverConfigurationProviders.class, TcpPortConfigurationProvider.class)

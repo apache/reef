@@ -66,7 +66,7 @@ public final class ApplicationState {
     return finishedTime;
   }
 
-  public void setFinishedTime(long finishedTime) {
+  public void setFinishedTime(final long finishedTime) {
     this.finishedTime = finishedTime;
   }
 
@@ -75,7 +75,7 @@ public final class ApplicationState {
     return amContainerLogs;
   }
 
-  public void setAmContainerLogs(String amContainerLogs) {
+  public void setAmContainerLogs(final String amContainerLogs) {
     this.amContainerLogs = amContainerLogs;
   }
 
@@ -84,7 +84,7 @@ public final class ApplicationState {
     return trackingUI;
   }
 
-  public void setTrackingUI(String trackingUI) {
+  public void setTrackingUI(final String trackingUI) {
     this.trackingUI = trackingUI;
   }
 
@@ -93,7 +93,7 @@ public final class ApplicationState {
     return state;
   }
 
-  public void setState(String state) {
+  public void setState(final String state) {
     this.state = state;
   }
 
@@ -102,7 +102,7 @@ public final class ApplicationState {
     return user;
   }
 
-  public void setUser(String user) {
+  public void setUser(final String user) {
     this.user = user;
   }
 
@@ -111,7 +111,7 @@ public final class ApplicationState {
     return id;
   }
 
-  public void setId(String id) {
+  public void setId(final String id) {
     this.id = id;
   }
 
@@ -120,7 +120,7 @@ public final class ApplicationState {
     return clusterId;
   }
 
-  public void setClusterId(String clusterId) {
+  public void setClusterId(final String clusterId) {
     this.clusterId = clusterId;
   }
 
@@ -129,7 +129,7 @@ public final class ApplicationState {
     return finalStatus;
   }
 
-  public void setFinalStatus(String finalStatus) {
+  public void setFinalStatus(final String finalStatus) {
     this.finalStatus = finalStatus;
   }
 
@@ -138,7 +138,7 @@ public final class ApplicationState {
     return amHostHttpAddress;
   }
 
-  public void setAmHostHttpAddress(String amHostHttpAddress) {
+  public void setAmHostHttpAddress(final String amHostHttpAddress) {
     this.amHostHttpAddress = amHostHttpAddress;
   }
 
@@ -147,7 +147,7 @@ public final class ApplicationState {
     return progress;
   }
 
-  public void setProgress(String progress) {
+  public void setProgress(final String progress) {
     this.progress = progress;
   }
 
@@ -156,7 +156,7 @@ public final class ApplicationState {
     return name;
   }
 
-  public void setName(String name) {
+  public void setName(final String name) {
     this.name = name;
   }
 
@@ -165,7 +165,7 @@ public final class ApplicationState {
     return applicationType;
   }
 
-  public void setApplicationType(String applicationType) {
+  public void setApplicationType(final String applicationType) {
     this.applicationType = applicationType;
   }
 
@@ -174,7 +174,7 @@ public final class ApplicationState {
     return startedTime;
   }
 
-  public void setStartedTime(long startedTime) {
+  public void setStartedTime(final long startedTime) {
     this.startedTime = startedTime;
   }
 
@@ -183,7 +183,7 @@ public final class ApplicationState {
     return elapsedTime;
   }
 
-  public void setElapsedTime(long elapsedTime) {
+  public void setElapsedTime(final long elapsedTime) {
     this.elapsedTime = elapsedTime;
   }
 
@@ -192,7 +192,7 @@ public final class ApplicationState {
     return diagnostics;
   }
 
-  public void setDiagnostics(String diagnostics) {
+  public void setDiagnostics(final String diagnostics) {
     this.diagnostics = diagnostics;
   }
 
@@ -201,7 +201,7 @@ public final class ApplicationState {
     return trackingUrl;
   }
 
-  public void setTrackingUrl(String trackingUrl) {
+  public void setTrackingUrl(final String trackingUrl) {
     this.trackingUrl = trackingUrl;
   }
 
@@ -210,7 +210,7 @@ public final class ApplicationState {
     return queue;
   }
 
-  public void setQueue(String queue) {
+  public void setQueue(final String queue) {
     this.queue = queue;
   }
 
@@ -219,7 +219,7 @@ public final class ApplicationState {
     return allocatedMB;
   }
 
-  public void setAllocatedMB(int allocatedMB) {
+  public void setAllocatedMB(final int allocatedMB) {
     this.allocatedMB = allocatedMB;
   }
 
@@ -228,7 +228,7 @@ public final class ApplicationState {
     return allocatedVCores;
   }
 
-  public void setAllocatedVCores(int allocatedVCores) {
+  public void setAllocatedVCores(final int allocatedVCores) {
     this.allocatedVCores = allocatedVCores;
   }
 
@@ -237,7 +237,7 @@ public final class ApplicationState {
     return runningContainers;
   }
 
-  public void setRunningContainers(int runningContainers) {
+  public void setRunningContainers(final int runningContainers) {
     this.runningContainers = runningContainers;
   }
 
@@ -246,7 +246,7 @@ public final class ApplicationState {
     return memorySeconds;
   }
 
-  public void setMemorySeconds(long memorySeconds) {
+  public void setMemorySeconds(final long memorySeconds) {
     this.memorySeconds = memorySeconds;
   }
 
@@ -256,18 +256,18 @@ public final class ApplicationState {
   }
 
   @SuppressWarnings("checkstyle:hiddenfield")
-  public void setVCoreSeconds(long vCoreSeconds) {
+  public void setVCoreSeconds(final long vCoreSeconds) {
     this.vCoreSeconds = vCoreSeconds;
   }
 
   @Override
   public String toString() {
-    StringWriter writer = new StringWriter();
-    String objectString;
+    final StringWriter writer = new StringWriter();
+    final String objectString;
     try {
       OBJECT_MAPPER.writeValue(writer, this);
       objectString = writer.toString();
-    } catch (IOException e) {
+    } catch (final IOException e) {
       return null;
     }
 

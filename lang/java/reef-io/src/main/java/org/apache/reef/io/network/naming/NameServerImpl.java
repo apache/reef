@@ -74,7 +74,7 @@ public final class NameServerImpl implements NameServer {
       @Parameter(NameServerParameters.NameServerIdentifierFactory.class) final IdentifierFactory factory,
       final LocalAddressProvider localAddressProvider) {
 
-    Injector injector = Tang.Factory.getTang().newInjector();
+    final Injector injector = Tang.Factory.getTang().newInjector();
 
     this.localAddressProvider = localAddressProvider;
     this.reefEventStateManager = null;
@@ -88,7 +88,7 @@ public final class NameServerImpl implements NameServer {
 
     try {
       this.transport = injector.getInstance(NettyMessagingTransport.class);
-    } catch (InjectionException e) {
+    } catch (final InjectionException e) {
       throw new RuntimeException(e);
     }
 

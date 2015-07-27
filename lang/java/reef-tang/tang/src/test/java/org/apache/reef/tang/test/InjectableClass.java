@@ -29,7 +29,7 @@ final class InjectableClass {
   }
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(final Object o) {
     if (this == o) {
       return true;
     }
@@ -37,7 +37,7 @@ final class InjectableClass {
       return false;
     }
 
-    InjectableClass that = (InjectableClass) o;
+    final InjectableClass that = (InjectableClass) o;
 
     if (magicNumber != that.magicNumber) {
       return false;

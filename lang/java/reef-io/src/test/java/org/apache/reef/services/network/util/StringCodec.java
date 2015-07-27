@@ -23,12 +23,12 @@ import org.apache.reef.wake.remote.Codec;
 
 public class StringCodec implements Codec<String> {
   @Override
-  public byte[] encode(String obj) {
+  public byte[] encode(final String obj) {
     return obj.getBytes();
   }
 
   @Override
-  public String decode(byte[] buf) {
+  public String decode(final byte[] buf) {
     return new String(buf);
   }
 }

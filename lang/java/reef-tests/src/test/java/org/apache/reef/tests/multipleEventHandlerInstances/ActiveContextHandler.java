@@ -47,15 +47,15 @@ public final class ActiveContextHandler implements EventHandler<ActiveContext> {
   }
 
   @Override
-  public void onNext(ActiveContext activeContext) {
+  public void onNext(final ActiveContext activeContext) {
     LOG.log(Level.FINEST, "ActiveContext received. Submitting empty task to it");
-    Configuration taskConfiguration;
+    final Configuration taskConfiguration;
     try {
       taskConfiguration = TaskConfiguration.CONF
           .set(TaskConfiguration.IDENTIFIER, "EmptyREEFTask")
           .set(TaskConfiguration.TASK, EmptyTask.class)
           .build();
-    } catch (BindException e) {
+    } catch (final BindException e) {
       throw new RuntimeException("Unable to setup Task configuration", e);
     }
     activeContext.submitTask(taskConfiguration);

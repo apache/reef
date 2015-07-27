@@ -38,18 +38,18 @@ public class TimerMock implements Timer {
   private final int seconds;
 
   @Inject
-  TimerMock(@Parameter(Timer.Seconds.class) int seconds) {
+  TimerMock(@Parameter(Timer.Seconds.class) final int seconds) {
     if (seconds < 0) {
       throw new IllegalArgumentException("Cannot sleep for negative time!");
     }
     this.seconds = seconds;
   }
 
-  public static void main(String[] args) throws BindException, InjectionException, Exception {
-    Configuration c = TimerMock.CONF
+  public static void main(final String[] args) throws BindException, InjectionException, Exception {
+    final Configuration c = TimerMock.CONF
         .set(TimerMockConf.MOCK_SLEEP_TIME, 1)
         .build();
-    Timer t = Tang.Factory.getTang().newInjector(c).getInstance(Timer.class);
+    final Timer t = Tang.Factory.getTang().newInjector(c).getInstance(Timer.class);
     System.out.println("Tick...");
     t.sleep();
     System.out.println("...tock.");

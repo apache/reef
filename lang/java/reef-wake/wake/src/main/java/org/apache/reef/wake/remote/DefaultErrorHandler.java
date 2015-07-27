@@ -32,7 +32,7 @@ final class DefaultErrorHandler implements EventHandler<Throwable> {
   }
 
   @Override
-  public void onNext(Throwable value) {
+  public void onNext(final Throwable value) {
     throw new RuntimeException("No error handler bound for RemoteManager.", value);
   }
 }

@@ -44,7 +44,7 @@ final class UnitClass {
   }
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(final Object o) {
     if (this == o) {
       return true;
     }
@@ -52,7 +52,7 @@ final class UnitClass {
       return false;
     }
 
-    UnitClass unitClass = (UnitClass) o;
+    final UnitClass unitClass = (UnitClass) o;
 
     if (intValue != unitClass.intValue) {
       return false;
@@ -80,7 +80,7 @@ final class UnitClass {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
       if (this == o) {
         return true;
       }
@@ -88,7 +88,7 @@ final class UnitClass {
         return false;
       }
 
-      IntegerHandler that = (IntegerHandler) o;
+      final IntegerHandler that = (IntegerHandler) o;
 
       if (foo != that.foo) {
         return false;
@@ -112,7 +112,7 @@ final class UnitClass {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
       if (this == o) {
         return true;
       }
@@ -120,7 +120,7 @@ final class UnitClass {
         return false;
       }
 
-      StringHandler that = (StringHandler) o;
+      final StringHandler that = (StringHandler) o;
 
       if (bar != that.bar) {
         return false;

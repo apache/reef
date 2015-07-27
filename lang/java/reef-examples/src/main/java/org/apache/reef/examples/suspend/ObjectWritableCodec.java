@@ -60,7 +60,7 @@ public class ObjectWritableCodec<T extends Writable> implements Codec<T> {
    * @throws RemoteRuntimeException if serialization fails.
    */
   @Override
-  public byte[] encode(T writable) {
+  public byte[] encode(final T writable) {
     try (final ByteArrayOutputStream bos = new ByteArrayOutputStream();
          final DataOutputStream dos = new DataOutputStream(bos)) {
       writable.write(dos);
@@ -79,7 +79,7 @@ public class ObjectWritableCodec<T extends Writable> implements Codec<T> {
    * @throws RemoteRuntimeException if deserialization fails.
    */
   @Override
-  public T decode(byte[] buffer) {
+  public T decode(final byte[] buffer) {
     try (final ByteArrayInputStream bis = new ByteArrayInputStream(buffer);
          final DataInputStream dis = new DataInputStream(bis)) {
       final T writable = this.writableClass.newInstance();

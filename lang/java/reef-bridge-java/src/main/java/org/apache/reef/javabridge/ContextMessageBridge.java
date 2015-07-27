@@ -27,7 +27,7 @@ public class ContextMessageBridge extends NativeBridge implements ContextMessage
   private String messageSourceId;
   private byte[] message;
 
-  public ContextMessageBridge(ContextMessage contextMessage) {
+  public ContextMessageBridge(final ContextMessage contextMessage) {
     jcontextMessage = contextMessage;
     contextMessageId = contextMessage.getId();
     messageSourceId = contextMessage.getMessageSourceID();

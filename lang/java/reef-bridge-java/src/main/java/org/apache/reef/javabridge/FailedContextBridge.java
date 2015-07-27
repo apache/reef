@@ -79,7 +79,7 @@ public final class FailedContextBridge extends NativeBridge implements ContextBa
   }
 
   public String getEvaluatorDescriptorSring() {
-    String descriptorString = Utilities.getEvaluatorDescriptorString(evaluatorDescriptor);
+    final String descriptorString = Utilities.getEvaluatorDescriptorString(evaluatorDescriptor);
     LOG.log(Level.INFO, "Failed Context - serialized evaluator descriptor: " + descriptorString);
     return descriptorString;
   }

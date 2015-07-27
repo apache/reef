@@ -58,7 +58,7 @@ public class FramingTupleSerializer<K, V> implements
           boolean first = true;
 
           @Override
-          public void add(Tuple<K, V> datum) throws ServiceException {
+          public void add(final Tuple<K, V> datum) throws ServiceException {
             if (!first) {
               faos.nextFrame();
             }
@@ -74,7 +74,7 @@ public class FramingTupleSerializer<K, V> implements
               keyAccumulator.close();
               valAccumulator.close();
               faos.close();
-            } catch (IOException e) {
+            } catch (final IOException e) {
               throw new StorageException(e);
             }
           }

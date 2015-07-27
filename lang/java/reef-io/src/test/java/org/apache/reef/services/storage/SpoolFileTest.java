@@ -59,12 +59,12 @@ public class SpoolFileTest {
           return new Accumulator<Integer>() {
 
             @Override
-            public void add(Integer datum) {
+            public void add(final Integer datum) {
               try {
-                int d = datum;
+                final int d = datum;
                 out.write(new byte[]{(byte) (d >>> 24), (byte) (d >>> 16),
                     (byte) (d >>> 8), (byte) d});
-              } catch (IOException e) {
+              } catch (final IOException e) {
                 throw new IllegalStateException(e);
               }
             }
@@ -73,7 +73,7 @@ public class SpoolFileTest {
             public void close() {
               try {
                 out.flush();
-              } catch (IOException e) {
+              } catch (final IOException e) {
                 throw new IllegalStateException(e);
               }
             }
@@ -88,7 +88,7 @@ public class SpoolFileTest {
       return new Iterable<Integer>() {
         @Override
         public Iterator<Integer> iterator() {
-          Iterator<Integer> it = new Iterator<Integer>() {
+          final Iterator<Integer> it = new Iterator<Integer>() {
             final byte[] inb = new byte[4];
             Integer nextInt;
 
@@ -98,10 +98,10 @@ public class SpoolFileTest {
             }
 
             private void prime() {
-              int read;
+              final int read;
               try {
                 read = in.read(inb);
-              } catch (IOException e) {
+              } catch (final IOException e) {
                 throw new IllegalStateException(e);
               }
               if (read != 4) {
@@ -115,7 +115,7 @@ public class SpoolFileTest {
 
             @Override
             public Integer next() {
-              Integer ret = nextInt;
+              final Integer ret = nextInt;
               prime();
               return ret;
             }
@@ -150,8 +150,8 @@ public class SpoolFileTest {
 
   @Test
   public void testFile() throws ServiceException {
-    LocalStorageService service = new LocalStorageService("spoolTest", "file");
-    Spool<Integer> f = new SerializerFileSpool<Integer>(service, serializer,
+    final LocalStorageService service = new LocalStorageService("spoolTest", "file");
+    final Spool<Integer> f = new SerializerFileSpool<Integer>(service, serializer,
         deserializer);
     test(f);
     service.getScratchSpace().delete();
@@ -159,23 +159,23 @@ public class SpoolFileTest {
 
   @Test
   public void testInterop() throws ServiceException {
-    LocalStorageService service = new LocalStorageService("spoolTest", "file");
-    Codec<Integer> c = new IntegerCodec();
+    final LocalStorageService service = new LocalStorageService("spoolTest", "file");
+    final Codec<Integer> c = new IntegerCodec();
 
 
-    CodecFileAccumulable<Integer, Codec<Integer>> f = new CodecFileAccumulable<Integer, Codec<Integer>>(
+    final CodecFileAccumulable<Integer, Codec<Integer>> f = new CodecFileAccumulable<Integer, Codec<Integer>>(
         service, c);
-    CodecFileIterable<Integer, Codec<Integer>> g = new CodecFileIterable<Integer, Codec<Integer>>(
+    final CodecFileIterable<Integer, Codec<Integer>> g = new CodecFileIterable<Integer, Codec<Integer>>(
         new File(f.getName()), c);
     test(f, g);
     service.getScratchSpace().delete();
   }
 
-  protected void test(Spool<Integer> f) throws ServiceException {
+  protected void test(final Spool<Integer> f) throws ServiceException {
     test(f, f);
   }
 
-  protected void test(Accumulable<Integer> f, Iterable<Integer> g) throws ServiceException {
+  protected void test(final Accumulable<Integer> f, final Iterable<Integer> g) throws ServiceException {
 
     try (Accumulator<Integer> acc = f.accumulator()) {
       for (int i = 0; i < 1000; i++) {
@@ -183,12 +183,12 @@ public class SpoolFileTest {
       }
     }
     int i = 0;
-    for (int j : g) {
+    for (final int j : g) {
       Assert.assertEquals(i, j);
       i++;
     }
-    Iterator<Integer> itA = g.iterator();
-    Iterator<Integer> itB = g.iterator();
+    final Iterator<Integer> itA = g.iterator();
+    final Iterator<Integer> itB = g.iterator();
 
     for (i = 0; i < 1000; i++) {
       Assert.assertEquals((int) itA.next(), i);

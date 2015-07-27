@@ -40,9 +40,9 @@ import java.util.Set;
 public class JavaConfigurationBuilderImpl extends ConfigurationBuilderImpl
     implements JavaConfigurationBuilder {
 
-  public JavaConfigurationBuilderImpl(URL[] jars,
-                                      Configuration[] confs,
-                                      Class<? extends ExternalConstructor<?>>[] parsers)
+  public JavaConfigurationBuilderImpl(final URL[] jars,
+                                      final Configuration[] confs,
+                                      final Class<? extends ExternalConstructor<?>>[] parsers)
       throws BindException {
     super(jars, confs, parsers);
   }
@@ -51,15 +51,15 @@ public class JavaConfigurationBuilderImpl extends ConfigurationBuilderImpl
     super();
   }
 
-  public JavaConfigurationBuilderImpl(URL[] jars) throws BindException {
+  public JavaConfigurationBuilderImpl(final URL[] jars) throws BindException {
     super(jars);
   }
 
-  JavaConfigurationBuilderImpl(JavaConfigurationBuilderImpl impl) {
+  JavaConfigurationBuilderImpl(final JavaConfigurationBuilderImpl impl) {
     super(impl);
   }
 
-  public JavaConfigurationBuilderImpl(Configuration[] confs)
+  public JavaConfigurationBuilderImpl(final Configuration[] confs)
       throws BindException {
     super(confs);
   }
@@ -69,19 +69,19 @@ public class JavaConfigurationBuilderImpl extends ConfigurationBuilderImpl
     return new JavaConfigurationImpl(new JavaConfigurationBuilderImpl(this));
   }
 
-  private Node getNode(Class<?> c) {
+  private Node getNode(final Class<?> c) {
     return ((JavaClassHierarchy) namespace).getNode(c);
   }
 
   @Override
-  public <T> JavaConfigurationBuilder bind(Class<T> c, Class<?> val) throws BindException {
+  public <T> JavaConfigurationBuilder bind(final Class<T> c, final Class<?> val) throws BindException {
     super.bind(getNode(c), getNode(val));
     return this;
   }
 
   @Override
   @SuppressWarnings("unchecked")
-  public <T> JavaConfigurationBuilder bindImplementation(Class<T> c, Class<? extends T> d)
+  public <T> JavaConfigurationBuilder bindImplementation(final Class<T> c, final Class<? extends T> d)
       throws BindException {
     final Node cn = getNode(c);
     final Node dn = getNode(d);
@@ -117,10 +117,10 @@ public class JavaConfigurationBuilderImpl extends ConfigurationBuilderImpl
   }
 
   @Override
-  public <T> JavaConfigurationBuilder bindNamedParameter(Class<? extends Name<T>> iface,
-                                                         Class<? extends T> impl) throws BindException {
-    Node ifaceN = getNode(iface);
-    Node implN = getNode(impl);
+  public <T> JavaConfigurationBuilder bindNamedParameter(final Class<? extends Name<T>> iface,
+                                                         final Class<? extends T> impl) throws BindException {
+    final Node ifaceN = getNode(iface);
+    final Node implN = getNode(impl);
     if (!(ifaceN instanceof NamedParameterNode)) {
       throw new BindException("Type mismatch when setting named parameter " + ifaceN
           + " Expected NamedParameterNode");
@@ -130,8 +130,8 @@ public class JavaConfigurationBuilderImpl extends ConfigurationBuilderImpl
   }
 
   @SuppressWarnings({"unchecked"})
-  public <T> JavaConfigurationBuilder bindConstructor(Class<T> c,
-                                                      Class<? extends ExternalConstructor<? extends T>> v)
+  public <T> JavaConfigurationBuilder bindConstructor(final Class<T> c,
+                                                      final Class<? extends ExternalConstructor<? extends T>> v)
       throws BindException {
     final Node n = getNode(c);
     final Node m = getNode(v);
@@ -147,7 +147,7 @@ public class JavaConfigurationBuilderImpl extends ConfigurationBuilderImpl
 
   @SuppressWarnings("unchecked")
   @Override
-  public <T> JavaConfigurationBuilder bindSetEntry(Class<? extends Name<Set<T>>> iface, String value)
+  public <T> JavaConfigurationBuilder bindSetEntry(final Class<? extends Name<Set<T>>> iface, final String value)
       throws BindException {
     final Node n = getNode(iface);
 
@@ -165,8 +165,8 @@ public class JavaConfigurationBuilderImpl extends ConfigurationBuilderImpl
 
   @SuppressWarnings("unchecked")
   @Override
-  public <T> JavaConfigurationBuilder bindSetEntry(Class<? extends Name<Set<T>>> iface, Class<? extends T> impl)
-      throws BindException {
+  public <T> JavaConfigurationBuilder bindSetEntry(
+      final Class<? extends Name<Set<T>>> iface, final Class<? extends T> impl) throws BindException {
     final Node n = getNode(iface);
     final Node m = getNode(impl);
 
@@ -202,10 +202,10 @@ public class JavaConfigurationBuilderImpl extends ConfigurationBuilderImpl
    */
   @SuppressWarnings("unchecked")
   @Override
-  public <T> JavaConfigurationBuilder bindList(Class<? extends Name<List<T>>> iface, List implList)
+  public <T> JavaConfigurationBuilder bindList(final Class<? extends Name<List<T>>> iface, final List implList)
       throws BindException {
     final Node n = getNode(iface);
-    List<Object> result = new ArrayList<>();
+    final List<Object> result = new ArrayList<>();
 
     if (!(n instanceof NamedParameterNode)) {
       throw new BindException("BindList got an interface that resolved to " + n + "; expected a NamedParameter");
@@ -216,7 +216,7 @@ public class JavaConfigurationBuilderImpl extends ConfigurationBuilderImpl
     }
     if (!implList.isEmpty()) {
       final Type valType = ReflectionUtilities.getInterfaceTarget(List.class, listType);
-      for (Object item : implList) {
+      for (final Object item : implList) {
         if (item instanceof Class) {
           if (!ReflectionUtilities.getRawClass(valType).isAssignableFrom((Class) item)) {
             throw new BindException("BindList got a list element which is not assignable to the given Type; " +
@@ -237,7 +237,7 @@ public class JavaConfigurationBuilderImpl extends ConfigurationBuilderImpl
   }
 
   private class JavaConfigurationImpl extends ConfigurationImpl {
-    JavaConfigurationImpl(JavaConfigurationBuilderImpl builder) {
+    JavaConfigurationImpl(final JavaConfigurationBuilderImpl builder) {
       super(builder);
     }
   }

@@ -33,13 +33,13 @@ public class ListInterfaceImplTwo implements ListInterface {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     } else if (obj == null || obj.getClass() != getClass()) {
       return false;
     } else {
-      ListInterfaceImplTwo two = (ListInterfaceImplTwo) obj;
+      final ListInterfaceImplTwo two = (ListInterfaceImplTwo) obj;
       if (Double.compare(two.magicNumber, magicNumber) != 0) {
         return false;
       }
@@ -49,7 +49,7 @@ public class ListInterfaceImplTwo implements ListInterface {
 
   @Override
   public int hashCode() {
-    long temp = Double.doubleToLongBits(magicNumber);
+    final long temp = Double.doubleToLongBits(magicNumber);
     return (int) (temp ^ (temp >>> 32));
   }
 }

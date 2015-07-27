@@ -50,9 +50,9 @@ public class ForkPoolStage<T> extends AbstractEStage<T> {
   private final WakeSharedPool pool;
 
   @Inject
-  public ForkPoolStage(@Parameter(StageConfiguration.StageName.class) String stageName,
-                       @Parameter(StageConfiguration.StageHandler.class) EventHandler<T> handler,
-                       WakeSharedPool sharedPool
+  public ForkPoolStage(@Parameter(StageConfiguration.StageName.class) final String stageName,
+                       @Parameter(StageConfiguration.StageHandler.class) final EventHandler<T> handler,
+                       final WakeSharedPool sharedPool
   ) {
     super(stageName);
     this.pool = sharedPool;
@@ -63,8 +63,8 @@ public class ForkPoolStage<T> extends AbstractEStage<T> {
   }
 
   @Inject
-  public ForkPoolStage(@Parameter(StageConfiguration.StageHandler.class) EventHandler<T> handler,
-                       WakeSharedPool sharedPool) {
+  public ForkPoolStage(@Parameter(StageConfiguration.StageHandler.class) final EventHandler<T> handler,
+                       final WakeSharedPool sharedPool) {
     this(ForkPoolStage.class.getName(), handler, sharedPool);
   }
 
@@ -80,7 +80,7 @@ public class ForkPoolStage<T> extends AbstractEStage<T> {
       }
 
       @Override
-      protected void setRawResult(T value) {
+      protected void setRawResult(final T value) {
         // tasks have no results because they are events
         // this may be used for extensions
       }

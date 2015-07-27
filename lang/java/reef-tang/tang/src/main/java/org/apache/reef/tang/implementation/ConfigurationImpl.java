@@ -93,12 +93,12 @@ public class ConfigurationImpl implements Configuration {
   }
 
   @Override
-  public Set<Object> getBoundSet(NamedParameterNode<Set<?>> np) {
+  public Set<Object> getBoundSet(final NamedParameterNode<Set<?>> np) {
     return this.builder.boundSetEntries.getValuesForKey(np);
   }
 
   @Override
-  public List<Object> getBoundList(NamedParameterNode<List<?>> np) {
+  public List<Object> getBoundList(final NamedParameterNode<List<?>> np) {
     return this.builder.boundLists.get(np);
   }
 
@@ -119,7 +119,7 @@ public class ConfigurationImpl implements Configuration {
   }
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(final Object o) {
     if (this == o) {
       return true;
     }

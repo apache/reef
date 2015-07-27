@@ -105,7 +105,7 @@ final class MesosResourceLaunchHandler implements ResourceLaunchHandler {
 
       this.executors.launchEvaluator(
           new EvaluatorLaunch(resourceLaunchEvent.getIdentifier(), StringUtils.join(command, ' ')));
-    } catch (IOException e) {
+    } catch (final IOException e) {
       throw new RuntimeException(e);
     }
   }

@@ -50,19 +50,19 @@ public class ParameterParser {
   MonotonicTreeMap<String, Constructor<? extends ExternalConstructor<?>>> parsers = new MonotonicTreeMap<>();
 
   @SuppressWarnings({"unchecked", "rawtypes"})
-  public void addParser(Class<? extends ExternalConstructor<?>> ec) throws BindException {
-    Class<?> tc = (Class<?>) ReflectionUtilities.getInterfaceTarget(
+  public void addParser(final Class<? extends ExternalConstructor<?>> ec) throws BindException {
+    final Class<?> tc = (Class<?>) ReflectionUtilities.getInterfaceTarget(
         ExternalConstructor.class, ec);
     addParser((Class) tc, (Class) ec);
   }
 
-  public <T, U extends T> void addParser(Class<U> clazz, Class<? extends ExternalConstructor<T>> ec)
+  public <T, U extends T> void addParser(final Class<U> clazz, final Class<? extends ExternalConstructor<T>> ec)
       throws BindException {
-    Constructor<? extends ExternalConstructor<T>> c;
+    final Constructor<? extends ExternalConstructor<T>> c;
     try {
       c = ec.getDeclaredConstructor(String.class);
       c.setAccessible(true);
-    } catch (NoSuchMethodException e) {
+    } catch (final NoSuchMethodException e) {
       throw new BindException("Constructor "
           + ReflectionUtilities.getFullName(ec) + "(String) does not exist!", e);
     }
@@ -70,8 +70,8 @@ public class ParameterParser {
     parsers.put(ReflectionUtilities.getFullName(clazz), c);
   }
 
-  public void mergeIn(ParameterParser p) {
-    for (String s : p.parsers.keySet()) {
+  public void mergeIn(final ParameterParser p) {
+    for (final String s : p.parsers.keySet()) {
       if (!parsers.containsKey(s)) {
         parsers.put(s, p.parsers.get(s));
       } else {
@@ -86,12 +86,12 @@ public class ParameterParser {
     }
   }
 
-  public <T> T parse(Class<T> c, String s) {
-    Class<?> d = ReflectionUtilities.boxClass(c);
-    for (Type e : ReflectionUtilities.classAndAncestors(d)) {
-      String name = ReflectionUtilities.getFullName(e);
+  public <T> T parse(final Class<T> c, final String s) {
+    final Class<?> d = ReflectionUtilities.boxClass(c);
+    for (final Type e : ReflectionUtilities.classAndAncestors(d)) {
+      final String name = ReflectionUtilities.getFullName(e);
       if (parsers.containsKey(name)) {
-        T ret = parse(name, s);
+        final T ret = parse(name, s);
         if (c.isAssignableFrom(ret.getClass())) {
           return ret;
         } else {
@@ -103,11 +103,11 @@ public class ParameterParser {
   }
 
   @SuppressWarnings("unchecked")
-  public <T> T parse(String name, String value) {
+  public <T> T parse(final String name, final String value) {
     if (parsers.containsKey(name)) {
       try {
         return (T) (parsers.get(name).newInstance(value).newInstance());
-      } catch (ReflectiveOperationException e) {
+      } catch (final ReflectiveOperationException e) {
         throw new IllegalArgumentException("Error invoking constructor for "
             + name, e);
       }
@@ -146,7 +146,7 @@ public class ParameterParser {
     }
   }
 
-  public boolean canParse(String name) {
+  public boolean canParse(final String name) {
     return parsers.containsKey(name) || BUILTIN_NAMES.contains(name);
   }
 }

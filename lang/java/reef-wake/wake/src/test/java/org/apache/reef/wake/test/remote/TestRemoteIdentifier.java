@@ -23,7 +23,7 @@ import org.apache.reef.wake.remote.RemoteIdentifier;
 public class TestRemoteIdentifier implements RemoteIdentifier {
   private final String str;
 
-  public TestRemoteIdentifier(String str) {
+  public TestRemoteIdentifier(final String str) {
     this.str = str;
   }
 
@@ -31,7 +31,7 @@ public class TestRemoteIdentifier implements RemoteIdentifier {
     return str;
   }
 
-  public boolean equals(Object o) {
+  public boolean equals(final Object o) {
     return str.equals(((TestRemoteIdentifier) o).getString());
   }
 
@@ -40,7 +40,7 @@ public class TestRemoteIdentifier implements RemoteIdentifier {
   }
 
   public String toString() {
-    StringBuilder builder = new StringBuilder();
+    final StringBuilder builder = new StringBuilder();
     builder.append("test://");
     builder.append(str);
     return builder.toString();

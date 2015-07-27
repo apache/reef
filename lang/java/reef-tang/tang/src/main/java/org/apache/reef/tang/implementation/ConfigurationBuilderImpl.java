@@ -54,47 +54,47 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     this.namespace = Tang.Factory.getTang().getDefaultClassHierarchy();
   }
 
-  protected ConfigurationBuilderImpl(ClassHierarchy namespace) {
+  protected ConfigurationBuilderImpl(final ClassHierarchy namespace) {
     this.namespace = namespace;
   }
 
-  protected ConfigurationBuilderImpl(URL[] jars,
-                                     Configuration[] confs,
-                                     Class<? extends ExternalConstructor<?>>[] parsers)
+  protected ConfigurationBuilderImpl(final URL[] jars,
+                                     final Configuration[] confs,
+                                     final Class<? extends ExternalConstructor<?>>[] parsers)
       throws BindException {
     this.namespace = Tang.Factory.getTang().getDefaultClassHierarchy(jars, parsers);
-    for (Configuration tc : confs) {
+    for (final Configuration tc : confs) {
       addConfiguration(((ConfigurationImpl) tc));
     }
   }
 
-  protected ConfigurationBuilderImpl(ConfigurationBuilderImpl t) {
+  protected ConfigurationBuilderImpl(final ConfigurationBuilderImpl t) {
     this.namespace = t.getClassHierarchy();
     try {
       addConfiguration(t.getClassHierarchy(), t);
-    } catch (BindException e) {
+    } catch (final BindException e) {
       throw new IllegalStateException("Could not copy builder", e);
     }
   }
 
   @SuppressWarnings("unchecked")
-  protected ConfigurationBuilderImpl(URL... jars) throws BindException {
+  protected ConfigurationBuilderImpl(final URL... jars) throws BindException {
     this(jars, new Configuration[0], new Class[0]);
   }
 
   @SuppressWarnings("unchecked")
-  protected ConfigurationBuilderImpl(Configuration... confs) throws BindException {
+  protected ConfigurationBuilderImpl(final Configuration... confs) throws BindException {
     this(new URL[0], confs, new Class[0]);
   }
 
   @Override
-  public void addConfiguration(Configuration conf) throws BindException {
+  public void addConfiguration(final Configuration conf) throws BindException {
     // XXX remove cast!
     addConfiguration(conf.getClassHierarchy(), ((ConfigurationImpl) conf).builder);
   }
 
   @SuppressWarnings("unchecked")
-  private <T> void addConfiguration(ClassHierarchy ns, ConfigurationBuilderImpl builder)
+  private <T> void addConfiguration(final ClassHierarchy ns, final ConfigurationBuilderImpl builder)
       throws BindException {
     namespace = namespace.merge(ns);
     if ((namespace instanceof ClassHierarchyImpl || builder.namespace instanceof ClassHierarchyImpl)) {
@@ -106,24 +106,24 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
       }
     }
 
-    for (ClassNode<?> cn : builder.boundImpls.keySet()) {
+    for (final ClassNode<?> cn : builder.boundImpls.keySet()) {
       bind(cn.getFullName(), builder.boundImpls.get(cn).getFullName());
     }
-    for (ClassNode<?> cn : builder.boundConstructors.keySet()) {
+    for (final ClassNode<?> cn : builder.boundConstructors.keySet()) {
       bind(cn.getFullName(), builder.boundConstructors.get(cn).getFullName());
     }
     // The namedParameters set contains the strings that can be used to
     // instantiate new
     // named parameter instances. Create new ones where we can.
-    for (NamedParameterNode<?> np : builder.namedParameters.keySet()) {
+    for (final NamedParameterNode<?> np : builder.namedParameters.keySet()) {
       bind(np.getFullName(), builder.namedParameters.get(np));
     }
-    for (ClassNode<?> cn : builder.legacyConstructors.keySet()) {
+    for (final ClassNode<?> cn : builder.legacyConstructors.keySet()) {
       registerLegacyConstructor(cn, builder.legacyConstructors.get(cn)
           .getArgs());
     }
-    for (Entry<NamedParameterNode<Set<?>>, Object> e : builder.boundSetEntries) {
-      String name = ((NamedParameterNode<Set<T>>) (NamedParameterNode<?>) e.getKey()).getFullName();
+    for (final Entry<NamedParameterNode<Set<?>>, Object> e : builder.boundSetEntries) {
+      final String name = ((NamedParameterNode<Set<T>>) (NamedParameterNode<?>) e.getKey()).getFullName();
       if (e.getValue() instanceof Node) {
         bindSetEntry(name, (Node) e.getValue());
       } else if (e.getValue() instanceof String) {
@@ -133,7 +133,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
       }
     }
     // The boundLists set contains bound lists with their target NamedParameters
-    for (NamedParameterNode<List<?>> np : builder.boundLists.keySet()) {
+    for (final NamedParameterNode<List<?>> np : builder.boundLists.keySet()) {
       bindList(np.getFullName(), builder.boundLists.get(np));
     }
   }
@@ -144,9 +144,9 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   }
 
   @Override
-  public void registerLegacyConstructor(ClassNode<?> c,
+  public void registerLegacyConstructor(final ClassNode<?> c,
                                         final ConstructorArg... args) throws BindException {
-    String[] cn = new String[args.length];
+    final String[] cn = new String[args.length];
     for (int i = 0; i < args.length; i++) {
       cn[i] = args[i].getType();
     }
@@ -154,10 +154,10 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   }
 
   @Override
-  public void registerLegacyConstructor(String s, final String... args)
+  public void registerLegacyConstructor(final String s, final String... args)
       throws BindException {
-    ClassNode<?> cn = (ClassNode<?>) namespace.getNode(s);
-    ClassNode<?>[] cnArgs = new ClassNode[args.length];
+    final ClassNode<?> cn = (ClassNode<?>) namespace.getNode(s);
+    final ClassNode<?>[] cnArgs = new ClassNode[args.length];
     for (int i = 0; i < args.length; i++) {
       cnArgs[i] = (ClassNode<?>) namespace.getNode(args[i]);
     }
@@ -165,18 +165,18 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   }
 
   @Override
-  public void registerLegacyConstructor(ClassNode<?> cn,
+  public void registerLegacyConstructor(final ClassNode<?> cn,
                                         final ClassNode<?>... args) throws BindException {
     legacyConstructors.put(cn, cn.getConstructorDef(args));
   }
 
   @Override
-  public <T> void bind(String key, String value) throws BindException {
-    Node n = namespace.getNode(key);
+  public <T> void bind(final String key, final String value) throws BindException {
+    final Node n = namespace.getNode(key);
     if (n instanceof NamedParameterNode) {
       bindParameter((NamedParameterNode<?>) n, value);
     } else if (n instanceof ClassNode) {
-      Node m = namespace.getNode(value);
+      final Node m = namespace.getNode(value);
       bind((ClassNode<?>) n, (ClassNode<?>) m);
     } else {
       throw new IllegalStateException("getNode() returned " + n +
@@ -185,13 +185,13 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   }
 
   @SuppressWarnings({"unchecked", "rawtypes"})
-  public void bind(Node key, Node value) throws BindException {
+  public void bind(final Node key, final Node value) throws BindException {
     if (key instanceof NamedParameterNode) {
       bindParameter((NamedParameterNode<?>) key, value.getFullName());
     } else if (key instanceof ClassNode) {
-      ClassNode<?> k = (ClassNode<?>) key;
+      final ClassNode<?> k = (ClassNode<?>) key;
       if (value instanceof ClassNode) {
-        ClassNode<?> val = (ClassNode<?>) value;
+        final ClassNode<?> val = (ClassNode<?>) value;
         if (val.isExternalConstructor() && !k.isExternalConstructor()) {
           bindConstructor(k, (ClassNode) val);
         } else {
@@ -201,7 +201,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     }
   }
 
-  public <T> void bindImplementation(ClassNode<T> n, ClassNode<? extends T> m)
+  public <T> void bindImplementation(final ClassNode<T> n, final ClassNode<? extends T> m)
       throws BindException {
     if (namespace.isImplementation(n, m)) {
       boundImpls.put(n, m);
@@ -211,7 +211,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   }
 
   @SuppressWarnings({"unchecked", "rawtypes"})
-  public <T> void bindParameter(NamedParameterNode<T> name, String value)
+  public <T> void bindParameter(final NamedParameterNode<T> name, final String value)
       throws BindException {
     /* Parse and discard value; this is just for type checking */
     if (namespace instanceof JavaClassHierarchy) {
@@ -226,27 +226,27 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
 
   @SuppressWarnings("unchecked")
   @Override
-  public void bindSetEntry(String iface, String impl)
+  public void bindSetEntry(final String iface, final String impl)
       throws BindException {
     boundSetEntries.put((NamedParameterNode<Set<?>>) namespace.getNode(iface), impl);
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  public void bindSetEntry(String iface, Node impl)
+  public void bindSetEntry(final String iface, final Node impl)
       throws BindException {
     boundSetEntries.put((NamedParameterNode<Set<?>>) namespace.getNode(iface), impl);
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  public <T> void bindSetEntry(NamedParameterNode<Set<T>> iface, String impl)
+  public <T> void bindSetEntry(final NamedParameterNode<Set<T>> iface, final String impl)
       throws BindException {
     if (namespace instanceof ClassHierarchyImpl) {
-      JavaClassHierarchy javanamespace = (ClassHierarchyImpl) namespace;
+      final JavaClassHierarchy javanamespace = (ClassHierarchyImpl) namespace;
       try {
         javanamespace.parse(iface, impl);
-      } catch (ParseException e) {
+      } catch (final ParseException e) {
         throw new IllegalStateException("Could not parse " + impl + " which was passed to " + iface);
       }
     }
@@ -255,22 +255,22 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
 
   @SuppressWarnings("unchecked")
   @Override
-  public <T> void bindSetEntry(NamedParameterNode<Set<T>> iface, Node impl)
+  public <T> void bindSetEntry(final NamedParameterNode<Set<T>> iface, final Node impl)
       throws BindException {
     boundSetEntries.put((NamedParameterNode<Set<?>>) (NamedParameterNode<?>) iface, impl);
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  public <T> void bindList(NamedParameterNode<List<T>> iface, List implList) {
+  public <T> void bindList(final NamedParameterNode<List<T>> iface, final List implList) {
     // Check parsability of list items
-    for (Object item : implList) {
+    for (final Object item : implList) {
       if (item instanceof String) {
-        JavaClassHierarchy javanamespace = (ClassHierarchyImpl) namespace;
+        final JavaClassHierarchy javanamespace = (ClassHierarchyImpl) namespace;
         try {
           // Just for parsability checking.
           javanamespace.parse(iface, (String) item);
-        } catch (ParseException e) {
+        } catch (final ParseException e) {
           throw new IllegalStateException("Could not parse " + item + " which was passed to " + iface);
         }
       }
@@ -280,16 +280,16 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
 
   @SuppressWarnings("unchecked")
   @Override
-  public void bindList(String iface, List implList) {
-    NamedParameterNode<List<?>> ifaceNode = (NamedParameterNode<List<?>>) namespace.getNode(iface);
+  public void bindList(final String iface, final List implList) {
+    final NamedParameterNode<List<?>> ifaceNode = (NamedParameterNode<List<?>>) namespace.getNode(iface);
     // Check parsability of list items
-    for (Object item : implList) {
+    for (final Object item : implList) {
       if (item instanceof String) {
-        JavaClassHierarchy javanamespace = (ClassHierarchyImpl) namespace;
+        final JavaClassHierarchy javanamespace = (ClassHierarchyImpl) namespace;
         try {
           // Just for parsability checking.
           javanamespace.parse(ifaceNode, (String) item);
-        } catch (ParseException e) {
+        } catch (final ParseException e) {
           throw new IllegalStateException("Could not parse " + item + " which was passed to " + iface);
         }
       }
@@ -298,8 +298,8 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   }
 
   @Override
-  public <T> void bindConstructor(ClassNode<T> k,
-                                  ClassNode<? extends ExternalConstructor<? extends T>> v) {
+  public <T> void bindConstructor(final ClassNode<T> k,
+                                  final ClassNode<? extends ExternalConstructor<? extends T>> v) {
     boundConstructors.put(k, v);
   }
 
@@ -309,17 +309,17 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   }
 
   @Override
-  public String classPrettyDefaultString(String longName) throws NameResolutionException {
+  public String classPrettyDefaultString(final String longName) throws NameResolutionException {
     final NamedParameterNode<?> param = (NamedParameterNode<?>) namespace
         .getNode(longName);
     return param.getSimpleArgName() + "=" + join(",", param.getDefaultInstanceAsStrings());
   }
 
-  private String join(String sep, String[] s) {
+  private String join(final String sep, final String[] s) {
     if (s.length == 0) {
       return null;
     } else {
-      StringBuilder sb = new StringBuilder(s[0]);
+      final StringBuilder sb = new StringBuilder(s[0]);
       for (int i = 1; i < s.length; i++) {
         sb.append(sep);
         sb.append(s[i]);
@@ -329,7 +329,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   }
 
   @Override
-  public String classPrettyDescriptionString(String fullName)
+  public String classPrettyDescriptionString(final String fullName)
       throws NameResolutionException {
     final NamedParameterNode<?> param = (NamedParameterNode<?>) namespace
         .getNode(fullName);
@@ -345,7 +345,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
       return false;
     }
 
-    ConfigurationBuilderImpl that = (ConfigurationBuilderImpl) o;
+    final ConfigurationBuilderImpl that = (ConfigurationBuilderImpl) o;
 
     if (boundConstructors != null ?
         !boundConstructors.equals(that.boundConstructors) : that.boundConstructors != null) {

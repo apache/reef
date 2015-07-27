@@ -139,7 +139,7 @@ class HttpServerShellCmdtHandler implements HttpHandler {
    *
    * @param message
    */
-  public final synchronized void onHttpCallback(byte[] message) {
+  public final synchronized void onHttpCallback(final byte[] message) {
     final long endTime = System.currentTimeMillis() + WAIT_TIMEOUT;
     while (cmdOutput != null) {
       final long waitTime = endTime - System.currentTimeMillis();

@@ -35,7 +35,7 @@ public class RemoteSeqNumGenerator {
     seqMap = new ConcurrentHashMap<SocketAddress, AtomicLong>();
   }
 
-  public long getNextSeq(SocketAddress addr) {
+  public long getNextSeq(final SocketAddress addr) {
     AtomicLong seq = seqMap.get(addr);
     if (seq == null) {
       seq = new AtomicLong(0);

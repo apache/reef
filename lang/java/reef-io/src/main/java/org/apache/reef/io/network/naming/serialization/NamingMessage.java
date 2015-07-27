@@ -40,7 +40,7 @@ public abstract class NamingMessage {
    *
    * @param link the link
    */
-  public void setLink(Link<byte[]> link) {
+  public void setLink(final Link<byte[]> link) {
     this.link = link;
   }
 }

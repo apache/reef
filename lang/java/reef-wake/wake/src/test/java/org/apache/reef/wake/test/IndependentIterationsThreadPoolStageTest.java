@@ -36,19 +36,19 @@ public class IndependentIterationsThreadPoolStageTest {
   public void testOneIteration() {
     final AtomicInteger x = new AtomicInteger(0);
     final int val = 101;
-    IndependentIterationsThreadPoolStage<Integer> dut = new IndependentIterationsThreadPoolStage<>(
+    final IndependentIterationsThreadPoolStage<Integer> dut = new IndependentIterationsThreadPoolStage<>(
         new EventHandler<Integer>() {
           @Override
-          public void onNext(Integer value) {
+          public void onNext(final Integer value) {
             x.addAndGet(value);
           }
         }, 1, 1);
-    List<Integer> ll = new ArrayList<>();
+    final List<Integer> ll = new ArrayList<>();
     ll.add(val);
     dut.onNext(ll);
     try {
       dut.close();
-    } catch (Exception e) {
+    } catch (final Exception e) {
       fail(e.toString());
     }
     assertEquals(val, x.get());
@@ -63,10 +63,10 @@ public class IndependentIterationsThreadPoolStageTest {
       ll.add(i);
     }
 
-    IndependentIterationsThreadPoolStage<Integer> dut = new IndependentIterationsThreadPoolStage<>(
+    final IndependentIterationsThreadPoolStage<Integer> dut = new IndependentIterationsThreadPoolStage<>(
         new EventHandler<Integer>() {
           @Override
-          public void onNext(Integer value) {
+          public void onNext(final Integer value) {
             Logger.getAnonymousLogger().info("Yow" + value);
             x.addAndGet(value);
           }
@@ -76,7 +76,7 @@ public class IndependentIterationsThreadPoolStageTest {
 
     try {
       dut.close();
-    } catch (Exception e) {
+    } catch (final Exception e) {
       fail(e.toString());
     }
 

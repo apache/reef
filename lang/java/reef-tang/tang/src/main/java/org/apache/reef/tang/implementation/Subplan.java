@@ -28,7 +28,7 @@ public final class Subplan<T> extends InjectionPlan<T> {
   final int selectedIndex;
 
   @SafeVarargs
-  public Subplan(Node node, int selectedIndex, InjectionPlan<T>... alternatives) {
+  public Subplan(final Node node, final int selectedIndex, final InjectionPlan<T>... alternatives) {
     super(node);
     this.alternatives = alternatives;
     if (selectedIndex < -1 || selectedIndex >= alternatives.length) {
@@ -39,7 +39,7 @@ public final class Subplan<T> extends InjectionPlan<T> {
       this.numAlternatives = alternatives[selectedIndex].getNumAlternatives();
     } else {
       int numAlternativesSum = 0;
-      for (InjectionPlan<? extends T> a : alternatives) {
+      for (final InjectionPlan<? extends T> a : alternatives) {
         numAlternativesSum += a.getNumAlternatives();
       }
       this.numAlternatives = numAlternativesSum;
@@ -47,7 +47,7 @@ public final class Subplan<T> extends InjectionPlan<T> {
   }
 
   @SafeVarargs
-  public Subplan(Node node, InjectionPlan<T>... alternatives) {
+  public Subplan(final Node node, final InjectionPlan<T>... alternatives) {
     this(node, -1, alternatives);
   }
 
@@ -96,7 +96,7 @@ public final class Subplan<T> extends InjectionPlan<T> {
     } else if (alternatives.length == 0) {
       return getNode().getName() + ": no injectable constructors";
     }
-    StringBuilder sb = new StringBuilder("[");
+    final StringBuilder sb = new StringBuilder("[");
     sb.append(getNode().getName() + " = " + alternatives[0]);
     for (int i = 1; i < alternatives.length; i++) {
       sb.append(" | " + alternatives[i]);
@@ -112,7 +112,7 @@ public final class Subplan<T> extends InjectionPlan<T> {
     } else if (alternatives.length == 0) {
       return getNode().getName() + ": no injectable constructors";
     }
-    StringBuilder sb = new StringBuilder("[");
+    final StringBuilder sb = new StringBuilder("[");
     sb.append(getNode().getName() + " = " + alternatives[0].toShallowString());
     for (int i = 1; i < alternatives.length; i++) {
       sb.append(" | " + alternatives[i].toShallowString());
@@ -140,9 +140,9 @@ public final class Subplan<T> extends InjectionPlan<T> {
     } else if (selectedIndex != -1) {
       return alternatives[selectedIndex].toAmbiguousInjectString();
     } else {
-      List<InjectionPlan<?>> alts = new ArrayList<>();
-      List<InjectionPlan<?>> ambig = new ArrayList<>();
-      for (InjectionPlan<?> alt : alternatives) {
+      final List<InjectionPlan<?>> alts = new ArrayList<>();
+      final List<InjectionPlan<?>> ambig = new ArrayList<>();
+      for (final InjectionPlan<?> alt : alternatives) {
         if (alt.isFeasible()) {
           alts.add(alt);
         }
@@ -150,11 +150,11 @@ public final class Subplan<T> extends InjectionPlan<T> {
           ambig.add(alt);
         }
       }
-      StringBuffer sb = new StringBuffer("Ambiguous subplan " + getNode().getFullName());
-      for (InjectionPlan<?> alt : alts) {
+      final StringBuffer sb = new StringBuffer("Ambiguous subplan " + getNode().getFullName());
+      for (final InjectionPlan<?> alt : alts) {
         sb.append("\n  " + alt.toShallowString() + " ");
       }
-      for (InjectionPlan<?> alt : ambig) {
+      for (final InjectionPlan<?> alt : ambig) {
         sb.append("\n  " + alt.toShallowString() + " ");
       }
       sb.append("\n]");

@@ -34,7 +34,7 @@ final class AnInterfaceImplementation implements AnInterface {
   }
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(final Object o) {
     if (this == o) {
       return true;
     }
@@ -42,7 +42,7 @@ final class AnInterfaceImplementation implements AnInterface {
       return false;
     }
 
-    AnInterfaceImplementation that = (AnInterfaceImplementation) o;
+    final AnInterfaceImplementation that = (AnInterfaceImplementation) o;
 
     if (aMagicNumber != that.aMagicNumber) {
       return false;

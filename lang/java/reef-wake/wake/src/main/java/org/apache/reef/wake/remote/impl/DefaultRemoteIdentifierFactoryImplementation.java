@@ -35,12 +35,13 @@ public class DefaultRemoteIdentifierFactoryImplementation extends DefaultIdentif
   }
 
   @SuppressWarnings({"unchecked", "rawtypes"})
-  public DefaultRemoteIdentifierFactoryImplementation(Map<String, Class<? extends RemoteIdentifier>> typeToClazzMap) {
+  public DefaultRemoteIdentifierFactoryImplementation(
+      final Map<String, Class<? extends RemoteIdentifier>> typeToClazzMap) {
     super((Map<String, Class<? extends Identifier>>) (Map) typeToClazzMap);
   }
 
   @Override
-  public RemoteIdentifier getNewInstance(String str) {
+  public RemoteIdentifier getNewInstance(final String str) {
     return (RemoteIdentifier) super.getNewInstance(str);
   }
 

@@ -39,7 +39,7 @@ public class MultiDecoder<T> implements Decoder<T> {
    *
    * @param clazzToDecoderMap
    */
-  public MultiDecoder(Map<Class<? extends T>, Decoder<? extends T>> clazzToDecoderMap) {
+  public MultiDecoder(final Map<Class<? extends T>, Decoder<? extends T>> clazzToDecoderMap) {
     this.clazzToDecoderMap = clazzToDecoderMap;
   }
 
@@ -49,21 +49,21 @@ public class MultiDecoder<T> implements Decoder<T> {
    * @param data class name and byte payload
    */
   @Override
-  public T decode(byte[] data) {
-    WakeTuplePBuf tuple;
+  public T decode(final byte[] data) {
+    final WakeTuplePBuf tuple;
     try {
       tuple = WakeTuplePBuf.parseFrom(data);
-    } catch (InvalidProtocolBufferException e) {
+    } catch (final InvalidProtocolBufferException e) {
       e.printStackTrace();
       throw new RemoteRuntimeException(e);
     }
 
-    String className = tuple.getClassName();
-    byte[] message = tuple.getData().toByteArray();
-    Class<?> clazz;
+    final String className = tuple.getClassName();
+    final byte[] message = tuple.getData().toByteArray();
+    final Class<?> clazz;
     try {
       clazz = Class.forName(className);
-    } catch (ClassNotFoundException e) {
+    } catch (final ClassNotFoundException e) {
       e.printStackTrace();
       throw new RemoteRuntimeException(e);
     }

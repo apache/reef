@@ -96,14 +96,14 @@ public class NameRegistryClient implements Stage, NamingRegistry {
     this.codec = NamingCodecFactory.createRegistryCodec(factory);
     this.replyQueue = new LinkedBlockingQueue<>();
 
-    Injector injector = Tang.Factory.getTang().newInjector();
+    final Injector injector = Tang.Factory.getTang().newInjector();
     injector.bindVolatileParameter(RemoteConfiguration.HostAddress.class, localAddressProvider.getLocalAddress());
     injector.bindVolatileParameter(RemoteConfiguration.RemoteClientStage.class,
         new SyncStage<>(new NamingRegistryClientHandler(new NamingRegistryResponseHandler(replyQueue), codec)));
 
     try {
       this.transport = injector.getInstance(NettyMessagingTransport.class);
-    } catch (InjectionException e) {
+    } catch (final InjectionException e) {
       throw new RuntimeException(e);
     }
   }
@@ -170,8 +170,8 @@ public class NameRegistryClient implements Stage, NamingRegistry {
    * @param id an identifier
    */
   @Override
-  public void unregister(Identifier id) throws IOException {
-    Link<NamingMessage> link = transport.open(serverSocketAddr, codec,
+  public void unregister(final Identifier id) throws IOException {
+    final Link<NamingMessage> link = transport.open(serverSocketAddr, codec,
         new LoggingLinkListener<NamingMessage>());
     link.write(new NamingUnregisterRequest(id));
   }
@@ -195,13 +195,13 @@ class NamingRegistryClientHandler implements EventHandler<TransportEvent> {
   private final EventHandler<NamingRegisterResponse> handler;
   private final Codec<NamingMessage> codec;
 
-  NamingRegistryClientHandler(EventHandler<NamingRegisterResponse> handler, Codec<NamingMessage> codec) {
+  NamingRegistryClientHandler(final EventHandler<NamingRegisterResponse> handler, final Codec<NamingMessage> codec) {
     this.handler = handler;
     this.codec = codec;
   }
 
   @Override
-  public void onNext(TransportEvent value) {
+  public void onNext(final TransportEvent value) {
     LOG.log(Level.FINE, value.toString());
     handler.onNext((NamingRegisterResponse) codec.decode(value.getData()));
   }
@@ -214,12 +214,12 @@ class NamingRegistryResponseHandler implements EventHandler<NamingRegisterRespon
 
   private final BlockingQueue<NamingRegisterResponse> replyQueue;
 
-  NamingRegistryResponseHandler(BlockingQueue<NamingRegisterResponse> replyQueue) {
+  NamingRegistryResponseHandler(final BlockingQueue<NamingRegisterResponse> replyQueue) {
     this.replyQueue = replyQueue;
   }
 
   @Override
-  public void onNext(NamingRegisterResponse value) {
+  public void onNext(final NamingRegisterResponse value) {
     replyQueue.offer(value);
   }
 }

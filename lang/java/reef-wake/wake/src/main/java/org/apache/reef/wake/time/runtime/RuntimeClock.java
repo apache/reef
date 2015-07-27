@@ -136,7 +136,7 @@ public final class RuntimeClock implements Clock {
    */
   private long findAcceptableStopTime() {
     long time = timer.getCurrent();
-    for (Time t : this.schedule) {
+    for (final Time t : this.schedule) {
       if (t instanceof ClientAlarm) {
         assert (time <= t.getTimeStamp());
         time = t.getTimeStamp();
@@ -149,7 +149,7 @@ public final class RuntimeClock implements Clock {
   @Override
   public boolean isIdle() {
     synchronized (this.schedule) {
-      for (Time t : this.schedule) {
+      for (final Time t : this.schedule) {
         if (t instanceof ClientAlarm) {
           return false;
         }
@@ -237,12 +237,12 @@ public final class RuntimeClock implements Clock {
               break; // we're done.
             }
           }
-        } catch (InterruptedException e) {
+        } catch (final InterruptedException e) {
           // waiting interrupted - return to loop
         }
       }
       this.handlers.onNext(new RuntimeStop(this.timer.getCurrent()));
-    } catch (Exception e) {
+    } catch (final Exception e) {
       e.printStackTrace();
       this.handlers.onNext(new RuntimeStop(this.timer.getCurrent(), e));
     } finally {

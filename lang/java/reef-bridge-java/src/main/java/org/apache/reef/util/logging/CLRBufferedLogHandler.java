@@ -73,7 +73,7 @@ public class CLRBufferedLogHandler extends Handler {
    * the driver has already been initialized, flush the buffer of the logs.
    */
   @Override
-  public void publish(LogRecord record) {
+  public void publish(final LogRecord record) {
     if (record == null) {
       return;
     }
@@ -154,7 +154,7 @@ public class CLRBufferedLogHandler extends Handler {
    * Returns the integer value of the log record's level to be used
    * by the CLR Bridge log function.
    */
-  private int getLevel(Level recordLevel) {
+  private int getLevel(final Level recordLevel) {
     if (recordLevel.equals(Level.OFF)) {
       return 0;
     } else if (recordLevel.equals(Level.SEVERE)) {

@@ -66,7 +66,7 @@ public final class HelloCLR {
   public static LauncherStatus runHelloCLR(final Configuration runtimeConf, final int timeOut, final File clrFolder)
       throws BindException, InjectionException {
 
-    ConfigurationModule driverConf =
+    final ConfigurationModule driverConf =
         addAll(DriverConfiguration.CONF, DriverConfiguration.GLOBAL_FILES, clrFolder)
             .set(DriverConfiguration.GLOBAL_LIBRARIES, EnvironmentUtils.getClassLocation(HelloDriver.class))
             .set(DriverConfiguration.DRIVER_IDENTIFIER, "HelloCLR")

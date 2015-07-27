@@ -38,7 +38,7 @@ public final class WeightedLogisticLossFunction implements LossFunction {
   }
 
   @Override
-  public double computeLoss(double y, double f) {
+  public double computeLoss(final double y, final double f) {
 
     final double predictedTimesLabel = y * f;
     final double weight = y == -1 ? this.negWeight : this.posWeight;
@@ -51,7 +51,7 @@ public final class WeightedLogisticLossFunction implements LossFunction {
   }
 
   @Override
-  public double computeGradient(double y, double f) {
+  public double computeGradient(final double y, final double f) {
 
     final double predictedTimesLabel = y * f;
     final double weight = y == -1 ? this.negWeight : this.posWeight;

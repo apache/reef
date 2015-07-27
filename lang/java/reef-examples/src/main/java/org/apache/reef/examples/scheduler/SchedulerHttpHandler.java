@@ -48,7 +48,7 @@ final class SchedulerHttpHandler implements HttpHandler {
   }
 
   @Override
-  public void setUriSpecification(String s) {
+  public void setUriSpecification(final String s) {
     uriSpecification = s;
   }
 
@@ -65,7 +65,7 @@ final class SchedulerHttpHandler implements HttpHandler {
    *   /clear               to clear the waiting queue
    */
   @Override
-  public void onHttpRequest(ParsedHttpRequest request, HttpServletResponse response)
+  public void onHttpRequest(final ParsedHttpRequest request, final HttpServletResponse response)
     throws IOException, ServletException {
     final String target = request.getTargetEntity().toLowerCase();
     final Map<String, List<String>> queryMap = request.getQueryMap();

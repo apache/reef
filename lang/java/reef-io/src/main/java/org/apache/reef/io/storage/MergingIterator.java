@@ -28,12 +28,12 @@ import java.util.PriorityQueue;
 public class MergingIterator<T> implements Iterator<T> {
   private final PriorityQueue<Tuple<T, Iterator<T>>> heap;
 
-  public MergingIterator(final Comparator<T> c, Iterator<T>[] its) {
+  public MergingIterator(final Comparator<T> c, final Iterator<T>[] its) {
     this.heap = new PriorityQueue<Tuple<T, Iterator<T>>>(11,
         new TupleKeyComparator<T, Iterator<T>>(c));
 
-    for (Iterator<T> it : its) {
-      T b = it.hasNext() ? it.next() : null;
+    for (final Iterator<T> it : its) {
+      final T b = it.hasNext() ? it.next() : null;
       if (b != null) {
         heap.add(new Tuple<>(b, it));
       }
@@ -47,7 +47,7 @@ public class MergingIterator<T> implements Iterator<T> {
 
   @Override
   public T next() {
-    Tuple<T, Iterator<T>> ret = heap.remove();
+    final Tuple<T, Iterator<T>> ret = heap.remove();
     if (ret.getValue().hasNext()) {
       heap.add(new Tuple<>(ret.getValue().next(), ret.getValue()));
     }

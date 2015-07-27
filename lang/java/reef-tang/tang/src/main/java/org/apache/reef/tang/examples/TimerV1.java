@@ -35,22 +35,22 @@ public class TimerV1 {
   private final int seconds;
 
   @Inject
-  public TimerV1(@Parameter(Seconds.class) int seconds) {
+  public TimerV1(@Parameter(Seconds.class) final int seconds) {
     this.seconds = seconds;
   }
 
-  public static void main(String[] args) throws BindException, InjectionException {
-    Tang tang = Tang.Factory.getTang();
-    JavaConfigurationBuilder cb = (JavaConfigurationBuilder) tang.newConfigurationBuilder();
-    Configuration conf = cb.build();
-    Injector injector = tang.newInjector(conf);
-    TimerV1 timer = injector.getInstance(TimerV1.class);
+  public static void main(final String[] args) throws BindException, InjectionException {
+    final Tang tang = Tang.Factory.getTang();
+    final JavaConfigurationBuilder cb = (JavaConfigurationBuilder) tang.newConfigurationBuilder();
+    final Configuration conf = cb.build();
+    final Injector injector = tang.newInjector(conf);
+    final TimerV1 timer = injector.getInstance(TimerV1.class);
 
     try {
       System.out.println("Tick...");
       timer.sleep();
       System.out.println("Tock.");
-    } catch (InterruptedException e) {
+    } catch (final InterruptedException e) {
       e.printStackTrace();
     }
   }

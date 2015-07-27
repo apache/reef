@@ -31,7 +31,7 @@ public class NamingRegisterResponseCodec implements Codec<NamingRegisterResponse
    *
    * @param codec the naming register request codec
    */
-  public NamingRegisterResponseCodec(NamingRegisterRequestCodec codec) {
+  public NamingRegisterResponseCodec(final NamingRegisterRequestCodec codec) {
     this.codec = codec;
   }
 
@@ -42,7 +42,7 @@ public class NamingRegisterResponseCodec implements Codec<NamingRegisterResponse
    * @return bytes a byte array
    */
   @Override
-  public byte[] encode(NamingRegisterResponse obj) {
+  public byte[] encode(final NamingRegisterResponse obj) {
     return codec.encode(obj.getRequest());
   }
 
@@ -53,7 +53,7 @@ public class NamingRegisterResponseCodec implements Codec<NamingRegisterResponse
    * @return a naming register response
    */
   @Override
-  public NamingRegisterResponse decode(byte[] buf) {
+  public NamingRegisterResponse decode(final byte[] buf) {
     return new NamingRegisterResponse(codec.decode(buf));
   }
 

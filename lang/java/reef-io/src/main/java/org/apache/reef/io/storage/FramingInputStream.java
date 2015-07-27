@@ -27,16 +27,16 @@ import java.util.Iterator;
 
 public class FramingInputStream extends DataInputStream implements Iterable<byte[]> {
 
-  public FramingInputStream(InputStream in) {
+  public FramingInputStream(final InputStream in) {
     super(in);
   }
 
   public byte[] readFrame() throws IOException {
-    int i = readInt();
+    final int i = readInt();
     if (i == -1) {
       return null;
     }
-    byte[] b = new byte[i];
+    final byte[] b = new byte[i];
     readFully(b);
     return b;
   }
@@ -54,10 +54,10 @@ public class FramingInputStream extends DataInputStream implements Iterable<byte
 
         @Override
         public byte[] next() {
-          byte[] ret = cur;
+          final byte[] ret = cur;
           try {
             cur = readFrame();
-          } catch (IOException e) {
+          } catch (final IOException e) {
             throw new ServiceRuntimeException(e);
           }
           return ret;
@@ -68,7 +68,7 @@ public class FramingInputStream extends DataInputStream implements Iterable<byte
           throw new UnsupportedOperationException();
         }
       };
-    } catch (IOException e) {
+    } catch (final IOException e) {
       throw new ServiceRuntimeException(e);
     }
   }

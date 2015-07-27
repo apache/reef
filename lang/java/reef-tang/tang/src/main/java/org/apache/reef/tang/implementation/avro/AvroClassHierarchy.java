@@ -129,7 +129,7 @@ final class AvroClassHierarchy implements ClassHierarchy {
       final ClassNode iface;
       try {
         iface = (ClassNode) getNode(getString(n.getFullName()));
-      } catch (NameResolutionException e) {
+      } catch (final NameResolutionException e) {
         final String errorMessage = new StringBuilder()
                 .append("When reading avro node ").append(n.getFullName())
                 .append(" does not exist.  Full record is ").append(n).toString();
@@ -138,18 +138,18 @@ final class AvroClassHierarchy implements ClassHierarchy {
       for (final CharSequence impl : cn.getImplFullNames()) {
         try {
           iface.putImpl((ClassNode) getNode(getString(impl)));
-        } catch (NameResolutionException e) {
+        } catch (final NameResolutionException e) {
           final String errorMessage = new StringBuilder()
                   .append("When reading avro node ").append(n)
                   .append(" refers to non-existent implementation:").append(impl).toString();
           throw new IllegalStateException(errorMessage, e);
-        } catch (ClassCastException e) {
+        } catch (final ClassCastException e) {
           try {
             final String errorMessage = new StringBuilder()
                     .append("When reading avro node ").append(n).append(" found implementation")
                     .append(getNode(getString(impl))).append(" which is not a ClassNode!").toString();
             throw new IllegalStateException(errorMessage, e);
-          } catch (NameResolutionException e2) {
+          } catch (final NameResolutionException e2) {
             final String errorMessage = new StringBuilder()
                     .append("Got 'cant happen' exception when producing error message for ")
                     .append(e).toString();

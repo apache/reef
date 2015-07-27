@@ -48,7 +48,7 @@ public final class NamingUnregisterRequestCodec implements Codec<NamingUnregiste
    * @return a byte array
    */
   @Override
-  public byte[] encode(NamingUnregisterRequest obj) {
+  public byte[] encode(final NamingUnregisterRequest obj) {
     final AvroNamingUnRegisterRequest result = AvroNamingUnRegisterRequest.newBuilder()
         .setId(obj.getIdentifier().toString())
         .build();
@@ -63,7 +63,7 @@ public final class NamingUnregisterRequestCodec implements Codec<NamingUnregiste
    * @throws org.apache.reef.io.network.naming.exception.NamingRuntimeException
    */
   @Override
-  public NamingUnregisterRequest decode(byte[] buf) {
+  public NamingUnregisterRequest decode(final byte[] buf) {
     final AvroNamingUnRegisterRequest result = AvroUtils.fromBytes(buf, AvroNamingUnRegisterRequest.class);
     return new NamingUnregisterRequest(factory.getNewInstance(result.getId().toString()));
   }

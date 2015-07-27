@@ -26,11 +26,11 @@ package org.apache.reef.tang.exceptions;
 public class ParseException extends BindException {
   private static final long serialVersionUID = 1L;
 
-  public ParseException(String msg, Throwable cause) {
+  public ParseException(final String msg, final Throwable cause) {
     super(msg, cause);
   }
 
-  public ParseException(String msg) {
+  public ParseException(final String msg) {
     super(msg);
   }
 }

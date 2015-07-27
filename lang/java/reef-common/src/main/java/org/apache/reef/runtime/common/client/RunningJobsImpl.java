@@ -89,7 +89,8 @@ final class RunningJobsImpl implements RunningJobs {
   }
 
   @Override
-  public synchronized void onRuntimeErrorMessage(RemoteMessage<ReefServiceProtos.RuntimeErrorProto> runtimeFailure) {
+  public synchronized void onRuntimeErrorMessage(
+      final RemoteMessage<ReefServiceProtos.RuntimeErrorProto> runtimeFailure) {
     try {
       this.remove(runtimeFailure.getMessage().getIdentifier());
     } finally {

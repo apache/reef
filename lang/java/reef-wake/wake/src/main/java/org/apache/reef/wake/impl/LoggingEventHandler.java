@@ -42,7 +42,7 @@ public class LoggingEventHandler<T> implements EventHandler<T> {
    * @param value an event
    */
   @Override
-  public void onNext(T value) {
+  public void onNext(final T value) {
     LOG.log(Level.FINE, "{0}", value);
   }
 

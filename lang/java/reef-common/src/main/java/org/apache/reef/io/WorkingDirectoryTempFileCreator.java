@@ -67,7 +67,7 @@ public final class WorkingDirectoryTempFileCreator implements TempFileCreator {
   }
 
   @Override
-  public File createTempDirectory(String prefix) throws IOException {
+  public File createTempDirectory(final String prefix) throws IOException {
     final File result = Files.createTempDirectory(this.tempFolderAsPath, prefix).toFile();
     if (LOG.isLoggable(Level.FINEST)) {
       LOG.log(Level.FINEST, "Created temporary folder: {0}", result.getAbsolutePath());

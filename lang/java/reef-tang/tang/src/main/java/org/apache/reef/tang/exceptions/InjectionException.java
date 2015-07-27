@@ -34,11 +34,11 @@ package org.apache.reef.tang.exceptions;
 public class InjectionException extends Exception {
   private static final long serialVersionUID = 1L;
 
-  public InjectionException(String msg, Throwable cause) {
+  public InjectionException(final String msg, final Throwable cause) {
     super(msg, cause);
   }
 
-  public InjectionException(String msg) {
+  public InjectionException(final String msg) {
     super(msg);
   }
 }

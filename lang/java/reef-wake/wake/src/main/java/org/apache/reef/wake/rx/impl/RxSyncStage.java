@@ -53,8 +53,8 @@ public final class RxSyncStage<T> extends AbstractRxStage<T> {
    * @param observer the observer
    */
   @Inject
-  public RxSyncStage(@Parameter(StageName.class) String name,
-                     @Parameter(StageObserver.class) Observer<T> observer) {
+  public RxSyncStage(@Parameter(StageName.class) final String name,
+                     @Parameter(StageObserver.class) final Observer<T> observer) {
     super(name);
     this.observer = observer;
     StageManager.instance().register(this);
@@ -66,7 +66,7 @@ public final class RxSyncStage<T> extends AbstractRxStage<T> {
    * @param value the new value
    */
   @Override
-  public void onNext(T value) {
+  public void onNext(final T value) {
     beforeOnNext();
     observer.onNext(value);
     afterOnNext();
@@ -79,7 +79,7 @@ public final class RxSyncStage<T> extends AbstractRxStage<T> {
    * @param error the error
    */
   @Override
-  public void onError(Exception error) {
+  public void onError(final Exception error) {
     observer.onError(error);
   }
 

@@ -44,7 +44,7 @@ public class RunningTaskHandler implements EventHandler<RunningTask> {
   }
 
   @Override
-  public void onNext(RunningTask runningTask) {
+  public void onNext(final RunningTask runningTask) {
     LOG.log(Level.FINEST, "Received a running task");
   }
 

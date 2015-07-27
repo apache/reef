@@ -41,12 +41,12 @@ public class MultiCodec<T> implements Codec<T> {
    *
    * @param clazzToDecoderMap
    */
-  public MultiCodec(Map<Class<? extends T>, Codec<? extends T>> clazzToCodecMap) {
-    Map<Class<? extends T>, Encoder<? extends T>> clazzToEncoderMap =
+  public MultiCodec(final Map<Class<? extends T>, Codec<? extends T>> clazzToCodecMap) {
+    final Map<Class<? extends T>, Encoder<? extends T>> clazzToEncoderMap =
         new HashMap<Class<? extends T>, Encoder<? extends T>>();
-    Map<Class<? extends T>, Decoder<? extends T>> clazzToDecoderMap =
+    final Map<Class<? extends T>, Decoder<? extends T>> clazzToDecoderMap =
         new HashMap<Class<? extends T>, Decoder<? extends T>>();
-    for (Class<? extends T> clazz : clazzToCodecMap.keySet()) {
+    for (final Class<? extends T> clazz : clazzToCodecMap.keySet()) {
       clazzToEncoderMap.put(clazz, clazzToCodecMap.get(clazz));
       clazzToDecoderMap.put(clazz, clazzToCodecMap.get(clazz));
     }
@@ -60,7 +60,7 @@ public class MultiCodec<T> implements Codec<T> {
    * @param obj
    */
   @Override
-  public byte[] encode(T obj) {
+  public byte[] encode(final T obj) {
     return encoder.encode(obj);
   }
 
@@ -70,7 +70,7 @@ public class MultiCodec<T> implements Codec<T> {
    * @param data class name and byte payload
    */
   @Override
-  public T decode(byte[] data) {
+  public T decode(final byte[] data) {
     return decoder.decode(data);
   }
 

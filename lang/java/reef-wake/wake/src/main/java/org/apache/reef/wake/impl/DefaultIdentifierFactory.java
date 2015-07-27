@@ -56,7 +56,7 @@ public class DefaultIdentifierFactory implements IdentifierFactory {
    *
    * @param typeToClazzMap the map of type strings to classes of remote identifiers
    */
-  public DefaultIdentifierFactory(Map<String, Class<? extends Identifier>> typeToClazzMap) {
+  public DefaultIdentifierFactory(final Map<String, Class<? extends Identifier>> typeToClazzMap) {
     this.typeToClazzMap = typeToClazzMap;
   }
 
@@ -68,18 +68,18 @@ public class DefaultIdentifierFactory implements IdentifierFactory {
    * @throws RemoteRuntimeException
    */
   @Override
-  public Identifier getNewInstance(String str) {
-    int index = str.indexOf("://");
+  public Identifier getNewInstance(final String str) {
+    final int index = str.indexOf("://");
     if (index < 0) {
       throw new RemoteRuntimeException("Invalid name " + str);
     }
-    String type = str.substring(0, index);
-    Class<? extends Identifier> clazz = typeToClazzMap.get(type);
-    Class<?>[] argTypes = {String.class};
-    Constructor<? extends Identifier> constructor;
+    final String type = str.substring(0, index);
+    final Class<? extends Identifier> clazz = typeToClazzMap.get(type);
+    final Class<?>[] argTypes = {String.class};
+    final Constructor<? extends Identifier> constructor;
     try {
       constructor = clazz.getDeclaredConstructor(argTypes);
-      Object[] args = new Object[1];
+      final Object[] args = new Object[1];
       args[0] = str.substring(index + 3);
       return constructor.newInstance(args);
     } catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException |

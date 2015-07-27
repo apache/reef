@@ -35,14 +35,14 @@ public class FramingTupleDeserializer<K, V> implements
   private final Deserializer<K, InputStream> keyDeserializer;
   private final Deserializer<V, InputStream> valDeserializer;
 
-  public FramingTupleDeserializer(Deserializer<K, InputStream> keyDeserializer,
-                                  Deserializer<V, InputStream> valDeserializer) {
+  public FramingTupleDeserializer(final Deserializer<K, InputStream> keyDeserializer,
+                                  final Deserializer<V, InputStream> valDeserializer) {
     this.keyDeserializer = keyDeserializer;
     this.valDeserializer = valDeserializer;
   }
 
   @Override
-  public Iterable<Tuple<K, V>> create(InputStream ins) {
+  public Iterable<Tuple<K, V>> create(final InputStream ins) {
     final DataInputStream in = new DataInputStream(ins);
     final Iterable<K> keyItbl = keyDeserializer.create(in);
     final Iterable<V> valItbl = valDeserializer.create(in);
@@ -57,7 +57,7 @@ public class FramingTupleDeserializer<K, V> implements
             private int readFrameLength() throws ServiceException {
               try {
                 return in.readInt();
-              } catch (IOException e) {
+              } catch (final IOException e) {
                 throw new ServiceRuntimeException(e);
               }
             }
@@ -75,12 +75,12 @@ public class FramingTupleDeserializer<K, V> implements
                 if (nextFrameLength == -1) {
                   throw new NoSuchElementException();
                 }
-                K k = keyIt.next();
+                final K k = keyIt.next();
                 readFrameLength();
-                V v = valIt.next();
+                final V v = valIt.next();
                 nextFrameLength = readFrameLength();
                 return new Tuple<>(k, v);
-              } catch (ServiceException e) {
+              } catch (final ServiceException e) {
                 throw new ServiceRuntimeException(e);
               }
             }
@@ -90,7 +90,7 @@ public class FramingTupleDeserializer<K, V> implements
               throw new UnsupportedOperationException();
             }
           };
-        } catch (ServiceException e) {
+        } catch (final ServiceException e) {
           throw new ServiceRuntimeException(e);
         }
       }

@@ -47,7 +47,7 @@ public class Credentials {
     this.secrets.put(Constants.ENTRY, new ArrayList<StringEntry>());
   }
 
-  public Credentials addSecret(String key, String value) {
+  public Credentials addSecret(final String key, final String value) {
     if (!this.secrets.containsKey(Constants.ENTRY)) {
       this.secrets.put(Constants.ENTRY, new ArrayList<StringEntry>());
     }
@@ -55,7 +55,7 @@ public class Credentials {
     return this;
   }
 
-  public Credentials addToken(String key, String value) {
+  public Credentials addToken(final String key, final String value) {
     if (!this.tokens.containsKey(Constants.ENTRY)) {
       this.tokens.put(Constants.ENTRY, new ArrayList<StringEntry>());
     }
@@ -87,12 +87,12 @@ public class Credentials {
 
   @Override
     public String toString() {
-    StringWriter writer = new StringWriter();
-    String objectString;
+    final StringWriter writer = new StringWriter();
+    final String objectString;
     try {
       OBJECT_MAPPER.writeValue(writer, this);
       objectString = writer.toString();
-    } catch (IOException e) {
+    } catch (final IOException e) {
       return null;
     }
 

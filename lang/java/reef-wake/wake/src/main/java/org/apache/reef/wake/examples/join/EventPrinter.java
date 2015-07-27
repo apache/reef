@@ -23,12 +23,12 @@ import org.apache.reef.wake.rx.Observer;
 public class EventPrinter<T> implements Observer<T> {
 
   @Override
-  public void onNext(T value) {
+  public void onNext(final T value) {
     System.out.println(this + ": " + value);
   }
 
   @Override
-  public void onError(Exception error) {
+  public void onError(final Exception error) {
     System.err.println(this + ": " + error);
   }
 

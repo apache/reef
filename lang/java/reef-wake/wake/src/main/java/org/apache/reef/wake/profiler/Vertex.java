@@ -32,7 +32,8 @@ public class Vertex<T> {
   private final Vertex<?>[] constructorArguments;
 //  private final Set<Object> referencesToThisObject = new MonotonicHashSet<>();
 
-  public Vertex(T object, String name, ConstructorDef<T> constructorDef, Vertex<?>[] constructorArguments) {
+  public Vertex(final T object, final String name, final ConstructorDef<T> constructorDef,
+                final Vertex<?>[] constructorArguments) {
     this.object = object;
     if (object == null) {
       throw new NullPointerException();
@@ -40,14 +41,14 @@ public class Vertex<T> {
     this.name = name;
     this.constructorDef = constructorDef;
     this.constructorArguments = constructorArguments;
-    for (Vertex<?> v : constructorArguments) {
+    for (final Vertex<?> v : constructorArguments) {
       if (v == null) {
         throw new NullPointerException();
       }
     }
   }
 
-  public Vertex(T object, ConstructorDef<T> constructorDef, Vertex<?>[] constructorArguments) {
+  public Vertex(final T object, final ConstructorDef<T> constructorDef, final Vertex<?>[] constructorArguments) {
     this.object = object;
     if (object == null) {
       throw new NullPointerException();
@@ -55,14 +56,14 @@ public class Vertex<T> {
     this.name = null;
     this.constructorDef = constructorDef;
     this.constructorArguments = constructorArguments;
-    for (Vertex<?> v : constructorArguments) {
+    for (final Vertex<?> v : constructorArguments) {
       if (v == null) {
         throw new NullPointerException();
       }
     }
   }
 
-  public Vertex(Object object) {
+  public Vertex(final Object object) {
     this.object = object;
     if (object == null) {
       throw new NullPointerException();

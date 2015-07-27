@@ -48,8 +48,8 @@ public class ProxyEventHandler<T> implements EventHandler<T> {
    * @param reStage        the sender stage
    * @throws RemoteRuntimeException
    */
-  public ProxyEventHandler(RemoteIdentifier myId, RemoteIdentifier remoteId, String remoteSinkName,
-                           EventHandler<RemoteEvent<T>> handler, RemoteSeqNumGenerator seqGen) {
+  public ProxyEventHandler(final RemoteIdentifier myId, final RemoteIdentifier remoteId, final String remoteSinkName,
+                           final EventHandler<RemoteEvent<T>> handler, final RemoteSeqNumGenerator seqGen) {
     LOG.log(Level.FINE, "ProxyEventHandler myId: {0} remoteId: {1} remoteSink: {2} handler: {3}",
         new Object[]{myId, remoteId, remoteSinkName, handler});
     if (!(myId instanceof SocketRemoteIdentifier && remoteId instanceof SocketRemoteIdentifier)) {
@@ -69,7 +69,7 @@ public class ProxyEventHandler<T> implements EventHandler<T> {
    * @param event the event
    */
   @Override
-  public void onNext(T event) {
+  public void onNext(final T event) {
     if (LOG.isLoggable(Level.FINE)) {
       LOG.log(Level.FINE, "remoteid: {0}\n{1}", new Object[]{remoteId.getSocketAddress(), event.toString()});
     }
@@ -83,7 +83,7 @@ public class ProxyEventHandler<T> implements EventHandler<T> {
    * @return a string representation of the object
    */
   public String toString() {
-    StringBuilder builder = new StringBuilder();
+    final StringBuilder builder = new StringBuilder();
     builder.append(this.getClass().getName());
     builder.append(" remote_id=");
     builder.append(remoteId.toString());

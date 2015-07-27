@@ -30,7 +30,7 @@ public class RemoteRuntimeException extends RuntimeException {
    * @param s the detailed message
    * @param e the cause
    */
-  public RemoteRuntimeException(String s, Throwable e) {
+  public RemoteRuntimeException(final String s, final Throwable e) {
     super(s, e);
   }
 
@@ -39,7 +39,7 @@ public class RemoteRuntimeException extends RuntimeException {
    *
    * @param s the detailed message
    */
-  public RemoteRuntimeException(String s) {
+  public RemoteRuntimeException(final String s) {
     super(s);
   }
 
@@ -48,7 +48,7 @@ public class RemoteRuntimeException extends RuntimeException {
    *
    * @param e the cause
    */
-  public RemoteRuntimeException(Throwable e) {
+  public RemoteRuntimeException(final Throwable e) {
     super(e);
   }
 }

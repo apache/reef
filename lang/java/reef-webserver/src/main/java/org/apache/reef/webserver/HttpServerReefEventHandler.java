@@ -178,7 +178,7 @@ public final class HttpServerReefEventHandler implements HttpHandler {
       try {
         final byte[] outputBody = readFile((String) names.get(0)).getBytes(Charset.forName("UTF-8"));
         response.getOutputStream().write(outputBody);
-      } catch(IOException e) {
+      } catch(final IOException e) {
         response.getWriter().println(String.format("Cannot find the log file: [%s].", fileName));
       }
       break;

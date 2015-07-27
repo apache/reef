@@ -32,7 +32,7 @@ final class CyclicDependencyClassOne {
   }
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(final Object o) {
     if (this == o) {
       return true;
     }
@@ -40,7 +40,7 @@ final class CyclicDependencyClassOne {
       return false;
     }
 
-    CyclicDependencyClassOne that = (CyclicDependencyClassOne) o;
+    final CyclicDependencyClassOne that = (CyclicDependencyClassOne) o;
 
     if (!other.equals(that.other)) {
       return false;

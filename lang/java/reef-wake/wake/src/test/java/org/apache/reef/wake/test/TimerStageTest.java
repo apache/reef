@@ -42,11 +42,11 @@ public class TimerStageTest {
   public void testTimerStage() throws Exception {
     System.out.println(LOG_PREFIX + name.getMethodName());
 
-    Monitor monitor = new Monitor();
-    int expected = 10;
+    final Monitor monitor = new Monitor();
+    final int expected = 10;
 
-    TestEventHandler handler = new TestEventHandler(monitor, expected);
-    Stage stage = new TimerStage(handler, 100, SHUTDOWN_TIMEOUT);
+    final TestEventHandler handler = new TestEventHandler(monitor, expected);
+    final Stage stage = new TimerStage(handler, 100, SHUTDOWN_TIMEOUT);
 
     monitor.mwait();
 
@@ -61,12 +61,12 @@ public class TimerStageTest {
     private final int expected;
     private AtomicInteger count = new AtomicInteger(0);
 
-    TestEventHandler(Monitor monitor, int expected) {
+    TestEventHandler(final Monitor monitor, final int expected) {
       this.monitor = monitor;
       this.expected = expected;
     }
 
-    public void onNext(PeriodicEvent e) {
+    public void onNext(final PeriodicEvent e) {
       count.incrementAndGet();
       System.out.println(count.get() + " " + e + " scheduled event at " + System.currentTimeMillis());
       if (count.get() == expected) {

@@ -34,13 +34,13 @@ public final class LogicalTimer implements Timer {
   }
 
   @Override
-  public long getDuration(long time) {
+  public long getDuration(final long time) {
     isReady(time);
     return 0;
   }
 
   @Override
-  public boolean isReady(long time) {
+  public boolean isReady(final long time) {
     if (this.current < time) {
       this.current = time;
     }

@@ -54,7 +54,7 @@ public final class NamingLookupResponseCodec implements Codec<NamingLookupRespon
    * @return a byte array
    */
   @Override
-  public byte[] encode(NamingLookupResponse obj) {
+  public byte[] encode(final NamingLookupResponse obj) {
     final List<AvroNamingAssignment> assignments = new ArrayList<>(obj.getNameAssignments().size());
     for (final NameAssignment nameAssignment : obj.getNameAssignments()) {
       assignments.add(AvroNamingAssignment.newBuilder()

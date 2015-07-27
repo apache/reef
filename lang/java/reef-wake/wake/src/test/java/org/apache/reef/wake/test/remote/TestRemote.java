@@ -43,28 +43,28 @@ public class TestRemote implements Runnable {
   @Override
   public void run() {
     final String hostAddress = localAddressProvider.getLocalAddress();
-    int myPort = 10011;
-    int remotePort = 10001;
-    Codec<TestEvent> codec = new TestEventCodec();
+    final int myPort = 10011;
+    final int remotePort = 10001;
+    final Codec<TestEvent> codec = new TestEventCodec();
     try (RemoteManager rm =
              remoteManagerFactory.getInstance("name", myPort, codec, new LoggingEventHandler<Throwable>())) {
       // proxy handler
-      RemoteIdentifierFactory factory = new DefaultRemoteIdentifierFactoryImplementation();
-      RemoteIdentifier remoteId = factory.getNewInstance("socket://" + hostAddress + ":" + remotePort);
-      EventHandler<TestEvent> proxyHandler = rm.getHandler(remoteId, TestEvent.class);
+      final RemoteIdentifierFactory factory = new DefaultRemoteIdentifierFactoryImplementation();
+      final RemoteIdentifier remoteId = factory.getNewInstance("socket://" + hostAddress + ":" + remotePort);
+      final EventHandler<TestEvent> proxyHandler = rm.getHandler(remoteId, TestEvent.class);
 
       proxyHandler.onNext(new TestEvent("hello", 1.0));
       // register a handler
       rm.registerHandler(TestEvent.class, new TestEventHandler(proxyHandler));
 
-    } catch (UnknownHostException e) {
+    } catch (final UnknownHostException e) {
       e.printStackTrace();
-    } catch (Exception e) {
+    } catch (final Exception e) {
       e.printStackTrace();
     }
   }
 
-  public static void main(String[] args) throws InjectionException {
+  public static void main(final String[] args) throws InjectionException {
     Tang.Factory.getTang().newInjector().getInstance(TestRemote.class).run();
   }
 }
@@ -73,12 +73,12 @@ class TestEventHandler implements EventHandler<RemoteMessage<TestEvent>> {
 
   private final EventHandler<TestEvent> proxy;
 
-  public TestEventHandler(EventHandler<TestEvent> proxy) {
+  public TestEventHandler(final EventHandler<TestEvent> proxy) {
     this.proxy = proxy;
   }
 
   @Override
-  public void onNext(RemoteMessage<TestEvent> value) {
+  public void onNext(final RemoteMessage<TestEvent> value) {
     System.out.println(value.getMessage().getMessage() + " " + value.getMessage().getLoad());
     proxy.onNext(value.getMessage());
   }

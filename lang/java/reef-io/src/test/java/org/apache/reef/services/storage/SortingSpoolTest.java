@@ -34,7 +34,7 @@ public class SortingSpoolTest {
     genericTest(new SortingRamSpool<Integer>(), new Comparator<Integer>() {
 
       @Override
-      public int compare(Integer o1, Integer o2) {
+      public int compare(final Integer o1, final Integer o2) {
         return Integer.compare(o1, o2);
       }
 
@@ -43,10 +43,10 @@ public class SortingSpoolTest {
 
   @Test
   public void testRamSpoolComparator() throws ServiceException {
-    Comparator<Integer> backwards = new Comparator<Integer>() {
+    final Comparator<Integer> backwards = new Comparator<Integer>() {
 
       @Override
-      public int compare(Integer o1, Integer o2) {
+      public int compare(final Integer o1, final Integer o2) {
         return -1 * o1.compareTo(o2);
       }
 
@@ -56,60 +56,60 @@ public class SortingSpoolTest {
 
   @Test(expected = IllegalStateException.class)
   public void testRamSpoolAddAfterClose() throws ServiceException {
-    Spool<Integer> s = new SortingRamSpool<>();
+    final Spool<Integer> s = new SortingRamSpool<>();
     genericAddAfterCloseTest(s);
   }
 
   @Test(expected = UnsupportedOperationException.class)
   public void testRamSpoolCantRemove() throws ServiceException {
-    Spool<Integer> s = new SortingRamSpool<>();
+    final Spool<Integer> s = new SortingRamSpool<>();
     genericCantRemove(s);
   }
 
   @Test(expected = IllegalStateException.class)
   public void testIteratorBeforeClose() throws ServiceException {
-    Spool<Integer> s = new SortingRamSpool<>();
+    final Spool<Integer> s = new SortingRamSpool<>();
     genericIteratorBeforeClose(s);
   }
 
-  void genericTest(Spool<Integer> s, Comparator<Integer> comparator)
+  void genericTest(final Spool<Integer> s, final Comparator<Integer> comparator)
       throws ServiceException {
-    List<Integer> l = new ArrayList<Integer>();
-    Random r = new Random(42);
+    final List<Integer> l = new ArrayList<Integer>();
+    final Random r = new Random(42);
     while (l.size() < 100) {
       l.add(r.nextInt(75));
     }
-    Accumulator<Integer> a = s.accumulator();
+    final Accumulator<Integer> a = s.accumulator();
     for (int i = 0; i < 100; i++) {
       a.add(l.get(i));
     }
     a.close();
-    List<Integer> m = new ArrayList<Integer>();
-    for (int i : s) {
+    final List<Integer> m = new ArrayList<Integer>();
+    for (final int i : s) {
       m.add(i);
     }
-    Integer[] sorted = l.toArray(new Integer[0]);
+    final Integer[] sorted = l.toArray(new Integer[0]);
     Arrays.sort(sorted, 0, sorted.length, comparator);
-    Integer[] shouldBeSorted = m.toArray(new Integer[0]);
+    final Integer[] shouldBeSorted = m.toArray(new Integer[0]);
     Assert.assertArrayEquals(sorted, shouldBeSorted);
   }
 
-  void genericAddAfterCloseTest(Spool<?> s) throws ServiceException {
-    Accumulator<?> a = s.accumulator();
+  void genericAddAfterCloseTest(final Spool<?> s) throws ServiceException {
+    final Accumulator<?> a = s.accumulator();
     a.close();
     a.add(null);
   }
 
-  void genericCantRemove(Spool<Integer> s) throws ServiceException {
-    Accumulator<Integer> a = s.accumulator();
+  void genericCantRemove(final Spool<Integer> s) throws ServiceException {
+    final Accumulator<Integer> a = s.accumulator();
     a.add(10);
     a.close();
-    Iterator<?> it = s.iterator();
+    final Iterator<?> it = s.iterator();
     it.remove();
   }
 
-  void genericIteratorBeforeClose(Spool<Integer> s) throws ServiceException {
-    Accumulator<Integer> a = s.accumulator();
+  void genericIteratorBeforeClose(final Spool<Integer> s) throws ServiceException {
+    final Accumulator<Integer> a = s.accumulator();
     a.add(10);
     s.iterator();
   }

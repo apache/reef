@@ -27,29 +27,29 @@ import java.io.IOException;
 
 public class StreamingStringCodec implements StreamingCodec<String> {
   @Override
-  public byte[] encode(String obj) {
+  public byte[] encode(final String obj) {
     return obj.getBytes();
   }
 
   @Override
-  public String decode(byte[] buf) {
+  public String decode(final byte[] buf) {
     return new String(buf);
   }
 
   @Override
-  public void encodeToStream(String obj, DataOutputStream stream) {
+  public void encodeToStream(final String obj, final DataOutputStream stream) {
     try {
       stream.writeUTF(obj);
-    } catch (IOException e) {
+    } catch (final IOException e) {
       throw new RuntimeException(e);
     }
   }
 
   @Override
-  public String decodeFromStream(DataInputStream stream) {
+  public String decodeFromStream(final DataInputStream stream) {
     try {
       return stream.readUTF();
-    } catch (IOException e) {
+    } catch (final IOException e) {
       throw new RuntimeException(e);
     }
   }

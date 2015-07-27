@@ -32,10 +32,10 @@ public class NetworkServiceClosingHandler implements EventHandler<ContextStop> {
   }
 
   @Override
-  public void onNext(ContextStop arg0) {
+  public void onNext(final ContextStop arg0) {
     try {
       networkService.close();
-    } catch (Exception e) {
+    } catch (final Exception e) {
       throw new RuntimeException("Exception while closing NetworkService", e);
     }
   }

@@ -206,13 +206,13 @@ public final class GraphvizConfigVisitor
     return true;
   }
 
-  private String instancesToString(String[] s) {
+  private String instancesToString(final String[] s) {
     if (s.length == 0) {
       return "null";
     } else if (s.length == 1) {
       return s[0];
     } else {
-      StringBuffer sb = new StringBuffer("[" + s[0]);
+      final StringBuffer sb = new StringBuffer("[" + s[0]);
       for (int i = 1; i < s.length; i++) {
         sb.append(",");
         sb.append(s[i]);

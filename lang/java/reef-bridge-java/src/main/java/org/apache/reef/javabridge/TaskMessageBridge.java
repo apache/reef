@@ -25,7 +25,7 @@ public class TaskMessageBridge extends NativeBridge {
   private String taskId;
 
   // we don't really need to pass this around, just have this as place holder for future.
-  public TaskMessageBridge(TaskMessage taskMessage) {
+  public TaskMessageBridge(final TaskMessage taskMessage) {
     jtaskMessage = taskMessage;
     taskId = taskMessage.getId();
   }

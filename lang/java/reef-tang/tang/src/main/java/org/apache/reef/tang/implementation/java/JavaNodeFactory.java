@@ -41,7 +41,7 @@ import java.util.Set;
 public final class JavaNodeFactory {
 
   @SuppressWarnings("unchecked")
-  static <T> ClassNodeImpl<T> createClassNode(Node parent, Class<T> clazz) throws ClassHierarchyException {
+  static <T> ClassNodeImpl<T> createClassNode(final Node parent, final Class<T> clazz) throws ClassHierarchyException {
     final boolean injectable;
     final boolean unit = clazz.isAnnotationPresent(Unit.class);
     final String simpleName = ReflectionUtilities.getSimpleName(clazz);
@@ -65,7 +65,7 @@ public final class JavaNodeFactory {
     }
 
     boolean foundNonStaticInnerClass = false;
-    for (Class<?> c : clazz.getDeclaredClasses()) {
+    for (final Class<?> c : clazz.getDeclaredClasses()) {
       if (!Modifier.isStatic(c.getModifiers())) {
         foundNonStaticInnerClass = true;
       }
@@ -77,12 +77,12 @@ public final class JavaNodeFactory {
           " Such @Unit annotations would have no effect, and are therefore disallowed.");
     }
 
-    Constructor<T>[] constructors = (Constructor<T>[]) clazz
+    final Constructor<T>[] constructors = (Constructor<T>[]) clazz
         .getDeclaredConstructors();
-    MonotonicSet<ConstructorDef<T>> injectableConstructors = new MonotonicSet<>();
-    ArrayList<ConstructorDef<T>> allConstructors = new ArrayList<>();
+    final MonotonicSet<ConstructorDef<T>> injectableConstructors = new MonotonicSet<>();
+    final ArrayList<ConstructorDef<T>> allConstructors = new ArrayList<>();
     for (int k = 0; k < constructors.length; k++) {
-      boolean constructorAnnotatedInjectable = (constructors[k]
+      final boolean constructorAnnotatedInjectable = (constructors[k]
           .getAnnotation(Inject.class) != null);
       if (constructorAnnotatedInjectable && constructors[k].isSynthetic()) {
         // Not sure if we *can* unit test this one.
@@ -94,12 +94,12 @@ public final class JavaNodeFactory {
             "Detected explicit constructor in class enclosed in @Unit " + fullName +
                 "  Such constructors are disallowed.");
       }
-      boolean constructorInjectable = constructorAnnotatedInjectable || parentIsUnit;
+      final boolean constructorInjectable = constructorAnnotatedInjectable || parentIsUnit;
       // ConstructorDef's constructor checks for duplicate
       // parameters
       // The injectableConstructors set checks for ambiguous
       // boundConstructors.
-      ConstructorDef<T> def = JavaNodeFactory.createConstructorDef(injectable,
+      final ConstructorDef<T> def = JavaNodeFactory.createConstructorDef(injectable,
           constructors[k], constructorAnnotatedInjectable);
       if (constructorInjectable) {
         if (injectableConstructors.contains(def)) {
@@ -115,9 +115,9 @@ public final class JavaNodeFactory {
     }
     final String defaultImplementation;
     if (clazz.isAnnotationPresent(DefaultImplementation.class)) {
-      DefaultImplementation defaultImpl
+      final DefaultImplementation defaultImpl
           = clazz.getAnnotation(DefaultImplementation.class);
-      Class<?> defaultImplementationClazz = defaultImpl.value();
+      final Class<?> defaultImplementationClazz = defaultImpl.value();
       if (defaultImplementationClazz.equals(Void.class)) {
         defaultImplementation = defaultImpl.name();
         // XXX check isAssignableFrom, other type problems here.
@@ -142,8 +142,9 @@ public final class JavaNodeFactory {
   /**
    * XXX: This method assumes that all generic types have exactly one type parameter.
    */
-  public static <T> NamedParameterNode<T> createNamedParameterNode(Node parent,
-                                                                   Class<? extends Name<T>> clazz, Type argClass)
+  public static <T> NamedParameterNode<T> createNamedParameterNode(final Node parent,
+                                                                   final Class<? extends Name<T>> clazz,
+                                                                   final Type argClass)
       throws ClassHierarchyException {
 
     Class<?> argRawClass = ReflectionUtilities.getRawClass(argClass);
@@ -151,16 +152,18 @@ public final class JavaNodeFactory {
     final boolean isSet = argRawClass.equals(Set.class);
     final boolean isList = argRawClass.equals(List.class);
 
+    final Type argClazz;
 
     if (isSet || isList) {
-      argClass = ReflectionUtilities.getInterfaceTarget(Collection.class, argClass);
-      argRawClass = ReflectionUtilities.getRawClass(argClass);
+      argClazz = ReflectionUtilities.getInterfaceTarget(Collection.class, argClass);
+    } else {
+      argClazz = argClass;
     }
 
     final String simpleName = ReflectionUtilities.getSimpleName(clazz);
     final String fullName = ReflectionUtilities.getFullName(clazz);
-    final String fullArgName = ReflectionUtilities.getFullName(argClass);
-    final String simpleArgName = ReflectionUtilities.getSimpleName(argClass);
+    final String fullArgName = ReflectionUtilities.getFullName(argClazz);
+    final String simpleArgName = ReflectionUtilities.getSimpleName(argClazz);
 
 
     final NamedParameter namedParameter = clazz.getAnnotation(NamedParameter.class);
@@ -206,16 +209,16 @@ public final class JavaNodeFactory {
       defaultInstanceAsStrings = new String[]{};
     } else if (hasClassDefault) {
       final Class<?> defaultClass = namedParameter.default_class();
-      assertIsSubclassOf(clazz, defaultClass, argClass);
+      assertIsSubclassOf(clazz, defaultClass, argClazz);
       defaultInstanceAsStrings = new String[]{ReflectionUtilities.getFullName(defaultClass)};
     } else if (hasStringDefault) {
       // Don't know if the string is a class or literal here, so don't bother validating.
       defaultInstanceAsStrings = new String[]{namedParameter.default_value()};
     } else if (hasClassSetDefault) {
-      Class<?>[] clzs = namedParameter.default_classes();
+      final Class<?>[] clzs = namedParameter.default_classes();
       defaultInstanceAsStrings = new String[clzs.length];
       for (int i = 0; i < clzs.length; i++) {
-        assertIsSubclassOf(clazz, clzs[i], argClass);
+        assertIsSubclassOf(clazz, clzs[i], argClazz);
         defaultInstanceAsStrings[i] = ReflectionUtilities.getFullName(clzs[i]);
       }
     } else if (hasStringSetDefault) {
@@ -233,11 +236,11 @@ public final class JavaNodeFactory {
         fullArgName, simpleArgName, isSet, isList, documentation, shortName, defaultInstanceAsStrings);
   }
 
-  private static void assertIsSubclassOf(Class<?> namedParameter, Class<?> defaultClass,
-                                         Type argClass) {
+  private static void assertIsSubclassOf(final Class<?> namedParameter, final Class<?> defaultClass,
+                                         final Type argClass) {
     boolean isSubclass = false;
     boolean isGenericSubclass = false;
-    Class<?> argRawClass = ReflectionUtilities.getRawClass(argClass);
+    final Class<?> argRawClass = ReflectionUtilities.getRawClass(argClass);
 
     // Note: We intentionally strip the raw type information here.  The reason is to handle
     // EventHandler-style patterns and collections.
@@ -249,11 +252,11 @@ public final class JavaNodeFactory {
         isSubclass = true;
         if (argClass instanceof ParameterizedType &&
             c instanceof ParameterizedType) {
-          ParameterizedType argPt = (ParameterizedType) argClass;
-          ParameterizedType defaultPt = (ParameterizedType) c;
+          final ParameterizedType argPt = (ParameterizedType) argClass;
+          final ParameterizedType defaultPt = (ParameterizedType) c;
 
-          Class<?> rawDefaultParameter = ReflectionUtilities.getRawClass(defaultPt.getActualTypeArguments()[0]);
-          Class<?> rawArgParameter = ReflectionUtilities.getRawClass(argPt.getActualTypeArguments()[0]);
+          final Class<?> rawDefaultParameter = ReflectionUtilities.getRawClass(defaultPt.getActualTypeArguments()[0]);
+          final Class<?> rawArgParameter = ReflectionUtilities.getRawClass(argPt.getActualTypeArguments()[0]);
 
           for (final Type d : ReflectionUtilities.classAndAncestors(argPt.getActualTypeArguments()[0])) {
             if (ReflectionUtilities.getRawClass(d).equals(rawDefaultParameter)) {
@@ -288,8 +291,8 @@ public final class JavaNodeFactory {
   }
 
   private static <T> ConstructorDef<T> createConstructorDef(
-      boolean isClassInjectionCandidate, Constructor<T> constructor,
-      boolean injectable) throws ClassHierarchyException {
+      final boolean isClassInjectionCandidate, final Constructor<T> constructor,
+      final boolean injectable) throws ClassHierarchyException {
     // We don't support injection of non-static member classes with @Inject
     // annotations.
     if (injectable && !isClassInjectionCandidate) {
@@ -298,13 +301,13 @@ public final class JavaNodeFactory {
           + ReflectionUtilities.getFullName(constructor.getDeclaringClass()));
     }
     // TODO: When we use paramTypes below, we strip generic parameters.  Is that OK?
-    Class<?>[] paramTypes = constructor.getParameterTypes();
-    Type[] genericParamTypes = constructor.getGenericParameterTypes();
-    Annotation[][] paramAnnotations = constructor.getParameterAnnotations();
+    final Class<?>[] paramTypes = constructor.getParameterTypes();
+    final Type[] genericParamTypes = constructor.getGenericParameterTypes();
+    final Annotation[][] paramAnnotations = constructor.getParameterAnnotations();
     if (paramTypes.length != paramAnnotations.length) {
       throw new IllegalStateException();
     }
-    ConstructorArg[] args = new ConstructorArg[genericParamTypes.length];
+    final ConstructorArg[] args = new ConstructorArg[genericParamTypes.length];
     for (int i = 0; i < genericParamTypes.length; i++) {
       // If this parameter is an injection future, unwrap the target class,
       // and remember by setting isFuture to true.
@@ -320,7 +323,7 @@ public final class JavaNodeFactory {
       // Make node of the named parameter annotation (if any).
       Parameter named = null;
       for (int j = 0; j < paramAnnotations[i].length; j++) {
-        Annotation annotation = paramAnnotations[i][j];
+        final Annotation annotation = paramAnnotations[i][j];
         if (annotation instanceof Parameter) {
           if ((!isClassInjectionCandidate) || !injectable) {
             throw new ClassHierarchyException(constructor + " is not injectable, but it has an @Parameter annotation.");

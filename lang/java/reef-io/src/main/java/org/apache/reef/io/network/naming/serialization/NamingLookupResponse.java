@@ -33,7 +33,7 @@ public class NamingLookupResponse extends NamingMessage {
    *
    * @param nas the list of name assignments
    */
-  public NamingLookupResponse(List<NameAssignment> nas) {
+  public NamingLookupResponse(final List<NameAssignment> nas) {
     this.nas = nas;
   }
 

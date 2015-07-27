@@ -39,15 +39,15 @@ interface B extends A {
 public class TestInjectionFuture {
   @Test
   public void testFutures() throws InjectionException, BindException {
-    JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
-    Injector i = Tang.Factory.getTang().newInjector(cb.build());
-    Injector i2 = Tang.Factory.getTang().newInjector(cb.build());
+    final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
+    final Injector i = Tang.Factory.getTang().newInjector(cb.build());
+    final Injector i2 = Tang.Factory.getTang().newInjector(cb.build());
 
-    Futurist f = i.getInstance(Futurist.class);
+    final Futurist f = i.getInstance(Futurist.class);
     Assert.assertTrue(f == f.getMyCar().getDriver());
     Assert.assertTrue(f.getMyCar() == f.getMyCar().getDriver().getMyCar());
 
-    Futurist f2 = i2.getInstance(Futurist.class);
+    final Futurist f2 = i2.getInstance(Futurist.class);
     Assert.assertTrue(f2 == f2.getMyCar().getDriver());
     Assert.assertTrue(f2.getMyCar() == f2.getMyCar().getDriver().getMyCar());
 
@@ -58,15 +58,15 @@ public class TestInjectionFuture {
 
   @Test
   public void testFutures2() throws InjectionException, BindException {
-    JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
-    Injector i = Tang.Factory.getTang().newInjector(cb.build());
-    Injector i2 = i.forkInjector();
+    final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
+    final Injector i = Tang.Factory.getTang().newInjector(cb.build());
+    final Injector i2 = i.forkInjector();
 
-    FlyingCar c = i.getInstance(FlyingCar.class);
+    final FlyingCar c = i.getInstance(FlyingCar.class);
     Assert.assertTrue(c == c.getDriver().getMyCar());
     Assert.assertTrue(c.getDriver() == c.getDriver().getMyCar().getDriver());
 
-    FlyingCar c2 = i2.getInstance(FlyingCar.class);
+    final FlyingCar c2 = i2.getInstance(FlyingCar.class);
     Assert.assertTrue(c2 == c2.getDriver().getMyCar());
     Assert.assertTrue(c2.getDriver() == c2.getDriver().getMyCar().getDriver());
 
@@ -77,43 +77,41 @@ public class TestInjectionFuture {
 
   @Test
   public void testNamedParameterInjectionFuture() throws InjectionException, BindException {
-    JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
+    final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
     cb.bindImplementation(FlyingCar.class, FlyingCar.class);
-    Injector i = Tang.Factory.getTang().newInjector(cb.build());
-    PickyFuturist f = i.getInstance(PickyFuturist.class);
+    final Injector i = Tang.Factory.getTang().newInjector(cb.build());
+    final PickyFuturist f = i.getInstance(PickyFuturist.class);
     Assert.assertNotNull(f.getMyCar());
   }
 
   @Test
   public void testNamedParameterInjectionFutureDefaultImpl() throws InjectionException, BindException {
-    JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
-    Injector i = Tang.Factory.getTang().newInjector(cb.build());
-    PickyFuturist f = i.getInstance(PickyFuturist.class);
+    final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
+    final Injector i = Tang.Factory.getTang().newInjector(cb.build());
+    final PickyFuturist f = i.getInstance(PickyFuturist.class);
     Assert.assertNotNull(f.getMyCar());
   }
 
   @Test
   public void testNamedParameterInjectionFutureBindImpl() throws InjectionException, BindException {
-    JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
+    final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
     cb.bindImplementation(Futurist.class, PickyFuturist.class);
     cb.bindNamedParameter(MyFlyingCar.class, BigFlyingCar.class);
-    Injector i = Tang.Factory.getTang().newInjector(cb.build());
-    PickyFuturist f = i.getInstance(PickyFuturist.class);
+    final Injector i = Tang.Factory.getTang().newInjector(cb.build());
+    final PickyFuturist f = i.getInstance(PickyFuturist.class);
     Assert.assertNotNull((BigFlyingCar) f.getMyCar());
   }
 
   @Test
   public void testNamedParameterBoundToDelegatingInterface() throws InjectionException, BindException {
-    Injector i = Tang.Factory.getTang().newInjector();
-    @SuppressWarnings("unused")
-    C c = (C) i.getNamedInstance(AName.class);
+    final Injector i = Tang.Factory.getTang().newInjector();
+    @SuppressWarnings("unused") final C c = (C) i.getNamedInstance(AName.class);
   }
 
   @Test
   public void testBoundToDelegatingInterface() throws InjectionException, BindException {
-    Injector i = Tang.Factory.getTang().newInjector();
-    @SuppressWarnings("unused")
-    C c = (C) i.getInstance(B.class);
+    final Injector i = Tang.Factory.getTang().newInjector();
+    @SuppressWarnings("unused") final C c = (C) i.getInstance(B.class);
   }
 
 
@@ -122,12 +120,12 @@ public class TestInjectionFuture {
     private final InjectionFuture<FlyingCar> fCar;
 
     @Inject
-    public Futurist(InjectionFuture<FlyingCar> car) {
+    public Futurist(final InjectionFuture<FlyingCar> car) {
       this.fCar = car;
     }
 
     public FlyingCar getMyCar() {
-      FlyingCar c = fCar.get();
+      final FlyingCar c = fCar.get();
       return c;
     }
   }
@@ -136,13 +134,13 @@ public class TestInjectionFuture {
     private final InjectionFuture<FlyingCar> fCar;
 
     @Inject
-    public PickyFuturist(@Parameter(MyFlyingCar.class) InjectionFuture<FlyingCar> myFlyingCar) {
+    public PickyFuturist(@Parameter(MyFlyingCar.class) final InjectionFuture<FlyingCar> myFlyingCar) {
       super(myFlyingCar);
       fCar = myFlyingCar;
     }
 
     public FlyingCar getMyCar() {
-      FlyingCar c = fCar.get();
+      final FlyingCar c = fCar.get();
       return c;
     }
   }
@@ -153,7 +151,7 @@ public class TestInjectionFuture {
     private final Futurist driver;
 
     @Inject
-    FlyingCar(@Parameter(Color.class) String color, Futurist driver) {
+    FlyingCar(@Parameter(Color.class) final String color, final Futurist driver) {
       this.color = color;
       this.driver = driver;
     }
@@ -173,7 +171,7 @@ public class TestInjectionFuture {
 
   public static class BigFlyingCar extends FlyingCar {
     @Inject
-    BigFlyingCar(@Parameter(Color.class) String color, Futurist driver) {
+    BigFlyingCar(@Parameter(Color.class) final String color, final Futurist driver) {
       super(color, driver);
     }
   }

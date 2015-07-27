@@ -114,7 +114,7 @@ public class NettyMessagingTransport implements Transport {
   @Deprecated
   public NettyMessagingTransport(
       final String hostAddress,
-      int port,
+      final int port,
       final EStage<TransportEvent> clientStage,
       final EStage<TransportEvent> serverStage,
       final int numberOfTries,
@@ -138,7 +138,7 @@ public class NettyMessagingTransport implements Transport {
   @Inject
   NettyMessagingTransport(
       @Parameter(RemoteConfiguration.HostAddress.class) final String hostAddress,
-      @Parameter(RemoteConfiguration.Port.class) int port,
+      @Parameter(RemoteConfiguration.Port.class) final int port,
       @Parameter(RemoteConfiguration.RemoteClientStage.class) final EStage<TransportEvent> clientStage,
       @Parameter(RemoteConfiguration.RemoteServerStage.class) final EStage<TransportEvent> serverStage,
       @Parameter(RemoteConfiguration.NumberOfTries.class) final int numberOfTries,
@@ -146,8 +146,9 @@ public class NettyMessagingTransport implements Transport {
       final TcpPortProvider tcpPortProvider,
       final LocalAddressProvider localAddressProvider) {
 
-    if (port < 0) {
-      throw new RemoteRuntimeException("Invalid server port: " + port);
+    int p = port;
+    if (p < 0) {
+      throw new RemoteRuntimeException("Invalid server port: " + p);
     }
 
     final String host = UNKNOWN_HOST_NAME.equals(hostAddress) ? localAddressProvider.getLocalAddress() : hostAddress;
@@ -181,25 +182,25 @@ public class NettyMessagingTransport implements Transport {
         .option(ChannelOption.SO_REUSEADDR, true)
         .childOption(ChannelOption.SO_KEEPALIVE, true);
 
-    LOG.log(Level.FINE, "Binding to {0}", port);
+    LOG.log(Level.FINE, "Binding to {0}", p);
 
     Channel acceptorFound = null;
     try {
-      if (port > 0) {
-        acceptorFound = this.serverBootstrap.bind(new InetSocketAddress(host, port)).sync().channel();
+      if (p > 0) {
+        acceptorFound = this.serverBootstrap.bind(new InetSocketAddress(host, p)).sync().channel();
       } else {
-        Iterator<Integer> ports = tcpPortProvider.iterator();
+        final Iterator<Integer> ports = tcpPortProvider.iterator();
         while (acceptorFound == null) {
           if (!ports.hasNext()) {
             break;
           }
-          port = ports.next();
-          LOG.log(Level.FINEST, "Try port {0}", port);
+          p = ports.next();
+          LOG.log(Level.FINEST, "Try port {0}", p);
           try {
-            acceptorFound = this.serverBootstrap.bind(new InetSocketAddress(host, port)).sync().channel();
+            acceptorFound = this.serverBootstrap.bind(new InetSocketAddress(host, p)).sync().channel();
           } catch (final Exception ex) {
             if (ex instanceof BindException) {
-              LOG.log(Level.FINEST, "The port {0} is already bound. Try again", port);
+              LOG.log(Level.FINEST, "The port {0} is already bound. Try again", p);
             } else {
               throw ex;
             }
@@ -208,8 +209,8 @@ public class NettyMessagingTransport implements Transport {
       }
     } catch (final Exception ex) {
       final RuntimeException transportException =
-          new TransportRuntimeException("Cannot bind to port " + port);
-      LOG.log(Level.SEVERE, "Cannot bind to port " + port, ex);
+          new TransportRuntimeException("Cannot bind to port " + p);
+      LOG.log(Level.SEVERE, "Cannot bind to port " + p, ex);
 
       this.clientWorkerGroup.shutdownGracefully();
       this.serverBossGroup.shutdownGracefully();
@@ -218,7 +219,7 @@ public class NettyMessagingTransport implements Transport {
     }
 
     this.acceptor = acceptorFound;
-    this.serverPort = port;
+    this.serverPort = p;
     this.localAddress = new InetSocketAddress(host, this.serverPort);
 
     LOG.log(Level.FINE, "Starting netty transport socket address: {0}", this.localAddress);
@@ -236,7 +237,7 @@ public class NettyMessagingTransport implements Transport {
    * @deprecated use the constructor that takes a TcpProvider and LocalAddressProvider instead.
    */
   @Deprecated
-  public NettyMessagingTransport(final String hostAddress, int port,
+  public NettyMessagingTransport(final String hostAddress, final int port,
                                  final EStage<TransportEvent> clientStage,
                                  final EStage<TransportEvent> serverStage,
                                  final int numberOfTries,

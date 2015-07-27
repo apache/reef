@@ -89,7 +89,7 @@ final class GlobalJarUploader implements Callable<Map<String, LocalResource>> {
       this.isUploaded = true;
     }
 
-    LocalResource updatedGlobalJarResource = this.uploader.makeLocalResourceForJarFile(this.pathToGlobalJar);
+    final LocalResource updatedGlobalJarResource = this.uploader.makeLocalResourceForJarFile(this.pathToGlobalJar);
 
     if (this.globalJarResource != null
         && this.globalJarResource.getTimestamp() != updatedGlobalJarResource.getTimestamp()) {

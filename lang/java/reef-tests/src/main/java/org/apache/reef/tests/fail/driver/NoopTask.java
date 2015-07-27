@@ -106,7 +106,7 @@ public final class NoopTask implements Task, TaskMessageSource {
 
   public class DriverMessageHandler implements EventHandler<DriverMessage> {
     @Override
-    public void onNext(DriverMessage driverMessage) {
+    public void onNext(final DriverMessage driverMessage) {
       final byte[] msg = driverMessage.get().get();
       LOG.log(Level.INFO, "NoopTask.DriverMessageHandler.send() invoked: {0}", CODEC.decode(msg));
       synchronized (NoopTask.this) {
