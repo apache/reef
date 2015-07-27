@@ -26,12 +26,12 @@ public final class TupleKeyComparator<K, V> implements
     Comparator<Tuple<K, V>> {
   private final Comparator<K> c;
 
-  public TupleKeyComparator(Comparator<K> c) {
+  public TupleKeyComparator(final Comparator<K> c) {
     this.c = c;
   }
 
   @Override
-  public int compare(Tuple<K, V> o1, Tuple<K, V> o2) {
+  public int compare(final Tuple<K, V> o1, final Tuple<K, V> o2) {
     return c.compare(o1.getKey(), o2.getKey());
   }
 }

@@ -33,11 +33,11 @@ package org.apache.reef.tang.exceptions;
 public class BindException extends RuntimeException {
   private static final long serialVersionUID = 1L;
 
-  public BindException(String msg, Throwable cause) {
+  public BindException(final String msg, final Throwable cause) {
     super(msg, cause);
   }
 
-  public BindException(String msg) {
+  public BindException(final String msg) {
     super(msg);
   }
 }

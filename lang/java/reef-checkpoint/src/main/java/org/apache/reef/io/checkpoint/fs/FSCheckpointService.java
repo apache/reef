@@ -84,7 +84,7 @@ public class FSCheckpointService implements CheckpointService {
     return createInternal(new Path(base, p));
   }
 
-  CheckpointWriteChannel createInternal(Path name) throws IOException {
+  CheckpointWriteChannel createInternal(final Path name) throws IOException {
 
     //create a temp file, fail if file exists
     return new FSCheckpointWriteChannel(name, fs.create(tmpfile(name), replication));
@@ -129,7 +129,7 @@ public class FSCheckpointService implements CheckpointService {
       if (!fs.delete(tmp, false)) {
         throw new IOException("Failed to delete checkpoint during abort");
       }
-    } catch (FileNotFoundException e) {
+    } catch (final FileNotFoundException e) {
       // IGNORE
     }
   }
@@ -141,10 +141,10 @@ public class FSCheckpointService implements CheckpointService {
       throw new IllegalArgumentException(
           "Mismatched checkpoint type: " + id.getClass());
     }
-    Path tmp = ((FSCheckpointID) id).getPath();
+    final Path tmp = ((FSCheckpointID) id).getPath();
     try {
       return fs.delete(tmp, false);
-    } catch (FileNotFoundException e) {
+    } catch (final FileNotFoundException e) {
       // IGNORE
     }
     return true;

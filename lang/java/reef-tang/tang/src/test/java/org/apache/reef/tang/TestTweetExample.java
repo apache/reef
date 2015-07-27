@@ -50,7 +50,7 @@ public class TestTweetExample {
 
   @Test
   public void test() throws Exception {
-    Tweeter tw = (Tweeter) tang.newInjector(TweetConfig.CONF.set(TweetConfig.PHONE_NUMBER,
+    final Tweeter tw = (Tweeter) tang.newInjector(TweetConfig.CONF.set(TweetConfig.PHONE_NUMBER,
         new Long(867 - 5309)).build()).getInstance(Tweeter.class);
     tw.sendMessage();
   }
@@ -80,7 +80,7 @@ public class TestTweetExample {
     }
 
     @Override
-    public void sendSMS(String msg, long phoneNumber) {
+    public void sendSMS(final String msg, final long phoneNumber) {
       if (phoneNumber != 867 - 5309) {
         throw new IllegalArgumentException("Unknown recipient");
       }
@@ -94,8 +94,8 @@ public class TestTweetExample {
     private final long phoneNumber;
 
     @Inject
-    public Tweeter(TweetFactory tw, SMS sms,
-                   @Parameter(PhoneNumber.class) long phoneNumber) {
+    public Tweeter(final TweetFactory tw, final SMS sms,
+                   @Parameter(PhoneNumber.class) final long phoneNumber) {
       this.tw = tw;
       this.sms = sms;
       this.phoneNumber = phoneNumber;

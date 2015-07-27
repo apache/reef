@@ -295,7 +295,7 @@ public class OperatorTopologyStructImpl implements OperatorTopologyStruct {
 
     while (!childrenToRcvFrom.isEmpty()) {
       LOG.finest(getQualifiedName() + "Waiting for some child to send data");
-      NodeStruct child;
+      final NodeStruct child;
       try {
         child = nodesWithData.take();
       } catch (final InterruptedException e) {

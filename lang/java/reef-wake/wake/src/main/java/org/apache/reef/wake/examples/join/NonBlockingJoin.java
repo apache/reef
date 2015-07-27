@@ -35,7 +35,7 @@ public class NonBlockingJoin implements StaticObservable {
   private final ConcurrentSkipListSet<TupleEvent> leftTable = new ConcurrentSkipListSet<TupleEvent>();
   private final ConcurrentSkipListSet<TupleEvent> rightTable = new ConcurrentSkipListSet<TupleEvent>();
 
-  public NonBlockingJoin(Observer<TupleEvent> out) {
+  public NonBlockingJoin(final Observer<TupleEvent> out) {
     this.out = out;
   }
 
@@ -69,12 +69,12 @@ public class NonBlockingJoin implements StaticObservable {
     return new Observer<TupleEvent>() {
 
       @Override
-      public void onNext(TupleEvent value) {
+      public void onNext(final TupleEvent value) {
         leftTable.add(value);
       }
 
       @Override
-      public void onError(Exception error) {
+      public void onError(final Exception error) {
         leftTable.clear();
         rightTable.clear();
         out.onError(error);
@@ -93,7 +93,7 @@ public class NonBlockingJoin implements StaticObservable {
     return new Observer<TupleEvent>() {
 
       @Override
-      public void onNext(TupleEvent value) {
+      public void onNext(final TupleEvent value) {
         if (leftTable.contains(value)) {
           out.onNext(value);
         } else if (!leftDone.get()) {
@@ -103,7 +103,7 @@ public class NonBlockingJoin implements StaticObservable {
       }
 
       @Override
-      public void onError(Exception error) {
+      public void onError(final Exception error) {
         leftTable.clear();
         rightTable.clear();
         out.onError(error);

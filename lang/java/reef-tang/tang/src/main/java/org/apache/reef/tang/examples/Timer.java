@@ -35,28 +35,28 @@ public class Timer {
   private final int seconds;
 
   @Inject
-  public Timer(@Parameter(Seconds.class) int seconds) {
+  public Timer(@Parameter(Seconds.class) final int seconds) {
     if (seconds < 0) {
       throw new IllegalArgumentException("Cannot sleep for negative time!");
     }
     this.seconds = seconds;
   }
 
-  public static void main(String[] args) throws Exception {
-    Tang tang = Tang.Factory.getTang();
-    JavaConfigurationBuilder cb = tang.newConfigurationBuilder();
-    CommandLine cl = new CommandLine(cb);
+  public static void main(final String[] args) throws Exception {
+    final Tang tang = Tang.Factory.getTang();
+    final JavaConfigurationBuilder cb = tang.newConfigurationBuilder();
+    final CommandLine cl = new CommandLine(cb);
     cl.registerShortNameOfClass(Timer.Seconds.class);
     cl.processCommandLine(args);
-    Configuration conf = cb.build();
+    final Configuration conf = cb.build();
     System.out.println("start conf");
     System.out.println(ConfigurationFile.toConfigurationString(conf));
     System.out.println("end conf");
-    InjectorImpl injector = (InjectorImpl) tang.newInjector(conf);
-    InjectionPlan<Timer> ip = injector.getInjectionPlan(Timer.class);
+    final InjectorImpl injector = (InjectorImpl) tang.newInjector(conf);
+    final InjectionPlan<Timer> ip = injector.getInjectionPlan(Timer.class);
     System.out.println(ip.toPrettyString());
     System.out.println("Number of plans:" + ip.getNumAlternatives());
-    Timer timer = injector.getInstance(Timer.class);
+    final Timer timer = injector.getInstance(Timer.class);
     System.out.println("Tick...");
     timer.sleep();
     System.out.println("Tock.");

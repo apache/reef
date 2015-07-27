@@ -43,7 +43,7 @@ public class Meter {
    *
    * @param name the name of the meter
    */
-  public Meter(String name) {
+  public Meter(final String name) {
     this.name = name;
     this.m1Thp = new EWMA(EWMAParameters.M1_ALPHA, EWMAParameters.INTERVAL, TimeUnit.SECONDS);
     this.m5Thp = new EWMA(EWMAParameters.M5_ALPHA, EWMAParameters.INTERVAL, TimeUnit.SECONDS);
@@ -66,7 +66,7 @@ public class Meter {
    *
    * @param n the number of events
    */
-  public void mark(long n) {
+  public void mark(final long n) {
     tickIfNecessary();
     count.addAndGet(n);
     m1Thp.update(n);

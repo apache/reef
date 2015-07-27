@@ -40,7 +40,7 @@ public class MultiEncoder<T> implements Encoder<T> {
    *
    * @param clazzToEncoderMap
    */
-  public MultiEncoder(Map<Class<? extends T>, Encoder<? extends T>> clazzToEncoderMap) {
+  public MultiEncoder(final Map<Class<? extends T>, Encoder<? extends T>> clazzToEncoderMap) {
     this.clazzToEncoderMap = clazzToEncoderMap;
   }
 
@@ -50,13 +50,13 @@ public class MultiEncoder<T> implements Encoder<T> {
    * @param obj
    */
   @Override
-  public byte[] encode(T obj) {
-    Encoder<T> encoder = (Encoder<T>) clazzToEncoderMap.get(obj.getClass());
+  public byte[] encode(final T obj) {
+    final Encoder<T> encoder = (Encoder<T>) clazzToEncoderMap.get(obj.getClass());
     if (encoder == null) {
       throw new RemoteRuntimeException("Encoder for " + obj.getClass() + " not known.");
     }
 
-    WakeTuplePBuf.Builder tupleBuilder = WakeTuplePBuf.newBuilder();
+    final WakeTuplePBuf.Builder tupleBuilder = WakeTuplePBuf.newBuilder();
     tupleBuilder.setClassName(obj.getClass().getName());
     tupleBuilder.setData(ByteString.copyFrom(encoder.encode(obj)));
     return tupleBuilder.build().toByteArray();

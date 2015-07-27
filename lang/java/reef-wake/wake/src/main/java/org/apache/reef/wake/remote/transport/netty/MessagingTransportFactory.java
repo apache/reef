@@ -73,7 +73,7 @@ public class MessagingTransportFactory implements TransportFactory {
                                final EventHandler<TransportEvent> serverHandler,
                                final EventHandler<Exception> exHandler) {
 
-    Injector injector = Tang.Factory.getTang().newInjector();
+    final Injector injector = Tang.Factory.getTang().newInjector();
     injector.bindVolatileParameter(RemoteConfiguration.HostAddress.class, this.localAddress);
     injector.bindVolatileParameter(RemoteConfiguration.Port.class, port);
     injector.bindVolatileParameter(RemoteConfiguration.RemoteClientStage.class, new SyncStage<>(clientHandler));
@@ -84,13 +84,13 @@ public class MessagingTransportFactory implements TransportFactory {
       transport = injector.getInstance(NettyMessagingTransport.class);
       transport.registerErrorHandler(exHandler);
       return transport;
-    } catch (InjectionException e) {
+    } catch (final InjectionException e) {
       throw new RuntimeException(e);
     }
   }
 
   @Override
-  public Transport newInstance(final String hostAddress, int port,
+  public Transport newInstance(final String hostAddress, final int port,
                                final EStage<TransportEvent> clientStage,
                                final EStage<TransportEvent> serverStage,
                                final int numberOfTries,
@@ -100,14 +100,14 @@ public class MessagingTransportFactory implements TransportFactory {
   }
 
   @Override
-  public Transport newInstance(final String hostAddress, int port,
+  public Transport newInstance(final String hostAddress, final int port,
                                final EStage<TransportEvent> clientStage,
                                final EStage<TransportEvent> serverStage,
                                final int numberOfTries,
                                final int retryTimeout,
                                final TcpPortProvider tcpPortProvider) {
 
-    Injector injector = Tang.Factory.getTang().newInjector();
+    final Injector injector = Tang.Factory.getTang().newInjector();
     injector.bindVolatileParameter(RemoteConfiguration.HostAddress.class, hostAddress);
     injector.bindVolatileParameter(RemoteConfiguration.Port.class, port);
     injector.bindVolatileParameter(RemoteConfiguration.RemoteClientStage.class, clientStage);
@@ -117,7 +117,7 @@ public class MessagingTransportFactory implements TransportFactory {
     injector.bindVolatileInstance(TcpPortProvider.class, tcpPortProvider);
     try {
       return injector.getInstance(NettyMessagingTransport.class);
-    } catch (InjectionException e) {
+    } catch (final InjectionException e) {
       throw new RuntimeException(e);
     }
   }

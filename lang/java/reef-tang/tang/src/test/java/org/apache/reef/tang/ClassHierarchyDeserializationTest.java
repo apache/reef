@@ -52,12 +52,12 @@ public class ClassHierarchyDeserializationTest {
       // TODO: Use AvroClassHierarchySerializer instead (REEF-400)
       final ClassHierarchyProto.Node root = ClassHierarchyProto.Node.parseFrom(chin);
       final ClassHierarchy ch = new ProtocolBufferClassHierarchy(root);
-      Node n1 = ch.getNode("Org.Apache.REEF.Examples.Tasks.StreamingTasks.StreamTask1, " +
+      final Node n1 = ch.getNode("Org.Apache.REEF.Examples.Tasks.StreamingTasks.StreamTask1, " +
           "Org.Apache.REEF.Examples.Tasks, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null");
       Assert.assertTrue(n1.getFullName().equals("Org.Apache.REEF.Examples.Tasks.StreamingTasks.StreamTask1, " +
           "Org.Apache.REEF.Examples.Tasks, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"));
 
-      Node n2 = ch.getNode("Org.Apache.REEF.Examples.Tasks.HelloTask.HelloTask, " +
+      final Node n2 = ch.getNode("Org.Apache.REEF.Examples.Tasks.HelloTask.HelloTask, " +
           "Org.Apache.REEF.Examples.Tasks, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null");
       Assert.assertTrue(n2.getFullName().equals("Org.Apache.REEF.Examples.Tasks.HelloTask.HelloTask, " +
           "Org.Apache.REEF.Examples.Tasks, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"));

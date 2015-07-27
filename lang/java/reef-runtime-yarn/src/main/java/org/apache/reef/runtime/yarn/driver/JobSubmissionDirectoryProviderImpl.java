@@ -44,7 +44,7 @@ public final class JobSubmissionDirectoryProviderImpl implements JobSubmissionDi
   }
 
   @Override
-  public Path getJobSubmissionDirectoryPath(String applicationId) {
+  public Path getJobSubmissionDirectoryPath(final String applicationId) {
     return new Path(this.jobSubmissionDirectory +
         "/" +
         new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss_").format(Calendar.getInstance().getTime()) +

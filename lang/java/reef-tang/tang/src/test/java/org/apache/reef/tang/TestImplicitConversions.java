@@ -34,19 +34,19 @@ public class TestImplicitConversions {
   @SuppressWarnings("unchecked")
   @Test
   public void testBindFromString() throws BindException, InjectionException {
-    JavaConfigurationBuilder b = Tang.Factory.getTang().newConfigurationBuilder(IdentifierParser.class);
+    final JavaConfigurationBuilder b = Tang.Factory.getTang().newConfigurationBuilder(IdentifierParser.class);
     b.bindNamedParameter(IdName.class, "b://b");
 
-    Configuration c = b.build();
-    String s = ConfigurationFile.toConfigurationString(c);
+    final Configuration c = b.build();
+    final String s = ConfigurationFile.toConfigurationString(c);
 
-    JavaConfigurationBuilder b2 = Tang.Factory.getTang().newConfigurationBuilder(IdentifierParser.class);
+    final JavaConfigurationBuilder b2 = Tang.Factory.getTang().newConfigurationBuilder(IdentifierParser.class);
     ConfigurationFile.addConfiguration(b2, s);
-    Configuration c2 = b2.build();
+    final Configuration c2 = b2.build();
 
     Assert.assertEquals("b://b", c2.getNamedParameter(
         (NamedParameterNode<?>) c2.getClassHierarchy().getNode(ReflectionUtilities.getFullName(IdName.class))));
-    Injector i = Tang.Factory.getTang().newInjector(c2);
+    final Injector i = Tang.Factory.getTang().newInjector(c2);
 
     Assert.assertEquals("b://b", i.getNamedInstance(IdName.class).toString());
     Assert.assertTrue(i.getNamedInstance(IdName.class) instanceof BIdentifier);
@@ -56,20 +56,20 @@ public class TestImplicitConversions {
   @SuppressWarnings("unchecked")
   @Test
   public void testBindSubclassFromString() throws BindException, InjectionException {
-    JavaConfigurationBuilder b = Tang.Factory.getTang().newConfigurationBuilder(IdentifierParser.class);
+    final JavaConfigurationBuilder b = Tang.Factory.getTang().newConfigurationBuilder(IdentifierParser.class);
     b.bindNamedParameter(AIdName.class, "a://a");
     b.bindNamedParameter(BIdName.class, "b://b");
 
-    Configuration c = b.build();
-    String s = ConfigurationFile.toConfigurationString(c);
+    final Configuration c = b.build();
+    final String s = ConfigurationFile.toConfigurationString(c);
 
-    JavaConfigurationBuilder b2 = Tang.Factory.getTang().newConfigurationBuilder(IdentifierParser.class);
+    final JavaConfigurationBuilder b2 = Tang.Factory.getTang().newConfigurationBuilder(IdentifierParser.class);
     ConfigurationFile.addConfiguration(b2, s);
-    Configuration c2 = b2.build();
+    final Configuration c2 = b2.build();
 
     Assert.assertEquals("b://b", c2.getNamedParameter(
         (NamedParameterNode<?>) c2.getClassHierarchy().getNode(ReflectionUtilities.getFullName(BIdName.class))));
-    Injector i = Tang.Factory.getTang().newInjector(c2);
+    final Injector i = Tang.Factory.getTang().newInjector(c2);
 
     Assert.assertEquals("b://b", i.getNamedInstance(BIdName.class).toString());
     Assert.assertTrue(i.getNamedInstance(BIdName.class) instanceof BIdentifier);
@@ -80,14 +80,14 @@ public class TestImplicitConversions {
   @SuppressWarnings("unchecked")
   @Test(expected = ClassCastException.class)
   public void testBindWrongSubclassFromString() throws BindException, InjectionException {
-    JavaConfigurationBuilder b = Tang.Factory.getTang().newConfigurationBuilder(IdentifierParser.class);
+    final JavaConfigurationBuilder b = Tang.Factory.getTang().newConfigurationBuilder(IdentifierParser.class);
     b.bindNamedParameter(AIdName.class, "b://b");
   }
 
   @Test(expected = InjectionException.class)
   public void testInjectUnboundParsable() throws BindException, InjectionException {
-    @SuppressWarnings("unchecked")
-    JavaConfigurationBuilder b = Tang.Factory.getTang().newConfigurationBuilder(IdentifierParser.class);
+    @SuppressWarnings("unchecked") final JavaConfigurationBuilder b =
+        Tang.Factory.getTang().newConfigurationBuilder(IdentifierParser.class);
     Tang.Factory.getTang().newInjector(b.build()).getNamedInstance(IdName.class);
   }
 
@@ -107,7 +107,7 @@ public class TestImplicitConversions {
     private final String aString;
 
     @Inject
-    AIdentifierImpl(String aString) {
+    AIdentifierImpl(final String aString) {
       this.aString = aString;
     }
 
@@ -121,7 +121,7 @@ public class TestImplicitConversions {
     private final String bString;
 
     @Inject
-    BIdentifierImpl(String bString) {
+    BIdentifierImpl(final String bString) {
       this.bString = bString;
     }
 
@@ -135,7 +135,7 @@ public class TestImplicitConversions {
     private final Identifier id;
 
     @Inject
-    public IdentifierParser(String id) {
+    public IdentifierParser(final String id) {
       this.id = id.startsWith("a://") ? new AIdentifierImpl(id) :
                 id.startsWith("b://") ? new BIdentifierImpl(id) :
                     null;

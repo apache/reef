@@ -106,7 +106,7 @@ class NSConnection<T> implements Connection<T> {
   }
 
   @Override
-  public void write(List<T> messages) {
+  public void write(final List<T> messages) {
     this.link.write(new NSMessage<T>(this.srcId, this.destId, messages));
   }
 

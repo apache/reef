@@ -100,21 +100,21 @@ public final class ConfigurationFile {
     }
   }
 
-  private static void processConfigFile(ConfigurationBuilder conf,
-                                        PropertiesConfiguration confFile) throws IOException, BindException {
-    ConfigurationBuilderImpl ci = (ConfigurationBuilderImpl) conf;
-    Iterator<String> it = confFile.getKeys();
-    Map<String, String> importedNames = new HashMap<>();
+  private static void processConfigFile(final ConfigurationBuilder conf,
+                                        final PropertiesConfiguration confFile) throws IOException, BindException {
+    final ConfigurationBuilderImpl ci = (ConfigurationBuilderImpl) conf;
+    final Iterator<String> it = confFile.getKeys();
+    final Map<String, String> importedNames = new HashMap<>();
 
     while (it.hasNext()) {
       String key = it.next();
-      String longName = importedNames.get(key);
-      String[] values = confFile.getStringArray(key);
+      final String longName = importedNames.get(key);
+      final String[] values = confFile.getStringArray(key);
       if (longName != null) {
         // System.err.println("Mapped " + key + " to " + longName);
         key = longName;
       }
-      for (String value : values) {
+      for (final String value : values) {
         try {
           if (key.equals(ConfigurationBuilderImpl.IMPORT)) {
             ci.getClassHierarchy().getNode(value);
@@ -124,8 +124,8 @@ public final class ConfigurationFile {
               // ci.namespace.getNode(lastTok);
               ci.getClassHierarchy().getNode(lastTok);
               throw new IllegalArgumentException("Conflict on short name: " + lastTok);
-            } catch (BindException e) {
-              String oldValue = importedNames.put(lastTok, value);
+            } catch (final BindException e) {
+              final String oldValue = importedNames.put(lastTok, value);
               if (oldValue != null) {
                 throw new IllegalArgumentException("Name conflict: "
                     + lastTok + " maps to " + oldValue + " and " + value);
@@ -136,14 +136,14 @@ public final class ConfigurationFile {
                 ConfigurationBuilderImpl.INIT.length(), value.length());
             parseValue = parseValue.replaceAll("^[\\s\\(]+", "");
             parseValue = parseValue.replaceAll("[\\s\\)]+$", "");
-            String[] classes = parseValue.split("[\\s\\-]+");
+            final String[] classes = parseValue.split("[\\s\\-]+");
             ci.registerLegacyConstructor(key, classes);
           } else {
             ci.bind(key, value);
           }
-        } catch (BindException e) {
+        } catch (final BindException e) {
           throw new BindException("Failed to process configuration tuple: [" + key + "=" + value + "]", e);
-        } catch (ClassHierarchyException e) {
+        } catch (final ClassHierarchyException e) {
           throw new ClassHierarchyException("Failed to process configuration tuple: [" + key + "=" + value + "]", e);
         }
       }
@@ -156,7 +156,7 @@ public final class ConfigurationFile {
    * @param in
    * @return
    */
-  private static String escape(String in) {
+  private static String escape(final String in) {
     // After regexp escaping \\\\ = 1 slash, \\\\\\\\ = 2 slashes.
 
     // Also, the second args of replaceAll are neither strings nor regexps, and
@@ -183,8 +183,8 @@ public final class ConfigurationFile {
    */
   @Deprecated
   public static String toConfigurationString(final Configuration c) {
-    StringBuilder sb = new StringBuilder();
-    for (String s : toConfigurationStringList(c)) {
+    final StringBuilder sb = new StringBuilder();
+    for (final String s : toConfigurationStringList(c)) {
       sb.append(s);
       sb.append('\n');
     }
@@ -196,25 +196,25 @@ public final class ConfigurationFile {
    */
   @Deprecated
   static List<String> toConfigurationStringList(final Configuration c) {
-    ConfigurationImpl conf = (ConfigurationImpl) c;
-    List<String> l = new ArrayList<>();
-    for (ClassNode<?> opt : conf.getBoundImplementations()) {
+    final ConfigurationImpl conf = (ConfigurationImpl) c;
+    final List<String> l = new ArrayList<>();
+    for (final ClassNode<?> opt : conf.getBoundImplementations()) {
       l.add(opt.getFullName()
           + '='
           + escape(conf.getBoundImplementation(opt).getFullName()));
     }
-    for (ClassNode<?> opt : conf.getBoundConstructors()) {
+    for (final ClassNode<?> opt : conf.getBoundConstructors()) {
       l.add(opt.getFullName()
           + '='
           + escape(conf.getBoundConstructor(opt).getFullName()));
     }
-    for (NamedParameterNode<?> opt : conf.getNamedParameters()) {
+    for (final NamedParameterNode<?> opt : conf.getNamedParameters()) {
       l.add(opt.getFullName()
           + '='
           + escape(conf.getNamedParameter(opt)));
     }
-    for (ClassNode<?> cn : conf.getLegacyConstructors()) {
-      StringBuilder sb = new StringBuilder();
+    for (final ClassNode<?> cn : conf.getLegacyConstructors()) {
+      final StringBuilder sb = new StringBuilder();
       join(sb, "-", conf.getLegacyConstructor(cn).getArgs());
       l.add(cn.getFullName()
           + escape('='
@@ -226,7 +226,7 @@ public final class ConfigurationFile {
       //s.append(cn.getFullName()).append('=').append(ConfigurationBuilderImpl.INIT).append('(');
 //      .append(")\n");
     }
-    for (Entry<NamedParameterNode<Set<?>>, Object> e : conf.getBoundSets()) {
+    for (final Entry<NamedParameterNode<Set<?>>, Object> e : conf.getBoundSets()) {
       final String val;
       if (e.getValue() instanceof String) {
         val = (String) e.getValue();

@@ -25,8 +25,8 @@ public class MonotonicHashMap<T, U> extends HashMap<T, U> {
   private static final long serialVersionUID = 1L;
 
   @Override
-  public U put(T key, U value) {
-    U old = super.get(key);
+  public U put(final T key, final U value) {
+    final U old = super.get(key);
     if (old != null) {
       throw new IllegalArgumentException("Attempt to re-add: [" + key
           + "] old value: " + old + " new value " + value);
@@ -35,13 +35,13 @@ public class MonotonicHashMap<T, U> extends HashMap<T, U> {
   }
 
   @Override
-  public void putAll(Map<? extends T, ? extends U> m) {
-    for (T t : m.keySet()) {
+  public void putAll(final Map<? extends T, ? extends U> m) {
+    for (final T t : m.keySet()) {
       if (containsKey(t)) {
         put(t, m.get(t)); // guaranteed to throw.
       }
     }
-    for (T t : m.keySet()) {
+    for (final T t : m.keySet()) {
       put(t, m.get(t));
     }
   }
@@ -52,7 +52,7 @@ public class MonotonicHashMap<T, U> extends HashMap<T, U> {
   }
 
   @Override
-  public U remove(Object o) {
+  public U remove(final Object o) {
     throw new UnsupportedOperationException();
   }
 }

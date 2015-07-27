@@ -35,7 +35,7 @@ public class RxTest {
   public void testRx() throws Exception {
     System.out.println(name.getMethodName());
 
-    RxStage<TestEvent> stage = new RxThreadPoolStage<TestEvent>(new TestObserver("o1"), 1);
+    final RxStage<TestEvent> stage = new RxThreadPoolStage<TestEvent>(new TestObserver("o1"), 1);
 
     int i = 0;
     try {
@@ -43,7 +43,7 @@ public class RxTest {
         stage.onNext(new TestEvent(i));
       }
       stage.onCompleted();
-    } catch (Exception e) {
+    } catch (final Exception e) {
       stage.onError(e);
     }
 
@@ -53,7 +53,7 @@ public class RxTest {
   class TestEvent {
     private int n;
 
-    TestEvent(int n) {
+    TestEvent(final int n) {
       this.n = n;
     }
 
@@ -66,17 +66,17 @@ public class RxTest {
 
     private final String name;
 
-    TestObserver(String name) {
+    TestObserver(final String name) {
       this.name = name;
     }
 
     @Override
-    public void onNext(TestEvent value) {
+    public void onNext(final TestEvent value) {
       System.out.println(name + " Value: " + value + " " + value.get());
     }
 
     @Override
-    public void onError(Exception error) {
+    public void onError(final Exception error) {
       System.out.println(name + " Error: " + error);
     }
 

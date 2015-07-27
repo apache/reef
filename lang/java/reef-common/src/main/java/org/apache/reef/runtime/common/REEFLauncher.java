@@ -92,7 +92,7 @@ public final class REEFLauncher {
   private static REEFLauncher getREEFLauncher(final String clockConfigPath) {
     final Injector injector;
     try {
-      Configuration clockArgConfig = Tang.Factory.getTang().newConfigurationBuilder()
+      final Configuration clockArgConfig = Tang.Factory.getTang().newConfigurationBuilder()
               .bindNamedParameter(ClockConfigurationPath.class, clockConfigPath).build();
       injector = Tang.Factory.getTang().newInjector(clockArgConfig);
     } catch (final BindException e) {
@@ -101,7 +101,7 @@ public final class REEFLauncher {
 
     try {
       return injector.getInstance(REEFLauncher.class);
-    } catch (InjectionException e) {
+    } catch (final InjectionException e) {
       throw fatal("Unable to run REEFLauncher.", e);
     }
   }
@@ -171,7 +171,7 @@ public final class REEFLauncher {
     } catch (final Throwable ex) {
       try (final REEFErrorHandler errorHandler = launcher.getErrorHandlerFromConfig()) {
         throw fatal(errorHandler, "Unable to instantiate the clock", ex);
-      } catch (InjectionException e) {
+      } catch (final InjectionException e) {
         throw fatal("Unable to instantiate the clock and the ErrorHandler", e);
       }
     }
@@ -239,7 +239,7 @@ public final class REEFLauncher {
   private Clock getClockFromConfig() throws InjectionException {
     final Injector clockInjector = Tang.Factory.getTang().newInjector(this.clockConfig);
     if (this.isProfilingEnabled) {
-      WakeProfiler profiler = new WakeProfiler();
+      final WakeProfiler profiler = new WakeProfiler();
       ProfilingStopHandler.setProfiler(profiler);
       clockInjector.bindAspect(profiler);
     }

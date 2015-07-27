@@ -29,7 +29,7 @@ public class Tuple2<T1, T2> {
   private final T1 t1;
   private final T2 t2;
 
-  public Tuple2(T1 t1, T2 t2) {
+  public Tuple2(final T1 t1, final T2 t2) {
     this.t1 = t1;
     this.t2 = t2;
   }
@@ -48,8 +48,8 @@ public class Tuple2<T1, T2> {
   }
 
   @Override
-  public boolean equals(Object o) {
-    Tuple2<T1, T2> tuple = (Tuple2<T1, T2>) o;
+  public boolean equals(final Object o) {
+    final Tuple2<T1, T2> tuple = (Tuple2<T1, T2>) o;
     return t1.equals((Object) tuple.getT1()) && t2.equals((Object) tuple.getT2());
   }
 

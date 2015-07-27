@@ -29,12 +29,12 @@ public class Window {
   private final int maxSize;
   private final List<Double> list;
 
-  public Window(int size) {
+  public Window(final int size) {
     this.maxSize = size;
     list = new ArrayList<>(size);
   }
 
-  public void add(double d) {
+  public void add(final double d) {
     if (list.size() < maxSize) {
       list.add(d);
       return;
@@ -48,25 +48,26 @@ public class Window {
       return 0;
     }
     double retVal = 0;
-    for (double d : list) {
+    for (final double d : list) {
       retVal += d;
     }
     return retVal / list.size();
   }
 
-  public double avgIfAdded(double d) {
+  public double avgIfAdded(final double in) {
+    double d = in;
     if (list.isEmpty()) {
       return d;
     }
-    int start = (list.size() < maxSize) ? 0 : 1;
-    int numElems = (list.size() < maxSize) ? list.size() + 1 : maxSize;
+    final int start = (list.size() < maxSize) ? 0 : 1;
+    final int numElems = (list.size() < maxSize) ? list.size() + 1 : maxSize;
     for (int i = start; i < list.size(); i++) {
       d += list.get(i);
     }
     return d / numElems;
   }
 
-  public static void main(String[] args) {
+  public static void main(final String[] args) {
     final Logger log = Logger.getLogger(Window.class.getName());
     final Window w = new Window(3);
     for (int i = 1; i < 10; i++) {

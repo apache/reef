@@ -60,8 +60,8 @@ public abstract class ConfigurationModuleBuilder {
   private final Map<Class<?>, String> lateBindClazz = new MonotonicHashMap<>();
 
   protected ConfigurationModuleBuilder() {
-    for (Field f : getClass().getDeclaredFields()) {
-      Class<?> t = f.getType();
+    for (final Field f : getClass().getDeclaredFields()) {
+      final Class<?> t = f.getType();
       if (PARAM_BLACKLIST.contains(t)) {
         throw new ClassHierarchyException(
             "Found a field of type " + t + " which should be a Required/Optional Parameter/Implementation instead"
@@ -106,10 +106,10 @@ public abstract class ConfigurationModuleBuilder {
     }
   }
 
-  private ConfigurationModuleBuilder(ConfigurationModuleBuilder c) {
+  private ConfigurationModuleBuilder(final ConfigurationModuleBuilder c) {
     try {
       b.addConfiguration(c.b.build());
-    } catch (BindException e) {
+    } catch (final BindException e) {
       throw new ClassHierarchyException(e);
     }
     reqDecl.addAll(c.reqDecl);
@@ -128,21 +128,21 @@ public abstract class ConfigurationModuleBuilder {
    * TODO: It would be nice if this incorporated d by reference so that static analysis / documentation tools
    * could document the dependency between c and d.
    */
-  public final ConfigurationModuleBuilder merge(ConfigurationModule d) {
+  public final ConfigurationModuleBuilder merge(final ConfigurationModule d) {
     if (d == null) {
       throw new NullPointerException("If merge() was passed a static final field that is initialized to non-null, " +
           "then this is almost certainly caused by a circular class dependency.");
     }
     try {
       d.assertStaticClean();
-    } catch (ClassHierarchyException e) {
+    } catch (final ClassHierarchyException e) {
       throw new ClassHierarchyException(ReflectionUtilities.getFullName(getClass()) +
           ": detected attempt to merge with ConfigurationModule that has had set() called on it", e);
     }
-    ConfigurationModuleBuilder c = deepCopy();
+    final ConfigurationModuleBuilder c = deepCopy();
     try {
       c.b.addConfiguration(d.builder.b.build());
-    } catch (BindException e) {
+    } catch (final BindException e) {
       throw new ClassHierarchyException(e);
     }
     c.reqDecl.addAll(d.builder.reqDecl);
@@ -158,37 +158,38 @@ public abstract class ConfigurationModuleBuilder {
     return c;
   }
 
-  public final <T> ConfigurationModuleBuilder bind(Class<?> iface, Impl<?> opt) {
-    ConfigurationModuleBuilder c = deepCopy();
+  public final <T> ConfigurationModuleBuilder bind(final Class<?> iface, final Impl<?> opt) {
+    final ConfigurationModuleBuilder c = deepCopy();
     c.processUse(opt);
     c.freeImpls.put(iface, opt);
     return c;
   }
 
-  public final <T> ConfigurationModuleBuilder bindSetEntry(Class<? extends Name<Set<T>>> iface, String impl) {
-    ConfigurationModuleBuilder c = deepCopy();
+  public final <T> ConfigurationModuleBuilder bindSetEntry(
+      final Class<? extends Name<Set<T>>> iface, final String impl) {
+    final ConfigurationModuleBuilder c = deepCopy();
     try {
       c.b.bindSetEntry(iface, impl);
-    } catch (BindException e) {
+    } catch (final BindException e) {
       throw new ClassHierarchyException(e);
     }
     return c;
   }
 
-  public final <T> ConfigurationModuleBuilder bindSetEntry(Class<? extends Name<Set<T>>> iface,
-                                                           Class<? extends T> impl) {
-    ConfigurationModuleBuilder c = deepCopy();
+  public final <T> ConfigurationModuleBuilder bindSetEntry(final Class<? extends Name<Set<T>>> iface,
+                                                           final Class<? extends T> impl) {
+    final ConfigurationModuleBuilder c = deepCopy();
     try {
       c.b.bindSetEntry(iface, impl);
-    } catch (BindException e) {
+    } catch (final BindException e) {
       throw new ClassHierarchyException(e);
     }
     return c;
   }
 
-  public final <T> ConfigurationModuleBuilder bindSetEntry(Class<? extends Name<Set<T>>> iface,
-                                                           Impl<? extends T> opt) {
-    ConfigurationModuleBuilder c = deepCopy();
+  public final <T> ConfigurationModuleBuilder bindSetEntry(final Class<? extends Name<Set<T>>> iface,
+                                                           final Impl<? extends T> opt) {
+    final ConfigurationModuleBuilder c = deepCopy();
     c.processUse(opt);
     c.freeImpls.put(iface, opt);
     if (!setOpts.contains(opt)) {
@@ -197,9 +198,9 @@ public abstract class ConfigurationModuleBuilder {
     return c;
   }
 
-  public final <T> ConfigurationModuleBuilder bindSetEntry(Class<? extends Name<Set<T>>> iface,
-                                                           Param<? extends T> opt) {
-    ConfigurationModuleBuilder c = deepCopy();
+  public final <T> ConfigurationModuleBuilder bindSetEntry(final Class<? extends Name<Set<T>>> iface,
+                                                           final Param<? extends T> opt) {
+    final ConfigurationModuleBuilder c = deepCopy();
     c.processUse(opt);
     c.freeParams.put(iface, opt);
     if (!setOpts.contains(opt)) {
@@ -209,114 +210,114 @@ public abstract class ConfigurationModuleBuilder {
   }
 
 
-  public final <T> ConfigurationModuleBuilder bindImplementation(Class<T> iface,
-                                                                 Class<? extends T> impl) {
-    ConfigurationModuleBuilder c = deepCopy();
+  public final <T> ConfigurationModuleBuilder bindImplementation(final Class<T> iface,
+                                                                 final Class<? extends T> impl) {
+    final ConfigurationModuleBuilder c = deepCopy();
     try {
       c.b.bindImplementation(iface, impl);
-    } catch (BindException e) {
+    } catch (final BindException e) {
       throw new ClassHierarchyException(e);
     }
     return c;
   }
 
-  public final <T> ConfigurationModuleBuilder bindImplementation(Class<T> iface,
-                                                                 String impl) {
-    ConfigurationModuleBuilder c = deepCopy();
+  public final <T> ConfigurationModuleBuilder bindImplementation(final Class<T> iface,
+                                                                 final String impl) {
+    final ConfigurationModuleBuilder c = deepCopy();
     c.lateBindClazz.put(iface, impl);
     return c;
   }
 
-  public final <T> ConfigurationModuleBuilder bindImplementation(Class<T> iface,
-                                                                 Impl<? extends T> opt) {
-    ConfigurationModuleBuilder c = deepCopy();
+  public final <T> ConfigurationModuleBuilder bindImplementation(final Class<T> iface,
+                                                                 final Impl<? extends T> opt) {
+    final ConfigurationModuleBuilder c = deepCopy();
     c.processUse(opt);
     c.freeImpls.put(iface, opt);
     return c;
   }
 
   public final <T> ConfigurationModuleBuilder bindNamedParameter(
-      Class<? extends Name<T>> name, String value) {
-    ConfigurationModuleBuilder c = deepCopy();
+      final Class<? extends Name<T>> name, final String value) {
+    final ConfigurationModuleBuilder c = deepCopy();
     try {
       c.b.bindNamedParameter(name, value);
-    } catch (BindException e) {
+    } catch (final BindException e) {
       throw new ClassHierarchyException(e);
     }
     return c;
   }
 
   public final <T> ConfigurationModuleBuilder bindNamedParameter(
-      Class<? extends Name<T>> name, Param<T> opt) {
-    ConfigurationModuleBuilder c = deepCopy();
+      final Class<? extends Name<T>> name, final Param<T> opt) {
+    final ConfigurationModuleBuilder c = deepCopy();
     c.processUse(opt);
     c.freeParams.put(name, opt);
     return c;
   }
 
   public final <T> ConfigurationModuleBuilder bindNamedParameter(
-      Class<? extends Name<T>> iface, Class<? extends T> impl) {
-    ConfigurationModuleBuilder c = deepCopy();
+      final Class<? extends Name<T>> iface, final Class<? extends T> impl) {
+    final ConfigurationModuleBuilder c = deepCopy();
     try {
       c.b.bindNamedParameter(iface, impl);
-    } catch (BindException e) {
+    } catch (final BindException e) {
       throw new ClassHierarchyException(e);
     }
     return c;
   }
 
   public final <T> ConfigurationModuleBuilder bindNamedParameter(
-      Class<? extends Name<T>> iface, Impl<? extends T> opt) {
-    ConfigurationModuleBuilder c = deepCopy();
+      final Class<? extends Name<T>> iface, final Impl<? extends T> opt) {
+    final ConfigurationModuleBuilder c = deepCopy();
     c.processUse(opt);
     c.freeImpls.put(iface, opt);
     return c;
   }
 
-  public final <T> ConfigurationModuleBuilder bindConstructor(Class<T> clazz,
-                                                              Class<? extends ExternalConstructor<? extends T>>
+  public final <T> ConfigurationModuleBuilder bindConstructor(final Class<T> clazz,
+                                                              final Class<? extends ExternalConstructor<? extends T>>
                                                               constructor) {
-    ConfigurationModuleBuilder c = deepCopy();
+    final ConfigurationModuleBuilder c = deepCopy();
     try {
       c.b.bindConstructor(clazz, constructor);
-    } catch (BindException e) {
+    } catch (final BindException e) {
       throw new ClassHierarchyException(e);
     }
     return c;
   }
 
-  public final <T> ConfigurationModuleBuilder bindConstructor(Class<T> cons,
-                                                              Impl<? extends ExternalConstructor<? extends T>> v) {
-    ConfigurationModuleBuilder c = deepCopy();
+  public final <T> ConfigurationModuleBuilder bindConstructor(
+      final Class<T> cons, final Impl<? extends ExternalConstructor<? extends T>> v) {
+    final ConfigurationModuleBuilder c = deepCopy();
     c.processUse(v);
     c.freeImpls.put(cons, v);
     return c;
   }
 
-  public final <T> ConfigurationModuleBuilder bindList(Class<? extends Name<List<T>>> iface,
-                                                       Impl<List> opt) {
-    ConfigurationModuleBuilder c = deepCopy();
+  public final <T> ConfigurationModuleBuilder bindList(final Class<? extends Name<List<T>>> iface,
+                                                       final Impl<List> opt) {
+    final ConfigurationModuleBuilder c = deepCopy();
     c.processUse(opt);
     c.freeImpls.put(iface, opt);
     return c;
   }
 
-  public final <T> ConfigurationModuleBuilder bindList(Class<? extends Name<List<T>>> iface,
-                                                       Param<List> opt) {
-    ConfigurationModuleBuilder c = deepCopy();
+  public final <T> ConfigurationModuleBuilder bindList(final Class<? extends Name<List<T>>> iface,
+                                                       final Param<List> opt) {
+    final ConfigurationModuleBuilder c = deepCopy();
     c.processUse(opt);
     c.freeParams.put(iface, opt);
     return c;
   }
 
-  public final <T> ConfigurationModuleBuilder bindList(Class<? extends Name<List<T>>> iface, List list) {
-    ConfigurationModuleBuilder c = deepCopy();
+  public final <T> ConfigurationModuleBuilder bindList(final Class<? extends Name<List<T>>> iface, final List list) {
+    final ConfigurationModuleBuilder c = deepCopy();
     c.b.bindList(iface, list);
     return c;
   }
 
-  private <T> void processUse(Object impl) {
-    Field f = map.get(impl);
+  private <T> void processUse(final Object impl) {
+    final Field f = map.get(impl);
     if (f == null) { /* throw */
       throw new ClassHierarchyException("Unknown Impl/Param when binding " +
           ReflectionUtilities.getSimpleName(impl.getClass()) + ".  Did you pass in a field from some other module?");
@@ -330,16 +331,16 @@ public abstract class ConfigurationModuleBuilder {
   }
 
   public final ConfigurationModule build() throws ClassHierarchyException {
-    ConfigurationModuleBuilder c = deepCopy();
+    final ConfigurationModuleBuilder c = deepCopy();
 
     if (!(c.reqUsed.containsAll(c.reqDecl) && c.optUsed.containsAll(c.optDecl))) {
-      Set<Field> fset = new MonotonicHashSet<>();
-      for (Field f : c.reqDecl) {
+      final Set<Field> fset = new MonotonicHashSet<>();
+      for (final Field f : c.reqDecl) {
         if (!c.reqUsed.contains(f)) {
           fset.add(f);
         }
       }
-      for (Field f : c.optDecl) {
+      for (final Field f : c.optDecl) {
         if (!c.optUsed.contains(f)) {
           fset.add(f);
         }
@@ -348,13 +349,13 @@ public abstract class ConfigurationModuleBuilder {
           "Found declared options that were not used in binds: "
               + toString(fset));
     }
-    for (Class<?> clz : c.lateBindClazz.keySet()) {
+    for (final Class<?> clz : c.lateBindClazz.keySet()) {
       try {
         c.b.bind(ReflectionUtilities.getFullName(clz), c.lateBindClazz.get(clz));
-      } catch (NameResolutionException e) {
+      } catch (final NameResolutionException e) {
         throw new ClassHierarchyException("ConfigurationModule refers to unknown class: " +
             c.lateBindClazz.get(clz), e);
-      } catch (BindException e) {
+      } catch (final BindException e) {
         throw new ClassHierarchyException("bind failed while initializing ConfigurationModuleBuilder", e);
       }
     }
@@ -380,10 +381,10 @@ public abstract class ConfigurationModuleBuilder {
     };
   }
 
-  final String toString(Set<Field> s) {
-    StringBuilder sb = new StringBuilder("{");
+  final String toString(final Set<Field> s) {
+    final StringBuilder sb = new StringBuilder("{");
     boolean first = true;
-    for (Field f : s) {
+    for (final Field f : s) {
       sb.append((first ? " " : ", ") + f.getName());
       first = false;
     }

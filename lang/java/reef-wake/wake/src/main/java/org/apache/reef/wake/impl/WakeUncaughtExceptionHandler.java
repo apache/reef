@@ -33,12 +33,12 @@ public final class WakeUncaughtExceptionHandler implements Thread.UncaughtExcept
     this.errorHandler = errorHandler;
   }
 
-  public void setErrorHandler(EventHandler<Throwable> errorHandler) {
+  public void setErrorHandler(final EventHandler<Throwable> errorHandler) {
     this.errorHandler = errorHandler;
   }
 
   @Override
-  public void uncaughtException(Thread t, Throwable e) {
+  public void uncaughtException(final Thread t, final Throwable e) {
     final String msg = "Thread " + t.getName() + " threw an uncaught exception.";
     if (errorHandler != null) {
       errorHandler.onNext(new Exception(msg, e));

@@ -48,7 +48,7 @@ final class EvaluatorFailureDuringAlarmDriver {
   final class EvaluatorAllocatedHandler implements EventHandler<AllocatedEvaluator> {
 
     @Override
-    public void onNext(AllocatedEvaluator allocatedEvaluator) {
+    public void onNext(final AllocatedEvaluator allocatedEvaluator) {
       final Configuration contextConfiguration = ContextConfiguration.CONF
           .set(ContextConfiguration.IDENTIFIER, "FailingEvaluator")
           .set(ContextConfiguration.ON_CONTEXT_STARTED, FailureSchedulingContextStartHandler.class)

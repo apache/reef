@@ -50,11 +50,11 @@ public class NameClientTest {
   static int retryCount, retryTimeout;
 
   static {
-    Tang tang = Tang.Factory.getTang();
+    final Tang tang = Tang.Factory.getTang();
     try {
       retryCount = tang.newInjector().getNamedInstance(NameResolverRetryCount.class);
       retryTimeout = tang.newInjector().getNamedInstance(NameResolverRetryTimeout.class);
-    } catch (InjectionException e1) {
+    } catch (final InjectionException e1) {
       throw new RuntimeException("Exception while trying to find default values for retryCount & Timeout", e1);
     }
   }
@@ -87,7 +87,7 @@ public class NameClientTest {
     injector.bindVolatileInstance(LocalAddressProvider.class, this.localAddressProvider);
 
     try (final NameServer server = injector.getInstance(NameServer.class)) {
-      int serverPort = server.getPort();
+      final int serverPort = server.getPort();
       final Configuration nameResolverConf = NameResolverConfiguration.CONF
           .set(NameResolverConfiguration.NAME_SERVER_HOSTNAME, localAddress)
           .set(NameResolverConfiguration.NAME_SERVICE_PORT, serverPort)
@@ -122,7 +122,7 @@ public class NameClientTest {
     injector.bindVolatileInstance(LocalAddressProvider.class, this.localAddressProvider);
 
     try (final NameServer server = injector.getInstance(NameServer.class)) {
-      int serverPort = server.getPort();
+      final int serverPort = server.getPort();
       final Configuration nameResolverConf = NameResolverConfiguration.CONF
           .set(NameResolverConfiguration.NAME_SERVER_HOSTNAME, localAddress)
           .set(NameResolverConfiguration.NAME_SERVICE_PORT, serverPort)
@@ -147,7 +147,7 @@ public class NameClientTest {
           //resulting in NamingException and the test passes
           addr = client.lookup(id);
           Assert.assertNull("client.lookup(id)", addr);
-        } catch (Exception e) {
+        } catch (final Exception e) {
           if (e instanceof ExecutionException) {
             Assert.assertTrue("Execution Exception cause is instanceof NamingException",
                 e.getCause() instanceof NamingException);

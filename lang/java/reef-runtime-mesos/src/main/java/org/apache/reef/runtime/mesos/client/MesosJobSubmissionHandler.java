@@ -133,7 +133,7 @@ final class MesosJobSubmissionHandler implements JobSubmissionHandler {
           .redirectError(errFile)
           .redirectOutput(outFile)
           .start();
-    } catch (IOException e) {
+    } catch (final IOException e) {
       throw new RuntimeException(e);
     }
   }

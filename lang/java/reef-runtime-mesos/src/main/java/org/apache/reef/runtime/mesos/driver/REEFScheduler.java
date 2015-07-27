@@ -282,7 +282,7 @@ final class REEFScheduler implements Scheduler {
     this.mesosMaster.stop();
     try {
       this.schedulerDriverEStage.close();
-    } catch (Exception e) {
+    } catch (final Exception e) {
       throw new RuntimeException(e);
     }
   }
@@ -413,7 +413,7 @@ final class REEFScheduler implements Scheduler {
     this.mesosMaster.stop();
     try {
       this.schedulerDriverEStage.close();
-    } catch (Exception e) {
+    } catch (final Exception e) {
       throw new RuntimeException(e);
     }
 
@@ -503,7 +503,7 @@ final class REEFScheduler implements Scheduler {
       fileSystem.copyFromLocalFile(src, dst);
 
       return reefTarUriValue;
-    } catch (IOException e) {
+    } catch (final IOException e) {
       throw new RuntimeException(e);
     }
   }

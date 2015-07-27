@@ -84,7 +84,7 @@ public final class SingleThreadStage<T> extends AbstractEStage<T> {
    * @throws IllegalStateException
    */
   @Override
-  public void onNext(T value) {
+  public void onNext(final T value) {
     beforeOnNext();
     queue.add(value);
   }
@@ -113,7 +113,8 @@ public final class SingleThreadStage<T> extends AbstractEStage<T> {
     private final EventHandler<U> handler;
     private final AtomicBoolean interrupted;
 
-    Producer(String name, BlockingQueue<U> queue, EventHandler<U> handler, AtomicBoolean interrupted) {
+    Producer(final String name, final BlockingQueue<U> queue, final EventHandler<U> handler,
+             final AtomicBoolean interrupted) {
       this.name = name;
       this.queue = queue;
       this.handler = handler;
@@ -124,15 +125,15 @@ public final class SingleThreadStage<T> extends AbstractEStage<T> {
     public void run() {
       while (true) {
         try {
-          U value = queue.take();
+          final U value = queue.take();
           handler.onNext(value);
           SingleThreadStage.this.afterOnNext();
-        } catch (InterruptedException e) {
+        } catch (final InterruptedException e) {
           if (interrupted.get()) {
             LOG.log(Level.FINEST, name + " Closing Producer due to interruption");
             break;
           }
-        } catch (Throwable t) {
+        } catch (final Throwable t) {
           LOG.log(Level.SEVERE, name + " Exception from event handler", t);
           throw t;
         }

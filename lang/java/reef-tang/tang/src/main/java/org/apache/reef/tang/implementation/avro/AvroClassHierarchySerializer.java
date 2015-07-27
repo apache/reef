@@ -218,7 +218,7 @@ public final class AvroClassHierarchySerializer implements ClassHierarchySeriali
   }
 
   @Override
-  public void toTextFile(ClassHierarchy classHierarchy, File file) throws IOException {
+  public void toTextFile(final ClassHierarchy classHierarchy, final File file) throws IOException {
     try (final Writer w = new FileWriter(file)) {
       w.write(this.toString(classHierarchy));
     }

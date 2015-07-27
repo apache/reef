@@ -55,21 +55,21 @@ public class TransportRaceTest {
   @Test
   public void testRace() throws Exception {
     LoggingUtils.setLoggingLevel(Level.FINE);
-    Monitor monitor = new Monitor();
-    TimerStage timer = new TimerStage(new TimeoutHandler(monitor), 5000, 5000);
-    EStage<TransportEvent> clientStage = new ThreadPoolStage<>("client1",
+    final Monitor monitor = new Monitor();
+    final TimerStage timer = new TimerStage(new TimeoutHandler(monitor), 5000, 5000);
+    final EStage<TransportEvent> clientStage = new ThreadPoolStage<>("client1",
         new LoggingEventHandler<TransportEvent>(), 1, new LoggingEventHandler<Throwable>());
 
-    int msgsSent = 100;
+    final int msgsSent = 100;
     final ServerHandler serverHandler = new ServerHandler(monitor, msgsSent);
-    EStage<TransportEvent> serverStage = new ThreadPoolStage<>("server@7001",
+    final EStage<TransportEvent> serverStage = new ThreadPoolStage<>("server@7001",
         serverHandler, 1, new LoggingEventHandler<Throwable>());
     final String hostAddress = this.localAddressProvider.getLocalAddress();
-    int port = 7001;
-    Transport transport = tpFactory.newInstance(
+    final int port = 7001;
+    final Transport transport = tpFactory.newInstance(
         hostAddress, port, clientStage, serverStage, 1, 10000);
 
-    String value = "Test Race";
+    final String value = "Test Race";
 
     for (int i = 0; i < msgsSent; i++) {
       final Link<byte[]> link = transport.open(new InetSocketAddress(
@@ -78,7 +78,7 @@ public class TransportRaceTest {
     }
 
     monitor.mwait();
-    int msgsRcvd = serverHandler.getAccSize();
+    final int msgsRcvd = serverHandler.getAccSize();
     if (msgsRcvd != msgsSent) {
       Assert.assertEquals("Num Msgs transmitted==Num Msgs received", msgsSent, msgsRcvd);
     }
@@ -94,7 +94,7 @@ public class TransportRaceTest {
     private final int expectedSize;
     private int accSize;
 
-    ServerHandler(Monitor monitor, int expectedSize) {
+    ServerHandler(final Monitor monitor, final int expectedSize) {
       this.monitor = monitor;
       this.expectedSize = expectedSize;
       this.accSize = 0;
@@ -105,7 +105,7 @@ public class TransportRaceTest {
     }
 
     @Override
-    public void onNext(TransportEvent value) {
+    public void onNext(final TransportEvent value) {
       ++accSize;
       if (accSize == expectedSize) {
         monitor.mnotify();

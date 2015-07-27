@@ -37,7 +37,7 @@ public class RemoteEventEncoder<T> implements Encoder<RemoteEvent<T>> {
    *
    * @param encoder the encoder of the event
    */
-  public RemoteEventEncoder(Encoder<T> encoder) {
+  public RemoteEventEncoder(final Encoder<T> encoder) {
     this.encoder = encoder;
   }
 
@@ -49,7 +49,7 @@ public class RemoteEventEncoder<T> implements Encoder<RemoteEvent<T>> {
    * @throws RemoteRuntimeException
    */
   @Override
-  public byte[] encode(RemoteEvent<T> obj) {
+  public byte[] encode(final RemoteEvent<T> obj) {
     if (obj.getSink() == null) {
       throw new RemoteRuntimeException("Sink stage is null");
     }
@@ -57,8 +57,8 @@ public class RemoteEventEncoder<T> implements Encoder<RemoteEvent<T>> {
       throw new RemoteRuntimeException("Event is null");
     }
 
-    WakeMessagePBuf.Builder builder = WakeMessagePBuf.newBuilder();
-    String source = obj.getSource() == null ? "" : obj.getSource();
+    final WakeMessagePBuf.Builder builder = WakeMessagePBuf.newBuilder();
+    final String source = obj.getSource() == null ? "" : obj.getSource();
     builder.setSource(source);
     builder.setSink(obj.getSink());
     builder.setSeq(obj.getSeq());

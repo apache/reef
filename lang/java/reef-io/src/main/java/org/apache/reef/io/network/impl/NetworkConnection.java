@@ -80,7 +80,7 @@ final class NetworkConnection<T> implements Connection<T> {
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder();
+    final StringBuilder sb = new StringBuilder();
     sb.append("Connection from")
         .append(connFactory.getSrcId())
         .append(":")

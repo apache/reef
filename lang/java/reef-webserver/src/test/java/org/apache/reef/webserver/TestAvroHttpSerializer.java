@@ -40,7 +40,7 @@ public final class TestAvroHttpSerializer {
   private AvroHttpRequest avroRequest;
   private AvroHttpSerializer avroHttpSerializer;
 
-  public static String readStream(InputStream is) {
+  public static String readStream(final InputStream is) {
     final StringBuilder sb = new StringBuilder(512);
     try {
       final Reader r = new InputStreamReader(is, "UTF-8");
@@ -48,7 +48,7 @@ public final class TestAvroHttpSerializer {
       while ((c = r.read()) != -1) {
         sb.append((char) c);
       }
-    } catch (IOException e) {
+    } catch (final IOException e) {
       throw new RuntimeException(e);
     }
     return sb.toString();

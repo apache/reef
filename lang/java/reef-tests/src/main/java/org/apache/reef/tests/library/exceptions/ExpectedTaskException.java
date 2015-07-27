@@ -25,19 +25,19 @@ public final class ExpectedTaskException extends RuntimeException {
   public ExpectedTaskException() {
   }
 
-  public ExpectedTaskException(String s) {
+  public ExpectedTaskException(final String s) {
     super(s);
   }
 
-  public ExpectedTaskException(String s, Throwable throwable) {
+  public ExpectedTaskException(final String s, final Throwable throwable) {
     super(s, throwable);
   }
 
-  public ExpectedTaskException(Throwable throwable) {
+  public ExpectedTaskException(final Throwable throwable) {
     super(throwable);
   }
 
-  public ExpectedTaskException(String s, Throwable throwable, boolean b, boolean b2) {
+  public ExpectedTaskException(final String s, final Throwable throwable, final boolean b, final boolean b2) {
     super(s, throwable, b, b2);
   }
 }

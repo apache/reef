@@ -62,101 +62,101 @@ public final class NativeInterop {
 
   public static final int N_HANDLERS = 17;
 
-  public static native void loadClrAssembly(String filePath);
+  public static native void loadClrAssembly(final String filePath);
 
-  public static native void clrBufferedLog(int level, String message);
+  public static native void clrBufferedLog(final int level, final String message);
 
   public static native long[] callClrSystemOnStartHandler(
-      String dateTime,
-      String httpServerPortNumber,
-      EvaluatorRequestorBridge javaEvaluatorRequestorBridge);
+      final String dateTime,
+      final String httpServerPortNumber,
+      final EvaluatorRequestorBridge javaEvaluatorRequestorBridge);
 
   public static native void clrSystemAllocatedEvaluatorHandlerOnNext(
-      long handle,
-      AllocatedEvaluatorBridge javaEvaluatorBridge,
-      InteropLogger interopLogger
+      final long handle,
+      final AllocatedEvaluatorBridge javaEvaluatorBridge,
+      final InteropLogger interopLogger
   );
 
   public static native void clrSystemActiveContextHandlerOnNext(
-      long handle,
-      ActiveContextBridge javaActiveContextBridge,
-      InteropLogger interopLogger
+      final long handle,
+      final ActiveContextBridge javaActiveContextBridge,
+      final InteropLogger interopLogger
   );
 
   public static native void clrSystemTaskMessageHandlerOnNext(
-      long handle,
-      byte[] mesage,
-      TaskMessageBridge javaTaskMessageBridge,
-      InteropLogger interopLogger
+      final long handle,
+      final byte[] mesage,
+      final TaskMessageBridge javaTaskMessageBridge,
+      final InteropLogger interopLogger
   );
 
   public static native void clrSystemFailedTaskHandlerOnNext(
-      long handle,
-      FailedTaskBridge failedTaskBridge,
-      InteropLogger interopLogger
+      final long handle,
+      final FailedTaskBridge failedTaskBridge,
+      final InteropLogger interopLogger
   );
 
   public static native void clrSystemHttpServerHandlerOnNext(
-      long handle,
-      HttpServerEventBridge httpServerEventBridge,
-      InteropLogger interopLogger
+      final long handle,
+      final HttpServerEventBridge httpServerEventBridge,
+      final InteropLogger interopLogger
   );
 
   public static native void clrSystemFailedEvaluatorHandlerOnNext(
-      long handle,
-      FailedEvaluatorBridge failedEvaluatorBridge,
-      InteropLogger interopLogger
+      final long handle,
+      final FailedEvaluatorBridge failedEvaluatorBridge,
+      final InteropLogger interopLogger
   );
 
   public static native void clrSystemCompletedTaskHandlerOnNext(
-      long handle,
-      CompletedTaskBridge completedTaskBridge,
-      InteropLogger interopLogger
+      final long handle,
+      final CompletedTaskBridge completedTaskBridge,
+      final InteropLogger interopLogger
   );
 
   public static native void clrSystemRunningTaskHandlerOnNext(
-      long handle,
-      RunningTaskBridge runningTaskBridge,
-      InteropLogger interopLogger
+      final long handle,
+      final RunningTaskBridge runningTaskBridge,
+      final InteropLogger interopLogger
   );
 
   public static native void clrSystemSuspendedTaskHandlerOnNext(
-      long handle,
-      SuspendedTaskBridge suspendedTaskBridge
+      final long handle,
+      final SuspendedTaskBridge suspendedTaskBridge
   );
 
   public static native void clrSystemCompletedEvaluatorHandlerOnNext(
-      long handle,
-      CompletedEvaluatorBridge completedEvaluatorBridge
+      final long handle,
+      final CompletedEvaluatorBridge completedEvaluatorBridge
   );
 
   public static native void clrSystemClosedContextHandlerOnNext(
-      long handle,
-      ClosedContextBridge closedContextBridge
+      final long handle,
+      final ClosedContextBridge closedContextBridge
   );
 
   public static native void clrSystemFailedContextHandlerOnNext(
-      long handle,
-      FailedContextBridge failedContextBridge
+      final long handle,
+      final FailedContextBridge failedContextBridge
   );
 
   public static native void clrSystemContextMessageHandlerOnNext(
-      long handle,
-      ContextMessageBridge contextMessageBridge
+      final long handle,
+      final ContextMessageBridge contextMessageBridge
   );
 
   public static native void clrSystemDriverRestartHandlerOnNext(
-      long handle
+      final long handle
   );
 
   public static native void clrSystemDriverRestartActiveContextHandlerOnNext(
-      long handle,
-      ActiveContextBridge activeContextBridge
+      final long handle,
+      final ActiveContextBridge activeContextBridge
   );
 
   public static native void clrSystemDriverRestartRunningTaskHandlerOnNext(
-      long handle,
-      RunningTaskBridge runningTaskBridge
+      final long handle,
+      final RunningTaskBridge runningTaskBridge
   );
 
   /**

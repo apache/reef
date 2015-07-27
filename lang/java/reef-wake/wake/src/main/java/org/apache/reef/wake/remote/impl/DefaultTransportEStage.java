@@ -29,7 +29,7 @@ public class DefaultTransportEStage implements EStage<TransportEvent> {
   }
 
   @Override
-  public void onNext(TransportEvent value) {
+  public void onNext(final TransportEvent value) {
   }
 
   @Override

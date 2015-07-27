@@ -36,17 +36,17 @@ import java.io.*;
  * to passed in while de-serialization
  */
 public final class WritableSerializer {
-  public static <E extends Writable> String serialize(E writable) {
+  public static <E extends Writable> String serialize(final E writable) {
     final WritableCodec<E> writableCodec = new WritableCodec<>();
     return Base64.encodeBase64String(writableCodec.encode(writable));
   }
 
-  public static <E extends Writable> E deserialize(String serializedWritable) {
+  public static <E extends Writable> E deserialize(final String serializedWritable) {
     final WritableCodec<E> writableCodec = new WritableCodec<>();
     return writableCodec.decode(Base64.decodeBase64(serializedWritable));
   }
 
-  public static <E extends Writable> E deserialize(String serializedWritable, JobConf jobConf) {
+  public static <E extends Writable> E deserialize(final String serializedWritable, final JobConf jobConf) {
     final WritableCodec<E> writableCodec = new WritableCodec<>(jobConf);
     return writableCodec.decode(Base64.decodeBase64(serializedWritable));
   }
@@ -54,7 +54,7 @@ public final class WritableSerializer {
   static class WritableCodec<E extends Writable> implements Codec<E> {
     private final JobConf jobConf;
 
-    public WritableCodec(JobConf jobConf) {
+    public WritableCodec(final JobConf jobConf) {
       this.jobConf = jobConf;
     }
 
@@ -63,28 +63,28 @@ public final class WritableSerializer {
     }
 
     @Override
-    public E decode(byte[] bytes) {
+    public E decode(final byte[] bytes) {
       final ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
       try (DataInputStream dais = new DataInputStream(bais)) {
         final String className = dais.readUTF();
-        E writable = (E) ReflectionUtils.newInstance(Class.forName(className), jobConf);
+        final E writable = (E) ReflectionUtils.newInstance(Class.forName(className), jobConf);
         writable.readFields(dais);
         return writable;
-      } catch (IOException e) {
+      } catch (final IOException e) {
         throw new RuntimeException("Could not de-serialize JobConf", e);
-      } catch (ClassNotFoundException e) {
+      } catch (final ClassNotFoundException e) {
         throw new RuntimeException("Could not instantiate specific writable class", e);
       }
     }
 
     @Override
-    public byte[] encode(E writable) {
+    public byte[] encode(final E writable) {
       final ByteArrayOutputStream baos = new ByteArrayOutputStream();
       try (final DataOutputStream daos = new DataOutputStream(baos)) {
         daos.writeUTF(writable.getClass().getName());
         writable.write(daos);
         return baos.toByteArray();
-      } catch (IOException e) {
+      } catch (final IOException e) {
         throw new RuntimeException("Could not serialize JobConf", e);
       }
     }

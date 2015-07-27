@@ -35,7 +35,7 @@ public class SocketRemoteIdentifier implements RemoteIdentifier {
    *
    * @param addr the socket address
    */
-  public SocketRemoteIdentifier(InetSocketAddress addr) {
+  public SocketRemoteIdentifier(final InetSocketAddress addr) {
     this.addr = addr;
   }
 
@@ -45,20 +45,20 @@ public class SocketRemoteIdentifier implements RemoteIdentifier {
    * @param str the string representation
    * @throws RemoteRuntimeException
    */
-  public SocketRemoteIdentifier(String str) {
+  public SocketRemoteIdentifier(final String str) {
     int index = str.indexOf("0:0:0:0:0:0:0:0:");
 
     if (index >= 0) {
-      String host = str.substring(0, 15);
-      int port = Integer.parseInt(str.substring(index + 16));
+      final String host = str.substring(0, 15);
+      final int port = Integer.parseInt(str.substring(index + 16));
       this.addr = new InetSocketAddress(host, port);
     } else {
       index = str.indexOf(":");
       if (index <= 0) {
         throw new RemoteRuntimeException("Invalid name " + str);
       }
-      String host = str.substring(0, index);
-      int port = Integer.parseInt(str.substring(index + 1));
+      final String host = str.substring(0, index);
+      final int port = Integer.parseInt(str.substring(index + 1));
       this.addr = new InetSocketAddress(host, port);
     }
   }
@@ -89,7 +89,7 @@ public class SocketRemoteIdentifier implements RemoteIdentifier {
    * @return true if the object is the same as the object argument; false, otherwise
    */
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(final Object o) {
     return addr.equals(((SocketRemoteIdentifier) o).getSocketAddress());
   }
 
@@ -100,7 +100,7 @@ public class SocketRemoteIdentifier implements RemoteIdentifier {
    */
   @Override
   public String toString() {
-    StringBuilder builder = new StringBuilder();
+    final StringBuilder builder = new StringBuilder();
     builder.append("socket://");
     builder.append(addr.getHostString());
     builder.append(":");

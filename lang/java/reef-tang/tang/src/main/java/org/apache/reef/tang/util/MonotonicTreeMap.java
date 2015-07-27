@@ -55,8 +55,8 @@ public final class MonotonicTreeMap<T, U> implements Map<T, U> {
   }
 
   @Override
-  public U put(T key, U value) {
-    U old = innerMap.get(key);
+  public U put(final T key, final U value) {
+    final U old = innerMap.get(key);
     if (old != null) {
       throw new IllegalArgumentException("Attempt to re-add: [" + key
           + "]\n old value: " + old + " new value " + value);
@@ -65,7 +65,7 @@ public final class MonotonicTreeMap<T, U> implements Map<T, U> {
   }
 
   @Override
-  public void putAll(Map<? extends T, ? extends U> m) {
+  public void putAll(final Map<? extends T, ? extends U> m) {
     throw new UnsupportedOperationException();
   }
 
@@ -90,12 +90,12 @@ public final class MonotonicTreeMap<T, U> implements Map<T, U> {
   }
 
   @Override
-  public U remove(Object o) {
+  public U remove(final Object o) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(final Object o) {
     if (this == o) {
       return true;
     }

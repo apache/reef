@@ -43,12 +43,12 @@ public class TestClassLoaders {
   //  @Test
   public void testTwoJars() throws MalformedURLException,
       ClassNotFoundException, BindException, InjectionException, NameResolutionException {
-    Tang t = Tang.Factory.getTang();
+    final Tang t = Tang.Factory.getTang();
 
-    JavaConfigurationBuilder cbA = t.newConfigurationBuilder(new File(
+    final JavaConfigurationBuilder cbA = t.newConfigurationBuilder(new File(
         "../tang-test-jarA/target/tang-test-jarA-1.0-SNAPSHOT.jar").toURI()
         .toURL());
-    JavaConfigurationBuilder cbB = t.newConfigurationBuilder(new File(
+    final JavaConfigurationBuilder cbB = t.newConfigurationBuilder(new File(
         "../tang-test-jarB/target/tang-test-jarB-1.0-SNAPSHOT.jar").toURI()
         .toURL());
     cbA.addConfiguration(cbB.build());
@@ -62,11 +62,11 @@ public class TestClassLoaders {
   //  @Test
   public void testTwoClasses() throws MalformedURLException,
       ClassNotFoundException, BindException, InjectionException, NameResolutionException {
-    Tang t = Tang.Factory.getTang();
-    JavaConfigurationBuilder cbA = t.newConfigurationBuilder(new File(
+    final Tang t = Tang.Factory.getTang();
+    final JavaConfigurationBuilder cbA = t.newConfigurationBuilder(new File(
         "../tang-test-jarAB/target/tang-test-jarAB-1.0-SNAPSHOT.jar").toURI()
         .toURL());
-    JavaConfigurationBuilder cbB = t.newConfigurationBuilder(new File(
+    final JavaConfigurationBuilder cbB = t.newConfigurationBuilder(new File(
         "../tang-test-jarAB/target/tang-test-jarAB-1.0-SNAPSHOT.jar").toURI()
         .toURL());
     cbA.addConfiguration(cbB.build());
@@ -81,20 +81,20 @@ public class TestClassLoaders {
   public void aliasingNameSameDifferentTypes()
       throws MalformedURLException, InjectionException, BindException,
       ClassNotFoundException, NameResolutionException {
-    Tang t = Tang.Factory.getTang();
-    JavaConfigurationBuilder cbA1 = t.newConfigurationBuilder(new File(
+    final Tang t = Tang.Factory.getTang();
+    final JavaConfigurationBuilder cbA1 = t.newConfigurationBuilder(new File(
         "../tang-test-jarAB/target/tang-test-jarAB-1.0-SNAPSHOT.jar").toURI()
         .toURL());
-    JavaConfigurationBuilder cbA2 = t.newConfigurationBuilder(new File(
+    final JavaConfigurationBuilder cbA2 = t.newConfigurationBuilder(new File(
         "../tang-test-jarAB/target/tang-test-jarAB-1.0-SNAPSHOT.jar").toURI()
         .toURL());
     cbA1.getClassHierarchy().getNode("org.apache.reef.tang.examples.A");
     cbA1.bind("org.apache.reef.tang.examples.A", "org.apache.reef.tang.examples.B");
     cbA2.bind("org.apache.reef.tang.examples.A", "org.apache.reef.tang.examples.B");
-    Object o = t.newInjector(cbA1.build()).getInstance("org.apache.reef.tang.examples.A");
-    Object p = t.newInjector(cbA2.build()).getInstance("org.apache.reef.tang.examples.A");
+    final Object o = t.newInjector(cbA1.build()).getInstance("org.apache.reef.tang.examples.A");
+    final Object p = t.newInjector(cbA2.build()).getInstance("org.apache.reef.tang.examples.A");
     Assert.assertSame(o.getClass(), p.getClass());
-    JavaConfigurationBuilder cbAother = t.newConfigurationBuilder(new File(
+    final JavaConfigurationBuilder cbAother = t.newConfigurationBuilder(new File(
         "../tang-test-jarA/target/tang-test-jarA-1.0-SNAPSHOT.jar").toURI()
         .toURL());
 
@@ -109,8 +109,8 @@ public class TestClassLoaders {
   public void testOneClassOneJar()
       throws MalformedURLException, InjectionException, BindException,
       ClassNotFoundException, NameResolutionException {
-    Tang t = Tang.Factory.getTang();
-    JavaConfigurationBuilder cbA1 = t.newConfigurationBuilder(new File(
+    final Tang t = Tang.Factory.getTang();
+    final JavaConfigurationBuilder cbA1 = t.newConfigurationBuilder(new File(
         "../tang-test-jarAB/target/tang-test-jarAB-1.0-SNAPSHOT.jar").toURI()
         .toURL());
     cbA1.bind("org.apache.reef.tang.examples.A", "org.apache.reef.tang.examples.B");

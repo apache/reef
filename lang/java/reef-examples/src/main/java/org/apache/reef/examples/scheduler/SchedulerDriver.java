@@ -77,7 +77,7 @@ public final class SchedulerDriver {
 
   @Inject
   public SchedulerDriver(final EvaluatorRequestor requestor,
-                         @Parameter(SchedulerREEF.Retain.class) boolean retainable,
+                         @Parameter(SchedulerREEF.Retain.class) final boolean retainable,
                          final Scheduler scheduler) {
     this.requestor = requestor;
     this.scheduler = scheduler;
@@ -127,7 +127,7 @@ public final class SchedulerDriver {
    */
   final class ActiveContextHandler implements EventHandler<ActiveContext> {
     @Override
-    public void onNext(ActiveContext context) {
+    public void onNext(final ActiveContext context) {
       synchronized (SchedulerDriver.this) {
         LOG.log(Level.INFO, "Context available : {0}", context.getId());
 
@@ -187,7 +187,7 @@ public final class SchedulerDriver {
   /**
    * Get the status of a task.
    */
-  public SchedulerResponse getTaskStatus(List<String> args) {
+  public SchedulerResponse getTaskStatus(final List<String> args) {
     if (args.size() != 1) {
       return SchedulerResponse.badRequest("Usage : only one ID at a time");
     }
@@ -295,7 +295,7 @@ public final class SchedulerDriver {
         // Wait until any command enters in the queue
         try {
           SchedulerDriver.this.wait();
-        } catch (InterruptedException e) {
+        } catch (final InterruptedException e) {
           LOG.log(Level.WARNING, "InterruptedException occurred in SchedulerDriver", e);
         }
       }

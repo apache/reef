@@ -29,13 +29,13 @@ public class ListInjectionPlan<T> extends InjectionPlan<T> {
   private final boolean isAmbiguous;
   private final boolean isInjectable;
 
-  public ListInjectionPlan(Node name, List<InjectionPlan<T>> entries) {
+  public ListInjectionPlan(final Node name, final List<InjectionPlan<T>> entries) {
     super(name);
     this.entries.addAll(entries);
     int numAlternativesAccumulator = 1;
     boolean isAmbiguousAccumulator = false;
     boolean isInjectableAccumulator = true;
-    for (InjectionPlan<T> ip : entries) {
+    for (final InjectionPlan<T> ip : entries) {
       numAlternativesAccumulator *= ip.getNumAlternatives();
       isAmbiguousAccumulator |= ip.isAmbiguous();
       isInjectableAccumulator &= ip.isInjectable();
@@ -66,8 +66,8 @@ public class ListInjectionPlan<T> extends InjectionPlan<T> {
 
   @Override
   protected String toAmbiguousInjectString() {
-    StringBuilder sb = new StringBuilder(getNode().getFullName() + "(list) includes ambiguous plans [");
-    for (InjectionPlan<T> ip : entries) {
+    final StringBuilder sb = new StringBuilder(getNode().getFullName() + "(list) includes ambiguous plans [");
+    for (final InjectionPlan<T> ip : entries) {
       if (ip.isAmbiguous()) {
         sb.append("\n" + ip.toAmbiguousInjectString());
       }
@@ -78,8 +78,8 @@ public class ListInjectionPlan<T> extends InjectionPlan<T> {
 
   @Override
   protected String toInfeasibleInjectString() {
-    StringBuilder sb = new StringBuilder(getNode().getFullName() + "(list) includes infeasible plans [");
-    for (InjectionPlan<T> ip : entries) {
+    final StringBuilder sb = new StringBuilder(getNode().getFullName() + "(list) includes infeasible plans [");
+    for (final InjectionPlan<T> ip : entries) {
       if (!ip.isFeasible()) {
         sb.append("\n" + ip.toInfeasibleInjectString());
       }
@@ -95,8 +95,8 @@ public class ListInjectionPlan<T> extends InjectionPlan<T> {
 
   @Override
   public String toShallowString() {
-    StringBuilder sb = new StringBuilder("list { ");
-    for (InjectionPlan<T> ip : entries) {
+    final StringBuilder sb = new StringBuilder("list { ");
+    for (final InjectionPlan<T> ip : entries) {
       sb.append("\n" + ip.toShallowString());
     }
     sb.append("\n } ");

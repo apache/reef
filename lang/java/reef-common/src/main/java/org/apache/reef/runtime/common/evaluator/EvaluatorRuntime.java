@@ -159,7 +159,7 @@ final class EvaluatorRuntime implements EventHandler<EvaluatorControlProto> {
   }
 
   @Override
-  public void onNext(EvaluatorControlProto evaluatorControlProto) {
+  public void onNext(final EvaluatorControlProto evaluatorControlProto) {
     this.onEvaluatorControlMessage(evaluatorControlProto);
   }
 

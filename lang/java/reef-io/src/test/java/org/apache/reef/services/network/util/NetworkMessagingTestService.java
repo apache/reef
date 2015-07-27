@@ -117,7 +117,7 @@ public final class NetworkMessagingTestService implements AutoCloseable {
     }
 
     @Override
-    public void onNext(Message<T> value) {
+    public void onNext(final Message<T> value) {
       count.incrementAndGet();
       LOG.log(Level.FINE, "Count: {0}", count.get());
       LOG.log(Level.FINE,
@@ -136,11 +136,11 @@ public final class NetworkMessagingTestService implements AutoCloseable {
 
   public static final class TestListener<T> implements LinkListener<Message<T>> {
     @Override
-    public void onSuccess(Message<T> message) {
+    public void onSuccess(final Message<T> message) {
       LOG.log(Level.FINE, "success: " + message);
     }
     @Override
-    public void onException(Throwable cause, SocketAddress remoteAddress, Message<T> message) {
+    public void onException(final Throwable cause, final SocketAddress remoteAddress, final Message<T> message) {
       LOG.log(Level.WARNING, "exception: " + cause + message);
       throw new RuntimeException(cause);
     }

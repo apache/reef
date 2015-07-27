@@ -22,7 +22,7 @@ import org.apache.reef.tang.types.Node;
 
 public class InjectionFuturePlan<T> extends InjectionPlan<T> {
 
-  public InjectionFuturePlan(Node name) {
+  public InjectionFuturePlan(final Node name) {
     super(name);
   }
 

@@ -26,7 +26,7 @@ public class StackBindLocation implements BindLocation {
   final StackTraceElement[] stack;
 
   public StackBindLocation() {
-    StackTraceElement[] stackTrace = new Throwable().getStackTrace();
+    final StackTraceElement[] stackTrace = new Throwable().getStackTrace();
     if (stackTrace.length != 0) {
       this.stack = Arrays.copyOfRange(stackTrace, 1, stackTrace.length);
     } else {
@@ -36,8 +36,8 @@ public class StackBindLocation implements BindLocation {
 
   @Override
   public String toString() {
-    StringBuffer sb = new StringBuffer("[\n");
-    for (StackTraceElement e : stack) {
+    final StringBuffer sb = new StringBuffer("[\n");
+    for (final StackTraceElement e : stack) {
       sb.append(e.toString() + "\n");
     }
     sb.append("]\n");

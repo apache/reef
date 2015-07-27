@@ -46,8 +46,8 @@ public class TestListInjection {
    */
   @Test
   public void testStringInjectDefault() throws InjectionException {
-    List<String> actual = Tang.Factory.getTang().newInjector().getInstance(StringClass.class).stringList;
-    List<String> expected = new ArrayList<>();
+    final List<String> actual = Tang.Factory.getTang().newInjector().getInstance(StringClass.class).stringList;
+    final List<String> expected = new ArrayList<>();
     expected.add("bye");
     expected.add("hello");
     expected.add("hi");
@@ -61,8 +61,8 @@ public class TestListInjection {
    */
   @Test
   public void testIntegerInjectDefault() throws InjectionException {
-    List<Integer> actual = Tang.Factory.getTang().newInjector().getInstance(IntegerClass.class).integerList;
-    List<Integer> expected = new ArrayList<>();
+    final List<Integer> actual = Tang.Factory.getTang().newInjector().getInstance(IntegerClass.class).integerList;
+    final List<Integer> expected = new ArrayList<>();
     expected.add(1);
     expected.add(2);
     expected.add(3);
@@ -76,14 +76,14 @@ public class TestListInjection {
    */
   @Test
   public void testObjectInjectDefault() throws InjectionException {
-    Integer integer = 1;
-    Float ffloat = 1.001f;
+    final Integer integer = 1;
+    final Float ffloat = 1.001f;
 
-    Injector injector = Tang.Factory.getTang().newInjector();
+    final Injector injector = Tang.Factory.getTang().newInjector();
     injector.bindVolatileInstance(Integer.class, integer);
     injector.bindVolatileInstance(Float.class, ffloat);
-    List<Number> actual = injector.getInstance(NumberClass.class).numberList;
-    List<Number> expected = new ArrayList<>();
+    final List<Number> actual = injector.getInstance(NumberClass.class).numberList;
+    final List<Number> expected = new ArrayList<>();
     expected.add(integer);
     expected.add(ffloat);
     Assert.assertEquals(expected, actual);
@@ -96,14 +96,15 @@ public class TestListInjection {
    */
   @Test
   public void testStringInjectBound() throws InjectionException {
-    List<String> injected = new ArrayList<>();
+    final List<String> injected = new ArrayList<>();
     injected.add("hi");
     injected.add("hello");
     injected.add("bye");
-    JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
+    final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
     cb.bindList(StringList.class, injected);
-    List<String> actual = Tang.Factory.getTang().newInjector(cb.build()).getInstance(StringClass.class).stringList;
-    List<String> expected = new ArrayList<>();
+    final List<String> actual =
+        Tang.Factory.getTang().newInjector(cb.build()).getInstance(StringClass.class).stringList;
+    final List<String> expected = new ArrayList<>();
     expected.add("hi");
     expected.add("hello");
     expected.add("bye");
@@ -117,15 +118,16 @@ public class TestListInjection {
    */
   @Test
   public void testIntegerInjectBound() throws InjectionException {
-    List<String> injected = new ArrayList<>();
+    final List<String> injected = new ArrayList<>();
     injected.add("1");
     injected.add("2");
     injected.add("3");
-    JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
+    final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
     cb.bindList(IntegerList.class, injected);
 
-    List<Integer> actual = Tang.Factory.getTang().newInjector(cb.build()).getInstance(IntegerClass.class).integerList;
-    List<Integer> expected = new ArrayList<>();
+    final List<Integer> actual =
+        Tang.Factory.getTang().newInjector(cb.build()).getInstance(IntegerClass.class).integerList;
+    final List<Integer> expected = new ArrayList<>();
     expected.add(1);
     expected.add(2);
     expected.add(3);
@@ -139,32 +141,32 @@ public class TestListInjection {
    */
   @Test
   public void testObjectInjectBound() throws InjectionException {
-    Integer integer = 1;
-    Float ffloat = 1.001f;
+    final Integer integer = 1;
+    final Float ffloat = 1.001f;
 
     // Inject implementations via class object
-    List<Class> injected1 = new ArrayList<>();
+    final List<Class> injected1 = new ArrayList<>();
     injected1.add(Integer.class);
     injected1.add(Float.class);
-    JavaConfigurationBuilder cb1 = Tang.Factory.getTang().newConfigurationBuilder();
+    final JavaConfigurationBuilder cb1 = Tang.Factory.getTang().newConfigurationBuilder();
     cb1.bindList(NumberList.class, injected1);
-    Injector injector1 = Tang.Factory.getTang().newInjector(cb1.build());
+    final Injector injector1 = Tang.Factory.getTang().newInjector(cb1.build());
     injector1.bindVolatileInstance(Integer.class, integer);
     injector1.bindVolatileInstance(Float.class, ffloat);
-    List<Number> actual1 = injector1.getInstance(NumberClass.class).numberList;
+    final List<Number> actual1 = injector1.getInstance(NumberClass.class).numberList;
 
     // Inject implementations via class name
-    List<String> injected2 = new ArrayList<>();
+    final List<String> injected2 = new ArrayList<>();
     injected2.add("java.lang.Integer");
     injected2.add("java.lang.Float");
-    JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
+    final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
     cb.bindList(NumberList.class, injected2);
-    Injector injector2 = Tang.Factory.getTang().newInjector(cb.build());
+    final Injector injector2 = Tang.Factory.getTang().newInjector(cb.build());
     injector2.bindVolatileInstance(Integer.class, integer);
     injector2.bindVolatileInstance(Float.class, ffloat);
-    List<Number> actual2 = injector2.getInstance(NumberClass.class).numberList;
+    final List<Number> actual2 = injector2.getInstance(NumberClass.class).numberList;
 
-    List<Number> expected = new ArrayList<>();
+    final List<Number> expected = new ArrayList<>();
     expected.add(integer);
     expected.add(ffloat);
     Assert.assertEquals(expected, actual1);
@@ -181,19 +183,19 @@ public class TestListInjection {
   @Test
   public void testInjectSelectiveConstructor() throws InjectionException {
     // Test injection without list binding
-    List<String> actual1 = Tang.Factory.getTang().newInjector().getInstance(SelectiveConsructorClass.class).list;
-    List<String> expected1 = new ArrayList<>();
+    final List<String> actual1 = Tang.Factory.getTang().newInjector().getInstance(SelectiveConsructorClass.class).list;
+    final List<String> expected1 = new ArrayList<>();
     Assert.assertEquals(expected1, actual1);
     // Test injection with list binding
-    List<String> injected = new ArrayList<>();
+    final List<String> injected = new ArrayList<>();
     injected.add("hi");
     injected.add("hello");
     injected.add("bye");
-    JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
+    final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
     cb.bindList(SelectiveInjectTestList.class, injected);
-    List<String> actual2 = Tang.Factory.getTang().newInjector(cb.build()).getInstance(SelectiveConsructorClass.class)
-        .list;
-    List<String> expected2 = new ArrayList<>();
+    final List<String> actual2 =
+        Tang.Factory.getTang().newInjector(cb.build()).getInstance(SelectiveConsructorClass.class).list;
+    final List<String> expected2 = new ArrayList<>();
     expected2.add("hi");
     expected2.add("hello");
     expected2.add("bye");
@@ -207,17 +209,18 @@ public class TestListInjection {
    */
   @Test
   public void testStringInjectConfigurationBuilder() throws InjectionException {
-    JavaClassHierarchy namespace = Tang.Factory.getTang().getDefaultClassHierarchy();
-    NamedParameterNode<List<String>> np = (NamedParameterNode) namespace.getNode(StringList.class);
-    List<String> injected = new ArrayList<>();
+    final JavaClassHierarchy namespace = Tang.Factory.getTang().getDefaultClassHierarchy();
+    final NamedParameterNode<List<String>> np = (NamedParameterNode) namespace.getNode(StringList.class);
+    final List<String> injected = new ArrayList<>();
     injected.add("hi");
     injected.add("hello");
     injected.add("bye");
 
-    ConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
+    final ConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
     cb.bindList(np, injected);
-    List<String> actual = Tang.Factory.getTang().newInjector(cb.build()).getInstance(StringClass.class).stringList;
-    List<String> expected = new ArrayList<>();
+    final List<String> actual =
+        Tang.Factory.getTang().newInjector(cb.build()).getInstance(StringClass.class).stringList;
+    final List<String> expected = new ArrayList<>();
     expected.add("hi");
     expected.add("hello");
     expected.add("bye");
@@ -231,23 +234,23 @@ public class TestListInjection {
    */
   @Test
   public void testObjectInjectConfigurationBuilder() throws InjectionException {
-    Integer integer = 1;
-    Float ffloat = 1.001f;
+    final Integer integer = 1;
+    final Float ffloat = 1.001f;
 
-    JavaClassHierarchy namespace = Tang.Factory.getTang().getDefaultClassHierarchy();
-    NamedParameterNode<List<Class>> np = (NamedParameterNode) namespace.getNode(NumberList.class);
-    List<ClassNode> injected = new ArrayList<>();
+    final JavaClassHierarchy namespace = Tang.Factory.getTang().getDefaultClassHierarchy();
+    final NamedParameterNode<List<Class>> np = (NamedParameterNode) namespace.getNode(NumberList.class);
+    final List<ClassNode> injected = new ArrayList<>();
     injected.add((ClassNode) namespace.getNode(Integer.class));
     injected.add((ClassNode) namespace.getNode(Float.class));
 
-    ConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
+    final ConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
     cb.bindList(np, injected);
 
-    Injector injector = Tang.Factory.getTang().newInjector(cb.build());
+    final Injector injector = Tang.Factory.getTang().newInjector(cb.build());
     injector.bindVolatileInstance(Integer.class, integer);
     injector.bindVolatileInstance(Float.class, ffloat);
-    List<Number> actual = injector.getInstance(NumberClass.class).numberList;
-    List<Number> expected = new ArrayList<>();
+    final List<Number> actual = injector.getInstance(NumberClass.class).numberList;
+    final List<Number> expected = new ArrayList<>();
     expected.add(integer);
     expected.add(ffloat);
     Assert.assertEquals(expected, actual);
@@ -260,15 +263,15 @@ public class TestListInjection {
    */
   @Test
   public void testInjectConfigurationModule() throws InjectionException {
-    List<String> injected = new ArrayList<>();
+    final List<String> injected = new ArrayList<>();
     injected.add("hi");
     injected.add("hello");
     injected.add("bye");
-    Configuration conf = StringClassConfiguration.CONF
+    final Configuration conf = StringClassConfiguration.CONF
         .set(StringClassConfiguration.STRING_LIST, injected)
         .build();
-    List<String> actual = Tang.Factory.getTang().newInjector(conf).getInstance(StringClass.class).stringList;
-    List<String> expected = new ArrayList<>();
+    final List<String> actual = Tang.Factory.getTang().newInjector(conf).getInstance(StringClass.class).stringList;
+    final List<String> expected = new ArrayList<>();
     expected.add("hi");
     expected.add("hello");
     expected.add("bye");

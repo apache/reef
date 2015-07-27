@@ -28,7 +28,7 @@ public class TestEvent implements Serializable {
   private static final long serialVersionUID = 1L;
   private String message;
 
-  public TestEvent(String message) {
+  public TestEvent(final String message) {
     this.message = message;
   }
 

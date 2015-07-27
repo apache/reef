@@ -110,9 +110,9 @@ public class NamingTest {
         final Identifier id2 = this.factory.getNewInstance("task2");
 
         final Map<Identifier, InetSocketAddress> respMap = new HashMap<Identifier, InetSocketAddress>();
-        InetSocketAddress addr1 = client.lookup(id1);
+        final InetSocketAddress addr1 = client.lookup(id1);
         respMap.put(id1, addr1);
-        InetSocketAddress addr2 = client.lookup(id2);
+        final InetSocketAddress addr2 = client.lookup(id2);
         respMap.put(id2, addr2);
 
         for (final Identifier id : respMap.keySet()) {
@@ -311,7 +311,7 @@ public class NamingTest {
 
       // registration
       // invoke registration from the client side
-      Configuration nameResolverConf = NameResolverConfiguration.CONF
+      final Configuration nameResolverConf = NameResolverConfiguration.CONF
           .set(NameResolverConfiguration.NAME_SERVER_HOSTNAME, localAddress)
           .set(NameResolverConfiguration.NAME_SERVICE_PORT, this.port)
           .set(NameResolverConfiguration.CACHE_TIMEOUT, this.TTL)

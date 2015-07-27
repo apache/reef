@@ -44,7 +44,7 @@ final class TaskEntity {
   }
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(final Object o) {
     if (this == o) {
       return true;
     }
@@ -52,7 +52,7 @@ final class TaskEntity {
       return false;
     }
 
-    TaskEntity that = (TaskEntity) o;
+    final TaskEntity that = (TaskEntity) o;
 
     if (taskId != that.taskId) {
       return false;

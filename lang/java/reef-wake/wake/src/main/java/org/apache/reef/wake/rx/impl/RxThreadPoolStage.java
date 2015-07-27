@@ -156,7 +156,7 @@ public final class RxThreadPoolStage<T> extends AbstractRxStage<T> {
             LOG.log(Level.SEVERE, "Executor terminated due to unrequired timeout");
             observer.onError(new TimeoutException());
           }
-        } catch (InterruptedException e) {
+        } catch (final InterruptedException e) {
           e.printStackTrace();
           observer.onError(e);
         }
@@ -177,12 +177,12 @@ public final class RxThreadPoolStage<T> extends AbstractRxStage<T> {
       completionExecutor.shutdown();
       if (!executor.awaitTermination(shutdownTimeout, TimeUnit.MILLISECONDS)) {
         LOG.log(Level.WARNING, "Executor did not terminate in " + shutdownTimeout + "ms.");
-        List<Runnable> droppedRunnables = executor.shutdownNow();
+        final List<Runnable> droppedRunnables = executor.shutdownNow();
         LOG.log(Level.WARNING, "Executor dropped " + droppedRunnables.size() + " tasks.");
       }
       if (!completionExecutor.awaitTermination(shutdownTimeout, TimeUnit.MILLISECONDS)) {
         LOG.log(Level.WARNING, "Executor did not terminate in " + shutdownTimeout + "ms.");
-        List<Runnable> droppedRunnables = completionExecutor.shutdownNow();
+        final List<Runnable> droppedRunnables = completionExecutor.shutdownNow();
         LOG.log(Level.WARNING, "Completion executor dropped " + droppedRunnables.size() + " tasks.");
       }
     }

@@ -34,13 +34,13 @@ public class ListInterfaceImplOne implements ListInterface {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     } else if (obj == null || obj.getClass() != getClass()) {
       return false;
     } else {
-      ListInterfaceImplOne one = (ListInterfaceImplOne) obj;
+      final ListInterfaceImplOne one = (ListInterfaceImplOne) obj;
       if (one.magicNumber != magicNumber) {
         return false;
       }

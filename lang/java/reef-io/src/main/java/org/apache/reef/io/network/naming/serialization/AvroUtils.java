@@ -41,7 +41,7 @@ final class AvroUtils {
    * @param <T>
    * @return
    */
-  static <T> byte[] toBytes(T avroObject, Class<T> theClass) {
+  static <T> byte[] toBytes(final T avroObject, final Class<T> theClass) {
     final DatumWriter<T> datumWriter = new SpecificDatumWriter<>(theClass);
     final byte[] theBytes;
     try (final ByteArrayOutputStream out = new ByteArrayOutputStream()) {

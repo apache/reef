@@ -43,7 +43,7 @@ public abstract class AbstractEStage<T> implements EStage<T> {
    *
    * @parm stageName the stage name
    */
-  public AbstractEStage(String stageName) {
+  public AbstractEStage(final String stageName) {
     this.closed = new AtomicBoolean(false);
     this.name = stageName;
     this.inMeter = new Meter(stageName + "_in");

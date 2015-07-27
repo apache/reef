@@ -39,7 +39,7 @@ public class EWMA {
    * @param interval
    * @param intervalUnit
    */
-  public EWMA(double alpha, long interval, TimeUnit intervalUnit) {
+  public EWMA(final double alpha, final long interval, final TimeUnit intervalUnit) {
     this.interval = intervalUnit.toNanos(interval);
     this.alpha = alpha;
   }
@@ -49,7 +49,7 @@ public class EWMA {
    *
    * @param n the new value
    */
-  public void update(long n) {
+  public void update(final long n) {
     uncounted.addAndGet(n);
   }
 
@@ -73,7 +73,7 @@ public class EWMA {
    * @param rateUnit the unit of the rate
    * @return the rate
    */
-  public double getRate(TimeUnit rateUnit) {
+  public double getRate(final TimeUnit rateUnit) {
     return rate * (double) rateUnit.toNanos(1);
   }
 }

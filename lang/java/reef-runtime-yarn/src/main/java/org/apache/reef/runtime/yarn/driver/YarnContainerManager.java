@@ -490,7 +490,7 @@ final class YarnContainerManager
     }
   }
 
-  private boolean isSameKindOfRequest(AMRMClient.ContainerRequest r1, AMRMClient.ContainerRequest r2) {
+  private boolean isSameKindOfRequest(final AMRMClient.ContainerRequest r1, final AMRMClient.ContainerRequest r2) {
     return r1.getPriority().compareTo(r2.getPriority()) == 0
         && r1.getCapability().compareTo(r2.getCapability()) == 0
         && r1.getRelaxLocality() == r2.getRelaxLocality()
@@ -503,7 +503,7 @@ final class YarnContainerManager
    * We take into consideration that RM has some freedom in rounding
    * up the allocation and in placing containers on other machines.
    */
-  private boolean matchContainerWithPendingRequest(Container container) {
+  private boolean matchContainerWithPendingRequest(final Container container) {
     if (this.requestsAfterSentToRM.isEmpty()) {
       return false;
     }

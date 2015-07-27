@@ -115,7 +115,7 @@ public class NSMessageCodec<T> implements Codec<NSMessage<T>> {
         throw new RuntimeException("IOException", e);
       }
     } else {
-      NSMessagePBuf pbuf;
+      final NSMessagePBuf pbuf;
       try {
         pbuf = NSMessagePBuf.parseFrom(buf);
       } catch (final InvalidProtocolBufferException e) {

@@ -35,13 +35,13 @@ public class LocalScratchSpace implements ScratchSpace {
    */
   private long quota;
 
-  public LocalScratchSpace(String jobName, String evaluatorName) {
+  public LocalScratchSpace(final String jobName, final String evaluatorName) {
     this.jobName = jobName;
     this.evaluatorName = evaluatorName;
     this.quota = 0;
   }
 
-  public LocalScratchSpace(String jobName, String evaluatorName, long quota) {
+  public LocalScratchSpace(final String jobName, final String evaluatorName, final long quota) {
     this.jobName = jobName;
     this.evaluatorName = evaluatorName;
     this.quota = quota;
@@ -52,7 +52,7 @@ public class LocalScratchSpace implements ScratchSpace {
     try {
       ret = File.createTempFile("reef-" + jobName + "-" + evaluatorName,
           "tmp");
-    } catch (IOException e) {
+    } catch (final IOException e) {
       throw new RuntimeException(e);
     }
     tempFiles.add(ret);
@@ -67,7 +67,7 @@ public class LocalScratchSpace implements ScratchSpace {
   @Override
   public long usedSpace() {
     long ret = 0;
-    for (File f : tempFiles) {
+    for (final File f : tempFiles) {
       // TODO: Error handling...
       ret += f.length();
     }
@@ -78,7 +78,7 @@ public class LocalScratchSpace implements ScratchSpace {
   public void delete() {
     // TODO: Error handling. Files.delete() would give us an exception. We
     // should pass a set of Exceptions into a ReefRuntimeException.
-    for (File f : tempFiles) {
+    for (final File f : tempFiles) {
       f.delete();
     }
     tempFiles.clear();

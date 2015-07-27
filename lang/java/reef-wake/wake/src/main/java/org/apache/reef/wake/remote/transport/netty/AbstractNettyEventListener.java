@@ -54,7 +54,7 @@ abstract class AbstractNettyEventListener implements NettyEventListener {
   }
 
   @Override
-  public void channelRead(ChannelHandlerContext ctx, Object msg) {
+  public void channelRead(final ChannelHandlerContext ctx, final Object msg) {
     final Channel channel = ctx.channel();
     final byte[] message = (byte[]) msg;
 
@@ -70,7 +70,7 @@ abstract class AbstractNettyEventListener implements NettyEventListener {
   }
 
   @Override
-  public void exceptionCaught(final ChannelHandlerContext ctx, Throwable cause) {
+  public void exceptionCaught(final ChannelHandlerContext ctx, final Throwable cause) {
     final Channel channel = ctx.channel();
     LOG.log(Level.WARNING, "ExceptionEvent: local: {0} remote: {1} :: {2}", new Object[]{
         channel.localAddress(), channel.remoteAddress(), cause});

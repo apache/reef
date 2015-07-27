@@ -145,7 +145,7 @@ public final class ResourceManagerStatus implements EventHandler<RuntimeStatusEv
   }
 
 
-  private synchronized void setState(ReefServiceProtos.State state) {
+  private synchronized void setState(final ReefServiceProtos.State state) {
     // TODO: Add state transition check
     this.state = state;
   }

@@ -79,7 +79,7 @@ final class EvaluatorSetupHelper {
   Map<String, LocalResource> getGlobalResources() {
     try {
       return this.globalJarUploader.call();
-    } catch (IOException e) {
+    } catch (final IOException e) {
       throw new RuntimeException("Unable to upload the global JAR file to the job folder.", e);
     }
   }

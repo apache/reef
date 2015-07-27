@@ -32,7 +32,7 @@ public class NamingException extends NetworkException {
    * @param s the detailed message
    * @param e the cause
    */
-  public NamingException(String s, Throwable e) {
+  public NamingException(final String s, final Throwable e) {
     super(s, e);
   }
 
@@ -41,7 +41,7 @@ public class NamingException extends NetworkException {
    *
    * @param s the detailed message
    */
-  public NamingException(String s) {
+  public NamingException(final String s) {
     super(s);
   }
 
@@ -50,7 +50,7 @@ public class NamingException extends NetworkException {
    *
    * @param e the cause
    */
-  public NamingException(Throwable e) {
+  public NamingException(final Throwable e) {
     super(e);
   }
 }

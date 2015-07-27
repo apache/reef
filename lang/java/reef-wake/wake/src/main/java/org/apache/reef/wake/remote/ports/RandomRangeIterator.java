@@ -35,7 +35,7 @@ final class RandomRangeIterator implements Iterator<Integer> {
   private int currentRetryCount;
   private final Random random = new Random(System.currentTimeMillis());
 
-  RandomRangeIterator(final int tcpPortRangeBegin, final int tcpPortRangeCount, int tryCount) {
+  RandomRangeIterator(final int tcpPortRangeBegin, final int tcpPortRangeCount, final int tryCount) {
     this.tcpPortRangeBegin = tcpPortRangeBegin;
     this.tcpPortRangeCount = tcpPortRangeCount;
     this.tryCount = tryCount;

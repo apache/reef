@@ -33,7 +33,7 @@ public class CombinerStage<K extends Comparable<K>, V> implements Stage {
   private final ConcurrentSkipListMap<K, V> register = new ConcurrentSkipListMap<>();
   private volatile boolean done = false;
 
-  public CombinerStage(Combiner<K, V> c, Observer<Map.Entry<K, V>> o) {
+  public CombinerStage(final Combiner<K, V> c, final Observer<Map.Entry<K, V>> o) {
     this.c = c;
     this.o = o;
     worker.start();
@@ -42,10 +42,10 @@ public class CombinerStage<K extends Comparable<K>, V> implements Stage {
   public Observer<Map.Entry<K, V>> wireIn() {
     return new Observer<Map.Entry<K, V>>() {
       @Override
-      public void onNext(Map.Entry<K, V> pair) {
+      public void onNext(final Map.Entry<K, V> pair) {
         V old;
         V newVal;
-        boolean wasEmpty = register.isEmpty();
+        final boolean wasEmpty = register.isEmpty();
         boolean succ = false;
 
         while (!succ) {
@@ -66,7 +66,7 @@ public class CombinerStage<K extends Comparable<K>, V> implements Stage {
       }
 
       @Override
-      public void onError(Exception error) {
+      public void onError(final Exception error) {
         o.onError(error);
       }
 
@@ -95,13 +95,13 @@ public class CombinerStage<K extends Comparable<K>, V> implements Stage {
     private final K k;
     private final V v;
 
-    public Pair(K k, V v) {
+    public Pair(final K k, final V v) {
       this.k = k;
       this.v = v;
     }
 
     @Override
-    public int compareTo(Map.Entry<K, V> arg0) {
+    public int compareTo(final Map.Entry<K, V> arg0) {
       return k.compareTo(arg0.getKey());
     }
 
@@ -116,7 +116,7 @@ public class CombinerStage<K extends Comparable<K>, V> implements Stage {
     }
 
     @Override
-    public V setValue(V value) {
+    public V setValue(final V value) {
       throw new UnsupportedOperationException();
     }
   }
@@ -134,7 +134,7 @@ public class CombinerStage<K extends Comparable<K>, V> implements Stage {
             while (register.isEmpty() && !done) {
               try {
                 register.wait();
-              } catch (InterruptedException e) {
+              } catch (final InterruptedException e) {
                 throw new IllegalStateException(e);
               }
             }
@@ -146,7 +146,7 @@ public class CombinerStage<K extends Comparable<K>, V> implements Stage {
         Map.Entry<K, V> cursor = register.pollFirstEntry();
         while (cursor != null) {
           o.onNext(cursor);
-          K nextKey = register.higherKey(cursor.getKey());
+          final K nextKey = register.higherKey(cursor.getKey());
 
           /* If there is more than one OutputThread worker then the remove() -> null case
            * must be handled

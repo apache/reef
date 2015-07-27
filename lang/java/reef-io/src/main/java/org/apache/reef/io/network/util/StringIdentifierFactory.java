@@ -39,7 +39,7 @@ public class StringIdentifierFactory implements IdentifierFactory {
    * @return a string identifier
    */
   @Override
-  public Identifier getNewInstance(String s) {
+  public Identifier getNewInstance(final String s) {
     return new StringIdentifier(s);
   }
 

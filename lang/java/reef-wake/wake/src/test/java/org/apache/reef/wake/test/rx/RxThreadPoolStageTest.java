@@ -41,8 +41,8 @@ public class RxThreadPoolStageTest {
   public void testOne() throws Exception {
     System.out.println(name.getMethodName());
 
-    TestObserver to = new TestObserver("o1");
-    RxStage<TestEvent> stage = new RxThreadPoolStage<TestEvent>(to, 1);
+    final TestObserver to = new TestObserver("o1");
+    final RxStage<TestEvent> stage = new RxThreadPoolStage<TestEvent>(to, 1);
 
     int i = 0;
     int sum = 0;
@@ -52,7 +52,7 @@ public class RxThreadPoolStageTest {
         sum += i;
       }
       stage.onCompleted();
-    } catch (Exception e) {
+    } catch (final Exception e) {
       stage.onError(e);
     }
 
@@ -67,8 +67,8 @@ public class RxThreadPoolStageTest {
   public void testMultipleThreads() throws Exception {
     System.out.println(name.getMethodName());
 
-    TestObserver to = new TestObserver("o1");
-    RxStage<TestEvent> stage = new RxThreadPoolStage<TestEvent>(to, 11);
+    final TestObserver to = new TestObserver("o1");
+    final RxStage<TestEvent> stage = new RxThreadPoolStage<TestEvent>(to, 11);
 
     int i = 0;
     int sum = 0;
@@ -78,7 +78,7 @@ public class RxThreadPoolStageTest {
         sum += i;
       }
       stage.onCompleted();
-    } catch (Exception e) {
+    } catch (final Exception e) {
       stage.onError(e);
     }
 
@@ -93,12 +93,12 @@ public class RxThreadPoolStageTest {
   public void testMultipleCallers() throws Exception {
     System.out.println(name.getMethodName());
 
-    TestObserver to = new TestObserver("o1");
+    final TestObserver to = new TestObserver("o1");
     final RxStage<TestEvent> stage = new RxThreadPoolStage<TestEvent>(to, 11);
 
     final int tn = 7;
-    ExecutorService taskmaster = Executors.newFixedThreadPool(tn);
-    List<Future<Integer>> handles = new ArrayList<>();
+    final ExecutorService taskmaster = Executors.newFixedThreadPool(tn);
+    final List<Future<Integer>> handles = new ArrayList<>();
     for (int t = 0; t < tn; t++) {
       handles.add(taskmaster.submit(new Callable<Integer>() {
         @Override
@@ -113,7 +113,7 @@ public class RxThreadPoolStageTest {
       }));
     }
     int sum = 0;
-    for (Future<Integer> h : handles) {
+    for (final Future<Integer> h : handles) {
       try {
         sum += h.get();
       } catch (InterruptedException | ExecutionException e1) {
@@ -124,7 +124,7 @@ public class RxThreadPoolStageTest {
 
     try {
       stage.onCompleted();
-    } catch (Exception e) {
+    } catch (final Exception e) {
       stage.onError(e);
     }
 
@@ -138,7 +138,7 @@ public class RxThreadPoolStageTest {
   class TestEvent {
     private int n;
 
-    TestEvent(int n) {
+    TestEvent(final int n) {
       this.n = n;
     }
 
@@ -154,7 +154,7 @@ public class RxThreadPoolStageTest {
     private final AtomicInteger completes = new AtomicInteger(0);
     private final String name;
 
-    TestObserver(String name) {
+    TestObserver(final String name) {
       this.name = name;
     }
 
@@ -171,13 +171,13 @@ public class RxThreadPoolStageTest {
     }
 
     @Override
-    public void onNext(TestEvent value) {
+    public void onNext(final TestEvent value) {
       System.out.println(name + " Value: " + value + " " + value.get());
       events.addAndGet(value.get());
     }
 
     @Override
-    public void onError(Exception error) {
+    public void onError(final Exception error) {
       System.out.println(name + " Error: " + error);
       errors.incrementAndGet();
     }

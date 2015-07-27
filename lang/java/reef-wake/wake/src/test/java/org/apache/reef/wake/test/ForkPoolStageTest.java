@@ -41,17 +41,17 @@ public class ForkPoolStageTest {
   public void testPoolStage() throws Exception {
     System.out.println(LOG_PREFIX + name.getMethodName());
 
-    Set<TestEvent> procSet = Collections.synchronizedSet(new HashSet<TestEvent>());
-    Set<TestEvent> orgSet = Collections.synchronizedSet(new HashSet<TestEvent>());
+    final Set<TestEvent> procSet = Collections.synchronizedSet(new HashSet<TestEvent>());
+    final Set<TestEvent> orgSet = Collections.synchronizedSet(new HashSet<TestEvent>());
 
-    EventHandler<TestEventA> eventHandler = new TestEventHandlerA(procSet);
+    final EventHandler<TestEventA> eventHandler = new TestEventHandlerA(procSet);
 
-    WakeSharedPool p = new WakeSharedPool(10);
+    final WakeSharedPool p = new WakeSharedPool(10);
 
-    EStage<TestEventA> stage = new ForkPoolStage<TestEventA>(eventHandler, p);
+    final EStage<TestEventA> stage = new ForkPoolStage<TestEventA>(eventHandler, p);
 
     for (int i = 0; i < 10; ++i) {
-      TestEventA a = new TestEventA();
+      final TestEventA a = new TestEventA();
       orgSet.add(a);
 
       stage.onNext(a);
@@ -71,24 +71,24 @@ public class ForkPoolStageTest {
   public void testSharedPoolStage() throws Exception {
     System.out.println(LOG_PREFIX + name.getMethodName());
 
-    Set<TestEvent> procSet = Collections.synchronizedSet(new HashSet<TestEvent>());
-    Set<TestEvent> orgSet = Collections.synchronizedSet(new HashSet<TestEvent>());
+    final Set<TestEvent> procSet = Collections.synchronizedSet(new HashSet<TestEvent>());
+    final Set<TestEvent> orgSet = Collections.synchronizedSet(new HashSet<TestEvent>());
 
-    EventHandler<TestEventA> eventHandler = new TestEventHandlerA(procSet);
+    final EventHandler<TestEventA> eventHandler = new TestEventHandlerA(procSet);
 
-    WakeSharedPool p = new WakeSharedPool(10);
+    final WakeSharedPool p = new WakeSharedPool(10);
 
-    EStage<TestEventA> stage1 = new ForkPoolStage<TestEventA>(eventHandler, p);
-    EStage<TestEventA> stage2 = new ForkPoolStage<TestEventA>(eventHandler, p);
+    final EStage<TestEventA> stage1 = new ForkPoolStage<TestEventA>(eventHandler, p);
+    final EStage<TestEventA> stage2 = new ForkPoolStage<TestEventA>(eventHandler, p);
 
     for (int i = 0; i < 10; ++i) {
-      TestEventA a = new TestEventA();
+      final TestEventA a = new TestEventA();
       orgSet.add(a);
 
       stage1.onNext(a);
     }
     for (int i = 10; i < 20; ++i) {
-      TestEventA a = new TestEventA();
+      final TestEventA a = new TestEventA();
       orgSet.add(a);
 
       stage2.onNext(a);
@@ -109,21 +109,21 @@ public class ForkPoolStageTest {
   public void testMultiSharedPoolStage() throws Exception {
     System.out.println(LOG_PREFIX + name.getMethodName());
 
-    Set<TestEvent> procSet = Collections.synchronizedSet(new HashSet<TestEvent>());
-    Set<TestEvent> orgSet = Collections.synchronizedSet(new HashSet<TestEvent>());
+    final Set<TestEvent> procSet = Collections.synchronizedSet(new HashSet<TestEvent>());
+    final Set<TestEvent> orgSet = Collections.synchronizedSet(new HashSet<TestEvent>());
 
-    Map<Class<? extends TestEvent>, EventHandler<? extends TestEvent>> map
+    final Map<Class<? extends TestEvent>, EventHandler<? extends TestEvent>> map
         = new HashMap<Class<? extends TestEvent>, EventHandler<? extends TestEvent>>();
     map.put(TestEventA.class, new TestEventHandlerA(procSet));
     map.put(TestEventB.class, new TestEventHandlerB(procSet));
-    EventHandler<TestEvent> eventHandler = new MultiEventHandler<TestEvent>(map);
+    final EventHandler<TestEvent> eventHandler = new MultiEventHandler<TestEvent>(map);
 
-    WakeSharedPool p = new WakeSharedPool(10);
-    EStage<TestEvent> stage = new ForkPoolStage<TestEvent>(eventHandler, p);
+    final WakeSharedPool p = new WakeSharedPool(10);
+    final EStage<TestEvent> stage = new ForkPoolStage<TestEvent>(eventHandler, p);
 
     for (int i = 0; i < 10; ++i) {
-      TestEventA a = new TestEventA();
-      TestEventB b = new TestEventB();
+      final TestEventA a = new TestEventA();
+      final TestEventB b = new TestEventB();
       orgSet.add(a);
       orgSet.add(b);
 
@@ -144,11 +144,11 @@ public class ForkPoolStageTest {
   @Test
   public void testMeter() throws Exception {
     System.out.println(LOG_PREFIX + name.getMethodName());
-    WakeSharedPool p = new WakeSharedPool(10);
-    EventHandler<TestEvent> eventHandler = new TestEventHandler();
-    ForkPoolStage<TestEvent> stage = new ForkPoolStage<TestEvent>(eventHandler, p);
+    final WakeSharedPool p = new WakeSharedPool(10);
+    final EventHandler<TestEvent> eventHandler = new TestEventHandler();
+    final ForkPoolStage<TestEvent> stage = new ForkPoolStage<TestEvent>(eventHandler, p);
 
-    TestEvent e = new TestEvent();
+    final TestEvent e = new TestEvent();
     for (int i = 0; i < 1000000; ++i) {
       stage.onNext(e);
     }
@@ -161,12 +161,12 @@ public class ForkPoolStageTest {
   @Test
   public void testMeterTwoStages() throws Exception {
     System.out.println(LOG_PREFIX + name.getMethodName());
-    WakeSharedPool p = new WakeSharedPool(10);
-    EventHandler<TestEvent> eventHandler = new TestEventHandler();
-    ForkPoolStage<TestEvent> stage2 = new ForkPoolStage<TestEvent>(eventHandler, p);
-    ForkPoolStage<TestEvent> stage1 = new ForkPoolStage<TestEvent>(stage2, p);
+    final WakeSharedPool p = new WakeSharedPool(10);
+    final EventHandler<TestEvent> eventHandler = new TestEventHandler();
+    final ForkPoolStage<TestEvent> stage2 = new ForkPoolStage<TestEvent>(eventHandler, p);
+    final ForkPoolStage<TestEvent> stage1 = new ForkPoolStage<TestEvent>(stage2, p);
 
-    TestEvent e = new TestEvent();
+    final TestEvent e = new TestEvent();
     for (int i = 0; i < 1000000; ++i) {
       stage1.onNext(e);
     }
@@ -195,7 +195,7 @@ public class ForkPoolStageTest {
     TestEventHandler() {
     }
 
-    public void onNext(TestEvent e) {
+    public void onNext(final TestEvent e) {
       // no op
     }
   }
@@ -203,11 +203,11 @@ public class ForkPoolStageTest {
   class TestEventHandlerA implements EventHandler<TestEventA> {
     private final Set<TestEvent> set;
 
-    TestEventHandlerA(Set<TestEvent> set) {
+    TestEventHandlerA(final Set<TestEvent> set) {
       this.set = set;
     }
 
-    public void onNext(TestEventA e) {
+    public void onNext(final TestEventA e) {
       set.add(e);
       System.out.println("TestEventHandlerA " + e);
     }
@@ -216,11 +216,11 @@ public class ForkPoolStageTest {
   class TestEventHandlerB implements EventHandler<TestEventB> {
     private final Set<TestEvent> set;
 
-    TestEventHandlerB(Set<TestEvent> set) {
+    TestEventHandlerB(final Set<TestEvent> set) {
       this.set = set;
     }
 
-    public void onNext(TestEventB e) {
+    public void onNext(final TestEventB e) {
       set.add(e);
       System.out.println("TestEventHandlerB " + e);
     }

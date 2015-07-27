@@ -25,7 +25,7 @@ import java.net.URISyntaxException;
 public class FileIdentifier implements StorageIdentifier {
   private final File f;
 
-  public FileIdentifier(String s) throws URISyntaxException {
+  public FileIdentifier(final String s) throws URISyntaxException {
     f = new File(new URI(s));
   }
 
@@ -35,7 +35,7 @@ public class FileIdentifier implements StorageIdentifier {
   }
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(final Object o) {
     if (!(o instanceof FileIdentifier)) {
       return false;
     }

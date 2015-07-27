@@ -44,13 +44,13 @@ public final class WakeConfiguration {
     if (confFileName.equals("")) {
       LOG.log(Level.WARNING, "The Wake configuration file is not specified.");
     } else {
-      Tang t = Tang.Factory.getTang();
-      JavaConfigurationBuilder cb = t.newConfigurationBuilder();
+      final Tang t = Tang.Factory.getTang();
+      final JavaConfigurationBuilder cb = t.newConfigurationBuilder();
       try {
         ConfigurationFile.addConfiguration(cb, new File(confFileName));
-      } catch (BindException e) {
+      } catch (final BindException e) {
         throw new WakeRuntimeException(e);
-      } catch (IOException e) {
+      } catch (final IOException e) {
         throw new WakeRuntimeException(e);
       }
     }

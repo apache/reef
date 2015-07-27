@@ -186,7 +186,7 @@ public class GroupCommDriverImpl implements GroupCommServiceDriver {
     NameResolver nameResolver = null;
     try {
       nameResolver = injector.getInstance(NameResolver.class);
-    } catch (InjectionException e) {
+    } catch (final InjectionException e) {
       throw new RuntimeException(e);
     }
 

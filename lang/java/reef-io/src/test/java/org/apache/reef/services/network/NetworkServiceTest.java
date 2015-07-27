@@ -70,14 +70,14 @@ public class NetworkServiceTest {
   public void testMessagingNetworkService() throws Exception {
     LOG.log(Level.FINEST, name.getMethodName());
 
-    IdentifierFactory factory = new StringIdentifierFactory();
+    final IdentifierFactory factory = new StringIdentifierFactory();
 
     final Injector injector = Tang.Factory.getTang().newInjector();
     injector.bindVolatileParameter(NameServerParameters.NameServerIdentifierFactory.class, factory);
     injector.bindVolatileInstance(LocalAddressProvider.class, this.localAddressProvider);
 
     try (final NameServer server = injector.getInstance(NameServer.class)) {
-      int nameServerPort = server.getPort();
+      final int nameServerPort = server.getPort();
 
       final int numMessages = 10;
       final Monitor monitor = new Monitor();
@@ -121,7 +121,7 @@ public class NetworkServiceTest {
           }
           monitor.mwait();
 
-        } catch (NetworkException e) {
+        } catch (final NetworkException e) {
           e.printStackTrace();
           throw new RuntimeException(e);
         }
@@ -136,18 +136,18 @@ public class NetworkServiceTest {
   public void testMessagingNetworkServiceRate() throws Exception {
     LOG.log(Level.FINEST, name.getMethodName());
 
-    IdentifierFactory factory = new StringIdentifierFactory();
+    final IdentifierFactory factory = new StringIdentifierFactory();
 
     final Injector injector = Tang.Factory.getTang().newInjector();
     injector.bindVolatileParameter(NameServerParameters.NameServerIdentifierFactory.class, factory);
     injector.bindVolatileInstance(LocalAddressProvider.class, this.localAddressProvider);
 
     try (final NameServer server = injector.getInstance(NameServer.class)) {
-      int nameServerPort = server.getPort();
+      final int nameServerPort = server.getPort();
 
       final int[] messageSizes = {1, 16, 32, 64, 512, 64 * 1024, 1024 * 1024};
 
-      for (int size : messageSizes) {
+      for (final int size : messageSizes) {
         final int numMessages = 300000 / (Math.max(1, size / 512));
         final Monitor monitor = new Monitor();
 
@@ -181,28 +181,28 @@ public class NetworkServiceTest {
           final int port1 = ns1.getTransport().getListeningPort();
           server.register(factory.getNewInstance("task1"), new InetSocketAddress(this.localAddress, port1));
 
-          Identifier destId = factory.getNewInstance(name2);
+          final Identifier destId = factory.getNewInstance(name2);
 
           // build the message
-          StringBuilder msb = new StringBuilder();
+          final StringBuilder msb = new StringBuilder();
           for (int i = 0; i < size; i++) {
             msb.append("1");
           }
-          String message = msb.toString();
+          final String message = msb.toString();
 
-          long start = System.currentTimeMillis();
+          final long start = System.currentTimeMillis();
           try (Connection<String> conn = ns1.newConnection(destId)) {
             for (int i = 0; i < numMessages; i++) {
               conn.open();
               conn.write(message);
             }
             monitor.mwait();
-          } catch (NetworkException e) {
+          } catch (final NetworkException e) {
             e.printStackTrace();
             throw new RuntimeException(e);
           }
-          long end = System.currentTimeMillis();
-          double runtime = ((double) end - start) / 1000;
+          final long end = System.currentTimeMillis();
+          final double runtime = ((double) end - start) / 1000;
           LOG.log(Level.FINEST, "size: " + size + "; messages/s: " + numMessages / runtime +
               " bandwidth(bytes/s): " + ((double) numMessages * 2 * size) / runtime); // x2 for unicode chars
         }
@@ -226,14 +226,14 @@ public class NetworkServiceTest {
     try (final NameServer server = injector.getInstance(NameServer.class)) {
       final int nameServerPort = server.getPort();
 
-      BlockingQueue<Object> barrier = new LinkedBlockingQueue<Object>();
+      final BlockingQueue<Object> barrier = new LinkedBlockingQueue<Object>();
 
-      int numThreads = 4;
+      final int numThreads = 4;
       final int size = 2000;
       final int numMessages = 300000 / (Math.max(1, size / 512));
       final int totalNumMessages = numMessages * numThreads;
 
-      ExecutorService e = Executors.newCachedThreadPool();
+      final ExecutorService e = Executors.newCachedThreadPool();
       for (int t = 0; t < numThreads; t++) {
         final int tt = t;
 
@@ -241,7 +241,7 @@ public class NetworkServiceTest {
           @Override
           public void run() {
             try {
-              Monitor monitor = new Monitor();
+              final Monitor monitor = new Monitor();
 
               // network service
               final String name2 = "task2-" + tt;
@@ -274,14 +274,14 @@ public class NetworkServiceTest {
                 final int port1 = ns1.getTransport().getListeningPort();
                 server.register(factory.getNewInstance(name1), new InetSocketAddress(localAddress, port1));
 
-                Identifier destId = factory.getNewInstance(name2);
+                final Identifier destId = factory.getNewInstance(name2);
 
                 // build the message
-                StringBuilder msb = new StringBuilder();
+                final StringBuilder msb = new StringBuilder();
                 for (int i = 0; i < size; i++) {
                   msb.append("1");
                 }
-                String message = msb.toString();
+                final String message = msb.toString();
 
                 try (Connection<String> conn = ns1.newConnection(destId)) {
                   for (int i = 0; i < numMessages; i++) {
@@ -289,12 +289,12 @@ public class NetworkServiceTest {
                     conn.write(message);
                   }
                   monitor.mwait();
-                } catch (NetworkException e) {
+                } catch (final NetworkException e) {
                   e.printStackTrace();
                   throw new RuntimeException(e);
                 }
               }
-            } catch (Exception e) {
+            } catch (final Exception e) {
               e.printStackTrace();
               throw new RuntimeException(e);
             }
@@ -303,16 +303,16 @@ public class NetworkServiceTest {
       }
 
       // start and time
-      long start = System.currentTimeMillis();
-      Object ignore = new Object();
+      final long start = System.currentTimeMillis();
+      final Object ignore = new Object();
       for (int i = 0; i < numThreads; i++) {
         barrier.add(ignore);
       }
       e.shutdown();
       e.awaitTermination(100, TimeUnit.SECONDS);
-      long end = System.currentTimeMillis();
+      final long end = System.currentTimeMillis();
 
-      double runtime = ((double) end - start) / 1000;
+      final double runtime = ((double) end - start) / 1000;
       LOG.log(Level.FINEST, "size: " + size + "; messages/s: " + totalNumMessages / runtime + 
           " bandwidth(bytes/s): " + ((double) totalNumMessages * 2 * size) / runtime); // x2 for unicode chars
     }
@@ -322,20 +322,20 @@ public class NetworkServiceTest {
   public void testMultithreadedSharedConnMessagingNetworkServiceRate() throws Exception {
     LOG.log(Level.FINEST, name.getMethodName());
 
-    IdentifierFactory factory = new StringIdentifierFactory();
+    final IdentifierFactory factory = new StringIdentifierFactory();
 
     final Injector injector = Tang.Factory.getTang().newInjector();
     injector.bindVolatileParameter(NameServerParameters.NameServerIdentifierFactory.class, factory);
     injector.bindVolatileInstance(LocalAddressProvider.class, this.localAddressProvider);
     try (final NameServer server = injector.getInstance(NameServer.class)) {
-      int nameServerPort = server.getPort();
+      final int nameServerPort = server.getPort();
 
       final int[] messageSizes = {2000}; // {1,16,32,64,512,64*1024,1024*1024};
 
-      for (int size : messageSizes) {
+      for (final int size : messageSizes) {
         final int numMessages = 300000 / (Math.max(1, size / 512));
-        int numThreads = 2;
-        int totalNumMessages = numMessages * numThreads;
+        final int numThreads = 2;
+        final int totalNumMessages = numMessages * numThreads;
         final Monitor monitor = new Monitor();
 
 
@@ -370,21 +370,21 @@ public class NetworkServiceTest {
           final int port1 = ns1.getTransport().getListeningPort();
           server.register(factory.getNewInstance("task1"), new InetSocketAddress(this.localAddress, port1));
 
-          Identifier destId = factory.getNewInstance(name2);
+          final Identifier destId = factory.getNewInstance(name2);
 
           try (final Connection<String> conn = ns1.newConnection(destId)) {
             conn.open();
 
             // build the message
-            StringBuilder msb = new StringBuilder();
+            final StringBuilder msb = new StringBuilder();
             for (int i = 0; i < size; i++) {
               msb.append("1");
             }
             final String message = msb.toString();
 
-            ExecutorService e = Executors.newCachedThreadPool();
+            final ExecutorService e = Executors.newCachedThreadPool();
 
-            long start = System.currentTimeMillis();
+            final long start = System.currentTimeMillis();
             for (int i = 0; i < numThreads; i++) {
               e.submit(new Runnable() {
 
@@ -402,8 +402,8 @@ public class NetworkServiceTest {
             e.awaitTermination(30, TimeUnit.SECONDS);
             monitor.mwait();
 
-            long end = System.currentTimeMillis();
-            double runtime = ((double) end - start) / 1000;
+            final long end = System.currentTimeMillis();
+            final double runtime = ((double) end - start) / 1000;
 
             LOG.log(Level.FINEST, "size: " + size + "; messages/s: " + totalNumMessages / runtime + 
                 " bandwidth(bytes/s): " + ((double) totalNumMessages * 2 * size) / runtime); // x2 for unicode chars
@@ -420,19 +420,19 @@ public class NetworkServiceTest {
   public void testMessagingNetworkServiceBatchingRate() throws Exception {
     LOG.log(Level.FINEST, name.getMethodName());
 
-    IdentifierFactory factory = new StringIdentifierFactory();
+    final IdentifierFactory factory = new StringIdentifierFactory();
 
     final Injector injector = Tang.Factory.getTang().newInjector();
     injector.bindVolatileParameter(NameServerParameters.NameServerIdentifierFactory.class, factory);
     injector.bindVolatileInstance(LocalAddressProvider.class, this.localAddressProvider);
 
     try (final NameServer server = injector.getInstance(NameServer.class)) {
-      int nameServerPort = server.getPort();
+      final int nameServerPort = server.getPort();
 
       final int batchSize = 1024 * 1024;
       final int[] messageSizes = {32, 64, 512};
 
-      for (int size : messageSizes) {
+      for (final int size : messageSizes) {
         final int numMessages = 300 / (Math.max(1, size / 512));
         final Monitor monitor = new Monitor();
 
@@ -466,19 +466,19 @@ public class NetworkServiceTest {
           final int port1 = ns1.getTransport().getListeningPort();
           server.register(factory.getNewInstance("task1"), new InetSocketAddress(this.localAddress, port1));
 
-          Identifier destId = factory.getNewInstance(name2);
+          final Identifier destId = factory.getNewInstance(name2);
 
           // build the message
-          StringBuilder msb = new StringBuilder();
+          final StringBuilder msb = new StringBuilder();
           for (int i = 0; i < size; i++) {
             msb.append("1");
           }
-          String message = msb.toString();
+          final String message = msb.toString();
 
-          long start = System.currentTimeMillis();
+          final long start = System.currentTimeMillis();
           try (Connection<String> conn = ns1.newConnection(destId)) {
             for (int i = 0; i < numMessages; i++) {
-              StringBuilder sb = new StringBuilder();
+              final StringBuilder sb = new StringBuilder();
               for (int j = 0; j < batchSize / size; j++) {
                 sb.append(message);
               }
@@ -486,13 +486,13 @@ public class NetworkServiceTest {
               conn.write(sb.toString());
             }
             monitor.mwait();
-          } catch (NetworkException e) {
+          } catch (final NetworkException e) {
             e.printStackTrace();
             throw new RuntimeException(e);
           }
-          long end = System.currentTimeMillis();
-          double runtime = ((double) end - start) / 1000;
-          long numAppMessages = numMessages * batchSize / size;
+          final long end = System.currentTimeMillis();
+          final double runtime = ((double) end - start) / 1000;
+          final long numAppMessages = numMessages * batchSize / size;
           LOG.log(Level.FINEST, "size: " + size + "; messages/s: " + numAppMessages / runtime +
               " bandwidth(bytes/s): " + ((double) numAppMessages * 2 * size) / runtime); // x2 for unicode chars
         }
@@ -510,14 +510,14 @@ public class NetworkServiceTest {
     private final Monitor monitor;
     private AtomicInteger count = new AtomicInteger(0);
 
-    MessageHandler(String name, Monitor monitor, int expected) {
+    MessageHandler(final String name, final Monitor monitor, final int expected) {
       this.name = name;
       this.monitor = monitor;
       this.expected = expected;
     }
 
     @Override
-    public void onNext(Message<T> value) {
+    public void onNext(final Message<T> value) {
 
       count.incrementAndGet();
 
@@ -540,7 +540,7 @@ public class NetworkServiceTest {
    */
   class ExceptionHandler implements EventHandler<Exception> {
     @Override
-    public void onNext(Exception error) {
+    public void onNext(final Exception error) {
       System.err.println(error);
     }
   }

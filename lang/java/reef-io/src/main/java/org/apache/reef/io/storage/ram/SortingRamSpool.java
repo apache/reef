@@ -31,7 +31,7 @@ public class SortingRamSpool<T> implements Spool<T> {
   private boolean ready = false;
   private Accumulator<T> acc = new Accumulator<T>() {
     @Override
-    public void add(T datum) throws StorageException {
+    public void add(final T datum) throws StorageException {
       if (ready) {
         throw new IllegalStateException("add called after close!");
       }
@@ -67,7 +67,7 @@ public class SortingRamSpool<T> implements Spool<T> {
     heap = new PriorityQueue<>();
   }
 
-  public SortingRamSpool(Comparator<T> c) {
+  public SortingRamSpool(final Comparator<T> c) {
     heap = new PriorityQueue<>(11, c);
   }
 
@@ -76,14 +76,14 @@ public class SortingRamSpool<T> implements Spool<T> {
     if (!ready) {
       throw new IllegalStateException("Cannot call iterator() while accumulator is still open!");
     }
-    Iterator<T> ret = it;
+    final Iterator<T> ret = it;
     it = null;
     return ret;
   }
 
   @Override
   public Accumulator<T> accumulator() throws StorageException {
-    Accumulator<T> ret = acc;
+    final Accumulator<T> ret = acc;
     acc = null;
     return ret;
   }

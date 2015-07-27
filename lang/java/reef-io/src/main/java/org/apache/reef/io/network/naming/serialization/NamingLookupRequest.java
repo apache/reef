@@ -31,7 +31,7 @@ public class NamingLookupRequest extends NamingMessage {
    *
    * @param ids the iterable of identifiers
    */
-  public NamingLookupRequest(Iterable<Identifier> ids) {
+  public NamingLookupRequest(final Iterable<Identifier> ids) {
     this.ids = ids;
   }
 

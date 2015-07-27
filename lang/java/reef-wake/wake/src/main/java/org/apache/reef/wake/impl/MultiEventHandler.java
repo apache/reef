@@ -37,7 +37,7 @@ public class MultiEventHandler<T> implements EventHandler<T> {
    *
    * @param map a map of class types to event handlers
    */
-  public MultiEventHandler(Map<Class<? extends T>, EventHandler<? extends T>> map) {
+  public MultiEventHandler(final Map<Class<? extends T>, EventHandler<? extends T>> map) {
     this.map = map;
   }
 
@@ -48,8 +48,8 @@ public class MultiEventHandler<T> implements EventHandler<T> {
    * @throws WakeRuntimeException
    */
   @Override
-  public void onNext(T event) {
-    EventHandler<T> handler = (EventHandler<T>) map.get(event.getClass());
+  public void onNext(final T event) {
+    final EventHandler<T> handler = (EventHandler<T>) map.get(event.getClass());
     if (handler == null) {
       throw new WakeRuntimeException("No event " + event.getClass() + " handler");
     }

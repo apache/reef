@@ -34,7 +34,7 @@ public class Subscription<T> implements AutoCloseable {
    * @param token            the token for finding the subscription
    * @param handlerContainer the container managing handlers
    */
-  public Subscription(T token, HandlerContainer<T> handlerContainer) {
+  public Subscription(final T token, final HandlerContainer<T> handlerContainer) {
     this.token = token;
     this.container = handlerContainer;
   }

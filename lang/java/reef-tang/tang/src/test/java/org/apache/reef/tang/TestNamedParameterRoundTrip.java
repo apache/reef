@@ -47,7 +47,7 @@ public class TestNamedParameterRoundTrip {
     assertEquals(d, readD1);
 
 
-    JavaConfigurationBuilder roundTrip2 = Tang.Factory.getTang().newConfigurationBuilder();
+    final JavaConfigurationBuilder roundTrip2 = Tang.Factory.getTang().newConfigurationBuilder();
     ConfigurationFile.addConfiguration(roundTrip2, ConfigurationFile.toConfigurationString(conf));
     final Injector i2 = Tang.Factory.getTang().newInjector(roundTrip2.build());
 

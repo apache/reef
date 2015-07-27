@@ -61,7 +61,7 @@ public class TestClassHierarchy {
     serializer = Tang.Factory.getTang().newInjector().getInstance(ClassHierarchySerializer.class);
   }
 
-  public String s(Class<?> c) {
+  public String s(final Class<?> c) {
     return ReflectionUtilities.getFullName(c);
   }
 
@@ -71,28 +71,28 @@ public class TestClassHierarchy {
     Node n = null;
     try {
       n = ns.getNode("java");
-    } catch (NameResolutionException e) {
+    } catch (final NameResolutionException e) {
     }
     Assert.assertNull(n);
     try {
       n = ns.getNode("java.lang");
-    } catch (NameResolutionException e) {
+    } catch (final NameResolutionException e) {
     }
     Assert.assertNull(n);
     Assert.assertNotNull(ns.getNode("java.lang.String"));
     try {
       ns.getNode("com.microsoft");
       Assert.fail("Didn't get expected exception");
-    } catch (NameResolutionException e) {
+    } catch (final NameResolutionException e) {
 
     }
   }
 
   @Test
   public void testSimpleConstructors() throws NameResolutionException {
-    ClassNode<?> cls = (ClassNode<?>) ns.getNode(s(SimpleConstructors.class));
+    final ClassNode<?> cls = (ClassNode<?>) ns.getNode(s(SimpleConstructors.class));
     Assert.assertTrue(cls.getChildren().size() == 0);
-    ConstructorDef<?>[] def = cls.getInjectableConstructors();
+    final ConstructorDef<?>[] def = cls.getInjectableConstructors();
     Assert.assertEquals(3, def.length);
   }
 
@@ -304,23 +304,23 @@ public class TestClassHierarchy {
 
   @Test
   public void testRoundTripInnerClassNames() throws ClassNotFoundException, NameResolutionException {
-    Node n = ns.getNode(s(Nested.Inner.class));
+    final Node n = ns.getNode(s(Nested.Inner.class));
     Class.forName(n.getFullName());
   }
 
   @Test
   public void testRoundTripAnonInnerClassNames() throws ClassNotFoundException, NameResolutionException {
-    Node n = ns.getNode(s(AnonNested.x.getClass()));
-    Node m = ns.getNode(s(AnonNested.y.getClass()));
+    final Node n = ns.getNode(s(AnonNested.x.getClass()));
+    final Node m = ns.getNode(s(AnonNested.y.getClass()));
     Assert.assertNotSame(n.getFullName(), m.getFullName());
-    Class<?> c = Class.forName(n.getFullName());
-    Class<?> d = Class.forName(m.getFullName());
+    final Class<?> c = Class.forName(n.getFullName());
+    final Class<?> d = Class.forName(m.getFullName());
     Assert.assertNotSame(c, d);
   }
 
   @Test
   public void testUnitIsInjectable() throws InjectionException, NameResolutionException {
-    ClassNode<?> n = (ClassNode<?>) ns.getNode(s(OuterUnitTH.class));
+    final ClassNode<?> n = (ClassNode<?>) ns.getNode(s(OuterUnitTH.class));
     Assert.assertTrue(n.isUnit());
     Assert.assertTrue(n.isInjectionCandidate());
   }
@@ -394,21 +394,21 @@ class SimpleConstructors {
   }
 
   @Inject
-  public SimpleConstructors(int x) {
+  public SimpleConstructors(final int x) {
   }
 
-  public SimpleConstructors(String x) {
+  public SimpleConstructors(final String x) {
   }
 
   @Inject
-  public SimpleConstructors(int x, String y) {
+  public SimpleConstructors(final int x, final String y) {
   }
 }
 
 class NamedParameterConstructors {
 
   @Inject
-  public NamedParameterConstructors(String x, @Parameter(X.class) String y) {
+  public NamedParameterConstructors(final String x, @Parameter(X.class) final String y) {
   }
 
   @NamedParameter()
@@ -418,7 +418,7 @@ class NamedParameterConstructors {
 
 class RepeatConstructorArg {
   @Inject
-  public RepeatConstructorArg(int x, int y) {
+  public RepeatConstructorArg(final int x, final int y) {
   }
 }
 
@@ -427,7 +427,7 @@ class A {
 
 class RepeatConstructorArgClasses {
   @Inject
-  public RepeatConstructorArgClasses(A x, A y) {
+  public RepeatConstructorArgClasses(final A x, final A y) {
   }
 }
 
@@ -445,7 +445,7 @@ class LeafRepeatedConstructorArgClasses {
 
   static class C {
     @Inject
-    C(A.AA a, B.AA b) {
+    C(final A.AA a, final B.AA b) {
     }
   }
 }
@@ -460,15 +460,15 @@ class BB implements Name<A> {
 
 class NamedRepeatConstructorArgClasses {
   @Inject
-  public NamedRepeatConstructorArgClasses(@Parameter(AA.class) A x,
-                                          @Parameter(BB.class) A y) {
+  public NamedRepeatConstructorArgClasses(@Parameter(AA.class) final A x,
+                                          @Parameter(BB.class) final A y) {
   }
 }
 
 class DocumentedLocalNamedParameter {
 
   @Inject
-  public DocumentedLocalNamedParameter(@Parameter(Foo.class) String s) {
+  public DocumentedLocalNamedParameter(@Parameter(Foo.class) final String s) {
   }
 
   @NamedParameter(doc = "doc stuff", default_value = "some value")
@@ -479,7 +479,7 @@ class DocumentedLocalNamedParameter {
 class NamedParameterTypeMismatch {
 
   @Inject
-  public NamedParameterTypeMismatch(@Parameter(Foo.class) String s) {
+  public NamedParameterTypeMismatch(@Parameter(Foo.class) final String s) {
   }
 
   @NamedParameter(doc = "doc.stuff", default_value = "1")
@@ -512,7 +512,7 @@ class AnnotatedNameMultipleInterfaces implements Name<Object>, I1 {
 
 @NamedParameter()
 final class NameWithConstructor implements Name<Object> {
-  private NameWithConstructor(int i) {
+  private NameWithConstructor(final int i) {
   }
 }
 
@@ -577,7 +577,7 @@ class GenericTorture12 implements Name<List<List<String>>> {
 
 class InjectNonStaticLocalArgClass {
   @Inject
-  InjectNonStaticLocalArgClass(NonStaticLocal x) {
+  InjectNonStaticLocalArgClass(final NonStaticLocal x) {
   }
 
   class NonStaticLocal {
@@ -587,7 +587,7 @@ class InjectNonStaticLocalArgClass {
 class InjectNonStaticLocalType {
   class NonStaticLocal {
     @Inject
-    NonStaticLocal(NonStaticLocal x) {
+    NonStaticLocal(final NonStaticLocal x) {
     }
   }
 }
@@ -655,6 +655,6 @@ class SomeName implements Name<Integer> {
 }
 
 class NonInjectableParam {
-  public NonInjectableParam(@Parameter(SomeName.class) int i) {
+  public NonInjectableParam(@Parameter(SomeName.class) final int i) {
   }
 }

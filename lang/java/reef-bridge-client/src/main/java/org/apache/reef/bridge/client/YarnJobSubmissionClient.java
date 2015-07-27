@@ -156,11 +156,13 @@ public final class YarnJobSubmissionClient {
     }
   }
 
-  private static Configuration getRuntimeConfiguration(int tcpBeginPort, int tcpRangeCount, int tcpTryCount) {
-    Configuration yarnClientConfig = YarnClientConfiguration.CONF
+  private static Configuration getRuntimeConfiguration(final int tcpBeginPort,
+                                                       final int tcpRangeCount,
+                                                       final int tcpTryCount) {
+    final Configuration yarnClientConfig = YarnClientConfiguration.CONF
         .build();
 
-    Configuration providerConfig = Tang.Factory.getTang().newConfigurationBuilder()
+    final Configuration providerConfig = Tang.Factory.getTang().newConfigurationBuilder()
         .bindSetEntry(DriverConfigurationProviders.class, TcpPortConfigurationProvider.class)
         .bindNamedParameter(TcpPortRangeBegin.class, Integer.toString(tcpBeginPort))
         .bindNamedParameter(TcpPortRangeCount.class, Integer.toString(tcpRangeCount))

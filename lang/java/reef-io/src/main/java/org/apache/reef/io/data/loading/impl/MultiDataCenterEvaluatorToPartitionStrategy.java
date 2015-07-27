@@ -134,19 +134,20 @@ public final class MultiDataCenterEvaluatorToPartitionStrategy extends AbstractE
     concurrentMap.get(location).add(numberedSplit);
   }
 
-  private String normalize(String location) {
+  private String normalize(final String location) {
+    String loc = location;
     // should start with a separator
-    if (!location.startsWith(PATH_SEPARATOR)) {
-      location = PATH_SEPARATOR + location;
+    if (!loc.startsWith(PATH_SEPARATOR)) {
+      loc = PATH_SEPARATOR + loc;
     }
     // if it is just /*, return /
-    if (location.equals(PATH_SEPARATOR + ANY)) {
+    if (loc.equals(PATH_SEPARATOR + ANY)) {
       return PATH_SEPARATOR;
     }
     // remove the ending ANY or path separator
-    while (location.endsWith(ANY) || location.endsWith(PATH_SEPARATOR)) {
-      location = location.substring(0, location.length() - 1);
+    while (loc.endsWith(ANY) || loc.endsWith(PATH_SEPARATOR)) {
+      loc = loc.substring(0, loc.length() - 1);
     }
-    return location;
+    return loc;
   }
 }

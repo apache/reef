@@ -43,7 +43,7 @@ public class StatePassingTask implements Task {
 
 
   @Override
-  public byte[] call(byte[] memento) throws Exception {
+  public byte[] call(final byte[] memento) throws Exception {
     this.c.increment();
     return makeArray(this.c.getValue(), (byte) 1);
   }

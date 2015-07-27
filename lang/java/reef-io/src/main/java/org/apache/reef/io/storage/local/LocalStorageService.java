@@ -29,7 +29,7 @@ public class LocalStorageService implements StorageService {
 
   private final LocalScratchSpace scratchSpace;
 
-  public LocalStorageService(String jobName, String evaluatorName) {
+  public LocalStorageService(final String jobName, final String evaluatorName) {
     this.jobName = jobName;
     this.evaluatorName = evaluatorName;
     this.scratchSpace = new LocalScratchSpace(jobName, evaluatorName);

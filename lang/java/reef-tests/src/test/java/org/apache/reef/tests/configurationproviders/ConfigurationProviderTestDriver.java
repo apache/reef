@@ -40,7 +40,7 @@ final class ConfigurationProviderTestDriver {
   private final Injector injector;
 
   @Inject
-  private ConfigurationProviderTestDriver(EvaluatorRequestor evaluatorRequestor, Injector injector) {
+  private ConfigurationProviderTestDriver(final EvaluatorRequestor evaluatorRequestor, final Injector injector) {
     this.evaluatorRequestor = evaluatorRequestor;
     this.injector = injector;
   }

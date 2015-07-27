@@ -28,30 +28,30 @@ import java.io.IOException;
 public class StreamingIntegerCodec implements StreamingCodec<Integer> {
 
   @Override
-  public void encodeToStream(Integer obj, DataOutputStream stream) {
+  public void encodeToStream(final Integer obj, final DataOutputStream stream) {
     try {
       stream.writeInt(obj);
-    } catch (IOException e) {
+    } catch (final IOException e) {
       throw new RuntimeException(e);
     }
   }
 
   @Override
-  public Integer decodeFromStream(DataInputStream stream) {
+  public Integer decodeFromStream(final DataInputStream stream) {
     try {
       return stream.readInt();
-    } catch (IOException e) {
+    } catch (final IOException e) {
       throw new RuntimeException(e);
     }
   }
 
   @Override
-  public Integer decode(byte[] data) {
+  public Integer decode(final byte[] data) {
     return null;
   }
 
   @Override
-  public byte[] encode(Integer obj) {
+  public byte[] encode(final Integer obj) {
     return new byte[0];
   }
 }

@@ -30,7 +30,7 @@ public abstract class AbstractNode implements Node {
   private final String name;
   private final String fullName;
 
-  public AbstractNode(Node parent, String name, String fullName) {
+  public AbstractNode(final Node parent, final String name, final String fullName) {
     this.parent = parent;
     this.name = name;
     this.fullName = fullName;
@@ -54,7 +54,7 @@ public abstract class AbstractNode implements Node {
   }
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(final Object o) {
     if (o == null) {
       return false;
     }
@@ -62,7 +62,7 @@ public abstract class AbstractNode implements Node {
       return true;
     }
 
-    AbstractNode n = (AbstractNode) o;
+    final AbstractNode n = (AbstractNode) o;
     final boolean parentsEqual;
     if (n.parent == this.parent) {
       parentsEqual = true;
@@ -90,29 +90,29 @@ public abstract class AbstractNode implements Node {
   }
 
   @Override
-  public boolean contains(String key) {
+  public boolean contains(final String key) {
     return children.containsKey(key);
   }
 
   @Override
-  public Node get(String key) {
+  public Node get(final String key) {
     return children.get(key);
   }
 
   @Override
-  public void put(Node n) {
+  public void put(final Node n) {
     children.put(n.getName(), n);
   }
 
   @SuppressWarnings("unused")
-  private String toIndentedString(int level) {
-    StringBuilder sb = new StringBuilder();
+  private String toIndentedString(final int level) {
+    final StringBuilder sb = new StringBuilder();
     for (int i = 0; i < level; i++) {
       sb.append("\t");
     }
     sb.append(toString() + "\n");
     if (children != null) {
-      for (Node n : children.values()) {
+      for (final Node n : children.values()) {
         sb.append(((AbstractNode) n).toIndentedString(level + 1));
       }
     }
@@ -130,7 +130,7 @@ public abstract class AbstractNode implements Node {
   }
 
   @Override
-  public int compareTo(Node n) {
+  public int compareTo(final Node n) {
     return getFullName().compareTo(n.getFullName());
   }
 }

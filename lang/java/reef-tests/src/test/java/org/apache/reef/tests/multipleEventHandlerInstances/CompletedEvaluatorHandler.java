@@ -45,7 +45,7 @@ public class CompletedEvaluatorHandler implements
   }
 
   @Override
-  public void onNext(CompletedEvaluator completedEvaluator) {
+  public void onNext(final CompletedEvaluator completedEvaluator) {
     LOG.log(Level.FINEST, "Received a completed evaluator");
   }
 

@@ -32,7 +32,7 @@ public class IdentifierParser implements ExternalConstructor<Identifier> {
 
   // TODO: Modify tang to allow this to use a factory pattern.
   static {
-    Map<String, Class<? extends Identifier>> map = new ConcurrentHashMap<>();
+    final Map<String, Class<? extends Identifier>> map = new ConcurrentHashMap<>();
 
     map.put("socket", SocketRemoteIdentifier.class);
     map.put("file", FileIdentifier.class);
@@ -43,7 +43,7 @@ public class IdentifierParser implements ExternalConstructor<Identifier> {
   final Identifier id;
 
   @Inject
-  IdentifierParser(String s) {
+  IdentifierParser(final String s) {
     id = FACTORY.getNewInstance(s);
   }
 

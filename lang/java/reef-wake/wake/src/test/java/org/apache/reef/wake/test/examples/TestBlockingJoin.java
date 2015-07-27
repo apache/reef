@@ -28,10 +28,10 @@ import org.junit.Test;
 public class TestBlockingJoin {
   @Test
   public void testJoin() throws Exception {
-    EventPrinter<TupleEvent> printer = new EventPrinter<>();
-    BlockingJoin join = new BlockingJoin(printer);
-    TupleSource left = new TupleSource(join.wireLeft(), 256, 8, true);
-    TupleSource right = new TupleSource(join.wireRight(), 256, 8, false);
+    final EventPrinter<TupleEvent> printer = new EventPrinter<>();
+    final BlockingJoin join = new BlockingJoin(printer);
+    final TupleSource left = new TupleSource(join.wireLeft(), 256, 8, true);
+    final TupleSource right = new TupleSource(join.wireRight(), 256, 8, false);
     left.close();
     right.close();
   }

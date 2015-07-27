@@ -107,11 +107,12 @@ public final class EnvironmentUtils {
    */
   @Deprecated
   public static <P extends Param> ConfigurationModule addAll(
-      ConfigurationModule config, final P param, final Iterable<String> values) {
+      final ConfigurationModule config, final P param, final Iterable<String> values) {
+    ConfigurationModule conf = config;
     for (final String val : values) {
-      config = config.set(param, val);
+      conf = conf.set(param, val);
     }
-    return config;
+    return conf;
   }
 
   /**

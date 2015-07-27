@@ -143,7 +143,7 @@ public final class NetworkConnectionServiceImpl implements NetworkConnectionServ
                                             final Codec<T> codec,
                                             final EventHandler<Message<T>> eventHandler,
                                             final LinkListener<Message<T>> linkListener) throws NetworkException {
-    String id = connFactoryId.toString();
+    final String id = connFactoryId.toString();
     if (connFactoryMap.get(id) != null) {
       throw new NetworkException("ConnectionFactory " + connFactoryId + " was already registered.");
     }
@@ -197,7 +197,7 @@ public final class NetworkConnectionServiceImpl implements NetworkConnectionServ
         throw new NetworkException("Lookup " + destId + " is null");
       }
       return transport.open(address, nsCodec, nsLinkListener);
-    } catch(Exception e) {
+    } catch(final Exception e) {
       e.printStackTrace();
       throw new NetworkException(e);
     }

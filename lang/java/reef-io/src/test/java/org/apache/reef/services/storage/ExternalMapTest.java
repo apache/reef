@@ -33,23 +33,23 @@ import java.util.*;
 public class ExternalMapTest {
   @Test
   public void testCodecRamMap() {
-    RamStorageService ramStore = new RamStorageService();
-    Codec<Integer> c = new IntegerCodec();
-    ExternalMap<Integer> m = new CodecRamMap<>(ramStore, c);
+    final RamStorageService ramStore = new RamStorageService();
+    final Codec<Integer> c = new IntegerCodec();
+    final ExternalMap<Integer> m = new CodecRamMap<>(ramStore, c);
     genericTest(m);
   }
 
   @Test
   public void testRamMap() {
-    RamStorageService ramStore = new RamStorageService();
-    ExternalMap<Integer> m = new RamMap<>(ramStore);
+    final RamStorageService ramStore = new RamStorageService();
+    final ExternalMap<Integer> m = new RamMap<>(ramStore);
     genericTest(m);
   }
 
 
-  void genericTest(ExternalMap<Integer> m) {
+  void genericTest(final ExternalMap<Integer> m) {
     m.put("foo", 42);
-    Map<String, Integer> smallMap = new HashMap<>();
+    final Map<String, Integer> smallMap = new HashMap<>();
     smallMap.put("bar", 43);
     smallMap.put("baz", 44);
 
@@ -63,19 +63,19 @@ public class ExternalMapTest {
     Assert.assertTrue(m.containsKey("bar"));
     Assert.assertFalse(m.containsKey("quuz"));
 
-    Set<String> barBaz = new HashSet<>();
+    final Set<String> barBaz = new HashSet<>();
     barBaz.add("bar");
     barBaz.add("baz");
     barBaz.add("quuz");
 
-    Iterable<Map.Entry<CharSequence, Integer>> it = m.getAll(barBaz);
+    final Iterable<Map.Entry<CharSequence, Integer>> it = m.getAll(barBaz);
 
-    Map<CharSequence, Integer> found = new TreeMap<>();
+    final Map<CharSequence, Integer> found = new TreeMap<>();
 
-    for (Map.Entry<CharSequence, Integer> e : it) {
+    for (final Map.Entry<CharSequence, Integer> e : it) {
       found.put(e.getKey(), e.getValue());
     }
-    Iterator<CharSequence> it2 = found.keySet().iterator();
+    final Iterator<CharSequence> it2 = found.keySet().iterator();
     Assert.assertTrue(it2.hasNext());
     CharSequence s = it2.next();
     Assert.assertEquals(s, "bar");

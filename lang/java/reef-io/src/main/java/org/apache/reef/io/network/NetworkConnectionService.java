@@ -47,7 +47,8 @@ import org.apache.reef.wake.remote.transport.LinkListener;
  * to the corresponding EventHandler registered in the ConnectionFactory.
  */
 @DefaultImplementation(NetworkConnectionServiceImpl.class)
-public interface NetworkConnectionService extends AutoCloseable {
+public interface
+    NetworkConnectionService extends AutoCloseable {
 
   /**
    * Registers an instance of ConnectionFactory corresponding to the connectionFactoryId.

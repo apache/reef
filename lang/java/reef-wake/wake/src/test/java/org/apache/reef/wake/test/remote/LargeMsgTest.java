@@ -79,24 +79,24 @@ public class LargeMsgTest {
   @Test
   public void testLargeWrite() throws Exception {
     LoggingUtils.setLoggingLevel(Level.FINE);
-    Monitor monitor = new Monitor();
-    TimerStage timer = new TimerStage(new TimeoutHandler(monitor), 20000, 20000);
+    final Monitor monitor = new Monitor();
+    final TimerStage timer = new TimerStage(new TimeoutHandler(monitor), 20000, 20000);
 
-    long dataSize = VALUES[0].length + VALUES[1].length + VALUES[2].length;
+    final long dataSize = VALUES[0].length + VALUES[1].length + VALUES[2].length;
 
-    EStage<TransportEvent> clientStage = new ThreadPoolStage<>("client1",
+    final EStage<TransportEvent> clientStage = new ThreadPoolStage<>("client1",
         new LoggingEventHandler<TransportEvent>(), 1, new LoggingEventHandler<Throwable>());
-    EStage<TransportEvent> serverStage = new ThreadPoolStage<>("server@7001",
+    final EStage<TransportEvent> serverStage = new ThreadPoolStage<>("server@7001",
         new ServerHandler(monitor, dataSize), 1, new LoggingEventHandler<Throwable>());
 
     final String hostAddress = this.localAddressProvider.getLocalAddress();
-    int port = 7001;
-    Transport transport = tpFactory.newInstance(hostAddress, port, clientStage, serverStage, 1, 10000);
+    final int port = 7001;
+    final Transport transport = tpFactory.newInstance(hostAddress, port, clientStage, serverStage, 1, 10000);
     final Link<byte[]> link = transport.open(new InetSocketAddress(hostAddress, port), new PassThroughEncoder(), null);
-    EStage<byte[]> writeSubmitter = new ThreadPoolStage<>("Submitter", new EventHandler<byte[]>() {
+    final EStage<byte[]> writeSubmitter = new ThreadPoolStage<>("Submitter", new EventHandler<byte[]>() {
 
       @Override
-      public void onNext(byte[] value) {
+      public void onNext(final byte[] value) {
         link.write(value);
       }
     }, 3, new LoggingEventHandler<Throwable>());
@@ -118,15 +118,15 @@ public class LargeMsgTest {
     private final long expectedSize;
     private long accSize;
 
-    ServerHandler(Monitor monitor, long expectedSize) {
+    ServerHandler(final Monitor monitor, final long expectedSize) {
       this.monitor = monitor;
       this.expectedSize = expectedSize;
       this.accSize = 0;
     }
 
     @Override
-    public void onNext(TransportEvent value) {
-      byte[] data = value.getData();
+    public void onNext(final TransportEvent value) {
+      final byte[] data = value.getData();
 
       switch (data.length) {
       case L_0:

@@ -52,7 +52,8 @@ public class OrderedRemoteReceiverStage implements EStage<TransportEvent> {
    * @param handler      the handler of remote events
    * @param errorHandler the exception handler
    */
-  public OrderedRemoteReceiverStage(EventHandler<RemoteEvent<byte[]>> handler, EventHandler<Throwable> errorHandler) {
+  public OrderedRemoteReceiverStage(
+      final EventHandler<RemoteEvent<byte[]>> handler, final EventHandler<Throwable> errorHandler) {
     this.streamMap = new ConcurrentHashMap<SocketAddress, OrderedEventStream>();
 
     this.pushExecutor = Executors.newCachedThreadPool(
@@ -67,7 +68,7 @@ public class OrderedRemoteReceiverStage implements EStage<TransportEvent> {
   }
 
   @Override
-  public void onNext(TransportEvent value) {
+  public void onNext(final TransportEvent value) {
     LOG.log(Level.FINEST, "{0}", value);
     pushStage.onNext(value);
   }
@@ -82,10 +83,10 @@ public class OrderedRemoteReceiverStage implements EStage<TransportEvent> {
         // wait for threads to finish for timeout
         if (!pushExecutor.awaitTermination(shutdownTimeout, TimeUnit.MILLISECONDS)) {
           LOG.log(Level.WARNING, "Executor did not terminate in " + shutdownTimeout + "ms.");
-          List<Runnable> droppedRunnables = pushExecutor.shutdownNow();
+          final List<Runnable> droppedRunnables = pushExecutor.shutdownNow();
           LOG.log(Level.WARNING, "Executor dropped " + droppedRunnables.size() + " tasks.");
         }
-      } catch (InterruptedException e) {
+      } catch (final InterruptedException e) {
         LOG.log(Level.WARNING, "Close interrupted");
         throw new RemoteRuntimeException(e);
       }
@@ -97,10 +98,10 @@ public class OrderedRemoteReceiverStage implements EStage<TransportEvent> {
         // wait for threads to finish for timeout
         if (!pullExecutor.awaitTermination(shutdownTimeout, TimeUnit.MILLISECONDS)) {
           LOG.log(Level.WARNING, "Executor did not terminate in " + shutdownTimeout + "ms.");
-          List<Runnable> droppedRunnables = pullExecutor.shutdownNow();
+          final List<Runnable> droppedRunnables = pullExecutor.shutdownNow();
           LOG.log(Level.WARNING, "Executor dropped " + droppedRunnables.size() + " tasks.");
         }
-      } catch (InterruptedException e) {
+      } catch (final InterruptedException e) {
         LOG.log(Level.WARNING, "Close interrupted");
         throw new RemoteRuntimeException(e);
       }
@@ -116,16 +117,16 @@ class OrderedPushEventHandler implements EventHandler<TransportEvent> {
   private final ConcurrentMap<SocketAddress, OrderedEventStream> streamMap; // per remote address
   private final ThreadPoolStage<OrderedEventStream> pullStage;
 
-  OrderedPushEventHandler(ConcurrentMap<SocketAddress, OrderedEventStream> streamMap,
-                          ThreadPoolStage<OrderedEventStream> pullStage) {
+  OrderedPushEventHandler(final ConcurrentMap<SocketAddress, OrderedEventStream> streamMap,
+                          final ThreadPoolStage<OrderedEventStream> pullStage) {
     this.codec = new RemoteEventCodec<byte[]>(new ByteCodec());
     this.streamMap = streamMap;
     this.pullStage = pullStage;
   }
 
   @Override
-  public void onNext(TransportEvent value) {
-    RemoteEvent<byte[]> re = codec.decode(value.getData());
+  public void onNext(final TransportEvent value) {
+    final RemoteEvent<byte[]> re = codec.decode(value.getData());
     re.setLocalAddress(value.getLocalAddress());
     re.setRemoteAddress(value.getRemoteAddress());
 
@@ -135,7 +136,7 @@ class OrderedPushEventHandler implements EventHandler<TransportEvent> {
 
     LOG.log(Level.FINER, "Value length is {0}", value.getData().length);
 
-    SocketAddress addr = re.remoteAddress();
+    final SocketAddress addr = re.remoteAddress();
     OrderedEventStream stream = streamMap.get(re.remoteAddress());
     if (stream == null) {
       stream = new OrderedEventStream();
@@ -154,12 +155,12 @@ class OrderedPullEventHandler implements EventHandler<OrderedEventStream> {
 
   private final EventHandler<RemoteEvent<byte[]>> handler;
 
-  OrderedPullEventHandler(EventHandler<RemoteEvent<byte[]>> handler) {
+  OrderedPullEventHandler(final EventHandler<RemoteEvent<byte[]>> handler) {
     this.handler = handler;
   }
 
   @Override
-  public void onNext(OrderedEventStream stream) {
+  public void onNext(final OrderedEventStream stream) {
     if (LOG.isLoggable(Level.FINER)) {
       LOG.log(Level.FINER, "{0}", stream);
     }
@@ -183,7 +184,7 @@ class OrderedEventStream {
     nextSeq = 0;
   }
 
-  synchronized void add(RemoteEvent<byte[]> event) {
+  synchronized void add(final RemoteEvent<byte[]> event) {
     queue.add(event);
   }
 

@@ -47,7 +47,7 @@ public final class BlockingSignalEventHandler<T> implements EventHandler<T> {
 
   @Override
   public void onNext(final T event) {
-    int newSize = this.cursor.incrementAndGet();
+    final int newSize = this.cursor.incrementAndGet();
 
     if (newSize % expectedSize == 0) {
       this.destination.onNext(event);

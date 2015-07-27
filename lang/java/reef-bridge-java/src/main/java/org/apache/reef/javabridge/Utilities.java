@@ -32,7 +32,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public final class Utilities {
-  public static ClassHierarchy loadClassHierarchy(String classHierarchyFile) {
+  public static ClassHierarchy loadClassHierarchy(final String classHierarchyFile) {
     // TODO The file should be created via AvroClassHierarchySerializer
     Path p = Paths.get(classHierarchyFile);
     if (!Files.exists(p)) {
@@ -52,8 +52,8 @@ public final class Utilities {
     }
   }
 
-  public static String getEvaluatorDescriptorString(EvaluatorDescriptor evaluatorDescriptor) {
-    InetSocketAddress socketAddress = evaluatorDescriptor.getNodeDescriptor().getInetSocketAddress();
+  public static String getEvaluatorDescriptorString(final EvaluatorDescriptor evaluatorDescriptor) {
+    final InetSocketAddress socketAddress = evaluatorDescriptor.getNodeDescriptor().getInetSocketAddress();
     return "IP=" + socketAddress.getAddress() + ", Port=" + socketAddress.getPort() + ", HostName=" +
         socketAddress.getHostName() + ", Memory=" + evaluatorDescriptor.getMemory() + ", Core=" +
         evaluatorDescriptor.getNumberOfCores();

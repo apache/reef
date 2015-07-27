@@ -64,7 +64,7 @@ public final class MergingEventHandler<L, R> {
     public final S1 first;
     public final S2 second;
 
-    private Pair(S1 s1, S2 s2) {
+    private Pair(final S1 s1, final S2 s2) {
       this.first = s1;
       this.second = s2;
     }

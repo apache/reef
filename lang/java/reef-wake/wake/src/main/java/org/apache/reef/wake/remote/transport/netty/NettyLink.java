@@ -77,7 +77,7 @@ public class NettyLink<T> implements Link<T> {
   @Override
   public void write(final T message) {
     LOG.log(Level.FINEST, "write {0} {1}", new Object[]{channel, message});
-    byte[] allData = encoder.encode(message);
+    final byte[] allData = encoder.encode(message);
     // byte[] -> ByteBuf
     if (listener !=  null) {
       channel.writeAndFlush(Unpooled.wrappedBuffer(allData))
@@ -124,7 +124,7 @@ class NettyChannelFutureListener<T> implements ChannelFutureListener {
   }
 
   @Override
-  public void operationComplete(ChannelFuture channelFuture) throws Exception {
+  public void operationComplete(final ChannelFuture channelFuture) throws Exception {
     if (channelFuture.isSuccess()) {
       listener.onSuccess(message);
     } else {

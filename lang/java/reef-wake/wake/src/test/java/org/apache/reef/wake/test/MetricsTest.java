@@ -37,8 +37,8 @@ public class MetricsTest {
   public void testHistogram() throws Exception {
     System.out.println(LOG_PREFIX + name.getMethodName());
 
-    Histogram histogram = new UniformHistogram(10, 100);
-    Random rand = new Random(1);
+    final Histogram histogram = new UniformHistogram(10, 100);
+    final Random rand = new Random(1);
     for (int i = 0; i < 1000000; ++i) {
       long value = rand.nextLong() % 1000;
       value = value >= 0 ? value : (-1) * value;

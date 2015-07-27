@@ -133,7 +133,7 @@ public class BroadcastReceiver<T> implements Broadcast.Receiver<T>, EventHandler
     final T retVal;
     // Wait for parent to send
     LOG.fine(this + " Waiting to receive broadcast");
-    byte[] data;
+    final byte[] data;
     try {
       data = topology.recvFromParent();
       // TODO: Should receive the identity element instead of null

@@ -40,7 +40,7 @@ public class LoggingEventHandler<T> implements EventHandler<T> {
    * @param downstreamEventHandler the event handler to hand the event to
    * @param format                 Format string to log the event, e.g. "Event {0} received".
    */
-  public LoggingEventHandler(EventHandler<T> downstreamEventHandler, final String format) {
+  public LoggingEventHandler(final EventHandler<T> downstreamEventHandler, final String format) {
     this.downstreamEventHandler = downstreamEventHandler;
     this.format = format;
   }

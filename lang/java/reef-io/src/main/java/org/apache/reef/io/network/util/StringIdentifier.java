@@ -33,7 +33,7 @@ public class StringIdentifier implements ComparableIdentifier {
    *
    * @param str a string
    */
-  StringIdentifier(String str) {
+  StringIdentifier(final String str) {
     this.str = str;
   }
 
@@ -52,7 +52,7 @@ public class StringIdentifier implements ComparableIdentifier {
    * @param o another object
    * @return true if the object is the same as the object argument; false, otherwise
    */
-  public boolean equals(Object o) {
+  public boolean equals(final Object o) {
     return str.equals(((StringIdentifier) o).toString());
   }
 
@@ -66,7 +66,7 @@ public class StringIdentifier implements ComparableIdentifier {
   }
 
   @Override
-  public int compareTo(Identifier o) {
+  public int compareTo(final Identifier o) {
     if (o == null) {
       if (str == null) {
         return 0;
