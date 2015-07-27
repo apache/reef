@@ -42,12 +42,12 @@ public class LossAndGradientReduceFunction
 
     for (final Pair<Pair<Double, Integer>, Vector> lag : lags) {
       if (combinedGradient == null) {
-        combinedGradient = new DenseVector(lag.second);
+        combinedGradient = new DenseVector(lag.getSecond());
       } else {
-        combinedGradient.add(lag.second);
+        combinedGradient.add(lag.getSecond());
       }
-      lossSum += lag.first.first;
-      numEx += lag.first.second;
+      lossSum += lag.getFirst().getFirst();
+      numEx += lag.getFirst().getSecond();
     }
 
     return new Pair<>(new Pair<>(lossSum, numEx), combinedGradient);

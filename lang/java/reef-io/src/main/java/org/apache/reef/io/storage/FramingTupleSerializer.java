@@ -55,7 +55,7 @@ public class FramingTupleSerializer<K, V> implements
         final Accumulator<V> valAccumulator = valSerializer.create(faos)
             .accumulator();
         return new Accumulator<Tuple<K, V>>() {
-          boolean first = true;
+          private boolean first = true;
 
           @Override
           public void add(final Tuple<K, V> datum) throws ServiceException {

@@ -39,8 +39,8 @@ public class GetAllIterable<T> implements
   public Iterator<Map.Entry<CharSequence, T>> iterator() {
     final Iterator<? extends CharSequence> k = keys.iterator();
     return new Iterator<Map.Entry<CharSequence, T>>() {
-      CharSequence lastKey = null;
-      CharSequence curKey = findNextKey();
+      private CharSequence lastKey = null;
+      private CharSequence curKey = findNextKey();
 
       private CharSequence findNextKey() {
         while (k.hasNext()) {

@@ -28,7 +28,7 @@ import java.util.List;
  */
 public class BroadcastingEventHandler<T> implements EventHandler<T> {
 
-  List<EventHandler<T>> handlers = new ArrayList<>();
+  private List<EventHandler<T>> handlers = new ArrayList<>();
 
   public void addHandler(final EventHandler<T> handler) {
     handlers.add(handler);

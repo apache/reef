@@ -283,7 +283,7 @@ class LateBoundVolatile {
 
 class InbredSingletons {
   static class A {
-    static int count = 0;
+    protected static int count = 0;
 
     @Inject
     A(final B b) {
@@ -293,7 +293,7 @@ class InbredSingletons {
   }
 
   static class B {
-    static int count = 0;
+    protected static int count = 0;
 
     @Inject
     B(final C c) {
@@ -303,7 +303,7 @@ class InbredSingletons {
   }
 
   static class C {
-    static int count = 0;
+    protected static int count = 0;
 
     @Inject
     C() {
@@ -315,7 +315,7 @@ class InbredSingletons {
 
 class IncestuousSingletons {
   static class A {
-    static int count = 0;
+    protected static int count = 0;
 
     @Inject
     A(final C c, final B b) {
@@ -325,7 +325,7 @@ class IncestuousSingletons {
   }
 
   static class B {
-    static int count = 0;
+    protected static int count = 0;
 
     protected B() {
     }
@@ -338,7 +338,7 @@ class IncestuousSingletons {
   }
 
   static class BN extends B {
-    static int count = 0;
+    protected static int count = 0;
 
     @Inject
     BN(final C c) {
@@ -349,7 +349,7 @@ class IncestuousSingletons {
   }
 
   static class C {
-    static int count = 0;
+    protected static int count = 0;
 
     @Inject
     C() {
@@ -370,7 +370,7 @@ class IncestuousInterfaceSingletons {
   }
 
   static class A implements AI {
-    static int count = 0;
+    protected static int count = 0;
 
     @Inject
     A(final CI c, final BI b) {
@@ -380,7 +380,7 @@ class IncestuousInterfaceSingletons {
   }
 
   static class B implements BI {
-    static int count = 0;
+    protected static int count = 0;
 
     protected B() {
     }
@@ -393,7 +393,7 @@ class IncestuousInterfaceSingletons {
   }
 
   static class BN extends B {
-    static int count = 0;
+    protected static int count = 0;
 
     @Inject
     BN(final CI c) {
@@ -404,7 +404,7 @@ class IncestuousInterfaceSingletons {
   }
 
   static class C implements CI {
-    static int count = 0;
+    protected static int count = 0;
 
     @Inject
     C() {

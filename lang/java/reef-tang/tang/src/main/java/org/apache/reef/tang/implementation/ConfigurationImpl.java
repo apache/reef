@@ -32,7 +32,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 public class ConfigurationImpl implements Configuration {
-  final ConfigurationBuilderImpl builder;
+  private final ConfigurationBuilderImpl builder;
 
   protected ConfigurationImpl(final ConfigurationBuilderImpl builder) {
     this.builder = builder;
@@ -89,7 +89,7 @@ public class ConfigurationImpl implements Configuration {
 
   @Override
   public ClassHierarchy getClassHierarchy() {
-    return builder.namespace;
+    return builder.getClassHierarchy();
   }
 
   @Override
@@ -139,5 +139,9 @@ public class ConfigurationImpl implements Configuration {
   @Override
   public int hashCode() {
     return builder != null ? builder.hashCode() : 0;
+  }
+
+  public ConfigurationBuilderImpl getBuilder() {
+    return builder;
   }
 }

@@ -74,8 +74,8 @@ public class InjectorImpl implements Injector {
     }
 
   };
-  final Map<ClassNode<?>, Object> instances = new TracingMonotonicTreeMap<>();
-  final Map<NamedParameterNode<?>, Object> namedParameterInstances = new TracingMonotonicTreeMap<>();
+  private final Map<ClassNode<?>, Object> instances = new TracingMonotonicTreeMap<>();
+  private final Map<NamedParameterNode<?>, Object> namedParameterInstances = new TracingMonotonicTreeMap<>();
   private final Configuration c;
   private final ClassHierarchy namespace;
   private final JavaClassHierarchy javaNamespace;
@@ -618,7 +618,7 @@ public class InjectorImpl implements Injector {
     } else if (plan instanceof JavaInstance) {
       // TODO: Must be named parameter node.  Check.
 //      throw new IllegalStateException("Instance from plan not in Injector's set of instances?!?");
-      return ((JavaInstance<T>) plan).instance;
+      return ((JavaInstance<T>) plan).getInstance();
     } else if (plan instanceof Constructor) {
       final Constructor<T> constructor = (Constructor<T>) plan;
       final Object[] args = new Object[constructor.getArgs().length];

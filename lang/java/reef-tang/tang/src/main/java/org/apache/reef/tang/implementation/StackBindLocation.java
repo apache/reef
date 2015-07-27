@@ -23,7 +23,7 @@ import org.apache.reef.tang.BindLocation;
 import java.util.Arrays;
 
 public class StackBindLocation implements BindLocation {
-  final StackTraceElement[] stack;
+  private final StackTraceElement[] stack;
 
   public StackBindLocation() {
     final StackTraceElement[] stackTrace = new Throwable().getStackTrace();

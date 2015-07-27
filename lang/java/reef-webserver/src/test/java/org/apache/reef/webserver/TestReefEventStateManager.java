@@ -95,7 +95,7 @@ public class TestReefEventStateManager {
 
 final class MockEvaluatorDescriptor implements EvaluatorDescriptor {
   private final NodeDescriptor nodeDescriptor;
-  final EvaluatorProcessFactory evaluatorProcessFactory;
+  private final EvaluatorProcessFactory evaluatorProcessFactory;
 
   @Inject
   public MockEvaluatorDescriptor(final NodeDescriptor nodeDescriptor,

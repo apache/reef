@@ -22,7 +22,7 @@ import org.apache.reef.tang.implementation.InjectionPlan;
 import org.apache.reef.tang.types.Node;
 
 public final class JavaInstance<T> extends InjectionPlan<T> {
-  final T instance;
+  private final T instance;
 
   public JavaInstance(final Node name, final T instance) {
     super(name);
@@ -47,6 +47,10 @@ public final class JavaInstance<T> extends InjectionPlan<T> {
   @Override
   public boolean isInjectable() {
     return instance != null;
+  }
+
+  public T getInstance() {
+    return instance;
   }
 
   public String getInstanceAsString() {

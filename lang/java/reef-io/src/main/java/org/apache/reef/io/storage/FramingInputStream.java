@@ -45,7 +45,7 @@ public class FramingInputStream extends DataInputStream implements Iterable<byte
   public Iterator<byte[]> iterator() {
     try {
       return new Iterator<byte[]>() {
-        byte[] cur = readFrame();
+        private byte[] cur = readFrame();
 
         @Override
         public boolean hasNext() {

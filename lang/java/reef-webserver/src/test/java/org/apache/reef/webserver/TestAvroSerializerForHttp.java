@@ -117,8 +117,8 @@ public class TestAvroSerializerForHttp {
   }
 
   static class EvaluatorDescriptorMock implements EvaluatorDescriptor {
-    final NodeDescriptor nodeDescriptor;
-    final EvaluatorProcessFactory evaluatorProcessFactory;
+    private final NodeDescriptor nodeDescriptor;
+    private final EvaluatorProcessFactory evaluatorProcessFactory;
 
     @Inject
     EvaluatorDescriptorMock(final NodeDescriptor nodeDescriptor,

@@ -29,7 +29,7 @@ import java.util.ArrayList;
  */
 public final class LogParser {
 
-  public static String[] endIndicators = {
+  public static final String[] END_INDICATORS = {
       LoggingScopeImpl.EXIT_PREFIX + LoggingScopeFactory.BRIDGE_SETUP,
       LoggingScopeImpl.EXIT_PREFIX + LoggingScopeFactory.EVALUATOR_SUBMIT,
       LoggingScopeImpl.EXIT_PREFIX + LoggingScopeFactory.EVALUATOR_BRIDGE_SUBMIT,
@@ -41,7 +41,14 @@ public final class LogParser {
       LoggingScopeImpl.EXIT_PREFIX + LoggingScopeFactory.TASK_COMPLETE
   };
 
-  public static String[] startIndicators = {
+  /**
+   * @deprecated in 0.12. Use END_INDICATORS instead
+   */
+  @Deprecated
+  @SuppressWarnings("checkstyle:constantname")
+  public static final String[] endIndicators = END_INDICATORS;
+
+  public static final String[] START_INDICATORS = {
       LoggingScopeImpl.START_PREFIX + LoggingScopeFactory.DRIVER_START,
       LoggingScopeImpl.START_PREFIX + LoggingScopeFactory.BRIDGE_SETUP,
       LoggingScopeImpl.START_PREFIX + LoggingScopeFactory.EVALUATOR_BRIDGE_SUBMIT,
@@ -52,6 +59,13 @@ public final class LogParser {
       LoggingScopeImpl.START_PREFIX + LoggingScopeFactory.HTTP_REQUEST,
       LoggingScopeImpl.START_PREFIX + LoggingScopeFactory.TASK_COMPLETE
   };
+
+  /**
+   * @deprecated in 0.12. Use START_INDICATORS instead
+   */
+  @Deprecated
+  @SuppressWarnings("checkstyle:constantname")
+  public static final String[] startIndicators = START_INDICATORS;
 
   private LogParser() {
   }

@@ -62,7 +62,7 @@ public class FramingTupleDeserializer<K, V> implements
               }
             }
 
-            int nextFrameLength = readFrameLength();
+            private int nextFrameLength = readFrameLength();
 
             @Override
             public boolean hasNext() {

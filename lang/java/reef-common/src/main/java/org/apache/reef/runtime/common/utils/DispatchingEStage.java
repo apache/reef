@@ -133,8 +133,8 @@ public final class DispatchingEStage implements AutoCloseable {
    */
   private static final class DelayedOnNext {
 
-    public final EventHandler<Object> handler;
-    public final Object message;
+    private final EventHandler<Object> handler;
+    private final Object message;
 
     @SuppressWarnings("unchecked")
     public <T, U extends T> DelayedOnNext(final EventHandler<T> handler, final U message) {

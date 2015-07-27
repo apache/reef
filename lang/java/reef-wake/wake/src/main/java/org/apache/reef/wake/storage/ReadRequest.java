@@ -22,10 +22,10 @@ import org.apache.reef.wake.Identifiable;
 import org.apache.reef.wake.Identifier;
 
 public class ReadRequest implements Identifiable {
-  final StorageIdentifier f;
-  final long offset;
-  final byte[] buf;
-  final Identifier id;
+  private final StorageIdentifier f;
+  private final long offset;
+  private final byte[] buf;
+  private final Identifier id;
 
   public ReadRequest(final StorageIdentifier f, final long offset, final byte[] buf, final Identifier id) {
     this.f = f;
@@ -37,5 +37,14 @@ public class ReadRequest implements Identifiable {
   @Override
   public Identifier getId() {
     return id;
+  }
+  public StorageIdentifier getF() {
+    return f;
+  }
+  public long getOffset() {
+    return offset;
+  }
+  public byte[] getBuf() {
+    return buf;
   }
 }

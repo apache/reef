@@ -69,8 +69,8 @@ public class NamingTest {
   @Rule
   public final TestName name = new TestName();
   static final long TTL = 30000;
-  final IdentifierFactory factory = new StringIdentifierFactory();
-  int port;
+  private final IdentifierFactory factory = new StringIdentifierFactory();
+  private int port;
 
   public NamingTest() throws InjectionException {
     this.localAddressProvider = LocalAddressProviderFactory.getInstance();

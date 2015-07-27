@@ -37,18 +37,19 @@ import java.util.Set;
 public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   public static final String IMPORT = "import";
   public static final String INIT = "<init>";
-  final TracingMonotonicMap<ClassNode<?>, ClassNode<?>> boundImpls = new TracingMonotonicTreeMap<>();
-  final TracingMonotonicMap<ClassNode<?>, ClassNode<? extends ExternalConstructor<?>>> boundConstructors =
+  protected final TracingMonotonicMap<ClassNode<?>, ClassNode<?>> boundImpls = new TracingMonotonicTreeMap<>();
+  protected final TracingMonotonicMap<ClassNode<?>, ClassNode<? extends ExternalConstructor<?>>> boundConstructors =
       new TracingMonotonicTreeMap<>();
-  final Map<NamedParameterNode<?>, String> namedParameters = new TracingMonotonicTreeMap<>();
-  final Map<ClassNode<?>, ConstructorDef<?>> legacyConstructors = new TracingMonotonicTreeMap<>();
-  final MonotonicMultiMap<NamedParameterNode<Set<?>>, Object> boundSetEntries = new MonotonicMultiMap<>();
-  final TracingMonotonicMap<NamedParameterNode<List<?>>, List<Object>> boundLists = new TracingMonotonicTreeMap<>();
+  protected final Map<NamedParameterNode<?>, String> namedParameters = new TracingMonotonicTreeMap<>();
+  protected final Map<ClassNode<?>, ConstructorDef<?>> legacyConstructors = new TracingMonotonicTreeMap<>();
+  protected final MonotonicMultiMap<NamedParameterNode<Set<?>>, Object> boundSetEntries = new MonotonicMultiMap<>();
+  protected final TracingMonotonicMap<NamedParameterNode<List<?>>, List<Object>> boundLists =
+      new TracingMonotonicTreeMap<>();
   // TODO: None of these should be public! - Move to configurationBuilder. Have
   // that wrap itself
   // in a sane Configuration interface...
   // TODO: Should be final again!
-  public ClassHierarchy namespace;
+  private ClassHierarchy namespace;
 
   protected ConfigurationBuilderImpl() {
     this.namespace = Tang.Factory.getTang().getDefaultClassHierarchy();
@@ -90,7 +91,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   @Override
   public void addConfiguration(final Configuration conf) throws BindException {
     // XXX remove cast!
-    addConfiguration(conf.getClassHierarchy(), ((ConfigurationImpl) conf).builder);
+    addConfiguration(conf.getClassHierarchy(), ((ConfigurationImpl) conf).getBuilder());
   }
 
   @SuppressWarnings("unchecked")
@@ -99,8 +100,8 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     namespace = namespace.merge(ns);
     if ((namespace instanceof ClassHierarchyImpl || builder.namespace instanceof ClassHierarchyImpl)) {
       if ((namespace instanceof ClassHierarchyImpl && builder.namespace instanceof ClassHierarchyImpl)) {
-        ((ClassHierarchyImpl) namespace).parameterParser
-            .mergeIn(((ClassHierarchyImpl) builder.namespace).parameterParser);
+        ((ClassHierarchyImpl) namespace).getParameterParser()
+            .mergeIn(((ClassHierarchyImpl) builder.namespace).getParameterParser());
       } else {
         throw new IllegalArgumentException("Attempt to merge Java and non-Java class hierarchy!  Not supported.");
       }

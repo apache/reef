@@ -84,7 +84,7 @@ interface CheckChildIface {
 public class TestTang {
   @Rule
   public ExpectedException thrown = ExpectedException.none();
-  Tang tang;
+  protected Tang tang;
 
   @Before
   public void setUp() throws Exception {
@@ -729,7 +729,7 @@ class Pass {
 
 @SuppressWarnings("checkstyle:hideutilityclassconstructor")
 class IsFuture {
-  static boolean instantiated;
+  protected static boolean instantiated;
 
   @Inject
   IsFuture(final NeedsFuture nf) {
@@ -744,7 +744,7 @@ class NeedsFuture {
 }
 
 class InjectInjector {
-  public final Injector i;
+  protected final Injector i;
 
   @Inject
   InjectInjector(final Injector i) {
@@ -806,7 +806,7 @@ class Impl implements Interf {
 
 @SuppressWarnings("checkstyle:hideutilityclassconstructor")
 class MustBeSingleton {
-  static boolean alreadyInstantiated;
+  protected static boolean alreadyInstantiated;
 
   @Inject
   public MustBeSingleton() {
@@ -880,7 +880,7 @@ class OneNamedSingletonArgs {
 }
 
 class OneNamedStringArg {
-  public final String s;
+  protected final String s;
 
   @Inject
   OneNamedStringArg(@Parameter(A.class) final String s) {
@@ -893,8 +893,8 @@ class OneNamedStringArg {
 }
 
 class TwoNamedStringArgs {
-  public final String a;
-  public final String b;
+  protected final String a;
+  protected final String b;
 
   @Inject
   TwoNamedStringArgs(@Parameter(A.class) final String a, @Parameter(B.class) final String b) {
@@ -924,8 +924,8 @@ class BextendsAinjectA {
 
 class ExternalConstructorExample {
   static class LegacyWrapper implements ExternalConstructor<Legacy> {
-    final Integer x;
-    final String y;
+    protected final Integer x;
+    protected final String y;
 
     @Inject
     LegacyWrapper(final Integer x, final String y) {
@@ -941,8 +941,8 @@ class ExternalConstructorExample {
   }
 
   class Legacy {
-    final Integer x;
-    final String y;
+    protected final Integer x;
+    protected final String y;
 
     public Legacy(final Integer x, final String y) {
       this.x = x;
@@ -952,8 +952,8 @@ class ExternalConstructorExample {
 }
 
 class LegacyConstructor {
-  final Integer x;
-  final String y;
+  protected final Integer x;
+  protected final String y;
 
   public LegacyConstructor(final Integer x, final String y) {
     this.x = x;
@@ -1013,7 +1013,7 @@ class NamedImpl {
 @Unit
 class OuterUnit {
 
-  final OuterUnit self;
+  protected final OuterUnit self;
 
   @Inject
   OuterUnit() {
@@ -1021,17 +1021,17 @@ class OuterUnit {
   }
 
   class InA {
-    OuterUnit slf = self;
+    protected OuterUnit slf = self;
   }
 
   class InB {
-    OuterUnit slf = self;
+    protected OuterUnit slf = self;
   }
 }
 
 class MissOuterUnit {
 
-  final MissOuterUnit self;
+  protected final MissOuterUnit self;
 
   @Inject
   MissOuterUnit() {
@@ -1039,11 +1039,11 @@ class MissOuterUnit {
   }
 
   class InA {
-    MissOuterUnit slf = self;
+    protected MissOuterUnit slf = self;
   }
 
   class InB {
-    MissOuterUnit slf = self;
+    protected MissOuterUnit slf = self;
 
     @Inject
     InB() {
@@ -1053,9 +1053,9 @@ class MissOuterUnit {
 
 class ThreeConstructors {
 
-  final int i;
-  final String s;
-  final Float f;
+  protected final int i;
+  protected final String s;
+  protected final Float f;
 
   @Inject
   ThreeConstructors(@Parameter(TCInt.class) final int i, @Parameter(TCString.class) final String s) {
@@ -1096,8 +1096,8 @@ class ThreeConstructors {
 
 class TwoConstructors {
 
-  final int i;
-  final String s;
+  protected final int i;
+  protected final String s;
 
   @Inject
   TwoConstructors(@Parameter(TCInt.class) final int i, @Parameter(TCString.class) final String s) {

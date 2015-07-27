@@ -21,13 +21,23 @@ package org.apache.reef.wake.storage;
 import org.apache.reef.wake.Identifier;
 
 public class ReadResponse {
-  final byte[] buf;
-  final int bytesRead;
-  final Identifier reqId;
+  private final byte[] buf;
+  private final int bytesRead;
+  private final Identifier reqId;
 
   public ReadResponse(final byte[] buf, final int bytesRead, final Identifier reqId) {
     this.buf = buf;
     this.bytesRead = bytesRead;
     this.reqId = reqId;
   }
+
+/*  public byte[] getBuf() {
+    return buf;
+  }
+  public int getBytesRead() {
+    return bytesRead;
+  }
+  public Identifier getReqId() {
+    return reqId;
+  }*/
 }

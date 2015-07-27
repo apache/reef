@@ -48,8 +48,8 @@ interface I1 {
 }
 
 public class TestClassHierarchy {
-  public ClassHierarchy ns;
-  public ClassHierarchySerializer serializer;
+  protected ClassHierarchy ns;
+  protected ClassHierarchySerializer serializer;
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
@@ -607,13 +607,13 @@ class Nested {
 
 @SuppressWarnings("checkstyle:hideutilityclassconstructor")
 class AnonNested {
-  static X x = new X() {
+  protected static X x = new X() {
     @SuppressWarnings("unused")
-    int i;
+    private int i;
   };
-  static X y = new X() {
+  protected static X y = new X() {
     @SuppressWarnings("unused")
-    int j;
+    private int j;
   };
 
   interface X {

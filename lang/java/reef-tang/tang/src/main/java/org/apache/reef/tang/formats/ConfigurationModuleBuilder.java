@@ -42,16 +42,16 @@ public abstract class ConfigurationModuleBuilder {
   private static final Set<Class<?>> PARAM_TYPES = new MonotonicHashSet<Class<?>>(
       RequiredImpl.class, OptionalImpl.class, RequiredParameter.class,
       OptionalParameter.class);
-  final JavaConfigurationBuilder b = Tang.Factory.getTang()
+  protected final JavaConfigurationBuilder b = Tang.Factory.getTang()
       .newConfigurationBuilder();
   // Sets of things that have been declared
-  final Set<Field> reqDecl = new MonotonicHashSet<>();
-  final Set<Object> setOpts = new MonotonicHashSet<>();
+  protected final Set<Field> reqDecl = new MonotonicHashSet<>();
+  protected final Set<Object> setOpts = new MonotonicHashSet<>();
   // Maps from field instance variables to the fields that they
   // are assigned to. These better be unique!
-  final Map<Object, Field> map = new MonotonicHashMap<>();
-  final Map<Class<?>, Impl<?>> freeImpls = new MonotonicHashMap<>();
-  final Map<Class<? extends Name<?>>, Param<?>> freeParams = new MonotonicHashMap<>();
+  protected Map<Object, Field> map = new MonotonicHashMap<>();
+  protected final Map<Class<?>, Impl<?>> freeImpls = new MonotonicHashMap<>();
+  protected final Map<Class<? extends Name<?>>, Param<?>> freeParams = new MonotonicHashMap<>();
   private final Set<Field> optDecl = new MonotonicHashSet<>();
   // Set of things that have been used in a bind. These must be equal
   // to the decl counterparts before build() is called.
@@ -140,20 +140,21 @@ public abstract class ConfigurationModuleBuilder {
           ": detected attempt to merge with ConfigurationModule that has had set() called on it", e);
     }
     final ConfigurationModuleBuilder c = deepCopy();
+    final ConfigurationModuleBuilder builder = d.getBuilder();
     try {
-      c.b.addConfiguration(d.builder.b.build());
+      c.b.addConfiguration(builder.b.build());
     } catch (final BindException e) {
       throw new ClassHierarchyException(e);
     }
-    c.reqDecl.addAll(d.builder.reqDecl);
-    c.optDecl.addAll(d.builder.optDecl);
-    c.reqUsed.addAll(d.builder.reqUsed);
-    c.optUsed.addAll(d.builder.optUsed);
-    c.setOpts.addAll(d.builder.setOpts);
-    c.map.putAll(d.builder.map);
-    c.freeImpls.putAll(d.builder.freeImpls);
-    c.freeParams.putAll(d.builder.freeParams);
-    c.lateBindClazz.putAll(d.builder.lateBindClazz);
+    c.reqDecl.addAll(builder.reqDecl);
+    c.optDecl.addAll(builder.optDecl);
+    c.reqUsed.addAll(builder.reqUsed);
+    c.optUsed.addAll(builder.optUsed);
+    c.setOpts.addAll(builder.setOpts);
+    c.map.putAll(builder.map);
+    c.freeImpls.putAll(builder.freeImpls);
+    c.freeParams.putAll(builder.freeParams);
+    c.lateBindClazz.putAll(builder.lateBindClazz);
 
     return c;
   }

@@ -47,13 +47,13 @@ public class NameClientTest {
     this.localAddressProvider = LocalAddressProviderFactory.getInstance();
   }
 
-  static int retryCount, retryTimeout;
+  private static final int RETRY_COUNT, RETRY_TIMEOUT;
 
   static {
     final Tang tang = Tang.Factory.getTang();
     try {
-      retryCount = tang.newInjector().getNamedInstance(NameResolverRetryCount.class);
-      retryTimeout = tang.newInjector().getNamedInstance(NameResolverRetryTimeout.class);
+      RETRY_COUNT = tang.newInjector().getNamedInstance(NameResolverRetryCount.class);
+      RETRY_TIMEOUT = tang.newInjector().getNamedInstance(NameResolverRetryTimeout.class);
     } catch (final InjectionException e1) {
       throw new RuntimeException("Exception while trying to find default values for retryCount & Timeout", e1);
     }
@@ -92,8 +92,8 @@ public class NameClientTest {
           .set(NameResolverConfiguration.NAME_SERVER_HOSTNAME, localAddress)
           .set(NameResolverConfiguration.NAME_SERVICE_PORT, serverPort)
           .set(NameResolverConfiguration.CACHE_TIMEOUT, 10000)
-          .set(NameResolverConfiguration.RETRY_TIMEOUT, retryTimeout)
-          .set(NameResolverConfiguration.RETRY_COUNT, retryCount)
+          .set(NameResolverConfiguration.RETRY_TIMEOUT, RETRY_TIMEOUT)
+          .set(NameResolverConfiguration.RETRY_COUNT, RETRY_COUNT)
           .build();
 
       try (final NameResolver client =
@@ -127,8 +127,8 @@ public class NameClientTest {
           .set(NameResolverConfiguration.NAME_SERVER_HOSTNAME, localAddress)
           .set(NameResolverConfiguration.NAME_SERVICE_PORT, serverPort)
           .set(NameResolverConfiguration.CACHE_TIMEOUT, 150)
-          .set(NameResolverConfiguration.RETRY_TIMEOUT, retryTimeout)
-          .set(NameResolverConfiguration.RETRY_COUNT, retryCount)
+          .set(NameResolverConfiguration.RETRY_TIMEOUT, RETRY_TIMEOUT)
+          .set(NameResolverConfiguration.RETRY_COUNT, RETRY_COUNT)
           .build();
 
       try (final NameResolver client =

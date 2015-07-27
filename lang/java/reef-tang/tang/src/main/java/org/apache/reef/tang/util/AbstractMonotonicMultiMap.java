@@ -107,8 +107,8 @@ public abstract class AbstractMonotonicMultiMap<K, V> implements Collection<Entr
   public Iterator<Entry<K, V>> iterator() {
     final Iterator<Entry<K, Set<V>>> it = map.entrySet().iterator();
     return new Iterator<Entry<K, V>>() {
-      Iterator<V> cur;
-      K curKey;
+      private Iterator<V> cur;
+      private K curKey;
 
       @Override
       public boolean hasNext() {

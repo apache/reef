@@ -44,12 +44,12 @@ public class MergingEventHandlerTest {
         new MergingEventHandler<>(new EventHandler<Pair<Integer, Integer>>() {
           @Override
           public void onNext(final Pair<Integer, Integer> value) {
-            i.addAndGet(value.first + 31 * value.second);
+            i.addAndGet(value.getFirst() + 31 * value.getSecond());
           }
         });
 
-    dut.left.onNext(testLeft);
-    dut.right.onNext(testRight);
+    dut.getLeft().onNext(testLeft);
+    dut.getRight().onNext(testRight);
 
     Assert.assertEquals(expected, i.get());
   }
@@ -67,12 +67,12 @@ public class MergingEventHandlerTest {
         new MergingEventHandler<>(new EventHandler<Pair<Integer, Integer>>() {
           @Override
           public void onNext(final Pair<Integer, Integer> value) {
-            i.addAndGet(value.first + 17 * value.second);
+            i.addAndGet(value.getFirst() + 17 * value.getSecond());
           }
         });
 
-    dut.right.onNext(testRight);
-    dut.left.onNext(testLeft);
+    dut.getRight().onNext(testRight);
+    dut.getLeft().onNext(testLeft);
 
     Assert.assertEquals(expected, i.get());
   }
@@ -93,15 +93,15 @@ public class MergingEventHandlerTest {
         new MergingEventHandler<>(new EventHandler<Pair<Integer, Integer>>() {
           @Override
           public void onNext(final Pair<Integer, Integer> value) {
-            i.addAndGet(value.first + 31 * value.second);
+            i.addAndGet(value.getFirst() + 31 * value.getSecond());
           }
         });
 
-    dut.left.onNext(testLeft1);
-    dut.right.onNext(testRight1);
+    dut.getLeft().onNext(testLeft1);
+    dut.getRight().onNext(testRight1);
 
-    dut.left.onNext(testLeft2);
-    dut.right.onNext(testRight2);
+    dut.getLeft().onNext(testLeft2);
+    dut.getRight().onNext(testRight2);
 
     Assert.assertEquals(expected1 + expected2, i.get());
   }
@@ -122,7 +122,7 @@ public class MergingEventHandlerTest {
         new MergingEventHandler<>(new EventHandler<Pair<Integer, Integer>>() {
           @Override
           public void onNext(final Pair<Integer, Integer> value) {
-            i.addAndGet(value.first + 31 * value.second);
+            i.addAndGet(value.getFirst() + 31 * value.getSecond());
           }
         });
 
@@ -132,16 +132,16 @@ public class MergingEventHandlerTest {
     pool.submit(new Runnable() {
       @Override
       public void run() {
-        dut.left.onNext(testLeft1);
-        dut.right.onNext(testRight2);
+        dut.getLeft().onNext(testLeft1);
+        dut.getRight().onNext(testRight2);
       }
     });
 
     pool.submit(new Runnable() {
       @Override
       public void run() {
-        dut.right.onNext(testRight1);
-        dut.left.onNext(testLeft2);
+        dut.getRight().onNext(testRight1);
+        dut.getLeft().onNext(testLeft2);
       }
     });
 
@@ -189,7 +189,7 @@ public class MergingEventHandlerTest {
         @Override
         public void run() {
           for (int kk = 0; kk < eventsPerLeft; ++kk) {
-            dut.left.onNext(kk);
+            dut.getLeft().onNext(kk);
           }
         }
       });
@@ -200,7 +200,7 @@ public class MergingEventHandlerTest {
         @Override
         public void run() {
           for (int kk = 0; kk < eventsPerRight; ++kk) {
-            dut.right.onNext(kk);
+            dut.getRight().onNext(kk);
           }
         }
       });
@@ -229,8 +229,8 @@ public class MergingEventHandlerTest {
           }
         });
 
-    dut.left.onNext(true);
-    dut.right.onNext(104.0);
+    dut.getLeft().onNext(true);
+    dut.getRight().onNext(104.0);
 
     Assert.assertEquals(1, i.get());
   }
