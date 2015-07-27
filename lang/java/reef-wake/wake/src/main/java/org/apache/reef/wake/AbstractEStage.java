@@ -31,12 +31,12 @@ public abstract class AbstractEStage<T> implements EStage<T> {
 
   protected final AtomicBoolean closed;
   protected final String name;
-  protected final Meter inMeter;
+  private final Meter inMeter;
 
   /**
    * outputs share a single meter.
    */
-  protected final Meter outMeter;
+  private final Meter outMeter;
 
   /**
    * Constructs an abstract estage.

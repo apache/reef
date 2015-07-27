@@ -192,7 +192,7 @@
         <module name="HideUtilityClassConstructor"/>
         <module name="InterfaceIsType"/>
         <module name="VisibilityModifier">
-            <property name="severity" value="warning"/>
+            <property name="protectedAllowed" value="true"/>
         </module>
 
 

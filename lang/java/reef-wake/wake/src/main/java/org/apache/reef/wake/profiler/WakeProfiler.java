@@ -138,8 +138,8 @@ public class WakeProfiler implements Aspect {
               final Object o = methodProxy.invokeSuper(object, args);
               final long stop = System.nanoTime();
 
-              s.messageCount.incrementAndGet();
-              s.sumLatency.addAndGet(stop - start);
+              s.getMessageCount().incrementAndGet();
+              s.getSumLatency().addAndGet(stop - start);
 
               return o;
 
@@ -242,8 +242,8 @@ public class WakeProfiler implements Aspect {
       } else {
         final Stats stat = stats.get(o);
         if (stat != null) {
-          final long cnt = stat.messageCount.get();
-          final long lat = stat.sumLatency.get();
+          final long cnt = stat.getMessageCount().get();
+          final long lat = stat.getSumLatency().get();
           tooltip = ",\"count\":" + cnt + ",\"latency\":\"" + (((double) lat) / (((double) cnt) * 1000000.0) + "\"");
           // quote the latency, since it might be nan
         } else {
@@ -283,7 +283,7 @@ public class WakeProfiler implements Aspect {
             final Stats s = stats.get(w.getObject());
             if (s != null) {
               links.add("{\"source\":" + offVertex.get(v) + ",\"target\":" + off + ",\"value\":" +
-                  (s.messageCount.get() + 3.0) + "}");
+                  (s.getMessageCount().get() + 3.0) + "}");
             } else {
               links.add("{\"source\":" + offVertex.get(v) + ",\"target\":" + off + ",\"value\":" + 1.0 + "}");
             }
@@ -302,8 +302,16 @@ public class WakeProfiler implements Aspect {
   }
 
   private final class Stats {
-    AtomicLong messageCount = new AtomicLong(0);
-    AtomicLong sumLatency = new AtomicLong(0);
+    private AtomicLong messageCount = new AtomicLong(0);
+    private AtomicLong sumLatency = new AtomicLong(0);
+
+    AtomicLong getMessageCount() {
+      return messageCount;
+    }
+
+    AtomicLong getSumLatency() {
+      return sumLatency;
+    }
   }
 
 }

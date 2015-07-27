@@ -27,7 +27,7 @@ import java.util.concurrent.ConcurrentSkipListSet;
 public class BlockingJoin implements StaticObservable {
   private final Observer<TupleEvent> out;
   private final ConcurrentSkipListSet<TupleEvent> left = new ConcurrentSkipListSet<>();
-  boolean leftDone = false;
+  private boolean leftDone = false;
 
   public BlockingJoin(final Observer<TupleEvent> out) {
     this.out = out;

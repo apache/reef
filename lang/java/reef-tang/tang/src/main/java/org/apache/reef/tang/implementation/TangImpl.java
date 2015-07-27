@@ -133,7 +133,7 @@ public class TangImpl implements Tang {
   }
 
   private class SetValuedKey {
-    public final Set<Object> key;
+    private final Set<Object> key;
 
     public SetValuedKey(final Object[] ts, final Object[] us) {
       key = new HashSet<Object>(Arrays.asList(ts));

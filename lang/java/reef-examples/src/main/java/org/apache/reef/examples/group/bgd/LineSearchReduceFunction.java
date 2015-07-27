@@ -39,11 +39,11 @@ public class LineSearchReduceFunction implements Reduce.ReduceFunction<Pair<Vect
 
     for (final Pair<Vector, Integer> eval : evals) {
       if (combinedEvaluations == null) {
-        combinedEvaluations = new DenseVector(eval.first);
+        combinedEvaluations = new DenseVector(eval.getFirst());
       } else {
-        combinedEvaluations.add(eval.first);
+        combinedEvaluations.add(eval.getFirst());
       }
-      numEx += eval.second;
+      numEx += eval.getSecond();
     }
 
     return new Pair<>(combinedEvaluations, numEx);

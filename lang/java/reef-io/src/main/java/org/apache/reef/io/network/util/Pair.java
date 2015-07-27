@@ -21,9 +21,16 @@ package org.apache.reef.io.network.util;
 import java.io.Serializable;
 
 public final class Pair<T1, T2> implements Serializable {
+  private final T1 first;
+  private final T2 second;
 
-  public final T1 first;
-  public final T2 second;
+  public T1 getFirst() {
+    return first;
+  }
+
+  public T2 getSecond() {
+    return second;
+  }
 
   private String pairStr = null;
 

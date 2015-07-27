@@ -39,12 +39,20 @@ import java.util.logging.Logger;
 public final class MergingEventHandler<L, R> {
 
   private static final Logger LOG = Logger.getLogger(MergingEventHandler.class.getName());
-  public final EventHandler<L> left = new Left();
-  public final EventHandler<R> right = new Right();
+  private final EventHandler<L> left = new Left();
+  private final EventHandler<R> right = new Right();
   private final Object mutex = new Object();
   private final EventHandler<Pair<L, R>> destination;
   private L leftEvent;
   private R rightEvent;
+
+  public EventHandler<L> getLeft() {
+    return left;
+  }
+
+  public EventHandler<R> getRight() {
+    return right;
+  }
 
   @Inject
   public MergingEventHandler(final EventHandler<Pair<L, R>> destination) {
@@ -61,8 +69,16 @@ public final class MergingEventHandler<L, R> {
   }
 
   public static final class Pair<S1, S2> {
-    public final S1 first;
-    public final S2 second;
+    private final S1 first;
+    private final S2 second;
+
+    public S1 getFirst() {
+      return first;
+    }
+
+    public S2 getSecond() {
+      return second;
+    }
 
     private Pair(final S1 s1, final S2 s2) {
       this.first = s1;

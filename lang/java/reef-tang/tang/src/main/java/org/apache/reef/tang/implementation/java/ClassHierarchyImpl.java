@@ -49,7 +49,7 @@ public class ClassHierarchyImpl implements JavaClassHierarchy {
    * Custom parameter parsers allow applications to extend the set of classes
    * that Tang can parse.
    */
-  public final ParameterParser parameterParser = new ParameterParser();
+  private final ParameterParser parameterParser = new ParameterParser();
   /**
    * The classloader that was used to populate this class hierarchy.
    */
@@ -415,6 +415,10 @@ public class ClassHierarchyImpl implements JavaClassHierarchy {
   @Override
   public PackageNode getNamespace() {
     return namespace;
+  }
+
+  public ParameterParser getParameterParser() {
+    return parameterParser;
   }
 
   @Override

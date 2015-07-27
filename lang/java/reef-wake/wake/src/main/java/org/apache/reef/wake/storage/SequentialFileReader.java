@@ -25,19 +25,19 @@ import java.io.FileInputStream;
 import java.io.IOException;
 
 public class SequentialFileReader implements EStage<ReadRequest> {
-  final EventHandler<ReadResponse> dest = null;
-  final FileHandlePool fdPool = new FileHandlePool();
+  private final EventHandler<ReadResponse> dest = null;
+  private final FileHandlePool fdPool = new FileHandlePool();
 
   @Override
   public void onNext(final ReadRequest value) {
-    final FileInputStream fin = fdPool.get(value.f);
+    final FileInputStream fin = fdPool.get(value.getF());
     int readSoFar = 0;
     try {
       synchronized (fin) {
         fin.reset();
-        fin.skip(value.offset);
-        while (readSoFar != value.buf.length) {
-          final int ret = fin.read(value.buf, readSoFar, value.buf.length);
+        fin.skip(value.getOffset());
+        while (readSoFar != value.getBuf().length) {
+          final int ret = fin.read(value.getBuf(), readSoFar, value.getBuf().length);
           if (ret == -1) {
             break;
           }
@@ -45,11 +45,11 @@ public class SequentialFileReader implements EStage<ReadRequest> {
         }
       }
     } catch (final IOException e) {
-      fdPool.release(value.f, fin);
+      fdPool.release(value.getF(), fin);
 //      err.onNext(null); //new ReadError(e));
     }
-    fdPool.release(value.f, fin);
-    dest.onNext(new ReadResponse(value.buf, readSoFar, value.id));
+    fdPool.release(value.getF(), fin);
+    dest.onNext(new ReadResponse(value.getBuf(), readSoFar, value.getId()));
   }
 
   @Override

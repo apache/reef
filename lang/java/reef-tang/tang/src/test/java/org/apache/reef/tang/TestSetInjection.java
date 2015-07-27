@@ -36,7 +36,7 @@ import java.util.Set;
 public class TestSetInjection {
   @Test
   public void testStringInjectDefault() throws InjectionException {
-    final Set<String> actual = Tang.Factory.getTang().newInjector().getInstance(Box.class).strings;
+    final Set<String> actual = Tang.Factory.getTang().newInjector().getInstance(Box.class).getStrings();
 
     final Set<String> expected = new HashSet<>();
     expected.add("one");
@@ -51,7 +51,7 @@ public class TestSetInjection {
     final Injector i = Tang.Factory.getTang().newInjector();
     i.bindVolatileInstance(Integer.class, 42);
     i.bindVolatileInstance(Float.class, 42.0001f);
-    final Set<Number> actual = i.getInstance(Pool.class).numbers;
+    final Set<Number> actual = i.getInstance(Pool.class).getNumbers();
     final Set<Number> expected = new HashSet<>();
     expected.add(42);
     expected.add(42.0001f);
@@ -64,7 +64,7 @@ public class TestSetInjection {
     cb.bindSetEntry(SetOfStrings.class, "four");
     cb.bindSetEntry(SetOfStrings.class, "five");
     cb.bindSetEntry(SetOfStrings.class, "six");
-    final Set<String> actual = Tang.Factory.getTang().newInjector(cb.build()).getInstance(Box.class).strings;
+    final Set<String> actual = Tang.Factory.getTang().newInjector(cb.build()).getInstance(Box.class).getStrings();
 
     final Set<String> expected = new HashSet<>();
     expected.add("four");
@@ -83,7 +83,7 @@ public class TestSetInjection {
     final Injector i = Tang.Factory.getTang().newInjector(cb.build());
     i.bindVolatileInstance(Short.class, (short) 4);
     i.bindVolatileInstance(Float.class, 42.0001f);
-    final Set<Number> actual = i.getInstance(Pool.class).numbers;
+    final Set<Number> actual = i.getInstance(Pool.class).getNumbers();
     final Set<Number> expected = new HashSet<>();
     expected.add((short) 4);
     expected.add(42.0001f);
@@ -104,7 +104,7 @@ public class TestSetInjection {
     final Configuration conf = serializer.fromString(s);
     cb2.addConfiguration(conf);
 
-    final Set<String> actual = Tang.Factory.getTang().newInjector(cb2.build()).getInstance(Box.class).strings;
+    final Set<String> actual = Tang.Factory.getTang().newInjector(cb2.build()).getInstance(Box.class).getStrings();
 
     final Set<String> expected = new HashSet<>();
     expected.add("four");
@@ -130,7 +130,7 @@ public class TestSetInjection {
     final Injector i = Tang.Factory.getTang().newInjector(cb2.build());
     i.bindVolatileInstance(Short.class, (short) 4);
     i.bindVolatileInstance(Float.class, 42.0001f);
-    final Set<Number> actual = i.getInstance(Pool.class).numbers;
+    final Set<Number> actual = i.getInstance(Pool.class).getNumbers();
     final Set<Number> expected = new HashSet<>();
     expected.add((short) 4);
     expected.add(42.0001f);
@@ -155,7 +155,11 @@ class SetOfStrings implements Name<Set<String>> {
 }
 
 class Box {
-  public final Set<String> strings;
+  private final Set<String> strings;
+
+  public Set<String> getStrings() {
+    return strings;
+  }
 
   @Inject
   Box(@Parameter(SetOfStrings.class) final Set<String> strings) {
@@ -168,7 +172,11 @@ class SetOfClasses implements Name<Set<Number>> {
 }
 
 class Pool {
-  public final Set<Number> numbers;
+  private final Set<Number> numbers;
+
+  public Set<Number> getNumbers() {
+    return numbers;
+  }
 
   @Inject
   Pool(@Parameter(SetOfClasses.class) final Set<Number> numbers) {

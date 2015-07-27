@@ -56,7 +56,7 @@ import java.util.logging.Logger;
 public abstract class AbstractEvaluatorToPartitionStrategy implements EvaluatorToPartitionStrategy<InputSplit> {
   private static final Logger LOG = Logger.getLogger(AbstractEvaluatorToPartitionStrategy.class.getName());
 
-  protected final ConcurrentMap<String, BlockingQueue<NumberedSplit<InputSplit>>> locationToSplits;;
+  protected final ConcurrentMap<String, BlockingQueue<NumberedSplit<InputSplit>>> locationToSplits;
   protected final ConcurrentMap<String, NumberedSplit<InputSplit>> evaluatorToSplits;
   protected final BlockingQueue<NumberedSplit<InputSplit>> unallocatedSplits;
 

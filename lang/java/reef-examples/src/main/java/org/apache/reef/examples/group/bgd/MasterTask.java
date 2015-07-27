@@ -60,12 +60,12 @@ public class MasterTask implements Task {
   private final StepSizes ts;
   private final double lambda;
   private final int maxIters;
-  final ArrayList<Double> losses = new ArrayList<>();
-  final Codec<ArrayList<Double>> lossCodec = new SerializableCodec<ArrayList<Double>>();
+  private final ArrayList<Double> losses = new ArrayList<>();
+  private final Codec<ArrayList<Double>> lossCodec = new SerializableCodec<ArrayList<Double>>();
   private final Vector model;
 
-  boolean sendModel = true;
-  double minEta = 0;
+  private boolean sendModel = true;
+  private double minEta = 0;
 
   @Inject
   public MasterTask(
@@ -99,8 +99,8 @@ public class MasterTask implements Task {
     for (int iteration = 1; !converged(iteration, gradientNorm); ++iteration) {
       try (final Timer t = new Timer("Current Iteration(" + (iteration) + ")")) {
         final Pair<Double, Vector> lossAndGradient = computeLossAndGradient();
-        losses.add(lossAndGradient.first);
-        final Vector descentDirection = getDescentDirection(lossAndGradient.second);
+        losses.add(lossAndGradient.getFirst());
+        final Vector descentDirection = getDescentDirection(lossAndGradient.getSecond());
 
         updateModel(descentDirection);
 
@@ -143,8 +143,8 @@ public class MasterTask implements Task {
         }
         final Pair<Vector, Integer> lineSearchEvals = lineSearchEvaluationsReducer.reduce();
         if (lineSearchEvals != null) {
-          final int numExamples = lineSearchEvals.second;
-          lineSearchResults = lineSearchEvals.first;
+          final int numExamples = lineSearchEvals.getSecond();
+          lineSearchResults = lineSearchEvals.getFirst();
           lineSearchResults.scale(1.0 / numExamples);
           LOG.log(Level.INFO, "OUT: #Examples: {0}", numExamples);
           LOG.log(Level.INFO, "OUT: LineSearchEvals: {0}", lineSearchResults);
@@ -176,13 +176,13 @@ public class MasterTask implements Task {
         final Pair<Pair<Double, Integer>, Vector> lossAndGradient = lossAndGradientReducer.reduce();
 
         if (lossAndGradient != null) {
-          final int numExamples = lossAndGradient.first.second;
+          final int numExamples = lossAndGradient.getFirst().getSecond();
           LOG.log(Level.INFO, "OUT: #Examples: {0}", numExamples);
-          final double lossPerExample = lossAndGradient.first.first / numExamples;
+          final double lossPerExample = lossAndGradient.getFirst().getFirst() / numExamples;
           LOG.log(Level.INFO, "OUT: Loss: {0}", lossPerExample);
           final double objFunc = ((lambda / 2) * model.norm2Sqr()) + lossPerExample;
           LOG.log(Level.INFO, "OUT: Objective Func Value: {0}", objFunc);
-          final Vector gradient = lossAndGradient.second;
+          final Vector gradient = lossAndGradient.getSecond();
           gradient.scale(1.0 / numExamples);
           LOG.log(Level.INFO, "OUT: Gradient: {0}", gradient);
           returnValue = new Pair<>(objFunc, gradient);

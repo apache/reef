@@ -31,29 +31,29 @@ public abstract class AbstractFailure implements Failure {
   /**
    * Identifier of the entity that produced the error. Cannot be null.
    */
-  protected final String id;
+  private final String id;
 
   /**
    * One-line error message. For wrapped exceptions, this equals
    * to the Exception.getMessage() result. Cannot be null.
    */
-  protected final String message;
+  private final String message;
 
   /**
    * Optional error description (long).
    * For exceptions it is by default populates with the stack trace.
    */
-  protected final Optional<String> description;
+  private final Optional<String> description;
 
   /**
    * Optional Java exception that caused the error.
    */
-  protected final Optional<Throwable> cause;
+  private final Optional<Throwable> cause;
 
   /**
    * Optional byte array that contains serialized version of the exception.
    */
-  protected final Optional<byte[]> data;
+  private final Optional<byte[]> data;
 
   /**
    * @param id          Identifier of the entity that produced the error. Cannot be null.

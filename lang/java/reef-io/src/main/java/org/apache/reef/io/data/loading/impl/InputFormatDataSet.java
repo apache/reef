@@ -108,7 +108,7 @@ public final class
     private void fetchRecord() {
       this.recordPair = new Pair<>(this.recordReader.createKey(), this.recordReader.createValue());
       try {
-        this.hasNext = this.recordReader.next(this.recordPair.first, this.recordPair.second);
+        this.hasNext = this.recordReader.next(this.recordPair.getFirst(), this.recordPair.getSecond());
       } catch (final IOException ex) {
         throw new RuntimeException("Unable to get InputSplits using the specified InputFormat", ex);
       }

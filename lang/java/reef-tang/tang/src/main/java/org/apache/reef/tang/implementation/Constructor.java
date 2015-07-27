@@ -25,11 +25,11 @@ import java.util.*;
 
 public final class Constructor<T> extends InjectionPlan<T> {
 
-  final ConstructorDef<T> constructor;
-  final InjectionPlan<?>[] args;
-  final int numAlternatives;
-  final boolean isAmbiguous;
-  final boolean isInjectable;
+  private final ConstructorDef<T> constructor;
+  private final InjectionPlan<?>[] args;
+  private final int numAlternatives;
+  private final boolean isAmbiguous;
+  private final boolean isInjectable;
 
   public Constructor(final ClassNode<T> classNode,
                      final ConstructorDef<T> constructor, final InjectionPlan<?>[] args) {

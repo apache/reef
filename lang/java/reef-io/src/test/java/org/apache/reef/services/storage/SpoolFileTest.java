@@ -89,8 +89,8 @@ public class SpoolFileTest {
         @Override
         public Iterator<Integer> iterator() {
           final Iterator<Integer> it = new Iterator<Integer>() {
-            final byte[] inb = new byte[4];
-            Integer nextInt;
+            private final byte[] inb = new byte[4];
+            private Integer nextInt;
 
             @Override
             public boolean hasNext() {
