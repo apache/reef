@@ -239,7 +239,7 @@ namespace Org.Apache.REEF.Network.Tests.NamingService
         [TestMethod]
         public void TestNameCache()
         {
-            double interval = 1000;
+            double interval = 50;
             var config =
                 TangFactory.GetTang()
                     .NewConfigurationBuilder()
@@ -252,7 +252,7 @@ namespace Org.Apache.REEF.Network.Tests.NamingService
             var cache = injector.GetInstance<NameCache>();
 
             cache.Set("dst1", new IPEndPoint(IPAddress.Any, 0));
-            Thread.Sleep(2000);
+            Thread.Sleep(100);
             var value = cache.Get("dst1");
             Assert.IsNull(value);
 
