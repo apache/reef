@@ -71,6 +71,12 @@ public interface Clock extends Runnable, AutoCloseable {
   boolean isIdle();
 
   /**
+   * The exception clock has failed on when it calls .run().
+   * @return
+   */
+  Throwable runFailedOnException();
+
+  /**
    * Bind this to an event handler to statically subscribe to the StartTime Event.
    */
   @NamedParameter(default_class = MissingStartHandlerHandler.class, doc = "Will be called upon the start event")

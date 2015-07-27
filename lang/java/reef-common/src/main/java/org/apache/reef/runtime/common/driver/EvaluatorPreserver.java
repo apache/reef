@@ -16,19 +16,27 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.driver.parameters;
-
-import org.apache.reef.tang.annotations.Name;
-import org.apache.reef.tang.annotations.NamedParameter;
-import org.apache.reef.wake.EventHandler;
-import org.apache.reef.wake.time.event.StartTime;
+package org.apache.reef.runtime.common.driver;
 
 import java.util.Set;
 
 /**
- * The StartTime event is routed to this EventHandler if there is a restart, instead of to DriverStartHandler.
+ * A interface to preserve evaluators across driver restarts.
  */
-@NamedParameter(doc = "The StartTime event is routed to this EventHandler if there is a restart, " +
-    "instead of to DriverStartHandler.")
-public final class DriverRestartHandler implements Name<Set<EventHandler<StartTime>>> {
+public interface EvaluatorPreserver {
+  /**
+   * Called on driver restart when evaluators are to be recovered.
+   */
+  Set<String> recoverEvaluators();
+
+  /**
+   * Called when an evaluator is to be preserved.
+   */
+  void recordAllocatedEvaluator(final String id);
+
+  /**
+   * Called when an evaluator is to be removed.
+   * @param id
+   */
+  void recordRemovedEvaluator(final String id);
 }

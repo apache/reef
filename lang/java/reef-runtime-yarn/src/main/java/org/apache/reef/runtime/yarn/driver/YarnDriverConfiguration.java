@@ -35,10 +35,7 @@ import org.apache.reef.runtime.yarn.YarnClasspathProvider;
 import org.apache.reef.runtime.yarn.driver.parameters.JobSubmissionDirectory;
 import org.apache.reef.runtime.yarn.driver.parameters.YarnHeartbeatPeriod;
 import org.apache.reef.runtime.yarn.util.YarnConfigurationConstructor;
-import org.apache.reef.tang.formats.ConfigurationModule;
-import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
-import org.apache.reef.tang.formats.OptionalParameter;
-import org.apache.reef.tang.formats.RequiredParameter;
+import org.apache.reef.tang.formats.*;
 import org.apache.reef.wake.time.Clock;
 
 /**
@@ -74,12 +71,12 @@ public class YarnDriverConfiguration extends ConfigurationModuleBuilder {
    */
   public static final OptionalParameter<Double> JVM_HEAP_SLACK = new OptionalParameter<>();
 
-
-  public static ConfigurationModule CONF = new YarnDriverConfiguration()
+  public static final ConfigurationModule CONF = new YarnDriverConfiguration()
       // Bind the YARN runtime for the resource manager.
       .bindImplementation(ResourceLaunchHandler.class, YARNResourceLaunchHandler.class)
       .bindImplementation(ResourceReleaseHandler.class, YARNResourceReleaseHandler.class)
       .bindImplementation(ResourceRequestHandler.class, YarnResourceRequestHandler.class)
+
       .bindConstructor(YarnConfiguration.class, YarnConfigurationConstructor.class)
       .bindSetEntry(Clock.RuntimeStartHandler.class, YARNRuntimeStartHandler.class)
       .bindSetEntry(Clock.RuntimeStopHandler.class, YARNRuntimeStopHandler.class)

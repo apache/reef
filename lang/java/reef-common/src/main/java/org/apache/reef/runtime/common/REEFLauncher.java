@@ -106,6 +106,11 @@ public final class REEFLauncher {
     }
   }
 
+  private static RuntimeException fatal(final String msg) {
+    LOG.log(Level.SEVERE, msg);
+    return new RuntimeException(msg);
+  }
+
   private static RuntimeException fatal(final String msg, final Throwable t) {
     LOG.log(Level.SEVERE, msg, t);
     return new RuntimeException(msg, t);
@@ -164,10 +169,12 @@ public final class REEFLauncher {
     final REEFLauncher launcher = getREEFLauncher(args[0]);
     launcher.logVersion();
 
+    final Throwable runFailedOnException;
     try (final Clock clock = launcher.getClockFromConfig()) {
       LOG.log(Level.FINE, "Clock starting");
       clock.run();
       LOG.log(Level.FINE, "Clock exiting");
+      runFailedOnException = clock.runFailedOnException();
     } catch (final Throwable ex) {
       try (final REEFErrorHandler errorHandler = launcher.getErrorHandlerFromConfig()) {
         throw fatal(errorHandler, "Unable to instantiate the clock", ex);
@@ -180,6 +187,12 @@ public final class REEFLauncher {
     if (LOG.isLoggable(Level.FINEST)) {
       LOG.log(Level.FINEST, ThreadLogger.getFormattedThreadList("Threads running after REEFLauncher.close():"));
     }
+
+    if (runFailedOnException != null) {
+      LOG.log(Level.SEVERE, "clock.run() failed on Exception " + runFailedOnException);
+      throw fatal("clock.run() failed on Exception " + runFailedOnException, runFailedOnException);
+    }
+
     System.exit(0);
     if (LOG.isLoggable(Level.FINEST)) {
       LOG.log(Level.FINEST, ThreadLogger.getFormattedThreadList("Threads running after System.exit():"));

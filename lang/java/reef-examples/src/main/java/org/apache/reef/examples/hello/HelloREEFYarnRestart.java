@@ -22,18 +22,17 @@ import org.apache.reef.client.DriverConfiguration;
 import org.apache.reef.client.DriverLauncher;
 import org.apache.reef.client.LauncherStatus;
 import org.apache.reef.runtime.yarn.client.YarnClientConfiguration;
+import org.apache.reef.runtime.yarn.driver.YarnDriverRestartConfiguration;
 import org.apache.reef.tang.Configuration;
+import org.apache.reef.tang.Configurations;
 import org.apache.reef.tang.exceptions.InjectionException;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- * The Client for running HelloREEF on YARN.
- */
-public final class HelloREEFYarn {
+public final class HelloREEFYarnRestart {
 
-  private static final Logger LOG = Logger.getLogger(HelloREEFYarn.class.getName());
+  private static final Logger LOG = Logger.getLogger(HelloREEFYarnRestart.class.getName());
 
   /**
    * Number of milliseconds to wait for the job to complete.
@@ -47,17 +46,21 @@ public final class HelloREEFYarn {
    * @return the configuration of the HelloREEF driver.
    */
   private static Configuration getDriverConfiguration() {
-    return DriverConfiguration.CONF
-        .set(DriverConfiguration.GLOBAL_LIBRARIES,
-            HelloREEFYarn.class.getProtectionDomain().getCodeSource().getLocation().getFile())
-        .set(DriverConfiguration.DRIVER_IDENTIFIER, "HelloREEF")
-        .set(DriverConfiguration.ON_DRIVER_STARTED, HelloDriver.StartHandler.class)
-        .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, HelloDriver.EvaluatorAllocatedHandler.class)
-        .build();
+    return
+        Configurations.merge(DriverConfiguration.CONF
+                .set(DriverConfiguration.GLOBAL_LIBRARIES,
+                    HelloREEFYarnRestart.class.getProtectionDomain().getCodeSource().getLocation().getFile())
+                .set(DriverConfiguration.DRIVER_IDENTIFIER, "HelloREEF")
+                .set(DriverConfiguration.ON_DRIVER_STARTED, HelloDriver.FailureToStartHandler.class)
+                .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, HelloDriver.EvaluatorAllocatedHandler.class)
+                .build(),
+            YarnDriverRestartConfiguration.CONF
+                .set(YarnDriverRestartConfiguration.ON_DRIVER_RESTARTED, HelloDriver.RestartHandler.class)
+                .build());
   }
 
   /**
-   * Start Hello REEF job. Runs method runHelloReef().
+   * Start Hello REEF job. Runs method runHelloReefYarnRestart().
    *
    * @param args command line parameters.
    * @throws org.apache.reef.tang.exceptions.BindException      configuration error.
@@ -74,6 +77,6 @@ public final class HelloREEFYarn {
   /**
    * Empty private constructor to prohibit instantiation of utility class.
    */
-  private HelloREEFYarn() {
+  private HelloREEFYarnRestart() {
   }
 }

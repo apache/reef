@@ -20,10 +20,6 @@ package org.apache.reef.runtime.yarn.driver;
 
 import com.google.protobuf.ByteString;
 import org.apache.commons.collections.ListUtils;
-import org.apache.hadoop.fs.FSDataOutputStream;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.IOUtils;
 import org.apache.hadoop.service.Service;
 import org.apache.hadoop.yarn.api.records.*;
 import org.apache.hadoop.yarn.client.api.AMRMClient;
@@ -35,13 +31,11 @@ import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.exceptions.YarnException;
 import org.apache.reef.proto.ReefServiceProtos;
 import org.apache.reef.runtime.common.driver.DriverStatusManager;
-import org.apache.reef.runtime.common.driver.evaluator.EvaluatorManager;
 import org.apache.reef.runtime.common.driver.resourcemanager.NodeDescriptorEventImpl;
 import org.apache.reef.runtime.common.driver.resourcemanager.ResourceAllocationEventImpl;
 import org.apache.reef.runtime.common.driver.resourcemanager.ResourceStatusEventImpl;
 import org.apache.reef.runtime.common.driver.resourcemanager.RuntimeStatusEventImpl;
 import org.apache.reef.runtime.yarn.driver.parameters.YarnHeartbeatPeriod;
-import org.apache.reef.runtime.yarn.util.YarnTypes;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.util.Optional;
 import org.apache.reef.wake.remote.Encoder;
@@ -62,10 +56,6 @@ final class YarnContainerManager
   private static final Logger LOG = Logger.getLogger(YarnContainerManager.class.getName());
 
   private static final String RUNTIME_NAME = "YARN";
-
-  private static final String ADD_FLAG = "+";
-
-  private static final String REMOVE_FLAG = "-";
 
   private final YarnClient yarnClient = YarnClient.createYarnClient();
 
@@ -95,7 +85,6 @@ final class YarnContainerManager
       final ContainerRequestCounter containerRequestCounter,
       final DriverStatusManager driverStatusManager,
       final TrackingURLProvider trackingURLProvider) throws IOException {
-
     this.reefEventHandlers = reefEventHandlers;
     this.driverStatusManager = driverStatusManager;
 
@@ -104,7 +93,6 @@ final class YarnContainerManager
     this.containerRequestCounter = containerRequestCounter;
     this.yarnConf = yarnConf;
     this.trackingURLProvider = trackingURLProvider;
-
 
     this.yarnClient.init(this.yarnConf);
 
@@ -132,7 +120,7 @@ final class YarnContainerManager
         new Object[]{id, containers.size(), this.containerRequestCounter.get()});
 
     for (final Container container : containers) {
-      handleNewContainer(container, false);
+      handleNewContainer(container);
     }
 
     LOG.log(Level.FINE, "TIME: Processed Containers {0}", id);
@@ -221,7 +209,6 @@ final class YarnContainerManager
     LOG.log(Level.FINE, "Release container: {0}", containerId);
     final Container container = this.containers.removeAndGet(containerId);
     this.resourceManager.releaseAssignedContainer(container.getId());
-    logContainerRemoval(container.getId().toString());
     updateRuntimeStatus();
   }
 
@@ -250,16 +237,6 @@ final class YarnContainerManager
     } catch (final YarnException | IOException e) {
       LOG.log(Level.WARNING, "Unable to register application master.", e);
       onRuntimeError(e);
-    }
-
-    // TODO: this is currently being developed on a hacked 2.4.0 bits, should be 2.4.1
-    final String minVersionToGetPreviousContainer = "2.4.0";
-
-    // when supported, obtain the list of the containers previously allocated, and write info to driver folder
-    if (YarnTypes.isAtOrAfterVersion(minVersionToGetPreviousContainer)) {
-      LOG.log(Level.FINEST, "Hadoop version is {0} or after with support to retain previous containers, " +
-          "processing previous containers.", minVersionToGetPreviousContainer);
-      processPreviousContainers();
     }
   }
 
@@ -313,48 +290,6 @@ final class YarnContainerManager
     this.reefEventHandlers.onResourceStatus(resourceStatusBuilder.build());
   }
 
-  private void processPreviousContainers() {
-    final List<Container> previousContainers = this.registration.getRegistration().getContainersFromPreviousAttempts();
-    if (previousContainers != null && !previousContainers.isEmpty()) {
-      LOG.log(Level.INFO, "Driver restarted, with {0} previous containers", previousContainers.size());
-      this.driverStatusManager.setNumPreviousContainers(previousContainers.size());
-      final Set<String> expectedContainers = getExpectedContainersFromLogReplay();
-      final int numExpectedContainers = expectedContainers.size();
-      final int numPreviousContainers = previousContainers.size();
-      if (numExpectedContainers > numPreviousContainers) {
-        // we expected more containers to be alive, some containers must have died during driver restart
-        LOG.log(Level.WARNING, "Expected {0} containers while only {1} are still alive",
-            new Object[]{numExpectedContainers, numPreviousContainers});
-        final Set<String> previousContainersIds = new HashSet<>();
-        for (final Container container : previousContainers) {
-          previousContainersIds.add(container.getId().toString());
-        }
-        for (final String expectedContainerId : expectedContainers) {
-          if (!previousContainersIds.contains(expectedContainerId)) {
-            logContainerRemoval(expectedContainerId);
-            LOG.log(Level.WARNING, "Expected container [{0}] not alive, must have failed during driver restart.",
-                expectedContainerId);
-            informAboutConatinerFailureDuringRestart(expectedContainerId);
-          }
-        }
-      }
-      if (numExpectedContainers < numPreviousContainers) {
-        // somehow we have more alive evaluators, this should not happen
-        throw new RuntimeException("Expected only [" + numExpectedContainers + "] containers " +
-            "but resource manager believe that [" + numPreviousContainers + "] are outstanding for driver.");
-      }
-
-      //  numExpectedContainers == numPreviousContainers
-      for (final Container container : previousContainers) {
-        LOG.log(Level.FINE, "Previous container: [{0}]", container.toString());
-        if (!expectedContainers.contains(container.getId().toString())) {
-          throw new RuntimeException("Not expecting container " + container.getId().toString());
-        }
-        handleNewContainer(container, true);
-      }
-    }
-  }
-
   /**
    * Handles container status reports. Calls come from YARN.
    *
@@ -387,7 +322,6 @@ final class YarnContainerManager
         status.setExitCode(value.getExitStatus());
           // remove the completed container (can be either done/killed/failed) from book keeping
         this.containers.removeAndGet(containerId);
-        logContainerRemoval(containerId);
         break;
       default:
         LOG.info("Container running");
@@ -419,53 +353,48 @@ final class YarnContainerManager
    *
    * @param container newly allocated
    */
-  private void handleNewContainer(final Container container, final boolean isRecoveredContainer) {
-
+  private void handleNewContainer(final Container container) {
     LOG.log(Level.FINE, "allocated container: id[ {0} ]", container.getId());
     // recovered container is not new allocation, it is just checking back from previous driver failover
-    if (!isRecoveredContainer) {
-      synchronized (this) {
-        if (matchContainerWithPendingRequest(container)) {
-          final AMRMClient.ContainerRequest matchedRequest = this.requestsAfterSentToRM.peek();
-          this.containerRequestCounter.decrement();
-          this.containers.add(container);
+    synchronized (this) {
+      if (matchContainerWithPendingRequest(container)) {
+        final AMRMClient.ContainerRequest matchedRequest = this.requestsAfterSentToRM.peek();
+        this.containerRequestCounter.decrement();
+        this.containers.add(container);
 
-          LOG.log(Level.FINEST, "{0} matched with {1}", new Object[]{container.toString(), matchedRequest.toString()});
+        LOG.log(Level.FINEST, "{0} matched with {1}", new Object[]{container.toString(), matchedRequest.toString()});
 
-          // Due to the bug YARN-314 and the workings of AMRMCClientAsync, when x-priority m-capacity zero-container
-          // request and x-priority n-capacity nonzero-container request are sent together, where m > n, RM ignores
-          // the latter.
-          // Therefore it is necessary avoid sending zero-container request, even it means getting extra containers.
-          // It is okay to send nonzero m-capacity and n-capacity request together since bigger containers
-          // can be matched.
-          // TODO: revisit this when implementing locality-strictness (i.e. a specific rack request can be ignored)
-          if (this.requestsAfterSentToRM.size() > 1) {
-            try {
-              this.resourceManager.removeContainerRequest(matchedRequest);
-            } catch (final Exception e) {
-              LOG.log(Level.WARNING, "Nothing to remove from Async AMRM client's queue, " +
-                  "removal attempt failed with exception", e);
-            }
+        // Due to the bug YARN-314 and the workings of AMRMCClientAsync, when x-priority m-capacity zero-container
+        // request and x-priority n-capacity nonzero-container request are sent together, where m > n, RM ignores
+        // the latter.
+        // Therefore it is necessary avoid sending zero-container request, even it means getting extra containers.
+        // It is okay to send nonzero m-capacity and n-capacity request together since bigger containers
+        // can be matched.
+        // TODO: revisit this when implementing locality-strictness (i.e. a specific rack request can be ignored)
+        if (this.requestsAfterSentToRM.size() > 1) {
+          try {
+            this.resourceManager.removeContainerRequest(matchedRequest);
+          } catch (final Exception e) {
+            LOG.log(Level.WARNING, "Nothing to remove from Async AMRM client's queue, " +
+                "removal attempt failed with exception", e);
           }
-
-          this.requestsAfterSentToRM.remove();
-          doHomogeneousRequests();
-
-          LOG.log(Level.FINEST, "Allocated Container: memory = {0}, core number = {1}",
-              new Object[]{container.getResource().getMemory(), container.getResource().getVirtualCores()});
-          this.reefEventHandlers.onResourceAllocation(ResourceAllocationEventImpl.newBuilder()
-              .setIdentifier(container.getId().toString())
-              .setNodeId(container.getNodeId().toString())
-              .setResourceMemory(container.getResource().getMemory())
-              .setVirtualCores(container.getResource().getVirtualCores())
-              .build());
-          // we only add this to Container log after the Container has been registered as an REEF Evaluator.
-          logContainerAddition(container.getId().toString());
-          this.updateRuntimeStatus();
-        } else {
-          LOG.log(Level.WARNING, "Got an extra container {0} that doesn't match, releasing...", container.getId());
-          this.resourceManager.releaseAssignedContainer(container.getId());
         }
+
+        this.requestsAfterSentToRM.remove();
+        doHomogeneousRequests();
+
+        LOG.log(Level.FINEST, "Allocated Container: memory = {0}, core number = {1}",
+            new Object[]{container.getResource().getMemory(), container.getResource().getVirtualCores()});
+        this.reefEventHandlers.onResourceAllocation(ResourceAllocationEventImpl.newBuilder()
+            .setIdentifier(container.getId().toString())
+            .setNodeId(container.getNodeId().toString())
+            .setResourceMemory(container.getResource().getMemory())
+            .setVirtualCores(container.getResource().getVirtualCores())
+            .build());
+        this.updateRuntimeStatus();
+      } else {
+        LOG.log(Level.WARNING, "Got an extra container {0} that doesn't match, releasing...", container.getId());
+        this.resourceManager.releaseAssignedContainer(container.getId());
       }
     }
   }
@@ -556,139 +485,5 @@ final class YarnContainerManager
         .build();
 
     this.reefEventHandlers.onRuntimeStatus(runtimeStatusBuilder.build());
-  }
-
-  private Set<String> getExpectedContainersFromLogReplay() {
-    final org.apache.hadoop.conf.Configuration config = new org.apache.hadoop.conf.Configuration();
-    config.setBoolean("dfs.support.append", true);
-    config.setBoolean("dfs.support.broken.append", true);
-    final Set<String> expectedContainers = new HashSet<>();
-    try {
-      final FileSystem fs = FileSystem.get(config);
-      final Path path = new Path(getChangeLogLocation());
-      if (!fs.exists(path)) {
-        // empty set
-        return expectedContainers;
-      } else {
-        final BufferedReader br = new BufferedReader(new InputStreamReader(fs.open(path)));
-        String line = br.readLine();
-        while (line != null) {
-          if (line.startsWith(ADD_FLAG)) {
-            final String containerId = line.substring(ADD_FLAG.length());
-            if (expectedContainers.contains(containerId)) {
-              throw new RuntimeException("Duplicated add container record found in the change log for container " +
-                  containerId);
-            }
-            expectedContainers.add(containerId);
-          } else if (line.startsWith(REMOVE_FLAG)) {
-            final String containerId = line.substring(REMOVE_FLAG.length());
-            if (!expectedContainers.contains(containerId)) {
-              throw new RuntimeException("Change log includes record that try to remove non-exist or duplicate " +
-                  "remove record for container + " + containerId);
-            }
-            expectedContainers.remove(containerId);
-          }
-          line = br.readLine();
-        }
-        br.close();
-      }
-    } catch (final IOException e) {
-      throw new RuntimeException("Cannot read from log file", e);
-    }
-    return expectedContainers;
-  }
-
-  private void informAboutConatinerFailureDuringRestart(final String containerId) {
-    LOG.log(Level.WARNING, "Container [" + containerId +
-        "] has failed during driver restart process, FailedEvaluatorHandler will be triggered, but " +
-        "no additional evaluator can be requested due to YARN-2433.");
-    // trigger a failed evaluator event
-    this.reefEventHandlers.onResourceStatus(ResourceStatusEventImpl.newBuilder()
-        .setIdentifier(containerId)
-        .setState(ReefServiceProtos.State.FAILED)
-        .setExitCode(1)
-        .setDiagnostics("Container [" + containerId + "] failed during driver restart process.")
-        .setIsFromPreviousDriver(true)
-        .build());
-  }
-
-  private synchronized void writeToEvaluatorLog(final String entry) throws IOException {
-    final org.apache.hadoop.conf.Configuration config = new org.apache.hadoop.conf.Configuration();
-    config.setBoolean("dfs.support.append", true);
-    config.setBoolean("dfs.support.broken.append", true);
-    final FileSystem fs = getFileSystemInstance();
-    final Path path = new Path(getChangeLogLocation());
-    final boolean appendToLog = fs.exists(path);
-
-    try (
-        final BufferedWriter bw = appendToLog ?
-            new BufferedWriter(new OutputStreamWriter(fs.append(path))) :
-            new BufferedWriter(new OutputStreamWriter(fs.create(path)));
-    ) {
-      bw.write(entry);
-    } catch (final IOException e) {
-      if (appendToLog) {
-        LOG.log(Level.FINE, "Unable to add an entry to the Evaluator log. Attempting append by delete and recreate", e);
-        appendByDeleteAndCreate(fs, path, entry);
-      }
-    }
-  }
-
-  private FileSystem getFileSystemInstance() throws IOException {
-    final org.apache.hadoop.conf.Configuration config = new org.apache.hadoop.conf.Configuration();
-    config.setBoolean("dfs.support.append", true);
-    config.setBoolean("dfs.support.broken.append", true);
-    return FileSystem.get(config);
-  }
-
-  /**
-   * For certain HDFS implementation, the append operation may not be supported (e.g., Azure blob - wasb)
-   * in this case, we will emulate the append operation by reading the content, appending entry at the end,
-   * then recreating the file with appended content.
-   *
-   * @throws java.io.IOException when the file can't be written.
-   */
-
-  private void appendByDeleteAndCreate(final FileSystem fs, final Path path, final String appendEntry)
-      throws IOException {
-    final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-
-    try (final InputStream inputStream = fs.open(path)) {
-      IOUtils.copyBytes(inputStream, outputStream, 4096, true);
-    }
-
-    final String newContent = outputStream.toString() + appendEntry;
-    fs.delete(path, true);
-
-    try (final FSDataOutputStream newOutput = fs.create(path);
-         final InputStream newInput = new ByteArrayInputStream(newContent.getBytes())) {
-      IOUtils.copyBytes(newInput, newOutput, 4096, true);
-    }
-
-  }
-
-  private String getChangeLogLocation() {
-    return "/ReefApplications/" + EvaluatorManager.getJobIdentifier() + "/evaluatorsChangesLog";
-  }
-
-  private void logContainerAddition(final String containerId) {
-    final String entry = ADD_FLAG + containerId + System.lineSeparator();
-    logContainerChange(entry);
-  }
-
-  private void logContainerRemoval(final String containerId) {
-    final String entry = REMOVE_FLAG + containerId + System.lineSeparator();
-    logContainerChange(entry);
-  }
-
-  private void logContainerChange(final String entry) {
-    try {
-      writeToEvaluatorLog(entry);
-    } catch (final IOException e) {
-      final String errorMsg = "Unable to log the change of container [" + entry +
-          "] to the container log. Driver restart won't work properly.";
-      LOG.log(Level.WARNING, errorMsg, e);
-      throw new RuntimeException(errorMsg);
-    }
   }
 }

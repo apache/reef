@@ -22,7 +22,9 @@ import org.apache.hadoop.yarn.api.records.LocalResource;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.exceptions.YarnException;
 import org.apache.reef.client.parameters.DriverConfigurationProviders;
+import org.apache.reef.client.parameters.DriverRestartHandlersConfiguration;
 import org.apache.reef.io.TcpPortConfigurationProvider;
+import org.apache.reef.javabridge.generic.JobDriver;
 import org.apache.reef.runtime.common.driver.parameters.ClientRemoteIdentifier;
 import org.apache.reef.runtime.common.files.ClasspathProvider;
 import org.apache.reef.runtime.common.files.REEFFileNames;
@@ -31,6 +33,7 @@ import org.apache.reef.runtime.yarn.client.YarnSubmissionHelper;
 import org.apache.reef.runtime.yarn.client.uploader.JobFolder;
 import org.apache.reef.runtime.yarn.client.uploader.JobUploader;
 import org.apache.reef.runtime.yarn.driver.YarnDriverConfiguration;
+import org.apache.reef.runtime.yarn.driver.YarnDriverRestartConfiguration;
 import org.apache.reef.tang.*;
 import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.tang.formats.ConfigurationSerializer;
@@ -72,17 +75,36 @@ public final class YarnJobSubmissionClient {
     this.classpath = classpath;
   }
 
-  private void addJVMConfiguration(final File driverFolder, final String jobId, final String jobSubmissionFolder)
+  private void addYarnDriverConfiguration(final File driverFolder, final String jobId, final String jobSubmissionFolder)
       throws IOException {
     final File driverConfigurationFile = new File(driverFolder, this.fileNames.getDriverConfigurationPath());
+    final Configuration yarnDriverConfiguration = YarnDriverConfiguration.CONF
+        .set(YarnDriverConfiguration.JOB_SUBMISSION_DIRECTORY, jobSubmissionFolder)
+        .set(YarnDriverConfiguration.JOB_IDENTIFIER, jobId)
+        .set(YarnDriverConfiguration.CLIENT_REMOTE_IDENTIFIER, ClientRemoteIdentifier.NONE)
+        .set(YarnDriverConfiguration.JVM_HEAP_SLACK, 0.0)
+        .build();
+
+    final Configuration yarnDriverRestartConfiguration =
+        YarnDriverRestartConfiguration.CONF
+            .set(YarnDriverRestartConfiguration.ON_DRIVER_RESTARTED, JobDriver.RestartHandler.class)
+            .build();
+
+    final Configuration yarnDriverRestartHandlersConfiguration =
+        DriverRestartHandlersConfiguration.CONF
+            .set(DriverRestartHandlersConfiguration.ON_DRIVER_RESTART_CONTEXT_ACTIVE,
+                JobDriver.DriverRestartActiveContextHandler.class)
+            .set(DriverRestartHandlersConfiguration.ON_DRIVER_RESTART_TASK_RUNNING,
+                JobDriver.DriverRestartRunningTaskHandler.class)
+            .set(DriverRestartHandlersConfiguration.ON_DRIVER_RESTART_COMPLETED,
+                JobDriver.DriverRestartCompletedHandler.class)
+            .build();
+
     final Configuration driverConfiguration = Configurations.merge(
         Constants.DRIVER_CONFIGURATION_WITH_HTTP_AND_NAMESERVER,
-        YarnDriverConfiguration.CONF
-            .set(YarnDriverConfiguration.JOB_SUBMISSION_DIRECTORY, jobSubmissionFolder)
-            .set(YarnDriverConfiguration.JOB_IDENTIFIER, jobId)
-            .set(YarnDriverConfiguration.CLIENT_REMOTE_IDENTIFIER, ClientRemoteIdentifier.NONE)
-            .set(YarnDriverConfiguration.JVM_HEAP_SLACK, 0.0)
-            .build());
+        yarnDriverConfiguration,
+        yarnDriverRestartConfiguration,
+        yarnDriverRestartHandlersConfiguration);
 
     this.configurationSerializer.toFile(driverConfiguration, driverConfigurationFile);
   }
@@ -132,7 +154,7 @@ public final class YarnJobSubmissionClient {
       // ------------------------------------------------------------------------
       // Prepare the JAR
       final JobFolder jobFolderOnDFS = this.uploader.createJobFolder(submissionHelper.getApplicationId());
-      this.addJVMConfiguration(driverFolder, jobId, jobFolderOnDFS.getPath().toString());
+      this.addYarnDriverConfiguration(driverFolder, jobId, jobFolderOnDFS.getPath().toString());
       final File jarFile = makeJar(driverFolder);
       LOG.log(Level.INFO, "Created job submission jar file: {0}", jarFile);
 

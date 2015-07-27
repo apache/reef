@@ -16,19 +16,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.driver.parameters;
+package org.apache.reef.runtime.yarn.driver.parameters;
 
+import org.apache.reef.runtime.common.driver.EvaluatorPreserver;
+import org.apache.reef.runtime.yarn.driver.DFSEvaluatorPreserver;
 import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
-import org.apache.reef.wake.EventHandler;
-import org.apache.reef.wake.time.event.StartTime;
-
-import java.util.Set;
 
 /**
- * The StartTime event is routed to this EventHandler if there is a restart, instead of to DriverStartHandler.
+ * The Evaluator Preserver to use on YARN, defaults to DFS.
  */
-@NamedParameter(doc = "The StartTime event is routed to this EventHandler if there is a restart, " +
-    "instead of to DriverStartHandler.")
-public final class DriverRestartHandler implements Name<Set<EventHandler<StartTime>>> {
+@NamedParameter(doc = "The Evaluator Preserver to use on YARN, defaults to DFS.",
+    default_class = DFSEvaluatorPreserver.class)
+public final class YarnEvaluatorPreserver implements Name<EvaluatorPreserver> {
+  private YarnEvaluatorPreserver() {
+  }
 }

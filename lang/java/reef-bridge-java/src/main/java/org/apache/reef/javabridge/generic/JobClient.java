@@ -19,8 +19,10 @@
 package org.apache.reef.javabridge.generic;
 
 import org.apache.reef.client.*;
+import org.apache.reef.client.parameters.DriverRestartHandlersConfiguration;
 import org.apache.reef.io.network.naming.NameServerConfiguration;
 import org.apache.reef.javabridge.NativeInterop;
+import org.apache.reef.runtime.yarn.driver.YarnDriverRestartConfiguration;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Configurations;
 import org.apache.reef.tang.annotations.Unit;
@@ -105,18 +107,14 @@ public class JobClient {
         .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, JobDriver.AllocatedEvaluatorHandler.class)
         .set(DriverConfiguration.ON_EVALUATOR_FAILED, JobDriver.FailedEvaluatorHandler.class)
         .set(DriverConfiguration.ON_CONTEXT_ACTIVE, JobDriver.ActiveContextHandler.class)
-        .set(DriverConfiguration.ON_DRIVER_RESTART_CONTEXT_ACTIVE, JobDriver.DriverRestartActiveContextHandler.class)
         .set(DriverConfiguration.ON_CONTEXT_CLOSED, JobDriver.ClosedContextHandler.class)
         .set(DriverConfiguration.ON_CONTEXT_FAILED, JobDriver.FailedContextHandler.class)
         .set(DriverConfiguration.ON_CONTEXT_MESSAGE, JobDriver.ContextMessageHandler.class)
         .set(DriverConfiguration.ON_TASK_MESSAGE, JobDriver.TaskMessageHandler.class)
         .set(DriverConfiguration.ON_TASK_FAILED, JobDriver.FailedTaskHandler.class)
         .set(DriverConfiguration.ON_TASK_RUNNING, JobDriver.RunningTaskHandler.class)
-        .set(DriverConfiguration.ON_DRIVER_RESTART_TASK_RUNNING, JobDriver.DriverRestartRunningTaskHandler.class)
-        .set(DriverConfiguration.ON_DRIVER_RESTART_COMPLETED, JobDriver.DriverRestartCompletedHandler.class)
         .set(DriverConfiguration.ON_TASK_COMPLETED, JobDriver.CompletedTaskHandler.class)
         .set(DriverConfiguration.ON_DRIVER_STARTED, JobDriver.StartHandler.class)
-        .set(DriverConfiguration.ON_DRIVER_RESTARTED, JobDriver.RestartHandler.class)
         .set(DriverConfiguration.ON_TASK_SUSPENDED, JobDriver.SuspendedTaskHandler.class)
         .set(DriverConfiguration.ON_EVALUATOR_COMPLETED, JobDriver.CompletedEvaluatorHandler.class);
   }
@@ -139,15 +137,27 @@ public class JobClient {
         .set(DriverServiceConfiguration.ON_EVALUATOR_ALLOCATED,
             ReefEventStateManager.AllocatedEvaluatorStateHandler.class)
         .set(DriverServiceConfiguration.ON_CONTEXT_ACTIVE, ReefEventStateManager.ActiveContextStateHandler.class)
-        .set(DriverServiceConfiguration.ON_DRIVER_RESTART_CONTEXT_ACTIVE,
-            ReefEventStateManager.DrivrRestartActiveContextStateHandler.class)
         .set(DriverServiceConfiguration.ON_TASK_RUNNING, ReefEventStateManager.TaskRunningStateHandler.class)
-        .set(DriverServiceConfiguration.ON_DRIVER_RESTART_TASK_RUNNING,
-            ReefEventStateManager.DriverRestartTaskRunningStateHandler.class)
         .set(DriverServiceConfiguration.ON_DRIVER_STARTED, ReefEventStateManager.StartStateHandler.class)
         .set(DriverServiceConfiguration.ON_DRIVER_STOP, ReefEventStateManager.StopStateHandler.class)
         .build();
+
     return Configurations.merge(httpHandlerConfiguration, driverConfigurationForHttpServer);
+  }
+
+  public static Configuration getYarnConfiguration() {
+    Configuration yarnDriverRestartConfiguration = YarnDriverRestartConfiguration.CONF
+        .set(YarnDriverRestartConfiguration.ON_DRIVER_RESTARTED, ReefEventStateManager.DriverRestartHandler.class)
+        .build();
+
+    Configuration driverRestartHandlerConfigurations = DriverRestartHandlersConfiguration.CONF
+        .set(DriverRestartHandlersConfiguration.ON_DRIVER_RESTART_TASK_RUNNING,
+            ReefEventStateManager.DriverRestartTaskRunningStateHandler.class)
+        .set(DriverRestartHandlersConfiguration.ON_DRIVER_RESTART_CONTEXT_ACTIVE,
+            ReefEventStateManager.DriverRestartActiveContextStateHandler.class)
+        .build();
+
+    return Configurations.merge(yarnDriverRestartConfiguration, driverRestartHandlerConfigurations);
   }
 
   public void addCLRFiles(final File folder) throws BindException {
@@ -194,8 +204,13 @@ public class JobClient {
    *
    * @throws org.apache.reef.tang.exceptions.BindException configuration error.
    */
-  public void submit(final File clrFolder, final boolean submitDriver, final Configuration clientConfig) {
+  public void submit(final File clrFolder, final boolean submitDriver,
+                     final boolean local, final Configuration clientConfig) {
     try (final LoggingScope ls = this.loggingScopeFactory.driverSubmit(submitDriver)) {
+      if (!local) {
+        this.driverConfiguration = Configurations.merge(this.driverConfiguration, this.getYarnConfiguration());
+      }
+
       try {
         addCLRFiles(clrFolder);
       } catch (final BindException e) {
