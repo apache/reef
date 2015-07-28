@@ -45,7 +45,9 @@ under the License.
     </custom>
     
   <bannerLeft>
-    <src>REEFLogo.png</src>
+    <name>Apache REEF</name>
+    <src>ApacheREEF_logo_no_margin_small.png</src>
+    <alt>Apache REEF</alt>
     <href></href>
   </bannerLeft>
   <bannerRight>
