@@ -35,6 +35,7 @@ import java.util.logging.Logger;
 
 /**
  * NameResolver looking up local name server.
+ * This class should be used when the NameServer is started locally.
  */
 public final class LocalNameResolverImpl implements NameResolver {
 
@@ -64,12 +65,12 @@ public final class LocalNameResolverImpl implements NameResolver {
   private LocalNameResolverImpl(
       final NameServer nameServer,
       @Parameter(NameResolverCacheTimeout.class) final long timeout,
-      @Parameter(NameResolverRetryCount.class) final int retCount,
-      @Parameter(NameResolverRetryTimeout.class) final int retTimeout) {
+      @Parameter(NameResolverRetryCount.class) final int retryCount,
+      @Parameter(NameResolverRetryTimeout.class) final int retryTimeout) {
     this.nameServer = nameServer;
     this.cache = new NameCache(timeout);
-    this.retryCount = retCount;
-    this.retryTimeout = retTimeout;
+    this.retryCount = retryCount;
+    this.retryTimeout = retryTimeout;
   }
 
   @Override
@@ -95,7 +96,7 @@ public final class LocalNameResolverImpl implements NameResolver {
         int retriesLeft = origRetryCount;
         while (true) {
           try {
-            final InetSocketAddress addr =  nameServer.lookup(id);
+            final InetSocketAddress addr = nameServer.lookup(id);
             if (addr == null) {
               throw new NullPointerException();
             } else {
