@@ -60,7 +60,7 @@ public class TupleSerializerTest {
         keySerializer, valSerializer);
 
     baos = new ByteArrayOutputStream();
-    Accumulator<Tuple<Integer, String>> acc = fts.create(baos).accumulator();
+    final Accumulator<Tuple<Integer, String>> acc = fts.create(baos).accumulator();
     for (int i = 0; i < 100; i++) {
       acc.add(new Tuple<>(i, i + ""));
     }
@@ -74,8 +74,8 @@ public class TupleSerializerTest {
   @Test
   public void testFramingSerializer() throws ServiceException, IOException {
     int i = 0;
-    for (Tuple<Integer, String> t : iterable) {
-      Tuple<Integer, String> u = new Tuple<>(i, i + "");
+    for (final Tuple<Integer, String> t : iterable) {
+      final Tuple<Integer, String> u = new Tuple<>(i, i + "");
       Assert.assertEquals(u, t);
       i++;
     }
@@ -84,13 +84,13 @@ public class TupleSerializerTest {
 
   @Test(expected = NoSuchElementException.class)
   public void testReadOffEnd() {
-    Iterator<Tuple<Integer, String>> it = iterable.iterator();
+    final Iterator<Tuple<Integer, String>> it = iterable.iterator();
     try {
       while (it.hasNext()) {
         it.next();
         it.hasNext();
       }
-    } catch (NoSuchElementException e) {
+    } catch (final NoSuchElementException e) {
       throw new IllegalStateException("Errored out too early!", e);
     }
     it.next();
@@ -98,7 +98,7 @@ public class TupleSerializerTest {
 
   @Test(expected = UnsupportedOperationException.class)
   public void testCantRemove() {
-    Iterator<Tuple<Integer, String>> it = iterable.iterator();
+    final Iterator<Tuple<Integer, String>> it = iterable.iterator();
     it.next();
     it.remove();
   }

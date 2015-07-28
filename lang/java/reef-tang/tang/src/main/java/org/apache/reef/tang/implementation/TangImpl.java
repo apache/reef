@@ -40,7 +40,7 @@ public class TangImpl implements Tang {
   }
 
   @Override
-  public Injector newInjector(Configuration... confs) throws BindException {
+  public Injector newInjector(final Configuration... confs) throws BindException {
     return new InjectorImpl(new JavaConfigurationBuilderImpl(confs).build());
   }
 
@@ -49,23 +49,23 @@ public class TangImpl implements Tang {
   public JavaConfigurationBuilder newConfigurationBuilder() {
     try {
       return newConfigurationBuilder(new URL[0], new Configuration[0], new Class[0]);
-    } catch (BindException e) {
+    } catch (final BindException e) {
       throw new IllegalStateException(
           "Caught unexpeceted bind exception!  Implementation bug.", e);
     }
   }
 
   @Override
-  public ConfigurationBuilder newConfigurationBuilder(ClassHierarchy ch) {
+  public ConfigurationBuilder newConfigurationBuilder(final ClassHierarchy ch) {
     return new ConfigurationBuilderImpl(ch);
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  public JavaConfigurationBuilder newConfigurationBuilder(URL... jars) {
+  public JavaConfigurationBuilder newConfigurationBuilder(final URL... jars) {
     try {
       return newConfigurationBuilder(jars, new Configuration[0], new Class[0]);
-    } catch (BindException e) {
+    } catch (final BindException e) {
       throw new IllegalStateException(
           "Caught unexpeceted bind exception!  Implementation bug.", e);
     }
@@ -74,22 +74,21 @@ public class TangImpl implements Tang {
   @SuppressWarnings("unchecked")
   @Override
   public JavaConfigurationBuilder newConfigurationBuilder(
-      Configuration... confs) throws BindException {
+      final Configuration... confs) throws BindException {
     return newConfigurationBuilder(new URL[0], confs, new Class[0]);
   }
 
   @Override
   public final JavaConfigurationBuilder newConfigurationBuilder(
-      @SuppressWarnings("unchecked") Class<? extends ExternalConstructor<?>>... parsers) throws BindException {
+      @SuppressWarnings("unchecked") final Class<? extends ExternalConstructor<?>>... parsers) throws BindException {
     return newConfigurationBuilder(new URL[0], new Configuration[0], parsers);
   }
 
   @Override
-  public JavaConfigurationBuilder newConfigurationBuilder(URL[] jars,
-                                                          Configuration[] confs,
-                                                          Class<? extends ExternalConstructor<?>>[] parameterParsers)
+  public JavaConfigurationBuilder newConfigurationBuilder(final URL[] jars, final Configuration[] confs,
+          final Class<? extends ExternalConstructor<?>>[] parameterParsers)
       throws BindException {
-    JavaConfigurationBuilder cb = new JavaConfigurationBuilderImpl(jars, confs, parameterParsers);
+    final JavaConfigurationBuilder cb = new JavaConfigurationBuilderImpl(jars, confs, parameterParsers);
 //    for (Configuration c : confs) {
 //      cb.addConfiguration(c);
 //    }
@@ -103,9 +102,9 @@ public class TangImpl implements Tang {
   }
 
   @Override
-  public JavaClassHierarchy getDefaultClassHierarchy(URL[] jars,
-                                                     Class<? extends ExternalConstructor<?>>[] parameterParsers) {
-    SetValuedKey key = new SetValuedKey(jars, parameterParsers);
+  public JavaClassHierarchy getDefaultClassHierarchy(final URL[] jars,
+                                                     final Class<? extends ExternalConstructor<?>>[] parameterParsers) {
+    final SetValuedKey key = new SetValuedKey(jars, parameterParsers);
 
     JavaClassHierarchy ret = defaultClassHierarchy.get(key);
     if (ret == null) {
@@ -116,10 +115,10 @@ public class TangImpl implements Tang {
   }
 
   @Override
-  public Injector newInjector(Configuration confs) {
+  public Injector newInjector(final Configuration confs) {
     try {
       return newInjector(new Configuration[]{confs});
-    } catch (BindException e) {
+    } catch (final BindException e) {
       throw new IllegalStateException("Unexpected error cloning configuration", e);
     }
   }
@@ -128,7 +127,7 @@ public class TangImpl implements Tang {
   public Injector newInjector() {
     try {
       return newInjector(new Configuration[]{});
-    } catch (BindException e) {
+    } catch (final BindException e) {
       throw new IllegalStateException("Unexpected error from empty configuration", e);
     }
   }
@@ -136,7 +135,7 @@ public class TangImpl implements Tang {
   private class SetValuedKey {
     public final Set<Object> key;
 
-    public SetValuedKey(Object[] ts, Object[] us) {
+    public SetValuedKey(final Object[] ts, final Object[] us) {
       key = new HashSet<Object>(Arrays.asList(ts));
       key.addAll(Arrays.asList(us));
     }
@@ -144,15 +143,15 @@ public class TangImpl implements Tang {
     @Override
     public int hashCode() {
       int i = 0;
-      for (Object t : key) {
+      for (final Object t : key) {
         i += t.hashCode();
       }
       return i;
     }
 
     @Override
-    public boolean equals(Object o) {
-      SetValuedKey other = (SetValuedKey) o;
+    public boolean equals(final Object o) {
+      final SetValuedKey other = (SetValuedKey) o;
       if (other.key.size() != this.key.size()) {
         return false;
       }

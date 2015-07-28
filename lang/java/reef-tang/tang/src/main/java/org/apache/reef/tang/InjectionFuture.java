@@ -78,20 +78,20 @@ public final class InjectionFuture<T> implements Future<T> {
     instance = null;
   }
 
-  public InjectionFuture(final Injector injector, Class<? extends T> iface) {
+  public InjectionFuture(final Injector injector, final Class<? extends T> iface) {
     this.injector = (InjectorImpl) injector;
     this.iface = iface;
     this.instance = null;
   }
 
-  public InjectionFuture(T instance) {
+  public InjectionFuture(final T instance) {
     this.injector = null;
     this.iface = null;
     this.instance = instance;
   }
 
   @Override
-  public boolean cancel(boolean mayInterruptIfRunning) {
+  public boolean cancel(final boolean mayInterruptIfRunning) {
     return false;
   }
 
@@ -119,19 +119,19 @@ public final class InjectionFuture<T> implements Future<T> {
         } else {
           t = injector.getInstance(iface);
         }
-        Aspect a = injector.getAspect();
+        final Aspect a = injector.getAspect();
         if (a != null) {
           a.injectionFutureInstantiated(this, t);
         }
         return t;
       }
-    } catch (InjectionException e) {
+    } catch (final InjectionException e) {
       throw new RuntimeException(e);
     }
   }
 
   @Override
-  public T get(long timeout, TimeUnit unit) {
+  public T get(final long timeout, final TimeUnit unit) {
     throw new UnsupportedOperationException();
   }
 

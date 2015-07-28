@@ -50,7 +50,7 @@ public class TupleSource implements StaticObservable, Stage {
 
   @Override
   public void close() throws Exception {
-    for (Thread t : threads) {
+    for (final Thread t : threads) {
       t.join();
     }
     out.onCompleted();

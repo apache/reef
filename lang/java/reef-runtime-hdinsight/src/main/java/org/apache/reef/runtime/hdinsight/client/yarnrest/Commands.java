@@ -52,12 +52,12 @@ public final class Commands {
 
   @Override
     public String toString() {
-    StringWriter writer = new StringWriter();
-    String objectString;
+    final StringWriter writer = new StringWriter();
+    final String objectString;
     try {
       OBJECT_MAPPER.writeValue(writer, this);
       objectString = writer.toString();
-    } catch (IOException e) {
+    } catch (final IOException e) {
       return null;
     }
 

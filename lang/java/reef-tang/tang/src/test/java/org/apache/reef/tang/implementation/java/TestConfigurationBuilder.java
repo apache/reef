@@ -50,7 +50,7 @@ public class TestConfigurationBuilder {
     private final String str;
 
     @Inject
-    NamedParamterNoDefault(@Parameter(NamedString.class) String str) {
+    NamedParamterNoDefault(@Parameter(NamedString.class) final String str) {
       this.str = str;
     }
 

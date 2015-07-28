@@ -46,7 +46,7 @@ final class SetOfBaseTypes {
   }
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(final Object o) {
     if (this == o) {
       return true;
     }
@@ -54,7 +54,7 @@ final class SetOfBaseTypes {
       return false;
     }
 
-    SetOfBaseTypes that = (SetOfBaseTypes) o;
+    final SetOfBaseTypes that = (SetOfBaseTypes) o;
 
     if (!doubles.equals(that.doubles)) {
       return false;

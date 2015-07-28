@@ -103,7 +103,7 @@ final class EvaluatorReuseTestDriver {
       try {
         eb.submitContext(ContextConfiguration.CONF
             .set(ContextConfiguration.IDENTIFIER, "EvaluatorReuse").build());
-      } catch (BindException e) {
+      } catch (final BindException e) {
         throw new RuntimeException(e);
       }
     }

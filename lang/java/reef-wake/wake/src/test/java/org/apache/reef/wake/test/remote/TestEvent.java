@@ -27,7 +27,7 @@ public class TestEvent implements Serializable {
 
   private double load;
 
-  public TestEvent(String message, double load) {
+  public TestEvent(final String message, final double load) {
     this.message = message;
     this.load = load;
   }

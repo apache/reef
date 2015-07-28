@@ -22,7 +22,7 @@ import org.apache.reef.tang.types.Node;
 import org.apache.reef.tang.types.PackageNode;
 
 public class PackageNodeImpl extends AbstractNode implements PackageNode {
-  public PackageNodeImpl(Node parent, String name, String fullName) {
+  public PackageNodeImpl(final Node parent, final String name, final String fullName) {
     super(parent, name, fullName);
   }
 
@@ -36,7 +36,7 @@ public class PackageNodeImpl extends AbstractNode implements PackageNode {
    * we insert nodes into the root.
    */
   @Override
-  public void put(Node n) {
+  public void put(final Node n) {
     super.children.put(n.getFullName(), n);
   }
 

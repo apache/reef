@@ -38,15 +38,15 @@ public class TimeoutSubjectTest {
     final AtomicInteger nexts = new AtomicInteger(0);
     final AtomicInteger completes = new AtomicInteger(0);
     final int delta = 400;
-    Subject<Integer, Integer> dut = new TimeoutSubject<>(10000, new Observer<Integer>() {
+    final Subject<Integer, Integer> dut = new TimeoutSubject<>(10000, new Observer<Integer>() {
 
       @Override
-      public void onNext(Integer value) {
+      public void onNext(final Integer value) {
         nexts.addAndGet(delta);
       }
 
       @Override
-      public void onError(Exception error) {
+      public void onError(final Exception error) {
         fail(error.toString());
       }
 
@@ -70,12 +70,12 @@ public class TimeoutSubjectTest {
     final Subject<Integer, Integer> dut = new TimeoutSubject<>(10000, new Observer<Integer>() {
 
       @Override
-      public void onNext(Integer value) {
+      public void onNext(final Integer value) {
         nexts.addAndGet(delta);
       }
 
       @Override
-      public void onError(Exception error) {
+      public void onError(final Exception error) {
         fail(error.toString());
       }
 
@@ -86,7 +86,7 @@ public class TimeoutSubjectTest {
       }
     });
 
-    ExecutorService e = Executors.newSingleThreadExecutor();
+    final ExecutorService e = Executors.newSingleThreadExecutor();
     e.submit(new Runnable() {
       @Override
       public void run() {
@@ -97,7 +97,7 @@ public class TimeoutSubjectTest {
     e.shutdown();
     try {
       e.awaitTermination(11000, TimeUnit.MILLISECONDS);
-    } catch (InterruptedException e1) {
+    } catch (final InterruptedException e1) {
       e1.printStackTrace();
       fail(e1.toString());
     }
@@ -111,15 +111,15 @@ public class TimeoutSubjectTest {
     final int timeout = 1;
     final int sleep = 500;
     final AtomicInteger errors = new AtomicInteger(0);
-    Subject<Integer, Integer> dut = new TimeoutSubject<>(timeout, new Observer<Integer>() {
+    final Subject<Integer, Integer> dut = new TimeoutSubject<>(timeout, new Observer<Integer>() {
 
       @Override
-      public void onNext(Integer value) {
+      public void onNext(final Integer value) {
         fail("Should not get called");
       }
 
       @Override
-      public void onError(Exception error) {
+      public void onError(final Exception error) {
         assertTrue(error instanceof TimeoutException);
         errors.incrementAndGet();
       }
@@ -132,7 +132,7 @@ public class TimeoutSubjectTest {
 
     try {
       Thread.sleep(sleep);
-    } catch (InterruptedException e) {
+    } catch (final InterruptedException e) {
       e.printStackTrace();
       fail(e.toString());
     }

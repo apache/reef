@@ -29,8 +29,8 @@ public class ConstructorDefImpl<T> implements ConstructorDef<T> {
   private final ConstructorArg[] args;
   private final String className;
 
-  public ConstructorDefImpl(String className, ConstructorArg[] args,
-                            boolean injectable) throws ClassHierarchyException {
+  public ConstructorDefImpl(final String className, final ConstructorArg[] args,
+                            final boolean injectable) throws ClassHierarchyException {
     this.className = className;
     this.args = args;
     if (injectable) {
@@ -56,9 +56,9 @@ public class ConstructorDefImpl<T> implements ConstructorDef<T> {
     return className;
   }
 
-  private String join(String sep, Object[] vals) {
+  private String join(final String sep, final Object[] vals) {
     if (vals.length != 0) {
-      StringBuilder sb = new StringBuilder(vals[0].toString());
+      final StringBuilder sb = new StringBuilder(vals[0].toString());
       for (int i = 1; i < vals.length; i++) {
         sb.append(sep + vals[i]);
       }
@@ -70,7 +70,7 @@ public class ConstructorDefImpl<T> implements ConstructorDef<T> {
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder(className);
+    final StringBuilder sb = new StringBuilder(className);
     sb.append("(");
     sb.append(join(",", args));
     sb.append(")");
@@ -78,7 +78,7 @@ public class ConstructorDefImpl<T> implements ConstructorDef<T> {
   }
 
   @Override
-  public boolean takesParameters(ClassNode<?>[] paramTypes) {
+  public boolean takesParameters(final ClassNode<?>[] paramTypes) {
     if (paramTypes.length != args.length) {
       return false;
     }
@@ -100,7 +100,7 @@ public class ConstructorDefImpl<T> implements ConstructorDef<T> {
    * @param def
    * @return
    */
-  private boolean equalsIgnoreOrder(ConstructorDef<?> def) {
+  private boolean equalsIgnoreOrder(final ConstructorDef<?> def) {
     if (getArgs().length != def.getArgs().length) {
       return false;
     }
@@ -119,12 +119,12 @@ public class ConstructorDefImpl<T> implements ConstructorDef<T> {
   }
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(final Object o) {
     return equalsIgnoreOrder((ConstructorDef<?>) o);
   }
 
   @Override
-  public boolean isMoreSpecificThan(ConstructorDef<?> def) {
+  public boolean isMoreSpecificThan(final ConstructorDef<?> def) {
     // Return true if our list of args is a superset of those in def.
 
     // Is everything in def also in this?
@@ -147,13 +147,13 @@ public class ConstructorDefImpl<T> implements ConstructorDef<T> {
   }
 
   @Override
-  public int compareTo(ConstructorDef<?> o) {
+  public int compareTo(final ConstructorDef<?> o) {
     return toString().compareTo(o.toString());
   }
 
   @Override
   public int hashCode() {
-    ConstructorArg[] argsSort = getArgs().clone();
+    final ConstructorArg[] argsSort = getArgs().clone();
     Arrays.sort(argsSort);
     return Arrays.hashCode(argsSort);
   }

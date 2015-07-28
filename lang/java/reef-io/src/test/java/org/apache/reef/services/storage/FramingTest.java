@@ -34,14 +34,14 @@ public class FramingTest {
 
   @Test
   public void frameRoundTripTest() throws IOException, ServiceException {
-    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    ByteArrayOutputStream baos2 = new ByteArrayOutputStream();
-    FramingOutputStream o = new FramingOutputStream(baos);
-    FramingOutputStream o2 = new FramingOutputStream(baos2);
-    Accumulator<byte[]> a = o2.accumulator();
+    final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    final ByteArrayOutputStream baos2 = new ByteArrayOutputStream();
+    final FramingOutputStream o = new FramingOutputStream(baos);
+    final FramingOutputStream o2 = new FramingOutputStream(baos2);
+    final Accumulator<byte[]> a = o2.accumulator();
     int offset = 0;
     for (int i = 0; i < 256; i++) {
-      byte[] b = new byte[i];
+      final byte[] b = new byte[i];
       Arrays.fill(b, (byte) i);
       o.write(b);
       if (i == 255) {
@@ -56,16 +56,16 @@ public class FramingTest {
     }
     a.close();
     o2.close();
-    byte[] b1 = baos.toByteArray();
-    byte[] b2 = baos2.toByteArray();
+    final byte[] b1 = baos.toByteArray();
+    final byte[] b2 = baos2.toByteArray();
     Assert.assertArrayEquals(b1, b2);
-    FramingInputStream inA1 = new FramingInputStream(new ByteArrayInputStream(b1));
-    FramingInputStream inA2 = new FramingInputStream(new ByteArrayInputStream(b2));
+    final FramingInputStream inA1 = new FramingInputStream(new ByteArrayInputStream(b1));
+    final FramingInputStream inA2 = new FramingInputStream(new ByteArrayInputStream(b2));
     for (int i = 0; i <= 256; i++) {
-      byte[] b = new byte[i];
+      final byte[] b = new byte[i];
       Arrays.fill(b, (byte) i);
-      byte[] f = inA1.readFrame();
-      byte[] g = inA2.readFrame();
+      final byte[] f = inA1.readFrame();
+      final byte[] g = inA2.readFrame();
       if (i == 256) {
         Assert.assertNull(f);
         Assert.assertNull(g);
@@ -77,10 +77,10 @@ public class FramingTest {
     inA2.close();
     inA1.close();
 
-    FramingInputStream inB1 = new FramingInputStream(new ByteArrayInputStream(b1));
+    final FramingInputStream inB1 = new FramingInputStream(new ByteArrayInputStream(b1));
     int i = 0;
-    for (byte[] bin : inB1) {
-      byte[] b = new byte[i];
+    for (final byte[] bin : inB1) {
+      final byte[] b = new byte[i];
       Arrays.fill(b, (byte) i);
       Assert.assertArrayEquals(b, bin);
       i++;
@@ -88,10 +88,10 @@ public class FramingTest {
     Assert.assertEquals(256, i);
     inB1.close();
 
-    FramingInputStream inB2 = new FramingInputStream(new ByteArrayInputStream(b2));
+    final FramingInputStream inB2 = new FramingInputStream(new ByteArrayInputStream(b2));
     i = 0;
-    for (byte[] bin : inB2) {
-      byte[] b = new byte[i];
+    for (final byte[] bin : inB2) {
+      final byte[] b = new byte[i];
       Arrays.fill(b, (byte) i);
       Assert.assertArrayEquals(b, bin);
       i++;

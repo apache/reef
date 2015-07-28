@@ -53,7 +53,7 @@ class RemoteSenderEventHandler<T> implements EventHandler<RemoteEvent<T>> {
    * @param transport the transport to send events
    * @param executor  the executor service used for creating channels
    */
-  RemoteSenderEventHandler(Encoder<T> encoder, Transport transport, ExecutorService executor) {
+  RemoteSenderEventHandler(final Encoder<T> encoder, final Transport transport, final ExecutorService executor) {
     this.encoder = new RemoteEventEncoder<T>(encoder);
     this.transport = transport;
     this.executor = executor;
@@ -61,7 +61,7 @@ class RemoteSenderEventHandler<T> implements EventHandler<RemoteEvent<T>> {
     this.queue = new LinkedBlockingQueue<RemoteEvent<T>>();
   }
 
-  void setLink(Link<byte[]> link) {
+  void setLink(final Link<byte[]> link) {
     LOG.log(Level.FINEST, "thread {0} link {1}", new Object[]{Thread.currentThread(), link});
     linkRef.compareAndSet(null, link);
     consumeQueue();
@@ -74,7 +74,7 @@ class RemoteSenderEventHandler<T> implements EventHandler<RemoteEvent<T>> {
         LOG.log(Level.FINEST, "{0}", event);
         linkRef.get().write(encoder.encode(event));
       }
-    } catch (InterruptedException e) {
+    } catch (final InterruptedException e) {
       e.printStackTrace();
       throw new RemoteRuntimeException(e);
     }
@@ -87,19 +87,19 @@ class RemoteSenderEventHandler<T> implements EventHandler<RemoteEvent<T>> {
    * @throws RemoteRuntimeException
    */
   @Override
-  public void onNext(RemoteEvent<T> value) {
+  public void onNext(final RemoteEvent<T> value) {
     try {
       if (linkRef.get() == null) {
         queue.add(value);
 
-        Link<byte[]> link = transport.get(value.remoteAddress());
+        final Link<byte[]> link = transport.get(value.remoteAddress());
         if (link != null) {
           LOG.log(Level.FINEST, "transport get link: {0}", link);
           setLink(link);
           return;
         }
 
-        ConnectFutureTask<Link<byte[]>> cf = new ConnectFutureTask<Link<byte[]>>(
+        final ConnectFutureTask<Link<byte[]>> cf = new ConnectFutureTask<Link<byte[]>>(
             new ConnectCallable(transport, value.localAddress(), value.remoteAddress()),
             new ConnectEventHandler<T>(this));
         executor.submit(cf);
@@ -113,7 +113,7 @@ class RemoteSenderEventHandler<T> implements EventHandler<RemoteEvent<T>> {
         }
         linkRef.get().write(encoder.encode(value));
       }
-    } catch (RemoteRuntimeException ex2) {
+    } catch (final RemoteRuntimeException ex2) {
       ex2.printStackTrace();
       throw ex2;
     }
@@ -128,7 +128,7 @@ class ConnectCallable implements Callable<Link<byte[]>> {
   private final SocketAddress localAddress;
   private final SocketAddress remoteAddress;
 
-  ConnectCallable(Transport transport, SocketAddress localAddress, SocketAddress remoteAddress) {
+  ConnectCallable(final Transport transport, final SocketAddress localAddress, final SocketAddress remoteAddress) {
     this.transport = transport;
     this.localAddress = localAddress;
     this.remoteAddress = remoteAddress;
@@ -146,12 +146,12 @@ class ConnectEventHandler<T> implements EventHandler<ConnectFutureTask<Link<byte
 
   private final RemoteSenderEventHandler<T> handler;
 
-  ConnectEventHandler(RemoteSenderEventHandler<T> handler) {
+  ConnectEventHandler(final RemoteSenderEventHandler<T> handler) {
     this.handler = handler;
   }
 
   @Override
-  public void onNext(ConnectFutureTask<Link<byte[]>> value) {
+  public void onNext(final ConnectFutureTask<Link<byte[]>> value) {
     try {
       handler.setLink(value.get());
     } catch (InterruptedException | ExecutionException e) {

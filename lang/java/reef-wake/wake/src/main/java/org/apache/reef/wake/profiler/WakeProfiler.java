@@ -47,7 +47,7 @@ public class WakeProfiler implements Aspect {
   }
 
   @SuppressWarnings("unchecked")
-  private <T> Vertex<T> getVertex(T t) {
+  private <T> Vertex<T> getVertex(final T t) {
     if (t instanceof Set) {
       return (Vertex<T>) newSetVertex((Set<?>) t);
     } else {
@@ -62,30 +62,30 @@ public class WakeProfiler implements Aspect {
   }
 
   @SuppressWarnings("unchecked")
-  private <T> Vertex<T> getFuture(InjectionFuture<T> future) {
+  private <T> Vertex<T> getFuture(final InjectionFuture<T> future) {
     return getVertex((T) futures.get(future));
   }
 
   @SuppressWarnings("unchecked")
-  private <T> Vertex<?> newSetVertex(Set<T> s) {
+  private <T> Vertex<?> newSetVertex(final Set<T> s) {
     if (vertexObject.containsKey(s)) {
       return (Vertex<Set<T>>) vertexObject.get(s);
     }
     if (s.size() > -1) {
       LOG.fine("new set of size " + s.size());
-      Vertex<?>[] sArgs = new Vertex[s.size()];
+      final Vertex<?>[] sArgs = new Vertex[s.size()];
       int k = 0;
-      for (Object p : s) {
+      for (final Object p : s) {
         sArgs[k] = getVertex(p);
         k++;
       }
-      Vertex<Set<T>> sv = new Vertex<>(s, null, sArgs);
+      final Vertex<Set<T>> sv = new Vertex<>(s, null, sArgs);
       vertexObject.put(s, sv);
       return sv;
 //    } else if(s.size() == 1) {
     } else {
-      Object p = s.iterator().next();
-      Vertex<?> w = getVertex(p);
+      final Object p = s.iterator().next();
+      final Vertex<?> w = getVertex(p);
       // alias the singleton set to its member
       vertexObject.put(s, w);
       return w;
@@ -97,13 +97,13 @@ public class WakeProfiler implements Aspect {
 
   @SuppressWarnings("unchecked")
   @Override
-  public <T> T inject(ConstructorDef<T> constructorDef, Constructor<T> constructor, Object[] args)
+  public <T> T inject(final ConstructorDef<T> constructorDef, final Constructor<T> constructor, final Object[] args)
       throws InvocationTargetException, IllegalAccessException, IllegalArgumentException, InstantiationException {
 //    LOG.info("inject" + constructor + "->" + args.length);
-    Vertex<?>[] vArgs = new Vertex[args.length];
+    final Vertex<?>[] vArgs = new Vertex[args.length];
     for (int i = 0; i < args.length; i++) {
-      Object o = args[i];
-      Vertex<?> v = getVertex(o);
+      final Object o = args[i];
+      final Vertex<?> v = getVertex(o);
       if (o instanceof Set) {
         LOG.fine("Got a set arg for " + constructorDef + " length " + ((Set<?>) o).size());
       }
@@ -113,7 +113,7 @@ public class WakeProfiler implements Aspect {
     T ret;
     final Class<T> clazz = constructor.getDeclaringClass();
     boolean isEventHandler = false;
-    for (Method m : clazz.getDeclaredMethods()) {
+    for (final Method m : clazz.getDeclaredMethods()) {
       if (m.getName().equals("onNext")) { // XXX hack: Interpose on "event handler in spirit"
         isEventHandler = true;
       }
@@ -124,19 +124,19 @@ public class WakeProfiler implements Aspect {
           throw new Exception(ReflectionUtilities.getFullName(clazz) + ".onNext() is final; cannot intercept it");
         }
         final Stats s = new Stats();
-        Enhancer e = new Enhancer();
+        final Enhancer e = new Enhancer();
         e.setSuperclass(clazz);
         e.setCallback(new MethodInterceptor() {
 
           @Override
-          public Object intercept(Object object, Method method, Object[] args,
-                                  MethodProxy methodProxy) throws Throwable {
+          public Object intercept(final Object object, final Method method, final Object[] args,
+                                  final MethodProxy methodProxy) throws Throwable {
 
             if (method.getName().equals("onNext")) {
-              long start = System.nanoTime();
+              final long start = System.nanoTime();
 //              LOG.info(object + "." + method.getName() + " called");
-              Object o = methodProxy.invokeSuper(object, args);
-              long stop = System.nanoTime();
+              final Object o = methodProxy.invokeSuper(object, args);
+              final long stop = System.nanoTime();
 
               s.messageCount.incrementAndGet();
               s.sumLatency.addAndGet(stop - start);
@@ -150,20 +150,20 @@ public class WakeProfiler implements Aspect {
         });
         ret = (T) e.create(constructor.getParameterTypes(), args);
         stats.put(ret, s);
-      } catch (Exception e) {
+      } catch (final Exception e) {
         LOG.warning("Wake profiler could not intercept event handler: " + e.getMessage());
         ret = constructor.newInstance(args);
       }
     } else {
       ret = constructor.newInstance(args);
     }
-    Vertex<T> v = new Vertex<T>(ret, constructorDef, vArgs);
+    final Vertex<T> v = new Vertex<T>(ret, constructorDef, vArgs);
     vertexObject.put(ret, v);
     return ret;
   }
 
   @Override
-  public <T> void injectionFutureInstantiated(InjectionFuture<T> arg0, T arg1) {
+  public <T> void injectionFutureInstantiated(final InjectionFuture<T> arg0, final T arg1) {
     if (!futures.containsKey(arg0)) {
       LOG.warning("adding future " + arg0 + " instance " + arg1);
       futures.put(arg0, arg1);
@@ -171,7 +171,7 @@ public class WakeProfiler implements Aspect {
     }
   }
 
-  private String jsonEscape(String s) {
+  private String jsonEscape(final String s) {
     return s
         .replaceAll("\\\\", "\\\\\\\\")
         .replaceAll("\\\"", "\\\\\"")
@@ -184,44 +184,44 @@ public class WakeProfiler implements Aspect {
 
   }
 
-  private String join(String sep, List<String> tok) {
+  private String join(final String sep, final List<String> tok) {
     if (tok.size() == 0) {
       return "";
     }
-    StringBuffer sb = new StringBuffer(tok.get(0));
+    final StringBuffer sb = new StringBuffer(tok.get(0));
     for (int i = 1; i < tok.size(); i++) {
       sb.append(sep + tok.get(i));
     }
     return sb.toString();
   }
 
-  private boolean whitelist(Object o) {
+  private boolean whitelist(final Object o) {
     return true;
   }
 
   public String objectGraphToString() {
-    List<Vertex<?>> vertices = new ArrayList<>();
-    Map<Vertex<?>, Integer> offVertex = new MonotonicHashMap<>();
+    final List<Vertex<?>> vertices = new ArrayList<>();
+    final Map<Vertex<?>, Integer> offVertex = new MonotonicHashMap<>();
 
-    StringBuffer sb = new StringBuffer("{\"nodes\":[\n");
+    final StringBuffer sb = new StringBuffer("{\"nodes\":[\n");
 
-    List<String> nodes = new ArrayList<String>();
-    LinkedList<Vertex<?>> workQueue = new LinkedList<>();
-    for (Object o : vertexObject.keySet()) {
+    final List<String> nodes = new ArrayList<String>();
+    final LinkedList<Vertex<?>> workQueue = new LinkedList<>();
+    for (final Object o : vertexObject.keySet()) {
       if (whitelist(o)) {
         workQueue.add(getVertex(o));
       }
     }
-    for (Object o : futures.values()) {
+    for (final Object o : futures.values()) {
       if ((!vertexObject.containsKey(o)) && whitelist(o)) {
         workQueue.add(getVertex(o));
       }
     }
     while (!workQueue.isEmpty()) {
-      Vertex<?> v = workQueue.removeFirst();
+      final Vertex<?> v = workQueue.removeFirst();
       LOG.warning("Work queue " + v);
 
-      Object o = v.getObject();
+      final Object o = v.getObject();
       final String s;
       final String tooltip;
       if (o instanceof InjectionFuture) {
@@ -240,10 +240,10 @@ public class WakeProfiler implements Aspect {
 ////      } else if(false && (o instanceof EventHandler || o instanceof Stage)) {
 ////        s = jsonEscape(v.getObject().toString());
       } else {
-        Stats stat = stats.get(o);
+        final Stats stat = stats.get(o);
         if (stat != null) {
-          long cnt = stat.messageCount.get();
-          long lat = stat.sumLatency.get();
+          final long cnt = stat.messageCount.get();
+          final long lat = stat.sumLatency.get();
           tooltip = ",\"count\":" + cnt + ",\"latency\":\"" + (((double) lat) / (((double) cnt) * 1000000.0) + "\"");
           // quote the latency, since it might be nan
         } else {
@@ -264,23 +264,23 @@ public class WakeProfiler implements Aspect {
     }
     sb.append(join(",\n", nodes));
     sb.append("],\n\"links\":[");
-    List<String> links = new ArrayList<>();
-    for (Vertex<?> v : vertices) {
-      for (Vertex<?> w : v.getOutEdges()) {
+    final List<String> links = new ArrayList<>();
+    for (final Vertex<?> v : vertices) {
+      for (final Vertex<?> w : v.getOutEdges()) {
         LOG.fine("pointing object" + v.getObject());
         LOG.fine("pointed to object " + w.getObject());
         if (w.getObject() instanceof InjectionFuture) {
-          Vertex<?> futureTarget = getFuture((InjectionFuture<?>) w.getObject()); //futures.get(w.getObject());
-          Integer off = offVertex.get(futureTarget);
+          final Vertex<?> futureTarget = getFuture((InjectionFuture<?>) w.getObject()); //futures.get(w.getObject());
+          final Integer off = offVertex.get(futureTarget);
           LOG.fine("future target " + futureTarget + " off = " + off);
           if (off != null) {
             links.add("{\"target\":" + offVertex.get(v) + ",\"source\":" + off + ",\"value\":" + 1.0 +
                 ",\"back\":true}");
           }
         } else {
-          Integer off = offVertex.get(w);
+          final Integer off = offVertex.get(w);
           if (off != null) {
-            Stats s = stats.get(w.getObject());
+            final Stats s = stats.get(w.getObject());
             if (s != null) {
               links.add("{\"source\":" + offVertex.get(v) + ",\"target\":" + off + ",\"value\":" +
                   (s.messageCount.get() + 3.0) + "}");
@@ -297,7 +297,7 @@ public class WakeProfiler implements Aspect {
     return sb.toString();
   }
 
-  private String removeEnhancements(String simpleName) {
+  private String removeEnhancements(final String simpleName) {
     return simpleName.replaceAll("\\$\\$.+$", "");
   }
 

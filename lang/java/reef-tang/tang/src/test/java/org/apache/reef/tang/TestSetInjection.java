@@ -36,9 +36,9 @@ import java.util.Set;
 public class TestSetInjection {
   @Test
   public void testStringInjectDefault() throws InjectionException {
-    Set<String> actual = Tang.Factory.getTang().newInjector().getInstance(Box.class).strings;
+    final Set<String> actual = Tang.Factory.getTang().newInjector().getInstance(Box.class).strings;
 
-    Set<String> expected = new HashSet<>();
+    final Set<String> expected = new HashSet<>();
     expected.add("one");
     expected.add("two");
     expected.add("three");
@@ -48,11 +48,11 @@ public class TestSetInjection {
 
   @Test
   public void testObjectInjectDefault() throws InjectionException, BindException {
-    Injector i = Tang.Factory.getTang().newInjector();
+    final Injector i = Tang.Factory.getTang().newInjector();
     i.bindVolatileInstance(Integer.class, 42);
     i.bindVolatileInstance(Float.class, 42.0001f);
-    Set<Number> actual = i.getInstance(Pool.class).numbers;
-    Set<Number> expected = new HashSet<>();
+    final Set<Number> actual = i.getInstance(Pool.class).numbers;
+    final Set<Number> expected = new HashSet<>();
     expected.add(42);
     expected.add(42.0001f);
     Assert.assertEquals(expected, actual);
@@ -60,13 +60,13 @@ public class TestSetInjection {
 
   @Test
   public void testStringInjectBound() throws InjectionException, BindException {
-    JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
+    final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
     cb.bindSetEntry(SetOfStrings.class, "four");
     cb.bindSetEntry(SetOfStrings.class, "five");
     cb.bindSetEntry(SetOfStrings.class, "six");
-    Set<String> actual = Tang.Factory.getTang().newInjector(cb.build()).getInstance(Box.class).strings;
+    final Set<String> actual = Tang.Factory.getTang().newInjector(cb.build()).getInstance(Box.class).strings;
 
-    Set<String> expected = new HashSet<>();
+    final Set<String> expected = new HashSet<>();
     expected.add("four");
     expected.add("five");
     expected.add("six");
@@ -76,15 +76,15 @@ public class TestSetInjection {
 
   @Test
   public void testObjectInjectBound() throws InjectionException, BindException {
-    JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
+    final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
     cb.bindSetEntry(SetOfClasses.class, Short.class);
     cb.bindSetEntry(SetOfClasses.class, Float.class);
 
-    Injector i = Tang.Factory.getTang().newInjector(cb.build());
+    final Injector i = Tang.Factory.getTang().newInjector(cb.build());
     i.bindVolatileInstance(Short.class, (short) 4);
     i.bindVolatileInstance(Float.class, 42.0001f);
-    Set<Number> actual = i.getInstance(Pool.class).numbers;
-    Set<Number> expected = new HashSet<>();
+    final Set<Number> actual = i.getInstance(Pool.class).numbers;
+    final Set<Number> expected = new HashSet<>();
     expected.add((short) 4);
     expected.add(42.0001f);
     Assert.assertEquals(expected, actual);
@@ -92,21 +92,21 @@ public class TestSetInjection {
 
   @Test
   public void testStringInjectRoundTrip() throws InjectionException, BindException, IOException {
-    JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
+    final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
     cb.bindSetEntry(SetOfStrings.class, "four");
     cb.bindSetEntry(SetOfStrings.class, "five");
     cb.bindSetEntry(SetOfStrings.class, "six");
 
-    ConfigurationSerializer serializer = new AvroConfigurationSerializer();
+    final ConfigurationSerializer serializer = new AvroConfigurationSerializer();
 
-    String s = serializer.toString(cb.build());
-    JavaConfigurationBuilder cb2 = Tang.Factory.getTang().newConfigurationBuilder();
-    Configuration conf = serializer.fromString(s);
+    final String s = serializer.toString(cb.build());
+    final JavaConfigurationBuilder cb2 = Tang.Factory.getTang().newConfigurationBuilder();
+    final Configuration conf = serializer.fromString(s);
     cb2.addConfiguration(conf);
 
-    Set<String> actual = Tang.Factory.getTang().newInjector(cb2.build()).getInstance(Box.class).strings;
+    final Set<String> actual = Tang.Factory.getTang().newInjector(cb2.build()).getInstance(Box.class).strings;
 
-    Set<String> expected = new HashSet<>();
+    final Set<String> expected = new HashSet<>();
     expected.add("four");
     expected.add("five");
     expected.add("six");
@@ -116,22 +116,22 @@ public class TestSetInjection {
 
   @Test
   public void testObjectInjectRoundTrip() throws InjectionException, BindException, IOException {
-    JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
+    final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
     cb.bindSetEntry(SetOfClasses.class, Short.class);
     cb.bindSetEntry(SetOfClasses.class, Float.class);
 
-    ConfigurationSerializer serializer = new AvroConfigurationSerializer();
+    final ConfigurationSerializer serializer = new AvroConfigurationSerializer();
 
-    String s = serializer.toString(cb.build());
-    JavaConfigurationBuilder cb2 = Tang.Factory.getTang().newConfigurationBuilder();
-    Configuration conf = serializer.fromString(s);
+    final String s = serializer.toString(cb.build());
+    final JavaConfigurationBuilder cb2 = Tang.Factory.getTang().newConfigurationBuilder();
+    final Configuration conf = serializer.fromString(s);
     cb2.addConfiguration(conf);
 
-    Injector i = Tang.Factory.getTang().newInjector(cb2.build());
+    final Injector i = Tang.Factory.getTang().newInjector(cb2.build());
     i.bindVolatileInstance(Short.class, (short) 4);
     i.bindVolatileInstance(Float.class, 42.0001f);
-    Set<Number> actual = i.getInstance(Pool.class).numbers;
-    Set<Number> expected = new HashSet<>();
+    final Set<Number> actual = i.getInstance(Pool.class).numbers;
+    final Set<Number> expected = new HashSet<>();
     expected.add((short) 4);
     expected.add(42.0001f);
     Assert.assertEquals(expected, actual);
@@ -139,11 +139,11 @@ public class TestSetInjection {
 
   @Test
   public void testDefaultAsClass() throws InjectionException, BindException {
-    Injector i = Tang.Factory.getTang().newInjector();
+    final Injector i = Tang.Factory.getTang().newInjector();
     i.bindVolatileInstance(Integer.class, 1);
     i.bindVolatileInstance(Float.class, 2f);
-    Set<Number> actual = i.getNamedInstance(SetOfClassesDefaultClass.class);
-    Set<Number> expected = new HashSet<>();
+    final Set<Number> actual = i.getNamedInstance(SetOfClassesDefaultClass.class);
+    final Set<Number> expected = new HashSet<>();
     expected.add(1);
     Assert.assertEquals(expected, actual);
   }
@@ -158,7 +158,7 @@ class Box {
   public final Set<String> strings;
 
   @Inject
-  Box(@Parameter(SetOfStrings.class) Set<String> strings) {
+  Box(@Parameter(SetOfStrings.class) final Set<String> strings) {
     this.strings = strings;
   }
 }
@@ -171,7 +171,7 @@ class Pool {
   public final Set<Number> numbers;
 
   @Inject
-  Pool(@Parameter(SetOfClasses.class) Set<Number> numbers) {
+  Pool(@Parameter(SetOfClasses.class) final Set<Number> numbers) {
     this.numbers = numbers;
   }
 }

@@ -27,7 +27,7 @@ public class ConnectFutureTask<T> extends FutureTask<T> {
 
   private final EventHandler<ConnectFutureTask<T>> handler;
 
-  public ConnectFutureTask(Callable<T> callable, EventHandler<ConnectFutureTask<T>> handler) {
+  public ConnectFutureTask(final Callable<T> callable, final EventHandler<ConnectFutureTask<T>> handler) {
     super(callable);
     this.handler = handler;
   }

@@ -39,7 +39,7 @@ public final class RamSpool<T> implements Spool<T> {
   private boolean canGetAccumulator = true;
 
   @Inject
-  public RamSpool(RamStorageService ramStore) {
+  public RamSpool(final RamStorageService ramStore) {
   }
 
   @Override
@@ -56,7 +56,7 @@ public final class RamSpool<T> implements Spool<T> {
     canGetAccumulator = false;
     return new Accumulator<T>() {
       @Override
-      public void add(T datum) {
+      public void add(final T datum) {
         if (!canAppend) {
           throw new ConcurrentModificationException("Attempt to append after creating iterator!");
         }

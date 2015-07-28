@@ -79,18 +79,18 @@ public class ClassHierarchyImpl implements JavaClassHierarchy {
   }
 
   @SuppressWarnings("unchecked")
-  public ClassHierarchyImpl(URL... jars) {
+  public ClassHierarchyImpl(final URL... jars) {
     this(jars, new Class[0]);
   }
 
-  public ClassHierarchyImpl(URL[] jars, Class<? extends ExternalConstructor<?>>[] parameterParsers) {
+  public ClassHierarchyImpl(final URL[] jars, final Class<? extends ExternalConstructor<?>>[] parameterParsers) {
     this.namespace = JavaNodeFactory.createRootPackageNode();
     this.jars = new ArrayList<>(Arrays.asList(jars));
     this.loader = new URLClassLoader(jars, this.getClass().getClassLoader());
-    for (Class<? extends ExternalConstructor<?>> p : parameterParsers) {
+    for (final Class<? extends ExternalConstructor<?>> p : parameterParsers) {
       try {
         parameterParser.addParser(p);
-      } catch (BindException e) {
+      } catch (final BindException e) {
         throw new IllegalArgumentException("Could not register parameter parsers", e);
       }
     }
@@ -106,14 +106,14 @@ public class ClassHierarchyImpl implements JavaClassHierarchy {
    */
   @SuppressWarnings("unchecked")
   @Override
-  public <T> T parseDefaultValue(NamedParameterNode<T> name) {
-    String[] vals = name.getDefaultInstanceAsStrings();
-    T[] ret = (T[]) new Object[vals.length];
+  public <T> T parseDefaultValue(final NamedParameterNode<T> name) {
+    final String[] vals = name.getDefaultInstanceAsStrings();
+    final T[] ret = (T[]) new Object[vals.length];
     for (int i = 0; i < vals.length; i++) {
-      String val = vals[i];
+      final String val = vals[i];
       try {
         ret[i] = parse(name, val);
-      } catch (ParseException e) {
+      } catch (final ParseException e) {
         throw new ClassHierarchyException("Could not parse default value", e);
       }
     }
@@ -143,11 +143,11 @@ public class ClassHierarchyImpl implements JavaClassHierarchy {
    */
   @Override
   @SuppressWarnings("unchecked")
-  public <T> T parse(NamedParameterNode<T> np, String value) throws ParseException {
+  public <T> T parse(final NamedParameterNode<T> np, final String value) throws ParseException {
     final ClassNode<T> iface;
     try {
       iface = (ClassNode<T>) getNode(np.getFullArgName());
-    } catch (NameResolutionException e) {
+    } catch (final NameResolutionException e) {
       throw new IllegalStateException("Could not parse validated named parameter argument type.  NamedParameter is " +
           np.getFullName() + " argument type is " + np.getFullArgName());
     }
@@ -156,7 +156,7 @@ public class ClassHierarchyImpl implements JavaClassHierarchy {
     try {
       clazz = (Class<?>) classForName(iface.getFullName());
       fullName = null;
-    } catch (ClassNotFoundException e) {
+    } catch (final ClassNotFoundException e) {
       clazz = null;
       fullName = iface.getFullName();
     }
@@ -166,7 +166,7 @@ public class ClassHierarchyImpl implements JavaClassHierarchy {
       } else {
         return parameterParser.parse(fullName, value);
       }
-    } catch (UnsupportedOperationException e) {
+    } catch (final UnsupportedOperationException e) {
       try {
         final Node impl = getNode(value);
         if (impl instanceof ClassNode) {
@@ -176,7 +176,7 @@ public class ClassHierarchyImpl implements JavaClassHierarchy {
         }
         throw new ParseException("Name<" + iface.getFullName() + "> " + np.getFullName() +
             " cannot take non-subclass " + impl.getFullName(), e);
-      } catch (NameResolutionException e2) {
+      } catch (final NameResolutionException e2) {
         throw new ParseException("Name<" + iface.getFullName() + "> " + np.getFullName() +
             " cannot take non-class " + value, e);
       }
@@ -188,13 +188,13 @@ public class ClassHierarchyImpl implements JavaClassHierarchy {
    * ClassHierarchy's classloader.
    */
   @Override
-  public Class<?> classForName(String name) throws ClassNotFoundException {
+  public Class<?> classForName(final String name) throws ClassNotFoundException {
     return ReflectionUtilities.classForName(name, loader);
   }
 
-  private <T, U> Node buildPathToNode(Class<U> clazz)
+  private <T, U> Node buildPathToNode(final Class<U> clazz)
       throws ClassHierarchyException {
-    String[] path = clazz.getName().split("\\$");
+    final String[] path = clazz.getName().split("\\$");
 
     Node root = namespace;
     for (int i = 0; i < path.length - 1; i++) {
@@ -204,17 +204,16 @@ public class ClassHierarchyImpl implements JavaClassHierarchy {
     if (root == null) {
       throw new NullPointerException();
     }
-    Node parent = root;
+    final Node parent = root;
 
-    Type argType = ReflectionUtilities.getNamedParameterTargetOrNull(clazz);
+    final Type argType = ReflectionUtilities.getNamedParameterTargetOrNull(clazz);
 
     if (argType == null) {
       return JavaNodeFactory.createClassNode(parent, clazz);
     } else {
 
-      @SuppressWarnings("unchecked")
       // checked inside of NamedParameterNode, using reflection.
-          NamedParameterNode<T> np = JavaNodeFactory.createNamedParameterNode(
+      @SuppressWarnings("unchecked") final NamedParameterNode<T> np = JavaNodeFactory.createNamedParameterNode(
           parent, (Class<? extends Name<T>>) clazz, argType);
 
       if (parameterParser.canParse(ReflectionUtilities.getFullName(argType))) {
@@ -224,9 +223,9 @@ public class ClassHierarchyImpl implements JavaClassHierarchy {
         }
       }
 
-      String shortName = np.getShortName();
+      final String shortName = np.getShortName();
       if (shortName != null) {
-        NamedParameterNode<?> oldNode = shortNames.get(shortName);
+        final NamedParameterNode<?> oldNode = shortNames.get(shortName);
         if (oldNode != null) {
           if (oldNode.getFullName().equals(np.getFullName())) {
             throw new IllegalStateException("Tried to double bind "
@@ -242,23 +241,23 @@ public class ClassHierarchyImpl implements JavaClassHierarchy {
     }
   }
 
-  private Node getAlreadyBoundNode(Class<?> clazz) throws NameResolutionException {
+  private Node getAlreadyBoundNode(final Class<?> clazz) throws NameResolutionException {
     return getAlreadyBoundNode(ReflectionUtilities.getFullName(clazz));
   }
 
   @Override
-  public Node getNode(Class<?> clazz) {
+  public Node getNode(final Class<?> clazz) {
     try {
       return getNode(ReflectionUtilities.getFullName(clazz));
-    } catch (NameResolutionException e) {
+    } catch (final NameResolutionException e) {
       throw new ClassHierarchyException("JavaClassHierarchy could not resolve " + clazz
           + " which is definitely avalable at runtime", e);
     }
   }
 
   @Override
-  public synchronized Node getNode(String name) throws NameResolutionException {
-    Node n = register(name);
+  public synchronized Node getNode(final String name) throws NameResolutionException {
+    final Node n = register(name);
     if (n == null) {
       // This will never succeed; it just generates a nice exception.
       getAlreadyBoundNode(name);
@@ -268,10 +267,10 @@ public class ClassHierarchyImpl implements JavaClassHierarchy {
     return n;
   }
 
-  private Node getAlreadyBoundNode(String name) throws NameResolutionException {
+  private Node getAlreadyBoundNode(final String name) throws NameResolutionException {
     Node root = namespace;
-    String[] toks = name.split("\\$");
-    String outerClassName = toks[0];
+    final String[] toks = name.split("\\$");
+    final String outerClassName = toks[0];
     root = root.get(outerClassName);
     if (root == null) {
       throw new NameResolutionException(name, outerClassName);
@@ -279,7 +278,7 @@ public class ClassHierarchyImpl implements JavaClassHierarchy {
     for (int i = 1; i < toks.length; i++) {
       root = root.get(toks[i]);
       if (root == null) {
-        StringBuilder sb = new StringBuilder(outerClassName);
+        final StringBuilder sb = new StringBuilder(outerClassName);
         for (int j = 0; j < i; j++) {
           sb.append(toks[j]);
           if (j != i - 1) {
@@ -292,17 +291,17 @@ public class ClassHierarchyImpl implements JavaClassHierarchy {
     return root;
   }
 
-  private Node register(String s) {
+  private Node register(final String s) {
     final Class<?> c;
     try {
       c = classForName(s);
-    } catch (ClassNotFoundException e1) {
+    } catch (final ClassNotFoundException e1) {
       return null;
     }
     try {
-      Node n = getAlreadyBoundNode(c);
+      final Node n = getAlreadyBoundNode(c);
       return n;
-    } catch (NameResolutionException e) {
+    } catch (final NameResolutionException e) {
       // node not bound yet
     }
     // First, walk up the class hierarchy, registering all out parents. This
@@ -310,7 +309,7 @@ public class ClassHierarchyImpl implements JavaClassHierarchy {
     if (c.getSuperclass() != null) {
       register(ReflectionUtilities.getFullName(c.getSuperclass()));
     }
-    for (Class<?> i : c.getInterfaces()) {
+    for (final Class<?> i : c.getInterfaces()) {
       register(ReflectionUtilities.getFullName(i));
     }
     // Now, we'd like to register our enclosing classes. This turns out to be
@@ -325,28 +324,28 @@ public class ClassHierarchyImpl implements JavaClassHierarchy {
     // So, even though grafting arbitrary DAGs together can give us cycles, Java
     // seems
     // to have our back on this one.
-    Class<?> enclosing = c.getEnclosingClass();
+    final Class<?> enclosing = c.getEnclosingClass();
     if (enclosing != null) {
       register(ReflectionUtilities.getFullName(enclosing));
     }
 
     // Now register the class. This has to be after the above so we know our
     // parents (superclasses and enclosing packages) are already registered.
-    Node n = registerClass(c);
+    final Node n = registerClass(c);
 
     // Finally, do things that might introduce cycles that invlove c.
     // This has to be below registerClass, which ensures that any cycles
     // this stuff introduces are broken.
-    for (Class<?> innerClass : c.getDeclaredClasses()) {
+    for (final Class<?> innerClass : c.getDeclaredClasses()) {
       register(ReflectionUtilities.getFullName(innerClass));
     }
     if (n instanceof ClassNode) {
-      ClassNode<?> cls = (ClassNode<?>) n;
-      for (ConstructorDef<?> def : cls.getInjectableConstructors()) {
-        for (ConstructorArg arg : def.getArgs()) {
+      final ClassNode<?> cls = (ClassNode<?>) n;
+      for (final ConstructorDef<?> def : cls.getInjectableConstructors()) {
+        for (final ConstructorArg arg : def.getArgs()) {
           register(arg.getType());
           if (arg.getNamedParameterName() != null) {
-            NamedParameterNode<?> np = (NamedParameterNode<?>) register(arg
+            final NamedParameterNode<?> np = (NamedParameterNode<?>) register(arg
                 .getNamedParameterName());
             try {
               // TODO: When handling sets, need to track target of generic parameter, and check the type here!
@@ -359,7 +358,7 @@ public class ClassHierarchyImpl implements JavaClassHierarchy {
                           + np.getFullArgName());
                 }
               }
-            } catch (ClassNotFoundException e) {
+            } catch (final ClassNotFoundException e) {
               throw new ClassHierarchyException("Constructor refers to unknown class "
                   + arg.getType(), e);
             }
@@ -367,7 +366,7 @@ public class ClassHierarchyImpl implements JavaClassHierarchy {
         }
       }
     } else if (n instanceof NamedParameterNode) {
-      NamedParameterNode<?> np = (NamedParameterNode<?>) n;
+      final NamedParameterNode<?> np = (NamedParameterNode<?>) n;
       register(np.getFullArgName());
     }
     return n;
@@ -386,26 +385,26 @@ public class ClassHierarchyImpl implements JavaClassHierarchy {
     }
     try {
       return getAlreadyBoundNode(c);
-    } catch (NameResolutionException e) {
+    } catch (final NameResolutionException e) {
       // node not bound yet
     }
 
     final Node n = buildPathToNode(c);
 
     if (n instanceof ClassNode) {
-      ClassNode<T> cn = (ClassNode<T>) n;
-      Class<T> superclass = (Class<T>) c.getSuperclass();
+      final ClassNode<T> cn = (ClassNode<T>) n;
+      final Class<T> superclass = (Class<T>) c.getSuperclass();
       if (superclass != null) {
         try {
           ((ClassNode<T>) getAlreadyBoundNode(superclass)).putImpl(cn);
-        } catch (NameResolutionException e) {
+        } catch (final NameResolutionException e) {
           throw new IllegalStateException(e);
         }
       }
-      for (Class<?> interf : c.getInterfaces()) {
+      for (final Class<?> interf : c.getInterfaces()) {
         try {
           ((ClassNode<T>) getAlreadyBoundNode(interf)).putImpl(cn);
-        } catch (NameResolutionException e) {
+        } catch (final NameResolutionException e) {
           throw new IllegalStateException(e);
         }
       }
@@ -419,12 +418,12 @@ public class ClassHierarchyImpl implements JavaClassHierarchy {
   }
 
   @Override
-  public synchronized boolean isImplementation(ClassNode<?> inter, ClassNode<?> impl) {
+  public synchronized boolean isImplementation(final ClassNode<?> inter, final ClassNode<?> impl) {
     return impl.isImplementationOf(inter);
   }
 
   @Override
-  public synchronized ClassHierarchy merge(ClassHierarchy ch) {
+  public synchronized ClassHierarchy merge(final ClassHierarchy ch) {
     if (this == ch) {
       return this;
     }
@@ -434,10 +433,10 @@ public class ClassHierarchyImpl implements JavaClassHierarchy {
     if (this.jars.size() == 0) {
       return ch;
     }
-    ClassHierarchyImpl chi = (ClassHierarchyImpl) ch;
-    HashSet<URL> otherJars = new HashSet<>();
+    final ClassHierarchyImpl chi = (ClassHierarchyImpl) ch;
+    final HashSet<URL> otherJars = new HashSet<>();
     otherJars.addAll(chi.jars);
-    HashSet<URL> myJars = new HashSet<>();
+    final HashSet<URL> myJars = new HashSet<>();
     myJars.addAll(this.jars);
     if (myJars.containsAll(otherJars)) {
       return this;

@@ -37,7 +37,7 @@ public class FSCheckpointID implements CheckpointID {
   public FSCheckpointID() {
   }
 
-  public FSCheckpointID(Path path) {
+  public FSCheckpointID(final Path path) {
     this.path = path;
   }
 
@@ -51,17 +51,17 @@ public class FSCheckpointID implements CheckpointID {
   }
 
   @Override
-  public void write(DataOutput out) throws IOException {
+  public void write(final DataOutput out) throws IOException {
     Text.writeString(out, path.toString());
   }
 
   @Override
-  public void readFields(DataInput in) throws IOException {
+  public void readFields(final DataInput in) throws IOException {
     this.path = new Path(Text.readString(in));
   }
 
   @Override
-  public boolean equals(Object other) {
+  public boolean equals(final Object other) {
     return other instanceof FSCheckpointID
         && path.equals(((FSCheckpointID) other).path);
   }

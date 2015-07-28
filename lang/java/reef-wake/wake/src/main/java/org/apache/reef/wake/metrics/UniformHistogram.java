@@ -36,7 +36,7 @@ public class UniformHistogram implements Histogram {
    * @param binWidth the width of each bin
    * @param numBins  the number of bins
    */
-  public UniformHistogram(long binWidth, int numBins) {
+  public UniformHistogram(final long binWidth, final int numBins) {
     this.count = new AtomicLong(0);
     this.values = new AtomicLongArray(numBins);
     this.binWidth = binWidth;
@@ -49,7 +49,7 @@ public class UniformHistogram implements Histogram {
    * @param value
    */
   @Override
-  public void update(long value) {
+  public void update(final long value) {
     count.incrementAndGet();
     int index = (int) (value / binWidth);
     if (index >= numBins) {
@@ -75,7 +75,7 @@ public class UniformHistogram implements Histogram {
    * @return the value of the index
    */
   @Override
-  public long getValue(int index) {
+  public long getValue(final int index) {
     return values.get(index);
   }
 

@@ -128,11 +128,11 @@ public class TestConfigurationModule {
     // Here we set some configuration values.  In true tang style,
     // you won't be able to set them more than once ConfigurationModule's
     // implementation is complete.
-    Configuration c = MyConfigurationModule.CONF
+    final Configuration c = MyConfigurationModule.CONF
         .set(MyConfigurationModule.THE_FOO, FooImpl.class)
         .set(MyConfigurationModule.FOO_NESS, "" + 12)
         .build();
-    Foo f = Tang.Factory.getTang().newInjector(c).getInstance(Foo.class);
+    final Foo f = Tang.Factory.getTang().newInjector(c).getInstance(Foo.class);
     Assert.assertEquals(f.getFooness(), 12);
   }
 
@@ -141,11 +141,11 @@ public class TestConfigurationModule {
     // Here we set some configuration values.  In true tang style,
     // you won't be able to set them more than once ConfigurationModule's
     // implementation is complete.
-    Configuration c = MyConfigurationModule.CONF
+    final Configuration c = MyConfigurationModule.CONF
         .set(MyConfigurationModule.THE_FOO, FooImpl.class)
         .set(MyConfigurationModule.FOO_NESS, "" + 12)
         .build();
-    Foo f = Tang.Factory.getTang().newInjector(c).getInstance(Foo.class);
+    final Foo f = Tang.Factory.getTang().newInjector(c).getInstance(Foo.class);
     Assert.assertEquals(f.getFooness(), 12);
 
     final File tempFile = File.createTempFile("TangTest", ".avroconf");
@@ -158,10 +158,10 @@ public class TestConfigurationModule {
   @Test
   public void omitOptionalTest() throws BindException, InjectionException {
     // Optional is optional.
-    Configuration c = MyConfigurationModule.CONF
+    final Configuration c = MyConfigurationModule.CONF
         .set(MyConfigurationModule.THE_FOO, FooImpl.class)
         .build();
-    Foo f = Tang.Factory.getTang().newInjector(c).getInstance(Foo.class);
+    final Foo f = Tang.Factory.getTang().newInjector(c).getInstance(Foo.class);
     Assert.assertEquals(f.getFooness(), 42);
   }
 
@@ -173,7 +173,7 @@ public class TestConfigurationModule {
       MyConfigurationModule.CONF
           .set(MyConfigurationModule.FOO_NESS, "" + 12)
           .build();
-    } catch (ExceptionInInitializerError e) {
+    } catch (final ExceptionInInitializerError e) {
       throw e.getCause();
     }
   }
@@ -185,9 +185,8 @@ public class TestConfigurationModule {
     try {
       // Java's classloader semantics cause it to load a class when executing the
       // first line that references the class in question.
-      @SuppressWarnings("unused")
-      Object o = MyMissingBindConfigurationModule.BAD_CONF;
-    } catch (ExceptionInInitializerError e) {
+      @SuppressWarnings("unused") final Object o = MyMissingBindConfigurationModule.BAD_CONF;
+    } catch (final ExceptionInInitializerError e) {
       throw e.getCause();
     }
   }
@@ -210,12 +209,12 @@ public class TestConfigurationModule {
     // Here we set some configuration values.  In true tang style,
     // you won't be able to set them more than once ConfigurationModule's
     // implementation is complete.
-    Configuration c = MultiBindConfigurationModule.CONF
+    final Configuration c = MultiBindConfigurationModule.CONF
         .set(MultiBindConfigurationModule.THE_FOO, FooImpl.class)
         .set(MultiBindConfigurationModule.FOO_NESS, "" + 12)
         .build();
-    Foo f = Tang.Factory.getTang().newInjector(c).getInstance(Foo.class);
-    Foo g = (Foo) Tang.Factory.getTang().newInjector(c).getInstance(Object.class);
+    final Foo f = Tang.Factory.getTang().newInjector(c).getInstance(Foo.class);
+    final Foo g = (Foo) Tang.Factory.getTang().newInjector(c).getInstance(Object.class);
     Assert.assertEquals(f.getFooness(), 12);
     Assert.assertEquals(g.getFooness(), 12);
     Assert.assertFalse(f == g);
@@ -229,7 +228,7 @@ public class TestConfigurationModule {
     try {
       // Pass in something from the wrong module, watch it fail.
       MultiBindConfigurationModule.CONF.set(MyConfigurationModule.THE_FOO, FooImpl.class);
-    } catch (ExceptionInInitializerError e) {
+    } catch (final ExceptionInInitializerError e) {
       throw e.getCause();
     }
   }
@@ -242,50 +241,50 @@ public class TestConfigurationModule {
     try {
       // Pass in something from the wrong module, watch it fail.
       new MyConfigurationModule().bindImplementation(Object.class, MultiBindConfigurationModule.THE_FOO);
-    } catch (ExceptionInInitializerError e) {
+    } catch (final ExceptionInInitializerError e) {
       throw e.getCause();
     }
   }
 
   @Test
   public void singletonTest() throws BindException, InjectionException {
-    Configuration c = new MyConfigurationModule()
+    final Configuration c = new MyConfigurationModule()
         .bindImplementation(Foo.class, MyConfigurationModule.THE_FOO)
         .bindNamedParameter(Fooness.class, MyConfigurationModule.FOO_NESS)
         .build()
         .set(MyConfigurationModule.THE_FOO, FooImpl.class)
         .build();
-    Injector i = Tang.Factory.getTang().newInjector(c);
+    final Injector i = Tang.Factory.getTang().newInjector(c);
     Assert.assertTrue(i.getInstance(Foo.class) == i.getInstance(Foo.class));
   }
 
   @Test
   public void immutablilityTest() throws BindException, InjectionException {
     // builder methods return copies; the original module is immutable
-    ConfigurationModule builder1 = MyConfigurationModule.CONF
+    final ConfigurationModule builder1 = MyConfigurationModule.CONF
         .set(MyConfigurationModule.THE_FOO, FooImpl.class);
     Assert.assertFalse(builder1 == MyConfigurationModule.CONF);
-    Configuration config1 = builder1.build();
+    final Configuration config1 = builder1.build();
 
     // reusable
-    Configuration config2 = MyConfigurationModule.CONF
+    final Configuration config2 = MyConfigurationModule.CONF
         .set(MyConfigurationModule.THE_FOO, FooAltImpl.class)
         .build();
 
     // instantiation of each just to be sure everything is fine in this situation
-    Injector i1 = Tang.Factory.getTang().newInjector(config1);
-    Injector i2 = Tang.Factory.getTang().newInjector(config2);
+    final Injector i1 = Tang.Factory.getTang().newInjector(config1);
+    final Injector i2 = Tang.Factory.getTang().newInjector(config2);
     Assert.assertEquals(42, i1.getInstance(Foo.class).getFooness());
     Assert.assertEquals(7, i2.getInstance(Foo.class).getFooness());
   }
 
   @Test
   public void setParamTest() throws BindException, InjectionException {
-    Configuration c = SetConfigurationModule.CONF
+    final Configuration c = SetConfigurationModule.CONF
         .set(SetConfigurationModule.P, "a")
         .set(SetConfigurationModule.P, "b")
         .build();
-    Set<String> s = Tang.Factory.getTang().newInjector(c).getNamedInstance(SetName.class);
+    final Set<String> s = Tang.Factory.getTang().newInjector(c).getNamedInstance(SetName.class);
     Assert.assertEquals(s.size(), 2);
     Assert.assertTrue(s.contains("a"));
     Assert.assertTrue(s.contains("b"));
@@ -293,14 +292,14 @@ public class TestConfigurationModule {
 
   @Test
   public void setClassTest() throws BindException, InjectionException {
-    Configuration c = SetClassConfigurationModule.CONF
+    final Configuration c = SetClassConfigurationModule.CONF
         .set(SetClassConfigurationModule.P, SubA.class)
         .set(SetClassConfigurationModule.P, SubB.class)
         .build();
-    Set<Super> s = Tang.Factory.getTang().newInjector(c).getNamedInstance(SetClass.class);
+    final Set<Super> s = Tang.Factory.getTang().newInjector(c).getNamedInstance(SetClass.class);
     Assert.assertEquals(2, s.size());
     boolean sawA = false, sawB = false;
-    for (Super sup : s) {
+    for (final Super sup : s) {
       if (sup instanceof SubA) {
         sawA = true;
       } else if (sup instanceof SubB) {
@@ -314,16 +313,16 @@ public class TestConfigurationModule {
 
   @Test
   public void setClassRoundTripTest() throws BindException, InjectionException {
-    Configuration c = SetClassConfigurationModule.CONF
+    final Configuration c = SetClassConfigurationModule.CONF
         .set(SetClassConfigurationModule.P, SubA.class)
         .set(SetClassConfigurationModule.P, SubB.class)
         .build();
-    ConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
+    final ConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
     ConfigurationFile.addConfiguration(cb, ConfigurationFile.toConfigurationString(c));
-    Set<Super> s = Tang.Factory.getTang().newInjector(cb.build()).getNamedInstance(SetClass.class);
+    final Set<Super> s = Tang.Factory.getTang().newInjector(cb.build()).getNamedInstance(SetClass.class);
     Assert.assertEquals(2, s.size());
     boolean sawA = false, sawB = false;
-    for (Super sup : s) {
+    for (final Super sup : s) {
       if (sup instanceof SubA) {
         sawA = true;
       } else if (sup instanceof SubB) {
@@ -342,7 +341,7 @@ public class TestConfigurationModule {
 
   @Test(expected = ClassHierarchyException.class)
   public void errorOnSetMerge() throws BindException, InjectionException {
-    ConfigurationModuleBuilder b = new ConfigurationModuleBuilder() {
+    final ConfigurationModuleBuilder b = new ConfigurationModuleBuilder() {
     };
     b.merge(StaticTimeSet.CONF);
   }
@@ -356,7 +355,7 @@ public class TestConfigurationModule {
     private final int fooness;
 
     @Inject
-    FooImpl(@Parameter(Fooness.class) int fooness) {
+    FooImpl(@Parameter(Fooness.class) final int fooness) {
       this.fooness = fooness;
     }
 
@@ -370,7 +369,7 @@ public class TestConfigurationModule {
     private final int fooness;
 
     @Inject
-    FooAltImpl(@Parameter(Fooness.class) int fooness) {
+    FooAltImpl(@Parameter(Fooness.class) final int fooness) {
       this.fooness = fooness;
     }
 

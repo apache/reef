@@ -50,7 +50,7 @@ final class FileResourceTestTask implements Task {
   }
 
   @Override
-  public byte[] call(byte[] memento) throws Exception {
+  public byte[] call(final byte[] memento) throws Exception {
     for (final String fileName : expectedFileNames) {
       final File file = new File(localFolder, fileName);
       LOG.log(Level.INFO, "Testing file: " + file.getAbsolutePath());

@@ -37,7 +37,7 @@ public class RemoteEventDecoder<T> implements Decoder<RemoteEvent<T>> {
    *
    * @param decoder the decoder of the event
    */
-  public RemoteEventDecoder(Decoder<T> decoder) {
+  public RemoteEventDecoder(final Decoder<T> decoder) {
     this.decoder = decoder;
   }
 
@@ -49,13 +49,13 @@ public class RemoteEventDecoder<T> implements Decoder<RemoteEvent<T>> {
    * @throws RemoteRuntimeException
    */
   @Override
-  public RemoteEvent<T> decode(byte[] data) {
-    WakeMessagePBuf pbuf;
+  public RemoteEvent<T> decode(final byte[] data) {
+    final WakeMessagePBuf pbuf;
     try {
       pbuf = WakeMessagePBuf.parseFrom(data);
       return new RemoteEvent<T>(null, null, pbuf.getSource(), pbuf.getSink(), pbuf.getSeq(),
           decoder.decode(pbuf.getData().toByteArray()));
-    } catch (InvalidProtocolBufferException e) {
+    } catch (final InvalidProtocolBufferException e) {
       throw new RemoteRuntimeException(e);
     }
   }

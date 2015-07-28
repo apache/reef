@@ -116,7 +116,7 @@ public final class LibLoader {
   private static void loadAllManagedDLLs(final File folder) {
     LOG.log(Level.INFO, "Loading all managed DLLs from {0}", folder.getAbsolutePath());
     final File[] files = folder.listFiles(new FilenameFilter() {
-      public boolean accept(File dir, String name) {
+      public boolean accept(final File dir, final String name) {
         return name.toLowerCase().endsWith(DLL_EXTENSION);
       }
     });

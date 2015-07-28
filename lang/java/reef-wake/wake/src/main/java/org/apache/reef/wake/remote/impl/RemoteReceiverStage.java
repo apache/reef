@@ -69,7 +69,7 @@ public class RemoteReceiverStage implements EStage<TransportEvent> {
    * @param value the event
    */
   @Override
-  public void onNext(TransportEvent value) {
+  public void onNext(final TransportEvent value) {
     LOG.log(Level.FINEST, "{0}", value);
     stage.onNext(value);
   }
@@ -87,7 +87,7 @@ public class RemoteReceiverStage implements EStage<TransportEvent> {
         // wait for threads to finish for timeout
         if (!executor.awaitTermination(shutdownTimeout, TimeUnit.MILLISECONDS)) {
           LOG.log(Level.WARNING, "Executor did not terminate in {0} ms.", shutdownTimeout);
-          List<Runnable> droppedRunnables = executor.shutdownNow();
+          final List<Runnable> droppedRunnables = executor.shutdownNow();
           LOG.log(Level.WARNING, "Executor dropped {0} tasks.", droppedRunnables.size());
         }
       } catch (final InterruptedException e) {

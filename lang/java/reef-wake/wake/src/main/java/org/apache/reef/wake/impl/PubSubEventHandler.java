@@ -53,7 +53,7 @@ public class PubSubEventHandler<T> implements EventHandler<T> {
    *
    * @param map a map of event class types to lists of event handlers
    */
-  public PubSubEventHandler(Map<Class<? extends T>, List<EventHandler<? extends T>>> clazzToListOfHandlersMap) {
+  public PubSubEventHandler(final Map<Class<? extends T>, List<EventHandler<? extends T>>> clazzToListOfHandlersMap) {
     this.clazzToListOfHandlersMap = clazzToListOfHandlersMap;
   }
 
@@ -63,7 +63,7 @@ public class PubSubEventHandler<T> implements EventHandler<T> {
    * @param clazz   an event class
    * @param handler an event handler
    */
-  public void subscribe(Class<? extends T> clazz, EventHandler<? extends T> handler) {
+  public void subscribe(final Class<? extends T> clazz, final EventHandler<? extends T> handler) {
     lock.writeLock().lock();
     try {
       List<EventHandler<? extends T>> list = clazzToListOfHandlersMap.get(clazz);
@@ -84,10 +84,10 @@ public class PubSubEventHandler<T> implements EventHandler<T> {
    * @throws WakeRuntimeException
    */
   @Override
-  public void onNext(T event) {
+  public void onNext(final T event) {
     LOG.log(Level.FINEST, "Invoked for event: {0}", event);
     lock.readLock().lock();
-    List<EventHandler<? extends T>> list;
+    final List<EventHandler<? extends T>> list;
     try {
       list = clazzToListOfHandlersMap.get(event.getClass());
       if (list == null) {

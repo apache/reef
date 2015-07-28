@@ -64,11 +64,11 @@ public class ChunkedReadWriteHandler extends ChunkedWriteHandler {
    *      org.jboss.netty.channel.ChannelHandlerContext, org.jboss.netty.channel.ChannelEvent)
    */
   @Override
-  public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+  public void channelRead(final ChannelHandlerContext ctx, final Object msg) throws Exception {
 
     if (msg instanceof byte[]) {
 
-      byte[] data = (byte[]) msg;
+      final byte[] data = (byte[]) msg;
 
       if (start) {
         //LOG.log(Level.FINEST, "{0} Starting dechunking of a chunked write", curThrName);
@@ -93,7 +93,7 @@ public class ChunkedReadWriteHandler extends ChunkedWriteHandler {
         // "Creating upstream msg event with the dechunked byte[{1}]", new Object[]{curThrName, expectedSize});
         //if (LOG.isLoggable(Level.FINEST)) LOG.log(Level.FINEST, "Resetting state to begin another dechunking",
         // curThrName);
-        byte[] temp = retArr;
+        final byte[] temp = retArr;
         start = true;
         expectedSize = 0;
         readBuffer.release();
@@ -117,7 +117,7 @@ public class ChunkedReadWriteHandler extends ChunkedWriteHandler {
    * the second begins.
    */
   @Override
-  public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
+  public void write(final ChannelHandlerContext ctx, final Object msg, final ChannelPromise promise) throws Exception {
 
     if (msg instanceof ByteBuf) {
 
@@ -183,7 +183,7 @@ public class ChunkedReadWriteHandler extends ChunkedWriteHandler {
   private class ByteBufCloseableStream extends ByteBufInputStream {
     private final ByteBuf buffer;
 
-    public ByteBufCloseableStream(ByteBuf buffer) {
+    public ByteBufCloseableStream(final ByteBuf buffer) {
       super(buffer);
       this.buffer = buffer;
     }

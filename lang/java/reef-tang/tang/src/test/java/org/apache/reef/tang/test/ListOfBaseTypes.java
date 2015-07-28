@@ -43,7 +43,7 @@ final class ListOfBaseTypes {
   }
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(final Object o) {
     if (this == o) {
       return true;
     }
@@ -51,7 +51,7 @@ final class ListOfBaseTypes {
       return false;
     }
 
-    ListOfBaseTypes that = (ListOfBaseTypes) o;
+    final ListOfBaseTypes that = (ListOfBaseTypes) o;
 
     if (!doubles.equals(that.doubles)) {
       return false;

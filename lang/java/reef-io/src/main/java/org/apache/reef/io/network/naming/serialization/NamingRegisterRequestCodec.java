@@ -37,7 +37,7 @@ public class NamingRegisterRequestCodec implements Codec<NamingRegisterRequest> 
    *
    * @param factory the identifier factory
    */
-  public NamingRegisterRequestCodec(IdentifierFactory factory) {
+  public NamingRegisterRequestCodec(final IdentifierFactory factory) {
     this.factory = factory;
   }
 
@@ -48,7 +48,7 @@ public class NamingRegisterRequestCodec implements Codec<NamingRegisterRequest> 
    * @return a byte array
    */
   @Override
-  public byte[] encode(NamingRegisterRequest obj) {
+  public byte[] encode(final NamingRegisterRequest obj) {
     final AvroNamingRegisterRequest result = AvroNamingRegisterRequest.newBuilder()
         .setId(obj.getNameAssignment().getIdentifier().toString())
         .setHost(obj.getNameAssignment().getAddress().getHostName())
@@ -65,7 +65,7 @@ public class NamingRegisterRequestCodec implements Codec<NamingRegisterRequest> 
    * @throws org.apache.reef.io.network.naming.exception.NamingRuntimeException
    */
   @Override
-  public NamingRegisterRequest decode(byte[] buf) {
+  public NamingRegisterRequest decode(final byte[] buf) {
     final AvroNamingRegisterRequest avroNamingRegisterRequest =
         AvroUtils.fromBytes(buf, AvroNamingRegisterRequest.class);
     return new NamingRegisterRequest(

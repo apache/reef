@@ -39,7 +39,7 @@ public abstract class Time implements Comparable<Time> {
   }
 
   @Override
-  public final int compareTo(Time o) {
+  public final int compareTo(final Time o) {
     if (this.timestamp < o.timestamp) {
       return -1;
     }
@@ -56,7 +56,7 @@ public abstract class Time implements Comparable<Time> {
   }
 
   @Override
-  public final boolean equals(Object o) {
+  public final boolean equals(final Object o) {
     if (o instanceof Time) {
       return compareTo((Time) o) == 0;
     }

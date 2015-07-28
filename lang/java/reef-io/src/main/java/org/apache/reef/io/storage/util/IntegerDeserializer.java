@@ -29,7 +29,7 @@ import java.util.Iterator;
 public class IntegerDeserializer implements
     Deserializer<Integer, InputStream> {
   @Override
-  public Iterable<Integer> create(InputStream arg) {
+  public Iterable<Integer> create(final InputStream arg) {
     final DataInputStream dis = new DataInputStream(arg);
     return new Iterable<Integer>() {
 
@@ -46,7 +46,7 @@ public class IntegerDeserializer implements
           public Integer next() {
             try {
               return dis.readInt();
-            } catch (IOException e) {
+            } catch (final IOException e) {
               throw new ServiceRuntimeException(e);
             }
           }

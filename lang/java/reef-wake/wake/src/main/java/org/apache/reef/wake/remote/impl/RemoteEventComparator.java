@@ -26,7 +26,7 @@ import java.util.Comparator;
 public class RemoteEventComparator<T> implements Comparator<RemoteEvent<T>> {
 
   @Override
-  public int compare(RemoteEvent<T> o1, RemoteEvent<T> o2) {
+  public int compare(final RemoteEvent<T> o1, final RemoteEvent<T> o2) {
     if (o1.getSeq() < o2.getSeq()) {
       return -1;
     }

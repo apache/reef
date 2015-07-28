@@ -75,7 +75,7 @@ public final class REEFVersion {
       final Properties properties = new Properties();
       properties.load(is);
       version = properties.getProperty(VERSION_KEY, VERSION_DEFAULT);
-    } catch (IOException e) {
+    } catch (final IOException e) {
       LOG.log(Level.WARNING, "Could not find REEF version");
       version = VERSION_DEFAULT;
     }

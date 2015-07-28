@@ -70,7 +70,7 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
       final ClasspathProvider classpath,
       final JobUploader uploader,
       @Parameter(JVMHeapSlack.class) final double jvmSlack,
-      @Parameter(JobQueue.class) String defaultQueueName) throws IOException {
+      @Parameter(JobQueue.class) final String defaultQueueName) throws IOException {
 
     this.yarnConfiguration = yarnConfiguration;
     this.jobJarMaker = jobJarMaker;
@@ -162,7 +162,7 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
     try {
       return Optional.ofNullable(Tang.Factory.getTang().newInjector(configuration)
           .getNamedInstance(DriverJobSubmissionDirectory.class));
-    } catch (InjectionException ex) {
+    } catch (final InjectionException ex) {
       return Optional.empty();
     }
 

@@ -37,7 +37,7 @@ public class NameAssignmentTuple implements NameAssignment {
    * @param id   an identifier
    * @param addr an Internet socket address
    */
-  public NameAssignmentTuple(Identifier id, InetSocketAddress addr) {
+  public NameAssignmentTuple(final Identifier id, final InetSocketAddress addr) {
     this.id = id;
     this.addr = addr;
   }

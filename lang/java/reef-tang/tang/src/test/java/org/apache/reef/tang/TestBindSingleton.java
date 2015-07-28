@@ -85,8 +85,8 @@ public class TestBindSingleton {
   @Test
   public void testLateBoundVolatileInstanceWithSingletonX()
       throws BindException, InjectionException {
-    Tang tang = Tang.Factory.getTang();
-    JavaConfigurationBuilder cb = tang.newConfigurationBuilder();
+    final Tang tang = Tang.Factory.getTang();
+    final JavaConfigurationBuilder cb = tang.newConfigurationBuilder();
     cb.bindImplementation(LateBoundVolatile.A.class,
         LateBoundVolatile.B.class);
     final Injector i = tang.newInjector(cb.build());
@@ -117,9 +117,9 @@ public class TestBindSingleton {
   @Test
   public void testLateBoundVolatileInstanceWithSingletonY()
       throws BindException, InjectionException {
-    Tang tang = Tang.Factory.getTang();
-    JavaConfigurationBuilder cb = tang.newConfigurationBuilder();
-    Injector i = tang.newInjector(cb.build());
+    final Tang tang = Tang.Factory.getTang();
+    final JavaConfigurationBuilder cb = tang.newConfigurationBuilder();
+    final Injector i = tang.newInjector(cb.build());
     i.bindVolatileInstance(LateBoundVolatile.C.class, new LateBoundVolatile.C());
     i.getInstance(LateBoundVolatile.C.class);
   }
@@ -127,79 +127,79 @@ public class TestBindSingleton {
   @Test
   public void testLateBoundVolatileInstanceWithSingletonZ()
       throws BindException, InjectionException {
-    Tang tang = Tang.Factory.getTang();
-    JavaConfigurationBuilder cb = tang.newConfigurationBuilder();
+    final Tang tang = Tang.Factory.getTang();
+    final JavaConfigurationBuilder cb = tang.newConfigurationBuilder();
     cb.bindImplementation(LateBoundVolatile.B.class,
         LateBoundVolatile.B.class);
-    Injector i = tang.newInjector(cb.build());
+    final Injector i = tang.newInjector(cb.build());
     i.bindVolatileInstance(LateBoundVolatile.C.class, new LateBoundVolatile.C());
     i.getInstance(LateBoundVolatile.B.class);
   }
 
   @Test
   public void testInbredSingletons() throws BindException, InjectionException {
-    Tang t = Tang.Factory.getTang();
-    JavaConfigurationBuilder b = t.newConfigurationBuilder();
+    final Tang t = Tang.Factory.getTang();
+    final JavaConfigurationBuilder b = t.newConfigurationBuilder();
     b.bindImplementation(InbredSingletons.A.class,
         InbredSingletons.A.class);
     b.bindImplementation(InbredSingletons.B.class,
         InbredSingletons.B.class);
     b.bindImplementation(InbredSingletons.C.class,
         InbredSingletons.C.class);
-    Injector i = t.newInjector(b.build());
+    final Injector i = t.newInjector(b.build());
     i.getInstance(InbredSingletons.A.class);
   }
 
   @Test
   public void testIncestuousSingletons() throws BindException,
       InjectionException {
-    Tang t = Tang.Factory.getTang();
-    JavaConfigurationBuilder b = t.newConfigurationBuilder();
+    final Tang t = Tang.Factory.getTang();
+    final JavaConfigurationBuilder b = t.newConfigurationBuilder();
     b.bindImplementation(IncestuousSingletons.A.class,
         IncestuousSingletons.A.class);
     b.bindImplementation(IncestuousSingletons.B.class,
         IncestuousSingletons.B.class);
     b.bindImplementation(IncestuousSingletons.C.class,
         IncestuousSingletons.C.class);
-    Injector i = t.newInjector(b.build());
+    final Injector i = t.newInjector(b.build());
     i.getInstance(IncestuousSingletons.A.class);
   }
 
   @Test
   public void testIncestuousSingletons2() throws BindException,
       InjectionException {
-    Tang t = Tang.Factory.getTang();
-    JavaConfigurationBuilder b = t.newConfigurationBuilder();
+    final Tang t = Tang.Factory.getTang();
+    final JavaConfigurationBuilder b = t.newConfigurationBuilder();
     b.bindImplementation(IncestuousSingletons.A.class,
         IncestuousSingletons.A.class);
     b.bindImplementation(IncestuousSingletons.B.class,
         IncestuousSingletons.BN.class);
     b.bindImplementation(IncestuousSingletons.C.class,
         IncestuousSingletons.C.class);
-    Injector i = t.newInjector(b.build());
+    final Injector i = t.newInjector(b.build());
     i.getInstance(IncestuousSingletons.A.class);
   }
 
   @Test
   public void testIncestuousInterfaceSingletons() throws BindException,
       InjectionException {
-    Tang t = Tang.Factory.getTang();
-    JavaConfigurationBuilder b = t.newConfigurationBuilder();
+    final Tang t = Tang.Factory.getTang();
+    final JavaConfigurationBuilder b = t.newConfigurationBuilder();
     b.bindImplementation(IncestuousInterfaceSingletons.AI.class,
         IncestuousInterfaceSingletons.A.class);
     b.bindImplementation(IncestuousInterfaceSingletons.BI.class,
         IncestuousInterfaceSingletons.BN.class);
     b.bindImplementation(IncestuousInterfaceSingletons.CI.class,
         IncestuousInterfaceSingletons.C.class);
-    Injector i = t.newInjector(b.build());
+    final Injector i = t.newInjector(b.build());
     i.getInstance(IncestuousInterfaceSingletons.AI.class);
   }
 
   @Test
   public void testIncestuousInterfaceSingletons2() throws BindException,
       InjectionException {
-    Tang t = Tang.Factory.getTang();
-    JavaConfigurationBuilder b = t.newConfigurationBuilder();
+    final Tang t = Tang.Factory.getTang();
+    final JavaConfigurationBuilder b = t.newConfigurationBuilder();
     b.bindImplementation(IncestuousInterfaceSingletons.AI.class,
         IncestuousInterfaceSingletons.A.class);
     b.bindImplementation(IncestuousInterfaceSingletons.BI.class,
@@ -209,14 +209,14 @@ public class TestBindSingleton {
         IncestuousInterfaceSingletons.B.class);
     b.bindImplementation(IncestuousInterfaceSingletons.CI.class,
         IncestuousInterfaceSingletons.C.class);
-    Injector i = t.newInjector(b.build());
+    final Injector i = t.newInjector(b.build());
     i.getInstance(IncestuousInterfaceSingletons.AI.class);
   }
 
   @Test
   public void testIsBrokenClassInjectable() throws BindException {
-    Tang t = Tang.Factory.getTang();
-    JavaConfigurationBuilder b = t.newConfigurationBuilder();
+    final Tang t = Tang.Factory.getTang();
+    final JavaConfigurationBuilder b = t.newConfigurationBuilder();
     b.bind(IsBrokenClassInjectable.class, IsBrokenClassInjectable.class);
     Assert.assertTrue(t.newInjector(b.build()).isInjectable(
         IsBrokenClassInjectable.class));
@@ -224,8 +224,8 @@ public class TestBindSingleton {
 
   @Test
   public void testIsBrokenSingletonClassInjectable() throws BindException {
-    Tang t = Tang.Factory.getTang();
-    JavaConfigurationBuilder b = t.newConfigurationBuilder();
+    final Tang t = Tang.Factory.getTang();
+    final JavaConfigurationBuilder b = t.newConfigurationBuilder();
     b.bindImplementation(IsBrokenClassInjectable.class,
         IsBrokenClassInjectable.class);
     Assert.assertTrue(t.newInjector(b.build()).isInjectable(
@@ -234,8 +234,8 @@ public class TestBindSingleton {
 
   @Test(expected = InjectionException.class)
   public void testBrokenSingletonClassCantInject() throws BindException, InjectionException {
-    Tang t = Tang.Factory.getTang();
-    JavaConfigurationBuilder b = t.newConfigurationBuilder();
+    final Tang t = Tang.Factory.getTang();
+    final JavaConfigurationBuilder b = t.newConfigurationBuilder();
     b.bindImplementation(IsBrokenClassInjectable.class,
         IsBrokenClassInjectable.class);
     Assert.assertTrue(t.newInjector(b.build()).isInjectable(
@@ -273,7 +273,7 @@ class LateBoundVolatile {
 
   static class B extends A {
     @Inject
-    B(C c) {
+    B(final C c) {
     }
   }
 
@@ -286,7 +286,7 @@ class InbredSingletons {
     static int count = 0;
 
     @Inject
-    A(B b) {
+    A(final B b) {
       Assert.assertEquals(0, count);
       count++;
     }
@@ -296,7 +296,7 @@ class InbredSingletons {
     static int count = 0;
 
     @Inject
-    B(C c) {
+    B(final C c) {
       Assert.assertEquals(0, count);
       count++;
     }
@@ -318,7 +318,7 @@ class IncestuousSingletons {
     static int count = 0;
 
     @Inject
-    A(C c, B b) {
+    A(final C c, final B b) {
       Assert.assertEquals(0, count);
       count++;
     }
@@ -331,7 +331,7 @@ class IncestuousSingletons {
     }
 
     @Inject
-    B(C c) {
+    B(final C c) {
       Assert.assertEquals(0, count);
       count++;
     }
@@ -341,7 +341,7 @@ class IncestuousSingletons {
     static int count = 0;
 
     @Inject
-    BN(C c) {
+    BN(final C c) {
       super();
       Assert.assertEquals(0, count);
       count++;
@@ -373,7 +373,7 @@ class IncestuousInterfaceSingletons {
     static int count = 0;
 
     @Inject
-    A(CI c, BI b) {
+    A(final CI c, final BI b) {
       Assert.assertEquals(0, count);
       count++;
     }
@@ -386,7 +386,7 @@ class IncestuousInterfaceSingletons {
     }
 
     @Inject
-    B(CI c) {
+    B(final CI c) {
       Assert.assertEquals(0, count);
       count++;
     }
@@ -396,7 +396,7 @@ class IncestuousInterfaceSingletons {
     static int count = 0;
 
     @Inject
-    BN(CI c) {
+    BN(final CI c) {
       super();
       Assert.assertEquals(0, count);
       count++;

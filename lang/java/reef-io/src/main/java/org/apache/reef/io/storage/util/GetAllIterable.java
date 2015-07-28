@@ -30,7 +30,7 @@ public class GetAllIterable<T> implements
   private final Set<? extends CharSequence> keys;
   private final ExternalMap<T> map;
 
-  public GetAllIterable(Set<? extends CharSequence> keys, ExternalMap<T> map) {
+  public GetAllIterable(final Set<? extends CharSequence> keys, final ExternalMap<T> map) {
     this.keys = keys;
     this.map = map;
   }
@@ -44,7 +44,7 @@ public class GetAllIterable<T> implements
 
       private CharSequence findNextKey() {
         while (k.hasNext()) {
-          CharSequence next = k.next();
+          final CharSequence next = k.next();
           if (map.containsKey(next)) {
             return next;
           }
@@ -80,7 +80,7 @@ public class GetAllIterable<T> implements
           }
 
           @Override
-          public T setValue(T v) {
+          public T setValue(final T v) {
             throw new UnsupportedOperationException(
                 "No support for mutating values via iterator");
           }

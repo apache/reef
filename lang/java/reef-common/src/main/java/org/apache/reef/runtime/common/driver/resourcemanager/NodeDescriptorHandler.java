@@ -34,7 +34,7 @@ public final class NodeDescriptorHandler implements EventHandler<NodeDescriptorE
   private final ResourceCatalogImpl resourceCatalog;
 
   @Inject
-  public NodeDescriptorHandler(ResourceCatalogImpl resourceCatalog) {
+  public NodeDescriptorHandler(final ResourceCatalogImpl resourceCatalog) {
     this.resourceCatalog = resourceCatalog;
   }
 

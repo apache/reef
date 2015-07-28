@@ -42,7 +42,7 @@ public class CLRLaunchCommandBuilder implements LaunchCommandBuilder {
   @Override
   public List<String> build() {
     final List<String> result = new LinkedList<>();
-    File f = new File(EVALUATOR_PATH);
+    final File f = new File(EVALUATOR_PATH);
     if (!f.exists()) {
       LOG.log(Level.WARNING, "file can NOT be found: {0}", f.getAbsolutePath());
     }

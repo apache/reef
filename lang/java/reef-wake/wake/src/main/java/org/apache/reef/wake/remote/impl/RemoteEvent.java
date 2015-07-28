@@ -45,7 +45,8 @@ public class RemoteEvent<T> {
    * @param seq        the sequence number
    * @param event      the event
    */
-  public RemoteEvent(SocketAddress localAddr, SocketAddress remoteAddr, String src, String sink, long seq, T event) {
+  public RemoteEvent(final SocketAddress localAddr, final SocketAddress remoteAddr, final String src,
+                     final String sink, final long seq, final T event) {
     this.localAddr = localAddr;
     this.remoteAddr = remoteAddr;
     this.src = src;
@@ -86,7 +87,7 @@ public class RemoteEvent<T> {
    *
    * @param name the source name
    */
-  public void setSource(String name) {
+  public void setSource(final String name) {
     src = name;
   }
 
@@ -104,7 +105,7 @@ public class RemoteEvent<T> {
    *
    * @param name the sink name
    */
-  public void setSink(String name) {
+  public void setSink(final String name) {
     sink = name;
   }
 
@@ -131,7 +132,7 @@ public class RemoteEvent<T> {
    *
    * @param addr the local socket address
    */
-  public void setLocalAddress(SocketAddress addr) {
+  public void setLocalAddress(final SocketAddress addr) {
     localAddr = addr;
   }
 
@@ -140,7 +141,7 @@ public class RemoteEvent<T> {
    *
    * @param addr the remote socket address
    */
-  public void setRemoteAddress(SocketAddress addr) {
+  public void setRemoteAddress(final SocketAddress addr) {
     remoteAddr = addr;
   }
 
@@ -150,7 +151,7 @@ public class RemoteEvent<T> {
    * @return a string representation of this object
    */
   public String toString() {
-    StringBuilder builder = new StringBuilder();
+    final StringBuilder builder = new StringBuilder();
     builder.append("RemoteEvent");
     builder.append(" localAddr=");
     builder.append(localAddr);

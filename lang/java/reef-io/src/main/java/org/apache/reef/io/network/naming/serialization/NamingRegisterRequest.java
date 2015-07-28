@@ -31,7 +31,7 @@ public class NamingRegisterRequest extends NamingMessage {
    *
    * @param na the name assignment
    */
-  public NamingRegisterRequest(NameAssignment na) {
+  public NamingRegisterRequest(final NameAssignment na) {
     this.na = na;
   }
 

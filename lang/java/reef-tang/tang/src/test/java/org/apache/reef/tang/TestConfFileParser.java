@@ -46,11 +46,11 @@ public class TestConfFileParser {
     // TODO: This likely only passes on windows, as it relies on newlines
     // being \r\n, and on java.lang.Object having a lower hash code than
     // org.apache.reef.tang.TestConfFileParser
-    Tang t = Tang.Factory.getTang();
-    JavaConfigurationBuilder cb = t.newConfigurationBuilder();
-    String in = "org.apache.reef.tang.TestConfFileParser=org.apache.reef.tang.TestConfFileParser\n";
+    final Tang t = Tang.Factory.getTang();
+    final JavaConfigurationBuilder cb = t.newConfigurationBuilder();
+    final String in = "org.apache.reef.tang.TestConfFileParser=org.apache.reef.tang.TestConfFileParser\n";
     ConfigurationFile.addConfiguration(cb, in);
-    String out = ConfigurationFile.toConfigurationString(cb.build());
+    final String out = ConfigurationFile.toConfigurationString(cb.build());
     Assert.assertEquals(in, out);
   }
 
@@ -59,20 +59,20 @@ public class TestConfFileParser {
     // TODO: This likely only passes on windows, as it relies on newlines
     // being \r\n, and on java.lang.Object having a lower hash code than
     // org.apache.reef.tang.TestConfFileParser
-    Tang t = Tang.Factory.getTang();
-    JavaConfigurationBuilder cb = t.newConfigurationBuilder();
+    final Tang t = Tang.Factory.getTang();
+    final JavaConfigurationBuilder cb = t.newConfigurationBuilder();
     cb.bindImplementation(SingleTest.A.class, SingleTest.B.class);
 
-    String out = ConfigurationFile.toConfigurationString(cb.build());
-    String in = "org.apache.reef.tang.SingleTest$A=org.apache.reef.tang.SingleTest$B\n";
+    final String out = ConfigurationFile.toConfigurationString(cb.build());
+    final String in = "org.apache.reef.tang.SingleTest$A=org.apache.reef.tang.SingleTest$B\n";
     Assert.assertEquals(in, out);
   }
 
   @Test
   public void testNamedParameter() throws BindException {
-    Tang t = Tang.Factory.getTang();
-    String conf = "org.apache.reef.tang.TestConfFileParser$Foo=woot";
-    ConfigurationBuilder cb = t.newConfigurationBuilder();
+    final Tang t = Tang.Factory.getTang();
+    final String conf = "org.apache.reef.tang.TestConfFileParser$Foo=woot";
+    final ConfigurationBuilder cb = t.newConfigurationBuilder();
     ConfigurationFile.addConfiguration(cb, conf);
     Assert.assertTrue(t.newInjector(cb.build()).isParameterSet(Foo.class));
   }
@@ -88,7 +88,7 @@ public class TestConfFileParser {
       fout.write(line.getBytes());
     }
 
-    JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
+    final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
     ConfigurationFile.addConfiguration(cb, tmp);
     final Injector i = Tang.Factory.getTang().newInjector(cb.build());
     Assert.assertEquals(value, i.getNamedInstance(RemoteIdentifier.class));

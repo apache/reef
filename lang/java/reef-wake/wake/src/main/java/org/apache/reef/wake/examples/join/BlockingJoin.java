@@ -29,7 +29,7 @@ public class BlockingJoin implements StaticObservable {
   private final ConcurrentSkipListSet<TupleEvent> left = new ConcurrentSkipListSet<>();
   boolean leftDone = false;
 
-  public BlockingJoin(Observer<TupleEvent> out) {
+  public BlockingJoin(final Observer<TupleEvent> out) {
     this.out = out;
   }
 
@@ -42,7 +42,7 @@ public class BlockingJoin implements StaticObservable {
     while (!leftDone) {
       try {
         wait();
-      } catch (InterruptedException e) {
+      } catch (final InterruptedException e) {
         throw new IllegalStateException(
             "No support for interrupted threads here!", e);
       }
@@ -53,12 +53,12 @@ public class BlockingJoin implements StaticObservable {
     return new Observer<TupleEvent>() {
 
       @Override
-      public void onNext(TupleEvent value) {
+      public void onNext(final TupleEvent value) {
         left.add(value);
       }
 
       @Override
-      public void onError(Exception error) {
+      public void onError(final Exception error) {
 
       }
 
@@ -74,7 +74,7 @@ public class BlockingJoin implements StaticObservable {
     return new Observer<TupleEvent>() {
 
       @Override
-      public void onNext(TupleEvent value) {
+      public void onNext(final TupleEvent value) {
         if (!leftDone) {
           waitUntilLeftIsDone();
         }
@@ -84,7 +84,7 @@ public class BlockingJoin implements StaticObservable {
       }
 
       @Override
-      public void onError(Exception error) {
+      public void onError(final Exception error) {
       }
 
       @Override

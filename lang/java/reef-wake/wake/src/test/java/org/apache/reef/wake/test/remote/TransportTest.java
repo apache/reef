@@ -63,19 +63,20 @@ public class TransportTest {
     System.out.println(LOG_PREFIX + name.getMethodName());
     LoggingUtils.setLoggingLevel(Level.INFO);
 
-    Monitor monitor = new Monitor();
-    TimerStage timer = new TimerStage(new TimeoutHandler(monitor), 2000, 2000);
+    final Monitor monitor = new Monitor();
+    final TimerStage timer = new TimerStage(new TimeoutHandler(monitor), 2000, 2000);
 
     final int expected = 2;
     final String hostAddress = this.localAddressProvider.getLocalAddress();
     final int port = 9100;
 
     // Codec<String>
-    ReceiverStage<String> stage = new ReceiverStage<String>(new ObjectSerializableCodec<String>(), monitor, expected);
-    Transport transport = tpFactory.newInstance(hostAddress, port, stage, stage, 1, 10000);
+    final ReceiverStage<String> stage =
+        new ReceiverStage<String>(new ObjectSerializableCodec<String>(), monitor, expected);
+    final Transport transport = tpFactory.newInstance(hostAddress, port, stage, stage, 1, 10000);
 
     // sending side
-    Link<String> link = transport.open(
+    final Link<String> link = transport.open(
         new InetSocketAddress(hostAddress, port),
         new ObjectSerializableCodec<String>(),
         new LoggingLinkListener<String>());
@@ -94,20 +95,20 @@ public class TransportTest {
     System.out.println(LOG_PREFIX + name.getMethodName());
     LoggingUtils.setLoggingLevel(Level.INFO);
 
-    Monitor monitor = new Monitor();
-    TimerStage timer = new TimerStage(new TimeoutHandler(monitor), 2000, 2000);
+    final Monitor monitor = new Monitor();
+    final TimerStage timer = new TimerStage(new TimeoutHandler(monitor), 2000, 2000);
 
     final int expected = 2;
     final String hostAddress = this.localAddressProvider.getLocalAddress();
     final int port = 9100;
 
     // Codec<TestEvent>
-    ReceiverStage<TestEvent> stage =
+    final ReceiverStage<TestEvent> stage =
         new ReceiverStage<TestEvent>(new ObjectSerializableCodec<TestEvent>(), monitor, expected);
-    Transport transport = tpFactory.newInstance(hostAddress, port, stage, stage, 1, 10000);
+    final Transport transport = tpFactory.newInstance(hostAddress, port, stage, stage, 1, 10000);
 
     // sending side
-    Link<TestEvent> link = transport.open(
+    final Link<TestEvent> link = transport.open(
         new InetSocketAddress(hostAddress, port),
         new ObjectSerializableCodec<TestEvent>(),
         new LoggingLinkListener<TestEvent>());
@@ -128,7 +129,7 @@ public class TransportTest {
     private final int expected;
     private AtomicInteger count = new AtomicInteger(0);
 
-    ReceiverStage(Codec<T> codec, Monitor monitor, int expected) {
+    ReceiverStage(final Codec<T> codec, final Monitor monitor, final int expected) {
       this.codec = codec;
       this.monitor = monitor;
       this.expected = expected;
@@ -139,7 +140,7 @@ public class TransportTest {
     }
 
     @Override
-    public void onNext(TransportEvent value) {
+    public void onNext(final TransportEvent value) {
       codec.decode(value.getData());
       //System.out.println(value + " " + obj);      
 

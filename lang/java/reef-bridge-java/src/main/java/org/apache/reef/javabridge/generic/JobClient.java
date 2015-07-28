@@ -131,11 +131,11 @@ public class JobClient {
    * @return the driver-side configuration to be merged into the DriverConfiguration to enable the HTTP server.
    */
   public static Configuration getHTTPConfiguration() {
-    Configuration httpHandlerConfiguration = HttpHandlerConfiguration.CONF
+    final Configuration httpHandlerConfiguration = HttpHandlerConfiguration.CONF
         .set(HttpHandlerConfiguration.HTTP_HANDLERS, HttpServerReefEventHandler.class)
         .build();
 
-    Configuration driverConfigurationForHttpServer = DriverServiceConfiguration.CONF
+    final Configuration driverConfigurationForHttpServer = DriverServiceConfiguration.CONF
         .set(DriverServiceConfiguration.ON_EVALUATOR_ALLOCATED,
             ReefEventStateManager.AllocatedEvaluatorStateHandler.class)
         .set(DriverServiceConfiguration.ON_CONTEXT_ACTIVE, ReefEventStateManager.ActiveContextStateHandler.class)
@@ -166,7 +166,7 @@ public class JobClient {
           .set(DriverConfiguration.DRIVER_JOB_SUBMISSION_DIRECTORY, this.jobSubmissionDirectory);
 
 
-      Path globalLibFile = Paths.get(NativeInterop.GLOBAL_LIBRARIES_FILENAME);
+      final Path globalLibFile = Paths.get(NativeInterop.GLOBAL_LIBRARIES_FILENAME);
       if (!Files.exists(globalLibFile)) {
         LOG.log(Level.FINE, "Cannot find global classpath file at: {0}, assume there is none.",
             globalLibFile.toAbsolutePath());
@@ -179,7 +179,7 @@ public class JobClient {
         }
 
         for (final String s : globalLibString.split(",")) {
-          File f = new File(s);
+          final File f = new File(s);
           this.driverConfigModule = this.driverConfigModule.set(DriverConfiguration.GLOBAL_LIBRARIES, f.getPath());
         }
       }
@@ -204,7 +204,7 @@ public class JobClient {
       if (submitDriver) {
         this.reef.submit(this.driverConfiguration);
       } else {
-        File driverConfig = new File(System.getProperty("user.dir") + "/driver.config");
+        final File driverConfig = new File(System.getProperty("user.dir") + "/driver.config");
         try {
           new AvroConfigurationSerializer().toFile(Configurations.merge(this.driverConfiguration, clientConfig),
               driverConfig);
@@ -256,7 +256,7 @@ public class JobClient {
     } else if (waitTime < 0) {
       waitTillDone();
     }
-    long endTime = System.currentTimeMillis() + waitTime * 1000;
+    final long endTime = System.currentTimeMillis() + waitTime * 1000;
     close(endTime);
   }
 
@@ -321,7 +321,7 @@ public class JobClient {
 
   final class WakeErrorHandler implements EventHandler<Throwable> {
     @Override
-    public void onNext(Throwable error) {
+    public void onNext(final Throwable error) {
       LOG.log(Level.SEVERE, "Error communicating with job driver, exiting... ", error);
       stopAndNotify();
     }

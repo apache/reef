@@ -29,22 +29,22 @@ public class SequentialFileReader implements EStage<ReadRequest> {
   final FileHandlePool fdPool = new FileHandlePool();
 
   @Override
-  public void onNext(ReadRequest value) {
-    FileInputStream fin = fdPool.get(value.f);
+  public void onNext(final ReadRequest value) {
+    final FileInputStream fin = fdPool.get(value.f);
     int readSoFar = 0;
     try {
       synchronized (fin) {
         fin.reset();
         fin.skip(value.offset);
         while (readSoFar != value.buf.length) {
-          int ret = fin.read(value.buf, readSoFar, value.buf.length);
+          final int ret = fin.read(value.buf, readSoFar, value.buf.length);
           if (ret == -1) {
             break;
           }
           readSoFar += ret;
         }
       }
-    } catch (IOException e) {
+    } catch (final IOException e) {
       fdPool.release(value.f, fin);
 //      err.onNext(null); //new ReadError(e));
     }

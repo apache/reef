@@ -34,10 +34,10 @@ public class BlockingEventHandlerTest {
     final AtomicInteger i = new AtomicInteger(0);
     final AtomicInteger cnt = new AtomicInteger(0);
 
-    BlockingEventHandler<Integer> h = new BlockingEventHandler<>(1, new EventHandler<Iterable<Integer>>() {
+    final BlockingEventHandler<Integer> h = new BlockingEventHandler<>(1, new EventHandler<Iterable<Integer>>() {
       @Override
-      public void onNext(Iterable<Integer> value) {
-        for (int x : value) {
+      public void onNext(final Iterable<Integer> value) {
+        for (final int x : value) {
           i.getAndAdd(x);
           cnt.incrementAndGet();
         }
@@ -53,10 +53,10 @@ public class BlockingEventHandlerTest {
     final AtomicInteger i = new AtomicInteger(0);
     final AtomicInteger cnt = new AtomicInteger(0);
 
-    BlockingEventHandler<Integer> h = new BlockingEventHandler<>(1, new EventHandler<Iterable<Integer>>() {
+    final BlockingEventHandler<Integer> h = new BlockingEventHandler<>(1, new EventHandler<Iterable<Integer>>() {
       @Override
-      public void onNext(Iterable<Integer> value) {
-        for (int x : value) {
+      public void onNext(final Iterable<Integer> value) {
+        for (final int x : value) {
           i.getAndAdd(x);
           cnt.incrementAndGet();
         }
@@ -77,15 +77,15 @@ public class BlockingEventHandlerTest {
     final int num = 1000;
     final BlockingEventHandler<Integer> h = new BlockingEventHandler<>(2 * num, new EventHandler<Iterable<Integer>>() {
       @Override
-      public void onNext(Iterable<Integer> value) {
-        for (int x : value) {
+      public void onNext(final Iterable<Integer> value) {
+        for (final int x : value) {
           i.getAndAdd(x);
           cnt.incrementAndGet();
         }
       }
     });
 
-    Runnable r = new Runnable() {
+    final Runnable r = new Runnable() {
       @Override
       public void run() {
         for (int i = 0; i < num; i++) {
@@ -93,14 +93,14 @@ public class BlockingEventHandlerTest {
         }
       }
     };
-    Thread a = new Thread(r);
-    Thread b = new Thread(r);
+    final Thread a = new Thread(r);
+    final Thread b = new Thread(r);
     a.start();
     b.start();
     try {
       a.join();
       b.join();
-    } catch (InterruptedException e) {
+    } catch (final InterruptedException e) {
       fail(e.toString());
     }
 
@@ -118,8 +118,8 @@ public class BlockingEventHandlerTest {
     final int events = 10;
     final BlockingEventHandler<Integer> h = new BlockingEventHandler<>(2 * num, new EventHandler<Iterable<Integer>>() {
       @Override
-      public void onNext(Iterable<Integer> value) {
-        for (int x : value) {
+      public void onNext(final Iterable<Integer> value) {
+        for (final int x : value) {
           i.getAndAdd(x);
           cnt.incrementAndGet();
         }
@@ -127,7 +127,7 @@ public class BlockingEventHandlerTest {
       }
     });
 
-    Runnable r = new Runnable() {
+    final Runnable r = new Runnable() {
       @Override
       public void run() {
         for (int i = 0; i < num * events; i++) {
@@ -135,14 +135,14 @@ public class BlockingEventHandlerTest {
         }
       }
     };
-    Thread a = new Thread(r);
-    Thread b = new Thread(r);
+    final Thread a = new Thread(r);
+    final Thread b = new Thread(r);
     a.start();
     b.start();
     try {
       a.join();
       b.join();
-    } catch (InterruptedException e) {
+    } catch (final InterruptedException e) {
       fail(e.toString());
     }
 
@@ -160,8 +160,8 @@ public class BlockingEventHandlerTest {
     final int num = 1000;
     final BlockingEventHandler<Integer> h = new BlockingEventHandler<>(num, new EventHandler<Iterable<Integer>>() {
       @Override
-      public void onNext(Iterable<Integer> value) {
-        for (int x : value) {
+      public void onNext(final Iterable<Integer> value) {
+        for (final int x : value) {
           i.getAndAdd(x);
           cnt.incrementAndGet();
         }
@@ -169,25 +169,25 @@ public class BlockingEventHandlerTest {
     });
 
     final int val = 7;
-    Runnable r = new Runnable() {
+    final Runnable r = new Runnable() {
       @Override
       public void run() {
         h.onNext(val);
       }
     };
 
-    Thread[] workers = new Thread[num];
+    final Thread[] workers = new Thread[num];
     for (int ii = 0; ii < workers.length; ii++) {
       workers[ii] = new Thread(r);
     }
-    for (Thread w : workers) {
+    for (final Thread w : workers) {
       w.start();
     }
     try {
-      for (Thread w : workers) {
+      for (final Thread w : workers) {
         w.join();
       }
-    } catch (InterruptedException e) {
+    } catch (final InterruptedException e) {
       fail(e.toString());
     }
 

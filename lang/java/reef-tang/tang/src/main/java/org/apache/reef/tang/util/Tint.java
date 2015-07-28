@@ -73,13 +73,13 @@ public class Tint {
     this(new URL[0]);
   }
 
-  public Tint(URL[] jars) {
+  public Tint(final URL[] jars) {
     this(jars, false);
   }
 
   @SuppressWarnings("unchecked")
-  public Tint(URL[] jars, boolean checkTang) {
-    Object[] args = new Object[jars.length + 6];
+  public Tint(final URL[] jars, final boolean checkTang) {
+    final Object[] args = new Object[jars.length + 6];
     for (int i = 0; i < jars.length; i++) {
       args[i] = jars[i];
     }
@@ -89,31 +89,31 @@ public class Tint {
     args[args.length - 4] = new MethodParameterScanner();
     args[args.length - 5] = "com.microsoft";
     args[args.length - 6] = "org.apache";
-    Reflections r = new Reflections(args);
+    final Reflections r = new Reflections(args);
 //    Set<Class<?>> classes = new MonotonicSet<>();
-    Set<String> strings = new TreeSet<>();
-    Set<String> moduleBuilders = new MonotonicSet<>();
+    final Set<String> strings = new TreeSet<>();
+    final Set<String> moduleBuilders = new MonotonicSet<>();
 
     // Workaround bug in Reflections by keeping things stringly typed, and using Tang to parse them.
 //  Set<Constructor<?>> injectConstructors = (Set<Constructor<?>>)(Set)r.getMethodsAnnotatedWith(Inject.class);
 //  for(Constructor<?> c : injectConstructors) {
 //    classes.add(c.getDeclaringClass());
 //  }
-    Set<String> injectConstructors =
+    final Set<String> injectConstructors =
         r.getStore().getConstructorsAnnotatedWith(ReflectionUtilities.getFullName(Inject.class));
-    for (String s : injectConstructors) {
+    for (final String s : injectConstructors) {
       strings.add(s.replaceAll("\\.<.+$", ""));
     }
-    Set<String> parameterConstructors =
+    final Set<String> parameterConstructors =
         r.getStore().get(MethodParameterScanner.class, ReflectionUtilities.getFullName(Parameter.class));
-    for (String s : parameterConstructors) {
+    for (final String s : parameterConstructors) {
       strings.add(s.replaceAll("\\.<.+$", ""));
     }
 //    Set<Class> r.getConstructorsWithAnyParamAnnotated(Parameter.class);
 //    for(Constructor<?> c : parameterConstructors) {
 //      classes.add(c.getDeclaringClass());
 //    }
-    Set<String> defaultStrings =
+    final Set<String> defaultStrings =
         r.getStore().get(TypeAnnotationsScanner.class, ReflectionUtilities.getFullName(DefaultImplementation.class));
     strings.addAll(defaultStrings);
     strings.addAll(r.getStore().get(TypeAnnotationsScanner.class,
@@ -141,7 +141,7 @@ public class Tint {
 //      }
 //    }
 
-    for (String s : strings) {
+    for (final String s : strings) {
       if (classFilter(checkTang, s)) {
         try {
           ch.getNode(s);
@@ -150,7 +150,7 @@ public class Tint {
         }
       }
     }
-    for (String s : moduleBuilders) {
+    for (final String s : moduleBuilders) {
       if (classFilter(checkTang, s)) {
         try {
           ch.getNode(s);
@@ -160,12 +160,12 @@ public class Tint {
       }
     }
 
-    NodeVisitor<Node> v = new AbstractClassHierarchyNodeVisitor() {
+    final NodeVisitor<Node> v = new AbstractClassHierarchyNodeVisitor() {
 
       @Override
-      public boolean visit(NamedParameterNode<?> node) {
-        String nodeS = node.getFullName();
-        for (String s : node.getDefaultInstanceAsStrings()) {
+      public boolean visit(final NamedParameterNode<?> node) {
+        final String nodeS = node.getFullName();
+        for (final String s : node.getDefaultInstanceAsStrings()) {
           if (!usages.contains(s, nodeS)) {
             usages.put(s, nodeS);
           }
@@ -174,15 +174,15 @@ public class Tint {
       }
 
       @Override
-      public boolean visit(PackageNode node) {
+      public boolean visit(final PackageNode node) {
         return true;
       }
 
       @Override
-      public boolean visit(ClassNode<?> node) {
-        String nodeS = node.getFullName();
-        for (ConstructorDef<?> d : node.getInjectableConstructors()) {
-          for (ConstructorArg a : d.getArgs()) {
+      public boolean visit(final ClassNode<?> node) {
+        final String nodeS = node.getFullName();
+        for (final ConstructorDef<?> d : node.getInjectableConstructors()) {
+          for (final ConstructorArg a : d.getArgs()) {
             if (a.getNamedParameterName() != null &&
                 !usages.contains(a.getNamedParameterName(), nodeS)) {
               usages.put(a.getNamedParameterName(), nodeS);
@@ -201,25 +201,25 @@ public class Tint {
 
       Walk.preorder(v, null, ch.getNamespace());
 
-      for (ClassNode<?> cn : knownClasses) {
+      for (final ClassNode<?> cn : knownClasses) {
         try {
-          String s = cn.getFullName();
+          final String s = cn.getFullName();
           if (classFilter(checkTang, s)) {
-            Class<?> c = ch.classForName(s);
+            final Class<?> c = ch.classForName(s);
             processDefaultAnnotation(c);
             processConfigurationModules(c);
           }
-        } catch (ClassNotFoundException e) {
+        } catch (final ClassNotFoundException e) {
           e.printStackTrace();
         }
       }
 
-      for (Field f : modules.keySet()) {
-        ConfigurationModule m = modules.get(f);
-        String fS = ReflectionUtilities.getFullName(f);
-        Set<NamedParameterNode<?>> nps = m.getBoundNamedParameters();
-        for (NamedParameterNode<?> np : nps) {
-          String npS = np.getFullName();
+      for (final Field f : modules.keySet()) {
+        final ConfigurationModule m = modules.get(f);
+        final String fS = ReflectionUtilities.getFullName(f);
+        final Set<NamedParameterNode<?>> nps = m.getBoundNamedParameters();
+        for (final NamedParameterNode<?> np : nps) {
+          final String npS = np.getFullName();
           if (!setters.contains(npS, fS)) {
             setters.put(npS, fS);
           }
@@ -229,17 +229,17 @@ public class Tint {
 
   }
 
-  public static String stripCommonPrefixes(String s) {
+  public static String stripCommonPrefixes(final String s) {
     return
         stripPrefixHelper2(
             stripPrefixHelper2(s, "java.lang"),
             "java.util");
   }
 
-  public static String stripPrefixHelper2(String s, String prefix) {
-    String[] pretok = prefix.split("\\.");
-    String[] stok = s.split("\\.");
-    StringBuffer sb = new StringBuffer();
+  public static String stripPrefixHelper2(final String s, final String prefix) {
+    final String[] pretok = prefix.split("\\.");
+    final String[] stok = s.split("\\.");
+    final StringBuffer sb = new StringBuffer();
     int i;
     for (i = 0; i < pretok.length && i < stok.length; i++) {
       if (pretok[i].equals(stok[i])) {
@@ -272,7 +272,7 @@ public class Tint {
         return s;
       }
     }*/
-  public static String stripPrefix(String s, String prefix) {
+  public static String stripPrefix(final String s, final String prefix) {
     return stripPrefixHelper2(stripPrefixHelper2(stripPrefixHelper2(
         stripCommonPrefixes(stripPrefixHelper2(s, prefix)),
         "org.apache.reef"), "org.apache.reef"), "org.apache.reef.wake");
@@ -283,7 +283,7 @@ public class Tint {
    * @throws FileNotFoundException
    * @throws MalformedURLException
    */
-  public static void main(String[] args) throws FileNotFoundException, MalformedURLException {
+  public static void main(final String[] args) throws FileNotFoundException, MalformedURLException {
     int i = 0;
     String doc = null;
     String jar = null;
@@ -338,9 +338,9 @@ public class Tint {
 
         String currentPackage = "";
         for (final Node n : t.getNamesUsedAndSet()) {
-          String fullName = n.getFullName();
-          String[] tok = fullName.split("\\.");
-          StringBuffer sb = new StringBuffer(tok[0]);
+          final String fullName = n.getFullName();
+          final String[] tok = fullName.split("\\.");
+          final StringBuffer sb = new StringBuffer(tok[0]);
           for (int j = 1; j < tok.length; j++) {
             if (tok[j].matches("^[A-Z].*") || j > 4) {
               break;
@@ -348,7 +348,7 @@ public class Tint {
               sb.append("." + tok[j]);
             }
           }
-          String pack = sb.toString();
+          final String pack = sb.toString();
           if (!currentPackage.equals(pack)) {
             currentPackage = pack;
             out.println(t.endPackage());
@@ -366,13 +366,13 @@ public class Tint {
         out.println(t.endPackage());
         out.println("<div class='package'>Module definitions</div>");
         for (final Field f : t.modules.keySet()) {
-          String moduleName = ReflectionUtilities.getFullName(f);
+          final String moduleName = ReflectionUtilities.getFullName(f);
 //        String declaringClassName = ReflectionUtilities.getFullName(f.getDeclaringClass());
           out.println("<div class='module-margin' id='" + moduleName + "'><div class='decl'><span class='fullName'>" +
               moduleName + "</span>");
           out.println("<pre>");
-          String conf = t.modules.get(f).toPrettyString();
-          String[] tok = conf.split("\n");
+          final String conf = t.modules.get(f).toPrettyString();
+          final String[] tok = conf.split("\n");
           for (final String line : tok) {
             out.println(stripPrefix(line, "no.such.prefix")); //t.modules.get(f).toPrettyString());
           }
@@ -392,16 +392,16 @@ public class Tint {
             Class<?> clz = null;
             try {
               clz = t.ch.classForName(c.getFullName());
-            } catch (ClassNotFoundException e) {
+            } catch (final ClassNotFoundException e) {
               // TODO Auto-generated catch block
               e.printStackTrace();
             }
-            String typ = clz.isInterface() ? "interface" : "class";
+            final String typ = clz.isInterface() ? "interface" : "class";
             out.println("<div class='module-margin' id='" + c.getFullName() + "'><div class='decl'>" +
                 "<span class='fullName'>" + typ + " " + c.getFullName() + "</span>");
-            for (ConstructorDef<?> d : c.getInjectableConstructors()) {
+            for (final ConstructorDef<?> d : c.getInjectableConstructors()) {
               out.println("<div class='uses'>" + c.getFullName() + "(");
-              for (ConstructorArg a : d.getArgs()) {
+              for (final ConstructorArg a : d.getArgs()) {
                 if (a.getNamedParameterName() != null) {
                   out.print("<div class='constructorArg'><a href='#" + a.getType() + "'>" +
                       stripPrefix(a.getType(), "xxx") + "</a> <a href='#" + a.getNamedParameterName() + "'>" +
@@ -429,17 +429,17 @@ public class Tint {
     }
   }
 
-  private boolean classFilter(boolean checkTang, String s) {
+  private boolean classFilter(final boolean checkTang, final String s) {
     return (checkTang || !s.startsWith("org.apache.reef.tang"));
   }
 
-  private void processDefaultAnnotation(Class<?> cmb) {
-    DefaultImplementation di = cmb.getAnnotation(DefaultImplementation.class);
+  private void processDefaultAnnotation(final Class<?> cmb) {
+    final DefaultImplementation di = cmb.getAnnotation(DefaultImplementation.class);
     // XXX hack: move to helper method + unify with rest of Tang!
     if (di != null) {
-      String diName = di.value() == Void.class ? di.name() : ReflectionUtilities.getFullName(di.value());
-      ClassNode<?> cn = (ClassNode<?>) ch.getNode(cmb);
-      String cnS = cn.getFullName();
+      final String diName = di.value() == Void.class ? di.name() : ReflectionUtilities.getFullName(di.value());
+      final ClassNode<?> cn = (ClassNode<?>) ch.getNode(cmb);
+      final String cnS = cn.getFullName();
       if (!usages.contains(diName, cnS)) {
         usages.put(diName, cnS);
         if (!knownClasses.contains(cn)) {
@@ -449,10 +449,10 @@ public class Tint {
     }
   }
 
-  private void processConfigurationModules(Class<?> cmb) {
-    for (Field f : cmb.getFields()) {
+  private void processConfigurationModules(final Class<?> cmb) {
+    for (final Field f : cmb.getFields()) {
       if (ReflectionUtilities.isCoercable(ConfigurationModule.class, f.getType())) {
-        int mod = f.getModifiers();
+        final int mod = f.getModifiers();
         boolean ok = true;
         if (Modifier.isPrivate(mod)) {
           System.err.println("Found private ConfigurationModule " + f);
@@ -470,52 +470,52 @@ public class Tint {
 //          System.err.println("OK: " + f);
           try {
             f.setAccessible(true);
-            String fS = ReflectionUtilities.getFullName(f);
+            final String fS = ReflectionUtilities.getFullName(f);
             if (!modules.containsKey(f)) {
               modules.put(f, (ConfigurationModule) (f.get(null)));
               try {
                 modules.get(f).assertStaticClean();
-              } catch (ClassHierarchyException e) {
+              } catch (final ClassHierarchyException e) {
                 System.err.println(fS + ": " + e.getMessage());
               }
-              for (Entry<String, String> e : modules.get(f).toStringPairs()) {
+              for (final Entry<String, String> e : modules.get(f).toStringPairs()) {
                 //System.err.println("e: " + e.getKey() + "=" + e.getValue());
                 try {
-                  Node n = ch.getNode(e.getKey());
+                  final Node n = ch.getNode(e.getKey());
                   if (!setters.contains(e.getKey(), fS)) {
                     setters.put(e.getKey(), fS);
                   }
                   if (n instanceof ClassNode) {
-                    ClassNode<?> cn = (ClassNode<?>) n;
+                    final ClassNode<?> cn = (ClassNode<?>) n;
                     if (!knownClasses.contains(cn)) {
                       knownClasses.add(cn);
                     }
                   }
-                } catch (NameResolutionException ex) {
+                } catch (final NameResolutionException ex) {
                   //
                 }
                 try {
-                  String s = e.getValue();
-                  Node n = ch.getNode(s);
+                  final String s = e.getValue();
+                  final Node n = ch.getNode(s);
                   if (!usages.contains(ReflectionUtilities.getFullName(f), s)) {
                     //  System.err.println("Added usage: " + ReflectionUtilities.getFullName(f) + "=" + s);
                     usages.put(s, ReflectionUtilities.getFullName(f));
                   }
                   if (n instanceof ClassNode) {
-                    ClassNode<?> cn = (ClassNode<?>) n;
+                    final ClassNode<?> cn = (ClassNode<?>) n;
                     if (!knownClasses.contains(cn)) {
                       System.err.println("Added " + cn + " to known classes");
                       knownClasses.add(cn);
                     }
                   }
-                } catch (NameResolutionException ex) {
+                } catch (final NameResolutionException ex) {
                   //
                 }
               }
             }
-          } catch (ExceptionInInitializerError e) {
+          } catch (final ExceptionInInitializerError e) {
             System.err.println("Field " + ReflectionUtilities.getFullName(f) + ": " + e.getCause().getMessage());
-          } catch (IllegalAccessException e) {
+          } catch (final IllegalAccessException e) {
             throw new RuntimeException(e);
           }
         }
@@ -525,21 +525,21 @@ public class Tint {
 
   public Set<NamedParameterNode<?>> getNames() {
     final Set<NamedParameterNode<?>> names = new MonotonicSet<>();
-    NodeVisitor<Node> v = new AbstractClassHierarchyNodeVisitor() {
+    final NodeVisitor<Node> v = new AbstractClassHierarchyNodeVisitor() {
 
       @Override
-      public boolean visit(NamedParameterNode<?> node) {
+      public boolean visit(final NamedParameterNode<?> node) {
         names.add(node);
         return true;
       }
 
       @Override
-      public boolean visit(PackageNode node) {
+      public boolean visit(final PackageNode node) {
         return true;
       }
 
       @Override
-      public boolean visit(ClassNode<?> node) {
+      public boolean visit(final ClassNode<?> node) {
         return true;
       }
     };
@@ -552,22 +552,22 @@ public class Tint {
     final Set<String> userKeys = usages.keySet();
     final Set<String> usedKeys = usages.values();
     final Set<String> setterKeys = setters.keySet();
-    NodeVisitor<Node> v = new AbstractClassHierarchyNodeVisitor() {
+    final NodeVisitor<Node> v = new AbstractClassHierarchyNodeVisitor() {
 
       @Override
-      public boolean visit(NamedParameterNode<?> node) {
+      public boolean visit(final NamedParameterNode<?> node) {
         names.add(node);
         return true;
       }
 
       @Override
-      public boolean visit(PackageNode node) {
+      public boolean visit(final PackageNode node) {
         return true;
       }
 
       @Override
-      public boolean visit(ClassNode<?> node) {
-        String nodeS = node.getFullName();
+      public boolean visit(final ClassNode<?> node) {
+        final String nodeS = node.getFullName();
         if (userKeys.contains(nodeS)) {
           names.add(node);
         }
@@ -596,9 +596,9 @@ public class Tint {
     return setters.getValuesForKey(name.getFullName());
   }
 
-  public String toString(NamedParameterNode<?> n) {
-    StringBuilder sb = new StringBuilder("Name: " + n.getSimpleArgName() + " " + n.getFullName());
-    String[] instances = n.getDefaultInstanceAsStrings();
+  public String toString(final NamedParameterNode<?> n) {
+    final StringBuilder sb = new StringBuilder("Name: " + n.getSimpleArgName() + " " + n.getFullName());
+    final String[] instances = n.getDefaultInstanceAsStrings();
     if (instances.length != 0) {
       sb.append(" = ");
       sb.append(join(",", instances));
@@ -609,9 +609,9 @@ public class Tint {
     return sb.toString();
   }
 
-  private String join(String sep, String[] s) {
+  private String join(final String sep, final String[] s) {
     if (s.length > 0) {
-      StringBuffer sb = new StringBuffer(s[0]);
+      final StringBuffer sb = new StringBuffer(s[0]);
       for (int i = 1; i < s.length; i++) {
         sb.append(sep);
         sb.append(s[i]);
@@ -622,34 +622,35 @@ public class Tint {
     }
   }
 
-  public String cell(String s, String clazz) {
-    if (clazz.equals(USES) && s.length() > 0) {
-      s = "<em>Used by:</em><br>" + s;
+  public String cell(final String s, final String clazz) {
+    String str = s;
+    if (clazz.equals(USES) && str.length() > 0) {
+      str = "<em>Used by:</em><br>" + str;
     }
-    if (clazz.equals(SETTERS) && s.length() > 0) {
-      s = "<em>Set by:</em><br>" + s;
+    if (clazz.equals(SETTERS) && str.length() > 0) {
+      str = "<em>Set by:</em><br>" + str;
     }
     if (clazz.equals(FULLNAME)) {
-      s = "&nbsp;" + s;
+      str = "&nbsp;" + str;
     }
     if (divs.contains(clazz)) {
-      return "<div class=\"" + clazz + "\">" + s + "</div>";
+      return "<div class=\"" + clazz + "\">" + str + "</div>";
     } else {
-      return "<span class=\"" + clazz + "\">" + s + "</span>";
+      return "<span class=\"" + clazz + "\">" + str + "</span>";
     }
   }
 
-  public String cell(StringBuffer sb, String clazz) {
+  public String cell(final StringBuffer sb, final String clazz) {
     return cell(sb.toString(), clazz);
   }
 
-  public String row(StringBuffer sb) {
+  public String row(final StringBuffer sb) {
     return sb.toString();
   }
 
-  public String toHtmlString(NamedParameterNode<?> n, String pack) {
-    String fullName = stripPrefix(n.getFullName(), pack);
-    StringBuffer sb = new StringBuffer();
+  public String toHtmlString(final NamedParameterNode<?> n, final String pack) {
+    final String fullName = stripPrefix(n.getFullName(), pack);
+    final StringBuffer sb = new StringBuffer();
 
     sb.append("<div id='" + n.getFullName() + "' class='decl-margin'>");
     sb.append("<div class='decl'>");
@@ -658,7 +659,7 @@ public class Tint {
     final String instance;
     final String[] instances = n.getDefaultInstanceAsStrings();
     if (instances.length != 0) {
-      StringBuffer sb2 = new StringBuffer(" = " + stripPrefix(instances[0], pack));
+      final StringBuffer sb2 = new StringBuffer(" = " + stripPrefix(instances[0], pack));
       for (int i = 1; i < instances.length; i++) {
         sb2.append("," + stripPrefix(instances[i], pack));
       }
@@ -667,18 +668,18 @@ public class Tint {
       instance = "";
     }
     sb.append(cell(instance, "instance"));
-    StringBuffer doc = new StringBuffer();
+    final StringBuffer doc = new StringBuffer();
     if (!n.getDocumentation().equals("")) {
       doc.append(n.getDocumentation());
     }
     sb.append(cell(doc, "doc"));
-    StringBuffer uses = new StringBuffer();
-    for (String u : getUsesOf(n)) {
+    final StringBuffer uses = new StringBuffer();
+    for (final String u : getUsesOf(n)) {
       uses.append("<a href='#" + u + "'>" + stripPrefix(u, pack) + "</a> ");
     }
     sb.append(cell(uses, USES));
-    StringBuffer settersStr = new StringBuffer();
-    for (String f : getSettersOf(n)) {
+    final StringBuffer settersStr = new StringBuffer();
+    for (final String f : getSettersOf(n)) {
       settersStr.append("<a href='#" + f + "'>" + stripPrefix(f, pack) + "</a> ");
     }
     sb.append(cell(settersStr, SETTERS));
@@ -687,8 +688,8 @@ public class Tint {
     return row(sb);
   }
 
-  public String toHtmlString(ClassNode<?> n, String pack) {
-    String fullName = stripPrefix(n.getFullName(), pack);
+  public String toHtmlString(final ClassNode<?> n, final String pack) {
+    final String fullName = stripPrefix(n.getFullName(), pack);
 
     final String type;
     try {
@@ -697,10 +698,10 @@ public class Tint {
       } else {
         type = "class";
       }
-    } catch (ClassNotFoundException e) {
+    } catch (final ClassNotFoundException e) {
       throw new RuntimeException(e);
     }
-    StringBuffer sb = new StringBuffer();
+    final StringBuffer sb = new StringBuffer();
 
     sb.append("<div class='decl-margin' id='" + n.getFullName() + "'>");
     sb.append("<div class='decl'>");
@@ -713,13 +714,13 @@ public class Tint {
     }
     sb.append(cell(instance, "simpleName"));
     sb.append(cell("", "fullName")); // TODO: Documentation string?
-    StringBuffer uses = new StringBuffer();
-    for (String u : getUsesOf(n)) {
+    final StringBuffer uses = new StringBuffer();
+    for (final String u : getUsesOf(n)) {
       uses.append("<a href='#" + u + "'>" + stripPrefix(u, pack) + "</a> ");
     }
     sb.append(cell(uses, USES));
-    StringBuffer settersStr = new StringBuffer();
-    for (String f : getSettersOf(n)) {
+    final StringBuffer settersStr = new StringBuffer();
+    for (final String f : getSettersOf(n)) {
       settersStr.append("<a href='#" + f + "'>" + stripPrefix(f, pack) + "</a> ");
     }
     sb.append(cell(settersStr, SETTERS));
@@ -728,7 +729,7 @@ public class Tint {
     return row(sb);
   }
 
-  public String startPackage(String pack) {
+  public String startPackage(final String pack) {
     return "<div class=\"package\">" + pack + "</div>";
 //    return "<tr><td colspan='6'><br><b>" + pack + "</b></td></tr>";
   }

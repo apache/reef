@@ -27,8 +27,8 @@ import org.junit.Test;
 public class TestTupleSource {
   @Test
   public void testOneThread() throws Exception {
-    EventPrinter<TupleEvent> printer = new EventPrinter<>();
-    TupleSource source = new TupleSource(printer, 256, 8, true);
+    final EventPrinter<TupleEvent> printer = new EventPrinter<>();
+    final TupleSource source = new TupleSource(printer, 256, 8, true);
     source.close();
   }
 }

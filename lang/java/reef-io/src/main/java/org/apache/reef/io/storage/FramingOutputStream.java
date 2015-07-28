@@ -35,7 +35,7 @@ public class FramingOutputStream extends OutputStream implements Accumulable<byt
   private long offset;
   private boolean closed;
 
-  public FramingOutputStream(OutputStream o) {
+  public FramingOutputStream(final OutputStream o) {
     if (!(o instanceof DataOutputStream)) {
       this.o = new DataOutputStream(o);
     } else {
@@ -50,7 +50,7 @@ public class FramingOutputStream extends OutputStream implements Accumulable<byt
       offset += 4;
       baos.writeTo(o);
       baos.reset();
-    } catch (IOException e) {
+    } catch (final IOException e) {
       throw new StorageException(e);
     }
   }
@@ -60,19 +60,19 @@ public class FramingOutputStream extends OutputStream implements Accumulable<byt
   }
 
   @Override
-  public void write(int b) throws IOException {
+  public void write(final int b) throws IOException {
     baos.write(b);
     offset++;
   }
 
   @Override
-  public void write(byte[] b) throws IOException {
+  public void write(final byte[] b) throws IOException {
     baos.write(b);
     this.offset += b.length;
   }
 
   @Override
-  public void write(byte[] b, int offsetToWrite, int length) throws IOException {
+  public void write(final byte[] b, final int offsetToWrite, final int length) throws IOException {
     baos.write(b, offsetToWrite, length);
     this.offset += length;
   }
@@ -89,7 +89,7 @@ public class FramingOutputStream extends OutputStream implements Accumulable<byt
         if (this.offset > 0) {
           nextFrame();
         }
-      } catch (StorageException e) {
+      } catch (final StorageException e) {
         throw (IOException) e.getCause();
       }
       o.writeInt(-1);
@@ -105,13 +105,13 @@ public class FramingOutputStream extends OutputStream implements Accumulable<byt
     return new Accumulator<byte[]>() {
 
       @Override
-      public void add(byte[] datum) throws ServiceException {
+      public void add(final byte[] datum) throws ServiceException {
         try {
           o.writeInt(datum.length);
           offset += 4;
           o.write(datum);
           offset += datum.length;
-        } catch (IOException e) {
+        } catch (final IOException e) {
           throw new ServiceException(e);
         }
 
@@ -124,7 +124,7 @@ public class FramingOutputStream extends OutputStream implements Accumulable<byt
           offset += 4;
           o.close();
           fos.closed = true;
-        } catch (IOException e) {
+        } catch (final IOException e) {
           throw new ServiceException(e);
         }
       }

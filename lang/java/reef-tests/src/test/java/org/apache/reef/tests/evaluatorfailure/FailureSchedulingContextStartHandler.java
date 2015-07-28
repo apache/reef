@@ -43,7 +43,7 @@ final class FailureSchedulingContextStartHandler implements EventHandler<Context
   public void onNext(final ContextStart contextStart) {
     this.clock.scheduleAlarm(0, new EventHandler<Alarm>() {
       @Override
-      public void onNext(Alarm alarm) {
+      public void onNext(final Alarm alarm) {
         LOG.log(Level.INFO, "Invoked for {0}, throwing an Exception now.", alarm);
         throw new ExpectedException();
       }

@@ -45,18 +45,18 @@ public final class TestHDInsightRESTJsonSerialization {
     final String fileKey = "file";
 
     // Create submission object
-    LocalResource archiveResource = new LocalResource()
+    final LocalResource archiveResource = new LocalResource()
         .setResource("archiveResourceLocation").setSize(100).setTimestamp(200)
         .setType(LocalResource.TYPE_ARCHIVE).setVisibility(LocalResource.VISIBILITY_PRIVATE);
     localResourceMap.put(archiveKey, archiveResource);
 
-    LocalResource fileResource = new LocalResource()
+    final LocalResource fileResource = new LocalResource()
         .setResource("fileResourceLocation").setSize(300).setTimestamp(400)
         .setType(LocalResource.TYPE_FILE).setVisibility(LocalResource.VISIBILITY_APPLICATION);
     localResourceMap.put(fileKey, fileResource);
 
-    Credentials creds = new Credentials().addSecret("secretKey", "secretVal").addToken("tokKey", "tokVal");
-    AmContainerSpec containerSpec = new AmContainerSpec()
+    final Credentials creds = new Credentials().addSecret("secretKey", "secretVal").addToken("tokKey", "tokVal");
+    final AmContainerSpec containerSpec = new AmContainerSpec()
         .setCommand("submission command")
         .addLocalResource(archiveKey, archiveResource)
         .addLocalResource(fileKey, fileResource)
@@ -64,8 +64,8 @@ public final class TestHDInsightRESTJsonSerialization {
         .addApplicationAcl("aclKey", "aclVal")
         .addServiceData("sdKey", "sdVal")
         .setCredentials(creds);
-    Resource resource = new Resource().setMemory(500).setvCores(600);
-    ApplicationSubmission submission = new ApplicationSubmission()
+    final Resource resource = new Resource().setMemory(500).setvCores(600);
+    final ApplicationSubmission submission = new ApplicationSubmission()
         .setApplicationType(ApplicationSubmission.DEFAULT_APPLICATION_TYPE)
         .setMaxAppAttempts(ApplicationSubmission.DEFAULT_MAX_APP_ATTEMPTS)
         .setKeepContainers(ApplicationSubmission.DEFAULT_KEEP_CONTAINERS_ACROSS_APPLICATION_ATTEMPTS)
@@ -76,11 +76,11 @@ public final class TestHDInsightRESTJsonSerialization {
         .setResource(resource);
 
     // Json validation
-    ObjectMapper mapper = new ObjectMapper();
-    StringWriter writer = new StringWriter();
+    final ObjectMapper mapper = new ObjectMapper();
+    final StringWriter writer = new StringWriter();
     mapper.writeValue(writer, submission);
-    String jsonStr = writer.toString();
-    JsonNode rootJsonNode = mapper.readTree(jsonStr);
+    final String jsonStr = writer.toString();
+    final JsonNode rootJsonNode = mapper.readTree(jsonStr);
     Assert.assertEquals(rootJsonNode.get(Constants.APPLICATION_ID).asText(), submission.getApplicationId());
     Assert.assertEquals(rootJsonNode.get(Constants.APPLICATION_NAME).asText(), submission.getApplicationName());
     Assert.assertEquals(rootJsonNode.get(Constants.MAX_APP_ATTEMPTS).asInt(), submission.getMaxAppAttempts());
@@ -90,22 +90,22 @@ public final class TestHDInsightRESTJsonSerialization {
     Assert.assertEquals(rootJsonNode.get(Constants.PRIORITY).asInt(), submission.getPriority());
     Assert.assertEquals(rootJsonNode.get(Constants.UNMANAGED_AM).asBoolean(), submission.isUnmanagedAM());
 
-    JsonNode resourceNode = rootJsonNode.get(Constants.RESOURCE);
+    final JsonNode resourceNode = rootJsonNode.get(Constants.RESOURCE);
     Assert.assertNotNull(resourceNode);
     Assert.assertEquals(resourceNode.get(Constants.MEMORY).asInt(), resource.getMemory());
     Assert.assertEquals(resourceNode.get(Constants.VCORES).asInt(), resource.getvCores());
 
-    JsonNode amSpecNode = rootJsonNode.get(Constants.AM_CONTAINER_SPEC);
+    final JsonNode amSpecNode = rootJsonNode.get(Constants.AM_CONTAINER_SPEC);
     Assert.assertNotNull(amSpecNode);
     Assert.assertEquals(amSpecNode.get(Constants.COMMANDS).get(Constants.COMMAND).asText(),
         containerSpec.getCommands().getCommand());
-    JsonNode locResourcesNode = amSpecNode.get(Constants.LOCAL_RESOURCES).get(Constants.ENTRY);
+    final JsonNode locResourcesNode = amSpecNode.get(Constants.LOCAL_RESOURCES).get(Constants.ENTRY);
     Assert.assertTrue(locResourcesNode.isArray());
     for (final JsonNode localResourceKVNode : locResourcesNode) {
-      String localResourceKey = localResourceKVNode.get(Constants.KEY).asText();
+      final String localResourceKey = localResourceKVNode.get(Constants.KEY).asText();
       Assert.assertTrue(localResourceMap.containsKey(localResourceKey));
-      LocalResource localResourceFromMap = localResourceMap.get(localResourceKey);
-      JsonNode localResourceNode = localResourceKVNode.get(Constants.VALUE);
+      final LocalResource localResourceFromMap = localResourceMap.get(localResourceKey);
+      final JsonNode localResourceNode = localResourceKVNode.get(Constants.VALUE);
       Assert.assertEquals(localResourceNode.get(Constants.RESOURCE).asText(), localResourceFromMap.getResource());
       Assert.assertEquals(localResourceNode.get(Constants.SIZE).asLong(), localResourceFromMap.getSize());
       Assert.assertEquals(localResourceNode.get(Constants.TIMESTAMP).asLong(), localResourceFromMap.getTimestamp());
@@ -116,48 +116,48 @@ public final class TestHDInsightRESTJsonSerialization {
 
     Assert.assertTrue(localResourceMap.isEmpty());
 
-    JsonNode credsNode = amSpecNode.get(Constants.CREDENTIALS);
+    final JsonNode credsNode = amSpecNode.get(Constants.CREDENTIALS);
     Assert.assertNotNull(credsNode);
-    JsonNode toksNode = credsNode.get(Constants.TOKENS).get(Constants.ENTRY);
+    final JsonNode toksNode = credsNode.get(Constants.TOKENS).get(Constants.ENTRY);
     Assert.assertNotNull(toksNode);
     Assert.assertTrue(toksNode.isArray());
     for (final JsonNode tokKVNode : toksNode) {
-      StringEntry tokenEntry = containerSpec.getCredentials().getTokens().get(Constants.ENTRY).get(0);
+      final StringEntry tokenEntry = containerSpec.getCredentials().getTokens().get(Constants.ENTRY).get(0);
       Assert.assertEquals(tokKVNode.get(Constants.KEY).asText(), tokenEntry.getKey());
       Assert.assertEquals(tokKVNode.get(Constants.VALUE).asText(), tokenEntry.getValue());
     }
-    JsonNode secretsNode = credsNode.get(Constants.SECRETS).get(Constants.ENTRY);
+    final JsonNode secretsNode = credsNode.get(Constants.SECRETS).get(Constants.ENTRY);
     Assert.assertNotNull(secretsNode);
     Assert.assertTrue(secretsNode.isArray());
     for (final JsonNode secretsKVNode : secretsNode) {
-      StringEntry secretsEntry = containerSpec.getCredentials().getSecrets().get(Constants.ENTRY).get(0);
+      final StringEntry secretsEntry = containerSpec.getCredentials().getSecrets().get(Constants.ENTRY).get(0);
       Assert.assertEquals(secretsKVNode.get(Constants.KEY).asText(), secretsEntry.getKey());
       Assert.assertEquals(secretsKVNode.get(Constants.VALUE).asText(), secretsEntry.getValue());
     }
 
-    JsonNode envsNode = amSpecNode.get(Constants.ENVIRONMENT).get(Constants.ENTRY);
+    final JsonNode envsNode = amSpecNode.get(Constants.ENVIRONMENT).get(Constants.ENTRY);
     Assert.assertNotNull(envsNode);
     Assert.assertTrue(envsNode.isArray());
     for (final JsonNode envsKVNode : envsNode) {
-      StringEntry envEntry = containerSpec.getEnvironment().get(Constants.ENTRY).get(0);
+      final StringEntry envEntry = containerSpec.getEnvironment().get(Constants.ENTRY).get(0);
       Assert.assertEquals(envsKVNode.get(Constants.KEY).asText(), envEntry.getKey());
       Assert.assertEquals(envsKVNode.get(Constants.VALUE).asText(), envEntry.getValue());
     }
 
-    JsonNode aclsNode = amSpecNode.get(Constants.APPLICATION_ACLS).get(Constants.ENTRY);
+    final JsonNode aclsNode = amSpecNode.get(Constants.APPLICATION_ACLS).get(Constants.ENTRY);
     Assert.assertNotNull(aclsNode);
     Assert.assertTrue(aclsNode.isArray());
     for (final JsonNode aclsKVNode : aclsNode) {
-      StringEntry aclsEntry = containerSpec.getApplicationAcls().get(Constants.ENTRY).get(0);
+      final StringEntry aclsEntry = containerSpec.getApplicationAcls().get(Constants.ENTRY).get(0);
       Assert.assertEquals(aclsKVNode.get(Constants.KEY).asText(), aclsEntry.getKey());
       Assert.assertEquals(aclsKVNode.get(Constants.VALUE).asText(), aclsEntry.getValue());
     }
 
-    JsonNode sdatasNode = amSpecNode.get(Constants.SERVICE_DATA).get(Constants.ENTRY);
+    final JsonNode sdatasNode = amSpecNode.get(Constants.SERVICE_DATA).get(Constants.ENTRY);
     Assert.assertNotNull(sdatasNode);
     Assert.assertTrue(sdatasNode.isArray());
     for (final JsonNode sdataKVNode : sdatasNode) {
-      StringEntry sdataEntry = containerSpec.getServiceData().get(Constants.ENTRY).get(0);
+      final StringEntry sdataEntry = containerSpec.getServiceData().get(Constants.ENTRY).get(0);
       Assert.assertEquals(sdataKVNode.get(Constants.KEY).asText(), sdataEntry.getKey());
       Assert.assertEquals(sdataKVNode.get(Constants.VALUE).asText(), sdataEntry.getValue());
     }
@@ -178,7 +178,7 @@ public final class TestHDInsightRESTJsonSerialization {
         "    }\n" +
         "}";
 
-    ApplicationID appId = new ObjectMapper().readValue(getAppIdBody, ApplicationID.class);
+    final ApplicationID appId = new ObjectMapper().readValue(getAppIdBody, ApplicationID.class);
     Assert.assertEquals(appId.getApplicationId(), appIdStr);
     Assert.assertEquals(appId.getResource().getMemory(), memory);
     Assert.assertEquals(appId.getResource().getvCores(), vCores);
@@ -232,8 +232,8 @@ public final class TestHDInsightRESTJsonSerialization {
         "   }" +
         "}";
 
-    ApplicationResponse appResponse = new ObjectMapper().readValue(getAppBody, ApplicationResponse.class);
-    ApplicationState appState = appResponse.getApplicationState();
+    final ApplicationResponse appResponse = new ObjectMapper().readValue(getAppBody, ApplicationResponse.class);
+    final ApplicationState appState = appResponse.getApplicationState();
     Assert.assertEquals(appState.getFinishedTime(), finishedTime);
     Assert.assertEquals(appState.getAmContainerLogs(), amContainerLogs);
     Assert.assertEquals(appState.getTrackingUI(), trackingUI);
@@ -316,11 +316,11 @@ public final class TestHDInsightRESTJsonSerialization {
         "  }\n" +
         "}";
 
-    ListApplicationResponse listAppsResponse =
+    final ListApplicationResponse listAppsResponse =
         new ObjectMapper().readValue(listAppsBody, ListApplicationResponse.class);
     Assert.assertTrue(listAppsResponse.getApps().containsKey(Constants.APP));
     Assert.assertEquals(listAppsResponse.getApplicationStates().size(), 2);
-    for (ApplicationState state : listAppsResponse.getApplicationStates()) {
+    for (final ApplicationState state : listAppsResponse.getApplicationStates()) {
       Assert.assertNotNull(state);
     }
   }

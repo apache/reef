@@ -31,7 +31,7 @@ public class NamingUnregisterRequest extends NamingMessage {
    *
    * @param id the identifier
    */
-  public NamingUnregisterRequest(Identifier id) {
+  public NamingUnregisterRequest(final Identifier id) {
     this.id = id;
   }
 

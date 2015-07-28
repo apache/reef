@@ -52,30 +52,29 @@ public class ProtocolBufferClassHierarchy implements ClassHierarchy {
    * as snapshots of Java class hierarchies.
    * @deprecated in 0.12. Use AvroClassHierarchy instead
    */
-  public ProtocolBufferClassHierarchy(ClassHierarchyProto.Node root) {
+  public ProtocolBufferClassHierarchy(final ClassHierarchyProto.Node root) {
     namespace = new PackageNodeImpl();
     if (!root.hasPackageNode()) {
       throw new IllegalArgumentException("Expected a package node.  Got: "
           + root);
     }
     // Register all the classes.
-    for (ClassHierarchyProto.Node child : root.getChildrenList()) {
+    for (final ClassHierarchyProto.Node child : root.getChildrenList()) {
       parseSubHierarchy(namespace, child);
     }
     buildLookupTable(namespace);
     // Now, register the implementations
-    for (ClassHierarchyProto.Node child : root.getChildrenList()) {
+    for (final ClassHierarchyProto.Node child : root.getChildrenList()) {
       wireUpInheritanceRelationships(child);
     }
   }
 
-  private static ClassHierarchyProto.Node newClassNode(String name,
-                                                       String fullName, boolean isInjectionCandidate,
-                                                       boolean isExternalConstructor, boolean isUnit,
-                                                       List<ClassHierarchyProto.ConstructorDef> injectableConstructors,
-                                                       List<ClassHierarchyProto.ConstructorDef> otherConstructors,
-                                                       List<String> implFullNames,
-                                                       Iterable<ClassHierarchyProto.Node> children) {
+  private static ClassHierarchyProto.Node newClassNode(
+      final String name, final String fullName, final boolean isInjectionCandidate,
+      final boolean isExternalConstructor, final boolean isUnit,
+      final List<ClassHierarchyProto.ConstructorDef> injectableConstructors,
+      final List<ClassHierarchyProto.ConstructorDef> otherConstructors, final List<String> implFullNames,
+      final Iterable<ClassHierarchyProto.Node> children) {
     return ClassHierarchyProto.Node
         .newBuilder()
         .setName(name)
@@ -91,17 +90,17 @@ public class ProtocolBufferClassHierarchy implements ClassHierarchy {
         .addAllChildren(children).build();
   }
 
-  private static ClassHierarchyProto.Node newNamedParameterNode(String name,
-                                                                String fullName,
-                                                                String simpleArgClassName,
-                                                                String fullArgClassName,
-                                                                boolean isSet,
-                                                                boolean isList,
-                                                                String documentation, // can be null
-                                                                String shortName, // can be null
-                                                                String[] instanceDefault, // can be null
-                                                                Iterable<ClassHierarchyProto.Node> children) {
-    ClassHierarchyProto.NamedParameterNode.Builder namedParameterNodeBuilder
+  private static ClassHierarchyProto.Node newNamedParameterNode(final String name,
+                                                                final String fullName,
+                                                                final String simpleArgClassName,
+                                                                final String fullArgClassName,
+                                                                final boolean isSet,
+                                                                final boolean isList,
+                                                                final String documentation, // can be null
+                                                                final String shortName, // can be null
+                                                                final String[] instanceDefault, // can be null
+                                                                final Iterable<ClassHierarchyProto.Node> children) {
+    final ClassHierarchyProto.NamedParameterNode.Builder namedParameterNodeBuilder
         = ClassHierarchyProto.NamedParameterNode.newBuilder()
         .setSimpleArgClassName(simpleArgClassName)
         .setFullArgClassName(fullArgClassName)
@@ -123,16 +122,16 @@ public class ProtocolBufferClassHierarchy implements ClassHierarchy {
         .addAllChildren(children).build();
   }
 
-  private static ClassHierarchyProto.Node newPackageNode(String name,
-                                                         String fullName,
-                                                         Iterable<ClassHierarchyProto.Node> children) {
+  private static ClassHierarchyProto.Node newPackageNode(final String name,
+                                                         final String fullName,
+                                                         final Iterable<ClassHierarchyProto.Node> children) {
     return ClassHierarchyProto.Node.newBuilder()
         .setPackageNode(ClassHierarchyProto.PackageNode.newBuilder().build())
         .setName(name).setFullName(fullName).addAllChildren(children).build();
   }
 
   private static ClassHierarchyProto.ConstructorDef newConstructorDef(
-      String fullClassName, List<ClassHierarchyProto.ConstructorArg> args) {
+      final String fullClassName, final List<ClassHierarchyProto.ConstructorArg> args) {
     return ClassHierarchyProto.ConstructorDef.newBuilder()
         .setFullClassName(fullClassName).addAllArgs(args).build();
   }
@@ -141,8 +140,8 @@ public class ProtocolBufferClassHierarchy implements ClassHierarchy {
   // protobufs 
 
   private static ClassHierarchyProto.ConstructorArg newConstructorArg(
-      String fullArgClassName, String namedParameterName, boolean isFuture) {
-    ClassHierarchyProto.ConstructorArg.Builder builder =
+      final String fullArgClassName, final String namedParameterName, final boolean isFuture) {
+    final ClassHierarchyProto.ConstructorArg.Builder builder =
         ClassHierarchyProto.ConstructorArg.newBuilder()
             .setFullArgClassName(fullArgClassName)
             .setIsInjectionFuture(isFuture);
@@ -153,43 +152,43 @@ public class ProtocolBufferClassHierarchy implements ClassHierarchy {
   }
 
   private static ClassHierarchyProto.ConstructorDef serializeConstructorDef(
-      ConstructorDef<?> def) {
-    List<ClassHierarchyProto.ConstructorArg> args = new ArrayList<>();
-    for (ConstructorArg arg : def.getArgs()) {
+      final ConstructorDef<?> def) {
+    final List<ClassHierarchyProto.ConstructorArg> args = new ArrayList<>();
+    for (final ConstructorArg arg : def.getArgs()) {
       args.add(newConstructorArg(arg.getType(), arg.getNamedParameterName(), arg.isInjectionFuture()));
     }
     return newConstructorDef(def.getClassName(), args);
   }
 
-  private static ClassHierarchyProto.Node serializeNode(Node n) {
-    List<ClassHierarchyProto.Node> children = new ArrayList<>();
-    for (Node child : n.getChildren()) {
+  private static ClassHierarchyProto.Node serializeNode(final Node n) {
+    final List<ClassHierarchyProto.Node> children = new ArrayList<>();
+    for (final Node child : n.getChildren()) {
       children.add(serializeNode(child));
     }
     if (n instanceof ClassNode) {
-      ClassNode<?> cn = (ClassNode<?>) n;
-      ConstructorDef<?>[] injectable = cn.getInjectableConstructors();
-      ConstructorDef<?>[] all = cn.getAllConstructors();
-      List<ConstructorDef<?>> others = new ArrayList<>(Arrays.asList(all));
+      final ClassNode<?> cn = (ClassNode<?>) n;
+      final ConstructorDef<?>[] injectable = cn.getInjectableConstructors();
+      final ConstructorDef<?>[] all = cn.getAllConstructors();
+      final List<ConstructorDef<?>> others = new ArrayList<>(Arrays.asList(all));
       others.removeAll(Arrays.asList(injectable));
 
-      List<ClassHierarchyProto.ConstructorDef> injectableConstructors = new ArrayList<>();
-      for (ConstructorDef<?> inj : injectable) {
+      final List<ClassHierarchyProto.ConstructorDef> injectableConstructors = new ArrayList<>();
+      for (final ConstructorDef<?> inj : injectable) {
         injectableConstructors.add(serializeConstructorDef(inj));
       }
-      List<ClassHierarchyProto.ConstructorDef> otherConstructors = new ArrayList<>();
-      for (ConstructorDef<?> other : others) {
+      final List<ClassHierarchyProto.ConstructorDef> otherConstructors = new ArrayList<>();
+      for (final ConstructorDef<?> other : others) {
         otherConstructors.add(serializeConstructorDef(other));
       }
-      List<String> implFullNames = new ArrayList<>();
-      for (ClassNode<?> impl : cn.getKnownImplementations()) {
+      final List<String> implFullNames = new ArrayList<>();
+      for (final ClassNode<?> impl : cn.getKnownImplementations()) {
         implFullNames.add(impl.getFullName());
       }
       return newClassNode(cn.getName(), cn.getFullName(),
           cn.isInjectionCandidate(), cn.isExternalConstructor(), cn.isUnit(),
           injectableConstructors, otherConstructors, implFullNames, children);
     } else if (n instanceof NamedParameterNode) {
-      NamedParameterNode<?> np = (NamedParameterNode<?>) n;
+      final NamedParameterNode<?> np = (NamedParameterNode<?>) n;
       return newNamedParameterNode(np.getName(), np.getFullName(),
           np.getSimpleArgName(), np.getFullArgName(), np.isSet(), np.isList(), np.getDocumentation(),
           np.getShortName(), np.getDefaultInstanceAsStrings(), children);
@@ -207,7 +206,7 @@ public class ProtocolBufferClassHierarchy implements ClassHierarchy {
    * @return
    * @deprecated in 0.12. Use AvroClassHierarchySerializer instead
    */
-  public static ClassHierarchyProto.Node serialize(ClassHierarchy classHierarchy) {
+  public static ClassHierarchyProto.Node serialize(final ClassHierarchy classHierarchy) {
     return serializeNode(classHierarchy.getNamespace());
   }
 
@@ -243,35 +242,34 @@ public class ProtocolBufferClassHierarchy implements ClassHierarchy {
     }
   }
 
-  private static void parseSubHierarchy(Node parent, ClassHierarchyProto.Node n) {
+  private static void parseSubHierarchy(final Node parent, final ClassHierarchyProto.Node n) {
     final Node parsed;
     if (n.hasPackageNode()) {
       parsed = new PackageNodeImpl(parent, n.getName(), n.getFullName());
     } else if (n.hasNamedParameterNode()) {
-      ClassHierarchyProto.NamedParameterNode np = n.getNamedParameterNode();
+      final ClassHierarchyProto.NamedParameterNode np = n.getNamedParameterNode();
       parsed = new NamedParameterNodeImpl<Object>(parent, n.getName(),
           n.getFullName(), np.getFullArgClassName(), np.getSimpleArgClassName(),
           np.getIsSet(), np.getIsList(), np.getDocumentation(), np.getShortName(),
           np.getInstanceDefaultList().toArray(new String[0]));
     } else if (n.hasClassNode()) {
-      ClassHierarchyProto.ClassNode cn = n.getClassNode();
-      List<ConstructorDef<?>> injectableConstructors = new ArrayList<>();
-      List<ConstructorDef<?>> allConstructors = new ArrayList<>();
+      final ClassHierarchyProto.ClassNode cn = n.getClassNode();
+      final List<ConstructorDef<?>> injectableConstructors = new ArrayList<>();
+      final List<ConstructorDef<?>> allConstructors = new ArrayList<>();
 
-      for (ClassHierarchyProto.ConstructorDef injectable : cn
+      for (final ClassHierarchyProto.ConstructorDef injectable : cn
           .getInjectableConstructorsList()) {
-        ConstructorDef<?> def = parseConstructorDef(injectable, true);
+        final ConstructorDef<?> def = parseConstructorDef(injectable, true);
         injectableConstructors.add(def);
         allConstructors.add(def);
       }
-      for (ClassHierarchyProto.ConstructorDef other : cn
+      for (final ClassHierarchyProto.ConstructorDef other : cn
           .getOtherConstructorsList()) {
-        ConstructorDef<?> def = parseConstructorDef(other, false);
+        final ConstructorDef<?> def = parseConstructorDef(other, false);
         allConstructors.add(def);
 
       }
-      @SuppressWarnings("unchecked")
-      ConstructorDef<Object>[] dummy = new ConstructorDef[0];
+      @SuppressWarnings("unchecked") final ConstructorDef<Object>[] dummy = new ConstructorDef[0];
       parsed = new ClassNodeImpl<>(parent, n.getName(), n.getFullName(),
           cn.getIsUnit(), cn.getIsInjectionCandidate(),
           cn.getIsExternalConstructor(), injectableConstructors.toArray(dummy),
@@ -280,16 +278,16 @@ public class ProtocolBufferClassHierarchy implements ClassHierarchy {
       throw new IllegalStateException("Bad protocol buffer: got abstract node"
           + n);
     }
-    for (ClassHierarchyProto.Node child : n.getChildrenList()) {
+    for (final ClassHierarchyProto.Node child : n.getChildrenList()) {
       parseSubHierarchy(parsed, child);
     }
   }
 
   private static ConstructorDef<?> parseConstructorDef(
-      org.apache.reef.tang.proto.ClassHierarchyProto.ConstructorDef def,
-      boolean isInjectable) {
-    List<ConstructorArg> args = new ArrayList<>();
-    for (ClassHierarchyProto.ConstructorArg arg : def.getArgsList()) {
+      final org.apache.reef.tang.proto.ClassHierarchyProto.ConstructorDef def,
+      final boolean isInjectable) {
+    final List<ConstructorArg> args = new ArrayList<>();
+    for (final ClassHierarchyProto.ConstructorArg arg : def.getArgsList()) {
       args.add(new ConstructorArgImpl(arg.getFullArgClassName(), arg
           .getNamedParameterName(), arg.getIsInjectionFuture()));
     }
@@ -297,26 +295,27 @@ public class ProtocolBufferClassHierarchy implements ClassHierarchy {
         args.toArray(new ConstructorArg[0]), isInjectable);
   }
 
-  private static String getNthPrefix(String str, int n) {
-    n++; // want this function to be zero indexed...
+  private static String getNthPrefix(final String str, final int n) {
+    int j = n;
+    j++; // want this function to be zero indexed...
     for (int i = 0; i < str.length(); i++) {
-      char c = str.charAt(i);
+      final char c = str.charAt(i);
       if (c == '.' || c == '$' || c == '+') {
-        n--;
+        j--;
       }
-      if (n == 0) {
+      if (j == 0) {
         return str.substring(0, i);
       }
     }
-    if (n == 1) {
+    if (j == 1) {
       return str;
     } else {
       throw new ArrayIndexOutOfBoundsException();
     }
   }
 
-  private void buildLookupTable(Node n) {
-    for (Node child : n.getChildren()) {
+  private void buildLookupTable(final Node n) {
+    for (final Node child : n.getChildren()) {
       lookupTable.put(child.getFullName(), child);
       buildLookupTable(child);
     }
@@ -329,23 +328,23 @@ public class ProtocolBufferClassHierarchy implements ClassHierarchy {
       final ClassNode iface;
       try {
         iface = (ClassNode) getNode(n.getFullName());
-      } catch (NameResolutionException e) {
+      } catch (final NameResolutionException e) {
         throw new IllegalStateException("When reading protocol buffer node "
             + n.getFullName() + " does not exist.  Full record is " + n, e);
       }
-      for (String impl : cn.getImplFullNamesList()) {
+      for (final String impl : cn.getImplFullNamesList()) {
         try {
           iface.putImpl((ClassNode) getNode(impl));
-        } catch (NameResolutionException e) {
+        } catch (final NameResolutionException e) {
           throw new IllegalStateException("When reading protocol buffer node "
               + n + " refers to non-existent implementation:" + impl);
-        } catch (ClassCastException e) {
+        } catch (final ClassCastException e) {
           try {
             throw new IllegalStateException(
                 "When reading protocol buffer node " + n
                     + " found implementation" + getNode(impl)
                     + " which is not a ClassNode!");
-          } catch (NameResolutionException e2) {
+          } catch (final NameResolutionException e2) {
             throw new IllegalStateException(
                 "Got 'cant happen' exception when producing error message for "
                     + e);
@@ -354,15 +353,15 @@ public class ProtocolBufferClassHierarchy implements ClassHierarchy {
       }
     }
 
-    for (ClassHierarchyProto.Node child : n.getChildrenList()) {
+    for (final ClassHierarchyProto.Node child : n.getChildrenList()) {
       wireUpInheritanceRelationships(child);
     }
   }
 
   @Override
-  public Node getNode(String fullName) throws NameResolutionException {
+  public Node getNode(final String fullName) throws NameResolutionException {
 
-    Node ret = lookupTable.get(fullName);
+    final Node ret = lookupTable.get(fullName);
     if (ret != null) {
       return ret;
     } else {
@@ -371,12 +370,12 @@ public class ProtocolBufferClassHierarchy implements ClassHierarchy {
   }
 
   @Override
-  public boolean isImplementation(ClassNode<?> inter, ClassNode<?> impl) {
+  public boolean isImplementation(final ClassNode<?> inter, final ClassNode<?> impl) {
     return impl.isImplementationOf(inter);
   }
 
   @Override
-  public ClassHierarchy merge(ClassHierarchy ch) {
+  public ClassHierarchy merge(final ClassHierarchy ch) {
     if (this == ch) {
       return this;
     }

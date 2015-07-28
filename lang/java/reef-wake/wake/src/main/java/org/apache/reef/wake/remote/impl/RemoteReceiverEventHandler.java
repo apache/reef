@@ -38,7 +38,7 @@ class RemoteReceiverEventHandler implements EventHandler<TransportEvent> {
    *
    * @param handler the upstream handler
    */
-  RemoteReceiverEventHandler(EventHandler<RemoteEvent<byte[]>> handler) {
+  RemoteReceiverEventHandler(final EventHandler<RemoteEvent<byte[]>> handler) {
     this.codec = new RemoteEventCodec<byte[]>(new ByteCodec());
     this.handler = handler;
   }
@@ -49,8 +49,8 @@ class RemoteReceiverEventHandler implements EventHandler<TransportEvent> {
    * @param e the event
    */
   @Override
-  public void onNext(TransportEvent e) {
-    RemoteEvent<byte[]> re = codec.decode(e.getData());
+  public void onNext(final TransportEvent e) {
+    final RemoteEvent<byte[]> re = codec.decode(e.getData());
     re.setLocalAddress(e.getLocalAddress());
     re.setRemoteAddress(e.getRemoteAddress());
 

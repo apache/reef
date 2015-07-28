@@ -29,7 +29,7 @@ public class PassThroughEncoder implements Encoder<byte[]> {
    * @see org.apache.reef.wake.remote.Encoder#encode(java.lang.Object)
    */
   @Override
-  public byte[] encode(byte[] obj) {
+  public byte[] encode(final byte[] obj) {
     return obj;
   }
 

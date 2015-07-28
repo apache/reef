@@ -44,7 +44,7 @@ public class ClosedContextHandler implements EventHandler<ClosedContext> {
   }
 
   @Override
-  public void onNext(ClosedContext closedContext) {
+  public void onNext(final ClosedContext closedContext) {
     LOG.log(Level.FINEST, "Received a closed context");
   }
 

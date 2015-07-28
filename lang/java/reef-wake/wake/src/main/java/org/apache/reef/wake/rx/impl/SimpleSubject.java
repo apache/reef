@@ -38,7 +38,7 @@ public class SimpleSubject<T> implements Subject<T, T> {
    * @param observer the observer
    */
   @Inject
-  public SimpleSubject(Observer<T> observer) {
+  public SimpleSubject(final Observer<T> observer) {
     this.observer = observer;
   }
 
@@ -48,7 +48,7 @@ public class SimpleSubject<T> implements Subject<T, T> {
    * @param value the new value
    */
   @Override
-  public void onNext(T value) {
+  public void onNext(final T value) {
     this.observer.onNext(value);
   }
 
@@ -58,7 +58,7 @@ public class SimpleSubject<T> implements Subject<T, T> {
    * @param error the error
    */
   @Override
-  public void onError(Exception error) {
+  public void onError(final Exception error) {
     this.observer.onError(error);
   }
 

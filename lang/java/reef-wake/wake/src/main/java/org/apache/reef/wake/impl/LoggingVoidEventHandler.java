@@ -40,7 +40,7 @@ public class LoggingVoidEventHandler implements EventHandler<Void> {
    * @param value an event
    */
   @Override
-  public void onNext(Void value) {
+  public void onNext(final Void value) {
     LOG.log(Level.FINE, "Logging void event handler");
   }
 

@@ -30,7 +30,7 @@ public class TransportRuntimeException extends RuntimeException {
    * @param s the detailed message
    * @param e the cause
    */
-  public TransportRuntimeException(String s, Throwable e) {
+  public TransportRuntimeException(final String s, final Throwable e) {
     super(s, e);
   }
 
@@ -39,7 +39,7 @@ public class TransportRuntimeException extends RuntimeException {
    *
    * @param s the detailed message
    */
-  public TransportRuntimeException(String s) {
+  public TransportRuntimeException(final String s) {
     super(s);
   }
 
@@ -48,7 +48,7 @@ public class TransportRuntimeException extends RuntimeException {
    *
    * @param e the cause
    */
-  public TransportRuntimeException(Throwable e) {
+  public TransportRuntimeException(final Throwable e) {
     super(e);
   }
 }

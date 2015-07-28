@@ -35,12 +35,12 @@ public class TimeoutSubject<T> implements Subject<T, T> {
     this.timeBomb = new Thread(new Runnable() {
       @Override
       public void run() {
-        boolean finishedCopy;
+        final boolean finishedCopy;
         synchronized (outer) {
           if (!finished) {
             try {
               outer.wait(timeout);
-            } catch (InterruptedException e) {
+            } catch (final InterruptedException e) {
               return;
             }
           }
@@ -56,8 +56,8 @@ public class TimeoutSubject<T> implements Subject<T, T> {
   }
 
   @Override
-  public void onNext(T value) {
-    boolean wasFinished;
+  public void onNext(final T value) {
+    final boolean wasFinished;
     synchronized (this) {
       wasFinished = finished;
       if (!finished) {
@@ -73,7 +73,7 @@ public class TimeoutSubject<T> implements Subject<T, T> {
   }
 
   @Override
-  public void onError(Exception error) {
+  public void onError(final Exception error) {
     this.timeBomb.interrupt();
     destination.onError(error);
   }

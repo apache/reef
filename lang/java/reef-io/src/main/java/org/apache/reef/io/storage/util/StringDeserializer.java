@@ -29,7 +29,7 @@ import java.util.Iterator;
 public class StringDeserializer implements
     Deserializer<String, InputStream> {
   @Override
-  public Iterable<String> create(InputStream arg) {
+  public Iterable<String> create(final InputStream arg) {
     final DataInputStream dis = new DataInputStream(arg);
     return new Iterable<String>() {
 
@@ -47,10 +47,10 @@ public class StringDeserializer implements
             int len = 0;
             try {
               len = dis.readInt();
-              byte[] b = new byte[len];
+              final byte[] b = new byte[len];
               dis.readFully(b);
               return new String(b);
-            } catch (IOException e) {
+            } catch (final IOException e) {
               throw new ServiceRuntimeException(e);
             }
           }

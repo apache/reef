@@ -33,12 +33,12 @@ public class SquaredErrorLossFunction implements LossFunction {
   }
 
   @Override
-  public double computeLoss(double y, double f) {
+  public double computeLoss(final double y, final double f) {
     return Math.pow(y - f, 2.0);
   }
 
   @Override
-  public double computeGradient(double y, double f) {
+  public double computeGradient(final double y, final double f) {
     return (f - y) * 0.5;
   }
 

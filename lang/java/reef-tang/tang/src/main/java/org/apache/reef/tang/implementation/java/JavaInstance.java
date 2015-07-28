@@ -24,7 +24,7 @@ import org.apache.reef.tang.types.Node;
 public final class JavaInstance<T> extends InjectionPlan<T> {
   final T instance;
 
-  public JavaInstance(Node name, T instance) {
+  public JavaInstance(final Node name, final T instance) {
     super(name);
     this.instance = instance;
   }

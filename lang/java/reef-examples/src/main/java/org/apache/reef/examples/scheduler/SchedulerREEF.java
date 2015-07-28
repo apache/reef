@@ -104,7 +104,7 @@ public final class SchedulerREEF {
    * @param args
    * @throws InjectionException
    */
-  public static void main(String[] args) throws InjectionException, IOException, ParseException {
+  public static void main(final String[] args) throws InjectionException, IOException, ParseException {
     final Configuration runtimeConfiguration = LocalRuntimeConfiguration.CONF
         .set(LocalRuntimeConfiguration.MAX_NUMBER_OF_EVALUATORS, MAX_NUMBER_OF_EVALUATORS)
         .build();

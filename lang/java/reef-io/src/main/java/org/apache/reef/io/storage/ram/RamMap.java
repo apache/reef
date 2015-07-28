@@ -37,36 +37,36 @@ public class RamMap<T> implements ExternalMap<T> {
   private final ConcurrentSkipListMap<CharSequence, T> map = new ConcurrentSkipListMap<CharSequence, T>();
 
   @Inject
-  public RamMap(RamStorageService ramStore) {
+  public RamMap(final RamStorageService ramStore) {
   }
 
   @Override
-  public boolean containsKey(CharSequence key) {
+  public boolean containsKey(final CharSequence key) {
     return map.containsKey(key);
   }
 
   @Override
-  public T get(CharSequence key) {
+  public T get(final CharSequence key) {
     return map.get(key);
   }
 
   @Override
-  public T put(CharSequence key, T value) {
+  public T put(final CharSequence key, final T value) {
     return map.put(key, value);
   }
 
   @Override
-  public T remove(CharSequence key) {
+  public T remove(final CharSequence key) {
     return map.remove(key);
   }
 
   @Override
-  public void putAll(Map<? extends CharSequence, ? extends T> m) {
+  public void putAll(final Map<? extends CharSequence, ? extends T> m) {
     map.putAll(m);
   }
 
   @Override
-  public Iterable<Entry<CharSequence, T>> getAll(Set<? extends CharSequence> keys) {
+  public Iterable<Entry<CharSequence, T>> getAll(final Set<? extends CharSequence> keys) {
     return new GetAllIterable<>(keys, this);
   }
 }

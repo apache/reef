@@ -173,7 +173,7 @@ public final class NameClient implements NameResolver {
       final LocalAddressProvider localAddressProvider,
       final TransportFactory tpFactory) {
 
-    NameCache cache = new NameCache(timeout);
+    final NameCache cache = new NameCache(timeout);
     final BlockingQueue<NamingLookupResponse> replyLookupQueue = new LinkedBlockingQueue<NamingLookupResponse>();
     final BlockingQueue<NamingRegisterResponse> replyRegisterQueue = new LinkedBlockingQueue<NamingRegisterResponse>();
     final Codec<NamingMessage> codec = NamingCodecFactory.createFullCodec(factory);
@@ -286,14 +286,14 @@ class NamingResponseHandler implements EventHandler<NamingMessage> {
   private final BlockingQueue<NamingLookupResponse> replyLookupQueue;
   private final BlockingQueue<NamingRegisterResponse> replyRegisterQueue;
 
-  NamingResponseHandler(BlockingQueue<NamingLookupResponse> replyLookupQueue,
-                        BlockingQueue<NamingRegisterResponse> replyRegisterQueue) {
+  NamingResponseHandler(final BlockingQueue<NamingLookupResponse> replyLookupQueue,
+                        final BlockingQueue<NamingRegisterResponse> replyRegisterQueue) {
     this.replyLookupQueue = replyLookupQueue;
     this.replyRegisterQueue = replyRegisterQueue;
   }
 
   @Override
-  public void onNext(NamingMessage value) {
+  public void onNext(final NamingMessage value) {
     if (value instanceof NamingLookupResponse) {
       replyLookupQueue.offer((NamingLookupResponse) value);
     } else if (value instanceof NamingRegisterResponse) {

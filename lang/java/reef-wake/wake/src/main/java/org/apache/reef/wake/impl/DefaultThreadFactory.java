@@ -36,8 +36,8 @@ public final class DefaultThreadFactory implements ThreadFactory {
    *
    * @param prefix the name prefix of the created thread
    */
-  public DefaultThreadFactory(String prefix) {
-    SecurityManager s = System.getSecurityManager();
+  public DefaultThreadFactory(final String prefix) {
+    final SecurityManager s = System.getSecurityManager();
     this.group = (s != null) ? s.getThreadGroup() : Thread.currentThread().getThreadGroup();
     this.prefix = prefix + "-pool-" + POOL_NUMBER.getAndIncrement() + "-thread-";
     this.uncaughtExceptionHandler = null;
@@ -49,8 +49,8 @@ public final class DefaultThreadFactory implements ThreadFactory {
    * @param prefix                   the name prefix of the created thread
    * @param uncaughtExceptionHandler the uncaught exception handler of the created thread
    */
-  public DefaultThreadFactory(String prefix, Thread.UncaughtExceptionHandler uncaughtExceptionHandler) {
-    SecurityManager s = System.getSecurityManager();
+  public DefaultThreadFactory(final String prefix, final Thread.UncaughtExceptionHandler uncaughtExceptionHandler) {
+    final SecurityManager s = System.getSecurityManager();
     this.group = (s != null) ? s.getThreadGroup() : Thread.currentThread().getThreadGroup();
     this.prefix = prefix + "-pool-" + POOL_NUMBER.getAndIncrement() + "-thread-";
     this.uncaughtExceptionHandler = uncaughtExceptionHandler;
@@ -61,7 +61,7 @@ public final class DefaultThreadFactory implements ThreadFactory {
    *
    * @param uncaughtExceptionHandler the uncaught exception handler
    */
-  public void setUncaughtExceptionHandler(Thread.UncaughtExceptionHandler uncaughtExceptionHandler) {
+  public void setUncaughtExceptionHandler(final Thread.UncaughtExceptionHandler uncaughtExceptionHandler) {
     this.uncaughtExceptionHandler = uncaughtExceptionHandler;
   }
 
@@ -71,8 +71,8 @@ public final class DefaultThreadFactory implements ThreadFactory {
    * @param r the runnable
    */
   @Override
-  public Thread newThread(Runnable r) {
-    Thread t = new Thread(group, r, prefix + threadNumber.getAndIncrement(), 0);
+  public Thread newThread(final Runnable r) {
+    final Thread t = new Thread(group, r, prefix + threadNumber.getAndIncrement(), 0);
     if (t.isDaemon()) {
       t.setDaemon(false);
     }

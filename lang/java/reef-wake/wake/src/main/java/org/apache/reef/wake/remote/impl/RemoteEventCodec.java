@@ -35,7 +35,7 @@ public class RemoteEventCodec<T> implements Codec<RemoteEvent<T>> {
    *
    * @param codec the codec for the event
    */
-  public RemoteEventCodec(Codec<T> codec) {
+  public RemoteEventCodec(final Codec<T> codec) {
     encoder = new RemoteEventEncoder<T>(codec);
     decoder = new RemoteEventDecoder<T>(codec);
   }
@@ -47,7 +47,7 @@ public class RemoteEventCodec<T> implements Codec<RemoteEvent<T>> {
    * @returns bytes
    */
   @Override
-  public byte[] encode(RemoteEvent<T> obj) {
+  public byte[] encode(final RemoteEvent<T> obj) {
     return encoder.encode(obj);
   }
 
@@ -58,7 +58,7 @@ public class RemoteEventCodec<T> implements Codec<RemoteEvent<T>> {
    * @return a remote event object
    */
   @Override
-  public RemoteEvent<T> decode(byte[] data) {
+  public RemoteEvent<T> decode(final byte[] data) {
     return decoder.decode(data);
   }
 

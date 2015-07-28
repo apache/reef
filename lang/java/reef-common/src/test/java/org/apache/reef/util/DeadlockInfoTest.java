@@ -131,13 +131,13 @@ public final class DeadlockInfoTest {
   private static void barrierAwait(final CyclicBarrier barrier) {
     try {
       barrier.await(TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
-    } catch (InterruptedException e) {
+    } catch (final InterruptedException e) {
       e.printStackTrace();
       fail("Unexpected exception");
-    } catch (BrokenBarrierException e) {
+    } catch (final BrokenBarrierException e) {
       e.printStackTrace();
       fail("Unexpected exception");
-    } catch (TimeoutException e) {
+    } catch (final TimeoutException e) {
       e.printStackTrace();
       fail("Unexpected exception");
     }
@@ -152,7 +152,7 @@ public final class DeadlockInfoTest {
   private static void threadSleep(final long millis) {
     try {
       Thread.sleep(millis);
-    } catch (InterruptedException e) {
+    } catch (final InterruptedException e) {
       e.printStackTrace();
     }
   }

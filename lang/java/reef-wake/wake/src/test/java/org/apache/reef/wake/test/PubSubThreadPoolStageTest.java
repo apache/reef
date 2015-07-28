@@ -45,21 +45,21 @@ public class PubSubThreadPoolStageTest {
   public void testPubSubThreadPoolStage() throws Exception {
     System.out.println(LOG_PREFIX + name.getMethodName());
 
-    Monitor monitor = new Monitor();
-    TimerStage timer = new TimerStage(new TimeoutHandler(monitor), 5000, 5000);
+    final Monitor monitor = new Monitor();
+    final TimerStage timer = new TimerStage(new TimeoutHandler(monitor), 5000, 5000);
 
-    Set<TestEvent> procSet = Collections.synchronizedSet(new HashSet<TestEvent>());
-    Set<TestEvent> orgSet = Collections.synchronizedSet(new HashSet<TestEvent>());
-    int expected = 10;
+    final Set<TestEvent> procSet = Collections.synchronizedSet(new HashSet<TestEvent>());
+    final Set<TestEvent> orgSet = Collections.synchronizedSet(new HashSet<TestEvent>());
+    final int expected = 10;
 
-    PubSubEventHandler<TestEvent> handler = new PubSubEventHandler<TestEvent>();
+    final PubSubEventHandler<TestEvent> handler = new PubSubEventHandler<TestEvent>();
     handler.subscribe(TestEvent.class, new TestEventHandler("Handler1", monitor, procSet, expected));
     handler.subscribe(TestEvent.class, new TestEventHandler("Handler2", monitor, procSet, expected));
 
-    EStage<TestEvent> stage = new ThreadPoolStage<TestEvent>(handler, 10);
+    final EStage<TestEvent> stage = new ThreadPoolStage<TestEvent>(handler, 10);
 
     for (int i = 0; i < expected; ++i) {
-      TestEvent a = new TestEvent("aaa");
+      final TestEvent a = new TestEvent("aaa");
       orgSet.add(a);
 
       stage.onNext(a);
@@ -80,7 +80,7 @@ public class PubSubThreadPoolStageTest {
   class TestEvent {
     private final String msg;
 
-    public TestEvent(String msg) {
+    public TestEvent(final String msg) {
       this.msg = msg;
     }
 
@@ -96,7 +96,7 @@ public class PubSubThreadPoolStageTest {
     private final Set<TestEvent> set;
     private final int expected;
 
-    TestEventHandler(String name, Monitor monitor, Set<TestEvent> set, int expected) {
+    TestEventHandler(final String name, final Monitor monitor, final Set<TestEvent> set, final int expected) {
       this.name = name;
       this.monitor = monitor;
       this.set = set;
@@ -104,7 +104,7 @@ public class PubSubThreadPoolStageTest {
     }
 
     @Override
-    public void onNext(TestEvent e) {
+    public void onNext(final TestEvent e) {
       set.add(e);
       System.out.println(name + " " + e + " " + e.getMsg());
       if (set.size() == expected) {

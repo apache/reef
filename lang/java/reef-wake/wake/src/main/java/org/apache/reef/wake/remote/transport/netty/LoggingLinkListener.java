@@ -37,7 +37,7 @@ public class LoggingLinkListener<T> implements LinkListener<T> {
    * Called when the sent message is transferred successfully.
    */
   @Override
-  public void onSuccess(T message) {
+  public void onSuccess(final T message) {
     if (LOG.isLoggable(Level.FINEST)) {
       LOG.log(Level.FINEST, "The message is successfully sent : {0}", new Object[]{message});
     }
@@ -47,7 +47,7 @@ public class LoggingLinkListener<T> implements LinkListener<T> {
    * Called when the sent message to remoteAddress is failed to be transferred.
    */
   @Override
-  public void onException(Throwable cause, SocketAddress remoteAddress, T message) {
+  public void onException(final Throwable cause, final SocketAddress remoteAddress, final T message) {
     if (LOG.isLoggable(Level.FINEST)) {
       LOG.log(Level.FINEST, "The message to {0} is failed to be sent. message : {1}, cause : {2}"
           , new Object[]{remoteAddress, message, cause});

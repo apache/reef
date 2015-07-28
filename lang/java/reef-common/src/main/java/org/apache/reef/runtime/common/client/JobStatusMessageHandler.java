@@ -44,7 +44,7 @@ final class JobStatusMessageHandler implements EventHandler<RemoteMessage<ReefSe
   }
 
   @Override
-  public void onNext(RemoteMessage<ReefServiceProtos.JobStatusProto> jobStatusProtoRemoteMessage) {
+  public void onNext(final RemoteMessage<ReefServiceProtos.JobStatusProto> jobStatusProtoRemoteMessage) {
     this.runningJobs.onJobStatusMessage(jobStatusProtoRemoteMessage);
   }
 }

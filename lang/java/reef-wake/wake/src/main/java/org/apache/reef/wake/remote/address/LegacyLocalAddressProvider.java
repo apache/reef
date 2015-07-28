@@ -53,21 +53,21 @@ public final class LegacyLocalAddressProvider implements LocalAddressProvider {
   public String getLocalAddress() {
     // This method is surprisingly slow: It was causing unit test timeouts, so we memoize the result.
     if (cached.get() == null) {
-      Enumeration<NetworkInterface> ifaces;
+      final Enumeration<NetworkInterface> ifaces;
       try {
         ifaces = NetworkInterface.getNetworkInterfaces();
-        TreeSet<Inet4Address> sortedAddrs = new TreeSet<>(new AddressComparator());
+        final TreeSet<Inet4Address> sortedAddrs = new TreeSet<>(new AddressComparator());
         // There is an idea of virtual / subinterfaces exposed by java here.
         // We're not walking around looking for those because the javadoc says:
 
         // "NOTE: can use getNetworkInterfaces()+getInetAddresses() to obtain all IP addresses for this node"
 
         while (ifaces.hasMoreElements()) {
-          NetworkInterface iface = ifaces.nextElement();
+          final NetworkInterface iface = ifaces.nextElement();
 //          if(iface.isUp()) {  // leads to slowness and non-deterministic return values, so don't call isUp().
-          Enumeration<InetAddress> addrs = iface.getInetAddresses();
+          final Enumeration<InetAddress> addrs = iface.getInetAddresses();
           while (addrs.hasMoreElements()) {
-            InetAddress a = addrs.nextElement();
+            final InetAddress a = addrs.nextElement();
             if (a instanceof Inet4Address) {
               sortedAddrs.add((Inet4Address) a);
             }
@@ -80,7 +80,7 @@ public final class LegacyLocalAddressProvider implements LocalAddressProvider {
         }
         cached.set(sortedAddrs.pollFirst().getHostAddress());
         LOG.log(Level.FINE, "Local address is {0}", cached.get());
-      } catch (SocketException e) {
+      } catch (final SocketException e) {
         throw new WakeRuntimeException("Unable to get local host address",
             e.getCause());
       }
@@ -98,14 +98,14 @@ public final class LegacyLocalAddressProvider implements LocalAddressProvider {
   private static class AddressComparator implements Comparator<Inet4Address> {
 
     // get unsigned byte.
-    private static int u(byte b) {
+    private static int u(final byte b) {
       return ((int) b); // & 0xff;
     }
 
     @Override
-    public int compare(Inet4Address aa, Inet4Address ba) {
-      byte[] a = aa.getAddress();
-      byte[] b = ba.getAddress();
+    public int compare(final Inet4Address aa, final Inet4Address ba) {
+      final byte[] a = aa.getAddress();
+      final byte[] b = ba.getAddress();
       // local subnet comes after all else.
       if (a[0] == 127 && b[0] != 127) {
         return 1;

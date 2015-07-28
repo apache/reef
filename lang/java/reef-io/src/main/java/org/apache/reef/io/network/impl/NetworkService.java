@@ -225,7 +225,7 @@ public final class NetworkService<T> implements Stage, ConnectionFactory<T> {
     this.nameServiceRegisteringStage.onNext(tuple);
   }
 
-  public void unregisterId(Identifier id) {
+  public void unregisterId(final Identifier id) {
     this.myId = null;
     LOG.log(Level.FINEST, "Unbinding {0} to NetworkService@({1})",
         new Object[]{id, this.transport.getLocalAddress()});

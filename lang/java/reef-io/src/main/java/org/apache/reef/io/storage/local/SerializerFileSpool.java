@@ -47,7 +47,7 @@ public final class SerializerFileSpool<T> implements Spool<T> {
                              final Serializer<T, OutputStream> out, final Deserializer<T, InputStream> in)
       throws ServiceException {
     this.file = service.getScratchSpace().newFile();
-    Accumulable<T> accumulable;
+    final Accumulable<T> accumulable;
     try {
       accumulable = out.create(new BufferedOutputStream(new FileOutputStream(
           file)));

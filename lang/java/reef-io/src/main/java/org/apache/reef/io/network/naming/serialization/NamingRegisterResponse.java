@@ -29,7 +29,7 @@ public class NamingRegisterResponse extends NamingMessage {
    *
    * @param request the naming register request
    */
-  public NamingRegisterResponse(NamingRegisterRequest request) {
+  public NamingRegisterResponse(final NamingRegisterRequest request) {
     this.request = request;
   }
 

@@ -71,15 +71,15 @@ public class RemoteManagerTest {
     System.out.println(LOG_PREFIX + name.getMethodName());
     LoggingUtils.setLoggingLevel(Level.INFO);
 
-    Monitor monitor = new Monitor();
-    TimerStage timer = new TimerStage(new TimeoutHandler(monitor), 2000, 2000);
+    final Monitor monitor = new Monitor();
+    final TimerStage timer = new TimerStage(new TimeoutHandler(monitor), 2000, 2000);
 
-    Map<Class<?>, Codec<?>> clazzToCodecMap = new HashMap<Class<?>, Codec<?>>();
+    final Map<Class<?>, Codec<?>> clazzToCodecMap = new HashMap<Class<?>, Codec<?>>();
     clazzToCodecMap.put(StartEvent.class, new ObjectSerializableCodec<StartEvent>());
     clazzToCodecMap.put(TestEvent.class, new ObjectSerializableCodec<TestEvent>());
     clazzToCodecMap.put(TestEvent1.class, new ObjectSerializableCodec<TestEvent1>());
     clazzToCodecMap.put(TestEvent2.class, new ObjectSerializableCodec<TestEvent2>());
-    Codec<?> codec = new MultiCodec<Object>(clazzToCodecMap);
+    final Codec<?> codec = new MultiCodec<Object>(clazzToCodecMap);
 
     final String hostAddress = localAddressProvider.getLocalAddress();
 
@@ -87,16 +87,16 @@ public class RemoteManagerTest {
         "name", hostAddress, PORT, codec, new LoggingEventHandler<Throwable>(), false, 3, 10000,
         localAddressProvider, RangeTcpPortProvider.Default);
 
-    RemoteIdentifierFactory factory = new DefaultRemoteIdentifierFactoryImplementation();
-    RemoteIdentifier remoteId = factory.getNewInstance("socket://" + hostAddress + ":" + PORT);
+    final RemoteIdentifierFactory factory = new DefaultRemoteIdentifierFactoryImplementation();
+    final RemoteIdentifier remoteId = factory.getNewInstance("socket://" + hostAddress + ":" + PORT);
     Assert.assertTrue(rm.getMyIdentifier().equals(remoteId));
 
-    EventHandler<StartEvent> proxyConnection = rm.getHandler(remoteId, StartEvent.class);
-    EventHandler<TestEvent1> proxyHandler1 = rm.getHandler(remoteId, TestEvent1.class);
-    EventHandler<TestEvent2> proxyHandler2 = rm.getHandler(remoteId, TestEvent2.class);
+    final EventHandler<StartEvent> proxyConnection = rm.getHandler(remoteId, StartEvent.class);
+    final EventHandler<TestEvent1> proxyHandler1 = rm.getHandler(remoteId, TestEvent1.class);
+    final EventHandler<TestEvent2> proxyHandler2 = rm.getHandler(remoteId, TestEvent2.class);
 
-    AtomicInteger counter = new AtomicInteger(0);
-    int finalSize = 2;
+    final AtomicInteger counter = new AtomicInteger(0);
+    final int finalSize = 2;
     rm.registerHandler(StartEvent.class, new MessageTypeEventHandler<StartEvent>(rm, monitor, counter, finalSize));
 
     proxyConnection.onNext(new StartEvent());
@@ -115,19 +115,19 @@ public class RemoteManagerTest {
 
   @Test
   public void testRemoteManagerConnectionRetryTest() throws Exception {
-    ExecutorService smExecutor = Executors.newFixedThreadPool(1);
-    ExecutorService rmExecutor = Executors.newFixedThreadPool(1);
+    final ExecutorService smExecutor = Executors.newFixedThreadPool(1);
+    final ExecutorService rmExecutor = Executors.newFixedThreadPool(1);
 
-    RemoteManager sendingManager = getTestRemoteManager("sender", 9020, 3, 2000);
+    final RemoteManager sendingManager = getTestRemoteManager("sender", 9020, 3, 2000);
 
-    Future<Integer> smFuture = smExecutor.submit(new SendingRemoteManagerThread(sendingManager, 9010, 20000));
+    final Future<Integer> smFuture = smExecutor.submit(new SendingRemoteManagerThread(sendingManager, 9010, 20000));
     Thread.sleep(1000);
 
-    RemoteManager receivingManager = getTestRemoteManager("receiver", 9010, 1, 2000);
-    Future<Integer> rmFuture = rmExecutor.submit(new ReceivingRemoteManagerThread(receivingManager, 20000, 1, 2));
+    final RemoteManager receivingManager = getTestRemoteManager("receiver", 9010, 1, 2000);
+    final Future<Integer> rmFuture = rmExecutor.submit(new ReceivingRemoteManagerThread(receivingManager, 20000, 1, 2));
 
-    int smCnt = smFuture.get();
-    int rmCnt = rmFuture.get();
+    final int smCnt = smFuture.get();
+    final int rmCnt = rmFuture.get();
 
     receivingManager.close();
     sendingManager.close();
@@ -138,12 +138,12 @@ public class RemoteManagerTest {
 
   @Test
   public void testRemoteManagerConnectionRetryWithMultipleSenderTest() throws Exception {
-    int numOfSenderThreads = 5;
-    ExecutorService smExecutor = Executors.newFixedThreadPool(numOfSenderThreads);
-    ExecutorService rmExecutor = Executors.newFixedThreadPool(1);
-    ArrayList<Future<Integer>> smFutures = new ArrayList<Future<Integer>>(numOfSenderThreads);
+    final int numOfSenderThreads = 5;
+    final ExecutorService smExecutor = Executors.newFixedThreadPool(numOfSenderThreads);
+    final ExecutorService rmExecutor = Executors.newFixedThreadPool(1);
+    final ArrayList<Future<Integer>> smFutures = new ArrayList<Future<Integer>>(numOfSenderThreads);
 
-    RemoteManager sendingManager = getTestRemoteManager("sender", 9030, 3, 5000);
+    final RemoteManager sendingManager = getTestRemoteManager("sender", 9030, 3, 5000);
 
     for (int i = 0; i < numOfSenderThreads; i++) {
       smFutures.add(smExecutor.submit(new SendingRemoteManagerThread(sendingManager, 9010, 20000)));
@@ -151,17 +151,17 @@ public class RemoteManagerTest {
 
     Thread.sleep(2000);
 
-    RemoteManager receivingManager = getTestRemoteManager("receiver", 9010, 1, 2000);
-    Future<Integer> receivingFuture =
+    final RemoteManager receivingManager = getTestRemoteManager("receiver", 9010, 1, 2000);
+    final Future<Integer> receivingFuture =
         rmExecutor.submit(new ReceivingRemoteManagerThread(receivingManager, 20000, numOfSenderThreads, 2));
 
     // waiting sending remote manager.
-    for (Future<Integer> future : smFutures) {
+    for (final Future<Integer> future : smFutures) {
       future.get();
     }
 
     // waiting receiving remote manager
-    int rmCnt = receivingFuture.get();
+    final int rmCnt = receivingFuture.get();
 
     sendingManager.close();
     receivingManager.close();
@@ -175,15 +175,15 @@ public class RemoteManagerTest {
     System.out.println(LOG_PREFIX + name.getMethodName());
     LoggingUtils.setLoggingLevel(Level.INFO);
 
-    Monitor monitor = new Monitor();
-    TimerStage timer = new TimerStage(new TimeoutHandler(monitor), 2000, 2000);
+    final Monitor monitor = new Monitor();
+    final TimerStage timer = new TimerStage(new TimeoutHandler(monitor), 2000, 2000);
 
-    Map<Class<?>, Codec<?>> clazzToCodecMap = new HashMap<Class<?>, Codec<?>>();
+    final Map<Class<?>, Codec<?>> clazzToCodecMap = new HashMap<Class<?>, Codec<?>>();
     clazzToCodecMap.put(StartEvent.class, new ObjectSerializableCodec<StartEvent>());
     clazzToCodecMap.put(TestEvent.class, new ObjectSerializableCodec<TestEvent>());
     clazzToCodecMap.put(TestEvent1.class, new ObjectSerializableCodec<TestEvent1>());
     clazzToCodecMap.put(TestEvent2.class, new ObjectSerializableCodec<TestEvent2>());
-    Codec<?> codec = new MultiCodec<Object>(clazzToCodecMap);
+    final Codec<?> codec = new MultiCodec<Object>(clazzToCodecMap);
 
     final String hostAddress = localAddressProvider.getLocalAddress();
 
@@ -191,15 +191,15 @@ public class RemoteManagerTest {
         "name", hostAddress, PORT, codec, new LoggingEventHandler<Throwable>(), true, 3, 10000,
         localAddressProvider, RangeTcpPortProvider.Default);
 
-    RemoteIdentifierFactory factory = new DefaultRemoteIdentifierFactoryImplementation();
-    RemoteIdentifier remoteId = factory.getNewInstance("socket://" + hostAddress + ":" + PORT);
+    final RemoteIdentifierFactory factory = new DefaultRemoteIdentifierFactoryImplementation();
+    final RemoteIdentifier remoteId = factory.getNewInstance("socket://" + hostAddress + ":" + PORT);
 
-    EventHandler<StartEvent> proxyConnection = rm.getHandler(remoteId, StartEvent.class);
-    EventHandler<TestEvent1> proxyHandler1 = rm.getHandler(remoteId, TestEvent1.class);
-    EventHandler<TestEvent2> proxyHandler2 = rm.getHandler(remoteId, TestEvent2.class);
+    final EventHandler<StartEvent> proxyConnection = rm.getHandler(remoteId, StartEvent.class);
+    final EventHandler<TestEvent1> proxyHandler1 = rm.getHandler(remoteId, TestEvent1.class);
+    final EventHandler<TestEvent2> proxyHandler2 = rm.getHandler(remoteId, TestEvent2.class);
 
-    AtomicInteger counter = new AtomicInteger(0);
-    int finalSize = 2;
+    final AtomicInteger counter = new AtomicInteger(0);
+    final int finalSize = 2;
     rm.registerHandler(StartEvent.class, new MessageTypeEventHandler<StartEvent>(rm, monitor, counter, finalSize));
 
     proxyConnection.onNext(new StartEvent());
@@ -222,26 +222,26 @@ public class RemoteManagerTest {
     System.out.println(LOG_PREFIX + name.getMethodName());
     LoggingUtils.setLoggingLevel(Level.INFO);
 
-    Monitor monitor = new Monitor();
-    TimerStage timer = new TimerStage(new TimeoutHandler(monitor), 2000, 2000);
+    final Monitor monitor = new Monitor();
+    final TimerStage timer = new TimerStage(new TimeoutHandler(monitor), 2000, 2000);
 
-    Map<Class<?>, Codec<?>> clazzToCodecMap = new HashMap<Class<?>, Codec<?>>();
+    final Map<Class<?>, Codec<?>> clazzToCodecMap = new HashMap<Class<?>, Codec<?>>();
     clazzToCodecMap.put(TestEvent.class, new TestEventCodec());
-    Codec<?> codec = new MultiCodec<Object>(clazzToCodecMap);
+    final Codec<?> codec = new MultiCodec<Object>(clazzToCodecMap);
 
-    String hostAddress = localAddressProvider.getLocalAddress();
+    final String hostAddress = localAddressProvider.getLocalAddress();
 
     final RemoteManager rm = this.remoteManagerFactory.getInstance(
         "name", hostAddress, PORT, codec, new LoggingEventHandler<Throwable>(), false, 3, 10000,
         localAddressProvider, RangeTcpPortProvider.Default);
 
-    RemoteIdentifierFactory factory = new DefaultRemoteIdentifierFactoryImplementation();
-    RemoteIdentifier remoteId = factory.getNewInstance("socket://" + hostAddress + ":" + PORT);
+    final RemoteIdentifierFactory factory = new DefaultRemoteIdentifierFactoryImplementation();
+    final RemoteIdentifier remoteId = factory.getNewInstance("socket://" + hostAddress + ":" + PORT);
 
-    EventHandler<TestEvent> proxyHandler = rm.getHandler(remoteId, TestEvent.class);
+    final EventHandler<TestEvent> proxyHandler = rm.getHandler(remoteId, TestEvent.class);
 
-    AtomicInteger counter = new AtomicInteger(0);
-    int finalSize = 0;
+    final AtomicInteger counter = new AtomicInteger(0);
+    final int finalSize = 0;
     rm.registerHandler(TestEvent.class, new MessageTypeEventHandler<TestEvent>(rm, monitor, counter, finalSize));
 
     proxyHandler.onNext(new TestEvent("hello", 0.0));
@@ -259,44 +259,45 @@ public class RemoteManagerTest {
     System.out.println(LOG_PREFIX + name.getMethodName());
     LoggingUtils.setLoggingLevel(Level.INFO);
 
-    Monitor monitor = new Monitor();
-    TimerStage timer = new TimerStage(new TimeoutHandler(monitor), 2000, 2000);
+    final Monitor monitor = new Monitor();
+    final TimerStage timer = new TimerStage(new TimeoutHandler(monitor), 2000, 2000);
 
-    Map<Class<?>, Codec<?>> clazzToCodecMap = new HashMap<Class<?>, Codec<?>>();
+    final Map<Class<?>, Codec<?>> clazzToCodecMap = new HashMap<Class<?>, Codec<?>>();
     clazzToCodecMap.put(StartEvent.class, new ObjectSerializableCodec<StartEvent>());
     clazzToCodecMap.put(TestEvent.class, new ObjectSerializableCodec<TestEvent>());
-    Codec<?> codec = new MultiCodec<Object>(clazzToCodecMap);
+    final Codec<?> codec = new MultiCodec<Object>(clazzToCodecMap);
 
     final String hostAddress = localAddressProvider.getLocalAddress();
 
-    ExceptionHandler errorHandler = new ExceptionHandler(monitor);
+    final ExceptionHandler errorHandler = new ExceptionHandler(monitor);
 
     try (final RemoteManager rm = remoteManagerFactory.getInstance("name", PORT, codec, errorHandler)) {
-      RemoteIdentifierFactory factory = new DefaultRemoteIdentifierFactoryImplementation();
-      RemoteIdentifier remoteId = factory.getNewInstance("socket://" + hostAddress + ":" + PORT);
+      final RemoteIdentifierFactory factory = new DefaultRemoteIdentifierFactoryImplementation();
+      final RemoteIdentifier remoteId = factory.getNewInstance("socket://" + hostAddress + ":" + PORT);
 
-      EventHandler<StartEvent> proxyConnection = rm.getHandler(remoteId, StartEvent.class);
+      final EventHandler<StartEvent> proxyConnection = rm.getHandler(remoteId, StartEvent.class);
       rm.registerHandler(StartEvent.class, new ExceptionGenEventHandler<StartEvent>("recvExceptionGen"));
 
       proxyConnection.onNext(new StartEvent());
       monitor.mwait();
       timer.close();
 
-    } catch (UnknownHostException e) {
+    } catch (final UnknownHostException e) {
       e.printStackTrace();
-    } catch (Exception e) {
+    } catch (final Exception e) {
       e.printStackTrace();
     }
   }
 
-  private RemoteManager getTestRemoteManager(String rmName, int localPort, int retry, int retryTimeout) {
-    Map<Class<?>, Codec<?>> clazzToCodecMap = new HashMap<Class<?>, Codec<?>>();
+  private RemoteManager getTestRemoteManager(final String rmName, final int localPort,
+                                             final int retry, final int retryTimeout) {
+    final Map<Class<?>, Codec<?>> clazzToCodecMap = new HashMap<Class<?>, Codec<?>>();
     clazzToCodecMap.put(StartEvent.class, new ObjectSerializableCodec<StartEvent>());
     clazzToCodecMap.put(TestEvent1.class, new ObjectSerializableCodec<TestEvent1>());
     clazzToCodecMap.put(TestEvent2.class, new ObjectSerializableCodec<TestEvent1>());
-    Codec<?> codec = new MultiCodec<Object>(clazzToCodecMap);
+    final Codec<?> codec = new MultiCodec<Object>(clazzToCodecMap);
 
-    String hostAddress = localAddressProvider.getLocalAddress();
+    final String hostAddress = localAddressProvider.getLocalAddress();
     return remoteManagerFactory.getInstance(rmName, hostAddress, localPort,
         codec, new LoggingEventHandler<Throwable>(), false, retry, retryTimeout,
         localAddressProvider, RangeTcpPortProvider.Default);
@@ -308,7 +309,7 @@ public class RemoteManagerTest {
     private final int timeout;
     private RemoteManager rm;
 
-    public SendingRemoteManagerThread(RemoteManager rm, int remotePort, int timeout) {
+    public SendingRemoteManagerThread(final RemoteManager rm, final int remotePort, final int timeout) {
       this.remotePort = remotePort;
       this.timeout = timeout;
       this.rm = rm;
@@ -317,19 +318,19 @@ public class RemoteManagerTest {
     @Override
     public Integer call() throws Exception {
 
-      Monitor monitor = new Monitor();
-      TimerStage timer = new TimerStage(new TimeoutHandler(monitor), timeout, timeout);
+      final Monitor monitor = new Monitor();
+      final TimerStage timer = new TimerStage(new TimeoutHandler(monitor), timeout, timeout);
 
       final String hostAddress = localAddressProvider.getLocalAddress();
-      RemoteIdentifierFactory factory = new DefaultRemoteIdentifierFactoryImplementation();
-      RemoteIdentifier remoteId = factory.getNewInstance("socket://" + hostAddress + ":" + remotePort);
+      final RemoteIdentifierFactory factory = new DefaultRemoteIdentifierFactoryImplementation();
+      final RemoteIdentifier remoteId = factory.getNewInstance("socket://" + hostAddress + ":" + remotePort);
 
-      EventHandler<StartEvent> proxyConnection = rm.getHandler(remoteId, StartEvent.class);
-      EventHandler<TestEvent1> proxyHandler1 = rm.getHandler(remoteId, TestEvent1.class);
-      EventHandler<TestEvent2> proxyHandler2 = rm.getHandler(remoteId, TestEvent2.class);
+      final EventHandler<StartEvent> proxyConnection = rm.getHandler(remoteId, StartEvent.class);
+      final EventHandler<TestEvent1> proxyHandler1 = rm.getHandler(remoteId, TestEvent1.class);
+      final EventHandler<TestEvent2> proxyHandler2 = rm.getHandler(remoteId, TestEvent2.class);
 
-      AtomicInteger counter = new AtomicInteger(0);
-      int finalSize = 0;
+      final AtomicInteger counter = new AtomicInteger(0);
+      final int finalSize = 0;
       rm.registerHandler(StartEvent.class, new MessageTypeEventHandler<StartEvent>(rm, monitor, counter, finalSize));
 
       proxyConnection.onNext(new StartEvent());
@@ -351,7 +352,8 @@ public class RemoteManagerTest {
     private final int numOfEvent;
     private RemoteManager rm;
 
-    public ReceivingRemoteManagerThread(RemoteManager rm, int timeout, int numOfConnection, int numOfEvent) {
+    public ReceivingRemoteManagerThread(final RemoteManager rm, final int timeout,
+                                        final int numOfConnection, final int numOfEvent) {
       this.rm = rm;
       this.timeout = timeout;
       this.numOfConnection = numOfConnection;
@@ -361,11 +363,11 @@ public class RemoteManagerTest {
     @Override
     public Integer call() throws Exception {
 
-      Monitor monitor = new Monitor();
-      TimerStage timer = new TimerStage(new TimeoutHandler(monitor), timeout, timeout);
+      final Monitor monitor = new Monitor();
+      final TimerStage timer = new TimerStage(new TimeoutHandler(monitor), timeout, timeout);
 
-      AtomicInteger counter = new AtomicInteger(0);
-      int finalSize = numOfConnection * numOfEvent;
+      final AtomicInteger counter = new AtomicInteger(0);
+      final int finalSize = numOfConnection * numOfEvent;
       rm.registerHandler(StartEvent.class, new MessageTypeEventHandler<StartEvent>(rm, monitor, counter, finalSize));
 
       for (int i = 0; i < numOfConnection; i++) {
@@ -384,7 +386,8 @@ public class RemoteManagerTest {
     private final AtomicInteger counter;
     private final int finalSize;
 
-    MessageTypeEventHandler(RemoteManager rm, Monitor monitor, AtomicInteger counter, int finalSize) {
+    MessageTypeEventHandler(final RemoteManager rm, final Monitor monitor,
+                            final AtomicInteger counter, final int finalSize) {
       this.rm = rm;
       this.monitor = monitor;
       this.counter = counter;
@@ -392,10 +395,10 @@ public class RemoteManagerTest {
     }
 
     @Override
-    public void onNext(RemoteMessage<T> value) {
+    public void onNext(final RemoteMessage<T> value) {
 
-      RemoteIdentifier id = value.getIdentifier();
-      T message = value.getMessage();
+      final RemoteIdentifier id = value.getIdentifier();
+      final T message = value.getMessage();
 
       System.out.println(this.getClass() + " " + value + " " + id.toString() + " " + message.toString());
 
@@ -423,7 +426,7 @@ public class RemoteManagerTest {
     private final AtomicInteger counter;
     private final int finalSize;
 
-    ConsoleEventHandler(String name, Monitor monitor, AtomicInteger counter, int finalSize) {
+    ConsoleEventHandler(final String name, final Monitor monitor, final AtomicInteger counter, final int finalSize) {
       this.name = name;
       this.monitor = monitor;
       this.counter = counter;
@@ -431,7 +434,7 @@ public class RemoteManagerTest {
     }
 
     @Override
-    public void onNext(T value) {
+    public void onNext(final T value) {
       System.out.println(this.getClass() + " " + name + " " + value);
       if (counter.incrementAndGet() == finalSize) {
         System.out.println(this.getClass() + " notify counter: " + counter.get());
@@ -449,7 +452,7 @@ public class RemoteManagerTest {
     }
 
     @Override
-    public void onNext(RemoteMessage<T> value) {
+    public void onNext(final RemoteMessage<T> value) {
       System.out.println(name + " " + value);
       throw new TestRuntimeException("Test exception");
     }
@@ -464,7 +467,7 @@ public class RemoteManagerTest {
     }
 
     @Override
-    public void onNext(Throwable value) {
+    public void onNext(final Throwable value) {
       System.out.println("!!! ExceptionHandler called : " + value);
       monitor.mnotify();
     }

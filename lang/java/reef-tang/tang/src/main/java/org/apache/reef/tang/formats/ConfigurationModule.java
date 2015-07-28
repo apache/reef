@@ -54,12 +54,12 @@ public class ConfigurationModule {
   private final Map<Impl<List>, List<?>> setImplLists = new MonotonicHashMap<>();
   private final Map<Param<List>, List<?>> setParamLists = new MonotonicHashMap<>();
 
-  protected ConfigurationModule(ConfigurationModuleBuilder builder) {
+  protected ConfigurationModule(final ConfigurationModuleBuilder builder) {
     this.builder = builder.deepCopy();
   }
 
   private ConfigurationModule deepCopy() {
-    ConfigurationModule cm = new ConfigurationModule(builder.deepCopy());
+    final ConfigurationModule cm = new ConfigurationModule(builder.deepCopy());
     cm.setImpls.putAll(setImpls);
     cm.setImplSets.addAll(setImplSets);
     cm.setLateImplSets.addAll(setLateImplSets);
@@ -72,8 +72,8 @@ public class ConfigurationModule {
     return cm;
   }
 
-  private <T> void processSet(Object impl) {
-    Field f = builder.map.get(impl);
+  private <T> void processSet(final Object impl) {
+    final Field f = builder.map.get(impl);
     if (f == null) { /* throw */
       throw new ClassHierarchyException("Unknown Impl/Param when setting " +
           ReflectionUtilities.getSimpleName(impl.getClass()) + ".  Did you pass in a field from some other module?");
@@ -83,8 +83,8 @@ public class ConfigurationModule {
     }
   }
 
-  public final <T> ConfigurationModule set(Impl<T> opt, Class<? extends T> impl) {
-    ConfigurationModule c = deepCopy();
+  public final <T> ConfigurationModule set(final Impl<T> opt, final Class<? extends T> impl) {
+    final ConfigurationModule c = deepCopy();
     c.processSet(opt);
     if (c.builder.setOpts.contains(opt)) {
       c.setImplSets.put(opt, impl);
@@ -94,8 +94,8 @@ public class ConfigurationModule {
     return c;
   }
 
-  public final <T> ConfigurationModule set(Impl<T> opt, String impl) {
-    ConfigurationModule c = deepCopy();
+  public final <T> ConfigurationModule set(final Impl<T> opt, final String impl) {
+    final ConfigurationModule c = deepCopy();
     c.processSet(opt);
     if (c.builder.setOpts.contains(opt)) {
       c.setLateImplSets.put(opt, impl);
@@ -113,27 +113,27 @@ public class ConfigurationModule {
    * @param <T>
    * @return
    */
-  public final <T> ConfigurationModule set(Impl<List> opt, List implList) {
-    ConfigurationModule c = deepCopy();
+  public final <T> ConfigurationModule set(final Impl<List> opt, final List implList) {
+    final ConfigurationModule c = deepCopy();
     c.processSet(opt);
     c.setImplLists.put(opt, implList);
     return c;
   }
 
-  public final <T> ConfigurationModule set(Param<T> opt, Class<? extends T> val) {
+  public final <T> ConfigurationModule set(final Param<T> opt, final Class<? extends T> val) {
     return set(opt, ReflectionUtilities.getFullName(val));
   }
 
-  public final ConfigurationModule set(Param<Boolean> opt, boolean val) {
+  public final ConfigurationModule set(final Param<Boolean> opt, final boolean val) {
     return set(opt, "" + val);
   }
 
-  public final ConfigurationModule set(Param<? extends Number> opt, Number val) {
+  public final ConfigurationModule set(final Param<? extends Number> opt, final Number val) {
     return set(opt, "" + val);
   }
 
-  public final <T> ConfigurationModule set(Param<T> opt, String val) {
-    ConfigurationModule c = deepCopy();
+  public final <T> ConfigurationModule set(final Param<T> opt, final String val) {
+    final ConfigurationModule c = deepCopy();
     c.processSet(opt);
     if (c.builder.setOpts.contains(opt)) {
       c.setParamSets.put(opt, val);
@@ -151,8 +151,8 @@ public class ConfigurationModule {
    * @param <T>
    * @return
    */
-  public final <T> ConfigurationModule set(Param<List> opt, List implList) {
-    ConfigurationModule c = deepCopy();
+  public final <T> ConfigurationModule set(final Param<List> opt, final List implList) {
+    final ConfigurationModule c = deepCopy();
     c.processSet(opt);
     c.setParamLists.put(opt, implList);
     return c;
@@ -160,11 +160,11 @@ public class ConfigurationModule {
 
   @SuppressWarnings({"unchecked", "rawtypes"})
   public Configuration build() throws BindException {
-    ConfigurationModule c = deepCopy();
+    final ConfigurationModule c = deepCopy();
 
     if (!c.reqSet.containsAll(c.builder.reqDecl)) {
-      Set<Field> missingSet = new MonotonicHashSet<>();
-      for (Field f : c.builder.reqDecl) {
+      final Set<Field> missingSet = new MonotonicHashSet<>();
+      for (final Field f : c.builder.reqDecl) {
         if (!c.reqSet.contains(f)) {
           missingSet.add(f);
         }
@@ -174,38 +174,38 @@ public class ConfigurationModule {
               + builder.toString(missingSet));
     }
 
-    for (Class<?> clazz : c.builder.freeImpls.keySet()) {
-      Impl<?> i = c.builder.freeImpls.get(clazz);
+    for (final Class<?> clazz : c.builder.freeImpls.keySet()) {
+      final Impl<?> i = c.builder.freeImpls.get(clazz);
       if (c.setImpls.containsKey(i)) {
         c.builder.b.bind(clazz, c.setImpls.get(i));
       } else if (c.setLateImpls.containsKey(i)) {
         c.builder.b.bind(ReflectionUtilities.getFullName(clazz), c.setLateImpls.get(i));
       } else if (c.setImplSets.containsKey(i) || c.setLateImplSets.containsKey(i)) {
-        for (Class<?> clz : c.setImplSets.getValuesForKey(i)) {
+        for (final Class<?> clz : c.setImplSets.getValuesForKey(i)) {
           c.builder.b.bindSetEntry((Class) clazz, (Class) clz);
         }
-        for (String s : c.setLateImplSets.getValuesForKey(i)) {
+        for (final String s : c.setLateImplSets.getValuesForKey(i)) {
           c.builder.b.bindSetEntry((Class) clazz, s);
         }
       } else if (c.setImplLists.containsKey(i)) {
         c.builder.b.bindList((Class) clazz, c.setImplLists.get(i));
       }
     }
-    for (Class<? extends Name<?>> clazz : c.builder.freeParams.keySet()) {
-      Param<?> p = c.builder.freeParams.get(clazz);
-      String s = c.setParams.get(p);
+    for (final Class<? extends Name<?>> clazz : c.builder.freeParams.keySet()) {
+      final Param<?> p = c.builder.freeParams.get(clazz);
+      final String s = c.setParams.get(p);
       boolean foundOne = false;
       if (s != null) {
         c.builder.b.bindNamedParameter(clazz, s);
         foundOne = true;
       }
       // Find the bound list for the NamedParameter
-      List list = c.setParamLists.get(p);
+      final List list = c.setParamLists.get(p);
       if (list != null) {
         c.builder.b.bindList((Class) clazz, list);
         foundOne = true;
       }
-      for (String paramStr : c.setParamSets.getValuesForKey(p)) {
+      for (final String paramStr : c.setParamSets.getValuesForKey(p)) {
         c.builder.b.bindSetEntry((Class) clazz, paramStr);
         foundOne = true;
       }
@@ -220,13 +220,13 @@ public class ConfigurationModule {
   }
 
   public Set<NamedParameterNode<?>> getBoundNamedParameters() {
-    Configuration c = this.builder.b.build();
-    Set<NamedParameterNode<?>> nps = new MonotonicSet<>();
+    final Configuration c = this.builder.b.build();
+    final Set<NamedParameterNode<?>> nps = new MonotonicSet<>();
     nps.addAll(c.getNamedParameters());
-    for (Class<?> np : this.builder.freeParams.keySet()) {
+    for (final Class<?> np : this.builder.freeParams.keySet()) {
       try {
         nps.add((NamedParameterNode<?>) builder.b.getClassHierarchy().getNode(ReflectionUtilities.getFullName(np)));
-      } catch (NameResolutionException e) {
+      } catch (final NameResolutionException e) {
         throw new IllegalStateException(e);
       }
     }
@@ -234,12 +234,12 @@ public class ConfigurationModule {
   }
 
   public List<Entry<String, String>> toStringPairs() {
-    List<Entry<String, String>> ret = new ArrayList<>();
+    final List<Entry<String, String>> ret = new ArrayList<>();
     class MyEntry implements Entry<String, String> {
       final String k;
       final String v;
 
-      public MyEntry(String k, String v) {
+      public MyEntry(final String k, final String v) {
         this.k = k;
         this.v = v;
       }
@@ -255,21 +255,21 @@ public class ConfigurationModule {
       }
 
       @Override
-      public String setValue(String value) {
+      public String setValue(final String value) {
         throw new UnsupportedOperationException();
       }
 
     }
-    for (Class<?> c : this.builder.freeParams.keySet()) {
+    for (final Class<?> c : this.builder.freeParams.keySet()) {
       ret.add(new MyEntry(ReflectionUtilities.getFullName(c),
           this.builder.map.get(this.builder.freeParams.get(c)).getName()));
     }
-    for (Class<?> c : this.builder.freeImpls.keySet()) {
+    for (final Class<?> c : this.builder.freeImpls.keySet()) {
       ret.add(new MyEntry(ReflectionUtilities.getFullName(c),
           this.builder.map.get(this.builder.freeImpls.get(c)).getName()));
     }
-    for (String s : ConfigurationFile.toConfigurationStringList(builder.b.build())) {
-      String[] tok = s.split("=", 2);
+    for (final String s : ConfigurationFile.toConfigurationStringList(builder.b.build())) {
+      final String[] tok = s.split("=", 2);
       ret.add(new MyEntry(tok[0], tok[1]));
     }
 
@@ -277,9 +277,9 @@ public class ConfigurationModule {
   }
 
   public String toPrettyString() {
-    StringBuilder sb = new StringBuilder();
+    final StringBuilder sb = new StringBuilder();
 
-    for (Entry<String, String> l : toStringPairs()) {
+    for (final Entry<String, String> l : toStringPairs()) {
       sb.append(l.getKey() + "=" + l.getValue() + "\n");
     }
     return sb.toString();

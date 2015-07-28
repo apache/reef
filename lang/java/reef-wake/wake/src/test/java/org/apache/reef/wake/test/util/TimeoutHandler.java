@@ -25,12 +25,12 @@ public class TimeoutHandler implements EventHandler<PeriodicEvent> {
 
   private final Monitor monitor;
 
-  public TimeoutHandler(Monitor monitor) {
+  public TimeoutHandler(final Monitor monitor) {
     this.monitor = monitor;
   }
 
   @Override
-  public void onNext(PeriodicEvent event) {
+  public void onNext(final PeriodicEvent event) {
     monitor.mnotify();
   }
 }

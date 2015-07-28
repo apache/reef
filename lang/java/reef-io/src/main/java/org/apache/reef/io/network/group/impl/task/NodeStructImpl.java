@@ -66,7 +66,7 @@ public abstract class NodeStructImpl implements NodeStruct {
   @Override
   public byte[] getData() {
     LOG.entering("NodeStructImpl", "getData");
-    GroupCommunicationMessage gcm;
+    final GroupCommunicationMessage gcm;
     try {
       gcm = dataQue.take();
     } catch (final InterruptedException e) {

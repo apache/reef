@@ -25,7 +25,7 @@ public class InteropReturnInfo {
   int returnCode;
   ArrayList<String> exceptionList = new ArrayList<String>();
 
-  public void addExceptionString(String exceptionString) {
+  public void addExceptionString(final String exceptionString) {
     exceptionList.add(exceptionString);
   }
 
@@ -41,7 +41,7 @@ public class InteropReturnInfo {
     return returnCode;
   }
 
-  public void setReturnCode(int rc) {
+  public void setReturnCode(final int rc) {
     returnCode = rc;
   }
 

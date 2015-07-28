@@ -148,7 +148,7 @@ public final class ReefEventStateManager {
     return this.serviceInfoList;
   }
 
-  public void registerServiceInfo(AvroReefServiceInfo serviceInfo) {
+  public void registerServiceInfo(final AvroReefServiceInfo serviceInfo) {
     synchronized (this.serviceInfoList) {
       serviceInfoList.add(serviceInfo);
       LOG.log(Level.INFO, "Registered Service [{0}] with Info [{1}]",

@@ -39,7 +39,7 @@ public class TransportEvent {
    * @param localAddr  the local socket address
    * @param remoteAddr the remote socket address
    */
-  public TransportEvent(byte[] data, SocketAddress localAddr, SocketAddress remoteAddr) {
+  public TransportEvent(final byte[] data, final SocketAddress localAddr, final SocketAddress remoteAddr) {
     this.data = data;
     this.localAddr = localAddr;
     this.remoteAddr = remoteAddr;
@@ -53,7 +53,7 @@ public class TransportEvent {
    * @param data
    * @param link
    */
-  public TransportEvent(byte[] data, Link<byte[]> link) {
+  public TransportEvent(final byte[] data, final Link<byte[]> link) {
     this.data = data;
     this.link = link;
     if (this.link != null) {

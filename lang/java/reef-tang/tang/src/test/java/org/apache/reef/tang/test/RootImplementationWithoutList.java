@@ -49,13 +49,13 @@ public class RootImplementationWithoutList implements RootInterface {
       @Parameter(TestConfigurationWithoutList.StringHandler.class) final Handler<String> stringHandler,
       @Parameter(TestConfigurationWithoutList.IntegerHandler.class) final Handler<Integer> integerHandler,
       @Parameter(TestConfigurationWithoutList.NamedParameterInteger.class) final int anInt,
-      @Parameter(TestConfigurationWithoutList.NamedParameterDouble.class) double aDouble,
+      @Parameter(TestConfigurationWithoutList.NamedParameterDouble.class) final double aDouble,
       final UnitClass unit,
       final AnInterface anInterface,
       final InjectableClass injectableClass,
       final SetOfImplementations setOfImplementations,
       final SetOfBaseTypes setOfBaseTypes,
-      CyclicDependency cyclicDependency) {
+      final CyclicDependency cyclicDependency) {
 
     this.requiredString = requiredString;
     this.optionalString = optionalString;
@@ -108,7 +108,7 @@ public class RootImplementationWithoutList implements RootInterface {
 
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(final Object o) {
     if (this == o) {
       return true;
     }
@@ -116,7 +116,7 @@ public class RootImplementationWithoutList implements RootInterface {
       return false;
     }
 
-    RootImplementationWithoutList that = (RootImplementationWithoutList) o;
+    final RootImplementationWithoutList that = (RootImplementationWithoutList) o;
 
     if (Double.compare(that.aDouble, aDouble) != 0) {
       return false;
@@ -162,7 +162,7 @@ public class RootImplementationWithoutList implements RootInterface {
   @Override
   public int hashCode() {
     int result;
-    long temp;
+    final long temp;
     result = requiredString != null ? requiredString.hashCode() : 0;
     result = 31 * result + (optionalString != null ? optionalString.hashCode() : 0);
     result = 31 * result + (unit != null ? unit.hashCode() : 0);

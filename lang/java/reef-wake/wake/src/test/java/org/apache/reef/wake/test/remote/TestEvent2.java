@@ -22,7 +22,7 @@ public class TestEvent2 extends TestEvent {
 
   private static final long serialVersionUID = 1L;
 
-  public TestEvent2(String message, double load) {
+  public TestEvent2(final String message, final double load) {
     super(message, load);
   }
 

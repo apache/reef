@@ -180,7 +180,7 @@ public final class ThreadPoolStage<T> extends AbstractEStage<T> {
         try {
           handler.onNext(value);
           afterOnNext();
-        } catch (Throwable t) {
+        } catch (final Throwable t) {
           if (errorHandler != null) {
             errorHandler.onNext(t);
           } else {
@@ -205,7 +205,7 @@ public final class ThreadPoolStage<T> extends AbstractEStage<T> {
         executor.shutdown();
         if (!executor.awaitTermination(shutdownTimeout, TimeUnit.MILLISECONDS)) {
           LOG.log(Level.WARNING, "Executor did not terminate in " + shutdownTimeout + "ms.");
-          List<Runnable> droppedRunnables = executor.shutdownNow();
+          final List<Runnable> droppedRunnables = executor.shutdownNow();
           LOG.log(Level.WARNING, "Executor dropped " + droppedRunnables.size() + " tasks.");
         }
       }

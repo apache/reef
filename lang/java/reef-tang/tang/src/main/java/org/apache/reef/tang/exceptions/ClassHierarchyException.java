@@ -26,15 +26,15 @@ package org.apache.reef.tang.exceptions;
 public class ClassHierarchyException extends RuntimeException {
   private static final long serialVersionUID = 1L;
 
-  public ClassHierarchyException(Throwable cause) {
+  public ClassHierarchyException(final Throwable cause) {
     super(cause);
   }
 
-  public ClassHierarchyException(String msg) {
+  public ClassHierarchyException(final String msg) {
     super(msg);
   }
 
-  public ClassHierarchyException(String msg, Throwable cause) {
+  public ClassHierarchyException(final String msg, final Throwable cause) {
     super(msg, cause);
   }
 }

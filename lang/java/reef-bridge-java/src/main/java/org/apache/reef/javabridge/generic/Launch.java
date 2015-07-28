@@ -147,7 +147,7 @@ public final class Launch {
         throw new IllegalArgumentException("No arguments provided, at least a clrFolder should be supplied.");
       }
       final File dotNetFolder = new File(args[0]).getAbsoluteFile();
-      String[] removedArgs = Arrays.copyOfRange(args, 1, args.length);
+      final String[] removedArgs = Arrays.copyOfRange(args, 1, args.length);
 
       final Configuration config = getClientConfiguration(removedArgs);
       final Injector commandLineInjector = Tang.Factory.getTang().newInjector(parseCommandLine(removedArgs));

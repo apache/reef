@@ -24,10 +24,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public final class LoggingUtils {
-  public static void setLoggingLevel(Level level) {
-    Handler[] handlers = Logger.getLogger("").getHandlers();
+  public static void setLoggingLevel(final Level level) {
+    final Handler[] handlers = Logger.getLogger("").getHandlers();
     ConsoleHandler ch = null;
-    for (Handler h : handlers) {
+    for (final Handler h : handlers) {
       if (h instanceof ConsoleHandler) {
         ch = (ConsoleHandler) h;
         break;

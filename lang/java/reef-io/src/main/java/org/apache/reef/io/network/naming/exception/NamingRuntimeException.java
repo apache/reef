@@ -32,7 +32,7 @@ public class NamingRuntimeException extends NetworkRuntimeException {
    * @param s the detailed message
    * @param e the cause
    */
-  public NamingRuntimeException(String s, Throwable e) {
+  public NamingRuntimeException(final String s, final Throwable e) {
     super(s, e);
   }
 
@@ -41,7 +41,7 @@ public class NamingRuntimeException extends NetworkRuntimeException {
    *
    * @param s the detailed message
    */
-  public NamingRuntimeException(String s) {
+  public NamingRuntimeException(final String s) {
     super(s);
   }
 
@@ -50,7 +50,7 @@ public class NamingRuntimeException extends NetworkRuntimeException {
    *
    * @param e the cause
    */
-  public NamingRuntimeException(Throwable e) {
+  public NamingRuntimeException(final Throwable e) {
     super(e);
   }
 }

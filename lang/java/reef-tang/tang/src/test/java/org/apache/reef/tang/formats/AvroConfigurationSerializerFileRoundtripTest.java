@@ -29,7 +29,7 @@ import java.io.File;
  */
 public final class AvroConfigurationSerializerFileRoundtripTest extends RoundTripTest {
   @Override
-  public Configuration roundTrip(Configuration configuration) throws Exception {
+  public Configuration roundTrip(final Configuration configuration) throws Exception {
     final File tempFile = java.io.File.createTempFile("TangTest", "avroconf");
     final AvroConfigurationSerializer serializer = new AvroConfigurationSerializer();
     serializer.toFile(configuration, tempFile);
@@ -39,7 +39,8 @@ public final class AvroConfigurationSerializerFileRoundtripTest extends RoundTri
   }
 
   @Override
-  public Configuration roundTrip(Configuration configuration, final ClassHierarchy classHierarchy) throws Exception {
+  public Configuration roundTrip(final Configuration configuration, final ClassHierarchy classHierarchy)
+      throws Exception {
     final File tempFile = java.io.File.createTempFile("TangTest", "avroconf");
     final AvroConfigurationSerializer serializer = new AvroConfigurationSerializer();
     serializer.toFile(configuration, tempFile);

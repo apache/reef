@@ -33,7 +33,7 @@ public final class OnDriverStartedAllocateOne implements EventHandler<StartTime>
   private final EvaluatorRequestor requestor;
 
   @Inject
-  OnDriverStartedAllocateOne(EvaluatorRequestor requestor) {
+  OnDriverStartedAllocateOne(final EvaluatorRequestor requestor) {
     this.requestor = requestor;
   }
 

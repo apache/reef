@@ -52,7 +52,7 @@ public final class StartHandler implements EventHandler<StartTime> {
   }
 
   @Override
-  public void onNext(StartTime startTime) {
+  public void onNext(final StartTime startTime) {
     LOG.log(Level.INFO, "StartTime: ", startTime);
     StartHandler.this.requestor.submit(EvaluatorRequest.newBuilder()
         .setNumber(5)

@@ -127,7 +127,7 @@ public final class TimerStage implements Stage {
       executor.shutdown();
       if (!executor.awaitTermination(shutdownTimeout, TimeUnit.MILLISECONDS)) {
         LOG.log(Level.WARNING, "Executor did not terminate in " + shutdownTimeout + "ms.");
-        List<Runnable> droppedRunnables = executor.shutdownNow();
+        final List<Runnable> droppedRunnables = executor.shutdownNow();
         LOG.log(Level.WARNING, "Executor dropped " + droppedRunnables.size() + " tasks.");
       }
     }

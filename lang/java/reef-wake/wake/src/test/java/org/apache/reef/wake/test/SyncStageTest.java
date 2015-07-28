@@ -40,13 +40,13 @@ public class SyncStageTest {
   public void testSyncStage() throws Exception {
     System.out.println(LOG_PREFIX + name.getMethodName());
 
-    Set<TestEvent> procSet = Collections.synchronizedSet(new HashSet<TestEvent>());
-    Set<TestEvent> orgSet = Collections.synchronizedSet(new HashSet<TestEvent>());
+    final Set<TestEvent> procSet = Collections.synchronizedSet(new HashSet<TestEvent>());
+    final Set<TestEvent> orgSet = Collections.synchronizedSet(new HashSet<TestEvent>());
 
-    EStage<TestEventA> stage = new SyncStage<TestEventA>(new TestEventHandlerA(procSet));
+    final EStage<TestEventA> stage = new SyncStage<TestEventA>(new TestEventHandlerA(procSet));
 
     for (int i = 0; i < 10; ++i) {
-      TestEventA a = new TestEventA();
+      final TestEventA a = new TestEventA();
       orgSet.add(a);
 
       stage.onNext(a);
@@ -61,21 +61,21 @@ public class SyncStageTest {
   public void testMultiSyncStage() throws Exception {
     System.out.println(name.getMethodName());
 
-    Set<TestEvent> procSet = Collections.synchronizedSet(new HashSet<TestEvent>());
-    Set<TestEvent> orgSet = Collections.synchronizedSet(new HashSet<TestEvent>());
+    final Set<TestEvent> procSet = Collections.synchronizedSet(new HashSet<TestEvent>());
+    final Set<TestEvent> orgSet = Collections.synchronizedSet(new HashSet<TestEvent>());
 
-    Map<Class<? extends TestEvent>, EventHandler<? extends TestEvent>> map
+    final Map<Class<? extends TestEvent>, EventHandler<? extends TestEvent>> map
         = new HashMap<Class<? extends TestEvent>, EventHandler<? extends TestEvent>>();
     map.put(TestEventA.class, new TestEventHandlerA(procSet));
     map.put(TestEventB.class, new TestEventHandlerB(procSet));
 
-    EventHandler<TestEvent> eventHandler = new MultiEventHandler<TestEvent>(map);
+    final EventHandler<TestEvent> eventHandler = new MultiEventHandler<TestEvent>(map);
 
-    EStage<TestEvent> stage = new SyncStage<TestEvent>(eventHandler);
+    final EStage<TestEvent> stage = new SyncStage<TestEvent>(eventHandler);
 
     for (int i = 0; i < 10; ++i) {
-      TestEventA a = new TestEventA();
-      TestEventB b = new TestEventB();
+      final TestEventA a = new TestEventA();
+      final TestEventB b = new TestEventB();
 
       orgSet.add(a);
       orgSet.add(b);
@@ -103,11 +103,11 @@ public class SyncStageTest {
 
     private final Set<TestEvent> set;
 
-    TestEventHandlerA(Set<TestEvent> set) {
+    TestEventHandlerA(final Set<TestEvent> set) {
       this.set = set;
     }
 
-    public void onNext(TestEventA e) {
+    public void onNext(final TestEventA e) {
       set.add(e);
       System.out.println("TestEventHandlerA " + e);
     }
@@ -117,11 +117,11 @@ public class SyncStageTest {
 
     private final Set<TestEvent> set;
 
-    TestEventHandlerB(Set<TestEvent> set) {
+    TestEventHandlerB(final Set<TestEvent> set) {
       this.set = set;
     }
 
-    public void onNext(TestEventB e) {
+    public void onNext(final TestEventB e) {
       set.add(e);
       System.out.println("TestEventHandlerB " + e);
     }

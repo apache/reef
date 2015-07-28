@@ -66,7 +66,7 @@ final class WrappedValue<V> {
   public synchronized V loadAndGet() throws ExecutionException {
     try {
       value = Optional.ofNullable(valueFetcher.call());
-    } catch (Exception e) {
+    } catch (final Exception e) {
       throw new ExecutionException(e);
     } finally {
       writeTime = Optional.of(currentTime.now());
@@ -83,7 +83,7 @@ final class WrappedValue<V> {
     while (!value.isPresent()) {
       try {
         this.wait();
-      } catch (InterruptedException e) {
+      } catch (final InterruptedException e) {
         // Ignore, as while loop will be re-entered
       }
     }

@@ -40,7 +40,7 @@ public class StageManagerTest {
 class TestEventHandler implements EventHandler<Void> {
 
   @Override
-  public void onNext(Void value) {
+  public void onNext(final Void value) {
   }
 
 }

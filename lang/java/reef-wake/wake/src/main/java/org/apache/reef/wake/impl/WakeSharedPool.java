@@ -55,11 +55,11 @@ public class WakeSharedPool implements Stage {
   private AtomicBoolean closed = new AtomicBoolean(false);
 
   @Inject
-  public WakeSharedPool(@Parameter(Parallelism.class) int parallelism) {
+  public WakeSharedPool(@Parameter(Parallelism.class) final int parallelism) {
     this.pool = new ForkJoinPool(parallelism, ForkJoinPool.defaultForkJoinWorkerThreadFactory,
         new Thread.UncaughtExceptionHandler() {
           @Override
-          public void uncaughtException(Thread t, Throwable e) {
+          public void uncaughtException(final Thread t, final Throwable e) {
             // TODO: need to pass this upwards to REEF can grab it
           }
         },
@@ -82,7 +82,7 @@ public class WakeSharedPool implements Stage {
     this(DEFAULT_PARALLELISM);
   }
 
-  public void submit(ForkJoinTask<?> t) {
+  public void submit(final ForkJoinTask<?> t) {
     if (ForkJoinTask.inForkJoinPool()) {
       ForkJoinTask.invokeAll(t);
       // alternatively just pool().pool.execute(t), which simply forces it to be this pool
@@ -99,7 +99,7 @@ public class WakeSharedPool implements Stage {
       pool.shutdown();
       if (!pool.awaitTermination(shutdownTimeout, TimeUnit.MILLISECONDS)) {
         LOG.log(Level.WARNING, "Executor did not terminate in " + shutdownTimeout + "ms.");
-        List<Runnable> droppedRunnables = pool.shutdownNow();
+        final List<Runnable> droppedRunnables = pool.shutdownNow();
         LOG.log(Level.WARNING, "Executor dropped " + droppedRunnables.size() + " tasks.");
       }
     }

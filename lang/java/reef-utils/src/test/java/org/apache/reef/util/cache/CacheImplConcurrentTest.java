@@ -66,7 +66,7 @@ public final class CacheImplConcurrentTest {
           // Assert that firstValue is returned, even when other gets are called during the Callable execution
           getFirstValue1 = cache.get(key, new SleepingInteger(firstValue, computationMillis));
           assertEquals(firstValue, getFirstValue1);
-        } catch (ExecutionException e) {
+        } catch (final ExecutionException e) {
           throw new RuntimeException(e);
         }
       }
@@ -83,7 +83,7 @@ public final class CacheImplConcurrentTest {
             // The original cached value should be retrieved
             final int getFirstValue2 = cache.get(key, new ImmediateInteger(secondValue));
             assertEquals(firstValue, getFirstValue2);
-          } catch (ExecutionException e) {
+          } catch (final ExecutionException e) {
             throw new RuntimeException(e);
           }
         }
@@ -120,7 +120,7 @@ public final class CacheImplConcurrentTest {
         public void run() {
           try {
             getValues[index] = cache.get(key, new ImmediateInteger(values[index]));
-          } catch (ExecutionException e) {
+          } catch (final ExecutionException e) {
             throw new RuntimeException(e);
           }
         }
@@ -157,7 +157,7 @@ public final class CacheImplConcurrentTest {
           // Assert that firstValue is returned, even when it is invalidated during the Callable execution
           getFirstValue1 = cache.get(key, new SleepingInteger(firstValue, computationMillis));
           assertEquals(firstValue, getFirstValue1);
-        } catch (ExecutionException e) {
+        } catch (final ExecutionException e) {
           throw new RuntimeException(e);
         }
       }
@@ -178,7 +178,7 @@ public final class CacheImplConcurrentTest {
           // The original cached value should be retrieved, even when it is invalidated during the Callable execution
           final int getFirstValue2 = cache.get(key, new ImmediateInteger(secondValue));
           assertEquals(firstValue, getFirstValue2);
-        } catch (ExecutionException e) {
+        } catch (final ExecutionException e) {
           throw new RuntimeException(e);
         }
       } else {
@@ -186,7 +186,7 @@ public final class CacheImplConcurrentTest {
           // The second value should be retrieved, because the cache has been invalidated
           final int getFirstValue2 = cache.get(key, new ImmediateInteger(secondValue));
           assertEquals(secondValue, getFirstValue2);
-        } catch (ExecutionException e) {
+        } catch (final ExecutionException e) {
           throw new RuntimeException(e);
         }
       }
