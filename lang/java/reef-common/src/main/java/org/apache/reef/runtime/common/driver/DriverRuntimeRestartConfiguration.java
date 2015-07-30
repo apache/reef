@@ -20,6 +20,12 @@ package org.apache.reef.runtime.common.driver;
 
 import org.apache.reef.annotations.audience.ClientSide;
 import org.apache.reef.annotations.audience.Private;
+import org.apache.reef.driver.parameters.ServiceEvaluatorAllocatedHandlers;
+import org.apache.reef.driver.parameters.ServiceEvaluatorCompletedHandlers;
+import org.apache.reef.driver.parameters.ServiceEvaluatorFailedHandlers;
+import org.apache.reef.driver.restart.EvaluatorPreservingEvaluatorAllocatedHandler;
+import org.apache.reef.driver.restart.EvaluatorPreservingEvaluatorCompletedHandler;
+import org.apache.reef.driver.restart.EvaluatorPreservingEvaluatorFailedHandler;
 import org.apache.reef.tang.formats.*;
 
 /**
@@ -33,6 +39,9 @@ public final class DriverRuntimeRestartConfiguration extends ConfigurationModule
   private DriverRuntimeRestartConfiguration() {
   }
 
-  // TODO: bind service handlers in REEF-483
-  public static final ConfigurationModule CONF = new DriverRuntimeRestartConfiguration().build();
+  public static final ConfigurationModule CONF = new DriverRuntimeRestartConfiguration()
+      .bindSetEntry(ServiceEvaluatorAllocatedHandlers.class, EvaluatorPreservingEvaluatorAllocatedHandler.class)
+      .bindSetEntry(ServiceEvaluatorFailedHandlers.class, EvaluatorPreservingEvaluatorFailedHandler.class)
+      .bindSetEntry(ServiceEvaluatorCompletedHandlers.class, EvaluatorPreservingEvaluatorCompletedHandler.class)
+      .build();
 }

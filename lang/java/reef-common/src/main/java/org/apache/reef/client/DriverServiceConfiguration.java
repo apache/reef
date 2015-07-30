@@ -75,6 +75,11 @@ public final class DriverServiceConfiguration extends ConfigurationModuleBuilder
   public static final RequiredImpl<EventHandler<StartTime>> ON_DRIVER_STARTED = new RequiredImpl<>();
 
   /**
+   * The event handler invoked right after the driver restarts.
+   */
+  public static final OptionalImpl<EventHandler<StartTime>> ON_DRIVER_RESTARTED = new OptionalImpl<>();
+
+  /**
    * The event handler invoked right before the driver shuts down. Defaults to ignore.
    */
   public static final OptionalImpl<EventHandler<StopTime>> ON_DRIVER_STOP = new OptionalImpl<>();
@@ -161,6 +166,7 @@ public final class DriverServiceConfiguration extends ConfigurationModuleBuilder
           // Start and stop events are the same handlers for applications and services.
       .bindSetEntry(Clock.StartHandler.class, ON_DRIVER_STARTED)
       .bindSetEntry(Clock.StopHandler.class, ON_DRIVER_STOP)
+      .bindSetEntry(ServiceDriverRestartedHandlers.class, ON_DRIVER_RESTARTED)
 
           // Evaluator handlers
       .bindSetEntry(ServiceEvaluatorAllocatedHandlers.class, ON_EVALUATOR_ALLOCATED)
