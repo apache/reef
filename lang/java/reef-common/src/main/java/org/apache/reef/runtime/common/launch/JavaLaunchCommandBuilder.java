@@ -36,6 +36,7 @@ public final class JavaLaunchCommandBuilder implements LaunchCommandBuilder {
   private static final Logger LOG = Logger.getLogger(JavaLaunchCommandBuilder.class.getName());
 
   private static final String DEFAULT_JAVA_PATH = System.getenv("JAVA_HOME") + "/bin/" + "java";
+  private static final String[] defaultOptions = {"-XX:PermSize=128m", "-XX:MaxPermSize=128m"};
   private String stderrPath = null;
   private String stdoutPath = null;
   private String evaluatorConfigurationPath = null;
@@ -43,12 +44,15 @@ public final class JavaLaunchCommandBuilder implements LaunchCommandBuilder {
   private String classPath = null;
   private Boolean assertionsEnabled = null;
   private Map<String, JVMOption> options = new HashMap<>();
-  private Map<String, JVMOption> defaultOptions = new HashMap<String, JVMOption>() {{
-      final JVMOption permSize = JVMOption.parse("-XX:PermSize=128m");
-      put(permSize.option, permSize);
-      final JVMOption maxPermSize = JVMOption.parse("-XX:MaxPermSize=128m");
-      put(maxPermSize.option, maxPermSize);
-    }};
+
+  /**
+   * Constructor that populates default options.
+   */
+  public JavaLaunchCommandBuilder() {
+    for (final String defaultOption : defaultOptions) {
+      addOption(defaultOption);
+    }
+  }
 
   @Override
   public List<String> build() {
@@ -60,7 +64,10 @@ public final class JavaLaunchCommandBuilder implements LaunchCommandBuilder {
           add(javaPath);
         }
 
-        applyDefaultOptions();
+        if ((assertionsEnabled != null && assertionsEnabled)
+            || EnvironmentUtils.areAssertionsEnabled()) {
+          addOption("-ea");
+        }
 
         for (final JVMOption jvmOption : options.values()) {
           add(jvmOption.toString());
@@ -94,12 +101,6 @@ public final class JavaLaunchCommandBuilder implements LaunchCommandBuilder {
   @SuppressWarnings("checkstyle:hiddenfield")
   public JavaLaunchCommandBuilder setMemory(final int megaBytes) {
     return addOption(JVMOption.parse("-Xmx" + megaBytes + "m"));
-  }
-
-  @Override
-  @SuppressWarnings("checkstyle:hiddenfield")
-  public JavaLaunchCommandBuilder setDefaultMemory(final int defaultMegaBytes) {
-    return addDefaultOption(JVMOption.parse("-Xmx" + defaultMegaBytes + "m"));
   }
 
   @Override
@@ -150,47 +151,11 @@ public final class JavaLaunchCommandBuilder implements LaunchCommandBuilder {
     return addOption(JVMOption.parse(option));
   }
 
-  /**
-   * Add a default JVM option.
-   * An example use of this method: The runtime sets a sensible default
-   * value that is picked up if the user does not set the same option.
-   * @param option The full option, e.g. "-Xms500m"
-   * @return this
-   */
-  public JavaLaunchCommandBuilder addDefaultOption(final String option) {
-    return addDefaultOption(JVMOption.parse(option));
-  }
-
-  private void applyDefaultOptions() {
-    for (final JVMOption defaultOption : defaultOptions.values()) {
-      applyDefaultOption(defaultOption);
-    }
-
-    if ((assertionsEnabled != null && assertionsEnabled)
-        || EnvironmentUtils.areAssertionsEnabled()) {
-      applyDefaultOption(JVMOption.parse("-ea"));
-    }
-  }
-
-  private void applyDefaultOption(final JVMOption jvmOption) {
-    if (!options.containsKey(jvmOption.option)) {
-      options.put(jvmOption.option, jvmOption);
-    }
-  }
-
   private JavaLaunchCommandBuilder addOption(final JVMOption jvmOption) {
     if (options.containsKey(jvmOption.option)) {
       LOG.warning("Replaced option " + options.get(jvmOption.option) + " with " + jvmOption);
     }
     options.put(jvmOption.option, jvmOption);
-    return this;
-  }
-
-  private JavaLaunchCommandBuilder addDefaultOption(final JVMOption jvmOption) {
-    if (defaultOptions.containsKey(jvmOption.option)) {
-      LOG.warning("Replaced default option " + defaultOptions.get(jvmOption.option) + " with " + jvmOption);
-    }
-    defaultOptions.put(jvmOption.option, jvmOption);
     return this;
   }
 

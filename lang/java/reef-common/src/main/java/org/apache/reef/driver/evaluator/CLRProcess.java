@@ -27,6 +27,7 @@ import java.util.List;
  */
 public final class CLRProcess implements EvaluatorProcess {
   private final CLRLaunchCommandBuilder commandBuilder = new CLRLaunchCommandBuilder();
+  private boolean optionSet = false;
 
   /**
    * Instantiated via CLRProcessFactory.
@@ -48,13 +49,13 @@ public final class CLRProcess implements EvaluatorProcess {
   @Override
   public CLRProcess setMemory(final int megaBytes) {
     commandBuilder.setMemory(megaBytes);
+    optionSet = true;
     return this;
   }
 
   @Override
-  public CLRProcess setDefaultMemory(int megaBytes) {
-    commandBuilder.setDefaultMemory(megaBytes);
-    return this;
+  public boolean isOptionSet() {
+    return optionSet;
   }
 
   @Override

@@ -22,6 +22,9 @@ import java.util.List;
 
 /**
  * Defines the setup of an evaluator's process.
+ * Users can set custom options via {@link #setMemory(int)} and process-type specific methods.
+ * Runtimes can also set options, but should not do so if users have set options by
+ * checking {@link #isOptionSet()}.
  */
 public interface EvaluatorProcess {
   /**
@@ -43,14 +46,13 @@ public interface EvaluatorProcess {
   EvaluatorProcess setMemory(final int megaBytes);
 
   /**
-   * Set default memory size of process in megabytes.
-   * This value is used if a value is not set with {@link #setMemory(int)}.
-   * An example use of this method: The runtime sets a sensible default
-   * memory that is picked up if the user does not set the memory size.
-   * @param megaBytes
-   * @return this
+   * Check whether custom options have been set for the process.
+   * Options are memory given via {@link #setMemory(int)} and any other custom options
+   * supported by the specific type of evaluator process.
+   *
+   * @return whether custom options have been set for the process
    */
-  EvaluatorProcess setDefaultMemory(final int megaBytes);
+  boolean isOptionSet();
 
   /**
    * Set the name of the configuration file for the Launcher. This file is assumed to exist in the working directory of

@@ -37,7 +37,6 @@ public class CLRLaunchCommandBuilder implements LaunchCommandBuilder {
   private String standardErrPath = null;
   private String standardOutPath = null;
   private int megaBytes = 0;
-  private int defaultMegaBytes = 0;
   private String evaluatorConfigurationPath = null;
 
   @Override
@@ -63,13 +62,6 @@ public class CLRLaunchCommandBuilder implements LaunchCommandBuilder {
   @SuppressWarnings("checkstyle:hiddenfield")
   public CLRLaunchCommandBuilder setMemory(final int megaBytes) {
     this.megaBytes = megaBytes;
-    return this;
-  }
-
-  @Override
-  @SuppressWarnings("checkstyle:hiddenfield")
-  public CLRLaunchCommandBuilder setDefaultMemory(final int defaultMegaBytes) {
-    this.defaultMegaBytes = defaultMegaBytes;
     return this;
   }
 

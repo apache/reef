@@ -26,17 +26,21 @@ import java.util.List;
 
 /**
  * Defines the setup of a JVM process.
+ * Users can set JVM options via {@link #setMemory(int)} and {@link #addOption(String)}.
+ * Runtimes can also set JVM options, but should not do so if users have set options by
+ * checking {@link #isOptionSet()}.
  */
 public final class JVMProcess implements EvaluatorProcess {
   private final JavaLaunchCommandBuilder commandBuilder = new JavaLaunchCommandBuilder();
   private final RuntimePathProvider runtimePathProvider;
   private final ClasspathProvider classpathProvider;
+  private boolean optionSet = false;
 
   /**
    * Instantiated via JVMProcessFactory.
    */
   JVMProcess(final RuntimePathProvider runtimePathProvider,
-                    final ClasspathProvider classpathProvider) {
+             final ClasspathProvider classpathProvider) {
     this.runtimePathProvider = runtimePathProvider;
     this.classpathProvider = classpathProvider;
   }
@@ -57,13 +61,13 @@ public final class JVMProcess implements EvaluatorProcess {
   @Override
   public JVMProcess setMemory(final int megaBytes) {
     commandBuilder.setMemory(megaBytes);
+    optionSet = true;
     return this;
   }
 
   @Override
-  public JVMProcess setDefaultMemory(int megaBytes) {
-    commandBuilder.setDefaultMemory(megaBytes);
-    return this;
+  public boolean isOptionSet() {
+    return optionSet;
   }
 
   @Override
@@ -86,23 +90,12 @@ public final class JVMProcess implements EvaluatorProcess {
 
   /**
    * Add a JVM option.
-   * @param option The full option, e.g. "-XX:+PrintGCDetails"
+   * @param option The full option, e.g. "-XX:+PrintGCDetails", "-Xms500m"
    * @return this
    */
   public JVMProcess addOption(final String option) {
     commandBuilder.addOption(option);
-    return this;
-  }
-
-  /**
-   * Add a default JVM option.
-   * An example use of this method: The runtime sets a sensible default
-   * value that is picked up if the user does not set the same option.
-   * @param option The full option, e.g. "-Xms500m"
-   * @return this
-   */
-  public JVMProcess addDefaultOption(final String option) {
-    commandBuilder.addDefaultOption(option);
+    optionSet = true;
     return this;
   }
 }

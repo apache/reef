@@ -23,6 +23,7 @@ import org.apache.hadoop.yarn.api.ApplicationConstants;
 import org.apache.hadoop.yarn.api.records.Container;
 import org.apache.hadoop.yarn.api.records.ContainerLaunchContext;
 import org.apache.hadoop.yarn.api.records.LocalResource;
+import org.apache.reef.driver.evaluator.EvaluatorProcess;
 import org.apache.reef.runtime.common.driver.api.ResourceLaunchEvent;
 import org.apache.reef.runtime.common.driver.api.ResourceLaunchHandler;
 import org.apache.reef.runtime.common.files.REEFFileNames;
@@ -76,15 +77,7 @@ public final class YARNResourceLaunchHandler implements ResourceLaunchHandler {
       final Map<String, LocalResource> localResources =
           this.evaluatorSetupHelper.getResources(resourceLaunchEvent);
 
-      final List<String> command = resourceLaunchEvent.getProcess()
-          .setConfigurationFileName(this.filenames.getEvaluatorConfigurationPath())
-          .setDefaultMemory((int) (this.jvmHeapFactor * container.getResource().getMemory()))
-          .setStandardErr(ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/" +
-              this.filenames.getEvaluatorStderrFileName())
-          .setStandardOut(ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/" +
-              this.filenames.getEvaluatorStdoutFileName())
-          .getCommandLine();
-
+      final List<String> command = getLaunchCommand(resourceLaunchEvent, container.getResource().getMemory());
       if (LOG.isLoggable(Level.FINEST)) {
         LOG.log(Level.FINEST,
             "TIME: Run ResourceLaunchProto {0} command: `{1}` with resources: `{2}`",
@@ -99,6 +92,24 @@ public final class YARNResourceLaunchHandler implements ResourceLaunchHandler {
     } catch (final Throwable e) {
       LOG.log(Level.WARNING, "Error handling resource launch message: " + resourceLaunchEvent, e);
       throw new RuntimeException(e);
+    }
+  }
+
+  private List<String> getLaunchCommand(final ResourceLaunchEvent resourceLaunchEvent,
+                                        final int containerMemory) {
+    final EvaluatorProcess process = resourceLaunchEvent.getProcess()
+        .setConfigurationFileName(this.filenames.getEvaluatorConfigurationPath())
+        .setStandardErr(ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/" +
+            this.filenames.getEvaluatorStderrFileName())
+        .setStandardOut(ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/" +
+            this.filenames.getEvaluatorStdoutFileName());
+
+    if (process.isOptionSet()) {
+      return process.getCommandLine();
+    } else {
+      return process
+          .setMemory((int) (this.jvmHeapFactor * containerMemory))
+          .getCommandLine();
     }
   }
 }

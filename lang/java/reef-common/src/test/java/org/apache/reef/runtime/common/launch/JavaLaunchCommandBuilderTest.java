@@ -104,23 +104,6 @@ public final class JavaLaunchCommandBuilderTest {
   }
 
   @Test
-  public void testSetDefaultMemory() {
-    final List<String> command = newBuilder()
-        .setDefaultMemory(500)
-        .build();
-    assertMemoryOption(command, "500m");
-  }
-
-  @Test
-  public void testOverrideDefaultMemory() {
-    final List<String> command = newBuilder()
-        .setDefaultMemory(500)
-        .setMemory(300)
-        .build();
-    assertMemoryOption(command, "300m");
-  }
-
-  @Test
   public void testAddMemoryOption() {
     final List<String> command = newBuilder()
         .addOption("-Xmx900m")
