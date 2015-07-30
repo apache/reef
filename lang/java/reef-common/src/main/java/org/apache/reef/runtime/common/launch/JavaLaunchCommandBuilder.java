@@ -36,7 +36,7 @@ public final class JavaLaunchCommandBuilder implements LaunchCommandBuilder {
   private static final Logger LOG = Logger.getLogger(JavaLaunchCommandBuilder.class.getName());
 
   private static final String DEFAULT_JAVA_PATH = System.getenv("JAVA_HOME") + "/bin/" + "java";
-  private static final String[] defaultOptions = {"-XX:PermSize=128m", "-XX:MaxPermSize=128m"};
+  private static final String[] DEFAULT_OPTIONS = {"-XX:PermSize=128m", "-XX:MaxPermSize=128m"};
   private String stderrPath = null;
   private String stdoutPath = null;
   private String evaluatorConfigurationPath = null;
@@ -49,7 +49,7 @@ public final class JavaLaunchCommandBuilder implements LaunchCommandBuilder {
    * Constructor that populates default options.
    */
   public JavaLaunchCommandBuilder() {
-    for (final String defaultOption : defaultOptions) {
+    for (final String defaultOption : DEFAULT_OPTIONS) {
       addOption(defaultOption);
     }
   }
@@ -216,7 +216,7 @@ public final class JavaLaunchCommandBuilder implements LaunchCommandBuilder {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
       if (this == o) {
         return true;
       }
