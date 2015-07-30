@@ -317,6 +317,14 @@ public class CommunicationGroupDriverImpl implements CommunicationGroupDriver {
     LOG.fine(getQualifiedName() + "Got failed Task: " + id);
     synchronized (yetToRunLock) {
       LOG.finest(getQualifiedName() + "Acquired yetToRunLock");
+      // maybe the task does not belong to this communication group.
+      // if it doesn't, we return, it should belong to other group
+      // which will handle its failure
+      if (!perTaskState.containsKey(id)) {
+        LOG.fine(getQualifiedName()
+            + " does not have this task, another communicationGroup must have it");
+        return;
+      }
       while (cantFailTask(id)) {
         LOG.finest(getQualifiedName() + "Need to wait for it run");
         try {
