@@ -22,10 +22,7 @@ import org.apache.reef.annotations.Provided;
 import org.apache.reef.annotations.audience.ClientSide;
 import org.apache.reef.annotations.audience.Public;
 import org.apache.reef.driver.context.ActiveContext;
-import org.apache.reef.driver.parameters.DriverRestartCompletedHandlers;
-import org.apache.reef.driver.parameters.DriverRestartContextActiveHandlers;
-import org.apache.reef.driver.parameters.DriverRestartHandler;
-import org.apache.reef.driver.parameters.DriverRestartTaskRunningHandlers;
+import org.apache.reef.driver.parameters.*;
 import org.apache.reef.driver.task.RunningTask;
 import org.apache.reef.runtime.common.DriverRestartCompleted;
 import org.apache.reef.tang.formats.ConfigurationModule;
@@ -63,7 +60,15 @@ public final class DriverRestartConfiguration extends ConfigurationModuleBuilder
   public static final OptionalImpl<EventHandler<DriverRestartCompleted>> ON_DRIVER_RESTART_COMPLETED =
       new OptionalImpl<>();
 
+  /**
+   * Parameter to determine whether the driver should fail or continue if there are evaluator
+   * preservation log failures. Defaults to false.
+   */
+  public static final OptionalImpl<Boolean> FAIL_DRIVER_ON_EVALUATOR_LOG_ERROR =
+      new OptionalImpl<>();
+
   public static final ConfigurationModule CONF = new DriverRestartConfiguration()
+      .bindNamedParameter(FailDriverOnEvaluatorLogErrors.class, FAIL_DRIVER_ON_EVALUATOR_LOG_ERROR)
       .bindSetEntry(DriverRestartHandler.class, ON_DRIVER_RESTARTED)
       .bindSetEntry(DriverRestartTaskRunningHandlers.class, ON_DRIVER_RESTART_TASK_RUNNING)
       .bindSetEntry(DriverRestartContextActiveHandlers.class, ON_DRIVER_RESTART_CONTEXT_ACTIVE)

@@ -21,9 +21,13 @@ package org.apache.reef.runtime.yarn.driver;
 import org.apache.reef.annotations.Provided;
 import org.apache.reef.annotations.audience.ClientSide;
 import org.apache.reef.annotations.audience.Public;
+import org.apache.reef.driver.restart.DriverRestartManager;
 import org.apache.reef.runtime.common.driver.DriverRuntimeRestartConfiguration;
+import org.apache.reef.runtime.common.driver.EvaluatorPreserver;
+import org.apache.reef.runtime.yarn.driver.parameters.YarnEvaluatorPreserver;
 import org.apache.reef.tang.formats.ConfigurationModule;
 import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
+import org.apache.reef.tang.formats.OptionalImpl;
 
 /**
  * Use this ConfigurationModule to configure YARN-specific Restart options for the driver.
@@ -34,10 +38,16 @@ import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
 @Provided
 public final class YarnDriverRestartConfiguration extends ConfigurationModuleBuilder {
   /**
+   * The Evaluator Preserver implementation used for YARN. Defaults to DFSEvalutorPreserver.
+   */
+  public static final OptionalImpl<EvaluatorPreserver> EVALUATOR_PRESERVER = new OptionalImpl<>();
+
+  /**
    * This event is fired in place of the ON_DRIVER_STARTED when the Driver is in fact restarted after failure.
    */
-    // TODO: Bind runtime-specific restart logic for REEF-483.
   public static final ConfigurationModule CONF = new YarnDriverRestartConfiguration()
+      .bindNamedParameter(YarnEvaluatorPreserver.class, EVALUATOR_PRESERVER)
+      .bindImplementation(DriverRestartManager.class, YarnDriverRestartManager.class)
       .merge(DriverRuntimeRestartConfiguration.CONF)
       .build();
 }
