@@ -18,7 +18,7 @@
  */
 package org.apache.reef.runtime.yarn.driver;
 
-import org.apache.reef.wake.EventHandler;
+import org.apache.reef.runtime.common.driver.api.ResourceManagerStartHandler;
 import org.apache.reef.wake.time.runtime.event.RuntimeStart;
 
 import javax.inject.Inject;
@@ -26,7 +26,7 @@ import javax.inject.Inject;
 /**
  * Handler of RuntimeStart for the YARN Runtime.
  */
-public final class YARNRuntimeStartHandler implements EventHandler<RuntimeStart> {
+public final class YARNRuntimeStartHandler implements ResourceManagerStartHandler {
 
   private final YarnContainerManager yarnContainerManager;
 

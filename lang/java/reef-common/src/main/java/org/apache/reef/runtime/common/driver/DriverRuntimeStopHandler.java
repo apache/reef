@@ -20,6 +20,7 @@ package org.apache.reef.runtime.common.driver;
 
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
+import org.apache.reef.runtime.common.driver.api.ResourceManagerStopHandler;
 import org.apache.reef.runtime.common.driver.evaluator.Evaluators;
 import org.apache.reef.runtime.common.utils.RemoteManager;
 import org.apache.reef.util.Optional;
@@ -40,14 +41,17 @@ final class DriverRuntimeStopHandler implements EventHandler<RuntimeStop> {
   private static final Logger LOG = Logger.getLogger(DriverRuntimeStopHandler.class.getName());
 
   private final DriverStatusManager driverStatusManager;
+  private final ResourceManagerStopHandler resourceManagerStopHandler;
   private final RemoteManager remoteManager;
   private final Evaluators evaluators;
 
   @Inject
   DriverRuntimeStopHandler(final DriverStatusManager driverStatusManager,
+                           final ResourceManagerStopHandler resourceManagerStopHandler,
                            final RemoteManager remoteManager,
                            final Evaluators evaluators) {
     this.driverStatusManager = driverStatusManager;
+    this.resourceManagerStopHandler = resourceManagerStopHandler;
     this.remoteManager = remoteManager;
     this.evaluators = evaluators;
   }
@@ -57,6 +61,7 @@ final class DriverRuntimeStopHandler implements EventHandler<RuntimeStop> {
     LOG.log(Level.FINEST, "RuntimeStop: {0}", runtimeStop);
     // Shutdown the Evaluators.
     this.evaluators.close();
+    this.resourceManagerStopHandler.onNext(runtimeStop);
     // Inform the client of the shutdown.
     final Optional<Throwable> exception = Optional.<Throwable>ofNullable(runtimeStop.getException());
     this.driverStatusManager.sendJobEndingMessageToClient(exception);
