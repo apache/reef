@@ -64,6 +64,13 @@ public interface Clock extends Runnable, AutoCloseable {
   void stop();
 
   /**
+   * This stops the clock immediately, without waiting for
+   * client alarms to finish. Stops with an exception that
+   * is propagated to RuntimeStopHandlers.
+   */
+  void stop(final Throwable exception);
+
+  /**
    * Clock is idle if it has no future Alarms set.
    *
    * @return true if idle, otherwise false

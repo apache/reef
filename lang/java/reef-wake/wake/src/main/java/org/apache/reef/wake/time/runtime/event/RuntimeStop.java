@@ -20,21 +20,20 @@ package org.apache.reef.wake.time.runtime.event;
 
 import org.apache.reef.wake.time.Time;
 
-
 public class RuntimeStop extends Time {
 
-  private final Exception exception;
+  private final Throwable exception;
 
   public RuntimeStop(final long timestamp) {
     this(timestamp, null);
   }
 
-  public RuntimeStop(final long timestamp, final Exception exception) {
+  public RuntimeStop(final long timestamp, final Throwable exception) {
     super(timestamp);
     this.exception = exception;
   }
 
-  public final Exception getException() {
+  public final Throwable getException() {
     return this.exception;
   }
 }
