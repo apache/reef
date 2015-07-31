@@ -1,4 +1,4 @@
-/*
+/**
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -16,23 +16,24 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.runtime.mesos.driver;
+package org.apache.reef.runtime.local.driver;
 
-import org.apache.reef.runtime.common.driver.api.ResourceManagerStartHandler;
-import org.apache.reef.wake.time.runtime.event.RuntimeStart;
+import org.apache.reef.runtime.common.driver.api.ResourceManagerStopHandler;
+import org.apache.reef.wake.time.runtime.event.RuntimeStop;
 
 import javax.inject.Inject;
 
-final class MesosRuntimeStartHandler implements ResourceManagerStartHandler {
-  private final REEFScheduler reefScheduler;
+final class LocalResourceManagerStopHandler implements ResourceManagerStopHandler {
+
+  private final ContainerManager containerManager;
 
   @Inject
-  MesosRuntimeStartHandler(final REEFScheduler reefScheduler) {
-    this.reefScheduler = reefScheduler;
+  public LocalResourceManagerStopHandler(final ContainerManager containerManager) {
+    this.containerManager = containerManager;
   }
 
   @Override
-  public void onNext(final RuntimeStart runtimeStart){
-    this.reefScheduler.onStart();
+  public void onNext(final RuntimeStop value) {
+    containerManager.close();
   }
 }

@@ -21,9 +21,7 @@ package org.apache.reef.runtime.mesos.driver;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.reef.io.TempFileCreator;
 import org.apache.reef.io.WorkingDirectoryTempFileCreator;
-import org.apache.reef.runtime.common.driver.api.ResourceLaunchHandler;
-import org.apache.reef.runtime.common.driver.api.ResourceReleaseHandler;
-import org.apache.reef.runtime.common.driver.api.ResourceRequestHandler;
+import org.apache.reef.runtime.common.driver.api.*;
 import org.apache.reef.runtime.common.driver.parameters.ClientRemoteIdentifier;
 import org.apache.reef.runtime.common.driver.parameters.EvaluatorTimeout;
 import org.apache.reef.runtime.common.driver.parameters.JobIdentifier;
@@ -41,7 +39,6 @@ import org.apache.reef.tang.formats.RequiredParameter;
 import org.apache.reef.wake.EStage;
 import org.apache.reef.wake.StageConfiguration;
 import org.apache.reef.wake.impl.SingleThreadStage;
-import org.apache.reef.wake.time.Clock;
 
 /**
  * Binds Driver's runtime event handlers.
@@ -81,8 +78,8 @@ public final class MesosDriverConfiguration extends ConfigurationModuleBuilder {
       .bindImplementation(ResourceLaunchHandler.class, MesosResourceLaunchHandler.class)
       .bindImplementation(ResourceReleaseHandler.class, MesosResourceReleaseHandler.class)
       .bindImplementation(ResourceRequestHandler.class, MesosResourceRequestHandler.class)
-      .bindSetEntry(Clock.RuntimeStartHandler.class, MesosRuntimeStartHandler.class)
-      .bindSetEntry(Clock.RuntimeStopHandler.class, MesosRuntimeStopHandler.class)
+      .bindImplementation(ResourceManagerStartHandler.class, MesosRuntimeStartHandler.class)
+      .bindImplementation(ResourceManagerStopHandler.class, MesosRuntimeStopHandler.class)
       .bindImplementation(TempFileCreator.class, WorkingDirectoryTempFileCreator.class)
 
       .bindNamedParameter(MesosMasterIp.class, MESOS_MASTER_IP)
