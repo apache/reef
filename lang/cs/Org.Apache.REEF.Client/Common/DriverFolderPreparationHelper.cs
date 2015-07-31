@@ -38,6 +38,12 @@ namespace Org.Apache.REEF.Client.Common
     {
         private const string DLLFileNameExtension = ".dll";
         private const string EXEFileNameExtension = ".exe";
+        private const string ClientJarResourceName = "reef_bridge_client";
+        private const string ClientJarFileNameResourceName = "ClientJarFullName";
+        private const string DriverJarResourceName = "reef_bridge_driver";
+        private const string DriveJarFileNameResourceName = "DriverJarFullName";
+        
+
         private static readonly Logger Logger = Logger.GetLogger(typeof(DriverFolderPreparationHelper));
         private readonly AvroConfigurationSerializer _configurationSerializer;
         private readonly REEFFileNames _fileNames;
@@ -116,6 +122,15 @@ namespace Org.Apache.REEF.Client.Common
         /// </summary>
         private void AddAssemblies()
         {
+            var resourceHelper = new ResourceHelper(typeof(DriverFolderPreparationHelper).Assembly);
+            var clientJarBytes = resourceHelper.GetBytes(ClientJarResourceName);
+            var clientJarFileName = resourceHelper.GetString(ClientJarFileNameResourceName);
+            var driverJarBytes = resourceHelper.GetBytes(DriverJarResourceName);
+            var driverJarFileName = resourceHelper.GetString(DriveJarFileNameResourceName);
+
+            File.WriteAllBytes(clientJarFileName, clientJarBytes);
+            File.WriteAllBytes(driverJarFileName, driverJarBytes);
+
             // TODO: Be more precise, e.g. copy the JAR only to the driver.
             var assemblies = Directory.GetFiles(@".\").Where(IsAssemblyToCopy);
             _fileSets.AddToGlobalFiles(assemblies);
