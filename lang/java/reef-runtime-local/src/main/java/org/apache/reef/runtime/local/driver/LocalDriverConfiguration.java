@@ -18,9 +18,7 @@
  */
 package org.apache.reef.runtime.local.driver;
 
-import org.apache.reef.runtime.common.driver.api.ResourceLaunchHandler;
-import org.apache.reef.runtime.common.driver.api.ResourceReleaseHandler;
-import org.apache.reef.runtime.common.driver.api.ResourceRequestHandler;
+import org.apache.reef.runtime.common.driver.api.*;
 import org.apache.reef.runtime.common.driver.parameters.ClientRemoteIdentifier;
 import org.apache.reef.runtime.common.driver.parameters.JobIdentifier;
 import org.apache.reef.runtime.common.files.RuntimeClasspathProvider;
@@ -73,6 +71,8 @@ public class LocalDriverConfiguration extends ConfigurationModuleBuilder {
       .bindImplementation(ResourceLaunchHandler.class, LocalResourceLaunchHandler.class)
       .bindImplementation(ResourceRequestHandler.class, LocalResourceRequestHandler.class)
       .bindImplementation(ResourceReleaseHandler.class, LocalResourceReleaseHandler.class)
+      .bindImplementation(ResourceManagerStartHandler.class, LocalResourceManagerStartHandler.class)
+      .bindImplementation(ResourceManagerStopHandler.class, LocalResourceManagerStopHandler.class)
       .bindNamedParameter(ClientRemoteIdentifier.class, CLIENT_REMOTE_IDENTIFIER)
       .bindNamedParameter(ErrorHandlerRID.class, CLIENT_REMOTE_IDENTIFIER)
       .bindNamedParameter(JobIdentifier.class, JOB_IDENTIFIER)

@@ -18,7 +18,7 @@
  */
 package org.apache.reef.runtime.yarn.driver;
 
-import org.apache.reef.wake.EventHandler;
+import org.apache.reef.runtime.common.driver.api.ResourceManagerStopHandler;
 import org.apache.reef.wake.time.runtime.event.RuntimeStop;
 
 import javax.inject.Inject;
@@ -26,7 +26,7 @@ import javax.inject.Inject;
 /**
  * Shuts down the YARN resource manager.
  */
-public final class YARNRuntimeStopHandler implements EventHandler<RuntimeStop> {
+public final class YARNRuntimeStopHandler implements ResourceManagerStopHandler {
 
   private final YarnContainerManager yarnContainerManager;
 
