@@ -19,8 +19,11 @@
 
 
 using System;
+using System.Collections;
 using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Resources;
 using Org.Apache.REEF.Client.API;
 using Org.Apache.REEF.Common;
 using Org.Apache.REEF.Common.Files;
@@ -116,6 +119,18 @@ namespace Org.Apache.REEF.Client.Common
         /// </summary>
         private void AddAssemblies()
         {
+            Assembly assembly = typeof(DriverFolderPreparationHelper).Assembly;
+            String[] names = assembly.GetManifestResourceNames();
+            ResourceSet resourceSet = new ResourceSet(assembly.GetManifestResourceStream(names[0]));
+
+            var clientJarBytes = resourceSet.GetObject("reef_bridge_client") as byte[];
+            var clientJarFileName = resourceSet.GetObject("ClientJarFullName") as string;
+            var driverJarBytes = resourceSet.GetObject("reef_bridge_driver") as byte[];
+            var driverJarFileName = resourceSet.GetObject("DriverJarFullName") as string;
+
+            File.WriteAllBytes(clientJarFileName, clientJarBytes);
+            File.WriteAllBytes(driverJarFileName, driverJarBytes);
+
             // TODO: Be more precise, e.g. copy the JAR only to the driver.
             var assemblies = Directory.GetFiles(@".\").Where(IsAssemblyToCopy);
             _fileSets.AddToGlobalFiles(assemblies);
