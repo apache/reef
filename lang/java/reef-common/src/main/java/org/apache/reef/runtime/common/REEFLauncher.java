@@ -22,6 +22,7 @@ import org.apache.reef.runtime.common.evaluator.PIDStoreStartHandler;
 import org.apache.reef.runtime.common.launch.ProfilingStopHandler;
 import org.apache.reef.runtime.common.launch.REEFErrorHandler;
 import org.apache.reef.runtime.common.launch.REEFMessageCodec;
+import org.apache.reef.runtime.common.launch.REEFUncaughtExceptionHandler;
 import org.apache.reef.runtime.common.launch.parameters.ClockConfigurationPath;
 import org.apache.reef.tang.*;
 import org.apache.reef.tang.annotations.Name;
@@ -162,6 +163,8 @@ public final class REEFLauncher {
     }
 
     final REEFLauncher launcher = getREEFLauncher(args[0]);
+
+    Thread.setDefaultUncaughtExceptionHandler(new REEFUncaughtExceptionHandler(launcher.clockConfig));
     launcher.logVersion();
 
     try (final Clock clock = launcher.getClockFromConfig()) {
