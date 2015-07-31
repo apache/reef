@@ -41,10 +41,6 @@ import org.apache.reef.util.Optional;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.remote.RemoteMessage;
 import org.apache.reef.wake.remote.address.LocalAddressProvider;
-import org.apache.reef.wake.time.Time;
-import org.apache.reef.wake.time.runtime.RuntimeClock;
-import org.apache.reef.wake.time.runtime.event.RuntimeStart;
-import org.apache.reef.wake.time.runtime.event.RuntimeStop;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -109,7 +105,6 @@ final class ContainerManager implements AutoCloseable {
   @Inject
   ContainerManager(
       final RemoteManager remoteManager,
-      final RuntimeClock clock,
       final REEFFileNames fileNames,
       @Parameter(MaxNumberOfEvaluators.class) final int capacity,
       @Parameter(RootFolder.class) final String rootFolderName,
@@ -142,24 +137,6 @@ final class ContainerManager implements AutoCloseable {
             release(error.getId());
           }
         });
-    clock.registerEventHandler(RuntimeStart.class, new EventHandler<Time>() {
-      @Override
-      public void onNext(final Time value) {
-        synchronized (ContainerManager.this) {
-          ContainerManager.this.sendNodeDescriptors();
-        }
-      }
-    });
-
-    clock.registerEventHandler(RuntimeStop.class, new EventHandler<Time>() {
-      @Override
-      public void onNext(final Time value) {
-        synchronized (ContainerManager.this) {
-          LOG.log(Level.FINEST, "RuntimeStop: close the container manager");
-          ContainerManager.this.close();
-        }
-      }
-    });
 
     init();
 
@@ -218,6 +195,9 @@ final class ContainerManager implements AutoCloseable {
     }
   }
 
+  public void startContainerManager() {
+    sendNodeDescriptors();
+  }
 
   private void sendNodeDescriptors() {
     final IDMaker idmaker = new IDMaker("Node-");

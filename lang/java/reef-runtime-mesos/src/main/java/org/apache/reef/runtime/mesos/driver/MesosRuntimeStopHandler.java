@@ -18,12 +18,12 @@
  */
 package org.apache.reef.runtime.mesos.driver;
 
-import org.apache.reef.wake.EventHandler;
+import org.apache.reef.runtime.common.driver.api.ResourceManagerStopHandler;
 import org.apache.reef.wake.time.runtime.event.RuntimeStop;
 
 import javax.inject.Inject;
 
-final class MesosRuntimeStopHandler implements EventHandler<RuntimeStop> {
+final class MesosRuntimeStopHandler implements ResourceManagerStopHandler {
   private final REEFScheduler reefScheduler;
 
   @Inject

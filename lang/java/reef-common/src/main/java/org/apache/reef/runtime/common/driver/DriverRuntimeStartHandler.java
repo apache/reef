@@ -20,6 +20,7 @@ package org.apache.reef.runtime.common.driver;
 
 import org.apache.reef.proto.EvaluatorRuntimeProtocol;
 import org.apache.reef.proto.ReefServiceProtos;
+import org.apache.reef.runtime.common.driver.api.ResourceManagerStartHandler;
 import org.apache.reef.runtime.common.driver.evaluator.EvaluatorHeartbeatHandler;
 import org.apache.reef.runtime.common.driver.evaluator.EvaluatorResourceManagerErrorHandler;
 import org.apache.reef.runtime.common.driver.resourcemanager.ResourceManagerStatus;
@@ -43,6 +44,7 @@ final class DriverRuntimeStartHandler implements EventHandler<RuntimeStart> {
   private final EvaluatorResourceManagerErrorHandler evaluatorResourceManagerErrorHandler;
   private final EvaluatorHeartbeatHandler evaluatorHeartbeatHandler;
   private final ResourceManagerStatus resourceManagerStatus;
+  private final ResourceManagerStartHandler resourceManagerStartHandler;
   private final DriverStatusManager driverStatusManager;
 
   /**
@@ -50,6 +52,7 @@ final class DriverRuntimeStartHandler implements EventHandler<RuntimeStart> {
    * @param remoteManager                        the remoteManager in the Driver.
    * @param evaluatorResourceManagerErrorHandler This will be wired up to the remoteManager on onNext()
    * @param evaluatorHeartbeatHandler            This will be wired up to the remoteManager on onNext()
+   * @param resourceManagerStartHandler          This will initialize the resource manager
    * @param resourceManagerStatus                will be set to RUNNING in onNext()
    * @param driverStatusManager                  will be set to RUNNING in onNext()
    */
@@ -59,11 +62,13 @@ final class DriverRuntimeStartHandler implements EventHandler<RuntimeStart> {
                             final EvaluatorResourceManagerErrorHandler evaluatorResourceManagerErrorHandler,
                             final EvaluatorHeartbeatHandler evaluatorHeartbeatHandler,
                             final ResourceManagerStatus resourceManagerStatus,
+                            final ResourceManagerStartHandler resourceManagerStartHandler,
                             final DriverStatusManager driverStatusManager) {
     this.remoteManager = remoteManager;
     this.evaluatorResourceManagerErrorHandler = evaluatorResourceManagerErrorHandler;
     this.evaluatorHeartbeatHandler = evaluatorHeartbeatHandler;
     this.resourceManagerStatus = resourceManagerStatus;
+    this.resourceManagerStartHandler = resourceManagerStartHandler;
     this.driverStatusManager = driverStatusManager;
   }
 
@@ -76,6 +81,7 @@ final class DriverRuntimeStartHandler implements EventHandler<RuntimeStart> {
     this.remoteManager.registerHandler(ReefServiceProtos.RuntimeErrorProto.class, evaluatorResourceManagerErrorHandler);
     this.resourceManagerStatus.setRunning();
     this.driverStatusManager.onRunning();
+    this.resourceManagerStartHandler.onNext(runtimeStart);
     LOG.log(Level.FINEST, "DriverRuntimeStartHandler complete.");
   }
 }

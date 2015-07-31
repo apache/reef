@@ -21,9 +21,7 @@ package org.apache.reef.runtime.yarn.driver;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.reef.io.TempFileCreator;
 import org.apache.reef.io.WorkingDirectoryTempFileCreator;
-import org.apache.reef.runtime.common.driver.api.ResourceLaunchHandler;
-import org.apache.reef.runtime.common.driver.api.ResourceReleaseHandler;
-import org.apache.reef.runtime.common.driver.api.ResourceRequestHandler;
+import org.apache.reef.runtime.common.driver.api.*;
 import org.apache.reef.runtime.common.driver.parameters.ClientRemoteIdentifier;
 import org.apache.reef.runtime.common.driver.parameters.EvaluatorTimeout;
 import org.apache.reef.runtime.common.driver.parameters.JobIdentifier;
@@ -39,7 +37,6 @@ import org.apache.reef.tang.formats.ConfigurationModule;
 import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
 import org.apache.reef.tang.formats.OptionalParameter;
 import org.apache.reef.tang.formats.RequiredParameter;
-import org.apache.reef.wake.time.Clock;
 
 /**
  * Created by marku_000 on 2014-07-07.
@@ -80,9 +77,9 @@ public class YarnDriverConfiguration extends ConfigurationModuleBuilder {
       .bindImplementation(ResourceLaunchHandler.class, YARNResourceLaunchHandler.class)
       .bindImplementation(ResourceReleaseHandler.class, YARNResourceReleaseHandler.class)
       .bindImplementation(ResourceRequestHandler.class, YarnResourceRequestHandler.class)
+      .bindImplementation(ResourceManagerStartHandler.class, YARNRuntimeStartHandler.class)
+      .bindImplementation(ResourceManagerStopHandler.class, YARNRuntimeStopHandler.class)
       .bindConstructor(YarnConfiguration.class, YarnConfigurationConstructor.class)
-      .bindSetEntry(Clock.RuntimeStartHandler.class, YARNRuntimeStartHandler.class)
-      .bindSetEntry(Clock.RuntimeStopHandler.class, YARNRuntimeStopHandler.class)
       .bindImplementation(TempFileCreator.class, WorkingDirectoryTempFileCreator.class)
 
           // Bind the YARN Configuration parameters
