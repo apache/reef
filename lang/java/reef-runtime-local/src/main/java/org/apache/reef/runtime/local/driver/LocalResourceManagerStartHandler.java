@@ -28,12 +28,12 @@ final class LocalResourceManagerStartHandler implements ResourceManagerStartHand
   private final ContainerManager containerManager;
 
   @Inject
-  public LocalResourceManagerStartHandler(final ContainerManager containerManager) {
+  private LocalResourceManagerStartHandler(final ContainerManager containerManager) {
     this.containerManager = containerManager;
   }
 
   @Override
-   public void onNext(final RuntimeStart value) {
-    containerManager.startContainerManager();
+  public void onNext(final RuntimeStart value) {
+    this.containerManager.startContainerManager();
   }
 }

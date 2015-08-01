@@ -28,12 +28,12 @@ final class LocalResourceManagerStopHandler implements ResourceManagerStopHandle
   private final ContainerManager containerManager;
 
   @Inject
-  public LocalResourceManagerStopHandler(final ContainerManager containerManager) {
+  private LocalResourceManagerStopHandler(final ContainerManager containerManager) {
     this.containerManager = containerManager;
   }
 
   @Override
   public void onNext(final RuntimeStop value) {
-    containerManager.close();
+    this.containerManager.close();
   }
 }

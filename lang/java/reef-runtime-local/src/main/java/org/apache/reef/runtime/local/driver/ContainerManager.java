@@ -195,7 +195,7 @@ final class ContainerManager implements AutoCloseable {
     }
   }
 
-  public void startContainerManager() {
+  void startContainerManager() {
     sendNodeDescriptors();
   }
 
