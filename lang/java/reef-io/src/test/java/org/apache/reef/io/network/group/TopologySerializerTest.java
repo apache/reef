@@ -51,8 +51,8 @@ public class TopologySerializerTest {
         TopologySerializer.decode(TopologySerializer.encode(rootNode), ifac);
 
     // check topology is recovered
-    assertEquals(retPair.first.getTaskId(), "Task-0");
-    for (final TopologySimpleNode child : retPair.first.getChildren()) {
+    assertEquals(retPair.getFirst().getTaskId(), "Task-0");
+    for (final TopologySimpleNode child : retPair.getFirst().getChildren()) {
       if (child.getTaskId().equals("Task-1")) {
         for (final TopologySimpleNode childchild : child.getChildren()) {
           assertEquals(childchild.getTaskId(), "Task-3");
@@ -63,10 +63,10 @@ public class TopologySerializerTest {
     }
 
     // check identifier list contains [Task-0, Task-1, Task-2, Task-3] and nothing else
-    assertTrue(retPair.second.contains(ifac.getNewInstance("Task-0")));
-    assertTrue(retPair.second.contains(ifac.getNewInstance("Task-1")));
-    assertTrue(retPair.second.contains(ifac.getNewInstance("Task-2")));
-    assertTrue(retPair.second.contains(ifac.getNewInstance("Task-3")));
-    assertEquals(retPair.second.size(), 4);
+    assertTrue(retPair.getSecond().contains(ifac.getNewInstance("Task-0")));
+    assertTrue(retPair.getSecond().contains(ifac.getNewInstance("Task-1")));
+    assertTrue(retPair.getSecond().contains(ifac.getNewInstance("Task-2")));
+    assertTrue(retPair.getSecond().contains(ifac.getNewInstance("Task-3")));
+    assertEquals(retPair.getSecond().size(), 4);
   }
 }

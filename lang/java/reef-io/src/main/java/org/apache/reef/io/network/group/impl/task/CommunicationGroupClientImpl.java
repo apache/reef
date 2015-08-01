@@ -347,9 +347,9 @@ public class CommunicationGroupClientImpl implements CommunicationGroupServiceCl
     final Pair<TopologySimpleNode, List<Identifier>> pair =
         TopologySerializer.decode(msg.getData()[0], identifierFactory);
 
-    topologySimpleNodeRoot = pair.first;
+    topologySimpleNodeRoot = pair.getFirst();
 
-    activeSlaveTasks = pair.second;
+    activeSlaveTasks = pair.getSecond();
     // remove myself
     activeSlaveTasks.remove(identifierFactory.getNewInstance(taskId));
     // sort the tasks in lexicographical order on task ids
