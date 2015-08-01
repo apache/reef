@@ -28,7 +28,7 @@ import org.apache.reef.wake.IdentifierFactory;
 import javax.inject.Inject;
 /**
  * TaskStop event handler for unregistering NetworkConnectionService.
- * Users have to bind this handler into ServiceConfiguration.ON_TASK_STOP.
+ * This class unregisters driverId from network connection service.
  */
 public final class UnbindNetworkConnectionServiceFromTask implements EventHandler<TaskStop> {
 
@@ -36,7 +36,7 @@ public final class UnbindNetworkConnectionServiceFromTask implements EventHandle
   private final IdentifierFactory idFac;
 
   @Inject
-  public UnbindNetworkConnectionServiceFromTask(
+  private UnbindNetworkConnectionServiceFromTask(
       final NetworkConnectionService ncs,
       @Parameter(NetworkConnectionServiceIdFactory.class) final IdentifierFactory idFac) {
     this.ncs = ncs;
