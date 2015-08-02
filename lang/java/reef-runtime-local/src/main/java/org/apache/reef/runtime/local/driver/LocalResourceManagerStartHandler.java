@@ -34,6 +34,6 @@ final class LocalResourceManagerStartHandler implements ResourceManagerStartHand
 
   @Override
   public void onNext(final RuntimeStart value) {
-    this.containerManager.startContainerManager();
+    this.containerManager.start();
   }
 }
