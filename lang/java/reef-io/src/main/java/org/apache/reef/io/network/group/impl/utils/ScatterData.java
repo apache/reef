@@ -25,25 +25,31 @@ import java.util.Map;
  */
 public final class ScatterData {
 
-  /**
-   * Data that is assigned to this node.
-   */
   private final byte[][] myData;
-
-  /**
-   * A map of data that is assigned to this node's chidren.
-   */
   private final Map<String, byte[]> childrenData;
 
+  /**
+   * Create a {@code ScatterData} instance with the given data.
+   */
   public ScatterData(final byte[][] myData, final Map<String, byte[]> childrenData) {
     this.myData = myData;
     this.childrenData = childrenData;
   }
 
+  /**
+   * Returns data that is assigned to this node.
+   *
+   * @return data that is assigned to this node
+   */
   public byte[][] getMyData() {
     return this.myData;
   }
 
+  /**
+   * Returns a map of data that is assigned to this node's children.
+   *
+   * @return a map of data that is assigned to this node's children
+   */
   public Map<String, byte[]> getChildrenData() {
     return this.childrenData;
   }
