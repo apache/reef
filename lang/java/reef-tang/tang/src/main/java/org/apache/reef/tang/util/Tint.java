@@ -54,13 +54,13 @@ public class Tint {
   private static final String SETTERS = "setters";
   private static final String USES = "uses";
   private static final String FULLNAME = "fullName";
-  final JavaClassHierarchy ch;
-  final Map<Field, ConfigurationModule> modules = new MonotonicHashMap<>();
-  final MonotonicMultiMap<String, String> setters = new MonotonicMultiMap<>();
+  private final JavaClassHierarchy ch;
+  private final Map<Field, ConfigurationModule> modules = new MonotonicHashMap<>();
+  private final MonotonicMultiMap<String, String> setters = new MonotonicMultiMap<>();
   // map from thing that was used to user of the thing.
-  final MonotonicMultiMap<String, String> usages = new MonotonicMultiMap<>();
-  final Set<ClassNode<?>> knownClasses = new MonotonicSet<>();
-  final Set<String> divs = new MonotonicSet<>();
+  private final MonotonicMultiMap<String, String> usages = new MonotonicMultiMap<>();
+  private final Set<ClassNode<?>> knownClasses = new MonotonicSet<>();
+  private final Set<String> divs = new MonotonicSet<>();
 
   {
     divs.add("doc");

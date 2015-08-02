@@ -19,5 +19,5 @@
 package org.apache.reef.tang.examples;
 
 public class A {
-  int iAmAClass = 0;
+  private int iAmAClass = 0;
 }

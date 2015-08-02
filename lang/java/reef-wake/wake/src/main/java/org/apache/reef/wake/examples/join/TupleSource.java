@@ -23,8 +23,8 @@ import org.apache.reef.wake.rx.Observer;
 import org.apache.reef.wake.rx.StaticObservable;
 
 public class TupleSource implements StaticObservable, Stage {
-  final Thread[] threads;
-  final Observer<TupleEvent> out;
+  private final Thread[] threads;
+  private final Observer<TupleEvent> out;
 
   public TupleSource(final Observer<TupleEvent> out, final int max, final int numThreads, final boolean evenOnly) {
     this.out = out;

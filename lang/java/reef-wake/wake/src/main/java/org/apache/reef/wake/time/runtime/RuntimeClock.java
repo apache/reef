@@ -51,6 +51,7 @@ public final class RuntimeClock implements Clock {
   private final InjectionFuture<Set<EventHandler<RuntimeStop>>> runtimeStopHandler;
   private final InjectionFuture<Set<EventHandler<IdleClock>>> idleHandler;
 
+  private Throwable stoppedOnException;
   private boolean closed = false;
 
   @Inject
@@ -71,6 +72,8 @@ public final class RuntimeClock implements Clock {
     this.runtimeStartHandler = runtimeStartHandler;
     this.runtimeStopHandler = runtimeStopHandler;
     this.idleHandler = idleHandler;
+
+    this.stoppedOnException = null;
 
     LOG.log(Level.FINE, "RuntimeClock instantiated.");
   }
@@ -100,12 +103,20 @@ public final class RuntimeClock implements Clock {
 
   @Override
   public void stop() {
+    this.stop(null);
+  }
+
+  @Override
+  public void stop(final Throwable stopOnException) {
     LOG.entering(RuntimeClock.class.getCanonicalName(), "stop");
     synchronized (this.schedule) {
       this.schedule.clear();
       this.schedule.add(new StopTime(timer.getCurrent()));
       this.schedule.notifyAll();
       this.closed = true;
+      if (this.stoppedOnException != null) {
+        this.stoppedOnException = stopOnException;
+      }
     }
     LOG.exiting(RuntimeClock.class.getCanonicalName(), "stop");
   }
@@ -126,7 +137,6 @@ public final class RuntimeClock implements Clock {
     }
     LOG.exiting(RuntimeClock.class.getCanonicalName(), "close");
   }
-
 
   /**
    * Finds an acceptable stop time, which is the

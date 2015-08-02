@@ -22,8 +22,8 @@ import java.util.ArrayList;
 
 public class InteropReturnInfo {
 
-  int returnCode;
-  ArrayList<String> exceptionList = new ArrayList<String>();
+  private int returnCode;
+  private ArrayList<String> exceptionList = new ArrayList<String>();
 
   public void addExceptionString(final String exceptionString) {
     exceptionList.add(exceptionString);

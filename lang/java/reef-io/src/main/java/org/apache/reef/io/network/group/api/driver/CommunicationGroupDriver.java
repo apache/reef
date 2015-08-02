@@ -20,7 +20,9 @@ package org.apache.reef.io.network.group.api.driver;
 
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.io.network.group.impl.config.BroadcastOperatorSpec;
+import org.apache.reef.io.network.group.impl.config.GatherOperatorSpec;
 import org.apache.reef.io.network.group.impl.config.ReduceOperatorSpec;
+import org.apache.reef.io.network.group.impl.config.ScatterOperatorSpec;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.annotations.Name;
 
@@ -54,6 +56,24 @@ public interface CommunicationGroupDriver {
    * @return
    */
   CommunicationGroupDriver addReduce(Class<? extends Name<String>> operatorName, ReduceOperatorSpec spec);
+
+  /**
+   * Add the scatter operator specified by {@code operatorName} and {@code spec}.
+   *
+   * @param operatorName
+   * @param spec
+   * @return
+   */
+  CommunicationGroupDriver addScatter(Class<? extends Name<String>> operatorName, ScatterOperatorSpec spec);
+
+  /**
+   * Add the gather operator specified by {@code operatorName} and {@code spec}.
+   *
+   * @param operatorName
+   * @param spec
+   * @return
+   */
+  CommunicationGroupDriver addGather(Class<? extends Name<String>> operatorName, GatherOperatorSpec spec);
 
   /**
    * This signals to the service that no more.

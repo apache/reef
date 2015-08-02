@@ -135,7 +135,7 @@ public class BroadcastReceiver<T> implements Broadcast.Receiver<T>, EventHandler
     LOG.fine(this + " Waiting to receive broadcast");
     final byte[] data;
     try {
-      data = topology.recvFromParent();
+      data = topology.recvFromParent(ReefNetworkGroupCommProtos.GroupCommMessage.Type.Broadcast);
       // TODO: Should receive the identity element instead of null
       if (data == null) {
         LOG.fine(this + " Received null. Perhaps one of my ancestors is dead.");

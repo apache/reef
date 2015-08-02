@@ -33,7 +33,7 @@ import java.util.Map;
  * Receive HttpRequest so that it can handle the command list.
  */
 final class SchedulerHttpHandler implements HttpHandler {
-  final InjectionFuture<SchedulerDriver> schedulerDriver;
+  private final InjectionFuture<SchedulerDriver> schedulerDriver;
 
   private String uriSpecification = "reef-example-scheduler";
 

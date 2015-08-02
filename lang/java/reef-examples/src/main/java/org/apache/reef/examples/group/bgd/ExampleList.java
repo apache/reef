@@ -62,7 +62,7 @@ public class ExampleList {
     LOG.info("Loading data");
     int i = 0;
     for (final Pair<LongWritable, Text> examplePair : dataSet) {
-      final Example example = parser.parse(examplePair.second.toString());
+      final Example example = parser.parse(examplePair.getSecond().toString());
       examples.add(example);
       if (++i % 2000 == 0) {
         LOG.log(Level.FINE, "Done parsing {0} lines", i);

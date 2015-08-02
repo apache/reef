@@ -217,7 +217,7 @@ public class DataLoader {
         final Pair<Configuration, Configuration> confPair = failedDataEvalConfigs.poll();
         if (confPair != null) {
           LOG.log(Level.FINE, "Satisfying failed configuration for {0}", evalId);
-          allocatedEvaluator.submitContextAndService(confPair.first, confPair.second);
+          allocatedEvaluator.submitContextAndService(confPair.getFirst(), confPair.getSecond());
           submittedDataEvalConfigs.put(evalId, confPair);
           return;
         }
@@ -258,7 +258,7 @@ public class DataLoader {
             dataLoadingService.getServiceConfiguration(allocatedEvaluator));
 
         LOG.log(Level.FINE, "Submitting data loading context to {0}", evalId);
-        allocatedEvaluator.submitContextAndService(confPair.first, confPair.second);
+        allocatedEvaluator.submitContextAndService(confPair.getFirst(), confPair.getSecond());
         submittedDataEvalConfigs.put(allocatedEvaluator.getId(), confPair);
 
         // release the gate to keep on asking for more "data" evaluators.

@@ -36,7 +36,7 @@ import java.util.Map;
 
 public final class CommandLine {
 
-  final Map<Option, CommandLineCallback> applicationOptions = new HashMap<>();
+  private final Map<Option, CommandLineCallback> applicationOptions = new HashMap<>();
   private final ConfigurationBuilder conf;
   private final Map<String, String> shortNames = new MonotonicTreeMap<>();
 

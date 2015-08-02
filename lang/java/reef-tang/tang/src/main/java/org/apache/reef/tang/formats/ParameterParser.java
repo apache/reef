@@ -47,7 +47,7 @@ public class ParameterParser {
           Void.class.getName());
     }
   };
-  MonotonicTreeMap<String, Constructor<? extends ExternalConstructor<?>>> parsers = new MonotonicTreeMap<>();
+  private MonotonicTreeMap<String, Constructor<? extends ExternalConstructor<?>>> parsers = new MonotonicTreeMap<>();
 
   @SuppressWarnings({"unchecked", "rawtypes"})
   public void addParser(final Class<? extends ExternalConstructor<?>> ec) throws BindException {

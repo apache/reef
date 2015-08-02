@@ -128,8 +128,8 @@ public class SlaveTask implements Task {
       case DoLineSearchWithModel:
         failPerhaps();
         final Pair<Vector, Vector> modelAndDescentDir = modelAndDescentDirectionBroadcaster.receive();
-        this.model = modelAndDescentDir.first;
-        this.descentDirection = modelAndDescentDir.second;
+        this.model = modelAndDescentDir.getFirst();
+        this.descentDirection = modelAndDescentDir.getSecond();
         lineSearchEvaluationsReducer.send(lineSearchEvals());
         break;
 

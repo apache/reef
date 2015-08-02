@@ -30,7 +30,9 @@ import org.apache.reef.io.network.group.api.driver.CommunicationGroupDriver;
 import org.apache.reef.io.network.group.api.driver.Topology;
 import org.apache.reef.io.network.group.impl.GroupCommunicationMessage;
 import org.apache.reef.io.network.group.impl.config.BroadcastOperatorSpec;
+import org.apache.reef.io.network.group.impl.config.GatherOperatorSpec;
 import org.apache.reef.io.network.group.impl.config.ReduceOperatorSpec;
+import org.apache.reef.io.network.group.impl.config.ScatterOperatorSpec;
 import org.apache.reef.io.network.group.impl.config.parameters.CommunicationGroupName;
 import org.apache.reef.io.network.group.impl.config.parameters.OperatorName;
 import org.apache.reef.io.network.group.impl.config.parameters.SerializedOperConfigs;
@@ -144,6 +146,42 @@ public class CommunicationGroupDriverImpl implements CommunicationGroupDriver {
     topologies.put(operatorName, topology);
     LOG.exiting("CommunicationGroupDriverImpl", "addReduce",
         Arrays.toString(new Object[]{getQualifiedName(), Utils.simpleName(operatorName), " added"}));
+    return this;
+  }
+
+  @Override
+  public CommunicationGroupDriver addScatter(final Class<? extends Name<String>> operatorName,
+                                             final ScatterOperatorSpec spec) {
+    LOG.entering("CommunicationGroupDriverImpl", "addScatter",
+        new Object[]{getQualifiedName(), Utils.simpleName(operatorName), spec});
+    if (finalised) {
+      throw new IllegalStateException("Can't add more operators to a finalised spec");
+    }
+    operatorSpecs.put(operatorName, spec);
+    final Topology topology = new TreeTopology(senderStage, groupName, operatorName, driverId, numberOfTasks, fanOut);
+    topology.setRootTask(spec.getSenderId());
+    topology.setOperatorSpecification(spec);
+    topologies.put(operatorName, topology);
+    LOG.exiting("CommunicationGroupDriverImpl", "addScatter",
+        Arrays.toString(new Object[]{getQualifiedName(), Utils.simpleName(operatorName), spec}));
+    return this;
+  }
+
+  @Override
+  public CommunicationGroupDriver addGather(final Class<? extends Name<String>> operatorName,
+                                            final GatherOperatorSpec spec) {
+    LOG.entering("CommunicationGroupDriverImpl", "addGather",
+        new Object[]{getQualifiedName(), Utils.simpleName(operatorName), spec});
+    if (finalised) {
+      throw new IllegalStateException("Can't add more operators to a finalised spec");
+    }
+    operatorSpecs.put(operatorName, spec);
+    final Topology topology = new TreeTopology(senderStage, groupName, operatorName, driverId, numberOfTasks, fanOut);
+    topology.setRootTask(spec.getReceiverId());
+    topology.setOperatorSpecification(spec);
+    topologies.put(operatorName, topology);
+    LOG.exiting("CommunicationGroupDriverImpl", "addGather",
+        Arrays.toString(new Object[]{getQualifiedName(), Utils.simpleName(operatorName), spec}));
     return this;
   }
 
@@ -317,6 +355,14 @@ public class CommunicationGroupDriverImpl implements CommunicationGroupDriver {
     LOG.fine(getQualifiedName() + "Got failed Task: " + id);
     synchronized (yetToRunLock) {
       LOG.finest(getQualifiedName() + "Acquired yetToRunLock");
+      // maybe the task does not belong to this communication group.
+      // if it doesn't, we return, it should belong to other group
+      // which will handle its failure
+      if (!perTaskState.containsKey(id)) {
+        LOG.fine(getQualifiedName()
+            + " does not have this task, another communicationGroup must have it");
+        return;
+      }
       while (cantFailTask(id)) {
         LOG.finest(getQualifiedName() + "Need to wait for it run");
         try {

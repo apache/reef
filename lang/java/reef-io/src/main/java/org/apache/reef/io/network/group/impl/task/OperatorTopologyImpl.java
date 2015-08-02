@@ -37,6 +37,7 @@ import org.apache.reef.wake.impl.SingleThreadStage;
 import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -218,11 +219,24 @@ public class OperatorTopologyImpl implements OperatorTopology {
   }
 
   @Override
-  public byte[] recvFromParent() throws ParentDeadException {
+  public void sendToChildren(final Map<String, byte[]> dataMap,
+                             final ReefNetworkGroupCommProtos.GroupCommMessage.Type msgType)
+      throws ParentDeadException {
+    LOG.entering("OperatorTopologyImpl", "sendToChildren", new Object[]{getQualifiedName(), dataMap, msgType});
+    refreshEffectiveTopology();
+    assert (effectiveTopology != null);
+    effectiveTopology.sendToChildren(dataMap, msgType);
+    LOG.exiting("OperatorTopologyImpl", "sendToChildren",
+        Arrays.toString(new Object[]{getQualifiedName(), dataMap, msgType}));
+  }
+
+  @Override
+  public byte[] recvFromParent(final ReefNetworkGroupCommProtos.GroupCommMessage.Type msgType)
+      throws ParentDeadException {
     LOG.entering("OperatorTopologyImpl", "recvFromParent", getQualifiedName());
     refreshEffectiveTopology();
     assert (effectiveTopology != null);
-    final byte[] retVal = effectiveTopology.recvFromParent();
+    final byte[] retVal = effectiveTopology.recvFromParent(msgType);
     LOG.exiting("OperatorTopologyImpl", "recvFromParent", Arrays.toString(new Object[]{getQualifiedName(), retVal}));
     return retVal;
   }
@@ -234,6 +248,16 @@ public class OperatorTopologyImpl implements OperatorTopology {
     refreshEffectiveTopology();
     assert (effectiveTopology != null);
     final T retVal = effectiveTopology.recvFromChildren(redFunc, dataCodec);
+    LOG.exiting("OperatorTopologyImpl", "recvFromChildren", Arrays.toString(new Object[]{getQualifiedName(), retVal}));
+    return retVal;
+  }
+
+  @Override
+  public byte[] recvFromChildren() throws ParentDeadException {
+    LOG.entering("OperatorTopologyImpl", "recvFromChildren", getQualifiedName());
+    refreshEffectiveTopology();
+    assert (effectiveTopology != null);
+    final byte[] retVal = effectiveTopology.recvFromChildren();
     LOG.exiting("OperatorTopologyImpl", "recvFromChildren", Arrays.toString(new Object[]{getQualifiedName(), retVal}));
     return retVal;
   }

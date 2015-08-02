@@ -70,7 +70,7 @@ public class JavaConfigurationBuilderImpl extends ConfigurationBuilderImpl
   }
 
   private Node getNode(final Class<?> c) {
-    return ((JavaClassHierarchy) namespace).getNode(c);
+    return ((JavaClassHierarchy) getClassHierarchy()).getNode(c);
   }
 
   @Override

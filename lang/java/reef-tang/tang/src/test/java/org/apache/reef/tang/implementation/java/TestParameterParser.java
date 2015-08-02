@@ -63,7 +63,7 @@ public class TestParameterParser {
     final ParameterParser p = new ParameterParser();
     p.addParser(BarParser.class);
     final Bar f = (Bar) p.parse(Foo.class, "woot");
-    Assert.assertEquals(f.s, "woot");
+    Assert.assertEquals(f.getS(), "woot");
 
   }
 
@@ -161,7 +161,10 @@ public class TestParameterParser {
   }
 
   private static class Foo {
-    public final String s;
+    private final String s;
+    String getS() {
+      return s;
+    }
 
     public Foo(final String s) {
       this.s = s;
@@ -182,7 +185,7 @@ public class TestParameterParser {
     @Inject
     ILikeBars(@Parameter(SomeNamedFoo.class) final Foo bar) {
       final Bar b = (Bar) bar;
-      Assert.assertEquals(b.s, "hdfs://woot");
+      Assert.assertEquals(b.getS(), "hdfs://woot");
     }
   }
 
@@ -198,7 +201,7 @@ public class TestParameterParser {
   }
 
   private static class TypeParser implements ExternalConstructor<ParseableType> {
-    ParseableType instance;
+    private ParseableType instance;
 
     @Inject
     public TypeParser(final String s) {

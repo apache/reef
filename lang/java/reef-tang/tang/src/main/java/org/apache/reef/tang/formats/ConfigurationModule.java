@@ -42,7 +42,7 @@ import java.util.Set;
  * @see org.apache.reef.tang.formats.TestConfigurationModule for more information and examples.
  */
 public class ConfigurationModule {
-  final ConfigurationModuleBuilder builder;
+  private final ConfigurationModuleBuilder builder;
   // Set of required unset parameters. Must be empty before build.
   private final Set<Field> reqSet = new MonotonicHashSet<>();
   private final Map<Impl<?>, Class<?>> setImpls = new MonotonicHashMap<>();
@@ -236,8 +236,8 @@ public class ConfigurationModule {
   public List<Entry<String, String>> toStringPairs() {
     final List<Entry<String, String>> ret = new ArrayList<>();
     class MyEntry implements Entry<String, String> {
-      final String k;
-      final String v;
+      private final String k;
+      private final String v;
 
       public MyEntry(final String k, final String v) {
         this.k = k;
@@ -299,5 +299,9 @@ public class ConfigurationModule {
       throw new ClassHierarchyException("Detected statically set ConfigurationModule Parameter / Implementation.  " +
           "set() should only be used dynamically.  Use bind...() instead.");
     }
+  }
+
+  public ConfigurationModuleBuilder getBuilder() {
+    return builder;
   }
 }

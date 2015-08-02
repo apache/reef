@@ -157,8 +157,8 @@ public final class FailDriver {
 
   public static final class ExpectedMessage {
 
-    public final transient Class<?> msgClass;
-    public final transient RequiredFlag requiredFlag;
+    private final transient Class<?> msgClass;
+    private final transient RequiredFlag requiredFlag;
     private final transient String repr;
 
     public ExpectedMessage(final Class<?> clazz, final RequiredFlag requiredFlag) {

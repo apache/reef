@@ -18,6 +18,10 @@
  */
 package org.apache.reef.runtime.common.launch;
 
+import org.apache.reef.tang.Configuration;
+import org.apache.reef.tang.Tang;
+import org.apache.reef.tang.exceptions.InjectionException;
+
 import javax.inject.Inject;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -30,38 +34,53 @@ import java.util.logging.Logger;
  * <p/>
  * After sending the exception, this shuts down the JVM, as this JVM is then officially dead.
  */
-final class REEFUncaughtExceptionHandler implements Thread.UncaughtExceptionHandler {
+public final class REEFUncaughtExceptionHandler implements Thread.UncaughtExceptionHandler {
   private static final Logger LOG = Logger.getLogger(REEFUncaughtExceptionHandler.class.getName());
-  private final REEFErrorHandler errorHandler;
+  private final Configuration errorHandlerConfig;
 
+  private REEFErrorHandler errorHandler;
 
   /**
-   * @param errorHandler
+   * @param errorHandlerConfig
    */
   @Inject
-  REEFUncaughtExceptionHandler(final REEFErrorHandler errorHandler) {
-    this.errorHandler = errorHandler;
+  public REEFUncaughtExceptionHandler(final Configuration errorHandlerConfig) {
+    this.errorHandlerConfig = errorHandlerConfig;
+    this.errorHandler = null;
   }
 
   @Override
   public synchronized void uncaughtException(final Thread thread, final Throwable throwable) {
-    final String msg = "Thread " + thread.getName() + " threw an uncaught exception.";
-    LOG.log(Level.SEVERE, msg, throwable);
-    this.errorHandler.onNext(new Exception(msg, throwable));
-    try {
-      this.wait(100);
-    } catch (final InterruptedException e) {
-      // try-catch block used to wait and give process a chance to setup communication with its parent
+    if (this.errorHandler == null) {
+      try {
+        this.errorHandler = Tang.Factory.getTang().newInjector(this.errorHandlerConfig)
+            .getInstance(REEFErrorHandler.class);
+      } catch (InjectionException ie) {
+        LOG.log(Level.WARNING, "Unable to inject error handler.");
+      }
     }
-    this.errorHandler.close();
-    LOG.log(Level.SEVERE, "System.exit(1)");
+
+    final String msg = "Thread " + thread.getName() + " threw an uncaught exception.";
+
+    if (this.errorHandler != null) {
+      LOG.log(Level.SEVERE, msg, throwable);
+      this.errorHandler.onNext(new Exception(msg, throwable));
+      try {
+        this.wait(100);
+      } catch (final InterruptedException e) {
+        // try-catch block used to wait and give process a chance to setup communication with its parent
+      }
+      this.errorHandler.close();
+    }
+
+    LOG.log(Level.SEVERE, msg + " System.exit(1)");
     System.exit(1);
   }
 
   @Override
   public String toString() {
     return "REEFUncaughtExceptionHandler{" +
-        "errorHandler=" + errorHandler +
+        "errorHandler=" + String.valueOf(this.errorHandler) +
         '}';
   }
 }

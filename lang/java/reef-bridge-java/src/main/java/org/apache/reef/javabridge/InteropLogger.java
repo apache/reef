@@ -24,7 +24,7 @@ import java.util.logging.Logger;
 
 public class InteropLogger {
   private static final Logger LOG = Logger.getLogger("InteropLogger");
-  HashMap<Integer, Level> levelHashMap;
+  private HashMap<Integer, Level> levelHashMap;
 
   {
     levelHashMap = new HashMap<Integer, Level>();

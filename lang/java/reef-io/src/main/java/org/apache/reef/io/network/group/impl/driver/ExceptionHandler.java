@@ -30,7 +30,7 @@ import java.util.logging.Logger;
  */
 public class ExceptionHandler implements EventHandler<Exception> {
   private static final Logger LOG = Logger.getLogger(ExceptionHandler.class.getName());
-  List<Exception> exceptions = new ArrayList<>();
+  private List<Exception> exceptions = new ArrayList<>();
 
   @Inject
   public ExceptionHandler() {

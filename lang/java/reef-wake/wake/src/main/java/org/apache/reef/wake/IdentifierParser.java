@@ -40,7 +40,7 @@ public class IdentifierParser implements ExternalConstructor<Identifier> {
     FACTORY = new DefaultIdentifierFactory(map);
   }
 
-  final Identifier id;
+  private final Identifier id;
 
   @Inject
   IdentifierParser(final String s) {

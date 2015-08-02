@@ -160,8 +160,8 @@ public final class HttpServerReefEventHandler implements HttpHandler {
       final ArrayList<String> exits =
           LogParser.getFilteredLinesFromFile(driverStderrFile, LoggingScopeImpl.EXIT_PREFIX, logLevelPrefix,
               LoggingScopeImpl.DURATION);
-      final ArrayList<String> startsStages = LogParser.findStages(starts, LogParser.startIndicators);
-      final ArrayList<String> endStages = LogParser.findStages(exits, LogParser.endIndicators);
+      final ArrayList<String> startsStages = LogParser.findStages(starts, LogParser.START_INDICATORS);
+      final ArrayList<String> endStages = LogParser.findStages(exits, LogParser.END_INDICATORS);
       final ArrayList<String> result = LogParser.mergeStages(startsStages, endStages);
       writeLines(response, result, "Current Stages...");
       break;

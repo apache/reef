@@ -303,6 +303,13 @@ public class TaskNodeImpl implements TaskNode {
     return parent;
   }
 
+  @Override
+  public Iterable<TaskNode> getChildren() {
+    LOG.entering("TaskNodeImpl", "getChildren", getQualifiedName());
+    LOG.exiting("TaskNodeImpl", "getChildren", getQualifiedName() + children);
+    return children;
+  }
+
   private String getQualifiedName() {
     return Utils.simpleName(groupName) + ":" + Utils.simpleName(operName) + ":(" + taskId + "," + getVersion() + ") - ";
   }

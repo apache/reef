@@ -38,7 +38,7 @@ public class ReduceOperatorSpec implements OperatorSpec {
   /**
    * The reduce function to be used for operations that do reduction.
    */
-  public final Class<? extends ReduceFunction> redFuncClass;
+  private final Class<? extends ReduceFunction> redFuncClass;
 
 
   public ReduceOperatorSpec(final String receiverId,

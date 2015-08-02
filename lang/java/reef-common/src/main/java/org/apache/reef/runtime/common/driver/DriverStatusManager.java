@@ -143,7 +143,7 @@ public final class DriverStatusManager {
     } else {
       LOG.log(Level.WARNING, "Shutting down the Driver with an exception: ", exception);
       this.shutdownCause = Optional.of(exception);
-      this.clock.stop();
+      this.clock.stop(exception);
       this.setStatus(DriverStatus.FAILING);
     }
     LOG.exiting(DriverStatusManager.class.getCanonicalName(), "onError", new Object[]{exception});

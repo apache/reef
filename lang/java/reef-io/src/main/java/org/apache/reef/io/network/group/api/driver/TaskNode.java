@@ -38,6 +38,8 @@ public interface TaskNode {
 
   void setParent(TaskNode parent);
 
+  Iterable<TaskNode> getChildren();
+
   void addChild(TaskNode child);
 
   void removeChild(TaskNode taskNode);
