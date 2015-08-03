@@ -18,11 +18,13 @@
  */
 package org.apache.reef.runtime.yarn.driver.restart;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.reef.annotations.Unstable;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.RuntimeAuthor;
+import org.apache.reef.driver.parameters.DriverJobSubmissionDirectory;
 import org.apache.reef.driver.parameters.FailDriverOnEvaluatorLogErrors;
 import org.apache.reef.exception.DriverFatalRuntimeException;
 import org.apache.reef.runtime.common.driver.EvaluatorPreserver;
@@ -59,9 +61,16 @@ public final class DFSEvaluatorPreserver implements EvaluatorPreserver, AutoClos
 
   private boolean writerClosed = false;
 
+  @Inject DFSEvaluatorPreserver(@Parameter(FailDriverOnEvaluatorLogErrors.class)
+                                final boolean failDriverOnEvaluatorLogErrors) {
+    this(failDriverOnEvaluatorLogErrors, "/ReefApplications/" + EvaluatorManager.getJobIdentifier());
+  }
+
   @Inject
   private DFSEvaluatorPreserver(@Parameter(FailDriverOnEvaluatorLogErrors.class)
-                                final boolean failDriverOnEvaluatorLogErrors) {
+                                final boolean failDriverOnEvaluatorLogErrors,
+                                @Parameter(DriverJobSubmissionDirectory.class)
+                                final String jobSubmissionDirectory) {
 
     this.failDriverOnEvaluatorLogErrors = failDriverOnEvaluatorLogErrors;
 
@@ -69,7 +78,7 @@ public final class DFSEvaluatorPreserver implements EvaluatorPreserver, AutoClos
       final org.apache.hadoop.conf.Configuration config = new org.apache.hadoop.conf.Configuration();
       this.fileSystem = FileSystem.get(config);
       this.changeLogLocation =
-          new Path("/ReefApplications/" + EvaluatorManager.getJobIdentifier() + "/evaluatorsChangesLog");
+          new Path(StringUtils.stripEnd(jobSubmissionDirectory, "/") + "/evaluatorsChangesLog");
 
       boolean appendSupported = config.getBoolean("dfs.support.append", false);
 

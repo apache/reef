@@ -23,8 +23,6 @@ import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.annotations.audience.RuntimeAuthor;
 
-import java.util.Set;
-
 /**
  * Classes implementing this interface are in charge of recording evaluator
  * changes as they are allocated as well as recovering Evaluators and
@@ -42,23 +40,14 @@ public interface DriverRestartManager {
   boolean isRestart();
 
   /**
-   * Recovers evaluators on restart.
+   * This function has a few jobs crucial jobs to enable restart:
+   * 1. Recover the list of evaluators that are reported to be alive by the Resource Manager.
+   * 2. Make necessary operations to inform relevant runtime components about evaluators that are alive
+   * with the set of evaluator IDs recovered in step 1.
+   * 3. Make necessary operations to inform relevant runtime components about evaluators that have failed
+   * during the driver restart period.
    */
-  RestartEvaluatorInfo onRestartRecoverEvaluators();
-
-  /**
-   * Makes necessary operations to inform about evaluators that are alive given the set of evaluator IDs of
-   * evaluators that have survived driver restart.
-   * @param evaluatorIds Evaluator IDs of evaluators that have survived driver restart.
-   */
-  void informAboutEvaluatorAlive(final Set<String> evaluatorIds);
-
-  /**
-   * Makes necessary operations to inform about evaluators that have failed given the set of evaluator IDs of
-   * evaluators that have failed during driver restart.
-   * @param evaluatorIds Evaluator IDs of evaluators that have failed during driver restart.
-   */
-  void informAboutEvaluatorFailures(final Set<String> evaluatorIds);
+  void onRestart();
 
   /**
    * Records the evaluators when it is allocated.

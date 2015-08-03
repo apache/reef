@@ -21,7 +21,6 @@ package org.apache.reef.runtime.common.driver;
 import org.apache.reef.driver.parameters.DriverRestartHandler;
 import org.apache.reef.driver.parameters.ServiceDriverRestartedHandlers;
 import org.apache.reef.driver.restart.DriverRestartManager;
-import org.apache.reef.driver.restart.RestartEvaluatorInfo;
 import org.apache.reef.exception.DriverFatalRuntimeException;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.util.Optional;
@@ -103,9 +102,7 @@ public final class DriverStartHandler implements EventHandler<StartTime> {
 
       // This can only be called after calling client restart handlers because REEF.NET
       // JobDriver requires making this call to set up the InterOp handlers.
-      final RestartEvaluatorInfo restartEvaluatorInfo = this.driverRestartManager.get().onRestartRecoverEvaluators();
-      this.driverRestartManager.get().informAboutEvaluatorAlive(restartEvaluatorInfo.getRecoveredEvaluatorIds());
-      this.driverRestartManager.get().informAboutEvaluatorFailures(restartEvaluatorInfo.getFailedEvaluatorIds());
+      this.driverRestartManager.get().onRestart();
     } else {
       throw new DriverFatalRuntimeException("Driver restart happened, but no ON_DRIVER_RESTART handler is bound.");
     }

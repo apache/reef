@@ -29,7 +29,6 @@ import org.apache.reef.runtime.common.driver.DriverStatusManager;
 import org.apache.reef.runtime.common.driver.EvaluatorPreserver;
 import org.apache.reef.runtime.common.driver.resourcemanager.ResourceStatusEventImpl;
 import org.apache.reef.runtime.yarn.driver.parameters.YarnEvaluatorPreserver;
-import org.apache.reef.driver.restart.RestartEvaluatorInfo;
 import org.apache.reef.tang.annotations.Parameter;
 
 import javax.inject.Inject;
@@ -84,7 +83,7 @@ public final class YarnDriverRestartManager implements DriverRestartManager {
   }
 
   @Override
-  public RestartEvaluatorInfo onRestartRecoverEvaluators() {
+  public void onRestart() {
     final Set<String> recoveredEvaluators = new HashSet<>();
     final Set<String> failedEvaluators = new HashSet<>();
 
@@ -128,17 +127,16 @@ public final class YarnDriverRestartManager implements DriverRestartManager {
       }
     }
 
-    return new RestartEvaluatorInfo(recoveredEvaluators, failedEvaluators);
+    this.informAboutEvaluatorAlive(recoveredEvaluators);
+    this.informAboutEvaluatorFailures(failedEvaluators);
   }
 
-  @Override
-  public void informAboutEvaluatorAlive(final Set<String> evaluatorIds) {
+  private void informAboutEvaluatorAlive(final Set<String> evaluatorIds) {
     // We will wait for these evaluators to contact us, so we do not need to record the entire container information.
     this.driverStatusManager.setNumPreviousContainers(evaluatorIds.size());
   }
 
-  @Override
-  public void informAboutEvaluatorFailures(final Set<String> evaluatorIds) {
+  private void informAboutEvaluatorFailures(final Set<String> evaluatorIds) {
     for (String evaluatorId : evaluatorIds) {
       LOG.log(Level.WARNING, "Container [" + evaluatorId +
           "] has failed during driver restart process, FailedEvaluatorHandler will be triggered, but " +
