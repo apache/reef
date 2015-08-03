@@ -47,10 +47,6 @@ public final class REEFFileNames {
   private static final String DRIVER_STDOUT = "driver.stdout";
   private static final String EVALUATOR_STDERR = "evaluator.stderr";
   private static final String EVALUATOR_STDOUT = "evaluator.stdout";
-  @Deprecated
-  private static final String REEF_DRIVER_APPDLL_DIR = "/ReefDriverAppDlls/";
-  @Deprecated
-  private static final String TMP_LOAD_DIR = "/reef/CLRLoadingDirectory";
   private static final String BRIDGE_DLL_NAME = "Org.Apache.REEF.Bridge.dll";
 
 
@@ -219,22 +215,5 @@ public final class REEFFileNames {
    */
   public String getEvaluatorStdoutFileName() {
     return EVALUATOR_STDOUT;
-  }
-
-
-  /**
-   * @return reef driver app dll directory
-   */
-  @Deprecated
-  public String getReefDriverAppDllDir() {
-    return REEF_DRIVER_APPDLL_DIR;
-  }
-
-  /**
-   * @return temp load directory
-   */
-  @Deprecated
-  public String getLoadDir() {
-    return TMP_LOAD_DIR;
   }
 }
