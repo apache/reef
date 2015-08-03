@@ -19,6 +19,7 @@
 
 using System.Linq;
 using Org.Apache.REEF.IMRU.API;
+using Org.Apache.REEF.IO.PartitionedData.Random;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Wake.StreamingCodec.CommonStreamingCodecs;
@@ -39,29 +40,49 @@ namespace Org.Apache.REEF.IMRU.Examples.MapperCount
         }
 
         /// <summary>
+        /// Runs the actual mapper count job
         /// </summary>
         /// <returns>The number of MapFunction instances that are part of the job.</returns>
-        public int Run()
+        public int Run(int numberofMappers)
         {
-            var results = _imruClient.Submit(
-                new IMRUJobDefinitionBuilder()
-                    .SetConfiguration(
-                        IMRUConfiguration<int, int, int>.ConfigurationModule
-                            .Set(IMRUConfiguration<int, int, int>.MapFunction, GenericType<IdentityMapFunction>.Class)
-                            .Set(IMRUConfiguration<int, int, int>.ReduceFunction,
-                                GenericType<IntSumReduceFunction>.Class)
-                            .Set(IMRUConfiguration<int, int, int>.UpdateFunction,
-                                GenericType<MapperCountUpdateFunction>.Class)
-                            .Set(IMRUConfiguration<int, int, int>.MapInputCodec,
-                                GenericType<IntStreamingCodec>.Class)
-                            .Set(IMRUConfiguration<int, int, int>.MapOutputCodec,
-                                GenericType<IntStreamingCodec>.Class)
-                            .Set(IMRUConfiguration<int, int, int>.ResultCodec, GenericType<IntStreamingCodec>.Class)
-                            .Build())
-                    .SetJobName("MapperCount")
-                    .Build()
-                );
-            return results.First();
+            var jobDefinitionBuilder = new IMRUJobDefinitionBuilder();
+
+            jobDefinitionBuilder.MapFunctionConfiguration = IMRUMapConfiguration<int, int>.ConfigurationModule
+                .Set(IMRUMapConfiguration<int, int>.MapFunction, GenericType<IdentityMapFunction>.Class)
+                .Build();
+
+            jobDefinitionBuilder.UpdateFunctionConfiguration =
+                IMRUUpdateConfiguration<int, int, int>.ConfigurationModule
+                    .Set(IMRUUpdateConfiguration<int, int, int>.UpdateFunction,
+                        GenericType<MapperCountUpdateFunction>.Class)
+                    .Build();
+
+            jobDefinitionBuilder.MapInputCodecConfiguration = IMRUGenericTypeCodecConfiguration<int>.ConfigurationModule
+                .Set(IMRUGenericTypeCodecConfiguration<int>.Codec, GenericType<IntStreamingCodec>.Class)
+                .Build();
+
+            jobDefinitionBuilder.UpdateFunctionCodecsConfiguration = IMRUGenericTypeCodecConfiguration<int>.ConfigurationModule
+                .Set(IMRUGenericTypeCodecConfiguration<int>.Codec, GenericType<IntStreamingCodec>.Class)
+                .Build();
+
+            jobDefinitionBuilder.ReduceFunctionConfiguration = IMRUReduceFunctionConfiguration<int>.ConfigurationModule
+                .Set(IMRUReduceFunctionConfiguration<int>.ReduceFunction, GenericType<IntSumReduceFunction>.Class)
+                .Build();
+
+            jobDefinitionBuilder.PartitionedDatasetConfiguration =
+                RandomDataConfiguration.ConfigurationModule.Set(RandomDataConfiguration.NumberOfPartitions,
+                    numberofMappers.ToString()).Build();
+
+            jobDefinitionBuilder.NumberOfMappers = numberofMappers;
+
+            var results = _imruClient.Submit(jobDefinitionBuilder.SetJobName("MapperCount").Build());
+
+            if (results != null)
+            {
+                return results.First();
+            }
+
+            return -1;
         }
     }
 }

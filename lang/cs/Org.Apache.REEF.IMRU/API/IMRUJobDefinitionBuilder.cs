@@ -19,6 +19,7 @@
 
 using System;
 using Org.Apache.REEF.Tang.Interface;
+using Org.Apache.REEF.Tang.Implementations.Tang;
 
 namespace Org.Apache.REEF.IMRU.API
 {
@@ -28,19 +29,19 @@ namespace Org.Apache.REEF.IMRU.API
     /// <seealso cref="IMRUJobDefinition" />
     public sealed class IMRUJobDefinitionBuilder
     {
-        private IConfiguration _configuration;
         private string _jobName;
 
+        private static readonly IConfiguration EmptyConfiguration =
+            TangFactory.GetTang().NewConfigurationBuilder().Build();
+
         /// <summary>
-        /// Set the Configuration used to instantiate the IMapFunction, IReduceFunction, IUpdateFunction and all codec instances
+        /// Constructor
         /// </summary>
-        /// <param name="configuration">The Configuration used to instantiate the IMapFunction instance.</param>
-        /// <seealso cref="IMRUConfiguration{TMapInput,TMapOutput,TResult}" />
-        /// <returns>this</returns>
-        public IMRUJobDefinitionBuilder SetConfiguration(IConfiguration configuration)
+        public IMRUJobDefinitionBuilder()
         {
-            _configuration = configuration;
-            return this;
+            MapInputPipelineDataConverterConfiguration = EmptyConfiguration;
+            MapOutputPipelineDataConverterConfiguration = EmptyConfiguration;
+            PartitionedDatasetConfiguration = EmptyConfiguration;
         }
 
         /// <summary>
@@ -55,21 +56,77 @@ namespace Org.Apache.REEF.IMRU.API
         }
 
         /// <summary>
+        /// Configuration of map function
+        /// </summary>
+        public IConfiguration MapFunctionConfiguration { get; set; }
+
+        /// <summary>
+        /// Configuration of codec for TMapInput
+        /// </summary>
+        public IConfiguration MapInputCodecConfiguration { get; set; }
+
+        /// <summary>
+        /// Configuration of codecs needed by Update function
+        /// </summary>
+        public IConfiguration UpdateFunctionCodecsConfiguration { get; set; }
+
+        /// <summary>
+        /// Configuration of reduce function
+        /// </summary>
+        public IConfiguration ReduceFunctionConfiguration { get; set; }
+
+        /// <summary>
+        /// Configuration of update function
+        /// </summary>
+        public IConfiguration UpdateFunctionConfiguration { get; set; }
+
+        /// <summary>
+        /// Configuration of PipelineDataConverter for Map outout
+        /// </summary>
+        public IConfiguration MapOutputPipelineDataConverterConfiguration { get; set; }
+
+        /// <summary>
+        /// Configuration of PipelineDataConverter for Map Input
+        /// </summary>
+        public IConfiguration MapInputPipelineDataConverterConfiguration { get; set; }
+
+        /// <summary>
+        /// Configuration of partitioned dataset
+        /// </summary>
+        public IConfiguration PartitionedDatasetConfiguration { get; set; }
+
+        /// <summary>
+        /// Number of mappers
+        /// </summary>
+        /// TODO: This is duplicate in a sense that it can be determined 
+        /// TODO: automatically from IPartitionedDataset. However, right now 
+        /// TODO: GroupComm. instantiated in IMRUDriver needs this parameter 
+        /// TODO: in constructor. This will be removed once we remove it from GroupComm. 
+        public int NumberOfMappers { get; set; }
+
+        /// <summary>
         /// Instantiate the IMRUJobDefinition.
         /// </summary>
         /// <returns>The IMRUJobDefintion configured.</returns>
         /// <exception cref="NullReferenceException">If any of the required paremeters is not set.</exception>
         public IMRUJobDefinition Build()
         {
-            if (null == _configuration)
-            {
-                throw new NullReferenceException("Configuration can't be null.");
-            }
             if (null == _jobName)
             {
                 throw new NullReferenceException("JobName can't be null.");
             }
-            return new IMRUJobDefinition(_configuration, _jobName);
+
+            return new IMRUJobDefinition(
+                MapFunctionConfiguration,
+                MapInputCodecConfiguration,
+                UpdateFunctionCodecsConfiguration,
+                ReduceFunctionConfiguration,
+                UpdateFunctionConfiguration,
+                MapOutputPipelineDataConverterConfiguration,
+                MapInputPipelineDataConverterConfiguration,
+                PartitionedDatasetConfiguration,
+                NumberOfMappers,
+                _jobName);
         }
     }
 }

@@ -30,7 +30,7 @@ namespace Org.Apache.REEF.IMRU.Tests
     [TestClass]
     public class MapperCountTest
     {
-        private const int NumberOfMappers = 7;
+        private const int NumberOfMappers = 1;
 
         /// <summary>
         /// Tests the mapper counting job using the in-process IMRU implementation.
@@ -46,7 +46,7 @@ namespace Org.Apache.REEF.IMRU.Tests
                             .Build()
                     )
                     .GetInstance<MapperCount>();
-            var result = tested.Run();
+            var result = tested.Run(NumberOfMappers);
             Assert.AreEqual(NumberOfMappers, result, "The result of the run should be the number of Mappers.");
         }
     }
