@@ -28,9 +28,6 @@ under the License.
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..</SolutionDir>
     <RestorePackages>true</RestorePackages>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
-    <PlatformTarget>x64</PlatformTarget>
-  </PropertyGroup>
   <Import Project="$(SolutionDir)\build.props" />
   <PropertyGroup>
     <BuildPackage>false</BuildPackage>
