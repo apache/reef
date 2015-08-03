@@ -60,7 +60,6 @@ import org.apache.reef.wake.impl.SingleThreadStage;
 import org.apache.reef.wake.impl.SyncStage;
 import org.apache.reef.wake.impl.ThreadPoolStage;
 import org.apache.reef.wake.remote.address.LocalAddressProvider;
-import org.apache.reef.wake.remote.address.LocalAddressProviderFactory;
 import org.apache.reef.wake.remote.transport.TransportFactory;
 import org.apache.reef.wake.remote.transport.netty.MessagingTransportFactory;
 
@@ -118,20 +117,9 @@ public class GroupCommDriverImpl implements GroupCommServiceDriver {
   @Inject
   public GroupCommDriverImpl(final ConfigurationSerializer confSerializer,
                              @Parameter(DriverIdentifier.class) final String driverId,
-                             @Parameter(TreeTopologyFanOut.class) final int fanOut) {
-    this(confSerializer, driverId, fanOut, LocalAddressProviderFactory.getInstance());
-  }
-
-  /**
-   * @deprecated Have an instance injected instead.
-   */
-  @Deprecated
-  @Inject
-  public GroupCommDriverImpl(final ConfigurationSerializer confSerializer,
-                             @Parameter(DriverIdentifier.class) final String driverId,
                              @Parameter(TreeTopologyFanOut.class) final int fanOut,
                              final LocalAddressProvider localAddressProvider) {
-    this(confSerializer, driverId, fanOut, localAddressProvider, new MessagingTransportFactory());
+    this(confSerializer, driverId, fanOut, localAddressProvider, new MessagingTransportFactory(localAddressProvider));
   }
 
   /**
@@ -145,7 +133,7 @@ public class GroupCommDriverImpl implements GroupCommServiceDriver {
                              final LocalAddressProvider localAddressProvider,
                              final TransportFactory tpFactory) {
     this(confSerializer, driverId, fanOut, localAddressProvider, tpFactory,
-        new NameServerImpl(0, new StringIdentifierFactory()));
+        new NameServerImpl(0, new StringIdentifierFactory(), localAddressProvider));
   }
 
   /**

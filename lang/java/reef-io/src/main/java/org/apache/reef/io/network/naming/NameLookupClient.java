@@ -32,7 +32,6 @@ import org.apache.reef.wake.Stage;
 import org.apache.reef.wake.impl.SyncStage;
 import org.apache.reef.wake.remote.Codec;
 import org.apache.reef.wake.remote.address.LocalAddressProvider;
-import org.apache.reef.wake.remote.address.LocalAddressProviderFactory;
 import org.apache.reef.wake.remote.impl.TransportEvent;
 import org.apache.reef.wake.remote.transport.Link;
 import org.apache.reef.wake.remote.transport.Transport;
@@ -84,42 +83,7 @@ public class NameLookupClient implements Stage, NamingLookup {
     this(serverAddr, serverPort, 10000, factory, retryCount, retryTimeout, cache, localAddressProvider);
   }
 
-  /**
-   * Constructs a naming lookup client.
-   *
-   * @param serverAddr a server address
-   * @param serverPort a server port number
-   * @param factory    an identifier factory
-   * @param cache      an cache
-   */
-  public NameLookupClient(final String serverAddr,
-                          final int serverPort,
-                          final IdentifierFactory factory,
-                          final int retryCount,
-                          final int retryTimeout,
-                          final Cache<Identifier, InetSocketAddress> cache) {
-    this(serverAddr, serverPort, 10000, factory, retryCount, retryTimeout, cache,
-         LocalAddressProviderFactory.getInstance());
-  }
-
-  @Deprecated
-  public NameLookupClient(final String serverAddr,
-                          final int serverPort,
-                          final long timeout,
-                          final IdentifierFactory factory,
-                          final int retryCount,
-                          final int retryTimeout,
-                          final Cache<Identifier, InetSocketAddress> cache) {
-    this(serverAddr,
-        serverPort,
-        timeout,
-        factory,
-        retryCount,
-        retryTimeout,
-        cache,
-        LocalAddressProviderFactory.getInstance());
-
-  }
+  // TODO: [REEF-547] Removed constructor. However, the @Deprecated annotation was missing although it was on 0.11.
 
   /**
    * Constructs a naming lookup client.
@@ -139,7 +103,7 @@ public class NameLookupClient implements Stage, NamingLookup {
                           final Cache<Identifier, InetSocketAddress> cache,
                           final LocalAddressProvider localAddressProvider) {
     this(serverAddr, serverPort, timeout, factory, retryCount, retryTimeout,
-        cache, localAddressProvider, new MessagingTransportFactory());
+        cache, localAddressProvider, new MessagingTransportFactory(localAddressProvider));
   }
 
   /**
