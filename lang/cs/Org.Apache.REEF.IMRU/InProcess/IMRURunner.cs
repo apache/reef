@@ -29,9 +29,9 @@ namespace Org.Apache.REEF.IMRU.InProcess
     /// <summary>
     /// Simple, single-threaded executor for IMRU Jobs.
     /// </summary>
-    /// <typeparam name="TMapInput"></typeparam>
-    /// <typeparam name="TMapOutput"></typeparam>
-    /// <typeparam name="TResult"></typeparam>
+    /// <typeparam name="TMapInput">Input to map function</typeparam>
+    /// <typeparam name="TMapOutput">Output of map function</typeparam>
+    /// <typeparam name="TResult">Final result</typeparam>
     internal sealed class IMRURunner<TMapInput, TMapOutput, TResult>
     {
         private readonly ISet<IMapFunction<TMapInput, TMapOutput>> _mapfunctions;

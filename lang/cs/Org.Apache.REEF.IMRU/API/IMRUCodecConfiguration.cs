@@ -17,17 +17,30 @@
  * under the License.
  */
 
-using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Tang.Formats;
+using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Wake.StreamingCodec;
 
-namespace Org.Apache.REEF.IMRU.API.Parameters
+namespace Org.Apache.REEF.IMRU.API
 {
-    /// <summary>
-    /// The codec to be used for the map output.
-    /// </summary>
-    /// <typeparam name="TMapOutput"></typeparam>
-    [NamedParameter("The codec to be used for the map output.")]
-    public sealed class MapOutputCodec<TMapOutput> : Name<IStreamingCodec<TMapOutput>>
+   /// <summary>
+   /// A configuraton module for specifying codecs for IMRU
+   /// </summary>
+   /// <typeparam name="T">Generic type</typeparam>
+    public sealed class IMRUCodecConfiguration<T> : ConfigurationModuleBuilder
     {
+        /// <summary>
+        /// The codec to be used
+        /// </summary>
+        public static readonly RequiredImpl<IStreamingCodec<T>> Codec =
+            new RequiredImpl<IStreamingCodec<T>>();
+
+        /// <summary>
+        /// Configuration module
+        /// </summary>
+        public static ConfigurationModule ConfigurationModule =
+            new IMRUCodecConfiguration<T>()
+                .BindImplementation(GenericType<IStreamingCodec<T>>.Class, Codec)
+                .Build();
     }
 }

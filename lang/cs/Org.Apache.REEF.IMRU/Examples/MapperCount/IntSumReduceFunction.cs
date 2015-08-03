@@ -34,6 +34,11 @@ namespace Org.Apache.REEF.IMRU.Examples.MapperCount
         {
         }
 
+        /// <summary>
+        /// Reduce function that returns the sum of elements 
+        /// </summary>
+        /// <param name="elements">List of elements</param>
+        /// <returns>The sum of elements</returns>
         public int Reduce(IEnumerable<int> elements)
         {
             return elements.Aggregate((x, y) => x + y);

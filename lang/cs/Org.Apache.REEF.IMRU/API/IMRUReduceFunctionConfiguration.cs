@@ -17,22 +17,30 @@
  * under the License.
  */
 
-using System.Collections.Generic;
+using Org.Apache.REEF.Network.Group.Operators;
+using Org.Apache.REEF.Tang.Formats;
+using Org.Apache.REEF.Tang.Util;
 
 namespace Org.Apache.REEF.IMRU.API
 {
     /// <summary>
-    /// Job submission interface for IMRU jobs.
+    /// A configuration module for IMRU Reduce function.
     /// </summary>
-    /// <typeparam name="TMapInput">The type of the side information provided to the Map function</typeparam>
     /// <typeparam name="TMapOutput">The return type of the Map function</typeparam>
-    /// <typeparam name="TResult">The return type of the computation.</typeparam>
-    public interface IIMRUClient<TMapInput, TMapOutput, out TResult>
+    public sealed class IMRUReduceFunctionConfiguration<TMapOutput> : ConfigurationModuleBuilder
     {
         /// <summary>
-        /// Submit the given job for execution.
+        /// The IReduceFunction type to use.
         /// </summary>
-        /// <param name="jobDefinition"></param>
-        IEnumerable<TResult> Submit(IMRUJobDefinition jobDefinition);
+        public static readonly RequiredImpl<IReduceFunction<TMapOutput>> ReduceFunction =
+            new RequiredImpl<IReduceFunction<TMapOutput>>();
+
+        /// <summary>
+        /// Configuration module
+        /// </summary>
+        public static ConfigurationModule ConfigurationModule =
+            new IMRUReduceFunctionConfiguration<TMapOutput>()
+                .BindImplementation(GenericType<IReduceFunction<TMapOutput>>.Class, ReduceFunction)
+                .Build();
     }
 }

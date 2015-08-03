@@ -32,6 +32,11 @@ namespace Org.Apache.REEF.IMRU.Examples.MapperCount
         {
         }
 
+        /// <summary>
+        /// Identity map function
+        /// </summary>
+        /// <param name="mapInput"></param>
+        /// <returns>mapInput itself</returns>
         public int Map(int mapInput)
         {
             return mapInput;

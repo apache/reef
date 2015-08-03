@@ -29,7 +29,7 @@ namespace Org.Apache.REEF.IMRU.API
     /// </remarks>
     /// <typeparam name="TMapInput">The type of the side information provided to the Map function</typeparam>
     /// <typeparam name="TMapOutput">The return type of the Map function</typeparam>
-    public interface IMapFunction<TMapInput, TMapOutput>
+    public interface IMapFunction<in TMapInput, out TMapOutput>
     {
         /// <summary>
         /// Computes new output based on the given side information and data.
