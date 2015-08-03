@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * A Simple vector calculation example.
+ * A Simple Vortex vector calculation example.
  */
 package org.apache.reef.vortex.examples.addone;

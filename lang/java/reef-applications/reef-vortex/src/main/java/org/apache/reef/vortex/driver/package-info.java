@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * Code that runs as part of REEF Driver.
+ * Vortex Code that runs as part of REEF Driver.
  */
 package org.apache.reef.vortex.driver;

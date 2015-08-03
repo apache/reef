@@ -19,37 +19,46 @@
 package org.apache.reef.vortex.common;
 
 import org.apache.reef.annotations.Unstable;
-import org.apache.reef.vortex.api.VortexFunction;
 
 import java.io.Serializable;
 
 /**
- * Request to execute a tasklet.
+ * Report of a tasklet execution result.
  */
 @Unstable
-public class ExecuteTasklet<TInput extends Serializable, TOutput extends Serializable> implements VortexRequest {
+public final class TaskletResultReport<TOutput extends Serializable> implements WorkerReport {
   private final int taskletId;
-  private final VortexFunction<TInput, TOutput> userFunction;
-  private final TInput input;
+  private final TOutput result;
 
-  public ExecuteTasklet(final int taskletId,
-                        final VortexFunction<TInput, TOutput> userFunction,
-                        final TInput input) {
+  /**
+   * @param taskletId of the tasklet.
+   * @param result of the tasklet execution.
+   */
+  public TaskletResultReport(final int taskletId, final TOutput result) {
     this.taskletId = taskletId;
-    this.userFunction = userFunction;
-    this.input = input;
+    this.result = result;
   }
 
-  public TOutput execute() throws Exception {
-    return userFunction.call(input);
+  /**
+   * @return the type of this WorkerReport.
+   */
+  @Override
+  public WorkerReportType getType() {
+    return WorkerReportType.TaskletResult;
   }
 
+  /**
+   * @return the id of the tasklet.
+   */
   public int getTaskletId() {
     return taskletId;
   }
 
-  @Override
-  public RequestType getType() {
-    return RequestType.ExecuteTasklet;
+  /**
+   * @return the result of the tasklet execution.
+   */
+  public TOutput getResult() {
+    return result;
   }
+
 }

@@ -36,6 +36,9 @@ public final class VortexLauncher {
 
   private static final int MAX_NUMBER_OF_EVALUATORS = 10;
 
+  /**
+   * Launch a Vortex job using the local runtime.
+   */
   public static LauncherStatus launchLocal(final String jobName,
                                            final Class<? extends VortexStart> vortexUserCode,
                                            final int numOfWorkers,

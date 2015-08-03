@@ -31,19 +31,28 @@ import org.junit.Test;
 /**
  * Launch the AddOne Vortex test.
  */
-public class AddOneTest {
+public final class AddOneTest {
   private final TestEnvironment testEnvironment = TestEnvironmentFactory.getNewTestEnvironment();
 
+  /**
+   * Set up the test environment.
+   */
   @Before
   public void setUp() throws Exception {
     this.testEnvironment.setUp();
   }
 
+  /**
+   * Tear down the test environment.
+   */
   @After
   public void tearDown() throws Exception {
     this.testEnvironment.tearDown();
   }
 
+  /**
+   * Run the AddOne test.
+   */
   @Test
   public void testVortexAddOne() {
     final Configuration conf =

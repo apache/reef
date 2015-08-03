@@ -35,10 +35,10 @@ class VortexRequestor {
   private final ExecutorService executorService = Executors.newCachedThreadPool();
 
   @Inject
-  public VortexRequestor() {
+  VortexRequestor() {
   }
 
-  public void send(final RunningTask reefTask, final VortexRequest vortexRequest) {
+  void send(final RunningTask reefTask, final VortexRequest vortexRequest) {
     executorService.execute(new Runnable() {
       @Override
       public void run() {

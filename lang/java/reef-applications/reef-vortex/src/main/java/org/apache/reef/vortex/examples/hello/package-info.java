@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * Vortex's Hello World Example.
+ * Vortex Hello World Example.
  */
 package org.apache.reef.vortex.examples.hello;

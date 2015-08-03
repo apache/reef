@@ -35,6 +35,9 @@ public final class VortexConfHelper {
 
   private static final int DEFAULT_NUM_OF_VORTEX_START_THERAD = 1;
 
+  /**
+   * @return Configuration for Vortex job.
+   */
   public static Configuration getVortexConf(final String jobName,
                                             final Class<? extends VortexStart> vortexStart,
                                             final int numOfWorkers,

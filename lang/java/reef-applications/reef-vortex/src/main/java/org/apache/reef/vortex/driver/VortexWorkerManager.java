@@ -18,11 +18,11 @@
  */
 package org.apache.reef.vortex.driver;
 
+import net.jcip.annotations.ThreadSafe;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.driver.task.RunningTask;
-import org.apache.reef.vortex.common.ExecuteTasklet;
+import org.apache.reef.vortex.common.TaskletExecutionRequest;
 
-import javax.inject.Inject;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
@@ -30,28 +30,28 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Representation of a VortexWorkerManager in Driver.
  */
+@ThreadSafe
 @DriverSide
-final class VortexWorkerManager {
+class VortexWorkerManager {
   private final VortexRequestor vortexRequestor;
   private final RunningTask reefTask;
   private final ConcurrentHashMap<Integer, Tasklet> runningTasklets = new ConcurrentHashMap<>();
 
-  @Inject
-  public VortexWorkerManager(final VortexRequestor vortexRequestor, final RunningTask reefTask) {
+  VortexWorkerManager(final VortexRequestor vortexRequestor, final RunningTask reefTask) {
     this.vortexRequestor = vortexRequestor;
     this.reefTask = reefTask;
   }
 
-  public <TInput extends Serializable, TOutput extends Serializable>
+  <TInput extends Serializable, TOutput extends Serializable>
       void launchTasklet(final Tasklet<TInput, TOutput> tasklet) {
     assert(!runningTasklets.containsKey(tasklet.getId()));
     runningTasklets.put(tasklet.getId(), tasklet);
-    final ExecuteTasklet<TInput, TOutput> executeTasklet
-        = new ExecuteTasklet<>(tasklet.getId(), tasklet.getUserFunction(), tasklet.getInput());
-    vortexRequestor.send(reefTask, executeTasklet);
+    final TaskletExecutionRequest<TInput, TOutput> taskletExecutionRequest
+        = new TaskletExecutionRequest<>(tasklet.getId(), tasklet.getUserFunction(), tasklet.getInput());
+    vortexRequestor.send(reefTask, taskletExecutionRequest);
   }
 
-  public <TOutput extends Serializable>
+  <TOutput extends Serializable>
       void taskletCompleted(final Integer taskletId, final TOutput result) {
     final Tasklet<?, TOutput> tasklet = runningTasklets.remove(taskletId);
     if (tasklet != null) { // Tasklet should complete/error only once
@@ -59,25 +59,29 @@ final class VortexWorkerManager {
     }
   }
 
-  public void taskletThrewException(final Integer taskletId, final Exception exception) {
+  void taskletThrewException(final Integer taskletId, final Exception exception) {
     final Tasklet tasklet = runningTasklets.remove(taskletId);
     if (tasklet != null) { // Tasklet should complete/error only once
       tasklet.threwException(exception);
     }
   }
 
-  public Collection<Tasklet> removed() {
+  Collection<Tasklet> removed() {
     return runningTasklets.values();
   }
 
-  public void terminate() {
+  void terminate() {
     reefTask.close();
   }
 
-  public String getId() {
+  String getId() {
     return reefTask.getId();
   }
 
+  /**
+   * @return the description of this worker in string.
+   */
+  @Override
   public String toString() {
     return "VortexWorkerManager: " + getId();
   }
@@ -85,7 +89,7 @@ final class VortexWorkerManager {
   /**
    * For unit tests only.
    */
-  public boolean containsTasklet(final Integer taskletId) {
+  boolean containsTasklet(final Integer taskletId) {
     return runningTasklets.containsKey(taskletId);
   }
 }

@@ -33,9 +33,12 @@ import java.util.concurrent.ExecutionException;
  */
 final class AddOneStart implements VortexStart {
   @Inject
-  public AddOneStart() {
+  private AddOneStart() {
   }
 
+  /**
+   * Perform a simple vector calculation on Vortex.
+   */
   @Override
   public void start(final VortexThreadPool vortexThreadPool) {
     final Vector<Integer> inputVector = new Vector<>();

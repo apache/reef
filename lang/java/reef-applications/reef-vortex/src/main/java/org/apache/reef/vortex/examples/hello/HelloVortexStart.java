@@ -30,9 +30,12 @@ import java.util.concurrent.ExecutionException;
  */
 final class HelloVortexStart implements VortexStart {
   @Inject
-  public HelloVortexStart() {
+  private HelloVortexStart() {
   }
 
+  /**
+   * Run the function.
+   */
   @Override
   public void start(final VortexThreadPool vortexThreadPool) {
     final VortexFuture future = vortexThreadPool.submit(new HelloVortexFunction(), null);

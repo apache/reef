@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * Commonly used by Driver and Evaluator.
+ * Vortex Code used both in Vortex Driver and Vortex Evaluator.
  */
 package org.apache.reef.vortex.common;

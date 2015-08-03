@@ -32,8 +32,11 @@ public interface WorkerReport extends Serializable {
    */
   enum WorkerReportType {
     TaskletResult,
-    TaskletException
+    TaskletFailure
   }
 
+  /**
+   * @return the type of this WorkerReport.
+   */
   WorkerReportType getType();
 }

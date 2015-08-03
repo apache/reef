@@ -28,55 +28,67 @@ import java.io.Serializable;
  * Representation of user task in Driver.
  */
 @DriverSide
-final class Tasklet<TInput extends Serializable, TOutput extends Serializable> implements Serializable {
+class Tasklet<TInput extends Serializable, TOutput extends Serializable> implements Serializable {
   private final int taskletId;
   private final VortexFunction<TInput, TOutput> userTask;
   private final TInput input;
   private final VortexFuture<TOutput> vortexFuture;
 
-  public Tasklet(final int taskletId,
-                 final VortexFunction<TInput, TOutput> userTask,
-                 final TInput input,
-                 final VortexFuture<TOutput> vortexFuture) {
+  Tasklet(final int taskletId,
+          final VortexFunction<TInput, TOutput> userTask,
+          final TInput input,
+          final VortexFuture<TOutput> vortexFuture) {
     this.taskletId = taskletId;
     this.userTask = userTask;
     this.input = input;
     this.vortexFuture = vortexFuture;
   }
 
-  public int getId() {
+  /**
+   * @return id of the tasklet
+   */
+  int getId() {
     return taskletId;
   }
 
-  public TInput getInput() {
+  /**
+   * @return the input of the tasklet
+   */
+  TInput getInput() {
     return input;
   }
 
-  public VortexFunction<TInput, TOutput> getUserFunction() {
+  /**
+   * @return the user function of the tasklet
+   */
+  VortexFunction<TInput, TOutput> getUserFunction() {
     return userTask;
   }
 
   /**
    * Called by VortexMaster to let the user know that the task completed.
    */
-  public void completed(final TOutput result) {
+  void completed(final TOutput result) {
     vortexFuture.completed(result);
   }
 
   /**
    * Called by VortexMaster to let the user know that the task threw an exception.
    */
-  public void threwException(final Exception exception) {
+  void threwException(final Exception exception) {
     vortexFuture.threwException(exception);
   }
 
   /**
    * For tests.
    */
-  public boolean isCompleted() {
+  boolean isCompleted() {
     return vortexFuture.isDone();
   }
 
+  /**
+   * @return description of the tasklet in string.
+   */
   @Override
   public String toString() {
     return "Tasklet: " + taskletId;

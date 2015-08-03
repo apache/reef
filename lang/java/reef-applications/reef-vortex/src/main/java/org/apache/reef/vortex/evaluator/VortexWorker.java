@@ -31,6 +31,7 @@ import org.apache.reef.task.events.CloseEvent;
 import org.apache.reef.task.events.DriverMessage;
 import org.apache.reef.util.Optional;
 import org.apache.reef.vortex.common.*;
+import org.apache.reef.vortex.driver.VortexWorkerConf;
 import org.apache.reef.wake.EventHandler;
 
 import javax.inject.Inject;
@@ -44,7 +45,7 @@ import java.util.concurrent.*;
 @Unstable
 @Unit
 @TaskSide
-public class VortexWorker implements Task, TaskMessageSource {
+public final class VortexWorker implements Task, TaskMessageSource {
   private static final String MESSAGE_SOURCE_ID = ""; // empty string as there is no use for it
 
   private final BlockingDeque<byte[]> pendingRequests = new LinkedBlockingDeque<>();
@@ -55,12 +56,15 @@ public class VortexWorker implements Task, TaskMessageSource {
   private final CountDownLatch terminated = new CountDownLatch(1);
 
   @Inject
-  public VortexWorker(final HeartBeatTriggerManager heartBeatTriggerManager,
+  private VortexWorker(final HeartBeatTriggerManager heartBeatTriggerManager,
                       @Parameter(VortexWorkerConf.NumOfThreads.class) final int numOfThreads) {
     this.heartBeatTriggerManager = heartBeatTriggerManager;
     this.numOfThreads = numOfThreads;
   }
 
+  /**
+   * Starts the scheduler & executor and waits until termination.
+   */
   @Override
   public byte[] call(final byte[] memento) throws Exception {
     final ExecutorService schedulerThread = Executors.newSingleThreadExecutor();
@@ -87,19 +91,19 @@ public class VortexWorker implements Task, TaskMessageSource {
               final VortexRequest vortexRequest = (VortexRequest) SerializationUtils.deserialize(message);
               switch (vortexRequest.getType()) {
                 case ExecuteTasklet:
-                  final ExecuteTasklet executeTasklet = (ExecuteTasklet) vortexRequest;
+                  final TaskletExecutionRequest taskletExecutionRequest = (TaskletExecutionRequest) vortexRequest;
                   try {
                     // Command Executor: Execute the command
-                    final Serializable result = executeTasklet.execute();
+                    final Serializable result = taskletExecutionRequest.execute();
 
                     // Command Executor: Tasklet successfully returns result
                     final WorkerReport report =
-                        new TaskletResult<>(executeTasklet.getTaskletId(), result);
+                        new TaskletResultReport<>(taskletExecutionRequest.getTaskletId(), result);
                     workerReports.addLast(SerializationUtils.serialize(report));
                   } catch (Exception e) {
                     // Command Executor: Tasklet throws an exception
                     final WorkerReport report =
-                        new TaskletException(executeTasklet.getTaskletId(), e);
+                        new TaskletFailureReport(taskletExecutionRequest.getTaskletId(), e);
                     workerReports.addLast(SerializationUtils.serialize(report));
                   }
 
@@ -119,6 +123,9 @@ public class VortexWorker implements Task, TaskMessageSource {
     return null;
   }
 
+  /**
+   * @return the workerReport the worker wishes to send.
+   */
   @Override
   public Optional<TaskMessage> getMessage() {
     final byte[] msg = workerReports.pollFirst();
@@ -129,6 +136,9 @@ public class VortexWorker implements Task, TaskMessageSource {
     }
   }
 
+  /**
+   * Handle requests from Vortex Master.
+   */
   public final class DriverMessageHandler implements EventHandler<DriverMessage> {
     @Override
     public void onNext(final DriverMessage message) {
@@ -138,6 +148,9 @@ public class VortexWorker implements Task, TaskMessageSource {
     }
   }
 
+  /**
+   * Shut down this worker.
+   */
   public final class TaskCloseHandler implements EventHandler<CloseEvent> {
     @Override
     public void onNext(final CloseEvent closeEvent) {

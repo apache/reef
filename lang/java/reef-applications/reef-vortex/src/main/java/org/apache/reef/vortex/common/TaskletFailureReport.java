@@ -24,25 +24,38 @@ import org.apache.reef.annotations.Unstable;
  * Report of a tasklet exception.
  */
 @Unstable
-public class TaskletException implements WorkerReport {
+public final class TaskletFailureReport implements WorkerReport {
   private final int taskletId;
   private final Exception exception;
 
-  public TaskletException(final int taskletId, final Exception exception) {
+  /**
+   * @param taskletId of the failed tasklet.
+   * @param exception that caused the tasklet failure.
+   */
+  public TaskletFailureReport(final int taskletId, final Exception exception) {
     this.taskletId = taskletId;
     this.exception = exception;
   }
 
+  /**
+   * @return the type of this WorkerReport.
+   */
+  @Override
+  public WorkerReportType getType() {
+    return WorkerReportType.TaskletFailure;
+  }
+
+  /**
+   * @return the id of the tasklet.
+   */
   public int getTaskletId() {
     return taskletId;
   }
 
+  /**
+   * @return the exception that caused the tasklet failure.
+   */
   public Exception getException() {
     return exception;
-  }
-
-  @Override
-  public WorkerReportType getType() {
-    return WorkerReportType.TaskletException;
   }
 }

@@ -18,6 +18,7 @@
  */
 package org.apache.reef.vortex.driver;
 
+import net.jcip.annotations.ThreadSafe;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.vortex.api.VortexFunction;
 import org.apache.reef.vortex.api.VortexFuture;
@@ -35,10 +36,10 @@ import java.util.logging.Logger;
 
 /**
  * Default implementation of VortexMaster.
- * This class is concurrently accessed by multiple threads and concurrency control is all done inside
- * 2 data structures(runningWorkers, pendingTasklets) it uses to process events/user requests.
- * It also decides which pending tasklet to launch next.
+ * It uses two thread-safe data structures(pendingTasklets, runningWorkers) in implementing VortexMaster interface.
+ * It also runs a dedicated thread for scheduling/launching pending tasklets.
  */
+@ThreadSafe
 @DriverSide
 final class DefaultVortexMaster implements VortexMaster {
   private static final Logger LOG = Logger.getLogger(DefaultVortexMaster.class.getName());
@@ -47,8 +48,11 @@ final class DefaultVortexMaster implements VortexMaster {
   private final BlockingDeque<Tasklet> pendingTasklets = new LinkedBlockingDeque<>();
   private final ExecutorService schedulerThread = Executors.newSingleThreadExecutor();
 
+  /**
+   * @param runningWorkers for managing all running workers.
+   */
   @Inject
-  public DefaultVortexMaster(final RunningWorkers runningWorkers) {
+  DefaultVortexMaster(final RunningWorkers runningWorkers) {
     this.runningWorkers = runningWorkers;
     schedulerThread.execute(new Runnable() {
       @Override
@@ -65,6 +69,9 @@ final class DefaultVortexMaster implements VortexMaster {
     });
   }
 
+  /**
+   * Add a new tasklet to pendingTasklets.
+   */
   @Override
   public <TInput extends Serializable, TOutput extends Serializable> VortexFuture<TOutput>
       enqueueTasklet(final VortexFunction<TInput, TOutput> function, final TInput input) {
@@ -74,11 +81,17 @@ final class DefaultVortexMaster implements VortexMaster {
     return vortexFuture;
   }
 
+  /**
+   * Add a new worker to runningWorkers.
+   */
   @Override
   public void workerAllocated(final VortexWorkerManager vortexWorkerManager) {
     runningWorkers.addWorker(vortexWorkerManager);
   }
 
+  /**
+   * Remove the worker from runningWorkers and add back the lost tasklets to pendingTasklets.
+   */
   @Override
   public void workerPreempted(final String id) {
     final Collection<Tasklet> preemptedTasklets = runningWorkers.removeWorker(id);
@@ -87,6 +100,9 @@ final class DefaultVortexMaster implements VortexMaster {
     }
   }
 
+  /**
+   * Notify task completion to runningWorkers.
+   */
   @Override
   public void taskletCompleted(final String workerId,
                                final int taskletId,
@@ -94,11 +110,17 @@ final class DefaultVortexMaster implements VortexMaster {
     runningWorkers.completeTasklet(workerId, taskletId, result);
   }
 
+  /**
+   * Notify task failure to runningWorkers.
+   */
   @Override
   public void taskletErrored(final String workerId, final int taskletId, final Exception exception) {
     runningWorkers.errorTasklet(workerId, taskletId, exception);
   }
 
+  /**
+   * Terminate the job.
+   */
   @Override
   public void terminate() {
     runningWorkers.terminate();
@@ -108,7 +130,7 @@ final class DefaultVortexMaster implements VortexMaster {
   /**
    * For unit tests only.
    */
-  public VortexFuture enqueueMockedTasklet(final Tasklet tasklet) {
+  VortexFuture enqueueMockedTasklet(final Tasklet tasklet) {
     final VortexFuture vortexFuture = new VortexFuture<>();
     this.pendingTasklets.addLast(tasklet);
     return vortexFuture;

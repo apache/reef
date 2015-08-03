@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * Code that runs as part of REEF Evaluator.
+ * Vortex Code that runs as part of REEF Evaluator.
  */
 package org.apache.reef.vortex.evaluator;

@@ -18,6 +18,7 @@
  */
 package org.apache.reef.vortex.driver;
 
+import net.jcip.annotations.ThreadSafe;
 import org.apache.reef.annotations.audience.DriverSide;
 
 import javax.inject.Inject;
@@ -31,6 +32,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * Keeps track of all running VortexWorkers and Tasklets.
  * Upon Tasklet launch request, randomly schedules it to a VortexWorkerManager.
  */
+@ThreadSafe
 @DriverSide
 final class RunningWorkers {
   // RunningWorkers and its locks
@@ -46,15 +48,18 @@ final class RunningWorkers {
   // Terminated
   private volatile boolean terminated = false;
 
+  /**
+   * RunningWorkers constructor.
+   */
   @Inject
-  public RunningWorkers() {
+  RunningWorkers() {
   }
 
   /**
    * Concurrency: Called by multiple threads.
    * Parameter: Called exactly once per vortexWorkerManager.
    */
-  public void addWorker(final VortexWorkerManager vortexWorkerManager) {
+  void addWorker(final VortexWorkerManager vortexWorkerManager) {
     if (!terminated) {
       writeLock.lock();
       try {
@@ -82,7 +87,7 @@ final class RunningWorkers {
    * Concurrency: Called by multiple threads.
    * Parameter: Called exactly once per id.
    */
-  public Collection<Tasklet> removeWorker(final String id) {
+  Collection<Tasklet> removeWorker(final String id) {
     if (!terminated) {
       writeLock.lock();
       try {
@@ -109,7 +114,7 @@ final class RunningWorkers {
    * Concurrency: Called by single scheduler thread.
    * Parameter: Same tasklet can be launched multiple times.
    */
-  public void launchTasklet(final Tasklet tasklet) {
+  void launchTasklet(final Tasklet tasklet) {
     if (!terminated) {
       readLock.lock();
       try {
@@ -147,7 +152,7 @@ final class RunningWorkers {
    * Parameter: Same arguments can come in multiple times.
    * (e.g. preemption message coming before tasklet completion message multiple times)
    */
-  public void completeTasklet(final String workerId,
+  void completeTasklet(final String workerId,
                               final int taskletId,
                               final Serializable result) {
     if (!terminated) {
@@ -170,7 +175,7 @@ final class RunningWorkers {
    * Parameter: Same arguments can come in multiple times.
    * (e.g. preemption message coming before tasklet error message multiple times)
    */
-  public void errorTasklet(final String workerId,
+  void errorTasklet(final String workerId,
                            final int taskletId,
                            final Exception exception) {
     if (!terminated) {
@@ -188,7 +193,7 @@ final class RunningWorkers {
     }
   }
 
-  public void terminate() {
+  void terminate() {
     if (!terminated) {
       writeLock.lock();
       try {
@@ -207,7 +212,7 @@ final class RunningWorkers {
     throw new RuntimeException("Attempting to terminate an already terminated RunningWorkers");
   }
 
-  public boolean isTerminated() {
+  boolean isTerminated() {
     return terminated;
   }
 
@@ -230,7 +235,7 @@ final class RunningWorkers {
   /**
    * For unit tests to check whether the tasklet has been scheduled and running.
    */
-  public boolean isTaskletRunning(final int taskletId) {
+  boolean isTaskletRunning(final int taskletId) {
     for (final VortexWorkerManager vortexWorkerManager : runningWorkers.values()) {
       if (vortexWorkerManager.containsTasklet(taskletId)) {
         return true;
@@ -242,7 +247,7 @@ final class RunningWorkers {
   /**
    * For unit tests to check whether the worker is running.
    */
-  public boolean isWorkerRunning(final String workerId) {
+  boolean isWorkerRunning(final String workerId) {
     return runningWorkers.containsKey(workerId);
   }
 
@@ -251,7 +256,7 @@ final class RunningWorkers {
    * @param taskletId id of the tasklet in question
    * @return id of the worker (null if the tasklet was not scheduled to any worker)
    */
-  public String getWhereTaskletWasScheduledTo(final int taskletId) {
+  String getWhereTaskletWasScheduledTo(final int taskletId) {
     for (final Map.Entry<String, VortexWorkerManager> entry : runningWorkers.entrySet()) {
       final String workerId = entry.getKey();
       final VortexWorkerManager vortexWorkerManager = entry.getValue();

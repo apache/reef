@@ -31,11 +31,14 @@ import java.util.concurrent.ExecutionException;
 /**
  * Test correctness of a simple vector calculation on Vortex.
  */
-public class AddOneTestStart implements VortexStart {
+public final class AddOneTestStart implements VortexStart {
   @Inject
-  public AddOneTestStart() {
+  private AddOneTestStart() {
   }
 
+  /**
+   * Test correctness of a simple vector calculation on Vortex.
+   */
   @Override
   public void start(final VortexThreadPool vortexThreadPool) {
     final Vector<Integer> inputVector = new Vector<>();

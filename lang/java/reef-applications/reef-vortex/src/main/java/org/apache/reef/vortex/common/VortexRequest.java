@@ -34,5 +34,8 @@ public interface VortexRequest extends Serializable {
     ExecuteTasklet
   }
 
+  /**
+   * @return the type of this VortexRequest.
+   */
   RequestType getType();
 }

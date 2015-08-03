@@ -16,10 +16,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.vortex.evaluator;
+package org.apache.reef.vortex.driver;
 
 import org.apache.reef.annotations.Unstable;
-import org.apache.reef.annotations.audience.TaskSide;
+import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
 import org.apache.reef.tang.formats.ConfigurationModule;
@@ -27,11 +27,11 @@ import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
 import org.apache.reef.tang.formats.RequiredParameter;
 
 /**
- *  Vortex Worker configurations.
+ *  Vortex Worker configuration.
  */
 @Unstable
-@TaskSide
-public class VortexWorkerConf extends ConfigurationModuleBuilder {
+@DriverSide
+public final class VortexWorkerConf extends ConfigurationModuleBuilder {
   /**
    * Worker Threads.
    */
@@ -39,8 +39,14 @@ public class VortexWorkerConf extends ConfigurationModuleBuilder {
   public final class NumOfThreads implements Name<Integer> {
   }
 
+  /**
+   * Worker Threads.
+   */
   public static final RequiredParameter<Integer> NUM_OF_THREADS = new RequiredParameter<>();
 
+  /**
+   * Vortex Worker configuration.
+   */
   public static final ConfigurationModule CONF = new VortexWorkerConf()
       .bindNamedParameter(NumOfThreads.class, NUM_OF_THREADS)
       .build();

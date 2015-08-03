@@ -32,7 +32,7 @@ import org.apache.reef.wake.StageConfiguration;
 import org.apache.reef.wake.impl.ThreadPoolStage;
 
 /**
- * Vortex Master configurations.
+ * Vortex Master configuration.
  */
 @Unstable
 @DriverSide
@@ -41,29 +41,51 @@ public final class VortexMasterConf extends ConfigurationModuleBuilder {
    * Number of Workers.
    */
   @NamedParameter(doc = "Number of Workers")
-  public final class WorkerNum implements Name<Integer> {
+  final class WorkerNum implements Name<Integer> {
   }
 
   /**
    * Worker Memory.
    */
   @NamedParameter(doc = "Worker Memory")
-  public final class WorkerMem implements Name<Integer> {
+  final class WorkerMem implements Name<Integer> {
   }
 
   /**
    * Worker Cores.
    */
   @NamedParameter(doc = "Worker Cores")
-  public final class WorkerCores implements Name<Integer> {
+  final class WorkerCores implements Name<Integer> {
   }
 
+  /**
+   * Number of Workers.
+   */
   public static final RequiredParameter<Integer> WORKER_NUM = new RequiredParameter<>();
+
+  /**
+   * Worker Memory.
+   */
   public static final RequiredParameter<Integer> WORKER_MEM = new RequiredParameter<>();
+
+  /**
+   * Worker Cores.
+   */
   public static final RequiredParameter<Integer> WORKER_CORES = new RequiredParameter<>();
+
+  /**
+   * Vortex Start.
+   */
   public static final RequiredImpl<VortexStart> VORTEX_START = new RequiredImpl<>();
+
+  /**
+   * Number of Vortex Start threads.
+   */
   public static final RequiredParameter<Integer> NUM_OF_VORTEX_START_THERAD = new RequiredParameter<>();
 
+  /**
+   * Vortex Master configuration.
+   */
   public static final ConfigurationModule CONF = new VortexMasterConf()
       .bindNamedParameter(WorkerNum.class, WORKER_NUM)
       .bindNamedParameter(WorkerMem.class, WORKER_MEM)

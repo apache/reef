@@ -28,14 +28,21 @@ import java.io.Serializable;
  * Distributed thread pool.
  */
 @Unstable
-public class VortexThreadPool {
+public final class VortexThreadPool {
   private final VortexMaster vortexMaster;
 
   @Inject
-  public VortexThreadPool(final VortexMaster vortexMaster) {
+  private VortexThreadPool(final VortexMaster vortexMaster) {
     this.vortexMaster = vortexMaster;
   }
 
+  /**
+   * @param function to run on Vortex
+   * @param input of the function
+   * @param <TInput> input type
+   * @param <TOutput> output type
+   * @return VortexFuture for tracking execution progress
+   */
   public <TInput extends Serializable, TOutput extends Serializable> VortexFuture<TOutput>
       submit(final VortexFunction<TInput, TOutput> function, final TInput input) {
     return vortexMaster.enqueueTasklet(function, input);

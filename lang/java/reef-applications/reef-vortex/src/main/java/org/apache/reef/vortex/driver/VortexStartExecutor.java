@@ -34,12 +34,16 @@ final class VortexStartExecutor implements EventHandler<VortexStart> {
   private final VortexMaster vortexMaster;
 
   @Inject
-  public VortexStartExecutor(final VortexThreadPool vortexThreadPool,
+  private VortexStartExecutor(final VortexThreadPool vortexThreadPool,
                              final VortexMaster vortexMaster) {
     this.vortexThreadPool = vortexThreadPool;
     this.vortexMaster = vortexMaster;
   }
 
+  /**
+   * Execute the passed VortexStart and terminate right after.
+   * @param vortexStart to execute
+   */
   @Override
   public void onNext(final VortexStart vortexStart) {
     vortexStart.start(vortexThreadPool);

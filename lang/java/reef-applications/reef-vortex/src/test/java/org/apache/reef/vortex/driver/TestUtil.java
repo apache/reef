@@ -33,6 +33,9 @@ public class TestUtil {
   private final AtomicInteger taskletId = new AtomicInteger(0);
   private final AtomicInteger workerId = new AtomicInteger(0);
 
+  /**
+   * @return a new mocked worker.
+   */
   public VortexWorkerManager newWorker() {
     final RunningTask reefTask = mock(RunningTask.class);
     when(reefTask.getId()).thenReturn("worker" + String.valueOf(workerId.getAndIncrement()));
@@ -40,6 +43,9 @@ public class TestUtil {
     return new VortexWorkerManager(vortexRequestor, reefTask);
   }
 
+  /**
+   * @return a new dummy tasklet.
+   */
   public Tasklet newTasklet() {
     return new Tasklet(taskletId.getAndIncrement(), null, null, new VortexFuture());
   }

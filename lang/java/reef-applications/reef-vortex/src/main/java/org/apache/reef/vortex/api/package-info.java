@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * Vortex user api.
+ * Vortex user api for running jobs on Vortex.
  */
 package org.apache.reef.vortex.api;

@@ -30,17 +30,17 @@ import org.apache.reef.tang.Configurations;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.tang.annotations.Unit;
 import org.apache.reef.vortex.api.VortexStart;
-import org.apache.reef.vortex.common.TaskletException;
-import org.apache.reef.vortex.common.TaskletResult;
+import org.apache.reef.vortex.common.TaskletFailureReport;
+import org.apache.reef.vortex.common.TaskletResultReport;
 import org.apache.reef.vortex.common.WorkerReport;
 import org.apache.reef.vortex.evaluator.VortexWorker;
-import org.apache.reef.vortex.evaluator.VortexWorkerConf;
 import org.apache.reef.wake.EStage;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.time.event.StartTime;
 
 import javax.inject.Inject;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -51,6 +51,9 @@ import java.util.logging.Logger;
 @DriverSide
 final class VortexDriver {
   private static final Logger LOG = Logger.getLogger(VortexDriver.class.getName());
+  private static final int MAX_NUM_OF_FAILURES = 5;
+
+  private final AtomicInteger numberOfFailures = new AtomicInteger(0);
   private final EvaluatorRequestor evaluatorRequestor; // for requesting resources
   private final VortexMaster vortexMaster; // Vortex Master
   private final VortexRequestor vortexRequestor; // For sending Commands to remote workers
@@ -61,14 +64,14 @@ final class VortexDriver {
   private final int evalCores;
 
   @Inject
-  public VortexDriver(final EvaluatorRequestor evaluatorRequestor,
-                      final VortexRequestor vortexRequestor,
-                      final VortexMaster vortexMaster,
-                      final EStage<VortexStart> vortexStartEStage,
-                      final VortexStart vortexStart,
-                      @Parameter(VortexMasterConf.WorkerMem.class) final int workerMem,
-                      @Parameter(VortexMasterConf.WorkerNum.class) final int workerNum,
-                      @Parameter(VortexMasterConf.WorkerCores.class) final int workerCores) {
+  private VortexDriver(final EvaluatorRequestor evaluatorRequestor,
+                       final VortexRequestor vortexRequestor,
+                       final VortexMaster vortexMaster,
+                       final EStage<VortexStart> vortexStartEStage,
+                       final VortexStart vortexStart,
+                       @Parameter(VortexMasterConf.WorkerMem.class) final int workerMem,
+                       @Parameter(VortexMasterConf.WorkerNum.class) final int workerNum,
+                       @Parameter(VortexMasterConf.WorkerCores.class) final int workerCores) {
     vortexStartEStage.onNext(vortexStart);
     this.evaluatorRequestor = evaluatorRequestor;
     this.vortexMaster = vortexMaster;
@@ -81,7 +84,7 @@ final class VortexDriver {
   /**
    * Driver started.
    */
-  public final class StartHandler implements EventHandler<StartTime> {
+  final class StartHandler implements EventHandler<StartTime> {
     @Override
     public void onNext(final StartTime startTime) {
       // Initial Evaluator Request
@@ -96,7 +99,7 @@ final class VortexDriver {
   /**
    * Container allocated.
    */
-  public final class AllocatedEvaluatorHandler implements EventHandler<AllocatedEvaluator> {
+  final class AllocatedEvaluatorHandler implements EventHandler<AllocatedEvaluator> {
     @Override
     public void onNext(final AllocatedEvaluator allocatedEvaluator) {
       LOG.log(Level.INFO, "Container allocated");
@@ -121,7 +124,7 @@ final class VortexDriver {
   /**
    * Evaluator up and running.
    */
-  public final class RunningTaskHandler implements EventHandler<RunningTask> {
+  final class RunningTaskHandler implements EventHandler<RunningTask> {
     @Override
     public void onNext(final RunningTask reefTask) {
       LOG.log(Level.INFO, "Worker up and running");
@@ -139,12 +142,12 @@ final class VortexDriver {
       final WorkerReport workerReport= (WorkerReport)SerializationUtils.deserialize(taskMessage.get());
       switch (workerReport.getType()) {
       case TaskletResult:
-        final TaskletResult taskletResult = (TaskletResult)workerReport;
-        vortexMaster.taskletCompleted(workerId, taskletResult.getTaskletId(), taskletResult.getResult());
+        final TaskletResultReport taskletResultReport = (TaskletResultReport)workerReport;
+        vortexMaster.taskletCompleted(workerId, taskletResultReport.getTaskletId(), taskletResultReport.getResult());
         break;
-      case TaskletException:
-        final TaskletException taskletException = (TaskletException)workerReport;
-        vortexMaster.taskletErrored(workerId, taskletException.getTaskletId(), taskletException.getException());
+      case TaskletFailure:
+        final TaskletFailureReport taskletFailureReport = (TaskletFailureReport)workerReport;
+        vortexMaster.taskletErrored(workerId, taskletFailureReport.getTaskletId(), taskletFailureReport.getException());
         break;
       default:
         throw new RuntimeException("Unknown Report");
@@ -160,19 +163,22 @@ final class VortexDriver {
     @Override
     public void onNext(final FailedEvaluator failedEvaluator) {
       LOG.log(Level.INFO, "Evaluator preempted");
+      if (numberOfFailures.incrementAndGet() >= MAX_NUM_OF_FAILURES) {
+        throw new RuntimeException("Exceeded max number of failures");
+      } else {
+        final List<FailedContext> contextList = failedEvaluator.getFailedContextList();
+        // DANGER: NullPointerException if no context exists(for whatever strange reasons)
+        final EvaluatorDescriptor evaluatorDescriptor = contextList.get(0).getEvaluatorDescriptor();
 
-      final List<FailedContext> contextList = failedEvaluator.getFailedContextList();
-      // DANGER: NullPointerException if no context exists(for whatever strange reasons)
-      final EvaluatorDescriptor evaluatorDescriptor = contextList.get(0).getEvaluatorDescriptor();
+        // We request a new evaluator to take the place of the preempted one
+        evaluatorRequestor.submit(EvaluatorRequest.newBuilder()
+            .setNumber(1)
+            .setMemory(evaluatorDescriptor.getMemory())
+            .setNumberOfCores(evaluatorDescriptor.getNumberOfCores())
+            .build());
 
-      // We request a new evaluator to take the place of the preempted one
-      evaluatorRequestor.submit(EvaluatorRequest.newBuilder()
-          .setNumber(1)
-          .setMemory(evaluatorDescriptor.getMemory())
-          .setNumberOfCores(evaluatorDescriptor.getNumberOfCores())
-          .build());
-
-      vortexMaster.workerPreempted(failedEvaluator.getId());
+        vortexMaster.workerPreempted(failedEvaluator.getId());
+      }
     }
   }
 }

@@ -24,6 +24,9 @@ import org.apache.reef.vortex.api.VortexFunction;
  * Outputs input + 1.
  */
 final class AddOneFunction implements VortexFunction<Integer, Integer> {
+  /**
+   * Outputs input + 1.
+   */
   @Override
   public Integer call(final Integer input) throws Exception {
     return input + 1;

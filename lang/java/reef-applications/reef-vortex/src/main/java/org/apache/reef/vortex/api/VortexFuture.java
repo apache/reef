@@ -27,26 +27,10 @@ import java.util.concurrent.*;
  * TODO[REEF-505]: Callback features for VortexFuture.
  */
 @Unstable
-public class VortexFuture<TOutput> implements Future {
+public final class VortexFuture<TOutput> implements Future<TOutput> {
   private TOutput userResult;
   private Exception userException;
   private final CountDownLatch countDownLatch = new CountDownLatch(1);
-
-  /**
-   * Called by VortexMaster to let the user know that the task completed.
-   */
-  public void completed(final TOutput result) {
-    this.userResult = result;
-    this.countDownLatch.countDown();
-  }
-
-  /**
-   * Called by VortexMaster to let the user know that the task threw an exception.
-   */
-  public void threwException(final Exception exception) {
-    this.userException = exception;
-    this.countDownLatch.countDown();
-  }
 
   /**
    * TODO[REEF-502]: Support Vortex Tasklet(s) cancellation by user.
@@ -64,11 +48,17 @@ public class VortexFuture<TOutput> implements Future {
     throw new UnsupportedOperationException("Cancel not yet supported");
   }
 
+  /**
+   * @return true it the task completed, false if not.
+   */
   @Override
   public boolean isDone() {
     return countDownLatch.getCount() == 0;
   }
 
+  /**
+   * Infinitely wait for the result of the task.
+   */
   @Override
   public TOutput get() throws InterruptedException, ExecutionException {
     countDownLatch.await();
@@ -80,6 +70,9 @@ public class VortexFuture<TOutput> implements Future {
     }
   }
 
+  /**
+   * Wait a certain period of time for the result of the task.
+   */
   @Override
   public TOutput get(final long timeout, final TimeUnit unit)
       throws InterruptedException, ExecutionException, TimeoutException {
@@ -93,5 +86,21 @@ public class VortexFuture<TOutput> implements Future {
       assert(userException != null);
       throw new ExecutionException(userException);
     }
+  }
+
+  /**
+   * Called by VortexMaster to let the user know that the task completed.
+   */
+  public void completed(final TOutput result) {
+    this.userResult = result;
+    this.countDownLatch.countDown();
+  }
+
+  /**
+   * Called by VortexMaster to let the user know that the task threw an exception.
+   */
+  public void threwException(final Exception exception) {
+    this.userException = exception;
+    this.countDownLatch.countDown();
   }
 }

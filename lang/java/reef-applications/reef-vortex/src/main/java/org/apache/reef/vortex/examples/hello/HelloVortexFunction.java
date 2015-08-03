@@ -26,6 +26,9 @@ import java.io.Serializable;
  * Prints to stdout.
  */
 final class HelloVortexFunction implements VortexFunction {
+  /**
+   * Prints to stdout.
+   */
   @Override
   public Serializable call(final Serializable serializable) throws Exception {
     System.out.println("Hello, Vortex!");
