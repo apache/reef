@@ -70,6 +70,7 @@ public final class YarnDriverRestartManager implements DriverRestartManager {
 
   @Override
   public boolean isRestart() {
+    // TODO [REEF-508]: Determine restart based on environment variable as provided by YARN.
     if (this.previousContainers == null) {
       this.previousContainers = this.registration.getRegistration().getContainersFromPreviousAttempts();
 
@@ -79,11 +80,7 @@ public final class YarnDriverRestartManager implements DriverRestartManager {
       }
     }
 
-    if (this.previousContainers.isEmpty()) {
-      return false;
-    }
-
-    return true;
+    return !this.previousContainers.isEmpty();
   }
 
   @Override

@@ -64,20 +64,6 @@ public final class DriverStartHandler implements EventHandler<StartTime> {
   @Inject
   DriverStartHandler(@Parameter(org.apache.reef.driver.parameters.DriverStartHandler.class)
                      final Set<EventHandler<StartTime>> startHandlers,
-                     @Parameter(DriverRestartHandler.class)
-                     final Set<EventHandler<StartTime>> restartHandlers,
-                     final DriverRestartManager driverRestartManager,
-                     final DriverStatusManager driverStatusManager) {
-    this(startHandlers, Optional.of(restartHandlers), Optional.<Set<EventHandler<StartTime>>>empty(),
-        Optional.of(driverRestartManager), driverStatusManager);
-    LOG.log(Level.FINE, "Instantiated `DriverStartHandler with StartHandlers [{0}], RestartHandlers [{1}]," +
-            " with a restart manager.",
-        new String[] {this.startHandlers.toString(), this.restartHandlers.toString()});
-  }
-
-  @Inject
-  DriverStartHandler(@Parameter(org.apache.reef.driver.parameters.DriverStartHandler.class)
-                     final Set<EventHandler<StartTime>> startHandlers,
                      final DriverStatusManager driverStatusManager) {
     this(startHandlers, Optional.<Set<EventHandler<StartTime>>>empty(),
         Optional.<Set<EventHandler<StartTime>>>empty(), Optional.<DriverRestartManager>empty(), driverStatusManager);
