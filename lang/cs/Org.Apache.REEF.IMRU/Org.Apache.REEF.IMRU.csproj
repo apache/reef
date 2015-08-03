@@ -41,15 +41,16 @@ under the License.
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="API\IMRUConfiguration.cs" />
     <Compile Include="API\IIMRUClient.cs" />
     <Compile Include="API\IMapFunction.cs" />
+    <Compile Include="API\IMRUCodecConfiguration.cs" />
+    <Compile Include="API\IMRUPipelineDataConverterConfiguration.cs" />
     <Compile Include="API\IMRUJobDefinition.cs" />
     <Compile Include="API\IMRUJobDefinitionBuilder.cs" />
+    <Compile Include="API\IMRUMapConfiguration.cs" />
+    <Compile Include="API\IMRUReduceFunctionConfiguration.cs" />
+    <Compile Include="API\IMRUUpdateConfiguration.cs" />
     <Compile Include="API\IUpdateFunction.cs" />
-    <Compile Include="API\Parameters\MapInputCodec.cs" />
-    <Compile Include="API\Parameters\MapOutputCodec.cs" />
-    <Compile Include="API\Parameters\ResultCodec.cs" />
     <Compile Include="API\UpdateResult.cs" />
     <Compile Include="Examples\MapperCount\MapperCount.cs" />
     <Compile Include="Examples\MapperCount\IdentityMapFunction.cs" />
@@ -90,6 +91,10 @@ under the License.
     <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.Wake\Org.Apache.REEF.Wake.csproj">
       <Project>{cdfb3464-4041-42b1-9271-83af24cd5008}</Project>
       <Name>Org.Apache.REEF.Wake</Name>
+    </ProjectReference>
+    <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.IO\Org.Apache.REEF.IO.csproj">
+      <Project>{dec0f0a8-dbef-4ebf-b69c-e2369c15abf1}</Project>
+      <Name>Org.Apache.REEF.IO</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

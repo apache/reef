@@ -17,11 +17,13 @@
  * under the License.
  */
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Org.Apache.REEF.IMRU.API;
 using Org.Apache.REEF.IMRU.InProcess.Parameters;
 using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Tang.Implementations.Configuration;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
@@ -52,19 +54,30 @@ namespace Org.Apache.REEF.IMRU.InProcess
             _numberOfMappers = numberOfMappers;
         }
 
+        /// <summary>
+        /// Submits the map job
+        /// </summary>
+        /// <param name="jobDefinition">Job definition given by the user</param>
+        /// <returns>The result of the job</returns>
         public IEnumerable<TResult> Submit(IMRUJobDefinition jobDefinition)
         {
-            var injector = TangFactory.GetTang().NewInjector(jobDefinition.Configuration);
+            var mergedConfig = Configurations.Merge(
+                jobDefinition.ReduceFunctionConfiguration,
+                jobDefinition.UpdateFunctionConfiguration);
+
+            var injector = TangFactory.GetTang().NewInjector(mergedConfig);
 
             injector.BindVolatileInstance(GenericType<MapFunctions<TMapInput, TMapOutput>>.Class,
-                MakeMapFunctions(injector));
+                MakeMapFunctions(jobDefinition.MapFunctionConfiguration));
 
             var runner = injector.GetInstance<IMRURunner<TMapInput, TMapOutput, TResult>>();
             return runner.Run();
         }
 
-        private MapFunctions<TMapInput, TMapOutput> MakeMapFunctions(IInjector injector)
+        private MapFunctions<TMapInput, TMapOutput> MakeMapFunctions(IConfiguration configuration)
         {
+            var injector = TangFactory.GetTang().NewInjector(configuration);
+
             ISet<IMapFunction<TMapInput, TMapOutput>> mappers = new HashSet<IMapFunction<TMapInput, TMapOutput>>();
             for (var i = 0; i < _numberOfMappers; ++i)
             {

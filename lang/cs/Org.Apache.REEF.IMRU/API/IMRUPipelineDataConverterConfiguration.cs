@@ -17,34 +17,33 @@
  * under the License.
  */
 
-using Org.Apache.REEF.IMRU.API;
-using Org.Apache.REEF.IMRU.InProcess.Parameters;
+using Org.Apache.REEF.Network.Group.Pipelining;
 using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Util;
 
-namespace Org.Apache.REEF.IMRU.InProcess
+namespace Org.Apache.REEF.IMRU.API
 {
     /// <summary>
-    /// Configuration module for the in-process IMRU.
+    /// A configuration module for The PipelineDataConverter used for chunking 
+    /// and dechunking TMapInput and TMapOutput
     /// </summary>
-    /// <typeparam name="TMapInput">The type of the side information provided to the Map function</typeparam>
-    /// <typeparam name="TMapOutput">The return type of the Map function</typeparam>
-    /// <typeparam name="TResult">The return type of the computation.</typeparam>
-    public sealed class InProcessIMRUConfiguration<TMapInput, TMapOutput, TResult> : ConfigurationModuleBuilder
+    /// <typeparam name="T">Generic type</typeparam>
+    public sealed class IMRUPipelineDataConverterConfiguration<T> : ConfigurationModuleBuilder
     {
         /// <summary>
-        /// The number of Mappers to instantiate.
+        /// The PipelineDataConverter used for chunking and
+        ///  dechunking TMapInput and TMapOutput
         /// </summary>
-        public static readonly OptionalParameter<int> NumberOfMappers = new OptionalParameter<int>();
+        public static readonly
+            RequiredImpl<IPipelineDataConverter<T>> MapInputPiplelineDataConverter =
+                new RequiredImpl<IPipelineDataConverter<T>>();
 
         /// <summary>
         /// Configuration module
         /// </summary>
         public static ConfigurationModule ConfigurationModule =
-            new InProcessIMRUConfiguration<TMapInput, TMapOutput, TResult>()
-                .BindImplementation(GenericType<IIMRUClient<TMapInput, TMapOutput, TResult>>.Class,
-                    GenericType<InProcessIMRUClient<TMapInput, TMapOutput, TResult>>.Class)
-                .BindNamedParameter(GenericType<NumberOfMappers>.Class, NumberOfMappers)
+            new IMRUPipelineDataConverterConfiguration<T>()
+                .BindImplementation(GenericType<IPipelineDataConverter<T>>.Class, MapInputPiplelineDataConverter)
                 .Build();
     }
 }

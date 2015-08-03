@@ -17,22 +17,30 @@
  * under the License.
  */
 
-using System.Collections.Generic;
+using Org.Apache.REEF.Tang.Formats;
+using Org.Apache.REEF.Tang.Util;
 
 namespace Org.Apache.REEF.IMRU.API
 {
     /// <summary>
-    /// Job submission interface for IMRU jobs.
+    /// A configuration module for IMRU IMapFunction.
     /// </summary>
     /// <typeparam name="TMapInput">The type of the side information provided to the Map function</typeparam>
     /// <typeparam name="TMapOutput">The return type of the Map function</typeparam>
-    /// <typeparam name="TResult">The return type of the computation.</typeparam>
-    public interface IIMRUClient<TMapInput, TMapOutput, out TResult>
+    public sealed class IMRUMapConfiguration<TMapInput, TMapOutput> : ConfigurationModuleBuilder
     {
         /// <summary>
-        /// Submit the given job for execution.
+        /// The IMapFunction type to use.
         /// </summary>
-        /// <param name="jobDefinition"></param>
-        IEnumerable<TResult> Submit(IMRUJobDefinition jobDefinition);
+        public static readonly RequiredImpl<IMapFunction<TMapInput, TMapOutput>> MapFunction =
+            new RequiredImpl<IMapFunction<TMapInput, TMapOutput>>();
+
+        /// <summary>
+        /// Configuration module
+        /// </summary>
+        public static ConfigurationModule ConfigurationModule =
+            new IMRUMapConfiguration<TMapInput, TMapOutput>()
+                .BindImplementation(GenericType<IMapFunction<TMapInput, TMapOutput>>.Class, MapFunction)
+                .Build();
     }
 }
