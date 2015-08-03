@@ -37,6 +37,8 @@ public final class DFSEvaluatorLogOverwriteWriter implements DFSEvaluatorLogWrit
 
   private final Path changelogPath;
 
+  private boolean fsClosed = false;
+
   DFSEvaluatorLogOverwriteWriter(final FileSystem fileSystem, final Path changelogPath) {
     this.fileSystem = fileSystem;
     this.changelogPath = changelogPath;
@@ -85,6 +87,18 @@ public final class DFSEvaluatorLogOverwriteWriter implements DFSEvaluatorLogWrit
     try (final FSDataOutputStream newOutput = this.fileSystem.create(this.changelogPath);
          final InputStream newInput = new ByteArrayInputStream(newContent.getBytes())) {
       IOUtils.copyBytes(newInput, newOutput, 4096, true);
+    }
+  }
+
+  /**
+   * Closes the FileSystem.
+   * @throws Exception
+   */
+  @Override
+  public synchronized void close() throws Exception {
+    if (this.fileSystem != null && !this.fsClosed) {
+      this.fileSystem.close();
+      this.fsClosed = true;
     }
   }
 }

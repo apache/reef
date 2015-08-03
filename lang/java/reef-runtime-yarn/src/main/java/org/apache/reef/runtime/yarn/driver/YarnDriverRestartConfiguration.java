@@ -19,6 +19,7 @@
 package org.apache.reef.runtime.yarn.driver;
 
 import org.apache.reef.annotations.Provided;
+import org.apache.reef.annotations.Unstable;
 import org.apache.reef.annotations.audience.ClientSide;
 import org.apache.reef.annotations.audience.Public;
 import org.apache.reef.driver.restart.DriverRestartManager;
@@ -36,6 +37,7 @@ import org.apache.reef.tang.formats.OptionalImpl;
 @ClientSide
 @Public
 @Provided
+@Unstable
 public final class YarnDriverRestartConfiguration extends ConfigurationModuleBuilder {
   /**
    * The Evaluator Preserver implementation used for YARN. Defaults to DFSEvalutorPreserver.

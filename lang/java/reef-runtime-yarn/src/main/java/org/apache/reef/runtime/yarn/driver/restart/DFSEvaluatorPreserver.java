@@ -20,6 +20,9 @@ package org.apache.reef.runtime.yarn.driver.restart;
 
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.reef.annotations.Unstable;
+import org.apache.reef.annotations.audience.DriverSide;
+import org.apache.reef.annotations.audience.RuntimeAuthor;
 import org.apache.reef.driver.parameters.FailDriverOnEvaluatorLogErrors;
 import org.apache.reef.exception.DriverFatalRuntimeException;
 import org.apache.reef.runtime.common.driver.EvaluatorPreserver;
@@ -36,7 +39,10 @@ import java.util.logging.Logger;
 /**
  * An Evaluator Preserver that uses the DFS on YARN.
  */
-public final class DFSEvaluatorPreserver implements EvaluatorPreserver {
+@DriverSide
+@RuntimeAuthor
+@Unstable
+public final class DFSEvaluatorPreserver implements EvaluatorPreserver, AutoCloseable {
   private static final Logger LOG = Logger.getLogger(DFSEvaluatorPreserver.class.getName());
 
   private static final String ADD_FLAG = "+";
@@ -51,6 +57,7 @@ public final class DFSEvaluatorPreserver implements EvaluatorPreserver {
 
   private FileSystem fileSystem;
 
+  private boolean writerClosed = false;
 
   @Inject
   private DFSEvaluatorPreserver(@Parameter(FailDriverOnEvaluatorLogErrors.class)
@@ -72,27 +79,21 @@ public final class DFSEvaluatorPreserver implements EvaluatorPreserver {
         this.writer = new DFSEvaluatorLogOverwriteWriter(this.fileSystem, this.changeLogLocation);
       }
     } catch (final IOException e) {
-      final Level logLevel;
+      final String errMsg = "Cannot read from log file with Exception " + e +
+          ", evaluators will not be recovered.";
+      final String fatalMsg = "Driver was not able to instantiate FileSystem.";
 
-      if (failDriverOnEvaluatorLogErrors) {
-        logLevel = Level.SEVERE;
-      } else {
-        logLevel = Level.WARNING;
-      }
-
-      LOG.log(logLevel, "Cannot read from log file with Exception " + e +
-          ", evaluators will not be recovered.", e);
-
-      if (failDriverOnEvaluatorLogErrors) {
-        throw new DriverFatalRuntimeException("Driver was not able to instantiate FileSystem.", e);
-      }
-
+      this.handleException(e, errMsg, fatalMsg);
       this.fileSystem = null;
       this.changeLogLocation = null;
       this.writer = null;
     }
   }
 
+  /**
+   * Recovers the set of evaluators that are alive.
+   * @return
+   */
   @Override
   public synchronized Set<String> recoverEvaluators() {
     final Set<String> expectedContainers = new HashSet<>();
@@ -132,23 +133,20 @@ public final class DFSEvaluatorPreserver implements EvaluatorPreserver {
         br.close();
       }
     } catch (final IOException e) {
-      final Level logLevel;
-      if (this.failDriverOnEvaluatorLogErrors) {
-        logLevel = Level.SEVERE;
-      } else {
-        logLevel = Level.WARNING;
-      }
+      final String errMsg = "Cannot read from log file with Exception " + e +
+          ", evaluators will not be recovered.";
 
-      LOG.log(logLevel, "Cannot read from log file with Exception " + e +
-          ", evaluators will not be recovered.", e);
+      final String fatalMsg = "Cannot read from evaluator log.";
 
-      if (this.failDriverOnEvaluatorLogErrors) {
-        throw new DriverFatalRuntimeException("Cannot read from evaluator log.", e);
-      }
+      this.handleException(e, errMsg, fatalMsg);
     }
     return expectedContainers;
   }
 
+  /**
+   * Adds the allocated evaluator entry to the evaluator log.
+   * @param id
+   */
   @Override
   public synchronized void recordAllocatedEvaluator(final String id) {
     if (this.fileSystem != null && this.changeLogLocation != null) {
@@ -157,6 +155,10 @@ public final class DFSEvaluatorPreserver implements EvaluatorPreserver {
     }
   }
 
+  /**
+   * Adds the removed evaluator entry to the evaluator log.
+   * @param id
+   */
   @Override
   public synchronized void recordRemovedEvaluator(final String id) {
     if (this.fileSystem != null && this.changeLogLocation != null) {
@@ -171,6 +173,15 @@ public final class DFSEvaluatorPreserver implements EvaluatorPreserver {
     } catch (final IOException e) {
       final String errorMsg = "Unable to log the change of container [" + entry +
           "] to the container log. Driver restart won't work properly.";
+
+      final String fatalMsg = "Unable to log container change.";
+
+      this.handleException(e, errorMsg, fatalMsg);
+    }
+  }
+
+  private void handleException(final Exception e, final String errorMsg, final String fatalMsg){
+    if (this.failDriverOnEvaluatorLogErrors) {
       final Level logLevel;
       if (this.failDriverOnEvaluatorLogErrors) {
         logLevel = Level.SEVERE;
@@ -181,8 +192,30 @@ public final class DFSEvaluatorPreserver implements EvaluatorPreserver {
       LOG.log(logLevel, errorMsg, e);
 
       if (this.failDriverOnEvaluatorLogErrors) {
-        throw new DriverFatalRuntimeException(errorMsg, e);
+        try {
+          this.close();
+        } catch (Exception e1) {
+          LOG.log(Level.SEVERE, "Failed on closing resource with " + e1.getStackTrace());
+        }
+
+        if (fatalMsg != null) {
+          throw new DriverFatalRuntimeException(fatalMsg, e);
+        } else {
+          throw new DriverFatalRuntimeException("Driver failed on Evaluator log error.", e);
+        }
       }
+    }
+  }
+
+  /**
+   * Closes the writer, which in turn closes the FileSystem.
+   * @throws Exception
+   */
+  @Override
+  public synchronized void close() throws Exception {
+    if (this.writer != null && !this.writerClosed) {
+      this.writer.close();
+      this.writerClosed = true;
     }
   }
 }

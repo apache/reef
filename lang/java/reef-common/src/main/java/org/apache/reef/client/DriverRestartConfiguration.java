@@ -19,6 +19,7 @@
 package org.apache.reef.client;
 
 import org.apache.reef.annotations.Provided;
+import org.apache.reef.annotations.Unstable;
 import org.apache.reef.annotations.audience.ClientSide;
 import org.apache.reef.annotations.audience.Public;
 import org.apache.reef.driver.context.ActiveContext;
@@ -28,6 +29,7 @@ import org.apache.reef.runtime.common.DriverRestartCompleted;
 import org.apache.reef.tang.formats.ConfigurationModule;
 import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
 import org.apache.reef.tang.formats.OptionalImpl;
+import org.apache.reef.tang.formats.OptionalParameter;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.time.event.StartTime;
 
@@ -38,6 +40,7 @@ import org.apache.reef.wake.time.event.StartTime;
 @Public
 @ClientSide
 @Provided
+@Unstable
 public final class DriverRestartConfiguration extends ConfigurationModuleBuilder {
   /**
    * This event is fired in place of the ON_DRIVER_STARTED when the Driver is in fact restarted after failure.
@@ -64,8 +67,8 @@ public final class DriverRestartConfiguration extends ConfigurationModuleBuilder
    * Parameter to determine whether the driver should fail or continue if there are evaluator
    * preservation log failures. Defaults to false.
    */
-  public static final OptionalImpl<Boolean> FAIL_DRIVER_ON_EVALUATOR_LOG_ERROR =
-      new OptionalImpl<>();
+  public static final OptionalParameter<Boolean> FAIL_DRIVER_ON_EVALUATOR_LOG_ERROR =
+      new OptionalParameter<>();
 
   public static final ConfigurationModule CONF = new DriverRestartConfiguration()
       .bindNamedParameter(FailDriverOnEvaluatorLogErrors.class, FAIL_DRIVER_ON_EVALUATOR_LOG_ERROR)

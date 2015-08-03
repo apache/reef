@@ -36,6 +36,8 @@ public final class DFSEvaluatorLogAppendWriter implements DFSEvaluatorLogWriter 
 
   private final Path changelogPath;
 
+  private boolean fsClosed = false;
+
   DFSEvaluatorLogAppendWriter(final FileSystem fileSystem, final Path changelogPath) {
     this.fileSystem = fileSystem;
     this.changelogPath = changelogPath;
@@ -57,6 +59,18 @@ public final class DFSEvaluatorLogAppendWriter implements DFSEvaluatorLogWriter 
             new BufferedWriter(new OutputStreamWriter(this.fileSystem.create(this.changelogPath)))
     ) {
       bw.write(formattedEntry);
+    }
+  }
+
+  /**
+   * Closes the FileSystem.
+   * @throws Exception
+   */
+  @Override
+  public synchronized void close() throws Exception {
+    if (this.fileSystem != null && !this.fsClosed) {
+      this.fileSystem.close();
+      this.fsClosed = true;
     }
   }
 }

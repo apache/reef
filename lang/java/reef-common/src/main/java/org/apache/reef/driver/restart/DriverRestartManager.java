@@ -18,6 +18,11 @@
  */
 package org.apache.reef.driver.restart;
 
+import org.apache.reef.annotations.Unstable;
+import org.apache.reef.annotations.audience.DriverSide;
+import org.apache.reef.annotations.audience.Private;
+import org.apache.reef.annotations.audience.RuntimeAuthor;
+
 import java.util.Set;
 
 /**
@@ -25,6 +30,10 @@ import java.util.Set;
  * changes as they are allocated as well as recovering Evaluators and
  * discovering which evaluators are lost on the event of a driver restart.
  */
+@DriverSide
+@Private
+@RuntimeAuthor
+@Unstable
 public interface DriverRestartManager {
 
   /**

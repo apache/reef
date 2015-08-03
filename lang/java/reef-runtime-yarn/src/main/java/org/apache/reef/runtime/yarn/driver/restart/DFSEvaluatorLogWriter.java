@@ -28,7 +28,7 @@ import java.io.IOException;
  * removal entry should be preferred.
  */
 @Private
-public interface DFSEvaluatorLogWriter {
+public interface DFSEvaluatorLogWriter extends AutoCloseable {
 
   /**
    * Writes a formatted entry (addition or removal) for an Evaluator ID into the DFS evaluator log.

@@ -18,11 +18,20 @@
  */
 package org.apache.reef.runtime.common.driver;
 
+import org.apache.reef.annotations.Unstable;
+import org.apache.reef.annotations.audience.DriverSide;
+import org.apache.reef.annotations.audience.Private;
+import org.apache.reef.annotations.audience.RuntimeAuthor;
+
 import java.util.Set;
 
 /**
  * A interface to preserve evaluators across driver restarts.
  */
+@DriverSide
+@Private
+@RuntimeAuthor
+@Unstable
 public interface EvaluatorPreserver {
   /**
    * Called on driver restart when evaluators are to be recovered.

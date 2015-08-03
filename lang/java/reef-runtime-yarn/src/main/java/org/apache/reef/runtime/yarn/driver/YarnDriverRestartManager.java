@@ -19,6 +19,10 @@
 package org.apache.reef.runtime.yarn.driver;
 
 import org.apache.hadoop.yarn.api.records.Container;
+import org.apache.reef.annotations.Unstable;
+import org.apache.reef.annotations.audience.DriverSide;
+import org.apache.reef.annotations.audience.Private;
+import org.apache.reef.annotations.audience.RuntimeAuthor;
 import org.apache.reef.driver.restart.DriverRestartManager;
 import org.apache.reef.proto.ReefServiceProtos;
 import org.apache.reef.runtime.common.driver.DriverStatusManager;
@@ -33,6 +37,14 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * The implementation of restart manager for YARN. Handles evaluator preservation as well
+ * as evaluator recovery on YARN.
+ */
+@DriverSide
+@RuntimeAuthor
+@Private
+@Unstable
 public final class YarnDriverRestartManager implements DriverRestartManager {
 
   private static final Logger LOG = Logger.getLogger(YarnDriverRestartManager.class.getName());

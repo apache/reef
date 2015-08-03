@@ -40,10 +40,6 @@ public final class DriverRuntimeRestartConfiguration extends ConfigurationModule
   }
 
   public static final ConfigurationModule CONF = new DriverRuntimeRestartConfiguration()
-
-      // TODO: decide on whether to call the restart functions on DriverRestartManager directly or to use this class.
-      // .bindSetEntry(ServiceDriverRestartedHandlers.class, DriverRecoverEvaluatorsRestartHandler.class)
-
       .bindSetEntry(ServiceEvaluatorAllocatedHandlers.class, EvaluatorPreservingEvaluatorAllocatedHandler.class)
       .bindSetEntry(ServiceEvaluatorFailedHandlers.class, EvaluatorPreservingEvaluatorFailedHandler.class)
       .bindSetEntry(ServiceEvaluatorCompletedHandlers.class, EvaluatorPreservingEvaluatorCompletedHandler.class)

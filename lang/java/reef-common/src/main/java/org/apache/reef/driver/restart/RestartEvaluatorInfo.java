@@ -18,6 +18,10 @@
  */
 package org.apache.reef.driver.restart;
 
+import org.apache.reef.annotations.Unstable;
+import org.apache.reef.annotations.audience.DriverSide;
+import org.apache.reef.annotations.audience.Private;
+
 import java.util.Collections;
 import java.util.Set;
 
@@ -25,6 +29,9 @@ import java.util.Set;
  * Used to return information on evaluators that have successfully restarted
  * as well as evaluators that have failed.
  */
+@DriverSide
+@Private
+@Unstable
 public final class RestartEvaluatorInfo {
 
   private final Set<String> recoveredEvaluatorIds;
