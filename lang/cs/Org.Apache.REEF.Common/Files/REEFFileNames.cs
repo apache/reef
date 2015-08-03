@@ -42,8 +42,6 @@ namespace Org.Apache.REEF.Common.Files
         private const string EVALUATOR_STDERR = "evaluator.stderr";
         private const string EVALUATOR_STDOUT = "evaluator.stdout";
         private const string CPP_BRIDGE = "JavaClrBridge";
-        private const string REEF_DRIVER_APPDLL_DIR = "/ReefDriverAppDlls/";
-        private const string TMP_LOAD_DIR = "/reef/CLRLoadingDirectory";
         private const string REEF_BASE_FOLDER = "reef";
         private const string GLOBAL_FOLDER = "global";
         private const string LOCAL_FOLDER = "local";
@@ -213,28 +211,12 @@ namespace Org.Apache.REEF.Common.Files
         }
 
         /// <summary>
-        /// </summary>
-        /// <returns>reef driver app dll directory</returns>
-        public string GetReefDriverAppDllDir()
-        {
-            return REEF_DRIVER_APPDLL_DIR;
-        }
-
-        /// <summary>
         /// The name of the Bridge DLL.
         /// </summary>
         /// <returns>The name of the Bridge DLL.</returns>
         public string GetBridgeDLLName()
         {
             return BRIDGE_DLL_NAME;
-        }
-
-        /// <summary>
-        /// </summary>
-        /// <returns>temp load directory</returns>
-        public string GetLoadDir()
-        {
-            return TMP_LOAD_DIR;
         }
 
         private static readonly string GLOBAL_FOLDER_PATH = Path.Combine(REEF_BASE_FOLDER, GLOBAL_FOLDER);
