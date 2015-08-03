@@ -195,7 +195,7 @@ final class ContainerManager implements AutoCloseable {
     }
   }
 
-  void start() {
+  synchronized void start() {
     sendNodeDescriptors();
   }
 
@@ -392,7 +392,7 @@ final class ContainerManager implements AutoCloseable {
   }
 
   @Override
-  public void close() {
+  public synchronized void close() {
     synchronized (this.containers) {
       if (this.containers.isEmpty()) {
         LOG.log(Level.FINEST, "Clean shutdown with no outstanding containers.");
