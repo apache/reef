@@ -15,18 +15,18 @@
 # specific language governing permissions and limitations
 # under the License.
 
+
 """
 This script creates a release candidate and relevant files.
 
 (How to run)
 python release.py <reef_home> <reef_version> <rc candidate number> <public key id (8 hex numbers)>
-<reef_version_for_pom.xml> (optional)
 
-<reef_version_for_pom.xml> option runs change_version.py script. It changes versions in every pom.xml and relevant files.
+You can also see how to run the script with 'python release.py -h'
 
 (Examples)
 python release.py ~/incubator-reef 0.12.0-incubating 1 E488F925
-python release.py ~/incubator-reef 0.12.0-incubating 1 E488F925 0.12.0-incubating-SNAPSHOT
+
 """
 
 
@@ -37,6 +37,7 @@ import hashlib
 import change_version
 import sys
 import os
+import argparse
 
 """
 Get list from .gitignore
@@ -107,15 +108,21 @@ def exclude_git_ignore(file_name):
 
 
 if __name__ == "__main__":
-    reef_home = os.path.abspath(sys.argv[1])
-    reef_version = sys.argv[2]
-    rc_num = sys.argv[3]  # rc candidate number
-    key_id = sys.argv[4]  # public key id 
-    reef_version_for_pom = sys.argv[5]
-    optional_argv_len = 6
+    parser = argparse.ArgumentParser(description="Script for release versioning, packaging, checksum")
+    
+    parser.add_argument("reef_home", type=str, help="REEF home")
+    parser.add_argument("reef_version", type=str, help="REEF version")
+    parser.add_argument("rc_num", type=int, help ="rc candidate number")
+    parser.add_argument("key_id", type=str, help = "public key id (8 hex numbers)")
+    args = parser.parse_args()
+    
+    reef_home = os.path.abspath(args.reef_home)
+    reef_version = args.reef_version
+    rc_num = args.rc_num
+    key_id = args.key_id
 
-    if len(sys.argv)==optional_argv_len:
-        change_version.change_version(reef_home, reef_version_for_pom)
+    change_version.change_build_props(reef_home + "/lang/cs/build.props", "false")
+    change_version.change_version(reef_home, reef_version)
 
     build_result = subprocess.call("cd " + reef_home + " && " + "mvn apache-rat:check", shell=True)
 
@@ -152,6 +159,3 @@ if __name__ == "__main__":
 
     else:
         print "build error - mvn apache-rat:check failed"
-
-
-

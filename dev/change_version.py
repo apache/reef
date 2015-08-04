@@ -19,16 +19,29 @@
 This script changes versions in every pom.xml and relevant files.
 
 (How to run)
-python change_version <reef_home> <reef_version_for_pom.xml>
+python change_version <reef_home> <reef_version_for_pom.xml>  (optional) -s <true or false>   
+
+-s option changes value of 'IsSnapshot' in lang/cs/build.props.
+If you use the option "-s false", bulid.props changes as,
+ <RemoveIncubating>true</RemoveIncubating>
+ <IsSnapshot>false</IsSnapshot>
+ <SnapshotNumber>0</SnapshotNumber>
+
+If you use "-s true", then the value of 'IsSnapshot' is changed to true.
+
+You can also see how to run the script with "python change_version.py -h"
 
 (Example)
-python change_version ~/incubator_reef 0.12.0-incubating-SNAPSHOT
+python change_version ~/incubator_reef 0.12.0-incubating
+python change_version ~/incubator_reef 0.12.0-incubating -s true
+python change_version ~/incubator_reef 0.12.0-incubating -s false
 """
 
 
 import os
 import re
 import sys
+import argparse
 
 """
 Get list of path for every file in a directory
@@ -47,12 +60,17 @@ Change REEF version to new_version in every pom.xml
 """
 def change_pom(file, new_version):
     changed_str = ""
+    ready_to_change = False
 
     f = open(file, 'r')
 
     while True:
         line = f.readline()
-        if "<version>" in line:
+        if not line:
+            break
+        if "<groupId>org.apache.reef</groupId>" in line:
+            ready_to_change = True
+        if "<version>" in line and ready_to_change:
             break
         changed_str += line
 
@@ -97,19 +115,25 @@ def change_constants_cs(file, new_version):
     f.close()
 
 """
-Change the name of shaded.jar in lang/cs/Org.Apache.REEF.Client/run.cmd
+Change version in every AssemblyInfo.cs and lang/cs/Org.Apache.REEF.Bridge/AssemblyInfo.cpp
 """
-def change_shaded_jar_name(file, new_version):
-    changed_str =""
-
+def change_assembly_info_cs(file, new_version):
+    changed_str = ""
+    new_version = new_version.split("-")[0] + ".0"
+    
     f = open(file, 'r')
+    r = re.compile('"(.*?)"')
+
     while True:
         line = f.readline()
         if not line:
             break
-
-        if "set SHADED_JAR" in line:
-            changed_str += "set SHADED_JAR=.\\reef-bridge-java-" + new_version + "-shaded.jar\n"
+        if ("[assembly: AssemblyVersion(" in line and "*" not in line) or ("[assembly: AssemblyFileVersion(" in line) \
+            or ("[assembly:AssemblyVersionAttribute(" in line and "*" not in line) \
+            or ("[assembly:AssemblyFileVersion(" in line):
+            m = r.search(line)
+            old_version = m.group(1)
+            changed_str += line.replace(old_version, new_version)
         else:
             changed_str += line
 
@@ -118,25 +142,91 @@ def change_shaded_jar_name(file, new_version):
     f.close()
 
 """
-Change version of every pom.xml, Constants.cs and run.cmd
+Read 'IsSnapshot' from lang/cs/build.props
+"""
+def read_is_snapshot(file):
+    f = open(file, 'r')
+    r = re.compile('<IsSnapshot>(.*?)</IsSnapshot>')
+    while True:
+        line = f.readline()
+        if not line:
+            break
+        if "<IsSnapshot>" in line and "</IsSnapshot>" in line:
+            m = r.search(line)
+            if(m.group(1)=="true"):
+                return True
+            else:
+                return False
+
+"""
+Change lang/cs/build.props for the release branch
+"""
+def change_build_props(file, is_snapshot):
+    changed_str = ""
+
+    f = open(file, 'r')
+    r1 = re.compile('<RemoveIncubating>(.*?)</RemoveIncubating>')
+    r2 = re.compile('<IsSnapshot>(.*?)</IsSnapshot>')
+    r3 = re.compile('<SnapshotNumber>(.*?)</SnapshotNumber>')
+
+    while True:
+        line = f.readline()
+        if not line:
+            break
+        if "<RemoveIncubating>" and "</RemoveIncubating>" in line and is_snapshot=="false":
+            old_remove_incubating = r1.search(line).group(1)
+            changed_str += line.replace(old_remove_incubating, "true")
+        elif "<IsSnapshot>" in line and "</IsSnapshot>" in line:
+            old_is_snapshot = r2.search(line).group(1)
+            changed_str += line.replace(old_is_snapshot, is_snapshot)
+        elif "<SnapshotNumber>" in line and "</SnapshotNumber>" in line and is_snapshot=="false":
+            old_snapshot_number = r3.search(line).group(1)
+            changed_str += line.replace(old_snapshot_number, "0")
+        else:
+            changed_str += line
+
+    f = open(file, 'w')
+    f.write(changed_str)
+    f.close()
+
+    print file
+
+"""
+Change version of every pom.xml, every AsssemblyInfo.cs, Constants.cs, and AssemblyInfo.cpp
 """
 def change_version(reef_home, new_version):
     for fi in get_filepaths(reef_home):
         if "pom.xml" in fi:
             print fi
             change_pom(fi, new_version)
+        if "AssemblyInfo.cs" in fi:
+            print fi
+            change_assembly_info_cs(fi, new_version)
+
+    change_assembly_info_cs(reef_home + "/lang/cs/Org.Apache.REEF.Bridge/AssemblyInfo.cpp", new_version)
+    print reef_home + "/lang/cs/Org.Apache.REEF.Bridge/AssemblyInfo.cpp"
 
     change_constants_cs(reef_home + "/lang/cs/Org.Apache.REEF.Driver/Constants.cs", new_version)
     print reef_home + "/lang/cs/Org.Apache.REEF.Driver/Constants.cs"
 
-    change_shaded_jar_name(reef_home + "/lang/cs/Org.Apache.REEF.Client/run.cmd", new_version)
-    print reef_home + "/lang/cs/Org.Apache.REEF.Client/run.cmd"
-
 
 if __name__ == "__main__":
-    reef_home = sys.argv[1]
-    new_version = sys.argv[2]
-    change_version(reef_home, new_version)
+    parser = argparse.ArgumentParser(description="Script for changing version of every pom.xml, " \
+        + "every AssemblyInfo.cs, Constants.cs, and AssemblyInfo.cpp")    
+    parser.add_argument("reef_home", type=str, help="REEF home")
+    parser.add_argument("reef_version", type=str, help="REEF version")
+    parser.add_argument("-s", "--isSnapshot", type=str, metavar="<true or false>", help="Change 'IsSnapshot' to true or false")
+    args = parser.parse_args()
+    
+    reef_home = os.path.abspath(args.reef_home)
+    reef_version = args.reef_version
+    is_snapshot = args.isSnapshot
 
+    if is_snapshot is not None:
+        change_build_props(reef_home + "/lang/cs/build.props", is_snapshot)
 
+    if read_is_snapshot(reef_home + "/lang/cs/build.props"):
+        reef_version += "-SNAPSHOT"
+
+    change_version(reef_home, reef_version)
 
