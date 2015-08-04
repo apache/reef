@@ -36,16 +36,10 @@ under the License.
     <UseVSHostingProcess>false</UseVSHostingProcess>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>$(PackagesDir)\Newtonsoft.Json.6.0.8\lib\net45\Newtonsoft.Json.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.IO.Compression" />
     <Reference Include="System.IO.Compression.FileSystem" />
-    <Reference Include="System.Net" />
-    <Reference Include="System.Net.Http" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="API\ClientFactory.cs" />
@@ -115,15 +109,9 @@ under the License.
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Properties\Resources.resx">
+    <EmbeddedResource Include="obj\*.resx">
       <Generator>ResXFileCodeGenerator</Generator>
     </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\reef-bridge-client-0.12.0-incubating-SNAPSHOT-shaded.jar" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\reef-bridge-java-0.12.0-incubating-SNAPSHOT-shaded.jar" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
@@ -135,10 +123,6 @@ under the License.
   </Target>
   <!--begin jar reference-->
   <PropertyGroup>
-    <AfterBuildDependsOn>
-      $(AfterBuildDependsOn);
-      CopyJarFiles;
-    </AfterBuildDependsOn>
     <BeforeBuildDependsOn>
       $(BeforeBuildDependsOn);
       RewriteClientResources;
@@ -165,52 +149,56 @@ under the License.
       <Using Namespace="System.Linq" />
       <Using Namespace="System.Xml.Linq" />
       <Code Type="Fragment" Language="cs"><![CDATA[
-          var Version = XDocument.Load(Path.Combine(ProjectFolder, "pom.xml")).Descendants()
-            .Where(x => x.Name.ToString().Contains("version"))
-            .FirstOrDefault().Value;
-          var shortVer = $(RemoveIncubating) ? Version.Replace("-incubating","") : Version ;
-          var snapshortNumberAsString = ($(SnapshotNumber) >= 0 && $(SnapshotNumber) <=9) ? "0" + $(SnapshotNumber) : $(SnapshotNumber).ToString();
-          var reefVersion = Version;
+      var Version = XDocument.Load(Path.Combine(ProjectFolder, "pom.xml")).Descendants()
+        .Where(x => x.Name.ToString().Contains("version"))
+        .FirstOrDefault().Value;
+      var shortVer = $(RemoveIncubating) ? Version.Replace("-incubating","") : Version ;
+      var snapshortNumberAsString = ($(SnapshotNumber) >= 0 && $(SnapshotNumber) <=9) ? "0" + $(SnapshotNumber) : $(SnapshotNumber).ToString();
+      var reefVersion = Version;
 
-            var resxInputPath = Path.Combine(ProjectFolder,@"lang\cs\Org.Apache.REEF.Client\Properties\Resources.resx");
-            var resxOutputPath = resxInputPath;
-            var resourceDir = Path.Combine(ProjectFolder,@"lang\cs\bin\x64", DebugOrRelease, "Org.Apache.REEF.Bridge.JAR");
-            var byteArrayType = ";System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089";
-            var jarRest = reefVersion + "-shaded.jar" + byteArrayType;
+      var srcDir = @"lang\cs\Org.Apache.REEF.Client\Properties";
+      var targetDir = @"lang\cs\Org.Apache.REEF.Client\obj";
+      var binDir = @"lang\cs\bin\x64";
+      var resxInputPath  = Path.Combine(ProjectFolder, srcDir, "Resources.xml");
+      var resxOutputPath = Path.Combine(ProjectFolder, targetDir, "Resources.resx");
+      var resourceDir = Path.Combine(ProjectFolder, binDir, DebugOrRelease, "Org.Apache.REEF.Bridge.JAR");
+      var byteArrayType = ";System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089";
+      var jarRest = reefVersion + "-shaded.jar" + byteArrayType;
 
-            var dllResources = new Dictionary<string,string>();
-            dllResources.Add("reef_bridge_client", resourceDir + @"\reef-bridge-client-" + jarRest);
-            dllResources.Add("reef_bridge_driver", resourceDir + @"\reef-bridge-java-" + jarRest);
-            dllResources.Add("evaluator", resourceDir + "Org.Apache.REEF.Evaluator.exe" + byteArrayType);
-            dllResources.Add("ClientJarFullName", "reef-bridge-client-" + reefVersion + "-shaded.jar");
-            dllResources.Add("DriverJarFullName", "reef-bridge-java-" + reefVersion + "-shaded.jar");
+      var dllResources = new Dictionary<string,string>();
+      dllResources.Add("reef_bridge_client", resourceDir + @"\reef-bridge-client-" + jarRest);
+      dllResources.Add("reef_bridge_driver", resourceDir + @"\reef-bridge-java-" + jarRest);
+      dllResources.Add("evaluator", resourceDir + "Org.Apache.REEF.Evaluator.exe" + byteArrayType);
+      dllResources.Add("ClientJarFullName", "reef-bridge-client-" + reefVersion + "-shaded.jar");
+      dllResources.Add("DriverJarFullName", "reef-bridge-java-" + reefVersion + "-shaded.jar");
 
-            XElement root = XElement.Load(resxInputPath);
-            var resources = root.Descendants().Where(x => x.Name.LocalName == "data").ToList();
-            foreach (var resource in resources)
-            {
-                var resourceName = resource.Attribute("name").Value;
-                string replaceValue;
-                if (dllResources.TryGetValue(resourceName, out replaceValue))
-                {
-                    var resourceValue = resource.Descendants().Where(x => x.Name.LocalName == "value").FirstOrDefault();
-                    if (resourceValue != null)
-                    {
-                        resourceValue.Value = replaceValue;
-                    }
-                }
-            }
-            var settings = new XmlWriterSettings
-            {
-                Indent = true,
-                IndentChars = "  ",
-                NewLineChars = "\r\n",
-                NewLineHandling = NewLineHandling.Replace
-            };
-            using (var wr = XmlWriter.Create(resxOutputPath, settings))
-            {
-                root.WriteTo(wr);
-            }
+      Directory.CreateDirectory(Path.Combine(ProjectFolder, targetDir));
+      XElement root = XElement.Load(resxInputPath);
+      var resources = root.Descendants().Where(x => x.Name.LocalName == "data").ToList();
+      foreach (var resource in resources)
+      {
+          var resourceName = resource.Attribute("name").Value;
+          string replaceValue;
+          if (dllResources.TryGetValue(resourceName, out replaceValue))
+          {
+              var resourceValue = resource.Descendants().Where(x => x.Name.LocalName == "value").FirstOrDefault();
+              if (resourceValue != null)
+              {
+                  resourceValue.Value = replaceValue;
+              }
+          }
+      }
+      var settings = new XmlWriterSettings
+      {
+          Indent = true,
+          IndentChars = "  ",
+          NewLineChars = "\r\n",
+          NewLineHandling = NewLineHandling.Replace
+      };
+      using (var wr = XmlWriter.Create(resxOutputPath, settings))
+      {
+          root.WriteTo(wr);
+      }
         ]]></Code>
     </Task>
   </UsingTask>

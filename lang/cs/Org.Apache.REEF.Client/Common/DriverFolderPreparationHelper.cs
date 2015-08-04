@@ -19,10 +19,8 @@
 
 
 using System;
-using System.Collections;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Resources;
 using Org.Apache.REEF.Client.API;
 using Org.Apache.REEF.Common;
@@ -30,6 +28,7 @@ using Org.Apache.REEF.Common.Files;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Implementations.Configuration;
+using Org.Apache.REEF.Utilities.Diagnostics;
 using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Client.Common
@@ -41,6 +40,12 @@ namespace Org.Apache.REEF.Client.Common
     {
         private const string DLLFileNameExtension = ".dll";
         private const string EXEFileNameExtension = ".exe";
+        private const string ClientJarResourceName = "reef_bridge_client";
+        private const string ClientJarFileNameResourceName = "ClientJarFullName";
+        private const string DriverJarResourceName = "reef_bridge_driver";
+        private const string DriveJarFileNameResourceName = "DriverJarFullName";
+        private const string CouldNotRetrieveResource = "Could not retrieve resource '{0}'";
+
         private static readonly Logger Logger = Logger.GetLogger(typeof(DriverFolderPreparationHelper));
         private readonly AvroConfigurationSerializer _configurationSerializer;
         private readonly REEFFileNames _fileNames;
@@ -119,14 +124,40 @@ namespace Org.Apache.REEF.Client.Common
         /// </summary>
         private void AddAssemblies()
         {
-            Assembly assembly = typeof(DriverFolderPreparationHelper).Assembly;
-            String[] names = assembly.GetManifestResourceNames();
-            ResourceSet resourceSet = new ResourceSet(assembly.GetManifestResourceStream(names[0]));
+            var assembly = typeof(DriverFolderPreparationHelper).Assembly;
+            var names = assembly.GetManifestResourceNames();
+            if (null == names[0] )
+            {
+                Exceptions.Throw(new ApplicationException("Could not retrieve Assembly Manifest Resource names"), Logger);
+            }
+            var manifestResources = assembly.GetManifestResourceStream(names[0]);
+            if (null == manifestResources)
+            {
+                Exceptions.Throw(new ApplicationException("Could not retrieve Assembly Manifest Resource stream"), Logger);
+            }
 
-            var clientJarBytes = resourceSet.GetObject("reef_bridge_client") as byte[];
-            var clientJarFileName = resourceSet.GetObject("ClientJarFullName") as string;
-            var driverJarBytes = resourceSet.GetObject("reef_bridge_driver") as byte[];
-            var driverJarFileName = resourceSet.GetObject("DriverJarFullName") as string;
+            var resourceSet = new ResourceSet(manifestResources);
+
+            var clientJarBytes = resourceSet.GetObject(ClientJarResourceName) as byte[];
+            if (null == clientJarBytes)
+            {
+                throw new ApplicationException(string.Format(CouldNotRetrieveResource, ClientJarResourceName));
+            }
+            var clientJarFileName = resourceSet.GetObject(ClientJarFileNameResourceName) as string;
+            if (null == clientJarFileName)
+            {
+                throw new ApplicationException(string.Format(CouldNotRetrieveResource, ClientJarFileNameResourceName));
+            }
+            var driverJarBytes = resourceSet.GetObject(DriverJarResourceName) as byte[];
+            if (null == driverJarBytes)
+            {
+                throw new ApplicationException(string.Format(CouldNotRetrieveResource, DriverJarResourceName));
+            }
+            var driverJarFileName = resourceSet.GetObject(DriveJarFileNameResourceName) as string;
+            if (null == driverJarFileName)
+            {
+                throw new ApplicationException(string.Format(CouldNotRetrieveResource, DriveJarFileNameResourceName));
+            }
 
             File.WriteAllBytes(clientJarFileName, clientJarBytes);
             File.WriteAllBytes(driverJarFileName, driverJarBytes);

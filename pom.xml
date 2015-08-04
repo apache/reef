@@ -254,8 +254,6 @@ under the License.
                             <exclude>**/*.opensdf*</exclude>
                             <exclude>**/*.sdf*</exclude>
                             <exclude>**/*.snk</exclude>
-                            <!-- Resource files -->
-                            <exclude>**/*.resx</exclude>
                             <!-- The below are auto generated during the .Net build -->
                             <exclude>**/bin/**</exclude>
                             <exclude>**/obj/**</exclude>
