@@ -18,10 +18,6 @@
  */
 package org.apache.reef.util;
 
-import org.apache.reef.tang.formats.ConfigurationModule;
-import org.apache.reef.tang.formats.OptionalParameter;
-import org.apache.reef.tang.formats.Param;
-
 import java.io.File;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
@@ -95,37 +91,6 @@ public final class EnvironmentUtils {
     }
 
     return jars;
-  }
-
-  /**
-   * @param config
-   * @param param
-   * @param values
-   * @param <P>
-   * @return
-   * @deprecated in 0.2 this really should be in Tang.
-   */
-  @Deprecated
-  public static <P extends Param> ConfigurationModule addAll(
-      final ConfigurationModule config, final P param, final Iterable<String> values) {
-    ConfigurationModule conf = config;
-    for (final String val : values) {
-      conf = conf.set(param, val);
-    }
-    return conf;
-  }
-
-  /**
-   * @param config
-   * @param param
-   * @return
-   * @deprecated Using this method is inherently non-deterministic as it depends on environment variables on your local
-   * machine.
-   */
-  @Deprecated
-  public static ConfigurationModule addClasspath(
-      final ConfigurationModule config, final OptionalParameter<String> param) {
-    return addAll(config, param, getAllClasspathJars());
   }
 
   /**

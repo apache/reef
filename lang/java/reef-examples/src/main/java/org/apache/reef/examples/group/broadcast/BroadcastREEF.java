@@ -115,8 +115,8 @@ public final class BroadcastREEF {
   public static LauncherStatus runBGDReef(
       final Configuration runtimeConfiguration) throws InjectionException {
 
-    final Configuration driverConfiguration = EnvironmentUtils
-        .addClasspath(DriverConfiguration.CONF, DriverConfiguration.GLOBAL_LIBRARIES)
+    final Configuration driverConfiguration = DriverConfiguration.CONF
+        .setMultiple(DriverConfiguration.GLOBAL_LIBRARIES, EnvironmentUtils.getAllClasspathJars())
         .set(DriverConfiguration.ON_DRIVER_STARTED, BroadcastDriver.StartHandler.class)
         .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, BroadcastDriver.EvaluatorAllocatedHandler.class)
         .set(DriverConfiguration.ON_CONTEXT_ACTIVE, BroadcastDriver.ContextActiveHandler.class)

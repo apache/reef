@@ -144,7 +144,39 @@ public class ConfigurationModule {
   }
 
   /**
-   * Binds a list to a specfici optional/required Param using ConfigurationModule.
+   * Binds a set of values to a Param using ConfigurationModule.
+   *
+   * @param opt    Target Param
+   * @param values Values to bind to the Param
+   * @param <T>
+   * @return
+   */
+  public final <T> ConfigurationModule setMultiple(final Param<T> opt, final Iterable<String> values) {
+    ConfigurationModule c = deepCopy();
+    for (final String val : values) {
+      c = c.set(opt, val);
+    }
+    return c;
+  }
+
+  /**
+   * Binds a set of values to a Param using ConfigurationModule.
+   *
+   * @param opt    Target Param
+   * @param values Values to bind to the Param
+   * @param <T>
+   * @return
+   */
+  public final <T> ConfigurationModule setMultiple(final Param<T> opt, final String... values) {
+    ConfigurationModule c = deepCopy();
+    for (final String val : values) {
+      c = c.set(opt, val);
+    }
+    return c;
+  }
+
+  /**
+   * Binds a list to a specific optional/required Param using ConfigurationModule.
    *
    * @param opt      target optional/required Param
    * @param implList List object to be injected
