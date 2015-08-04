@@ -20,7 +20,6 @@ package org.apache.reef.vortex.driver;
 
 import org.apache.commons.lang.SerializationUtils;
 import org.apache.reef.annotations.audience.DriverSide;
-import org.apache.reef.driver.context.FailedContext;
 import org.apache.reef.driver.evaluator.*;
 import org.apache.reef.driver.task.RunningTask;
 import org.apache.reef.driver.task.TaskConfiguration;
@@ -36,10 +35,10 @@ import org.apache.reef.vortex.common.WorkerReport;
 import org.apache.reef.vortex.evaluator.VortexWorker;
 import org.apache.reef.wake.EStage;
 import org.apache.reef.wake.EventHandler;
+import org.apache.reef.wake.impl.SingleThreadStage;
 import org.apache.reef.wake.time.event.StartTime;
 
 import javax.inject.Inject;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -52,6 +51,7 @@ import java.util.logging.Logger;
 final class VortexDriver {
   private static final Logger LOG = Logger.getLogger(VortexDriver.class.getName());
   private static final int MAX_NUM_OF_FAILURES = 5;
+  private static final int SCHEDULER_EVENT = 0; // Dummy number to comply with onNext() interface
 
   private final AtomicInteger numberOfFailures = new AtomicInteger(0);
   private final EvaluatorRequestor evaluatorRequestor; // for requesting resources
@@ -63,16 +63,23 @@ final class VortexDriver {
   private final int evalNum;
   private final int evalCores;
 
+  private final EStage<VortexStart> vortexStartEStage;
+  private final VortexStart vortexStart;
+  private final EStage<Integer> pendingTaskletSchedulerEStage;
+
   @Inject
   private VortexDriver(final EvaluatorRequestor evaluatorRequestor,
                        final VortexRequestor vortexRequestor,
                        final VortexMaster vortexMaster,
                        final EStage<VortexStart> vortexStartEStage,
                        final VortexStart vortexStart,
+                       final PendingTaskletScheduler pendingTaskletScheduler,
                        @Parameter(VortexMasterConf.WorkerMem.class) final int workerMem,
                        @Parameter(VortexMasterConf.WorkerNum.class) final int workerNum,
                        @Parameter(VortexMasterConf.WorkerCores.class) final int workerCores) {
-    vortexStartEStage.onNext(vortexStart);
+    this.vortexStartEStage = vortexStartEStage;
+    this.vortexStart = vortexStart;
+    this.pendingTaskletSchedulerEStage = new SingleThreadStage<>(pendingTaskletScheduler, 1);
     this.evaluatorRequestor = evaluatorRequestor;
     this.vortexMaster = vortexMaster;
     this.vortexRequestor = vortexRequestor;
@@ -93,6 +100,12 @@ final class VortexDriver {
           .setMemory(evalMem)
           .setNumberOfCores(evalCores)
           .build());
+
+      // Run Vortex Start
+      vortexStartEStage.onNext(vortexStart);
+
+      // Run Scheduler
+      pendingTaskletSchedulerEStage.onNext(SCHEDULER_EVENT);
     }
   }
 
@@ -166,15 +179,11 @@ final class VortexDriver {
       if (numberOfFailures.incrementAndGet() >= MAX_NUM_OF_FAILURES) {
         throw new RuntimeException("Exceeded max number of failures");
       } else {
-        final List<FailedContext> contextList = failedEvaluator.getFailedContextList();
-        // DANGER: NullPointerException if no context exists(for whatever strange reasons)
-        final EvaluatorDescriptor evaluatorDescriptor = contextList.get(0).getEvaluatorDescriptor();
-
         // We request a new evaluator to take the place of the preempted one
         evaluatorRequestor.submit(EvaluatorRequest.newBuilder()
             .setNumber(1)
-            .setMemory(evaluatorDescriptor.getMemory())
-            .setNumberOfCores(evaluatorDescriptor.getNumberOfCores())
+            .setMemory(evalMem)
+            .setNumberOfCores(evalCores)
             .build());
 
         vortexMaster.workerPreempted(failedEvaluator.getId());

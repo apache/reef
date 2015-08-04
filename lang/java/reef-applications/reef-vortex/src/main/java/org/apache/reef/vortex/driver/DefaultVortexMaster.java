@@ -26,47 +26,27 @@ import org.apache.reef.vortex.api.VortexFuture;
 import javax.inject.Inject;
 import java.io.Serializable;
 import java.util.*;
-import java.util.concurrent.BlockingDeque;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Default implementation of VortexMaster.
- * It uses two thread-safe data structures(pendingTasklets, runningWorkers) in implementing VortexMaster interface.
- * It also runs a dedicated thread for scheduling/launching pending tasklets.
+ * Uses two thread-safe data structures(pendingTasklets, runningWorkers) in implementing VortexMaster interface.
  */
 @ThreadSafe
 @DriverSide
 final class DefaultVortexMaster implements VortexMaster {
-  private static final Logger LOG = Logger.getLogger(DefaultVortexMaster.class.getName());
   private final AtomicInteger taskletIdCounter = new AtomicInteger();
   private final RunningWorkers runningWorkers;
-  private final BlockingDeque<Tasklet> pendingTasklets = new LinkedBlockingDeque<>();
-  private final ExecutorService schedulerThread = Executors.newSingleThreadExecutor();
+  private final PendingTasklets pendingTasklets;
 
   /**
    * @param runningWorkers for managing all running workers.
    */
   @Inject
-  DefaultVortexMaster(final RunningWorkers runningWorkers) {
+  DefaultVortexMaster(final RunningWorkers runningWorkers,
+                      final PendingTasklets pendingTasklets) {
     this.runningWorkers = runningWorkers;
-    schedulerThread.execute(new Runnable() {
-      @Override
-      public void run() {
-        while (!runningWorkers.isTerminated()) {
-          try {
-            final Tasklet tasklet = pendingTasklets.takeFirst(); // blocks when no tasklet exists
-            runningWorkers.launchTasklet(tasklet); // blocks when no worker exists
-          } catch (InterruptedException e) {
-            LOG.log(Level.INFO, "Interrupted upon termination");
-          }
-        }
-      }
-    });
+    this.pendingTasklets = pendingTasklets;
   }
 
   /**
@@ -124,15 +104,5 @@ final class DefaultVortexMaster implements VortexMaster {
   @Override
   public void terminate() {
     runningWorkers.terminate();
-    schedulerThread.shutdownNow();
-  }
-
-  /**
-   * For unit tests only.
-   */
-  VortexFuture enqueueMockedTasklet(final Tasklet tasklet) {
-    final VortexFuture vortexFuture = new VortexFuture<>();
-    this.pendingTasklets.addLast(tasklet);
-    return vortexFuture;
   }
 }

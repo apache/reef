@@ -49,12 +49,12 @@ public class RunningWorkersTest {
    * Test executor allocation -> tasklet launch -> executor preemption -> tasklet complete
    * Possible scenario: Tasklet completion message from Evaluator comes in slowly, after preemption message from RM.
    */
-  @Test
+  @Test(timeout = 10000)
   public void removeExecutorAndCompleteTasklet() throws Exception {
     final VortexWorkerManager vortexWorkerManager = testUtil.newWorker();
     final Tasklet tasklet = testUtil.newTasklet();
     runningWorkers.addWorker(vortexWorkerManager);
-    runningWorkers.launchTasklet(tasklet);
+    runningWorkers.launchTasklet(tasklet); // blocks when no worker exists
     final Collection<Tasklet> tasklets = runningWorkers.removeWorker(vortexWorkerManager.getId());
     assertEquals("Only 1 Tasklet must have been running", 1, tasklets.size());
     assertTrue("This Tasklet must have been running", tasklets.contains(tasklet));

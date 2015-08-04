@@ -18,13 +18,15 @@
  */
 package org.apache.reef.vortex.driver;
 
+import org.apache.reef.vortex.api.VortexFunction;
+import org.apache.reef.vortex.api.VortexFuture;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * Test whether DefaultVortexMaster correctly handles (simulated) events.
@@ -35,102 +37,122 @@ public class DefaultVortexMasterTest {
   /**
    * Test handling of single tasklet execution without failure.
    */
-  @Test
+  @Test(timeout = 10000)
   public void testSingleTaskletNoFailure() throws Exception {
-    final Tasklet tasklet1 = testUtil.newTasklet();
+    final VortexFunction vortexFunction = testUtil.newFunction();
     final VortexWorkerManager vortexWorkerManager1 = testUtil.newWorker();
     final RunningWorkers runningWorkers = new RunningWorkers();
-    final DefaultVortexMaster vortexMaster = new DefaultVortexMaster(runningWorkers);
+    final PendingTasklets pendingTasklets = new PendingTasklets();
+    final DefaultVortexMaster vortexMaster = new DefaultVortexMaster(runningWorkers, pendingTasklets);
 
     vortexMaster.workerAllocated(vortexWorkerManager1);
-    vortexMaster.enqueueMockedTasklet(tasklet1);
-    waitUntilTaskletIsRunning(runningWorkers, tasklet1.getId());
-    vortexMaster.taskletCompleted(vortexWorkerManager1.getId(), tasklet1.getId(), null);
-    assertTrue("The tasklet should have been finished", tasklet1.isCompleted());
+    final VortexFuture future = vortexMaster.enqueueTasklet(vortexFunction, null);
+    final ArrayList<Integer> taskletIds = scheduleTasklets(runningWorkers, pendingTasklets, 1);
+    for (final int taskletId : taskletIds) {
+      vortexMaster.taskletCompleted(vortexWorkerManager1.getId(), taskletId, null);
+    }
+
+    assertTrue("The VortexFuture should be done", future.isDone());
   }
 
   /**
    * Test handling of single tasklet execution with a failure.
    */
-  @Test
+  @Test(timeout = 10000)
   public void testSingleTaskletFailure() throws Exception {
-    final Tasklet tasklet1 = testUtil.newTasklet();
+    final VortexFunction vortexFunction = testUtil.newFunction();
     final VortexWorkerManager vortexWorkerManager1 = testUtil.newWorker();
     final VortexWorkerManager vortexWorkerManager2 = testUtil.newWorker();
     final RunningWorkers runningWorkers = new RunningWorkers();
-    final DefaultVortexMaster vortexMaster = new DefaultVortexMaster(runningWorkers);
+    final PendingTasklets pendingTasklets = new PendingTasklets();
+    final DefaultVortexMaster vortexMaster = new DefaultVortexMaster(runningWorkers, pendingTasklets);
 
-    // Allocate and launchLocal
+    // Allocate worker & tasklet and schedule
     vortexMaster.workerAllocated(vortexWorkerManager1);
-    vortexMaster.enqueueMockedTasklet(tasklet1);
-    waitUntilTaskletIsRunning(runningWorkers, tasklet1.getId());
+    final VortexFuture future = vortexMaster.enqueueTasklet(vortexFunction, null);
+    final ArrayList<Integer> taskletIds1 = scheduleTasklets(runningWorkers, pendingTasklets, 1);
 
     // Preemption!
     vortexMaster.workerPreempted(vortexWorkerManager1.getId());
+    assertFalse("The VortexFuture should not be done", future.isDone());
 
     // New resource allocation and scheduling
     vortexMaster.workerAllocated(vortexWorkerManager2);
-    waitUntilTaskletIsRunning(runningWorkers, tasklet1.getId());
+    final ArrayList<Integer> taskletIds2 = scheduleTasklets(runningWorkers, pendingTasklets, 1);
+    assertEquals("Both lists need to contain the same single tasklet id", taskletIds1, taskletIds2);
 
     // Completed?
-    vortexMaster.taskletCompleted(vortexWorkerManager2.getId(), tasklet1.getId(), null);
-    assertTrue("The tasklet should have been finished", tasklet1.isCompleted());
+    for (final int taskletId : taskletIds2) {
+      vortexMaster.taskletCompleted(vortexWorkerManager2.getId(), taskletId, null);
+    }
+    assertTrue("The VortexFuture should be done", future.isDone());
   }
 
   /**
    * Test handling of multiple tasklet execution with failures.
    */
-  @Test
-  public void testMultipleTaskletsFailure() {
+  @Test(timeout = 10000)
+  public void testMultipleTaskletsFailure() throws Exception {
     // The tasklets that need to be executed
-    final List<Tasklet> taskletList = new ArrayList<>();
+    final ArrayList<VortexFuture> vortexFutures = new ArrayList<>();
     final RunningWorkers runningWorkers = new RunningWorkers();
-    final DefaultVortexMaster vortexMaster = new DefaultVortexMaster(runningWorkers);
+    final PendingTasklets pendingTasklets = new PendingTasklets();
+    final DefaultVortexMaster vortexMaster = new DefaultVortexMaster(runningWorkers, pendingTasklets);
 
     // Allocate iniital evaluators (will all be preempted later...)
-    final List<VortexWorkerManager> initialExecutors = new ArrayList<>();
+    final List<VortexWorkerManager> initialWorkers = new ArrayList<>();
     final int numOfWorkers = 10;
     for (int i = 0; i < numOfWorkers; i++) {
       final VortexWorkerManager vortexWorkerManager = testUtil.newWorker();
-      initialExecutors.add(vortexWorkerManager);
+      initialWorkers.add(vortexWorkerManager);
       vortexMaster.workerAllocated(vortexWorkerManager);
     }
 
     // Schedule tasklets
     final int numOfTasklets = 100;
     for (int i = 0; i < numOfTasklets; i++) {
-      final Tasklet tasklet = testUtil.newTasklet();
-      taskletList.add(tasklet);
-      vortexMaster.enqueueMockedTasklet(tasklet);
-      waitUntilTaskletIsRunning(runningWorkers, tasklet.getId());
+      vortexFutures.add(vortexMaster.enqueueTasklet(testUtil.newFunction(), null));
     }
+    final ArrayList<Integer> taskletIds1 = scheduleTasklets(runningWorkers, pendingTasklets, numOfTasklets);
 
     // Preempt all evaluators
     for (int i = 0; i < numOfWorkers; i++) {
-      vortexMaster.workerPreempted(initialExecutors.get(i).getId());
+      vortexMaster.workerPreempted(initialWorkers.get(i).getId());
     }
 
-    // Allocate new evaluators
+    // Allocate new evaluators and reschedule
     for (int i = 0; i < numOfWorkers; i++) {
       vortexMaster.workerAllocated(testUtil.newWorker());
     }
+    final ArrayList<Integer> taskletIds2 = scheduleTasklets(runningWorkers, pendingTasklets, numOfTasklets);
+    assertEquals("Must contain same tasklet ids", new HashSet<>(taskletIds1), new HashSet<>(taskletIds2));
 
-    // For each tasklet, wait until it is re-scheduled and then complete it
-    for (final Tasklet tasklet : taskletList) {
-      waitUntilTaskletIsRunning(runningWorkers, tasklet.getId());
-      final String executorId = runningWorkers.getWhereTaskletWasScheduledTo(tasklet.getId());
-      assertNotNull("The tasklet must have been scheduled", executorId);
-      vortexMaster.taskletCompleted(executorId, tasklet.getId(), null);
-      assertTrue("The tasklet should have been finished", tasklet.isCompleted());
+    // Completed?
+    for (final int taskletId : taskletIds2) {
+      final String workerId = runningWorkers.getWhereTaskletWasScheduledTo(taskletId);
+      assertNotNull("The tasklet must have been scheduled", workerId);
+      vortexMaster.taskletCompleted(workerId, taskletId, null);
+    }
+    for (final VortexFuture vortexFuture : vortexFutures) {
+      assertTrue("The VortexFuture should be done", vortexFuture.isDone());
     }
   }
 
   /**
-   * Wait until the tasklet is scheduled.
+   * Schedule specified number of tasklets.
+   * @return ids of scheduled tasklets
    */
-  private void waitUntilTaskletIsRunning(final RunningWorkers runningWorkers, final int taskletId) {
-    while (!runningWorkers.isTaskletRunning(taskletId)) {
-      // Wait until the tasklet is scheduled
+  private ArrayList<Integer> scheduleTasklets(final RunningWorkers runningWorkers,
+                                              final PendingTasklets pendingTasklets,
+                                              final int numOfTasklets) throws InterruptedException {
+    final ArrayList<Integer> taskletIds = new ArrayList<>();
+    for (int i = 0; i < numOfTasklets; i++) {
+      final Tasklet tasklet = pendingTasklets.takeFirst(); // blocks when no tasklet exists
+      assertNotNull("Tasklet should exist in the pending queue", tasklet);
+
+      taskletIds.add(tasklet.getId());
+      runningWorkers.launchTasklet(tasklet); // blocks when no worker exists
     }
+    return taskletIds;
   }
 }

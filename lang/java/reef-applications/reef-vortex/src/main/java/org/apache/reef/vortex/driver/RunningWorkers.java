@@ -233,18 +233,6 @@ final class RunningWorkers {
   ///////////////////////////////////////// For Tests Only
 
   /**
-   * For unit tests to check whether the tasklet has been scheduled and running.
-   */
-  boolean isTaskletRunning(final int taskletId) {
-    for (final VortexWorkerManager vortexWorkerManager : runningWorkers.values()) {
-      if (vortexWorkerManager.containsTasklet(taskletId)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  /**
    * For unit tests to check whether the worker is running.
    */
   boolean isWorkerRunning(final String workerId) {
