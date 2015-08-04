@@ -107,8 +107,8 @@ public class BGDClient {
         .setNumberOfDesiredSplits(numSplits)
         .setComputeRequest(computeRequest)
         .renewFailedEvaluators(false)
-        .setDriverConfigurationModule(EnvironmentUtils
-            .addClasspath(DriverConfiguration.CONF, DriverConfiguration.GLOBAL_LIBRARIES)
+        .setDriverConfigurationModule(DriverConfiguration.CONF
+            .setMultiple(DriverConfiguration.GLOBAL_LIBRARIES, EnvironmentUtils.getAllClasspathJars())
             .set(DriverConfiguration.DRIVER_MEMORY, Integer.toString(memory))
             .set(DriverConfiguration.ON_CONTEXT_ACTIVE, BGDDriver.ContextActiveHandler.class)
             .set(DriverConfiguration.ON_TASK_RUNNING, BGDDriver.TaskRunningHandler.class)
