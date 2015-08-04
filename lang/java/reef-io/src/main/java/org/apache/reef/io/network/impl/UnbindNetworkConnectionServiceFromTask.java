@@ -28,7 +28,7 @@ import org.apache.reef.wake.IdentifierFactory;
 import javax.inject.Inject;
 /**
  * TaskStop event handler for unregistering NetworkConnectionService.
- * This class unregisters driverId from network connection service.
+ * This class unregisters taskId from network connection service.
  */
 public final class UnbindNetworkConnectionServiceFromTask implements EventHandler<TaskStop> {
 
