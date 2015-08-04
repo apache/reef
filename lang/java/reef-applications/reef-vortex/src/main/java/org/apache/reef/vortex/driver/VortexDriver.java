@@ -186,7 +186,7 @@ final class VortexDriver {
             .setNumberOfCores(evalCores)
             .build());
 
-        vortexMaster.workerPreempted(failedEvaluator.getId());
+        vortexMaster.workerPreempted(failedEvaluator.getFailedTask().get().getId());
       }
     }
   }
