@@ -210,11 +210,9 @@ under the License.
     </UpdateClientResources>
   </Target>
   <Target Name="AfterBuild">
-    <Message Text="Deleting zzzz $(TempResxFile)"/>
     <Delete Files="$(TempResxFile)" />
     <RemoveDir Directories="$(BaseIntermediateOutputPath)" />
-   <Message Text="Deleting zzzz $(TempResxFile)"/>
-    </Target>
+  </Target>
   <Target Name="BeforeBuild" DependsOnTargets="$(BeforeBuildDependsOn);RewriteClientResources">
   </Target>
 </Project>
