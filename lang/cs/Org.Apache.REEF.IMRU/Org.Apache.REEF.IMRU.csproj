@@ -60,6 +60,10 @@ under the License.
     <Compile Include="InProcess\InProcessIMRUConfiguration.cs" />
     <Compile Include="InProcess\MapFunctions.cs" />
     <Compile Include="InProcess\Parameters\NumberOfMappers.cs" />
+    <Compile Include="OnREEF\MapInputWithControlMessage\MapControlMessage.cs" />
+    <Compile Include="OnREEF\MapInputWithControlMessage\MapInputWithControlMessage.cs" />
+    <Compile Include="OnREEF\MapInputWithControlMessage\MapInputWithControlMessageCodec.cs" />
+    <Compile Include="OnREEF\MapInputWithControlMessage\MapInputwithControlMessagePipelineDataConverter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
