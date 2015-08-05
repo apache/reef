@@ -27,6 +27,7 @@ under the License.
     <FileAlignment>512</FileAlignment>
     <RestorePackages>true</RestorePackages>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..</SolutionDir>
+    <TempResxFile Condition="$(TempResxFile) == '' Or $(TempResxFile) == '*Undefined*'">$(SolutionDir)Org.Apache.REEF.Client\Properties\Resources.resx</TempResxFile>
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject />
@@ -109,8 +110,9 @@ under the License.
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="obj\*.resx">
+    <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
+      <Visible>false</Visible>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
@@ -139,6 +141,7 @@ under the License.
       <SnapshotNumber />
       <ProjectFolder Required="true" />
       <DebugOrRelease Required="true" />
+      <resxOutputPath Required="true"/> 
     </ParameterGroup>
     <Task>
       <Reference Include="System.Xml" />
@@ -156,11 +159,11 @@ under the License.
       var snapshortNumberAsString = ($(SnapshotNumber) >= 0 && $(SnapshotNumber) <=9) ? "0" + $(SnapshotNumber) : $(SnapshotNumber).ToString();
       var reefVersion = Version;
 
-      var srcDir = @"lang\cs\Org.Apache.REEF.Client\Properties";
-      var targetDir = @"lang\cs\Org.Apache.REEF.Client\obj";
+      var srcDir = @"lang\cs\Org.Apache.REEF.Client\Properties";      
       var binDir = @"lang\cs\bin\x64";
-      var resxInputPath  = Path.Combine(ProjectFolder, srcDir, "Resources.xml");
-      var resxOutputPath = Path.Combine(ProjectFolder, targetDir, "Resources.resx");
+      var resxInputPath  = Path.Combine(ProjectFolder, srcDir, "Resources.xml");      
+      Console.WriteLine ("zzz22 " + resxInputPath );
+      Console.WriteLine ("zzz33 " + resxOutputPath );      
       var resourceDir = Path.Combine(ProjectFolder, binDir, DebugOrRelease, "Org.Apache.REEF.Bridge.JAR");
       var byteArrayType = ";System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089";
       var jarRest = reefVersion + "-shaded.jar" + byteArrayType;
@@ -171,9 +174,9 @@ under the License.
       dllResources.Add("evaluator", resourceDir + "Org.Apache.REEF.Evaluator.exe" + byteArrayType);
       dllResources.Add("ClientJarFullName", "reef-bridge-client-" + reefVersion + "-shaded.jar");
       dllResources.Add("DriverJarFullName", "reef-bridge-java-" + reefVersion + "-shaded.jar");
-
-      Directory.CreateDirectory(Path.Combine(ProjectFolder, targetDir));
+      
       XElement root = XElement.Load(resxInputPath);
+      Console.WriteLine ("zzz44 " + " loaded ");
       var resources = root.Descendants().Where(x => x.Name.LocalName == "data").ToList();
       foreach (var resource in resources)
       {
@@ -195,10 +198,13 @@ under the License.
           NewLineChars = "\r\n",
           NewLineHandling = NewLineHandling.Replace
       };
+      Console.WriteLine ("zzz55 " + " before write");
       using (var wr = XmlWriter.Create(resxOutputPath, settings))
       {
+      Console.WriteLine ("zzz66 " + " mid write");
           root.WriteTo(wr);
       }
+      Console.WriteLine ("zzz77 " + " after write");
         ]]></Code>
     </Task>
   </UsingTask>
@@ -206,10 +212,15 @@ under the License.
       A Target that reWrites client resx to point to correct version of jars
     -->
   <Target Name="RewriteClientResources" DependsOnTargets="CopyJarFiles">
-    <UpdateClientResources ProjectFolder="$(REEF_Source_Folder)" DebugOrRelease="$(Configuration)">
+    <UpdateClientResources ProjectFolder="$(REEF_Source_Folder)" DebugOrRelease="$(Configuration)" resxOutputPath="$(TempResxFile)">
     </UpdateClientResources>
   </Target>
-  <Target Name="AfterBuild" DependsOnTargets="$(AfterBuildDependsOn);" />
+  <Target Name="AfterBuild">
+    <Message Text="Deleting zzzz $(TempResxFile)"/>
+    <Delete Files="$(TempResxFile)" />
+    <RemoveDir Directories="$(BaseIntermediateOutputPath)" />
+   <Message Text="Deleting zzzz $(TempResxFile)"/>
+    </Target>
   <Target Name="BeforeBuild" DependsOnTargets="$(BeforeBuildDependsOn);RewriteClientResources">
   </Target>
 </Project>
