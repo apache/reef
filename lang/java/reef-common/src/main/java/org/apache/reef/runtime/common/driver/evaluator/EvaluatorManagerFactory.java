@@ -83,11 +83,13 @@ public final class EvaluatorManagerFactory {
 
   /**
    * Instantiates a new EvaluatorManager based on a resource allocation.
+   * Fires the EvaluatorAllocatedEvent.
    *
    * @param resourceAllocationEvent
-   * @return
+   * @return an EvaluatorManager for the newly allocated Evaluator.
    */
-  public EvaluatorManager getNewEvaluatorManager(final ResourceAllocationEvent resourceAllocationEvent) {
+  public EvaluatorManager getNewEvaluatorManagerForNewlyAllocatedEvaluator(
+      final ResourceAllocationEvent resourceAllocationEvent) {
     final NodeDescriptor nodeDescriptor = this.resourceCatalog.getNode(resourceAllocationEvent.getNodeId());
 
     if (nodeDescriptor == null) {
@@ -98,9 +100,19 @@ public final class EvaluatorManagerFactory {
         processFactory.newEvaluatorProcess());
 
     LOG.log(Level.FINEST, "Resource allocation: new evaluator id[{0}]", resourceAllocationEvent.getIdentifier());
-    return this.getNewEvaluatorManagerInstance(resourceAllocationEvent.getIdentifier(), evaluatorDescriptor);
+    final EvaluatorManager evaluatorManager =
+        getNewEvaluatorManagerInstance(resourceAllocationEvent.getIdentifier(), evaluatorDescriptor);
+    evaluatorManager.fireEvaluatorAllocatedEvent();
+
+    return evaluatorManager;
   }
 
+  /**
+   * Instantiates a new EvaluatorManager for a failed evaluator during driver restart.
+   * Does not fire an EvaluatorAllocatedEvent.
+   * @param resourceStatusEvent
+   * @return an EvaluatorManager for the user to call fail on.
+   */
   public EvaluatorManager createForEvaluatorFailedDuringDriverRestart(final ResourceStatusEvent resourceStatusEvent) {
     if (!resourceStatusEvent.getIsFromPreviousDriver().get()) {
       throw new RuntimeException("Invalid resourceStatusEvent, must be status for resource from previous Driver.");
