@@ -251,7 +251,11 @@ public final class RuntimeClock implements Clock {
           // waiting interrupted - return to loop
         }
       }
-      this.handlers.onNext(new RuntimeStop(this.timer.getCurrent()));
+      if (this.stoppedOnException == null) {
+        this.handlers.onNext(new RuntimeStop(this.timer.getCurrent()));
+      } else {
+        this.handlers.onNext(new RuntimeStop(this.timer.getCurrent(), this.stoppedOnException));
+      }
     } catch (final Exception e) {
       e.printStackTrace();
       this.handlers.onNext(new RuntimeStop(this.timer.getCurrent(), e));

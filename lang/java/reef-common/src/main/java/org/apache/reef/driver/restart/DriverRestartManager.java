@@ -21,43 +21,67 @@ package org.apache.reef.driver.restart;
 import org.apache.reef.annotations.Unstable;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
-import org.apache.reef.annotations.audience.RuntimeAuthor;
 
 /**
- * Classes implementing this interface are in charge of recording evaluator
- * changes as they are allocated as well as recovering Evaluators and
- * discovering which evaluators are lost on the event of a driver restart.
+ * The manager that handles aspects of driver restart such as determining whether the driver is in
+ * restart mode, what to do on restart, whether restart is completed, and others.
  */
 @DriverSide
 @Private
-@RuntimeAuthor
 @Unstable
 public interface DriverRestartManager {
 
   /**
-   * Determines whether or not the driver has been restarted.
+   * @return Whether or not the driver instance is a restarted instance.
    */
   boolean isRestart();
 
   /**
-   * This function has a few jobs crucial jobs to enable restart:
-   * 1. Recover the list of evaluators that are reported to be alive by the Resource Manager.
-   * 2. Make necessary operations to inform relevant runtime components about evaluators that are alive
-   * with the set of evaluator IDs recovered in step 1.
-   * 3. Make necessary operations to inform relevant runtime components about evaluators that have failed
-   * during the driver restart period.
+   * Recovers the list of alive and failed evaluators and inform about evaluator failures
+   * based on the specific runtime. Also sets the expected amount of evaluators to report back
+   * as alive to the job driver.
    */
   void onRestart();
 
   /**
-   * Records the evaluators when it is allocated.
+   * Indicate that the Driver restart is complete. It is meant to be called exactly once during a restart and never
+   * during the ininital launch of a Driver.
+   */
+  void setRestartCompleted();
+
+  /**
+   * @return the number of Evaluators expected to check in from a previous run.
+   */
+  int getNumPreviousContainers();
+
+
+  /**
+   * Set the number of containers to expect still active from a previous execution of the Driver in a restart situation.
+   * To be called exactly once during a driver restart.
+   *
+   * @param num
+   */
+  void setNumPreviousContainers(final int num);
+
+  /**
+   * @return the number of Evaluators from a previous Driver that have checked in with the Driver
+   * in a restart situation.
+   */
+  int getNumRecoveredContainers();
+
+  /**
+   * Indicate that this Driver has re-established the connection with one more Evaluator of a previous run.
+   */
+  void oneContainerRecovered();
+
+  /**
+   * Records the evaluators when it is allocated. The implementation depends on the runtime.
    * @param id The evaluator ID of the allocated evaluator.
    */
   void recordAllocatedEvaluator(final String id);
 
-
   /**
-   * Records a removed evaluator into the evaluator log.
+   * Records a removed evaluator into the evaluator log. The implementation depends on the runtime.
    * @param id The evaluator ID of the removed evaluator.
    */
   void recordRemovedEvaluator(final String id);
