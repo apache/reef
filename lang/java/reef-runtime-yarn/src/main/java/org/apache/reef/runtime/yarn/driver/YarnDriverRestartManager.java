@@ -79,15 +79,7 @@ public final class YarnDriverRestartManager implements DriverRestartManager {
    */
   @Override
   public boolean isRestart() {
-    String containerIdString;
-
-    try {
-      containerIdString = System.getenv(ApplicationConstants.Environment.CONTAINER_ID.key());
-    } catch (Exception e) {
-      LOG.log(Level.WARNING, "Unable to get the container ID from the environment, exception " +
-          e + " was thrown.");
-      containerIdString = null;
-    }
+    final String containerIdString = getContainerIdString();
 
     if (containerIdString == null) {
       // container id should always be set in the env by the framework
@@ -95,16 +87,7 @@ public final class YarnDriverRestartManager implements DriverRestartManager {
       return this.isRestartByPreviousContainers();
     }
 
-    ApplicationAttemptId appAttemptID;
-
-    try {
-      final ContainerId containerId = ConverterUtils.toContainerId(containerIdString);
-      appAttemptID = containerId.getApplicationAttemptId();
-    } catch (Exception e) {
-      LOG.log(Level.WARNING, "Unable to get the applicationAttempt ID from the environment, exception " +
-          e + " was thrown.");
-      appAttemptID = null;
-    }
+    final ApplicationAttemptId appAttemptID = getAppAttemptId(containerIdString);
 
     if (appAttemptID == null) {
       LOG.log(Level.WARNING, "applicationAttempt ID is null, determining restart based on previous containers.");
@@ -114,6 +97,27 @@ public final class YarnDriverRestartManager implements DriverRestartManager {
     LOG.log(Level.FINE, "Application attempt: " + appAttemptID.getAttemptId());
 
     return appAttemptID.getAttemptId() > 1;
+  }
+
+  private static String getContainerIdString() {
+    try {
+      return System.getenv(ApplicationConstants.Environment.CONTAINER_ID.key());
+    } catch (Exception e) {
+      LOG.log(Level.WARNING, "Unable to get the container ID from the environment, exception " +
+          e + " was thrown.");
+      return null;
+    }
+  }
+
+  private static ApplicationAttemptId getAppAttemptId(final String containerIdString) {
+    try {
+      final ContainerId containerId = ConverterUtils.toContainerId(containerIdString);
+      return containerId.getApplicationAttemptId();
+    } catch (Exception e) {
+      LOG.log(Level.WARNING, "Unable to get the applicationAttempt ID from the environment, exception " +
+          e + " was thrown.");
+      return null;
+    }
   }
 
   /**
