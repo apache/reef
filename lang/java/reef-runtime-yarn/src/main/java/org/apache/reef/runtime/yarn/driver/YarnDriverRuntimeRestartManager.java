@@ -27,9 +27,9 @@ import org.apache.reef.annotations.Unstable;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.annotations.audience.RuntimeAuthor;
-import org.apache.reef.driver.restart.DriverRestartManager;
+import org.apache.reef.driver.restart.DriverRuntimeRestartManager;
+import org.apache.reef.driver.restart.EvaluatorRestartInfo;
 import org.apache.reef.proto.ReefServiceProtos;
-import org.apache.reef.runtime.common.driver.DriverStatusManager;
 import org.apache.reef.runtime.common.driver.EvaluatorPreserver;
 import org.apache.reef.runtime.common.driver.resourcemanager.ResourceStatusEventImpl;
 import org.apache.reef.runtime.yarn.driver.parameters.YarnEvaluatorPreserver;
@@ -48,25 +48,22 @@ import java.util.logging.Logger;
 @RuntimeAuthor
 @Private
 @Unstable
-public final class YarnDriverRestartManager implements DriverRestartManager {
+public final class YarnDriverRuntimeRestartManager implements DriverRuntimeRestartManager {
 
-  private static final Logger LOG = Logger.getLogger(YarnDriverRestartManager.class.getName());
+  private static final Logger LOG = Logger.getLogger(YarnDriverRuntimeRestartManager.class.getName());
 
   private final EvaluatorPreserver evaluatorPreserver;
   private final ApplicationMasterRegistration registration;
-  private final DriverStatusManager driverStatusManager;
   private final REEFEventHandlers reefEventHandlers;
   private Set<Container> previousContainers;
 
   @Inject
-  private YarnDriverRestartManager(@Parameter(YarnEvaluatorPreserver.class)
-                           final EvaluatorPreserver evaluatorPreserver,
-                           final REEFEventHandlers reefEventHandlers,
-                           final ApplicationMasterRegistration registration,
-                           final DriverStatusManager driverStatusManager){
+  private YarnDriverRuntimeRestartManager(@Parameter(YarnEvaluatorPreserver.class)
+                                          final EvaluatorPreserver evaluatorPreserver,
+                                          final REEFEventHandlers reefEventHandlers,
+                                          final ApplicationMasterRegistration registration){
     this.registration = registration;
     this.evaluatorPreserver = evaluatorPreserver;
-    this.driverStatusManager = driverStatusManager;
     this.reefEventHandlers = reefEventHandlers;
     this.previousContainers = null;
   }
@@ -145,7 +142,23 @@ public final class YarnDriverRestartManager implements DriverRestartManager {
   }
 
   @Override
-  public void onRestart() {
+  public void recordAllocatedEvaluator(final String id) {
+    this.evaluatorPreserver.recordAllocatedEvaluator(id);
+  }
+
+  @Override
+  public void recordRemovedEvaluator(final String id) {
+    this.evaluatorPreserver.recordRemovedEvaluator(id);
+  }
+
+  /**
+   * Used by tDriverRestartManager. Gets the list of previous containers from the resource manager,
+   * compares that list to the YarnDriverRuntimeRestartManager's own list based on the evalutor preserver,
+   * and determine which evaluators are alive and which have failed during restart.
+   * @return EvaluatorRestartInfo, the object encapsulating alive and failed evaluator IDs.
+   */
+  @Override
+  public EvaluatorRestartInfo getAliveAndFailedEvaluators() {
     final Set<String> recoveredEvaluators = new HashSet<>();
     final Set<String> failedEvaluators = new HashSet<>();
 
@@ -191,26 +204,16 @@ public final class YarnDriverRestartManager implements DriverRestartManager {
       }
     }
 
-    this.informAboutEvaluatorAlive(recoveredEvaluators);
-    this.informAboutEvaluatorFailures(failedEvaluators);
+    return new EvaluatorRestartInfo(recoveredEvaluators, failedEvaluators);
   }
 
   /**
-   * Informs the driver status manager about the number of evaluators to wait for to reinitiate contact
-   * with the driver.
-   * TODO [REEF-559]: Tighten previous evaluator ID checks by using entire set of evaluator IDs.
-   * @param evaluatorIds The set of evaluator IDs of evaluators expected to be alive.
+   * Calls the appropriate handler via REEFEventHandlers, which is a runtime specific implementation
+   * of the YARN runtime.
+   * @param evaluatorIds the set of evaluator IDs of failed evaluators during restart.
    */
-  private void informAboutEvaluatorAlive(final Set<String> evaluatorIds) {
-    // We will wait for these evaluators to contact us, so we do not need to record the entire container information.
-    this.driverStatusManager.setNumPreviousContainers(evaluatorIds.size());
-  }
-
-  /**
-   * Generate failure events for evaluators that cannot be recovered.
-   * @param evaluatorIds The set of evaluator IDs of evaluators that have failed on restart.
-   */
-  private void informAboutEvaluatorFailures(final Set<String> evaluatorIds) {
+  @Override
+  public void informAboutEvaluatorFailures(final Set<String> evaluatorIds) {
     for (String evaluatorId : evaluatorIds) {
       LOG.log(Level.WARNING, "Container [" + evaluatorId +
           "] has failed during driver restart process, FailedEvaluatorHandler will be triggered, but " +
@@ -224,15 +227,5 @@ public final class YarnDriverRestartManager implements DriverRestartManager {
           .setIsFromPreviousDriver(true)
           .build());
     }
-  }
-
-  @Override
-  public void recordAllocatedEvaluator(final String id) {
-    this.evaluatorPreserver.recordAllocatedEvaluator(id);
-  }
-
-  @Override
-  public void recordRemovedEvaluator(final String id) {
-    this.evaluatorPreserver.recordRemovedEvaluator(id);
   }
 }

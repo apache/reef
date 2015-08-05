@@ -50,10 +50,9 @@ public final class DriverStartHandler implements EventHandler<StartTime> {
                      final Set<EventHandler<StartTime>> restartHandlers,
                      @Parameter(ServiceDriverRestartedHandlers.class)
                      final Set<EventHandler<StartTime>> serviceRestartHandlers,
-                     final DriverRestartManager driverRestartManager,
-                     final DriverStatusManager driverStatusManager) {
+                     final DriverRestartManager driverRestartManager) {
     this(startHandler, Optional.of(restartHandlers), Optional.of(serviceRestartHandlers),
-        Optional.of(driverRestartManager), driverStatusManager);
+        Optional.of(driverRestartManager));
     LOG.log(Level.FINE, "Instantiated `DriverStartHandler with StartHandlers [{0}], RestartHandlers [{1}]," +
             "and ServiceRestartHandlers [{2}], with a restart manager.",
         new String[] {this.startHandlers.toString(), this.restartHandlers.toString(),
@@ -62,10 +61,9 @@ public final class DriverStartHandler implements EventHandler<StartTime> {
 
   @Inject
   DriverStartHandler(@Parameter(org.apache.reef.driver.parameters.DriverStartHandler.class)
-                     final Set<EventHandler<StartTime>> startHandlers,
-                     final DriverStatusManager driverStatusManager) {
+                     final Set<EventHandler<StartTime>> startHandlers) {
     this(startHandlers, Optional.<Set<EventHandler<StartTime>>>empty(),
-        Optional.<Set<EventHandler<StartTime>>>empty(), Optional.<DriverRestartManager>empty(), driverStatusManager);
+        Optional.<Set<EventHandler<StartTime>>>empty(), Optional.<DriverRestartManager>empty());
     LOG.log(Level.FINE, "Instantiated `DriverStartHandler with StartHandlers [{0}] and no restart.",
         this.startHandlers.toString());
   }
@@ -73,8 +71,7 @@ public final class DriverStartHandler implements EventHandler<StartTime> {
   private DriverStartHandler(final Set<EventHandler<StartTime>> startHandler,
                              final Optional<Set<EventHandler<StartTime>>> restartHandlers,
                              final Optional<Set<EventHandler<StartTime>>> serviceRestartHandlers,
-                             final Optional<DriverRestartManager> driverRestartManager,
-                             final DriverStatusManager driverStatusManager) {
+                             final Optional<DriverRestartManager> driverRestartManager) {
     this.startHandlers = startHandler;
     this.restartHandlers = restartHandlers;
     this.serviceRestartHandlers = serviceRestartHandlers;

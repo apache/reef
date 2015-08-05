@@ -24,7 +24,7 @@ import org.apache.reef.wake.EventHandler;
 import javax.inject.Inject;
 
 /**
- * Records allocated evaluators for recovery on driver restart by using a DriverRestartManager.
+ * Records allocated evaluators for recovery on driver restart by using a DriverRuntimeRestartManager.
  */
 public final class EvaluatorPreservingEvaluatorAllocatedHandler implements EventHandler<AllocatedEvaluator> {
   private final DriverRestartManager driverRestartManager;
@@ -35,7 +35,7 @@ public final class EvaluatorPreservingEvaluatorAllocatedHandler implements Event
   }
 
   /**
-   * Records the allocatedEvaluator ID with the DriverRestartManager.
+   * Records the allocatedEvaluator ID with the DriverRuntimeRestartManager.
    * @param value the allocated evaluator event.
    */
   @Override

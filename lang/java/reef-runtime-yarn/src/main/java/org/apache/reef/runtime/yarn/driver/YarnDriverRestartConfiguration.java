@@ -22,7 +22,7 @@ import org.apache.reef.annotations.Provided;
 import org.apache.reef.annotations.Unstable;
 import org.apache.reef.annotations.audience.ClientSide;
 import org.apache.reef.annotations.audience.Public;
-import org.apache.reef.driver.restart.DriverRestartManager;
+import org.apache.reef.driver.restart.DriverRuntimeRestartManager;
 import org.apache.reef.runtime.common.driver.DriverRuntimeRestartConfiguration;
 import org.apache.reef.runtime.common.driver.EvaluatorPreserver;
 import org.apache.reef.runtime.yarn.driver.parameters.YarnEvaluatorPreserver;
@@ -49,7 +49,7 @@ public final class YarnDriverRestartConfiguration extends ConfigurationModuleBui
    */
   public static final ConfigurationModule CONF = new YarnDriverRestartConfiguration()
       .bindNamedParameter(YarnEvaluatorPreserver.class, EVALUATOR_PRESERVER)
-      .bindImplementation(DriverRestartManager.class, YarnDriverRestartManager.class)
+      .bindImplementation(DriverRuntimeRestartManager.class, YarnDriverRuntimeRestartManager.class)
       .merge(DriverRuntimeRestartConfiguration.CONF)
       .build();
 }

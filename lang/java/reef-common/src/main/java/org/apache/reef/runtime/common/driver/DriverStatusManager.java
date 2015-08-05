@@ -43,9 +43,6 @@ public final class DriverStatusManager {
   private DriverStatus driverStatus = DriverStatus.PRE_INIT;
   private Optional<Throwable> shutdownCause = Optional.empty();
   private boolean driverTerminationHasBeenCommunicatedToClient = false;
-  private boolean restartCompleted = false;
-  private int numPreviousContainers = -1;
-  private int numRecoveredContainers = 0;
 
 
   /**
@@ -202,70 +199,6 @@ public final class DriverStatusManager {
       }
       this.driverTerminationHasBeenCommunicatedToClient = true;
     }
-  }
-
-  /**
-   * Indicate that the Driver restart is complete. It is meant to be called exactly once during a restart and never
-   * during the ininital launch of a Driver.
-   */
-  public synchronized void setRestartCompleted() {
-    if (!this.isDriverRestart()) {
-      throw new IllegalStateException("setRestartCompleted() called in a Driver that is not, in fact, restarted.");
-    } else if (this.restartCompleted) {
-      LOG.log(Level.WARNING, "Calling setRestartCompleted more than once.");
-    } else {
-      this.restartCompleted = true;
-    }
-  }
-
-  /**
-   * @return the number of Evaluators expected to check in from a previous run.
-   */
-  public synchronized int getNumPreviousContainers() {
-    return this.numPreviousContainers;
-  }
-
-  /**
-   * Set the number of containers to expect still active from a previous execution of the Driver in a restart situation.
-   * To be called exactly once during a driver restart.
-   *
-   * @param num
-   */
-  public synchronized void setNumPreviousContainers(final int num) {
-    if (this.numPreviousContainers >= 0) {
-      throw new IllegalStateException("Attempting to set the number of expected containers left " +
-          "from a previous container more than once.");
-    } else {
-      this.numPreviousContainers = num;
-    }
-  }
-
-  /**
-   * @return the number of Evaluators from a previous Driver that have checked in with the Driver
-   * in a restart situation.
-   */
-  public synchronized int getNumRecoveredContainers() {
-    return this.numRecoveredContainers;
-  }
-
-  /**
-   * Indicate that this Driver has re-established the connection with one more Evaluator of a previous run.
-   */
-  public synchronized void oneContainerRecovered() {
-    this.numRecoveredContainers += 1;
-    if (this.numRecoveredContainers > this.numPreviousContainers) {
-      throw new IllegalStateException("Reconnected to" +
-          this.numRecoveredContainers +
-          "Evaluators while only expecting " +
-          this.numPreviousContainers);
-    }
-  }
-
-  /**
-   * @return true if the Driver is a restarted driver of an earlier attempt.
-   */
-  private synchronized boolean isDriverRestart() {
-    return this.getNumPreviousContainers() > 0;
   }
 
   public synchronized boolean isShuttingDownOrFailing() {

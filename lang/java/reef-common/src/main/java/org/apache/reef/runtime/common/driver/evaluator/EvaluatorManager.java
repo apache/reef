@@ -21,6 +21,8 @@ package org.apache.reef.runtime.common.driver.evaluator;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.driver.evaluator.CLRProcessFactory;
+import org.apache.reef.driver.restart.DriverRestartManager;
+import org.apache.reef.exception.DriverFatalRuntimeException;
 import org.apache.reef.tang.ConfigurationProvider;
 import org.apache.reef.driver.context.ActiveContext;
 import org.apache.reef.driver.context.FailedContext;
@@ -35,7 +37,6 @@ import org.apache.reef.io.naming.Identifiable;
 import org.apache.reef.proto.EvaluatorRuntimeProtocol;
 import org.apache.reef.proto.ReefServiceProtos;
 import org.apache.reef.runtime.common.DriverRestartCompleted;
-import org.apache.reef.runtime.common.driver.DriverStatusManager;
 import org.apache.reef.driver.evaluator.EvaluatorProcess;
 import org.apache.reef.runtime.common.driver.api.ResourceLaunchEvent;
 import org.apache.reef.runtime.common.driver.api.ResourceReleaseEventImpl;
@@ -96,7 +97,6 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
   private final ContextControlHandler contextControlHandler;
   private final EvaluatorStatusManager stateManager;
   private final ExceptionCodec exceptionCodec;
-  private final DriverStatusManager driverStatusManager;
   private final EventHandlerIdlenessSource idlenessSource;
   private final RemoteManager remoteManager;
   private final ConfigurationSerializer configurationSerializer;
@@ -104,6 +104,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
   private final Set<ConfigurationProvider> evaluatorConfigurationProviders;
   private final JVMProcessFactory jvmProcessFactory;
   private final CLRProcessFactory clrProcessFactory;
+  private final Optional<DriverRestartManager> driverRestartManager;
 
   // Mutable fields
   private Optional<TaskRepresenter> task = Optional.empty();
@@ -124,15 +125,68 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
       final EvaluatorControlHandler evaluatorControlHandler,
       final ContextControlHandler contextControlHandler,
       final EvaluatorStatusManager stateManager,
-      final DriverStatusManager driverStatusManager,
       final ExceptionCodec exceptionCodec,
       final EventHandlerIdlenessSource idlenessSource,
       final LoggingScopeFactory loggingScopeFactory,
       @Parameter(EvaluatorConfigurationProviders.class)
       final Set<ConfigurationProvider> evaluatorConfigurationProviders,
-      // TODO: Eventually remove the factories when they are removed from AllocatedEvaluatorImpl
+      final JVMProcessFactory jvmProcessFactory,
+      final CLRProcessFactory clrProcessFactory,
+      final DriverRestartManager driverRestartManager) {
+    this(clock, remoteManager, resourceReleaseHandler, resourceLaunchHandler, evaluatorId, evaluatorDescriptor,
+        contextRepresenters, configurationSerializer, messageDispatcher, evaluatorControlHandler,
+        contextControlHandler, stateManager, exceptionCodec, idlenessSource, loggingScopeFactory,
+        evaluatorConfigurationProviders, jvmProcessFactory, clrProcessFactory, Optional.of(driverRestartManager));
+  }
+
+  @Inject
+  private EvaluatorManager(
+      final Clock clock,
+      final RemoteManager remoteManager,
+      final ResourceReleaseHandler resourceReleaseHandler,
+      final ResourceLaunchHandler resourceLaunchHandler,
+      @Parameter(EvaluatorIdentifier.class) final String evaluatorId,
+      @Parameter(EvaluatorDescriptorName.class) final EvaluatorDescriptorImpl evaluatorDescriptor,
+      final ContextRepresenters contextRepresenters,
+      final ConfigurationSerializer configurationSerializer,
+      final EvaluatorMessageDispatcher messageDispatcher,
+      final EvaluatorControlHandler evaluatorControlHandler,
+      final ContextControlHandler contextControlHandler,
+      final EvaluatorStatusManager stateManager,
+      final ExceptionCodec exceptionCodec,
+      final EventHandlerIdlenessSource idlenessSource,
+      final LoggingScopeFactory loggingScopeFactory,
+      @Parameter(EvaluatorConfigurationProviders.class)
+      final Set<ConfigurationProvider> evaluatorConfigurationProviders,
       final JVMProcessFactory jvmProcessFactory,
       final CLRProcessFactory clrProcessFactory) {
+    this(clock, remoteManager, resourceReleaseHandler, resourceLaunchHandler, evaluatorId, evaluatorDescriptor,
+        contextRepresenters, configurationSerializer, messageDispatcher, evaluatorControlHandler,
+        contextControlHandler, stateManager, exceptionCodec, idlenessSource, loggingScopeFactory,
+        evaluatorConfigurationProviders, jvmProcessFactory, clrProcessFactory, Optional.<DriverRestartManager>empty());
+  }
+
+  private EvaluatorManager(
+      final Clock clock,
+      final RemoteManager remoteManager,
+      final ResourceReleaseHandler resourceReleaseHandler,
+      final ResourceLaunchHandler resourceLaunchHandler,
+      final String evaluatorId,
+      final EvaluatorDescriptorImpl evaluatorDescriptor,
+      final ContextRepresenters contextRepresenters,
+      final ConfigurationSerializer configurationSerializer,
+      final EvaluatorMessageDispatcher messageDispatcher,
+      final EvaluatorControlHandler evaluatorControlHandler,
+      final ContextControlHandler contextControlHandler,
+      final EvaluatorStatusManager stateManager,
+      final ExceptionCodec exceptionCodec,
+      final EventHandlerIdlenessSource idlenessSource,
+      final LoggingScopeFactory loggingScopeFactory,
+      final Set<ConfigurationProvider> evaluatorConfigurationProviders,
+      // TODO: Eventually remove the factories when they are removed from AllocatedEvaluatorImpl
+      final JVMProcessFactory jvmProcessFactory,
+      final CLRProcessFactory clrProcessFactory,
+      final Optional<DriverRestartManager> driverRestartManager) {
     this.contextRepresenters = contextRepresenters;
     this.idlenessSource = idlenessSource;
     LOG.log(Level.FINEST, "Instantiating 'EvaluatorManager' for evaluator: {0}", evaluatorId);
@@ -146,7 +200,6 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
     this.evaluatorControlHandler = evaluatorControlHandler;
     this.contextControlHandler = contextControlHandler;
     this.stateManager = stateManager;
-    this.driverStatusManager = driverStatusManager;
     this.exceptionCodec = exceptionCodec;
 
     this.remoteManager = remoteManager;
@@ -155,6 +208,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
     this.evaluatorConfigurationProviders = evaluatorConfigurationProviders;
     this.jvmProcessFactory = jvmProcessFactory;
     this.clrProcessFactory = clrProcessFactory;
+    this.driverRestartManager = driverRestartManager;
 
     LOG.log(Level.FINEST, "Instantiated 'EvaluatorManager' for evaluator: [{0}]", this.getId());
   }
@@ -195,7 +249,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
       messageDispatcher.onEvaluatorAllocated(allocatedEvaluator);
       allocationFired = true;
     } else {
-      LOG.log(Level.WARNING, "Evaluator allocated event fired twice.");
+      LOG.log(Level.WARNING, "Evaluator allocated event fired more than once.");
     }
   }
 
@@ -339,27 +393,33 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
 
       // first message from a running evaluator trying to re-establish communications
       if (evaluatorHeartbeatProto.getRecovery()) {
-        this.evaluatorControlHandler.setRemoteID(evaluatorRID);
-        this.stateManager.setRunning();
+        if(this.driverRestartManager.isPresent()) {
+          this.evaluatorControlHandler.setRemoteID(evaluatorRID);
+          this.stateManager.setRunning();
 
-        this.driverStatusManager.oneContainerRecovered();
-        final int numRecoveredContainers = this.driverStatusManager.getNumRecoveredContainers();
+          this.driverRestartManager.get().oneContainerRecovered();
+          final int numRecoveredContainers = this.driverRestartManager.get().getNumRecoveredContainers();
 
-        LOG.log(Level.FINE, "Received recovery heartbeat from evaluator {0}.", this.evaluatorId);
-        final int expectedEvaluatorsNumber = this.driverStatusManager.getNumPreviousContainers();
+          LOG.log(Level.FINE, "Received recovery heartbeat from evaluator {0}.", this.evaluatorId);
+          final int expectedEvaluatorsNumber = this.driverRestartManager.get().getNumPreviousContainers();
 
-        if (numRecoveredContainers > expectedEvaluatorsNumber) {
-          LOG.log(Level.SEVERE, "expecting only [{0}] recovered evaluators, but [{1}] evaluators have checked in.",
-              new Object[]{expectedEvaluatorsNumber, numRecoveredContainers});
-          throw new RuntimeException("More then expected number of evaluators are checking in during recovery.");
-        } else if (numRecoveredContainers == expectedEvaluatorsNumber) {
-          LOG.log(Level.INFO, "All [{0}] expected evaluators have checked in. Recovery completed.",
-              expectedEvaluatorsNumber);
-          this.driverStatusManager.setRestartCompleted();
-          this.messageDispatcher.onDriverRestartCompleted(new DriverRestartCompleted(System.currentTimeMillis()));
+          if (numRecoveredContainers > expectedEvaluatorsNumber) {
+            LOG.log(Level.SEVERE, "expecting only [{0}] recovered evaluators, but [{1}] evaluators have checked in.",
+                new Object[]{expectedEvaluatorsNumber, numRecoveredContainers});
+            throw new RuntimeException("More then expected number of evaluators are checking in during recovery.");
+          } else if (numRecoveredContainers == expectedEvaluatorsNumber) {
+            LOG.log(Level.INFO, "All [{0}] expected evaluators have checked in. Recovery completed.",
+                expectedEvaluatorsNumber);
+            this.driverRestartManager.get().setRestartCompleted();
+            this.messageDispatcher.onDriverRestartCompleted(new DriverRestartCompleted(System.currentTimeMillis()));
+          } else {
+            LOG.log(Level.INFO, "expecting [{0}] recovered evaluators, [{1}] evaluators have checked in.",
+                new Object[]{expectedEvaluatorsNumber, numRecoveredContainers});
+          }
         } else {
-          LOG.log(Level.INFO, "expecting [{0}] recovered evaluators, [{1}] evaluators have checked in.",
-              new Object[]{expectedEvaluatorsNumber, numRecoveredContainers});
+          final String errorMsg = "Restart configurations are not set properly. The DriverRestartManager is missing.";
+          LOG.log(Level.SEVERE, errorMsg);
+          throw new DriverFatalRuntimeException(errorMsg);
         }
       }
 
