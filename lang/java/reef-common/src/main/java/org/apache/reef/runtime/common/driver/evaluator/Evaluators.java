@@ -107,7 +107,7 @@ public final class Evaluators implements AutoCloseable {
   public synchronized void put(
       final EvaluatorManagerFactory evaluatorManagerFactory,
       final ResourceAllocationEvent evaluatorMsg) {
-    this.put(evaluatorManagerFactory.getNewEvaluatorManager(evaluatorMsg));
+    this.put(evaluatorManagerFactory.getNewEvaluatorManagerForNewlyAllocatedEvaluator(evaluatorMsg));
   }
 
   /**

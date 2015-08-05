@@ -98,10 +98,17 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
   private final ExceptionCodec exceptionCodec;
   private final DriverStatusManager driverStatusManager;
   private final EventHandlerIdlenessSource idlenessSource;
+  private final RemoteManager remoteManager;
+  private final ConfigurationSerializer configurationSerializer;
+  private final LoggingScopeFactory loggingScopeFactory;
+  private final Set<ConfigurationProvider> evaluatorConfigurationProviders;
+  private final JVMProcessFactory jvmProcessFactory;
+  private final CLRProcessFactory clrProcessFactory;
 
   // Mutable fields
   private Optional<TaskRepresenter> task = Optional.empty();
   private boolean isResourceReleased = false;
+  private boolean allocationFired = false;
 
   @Inject
   private EvaluatorManager(
@@ -142,17 +149,13 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
     this.driverStatusManager = driverStatusManager;
     this.exceptionCodec = exceptionCodec;
 
-    final AllocatedEvaluator allocatedEvaluator =
-        new AllocatedEvaluatorImpl(this,
-            remoteManager.getMyIdentifier(),
-            configurationSerializer,
-            getJobIdentifier(),
-            loggingScopeFactory,
-            evaluatorConfigurationProviders,
-            jvmProcessFactory,
-            clrProcessFactory);
-    LOG.log(Level.FINEST, "Firing AllocatedEvaluator event for Evaluator with ID [{0}]", evaluatorId);
-    this.messageDispatcher.onEvaluatorAllocated(allocatedEvaluator);
+    this.remoteManager = remoteManager;
+    this.configurationSerializer = configurationSerializer;
+    this.loggingScopeFactory = loggingScopeFactory;
+    this.evaluatorConfigurationProviders = evaluatorConfigurationProviders;
+    this.jvmProcessFactory = jvmProcessFactory;
+    this.clrProcessFactory = clrProcessFactory;
+
     LOG.log(Level.FINEST, "Instantiated 'EvaluatorManager' for evaluator: [{0}]", this.getId());
   }
 
@@ -172,6 +175,28 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
     // cannot find a directory that contains application_, presumably we are on local runtime
     // again, this is a hack for now, we need #845 as a proper solution
     return "REEF_LOCAL_RUNTIME";
+  }
+
+  /**
+   * Fires the EvaluatorAllocatedEvent to the handlers. Can only be done once.
+   */
+  public synchronized void fireEvaluatorAllocatedEvent() {
+    if (!allocationFired && stateManager.isAllocated()) {
+      final AllocatedEvaluator allocatedEvaluator =
+          new AllocatedEvaluatorImpl(this,
+              remoteManager.getMyIdentifier(),
+              configurationSerializer,
+              getJobIdentifier(),
+              loggingScopeFactory,
+              evaluatorConfigurationProviders,
+              jvmProcessFactory,
+              clrProcessFactory);
+      LOG.log(Level.FINEST, "Firing AllocatedEvaluator event for Evaluator with ID [{0}]", evaluatorId);
+      messageDispatcher.onEvaluatorAllocated(allocatedEvaluator);
+      allocationFired = true;
+    } else {
+      LOG.log(Level.WARNING, "Evaluator allocated event fired twice.");
+    }
   }
 
   private static boolean isDoneOrFailedOrKilled(final ResourceStatusEvent resourceStatusEvent) {
