@@ -35,7 +35,6 @@ import org.apache.reef.wake.impl.SyncStage;
 import org.apache.reef.wake.remote.Codec;
 import org.apache.reef.wake.remote.RemoteConfiguration;
 import org.apache.reef.wake.remote.address.LocalAddressProvider;
-import org.apache.reef.wake.remote.address.LocalAddressProviderFactory;
 import org.apache.reef.wake.remote.impl.TransportEvent;
 import org.apache.reef.wake.remote.transport.Link;
 import org.apache.reef.wake.remote.transport.Transport;
@@ -106,19 +105,6 @@ public class NameRegistryClient implements Stage, NamingRegistry {
     } catch (final InjectionException e) {
       throw new RuntimeException(e);
     }
-  }
-
-  @Deprecated
-  public NameRegistryClient(final String serverAddr,
-                            final int serverPort,
-                            final long timeout,
-                            final IdentifierFactory factory) {
-
-    this(serverAddr,
-        serverPort,
-        timeout,
-        factory,
-        LocalAddressProviderFactory.getInstance());
   }
 
   public NameRegistryClient(final String serverAddr, final int serverPort,

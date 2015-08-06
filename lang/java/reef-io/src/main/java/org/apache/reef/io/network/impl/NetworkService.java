@@ -36,7 +36,6 @@ import org.apache.reef.wake.impl.LoggingEventHandler;
 import org.apache.reef.wake.impl.SingleThreadStage;
 import org.apache.reef.wake.remote.Codec;
 import org.apache.reef.wake.remote.address.LocalAddressProvider;
-import org.apache.reef.wake.remote.address.LocalAddressProviderFactory;
 import org.apache.reef.wake.remote.impl.TransportEvent;
 import org.apache.reef.wake.remote.transport.Transport;
 import org.apache.reef.wake.remote.transport.TransportFactory;
@@ -103,42 +102,6 @@ public final class NetworkService<T> implements Stage, ConnectionFactory<T> {
                         final LocalAddressProvider localAddressProvider) {
     this(factory, nsPort, nameServerAddr, nameServerPort,
             RETRY_COUNT, RETRY_TIMEOUT, codec, tpFactory, recvHandler, exHandler, localAddressProvider);
-  }
-
-  /**
-   * @deprecated have an instance injected instead.
-   */
-  @Deprecated
-  public NetworkService(final IdentifierFactory factory,
-                        final int nsPort,
-                        final String nameServerAddr,
-                        final int nameServerPort,
-                        final Codec<T> codec,
-                        final TransportFactory tpFactory,
-                        final EventHandler<Message<T>> recvHandler,
-                        final EventHandler<Exception> exHandler) {
-    this(factory, nsPort, nameServerAddr, nameServerPort,
-         RETRY_COUNT, RETRY_TIMEOUT, codec, tpFactory, recvHandler, exHandler,
-         LocalAddressProviderFactory.getInstance());
-  }
-
-  /**
-   * @deprecated have an instance injected instead.
-   */
-  @Deprecated
-  public NetworkService(
-      final IdentifierFactory factory,
-      final int nsPort,
-      final String nameServerAddr,
-      final int nameServerPort,
-      final int retryCount,
-      final int retryTimeout,
-      final Codec<T> codec,
-      final TransportFactory tpFactory,
-      final EventHandler<Message<T>> recvHandler,
-      final EventHandler<Exception> exHandler) {
-    this(factory, nsPort, nameServerAddr, nameServerPort, retryCount, retryTimeout, codec, tpFactory, recvHandler,
-         exHandler, LocalAddressProviderFactory.getInstance());
   }
 
   /**
