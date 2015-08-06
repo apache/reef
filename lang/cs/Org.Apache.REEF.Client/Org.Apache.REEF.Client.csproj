@@ -27,7 +27,7 @@ under the License.
     <FileAlignment>512</FileAlignment>
     <RestorePackages>true</RestorePackages>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..</SolutionDir>
-    <TempResxFile Condition="$(TempResxFile) == '' Or $(TempResxFile) == '*Undefined*'">$(SolutionDir)Org.Apache.REEF.Client\Properties\Resources.resx</TempResxFile>
+    <TempResxFile Condition="$(TempResxFile) == ''">$(SolutionDir)bin\$(Platform)\$(Configuration)\$(AssemblyName)\Resources.resx</TempResxFile>
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject />
@@ -110,7 +110,7 @@ under the License.
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Properties\Resources.resx">
+    <EmbeddedResource Include="$(TempResxFile)">
       <Generator>ResXFileCodeGenerator</Generator>
       <Visible>false</Visible>
     </EmbeddedResource>
