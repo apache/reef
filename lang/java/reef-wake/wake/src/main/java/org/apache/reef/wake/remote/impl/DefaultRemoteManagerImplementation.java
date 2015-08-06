@@ -24,12 +24,10 @@ import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.impl.StageManager;
 import org.apache.reef.wake.remote.*;
 import org.apache.reef.wake.remote.address.LocalAddressProvider;
-import org.apache.reef.wake.remote.address.LocalAddressProviderFactory;
 import org.apache.reef.wake.remote.ports.RangeTcpPortProvider;
 import org.apache.reef.wake.remote.ports.TcpPortProvider;
 import org.apache.reef.wake.remote.transport.Transport;
 import org.apache.reef.wake.remote.transport.TransportFactory;
-import org.apache.reef.wake.remote.transport.netty.MessagingTransportFactory;
 import org.apache.reef.wake.remote.transport.netty.NettyMessagingTransport;
 
 import javax.inject.Inject;
@@ -67,31 +65,6 @@ public class DefaultRemoteManagerImplementation implements RemoteManager {
    * Indicates a hostname that isn't set or known.
    */
   public static final String UNKNOWN_HOST_NAME = NettyMessagingTransport.UNKNOWN_HOST_NAME;
-
-  /**
-   * @deprecated have an instance injected instead. Or use RemoteManagerFactory.getInstance()
-   */
-  @Deprecated
-  public <T> DefaultRemoteManagerImplementation(
-      final String name,
-      final String hostAddress,
-      final int listeningPort,
-      final Codec<T> codec,
-      final EventHandler<Throwable> errorHandler,
-      final boolean orderingGuarantee,
-      final int numberOfTries,
-      final int retryTimeout) {
-    this(name,
-        hostAddress,
-        listeningPort,
-        codec,
-        errorHandler,
-        orderingGuarantee,
-        numberOfTries,
-        retryTimeout,
-        LocalAddressProviderFactory.getInstance(),
-        new MessagingTransportFactory());
-  }
 
   /**
    * @deprecated have an instance injected instead.
