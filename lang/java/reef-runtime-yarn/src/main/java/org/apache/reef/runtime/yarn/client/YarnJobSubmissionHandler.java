@@ -109,7 +109,9 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
           .setDriverMemory(jobSubmissionEvent.getDriverMemory().get())
           .setPriority(getPriority(jobSubmissionEvent))
           .setQueue(getQueue(jobSubmissionEvent))
-          .submit(jobSubmissionEvent.getRemoteId());
+          .setPreserveEvaluators(getPreserveEvaluators(jobSubmissionEvent))
+          .setMaxApplicationAttempts(getMaxApplicationSubmissions(jobSubmissionEvent))
+          .submit();
 
       LOG.log(Level.FINEST, "Submitted job with ID [{0}]", jobSubmissionEvent.getIdentifier());
     } catch (final YarnException | IOException e) {
@@ -142,6 +144,20 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
    */
   private String getQueue(final JobSubmissionEvent jobSubmissionEvent) {
     return getQueue(jobSubmissionEvent.getConfiguration());
+  }
+
+  /**
+   * Extract the information on whether or not the job should preserve evaluators across job driver restarts.
+   */
+  private Boolean getPreserveEvaluators(final JobSubmissionEvent jobSubmissionEvent) {
+    return jobSubmissionEvent.getPreserveEvaluators().orElse(false);
+  }
+
+  /**
+   * Extract the number of maximum application attempts on the job.
+   */
+  private Integer getMaxApplicationSubmissions(final JobSubmissionEvent jobSubmissionEvent) {
+    return jobSubmissionEvent.getMaxApplicationSubmissions().orElse(1);
   }
 
   /**

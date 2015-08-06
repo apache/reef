@@ -75,6 +75,17 @@ public interface JobSubmissionEvent {
   Optional<Integer> getPriority();
 
   /**
+   * @return True if evaluators are to be preserved across driver failures.
+   */
+  Optional<Boolean> getPreserveEvaluators();
+
+  /**
+   * Returns the number of time that the driver should be started by the resource manager
+   * if it fails unexpectedly.
+   */
+  Optional<Integer> getMaxApplicationSubmissions();
+
+  /**
    * @return Queue to submit the Job to
    * @deprecated in 0.12. Use org.apache.reef.runtime.yarn.client.YarnDriverConfiguration#QUEUE instead.
    */
