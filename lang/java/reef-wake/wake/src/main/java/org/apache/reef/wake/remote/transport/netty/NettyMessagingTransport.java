@@ -109,7 +109,7 @@ public class NettyMessagingTransport implements Transport {
    * @param numberOfTries the number of tries of connection
    * @param retryTimeout  the timeout of reconnection
    * @param tcpPortProvider  gives an iterator that produces random tcp ports in a range
-   * @deprecated use the constructor that takes a LocalAddressProvider instead.
+   * @deprecated in 0.12 use the constructor that takes a LocalAddressProvider instead.
    */
   @Deprecated
   public NettyMessagingTransport(
@@ -234,7 +234,7 @@ public class NettyMessagingTransport implements Transport {
    * @param serverStage   the server-side stage that handles transport events
    * @param numberOfTries the number of tries of connection
    * @param retryTimeout  the timeout of reconnection
-   * @deprecated use the constructor that takes a TcpProvider and LocalAddressProvider instead.
+   * @deprecated in 0.11 use the constructor that takes a TcpProvider and LocalAddressProvider instead.
    */
   @Deprecated
   public NettyMessagingTransport(final String hostAddress, final int port,

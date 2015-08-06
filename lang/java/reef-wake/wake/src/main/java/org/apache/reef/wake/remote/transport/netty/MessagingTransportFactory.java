@@ -89,6 +89,7 @@ public class MessagingTransportFactory implements TransportFactory {
     }
   }
 
+  // TODO[REEF-547]: This method uses deprecated RangeTcpPortProvider.Default. Must remove usages and deprecate.
   @Override
   public Transport newInstance(final String hostAddress, final int port,
                                final EStage<TransportEvent> clientStage,

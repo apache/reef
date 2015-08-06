@@ -61,6 +61,7 @@ public final class DefaultRemoteManagerFactory implements RemoteManagerFactory {
     this.tpFactory = tpFactory;
   }
 
+  // TODO[REEF-547]: This method uses deprecated DefaultRemoteManagerImplementation constructor.
   @Override
   public RemoteManager getInstance(final String name) {
     return new DefaultRemoteManagerImplementation(name,
@@ -75,7 +76,7 @@ public final class DefaultRemoteManagerFactory implements RemoteManagerFactory {
         this.tpFactory);
   }
 
-
+  // TODO[REEF-547]: This method uses deprecated DefaultRemoteManagerImplementation constructor.
   @Override
   @SuppressWarnings("checkstyle:hiddenfield")
   public <T> RemoteManager getInstance(final String name,
@@ -100,6 +101,7 @@ public final class DefaultRemoteManagerFactory implements RemoteManagerFactory {
         tpFactory);
   }
 
+  // TODO[REEF-547]: This method uses deprecated DefaultRemoteManagerImplementation constructor.
   @Override
   @SuppressWarnings("checkstyle:hiddenfield")
   public <T> RemoteManager getInstance(final String name,
@@ -123,6 +125,7 @@ public final class DefaultRemoteManagerFactory implements RemoteManagerFactory {
 
   }
 
+  // TODO[REEF-547]: This method uses deprecated DefaultRemoteManagerImplementation constructor.
   @Override
   @SuppressWarnings("checkstyle:hiddenfield")
   public <T> RemoteManager getInstance(
@@ -139,6 +142,7 @@ public final class DefaultRemoteManagerFactory implements RemoteManagerFactory {
         this.tpFactory);
   }
 
+  // TODO[REEF-547]: This method uses deprecated DefaultRemoteManagerImplementation constructor.
   @Override
   @SuppressWarnings("checkstyle:hiddenfield")
   public <T> RemoteManager getInstance(final String name,
