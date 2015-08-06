@@ -33,7 +33,7 @@ namespace Org.Apache.REEF.Common.Files
         /// </summary>
         /// <param name="assembly"></param>
         /// <returns>ResourceSet</returns>
-        public ResourceHelper (Assembly assembly)
+        public ResourceHelper(Assembly assembly)
         {
             var names = assembly.GetManifestResourceNames();
             if (null == names[0])
@@ -61,7 +61,7 @@ namespace Org.Apache.REEF.Common.Files
             {
                 throw new ApplicationException(string.Format(CouldNotRetrieveResource, resourceName));
             }
-            return (T)resource;
+            return (T) resource;
         }
 
         /// <summary>
@@ -83,6 +83,5 @@ namespace Org.Apache.REEF.Common.Files
         {
             return GetResource<byte[]>(resourceName);
         }
-
     }
 }
