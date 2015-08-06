@@ -40,6 +40,8 @@ public final class JobSubmissionEventImpl implements JobSubmissionEvent {
   private final Optional<Integer> driverMemory;
   private final Optional<Integer> priority;
   private final Optional<String> queue;
+  private final Optional<Boolean> preserveEvaluators;
+  private final Optional<Integer> maxApplicationSubmissions;
 
   private JobSubmissionEventImpl(final Builder builder) {
     this.identifier = BuilderUtils.notNull(builder.identifier);
@@ -50,7 +52,9 @@ public final class JobSubmissionEventImpl implements JobSubmissionEvent {
     this.localFileSet = BuilderUtils.notNull(builder.localFileSet);
     this.driverMemory = Optional.ofNullable(builder.driverMemory);
     this.priority = Optional.ofNullable(builder.priority);
+    this.preserveEvaluators = Optional.ofNullable(builder.preserveEvaluators);
     this.queue = Optional.ofNullable(builder.queue);
+    this.maxApplicationSubmissions = Optional.ofNullable(builder.maxApplicationSubmissions);
   }
 
   @Override
@@ -94,6 +98,16 @@ public final class JobSubmissionEventImpl implements JobSubmissionEvent {
   }
 
   @Override
+  public Optional<Boolean> getPreserveEvaluators() {
+    return preserveEvaluators;
+  }
+
+  @Override
+  public Optional<Integer> getMaxApplicationSubmissions() {
+    return maxApplicationSubmissions;
+  }
+
+  @Override
   public Optional<String> getQueue() {
     return queue;
   }
@@ -115,6 +129,8 @@ public final class JobSubmissionEventImpl implements JobSubmissionEvent {
     private Integer driverMemory;
     private Integer priority;
     private String queue;
+    private Boolean preserveEvaluators;
+    private Integer maxApplicationSubmissions;
 
     /**
      * @see JobSubmissionEvent#getIdentifier()
@@ -179,6 +195,22 @@ public final class JobSubmissionEventImpl implements JobSubmissionEvent {
      */
     public Builder setPriority(final Integer priority) {
       this.priority = priority;
+      return this;
+    }
+
+    /**
+     * @see JobSubmissionEvent#getPreserveEvaluators()
+     */
+    public Builder setPreserveEvaluators(final Boolean preserveEvaluators) {
+      this.preserveEvaluators = preserveEvaluators;
+      return this;
+    }
+
+    /**
+     * @see JobSubmissionEvent#getMaxApplicationSubmissions()
+     */
+    public Builder setMaxApplicationSubmissions(final Integer maxApplicationSubmissions) {
+      this.maxApplicationSubmissions = maxApplicationSubmissions;
       return this;
     }
 

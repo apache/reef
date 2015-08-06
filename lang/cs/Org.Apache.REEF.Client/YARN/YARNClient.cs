@@ -67,7 +67,9 @@ namespace Org.Apache.REEF.Client.YARN
                 jobSubmission.DriverMemory.ToString(),
                 javaParams.TcpPortRangeStart.ToString(),
                 javaParams.TcpPortRangeCount.ToString(),
-                javaParams.TcpPortRangeTryCount.ToString()
+                javaParams.TcpPortRangeTryCount.ToString(),
+                javaParams.MaxApplicationSubmissions.ToString(),
+                javaParams.EnableRestart.ToString()
                 );
             Logger.Log(Level.Info, "Submitted the Driver for execution.");
         }

@@ -77,12 +77,16 @@ final class JobSubmissionHelper {
       throws InjectionException, IOException {
     final Injector injector = Tang.Factory.getTang().newInjector(driverConfiguration);
 
+    final boolean preserveEvaluators = injector.getNamedInstance(ResourceManagerPreserveEvaluators.class);
+    final int maxAppSubmissions = injector.getNamedInstance(MaxApplicationSubmissions.class);
+
     final JobSubmissionEventImpl.Builder jbuilder = JobSubmissionEventImpl.newBuilder()
         .setIdentifier(returnOrGenerateDriverId(injector.getNamedInstance(DriverIdentifier.class)))
         .setDriverMemory(injector.getNamedInstance(DriverMemory.class))
         .setUserName(System.getProperty("user.name"))
+        .setPreserveEvaluators(preserveEvaluators)
+        .setMaxApplicationSubmissions(maxAppSubmissions)
         .setConfiguration(driverConfiguration);
-
 
     for (final String globalFileName : injector.getNamedInstance(JobGlobalFiles.class)) {
       LOG.log(Level.FINEST, "Adding global file: {0}", globalFileName);

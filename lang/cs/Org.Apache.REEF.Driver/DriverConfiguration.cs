@@ -158,6 +158,12 @@ namespace Org.Apache.REEF.Driver
             new OptionalParameter<TraceListener>();
 
         /// <summary>
+        /// The number of times the application should be submitted in case of failures
+        /// </summary>
+        public static readonly OptionalParameter<int> MaxApplicationSubmissions =
+            new OptionalParameter<int>();
+
+        /// <summary>
         /// The implemenation for (attempting to) re-establish connection to driver
         /// </summary>
         public static readonly OptionalImpl<IDriverConnection> OnDriverReconnect = new OptionalImpl<IDriverConnection>();
@@ -203,6 +209,8 @@ namespace Org.Apache.REEF.Driver
                     .BindSetEntry(GenericType<DriverBridgeConfigurationOptions.DriverRestartRunningTaskHandlers>.Class,
                         OnDriverRestartTaskRunning)
                     .BindNamedParameter(GenericType<DriverBridgeConfigurationOptions.TraceLevel>.Class, CustomTraceLevel)
+                    .BindNamedParameter(GenericType<DriverBridgeConfigurationOptions.MaxApplicationSubmissions>.Class,
+                        MaxApplicationSubmissions)
                     .Build()
                     // TODO: Move this up
                     .Set(OnDriverStarted, GenericType<ClassHierarchyGeneratingDriverStartObserver>.Class);
