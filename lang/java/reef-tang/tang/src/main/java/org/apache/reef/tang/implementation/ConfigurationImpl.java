@@ -26,9 +26,7 @@ import org.apache.reef.tang.types.ClassNode;
 import org.apache.reef.tang.types.ConstructorDef;
 import org.apache.reef.tang.types.NamedParameterNode;
 
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.Set;
 
 public class ConfigurationImpl implements Configuration {
@@ -103,14 +101,8 @@ public class ConfigurationImpl implements Configuration {
   }
 
   @Override
-  public Iterable<Entry<NamedParameterNode<Set<?>>, Object>> getBoundSets() {
-    return new Iterable<Entry<NamedParameterNode<Set<?>>, Object>>() {
-
-      @Override
-      public Iterator<Entry<NamedParameterNode<Set<?>>, Object>> iterator() {
-        return builder.boundSetEntries.iterator();
-      }
-    };
+  public Set<NamedParameterNode<Set<?>>> getBoundSets() {
+    return builder.boundSetEntries.keySet();
   }
 
   @Override

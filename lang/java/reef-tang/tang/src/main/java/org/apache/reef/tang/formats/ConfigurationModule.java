@@ -332,16 +332,18 @@ public class ConfigurationModule {
               + ')'
       ));
     }
-    for (final Entry<NamedParameterNode<Set<?>>, Object> e : conf.getBoundSets()) {
-      final String val;
-      if (e.getValue() instanceof String) {
-        val = (String) e.getValue();
-      } else if (e.getValue() instanceof Node) {
-        val = ((Node) e.getValue()).getFullName();
-      } else {
-        throw new IllegalStateException();
+    for (final NamedParameterNode<Set<?>> key : conf.getBoundSets()) {
+      for (final Object value : conf.getBoundSet(key)) {
+        final String val;
+        if (value instanceof String) {
+          val = (String) value;
+        } else if (value instanceof Node) {
+          val = ((Node) value).getFullName();
+        } else {
+          throw new IllegalStateException();
+        }
+        l.add(key.getFullName() + '=' + escape(val));
       }
-      l.add(e.getKey().getFullName() + '=' + escape(val));
     }
     return l;
   }
