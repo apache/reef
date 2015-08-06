@@ -104,25 +104,6 @@ public class NameLookupClient implements Stage, NamingLookup {
          LocalAddressProviderFactory.getInstance());
   }
 
-  @Deprecated
-  public NameLookupClient(final String serverAddr,
-                          final int serverPort,
-                          final long timeout,
-                          final IdentifierFactory factory,
-                          final int retryCount,
-                          final int retryTimeout,
-                          final Cache<Identifier, InetSocketAddress> cache) {
-    this(serverAddr,
-        serverPort,
-        timeout,
-        factory,
-        retryCount,
-        retryTimeout,
-        cache,
-        LocalAddressProviderFactory.getInstance());
-
-  }
-
   /**
    * Constructs a naming lookup client.
    *

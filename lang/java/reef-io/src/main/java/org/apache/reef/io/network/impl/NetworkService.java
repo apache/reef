@@ -23,20 +23,13 @@ import org.apache.reef.io.naming.Naming;
 import org.apache.reef.io.network.Connection;
 import org.apache.reef.io.network.ConnectionFactory;
 import org.apache.reef.io.network.Message;
-import org.apache.reef.io.network.naming.NameClient;
 import org.apache.reef.io.network.naming.NameResolver;
-import org.apache.reef.io.network.naming.parameters.NameResolverRetryCount;
-import org.apache.reef.io.network.naming.parameters.NameResolverRetryTimeout;
-import org.apache.reef.tang.Injector;
-import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.annotations.Parameter;
-import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.wake.*;
 import org.apache.reef.wake.impl.LoggingEventHandler;
 import org.apache.reef.wake.impl.SingleThreadStage;
 import org.apache.reef.wake.remote.Codec;
 import org.apache.reef.wake.remote.address.LocalAddressProvider;
-import org.apache.reef.wake.remote.address.LocalAddressProviderFactory;
 import org.apache.reef.wake.remote.impl.TransportEvent;
 import org.apache.reef.wake.remote.transport.Transport;
 import org.apache.reef.wake.remote.transport.TransportFactory;
@@ -56,21 +49,6 @@ public final class NetworkService<T> implements Stage, ConnectionFactory<T> {
 
   private static final Logger LOG = Logger.getLogger(NetworkService.class.getName());
 
-  private static final int RETRY_COUNT;
-  private static final int RETRY_TIMEOUT;
-
-  static {
-    try {
-      final Injector injector = Tang.Factory.getTang().newInjector();
-      RETRY_COUNT = injector.getNamedInstance(NameResolverRetryCount.class);
-      RETRY_TIMEOUT = injector.getNamedInstance(NameResolverRetryTimeout.class);
-    } catch (final InjectionException ex) {
-      final String msg = "Exception while trying to find default values for retryCount & Timeout";
-      LOG.log(Level.SEVERE, msg, ex);
-      throw new RuntimeException(msg, ex);
-    }
-  }
-
   private final IdentifierFactory factory;
   private final Codec<T> codec;
   private final Transport transport;
@@ -79,88 +57,6 @@ public final class NetworkService<T> implements Stage, ConnectionFactory<T> {
   private final EStage<Tuple<Identifier, InetSocketAddress>> nameServiceRegisteringStage;
   private final EStage<Identifier> nameServiceUnregisteringStage;
   private Identifier myId;
-
-  /**
-   * @param factory
-   * @param nsPort
-   * @param nameServerAddr
-   * @param nameServerPort
-   * @param codec
-   * @param tpFactory
-   * @param recvHandler
-   * @param exHandler
-   * @deprecated have an instance injected instead.
-   */
-  @Deprecated
-  public NetworkService(final IdentifierFactory factory,
-                        final int nsPort,
-                        final String nameServerAddr,
-                        final int nameServerPort,
-                        final Codec<T> codec,
-                        final TransportFactory tpFactory,
-                        final EventHandler<Message<T>> recvHandler,
-                        final EventHandler<Exception> exHandler,
-                        final LocalAddressProvider localAddressProvider) {
-    this(factory, nsPort, nameServerAddr, nameServerPort,
-            RETRY_COUNT, RETRY_TIMEOUT, codec, tpFactory, recvHandler, exHandler, localAddressProvider);
-  }
-
-  /**
-   * @deprecated have an instance injected instead.
-   */
-  @Deprecated
-  public NetworkService(final IdentifierFactory factory,
-                        final int nsPort,
-                        final String nameServerAddr,
-                        final int nameServerPort,
-                        final Codec<T> codec,
-                        final TransportFactory tpFactory,
-                        final EventHandler<Message<T>> recvHandler,
-                        final EventHandler<Exception> exHandler) {
-    this(factory, nsPort, nameServerAddr, nameServerPort,
-         RETRY_COUNT, RETRY_TIMEOUT, codec, tpFactory, recvHandler, exHandler,
-         LocalAddressProviderFactory.getInstance());
-  }
-
-  /**
-   * @deprecated have an instance injected instead.
-   */
-  @Deprecated
-  public NetworkService(
-      final IdentifierFactory factory,
-      final int nsPort,
-      final String nameServerAddr,
-      final int nameServerPort,
-      final int retryCount,
-      final int retryTimeout,
-      final Codec<T> codec,
-      final TransportFactory tpFactory,
-      final EventHandler<Message<T>> recvHandler,
-      final EventHandler<Exception> exHandler) {
-    this(factory, nsPort, nameServerAddr, nameServerPort, retryCount, retryTimeout, codec, tpFactory, recvHandler,
-         exHandler, LocalAddressProviderFactory.getInstance());
-  }
-
-  /**
-   * @deprecated have an instance injected instead.
-   */
-  @Deprecated
-  public NetworkService(
-      final IdentifierFactory factory,
-      final int nsPort,
-      final String nameServerAddr,
-      final int nameServerPort,
-      final int retryCount,
-      final int retryTimeout,
-      final Codec<T> codec,
-      final TransportFactory tpFactory,
-      final EventHandler<Message<T>> recvHandler,
-      final EventHandler<Exception> exHandler,
-      final LocalAddressProvider localAddressProvider) {
-    this(factory, nsPort, new NameClient(nameServerAddr, nameServerPort,
-        30000, factory, retryCount, retryTimeout, localAddressProvider, tpFactory),
-        codec, tpFactory, recvHandler, exHandler, localAddressProvider);
-  }
 
   /**
    * @deprecated in 0.12. Use Tang to obtain an instance of this instead.
