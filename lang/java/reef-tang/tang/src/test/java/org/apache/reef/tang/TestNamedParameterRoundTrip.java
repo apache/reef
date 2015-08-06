@@ -22,15 +22,17 @@ import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
 import org.apache.reef.tang.exceptions.BindException;
 import org.apache.reef.tang.exceptions.InjectionException;
-import org.apache.reef.tang.formats.ConfigurationFile;
+import org.apache.reef.tang.formats.AvroConfigurationSerializer;
 import org.junit.Test;
+
+import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
 
 public class TestNamedParameterRoundTrip {
 
   @Test
-  public void testRoundTrip() throws BindException, InjectionException {
+  public void testRoundTrip() throws BindException, InjectionException, IOException {
     final int d = 10;
     final double eps = 1e-5;
     final JavaConfigurationBuilder b = Tang.Factory.getTang().newConfigurationBuilder();
@@ -46,9 +48,10 @@ public class TestNamedParameterRoundTrip {
     assertEquals(eps, readEps1, 1e-12);
     assertEquals(d, readD1);
 
+    final AvroConfigurationSerializer avroSerializer = new AvroConfigurationSerializer();
 
     final JavaConfigurationBuilder roundTrip2 = Tang.Factory.getTang().newConfigurationBuilder();
-    ConfigurationFile.addConfiguration(roundTrip2, ConfigurationFile.toConfigurationString(conf));
+    avroSerializer.configurationBuilderFromString(avroSerializer.toString(conf), roundTrip2);
     final Injector i2 = Tang.Factory.getTang().newInjector(roundTrip2.build());
 
     final int readD2 = i2.getNamedInstance(Dimensionality.class).intValue();
@@ -72,8 +75,7 @@ public class TestNamedParameterRoundTrip {
     final Injector parent4 =
         Tang.Factory.getTang().newInjector(Tang.Factory.getTang().newConfigurationBuilder().build());
     final JavaConfigurationBuilder roundTrip4 = Tang.Factory.getTang().newConfigurationBuilder();
-    ConfigurationFile.addConfiguration(roundTrip4,
-        ConfigurationFile.toConfigurationString(conf));
+    avroSerializer.configurationBuilderFromString(avroSerializer.toString(conf), roundTrip4);
     final Injector i4 = parent4.forkInjector(roundTrip4.build());
 
     final int readD4 = i4.getNamedInstance(Dimensionality.class).intValue();

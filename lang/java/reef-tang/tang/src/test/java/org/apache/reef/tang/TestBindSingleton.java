@@ -20,12 +20,14 @@ package org.apache.reef.tang;
 
 import org.apache.reef.tang.exceptions.BindException;
 import org.apache.reef.tang.exceptions.InjectionException;
-import org.apache.reef.tang.formats.ConfigurationFile;
+import org.apache.reef.tang.formats.AvroConfigurationSerializer;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import javax.inject.Inject;
+
+import java.io.IOException;
 
 import static org.junit.Assert.assertTrue;
 
@@ -49,16 +51,16 @@ public class TestBindSingleton {
   }
 
   @Test
-  public void testSingletonRoundTrip() throws BindException, InjectionException {
+  public void testSingletonRoundTrip() throws BindException, InjectionException, IOException {
 
     final JavaConfigurationBuilder b = Tang.Factory.getTang()
         .newConfigurationBuilder();
     b.bindImplementation(A.class, B.class);
     final Configuration src = b.build();
 
-    final JavaConfigurationBuilder dest = Tang.Factory.getTang()
-        .newConfigurationBuilder();
-    ConfigurationFile.addConfiguration(dest, ConfigurationFile.toConfigurationString(src));
+    final JavaConfigurationBuilder dest = Tang.Factory.getTang().newConfigurationBuilder();
+    final AvroConfigurationSerializer avroSerializer = new AvroConfigurationSerializer();
+    avroSerializer.configurationBuilderFromString(avroSerializer.toString(src), dest);
     final Injector i = Tang.Factory.getTang().newInjector(dest.build());
     final A a1 = i.getInstance(A.class);
     final A a2 = i.getInstance(A.class);

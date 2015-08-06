@@ -27,7 +27,7 @@ import org.apache.reef.tang.test.RoundTripTest;
 import java.io.File;
 
 /**
- * Tests the file writing routines in ConfigurationFile.
+ * Tests the file writing routines in AvroConfigurationSerializer.
  */
 public final class ConfigurationFileTest extends RoundTripTest {
   @Override

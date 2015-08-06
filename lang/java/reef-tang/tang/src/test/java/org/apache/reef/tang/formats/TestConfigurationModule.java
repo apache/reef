@@ -312,13 +312,14 @@ public class TestConfigurationModule {
   }
 
   @Test
-  public void setClassRoundTripTest() throws BindException, InjectionException {
+  public void setClassRoundTripTest() throws BindException, InjectionException, IOException {
     final Configuration c = SetClassConfigurationModule.CONF
         .set(SetClassConfigurationModule.P, SubA.class)
         .set(SetClassConfigurationModule.P, SubB.class)
         .build();
     final ConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder();
-    ConfigurationFile.addConfiguration(cb, ConfigurationFile.toConfigurationString(c));
+    final AvroConfigurationSerializer avroSerializer = new AvroConfigurationSerializer();
+    avroSerializer.configurationBuilderFromString(avroSerializer.toString(c), cb);
     final Set<Super> s = Tang.Factory.getTang().newInjector(cb.build()).getNamedInstance(SetClass.class);
     Assert.assertEquals(2, s.size());
     boolean sawA = false, sawB = false;

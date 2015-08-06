@@ -18,13 +18,12 @@
  */
 package org.apache.reef.wake;
 
-import org.apache.reef.tang.JavaConfigurationBuilder;
-import org.apache.reef.tang.Tang;
+import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.tang.exceptions.BindException;
-import org.apache.reef.tang.formats.ConfigurationFile;
+import org.apache.reef.tang.formats.AvroConfigurationSerializer;
 import org.apache.reef.wake.exception.WakeRuntimeException;
 
 import javax.inject.Inject;
@@ -35,7 +34,9 @@ import java.util.logging.Logger;
 
 /**
  * Wake parameter configuration.
+ * @deprecated in 0.12 Unused
  */
+@Deprecated
 public final class WakeConfiguration {
   private static final Logger LOG = Logger.getLogger(WakeConfiguration.class.getName());
 
@@ -44,13 +45,10 @@ public final class WakeConfiguration {
     if (confFileName.equals("")) {
       LOG.log(Level.WARNING, "The Wake configuration file is not specified.");
     } else {
-      final Tang t = Tang.Factory.getTang();
-      final JavaConfigurationBuilder cb = t.newConfigurationBuilder();
+      final AvroConfigurationSerializer avroSerializer = new AvroConfigurationSerializer();
       try {
-        ConfigurationFile.addConfiguration(cb, new File(confFileName));
-      } catch (final BindException e) {
-        throw new WakeRuntimeException(e);
-      } catch (final IOException e) {
+        final Configuration conf = avroSerializer.fromFile(new File(confFileName));
+      } catch (final BindException | IOException e) {
         throw new WakeRuntimeException(e);
       }
     }

@@ -24,8 +24,8 @@ import org.apache.reef.tang.annotations.NamedParameter;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.tang.exceptions.BindException;
 import org.apache.reef.tang.exceptions.InjectionException;
+import org.apache.reef.tang.formats.AvroConfigurationSerializer;
 import org.apache.reef.tang.formats.CommandLine;
-import org.apache.reef.tang.formats.ConfigurationFile;
 import org.apache.reef.tang.implementation.InjectionPlan;
 import org.apache.reef.tang.implementation.protobuf.ProtocolBufferClassHierarchy;
 import org.apache.reef.tang.proto.ClassHierarchyProto;
@@ -36,14 +36,11 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-// TODO Clean up the code which are deprecated and commented out.
 public class ValidateConfiguration {
   private final String target;
   private final File ch;
   private final File inConfig;
   private final File outConfig;
-//  @NamedParameter(short_name="ip")
-//  public class InjectionPlanOut implements Name<File> { }
 
   @Inject
   public ValidateConfiguration(
@@ -54,7 +51,6 @@ public class ValidateConfiguration {
     this.ch = ch;
     this.inConfig = inConfig;
     this.outConfig = outConfig;
-//    this.injectionPlan = injectionPlan;
   }
 
   @Inject
@@ -87,36 +83,30 @@ public class ValidateConfiguration {
 
     final Tang t = Tang.Factory.getTang();
 
-    // TODO Use the AvroClassHierarchySerializer
+    // TODO[JIRA REEF-400] Use the AvroClassHierarchySerializer
     final ClassHierarchyProto.Node root;
     try (final InputStream chin = new FileInputStream(this.ch)) {
       root = ClassHierarchyProto.Node.parseFrom(chin);
     }
 
     final ClassHierarchy classHierarchy = new ProtocolBufferClassHierarchy(root);
-    final ConfigurationBuilder cb = t.newConfigurationBuilder(classHierarchy);
 
     if (!inConfig.canRead()) {
       throw new IOException("Cannot read input config file: " + inConfig);
     }
 
-    ConfigurationFile.addConfiguration(cb, inConfig);
+    final AvroConfigurationSerializer avroSerializer = new AvroConfigurationSerializer();
+    final Configuration conf = avroSerializer.fromFile(inConfig, classHierarchy);
 
     if (target != null) {
-      final Injector i = t.newInjector(cb.build());
+      final Injector i = t.newInjector(conf);
       final InjectionPlan<?> ip = i.getInjectionPlan(target);
       if (!ip.isInjectable()) {
         throw new InjectionException(target + " is not injectable: " + ip.toCantInjectString());
       }
     }
 
-    ConfigurationFile.writeConfigurationFile(cb.build(), outConfig);
-
-//    Injector i = t.newInjector(cb.build());
-//    InjectionPlan<?> ip = i.getInjectionPlan(target);
-//    try (final OutputStream ipout = new FileOutputStream(injectionPlan)) {
-//      new ProtocolBufferInjectionPlan().serialize(ip).writeTo(ipout);
-//    }
+    avroSerializer.toFile(conf, outConfig);
   }
 
   public static class FileParser implements ExternalConstructor<File> {
@@ -133,7 +123,6 @@ public class ValidateConfiguration {
     }
 
   }
-//  private final File injectionPlan;
 
   @NamedParameter(short_name = "class")
   public class Target implements Name<String> {
