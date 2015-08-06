@@ -64,8 +64,7 @@ public final class AvroConfigurationSerializer implements ConfigurationSerialize
 
   private static void fromAvro(final AvroConfiguration avroConfiguration,
                                final ConfigurationBuilder configurationBuilder) throws BindException {
-    // Note: This code is an adapted version of ConfigurationFile.processConfigFile();
-    // TODO: This method should implement list deserialization. Implement it when C# side is ready.
+    // TODO[JIRA REEF-402]: This method should implement list deserialization. Implement it when C# side is ready.
     final Map<String, String> importedNames = new HashMap<>();
 
     for (final ConfigurationEntry entry : avroConfiguration.getBindings()) {
@@ -82,7 +81,7 @@ public final class AvroConfigurationSerializer implements ConfigurationSerialize
       final Object rawValue = entry.getValue();
 
       try {
-        // TODO: Implement list deserialization
+        // TODO[JIRA REEF-402]: Implement list deserialization
         // rawValue is String.
         final String value = rawValue.toString();
         if (key.equals(ConfigurationBuilderImpl.IMPORT)) {
@@ -136,8 +135,7 @@ public final class AvroConfigurationSerializer implements ConfigurationSerialize
   }
 
   public AvroConfiguration toAvro(final Configuration configuration) {
-    // Note: This code is an adapted version of ConfiurationFile.toConfigurationStringList();
-    // TODO: This method should implement list serialization. Implement it when C# side is ready.
+    // TODO[JIRA REEF-402]: This method should implement list serialization. Implement it when C# side is ready.
 
     final List<ConfigurationEntry> configurationEntries = new ArrayList<>();
 
@@ -181,7 +179,7 @@ public final class AvroConfigurationSerializer implements ConfigurationSerialize
           .setValue(val)
           .build());
     }
-    // TODO: Implement list serialization
+    // TODO[JIRA REEF-402]: Implement list serialization
     if (configuration.getBoundLists() != null && !configuration.getBoundLists().isEmpty()) {
       throw new NotImplementedException("List serialization/deserialization is not supported");
     }
@@ -321,4 +319,16 @@ public final class AvroConfigurationSerializer implements ConfigurationSerialize
     return fromAvro(avroFromString(theString), classHierarchy);
   }
 
+  /**
+   * Converts a given serialized string to ConfigurationBuilder from which Configuration can be produced.
+   *
+   * @param theString
+   * @param configBuilder
+   * @throws IOException
+   * @throws BindException
+   */
+  public void configurationBuilderFromString(final String theString, final ConfigurationBuilder configBuilder)
+      throws IOException, BindException {
+    fromAvro(avroFromString(theString), configBuilder);
+  }
 }

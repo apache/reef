@@ -24,8 +24,8 @@ import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
 import org.apache.reef.tang.annotations.Parameter;
+import org.apache.reef.tang.formats.AvroConfigurationSerializer;
 import org.apache.reef.tang.formats.CommandLine;
-import org.apache.reef.tang.formats.ConfigurationFile;
 import org.apache.reef.tang.implementation.InjectionPlan;
 import org.apache.reef.tang.implementation.java.InjectorImpl;
 
@@ -50,7 +50,8 @@ public class Timer {
     cl.processCommandLine(args);
     final Configuration conf = cb.build();
     System.out.println("start conf");
-    System.out.println(ConfigurationFile.toConfigurationString(conf));
+    final AvroConfigurationSerializer avroSerializer = new AvroConfigurationSerializer();
+    System.out.println(avroSerializer.toString(conf));
     System.out.println("end conf");
     final InjectorImpl injector = (InjectorImpl) tang.newInjector(conf);
     final InjectionPlan<Timer> ip = injector.getInjectionPlan(Timer.class);

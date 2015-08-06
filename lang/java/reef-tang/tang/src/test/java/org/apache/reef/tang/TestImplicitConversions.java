@@ -22,26 +22,29 @@ import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
 import org.apache.reef.tang.exceptions.BindException;
 import org.apache.reef.tang.exceptions.InjectionException;
-import org.apache.reef.tang.formats.ConfigurationFile;
+import org.apache.reef.tang.formats.AvroConfigurationSerializer;
 import org.apache.reef.tang.types.NamedParameterNode;
 import org.apache.reef.tang.util.ReflectionUtilities;
 import org.junit.Assert;
 import org.junit.Test;
 
 import javax.inject.Inject;
+import java.io.IOException;
 
 public class TestImplicitConversions {
+  private final AvroConfigurationSerializer avroSerializer = new AvroConfigurationSerializer();
+
   @SuppressWarnings("unchecked")
   @Test
-  public void testBindFromString() throws BindException, InjectionException {
+  public void testBindFromString() throws BindException, InjectionException, IOException {
     final JavaConfigurationBuilder b = Tang.Factory.getTang().newConfigurationBuilder(IdentifierParser.class);
     b.bindNamedParameter(IdName.class, "b://b");
 
     final Configuration c = b.build();
-    final String s = ConfigurationFile.toConfigurationString(c);
+    final String s = avroSerializer.toString(c);
 
     final JavaConfigurationBuilder b2 = Tang.Factory.getTang().newConfigurationBuilder(IdentifierParser.class);
-    ConfigurationFile.addConfiguration(b2, s);
+    avroSerializer.configurationBuilderFromString(s, b2);
     final Configuration c2 = b2.build();
 
     Assert.assertEquals("b://b", c2.getNamedParameter(
@@ -55,16 +58,16 @@ public class TestImplicitConversions {
 
   @SuppressWarnings("unchecked")
   @Test
-  public void testBindSubclassFromString() throws BindException, InjectionException {
+  public void testBindSubclassFromString() throws BindException, InjectionException, IOException {
     final JavaConfigurationBuilder b = Tang.Factory.getTang().newConfigurationBuilder(IdentifierParser.class);
     b.bindNamedParameter(AIdName.class, "a://a");
     b.bindNamedParameter(BIdName.class, "b://b");
 
     final Configuration c = b.build();
-    final String s = ConfigurationFile.toConfigurationString(c);
+    final String s = avroSerializer.toString(c);
 
     final JavaConfigurationBuilder b2 = Tang.Factory.getTang().newConfigurationBuilder(IdentifierParser.class);
-    ConfigurationFile.addConfiguration(b2, s);
+    avroSerializer.configurationBuilderFromString(s, b2);
     final Configuration c2 = b2.build();
 
     Assert.assertEquals("b://b", c2.getNamedParameter(

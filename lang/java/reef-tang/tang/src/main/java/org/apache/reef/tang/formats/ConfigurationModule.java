@@ -23,7 +23,12 @@ import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.exceptions.BindException;
 import org.apache.reef.tang.exceptions.ClassHierarchyException;
 import org.apache.reef.tang.exceptions.NameResolutionException;
+import org.apache.reef.tang.implementation.ConfigurationBuilderImpl;
+import org.apache.reef.tang.implementation.ConfigurationImpl;
+import org.apache.reef.tang.types.ClassNode;
+import org.apache.reef.tang.types.ConstructorArg;
 import org.apache.reef.tang.types.NamedParameterNode;
+import org.apache.reef.tang.types.Node;
 import org.apache.reef.tang.util.*;
 
 import java.lang.reflect.Field;
@@ -265,6 +270,82 @@ public class ConfigurationModule {
     return nps;
   }
 
+  /**
+   * Replace any \'s in the input string with \\. and any "'s with \".
+   *
+   * @param in
+   * @return
+   */
+  private static String escape(final String in) {
+    // After regexp escaping \\\\ = 1 slash, \\\\\\\\ = 2 slashes.
+
+    // Also, the second args of replaceAll are neither strings nor regexps, and
+    // are instead a special DSL used by Matcher. Therefore, we need to double
+    // escape slashes (4 slashes) and quotes (3 slashes + ") in those strings.
+    // Since we need to write \\ and \", we end up with 8 and 7 slashes,
+    // respectively.
+    return in.replaceAll("\\\\", "\\\\\\\\").replaceAll("\"", "\\\\\\\"");
+  }
+
+  private static StringBuilder join(final StringBuilder sb, final String sep, final ConstructorArg[] types) {
+    if (types.length > 0) {
+      sb.append(types[0].getType());
+      for (int i = 1; i < types.length; i++) {
+        sb.append(sep).append(types[i].getType());
+      }
+    }
+    return sb;
+  }
+
+  /**
+   * Convert Configuration to a list of strings formatted as "param=value".
+   *
+   * @param c
+   * @return
+   */
+  private static List<String> toConfigurationStringList(final Configuration c) {
+    final ConfigurationImpl conf = (ConfigurationImpl) c;
+    final List<String> l = new ArrayList<>();
+    for (final ClassNode<?> opt : conf.getBoundImplementations()) {
+      l.add(opt.getFullName()
+          + '='
+          + escape(conf.getBoundImplementation(opt).getFullName()));
+    }
+    for (final ClassNode<?> opt : conf.getBoundConstructors()) {
+      l.add(opt.getFullName()
+          + '='
+          + escape(conf.getBoundConstructor(opt).getFullName()));
+    }
+    for (final NamedParameterNode<?> opt : conf.getNamedParameters()) {
+      l.add(opt.getFullName()
+          + '='
+          + escape(conf.getNamedParameter(opt)));
+    }
+    for (final ClassNode<?> cn : conf.getLegacyConstructors()) {
+      final StringBuilder sb = new StringBuilder();
+      join(sb, "-", conf.getLegacyConstructor(cn).getArgs());
+      l.add(cn.getFullName()
+          + escape('='
+              + ConfigurationBuilderImpl.INIT
+              + '('
+              + sb.toString()
+              + ')'
+      ));
+    }
+    for (final Entry<NamedParameterNode<Set<?>>, Object> e : conf.getBoundSets()) {
+      final String val;
+      if (e.getValue() instanceof String) {
+        val = (String) e.getValue();
+      } else if (e.getValue() instanceof Node) {
+        val = ((Node) e.getValue()).getFullName();
+      } else {
+        throw new IllegalStateException();
+      }
+      l.add(e.getKey().getFullName() + '=' + escape(val));
+    }
+    return l;
+  }
+
   public List<Entry<String, String>> toStringPairs() {
     final List<Entry<String, String>> ret = new ArrayList<>();
     class MyEntry implements Entry<String, String> {
@@ -300,7 +381,7 @@ public class ConfigurationModule {
       ret.add(new MyEntry(ReflectionUtilities.getFullName(c),
           this.builder.map.get(this.builder.freeImpls.get(c)).getName()));
     }
-    for (final String s : ConfigurationFile.toConfigurationStringList(builder.b.build())) {
+    for (final String s : toConfigurationStringList(builder.b.build())) {
       final String[] tok = s.split("=", 2);
       ret.add(new MyEntry(tok[0], tok[1]));
     }

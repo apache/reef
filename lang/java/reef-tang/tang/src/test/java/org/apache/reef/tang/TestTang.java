@@ -26,7 +26,7 @@ import org.apache.reef.tang.exceptions.BindException;
 import org.apache.reef.tang.exceptions.ClassHierarchyException;
 import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.tang.exceptions.NameResolutionException;
-import org.apache.reef.tang.formats.ConfigurationFile;
+import org.apache.reef.tang.formats.AvroConfigurationSerializer;
 import org.apache.reef.tang.util.ReflectionUtilities;
 import org.junit.Assert;
 import org.junit.Before;
@@ -35,6 +35,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import javax.inject.Inject;
+import java.io.IOException;
 
 interface SMC {
 }
@@ -307,17 +308,17 @@ public class TestTang {
   }
 
   @Test
-  public void testLegacyConstructor() throws BindException, InjectionException {
+  public void testLegacyConstructor() throws BindException, InjectionException, IOException {
     final JavaConfigurationBuilder cb = tang.newConfigurationBuilder();
     cb.registerLegacyConstructor(
         ReflectionUtilities.getFullName(LegacyConstructor.class),
         ReflectionUtilities.getFullName(Integer.class),
         ReflectionUtilities.getFullName(String.class));
     cb.bind(LegacyConstructor.class, LegacyConstructor.class);
-    final String confString = ConfigurationFile.toConfigurationString(cb.build());
+    final AvroConfigurationSerializer avroSerializer = new AvroConfigurationSerializer();
+    final String confString = avroSerializer.toString(cb.build());
     final JavaConfigurationBuilder cb2 = tang.newConfigurationBuilder();
-    // System.err.println(confString);
-    ConfigurationFile.addConfiguration(cb2, confString);
+    avroSerializer.configurationBuilderFromString(confString, cb2);
     final Injector i = tang.newInjector(cb2.build());
     i.bindVolatileInstance(Integer.class, 42);
     i.bindVolatileInstance(String.class, "The meaning of life is ");
@@ -1223,6 +1224,10 @@ class MyEventHandler<T> implements EventHandler<T> {
   @Inject
   MyEventHandler() {
   }
+}
+
+@NamedParameter
+final class Foo implements Name<String> {
 }
 
 @NamedParameter(default_class = MyEventHandler.class)
