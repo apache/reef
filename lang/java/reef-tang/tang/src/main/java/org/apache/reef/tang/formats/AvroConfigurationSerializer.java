@@ -165,19 +165,21 @@ public final class AvroConfigurationSerializer implements ConfigurationSerialize
           .setValue("" + ConfigurationBuilderImpl.INIT + "(" + legacyConstructors + ")")
           .build());
     }
-    for (final Map.Entry<NamedParameterNode<Set<?>>, Object> e : configuration.getBoundSets()) {
-      final String val;
-      if (e.getValue() instanceof String) {
-        val = (String) e.getValue();
-      } else if (e.getValue() instanceof Node) {
-        val = ((Node) e.getValue()).getFullName();
-      } else {
-        throw new IllegalStateException();
+    for (final NamedParameterNode<Set<?>> key : configuration.getBoundSets()) {
+      for (final Object value : configuration.getBoundSet(key)) {
+        final String val;
+        if (value instanceof String) {
+          val = (String) value;
+        } else if (value instanceof Node) {
+          val = ((Node) value).getFullName();
+        } else {
+          throw new IllegalStateException();
+        }
+        configurationEntries.add(new ConfigurationEntry().newBuilder()
+            .setKey(key.getFullName())
+            .setValue(val)
+            .build());
       }
-      configurationEntries.add(new ConfigurationEntry().newBuilder()
-          .setKey(e.getKey().getFullName())
-          .setValue(val)
-          .build());
     }
     // TODO[JIRA REEF-402]: Implement list serialization
     if (configuration.getBoundLists() != null && !configuration.getBoundLists().isEmpty()) {

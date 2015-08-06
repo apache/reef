@@ -23,7 +23,6 @@ import org.apache.reef.tang.types.ConstructorDef;
 import org.apache.reef.tang.types.NamedParameterNode;
 
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.Set;
 
 /**
@@ -151,17 +150,9 @@ public interface Configuration {
   ClassHierarchy getClassHierarchy();
 
   /**
-   * Get the set bindings from set-valued NamedParameters to the values they were bound to.
-   * <p/>
-   * TODO: This API seems wonky.
-   * Why not return a Set<NamedParameterNode<Set<?>>> instead, and let the caller invoke getBoundSet() above?
-   *
-   * @return a flattened set with one entry for each binding
-   * (the same NamedParameterNode may be a key for multiple bindings.
-   * @deprecated
+   * @return the set of all NamedParameterNodes explicitly bound to sets.
    */
-  @Deprecated
-  Iterable<Entry<NamedParameterNode<Set<?>>, Object>> getBoundSets();
+  Set<NamedParameterNode<Set<?>>> getBoundSets();
 
   /**
    * @return the set of all NamedParameterNodes explicitly bound to lists.
