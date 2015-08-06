@@ -65,6 +65,7 @@ public class RemoteManager {
     return this.raw.registerHandler(messageType, theHandler);
   }
 
+  // TODO[REEF-547]: This method uses deprecated raw.registerErrorHandler.
   public AutoCloseable registerErrorHandler(final EventHandler<Exception> theHandler) {
     return this.raw.registerErrorHandler(theHandler);
   }

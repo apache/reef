@@ -91,7 +91,9 @@ public class NameLookupClient implements Stage, NamingLookup {
    * @param serverPort a server port number
    * @param factory    an identifier factory
    * @param cache      an cache
+   * @deprecated in 0.12 use the constructor that takes a LocalAddressProvider instead.
    */
+  @Deprecated
   public NameLookupClient(final String serverAddr,
                           final int serverPort,
                           final IdentifierFactory factory,
