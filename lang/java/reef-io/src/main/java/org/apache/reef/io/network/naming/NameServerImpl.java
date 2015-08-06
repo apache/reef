@@ -107,17 +107,6 @@ public final class NameServerImpl implements NameServer {
   }
 
   /**
-   * @deprecated have an instance injected instead
-   */
-  @Deprecated
-  public NameServerImpl(
-      final int port,
-      final IdentifierFactory factory,
-      final ReefEventStateManager reefEventStateManager) {
-    this(port, factory, reefEventStateManager, LocalAddressProviderFactory.getInstance());
-  }
-
-  /**
    * Constructs a name server.
    *
    * @param port                  a listening port number

@@ -31,7 +31,6 @@ import org.apache.reef.wake.IdentifierFactory;
 import org.apache.reef.wake.impl.SyncStage;
 import org.apache.reef.wake.remote.Codec;
 import org.apache.reef.wake.remote.address.LocalAddressProvider;
-import org.apache.reef.wake.remote.address.LocalAddressProviderFactory;
 import org.apache.reef.wake.remote.impl.TransportEvent;
 import org.apache.reef.wake.remote.transport.Transport;
 import org.apache.reef.wake.remote.transport.TransportFactory;
@@ -55,17 +54,6 @@ public final class NameClient implements NameResolver {
   private NameRegistryClient registryClient;
   private Transport transport;
 
-  @Deprecated
-  public NameClient(final String serverAddr,
-                    final int serverPort,
-                    final IdentifierFactory factory,
-                    final int retryCount,
-                    final int retryTimeout,
-                    final Cache<Identifier, InetSocketAddress> cache) {
-    this(serverAddr, serverPort, 10000, factory, retryCount, retryTimeout, cache,
-         LocalAddressProviderFactory.getInstance());
-  }
-
   /**
    * Constructs a naming client.
    *
@@ -83,24 +71,6 @@ public final class NameClient implements NameResolver {
                     final Cache<Identifier, InetSocketAddress> cache,
                     final LocalAddressProvider localAddressProvider) {
     this(serverAddr, serverPort, 10000, factory, retryCount, retryTimeout, cache, localAddressProvider);
-  }
-
-  @Deprecated
-  public NameClient(final String serverAddr,
-                    final int serverPort,
-                    final long timeout,
-                    final IdentifierFactory factory,
-                    final int retryCount,
-                    final int retryTimeout,
-                    final Cache<Identifier, InetSocketAddress> cache) {
-    this(serverAddr,
-        serverPort,
-        timeout,
-        factory,
-        retryCount,
-        retryTimeout,
-        cache,
-        LocalAddressProviderFactory.getInstance());
   }
 
   /**

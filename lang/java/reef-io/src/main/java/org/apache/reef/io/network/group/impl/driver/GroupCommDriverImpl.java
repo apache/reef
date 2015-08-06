@@ -60,9 +60,7 @@ import org.apache.reef.wake.impl.SingleThreadStage;
 import org.apache.reef.wake.impl.SyncStage;
 import org.apache.reef.wake.impl.ThreadPoolStage;
 import org.apache.reef.wake.remote.address.LocalAddressProvider;
-import org.apache.reef.wake.remote.address.LocalAddressProviderFactory;
 import org.apache.reef.wake.remote.transport.TransportFactory;
-import org.apache.reef.wake.remote.transport.netty.MessagingTransportFactory;
 
 import javax.inject.Inject;
 import java.util.HashMap;
@@ -110,29 +108,6 @@ public class GroupCommDriverImpl implements GroupCommServiceDriver {
   private final GroupCommMessageHandler groupCommMessageHandler;
   private final EStage<GroupCommunicationMessage> groupCommMessageStage;
   private final int fanOut;
-
-  /**
-   * @deprecated Have an instance injected instead.
-   */
-  @Deprecated
-  @Inject
-  public GroupCommDriverImpl(final ConfigurationSerializer confSerializer,
-                             @Parameter(DriverIdentifier.class) final String driverId,
-                             @Parameter(TreeTopologyFanOut.class) final int fanOut) {
-    this(confSerializer, driverId, fanOut, LocalAddressProviderFactory.getInstance());
-  }
-
-  /**
-   * @deprecated Have an instance injected instead.
-   */
-  @Deprecated
-  @Inject
-  public GroupCommDriverImpl(final ConfigurationSerializer confSerializer,
-                             @Parameter(DriverIdentifier.class) final String driverId,
-                             @Parameter(TreeTopologyFanOut.class) final int fanOut,
-                             final LocalAddressProvider localAddressProvider) {
-    this(confSerializer, driverId, fanOut, localAddressProvider, new MessagingTransportFactory());
-  }
 
   /**
    * @deprecated Have an instance injected instead.
