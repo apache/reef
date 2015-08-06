@@ -88,7 +88,6 @@ under the License.
     <Compile Include="Exceptions\EvaluatorException.cs" />
     <Compile Include="Exceptions\JobException.cs" />
     <Compile Include="FailedRuntime.cs" />
-    <Compile Include="Files\ResourceHelper.cs" />
     <Compile Include="IContextAndTaskSubmittable.cs" />
     <Compile Include="IContextSubmittable.cs" />
     <Compile Include="IJobMessageObserver.cs" />

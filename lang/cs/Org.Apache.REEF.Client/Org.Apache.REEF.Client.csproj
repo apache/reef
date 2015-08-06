@@ -57,6 +57,7 @@ under the License.
     <Compile Include="Common\DriverFolderPreparationHelper.cs" />
     <Compile Include="Common\FileSets.cs" />
     <Compile Include="Common\JavaClientLauncher.cs" />
+    <Compile Include="Common\ResourceHelper.cs" />
     <Compile Include="Local\LocalClient.cs" />
     <Compile Include="Local\LocalRuntimeClientConfiguration.cs" />
     <Compile Include="Local\Parameters\DriverConfigurationProviders.cs" />
@@ -141,7 +142,7 @@ under the License.
       <SnapshotNumber />
       <ProjectFolder Required="true" />
       <DebugOrRelease Required="true" />
-      <resxOutputPath Required="true"/> 
+      <resxOutputPath Required="true" />
     </ParameterGroup>
     <Task>
       <Reference Include="System.Xml" />
@@ -202,7 +203,7 @@ under the License.
         ]]></Code>
     </Task>
   </UsingTask>
-    <!--
+  <!--
       A Target that reWrites client resx to point to correct version of jars
     -->
   <Target Name="RewriteClientResources" DependsOnTargets="CopyJarFiles">

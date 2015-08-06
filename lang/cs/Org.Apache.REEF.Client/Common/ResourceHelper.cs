@@ -21,9 +21,13 @@ using System;
 using System.Reflection;
 using System.Resources;
 
-namespace Org.Apache.REEF.Common.Files
+namespace Org.Apache.REEF.Client.Common
 {
-    public class ResourceHelper
+    /// <summary>
+    /// Helps with retrieval of embedded resources.
+    /// See Org.Apache.REEF.Client.csproj for embedding resources and use this class to retrieve them.
+    /// </summary>
+    internal class ResourceHelper
     {
         private const string CouldNotRetrieveResource = "Could not retrieve resource '{0}'";
         private readonly ResourceSet _resourceSet;
@@ -33,7 +37,7 @@ namespace Org.Apache.REEF.Common.Files
         /// </summary>
         /// <param name="assembly"></param>
         /// <returns>ResourceSet</returns>
-        public ResourceHelper(Assembly assembly)
+        internal ResourceHelper(Assembly assembly)
         {
             var names = assembly.GetManifestResourceNames();
             if (null == names[0])
@@ -54,7 +58,7 @@ namespace Org.Apache.REEF.Common.Files
         /// </summary>
         /// <param name="resourceName"></param>
         /// <returns>T</returns>
-        public T GetResource<T>(string resourceName)
+        internal T GetResource<T>(string resourceName)
         {
             var resource = _resourceSet.GetObject(resourceName);
             if (null == resource)
@@ -69,7 +73,7 @@ namespace Org.Apache.REEF.Common.Files
         /// </summary>
         /// <param name="resourceName"></param>
         /// <returns>T</returns>
-        public string GetString(string resourceName)
+        internal string GetString(string resourceName)
         {
             return GetResource<string>(resourceName);
         }
@@ -79,7 +83,7 @@ namespace Org.Apache.REEF.Common.Files
         /// </summary>
         /// <param name="resourceName"></param>
         /// <returns>T</returns>
-        public byte[] GetBytes(string resourceName)
+        internal byte[] GetBytes(string resourceName)
         {
             return GetResource<byte[]>(resourceName);
         }
