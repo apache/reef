@@ -18,6 +18,7 @@
  */
 package org.apache.reef.javabridge;
 
+import org.apache.reef.runtime.common.driver.evaluator.AllocatedEvaluatorImpl;
 import org.apache.reef.driver.evaluator.AllocatedEvaluator;
 import org.apache.reef.tang.ClassHierarchy;
 import org.apache.reef.tang.Configuration;
@@ -70,13 +71,16 @@ public final class AllocatedEvaluatorBridge extends NativeBridge {
     final Configuration taskConfiguration;
     try {
       contextConfiguration = serializer.fromString(contextConfigurationString, clrClassHierarchy);
-      taskConfiguration = serializer.fromString(taskConfigurationString, clrClassHierarchy);
     } catch (final Exception e) {
       final String message = "Unable to de-serialize CLR context or task configurations using class hierarchy.";
       LOG.log(Level.SEVERE, message, e);
       throw new RuntimeException(message, e);
     }
-    jallocatedEvaluator.submitContextAndTask(contextConfiguration, taskConfiguration);
+
+    //When submit over the bridge, we would keep the task configuration as a serialized string.
+    //submitContextAndTask(final Configuration contextConfiguration,
+    //final String taskConfiguration) is not exposed in the interface. Therefore cast is necessary.
+    ((AllocatedEvaluatorImpl)jallocatedEvaluator).submitContextAndTask(contextConfiguration, taskConfigurationString);
   }
 
   /**
@@ -150,14 +154,18 @@ public final class AllocatedEvaluatorBridge extends NativeBridge {
     try {
       contextConfiguration = serializer.fromString(contextConfigurationString, clrClassHierarchy);
       servicetConfiguration = serializer.fromString(serviceConfigurationString, clrClassHierarchy);
-      taskConfiguration = serializer.fromString(taskConfigurationString, clrClassHierarchy);
     } catch (final Exception e) {
       final String message =
           "Unable to de-serialize CLR context or service or task configurations using class hierarchy.";
       LOG.log(Level.SEVERE, message, e);
       throw new RuntimeException(message, e);
     }
-    jallocatedEvaluator.submitContextAndServiceAndTask(contextConfiguration, servicetConfiguration, taskConfiguration);
+
+    //When submit over the bridge, we would keep the task configuration as a serialized string.
+    //submitContextAndServiceAndTask(final Configuration contextConfiguration, final Configuration serviceConfiguration,
+    //final String taskConfiguration) is not exposed in the interface. Therefore cast is necessary.
+    ((AllocatedEvaluatorImpl)jallocatedEvaluator)
+        .submitContextAndServiceAndTask(contextConfiguration, servicetConfiguration, taskConfigurationString);
   }
 
   /**
