@@ -21,8 +21,12 @@ package org.apache.reef.driver.restart;
 import org.apache.reef.annotations.Unstable;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
+import org.apache.reef.exception.DriverFatalRuntimeException;
 
 import javax.inject.Inject;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -36,17 +40,19 @@ import java.util.logging.Logger;
 public final class DriverRestartManagerImpl implements DriverRestartManager {
   private static final Logger LOG = Logger.getLogger(DriverRestartManagerImpl.class.getName());
   private final DriverRuntimeRestartManager driverRuntimeRestartManager;
+  private final Set<String> previousEvaluators;
+  private final Set<String> recoveredEvaluators;
 
+  private boolean restartBegan;
   private boolean restartCompleted;
-  private int numPreviousContainers;
-  private int numRecoveredContainers;
 
   @Inject
   private DriverRestartManagerImpl(final DriverRuntimeRestartManager driverRuntimeRestartManager) {
     this.driverRuntimeRestartManager = driverRuntimeRestartManager;
     this.restartCompleted = false;
-    this.numPreviousContainers = -1;
-    this.numRecoveredContainers = 0;
+    this.restartBegan = false;
+    this.previousEvaluators = new HashSet<>();
+    this.recoveredEvaluators = new HashSet<>();
   }
 
   @Override
@@ -57,46 +63,54 @@ public final class DriverRestartManagerImpl implements DriverRestartManager {
   @Override
   public void onRestart() {
     final EvaluatorRestartInfo evaluatorRestartInfo = driverRuntimeRestartManager.getAliveAndFailedEvaluators();
-    setNumPreviousContainers(evaluatorRestartInfo.getAliveEvaluators().size());
+    setPreviousEvaluatorIds(evaluatorRestartInfo.getAliveEvaluators());
     driverRuntimeRestartManager.informAboutEvaluatorFailures(evaluatorRestartInfo.getFailedEvaluators());
   }
 
   @Override
-  public synchronized void setRestartCompleted() {
-    if (this.restartCompleted) {
-      LOG.log(Level.WARNING, "Calling setRestartCompleted more than once.");
+  public boolean isRestartCompleted() {
+    return this.restartCompleted;
+  }
+
+  @Override
+  public synchronized Set<String> getPreviousEvaluatorIds() {
+    return Collections.unmodifiableSet(this.previousEvaluators);
+  }
+
+  @Override
+  public synchronized void setPreviousEvaluatorIds(final Set<String> ids) {
+    if (!this.restartBegan) {
+      previousEvaluators.addAll(ids);
     } else {
+      final String errMsg = "Should not be setting the set of expected alive evaluators more than once.";
+      LOG.log(Level.SEVERE, errMsg);
+      throw new DriverFatalRuntimeException(errMsg);
+    }
+  }
+
+  @Override
+  public synchronized Set<String> getRecoveredEvaluatorIds() {
+    return Collections.unmodifiableSet(this.previousEvaluators);
+  }
+
+  @Override
+  public synchronized boolean evaluatorRecovered(final String evaluatorId) {
+    if (!this.previousEvaluators.contains(evaluatorId)) {
+      final String errMsg = "Evaluator with evaluator ID " + evaluatorId + " not expected to be alive.";
+      LOG.log(Level.SEVERE, errMsg);
+      throw new DriverFatalRuntimeException(errMsg);
+    }
+
+    if (!this.recoveredEvaluators.add(evaluatorId)) {
+      LOG.log(Level.WARNING, "Evaluator with evaluator ID " + evaluatorId + " added to the set" +
+          " of recovered evaluators more than once. Ignoring second add...");
+    }
+
+    if (this.recoveredEvaluators.containsAll(this.previousEvaluators)) {
       this.restartCompleted = true;
     }
-  }
 
-  @Override
-  public synchronized int getNumPreviousContainers() {
-    return this.numPreviousContainers;
-  }
-
-  @Override
-  public synchronized void setNumPreviousContainers(final int num) {
-    if (this.numPreviousContainers >= 0) {
-      throw new IllegalStateException("Attempting to set the number of expected containers left " +
-          "from a previous container more than once.");
-    } else {
-      this.numPreviousContainers = num;
-    }
-  }
-
-  @Override
-  public synchronized int getNumRecoveredContainers() {
-    return this.numRecoveredContainers;
-  }
-
-  @Override
-  public synchronized void oneContainerRecovered() {
-    this.numRecoveredContainers += 1;
-    if (this.numRecoveredContainers > this.numPreviousContainers) {
-      throw new IllegalStateException("Reconnected to" +
-          this.numRecoveredContainers + "Evaluators while only expecting " + this.numPreviousContainers);
-    }
+    return this.restartCompleted;
   }
 
   @Override
