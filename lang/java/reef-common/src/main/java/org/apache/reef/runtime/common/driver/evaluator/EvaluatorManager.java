@@ -397,24 +397,17 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
           this.evaluatorControlHandler.setRemoteID(evaluatorRID);
           this.stateManager.setRunning();
 
-          this.driverRestartManager.get().oneContainerRecovered();
-          final int numRecoveredContainers = this.driverRestartManager.get().getNumRecoveredContainers();
+          boolean restartCompleted = this.driverRestartManager.get().evaluatorRecovered(this.evaluatorId);
 
           LOG.log(Level.FINE, "Received recovery heartbeat from evaluator {0}.", this.evaluatorId);
-          final int expectedEvaluatorsNumber = this.driverRestartManager.get().getNumPreviousContainers();
 
-          if (numRecoveredContainers > expectedEvaluatorsNumber) {
-            LOG.log(Level.SEVERE, "expecting only [{0}] recovered evaluators, but [{1}] evaluators have checked in.",
-                new Object[]{expectedEvaluatorsNumber, numRecoveredContainers});
-            throw new RuntimeException("More then expected number of evaluators are checking in during recovery.");
-          } else if (numRecoveredContainers == expectedEvaluatorsNumber) {
-            LOG.log(Level.INFO, "All [{0}] expected evaluators have checked in. Recovery completed.",
-                expectedEvaluatorsNumber);
-            this.driverRestartManager.get().setRestartCompleted();
+          if (restartCompleted) {
             this.messageDispatcher.onDriverRestartCompleted(new DriverRestartCompleted(System.currentTimeMillis()));
+            LOG.log(Level.INFO, "All expected evaluators checked in.");
           } else {
-            LOG.log(Level.INFO, "expecting [{0}] recovered evaluators, [{1}] evaluators have checked in.",
-                new Object[]{expectedEvaluatorsNumber, numRecoveredContainers});
+            LOG.log(Level.INFO, "Expecting [{0}], [{1}] have checked in.",
+                new Object[]{this.driverRestartManager.get().getPreviousEvaluatorIds(),
+                    this.driverRestartManager.get().getRecoveredEvaluatorIds()});
           }
         } else {
           final String errorMsg = "Restart configurations are not set properly. The DriverRestartManager is missing.";

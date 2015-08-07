@@ -22,6 +22,8 @@ import org.apache.reef.annotations.Unstable;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
 
+import java.util.Set;
+
 /**
  * The manager that handles aspects of driver restart such as determining whether the driver is in
  * restart mode, what to do on restart, whether restart is completed, and others.
@@ -44,35 +46,34 @@ public interface DriverRestartManager {
   void onRestart();
 
   /**
-   * Indicate that the Driver restart is complete. It is meant to be called exactly once during a restart and never
-   * during the ininital launch of a Driver.
+   * @return whether restart is completed.
    */
-  void setRestartCompleted();
+  boolean isRestartCompleted();
 
   /**
-   * @return the number of Evaluators expected to check in from a previous run.
+   * @return the Evaluators expected to check in from a previous run.
    */
-  int getNumPreviousContainers();
-
+  Set<String> getPreviousEvaluatorIds();
 
   /**
-   * Set the number of containers to expect still active from a previous execution of the Driver in a restart situation.
+   * Set the Evaluators to expect still active from a previous execution of the Driver in a restart situation.
    * To be called exactly once during a driver restart.
    *
-   * @param num
+   * @param ids the evaluator IDs of the evaluators that are expected to have survived driver restart.
    */
-  void setNumPreviousContainers(final int num);
+  void setPreviousEvaluatorIds(final Set<String> ids);
 
   /**
-   * @return the number of Evaluators from a previous Driver that have checked in with the Driver
+   * @return the IDs of the Evaluators from a previous Driver that have checked in with the Driver
    * in a restart situation.
    */
-  int getNumRecoveredContainers();
+  Set<String> getRecoveredEvaluatorIds();
 
   /**
    * Indicate that this Driver has re-established the connection with one more Evaluator of a previous run.
+   * @return true if the driver restart is completed.
    */
-  void oneContainerRecovered();
+  boolean evaluatorRecovered(final String id);
 
   /**
    * Records the evaluators when it is allocated. The implementation depends on the runtime.
