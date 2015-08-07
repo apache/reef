@@ -192,7 +192,34 @@ def change_build_props(file, is_snapshot):
     print file
 
 """
-Change version of every pom.xml, every AsssemblyInfo.cs, Constants.cs, and AssemblyInfo.cpp
+Change the name of shaded.jar in run.cmd and lang/cs/Org.Apache.REEF.Client/Properties/Resources.xml
+"""
+def change_shaded_jar_name(file, new_version):
+    changed_str = ""
+
+    f = open(file, 'r')
+    r1 = re.compile('reef-bridge-java-(.*?)-shaded.jar')
+    r2 = re.compile('reef-bridge-client-(.*?)-shaded.jar')
+    while True:
+        line = f.readline()
+        if not line:
+            break
+        m1 = r1.search(line)
+        m2 = r2.search(line)
+        if m1 is not None:
+            changed_str += line.replace(m1.group(1), new_version)
+        elif m2 is not None:
+            changed_str += line.replace(m2.group(1), new_version)
+        else:
+            changed_str += line
+
+    f = open(file, 'w')
+    f.write(changed_str)
+    f.close()
+
+"""
+Change version of every pom.xml, every AsssemblyInfo.cs, 
+Constants.cs, AssemblyInfo.cpp, run.cmd and Resources.xml
 """
 def change_version(reef_home, new_version):
     for fi in get_filepaths(reef_home):
@@ -208,6 +235,12 @@ def change_version(reef_home, new_version):
 
     change_constants_cs(reef_home + "/lang/cs/Org.Apache.REEF.Driver/Constants.cs", new_version)
     print reef_home + "/lang/cs/Org.Apache.REEF.Driver/Constants.cs"
+
+    change_shaded_jar_name(reef_home + "/lang/cs/Org.Apache.REEF.Client/Properties/Resources.xml", new_version)
+    print reef_home + "/lang/cs/Org.Apache.REEF.Client/Properties/Resources.xml"
+
+    change_shaded_jar_name(reef_home + "/lang/cs/Org.Apache.REEF.Client/run.cmd", new_version)
+    print reef_home + "/lang/cs/Org.Apache.REEF.Client/run.cmd"
 
 
 if __name__ == "__main__":
