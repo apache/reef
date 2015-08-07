@@ -27,9 +27,6 @@ import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
 import org.apache.reef.tang.formats.RequiredImpl;
 import org.apache.reef.tang.formats.RequiredParameter;
 import org.apache.reef.vortex.api.VortexStart;
-import org.apache.reef.wake.EStage;
-import org.apache.reef.wake.StageConfiguration;
-import org.apache.reef.wake.impl.ThreadPoolStage;
 
 /**
  * Vortex Master configuration.
@@ -56,6 +53,13 @@ public final class VortexMasterConf extends ConfigurationModuleBuilder {
    */
   @NamedParameter(doc = "Worker Cores")
   final class WorkerCores implements Name<Integer> {
+  }
+
+  /**
+   * Number of Vortex Start Threads.
+   */
+  @NamedParameter(doc = "Number of Vortex Start Threads")
+  final class NumberOfVortexStartThreads implements Name<Integer> {
   }
 
   /**
@@ -91,8 +95,6 @@ public final class VortexMasterConf extends ConfigurationModuleBuilder {
       .bindNamedParameter(WorkerMem.class, WORKER_MEM)
       .bindNamedParameter(WorkerCores.class, WORKER_CORES)
       .bindImplementation(VortexStart.class, VORTEX_START)
-      .bindNamedParameter(StageConfiguration.NumberOfThreads.class, NUM_OF_VORTEX_START_THERAD)
-      .bindNamedParameter(StageConfiguration.StageHandler.class, VortexStartExecutor.class)
-      .bindImplementation(EStage.class, ThreadPoolStage.class)
+      .bindNamedParameter(NumberOfVortexStartThreads.class, NUM_OF_VORTEX_START_THERAD)
       .build();
 }

@@ -36,6 +36,7 @@ import org.apache.reef.vortex.evaluator.VortexWorker;
 import org.apache.reef.wake.EStage;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.impl.SingleThreadStage;
+import org.apache.reef.wake.impl.ThreadPoolStage;
 import org.apache.reef.wake.time.event.StartTime;
 
 import javax.inject.Inject;
@@ -71,13 +72,14 @@ final class VortexDriver {
   private VortexDriver(final EvaluatorRequestor evaluatorRequestor,
                        final VortexRequestor vortexRequestor,
                        final VortexMaster vortexMaster,
-                       final EStage<VortexStart> vortexStartEStage,
                        final VortexStart vortexStart,
+                       final VortexStartExecutor vortexStartExecutor,
                        final PendingTaskletScheduler pendingTaskletScheduler,
                        @Parameter(VortexMasterConf.WorkerMem.class) final int workerMem,
                        @Parameter(VortexMasterConf.WorkerNum.class) final int workerNum,
-                       @Parameter(VortexMasterConf.WorkerCores.class) final int workerCores) {
-    this.vortexStartEStage = vortexStartEStage;
+                       @Parameter(VortexMasterConf.WorkerCores.class) final int workerCores,
+                       @Parameter(VortexMasterConf.NumberOfVortexStartThreads.class) final int numOfStartThreads) {
+    this.vortexStartEStage = new ThreadPoolStage<>(vortexStartExecutor, numOfStartThreads);
     this.vortexStart = vortexStart;
     this.pendingTaskletSchedulerEStage = new SingleThreadStage<>(pendingTaskletScheduler, 1);
     this.evaluatorRequestor = evaluatorRequestor;
