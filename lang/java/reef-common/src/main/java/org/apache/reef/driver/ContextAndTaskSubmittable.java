@@ -60,5 +60,4 @@ public interface ContextAndTaskSubmittable {
   void submitContextAndServiceAndTask(final Configuration contextConfiguration,
                                       final Configuration serviceConfiguration,
                                       final Configuration taskConfiguration);
-
 }
