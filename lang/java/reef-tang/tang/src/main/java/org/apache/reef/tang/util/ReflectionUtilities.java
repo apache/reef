@@ -32,13 +32,6 @@ public final class ReflectionUtilities {
    * This is used to split Java classnames.  Currently, we split on . and on $
    */
   public static final String REGEXP = "[\\.\\$]";
-  /**
-   * This is used to split Java classnames.  Currently, we split on . and on $
-   * @deprecated in 0.12. Use onClientKill instead
-   */
-  @Deprecated
-  @SuppressWarnings("checkstyle:constantname")
-  public static final String regexp = "[\\.\\$]";
 
   /**
    * A map from numeric classes to the number of bits used by their representations.

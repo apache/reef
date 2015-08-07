@@ -213,16 +213,6 @@ public final class ReefEventStateManager {
   }
 
   /**
-   * Kill driver by calling onComplete() . This method is called when client wants to kill the driver and evaluators.
-   * @deprecated in 0.12. Use onClientKill instead
-   */
-  @Deprecated
-  @SuppressWarnings("checkstyle:methodname")
-  public void OnClientKill() {
-    onClientKill();
-  }
-
-  /**
    * Job Driver is ready and the clock is set up.
    */
   public final class StartStateHandler implements EventHandler<StartTime> {

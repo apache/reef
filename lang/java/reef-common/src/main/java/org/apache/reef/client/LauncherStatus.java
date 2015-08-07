@@ -47,26 +47,8 @@ public final class LauncherStatus {
     return new LauncherStatus(State.FAILED, ex);
   }
 
-  /**
-   * @deprecated in 0.12. Use Failed instead
-   */
-  @Deprecated
-  @SuppressWarnings("checkstyle:methodname")
-  public static LauncherStatus FAILED(final Throwable ex) {
-    return failed(ex);
-  }
-
   public static LauncherStatus failed(final Optional<Throwable> ex) {
     return new LauncherStatus(State.FAILED, ex.orElse(null));
-  }
-
-  /**
-   * @deprecated in 0.12. Use Failed instead
-   */
-  @Deprecated
-  @SuppressWarnings("checkstyle:methodname")
-  public static LauncherStatus FAILED(final Optional<Throwable> ex) {
-    return failed(ex);
   }
 
   public Optional<Throwable> getError() {
