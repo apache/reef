@@ -31,7 +31,6 @@ using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities.Logging;
-using Org.Apache.REEF.Wake.Time.Event;
 
 [module: SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1401:FieldsMustBePrivate", Justification = "static field, typical usage in configurations")]
 
@@ -48,10 +47,10 @@ namespace Org.Apache.REEF.Driver.Bridge
         public static readonly OptionalImpl<IStartHandler> OnDriverStarted = new OptionalImpl<IStartHandler>();
 
         /// <summary>
-        ///  The event handler invoked when driver restarts
+        /// The event handler invoked when driver restarts
         /// </summary>
         [SuppressMessage("Microsoft.Security", "CA2104:Do not declare read only mutable reference types", Justification = "not applicable")]
-        public static readonly OptionalImpl<IObserver<StartTime>> OnDriverRestarted = new OptionalImpl<IObserver<StartTime>>();
+        public static readonly OptionalImpl<IObserver<IDriverRestarted>> OnDriverRestarted = new OptionalImpl<IObserver<IDriverRestarted>>();
 
         /// <summary>
         /// The event handler for requesting evaluator
@@ -131,7 +130,7 @@ namespace Org.Apache.REEF.Driver.Bridge
         /// Event handler for active context received during driver restart. Defaults to closing the context if not bound.
         /// </summary>
         [SuppressMessage("Microsoft.Security", "CA2104:Do not declare read only mutable reference types", Justification = "not applicable")]
-        public static readonly OptionalImpl<IObserver<IActiveContext>> OnDirverRestartContextActive = new OptionalImpl<IObserver<IActiveContext>>();
+        public static readonly OptionalImpl<IObserver<IActiveContext>> OnDriverRestartContextActive = new OptionalImpl<IObserver<IActiveContext>>();
 
         /// <summary>
         /// Event handler for closed context. Defaults to logging if not bound.
@@ -175,6 +174,12 @@ namespace Org.Apache.REEF.Driver.Bridge
         [SuppressMessage("Microsoft.Security", "CA2104:Do not declare read only mutable reference types", Justification = "not applicable")]
         public static readonly OptionalImpl<IDriverConnection> OnDriverReconnect = new OptionalImpl<IDriverConnection>();
 
+        ///// <summary>
+        ///// Event handler for driver restart completed event received during driver restart. Defaults to logging if not bound.
+        ///// </summary>
+        [SuppressMessage("Microsoft.Security", "CA2104:Do not declare read only mutable reference types", Justification = "not applicable")]
+        public static readonly OptionalImpl<IObserver<IDriverRestartCompleted>> OnDriverRestartCompleted = new OptionalImpl<IObserver<IDriverRestartCompleted>>();
+
         // This is currently not needed in Bridge/Driver model
         ///// <summary>
         ///// The event handler invoked right before the driver shuts down. Defaults to ignore.
@@ -206,7 +211,7 @@ namespace Org.Apache.REEF.Driver.Bridge
             {
                 return new DriverBridgeConfiguration()
                 .BindImplementation(GenericType<IStartHandler>.Class, OnDriverStarted)
-                .BindNamedParameter(GenericType<DriverBridgeConfigurationOptions.DriverRestartHandler>.Class, OnDriverRestarted)
+                .BindSetEntry(GenericType<DriverBridgeConfigurationOptions.DriverRestartedHandlers>.Class, OnDriverRestarted)
                 .BindImplementation(GenericType<IDriverConnection>.Class, OnDriverReconnect)
                 .BindSetEntry(GenericType<DriverBridgeConfigurationOptions.EvaluatorRequestHandlers>.Class, OnEvaluatorRequested)
                 .BindSetEntry(GenericType<DriverBridgeConfigurationOptions.AllocatedEvaluatorHandlers>.Class, OnEvaluatorAllocated)
@@ -224,8 +229,9 @@ namespace Org.Apache.REEF.Driver.Bridge
                 .BindSetEntry(GenericType<DriverBridgeConfigurationOptions.ArgumentSets>.Class, CommandLineArguments)
                 .BindSetEntry(GenericType<DriverBridgeConfigurationOptions.HttpEventHandlers>.Class, OnHttpEvent)
                 .BindSetEntry(GenericType<DriverBridgeConfigurationOptions.TraceListenersSet>.Class, CustomTraceListeners)
-                .BindSetEntry(GenericType<DriverBridgeConfigurationOptions.DriverRestartActiveContextHandlers>.Class, OnDirverRestartContextActive)
+                .BindSetEntry(GenericType<DriverBridgeConfigurationOptions.DriverRestartActiveContextHandlers>.Class, OnDriverRestartContextActive)
                 .BindSetEntry(GenericType<DriverBridgeConfigurationOptions.DriverRestartRunningTaskHandlers>.Class, OnDriverRestartTaskRunning)
+                .BindSetEntry(GenericType<DriverBridgeConfigurationOptions.DriverRestartCompletedHandlers>.Class, OnDriverRestartCompleted)
                 .BindNamedParameter(GenericType<DriverBridgeConfigurationOptions.TraceLevel>.Class, CustomTraceLevel)
                 .Build();
             }

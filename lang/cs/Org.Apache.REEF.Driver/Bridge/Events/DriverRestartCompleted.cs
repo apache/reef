@@ -18,39 +18,24 @@
  */
 
 using System;
-using Org.Apache.REEF.Driver;
-using Org.Apache.REEF.Tang.Annotations;
-using Org.Apache.REEF.Wake.Time.Event;
 
-namespace Org.Apache.REEF.Examples.AllHandlers
+namespace Org.Apache.REEF.Driver.Bridge.Events
 {
     /// <summary>
-    /// A sample implementation of driver restart handler
+    /// Implementation of IDriverStarted.
     /// </summary>
-    public class HelloRestartHandler : IObserver<IDriverRestarted>
+    internal sealed class DriverRestartCompleted : IDriverRestartCompleted
     {
-        [Inject]
-        private HelloRestartHandler()
+        private readonly DateTime _completedTime;
+
+        internal DriverRestartCompleted(DateTime completedTime)
         {
+            this._completedTime = completedTime;
         }
 
-        /// <summary>
-        /// It is called when the driver is restarted
-        /// </summary>
-        /// <param name="value"></param>
-        public void OnNext(IDriverRestarted value)
+        public DateTime CompletedTime
         {
-            Console.WriteLine("Hello from CLR: we are informed that Driver has restarted at " + new DateTime(value.StartTime.Ticks));
-        }
-
-        public void OnError(Exception error)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void OnCompleted()
-        {
-            throw new NotImplementedException();
+            get { return this._completedTime; }
         }
     }
 }

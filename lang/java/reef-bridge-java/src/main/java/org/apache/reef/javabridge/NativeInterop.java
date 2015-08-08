@@ -36,9 +36,9 @@ public final class NativeInterop {
   public static final String CLOSED_CONTEXT_KEY = "ClosedContext";
   public static final String FAILED_CONTEXT_KEY = "FailedContext";
   public static final String CONTEXT_MESSAGE_KEY = "ContextMessage";
-  public static final String DRIVER_RESTART_KEY = "DriverRestart";
   public static final String DRIVER_RESTART_ACTIVE_CONTEXT_KEY = "DriverRestartActiveContext";
   public static final String DRIVER_RESTART_RUNNING_TASK_KEY = "DriverRestartRunningTask";
+  public static final String DRIVER_RESTART_COMPLETED_KEY = "DriverRestartCompleted";
   public static final HashMap<String, Integer> HANDLERS = new HashMap<String, Integer>() {
     {
       put(ALLOCATED_EVALUATOR_KEY, 1);
@@ -54,9 +54,9 @@ public final class NativeInterop {
       put(CLOSED_CONTEXT_KEY, 11);
       put(FAILED_CONTEXT_KEY, 12);
       put(CONTEXT_MESSAGE_KEY, 13);
-      put(DRIVER_RESTART_KEY, 14);
-      put(DRIVER_RESTART_ACTIVE_CONTEXT_KEY, 15);
-      put(DRIVER_RESTART_RUNNING_TASK_KEY, 16);
+      put(DRIVER_RESTART_ACTIVE_CONTEXT_KEY, 14);
+      put(DRIVER_RESTART_RUNNING_TASK_KEY, 15);
+      put(DRIVER_RESTART_COMPLETED_KEY, 16);
     }
   };
 
@@ -145,8 +145,10 @@ public final class NativeInterop {
       final ContextMessageBridge contextMessageBridge
   );
 
-  public static native void clrSystemDriverRestartHandlerOnNext(
-      final long handle
+  public static native long[] callClrSystemOnRestartHandlerOnNext(
+      final String dateTime,
+      final String httpServerPortNumber,
+      final EvaluatorRequestorBridge javaEvaluatorRequestorBridge
   );
 
   public static native void clrSystemDriverRestartActiveContextHandlerOnNext(
@@ -157,6 +159,10 @@ public final class NativeInterop {
   public static native void clrSystemDriverRestartRunningTaskHandlerOnNext(
       final long handle,
       final RunningTaskBridge runningTaskBridge
+  );
+
+  public static native void clrSystemDriverRestartCompletedHandlerOnNext(
+      final long handle
   );
 
   /**

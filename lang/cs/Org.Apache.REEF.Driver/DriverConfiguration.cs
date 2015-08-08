@@ -27,7 +27,6 @@ using Org.Apache.REEF.Driver.Evaluator;
 using Org.Apache.REEF.Driver.Task;
 using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Util;
-using Org.Apache.REEF.Wake.Time.Event;
 
 namespace Org.Apache.REEF.Driver
 {
@@ -45,8 +44,8 @@ namespace Org.Apache.REEF.Driver
         /// <summary>
         /// The event handler invoked when driver restarts
         /// </summary>
-        public static readonly OptionalImpl<IObserver<StartTime>> OnDriverRestarted =
-            new OptionalImpl<IObserver<StartTime>>();
+        public static readonly OptionalImpl<IObserver<IDriverRestarted>> OnDriverRestarted =
+            new OptionalImpl<IObserver<IDriverRestarted>>();
 
         /// <summary>
         /// Event handler for allocated evaluators. Defaults to returning the evaluator if not bound.
@@ -120,7 +119,7 @@ namespace Org.Apache.REEF.Driver
         /// <summary>
         /// Event handler for active context received during driver restart. Defaults to closing the context if not bound.
         /// </summary>
-        public static readonly OptionalImpl<IObserver<IActiveContext>> OnDirverRestartContextActive =
+        public static readonly OptionalImpl<IObserver<IActiveContext>> OnDriverRestartContextActive =
             new OptionalImpl<IObserver<IActiveContext>>();
 
         /// <summary>
@@ -140,6 +139,12 @@ namespace Org.Apache.REEF.Driver
         /// </summary>
         public static readonly OptionalImpl<IObserver<IContextMessage>> OnContextMessage =
             new OptionalImpl<IObserver<IContextMessage>>();
+
+        /// <summary>
+        /// Event handler for driver restart completed. Defaults to logging if not bound.
+        /// </summary>
+        public static readonly OptionalImpl<IObserver<IDriverRestartCompleted>> OnDriverRestartCompleted =
+            new OptionalImpl<IObserver<IDriverRestartCompleted>>();
 
         /// <summary>
         /// Additional set of string arguments that can be pssed to handlers through client
@@ -175,7 +180,7 @@ namespace Org.Apache.REEF.Driver
                 return new DriverConfiguration()
                     .BindSetEntry(GenericType<DriverBridgeConfigurationOptions.DriverStartedHandlers>.Class,
                         OnDriverStarted)
-                    .BindNamedParameter(GenericType<DriverBridgeConfigurationOptions.DriverRestartHandler>.Class,
+                    .BindSetEntry(GenericType<DriverBridgeConfigurationOptions.DriverRestartedHandlers>.Class,
                         OnDriverRestarted)
                     .BindImplementation(GenericType<IDriverConnection>.Class, OnDriverReconnect)
                     .BindSetEntry(GenericType<DriverBridgeConfigurationOptions.AllocatedEvaluatorHandlers>.Class,
@@ -199,13 +204,15 @@ namespace Org.Apache.REEF.Driver
                         OnContextFailed)
                     .BindSetEntry(GenericType<DriverBridgeConfigurationOptions.ContextMessageHandlers>.Class,
                         OnContextMessage)
+                    .BindSetEntry(GenericType<DriverBridgeConfigurationOptions.DriverRestartCompletedHandlers>.Class,
+                        OnDriverRestartCompleted)
                     .BindSetEntry(GenericType<DriverBridgeConfigurationOptions.ArgumentSets>.Class, CommandLineArguments)
                     .BindSetEntry(GenericType<DriverBridgeConfigurationOptions.HttpEventHandlers>.Class, OnHttpEvent)
                     .BindSetEntry(GenericType<DriverBridgeConfigurationOptions.TraceListenersSet>.Class,
                         CustomTraceListeners)
                     .BindSetEntry(
                         GenericType<DriverBridgeConfigurationOptions.DriverRestartActiveContextHandlers>.Class,
-                        OnDirverRestartContextActive)
+                        OnDriverRestartContextActive)
                     .BindSetEntry(GenericType<DriverBridgeConfigurationOptions.DriverRestartRunningTaskHandlers>.Class,
                         OnDriverRestartTaskRunning)
                     .BindNamedParameter(GenericType<DriverBridgeConfigurationOptions.TraceLevel>.Class, CustomTraceLevel)

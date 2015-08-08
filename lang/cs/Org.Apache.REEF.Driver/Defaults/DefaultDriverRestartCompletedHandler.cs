@@ -18,33 +18,28 @@
  */
 
 using System;
-using Org.Apache.REEF.Driver.Bridge.Events;
-using Org.Apache.REEF.Wake.Time.Event;
+using System.Globalization;
+using Org.Apache.REEF.Driver.Context;
+using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Utilities.Logging;
 
-namespace Org.Apache.REEF.Driver.Bridge
+namespace Org.Apache.REEF.Driver.Defaults
 {
     /// <summary>
-    /// Wrapper of the new Observers of DriverRestarted with and into an Observer of StartTime.
+    /// The default driver restart completed handler. Prints the time when restart is completed.
     /// </summary>
-    /// <remarks>
-    /// Rationale: This way, we don't have to change the C++ code in the same change as the API.
-    /// </remarks>
-    internal sealed class DriverRestartHandlerWrapper : IObserver<StartTime>
+    public sealed class DefaultDriverRestartCompletedHandler : IObserver<IDriverRestartCompleted>
     {
-        private readonly IObserver<IDriverRestarted> _driverRestartedObserver;
-        private readonly IObserver<StartTime> _startTimeObserver;
-
-        internal DriverRestartHandlerWrapper(IObserver<StartTime> startTimeObserver,
-            IObserver<IDriverRestarted> driverRestartedObserver)
+        private static readonly Logger LOGGER = Logger.GetLogger(typeof(DefaultDriverRestartCompletedHandler));
+        
+        [Inject]
+        public DefaultDriverRestartCompletedHandler()
         {
-            _startTimeObserver = startTimeObserver;
-            _driverRestartedObserver = driverRestartedObserver;
         }
 
-        public void OnNext(StartTime startTime)
+        public void OnNext(IDriverRestartCompleted value)
         {
-            _driverRestartedObserver.OnNext(new DriverRestarted(new DateTime(startTime.TimeStamp)));
-            _startTimeObserver.OnNext(startTime);
+            LOGGER.Log(Level.Info, string.Format(CultureInfo.InvariantCulture, "Driver restart completed at " + value.CompletedTime));
         }
 
         public void OnError(Exception error)
