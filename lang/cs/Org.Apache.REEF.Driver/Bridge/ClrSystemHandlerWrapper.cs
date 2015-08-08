@@ -18,13 +18,9 @@
  */
 
 using System;
-using System.CodeDom;
 using System.Globalization;
-using System.IO;
 using System.Runtime.InteropServices;
-using Org.Apache.REEF.Common;
 using Org.Apache.REEF.Common.Context;
-using Org.Apache.REEF.Common.Files;
 using Org.Apache.REEF.Driver.Bridge.Clr2java;
 using Org.Apache.REEF.Driver.Bridge.Events;
 using Org.Apache.REEF.Driver.Context;
@@ -32,7 +28,6 @@ using Org.Apache.REEF.Driver.Evaluator;
 using Org.Apache.REEF.Driver.Task;
 using Org.Apache.REEF.Utilities.Diagnostics;
 using Org.Apache.REEF.Utilities.Logging;
-using Org.Apache.REEF.Wake.Time.Event;
 using ContextMessage = Org.Apache.REEF.Driver.Bridge.Events.ContextMessage;
 
 namespace Org.Apache.REEF.Driver.Bridge
@@ -215,15 +210,16 @@ namespace Org.Apache.REEF.Driver.Bridge
             }
         }
 
-        public static void Call_ClrSystemDriverRestart_OnNext(ulong handle)
+        public static void Call_ClrSystemDriverRestartCompleted_OnNext(ulong handle)
         {
-            using (LOGGER.LogFunction("ClrSystemHandlerWrapper::Call_ClrSystemDriverRestart_OnNext"))
+            using (LOGGER.LogFunction("ClrSystemHandlerWrapper::Call_ClrSystemDriverRestartCompleted_OnNext"))
             {
                 GCHandle gc = GCHandle.FromIntPtr((IntPtr)handle);
-                ClrSystemHandler<StartTime> obj = (ClrSystemHandler<StartTime>)gc.Target;
-                obj.OnNext(new StartTime(DateTime.Now.Ticks));
+                ClrSystemHandler<IDriverRestartCompleted> obj = (ClrSystemHandler<IDriverRestartCompleted>)gc.Target;
+                obj.OnNext(new DriverRestartCompleted(DateTime.Now));
             }
         }
+
 
         //Deprecate, remove after both Java and C# code gets checked in
         public static ulong[] Call_ClrSystemStartHandler_OnStart(
@@ -254,6 +250,23 @@ namespace Org.Apache.REEF.Driver.Bridge
 
                 return handlers;
             }   
+        }
+
+        public static ulong[] Call_ClrSystemRestartHandler_OnRestart(
+            DateTime startTime,
+            string httpServerPort,
+            IEvaluatorRequestorClr2Java evaluatorRequestorClr2Java)
+        {
+            IEvaluatorRequestor evaluatorRequestor = new EvaluatorRequestor(evaluatorRequestorClr2Java);
+            using (LOGGER.LogFunction("ClrSystemHandlerWrapper::Call_ClrSystemRestartHandler_OnRestart"))
+            {
+                LOGGER.Log(Level.Info, "*** Restart time is " + startTime);
+                LOGGER.Log(Level.Info, "*** httpServerPort: " + httpServerPort);
+                var handlers = GetHandlers(httpServerPort, evaluatorRequestor);
+                _driverBridge.RestartHandlerOnNext(startTime);
+
+                return handlers;
+            }
         }
 
         private static ulong[] GetHandlers(string httpServerPortNumber, IEvaluatorRequestor evaluatorRequestor)

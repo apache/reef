@@ -103,14 +103,9 @@ JNIEXPORT jlongArray JNICALL Java_org_apache_reef_javabridge_NativeInterop_callC
 (JNIEnv * env, jclass jclassx, jstring dateTimeString, jstring httpServerPort, jobject jevaluatorRequestorBridge) {
   try {
     ManagedLog::LOGGER->Log("+Java_org_apache_reef_javabridge_NativeInterop_callClrSystemOnStartHandler");
-    const wchar_t* charConfig = UnicodeCppStringFromJavaString (env, dateTimeString);
-    int lenConfig = env->GetStringLength(dateTimeString);
-    String^  strConfig = Marshal::PtrToStringUni((IntPtr)(unsigned short*) charConfig, lenConfig);
     DateTime dt = DateTime::Now;
 
-	const wchar_t* charPort = UnicodeCppStringFromJavaString (env, httpServerPort);
-    int lenPort = env->GetStringLength(httpServerPort);
-    String^  strPort = Marshal::PtrToStringUni((IntPtr)(unsigned short*) charPort, lenPort);
+	String^ strPort = ManagedStringFromJavaString(env, httpServerPort);
 
 	EvaluatorRequestorClr2Java^ evaluatorRequestorBridge = gcnew EvaluatorRequestorClr2Java(env, jevaluatorRequestorBridge);
 	array<unsigned long long>^ handlers = ClrSystemHandlerWrapper::Call_ClrSystemStartHandler_OnStart(dt, strPort, evaluatorRequestorBridge);
@@ -436,22 +431,29 @@ JNIEXPORT void JNICALL Java_org_apache_reef_javabridge_NativeInterop_clrSystemCo
   }
 }
 
+
 /*
- * Class:     org_apache_reef_javabridge_NativeInterop
- * Method:    clrSystemDriverRestartHandlerOnNext
- * Signature: (J)V
- */
-JNIEXPORT void JNICALL Java_org_apache_reef_javabridge_NativeInterop_clrSystemDriverRestartHandlerOnNext
-(JNIEnv *env , jclass cls, jlong handler) {
-  ManagedLog::LOGGER->Log("+Java_org_apache_reef_javabridge_NativeInterop_clrSystemDriverRestartHandlerOnNext");
-  try {
-    ClrSystemHandlerWrapper::Call_ClrSystemDriverRestart_OnNext(handler);
-  }
-  catch (System::Exception^ ex) {
-    String^ errorMessage = "Exception in Call_ClrSystemContextMessage_OnNext";
-    ManagedLog::LOGGER->LogError(errorMessage, ex);
-    // we do not call back to Java for exception in .NET restart handler
-  }
+* Class:     org_apache_reef_javabridge_NativeInterop
+* Method:    callClrSystemOnRestartHandlerOnNext
+* Signature: (Ljava/lang/String;Ljava/lang/String;Lorg/apache/reef/javabridge/EvaluatorRequestorBridge;)[J
+*/
+JNIEXPORT jlongArray JNICALL Java_org_apache_reef_javabridge_NativeInterop_callClrSystemOnRestartHandlerOnNext
+(JNIEnv * env, jclass jclassx, jstring dateTimeString, jstring httpServerPort, jobject jevaluatorRequestorBridge)
+{
+	try {
+		ManagedLog::LOGGER->Log("+Java_org_apache_reef_javabridge_NativeInterop_callClrSystemOnStartHandler");
+		DateTime dt = DateTime::Now;
+		String^ strPort = ManagedStringFromJavaString(env, httpServerPort);
+
+		EvaluatorRequestorClr2Java^ evaluatorRequestorBridge = gcnew EvaluatorRequestorClr2Java(env, jevaluatorRequestorBridge);
+		array<unsigned long long>^ handlers = ClrSystemHandlerWrapper::Call_ClrSystemRestartHandler_OnRestart(dt, strPort, evaluatorRequestorBridge);
+		return JavaLongArrayFromManagedLongArray(env, handlers);
+	}
+	catch (System::Exception^ ex) {
+		// we cannot get error back to java here since we don't have an object to call back (although we ideally should...)
+		ManagedLog::LOGGER->LogError("Exceptions in Java_org_apache_reef_javabridge_NativeInterop_callClrSystemOnStartHandler", ex);
+		return NULL;
+	}
 }
 
 /*
@@ -490,4 +492,21 @@ JNIEXPORT void JNICALL Java_org_apache_reef_javabridge_NativeInterop_clrSystemDr
     ManagedLog::LOGGER->LogError(errorMessage, ex);
     runningTaskBridge -> OnError(errorMessage);
   }
+}
+
+/*
+* Class:     org_apache_reef_javabridge_NativeInterop
+* Method:    clrSystemDriverRestartCompletedHandlerOnNext
+* Signature: (J)V
+*/
+JNIEXPORT void JNICALL Java_org_apache_reef_javabridge_NativeInterop_clrSystemDriverRestartCompletedHandlerOnNext
+(JNIEnv * env, jclass cls, jlong handler) {
+	ManagedLog::LOGGER->Log("+Java_org_apache_reef_javabridge_NativeInterop_clrSystemDriverRestartCompletedHandlerOnNext");
+	try {
+		ClrSystemHandlerWrapper::Call_ClrSystemDriverRestartCompleted_OnNext(handler);
+	}
+	catch (System::Exception^ ex) {
+		String^ errorMessage = "Exception in Call_ClrSystemDriverRestartRunningTask_OnNext";
+		ManagedLog::LOGGER->LogError(errorMessage, ex);
+	}
 }

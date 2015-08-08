@@ -47,14 +47,13 @@ namespace Org.Apache.REEF.Driver.Bridge
         {
         }
 
-        [Obsolete(message:"Since 0.12, Removed in 0.13. Use DriverRestartedHandler instead.")]
-        [NamedParameter(documentation: "Called when driver is restarted, after CLR bridge is set up.", defaultClasses: new[] { typeof(DefaultDriverRestartHandler) })]
-        public class DriverRestartHandler : Name<IObserver<StartTime>>
+        [NamedParameter(documentation: "Called when driver is restarted, after CLR bridge is set up.")]
+        public class DriverRestartedHandlers : Name<ISet<IObserver<IDriverRestarted>>>
         {
         }
 
-        [NamedParameter(documentation: "Called when driver is restarted, after CLR bridge is set up.", defaultClasses: new[] { typeof(DefaultDriverRestartedHandler) })]
-        public class DriverRestartedHandler : Name<IObserver<IDriverRestarted>>
+        [NamedParameter(documentation: "Called when driver restart is completed.", defaultClasses: new[] { typeof (DefaultDriverRestartCompletedHandler) })]
+        public class DriverRestartCompletedHandlers : Name<ISet<IObserver<IDriverRestartCompleted>>>
         {
         }
 

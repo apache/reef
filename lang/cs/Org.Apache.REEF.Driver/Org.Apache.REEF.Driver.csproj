@@ -62,13 +62,13 @@ under the License.
     <Compile Include="Bridge\DriverBridge.cs" />
     <Compile Include="Bridge\DriverBridgeConfiguration.cs" />
     <Compile Include="Bridge\DriverBridgeConfigurationOptions.cs" />
-    <Compile Include="Bridge\DriverRestartHandlerWrapper.cs" />
     <Compile Include="Bridge\Events\ActiveContext.cs" />
     <Compile Include="Bridge\Events\AllocatedEvaluator.cs" />
     <Compile Include="Bridge\Events\ClosedContext.cs" />
     <Compile Include="Bridge\Events\CompletedEvaluator.cs" />
     <Compile Include="Bridge\Events\CompletedTask.cs" />
     <Compile Include="Bridge\Events\ContextMessage.cs" />
+    <Compile Include="Bridge\Events\DriverRestartCompleted.cs" />
     <Compile Include="Bridge\Events\DriverRestarted.cs" />
     <Compile Include="Bridge\Events\DriverStarted.cs" />
     <Compile Include="Bridge\Events\EvaluatorRequstor.cs" />
@@ -107,6 +107,7 @@ under the License.
     <Compile Include="Defaults\DefaultContextFailureHandler.cs" />
     <Compile Include="Defaults\DefaultContextMessageHandler.cs" />
     <Compile Include="Defaults\DefaultCustomTraceListener.cs" />
+    <Compile Include="Defaults\DefaultDriverRestartCompletedHandler.cs" />
     <Compile Include="Defaults\DefaultDriverRestartContextActiveHandler.cs" />
     <Compile Include="Defaults\DefaultDriverRestartedHandler.cs" />
     <Compile Include="Defaults\DefaultDriverRestartHandler.cs" />
@@ -140,6 +141,7 @@ under the License.
     <Compile Include="IDriver.cs" />
     <Compile Include="IDriverRestarted.cs" />
     <Compile Include="IDriverStarted.cs" />
+    <Compile Include="IDriverRestartCompleted.cs" />
     <Compile Include="IStartHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Task\ICompletedTask.cs" />
