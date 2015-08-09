@@ -73,6 +73,8 @@ public final class JobDriver {
   private final String nameServerInfo;
   private final HttpServer httpServer;
   private final ActiveContextBridgeFactory activeContextBridgeFactory;
+  private final AllocatedEvaluatorBridgeFactory allocatedEvaluatorBridgeFactory;
+
   /**
    * Wake clock is used to schedule periodical job check-ups.
    */
@@ -156,6 +158,7 @@ public final class JobDriver {
             final LibLoader libLoader,
             final LocalAddressProvider localAddressProvider,
             final ActiveContextBridgeFactory activeContextBridgeFactory,
+            final AllocatedEvaluatorBridgeFactory allocatedEvaluatorBridgeFactory,
             final CLRProcessFactory clrProcessFactory) {
     this.clock = clock;
     this.httpServer = httpServer;
@@ -164,6 +167,7 @@ public final class JobDriver {
     this.nameServer = nameServer;
     this.driverStatusManager = driverStatusManager;
     this.activeContextBridgeFactory = activeContextBridgeFactory;
+    this.allocatedEvaluatorBridgeFactory = allocatedEvaluatorBridgeFactory;
     this.nameServerInfo = localAddressProvider.getLocalAddress() + ":" + this.nameServer.getPort();
     this.loggingScopeFactory = loggingScopeFactory;
     this.libLoader = libLoader;
@@ -262,7 +266,7 @@ public final class JobDriver {
         throw new RuntimeException("Allocated Evaluator Handler not initialized by CLR.");
       }
       final AllocatedEvaluatorBridge allocatedEvaluatorBridge =
-          new AllocatedEvaluatorBridge(eval, JobDriver.this.nameServerInfo);
+          this.allocatedEvaluatorBridgeFactory.getAllocatedEvaluatorBridge(eval, this.nameServerInfo);
       NativeInterop.clrSystemAllocatedEvaluatorHandlerOnNext(JobDriver.this.allocatedEvaluatorHandler,
           allocatedEvaluatorBridge, this.interopLogger);
     }

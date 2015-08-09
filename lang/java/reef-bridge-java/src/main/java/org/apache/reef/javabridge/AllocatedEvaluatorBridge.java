@@ -26,7 +26,10 @@ import org.apache.reef.tang.formats.AvroConfigurationSerializer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class AllocatedEvaluatorBridge extends NativeBridge {
+/**
+ * The AllocatedEvaluatorBridge object to bridge operations between REEF .NET and Java allocated evaluator operations.
+ */
+public final class AllocatedEvaluatorBridge extends NativeBridge {
 
   private static final Logger LOG = Logger.getLogger(AllocatedEvaluatorBridge.class.getName());
 
@@ -36,14 +39,25 @@ public class AllocatedEvaluatorBridge extends NativeBridge {
   private final String evaluatorId;
   private final String nameServerInfo;
 
-  public AllocatedEvaluatorBridge(final AllocatedEvaluator allocatedEvaluator, final String serverInfo) {
-    jallocatedEvaluator = allocatedEvaluator;
-    serializer = new AvroConfigurationSerializer();
-    clrClassHierarchy = Utilities.loadClassHierarchy(NativeInterop.CLASS_HIERARCHY_FILENAME);
-    evaluatorId = allocatedEvaluator.getId();
-    nameServerInfo = serverInfo;
+  /**
+   * This constructor should only be called by the AllocatedEvaluatorBridgeFactory.
+   */
+  AllocatedEvaluatorBridge(final AllocatedEvaluator allocatedEvaluator,
+                           final ClassHierarchy clrClassHierarchy,
+                           final String serverInfo,
+                           final AvroConfigurationSerializer serializer) {
+    this.jallocatedEvaluator = allocatedEvaluator;
+    this.serializer = serializer;
+    this.clrClassHierarchy = clrClassHierarchy;
+    this.evaluatorId = allocatedEvaluator.getId();
+    this.nameServerInfo = serverInfo;
   }
 
+  /**
+   * Bridge function for REEF .NET to submit context and task configurations for the allocated evaluator.
+   * @param contextConfigurationString the context configuration from .NET.
+   * @param taskConfigurationString the task configuration from .NET.
+   */
   public void submitContextAndTaskString(final String contextConfigurationString,
                                          final String taskConfigurationString) {
     if (contextConfigurationString.isEmpty()) {
@@ -65,6 +79,10 @@ public class AllocatedEvaluatorBridge extends NativeBridge {
     jallocatedEvaluator.submitContextAndTask(contextConfiguration, taskConfiguration);
   }
 
+  /**
+   * Bridge function for REEF .NET to submit context configuration for the allocated evaluator.
+   * @param contextConfigurationString the context configuration from .NET.
+   */
   public void submitContextString(final String contextConfigurationString) {
     if (contextConfigurationString.isEmpty()) {
       throw new RuntimeException("empty contextConfigurationString provided.");
@@ -80,6 +98,11 @@ public class AllocatedEvaluatorBridge extends NativeBridge {
     jallocatedEvaluator.submitContext(contextConfiguration);
   }
 
+  /**
+   * Bridge function for REEF .NET to submit context and service configurations for the allocated evaluator.
+   * @param contextConfigurationString the context configuration from .NET.
+   * @param serviceConfigurationString the service configuration from .NET.
+   */
   public void submitContextAndServiceString(final String contextConfigurationString,
                                             final String serviceConfigurationString) {
     if (contextConfigurationString.isEmpty()) {
@@ -102,6 +125,12 @@ public class AllocatedEvaluatorBridge extends NativeBridge {
     jallocatedEvaluator.submitContextAndService(contextConfiguration, servicetConfiguration);
   }
 
+  /**
+   * Bridge function for REEF .NET to submit context, service. and task configurations for the allocated evaluator.
+   * @param contextConfigurationString the context configuration from .NET.
+   * @param serviceConfigurationString the service configuration from .NET.
+   * @param taskConfigurationString the task configuration from .NET.
+   */
   public void submitContextAndServiceAndTaskString(
       final String contextConfigurationString,
       final String serviceConfigurationString,
@@ -131,6 +160,10 @@ public class AllocatedEvaluatorBridge extends NativeBridge {
     jallocatedEvaluator.submitContextAndServiceAndTask(contextConfiguration, servicetConfiguration, taskConfiguration);
   }
 
+  /**
+   * Gets the serialized evaluator descriptor from the Java allocated evaluator.
+   * @return the serialized evaluator descriptor.
+   */
   public String getEvaluatorDescriptorSring() {
     final String descriptorString =
         Utilities.getEvaluatorDescriptorString(jallocatedEvaluator.getEvaluatorDescriptor());
@@ -138,6 +171,9 @@ public class AllocatedEvaluatorBridge extends NativeBridge {
     return descriptorString;
   }
 
+  /**
+   * Closes the Java AllocatedEvaluator.
+   */
   @Override
   public void close() {
     jallocatedEvaluator.close();
