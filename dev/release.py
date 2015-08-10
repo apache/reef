@@ -73,13 +73,13 @@ def get_mail_text(reef_version, rc_num):
 
     return_str += "Checksums of apache-reef-" + reef_version + "-rc" + str(rc_num) + ".tar.gz:\n\n"
 
-    md5 = open(file_name + ".md5").read().split(" ")[1]
+    md5 = open(file_name + ".md5").read().split(" ")[0]
     return_str += "MD5: " + md5 + "\n"
     
-    sha = open(file_name + ".sha").read().split(" ")[1]
+    sha = open(file_name + ".sha512.txt").read().split(" ")[0]
     return_str += "SHA: " + sha + "\n"
 
-    return_str += "Release artifacts are signed with the key. The KEYS file is available here:\n"
+    return_str += "\nRelease artifacts are signed with the key. The KEYS file is available here:\n"
     return_str += "\nhttps://dist.apache.org/repos/dist/release/incubator/reef/KEYS\n\n\n\n"
 
     return_str += "<Issue Things>\n\n\n\n"
@@ -142,9 +142,9 @@ if __name__ == "__main__":
             sha = hashlib.sha512(open(file_name,'rb').read()).hexdigest()
 
             md5_file = open(file_name + ".md5", "w")
-            md5_file.write("MD5(" + file_name + ")= " + md5 + "\n")
-            sha_file = open(file_name + ".sha", "w")
-            sha_file.write("SHA(" + file_name + ")= " + sha + "\n")
+            md5_file.write(md5 + " *" + file_name + "\n")
+            sha_file = open(file_name + ".sha512.txt", "w")
+            sha_file.write(sha + " *" + file_name + "\n")
             md5_file.close()
             sha_file.close()
 
