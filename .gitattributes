@@ -1,4 +1,7 @@
-# Commit text files using LF endings
+# Note that settings for text files below are overridden
+# within /lang/*/ directories by local .gitattributes
+
+# Files to checkout with LF
 *.java text eol=lf whitespace=trailing-space,space-before-tab,tab-in-indent,blank-at-eof
 *.sh text eol=lf
 *.js text eol=lf
@@ -10,6 +13,8 @@ LICENSE text eol=lf
 NOTICE text eol=lf
 *.md text eol=lf
 pom.xml text eol=lf
+
+# Files to checkout with CRLF
 *.h text eol=crlf
 *.cpp text eol=crlf
 *.rc text eol=crlf
@@ -19,7 +24,14 @@ pom.xml text eol=lf
 *.cs text eol=crlf
 *.cmd text eol=crlf
 *.ps1 text eol=crlf
-*.psm1 eol=crlf
+*.psm1 text eol=crlf
+
+# Binary files
 *.png binary
 *.jpg binary
+*.snk binary
+*.ico binary
+*.bin binary
+
+# Commit text files using LF endings
 * text=auto
