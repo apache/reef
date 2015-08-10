@@ -84,11 +84,4 @@ public interface JobSubmissionEvent {
    * if it fails unexpectedly.
    */
   Optional<Integer> getMaxApplicationSubmissions();
-
-  /**
-   * @return Queue to submit the Job to
-   * @deprecated in 0.12. Use org.apache.reef.runtime.yarn.client.YarnDriverConfiguration#QUEUE instead.
-   */
-  @Deprecated
-  Optional<String> getQueue();
 }
