@@ -107,11 +107,6 @@ public final class JobSubmissionEventImpl implements JobSubmissionEvent {
     return maxApplicationSubmissions;
   }
 
-  @Override
-  public Optional<String> getQueue() {
-    return queue;
-  }
-
   public static Builder newBuilder() {
     return new Builder();
   }
@@ -211,16 +206,6 @@ public final class JobSubmissionEventImpl implements JobSubmissionEvent {
      */
     public Builder setMaxApplicationSubmissions(final Integer maxApplicationSubmissions) {
       this.maxApplicationSubmissions = maxApplicationSubmissions;
-      return this;
-    }
-
-    /**
-     * @see JobSubmissionEvent#getQueue()
-     * @deprecated in 0.12. Use org.apache.reef.runtime.yarn.client.YarnDriverConfiguration#QUEUE instead.
-     */
-    @Deprecated
-    public Builder setQueue(final String queue) {
-      this.queue = queue;
       return this;
     }
 
