@@ -61,7 +61,7 @@ namespace Org.Apache.REEF.Utilities.Logging
         {
             _name = name;
             _traceSource = new TraceSource(_name, SourceLevels.All);
-            CustcomLevel = _customLevel;
+            CustomLevel = _customLevel;
             if (TraceListeners.Count == 0)
             {
                 // before customized listener is added, we would need to log to console
@@ -77,7 +77,7 @@ namespace Org.Apache.REEF.Utilities.Logging
             }
         }
 
-        public static Level CustcomLevel
+        public static Level CustomLevel
         {
             get
             {
@@ -123,6 +123,14 @@ namespace Org.Apache.REEF.Utilities.Logging
         }
 
         /// <summary>
+        /// Determines whether or not the current log level will be logged by the logger.
+        /// </summary>
+        public bool IsLoggable(Level level)
+        {
+            return CustomLevel >= level;
+        }
+
+        /// <summary>
         /// Log the message with the specified Log Level.
         ///
         /// If addtional arguments are passed, the message will be treated as
@@ -134,7 +142,7 @@ namespace Org.Apache.REEF.Utilities.Logging
         /// <param name="args"></param>
         public void Log(Level level, string formatStr, params object[] args)
         {
-            if (CustcomLevel >= level)
+            if (CustomLevel >= level)
             {
                 string msg = FormatMessage(formatStr, args);
                 string logMessage = 
@@ -153,8 +161,9 @@ namespace Org.Apache.REEF.Utilities.Logging
 
         public void Log(Level level, string msg, Exception exception)
         {
-            string exceptionLog = string.Empty;
-            if (exception != null)
+            string exceptionLog;
+
+            if (CustomLevel >= level && exception != null)
             {
                 exceptionLog = string.Format(
                     CultureInfo.InvariantCulture,
@@ -163,6 +172,11 @@ namespace Org.Apache.REEF.Utilities.Logging
                     exception.Message,
                     exception.StackTrace);
             }
+            else
+            {
+                exceptionLog = string.Empty;
+            }
+            
             Log(level, msg + exceptionLog);
         }
 
