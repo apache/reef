@@ -1,0 +1,9 @@
+# Checkout all files with LF
+* text eol=lf
+
+# Except binary files
+*.png binary
+*.jpg binary
+*.snk binary
+*.ico binary
+*.bin binary
