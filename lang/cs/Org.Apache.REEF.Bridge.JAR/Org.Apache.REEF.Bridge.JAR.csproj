@@ -52,7 +52,9 @@ under the License.
   <!--
     Executes 'mvn install', if the JAR does not exist.
   -->
-  <Target Name="Build" DependsOnTargets="CheckMavenInstall;CheckJavaInstall;CheckProtocInstall" Outputs="$(OutputPath)">
+  <Target Name="Build"
+          DependsOnTargets="CheckMavenInstall;CheckJavaInstall;CheckProtocInstall"
+          Outputs="$(OutputPath)">
     <PropertyGroup>
       <!--The shaded jar of the bridge (driver side) -->
       <Bridge_JAR_Name>reef-bridge-java-$(REEF_Version)-shaded.jar</Bridge_JAR_Name>
@@ -80,10 +82,11 @@ under the License.
     <Exec Command="$(M2_HOME)\bin\mvn -TC1 -DskipTests clean" Condition="Exists('$(Bridge_JAR)')" WorkingDirectory="$(REEF_Source_Folder)" />
     <Delete Files="$(OutputPath)\$(Bridge_JAR_Name)" />
     <Delete Files="$(OutputPath)\$(Client_JAR_Name)" />
+
   </Target>
   <!--
     Standard Rebuild target: Clean, then build
   -->
-  <Target Name="Rebuild" DependsOnTargets="Clean;Build" />
-  <Target Name="CheckPrerequisites" DependsOnTargets="Build" />
+  <Target Name="Rebuild" DependsOnTargets="Clean;Build"/>
+  <Target Name="CheckPrerequisites" DependsOnTargets="Build"/>
 </Project>
