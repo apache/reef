@@ -21,6 +21,8 @@ package org.apache.reef.runtime.common.driver.task;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.driver.context.ActiveContext;
+import org.apache.reef.driver.restart.DriverRestartManager;
+import org.apache.reef.driver.restart.DriverRestartUtilities;
 import org.apache.reef.driver.task.FailedTask;
 import org.apache.reef.driver.task.RunningTask;
 import org.apache.reef.proto.ReefServiceProtos;
@@ -47,6 +49,7 @@ public final class TaskRepresenter {
   private final EvaluatorManager evaluatorManager;
   private final ExceptionCodec exceptionCodec;
   private final String taskId;
+  private final Optional<DriverRestartManager> driverRestartManager;
 
   // Mutable state
   private ReefServiceProtos.State state = ReefServiceProtos.State.INIT;
@@ -55,12 +58,14 @@ public final class TaskRepresenter {
                          final EvaluatorContext context,
                          final EvaluatorMessageDispatcher messageDispatcher,
                          final EvaluatorManager evaluatorManager,
-                         final ExceptionCodec exceptionCodec) {
+                         final ExceptionCodec exceptionCodec,
+                         final Optional<DriverRestartManager> driverRestartManager) {
     this.taskId = taskId;
     this.context = context;
     this.messageDispatcher = messageDispatcher;
     this.evaluatorManager = evaluatorManager;
     this.exceptionCodec = exceptionCodec;
+    this.driverRestartManager = driverRestartManager;
   }
 
   private static byte[] getResult(final ReefServiceProtos.TaskStatusProto taskStatusProto) {
@@ -134,7 +139,7 @@ public final class TaskRepresenter {
     }
 
     // fire driver restart task running handler if this is a recovery heartbeat
-    if (taskStatusProto.getRecovery()) {
+    if (DriverRestartUtilities.isRestartAndIsPreviousEvaluator(driverRestartManager, evaluatorManager.getId())) {
       final RunningTask runningTask = new RunningTaskImpl(
           this.evaluatorManager, this.taskId, this.context, this);
       this.messageDispatcher.onDriverRestartTaskRunning(runningTask);

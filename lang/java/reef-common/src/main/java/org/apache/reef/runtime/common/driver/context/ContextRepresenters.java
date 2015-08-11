@@ -23,6 +23,8 @@ import net.jcip.annotations.ThreadSafe;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.driver.context.FailedContext;
+import org.apache.reef.driver.restart.DriverRestartManager;
+import org.apache.reef.driver.restart.DriverRestartUtilities;
 import org.apache.reef.proto.ReefServiceProtos;
 import org.apache.reef.runtime.common.driver.evaluator.EvaluatorMessageDispatcher;
 import org.apache.reef.util.Optional;
@@ -43,6 +45,7 @@ public final class ContextRepresenters {
 
   private final EvaluatorMessageDispatcher messageDispatcher;
   private final ContextFactory contextFactory;
+  private final Optional<DriverRestartManager> driverRestartManager;
 
   // Mutable fields
   @GuardedBy("this")
@@ -53,8 +56,22 @@ public final class ContextRepresenters {
   @Inject
   private ContextRepresenters(final EvaluatorMessageDispatcher messageDispatcher,
                               final ContextFactory contextFactory) {
+    this(messageDispatcher, contextFactory, Optional.<DriverRestartManager>empty());
+  }
+
+  @Inject
+  private ContextRepresenters(final EvaluatorMessageDispatcher messageDispatcher,
+                              final ContextFactory contextFactory,
+                              final DriverRestartManager driverRestartManager) {
+    this(messageDispatcher, contextFactory, Optional.of(driverRestartManager));
+  }
+
+  private ContextRepresenters(final EvaluatorMessageDispatcher messageDispatcher,
+                              final ContextFactory contextFactory,
+                              final Optional<DriverRestartManager> driverRestartManager) {
     this.messageDispatcher = messageDispatcher;
     this.contextFactory = contextFactory;
+    this.driverRestartManager = driverRestartManager;
   }
 
   /**
@@ -91,7 +108,7 @@ public final class ContextRepresenters {
   /**
    * Process heartbeats from the contexts on an Evaluator.
    *
-   * @param contextStatusProto
+   * @param contextStatusProtos
    * @param notifyClientOnNewActiveContext
    */
   public synchronized void onContextStatusMessages(final Iterable<ReefServiceProtos.ContextStatusProto>
@@ -210,7 +227,7 @@ public final class ContextRepresenters {
         Optional.of(contextStatusProto.getParentId()) : Optional.<String>empty();
     final EvaluatorContext context = contextFactory.newContext(contextID, parentID);
     this.addContext(context);
-    if (contextStatusProto.getRecovery()) {
+    if (DriverRestartUtilities.isRestartAndIsPreviousEvaluator(driverRestartManager, context.getEvaluatorId())) {
       // when we get a recovered active context, always notify application
       this.messageDispatcher.onDriverRestartContextActive(context);
     } else {
