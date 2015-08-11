@@ -30,8 +30,8 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyCulture("")]
 [assembly: ComVisible(false)]
 [assembly: Guid("138891df-d331-4a5e-8514-775611c06f6c")]
-[assembly: AssemblyVersion("0.12.0.0")]
-[assembly: AssemblyFileVersion("0.12.0.0")]
+[assembly: AssemblyVersion("0.13.0.0")]
+[assembly: AssemblyFileVersion("0.13.0.0")]
 // Allow the tests project access to `internal` APIs
 #if DEBUG
 [assembly: InternalsVisibleTo("Org.Apache.REEF.IMRU.Tests")]
