@@ -22,7 +22,7 @@ import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.driver.evaluator.CLRProcessFactory;
 import org.apache.reef.driver.restart.DriverRestartManager;
-import org.apache.reef.exception.DriverFatalRuntimeException;
+import org.apache.reef.driver.restart.DriverRestartUtilities;
 import org.apache.reef.tang.ConfigurationProvider;
 import org.apache.reef.driver.context.ActiveContext;
 import org.apache.reef.driver.context.FailedContext;
@@ -392,27 +392,21 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
       final String evaluatorRID = evaluatorHeartbeatProtoRemoteMessage.getIdentifier().toString();
 
       // first message from a running evaluator trying to re-establish communications
-      if (evaluatorHeartbeatProto.getRecovery()) {
-        if(this.driverRestartManager.isPresent()) {
-          this.evaluatorControlHandler.setRemoteID(evaluatorRID);
-          this.stateManager.setRunning();
+      if (DriverRestartUtilities.isRestartAndIsPreviousEvaluator(driverRestartManager, evaluatorId)) {
+        this.evaluatorControlHandler.setRemoteID(evaluatorRID);
+        this.stateManager.setRunning();
 
-          boolean restartCompleted = this.driverRestartManager.get().evaluatorRecovered(this.evaluatorId);
+        boolean restartCompleted = this.driverRestartManager.get().evaluatorRecovered(this.evaluatorId);
 
-          LOG.log(Level.FINE, "Received recovery heartbeat from evaluator {0}.", this.evaluatorId);
+        LOG.log(Level.FINE, "Received recovery heartbeat from evaluator {0}.", this.evaluatorId);
 
-          if (restartCompleted) {
-            this.messageDispatcher.onDriverRestartCompleted(new DriverRestartCompleted(System.currentTimeMillis()));
-            LOG.log(Level.INFO, "All expected evaluators checked in.");
-          } else {
-            LOG.log(Level.INFO, "Expecting [{0}], [{1}] have checked in.",
-                new Object[]{this.driverRestartManager.get().getPreviousEvaluatorIds(),
-                    this.driverRestartManager.get().getRecoveredEvaluatorIds()});
-          }
+        if (restartCompleted) {
+          this.messageDispatcher.onDriverRestartCompleted(new DriverRestartCompleted(System.currentTimeMillis()));
+          LOG.log(Level.INFO, "All expected evaluators checked in.");
         } else {
-          final String errorMsg = "Restart configurations are not set properly. The DriverRestartManager is missing.";
-          LOG.log(Level.SEVERE, errorMsg);
-          throw new DriverFatalRuntimeException(errorMsg);
+          LOG.log(Level.INFO, "Expecting [{0}], [{1}] have checked in.",
+              new Object[]{this.driverRestartManager.get().getPreviousEvaluatorIds(),
+                  this.driverRestartManager.get().getRecoveredEvaluatorIds()});
         }
       }
 
@@ -547,8 +541,8 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
       if (taskStatusProto.getState() == ReefServiceProtos.State.INIT ||
           taskStatusProto.getState() == ReefServiceProtos.State.FAILED ||
           taskStatusProto.getState() == ReefServiceProtos.State.RUNNING ||
-          taskStatusProto.getRecovery() // for task from recovered evaluators
-          ) {
+          // for task from recovered evaluators
+          DriverRestartUtilities.isRestartAndIsPreviousEvaluator(driverRestartManager, evaluatorId)) {
 
         // [REEF-308] exposes a bug where the .NET evaluator does not send its states in the right order
         // [REEF-289] is a related item which may fix the issue
@@ -565,7 +559,8 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
                 this.contextRepresenters.getContext(taskStatusProto.getContextId()),
                 this.messageDispatcher,
                 this,
-                this.exceptionCodec));
+                this.exceptionCodec,
+                this.driverRestartManager));
       } else {
         throw new RuntimeException("Received a message of state " + taskStatusProto.getState() +
             ", not INIT, RUNNING, or FAILED for Task " + taskStatusProto.getTaskId() +

@@ -42,34 +42,40 @@ public final class DriverRestartManagerImpl implements DriverRestartManager {
   private final DriverRuntimeRestartManager driverRuntimeRestartManager;
   private final Set<String> previousEvaluators;
   private final Set<String> recoveredEvaluators;
-
-  private boolean restartBegan;
-  private boolean restartCompleted;
+  private DriverRestartState state;
 
   @Inject
   private DriverRestartManagerImpl(final DriverRuntimeRestartManager driverRuntimeRestartManager) {
     this.driverRuntimeRestartManager = driverRuntimeRestartManager;
-    this.restartCompleted = false;
-    this.restartBegan = false;
+    this.state = DriverRestartState.NotRestarted;
     this.previousEvaluators = new HashSet<>();
     this.recoveredEvaluators = new HashSet<>();
   }
 
   @Override
-  public boolean isRestart() {
-    return driverRuntimeRestartManager.isRestart();
+  public synchronized boolean isRestart() {
+    if (this.state.isRestart()) {
+      return true;
+    }
+
+    if (driverRuntimeRestartManager.isRestart()) {
+      this.state = DriverRestartState.RestartBegan;
+      return true;
+    }
+
+    return false;
   }
 
   @Override
-  public void onRestart() {
+  public synchronized void onRestart() {
     final EvaluatorRestartInfo evaluatorRestartInfo = driverRuntimeRestartManager.getAliveAndFailedEvaluators();
     setPreviousEvaluatorIds(evaluatorRestartInfo.getAliveEvaluators());
     driverRuntimeRestartManager.informAboutEvaluatorFailures(evaluatorRestartInfo.getFailedEvaluators());
   }
 
   @Override
-  public boolean isRestartCompleted() {
-    return this.restartCompleted;
+  public synchronized boolean isRestartCompleted() {
+    return this.state == DriverRestartState.RestartCompleted;
   }
 
   @Override
@@ -79,8 +85,9 @@ public final class DriverRestartManagerImpl implements DriverRestartManager {
 
   @Override
   public synchronized void setPreviousEvaluatorIds(final Set<String> ids) {
-    if (!this.restartBegan) {
+    if (this.state != DriverRestartState.RestartInProgress) {
       previousEvaluators.addAll(ids);
+      this.state = DriverRestartState.RestartInProgress;
     } else {
       final String errMsg = "Should not be setting the set of expected alive evaluators more than once.";
       LOG.log(Level.SEVERE, errMsg);
@@ -107,10 +114,10 @@ public final class DriverRestartManagerImpl implements DriverRestartManager {
     }
 
     if (this.recoveredEvaluators.containsAll(this.previousEvaluators)) {
-      this.restartCompleted = true;
+      this.state = DriverRestartState.RestartCompleted;
     }
 
-    return this.restartCompleted;
+    return this.state == DriverRestartState.RestartCompleted;
   }
 
   @Override
