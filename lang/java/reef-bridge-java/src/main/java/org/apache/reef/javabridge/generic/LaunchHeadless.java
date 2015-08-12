@@ -35,7 +35,9 @@ import java.util.logging.Logger;
 
 /**
  * Clr Bridge example - main class.
+ * @deprecated in 0.13, please use {@link org.apache.reef.javabridge.generic.Launch instead}
  */
+@Deprecated
 public final class LaunchHeadless {
 
   /**
