@@ -28,6 +28,7 @@ import org.apache.reef.runtime.common.parameters.JVMHeapSlack;
 import org.apache.reef.runtime.yarn.YarnClasspathProvider;
 import org.apache.reef.runtime.yarn.client.parameters.JobPriority;
 import org.apache.reef.runtime.yarn.client.parameters.JobQueue;
+import org.apache.reef.runtime.yarn.driver.parameters.YarnFederation;
 import org.apache.reef.runtime.yarn.util.YarnConfigurationConstructor;
 import org.apache.reef.tang.ConfigurationProvider;
 import org.apache.reef.tang.formats.ConfigurationModule;
@@ -50,6 +51,7 @@ public class YarnClientConfiguration extends ConfigurationModuleBuilder {
   public static final OptionalParameter<Integer> YARN_PRIORITY = new OptionalParameter<>();
 
   public static final OptionalParameter<Double> JVM_HEAP_SLACK = new OptionalParameter<>();
+  public static final OptionalParameter<Boolean> YARN_FEDERATION = new OptionalParameter<>();
 
   /**
    * Configuration provides whose Configuration will be merged into all Driver Configuration.
@@ -64,6 +66,7 @@ public class YarnClientConfiguration extends ConfigurationModuleBuilder {
       .bindNamedParameter(JobQueue.class, YARN_QUEUE_NAME)
       .bindNamedParameter(JobPriority.class, YARN_PRIORITY)
       .bindNamedParameter(JVMHeapSlack.class, JVM_HEAP_SLACK)
+      .bindNamedParameter(YarnFederation.class, YARN_FEDERATION)
       .bindImplementation(RuntimeClasspathProvider.class, YarnClasspathProvider.class)
           // Bind external constructors. Taken from  YarnExternalConstructors.registerClientConstructors
       .bindConstructor(org.apache.hadoop.yarn.conf.YarnConfiguration.class, YarnConfigurationConstructor.class)
