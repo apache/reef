@@ -35,6 +35,7 @@ import org.apache.reef.runtime.yarn.client.parameters.JobQueue;
 import org.apache.reef.runtime.yarn.client.uploader.JobFolder;
 import org.apache.reef.runtime.yarn.client.uploader.JobUploader;
 import org.apache.reef.runtime.yarn.driver.YarnDriverConfiguration;
+import org.apache.reef.runtime.yarn.driver.parameters.YarnFederation;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Configurations;
 import org.apache.reef.tang.Tang;
@@ -61,6 +62,7 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
   private final JobUploader uploader;
   private final double jvmSlack;
   private final String defaultQueueName;
+  private final boolean yarnFederation;
 
   @Inject
   YarnJobSubmissionHandler(
@@ -70,7 +72,8 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
       final ClasspathProvider classpath,
       final JobUploader uploader,
       @Parameter(JVMHeapSlack.class) final double jvmSlack,
-      @Parameter(JobQueue.class) final String defaultQueueName) throws IOException {
+      @Parameter(JobQueue.class) final String defaultQueueName,
+      @Parameter(YarnFederation.class) final boolean yarnFederation) throws IOException {
 
     this.yarnConfiguration = yarnConfiguration;
     this.jobJarMaker = jobJarMaker;
@@ -79,6 +82,7 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
     this.uploader = uploader;
     this.jvmSlack = jvmSlack;
     this.defaultQueueName = defaultQueueName;
+    this.yarnFederation = yarnFederation;
   }
 
   @Override
@@ -131,6 +135,7 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
             .set(YarnDriverConfiguration.JOB_IDENTIFIER, jobSubmissionEvent.getIdentifier())
             .set(YarnDriverConfiguration.CLIENT_REMOTE_IDENTIFIER, jobSubmissionEvent.getRemoteId())
             .set(YarnDriverConfiguration.JVM_HEAP_SLACK, this.jvmSlack)
+            .set(YarnDriverConfiguration.YARN_FEDERATION, this.yarnFederation)
             .build(),
         jobSubmissionEvent.getConfiguration());
   }
