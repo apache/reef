@@ -79,7 +79,7 @@ def get_mail_text(reef_version, rc_num):
     sha = open(file_name + ".sha512.txt").read().split(" ")[0]
     return_str += "SHA: " + sha + "\n"
 
-    return_str += "\nRelease artifacts are signed with the key. The KEYS file is available here:\n"
+    return_str += "\nRelease artifacts are signed with a key found in the KEYS file available here:\n"
     return_str += "\nhttps://dist.apache.org/repos/dist/release/incubator/reef/KEYS\n\n\n\n"
 
     return_str += "<Issue Things>\n\n\n\n"
