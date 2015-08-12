@@ -26,6 +26,7 @@ fi
 if [ -z ${MESOS_NATIVE_LIBRARY+x} ]
 then
   search_paths='/usr/lib /usr/local/lib'
+  echo "MESOS_NATIVE_LIBRARY is not set. Searching in $search_paths.."
   mesos_native_library=$(find -L $search_paths -name libmesos.dylib -or -name libmesos.so | head -n1)
 
   if [ -z $mesos_native_library ]
