@@ -18,34 +18,38 @@
  */
 package org.apache.reef.io.network.impl;
 
+import org.apache.reef.driver.parameters.DriverIdentifier;
 import org.apache.reef.io.network.NetworkConnectionService;
 import org.apache.reef.io.network.impl.config.NetworkConnectionServiceIdFactory;
 import org.apache.reef.tang.annotations.Parameter;
-import org.apache.reef.task.events.TaskStart;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.IdentifierFactory;
+import org.apache.reef.wake.time.event.StartTime;
 
 import javax.inject.Inject;
 
 /**
- * TaskStart event handler for registering NetworkConnectionService.
- * This class registers taskId to network connection service.
+ * Driver start event handler for registering NetworkConnectionService.
+ * This class registers driverId to network connection service.
  */
-public final class BindNetworkConnectionServiceToTask implements EventHandler<TaskStart> {
+public final class BindNetworkConnectionServiceToDriver implements EventHandler<StartTime> {
 
+  private final String driverId;
   private final NetworkConnectionService ncs;
   private final IdentifierFactory idFac;
 
   @Inject
-  private BindNetworkConnectionServiceToTask(
+  private BindNetworkConnectionServiceToDriver(
+      @Parameter(DriverIdentifier.class) final String driverId,
       final NetworkConnectionService ncs,
       @Parameter(NetworkConnectionServiceIdFactory.class) final IdentifierFactory idFac) {
+    this.driverId = driverId;
     this.ncs = ncs;
     this.idFac = idFac;
   }
 
   @Override
-  public void onNext(final TaskStart task) {
-    this.ncs.registerId(this.idFac.getNewInstance(task.getId()));
+  public void onNext(final StartTime task) {
+    this.ncs.registerId(this.idFac.getNewInstance(driverId));
   }
 }
