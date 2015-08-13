@@ -18,11 +18,15 @@
  */
 package org.apache.reef.runtime.common.driver.evaluator;
 
+import org.apache.commons.lang3.Validate;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.driver.catalog.NodeDescriptor;
 import org.apache.reef.driver.catalog.ResourceCatalog;
 import org.apache.reef.driver.evaluator.EvaluatorProcessFactory;
+import org.apache.reef.runtime.common.driver.catalog.ResourceCatalogImpl;
+import org.apache.reef.runtime.common.driver.resourcemanager.NodeDescriptorEvent;
+import org.apache.reef.runtime.common.driver.resourcemanager.NodeDescriptorEventImpl;
 import org.apache.reef.runtime.common.driver.resourcemanager.ResourceAllocationEvent;
 import org.apache.reef.runtime.common.driver.resourcemanager.ResourceStatusEvent;
 import org.apache.reef.tang.Injector;
@@ -90,10 +94,20 @@ public final class EvaluatorManagerFactory {
    */
   public EvaluatorManager getNewEvaluatorManagerForNewlyAllocatedEvaluator(
       final ResourceAllocationEvent resourceAllocationEvent) {
-    final NodeDescriptor nodeDescriptor = this.resourceCatalog.getNode(resourceAllocationEvent.getNodeId());
+    NodeDescriptor nodeDescriptor = this.resourceCatalog.getNode(resourceAllocationEvent.getNodeId());
 
     if (nodeDescriptor == null) {
-      throw new RuntimeException("Unknown resource: " + resourceAllocationEvent.getNodeId());
+      final String nodeId = resourceAllocationEvent.getNodeId();
+      LOG.log(Level.WARNING, "Node {} is not in our catalog, adding it", nodeId);
+      final String[] hostNameAndPort = nodeId.split(":");
+      Validate.isTrue(hostNameAndPort.length == 2);
+      final NodeDescriptorEvent nodeDescriptorEvent = NodeDescriptorEventImpl.newBuilder().setIdentifier(nodeId)
+          .setHostName(hostNameAndPort[0]).setPort(Integer.parseInt(hostNameAndPort[1]))
+          .setMemorySize(resourceAllocationEvent.getResourceMemory())
+          .setRackName(resourceAllocationEvent.getRackName().get()).build();
+      // downcasting not to change the API
+      ((ResourceCatalogImpl) resourceCatalog).handle(nodeDescriptorEvent);
+      nodeDescriptor = this.resourceCatalog.getNode(nodeId);
     }
     final EvaluatorDescriptorImpl evaluatorDescriptor = new EvaluatorDescriptorImpl(nodeDescriptor,
         resourceAllocationEvent.getResourceMemory(), resourceAllocationEvent.getVirtualCores().get(),
