@@ -404,7 +404,8 @@ final class YarnContainerManager
             .setResourceMemory(container.getResource().getMemory())
             .setVirtualCores(container.getResource().getVirtualCores())
             // send the flag of federation here, not to change any
-            // APIs, dirty fix.
+            // APIs, dirty fix for JIRA https://issues.apache.org/jira/browse/REEF-568
+            // until the linked YARN issue is fixed
             .setRackName(Boolean.toString(yarnFederation))
             .build());
         this.updateRuntimeStatus();
