@@ -43,7 +43,6 @@ public final class DriverRuntimeRestartConfiguration extends ConfigurationModule
       // Automatically sets preserve evaluators to true.
       .bindNamedParameter(ResourceManagerPreserveEvaluators.class, Boolean.toString(true))
 
-      .bindImplementation(DriverRestartManager.class, DriverRestartManagerImpl.class)
       .bindSetEntry(ServiceEvaluatorAllocatedHandlers.class, EvaluatorPreservingEvaluatorAllocatedHandler.class)
       .bindSetEntry(ServiceEvaluatorFailedHandlers.class, EvaluatorPreservingEvaluatorFailedHandler.class)
       .bindSetEntry(ServiceEvaluatorCompletedHandlers.class, EvaluatorPreservingEvaluatorCompletedHandler.class)

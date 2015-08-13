@@ -23,7 +23,6 @@ import org.apache.reef.driver.parameters.ServiceDriverRestartedHandlers;
 import org.apache.reef.driver.restart.DriverRestartManager;
 import org.apache.reef.exception.DriverFatalRuntimeException;
 import org.apache.reef.tang.annotations.Parameter;
-import org.apache.reef.util.Optional;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.time.event.StartTime;
 
@@ -39,48 +38,31 @@ public final class DriverStartHandler implements EventHandler<StartTime> {
   private static final Logger LOG = Logger.getLogger(DriverStartHandler.class.getName());
 
   private final Set<EventHandler<StartTime>> startHandlers;
-  private final Optional<Set<EventHandler<StartTime>>> restartHandlers;
-  private final Optional<Set<EventHandler<StartTime>>> serviceRestartHandlers;
-  private final Optional<DriverRestartManager> driverRestartManager;
+  private final Set<EventHandler<StartTime>> restartHandlers;
+  private final Set<EventHandler<StartTime>> serviceRestartHandlers;
+  private final DriverRestartManager driverRestartManager;
 
   @Inject
   DriverStartHandler(@Parameter(org.apache.reef.driver.parameters.DriverStartHandler.class)
-                     final Set<EventHandler<StartTime>> startHandler,
+                     final Set<EventHandler<StartTime>> startHandlers,
                      @Parameter(DriverRestartHandler.class)
                      final Set<EventHandler<StartTime>> restartHandlers,
                      @Parameter(ServiceDriverRestartedHandlers.class)
                      final Set<EventHandler<StartTime>> serviceRestartHandlers,
                      final DriverRestartManager driverRestartManager) {
-    this(startHandler, Optional.of(restartHandlers), Optional.of(serviceRestartHandlers),
-        Optional.of(driverRestartManager));
+    this.startHandlers = startHandlers;
+    this.restartHandlers = restartHandlers;
+    this.serviceRestartHandlers = serviceRestartHandlers;
+    this.driverRestartManager = driverRestartManager;
     LOG.log(Level.FINE, "Instantiated `DriverStartHandler with StartHandlers [{0}], RestartHandlers [{1}]," +
-            "and ServiceRestartHandlers [{2}], with a restart manager.",
+            "and ServiceRestartHandlers [{2}].",
         new String[] {this.startHandlers.toString(), this.restartHandlers.toString(),
             this.serviceRestartHandlers.toString()});
   }
 
-  @Inject
-  DriverStartHandler(@Parameter(org.apache.reef.driver.parameters.DriverStartHandler.class)
-                     final Set<EventHandler<StartTime>> startHandlers) {
-    this(startHandlers, Optional.<Set<EventHandler<StartTime>>>empty(),
-        Optional.<Set<EventHandler<StartTime>>>empty(), Optional.<DriverRestartManager>empty());
-    LOG.log(Level.FINE, "Instantiated `DriverStartHandler with StartHandlers [{0}] and no restart.",
-        this.startHandlers.toString());
-  }
-
-  private DriverStartHandler(final Set<EventHandler<StartTime>> startHandler,
-                             final Optional<Set<EventHandler<StartTime>>> restartHandlers,
-                             final Optional<Set<EventHandler<StartTime>>> serviceRestartHandlers,
-                             final Optional<DriverRestartManager> driverRestartManager) {
-    this.startHandlers = startHandler;
-    this.restartHandlers = restartHandlers;
-    this.serviceRestartHandlers = serviceRestartHandlers;
-    this.driverRestartManager = driverRestartManager;
-  }
-
   @Override
   public void onNext(final StartTime startTime) {
-    if (isRestart()) {
+    if (this.driverRestartManager.isRestart()) {
       this.onRestart(startTime);
     } else {
       this.onStart(startTime);
@@ -88,18 +70,18 @@ public final class DriverStartHandler implements EventHandler<StartTime> {
   }
 
   private void onRestart(final StartTime startTime) {
-    if (this.driverRestartManager.isPresent() && this.restartHandlers.isPresent()) {
-      for (EventHandler<StartTime> serviceRestartHandler : this.serviceRestartHandlers.get()) {
+    if (this.restartHandlers.size() > 0) {
+      for (EventHandler<StartTime> serviceRestartHandler : this.serviceRestartHandlers) {
         serviceRestartHandler.onNext(startTime);
       }
 
-      for (EventHandler<StartTime> restartHandler : this.restartHandlers.get()){
+      for (EventHandler<StartTime> restartHandler : this.restartHandlers){
         restartHandler.onNext(startTime);
       }
 
       // This can only be called after calling client restart handlers because REEF.NET
       // JobDriver requires making this call to set up the InterOp handlers.
-      this.driverRestartManager.get().onRestart();
+      this.driverRestartManager.onRestart();
     } else {
       throw new DriverFatalRuntimeException("Driver restart happened, but no ON_DRIVER_RESTART handler is bound.");
     }
@@ -109,16 +91,5 @@ public final class DriverStartHandler implements EventHandler<StartTime> {
     for (final EventHandler<StartTime> startHandler : this.startHandlers) {
       startHandler.onNext(startTime);
     }
-  }
-
-  /**
-   * @return true, if the configurations enable restart and the Driver is in fact being restarted.
-   */
-  private boolean isRestart() {
-    if (this.driverRestartManager.isPresent()) {
-      return this.driverRestartManager.get().isRestart();
-    }
-
-    return false;
   }
 }

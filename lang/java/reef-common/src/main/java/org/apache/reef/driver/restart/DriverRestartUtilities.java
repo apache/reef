@@ -21,28 +21,16 @@ package org.apache.reef.driver.restart;
 import org.apache.reef.annotations.Unstable;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
-import org.apache.reef.util.Optional;
 
 /**
  * A static utilities class for simplifying calls to driver restart manager.
+ * Functions here should always call driverRestartManager.canRestart() before performing any
+ * actual options.
  */
 @Private
 @DriverSide
 @Unstable
 public final class DriverRestartUtilities {
-
-  /**
-   * Helper function for driver restart to determine whether an evaluator ID is from an evaluator from the
-   * previous application attempt. DriverRestartManager is optional here.
-   */
-  public static boolean isRestartAndIsPreviousEvaluator(final Optional<DriverRestartManager> driverRestartManager,
-                                                        final String evaluatorId) {
-    if (!driverRestartManager.isPresent()) {
-      return false;
-    }
-
-    return isRestartAndIsPreviousEvaluator(driverRestartManager.get(), evaluatorId);
-  }
 
   /**
    * Helper function for driver restart to determine whether an evaluator ID is from an evaluator from the
