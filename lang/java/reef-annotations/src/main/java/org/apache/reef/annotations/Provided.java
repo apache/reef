@@ -20,7 +20,7 @@ package org.apache.reef.annotations;
 
 /**
  * Indicates that an implementation of the annotated class / interface will be
- * provided by REEF at resourcemanager.
+ * provided by REEF.
  */
 public @interface Provided {
 }
