@@ -36,6 +36,7 @@ import org.apache.reef.runtime.common.driver.resourcemanager.NodeDescriptorEvent
 import org.apache.reef.runtime.common.driver.resourcemanager.ResourceAllocationEventImpl;
 import org.apache.reef.runtime.common.driver.resourcemanager.ResourceStatusEventImpl;
 import org.apache.reef.runtime.common.driver.resourcemanager.RuntimeStatusEventImpl;
+import org.apache.reef.runtime.yarn.driver.parameters.YarnFederation;
 import org.apache.reef.runtime.yarn.driver.parameters.YarnHeartbeatPeriod;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.util.Optional;
@@ -75,11 +76,13 @@ final class YarnContainerManager
   private final ContainerRequestCounter containerRequestCounter;
   private final DriverStatusManager driverStatusManager;
   private final TrackingURLProvider trackingURLProvider;
+  private final boolean yarnFederation;
 
   @Inject
   YarnContainerManager(
       final YarnConfiguration yarnConf,
       @Parameter(YarnHeartbeatPeriod.class) final int yarnRMHeartbeatPeriod,
+      @Parameter(YarnFederation.class) final boolean yarnFederation,
       final REEFEventHandlers reefEventHandlers,
       final Containers containers,
       final ApplicationMasterRegistration registration,
@@ -89,6 +92,7 @@ final class YarnContainerManager
 
     this.reefEventHandlers = reefEventHandlers;
     this.driverStatusManager = driverStatusManager;
+    this.yarnFederation = yarnFederation;
 
     this.containers = containers;
     this.registration = registration;
@@ -399,6 +403,10 @@ final class YarnContainerManager
             .setNodeId(container.getNodeId().toString())
             .setResourceMemory(container.getResource().getMemory())
             .setVirtualCores(container.getResource().getVirtualCores())
+            // send the flag of federation here, not to change any
+            // APIs, dirty fix for JIRA https://issues.apache.org/jira/browse/REEF-568
+            // until the linked YARN issue is fixed
+            .setRackName(Boolean.toString(yarnFederation))
             .build());
         this.updateRuntimeStatus();
       } else {
