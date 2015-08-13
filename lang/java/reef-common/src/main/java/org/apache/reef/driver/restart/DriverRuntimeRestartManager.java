@@ -22,6 +22,7 @@ import org.apache.reef.annotations.Unstable;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.annotations.audience.RuntimeAuthor;
+import org.apache.reef.tang.annotations.DefaultImplementation;
 
 import java.util.Set;
 
@@ -34,9 +35,10 @@ import java.util.Set;
 @Private
 @RuntimeAuthor
 @Unstable
+@DefaultImplementation(DefaultDriverRuntimeRestartMangerImpl.class)
 public interface DriverRuntimeRestartManager {
   /**
-   * Determines whether or not the driver has been restarted.
+   * Determines whether or not the driver has been restarted. The default implementation always returns false.
    */
   boolean isRestart();
 

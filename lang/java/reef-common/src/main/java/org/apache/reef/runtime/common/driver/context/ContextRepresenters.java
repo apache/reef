@@ -45,7 +45,7 @@ public final class ContextRepresenters {
 
   private final EvaluatorMessageDispatcher messageDispatcher;
   private final ContextFactory contextFactory;
-  private final Optional<DriverRestartManager> driverRestartManager;
+  private final DriverRestartManager driverRestartManager;
 
   // Mutable fields
   @GuardedBy("this")
@@ -55,20 +55,8 @@ public final class ContextRepresenters {
 
   @Inject
   private ContextRepresenters(final EvaluatorMessageDispatcher messageDispatcher,
-                              final ContextFactory contextFactory) {
-    this(messageDispatcher, contextFactory, Optional.<DriverRestartManager>empty());
-  }
-
-  @Inject
-  private ContextRepresenters(final EvaluatorMessageDispatcher messageDispatcher,
                               final ContextFactory contextFactory,
                               final DriverRestartManager driverRestartManager) {
-    this(messageDispatcher, contextFactory, Optional.of(driverRestartManager));
-  }
-
-  private ContextRepresenters(final EvaluatorMessageDispatcher messageDispatcher,
-                              final ContextFactory contextFactory,
-                              final Optional<DriverRestartManager> driverRestartManager) {
     this.messageDispatcher = messageDispatcher;
     this.contextFactory = contextFactory;
     this.driverRestartManager = driverRestartManager;

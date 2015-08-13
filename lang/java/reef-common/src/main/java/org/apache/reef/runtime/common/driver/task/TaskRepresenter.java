@@ -49,7 +49,7 @@ public final class TaskRepresenter {
   private final EvaluatorManager evaluatorManager;
   private final ExceptionCodec exceptionCodec;
   private final String taskId;
-  private final Optional<DriverRestartManager> driverRestartManager;
+  private final DriverRestartManager driverRestartManager;
 
   // Mutable state
   private ReefServiceProtos.State state = ReefServiceProtos.State.INIT;
@@ -59,7 +59,7 @@ public final class TaskRepresenter {
                          final EvaluatorMessageDispatcher messageDispatcher,
                          final EvaluatorManager evaluatorManager,
                          final ExceptionCodec exceptionCodec,
-                         final Optional<DriverRestartManager> driverRestartManager) {
+                         final DriverRestartManager driverRestartManager) {
     this.taskId = taskId;
     this.context = context;
     this.messageDispatcher = messageDispatcher;
