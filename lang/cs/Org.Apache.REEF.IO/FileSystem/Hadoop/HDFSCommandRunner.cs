@@ -30,6 +30,16 @@ namespace Org.Apache.REEF.IO.FileSystem.Hadoop
     /// </summary>
     internal sealed class HdfsCommandRunner
     {
+        /// <summary>
+        /// The name of the <code>hdfs</code> command.
+        /// </summary>
+        private const string HdfsCommandName = "hdfs.cmd";
+
+        /// <summary>
+        /// The folder within <code>HadoopHome</code> that contains the <code>hdfs</code> command.
+        /// </summary>
+        private const string BinFolderName = "bin";
+
         private static readonly Logger Logger = Logger.GetLogger(typeof(HdfsCommandRunner));
 
         /// <summary>
@@ -62,11 +72,11 @@ namespace Org.Apache.REEF.IO.FileSystem.Hadoop
                 {
                     throw new Exception("HADOOP_HOME not set and no path to the hadoop installation provided.");
                 }
-                _hdfsCommandPath = Path.Combine(hadoopHomeFromEnv, "bin", "hdfs.cmd");
+                _hdfsCommandPath = GetFullPathToHdfsCommand(hadoopHomeFromEnv);
             }
             else
             {
-                _hdfsCommandPath = Path.Combine(hadoopHome, "bin", "hdfs.cmd");
+                _hdfsCommandPath = GetFullPathToHdfsCommand(hadoopHome);
             }
 
 
@@ -143,30 +153,42 @@ namespace Org.Apache.REEF.IO.FileSystem.Hadoop
             }
             process.WaitForExit();
 
-            #region Needs_LogLevel_Guard
+            #region CommandOutputLogging
 
-            // TODO[REEF-562]: Guard the following code based on the log level.
-            using (var messageBuilder = new StringWriter())
+            if (Logger.IsLoggable(Level.Verbose))
             {
-                messageBuilder.WriteLine("OUTPUT:");
-                messageBuilder.WriteLine("----------------------------------------");
-                foreach (var stdOut in outList)
+                using (var messageBuilder = new StringWriter())
                 {
-                    messageBuilder.WriteLine("Out:    " + stdOut);
-                }
+                    messageBuilder.WriteLine("OUTPUT:");
+                    messageBuilder.WriteLine("----------------------------------------");
+                    foreach (var stdOut in outList)
+                    {
+                        messageBuilder.WriteLine("Out:    " + stdOut);
+                    }
 
-                messageBuilder.WriteLine("----------------------------------------");
-                foreach (var stdErr in errList)
-                {
-                    messageBuilder.WriteLine("Err:    " + stdErr);
+                    messageBuilder.WriteLine("----------------------------------------");
+                    foreach (var stdErr in errList)
+                    {
+                        messageBuilder.WriteLine("Err:    " + stdErr);
+                    }
+                    messageBuilder.WriteLine("----------------------------------------");
+                    Logger.Log(Level.Verbose, messageBuilder.ToString());
                 }
-                messageBuilder.WriteLine("----------------------------------------");
-                Logger.Log(Level.Verbose, messageBuilder.ToString());
             }
 
             #endregion
 
             return new CommandResult(outList, errList, process.ExitCode);
+        }
+
+        /// <summary>
+        /// Utility method that constructs the full absolute path to the <code>hdfs</code> command.
+        /// </summary>
+        /// <param name="hadoopHome"></param>
+        /// <returns></returns>
+        private static string GetFullPathToHdfsCommand(string hadoopHome)
+        {
+            Path.Combine(Path.GetFullPath(hadoopHome), BinFolderName, HdfsCommandName);
         }
     }
 }
