@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * Contains annotations capturing the semantics of APIs, e.g. whether or not methods are idempotent.
  */
 package org.apache.reef.annotations.semantics;
