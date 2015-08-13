@@ -392,6 +392,20 @@ final class YarnContainerManager
         this.requestsAfterSentToRM.remove();
         doHomogeneousRequests();
 
+        // the rack name comes as part of the host name, e.g.
+        // <rackName>-<hostNumber>
+        // we perform some checks just in case it doesn't
+        final String hostName = container.getNodeId().getHost();
+        String rackName = null;
+        if (hostName != null) {
+          final String[] rackNameAndNumber = hostName.split("-");
+          if (rackNameAndNumber.length == 2) {
+            rackName = rackNameAndNumber[0];
+          } else {
+            LOG.log(Level.WARNING, "Could not get information from the rack name, should use the default");
+          }
+        }
+
         LOG.log(Level.FINEST, "Allocated Container: memory = {0}, core number = {1}",
             new Object[]{container.getResource().getMemory(), container.getResource().getVirtualCores()});
         this.reefEventHandlers.onResourceAllocation(ResourceAllocationEventImpl.newBuilder()
@@ -399,6 +413,7 @@ final class YarnContainerManager
             .setNodeId(container.getNodeId().toString())
             .setResourceMemory(container.getResource().getMemory())
             .setVirtualCores(container.getResource().getVirtualCores())
+            .setRackName(rackName)
             .build());
         this.updateRuntimeStatus();
       } else {
