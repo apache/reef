@@ -18,11 +18,15 @@
  */
 package org.apache.reef.runtime.common.driver.evaluator;
 
+import org.apache.commons.lang.Validate;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.driver.catalog.NodeDescriptor;
 import org.apache.reef.driver.catalog.ResourceCatalog;
 import org.apache.reef.driver.evaluator.EvaluatorProcessFactory;
+import org.apache.reef.runtime.common.driver.catalog.ResourceCatalogImpl;
+import org.apache.reef.runtime.common.driver.resourcemanager.NodeDescriptorEvent;
+import org.apache.reef.runtime.common.driver.resourcemanager.NodeDescriptorEventImpl;
 import org.apache.reef.runtime.common.driver.resourcemanager.ResourceAllocationEvent;
 import org.apache.reef.runtime.common.driver.resourcemanager.ResourceStatusEvent;
 import org.apache.reef.tang.Injector;
@@ -90,10 +94,41 @@ public final class EvaluatorManagerFactory {
    */
   public EvaluatorManager getNewEvaluatorManagerForNewlyAllocatedEvaluator(
       final ResourceAllocationEvent resourceAllocationEvent) {
-    final NodeDescriptor nodeDescriptor = this.resourceCatalog.getNode(resourceAllocationEvent.getNodeId());
+    NodeDescriptor nodeDescriptor = this.resourceCatalog.getNode(resourceAllocationEvent.getNodeId());
 
     if (nodeDescriptor == null) {
-      throw new RuntimeException("Unknown resource: " + resourceAllocationEvent.getNodeId());
+      LOG.log(Level.WARNING, "Node descriptor not found for node {0}", resourceAllocationEvent.getNodeId());
+
+      // HOT FIX for YARN with FEDERATION
+      // See JIRA REEF-568
+      // Should be removed once the YARN-2915 is fixed
+      if (resourceAllocationEvent.getRackName().isPresent()) {
+        final String federationAsStr = resourceAllocationEvent.getRackName().get();
+        final boolean federation = Boolean.valueOf(federationAsStr);
+        // if a true value came here, means that we are using federation
+        if (federation) {
+          LOG.log(Level.WARNING, "Adding node {0}, hack to make it work with Federation",
+              resourceAllocationEvent.getNodeId());
+          final String nodeId = resourceAllocationEvent.getNodeId();
+          final String[] hostNameAndPort = nodeId.split(":");
+          Validate.isTrue(hostNameAndPort.length == 2);
+          final String[] rackAndNumber = hostNameAndPort[0].split("-");
+          Validate.isTrue(rackAndNumber.length == 2);
+          final NodeDescriptorEvent event = NodeDescriptorEventImpl.newBuilder().setIdentifier(nodeId)
+              .setHostName(hostNameAndPort[0]).setPort(Integer.parseInt(hostNameAndPort[1]))
+              .setMemorySize(resourceAllocationEvent.getResourceMemory()).setRackName(rackAndNumber[0]).build();
+          // downcast not to change the API
+          Validate.isTrue(this.resourceCatalog instanceof ResourceCatalogImpl);
+          // add the nodeDescriptor
+          ((ResourceCatalogImpl) this.resourceCatalog).handle(event);
+          // request it again
+          nodeDescriptor = this.resourceCatalog.getNode(resourceAllocationEvent.getNodeId());
+        } else {
+          throw new RuntimeException("Unknown resource: " + resourceAllocationEvent.getNodeId());
+        }
+      } else {
+        throw new RuntimeException("Unknown resource: " + resourceAllocationEvent.getNodeId());
+      }
     }
     final EvaluatorDescriptorImpl evaluatorDescriptor = new EvaluatorDescriptorImpl(nodeDescriptor,
         resourceAllocationEvent.getResourceMemory(), resourceAllocationEvent.getVirtualCores().get(),

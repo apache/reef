@@ -31,6 +31,7 @@ import org.apache.reef.runtime.common.launch.parameters.LaunchID;
 import org.apache.reef.runtime.common.parameters.JVMHeapSlack;
 import org.apache.reef.runtime.yarn.YarnClasspathProvider;
 import org.apache.reef.runtime.yarn.driver.parameters.JobSubmissionDirectory;
+import org.apache.reef.runtime.yarn.driver.parameters.YarnFederation;
 import org.apache.reef.runtime.yarn.driver.parameters.YarnHeartbeatPeriod;
 import org.apache.reef.runtime.yarn.util.YarnConfigurationConstructor;
 import org.apache.reef.tang.formats.ConfigurationModule;
@@ -50,6 +51,10 @@ public class YarnDriverConfiguration extends ConfigurationModuleBuilder {
    * @see org.apache.reef.runtime.yarn.driver.parameters.YarnHeartbeatPeriod.class
    */
   public static final OptionalParameter<Integer> YARN_HEARTBEAT_INTERVAL = new OptionalParameter<>();
+  /**
+   * @see org.apache.reef.runtime.yarn.driver.parameters.YarnFederation.class
+   */
+  public static final OptionalParameter<Boolean> YARN_FEDERATION = new OptionalParameter<>();
 
   /**
    * @see JobIdentifier.class
@@ -85,6 +90,7 @@ public class YarnDriverConfiguration extends ConfigurationModuleBuilder {
           // Bind the YARN Configuration parameters
       .bindNamedParameter(JobSubmissionDirectory.class, JOB_SUBMISSION_DIRECTORY)
       .bindNamedParameter(YarnHeartbeatPeriod.class, YARN_HEARTBEAT_INTERVAL)
+      .bindNamedParameter(YarnFederation.class, YARN_FEDERATION)
 
           // Bind the fields bound in AbstractDriverRuntimeConfiguration
       .bindNamedParameter(JobIdentifier.class, JOB_IDENTIFIER)
