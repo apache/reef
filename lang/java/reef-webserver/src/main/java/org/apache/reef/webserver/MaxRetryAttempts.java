@@ -23,7 +23,9 @@ import org.apache.reef.tang.annotations.NamedParameter;
 
 /**
  * Max retry times when generating a port number for the Http Server.
+ * @deprecated "Use TcpPortRangeTryCount and TcpPortProvider instead."
  */
 @NamedParameter(doc = "Maximum retry attempts for port number of Jetty Server", default_value = "100")
+@Deprecated
 public class MaxRetryAttempts implements Name<Integer> {
 }

@@ -21,10 +21,12 @@ package org.apache.reef.webserver;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.util.logging.LoggingScope;
 import org.apache.reef.util.logging.LoggingScopeFactory;
+import org.apache.reef.wake.remote.ports.TcpPortProvider;
 import org.mortbay.jetty.Server;
 
 import javax.inject.Inject;
 import java.net.BindException;
+import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -70,37 +72,54 @@ public final class HttpServerImpl implements HttpServer {
                  @Parameter(MaxPortNumber.class) final int maxPortNumber,
                  @Parameter(MinPortNumber.class) final int minPortNumber,
                  @Parameter(MaxRetryAttempts.class) final int maxRetryAttempts,
+                 final TcpPortProvider tcpPortProvider,
                  final LoggingScopeFactory loggingScopeFactory) throws Exception {
 
     this.loggingScopeFactory = loggingScopeFactory;
+    this.jettyHandler = jettyHandler;
+    int availablePort = portNumber;
+    Server srv = null;
+
     try (final LoggingScope ls = this.loggingScopeFactory.httpServer()) {
-      this.jettyHandler = jettyHandler;
-      int availablePort = portNumber;
-      Server srv = null;
-      boolean found = false;
-      for (int attempt = 0; attempt < maxRetryAttempts; ++attempt) {
-        if (attempt > 0) {
-          availablePort = getNextPort(maxPortNumber, minPortNumber);
+      if (portNumber != Integer.parseInt(PortNumber.DEFAULT_VALUE)) {
+        // legacy path to be removed
+        for (int attempt = 0; attempt < maxRetryAttempts && srv  == null; ++attempt) {
+          if (attempt > 0) {
+            // first attempt should be portNumber passed in
+            availablePort = getNextPort(maxPortNumber, minPortNumber);
+          }
+          srv = tryPort(availablePort);
         }
-        srv = new Server(availablePort);
-        try {
-          srv.start();
-          found = true;
-          break;
-        } catch (final BindException ex) {
-          LOG.log(Level.FINEST, "Cannot use port: {0}. Will try another", availablePort);
+      } else {
+        // new TcpPortProvider path
+        Iterator<Integer> ports = tcpPortProvider.iterator();
+        while (ports.hasNext() && srv  == null) {
+          availablePort = ports.next();
+          srv = tryPort(availablePort);
         }
       }
 
-      if (found) {
+      if (srv  != null) {
         this.server = srv;
         this.port = availablePort;
         this.server.setHandler(jettyHandler);
         LOG.log(Level.INFO, "Jetty Server started with port: {0}", availablePort);
       } else {
-        throw new RuntimeException("Could not find available port in " + maxRetryAttempts + " attempts");
+        throw new RuntimeException("Could not find available port for http");
       }
     }
+  }
+
+  private Server tryPort(final int portNumber) throws Exception {
+    Server srv = new Server(portNumber);
+    try {
+      srv.start();
+      LOG.log(Level.INFO, "Jetty Server started with port: {0}", portNumber);
+    } catch (final BindException ex) {
+      srv = null;
+      LOG.log(Level.FINEST, "Cannot use port: {0}. Will try another", portNumber);
+    }
+    return srv;
   }
 
   /**
