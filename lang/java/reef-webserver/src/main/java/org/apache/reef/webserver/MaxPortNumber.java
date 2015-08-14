@@ -23,7 +23,9 @@ import org.apache.reef.tang.annotations.NamedParameter;
 
 /**
  * max port number range when generating a port number for the Http Server.
+ * @deprecated in 0.13, use TcpPortRangeCount and TcpPortProvider instead.
  */
 @NamedParameter(doc = "Max port number for Jetty Server", default_value = "49151")
+@Deprecated
 public class MaxPortNumber implements Name<Integer> {
 }

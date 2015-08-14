@@ -26,6 +26,9 @@ import org.apache.reef.tang.Injector;
 import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.wake.remote.RemoteConfiguration;
+import org.apache.reef.wake.remote.ports.parameters.TcpPortRangeBegin;
+import org.apache.reef.wake.remote.ports.parameters.TcpPortRangeCount;
+import org.apache.reef.wake.remote.ports.parameters.TcpPortRangeTryCount;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -110,6 +113,62 @@ public class TestHttpServer {
   }
 
   @Test
+  public void httpServerPortRangeTestWithTcpPortProvider() throws Exception {
+    final Configuration httpRuntimeConfiguration = HttpRuntimeConfiguration.CONF.build();
+
+    final Configuration httpServerConfiguration = Tang.Factory.getTang().newConfigurationBuilder()
+        .bindNamedParameter(TcpPortRangeCount.class, "8900")
+        .bindNamedParameter(TcpPortRangeBegin.class, "1000")
+        .bindNamedParameter(TcpPortRangeTryCount.class, "3")
+        .build();
+
+    final Configuration configuration =
+        Configurations.merge(httpRuntimeConfiguration, httpServerConfiguration);
+
+    final Injector injector1 = Tang.Factory.getTang().newInjector(configuration);
+    final HttpServer httpServer1 = injector1.getInstance(HttpServer.class);
+
+    final Injector injector2 = Tang.Factory.getTang().newInjector(configuration);
+    final HttpServer httpServer2 = injector2.getInstance(HttpServer.class);
+
+    Assert.assertTrue("port number is out of specified range",
+        httpServer2.getPort() >= 1000 && httpServer2.getPort() <= 9900);
+
+    httpServer1.stop();
+    httpServer2.stop();
+  }
+
+
+  @Test
+  public void httpServerPortRetryTestWithTcpPortProvider() throws Exception {
+
+    final Configuration httpRuntimeConfiguration = HttpRuntimeConfiguration.CONF.build();
+    final Injector injector1 = Tang.Factory.getTang().newInjector(httpRuntimeConfiguration);
+    final HttpServer httpServer1 = injector1.getInstance(HttpServer.class);
+    final String portUsed = "" + httpServer1.getPort();
+
+    final Configuration httpServerConfiguration = Tang.Factory.getTang().newConfigurationBuilder()
+        .bindNamedParameter(TcpPortRangeCount.class, "1")
+        .bindNamedParameter(TcpPortRangeBegin.class, portUsed)
+        .bindNamedParameter(TcpPortRangeTryCount.class, "3")
+        .build();
+
+    final Configuration configuration =
+        Configurations.merge(httpRuntimeConfiguration, httpServerConfiguration);
+
+    final Injector injector2 = Tang.Factory.getTang().newInjector(configuration);
+
+    try {
+      injector2.getInstance(HttpServer.class);
+      Assert.fail("Created two web servers on the same port: " + portUsed);
+    } catch (final InjectionException ex) {
+      Assert.assertEquals("Could not find available port for http", ex.getCause().getMessage());
+    }
+
+    httpServer1.stop();
+  }
+
+  @Test
   public void httpServerPortRetryTest() throws Exception {
 
     final Configuration httpRuntimeConfiguration = HttpRuntimeConfiguration.CONF.build();
@@ -133,11 +192,12 @@ public class TestHttpServer {
       injector2.getInstance(HttpServer.class);
       Assert.fail("Created two web servers on the same port: " + portUsed);
     } catch (final InjectionException ex) {
-      Assert.assertEquals("Could not find available port in 3 attempts", ex.getCause().getMessage());
+      Assert.assertEquals("Could not find available port for http", ex.getCause().getMessage());
     }
 
     httpServer1.stop();
   }
+
 
   @Test
   public void httpServerAddHandlerTest() throws Exception {
