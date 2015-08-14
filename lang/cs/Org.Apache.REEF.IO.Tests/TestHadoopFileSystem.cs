@@ -32,16 +32,25 @@ namespace Org.Apache.REEF.IO.Tests
     [Ignore] // These tests need to be run in an environment with HDFS installed.
     public sealed class TestHadoopFileSystem
     {
-        private readonly HadoopFileSystem _fileSystem =
-            TangFactory.GetTang()
-                .NewInjector(HadoopFileSystemConfiguration.ConfigurationModule.Build())
-                .GetInstance<HadoopFileSystem>();
+        private HadoopFileSystem _fileSystem;
 
         private Uri GetTempUri()
         {
             return
                 new Uri(_fileSystem.UriPrefix + "/tmp/TestHadoopFileSystem-" +
                         DateTime.Now.ToString("yyyyMMddHHmmssfff"));
+        }
+
+        /// <summary>
+        /// Sets up the file system instance to be used for the tests.
+        /// </summary>
+        [TestInitialize]
+        public void SetupFileSystem()
+        {
+            _fileSystem =
+                TangFactory.GetTang()
+                    .NewInjector(HadoopFileSystemConfiguration.ConfigurationModule.Build())
+                    .GetInstance<HadoopFileSystem>();
         }
 
         /// <summary>

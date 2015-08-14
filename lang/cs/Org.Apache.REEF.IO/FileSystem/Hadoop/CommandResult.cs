@@ -22,8 +22,8 @@ namespace Org.Apache.REEF.IO.FileSystem.Hadoop
     internal sealed class CommandResult
     {
         private readonly int _exitCode;
-        private readonly List<string> _stdErr;
-        private readonly List<string> _stdOut;
+        private readonly IList<string> _stdErr;
+        private readonly IList<string> _stdOut;
 
         internal CommandResult(List<string> stdOut, List<string> stdErr, int exitCode)
         {
@@ -32,12 +32,12 @@ namespace Org.Apache.REEF.IO.FileSystem.Hadoop
             _exitCode = exitCode;
         }
 
-        internal List<string> StdOut
+        internal IList<string> StdOut
         {
             get { return _stdOut; }
         }
 
-        internal List<string> StdErr
+        internal IList<string> StdErr
         {
             get { return _stdErr; }
         }

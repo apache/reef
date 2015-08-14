@@ -27,7 +27,7 @@ namespace Org.Apache.REEF.IO.FileSystem.Hadoop
     /// <remarks>
     /// This IFileSystem implementation is enormously slow as it spawns a new JVM per API call. Avoid if you have better means
     /// of file system access.
-    /// Also, Stream-based operations are not supportted.
+    /// Also, Stream-based operations are not supported.
     /// </remarks>
     public sealed class HadoopFileSystemConfiguration : ConfigurationModuleBuilder
     {

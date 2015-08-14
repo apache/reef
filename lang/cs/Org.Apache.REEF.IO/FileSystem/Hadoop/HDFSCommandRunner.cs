@@ -40,6 +40,11 @@ namespace Org.Apache.REEF.IO.FileSystem.Hadoop
         /// </summary>
         private const string BinFolderName = "bin";
 
+        /// <summary>
+        /// The name of the HADOOP_HOME environment variable.
+        /// </summary>
+        private const string HadoopHomeEnvironmentVariableName = "HADOOP_HOME";
+
         private static readonly Logger Logger = Logger.GetLogger(typeof(HdfsCommandRunner));
 
         /// <summary>
@@ -65,21 +70,29 @@ namespace Org.Apache.REEF.IO.FileSystem.Hadoop
             _numberOfRetries = numberOfRetries;
             _timeOutInMilliSeconds = timeOutInMilliSeconds;
 
-            if (hadoopHome == HadoopHome.DefaultValue)
+            if (!HadoopHome.DefaultValue.Equals(hadoopHome))
             {
-                var hadoopHomeFromEnv = Environment.GetEnvironmentVariable("HADOOP_HOME");
-                if (null == hadoopHomeFromEnv)
+                // The user provided a Hadoop Home folder. 
+                if (Directory.Exists(hadoopHome))
                 {
-                    throw new Exception("HADOOP_HOME not set and no path to the hadoop installation provided.");
+                    // The user provided folder does exist.
+                    _hdfsCommandPath = GetFullPathToHdfsCommand(hadoopHome);
                 }
-                _hdfsCommandPath = GetFullPathToHdfsCommand(hadoopHomeFromEnv);
+                else
+                {
+                    // The user provided folder does not exist. Try the environment variable.
+                    Logger.Log(Level.Warning, "The provided hadoop home folder {0} doesn't exist, trying environment variable {1} instead",
+                        hadoopHome, HadoopHomeEnvironmentVariableName);
+                    _hdfsCommandPath = GetFullPathToHdfsCommandBasedOnEnvironmentVariable();
+                }
             }
             else
             {
-                _hdfsCommandPath = GetFullPathToHdfsCommand(hadoopHome);
+                // The user did not provide a Hadoop Home folder. Use the Environment variable.
+                _hdfsCommandPath = GetFullPathToHdfsCommandBasedOnEnvironmentVariable();
             }
 
-
+            // Make sure we found the command.
             if (!File.Exists(_hdfsCommandPath))
             {
                 throw new Exception("HDFS command does not exist: " + _hdfsCommandPath);
@@ -188,7 +201,23 @@ namespace Org.Apache.REEF.IO.FileSystem.Hadoop
         /// <returns></returns>
         private static string GetFullPathToHdfsCommand(string hadoopHome)
         {
-            Path.Combine(Path.GetFullPath(hadoopHome), BinFolderName, HdfsCommandName);
+            return Path.Combine(Path.GetFullPath(hadoopHome), BinFolderName, HdfsCommandName);
+        }
+
+        /// <summary>
+        /// Constructs the path to the HDFS binary based on the HADOOP_HOME environment variable.
+        /// </summary>
+        /// <returns></returns>
+        private static string GetFullPathToHdfsCommandBasedOnEnvironmentVariable()
+        {
+            var hadoopHomeFromEnv = Environment.GetEnvironmentVariable(HadoopHomeEnvironmentVariableName);
+            Logger.Log(Level.Verbose, "{0} evaluated to {1}.", HadoopHomeEnvironmentVariableName, hadoopHomeFromEnv);
+            if (null == hadoopHomeFromEnv)
+            {
+                throw new Exception(HadoopHomeEnvironmentVariableName +
+                                    " not set and no path to the hadoop installation provided.");
+            }
+            return GetFullPathToHdfsCommand(hadoopHomeFromEnv);
         }
     }
 }
