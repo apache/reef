@@ -66,6 +66,7 @@ public final class EvaluatorControlHandler {
    */
   public synchronized void send(final EvaluatorRuntimeProtocol.EvaluatorControlProto evaluatorControlProto) {
     if (!this.wrapped.isPresent()) {
+      LOG.log(Level.WARNING, "ILLEGAL EVALUATOR ID IS: " + evaluatorId);
       throw new IllegalStateException("Trying to send an EvaluatorControlProto before the Evaluator ID is set.");
     }
     if (!this.stateManager.isRunning()) {

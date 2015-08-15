@@ -28,8 +28,8 @@ import java.util.Set;
 
 /**
  * The default driver runtime restart manager that is not able to perform any restart actions.
- * Thus, when performing actions pertaining to restart, it is recommended to call static functions in
- * {@link DriverRestartUtilities} or call canRestart() first.
+ * Thus, when performing actions pertaining to restart, it is recommended to call isRestarting()
+ * or hasRestarted() first.
  */
 @Private
 @DriverSide
@@ -40,7 +40,7 @@ final class DefaultDriverRuntimeRestartMangerImpl implements DriverRuntimeRestar
   }
 
   @Override
-  public boolean isRestart() {
+  public boolean hasRestarted() {
     return false;
   }
 
@@ -57,7 +57,7 @@ final class DefaultDriverRuntimeRestartMangerImpl implements DriverRuntimeRestar
   }
 
   @Override
-  public EvaluatorRestartInfo getAliveAndFailedEvaluators() {
+  public EvaluatorRestartCollection getAliveAndFailedEvaluators() {
     throw new DriverFatalRuntimeException(
         "Restart is not enabled. getAliveAndFailedEvaluators should not have been called.");
   }

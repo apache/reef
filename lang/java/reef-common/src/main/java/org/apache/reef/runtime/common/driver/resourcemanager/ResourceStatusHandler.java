@@ -58,7 +58,8 @@ public final class ResourceStatusHandler implements EventHandler<ResourceStatusE
     } else {
       if (resourceStatusEvent.getIsFromPreviousDriver().get()) {
         final EvaluatorManager previousEvaluatorManager =
-            this.evaluatorManagerFactory.createForEvaluatorFailedDuringDriverRestart(resourceStatusEvent);
+            this.evaluatorManagerFactory
+                .getNewEvaluatorManagerForEvaluatorFailedDuringDriverRestart(resourceStatusEvent);
         previousEvaluatorManager.onResourceStatusMessage(resourceStatusEvent);
       } else {
         throw new RuntimeException(

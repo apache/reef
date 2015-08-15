@@ -24,7 +24,7 @@ import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.driver.context.FailedContext;
 import org.apache.reef.driver.restart.DriverRestartManager;
-import org.apache.reef.driver.restart.DriverRestartUtilities;
+import org.apache.reef.driver.restart.EvaluatorRestartState;
 import org.apache.reef.proto.ReefServiceProtos;
 import org.apache.reef.runtime.common.driver.evaluator.EvaluatorMessageDispatcher;
 import org.apache.reef.util.Optional;
@@ -215,7 +215,7 @@ public final class ContextRepresenters {
         Optional.of(contextStatusProto.getParentId()) : Optional.<String>empty();
     final EvaluatorContext context = contextFactory.newContext(contextID, parentID);
     this.addContext(context);
-    if (DriverRestartUtilities.isRestartAndIsPreviousEvaluator(driverRestartManager, context.getEvaluatorId())) {
+    if (driverRestartManager.getEvaluatorRestartState(context.getEvaluatorId()) == EvaluatorRestartState.REREGISTERED) {
       // when we get a recovered active context, always notify application
       this.messageDispatcher.onDriverRestartContextActive(context);
     } else {
