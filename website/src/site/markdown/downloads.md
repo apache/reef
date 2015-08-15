@@ -22,20 +22,21 @@ under the License.
 
 Choose a release version:
 <select id="selectRelease" onchange="setReleaseLink()">
-    <option value="0.11.0-incubating" selected="selected">0.11.0-incubating</option>
+    <option value="0.12.0-incubating" selected="selected">0.12.0-incubating</option>
+    <option value="0.11.0-incubating">0.11.0-incubating</option>
     <option value="0.10.0-incubating">0.10.0-incubating</option>
 </select>
 
 <ul id="listRelease">
     <li>
         Download directly:
-        <a id="directLink" href="http://www.apache.org/dist/incubator/reef/0.11.0-incubating/apache-reef-0.11.0-incubating.tar.gz">
-            apache-reef-0.11.0-incubating.tar.gz
+        <a id="directLink" href="http://www.apache.org/dist/incubator/reef/0.12.0-incubating/apache-reef-0.12.0-incubating.tar.gz">
+            apache-reef-0.12.0-incubating.tar.gz
         </a>
     </li>
     <li>
         Download with signatures:
-        <a id="mirrorLink" href="http://www.apache.org/dyn/closer.cgi/incubator/reef/0.11.0-incubating">
+        <a id="mirrorLink" href="http://www.apache.org/dyn/closer.cgi/incubator/reef/0.12.0-incubating">
         Closest Apache Mirror</a>
     </li>
 </ul>
