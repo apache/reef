@@ -110,7 +110,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         public void OnNext(IDriverStarted value)
         {
             _evaluatorRequestor.Submit(new EvaluatorRequest(1, _memoryForUpdateTask, _coresForUpdateTask));
-            //  TODO: Set a timeout for this request to be satisfied. If it is not within that time, exit the Driver.
+            //TODO[REEF-598]: Set a timeout for this request to be satisfied. If it is not within that time, exit the Driver.
         }
 
         /// <summary>
@@ -136,6 +136,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                 _allocatedUpdateTaskEvaluator = true;
 
                 _evaluatorRequestor.Submit(new EvaluatorRequest(_dataSet.Count, _memoryPerMapper, _coresPerMapper));
+                //TODO[REEF-598]: Set a timeout for this request to be satisfied. If it is not within that time, exit the Driver.
             }
             else
             {
@@ -168,7 +169,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// <param name="activeContext"></param>
         public void OnNext(IActiveContext activeContext)
         {
-            Logger.Log(Level.Info, string.Format("Received Active Context {0}", activeContext.Id));
+            Logger.Log(Level.Verbose, string.Format("Received Active Context {0}", activeContext.Id));
 
             if (_groupCommDriver.IsMasterTaskContext(activeContext))
             {
