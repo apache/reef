@@ -177,9 +177,14 @@ public final class DriverConfiguration extends ConfigurationModuleBuilder {
   public static final OptionalImpl<EventHandler<ContextMessage>> ON_CONTEXT_MESSAGE = new OptionalImpl<>();
 
   /**
-   * "Number of threads allocated per evaluator to dispatch events from this Evaluator.
+   * Number of threads allocated per evaluator to dispatch events from this Evaluator.
    */
   public static final OptionalParameter<Integer> EVALUATOR_DISPATCHER_THREADS = new OptionalParameter<>();
+
+  /**
+   * The number of submissions that the resource manager will attempt to submit the application. Defaults to 1.
+   */
+  public static final OptionalParameter<Integer> MAX_APPLICATION_SUBMISSIONS = new OptionalParameter<>();
 
   /**
    * ConfigurationModule to fill out to get a legal Driver Configuration.
@@ -188,6 +193,7 @@ public final class DriverConfiguration extends ConfigurationModuleBuilder {
       .bindNamedParameter(DriverIdentifier.class, DRIVER_IDENTIFIER)
       .bindNamedParameter(DriverMemory.class, DRIVER_MEMORY)
       .bindNamedParameter(DriverJobSubmissionDirectory.class, DRIVER_JOB_SUBMISSION_DIRECTORY)
+      .bindNamedParameter(MaxApplicationSubmissions.class, MAX_APPLICATION_SUBMISSIONS)
       .bindSetEntry(JobGlobalFiles.class, GLOBAL_FILES)
       .bindSetEntry(JobGlobalLibraries.class, GLOBAL_LIBRARIES)
       .bindSetEntry(DriverLocalFiles.class, LOCAL_FILES)

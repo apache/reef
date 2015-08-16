@@ -124,7 +124,10 @@ public final class EvaluatorContext implements ActiveContext {
 
   @Override
   public synchronized void submitTask(final Configuration taskConf) {
+    submitTask(this.configurationSerializer.toString(taskConf));
+  }
 
+  public synchronized void submitTask(final String taskConf) {
     if (this.isClosed) {
       throw new RuntimeException("Active context already closed");
     }
@@ -137,7 +140,7 @@ public final class EvaluatorContext implements ActiveContext {
             .setStartTask(
                 EvaluatorRuntimeProtocol.StartTaskProto.newBuilder()
                     .setContextId(this.contextIdentifier)
-                    .setConfiguration(this.configurationSerializer.toString(taskConf))
+                    .setConfiguration(taskConf)
                     .build())
             .build();
 

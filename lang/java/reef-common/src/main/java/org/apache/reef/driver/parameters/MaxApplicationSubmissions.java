@@ -16,7 +16,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.reef.driver.parameters;
+
+import org.apache.reef.tang.annotations.Name;
+import org.apache.reef.tang.annotations.NamedParameter;
+
 /**
- * Contains annotations capturing the semantics of APIs, e.g. whether or not methods are idempotent.
+ * Whether the resource manager should preserve evaluators on job driver failure.
  */
-package org.apache.reef.annotations.semantics;
+@NamedParameter(doc = "The number of times the resource manager should attempt to submit the application.",
+    default_value = "1")
+public final class MaxApplicationSubmissions implements Name<Integer> {
+  private MaxApplicationSubmissions() {
+  }
+}

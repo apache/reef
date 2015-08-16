@@ -21,13 +21,7 @@ package org.apache.reef.runtime.common.driver.evaluator;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.driver.context.ContextConfiguration;
-import org.apache.reef.driver.evaluator.AllocatedEvaluator;
-import org.apache.reef.driver.evaluator.CLRProcessFactory;
-import org.apache.reef.driver.evaluator.EvaluatorDescriptor;
-import org.apache.reef.driver.evaluator.EvaluatorType;
-import org.apache.reef.driver.evaluator.EvaluatorProcess;
-import org.apache.reef.driver.evaluator.JVMProcessFactory;
-import org.apache.reef.driver.evaluator.CLRProcess;
+import org.apache.reef.driver.evaluator.*;
 import org.apache.reef.runtime.common.driver.api.ResourceLaunchEventImpl;
 import org.apache.reef.runtime.common.evaluator.EvaluatorConfiguration;
 import org.apache.reef.tang.Configuration;
@@ -52,7 +46,7 @@ import java.util.logging.Logger;
  */
 @DriverSide
 @Private
-final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
+public final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
 
   private static final Logger LOG = Logger.getLogger(AllocatedEvaluatorImpl.class.getName());
 
@@ -112,6 +106,13 @@ final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
 
   }
 
+  public void submitTask(final String taskConfiguration) {
+    final Configuration contextConfiguration = ContextConfiguration.CONF
+        .set(ContextConfiguration.IDENTIFIER, "RootContext_" + this.getId())
+        .build();
+    this.submitContextAndTask(contextConfiguration, taskConfiguration);
+  }
+
   @Override
   public EvaluatorDescriptor getEvaluatorDescriptor() {
     return this.evaluatorManager.getEvaluatorDescriptor();
@@ -120,13 +121,13 @@ final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
 
   @Override
   public void submitContext(final Configuration contextConfiguration) {
-    launch(contextConfiguration, Optional.<Configuration>empty(), Optional.<Configuration>empty());
+    launchWithTaskString(contextConfiguration, Optional.<Configuration>empty(), Optional.<String>empty());
   }
 
   @Override
   public void submitContextAndService(final Configuration contextConfiguration,
                                       final Configuration serviceConfiguration) {
-    launch(contextConfiguration, Optional.of(serviceConfiguration), Optional.<Configuration>empty());
+    launchWithTaskString(contextConfiguration, Optional.of(serviceConfiguration), Optional.<String>empty());
   }
 
   @Override
@@ -135,11 +136,23 @@ final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
     launch(contextConfiguration, Optional.<Configuration>empty(), Optional.of(taskConfiguration));
   }
 
+  public void submitContextAndTask(final Configuration contextConfiguration,
+                                   final String taskConfiguration) {
+    launchWithTaskString(contextConfiguration, Optional.<Configuration>empty(), Optional.of(taskConfiguration));
+  }
+
+
   @Override
   public void submitContextAndServiceAndTask(final Configuration contextConfiguration,
                                              final Configuration serviceConfiguration,
                                              final Configuration taskConfiguration) {
     launch(contextConfiguration, Optional.of(serviceConfiguration), Optional.of(taskConfiguration));
+  }
+
+  public void submitContextAndServiceAndTask(final Configuration contextConfiguration,
+                                             final Configuration serviceConfiguration,
+                                             final String taskConfiguration) {
+    launchWithTaskString(contextConfiguration, Optional.of(serviceConfiguration), Optional.of(taskConfiguration));
   }
 
   @Override
@@ -173,26 +186,37 @@ final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
   private void launch(final Configuration contextConfiguration,
                       final Optional<Configuration> serviceConfiguration,
                       final Optional<Configuration> taskConfiguration) {
+    launchWithTaskString(contextConfiguration, serviceConfiguration,
+        Optional.of(this.configurationSerializer.toString(taskConfiguration.get())));
+  }
+
+  private void launchWithTaskString(final Configuration contextConfiguration,
+                      final Optional<Configuration> serviceConfiguration,
+                      final Optional<String> taskConfiguration) {
     try (final LoggingScope lb = loggingScopeFactory.evaluatorLaunch(this.getId())) {
       final Configuration evaluatorConfiguration =
           makeEvaluatorConfiguration(contextConfiguration, serviceConfiguration, taskConfiguration);
 
-      final ResourceLaunchEventImpl.Builder rbuilder =
-          ResourceLaunchEventImpl.newBuilder()
-              .setIdentifier(this.evaluatorManager.getId())
-              .setRemoteId(this.remoteID)
-              .setEvaluatorConf(evaluatorConfiguration)
-              .addFiles(this.files)
-              .addLibraries(this.libraries);
-
-      rbuilder.setProcess(this.evaluatorManager.getEvaluatorDescriptor().getProcess());
-      this.evaluatorManager.onResourceLaunch(rbuilder.build());
+      resourceBuildAndLaunch(evaluatorConfiguration);
     }
+  }
+
+  private void resourceBuildAndLaunch(final Configuration evaluatorConfiguration) {
+    final ResourceLaunchEventImpl.Builder rbuilder =
+        ResourceLaunchEventImpl.newBuilder()
+            .setIdentifier(this.evaluatorManager.getId())
+            .setRemoteId(this.remoteID)
+            .setEvaluatorConf(evaluatorConfiguration)
+            .addFiles(this.files)
+            .addLibraries(this.libraries);
+
+    rbuilder.setProcess(this.evaluatorManager.getEvaluatorDescriptor().getProcess());
+    this.evaluatorManager.onResourceLaunch(rbuilder.build());
   }
 
   private Configuration makeEvaluatorConfiguration(final Configuration contextConfiguration,
                                                    final Optional<Configuration> serviceConfiguration,
-                                                   final Optional<Configuration> taskConfiguration) {
+                                                   final Optional<String> taskConfiguration) {
 
     final String contextConfigurationString = this.configurationSerializer.toString(contextConfiguration);
     final ConfigurationModule evaluatorConfigModule;
@@ -217,7 +241,7 @@ final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
 
     // Add the (optional) task configuration
     if (taskConfiguration.isPresent()) {
-      final String taskConfigurationString = this.configurationSerializer.toString(taskConfiguration.get());
+      final String taskConfigurationString = taskConfiguration.get();
       evaluatorConfigurationModule = evaluatorConfigurationModule
           .set(EvaluatorConfiguration.TASK_CONFIGURATION, taskConfigurationString);
     }

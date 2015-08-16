@@ -29,6 +29,6 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTrademark("The Apache Software Foundation")]
 [assembly: AssemblyCulture("")]
 [assembly: ComVisible(false)]
-[assembly: AssemblyVersion("0.12.0.0")]
-[assembly: AssemblyFileVersion("0.12.0.0")]
+[assembly: AssemblyVersion("0.13.0.0")]
+[assembly: AssemblyFileVersion("0.13.0.0")]
 [assembly: Guid("a22b790a-0432-4395-9949-bf8e3958f061")]

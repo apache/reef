@@ -33,6 +33,9 @@ import java.util.Map;
 @Private
 public final class YarnTypes {
 
+  // TODO[REEF-537]: Remove once the hadoop version is updated.
+  public static final String MIN_VERSION_KEEP_CONTAINERS_AVAILABLE = "2.4.0";
+
   private YarnTypes() {
   }
 

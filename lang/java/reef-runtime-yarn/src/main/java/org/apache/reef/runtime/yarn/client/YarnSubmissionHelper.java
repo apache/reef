@@ -53,7 +53,8 @@ public final class YarnSubmissionHelper implements Closeable{
   private final Map<String, LocalResource> resources = new HashMap<>();
   private final REEFFileNames fileNames;
   private final ClasspathProvider classpath;
-
+  private boolean preserveEvaluators;
+  private int maxAppSubmissions;
 
   public YarnSubmissionHelper(final YarnConfiguration yarnConfiguration,
                               final REEFFileNames fileNames,
@@ -72,6 +73,8 @@ public final class YarnSubmissionHelper implements Closeable{
     this.applicationResponse = yarnClientApplication.getNewApplicationResponse();
     this.applicationSubmissionContext = yarnClientApplication.getApplicationSubmissionContext();
     this.applicationId = applicationSubmissionContext.getApplicationId();
+    this.maxAppSubmissions = 1;
+    this.preserveEvaluators = false;
     LOG.log(Level.FINEST, "YARN Application ID: {0}", applicationId);
   }
 
@@ -125,6 +128,47 @@ public final class YarnSubmissionHelper implements Closeable{
   }
 
   /**
+   * Set whether or not the resource manager should preserve evaluators across driver restarts.
+   * @param preserveEvaluators
+   * @return
+   */
+  public YarnSubmissionHelper setPreserveEvaluators(final boolean preserveEvaluators) {
+    if (preserveEvaluators) {
+      // when supported, set KeepContainersAcrossApplicationAttempts to be true
+      // so that when driver (AM) crashes, evaluators will still be running and we can recover later.
+      if (YarnTypes.isAtOrAfterVersion(YarnTypes.MIN_VERSION_KEEP_CONTAINERS_AVAILABLE)) {
+        LOG.log(
+            Level.FINE,
+            "Hadoop version is {0} or after with KeepContainersAcrossApplicationAttempts supported," +
+                " will set it to true.",
+            YarnTypes.MIN_VERSION_KEEP_CONTAINERS_AVAILABLE);
+
+        applicationSubmissionContext.setKeepContainersAcrossApplicationAttempts(true);
+      } else {
+        LOG.log(Level.WARNING,
+            "Hadoop version does not yet support KeepContainersAcrossApplicationAttempts. Driver restarts " +
+                "will not support recovering evaluators.");
+
+        applicationSubmissionContext.setKeepContainersAcrossApplicationAttempts(false);
+      }
+    } else {
+      applicationSubmissionContext.setKeepContainersAcrossApplicationAttempts(false);
+    }
+
+    return this;
+  }
+
+  /**
+   * Sets the maximum application attempts for the application.
+   * @param maxApplicationAttempts
+   * @return
+   */
+  public YarnSubmissionHelper setMaxApplicationAttempts(final int maxApplicationAttempts) {
+    applicationSubmissionContext.setMaxAppAttempts(maxApplicationAttempts);
+    return this;
+  }
+
+  /**
    * Assign this job submission to a queue.
    * @param queueName
    * @return
@@ -134,7 +178,7 @@ public final class YarnSubmissionHelper implements Closeable{
     return this;
   }
 
-  public void submit(final String clientRemoteIdentifier) throws IOException, YarnException {
+  public void submit() throws IOException, YarnException {
     // SET EXEC COMMAND
     final List<String> launchCommand = new JavaLaunchCommandBuilder()
         .setConfigurationFileName(this.fileNames.getDriverConfigurationPath())
@@ -144,6 +188,12 @@ public final class YarnSubmissionHelper implements Closeable{
         .setStandardErr(ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/" + this.fileNames.getDriverStderrFileName())
         .build();
 
+    if (this.applicationSubmissionContext.getKeepContainersAcrossApplicationAttempts() &&
+        this.applicationSubmissionContext.getMaxAppAttempts() == 1) {
+      LOG.log(Level.WARNING, "Application will not be restarted even though preserve evaluators is set to true" +
+          " since the max application submissions is 1. Proceeding to submit application...");
+    }
+
     this.applicationSubmissionContext.setAMContainerSpec(YarnTypes.getContainerLaunchContext(launchCommand,
         this.resources));
 
@@ -151,20 +201,6 @@ public final class YarnSubmissionHelper implements Closeable{
 
     if (LOG.isLoggable(Level.FINEST)) {
       LOG.log(Level.FINEST, "REEF app command: {0}", StringUtils.join(launchCommand, ' '));
-    }
-
-    // TODO: this is currently being developed on a hacked 2.4.0 bits, should be 2.4.1
-    final String minVersionKeepContainerOptionAvailable = "2.4.0";
-
-    // when supported, set KeepContainersAcrossApplicationAttempts to be true
-    // so that when driver (AM) crashes, evaluators will still be running and we can recover later.
-    if (YarnTypes.isAtOrAfterVersion(minVersionKeepContainerOptionAvailable)) {
-      LOG.log(
-          Level.FINE,
-          "Hadoop version is {0} or after with KeepContainersAcrossApplicationAttempts supported, will set it to true.",
-          minVersionKeepContainerOptionAvailable);
-
-      applicationSubmissionContext.setKeepContainersAcrossApplicationAttempts(true);
     }
 
     this.yarnClient.submitApplication(applicationSubmissionContext);

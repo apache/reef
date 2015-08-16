@@ -20,6 +20,7 @@ package org.apache.reef.runtime.common.driver;
 
 import org.apache.reef.annotations.audience.ClientSide;
 import org.apache.reef.annotations.audience.Private;
+import org.apache.reef.driver.parameters.ResourceManagerPreserveEvaluators;
 import org.apache.reef.driver.parameters.ServiceEvaluatorAllocatedHandlers;
 import org.apache.reef.driver.parameters.ServiceEvaluatorCompletedHandlers;
 import org.apache.reef.driver.parameters.ServiceEvaluatorFailedHandlers;
@@ -38,7 +39,10 @@ public final class DriverRuntimeRestartConfiguration extends ConfigurationModule
   }
 
   public static final ConfigurationModule CONF = new DriverRuntimeRestartConfiguration()
-      .bindImplementation(DriverRestartManager.class, DriverRestartManagerImpl.class)
+
+      // Automatically sets preserve evaluators to true.
+      .bindNamedParameter(ResourceManagerPreserveEvaluators.class, Boolean.toString(true))
+
       .bindSetEntry(ServiceEvaluatorAllocatedHandlers.class, EvaluatorPreservingEvaluatorAllocatedHandler.class)
       .bindSetEntry(ServiceEvaluatorFailedHandlers.class, EvaluatorPreservingEvaluatorFailedHandler.class)
       .bindSetEntry(ServiceEvaluatorCompletedHandlers.class, EvaluatorPreservingEvaluatorCompletedHandler.class)

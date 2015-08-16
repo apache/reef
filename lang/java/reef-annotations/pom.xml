@@ -23,9 +23,23 @@ under the License.
     <parent>
         <groupId>org.apache.reef</groupId>
         <artifactId>reef-project</artifactId>
-        <version>0.12.0-incubating-SNAPSHOT</version>
+        <version>0.13.0-incubating-SNAPSHOT</version>
         <relativePath>../../..</relativePath>
     </parent>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-checkstyle-plugin</artifactId>
+                    <configuration>
+                        <configLocation>lang/java/reef-common/src/main/resources/checkstyle-strict.xml</configLocation>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
 
     <artifactId>reef-annotations</artifactId>
     <name>REEF Annotations</name>

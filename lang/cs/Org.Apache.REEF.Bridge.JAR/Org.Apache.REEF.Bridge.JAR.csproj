@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <!--
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file
@@ -24,10 +24,8 @@ under the License.
     <ProjectGuid>{62905C7C-1A7E-4923-B78D-1BF42D7FAD40}</ProjectGuid>
     <AssemblyName>Org.Apache.REEF.Bridge.JAR</AssemblyName>
     <RestorePackages>true</RestorePackages>
+    <BuildPackage>false</BuildPackage>
   </PropertyGroup>
-  <ItemGroup>
-    <None Include="Org.Apache.REEF.Bridge.JAR.nuspec" />
-  </ItemGroup>
   <Import Project="$(SolutionDir)\build.props" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <Import Project="$(MSBuildBinPath)\Microsoft.Common.targets" />
@@ -54,8 +52,8 @@ under the License.
   <!--
     Executes 'mvn install', if the JAR does not exist.
   -->
-  <Target Name="Build" 
-          DependsOnTargets="CheckMavenInstall;CheckJavaInstall;CheckProtocInstall" 
+  <Target Name="Build"
+          DependsOnTargets="CheckMavenInstall;CheckJavaInstall;CheckProtocInstall"
           Outputs="$(OutputPath)">
     <PropertyGroup>
       <!--The shaded jar of the bridge (driver side) -->
@@ -91,41 +89,4 @@ under the License.
   -->
   <Target Name="Rebuild" DependsOnTargets="Clean;Build"/>
   <Target Name="CheckPrerequisites" DependsOnTargets="Build"/>
-  <Target Name="BuildPackage" Condition="'$(BuildPackage)' == 'true'" DependsOnTargets="ExtractPOMVersion; CheckPrerequisites" AfterTargets="Build">
-
-    <PropertyGroup>
-        <BuildCommand>$(NuGetCommand) pack "$(FinalizedNuspecFile)" -BasePath $(NugetProjectPath) -Properties "Configuration=$(Configuration);Platform=$(Platform);REEF_Version=$(REEF_Version);Version=$(REEF_NugetVersion)" $(NonInteractiveSwitch) -OutputDirectory "$(PackageOutputDir)" </BuildCommand>
-    </PropertyGroup>
-
-    <ItemGroup>
-        <Line Include="line01"><Text>param($installPath, $toolsPath, $package, $project)</Text></Line>
-        <Line Include="line02"><Text>$file1 = $project.ProjectItems.Item("reef-bridge-java-$(REEF_Version)-shaded.jar")</Text></Line>
-        <Line Include="line03"><Text>$copyToOutput1 = $file1.Properties.Item("CopyToOutputDirectory")</Text></Line>
-        <Line Include="line04"><Text>$copyToOutput1.Value = 2</Text></Line>
-        <!--Copy the client JAR-->
-        <Line Include="line05"><Text>$file2 = $project.ProjectItems.Item("reef-bridge-client-$(REEF_Version)-shaded.jar")</Text></Line>
-        <Line Include="line05"><Text>$copyToOutput2 = $file2.Properties.Item("CopyToOutputDirectory")</Text></Line>
-        <Line Include="line07"><Text>$copyToOutput2.Value = 2</Text></Line>
-        <LineText Include="%(Line.Text)" />
-    </ItemGroup>
-
-    <WriteLinesToFile
-        File="$(SolutionDir)\bin\$(Platform)\$(Configuration)\$(AssemblyName)\install.ps1"
-        Lines="@(LineText)"
-        Overwrite="true"
-    />
-    <Exec Command="$(BuildCommand)" Condition=" '$(OS)' != 'Windows_NT' " />
-    <Exec Command="$(BuildCommand)" LogStandardErrorAsError="true" Condition=" '$(OS)' == 'Windows_NT' " />
-  </Target>
-  <Target Name="PushPackages" Condition="'$(PushPackages)' == 'true'" DependsOnTargets="BuildPackage"  AfterTargets="BuildPackage">
-    <ItemGroup>
-        <PackageFile Include="$(SolutionDir).nuget\packages\$(RootNamespace).$(REEF_NugetVersion).nupkg" />
-    </ItemGroup>
-    <PropertyGroup>
-        <PushCommand Condition="'$(NuGetApiKey)' == '' OR '$(NuGetApiKey)' == '*Undefined*'">$(NuGetCommand) push @(PackageFile) -Source $(NuGetRepository)</PushCommand>
-        <PushCommand Condition="'$(NuGetApiKey)' != '' AND '$(NuGetApiKey)' != '*Undefined*'">$(NuGetCommand) push @(PackageFile) $(NuGetApiKey) -Source $(NuGetRepository)</PushCommand>
-    </PropertyGroup>
-    <Exec Condition="'$(BuildPackage)' == 'true'" Command="$(PushCommand)" LogStandardErrorAsError="true">
-    </Exec>
-  </Target>
 </Project>
