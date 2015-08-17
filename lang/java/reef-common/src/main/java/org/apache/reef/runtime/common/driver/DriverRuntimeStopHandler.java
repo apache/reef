@@ -20,9 +20,12 @@ package org.apache.reef.runtime.common.driver;
 
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
+import org.apache.reef.driver.parameters.ResourceManagerPreserveEvaluators;
+import org.apache.reef.exception.DriverFatalRuntimeException;
 import org.apache.reef.runtime.common.driver.api.ResourceManagerStopHandler;
 import org.apache.reef.runtime.common.driver.evaluator.Evaluators;
 import org.apache.reef.runtime.common.utils.RemoteManager;
+import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.util.Optional;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.time.runtime.event.RuntimeStop;
@@ -44,23 +47,34 @@ final class DriverRuntimeStopHandler implements EventHandler<RuntimeStop> {
   private final ResourceManagerStopHandler resourceManagerStopHandler;
   private final RemoteManager remoteManager;
   private final Evaluators evaluators;
+  private final boolean preserveEvaluatorsAcrossRestarts;
 
   @Inject
   DriverRuntimeStopHandler(final DriverStatusManager driverStatusManager,
                            final ResourceManagerStopHandler resourceManagerStopHandler,
                            final RemoteManager remoteManager,
-                           final Evaluators evaluators) {
+                           final Evaluators evaluators,
+                           @Parameter(ResourceManagerPreserveEvaluators.class)
+                           final boolean preserveEvaluatorsAcrossRestarts) {
     this.driverStatusManager = driverStatusManager;
     this.resourceManagerStopHandler = resourceManagerStopHandler;
     this.remoteManager = remoteManager;
     this.evaluators = evaluators;
+    this.preserveEvaluatorsAcrossRestarts = preserveEvaluatorsAcrossRestarts;
   }
 
   @Override
   public synchronized void onNext(final RuntimeStop runtimeStop) {
     LOG.log(Level.FINEST, "RuntimeStop: {0}", runtimeStop);
-    // Shutdown the Evaluators.
-    this.evaluators.close();
+
+    // Shut down evaluators if there are no exceptions, the driver is forcefully
+    // shut down by a non-recoverable exception, or restart is not enabled.
+    if (runtimeStop.getException() == null ||
+        runtimeStop.getException() instanceof DriverFatalRuntimeException ||
+        !this.preserveEvaluatorsAcrossRestarts) {
+      this.evaluators.close();
+    }
+
     this.resourceManagerStopHandler.onNext(runtimeStop);
     // Inform the client of the shutdown.
     final Optional<Throwable> exception = Optional.<Throwable>ofNullable(runtimeStop.getException());
