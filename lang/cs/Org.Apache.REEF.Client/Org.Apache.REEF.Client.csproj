@@ -52,6 +52,7 @@ under the License.
     <Compile Include="API\JobSubmission.cs" />
     <Compile Include="API\JobSubmissionBuilder.cs" />
     <Compile Include="API\JobSubmissionBuilderFactory.cs" />
+    <Compile Include="API\Parameters\DriverConfigurationProviders.cs" />
     <Compile Include="Common\ClientConstants.cs" />
     <Compile Include="Common\ClrClient2JavaClientCuratedParameters.cs" />
     <Compile Include="Common\DriverFolderPreparationHelper.cs" />
@@ -60,7 +61,6 @@ under the License.
     <Compile Include="Common\ResourceHelper.cs" />
     <Compile Include="Local\LocalClient.cs" />
     <Compile Include="Local\LocalRuntimeClientConfiguration.cs" />
-    <Compile Include="Local\Parameters\DriverConfigurationProviders.cs" />
     <Compile Include="Local\Parameters\LocalRuntimeDirectory.cs" />
     <Compile Include="Local\Parameters\NumberOfEvaluators.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
