@@ -21,7 +21,7 @@ using System.Collections.Generic;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Interface;
 
-namespace Org.Apache.REEF.Client.Local.Parameters
+namespace Org.Apache.REEF.Client.API.Parameters
 {
     /// <summary>
     // This name parameter is used to target receviers Configuration providers at driver level
