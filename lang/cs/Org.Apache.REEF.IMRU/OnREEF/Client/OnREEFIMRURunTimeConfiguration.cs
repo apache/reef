@@ -17,6 +17,7 @@
  * under the License.
  */
 
+using System.Globalization;
 using Org.Apache.REEF.Client.Local;
 using Org.Apache.REEF.Client.YARN;
 using Org.Apache.REEF.IMRU.API;
@@ -38,10 +39,26 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Client
         /// Function that specifies local runtime configuration for IMRU
         /// </summary>
         /// <returns>The local runtime configuration</returns>
-        public static IConfiguration GetLocalIMRUConfiguration()
+        public static IConfiguration GetLocalIMRUConfiguration(int numNodes, params string[] runTimeDir)
         {
-            IConfiguration runtimeConfig =
-                LocalRuntimeClientConfiguration.ConfigurationModule.Build();
+            IConfiguration runtimeConfig;
+
+            if (runTimeDir.Length != 0)
+            {
+                runtimeConfig = LocalRuntimeClientConfiguration.ConfigurationModule
+                    .Set(LocalRuntimeClientConfiguration.NumberOfEvaluators,
+                        numNodes.ToString(CultureInfo.InvariantCulture))
+                    .Set(LocalRuntimeClientConfiguration.RuntimeFolder, runTimeDir[0])
+                    .Build();
+            }
+            else
+            {
+                runtimeConfig = LocalRuntimeClientConfiguration.ConfigurationModule
+                   .Set(LocalRuntimeClientConfiguration.NumberOfEvaluators,
+                       numNodes.ToString(CultureInfo.InvariantCulture))
+                   .Build();
+            }
+
             return TangFactory.GetTang().NewConfigurationBuilder(runtimeConfig)
                 .BindImplementation(GenericType<IIMRUClient<TMapInput, TMapOutput, TResult>>.Class,
                     GenericType<REEFIMRUClient<TMapInput, TMapOutput, TResult>>.Class)

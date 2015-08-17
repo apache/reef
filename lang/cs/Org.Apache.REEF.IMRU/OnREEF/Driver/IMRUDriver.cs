@@ -23,7 +23,6 @@ using Org.Apache.REEF.Driver;
 using Org.Apache.REEF.Driver.Context;
 using Org.Apache.REEF.Driver.Evaluator;
 using Org.Apache.REEF.Driver.Task;
-using Org.Apache.REEF.IMRU.API;
 using Org.Apache.REEF.IMRU.OnREEF.IMRUTasks;
 using Org.Apache.REEF.IMRU.OnREEF.MapInputWithControlMessage;
 using Org.Apache.REEF.IMRU.OnREEF.Parameters;
@@ -82,6 +81,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             [Parameter(typeof(MemoryForUpdateTask))] int memoryForUpdateTask,
             IGroupCommDriver groupCommDriver)
         {
+            Logger.Log(Level.Info, "$$$$$$$$$$$$$$enterig driver");
             _dataSet = dataSet;
             _configurationManager = configurationManager;
             _evaluatorRequestor = evaluatorRequestor;
@@ -101,6 +101,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             _taskIdStack = new ConcurrentStack<string>();
             _partitionDescriptorStack = new ConcurrentStack<IPartitionDescriptor>();
             ConstructTaskIdAndPartitionDescriptorStack();
+            Logger.Log(Level.Info, "$$$$$$$$$$$$$$outsode driver");
         }
 
         /// <summary>
@@ -109,6 +110,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// <param name="value">Even fired when driver started</param>
         public void OnNext(IDriverStarted value)
         {
+            Logger.Log(Level.Info, "$$$$$$$$$$$$$$requesting evaluator");
             _evaluatorRequestor.Submit(new EvaluatorRequest(1, _memoryForUpdateTask, _coresForUpdateTask));
             //TODO[REEF-598]: Set a timeout for this request to be satisfied. If it is not within that time, exit the Driver.
         }
@@ -120,6 +122,8 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// <param name="allocatedEvaluator">The allocated evaluator</param>
         public void OnNext(IAllocatedEvaluator allocatedEvaluator)
         {
+            Logger.Log(Level.Info, "$$$$$$$$$$$$$$allocatig evaluator");
+
             IConfiguration contextConf = _groupCommDriver.GetContextConfiguration();
             IConfiguration serviceConf = _groupCommDriver.GetServiceConfiguration();
 
@@ -268,7 +272,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                     .Build();
 
             _commGroup =
-                _groupCommDriver.NewCommunicationGroup(IMRUConstants.CommunicationGroupName, _dataSet.Count + 1)
+                _groupCommDriver.DefaultGroup
                     .AddBroadcast<MapInputWithControlMessage<TMapInput>>(
                         IMRUConstants.BroadcastOperatorName,
                         IMRUConstants.UpdateTaskName,

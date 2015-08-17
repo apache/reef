@@ -19,10 +19,14 @@ using System.Collections.Generic;
 using System.Globalization;
 using Org.Apache.REEF.Client.API;
 using Org.Apache.REEF.Driver;
+using Org.Apache.REEF.Driver.Bridge;
 using Org.Apache.REEF.IMRU.API;
 using Org.Apache.REEF.IMRU.OnREEF.Driver;
 using Org.Apache.REEF.IMRU.OnREEF.Parameters;
 using Org.Apache.REEF.Network.Group.Config;
+using Org.Apache.REEF.Network.Group.Driver;
+using Org.Apache.REEF.Network.Group.Driver.Impl;
+using Org.Apache.REEF.Network.Naming;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Implementations.Configuration;
@@ -97,12 +101,21 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Client
                 .BindStringNamedParam<GroupCommConfigurationOptions.MasterTaskId>(IMRUConstants.UpdateTaskName)
                 .BindStringNamedParam<GroupCommConfigurationOptions.GroupName>(IMRUConstants.CommunicationGroupName)
                 .BindIntNamedParam<GroupCommConfigurationOptions.FanOut>(
-                    IMRUConstants.TreeFanout.ToString(CultureInfo.InvariantCulture).ToString(CultureInfo.InvariantCulture))
+                    IMRUConstants.TreeFanout.ToString(CultureInfo.InvariantCulture)
+                        .ToString(CultureInfo.InvariantCulture))
                 .BindIntNamedParam<GroupCommConfigurationOptions.NumberOfTasks>(
                     (jobDefinition.NumberOfMappers + 1).ToString(CultureInfo.InvariantCulture))
+                .BindImplementation(GenericType<IGroupCommDriver>.Class, GenericType<GroupCommDriver>.Class)
                 .Build();
 
             imruDriverConfiguration = Configurations.Merge(imruDriverConfiguration, groupCommDriverConfig);
+
+            /*imruDriverConfiguration = TangFactory.GetTang().NewConfigurationBuilder(imruDriverConfiguration)
+                .BindSetEntry<DriverBridgeConfigurationOptions.SetOfAssemblies, string>(
+                    typeof (IMRUDriver<TMapInput, TMapOutput, TResult>).Assembly.GetName().Name)
+                .BindSetEntry<DriverBridgeConfigurationOptions.SetOfAssemblies, string>(
+                    typeof (NameClient).Assembly.GetName().Name)
+                .Build();*/
 
             // The JobSubmission contains the Driver configuration as well as the files needed on the Driver.
             var imruJobSubmission = _jobSubmissionBuilderFactory.GetJobSubmissionBuilder()
