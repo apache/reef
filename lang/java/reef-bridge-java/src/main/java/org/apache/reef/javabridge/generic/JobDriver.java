@@ -135,6 +135,7 @@ public final class JobDriver {
   private long driverRestartHandler = 0;
   private long driverRestartActiveContextHandler = 0;
   private long driverRestartRunningTaskHandler = 0;
+  private long driverRestartCompletedHandler = 0;
   private boolean clrBridgeSetup = false;
   private boolean isRestarted = false;
 
@@ -198,8 +199,9 @@ public final class JobDriver {
       final String portNumber = httpServer == null ? null : Integer.toString((httpServer.getPort()));
       final EvaluatorRequestorBridge evaluatorRequestorBridge =
           new EvaluatorRequestorBridge(JobDriver.this.evaluatorRequestor, false, loggingScopeFactory);
-      final long[] handlers =
-          NativeInterop.callClrSystemOnStartHandler(startTime.toString(), portNumber, evaluatorRequestorBridge);
+      final long[] handlers = JobDriver.this.isRestarted ?
+          NativeInterop.callClrSystemOnRestartHandlerOnNext(startTime.toString(), portNumber, evaluatorRequestorBridge)
+          : NativeInterop.callClrSystemOnStartHandler(startTime.toString(), portNumber, evaluatorRequestorBridge);
       if (handlers != null) {
         if (handlers.length != NativeInterop.N_HANDLERS) {
           throw new RuntimeException(
@@ -220,11 +222,12 @@ public final class JobDriver {
         this.closedContextHandler = handlers[NativeInterop.HANDLERS.get(NativeInterop.CLOSED_CONTEXT_KEY)];
         this.failedContextHandler = handlers[NativeInterop.HANDLERS.get(NativeInterop.FAILED_CONTEXT_KEY)];
         this.contextMessageHandler = handlers[NativeInterop.HANDLERS.get(NativeInterop.CONTEXT_MESSAGE_KEY)];
-        this.driverRestartHandler = handlers[NativeInterop.HANDLERS.get(NativeInterop.DRIVER_RESTART_KEY)];
         this.driverRestartActiveContextHandler =
             handlers[NativeInterop.HANDLERS.get(NativeInterop.DRIVER_RESTART_ACTIVE_CONTEXT_KEY)];
         this.driverRestartRunningTaskHandler =
             handlers[NativeInterop.HANDLERS.get(NativeInterop.DRIVER_RESTART_RUNNING_TASK_KEY)];
+        this.driverRestartCompletedHandler =
+            handlers[NativeInterop.HANDLERS.get(NativeInterop.DRIVER_RESTART_COMPLETED_KEY)];
       }
 
       try (final LoggingScope lp =
@@ -593,9 +596,8 @@ public final class JobDriver {
       try (final LoggingScope ls = loggingScopeFactory.driverRestart(startTime)) {
         synchronized (JobDriver.this) {
 
-          setupBridge(startTime);
-
           JobDriver.this.isRestarted = true;
+          setupBridge(startTime);
 
           LOG.log(Level.INFO, "Driver Restarted and CLR bridge set up.");
         }
@@ -614,7 +616,7 @@ public final class JobDriver {
       try (final LoggingScope ls = loggingScopeFactory.driverRestartCompleted(driverRestartCompleted.getTimeStamp())) {
         if (JobDriver.this.driverRestartHandler != 0) {
           LOG.log(Level.INFO, "CLR driver restart handler implemented, now handle it in CLR.");
-          NativeInterop.clrSystemDriverRestartHandlerOnNext(JobDriver.this.driverRestartHandler);
+          NativeInterop.clrSystemDriverRestartCompletedHandlerOnNext(JobDriver.this.driverRestartCompletedHandler);
         } else {
           LOG.log(Level.WARNING, "No CLR driver restart handler implemented, done with DriverRestartCompletedHandler.");
 

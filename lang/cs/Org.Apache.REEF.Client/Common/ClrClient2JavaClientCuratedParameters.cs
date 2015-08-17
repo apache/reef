@@ -18,6 +18,8 @@
  */
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Org.Apache.REEF.Driver;
 using Org.Apache.REEF.Driver.Bridge;
 using Org.Apache.REEF.Tang.Annotations;
@@ -47,36 +49,14 @@ namespace Org.Apache.REEF.Client.Common
             [Parameter(typeof(TcpPortRangeTryCount))] int tcpPortRangeTryCount,
             [Parameter(typeof(TcpPortRangeSeed))] int tcpPortRangeSeed,
             [Parameter(typeof(DriverBridgeConfigurationOptions.MaxApplicationSubmissions))] int maxApplicationSubmissions,
-            [Parameter(typeof(DriverBridgeConfigurationOptions.DriverRestartedHandler))] IObserver<IDriverRestarted> restartHandler)
-            : this(tcpPortRangeStart, tcpPortRangeCount, tcpPortRangeTryCount, tcpPortRangeSeed, maxApplicationSubmissions, true)
-        {
-        }
-
-        [Inject]
-        private ClrClient2JavaClientCuratedParameters(
-            [Parameter(typeof(TcpPortRangeStart))] int tcpPortRangeStart,
-            [Parameter(typeof(TcpPortRangeCount))] int tcpPortRangeCount,
-            [Parameter(typeof(TcpPortRangeTryCount))] int tcpPortRangeTryCount,
-            [Parameter(typeof(TcpPortRangeSeed))] int tcpPortRangeSeed,
-            [Parameter(typeof(DriverBridgeConfigurationOptions.MaxApplicationSubmissions))] int maxApplicationSubmissions)
-            : this(tcpPortRangeStart, tcpPortRangeCount, tcpPortRangeTryCount, tcpPortRangeSeed, maxApplicationSubmissions, false)
-        {
-        }
-
-        private ClrClient2JavaClientCuratedParameters(
-            int tcpPortRangeStart,
-            int tcpPortRangeCount,
-            int tcpPortRangeTryCount,
-            int tcpPortRangeSeed,
-            int maxApplicationSubmissions,
-            bool enableRestart)
+            [Parameter(typeof(DriverBridgeConfigurationOptions.DriverRestartedHandlers))] ISet<IObserver<IDriverRestarted>> restartHandlers)
         {
             TcpPortRangeStart = tcpPortRangeStart;
             TcpPortRangeCount = tcpPortRangeCount;
             TcpPortRangeTryCount = tcpPortRangeTryCount;
             TcpPortRangeSeed = tcpPortRangeSeed;
             MaxApplicationSubmissions = maxApplicationSubmissions;
-            EnableRestart = enableRestart;
+            EnableRestart = restartHandlers.Any();
         }
     }
 }

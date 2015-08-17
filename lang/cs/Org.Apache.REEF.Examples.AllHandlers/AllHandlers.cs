@@ -67,7 +67,7 @@ namespace Org.Apache.REEF.Examples.AllHandlers
                 .Set(DriverConfiguration.CustomTraceLevel, Level.Info.ToString())
                 .Set(DriverConfiguration.OnDriverRestarted, GenericType<HelloRestartHandler>.Class)
                 .Set(DriverConfiguration.OnDriverReconnect, GenericType<DefaultLocalHttpDriverConnection>.Class)
-                .Set(DriverConfiguration.OnDirverRestartContextActive, GenericType<HelloDriverRestartActiveContextHandler>.Class)
+                .Set(DriverConfiguration.OnDriverRestartContextActive, GenericType<HelloDriverRestartActiveContextHandler>.Class)
                 .Set(DriverConfiguration.OnDriverRestartTaskRunning, GenericType<HelloDriverRestartRunningTaskHandler>.Class)
                 .Build();
 
