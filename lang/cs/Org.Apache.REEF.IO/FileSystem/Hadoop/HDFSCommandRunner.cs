@@ -19,6 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using Org.Apache.REEF.Common.Files;
 using Org.Apache.REEF.IO.FileSystem.Hadoop.Parameters;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities.Logging;
@@ -62,6 +63,13 @@ namespace Org.Apache.REEF.IO.FileSystem.Hadoop
         /// </summary>
         private readonly int _timeOutInMilliSeconds;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="numberOfRetries"></param>
+        /// <param name="timeOutInMilliSeconds"></param>
+        /// <param name="hadoopHome"></param>
+        /// <exception cref="FileNotFoundException">If the hdfs command can't be found.</exception>
         [Inject]
         private HdfsCommandRunner([Parameter(typeof(NumberOfRetries))] int numberOfRetries,
             [Parameter(typeof(CommandTimeOut))] int timeOutInMilliSeconds,
@@ -70,7 +78,7 @@ namespace Org.Apache.REEF.IO.FileSystem.Hadoop
             _numberOfRetries = numberOfRetries;
             _timeOutInMilliSeconds = timeOutInMilliSeconds;
 
-            if (!HadoopHome.DefaultValue.Equals(hadoopHome))
+            if (!PathUtilities.AreNormalizedEquals(hadoopHome, HadoopHome.DefaultValue))
             {
                 // The user provided a Hadoop Home folder. 
                 if (Directory.Exists(hadoopHome))
@@ -96,7 +104,7 @@ namespace Org.Apache.REEF.IO.FileSystem.Hadoop
             // Make sure we found the command.
             if (!File.Exists(_hdfsCommandPath))
             {
-                throw new Exception("HDFS command does not exist: " + _hdfsCommandPath);
+                throw new FileNotFoundException("HDFS Command not found", _hdfsCommandPath);
             }
         }
 
