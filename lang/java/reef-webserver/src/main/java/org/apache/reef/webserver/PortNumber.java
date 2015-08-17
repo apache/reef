@@ -25,7 +25,7 @@ import org.apache.reef.tang.annotations.NamedParameter;
  * port number for the Http Server
  * Clients can set a preferred port number. However, Reef will detect if the given port number has been used
  * in the machine. If yes, it will generate another available port number.
- * @deprecated "Use TcpPortRangeStart and TcpPortProvider instead."
+ * @deprecated in 0.13, use TcpPortRangeStart and TcpPortProvider instead.
  */
 @NamedParameter(doc = "Port number for Jetty Server", default_value = PortNumber.DEFAULT_VALUE)
 @Deprecated

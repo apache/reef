@@ -23,7 +23,7 @@ import org.apache.reef.tang.annotations.NamedParameter;
 
 /**
  * minimum port number range when generating a port number for the Http Server.
- * @deprecated "Use TcpPortRangeStart and TcpPortProvider instead."
+ * @deprecated in 0.13, use TcpPortRangeStart and TcpPortProvider instead.
  */
 @NamedParameter(doc = "Minimum port number for Jetty Server", default_value = "1024")
 @Deprecated
