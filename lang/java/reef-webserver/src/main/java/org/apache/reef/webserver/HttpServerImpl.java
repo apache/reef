@@ -92,7 +92,7 @@ public final class HttpServerImpl implements HttpServer {
         }
       } else {
         // new TcpPortProvider path
-        Iterator<Integer> ports = tcpPortProvider.iterator();
+        final Iterator<Integer> ports = tcpPortProvider.iterator();
         while (ports.hasNext() && srv  == null) {
           availablePort = ports.next();
           srv = tryPort(availablePort);
