@@ -7,3 +7,6 @@
 *.snk binary
 *.ico binary
 *.bin binary
+
+# Treat Visual Studio solution files as binary
+*.sln binary
