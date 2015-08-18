@@ -25,7 +25,7 @@ python change_version <reef_home> <reef_version_for_pom.xml>  (optional) -s <tru
 If you use the option "-s false", bulid.props changes as,
  <RemoveIncubating>true</RemoveIncubating>
  <IsSnapshot>false</IsSnapshot>
- <SnapshotNumber>0</SnapshotNumber>
+ <SnapshotNumber>00</SnapshotNumber>
 
 If you use "-s true", then the value of 'IsSnapshot' is changed to true.
 
@@ -181,7 +181,7 @@ def change_build_props(file, is_snapshot):
             changed_str += line.replace(old_is_snapshot, is_snapshot)
         elif "<SnapshotNumber>" in line and "</SnapshotNumber>" in line and is_snapshot=="false":
             old_snapshot_number = r3.search(line).group(1)
-            changed_str += line.replace(old_snapshot_number, "0")
+            changed_str += line.replace(old_snapshot_number, "00")
         else:
             changed_str += line
 
