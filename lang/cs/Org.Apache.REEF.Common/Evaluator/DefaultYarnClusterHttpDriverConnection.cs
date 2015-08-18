@@ -35,7 +35,7 @@ namespace Org.Apache.REEF.Common.Evaluator
             Uri queryUri = new Uri(
                 string.Concat(
                 Constants.HDInsightClusterHttpEndpointBaseUri,
-                applicationId,
+                applicationId + "/",
                 Constants.HttpReefUriSpecification,
                 Constants.HttpDriverUriTarget));
             return DriverInformation.GetDriverInformationFromHttp(queryUri);

@@ -24,6 +24,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Threading;
 using Org.Apache.REEF.Common.Avro;
 using Org.Apache.REEF.Utilities.Logging;
 
@@ -32,7 +33,7 @@ namespace Org.Apache.REEF.Common.Evaluator
     public class DriverInformation
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(DriverInformation));
-        
+
         private readonly string _rid;
 
         private readonly string _startTime;
@@ -60,7 +61,7 @@ namespace Org.Apache.REEF.Common.Evaluator
                 {
                     _nameServerId = nameServerInfo.serviceInfo;
                 }
-            }  
+            }
         }
 
         public string DriverRemoteIdentifier
@@ -89,47 +90,79 @@ namespace Org.Apache.REEF.Common.Evaluator
 
         public static DriverInformation GetDriverInformationFromHttp(Uri queryUri)
         {
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(queryUri);
-            request.AllowAutoRedirect = false;
-            request.KeepAlive = false;
-            request.ContentType = "text/html";
-
-            string driverInfomation;
-            AvroDriverInfo info = null;
-            try
+            while (queryUri != null)
             {
-                using (HttpWebResponse webResponse = (HttpWebResponse)request.GetResponse())
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(queryUri);
+                request.AllowAutoRedirect = true;
+                request.KeepAlive = false;
+                request.ContentType = "text/html";
+
+                queryUri = null;
+                try
                 {
-                    Stream stream = webResponse.GetResponseStream();
-                    if (stream == null)
+                    using (HttpWebResponse webResponse = (HttpWebResponse)request.GetResponse())
                     {
-                        return null;
-                    }
-                    using (StreamReader streamReader = new StreamReader(stream, Encoding.UTF8))
-                    {
-                        driverInfomation = streamReader.ReadToEnd();
-                        LOGGER.Log(Level.Verbose, "Http response line: " + driverInfomation);
-                        info = AvroJsonSerializer<AvroDriverInfo>.FromString(driverInfomation);
+                        var refresh = webResponse.Headers.AllKeys.FirstOrDefault(k => k.Equals("refresh", StringComparison.OrdinalIgnoreCase));
+
+                        if (refresh != null)
+                        {
+                            var refreshContent = webResponse.Headers.GetValues(refresh);
+                            foreach (var refreshParam in refreshContent.SelectMany(content => content.Split(';').Select(c => c.Trim())))
+                            {
+                                var refreshKeyValue = refreshParam.Split('=').Select(kv => kv.Trim()).ToArray();
+                                if (refreshKeyValue.Length == 2 && refreshKeyValue[0].Equals("url", StringComparison.OrdinalIgnoreCase))
+                                {
+                                    queryUri = new Uri(refreshKeyValue[1]);
+                                    break;
+                                }
+                            }
+                        }
+
+                        // We have received a redirect URI, look there instead.
+                        if (queryUri != null)
+                        {
+                            LOGGER.Log(Level.Verbose, "Received redirect URI:[{0}], redirecting...", queryUri);
+                            continue;
+                        }
+
+                        Stream stream = webResponse.GetResponseStream();
+                        if (stream == null || !stream.CanRead)
+                        {
+                            return null;
+                        }
+
+                        using (StreamReader streamReader = new StreamReader(stream, Encoding.UTF8))
+                        {
+                            var driverInformation = streamReader.ReadToEnd();
+                            LOGGER.Log(Level.Verbose, "Http response line: {0}", driverInformation);
+                            AvroDriverInfo info = null;
+                            try
+                            {
+                                info = AvroJsonSerializer<AvroDriverInfo>.FromString(driverInformation);
+                            }
+                            catch (Exception e)
+                            {
+                                Utilities.Diagnostics.Exceptions.CaughtAndThrow(
+                                    e, Level.Error, string.Format(CultureInfo.InvariantCulture, "Cannot read content: {0}.", driverInformation), LOGGER);
+                            }
+
+                            if (info == null)
+                            {
+                                LOGGER.Log(Level.Info, "Cannot read content: {0}.", driverInformation);
+                                return null;
+                            }
+                            
+                            return new DriverInformation(info.remoteId, info.startTime, info.services);
+                        }
                     }
                 }
-            }
-            catch (WebException)
-            {
-                LOGGER.Log(Level.Warning, string.Format(CultureInfo.InvariantCulture, "In RECOVERY mode, cannot connect to [{0}] for driver information, will try again later.", queryUri));
-                return null;
-            }
-            catch (Exception e)
-            {
-                Org.Apache.REEF.Utilities.Diagnostics.Exceptions.CaughtAndThrow(e, Level.Error, string.Format(CultureInfo.InvariantCulture, "Cannot read content from {0}.", queryUri), LOGGER);
+                catch (WebException)
+                {
+                    LOGGER.Log(Level.Warning, "In RECOVERY mode, cannot connect to [{0}] for driver information, will try again later.", queryUri);
+                    return null;
+                }
             }
 
-            if (info != null)
-            {
-                LOGGER.Log(
-                    Level.Verbose, 
-                    string.Format(CultureInfo.InvariantCulture, "Driver information extracted with remote identier [{0}], start time [{1}], and servics [{2}]", info.remoteId, info.startTime, info.services));
-                return new DriverInformation(info.remoteId, info.startTime, info.services);
-            }
             return null;
         }
     }
