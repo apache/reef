@@ -49,14 +49,14 @@ namespace Org.Apache.REEF.Client.Common
             [Parameter(typeof(TcpPortRangeTryCount))] int tcpPortRangeTryCount,
             [Parameter(typeof(TcpPortRangeSeed))] int tcpPortRangeSeed,
             [Parameter(typeof(DriverBridgeConfigurationOptions.MaxApplicationSubmissions))] int maxApplicationSubmissions,
-            [Parameter(typeof(DriverBridgeConfigurationOptions.DriverRestartedHandlers))] ISet<IObserver<IDriverRestarted>> restartHandlers)
+            [Parameter(typeof(DriverBridgeConfigurationOptions.RestartEnabled))] bool restartEnabled)
         {
             TcpPortRangeStart = tcpPortRangeStart;
             TcpPortRangeCount = tcpPortRangeCount;
             TcpPortRangeTryCount = tcpPortRangeTryCount;
             TcpPortRangeSeed = tcpPortRangeSeed;
             MaxApplicationSubmissions = maxApplicationSubmissions;
-            EnableRestart = restartHandlers.Any();
+            EnableRestart = restartEnabled;
         }
     }
 }

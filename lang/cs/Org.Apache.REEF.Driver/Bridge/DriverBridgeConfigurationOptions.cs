@@ -137,6 +137,11 @@ namespace Org.Apache.REEF.Driver.Bridge
         {
         }
 
+        [NamedParameter("Whether restart should be enabled on the application", "RestartEnabled", "false")]
+        public class RestartEnabled : Name<bool>
+        {
+        }
+
         [NamedParameter("The number of times an application should be submitted in case of failure.", "MaxApplicationSubmissions", "1")]
         public class MaxApplicationSubmissions : Name<int>
         {

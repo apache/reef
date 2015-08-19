@@ -180,6 +180,12 @@ namespace Org.Apache.REEF.Driver.Bridge
         [SuppressMessage("Microsoft.Security", "CA2104:Do not declare read only mutable reference types", Justification = "not applicable")]
         public static readonly OptionalImpl<IObserver<IDriverRestartCompleted>> OnDriverRestartCompleted = new OptionalImpl<IObserver<IDriverRestartCompleted>>();
 
+        /// <summary>
+        /// Whether or not the application has restart enabled. Defaults to false.
+        /// </summary>
+        [SuppressMessage("Microsoft.Security", "CA2104:Do not declare read only mutable reference types", Justification = "not applicable")]
+        public static readonly OptionalParameter<bool> RestartEnabled = new OptionalParameter<bool>();
+
         // This is currently not needed in Bridge/Driver model
         ///// <summary>
         ///// The event handler invoked right before the driver shuts down. Defaults to ignore.
@@ -233,6 +239,7 @@ namespace Org.Apache.REEF.Driver.Bridge
                 .BindSetEntry(GenericType<DriverBridgeConfigurationOptions.DriverRestartRunningTaskHandlers>.Class, OnDriverRestartTaskRunning)
                 .BindSetEntry(GenericType<DriverBridgeConfigurationOptions.DriverRestartCompletedHandlers>.Class, OnDriverRestartCompleted)
                 .BindNamedParameter(GenericType<DriverBridgeConfigurationOptions.TraceLevel>.Class, CustomTraceLevel)
+                .BindNamedParameter(GenericType<DriverBridgeConfigurationOptions.RestartEnabled>.Class, RestartEnabled)
                 .Build();
             }
         }
