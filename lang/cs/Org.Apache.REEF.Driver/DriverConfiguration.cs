@@ -173,6 +173,11 @@ namespace Org.Apache.REEF.Driver
         /// </summary>
         public static readonly OptionalImpl<IDriverConnection> OnDriverReconnect = new OptionalImpl<IDriverConnection>();
 
+        /// <summary>
+        /// Whether or not the application has restart enabled. Defaults to false.
+        /// </summary>
+        public static readonly OptionalParameter<bool> RestartEnabled = new OptionalParameter<bool>();
+
         public static ConfigurationModule ConfigurationModule
         {
             get
@@ -218,6 +223,7 @@ namespace Org.Apache.REEF.Driver
                     .BindNamedParameter(GenericType<DriverBridgeConfigurationOptions.TraceLevel>.Class, CustomTraceLevel)
                     .BindNamedParameter(GenericType<DriverBridgeConfigurationOptions.MaxApplicationSubmissions>.Class,
                         MaxApplicationSubmissions)
+                    .BindNamedParameter(GenericType<DriverBridgeConfigurationOptions.RestartEnabled>.Class, RestartEnabled)
                     .Build()
                     // TODO: Move this up
                     .Set(OnDriverStarted, GenericType<ClassHierarchyGeneratingDriverStartObserver>.Class);

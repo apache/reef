@@ -35,6 +35,8 @@ under the License.
     <Reference Include="System.Runtime.Serialization" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DriverRestart\HelloRestartDriver.cs" />
+    <Compile Include="DriverRestart\HelloRestartTask.cs" />
     <Compile Include="MachineLearning\KMeans\Centroids.cs" />
     <Compile Include="MachineLearning\KMeans\codecs\CentroidsCodec.cs" />
     <Compile Include="MachineLearning\KMeans\codecs\DataVectorCodec.cs" />
