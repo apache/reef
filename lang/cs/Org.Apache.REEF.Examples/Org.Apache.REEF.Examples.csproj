@@ -89,9 +89,6 @@ under the License.
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="HelloCLRBridge\Handlers\" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="ConfigFiles\evaluator.conf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
