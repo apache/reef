@@ -35,9 +35,17 @@ Choose a release version:
         </a>
     </li>
     <li>
-        Download with signatures:
+        Download from mirror:
         <a id="mirrorLink" href="http://www.apache.org/dyn/closer.cgi/incubator/reef/0.12.0-incubating">
         Closest Apache Mirror</a>
+    </li>
+    <li>
+        Verification:
+        <a id="verificationLink" href="http://www.apache.org/dist/incubator/reef/0.12.0-incubating/">
+            Signatures and checksums
+        </a>
+        <br />
+        SHA512: <span id="sha512Text">a5ec246fc5f73427ecb74f4725ce7ac1a8911ee7cf969aa45142b05b4985f385547b9ff47d6752e6c505dbbc98acda762d2fc22f3e2759040e2a7d9a0249398d</span>
     </li>
 </ul>
 
