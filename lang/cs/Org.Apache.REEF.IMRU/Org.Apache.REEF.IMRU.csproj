@@ -61,8 +61,11 @@ under the License.
     <Compile Include="InProcess\InProcessIMRUConfiguration.cs" />
     <Compile Include="InProcess\MapFunctions.cs" />
     <Compile Include="InProcess\Parameters\NumberOfMappers.cs" />
+    <Compile Include="OnREEF\Client\REEFIMRUClientConfiguration.cs" />
+    <Compile Include="OnREEF\Client\REEFIMRUClient.cs" />
     <Compile Include="OnREEF\Driver\ConfigurationManager.cs" />
     <Compile Include="OnREEF\Driver\IMRUConstants.cs" />
+    <Compile Include="OnREEF\Driver\IMRUDriver.cs" />
     <Compile Include="OnREEF\IMRUTasks\MapTaskHost.cs" />
     <Compile Include="OnREEF\IMRUTasks\UpdateTaskHost.cs" />
     <Compile Include="OnREEF\MapInputWithControlMessage\MapControlMessage.cs" />
@@ -115,8 +118,13 @@ under the License.
       <Project>{dec0f0a8-dbef-4ebf-b69c-e2369c15abf1}</Project>
       <Name>Org.Apache.REEF.IO</Name>
     </ProjectReference>
+    <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.Client\Org.Apache.REEF.Client.csproj">
+      <Project>{5094c35b-4fdb-4322-ac05-45d684501cbf}</Project>
+      <Name>Org.Apache.REEF.Client</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="Org.Apache.REEF.IMRU.nuspec" />
   </ItemGroup>
+  <ItemGroup />
 </Project>
