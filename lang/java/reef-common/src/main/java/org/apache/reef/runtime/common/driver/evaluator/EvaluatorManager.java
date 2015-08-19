@@ -222,17 +222,19 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
   @Override
   public void close() {
     synchronized (this.evaluatorDescriptor) {
-      if (this.stateManager.isRunning()) {
+      if (this.stateManager.isAllocatedOrSubmittedOrRunning()) {
         LOG.log(Level.WARNING, "Dirty shutdown of running evaluator id[{0}]", getId());
         try {
-          // Killing the evaluator means that it doesn't need to send a confirmation; it just dies.
-          final EvaluatorRuntimeProtocol.EvaluatorControlProto evaluatorControlProto =
-              EvaluatorRuntimeProtocol.EvaluatorControlProto.newBuilder()
-                  .setTimestamp(System.currentTimeMillis())
-                  .setIdentifier(getId())
-                  .setKillEvaluator(EvaluatorRuntimeProtocol.KillEvaluatorProto.newBuilder().build())
-                  .build();
-          sendEvaluatorControlMessage(evaluatorControlProto);
+          if (this.stateManager.isRunning()){
+            // Killing the evaluator means that it doesn't need to send a confirmation; it just dies.
+            final EvaluatorRuntimeProtocol.EvaluatorControlProto evaluatorControlProto =
+                EvaluatorRuntimeProtocol.EvaluatorControlProto.newBuilder()
+                    .setTimestamp(System.currentTimeMillis())
+                    .setIdentifier(getId())
+                    .setKillEvaluator(EvaluatorRuntimeProtocol.KillEvaluatorProto.newBuilder().build())
+                    .build();
+            sendEvaluatorControlMessage(evaluatorControlProto);
+          }
         } finally {
           this.stateManager.setKilled();
         }

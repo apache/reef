@@ -31,7 +31,7 @@ public final class EventHandlerIdlenessSource implements DriverIdlenessSource {
   private static final IdleMessage IDLE_MESSAGE =
       new IdleMessage("EventHandlers", "All events have been processed.", true);
   private static final IdleMessage NOT_IDLE_MESSAGE =
-      new IdleMessage("EventHandlers", "Some events are still in flight.", true);
+      new IdleMessage("EventHandlers", "Some events are still in flight.", false);
 
   private final InjectionFuture<Evaluators> evaluators;
   private final InjectionFuture<DriverIdleManager> driverIdleManager;
