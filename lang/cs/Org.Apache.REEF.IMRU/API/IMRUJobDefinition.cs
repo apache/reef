@@ -146,7 +146,7 @@ namespace Org.Apache.REEF.IMRU.API
         /// <summary>
         /// Configuration of partitioned dataset
         /// </summary>
-        internal IConfiguration PartitionedDatasetConfgiuration
+        internal IConfiguration PartitionedDatasetConfiguration
         {
             get { return _partitionedDatasetConfiguration; }
         }
