@@ -34,6 +34,7 @@ import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.wake.EventHandler;
 
 import javax.inject.Inject;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -128,7 +129,9 @@ public final class EvaluatorMessageDispatcher {
 
       @Parameter(EvaluatorDispatcherThreads.class) final int numberOfThreads,
       @Parameter(EvaluatorManager.EvaluatorIdentifier.class) final String evaluatorIdentifier,
-      final DriverExceptionHandler driverExceptionHandler) {
+      final DriverExceptionHandler driverExceptionHandler,
+      final IdlenessCallbackEventHandlerFactory idlenessCallbackEventHandlerFactory
+  ) {
 
     this.serviceDispatcher = new DispatchingEStage(driverExceptionHandler, numberOfThreads, evaluatorIdentifier);
     this.applicationDispatcher = new DispatchingEStage(this.serviceDispatcher);
@@ -162,8 +165,6 @@ public final class EvaluatorMessageDispatcher {
     this.serviceDispatcher.register(FailedTask.class, serviceTaskExceptionEventHandlers);
 
     // Application Evaluator event handlers
-    this.applicationDispatcher.register(FailedEvaluator.class, evaluatorFailedHandlers);
-    this.applicationDispatcher.register(CompletedEvaluator.class, evaluatorCompletedHandlers);
     this.applicationDispatcher.register(AllocatedEvaluator.class, evaluatorAllocatedHandlers);
 
     // Service Evaluator event handlers
@@ -180,6 +181,20 @@ public final class EvaluatorMessageDispatcher {
     this.driverRestartServiceDispatcher.register(RunningTask.class, serviceDriverRestartTaskRunningHandlers);
     this.driverRestartServiceDispatcher.register(ActiveContext.class, serviceDriverRestartActiveContextHandlers);
     this.driverRestartServiceDispatcher.register(DriverRestartCompleted.class, serviceDriverRestartCompletedHandlers);
+
+    final Set<EventHandler<CompletedEvaluator>> evaluatorCompletedCallbackHandlers = new HashSet<>();
+    for (final EventHandler<CompletedEvaluator> evaluatorCompletedHandler : evaluatorCompletedHandlers) {
+      evaluatorCompletedCallbackHandlers.add(
+          idlenessCallbackEventHandlerFactory.createIdlenessCallbackWrapperHandler(evaluatorCompletedHandler));
+    }
+    this.applicationDispatcher.register(CompletedEvaluator.class, evaluatorCompletedCallbackHandlers);
+
+    final Set<EventHandler<FailedEvaluator>> evaluatorFailedCallbackHandlers = new HashSet<>();
+    for (final EventHandler<FailedEvaluator> evaluatorFailedHandler : evaluatorFailedHandlers) {
+      evaluatorFailedCallbackHandlers.add(
+          idlenessCallbackEventHandlerFactory.createIdlenessCallbackWrapperHandler(evaluatorFailedHandler));
+    }
+    this.applicationDispatcher.register(FailedEvaluator.class, evaluatorFailedCallbackHandlers);
 
     LOG.log(Level.FINE, "Instantiated 'EvaluatorMessageDispatcher'");
   }
