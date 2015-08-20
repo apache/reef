@@ -23,7 +23,7 @@ import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.driver.evaluator.CLRProcessFactory;
 import org.apache.reef.driver.parameters.EvaluatorConfigurationProviders;
 import org.apache.reef.driver.restart.DriverRestartManager;
-import org.apache.reef.driver.restart.DriverRestartUtilities;
+import org.apache.reef.driver.restart.EvaluatorRestartState;
 import org.apache.reef.tang.ConfigurationProvider;
 import org.apache.reef.driver.context.ActiveContext;
 import org.apache.reef.driver.context.FailedContext;
@@ -36,7 +36,6 @@ import org.apache.reef.exception.EvaluatorKilledByResourceManagerException;
 import org.apache.reef.io.naming.Identifiable;
 import org.apache.reef.proto.EvaluatorRuntimeProtocol;
 import org.apache.reef.proto.ReefServiceProtos;
-import org.apache.reef.runtime.common.DriverRestartCompleted;
 import org.apache.reef.driver.evaluator.EvaluatorProcess;
 import org.apache.reef.runtime.common.driver.api.ResourceLaunchEvent;
 import org.apache.reef.runtime.common.driver.api.ResourceReleaseEventImpl;
@@ -323,16 +322,19 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
     }
   }
 
+  /**
+   * Processes an evaluator heartbeat message.
+   */
   public void onEvaluatorHeartbeatMessage(
       final RemoteMessage<EvaluatorRuntimeProtocol.EvaluatorHeartbeatProto> evaluatorHeartbeatProtoRemoteMessage) {
 
     final EvaluatorRuntimeProtocol.EvaluatorHeartbeatProto evaluatorHeartbeatProto =
         evaluatorHeartbeatProtoRemoteMessage.getMessage();
-    LOG.log(Level.FINEST, "Evaluator heartbeat: {0}", evaluatorHeartbeatProto);
+    LOG.log(Level.WARNING, "Evaluator heartbeat: {0}", evaluatorHeartbeatProto);
 
     synchronized (this.evaluatorDescriptor) {
       if (this.stateManager.isDoneOrFailedOrKilled()) {
-        LOG.log(Level.FINE, "Ignoring an heartbeat received for Evaluator {0} which is already in state {1}.",
+        LOG.log(Level.WARNING, "Ignoring an heartbeat received for Evaluator {0} which is already in state {1}.",
             new Object[]{this.getId(), this.stateManager});
         return;
       }
@@ -340,30 +342,34 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
       this.sanityChecker.check(evaluatorId, evaluatorHeartbeatProto.getTimestamp());
       final String evaluatorRID = evaluatorHeartbeatProtoRemoteMessage.getIdentifier().toString();
 
-      // first message from a running evaluator trying to re-establish communications
-      if (DriverRestartUtilities.isRestartAndIsPreviousEvaluator(driverRestartManager, evaluatorId)) {
+      final EvaluatorRestartState evaluatorRestartState = driverRestartManager.getEvaluatorRestartState(evaluatorId);
+
+      /*
+       * First message from a running evaluator. The evaluator can be a new evaluator or be a previous evaluator
+       * from a separate application attempt. In the case of a previous evaluator, if the restart period has not
+       * yet expired, we should register it and trigger context active and task events. If the restart period has
+       * expired, we should return immediately after setting its remote ID in order to close it.
+       */
+      if (this.stateManager.isSubmitted() ||
+          evaluatorRestartState == EvaluatorRestartState.REPORTED ||
+          evaluatorRestartState == EvaluatorRestartState.EXPIRED) {
+
         this.evaluatorControlHandler.setRemoteID(evaluatorRID);
-        this.stateManager.setRunning();
 
-        final boolean restartCompleted =
-            this.driverRestartManager.onRecoverEvaluatorIsRestartComplete(this.evaluatorId);
-
-        LOG.log(Level.FINE, "Received recovery heartbeat from evaluator {0}.", this.evaluatorId);
-
-        if (restartCompleted) {
-          this.messageDispatcher.onDriverRestartCompleted(new DriverRestartCompleted(System.currentTimeMillis()));
-          LOG.log(Level.INFO, "All expected evaluators checked in.");
-        } else {
-          LOG.log(Level.INFO, "Expecting [{0}], [{1}] have checked in.",
-              new Object[]{this.driverRestartManager.getPreviousEvaluatorIds(),
-                  this.driverRestartManager.getRecoveredEvaluatorIds()});
+        if (evaluatorRestartState == EvaluatorRestartState.EXPIRED) {
+          // Don't do anything if evaluator has expired. Close it immediately upon exit of this method.
+          return;
         }
-      }
 
-      // If this is the first message from this Evaluator, register it.
-      if (this.stateManager.isSubmitted()) {
-        this.evaluatorControlHandler.setRemoteID(evaluatorRID);
         this.stateManager.setRunning();
+
+        if (evaluatorRestartState == EvaluatorRestartState.REPORTED) {
+          // Set state to reregistered since its heartbeat has been registered with the driver.
+          this.driverRestartManager.getPreviousEvaluators().get(evaluatorId)
+              .setState(EvaluatorRestartState.REREGISTERED);
+          LOG.log(Level.FINE, "Recovered evaluator {0} has reregistered heartbeat.", this.evaluatorId);
+        }
+
         LOG.log(Level.FINEST, "Evaluator {0} is running", this.evaluatorId);
       }
 
@@ -492,7 +498,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
           taskStatusProto.getState() == ReefServiceProtos.State.FAILED ||
           taskStatusProto.getState() == ReefServiceProtos.State.RUNNING ||
           // for task from recovered evaluators
-          DriverRestartUtilities.isRestartAndIsPreviousEvaluator(driverRestartManager, evaluatorId)) {
+          driverRestartManager.getEvaluatorRestartState(evaluatorId) == EvaluatorRestartState.REREGISTERED) {
 
         // [REEF-308] exposes a bug where the .NET evaluator does not send its states in the right order
         // [REEF-289] is a related item which may fix the issue

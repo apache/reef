@@ -62,7 +62,7 @@ public final class DriverStartHandler implements EventHandler<StartTime> {
 
   @Override
   public void onNext(final StartTime startTime) {
-    if (this.driverRestartManager.isRestart()) {
+    if (this.driverRestartManager.detectRestart()) {
       this.onRestart(startTime);
     } else {
       this.onStart(startTime);

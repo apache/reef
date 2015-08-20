@@ -20,8 +20,13 @@ package org.apache.reef.runtime.common.driver.evaluator;
 
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
+import org.apache.reef.driver.restart.DriverRestartManager;
+import org.apache.reef.driver.restart.EvaluatorRestartInfo;
+import org.apache.reef.driver.restart.EvaluatorRestartState;
 import org.apache.reef.proto.EvaluatorRuntimeProtocol;
 import org.apache.reef.proto.ReefServiceProtos;
+import org.apache.reef.runtime.common.driver.resourcemanager.ResourceStatusEvent;
+import org.apache.reef.runtime.common.driver.resourcemanager.ResourceStatusEventImpl;
 import org.apache.reef.util.Optional;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.remote.RemoteMessage;
@@ -40,11 +45,15 @@ public final class EvaluatorHeartbeatHandler
   private static final Logger LOG = Logger.getLogger(EvaluatorHeartbeatHandler.class.getName());
   private final Evaluators evaluators;
   private final EvaluatorManagerFactory evaluatorManagerFactory;
+  private final DriverRestartManager driverRestartManager;
 
   @Inject
-  EvaluatorHeartbeatHandler(final Evaluators evaluators, final EvaluatorManagerFactory evaluatorManagerFactory) {
+  EvaluatorHeartbeatHandler(final Evaluators evaluators,
+                            final EvaluatorManagerFactory evaluatorManagerFactory,
+                            final DriverRestartManager driverRestartManager) {
     this.evaluators = evaluators;
     this.evaluatorManagerFactory = evaluatorManagerFactory;
+    this.driverRestartManager = driverRestartManager;
   }
 
   @Override
@@ -62,15 +71,63 @@ public final class EvaluatorHeartbeatHandler
     if (evaluatorManager.isPresent()) {
       evaluatorManager.get().onEvaluatorHeartbeatMessage(evaluatorHeartbeatMessage);
     } else {
-      final StringBuilder message = new StringBuilder("Contact from unknown Evaluator with identifier '");
-      message.append(evaluatorId);
-      if (heartbeat.hasEvaluatorStatus()) {
-        message.append("' with state '");
-        message.append(status.getState());
+      // Check for is restarting so that if the restart is complete we ignore dead evaluator heartbeats.
+      if (driverRestartManager.isRestarting() &&
+          driverRestartManager.getEvaluatorRestartState(evaluatorId) == EvaluatorRestartState.EXPECTED) {
+        if (this.driverRestartManager.onRecoverEvaluator(evaluatorId)) {
+          LOG.log(Level.FINE, "Evaluator " + evaluatorId + " has reported back to the driver after restart.");
+
+          final EvaluatorManager recoveredEvaluatorManager =
+              recoverEvaluatorManager(evaluatorId, status, evaluatorHeartbeatMessage);
+
+          this.evaluators.put(recoveredEvaluatorManager);
+        } else {
+          LOG.log(Level.FINE, "Evaluator " + evaluatorId + " has already been recovered.");
+        }
+      } else if (driverRestartManager.getEvaluatorRestartState(evaluatorId) == EvaluatorRestartState.EXPIRED){
+        LOG.log(Level.FINE, "Expired evaluator " + evaluatorId + " has reported back to the driver after restart.");
+
+        // Create the evaluator manager but don't trigger anything. Immediately close it.
+        final EvaluatorManager recoveredEvaluatorManager =
+            recoverEvaluatorManager(evaluatorId, status, evaluatorHeartbeatMessage);
+
+        recoveredEvaluatorManager.close();
+      } else {
+        final StringBuilder message = new StringBuilder("Contact from unknown Evaluator with identifier '");
+        message.append(evaluatorId);
+        if (heartbeat.hasEvaluatorStatus()) {
+          message.append("' with state '");
+          message.append(status.getState());
+        }
+        message.append('\'');
+        throw new RuntimeException(message.toString());
       }
-      message.append('\'');
-      throw new RuntimeException(message.toString());
     }
     LOG.log(Level.FINEST, "TIME: End Heartbeat {0}", evaluatorId);
+  }
+
+  /**
+   * Creates an EvaluatorManager for an expired evaluator.
+   * {@link EvaluatorManager#onEvaluatorHeartbeatMessage(RemoteMessage)} should not
+   * do anything if driver restart period has expired. Expired evaluators should be immediately closed
+   * upon return of this function, while evaluators that have not yet expired should be recorded and added
+   * to the {@link Evaluators} object.
+   */
+  private EvaluatorManager recoverEvaluatorManager(
+      final String evaluatorId, final ReefServiceProtos.EvaluatorStatusProto status,
+      final RemoteMessage<EvaluatorRuntimeProtocol.EvaluatorHeartbeatProto> evaluatorHeartbeatMessage) {
+    final ResourceStatusEvent recoveredResourceStatusEvent =
+        ResourceStatusEventImpl.newBuilder().setIdentifier(evaluatorId).setIsFromPreviousDriver(true)
+            .setState(status.getState()).build();
+
+    final EvaluatorRestartInfo recoveredEvaluatorInfo = this.driverRestartManager.getPreviousEvaluators()
+        .get(evaluatorId);
+
+    final EvaluatorManager recoveredEvaluatorManager = evaluatorManagerFactory
+        .getNewEvaluatorManagerForRecoveredEvaluatorDuringDriverRestart(
+            recoveredEvaluatorInfo.getEvaluatorInfo(), recoveredResourceStatusEvent);
+
+    recoveredEvaluatorManager.onEvaluatorHeartbeatMessage(evaluatorHeartbeatMessage);
+    return recoveredEvaluatorManager;
   }
 }

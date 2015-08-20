@@ -32,7 +32,7 @@ namespace Org.Apache.REEF.Driver
     /// <summary>
     /// Utility class that generates the class hierarchy for the assemblies in the `global` folder.
     /// </summary>
-    internal sealed class ClassHierarchyGeneratingDriverStartObserver : IObserver<IDriverStarted>
+    internal sealed class ClassHierarchyGeneratingDriverStartObserver : IObserver<IDriverStarted>, IObserver<IDriverRestarted>
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(ClassHierarchyGeneratingDriverStartObserver));
 
@@ -52,18 +52,16 @@ namespace Org.Apache.REEF.Driver
         /// <param name="value"></param>
         public void OnNext(IDriverStarted value)
         {
-            if (_assemblies != null && _assemblies.Count > 0)
-            {
-                //adding system level assemblies
-                _assemblies.Add(typeof(IDriver).Assembly.GetName().Name);
-                _assemblies.Add(typeof(ITask).Assembly.GetName().Name);
+            GenerateClassHierarchyBin();
+        }
 
-                ClrHandlerHelper.GenerateClassHierarchy(_assemblies);
-            }
-            else
-            {
-                ClrHandlerHelper.GenerateClassHierarchy(GetAssembliesInGlobalFolder());
-            }
+        /// <summary>
+        /// Generates the class hierarchy file
+        /// </summary>
+        /// <param name="value"></param>
+        public void OnNext(IDriverRestarted value)
+        {
+            GenerateClassHierarchyBin();
         }
 
         /// <summary>
@@ -81,6 +79,25 @@ namespace Org.Apache.REEF.Driver
         public void OnCompleted()
         {
             // Silently ignored, assuming that a user-bound Observer will catch it.
+        }
+
+        /// <summary>
+        /// Generates the clr class hierarchy.
+        /// </summary>
+        private void GenerateClassHierarchyBin()
+        {
+            if (_assemblies != null && _assemblies.Count > 0)
+            {
+                //adding system level assemblies
+                _assemblies.Add(typeof(IDriver).Assembly.GetName().Name);
+                _assemblies.Add(typeof(ITask).Assembly.GetName().Name);
+
+                ClrHandlerHelper.GenerateClassHierarchy(_assemblies);
+            }
+            else
+            {
+                ClrHandlerHelper.GenerateClassHierarchy(GetAssembliesInGlobalFolder());
+            }
         }
 
         /// <summary>

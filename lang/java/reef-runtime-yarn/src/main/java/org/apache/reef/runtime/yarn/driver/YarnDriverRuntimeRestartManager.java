@@ -27,12 +27,15 @@ import org.apache.reef.annotations.Unstable;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.annotations.audience.RuntimeAuthor;
+import org.apache.reef.driver.catalog.EvaluatorInfo;
 import org.apache.reef.driver.restart.DriverRuntimeRestartManager;
+import org.apache.reef.driver.restart.EvaluatorRestartCollection;
 import org.apache.reef.driver.restart.EvaluatorRestartInfo;
 import org.apache.reef.proto.ReefServiceProtos;
 import org.apache.reef.runtime.common.driver.EvaluatorPreserver;
 import org.apache.reef.runtime.common.driver.resourcemanager.ResourceStatusEventImpl;
 import org.apache.reef.runtime.yarn.driver.parameters.YarnEvaluatorPreserver;
+import org.apache.reef.runtime.yarn.util.YarnUtilities;
 import org.apache.reef.tang.annotations.Parameter;
 
 import javax.inject.Inject;
@@ -55,16 +58,20 @@ public final class YarnDriverRuntimeRestartManager implements DriverRuntimeResta
   private final EvaluatorPreserver evaluatorPreserver;
   private final ApplicationMasterRegistration registration;
   private final REEFEventHandlers reefEventHandlers;
+  private final YarnContainerManager containerManager;
+
   private Set<Container> previousContainers;
 
   @Inject
   private YarnDriverRuntimeRestartManager(@Parameter(YarnEvaluatorPreserver.class)
                                           final EvaluatorPreserver evaluatorPreserver,
                                           final REEFEventHandlers reefEventHandlers,
-                                          final ApplicationMasterRegistration registration){
+                                          final ApplicationMasterRegistration registration,
+                                          final YarnContainerManager yarnContainerManager){
     this.registration = registration;
     this.evaluatorPreserver = evaluatorPreserver;
     this.reefEventHandlers = reefEventHandlers;
+    this.containerManager = yarnContainerManager;
     this.previousContainers = null;
   }
 
@@ -75,7 +82,7 @@ public final class YarnDriverRuntimeRestartManager implements DriverRuntimeResta
    * @return true if the application master is a restarted instance, false otherwise.
    */
   @Override
-  public boolean isRestart() {
+  public boolean hasRestarted() {
     final String containerIdString = getContainerIdString();
 
     if (containerIdString == null) {
@@ -138,6 +145,9 @@ public final class YarnDriverRuntimeRestartManager implements DriverRuntimeResta
       if (this.previousContainers == null) {
         this.previousContainers = new HashSet<>();
       }
+
+      // Register with YarnContainerManager in order to properly release containers later.
+      this.containerManager.onContainersRecovered(this.previousContainers);
     }
   }
 
@@ -152,14 +162,15 @@ public final class YarnDriverRuntimeRestartManager implements DriverRuntimeResta
   }
 
   /**
-   * Used by tDriverRestartManager. Gets the list of previous containers from the resource manager,
+   * Used by {@link org.apache.reef.driver.restart.DriverRestartManager}.
+   * Gets the list of previous containers from the resource manager,
    * compares that list to the YarnDriverRuntimeRestartManager's own list based on the evalutor preserver,
    * and determine which evaluators are alive and which have failed during restart.
    * @return EvaluatorRestartInfo, the object encapsulating alive and failed evaluator IDs.
    */
   @Override
-  public EvaluatorRestartInfo getAliveAndFailedEvaluators() {
-    final Set<String> recoveredEvaluators = new HashSet<>();
+  public EvaluatorRestartCollection getAliveAndFailedEvaluators() {
+    final Map<String, EvaluatorRestartInfo> recoveredEvaluators = new HashMap<>();
     final Set<String> failedEvaluators = new HashSet<>();
 
     this.initializeListOfPreviousContainers();
@@ -200,11 +211,17 @@ public final class YarnDriverRuntimeRestartManager implements DriverRuntimeResta
           throw new RuntimeException("Not expecting container " + container.getId().toString());
         }
 
-        recoveredEvaluators.add(container.getId().toString());
+        final EvaluatorRestartInfo restartInfo = new EvaluatorRestartInfo(new EvaluatorInfo(
+                container.getNodeId().toString(),
+                YarnUtilities.getRackName(container),
+                container.getResource().getMemory(),
+                container.getResource().getVirtualCores()));
+
+        recoveredEvaluators.put(container.getId().toString(), restartInfo);
       }
     }
 
-    return new EvaluatorRestartInfo(recoveredEvaluators, failedEvaluators);
+    return new EvaluatorRestartCollection(recoveredEvaluators, failedEvaluators);
   }
 
   /**

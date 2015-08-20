@@ -21,6 +21,7 @@ package org.apache.reef.runtime.common.driver.evaluator;
 import org.apache.commons.lang3.Validate;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
+import org.apache.reef.driver.catalog.EvaluatorInfo;
 import org.apache.reef.driver.catalog.NodeDescriptor;
 import org.apache.reef.driver.catalog.ResourceCatalog;
 import org.apache.reef.driver.evaluator.EvaluatorProcessFactory;
@@ -127,11 +128,45 @@ public final class EvaluatorManagerFactory {
    * @param resourceStatusEvent
    * @return an EvaluatorManager for the user to call fail on.
    */
-  public EvaluatorManager createForEvaluatorFailedDuringDriverRestart(final ResourceStatusEvent resourceStatusEvent) {
+  public EvaluatorManager getNewEvaluatorManagerForEvaluatorFailedDuringDriverRestart(
+      final ResourceStatusEvent resourceStatusEvent) {
     if (!resourceStatusEvent.getIsFromPreviousDriver().get()) {
       throw new RuntimeException("Invalid resourceStatusEvent, must be status for resource from previous Driver.");
     }
     return getNewEvaluatorManagerInstance(resourceStatusEvent.getIdentifier(),
         new EvaluatorDescriptorImpl(null, 128, 1, processFactory.newEvaluatorProcess()));
+  }
+
+  /**
+   * Instantiates a new EvaluatorManager for a recovered evaluator during driver restart.
+   * Does not fire an EvaluatorAllocatedEvent.
+   * @param resourceStatusEvent
+   * @return a new EvaluatorManager for the recovered evaluator to report to.
+   */
+  public EvaluatorManager getNewEvaluatorManagerForRecoveredEvaluatorDuringDriverRestart(
+      final EvaluatorInfo evaluatorInfo,
+      final ResourceStatusEvent resourceStatusEvent) {
+    NodeDescriptor nodeDescriptor = this.resourceCatalog.getNode(evaluatorInfo.getNodeId());
+
+    if (nodeDescriptor == null) {
+      final String nodeId = evaluatorInfo.getNodeId();
+      LOG.log(Level.WARNING, "Node {} is not in our catalog, adding it", nodeId);
+      final String[] hostNameAndPort = nodeId.split(":");
+      Validate.isTrue(hostNameAndPort.length == 2);
+      final NodeDescriptorEvent nodeDescriptorEvent = NodeDescriptorEventImpl.newBuilder().setIdentifier(nodeId)
+          .setHostName(hostNameAndPort[0]).setPort(Integer.parseInt(hostNameAndPort[1]))
+          .setMemorySize(evaluatorInfo.getMemoryInMegaBytes())
+          .setRackName(evaluatorInfo.getRackName()).build();
+
+      // downcasting not to change the API
+      ((ResourceCatalogImpl) resourceCatalog).handle(nodeDescriptorEvent);
+      nodeDescriptor = this.resourceCatalog.getNode(nodeId);
+    }
+
+    final EvaluatorDescriptorImpl evaluatorDescriptor = new EvaluatorDescriptorImpl(nodeDescriptor,
+        evaluatorInfo.getMemoryInMegaBytes(), evaluatorInfo.getNumberOfCores(),
+        processFactory.newEvaluatorProcess());
+
+    return getNewEvaluatorManagerInstance(resourceStatusEvent.getIdentifier(), evaluatorDescriptor);
   }
 }

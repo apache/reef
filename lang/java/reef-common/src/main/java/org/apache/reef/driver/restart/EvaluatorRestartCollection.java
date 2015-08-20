@@ -21,42 +21,38 @@ package org.apache.reef.driver.restart;
 import org.apache.reef.annotations.Unstable;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
-import org.apache.reef.driver.catalog.EvaluatorInfo;
+
+import java.util.Collections;
+import java.util.Map;
+import java.util.Set;
 
 /**
- * The restart information on an evaluator. Contains state of the restart progress and
- * the information to reconstruct the EvaluatorManager.
+ * The encapsulating class for alive and failed evaluators on driver restart.
  */
 @Private
 @DriverSide
 @Unstable
-public final class EvaluatorRestartInfo {
-  private final EvaluatorInfo evaluatorInfo;
-  private EvaluatorRestartState state;
+public class EvaluatorRestartCollection {
+  private final Map<String, EvaluatorRestartInfo> aliveEvaluators;
+  private final Set<String> failedEvaluators;
 
-  public EvaluatorRestartInfo(final EvaluatorInfo evaluatorInfo) {
-    this.evaluatorInfo = evaluatorInfo;
-    this.state = EvaluatorRestartState.EXPECTED;
+  public EvaluatorRestartCollection(final Map<String, EvaluatorRestartInfo> aliveEvaluators,
+                                    final Set<String> failedEvaluators) {
+    this.aliveEvaluators = Collections.unmodifiableMap(aliveEvaluators);
+    this.failedEvaluators = Collections.unmodifiableSet(failedEvaluators);
   }
 
   /**
-   * Sets the restart progress state.
+   * @return the unmodifiable map of evaluator IDs to their restart information for alive evaluators on driver restart.
    */
-  public void setState(final EvaluatorRestartState evaluatorRestartState) {
-    this.state = evaluatorRestartState;
+  public Map<String, EvaluatorRestartInfo> getAliveEvaluators() {
+    return this.aliveEvaluators;
   }
 
   /**
-   * @return the restart progress state.
+   * @return the set of evaluator IDs for failed evaluators on driver restart. The returned set is unmodifiable.
    */
-  public EvaluatorRestartState getState() {
-    return this.state;
-  }
-
-  /**
-   * @return the information needed to reconstruct the EvaluatorManager.
-   */
-  public EvaluatorInfo getEvaluatorInfo() {
-    return this.evaluatorInfo;
+  public Set<String> getFailedEvaluators() {
+    return this.failedEvaluators;
   }
 }

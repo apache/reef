@@ -40,7 +40,7 @@ public interface DriverRuntimeRestartManager {
   /**
    * Determines whether or not the driver has been restarted. The default implementation always returns false.
    */
-  boolean isRestart();
+  boolean hasRestarted();
 
   /**
    * Records the evaluators when it is allocated.
@@ -58,7 +58,7 @@ public interface DriverRuntimeRestartManager {
    * Gets the sets of alive and failed evaluators based on the runtime implementation.
    * @return EvaluatorRestartInfo, which encapsulates the alive and failed set of evaluator IDs.
    */
-  EvaluatorRestartInfo getAliveAndFailedEvaluators();
+  EvaluatorRestartCollection getAliveAndFailedEvaluators();
 
   /**
    * Informs the necessary components about failed evaluators. The implementation is runtime dependent.
