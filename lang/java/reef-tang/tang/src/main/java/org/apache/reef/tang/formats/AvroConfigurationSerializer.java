@@ -57,6 +57,8 @@ public final class AvroConfigurationSerializer implements ConfigurationSerialize
    * Copied from <code>org.apache.avro.io.JsonDecoder.CHARSET</code>
    */
   private static final String JSON_CHARSET = "ISO-8859-1";
+  public static final String JAVA = "Java";
+  public static final String CS = "Cs";
 
   @Inject
   public AvroConfigurationSerializer() {
@@ -185,9 +187,8 @@ public final class AvroConfigurationSerializer implements ConfigurationSerialize
     if (configuration.getBoundLists() != null && !configuration.getBoundLists().isEmpty()) {
       throw new NotImplementedException("List serialization/deserialization is not supported");
     }
-    
 
-    return AvroConfiguration.newBuilder().setBindings(configurationEntries).build();
+    return AvroConfiguration.newBuilder().setLanguage(JAVA).setBindings(configurationEntries).build();
   }
 
   @Override
