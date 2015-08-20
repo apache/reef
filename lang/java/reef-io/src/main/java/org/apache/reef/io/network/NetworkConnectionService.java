@@ -70,27 +70,27 @@ public interface NetworkConnectionService extends AutoCloseable {
 
   /**
    * Registers an instance of ConnectionFactory corresponding to the connectionFactoryId.
-   * Binds Codec, EventHandler, LinkListener and endPointId to the ConnectionFactory.
+   * Binds Codec, EventHandler, LinkListener and localEndPointId to the ConnectionFactory.
    * ConnectionFactory can create multiple connections between other NetworkConnectionServices.
-   * The connectionFactoryId is used to distinguish the type of connection and the endPointId
+   * The connectionFactoryId is used to distinguish the type of connection and the localEndPointId
    * is the contact point, which is registered to NameServer through this method.
    *
    * @param connectionFactoryId a connection factory id
    * @param codec a codec for type <T>
    * @param eventHandler an event handler for type <T>
    * @param linkListener a link listener
-   * @param endPointId an end point id
+   * @param localEndPointId a local end point id
    * @return the registered connection factory
    */
   <T> ConnectionFactory<T> registerConnectionFactory(final Identifier connectionFactoryId,
                                      final Codec<T> codec,
                                      final EventHandler<Message<T>> eventHandler,
                                      final LinkListener<Message<T>> linkListener,
-                                     final Identifier endPointId);
+                                     final Identifier localEndPointId);
 
   /**
    * Unregisters a connectionFactory corresponding to the connectionFactoryId
-   * and removes the endPointID from NameServer.
+   * and removes the localEndPointID of the connection factory from NameServer.
    * @param connectionFactoryId a connection factory id
    */
   void unregisterConnectionFactory(final Identifier connectionFactoryId);
@@ -113,7 +113,8 @@ public interface NetworkConnectionService extends AutoCloseable {
    * Registers a network connection service identifier.
    * This can be used for destination identifier
    * @param ncsId network connection service identifier
-   * @deprecated in 0.13.
+   * @deprecated in 0.13. Use registerConnectionFactory(Identifier, Codec, EventHandler, LinkListener, Identifier)
+   * instead.
    */
   @Deprecated
   void registerId(final Identifier ncsId);
@@ -128,7 +129,7 @@ public interface NetworkConnectionService extends AutoCloseable {
 
   /**
    * Gets a network connection service client id which is equal to the registered id.
-   * @deprecated in 0.13. Use ConnectionFactory.getEndPointId instead.
+   * @deprecated in 0.13. Use ConnectionFactory.getLocalEndPointId instead.
    */
   @Deprecated
   Identifier getNetworkConnectionServiceId();

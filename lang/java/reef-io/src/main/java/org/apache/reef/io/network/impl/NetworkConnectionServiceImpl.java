@@ -174,7 +174,7 @@ public final class NetworkConnectionServiceImpl implements NetworkConnectionServ
       final Codec<T> codec,
       final EventHandler<Message<T>> eventHandler,
       final LinkListener<Message<T>> linkListener,
-      final Identifier endPointId) {
+      final Identifier localEndPointId) {
     if (isClosed.get()) {
       throw new NetworkRuntimeException("Unable to register new ConnectionFactory to closed NetworkConnectionService");
     }
@@ -185,8 +185,8 @@ public final class NetworkConnectionServiceImpl implements NetworkConnectionServ
     }
 
     final NetworkConnectionFactory<T> connectionFactory = new NetworkConnectionFactory<>(
-        this, connectionFactoryId, codec, eventHandler, linkListener, endPointId);
-    nameServiceRegisteringStage.onNext(new Tuple<>(endPointId, (InetSocketAddress) transport.getLocalAddress()));
+        this, connectionFactoryId, codec, eventHandler, linkListener, localEndPointId);
+    nameServiceRegisteringStage.onNext(new Tuple<>(localEndPointId, (InetSocketAddress) transport.getLocalAddress()));
 
     if (connFactoryMap.putIfAbsent(id, connectionFactory) != null) {
       throw new NetworkRuntimeException("ConnectionFactory " + connectionFactoryId + " was already registered.");
@@ -198,13 +198,9 @@ public final class NetworkConnectionServiceImpl implements NetworkConnectionServ
   @Override
   public void unregisterConnectionFactory(final Identifier connFactoryId) {
     final String id = connFactoryId.toString();
-    final ConnectionFactory  connFactory = connFactoryMap.get(id);
+    final ConnectionFactory  connFactory = connFactoryMap.remove(id);
     if (connFactory != null) {
-      final ConnectionFactory cf = connFactoryMap.remove(id);
-      nameServiceUnregisteringStage.onNext(connFactoryId);
-      if (cf == null) {
-        LOG.log(Level.WARNING, "ConnectionFactory of {0} is null", id);
-      }
+      nameServiceUnregisteringStage.onNext(connFactory.getLocalEndPointId());
     } else {
       LOG.log(Level.WARNING, "ConnectionFactory of {0} is null", id);
     }
@@ -242,7 +238,6 @@ public final class NetworkConnectionServiceImpl implements NetworkConnectionServ
       }
       return transport.open(address, nsCodec, nsLinkListener);
     } catch(final Exception e) {
-      e.printStackTrace();
       throw new NetworkException(e);
     }
   }
@@ -261,8 +256,8 @@ public final class NetworkConnectionServiceImpl implements NetworkConnectionServ
   }
 
   /**
-   * @deprecated in 0.13.
    * @param ncsId network connection service identifier
+   * @deprecated in 0.13.
    */
   @Deprecated
   @Override
@@ -274,8 +269,8 @@ public final class NetworkConnectionServiceImpl implements NetworkConnectionServ
   }
 
   /**
-   * @deprecated in 0.13.
    * @return the identifier of this NetworkConnectionService
+   * @deprecated in 0.13.
    */
   @Deprecated
   @Override
@@ -286,13 +281,12 @@ public final class NetworkConnectionServiceImpl implements NetworkConnectionServ
   @Override
   public void close() throws Exception {
     if (isClosed.compareAndSet(false , true)) {
+      unregisterAllConnectionFactories();
       LOG.log(Level.FINE, "Shutting down");
       this.nameServiceRegisteringStage.close();
       this.nameServiceUnregisteringStage.close();
+      this.nameResolver.close();
       this.transport.close();
-      unregisterAllConnectionFactories();
-    } else {
-      throw new NetworkRuntimeException("Multiple requests to close the NetworkConnectionService");
     }
   }
 

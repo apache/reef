@@ -41,7 +41,7 @@ final class NetworkConnectionFactory<T> implements ConnectionFactory<T> {
   private final Codec<T> eventCodec;
   private final EventHandler<Message<T>> eventHandler;
   private final LinkListener<Message<T>> eventListener;
-  private final Identifier endPointId;
+  private final Identifier localEndPointId;
   private final NetworkConnectionServiceImpl networkService;
 
   NetworkConnectionFactory(
@@ -50,14 +50,14 @@ final class NetworkConnectionFactory<T> implements ConnectionFactory<T> {
       final Codec<T> eventCodec,
       final EventHandler<Message<T>> eventHandler,
       final LinkListener<Message<T>> eventListener,
-      final Identifier endPointId) {
+      final Identifier localEndPointId) {
     this.networkService = networkService;
     this.connectionMap = new ConcurrentHashMap<>();
     this.connectionFactoryId = connectionFactoryId;
     this.eventCodec = eventCodec;
     this.eventHandler = eventHandler;
     this.eventListener = eventListener;
-    this.endPointId = endPointId;
+    this.localEndPointId = localEndPointId;
   }
 
   /**
@@ -86,16 +86,16 @@ final class NetworkConnectionFactory<T> implements ConnectionFactory<T> {
   }
 
   @Override
-  public Identifier getEndPointId() {
-    return endPointId;
+  public Identifier getLocalEndPointId() {
+    return localEndPointId;
   }
 
   Identifier getSrcId() {
-    // TODO : Change to always return the endPointId when the deprecated getNetworkConnectionServiceId is removed.
-    if (endPointId == null) {
+    // TODO : Change to always return the localEndPointId when the deprecated getNetworkConnectionServiceId is removed.
+    if (localEndPointId == null) {
       return this.networkService.getNetworkConnectionServiceId();
     } else {
-      return endPointId;
+      return localEndPointId;
     }
   }
 

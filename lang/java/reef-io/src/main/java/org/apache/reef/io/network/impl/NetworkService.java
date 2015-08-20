@@ -185,7 +185,7 @@ public final class NetworkService<T> implements Stage, ConnectionFactory<T> {
   }
 
   @Override
-  public Identifier getEndPointId() {
+  public Identifier getLocalEndPointId() {
     throw new UnsupportedOperationException();
   }
 }
