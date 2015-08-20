@@ -226,7 +226,8 @@ namespace Org.Apache.REEF.Driver
                     .BindNamedParameter(GenericType<DriverBridgeConfigurationOptions.RestartEnabled>.Class, RestartEnabled)
                     .Build()
                     // TODO: Move this up
-                    .Set(OnDriverStarted, GenericType<ClassHierarchyGeneratingDriverStartObserver>.Class);
+                    .Set(OnDriverStarted, GenericType<ClassHierarchyGeneratingDriverStartObserver>.Class)
+                    .Set(OnDriverRestarted, GenericType<ClassHierarchyGeneratingDriverStartObserver>.Class);
             }
         }
     }
