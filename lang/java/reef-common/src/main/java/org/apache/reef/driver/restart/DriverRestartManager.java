@@ -53,19 +53,31 @@ public final class DriverRestartManager {
   }
 
   /**
-   * @return Whether or not the driver instance is a restarted instance.
+   * Triggers the state machine if the application is a restart instance. Returns true
+   * @return true if the application is a restart instance.
+   * Can be already done with restart or in the process of restart.
    */
-  public synchronized boolean isRestart() {
-    if (this.state.isRestart()) {
-      return true;
-    }
-
-    if (driverRuntimeRestartManager.isRestart()) {
+  public synchronized boolean detectRestart() {
+    if (!this.state.hasRestarted() && driverRuntimeRestartManager.hasRestarted()) {
       this.state = DriverRestartState.RestartBegan;
-      return true;
     }
 
-    return false;
+    return this.state.hasRestarted();
+  }
+
+  /**
+   * @return true if the application is a restart instance.
+   * Can be already done with restart or in the process of restart.
+   */
+  public synchronized boolean hasRestarted() {
+    return this.state.hasRestarted();
+  }
+
+  /**
+   * @return true if the driver is undergoing the process of restart.
+   */
+  public synchronized boolean isRestarting() {
+    return this.state.isRestarting();
   }
 
   /**

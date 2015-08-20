@@ -38,9 +38,11 @@ import java.util.Set;
 @DefaultImplementation(DefaultDriverRuntimeRestartMangerImpl.class)
 public interface DriverRuntimeRestartManager {
   /**
-   * Determines whether or not the driver has been restarted. The default implementation always returns false.
+   * @return true if the driver has been restarted. Note that this is different from whether
+   * the driver is in the process of restarting. This returns true both on when the driver is in the
+   * restart process or has already finished restarting. The default implementation always returns false.
    */
-  boolean isRestart();
+  boolean hasRestarted();
 
   /**
    * Records the evaluators when it is allocated.

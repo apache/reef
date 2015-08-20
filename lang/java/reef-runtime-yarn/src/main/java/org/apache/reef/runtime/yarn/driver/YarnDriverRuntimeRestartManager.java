@@ -75,7 +75,7 @@ public final class YarnDriverRuntimeRestartManager implements DriverRuntimeResta
    * @return true if the application master is a restarted instance, false otherwise.
    */
   @Override
-  public boolean isRestart() {
+  public boolean hasRestarted() {
     final String containerIdString = getContainerIdString();
 
     if (containerIdString == null) {
