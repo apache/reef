@@ -34,4 +34,18 @@ public interface ConnectionFactory<T> {
    * @return a connection
    */
   Connection<T> newConnection(Identifier destId);
+
+  /**
+   * @return the connection factory identifier.
+   */
+  Identifier getConnectionFactoryId();
+
+  /**
+   * Each connection factory has own local end point id. If connections
+   * are created by the connection factory, the local end point id is used as
+   * the source id of all the connections. It returns the local end point id.
+   *
+   * @return the local end point id
+   */
+  Identifier getLocalEndPointId();
 }

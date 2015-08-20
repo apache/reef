@@ -37,24 +37,27 @@ import java.util.concurrent.ConcurrentMap;
 final class NetworkConnectionFactory<T> implements ConnectionFactory<T> {
 
   private final ConcurrentMap<Identifier, Connection<T>> connectionMap;
-  private final String connFactoryId;
+  private final Identifier connectionFactoryId;
   private final Codec<T> eventCodec;
   private final EventHandler<Message<T>> eventHandler;
   private final LinkListener<Message<T>> eventListener;
+  private final Identifier localEndPointId;
   private final NetworkConnectionServiceImpl networkService;
 
   NetworkConnectionFactory(
       final NetworkConnectionServiceImpl networkService,
-      final String connFactoryId,
+      final Identifier connectionFactoryId,
       final Codec<T> eventCodec,
       final EventHandler<Message<T>> eventHandler,
-      final LinkListener<Message<T>> eventListener) {
+      final LinkListener<Message<T>> eventListener,
+      final Identifier localEndPointId) {
     this.networkService = networkService;
     this.connectionMap = new ConcurrentHashMap<>();
-    this.connFactoryId = connFactoryId;
+    this.connectionFactoryId = connectionFactoryId;
     this.eventCodec = eventCodec;
     this.eventHandler = eventHandler;
     this.eventListener = eventListener;
+    this.localEndPointId = localEndPointId;
   }
 
   /**
@@ -73,16 +76,30 @@ final class NetworkConnectionFactory<T> implements ConnectionFactory<T> {
     return connection;
   }
 
-  <T> Link<NetworkConnectionServiceMessage<T>> openLink(final Identifier remoteId) throws NetworkException {
-    return networkService.openLink(remoteId);
+  Link<NetworkConnectionServiceMessage<T>> openLink(final Identifier remoteId) throws NetworkException {
+    return networkService.openLink(connectionFactoryId, remoteId);
   }
 
-  String getConnectionFactoryId() {
-    return this.connFactoryId;
+  @Override
+  public Identifier getConnectionFactoryId() {
+    return connectionFactoryId;
   }
 
+  @Override
+  public Identifier getLocalEndPointId() {
+    return localEndPointId;
+  }
+
+  /**
+   * @deprecated in 0.13. Use getLocalEndPointId() instead.
+   */
+  @Deprecated
   Identifier getSrcId() {
-    return this.networkService.getNetworkConnectionServiceId();
+    if (localEndPointId == null) {
+      return this.networkService.getNetworkConnectionServiceId();
+    } else {
+      return localEndPointId;
+    }
   }
 
   EventHandler<Message<T>> getEventHandler() {

@@ -23,6 +23,7 @@ import org.apache.reef.io.Tuple;
 import org.apache.reef.io.network.ConnectionFactory;
 import org.apache.reef.io.network.Message;
 import org.apache.reef.io.network.NetworkConnectionService;
+import org.apache.reef.io.network.exception.NetworkRuntimeException;
 import org.apache.reef.io.network.impl.config.NetworkConnectionServiceIdFactory;
 import org.apache.reef.io.network.impl.config.NetworkConnectionServicePort;
 import org.apache.reef.io.network.naming.NameResolver;
@@ -44,6 +45,7 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -72,7 +74,9 @@ public final class NetworkConnectionServiceImpl implements NetworkConnectionServ
   private final ConcurrentMap<String, NetworkConnectionFactory> connFactoryMap;
   /**
    * A network connection service identifier.
+   * @deprecated in 0.13. Use ConnectionFactory.getLocalEndPointId instead.
    */
+  @Deprecated
   private Identifier myId;
   /**
    * A network connection service message codec.
@@ -90,6 +94,14 @@ public final class NetworkConnectionServiceImpl implements NetworkConnectionServ
    * A stage unregistering identifiers from nameServer.
    */
   private final EStage<Identifier> nameServiceUnregisteringStage;
+  /**
+   * A boolean flag that indicates whether the NetworkConnectionService is closed.
+   */
+  private final AtomicBoolean isClosed;
+  /**
+   * A DELIMITER to make a concatenated end point id {{connectionFactoryId}}{{DELIMITER}}{{localEndPointId}}.
+   */
+  private static final String DELIMITER = "/";
 
   @Inject
   private NetworkConnectionServiceImpl(
@@ -136,8 +148,15 @@ public final class NetworkConnectionServiceImpl implements NetworkConnectionServ
             }
           }
         }, 5);
+
+    this.isClosed = new AtomicBoolean();
   }
 
+  /**
+   * @deprecated in 0.13. Use registerConnectionFactory(Identifier, Codec, EventHandler, LinkListener, Identifier)
+   * instead.
+   */
+  @Deprecated
   @Override
   public <T> void registerConnectionFactory(final Identifier connFactoryId,
                                             final Codec<T> codec,
@@ -148,22 +167,56 @@ public final class NetworkConnectionServiceImpl implements NetworkConnectionServ
       throw new NetworkException("ConnectionFactory " + connFactoryId + " was already registered.");
     }
     final ConnectionFactory connFactory = connFactoryMap.putIfAbsent(id,
-        new NetworkConnectionFactory<>(this, id, codec, eventHandler, linkListener));
+        new NetworkConnectionFactory<>(this, connFactoryId, codec, eventHandler, linkListener, null));
 
     if (connFactory != null) {
       throw new NetworkException("ConnectionFactory " + connFactoryId + " was already registered.");
     }
   }
 
+  private void checkBeforeRegistration(final String connectionFactoryId) {
+    if (isClosed.get()) {
+      throw new NetworkRuntimeException("Unable to register new ConnectionFactory to closed NetworkConnectionService");
+    }
+
+    if (connFactoryMap.get(connectionFactoryId) != null) {
+      throw new NetworkRuntimeException("ConnectionFactory " + connectionFactoryId + " was already registered.");
+    }
+
+    if (connectionFactoryId.contains(DELIMITER)) {
+      throw new NetworkRuntimeException(
+          "The ConnectionFactoryId " + connectionFactoryId + " should not contain " + DELIMITER);
+    }
+  }
+  @Override
+  public <T> ConnectionFactory<T> registerConnectionFactory(
+      final Identifier connectionFactoryId,
+      final Codec<T> codec,
+      final EventHandler<Message<T>> eventHandler,
+      final LinkListener<Message<T>> linkListener,
+      final Identifier localEndPointId) {
+    final String id = connectionFactoryId.toString();
+    checkBeforeRegistration(id);
+
+    final NetworkConnectionFactory<T> connectionFactory = new NetworkConnectionFactory<>(
+        this, connectionFactoryId, codec, eventHandler, linkListener, localEndPointId);
+    final Identifier localId = getEndPointIdWithConnectionFactoryId(connectionFactoryId, localEndPointId);
+    nameServiceRegisteringStage.onNext(new Tuple<>(localId, (InetSocketAddress) transport.getLocalAddress()));
+
+    if (connFactoryMap.putIfAbsent(id, connectionFactory) != null) {
+      throw new NetworkRuntimeException("ConnectionFactory " + connectionFactoryId + " was already registered.");
+    }
+
+    return connectionFactory;
+  }
+
   @Override
   public void unregisterConnectionFactory(final Identifier connFactoryId) {
     final String id = connFactoryId.toString();
-    final ConnectionFactory  connFactory = connFactoryMap.get(id);
+    final ConnectionFactory connFactory = connFactoryMap.remove(id);
     if (connFactory != null) {
-      final ConnectionFactory cf = connFactoryMap.remove(id);
-      if (cf == null) {
-        LOG.log(Level.WARNING, "ConnectionFactory of {0} is null", id);
-      }
+      final Identifier localId = getEndPointIdWithConnectionFactoryId(connFactoryId, connFactory.getLocalEndPointId());
+      nameServiceUnregisteringStage.onNext(localId);
     } else {
       LOG.log(Level.WARNING, "ConnectionFactory of {0} is null", id);
     }
@@ -173,7 +226,10 @@ public final class NetworkConnectionServiceImpl implements NetworkConnectionServ
    * Registers a source identifier of NetworkConnectionService.
    * @param ncsId
    * @throws Exception
+   * @deprecated in 0.13. Use registerConnectionFactory(Identifier, Codec, EventHandler, LinkListener, Identifier)
+   * instead.
    */
+  @Deprecated
   @Override
   public void registerId(final Identifier ncsId) {
     LOG.log(Level.INFO, "Registering NetworkConnectionService " + ncsId);
@@ -187,20 +243,27 @@ public final class NetworkConnectionServiceImpl implements NetworkConnectionServ
 
   /**
    * Open a channel for destination identifier of NetworkConnectionService.
-   * @param destId
+   * @param remoteEndPointId
    * @throws NetworkException
    */
-  <T> Link<NetworkConnectionServiceMessage<T>> openLink(final Identifier destId) throws NetworkException {
+  <T> Link<NetworkConnectionServiceMessage<T>> openLink(
+      final Identifier connectionFactoryId, final Identifier remoteEndPointId) throws NetworkException {
+    final Identifier remoteId = getEndPointIdWithConnectionFactoryId(connectionFactoryId, remoteEndPointId);
     try {
-      final SocketAddress address = nameResolver.lookup(destId);
+      final SocketAddress address = nameResolver.lookup(remoteId);
       if (address == null) {
-        throw new NetworkException("Lookup " + destId + " is null");
+        throw new NetworkException("Lookup " + remoteId + " is null");
       }
       return transport.open(address, nsCodec, nsLinkListener);
     } catch(final Exception e) {
-      e.printStackTrace();
       throw new NetworkException(e);
     }
+  }
+
+  private Identifier getEndPointIdWithConnectionFactoryId(
+      final Identifier connectionFactoryId, final Identifier endPointId) {
+    final String identifier = connectionFactoryId.toString() + DELIMITER + endPointId.toString();
+    return idFactory.getNewInstance(identifier);
   }
 
   /**
@@ -216,6 +279,11 @@ public final class NetworkConnectionServiceImpl implements NetworkConnectionServ
     return connFactory;
   }
 
+  /**
+   * @param ncsId network connection service identifier
+   * @deprecated in 0.13.
+   */
+  @Deprecated
   @Override
   public void unregisterId(final Identifier ncsId) {
     LOG.log(Level.FINEST, "Unbinding {0} to NetworkConnectionService@({1})",
@@ -224,6 +292,11 @@ public final class NetworkConnectionServiceImpl implements NetworkConnectionServ
     this.nameServiceUnregisteringStage.onNext(ncsId);
   }
 
+  /**
+   * @return the identifier of this NetworkConnectionService
+   * @deprecated in 0.13.
+   */
+  @Deprecated
   @Override
   public Identifier getNetworkConnectionServiceId() {
     return this.myId;
@@ -231,9 +304,12 @@ public final class NetworkConnectionServiceImpl implements NetworkConnectionServ
 
   @Override
   public void close() throws Exception {
-    LOG.log(Level.FINE, "Shutting down");
-    this.nameServiceRegisteringStage.close();
-    this.nameServiceUnregisteringStage.close();
-    this.transport.close();
+    if (isClosed.compareAndSet(false , true)) {
+      LOG.log(Level.FINE, "Shutting down");
+      this.nameServiceRegisteringStage.close();
+      this.nameServiceUnregisteringStage.close();
+      this.nameResolver.close();
+      this.transport.close();
+    }
   }
 }

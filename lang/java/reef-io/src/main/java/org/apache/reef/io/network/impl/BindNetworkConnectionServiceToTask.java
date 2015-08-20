@@ -30,7 +30,9 @@ import javax.inject.Inject;
 /**
  * TaskStart event handler for registering NetworkConnectionService.
  * Users have to bind this handler into ServiceConfiguration.ON_TASK_STARTED.
+ * @deprecated in 0.13. Users should register/unregister an end point id by themselves.
  */
+@Deprecated
 public final class BindNetworkConnectionServiceToTask implements EventHandler<TaskStart> {
 
   private final NetworkConnectionService ncs;

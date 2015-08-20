@@ -178,6 +178,16 @@ public final class NetworkService<T> implements Stage, ConnectionFactory<T> {
     final Connection<T> existing = this.idToConnMap.putIfAbsent(destId, newConnection);
     return existing == null ? newConnection : existing;
   }
+
+  @Override
+  public Identifier getConnectionFactoryId() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public Identifier getLocalEndPointId() {
+    throw new UnsupportedOperationException();
+  }
 }
 
 class MessageHandler<T> implements EventHandler<TransportEvent> {
