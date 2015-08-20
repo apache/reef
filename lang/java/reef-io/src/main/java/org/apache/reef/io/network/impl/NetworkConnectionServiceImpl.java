@@ -23,6 +23,7 @@ import org.apache.reef.io.Tuple;
 import org.apache.reef.io.network.ConnectionFactory;
 import org.apache.reef.io.network.Message;
 import org.apache.reef.io.network.NetworkConnectionService;
+import org.apache.reef.io.network.exception.NetworkRuntimeException;
 import org.apache.reef.io.network.impl.config.NetworkConnectionServiceIdFactory;
 import org.apache.reef.io.network.impl.config.NetworkConnectionServicePort;
 import org.apache.reef.io.network.naming.NameResolver;
@@ -44,6 +45,7 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -90,6 +92,10 @@ public final class NetworkConnectionServiceImpl implements NetworkConnectionServ
    * A stage unregistering identifiers from nameServer.
    */
   private final EStage<Identifier> nameServiceUnregisteringStage;
+  /**
+   * A boolean flag that indicates whether the NetworkConnectionService is closed.
+   */
+  private final AtomicBoolean isClosed;
 
   @Inject
   private NetworkConnectionServiceImpl(
@@ -136,8 +142,15 @@ public final class NetworkConnectionServiceImpl implements NetworkConnectionServ
             }
           }
         }, 5);
+
+    this.isClosed = new AtomicBoolean();
   }
 
+  /**
+   * @deprecated in 0.13. Use registerConnectionFactory(Identifier, Codec, EventHandler, LinkListener, Identifier)
+   * instead.
+   */
+  @Deprecated
   @Override
   public <T> void registerConnectionFactory(final Identifier connFactoryId,
                                             final Codec<T> codec,
@@ -148,11 +161,38 @@ public final class NetworkConnectionServiceImpl implements NetworkConnectionServ
       throw new NetworkException("ConnectionFactory " + connFactoryId + " was already registered.");
     }
     final ConnectionFactory connFactory = connFactoryMap.putIfAbsent(id,
-        new NetworkConnectionFactory<>(this, id, codec, eventHandler, linkListener));
+        new NetworkConnectionFactory<>(this, connFactoryId, codec, eventHandler, linkListener, null));
 
     if (connFactory != null) {
       throw new NetworkException("ConnectionFactory " + connFactoryId + " was already registered.");
     }
+  }
+
+  @Override
+  public <T> ConnectionFactory<T> registerConnectionFactory(
+      final Identifier connectionFactoryId,
+      final Codec<T> codec,
+      final EventHandler<Message<T>> eventHandler,
+      final LinkListener<Message<T>> linkListener,
+      final Identifier endPointId) {
+    if (isClosed.get()) {
+      throw new NetworkRuntimeException("Unable to register new ConnectionFactory to closed NetworkConnectionService");
+    }
+
+    final String id = connectionFactoryId.toString();
+    if (connFactoryMap.get(id) != null) {
+      throw new NetworkRuntimeException("ConnectionFactory " + connectionFactoryId + " was already registered.");
+    }
+
+    final NetworkConnectionFactory<T> connectionFactory = new NetworkConnectionFactory<>(
+        this, connectionFactoryId, codec, eventHandler, linkListener, endPointId);
+    nameServiceRegisteringStage.onNext(new Tuple<>(endPointId, (InetSocketAddress) transport.getLocalAddress()));
+
+    if (connFactoryMap.putIfAbsent(id, connectionFactory) != null) {
+      throw new NetworkRuntimeException("ConnectionFactory " + connectionFactoryId + " was already registered.");
+    }
+
+    return connectionFactory;
   }
 
   @Override
@@ -161,6 +201,7 @@ public final class NetworkConnectionServiceImpl implements NetworkConnectionServ
     final ConnectionFactory  connFactory = connFactoryMap.get(id);
     if (connFactory != null) {
       final ConnectionFactory cf = connFactoryMap.remove(id);
+      nameServiceUnregisteringStage.onNext(connFactoryId);
       if (cf == null) {
         LOG.log(Level.WARNING, "ConnectionFactory of {0} is null", id);
       }
@@ -173,7 +214,10 @@ public final class NetworkConnectionServiceImpl implements NetworkConnectionServ
    * Registers a source identifier of NetworkConnectionService.
    * @param ncsId
    * @throws Exception
+   * @deprecated in 0.13. Use registerConnectionFactory(Identifier, Codec, EventHandler, LinkListener, Identifier)
+   * instead.
    */
+  @Deprecated
   @Override
   public void registerId(final Identifier ncsId) {
     LOG.log(Level.INFO, "Registering NetworkConnectionService " + ncsId);
@@ -216,6 +260,11 @@ public final class NetworkConnectionServiceImpl implements NetworkConnectionServ
     return connFactory;
   }
 
+  /**
+   * @deprecated in 0.13.
+   * @param ncsId network connection service identifier
+   */
+  @Deprecated
   @Override
   public void unregisterId(final Identifier ncsId) {
     LOG.log(Level.FINEST, "Unbinding {0} to NetworkConnectionService@({1})",
@@ -224,6 +273,11 @@ public final class NetworkConnectionServiceImpl implements NetworkConnectionServ
     this.nameServiceUnregisteringStage.onNext(ncsId);
   }
 
+  /**
+   * @deprecated in 0.13.
+   * @return the identifier of this NetworkConnectionService
+   */
+  @Deprecated
   @Override
   public Identifier getNetworkConnectionServiceId() {
     return this.myId;
@@ -231,9 +285,20 @@ public final class NetworkConnectionServiceImpl implements NetworkConnectionServ
 
   @Override
   public void close() throws Exception {
-    LOG.log(Level.FINE, "Shutting down");
-    this.nameServiceRegisteringStage.close();
-    this.nameServiceUnregisteringStage.close();
-    this.transport.close();
+    if (isClosed.compareAndSet(false , true)) {
+      LOG.log(Level.FINE, "Shutting down");
+      this.nameServiceRegisteringStage.close();
+      this.nameServiceUnregisteringStage.close();
+      this.transport.close();
+      unregisterAllConnectionFactories();
+    } else {
+      throw new NetworkRuntimeException("Multiple requests to close the NetworkConnectionService");
+    }
+  }
+
+  private void unregisterAllConnectionFactories() {
+    for (final String connectionFactoryId : connFactoryMap.keySet()) {
+      unregisterConnectionFactory(idFactory.getNewInstance(connectionFactoryId));
+    }
   }
 }

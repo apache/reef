@@ -33,7 +33,7 @@ final class NetworkConnection<T> implements Connection<T> {
 
   private final Identifier destId;
   private final AtomicBoolean closed;
-  private final NetworkConnectionFactory connFactory;
+  private final NetworkConnectionFactory<T> connFactory;
 
   /**
    * Constructs a connection for destination identifier of NetworkConnectionService.
@@ -41,7 +41,7 @@ final class NetworkConnection<T> implements Connection<T> {
    * @param destId a destination identifier of NetworkConnectionService.
    */
   NetworkConnection(
-      final NetworkConnectionFactory connFactory,
+      final NetworkConnectionFactory<T> connFactory,
       final Identifier destId) {
     this.connFactory = connFactory;
     this.destId = destId;
@@ -56,7 +56,7 @@ final class NetworkConnection<T> implements Connection<T> {
   @Override
   public void write(final List<T> messageList) {
     final NetworkConnectionServiceMessage<T> nsMessage = new NetworkConnectionServiceMessage<>(
-        connFactory.getConnectionFactoryId(),
+        connFactory.getConnectionFactoryId().toString(),
         connFactory.getSrcId(),
         destId,
         messageList);

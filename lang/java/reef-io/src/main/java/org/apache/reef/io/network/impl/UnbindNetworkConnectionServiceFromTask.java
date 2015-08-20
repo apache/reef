@@ -29,7 +29,9 @@ import javax.inject.Inject;
 /**
  * TaskStop event handler for unregistering NetworkConnectionService.
  * Users have to bind this handler into ServiceConfiguration.ON_TASK_STOP.
+ * @deprecated in 0.13. Users should register/unregister an end point id by themselves.
  */
+@Deprecated
 public final class UnbindNetworkConnectionServiceFromTask implements EventHandler<TaskStop> {
 
   private final NetworkConnectionService ncs;

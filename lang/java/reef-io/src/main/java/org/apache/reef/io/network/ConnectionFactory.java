@@ -34,4 +34,14 @@ public interface ConnectionFactory<T> {
    * @return a connection
    */
   Connection<T> newConnection(Identifier destId);
+
+  /**
+   * @return the connection factory identifier.
+   */
+  Identifier getConnectionFactoryId();
+
+  /**
+   * @return the current node's end point id for the connection.
+   */
+  Identifier getEndPointId();
 }
