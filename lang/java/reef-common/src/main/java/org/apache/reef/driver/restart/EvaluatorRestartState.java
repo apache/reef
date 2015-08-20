@@ -23,22 +23,53 @@ import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
 
 /**
- * A static utilities class for simplifying calls to driver restart manager.
+ * The state that the evaluator is in in the driver restart process.
  */
 @Private
 @DriverSide
 @Unstable
-public final class DriverRestartUtilities {
+public enum EvaluatorRestartState {
+  /**
+   * The evaluator is not a restarted instance. Not expecting.
+   */
+  NOT_RESTARTED_EVALUATOR,
 
   /**
-   * Helper function for driver restart to determine whether an evaluator ID is from an evaluator from the
-   * previous application attempt.
+   * Have not yet heard back from an evaluator, but we are expecting it to report back.
    */
-  public static boolean isRestartAndIsPreviousEvaluator(final DriverRestartManager driverRestartManager,
-                                                        final String evaluatorId) {
-    return driverRestartManager.hasRestarted() && driverRestartManager.getPreviousEvaluatorIds().contains(evaluatorId);
-  }
+  EXPECTED,
 
-  private DriverRestartUtilities() {
+  /**
+   * Received the evaluator heartbeat, but have not yet processed it.
+   */
+  REPORTED,
+
+  /**
+   * The evaluator has had its recovery heartbeat processed.
+   */
+  REREGISTERED,
+
+  /**
+   * The evaluator has had its running task processed.
+   */
+  TASK_RUNNING_FIRED,
+
+  /**
+   * The evaluator has only contacted the driver after the expiration period.
+   */
+  EXPIRED;
+
+  /**
+   * @return true if the evaluator has heartbeated back to the driver.
+   */
+  public boolean hasReported() {
+    switch(this) {
+    case REPORTED:
+    case REREGISTERED:
+    case TASK_RUNNING_FIRED:
+      return true;
+    default:
+      return false;
+    }
   }
 }

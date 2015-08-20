@@ -29,7 +29,7 @@ import java.util.Set;
 /**
  * The default driver runtime restart manager that is not able to perform any restart actions.
  * Thus, when performing actions pertaining to restart, it is recommended to call
- * {@link DriverRuntimeRestartManager#hasRestarted()} first or use static functions in {@link DriverRestartUtilities}.
+ * {@link DriverRuntimeRestartManager#hasRestarted()} first.
  */
 @Private
 @DriverSide

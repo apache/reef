@@ -24,9 +24,7 @@ import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.exception.DriverFatalRuntimeException;
 
 import javax.inject.Inject;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -40,16 +38,14 @@ import java.util.logging.Logger;
 public final class DriverRestartManager {
   private static final Logger LOG = Logger.getLogger(DriverRestartManager.class.getName());
   private final DriverRuntimeRestartManager driverRuntimeRestartManager;
-  private final Set<String> previousEvaluators;
-  private final Set<String> recoveredEvaluators;
+  private final Map<String, EvaluatorRestartState> previousEvaluators;
   private DriverRestartState state;
 
   @Inject
   private DriverRestartManager(final DriverRuntimeRestartManager driverRuntimeRestartManager) {
     this.driverRuntimeRestartManager = driverRuntimeRestartManager;
     this.state = DriverRestartState.NotRestarted;
-    this.previousEvaluators = new HashSet<>();
-    this.recoveredEvaluators = new HashSet<>();
+    this.previousEvaluators = new HashMap<>();
   }
 
   /**
@@ -89,31 +85,41 @@ public final class DriverRestartManager {
     final EvaluatorRestartInfo evaluatorRestartInfo = driverRuntimeRestartManager.getAliveAndFailedEvaluators();
     setPreviousEvaluatorIds(evaluatorRestartInfo.getAliveEvaluators());
     driverRuntimeRestartManager.informAboutEvaluatorFailures(evaluatorRestartInfo.getFailedEvaluators());
+    // TODO[REEF-560]: Call onDriverRestartCompleted() (to do in REEF-617) on a Timer.
   }
 
   /**
-   * @return whether restart is completed.
+   * @return Whether restart is completed.
    */
   public synchronized boolean isRestartCompleted() {
     return this.state == DriverRestartState.RestartCompleted;
   }
 
   /**
-   * @return the Evaluators expected to check in from a previous run.
+   * @return The restart state of the specified evaluator. Returns {@link EvaluatorRestartState#NOT_RESTARTED_EVALUATOR}
+   * if the {@link DriverRestartManager} does not believe that it's an evaluator to be recovered.
    */
-  public synchronized Set<String> getPreviousEvaluatorIds() {
-    return Collections.unmodifiableSet(this.previousEvaluators);
+  public synchronized EvaluatorRestartState getEvaluatorRestartState(final String evaluatorId) {
+    if (!this.state.hasRestarted() ||
+        !this.previousEvaluators.containsKey(evaluatorId)) {
+      return EvaluatorRestartState.NOT_RESTARTED_EVALUATOR;
+    }
+
+    return this.previousEvaluators.get(evaluatorId);
   }
 
   /**
    * Set the Evaluators to expect still active from a previous execution of the Driver in a restart situation.
    * To be called exactly once during a driver restart.
    *
-   * @param ids the evaluator IDs of the evaluators that are expected to have survived driver restart.
+   * @param previousEvaluatorIds the evaluator IDs of the evaluators that are expected to have survived driver restart.
    */
-  public synchronized void setPreviousEvaluatorIds(final Set<String> ids) {
-    if (this.state != DriverRestartState.RestartInProgress) {
-      previousEvaluators.addAll(ids);
+  private synchronized void setPreviousEvaluatorIds(final Set<String> previousEvaluatorIds) {
+    if (this.state == DriverRestartState.RestartBegan) {
+      for (final String previousEvaluatorId : previousEvaluatorIds) {
+        setEvaluatorExpected(previousEvaluatorId);
+      }
+
       this.state = DriverRestartState.RestartInProgress;
     } else {
       final String errMsg = "Should not be setting the set of expected alive evaluators more than once.";
@@ -123,34 +129,32 @@ public final class DriverRestartManager {
   }
 
   /**
-   * @return the IDs of the Evaluators from a previous Driver that have checked in with the Driver
-   * in a restart situation.
-   */
-  public synchronized Set<String> getRecoveredEvaluatorIds() {
-    return Collections.unmodifiableSet(this.previousEvaluators);
-  }
-
-  /**
    * Indicate that this Driver has re-established the connection with one more Evaluator of a previous run.
+   * Calls the restart complete action if the latest evaluator is the last evaluator to recover.
    * @return true if the driver restart is completed.
    */
   public synchronized boolean onRecoverEvaluatorIsRestartComplete(final String evaluatorId) {
-    if (!this.previousEvaluators.contains(evaluatorId)) {
+    if (!this.previousEvaluators.containsKey(evaluatorId) ||
+        this.previousEvaluators.get(evaluatorId) == EvaluatorRestartState.NOT_RESTARTED_EVALUATOR) {
       final String errMsg = "Evaluator with evaluator ID " + evaluatorId + " not expected to be alive.";
       LOG.log(Level.SEVERE, errMsg);
       throw new DriverFatalRuntimeException(errMsg);
     }
 
-    if (!this.recoveredEvaluators.add(evaluatorId)) {
+    if (this.previousEvaluators.get(evaluatorId) != EvaluatorRestartState.EXPECTED) {
       LOG.log(Level.WARNING, "Evaluator with evaluator ID " + evaluatorId + " added to the set" +
           " of recovered evaluators more than once. Ignoring second add...");
+    } else {
+      setEvaluatorReported(evaluatorId);
     }
 
-    if (this.recoveredEvaluators.containsAll(this.previousEvaluators)) {
-      this.state = DriverRestartState.RestartCompleted;
+    for (final EvaluatorRestartState evaluatorRestartState : this.previousEvaluators.values()) {
+      if (!evaluatorRestartState.hasReported()) {
+        return false;
+      }
     }
 
-    return this.state == DriverRestartState.RestartCompleted;
+    return true;
   }
 
   /**
@@ -167,5 +171,70 @@ public final class DriverRestartManager {
    */
   public synchronized void recordRemovedEvaluator(final String id) {
     driverRuntimeRestartManager.recordRemovedEvaluator(id);
+  }
+
+  /**
+   * Signals to the {@link DriverRestartManager} that an evaluator is to be expected to report back after restart.
+   */
+  public synchronized void setEvaluatorExpected(final String evaluatorId) {
+    if (previousEvaluators.containsKey(evaluatorId)) {
+      LOG.log(Level.WARNING, "Evaluator " + evaluatorId + " is already added to the set of previous evaluators with " +
+          "state [" + previousEvaluators.get(evaluatorId) + "]. Ignoring...");
+      return;
+    }
+
+    previousEvaluators.put(evaluatorId, EvaluatorRestartState.EXPECTED);
+  }
+
+  /**
+   * Signals to the {@link DriverRestartManager} that an evaluator has reported back after restart.
+   */
+  public synchronized void setEvaluatorReported(final String evaluatorId) {
+    setPreviousEvaluatorState(evaluatorId, EvaluatorRestartState.EXPECTED, EvaluatorRestartState.REPORTED);
+  }
+
+  /**
+   * Signals to the {@link DriverRestartManager} that an evaluator has had its recovery heartbeat processed.
+   */
+  public synchronized void setEvaluatorReregistered(final String evaluatorId) {
+    setPreviousEvaluatorState(evaluatorId, EvaluatorRestartState.REPORTED, EvaluatorRestartState.REREGISTERED);
+  }
+
+  /**
+   * Signals to the {@link DriverRestartManager} that an evaluator has had its running task processed.
+   */
+  public synchronized void setEvaluatorRunningTask(final String evaluatorId) {
+    setPreviousEvaluatorState(
+        evaluatorId, EvaluatorRestartState.REREGISTERED, EvaluatorRestartState.TASK_RUNNING_FIRED);
+  }
+
+  /**
+   * Signals to the {@link DriverRestartManager} that an expected evaluator has been expired.
+   */
+  public synchronized void setEvaluatorExpired(final String evaluatorId) {
+    setPreviousEvaluatorState(evaluatorId, EvaluatorRestartState.EXPECTED, EvaluatorRestartState.EXPIRED);
+  }
+
+  private synchronized void setPreviousEvaluatorState(final String evaluatorId,
+                                                      final EvaluatorRestartState expected,
+                                                      final EvaluatorRestartState transitionTo) {
+    if (!previousEvaluators.containsKey(evaluatorId) ||
+        previousEvaluators.get(evaluatorId) != expected) {
+      throw evaluatorTransitionFailed(evaluatorId, expected, transitionTo);
+    }
+
+    previousEvaluators.put(evaluatorId, transitionTo);
+  }
+
+  private synchronized DriverFatalRuntimeException evaluatorTransitionFailed(final String evaluatorId,
+                                                                             final EvaluatorRestartState expected,
+                                                                             final EvaluatorRestartState transitionTo) {
+    if (!previousEvaluators.containsKey(evaluatorId)) {
+      return new DriverFatalRuntimeException("Evaluator " + evaluatorId + " is not expected.");
+    }
+
+    return new DriverFatalRuntimeException("Evaluator " + evaluatorId + " should be in state ["
+        + expected + "] to be set as [" + transitionTo + "]. It is really in state [" +
+        previousEvaluators.get(evaluatorId) + "].");
   }
 }
