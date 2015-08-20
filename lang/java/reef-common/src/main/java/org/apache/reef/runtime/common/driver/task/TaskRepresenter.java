@@ -22,7 +22,7 @@ import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.driver.context.ActiveContext;
 import org.apache.reef.driver.restart.DriverRestartManager;
-import org.apache.reef.driver.restart.DriverRestartUtilities;
+import org.apache.reef.driver.restart.EvaluatorRestartState;
 import org.apache.reef.driver.task.FailedTask;
 import org.apache.reef.driver.task.RunningTask;
 import org.apache.reef.proto.ReefServiceProtos;
@@ -88,7 +88,7 @@ public final class TaskRepresenter {
       throw new RuntimeException("Received a message for task " + taskStatusProto.getTaskId() +
           " in the TaskRepresenter for Task " + this.taskId);
     }
-    if (taskStatusProto.getRecovery()) {
+    if (driverRestartManager.getEvaluatorRestartState(evaluatorManager.getId()) == EvaluatorRestartState.REREGISTERED) {
       // when a recovered heartbeat is received, we will take its word for it
       LOG.log(Level.INFO, "Received task status {0} for RECOVERED task {1}.",
           new Object[]{taskStatusProto.getState(), this.taskId});
@@ -139,9 +139,10 @@ public final class TaskRepresenter {
     }
 
     // fire driver restart task running handler if this is a recovery heartbeat
-    if (DriverRestartUtilities.isRestartAndIsPreviousEvaluator(driverRestartManager, evaluatorManager.getId())) {
+    if (driverRestartManager.getEvaluatorRestartState(evaluatorManager.getId()) == EvaluatorRestartState.REREGISTERED) {
       final RunningTask runningTask = new RunningTaskImpl(
           this.evaluatorManager, this.taskId, this.context, this);
+      this.driverRestartManager.setEvaluatorRunningTask(evaluatorManager.getId());
       this.messageDispatcher.onDriverRestartTaskRunning(runningTask);
     }
 
