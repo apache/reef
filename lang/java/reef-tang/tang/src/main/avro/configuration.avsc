@@ -22,8 +22,8 @@
     "type":"record",
     "name":"ConfigurationEntry",
     "fields":[
-	{"name":"key","type":"string"},
-	{"name":"value","type":"string"}
+      {"name":"key","type":"string"},
+      {"name":"value","type":"string"}
     ]
 },
 {
@@ -31,7 +31,8 @@
     "type":"record",
     "name":"AvroConfiguration",
     "fields":[
-	{"name":"Bindings","type":{"type":"array", "items":"ConfigurationEntry"}}
+      {"name":"language","type":"string"},
+      {"name":"Bindings","type":{"type":"array", "items":"ConfigurationEntry"}}
     ]
 }
 ]
