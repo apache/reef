@@ -30,11 +30,6 @@ import org.apache.reef.annotations.audience.Private;
 @Unstable
 public enum DriverRestartState {
   /**
-   *  Driver restart is not implemented.
-   */
-  NotImplemented,
-
-  /**
    *  Driver has not begun the restart progress yet.
    */
   NotRestarted,
@@ -56,16 +51,22 @@ public enum DriverRestartState {
   RestartCompleted;
 
   /**
-   * Returns true if the restart process has began.
+   * @return  true if the restart is in process.
    */
-  public boolean isRestart() {
+  public boolean isRestarting() {
     switch (this) {
     case RestartBegan:
     case RestartInProgress:
-    case RestartCompleted:
       return true;
     default:
       return false;
     }
+  }
+
+  /**
+   * @return true if the driver began the restart process. Can be already done with the restart process.
+   */
+  public boolean hasRestarted() {
+    return this != NotRestarted;
   }
 }

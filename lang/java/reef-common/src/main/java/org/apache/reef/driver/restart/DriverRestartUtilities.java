@@ -24,8 +24,6 @@ import org.apache.reef.annotations.audience.Private;
 
 /**
  * A static utilities class for simplifying calls to driver restart manager.
- * Functions here should always call driverRestartManager.canRestart() before performing any
- * actual options.
  */
 @Private
 @DriverSide
@@ -38,7 +36,7 @@ public final class DriverRestartUtilities {
    */
   public static boolean isRestartAndIsPreviousEvaluator(final DriverRestartManager driverRestartManager,
                                                         final String evaluatorId) {
-    return driverRestartManager.isRestart() && driverRestartManager.getPreviousEvaluatorIds().contains(evaluatorId);
+    return driverRestartManager.hasRestarted() && driverRestartManager.getPreviousEvaluatorIds().contains(evaluatorId);
   }
 
   private DriverRestartUtilities() {
