@@ -30,6 +30,7 @@ import org.apache.reef.javabridge.generic.JobDriver;
 import org.apache.reef.runtime.common.driver.parameters.ClientRemoteIdentifier;
 import org.apache.reef.runtime.common.files.ClasspathProvider;
 import org.apache.reef.runtime.common.files.REEFFileNames;
+import org.apache.reef.runtime.yarn.client.SecurityTokenProvider;
 import org.apache.reef.runtime.yarn.client.YarnClientConfiguration;
 import org.apache.reef.runtime.yarn.client.YarnSubmissionHelper;
 import org.apache.reef.runtime.yarn.client.uploader.JobFolder;
@@ -68,6 +69,7 @@ public final class YarnJobSubmissionClient {
   private final ClasspathProvider classpath;
   private final int maxApplicationSubmissions;
   private final boolean enableRestart;
+  private final SecurityTokenProvider tokenProvider;
 
   @Inject
   YarnJobSubmissionClient(final JobUploader uploader,
@@ -78,7 +80,8 @@ public final class YarnJobSubmissionClient {
                           @Parameter(MaxApplicationSubmissions.class)
                           final int maxApplicationSubmissions,
                           @Parameter(EnableRestart.class)
-                          final boolean enableRestart) {
+                          final boolean enableRestart,
+                          final SecurityTokenProvider tokenProvider) {
     this.uploader = uploader;
     this.configurationSerializer = configurationSerializer;
     this.fileNames = fileNames;
@@ -86,6 +89,7 @@ public final class YarnJobSubmissionClient {
     this.classpath = classpath;
     this.maxApplicationSubmissions = maxApplicationSubmissions;
     this.enableRestart = enableRestart;
+    this.tokenProvider = tokenProvider;
   }
 
   private Configuration addYarnDriverConfiguration(final File driverFolder,
@@ -167,7 +171,7 @@ public final class YarnJobSubmissionClient {
     // ------------------------------------------------------------------------
     // Get an application ID
     try (final YarnSubmissionHelper submissionHelper =
-             new YarnSubmissionHelper(yarnConfiguration, fileNames, classpath)) {
+             new YarnSubmissionHelper(yarnConfiguration, fileNames, classpath, tokenProvider)) {
 
 
       // ------------------------------------------------------------------------
