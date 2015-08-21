@@ -28,11 +28,13 @@ import org.apache.reef.runtime.common.driver.api.ResourceLaunchEvent;
 import org.apache.reef.runtime.common.driver.api.ResourceLaunchHandler;
 import org.apache.reef.runtime.common.files.REEFFileNames;
 import org.apache.reef.runtime.common.parameters.JVMHeapSlack;
+import org.apache.reef.runtime.yarn.client.SecurityTokenProvider;
 import org.apache.reef.runtime.yarn.util.YarnTypes;
 import org.apache.reef.tang.InjectionFuture;
 import org.apache.reef.tang.annotations.Parameter;
 
 import javax.inject.Inject;
+import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -50,19 +52,22 @@ public final class YARNResourceLaunchHandler implements ResourceLaunchHandler {
   private final EvaluatorSetupHelper evaluatorSetupHelper;
   private final REEFFileNames filenames;
   private final double jvmHeapFactor;
+  private final SecurityTokenProvider tokenProvider;
 
   @Inject
   YARNResourceLaunchHandler(final Containers containers,
                             final InjectionFuture<YarnContainerManager> yarnContainerManager,
                             final EvaluatorSetupHelper evaluatorSetupHelper,
                             final REEFFileNames filenames,
-                            @Parameter(JVMHeapSlack.class) final double jvmHeapSlack) {
+                            @Parameter(JVMHeapSlack.class) final double jvmHeapSlack,
+                            final SecurityTokenProvider tokenProvider) {
     this.jvmHeapFactor = 1.0 - jvmHeapSlack;
     LOG.log(Level.FINEST, "Instantiating 'YARNResourceLaunchHandler'");
     this.containers = containers;
     this.yarnContainerManager = yarnContainerManager;
     this.evaluatorSetupHelper = evaluatorSetupHelper;
     this.filenames = filenames;
+    this.tokenProvider = tokenProvider;
     LOG.log(Level.FINE, "Instantiated 'YARNResourceLaunchHandler'");
   }
 
@@ -84,7 +89,9 @@ public final class YARNResourceLaunchHandler implements ResourceLaunchHandler {
             new Object[]{containerId, StringUtils.join(command, ' '), localResources});
       }
 
-      final ContainerLaunchContext ctx = YarnTypes.getContainerLaunchContext(command, localResources);
+      ByteBuffer securityTokensBuffer = this.tokenProvider.getTokens();
+      final ContainerLaunchContext ctx = YarnTypes.getContainerLaunchContext(
+          command, localResources, securityTokensBuffer);
       this.yarnContainerManager.get().submit(container, ctx);
 
       LOG.log(Level.FINEST, "TIME: End ResourceLaunch {0}", containerId);
