@@ -24,29 +24,29 @@ import org.apache.hadoop.security.UserGroupInformation;
 
 import javax.inject.Inject;
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
  * Reads security token from user credentials.
  */
-public class UserCredentialSecurityTokenProvider implements SecurityTokenProvider {
+final class UserCredentialSecurityTokenProvider implements SecurityTokenProvider {
 
   private static final Logger LOG = Logger.getLogger(UserCredentialSecurityTokenProvider.class.getName());
 
   @Inject
-  public UserCredentialSecurityTokenProvider(){}
+  private UserCredentialSecurityTokenProvider(){}
 
   @Override
-  public ByteBuffer getTokens() {
+  public byte[] getTokens() {
     try {
-      UserGroupInformation ugi = UserGroupInformation.getCurrentUser();
-      Credentials credentials = ugi.getCredentials();
+      final UserGroupInformation ugi = UserGroupInformation.getCurrentUser();
+      final Credentials credentials = ugi.getCredentials();
       if (credentials.numberOfTokens() > 0) {
-        DataOutputBuffer dob = new DataOutputBuffer();
-        credentials.writeTokenStorageToStream(dob);
-        return ByteBuffer.wrap(dob.getData(), 0, dob.getLength());
+        try(final DataOutputBuffer dob = new DataOutputBuffer()) {
+          credentials.writeTokenStorageToStream(dob);
+          return dob.getData();
+        }
       }
     } catch (IOException e) {
       LOG.log(Level.WARNING, "Could not access tokens in user credentials.", e);

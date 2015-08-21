@@ -197,7 +197,7 @@ public final class YarnSubmissionHelper implements Closeable{
           " since the max application submissions is 1. Proceeding to submit application...");
     }
 
-    ContainerLaunchContext containerLaunchContext = YarnTypes.getContainerLaunchContext(
+    final ContainerLaunchContext containerLaunchContext = YarnTypes.getContainerLaunchContext(
         launchCommand, this.resources, tokenProvider.getTokens());
     this.applicationSubmissionContext.setAMContainerSpec(containerLaunchContext);
 

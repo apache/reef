@@ -34,7 +34,6 @@ import org.apache.reef.tang.InjectionFuture;
 import org.apache.reef.tang.annotations.Parameter;
 
 import javax.inject.Inject;
-import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -89,7 +88,7 @@ public final class YARNResourceLaunchHandler implements ResourceLaunchHandler {
             new Object[]{containerId, StringUtils.join(command, ' '), localResources});
       }
 
-      ByteBuffer securityTokensBuffer = this.tokenProvider.getTokens();
+      final byte[] securityTokensBuffer = this.tokenProvider.getTokens();
       final ContainerLaunchContext ctx = YarnTypes.getContainerLaunchContext(
           command, localResources, securityTokensBuffer);
       this.yarnContainerManager.get().submit(container, ctx);

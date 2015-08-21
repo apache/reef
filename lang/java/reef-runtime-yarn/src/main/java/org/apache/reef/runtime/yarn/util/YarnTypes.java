@@ -48,12 +48,12 @@ public final class YarnTypes {
   public static ContainerLaunchContext getContainerLaunchContext(
       final List<String> commands,
       final Map<String, LocalResource> localResources,
-      final ByteBuffer securityTokenBuffer) {
+      final byte[] securityTokenBuffer) {
     final ContainerLaunchContext context = Records.newRecord(ContainerLaunchContext.class);
     context.setLocalResources(localResources);
     context.setCommands(commands);
     if (securityTokenBuffer != null) {
-      context.setTokens(securityTokenBuffer);
+      context.setTokens(ByteBuffer.wrap(securityTokenBuffer));
       LOG.log(Level.INFO, "Added tokens to container launch context");
     }
     return context;

@@ -20,8 +20,6 @@ package org.apache.reef.runtime.yarn.client;
 
 import org.apache.reef.tang.annotations.DefaultImplementation;
 
-import java.nio.ByteBuffer;
-
 /**
  * Provides security token for setting up YARN container context.
  */
@@ -32,5 +30,5 @@ public interface SecurityTokenProvider {
    * Returns a ByteBuffer containing security tokens.
    * @return a ByteBuffer
    */
-  ByteBuffer getTokens();
+  byte[] getTokens();
 }
