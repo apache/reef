@@ -62,11 +62,11 @@
       <Project>{cdfb3464-4041-42b1-9271-83af24cd5008}</Project>
       <Name>Org.Apache.REEF.Wake</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Org.Apache.REEF.IMRU\Org.Apache.REEF.IMRU.csproj">
+    <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.IMRU\Org.Apache.REEF.IMRU.csproj">
       <Project>{cc797c57-b465-4d11-98ac-edaaef5899a6}</Project>
       <Name>Org.Apache.REEF.IMRU</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Org.Apache.REEF.Network\Org.Apache.REEF.Network.csproj">
+    <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.Network\Org.Apache.REEF.Network.csproj">
       <Project>{883ce800-6a6a-4e0a-b7fe-c054f4f2c1dc}</Project>
       <Name>Org.Apache.REEF.Network</Name>
     </ProjectReference>
