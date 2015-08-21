@@ -69,4 +69,11 @@ public enum DriverRestartState {
   public boolean hasRestarted() {
     return this != NotRestarted;
   }
+
+  /**
+   * the negation of {@link #hasRestarted()}.
+   */
+  public boolean hasNotRestarted() {
+    return !this.hasRestarted();
+  }
 }

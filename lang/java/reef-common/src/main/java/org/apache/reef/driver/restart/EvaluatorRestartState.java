@@ -32,7 +32,7 @@ public enum EvaluatorRestartState {
   /**
    * The evaluator is not a restarted instance. Not expecting.
    */
-  NOT_RESTARTED_EVALUATOR,
+  NOT_EXPECTED,
 
   /**
    * Have not yet heard back from an evaluator, but we are expecting it to report back.
@@ -50,14 +50,45 @@ public enum EvaluatorRestartState {
   REREGISTERED,
 
   /**
-   * The evaluator has had its running task processed.
+   * The evaluator has had its context/running task processed.
    */
-  TASK_RUNNING_FIRED,
+  PROCESSED,
 
   /**
    * The evaluator has only contacted the driver after the expiration period.
    */
   EXPIRED;
+
+  /**
+   * @return true if the transition of {@link EvaluatorRestartState} is legal.
+   */
+  public static boolean isLegalTransition(final EvaluatorRestartState from, final EvaluatorRestartState to) {
+    switch(from) {
+    case EXPECTED:
+      switch(to) {
+      case REPORTED:
+        return true;
+      default:
+        return false;
+      }
+    case REPORTED:
+      switch(to) {
+      case REREGISTERED:
+        return true;
+      default:
+        return false;
+      }
+    case REREGISTERED:
+      switch(to) {
+      case PROCESSED:
+        return true;
+      default:
+        return false;
+      }
+    default:
+      return false;
+    }
+  }
 
   /**
    * @return true if the evaluator has heartbeated back to the driver.
@@ -66,7 +97,7 @@ public enum EvaluatorRestartState {
     switch(this) {
     case REPORTED:
     case REREGISTERED:
-    case TASK_RUNNING_FIRED:
+    case PROCESSED:
       return true;
     default:
       return false;
