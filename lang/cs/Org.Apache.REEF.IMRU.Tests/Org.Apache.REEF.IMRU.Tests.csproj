@@ -61,6 +61,10 @@ under the License.
       <Project>{cdfb3464-4041-42b1-9271-83af24cd5008}</Project>
       <Name>Org.Apache.REEF.Wake</Name>
     </ProjectReference>
+    <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.IMRU.Examples\Org.Apache.REEF.IMRU.Examples.csproj">
+      <Project>{6dc3b04e-2b99-4fda-bd23-2c7864f4c477}</Project>
+      <Name>Org.Apache.REEF.IMRU.Examples</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />

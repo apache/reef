@@ -23,7 +23,6 @@ using System.Linq;
 using Org.Apache.REEF.IMRU.OnREEF;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Wake.Remote.Parameters;
-using Org.Apache.REEF.IMRU.Examples.MapperCount;
 using Org.Apache.REEF.Tang.Interface;
 
 namespace Org.Apache.REEF.IMRU.Examples
