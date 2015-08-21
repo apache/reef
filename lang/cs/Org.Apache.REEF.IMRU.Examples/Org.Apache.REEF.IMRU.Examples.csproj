@@ -42,6 +42,10 @@ under the License.
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MapperCount\IdentityMapFunction.cs" />
+    <Compile Include="MapperCount\IntSumReduceFunction.cs" />
+    <Compile Include="MapperCount\MapperCount.cs" />
+    <Compile Include="MapperCount\MapperCountUpdateFunction.cs" />
     <Compile Include="Run.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -85,6 +89,10 @@ under the License.
     <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.Network\Org.Apache.REEF.Network.csproj">
       <Project>{883ce800-6a6a-4e0a-b7fe-c054f4f2c1dc}</Project>
       <Name>Org.Apache.REEF.Network</Name>
+    </ProjectReference>
+    <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.IO\Org.Apache.REEF.IO.csproj">
+      <Project>{dec0f0a8-dbef-4ebf-b69c-e2369c15abf1}</Project>
+      <Name>Org.Apache.REEF.IO</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

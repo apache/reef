@@ -52,10 +52,6 @@ under the License.
     <Compile Include="API\IMRUUpdateConfiguration.cs" />
     <Compile Include="API\IUpdateFunction.cs" />
     <Compile Include="API\UpdateResult.cs" />
-    <Compile Include="Examples\MapperCount\MapperCount.cs" />
-    <Compile Include="Examples\MapperCount\IdentityMapFunction.cs" />
-    <Compile Include="Examples\MapperCount\IntSumReduceFunction.cs" />
-    <Compile Include="Examples\MapperCount\MapperCountUpdateFunction.cs" />
     <Compile Include="InProcess\IMRURunner.cs" />
     <Compile Include="InProcess\InProcessIMRUClient.cs" />
     <Compile Include="InProcess\InProcessIMRUConfiguration.cs" />
