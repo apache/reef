@@ -46,6 +46,12 @@ under the License.
     <Compile Include="MapperCount\IntSumReduceFunction.cs" />
     <Compile Include="MapperCount\MapperCount.cs" />
     <Compile Include="MapperCount\MapperCountUpdateFunction.cs" />
+    <Compile Include="PipelinedBroadcastReduce\BroadcastReceiverReduceSenderMapFunction.cs" />
+    <Compile Include="PipelinedBroadcastReduce\BroadcastReduceConfiguration.cs" />
+    <Compile Include="PipelinedBroadcastReduce\BroadcastSenderReduceReceiverUpdateFunction.cs" />
+    <Compile Include="PipelinedBroadcastReduce\IntArraySumReduceFunction.cs" />
+    <Compile Include="PipelinedBroadcastReduce\PipelinedBroadcastAndReduce.cs" />
+    <Compile Include="PipelinedBroadcastReduce\PipelineIntDataConverter.cs" />
     <Compile Include="Run.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
