@@ -31,6 +31,7 @@
     "type":"record",
     "name":"AvroConfiguration",
     "fields":[
+    {"name":"language","type":"string"},
 	{"name":"Bindings","type":{"type":"array", "items":"ConfigurationEntry"}}
     ]
 }
