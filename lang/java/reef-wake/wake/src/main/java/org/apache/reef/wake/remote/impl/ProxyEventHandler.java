@@ -45,7 +45,6 @@ public class ProxyEventHandler<T> implements EventHandler<T> {
    * @param myId           my identifier
    * @param remoteId       the remote identifier
    * @param remoteSinkName the remote sink name
-   * @param reStage        the sender stage
    * @throws RemoteRuntimeException
    */
   public ProxyEventHandler(final RemoteIdentifier myId, final RemoteIdentifier remoteId, final String remoteSinkName,
@@ -73,7 +72,7 @@ public class ProxyEventHandler<T> implements EventHandler<T> {
     if (LOG.isLoggable(Level.FINE)) {
       LOG.log(Level.FINE, "remoteid: {0}\n{1}", new Object[]{remoteId.getSocketAddress(), event.toString()});
     }
-    handler.onNext(new RemoteEvent<T>(myId.getSocketAddress(), remoteId.getSocketAddress(), "", remoteSinkName,
+    handler.onNext(new RemoteEvent<T>(myId.getSocketAddress(), remoteId.getSocketAddress(),
         seqGen.getNextSeq(remoteId.getSocketAddress()), event));
   }
 

@@ -32,25 +32,18 @@ public class RemoteEvent<T> {
   //private static final AtomicLong curSeq = new AtomicLong(0);
   private SocketAddress localAddr;
   private SocketAddress remoteAddr;
-  private String src;
-  private String sink;
 
   /**
    * Constructs a remote event.
    *
    * @param localAddr  the local socket address
    * @param remoteAddr the remote socket address
-   * @param src        the source
-   * @param sink       the remote sink
    * @param seq        the sequence number
    * @param event      the event
    */
-  public RemoteEvent(final SocketAddress localAddr, final SocketAddress remoteAddr, final String src,
-                     final String sink, final long seq, final T event) {
+  public RemoteEvent(final SocketAddress localAddr, final SocketAddress remoteAddr, final long seq, final T event) {
     this.localAddr = localAddr;
     this.remoteAddr = remoteAddr;
-    this.src = src;
-    this.sink = sink;
     this.event = event;
     this.seq = seq;
   }
@@ -71,42 +64,6 @@ public class RemoteEvent<T> {
    */
   public SocketAddress remoteAddress() {
     return remoteAddr;
-  }
-
-  /**
-   * Gets the source.
-   *
-   * @return the source
-   */
-  public String getSource() {
-    return src;
-  }
-
-  /**
-   * Sets the source.
-   *
-   * @param name the source name
-   */
-  public void setSource(final String name) {
-    src = name;
-  }
-
-  /**
-   * Gets the sink.
-   *
-   * @return the sink
-   */
-  public String getSink() {
-    return sink;
-  }
-
-  /**
-   * Sets the sink.
-   *
-   * @param name the sink name
-   */
-  public void setSink(final String name) {
-    sink = name;
   }
 
   /**
@@ -157,10 +114,6 @@ public class RemoteEvent<T> {
     builder.append(localAddr);
     builder.append(" remoteAddr=");
     builder.append(remoteAddr);
-    builder.append(" sourceName=");
-    builder.append(src);
-    builder.append(" sinkName=");
-    builder.append(sink);
     builder.append(" seq=");
     builder.append(seq);
     builder.append(" event=");

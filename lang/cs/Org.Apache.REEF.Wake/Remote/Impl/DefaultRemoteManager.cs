@@ -316,7 +316,6 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
             {
                 IRemoteEvent<T> remoteEvent = new RemoteEvent<T>(_client.Link.LocalEndpoint, _client.Link.RemoteEndpoint, message)
                 {
-                    Sink = "default",
                     Sequence = _messageCount
                 };
 

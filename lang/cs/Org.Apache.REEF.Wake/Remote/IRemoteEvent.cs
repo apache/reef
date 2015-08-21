@@ -27,10 +27,6 @@ namespace Org.Apache.REEF.Wake.Remote
 
         IPEndPoint RemoteEndPoint { get; set; }
 
-        string Source { get; }
-
-        string Sink { get; }
-
         T Value { get; }
 
         long Sequence { get; }

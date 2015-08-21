@@ -73,14 +73,13 @@ public class RemoteTest {
     final SocketAddress remoteAddr = new InetSocketAddress(this.localAddressProvider.getLocalAddress(), 9000);
 
     final RemoteEvent<TestEvent> e1 = new RemoteEvent<TestEvent>(
-        localAddr, remoteAddr, "stage1", "stage2", 1, new TestEvent("hello", 0.0));
+        localAddr, remoteAddr, 1, new TestEvent("hello", 0.0));
     System.out.println(e1);
 
     final byte[] data = reCodec.encode(e1);
     final RemoteEvent<TestEvent> e2 = reCodec.decode(data);
     System.out.println(e2);
 
-    Assert.assertEquals(e1.getSink(), e2.getSink());
     Assert.assertEquals(e1.getEvent().getMessage(), e2.getEvent().getMessage());
   }
 
