@@ -80,8 +80,8 @@ public final class NetworkMessagingTestService implements AutoCloseable {
   public <T> void registerTestConnectionFactory(final Identifier connFactoryId,
                                                 final int numMessages, final Monitor monitor,
                                                 final Codec<T> codec) throws NetworkException {
-    final Identifier receiverEndPointId = factory.getNewInstance(connFactoryId.toString() + "-receiver");
-    final Identifier senderEndPointId = factory.getNewInstance(connFactoryId.toString() + "-sender");
+    final Identifier receiverEndPointId = factory.getNewInstance("receiver");
+    final Identifier senderEndPointId = factory.getNewInstance("sender");
     receiverNetworkConnService.registerConnectionFactory(connFactoryId, codec,
         new MessageHandler<T>(monitor, numMessages, senderEndPointId, receiverEndPointId),
         new TestListener<T>(), receiverEndPointId);
@@ -91,7 +91,7 @@ public final class NetworkMessagingTestService implements AutoCloseable {
   }
 
   public <T> Connection<T> getConnectionFromSenderToReceiver(final Identifier connFactoryId) {
-    final Identifier receiverEndPointId = factory.getNewInstance(connFactoryId.toString() + "-receiver");
+    final Identifier receiverEndPointId = factory.getNewInstance("receiver");
     return (Connection<T>)senderNetworkConnService
         .getConnectionFactory(connFactoryId)
         .newConnection(receiverEndPointId);

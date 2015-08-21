@@ -77,7 +77,7 @@ final class NetworkConnectionFactory<T> implements ConnectionFactory<T> {
   }
 
   Link<NetworkConnectionServiceMessage<T>> openLink(final Identifier remoteId) throws NetworkException {
-    return networkService.openLink(remoteId);
+    return networkService.openLink(connectionFactoryId, remoteId);
   }
 
   @Override
@@ -90,8 +90,11 @@ final class NetworkConnectionFactory<T> implements ConnectionFactory<T> {
     return localEndPointId;
   }
 
+  /**
+   * @deprecated in 0.13. Use getLocalEndPointId() instead.
+   */
+  @Deprecated
   Identifier getSrcId() {
-    // TODO : Change to always return the localEndPointId when the deprecated getNetworkConnectionServiceId is removed.
     if (localEndPointId == null) {
       return this.networkService.getNetworkConnectionServiceId();
     } else {
