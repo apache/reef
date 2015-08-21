@@ -33,7 +33,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         public IRemoteEvent<T> Decode(byte[] data)
         {
             WakeMessagePBuf pbuf = WakeMessagePBuf.Deserialize(data);
-            return new RemoteEvent<T>(null, null, pbuf.source, pbuf.sink, pbuf.seq, _decoder.Decode(pbuf.data));
+            return new RemoteEvent<T>(null, null, pbuf.seq, _decoder.Decode(pbuf.data));
         }
     }
 }
