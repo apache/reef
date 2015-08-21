@@ -98,7 +98,7 @@ namespace Org.Apache.REEF.Tang.Implementations.Tang
             return injector;
         }
 
-        public IInjector NewInjector(IConfiguration[] confs)
+        public IInjector NewInjector(params IConfiguration[] confs)
         {
             return new InjectorImpl(new CsConfigurationBuilderImpl(confs).Build());
         }
@@ -118,7 +118,7 @@ namespace Org.Apache.REEF.Tang.Implementations.Tang
             }
         }
 
-        public IClassHierarchy GetClassHierarchy(string[] assemblies)
+        public IClassHierarchy GetClassHierarchy(params string[] assemblies)
         {
             return GetDefaultClassHierarchy(assemblies, new Type[] { });
         }
@@ -157,7 +157,7 @@ namespace Org.Apache.REEF.Tang.Implementations.Tang
             }
         }
 
-        public ICsConfigurationBuilder NewConfigurationBuilder(string[] assemblies)
+        public ICsConfigurationBuilder NewConfigurationBuilder(params string[] assemblies)
         {
             try
             {
@@ -182,7 +182,7 @@ namespace Org.Apache.REEF.Tang.Implementations.Tang
             return new CsConfigurationBuilderImpl(classHierarchy);
         }
 
-        public ICsConfigurationBuilder NewConfigurationBuilder(IConfiguration[] confs)
+        public ICsConfigurationBuilder NewConfigurationBuilder(params IConfiguration[] confs)
         {
             return NewConfigurationBuilder(new string[0], confs, new Type[0]);
         }
@@ -192,7 +192,7 @@ namespace Org.Apache.REEF.Tang.Implementations.Tang
             return new CsConfigurationBuilderImpl(assemblies, confs, parameterParsers);
         }
 
-        public ICsConfigurationBuilder NewConfigurationBuilder(Type[] parameterParsers) 
+        public ICsConfigurationBuilder NewConfigurationBuilder(params Type[] parameterParsers) 
         {
             return NewConfigurationBuilder(new string[0], new IConfiguration[0], parameterParsers);
         }
