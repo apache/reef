@@ -25,23 +25,23 @@ namespace Org.Apache.REEF.Tang.Interface
     public interface ITang
     {
         IInjector NewInjector();
-        IInjector NewInjector(IConfiguration[] confs);
+        IInjector NewInjector(params IConfiguration[] confs);
         IInjector NewInjector(IConfiguration confs);
         IInjector NewInjector(string[] assemblies, string configurationFileName);
         IInjector NewInjector(string[] assemblies, IDictionary<string, string> configurations);
         IInjector NewInjector(string[] assemblies, IList<KeyValuePair<string, string>> configurations);
-        IClassHierarchy GetClassHierarchy(string[] assemblies);
+        IClassHierarchy GetClassHierarchy(params string[] assemblies);
         ICsClassHierarchy GetDefaultClassHierarchy();
         ICsClassHierarchy GetDefaultClassHierarchy(string[] assemblies, Type[] parameterParsers);
 
         ICsConfigurationBuilder NewConfigurationBuilder();
-        ICsConfigurationBuilder NewConfigurationBuilder(string[] assemblies);
-        ICsConfigurationBuilder NewConfigurationBuilder(IConfiguration[] confs);
+        ICsConfigurationBuilder NewConfigurationBuilder(params string[] assemblies);
+        ICsConfigurationBuilder NewConfigurationBuilder(params IConfiguration[] confs);
         ICsConfigurationBuilder NewConfigurationBuilder(IConfiguration conf);
         ICsConfigurationBuilder NewConfigurationBuilder(string[] assemblies, IConfiguration[] confs, Type[] parameterParsers);
         IConfigurationBuilder NewConfigurationBuilder(IClassHierarchy classHierarchy);
         ICsConfigurationBuilder NewConfigurationBuilder(ICsClassHierarchy classHierarchy);
 
-        ICsConfigurationBuilder NewConfigurationBuilder(Type[] parameterParsers);
+        ICsConfigurationBuilder NewConfigurationBuilder(params Type[] parameterParsers);
     }
 }
