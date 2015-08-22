@@ -57,9 +57,9 @@ final class DefaultDriverRuntimeRestartMangerImpl implements DriverRuntimeRestar
   }
 
   @Override
-  public EvaluatorRestartInfo getAliveAndFailedEvaluators() {
+  public RestartEvaluators getPreviousEvaluators() {
     throw new DriverFatalRuntimeException(
-        "Restart is not enabled. getAliveAndFailedEvaluators should not have been called.");
+        "Restart is not enabled. getPreviousEvaluators should not have been called.");
   }
 
   @Override

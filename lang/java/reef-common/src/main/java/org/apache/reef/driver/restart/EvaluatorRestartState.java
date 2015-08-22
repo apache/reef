@@ -57,7 +57,12 @@ public enum EvaluatorRestartState {
   /**
    * The evaluator has only contacted the driver after the expiration period.
    */
-  EXPIRED;
+  EXPIRED,
+
+  /**
+   * The evaluator has failed on driver restart.
+   */
+  FAILED;
 
   /**
    * @return true if the transition of {@link EvaluatorRestartState} is legal.
@@ -98,6 +103,19 @@ public enum EvaluatorRestartState {
     case REPORTED:
     case REREGISTERED:
     case PROCESSED:
+      return true;
+    default:
+      return false;
+    }
+  }
+
+  /**
+   * @return true if the evaluator has failed on driver restart or is not expected to report back to the driver.
+   */
+  public boolean isFailedOrNotExpected() {
+    switch(this) {
+    case FAILED:
+    case NOT_EXPECTED:
       return true;
     default:
       return false;

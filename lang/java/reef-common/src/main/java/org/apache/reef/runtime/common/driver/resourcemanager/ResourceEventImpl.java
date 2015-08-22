@@ -22,10 +22,11 @@ import org.apache.reef.util.BuilderUtils;
 import org.apache.reef.util.Optional;
 
 /**
- * Default POJO implementation of ResourceAllocationEvent.
- * Use newBuilder to construct an instance.
+ * Default POJO implementation of ResourceAllocationEvent and ResourceRecoverEvent.
+ * Use newAllocationBuilder to construct an instance for ResourceAllocationEvent and
+ * use newRecoveryBuilder to construct an instance for ResourceRecoverEvent.
  */
-public final class ResourceAllocationEventImpl implements ResourceAllocationEvent {
+public final class ResourceEventImpl implements ResourceAllocationEvent, ResourceRecoverEvent {
   private final String identifier;
   private final int resourceMemory;
   private final String nodeId;
@@ -33,10 +34,10 @@ public final class ResourceAllocationEventImpl implements ResourceAllocationEven
   private final Optional<String> rackName;
 
 
-  private ResourceAllocationEventImpl(final Builder builder) {
+  private ResourceEventImpl(final Builder builder) {
     this.identifier = BuilderUtils.notNull(builder.identifier);
-    this.resourceMemory = BuilderUtils.notNull(builder.resourceMemory);
-    this.nodeId = BuilderUtils.notNull(builder.nodeId);
+    this.resourceMemory = builder.recovery ? builder.resourceMemory : BuilderUtils.notNull(builder.resourceMemory);
+    this.nodeId = builder.recovery ? builder.nodeId : BuilderUtils.notNull(builder.nodeId);
     this.virtualCores = Optional.ofNullable(builder.virtualCores);
     this.rackName = Optional.ofNullable(builder.rackName);
   }
@@ -66,20 +67,29 @@ public final class ResourceAllocationEventImpl implements ResourceAllocationEven
     return rackName;
   }
 
-  public static Builder newBuilder() {
-    return new Builder();
+  public static Builder newAllocationBuilder() {
+    return new Builder(false);
+  }
+
+  public static Builder newRecoveryBuilder() {
+    return new Builder(true);
   }
 
   /**
    * Builder used to create ResourceAllocationEvent instances.
    */
-  public static final class Builder implements org.apache.reef.util.Builder<ResourceAllocationEvent> {
+  public static final class Builder implements org.apache.reef.util.Builder<ResourceEventImpl> {
+    private final boolean recovery;
+
     private String identifier;
     private Integer resourceMemory;
     private String nodeId;
     private Integer virtualCores;
     private String rackName;
 
+    private Builder(final boolean recovery){
+      this.recovery = recovery;
+    }
 
     /**
      * @see ResourceAllocationEvent#getIdentifier()
@@ -122,8 +132,8 @@ public final class ResourceAllocationEventImpl implements ResourceAllocationEven
     }
 
     @Override
-    public ResourceAllocationEvent build() {
-      return new ResourceAllocationEventImpl(this);
+    public ResourceEventImpl build() {
+      return new ResourceEventImpl(this);
     }
   }
 }

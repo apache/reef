@@ -58,9 +58,9 @@ public interface DriverRuntimeRestartManager {
 
   /**
    * Gets the sets of alive and failed evaluators based on the runtime implementation.
-   * @return EvaluatorRestartInfo, which encapsulates the alive and failed set of evaluator IDs.
+   * @return A map which encapsulates the states of previous evaluators.
    */
-  EvaluatorRestartInfo getAliveAndFailedEvaluators();
+  RestartEvaluators getPreviousEvaluators();
 
   /**
    * Informs the necessary components about failed evaluators. The implementation is runtime dependent.

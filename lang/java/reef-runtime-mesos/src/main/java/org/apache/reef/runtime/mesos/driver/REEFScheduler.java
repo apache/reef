@@ -28,7 +28,7 @@ import org.apache.reef.runtime.common.driver.api.ResourceRequestEventImpl;
 import org.apache.reef.runtime.common.driver.parameters.JobIdentifier;
 import org.apache.reef.runtime.common.driver.resourcemanager.NodeDescriptorEventImpl;
 import org.apache.reef.runtime.common.driver.resourcemanager.ResourceAllocationEvent;
-import org.apache.reef.runtime.common.driver.resourcemanager.ResourceAllocationEventImpl;
+import org.apache.reef.runtime.common.driver.resourcemanager.ResourceEventImpl;
 import org.apache.reef.runtime.common.driver.resourcemanager.ResourceStatusEvent;
 import org.apache.reef.runtime.common.driver.resourcemanager.ResourceStatusEventImpl;
 import org.apache.reef.runtime.common.driver.resourcemanager.RuntimeStatusEventImpl;
@@ -384,7 +384,7 @@ final class REEFScheduler implements Scheduler {
     this.executors.add(taskStatus.getTaskId().getValue(), resourceRequestProto.getMemorySize().get(),
         evaluatorControlHandler);
 
-    final ResourceAllocationEvent alloc = ResourceAllocationEventImpl.newBuilder()
+    final ResourceAllocationEvent alloc = ResourceEventImpl.newAllocationBuilder()
         .setIdentifier(taskStatus.getTaskId().getValue())
         .setNodeId(taskStatus.getSlaveId().getValue())
         .setResourceMemory(resourceRequestProto.getMemorySize().get())
