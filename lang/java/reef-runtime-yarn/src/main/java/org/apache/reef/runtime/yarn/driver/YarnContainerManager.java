@@ -37,6 +37,7 @@ import org.apache.reef.runtime.common.driver.resourcemanager.ResourceAllocationE
 import org.apache.reef.runtime.common.driver.resourcemanager.ResourceStatusEventImpl;
 import org.apache.reef.runtime.common.driver.resourcemanager.RuntimeStatusEventImpl;
 import org.apache.reef.runtime.yarn.driver.parameters.YarnHeartbeatPeriod;
+import org.apache.reef.runtime.yarn.util.ContainerUtilities;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.util.Optional;
 import org.apache.reef.wake.remote.Encoder;
@@ -103,6 +104,7 @@ final class YarnContainerManager
     this.nodeManager = new NMClientAsyncImpl(this);
     LOG.log(Level.FINEST, "Instantiated YarnContainerManager");
   }
+
 
   @Override
   public void onContainersCompleted(final List<ContainerStatus> containerStatuses) {
@@ -392,20 +394,6 @@ final class YarnContainerManager
         this.requestsAfterSentToRM.remove();
         doHomogeneousRequests();
 
-        // the rack name comes as part of the host name, e.g.
-        // <rackName>-<hostNumber>
-        // we perform some checks just in case it doesn't
-        final String hostName = container.getNodeId().getHost();
-        String rackName = null;
-        if (hostName != null) {
-          final String[] rackNameAndNumber = hostName.split("-");
-          if (rackNameAndNumber.length == 2) {
-            rackName = rackNameAndNumber[0];
-          } else {
-            LOG.log(Level.WARNING, "Could not get information from the rack name, should use the default");
-          }
-        }
-
         LOG.log(Level.FINEST, "Allocated Container: memory = {0}, core number = {1}",
             new Object[]{container.getResource().getMemory(), container.getResource().getVirtualCores()});
         this.reefEventHandlers.onResourceAllocation(ResourceAllocationEventImpl.newBuilder()
@@ -413,7 +401,7 @@ final class YarnContainerManager
             .setNodeId(container.getNodeId().toString())
             .setResourceMemory(container.getResource().getMemory())
             .setVirtualCores(container.getResource().getVirtualCores())
-            .setRackName(rackName)
+            .setRackName(ContainerUtilities.getRackName(container))
             .build());
         this.updateRuntimeStatus();
       } else {
