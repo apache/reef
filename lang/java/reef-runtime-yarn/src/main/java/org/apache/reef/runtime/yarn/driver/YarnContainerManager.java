@@ -199,6 +199,16 @@ final class YarnContainerManager
   }
 
   /**
+   * Called by {@link YarnDriverRuntimeRestartManager} to record recovered containers
+   * such that containers can be released properly on unrecoverable containers.
+   */
+  public void onContainersRecovered(final Set<Container> recoveredContainers) {
+    for (final Container container : recoveredContainers) {
+      containers.add(container);
+    }
+  }
+
+  /**
    * Submit the given launchContext to the given container.
    */
   void submit(final Container container, final ContainerLaunchContext launchContext) {

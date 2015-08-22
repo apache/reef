@@ -55,16 +55,20 @@ public final class YarnDriverRuntimeRestartManager implements DriverRuntimeResta
   private final EvaluatorPreserver evaluatorPreserver;
   private final ApplicationMasterRegistration registration;
   private final REEFEventHandlers reefEventHandlers;
+  private final YarnContainerManager yarnContainerManager;
+
   private Set<Container> previousContainers;
 
   @Inject
   private YarnDriverRuntimeRestartManager(@Parameter(YarnEvaluatorPreserver.class)
                                           final EvaluatorPreserver evaluatorPreserver,
                                           final REEFEventHandlers reefEventHandlers,
-                                          final ApplicationMasterRegistration registration){
+                                          final ApplicationMasterRegistration registration,
+                                          final YarnContainerManager yarnContainerManager) {
     this.registration = registration;
     this.evaluatorPreserver = evaluatorPreserver;
     this.reefEventHandlers = reefEventHandlers;
+    this.yarnContainerManager = yarnContainerManager;
     this.previousContainers = null;
   }
 
@@ -138,6 +142,8 @@ public final class YarnDriverRuntimeRestartManager implements DriverRuntimeResta
       if (this.previousContainers == null) {
         this.previousContainers = new HashSet<>();
       }
+
+      yarnContainerManager.onContainersRecovered(Collections.unmodifiableSet(this.previousContainers));
     }
   }
 
