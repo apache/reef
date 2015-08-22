@@ -33,10 +33,7 @@ import org.apache.reef.runtime.yarn.YarnClasspathProvider;
 import org.apache.reef.runtime.yarn.driver.parameters.JobSubmissionDirectory;
 import org.apache.reef.runtime.yarn.driver.parameters.YarnHeartbeatPeriod;
 import org.apache.reef.runtime.yarn.util.YarnConfigurationConstructor;
-import org.apache.reef.tang.formats.ConfigurationModule;
-import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
-import org.apache.reef.tang.formats.OptionalParameter;
-import org.apache.reef.tang.formats.RequiredParameter;
+import org.apache.reef.tang.formats.*;
 
 /**
  * Created by marku_000 on 2014-07-07.
@@ -55,6 +52,11 @@ public class YarnDriverConfiguration extends ConfigurationModuleBuilder {
    * @see JobIdentifier.class
    */
   public static final RequiredParameter<String> JOB_IDENTIFIER = new RequiredParameter<>();
+
+  /**
+   * @see {@link RackNameFormatter}
+   */
+  public static final OptionalImpl<RackNameFormatter> RACK_NAME_FORMATTER = new OptionalImpl<>();
 
   /**
    * @see EvaluatorTimeout
@@ -93,6 +95,7 @@ public class YarnDriverConfiguration extends ConfigurationModuleBuilder {
       .bindNamedParameter(ClientRemoteIdentifier.class, CLIENT_REMOTE_IDENTIFIER)
       .bindNamedParameter(ErrorHandlerRID.class, CLIENT_REMOTE_IDENTIFIER)
       .bindNamedParameter(JVMHeapSlack.class, JVM_HEAP_SLACK)
+      .bindImplementation(RackNameFormatter.class, RACK_NAME_FORMATTER)
       .bindImplementation(RuntimeClasspathProvider.class, YarnClasspathProvider.class)
       .build();
 }
