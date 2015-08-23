@@ -189,7 +189,6 @@ public final class YarnDriverRuntimeRestartManager implements DriverRuntimeResta
         }
         for (final String expectedContainerId : expectedContainers) {
           if (!previousContainersIds.contains(expectedContainerId)) {
-            this.evaluatorPreserver.recordRemovedEvaluator(expectedContainerId);
             LOG.log(Level.WARNING, "Expected container [{0}] not alive, must have failed during driver restart.",
                 expectedContainerId);
             failedEvaluators.add(expectedContainerId);
