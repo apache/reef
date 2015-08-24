@@ -24,6 +24,7 @@ using Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Wake.Remote.Parameters;
+using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.IMRU.Examples
 {
@@ -32,6 +33,8 @@ namespace Org.Apache.REEF.IMRU.Examples
     /// </summary>
     public class Run
     {
+        private static readonly Logger Logger = Logger.GetLogger(typeof(Run));
+
         private static void RunMapperTest(IConfiguration tcpPortConfig, bool runOnYarn, int numNodes)
         {
             IInjector injector;
@@ -92,7 +95,7 @@ namespace Org.Apache.REEF.IMRU.Examples
 
         private static void Main(string[] args)
         {
-            Console.WriteLine("start running client: " + DateTime.Now);
+            Logger.Log(Level.Info, "start running client: " + DateTime.Now);
             string methodName = "MapperCount";
             bool runOnYarn = false;
             int numNodes = 2;
@@ -128,24 +131,30 @@ namespace Org.Apache.REEF.IMRU.Examples
             }
 
             var tcpPortConfig = TangFactory.GetTang().NewConfigurationBuilder()
-                .BindNamedParameter(typeof (TcpPortRangeStart),
+                .BindNamedParameter(typeof(TcpPortRangeStart),
                     startPort.ToString(CultureInfo.InvariantCulture))
-                .BindNamedParameter(typeof (TcpPortRangeCount),
+                .BindNamedParameter(typeof(TcpPortRangeCount),
                     portRange.ToString(CultureInfo.InvariantCulture))
                 .Build();
 
-            if (methodName.ToLower().Equals("mappercount"))
+            switch (methodName.ToLower())
             {
-                Console.WriteLine("Running Mapper count");
-                RunMapperTest(tcpPortConfig, runOnYarn, numNodes);
-                Console.WriteLine("Done Running Mapper count");
-            }
+                case "mappercount":
+                    Logger.Log(Level.Info, "Running Mapper count");
+                    RunMapperTest(tcpPortConfig, runOnYarn, numNodes);
+                    Logger.Log(Level.Info, "Done Running Mapper count");
+                    return;
 
-            if (methodName.ToLower().Equals("broadcastandreduce"))
-            {
-                Console.WriteLine("Running Broadcast and Reduce");
-                RunBroadcastReduceTest(tcpPortConfig, runOnYarn, numNodes, args.Skip(5).ToArray());
-                Console.WriteLine("Done Running Broadcast and Reduce");
+                case "broadcastandreduce":
+                    Logger.Log(Level.Info, "Running Broadcast and Reduce");
+                    RunBroadcastReduceTest(tcpPortConfig, runOnYarn, numNodes, args.Skip(5).ToArray());
+                    Logger.Log(Level.Info, "Done Running Broadcast and Reduce");
+                    return;
+
+                default:
+                    Logger.Log(Level.Info, "wrong test name");
+                    return;
+
             }
         }
     }

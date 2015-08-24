@@ -32,13 +32,13 @@ namespace Org.Apache.REEF.IMRU.Examples
     /// <typeparam name="TMapInput">The type of the side information provided to the Map function</typeparam>
     /// <typeparam name="TMapOutput">The return type of the Map function</typeparam>
     /// <typeparam name="TResult">The return type of the computation.</typeparam>
-    public static class OnREEFIMRURunTimeConfiguration<TMapInput, TMapOutput, TResult>
+    internal static class OnREEFIMRURunTimeConfiguration<TMapInput, TMapOutput, TResult>
     {
         /// <summary>
         /// Function that specifies local runtime configuration for IMRU
         /// </summary>
         /// <returns>The local runtime configuration</returns>
-        public static IConfiguration GetLocalIMRUConfiguration(int numNodes, params string[] runTimeDir)
+        internal static IConfiguration GetLocalIMRUConfiguration(int numNodes, params string[] runTimeDir)
         {
             IConfiguration runtimeConfig;
             IConfiguration imruClientConfig =
@@ -67,7 +67,7 @@ namespace Org.Apache.REEF.IMRU.Examples
         /// Function that specifies yarn runtime configuration for IMRU on the cluster
         /// </summary>
         /// <returns>The yarn runtime configuration</returns>
-        public static IConfiguration GetYarnIMRUConfiguration()
+        internal static IConfiguration GetYarnIMRUConfiguration()
         {
             IConfiguration imruClientConfig =
                 REEFIMRUClientConfiguration<TMapInput, TMapOutput, TResult>.ConfigurationModule.Build();
