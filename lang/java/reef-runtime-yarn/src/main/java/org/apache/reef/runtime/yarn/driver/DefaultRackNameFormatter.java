@@ -22,14 +22,20 @@ import org.apache.hadoop.yarn.api.records.Container;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
 
+import javax.inject.Inject;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @Private
 @DriverSide
-public class DefaultRackNameFormatter implements RackNameFormatter {
+public final class DefaultRackNameFormatter implements RackNameFormatter {
 
   private static final Logger LOG = Logger.getLogger(DefaultRackNameFormatter.class.getName());
+
+
+  @Inject
+  private DefaultRackNameFormatter() {
+  }
 
   /**
    * @see {@link RackNameFormatter#getRackName(Container)}.
