@@ -37,7 +37,6 @@ import org.apache.reef.runtime.common.driver.resourcemanager.ResourceAllocationE
 import org.apache.reef.runtime.common.driver.resourcemanager.ResourceStatusEventImpl;
 import org.apache.reef.runtime.common.driver.resourcemanager.RuntimeStatusEventImpl;
 import org.apache.reef.runtime.yarn.driver.parameters.YarnHeartbeatPeriod;
-import org.apache.reef.runtime.yarn.util.ContainerUtilities;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.util.Optional;
 import org.apache.reef.wake.remote.Encoder;
@@ -76,6 +75,7 @@ final class YarnContainerManager
   private final ContainerRequestCounter containerRequestCounter;
   private final DriverStatusManager driverStatusManager;
   private final TrackingURLProvider trackingURLProvider;
+  private final RackNameFormatter rackNameFormatter;
 
   @Inject
   YarnContainerManager(
@@ -86,7 +86,8 @@ final class YarnContainerManager
       final ApplicationMasterRegistration registration,
       final ContainerRequestCounter containerRequestCounter,
       final DriverStatusManager driverStatusManager,
-      final TrackingURLProvider trackingURLProvider) throws IOException {
+      final TrackingURLProvider trackingURLProvider,
+      final RackNameFormatter rackNameFormatter) throws IOException {
 
     this.reefEventHandlers = reefEventHandlers;
     this.driverStatusManager = driverStatusManager;
@@ -96,6 +97,7 @@ final class YarnContainerManager
     this.containerRequestCounter = containerRequestCounter;
     this.yarnConf = yarnConf;
     this.trackingURLProvider = trackingURLProvider;
+    this.rackNameFormatter = rackNameFormatter;
 
 
     this.yarnClient.init(this.yarnConf);
@@ -401,7 +403,7 @@ final class YarnContainerManager
             .setNodeId(container.getNodeId().toString())
             .setResourceMemory(container.getResource().getMemory())
             .setVirtualCores(container.getResource().getVirtualCores())
-            .setRackName(ContainerUtilities.getRackName(container))
+            .setRackName(rackNameFormatter.getRackName(container))
             .build());
         this.updateRuntimeStatus();
       } else {

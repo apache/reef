@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.runtime.yarn.util;
+package org.apache.reef.runtime.yarn.driver;
 
 import org.apache.hadoop.yarn.api.records.Container;
 import org.apache.reef.annotations.audience.DriverSide;
@@ -25,18 +25,17 @@ import org.apache.reef.annotations.audience.Private;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- * Helper functions for YARN.
- */
 @Private
 @DriverSide
-public final class ContainerUtilities {
-  private static final Logger LOG = Logger.getLogger(ContainerUtilities.class.getName());
+public class DefaultRackNameFormatter implements RackNameFormatter {
+
+  private static final Logger LOG = Logger.getLogger(DefaultRackNameFormatter.class.getName());
 
   /**
-   * @return the rack name of a given container.
+   * @see {@link RackNameFormatter#getRackName(Container)}.
    */
-  public static String getRackName(final Container container) {
+  @Override
+  public String getRackName(final Container container) {
     final String hostName = container.getNodeId().getHost();
 
     // the rack name comes as part of the host name, e.g.
@@ -53,8 +52,5 @@ public final class ContainerUtilities {
     }
 
     return rackName;
-  }
-
-  private ContainerUtilities(){
   }
 }
