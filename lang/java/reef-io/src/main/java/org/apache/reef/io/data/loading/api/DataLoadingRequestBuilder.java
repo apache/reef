@@ -266,7 +266,7 @@ public final class DataLoadingRequestBuilder
       this.distributedDataSet = dds;
     } else {
       if (this.inputPath != null) {
-          throw new BindException("You should either call setInputPath or setDistributedDataSet, but not both");
+        throw new BindException("You should either call setInputPath or setDistributedDataSet, but not both");
       }
     }
 
