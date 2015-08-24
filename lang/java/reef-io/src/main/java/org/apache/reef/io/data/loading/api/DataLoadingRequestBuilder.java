@@ -211,14 +211,13 @@ public final class DataLoadingRequestBuilder
 
   /**
    * Sets the path of the folder where the data is.
+   * Internally, a distributed dataset with a unique partition is created,
+   * and {@link SingleDataCenterEvaluatorToPartitionStrategy} is binded.
    *
-   * @deprecated since 0.12. Should use instead
-   *             {@link DataLoadingRequestBuilder#setDistributedDataSet(DistributedDataSet)}
    * @param inputPath
    *          the input path
    * @return this
    */
-  @Deprecated
   public DataLoadingRequestBuilder setInputPath(final String inputPath) {
     this.inputPath = inputPath;
     this.singleDataCenterStrategy = true;
@@ -227,6 +226,7 @@ public final class DataLoadingRequestBuilder
 
   /**
    * Sets the distributed data set.
+   * Internally, a {@link MultiDataCenterEvaluatorToPartitionStrategy} is binded.
    *
    * @param distributedDataSet
    *          the distributed data set
@@ -249,6 +249,9 @@ public final class DataLoadingRequestBuilder
       if (this.inputPath == null) {
         throw new BindException("Should specify an input path.");
       }
+      if (this.distributedDataSet != null && !this.distributedDataSet.isEmpty()) {
+        throw new BindException("You should either call setInputPath or setDistributedDataSet, but not both");
+      }
       // Create a distributed data set with one partition, the splits defined by
       // the user if greater than 0 or no splits, and data to be loaded from
       // anywhere.
@@ -261,6 +264,10 @@ public final class DataLoadingRequestBuilder
               numberOfDesiredSplits > 0 ? numberOfDesiredSplits : Integer
                   .valueOf(NumberOfDesiredSplits.DEFAULT_DESIRED_SPLITS)).build());
       this.distributedDataSet = dds;
+    } else {
+      if (this.inputPath != null) {
+          throw new BindException("You should either call setInputPath or setDistributedDataSet, but not both");
+      }
     }
 
     if (this.distributedDataSet == null || this.distributedDataSet.isEmpty()) {
