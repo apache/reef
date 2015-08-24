@@ -46,6 +46,7 @@ under the License.
     <Compile Include="MapperCount\IntSumReduceFunction.cs" />
     <Compile Include="MapperCount\MapperCount.cs" />
     <Compile Include="MapperCount\MapperCountUpdateFunction.cs" />
+    <Compile Include="OnREEFIMRURunTimeConfiguration.cs" />
     <Compile Include="PipelinedBroadcastReduce\BroadcastReceiverReduceSenderMapFunction.cs" />
     <Compile Include="PipelinedBroadcastReduce\BroadcastReduceConfiguration.cs" />
     <Compile Include="PipelinedBroadcastReduce\BroadcastSenderReduceReceiverUpdateFunction.cs" />

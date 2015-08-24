@@ -24,8 +24,11 @@ import org.apache.hadoop.yarn.api.records.LocalResource;
 import org.apache.hadoop.yarn.util.Records;
 import org.apache.reef.annotations.audience.Private;
 
+import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Helper class that creates the various records in the YARN API.
@@ -35,7 +38,7 @@ public final class YarnTypes {
 
   // TODO[REEF-537]: Remove once the hadoop version is updated.
   public static final String MIN_VERSION_KEEP_CONTAINERS_AVAILABLE = "2.4.0";
-
+  private static final Logger LOG = Logger.getLogger(YarnTypes.class.getName());
   private YarnTypes() {
   }
 
@@ -43,10 +46,16 @@ public final class YarnTypes {
    * @return a ContainerLaunchContext with the given commands and LocalResources.
    */
   public static ContainerLaunchContext getContainerLaunchContext(
-      final List<String> commands, final Map<String, LocalResource> localResources) {
+      final List<String> commands,
+      final Map<String, LocalResource> localResources,
+      final byte[] securityTokenBuffer) {
     final ContainerLaunchContext context = Records.newRecord(ContainerLaunchContext.class);
     context.setLocalResources(localResources);
     context.setCommands(commands);
+    if (securityTokenBuffer != null) {
+      context.setTokens(ByteBuffer.wrap(securityTokenBuffer));
+      LOG.log(Level.INFO, "Added tokens to container launch context");
+    }
     return context;
   }
 

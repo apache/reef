@@ -61,6 +61,7 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
   private final JobUploader uploader;
   private final double jvmSlack;
   private final String defaultQueueName;
+  private final SecurityTokenProvider tokenProvider;
 
   @Inject
   YarnJobSubmissionHandler(
@@ -70,7 +71,8 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
       final ClasspathProvider classpath,
       final JobUploader uploader,
       @Parameter(JVMHeapSlack.class) final double jvmSlack,
-      @Parameter(JobQueue.class) final String defaultQueueName) throws IOException {
+      @Parameter(JobQueue.class) final String defaultQueueName,
+      final SecurityTokenProvider tokenProvider) throws IOException {
 
     this.yarnConfiguration = yarnConfiguration;
     this.jobJarMaker = jobJarMaker;
@@ -79,6 +81,7 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
     this.uploader = uploader;
     this.jvmSlack = jvmSlack;
     this.defaultQueueName = defaultQueueName;
+    this.tokenProvider = tokenProvider;
   }
 
   @Override
@@ -91,7 +94,7 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
     LOG.log(Level.FINEST, "Submitting job with ID [{0}]", jobSubmissionEvent.getIdentifier());
 
     try (final YarnSubmissionHelper submissionHelper =
-             new YarnSubmissionHelper(this.yarnConfiguration, this.fileNames, this.classpath)) {
+             new YarnSubmissionHelper(this.yarnConfiguration, this.fileNames, this.classpath, this.tokenProvider)) {
 
       LOG.log(Level.FINE, "Assembling submission JAR for the Driver.");
       final Optional<String> userBoundJobSubmissionDirectory =

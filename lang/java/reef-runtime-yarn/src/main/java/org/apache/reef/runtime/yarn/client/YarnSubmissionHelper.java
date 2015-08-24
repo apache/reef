@@ -53,12 +53,14 @@ public final class YarnSubmissionHelper implements Closeable{
   private final Map<String, LocalResource> resources = new HashMap<>();
   private final REEFFileNames fileNames;
   private final ClasspathProvider classpath;
+  private final SecurityTokenProvider tokenProvider;
   private boolean preserveEvaluators;
   private int maxAppSubmissions;
 
   public YarnSubmissionHelper(final YarnConfiguration yarnConfiguration,
                               final REEFFileNames fileNames,
-                              final ClasspathProvider classpath) throws IOException, YarnException {
+                              final ClasspathProvider classpath,
+                              final SecurityTokenProvider tokenProvider) throws IOException, YarnException {
     this.fileNames = fileNames;
     this.classpath = classpath;
 
@@ -75,6 +77,7 @@ public final class YarnSubmissionHelper implements Closeable{
     this.applicationId = applicationSubmissionContext.getApplicationId();
     this.maxAppSubmissions = 1;
     this.preserveEvaluators = false;
+    this.tokenProvider = tokenProvider;
     LOG.log(Level.FINEST, "YARN Application ID: {0}", applicationId);
   }
 
@@ -194,8 +197,9 @@ public final class YarnSubmissionHelper implements Closeable{
           " since the max application submissions is 1. Proceeding to submit application...");
     }
 
-    this.applicationSubmissionContext.setAMContainerSpec(YarnTypes.getContainerLaunchContext(launchCommand,
-        this.resources));
+    final ContainerLaunchContext containerLaunchContext = YarnTypes.getContainerLaunchContext(
+        launchCommand, this.resources, tokenProvider.getTokens());
+    this.applicationSubmissionContext.setAMContainerSpec(containerLaunchContext);
 
     LOG.log(Level.INFO, "Submitting REEF Application to YARN. ID: {0}", this.applicationId);
 
