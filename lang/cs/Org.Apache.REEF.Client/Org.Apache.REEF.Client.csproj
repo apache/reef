@@ -109,6 +109,14 @@ under the License.
       <Project>{75503f90-7b82-4762-9997-94b5c68f15db}</Project>
       <Name>Org.Apache.REEF.Examples</Name>
     </ProjectReference>
+    <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.ClrDriver\Org.Apache.REEF.ClrDriver.vcxproj">
+      <Project>{0097e4ac-0cc9-450c-bc22-acd5b2d55e70}</Project>
+      <Name>Org.Apache.REEF.ClrDriver</Name>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyLocalSatelliteAssemblies>false</CopyLocalSatelliteAssemblies>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+      <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="$(TempResxFile)">
@@ -164,6 +172,7 @@ under the License.
       var binDir = @"lang\cs\bin\x64";
       var resxInputPath  = Path.Combine(ProjectFolder, srcDir, "Resources.xml");      
       var resourceDir = Path.Combine(ProjectFolder, binDir, DebugOrRelease, "Org.Apache.REEF.Bridge.JAR");
+      var clrDriverDir = Path.Combine(ProjectFolder, binDir, DebugOrRelease, "Org.Apache.REEF.ClrDriver");
       var byteArrayType = ";System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089";
       var jarRest = reefVersion + "-shaded.jar" + byteArrayType;
 
@@ -171,8 +180,10 @@ under the License.
       dllResources.Add("reef_bridge_client", resourceDir + @"\reef-bridge-client-" + jarRest);
       dllResources.Add("reef_bridge_driver", resourceDir + @"\reef-bridge-java-" + jarRest);
       dllResources.Add("evaluator", resourceDir + "Org.Apache.REEF.Evaluator.exe" + byteArrayType);
+      dllResources.Add("reef_clrdriver", clrDriverDir + @"\Org.Apache.REEF.ClrDriver.exe" + byteArrayType);
       dllResources.Add("ClientJarFullName", "reef-bridge-client-" + reefVersion + "-shaded.jar");
       dllResources.Add("DriverJarFullName", "reef-bridge-java-" + reefVersion + "-shaded.jar");
+      dllResources.Add("ClrDriverFullName", "Org.Apache.REEF.ClrDriver.exe");
       
       XElement root = XElement.Load(resxInputPath);
       var resources = root.Descendants().Where(x => x.Name.LocalName == "data").ToList();
