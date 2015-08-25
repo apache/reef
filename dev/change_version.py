@@ -29,12 +29,15 @@ If you use the option "-s false", bulid.props changes as,
 
 If you use "-s true", then the value of 'IsSnapshot' is changed to true.
 
+If you use "-p", then only the "pom.xml" files are changed.
+
 You can also see how to run the script with "python change_version.py -h"
 
 (Example)
 python change_version ~/incubator_reef 0.12.0-incubating
 python change_version ~/incubator_reef 0.12.0-incubating -s true
 python change_version ~/incubator_reef 0.12.0-incubating -s false
+python change_version ~/incubator_reef 0.12.0-incubating -p
 """
 
 
@@ -221,26 +224,33 @@ def change_shaded_jar_name(file, new_version):
 Change version of every pom.xml, every AsssemblyInfo.cs, 
 Constants.cs, AssemblyInfo.cpp, run.cmd and Resources.xml
 """
-def change_version(reef_home, new_version):
-    for fi in get_filepaths(reef_home):
-        if "pom.xml" in fi:
-            print fi
-            change_pom(fi, new_version)
-        if "AssemblyInfo.cs" in fi:
-            print fi
-            change_assembly_info_cs(fi, new_version)
+def change_version(reef_home, new_version, pom_only):
+    if pom_only:
+        for fi in get_filepaths(reef_home):
+            if "pom.xml" in fi:
+                print fi
+                change_pom(fi, new_version)
 
-    change_assembly_info_cs(reef_home + "/lang/cs/Org.Apache.REEF.Bridge/AssemblyInfo.cpp", new_version)
-    print reef_home + "/lang/cs/Org.Apache.REEF.Bridge/AssemblyInfo.cpp"
+    else:
+        for fi in get_filepaths(reef_home):
+            if "pom.xml" in fi:
+                print fi
+                change_pom(fi, new_version)
+            if "AssemblyInfo.cs" in fi:
+                print fi
+                change_assembly_info_cs(fi, new_version)
 
-    change_constants_cs(reef_home + "/lang/cs/Org.Apache.REEF.Driver/Constants.cs", new_version)
-    print reef_home + "/lang/cs/Org.Apache.REEF.Driver/Constants.cs"
+        change_assembly_info_cs(reef_home + "/lang/cs/Org.Apache.REEF.Bridge/AssemblyInfo.cpp", new_version)
+        print reef_home + "/lang/cs/Org.Apache.REEF.Bridge/AssemblyInfo.cpp"
 
-    change_shaded_jar_name(reef_home + "/lang/cs/Org.Apache.REEF.Client/Properties/Resources.xml", new_version)
-    print reef_home + "/lang/cs/Org.Apache.REEF.Client/Properties/Resources.xml"
+        change_constants_cs(reef_home + "/lang/cs/Org.Apache.REEF.Driver/Constants.cs", new_version)
+        print reef_home + "/lang/cs/Org.Apache.REEF.Driver/Constants.cs"
 
-    change_shaded_jar_name(reef_home + "/lang/cs/Org.Apache.REEF.Client/run.cmd", new_version)
-    print reef_home + "/lang/cs/Org.Apache.REEF.Client/run.cmd"
+        change_shaded_jar_name(reef_home + "/lang/cs/Org.Apache.REEF.Client/Properties/Resources.xml", new_version)
+        print reef_home + "/lang/cs/Org.Apache.REEF.Client/Properties/Resources.xml"
+
+        change_shaded_jar_name(reef_home + "/lang/cs/Org.Apache.REEF.Client/run.cmd", new_version)
+        print reef_home + "/lang/cs/Org.Apache.REEF.Client/run.cmd"
 
 
 if __name__ == "__main__":
@@ -249,17 +259,19 @@ if __name__ == "__main__":
     parser.add_argument("reef_home", type=str, help="REEF home")
     parser.add_argument("reef_version", type=str, help="REEF version")
     parser.add_argument("-s", "--isSnapshot", type=str, metavar="<true or false>", help="Change 'IsSnapshot' to true or false")
+    parser.add_argument("-p", "--pomonly", help="Change only poms", action="store_true")
     args = parser.parse_args()
     
     reef_home = os.path.abspath(args.reef_home)
     reef_version = args.reef_version
     is_snapshot = args.isSnapshot
+    pom_only = args.pomonly
 
-    if is_snapshot is not None:
+    if is_snapshot is not None and not pom_only:
         change_build_props(reef_home + "/lang/cs/build.props", is_snapshot)
 
     if read_is_snapshot(reef_home + "/lang/cs/build.props"):
         reef_version += "-SNAPSHOT"
 
-    change_version(reef_home, reef_version)
+    change_version(reef_home, reef_version, pom_only)
 
