@@ -77,7 +77,21 @@ final class NetworkConnectionFactory<T> implements ConnectionFactory<T> {
   }
 
   Link<NetworkConnectionServiceMessage<T>> openLink(final Identifier remoteId) throws NetworkException {
+    // TODO : Remove below if statement after the deprecated methods in 0.13 are removed.
+    if (isRegisteredByDeprecatedMethod()) {
+      return networkService.openLink(remoteId);
+    }
+    //
+
     return networkService.openLink(connectionFactoryId, remoteId);
+  }
+
+  /**
+   * @deprecated in 0.13.
+   */
+  @Deprecated
+  boolean isRegisteredByDeprecatedMethod() {
+    return localEndPointId == null;
   }
 
   @Override

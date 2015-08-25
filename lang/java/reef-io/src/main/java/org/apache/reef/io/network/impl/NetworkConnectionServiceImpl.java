@@ -188,6 +188,7 @@ public final class NetworkConnectionServiceImpl implements NetworkConnectionServ
           "The ConnectionFactoryId " + connectionFactoryId + " should not contain " + DELIMITER);
     }
   }
+
   @Override
   public <T> ConnectionFactory<T> registerConnectionFactory(
       final Identifier connectionFactoryId,
@@ -207,16 +208,24 @@ public final class NetworkConnectionServiceImpl implements NetworkConnectionServ
       throw new NetworkRuntimeException("ConnectionFactory " + connectionFactoryId + " was already registered.");
     }
 
+    LOG.log(Level.INFO, "ConnectionFactory {0} was registered", id);
+
     return connectionFactory;
   }
 
   @Override
   public void unregisterConnectionFactory(final Identifier connFactoryId) {
     final String id = connFactoryId.toString();
-    final ConnectionFactory connFactory = connFactoryMap.remove(id);
+    final NetworkConnectionFactory connFactory = connFactoryMap.remove(id);
     if (connFactory != null) {
-      final Identifier localId = getEndPointIdWithConnectionFactoryId(connFactoryId, connFactory.getLocalEndPointId());
-      nameServiceUnregisteringStage.onNext(localId);
+      LOG.log(Level.INFO, "ConnectionFactory {0} was unregistered", id);
+
+      // TODO : This check is unnecessary after the deprecated methods in 0.13 are removed.
+      if (!connFactory.isRegisteredByDeprecatedMethod()) {
+        final Identifier localId = getEndPointIdWithConnectionFactoryId(
+            connFactoryId, connFactory.getLocalEndPointId());
+        nameServiceUnregisteringStage.onNext(localId);
+      }
     } else {
       LOG.log(Level.WARNING, "ConnectionFactory of {0} is null", id);
     }
@@ -243,6 +252,7 @@ public final class NetworkConnectionServiceImpl implements NetworkConnectionServ
 
   /**
    * Open a channel for destination identifier of NetworkConnectionService.
+   * @param connectionFactoryId
    * @param remoteEndPointId
    * @throws NetworkException
    */
@@ -253,6 +263,25 @@ public final class NetworkConnectionServiceImpl implements NetworkConnectionServ
       final SocketAddress address = nameResolver.lookup(remoteId);
       if (address == null) {
         throw new NetworkException("Lookup " + remoteId + " is null");
+      }
+      return transport.open(address, nsCodec, nsLinkListener);
+    } catch(final Exception e) {
+      throw new NetworkException(e);
+    }
+  }
+
+  /**
+   * Open a channel for destination identifier of NetworkConnectionService.
+   * @param remoteEndPointId
+   * @throws NetworkException
+   * @deprecated in 0.13. Use openLink(Identifier, Identifier) instead.
+   */
+  @Deprecated
+  <T> Link<NetworkConnectionServiceMessage<T>> openLink(final Identifier remoteEndPointId) throws NetworkException {
+    try {
+      final SocketAddress address = nameResolver.lookup(remoteEndPointId);
+      if (address == null) {
+        throw new NetworkException("Lookup " + remoteEndPointId + " is null");
       }
       return transport.open(address, nsCodec, nsLinkListener);
     } catch(final Exception e) {
