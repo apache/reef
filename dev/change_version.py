@@ -19,7 +19,7 @@
 This script changes versions in every pom.xml and relevant files.
 
 (How to run)
-python change_version <reef_home> <reef_version_for_pom.xml>  (optional) -s <true or false>   
+python change_version <reef_home> <reef_version_for_pom.xml> -s <true or false>  (optional) -p 
 
 -s option changes value of 'IsSnapshot' in lang/cs/build.props.
 If you use the option "-s false", bulid.props changes as,
@@ -34,10 +34,9 @@ If you use "-p", then only the "pom.xml" files are changed.
 You can also see how to run the script with "python change_version.py -h"
 
 (Example)
-python change_version ~/incubator_reef 0.12.0-incubating
 python change_version ~/incubator_reef 0.12.0-incubating -s true
 python change_version ~/incubator_reef 0.12.0-incubating -s false
-python change_version ~/incubator_reef 0.12.0-incubating -p
+python change_version ~/incubator_reef 0.12.0-incubating -p -s true
 """
 
 
@@ -258,7 +257,7 @@ if __name__ == "__main__":
         + "every AssemblyInfo.cs, Constants.cs, and AssemblyInfo.cpp")    
     parser.add_argument("reef_home", type=str, help="REEF home")
     parser.add_argument("reef_version", type=str, help="REEF version")
-    parser.add_argument("-s", "--isSnapshot", type=str, metavar="<true or false>", help="Change 'IsSnapshot' to true or false")
+    parser.add_argument("-s", "--isSnapshot", type=str, metavar="<true or false>", help="Change 'IsSnapshot' to true or false", required=True)
     parser.add_argument("-p", "--pomonly", help="Change only poms", action="store_true")
     args = parser.parse_args()
     
@@ -270,7 +269,7 @@ if __name__ == "__main__":
     if is_snapshot is not None and not pom_only:
         change_build_props(reef_home + "/lang/cs/build.props", is_snapshot)
 
-    if read_is_snapshot(reef_home + "/lang/cs/build.props"):
+    if is_snapshot=="true":
         reef_version += "-SNAPSHOT"
 
     change_version(reef_home, reef_version, pom_only)
