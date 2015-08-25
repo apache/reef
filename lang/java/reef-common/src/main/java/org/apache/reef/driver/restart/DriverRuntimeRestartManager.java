@@ -24,7 +24,6 @@ import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.annotations.audience.RuntimeAuthor;
 import org.apache.reef.tang.annotations.DefaultImplementation;
 
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -61,7 +60,7 @@ public interface DriverRuntimeRestartManager {
    * Gets the sets of alive and failed evaluators based on the runtime implementation.
    * @return A map which encapsulates the states of previous evaluators.
    */
-  Map<String, EvaluatorRestartInfo> getPreviousEvaluators();
+  RestartEvaluators getPreviousEvaluators();
 
   /**
    * Informs the necessary components about failed evaluators. The implementation is runtime dependent.

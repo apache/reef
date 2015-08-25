@@ -33,7 +33,7 @@ import org.apache.reef.exception.DriverFatalRuntimeException;
 import org.apache.reef.proto.ReefServiceProtos;
 import org.apache.reef.runtime.common.driver.DriverStatusManager;
 import org.apache.reef.runtime.common.driver.resourcemanager.NodeDescriptorEventImpl;
-import org.apache.reef.runtime.common.driver.resourcemanager.ResourceAllocationEventImpl;
+import org.apache.reef.runtime.common.driver.resourcemanager.ResourceEventImpl;
 import org.apache.reef.runtime.common.driver.resourcemanager.ResourceStatusEventImpl;
 import org.apache.reef.runtime.common.driver.resourcemanager.RuntimeStatusEventImpl;
 import org.apache.reef.runtime.yarn.driver.parameters.YarnHeartbeatPeriod;
@@ -408,7 +408,7 @@ final class YarnContainerManager
 
         LOG.log(Level.FINEST, "Allocated Container: memory = {0}, core number = {1}",
             new Object[]{container.getResource().getMemory(), container.getResource().getVirtualCores()});
-        this.reefEventHandlers.onResourceAllocation(ResourceAllocationEventImpl.newBuilder()
+        this.reefEventHandlers.onResourceAllocation(ResourceEventImpl.newAllocationBuilder()
             .setIdentifier(container.getId().toString())
             .setNodeId(container.getNodeId().toString())
             .setResourceMemory(container.getResource().getMemory())

@@ -20,13 +20,11 @@ package org.apache.reef.runtime.common.driver.resourcemanager;
 
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.RuntimeAuthor;
-import org.apache.reef.tang.annotations.DefaultImplementation;
 
 /**
  * A Resource recovered by the {@link org.apache.reef.driver.restart.DriverRestartManager}.
  */
 @RuntimeAuthor
 @DriverSide
-@DefaultImplementation(ResourceRecoverEventImpl.class)
 public interface ResourceRecoverEvent extends ResourceEvent {
 }

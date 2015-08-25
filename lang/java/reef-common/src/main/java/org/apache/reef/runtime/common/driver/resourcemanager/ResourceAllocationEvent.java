@@ -20,7 +20,6 @@ package org.apache.reef.runtime.common.driver.resourcemanager;
 
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.RuntimeAuthor;
-import org.apache.reef.tang.annotations.DefaultImplementation;
 
 /**
  * Event from Driver Runtime -> Driver Process
@@ -28,6 +27,5 @@ import org.apache.reef.tang.annotations.DefaultImplementation;
  */
 @RuntimeAuthor
 @DriverSide
-@DefaultImplementation(ResourceAllocationEventImpl.class)
 public interface ResourceAllocationEvent extends ResourceEvent {
 }

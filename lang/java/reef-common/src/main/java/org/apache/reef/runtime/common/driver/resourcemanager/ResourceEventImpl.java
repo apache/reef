@@ -22,10 +22,11 @@ import org.apache.reef.util.BuilderUtils;
 import org.apache.reef.util.Optional;
 
 /**
- * Default POJO implementation of ResourceRecoverEvent.
- * Use newBuilder to construct an instance.
+ * Default POJO implementation of ResourceAllocationEvent and ResourceRecoverEvent.
+ * Use newAllocationBuilder to construct an instance for ResourceAllocationEvent and
+ * use newRecoveryBuilder to construct an instance for ResourceRecoverEvent.
  */
-public final class ResourceRecoverEventImpl implements ResourceRecoverEvent {
+public final class ResourceEventImpl implements ResourceAllocationEvent, ResourceRecoverEvent {
   private final String identifier;
   private final int resourceMemory;
   private final String nodeId;
@@ -33,10 +34,10 @@ public final class ResourceRecoverEventImpl implements ResourceRecoverEvent {
   private final Optional<String> rackName;
 
 
-  private ResourceRecoverEventImpl(final Builder builder) {
+  private ResourceEventImpl(final Builder builder) {
     this.identifier = BuilderUtils.notNull(builder.identifier);
-    this.resourceMemory = BuilderUtils.notNull(builder.resourceMemory);
-    this.nodeId = BuilderUtils.notNull(builder.nodeId);
+    this.resourceMemory = builder.recovery ? builder.resourceMemory : BuilderUtils.notNull(builder.resourceMemory);
+    this.nodeId = builder.recovery ? builder.nodeId : BuilderUtils.notNull(builder.nodeId);
     this.virtualCores = Optional.ofNullable(builder.virtualCores);
     this.rackName = Optional.ofNullable(builder.rackName);
   }
@@ -66,22 +67,32 @@ public final class ResourceRecoverEventImpl implements ResourceRecoverEvent {
     return rackName;
   }
 
-  public static Builder newBuilder() {
-    return new Builder();
+  public static Builder newAllocationBuilder() {
+    return new Builder(false);
+  }
+
+  public static Builder newRecoveryBuilder() {
+    return new Builder(true);
   }
 
   /**
-   * Builder used to create ResourceRecoverEvent instances.
+   * Builder used to create ResourceAllocationEvent instances.
    */
-  public static final class Builder implements org.apache.reef.util.Builder<ResourceRecoverEvent> {
+  public static final class Builder implements org.apache.reef.util.Builder<ResourceEventImpl> {
+    private final boolean recovery;
+
     private String identifier;
     private Integer resourceMemory;
     private String nodeId;
     private Integer virtualCores;
     private String rackName;
 
+    private Builder(final boolean recovery){
+      this.recovery = recovery;
+    }
+
     /**
-     * @see ResourceEvent#getIdentifier()
+     * @see ResourceAllocationEvent#getIdentifier()
      */
     public Builder setIdentifier(final String identifier) {
       this.identifier = identifier;
@@ -89,7 +100,7 @@ public final class ResourceRecoverEventImpl implements ResourceRecoverEvent {
     }
 
     /**
-     * @see ResourceEvent#getResourceMemory()
+     * @see ResourceAllocationEvent#getResourceMemory()
      */
     public Builder setResourceMemory(final int resourceMemory) {
       this.resourceMemory = resourceMemory;
@@ -97,7 +108,7 @@ public final class ResourceRecoverEventImpl implements ResourceRecoverEvent {
     }
 
     /**
-     * @see ResourceEvent#getNodeId()
+     * @see ResourceAllocationEvent#getNodeId()
      */
     public Builder setNodeId(final String nodeId) {
       this.nodeId = nodeId;
@@ -105,7 +116,7 @@ public final class ResourceRecoverEventImpl implements ResourceRecoverEvent {
     }
 
     /**
-     * @see ResourceEvent#getVirtualCores()
+     * @see ResourceAllocationEvent#getVirtualCores()
      */
     public Builder setVirtualCores(final int virtualCores) {
       this.virtualCores = virtualCores;
@@ -113,7 +124,7 @@ public final class ResourceRecoverEventImpl implements ResourceRecoverEvent {
     }
 
     /**
-     * @see ResourceEvent#getRackName()
+     * @see ResourceAllocationEvent#getRackName()
      */
     public Builder setRackName(final String rackName) {
       this.rackName = rackName;
@@ -121,8 +132,8 @@ public final class ResourceRecoverEventImpl implements ResourceRecoverEvent {
     }
 
     @Override
-    public ResourceRecoverEvent build() {
-      return new ResourceRecoverEventImpl(this);
+    public ResourceEventImpl build() {
+      return new ResourceEventImpl(this);
     }
   }
 }

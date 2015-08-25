@@ -21,8 +21,8 @@ package org.apache.reef.driver.restart;
 import org.apache.reef.annotations.Unstable;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
+import org.apache.reef.runtime.common.driver.resourcemanager.ResourceEventImpl;
 import org.apache.reef.runtime.common.driver.resourcemanager.ResourceRecoverEvent;
-import org.apache.reef.util.Optional;
 
 /**
  * An object that encapsulates the information needed to construct an
@@ -33,7 +33,7 @@ import org.apache.reef.util.Optional;
 @DriverSide
 @Unstable
 public final class EvaluatorRestartInfo {
-  private final Optional<ResourceRecoverEvent> resourceRecoverEvent;
+  private final ResourceRecoverEvent resourceRecoverEvent;
   private EvaluatorRestartState evaluatorRestartState;
 
   /**
@@ -41,15 +41,18 @@ public final class EvaluatorRestartInfo {
    * to recover.
    */
   public static EvaluatorRestartInfo createExpectedEvaluatorInfo(final ResourceRecoverEvent resourceRecoverEvent) {
-    return new EvaluatorRestartInfo(Optional.of(resourceRecoverEvent), EvaluatorRestartState.EXPECTED);
+    return new EvaluatorRestartInfo(resourceRecoverEvent, EvaluatorRestartState.EXPECTED);
   }
 
   /**
    * Creates an {@link EvaluatorRestartInfo} object that represents the information of an evaluator that
    * has failed on driver restart.
    */
-  public static EvaluatorRestartInfo createFailedEvaluatorInfo() {
-    return new EvaluatorRestartInfo(Optional.<ResourceRecoverEvent>empty(), EvaluatorRestartState.FAILED);
+  public static EvaluatorRestartInfo createFailedEvaluatorInfo(final String evaluatorId) {
+    final ResourceRecoverEvent resourceRecoverEvent =
+        ResourceEventImpl.newRecoveryBuilder().setIdentifier(evaluatorId).build();
+
+    return new EvaluatorRestartInfo(resourceRecoverEvent, EvaluatorRestartState.FAILED);
   }
 
   /**
@@ -57,7 +60,7 @@ public final class EvaluatorRestartInfo {
    * needed to reconstruct the {@link org.apache.reef.runtime.common.driver.evaluator.EvaluatorManager} of the
    * recovered evaluator on restart.
    */
-  public Optional<ResourceRecoverEvent> getResourceRecoverEvent() {
+  public ResourceRecoverEvent getResourceRecoverEvent() {
     return resourceRecoverEvent;
   }
 
@@ -80,7 +83,7 @@ public final class EvaluatorRestartInfo {
     return false;
   }
 
-  private EvaluatorRestartInfo(final Optional<ResourceRecoverEvent> resourceRecoverEvent,
+  private EvaluatorRestartInfo(final ResourceRecoverEvent resourceRecoverEvent,
                                final EvaluatorRestartState evaluatorRestartState) {
     this.resourceRecoverEvent = resourceRecoverEvent;
     this.evaluatorRestartState = evaluatorRestartState;

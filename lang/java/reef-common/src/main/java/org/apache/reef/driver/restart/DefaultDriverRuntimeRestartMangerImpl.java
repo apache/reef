@@ -24,7 +24,6 @@ import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.exception.DriverFatalRuntimeException;
 
 import javax.inject.Inject;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -58,7 +57,7 @@ final class DefaultDriverRuntimeRestartMangerImpl implements DriverRuntimeRestar
   }
 
   @Override
-  public Map<String, EvaluatorRestartInfo> getPreviousEvaluators() {
+  public RestartEvaluators getPreviousEvaluators() {
     throw new DriverFatalRuntimeException(
         "Restart is not enabled. getPreviousEvaluators should not have been called.");
   }

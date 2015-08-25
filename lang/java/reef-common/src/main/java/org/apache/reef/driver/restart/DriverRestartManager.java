@@ -38,7 +38,8 @@ import java.util.logging.Logger;
 public final class DriverRestartManager {
   private static final Logger LOG = Logger.getLogger(DriverRestartManager.class.getName());
   private final DriverRuntimeRestartManager driverRuntimeRestartManager;
-  private final Map<String, EvaluatorRestartInfo> previousEvaluators = new HashMap<>();
+
+  private RestartEvaluators restartEvaluators;
   private DriverRestartState state = DriverRestartState.NotRestarted;
 
   @Inject
@@ -82,7 +83,7 @@ public final class DriverRestartManager {
    */
   public synchronized void onRestart() {
     if (this.state == DriverRestartState.RestartBegan) {
-      this.previousEvaluators.putAll(driverRuntimeRestartManager.getPreviousEvaluators());
+      restartEvaluators = driverRuntimeRestartManager.getPreviousEvaluators();
       this.state = DriverRestartState.RestartInProgress;
     } else {
       final String errMsg = "Should not be setting the set of expected alive evaluators more than once.";
@@ -174,33 +175,34 @@ public final class DriverRestartManager {
   }
 
   private synchronized EvaluatorRestartState getStateOfPreviousEvaluator(final String evaluatorId) {
-    if (!this.previousEvaluators.containsKey(evaluatorId)) {
+    if (this.restartEvaluators.contains(evaluatorId)) {
       return EvaluatorRestartState.NOT_EXPECTED;
     }
 
-    return this.previousEvaluators.get(evaluatorId).getEvaluatorRestartState();
+    return this.restartEvaluators.get(evaluatorId).getEvaluatorRestartState();
   }
 
   private synchronized void setStateOfPreviousEvaluator(final String evaluatorId,
                                                         final EvaluatorRestartState to) {
-    if (!previousEvaluators.containsKey(evaluatorId) ||
-        !previousEvaluators.get(evaluatorId).setEvaluatorRestartState(to)) {
+    if (!restartEvaluators.contains(evaluatorId) ||
+        !restartEvaluators.get(evaluatorId).setEvaluatorRestartState(to)) {
       throw evaluatorTransitionFailed(evaluatorId, to);
     }
   }
 
   private synchronized DriverFatalRuntimeException evaluatorTransitionFailed(final String evaluatorId,
                                                                              final EvaluatorRestartState to) {
-    if (!previousEvaluators.containsKey(evaluatorId)) {
+    if (!restartEvaluators.contains(evaluatorId)) {
       return new DriverFatalRuntimeException("Evaluator " + evaluatorId + " is not expected.");
     }
 
     return new DriverFatalRuntimeException("Evaluator " + evaluatorId + " wants to transition to state " +
-        "[" + to + "], but is in the illegal state [" + previousEvaluators.get(evaluatorId) + "].");
+        "[" + to + "], but is in the illegal state [" +
+        restartEvaluators.get(evaluatorId).getEvaluatorRestartState() + "].");
   }
 
   private synchronized boolean haveAllExpectedEvaluatorsReported() {
-    for (final String previousEvaluatorId : this.previousEvaluators.keySet()) {
+    for (final String previousEvaluatorId : this.restartEvaluators.getEvaluatorIds()) {
       final EvaluatorRestartState restartState = getStateOfPreviousEvaluator(previousEvaluatorId);
       if (restartState == EvaluatorRestartState.EXPECTED) {
         return false;
@@ -212,7 +214,7 @@ public final class DriverRestartManager {
 
   private Set<String> getFailedEvaluators() {
     final Set<String> failed = new HashSet<>();
-    for (final String previousEvaluatorId : previousEvaluators.keySet()) {
+    for (final String previousEvaluatorId : this.restartEvaluators.getEvaluatorIds()) {
       if (getStateOfPreviousEvaluator(previousEvaluatorId) == EvaluatorRestartState.FAILED) {
         failed.add(previousEvaluatorId);
       }

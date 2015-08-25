@@ -27,7 +27,7 @@ import org.apache.reef.runtime.common.driver.api.ResourceReleaseEvent;
 import org.apache.reef.runtime.common.driver.api.ResourceRequestEvent;
 import org.apache.reef.runtime.common.driver.api.RuntimeParameters;
 import org.apache.reef.runtime.common.driver.resourcemanager.ResourceAllocationEvent;
-import org.apache.reef.runtime.common.driver.resourcemanager.ResourceAllocationEventImpl;
+import org.apache.reef.runtime.common.driver.resourcemanager.ResourceEventImpl;
 import org.apache.reef.runtime.common.driver.resourcemanager.RuntimeStatusEvent;
 import org.apache.reef.runtime.common.driver.resourcemanager.RuntimeStatusEventImpl;
 import org.apache.reef.runtime.common.files.FileResource;
@@ -217,7 +217,7 @@ public final class ResourceManager {
         requestQueue.satisfyOne();
         final Container container = cont.get();
         // Tell the receivers about it
-        final ResourceAllocationEvent alloc = ResourceAllocationEventImpl.newBuilder()
+        final ResourceAllocationEvent alloc = ResourceEventImpl.newAllocationBuilder()
             .setIdentifier(container.getContainerID()).setNodeId(container.getNodeID())
             .setResourceMemory(container.getMemory()).setVirtualCores(container.getNumberOfCores())
             .setRackName(container.getRackName()).build();

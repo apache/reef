@@ -29,9 +29,10 @@ import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.annotations.audience.RuntimeAuthor;
 import org.apache.reef.driver.restart.DriverRuntimeRestartManager;
 import org.apache.reef.driver.restart.EvaluatorRestartInfo;
+import org.apache.reef.driver.restart.RestartEvaluators;
 import org.apache.reef.proto.ReefServiceProtos;
 import org.apache.reef.runtime.common.driver.EvaluatorPreserver;
-import org.apache.reef.runtime.common.driver.resourcemanager.ResourceRecoverEventImpl;
+import org.apache.reef.runtime.common.driver.resourcemanager.ResourceEventImpl;
 import org.apache.reef.runtime.common.driver.resourcemanager.ResourceStatusEventImpl;
 import org.apache.reef.runtime.yarn.driver.parameters.YarnEvaluatorPreserver;
 import org.apache.reef.tang.annotations.Parameter;
@@ -173,8 +174,8 @@ public final class YarnDriverRuntimeRestartManager implements DriverRuntimeResta
    * driver restart.
    */
   @Override
-  public Map<String, EvaluatorRestartInfo> getPreviousEvaluators() {
-    final Map<String, EvaluatorRestartInfo> previousEvaluators = new HashMap<>();
+  public RestartEvaluators getPreviousEvaluators() {
+    final RestartEvaluators.Builder restartEvaluatorsBuilder = RestartEvaluators.newBuilder();
 
     this.initializeListOfPreviousContainers();
 
@@ -196,7 +197,8 @@ public final class YarnDriverRuntimeRestartManager implements DriverRuntimeResta
           if (!previousContainersIds.contains(expectedContainerId)) {
             LOG.log(Level.WARNING, "Expected container [{0}] not alive, must have failed during driver restart.",
                 expectedContainerId);
-            previousEvaluators.put(expectedContainerId, EvaluatorRestartInfo.createFailedEvaluatorInfo());
+            restartEvaluatorsBuilder.addRestartEvaluator(
+                EvaluatorRestartInfo.createFailedEvaluatorInfo(expectedContainerId));
           }
         }
       }
@@ -213,15 +215,15 @@ public final class YarnDriverRuntimeRestartManager implements DriverRuntimeResta
           throw new RuntimeException("Not expecting container " + container.getId().toString());
         }
 
-        previousEvaluators.put(container.getId().toString(), EvaluatorRestartInfo.createExpectedEvaluatorInfo(
-            new ResourceRecoverEventImpl.Builder().setIdentifier(container.getId().toString())
+        restartEvaluatorsBuilder.addRestartEvaluator(EvaluatorRestartInfo.createExpectedEvaluatorInfo(
+            ResourceEventImpl.newRecoveryBuilder().setIdentifier(container.getId().toString())
                 .setNodeId(container.getNodeId().toString()).setRackName(rackNameFormatter.getRackName(container))
                 .setResourceMemory(container.getResource().getMemory())
                 .setVirtualCores(container.getResource().getVirtualCores()).build()));
       }
     }
 
-    return previousEvaluators;
+    return restartEvaluatorsBuilder.build();
   }
 
   /**
