@@ -34,7 +34,6 @@ import subprocess
 import fnmatch
 import tarfile
 import hashlib
-import change_version
 import sys
 import os
 import argparse
@@ -120,9 +119,6 @@ if __name__ == "__main__":
     reef_version = args.reef_version
     rc_num = args.rc_num
     key_id = args.key_id
-
-    change_version.change_build_props(reef_home + "/lang/cs/build.props", "false")
-    change_version.change_version(reef_home, reef_version)
 
     build_result = subprocess.call("cd " + reef_home + " && " + "mvn apache-rat:check", shell=True)
 
