@@ -30,6 +30,7 @@ import org.apache.reef.io.data.loading.impl.DistributedDataSetPartition;
 import org.apache.reef.io.data.loading.impl.InputFormatLoadingService;
 import org.apache.reef.io.data.loading.impl.JobConfExternalConstructor;
 import org.apache.reef.io.data.loading.impl.MultiDataCenterEvaluatorToPartitionStrategy;
+import org.apache.reef.runtime.common.utils.Constants;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.JavaConfigurationBuilder;
 import org.apache.reef.tang.Tang;
@@ -259,7 +260,7 @@ public final class DataLoadingRequestBuilder
       dds.addPartition(DistributedDataSetPartition
           .newBuilder()
           .setPath(inputPath)
-          .setLocation(DistributedDataSetPartition.LOAD_INTO_ANY_LOCATION)
+          .setLocation(Constants.ANY)
           .setDesiredSplits(
               numberOfDesiredSplits > 0 ? numberOfDesiredSplits : Integer
                   .valueOf(NumberOfDesiredSplits.DEFAULT_DESIRED_SPLITS)).build());

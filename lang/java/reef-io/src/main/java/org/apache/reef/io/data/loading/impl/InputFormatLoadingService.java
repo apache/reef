@@ -30,6 +30,7 @@ import org.apache.reef.io.data.loading.api.DataLoadingRequestBuilder;
 import org.apache.reef.io.data.loading.api.DataLoadingService;
 import org.apache.reef.io.data.loading.api.DataSet;
 import org.apache.reef.io.data.loading.api.EvaluatorToPartitionStrategy;
+import org.apache.reef.runtime.common.utils.Constants;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.annotations.Parameter;
@@ -87,7 +88,7 @@ public class InputFormatLoadingService<K, V> implements DataLoadingService {
       @Parameter(JobConfExternalConstructor.InputPath.class) final String inputPath) {
     this(new SingleDataCenterEvaluatorToPartitionStrategy(inputFormatClass, new HashSet<String>(
         Arrays.asList(DistributedDataSetPartitionSerializer.serialize(new DistributedDataSetPartition(inputPath,
-            DistributedDataSetPartition.LOAD_INTO_ANY_LOCATION, numberOfDesiredSplits))))), inMemory, inputFormatClass);
+            Constants.ANY, numberOfDesiredSplits))))), inMemory, inputFormatClass);
   }
 
   @Inject
