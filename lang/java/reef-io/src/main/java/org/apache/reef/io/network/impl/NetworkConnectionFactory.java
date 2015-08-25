@@ -90,18 +90,6 @@ final class NetworkConnectionFactory<T> implements ConnectionFactory<T> {
     return localEndPointId;
   }
 
-  /**
-   * @deprecated in 0.13. Use getLocalEndPointId() instead.
-   */
-  @Deprecated
-  Identifier getSrcId() {
-    if (localEndPointId == null) {
-      return this.networkService.getNetworkConnectionServiceId();
-    } else {
-      return localEndPointId;
-    }
-  }
-
   EventHandler<Message<T>> getEventHandler() {
     return eventHandler;
   }

@@ -18,7 +18,7 @@
  */
 package org.apache.reef.io.network;
 
-import org.apache.reef.exception.evaluator.NetworkException;
+import org.apache.reef.annotations.Unstable;
 import org.apache.reef.io.network.impl.NetworkConnectionServiceImpl;
 import org.apache.reef.tang.annotations.DefaultImplementation;
 import org.apache.reef.wake.EventHandler;
@@ -47,26 +47,8 @@ import org.apache.reef.wake.remote.transport.LinkListener;
  * to the corresponding EventHandler registered in the ConnectionFactory.
  */
 @DefaultImplementation(NetworkConnectionServiceImpl.class)
+@Unstable
 public interface NetworkConnectionService extends AutoCloseable {
-
-  /**
-   * Registers an instance of ConnectionFactory corresponding to the connectionFactoryId.
-   * Binds Codec, EventHandler and LinkListener to the ConnectionFactory.
-   * ConnectionFactory can create multiple connections between other NetworkConnectionServices.
-   *
-   * @param connectionFactoryId a connection factory id
-   * @param codec a codec for type <T>
-   * @param eventHandler an event handler for type <T>
-   * @param linkListener a link listener
-   * @throws NetworkException throws a NetworkException when multiple connectionFactoryIds exist.
-   * @deprecated in 0.13. Use registerConnectionFactory(Identifier, Codec, EventHandler, LinkListener, Identifier)
-   * instead.
-   */
-  @Deprecated
-  <T> void registerConnectionFactory(final Identifier connectionFactoryId,
-                                     final Codec<T> codec,
-                                     final EventHandler<Message<T>> eventHandler,
-                                     final LinkListener<Message<T>> linkListener) throws NetworkException;
 
   /**
    * Registers an instance of ConnectionFactory corresponding to the connectionFactoryId.
@@ -108,30 +90,5 @@ public interface NetworkConnectionService extends AutoCloseable {
    * @throws Exception if this resource cannot be closed
    */
   void close() throws Exception;
-
-  /**
-   * Registers a network connection service identifier.
-   * This can be used for destination identifier
-   * @param ncsId network connection service identifier
-   * @deprecated in 0.13. Use registerConnectionFactory(Identifier, Codec, EventHandler, LinkListener, Identifier)
-   * instead.
-   */
-  @Deprecated
-  void registerId(final Identifier ncsId);
-
-  /**
-   * Unregister a network connection service identifier.
-   * @param ncsId network connection service identifier
-   * @deprecated in 0.13.
-   */
-  @Deprecated
-  void unregisterId(final Identifier ncsId);
-
-  /**
-   * Gets a network connection service client id which is equal to the registered id.
-   * @deprecated in 0.13. Use ConnectionFactory.getLocalEndPointId instead.
-   */
-  @Deprecated
-  Identifier getNetworkConnectionServiceId();
 
 }
