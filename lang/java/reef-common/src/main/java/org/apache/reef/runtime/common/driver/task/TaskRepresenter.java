@@ -88,6 +88,7 @@ public final class TaskRepresenter {
       throw new RuntimeException("Received a message for task " + taskStatusProto.getTaskId() +
           " in the TaskRepresenter for Task " + this.taskId);
     }
+
     if (driverRestartManager.getEvaluatorRestartState(evaluatorManager.getId()) == EvaluatorRestartState.REREGISTERED) {
       // when a recovered heartbeat is received, we will take its word for it
       LOG.log(Level.INFO, "Received task status {0} for RECOVERED task {1}.",
@@ -142,7 +143,7 @@ public final class TaskRepresenter {
     if (driverRestartManager.getEvaluatorRestartState(evaluatorManager.getId()) == EvaluatorRestartState.REREGISTERED) {
       final RunningTask runningTask = new RunningTaskImpl(
           this.evaluatorManager, this.taskId, this.context, this);
-      this.driverRestartManager.setEvaluatorRunningTask(evaluatorManager.getId());
+      this.driverRestartManager.setEvaluatorProcessed(evaluatorManager.getId());
       this.messageDispatcher.onDriverRestartTaskRunning(runningTask);
     }
 
