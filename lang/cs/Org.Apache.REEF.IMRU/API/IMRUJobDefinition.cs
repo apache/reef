@@ -37,6 +37,8 @@ namespace Org.Apache.REEF.IMRU.API
         private readonly IConfiguration _mapInputPipelineDataConverterConfiguration;
         private readonly IConfiguration _partitionedDatasetConfiguration;
         private readonly int _numberOfMappers;
+        private readonly int _memoryPerMapper;
+        private readonly int _updateTaskMemory;
 
         /// <summary>
         /// Constructor
@@ -54,6 +56,7 @@ namespace Org.Apache.REEF.IMRU.API
         /// <param name="partitionedDatasetConfiguration">Configuration of partitioned 
         /// dataset</param>
         /// <param name="numberOfMappers">Number of mappers</param>
+        /// <param name="memoryPerMapper">Per Mapper memory.</param>
         /// <param name="jobName">Job name</param>
         internal IMRUJobDefinition(
             IConfiguration mapFunctionConfiguration,
@@ -65,6 +68,8 @@ namespace Org.Apache.REEF.IMRU.API
             IConfiguration mapInputPipelineDataConverterConfiguration,
             IConfiguration partitionedDatasetConfiguration,
             int numberOfMappers,
+            int memoryPerMapper,
+            int updateTaskMemory,
             string jobName)
         {
             _mapFunctionConfiguration = mapFunctionConfiguration;
@@ -77,6 +82,8 @@ namespace Org.Apache.REEF.IMRU.API
             _partitionedDatasetConfiguration = partitionedDatasetConfiguration;
             _numberOfMappers = numberOfMappers;
             _jobName = jobName;
+            _memoryPerMapper = memoryPerMapper;
+            _updateTaskMemory = updateTaskMemory;
         }
 
         /// <summary>
@@ -160,6 +167,22 @@ namespace Org.Apache.REEF.IMRU.API
         /// TODO: in constructor. This will be removed once we remove it from GroupComm. 
         internal int NumberOfMappers {
             get { return _numberOfMappers; }
+        }
+
+        /// <summary>
+        /// Memory for each mapper in MB
+        /// </summary>
+        internal int MapperMemory
+        {
+            get { return _memoryPerMapper; }
+        }
+
+        /// <summary>
+        /// Memory for update task in MB
+        /// </summary>
+        internal int UpdateTaskMemory
+        {
+            get { return _updateTaskMemory; }
         }
     }
 }

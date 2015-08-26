@@ -102,6 +102,10 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Client
                     _configurationSerializer.ToString(jobDefinition.MapOutputPipelineDataConverterConfiguration))
                 .BindNamedParameter(typeof (SerializedReduceConfiguration),
                     _configurationSerializer.ToString(jobDefinition.ReduceFunctionConfiguration))
+                .BindNamedParameter(typeof (MemoryPerMapper),
+                    jobDefinition.MapperMemory.ToString(CultureInfo.InvariantCulture))
+                .BindNamedParameter(typeof (MemoryForUpdateTask),
+                    jobDefinition.UpdateTaskMemory.ToString(CultureInfo.InvariantCulture))
                 .Build();
 
             // The JobSubmission contains the Driver configuration as well as the files needed on the Driver.
