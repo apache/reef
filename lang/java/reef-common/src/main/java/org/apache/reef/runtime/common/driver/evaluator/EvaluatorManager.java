@@ -20,7 +20,6 @@ package org.apache.reef.runtime.common.driver.evaluator;
 
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
-import org.apache.reef.driver.evaluator.CLRProcessFactory;
 import org.apache.reef.driver.parameters.EvaluatorConfigurationProviders;
 import org.apache.reef.driver.restart.DriverRestartManager;
 import org.apache.reef.driver.restart.EvaluatorRestartState;
@@ -29,7 +28,6 @@ import org.apache.reef.driver.context.ActiveContext;
 import org.apache.reef.driver.context.FailedContext;
 import org.apache.reef.driver.evaluator.AllocatedEvaluator;
 import org.apache.reef.driver.evaluator.EvaluatorDescriptor;
-import org.apache.reef.driver.evaluator.JVMProcessFactory;
 import org.apache.reef.driver.task.FailedTask;
 import org.apache.reef.exception.EvaluatorException;
 import org.apache.reef.exception.EvaluatorKilledByResourceManagerException;
@@ -102,8 +100,6 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
   private final ConfigurationSerializer configurationSerializer;
   private final LoggingScopeFactory loggingScopeFactory;
   private final Set<ConfigurationProvider> evaluatorConfigurationProviders;
-  private final JVMProcessFactory jvmProcessFactory;
-  private final CLRProcessFactory clrProcessFactory;
   private final DriverRestartManager driverRestartManager;
 
   // Mutable fields
@@ -130,9 +126,6 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
       final LoggingScopeFactory loggingScopeFactory,
       @Parameter(EvaluatorConfigurationProviders.class)
       final Set<ConfigurationProvider> evaluatorConfigurationProviders,
-      // TODO: Eventually remove the factories when they are removed from AllocatedEvaluatorImpl
-      final JVMProcessFactory jvmProcessFactory,
-      final CLRProcessFactory clrProcessFactory,
       final DriverRestartManager driverRestartManager) {
     this.contextRepresenters = contextRepresenters;
     this.idlenessSource = idlenessSource;
@@ -153,8 +146,6 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
     this.configurationSerializer = configurationSerializer;
     this.loggingScopeFactory = loggingScopeFactory;
     this.evaluatorConfigurationProviders = evaluatorConfigurationProviders;
-    this.jvmProcessFactory = jvmProcessFactory;
-    this.clrProcessFactory = clrProcessFactory;
     this.driverRestartManager = driverRestartManager;
 
     LOG.log(Level.FINEST, "Instantiated 'EvaluatorManager' for evaluator: [{0}]", this.getId());
@@ -189,9 +180,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
               configurationSerializer,
               getJobIdentifier(),
               loggingScopeFactory,
-              evaluatorConfigurationProviders,
-              jvmProcessFactory,
-              clrProcessFactory);
+              evaluatorConfigurationProviders);
       LOG.log(Level.FINEST, "Firing AllocatedEvaluator event for Evaluator with ID [{0}]", evaluatorId);
       messageDispatcher.onEvaluatorAllocated(allocatedEvaluator);
       allocationFired = true;

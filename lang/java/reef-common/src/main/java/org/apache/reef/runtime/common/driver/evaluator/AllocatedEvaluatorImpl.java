@@ -56,9 +56,6 @@ public final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
   private final String jobIdentifier;
   private final LoggingScopeFactory loggingScopeFactory;
   private final Set<ConfigurationProvider> evaluatorConfigurationProviders;
-  // TODO: The factories should be removed when deprecated setType is removed, as the process should not be created here
-  private final JVMProcessFactory jvmProcessFactory;
-  private final CLRProcessFactory clrProcessFactory;
 
   /**
    * The set of files to be places on the Evaluator.
@@ -74,17 +71,13 @@ public final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
                          final ConfigurationSerializer configurationSerializer,
                          final String jobIdentifier,
                          final LoggingScopeFactory loggingScopeFactory,
-                         final Set<ConfigurationProvider> evaluatorConfigurationProviders,
-                         final JVMProcessFactory jvmProcessFactory,
-                         final CLRProcessFactory clrProcessFactory) {
+                         final Set<ConfigurationProvider> evaluatorConfigurationProviders) {
     this.evaluatorManager = evaluatorManager;
     this.remoteID = remoteID;
     this.configurationSerializer = configurationSerializer;
     this.jobIdentifier = jobIdentifier;
     this.loggingScopeFactory = loggingScopeFactory;
     this.evaluatorConfigurationProviders = evaluatorConfigurationProviders;
-    this.jvmProcessFactory = jvmProcessFactory;
-    this.clrProcessFactory = clrProcessFactory;
   }
 
   @Override
@@ -153,19 +146,6 @@ public final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
                                              final Configuration serviceConfiguration,
                                              final String taskConfiguration) {
     launchWithTaskString(contextConfiguration, Optional.of(serviceConfiguration), Optional.of(taskConfiguration));
-  }
-
-  @Override
-  @Deprecated
-  public void setType(final EvaluatorType type) {
-    switch (type) {
-    case CLR:
-      setProcess(clrProcessFactory.newEvaluatorProcess());
-      break;
-    default:
-      setProcess(jvmProcessFactory.newEvaluatorProcess());
-      break;
-    }
   }
 
   @Override
