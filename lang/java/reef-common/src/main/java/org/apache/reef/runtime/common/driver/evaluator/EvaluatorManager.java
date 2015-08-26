@@ -34,7 +34,6 @@ import org.apache.reef.exception.EvaluatorKilledByResourceManagerException;
 import org.apache.reef.io.naming.Identifiable;
 import org.apache.reef.proto.EvaluatorRuntimeProtocol;
 import org.apache.reef.proto.ReefServiceProtos;
-import org.apache.reef.runtime.common.DriverRestartCompleted;
 import org.apache.reef.driver.evaluator.EvaluatorProcess;
 import org.apache.reef.runtime.common.driver.api.ResourceLaunchEvent;
 import org.apache.reef.runtime.common.driver.api.ResourceReleaseEventImpl;
@@ -355,18 +354,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
         LOG.log(Level.FINEST, "Evaluator {0} is running", this.evaluatorId);
 
         if (evaluatorRestartState == EvaluatorRestartState.REPORTED) {
-
-          // TODO[REEF-617]: Move evaluator recovery to EvaluatorHeartbeatHandler and reregister evaluator here.
-          final boolean restartCompleted =
-              this.driverRestartManager.onRecoverEvaluatorIsRestartComplete(this.evaluatorId);
-
-          LOG.log(Level.FINE, "Received recovery heartbeat from evaluator {0}.", this.evaluatorId);
-
-          // TODO[REEF-617]: Move restart completion logic to DriverRestartManager.
-          if (restartCompleted) {
-            this.messageDispatcher.onDriverRestartCompleted(new DriverRestartCompleted(System.currentTimeMillis()));
-            LOG.log(Level.INFO, "All expected evaluators checked in.");
-          }
+          driverRestartManager.setEvaluatorReregistered(evaluatorId);
         }
       }
 
