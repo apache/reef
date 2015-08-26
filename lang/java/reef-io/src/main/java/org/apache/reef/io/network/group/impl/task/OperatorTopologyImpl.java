@@ -199,45 +199,42 @@ public class OperatorTopologyImpl implements OperatorTopology {
   @Override
   public void sendToParent(final byte[] data, final ReefNetworkGroupCommProtos.GroupCommMessage.Type msgType)
       throws ParentDeadException {
-    LOG.entering("OperatorTopologyImpl", "sendToParent", new Object[]{getQualifiedName(), data, msgType});
+    LOG.entering("OperatorTopologyImpl", "sendToParent", new Object[] {getQualifiedName(), msgType});
     refreshEffectiveTopology();
     assert (effectiveTopology != null);
     effectiveTopology.sendToParent(data, msgType);
-    LOG.exiting("OperatorTopologyImpl", "sendToParent",
-        Arrays.toString(new Object[]{getQualifiedName(), data, msgType}));
+    LOG.exiting("OperatorTopologyImpl", "sendToParent", getQualifiedName());
   }
 
   @Override
   public void sendToChildren(final byte[] data, final ReefNetworkGroupCommProtos.GroupCommMessage.Type msgType)
       throws ParentDeadException {
-    LOG.entering("OperatorTopologyImpl", "sendToChildren", new Object[]{getQualifiedName(), data, msgType});
+    LOG.entering("OperatorTopologyImpl", "sendToChildren", new Object[]{getQualifiedName(), msgType});
     refreshEffectiveTopology();
     assert (effectiveTopology != null);
     effectiveTopology.sendToChildren(data, msgType);
-    LOG.exiting("OperatorTopologyImpl", "sendToChildren",
-        Arrays.toString(new Object[]{getQualifiedName(), data, msgType}));
+    LOG.exiting("OperatorTopologyImpl", "sendToChildren", getQualifiedName());
   }
 
   @Override
   public void sendToChildren(final Map<String, byte[]> dataMap,
                              final ReefNetworkGroupCommProtos.GroupCommMessage.Type msgType)
       throws ParentDeadException {
-    LOG.entering("OperatorTopologyImpl", "sendToChildren", new Object[]{getQualifiedName(), dataMap, msgType});
+    LOG.entering("OperatorTopologyImpl", "sendToChildren", new Object[]{getQualifiedName(), msgType});
     refreshEffectiveTopology();
     assert (effectiveTopology != null);
     effectiveTopology.sendToChildren(dataMap, msgType);
-    LOG.exiting("OperatorTopologyImpl", "sendToChildren",
-        Arrays.toString(new Object[]{getQualifiedName(), dataMap, msgType}));
+    LOG.exiting("OperatorTopologyImpl", "sendToChildren", getQualifiedName());
   }
 
   @Override
   public byte[] recvFromParent(final ReefNetworkGroupCommProtos.GroupCommMessage.Type msgType)
       throws ParentDeadException {
-    LOG.entering("OperatorTopologyImpl", "recvFromParent", getQualifiedName());
+    LOG.entering("OperatorTopologyImpl", "recvFromParent", new Object[] {getQualifiedName(), msgType});
     refreshEffectiveTopology();
     assert (effectiveTopology != null);
     final byte[] retVal = effectiveTopology.recvFromParent(msgType);
-    LOG.exiting("OperatorTopologyImpl", "recvFromParent", Arrays.toString(new Object[]{getQualifiedName(), retVal}));
+    LOG.exiting("OperatorTopologyImpl", "recvFromParent", getQualifiedName());
     return retVal;
   }
 
@@ -248,7 +245,7 @@ public class OperatorTopologyImpl implements OperatorTopology {
     refreshEffectiveTopology();
     assert (effectiveTopology != null);
     final T retVal = effectiveTopology.recvFromChildren(redFunc, dataCodec);
-    LOG.exiting("OperatorTopologyImpl", "recvFromChildren", Arrays.toString(new Object[]{getQualifiedName(), retVal}));
+    LOG.exiting("OperatorTopologyImpl", "recvFromChildren", getQualifiedName());
     return retVal;
   }
 
@@ -258,7 +255,7 @@ public class OperatorTopologyImpl implements OperatorTopology {
     refreshEffectiveTopology();
     assert (effectiveTopology != null);
     final byte[] retVal = effectiveTopology.recvFromChildren();
-    LOG.exiting("OperatorTopologyImpl", "recvFromChildren", Arrays.toString(new Object[]{getQualifiedName(), retVal}));
+    LOG.exiting("OperatorTopologyImpl", "recvFromChildren", getQualifiedName());
     return retVal;
   }
 
@@ -411,8 +408,7 @@ public class OperatorTopologyImpl implements OperatorTopology {
    */
   private void copyDeletionDeltas(final Set<GroupCommunicationMessage> deletionDeltasForUpdate)
       throws ParentDeadException {
-    LOG.entering("OperatorTopologyImpl", "copyDeletionDeltas", new Object[]{getQualifiedName(),
-        deletionDeltasForUpdate});
+    LOG.entering("OperatorTopologyImpl", "copyDeletionDeltas", getQualifiedName());
     this.deletionDeltas.drainTo(deletionDeltasForUpdate);
     for (final GroupCommunicationMessage msg : deletionDeltasForUpdate) {
       final ReefNetworkGroupCommProtos.GroupCommMessage.Type msgType = msg.getType();
@@ -421,8 +417,7 @@ public class OperatorTopologyImpl implements OperatorTopology {
             "Parent dead. Current behavior is for the child to die too.");
       }
     }
-    LOG.exiting("OperatorTopologyImpl", "copyDeletionDeltas", Arrays.toString(new Object[]{getQualifiedName(),
-        deletionDeltasForUpdate}));
+    LOG.exiting("OperatorTopologyImpl", "copyDeletionDeltas", getQualifiedName());
   }
 
   private String getQualifiedName() {

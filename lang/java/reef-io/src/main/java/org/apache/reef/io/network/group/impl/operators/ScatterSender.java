@@ -132,20 +132,20 @@ public final class ScatterSender<T> implements Scatter.Sender<T>, EventHandler<G
 
   @Override
   public void send(final List<T> elements) throws NetworkException, InterruptedException {
-    LOG.entering("ScatterSender", "send", elements);
+    LOG.entering("ScatterSender", "send");
 
     initializeGroup();
     send(elements,
         ScatterHelper.getUniformCounts(elements.size(), commGroupClient.getActiveSlaveTasks().size()),
         commGroupClient.getActiveSlaveTasks());
 
-    LOG.exiting("ScatterSender", "send", elements);
+    LOG.exiting("ScatterSender", "send");
   }
 
   @Override
   public void send(final List<T> elements, final Integer... counts)
       throws NetworkException, InterruptedException {
-    LOG.entering("ScatterSender", "send", new Object[]{elements, counts});
+    LOG.entering("ScatterSender", "send");
 
     initializeGroup();
     if (counts.length != commGroupClient.getActiveSlaveTasks().size()) {
@@ -157,26 +157,26 @@ public final class ScatterSender<T> implements Scatter.Sender<T>, EventHandler<G
         Arrays.asList(counts),
         commGroupClient.getActiveSlaveTasks());
 
-    LOG.exiting("ScatterSender", "send", Arrays.toString(new Object[]{elements, counts}));
+    LOG.exiting("ScatterSender", "send");
   }
 
   @Override
   public void send(final List<T> elements, final List<? extends Identifier> order)
       throws NetworkException, InterruptedException {
-    LOG.entering("ScatterSender", "send", new Object[]{elements, order});
+    LOG.entering("ScatterSender", "send");
 
     initializeGroup();
     send(elements,
         ScatterHelper.getUniformCounts(elements.size(), order.size()),
         order);
 
-    LOG.exiting("ScatterSender", "send", Arrays.toString(new Object[]{elements, order}));
+    LOG.exiting("ScatterSender", "send");
   }
 
   @Override
   public void send(final List<T> elements, final List<Integer> counts, final List<? extends Identifier> order)
       throws NetworkException, InterruptedException {
-    LOG.entering("ScatterSender", "send", new Object[]{elements, counts, order});
+    LOG.entering("ScatterSender", "send");
 
     if (counts.size() != order.size()) {
       throw new RuntimeException("Parameter 'counts' has size " + counts.size()
@@ -198,6 +198,6 @@ public final class ScatterSender<T> implements Scatter.Sender<T>, EventHandler<G
       throw new RuntimeException("ParentDeadException during OperatorTopology.sendToChildren()", e);
     }
 
-    LOG.exiting("ScatterSender", "send", Arrays.toString(new Object[]{this, elements, counts, order}));
+    LOG.exiting("ScatterSender", "send");
   }
 }

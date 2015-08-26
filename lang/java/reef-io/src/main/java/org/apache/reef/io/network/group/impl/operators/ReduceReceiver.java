@@ -39,7 +39,7 @@ import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.Identifier;
 
 import javax.inject.Inject;
-import java.util.Arrays;
+
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
@@ -137,8 +137,7 @@ public class ReduceReceiver<T> implements Reduce.Receiver<T>, EventHandler<Group
     } catch (final ParentDeadException e) {
       throw new RuntimeException("ParentDeadException", e);
     }
-    LOG.fine(this + " Received Reduced value: " + (redVal != null ? redVal : "NULL"));
-    LOG.exiting("ReduceReceiver", "reduce", Arrays.toString(new Object[]{redVal}));
+    LOG.exiting("ReduceReceiver", "reduce", this);
     return redVal;
   }
 

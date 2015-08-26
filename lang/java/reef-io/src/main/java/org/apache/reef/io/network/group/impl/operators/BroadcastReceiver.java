@@ -41,7 +41,7 @@ import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.wake.EventHandler;
 
 import javax.inject.Inject;
-import java.util.Arrays;
+
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
@@ -144,7 +144,6 @@ public class BroadcastReceiver<T> implements Broadcast.Receiver<T>, EventHandler
         LOG.finest("Using " + dataCodec.getClass().getSimpleName() + " as codec");
         retVal = dataCodec.decode(data);
         LOG.finest("Decoded msg successfully");
-        LOG.fine(this + " Received: " + retVal);
         LOG.finest(this + " Sending to children.");
       }
 
@@ -152,7 +151,7 @@ public class BroadcastReceiver<T> implements Broadcast.Receiver<T>, EventHandler
     } catch (final ParentDeadException e) {
       throw new RuntimeException("ParentDeadException", e);
     }
-    LOG.exiting("BroadcastReceiver", "receive", Arrays.toString(new Object[]{retVal, this}));
+    LOG.exiting("BroadcastReceiver", "receive", this);
     return retVal;
   }
 
