@@ -60,15 +60,6 @@ public interface AllocatedEvaluator
   EvaluatorDescriptor getEvaluatorDescriptor();
 
   /**
-   * Set the type of Evaluator to be instantiated. Defaults to EvaluatorType.JVM.
-   *
-   * @param type
-   * @deprecated Replace with #setProcess
-   */
-  @Deprecated
-  void setType(final EvaluatorType type);
-
-  /**
    * Specify the process to be instantiated for the Evaluator.
    * Defaults to an EvaluatorProcess instantiated by the binded ProcessFactory.
    *
