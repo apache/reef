@@ -74,14 +74,14 @@ final class VortexDriver {
                        final VortexMaster vortexMaster,
                        final VortexStart vortexStart,
                        final VortexStartExecutor vortexStartExecutor,
-                       final PendingTaskletScheduler pendingTaskletScheduler,
+                       final PendingTaskletLauncher pendingTaskletLauncher,
                        @Parameter(VortexMasterConf.WorkerMem.class) final int workerMem,
                        @Parameter(VortexMasterConf.WorkerNum.class) final int workerNum,
                        @Parameter(VortexMasterConf.WorkerCores.class) final int workerCores,
                        @Parameter(VortexMasterConf.NumberOfVortexStartThreads.class) final int numOfStartThreads) {
     this.vortexStartEStage = new ThreadPoolStage<>(vortexStartExecutor, numOfStartThreads);
     this.vortexStart = vortexStart;
-    this.pendingTaskletSchedulerEStage = new SingleThreadStage<>(pendingTaskletScheduler, 1);
+    this.pendingTaskletSchedulerEStage = new SingleThreadStage<>(pendingTaskletLauncher, 1);
     this.evaluatorRequestor = evaluatorRequestor;
     this.vortexMaster = vortexMaster;
     this.vortexRequestor = vortexRequestor;

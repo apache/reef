@@ -20,6 +20,7 @@ package org.apache.reef.vortex.driver;
 
 import net.jcip.annotations.ThreadSafe;
 import org.apache.reef.annotations.audience.DriverSide;
+import org.apache.reef.util.Optional;
 import org.apache.reef.vortex.api.VortexFunction;
 import org.apache.reef.vortex.api.VortexFuture;
 
@@ -74,9 +75,11 @@ final class DefaultVortexMaster implements VortexMaster {
    */
   @Override
   public void workerPreempted(final String id) {
-    final Collection<Tasklet> preemptedTasklets = runningWorkers.removeWorker(id);
-    for (final Tasklet tasklet : preemptedTasklets) {
-      pendingTasklets.addFirst(tasklet);
+    final Optional<Collection<Tasklet>> preemptedTasklets = runningWorkers.removeWorker(id);
+    if (preemptedTasklets.isPresent()) {
+      for (final Tasklet tasklet : preemptedTasklets.get()) {
+        pendingTasklets.addFirst(tasklet);
+      }
     }
   }
 

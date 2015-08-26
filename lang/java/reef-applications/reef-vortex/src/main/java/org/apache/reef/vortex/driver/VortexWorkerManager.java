@@ -18,24 +18,24 @@
  */
 package org.apache.reef.vortex.driver;
 
-import net.jcip.annotations.ThreadSafe;
+import net.jcip.annotations.NotThreadSafe;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.driver.task.RunningTask;
 import org.apache.reef.vortex.common.TaskletExecutionRequest;
 
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.HashMap;
 
 /**
  * Representation of a VortexWorkerManager in Driver.
  */
-@ThreadSafe
+@NotThreadSafe
 @DriverSide
 class VortexWorkerManager {
   private final VortexRequestor vortexRequestor;
   private final RunningTask reefTask;
-  private final ConcurrentHashMap<Integer, Tasklet> runningTasklets = new ConcurrentHashMap<>();
+  private final HashMap<Integer, Tasklet> runningTasklets = new HashMap<>();
 
   VortexWorkerManager(final VortexRequestor vortexRequestor, final RunningTask reefTask) {
     this.vortexRequestor = vortexRequestor;
@@ -51,23 +51,22 @@ class VortexWorkerManager {
     vortexRequestor.send(reefTask, taskletExecutionRequest);
   }
 
-  <TOutput extends Serializable>
-      void taskletCompleted(final Integer taskletId, final TOutput result) {
+  <TOutput extends Serializable> Tasklet taskletCompleted(final Integer taskletId, final TOutput result) {
     final Tasklet<?, TOutput> tasklet = runningTasklets.remove(taskletId);
-    if (tasklet != null) { // Tasklet should complete/error only once
-      tasklet.completed(result);
-    }
+    assert(tasklet != null); // Tasklet should complete/error only once
+    tasklet.completed(result);
+    return tasklet;
   }
 
-  void taskletThrewException(final Integer taskletId, final Exception exception) {
+  Tasklet taskletThrewException(final Integer taskletId, final Exception exception) {
     final Tasklet tasklet = runningTasklets.remove(taskletId);
-    if (tasklet != null) { // Tasklet should complete/error only once
-      tasklet.threwException(exception);
-    }
+    assert(tasklet != null); // Tasklet should complete/error only once
+    tasklet.threwException(exception);
+    return tasklet;
   }
 
   Collection<Tasklet> removed() {
-    return runningTasklets.values();
+    return runningTasklets.isEmpty() ? null : runningTasklets.values();
   }
 
   void terminate() {

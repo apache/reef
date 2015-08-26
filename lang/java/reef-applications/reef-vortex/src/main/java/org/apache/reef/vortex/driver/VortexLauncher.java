@@ -43,12 +43,18 @@ public final class VortexLauncher {
                                            final Class<? extends VortexStart> vortexUserCode,
                                            final int numOfWorkers,
                                            final int workerMemory,
-                                           final int workerCores) {
+                                           final int workerCores,
+                                           final int workerCapacity) {
     final Configuration runtimeConf = LocalRuntimeConfiguration.CONF
         .set(LocalRuntimeConfiguration.MAX_NUMBER_OF_EVALUATORS, MAX_NUMBER_OF_EVALUATORS)
         .build();
-    final Configuration vortexConf =
-        VortexConfHelper.getVortexConf(jobName, vortexUserCode, numOfWorkers, workerMemory, workerCores);
+    final Configuration vortexConf = VortexConfHelper.getVortexConf(
+        jobName,
+        vortexUserCode,
+        numOfWorkers,
+        workerMemory,
+        workerCores,
+        workerCapacity);
     return launch(runtimeConf, vortexConf);
   }
 

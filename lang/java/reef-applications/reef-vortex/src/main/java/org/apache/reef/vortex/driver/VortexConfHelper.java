@@ -42,7 +42,8 @@ public final class VortexConfHelper {
                                             final Class<? extends VortexStart> vortexStart,
                                             final int numOfWorkers,
                                             final int workerMemory,
-                                            final int workerCores) {
+                                            final int workerCores,
+                                            final int workerCapacity) {
     final Configuration vortexDriverConf = DriverConfiguration.CONF
         .set(DriverConfiguration.GLOBAL_LIBRARIES, EnvironmentUtils.getClassLocation(VortexDriver.class))
         .set(DriverConfiguration.ON_DRIVER_STARTED, VortexDriver.StartHandler.class)
@@ -57,6 +58,7 @@ public final class VortexConfHelper {
         .set(VortexMasterConf.WORKER_NUM, numOfWorkers)
         .set(VortexMasterConf.WORKER_MEM, workerMemory)
         .set(VortexMasterConf.WORKER_CORES, workerCores)
+        .set(VortexMasterConf.WORKER_CAPACITY, workerCapacity)
         .set(VortexMasterConf.VORTEX_START, vortexStart)
         .set(VortexMasterConf.NUM_OF_VORTEX_START_THERAD, DEFAULT_NUM_OF_VORTEX_START_THERAD) // fixed to 1 for now
         .build();

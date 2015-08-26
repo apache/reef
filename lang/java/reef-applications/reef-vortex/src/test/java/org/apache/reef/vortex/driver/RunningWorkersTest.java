@@ -30,7 +30,7 @@ import static org.junit.Assert.assertTrue;
  * Test Possible Race Conditions.
  */
 public class RunningWorkersTest {
-  private final RunningWorkers runningWorkers = new RunningWorkers();
+  private final RunningWorkers runningWorkers = new RunningWorkers(new RandomSchedulingPolicy());
   private final TestUtil testUtil = new TestUtil();
 
   /**
@@ -40,7 +40,7 @@ public class RunningWorkersTest {
   @Test
   public void removeExecutorAndAddExecutor() throws Exception {
     final VortexWorkerManager vortexWorkerManager = testUtil.newWorker();
-    assertEquals("Must be no running tasklets", 0, runningWorkers.removeWorker(vortexWorkerManager.getId()).size());
+    assertFalse("Must be no running tasklets", runningWorkers.removeWorker(vortexWorkerManager.getId()).isPresent());
     runningWorkers.addWorker(vortexWorkerManager);
     assertFalse("Executor should not be running", runningWorkers.isWorkerRunning(vortexWorkerManager.getId()));
   }
@@ -55,7 +55,7 @@ public class RunningWorkersTest {
     final Tasklet tasklet = testUtil.newTasklet();
     runningWorkers.addWorker(vortexWorkerManager);
     runningWorkers.launchTasklet(tasklet); // blocks when no worker exists
-    final Collection<Tasklet> tasklets = runningWorkers.removeWorker(vortexWorkerManager.getId());
+    final Collection<Tasklet> tasklets = runningWorkers.removeWorker(vortexWorkerManager.getId()).get();
     assertEquals("Only 1 Tasklet must have been running", 1, tasklets.size());
     assertTrue("This Tasklet must have been running", tasklets.contains(tasklet));
     runningWorkers.completeTasklet(vortexWorkerManager.getId(), tasklet.getId(), null);

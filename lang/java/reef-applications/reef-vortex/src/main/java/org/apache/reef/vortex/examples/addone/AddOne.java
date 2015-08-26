@@ -31,6 +31,6 @@ final class AddOne {
    * Launch the vortex job, passing appropriate arguments.
    */
   public static void main(final String[] args) {
-    VortexLauncher.launchLocal("Vortex_Example_AddOne", AddOneStart.class, 2, 1024, 4);
+    VortexLauncher.launchLocal("Vortex_Example_AddOne", AddOneStart.class, 2, 1024, 4, 2000);
   }
 }
