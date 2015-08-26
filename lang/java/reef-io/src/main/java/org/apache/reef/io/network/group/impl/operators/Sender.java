@@ -27,7 +27,6 @@ import org.apache.reef.io.network.util.StringIdentifierFactory;
 import org.apache.reef.wake.Identifier;
 import org.apache.reef.wake.IdentifierFactory;
 
-import java.util.Arrays;
 import java.util.logging.Logger;
 
 public class Sender extends AbstractGroupCommOperator {
@@ -49,11 +48,11 @@ public class Sender extends AbstractGroupCommOperator {
   }
 
   public void send(final GroupCommunicationMessage msg, final String dest) throws NetworkException {
-    LOG.entering("Sender", "send", new Object[]{msg, dest});
+    LOG.entering("Sender", "send", msg);
     final Identifier destId = idFac.getNewInstance(dest);
     final Connection<GroupCommunicationMessage> link = netService.newConnection(destId);
     link.open();
     link.write(msg);
-    LOG.exiting("Sender", "send", Arrays.toString(new Object[]{msg, dest}));
+    LOG.exiting("Sender", "send", msg);
   }
 }

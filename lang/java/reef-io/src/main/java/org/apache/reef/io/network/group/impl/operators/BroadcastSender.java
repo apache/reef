@@ -41,7 +41,7 @@ import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.wake.EventHandler;
 
 import javax.inject.Inject;
-import java.util.Arrays;
+
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
@@ -120,7 +120,7 @@ public class BroadcastSender<T> implements Broadcast.Sender<T>, EventHandler<Gro
 
   @Override
   public void send(final T element) throws NetworkException, InterruptedException {
-    LOG.entering("BroadcastSender", "send", new Object[]{this, element});
+    LOG.entering("BroadcastSender", "send", this);
     LOG.fine("I am " + this);
 
     if (init.compareAndSet(false, true)) {
@@ -130,12 +130,11 @@ public class BroadcastSender<T> implements Broadcast.Sender<T>, EventHandler<Gro
     }
 
     try {
-      LOG.fine(this + " Broadcasting " + element);
       topology.sendToChildren(dataCodec.encode(element), ReefNetworkGroupCommProtos.GroupCommMessage.Type.Broadcast);
     } catch (final ParentDeadException e) {
       throw new RuntimeException("ParentDeadException", e);
     }
-    LOG.exiting("BroadcastSender", "send", Arrays.toString(new Object[]{this, element}));
+    LOG.exiting("BroadcastSender", "send", this);
   }
 
 }
