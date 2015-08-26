@@ -43,7 +43,7 @@ namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
         /// <summary>
         /// Runs the actual broadcast and reduce job
         /// </summary>
-        public void Run(int numberofMappers, int chunkSize, int numIterations, int dim)
+        public void Run(int numberofMappers, int chunkSize, int numIterations, int dim, int mapperMemory, int updateTaskMemory)
         {
             var updateFunctionConfig =
                 TangFactory.GetTang().NewConfigurationBuilder(IMRUUpdateConfiguration<int[], int[], int[]>.ConfigurationModule
@@ -99,6 +99,8 @@ namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
                             numberofMappers.ToString()).Build())
                     .SetJobName("BroadcastReduce")
                     .SetNumberOfMappers(numberofMappers)
+                    .SetMapperMemory(mapperMemory)
+                    .SetUpdateTaskMemory(updateTaskMemory)
                     .Build());
         }
     }
