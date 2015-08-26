@@ -40,7 +40,6 @@ import org.apache.reef.wake.EventHandler;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
@@ -129,7 +128,7 @@ public class ReduceSender<T> implements Reduce.Sender<T>, EventHandler<GroupComm
 
   @Override
   public void send(final T myData) throws NetworkException, InterruptedException {
-    LOG.entering("ReduceSender", "send", new Object[]{this, myData});
+    LOG.entering("ReduceSender", "send", this);
     LOG.fine("I am " + this);
 
     if (init.compareAndSet(false, true)) {
@@ -146,12 +145,11 @@ public class ReduceSender<T> implements Reduce.Sender<T>, EventHandler<GroupComm
         vals.add(reducedValueOfChildren);
       }
       final T reducedValue = reduceFunction.apply(vals);
-      LOG.fine(this + " Sending local " + reducedValue + " to parent");
       topology.sendToParent(dataCodec.encode(reducedValue), ReefNetworkGroupCommProtos.GroupCommMessage.Type.Reduce);
     } catch (final ParentDeadException e) {
       throw new RuntimeException("ParentDeadException", e);
     }
-    LOG.exiting("ReduceSender", "send", Arrays.toString(new Object[]{this, myData}));
+    LOG.exiting("ReduceSender", "send", this);
   }
 
   @Override
