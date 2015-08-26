@@ -32,31 +32,31 @@ public enum DriverRestartState {
   /**
    *  Driver has not begun the restart progress yet.
    */
-  NotRestarted,
+  NOT_RESTARTED,
 
   /**
    * Driver has been notified of the restart by the runtime, but has not yet
    * received its set of evaluator IDs to recover yet.
    */
-  RestartBegan,
+  BEGAN,
 
   /**
    * Driver has received its set of evaluator IDs to recover.
    */
-  RestartInProgress,
+  IN_PROGRESS,
 
   /**
    * Driver has recovered all the evaluator IDs that it can, and the restart process is completed.
    */
-  RestartCompleted;
+  COMPLETED;
 
   /**
    * @return  true if the restart is in process.
    */
   public boolean isRestarting() {
     switch (this) {
-    case RestartBegan:
-    case RestartInProgress:
+    case BEGAN:
+    case IN_PROGRESS:
       return true;
     default:
       return false;
@@ -67,7 +67,7 @@ public enum DriverRestartState {
    * @return true if the driver began the restart process. Can be already done with the restart process.
    */
   public boolean hasRestarted() {
-    return this != NotRestarted;
+    return this != NOT_RESTARTED;
   }
 
   /**
