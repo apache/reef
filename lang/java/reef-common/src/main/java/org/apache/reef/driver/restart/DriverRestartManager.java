@@ -40,7 +40,7 @@ public final class DriverRestartManager {
   private final DriverRuntimeRestartManager driverRuntimeRestartManager;
 
   private RestartEvaluators restartEvaluators;
-  private DriverRestartState state = DriverRestartState.NotRestarted;
+  private DriverRestartState state = DriverRestartState.NOT_RESTARTED;
 
   @Inject
   private DriverRestartManager(final DriverRuntimeRestartManager driverRuntimeRestartManager) {
@@ -55,7 +55,7 @@ public final class DriverRestartManager {
   public synchronized boolean detectRestart() {
     if (this.state.hasNotRestarted() && driverRuntimeRestartManager.hasRestarted()) {
       // set the state machine in motion.
-      this.state = DriverRestartState.RestartBegan;
+      this.state = DriverRestartState.BEGAN;
     }
 
     return this.state.hasRestarted();
@@ -82,9 +82,9 @@ public final class DriverRestartManager {
    * as alive to the job driver.
    */
   public synchronized void onRestart() {
-    if (this.state == DriverRestartState.RestartBegan) {
+    if (this.state == DriverRestartState.BEGAN) {
       restartEvaluators = driverRuntimeRestartManager.getPreviousEvaluators();
-      this.state = DriverRestartState.RestartInProgress;
+      this.state = DriverRestartState.IN_PROGRESS;
     } else {
       final String errMsg = "Should not be setting the set of expected alive evaluators more than once.";
       LOG.log(Level.SEVERE, errMsg);
