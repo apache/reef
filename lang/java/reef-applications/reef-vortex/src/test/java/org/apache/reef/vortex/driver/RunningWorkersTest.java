@@ -30,7 +30,7 @@ import static org.junit.Assert.assertTrue;
  * Test Possible Race Conditions.
  */
 public class RunningWorkersTest {
-  private final RunningWorkers runningWorkers = new RunningWorkers();
+  private final RunningWorkers runningWorkers = new RunningWorkers(new RandomSchedulingPolicy());
   private final TestUtil testUtil = new TestUtil();
 
   /**

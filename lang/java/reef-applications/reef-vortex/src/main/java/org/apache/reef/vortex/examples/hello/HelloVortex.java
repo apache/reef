@@ -31,6 +31,6 @@ final class HelloVortex {
    * Launch the vortex job, passing appropriate arguments.
    */
   public static void main(final String[] args) {
-    VortexLauncher.launchLocal("Vortex_Example_HelloVortex", HelloVortexStart.class, 1, 1024, 1);
+    VortexLauncher.launchLocal("Vortex_Example_HelloVortex", HelloVortexStart.class, 1, 1024, 1, 2000);
   }
 }

@@ -22,10 +22,7 @@ import org.apache.reef.annotations.Unstable;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
-import org.apache.reef.tang.formats.ConfigurationModule;
-import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
-import org.apache.reef.tang.formats.RequiredImpl;
-import org.apache.reef.tang.formats.RequiredParameter;
+import org.apache.reef.tang.formats.*;
 import org.apache.reef.vortex.api.VortexStart;
 
 /**
@@ -56,6 +53,13 @@ public final class VortexMasterConf extends ConfigurationModuleBuilder {
   }
 
   /**
+   * Worker Capacity.
+   */
+  @NamedParameter(doc = "Worker Capacity")
+  final class WorkerCapacity implements Name<Integer> {
+  }
+
+  /**
    * Number of Vortex Start Threads.
    */
   @NamedParameter(doc = "Number of Vortex Start Threads")
@@ -78,6 +82,11 @@ public final class VortexMasterConf extends ConfigurationModuleBuilder {
   public static final RequiredParameter<Integer> WORKER_CORES = new RequiredParameter<>();
 
   /**
+   * Worker Cores.
+   */
+  public static final OptionalParameter<Integer> WORKER_CAPACITY = new OptionalParameter<>();
+
+  /**
    * Vortex Start.
    */
   public static final RequiredImpl<VortexStart> VORTEX_START = new RequiredImpl<>();
@@ -94,6 +103,7 @@ public final class VortexMasterConf extends ConfigurationModuleBuilder {
       .bindNamedParameter(WorkerNum.class, WORKER_NUM)
       .bindNamedParameter(WorkerMem.class, WORKER_MEM)
       .bindNamedParameter(WorkerCores.class, WORKER_CORES)
+      .bindNamedParameter(WorkerCapacity.class, WORKER_CAPACITY)
       .bindImplementation(VortexStart.class, VORTEX_START)
       .bindNamedParameter(NumberOfVortexStartThreads.class, NUM_OF_VORTEX_START_THERAD)
       .build();

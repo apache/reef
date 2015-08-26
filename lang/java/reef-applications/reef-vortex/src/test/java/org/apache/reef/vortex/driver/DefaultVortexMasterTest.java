@@ -41,13 +41,13 @@ public class DefaultVortexMasterTest {
   public void testSingleTaskletNoFailure() throws Exception {
     final VortexFunction vortexFunction = testUtil.newFunction();
     final VortexWorkerManager vortexWorkerManager1 = testUtil.newWorker();
-    final RunningWorkers runningWorkers = new RunningWorkers();
+    final RunningWorkers runningWorkers = new RunningWorkers(new RandomSchedulingPolicy());
     final PendingTasklets pendingTasklets = new PendingTasklets();
     final DefaultVortexMaster vortexMaster = new DefaultVortexMaster(runningWorkers, pendingTasklets);
 
     vortexMaster.workerAllocated(vortexWorkerManager1);
     final VortexFuture future = vortexMaster.enqueueTasklet(vortexFunction, null);
-    final ArrayList<Integer> taskletIds = scheduleTasklets(runningWorkers, pendingTasklets, 1);
+    final ArrayList<Integer> taskletIds = launchTasklets(runningWorkers, pendingTasklets, 1);
     for (final int taskletId : taskletIds) {
       vortexMaster.taskletCompleted(vortexWorkerManager1.getId(), taskletId, null);
     }
@@ -63,14 +63,14 @@ public class DefaultVortexMasterTest {
     final VortexFunction vortexFunction = testUtil.newFunction();
     final VortexWorkerManager vortexWorkerManager1 = testUtil.newWorker();
     final VortexWorkerManager vortexWorkerManager2 = testUtil.newWorker();
-    final RunningWorkers runningWorkers = new RunningWorkers();
+    final RunningWorkers runningWorkers = new RunningWorkers(new RandomSchedulingPolicy());
     final PendingTasklets pendingTasklets = new PendingTasklets();
     final DefaultVortexMaster vortexMaster = new DefaultVortexMaster(runningWorkers, pendingTasklets);
 
     // Allocate worker & tasklet and schedule
     vortexMaster.workerAllocated(vortexWorkerManager1);
     final VortexFuture future = vortexMaster.enqueueTasklet(vortexFunction, null);
-    final ArrayList<Integer> taskletIds1 = scheduleTasklets(runningWorkers, pendingTasklets, 1);
+    final ArrayList<Integer> taskletIds1 = launchTasklets(runningWorkers, pendingTasklets, 1);
 
     // Preemption!
     vortexMaster.workerPreempted(vortexWorkerManager1.getId());
@@ -78,7 +78,7 @@ public class DefaultVortexMasterTest {
 
     // New resource allocation and scheduling
     vortexMaster.workerAllocated(vortexWorkerManager2);
-    final ArrayList<Integer> taskletIds2 = scheduleTasklets(runningWorkers, pendingTasklets, 1);
+    final ArrayList<Integer> taskletIds2 = launchTasklets(runningWorkers, pendingTasklets, 1);
     assertEquals("Both lists need to contain the same single tasklet id", taskletIds1, taskletIds2);
 
     // Completed?
@@ -95,13 +95,13 @@ public class DefaultVortexMasterTest {
   public void testMultipleTaskletsFailure() throws Exception {
     // The tasklets that need to be executed
     final ArrayList<VortexFuture> vortexFutures = new ArrayList<>();
-    final RunningWorkers runningWorkers = new RunningWorkers();
+    final RunningWorkers runningWorkers = new RunningWorkers(new RandomSchedulingPolicy());
     final PendingTasklets pendingTasklets = new PendingTasklets();
     final DefaultVortexMaster vortexMaster = new DefaultVortexMaster(runningWorkers, pendingTasklets);
 
     // Allocate iniital evaluators (will all be preempted later...)
     final List<VortexWorkerManager> initialWorkers = new ArrayList<>();
-    final int numOfWorkers = 10;
+    final int numOfWorkers = 100;
     for (int i = 0; i < numOfWorkers; i++) {
       final VortexWorkerManager vortexWorkerManager = testUtil.newWorker();
       initialWorkers.add(vortexWorkerManager);
@@ -113,7 +113,7 @@ public class DefaultVortexMasterTest {
     for (int i = 0; i < numOfTasklets; i++) {
       vortexFutures.add(vortexMaster.enqueueTasklet(testUtil.newFunction(), null));
     }
-    final ArrayList<Integer> taskletIds1 = scheduleTasklets(runningWorkers, pendingTasklets, numOfTasklets);
+    final ArrayList<Integer> taskletIds1 = launchTasklets(runningWorkers, pendingTasklets, numOfTasklets);
 
     // Preempt all evaluators
     for (int i = 0; i < numOfWorkers; i++) {
@@ -124,7 +124,7 @@ public class DefaultVortexMasterTest {
     for (int i = 0; i < numOfWorkers; i++) {
       vortexMaster.workerAllocated(testUtil.newWorker());
     }
-    final ArrayList<Integer> taskletIds2 = scheduleTasklets(runningWorkers, pendingTasklets, numOfTasklets);
+    final ArrayList<Integer> taskletIds2 = launchTasklets(runningWorkers, pendingTasklets, numOfTasklets);
     assertEquals("Must contain same tasklet ids", new HashSet<>(taskletIds1), new HashSet<>(taskletIds2));
 
     // Completed?
@@ -139,19 +139,18 @@ public class DefaultVortexMasterTest {
   }
 
   /**
-   * Schedule specified number of tasklets.
-   * @return ids of scheduled tasklets
+   * Launch specified number of tasklets as a substitute for PendingTaskletLauncher.
+   * @return ids of launched tasklets
    */
-  private ArrayList<Integer> scheduleTasklets(final RunningWorkers runningWorkers,
-                                              final PendingTasklets pendingTasklets,
-                                              final int numOfTasklets) throws InterruptedException {
+  private ArrayList<Integer> launchTasklets(final RunningWorkers runningWorkers,
+                                            final PendingTasklets pendingTasklets,
+                                            final int numOfTasklets) throws InterruptedException {
     final ArrayList<Integer> taskletIds = new ArrayList<>();
     for (int i = 0; i < numOfTasklets; i++) {
       final Tasklet tasklet = pendingTasklets.takeFirst(); // blocks when no tasklet exists
       assertNotNull("Tasklet should exist in the pending queue", tasklet);
-
+      runningWorkers.launchTasklet(tasklet); // blocks when no resource exists
       taskletIds.add(tasklet.getId());
-      runningWorkers.launchTasklet(tasklet); // blocks when no worker exists
     }
     return taskletIds;
   }

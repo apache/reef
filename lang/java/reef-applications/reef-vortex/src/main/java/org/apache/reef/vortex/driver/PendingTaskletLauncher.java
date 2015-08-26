@@ -26,24 +26,24 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Pending Tasklet Scheduler.
+ * Pending Tasklet Launcher.
  */
 @DriverSide
-final class PendingTaskletScheduler implements EventHandler<Integer> {
-  private static final Logger LOG = Logger.getLogger(PendingTaskletScheduler.class.getName());
+final class PendingTaskletLauncher implements EventHandler<Integer> {
+  private static final Logger LOG = Logger.getLogger(PendingTaskletLauncher.class.getName());
 
   private final RunningWorkers runningWorkers;
   private final PendingTasklets pendingTasklets;
 
   @Inject
-  private PendingTaskletScheduler(final RunningWorkers runningWorkers,
-                                  final PendingTasklets pendingTasklets) {
+  private PendingTaskletLauncher(final RunningWorkers runningWorkers,
+                                 final PendingTasklets pendingTasklets) {
     this.runningWorkers = runningWorkers;
     this.pendingTasklets = pendingTasklets;
   }
 
   /**
-   * Repeatedly take a tasklet from the pending queue and schedule/launch it via RunningWorkers.
+   * Repeatedly take a tasklet from the pending queue and launch it via RunningWorkers.
    */
   @Override
   public void onNext(final Integer integer) {
