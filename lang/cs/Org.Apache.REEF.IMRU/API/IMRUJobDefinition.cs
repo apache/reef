@@ -17,6 +17,7 @@
  * under the License.
  */
 
+using System.Collections.Generic;
 using Org.Apache.REEF.Tang.Interface;
 
 namespace Org.Apache.REEF.IMRU.API
@@ -39,6 +40,7 @@ namespace Org.Apache.REEF.IMRU.API
         private readonly int _numberOfMappers;
         private readonly int _memoryPerMapper;
         private readonly int _updateTaskMemory;
+        private readonly ISet<IConfiguration> _perMapConfigGeneratorConfig;
 
         /// <summary>
         /// Constructor
@@ -55,6 +57,7 @@ namespace Org.Apache.REEF.IMRU.API
         /// PipelineDataConverter for TMapInput</param>
         /// <param name="partitionedDatasetConfiguration">Configuration of partitioned 
         /// dataset</param>
+        /// <param name="perMapConfigGeneratorConfig">Per mapper configuration</param>
         /// <param name="numberOfMappers">Number of mappers</param>
         /// <param name="memoryPerMapper">Per Mapper memory.</param>
         /// <param name="jobName">Job name</param>
@@ -67,6 +70,7 @@ namespace Org.Apache.REEF.IMRU.API
             IConfiguration mapOutputPipelineDataConverterConfiguration,
             IConfiguration mapInputPipelineDataConverterConfiguration,
             IConfiguration partitionedDatasetConfiguration,
+            ISet<IConfiguration> perMapConfigGeneratorConfig,
             int numberOfMappers,
             int memoryPerMapper,
             int updateTaskMemory,
@@ -84,6 +88,7 @@ namespace Org.Apache.REEF.IMRU.API
             _jobName = jobName;
             _memoryPerMapper = memoryPerMapper;
             _updateTaskMemory = updateTaskMemory;
+            _perMapConfigGeneratorConfig = perMapConfigGeneratorConfig;
         }
 
         /// <summary>
@@ -183,6 +188,14 @@ namespace Org.Apache.REEF.IMRU.API
         internal int UpdateTaskMemory
         {
             get { return _updateTaskMemory; }
+        }
+
+        /// <summary>
+        /// Per mapper configuration
+        /// </summary>
+        internal ISet<IConfiguration> PerMapConfigGeneratorConfig
+        {
+            get { return _perMapConfigGeneratorConfig; }
         }
     }
 }

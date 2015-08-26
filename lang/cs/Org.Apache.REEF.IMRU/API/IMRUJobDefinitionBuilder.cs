@@ -18,9 +18,13 @@
  */
 
 using System;
+using System.Collections.Generic;
+using Org.Apache.REEF.IMRU.OnREEF.Parameters;
 using Org.Apache.REEF.Network.Group.Driver.Impl;
+using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Implementations.Tang;
+using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities.Diagnostics;
 using Org.Apache.REEF.Utilities.Logging;
 
@@ -46,6 +50,7 @@ namespace Org.Apache.REEF.IMRU.API
         private IConfiguration _mapOutputPipelineDataConverterConfiguration;
         private IConfiguration _mapInputPipelineDataConverterConfiguration;
         private IConfiguration _partitionedDatasetConfiguration;
+        private readonly ISet<IConfiguration> _perMapConfigGeneratorConfig;
 
         private static readonly IConfiguration EmptyConfiguration =
             TangFactory.GetTang().NewConfigurationBuilder().Build();
@@ -60,6 +65,7 @@ namespace Org.Apache.REEF.IMRU.API
             _partitionedDatasetConfiguration = EmptyConfiguration;
             _memoryPerMapper = 512;
             _updateTaskMemory = 512;
+            _perMapConfigGeneratorConfig = new HashSet<IConfiguration>();
         }
 
         /// <summary>
@@ -203,6 +209,17 @@ namespace Org.Apache.REEF.IMRU.API
         }
 
         /// <summary>
+        /// Sets Per Map Configuration
+        /// </summary>
+        /// <param name="perMapperConfig">Mapper configs</param>
+        /// <returns></returns>
+        public IMRUJobDefinitionBuilder SetPerMapConfigurations(IConfiguration perMapperConfig)
+        {
+            _perMapConfigGeneratorConfig.Add(perMapperConfig);
+            return this;
+        }
+
+        /// <summary>
         /// Instantiate the IMRUJobDefinition.
         /// </summary>
         /// <returns>The IMRUJobDefintion configured.</returns>
@@ -250,6 +267,7 @@ namespace Org.Apache.REEF.IMRU.API
                 _mapOutputPipelineDataConverterConfiguration,
                 _mapInputPipelineDataConverterConfiguration,
                 _partitionedDatasetConfiguration,
+                _perMapConfigGeneratorConfig,
                 _numberOfMappers,
                 _memoryPerMapper,
                 _updateTaskMemory,
