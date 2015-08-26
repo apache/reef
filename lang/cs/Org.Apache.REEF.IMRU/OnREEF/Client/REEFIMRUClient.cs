@@ -15,8 +15,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Globalization;
+using System.Linq;
 using Org.Apache.REEF.Client.API;
 using Org.Apache.REEF.Driver;
 using Org.Apache.REEF.IMRU.API;
@@ -27,8 +30,12 @@ using Org.Apache.REEF.Network.Group.Driver;
 using Org.Apache.REEF.Network.Group.Driver.Impl;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Formats;
+using Org.Apache.REEF.Tang.Implementations.Configuration;
 using Org.Apache.REEF.Tang.Implementations.Tang;
+using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
+using Org.Apache.REEF.Utilities.Diagnostics;
+using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.IMRU.OnREEF.Client
 {
@@ -40,6 +47,8 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Client
     /// <typeparam name="TResult">The return type of the computation.</typeparam>
     internal sealed class REEFIMRUClient<TMapInput, TMapOutput, TResult> : IIMRUClient<TMapInput, TMapOutput, TResult>
     {
+        private static readonly Logger Logger = Logger.GetLogger(typeof(IMRUDriver<TMapInput, TMapOutput, TResult>));
+
         private readonly IREEFClient _reefClient;
         private readonly JobSubmissionBuilderFactory _jobSubmissionBuilderFactory;
         private readonly AvroConfigurationSerializer _configurationSerializer;
@@ -61,6 +70,16 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Client
         IEnumerable<TResult> IIMRUClient<TMapInput, TMapOutput, TResult>.Submit(IMRUJobDefinition jobDefinition)
         {
             string driverId = string.Format("IMRU-{0}-Driver", jobDefinition.JobName);
+            IConfiguration overallPerMapConfig = null;
+            
+            try
+            {
+                overallPerMapConfig = Configurations.Merge(jobDefinition.PerMapConfigGeneratorConfig.ToArray());
+            }
+            catch (Exception e)
+            {
+                Exceptions.Throw(e, "Issues in merging PerMapCOnfigGenerator configurations", Logger);
+            }
 
             // The driver configuration contains all the needed bindings.
             var imruDriverConfiguration = TangFactory.GetTang().NewConfigurationBuilder(new[]
@@ -86,7 +105,8 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Client
                         (jobDefinition.NumberOfMappers + 1).ToString(CultureInfo.InvariantCulture))
                     .BindImplementation(GenericType<IGroupCommDriver>.Class, GenericType<GroupCommDriver>.Class)
                     .Build(),
-                jobDefinition.PartitionedDatasetConfiguration
+                jobDefinition.PartitionedDatasetConfiguration,
+                overallPerMapConfig
             })
                 .BindNamedParameter(typeof (SerializedMapConfiguration),
                     _configurationSerializer.ToString(jobDefinition.MapFunctionConfiguration))

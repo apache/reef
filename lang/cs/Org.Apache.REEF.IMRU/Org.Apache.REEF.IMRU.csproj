@@ -49,8 +49,11 @@ under the License.
     <Compile Include="API\IMRUJobDefinitionBuilder.cs" />
     <Compile Include="API\IMRUMapConfiguration.cs" />
     <Compile Include="API\IMRUReduceFunctionConfiguration.cs" />
+    <Compile Include="API\IMRUPerMapperConfigGeneratorConfiguration.cs" />
     <Compile Include="API\IMRUUpdateConfiguration.cs" />
     <Compile Include="API\IUpdateFunction.cs" />
+    <Compile Include="API\IPerMapperConfigGenerator.cs" />
+    <Compile Include="API\PerMapConfigGeneratorSet.cs" />
     <Compile Include="API\UpdateResult.cs" />
     <Compile Include="InProcess\IMRURunner.cs" />
     <Compile Include="InProcess\InProcessIMRUClient.cs" />
