@@ -143,7 +143,7 @@ namespace Org.Apache.REEF.Network.NetworkService.Codec
             foreach (var data in obj.Data)
             {
                 var asyncResult = codecWriteFunc.BeginInvoke(data, writer, token, null, null);
-                codecWriteFunc.EndInvoke(asyncResult);
+                await codecWriteFunc.EndInvoke(asyncResult);
             }
         }
 
