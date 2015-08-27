@@ -37,8 +37,6 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
         public void TestServiceConfiguration()
         {
             string groupName = "group1";
-            string broadcastOperatorName = "broadcast";
-            string reduceOperatorName = "reduce";
             string masterTaskId = "task0";
             string driverId = "Driver Id";
             int numTasks = 3;

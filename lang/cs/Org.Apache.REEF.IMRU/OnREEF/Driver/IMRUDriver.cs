@@ -292,7 +292,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                             GenericType<MapInputwithControlMessagePipelineDataConverter<TMapInput>>.Class)
                         .Build();
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 mapInputPipelineDataConverterConfig = TangFactory.GetTang()
                     .NewConfigurationBuilder()
@@ -308,7 +308,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                     .NewInjector(mapInputPipelineDataConverterConfig)
                     .GetInstance<IPipelineDataConverter<TMapOutput>>();
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 mapOutputPipelineDataConverterConfig =
                     TangFactory.GetTang()
