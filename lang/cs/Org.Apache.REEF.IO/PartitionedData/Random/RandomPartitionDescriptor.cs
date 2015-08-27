@@ -17,6 +17,7 @@
  * under the License.
  */
 
+using System.IO;
 using Org.Apache.REEF.IO.PartitionedData.Random.Parameters;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
@@ -42,7 +43,7 @@ namespace Org.Apache.REEF.IO.PartitionedData.Random
         public IConfiguration GetPartitionConfiguration()
         {
             return TangFactory.GetTang().NewConfigurationBuilder()
-                .BindImplementation(typeof(IPartition), typeof(RandomPartition))
+                .BindImplementation(typeof(IPartition<Stream>), typeof(RandomPartition))
                 .BindNamedParameter(typeof(PartitionId), _id)
                 .BindNamedParameter(typeof(NumberOfDoublesPerPartition), _numberOfDoubles.ToString())
                 .Build();

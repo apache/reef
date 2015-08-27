@@ -17,6 +17,7 @@
  * under the License.
  */
 
+using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.IO.PartitionedData;
 using Org.Apache.REEF.IO.PartitionedData.Random;
@@ -79,11 +80,11 @@ namespace Org.Apache.REEF.IO.Tests
                 var partition =
                     TangFactory.GetTang()
                         .NewInjector(partitionDescriptor.GetPartitionConfiguration())
-                        .GetInstance<IPartition>();
+                        .GetInstance<IPartition<Stream>>();
                 Assert.IsNotNull(partition);
                 Assert.IsNotNull(partition.Id);
 
-                using (var partitionStream = partition.Open())
+                using (var partitionStream = partition.GetPartitionHandle())
                 {
                     Assert.IsNotNull(partitionStream);
                     Assert.IsTrue(partitionStream.CanRead);
