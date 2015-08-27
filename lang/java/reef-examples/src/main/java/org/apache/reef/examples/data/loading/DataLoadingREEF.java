@@ -95,11 +95,10 @@ public final class DataLoadingREEF {
         .build();
 
     final Configuration dataLoadConfiguration = new DataLoadingRequestBuilder()
-        .setMemoryMB(1024)
         .setInputFormatClass(TextInputFormat.class)
         .setInputPath(inputDir)
         .setNumberOfDesiredSplits(NUM_SPLITS)
-        .setComputeRequest(computeRequest)
+        .addComputeRequest(computeRequest)
         .setDriverConfigurationModule(DriverConfiguration.CONF
             .set(DriverConfiguration.GLOBAL_LIBRARIES, EnvironmentUtils.getClassLocation(LineCounter.class))
             .set(DriverConfiguration.ON_CONTEXT_ACTIVE, LineCounter.ContextActiveHandler.class)
