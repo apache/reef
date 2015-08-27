@@ -38,6 +38,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+// TODO[JIRA REEF-637] Remove the deprecated class.
 /**
  * Helper class for DeprecatedNetworkConnectionService test, deprecated in 0.13.
  */

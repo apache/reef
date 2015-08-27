@@ -34,6 +34,7 @@ import java.util.concurrent.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+// TODO[JIRA REEF-637] Remove the deprecated class.
 /**
  * Test for deprecated methods, which are deprecated in 0.13, of NetworkConnectionService.
  */

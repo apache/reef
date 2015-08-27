@@ -26,6 +26,7 @@ import org.apache.reef.wake.Identifier;
 import org.apache.reef.wake.remote.Codec;
 import org.apache.reef.wake.remote.transport.LinkListener;
 
+// TODO[JIRA REEF-637] Annotate the class as @Unstable.
 /**
  * NetworkConnectionService.
  *
@@ -49,6 +50,7 @@ import org.apache.reef.wake.remote.transport.LinkListener;
 @DefaultImplementation(NetworkConnectionServiceImpl.class)
 public interface NetworkConnectionService extends AutoCloseable {
 
+  // TODO[JIRA REEF-637] Remove the deprecated method.
   /**
    * Registers an instance of ConnectionFactory corresponding to the connectionFactoryId.
    * Binds Codec, EventHandler and LinkListener to the ConnectionFactory.
@@ -109,6 +111,7 @@ public interface NetworkConnectionService extends AutoCloseable {
    */
   void close() throws Exception;
 
+  // TODO[JIRA REEF-637] Remove the deprecated method.
   /**
    * Registers a network connection service identifier.
    * This can be used for destination identifier
@@ -119,6 +122,7 @@ public interface NetworkConnectionService extends AutoCloseable {
   @Deprecated
   void registerId(final Identifier ncsId);
 
+  // TODO[JIRA REEF-637] Remove the deprecated method.
   /**
    * Unregister a network connection service identifier.
    * @param ncsId network connection service identifier
@@ -127,6 +131,7 @@ public interface NetworkConnectionService extends AutoCloseable {
   @Deprecated
   void unregisterId(final Identifier ncsId);
 
+  // TODO[JIRA REEF-637] Remove the deprecated method.
   /**
    * Gets a network connection service client id which is equal to the registered id.
    * @deprecated in 0.13. Use ConnectionFactory.getLocalEndPointId instead.
