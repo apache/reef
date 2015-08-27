@@ -64,6 +64,12 @@ public final class DriverRestartConfiguration extends ConfigurationModuleBuilder
       new OptionalImpl<>();
 
   /**
+   * The amount of time in seconds the driver waits for evaluators to report back on restart.
+   * Defaults to 3 minutes. If the value is set to Integer.MAX_VALUE, the driver will wait forever.
+   */
+  public static final OptionalParameter<Integer> DRIVER_RESTART_EVALUATOR_RECOVERY_SECONDS = new OptionalParameter<>();
+
+  /**
    * Parameter to determine whether the driver should fail or continue if there are evaluator
    * preservation log failures. Defaults to false.
    */
@@ -72,6 +78,7 @@ public final class DriverRestartConfiguration extends ConfigurationModuleBuilder
 
   public static final ConfigurationModule CONF = new DriverRestartConfiguration()
       .bindNamedParameter(FailDriverOnEvaluatorLogErrors.class, FAIL_DRIVER_ON_EVALUATOR_LOG_ERROR)
+      .bindNamedParameter(DriverRestartEvaluatorRecoverySeconds.class, DRIVER_RESTART_EVALUATOR_RECOVERY_SECONDS)
       .bindSetEntry(DriverRestartHandler.class, ON_DRIVER_RESTARTED)
       .bindSetEntry(DriverRestartTaskRunningHandlers.class, ON_DRIVER_RESTART_TASK_RUNNING)
       .bindSetEntry(DriverRestartContextActiveHandlers.class, ON_DRIVER_RESTART_CONTEXT_ACTIVE)

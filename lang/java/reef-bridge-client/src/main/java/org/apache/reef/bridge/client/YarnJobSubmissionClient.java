@@ -68,7 +68,7 @@ public final class YarnJobSubmissionClient {
   private final YarnConfiguration yarnConfiguration;
   private final ClasspathProvider classpath;
   private final int maxApplicationSubmissions;
-  private final boolean enableRestart;
+  private final int driverRestartEvaluatorRecoverySeconds;
   private final SecurityTokenProvider tokenProvider;
 
   @Inject
@@ -79,8 +79,8 @@ public final class YarnJobSubmissionClient {
                           final ClasspathProvider classpath,
                           @Parameter(MaxApplicationSubmissions.class)
                           final int maxApplicationSubmissions,
-                          @Parameter(EnableRestart.class)
-                          final boolean enableRestart,
+                          @Parameter(SubmissionDriverRestartEvaluatorRecoverySeconds.class)
+                          final int driverRestartEvaluatorRecoverySeconds,
                           final SecurityTokenProvider tokenProvider) {
     this.uploader = uploader;
     this.configurationSerializer = configurationSerializer;
@@ -88,7 +88,7 @@ public final class YarnJobSubmissionClient {
     this.yarnConfiguration = yarnConfiguration;
     this.classpath = classpath;
     this.maxApplicationSubmissions = maxApplicationSubmissions;
-    this.enableRestart = enableRestart;
+    this.driverRestartEvaluatorRecoverySeconds = driverRestartEvaluatorRecoverySeconds;
     this.tokenProvider = tokenProvider;
   }
 
@@ -108,7 +108,9 @@ public final class YarnJobSubmissionClient {
         Constants.DRIVER_CONFIGURATION_WITH_HTTP_AND_NAMESERVER,
         yarnDriverConfiguration);
 
-    if (this.enableRestart) {
+    if (driverRestartEvaluatorRecoverySeconds > 0) {
+      LOG.log(Level.FINE, "Driver restart is enabled.");
+
       final Configuration yarnDriverRestartConfiguration =
           YarnDriverRestartConfiguration.CONF
               .build();
@@ -120,6 +122,8 @@ public final class YarnJobSubmissionClient {
                   JobDriver.DriverRestartActiveContextHandler.class)
               .set(DriverRestartConfiguration.ON_DRIVER_RESTART_TASK_RUNNING,
                   JobDriver.DriverRestartRunningTaskHandler.class)
+              .set(DriverRestartConfiguration.DRIVER_RESTART_EVALUATOR_RECOVERY_SECONDS,
+                  driverRestartEvaluatorRecoverySeconds)
               .set(DriverRestartConfiguration.ON_DRIVER_RESTART_COMPLETED,
                   JobDriver.DriverRestartCompletedHandler.class)
               .build();
@@ -212,7 +216,7 @@ public final class YarnJobSubmissionClient {
   private static Configuration getRuntimeConfiguration(final int tcpBeginPort,
                                                        final int tcpRangeCount,
                                                        final int tcpTryCount,
-                                                       final boolean enableRestart,
+                                                       final int driverRecoveryTimeout,
                                                        final int maxApplicationSubmissions) {
     final Configuration yarnClientConfig = YarnClientConfiguration.CONF
         .build();
@@ -225,7 +229,8 @@ public final class YarnJobSubmissionClient {
         .build();
 
     final Configuration yarnJobSubmissionClientParamsConfig = Tang.Factory.getTang().newConfigurationBuilder()
-        .bindNamedParameter(EnableRestart.class, Boolean.toString(enableRestart))
+        .bindNamedParameter(SubmissionDriverRestartEvaluatorRecoverySeconds.class,
+            Integer.toString(driverRecoveryTimeout))
         .bindNamedParameter(MaxApplicationSubmissions.class, Integer.toString(maxApplicationSubmissions))
         .build();
 
@@ -239,7 +244,7 @@ public final class YarnJobSubmissionClient {
    * [2]: int. Driver memory.
    * [3~5]: int. TCP configurations.
    * [6]: int. Max application submissions.
-   * [7]: boolean. Enable restart.
+   * [7]: int. Evaluator recovery timeout for driver restart. > 0 => restart is enabled.
    */
   public static void main(final String[] args) throws InjectionException, IOException, YarnException {
     final File driverFolder = new File(args[0]);
@@ -249,14 +254,14 @@ public final class YarnJobSubmissionClient {
     final int tcpRangeCount = Integer.valueOf(args[4]);
     final int tcpTryCount = Integer.valueOf(args[5]);
     final int maxApplicationSubmissions = Integer.valueOf(args[6]);
-    final boolean enableRestart = Boolean.valueOf(args[7]);
+    final int driverRecoveryTimeout = Integer.valueOf(args[7]);
 
     // Static for now
     final int priority = 1;
     final String queue = "default";
 
     final Configuration yarnConfiguration = getRuntimeConfiguration(
-        tcpBeginPort, tcpRangeCount, tcpTryCount, enableRestart, maxApplicationSubmissions);
+        tcpBeginPort, tcpRangeCount, tcpTryCount, driverRecoveryTimeout, maxApplicationSubmissions);
     final YarnJobSubmissionClient client = Tang.Factory.getTang()
         .newInjector(yarnConfiguration)
         .getInstance(YarnJobSubmissionClient.class);
@@ -266,10 +271,14 @@ public final class YarnJobSubmissionClient {
 }
 
 /**
- * Whether the resource manager should enable restart. Only used by C# job submission.
+ * How long the driver should wait before timing out on evaluator
+ * recovery in seconds. Defaults to -1. If value is negative, the restart functionality will not be
+ * enabled. Only used by .NET job submission.
  */
-@NamedParameter(doc = "Whether the job driver should enable restart", default_value = "false")
-final class EnableRestart implements Name<Boolean> {
-  private EnableRestart() {
+@NamedParameter(doc = "How long the driver should wait before timing out on evaluator" +
+    " recovery in seconds. Defaults to -1. If value is negative, the restart functionality will not be" +
+    " enabled. Only used by .NET job submission.", default_value = "-1")
+final class SubmissionDriverRestartEvaluatorRecoverySeconds implements Name<Integer> {
+  private SubmissionDriverRestartEvaluatorRecoverySeconds() {
   }
 }

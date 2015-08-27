@@ -30,7 +30,6 @@ namespace Org.Apache.REEF.Client.Common
     /// <summary>
     /// Curated parameters for CLR to Java. Passes a set of command line parameters to YarnJobSubmissionClient on
     /// the Java side. The command line parameters should be strictly ordered.
-    /// Note that the EnableRestart parameter will only be true if the user ever binds a DriverRestartedHandler.
     /// </summary>
     internal class ClrClient2JavaClientCuratedParameters
     {
@@ -39,7 +38,7 @@ namespace Org.Apache.REEF.Client.Common
         public int TcpPortRangeTryCount { get; private set; }
         public int TcpPortRangeSeed { get; private set; }
         public int MaxApplicationSubmissions { get; private set; }
-        public bool EnableRestart { get; private set; }
+        public int DriverRestartEvaluatorRecoverySeconds { get; private set; }
 
 
         [Inject]
@@ -49,14 +48,14 @@ namespace Org.Apache.REEF.Client.Common
             [Parameter(typeof(TcpPortRangeTryCount))] int tcpPortRangeTryCount,
             [Parameter(typeof(TcpPortRangeSeed))] int tcpPortRangeSeed,
             [Parameter(typeof(DriverBridgeConfigurationOptions.MaxApplicationSubmissions))] int maxApplicationSubmissions,
-            [Parameter(typeof(DriverBridgeConfigurationOptions.RestartEnabled))] bool restartEnabled)
+            [Parameter(typeof(DriverBridgeConfigurationOptions.DriverRestartEvaluatorRecoverySeconds))] int driverRestartEvaluatorRecoverySeconds)
         {
             TcpPortRangeStart = tcpPortRangeStart;
             TcpPortRangeCount = tcpPortRangeCount;
             TcpPortRangeTryCount = tcpPortRangeTryCount;
             TcpPortRangeSeed = tcpPortRangeSeed;
             MaxApplicationSubmissions = maxApplicationSubmissions;
-            EnableRestart = restartEnabled;
+            this.DriverRestartEvaluatorRecoverySeconds = driverRestartEvaluatorRecoverySeconds;
         }
     }
 }

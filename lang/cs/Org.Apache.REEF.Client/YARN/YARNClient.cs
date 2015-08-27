@@ -69,7 +69,7 @@ namespace Org.Apache.REEF.Client.YARN
                 javaParams.TcpPortRangeCount.ToString(),
                 javaParams.TcpPortRangeTryCount.ToString(),
                 javaParams.MaxApplicationSubmissions.ToString(),
-                javaParams.EnableRestart.ToString()
+                javaParams.DriverRestartEvaluatorRecoverySeconds.ToString()
                 );
             Logger.Log(Level.Info, "Submitted the Driver for execution.");
         }
