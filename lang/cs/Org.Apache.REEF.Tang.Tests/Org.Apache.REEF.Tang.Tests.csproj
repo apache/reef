@@ -36,7 +36,7 @@ under the License.
     <Reference Include="Microsoft.Hadoop.Avro">
       <HintPath>$(PackagesDir)\Microsoft.Hadoop.Avro.$(AvroVersion)\lib\net40\Microsoft.Hadoop.Avro.dll</HintPath>
     </Reference>
-        <Reference Include="Newtonsoft.Json">
+    <Reference Include="Newtonsoft.Json">
       <HintPath>$(PackagesDir)\Newtonsoft.Json.$(NewtonsoftJsonVersion)\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework, Version=10.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
@@ -50,7 +50,6 @@ under the License.
     <Compile Include="ClassHierarchy\TestAnonymousType.cs" />
     <Compile Include="ClassHierarchy\TestAvroSerialization.cs" />
     <Compile Include="ClassHierarchy\TestClassHierarchy.cs" />
-    <Compile Include="ClassHierarchy\TestClassHierarchyRoundTrip.cs" />
     <Compile Include="ClassHierarchy\TestGeneric.cs" />
     <Compile Include="ClassHierarchy\TestMultipleInterface.cs" />
     <Compile Include="ClassHierarchy\TestParameterParser.cs" />
