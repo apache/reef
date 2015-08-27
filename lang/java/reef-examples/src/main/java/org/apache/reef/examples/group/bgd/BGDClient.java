@@ -101,11 +101,10 @@ public class BGDClient {
         .setMemory(memory)
         .build();
     final Configuration dataLoadConfiguration = new DataLoadingRequestBuilder()
-        .setMemoryMB(memory)
         .setInputFormatClass(TextInputFormat.class)
         .setInputPath(input)
         .setNumberOfDesiredSplits(numSplits)
-        .setComputeRequest(computeRequest)
+        .addComputeRequest(computeRequest)
         .renewFailedEvaluators(false)
         .setDriverConfigurationModule(DriverConfiguration.CONF
             .setMultiple(DriverConfiguration.GLOBAL_LIBRARIES, EnvironmentUtils.getAllClasspathJars())

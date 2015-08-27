@@ -18,7 +18,6 @@
  */
 package org.apache.reef.io.data.loading.impl;
 
-import org.apache.hadoop.mapred.InputFormat;
 import org.apache.hadoop.mapred.InputSplit;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.reef.annotations.audience.DriverSide;
@@ -37,15 +36,13 @@ import org.apache.reef.tang.exceptions.BindException;
 
 import javax.inject.Inject;
 
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
  * An implementation of {@link DataLoadingService}
- * that uses the Hadoop {@link InputFormat} to find
+ * that uses the Hadoop {@link org.apache.hadoop.mapred.InputFormat} to find
  * partitions of data & request resources.
  * <p/>
  * The InputFormat is taken from the job configurations
@@ -68,27 +65,6 @@ public class InputFormatLoadingService<K, V> implements DataLoadingService {
   private final boolean inMemory;
 
   private final String inputFormatClass;
-
-
-  /**
-   * @deprecated since 0.12. Should use the other constructor instead, which
-   *             allows to specify the strategy on how to assign partitions to
-   *             evaluators. This one by default uses {@link SingleDataCenterEvaluatorToPartitionStrategy}
-   *
-   */
-  @Deprecated
-  @Inject
-  public InputFormatLoadingService(
-      final InputFormat<K, V> inputFormat,
-      final JobConf jobConf,
-      @Parameter(DataLoadingRequestBuilder.NumberOfDesiredSplits.class) final int numberOfDesiredSplits,
-      @Parameter(DataLoadingRequestBuilder.LoadDataIntoMemory.class) final boolean inMemory,
-      @Parameter(JobConfExternalConstructor.InputFormatClass.class) final String inputFormatClass,
-      @Parameter(JobConfExternalConstructor.InputPath.class) final String inputPath) {
-    this(new SingleDataCenterEvaluatorToPartitionStrategy(inputFormatClass, new HashSet<String>(
-        Arrays.asList(DistributedDataSetPartitionSerializer.serialize(new DistributedDataSetPartition(inputPath,
-            DistributedDataSetPartition.LOAD_INTO_ANY_LOCATION, numberOfDesiredSplits))))), inMemory, inputFormatClass);
-  }
 
   @Inject
   public InputFormatLoadingService(

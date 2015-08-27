@@ -39,7 +39,6 @@ import org.apache.reef.tang.exceptions.BindException;
 import org.apache.reef.tang.formats.ConfigurationModule;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -52,19 +51,6 @@ public final class DataLoadingRequestBuilder
 
   // constant used in several places.
   private static final int UNINITIALIZED = -1;
-
-  /**
-   * @deprecated since 0.12. Should use instead
-   *             {@link DataLoadingRequestBuilder#dataRequests}
-   */
-  @Deprecated
-  private int memoryMB = UNINITIALIZED;
-  /**
-   * @deprecated since 0.12. Should use instead
-   *             {@link DataLoadingRequestBuilder#dataRequests}
-   */
-  @Deprecated
-  private int numberOfCores = UNINITIALIZED;
   private int numberOfDesiredSplits = UNINITIALIZED;
   private List<EvaluatorRequest> computeRequests = new ArrayList<>();
   private final List<EvaluatorRequest> dataRequests = new ArrayList<>();
@@ -90,28 +76,6 @@ public final class DataLoadingRequestBuilder
 
   public DataLoadingRequestBuilder setNumberOfDesiredSplits(final int numberOfDesiredSplits) {
     this.numberOfDesiredSplits = numberOfDesiredSplits;
-    return this;
-  }
-
-  /**
-   * Set the memory to be used for Evaluator allocated.
-   *
-   * @param memoryMB the amount of memory in MB
-   * @return this
-   */
-  public DataLoadingRequestBuilder setMemoryMB(final int memoryMB) {
-    this.memoryMB = memoryMB;
-    return this;
-  }
-
-  /**
-   * Set the core number to be used for Evaluator allocated.
-   *
-   * @param numberOfCores the number of cores
-   * @return this
-   */
-  public DataLoadingRequestBuilder setNumberOfCores(final int numberOfCores) {
-    this.numberOfCores = numberOfCores;
     return this;
   }
 
@@ -166,22 +130,6 @@ public final class DataLoadingRequestBuilder
    */
   public DataLoadingRequestBuilder addDataRequest(final EvaluatorRequest dataRequest) {
     this.dataRequests.add(dataRequest);
-    return this;
-  }
-
-  /**
-   * Sets the compute request.
-   *
-   * @deprecated since 0.12. Should use instead
-   *             {@link DataLoadingRequestBuilder#addComputeRequest(EvaluatorRequest)}
-   *             or {@link DataLoadingRequestBuilder#addComputeRequests(List)}
-   * @param computeRequest
-   *          the compute request
-   * @return this
-   */
-  @Deprecated
-  public DataLoadingRequestBuilder setComputeRequest(final EvaluatorRequest computeRequest) {
-    this.computeRequests = new ArrayList<>(Arrays.asList(computeRequest));
     return this;
   }
 
@@ -295,25 +243,8 @@ public final class DataLoadingRequestBuilder
     final JavaConfigurationBuilder jcb =
         Tang.Factory.getTang().newConfigurationBuilder(driverConfiguration);
 
-    // if empty, then the user code still uses the deprecated fields.
-    // we create a dataLoadRequest object based on them (or their default values)
-    if (this.dataRequests.isEmpty()) {
-      final int dataMemoryMB = this.memoryMB > 0 ? this.memoryMB : Integer
-          .valueOf(DataLoadingEvaluatorMemoryMB.DEFAULT_DATA_MEMORY);
-      final int dataCores = this.numberOfCores > 0 ? this.numberOfCores : Integer
-          .valueOf(DataLoadingEvaluatorNumberOfCores.DEFAULT_DATA_CORES);
-      final EvaluatorRequest defaultDataRequest = EvaluatorRequest.newBuilder().setMemory(dataMemoryMB)
-          .setNumberOfCores(dataCores).build();
-      this.dataRequests.add(defaultDataRequest);
-    } else {
-      // if there are dataRequests, make sure the user did not configure the
-      // memory or the number of cores (deprecated API), as they will be discarded
-      Validate.isTrue(this.numberOfCores == UNINITIALIZED && this.memoryMB == UNINITIALIZED,
-          "Should not set number of cores or memory if you added specific data requests");
-    }
-
-    // at this point data requests cannot be empty, either we use the one we created based on the
-    // deprecated fields, or the ones created by the user
+    Validate.isTrue(!this.dataRequests.isEmpty(),
+        "Number of cores and memory are deprecated; you have to add specific data requests");
     for (final EvaluatorRequest request : this.dataRequests) {
       jcb.bindSetEntry(DataLoadingDataRequests.class, AvroEvaluatorRequestSerializer.toString(request));
     }
@@ -351,28 +282,6 @@ public final class DataLoadingRequestBuilder
   @NamedParameter(short_name = "num_splits", default_value = NumberOfDesiredSplits.DEFAULT_DESIRED_SPLITS)
   public static final class NumberOfDesiredSplits implements Name<Integer> {
     static final String DEFAULT_DESIRED_SPLITS = "0";
-  }
-
-  @NamedParameter(short_name = "dataLoadingEvaluatorMemoryMB",
-      default_value = DataLoadingEvaluatorMemoryMB.DEFAULT_DATA_MEMORY)
-  public static final class DataLoadingEvaluatorMemoryMB implements Name<Integer> {
-    static final String DEFAULT_DATA_MEMORY = "4096";
-  }
-
-  @NamedParameter(short_name = "dataLoadingEvaluatorCore",
-      default_value = DataLoadingEvaluatorNumberOfCores.DEFAULT_DATA_CORES)
-  public static final class DataLoadingEvaluatorNumberOfCores implements Name<Integer> {
-    static final String DEFAULT_DATA_CORES = "1";
-  }
-
-  /**
-   * @deprecated since 0.12. Should use instead DataLoadingComputeRequests. No
-   *             need for the default value anymore, it is handled in the
-   *             DataLoader side in order to disambiguate constructors
-   */
-  @Deprecated
-  @NamedParameter
-  public static final class DataLoadingComputeRequest implements Name<String> {
   }
 
   /**

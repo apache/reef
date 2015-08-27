@@ -39,8 +39,6 @@ import org.apache.reef.wake.time.event.StartTime;
 
 import javax.inject.Inject;
 
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
@@ -83,27 +81,6 @@ public class DataLoader {
   private int computeEvalMemoryMB;
   private int computeEvalCore;
   private final EvaluatorRequestor requestor;
-
-  /**
-   * @deprecated since 0.12. Should use the other constructor instead, which
-   *             allows to specify different compute requests (i.e. masters) and
-   *             data requests (i.e. slaves), in particular racks
-   */
-  @Deprecated
-  @Inject
-  public DataLoader(
-      final Clock clock,
-      final EvaluatorRequestor requestor,
-      final DataLoadingService dataLoadingService,
-      @Parameter(DataLoadingRequestBuilder.DataLoadingEvaluatorMemoryMB.class) final int dataEvalMemoryMB,
-      @Parameter(DataLoadingRequestBuilder.DataLoadingEvaluatorNumberOfCores.class) final int dataEvalCore,
-      @Parameter(DataLoadingRequestBuilder.DataLoadingComputeRequest.class) final String serializedComputeRequest) {
-    this(clock, requestor, dataLoadingService, new HashSet<String>(
-        Arrays.asList(serializedComputeRequest)), new HashSet<String>(
-        Arrays.asList(AvroEvaluatorRequestSerializer.toString(EvaluatorRequest
-            .newBuilder().setMemory(dataEvalMemoryMB)
-            .setNumberOfCores(dataEvalCore).build()))));
-  }
 
   /**
    * Allows to specify compute and data evaluator requests in particular
