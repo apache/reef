@@ -263,7 +263,7 @@ public class JobClient {
   }
 
   /**
-   * Wait for the job driver to complete. This method is called from Launcher.main()
+   * Wait for the job driver to complete.
    */
   public void waitForCompletion(final int waitTime) {
     LOG.info("Waiting for the Job Driver to complete: " + waitTime);
