@@ -250,8 +250,8 @@ int CreateJVM(JNIEnv*& env, JavaVM*& jvm, JavaVMOption* options, int optionCount
 int CallMainMethodOfEntryClass(
 	JNIEnv* env,
 	char*	argv[],
-	int		firstArgOrdinal,
-	int		argCount)
+	int     firstArgOrdinal,
+	int     argCount)
 {
 	// int the entry class name, Replace '.' with '/' 
 	char classBuf[maxPathBufSize];

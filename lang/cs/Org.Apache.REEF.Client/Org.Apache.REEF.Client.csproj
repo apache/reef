@@ -109,7 +109,7 @@ under the License.
       <Project>{75503f90-7b82-4762-9997-94b5c68f15db}</Project>
       <Name>Org.Apache.REEF.Examples</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Org.Apache.REEF.ClrDriver\Org.Apache.REEF.ClrDriver.vcxproj">
+    <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.ClrDriver\Org.Apache.REEF.ClrDriver.vcxproj">
       <Project>{0097e4ac-0cc9-450c-bc22-acd5b2d55e70}</Project>
       <Name>Org.Apache.REEF.ClrDriver</Name>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
