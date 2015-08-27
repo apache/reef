@@ -28,7 +28,7 @@ namespace Org.Apache.REEF.IO.PartitionedData.Random
     /// <summary>
     /// An implementation of IPartition that returns a configurable number of random doubles.
     /// </summary>
-    internal sealed class RandomPartition : IPartition
+    internal sealed class RandomPartition : IPartition<Stream>
     {
         private readonly string _id;
         private readonly byte[] _randomData;
@@ -60,7 +60,7 @@ namespace Org.Apache.REEF.IO.PartitionedData.Random
             get { return _id; }
         }
 
-        public Stream Open()
+        public Stream GetPartitionHandle()
         {
             return new MemoryStream(_randomData, false);
         }
