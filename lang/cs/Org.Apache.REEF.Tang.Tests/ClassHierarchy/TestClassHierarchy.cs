@@ -35,23 +35,16 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
     [TestClass]
     public class TestClassHierarchy
     {
-        public static IClassHierarchy ns;
-
-        [ClassInitialize]
-        public static void ClassSetup(TestContext context)
-        {
-            TangImpl.Reset();
-            ns = TangFactory.GetTang().GetClassHierarchy(new string[] { FileNames.Examples, FileNames.Common, FileNames.Tasks });
-       }
-
-        [ClassCleanup]
-        public static void ClassCleanup()
-        {
-        }
+        public IClassHierarchy ns = null;
 
         [TestInitialize()]
         public void TestSetup()
         {
+            if (ns == null)
+            {
+                TangImpl.Reset();
+                ns = TangFactory.GetTang().GetClassHierarchy(new string[] {FileNames.Examples, FileNames.Common, FileNames.Tasks});
+            }
         }
 
         [TestCleanup()]
