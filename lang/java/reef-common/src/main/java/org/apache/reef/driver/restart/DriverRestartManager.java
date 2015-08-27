@@ -22,9 +22,12 @@ import org.apache.reef.annotations.Unstable;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.driver.parameters.DriverRestartCompletedHandlers;
+import org.apache.reef.driver.parameters.DriverRestartEvaluatorRecoveryMillis;
 import org.apache.reef.driver.parameters.ServiceDriverRestartCompletedHandlers;
 import org.apache.reef.exception.DriverFatalRuntimeException;
 import org.apache.reef.runtime.common.DriverRestartCompleted;
+import org.apache.reef.runtime.common.driver.idle.DriverIdlenessSource;
+import org.apache.reef.runtime.common.driver.idle.IdleMessage;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.runtime.common.driver.resourcemanager.ResourceRecoverEvent;
@@ -41,17 +44,22 @@ import java.util.logging.Logger;
 @DriverSide
 @Private
 @Unstable
-public final class DriverRestartManager {
-  private static final Logger LOG = Logger.getLogger(DriverRestartManager.class.getName());
+public final class DriverRestartManager implements DriverIdlenessSource {
+  private static final String CLASS_NAME = DriverRestartManager.class.getName();
+  private static final Logger LOG = Logger.getLogger(CLASS_NAME);
+
   private final DriverRuntimeRestartManager driverRuntimeRestartManager;
   private final Set<EventHandler<DriverRestartCompleted>> driverRestartCompletedHandlers;
   private final Set<EventHandler<DriverRestartCompleted>> serviceDriverRestartCompletedHandlers;
+  private final int driverRestartEvaluatorRecoveryMillis;
 
   private RestartEvaluators restartEvaluators;
   private DriverRestartState state = DriverRestartState.NOT_RESTARTED;
 
   @Inject
   private DriverRestartManager(final DriverRuntimeRestartManager driverRuntimeRestartManager,
+                               @Parameter(DriverRestartEvaluatorRecoveryMillis.class)
+                               final int driverRestartEvaluatorRecoveryMillis,
                                @Parameter(DriverRestartCompletedHandlers.class)
                                final Set<EventHandler<DriverRestartCompleted>> driverRestartCompletedHandlers,
                                @Parameter(ServiceDriverRestartCompletedHandlers.class)
@@ -59,6 +67,7 @@ public final class DriverRestartManager {
     this.driverRuntimeRestartManager = driverRuntimeRestartManager;
     this.driverRestartCompletedHandlers = driverRestartCompletedHandlers;
     this.serviceDriverRestartCompletedHandlers = serviceDriverRestartCompletedHandlers;
+    this.driverRestartEvaluatorRecoveryMillis = driverRestartEvaluatorRecoveryMillis;
   }
 
   /**
@@ -72,14 +81,6 @@ public final class DriverRestartManager {
       this.state = DriverRestartState.BEGAN;
     }
 
-    return this.state.hasRestarted();
-  }
-
-  /**
-   * @return true if the application is a restart instance.
-   * Can be already done with restart or in the process of restart.
-   */
-  public synchronized boolean hasRestarted() {
     return this.state.hasRestarted();
   }
 
@@ -107,7 +108,16 @@ public final class DriverRestartManager {
 
     driverRuntimeRestartManager.informAboutEvaluatorFailures(getFailedEvaluators());
 
-    // TODO[REEF-560]: Call onDriverRestartCompleted() on a Timer.
+    if (driverRestartEvaluatorRecoveryMillis != Integer.MAX_VALUE) {
+      // Don't use Clock here because if there is an event scheduled, the driver will not be idle, even if
+      // driver restart has already completed, and we cannot cancel the event.
+      new Timer().schedule(new TimerTask() {
+        @Override
+        public void run() {
+          onDriverRestartCompleted();
+        }
+      }, driverRestartEvaluatorRecoveryMillis);
+    }
   }
 
   /**
@@ -292,5 +302,17 @@ public final class DriverRestartManager {
     }
 
     return failed;
+  }
+
+  /**
+   * {@inheritDoc}
+   * @return True if not in process of restart. False otherwise.
+   */
+  @Override
+  public IdleMessage getIdleStatus() {
+    boolean idleState = !this.state.isRestarting();
+    final String idleMessage = idleState ? CLASS_NAME + " currently not in the process of restart." :
+        CLASS_NAME + " currently in the process of restart.";
+    return new IdleMessage(CLASS_NAME, idleMessage, idleState);
   }
 }

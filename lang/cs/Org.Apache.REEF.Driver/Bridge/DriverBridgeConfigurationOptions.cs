@@ -137,8 +137,8 @@ namespace Org.Apache.REEF.Driver.Bridge
         {
         }
 
-        [NamedParameter("Whether restart should be enabled on the application", "RestartEnabled", "false")]
-        public class RestartEnabled : Name<bool>
+        [NamedParameter("Evaluator recovery timeout for driver restart. > 0 => restart is enabled.", "DriverRestartEvaluatorRecoveryMillis", "-1")]
+        public class DriverRestartEvaluatorRecoveryMillis : Name<int>
         {
         }
 
