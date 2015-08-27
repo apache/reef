@@ -28,6 +28,7 @@ import org.apache.reef.runtime.common.driver.api.RuntimeParameters;
 import org.apache.reef.runtime.common.driver.resourcemanager.NodeDescriptorEvent;
 import org.apache.reef.runtime.common.driver.resourcemanager.NodeDescriptorEventImpl;
 import org.apache.reef.runtime.common.files.REEFFileNames;
+import org.apache.reef.runtime.common.utils.Constants;
 import org.apache.reef.runtime.common.utils.RemoteManager;
 import org.apache.reef.runtime.local.client.parameters.DefaultMemorySize;
 import org.apache.reef.runtime.local.client.parameters.DefaultNumberOfCores;
@@ -66,8 +67,6 @@ final class ContainerManager implements AutoCloseable {
   private static final Logger LOG = Logger.getLogger(ContainerManager.class.getName());
 
   private static final Collection<String> DEFAULT_RACKS = Arrays.asList(RackNames.DEFAULT_RACK_NAME);
-  private static final String PATH_SEPARATOR = "/";
-  private static final String ANY = "*";
 
   /**
    * Map from containerID -> Container.
@@ -164,15 +163,15 @@ final class ContainerManager implements AutoCloseable {
       String rackName = it.next().trim();
       Validate.notEmpty(rackName, "Rack names cannot be empty");
       // should start with a separator
-      if (!rackName.startsWith(PATH_SEPARATOR)) {
-        rackName = PATH_SEPARATOR + rackName;
+      if (!rackName.startsWith(Constants.PATH_SEPARATOR)) {
+        rackName = Constants.PATH_SEPARATOR + rackName;
       }
       // remove the ending separator
-      if (rackName.endsWith(PATH_SEPARATOR)) {
+      if (rackName.endsWith(Constants.PATH_SEPARATOR)) {
         rackName = rackName.substring(0, rackName.length() - 1);
       }
       if (validateEnd) {
-        Validate.isTrue(!rackName.endsWith(ANY));
+        Validate.isTrue(!rackName.endsWith(Constants.ANY));
       }
       normalizedRackNames.add(rackName);
     }
@@ -263,7 +262,7 @@ final class ContainerManager implements AutoCloseable {
     for (final String rackName : normalized) {
       // if it does not end with the any modifier,
       // then we should do an exact match
-      if (!rackName.endsWith(ANY)) {
+      if (!rackName.endsWith(Constants.ANY)) {
         if (freeNodesPerRack.containsKey(rackName)
             && freeNodesPerRack.get(rackName).size() > 0) {
           return Optional.of(rackName);

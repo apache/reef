@@ -32,12 +32,6 @@ import org.apache.reef.annotations.Unstable;
 public final class DistributedDataSetPartition {
 
   /**
-   * Constant to specify that the data partition could be loaded into any
-   * location.
-   */
-  public static final String LOAD_INTO_ANY_LOCATION = "/*";
-
-  /**
    * The path of the distributed data set partition. If we use HDFS, it will be the
    * hdfs path.
    */
