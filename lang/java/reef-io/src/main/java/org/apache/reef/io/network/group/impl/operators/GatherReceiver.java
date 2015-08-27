@@ -46,6 +46,7 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class GatherReceiver<T> implements Gather.Receiver<T>, EventHandler<GroupCommunicationMessage> {
@@ -122,20 +123,20 @@ public class GatherReceiver<T> implements Gather.Receiver<T>, EventHandler<Group
     LOG.entering("GatherReceiver", "receive");
     final Map<String, T> mapOfTaskIdToData = receiveMapOfTaskIdToData();
 
-    LOG.fine(this + " Sorting data according to lexicographical order of task identifiers.");
+    LOG.log(Level.FINE, "{0} Sorting data according to lexicographical order of task identifiers.", this);
     final TreeMap<String, T> sortedMapOfTaskIdToData = new TreeMap<>(mapOfTaskIdToData);
     final List<T> retList = new LinkedList<>(sortedMapOfTaskIdToData.values());
 
-    LOG.exiting("GatherReceiver", "receive", retList);
+    LOG.exiting("GatherReceiver", "receive");
     return retList;
   }
 
   @Override
   public List<T> receive(final List<? extends Identifier> order) throws NetworkException, InterruptedException {
-    LOG.entering("GatherReceiver", "receive", order);
+    LOG.entering("GatherReceiver", "receive");
     final Map<String, T> mapOfTaskIdToData = receiveMapOfTaskIdToData();
 
-    LOG.fine(this + " Sorting data according to specified order of task identifiers.");
+    LOG.log(Level.FINE, "{0} Sorting data according to specified order of task identifiers.", this);
     final List<T> retList = new LinkedList<>();
     for (final Identifier key : order) {
       final String keyString = key.toString();
@@ -147,7 +148,7 @@ public class GatherReceiver<T> implements Gather.Receiver<T>, EventHandler<Group
       }
     }
 
-    LOG.exiting("GatherReceiver", "receive", retList);
+    LOG.exiting("GatherReceiver", "receive");
     return retList;
   }
 
@@ -186,7 +187,7 @@ public class GatherReceiver<T> implements Gather.Receiver<T>, EventHandler<Group
       throw new RuntimeException("IOException", e);
     }
 
-    LOG.exiting("GatherReceiver", "receiveMapOfTaskIdToData", Arrays.toString(new Object[]{mapOfTaskIdToData, this}));
+    LOG.exiting("GatherReceiver", "receiveMapOfTaskIdToData");
     return mapOfTaskIdToData;
   }
 }

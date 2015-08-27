@@ -60,6 +60,8 @@ namespace Org.Apache.REEF.IMRU.Examples
             int chunkSize = 2;
             int dims = 10;
             int iterations = 10;
+            int mapperMemory = 512;
+            int updateTaskMemory = 512;
 
             if (args.Length > 0)
             {
@@ -73,7 +75,17 @@ namespace Org.Apache.REEF.IMRU.Examples
 
             if (args.Length > 2)
             {
-                iterations = Convert.ToInt32(args[2]);
+                mapperMemory = Convert.ToInt32(args[2]);
+            }
+
+            if (args.Length > 3)
+            {
+                updateTaskMemory = Convert.ToInt32(args[3]);
+            }
+
+            if (args.Length > 4)
+            {
+                iterations = Convert.ToInt32(args[4]);
             }
 
             IInjector injector;
@@ -87,10 +99,10 @@ namespace Org.Apache.REEF.IMRU.Examples
             else
             {
                 injector = TangFactory.GetTang()
-                    .NewInjector(OnREEFIMRURunTimeConfiguration<int, int, int>.GetYarnIMRUConfiguration(), tcpPortConfig);
+                    .NewInjector(OnREEFIMRURunTimeConfiguration<int[], int[], int[]>.GetYarnIMRUConfiguration(), tcpPortConfig);
             }
             var broadcastReduceExample = injector.GetInstance<PipelinedBroadcastAndReduce>();
-            broadcastReduceExample.Run(numNodes - 1, chunkSize, iterations, dims);
+            broadcastReduceExample.Run(numNodes - 1, chunkSize, iterations, dims, mapperMemory, updateTaskMemory);
         }
 
         private static void Main(string[] args)

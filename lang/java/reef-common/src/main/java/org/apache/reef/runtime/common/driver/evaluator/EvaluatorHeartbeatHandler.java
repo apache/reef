@@ -73,13 +73,20 @@ public final class EvaluatorHeartbeatHandler
 
       if (driverRestartManager.isRestarting() &&
           driverRestartManager.getEvaluatorRestartState(evaluatorId) == EvaluatorRestartState.EXPECTED) {
-        // TODO[REEF-617]: Create EvaluatorManager for recovered evaluator and call onEvaluatorHeartbeatMessage().
+
+        if (this.driverRestartManager.onRecoverEvaluator(evaluatorId)) {
+          LOG.log(Level.FINE, "Evaluator [" + evaluatorId + "] has reported back to the driver after restart.");
+          // TODO[REEF-617]: Create EvaluatorManager, add to this.evaluators, and call onEvaluatorHeartbeatMessage().
+
+        } else {
+          LOG.log(Level.FINE, "Evaluator [" + evaluatorId + "] has already been recovered.");
+        }
         return;
       }
 
       if (driverRestartManager.getEvaluatorRestartState(evaluatorId) == EvaluatorRestartState.EXPIRED) {
         LOG.log(Level.FINE, "Expired evaluator " + evaluatorId + " has reported back to the driver after restart.");
-        // TODO[REEF-617]: Create EvaluatorManager for expired evaluator and close it.
+        // TODO[REEF-617]: Create EvaluatorManager, call onEvaluatorHeartbeatMessage, and close it.
         return;
       }
 

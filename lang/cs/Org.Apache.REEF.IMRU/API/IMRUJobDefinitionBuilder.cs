@@ -36,6 +36,8 @@ namespace Org.Apache.REEF.IMRU.API
 
         private string _jobName;
         private int _numberOfMappers;
+        private int _memoryPerMapper;
+        private int _updateTaskMemory;
         private IConfiguration _mapFunctionConfiguration;
         private IConfiguration _mapInputCodecConfiguration;
         private IConfiguration _updateFunctionCodecsConfiguration;
@@ -56,6 +58,8 @@ namespace Org.Apache.REEF.IMRU.API
             _mapInputPipelineDataConverterConfiguration = EmptyConfiguration;
             _mapOutputPipelineDataConverterConfiguration = EmptyConfiguration;
             _partitionedDatasetConfiguration = EmptyConfiguration;
+            _memoryPerMapper = 512;
+            _updateTaskMemory = 512;
         }
 
         /// <summary>
@@ -177,6 +181,28 @@ namespace Org.Apache.REEF.IMRU.API
         }
 
         /// <summary>
+        /// Sets mapper memory
+        /// </summary>
+        /// <param name="memory">memory in MB</param>
+        /// <returns></returns>
+        public IMRUJobDefinitionBuilder SetMapperMemory(int memory)
+        {
+            _memoryPerMapper = memory;
+            return this;
+        }
+
+        /// <summary>
+        /// Set update task memory
+        /// </summary>
+        /// <param name="memory">memory in MB</param>
+        /// <returns></returns>
+        public IMRUJobDefinitionBuilder SetUpdateTaskMemory(int memory)
+        {
+            _updateTaskMemory = memory;
+            return this;
+        }
+
+        /// <summary>
         /// Instantiate the IMRUJobDefinition.
         /// </summary>
         /// <returns>The IMRUJobDefintion configured.</returns>
@@ -225,6 +251,8 @@ namespace Org.Apache.REEF.IMRU.API
                 _mapInputPipelineDataConverterConfiguration,
                 _partitionedDatasetConfiguration,
                 _numberOfMappers,
+                _memoryPerMapper,
+                _updateTaskMemory,
                 _jobName);
         }
     }

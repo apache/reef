@@ -22,10 +22,9 @@ import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.RuntimeAuthor;
 
 /**
- * Event from Driver Runtime -> Driver Process
- * A Resource allocated by the Driver Runtime. In response to a ResourceRequestEvent.
+ * A Resource recovered by the {@link org.apache.reef.driver.restart.DriverRestartManager}.
  */
 @RuntimeAuthor
 @DriverSide
-public interface ResourceAllocationEvent extends ResourceEvent {
+public interface ResourceRecoverEvent extends ResourceEvent {
 }

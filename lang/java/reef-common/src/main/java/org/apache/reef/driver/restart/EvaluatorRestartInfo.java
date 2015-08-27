@@ -21,36 +21,71 @@ package org.apache.reef.driver.restart;
 import org.apache.reef.annotations.Unstable;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
-
-import java.util.Collections;
-import java.util.Set;
+import org.apache.reef.runtime.common.driver.resourcemanager.ResourceEventImpl;
+import org.apache.reef.runtime.common.driver.resourcemanager.ResourceRecoverEvent;
 
 /**
- * The encapsulating class for alive and failed evaluators on driver restart.
+ * An object that encapsulates the information needed to construct an
+ * {@link org.apache.reef.runtime.common.driver.evaluator.EvaluatorManager} for a recovered evaluator
+ * on restart.
  */
 @Private
 @DriverSide
 @Unstable
 public final class EvaluatorRestartInfo {
-  private final Set<String> aliveEvaluators;
-  private final Set<String> failedEvaluators;
+  private final ResourceRecoverEvent resourceRecoverEvent;
+  private EvaluatorRestartState evaluatorRestartState;
 
-  public EvaluatorRestartInfo(final Set<String> aliveEvaluators, final Set<String> failedEvaluators) {
-    this.aliveEvaluators = Collections.unmodifiableSet(aliveEvaluators);
-    this.failedEvaluators = Collections.unmodifiableSet(failedEvaluators);
+  /**
+   * Creates an {@link EvaluatorRestartInfo} object that represents the information of an evaluator that is expected
+   * to recover.
+   */
+  public static EvaluatorRestartInfo createExpectedEvaluatorInfo(final ResourceRecoverEvent resourceRecoverEvent) {
+    return new EvaluatorRestartInfo(resourceRecoverEvent, EvaluatorRestartState.EXPECTED);
   }
 
   /**
-   * @return the set of evaluator IDs for alive evaluators on driver restart. The returned set is unmodifiable.
+   * Creates an {@link EvaluatorRestartInfo} object that represents the information of an evaluator that
+   * has failed on driver restart.
    */
-  public Set<String> getAliveEvaluators() {
-    return this.aliveEvaluators;
+  public static EvaluatorRestartInfo createFailedEvaluatorInfo(final String evaluatorId) {
+    final ResourceRecoverEvent resourceRecoverEvent =
+        ResourceEventImpl.newRecoveryBuilder().setIdentifier(evaluatorId).build();
+
+    return new EvaluatorRestartInfo(resourceRecoverEvent, EvaluatorRestartState.FAILED);
   }
 
   /**
-   * @return the set of evaluator IDs for faiuled evaluators on driver restart. The returned set is unmodifiable.
+   * @return the {@link ResourceRecoverEvent} that contains the information (e.g. resource MB, node ID, Evaluator ID...)
+   * needed to reconstruct the {@link org.apache.reef.runtime.common.driver.evaluator.EvaluatorManager} of the
+   * recovered evaluator on restart.
    */
-  public Set<String> getFailedEvaluators() {
-    return this.failedEvaluators;
+  public ResourceRecoverEvent getResourceRecoverEvent() {
+    return resourceRecoverEvent;
+  }
+
+  /**
+   * @return the current process of the restart.
+   */
+  public EvaluatorRestartState getEvaluatorRestartState() {
+    return evaluatorRestartState;
+  }
+
+  /**
+   * sets the current process of the restart.
+   */
+  public boolean setEvaluatorRestartState(final EvaluatorRestartState to) {
+    if (EvaluatorRestartState.isLegalTransition(evaluatorRestartState, to)) {
+      this.evaluatorRestartState = to;
+      return true;
+    }
+
+    return false;
+  }
+
+  private EvaluatorRestartInfo(final ResourceRecoverEvent resourceRecoverEvent,
+                               final EvaluatorRestartState evaluatorRestartState) {
+    this.resourceRecoverEvent = resourceRecoverEvent;
+    this.evaluatorRestartState = evaluatorRestartState;
   }
 }

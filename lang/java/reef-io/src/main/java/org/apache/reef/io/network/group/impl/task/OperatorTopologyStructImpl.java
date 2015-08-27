@@ -177,7 +177,7 @@ public class OperatorTopologyStructImpl implements OperatorTopologyStruct {
   private void sendToNode(final byte[] data,
                           final ReefNetworkGroupCommProtos.GroupCommMessage.Type msgType,
                           final NodeStruct node) {
-    LOG.entering("OperatorTopologyStructImpl", "sendToNode", new Object[]{getQualifiedName(), data, msgType, node});
+    LOG.entering("OperatorTopologyStructImpl", "sendToNode", new Object[]{getQualifiedName(), msgType, node});
     final String nodeId = node.getId();
     try {
 
@@ -190,8 +190,7 @@ public class OperatorTopologyStructImpl implements OperatorTopologyStruct {
           LOG.finest(getQualifiedName() + "Got readiness to accept " + msgType + " msg from " + nodeId
               + ". Will send actual msg now");
         } else {
-          LOG.exiting("OperatorTopologyStructImpl", "sendToNode", Arrays.toString(new Object[]{getQualifiedName(),
-              data, msgType, node}));
+          LOG.exiting("OperatorTopologyStructImpl", "sendToNode", getQualifiedName());
           return;
         }
       }
@@ -206,8 +205,7 @@ public class OperatorTopologyStructImpl implements OperatorTopologyStruct {
           LOG.finest(getQualifiedName() + "Got " + msgType + " msg received ACK from " + nodeId
               + ". Will move to next msg if it exists");
         } else {
-          LOG.exiting("OperatorTopologyStructImpl", "sendToNode", Arrays.toString(new Object[]{getQualifiedName(),
-              data, msgType, node}));
+          LOG.exiting("OperatorTopologyStructImpl", "sendToNode", getQualifiedName());
           return;
         }
       }
@@ -216,8 +214,7 @@ public class OperatorTopologyStructImpl implements OperatorTopologyStruct {
           "NetworkException while sending " + msgType + " data from " + selfId + " to " + nodeId,
           e);
     }
-    LOG.exiting("OperatorTopologyStructImpl", "sendToNode", Arrays.toString(new Object[]{getQualifiedName(), data,
-        msgType, node}));
+    LOG.exiting("OperatorTopologyStructImpl", "sendToNode", getQualifiedName());
   }
 
   private byte[] receiveFromNode(final NodeStruct node, final boolean remove) {
@@ -233,8 +230,7 @@ public class OperatorTopologyStructImpl implements OperatorTopologyStruct {
         LOG.fine(msg);
       }
     }
-    LOG.exiting("OperatorTopologyStructImpl", "receiveFromNode",
-        Arrays.toString(new Object[]{retVal, getQualifiedName(), node, remove}));
+    LOG.exiting("OperatorTopologyStructImpl", "receiveFromNode", getQualifiedName());
     return retVal;
   }
 
@@ -270,8 +266,7 @@ public class OperatorTopologyStructImpl implements OperatorTopologyStruct {
       }
     }
 
-    LOG.exiting("OperatorTopologyStructImpl", "recvFromNodeCheckBigMsg",
-        Arrays.toString(new Object[]{retVal, node, msgType}));
+    LOG.exiting("OperatorTopologyStructImpl", "recvFromNodeCheckBigMsg");
     return retVal;
   }
 
@@ -296,30 +291,28 @@ public class OperatorTopologyStructImpl implements OperatorTopologyStruct {
 
   @Override
   public void sendToParent(final byte[] data, final ReefNetworkGroupCommProtos.GroupCommMessage.Type msgType) {
-    LOG.entering("OperatorTopologyStructImpl", "sendToParent", new Object[]{getQualifiedName(), data, msgType});
+    LOG.entering("OperatorTopologyStructImpl", "sendToParent", new Object[]{getQualifiedName(), msgType});
     if (parent != null) {
       sendToNode(data, msgType, parent);
     } else {
       LOG.fine(getQualifiedName() + "Perhaps parent has died or has not been configured");
     }
-    LOG.exiting("OperatorTopologyStructImpl", "sendToParent", Arrays.toString(new Object[]{getQualifiedName(), data,
-        msgType}));
+    LOG.exiting("OperatorTopologyStructImpl", "sendToParent", getQualifiedName());
   }
 
   @Override
   public void sendToChildren(final byte[] data, final ReefNetworkGroupCommProtos.GroupCommMessage.Type msgType) {
-    LOG.entering("OperatorTopologyStructImpl", "sendToChildren", new Object[]{getQualifiedName(), data, msgType});
+    LOG.entering("OperatorTopologyStructImpl", "sendToChildren", new Object[]{getQualifiedName(), msgType});
     for (final NodeStruct child : children) {
       sendToNode(data, msgType, child);
     }
-    LOG.exiting("OperatorTopologyStructImpl", "sendToChildren", Arrays.toString(new Object[]{getQualifiedName(),
-        data, msgType}));
+    LOG.exiting("OperatorTopologyStructImpl", "sendToChildren", getQualifiedName());
   }
 
   @Override
   public void sendToChildren(final Map<String, byte[]> dataMap,
                              final ReefNetworkGroupCommProtos.GroupCommMessage.Type msgType) {
-    LOG.entering("OperatorTopologyStructImpl", "sendToChildren", new Object[]{getQualifiedName(), dataMap, msgType});
+    LOG.entering("OperatorTopologyStructImpl", "sendToChildren", new Object[]{getQualifiedName(), msgType});
     for (final NodeStruct child : children) {
       if (dataMap.containsKey(child.getId())) {
         sendToNode(dataMap.get(child.getId()), msgType, child);
@@ -327,8 +320,7 @@ public class OperatorTopologyStructImpl implements OperatorTopologyStruct {
         throw new RuntimeException("No message specified for " + child.getId() + " in dataMap.");
       }
     }
-    LOG.exiting("OperatorTopologyStructImpl", "sendToChildren", Arrays.toString(new Object[]{getQualifiedName(),
-        dataMap, msgType}));
+    LOG.exiting("OperatorTopologyStructImpl", "sendToChildren", getQualifiedName());
   }
 
   @Override
@@ -336,8 +328,7 @@ public class OperatorTopologyStructImpl implements OperatorTopologyStruct {
     LOG.entering("OperatorTopologyStructImpl", "recvFromParent", getQualifiedName());
     LOG.finest(getQualifiedName() + "Waiting for " + parent.getId() + " to send data");
     final byte[] retVal = recvFromNodeCheckBigMsg(parent, msgType);
-    LOG.exiting("OperatorTopologyStructImpl", "recvFromParent",
-        Arrays.toString(new Object[]{retVal, getQualifiedName()}));
+    LOG.exiting("OperatorTopologyStructImpl", "recvFromParent", getQualifiedName());
     return retVal;
   }
 
@@ -367,8 +358,7 @@ public class OperatorTopologyStructImpl implements OperatorTopologyStruct {
       childrenToRcvFrom.remove(child.getId());
     }
     final T retVal = retLst.isEmpty() ? null : retLst.get(0);
-    LOG.exiting("OperatorTopologyStructImpl", "recvFromChildren",
-        Arrays.toString(new Object[]{retVal, getQualifiedName(), redFunc, dataCodec}));
+    LOG.exiting("OperatorTopologyStructImpl", "recvFromChildren", getQualifiedName());
     return retVal;
   }
 
@@ -399,8 +389,7 @@ public class OperatorTopologyStructImpl implements OperatorTopologyStruct {
       childrenToRcvFrom.remove(child.getId());
     }
 
-    LOG.exiting("OperatorTopologyStructImpl", "recvFromChildren",
-        Arrays.toString(new Object[]{retVal, getQualifiedName()}));
+    LOG.exiting("OperatorTopologyStructImpl", "recvFromChildren", getQualifiedName());
     return retVal;
   }
 
@@ -421,7 +410,7 @@ public class OperatorTopologyStructImpl implements OperatorTopologyStruct {
       LOG.finest(getQualifiedName() + "No dead msgs waiting for add.");
     }
     LOG.exiting("OperatorTopologyStructImpl", "removedDeadMsg",
-        Arrays.toString(new Object[]{retVal, getQualifiedName(), msgSrcId, msgSrcVersion}));
+        new Object[]{retVal, getQualifiedName(), msgSrcId, msgSrcVersion});
     return retVal;
   }
 
