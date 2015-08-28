@@ -72,6 +72,7 @@ public final class NetworkConnectionServiceImpl implements NetworkConnectionServ
    * A map of (id of connection factory, a connection factory instance).
    */
   private final ConcurrentMap<String, NetworkConnectionFactory> connFactoryMap;
+  // TODO[JIRA REEF-637] Remove the deprecated field.
   /**
    * A network connection service identifier.
    * @deprecated in 0.13. Use ConnectionFactory.getLocalEndPointId instead.
@@ -152,6 +153,7 @@ public final class NetworkConnectionServiceImpl implements NetworkConnectionServ
     this.isClosed = new AtomicBoolean();
   }
 
+  // TODO[JIRA REEF-637] Remove the deprecated method.
   /**
    * @deprecated in 0.13. Use registerConnectionFactory(Identifier, Codec, EventHandler, LinkListener, Identifier)
    * instead.
@@ -188,6 +190,7 @@ public final class NetworkConnectionServiceImpl implements NetworkConnectionServ
           "The ConnectionFactoryId " + connectionFactoryId + " should not contain " + DELIMITER);
     }
   }
+
   @Override
   public <T> ConnectionFactory<T> registerConnectionFactory(
       final Identifier connectionFactoryId,
@@ -207,21 +210,29 @@ public final class NetworkConnectionServiceImpl implements NetworkConnectionServ
       throw new NetworkRuntimeException("ConnectionFactory " + connectionFactoryId + " was already registered.");
     }
 
+    LOG.log(Level.INFO, "ConnectionFactory {0} was registered", id);
+
     return connectionFactory;
   }
 
   @Override
   public void unregisterConnectionFactory(final Identifier connFactoryId) {
     final String id = connFactoryId.toString();
-    final ConnectionFactory connFactory = connFactoryMap.remove(id);
+    final NetworkConnectionFactory connFactory = connFactoryMap.remove(id);
     if (connFactory != null) {
-      final Identifier localId = getEndPointIdWithConnectionFactoryId(connFactoryId, connFactory.getLocalEndPointId());
-      nameServiceUnregisteringStage.onNext(localId);
+      LOG.log(Level.INFO, "ConnectionFactory {0} was unregistered", id);
+
+      if (!connFactory.isRegisteredByDeprecatedMethod()) { // TODO[JIRA REEF-637] : Remove the redundant check.
+        final Identifier localId = getEndPointIdWithConnectionFactoryId(
+            connFactoryId, connFactory.getLocalEndPointId());
+        nameServiceUnregisteringStage.onNext(localId);
+      }
     } else {
       LOG.log(Level.WARNING, "ConnectionFactory of {0} is null", id);
     }
   }
 
+  // TODO[JIRA REEF-637] Remove the deprecated method.
   /**
    * Registers a source identifier of NetworkConnectionService.
    * @param ncsId
@@ -243,6 +254,7 @@ public final class NetworkConnectionServiceImpl implements NetworkConnectionServ
 
   /**
    * Open a channel for destination identifier of NetworkConnectionService.
+   * @param connectionFactoryId
    * @param remoteEndPointId
    * @throws NetworkException
    */
@@ -253,6 +265,26 @@ public final class NetworkConnectionServiceImpl implements NetworkConnectionServ
       final SocketAddress address = nameResolver.lookup(remoteId);
       if (address == null) {
         throw new NetworkException("Lookup " + remoteId + " is null");
+      }
+      return transport.open(address, nsCodec, nsLinkListener);
+    } catch(final Exception e) {
+      throw new NetworkException(e);
+    }
+  }
+
+  // TODO[JIRA REEF-637] Remove the deprecated method.
+  /**
+   * Open a channel for destination identifier of NetworkConnectionService.
+   * @param remoteEndPointId
+   * @throws NetworkException
+   * @deprecated in 0.13. Use openLink(Identifier, Identifier) instead.
+   */
+  @Deprecated
+  <T> Link<NetworkConnectionServiceMessage<T>> openLink(final Identifier remoteEndPointId) throws NetworkException {
+    try {
+      final SocketAddress address = nameResolver.lookup(remoteEndPointId);
+      if (address == null) {
+        throw new NetworkException("Lookup " + remoteEndPointId + " is null");
       }
       return transport.open(address, nsCodec, nsLinkListener);
     } catch(final Exception e) {
@@ -279,6 +311,7 @@ public final class NetworkConnectionServiceImpl implements NetworkConnectionServ
     return connFactory;
   }
 
+  // TODO[JIRA REEF-637] Remove the deprecated method.
   /**
    * @param ncsId network connection service identifier
    * @deprecated in 0.13.
@@ -292,6 +325,7 @@ public final class NetworkConnectionServiceImpl implements NetworkConnectionServ
     this.nameServiceUnregisteringStage.onNext(ncsId);
   }
 
+  // TODO[JIRA REEF-637] Remove the deprecated method.
   /**
    * @return the identifier of this NetworkConnectionService
    * @deprecated in 0.13.

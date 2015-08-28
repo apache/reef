@@ -26,6 +26,8 @@ import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.IdentifierFactory;
 
 import javax.inject.Inject;
+
+// TODO[JIRA REEF-637] Remove the deprecated class.
 /**
  * TaskStop event handler for unregistering NetworkConnectionService.
  * Users have to bind this handler into ServiceConfiguration.ON_TASK_STOP.

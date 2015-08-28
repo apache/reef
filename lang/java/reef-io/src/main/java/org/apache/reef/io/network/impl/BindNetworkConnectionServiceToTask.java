@@ -27,6 +27,7 @@ import org.apache.reef.wake.IdentifierFactory;
 
 import javax.inject.Inject;
 
+// TODO[JIRA REEF-637] Remove the deprecated class.
 /**
  * TaskStart event handler for registering NetworkConnectionService.
  * Users have to bind this handler into ServiceConfiguration.ON_TASK_STARTED.
