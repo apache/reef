@@ -31,14 +31,12 @@ public final class ResourceStatusEventImpl implements ResourceStatusEvent {
   private final ReefServiceProtos.State state;
   private final Optional<String> diagnostics;
   private final Optional<Integer> exitCode;
-  private final Optional<Boolean> isFromPreviousDriver;
 
   private ResourceStatusEventImpl(final Builder builder) {
     this.identifier = BuilderUtils.notNull(builder.identifier);
     this.state = BuilderUtils.notNull(builder.state);
     this.diagnostics = Optional.ofNullable(builder.diagnostics);
     this.exitCode = Optional.ofNullable(builder.exitCode);
-    this.isFromPreviousDriver = Optional.ofNullable(builder.isFromPreviousDriver);
   }
 
   @Override
@@ -61,11 +59,6 @@ public final class ResourceStatusEventImpl implements ResourceStatusEvent {
     return exitCode;
   }
 
-  @Override
-  public Optional<Boolean> getIsFromPreviousDriver() {
-    return isFromPreviousDriver;
-  }
-
   public static Builder newBuilder() {
     return new Builder();
   }
@@ -78,7 +71,6 @@ public final class ResourceStatusEventImpl implements ResourceStatusEvent {
     private ReefServiceProtos.State state;
     private String diagnostics;
     private Integer exitCode;
-    private Boolean isFromPreviousDriver;
 
     /**
      * @see ResourceStatusEvent#getIdentifier()
@@ -109,14 +101,6 @@ public final class ResourceStatusEventImpl implements ResourceStatusEvent {
      */
     public Builder setExitCode(final int exitCode) {
       this.exitCode = exitCode;
-      return this;
-    }
-
-    /**
-     * @see ResourceStatusEvent#getIsFromPreviousDriver()
-     */
-    public Builder setIsFromPreviousDriver(final boolean isFromPreviousDriver) {
-      this.isFromPreviousDriver = isFromPreviousDriver;
       return this;
     }
 

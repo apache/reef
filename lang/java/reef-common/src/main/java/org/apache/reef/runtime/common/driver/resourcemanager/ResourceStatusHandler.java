@@ -19,9 +19,11 @@
 package org.apache.reef.runtime.common.driver.resourcemanager;
 
 import org.apache.reef.annotations.audience.Private;
+import org.apache.reef.driver.restart.DriverRestartManager;
 import org.apache.reef.runtime.common.driver.evaluator.EvaluatorManager;
 import org.apache.reef.runtime.common.driver.evaluator.EvaluatorManagerFactory;
 import org.apache.reef.runtime.common.driver.evaluator.Evaluators;
+import org.apache.reef.tang.InjectionFuture;
 import org.apache.reef.util.Optional;
 import org.apache.reef.wake.EventHandler;
 
@@ -36,11 +38,15 @@ public final class ResourceStatusHandler implements EventHandler<ResourceStatusE
 
   private final Evaluators evaluators;
   private final EvaluatorManagerFactory evaluatorManagerFactory;
+  private final InjectionFuture<DriverRestartManager> driverRestartManager;
 
   @Inject
-  ResourceStatusHandler(final Evaluators evaluators, final EvaluatorManagerFactory evaluatorManagerFactory) {
+  ResourceStatusHandler(final Evaluators evaluators,
+                        final EvaluatorManagerFactory evaluatorManagerFactory,
+                        final InjectionFuture<DriverRestartManager> driverRestartManager) {
     this.evaluators = evaluators;
     this.evaluatorManagerFactory = evaluatorManagerFactory;
+    this.driverRestartManager = driverRestartManager;
   }
 
   /**
@@ -56,7 +62,8 @@ public final class ResourceStatusHandler implements EventHandler<ResourceStatusE
     if (evaluatorManager.isPresent()) {
       evaluatorManager.get().onResourceStatusMessage(resourceStatusEvent);
     } else {
-      if (resourceStatusEvent.getIsFromPreviousDriver().get()) {
+      if (driverRestartManager.get().getEvaluatorRestartState(resourceStatusEvent.getIdentifier())
+            .isFailedOrExpired()) {
         final EvaluatorManager previousEvaluatorManager = this.evaluatorManagerFactory
             .getNewEvaluatorManagerForEvaluatorFailedDuringDriverRestart(resourceStatusEvent);
 

@@ -51,9 +51,4 @@ public interface ResourceStatusEvent {
    * @return Exit code of the resource, if it has exited
    */
   Optional<Integer> getExitCode();
-
-  /**
-   * @return If true, this resource is from a previous Driver (the Driver was restarted)
-   */
-  Optional<Boolean> getIsFromPreviousDriver();
 }
