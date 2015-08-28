@@ -85,10 +85,7 @@ class FirstFitSchedulingPolicy implements SchedulingPolicy {
     final String workerId = vortexWorker.getId();
     if (!idLoadMap.containsKey(workerId)) { // Ignore duplicate add.
       idLoadMap.put(workerId, 0);
-      
-      // Insert before the next index, so that newly added worker will be searched for at last.
-      idList.add(nextIndex, workerId);
-      nextIndex = (nextIndex + 1) % idList.size();
+      idList.add(nextIndex, workerId); // prefer to schedule the new worker ASAP
     }
   }
 

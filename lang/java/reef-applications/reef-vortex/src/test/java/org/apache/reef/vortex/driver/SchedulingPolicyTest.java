@@ -19,7 +19,10 @@
 package org.apache.reef.vortex.driver;
 
 import org.junit.Test;
-import java.util.ArrayList;
+
+import java.util.ArrayDeque;
+import java.util.Deque;
+
 import static org.junit.Assert.*;
 
 /**
@@ -47,10 +50,10 @@ public class SchedulingPolicyTest {
     final FirstFitSchedulingPolicy policy = new FirstFitSchedulingPolicy(workerCapacity);
 
     // Add workers
-    final ArrayList<VortexWorkerManager> workers = new ArrayList<>();
+    final Deque<VortexWorkerManager> workers = new ArrayDeque<>();
     for (int i = 0; i < numOfWorkers; i++) {
       final VortexWorkerManager worker = testUtil.newWorker();
-      workers.add(worker);
+      workers.addFirst(worker);
       policy.workerAdded(worker);
     }
 
@@ -75,24 +78,23 @@ public class SchedulingPolicyTest {
     final FirstFitSchedulingPolicy policy = new FirstFitSchedulingPolicy(workerCapacity);
 
     // Add workers and make the odd ones full
-    final ArrayList<VortexWorkerManager> workers = new ArrayList<>();
+    final ArrayDeque<VortexWorkerManager> evenWorkers = new ArrayDeque<>();
     for (int i = 0; i < numOfWorkers; i++) {
       final VortexWorkerManager worker = testUtil.newWorker();
-      workers.add(worker);
       policy.workerAdded(worker);
 
       if (i % 2 == 1) {
         policy.taskletLaunched(worker, testUtil.newTasklet());
+      } else {
+        evenWorkers.addFirst(worker);
       }
     }
 
     // Check whether the policy returns even ones in order
-    for (int i = 0; i < numOfWorkers; i++) {
-      if (i % 2 == 0) {
-        final Tasklet tasklet = testUtil.newTasklet();
-        assertEquals("This should be the first fit", workers.get(i).getId(), policy.trySchedule(tasklet).get());
-        policy.taskletLaunched(workers.get(i), tasklet);
-      }
+    for (final VortexWorkerManager worker : evenWorkers) {
+      final Tasklet tasklet = testUtil.newTasklet();
+      assertEquals("This should be the first fit", worker.getId(), policy.trySchedule(tasklet).get());
+      policy.taskletLaunched(worker, tasklet);
     }
 
     // When all workers are full...
