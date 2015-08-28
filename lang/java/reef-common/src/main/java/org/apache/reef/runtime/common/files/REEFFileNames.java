@@ -48,7 +48,7 @@ public final class REEFFileNames {
   private static final String EVALUATOR_STDERR = "evaluator.stderr";
   private static final String EVALUATOR_STDOUT = "evaluator.stdout";
   private static final String BRIDGE_DLL_NAME = "Org.Apache.REEF.Bridge.dll";
-
+  private static final String DRIVER_HTTP_ENDPOINT_FILE_NAME = "DriverHttpEndpoint.txt";
 
   @Inject
   public REEFFileNames() {
@@ -216,4 +216,12 @@ public final class REEFFileNames {
   public String getEvaluatorStdoutFileName() {
     return EVALUATOR_STDOUT;
   }
+
+  /**
+   * @return File name that contains the dfs path for the DriverHttpEndpoint.
+   */
+  public String getDriverHttpEndpoint() {
+    return DRIVER_HTTP_ENDPOINT_FILE_NAME;
+  }
+
 }

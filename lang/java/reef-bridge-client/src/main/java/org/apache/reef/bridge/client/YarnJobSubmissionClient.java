@@ -18,6 +18,7 @@
  */
 package org.apache.reef.bridge.client;
 
+import org.apache.hadoop.fs.*;
 import org.apache.hadoop.yarn.api.records.LocalResource;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.exceptions.YarnException;
@@ -47,11 +48,9 @@ import org.apache.reef.util.JARFileMaker;
 import org.apache.reef.wake.remote.ports.parameters.TcpPortRangeBegin;
 import org.apache.reef.wake.remote.ports.parameters.TcpPortRangeCount;
 import org.apache.reef.wake.remote.ports.parameters.TcpPortRangeTryCount;
-
 import javax.inject.Inject;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -67,6 +66,7 @@ public final class YarnJobSubmissionClient {
   private final REEFFileNames fileNames;
   private final YarnConfiguration yarnConfiguration;
   private final ClasspathProvider classpath;
+  private final Set<ConfigurationProvider> configurationProviders;
   private final int maxApplicationSubmissions;
   private final boolean enableRestart;
   private final SecurityTokenProvider tokenProvider;
@@ -77,16 +77,17 @@ public final class YarnJobSubmissionClient {
                           final ConfigurationSerializer configurationSerializer,
                           final REEFFileNames fileNames,
                           final ClasspathProvider classpath,
-                          @Parameter(MaxApplicationSubmissions.class)
-                          final int maxApplicationSubmissions,
-                          @Parameter(EnableRestart.class)
-                          final boolean enableRestart,
+                          @Parameter(MaxApplicationSubmissions.class) final int maxApplicationSubmissions,
+                          @Parameter(EnableRestart.class) final boolean enableRestart,
+                          @Parameter(DriverConfigurationProviders.class)
+                          final Set<ConfigurationProvider> configurationProviders,
                           final SecurityTokenProvider tokenProvider) {
     this.uploader = uploader;
     this.configurationSerializer = configurationSerializer;
     this.fileNames = fileNames;
     this.yarnConfiguration = yarnConfiguration;
     this.classpath = classpath;
+    this.configurationProviders = configurationProviders;
     this.maxApplicationSubmissions = maxApplicationSubmissions;
     this.enableRestart = enableRestart;
     this.tokenProvider = tokenProvider;
@@ -104,9 +105,16 @@ public final class YarnJobSubmissionClient {
         .set(YarnDriverConfiguration.JVM_HEAP_SLACK, 0.0)
         .build();
 
+    final ConfigurationBuilder configurationBuilder = Tang.Factory.getTang().newConfigurationBuilder();
+    for (final ConfigurationProvider configurationProvider : this.configurationProviders) {
+      configurationBuilder.addConfiguration(configurationProvider.getConfiguration());
+    }
+    final Configuration providedConfigurations =  configurationBuilder.build();
+
     Configuration driverConfiguration = Configurations.merge(
         Constants.DRIVER_CONFIGURATION_WITH_HTTP_AND_NAMESERVER,
-        yarnDriverConfiguration);
+        yarnDriverConfiguration,
+        providedConfigurations);
 
     if (this.enableRestart) {
       final Configuration yarnDriverRestartConfiguration =
@@ -206,6 +214,7 @@ public final class YarnJobSubmissionClient {
       } catch (InjectionException ie) {
         throw new RuntimeException("Unable to submit job due to " + ie);
       }
+      writeDriverHttpEndPoint(driverFolder, submissionHelper.getStringApplicationId(), jobFolderOnDFS.getPath());
     }
   }
 
@@ -231,6 +240,63 @@ public final class YarnJobSubmissionClient {
 
     return Configurations.merge(yarnClientConfig, providerConfig, yarnJobSubmissionClientParamsConfig);
   }
+
+  /**
+   * We leave a file behind in job submission directory so that clr client can figure out
+   * the applicationId and yarn rest endpoint.
+   * @param driverFolder
+   * @param applicationId
+   * @throws IOException
+   */
+  private void writeDriverHttpEndPoint(final File driverFolder,
+                                       final String applicationId,
+                                       final Path dfsPath) throws  IOException {
+    FileSystem fs = FileSystem.get(yarnConfiguration);
+    Path httpEndpointPath = new Path(dfsPath, fileNames.getDriverHttpEndpoint());
+
+    String trackingUri = null;
+    for (int i = 0; i < 60; i++) {
+      try {
+        LOG.log(Level.INFO, "Attempt " + i + " reading " + httpEndpointPath.toString());
+        if (fs.exists(httpEndpointPath)) {
+          FSDataInputStream input = fs.open(httpEndpointPath);
+          BufferedReader reader = new BufferedReader(new InputStreamReader(input));
+          trackingUri = reader.readLine();
+          reader.close();
+          break;
+        }
+      } catch (Exception ex) {
+      }
+      try{
+        Thread.sleep(1000);
+      } catch(InterruptedException ex2) {
+        break;
+      }
+    }
+
+    if (null == trackingUri) {
+      trackingUri = "";
+      LOG.log(Level.WARNING, "Failed reading " + httpEndpointPath.toString());
+    }
+
+    final File driverHttpEndpointFile = new File(driverFolder, fileNames.getDriverHttpEndpoint());
+    BufferedWriter out = new BufferedWriter(new FileWriter(driverHttpEndpointFile));
+    out.write(applicationId + "\n");
+    out.write(trackingUri + "\n");
+    String addr = yarnConfiguration.get("yarn.resourcemanager.webapp.address");
+    if (null == addr || addr.startsWith("0.0.0.0")) {
+      String str2 = yarnConfiguration.get("yarn.resourcemanager.ha.rm-ids");
+      if (null != str2) {
+        for (String rm : str2.split(",")) {
+          out.write(yarnConfiguration.get("yarn.resourcemanager.webapp.address." + rm) +"\n");
+        }
+      }
+    } else {
+      out.write(addr +"\n");
+    }
+    out.close();
+  }
+
 
   /**
    * Takes 5 parameters from the C# side:

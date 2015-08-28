@@ -55,6 +55,7 @@ namespace Org.Apache.REEF.Tests.Functional
 
         private const string Local = "local";
         private const string YARN = "yarn";
+        private const int SleppTime = 1000;
 
         private readonly static Logger Logger = Logger.GetLogger(typeof(ReefFunctionalTest));
         private const string StorageAccountKeyEnvironmentVariable = "REEFTestStorageAccountKey";
@@ -152,14 +153,35 @@ namespace Org.Apache.REEF.Tests.Functional
             const string successIndication = "EXIT: ActiveContextClr2Java::Close";
             const string failedTaskIndication = "Java_com_microsoft_reef_javabridge_NativeInterop_clrSystemFailedTaskHandlerOnNext";
             const string failedEvaluatorIndication = "Java_com_microsoft_reef_javabridge_NativeInterop_clrSystemFailedEvaluatorHandlerOnNext";
-            string[] lines = File.ReadAllLines(GetLogFile(_stdout, testFolder));
-            Console.WriteLine("Lines read from log file : " + lines.Count());
-            string[] successIndicators = lines.Where(s => s.Contains(successIndication)).ToArray();
-            string[] failedTaskIndicators = lines.Where(s => s.Contains(failedTaskIndication)).ToArray();
-            string[] failedIndicators = lines.Where(s => s.Contains(failedEvaluatorIndication)).ToArray();
-            Assert.IsTrue(successIndicators.Count() == numberOfEvaluatorsToClose);
-            Assert.IsFalse(failedTaskIndicators.Any());
-            Assert.IsFalse(failedIndicators.Any());
+            string[] lines = null;
+            for (int i = 0; i < 60; i++)
+            {
+                try
+                {
+                    lines = File.ReadAllLines(GetLogFile(_stdout, testFolder));
+                    break;
+                }
+                catch (Exception)
+                {
+                    Thread.Sleep(SleppTime);
+                }
+            }
+
+            if (lines != null)
+            {
+                Console.WriteLine("Lines read from log file : " + lines.Count());
+                string[] successIndicators = lines.Where(s => s.Contains(successIndication)).ToArray();
+                string[] failedTaskIndicators = lines.Where(s => s.Contains(failedTaskIndication)).ToArray();
+                string[] failedIndicators = lines.Where(s => s.Contains(failedEvaluatorIndication)).ToArray();
+                Assert.IsTrue(successIndicators.Count() == numberOfEvaluatorsToClose);
+                Assert.IsFalse(failedTaskIndicators.Any());
+                Assert.IsFalse(failedIndicators.Any());
+            }
+            else
+            {
+                Console.WriteLine("Cannot read from log file");
+                Assert.IsNotNull(null);
+            }
         }
 
         protected void PeriodicUploadLog(object source, ElapsedEventArgs e)

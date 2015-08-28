@@ -49,6 +49,7 @@ namespace Org.Apache.REEF.Common.Files
         private const string EVALUATOR_CONFIGURATION_NAME = "evaluator.conf";
         private const string CLR_DRIVER_CONFIGURATION_NAME = "clrdriver.conf";
         private const string BRIDGE_DLL_NAME = "Org.Apache.REEF.Bridge.dll";
+        private const string DRIVER_HTTP_ENDPOINT_FILE_NAME = "DriverHttpEndpoint.txt";
 
         [Inject]
         public REEFFileNames()
@@ -218,6 +219,11 @@ namespace Org.Apache.REEF.Common.Files
         {
             return BRIDGE_DLL_NAME;
         }
+
+        /// <summary>
+        /// </summary>
+        /// <returns>File name that contains the dfs path for the DriverHttpEndpoint</returns>
+        public string DriverHttpEndpoint { get { return DRIVER_HTTP_ENDPOINT_FILE_NAME; } }
 
         private static readonly string GLOBAL_FOLDER_PATH = Path.Combine(REEF_BASE_FOLDER, GLOBAL_FOLDER);
         private static readonly string LOCAL_FOLDER_PATH = Path.Combine(REEF_BASE_FOLDER, LOCAL_FOLDER);
