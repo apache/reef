@@ -16,10 +16,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.services.network;
+package org.apache.reef.io.network.naming;
 
 import org.apache.reef.io.naming.NameAssignment;
-import org.apache.reef.io.network.naming.*;
 import org.apache.reef.io.network.naming.parameters.NameResolverRetryCount;
 import org.apache.reef.io.network.naming.parameters.NameResolverRetryTimeout;
 import org.apache.reef.io.network.util.StringIdentifierFactory;

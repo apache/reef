@@ -16,7 +16,21 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-/**
- * TODO: Document.
- */
-package org.apache.reef.services.storage;
+package org.apache.reef.io.network.util;
+
+import org.apache.reef.wake.EventHandler;
+import org.apache.reef.wake.impl.PeriodicEvent;
+
+public class TimeoutHandler implements EventHandler<PeriodicEvent> {
+
+  private final Monitor monitor;
+
+  public TimeoutHandler(final Monitor monitor) {
+    this.monitor = monitor;
+  }
+
+  @Override
+  public void onNext(final PeriodicEvent event) {
+    monitor.mnotify();
+  }
+}

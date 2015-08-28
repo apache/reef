@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.services.storage;
+package org.apache.reef.io.storage;
 
 import org.apache.reef.exception.evaluator.ServiceException;
 import org.apache.reef.io.Accumulable;

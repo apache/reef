@@ -19,4 +19,4 @@
 /**
  * TODO: Document.
  */
-package org.apache.reef.services.network.util;
+package org.apache.reef.io.network;

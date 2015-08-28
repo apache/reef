@@ -16,13 +16,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.services.network;
+package org.apache.reef.io.network;
 
 import org.apache.reef.exception.evaluator.NetworkException;
-import org.apache.reef.io.network.Connection;
-import org.apache.reef.io.network.util.StringCodec;
-import org.apache.reef.io.network.util.StringIdentifierFactory;
-import org.apache.reef.services.network.util.*;
+import org.apache.reef.io.network.util.*;
 import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.wake.Identifier;
 import org.apache.reef.wake.IdentifierFactory;
@@ -38,18 +35,20 @@ import java.util.concurrent.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+// TODO[JIRA REEF-637] Remove the deprecated class.
 /**
- * Default Network connection service test.
+ * Test for deprecated methods, which are deprecated in 0.13, of NetworkConnectionService.
  */
-public class NetworkConnectionServiceTest {
-  private static final Logger LOG = Logger.getLogger(NetworkConnectionServiceTest.class.getName());
+@Deprecated
+public final class DeprecatedNetworkConnectionServiceTest {
+  private static final Logger LOG = Logger.getLogger(DeprecatedNetworkConnectionServiceTest.class.getName());
 
   private final LocalAddressProvider localAddressProvider;
   private final String localAddress;
   private final Identifier groupCommClientId;
   private final Identifier shuffleClientId;
 
-  public NetworkConnectionServiceTest() throws InjectionException {
+  public DeprecatedNetworkConnectionServiceTest() throws InjectionException {
     localAddressProvider = LocalAddressProviderFactory.getInstance();
     localAddress = localAddressProvider.getLocalAddress();
 
@@ -64,7 +63,8 @@ public class NetworkConnectionServiceTest {
   private void runMessagingNetworkConnectionService(final Codec<String> codec) throws Exception {
     final int numMessages = 2000;
     final Monitor monitor = new Monitor();
-    try (final NetworkMessagingTestService messagingTestService = new NetworkMessagingTestService(localAddress)) {
+    try (final DeprecatedNetworkMessagingTestService messagingTestService
+             = new DeprecatedNetworkMessagingTestService(localAddress)) {
       messagingTestService.registerTestConnectionFactory(groupCommClientId, numMessages, monitor, codec);
 
       try (final Connection<String> conn = messagingTestService.getConnectionFromSenderToReceiver(groupCommClientId)) {
@@ -108,7 +108,8 @@ public class NetworkConnectionServiceTest {
 
     final int groupcommMessages = 1000;
     final Monitor monitor = new Monitor();
-    try (final NetworkMessagingTestService messagingTestService = new NetworkMessagingTestService(localAddress)) {
+    try (final DeprecatedNetworkMessagingTestService messagingTestService
+             = new DeprecatedNetworkMessagingTestService(localAddress)) {
 
       messagingTestService.registerTestConnectionFactory(groupCommClientId, groupcommMessages, monitor, stringCodec);
 
@@ -188,7 +189,8 @@ public class NetworkConnectionServiceTest {
       final int numMessages = 300000 / (Math.max(1, size / 512));
       final Monitor monitor = new Monitor();
       final Codec<String> codec = new StringCodec();
-      try (final NetworkMessagingTestService messagingTestService = new NetworkMessagingTestService(localAddress)) {
+      try (final DeprecatedNetworkMessagingTestService messagingTestService
+               = new DeprecatedNetworkMessagingTestService(localAddress)) {
         messagingTestService.registerTestConnectionFactory(groupCommClientId, numMessages, monitor, codec);
 
         // build the message
@@ -242,7 +244,8 @@ public class NetworkConnectionServiceTest {
 
       e.submit(new Runnable() {
         public void run() {
-          try (final NetworkMessagingTestService messagingTestService = new NetworkMessagingTestService(localAddress)) {
+          try (final DeprecatedNetworkMessagingTestService messagingTestService
+                   = new DeprecatedNetworkMessagingTestService(localAddress)) {
             final Monitor monitor = new Monitor();
             final Codec<String> codec = new StringCodec();
 
@@ -301,7 +304,8 @@ public class NetworkConnectionServiceTest {
       final int totalNumMessages = numMessages * numThreads;
       final Monitor monitor = new Monitor();
       final Codec<String> codec = new StringCodec();
-      try (final NetworkMessagingTestService messagingTestService = new NetworkMessagingTestService(localAddress)) {
+      try (final DeprecatedNetworkMessagingTestService messagingTestService
+               = new DeprecatedNetworkMessagingTestService(localAddress)) {
         messagingTestService.registerTestConnectionFactory(groupCommClientId, totalNumMessages, monitor, codec);
 
         final ExecutorService e = Executors.newCachedThreadPool();
@@ -339,7 +343,7 @@ public class NetworkConnectionServiceTest {
           monitor.mwait();
           final long end = System.currentTimeMillis();
           final double runtime = ((double) end - start) / 1000;
-          LOG.log(Level.INFO, "size: " + size + "; messages/s: " + totalNumMessages / runtime + 
+          LOG.log(Level.INFO, "size: " + size + "; messages/s: " + totalNumMessages / runtime +
               " bandwidth(bytes/s): " + ((double) totalNumMessages * 2 * size) / runtime); // x2 for unicode chars
         }
       }
@@ -360,7 +364,8 @@ public class NetworkConnectionServiceTest {
       final int numMessages = 300 / (Math.max(1, size / 512));
       final Monitor monitor = new Monitor();
       final Codec<String> codec = new StringCodec();
-      try (final NetworkMessagingTestService messagingTestService = new NetworkMessagingTestService(localAddress)) {
+      try (final DeprecatedNetworkMessagingTestService messagingTestService
+               = new DeprecatedNetworkMessagingTestService(localAddress)) {
         messagingTestService.registerTestConnectionFactory(groupCommClientId, numMessages, monitor, codec);
         try (final Connection<String> conn =
                  messagingTestService.getConnectionFromSenderToReceiver(groupCommClientId)) {

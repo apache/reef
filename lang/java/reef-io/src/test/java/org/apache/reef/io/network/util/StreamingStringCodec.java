@@ -16,25 +16,41 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.services.network.util;
+package org.apache.reef.io.network.util;
 
-import java.util.concurrent.atomic.AtomicBoolean;
+import org.apache.reef.io.network.impl.StreamingCodec;
 
-public class Monitor {
-  private AtomicBoolean finished = new AtomicBoolean(false);
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 
-  public void mwait() throws InterruptedException {
-    synchronized (this) {
-      while (!finished.get()) {
-        this.wait();
-      }
+
+public class StreamingStringCodec implements StreamingCodec<String> {
+  @Override
+  public byte[] encode(final String obj) {
+    return obj.getBytes();
+  }
+
+  @Override
+  public String decode(final byte[] buf) {
+    return new String(buf);
+  }
+
+  @Override
+  public void encodeToStream(final String obj, final DataOutputStream stream) {
+    try {
+      stream.writeUTF(obj);
+    } catch (final IOException e) {
+      throw new RuntimeException(e);
     }
   }
 
-  public void mnotify() {
-    synchronized (this) {
-      finished.compareAndSet(false, true);
-      this.notifyAll();
+  @Override
+  public String decodeFromStream(final DataInputStream stream) {
+    try {
+      return stream.readUTF();
+    } catch (final IOException e) {
+      throw new RuntimeException(e);
     }
   }
 }

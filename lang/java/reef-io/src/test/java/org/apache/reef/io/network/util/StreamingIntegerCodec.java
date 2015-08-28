@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.services.network.util;
+package org.apache.reef.io.network.util;
 
 import org.apache.reef.io.network.impl.StreamingCodec;
 
@@ -25,32 +25,33 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 
 
-public class StreamingStringCodec implements StreamingCodec<String> {
-  @Override
-  public byte[] encode(final String obj) {
-    return obj.getBytes();
-  }
+public class StreamingIntegerCodec implements StreamingCodec<Integer> {
 
   @Override
-  public String decode(final byte[] buf) {
-    return new String(buf);
-  }
-
-  @Override
-  public void encodeToStream(final String obj, final DataOutputStream stream) {
+  public void encodeToStream(final Integer obj, final DataOutputStream stream) {
     try {
-      stream.writeUTF(obj);
+      stream.writeInt(obj);
     } catch (final IOException e) {
       throw new RuntimeException(e);
     }
   }
 
   @Override
-  public String decodeFromStream(final DataInputStream stream) {
+  public Integer decodeFromStream(final DataInputStream stream) {
     try {
-      return stream.readUTF();
+      return stream.readInt();
     } catch (final IOException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  @Override
+  public Integer decode(final byte[] data) {
+    return null;
+  }
+
+  @Override
+  public byte[] encode(final Integer obj) {
+    return new byte[0];
   }
 }
