@@ -44,9 +44,9 @@ namespace Org.Apache.REEF.Evaluator.Tests
             Logger.Log(Level.Info, "ApplicationId = " + aId);
             Logger.Log(Level.Info, "ErrorHandlerRID = " + rId);
 
-            Assert.IsTrue(eId.Equals("Node-1-1440108430564"));
+            Assert.IsTrue(eId.Equals("Node-1-1440635067509"));
             Assert.IsTrue(aId.Equals("REEF_LOCAL_RUNTIME"));
-            Assert.IsTrue(rId.Equals("socket://10.130.68.76:9528"));
+            Assert.IsTrue(rId.Equals("socket://10.130.68.76:9316"));
 
             var contextConfigString = evaluatorConfigurations.RootContextConfigurationString;
             var serviceConfigString = evaluatorConfigurations.RootServiceConfigurationString;

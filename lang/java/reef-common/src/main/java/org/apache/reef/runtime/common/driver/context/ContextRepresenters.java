@@ -23,8 +23,6 @@ import net.jcip.annotations.ThreadSafe;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.driver.context.FailedContext;
-import org.apache.reef.driver.restart.DriverRestartManager;
-import org.apache.reef.driver.restart.EvaluatorRestartState;
 import org.apache.reef.proto.ReefServiceProtos;
 import org.apache.reef.runtime.common.driver.evaluator.EvaluatorMessageDispatcher;
 import org.apache.reef.util.Optional;
@@ -45,7 +43,6 @@ public final class ContextRepresenters {
 
   private final EvaluatorMessageDispatcher messageDispatcher;
   private final ContextFactory contextFactory;
-  private final DriverRestartManager driverRestartManager;
 
   // Mutable fields
   @GuardedBy("this")
@@ -55,11 +52,9 @@ public final class ContextRepresenters {
 
   @Inject
   private ContextRepresenters(final EvaluatorMessageDispatcher messageDispatcher,
-                              final ContextFactory contextFactory,
-                              final DriverRestartManager driverRestartManager) {
+                              final ContextFactory contextFactory) {
     this.messageDispatcher = messageDispatcher;
     this.contextFactory = contextFactory;
-    this.driverRestartManager = driverRestartManager;
   }
 
   /**
@@ -215,13 +210,8 @@ public final class ContextRepresenters {
         Optional.of(contextStatusProto.getParentId()) : Optional.<String>empty();
     final EvaluatorContext context = contextFactory.newContext(contextID, parentID);
     this.addContext(context);
-    if (driverRestartManager.getEvaluatorRestartState(context.getEvaluatorId()) == EvaluatorRestartState.REREGISTERED) {
-      // when we get a recovered active context, always notify application
-      this.messageDispatcher.onDriverRestartContextActive(context);
-    } else {
-      if (notifyClientOnNewActiveContext) {
-        this.messageDispatcher.onContextActive(context);
-      }
+    if (notifyClientOnNewActiveContext) {
+      this.messageDispatcher.onContextActive(context);
     }
   }
 

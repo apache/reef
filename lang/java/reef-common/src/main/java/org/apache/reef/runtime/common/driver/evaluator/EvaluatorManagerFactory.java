@@ -25,10 +25,7 @@ import org.apache.reef.driver.catalog.NodeDescriptor;
 import org.apache.reef.driver.catalog.ResourceCatalog;
 import org.apache.reef.driver.evaluator.EvaluatorProcessFactory;
 import org.apache.reef.runtime.common.driver.catalog.ResourceCatalogImpl;
-import org.apache.reef.runtime.common.driver.resourcemanager.NodeDescriptorEvent;
-import org.apache.reef.runtime.common.driver.resourcemanager.NodeDescriptorEventImpl;
-import org.apache.reef.runtime.common.driver.resourcemanager.ResourceAllocationEvent;
-import org.apache.reef.runtime.common.driver.resourcemanager.ResourceStatusEvent;
+import org.apache.reef.runtime.common.driver.resourcemanager.*;
 import org.apache.reef.tang.Injector;
 import org.apache.reef.tang.exceptions.BindException;
 import org.apache.reef.tang.exceptions.InjectionException;
@@ -56,6 +53,34 @@ public final class EvaluatorManagerFactory {
     this.injector = injector;
     this.resourceCatalog = resourceCatalog;
     this.processFactory = processFactory;
+  }
+
+  private EvaluatorManager getNewEvaluatorManagerInstanceForResource(
+      final ResourceEvent resourceEvent) {
+    NodeDescriptor nodeDescriptor = this.resourceCatalog.getNode(resourceEvent.getNodeId());
+
+    if (nodeDescriptor == null) {
+      final String nodeId = resourceEvent.getNodeId();
+      LOG.log(Level.WARNING, "Node {} is not in our catalog, adding it", nodeId);
+      final String[] hostNameAndPort = nodeId.split(":");
+      Validate.isTrue(hostNameAndPort.length == 2);
+      final NodeDescriptorEvent nodeDescriptorEvent = NodeDescriptorEventImpl.newBuilder().setIdentifier(nodeId)
+          .setHostName(hostNameAndPort[0]).setPort(Integer.parseInt(hostNameAndPort[1]))
+          .setMemorySize(resourceEvent.getResourceMemory())
+          .setRackName(resourceEvent.getRackName().get()).build();
+      // downcasting not to change the API
+      ((ResourceCatalogImpl) resourceCatalog).handle(nodeDescriptorEvent);
+      nodeDescriptor = this.resourceCatalog.getNode(nodeId);
+    }
+    final EvaluatorDescriptorImpl evaluatorDescriptor = new EvaluatorDescriptorImpl(nodeDescriptor,
+        resourceEvent.getResourceMemory(), resourceEvent.getVirtualCores().get(),
+        processFactory.newEvaluatorProcess());
+
+    LOG.log(Level.FINEST, "Resource allocation: new evaluator id[{0}]", resourceEvent.getIdentifier());
+    final EvaluatorManager evaluatorManager =
+        getNewEvaluatorManagerInstance(resourceEvent.getIdentifier(), evaluatorDescriptor);
+
+    return evaluatorManager;
   }
 
   /**
@@ -92,30 +117,9 @@ public final class EvaluatorManagerFactory {
    * @param resourceAllocationEvent
    * @return an EvaluatorManager for the newly allocated Evaluator.
    */
-  public EvaluatorManager getNewEvaluatorManagerForNewlyAllocatedEvaluator(
+  public EvaluatorManager getNewEvaluatorManagerForNewEvaluator(
       final ResourceAllocationEvent resourceAllocationEvent) {
-    NodeDescriptor nodeDescriptor = this.resourceCatalog.getNode(resourceAllocationEvent.getNodeId());
-
-    if (nodeDescriptor == null) {
-      final String nodeId = resourceAllocationEvent.getNodeId();
-      LOG.log(Level.WARNING, "Node {} is not in our catalog, adding it", nodeId);
-      final String[] hostNameAndPort = nodeId.split(":");
-      Validate.isTrue(hostNameAndPort.length == 2);
-      final NodeDescriptorEvent nodeDescriptorEvent = NodeDescriptorEventImpl.newBuilder().setIdentifier(nodeId)
-          .setHostName(hostNameAndPort[0]).setPort(Integer.parseInt(hostNameAndPort[1]))
-          .setMemorySize(resourceAllocationEvent.getResourceMemory())
-          .setRackName(resourceAllocationEvent.getRackName().get()).build();
-      // downcasting not to change the API
-      ((ResourceCatalogImpl) resourceCatalog).handle(nodeDescriptorEvent);
-      nodeDescriptor = this.resourceCatalog.getNode(nodeId);
-    }
-    final EvaluatorDescriptorImpl evaluatorDescriptor = new EvaluatorDescriptorImpl(nodeDescriptor,
-        resourceAllocationEvent.getResourceMemory(), resourceAllocationEvent.getVirtualCores().get(),
-        processFactory.newEvaluatorProcess());
-
-    LOG.log(Level.FINEST, "Resource allocation: new evaluator id[{0}]", resourceAllocationEvent.getIdentifier());
-    final EvaluatorManager evaluatorManager =
-        getNewEvaluatorManagerInstance(resourceAllocationEvent.getIdentifier(), evaluatorDescriptor);
+    final EvaluatorManager evaluatorManager = getNewEvaluatorManagerInstanceForResource(resourceAllocationEvent);
     evaluatorManager.fireEvaluatorAllocatedEvent();
 
     return evaluatorManager;
@@ -133,5 +137,28 @@ public final class EvaluatorManagerFactory {
     }
     return getNewEvaluatorManagerInstance(resourceStatusEvent.getIdentifier(),
         new EvaluatorDescriptorImpl(null, 128, 1, processFactory.newEvaluatorProcess()));
+  }
+
+  /**
+   * Instantiates a new EvaluatorManager for a failed evaluator during driver restart.
+   * Does not fire an EvaluatorAllocatedEvent.
+   * @param resourceStatusEvent
+   * @return an EvaluatorManager for the user to call fail on.
+   */
+  public EvaluatorManager getNewEvaluatorManagerForEvaluatorFailedDuringDriverRestart(
+      final ResourceStatusEvent resourceStatusEvent) {
+    return getNewEvaluatorManagerInstance(resourceStatusEvent.getIdentifier(),
+        new EvaluatorDescriptorImpl(null, 128, 1, processFactory.newEvaluatorProcess()));
+  }
+
+  /**
+   * Instantiates a new EvaluatorManager based on a resource allocation from a recovered evaluator.
+   *
+   * @param resourceRecoverEvent
+   * @return an EvaluatorManager for the newly allocated Evaluator.
+   */
+  public EvaluatorManager getNewEvaluatorManagerForRecoveredEvaluator(
+      final ResourceRecoverEvent resourceRecoverEvent) {
+    return getNewEvaluatorManagerInstanceForResource(resourceRecoverEvent);
   }
 }

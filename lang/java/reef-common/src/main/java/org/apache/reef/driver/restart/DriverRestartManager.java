@@ -27,6 +27,7 @@ import org.apache.reef.exception.DriverFatalRuntimeException;
 import org.apache.reef.runtime.common.DriverRestartCompleted;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.wake.EventHandler;
+import org.apache.reef.runtime.common.driver.resourcemanager.ResourceRecoverEvent;
 
 import javax.inject.Inject;
 import java.util.*;
@@ -122,6 +123,19 @@ public final class DriverRestartManager {
   }
 
   /**
+   * @return The ResourceRecoverEvent of the specified evaluator. Throws a {@link DriverFatalRuntimeException} if
+   * the evaluator does not exist in the set of known evaluators.
+   */
+  public synchronized ResourceRecoverEvent getResourceRecoverEvent(final String evaluatorId) {
+    if (!this.restartEvaluators.contains(evaluatorId)) {
+      throw new DriverFatalRuntimeException("Unexpected evaluator [" + evaluatorId + "], should " +
+          "not have been recorded.");
+    }
+
+    return this.restartEvaluators.get(evaluatorId).getResourceRecoverEvent();
+  }
+
+  /**
    * Indicate that this Driver has re-established the connection with one more Evaluator of a previous run.
    * @return true if the evaluator has been newly recovered.
    */
@@ -179,9 +193,9 @@ public final class DriverRestartManager {
   }
 
   /**
-   * Signals to the {@link DriverRestartManager} that an evaluator has had its running task processed.
+   * Signals to the {@link DriverRestartManager} that an evaluator has had its running task or active context processed.
    */
-  public synchronized void setEvaluatorRunningTask(final String evaluatorId) {
+  public synchronized void setEvaluatorProcessed(final String evaluatorId) {
     setStateOfPreviousEvaluator(evaluatorId, EvaluatorRestartState.PROCESSED);
   }
 
@@ -193,7 +207,7 @@ public final class DriverRestartManager {
   }
 
   private synchronized EvaluatorRestartState getStateOfPreviousEvaluator(final String evaluatorId) {
-    if (this.restartEvaluators.contains(evaluatorId)) {
+    if (!this.restartEvaluators.contains(evaluatorId)) {
       return EvaluatorRestartState.NOT_EXPECTED;
     }
 

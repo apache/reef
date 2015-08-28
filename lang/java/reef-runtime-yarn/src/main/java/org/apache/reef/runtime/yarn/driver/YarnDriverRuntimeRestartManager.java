@@ -243,6 +243,7 @@ public final class YarnDriverRuntimeRestartManager implements DriverRuntimeResta
           .setState(ReefServiceProtos.State.FAILED)
           .setExitCode(1)
           .setDiagnostics("Container [" + evaluatorId + "] failed during driver restart process.")
+          .setIsFromPreviousDriver(true)
           .build());
     }
   }
