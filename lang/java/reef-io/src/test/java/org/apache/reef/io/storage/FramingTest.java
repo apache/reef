@@ -16,12 +16,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.services.storage;
+package org.apache.reef.io.storage;
 
 import org.apache.reef.exception.evaluator.ServiceException;
 import org.apache.reef.io.Accumulator;
-import org.apache.reef.io.storage.FramingInputStream;
-import org.apache.reef.io.storage.FramingOutputStream;
 import org.junit.Assert;
 import org.junit.Test;
 

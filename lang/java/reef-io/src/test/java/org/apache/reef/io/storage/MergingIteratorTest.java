@@ -16,9 +16,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.services.storage;
+package org.apache.reef.io.storage;
 
-import org.apache.reef.io.storage.MergingIterator;
 import org.junit.Assert;
 import org.junit.Test;
 

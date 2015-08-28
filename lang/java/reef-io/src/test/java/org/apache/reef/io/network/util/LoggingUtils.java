@@ -16,23 +16,34 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.services.network;
+package org.apache.reef.io.network.util;
 
-import java.io.Serializable;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-/**
- * Event for testing.
- */
-public class TestEvent implements Serializable {
-
-  private static final long serialVersionUID = 1L;
-  private String message;
-
-  public TestEvent(final String message) {
-    this.message = message;
+public final class LoggingUtils {
+  public static void setLoggingLevel(final Level level) {
+    final Handler[] handlers = Logger.getLogger("").getHandlers();
+    ConsoleHandler ch = null;
+    for (final Handler h : handlers) {
+      if (h instanceof ConsoleHandler) {
+        ch = (ConsoleHandler) h;
+        break;
+      }
+    }
+    if (ch == null) {
+      ch = new ConsoleHandler();
+      Logger.getLogger("").addHandler(ch);
+    }
+    ch.setLevel(level);
+    Logger.getLogger("").setLevel(level);
   }
 
-  public String getMessage() {
-    return message;
+  /**
+   * Empty private constructor to prohibit instantiation of utility class.
+   */
+  private LoggingUtils() {
   }
 }

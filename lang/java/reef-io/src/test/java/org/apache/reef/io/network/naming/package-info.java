@@ -16,19 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.services.network.util;
-
-import org.apache.reef.wake.remote.Codec;
-
-
-public class StringCodec implements Codec<String> {
-  @Override
-  public byte[] encode(final String obj) {
-    return obj.getBytes();
-  }
-
-  @Override
-  public String decode(final byte[] buf) {
-    return new String(buf);
-  }
-}
+/**
+ * Tests for naming.
+ */
+package org.apache.reef.io.network.naming;

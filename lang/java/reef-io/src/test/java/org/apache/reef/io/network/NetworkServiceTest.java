@@ -16,16 +16,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.services.network;
+package org.apache.reef.io.network;
 
 import org.apache.reef.exception.evaluator.NetworkException;
-import org.apache.reef.io.network.Connection;
-import org.apache.reef.io.network.Message;
 import org.apache.reef.io.network.impl.NetworkService;
-import org.apache.reef.io.network.naming.*;
+import org.apache.reef.io.network.naming.NameResolver;
+import org.apache.reef.io.network.naming.NameResolverConfiguration;
+import org.apache.reef.io.network.naming.NameServer;
+import org.apache.reef.io.network.naming.NameServerParameters;
 import org.apache.reef.io.network.util.StringIdentifierFactory;
-import org.apache.reef.services.network.util.Monitor;
-import org.apache.reef.services.network.util.StringCodec;
+import org.apache.reef.io.network.util.Monitor;
+import org.apache.reef.io.network.util.StringCodec;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Injector;
 import org.apache.reef.tang.Tang;

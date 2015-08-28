@@ -16,15 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.services.storage;
+package org.apache.reef.io.storage;
 
 import org.apache.reef.exception.evaluator.ServiceException;
 import org.apache.reef.io.Accumulator;
 import org.apache.reef.io.Tuple;
 import org.apache.reef.io.serialization.Deserializer;
 import org.apache.reef.io.serialization.Serializer;
-import org.apache.reef.io.storage.FramingTupleDeserializer;
-import org.apache.reef.io.storage.FramingTupleSerializer;
 import org.apache.reef.io.storage.util.IntegerDeserializer;
 import org.apache.reef.io.storage.util.IntegerSerializer;
 import org.apache.reef.io.storage.util.StringDeserializer;

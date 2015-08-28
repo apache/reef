@@ -16,21 +16,25 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.services.network.util;
+package org.apache.reef.io.network.util;
 
-import org.apache.reef.wake.EventHandler;
-import org.apache.reef.wake.impl.PeriodicEvent;
+import java.util.concurrent.atomic.AtomicBoolean;
 
-public class TimeoutHandler implements EventHandler<PeriodicEvent> {
+public class Monitor {
+  private AtomicBoolean finished = new AtomicBoolean(false);
 
-  private final Monitor monitor;
-
-  public TimeoutHandler(final Monitor monitor) {
-    this.monitor = monitor;
+  public void mwait() throws InterruptedException {
+    synchronized (this) {
+      while (!finished.get()) {
+        this.wait();
+      }
+    }
   }
 
-  @Override
-  public void onNext(final PeriodicEvent event) {
-    monitor.mnotify();
+  public void mnotify() {
+    synchronized (this) {
+      finished.compareAndSet(false, true);
+      this.notifyAll();
+    }
   }
 }
