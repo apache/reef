@@ -23,4 +23,4 @@ typedef enum BINARY_TYPE {
 } BINARY_TYPE ;
 
 
-BINARY_TYPE IsManagedBinary(const wchar_t* lpszImageName);
+extern "C" __declspec(dllexport) BINARY_TYPE __stdcall IsManagedBinary(const wchar_t* lpszImageName);
