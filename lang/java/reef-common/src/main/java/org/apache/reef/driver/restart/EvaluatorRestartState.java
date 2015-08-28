@@ -121,4 +121,17 @@ public enum EvaluatorRestartState {
       return false;
     }
   }
+
+  /**
+   * @return true if the evaluator has failed on driver restart or has been expired.
+   */
+  public boolean isFailedOrExpired() {
+    switch(this) {
+    case FAILED:
+    case EXPIRED:
+      return true;
+    default:
+      return false;
+    }
+  }
 }
