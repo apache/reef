@@ -88,7 +88,7 @@ public class InputFormatLoadingService<K, V> implements DataLoadingService {
       @Parameter(JobConfExternalConstructor.InputPath.class) final String inputPath) {
     this(new SingleDataCenterEvaluatorToPartitionStrategy(inputFormatClass, new HashSet<String>(
         Arrays.asList(DistributedDataSetPartitionSerializer.serialize(new DistributedDataSetPartition(inputPath,
-            Constants.ANY, numberOfDesiredSplits))))), inMemory, inputFormatClass);
+            Constants.ANY_RACK, numberOfDesiredSplits))))), inMemory, inputFormatClass);
   }
 
   @Inject

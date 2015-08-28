@@ -260,7 +260,7 @@ public final class DataLoadingRequestBuilder
       dds.addPartition(DistributedDataSetPartition
           .newBuilder()
           .setPath(inputPath)
-          .setLocation(Constants.ANY)
+          .setLocation(Constants.ANY_RACK)
           .setDesiredSplits(
               numberOfDesiredSplits > 0 ? numberOfDesiredSplits : Integer
                   .valueOf(NumberOfDesiredSplits.DEFAULT_DESIRED_SPLITS)).build());

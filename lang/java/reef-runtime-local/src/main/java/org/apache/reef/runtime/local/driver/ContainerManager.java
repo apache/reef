@@ -163,15 +163,15 @@ final class ContainerManager implements AutoCloseable {
       String rackName = it.next().trim();
       Validate.notEmpty(rackName, "Rack names cannot be empty");
       // should start with a separator
-      if (!rackName.startsWith(Constants.PATH_SEPARATOR)) {
-        rackName = Constants.PATH_SEPARATOR + rackName;
+      if (!rackName.startsWith(Constants.RACK_PATH_SEPARATOR)) {
+        rackName = Constants.RACK_PATH_SEPARATOR + rackName;
       }
       // remove the ending separator
-      if (rackName.endsWith(Constants.PATH_SEPARATOR)) {
+      if (rackName.endsWith(Constants.RACK_PATH_SEPARATOR)) {
         rackName = rackName.substring(0, rackName.length() - 1);
       }
       if (validateEnd) {
-        Validate.isTrue(!rackName.endsWith(Constants.ANY));
+        Validate.isTrue(!rackName.endsWith(Constants.ANY_RACK));
       }
       normalizedRackNames.add(rackName);
     }
@@ -262,7 +262,7 @@ final class ContainerManager implements AutoCloseable {
     for (final String rackName : normalized) {
       // if it does not end with the any modifier,
       // then we should do an exact match
-      if (!rackName.endsWith(Constants.ANY)) {
+      if (!rackName.endsWith(Constants.ANY_RACK)) {
         if (freeNodesPerRack.containsKey(rackName)
             && freeNodesPerRack.get(rackName).size() > 0) {
           return Optional.of(rackName);

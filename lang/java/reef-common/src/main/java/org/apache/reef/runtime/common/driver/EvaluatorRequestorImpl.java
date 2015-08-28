@@ -84,7 +84,7 @@ public final class EvaluatorRequestorImpl implements EvaluatorRequestor {
     boolean relaxLocality = true;
     if (!req.getRackNames().isEmpty()) {
       for (final String rackName : req.getRackNames()) {
-        if (Constants.ANY.equals(rackName)) {
+        if (Constants.ANY_RACK.equals(rackName)) {
           relaxLocality = true;
           break;
         }

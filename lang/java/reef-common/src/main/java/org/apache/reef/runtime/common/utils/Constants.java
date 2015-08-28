@@ -23,8 +23,17 @@ package org.apache.reef.runtime.common.utils;
  */
 public final class Constants {
 
-  public static final String ANY = "*";
-  public static final String PATH_SEPARATOR = "/";
+  /**
+   * Any modifier. Used as a wildcard to specify that evaluators can be
+   * allocated in any rack.
+   */
+  public static final String ANY_RACK = "*";
+
+  /**
+   * Rack path separator. Used to separate the fully qualified rack name of an
+   * evaluator, e.g. /dc1/room1/rack1
+   */
+  public static final String RACK_PATH_SEPARATOR = "/";
 
   /**
    * Empty private constructor to prohibit instantiation of utility class.

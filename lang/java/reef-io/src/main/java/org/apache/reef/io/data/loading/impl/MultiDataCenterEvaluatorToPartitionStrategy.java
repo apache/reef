@@ -136,15 +136,15 @@ public final class MultiDataCenterEvaluatorToPartitionStrategy extends AbstractE
   private String normalize(final String location) {
     String loc = location;
     // should start with a separator
-    if (!loc.startsWith(Constants.PATH_SEPARATOR)) {
-      loc = Constants.PATH_SEPARATOR + loc;
+    if (!loc.startsWith(Constants.RACK_PATH_SEPARATOR)) {
+      loc = Constants.RACK_PATH_SEPARATOR + loc;
     }
     // if it is just /*, return /
-    if (loc.equals(Constants.PATH_SEPARATOR + Constants.ANY)) {
-      return Constants.PATH_SEPARATOR;
+    if (loc.equals(Constants.RACK_PATH_SEPARATOR + Constants.ANY_RACK)) {
+      return Constants.RACK_PATH_SEPARATOR;
     }
     // remove the ending ANY or path separator
-    while (loc.endsWith(Constants.ANY) || loc.endsWith(Constants.PATH_SEPARATOR)) {
+    while (loc.endsWith(Constants.ANY_RACK) || loc.endsWith(Constants.RACK_PATH_SEPARATOR)) {
       loc = loc.substring(0, loc.length() - 1);
     }
     return loc;
