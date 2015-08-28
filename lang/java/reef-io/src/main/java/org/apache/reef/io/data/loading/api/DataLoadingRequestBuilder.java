@@ -30,6 +30,7 @@ import org.apache.reef.io.data.loading.impl.DistributedDataSetPartition;
 import org.apache.reef.io.data.loading.impl.InputFormatLoadingService;
 import org.apache.reef.io.data.loading.impl.JobConfExternalConstructor;
 import org.apache.reef.io.data.loading.impl.MultiDataCenterEvaluatorToPartitionStrategy;
+import org.apache.reef.runtime.common.utils.Constants;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.JavaConfigurationBuilder;
 import org.apache.reef.tang.Tang;
@@ -52,7 +53,7 @@ public final class DataLoadingRequestBuilder
   // constant used in several places.
   private static final int UNINITIALIZED = -1;
   private int numberOfDesiredSplits = UNINITIALIZED;
-  private List<EvaluatorRequest> computeRequests = new ArrayList<>();
+  private final List<EvaluatorRequest> computeRequests = new ArrayList<>();
   private final List<EvaluatorRequest> dataRequests = new ArrayList<>();
   private boolean inMemory = false;
   private boolean renewFailedEvaluators = true;
@@ -207,7 +208,7 @@ public final class DataLoadingRequestBuilder
       dds.addPartition(DistributedDataSetPartition
           .newBuilder()
           .setPath(inputPath)
-          .setLocation(DistributedDataSetPartition.LOAD_INTO_ANY_LOCATION)
+          .setLocation(Constants.ANY_RACK)
           .setDesiredSplits(
               numberOfDesiredSplits > 0 ? numberOfDesiredSplits : Integer
                   .valueOf(NumberOfDesiredSplits.DEFAULT_DESIRED_SPLITS)).build());
