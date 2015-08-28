@@ -174,9 +174,9 @@ namespace Org.Apache.REEF.Driver
         public static readonly OptionalImpl<IDriverConnection> OnDriverReconnect = new OptionalImpl<IDriverConnection>();
 
         /// <summary>
-        /// Evaluator recovery timeout for driver restart. If value is greater than 0, restart is enabled. The default value is -1.
+        /// Evaluator recovery timeout for driver restart in seconds. If value is greater than 0, restart is enabled. The default value is -1.
         /// </summary>
-        public static readonly OptionalParameter<int> DriverRestartEvaluatorRecoveryMillis = new OptionalParameter<int>();
+        public static readonly OptionalParameter<int> DriverRestartEvaluatorRecoverySeconds = new OptionalParameter<int>();
 
         public static ConfigurationModule ConfigurationModule
         {
@@ -223,8 +223,8 @@ namespace Org.Apache.REEF.Driver
                     .BindNamedParameter(GenericType<DriverBridgeConfigurationOptions.TraceLevel>.Class, CustomTraceLevel)
                     .BindNamedParameter(GenericType<DriverBridgeConfigurationOptions.MaxApplicationSubmissions>.Class,
                         MaxApplicationSubmissions)
-                    .BindNamedParameter(GenericType<DriverBridgeConfigurationOptions.DriverRestartEvaluatorRecoveryMillis>.Class,
-                        DriverRestartEvaluatorRecoveryMillis)
+                    .BindNamedParameter(GenericType<DriverBridgeConfigurationOptions.DriverRestartEvaluatorRecoverySeconds>.Class,
+                        DriverRestartEvaluatorRecoverySeconds)
                     .Build()
                     // TODO: Move this up
                     .Set(OnDriverStarted, GenericType<ClassHierarchyGeneratingDriverStartObserver>.Class)

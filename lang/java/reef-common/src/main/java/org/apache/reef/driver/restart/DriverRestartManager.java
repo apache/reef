@@ -22,7 +22,7 @@ import org.apache.reef.annotations.Unstable;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.driver.parameters.DriverRestartCompletedHandlers;
-import org.apache.reef.driver.parameters.DriverRestartEvaluatorRecoveryMillis;
+import org.apache.reef.driver.parameters.DriverRestartEvaluatorRecoverySeconds;
 import org.apache.reef.driver.parameters.ServiceDriverRestartCompletedHandlers;
 import org.apache.reef.exception.DriverFatalRuntimeException;
 import org.apache.reef.runtime.common.DriverRestartCompleted;
@@ -51,15 +51,16 @@ public final class DriverRestartManager implements DriverIdlenessSource {
   private final DriverRuntimeRestartManager driverRuntimeRestartManager;
   private final Set<EventHandler<DriverRestartCompleted>> driverRestartCompletedHandlers;
   private final Set<EventHandler<DriverRestartCompleted>> serviceDriverRestartCompletedHandlers;
-  private final int driverRestartEvaluatorRecoveryMillis;
+  private final int driverRestartEvaluatorRecoverySeconds;
+  private final Timer restartCompletedTimer = new Timer();
 
   private RestartEvaluators restartEvaluators;
   private DriverRestartState state = DriverRestartState.NOT_RESTARTED;
 
   @Inject
   private DriverRestartManager(final DriverRuntimeRestartManager driverRuntimeRestartManager,
-                               @Parameter(DriverRestartEvaluatorRecoveryMillis.class)
-                               final int driverRestartEvaluatorRecoveryMillis,
+                               @Parameter(DriverRestartEvaluatorRecoverySeconds.class)
+                               final int driverRestartEvaluatorRecoverySeconds,
                                @Parameter(DriverRestartCompletedHandlers.class)
                                final Set<EventHandler<DriverRestartCompleted>> driverRestartCompletedHandlers,
                                @Parameter(ServiceDriverRestartCompletedHandlers.class)
@@ -67,7 +68,11 @@ public final class DriverRestartManager implements DriverIdlenessSource {
     this.driverRuntimeRestartManager = driverRuntimeRestartManager;
     this.driverRestartCompletedHandlers = driverRestartCompletedHandlers;
     this.serviceDriverRestartCompletedHandlers = serviceDriverRestartCompletedHandlers;
-    this.driverRestartEvaluatorRecoveryMillis = driverRestartEvaluatorRecoveryMillis;
+    if (driverRestartEvaluatorRecoverySeconds < 0) {
+      throw new IllegalArgumentException("driverRestartEvaluatorRecoverySeconds must be greater than 0.");
+    }
+
+    this.driverRestartEvaluatorRecoverySeconds = driverRestartEvaluatorRecoverySeconds;
   }
 
   /**
@@ -108,15 +113,15 @@ public final class DriverRestartManager implements DriverIdlenessSource {
 
     driverRuntimeRestartManager.informAboutEvaluatorFailures(getFailedEvaluators());
 
-    if (driverRestartEvaluatorRecoveryMillis != Integer.MAX_VALUE) {
+    if (driverRestartEvaluatorRecoverySeconds != Integer.MAX_VALUE) {
       // Don't use Clock here because if there is an event scheduled, the driver will not be idle, even if
       // driver restart has already completed, and we cannot cancel the event.
-      new Timer().schedule(new TimerTask() {
+      restartCompletedTimer.schedule(new TimerTask() {
         @Override
         public void run() {
           onDriverRestartCompleted();
         }
-      }, driverRestartEvaluatorRecoveryMillis);
+      }, driverRestartEvaluatorRecoverySeconds * 1000L);
     }
   }
 
@@ -276,6 +281,8 @@ public final class DriverRestartManager implements DriverIdlenessSource {
 
       LOG.log(Level.FINE, "Restart completed. Evaluators that have not reported back are: " + outstandingEvaluatorIds);
     }
+
+    restartCompletedTimer.cancel();
   }
 
   /**

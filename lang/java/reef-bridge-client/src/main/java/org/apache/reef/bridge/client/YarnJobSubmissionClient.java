@@ -68,7 +68,7 @@ public final class YarnJobSubmissionClient {
   private final YarnConfiguration yarnConfiguration;
   private final ClasspathProvider classpath;
   private final int maxApplicationSubmissions;
-  private final int driverRestartEvaluatorRecoveryMillis;
+  private final int driverRestartEvaluatorRecoverySeconds;
   private final SecurityTokenProvider tokenProvider;
 
   @Inject
@@ -79,8 +79,8 @@ public final class YarnJobSubmissionClient {
                           final ClasspathProvider classpath,
                           @Parameter(MaxApplicationSubmissions.class)
                           final int maxApplicationSubmissions,
-                          @Parameter(SubmissionDriverRestartEvaluatorRecoveryMillis.class)
-                          final int driverRestartEvaluatorRecoveryMillis,
+                          @Parameter(SubmissionDriverRestartEvaluatorRecoverySeconds.class)
+                          final int driverRestartEvaluatorRecoverySeconds,
                           final SecurityTokenProvider tokenProvider) {
     this.uploader = uploader;
     this.configurationSerializer = configurationSerializer;
@@ -88,7 +88,7 @@ public final class YarnJobSubmissionClient {
     this.yarnConfiguration = yarnConfiguration;
     this.classpath = classpath;
     this.maxApplicationSubmissions = maxApplicationSubmissions;
-    this.driverRestartEvaluatorRecoveryMillis = driverRestartEvaluatorRecoveryMillis;
+    this.driverRestartEvaluatorRecoverySeconds = driverRestartEvaluatorRecoverySeconds;
     this.tokenProvider = tokenProvider;
   }
 
@@ -108,7 +108,7 @@ public final class YarnJobSubmissionClient {
         Constants.DRIVER_CONFIGURATION_WITH_HTTP_AND_NAMESERVER,
         yarnDriverConfiguration);
 
-    if (driverRestartEvaluatorRecoveryMillis > 0) {
+    if (driverRestartEvaluatorRecoverySeconds > 0) {
       LOG.log(Level.FINE, "Driver restart is enabled.");
 
       final Configuration yarnDriverRestartConfiguration =
@@ -122,8 +122,8 @@ public final class YarnJobSubmissionClient {
                   JobDriver.DriverRestartActiveContextHandler.class)
               .set(DriverRestartConfiguration.ON_DRIVER_RESTART_TASK_RUNNING,
                   JobDriver.DriverRestartRunningTaskHandler.class)
-              .set(DriverRestartConfiguration.DRIVER_RESTART_EVALUATOR_RECOVERY_MILLIS,
-                  driverRestartEvaluatorRecoveryMillis)
+              .set(DriverRestartConfiguration.DRIVER_RESTART_EVALUATOR_RECOVERY_SECONDS,
+                  driverRestartEvaluatorRecoverySeconds)
               .set(DriverRestartConfiguration.ON_DRIVER_RESTART_COMPLETED,
                   JobDriver.DriverRestartCompletedHandler.class)
               .build();
@@ -229,7 +229,7 @@ public final class YarnJobSubmissionClient {
         .build();
 
     final Configuration yarnJobSubmissionClientParamsConfig = Tang.Factory.getTang().newConfigurationBuilder()
-        .bindNamedParameter(SubmissionDriverRestartEvaluatorRecoveryMillis.class,
+        .bindNamedParameter(SubmissionDriverRestartEvaluatorRecoverySeconds.class,
             Integer.toString(driverRecoveryTimeout))
         .bindNamedParameter(MaxApplicationSubmissions.class, Integer.toString(maxApplicationSubmissions))
         .build();
@@ -272,13 +272,13 @@ public final class YarnJobSubmissionClient {
 
 /**
  * How long the driver should wait before timing out on evaluator
- * recovery. Defaults to -1. If value is negative, the restart functionality will not be
+ * recovery in seconds. Defaults to -1. If value is negative, the restart functionality will not be
  * enabled. Only used by .NET job submission.
  */
 @NamedParameter(doc = "How long the driver should wait before timing out on evaluator" +
-    " recovery. Defaults to -1. If value is negative, the restart functionality will not be" +
+    " recovery in seconds. Defaults to -1. If value is negative, the restart functionality will not be" +
     " enabled. Only used by .NET job submission.", default_value = "-1")
-final class SubmissionDriverRestartEvaluatorRecoveryMillis implements Name<Integer> {
-  private SubmissionDriverRestartEvaluatorRecoveryMillis() {
+final class SubmissionDriverRestartEvaluatorRecoverySeconds implements Name<Integer> {
+  private SubmissionDriverRestartEvaluatorRecoverySeconds() {
   }
 }

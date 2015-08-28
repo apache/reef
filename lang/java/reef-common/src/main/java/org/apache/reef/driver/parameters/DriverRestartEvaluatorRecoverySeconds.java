@@ -23,16 +23,16 @@ import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
 
 /**
- * Represents the amount of time in milliseconds that the driver restart waits for evaluators to report back.
+ * Represents the amount of time in seconds that the driver restart waits for evaluators to report back.
  * Defaults to 3 minutes. If the value is set to Integer.MAX_VALUE, the driver will wait forever until all
  * expected evaluators report back or fail.
  */
 @Unstable
-@NamedParameter(doc = "The amount of time in milliseconds that the driver restart waits for" +
+@NamedParameter(doc = "The amount of time in seconds that the driver restart waits for" +
     " evaluators to report back. Defaults to 3 minutes. If the value is set to Integer.MAX_VALUE, " +
     "the driver will wait forever until all expected evaluators report back or fail.",
-    default_value = DriverRestartEvaluatorRecoveryMillis.DEFAULT)
-public final class DriverRestartEvaluatorRecoveryMillis implements Name<Integer> {
+    default_value = DriverRestartEvaluatorRecoverySeconds.DEFAULT)
+public final class DriverRestartEvaluatorRecoverySeconds implements Name<Integer> {
 
   /**
    * The driver waits forever until all expected evaluators report back or fail.
@@ -42,8 +42,8 @@ public final class DriverRestartEvaluatorRecoveryMillis implements Name<Integer>
   /**
    * Default restart wait for the driver is 3 minutes.
    */
-  public static final String DEFAULT = "180000";
+  public static final String DEFAULT = "180";
 
-  private DriverRestartEvaluatorRecoveryMillis(){
+  private DriverRestartEvaluatorRecoverySeconds(){
   }
 }

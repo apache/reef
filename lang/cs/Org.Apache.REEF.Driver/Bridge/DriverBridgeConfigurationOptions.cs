@@ -137,8 +137,8 @@ namespace Org.Apache.REEF.Driver.Bridge
         {
         }
 
-        [NamedParameter("Evaluator recovery timeout for driver restart. > 0 => restart is enabled.", "DriverRestartEvaluatorRecoveryMillis", "-1")]
-        public class DriverRestartEvaluatorRecoveryMillis : Name<int>
+        [NamedParameter("Evaluator recovery timeout for driver restart in seconds. > 0 => restart is enabled.", "DriverRestartEvaluatorRecoverySeconds", "-1")]
+        public sealed class DriverRestartEvaluatorRecoverySeconds : Name<int>
         {
         }
 

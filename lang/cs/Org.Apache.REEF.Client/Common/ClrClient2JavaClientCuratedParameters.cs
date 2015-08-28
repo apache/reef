@@ -38,7 +38,7 @@ namespace Org.Apache.REEF.Client.Common
         public int TcpPortRangeTryCount { get; private set; }
         public int TcpPortRangeSeed { get; private set; }
         public int MaxApplicationSubmissions { get; private set; }
-        public int DriverRestartEvaluatorRecoveryMillis { get; private set; }
+        public int DriverRestartEvaluatorRecoverySeconds { get; private set; }
 
 
         [Inject]
@@ -48,14 +48,14 @@ namespace Org.Apache.REEF.Client.Common
             [Parameter(typeof(TcpPortRangeTryCount))] int tcpPortRangeTryCount,
             [Parameter(typeof(TcpPortRangeSeed))] int tcpPortRangeSeed,
             [Parameter(typeof(DriverBridgeConfigurationOptions.MaxApplicationSubmissions))] int maxApplicationSubmissions,
-            [Parameter(typeof(DriverBridgeConfigurationOptions.DriverRestartEvaluatorRecoveryMillis))] int driverRestartEvaluatorRecoveryMillis)
+            [Parameter(typeof(DriverBridgeConfigurationOptions.DriverRestartEvaluatorRecoverySeconds))] int driverRestartEvaluatorRecoverySeconds)
         {
             TcpPortRangeStart = tcpPortRangeStart;
             TcpPortRangeCount = tcpPortRangeCount;
             TcpPortRangeTryCount = tcpPortRangeTryCount;
             TcpPortRangeSeed = tcpPortRangeSeed;
             MaxApplicationSubmissions = maxApplicationSubmissions;
-            DriverRestartEvaluatorRecoveryMillis = driverRestartEvaluatorRecoveryMillis;
+            this.DriverRestartEvaluatorRecoverySeconds = driverRestartEvaluatorRecoverySeconds;
         }
     }
 }
