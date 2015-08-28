@@ -20,9 +20,11 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Org.Apache.REEF.Client.API;
 using Org.Apache.REEF.Client.Common;
 using Org.Apache.REEF.Client.Local.Parameters;
+using Org.Apache.REEF.Common.Files;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Utilities.Logging;
@@ -49,16 +51,21 @@ namespace Org.Apache.REEF.Client.Local
         private readonly JavaClientLauncher _javaClientLauncher;
         private readonly int _numberOfEvaluators;
         private readonly string _runtimeFolder;
+        private string _driverUrl;
+        private REEFFileNames _fileNames;
 
         [Inject]
         private LocalClient(DriverFolderPreparationHelper driverFolderPreparationHelper,
             [Parameter(typeof(LocalRuntimeDirectory))] string runtimeFolder,
-            [Parameter(typeof(NumberOfEvaluators))] int numberOfEvaluators, JavaClientLauncher javaClientLauncher)
+            [Parameter(typeof(NumberOfEvaluators))] int numberOfEvaluators,
+            JavaClientLauncher javaClientLauncher,
+            REEFFileNames fileNames)
         {
             _driverFolderPreparationHelper = driverFolderPreparationHelper;
             _runtimeFolder = runtimeFolder;
             _numberOfEvaluators = numberOfEvaluators;
             _javaClientLauncher = javaClientLauncher;
+            _fileNames = fileNames;
         }
 
         /// <summary>
@@ -67,16 +74,20 @@ namespace Org.Apache.REEF.Client.Local
         /// <param name="driverFolderPreparationHelper"></param>
         /// <param name="reefJarPath"></param>
         /// <param name="numberOfEvaluators"></param>
+        /// <param name="javaClientLauncher"></param>
+        /// <param name="fileNames"></param>
         [Inject]
         private LocalClient(
             DriverFolderPreparationHelper driverFolderPreparationHelper,
-            [Parameter(typeof(NumberOfEvaluators))] int numberOfEvaluators, JavaClientLauncher javaClientLauncher)
-            : this(driverFolderPreparationHelper, Path.GetTempPath(), numberOfEvaluators, javaClientLauncher)
+            [Parameter(typeof(NumberOfEvaluators))] int numberOfEvaluators,
+            JavaClientLauncher javaClientLauncher,
+            REEFFileNames fileNames)
+            : this(driverFolderPreparationHelper, Path.GetTempPath(), numberOfEvaluators, javaClientLauncher, fileNames)
         {
             // Intentionally left blank.
         }
 
-        public void Submit(IJobSubmission jobSubmission)
+        public IDriverHttpEndpoint Submit(IJobSubmission jobSubmission)
         {
             // Prepare the job submission folder
             var jobFolder = CreateJobFolder(jobSubmission.JobIdentifier);
@@ -90,13 +101,25 @@ namespace Org.Apache.REEF.Client.Local
                 .NewInjector(jobSubmission.DriverConfigurations.ToArray())
                 .GetInstance<ClrClient2JavaClientCuratedParameters>();
 
+            Task.Run(() =>
             _javaClientLauncher.Launch(JavaClassName, driverFolder, jobSubmission.JobIdentifier,
                 _numberOfEvaluators.ToString(),
                 javaParams.TcpPortRangeStart.ToString(),
                 javaParams.TcpPortRangeCount.ToString(),
                 javaParams.TcpPortRangeTryCount.ToString()
-                );
-            Logger.Log(Level.Info, "Submitted the Driver for execution.");
+                ));
+
+            var fileName = Path.Combine(driverFolder, _fileNames.DriverHttpEndpoint);
+            HttpClientHelper helper = new HttpClientHelper();
+            _driverUrl = helper.GetDriverUrlForLocalRuntime(fileName);
+
+            Logger.Log(Level.Info, "Submitted the Driver for execution. Returned driverUrl is: " + _driverUrl);
+            return helper;
+        }
+
+        public string DriverUrl
+        {
+            get { return _driverUrl; }
         }
 
         /// <summary>

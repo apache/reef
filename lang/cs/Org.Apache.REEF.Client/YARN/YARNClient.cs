@@ -22,6 +22,7 @@ using System.IO;
 using System.Linq;
 using Org.Apache.REEF.Client.API;
 using Org.Apache.REEF.Client.Common;
+using Org.Apache.REEF.Common.Files;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Utilities.Logging;
@@ -38,18 +39,22 @@ namespace Org.Apache.REEF.Client.YARN
         private static readonly Logger Logger = Logger.GetLogger(typeof(YARNClient));
         private readonly DriverFolderPreparationHelper _driverFolderPreparationHelper;
         private readonly JavaClientLauncher _javaClientLauncher;
+        private String _driverUrl;
+        private REEFFileNames _fileNames;
 
         [Inject]
         internal YARNClient(JavaClientLauncher javaClientLauncher,
             DriverFolderPreparationHelper driverFolderPreparationHelper,
+            REEFFileNames fileNames,
             YarnCommandLineEnvironment yarn)
         {
             _javaClientLauncher = javaClientLauncher;
             _javaClientLauncher.AddToClassPath(yarn.GetYarnClasspathList());
             _driverFolderPreparationHelper = driverFolderPreparationHelper;
+            _fileNames = fileNames;
         }
 
-        public void Submit(IJobSubmission jobSubmission)
+        public IDriverHttpEndpoint Submit(IJobSubmission jobSubmission)
         {
             // Prepare the job submission folder
             var driverFolderPath = CreateDriverFolder(jobSubmission.JobIdentifier);
@@ -71,7 +76,18 @@ namespace Org.Apache.REEF.Client.YARN
                 javaParams.MaxApplicationSubmissions.ToString(),
                 javaParams.EnableRestart.ToString()
                 );
-            Logger.Log(Level.Info, "Submitted the Driver for execution.");
+            var pointerFileName = Path.Combine(driverFolderPath, _fileNames.DriverHttpEndpoint);
+            Logger.Log(Level.Info, "Submitted the Driver for execution. " + jobSubmission.JobIdentifier);
+
+            var httpClient = new HttpClientHelper();
+            _driverUrl = httpClient.GetDriverUrlForYarn(pointerFileName);
+
+            return httpClient;
+        }
+
+        public string DriverUrl
+        {
+            get { return _driverUrl; }
         }
 
         /// <summary>

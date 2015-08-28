@@ -19,6 +19,7 @@
 
 using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Org.Apache.REEF.Client.Common;
 using Org.Apache.REEF.Examples.AllHandlers;
 using Org.Apache.REEF.Utilities.Logging;
 
@@ -59,12 +60,20 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
             RunClrBridgeClient(false);
         }
 
-        private void RunClrBridgeClient(bool runOnYarn)
+        private async void RunClrBridgeClient(bool runOnYarn)
         {
             string testRuntimeFolder = DefaultRuntimeFolder + TestNumber++;
             string[] a = new[] { runOnYarn ? "yarn" : "local", testRuntimeFolder };
-            AllHandlers.Run(a);
-            ValidateSuccessForLocalRuntime(2, testRuntimeFolder);
+            IDriverHttpEndpoint driverHttpEndpoint = AllHandlers.Run(a);
+
+            var uri = driverHttpEndpoint.DriverUrl + "NRT/status?a=1&b=2";
+            var strStatus = driverHttpEndpoint.GetUrlResult(uri);
+            Assert.IsTrue(strStatus.Equals("Byte array returned from HelloHttpHandler in CLR!!!\r\n"));
+
+            await ((HttpClientHelper)driverHttpEndpoint).TryUntilNoConnection(uri);
+
+            ValidateSuccessForLocalRuntime(2, testRuntimeFolder);          
+            
             CleanUp(testRuntimeFolder);
         }
     }

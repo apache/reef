@@ -30,6 +30,7 @@ import org.apache.reef.javabridge.*;
 import org.apache.reef.runtime.common.DriverRestartCompleted;
 import org.apache.reef.runtime.common.driver.DriverStatusManager;
 import org.apache.reef.driver.evaluator.EvaluatorProcess;
+import org.apache.reef.runtime.common.files.REEFFileNames;
 import org.apache.reef.tang.annotations.Unit;
 import org.apache.reef.util.Optional;
 import org.apache.reef.util.logging.CLRBufferedLogHandler;
@@ -47,6 +48,9 @@ import org.apache.reef.webserver.*;
 import javax.inject.Inject;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -114,6 +118,9 @@ public final class JobDriver {
    */
   private final Map<String, ActiveContext> contexts = new HashMap<>();
 
+  private final REEFFileNames reefFileNames;
+  private final LocalAddressProvider localAddressProvider;
+
   /**
    * Logging scope factory that provides LoggingScope.
    */
@@ -159,6 +166,7 @@ public final class JobDriver {
             final LibLoader libLoader,
             final LocalAddressProvider localAddressProvider,
             final ActiveContextBridgeFactory activeContextBridgeFactory,
+            final REEFFileNames reefFileNames,
             final AllocatedEvaluatorBridgeFactory allocatedEvaluatorBridgeFactory,
             final CLRProcessFactory clrProcessFactory) {
     this.clock = clock;
@@ -172,6 +180,8 @@ public final class JobDriver {
     this.nameServerInfo = localAddressProvider.getLocalAddress() + ":" + this.nameServer.getPort();
     this.loggingScopeFactory = loggingScopeFactory;
     this.libLoader = libLoader;
+    this.reefFileNames = reefFileNames;
+    this.localAddressProvider = localAddressProvider;
     this.clrProcessFactory = clrProcessFactory;
   }
 
@@ -197,6 +207,17 @@ public final class JobDriver {
 
       LOG.log(Level.INFO, "StartTime: {0}", new Object[]{startTime});
       final String portNumber = httpServer == null ? null : Integer.toString((httpServer.getPort()));
+      if (portNumber != null){
+        try {
+          final File outputFileName = new File(reefFileNames.getDriverHttpEndpoint());
+          BufferedWriter out = new BufferedWriter(new FileWriter(outputFileName));
+          out.write(localAddressProvider.getLocalAddress() + ":" + portNumber + "\n");
+          out.close();
+        } catch (IOException ex) {
+          throw new RuntimeException(ex);
+        }
+      }
+
       final EvaluatorRequestorBridge evaluatorRequestorBridge =
           new EvaluatorRequestorBridge(JobDriver.this.evaluatorRequestor, false, loggingScopeFactory);
       final long[] handlers = JobDriver.this.isRestarted ?

@@ -17,6 +17,9 @@
  * under the License.
  */
 
+using System;
+using Org.Apache.REEF.Client.Common;
+
 namespace Org.Apache.REEF.Client.API
 {
     /// <summary>
@@ -29,6 +32,7 @@ namespace Org.Apache.REEF.Client.API
         /// Submit the job described in jobSubmission to the cluster.
         /// </summary>
         /// <param name="jobSubmission"></param>
-        void Submit(IJobSubmission jobSubmission);
+        /// <returns>IDriverHttpEndpoint</returns>
+        IDriverHttpEndpoint Submit(IJobSubmission jobSubmission);
     }
 }

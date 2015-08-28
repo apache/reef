@@ -32,6 +32,7 @@ import org.apache.reef.tang.formats.AvroConfigurationSerializer;
 import org.apache.reef.wake.remote.ports.parameters.TcpPortRangeBegin;
 import org.apache.reef.wake.remote.ports.parameters.TcpPortRangeCount;
 import org.apache.reef.wake.remote.ports.parameters.TcpPortRangeTryCount;
+import org.apache.reef.driver.parameters.JobSubmissionDirectory;
 
 import javax.inject.Inject;
 import java.io.File;
@@ -84,6 +85,8 @@ public class LocalClient {
     final Configuration providedConfigurations =  configurationBuilder.build();
     final Configuration driverConfiguration = Configurations.merge(
         driverConfiguration1,
+        Tang.Factory.getTang().newConfigurationBuilder().
+            bindNamedParameter(JobSubmissionDirectory.class, driverFolder.toString()).build(),
         providedConfigurations);
 
     final File driverConfigurationFile = new File(driverFolder, fileNames.getDriverConfigurationPath());
@@ -123,13 +126,14 @@ public class LocalClient {
       final int tcpRangeCount,
       final int tcpTryCount) {
     final Configuration runtimeConfiguration = getRuntimeConfiguration(numberOfEvaluators, runtimeRootFolder);
-    final Configuration userproviderConfiguration = Tang.Factory.getTang().newConfigurationBuilder()
+    final Configuration userprovidedConfiguration = Tang.Factory.getTang().newConfigurationBuilder()
         .bindSetEntry(DriverConfigurationProviders.class, TcpPortConfigurationProvider.class)
         .bindNamedParameter(TcpPortRangeBegin.class, Integer.toString(tcpBeginPort))
         .bindNamedParameter(TcpPortRangeCount.class, Integer.toString(tcpRangeCount))
         .bindNamedParameter(TcpPortRangeTryCount.class, Integer.toString(tcpTryCount))
+        .bindNamedParameter(JobSubmissionDirectory.class, runtimeRootFolder)
         .build();
-    return Configurations.merge(runtimeConfiguration, userproviderConfiguration);
+    return Configurations.merge(runtimeConfiguration, userprovidedConfiguration);
   }
 
   private static Configuration getRuntimeConfiguration(final int numberOfEvaluators, final String runtimeRootFolder) {
