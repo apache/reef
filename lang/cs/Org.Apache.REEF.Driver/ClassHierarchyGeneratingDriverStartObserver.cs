@@ -21,6 +21,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using Org.Apache.REEF.Common.Files;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Driver.Bridge;
@@ -113,6 +114,16 @@ namespace Org.Apache.REEF.Driver
                 .Select(Path.GetFileNameWithoutExtension));
         }
 
+        [DllImport("Org.Apache.REEF.Bridge.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+        static extern int IsManagedBinary(string lpFileName);
+
+        private enum BinaryType
+        {
+            None = 0,
+            Native = 1,
+            Clr = 2
+        };
+
         /// <summary>
         /// </summary>
         /// <param name="path"></param>
@@ -124,7 +135,7 @@ namespace Org.Apache.REEF.Driver
                 return false;
             }
             var extension = Path.GetExtension(path).ToLower();
-            return extension.EndsWith("dll") || extension.EndsWith("exe");
+            return (extension == ".dll" || extension == ".exe") && (BinaryType.Clr == ((BinaryType)IsManagedBinary(path)));
         }
     }
 }

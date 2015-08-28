@@ -41,7 +41,7 @@ DWORD GetActualAddressFromRVA(IMAGE_SECTION_HEADER* pSectionHeader, IMAGE_NT_HEA
 }
 
 
-BINARY_TYPE IsManagedBinary(const wchar_t*  lpszImageName) {
+extern "C" __declspec(dllexport) BINARY_TYPE __stdcall IsManagedBinary(const wchar_t*  lpszImageName) {
   BINARY_TYPE binaryType = BINARY_TYPE_NONE;
   HANDLE hFile = CreateFile(lpszImageName, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 
