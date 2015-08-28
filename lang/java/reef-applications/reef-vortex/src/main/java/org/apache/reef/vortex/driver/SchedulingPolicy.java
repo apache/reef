@@ -19,6 +19,7 @@
 package org.apache.reef.vortex.driver;
 
 import org.apache.reef.tang.annotations.DefaultImplementation;
+import org.apache.reef.util.Optional;
 
 /**
  * For choosing which worker to schedule the tasklet onto.
@@ -30,7 +31,7 @@ interface SchedulingPolicy {
    * @param tasklet to schedule
    * @return the worker onto which the tasklet should be scheduled, null if there's none
    */
-  String trySchedule(final Tasklet tasklet);
+  Optional<String> trySchedule(final Tasklet tasklet);
 
   /**
    * Worker added.

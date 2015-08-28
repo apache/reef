@@ -18,38 +18,29 @@
  */
 package org.apache.reef.vortex.driver;
 
-import javax.inject.Inject;
+import net.jcip.annotations.NotThreadSafe;
+import org.apache.reef.util.Optional;
+
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
+
+import javax.inject.Inject;
 
 /**
  * Randomly select a running worker for scheduling a tasklet,
  * without considering worker load or capacity.
- *
- * Concurrency: shares the lock with `RunningWorkers'.
  */
+@NotThreadSafe
 class RandomSchedulingPolicy implements SchedulingPolicy {
   private final Random rand = new Random();
 
   /**
-   * Maintain a list of worker ids using array for random access/selection.
-   *
-   * Removal from an array might be costly; so instead, we keep removed worker ids in the list,
-   * for that the failure/preemption that causes removal is often transient.
+   * Keep the worker ids in an array for fast random selection.
+   * 
+   * Add/removal from the array require O(n) complexity.
    */
   private final List<String> idList = new ArrayList<>();
-
-  /**
-   * Set of running worker ids for fast lookup.
-   */
-  private final HashSet<String> runningSet = new HashSet<>();
-
-  /**
-   * Set of preempted (= removed) worker ids for fast lookup.
-   */
-  private final HashSet<String> preemptedSet = new HashSet<>();
 
   @Inject
   RandomSchedulingPolicy() {
@@ -60,17 +51,13 @@ class RandomSchedulingPolicy implements SchedulingPolicy {
    * @return a random worker
    */
   @Override
-  public String trySchedule(final Tasklet tasklet) {
-    if (runningSet.size() - preemptedSet.size() == 0) {
-      return null;
+  public Optional<String> trySchedule(final Tasklet tasklet) {
+    if (idList.isEmpty()) {
+      return Optional.empty();
+    } else {
+      final int index = rand.nextInt(idList.size());
+      return Optional.of(idList.get(index));
     }
-    int index;
-    String workerId;
-    do {
-      index = rand.nextInt(idList.size());
-      workerId = idList.get(index);
-    } while (preemptedSet.contains(workerId));
-    return workerId;
   }
 
   /**
@@ -78,12 +65,8 @@ class RandomSchedulingPolicy implements SchedulingPolicy {
    */
   @Override
   public void workerAdded(final VortexWorkerManager vortexWorker) {
-    final String workerId = vortexWorker.getId();
-    if (!runningSet.contains(workerId)) {
-      if (!preemptedSet.remove(workerId)) {
-        idList.add(workerId);
-        runningSet.add(workerId);
-      }
+    if (idList.indexOf(vortexWorker.getId()) == -1) { // Ignore duplicate add.
+      idList.add(vortexWorker.getId());
     }
   }
 
@@ -92,11 +75,7 @@ class RandomSchedulingPolicy implements SchedulingPolicy {
    */
   @Override
   public void workerRemoved(final VortexWorkerManager vortexWorker) {
-    final String workerId = vortexWorker.getId();
-    if (!runningSet.contains(workerId)) {
-      throw new IllegalArgumentException();
-    }
-    preemptedSet.add(workerId);
+    idList.remove(vortexWorker.getId()); // Ignore invalid removal.
   }
 
   /**

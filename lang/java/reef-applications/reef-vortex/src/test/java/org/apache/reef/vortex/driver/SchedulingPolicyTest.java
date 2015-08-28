@@ -19,9 +19,7 @@
 package org.apache.reef.vortex.driver;
 
 import org.junit.Test;
-
 import java.util.ArrayList;
-
 import static org.junit.Assert.*;
 
 /**
@@ -59,12 +57,12 @@ public class SchedulingPolicyTest {
     // Launch 1 tasklet per worker
     for (final VortexWorkerManager worker : workers) {
       final Tasklet tasklet = testUtil.newTasklet();
-      assertEquals("This should be the first fit", worker.getId(), policy.trySchedule(tasklet));
+      assertEquals("This should be the first fit", worker.getId(), policy.trySchedule(tasklet).get());
       policy.taskletLaunched(worker, tasklet);
     }
 
     // When all workers are full...
-    assertNull("Should return null as all workers are now full", policy.trySchedule(testUtil.newTasklet()));
+    assertFalse("All workers should be full", policy.trySchedule(testUtil.newTasklet()).isPresent());
   }
 
   /**
@@ -92,13 +90,13 @@ public class SchedulingPolicyTest {
     for (int i = 0; i < numOfWorkers; i++) {
       if (i % 2 == 0) {
         final Tasklet tasklet = testUtil.newTasklet();
-        assertEquals("This should be the first fit", workers.get(i).getId(), policy.trySchedule(tasklet));
+        assertEquals("This should be the first fit", workers.get(i).getId(), policy.trySchedule(tasklet).get());
         policy.taskletLaunched(workers.get(i), tasklet);
       }
     }
 
     // When all workers are full...
-    assertNull("Should return null as all workers are now full", policy.trySchedule(testUtil.newTasklet()));
+    assertFalse("All workers should be full", policy.trySchedule(testUtil.newTasklet()).isPresent());
   }
 
   /**
@@ -106,15 +104,15 @@ public class SchedulingPolicyTest {
    */
   private void commonPolicyTests(final SchedulingPolicy policy) {
     // Initial state
-    assertNull("No worker added yet", policy.trySchedule(testUtil.newTasklet()));
+    assertFalse("No worker added yet", policy.trySchedule(testUtil.newTasklet()).isPresent());
 
     // One worker added
     final VortexWorkerManager worker = testUtil.newWorker();
     policy.workerAdded(worker);
-    assertEquals("Only one worker exists", worker.getId(), policy.trySchedule(testUtil.newTasklet()));
+    assertEquals("Only one worker exists", worker.getId(), policy.trySchedule(testUtil.newTasklet()).get());
 
     // One worker removed
     policy.workerRemoved(worker);
-    assertNull("No worker exists", policy.trySchedule(testUtil.newTasklet()));
+    assertFalse("No worker exists", policy.trySchedule(testUtil.newTasklet()).isPresent());
   }
 }

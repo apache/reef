@@ -21,6 +21,7 @@ package org.apache.reef.vortex.driver;
 import net.jcip.annotations.ThreadSafe;
 
 import org.apache.reef.annotations.audience.DriverSide;
+import org.apache.reef.util.Optional;
 
 import javax.inject.Inject;
 
@@ -51,7 +52,6 @@ final class RunningWorkers {
   // Scheduling policy
   private final SchedulingPolicy schedulingPolicy;
 
-
   /**
    * RunningWorkers constructor.
    */
@@ -75,14 +75,13 @@ final class RunningWorkers {
           // Notify (possibly) waiting scheduler
           noWorkerOrResource.signal();
         }
-        return;
+      } else {
+        // Terminate the worker
+        vortexWorkerManager.terminate();
       }
     } finally {
       lock.unlock();
     }
-
-    // Terminate the worker
-    vortexWorkerManager.terminate();
   }
 
   /**
@@ -102,13 +101,13 @@ final class RunningWorkers {
           removedBeforeAddedWorkers.add(id);
           return new ArrayList<>(0);
         }
+      } else {
+        // No need to return anything since it is terminated
+        return new ArrayList<>(0);
       }
     } finally {
       lock.unlock();
     }
-
-    // No need to return anything since it is terminated
-    return new ArrayList<>(0);
   }
 
   /**
@@ -119,18 +118,23 @@ final class RunningWorkers {
     lock.lock();
     try {
       if (!terminated) {
-        String workerId;
-        while ((workerId = schedulingPolicy.trySchedule(tasklet)) == null) {
-          try {
-            noWorkerOrResource.await();
-          } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+        Optional<String> workerId;
+        while(true) {
+          workerId = schedulingPolicy.trySchedule(tasklet);
+          if (!workerId.isPresent()) {
+            try {
+              noWorkerOrResource.await();
+            } catch (InterruptedException e) {
+              throw new RuntimeException(e);
+            }
+          } else {
+            break;
           }
         }
-        final VortexWorkerManager vortexWorkerManager = runningWorkers.get(workerId);
+
+        final VortexWorkerManager vortexWorkerManager = runningWorkers.get(workerId.get());
         vortexWorkerManager.launchTasklet(tasklet);
         schedulingPolicy.taskletLaunched(vortexWorkerManager, tasklet);
-        return;
       }
     } finally {
       lock.unlock();
@@ -156,7 +160,6 @@ final class RunningWorkers {
           // Notify (possibly) waiting scheduler
           noWorkerOrResource.signal();
         }
-        return;
       }
     } finally {
       lock.unlock();
@@ -169,8 +172,8 @@ final class RunningWorkers {
    * (e.g. preemption message coming before tasklet error message multiple times)
    */
   void errorTasklet(final String workerId,
-                           final int taskletId,
-                           final Exception exception) {
+                    final int taskletId,
+                    final Exception exception) {
     lock.lock();
     try {
       if (!terminated) {
@@ -182,7 +185,6 @@ final class RunningWorkers {
           // Notify (possibly) waiting scheduler
           noWorkerOrResource.signal();
         }
-        return;
       }
     } finally {
       lock.unlock();
@@ -199,13 +201,12 @@ final class RunningWorkers {
           schedulingPolicy.workerRemoved(vortexWorkerManager);
         }
         runningWorkers.clear();
-        return;
+      } else {
+        throw new RuntimeException("Attempting to terminate an already terminated RunningWorkers");
       }
     } finally {
       lock.unlock();
     }
-
-    throw new RuntimeException("Attempting to terminate an already terminated RunningWorkers");
   }
 
   boolean isTerminated() {

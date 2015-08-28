@@ -18,41 +18,40 @@
  */
 package org.apache.reef.vortex.driver;
 
-import org.apache.reef.tang.annotations.Parameter;
-
-import javax.inject.Inject;
-import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.ListIterator;
-import java.util.Map;
+
+import javax.inject.Inject;
+
+import net.jcip.annotations.NotThreadSafe;
+import org.apache.reef.tang.annotations.Parameter;
+import org.apache.reef.util.Optional;
 
 /**
  * Always select the next worker that has enough resource in a round-robin fashion
  * based on the worker capacity configured.
- *
- * Concurrency: shares the lock with `RunningWorkers'.
  */
+@NotThreadSafe
 class FirstFitSchedulingPolicy implements SchedulingPolicy {
 
   private final int workerCapacity;
 
   /**
-   * A linked list for a circular buffer of <worker-id, load> pairs.
+   * Keep the load information for each worker.
    */
-  private final List<Map.Entry<String, Integer>> loadList = new ArrayList<>();
+  private final HashMap<String, Integer> idLoadMap = new HashMap<>();
 
   /**
-   * A list isn't very efficient for fast lookup of worker ids, and so we keep a separate index.
+   * A linked list for a circular buffer of worker ids for search in a round-robin fashion.
    */
-  private final HashMap<String, Integer> indexMap = new HashMap<>();
+  private final List<String> idList = new ArrayList<>();
 
   /**
-   * Invariant: the worker at [lastIndex + 1] in the circular buffer will be selected
-   * if the index is valid and the worker has enough resource.
+   * The index of the next/first worker to check.
    */
-  private int lastIndex = -1;
+  private int nextIndex = 0;
+  
 
   @Inject
   FirstFitSchedulingPolicy(@Parameter(VortexMasterConf.WorkerCapacity.class) final int capacity) {
@@ -60,18 +59,22 @@ class FirstFitSchedulingPolicy implements SchedulingPolicy {
   }
 
   /**
+   * Checking from nextIndex, choose the first worker that fits to schedule the tasklet onto.
    * @param tasklet to schedule
-   * @return the next worker that has enough resources for the tasklet.
+   * @return the next worker that has enough resources for the tasklet
    */
   @Override
-  public String trySchedule(final Tasklet tasklet) {
-    final int index = loadList.isEmpty() ? 0 : (lastIndex + 1) % loadList.size();
-    final String workerId = search(index, loadList.size());
-    if (index == 0 || workerId != null) {
-      return workerId;
-    } else {
-      return search(0, index);
+  public Optional<String> trySchedule(final Tasklet tasklet) {
+    for (int i = 0; i < idList.size(); i++) {
+      final int index = (nextIndex + i) % idList.size();
+      final String workerId = idList.get(index);
+      
+      if (idLoadMap.get(workerId) < workerCapacity) {
+        nextIndex = (index + 1) % idList.size();
+        return Optional.of(workerId);
+      }
     }
+    return Optional.empty();
   }
 
   /**
@@ -80,12 +83,12 @@ class FirstFitSchedulingPolicy implements SchedulingPolicy {
   @Override
   public void workerAdded(final VortexWorkerManager vortexWorker) {
     final String workerId = vortexWorker.getId();
-    if (indexMap.containsKey(workerId)) {
-      final int index = indexMap.get(workerId);
-      loadList.get(index).setValue(0);
-    } else {
-      loadList.add(new AbstractMap.SimpleEntry<>(workerId, 0));
-      indexMap.put(workerId, loadList.size() - 1);
+    if (!idLoadMap.containsKey(workerId)) { // Ignore duplicate add.
+      idLoadMap.put(workerId, 0);
+      
+      // Insert before the next index, so that newly added worker will be searched for at last.
+      idList.add(nextIndex, workerId);
+      nextIndex = (nextIndex + 1) % idList.size();
     }
   }
 
@@ -95,11 +98,19 @@ class FirstFitSchedulingPolicy implements SchedulingPolicy {
   @Override
   public void workerRemoved(final VortexWorkerManager vortexWorker) {
     final String workerId = vortexWorker.getId();
-    if (indexMap.containsKey(workerId)) {
-      final Map.Entry<String, Integer> worker = loadList.get(indexMap.get(workerId));
-      // We simply mark a removal with worker capacity
-      // for that it is often transient
-      worker.setValue(workerCapacity);
+    if (idLoadMap.remove(workerId) != null) { // Ignore invalid removal.
+      for (int i = 0; i < idList.size(); i++) {
+        if (idList.get(i).equals(workerId)) {
+          idList.remove(i);
+          
+          if (i < nextIndex) {
+            nextIndex--;
+          } else if (nextIndex == idList.size()) {
+            nextIndex = 0;
+          }
+          return;
+        }
+      }
     }
   }
 
@@ -110,9 +121,8 @@ class FirstFitSchedulingPolicy implements SchedulingPolicy {
   @Override
   public void taskletLaunched(final VortexWorkerManager vortexWorker, final Tasklet tasklet) {
     final String workerId = vortexWorker.getId();
-    if (indexMap.containsKey(workerId)) {
-      final Map.Entry<String, Integer> worker = loadList.get(indexMap.get(workerId));
-      worker.setValue(Math.min(workerCapacity, worker.getValue() + 1));
+    if (idLoadMap.containsKey(workerId)) {
+      idLoadMap.put(workerId, Math.min(workerCapacity, idLoadMap.get(workerId) + 1));
     }
   }
 
@@ -136,25 +146,9 @@ class FirstFitSchedulingPolicy implements SchedulingPolicy {
     removeTasklet(workerId);
   }
 
-  private String search(final int start, final int end) {
-    final ListIterator<Map.Entry<String, Integer>> iter = loadList.listIterator(start);
-    int index = start;
-    while (iter.hasNext() && index < end) {
-      final Map.Entry<String, Integer> worker = iter.next();
-      if (worker.getValue() < workerCapacity) {
-        lastIndex = index;
-        return worker.getKey();
-      }
-      index++;
-    }
-    return null;
-  }
-
   private void removeTasklet(final String workerId) {
-    if (indexMap.containsKey(workerId)) {
-      final Map.Entry<String, Integer> worker = loadList.get(indexMap.get(workerId));
-      worker.setValue(Math.max(0, worker.getValue() - 1));
+    if (idLoadMap.containsKey(workerId)) {
+      idLoadMap.put(workerId, Math.max(0, idLoadMap.get(workerId) - 1));
     }
   }
-
 }
