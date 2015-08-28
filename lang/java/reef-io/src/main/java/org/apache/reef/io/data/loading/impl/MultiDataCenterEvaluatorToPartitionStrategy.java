@@ -22,6 +22,7 @@ import org.apache.hadoop.mapred.InputSplit;
 import org.apache.reef.annotations.Unstable;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.driver.catalog.NodeDescriptor;
+import org.apache.reef.runtime.common.utils.Constants;
 import org.apache.reef.tang.annotations.Parameter;
 
 import java.util.Collections;
@@ -47,8 +48,6 @@ import javax.inject.Inject;
 public final class MultiDataCenterEvaluatorToPartitionStrategy extends AbstractEvaluatorToPartitionStrategy {
   private static final Logger LOG = Logger.getLogger(MultiDataCenterEvaluatorToPartitionStrategy.class.getName());
 
-  private static final String PATH_SEPARATOR = "/";
-  private static final String ANY = "*";
   /**
    * Sorted set in reverse order, to keep track of the locations from most to
    * least specific. For example: [/dc1/room1, /dc1].
@@ -137,15 +136,15 @@ public final class MultiDataCenterEvaluatorToPartitionStrategy extends AbstractE
   private String normalize(final String location) {
     String loc = location;
     // should start with a separator
-    if (!loc.startsWith(PATH_SEPARATOR)) {
-      loc = PATH_SEPARATOR + loc;
+    if (!loc.startsWith(Constants.RACK_PATH_SEPARATOR)) {
+      loc = Constants.RACK_PATH_SEPARATOR + loc;
     }
     // if it is just /*, return /
-    if (loc.equals(PATH_SEPARATOR + ANY)) {
-      return PATH_SEPARATOR;
+    if (loc.equals(Constants.RACK_PATH_SEPARATOR + Constants.ANY_RACK)) {
+      return Constants.RACK_PATH_SEPARATOR;
     }
     // remove the ending ANY or path separator
-    while (loc.endsWith(ANY) || loc.endsWith(PATH_SEPARATOR)) {
+    while (loc.endsWith(Constants.ANY_RACK) || loc.endsWith(Constants.RACK_PATH_SEPARATOR)) {
       loc = loc.substring(0, loc.length() - 1);
     }
     return loc;
