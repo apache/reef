@@ -22,6 +22,7 @@ import org.apache.reef.driver.catalog.NodeDescriptor;
 import org.apache.reef.driver.context.ActiveContext;
 import org.apache.reef.driver.evaluator.AllocatedEvaluator;
 import org.apache.reef.driver.evaluator.EvaluatorDescriptor;
+import org.apache.reef.driver.restart.DriverRestarted;
 import org.apache.reef.driver.task.RunningTask;
 import org.apache.reef.runtime.common.driver.DriverStatusManager;
 import org.apache.reef.runtime.common.utils.RemoteManager;
@@ -229,10 +230,10 @@ public final class ReefEventStateManager {
   /**
    * Job Driver has been restarted.
    */
-  public final class DriverRestartHandler implements EventHandler<StartTime> {
+  public final class DriverRestartHandler implements EventHandler<DriverRestarted> {
     @Override
     @SuppressWarnings("checkstyle:hiddenfield")
-    public void onNext(final StartTime restartTime) {
+    public void onNext(final DriverRestarted restartTime) {
       LOG.log(Level.INFO, "DriverRestartHandler called. StartTime: {0}", restartTime);
     }
   }

@@ -16,20 +16,23 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.driver.parameters;
+package org.apache.reef.javabridge.generic;
 
-import org.apache.reef.driver.restart.DriverRestarted;
-import org.apache.reef.tang.annotations.Name;
-import org.apache.reef.tang.annotations.NamedParameter;
-import org.apache.reef.wake.EventHandler;
-
-import java.util.Set;
+import org.apache.reef.annotations.Unstable;
+import org.apache.reef.annotations.audience.DriverSide;
+import org.apache.reef.annotations.audience.Private;
+import org.apache.reef.javabridge.EvaluatorRequestorBridge;
 
 /**
- * The EventHandler invoked on Driver restart. Provides the set of Evaluator IDs of Evaluators that are expected to
- * report back to the Driver on restart as well as the time of restart.
+ * An initializer interface that initializes ClrHandlers for the CLR {@link JobDriver}.
  */
-@NamedParameter(doc = "The EventHandler invoked on Driver restart. Provides the set of Evaluator IDs of " +
-    "Evaluators that are expected to report back to the Driver on restart as well as the time of restart.")
-public final class DriverRestartHandler implements Name<Set<EventHandler<DriverRestarted>>> {
+@DriverSide
+@Private
+@Unstable
+interface ClrHandlersInitializer {
+
+  /**
+   * Returns the set of CLR handles.
+   */
+  long[] getClrHandlers(final String portNumber, final EvaluatorRequestorBridge evaluatorRequestorBridge);
 }

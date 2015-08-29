@@ -24,6 +24,7 @@ import org.apache.reef.driver.context.ClosedContext;
 import org.apache.reef.driver.context.ContextMessage;
 import org.apache.reef.driver.context.FailedContext;
 import org.apache.reef.driver.evaluator.*;
+import org.apache.reef.driver.restart.DriverRestarted;
 import org.apache.reef.driver.task.*;
 import org.apache.reef.io.network.naming.NameServer;
 import org.apache.reef.javabridge.*;
@@ -175,7 +176,7 @@ public final class JobDriver {
     this.clrProcessFactory = clrProcessFactory;
   }
 
-  private void setupBridge(final StartTime startTime) {
+  private void setupBridge(final ClrHandlersInitializer initializer) {
     // Signal to the clr buffered log handler that the driver has started and that
     // we can begin logging
     LOG.log(Level.INFO, "Initializing CLRBufferedLogHandler...");
@@ -195,13 +196,10 @@ public final class JobDriver {
         LOG.log(Level.INFO, "CLRBufferedLogHandler init complete.");
       }
 
-      LOG.log(Level.INFO, "StartTime: {0}", new Object[]{startTime});
       final String portNumber = httpServer == null ? null : Integer.toString((httpServer.getPort()));
       final EvaluatorRequestorBridge evaluatorRequestorBridge =
           new EvaluatorRequestorBridge(JobDriver.this.evaluatorRequestor, false, loggingScopeFactory);
-      final long[] handlers = JobDriver.this.isRestarted ?
-          NativeInterop.callClrSystemOnRestartHandlerOnNext(startTime.toString(), portNumber, evaluatorRequestorBridge)
-          : NativeInterop.callClrSystemOnStartHandler(startTime.toString(), portNumber, evaluatorRequestorBridge);
+      final long[] handlers = initializer.getClrHandlers(portNumber, evaluatorRequestorBridge);
       if (handlers != null) {
         if (handlers.length != NativeInterop.N_HANDLERS) {
           throw new RuntimeException(
@@ -579,7 +577,7 @@ public final class JobDriver {
       try (final LoggingScope ls = loggingScopeFactory.driverStart(startTime)) {
         synchronized (JobDriver.this) {
 
-          setupBridge(startTime);
+          setupBridge(new DriverStartClrHandlersInitializer(startTime));
           LOG.log(Level.INFO, "Driver Started");
         }
       }
@@ -590,14 +588,14 @@ public final class JobDriver {
   /**
    * Job driver is restarted after previous crash.
    */
-  public final class RestartHandler implements EventHandler<StartTime> {
+  public final class RestartHandler implements EventHandler<DriverRestarted> {
     @Override
-    public void onNext(final StartTime startTime) {
-      try (final LoggingScope ls = loggingScopeFactory.driverRestart(startTime)) {
+    public void onNext(final DriverRestarted driverRestarted) {
+      try (final LoggingScope ls = loggingScopeFactory.driverRestart(driverRestarted.getStartTime())) {
         synchronized (JobDriver.this) {
 
           JobDriver.this.isRestarted = true;
-          setupBridge(startTime);
+          setupBridge(new DriverRestartClrHandlersInitializer(driverRestarted));
 
           LOG.log(Level.INFO, "Driver Restarted and CLR bridge set up.");
         }

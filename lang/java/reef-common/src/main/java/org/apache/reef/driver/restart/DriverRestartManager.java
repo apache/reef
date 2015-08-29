@@ -31,6 +31,7 @@ import org.apache.reef.runtime.common.driver.idle.IdleMessage;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.runtime.common.driver.resourcemanager.ResourceRecoverEvent;
+import org.apache.reef.wake.time.event.StartTime;
 
 import javax.inject.Inject;
 import java.util.*;
@@ -97,13 +98,20 @@ public final class DriverRestartManager implements DriverIdlenessSource {
   }
 
   /**
-   * Recovers the list of alive and failed evaluators and inform about evaluator failures
-   * based on the specific runtime. Also sets the expected amount of evaluators to report back
-   * as alive to the job driver.
+   * Recovers the list of alive and failed evaluators and inform the driver restart handlers and inform the
+   * evaluator failure handlers based on the specific runtime. Also sets the expected amount of evaluators to report
+   * back as alive to the job driver.
    */
-  public synchronized void onRestart() {
+  public synchronized void onRestart(final StartTime startTime,
+                                     final List<EventHandler<DriverRestarted>> orderedHandlers) {
     if (this.state == DriverRestartState.BEGAN) {
       restartEvaluators = driverRuntimeRestartManager.getPreviousEvaluators();
+      final DriverRestarted restartedInfo = new DriverRestartedImpl(startTime, restartEvaluators);
+
+      for (final EventHandler<DriverRestarted> handler : orderedHandlers) {
+        handler.onNext(restartedInfo);
+      }
+
       this.state = DriverRestartState.IN_PROGRESS;
     } else {
       final String errMsg = "Should not be setting the set of expected alive evaluators more than once.";
