@@ -98,11 +98,11 @@ public class NetworkServiceTest {
       LOG.log(Level.FINEST, "=== Test network service receiver start");
       LOG.log(Level.FINEST, "=== Test network service sender start");
       try (final NameResolver nameResolver = injector2.getInstance(NameResolver.class);
-           NetworkService<String> ns2 = new NetworkService<String>(factory, 0, nameResolver,
-               new StringCodec(), new MessagingTransportFactory(localAddressProvider),
+           final NetworkService<String> ns2 = new NetworkService<String>(factory, 0, nameResolver,
+               new StringCodec(), injector.getInstance(MessagingTransportFactory.class),
                new MessageHandler<String>(name2, monitor, numMessages), new ExceptionHandler(), localAddressProvider);
            final NetworkService<String> ns1 = new NetworkService<String>(factory, 0, nameResolver,
-               new StringCodec(), new MessagingTransportFactory(localAddressProvider),
+               new StringCodec(), injector.getInstance(MessagingTransportFactory.class),
                new MessageHandler<String>(name1, null, 0), new ExceptionHandler(), localAddressProvider)) {
 
         ns2.registerId(factory.getNewInstance(name2));
@@ -168,10 +168,10 @@ public class NetworkServiceTest {
         LOG.log(Level.FINEST, "=== Test network service sender start");
         try (final NameResolver nameResolver = injector2.getInstance(NameResolver.class);
              NetworkService<String> ns2 = new NetworkService<String>(factory, 0, nameResolver,
-                 new StringCodec(), new MessagingTransportFactory(localAddressProvider),
+                 new StringCodec(), injector.getInstance(MessagingTransportFactory.class),
                  new MessageHandler<String>(name2, monitor, numMessages), new ExceptionHandler(), localAddressProvider);
              NetworkService<String> ns1 = new NetworkService<String>(factory, 0, nameResolver,
-                 new StringCodec(), new MessagingTransportFactory(localAddressProvider),
+                 new StringCodec(), injector.getInstance(MessagingTransportFactory.class),
                  new MessageHandler<String>(name1, null, 0), new ExceptionHandler(), localAddressProvider)) {
 
           ns2.registerId(factory.getNewInstance(name2));
@@ -260,11 +260,11 @@ public class NetworkServiceTest {
               LOG.log(Level.FINEST, "=== Test network service sender start");
               try (final NameResolver nameResolver = injector.getInstance(NameResolver.class);
                    NetworkService<String> ns2 = new NetworkService<String>(factory, 0, nameResolver,
-                       new StringCodec(), new MessagingTransportFactory(localAddressProvider),
+                       new StringCodec(), injector.getInstance(MessagingTransportFactory.class),
                        new MessageHandler<String>(name2, monitor, numMessages),
                        new ExceptionHandler(), localAddressProvider);
                    NetworkService<String> ns1 = new NetworkService<String>(factory, 0, nameResolver,
-                       new StringCodec(), new MessagingTransportFactory(localAddressProvider),
+                       new StringCodec(), injector.getInstance(MessagingTransportFactory.class),
                        new MessageHandler<String>(name1, null, 0), new ExceptionHandler(), localAddressProvider)) {
 
                 ns2.registerId(factory.getNewInstance(name2));
@@ -356,11 +356,11 @@ public class NetworkServiceTest {
         LOG.log(Level.FINEST, "=== Test network service sender start");
         try (final NameResolver nameResolver = injector2.getInstance(NameResolver.class);
              NetworkService<String> ns2 = new NetworkService<String>(factory, 0, nameResolver,
-                 new StringCodec(), new MessagingTransportFactory(localAddressProvider),
+                 new StringCodec(), injector.getInstance(MessagingTransportFactory.class),
                  new MessageHandler<String>(name2, monitor, totalNumMessages),
                  new ExceptionHandler(), localAddressProvider);
              NetworkService<String> ns1 = new NetworkService<String>(factory, 0, nameResolver,
-                 new StringCodec(), new MessagingTransportFactory(localAddressProvider),
+                 new StringCodec(), injector.getInstance(MessagingTransportFactory.class),
                  new MessageHandler<String>(name1, null, 0), new ExceptionHandler(), localAddressProvider)) {
 
           ns2.registerId(factory.getNewInstance(name2));
@@ -453,10 +453,10 @@ public class NetworkServiceTest {
         LOG.log(Level.FINEST, "=== Test network service sender start");
         try (final NameResolver nameResolver = injector2.getInstance(NameResolver.class);
              NetworkService<String> ns2 = new NetworkService<String>(factory, 0, nameResolver,
-                 new StringCodec(), new MessagingTransportFactory(localAddressProvider),
+                 new StringCodec(), injector.getInstance(MessagingTransportFactory.class),
                  new MessageHandler<String>(name2, monitor, numMessages), new ExceptionHandler(), localAddressProvider);
              NetworkService<String> ns1 = new NetworkService<String>(factory, 0, nameResolver,
-                 new StringCodec(), new MessagingTransportFactory(localAddressProvider),
+                 new StringCodec(), injector.getInstance(MessagingTransportFactory.class),
                  new MessageHandler<String>(name1, null, 0), new ExceptionHandler(), localAddressProvider)) {
 
           ns2.registerId(factory.getNewInstance(name2));
