@@ -18,9 +18,9 @@
  */
 package org.apache.reef.examples.hello;
 
+import org.apache.reef.driver.restart.DriverRestarted;
 import org.apache.reef.tang.annotations.Unit;
 import org.apache.reef.wake.EventHandler;
-import org.apache.reef.wake.time.event.StartTime;
 
 import javax.inject.Inject;
 import java.util.logging.Level;
@@ -41,10 +41,10 @@ public final class HelloDriverRestart {
   /**
    * Handles Restarts. Prints a message.
    */
-  public final class DriverRestartHandler implements EventHandler<StartTime> {
+  public final class DriverRestartHandler implements EventHandler<DriverRestarted> {
     @Override
-    public void onNext(final StartTime value) {
-      LOG.log(Level.INFO, "Hello, driver restarted at " + value);
+    public void onNext(final DriverRestarted value) {
+      LOG.log(Level.INFO, "Hello, driver restarted at " + value.getStartTime());
     }
   }
 }

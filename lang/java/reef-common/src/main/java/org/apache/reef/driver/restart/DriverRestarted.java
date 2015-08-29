@@ -16,20 +16,32 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.driver.parameters;
+package org.apache.reef.driver.restart;
 
-import org.apache.reef.driver.restart.DriverRestarted;
-import org.apache.reef.tang.annotations.Name;
-import org.apache.reef.tang.annotations.NamedParameter;
-import org.apache.reef.wake.EventHandler;
+import org.apache.reef.annotations.Provided;
+import org.apache.reef.annotations.Unstable;
+import org.apache.reef.annotations.audience.Public;
+import org.apache.reef.wake.time.event.StartTime;
 
 import java.util.Set;
 
 /**
- * The EventHandler invoked on Driver restart. Provides the set of Evaluator IDs of Evaluators that are expected to
- * report back to the Driver on restart as well as the time of restart.
+ * Am event encapsulating the time of Driver restart as well as
+ * the set of Evaluator IDs of Evaluators that are expected to
+ * report back to the Driver after restart.
  */
-@NamedParameter(doc = "The EventHandler invoked on Driver restart. Provides the set of Evaluator IDs of " +
-    "Evaluators that are expected to report back to the Driver on restart as well as the time of restart.")
-public final class DriverRestartHandler implements Name<Set<EventHandler<DriverRestarted>>> {
+@Public
+@Provided
+@Unstable
+public interface DriverRestarted {
+  /**
+   * @return The time of restart.
+   */
+  StartTime getStartTime();
+
+  /**
+   * @return The set of Evaluator IDs of Evaluators that are expected
+   * to report back to the Driver after restart.
+   */
+  Set<String> getExpectedEvaluatorIds();
 }

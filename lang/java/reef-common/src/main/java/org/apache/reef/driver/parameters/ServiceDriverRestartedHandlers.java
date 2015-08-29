@@ -18,10 +18,10 @@
  */
 package org.apache.reef.driver.parameters;
 
+import org.apache.reef.driver.restart.DriverRestarted;
 import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
 import org.apache.reef.wake.EventHandler;
-import org.apache.reef.wake.time.event.StartTime;
 
 import java.util.Set;
 
@@ -29,7 +29,7 @@ import java.util.Set;
  * Service Handler for driver restarts.
  */
 @NamedParameter(doc = "Service Handler for driver restarts.")
-public final class ServiceDriverRestartedHandlers implements Name<Set<EventHandler<StartTime>>> {
+public final class ServiceDriverRestartedHandlers implements Name<Set<EventHandler<DriverRestarted>>> {
   private ServiceDriverRestartedHandlers(){
   }
 }

@@ -24,6 +24,7 @@ import org.apache.reef.annotations.audience.ClientSide;
 import org.apache.reef.annotations.audience.Public;
 import org.apache.reef.driver.context.ActiveContext;
 import org.apache.reef.driver.parameters.*;
+import org.apache.reef.driver.restart.DriverRestarted;
 import org.apache.reef.driver.task.RunningTask;
 import org.apache.reef.runtime.common.DriverRestartCompleted;
 import org.apache.reef.tang.formats.ConfigurationModule;
@@ -31,7 +32,6 @@ import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
 import org.apache.reef.tang.formats.OptionalImpl;
 import org.apache.reef.tang.formats.OptionalParameter;
 import org.apache.reef.wake.EventHandler;
-import org.apache.reef.wake.time.event.StartTime;
 
 /**
  * EventHandlers specific to Driver Restart. Please remember to bind a runtime-specific DriverRestartConfiguration,
@@ -45,7 +45,7 @@ public final class DriverRestartConfiguration extends ConfigurationModuleBuilder
   /**
    * This event is fired in place of the ON_DRIVER_STARTED when the Driver is in fact restarted after failure.
    */
-  public static final OptionalImpl<EventHandler<StartTime>> ON_DRIVER_RESTARTED = new OptionalImpl<>();
+  public static final OptionalImpl<EventHandler<DriverRestarted>> ON_DRIVER_RESTARTED = new OptionalImpl<>();
 
   /**
    * Event handler for running tasks in previous evaluator, when driver restarted. Defaults to crash if not bound.

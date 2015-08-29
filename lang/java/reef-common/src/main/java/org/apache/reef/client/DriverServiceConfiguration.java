@@ -29,6 +29,7 @@ import org.apache.reef.driver.evaluator.AllocatedEvaluator;
 import org.apache.reef.driver.evaluator.CompletedEvaluator;
 import org.apache.reef.driver.evaluator.FailedEvaluator;
 import org.apache.reef.driver.parameters.*;
+import org.apache.reef.driver.restart.DriverRestarted;
 import org.apache.reef.driver.task.*;
 import org.apache.reef.tang.formats.*;
 import org.apache.reef.wake.EventHandler;
@@ -77,7 +78,7 @@ public final class DriverServiceConfiguration extends ConfigurationModuleBuilder
   /**
    * The event handler invoked right after the driver restarts.
    */
-  public static final OptionalImpl<EventHandler<StartTime>> ON_DRIVER_RESTARTED = new OptionalImpl<>();
+  public static final OptionalImpl<EventHandler<DriverRestarted>> ON_DRIVER_RESTARTED = new OptionalImpl<>();
 
   /**
    * The event handler invoked right before the driver shuts down. Defaults to ignore.
