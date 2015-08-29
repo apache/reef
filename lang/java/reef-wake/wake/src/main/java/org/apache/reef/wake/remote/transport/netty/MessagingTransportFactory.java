@@ -26,7 +26,6 @@ import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.impl.SyncStage;
 import org.apache.reef.wake.remote.RemoteConfiguration;
 import org.apache.reef.wake.remote.address.LocalAddressProvider;
-import org.apache.reef.wake.remote.address.LocalAddressProviderFactory;
 import org.apache.reef.wake.remote.impl.TransportEvent;
 import org.apache.reef.wake.remote.ports.RangeTcpPortProvider;
 import org.apache.reef.wake.remote.ports.TcpPortProvider;
@@ -47,16 +46,9 @@ public class MessagingTransportFactory implements TransportFactory {
    */
   @Deprecated
   @Inject
+  // TODO[JIRA REEF-703]: change constructor to private
   public MessagingTransportFactory(final LocalAddressProvider localAddressProvider) {
     this.localAddress = localAddressProvider.getLocalAddress();
-  }
-
-  /**
-   * @deprecated Have an instance injected instead.
-   */
-  @Deprecated
-  public MessagingTransportFactory() {
-    this.localAddress = LocalAddressProviderFactory.getInstance().getLocalAddress();
   }
 
   /**
