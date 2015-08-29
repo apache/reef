@@ -27,7 +27,7 @@ import org.apache.reef.driver.evaluator.*;
 import org.apache.reef.driver.task.*;
 import org.apache.reef.io.network.naming.NameServer;
 import org.apache.reef.javabridge.*;
-import org.apache.reef.runtime.common.DriverRestartCompleted;
+import org.apache.reef.driver.restart.DriverRestartCompleted;
 import org.apache.reef.runtime.common.driver.DriverStatusManager;
 import org.apache.reef.driver.evaluator.EvaluatorProcess;
 import org.apache.reef.tang.annotations.Unit;
@@ -612,10 +612,13 @@ public final class JobDriver {
     @Override
     public void onNext(final DriverRestartCompleted driverRestartCompleted) {
       LOG.log(Level.INFO, "Java DriverRestartCompleted event received at time [{0}]. ",
-          driverRestartCompleted.getTimeStamp());
-      try (final LoggingScope ls = loggingScopeFactory.driverRestartCompleted(driverRestartCompleted.getTimeStamp())) {
+          driverRestartCompleted.getCompletedTime());
+      try (final LoggingScope ls = loggingScopeFactory.driverRestartCompleted(
+          driverRestartCompleted.getCompletedTime().getTimeStamp())) {
         if (JobDriver.this.driverRestartHandler != 0) {
           LOG.log(Level.INFO, "CLR driver restart handler implemented, now handle it in CLR.");
+
+          // TODO[REEF-690]: Pass in DriverRestartCompleted object to .NET.
           NativeInterop.clrSystemDriverRestartCompletedHandlerOnNext(JobDriver.this.driverRestartCompletedHandler);
         } else {
           LOG.log(Level.WARNING, "No CLR driver restart handler implemented, done with DriverRestartCompletedHandler.");

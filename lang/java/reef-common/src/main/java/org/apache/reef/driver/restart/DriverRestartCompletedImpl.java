@@ -16,20 +16,35 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.driver.parameters;
+package org.apache.reef.driver.restart;
 
-import org.apache.reef.driver.restart.DriverRestartCompleted;
-import org.apache.reef.tang.annotations.Name;
-import org.apache.reef.tang.annotations.NamedParameter;
-import org.apache.reef.wake.EventHandler;
-
-import java.util.Set;
+import org.apache.reef.wake.time.Time;
 
 /**
- * Service handler for driver restart completed event.
+ * @see DriverRestartCompleted
  */
-@NamedParameter(doc = "Handler for driver restart completed event")
-public final class ServiceDriverRestartCompletedHandlers implements Name<Set<EventHandler<DriverRestartCompleted>>> {
-  private ServiceDriverRestartCompletedHandlers() {
+class DriverRestartCompletedImpl implements DriverRestartCompleted {
+  private final Time completedTime;
+  private final boolean isTimeout;
+
+  DriverRestartCompletedImpl(final long completedTimeMillis, final boolean isTimeout) {
+    this.completedTime = new Time(completedTimeMillis) { };
+    this.isTimeout = isTimeout;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public Time getCompletedTime() {
+    return completedTime;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public boolean getIsTimeout() {
+    return isTimeout;
   }
 }

@@ -18,7 +18,7 @@
  */
 package org.apache.reef.runtime.common.driver.defaults;
 
-import org.apache.reef.runtime.common.DriverRestartCompleted;
+import org.apache.reef.driver.restart.DriverRestartCompleted;
 import org.apache.reef.wake.EventHandler;
 
 import javax.inject.Inject;
@@ -38,7 +38,7 @@ public final class DefaultDriverRestartCompletedHandler implements EventHandler<
 
   @Override
   public void onNext(final DriverRestartCompleted restartCompleted) {
-    LOG.log(Level.INFO, "Driver restart completed at time [{0}].", restartCompleted.getTimeStamp());
+    LOG.log(Level.INFO, "Driver restart completed at time [{0}].", restartCompleted.getCompletedTime());
   }
 }
 

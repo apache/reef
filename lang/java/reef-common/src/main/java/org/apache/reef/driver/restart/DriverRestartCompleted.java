@@ -16,13 +16,29 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.runtime.common;
+package org.apache.reef.driver.restart;
 
+import org.apache.reef.annotations.Provided;
+import org.apache.reef.annotations.Unstable;
+import org.apache.reef.annotations.audience.Public;
 import org.apache.reef.wake.time.Time;
 
-public final class DriverRestartCompleted extends Time {
+/**
+ * The object used to notify the user that the Driver Restart process has been completed.
+ */
+@Public
+@Unstable
+@Provided
+public interface DriverRestartCompleted {
 
-  public DriverRestartCompleted(final long timestamp) {
-    super(timestamp);
-  }
+  /**
+   * @return the completed time of Driver restart.
+   */
+  Time getCompletedTime();
+
+  /**
+   * @return True if Driver restart completion was triggered by a timeout. False if triggered due to all Evaluators
+   * reporting back.
+   */
+  boolean getIsTimeout();
 }

@@ -27,7 +27,7 @@ import org.apache.reef.driver.evaluator.CompletedEvaluator;
 import org.apache.reef.driver.evaluator.FailedEvaluator;
 import org.apache.reef.driver.parameters.*;
 import org.apache.reef.driver.task.*;
-import org.apache.reef.runtime.common.DriverRestartCompleted;
+import org.apache.reef.driver.restart.DriverRestartCompleted;
 import org.apache.reef.runtime.common.driver.DriverExceptionHandler;
 import org.apache.reef.runtime.common.utils.DispatchingEStage;
 import org.apache.reef.tang.annotations.Parameter;
