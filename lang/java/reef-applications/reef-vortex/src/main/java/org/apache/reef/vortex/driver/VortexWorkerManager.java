@@ -18,7 +18,7 @@
  */
 package org.apache.reef.vortex.driver;
 
-import net.jcip.annotations.ThreadSafe;
+import net.jcip.annotations.NotThreadSafe;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.driver.task.RunningTask;
 import org.apache.reef.vortex.common.TaskletExecutionRequest;
@@ -30,7 +30,7 @@ import java.util.HashMap;
 /**
  * Representation of a VortexWorkerManager in Driver.
  */
-@ThreadSafe
+@NotThreadSafe
 @DriverSide
 class VortexWorkerManager {
   private final VortexRequestor vortexRequestor;
@@ -66,7 +66,7 @@ class VortexWorkerManager {
   }
 
   Collection<Tasklet> removed() {
-    return runningTasklets.values();
+    return runningTasklets.isEmpty() ? null : runningTasklets.values();
   }
 
   void terminate() {

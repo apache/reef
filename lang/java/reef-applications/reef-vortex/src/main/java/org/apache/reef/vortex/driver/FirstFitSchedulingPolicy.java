@@ -85,7 +85,7 @@ class FirstFitSchedulingPolicy implements SchedulingPolicy {
     final String workerId = vortexWorker.getId();
     if (!idLoadMap.containsKey(workerId)) { // Ignore duplicate add.
       idLoadMap.put(workerId, 0);
-      idList.add(nextIndex, workerId); // prefer to schedule the new worker ASAP
+      idList.add(nextIndex, workerId); // Prefer to schedule the new worker ASAP.
     }
   }
 
@@ -96,7 +96,7 @@ class FirstFitSchedulingPolicy implements SchedulingPolicy {
   public void workerRemoved(final VortexWorkerManager vortexWorker) {
     final String workerId = vortexWorker.getId();
     if (idLoadMap.remove(workerId) != null) { // Ignore invalid removal.
-      for (int i = 0; i < idList.size(); i++) {
+      for (int i = 0; i < idList.size(); i++) { // This looping operation might degrade performance.
         if (idList.get(i).equals(workerId)) {
           idList.remove(i);
           

@@ -88,22 +88,22 @@ final class RunningWorkers {
    * Concurrency: Called by multiple threads.
    * Parameter: Called exactly once per id.
    */
-  Collection<Tasklet> removeWorker(final String id) {
+  Optional<Collection<Tasklet>> removeWorker(final String id) {
     lock.lock();
     try {
       if (!terminated) {
         final VortexWorkerManager vortexWorkerManager = this.runningWorkers.remove(id);
         if (vortexWorkerManager != null) {
           this.schedulingPolicy.workerRemoved(vortexWorkerManager);
-          return vortexWorkerManager.removed();
+          return Optional.ofNullable(vortexWorkerManager.removed());
         } else {
           // Called before addWorker (e.g. RM preempted the resource before the Evaluator started)
           removedBeforeAddedWorkers.add(id);
-          return new ArrayList<>(0);
+          return Optional.empty();
         }
       } else {
         // No need to return anything since it is terminated
-        return new ArrayList<>(0);
+        return Optional.empty();
       }
     } finally {
       lock.unlock();
