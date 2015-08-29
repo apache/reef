@@ -25,7 +25,6 @@ import org.apache.reef.driver.parameters.DriverRestartCompletedHandlers;
 import org.apache.reef.driver.parameters.DriverRestartEvaluatorRecoverySeconds;
 import org.apache.reef.driver.parameters.ServiceDriverRestartCompletedHandlers;
 import org.apache.reef.exception.DriverFatalRuntimeException;
-import org.apache.reef.runtime.common.DriverRestartCompleted;
 import org.apache.reef.runtime.common.driver.idle.DriverIdlenessSource;
 import org.apache.reef.runtime.common.driver.idle.IdleMessage;
 import org.apache.reef.tang.annotations.Parameter;
@@ -127,7 +126,7 @@ public final class DriverRestartManager implements DriverIdlenessSource {
       restartCompletedTimer.schedule(new TimerTask() {
         @Override
         public void run() {
-          onDriverRestartCompleted();
+          onDriverRestartCompleted(true);
         }
       }, driverRestartEvaluatorRecoverySeconds * 1000L);
     }
@@ -179,7 +178,7 @@ public final class DriverRestartManager implements DriverIdlenessSource {
     setEvaluatorReported(evaluatorId);
 
     if (haveAllExpectedEvaluatorsReported()) {
-      onDriverRestartCompleted();
+      onDriverRestartCompleted(false);
     }
 
     return true;
@@ -270,13 +269,14 @@ public final class DriverRestartManager implements DriverIdlenessSource {
   /**
    * Sets the driver restart status to be completed if not yet set and notifies the restart completed event handlers.
    */
-  private synchronized void onDriverRestartCompleted() {
+  private synchronized void onDriverRestartCompleted(final boolean isTimedOut) {
     if (this.state != DriverRestartState.COMPLETED) {
       final Set<String> outstandingEvaluatorIds = getOutstandingEvaluatorsAndMarkExpired();
       driverRuntimeRestartManager.informAboutEvaluatorFailures(outstandingEvaluatorIds);
 
       this.state = DriverRestartState.COMPLETED;
-      final DriverRestartCompleted driverRestartCompleted = new DriverRestartCompleted(System.currentTimeMillis());
+      final DriverRestartCompleted driverRestartCompleted = new DriverRestartCompletedImpl(
+          System.currentTimeMillis(), isTimedOut);
 
       for (final EventHandler<DriverRestartCompleted> serviceRestartCompletedHandler
           : this.serviceDriverRestartCompletedHandlers) {

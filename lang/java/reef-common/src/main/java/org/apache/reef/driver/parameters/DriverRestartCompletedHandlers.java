@@ -18,7 +18,7 @@
  */
 package org.apache.reef.driver.parameters;
 
-import org.apache.reef.runtime.common.DriverRestartCompleted;
+import org.apache.reef.driver.restart.DriverRestartCompleted;
 import org.apache.reef.runtime.common.driver.defaults.DefaultDriverRestartCompletedHandler;
 import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;

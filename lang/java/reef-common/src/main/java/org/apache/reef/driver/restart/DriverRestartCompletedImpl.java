@@ -16,13 +16,35 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.runtime.common;
+package org.apache.reef.driver.restart;
 
 import org.apache.reef.wake.time.Time;
 
-public final class DriverRestartCompleted extends Time {
+/**
+ * @see DriverRestartCompleted
+ */
+class DriverRestartCompletedImpl implements DriverRestartCompleted {
+  private final Time completedTime;
+  private final boolean isTimedOut;
 
-  public DriverRestartCompleted(final long timestamp) {
-    super(timestamp);
+  DriverRestartCompletedImpl(final long completedTimeMillis, final boolean isTimedOut) {
+    this.completedTime = new Time(completedTimeMillis) { };
+    this.isTimedOut = isTimedOut;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public Time getCompletedTime() {
+    return completedTime;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public boolean isTimedOut() {
+    return isTimedOut;
   }
 }

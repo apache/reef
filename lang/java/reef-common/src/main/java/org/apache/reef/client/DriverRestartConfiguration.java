@@ -26,7 +26,7 @@ import org.apache.reef.driver.context.ActiveContext;
 import org.apache.reef.driver.parameters.*;
 import org.apache.reef.driver.restart.DriverRestarted;
 import org.apache.reef.driver.task.RunningTask;
-import org.apache.reef.runtime.common.DriverRestartCompleted;
+import org.apache.reef.driver.restart.DriverRestartCompleted;
 import org.apache.reef.tang.formats.ConfigurationModule;
 import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
 import org.apache.reef.tang.formats.OptionalImpl;
