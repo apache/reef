@@ -101,5 +101,10 @@ namespace Org.Apache.REEF.IO.FileSystem
         /// <returns></returns>
         /// <exception cref="IOException"></exception>
         IEnumerable<Uri> GetChildren(Uri directoryUri);
+
+        /// <summary>
+        /// Tells whether FileSystem is local or distributed
+        /// </summary>
+        bool IsFileSystemLocal { get; }
     }
 }

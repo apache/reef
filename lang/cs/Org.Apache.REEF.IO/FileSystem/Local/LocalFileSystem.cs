@@ -84,5 +84,13 @@ namespace Org.Apache.REEF.IO.FileSystem.Local
             return Directory.GetFileSystemEntries(localPath)
                 .Select(entry => new Uri(Path.Combine(localPath, entry)));
         }
+
+        /// <summary>
+        /// Tells that the FileSystem is local
+        /// </summary>
+        public bool IsFileSystemLocal
+        {
+            get { return true; }
+        }
     }
 }
