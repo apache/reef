@@ -59,7 +59,7 @@ final class Scheduler {
   private final AtomicInteger taskCount = new AtomicInteger(0);
 
   @Inject
-  public Scheduler() {
+  private Scheduler() {
     taskQueue = new LinkedBlockingQueue<>();
   }
 
