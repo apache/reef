@@ -38,7 +38,7 @@ final class SchedulerHttpHandler implements HttpHandler {
   private String uriSpecification = "reef-example-scheduler";
 
   @Inject
-  public SchedulerHttpHandler(final InjectionFuture<SchedulerDriver> schedulerDriver) {
+  private SchedulerHttpHandler(final InjectionFuture<SchedulerDriver> schedulerDriver) {
     this.schedulerDriver = schedulerDriver;
   }
 

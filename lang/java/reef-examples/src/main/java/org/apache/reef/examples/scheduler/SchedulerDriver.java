@@ -76,9 +76,9 @@ public final class SchedulerDriver {
   private final EvaluatorRequestor requestor;
 
   @Inject
-  public SchedulerDriver(final EvaluatorRequestor requestor,
-                         @Parameter(SchedulerREEF.Retain.class) final boolean retainable,
-                         final Scheduler scheduler) {
+  private SchedulerDriver(final EvaluatorRequestor requestor,
+                          @Parameter(SchedulerREEF.Retain.class) final boolean retainable,
+                          final Scheduler scheduler) {
     this.requestor = requestor;
     this.scheduler = scheduler;
     this.retainable = retainable;
