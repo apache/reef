@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.examples.scheduler;
+package org.apache.reef.examples.scheduler.driver;
 
 import org.apache.reef.driver.context.ActiveContext;
 import org.apache.reef.driver.context.ContextConfiguration;
@@ -24,6 +24,7 @@ import org.apache.reef.driver.evaluator.AllocatedEvaluator;
 import org.apache.reef.driver.evaluator.EvaluatorRequest;
 import org.apache.reef.driver.evaluator.EvaluatorRequestor;
 import org.apache.reef.driver.task.CompletedTask;
+import org.apache.reef.examples.scheduler.client.SchedulerREEF;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.tang.annotations.Unit;
 import org.apache.reef.wake.EventHandler;
@@ -87,7 +88,7 @@ public final class SchedulerDriver {
   /**
    * The driver is ready to run.
    */
-  final class StartHandler implements EventHandler<StartTime> {
+  public final class StartHandler implements EventHandler<StartTime> {
     @Override
     public void onNext(final StartTime startTime) {
       LOG.log(Level.INFO, "Driver started at {0}", startTime);
@@ -102,7 +103,7 @@ public final class SchedulerDriver {
    * Evaluator is allocated. This occurs every time to run commands in Non-retainable version,
    * while occurs only once in the Retainable version
    */
-  final class EvaluatorAllocatedHandler implements EventHandler<AllocatedEvaluator> {
+  public final class EvaluatorAllocatedHandler implements EventHandler<AllocatedEvaluator> {
     @Override
     public void onNext(final AllocatedEvaluator evaluator) {
       LOG.log(Level.INFO, "Evaluator is ready");
@@ -125,7 +126,7 @@ public final class SchedulerDriver {
    * It may happen, for example, when tasks are canceled during allocation.
    * In these cases, the new evaluator may be abandoned.
    */
-  final class ActiveContextHandler implements EventHandler<ActiveContext> {
+  public final class ActiveContextHandler implements EventHandler<ActiveContext> {
     @Override
     public void onNext(final ActiveContext context) {
       synchronized (SchedulerDriver.this) {
@@ -150,7 +151,7 @@ public final class SchedulerDriver {
    * The evaluator is reused for the next Task if retainable is set to {@code true}.
    * Otherwise the evaluator is released.
    */
-  final class CompletedTaskHandler implements EventHandler<CompletedTask> {
+  public final class CompletedTaskHandler implements EventHandler<CompletedTask> {
     @Override
     public void onNext(final CompletedTask task) {
       final int taskId = Integer.valueOf(task.getId());

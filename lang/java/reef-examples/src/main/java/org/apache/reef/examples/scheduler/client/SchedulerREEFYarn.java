@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.examples.scheduler;
+package org.apache.reef.examples.scheduler.client;
 
 import org.apache.commons.cli.ParseException;
 import org.apache.reef.runtime.yarn.client.YarnClientConfiguration;
@@ -25,7 +25,7 @@ import org.apache.reef.tang.exceptions.InjectionException;
 
 import java.io.IOException;
 
-import static org.apache.reef.examples.scheduler.SchedulerREEF.runTaskScheduler;
+import static org.apache.reef.examples.scheduler.client.SchedulerREEF.runTaskScheduler;
 
 /**
  * REEF TaskScheduler on YARN runtime.

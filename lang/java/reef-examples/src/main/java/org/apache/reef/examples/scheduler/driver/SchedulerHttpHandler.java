@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.examples.scheduler;
+package org.apache.reef.examples.scheduler.driver;
 
 import org.apache.reef.tang.InjectionFuture;
 import org.apache.reef.webserver.HttpHandler;
@@ -32,7 +32,7 @@ import java.util.Map;
 /**
  * Receive HttpRequest so that it can handle the command list.
  */
-final class SchedulerHttpHandler implements HttpHandler {
+public final class SchedulerHttpHandler implements HttpHandler {
   private final InjectionFuture<SchedulerDriver> schedulerDriver;
 
   private String uriSpecification = "reef-example-scheduler";
