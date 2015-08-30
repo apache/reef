@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.examples.scheduler;
+package org.apache.reef.examples.scheduler.driver;
 
 import org.apache.reef.driver.context.ActiveContext;
 import org.apache.reef.driver.task.TaskConfiguration;
