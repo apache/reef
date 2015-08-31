@@ -27,6 +27,7 @@ using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Driver.Bridge;
 using Org.Apache.REEF.Examples.MachineLearning.KMeans;
 using Org.Apache.REEF.Network.Group.Config;
+using Org.Apache.REEF.Network.Naming;
 using Org.Apache.REEF.Network.NetworkService;
 using Org.Apache.REEF.Tang.Implementations.Configuration;
 using Org.Apache.REEF.Tang.Implementations.Tang;
@@ -149,13 +150,12 @@ namespace Org.Apache.REEF.Tests.Functional.ML.KMeans
             string Identifier = "KMeansDriverId";
 
             IConfiguration driverConfig = TangFactory.GetTang().NewConfigurationBuilder(
-                DriverBridgeConfiguration.ConfigurationModule
-                    .Set(DriverBridgeConfiguration.OnDriverStarted, GenericType<KMeansDriverHandlers>.Class)
-                    .Set(DriverBridgeConfiguration.OnEvaluatorAllocated, GenericType<KMeansDriverHandlers>.Class)
-                    .Set(DriverBridgeConfiguration.OnEvaluatorRequested, GenericType<KMeansDriverHandlers>.Class)
-                    .Set(DriverBridgeConfiguration.OnContextActive, GenericType<KMeansDriverHandlers>.Class)
-                    .Set(DriverBridgeConfiguration.CommandLineArguments, "DataFile:" + _dataFile)
-                    .Set(DriverBridgeConfiguration.CustomTraceLevel, Level.Info.ToString())
+                Org.Apache.REEF.Driver.DriverConfiguration.ConfigurationModule
+                    .Set(Org.Apache.REEF.Driver.DriverConfiguration.OnDriverStarted, GenericType<KMeansDriverHandlers>.Class)
+                    .Set(Org.Apache.REEF.Driver.DriverConfiguration.OnEvaluatorAllocated, GenericType<KMeansDriverHandlers>.Class)
+                    .Set(Org.Apache.REEF.Driver.DriverConfiguration.OnContextActive, GenericType<KMeansDriverHandlers>.Class)
+                    .Set(Org.Apache.REEF.Driver.DriverConfiguration.CommandLineArguments, "DataFile:" + _dataFile)
+                    .Set(Org.Apache.REEF.Driver.DriverConfiguration.CustomTraceLevel, Level.Info.ToString())
                     .Build())
                 .BindIntNamedParam<NumPartitions>(Partitions.ToString())
                 .Build();
@@ -168,7 +168,14 @@ namespace Org.Apache.REEF.Tests.Functional.ML.KMeans
                 .BindIntNamedParam<GroupCommConfigurationOptions.NumberOfTasks>(totalEvaluators.ToString())
                 .Build();
 
-            return Configurations.Merge(driverConfig, groupCommunicationDriverConfig);
+            IConfiguration merged = Configurations.Merge(driverConfig, groupCommunicationDriverConfig);
+
+            IConfiguration taskConfig = TangFactory.GetTang().NewConfigurationBuilder()
+                .BindSetEntry<DriverBridgeConfigurationOptions.SetOfAssemblies, string>(typeof(KMeansMasterTask).Assembly.GetName().Name)
+                .BindSetEntry<DriverBridgeConfigurationOptions.SetOfAssemblies, string>(typeof(NameClient).Assembly.GetName().Name)
+                .Build();
+
+            return Configurations.Merge(merged, taskConfig);
         }
 
         private HashSet<string> AssembliesToCopy()

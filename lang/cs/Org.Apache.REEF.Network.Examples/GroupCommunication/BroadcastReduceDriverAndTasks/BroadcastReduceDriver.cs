@@ -47,7 +47,11 @@ using Org.Apache.REEF.Wake.Remote.Parameters;
 
 namespace Org.Apache.REEF.Network.Examples.GroupCommunication.BroadcastReduceDriverAndTasks
 {
-    public class BroadcastReduceDriver : IStartHandler, IObserver<IEvaluatorRequestor>, IObserver<IAllocatedEvaluator>, IObserver<IActiveContext>, IObserver<IFailedEvaluator>
+    public class BroadcastReduceDriver : 
+        IObserver<IAllocatedEvaluator>, 
+        IObserver<IActiveContext>, 
+        IObserver<IFailedEvaluator>, 
+        IObserver<IDriverStarted>
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(BroadcastReduceDriver));
 
@@ -59,6 +63,7 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.BroadcastReduceDri
         private readonly TaskStarter _groupCommTaskStarter;
         private readonly IConfiguration _tcpPortProviderConfig;
         private readonly IConfiguration _codecConfig;
+        private readonly IEvaluatorRequestor _evaluatorRequestor;
 
         [Inject]
         public BroadcastReduceDriver(
@@ -66,12 +71,13 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.BroadcastReduceDri
             [Parameter(typeof(GroupTestConfig.NumIterations))] int numIterations,
             [Parameter(typeof(GroupTestConfig.StartingPort))] int startingPort,
             [Parameter(typeof(GroupTestConfig.PortRange))] int portRange,
-            GroupCommDriver groupCommDriver)
+            GroupCommDriver groupCommDriver,
+            IEvaluatorRequestor evaluatorRequestor)
         {
-            Identifier = "BroadcastStartHandler";
             _numEvaluators = numEvaluators;
             _numIterations = numIterations;
             _groupCommDriver = groupCommDriver;
+            _evaluatorRequestor = evaluatorRequestor;
 
             _tcpPortProviderConfig = TangFactory.GetTang().NewConfigurationBuilder()
                 .BindNamedParameter<TcpPortRangeStart, int>(GenericType<TcpPortRangeStart>.Class,
@@ -110,14 +116,6 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.BroadcastReduceDri
             _groupCommTaskStarter = new TaskStarter(_groupCommDriver, numEvaluators);
 
             CreateClassHierarchy();
-        }
-
-        public string Identifier { get; set; }
-
-        public void OnNext(IEvaluatorRequestor evaluatorRequestor)
-        {
-            EvaluatorRequest request = new EvaluatorRequest(_numEvaluators, 512, 2, "WonderlandRack", "BroadcastEvaluator");
-            evaluatorRequestor.Submit(request);
         }
 
         public void OnNext(IAllocatedEvaluator allocatedEvaluator)
@@ -177,8 +175,15 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.BroadcastReduceDri
         {
         }
 
+        public void OnNext(IDriverStarted value)
+        {
+            EvaluatorRequest request = new EvaluatorRequest(_numEvaluators, 512, 2, "WonderlandRack", "BroadcastEvaluator");
+            _evaluatorRequestor.Submit(request);
+        }
+
         public void OnError(Exception error)
         {
+            throw error;
         }
 
         public void OnCompleted()

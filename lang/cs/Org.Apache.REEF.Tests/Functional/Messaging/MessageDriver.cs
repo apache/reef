@@ -36,23 +36,25 @@ using IRunningTask = Org.Apache.REEF.Driver.Task.IRunningTask;
 
 namespace Org.Apache.REEF.Tests.Functional.Messaging
 {
-    public class MessageDriver : IStartHandler, IObserver<IAllocatedEvaluator>, IObserver<IEvaluatorRequestor>, IObserver<ITaskMessage>, IObserver<IRunningTask>
+    public class MessageDriver :
+        IObserver<IAllocatedEvaluator>, 
+        IObserver<ITaskMessage>, 
+        IObserver<IRunningTask>, 
+        IObserver<IDriverStarted>
     {
         public const int NumerOfEvaluator = 1;
 
         public const string Message = "MESSAGE::DRIVER";
 
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(MessageDriver));
+        private readonly IEvaluatorRequestor _evaluatorRequestor;
 
         [Inject]
-        public MessageDriver()
+        public MessageDriver(IEvaluatorRequestor evaluatorRequestor)
         {
             CreateClassHierarchy();
-            Identifier = "TaskMessagingStartHandler";
+            _evaluatorRequestor = evaluatorRequestor;
         }
-
-        public string Identifier { get; set; }
-
         public void OnNext(IAllocatedEvaluator eval)
         {
             string taskId = "Task_" + eval.Id;
@@ -71,12 +73,6 @@ namespace Org.Apache.REEF.Tests.Functional.Messaging
             eval.SubmitContextAndTask(contextConfiguration, taskConfiguration);
         }
 
-        public void OnNext(IEvaluatorRequestor evalutorRequestor)
-        {
-            EvaluatorRequest request = new EvaluatorRequest(NumerOfEvaluator, 512, 2, "WonderlandRack", "TaskMessagingEvaluator");
-            evalutorRequestor.Submit(request);
-        }
-
         public void OnNext(ITaskMessage taskMessage)
         {
             string msgReceived = ByteUtilities.ByteArrarysToString(taskMessage.Message);
@@ -93,6 +89,12 @@ namespace Org.Apache.REEF.Tests.Functional.Messaging
         {
             LOGGER.Log(Level.Info, string.Format(CultureInfo.InvariantCulture, "TaskMessegingRunningTaskHandler: {0} is to send message {1}.", runningTask.Id, Message));
             runningTask.Send(ByteUtilities.StringToByteArrays(Message));
+        }
+
+        public void OnNext(IDriverStarted value)
+        {
+            EvaluatorRequest request = new EvaluatorRequest(NumerOfEvaluator, 512, 2, "WonderlandRack", "TaskMessagingEvaluator");
+            _evaluatorRequestor.Submit(request);
         }
 
         public void OnCompleted()

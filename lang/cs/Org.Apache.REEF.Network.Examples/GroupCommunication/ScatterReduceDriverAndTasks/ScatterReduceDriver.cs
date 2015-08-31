@@ -47,7 +47,11 @@ using Org.Apache.REEF.Wake.StreamingCodec.CommonStreamingCodecs;
 
 namespace Org.Apache.REEF.Network.Examples.GroupCommunication.ScatterReduceDriverAndTasks
 {
-    public class ScatterReduceDriver : IStartHandler, IObserver<IEvaluatorRequestor>, IObserver<IAllocatedEvaluator>, IObserver<IActiveContext>, IObserver<IFailedEvaluator>
+    public class ScatterReduceDriver : 
+        IObserver<IAllocatedEvaluator>, 
+        IObserver<IActiveContext>, 
+        IObserver<IFailedEvaluator>, 
+        IObserver<IDriverStarted>
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(ScatterReduceDriver));
 
@@ -57,15 +61,17 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.ScatterReduceDrive
         private readonly ICommunicationGroupDriver _commGroup;
         private readonly TaskStarter _groupCommTaskStarter;
         private readonly IConfiguration _codecConfig;
+        private readonly IEvaluatorRequestor _evaluatorRequestor;
 
         [Inject]
         public ScatterReduceDriver(
             [Parameter(typeof(GroupTestConfig.NumEvaluators))] int numEvaluators,
-            GroupCommDriver groupCommDriver)
+            GroupCommDriver groupCommDriver,
+            IEvaluatorRequestor evaluatorRequestor)
         {
-            Identifier = "BroadcastStartHandler";
             _numEvaluators = numEvaluators;
             _groupCommDriver = groupCommDriver;
+            _evaluatorRequestor = evaluatorRequestor;
 
             _codecConfig = StreamingCodecConfiguration<int>.Conf
                .Set(StreamingCodecConfiguration<int>.Codec, GenericType<IntStreamingCodec>.Class)
@@ -97,14 +103,6 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.ScatterReduceDrive
             _groupCommTaskStarter = new TaskStarter(_groupCommDriver, numEvaluators);
 
             CreateClassHierarchy();
-        }
-
-        public string Identifier { get; set; }
-
-        public void OnNext(IEvaluatorRequestor evaluatorRequestor)
-        {
-            EvaluatorRequest request = new EvaluatorRequest(_numEvaluators, 512, 2, "WonderlandRack", "BroadcastEvaluator");
-            evaluatorRequestor.Submit(request);
         }
 
         public void OnNext(IAllocatedEvaluator allocatedEvaluator)
@@ -148,8 +146,15 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.ScatterReduceDrive
         {
         }
 
+        public void OnNext(IDriverStarted value)
+        {
+            EvaluatorRequest request = new EvaluatorRequest(_numEvaluators, 512, 2, "WonderlandRack", "BroadcastEvaluator");
+            _evaluatorRequestor.Submit(request);
+        }
+
         public void OnError(Exception error)
         {
+            throw error;
         }
 
         public void OnCompleted()

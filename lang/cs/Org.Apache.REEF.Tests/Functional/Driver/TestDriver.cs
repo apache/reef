@@ -19,6 +19,7 @@
 
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Org.Apache.REEF.Driver;
 using Org.Apache.REEF.Driver.Bridge;
 using Org.Apache.REEF.Driver.Defaults;
 using Org.Apache.REEF.Tang.Interface;
@@ -46,15 +47,15 @@ namespace Org.Apache.REEF.Tests.Functional.Driver
         /// This is to test DriverTestStartHandler. No evaluator and tasks are involked.
         /// </summary>
         [TestMethod, Priority(1), TestCategory("FunctionalGated")]
-        [Description("Test DriverTestStartHandler. No evaluator and tasks are involked")]
+        [Description("Test DriverTestStartHandler. No evaluator and tasks are invoked")]
         [DeploymentItem(@".")]
         [Timeout(180 * 1000)]
         public void TestDriverStart()
         {
-            IConfiguration driverConfig = DriverBridgeConfiguration.ConfigurationModule
-             .Set(DriverBridgeConfiguration.OnDriverStarted, GenericType<DriverTestStartHandler>.Class)
-             .Set(DriverBridgeConfiguration.CustomTraceListeners, GenericType<DefaultCustomTraceListener>.Class)
-             .Set(DriverBridgeConfiguration.CustomTraceLevel, Level.Info.ToString())
+            IConfiguration driverConfig = DriverConfiguration.ConfigurationModule
+             .Set(DriverConfiguration.OnDriverStarted, GenericType<DriverTestStartHandler>.Class)
+             .Set(DriverConfiguration.CustomTraceListeners, GenericType<DefaultCustomTraceListener>.Class)
+             .Set(DriverConfiguration.CustomTraceLevel, Level.Info.ToString())
              .Build();
 
             HashSet<string> appDlls = new HashSet<string>();

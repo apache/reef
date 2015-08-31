@@ -19,8 +19,12 @@
 
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Org.Apache.REEF.Driver;
 using Org.Apache.REEF.Driver.Bridge;
 using Org.Apache.REEF.Driver.Defaults;
+using Org.Apache.REEF.Network.Naming;
+using Org.Apache.REEF.Tang.Implementations.Configuration;
+using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities.Logging;
@@ -53,21 +57,27 @@ namespace Org.Apache.REEF.Tests.Functional.Messaging
         [Timeout(180 * 1000)]
         public void TestSendTaskMessage()
         {
-            IConfiguration driverConfig = DriverBridgeConfiguration.ConfigurationModule
-             .Set(DriverBridgeConfiguration.OnDriverStarted, GenericType<MessageDriver>.Class)
-             .Set(DriverBridgeConfiguration.OnEvaluatorAllocated, GenericType<MessageDriver>.Class)
-             .Set(DriverBridgeConfiguration.OnTaskMessage, GenericType<MessageDriver>.Class)
-             .Set(DriverBridgeConfiguration.OnTaskRunning, GenericType<MessageDriver>.Class)
-             .Set(DriverBridgeConfiguration.OnEvaluatorRequested, GenericType<MessageDriver>.Class)
-             .Set(DriverBridgeConfiguration.CustomTraceListeners, GenericType<DefaultCustomTraceListener>.Class)
-             .Set(DriverBridgeConfiguration.CustomTraceLevel, Level.Info.ToString())
+            IConfiguration driverConfig = DriverConfiguration.ConfigurationModule
+             .Set(DriverConfiguration.OnDriverStarted, GenericType<MessageDriver>.Class)
+             .Set(DriverConfiguration.OnEvaluatorAllocated, GenericType<MessageDriver>.Class)
+             .Set(DriverConfiguration.OnTaskMessage, GenericType<MessageDriver>.Class)
+             .Set(DriverConfiguration.OnTaskRunning, GenericType<MessageDriver>.Class)
+             .Set(DriverConfiguration.CustomTraceListeners, GenericType<DefaultCustomTraceListener>.Class)
+             .Set(DriverConfiguration.CustomTraceLevel, Level.Info.ToString())
              .Build();
+
+            IConfiguration taskConfig = TangFactory.GetTang().NewConfigurationBuilder()
+                .BindSetEntry<DriverBridgeConfigurationOptions.SetOfAssemblies, string>(typeof(MessageTask).Assembly.GetName().Name)
+                .BindSetEntry<DriverBridgeConfigurationOptions.SetOfAssemblies, string>(typeof(NameClient).Assembly.GetName().Name)
+                .Build();
+
+            IConfiguration merged = Configurations.Merge(driverConfig, taskConfig);
 
             HashSet<string> appDlls = new HashSet<string>();
             appDlls.Add(typeof(MessageDriver).Assembly.GetName().Name);
             appDlls.Add(typeof(MessageTask).Assembly.GetName().Name);
 
-            TestRun(appDlls, driverConfig);
+            TestRun(appDlls, merged);
             ValidateSuccessForLocalRuntime(MessageDriver.NumerOfEvaluator);
         }
     }
