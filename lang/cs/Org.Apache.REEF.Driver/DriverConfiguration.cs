@@ -146,6 +146,12 @@ namespace Org.Apache.REEF.Driver
         public static readonly OptionalImpl<IObserver<IDriverRestartCompleted>> OnDriverRestartCompleted =
             new OptionalImpl<IObserver<IDriverRestartCompleted>>();
 
+        ///// <summary>
+        ///// Event handler for driver restart failed evaluator event received during driver restart. Defaults to job failure if not bound.
+        ///// </summary>
+        public static readonly OptionalImpl<IObserver<IFailedEvaluator>> OnDriverRestartEvaluatorFailed =
+            new OptionalImpl<IObserver<IFailedEvaluator>>();
+
         /// <summary>
         /// Additional set of string arguments that can be pssed to handlers through client
         /// </summary>
@@ -220,6 +226,8 @@ namespace Org.Apache.REEF.Driver
                         OnDriverRestartContextActive)
                     .BindSetEntry(GenericType<DriverBridgeConfigurationOptions.DriverRestartRunningTaskHandlers>.Class,
                         OnDriverRestartTaskRunning)
+                    .BindSetEntry(GenericType<DriverBridgeConfigurationOptions.DriverRestartFailedEvaluatorHandlers>.Class,
+                        OnDriverRestartEvaluatorFailed)
                     .BindNamedParameter(GenericType<DriverBridgeConfigurationOptions.TraceLevel>.Class, CustomTraceLevel)
                     .BindNamedParameter(GenericType<DriverBridgeConfigurationOptions.MaxApplicationSubmissions>.Class,
                         MaxApplicationSubmissions)

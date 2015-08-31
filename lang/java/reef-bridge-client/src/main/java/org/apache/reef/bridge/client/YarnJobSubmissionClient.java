@@ -126,6 +126,8 @@ public final class YarnJobSubmissionClient {
                   driverRestartEvaluatorRecoverySeconds)
               .set(DriverRestartConfiguration.ON_DRIVER_RESTART_COMPLETED,
                   JobDriver.DriverRestartCompletedHandler.class)
+              .set(DriverRestartConfiguration.ON_DRIVER_RESTART_EVALUATOR_FAILED,
+                  JobDriver.DriverRestartFailedEvaluatorHandler.class)
               .build();
 
       driverConfiguration = Configurations.merge(
