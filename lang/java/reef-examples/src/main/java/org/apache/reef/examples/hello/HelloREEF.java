@@ -46,10 +46,20 @@ public final class HelloREEF {
    */
   private static final int JOB_TIMEOUT = 10000; // 10 sec.
 
+
+  /**
+   * @return the configuration of the runtime
+   */
+  private static Configuration getRuntimeConfiguration() {
+    return LocalRuntimeConfiguration.CONF
+        .set(LocalRuntimeConfiguration.MAX_NUMBER_OF_EVALUATORS, MAX_NUMBER_OF_EVALUATORS)
+        .build();
+  }
+
   /**
    * @return the configuration of the HelloREEF driver.
    */
-  public static Configuration getDriverConfiguration() {
+  private static Configuration getDriverConfiguration() {
     return DriverConfiguration.CONF
         .set(DriverConfiguration.GLOBAL_LIBRARIES, EnvironmentUtils.getClassLocation(HelloDriver.class))
         .set(DriverConfiguration.DRIVER_IDENTIFIER, "HelloREEF")
@@ -58,30 +68,26 @@ public final class HelloREEF {
         .build();
   }
 
-  public static LauncherStatus runHelloReef(final Configuration runtimeConf, final int timeOut)
-      throws BindException, InjectionException {
-    final Configuration driverConf = getDriverConfiguration();
-    return DriverLauncher.getLauncher(runtimeConf).run(driverConf, timeOut);
-  }
-
   /**
-   * Start Hello REEF job. Runs method runHelloReef().
+   * Start Hello REEF job.
    *
    * @param args command line parameters.
    * @throws BindException      configuration error.
    * @throws InjectionException configuration error.
    */
   public static void main(final String[] args) throws BindException, InjectionException {
-    final Configuration runtimeConfiguration = LocalRuntimeConfiguration.CONF
-        .set(LocalRuntimeConfiguration.MAX_NUMBER_OF_EVALUATORS, MAX_NUMBER_OF_EVALUATORS)
-        .build();
-    final LauncherStatus status = runHelloReef(runtimeConfiguration, JOB_TIMEOUT);
+    final Configuration runtimeConf = getRuntimeConfiguration();
+    final Configuration driverConf = getDriverConfiguration();
+
+    final LauncherStatus status = DriverLauncher
+        .getLauncher(runtimeConf)
+        .run(driverConf, JOB_TIMEOUT);
     LOG.log(Level.INFO, "REEF job completed: {0}", status);
   }
 
-    /**
-     * Empty private constructor to prohibit instantiation of utility class.
-     */
+  /**
+   * Empty private constructor to prohibit instantiation of utility class.
+   */
   private HelloREEF() {
   }
 }
