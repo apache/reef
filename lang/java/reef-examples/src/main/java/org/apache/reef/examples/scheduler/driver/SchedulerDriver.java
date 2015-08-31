@@ -192,36 +192,29 @@ public final class SchedulerDriver {
   /**
    * Get the status of a task.
    */
-  public String getTaskStatus(final int taskId) throws NotFoundException {
-    synchronized (SchedulerDriver.this) {
-      return scheduler.getTaskStatus(taskId);
-    }
+  public synchronized String getTaskStatus(final int taskId) throws NotFoundException {
+    return scheduler.getTaskStatus(taskId);
   }
 
   /**
    * Cancel a Task waiting on the queue. A task cannot be canceled
    * once it is running.
    */
-  public int cancelTask(final int taskId) throws NotFoundException, UnsuccessfulException {
-    synchronized (SchedulerDriver.this) {
-      return scheduler.cancelTask(taskId);
-    }
+  public synchronized int cancelTask(final int taskId) throws NotFoundException, UnsuccessfulException {
+    return scheduler.cancelTask(taskId);
   }
 
   /**
    * Submit a command to schedule.
    */
-  public int submitCommand(final String command) {
-    final Integer id;
-    synchronized (SchedulerDriver.this) {
-      id = scheduler.assignTaskId();
-      scheduler.addTask(new TaskEntity(id, command));
+  public synchronized int submitCommand(final String command) {
+    final Integer id = scheduler.assignTaskId();
+    scheduler.addTask(new TaskEntity(id, command));
 
-      if (state == State.READY) {
-        SchedulerDriver.this.notify(); // Wake up at {waitForCommands}
-      } else if (state == State.RUNNING && nMaxEval > nActiveEval + nRequestedEval) {
-        requestEvaluator(1);
-      }
+    if (state == State.READY) {
+      notify(); // Wake up at {waitForCommands}
+    } else if (state == State.RUNNING && nMaxEval > nActiveEval + nRequestedEval) {
+      requestEvaluator(1);
     }
     return id;
   }
@@ -231,59 +224,53 @@ public final class SchedulerDriver {
    * Request more evaluators in case there are pending tasks
    * in the queue and the number of evaluators is less than the limit.
    */
-  public int setMaxEvaluators(final int targetNum) throws UnsuccessfulException {
-    synchronized (SchedulerDriver.this) {
-      if (targetNum < nActiveEval + nRequestedEval) {
-        throw new UnsuccessfulException(nActiveEval + nRequestedEval +
-            " evaluators are used now. Should be larger than that.");
-      }
-      nMaxEval = targetNum;
-
-      if (scheduler.hasPendingTasks()) {
-        final int nToRequest =
-            Math.min(scheduler.getNumPendingTasks(), nMaxEval - nActiveEval) - nRequestedEval;
-        requestEvaluator(nToRequest);
-      }
-      return nMaxEval;
+  public synchronized int setMaxEvaluators(final int targetNum) throws UnsuccessfulException {
+    if (targetNum < nActiveEval + nRequestedEval) {
+      throw new UnsuccessfulException(nActiveEval + nRequestedEval +
+          " evaluators are used now. Should be larger than that.");
     }
+    nMaxEval = targetNum;
+
+    if (scheduler.hasPendingTasks()) {
+      final int nToRequest =
+          Math.min(scheduler.getNumPendingTasks(), nMaxEval - nActiveEval) - nRequestedEval;
+      requestEvaluator(nToRequest);
+    }
+    return nMaxEval;
   }
 
   /**
    * Request evaluators. Passing a non positive number is illegal,
    * so it does not make a trial for that situation.
    */
-  private void requestEvaluator(final int numToRequest) {
+  private synchronized void requestEvaluator(final int numToRequest) {
     if (numToRequest <= 0) {
       throw new IllegalArgumentException("The number of evaluator request should be a positive integer");
     }
 
-    synchronized (SchedulerDriver.this) {
-      nRequestedEval += numToRequest;
-      requestor.submit(EvaluatorRequest.newBuilder()
-          .setMemory(32)
-          .setNumber(numToRequest)
-          .build());
-    }
+    nRequestedEval += numToRequest;
+    requestor.submit(EvaluatorRequest.newBuilder()
+        .setMemory(32)
+        .setNumber(numToRequest)
+        .build());
   }
 
   /**
    * Pick up a command from the queue and run it. Wait until
    * any command coming up if no command exists.
    */
-  private void waitForCommands(final ActiveContext context) {
-    synchronized (SchedulerDriver.this) {
-      while (!scheduler.hasPendingTasks()) {
-        // Wait until any command enters in the queue
-        try {
-          SchedulerDriver.this.wait();
-        } catch (final InterruptedException e) {
-          LOG.log(Level.WARNING, "InterruptedException occurred in SchedulerDriver", e);
-        }
+  private synchronized void waitForCommands(final ActiveContext context) {
+    while (!scheduler.hasPendingTasks()) {
+      // Wait until any command enters in the queue
+      try {
+        wait();
+      } catch (final InterruptedException e) {
+        LOG.log(Level.WARNING, "InterruptedException occurred in SchedulerDriver", e);
       }
-      // When wakes up, run the first command from the queue.
-      state = State.RUNNING;
-      scheduler.submitTask(context);
     }
+    // When wakes up, run the first command from the queue.
+    state = State.RUNNING;
+    scheduler.submitTask(context);
   }
 
   /**
