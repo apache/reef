@@ -47,8 +47,11 @@ using Org.Apache.REEF.Wake.StreamingCodec.CommonStreamingCodecs;
 
 namespace Org.Apache.REEF.Network.Examples.GroupCommunication.PipelineBroadcastReduceDriverAndTasks
 {
-    public class PipelinedBroadcastReduceDriver : IStartHandler, IObserver<IEvaluatorRequestor>,
-        IObserver<IAllocatedEvaluator>, IObserver<IActiveContext>, IObserver<IFailedEvaluator>
+    public class PipelinedBroadcastReduceDriver : 
+        IObserver<IAllocatedEvaluator>, 
+        IObserver<IActiveContext>, 
+        IObserver<IFailedEvaluator>, 
+        IObserver<IDriverStarted>
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(PipelinedBroadcastReduceDriver));
         private readonly int _arraySize;
@@ -59,6 +62,7 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.PipelineBroadcastR
         private readonly int _numIterations;
         private readonly IConfiguration _tcpPortProviderConfig;
         private readonly IConfiguration _codecConfig;
+        private readonly IEvaluatorRequestor _evaluatorRequestor;
 
         [Inject]
         public PipelinedBroadcastReduceDriver(
@@ -68,14 +72,15 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.PipelineBroadcastR
             [Parameter(typeof(GroupTestConfig.PortRange))] int portRange,
             [Parameter(typeof(GroupTestConfig.ChunkSize))] int chunkSize,
             [Parameter(typeof(GroupTestConfig.ArraySize))] int arraySize,
-            GroupCommDriver groupCommDriver)
+            GroupCommDriver groupCommDriver,
+            IEvaluatorRequestor evaluatorRequestor)
         {
             Logger.Log(Level.Info, "entering the driver code " + chunkSize);
 
-            Identifier = "BroadcastStartHandler";
             _numEvaluators = numEvaluators;
             _numIterations = numIterations;
             _arraySize = arraySize;
+            _evaluatorRequestor = evaluatorRequestor;
 
             _tcpPortProviderConfig = TangFactory.GetTang().NewConfigurationBuilder()
                 .BindNamedParameter<TcpPortRangeStart, int>(GenericType<TcpPortRangeStart>.Class,
@@ -121,13 +126,6 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.PipelineBroadcastR
             _groupCommTaskStarter = new TaskStarter(_groupCommDriver, numEvaluators);
 
             CreateClassHierarchy();
-        }
-        public string Identifier { get; set; }
-
-        public void OnNext(IEvaluatorRequestor evaluatorRequestor)
-        {
-            EvaluatorRequest request = new EvaluatorRequest(_numEvaluators, 512, 2, "WonderlandRack", "BroadcastEvaluator");
-            evaluatorRequestor.Submit(request);
         }
 
         public void OnNext(IAllocatedEvaluator allocatedEvaluator)
@@ -190,6 +188,7 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.PipelineBroadcastR
 
         public void OnError(Exception error)
         {
+            throw error;
         }
 
         public void OnCompleted()
@@ -198,6 +197,12 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.PipelineBroadcastR
 
         public void OnNext(IFailedEvaluator value)
         {
+        }
+
+        public void OnNext(IDriverStarted value)
+        {
+            EvaluatorRequest request = new EvaluatorRequest(_numEvaluators, 512, 2, "WonderlandRack", "BroadcastEvaluator");
+            _evaluatorRequestor.Submit(request);
         }
 
         private void CreateClassHierarchy()

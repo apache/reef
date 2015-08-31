@@ -26,6 +26,7 @@ using Org.Apache.REEF.Driver.Bridge;
 using Org.Apache.REEF.Network.Examples.GroupCommunication;
 using Org.Apache.REEF.Network.Examples.GroupCommunication.BroadcastReduceDriverAndTasks;
 using Org.Apache.REEF.Network.Group.Config;
+using Org.Apache.REEF.Network.Naming;
 using Org.Apache.REEF.Network.NetworkService;
 using Org.Apache.REEF.Tang.Implementations.Configuration;
 using Org.Apache.REEF.Tang.Implementations.Tang;
@@ -46,13 +47,12 @@ namespace Org.Apache.REEF.Network.Examples.Client
             const int fanOut = 2;
 
             IConfiguration driverConfig = TangFactory.GetTang().NewConfigurationBuilder(
-                DriverBridgeConfiguration.ConfigurationModule
-                    .Set(DriverBridgeConfiguration.OnDriverStarted, GenericType<BroadcastReduceDriver>.Class)
-                    .Set(DriverBridgeConfiguration.OnEvaluatorAllocated, GenericType<BroadcastReduceDriver>.Class)
-                    .Set(DriverBridgeConfiguration.OnEvaluatorRequested, GenericType<BroadcastReduceDriver>.Class)
-                    .Set(DriverBridgeConfiguration.OnEvaluatorFailed, GenericType<BroadcastReduceDriver>.Class)
-                    .Set(DriverBridgeConfiguration.OnContextActive, GenericType<BroadcastReduceDriver>.Class)
-                    .Set(DriverBridgeConfiguration.CustomTraceLevel, Level.Info.ToString())
+                DriverConfiguration.ConfigurationModule
+                    .Set(DriverConfiguration.OnDriverStarted, GenericType<BroadcastReduceDriver>.Class)
+                    .Set(DriverConfiguration.OnEvaluatorAllocated, GenericType<BroadcastReduceDriver>.Class)
+                    .Set(DriverConfiguration.OnEvaluatorFailed, GenericType<BroadcastReduceDriver>.Class)
+                    .Set(DriverConfiguration.OnContextActive, GenericType<BroadcastReduceDriver>.Class)
+                    .Set(DriverConfiguration.CustomTraceLevel, Level.Info.ToString())
                     .Build())
                 .BindNamedParameter<GroupTestConfig.NumIterations, int>(
                     GenericType<GroupTestConfig.NumIterations>.Class,
@@ -77,6 +77,13 @@ namespace Org.Apache.REEF.Network.Examples.Client
                 .Build();
 
             IConfiguration merged = Configurations.Merge(driverConfig, groupCommDriverConfig);
+
+            IConfiguration taskConfig = TangFactory.GetTang().NewConfigurationBuilder()
+                .BindSetEntry<DriverBridgeConfigurationOptions.SetOfAssemblies, string>(typeof(MasterTask).Assembly.GetName().Name)
+                .BindSetEntry<DriverBridgeConfigurationOptions.SetOfAssemblies, string>(typeof(NameClient).Assembly.GetName().Name)
+                .Build();
+
+            merged = Configurations.Merge(merged, taskConfig);
 
             HashSet<string> appDlls = new HashSet<string>();
             appDlls.Add(typeof(IDriver).Assembly.GetName().Name);

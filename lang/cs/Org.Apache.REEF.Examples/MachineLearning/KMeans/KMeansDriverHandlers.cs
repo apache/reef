@@ -47,10 +47,9 @@ using Org.Apache.REEF.Network.Group.Topology;
 namespace Org.Apache.REEF.Examples.MachineLearning.KMeans
 {
     public class KMeansDriverHandlers : 
-        IStartHandler, 
-        IObserver<IEvaluatorRequestor>,
         IObserver<IAllocatedEvaluator>,
-        IObserver<IActiveContext>
+        IObserver<IActiveContext>, 
+        IObserver<IDriverStarted>
     {
         private static readonly Logger _Logger = Logger.GetLogger(typeof(KMeansDriverHandlers));
         private readonly object _lockObj = new object();
@@ -66,12 +65,14 @@ namespace Org.Apache.REEF.Examples.MachineLearning.KMeans
         private readonly IConfiguration _centroidCodecConf;
         private readonly IConfiguration _controlMessageCodecConf;
         private readonly IConfiguration _processedResultsCodecConf;
-
+        private readonly IEvaluatorRequestor _evaluatorRequestor;
 
         [Inject]
-        public KMeansDriverHandlers([Parameter(typeof(NumPartitions))] int numPartitions, GroupCommDriver groupCommDriver)
+        public KMeansDriverHandlers(
+            [Parameter(typeof(NumPartitions))] int numPartitions, 
+            GroupCommDriver groupCommDriver,
+            IEvaluatorRequestor evaluatorRequestor)
         {
-            Identifier = "KMeansDriverId";
             _executionDirectory = Path.Combine(Directory.GetCurrentDirectory(), Constants.KMeansExecutionBaseDirectory, Guid.NewGuid().ToString("N").Substring(0, 4));
             ISet<string> arguments = ClrHandlerHelper.GetCommandLineArguments();
             string dataFile = arguments.Single(a => a.StartsWith("DataFile", StringComparison.Ordinal)).Split(':')[1];
@@ -84,6 +85,7 @@ namespace Org.Apache.REEF.Examples.MachineLearning.KMeans
             _totalEvaluators = numPartitions + 1;
 
             _groupCommDriver = groupCommDriver;
+            _evaluatorRequestor = evaluatorRequestor;
 
             _centroidCodecConf = CodecToStreamingCodecConfiguration<Centroids>.Conf
                 .Set(CodecConfiguration<Centroids>.Codec, GenericType<CentroidsCodec>.Class)
@@ -122,17 +124,6 @@ namespace Org.Apache.REEF.Examples.MachineLearning.KMeans
             _groupCommTaskStarter = new TaskStarter(_groupCommDriver, _totalEvaluators);
 
             CreateClassHierarchy();  
-        }
-
-        public string Identifier { get; set; }
-
-        public void OnNext(IEvaluatorRequestor evalutorRequestor)
-        {
-            int memory = 2048;
-            int core = 1;
-            EvaluatorRequest request = new EvaluatorRequest(_totalEvaluators, memory, core);
-
-            evalutorRequestor.Submit(request);
         }
 
         public void OnNext(IAllocatedEvaluator allocatedEvaluator)
@@ -195,6 +186,15 @@ namespace Org.Apache.REEF.Examples.MachineLearning.KMeans
                 _commGroup.AddTask(slaveTaskId);
             }
             _groupCommTaskStarter.QueueTask(taskConfiguration, activeContext);
+        }
+
+        public void OnNext(IDriverStarted value)
+        {
+            int memory = 2048;
+            int core = 1;
+            EvaluatorRequest request = new EvaluatorRequest(_totalEvaluators, memory, core);
+
+            _evaluatorRequestor.Submit(request);
         }
 
         public void OnError(Exception error)

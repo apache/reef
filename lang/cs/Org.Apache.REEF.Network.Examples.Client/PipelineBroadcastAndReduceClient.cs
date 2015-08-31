@@ -30,6 +30,7 @@ using Org.Apache.REEF.Driver.Bridge;
 using Org.Apache.REEF.Network.Examples.GroupCommunication;
 using Org.Apache.REEF.Network.Examples.GroupCommunication.PipelineBroadcastReduceDriverAndTasks;
 using Org.Apache.REEF.Network.Group.Config;
+using Org.Apache.REEF.Network.Naming;
 using Org.Apache.REEF.Network.NetworkService;
 using Org.Apache.REEF.Tang.Implementations.Configuration;
 using Org.Apache.REEF.Tang.Implementations.Tang;
@@ -44,15 +45,12 @@ namespace Org.Apache.REEF.Network.Examples.Client
         public void RunPipelineBroadcastAndReduce(bool runOnYarn, int numTasks, int startingPortNo, int portRange, int arraySize, int chunkSize)
         {
             IConfiguration driverConfig = TangFactory.GetTang().NewConfigurationBuilder(
-                DriverBridgeConfiguration.ConfigurationModule
-                    .Set(DriverBridgeConfiguration.OnDriverStarted, GenericType<PipelinedBroadcastReduceDriver>.Class)
-                    .Set(DriverBridgeConfiguration.OnEvaluatorAllocated,
-                        GenericType<PipelinedBroadcastReduceDriver>.Class)
-                    .Set(DriverBridgeConfiguration.OnEvaluatorRequested,
-                        GenericType<PipelinedBroadcastReduceDriver>.Class)
-                    .Set(DriverBridgeConfiguration.OnEvaluatorFailed, GenericType<PipelinedBroadcastReduceDriver>.Class)
-                    .Set(DriverBridgeConfiguration.OnContextActive, GenericType<PipelinedBroadcastReduceDriver>.Class)
-                    .Set(DriverBridgeConfiguration.CustomTraceLevel, Level.Info.ToString())
+                DriverConfiguration.ConfigurationModule
+                    .Set(DriverConfiguration.OnDriverStarted, GenericType<PipelinedBroadcastReduceDriver>.Class)
+                    .Set(DriverConfiguration.OnEvaluatorAllocated, GenericType<PipelinedBroadcastReduceDriver>.Class)
+                    .Set(DriverConfiguration.OnEvaluatorFailed, GenericType<PipelinedBroadcastReduceDriver>.Class)
+                    .Set(DriverConfiguration.OnContextActive, GenericType<PipelinedBroadcastReduceDriver>.Class)
+                    .Set(DriverConfiguration.CustomTraceLevel, Level.Info.ToString())
                     .Build())
                 .BindNamedParameter<GroupTestConfig.NumIterations, int>(
                     GenericType<GroupTestConfig.NumIterations>.Class,
@@ -83,6 +81,14 @@ namespace Org.Apache.REEF.Network.Examples.Client
                 .Build();
 
             IConfiguration merged = Configurations.Merge(driverConfig, groupCommDriverConfig);
+
+            IConfiguration taskConfig = TangFactory.GetTang().NewConfigurationBuilder()
+                .BindSetEntry<DriverBridgeConfigurationOptions.SetOfAssemblies, string>(typeof(PipelinedMasterTask).Assembly.GetName().Name)
+                .BindSetEntry<DriverBridgeConfigurationOptions.SetOfAssemblies, string>(typeof(PipelinedSlaveTask).Assembly.GetName().Name)
+                .BindSetEntry<DriverBridgeConfigurationOptions.SetOfAssemblies, string>(typeof(NameClient).Assembly.GetName().Name)
+                .Build();
+
+            merged = Configurations.Merge(merged, taskConfig);
 
             HashSet<string> appDlls = new HashSet<string>();
             appDlls.Add(typeof(IDriver).Assembly.GetName().Name);

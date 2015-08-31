@@ -17,6 +17,7 @@
  * under the License.
  */
 
+using System;
 using Org.Apache.REEF.Driver;
 using Org.Apache.REEF.Driver.Bridge;
 using Org.Apache.REEF.Tang.Annotations;
@@ -25,7 +26,7 @@ using Org.Apache.REEF.Wake.Time;
 
 namespace Org.Apache.REEF.Tests.Functional.Driver
 {
-    public class DriverTestStartHandler : IStartHandler
+    public class DriverTestStartHandler : IObserver<IDriverStarted>
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(DriverTestStartHandler));
 
@@ -37,10 +38,20 @@ namespace Org.Apache.REEF.Tests.Functional.Driver
         {
             _clock = clock;
             _httpServerPort = httpServerPort;
-            Identifier = "DriverTestStartHandler";
             LOGGER.Log(Level.Info, "Http Server port number: " + httpServerPort.PortNumber);
         }
 
-        public string Identifier { get; set; }
+        public void OnNext(IDriverStarted value)
+        {
+        }
+
+        public void OnError(Exception error)
+        {
+            throw error;
+        }
+
+        public void OnCompleted()
+        {
+        }
     }
 }
