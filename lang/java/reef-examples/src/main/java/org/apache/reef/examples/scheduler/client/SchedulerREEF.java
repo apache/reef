@@ -22,7 +22,7 @@ import org.apache.commons.cli.ParseException;
 import org.apache.reef.client.DriverConfiguration;
 import org.apache.reef.client.REEF;
 import org.apache.reef.examples.scheduler.driver.SchedulerDriver;
-import org.apache.reef.examples.scheduler.driver.SchedulerHttpHandler;
+import org.apache.reef.examples.scheduler.driver.http.SchedulerHttpHandler;
 import org.apache.reef.runtime.local.client.LocalRuntimeConfiguration;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Configurations;
