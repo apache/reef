@@ -20,6 +20,7 @@ package org.apache.reef.runtime.common.driver.evaluator;
 
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
+import org.apache.reef.driver.evaluator.FailedEvaluator;
 import org.apache.reef.driver.parameters.EvaluatorConfigurationProviders;
 import org.apache.reef.driver.restart.DriverRestartManager;
 import org.apache.reef.driver.restart.EvaluatorRestartState;
@@ -298,9 +299,14 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
           failedTaskOptional = Optional.empty();
         }
 
+        final FailedEvaluator failedEvaluator = new FailedEvaluatorImpl(exception, failedContextList,
+            failedTaskOptional, this.evaluatorId);
 
-        this.messageDispatcher.onEvaluatorFailed(new FailedEvaluatorImpl(exception, failedContextList,
-            failedTaskOptional, this.evaluatorId));
+        if (driverRestartManager.getEvaluatorRestartState(evaluatorId).isFailedOrExpired()) {
+          this.messageDispatcher.onDriverRestartEvaluatorFailed(failedEvaluator);
+        } else {
+          this.messageDispatcher.onEvaluatorFailed(failedEvaluator);
+        }
 
       } catch (final Exception e) {
         LOG.log(Level.SEVERE, "Exception while handling FailedEvaluator", e);

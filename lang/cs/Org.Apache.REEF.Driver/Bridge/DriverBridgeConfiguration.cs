@@ -180,6 +180,12 @@ namespace Org.Apache.REEF.Driver.Bridge
         [SuppressMessage("Microsoft.Security", "CA2104:Do not declare read only mutable reference types", Justification = "not applicable")]
         public static readonly OptionalImpl<IObserver<IDriverRestartCompleted>> OnDriverRestartCompleted = new OptionalImpl<IObserver<IDriverRestartCompleted>>();
 
+        ///// <summary>
+        ///// Event handler for driver restart failed evaluator event received during driver restart. Defaults to job failure if not bound.
+        ///// </summary>
+        [SuppressMessage("Microsoft.Security", "CA2104:Do not declare read only mutable reference types", Justification = "not applicable")]
+        public static readonly OptionalImpl<IObserver<IFailedEvaluator>> OnDriverRestartEvaluatorFailed = new OptionalImpl<IObserver<IFailedEvaluator>>();
+
         /// <summary>
         /// Evaluator recovery timeout in seconds for driver restart. If value is greater than 0, restart is enabled. The default value is -1.
         /// </summary>
@@ -238,6 +244,7 @@ namespace Org.Apache.REEF.Driver.Bridge
                 .BindSetEntry(GenericType<DriverBridgeConfigurationOptions.DriverRestartActiveContextHandlers>.Class, OnDriverRestartContextActive)
                 .BindSetEntry(GenericType<DriverBridgeConfigurationOptions.DriverRestartRunningTaskHandlers>.Class, OnDriverRestartTaskRunning)
                 .BindSetEntry(GenericType<DriverBridgeConfigurationOptions.DriverRestartCompletedHandlers>.Class, OnDriverRestartCompleted)
+                .BindSetEntry(GenericType<DriverBridgeConfigurationOptions.DriverRestartFailedEvaluatorHandlers>.Class, OnDriverRestartEvaluatorFailed)
                 .BindNamedParameter(GenericType<DriverBridgeConfigurationOptions.TraceLevel>.Class, CustomTraceLevel)
                 .BindNamedParameter(GenericType<DriverBridgeConfigurationOptions.DriverRestartEvaluatorRecoverySeconds>.Class, DriverRestartEvaluatorRecoverySeconds)
                 .Build();

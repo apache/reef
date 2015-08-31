@@ -220,6 +220,15 @@ namespace Org.Apache.REEF.Driver.Bridge
             }
         }
 
+        public static void Call_ClrSystemDriverRestartFailedEvaluator_OnNext(ulong handle, IFailedEvaluatorClr2Java clr2Java)
+        {
+            using (LOGGER.LogFunction("ClrSystemHandlerWrapper::Call_ClrSystemDriverRestartFailedEvaluator_OnNext"))
+            {
+                GCHandle gc = GCHandle.FromIntPtr((IntPtr)handle);
+                ClrSystemHandler<IFailedEvaluator> obj = (ClrSystemHandler<IFailedEvaluator>)gc.Target;
+                obj.OnNext(new FailedEvaluator(clr2Java));
+            }
+        }
 
         //Deprecate, remove after both Java and C# code gets checked in
         public static ulong[] Call_ClrSystemStartHandler_OnStart(

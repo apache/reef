@@ -71,6 +71,7 @@ public enum EvaluatorRestartState {
     switch(from) {
     case EXPECTED:
       switch(to) {
+      case EXPIRED:
       case REPORTED:
         return true;
       default:
