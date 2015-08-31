@@ -34,7 +34,14 @@ import java.util.Set;
 @Provided
 @Unstable
 public interface DriverRestarted {
+  /**
+   * @return The time of restart.
+   */
   StartTime getStartTime();
 
+  /**
+   * @return The set of Evaluator IDs of Evaluators that are expected
+   * to report back to the Driver after restart.
+   */
   Set<String> getExpectedEvaluatorIds();
 }
