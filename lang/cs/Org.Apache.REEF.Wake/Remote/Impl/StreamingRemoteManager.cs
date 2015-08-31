@@ -42,8 +42,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         /// <param name="localAddress">The address to listen on</param>
         /// <param name="tcpPortProvider">Tcp port provider</param>
         /// <param name="streamingCodec">Streaming codec</param>
-        [Obsolete("Use IRemoteManagerFactory.GetInstance() instead.", false)]
-        public StreamingRemoteManager(IPAddress localAddress, ITcpPortProvider tcpPortProvider, IStreamingCodec<T> streamingCodec)
+        internal StreamingRemoteManager(IPAddress localAddress, ITcpPortProvider tcpPortProvider, IStreamingCodec<T> streamingCodec)
         {
             if (localAddress == null)
             {

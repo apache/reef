@@ -41,10 +41,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
 
         public IRemoteManager<T> GetInstance<T>(IPAddress localAddress, IStreamingCodec<T> codec)
         {
-#pragma warning disable 618
-// This is the one place allowed to call this constructor. Hence, disabling the warning is OK.
             return new StreamingRemoteManager<T>(localAddress, _tcpPortProvider, codec);
-#pragma warning disable 618
         }
     }
 }

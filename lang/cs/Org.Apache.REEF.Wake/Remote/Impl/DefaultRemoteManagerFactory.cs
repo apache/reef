@@ -38,26 +38,17 @@ namespace Org.Apache.REEF.Wake.Impl
 
         public IRemoteManager<T> GetInstance<T>(IPAddress localAddress, int port, ICodec<T> codec)
         {
-#pragma warning disable 618
-            // This is the one place allowed to call this constructor. Hence, disabling the warning is OK.
             return new DefaultRemoteManager<T>(localAddress, port, codec, _tcpPortProvider);
-#pragma warning restore 618
         }
 
         public IRemoteManager<T> GetInstance<T>(IPAddress localAddress, ICodec<T> codec)
         {
-#pragma warning disable 618
-            // This is the one place allowed to call this constructor. Hence, disabling the warning is OK.
             return new DefaultRemoteManager<T>(localAddress, 0, codec, _tcpPortProvider);
-#pragma warning restore 618
         }
 
         public IRemoteManager<T> GetInstance<T>(ICodec<T> codec)
         {
-#pragma warning disable 618
-            // This is the one place allowed to call this constructor. Hence, disabling the warning is OK.
             return new DefaultRemoteManager<T>(codec);
-#pragma warning restore 618
         }
     }
 }
