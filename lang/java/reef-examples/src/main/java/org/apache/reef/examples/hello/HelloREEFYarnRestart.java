@@ -31,6 +31,9 @@ import org.apache.reef.tang.exceptions.InjectionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * The Client for running HelloREEF with DriverRestartHandler on YARN.
+ */
 public final class HelloREEFYarnRestart {
 
   private static final Logger LOG = Logger.getLogger(HelloREEFYarnRestart.class.getName());
@@ -42,6 +45,12 @@ public final class HelloREEFYarnRestart {
    */
   private static final int JOB_TIMEOUT = 100000; // 100 sec.
 
+  /**
+   * @return the configuration of the runtime
+   */
+  private static Configuration getRuntimeConfiguration() {
+    return YarnClientConfiguration.CONF.build();
+  }
 
   /**
    * @return the configuration of the HelloREEF driver.
@@ -63,17 +72,19 @@ public final class HelloREEFYarnRestart {
   }
 
   /**
-   * Start Hello REEF job. Runs method runHelloReefYarnRestart().
+   * Start HelloREEFYarnRestart job.
    *
    * @param args command line parameters.
    * @throws org.apache.reef.tang.exceptions.BindException      configuration error.
    * @throws org.apache.reef.tang.exceptions.InjectionException configuration error.
    */
   public static void main(final String[] args) throws InjectionException {
+    final Configuration runtimeConf = getRuntimeConfiguration();
+    final Configuration driverConf = getDriverConfiguration();
 
     final LauncherStatus status = DriverLauncher
-        .getLauncher(YarnClientConfiguration.CONF.build())
-        .run(getDriverConfiguration(), JOB_TIMEOUT);
+        .getLauncher(runtimeConf)
+        .run(driverConf, JOB_TIMEOUT);
     LOG.log(Level.INFO, "REEF job completed: {0}", status);
   }
 

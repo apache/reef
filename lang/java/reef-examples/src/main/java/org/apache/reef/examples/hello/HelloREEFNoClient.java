@@ -37,28 +37,49 @@ public final class HelloREEFNoClient {
 
   private static final Logger LOG = Logger.getLogger(HelloREEFNoClient.class.getName());
 
-  public static void runHelloReefWithoutClient(
-      final Configuration runtimeConf) throws InjectionException {
+  /**
+   * The upper limit on the number of Evaluators that the local resourcemanager will hand out concurrently.
+   */
+  private static final int MAX_NUMBER_OF_EVALUATORS = 2;
 
-    final REEF reef = Tang.Factory.getTang().newInjector(runtimeConf).getInstance(REEF.class);
+  /**
+   * @return the configuration of the runtime
+   */
+  private static Configuration getRuntimeConfiguration() {
+    return LocalRuntimeConfiguration.CONF
+        .set(LocalRuntimeConfiguration.MAX_NUMBER_OF_EVALUATORS, MAX_NUMBER_OF_EVALUATORS)
+        .build();
+  }
 
-    final Configuration driverConf = DriverConfiguration.CONF
+  /**
+   * @return the configuration of the HelloREEF driver.
+   */
+  private static Configuration getDriverConfiguration() {
+    return DriverConfiguration.CONF
         .set(DriverConfiguration.GLOBAL_LIBRARIES, EnvironmentUtils.getClassLocation(HelloDriver.class))
         .set(DriverConfiguration.DRIVER_IDENTIFIER, "HelloREEF")
         .set(DriverConfiguration.ON_DRIVER_STARTED, HelloDriver.StartHandler.class)
         .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, HelloDriver.EvaluatorAllocatedHandler.class)
         .build();
+  }
 
+  /**
+   * Used in the HDInsight example.
+   * @param runtimeConf the configuration of the runtime
+   * @throws InjectionException
+   */
+  public static void runHelloReefWithoutClient(final Configuration runtimeConf) throws InjectionException {
+    final REEF reef = Tang.Factory.getTang().newInjector(runtimeConf).getInstance(REEF.class);
+    final Configuration driverConf = getDriverConfiguration();
     reef.submit(driverConf);
   }
 
   public static void main(final String[] args) throws BindException, InjectionException {
+    final Configuration runtimeConf = getRuntimeConfiguration();
+    final Configuration driverConf = getDriverConfiguration();
 
-    final Configuration runtimeConfiguration = LocalRuntimeConfiguration.CONF
-        .set(LocalRuntimeConfiguration.MAX_NUMBER_OF_EVALUATORS, 2)
-        .build();
-
-    runHelloReefWithoutClient(runtimeConfiguration);
+    final REEF reef = Tang.Factory.getTang().newInjector(runtimeConf).getInstance(REEF.class);
+    reef.submit(driverConf);
     LOG.log(Level.INFO, "Job Submitted");
   }
 

@@ -47,7 +47,7 @@ public final class HelloDriver {
    * @param requestor evaluator requestor object used to create new evaluator containers.
    */
   @Inject
-  public HelloDriver(final EvaluatorRequestor requestor) {
+  private HelloDriver(final EvaluatorRequestor requestor) {
     this.requestor = requestor;
     LOG.log(Level.FINE, "Instantiated 'HelloDriver'");
   }

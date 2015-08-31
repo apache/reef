@@ -23,6 +23,7 @@ import org.apache.reef.client.DriverLauncher;
 import org.apache.reef.client.LauncherStatus;
 import org.apache.reef.runtime.mesos.client.MesosClientConfiguration;
 import org.apache.reef.tang.Configuration;
+import org.apache.reef.tang.exceptions.BindException;
 import org.apache.reef.tang.exceptions.InjectionException;
 
 import java.util.logging.Level;
@@ -31,6 +32,24 @@ import java.util.logging.Logger;
 public final class HelloREEFMesos {
   private static final Logger LOG = Logger.getLogger(HelloREEFMesos.class.getName());
 
+  /**
+   * Mesos Master IP address and port number.
+   * Change it to the master location of your cluster environment if needed
+   */
+  private static final String MASTER_IP = "localhost:5050";
+
+  /**
+   * @return the configuration of the runtime
+   */
+  private static Configuration getRuntimeConfiguration() {
+    return MesosClientConfiguration.CONF
+        .set(MesosClientConfiguration.MASTER_IP, MASTER_IP)
+        .build();
+  }
+
+  /**
+   * @return the configuration of the HelloREEF driver.
+   */
   private static Configuration getDriverConfiguration() {
     return DriverConfiguration.CONF
         .set(DriverConfiguration.GLOBAL_LIBRARIES,
@@ -42,15 +61,20 @@ public final class HelloREEFMesos {
   }
 
   /**
-   * MASTER_IP(Mesos Master IP) is set to "localhost:5050".
+   * MASTER_IP  is set to "localhost:5050".
    * You may change it to suit your cluster environment.
+   *
+   * @param args command line parameters.
+   * @throws BindException      configuration error.
+   * @throws InjectionException configuration error.
    */
-  public static void main(final String[] args) throws InjectionException {
+  public static void main(final String[] args) throws BindException, InjectionException {
+    final Configuration runtimeConf = getRuntimeConfiguration();
+    final Configuration driverConf = getDriverConfiguration();
+
     final LauncherStatus status = DriverLauncher
-        .getLauncher(MesosClientConfiguration.CONF
-            .set(MesosClientConfiguration.MASTER_IP, "localhost:5050")
-            .build())
-        .run(getDriverConfiguration());
+        .getLauncher(runtimeConf)
+        .run(driverConf);
     LOG.log(Level.INFO, "REEF job completed: {0}", status);
   }
 
