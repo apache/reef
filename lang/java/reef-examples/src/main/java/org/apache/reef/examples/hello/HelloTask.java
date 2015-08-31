@@ -28,7 +28,7 @@ import javax.inject.Inject;
 public final class HelloTask implements Task {
 
   @Inject
-  HelloTask() {
+  private HelloTask() {
   }
 
   @Override

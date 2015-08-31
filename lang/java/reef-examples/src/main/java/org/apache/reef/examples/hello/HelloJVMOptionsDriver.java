@@ -51,8 +51,8 @@ public final class HelloJVMOptionsDriver {
    * @param requestor evaluator requestor object used to create new evaluator containers.
    */
   @Inject
-  public HelloJVMOptionsDriver(final EvaluatorRequestor requestor,
-                               final JVMProcessFactory jvmProcessFactory) {
+  private HelloJVMOptionsDriver(final EvaluatorRequestor requestor,
+                                final JVMProcessFactory jvmProcessFactory) {
     this.requestor = requestor;
     this.jvmProcessFactory = jvmProcessFactory;
     LOG.log(Level.FINE, "Instantiated 'HelloDriver'");
