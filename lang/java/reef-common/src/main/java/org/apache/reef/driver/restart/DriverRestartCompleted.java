@@ -40,5 +40,5 @@ public interface DriverRestartCompleted {
    * @return True if Driver restart completion was triggered by a timeout. False if triggered due to all Evaluators
    * reporting back.
    */
-  boolean getIsTimeout();
+  boolean isTimedOut();
 }

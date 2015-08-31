@@ -25,11 +25,11 @@ import org.apache.reef.wake.time.Time;
  */
 class DriverRestartCompletedImpl implements DriverRestartCompleted {
   private final Time completedTime;
-  private final boolean isTimeout;
+  private final boolean isTimedOut;
 
-  DriverRestartCompletedImpl(final long completedTimeMillis, final boolean isTimeout) {
+  DriverRestartCompletedImpl(final long completedTimeMillis, final boolean isTimedOut) {
     this.completedTime = new Time(completedTimeMillis) { };
-    this.isTimeout = isTimeout;
+    this.isTimedOut = isTimedOut;
   }
 
   /**
@@ -44,7 +44,7 @@ class DriverRestartCompletedImpl implements DriverRestartCompleted {
    * {@inheritDoc}
    */
   @Override
-  public boolean getIsTimeout() {
-    return isTimeout;
+  public boolean isTimedOut() {
+    return isTimedOut;
   }
 }

@@ -261,14 +261,14 @@ public final class DriverRestartManager implements DriverIdlenessSource {
   /**
    * Sets the driver restart status to be completed if not yet set and notifies the restart completed event handlers.
    */
-  private synchronized void onDriverRestartCompleted(final boolean isTimeout) {
+  private synchronized void onDriverRestartCompleted(final boolean isTimedOut) {
     if (this.state != DriverRestartState.COMPLETED) {
       final Set<String> outstandingEvaluatorIds = getOutstandingEvaluatorsAndMarkExpired();
       driverRuntimeRestartManager.informAboutEvaluatorFailures(outstandingEvaluatorIds);
 
       this.state = DriverRestartState.COMPLETED;
       final DriverRestartCompleted driverRestartCompleted = new DriverRestartCompletedImpl(
-          System.currentTimeMillis(), isTimeout);
+          System.currentTimeMillis(), isTimedOut);
 
       for (final EventHandler<DriverRestartCompleted> serviceRestartCompletedHandler
           : this.serviceDriverRestartCompletedHandlers) {
