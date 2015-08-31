@@ -25,6 +25,8 @@ import org.apache.reef.driver.evaluator.EvaluatorRequest;
 import org.apache.reef.driver.evaluator.EvaluatorRequestor;
 import org.apache.reef.driver.task.CompletedTask;
 import org.apache.reef.examples.scheduler.client.SchedulerREEF;
+import org.apache.reef.examples.scheduler.driver.exceptions.NotFoundException;
+import org.apache.reef.examples.scheduler.driver.exceptions.UnsuccessfulException;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.tang.annotations.Unit;
 import org.apache.reef.wake.EventHandler;
@@ -34,6 +36,7 @@ import org.apache.reef.wake.time.event.StartTime;
 import javax.annotation.concurrent.GuardedBy;
 import javax.inject.Inject;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -171,30 +174,25 @@ public final class SchedulerDriver {
     }
   }
 
+
   /**
    * Get the list of tasks in the scheduler.
    */
-  public synchronized SchedulerResponse getList() {
+  public synchronized Map<String, List<Integer>> getList() {
     return scheduler.getList();
   }
 
   /**
    * Clear all the Tasks from the waiting queue.
    */
-  public synchronized SchedulerResponse clearList() {
+  public synchronized int clearList() {
     return scheduler.clear();
   }
 
   /**
    * Get the status of a task.
    */
-  public SchedulerResponse getTaskStatus(final List<String> args) {
-    if (args.size() != 1) {
-      return SchedulerResponse.badRequest("Usage : only one ID at a time");
-    }
-
-    final Integer taskId = Integer.valueOf(args.get(0));
-
+  public String getTaskStatus(final int taskId) throws NotFoundException {
     synchronized (SchedulerDriver.this) {
       return scheduler.getTaskStatus(taskId);
     }
@@ -204,13 +202,7 @@ public final class SchedulerDriver {
    * Cancel a Task waiting on the queue. A task cannot be canceled
    * once it is running.
    */
-  public SchedulerResponse cancelTask(final List<String> args) {
-    if (args.size() != 1) {
-      return SchedulerResponse.badRequest("Usage : only one ID at a time");
-    }
-
-    final Integer taskId = Integer.valueOf(args.get(0));
-
+  public int cancelTask(final int taskId) throws NotFoundException, UnsuccessfulException {
     synchronized (SchedulerDriver.this) {
       return scheduler.cancelTask(taskId);
     }
@@ -219,14 +211,8 @@ public final class SchedulerDriver {
   /**
    * Submit a command to schedule.
    */
-  public SchedulerResponse submitCommands(final List<String> args) {
-    if (args.size() != 1) {
-      return SchedulerResponse.badRequest("Usage : only one command at a time");
-    }
-
-    final String command = args.get(0);
+  public int submitCommand(final String command) {
     final Integer id;
-
     synchronized (SchedulerDriver.this) {
       id = scheduler.assignTaskId();
       scheduler.addTask(new TaskEntity(id, command));
@@ -237,7 +223,7 @@ public final class SchedulerDriver {
         requestEvaluator(1);
       }
     }
-    return SchedulerResponse.ok("Task ID : " + id);
+    return id;
   }
 
   /**
@@ -245,26 +231,20 @@ public final class SchedulerDriver {
    * Request more evaluators in case there are pending tasks
    * in the queue and the number of evaluators is less than the limit.
    */
-  public SchedulerResponse setMaxEvaluators(final List<String> args) {
-    if (args.size() != 1) {
-      return SchedulerResponse.badRequest("Usage : Only one value can be used");
-    }
-
-    final int nTarget = Integer.valueOf(args.get(0));
-
+  public int setMaxEvaluators(final int targetNum) throws UnsuccessfulException {
     synchronized (SchedulerDriver.this) {
-      if (nTarget < nActiveEval + nRequestedEval) {
-        return SchedulerResponse.forbidden(nActiveEval + nRequestedEval +
+      if (targetNum < nActiveEval + nRequestedEval) {
+        throw new UnsuccessfulException(nActiveEval + nRequestedEval +
             " evaluators are used now. Should be larger than that.");
       }
-      nMaxEval = nTarget;
+      nMaxEval = targetNum;
 
       if (scheduler.hasPendingTasks()) {
         final int nToRequest =
             Math.min(scheduler.getNumPendingTasks(), nMaxEval - nActiveEval) - nRequestedEval;
         requestEvaluator(nToRequest);
       }
-      return SchedulerResponse.ok("You can use evaluators up to " + nMaxEval + " evaluators.");
+      return nMaxEval;
     }
   }
 
