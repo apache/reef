@@ -64,9 +64,8 @@ namespace Org.Apache.REEF.Network.Naming
         /// </summary>
         /// <param name="remoteAddress">The ip address of the NameServer</param>
         /// <param name="remotePort">The port of the NameServer</param>
-        [Obsolete("This constructor will be made private in 0.13 version", false)]
         [Inject]
-        public NameClient(
+        private NameClient(
             [Parameter(typeof (NamingConfigurationOptions.NameServerAddress))] string remoteAddress,
             [Parameter(typeof (NamingConfigurationOptions.NameServerPort))] int remotePort)
         {
@@ -93,19 +92,6 @@ namespace Org.Apache.REEF.Network.Naming
             Initialize(remoteEndpoint);
             _disposed = false;
             _cache = cache;
-        }
-
-        /// <summary>
-        /// Constructs a NameClient to register, lookup, and unregister IPEndpoints
-        /// with the NameServer.
-        /// </summary>
-        /// <param name="remoteEndpoint">The endpoint of the NameServer</param>
-        [Obsolete("This constructor will be removed in the 0.13 version", false)]
-        public NameClient(IPEndPoint remoteEndpoint)
-        {
-            Initialize(remoteEndpoint);
-            _cache = TangFactory.GetTang().NewInjector().GetInstance<NameCache>();
-            _disposed = false;
         }
 
         /// <summary>
