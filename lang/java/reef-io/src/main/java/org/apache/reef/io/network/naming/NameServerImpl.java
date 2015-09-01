@@ -36,7 +36,6 @@ import org.apache.reef.wake.remote.address.LocalAddressProviderFactory;
 import org.apache.reef.wake.remote.impl.TransportEvent;
 import org.apache.reef.wake.remote.transport.Transport;
 import org.apache.reef.wake.remote.transport.TransportFactory;
-import org.apache.reef.wake.remote.transport.netty.MessagingTransportFactory;
 import org.apache.reef.wake.remote.transport.netty.NettyMessagingTransport;
 import org.apache.reef.webserver.AvroReefServiceInfo;
 import org.apache.reef.webserver.ReefEventStateManager;
@@ -104,24 +103,6 @@ public final class NameServerImpl implements NameServer {
   @Deprecated
   public NameServerImpl(final int port, final IdentifierFactory factory) {
     this(port, factory, LocalAddressProviderFactory.getInstance());
-  }
-
-  /**
-   * Constructs a name server.
-   *
-   * @param port                  a listening port number
-   * @param factory               an identifier factory
-   * @param reefEventStateManager the event state manager used to register name server info
-   * @param localAddressProvider  a local address provider
-   * @deprecated have an instance injected instead
-   */
-  @Deprecated
-  public NameServerImpl(
-      final int port,
-      final IdentifierFactory factory,
-      final ReefEventStateManager reefEventStateManager,
-      final LocalAddressProvider localAddressProvider) {
-    this(port, factory, reefEventStateManager, localAddressProvider, new MessagingTransportFactory());
   }
 
   /**

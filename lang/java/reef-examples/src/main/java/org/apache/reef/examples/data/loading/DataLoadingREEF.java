@@ -94,11 +94,17 @@ public final class DataLoadingREEF {
         .setNumberOfCores(1)
         .build();
 
+    final EvaluatorRequest dataRequest = EvaluatorRequest.newBuilder()
+        .setMemory(512)
+        .setNumberOfCores(1)
+        .build();
+
     final Configuration dataLoadConfiguration = new DataLoadingRequestBuilder()
         .setInputFormatClass(TextInputFormat.class)
         .setInputPath(inputDir)
         .setNumberOfDesiredSplits(NUM_SPLITS)
         .addComputeRequest(computeRequest)
+        .addDataRequest(dataRequest)
         .setDriverConfigurationModule(DriverConfiguration.CONF
             .set(DriverConfiguration.GLOBAL_LIBRARIES, EnvironmentUtils.getClassLocation(LineCounter.class))
             .set(DriverConfiguration.ON_CONTEXT_ACTIVE, LineCounter.ContextActiveHandler.class)

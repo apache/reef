@@ -115,12 +115,16 @@ public final class EvaluatorMessageDispatcher {
       final Set<EventHandler<RunningTask>> driverRestartTaskRunningHandlers,
       @Parameter(DriverRestartContextActiveHandlers.class)
       final Set<EventHandler<ActiveContext>> driverRestartActiveContextHandlers,
+      @Parameter(DriverRestartFailedEvaluatorHandlers.class)
+      final Set<EventHandler<FailedEvaluator>> driverRestartEvaluatorFailedHandlers,
 
       // Service-provided event handlers specific to a Driver restart
       @Parameter(ServiceDriverRestartTaskRunningHandlers.class)
       final Set<EventHandler<RunningTask>> serviceDriverRestartTaskRunningHandlers,
       @Parameter(ServiceDriverRestartContextActiveHandlers.class)
       final Set<EventHandler<ActiveContext>> serviceDriverRestartActiveContextHandlers,
+      @Parameter(ServiceDriverRestartFailedEvaluatorHandlers.class)
+      final Set<EventHandler<FailedEvaluator>> serviceDriverRestartFailedEvaluatorHandlers,
 
       @Parameter(EvaluatorDispatcherThreads.class) final int numberOfThreads,
       @Parameter(EvaluatorManager.EvaluatorIdentifier.class) final String evaluatorIdentifier,
@@ -171,9 +175,19 @@ public final class EvaluatorMessageDispatcher {
     this.driverRestartApplicationDispatcher.register(RunningTask.class, driverRestartTaskRunningHandlers);
     this.driverRestartApplicationDispatcher.register(ActiveContext.class, driverRestartActiveContextHandlers);
 
+    final Set<EventHandler<FailedEvaluator>> driverRestartEvaluatorFailedCallbackHandlers = new HashSet<>();
+    for (final EventHandler<FailedEvaluator> evaluatorFailedHandler : driverRestartEvaluatorFailedHandlers) {
+      driverRestartEvaluatorFailedCallbackHandlers.add(
+          idlenessCallbackEventHandlerFactory.createIdlenessCallbackWrapperHandler(evaluatorFailedHandler));
+    }
+
+    this.driverRestartApplicationDispatcher.register(
+        FailedEvaluator.class, driverRestartEvaluatorFailedCallbackHandlers);
+
     // Service event handlers specific to a Driver restart
     this.driverRestartServiceDispatcher.register(RunningTask.class, serviceDriverRestartTaskRunningHandlers);
     this.driverRestartServiceDispatcher.register(ActiveContext.class, serviceDriverRestartActiveContextHandlers);
+    this.driverRestartServiceDispatcher.register(FailedEvaluator.class, serviceDriverRestartFailedEvaluatorHandlers);
 
     final Set<EventHandler<CompletedEvaluator>> evaluatorCompletedCallbackHandlers = new HashSet<>();
     for (final EventHandler<CompletedEvaluator> evaluatorCompletedHandler : evaluatorCompletedHandlers) {
@@ -248,6 +262,10 @@ public final class EvaluatorMessageDispatcher {
     this.dispatchForRestartedDriver(ActiveContext.class, activeContext);
   }
 
+  public void onDriverRestartEvaluatorFailed(final FailedEvaluator failedEvaluator) {
+    this.dispatchForRestartedDriver(FailedEvaluator.class, failedEvaluator);
+  }
+
   boolean isEmpty() {
     return this.applicationDispatcher.isEmpty();
   }
@@ -258,7 +276,7 @@ public final class EvaluatorMessageDispatcher {
   }
 
   private <T, U extends T> void dispatchForRestartedDriver(final Class<T> type, final U message) {
-    this.driverRestartApplicationDispatcher.onNext(type, message);
     this.driverRestartServiceDispatcher.onNext(type, message);
+    this.driverRestartApplicationDispatcher.onNext(type, message);
   }
 }

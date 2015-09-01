@@ -47,7 +47,7 @@ namespace Org.Apache.REEF.Driver
         /// <summary>
         /// The number of handlers total. Tightly coupled with Java.
         /// </summary>
-        public const int HandlersNumber = 17;
+        public const int HandlersNumber = 18;
 
         /// <summary>
         /// The name for EvaluatorRequestorHandler. Tightly coupled with Java.
@@ -134,6 +134,11 @@ namespace Org.Apache.REEF.Driver
         /// </summary>
         public const string DriverRestartCompletedHandler = "DriverRestartCompleted";
 
+        /// <summary>
+        /// The name for DriverRestartFailedEvaluatorHandler. Tightly coupled with Java
+        /// </summary>
+        public const string DriverRestartFailedEvaluatorHandler = "DriverRestartFailedEvaluator";
+
         [Obsolete(message:"Use REEFFileNames instead.")]
         public const string DriverBridgeConfiguration = Common.Constants.ClrBridgeRuntimeConfiguration;
 
@@ -199,7 +204,8 @@ namespace Org.Apache.REEF.Driver
                         { ContextMessageHandler, 13 },
                         { DriverRestartActiveContextHandler, 14 },
                         { DriverRestartRunningTaskHandler, 15 },
-                        { DriverRestartCompletedHandler, 16 }
+                        { DriverRestartCompletedHandler, 16 },
+                        { DriverRestartFailedEvaluatorHandler, 17 }
                     };
             }
         }

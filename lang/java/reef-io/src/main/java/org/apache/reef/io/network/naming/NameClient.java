@@ -24,7 +24,6 @@ import org.apache.reef.io.network.naming.serialization.NamingLookupResponse;
 import org.apache.reef.io.network.naming.serialization.NamingMessage;
 import org.apache.reef.io.network.naming.serialization.NamingRegisterResponse;
 import org.apache.reef.tang.annotations.Parameter;
-import org.apache.reef.util.cache.Cache;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.Identifier;
 import org.apache.reef.wake.IdentifierFactory;
@@ -34,7 +33,6 @@ import org.apache.reef.wake.remote.address.LocalAddressProvider;
 import org.apache.reef.wake.remote.impl.TransportEvent;
 import org.apache.reef.wake.remote.transport.Transport;
 import org.apache.reef.wake.remote.transport.TransportFactory;
-import org.apache.reef.wake.remote.transport.netty.MessagingTransportFactory;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -54,70 +52,6 @@ public final class NameClient implements NameResolver {
   private NameRegistryClient registryClient;
   private Transport transport;
 
-  /**
-   * Constructs a naming client.
-   *
-   * @param serverAddr a server address
-   * @param serverPort a server port number
-   * @param factory    an identifier factory
-   * @param cache      a cache
-   */
-  @Deprecated
-  public NameClient(final String serverAddr,
-                    final int serverPort,
-                    final IdentifierFactory factory,
-                    final int retryCount,
-                    final int retryTimeout,
-                    final Cache<Identifier, InetSocketAddress> cache,
-                    final LocalAddressProvider localAddressProvider) {
-    this(serverAddr, serverPort, 10000, factory, retryCount, retryTimeout, cache, localAddressProvider);
-  }
-
-  /**
-   * Constructs a naming client.
-   *
-   * @param serverAddr a server address
-   * @param serverPort a server port number
-   * @param timeout    timeout in ms
-   * @param factory    an identifier factory
-   * @param cache      a cache
-   */
-  @Deprecated
-  public NameClient(final String serverAddr,
-                    final int serverPort,
-                    final long timeout,
-                    final IdentifierFactory factory,
-                    final int retryCount,
-                    final int retryTimeout,
-                    final Cache<Identifier, InetSocketAddress> cache,
-                    final LocalAddressProvider localAddressProvider) {
-    this(serverAddr, serverPort, timeout, factory, retryCount, retryTimeout,
-        cache, localAddressProvider, new MessagingTransportFactory());
-  }
-
-  /**
-   * Constructs a naming client.
-   *
-   * @param serverAddr a server address
-   * @param serverPort a server port number
-   * @param timeout    timeout in ms
-   * @param factory    an identifier factory
-   * @param cache      a cache
-   * @param tpFactory  transport factory
-   */
-  @Deprecated
-  public NameClient(final String serverAddr,
-                    final int serverPort,
-                    final long timeout,
-                    final IdentifierFactory factory,
-                    final int retryCount,
-                    final int retryTimeout,
-                    final Cache<Identifier, InetSocketAddress> cache,
-                    final LocalAddressProvider localAddressProvider,
-                    final TransportFactory tpFactory) {
-    this(serverAddr, serverPort, timeout, factory, retryCount, retryTimeout, localAddressProvider, tpFactory);
-  }
-
     /**
      * Constructs a naming client.
      *
@@ -129,11 +63,9 @@ public final class NameClient implements NameResolver {
      * @param retryTimeout retry timeout
      * @param localAddressProvider a local address provider
      * @param tpFactory transport factory
-     * @deprecated in 0.12. Use Tang to obtain an instance of this instead.
      */
-  @Deprecated
   @Inject
-  public NameClient(
+  private NameClient(
       @Parameter(NameResolverNameServerAddr.class) final String serverAddr,
       @Parameter(NameResolverNameServerPort.class) final int serverPort,
       @Parameter(NameResolverCacheTimeout.class) final long timeout,

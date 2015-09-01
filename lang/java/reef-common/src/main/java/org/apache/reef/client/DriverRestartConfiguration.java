@@ -23,6 +23,7 @@ import org.apache.reef.annotations.Unstable;
 import org.apache.reef.annotations.audience.ClientSide;
 import org.apache.reef.annotations.audience.Public;
 import org.apache.reef.driver.context.ActiveContext;
+import org.apache.reef.driver.evaluator.FailedEvaluator;
 import org.apache.reef.driver.parameters.*;
 import org.apache.reef.driver.restart.DriverRestarted;
 import org.apache.reef.driver.task.RunningTask;
@@ -64,6 +65,12 @@ public final class DriverRestartConfiguration extends ConfigurationModuleBuilder
       new OptionalImpl<>();
 
   /**
+   * Event handler for the event of driver restart completion, default to logging if not bound.
+   */
+  public static final OptionalImpl<EventHandler<FailedEvaluator>> ON_DRIVER_RESTART_EVALUATOR_FAILED =
+      new OptionalImpl<>();
+
+  /**
    * The amount of time in seconds the driver waits for evaluators to report back on restart.
    * Defaults to 3 minutes. If the value is set to Integer.MAX_VALUE, the driver will wait forever.
    */
@@ -83,6 +90,7 @@ public final class DriverRestartConfiguration extends ConfigurationModuleBuilder
       .bindSetEntry(DriverRestartTaskRunningHandlers.class, ON_DRIVER_RESTART_TASK_RUNNING)
       .bindSetEntry(DriverRestartContextActiveHandlers.class, ON_DRIVER_RESTART_CONTEXT_ACTIVE)
       .bindSetEntry(DriverRestartCompletedHandlers.class, ON_DRIVER_RESTART_COMPLETED)
+      .bindSetEntry(DriverRestartFailedEvaluatorHandlers.class, ON_DRIVER_RESTART_EVALUATOR_FAILED)
       .build();
 
   private DriverRestartConfiguration(){

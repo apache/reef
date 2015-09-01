@@ -39,6 +39,7 @@ public final class NativeInterop {
   public static final String DRIVER_RESTART_ACTIVE_CONTEXT_KEY = "DriverRestartActiveContext";
   public static final String DRIVER_RESTART_RUNNING_TASK_KEY = "DriverRestartRunningTask";
   public static final String DRIVER_RESTART_COMPLETED_KEY = "DriverRestartCompleted";
+  public static final String DRIVER_RESTART_FAILED_EVALUATOR_KEY = "DriverRestartFailedEvaluator";
   public static final HashMap<String, Integer> HANDLERS = new HashMap<String, Integer>() {
     {
       put(ALLOCATED_EVALUATOR_KEY, 1);
@@ -57,10 +58,11 @@ public final class NativeInterop {
       put(DRIVER_RESTART_ACTIVE_CONTEXT_KEY, 14);
       put(DRIVER_RESTART_RUNNING_TASK_KEY, 15);
       put(DRIVER_RESTART_COMPLETED_KEY, 16);
+      put(DRIVER_RESTART_FAILED_EVALUATOR_KEY, 17);
     }
   };
 
-  public static final int N_HANDLERS = 17;
+  public static final int N_HANDLERS = 18;
 
   public static native void loadClrAssembly(final String filePath);
 
@@ -163,6 +165,12 @@ public final class NativeInterop {
 
   public static native void clrSystemDriverRestartCompletedHandlerOnNext(
       final long handle
+  );
+
+  public static native void clrSystemDriverRestartFailedEvaluatorHandlerOnNext(
+      final long handle,
+      final FailedEvaluatorBridge failedEvaluatorBridge,
+      final InteropLogger interopLogger
   );
 
   /**

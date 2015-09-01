@@ -57,6 +57,11 @@ namespace Org.Apache.REEF.Driver.Bridge
         {
         }
 
+        [NamedParameter(documentation: "Called when an evaluator has failed in the Driver Restart process.", defaultClasses: new[] { typeof(DefaultEvaluatorFailureHandler) })]
+        public class DriverRestartFailedEvaluatorHandlers : Name<ISet<IObserver<IFailedEvaluator>>>
+        {
+        }
+
         [NamedParameter(documentation: "Called when evaluator is requested.")] 
         public class EvaluatorRequestHandlers : Name<ISet<IObserver<IEvaluatorRequestor>>>
         {

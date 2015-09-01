@@ -37,10 +37,8 @@ import org.apache.reef.wake.impl.DefaultThreadFactory;
 import org.apache.reef.wake.remote.Encoder;
 import org.apache.reef.wake.remote.RemoteConfiguration;
 import org.apache.reef.wake.remote.address.LocalAddressProvider;
-import org.apache.reef.wake.remote.address.LocalAddressProviderFactory;
 import org.apache.reef.wake.remote.exception.RemoteRuntimeException;
 import org.apache.reef.wake.remote.impl.TransportEvent;
-import org.apache.reef.wake.remote.ports.RangeTcpPortProvider;
 import org.apache.reef.wake.remote.ports.TcpPortProvider;
 import org.apache.reef.wake.remote.transport.Link;
 import org.apache.reef.wake.remote.transport.LinkListener;
@@ -98,32 +96,6 @@ public class NettyMessagingTransport implements Transport {
    */
   public static final String UNKNOWN_HOST_NAME = "##UNKNOWN##";
 
-
-  /**
-   * Constructs a messaging transport.
-   *
-   * @param hostAddress   the server host address
-   * @param port          the server listening port; when it is 0, randomly assign a port number
-   * @param clientStage   the client-side stage that handles transport events
-   * @param serverStage   the server-side stage that handles transport events
-   * @param numberOfTries the number of tries of connection
-   * @param retryTimeout  the timeout of reconnection
-   * @param tcpPortProvider  gives an iterator that produces random tcp ports in a range
-   * @deprecated in 0.12 use the constructor that takes a LocalAddressProvider instead.
-   */
-  @Deprecated
-  public NettyMessagingTransport(
-      final String hostAddress,
-      final int port,
-      final EStage<TransportEvent> clientStage,
-      final EStage<TransportEvent> serverStage,
-      final int numberOfTries,
-      final int retryTimeout,
-      final TcpPortProvider tcpPortProvider) {
-
-    this(hostAddress, port, clientStage, serverStage, numberOfTries,
-        retryTimeout, tcpPortProvider, LocalAddressProviderFactory.getInstance());
-  }
   /**
    * Constructs a messaging transport.
    *
@@ -223,27 +195,6 @@ public class NettyMessagingTransport implements Transport {
     this.localAddress = new InetSocketAddress(host, this.serverPort);
 
     LOG.log(Level.FINE, "Starting netty transport socket address: {0}", this.localAddress);
-  }
-
-  /**
-   * Constructs a messaging transport.
-   *
-   * @param hostAddress   the server host address
-   * @param port          the server listening port; when it is 0, randomly assign a port number
-   * @param clientStage   the client-side stage that handles transport events
-   * @param serverStage   the server-side stage that handles transport events
-   * @param numberOfTries the number of tries of connection
-   * @param retryTimeout  the timeout of reconnection
-   * @deprecated in 0.11 use the constructor that takes a TcpProvider and LocalAddressProvider instead.
-   */
-  @Deprecated
-  public NettyMessagingTransport(final String hostAddress, final int port,
-                                 final EStage<TransportEvent> clientStage,
-                                 final EStage<TransportEvent> serverStage,
-                                 final int numberOfTries,
-                                 final int retryTimeout) {
-    this(hostAddress, port, clientStage, serverStage, numberOfTries, retryTimeout,
-            RangeTcpPortProvider.Default);
   }
 
   /**

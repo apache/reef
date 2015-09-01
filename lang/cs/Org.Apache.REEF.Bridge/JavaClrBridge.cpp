@@ -510,3 +510,21 @@ JNIEXPORT void JNICALL Java_org_apache_reef_javabridge_NativeInterop_clrSystemDr
 		ManagedLog::LOGGER->LogError(errorMessage, ex);
 	}
 }
+
+/*
+* Class:     org_apache_reef_javabridge_NativeInterop
+* Method:    clrSystemDriverRestartFailedEvaluatorHandlerOnNext
+* Signature: (JLorg/apache/reef/javabridge/FailedEvaluatorBridge;Lorg/apache/reef/javabridge/InteropLogger;)V
+*/
+JNIEXPORT void JNICALL Java_org_apache_reef_javabridge_NativeInterop_clrSystemDriverRestartFailedEvaluatorHandlerOnNext
+(JNIEnv * env, jclass cls, jlong handler, jobject jfailedEvaluator, jobject jlogger) {
+	ManagedLog::LOGGER->Log("+Java_org_apache_reef_javabridge_NativeInterop_clrSystemDriverRestartFailedEvaluatorHandlerOnNext");
+	FailedEvaluatorClr2Java^ failedEvaluatorBridge = gcnew FailedEvaluatorClr2Java(env, jfailedEvaluator);
+	try {
+		ClrSystemHandlerWrapper::Call_ClrSystemDriverRestartFailedEvaluator_OnNext(handler, failedEvaluatorBridge);
+	}
+	catch (System::Exception^ ex) {
+		String^ errorMessage = "Exception in Call_ClrSystemDriverRestartFailedEvaluator_OnNext";
+		ManagedLog::LOGGER->LogError(errorMessage, ex);
+	}
+}
