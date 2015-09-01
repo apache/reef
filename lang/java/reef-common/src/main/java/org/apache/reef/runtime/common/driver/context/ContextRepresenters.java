@@ -23,6 +23,8 @@ import net.jcip.annotations.ThreadSafe;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.driver.context.FailedContext;
+import org.apache.reef.driver.restart.DriverRestartManager;
+import org.apache.reef.driver.restart.EvaluatorRestartState;
 import org.apache.reef.proto.ReefServiceProtos;
 import org.apache.reef.runtime.common.driver.evaluator.EvaluatorMessageDispatcher;
 import org.apache.reef.util.Optional;
@@ -50,11 +52,15 @@ public final class ContextRepresenters {
   @GuardedBy("this")
   private final Set<String> contextIds = new HashSet<>();
 
+  private final DriverRestartManager driverRestartManager;
+
   @Inject
   private ContextRepresenters(final EvaluatorMessageDispatcher messageDispatcher,
-                              final ContextFactory contextFactory) {
+                              final ContextFactory contextFactory,
+                              final DriverRestartManager driverRestartManager) {
     this.messageDispatcher = messageDispatcher;
     this.contextFactory = contextFactory;
+    this.driverRestartManager = driverRestartManager;
   }
 
   /**
@@ -211,6 +217,13 @@ public final class ContextRepresenters {
     final EvaluatorContext context = contextFactory.newContext(contextID, parentID);
     this.addContext(context);
     if (notifyClientOnNewActiveContext) {
+      if (driverRestartManager.getEvaluatorRestartState(context.getEvaluatorId())
+          == EvaluatorRestartState.REREGISTERED) {
+        // if restart, advance restart state and all the restart context active handlers.
+        driverRestartManager.setEvaluatorProcessed(context.getEvaluatorId());
+        this.messageDispatcher.onDriverRestartContextActive(context);
+      }
+
       this.messageDispatcher.onContextActive(context);
     }
   }
