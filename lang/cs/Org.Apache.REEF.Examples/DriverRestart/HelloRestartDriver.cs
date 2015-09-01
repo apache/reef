@@ -18,6 +18,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 using Org.Apache.REEF.Common.Tasks;
@@ -37,19 +38,21 @@ namespace Org.Apache.REEF.Examples.DriverRestart
     /// The Driver for HelloRestartREEF.
     /// This driver is meant to run on YARN on HDInsight, with the ability to keep containers
     /// across application attempts.
-    /// It requests 5 evaluators and runs a running task on each of the evaluators.
+    /// It requests 1 evaluators and runs a running task on each of the evaluators.
     /// Once all tasks are running, the driver kills itself and expects the RM to restart it.
-    /// On restart, it expects all 5 of the running tasks to report back to it.
+    /// On restart, it expects all of the running task(s) to report back to it.
     /// </summary>
-    public sealed class HelloRestartDriver : IObserver<IDriverRestartCompleted>, IObserver<IAllocatedEvaluator>, IObserver<IDriverStarted>, 
-        IObserver<IDriverRestarted>, IObserver<IActiveContext>, IObserver<IRunningTask>, IObserver<ICompletedTask>, IObserver<IFailedTask>
+    internal sealed class HelloRestartDriver : IObserver<IDriverRestartCompleted>, IObserver<IAllocatedEvaluator>, IObserver<IDriverStarted>, 
+        IObserver<IDriverRestarted>, IObserver<IActiveContext>, IObserver<IRunningTask>, IObserver<ICompletedTask>, IObserver<IFailedTask>,
+        IObserver<IFailedEvaluator>
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(HelloRestartDriver));
         private const int NumberOfTasksToSubmit = 1;
 
         private readonly IEvaluatorRequestor _evaluatorRequestor;
+        private readonly ISet<string> _receivedEvaluators = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         private readonly object _lockObj;
-
+        
         private int _runningTaskCount;
         private int _finishedTaskCount;
         private bool _restarted;
@@ -69,11 +72,17 @@ namespace Org.Apache.REEF.Examples.DriverRestart
         /// </summary>
         public void OnNext(IAllocatedEvaluator allocatedEvaluator)
         {
+            lock (_lockObj)
+            {
+                _receivedEvaluators.Add(allocatedEvaluator.Id);
+            }
+
             var taskConfiguration = TaskConfiguration.ConfigurationModule
                 .Set(TaskConfiguration.Identifier, "HelloRestartTask")
                 .Set(TaskConfiguration.Task, GenericType<HelloRestartTask>.Class)
                 .Set(TaskConfiguration.OnMessage, GenericType<HelloRestartTask>.Class)
                 .Build();
+
             allocatedEvaluator.SubmitTask(taskConfiguration);
         }
 
@@ -143,6 +152,19 @@ namespace Org.Apache.REEF.Examples.DriverRestart
         public void OnNext(IFailedTask value)
         {
             IncrementFinishedTask(value.GetActiveContext());
+        }
+
+        public void OnNext(IFailedEvaluator value)
+        {
+            bool restart;
+            lock (_lockObj)
+            {
+                restart = !this._receivedEvaluators.Contains(value.Id);
+            }
+
+            var append = restart ? "Restarted recovered " : string.Empty;
+
+            Logger.Log(Level.Info, append + "Evaluator [" + value + "] has failed!");
         }
 
         public void OnError(Exception error)
