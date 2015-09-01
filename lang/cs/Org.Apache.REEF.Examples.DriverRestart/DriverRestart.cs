@@ -17,6 +17,15 @@
  * under the License.
  */
 
+using System;
+using Org.Apache.REEF.Client.API;
+using Org.Apache.REEF.Client.YARN;
+using Org.Apache.REEF.Common.Evaluator;
+using Org.Apache.REEF.Driver;
+using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Tang.Implementations.Tang;
+using Org.Apache.REEF.Tang.Util;
+
 namespace Org.Apache.REEF.Examples.DriverRestart
 {
     /// <summary>
@@ -26,9 +35,52 @@ namespace Org.Apache.REEF.Examples.DriverRestart
     /// </summary>
     public sealed class DriverRestart
     {
+        private readonly IREEFClient _reefClient;
+        private readonly JobSubmissionBuilderFactory _jobSubmissionBuilderFactory;
+
+        [Inject]
+        private DriverRestart(IREEFClient reefClient, JobSubmissionBuilderFactory jobSubmissionBuilderFactory)
+        {
+            _reefClient = reefClient;
+            _jobSubmissionBuilderFactory = jobSubmissionBuilderFactory;
+        }
+
+        /// <summary>
+        /// Runs DriverRestart using the IREEFClient passed into the constructor.
+        /// </summary>
+        private void Run()
+        {
+            // The driver configuration contains all the needed bindings.
+            var driverConfiguration = DriverConfiguration.ConfigurationModule
+                .Set(DriverConfiguration.OnDriverStarted, GenericType<HelloRestartDriver>.Class)
+                .Set(DriverConfiguration.OnDriverRestarted, GenericType<HelloRestartDriver>.Class)
+                .Set(DriverConfiguration.OnContextActive, GenericType<HelloRestartDriver>.Class)
+                .Set(DriverConfiguration.OnTaskRunning, GenericType<HelloRestartDriver>.Class)
+                .Set(DriverConfiguration.OnTaskFailed, GenericType<HelloRestartDriver>.Class)
+                .Set(DriverConfiguration.OnTaskCompleted, GenericType<HelloRestartDriver>.Class)
+                .Set(DriverConfiguration.OnDriverRestartCompleted, GenericType<HelloRestartDriver>.Class)
+                .Set(DriverConfiguration.OnDriverRestartContextActive, GenericType<HelloRestartDriver>.Class)
+                .Set(DriverConfiguration.OnDriverRestartTaskRunning, GenericType<HelloRestartDriver>.Class)
+                .Set(DriverConfiguration.OnEvaluatorAllocated, GenericType<HelloRestartDriver>.Class)
+                .Set(DriverConfiguration.OnEvaluatorFailed, GenericType<HelloRestartDriver>.Class)
+                .Set(DriverConfiguration.OnDriverReconnect, GenericType<DefaultYarnClusterHttpDriverConnection>.Class)
+                .Set(DriverConfiguration.DriverRestartEvaluatorRecoverySeconds, (5 * 60).ToString())
+                .Set(DriverConfiguration.MaxApplicationSubmissions, 2.ToString())
+                .Build();
+
+            // The JobSubmission contains the Driver configuration as well as the files needed on the Driver.
+            var restartJobSubmission = _jobSubmissionBuilderFactory.GetJobSubmissionBuilder()
+                .AddDriverConfiguration(driverConfiguration)
+                .AddGlobalAssemblyForType(typeof(HelloRestartDriver))
+                .SetJobIdentifier("DriverRestart")
+                .Build();
+
+            _reefClient.Submit(restartJobSubmission);
+        }
+
         public static void Main(string[] args)
         {
-            // TODO[REEF-581]: Fill in method.
+            TangFactory.GetTang().NewInjector(YARNClientConfiguration.ConfigurationModule.Build()).GetInstance<DriverRestart>().Run();
         }
     }
 }
