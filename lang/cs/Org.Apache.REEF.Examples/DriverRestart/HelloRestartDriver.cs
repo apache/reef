@@ -38,11 +38,11 @@ namespace Org.Apache.REEF.Examples.DriverRestart
     /// The Driver for HelloRestartREEF.
     /// This driver is meant to run on YARN on HDInsight, with the ability to keep containers
     /// across application attempts.
-    /// It requests 5 evaluators and runs a running task on each of the evaluators.
+    /// It requests 1 evaluators and runs a running task on each of the evaluators.
     /// Once all tasks are running, the driver kills itself and expects the RM to restart it.
-    /// On restart, it expects all 5 of the running tasks to report back to it.
+    /// On restart, it expects all of the running task(s) to report back to it.
     /// </summary>
-    public sealed class HelloRestartDriver : IObserver<IDriverRestartCompleted>, IObserver<IAllocatedEvaluator>, IObserver<IDriverStarted>, 
+    internal sealed class HelloRestartDriver : IObserver<IDriverRestartCompleted>, IObserver<IAllocatedEvaluator>, IObserver<IDriverStarted>, 
         IObserver<IDriverRestarted>, IObserver<IActiveContext>, IObserver<IRunningTask>, IObserver<ICompletedTask>, IObserver<IFailedTask>,
         IObserver<IFailedEvaluator>
     {
