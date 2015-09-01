@@ -124,6 +124,14 @@ namespace Org.Apache.REEF.IO.FileSystem.Hadoop
                 .Select(x => new Uri(x[x.Length - 1]));
         }
 
+        /// <summary>
+        /// Tells that the FileSystem is distributed
+        /// </summary>
+        public bool IsFileSystemLocal
+        {
+            get { return false; }
+        }
+
         private string GetUriPrefix()
         {
             return _commandRunner.Run("getconf -confKey fs.default.name").StdOut.First();
