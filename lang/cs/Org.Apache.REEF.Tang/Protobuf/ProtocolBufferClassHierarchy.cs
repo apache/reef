@@ -19,6 +19,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using Org.Apache.REEF.Tang.Exceptions;
@@ -36,6 +37,8 @@ namespace Org.Apache.REEF.Tang.Protobuf
 
         private readonly IPackageNode rootNode;
         private readonly IDictionary<string, INode> lookupTable = new Dictionary<string, INode>();
+        private readonly IDictionary<string, IDictionary<string, string>> _aliasLookupTable = new Dictionary<string, IDictionary<string, string>>();
+
 
         public static void Serialize(string fileName, IClassHierarchy classHierarchy)
         {
@@ -100,7 +103,7 @@ namespace Org.Apache.REEF.Tang.Protobuf
                 INamedParameterNode np = (INamedParameterNode)n;
                 return NewNamedParameterNode(np.GetName(), np.GetFullName(),
                     np.GetSimpleArgName(), np.GetFullArgName(), np.IsSet(), np.IsList(), np.GetDocumentation(),
-                    np.GetShortName(), np.GetDefaultInstanceAsStrings(), children);
+                    np.GetShortName(), np.GetDefaultInstanceAsStrings(), children, np.GetAlias(), np.GetAliasLanguage());
             }
             if (n is IPackageNode)
             {
@@ -184,7 +187,8 @@ namespace Org.Apache.REEF.Tang.Protobuf
             bool isSet, bool isList, string documentation, // can be null
             string shortName, // can be null
             string[] instanceDefault, // can be null
-            IList<Org.Apache.REEF.Tang.Protobuf.Node> children)
+            IList<Org.Apache.REEF.Tang.Protobuf.Node> children,
+            string alias, string aliasLanguage)
         {
             Org.Apache.REEF.Tang.Protobuf.NamedParameterNode namedParameterNode = new Org.Apache.REEF.Tang.Protobuf.NamedParameterNode();
             namedParameterNode.simple_arg_class_name = simpleArgClassName;
@@ -200,6 +204,16 @@ namespace Org.Apache.REEF.Tang.Protobuf
             if (shortName != null)
             {
                 namedParameterNode.short_name = shortName;
+            }
+
+            if (alias != null)
+            {
+                namedParameterNode.alias_name = alias;
+            }
+
+            if (aliasLanguage != null)
+            {
+                namedParameterNode.alias_language = aliasLanguage;
             }
 
             foreach (var id in instanceDefault)
@@ -280,7 +294,34 @@ namespace Org.Apache.REEF.Tang.Protobuf
             foreach (INode child in n.GetChildren())
             {
                 lookupTable.Add(child.GetFullName(), child);
+                if (child is INamedParameterNode)
+                {
+                    AddAlias((INamedParameterNode)child);
+                }
                 BuildHashTable(child);
+            }
+        }
+
+        private void AddAlias(INamedParameterNode np)
+        {
+            if (np.GetAlias() != null && !np.GetAlias().Equals(""))
+            {
+                IDictionary<string, string> mapping = null;
+                _aliasLookupTable.TryGetValue(np.GetAliasLanguage(), out mapping);
+                if (mapping == null)
+                {
+                    mapping = new Dictionary<string, string>();
+                    _aliasLookupTable.Add(np.GetAliasLanguage(), mapping);
+                }
+                try
+                {
+                    mapping.Add(np.GetAlias(), np.GetFullName());
+                }
+                catch (Exception)
+                {
+                    var e = new ApplicationException(string.Format(CultureInfo.CurrentCulture, "Duplicated alias {0} on named parameter {1}.", np.GetAlias(), np.GetFullName()));
+                    Utilities.Diagnostics.Exceptions.Throw(e, LOGGER);
+                }
             }
         }
 
@@ -294,10 +335,21 @@ namespace Org.Apache.REEF.Tang.Protobuf
             else if (n.named_parameter_node != null)
             {
                 Org.Apache.REEF.Tang.Protobuf.NamedParameterNode np = n.named_parameter_node;
-                parsed = new NamedParameterNodeImpl(parent, n.name,
-                    n.full_name, np.full_arg_class_name, np.simple_arg_class_name,
-                    np.is_set, np.is_list, np.documentation, np.short_name,
-                    np.instance_default.ToArray());
+
+                if (np.alias_name != null && np.alias_language != null)
+                {
+                    parsed = new NamedParameterNodeImpl(parent, n.name,
+                        n.full_name, np.full_arg_class_name, np.simple_arg_class_name,
+                        np.is_set, np.is_list, np.documentation, np.short_name,
+                        np.instance_default.ToArray(), np.alias_name, np.alias_language);
+                }
+                else
+                {
+                    parsed = new NamedParameterNodeImpl(parent, n.name,
+                       n.full_name, np.full_arg_class_name, np.simple_arg_class_name,
+                       np.is_set, np.is_list, np.documentation, np.short_name,
+                       np.instance_default.ToArray());
+                }
             }
             else if (n.class_node != null)
             {
@@ -407,6 +459,40 @@ namespace Org.Apache.REEF.Tang.Protobuf
             {
                 var ex = new NameResolutionException(fullName, "Cannot resolve the name from the class hierarchy during deserialization: " + fullName);
                 Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(ex, LOGGER);
+            }
+            return ret;
+        }
+
+        /// <summary>
+        /// This method get INode from deSerialized class hierarchy by fullName. 
+        /// If the name is not found, it will found alias for aliasLanguage. If alias is found,
+        /// it will use the alias to do look up again. 
+        /// </summary>
+        /// <param name="fullName"></param>
+        /// <param name="aliasLanguage"></param>
+        /// <returns></returns>
+        public INode GetNode(string fullName, string aliasLanguage)
+        {
+            INode ret = null;
+            lookupTable.TryGetValue(fullName, out ret);
+            if (ret == null)
+            {
+                IDictionary<string, string> mapping = null;
+                string assemblyName = null;
+                _aliasLookupTable.TryGetValue(aliasLanguage, out mapping);
+                if (mapping != null)
+                {
+                    mapping.TryGetValue(fullName, out assemblyName);
+                    if (assemblyName != null)
+                    {
+                        lookupTable.TryGetValue(assemblyName, out ret);
+                    }
+                }
+                if (mapping == null || assemblyName == null || ret == null)
+                {
+                    var ex = new NameResolutionException(fullName, "Cannot resolve the name from the class hierarchy during de-serialization: " + fullName);
+                    Utilities.Diagnostics.Exceptions.Throw(ex, LOGGER);
+                }
             }
             return ret;
         }

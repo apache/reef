@@ -19,7 +19,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Runtime.Remoting.Messaging;
 using Org.Apache.REEF.Tang.Exceptions;
 using Org.Apache.REEF.Tang.Implementations.ClassHierarchy.AvroDataContract;
 using Org.Apache.REEF.Tang.Interface;
@@ -37,6 +39,7 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
 
         private readonly IPackageNode _rootNode;
         private readonly IDictionary<string, INode> _lookupTable = new Dictionary<string, INode>();
+        private readonly IDictionary<string, IDictionary<string, string>> _aliasLookupTable = new Dictionary<string, IDictionary<string, string>>();
 
         /// <summary>
         /// create a AvroClassHierarchy with empty nodes and lookup table. It can be used to merge other class hierarchy to it
@@ -177,7 +180,7 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
         }
 
         /// <summary>
-        /// Build hashtable to index the node
+        /// Build hash table to index the node
         /// </summary>
         /// <param name="n"></param>
         public void BuildHashTable(INode n)
@@ -185,7 +188,35 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
             foreach (INode child in n.GetChildren())
             {
                 _lookupTable.Add(child.GetFullName(), child);
+                if (child is INamedParameterNode)
+                {
+                    AddAlias((INamedParameterNode)child);
+                }
                 BuildHashTable(child);
+            }
+        }
+
+        private void AddAlias(INamedParameterNode np)
+        {
+            if (np.GetAlias() != null && !np.GetAlias().Equals(""))
+            {
+                IDictionary<string, string> mapping = null;
+                _aliasLookupTable.TryGetValue(np.GetAliasLanguage(), out mapping);
+                if (mapping == null)
+                {
+                    mapping = new Dictionary<string, string>();
+                    _aliasLookupTable.Add(np.GetAliasLanguage(), mapping);
+                }
+
+                try
+                {
+                    mapping.Add(np.GetAlias(), np.GetFullName());
+                }
+                catch (Exception)
+                {
+                    var e = new ApplicationException(string.Format(CultureInfo.CurrentCulture, "Duplicated alias {0} on named parameter {1}.", np.GetAlias(), np.GetFullName()));
+                    Utilities.Diagnostics.Exceptions.Throw(e, LOGGER);
+                }
             }
         }
 
@@ -202,6 +233,40 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
             {
                 var ex = new NameResolutionException(fullName, "Cannot resolve the name from the class hierarchy during deserialization: " + fullName);
                 Utilities.Diagnostics.Exceptions.Throw(ex, LOGGER);
+            }
+            return ret;
+        }
+
+        /// <summary>
+        /// This method get INode from deSerialized class hierarchy by fullName. 
+        /// If the name is not found, it will found alias for aliasLanguage. If alias is found,
+        /// it will use the alias to do look up again. 
+        /// </summary>
+        /// <param name="fullName"></param>
+        /// <param name="aliasLanguage"></param>
+        /// <returns></returns>
+        public INode GetNode(string fullName, string aliasLanguage)
+        {
+            INode ret = null;
+            _lookupTable.TryGetValue(fullName, out ret);
+            if (ret == null)
+            {
+                IDictionary<string, string> mapping = null;
+                string assemblyName = null;
+                _aliasLookupTable.TryGetValue(aliasLanguage, out mapping);
+                if (mapping != null)
+                {
+                    mapping.TryGetValue(fullName, out assemblyName);
+                    if (assemblyName != null)
+                    {
+                        _lookupTable.TryGetValue(assemblyName, out ret);
+                    }
+                }
+                if (mapping == null || assemblyName == null || ret == null)
+                {
+                    var ex = new NameResolutionException(fullName, "Cannot resolve the name from the class hierarchy during de-serialization: " + fullName);
+                    Utilities.Diagnostics.Exceptions.Throw(ex, LOGGER);
+                }
             }
             return ret;
         }

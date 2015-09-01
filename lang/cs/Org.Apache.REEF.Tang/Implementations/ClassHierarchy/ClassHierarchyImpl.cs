@@ -19,6 +19,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -41,6 +42,10 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
         private object _nodeLock = new object();
         private object _mergeLock = new object();
         private object _implLock = new object();
+
+        //alias is indexed by language, for each language, a mapping between alias and corresponding name kept in a Dictionary
+        private readonly IDictionary<string, IDictionary<string, string>> _aliasLookupTable = new Dictionary<string, IDictionary<string, string>>();
+
 
         public ParameterParser Parameterparser = new ParameterParser();
 
@@ -246,6 +251,26 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
                 }
             }
 
+            if (!string.IsNullOrEmpty(np.GetAlias()))
+            {
+                IDictionary<string, string> mapping = null;
+                _aliasLookupTable.TryGetValue(np.GetAliasLanguage(), out mapping);
+                if (null == mapping)
+                {
+                    mapping= new Dictionary<string, string>();
+                    _aliasLookupTable.Add(np.GetAliasLanguage(), mapping);
+                }
+                try
+                {
+                    mapping.Add(np.GetAlias(), np.GetFullName());
+                }
+                catch (Exception)
+                {
+                    var e = new ApplicationException(string.Format(CultureInfo.CurrentCulture, "Duplicated alias {0} on named parameter {1}.", np.GetAlias(), np.GetFullName()));
+                    Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(e, LOGGER);
+                }
+            }
+
             string shortName = np.GetShortName();
             if (shortName != null && !shortName.Equals(""))
             {
@@ -363,6 +388,52 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
             return this.GetNode(t);
         }
 
+        /// <summary>
+        /// This method get INode from the class hierarchy by fullName. 
+        /// If the Type for the name is not found in assemblies, it will found alias for aliasLanguage. 
+        /// If alias is found, it will get the Type for the alias then call GetNode(Type). 
+        /// </summary>
+        /// <param name="fullName"></param>
+        /// <param name="aliasLanguage"></param>
+        /// <returns></returns>
+        public INode GetNode(string fullName, string aliasLanguage)
+        {
+            Type t = null;
+            try
+            {
+                t = loader.GetType(fullName);
+            }
+            catch (ApplicationException)
+            {
+                IDictionary<string, string> mapping = null;
+                _aliasLookupTable.TryGetValue(aliasLanguage, out mapping);
+                if (mapping != null)
+                {
+                    string assemblyName;
+                    mapping.TryGetValue(fullName, out assemblyName);
+                    if (assemblyName != null)
+                    {
+                        t = loader.GetType(assemblyName);
+                    }
+                    else
+                    {
+                        t = null;
+                    }
+                }
+                else
+                {
+                    t = null;
+                }
+            }
+
+            if (t == null)
+            {
+               Utilities.Diagnostics.Exceptions.Throw(new NameResolutionException(fullName, fullName), LOGGER);
+            }
+
+            return this.GetNode(t);
+        }
+
         public INode GetNode(Type type)
         {
             lock (_nodeLock)
@@ -391,7 +462,7 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
 
             if (!(ch is ClassHierarchyImpl)) 
             {
-                Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(new NotSupportedException("Can't merge java and non-java class hierarchies yet!"), LOGGER);
+                Utilities.Diagnostics.Exceptions.Throw(new NotSupportedException("Can't merge java and non-java class hierarchies yet!"), LOGGER);
             }
 
             if(this.assemblies.Count == 0) 
@@ -428,9 +499,9 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
             } 
             catch(NameResolutionException e) 
             {
-                Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Caught(e, Level.Error, LOGGER);
+                Utilities.Diagnostics.Exceptions.Caught(e, Level.Error, LOGGER);
                 var ex = new IllegalStateException("Could not parse validated named parameter argument type.  NamedParameter is " + np.GetFullName() + " argument type is " + np.GetFullArgName(), e);
-                Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(ex, LOGGER);
+                Utilities.Diagnostics.Exceptions.Throw(ex, LOGGER);
             }
             Type clazz;
             string fullName;
@@ -472,16 +543,16 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
                         new ParseException(
                             "Name<" + iface.GetFullName() + "> " + np.GetFullName() + " cannot take non-subclass " +
                             impl.GetFullName());
-                    Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(ex, LOGGER);
+                    Utilities.Diagnostics.Exceptions.Throw(ex, LOGGER);
                 }
                 catch (NameResolutionException ec)
                 {
-                    Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Caught(ec, Level.Error, LOGGER);
+                    Utilities.Diagnostics.Exceptions.Caught(ec, Level.Error, LOGGER);
                     var ex =
                         new ParseException(
                             "Name<" + iface.GetFullName() + "> " + np.GetFullName() + " cannot take non-class " + value,
                             ec);
-                    Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(ex, LOGGER);
+                    Utilities.Diagnostics.Exceptions.Throw(ex, LOGGER);
                 }
             }
             return result; 
