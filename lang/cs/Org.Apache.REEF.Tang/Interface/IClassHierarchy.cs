@@ -17,6 +17,8 @@
  * under the License.
  */
 
+using System;
+using System.Runtime.Remoting.Channels;
 using Org.Apache.REEF.Tang.Types;
 
 namespace Org.Apache.REEF.Tang.Interface
@@ -24,6 +26,17 @@ namespace Org.Apache.REEF.Tang.Interface
     public interface IClassHierarchy
     {
         INode GetNode(string fullName);
+
+        /// <summary>
+        /// This method gets INode from the class hierarchy by fullName. 
+        /// If the name is not found, it will found alias for aliasLanguage. If alias is found,
+        /// it will use the alias to find Node again. 
+        /// </summary>
+        /// <param name="fullName"></param>
+        /// <param name="aliasLanguage"></param>
+        /// <returns></returns>
+        INode GetNode(string fullName, string aliasLanguage);
+
         INode GetNamespace();
         bool IsImplementation(IClassNode inter, IClassNode impl);
         IClassHierarchy Merge(IClassHierarchy ch);

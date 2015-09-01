@@ -137,6 +137,14 @@ message NamedParameterNode {
    */
   // calling this "default_instance" breaks protoc.
   repeated string instance_default = 7;
+  /*
+     An alias of the named parameter
+   */
+  optional string alias_name = 8;
+  /*
+     An alias language of the named parameter
+   */
+  optional string alias_language = 9;
 }
 
 message PackageNode {

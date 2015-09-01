@@ -52,6 +52,7 @@ under the License.
     <Compile Include="ClassHierarchy\TestClassHierarchy.cs" />
     <Compile Include="ClassHierarchy\TestGeneric.cs" />
     <Compile Include="ClassHierarchy\TestMultipleInterface.cs" />
+    <Compile Include="ClassHierarchy\TestNamedParameter.cs" />
     <Compile Include="ClassHierarchy\TestParameterParser.cs" />
     <Compile Include="ClassHierarchy\TestSerilization.cs" />
     <Compile Include="Configuration\TestAvroConfiguration.cs" />

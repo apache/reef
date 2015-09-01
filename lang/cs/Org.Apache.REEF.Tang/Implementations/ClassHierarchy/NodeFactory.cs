@@ -291,7 +291,7 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
             }
 
             return new NamedParameterNodeImpl(parent, simpleName, fullName,
-                fullArgName, simpleArgName, isSet, isList, documentation, shortName, defaultInstanceAsStrings);
+                fullArgName, simpleArgName, isSet, isList, documentation, shortName, defaultInstanceAsStrings, namedParameter.Alias, namedParameter.AliasLanguage);
         }
 
         // private static void assertIsSubclassOf(Class<?> named_parameter, Class<?> default_class, Type argClass) {
