@@ -101,7 +101,7 @@ namespace Org.Apache.REEF.Examples.DriverRestart
         public void OnNext(IDriverRestarted value)
         {
             _restarted = true;
-            Logger.Log(Level.Info, "Hello! HelloRestartDriver has restarted!");
+            Logger.Log(Level.Info, "Hello! HelloRestartDriver has restarted! Expecting these Evaluator IDs [{0}]", string.Join(", ", value.ExpectedEvaluatorIds));
         }
 
         public void OnNext(IActiveContext value)

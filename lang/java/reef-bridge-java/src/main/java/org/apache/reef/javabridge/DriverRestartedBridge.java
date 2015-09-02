@@ -1,4 +1,4 @@
-﻿/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -16,19 +16,32 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.reef.javabridge;
 
-using System;
-using System.Collections.Generic;
+import org.apache.reef.annotations.Unstable;
+import org.apache.reef.annotations.audience.DriverSide;
+import org.apache.reef.annotations.audience.Private;
 
-namespace Org.Apache.REEF.Driver
-{
-    /// <summary>
-    /// Event fired on Driver restarts instead of IDriverStarted.
-    /// </summary>
-    public interface IDriverRestarted
-    {
-        DateTime StartTime { get; }
+import java.util.Set;
 
-        ISet<string> ExpectedEvaluatorIds { get; } 
-    }
+/**
+ * Created by anchung on 9/1/2015.
+ */
+@Private
+@DriverSide
+@Unstable
+public final class DriverRestartedBridge extends NativeBridge {
+  private final String[] expectedEvaluatorIds;
+
+  public DriverRestartedBridge(final Set<String> expectedEvaluatorIds) {
+    this.expectedEvaluatorIds = expectedEvaluatorIds.toArray(new String[expectedEvaluatorIds.size()]);
+  }
+
+  public String[] getExpectedEvaluatorIds() {
+    return expectedEvaluatorIds;
+  }
+
+  @Override
+  public void close() throws Exception {
+  }
 }

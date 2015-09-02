@@ -215,6 +215,18 @@ namespace Org {
 						  virtual String^ GetId();
 						  virtual String^ GetMessageSourceId();
 					  };
+
+					  public ref class DriverRestartedClr2Java : public IDriverRestartedClr2Java {
+						  jobject _jobjectDriverRestarted;
+						  JavaVM* _jvm;
+						  array<String^>^ _expectedEvaluatorIds;
+						  DateTime _startTime;
+					  public:
+						  DriverRestartedClr2Java(JNIEnv *env, jobject jobjectDriverRestarted);
+						  virtual void OnError(String^ message);
+						  virtual array<String^>^ GetExpectedEvaluatorIds();
+						  virtual DateTime GetStartTime();
+					  };
 				  }
 			  }
 		  }
