@@ -22,6 +22,7 @@ import org.apache.reef.annotations.Unstable;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.driver.restart.DriverRestarted;
+import org.apache.reef.javabridge.DriverRestartedBridge;
 import org.apache.reef.javabridge.EvaluatorRequestorBridge;
 import org.apache.reef.javabridge.NativeInterop;
 
@@ -43,6 +44,7 @@ final class DriverRestartClrHandlersInitializer implements ClrHandlersInitialize
   public long[] getClrHandlers(final String portNumber, final EvaluatorRequestorBridge evaluatorRequestorBridge) {
     // TODO[REEF-689]: Make callClrSystemOnRestartedHandlerOnNext take DriverRestarted object.
     return NativeInterop.callClrSystemOnRestartHandlerOnNext(
-        driverRestarted.getStartTime().toString(), portNumber, evaluatorRequestorBridge);
+        portNumber,
+        evaluatorRequestorBridge, new DriverRestartedBridge(driverRestarted.getExpectedEvaluatorIds()));
   }
 }

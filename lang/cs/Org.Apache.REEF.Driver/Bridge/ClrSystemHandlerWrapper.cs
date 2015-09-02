@@ -262,17 +262,17 @@ namespace Org.Apache.REEF.Driver.Bridge
         }
 
         public static ulong[] Call_ClrSystemRestartHandler_OnRestart(
-            DateTime startTime,
             string httpServerPort,
-            IEvaluatorRequestorClr2Java evaluatorRequestorClr2Java)
+            IEvaluatorRequestorClr2Java evaluatorRequestorClr2Java,
+            IDriverRestartedClr2Java driverRestartedClr2Java)
         {
             IEvaluatorRequestor evaluatorRequestor = new EvaluatorRequestor(evaluatorRequestorClr2Java);
             using (LOGGER.LogFunction("ClrSystemHandlerWrapper::Call_ClrSystemRestartHandler_OnRestart"))
             {
-                LOGGER.Log(Level.Info, "*** Restart time is " + startTime);
+                LOGGER.Log(Level.Info, "*** Restart time is " + driverRestartedClr2Java.GetStartTime());
                 LOGGER.Log(Level.Info, "*** httpServerPort: " + httpServerPort);
                 var handlers = GetHandlers(httpServerPort, evaluatorRequestor);
-                _driverBridge.RestartHandlerOnNext(startTime);
+                _driverBridge.RestartHandlerOnNext(driverRestartedClr2Java);
 
                 return handlers;
             }

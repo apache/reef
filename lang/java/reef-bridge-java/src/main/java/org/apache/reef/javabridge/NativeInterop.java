@@ -148,9 +148,9 @@ public final class NativeInterop {
   );
 
   public static native long[] callClrSystemOnRestartHandlerOnNext(
-      final String dateTime,
       final String httpServerPortNumber,
-      final EvaluatorRequestorBridge javaEvaluatorRequestorBridge
+      final EvaluatorRequestorBridge javaEvaluatorRequestorBridge,
+      final DriverRestartedBridge driverRestartedBridge
   );
 
   public static native void clrSystemDriverRestartActiveContextHandlerOnNext(

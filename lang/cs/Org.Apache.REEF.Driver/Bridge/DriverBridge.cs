@@ -31,6 +31,7 @@ using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Wake.Time.Event;
 using Org.Apache.REEF.Common.Evaluator.Parameters;
+using Org.Apache.REEF.Driver.Bridge.Clr2java;
 using Org.Apache.REEF.Driver.Bridge.Events;
 
 namespace Org.Apache.REEF.Driver.Bridge
@@ -368,9 +369,9 @@ namespace Org.Apache.REEF.Driver.Bridge
         /// <summary>
         /// Call restart handlers
         /// </summary>
-        internal void RestartHandlerOnNext(DateTime startTime)
+        internal void RestartHandlerOnNext(IDriverRestartedClr2Java driverRestartedClr2Java)
         {
-            var driverRestarted = new DriverRestarted(startTime);
+            var driverRestarted = new DriverRestarted(driverRestartedClr2Java);
             foreach (var handler in _driverRestartedHandlers)
             {
                 handler.OnNext(driverRestarted);

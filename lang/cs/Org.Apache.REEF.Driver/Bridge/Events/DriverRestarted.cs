@@ -17,21 +17,33 @@
  * under the License.
  */
 using System;
+using System.Collections.Generic;
+using Org.Apache.REEF.Driver.Bridge.Clr2java;
 
 namespace Org.Apache.REEF.Driver.Bridge.Events
 {
+    /// <summary>
+    /// The implementation of IDriverRestarted.
+    /// </summary>
     internal sealed class DriverRestarted : IDriverRestarted
     {
         private readonly DateTime _startTime;
+        private readonly ISet<string> _expectedEvaluatorIds; 
 
-        internal DriverRestarted(DateTime startTime)
+        internal DriverRestarted(IDriverRestartedClr2Java driverRestartedClr2Java)
         {
-            _startTime = startTime;
+            _startTime = driverRestartedClr2Java.GetStartTime();
+            _expectedEvaluatorIds = new HashSet<string>(driverRestartedClr2Java.GetExpectedEvaluatorIds());
         }
 
         public DateTime StartTime
         {
             get { return _startTime; }
         }
+
+        public ISet<string> ExpectedEvaluatorIds
+        {
+            get { return new HashSet<string>(_expectedEvaluatorIds); }
+        } 
     }
 }

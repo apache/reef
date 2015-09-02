@@ -18,19 +18,19 @@
  */
 
 using System;
-using System.Collections.Generic;
 
-namespace Org.Apache.REEF.Driver
+namespace Org.Apache.REEF.Driver.Bridge.Clr2java
 {
-    /// <summary>
-    /// Event fired on Driver restarts instead of IDriverStarted.
-    /// </summary>
-    public interface IDriverRestarted : IDriverStarted
+    public interface IDriverRestartedClr2Java : IClr2Java
     {
         /// <summary>
-        /// The set of expected Evaluator IDs that are returned to the Driver by the
-        /// RM on Driver Restart.
+        /// IDs of the expected Evaluators on Driver Restart.
         /// </summary>
-        ISet<string> ExpectedEvaluatorIds { get; } 
+        string[] GetExpectedEvaluatorIds();
+
+        /// <summary>
+        /// StartTime of the restart.
+        /// </summary>
+        DateTime GetStartTime();
     }
 }
