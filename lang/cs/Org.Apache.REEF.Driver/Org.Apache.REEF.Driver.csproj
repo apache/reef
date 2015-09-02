@@ -59,8 +59,10 @@ under the License.
     <Compile Include="Bridge\ClrHandlerHelper.cs" />
     <Compile Include="Bridge\ClrSystemHandler.cs" />
     <Compile Include="Bridge\ClrSystemHandlerWrapper.cs" />
+    <Compile Include="Bridge\CommandLineArguments.cs" />
+    <Compile Include="Bridge\CustomTraceLevel.cs" />
+    <Compile Include="Bridge\CustomTraceListeners.cs" />
     <Compile Include="Bridge\DriverBridge.cs" />
-    <Compile Include="Bridge\DriverBridgeConfiguration.cs" />
     <Compile Include="Bridge\DriverBridgeConfigurationOptions.cs" />
     <Compile Include="Bridge\Events\ActiveContext.cs" />
     <Compile Include="Bridge\Events\AllocatedEvaluator.cs" />
