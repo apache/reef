@@ -17,7 +17,6 @@
  * under the License.
  */
 
-using System;
 using System.Runtime.Serialization;
 using Org.Apache.REEF.Driver.Bridge.Clr2java;
 using Org.Apache.REEF.Driver.Task;
@@ -30,36 +29,25 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
     [DataContract]
     internal class TaskMessage : ITaskMessage
     {
+        private readonly byte[] _message;
         private readonly ITaskMessageClr2Java _taskMessageClr2Java;
-        private byte[] _message;
-        private string _instanceId;
 
-        public TaskMessage(ITaskMessageClr2Java clr2Java, byte[] message)
+        internal TaskMessage(ITaskMessageClr2Java clr2Java, byte[] message)
         {
-            _instanceId = Guid.NewGuid().ToString("N");
             _taskMessageClr2Java = clr2Java;
             _message = message;
-        }
-
-        [DataMember]
-        public string InstanceId
-        {
-            get { return _instanceId; }
-            set { _instanceId = value; }
         }
 
         [DataMember]
         public string TaskId
         {
             get { return _taskMessageClr2Java.GetId(); }
-            set { }
         }
 
         [DataMember]
         public byte[] Message
         {
             get { return _message; }
-            set { _message = value; } 
         }
     }
 }

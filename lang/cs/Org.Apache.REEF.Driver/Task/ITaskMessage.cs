@@ -19,10 +19,19 @@
 
 namespace Org.Apache.REEF.Driver.Task
 {
+    /// <summary>
+    /// Driver-side representation of a message sent from a Task to the Driver.
+    /// </summary>
     public interface ITaskMessage
     {
-        byte[] Message { get; set; }
+        /// <summary>
+        /// The actual message sent.
+        /// </summary>
+        byte[] Message { get; }
 
-        string TaskId { get; set; }
+        /// <summary>
+        /// The ID of the task that sent the message.
+        /// </summary>
+        string TaskId { get; }
     }
 }
