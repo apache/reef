@@ -21,6 +21,9 @@ namespace Org.Apache.REEF.Driver.Context
 {
     public interface IClosedContext : IContext
     {
-        IActiveContext ParentContext { get; set; }
+        /// <summary>
+        /// Returns the parent context.
+        /// </summary>
+        IActiveContext ParentContext { get; }
     }
 }

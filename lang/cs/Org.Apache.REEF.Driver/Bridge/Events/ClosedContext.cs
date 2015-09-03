@@ -86,10 +86,6 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
             {
                 return new ActiveContext(ParentContextClr2Java);
             }
-
-            set
-            {
-            }
         }
 
         private IActiveContextClr2Java ParentContextClr2Java { get; set; }
