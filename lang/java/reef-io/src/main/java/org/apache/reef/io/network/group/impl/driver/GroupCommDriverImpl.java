@@ -181,6 +181,12 @@ public class GroupCommDriverImpl implements GroupCommServiceDriver {
   @Override
   public CommunicationGroupDriver newCommunicationGroup(final Class<? extends Name<String>> groupName,
                                                         final int numberOfTasks) {
+    return newCommunicationGroup(groupName, numberOfTasks, fanOut);
+  }
+
+  @Override
+  public CommunicationGroupDriver newCommunicationGroup(final Class<? extends Name<String>> groupName,
+                                                        final int numberOfTasks, final int customFanOut) {
     LOG.entering("GroupCommDriverImpl", "newCommunicationGroup",
         new Object[]{Utils.simpleName(groupName), numberOfTasks});
     final BroadcastingEventHandler<RunningTask> commGroupRunningTaskHandler = new BroadcastingEventHandler<>();
@@ -194,7 +200,7 @@ public class GroupCommDriverImpl implements GroupCommServiceDriver {
         commGroupFailedTaskHandler,
         commGroupFailedEvaluatorHandler,
         commGroupMessageHandler,
-        driverId, numberOfTasks, fanOut);
+        driverId, numberOfTasks, customFanOut);
     commGroupDrivers.put(groupName, commGroupDriver);
     groupCommRunningTaskHandler.addHandler(commGroupRunningTaskHandler);
     groupCommFailedTaskHandler.addHandler(commGroupFailedTaskHandler);
