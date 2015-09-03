@@ -47,6 +47,19 @@ public interface GroupCommDriver {
   CommunicationGroupDriver newCommunicationGroup(Class<? extends Name<String>> groupName, int numberOfTasks);
 
   /**
+   * Create a new communication group with the specified name,
+   * the minimum number of tasks needed in this group before
+   * communication can start, and a custom fanOut.
+   *
+   * @param groupName
+   * @param numberOfTasks
+   * @param customFanOut
+   * @return
+   */
+  CommunicationGroupDriver newCommunicationGroup(Class<? extends Name<String>> groupName, int numberOfTasks,
+      int customFanOut);
+
+  /**
    * Tests whether the activeContext is a context configured.
    * using the Group Communication Service
    *
