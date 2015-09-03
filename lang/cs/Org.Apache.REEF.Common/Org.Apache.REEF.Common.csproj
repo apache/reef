@@ -87,7 +87,6 @@ under the License.
     <Compile Include="Events\IContextStop.cs" />
     <Compile Include="Exceptions\EvaluatorException.cs" />
     <Compile Include="Exceptions\JobException.cs" />
-    <Compile Include="FailedRuntime.cs" />
     <Compile Include="Files\PathUtilities.cs" />
     <Compile Include="IContextAndTaskSubmittable.cs" />
     <Compile Include="IContextSubmittable.cs" />
