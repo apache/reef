@@ -43,7 +43,7 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
 
         public ISet<string> ExpectedEvaluatorIds
         {
-            get { return _expectedEvaluatorIds; }
+            get { return new HashSet<string>(_expectedEvaluatorIds); }
         } 
     }
 }
