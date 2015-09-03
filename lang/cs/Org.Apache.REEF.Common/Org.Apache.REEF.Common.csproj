@@ -91,7 +91,6 @@ under the License.
     <Compile Include="Files\PathUtilities.cs" />
     <Compile Include="IContextAndTaskSubmittable.cs" />
     <Compile Include="IContextSubmittable.cs" />
-    <Compile Include="IJobMessageObserver.cs" />
     <Compile Include="Io\INameClient.cs" />
     <Compile Include="Io\NameAssignment.cs" />
     <Compile Include="Io\NamingConfiguration.cs" />
