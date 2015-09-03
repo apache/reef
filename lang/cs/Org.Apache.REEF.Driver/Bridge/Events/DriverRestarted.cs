@@ -22,6 +22,9 @@ using Org.Apache.REEF.Driver.Bridge.Clr2java;
 
 namespace Org.Apache.REEF.Driver.Bridge.Events
 {
+    /// <summary>
+    /// The implementation of IDriverRestarted.
+    /// </summary>
     internal sealed class DriverRestarted : IDriverRestarted
     {
         private readonly DateTime _startTime;

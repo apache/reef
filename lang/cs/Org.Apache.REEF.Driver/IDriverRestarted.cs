@@ -25,10 +25,12 @@ namespace Org.Apache.REEF.Driver
     /// <summary>
     /// Event fired on Driver restarts instead of IDriverStarted.
     /// </summary>
-    public interface IDriverRestarted
+    public interface IDriverRestarted : IDriverStarted
     {
-        DateTime StartTime { get; }
-
+        /// <summary>
+        /// The set of expected Evaluator IDs that are returned to the Driver by the
+        /// RM on Driver Restart.
+        /// </summary>
         ISet<string> ExpectedEvaluatorIds { get; } 
     }
 }
