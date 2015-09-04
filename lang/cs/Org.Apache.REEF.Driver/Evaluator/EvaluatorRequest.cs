@@ -92,6 +92,7 @@ namespace Org.Apache.REEF.Driver.Evaluator
         {
             return new EvaluatorRequestBuilder();
         }
+
         [Obsolete("Use IEvaluatorRequestor.NewBuilder() instead.")]
         public static EvaluatorRequestBuilder NewBuilder(EvaluatorRequest request)
         {

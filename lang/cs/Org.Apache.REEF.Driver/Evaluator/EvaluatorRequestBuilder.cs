@@ -45,9 +45,9 @@ namespace Org.Apache.REEF.Driver.Evaluator
             _evaluatorBatchId = Guid.NewGuid().ToString("N");
         }
 
-        public int Number { get; set; }
-        public int MegaBytes { get; set; }
-        public int VirtualCore { get; set; }
+        public int Number { get; private set; }
+        public int MegaBytes { get; private set; }
+        public int VirtualCore { get; private set; }
 
         /// <summary>
         /// Set the number of evaluators to request.
