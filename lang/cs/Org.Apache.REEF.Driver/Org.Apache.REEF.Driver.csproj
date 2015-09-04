@@ -101,7 +101,6 @@ under the License.
     <Compile Include="Context\IClosedContext.cs" />
     <Compile Include="Context\IContext.cs" />
     <Compile Include="Context\IFailedContext.cs" />
-    <Compile Include="Contract\IBridgeContract.cs" />
     <Compile Include="Defaults\DefaultClientCloseHandler.cs" />
     <Compile Include="Defaults\DefaultClientCloseWithMessageHandler.cs" />
     <Compile Include="Defaults\DefaultClientMessageHandler.cs" />
@@ -115,13 +114,11 @@ under the License.
     <Compile Include="Defaults\DefaultDriverRestartedHandler.cs" />
     <Compile Include="Defaults\DefaultDriverRestartHandler.cs" />
     <Compile Include="Defaults\DefaultDriverRestartTaskRunningHandler.cs" />
-    <Compile Include="Defaults\DefaultDriverStartedHandler.cs" />
     <Compile Include="Defaults\DefaultEvaluatorAllocationHandler.cs" />
     <Compile Include="Defaults\DefaultEvaluatorCompletionHandler.cs" />
     <Compile Include="Defaults\DefaultEvaluatorFailureHandler.cs" />
     <Compile Include="Defaults\DefaultEvaluatorRequestorHandler.cs" />
     <Compile Include="Defaults\DefaultHttpHandler.cs" />
-    <Compile Include="Defaults\DefaultObsoleteDriverStartHandler.cs" />
     <Compile Include="Defaults\DefaultTaskCompletionHandler.cs" />
     <Compile Include="Defaults\DefaultTaskFailureHandler.cs" />
     <Compile Include="Defaults\DefaultTaskMessageHandler.cs" />
@@ -144,7 +141,6 @@ under the License.
     <Compile Include="IDriverRestarted.cs" />
     <Compile Include="IDriverStarted.cs" />
     <Compile Include="IDriverRestartCompleted.cs" />
-    <Compile Include="IStartHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Task\ICompletedTask.cs" />
     <Compile Include="Task\IFailedTask.cs" />
