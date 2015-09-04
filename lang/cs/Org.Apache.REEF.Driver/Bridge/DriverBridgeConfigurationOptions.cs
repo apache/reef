@@ -41,8 +41,7 @@ namespace Org.Apache.REEF.Driver.Bridge
         // Level.Verbose (since enum is not suppoted for TANG, we use a string here)
         private const string _verboseLevel = "Verbose";
 
-        // TODO: Remove the default value in 0.13 when the DriverStartedHandler becomes mandatory
-        [NamedParameter(documentation:"The start point for application logic. Event fired after the Driver is done initializing.", defaultClasses: new []{typeof(DefaultDriverStartedHandler)})]
+        [NamedParameter(documentation:"The start point for application logic. Event fired after the Driver is done initializing.")]
         public class DriverStartedHandlers : Name<ISet<IObserver<IDriverStarted>>>
         {
         }
