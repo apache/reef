@@ -36,14 +36,14 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(EvaluatorRequestor));
 
         private static Dictionary<string, IEvaluatorDescriptor> _evaluators;
-        
-        public EvaluatorRequestor(IEvaluatorRequestorClr2Java clr2Java)
+
+        internal EvaluatorRequestor(IEvaluatorRequestorClr2Java clr2Java)
         {
             InstanceId = Guid.NewGuid().ToString("N");
             Clr2Java = clr2Java;
         }
 
-        public static Dictionary<string, IEvaluatorDescriptor> Evaluators
+        internal static Dictionary<string, IEvaluatorDescriptor> Evaluators
         {
             get
             {
@@ -85,8 +85,20 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
                     }
                 }
             }
-            
+
             Clr2Java.Submit(request);
+        }
+
+        public EvaluatorRequestBuilder NewBuilder()
+        {
+            return new EvaluatorRequestBuilder();
+        }
+
+        public EvaluatorRequestBuilder NewBuilder(IEvaluatorRequest request)
+        {
+#pragma warning disable 618
+            return new EvaluatorRequestBuilder(request);
+#pragma warning restore 618
         }
 
         public void Dispose()

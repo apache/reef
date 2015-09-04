@@ -27,6 +27,7 @@ namespace Org.Apache.REEF.Driver.Defaults
     /// <summary>
     /// Default handler for close messages from the client: logging it
     /// </summary>
+    [Obsolete("In Version 0.13. Have an instance of IEvaluatorRequestor injected instead.")]
     public class DefaultEvaluatorRequestorHandler : IObserver<IEvaluatorRequestor>
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(DefaultClientCloseHandler));

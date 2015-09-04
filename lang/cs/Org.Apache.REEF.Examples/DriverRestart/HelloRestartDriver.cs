@@ -92,7 +92,7 @@ namespace Org.Apache.REEF.Examples.DriverRestart
         public void OnNext(IDriverStarted driverStarted)
         {
             Logger.Log(Level.Info, "HelloRestartDriver started at {0}", driverStarted.StartTime);
-            _evaluatorRequestor.Submit(new EvaluatorRequest(NumberOfTasksToSubmit, 64));
+            _evaluatorRequestor.Submit(_evaluatorRequestor.NewBuilder().SetNumber(NumberOfTasksToSubmit).SetMegabytes(64).Build());
         }
 
         /// <summary>

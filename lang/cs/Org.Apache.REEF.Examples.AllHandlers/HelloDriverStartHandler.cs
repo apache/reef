@@ -63,7 +63,14 @@ namespace Org.Apache.REEF.Examples.AllHandlers
             int core = 2;
             string rack = "WonderlandRack";
             string evaluatorBatchId = "evaluatorThatRequires512MBofMemory";
-            EvaluatorRequest request = new EvaluatorRequest(evaluatorsNumber, memory, core, rack, evaluatorBatchId);
+            var request =
+                _evaluatorRequestor.NewBuilder()
+                    .SetNumber(evaluatorsNumber)
+                    .SetMegabytes(memory)
+                    .SetCores(core)
+                    .SetRackName(rack)
+                    .SetEvaluatorBatchId(evaluatorBatchId)
+                    .Build();
 
             _evaluatorRequestor.Submit(request);
 
@@ -72,7 +79,14 @@ namespace Org.Apache.REEF.Examples.AllHandlers
             core = 2;
             rack = "WonderlandRack";
             evaluatorBatchId = "evaluatorThatRequires1999MBofMemory";
-            request = new EvaluatorRequest(evaluatorsNumber, memory, core, rack, evaluatorBatchId);
+            request =
+                _evaluatorRequestor.NewBuilder()
+                    .SetNumber(evaluatorsNumber)
+                    .SetMegabytes(memory)
+                    .SetCores(core)
+                    .SetRackName(rack)
+                    .SetEvaluatorBatchId(evaluatorBatchId)
+                    .Build();
             _evaluatorRequestor.Submit(request);
         }
     }

@@ -148,7 +148,13 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.ScatterReduceDrive
 
         public void OnNext(IDriverStarted value)
         {
-            EvaluatorRequest request = new EvaluatorRequest(_numEvaluators, 512, 2, "WonderlandRack", "BroadcastEvaluator");
+            IEvaluatorRequest request =
+                _evaluatorRequestor.NewBuilder()
+                    .SetNumber(_numEvaluators)
+                    .SetMegabytes(512)
+                    .SetCores(2)
+                    .SetRackName("WonderlandRack")
+                    .SetEvaluatorBatchId("BroadcastEvaluator").Build();   
             _evaluatorRequestor.Submit(request);
         }
 

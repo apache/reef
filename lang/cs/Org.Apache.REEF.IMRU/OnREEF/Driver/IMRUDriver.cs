@@ -113,7 +113,13 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// <param name="value">Event fired when driver started</param>
         public void OnNext(IDriverStarted value)
         {
-            _evaluatorRequestor.Submit(new EvaluatorRequest(1, _memoryForUpdateTask, _coresForUpdateTask));
+            var request =
+                _evaluatorRequestor.NewBuilder()
+                    .SetCores(_coresForUpdateTask)
+                    .SetMegabytes(_memoryForUpdateTask)
+                    .SetNumber(1)
+                    .Build();
+            _evaluatorRequestor.Submit(request);
             //TODO[REEF-598]: Set a timeout for this request to be satisfied. If it is not within that time, exit the Driver.
         }
 
@@ -145,7 +151,13 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                 serviceConf = Configurations.Merge(serviceConf, codecConfig, _tcpPortProviderConfig);
                 _allocatedUpdateTaskEvaluator = true;
 
-                _evaluatorRequestor.Submit(new EvaluatorRequest(_dataSet.Count, _memoryPerMapper, _coresPerMapper));
+                var request =
+                    _evaluatorRequestor.NewBuilder()
+                        .SetMegabytes(_memoryForUpdateTask)
+                        .SetNumber(_dataSet.Count)
+                        .SetCores(_coresPerMapper)
+                        .Build();
+                _evaluatorRequestor.Submit(request);
                 //TODO[REEF-598]: Set a timeout for this request to be satisfied. If it is not within that time, exit the Driver.
             }
             else

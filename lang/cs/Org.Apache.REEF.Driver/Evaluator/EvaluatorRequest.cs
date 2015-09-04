@@ -18,41 +18,48 @@
  */
 
 using System;
-using System.Collections.Generic;
 using System.Runtime.Serialization;
-using Org.Apache.REEF.Common.Catalog;
-using Org.Apache.REEF.Common.Catalog.Capabilities;
 
 namespace Org.Apache.REEF.Driver.Evaluator
 {
+    /// <summary>
+    /// Default implementation of IEvaluatorRequest.
+    /// </summary>
+    [Obsolete("This class will be internal after 0.13")]
     [DataContract]
     public class EvaluatorRequest : IEvaluatorRequest
     {
-        public EvaluatorRequest() 
+        [Obsolete("This constructor will be internal after 0.13")]
+        public EvaluatorRequest()
             : this(0, 0, 1, string.Empty, Guid.NewGuid().ToString("N"))
         {
         }
 
-        public EvaluatorRequest(int number, int megaBytes) 
+        [Obsolete("This constructor will be internal after 0.13")]
+        public EvaluatorRequest(int number, int megaBytes)
             : this(number, megaBytes, 1, string.Empty, Guid.NewGuid().ToString("N"))
         {
         }
 
+        [Obsolete("This constructor will be internal after 0.13")]
         public EvaluatorRequest(int number, int megaBytes, int core)
             : this(number, megaBytes, core, string.Empty, Guid.NewGuid().ToString("N"))
         {
         }
 
+        [Obsolete("This constructor will be internal after 0.13")]
         public EvaluatorRequest(int number, int megaBytes, string rack)
             : this(number, megaBytes, 1, rack, Guid.NewGuid().ToString("N"))
         {
         }
 
+        [Obsolete("This constructor will be internal after 0.13")]
         public EvaluatorRequest(int number, int megaBytes, int core, string rack)
             : this(number, megaBytes, core, rack, Guid.NewGuid().ToString("N"))
         {
         }
 
+        [Obsolete("This constructor will be internal after 0.13")]
         public EvaluatorRequest(int number, int megaBytes, int core, string rack, string evaluatorBatchId)
         {
             Number = number;
@@ -62,43 +69,31 @@ namespace Org.Apache.REEF.Driver.Evaluator
             EvaluatorBatchId = evaluatorBatchId;
         }
 
-        public EvaluatorRequest(int number, int megaBytes, int core, List<ICapability> capabilitieses, IResourceCatalog catalog)
-        {
-            Number = number;
-            MemoryMegaBytes = megaBytes;
-            Capabilities = capabilitieses;
-            VirtualCore = core;
-            Catalog = catalog;
-            EvaluatorBatchId = Guid.NewGuid().ToString("N");
-        }
-
         [DataMember]
         public string InstanceId { get; set; }
 
         [DataMember]
-        public int MemoryMegaBytes { get; set; }
+        public int MemoryMegaBytes { get; private set; }
 
         [DataMember]
-        public int Number { get; set; }
-        
-        [DataMember]
-        public int VirtualCore { get; set; }
+        public int Number { get; private set; }
 
         [DataMember]
-        public string Rack { get; set; }
+        public int VirtualCore { get; private set; }
 
         [DataMember]
-        public string EvaluatorBatchId { get; set; }
+        public string Rack { get; private set; }
 
-        public List<ICapability> Capabilities { get; set; }
+        [DataMember]
+        public string EvaluatorBatchId { get; private set; }
 
-        public IResourceCatalog Catalog { get; set; }
-
+        [Obsolete("Use IEvaluatorRequestor.NewBuilder() instead.")]
         public static EvaluatorRequestBuilder NewBuilder()
         {
             return new EvaluatorRequestBuilder();
         }
 
+        [Obsolete("Use IEvaluatorRequestor.NewBuilder() instead.")]
         public static EvaluatorRequestBuilder NewBuilder(EvaluatorRequest request)
         {
             return new EvaluatorRequestBuilder(request);

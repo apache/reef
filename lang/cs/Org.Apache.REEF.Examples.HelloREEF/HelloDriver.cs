@@ -70,7 +70,7 @@ namespace Org.Apache.REEF.Examples.HelloREEF
         public void OnNext(IDriverStarted driverStarted)
         {
             _Logger.Log(Level.Info, string.Format("HelloDriver started at {0}", driverStarted.StartTime));
-            _evaluatorRequestor.Submit(new EvaluatorRequest(1, 64));
+            _evaluatorRequestor.Submit(_evaluatorRequestor.NewBuilder().SetMegabytes(64).Build());
         }
     }
 }

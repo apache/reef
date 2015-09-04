@@ -17,43 +17,98 @@
  * under the License.
  */
 
-using System.Collections.Generic;
-using Org.Apache.REEF.Common.Catalog;
-using Org.Apache.REEF.Common.Catalog.Capabilities;
+using System;
 
 namespace Org.Apache.REEF.Driver.Evaluator
 {
-    public class EvaluatorRequestBuilder
+    public sealed class EvaluatorRequestBuilder
     {
-        public EvaluatorRequestBuilder(EvaluatorRequest request)
+        private string _evaluatorBatchId;
+        private string _rackName;
+
+        [Obsolete("This constructor will be internal after 0.13.")]
+        public EvaluatorRequestBuilder(IEvaluatorRequest request)
         {
-            foreach (ICapability capability in request.Capabilities)
-            {
-                Capabilities.Add(capability);
-            }
             Number = request.Number;
-            Catalog = request.Catalog;
             MegaBytes = request.MemoryMegaBytes;
             VirtualCore = request.VirtualCore;
+            _evaluatorBatchId = request.EvaluatorBatchId;
+            _rackName = request.Rack;
         }
 
         internal EvaluatorRequestBuilder()
         {
+            Number = 1;
+            VirtualCore = 1;
+            MegaBytes = 64;
+            _rackName = String.Empty;
+            _evaluatorBatchId = Guid.NewGuid().ToString("N");
         }
 
-        public int Number { get; set; }
+        public int Number { get; private set; }
+        public int MegaBytes { get; private set; }
+        public int VirtualCore { get; private set; }
 
-        public List<ICapability> Capabilities { get; set; }
-
-        public IResourceCatalog Catalog { get; set; }
-
-        public int MegaBytes { get; set; }
-
-        public int VirtualCore { get; set; }
-
-        public EvaluatorRequest Build()
+        /// <summary>
+        /// Set the number of evaluators to request.
+        /// </summary>
+        /// <param name="number"></param>
+        /// <returns>this</returns>
+        public EvaluatorRequestBuilder SetNumber(int number)
         {
-            return new EvaluatorRequest(Number, MegaBytes, VirtualCore, Capabilities, Catalog);
+            Number = number;
+            return this;
+        }
+
+        /// <summary>
+        /// Set the amount of memory (in MB) for the evaluator.
+        /// </summary>
+        /// <param name="megabytes"></param>
+        /// <returns>this</returns>
+        public EvaluatorRequestBuilder SetMegabytes(int megabytes)
+        {
+            MegaBytes = megabytes;
+            return this;
+        }
+
+        /// <summary>
+        /// Set the number of CPU cores for the evaluator.
+        /// </summary>
+        /// <param name="numberOfCores"></param>
+        /// <returns>this</returns>
+        public EvaluatorRequestBuilder SetCores(int numberOfCores)
+        {
+            VirtualCore = numberOfCores;
+            return this;
+        }
+
+        /// <summary>
+        /// Set the rack name to do the request for.
+        /// </summary>
+        /// <param name="rackName"></param>
+        /// <returns>this</returns>
+        public EvaluatorRequestBuilder SetRackName(string rackName)
+        {
+            _rackName = rackName;
+            return this;
+        }
+
+        // TODO[REEF-718]: Document.
+        public EvaluatorRequestBuilder SetEvaluatorBatchId(string evaluatorBatchId)
+        {
+            _evaluatorBatchId = evaluatorBatchId;
+            return this;
+        }
+
+        /// <summary>
+        /// Build the EvaluatorRequest.
+        /// </summary>
+        /// <returns></returns>
+        public IEvaluatorRequest Build()
+        {
+#pragma warning disable 618
+            return new EvaluatorRequest(Number, MegaBytes, VirtualCore, rack:_rackName, evaluatorBatchId:_evaluatorBatchId);
+#pragma warning restore 618
         }
     }
 }

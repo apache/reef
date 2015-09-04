@@ -201,7 +201,13 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.PipelineBroadcastR
 
         public void OnNext(IDriverStarted value)
         {
-            EvaluatorRequest request = new EvaluatorRequest(_numEvaluators, 512, 2, "WonderlandRack", "BroadcastEvaluator");
+            var request =
+                _evaluatorRequestor.NewBuilder()
+                    .SetNumber(_numEvaluators)
+                    .SetMegabytes(512)
+                    .SetRackName("WonderlandRack")
+                    .SetEvaluatorBatchId("BroadcastEvaluator")
+                    .Build();
             _evaluatorRequestor.Submit(request);
         }
 

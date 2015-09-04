@@ -17,6 +17,7 @@
  * under the License.
  */
 
+using System;
 using System.Collections.Generic;
 using Org.Apache.REEF.Common.Exceptions;
 using Org.Apache.REEF.Driver.Bridge.Events;
@@ -36,6 +37,7 @@ namespace Org.Apache.REEF.Driver.Evaluator
 
         Optional<IFailedTask> FailedTask { get; set; }
 
+        [Obsolete("Will be removed after 0.13. Have an instance injected instead.")]
         IEvaluatorRequestor GetEvaluatorRequetor();
     }
 }

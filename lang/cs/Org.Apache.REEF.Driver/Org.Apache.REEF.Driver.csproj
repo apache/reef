@@ -73,7 +73,7 @@ under the License.
     <Compile Include="Bridge\Events\DriverRestartCompleted.cs" />
     <Compile Include="Bridge\Events\DriverRestarted.cs" />
     <Compile Include="Bridge\Events\DriverStarted.cs" />
-    <Compile Include="Bridge\Events\EvaluatorRequstor.cs" />
+    <Compile Include="Bridge\Events\EvaluatorRequestor.cs" />
     <Compile Include="Bridge\Events\FailedContext.cs" />
     <Compile Include="Bridge\Events\FailedEvaluator.cs" />
     <Compile Include="Bridge\Events\FailedTask.cs" />
