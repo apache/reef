@@ -29,17 +29,25 @@ namespace Org.Apache.REEF.Driver.Evaluator
         /// <summary>
         /// Access to the {@link ResourceCatalog} for the cluster this Factory has access to
         /// </summary>
-        IResourceCatalog ResourceCatalog { get; set; }
-
-        /// <summary>
-        /// Map between user evaluator id and evaluator information
-        /// </summary>
-        //IDictionary<string, IEvaluatorDescriptor> Evaluators { get; }
+        IResourceCatalog ResourceCatalog { get; }
 
         /// <summary>
         /// Submit the request for new evaluator. The response will surface in the AllocatedEvaluator message handler.
         /// </summary>
         /// <param name="request"></param>
         void Submit(IEvaluatorRequest request);
+
+        /// <summary>
+        /// Returns a builder for new Evaluator requests.
+        /// </summary>
+        /// <returns></returns>
+        EvaluatorRequestBuilder NewBuilder();
+
+        /// <summary>
+        /// Returns a builder for new Evaluator requests.
+        /// </summary>
+        /// <param name="request">The request to clone</param>
+        /// <returns></returns>
+        EvaluatorRequestBuilder NewBuilder(IEvaluatorRequest request);
     }
 }

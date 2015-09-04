@@ -93,7 +93,14 @@ namespace Org.Apache.REEF.Tests.Functional.Messaging
 
         public void OnNext(IDriverStarted value)
         {
-            EvaluatorRequest request = new EvaluatorRequest(NumerOfEvaluator, 512, 2, "WonderlandRack", "TaskMessagingEvaluator");
+            var request =
+                _evaluatorRequestor.NewBuilder()
+                    .SetNumber(NumerOfEvaluator)
+                    .SetMegabytes(512)
+                    .SetCores(2)
+                    .SetRackName("WonderlandRack")
+                    .SetEvaluatorBatchId("TaskMessagingEvaluator")
+                    .Build();
             _evaluatorRequestor.Submit(request);
         }
 

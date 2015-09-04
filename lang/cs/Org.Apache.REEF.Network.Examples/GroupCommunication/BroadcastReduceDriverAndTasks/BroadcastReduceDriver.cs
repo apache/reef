@@ -177,7 +177,14 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.BroadcastReduceDri
 
         public void OnNext(IDriverStarted value)
         {
-            EvaluatorRequest request = new EvaluatorRequest(_numEvaluators, 512, 2, "WonderlandRack", "BroadcastEvaluator");
+            var request =
+                _evaluatorRequestor.NewBuilder()
+                    .SetNumber(_numEvaluators)
+                    .SetMegabytes(512)
+                    .SetCores(2)
+                    .SetRackName("WonderlandRack")
+                    .SetEvaluatorBatchId("BroadcastEvaluator")
+                    .Build();
             _evaluatorRequestor.Submit(request);
         }
 

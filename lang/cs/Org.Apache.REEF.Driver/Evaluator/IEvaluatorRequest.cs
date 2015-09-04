@@ -17,26 +17,34 @@
  * under the License.
  */
 
-using System.Collections.Generic;
-using Org.Apache.REEF.Common.Catalog;
-using Org.Apache.REEF.Common.Catalog.Capabilities;
-
 namespace Org.Apache.REEF.Driver.Evaluator
 {
+    /// <summary>
+    /// A request for an Evaluator allocation.
+    /// </summary>
     public interface IEvaluatorRequest
     {
-        int MemoryMegaBytes { get; set; }
+        /// <summary>
+        /// Memory for the Evaluator in megabytes.
+        /// </summary>
+        int MemoryMegaBytes { get; }
 
-        int Number { get;  set; }
+        /// <summary>
+        /// Number of Evaluators to allocate.
+        /// </summary>
+        int Number { get; }
 
-        int VirtualCore { get; set; }
+        /// <summary>
+        /// Number of cores in the Evaluator.
+        /// </summary>
+        int VirtualCore { get; }
 
-        string Rack { get; set; }
+        /// <summary>
+        /// The desired rack name for the Evaluator to be allocated in.
+        /// </summary>
+        string Rack { get; }
 
-        string EvaluatorBatchId { get; set; }
-
-        List<ICapability> Capabilities { get; set; }
-
-        IResourceCatalog Catalog { get; set; }
+        // TODO[REEF-718] Document
+        string EvaluatorBatchId { get; }
     }
 }

@@ -32,9 +32,12 @@ namespace Org.Apache.REEF.Examples.AllHandlers
 
         private static readonly int _maxTrial = 2;
 
+        private readonly IEvaluatorRequestor _evaluatorRequestor;
+
         [Inject]
-        private HelloFailedEvaluatorHandler()
+        private HelloFailedEvaluatorHandler(IEvaluatorRequestor evaluatorRequestor)
         {
+            _evaluatorRequestor = evaluatorRequestor;
         }
 
         /// <summary>
@@ -47,12 +50,10 @@ namespace Org.Apache.REEF.Examples.AllHandlers
             if (++_failureCount < _maxTrial)
             {
                 Console.WriteLine("Requesting another evaluator");
-                EvaluatorRequest newRequest = new EvaluatorRequest(1, 512, "somerack");
-                IEvaluatorRequestor requestor = failedEvaluator.GetEvaluatorRequetor();
-                if (failedEvaluator.GetEvaluatorRequetor() != null)
-                {
-                    requestor.Submit(newRequest);
-                }
+                var newRequest =
+                    _evaluatorRequestor.NewBuilder().SetNumber(1).SetMegabytes(512).SetRackName("somerack").Build();
+                _evaluatorRequestor.Submit(newRequest);
+
             }
             else
             {

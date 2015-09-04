@@ -190,9 +190,7 @@ namespace Org.Apache.REEF.Examples.MachineLearning.KMeans
 
         public void OnNext(IDriverStarted value)
         {
-            int memory = 2048;
-            int core = 1;
-            EvaluatorRequest request = new EvaluatorRequest(_totalEvaluators, memory, core);
+            var request = _evaluatorRequestor.NewBuilder().SetCores(1).SetMegabytes(2048).Build();
 
             _evaluatorRequestor.Submit(request);
         }

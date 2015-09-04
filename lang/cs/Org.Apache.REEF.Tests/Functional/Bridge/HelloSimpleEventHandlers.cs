@@ -134,8 +134,14 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
                 int cpuCoreCount = 1;
                 string rack = "WonderlandRack";
                 string evaluatorBatchId = "evaluatorThatRequires3GBofMemory";
-                EvaluatorRequest request = new EvaluatorRequest(evaluatorsNumber, memory, cpuCoreCount, rack, evaluatorBatchId);
-
+                var request =
+                    _evaluatorRequestor.NewBuilder()
+                        .SetNumber(evaluatorsNumber)
+                        .SetMegabytes(memory)
+                        .SetCores(cpuCoreCount)
+                        .SetRackName(rack)
+                        .SetEvaluatorBatchId(evaluatorBatchId)
+                        .Build();
                 _evaluatorRequestor.Submit(request);
             }
         }
