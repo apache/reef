@@ -1,0 +1,354 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+[
+
+  /***********************/
+  /** Common Interfaces **/
+  /***********************/
+
+  /**
+   * org.apache.reef.common.Failure
+   */
+  {
+    "namespace": "org.apache.reef.io.watcher.common",
+    "type": "record",
+    "name": "AvroFailure",
+    "fields": [
+      {"name": "id", "type": "string"},
+      {"name": "message", "type": "string"},
+      {"name": "description", "type": ["string", "null"]},
+      {"name": "reason", "type": ["string", "null"]},
+      {"name": "data", "type": ["bytes", "null"]},
+      {"name": "asError", "type": "string"}
+    ]
+  },
+
+  /**
+   * org.apache.reef.driver.catalog.RackDescriptor
+   */
+  {
+    "namespace": "org.apache.reef.io.watcher.driver.catalog",
+    "type": "record",
+    "name": "AvroRackDescriptor",
+    "fields": [
+      {"name": "name", "type": "string"},
+      {
+        "name": "nodes",
+        "type": {
+          "type": "array",
+          "name": "AvroNodeDescriptor",
+          "items": {
+            "type": "record",
+            "name": "AvroNodeDescriptorInRackDescriptor",
+            "fields": [
+                  {"name": "id", "type": "string"},
+                  {"name": "name", "type": "string"},
+                  {"name": "inetSocketAddress", "type": "string"}
+            ]
+          }
+        }
+      }
+    ]
+  },
+
+  /**
+   * org.apache.reef.driver.catalog.NodeDescriptor
+   */
+  {
+    "namespace": "org.apache.reef.io.watcher.driver.catalog",
+    "type": "record",
+    "name": "AvroNodeDescriptor",
+    "fields": [
+      {"name": "id", "type": "string"},
+      {"name": "name", "type": "string"},
+      {"name": "inetSocketAddress", "type": "string"},
+      {"name": "rackDescriptor", "type": "org.apache.reef.io.watcher.driver.catalog.AvroRackDescriptor"}
+    ]
+  },
+
+  /**
+   * org.apache.reef.driver.evaluator.EvaluatorType
+   */
+  {
+    "namespace": "org.apache.reef.io.watcher.driver.evaluator",
+    "type": "enum",
+    "name": "AvroEvaluatorType",
+    "symbols": ["JVM", "CLR", "UNDECIDED"]
+  },
+
+  /**
+   * org.apache.reef.driver.evaluator.EvaluatorProcess
+   */
+  {
+    "namespace": "org.apache.reef.io.watcher.driver.evaluator",
+    "type": "record",
+    "name": "AvroEvaluatorProcess",
+    "fields": [
+      {
+        "name": "commandLines",
+        "type": {
+          "type": "array",
+          "items": ["string", "null"]
+        }
+      },
+      {"name": "evaluatorType", "type": "org.apache.reef.io.watcher.driver.evaluator.AvroEvaluatorType"},
+      {"name": "isOptionSet", "type": "boolean"}
+    ]
+  },
+
+  /**
+   * org.apache.reef.driver.evaluator.EvaluatorDescriptor
+   */
+  {
+    "namespace": "org.apache.reef.io.watcher.driver.evaluator",
+    "type": "record",
+    "name": "AvroEvaluatorDescriptor",
+    "fields": [
+      {"name": "nodeDescriptor", "type": "org.apache.reef.io.watcher.driver.catalog.AvroNodeDescriptor"},
+      {"name": "process", "type": "org.apache.reef.io.watcher.driver.evaluator.AvroEvaluatorProcess"},
+      {"name": "memory", "type": "int"},
+      {"name": "numberOfCores", "type": "int"}
+    ]
+  },
+
+  /*********************/
+  /** Time Interfaces **/
+  /*********************/
+
+  /**
+   * org.apache.reef.wake.time.runtime.event.RuntimeStart
+   */
+  {
+    "namespace": "org.apache.reef.io.watcher.wake.time.runtime.event",
+    "type": "record",
+    "name": "AvroRuntimeStart",
+    "fields": [
+      {"name": "timestamp", "type": "long"}
+    ]
+  },
+
+  /**
+   * org.apache.reef.wake.time.runtime.event.RuntimeStop
+   */
+  {
+    "namespace": "org.apache.reef.io.watcher.wake.time.runtime.event",
+    "type": "record",
+    "name": "AvroRuntimeStop",
+    "fields": [
+      {"name": "timestamp", "type": "long"},
+      {"name": "exception", "type": ["string", "null"]}
+    ]
+  },
+
+  /**
+   * org.apache.reef.wake.time.event.StartTime
+   */
+  {
+    "namespace": "org.apache.reef.io.watcher.wake.time.event",
+    "type": "record",
+    "name": "AvroStartTime",
+    "fields": [
+      {"name": "timestamp", "type": "long"}
+    ]
+  },
+
+  /**
+   * org.apache.reef.wake.time.event.StopTime
+   */
+  {
+    "namespace": "org.apache.reef.io.watcher.wake.time.event",
+    "type": "record",
+    "name": "AvroStopTime",
+    "fields": [
+      {"name": "timestamp", "type": "long"}
+    ]
+  },
+
+  /************************/
+  /** Context Interfaces **/
+  /************************/
+
+  /**
+   * org.apache.reef.driver.context.ContextBase
+   */
+  {
+    "namespace": "org.apache.reef.io.watcher.driver.context",
+    "type": "record",
+    "name": "AvroContextBase",
+    "fields": [
+      {"name": "id", "type": "string"},
+      {"name": "evaluatorId", "type": "string"},
+      {"name": "parentId", "type": ["string", "null"]},
+      {"name": "evaluatorDescriptor", "type": [
+        "org.apache.reef.io.watcher.driver.evaluator.AvroEvaluatorDescriptor",
+        "null"
+      ]}
+    ]
+  },
+
+  /**
+   * org.apache.reef.driver.context.ActiveContext
+   */
+  {
+    "namespace": "org.apache.reef.io.watcher.driver.context",
+    "type": "record",
+    "name": "AvroActiveContext",
+    "fields": [
+      {"name": "base", "type": "org.apache.reef.io.watcher.driver.context.AvroContextBase"}
+    ]
+  },
+
+  /**
+   * org.apache.reef.driver.context.ClosedContext
+   */
+  {
+    "namespace": "org.apache.reef.io.watcher.driver.context",
+    "type": "record",
+    "name": "AvroClosedContext",
+    "fields": [
+      {"name": "base", "type": "org.apache.reef.io.watcher.driver.context.AvroContextBase"},
+      {"name": "parentContext", "type": "org.apache.reef.io.watcher.driver.context.AvroActiveContext"}
+    ]
+  },
+
+  /**
+   * org.apache.reef.driver.context.FailedContext
+   */
+  {
+    "namespace": "org.apache.reef.io.watcher.driver.context",
+    "type": "record",
+    "name": "AvroFailedContext",
+    "fields": [
+      {"name": "base", "type": "org.apache.reef.io.watcher.driver.context.AvroContextBase"},
+      {"name": "parentContext", "type": ["org.apache.reef.io.watcher.driver.context.AvroActiveContext", "null"]},
+      {"name": "failure", "type": "org.apache.reef.io.watcher.common.AvroFailure"}
+    ]
+  },
+
+  /**
+   * org.apache.reef.driver.context.ContextMessage
+   */
+  {
+    "namespace": "org.apache.reef.io.watcher.driver.context",
+    "type": "record",
+    "name": "AvroContextMessage",
+    "fields": [
+      {"name": "id", "type": "string"},
+      {"name": "messageSourceId", "type": "string"},
+      {"name": "get", "type": ["bytes", "null"]}
+    ]
+  },
+
+  /*********************/
+  /** Task Interfaces **/
+  /*********************/
+  {
+    "namespace": "org.apache.reef.io.watcher.driver.task",
+    "type": "record",
+    "name": "AvroCompletedTask",
+    "fields": [
+      {"name": "id", "type": "string"},
+      {"name": "activeContext", "type": "org.apache.reef.io.watcher.driver.context.AvroActiveContext"},
+      {"name": "get", "type": ["bytes", "null"]}
+    ]
+  },
+
+  {
+    "namespace": "org.apache.reef.io.watcher.driver.task",
+    "type": "record",
+    "name": "AvroFailedTask",
+    "fields": [
+      {"name": "failure", "type": "org.apache.reef.io.watcher.common.AvroFailure"},
+      {"name": "activeContext", "type": ["org.apache.reef.io.watcher.driver.context.AvroActiveContext", "null"]}
+    ]
+  },
+
+  {
+    "namespace": "org.apache.reef.io.watcher.driver.task",
+    "type": "record",
+    "name": "AvroRunningTask",
+    "fields": [
+      {"name": "id", "type": "string"},
+      {"name": "activeContext", "type": "org.apache.reef.io.watcher.driver.context.AvroActiveContext"}
+    ]
+  },
+
+  {
+    "namespace": "org.apache.reef.io.watcher.driver.task",
+    "type": "record",
+    "name": "AvroSuspendedTask",
+    "fields": [
+      {"name": "id", "type": "string"},
+      {"name": "activeContext", "type": "org.apache.reef.io.watcher.driver.context.AvroActiveContext"},
+      {"name": "get", "type": ["bytes", "null"]}
+    ]
+  },
+
+  {
+    "namespace": "org.apache.reef.io.watcher.driver.task",
+    "type": "record",
+    "name": "AvroTaskMessage",
+    "fields": [
+      {"name": "id", "type": "string"},
+      {"name": "contextId", "type": "string"},
+      {"name": "messageSourceId", "type": "string"},
+      {"name": "get", "type": ["bytes", "null"]}
+    ]
+  },
+
+  /**************************/
+  /** Evaluator Interfaces **/
+  /**************************/
+
+  {
+    "namespace": "org.apache.reef.io.watcher.driver.evaluator",
+    "type": "record",
+    "name": "AvroAllocatedEvaluator",
+    "fields": [
+      {"name": "id", "type": "string"},
+      {"name": "evaluatorDescriptor", "type": "org.apache.reef.io.watcher.driver.evaluator.AvroEvaluatorDescriptor"}
+    ]
+  },
+
+  {
+    "namespace": "org.apache.reef.io.watcher.driver.evaluator",
+    "type": "record",
+    "name": "AvroCompletedEvaluator",
+    "fields": [
+      {"name": "id", "type": "string"}
+    ]
+  },
+
+  {
+    "namespace": "org.apache.reef.io.watcher.driver.evaluator",
+    "type": "record",
+    "name": "AvroFailedEvaluator",
+    "fields": [
+      {"name": "id", "type": "string"},
+      {"name": "evaluatorException", "type": "string"},
+      {
+        "name": "failedContextList", "type": {
+          "type": "array",
+          "items": "org.apache.reef.io.watcher.driver.context.AvroFailedContext"
+        }
+      },
+      {"name": "failedTask", "type": ["org.apache.reef.io.watcher.driver.task.AvroFailedTask", "null"]}
+    ]
+  }
+]
