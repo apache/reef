@@ -24,6 +24,9 @@ namespace Org.Apache.REEF.Driver.Task
 {
     public interface ICompletedTask : IMessage, IIdentifiable
     {
-         IActiveContext ActiveContext { get; set; }
+        /// <summary>
+        /// The Context on which this task was executed.
+        /// </summary>
+        IActiveContext ActiveContext { get; }
     }
 }

@@ -19,7 +19,6 @@
 
 using System;
 using System.Collections.Generic;
-using Org.Apache.REEF.Common.Exceptions;
 using Org.Apache.REEF.Driver.Bridge.Events;
 using Org.Apache.REEF.Driver.Task;
 using Org.Apache.REEF.Utilities;
