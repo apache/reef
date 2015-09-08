@@ -20,7 +20,7 @@ using Org.Apache.REEF.Client.API;
 using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Util;
 
-namespace Org.Apache.REEF.Client.YARN
+namespace Org.Apache.REEF.Client.Yarn
 {
     /// <summary>
     /// The Configuration for the YARN Client
@@ -28,7 +28,7 @@ namespace Org.Apache.REEF.Client.YARN
     public sealed class YARNClientConfiguration : ConfigurationModuleBuilder
     {
         public static ConfigurationModule ConfigurationModule = new YARNClientConfiguration()
-            .BindImplementation(GenericType<IREEFClient>.Class, GenericType<YARNClient>.Class)
+            .BindImplementation(GenericType<IREEFClient>.Class, GenericType<YarnREEFClient>.Class)
             .Build();
     }
 }
