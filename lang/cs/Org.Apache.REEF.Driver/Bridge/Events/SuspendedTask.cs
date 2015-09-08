@@ -44,10 +44,6 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
             {
                 return SuspendedTaskClr2Java.Get();
             }
-
-            set
-            {
-            }
         }
 
         public string Id
@@ -67,10 +63,6 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
             get
             {
                 return new ActiveContext(ActiveContextClr2Java);
-            }
-
-            set
-            {
             }
         }
 
