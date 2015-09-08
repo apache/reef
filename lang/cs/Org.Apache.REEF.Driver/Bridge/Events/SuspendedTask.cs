@@ -56,10 +56,6 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
             {
                 return SuspendedTaskClr2Java.GetId();
             }
-
-            set
-            {
-            }
         }
 
         public IActiveContext ActiveContext

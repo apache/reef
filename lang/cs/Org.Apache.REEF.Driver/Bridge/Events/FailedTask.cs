@@ -46,7 +46,7 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
         [DataMember]
         public string InstanceId { get; set; }
 
-        public string Id { get; set; }
+        public string Id { get; private set; }
 
         public string Message { get; set; }
 

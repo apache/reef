@@ -48,10 +48,6 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
             {
                 return _id;
             }
-
-            set
-            {
-            }
         }
 
         public string EvaluatorId
