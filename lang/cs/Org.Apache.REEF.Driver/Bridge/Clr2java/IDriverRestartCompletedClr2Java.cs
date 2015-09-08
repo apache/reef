@@ -16,24 +16,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 using System;
 
-namespace Org.Apache.REEF.Driver
+namespace Org.Apache.REEF.Driver.Bridge.Clr2java
 {
-    /// <summary>
-    /// Event fired on Driver restart completed
-    /// </summary>
-    public interface IDriverRestartCompleted
+    public interface IDriverRestartCompletedClr2Java
     {
         /// <summary>
-        /// The completed time of driver restart process.
+        /// Completed time of the restart.
         /// </summary>
-        DateTime CompletedTime { get; }
+        DateTime GetCompletedTime();
 
         /// <summary>
-        /// Whether the driver restart completed event fired due to a timeout.
+        /// Returns True if restart completed fired on timeout.
         /// </summary>
-        bool IsTimedOut { get; }
+        bool IsTimedOut();
     }
 }

@@ -135,6 +135,7 @@ under the License.
     <ClCompile Include="CompletedTaskClr2Java.cpp" />
     <ClCompile Include="ContextMessageClr2Java.cpp" />
     <ClCompile Include="DriverRestartedClr2Java.cpp" />
+    <ClCompile Include="DriverRestartCompletedClr2Java.cpp" />
     <ClCompile Include="EvaluatorRequestorClr2Java.cpp" />
     <ClCompile Include="FailedContextClr2Java.cpp" />
     <ClCompile Include="FailedEvaluatorClr2Java.cpp" />

@@ -18,24 +18,33 @@
  */
 
 using System;
+using Org.Apache.REEF.Driver.Bridge.Clr2java;
+using Org.Apache.REEF.Driver.Defaults;
 
 namespace Org.Apache.REEF.Driver.Bridge.Events
 {
     /// <summary>
-    /// Implementation of IDriverStarted.
+    /// Implementation of IDriverRestartCompleted.
     /// </summary>
     internal sealed class DriverRestartCompleted : IDriverRestartCompleted
     {
         private readonly DateTime _completedTime;
+        private readonly bool _isTimedOut;
 
-        internal DriverRestartCompleted(DateTime completedTime)
+        internal DriverRestartCompleted(IDriverRestartCompletedClr2Java driverRestartCompletedClr2Java)
         {
-            this._completedTime = completedTime;
+            _completedTime = driverRestartCompletedClr2Java.GetCompletedTime();
+            _isTimedOut = driverRestartCompletedClr2Java.IsTimedOut();
         }
 
         public DateTime CompletedTime
         {
-            get { return this._completedTime; }
+            get { return _completedTime; }
+        }
+
+        public bool IsTimedOut
+        {
+            get { return _isTimedOut; }
         }
     }
 }

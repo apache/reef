@@ -58,6 +58,12 @@ String^ ManagedStringFromJavaString (
   return nullptr;
 }
 
+bool ClrBoolFromJavaBoolean(
+	JNIEnv * env,
+	jboolean jbool) {
+	return jbool != JNI_FALSE;
+}
+
 jstring JavaStringFromManagedString(
   JNIEnv *env,
   String^ managedString) {

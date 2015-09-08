@@ -116,6 +116,9 @@
     <ClCompile Include="DriverRestartedClr2Java.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="DriverRestartCompletedClr2Java.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
