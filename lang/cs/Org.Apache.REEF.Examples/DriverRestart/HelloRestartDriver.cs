@@ -141,7 +141,8 @@ namespace Org.Apache.REEF.Examples.DriverRestart
 
         public void OnNext(IDriverRestartCompleted value)
         {
-            Logger.Log(Level.Info, "Driver restart has completed.");
+            var timedOutStr = (value.IsTimedOut ? " due to timeout" : string.Empty);
+            Logger.Log(Level.Info, "Driver restart has completed" + timedOutStr + ".");
         }
 
         public void OnNext(ICompletedTask value)

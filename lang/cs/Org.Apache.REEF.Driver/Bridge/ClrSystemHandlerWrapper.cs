@@ -210,13 +210,13 @@ namespace Org.Apache.REEF.Driver.Bridge
             }
         }
 
-        public static void Call_ClrSystemDriverRestartCompleted_OnNext(ulong handle)
+        public static void Call_ClrSystemDriverRestartCompleted_OnNext(ulong handle, IDriverRestartCompletedClr2Java clr2Java)
         {
             using (LOGGER.LogFunction("ClrSystemHandlerWrapper::Call_ClrSystemDriverRestartCompleted_OnNext"))
             {
                 GCHandle gc = GCHandle.FromIntPtr((IntPtr)handle);
                 ClrSystemHandler<IDriverRestartCompleted> obj = (ClrSystemHandler<IDriverRestartCompleted>)gc.Target;
-                obj.OnNext(new DriverRestartCompleted(DateTime.Now));
+                obj.OnNext(new DriverRestartCompleted(clr2Java));
             }
         }
 

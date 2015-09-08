@@ -41,6 +41,10 @@ String^ ManagedStringFromJavaString (
   JNIEnv *env,
   jstring javaString);
 
+bool ClrBoolFromJavaBoolean(
+	JNIEnv * env,
+	jboolean jbool);
+
 jstring JavaStringFromManagedString(
   JNIEnv *env,
   String^ managedString);

@@ -16,30 +16,30 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.javabridge;
+package org.apache.reef.javabridge.generic;
 
 import org.apache.reef.annotations.Unstable;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
-
-import java.util.Set;
+import org.apache.reef.driver.restart.DriverRestartCompleted;
+import org.apache.reef.javabridge.NativeBridge;
 
 /**
- * The Java-CLR bridge object for {@link org.apache.reef.driver.restart.DriverRestarted} events.
+ * The Java-CLR bridge object for {@link DriverRestartCompleted} events.
  */
 @Private
 @DriverSide
 @Unstable
-public final class DriverRestartedBridge extends NativeBridge {
+public final class DriverRestartCompletedBridge extends NativeBridge {
   // Used by bridge to extract field. Please take this into consideration when changing the name of the field.
-  private final String[] expectedEvaluatorIds;
+  private boolean isTimedOut;
 
-  public DriverRestartedBridge(final Set<String> expectedEvaluatorIds) {
-    this.expectedEvaluatorIds = expectedEvaluatorIds.toArray(new String[expectedEvaluatorIds.size()]);
+  DriverRestartCompletedBridge(final DriverRestartCompleted driverRestartCompleted) {
+    this.isTimedOut = driverRestartCompleted.isTimedOut();
   }
 
-  public String[] getExpectedEvaluatorIds() {
-    return expectedEvaluatorIds;
+  public boolean isTimedOut() {
+    return isTimedOut;
   }
 
   @Override

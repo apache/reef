@@ -495,13 +495,14 @@ JNIEXPORT void JNICALL Java_org_apache_reef_javabridge_NativeInterop_clrSystemDr
 /*
 * Class:     org_apache_reef_javabridge_NativeInterop
 * Method:    clrSystemDriverRestartCompletedHandlerOnNext
-* Signature: (J)V
+* Signature: (JLorg/apache/reef/javabridge/generic/DriverRestartCompletedBridge;)V
 */
 JNIEXPORT void JNICALL Java_org_apache_reef_javabridge_NativeInterop_clrSystemDriverRestartCompletedHandlerOnNext
-(JNIEnv * env, jclass cls, jlong handler) {
+(JNIEnv * env, jclass cls , jlong handler, jobject jdriverRestartCompleted) {
 	ManagedLog::LOGGER->Log("+Java_org_apache_reef_javabridge_NativeInterop_clrSystemDriverRestartCompletedHandlerOnNext");
+	DriverRestartCompletedClr2Java^ driverRestartCompletedBridge = gcnew DriverRestartCompletedClr2Java(env, jdriverRestartCompleted);
 	try {
-		ClrSystemHandlerWrapper::Call_ClrSystemDriverRestartCompleted_OnNext(handler);
+		ClrSystemHandlerWrapper::Call_ClrSystemDriverRestartCompleted_OnNext(handler, driverRestartCompletedBridge);
 	}
 	catch (System::Exception^ ex) {
 		String^ errorMessage = "Exception in Call_ClrSystemDriverRestartRunningTask_OnNext";

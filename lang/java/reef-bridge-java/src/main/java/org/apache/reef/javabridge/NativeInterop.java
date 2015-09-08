@@ -18,6 +18,8 @@
  */
 package org.apache.reef.javabridge;
 
+import org.apache.reef.javabridge.generic.DriverRestartCompletedBridge;
+
 import java.util.HashMap;
 
 public final class NativeInterop {
@@ -164,7 +166,8 @@ public final class NativeInterop {
   );
 
   public static native void clrSystemDriverRestartCompletedHandlerOnNext(
-      final long handle
+      final long handle,
+      final DriverRestartCompletedBridge driverRestartCompletedBridge
   );
 
   public static native void clrSystemDriverRestartFailedEvaluatorHandlerOnNext(

@@ -650,8 +650,8 @@ public final class JobDriver {
         if (JobDriver.this.driverRestartCompletedHandler != 0) {
           LOG.log(Level.INFO, "CLR driver restart handler implemented, now handle it in CLR.");
 
-          // TODO[REEF-690]: Pass in DriverRestartCompleted object to .NET.
-          NativeInterop.clrSystemDriverRestartCompletedHandlerOnNext(JobDriver.this.driverRestartCompletedHandler);
+          NativeInterop.clrSystemDriverRestartCompletedHandlerOnNext(
+              JobDriver.this.driverRestartCompletedHandler, new DriverRestartCompletedBridge(driverRestartCompleted));
         } else {
           LOG.log(Level.WARNING, "No CLR driver restart handler implemented, done with DriverRestartCompletedHandler.");
         }

@@ -227,6 +227,18 @@ namespace Org {
 						  virtual array<String^>^ GetExpectedEvaluatorIds();
 						  virtual DateTime GetStartTime();
 					  };
+
+					  public ref class DriverRestartCompletedClr2Java : public IDriverRestartCompletedClr2Java {
+						  jobject _jobjectDriverRestartCompleted;
+						  JavaVM* _jvm;
+						  DateTime _restartCompletedTime;
+						  bool _isTimedOut;
+					  public:
+						  DriverRestartCompletedClr2Java(JNIEnv *env, jobject jobobjectDriverRestartCompleted);
+						  virtual void OnError(String^ message);
+						  virtual DateTime GetCompletedTime();
+						  virtual bool IsTimedOut();
+					  };
 				  }
 			  }
 		  }
