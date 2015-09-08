@@ -23,35 +23,33 @@ using Org.Apache.REEF.Common.Evaluator;
 namespace Org.Apache.REEF.Driver.Evaluator
 {
     /// <summary>
-    ///  Metadata about an Evaluator.
+    /// Metadata about an Evaluator.
     /// </summary>
     public interface IEvaluatorDescriptor
     {
         /// <summary>
-        ///  NodeDescriptor of the node where this Evaluator is running.
+        /// NodeDescriptor of the node where this Evaluator is running.
         /// </summary>
-        INodeDescriptor NodeDescriptor { get; set; }
+        INodeDescriptor NodeDescriptor { get; }
 
         /// <summary>
         /// type of Evaluator.
         /// </summary>
-        EvaluatorType EvaluatorType { get; set; }
+        EvaluatorType EvaluatorType { get; }
 
         /// <summary>
         /// the amount of memory allocated to this Evaluator.
         /// </summary>
-        int Memory { get; set; }
+        int Memory { get; }
 
         /// <summary>
         /// the virtual core allocated to this Evaluator.
         /// </summary>
-        int VirtualCore { get; set; }
+        int VirtualCore { get; }
 
         /// <summary>
         /// rack on which the evaluator was allocated
         /// </summary>
-        string Rack { get; set; }
-
-        void FromString(string str);
+        string Rack { get; }
     }
 }
