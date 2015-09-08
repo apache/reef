@@ -69,7 +69,6 @@ namespace Org.Apache.REEF.Common.Exceptions
         public string Id
         {
             get { return _evaluatorId; }
-            set { }
         }
     }
 }

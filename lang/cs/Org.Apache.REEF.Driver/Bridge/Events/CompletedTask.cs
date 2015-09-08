@@ -49,10 +49,6 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
             {
                 return CompletedTaskClr2Java.GetId();
             }
-
-            set
-            {
-            }
         }
 
         public IActiveContext ActiveContext

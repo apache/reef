@@ -38,7 +38,6 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
         public string Id
         {
             get { return _id; }
-            set { }
         }
 
         public string MessageSourceId

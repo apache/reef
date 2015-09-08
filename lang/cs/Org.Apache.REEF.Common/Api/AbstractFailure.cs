@@ -101,7 +101,7 @@ namespace Org.Apache.REEF.Common.Api
         /// <summary>
         /// Identifier of the entity that produced the error. Cannot be null.
         /// </summary>
-        public string Id { get; set; }
+        public string Id { get; private set; }
 
         public string Message { get; set; }
 
