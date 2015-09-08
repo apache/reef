@@ -18,53 +18,53 @@
  */
 
 using System;
-using Org.Apache.REEF.Common.Tasks;
+using Org.Apache.REEF.Driver.Task;
 using Org.Apache.REEF.Utilities;
 
-namespace Org.Apache.REEF.Common.Exceptions
+namespace Org.Apache.REEF.Driver.Evaluator
 {
-    public class EvaluatorException : System.Exception, IIdentifiable
+    // Public only such that it can be used in the bridge.
+    /// <summary>
+    /// </summary>
+    public sealed class EvaluatorException : Exception, IIdentifiable
     {
         private readonly string _evaluatorId;
+        private readonly IRunningTask _runningTask;
 
-        public EvaluatorException(string evaluatorId)
+        internal EvaluatorException(string evaluatorId, IRunningTask runningTask = null)
         {
             _evaluatorId = evaluatorId;
-            RunningTask = null;
+            _runningTask = runningTask;
         }
 
-        public EvaluatorException(string evaluatorId, string message, System.Exception cause)
+        internal EvaluatorException(string evaluatorId, string message, Exception cause, IRunningTask runningTask = null)
             : base(message, cause)
         {
             _evaluatorId = evaluatorId;
-            RunningTask = null;
+            _runningTask = runningTask;
         }
 
-        public EvaluatorException(string evaluatorId, string message)
-            : this(evaluatorId, message, (IRunningTask)null)
-        {
-        }
-
-        public EvaluatorException(string evaluatorId, string message, IRunningTask runningTask)
+        internal EvaluatorException(string evaluatorId, string message, IRunningTask runningTask = null)
             : base(message)
         {
             _evaluatorId = evaluatorId;
-            RunningTask = runningTask;
+            _runningTask = runningTask;
         }
 
-        public EvaluatorException(string evaluatorId, System.Exception cause)
-            : this(evaluatorId, cause, null)
-        {
-        }
-
-        public EvaluatorException(string evaluatorId, Exception cause, IRunningTask runningTask)
+        internal EvaluatorException(string evaluatorId, Exception cause, IRunningTask runningTask = null)
             : base(string.Empty, cause)
         {
             _evaluatorId = evaluatorId;
-            RunningTask = runningTask;
+            _runningTask = runningTask;
         }
 
-        public IRunningTask RunningTask { get; set; }
+        /// <summary>
+        /// The task that was running on the Evaluator or null if none was running exists.
+        /// </summary>
+        public IRunningTask RunningTask
+        {
+            get { return _runningTask; }
+        }
 
         public string Id
         {

@@ -22,15 +22,12 @@ using System.Runtime.Serialization;
 using Org.Apache.REEF.Driver.Bridge.Clr2java;
 using Org.Apache.REEF.Driver.Context;
 using Org.Apache.REEF.Driver.Task;
-using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Driver.Bridge.Events
 {
     [DataContract]
     internal class CompletedTask : ICompletedTask
     {
-        private static readonly Logger LOGGER = Logger.GetLogger(typeof(CompletedTask));
-
         internal CompletedTask(ICompletedTaskClr2Java completedTaskClr2Java)
         {
             InstanceId = Guid.NewGuid().ToString("N");
@@ -56,10 +53,6 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
             get
             {
                 return new ActiveContext(ActiveContextClr2Java);
-            }
-
-            set
-            {
             }
         }
 

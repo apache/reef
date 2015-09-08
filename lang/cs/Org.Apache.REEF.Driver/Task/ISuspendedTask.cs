@@ -22,8 +22,14 @@ using Org.Apache.REEF.Utilities;
 
 namespace Org.Apache.REEF.Driver.Task
 {
+    /// <summary>
+    /// Represents a suspended task.
+    /// </summary>
     public interface ISuspendedTask : IMessage, IIdentifiable
     {
-        IActiveContext ActiveContext { get; set; }
+        /// <summary>
+        /// The Context on which the task was suspended.
+        /// </summary>
+        IActiveContext ActiveContext { get; }
     }
 }

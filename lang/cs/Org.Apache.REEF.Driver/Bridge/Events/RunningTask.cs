@@ -45,11 +45,6 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
             {
                 return new ActiveContext(_activeContextClr2Java);
             }
-            
-            set
-            {
-                ActiveContext = value;
-            }
         }
 
         public string Id
@@ -63,11 +58,6 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
         public void Send(byte[] message)
         {
             _runningTaskClr2Java.Send(message);
-        }
-
-        public void OnNext(byte[] message)
-        {
-            throw new NotImplementedException();
         }
 
         public void Suspend(byte[] message)

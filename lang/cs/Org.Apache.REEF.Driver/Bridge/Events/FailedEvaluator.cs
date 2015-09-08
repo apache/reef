@@ -20,7 +20,6 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
-using Org.Apache.REEF.Common.Exceptions;
 using Org.Apache.REEF.Driver.Bridge.Clr2java;
 using Org.Apache.REEF.Driver.Evaluator;
 using Org.Apache.REEF.Driver.Task;

@@ -31,13 +31,7 @@ namespace Org.Apache.REEF.Driver.Task
         /// <summary>
         /// the context the task is running on.
         /// </summary>
-        IActiveContext ActiveContext { get; set; }
-
-        /// <summary>
-        /// Sends the message to the running task.
-        /// </summary>
-        /// <param name="message"></param>
-        void OnNext(byte[] message);
+        IActiveContext ActiveContext { get; }
 
         /// <summary>
         /// Sends the message
