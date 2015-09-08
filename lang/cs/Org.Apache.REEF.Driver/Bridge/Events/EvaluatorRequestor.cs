@@ -71,8 +71,7 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
             {
                 for (int i = 0; i < request.Number; i++)
                 {
-                    EvaluatorDescriptorImpl descriptor = new EvaluatorDescriptorImpl(new NodeDescriptorImpl(), EvaluatorType.CLR, request.MemoryMegaBytes, request.VirtualCore);
-                    descriptor.Rack = request.Rack;
+                    EvaluatorDescriptorImpl descriptor = new EvaluatorDescriptorImpl(new NodeDescriptorImpl(), EvaluatorType.CLR, request.MemoryMegaBytes, request.VirtualCore, request.Rack);
                     string key = string.Format(CultureInfo.InvariantCulture, "{0}_{1}", request.EvaluatorBatchId, i);
                     try
                     {

@@ -29,100 +29,38 @@ using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Driver.Evaluator
 {
-    public class EvaluatorDescriptorImpl : IEvaluatorDescriptor
+    // This class is `public` because it is called from C++ code.
+    public sealed class EvaluatorDescriptorImpl : IEvaluatorDescriptor
     {
+        private const string DefaultRackName = "default_rack";
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(EvaluatorDescriptorImpl));
-        
-        private INodeDescriptor _nodeDescriptor;
+        private readonly int _core;
+        private readonly EvaluatorType _evaluatorType;
+        private readonly int _megaBytes;
+        private readonly INodeDescriptor _nodeDescriptor;
+        private readonly string _rack;
 
-        private EvaluatorType _type;
-
-        private int _megaBytes;
-
-        private int _virtualCore;
-
-        private readonly string _rack = "default_rack";
-
-        public EvaluatorDescriptorImpl(string serializedString)
-        {
-            FromString(serializedString);
-        }
-
-        public EvaluatorDescriptorImpl(INodeDescriptor nodeDescriptor, EvaluatorType type, int megaBytes, int core)
+        internal EvaluatorDescriptorImpl(INodeDescriptor nodeDescriptor, EvaluatorType type, int megaBytes, int core,
+            string rack = DefaultRackName)
         {
             _nodeDescriptor = nodeDescriptor;
-            _type = type;
+            _evaluatorType = type;
             _megaBytes = megaBytes;
-            _virtualCore = core;
+            _core = core;
+            _rack = rack;
         }
 
-        public INodeDescriptor NodeDescriptor 
+        /// <summary>
+        /// Constructor only to be used by the bridge.
+        /// </summary>
+        /// <param name="str"></param>
+        public EvaluatorDescriptorImpl(string str)
         {
-            get
+            var settings = new Dictionary<string, string>();
+            var components = str.Split(',');
+            foreach (var component in components)
             {
-                return _nodeDescriptor;
-            }
-
-            set
-            {
-            }
-        }
-
-        public EvaluatorType EvaluatorType
-        {
-            get
-            {
-                return _type;
-            }
-
-            set
-            {
-            }
-        }
-
-        public int Memory
-        {
-            get
-            {
-                return _megaBytes;
-            }
-
-            set
-            {
-            }
-        }
-
-        public int VirtualCore
-        {
-            get
-            {
-                return _virtualCore;
-            }
-
-            set
-            {
-            }
-        }
-
-        public string Rack
-        {
-            get
-            {
-                return _rack;
-            }
-
-            set
-            {
-            }
-        }
-
-        public void FromString(string str)
-        {
-            Dictionary<string, string> settings = new Dictionary<string, string>();
-            string[] components = str.Split(',');
-            foreach (string component in components)
-            {
-                string[] pair = component.Trim().Split('=');
+                var pair = component.Trim().Split('=');
                 if (pair == null || pair.Length != 2)
                 {
                     var e = new ArgumentException("invalid component to be used as key-value pair:", component);
@@ -133,27 +71,27 @@ namespace Org.Apache.REEF.Driver.Evaluator
             string ipAddress;
             if (!settings.TryGetValue("IP", out ipAddress))
             {
-                Exceptions.Throw(new ArgumentException("cannot find IP entry"), LOGGER); 
+                Exceptions.Throw(new ArgumentException("cannot find IP entry"), LOGGER);
             }
             ipAddress = ipAddress.Split('/').Last();
             string port;
             if (!settings.TryGetValue("Port", out port))
             {
-                Exceptions.Throw(new ArgumentException("cannot find Port entry"), LOGGER); 
+                Exceptions.Throw(new ArgumentException("cannot find Port entry"), LOGGER);
             }
-            int portNumber = 0;
+            var portNumber = 0;
             int.TryParse(port, out portNumber);
             string hostName;
             if (!settings.TryGetValue("HostName", out hostName))
             {
-                Exceptions.Throw(new ArgumentException("cannot find HostName entry"), LOGGER); 
+                Exceptions.Throw(new ArgumentException("cannot find HostName entry"), LOGGER);
             }
             string memory;
             if (!settings.TryGetValue("Memory", out memory))
             {
                 Exceptions.Throw(new ArgumentException("cannot find Memory entry"), LOGGER);
             }
-            int memoryInMegaBytes = 0;
+            var memoryInMegaBytes = 0;
             int.TryParse(memory, out memoryInMegaBytes);
 
             string core;
@@ -161,35 +99,45 @@ namespace Org.Apache.REEF.Driver.Evaluator
             {
                 Exceptions.Throw(new ArgumentException("cannot find Core entry"), LOGGER);
             }
-            int vCore = 0;
+            var vCore = 0;
             int.TryParse(core, out vCore);
 
-            IPEndPoint ipEndPoint = new IPEndPoint(IPAddress.Parse(ipAddress), portNumber);
+            var ipEndPoint = new IPEndPoint(IPAddress.Parse(ipAddress), portNumber);
 
-            _nodeDescriptor = new NodeDescriptorImpl();
-            _nodeDescriptor.InetSocketAddress = ipEndPoint;
-            _nodeDescriptor.HostName = hostName;        
-            _type = EvaluatorType.CLR;
+            _nodeDescriptor = new NodeDescriptorImpl {InetSocketAddress = ipEndPoint, HostName = hostName};
+            _evaluatorType = EvaluatorType.CLR;
             _megaBytes = memoryInMegaBytes;
-            _virtualCore = vCore;
+            _core = vCore;
         }
 
-        public void SetType(EvaluatorType type)
+        public INodeDescriptor NodeDescriptor
         {
-            lock (this)
-            {
-                if (_type != EvaluatorType.UNDECIDED)
-                {
-                    var e = new InvalidOperationException("Cannot change a set evaluator type: " + _type);
-                    Exceptions.Throw(e, LOGGER);
-                }
-                _type = type;
-            }
+            get { return _nodeDescriptor; }
+        }
+
+        public EvaluatorType EvaluatorType
+        {
+            get { return _evaluatorType; }
+        }
+
+        public int Memory
+        {
+            get { return _megaBytes; }
+        }
+
+        public int VirtualCore
+        {
+            get { return _core; }
+        }
+
+        public string Rack
+        {
+            get { return _rack; }
         }
 
         public override bool Equals(object obj)
         {
-            EvaluatorDescriptorImpl other = obj as EvaluatorDescriptorImpl;
+            var other = obj as EvaluatorDescriptorImpl;
             if (other == null)
             {
                 return false;
@@ -205,13 +153,13 @@ namespace Org.Apache.REEF.Driver.Evaluator
             return base.GetHashCode();
         }
 
-        private bool EquivalentMemory(EvaluatorDescriptorImpl other)
+        private bool EquivalentMemory(IEvaluatorDescriptor other)
         {
-            int granularity = ClrHandlerHelper.MemoryGranularity == 0
-                                  ? Constants.DefaultMemoryGranularity
-                                  : ClrHandlerHelper.MemoryGranularity;
-            int m1 = (Memory - 1) / granularity;
-            int m2 = (other.Memory - 1 ) / granularity;
+            var granularity = ClrHandlerHelper.MemoryGranularity == 0
+                ? Constants.DefaultMemoryGranularity
+                : ClrHandlerHelper.MemoryGranularity;
+            var m1 = (Memory - 1)/granularity;
+            var m2 = (other.Memory - 1)/granularity;
             return (m1 == m2);
         }
     }
