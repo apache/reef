@@ -27,7 +27,7 @@ using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities.Diagnostics;
 using Org.Apache.REEF.Utilities.Logging;
 
-namespace Org.Apache.REEF.Client.YARN
+namespace Org.Apache.REEF.Client.Yarn
 {
     /// <summary>
     /// Helper class to interact with the YARN command line.

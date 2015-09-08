@@ -27,23 +27,23 @@ using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Utilities.Logging;
 
-namespace Org.Apache.REEF.Client.YARN
+namespace Org.Apache.REEF.Client.Yarn
 {
-    internal sealed class YARNClient : IREEFClient
+    internal sealed class YarnREEFClient : IREEFClient
     {
         /// <summary>
         /// The class name that contains the Java counterpart for this client.
         /// </summary>
         private const string JavaClassName = "org.apache.reef.bridge.client.YarnJobSubmissionClient";
 
-        private static readonly Logger Logger = Logger.GetLogger(typeof(YARNClient));
+        private static readonly Logger Logger = Logger.GetLogger(typeof(YarnREEFClient));
         private readonly DriverFolderPreparationHelper _driverFolderPreparationHelper;
         private readonly JavaClientLauncher _javaClientLauncher;
         private String _driverUrl;
         private REEFFileNames _fileNames;
 
         [Inject]
-        internal YARNClient(JavaClientLauncher javaClientLauncher,
+        internal YarnREEFClient(JavaClientLauncher javaClientLauncher,
             DriverFolderPreparationHelper driverFolderPreparationHelper,
             REEFFileNames fileNames,
             YarnCommandLineEnvironment yarn)
