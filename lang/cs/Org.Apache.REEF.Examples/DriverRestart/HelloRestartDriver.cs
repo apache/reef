@@ -20,7 +20,9 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Text;
+using System.Threading;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Driver;
 using Org.Apache.REEF.Driver.Context;
@@ -48,23 +50,32 @@ namespace Org.Apache.REEF.Examples.DriverRestart
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(HelloRestartDriver));
         private const int NumberOfTasksToSubmit = 1;
+        private const int NumberOfTasksToSubmitOnRestart = 1;
 
         private readonly IEvaluatorRequestor _evaluatorRequestor;
-        private readonly ISet<string> _receivedEvaluators = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-        private readonly object _lockObj;
+
+        private bool _isRestart;
+        private readonly ISet<string> _newlyReceivedEvaluators = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        private readonly ISet<string> _expectToRecoverEvaluators = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        private readonly ISet<string> _expiredEvaluators = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        private readonly ISet<string> _recoveredEvaluators = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        private readonly object _lockObj = new object();
+        private readonly Timer _exceptionTimer;
         
-        private int _runningTaskCount;
-        private int _finishedTaskCount;
-        private bool _restarted;
+        private int _newRunningTaskCount = 0;
+        private int _finishedRecoveredTaskCount = 0;
+        private int _finishedNewRunningTaskCount = 0;
 
         [Inject]
         private HelloRestartDriver(IEvaluatorRequestor evaluatorRequestor)
         {
-            _finishedTaskCount = 0;
-            _runningTaskCount = 0;
+            _exceptionTimer = new Timer(obj =>
+            {
+                throw new Exception("Expected driver to be finished by now.");
+            }, new object(), TimeSpan.FromMinutes(10), TimeSpan.FromMinutes(10));
+
             _evaluatorRequestor = evaluatorRequestor;
-            _restarted = false;
-            _lockObj = new object();
         }
 
         /// <summary>
@@ -74,7 +85,7 @@ namespace Org.Apache.REEF.Examples.DriverRestart
         {
             lock (_lockObj)
             {
-                _receivedEvaluators.Add(allocatedEvaluator.Id);
+                _newlyReceivedEvaluators.Add(allocatedEvaluator.Id);
             }
 
             var taskConfiguration = TaskConfiguration.ConfigurationModule
@@ -91,6 +102,7 @@ namespace Org.Apache.REEF.Examples.DriverRestart
         /// </summary>
         public void OnNext(IDriverStarted driverStarted)
         {
+            _isRestart = false;
             Logger.Log(Level.Info, "HelloRestartDriver started at {0}", driverStarted.StartTime);
             _evaluatorRequestor.Submit(_evaluatorRequestor.NewBuilder().SetNumber(NumberOfTasksToSubmit).SetMegabytes(64).Build());
         }
@@ -100,40 +112,47 @@ namespace Org.Apache.REEF.Examples.DriverRestart
         /// </summary>
         public void OnNext(IDriverRestarted value)
         {
-            _restarted = true;
+            _isRestart = true;
             Logger.Log(Level.Info, "Hello! HelloRestartDriver has restarted! Expecting these Evaluator IDs [{0}]", string.Join(", ", value.ExpectedEvaluatorIds));
+            _expectToRecoverEvaluators.UnionWith(value.ExpectedEvaluatorIds);
+
+            Logger.Log(Level.Info, "Requesting {0} new Evaluators on restart.", NumberOfTasksToSubmitOnRestart);
+            _evaluatorRequestor.Submit(_evaluatorRequestor.NewBuilder().SetNumber(NumberOfTasksToSubmitOnRestart).SetMegabytes(64).Build());
         }
 
         public void OnNext(IActiveContext value)
         {
-            Logger.Log(Level.Info, "Received active context {0} from evaluator with ID [{1}].", value.Id, value.EvaluatorId);
+            Logger.Log(Level.Info, "{0} active context {1} from evaluator with ID [{2}].", GetReceivedOrRecovered(value.EvaluatorId), value.Id, value.EvaluatorId);
         }
 
         public void OnNext(IRunningTask value)
         {
             lock (_lockObj)
             {
-                _runningTaskCount++;
-                
-                Logger.Log(Level.Info, "Received running task with ID [{0}] " +
-                              " with restart set to {1} from evaluator with ID [{2}]",
-                              value.Id, _restarted, value.ActiveContext.EvaluatorId);
+                Logger.Log(Level.Info, "{0} running task with ID [{1}] from evaluator with ID [{2}]", 
+                    GetReceivedOrRecovered(value.ActiveContext.EvaluatorId), value.Id, value.ActiveContext.EvaluatorId);
 
-                if (_restarted)
+                if (IsExpectToRecoverEvaluator(value.ActiveContext.EvaluatorId))
                 {
                     value.Send(Encoding.UTF8.GetBytes("Hello from driver!"));
+                    _recoveredEvaluators.Add(value.ActiveContext.EvaluatorId);
                 }
-
-                // Kill itself in order for the driver to restart it.
-                if (_runningTaskCount == NumberOfTasksToSubmit)
+                else
                 {
-                    if (_restarted)
-                    {
-                        Logger.Log(Level.Info, "Retrieved all running tasks from the previous instance.");
-                    }
-                    else
+                    _newRunningTaskCount++;
+
+                    // Kill itself in order for the driver to restart it.
+                    if (!_isRestart && _newRunningTaskCount == NumberOfTasksToSubmit)
                     {
                         Process.GetCurrentProcess().Kill();
+                    }
+                    else if (_isRestart)
+                    {
+                        value.Send(Encoding.UTF8.GetBytes("Hello from driver!"));
+                        if (_newRunningTaskCount == NumberOfTasksToSubmitOnRestart)
+                        {
+                            Logger.Log(Level.Info, "Received all requested new running tasks.");
+                        }
                     }
                 }
             }
@@ -158,40 +177,111 @@ namespace Org.Apache.REEF.Examples.DriverRestart
         public void OnNext(IFailedEvaluator value)
         {
             bool restart;
+            bool expired;
             lock (_lockObj)
             {
-                restart = !this._receivedEvaluators.Contains(value.Id);
+                restart = !_newlyReceivedEvaluators.Contains(value.Id);
+                expired = IsExpectToRecoverEvaluator(value.Id);
+                
+                // _recoveredEvaluators is checked due to a race condition in REEF-61.
+                // TODO [REEF-61]: Fix this check.
+                if (expired && !_recoveredEvaluators.Contains(value.Id))
+                {
+                    _expiredEvaluators.Add(value.Id);
+                }
             }
 
-            var append = restart ? "Restarted recovered " : string.Empty;
+            string action;
+            if (restart)
+            {
+                action = expired ? "Expired on restart " : "Restart initialization ";
+            }
+            else
+            {
+                action = string.Empty;
+            }
 
-            Logger.Log(Level.Info, append + "Evaluator [" + value + "] has failed!");
+            Logger.Log(Level.Info, action + "Evaluator [" + value + "] has failed!");
+
+            CheckSuccess();
         }
 
         public void OnError(Exception error)
         {
+            _exceptionTimer.Dispose();
             throw error;
         }
 
         public void OnCompleted()
         {
+            _exceptionTimer.Dispose();
         }
 
         private void IncrementFinishedTask(Optional<IActiveContext> activeContext)
         {
             lock (_lockObj)
             {
-                _finishedTaskCount++;
-                if (_finishedTaskCount == NumberOfTasksToSubmit)
-                {
-                    Logger.Log(Level.Info, "All tasks are done! Driver should exit now...");
-                }
-
                 if (activeContext.IsPresent())
                 {
+                    if (_recoveredEvaluators.Contains(activeContext.Value.EvaluatorId))
+                    {
+                        Logger.Log(Level.Info, "Task on recovered Evaluator [{0}] has finished.",
+                            activeContext.Value.EvaluatorId);
+                        _finishedRecoveredTaskCount++;
+                        if (_finishedRecoveredTaskCount == _expectToRecoverEvaluators.Count)
+                        {
+                            Logger.Log(Level.Info, "All recovered tasks have finished!");
+                        }
+                    }
+                    else
+                    {
+                        Logger.Log(Level.Info, "Newly allocated task on Evaluator [{0}] has finished.",
+                            activeContext.Value.EvaluatorId);
+
+                        if (_isRestart)
+                        {
+                            _finishedNewRunningTaskCount++;
+                            if (_finishedNewRunningTaskCount == NumberOfTasksToSubmitOnRestart)
+                            {
+                                Logger.Log(Level.Info, "All newly submitted tasks have finished.");
+                            }
+                        }
+                    }
+
                     activeContext.Value.Dispose();
+
+                    CheckSuccess();
+                }
+                else
+                {
+                    throw new Exception("Active context is expected to be present.");
                 }
             }
+        }
+
+        private void CheckSuccess()
+        {
+            lock (_lockObj)
+            {
+                var recoverySuccess = _expectToRecoverEvaluators.SetEquals(_expiredEvaluators.Concat(_recoveredEvaluators));
+                var taskRecoverSuccess = _finishedRecoveredTaskCount == _recoveredEvaluators.Count;
+                var newEvalSuccess = _finishedNewRunningTaskCount == NumberOfTasksToSubmitOnRestart;
+
+                if (recoverySuccess && newEvalSuccess && taskRecoverSuccess)
+                {
+                    Logger.Log(Level.Info, "SUCCESS");
+                }
+            }
+        }
+
+        private bool IsExpectToRecoverEvaluator(string evaluatorId)
+        {
+            return _expectToRecoverEvaluators.Contains(evaluatorId);
+        }
+
+        private string GetReceivedOrRecovered(string evaluatorId)
+        {
+            return IsExpectToRecoverEvaluator(evaluatorId) ? "Recovered" : "Received";
         }
     }
 }
