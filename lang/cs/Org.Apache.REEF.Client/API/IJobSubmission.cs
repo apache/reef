@@ -61,5 +61,12 @@ namespace Org.Apache.REEF.Client.API
         /// The Job's identifier
         /// </summary>
         string JobIdentifier { get; }
+
+        /// <summary>
+        /// Driver config file contents (Org.Apache.REEF.Bridge.exe.config) contents
+        /// Can be use to redirect assembly versions
+        /// </summary>
+        string DriverConfigurationFileContents { get; }
+
     }
 }

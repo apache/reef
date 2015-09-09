@@ -114,7 +114,7 @@ namespace Org.Apache.REEF.Driver
                 .Select(Path.GetFileNameWithoutExtension));
         }
 
-        [DllImport("Org.Apache.REEF.Bridge.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+        [DllImport("Org.Apache.REEF.Bridge.exe", CharSet = CharSet.Unicode, SetLastError = true)]
         static extern int IsManagedBinary(string lpFileName);
 
         private enum BinaryType
@@ -134,8 +134,7 @@ namespace Org.Apache.REEF.Driver
             {
                 return false;
             }
-            var extension = Path.GetExtension(path).ToLower();
-            return (extension == ".dll" || extension == ".exe") && (BinaryType.Clr == ((BinaryType)IsManagedBinary(path)));
+            return Path.GetExtension(path).ToLower() == ".dll";
         }
     }
 }

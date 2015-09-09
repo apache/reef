@@ -47,7 +47,7 @@ public final class REEFFileNames {
   private static final String DRIVER_STDOUT = "driver.stdout";
   private static final String EVALUATOR_STDERR = "evaluator.stderr";
   private static final String EVALUATOR_STDOUT = "evaluator.stdout";
-  private static final String BRIDGE_DLL_NAME = "Org.Apache.REEF.Bridge.dll";
+  private static final String BRIDGE_DLL_NAME = "Org.Apache.REEF.Bridge.exe";
 
 
   @Inject

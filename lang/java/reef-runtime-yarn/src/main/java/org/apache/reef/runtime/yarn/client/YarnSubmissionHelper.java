@@ -56,11 +56,13 @@ public final class YarnSubmissionHelper implements Closeable{
   private final SecurityTokenProvider tokenProvider;
   private boolean preserveEvaluators;
   private int maxAppSubmissions;
+  private final List<String> commandPrefixList;
 
   public YarnSubmissionHelper(final YarnConfiguration yarnConfiguration,
                               final REEFFileNames fileNames,
                               final ClasspathProvider classpath,
-                              final SecurityTokenProvider tokenProvider) throws IOException, YarnException {
+                              final SecurityTokenProvider tokenProvider,
+                              final List<String> commandPrefixList) throws IOException, YarnException {
     this.fileNames = fileNames;
     this.classpath = classpath;
 
@@ -78,13 +80,23 @@ public final class YarnSubmissionHelper implements Closeable{
     this.maxAppSubmissions = 1;
     this.preserveEvaluators = false;
     this.tokenProvider = tokenProvider;
+    this.commandPrefixList = commandPrefixList;
     LOG.log(Level.FINEST, "YARN Application ID: {0}", applicationId);
   }
 
-  /**
-   *
-   * @return the application ID assigned by YARN.
-   */
+  public YarnSubmissionHelper(final YarnConfiguration yarnConfiguration,
+                              final REEFFileNames fileNames,
+                              final ClasspathProvider classpath,
+                              final SecurityTokenProvider tokenProvider) throws IOException, YarnException {
+    this(yarnConfiguration, fileNames, classpath, tokenProvider, null);
+  }
+
+
+
+    /**
+     *
+     * @return the application ID assigned by YARN.
+     */
   public int getApplicationId() {
     return this.applicationId.getId();
   }
@@ -183,7 +195,7 @@ public final class YarnSubmissionHelper implements Closeable{
 
   public void submit() throws IOException, YarnException {
     // SET EXEC COMMAND
-    final List<String> launchCommand = new JavaLaunchCommandBuilder()
+    final List<String> launchCommand = new JavaLaunchCommandBuilder(commandPrefixList)
         .setConfigurationFileName(this.fileNames.getDriverConfigurationPath())
         .setClassPath(this.classpath.getDriverClasspath())
         .setMemory(this.applicationSubmissionContext.getResource().getMemory())
