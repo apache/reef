@@ -19,10 +19,12 @@
 
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
+using System.IO;
 using Org.Apache.REEF.IMRU.API;
 using Org.Apache.REEF.Network.Group.Operators;
 using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Wake.Remote.Impl;
+using Org.Apache.REEF.Wake.StreamingCodec;
 
 namespace Org.Apache.REEF.IMRU.InProcess
 {
@@ -37,15 +39,21 @@ namespace Org.Apache.REEF.IMRU.InProcess
         private readonly ISet<IMapFunction<TMapInput, TMapOutput>> _mapfunctions;
         private readonly IReduceFunction<TMapOutput> _reduceTask;
         private readonly IUpdateFunction<TMapInput, TMapOutput, TResult> _updateTask;
+        private readonly IStreamingCodec<TMapInput> _mapInputCodec;
+        private readonly IStreamingCodec<TMapOutput> _mapOutputCodec;
 
         [Inject]
         private IMRURunner(MapFunctions<TMapInput, TMapOutput> mapfunctions,
             IReduceFunction<TMapOutput> reduceTask,
-            IUpdateFunction<TMapInput, TMapOutput, TResult> updateTask)
+            IUpdateFunction<TMapInput, TMapOutput, TResult> updateTask,
+            InputCodecWrapper<TMapInput> mapInputCodec,
+            OutputCodecWrapper<TMapOutput> mapOutputCodec)
         {
             _mapfunctions = mapfunctions.Mappers;
             _reduceTask = reduceTask;
             _updateTask = updateTask;
+            _mapInputCodec = mapInputCodec.Codec;
+            _mapOutputCodec = mapOutputCodec.Codec;
         }
 
         internal IList<TResult> Run()
@@ -59,16 +67,42 @@ namespace Org.Apache.REEF.IMRU.InProcess
                 {
                     results.Add(updateResult.Result);
                 }
+
                 Debug.Assert(updateResult.HasMapInput);
                 var mapinput = updateResult.MapInput;
-                var mapOutputs = _mapfunctions.Select(x => x.Map(mapinput));
+                var mapOutputs = new List<TMapOutput>();
+
+                foreach (var mapfunc in _mapfunctions)
+                {
+                    //We create a copy by doing coding and decoding since the map task might 
+                    //reuse the fields in next iteration and meanwhile update task might update it.
+                    using (MemoryStream mapInputStream = new MemoryStream(), mapOutputStream = new MemoryStream())
+                    {
+                        var mapInputWriter = new StreamDataWriter(mapInputStream);
+                        _mapInputCodec.Write(mapinput, mapInputWriter);
+                        mapInputStream.Position = 0;
+                        var mapInputReader = new StreamDataReader(mapInputStream);
+                        var output = mapfunc.Map(_mapInputCodec.Read(mapInputReader));
+
+                        var mapOutputWriter = new StreamDataWriter(mapOutputStream);
+                        _mapOutputCodec.Write(output, mapOutputWriter);
+                        mapOutputStream.Position = 0;
+                        var mapOutputReader = new StreamDataReader(mapOutputStream);
+                        output = _mapOutputCodec.Read(mapOutputReader);
+
+                        mapOutputs.Add(output);
+                    }
+                }
+
                 var mapOutput = _reduceTask.Reduce(mapOutputs);
                 updateResult = _updateTask.Update(mapOutput);
             }
+
             if (updateResult.HasResult)
             {
                 results.Add(updateResult.Result);
             }
+
             return results;
         }
     }
