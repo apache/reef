@@ -343,8 +343,6 @@ final class YarnContainerManager
           status.setState(ReefServiceProtos.State.FAILED);
         }
         status.setExitCode(value.getExitStatus());
-          // remove the completed container (can be either done/killed/failed) from book keeping
-        this.containers.removeAndGet(containerId);
         break;
       default:
         LOG.info("Container running");
@@ -356,6 +354,7 @@ final class YarnContainerManager
         status.setDiagnostics(value.getDiagnostics());
       }
 
+      // The ResourceStatusHandler should close and release the Evaluator for us if the state is a terminal state.
       this.reefEventHandlers.onResourceStatus(status.build());
     }
   }

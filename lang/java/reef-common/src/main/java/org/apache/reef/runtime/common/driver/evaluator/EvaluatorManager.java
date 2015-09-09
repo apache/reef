@@ -556,7 +556,6 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
               .append(this.task.get().getId())
               .append("] was running when the Evaluator crashed.");
         }
-        this.isResourceReleased = true;
 
         if (resourceStatusEvent.getState() == ReefServiceProtos.State.KILLED) {
           this.onEvaluatorException(new EvaluatorKilledByResourceManagerException(this.evaluatorId,
