@@ -44,19 +44,33 @@ public final class JavaLaunchCommandBuilder implements LaunchCommandBuilder {
   private String classPath = null;
   private Boolean assertionsEnabled = null;
   private Map<String, JVMOption> options = new HashMap<>();
+  private final List<String> commandPrefixList;
 
   /**
    * Constructor that populates default options.
    */
   public JavaLaunchCommandBuilder() {
+    this(null);
+  }
+
+  /**
+   * Constructor that populates prefix.
+   */
+  public JavaLaunchCommandBuilder(final List<String> commandPrefixList) {
     for (final String defaultOption : DEFAULT_OPTIONS) {
       addOption(defaultOption);
     }
+    this.commandPrefixList = commandPrefixList;
   }
 
   @Override
   public List<String> build() {
     return new ArrayList<String>() {{
+        if (commandPrefixList != null) {
+          for (final String cmd : commandPrefixList) {
+            add(cmd);
+          }
+        }
 
         if (javaPath == null || javaPath.isEmpty()) {
           add(DEFAULT_JAVA_PATH);

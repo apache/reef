@@ -110,32 +110,8 @@ namespace Org.Apache.REEF.Driver
                 .Where(e => !(string.IsNullOrWhiteSpace(e)))
                 .Select(Path.GetFullPath)
                 .Where(File.Exists)
-                .Where(IsAssembly)
+                .Where(Org.Apache.REEF.Tang.Util.AssemblyLoader.IsAssembly)
                 .Select(Path.GetFileNameWithoutExtension));
-        }
-
-        [DllImport("Org.Apache.REEF.Bridge.dll", CharSet = CharSet.Unicode, SetLastError = true)]
-        static extern int IsManagedBinary(string lpFileName);
-
-        private enum BinaryType
-        {
-            None = 0,
-            Native = 1,
-            Clr = 2
-        };
-
-        /// <summary>
-        /// </summary>
-        /// <param name="path"></param>
-        /// <returns>True, if the path given is an assembly</returns>
-        private static Boolean IsAssembly(string path)
-        {
-            if (string.IsNullOrWhiteSpace(path))
-            {
-                return false;
-            }
-            var extension = Path.GetExtension(path).ToLower();
-            return (extension == ".dll" || extension == ".exe") && (BinaryType.Clr == ((BinaryType)IsManagedBinary(path)));
         }
     }
 }

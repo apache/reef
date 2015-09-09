@@ -67,3 +67,8 @@ void HandleClr2JavaError(
   JNIEnv *env,
   String^ errorMessage,
   jobject javaObject);
+
+extern "C" {
+	JNIEXPORT void JNICALL
+		Java_org_apache_reef_javabridge_NativeInterop_registerNatives(JNIEnv *env, jclass cls);
+}

@@ -22,6 +22,7 @@ import org.apache.reef.client.parameters.DriverConfigurationProviders;
 import org.apache.reef.io.TcpPortConfigurationProvider;
 import org.apache.reef.runtime.common.driver.parameters.ClientRemoteIdentifier;
 import org.apache.reef.runtime.common.files.REEFFileNames;
+import org.apache.reef.runtime.common.launch.parameters.DriverLaunchCommandPrefix;
 import org.apache.reef.runtime.local.client.DriverConfigurationProvider;
 import org.apache.reef.runtime.local.client.LocalRuntimeConfiguration;
 import org.apache.reef.runtime.local.client.PreparedDriverFolderLauncher;
@@ -36,6 +37,7 @@ import org.apache.reef.wake.remote.ports.parameters.TcpPortRangeTryCount;
 import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Set;
 
 /**
@@ -106,8 +108,8 @@ public class LocalClient {
     final int tcpTryCount = Integer.valueOf(args[5]);
 
 
-    final Configuration runtimeConfiguration = getRuntimeConfiguration(numberOfEvaluators, runtimeRootFolder,
-        tcpBeginPort, tcpRangeCount, tcpTryCount);
+    final Configuration runtimeConfiguration = getRuntimeConfiguration(new File(args[0]), numberOfEvaluators,
+        runtimeRootFolder, tcpBeginPort, tcpRangeCount, tcpTryCount);
 
     final LocalClient client = Tang.Factory.getTang()
         .newInjector(runtimeConfiguration)
@@ -117,17 +119,23 @@ public class LocalClient {
   }
 
   private static Configuration getRuntimeConfiguration(
+      final File jobFolder,
       final int numberOfEvaluators,
       final String runtimeRootFolder,
       final int tcpBeginPort,
       final int tcpRangeCount,
       final int tcpTryCount) {
     final Configuration runtimeConfiguration = getRuntimeConfiguration(numberOfEvaluators, runtimeRootFolder);
+    ArrayList<String> driverLaunchCommandPrefixList = new ArrayList<String>();
+    String path = new File(jobFolder, new REEFFileNames().getDriverLauncherExeFile().toString()).toString();
+
+    driverLaunchCommandPrefixList.add(path);
     final Configuration userproviderConfiguration = Tang.Factory.getTang().newConfigurationBuilder()
         .bindSetEntry(DriverConfigurationProviders.class, TcpPortConfigurationProvider.class)
         .bindNamedParameter(TcpPortRangeBegin.class, Integer.toString(tcpBeginPort))
         .bindNamedParameter(TcpPortRangeCount.class, Integer.toString(tcpRangeCount))
         .bindNamedParameter(TcpPortRangeTryCount.class, Integer.toString(tcpTryCount))
+        .bindList(DriverLaunchCommandPrefix.class, driverLaunchCommandPrefixList)
         .build();
     return Configurations.merge(runtimeConfiguration, userproviderConfiguration);
   }

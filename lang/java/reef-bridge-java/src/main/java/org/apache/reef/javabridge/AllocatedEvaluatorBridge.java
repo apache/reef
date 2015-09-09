@@ -18,6 +18,7 @@
  */
 package org.apache.reef.javabridge;
 
+import org.apache.reef.io.naming.Identifiable;
 import org.apache.reef.runtime.common.driver.evaluator.AllocatedEvaluatorImpl;
 import org.apache.reef.driver.evaluator.AllocatedEvaluator;
 import org.apache.reef.tang.ClassHierarchy;
@@ -30,7 +31,7 @@ import java.util.logging.Logger;
 /**
  * The AllocatedEvaluatorBridge object to bridge operations between REEF .NET and Java allocated evaluator operations.
  */
-public final class AllocatedEvaluatorBridge extends NativeBridge {
+public final class AllocatedEvaluatorBridge extends NativeBridge implements Identifiable {
 
   private static final Logger LOG = Logger.getLogger(AllocatedEvaluatorBridge.class.getName());
 
@@ -177,6 +178,14 @@ public final class AllocatedEvaluatorBridge extends NativeBridge {
         Utilities.getEvaluatorDescriptorString(jallocatedEvaluator.getEvaluatorDescriptor());
     LOG.log(Level.INFO, "allocated evaluator - serialized evaluator descriptor: " + descriptorString);
     return descriptorString;
+  }
+
+  /**
+   * @return the evaluator id.
+   */
+  @Override
+  public String getId() {
+    return evaluatorId;
   }
 
   /**

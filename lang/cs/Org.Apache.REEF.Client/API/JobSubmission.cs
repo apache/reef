@@ -17,9 +17,7 @@
  * under the License.
  */
 
-using System;
 using System.Collections.Generic;
-using System.IO;
 using Org.Apache.REEF.Tang.Interface;
 
 namespace Org.Apache.REEF.Client.API
@@ -34,8 +32,9 @@ namespace Org.Apache.REEF.Client.API
         private readonly ISet<string> _globalFiles;
         private readonly ISet<string> _localAssemblies;
         private readonly ISet<string> _localFiles;
-        private int _driverMemory ;
-        private string _jobIdentifier;
+        private readonly int _driverMemory;
+        private readonly string _jobIdentifier;
+        private readonly string _driverConfigurationFileContents;
 
         internal JobSubmission(
             ISet<IConfiguration> driverConfigurations,
@@ -44,7 +43,8 @@ namespace Org.Apache.REEF.Client.API
             ISet<string> localAssemblies,
             ISet<string> localFiles,
             int driverMemory,
-            string jobIdentifier)
+            string jobIdentifier,
+            string driverConfigurationFileContents)
         {
             _driverConfigurations = driverConfigurations;
             _globalAssemblies = globalAssemblies;
@@ -53,6 +53,7 @@ namespace Org.Apache.REEF.Client.API
             _localFiles = localFiles;
             _driverMemory = driverMemory;
             _jobIdentifier = jobIdentifier;
+            _driverConfigurationFileContents = driverConfigurationFileContents;
         }
 
         /// <summary>
@@ -97,6 +98,16 @@ namespace Org.Apache.REEF.Client.API
         string IJobSubmission.JobIdentifier {
             get { return _jobIdentifier; }
         }
+
+        /// <summary>
+        /// Driver config file contents (Org.Apache.REEF.Bridge.exe.config)
+        /// Can be use to redirect assembly versions
+        /// </summary>
+        string IJobSubmission.DriverConfigurationFileContents
+        {
+            get { return _driverConfigurationFileContents; }
+        }
+
 
     }
 }

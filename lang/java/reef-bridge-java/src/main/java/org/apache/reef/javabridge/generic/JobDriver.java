@@ -97,11 +97,6 @@ public final class JobDriver {
   private final DriverStatusManager driverStatusManager;
 
   /**
-   * NativeInterop has function to load libs when driver starts.
-   */
-  private final LibLoader libLoader;
-
-  /**
    * Factory to setup new CLR process configurations.
    */
   private final CLRProcessFactory clrProcessFactory;
@@ -139,6 +134,11 @@ public final class JobDriver {
   private long driverRestartFailedEvaluatorHandler = 0;
   private boolean clrBridgeSetup = false;
   private boolean isRestarted = false;
+  // We are holding on to following on bridge side.
+  // Need to add references here so that GC does not collect them.
+  private final HashMap<String, AllocatedEvaluatorBridge> allocatedEvaluatorBridges =
+      new HashMap<String, AllocatedEvaluatorBridge>();
+  private EvaluatorRequestorBridge evaluatorRequestorBridge;
 
   /**
    * Job driver constructor.
@@ -157,7 +157,6 @@ public final class JobDriver {
             final EvaluatorRequestor evaluatorRequestor,
             final DriverStatusManager driverStatusManager,
             final LoggingScopeFactory loggingScopeFactory,
-            final LibLoader libLoader,
             final LocalAddressProvider localAddressProvider,
             final ActiveContextBridgeFactory activeContextBridgeFactory,
             final AllocatedEvaluatorBridgeFactory allocatedEvaluatorBridgeFactory,
@@ -172,7 +171,6 @@ public final class JobDriver {
     this.allocatedEvaluatorBridgeFactory = allocatedEvaluatorBridgeFactory;
     this.nameServerInfo = localAddressProvider.getLocalAddress() + ":" + this.nameServer.getPort();
     this.loggingScopeFactory = loggingScopeFactory;
-    this.libLoader = libLoader;
     this.clrProcessFactory = clrProcessFactory;
   }
 
@@ -181,13 +179,6 @@ public final class JobDriver {
     // we can begin logging
     LOG.log(Level.INFO, "Initializing CLRBufferedLogHandler...");
     try (final LoggingScope lb = this.loggingScopeFactory.setupBridge()) {
-
-      try {
-        libLoader.loadLib();
-      } catch (final IOException e) {
-        throw new RuntimeException("Fail to load CLR libraries");
-      }
-
       final CLRBufferedLogHandler handler = getCLRBufferedLogHandler();
       if (handler == null) {
         LOG.log(Level.WARNING, "CLRBufferedLogHandler could not be initialized");
@@ -197,7 +188,7 @@ public final class JobDriver {
       }
 
       final String portNumber = httpServer == null ? null : Integer.toString((httpServer.getPort()));
-      final EvaluatorRequestorBridge evaluatorRequestorBridge =
+      this.evaluatorRequestorBridge =
           new EvaluatorRequestorBridge(JobDriver.this.evaluatorRequestor, false, loggingScopeFactory);
       final long[] handlers = initializer.getClrHandlers(portNumber, evaluatorRequestorBridge);
       if (handlers != null) {
@@ -270,6 +261,7 @@ public final class JobDriver {
       }
       final AllocatedEvaluatorBridge allocatedEvaluatorBridge =
           this.allocatedEvaluatorBridgeFactory.getAllocatedEvaluatorBridge(eval, this.nameServerInfo);
+      allocatedEvaluatorBridges.put(allocatedEvaluatorBridge.getId(), allocatedEvaluatorBridge);
       NativeInterop.clrSystemAllocatedEvaluatorHandlerOnNext(JobDriver.this.allocatedEvaluatorHandler,
           allocatedEvaluatorBridge, this.interopLogger);
     }
@@ -434,6 +426,7 @@ public final class JobDriver {
     @Override
     public void onNext(final FailedEvaluator eval) {
       JobDriver.this.handleFailedEvaluator(eval, false);
+      allocatedEvaluatorBridges.remove(eval.getId());
     }
   }
 
@@ -723,6 +716,7 @@ public final class JobDriver {
           // if CLR implements the completed evaluator handler, handle it in CLR
           LOG.log(Level.INFO, "Handling the event of completed evaluator in CLR bridge.");
           NativeInterop.clrSystemCompletedEvaluatorHandlerOnNext(completedEvaluatorHandler, completedEvaluatorBridge);
+          allocatedEvaluatorBridges.remove(completedEvaluatorBridge.getId());
         }
       }
     }

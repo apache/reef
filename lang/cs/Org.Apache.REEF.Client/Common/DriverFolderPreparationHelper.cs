@@ -38,13 +38,30 @@ namespace Org.Apache.REEF.Client.Common
     {
         private const string DLLFileNameExtension = ".dll";
         private const string EXEFileNameExtension = ".exe";
-        
+        private const string BridgeExe = "Org.Apache.REEF.Bridge.exe";
+        private const string ClrDriverFullName = "ClrDriverFullName";
+        private const string DefaultDriverConfigurationFileContents =
+        @"<configuration>" +
+        @"  <runtime>" +
+        @"    <assemblyBinding xmlns=""urn:schemas-microsoft-com:asm.v1"">" +
+        @"      <probing privatePath=""local;global""/>" +
+        @"    </assemblyBinding>" +
+        @"  </runtime>" +
+        @"</configuration>";
+
+        // We embed certain binaries in client dll.
+        // Following items in tuples refer to resource names in Org.Apache.REEF.Client.dll
+        // The first resource item contains the name of the file 
+        // such as "reef-bridge-java-0.13.0-incubating-SNAPSHOT-shaded.jar". The second resource
+        // item contains the byte contents for said file.
+        // Please note that the identifiers below need to be in sync with 2 other files
+        // 1. $(SolutionDir)\Org.Apache.REEF.Client\Properties\Resources.xml
+        // 2. $(SolutionDir)\Org.Apache.REEF.Client\Org.Apache.REEF.Client.csproj
         private readonly static Tuple<string, string>[] clientFileResources = new Tuple<string, string>[]
         {
             new Tuple<string, string>("ClientJarFullName", "reef_bridge_client"),
             new Tuple<string, string>("DriverJarFullName", "reef_bridge_driver"),
-            // enable with next pull request
-            // new Tuple<string, string>("ClrDriverFullName", "reef_clrdriver"),
+            new Tuple<string, string>(ClrDriverFullName,    "reef_clrdriver"),
         };
 
         private static readonly Logger Logger = Logger.GetLogger(typeof(DriverFolderPreparationHelper));
@@ -73,7 +90,7 @@ namespace Org.Apache.REEF.Client.Common
             Logger.Log(Level.Info, "Preparing Driver filesystem layout in " + driverFolderPath);
 
             // Setup the folder structure
-            CreateDefaultFolderStructure(driverFolderPath);
+            CreateDefaultFolderStructure(jobSubmission, driverFolderPath);
 
             // Add the jobSubmission into that folder structure
             _fileSets.AddJobFiles(jobSubmission);
@@ -112,12 +129,31 @@ namespace Org.Apache.REEF.Client.Common
         /// <summary>
         /// Creates the driver folder structure in this given folder as the root
         /// </summary>
-        /// <param name="driverFolderPath"></param>
-        internal void CreateDefaultFolderStructure(string driverFolderPath)
+        /// <param name="jobSubmission">Job submission information</param>
+        /// <param name="driverFolderPath">Driver folder path</param>
+        internal void CreateDefaultFolderStructure(IJobSubmission jobSubmission, string driverFolderPath)
         {
             Directory.CreateDirectory(Path.Combine(driverFolderPath, _fileNames.GetReefFolderName()));
             Directory.CreateDirectory(Path.Combine(driverFolderPath, _fileNames.GetLocalFolderPath()));
             Directory.CreateDirectory(Path.Combine(driverFolderPath, _fileNames.GetGlobalFolderPath()));
+
+            var resourceHelper = new ResourceHelper(typeof(DriverFolderPreparationHelper).Assembly);
+            foreach (var fileResources in clientFileResources)
+            {
+                var fileName = resourceHelper.GetString(fileResources.Item1);
+                if (ClrDriverFullName == fileResources.Item1)
+                {
+                    fileName = Path.Combine(driverFolderPath, _fileNames.GetBridgeExePath());
+                }
+                File.WriteAllBytes(fileName, resourceHelper.GetBytes(fileResources.Item2));
+            }
+            
+            var config = DefaultDriverConfigurationFileContents;
+            if (!string.IsNullOrEmpty(jobSubmission.DriverConfigurationFileContents))
+            {
+                config = jobSubmission.DriverConfigurationFileContents;
+            }
+            File.WriteAllText(Path.Combine(driverFolderPath, _fileNames.GetBridgeExeConfigPath()), config);
         }
 
         /// <summary>
@@ -125,12 +161,6 @@ namespace Org.Apache.REEF.Client.Common
         /// </summary>
         private void AddAssemblies()
         {
-            var resourceHelper = new ResourceHelper(typeof(DriverFolderPreparationHelper).Assembly);
-            foreach (var fileResources in clientFileResources)
-            {
-                File.WriteAllBytes(resourceHelper.GetString(fileResources.Item1), resourceHelper.GetBytes(fileResources.Item2));
-            }
-
             // TODO: Be more precise, e.g. copy the JAR only to the driver.
             var assemblies = Directory.GetFiles(@".\").Where(IsAssemblyToCopy);
             _fileSets.AddToGlobalFiles(assemblies);
