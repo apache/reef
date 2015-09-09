@@ -58,6 +58,8 @@ under the License.
     <Compile Include="InProcess\IMRURunner.cs" />
     <Compile Include="InProcess\InProcessIMRUClient.cs" />
     <Compile Include="InProcess\InProcessIMRUConfiguration.cs" />
+    <Compile Include="InProcess\OutputCodecWrapper.cs" />
+    <Compile Include="InProcess\InputCodecWrapper.cs" />
     <Compile Include="InProcess\MapFunctions.cs" />
     <Compile Include="InProcess\Parameters\NumberOfMappers.cs" />
     <Compile Include="OnREEF\Client\REEFIMRUClientConfiguration.cs" />
