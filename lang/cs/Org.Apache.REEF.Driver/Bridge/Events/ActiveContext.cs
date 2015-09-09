@@ -52,10 +52,6 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
             {
                 return Clr2Java.GetId();
             }
-
-            set
-            {
-            }
         }
 
         public string EvaluatorId

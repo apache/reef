@@ -58,11 +58,6 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
             {
                 return _runningTaskClr2Java.GetId();
             }
-
-            set
-            {
-                Id = value;
-            }
         }
 
         public void Send(byte[] message)

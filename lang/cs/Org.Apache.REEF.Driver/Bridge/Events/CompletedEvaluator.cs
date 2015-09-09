@@ -49,10 +49,6 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
             {
                 return CompletedEvaluatorClr2Java.GetId();
             }
-
-            set
-            {
-            }
         }
 
         [DataMember]

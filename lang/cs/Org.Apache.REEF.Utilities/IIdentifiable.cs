@@ -19,8 +19,14 @@
 
 namespace Org.Apache.REEF.Utilities
 {
+    /// <summary>
+    /// Denotes an object that has a string identifier.
+    /// </summary>
     public interface IIdentifiable
     {
-        string Id { get; set; }
+        /// <summary>
+        /// The Id of this object, e.g. the TaskId.
+        /// </summary>
+        string Id { get;}
     }
 }

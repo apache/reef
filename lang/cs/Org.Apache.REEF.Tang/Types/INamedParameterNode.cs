@@ -16,7 +16,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-﻿
+
+using Org.Apache.REEF.Tang.Annotations;
+
 namespace Org.Apache.REEF.Tang.Types
 {
     public interface INamedParameterNode : INode
@@ -34,5 +36,19 @@ namespace Org.Apache.REEF.Tang.Types
         bool IsSet();
 
         bool IsList();
+
+        /// <summary>
+        /// It returns an alias of the NamedParameter
+        /// The alias is defined as an attribute of the NamedParameter
+        /// </summary>
+        /// <returns></returns>
+        string GetAlias();
+
+        /// <summary>
+        /// It returns the programming language for the alias
+        /// Examples are "Java", "Cs"
+        /// </summary>
+        /// <returns></returns>
+        string GetAliasLanguage();
     }
 }
