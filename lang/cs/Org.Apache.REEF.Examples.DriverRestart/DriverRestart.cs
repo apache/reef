@@ -63,6 +63,7 @@ namespace Org.Apache.REEF.Examples.DriverRestart
                 .Set(DriverConfiguration.OnDriverRestartTaskRunning, GenericType<HelloRestartDriver>.Class)
                 .Set(DriverConfiguration.OnEvaluatorAllocated, GenericType<HelloRestartDriver>.Class)
                 .Set(DriverConfiguration.OnEvaluatorFailed, GenericType<HelloRestartDriver>.Class)
+                .Set(DriverConfiguration.OnDriverRestartEvaluatorFailed, GenericType<HelloRestartDriver>.Class)
                 .Set(DriverConfiguration.OnDriverReconnect, GenericType<DefaultYarnClusterHttpDriverConnection>.Class)
                 .Set(DriverConfiguration.DriverRestartEvaluatorRecoverySeconds, (5 * 60).ToString())
                 .Set(DriverConfiguration.MaxApplicationSubmissions, 2.ToString())
