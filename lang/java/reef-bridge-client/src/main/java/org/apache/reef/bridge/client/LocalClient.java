@@ -108,8 +108,8 @@ public class LocalClient {
     final int tcpTryCount = Integer.valueOf(args[5]);
 
 
-    final Configuration runtimeConfiguration = getRuntimeConfiguration(numberOfEvaluators, runtimeRootFolder,
-        tcpBeginPort, tcpRangeCount, tcpTryCount);
+    final Configuration runtimeConfiguration = getRuntimeConfiguration(new File(args[0]), numberOfEvaluators,
+        runtimeRootFolder, tcpBeginPort, tcpRangeCount, tcpTryCount);
 
     final LocalClient client = Tang.Factory.getTang()
         .newInjector(runtimeConfiguration)
@@ -119,6 +119,7 @@ public class LocalClient {
   }
 
   private static Configuration getRuntimeConfiguration(
+      final File jobFolder,
       final int numberOfEvaluators,
       final String runtimeRootFolder,
       final int tcpBeginPort,
@@ -126,7 +127,9 @@ public class LocalClient {
       final int tcpTryCount) {
     final Configuration runtimeConfiguration = getRuntimeConfiguration(numberOfEvaluators, runtimeRootFolder);
     ArrayList<String> driverLaunchCommandPrefixList = new ArrayList<String>();
-    driverLaunchCommandPrefixList.add("Org.Apache.REEF.Bridge.exe");
+    String path = new File(jobFolder, new REEFFileNames().getDriverLauncherExeFile().toString()).toString();
+
+    driverLaunchCommandPrefixList.add(path);
     final Configuration userproviderConfiguration = Tang.Factory.getTang().newConfigurationBuilder()
         .bindSetEntry(DriverConfigurationProviders.class, TcpPortConfigurationProvider.class)
         .bindNamedParameter(TcpPortRangeBegin.class, Integer.toString(tcpBeginPort))

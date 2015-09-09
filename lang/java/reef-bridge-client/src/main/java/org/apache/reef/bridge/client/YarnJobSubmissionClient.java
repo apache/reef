@@ -74,7 +74,6 @@ public final class YarnJobSubmissionClient {
   private final int driverRestartEvaluatorRecoverySeconds;
   private final SecurityTokenProvider tokenProvider;
   private final List<String> commandPrefixList;
-  private static final String CLR_DRIVER_LAUNCHER = "reef\\Org.Apache.REEF.Bridge.exe";
 
   @Inject
   YarnJobSubmissionClient(final JobUploader uploader,
@@ -238,7 +237,7 @@ public final class YarnJobSubmissionClient {
         .build();
 
     ArrayList<String> driverLaunchCommandPrefixList = new ArrayList<String>();
-    driverLaunchCommandPrefixList.add(CLR_DRIVER_LAUNCHER);
+    driverLaunchCommandPrefixList.add(new REEFFileNames().getDriverLauncherExeFile().toString());
 
     final Configuration yarnJobSubmissionClientParamsConfig = Tang.Factory.getTang().newConfigurationBuilder()
         .bindNamedParameter(SubmissionDriverRestartEvaluatorRecoverySeconds.class,

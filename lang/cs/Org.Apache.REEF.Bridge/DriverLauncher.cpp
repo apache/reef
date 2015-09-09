@@ -19,20 +19,43 @@
 #include "InteropUtil.h"
 using namespace std;;
 
+// Function signatuire for creating java vm
 typedef jint(JNICALL *JNI_CreateJavaVM_FN)(JavaVM **pvm, void **penv, void *args);
+
+// The environment variable that points to java directory.
 LPCTSTR JAVA_HOME = L"JAVA_HOME";
+
+// Where should we try to load jvm dll from?
+// Try server version first. Path relative to $(JAVA_HOME)
 LPCTSTR JVM_DLL1 = L"\\jre\\bin\\server\\jvm.dll";
+
+// If we could not find server jvm, Try client version.
+// Path relative to $(JAVA_HOME)
 LPCTSTR JVM_DLL2 = L"\\jre\\bin\\client\\jvm.dll";
+
+// Name of the function that creates a java VM
 const char* JNI_CreateJavaVM_Func_Name = "JNI_CreateJavaVM";
+
+// Sometimes classpath is split into 2 arguments. Compensate for it.
 const char* JavaOptionClassPath = "-classpath";
+
+// JNI signature for Java String.
 const char* JavaMainMethodSignature = "([Ljava/lang/String;)V";
-const char* JavaStringClassPath = "java/lang/String";
+
+// class name for NativeInterop
 const char* NativeInteropClass = "org/apache/reef/javabridge/NativeInterop";
+
 const int maxPathBufSize = 16 * 1024;
 const char ClassPathSeparatorCharForWindows = ';';
 
+// we look for this to delineate java vm arguments from app arguments.
+// todo: be smarter about this. Accomodate arbitrary apps.
 const char* launcherClass = "org.apache.reef.runtime.common.REEFLauncher";
+
+// method to invoke
 const char* JavaMainMethodName = "main";
+
+//Prefix for classpath. This is how we tell JNI about the classpath.
 const char* JavaClassPath = "-Djava.class.path=";
 
 

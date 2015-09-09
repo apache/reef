@@ -39,22 +39,29 @@ namespace Org.Apache.REEF.Client.Common
         private const string DLLFileNameExtension = ".dll";
         private const string EXEFileNameExtension = ".exe";
         private const string BridgeExe = "Org.Apache.REEF.Bridge.exe";
-        private const string BridgeExeConfig = "Org.Apache.REEF.Bridge.exe.config";
-        private readonly string DefaultDriverConfigurationFileContents =
+        private const string ClrDriverFullName = "ClrDriverFullName";
+        private const string DefaultDriverConfigurationFileContents =
         @"<configuration>" +
         @"  <runtime>" +
         @"    <assemblyBinding xmlns=""urn:schemas-microsoft-com:asm.v1"">" +
-        @"      <probing privatePath=""reef/local;reef/global;local;global""/>" +
+        @"      <probing privatePath=""local;global""/>" +
         @"    </assemblyBinding>" +
         @"  </runtime>" +
         @"</configuration>";
 
-        
+        // We embed certain binaries in client dll.
+        // Following items in tuples refer to resource names in Org.Apache.REEF.Client.dll
+        // The first resource item contains the name of the file 
+        // such as "reef-bridge-java-0.13.0-incubating-SNAPSHOT-shaded.jar". The second resource
+        // item contains the byte contents for said file.
+        // Please note that the identifiers below need to be in sync with 2 other files
+        // 1. $(SolutionDir)\Org.Apache.REEF.Client\Properties\Resources.xml
+        // 2. $(SolutionDir)\Org.Apache.REEF.Client\Org.Apache.REEF.Client.csproj
         private readonly static Tuple<string, string>[] clientFileResources = new Tuple<string, string>[]
         {
             new Tuple<string, string>("ClientJarFullName", "reef_bridge_client"),
             new Tuple<string, string>("DriverJarFullName", "reef_bridge_driver"),
-            new Tuple<string, string>("ClrDriverFullName", "reef_clrdriver"),
+            new Tuple<string, string>(ClrDriverFullName,    "reef_clrdriver"),
         };
 
         private static readonly Logger Logger = Logger.GetLogger(typeof(DriverFolderPreparationHelper));
@@ -133,21 +140,20 @@ namespace Org.Apache.REEF.Client.Common
             var resourceHelper = new ResourceHelper(typeof(DriverFolderPreparationHelper).Assembly);
             foreach (var fileResources in clientFileResources)
             {
-                File.WriteAllBytes(resourceHelper.GetString(fileResources.Item1), resourceHelper.GetBytes(fileResources.Item2));
+                var fileName = resourceHelper.GetString(fileResources.Item1);
+                if (ClrDriverFullName == fileResources.Item1)
+                {
+                    fileName = Path.Combine(driverFolderPath, _fileNames.GetBridgeExePath());
+                }
+                File.WriteAllBytes(fileName, resourceHelper.GetBytes(fileResources.Item2));
             }
-            var exePathLocal = Path.Combine(driverFolderPath, BridgeExe);
-            var exePathYarn = Path.Combine(driverFolderPath, _fileNames.GetReefFolderName(), BridgeExe);
-            var configPathLocal = Path.Combine(driverFolderPath, BridgeExeConfig);
-            var configPathYarn = Path.Combine(driverFolderPath, _fileNames.GetReefFolderName(), BridgeExeConfig);
-            File.Copy(BridgeExe, exePathLocal);
-            File.Copy(BridgeExe, exePathYarn);
+            
             var config = DefaultDriverConfigurationFileContents;
             if (!string.IsNullOrEmpty(jobSubmission.DriverConfigurationFileContents))
             {
                 config = jobSubmission.DriverConfigurationFileContents;
             }
-            File.WriteAllText(configPathLocal, config);
-            File.WriteAllText(configPathYarn, config);
+            File.WriteAllText(Path.Combine(driverFolderPath, _fileNames.GetBridgeExeConfigPath()), config);
         }
 
         /// <summary>
