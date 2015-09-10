@@ -29,7 +29,7 @@ import java.util.Set;
 /**
  * The default driver runtime restart manager that is not able to perform any restart actions.
  * Thus, when performing actions pertaining to restart, it is recommended to call
- * {@link DriverRuntimeRestartManager#hasRestarted()} first.
+ * {@link DriverRuntimeRestartManager#getResubmissionAttempts()} first and check for > 0.
  */
 @Private
 @DriverSide
@@ -40,8 +40,8 @@ final class DefaultDriverRuntimeRestartMangerImpl implements DriverRuntimeRestar
   }
 
   @Override
-  public boolean hasRestarted() {
-    return false;
+  public int getResubmissionAttempts() {
+    return 0;
   }
 
   @Override

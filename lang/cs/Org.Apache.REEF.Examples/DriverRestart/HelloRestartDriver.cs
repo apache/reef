@@ -100,6 +100,11 @@ namespace Org.Apache.REEF.Examples.DriverRestart
         /// </summary>
         public void OnNext(IDriverRestarted value)
         {
+            if (value.ResubmissionAttempts != 1)
+            {
+                throw new Exception("Only expected the driver to restart once.");
+            }
+
             _restarted = true;
             Logger.Log(Level.Info, "Hello! HelloRestartDriver has restarted! Expecting these Evaluator IDs [{0}]", string.Join(", ", value.ExpectedEvaluatorIds));
         }

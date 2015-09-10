@@ -31,6 +31,11 @@ namespace Org.Apache.REEF.Driver
         /// The set of expected Evaluator IDs that are returned to the Driver by the
         /// RM on Driver Restart.
         /// </summary>
-        ISet<string> ExpectedEvaluatorIds { get; } 
+        ISet<string> ExpectedEvaluatorIds { get; }
+
+        /// <summary>
+        /// The number of times the Driver has been resubmitted. Does not include the initial submission.
+        /// </summary>
+        int ResubmissionAttempts { get; }
     }
 }
