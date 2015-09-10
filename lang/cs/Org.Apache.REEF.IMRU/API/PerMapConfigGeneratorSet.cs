@@ -25,7 +25,7 @@ using Org.Apache.REEF.Tang.Annotations;
 namespace Org.Apache.REEF.IMRU.API
 {
     [NamedParameter("Set of mapper specfic configuration generators", "setofmapconfig")]
-    internal sealed class PerMapConfigGeneratorSet : Name<ISet<IPerMapperConfigGenerator>>
+    public sealed class PerMapConfigGeneratorSet : Name<ISet<IPerMapperConfigGenerator>>
     {
     }
 }
