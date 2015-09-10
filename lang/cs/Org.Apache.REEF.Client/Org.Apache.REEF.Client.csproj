@@ -69,7 +69,6 @@ under the License.
     <Compile Include="YARN\YarnCommandLineEnvironment.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
     <None Include="Org.Apache.REEF.Client.nuspec" />
   </ItemGroup>
   <ItemGroup>
