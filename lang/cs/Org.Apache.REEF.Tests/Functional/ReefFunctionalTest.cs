@@ -18,7 +18,6 @@
  */
 
 using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -31,9 +30,6 @@ using Microsoft.WindowsAzure.Storage.Blob;
 using Org.Apache.REEF.Client.API;
 using Org.Apache.REEF.Client.Local;
 using Org.Apache.REEF.Client.YARN;
-using Org.Apache.REEF.Driver;
-using Org.Apache.REEF.Driver.Bridge;
-using Org.Apache.REEF.Examples.AllHandlers;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Utilities;
@@ -59,10 +55,6 @@ namespace Org.Apache.REEF.Tests.Functional
         private readonly static Logger Logger = Logger.GetLogger(typeof(ReefFunctionalTest));
         private const string StorageAccountKeyEnvironmentVariable = "REEFTestStorageAccountKey";
         private const string StorageAccountNameEnvironmentVariable = "REEFTestStorageAccountName";
-        private readonly string _className = Constants.BridgeLaunchClass;
-        private readonly string _clrFolder = ".";
-        private readonly string _reefJar = Path.Combine(_binFolder, Constants.JavaBridgeJarFileName);
-        private readonly string _runCommand = Path.Combine(_binFolder, _cmdFile);
         private bool _testSuccess = false;
         private bool _onLocalRuntime = false;
 
@@ -112,11 +104,6 @@ namespace Org.Apache.REEF.Tests.Functional
             {
                 throw new InvalidOperationException(_binFolder + " not found in current directory, cannot init test");
             }
-        }
-
-        protected void TestRun(HashSet<string> appDlls, IConfiguration driverBridgeConfig, bool runOnYarn = false, JavaLoggingSetting javaLogSettings = JavaLoggingSetting.INFO)
-        {
-            ClrClientHelper.Run(appDlls, driverBridgeConfig, new DriverSubmissionSettings() { RunOnYarn = runOnYarn, JavaLogLevel = javaLogSettings }, _reefJar, _runCommand, _clrFolder, _className);
         }
 
         protected void CleanUp(string testFolder = DefaultRuntimeFolder)
@@ -250,9 +237,9 @@ namespace Org.Apache.REEF.Tests.Functional
             return result;
         }
 
-        protected void TestRun(IConfiguration driverCondig, Type globalAssemblyType, string jobIdentifier = "myDriver", string runOnYarn = "local", string runtimeFolder = DefaultRuntimeFolder)
+        protected void TestRun(IConfiguration driverCondig, Type globalAssemblyType, int numberOfEvaluator, string jobIdentifier = "myDriver", string runOnYarn = "local", string runtimeFolder = DefaultRuntimeFolder)
         {
-            IInjector injector = TangFactory.GetTang().NewInjector(GetRuntimeConfiguration(runOnYarn, runtimeFolder));
+            IInjector injector = TangFactory.GetTang().NewInjector(GetRuntimeConfiguration(runOnYarn, numberOfEvaluator, runtimeFolder));
             var reefClient = injector.GetInstance<IREEFClient>();
             var jobSubmissionBuilderFactory = injector.GetInstance<JobSubmissionBuilderFactory>();
             var jobSubmission = jobSubmissionBuilderFactory.GetJobSubmissionBuilder()
@@ -264,14 +251,14 @@ namespace Org.Apache.REEF.Tests.Functional
             reefClient.Submit(jobSubmission);
         }
 
-        private IConfiguration GetRuntimeConfiguration(string runOnYarn, string runtimeFolder)
+        private IConfiguration GetRuntimeConfiguration(string runOnYarn, int numberOfEvaluator, string runtimeFolder)
         {
             switch (runOnYarn)
             {
                 case Local:
                     var dir = Path.Combine(".", runtimeFolder);
                     return LocalRuntimeClientConfiguration.ConfigurationModule
-                        .Set(LocalRuntimeClientConfiguration.NumberOfEvaluators, "2")
+                        .Set(LocalRuntimeClientConfiguration.NumberOfEvaluators, numberOfEvaluator.ToString())
                         .Set(LocalRuntimeClientConfiguration.RuntimeFolder, dir)
                         .Build();
                 case YARN:
