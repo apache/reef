@@ -49,13 +49,14 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
         public void RunSimpleEventHandlerOnLocalRuntime()
         {
             string testFolder = DefaultRuntimeFolder + TestNumber++;
-            TestRun(DriverConfiguration(), typeof(HelloSimpleEventHandlers), "simpleHandler", "local", testFolder);
+            CleanUp(testFolder);
+            TestRun(DriverConfigurations(), typeof(HelloSimpleEventHandlers), 2, "simpleHandler", "local", testFolder);
             ValidateSuccessForLocalRuntime(1, testFolder);
             ValidateEvaluatorSetting(testFolder);
             CleanUp(testFolder);
         }
 
-        public IConfiguration DriverConfiguration()
+        public IConfiguration DriverConfigurations()
         {
             var helloDriverConfiguration = REEF.Driver.DriverConfiguration.ConfigurationModule
                 .Set(REEF.Driver.DriverConfiguration.OnDriverStarted, GenericType<HelloSimpleEventHandlers>.Class)

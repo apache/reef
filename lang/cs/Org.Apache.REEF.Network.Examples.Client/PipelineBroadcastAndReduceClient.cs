@@ -17,21 +17,13 @@
  * under the License.
  */
 
-using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Org.Apache.REEF.Common.Io;
-using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Driver;
 using Org.Apache.REEF.Driver.Bridge;
 using Org.Apache.REEF.Network.Examples.GroupCommunication;
 using Org.Apache.REEF.Network.Examples.GroupCommunication.PipelineBroadcastReduceDriverAndTasks;
 using Org.Apache.REEF.Network.Group.Config;
 using Org.Apache.REEF.Network.Naming;
-using Org.Apache.REEF.Network.NetworkService;
 using Org.Apache.REEF.Tang.Implementations.Configuration;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
@@ -90,14 +82,8 @@ namespace Org.Apache.REEF.Network.Examples.Client
 
             merged = Configurations.Merge(merged, taskConfig);
 
-            HashSet<string> appDlls = new HashSet<string>();
-            appDlls.Add(typeof(IDriver).Assembly.GetName().Name);
-            appDlls.Add(typeof(ITask).Assembly.GetName().Name);
-            appDlls.Add(typeof(PipelinedBroadcastReduceDriver).Assembly.GetName().Name);
-            appDlls.Add(typeof(INameClient).Assembly.GetName().Name);
-            appDlls.Add(typeof(INetworkService<>).Assembly.GetName().Name);
-
-            ClrClientHelper.Run(appDlls, merged, new DriverSubmissionSettings() { RunOnYarn = runOnYarn, JavaLogLevel = JavaLoggingSetting.VERBOSE });
+            string runPlatform = runOnYarn ? "yarn" : "local";
+            BroadcastAndReduceClient.TestRun(merged, typeof(PipelinedBroadcastReduceDriver), numTasks, "PipelinedBroadcastReduceDriver", runPlatform);
         }
     }
 }
