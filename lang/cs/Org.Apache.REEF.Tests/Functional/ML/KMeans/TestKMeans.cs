@@ -127,8 +127,10 @@ namespace Org.Apache.REEF.Tests.Functional.ML.KMeans
         public void TestKMeansOnLocalRuntimeWithGroupCommunications()
         {
             IsOnLocalRuntiime = true;
-            TestRun(AssembliesToCopy(), DriverConfiguration());
-            ValidateSuccessForLocalRuntime(Partitions + 1);
+            string testFolder = DefaultRuntimeFolder + TestNumber++;
+            CleanUp(testFolder);
+            TestRun(DriverConfiguration(), typeof(KMeansDriverHandlers), Partitions + 1, "KMeansDriverHandlers", "local", testFolder);
+            ValidateSuccessForLocalRuntime(Partitions + 1, testFolder);
         }
 
         [TestMethod, Priority(1), TestCategory("FunctionalGated")]
@@ -139,7 +141,8 @@ namespace Org.Apache.REEF.Tests.Functional.ML.KMeans
         [Ignore]    // ignored by default
         public void TestKMeansOnYarnOneBoxWithGroupCommunications()
         {
-            TestRun(AssembliesToCopy(), DriverConfiguration(), runOnYarn: true);
+            string testFolder = DefaultRuntimeFolder + TestNumber++;
+            TestRun(DriverConfiguration(), typeof(KMeansDriverHandlers), Partitions + 1, "KMeansDriverHandlers", "yarn", testFolder);
             Assert.IsNotNull("BreakPointChecker");
         }
 
@@ -176,16 +179,6 @@ namespace Org.Apache.REEF.Tests.Functional.ML.KMeans
                 .Build();
 
             return Configurations.Merge(merged, taskConfig);
-        }
-
-        private HashSet<string> AssembliesToCopy()
-        {
-            HashSet<string> appDlls = new HashSet<string>();
-            appDlls.Add(typeof(LegacyKMeansTask).Assembly.GetName().Name);
-            appDlls.Add(typeof(INameClient).Assembly.GetName().Name);
-            appDlls.Add(typeof(KMeansDriverHandlers).Assembly.GetName().Name);
-            appDlls.Add(typeof(INetworkService<>).Assembly.GetName().Name);
-            return appDlls;
         }
     }
 }

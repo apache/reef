@@ -17,17 +17,18 @@
  * under the License.
  */
 
-using System.Collections.Generic;
+using System;
 using System.Globalization;
-using Org.Apache.REEF.Common.Io;
-using Org.Apache.REEF.Common.Tasks;
+using System.IO;
+using Org.Apache.REEF.Client.API;
+using Org.Apache.REEF.Client.Local;
+using Org.Apache.REEF.Client.YARN;
 using Org.Apache.REEF.Driver;
 using Org.Apache.REEF.Driver.Bridge;
 using Org.Apache.REEF.Network.Examples.GroupCommunication;
 using Org.Apache.REEF.Network.Examples.GroupCommunication.BroadcastReduceDriverAndTasks;
 using Org.Apache.REEF.Network.Group.Config;
 using Org.Apache.REEF.Network.Naming;
-using Org.Apache.REEF.Network.NetworkService;
 using Org.Apache.REEF.Tang.Implementations.Configuration;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
@@ -38,6 +39,10 @@ namespace Org.Apache.REEF.Network.Examples.Client
 {
     class BroadcastAndReduceClient
     {
+        const string Local = "local";
+        const string Yarn = "yarn";
+        const string DefaultRuntimeFolder = "REEF_LOCAL_RUNTIME";
+
         public void RunBroadcastAndReduce(bool runOnYarn, int numTasks, int startingPortNo, int portRange)
         {
             const int numIterations = 10;
@@ -85,14 +90,39 @@ namespace Org.Apache.REEF.Network.Examples.Client
 
             merged = Configurations.Merge(merged, taskConfig);
 
-            HashSet<string> appDlls = new HashSet<string>();
-            appDlls.Add(typeof(IDriver).Assembly.GetName().Name);
-            appDlls.Add(typeof(ITask).Assembly.GetName().Name);
-            appDlls.Add(typeof(BroadcastReduceDriver).Assembly.GetName().Name);
-            appDlls.Add(typeof(INameClient).Assembly.GetName().Name);
-            appDlls.Add(typeof(INetworkService<>).Assembly.GetName().Name);
+            string runPlatform = runOnYarn ? "yarn" : "local";
+            TestRun(merged, typeof(BroadcastReduceDriver), numTasks, "BroadcastReduceDriver", runPlatform);
+        }
 
-            ClrClientHelper.Run(appDlls, merged, new DriverSubmissionSettings() { RunOnYarn = runOnYarn, JavaLogLevel = JavaLoggingSetting.VERBOSE });
+        internal static void TestRun(IConfiguration driverCondig, Type globalAssemblyType, int numberOfEvaluator, string jobIdentifier = "myDriver", string runOnYarn = "local", string runtimeFolder = DefaultRuntimeFolder)
+        {
+            IInjector injector = TangFactory.GetTang().NewInjector(GetRuntimeConfiguration(runOnYarn, numberOfEvaluator, runtimeFolder));
+            var reefClient = injector.GetInstance<IREEFClient>();
+            var jobSubmissionBuilderFactory = injector.GetInstance<JobSubmissionBuilderFactory>();
+            var jobSubmission = jobSubmissionBuilderFactory.GetJobSubmissionBuilder()
+                .AddDriverConfiguration(driverCondig)
+                .AddGlobalAssemblyForType(globalAssemblyType)
+                .SetJobIdentifier(jobIdentifier)
+                .Build();
+
+            reefClient.Submit(jobSubmission);
+        }
+
+        internal static IConfiguration GetRuntimeConfiguration(string runOnYarn, int numberOfEvaluator, string runtimeFolder)
+        {
+            switch (runOnYarn)
+            {
+                case Local:
+                    var dir = Path.Combine(".", runtimeFolder);
+                    return LocalRuntimeClientConfiguration.ConfigurationModule
+                        .Set(LocalRuntimeClientConfiguration.NumberOfEvaluators, numberOfEvaluator.ToString())
+                        .Set(LocalRuntimeClientConfiguration.RuntimeFolder, dir)
+                        .Build();
+                case Yarn:
+                    return YARNClientConfiguration.ConfigurationModule.Build();
+                default:
+                    throw new Exception("Unknown runtime: " + runOnYarn);
+            }
         }
     }
 }

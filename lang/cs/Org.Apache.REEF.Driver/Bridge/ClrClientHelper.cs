@@ -22,9 +22,12 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net.Configuration;
+using System.Runtime.InteropServices;
 using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Utilities.Logging;
+using Org.Apache.REEF.Wake.Remote.Impl;
 
 namespace Org.Apache.REEF.Driver.Bridge
 {
@@ -32,6 +35,7 @@ namespace Org.Apache.REEF.Driver.Bridge
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(ClrClientHelper));
 
+        [Obsolete(message:"please use ReefClient API")]
         public static void Run(HashSet<string> appDlls, IConfiguration driverBridgeConfig, DriverSubmissionSettings driverSubmissionSettings, string reefJar = Constants.JavaBridgeJarFileName, string runCommand = "run.cmd", string clrFolder = ".", string className = Constants.BridgeLaunchClass)
         {
             using (LOGGER.LogFunction("ClrHandlerHelper::Run"))
@@ -82,6 +86,7 @@ namespace Org.Apache.REEF.Driver.Bridge
             }
         }
 
+        [Obsolete(message: "please use ReefClient API")]
         public static void UpdateJarFileWithAssemblies(string reefJar)
         {
             using (LOGGER.LogFunction("ClrHandlerHelper::UpdateJarFileWithAssemblies"))
