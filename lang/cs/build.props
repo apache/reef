@@ -26,6 +26,8 @@ under the License.
     <OutputPath>$(BinDir)\$(Platform)\$(Configuration)\$(RootNamespace)</OutputPath>
     <BaseIntermediateOutputPath>$(BinDir)\Temp\$(RootNamespace)\$(Platform)\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)$(Configuration)\</IntermediateOutputPath>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>$(SolutionDir)\keyfile.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
   <!-- Common build configurations -->
@@ -42,8 +44,6 @@ under the License.
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
     <BuildPackage>true</BuildPackage>
-    <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>$(SolutionDir)\keyfile.snk</AssemblyOriginatorKeyFile>
     <PlatformTarget>x64</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
