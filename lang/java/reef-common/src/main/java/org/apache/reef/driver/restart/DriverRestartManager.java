@@ -56,6 +56,7 @@ public final class DriverRestartManager implements DriverIdlenessSource {
 
   private RestartEvaluators restartEvaluators;
   private DriverRestartState state = DriverRestartState.NOT_RESTARTED;
+  private int resubmissionAttempts = 0;
 
   @Inject
   private DriverRestartManager(final DriverRuntimeRestartManager driverRuntimeRestartManager,
@@ -81,9 +82,13 @@ public final class DriverRestartManager implements DriverIdlenessSource {
    * Can be already done with restart or in the process of restart.
    */
   public synchronized boolean detectRestart() {
-    if (this.state.hasNotRestarted() && driverRuntimeRestartManager.hasRestarted()) {
-      // set the state machine in motion.
-      this.state = DriverRestartState.BEGAN;
+    if (this.state.hasNotRestarted()) {
+      resubmissionAttempts = driverRuntimeRestartManager.getResubmissionAttempts();
+
+      if (resubmissionAttempts > 0) {
+        // set the state machine in motion.
+        this.state = DriverRestartState.BEGAN;
+      }
     }
 
     return this.state.hasRestarted();
@@ -105,7 +110,7 @@ public final class DriverRestartManager implements DriverIdlenessSource {
                                      final List<EventHandler<DriverRestarted>> orderedHandlers) {
     if (this.state == DriverRestartState.BEGAN) {
       restartEvaluators = driverRuntimeRestartManager.getPreviousEvaluators();
-      final DriverRestarted restartedInfo = new DriverRestartedImpl(startTime, restartEvaluators);
+      final DriverRestarted restartedInfo = new DriverRestartedImpl(resubmissionAttempts, startTime, restartEvaluators);
 
       for (final EventHandler<DriverRestarted> handler : orderedHandlers) {
         handler.onNext(restartedInfo);

@@ -35,6 +35,11 @@ import java.util.Set;
 @Unstable
 public interface DriverRestarted {
   /**
+   * @return The number of times the Driver has been resubmitted. Not including the initial attempt.
+   */
+  int getResubmissionAttempts();
+
+  /**
    * @return The time of restart.
    */
   StartTime getStartTime();

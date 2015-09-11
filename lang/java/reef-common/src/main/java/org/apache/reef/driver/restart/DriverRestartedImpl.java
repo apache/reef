@@ -34,10 +34,14 @@ import java.util.Set;
 @Private
 @Unstable
 public final class DriverRestartedImpl implements DriverRestarted {
+  private final int resubmissionAttempts;
   private final StartTime startTime;
   private final Set<String> expectedEvaluatorIds;
 
-  DriverRestartedImpl(final StartTime startTime, final RestartEvaluators restartEvaluators) {
+  DriverRestartedImpl(final int resubmissionAttempts,
+                      final StartTime startTime,
+                      final RestartEvaluators restartEvaluators) {
+    this.resubmissionAttempts = resubmissionAttempts;
     this.startTime = startTime;
     Set<String> expected = new HashSet<>();
 
@@ -48,6 +52,11 @@ public final class DriverRestartedImpl implements DriverRestarted {
     }
 
     this.expectedEvaluatorIds = Collections.unmodifiableSet(expected);
+  }
+
+  @Override
+  public int getResubmissionAttempts() {
+    return resubmissionAttempts;
   }
 
   @Override
