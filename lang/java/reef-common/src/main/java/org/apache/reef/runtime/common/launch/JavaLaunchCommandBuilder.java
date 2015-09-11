@@ -66,9 +66,10 @@ public final class JavaLaunchCommandBuilder implements LaunchCommandBuilder {
   @Override
   public List<String> build() {
     return new ArrayList<String>() {{
-
-        for (final String cmd : commandPrefixList) {
-          add(cmd);
+        if (commandPrefixList != null) {
+          for (final String cmd : commandPrefixList) {
+            add(cmd);
+          }
         }
 
         if (javaPath == null || javaPath.isEmpty()) {

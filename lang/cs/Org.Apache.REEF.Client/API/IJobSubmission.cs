@@ -64,7 +64,7 @@ namespace Org.Apache.REEF.Client.API
 
         /// <summary>
         /// Driver config file contents (Org.Apache.REEF.Bridge.exe.config) contents
-        /// Can be use to redirect assembly versions
+        /// Can be used to redirect assembly versions
         /// </summary>
         string DriverConfigurationFileContents { get; }
 
