@@ -27,6 +27,7 @@ using System.Threading;
 using Org.Apache.REEF.Common.Evaluator;
 using Org.Apache.REEF.Common.Protobuf.ReefProtocol;
 using Org.Apache.REEF.Common.Runtime.Evaluator.Context;
+using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Wake.Remote;
@@ -134,7 +135,10 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
 
                     if (_heartbeatFailures >= _maxHeartbeatRetries)
                     {
-                        LOGGER.Log(Level.Warning, string.Format(CultureInfo.InvariantCulture, "Heartbeat communications to driver reached max of {0} failures. \n==== Driver is considered dead/unreachable. === \n=========== Entering RECOVERY mode. ===========", _heartbeatFailures));
+                        LOGGER.Log(Level.Warning, "Heartbeat communications to driver reached max of {0} failures. Driver is considered dead/unreachable", _heartbeatFailures);
+                        LOGGER.Log(Level.Info, "=========== Entering RECOVERY mode. ===========");
+                        _contextManager.HandleDriverConnectionMessage(new DriverConnectionMessageImpl(DriverConnectionState.Disconnected));
+
                         try
                         {
                             _driverConnection = _evaluatorSettings.Injector.GetInstance<IDriverConnection>();
@@ -343,7 +347,10 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
                     Thread.Sleep(500);
                 }
             }        
+            
             _evaluatorSettings.OperationState = EvaluatorOperationState.OPERATIONAL;
+            _contextManager.HandleDriverConnectionMessage(new DriverConnectionMessageImpl(DriverConnectionState.Reconnected));
+
             LOGGER.Log(Level.Info, "=========== Exiting RECOVERY mode. ===========");
         }
 
