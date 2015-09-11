@@ -85,6 +85,7 @@ namespace Org.Apache.REEF.Examples.DriverRestart
                 .Set(TaskConfiguration.Identifier, "HelloRestartTask")
                 .Set(TaskConfiguration.Task, GenericType<HelloRestartTask>.Class)
                 .Set(TaskConfiguration.OnMessage, GenericType<HelloRestartTask>.Class)
+                .Set(TaskConfiguration.OnDriverConnectionChanged, GenericType<HelloRestartTask>.Class)
                 .Build();
 
             allocatedEvaluator.SubmitTask(taskConfiguration);

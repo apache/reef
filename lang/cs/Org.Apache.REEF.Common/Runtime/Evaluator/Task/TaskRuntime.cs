@@ -48,6 +48,8 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
 
         private readonly INameClient _nameClient;
 
+        private readonly Lazy<IDriverConnectionMessageHandler> _driverConnectionMessageHandler;
+
         public TaskRuntime(IInjector taskInjector, string contextId, string taskId, HeartBeatManager heartBeatManager, string memento = null)
         {
             _injector = taskInjector;
@@ -82,6 +84,20 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
                 LOGGER.Log(Level.Warning, "Cannot inject name client from task configuration.");
                 // do not rethrow since user is not required to provide name client
             }
+
+            _driverConnectionMessageHandler = new Lazy<IDriverConnectionMessageHandler>(() =>
+            {
+                try
+                {
+                    return _injector.GetInstance<IDriverConnectionMessageHandler>();
+                }
+                catch (InjectionException)
+                {
+                    LOGGER.Log(Level.Info, "User did not implement IDriverConnectionMessageHandler.");
+                }
+
+                return null;
+            });
 
             LOGGER.Log(Level.Info, "task message source injected");
             _currentStatus = new TaskStatus(_heartBeatManager, contextId, taskId, messageSources);
@@ -316,6 +332,19 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
                     _currentStatus.RecordExecptionWithoutHeartbeat(e);
                 }
             }
+        }
+
+        /// <summary>
+        /// Propagates the IDriverConnection message to the Handler as specified by the Task.
+        /// </summary>
+        internal void HandleDriverConnectionMessage(IDriverConnectionMessage message)
+        {
+            if (_driverConnectionMessageHandler.Value == null)
+            {
+                return;
+            }
+
+            _driverConnectionMessageHandler.Value.OnNext(message);
         }
 
         private byte[] RunTask(byte[] memento)

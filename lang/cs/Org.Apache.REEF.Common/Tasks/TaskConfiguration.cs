@@ -62,6 +62,12 @@ namespace Org.Apache.REEF.Common.Tasks
         public static readonly OptionalImpl<IDriverMessageHandler> OnMessage = new OptionalImpl<IDriverMessageHandler>();
 
         /// <summary>
+        /// for heartbeat status changes from the Driver. Does not do anything if not bound.
+        /// </summary>
+        [SuppressMessage("Microsoft.Security", "CA2104:Do not declare read only mutable reference types", Justification = "not applicable")]
+        public static readonly OptionalImpl<IDriverConnectionMessageHandler> OnDriverConnectionChanged = new OptionalImpl<IDriverConnectionMessageHandler>();
+
+        /// <summary>
         /// for closure requests from the driver. Defaults to task failure if not bound.
         /// </summary>
         [SuppressMessage("Microsoft.Security", "CA2104:Do not declare read only mutable reference types", Justification = "not applicable")]
@@ -125,6 +131,7 @@ namespace Org.Apache.REEF.Common.Tasks
                     .BindImplementation(GenericType<ITask>.Class, Task)
                     .BindImplementation(GenericType<ITaskMessageSource>.Class, OnSendMessage)
                     .BindImplementation(GenericType<IDriverMessageHandler>.Class, OnMessage)
+                    .BindImplementation(GenericType<IDriverConnectionMessageHandler>.Class, OnDriverConnectionChanged)
                     .BindNamedParameter(GenericType<TaskConfigurationOptions.Identifier>.Class, Identifier)
                     .BindNamedParameter(GenericType<TaskConfigurationOptions.Memento>.Class, Memento)
                     .BindNamedParameter(GenericType<TaskConfigurationOptions.CloseHandler>.Class, OnClose)
