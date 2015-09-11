@@ -20,6 +20,10 @@ under the License.
 # Talks
 On this page, we collect slides and videos of talks given by members of the REEF community.
 
+**BOSS 2015** ([Slides](http://1drv.ms/1OgHuwZ), [Files](https://cwiki.apache.org/confluence/display/REEF/BOSS+Tutorial))
+
+This tutorial was part of the workshop on Big Data Open Source Systems ([BOSS](http://boss.dima.tu-berlin.de/)), co-located with VLDB 2015.
+
 **REEF.NET for Java developers** ([Slides](http://1drv.ms/1QQy3lN))
 
 This deck was used as part of a discussion during the 2015 Seoul REEF hackathon.

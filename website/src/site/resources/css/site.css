@@ -19,3 +19,9 @@
 .pull-left {
   margin: 10px
 }
+
+a.externalLink[href] {
+  background: none;
+  padding-right: 0;
+}
+

@@ -17,18 +17,14 @@
  * under the License.
  */
 
-using System.Collections.Generic;
 using System.Globalization;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Org.Apache.REEF.Common.Io;
-using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Driver;
 using Org.Apache.REEF.Driver.Bridge;
 using Org.Apache.REEF.Network.Examples.GroupCommunication;
 using Org.Apache.REEF.Network.Examples.GroupCommunication.ScatterReduceDriverAndTasks;
 using Org.Apache.REEF.Network.Group.Config;
 using Org.Apache.REEF.Network.Naming;
-using Org.Apache.REEF.Network.NetworkService;
 using Org.Apache.REEF.Tang.Implementations.Configuration;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
@@ -56,8 +52,10 @@ namespace Org.Apache.REEF.Tests.Functional.Group
         public void TestScatterAndReduceOnLocalRuntime()
         {
             int numTasks = 5;
-            TestScatterAndReduce(false, numTasks);
-            ValidateSuccessForLocalRuntime(numTasks);
+            string testFolder = DefaultRuntimeFolder + TestNumber++;
+            CleanUp(testFolder);
+            TestScatterAndReduce(false, numTasks, testFolder);
+            ValidateSuccessForLocalRuntime(numTasks, testFolder);
         }
 
         [Ignore]
@@ -65,24 +63,31 @@ namespace Org.Apache.REEF.Tests.Functional.Group
         public void TestScatterAndReduceOnYarn()
         {
             int numTasks = 5;
-            TestScatterAndReduce(true, numTasks);
+            string testFolder = DefaultRuntimeFolder + TestNumber++;
+            CleanUp(testFolder);
+            TestScatterAndReduce(true, numTasks, testFolder);
         }
 
-        [TestMethod]
-        public void TestScatterAndReduce(bool runOnYarn, int numTasks)
+        private void TestScatterAndReduce(bool runOnYarn, int numTasks, string testFolder)
+        {
+            string runPlatform = runOnYarn ? "yarn" : "local";
+            TestRun(DriverConfigurations(numTasks), typeof(ScatterReduceDriver), numTasks, "ScatterReduceDriver", runPlatform, testFolder);
+        }
+
+        public IConfiguration DriverConfigurations(int numTasks)
         {
             IConfiguration driverConfig = TangFactory.GetTang().NewConfigurationBuilder(
-                DriverConfiguration.ConfigurationModule
-                    .Set(DriverConfiguration.OnDriverStarted, GenericType<ScatterReduceDriver>.Class)
-                    .Set(DriverConfiguration.OnEvaluatorAllocated, GenericType<ScatterReduceDriver>.Class)
-                    .Set(DriverConfiguration.OnEvaluatorFailed, GenericType<ScatterReduceDriver>.Class)
-                    .Set(DriverConfiguration.OnContextActive, GenericType<ScatterReduceDriver>.Class)
-                    .Set(DriverConfiguration.CustomTraceLevel, Level.Info.ToString())
-                    .Build())
-                .BindNamedParameter<GroupTestConfig.NumEvaluators, int>(
-                    GenericType<GroupTestConfig.NumEvaluators>.Class,
-                    numTasks.ToString(CultureInfo.InvariantCulture))
-                .Build();
+               DriverConfiguration.ConfigurationModule
+                   .Set(DriverConfiguration.OnDriverStarted, GenericType<ScatterReduceDriver>.Class)
+                   .Set(DriverConfiguration.OnEvaluatorAllocated, GenericType<ScatterReduceDriver>.Class)
+                   .Set(DriverConfiguration.OnEvaluatorFailed, GenericType<ScatterReduceDriver>.Class)
+                   .Set(DriverConfiguration.OnContextActive, GenericType<ScatterReduceDriver>.Class)
+                   .Set(DriverConfiguration.CustomTraceLevel, Level.Info.ToString())
+                   .Build())
+               .BindNamedParameter<GroupTestConfig.NumEvaluators, int>(
+                   GenericType<GroupTestConfig.NumEvaluators>.Class,
+                   numTasks.ToString(CultureInfo.InvariantCulture))
+               .Build();
 
             IConfiguration groupCommDriverConfig = TangFactory.GetTang().NewConfigurationBuilder()
                .BindStringNamedParam<GroupCommConfigurationOptions.DriverId>(GroupTestConstants.DriverId)
@@ -99,16 +104,7 @@ namespace Org.Apache.REEF.Tests.Functional.Group
                 .BindSetEntry<DriverBridgeConfigurationOptions.SetOfAssemblies, string>(typeof(NameClient).Assembly.GetName().Name)
                 .Build();
 
-            merged = Configurations.Merge(merged, taskConfig);
-
-            HashSet<string> appDlls = new HashSet<string>();
-            appDlls.Add(typeof(IDriver).Assembly.GetName().Name);
-            appDlls.Add(typeof(ITask).Assembly.GetName().Name);
-            appDlls.Add(typeof(ScatterReduceDriver).Assembly.GetName().Name);
-            appDlls.Add(typeof(INameClient).Assembly.GetName().Name);
-            appDlls.Add(typeof(INetworkService<>).Assembly.GetName().Name);
-
-            TestRun(appDlls, merged, runOnYarn, JavaLoggingSetting.VERBOSE);
+            return Configurations.Merge(merged, taskConfig);
         }
     }
 }

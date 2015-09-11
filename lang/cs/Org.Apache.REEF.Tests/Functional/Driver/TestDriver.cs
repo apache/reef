@@ -44,7 +44,7 @@ namespace Org.Apache.REEF.Tests.Functional.Driver
         }
 
         /// <summary>
-        /// This is to test DriverTestStartHandler. No evaluator and tasks are involked.
+        /// This is to test DriverTestStartHandler. No evaluator and tasks are involved.
         /// </summary>
         [TestMethod, Priority(1), TestCategory("FunctionalGated")]
         [Description("Test DriverTestStartHandler. No evaluator and tasks are invoked")]
@@ -52,18 +52,20 @@ namespace Org.Apache.REEF.Tests.Functional.Driver
         [Timeout(180 * 1000)]
         public void TestDriverStart()
         {
+            string testFolder = DefaultRuntimeFolder + TestNumber++;
+            CleanUp(testFolder);
+            TestRun(DriverConfigurations(), typeof(DriverTestStartHandler), 0, "DriverTestStartHandler", "local", testFolder);
+            ValidateSuccessForLocalRuntime(0, testFolder);
+        }
+
+        public IConfiguration DriverConfigurations()
+        {
             IConfiguration driverConfig = DriverConfiguration.ConfigurationModule
              .Set(DriverConfiguration.OnDriverStarted, GenericType<DriverTestStartHandler>.Class)
              .Set(DriverConfiguration.CustomTraceListeners, GenericType<DefaultCustomTraceListener>.Class)
              .Set(DriverConfiguration.CustomTraceLevel, Level.Info.ToString())
              .Build();
-
-            HashSet<string> appDlls = new HashSet<string>();
-            appDlls.Add(typeof(DriverTestStartHandler).Assembly.GetName().Name);
-
-            TestRun(appDlls, driverConfig);
-
-            ValidateSuccessForLocalRuntime(0);
+            return driverConfig;
         }
     }
 }

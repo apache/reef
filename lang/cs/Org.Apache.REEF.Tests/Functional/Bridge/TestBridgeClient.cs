@@ -47,7 +47,8 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
         [Ignore] //This test needs to be run on Yarn environment with test framework installed.
         public void CanRunClrBridgeExampleOnYarn()
         {
-            RunClrBridgeClient(true);
+            string testRuntimeFolder = DefaultRuntimeFolder + TestNumber++;
+            RunClrBridgeClient(true, testRuntimeFolder);
         }
 
         [TestMethod, Priority(1), TestCategory("FunctionalGated")]
@@ -56,12 +57,13 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
         [Timeout(180 * 1000)]
         public void CanRunClrBridgeExampleOnLocalRuntime()
         {
-            RunClrBridgeClient(false);
+            string testRuntimeFolder = DefaultRuntimeFolder + TestNumber++;
+            CleanUp(testRuntimeFolder);
+            RunClrBridgeClient(false, testRuntimeFolder);
         }
 
-        private void RunClrBridgeClient(bool runOnYarn)
+        private void RunClrBridgeClient(bool runOnYarn, string testRuntimeFolder)
         {
-            string testRuntimeFolder = DefaultRuntimeFolder + TestNumber++;
             string[] a = new[] { runOnYarn ? "yarn" : "local", testRuntimeFolder };
             AllHandlers.Run(a);
             ValidateSuccessForLocalRuntime(2, testRuntimeFolder);
