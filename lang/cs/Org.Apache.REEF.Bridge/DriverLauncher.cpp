@@ -120,31 +120,36 @@ void SetOption(JavaVMOption *option, char *src)
 // 
 char *ExpandJarPaths(char *jarPaths)
 {
-	String^ ClassPathSeparatorStringForWindows = ";";
+	String^ classPathSeparatorStringForWindows = L";";
+	const char classPathSeparatorCharForrWindows = ';';
+	String^ jarExtension = L".jar";
+	String^ anyJarExtension = L"*.jar";
+	String^ asterisk = L"*";
+
 	const int StringBuilderInitalSize = 1024 * 16;
 	System::Text::StringBuilder^ sb = gcnew System::Text::StringBuilder(StringBuilderInitalSize);
 	sb->Append(gcnew String(JavaClassPath));
 	String^ pathString = gcnew String(jarPaths);
-	array<String^>^ rawPaths = pathString->Split(';');
+	array<String^>^ rawPaths = pathString->Split(classPathSeparatorCharForrWindows);
 	for (int i = 0; i < rawPaths->Length; i++)
 	{
 		String^ oldPath = rawPaths[i];
 		int oldPathLength = oldPath->Length;
 		String^ path;
 		bool shouldExpand = false;
-		if (oldPath->EndsWith("*"))
+		if (oldPath->EndsWith(asterisk))
 		{
-			path = oldPath + ".jar";
+			path = oldPath + jarExtension;
 			shouldExpand = true;
 		}
-		else if (oldPath->EndsWith("*.jar"))
+		else if (oldPath->EndsWith(anyJarExtension))
 		{
 			path = oldPath;
 			shouldExpand = true;
 		}
 		else
 		{
-			sb->Append(ClassPathSeparatorStringForWindows);
+			sb->Append(classPathSeparatorStringForWindows);
 			sb->Append(oldPath);
 		}
 		if (shouldExpand)
@@ -158,7 +163,7 @@ char *ExpandJarPaths(char *jarPaths)
 				for (int i = 0; i < files->Length; i++)
 				{
 					auto fullName = System::IO::Path::Combine(files[i]->Directory->ToString(), files[i]->ToString());
-					sb->Append(ClassPathSeparatorStringForWindows);
+					sb->Append(classPathSeparatorStringForWindows);
 					sb->Append(fullName);
 				}
 			}

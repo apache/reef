@@ -110,7 +110,7 @@ namespace Org.Apache.REEF.Driver
                 .Where(e => !(string.IsNullOrWhiteSpace(e)))
                 .Select(Path.GetFullPath)
                 .Where(File.Exists)
-                .Where(IsAssembly)
+                .Where(Org.Apache.REEF.Tang.Util.AssemblyLoader.IsAssembly)
                 .Select(Path.GetFileNameWithoutExtension));
         }
 
