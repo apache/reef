@@ -34,7 +34,6 @@ under the License.
       <dependency id="Org.Apache.REEF.Common" version="$version$" />
       <dependency id="Org.Apache.REEF.Network" version="$version$" />
       <dependency id="Org.Apache.REEF.Driver" version="$version$" />
-      <dependency id="Org.Apache.REEF.Bridge" version="$version$" />
       <dependency id="Org.Apache.REEF.Examples" version="$version$" />
       <dependency id="Rx-Core" version="2.2.5" />
       <dependency id="protobuf-net" version="2.0.0.668" />
