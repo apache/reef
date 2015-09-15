@@ -42,6 +42,9 @@ public class RandomNameCNS implements CheckpointNamingService {
     return this.prefix + RandomStringUtils.randomAlphanumeric(8);
   }
 
+  /**
+   * The prefix used for the random names returned.
+   */
   @NamedParameter(doc = "The prefix used for the random names returned.", default_value = "checkpoint_")
   public static class PREFIX implements Name<String> {
   }

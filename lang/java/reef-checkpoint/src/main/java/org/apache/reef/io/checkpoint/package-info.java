@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * Checkpoints that provide APIs and implementations to store and retrieve the state of a task.
  */
 package org.apache.reef.io.checkpoint;
