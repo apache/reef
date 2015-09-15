@@ -32,6 +32,9 @@ import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Fault-injected handler for ContextStart.
+ */
 public final class PoisonedContextStartHandler implements EventHandler<ContextStart> {
 
   private static final Logger LOG = Logger.getLogger(PoisonedContextStartHandler.class.getName());

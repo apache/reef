@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * Parameters of fault injections.
  */
 package org.apache.reef.poison.params;
