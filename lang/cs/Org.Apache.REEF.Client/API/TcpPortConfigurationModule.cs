@@ -34,24 +34,24 @@ namespace Org.Apache.REEF.Client.API
         /// <summary>
         /// Port number range start for listening on tcp ports.
         /// </summary>
-        public static RequiredParameter<int> PortRangeStart = new RequiredParameter<int>();
+        public static readonly RequiredParameter<int> PortRangeStart = new RequiredParameter<int>();
 
         /// <summary>
         /// Seed for the random port number generator.
         /// </summary>
-        public static OptionalParameter<int> PortRangeSeed = new OptionalParameter<int>();
+        public static readonly OptionalParameter<int> PortRangeSeed = new OptionalParameter<int>();
 
         /// <summary>
         /// Port number count in the range for listening on tcp ports.
         /// </summary>
-        public static RequiredParameter<int> PortRangeCount = new RequiredParameter<int>();
+        public static readonly RequiredParameter<int> PortRangeCount = new RequiredParameter<int>();
 
         /// <summary>
         /// Count of tries to get a tcp port in the port range.
         /// </summary>
-        public static OptionalParameter<int> PortRangeTryCount = new OptionalParameter<int>();
+        public static readonly OptionalParameter<int> PortRangeTryCount = new OptionalParameter<int>();
 
-        public static ConfigurationModule ConfigurationModule = new TcpPortConfigurationModule()
+        public static readonly ConfigurationModule ConfigurationModule = new TcpPortConfigurationModule()
             .BindSetEntry<DriverConfigurationProviders, TcpPortConfigurationProvider, IConfigurationProvider>(
                 GenericType<DriverConfigurationProviders>.Class, GenericType<TcpPortConfigurationProvider>.Class)
             .BindNamedParameter(GenericType<TcpPortRangeStart>.Class, PortRangeStart)
