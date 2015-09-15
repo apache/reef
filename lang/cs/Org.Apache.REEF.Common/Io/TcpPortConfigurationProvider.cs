@@ -17,19 +17,21 @@
  * under the License.
  */
 
-using System;
 using Org.Apache.REEF.Common.Evaluator.Parameters;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
-using Org.Apache.REEF.Wake.Remote;
 using Org.Apache.REEF.Wake.Remote.Parameters;
 
 namespace Org.Apache.REEF.Common.Io
 {
     public class TcpPortConfigurationProvider : IConfigurationProvider
     {
-        private readonly IConfiguration _configuration;
+        private readonly int _tcpPortRangeStart;
+        private readonly int _tcpPortRangeCount;
+        private readonly int _tcpPortRangeTryCount;
+        private readonly int _tcpPortRangeTrySeed;
+
         [Inject]
         private TcpPortConfigurationProvider(
             [Parameter(typeof(TcpPortRangeStart))] int tcpPortRangeStart,
@@ -37,18 +39,21 @@ namespace Org.Apache.REEF.Common.Io
             [Parameter(typeof(TcpPortRangeTryCount))] int tcpPortRangeTryCount,
             [Parameter(typeof(TcpPortRangeSeed))] int tcpPortRangeTrySeed)
         {
-            _configuration = TangFactory.GetTang().NewConfigurationBuilder()
-                .BindIntNamedParam<TcpPortRangeStart>(tcpPortRangeStart.ToString())
-                .BindIntNamedParam<TcpPortRangeCount>(tcpPortRangeCount.ToString())
-                .BindIntNamedParam<TcpPortRangeTryCount>(tcpPortRangeTryCount.ToString())
-                .BindIntNamedParam<TcpPortRangeSeed>(tcpPortRangeTrySeed.ToString())
-                .BindSetEntry<EvaluatorConfigurationProviders, TcpPortConfigurationProvider, IConfigurationProvider>()
-                .Build();
+            _tcpPortRangeStart = tcpPortRangeStart;
+            _tcpPortRangeCount = tcpPortRangeCount;
+            _tcpPortRangeTryCount = tcpPortRangeTryCount;
+            _tcpPortRangeTrySeed = tcpPortRangeTrySeed;
         }
 
         IConfiguration IConfigurationProvider.GetConfiguration()
         {
-            return _configuration;
+            return TangFactory.GetTang().NewConfigurationBuilder()
+            .BindIntNamedParam<TcpPortRangeStart>(_tcpPortRangeStart.ToString())
+            .BindIntNamedParam<TcpPortRangeCount>(_tcpPortRangeCount.ToString())
+            .BindIntNamedParam<TcpPortRangeTryCount>(_tcpPortRangeTryCount.ToString())
+            .BindIntNamedParam<TcpPortRangeSeed>(_tcpPortRangeTrySeed.ToString())
+            .BindSetEntry<EvaluatorConfigurationProviders, TcpPortConfigurationProvider, IConfigurationProvider>()
+            .Build();
         }
     }
 }

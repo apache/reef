@@ -23,6 +23,7 @@ using Org.Apache.REEF.Client.Local;
 using Org.Apache.REEF.Client.YARN;
 using Org.Apache.REEF.Driver;
 using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Tang.Implementations.Configuration;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
@@ -36,6 +37,8 @@ namespace Org.Apache.REEF.Examples.HelloREEF
     {
         private const string Local = "local";
         private const string YARN = "yarn";
+        private const int DefaultPortRangeStart = 20100;
+        private const int DefaultPortRangeCount = 20;
         private readonly IREEFClient _reefClient;
         private readonly JobSubmissionBuilderFactory _jobSubmissionBuilderFactory;
 
@@ -69,25 +72,62 @@ namespace Org.Apache.REEF.Examples.HelloREEF
         /// <summary>
         /// </summary>
         /// <param name="name"></param>
+        /// <param portRangeStart="portRangeStart"></param>
+        /// <param portRangeCount="portRangeCount"></param>
         /// <returns></returns>
-        private static IConfiguration GetRuntimeConfiguration(string name)
+        private static IConfiguration GetRuntimeConfiguration(string name, int portRangeStart, int portRangeCount)
         {
+            IConfiguration runTimeConfig = null;
             switch (name)
             {
                 case Local:
-                    return LocalRuntimeClientConfiguration.ConfigurationModule
+                    runTimeConfig = LocalRuntimeClientConfiguration.ConfigurationModule
                         .Set(LocalRuntimeClientConfiguration.NumberOfEvaluators, "2")
                         .Build();
+                    break;
                 case YARN:
-                    return YARNClientConfiguration.ConfigurationModule.Build();
+                    runTimeConfig = YARNClientConfiguration.ConfigurationModule.Build();
+                    break;
                 default:
                     throw new Exception("Unknown runtime: " + name);
             }
+
+            IConfiguration tcpPortConfig = TcpPortConfigurationModule.ConfigurationModule
+                .Set(TcpPortConfigurationModule.PortRangeStart, portRangeStart.ToString())
+                .Set(TcpPortConfigurationModule.PortRangeCount, portRangeCount.ToString())
+                .Build();
+
+            return Configurations.Merge(runTimeConfig, tcpPortConfig);
         }
 
         public static void Main(string[] args)
         {
-            TangFactory.GetTang().NewInjector(GetRuntimeConfiguration(args.Length > 0 ? args[0] : Local)).GetInstance<HelloREEF>().Run();
+            string runOnYarn = Local;
+            int portRangeStart = DefaultPortRangeStart;
+            int portRangeCount = DefaultPortRangeCount;
+
+            if (args != null)
+            {
+                if (args.Length > 0)
+                {
+                    runOnYarn = args[0];
+                }
+
+                if (args.Length > 1)
+                {
+                    portRangeStart = int.Parse(args[1]);
+                }
+
+                if (args.Length > 2)
+                {
+                    portRangeCount = int.Parse(args[2]);
+                }
+            }
+
+            TangFactory.GetTang()
+                .NewInjector(GetRuntimeConfiguration(runOnYarn, portRangeStart, portRangeCount))
+                .GetInstance<HelloREEF>()
+                .Run();
         }
     }
 }
