@@ -49,7 +49,7 @@ namespace Org.Apache.REEF.Client.API
         /// <summary>
         /// Count of tries to get a tcp port in the port range.
         /// </summary>
-        public static RequiredParameter<int> PortRangeTryCount = new RequiredParameter<int>();
+        public static OptionalParameter<int> PortRangeTryCount = new OptionalParameter<int>();
 
         public static ConfigurationModule ConfigurationModule = new TcpPortConfigurationModule()
             .BindSetEntry<DriverConfigurationProviders, TcpPortConfigurationProvider, IConfigurationProvider>(
