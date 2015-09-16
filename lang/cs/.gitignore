@@ -4,7 +4,9 @@ packages
 TestResults
 **/*.exe
 **/*.suo
+# User configurations of Visual Studio
 **/*.csproj.user
+**/*.vcxproj.user
 **/obj
 **/x64
 **/*.opensdf
@@ -12,5 +14,3 @@ TestResults
 **/.nuget/nuspec
 **/.nuget/packages
 *.sln.GhostDoc.xml
-
-
