@@ -54,13 +54,20 @@ public final class YarnDriverRuntimeRestartManager implements DriverRuntimeResta
 
   private static final Logger LOG = Logger.getLogger(YarnDriverRuntimeRestartManager.class.getName());
 
+  /**
+   * The default resubmission attempts number returned if:
+   * 1) we are not able to determine the number of application attempts based on the environment provided by YARN.
+   * 2) we are able to receive a list of previous containers from the Resource Manager.
+   */
+  private static final int DEFAULT_RESTART_RESUBMISSION_ATTEMPTS = 1;
+
   private final EvaluatorPreserver evaluatorPreserver;
   private final ApplicationMasterRegistration registration;
   private final REEFEventHandlers reefEventHandlers;
   private final YarnContainerManager yarnContainerManager;
   private final RackNameFormatter rackNameFormatter;
 
-  private Set<Container> previousContainers;
+  private Set<Container> previousContainers = null;
 
   @Inject
   private YarnDriverRuntimeRestartManager(@Parameter(YarnEvaluatorPreserver.class)
@@ -74,35 +81,39 @@ public final class YarnDriverRuntimeRestartManager implements DriverRuntimeResta
     this.reefEventHandlers = reefEventHandlers;
     this.yarnContainerManager = yarnContainerManager;
     this.rackNameFormatter = rackNameFormatter;
-    this.previousContainers = null;
   }
 
   /**
-   * Determines whether the application master has been restarted based on the container ID environment
+   * Determines the number of times the Driver has been submitted based on the container ID environment
    * variable provided by YARN. If that fails, determine whether the application master is a restart
-   * based on the number of previous containers reported by YARN.
-   * @return true if the application master is a restarted instance, false otherwise.
+   * based on the number of previous containers reported by YARN. In the failure scenario, returns 1 if restart, 0
+   * otherwise.
+   * @return > 0 if the application master is a restarted instance, 0 otherwise.
    */
   @Override
-  public boolean hasRestarted() {
+  public int getResubmissionAttempts() {
     final String containerIdString = getContainerIdString();
-
-    if (containerIdString == null) {
-      // container id should always be set in the env by the framework
-      LOG.log(Level.WARNING, "Container ID is null, determining restart based on previous containers.");
-      return this.isRestartByPreviousContainers();
-    }
-
     final ApplicationAttemptId appAttemptID = getAppAttemptId(containerIdString);
 
-    if (appAttemptID == null) {
-      LOG.log(Level.WARNING, "applicationAttempt ID is null, determining restart based on previous containers.");
-      return this.isRestartByPreviousContainers();
+    if (containerIdString == null || appAttemptID == null) {
+      LOG.log(Level.WARNING, "Was not able to fetch application attempt, container ID is [" + containerIdString +
+          "] and application attempt is [" + appAttemptID + "]. Determining restart based on previous containers.");
+
+      if (this.isRestartByPreviousContainers()) {
+        LOG.log(Level.WARNING, "Driver is a restarted instance based on the number of previous containers. " +
+            "As returned by the Resource Manager. Returning default resubmission attempts " +
+            DEFAULT_RESTART_RESUBMISSION_ATTEMPTS + ".");
+        return DEFAULT_RESTART_RESUBMISSION_ATTEMPTS;
+      }
+
+      return 0;
     }
 
-    LOG.log(Level.FINE, "Application attempt: " + appAttemptID.getAttemptId());
+    int appAttempt = appAttemptID.getAttemptId();
 
-    return appAttemptID.getAttemptId() > 1;
+    LOG.log(Level.FINE, "Application attempt: " + appAttempt);
+    assert appAttempt > 0;
+    return appAttempt - 1;
   }
 
   private static String getContainerIdString() {
@@ -116,6 +127,10 @@ public final class YarnDriverRuntimeRestartManager implements DriverRuntimeResta
   }
 
   private static ApplicationAttemptId getAppAttemptId(final String containerIdString) {
+    if (containerIdString == null) {
+      return null;
+    }
+
     try {
       final ContainerId containerId = ConverterUtils.toContainerId(containerIdString);
       return containerId.getApplicationAttemptId();

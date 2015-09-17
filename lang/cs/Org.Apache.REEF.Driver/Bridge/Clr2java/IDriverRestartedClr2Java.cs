@@ -32,5 +32,10 @@ namespace Org.Apache.REEF.Driver.Bridge.Clr2java
         /// StartTime of the restart.
         /// </summary>
         DateTime GetStartTime();
+
+        /// <summary>
+        /// The number of times the Driver has been resubmitted. Does not include the initial submission.
+        /// </summary>
+        int GetResubmissionAttempts();
     }
 }
