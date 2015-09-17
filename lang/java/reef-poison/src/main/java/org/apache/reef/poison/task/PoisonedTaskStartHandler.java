@@ -32,6 +32,9 @@ import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Fault-injected handler for TaskStart.
+ */
 public final class PoisonedTaskStartHandler implements EventHandler<TaskStart> {
 
   private static final Logger LOG = Logger.getLogger(PoisonedTaskStartHandler.class.getName());

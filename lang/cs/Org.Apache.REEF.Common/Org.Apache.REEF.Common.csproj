@@ -54,6 +54,7 @@ under the License.
     <Compile Include="Api\AbstractFailure.cs" />
     <Compile Include="Api\IAbstractFailure.cs" />
     <Compile Include="Api\IFailure.cs" />
+    <Compile Include="Attributes\UnstableAttribute.cs" />
     <Compile Include="Avro\AvroDriverInfo.cs" />
     <Compile Include="Avro\AvroHttpRequest.cs" />
     <Compile Include="Avro\AvroHttpSerializer.cs" />

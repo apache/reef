@@ -1,4 +1,4 @@
-/*
+﻿/**
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -16,7 +16,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-/**
- * Checkpoints that provide APIs and implementations to store and retrieve the state of a task.
- */
-package org.apache.reef.io.checkpoint;
+
+using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Wake.StreamingCodec;
+
+namespace Org.Apache.REEF.IMRU.InProcess
+{
+    internal class InputCodecWrapper<T>
+    {
+        [Inject]
+        private InputCodecWrapper(IStreamingCodec<T> codec)
+        {
+            Codec = codec;
+        }
+
+        internal IStreamingCodec<T> Codec { get; private set; }
+    }
+}

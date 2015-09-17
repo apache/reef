@@ -21,8 +21,6 @@ package org.apache.reef.javabridge;
 import org.apache.reef.driver.context.ActiveContext;
 import org.apache.reef.io.naming.Identifiable;
 import org.apache.reef.runtime.common.driver.context.EvaluatorContext;
-import org.apache.reef.tang.ClassHierarchy;
-import org.apache.reef.tang.formats.AvroConfigurationSerializer;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -31,17 +29,11 @@ public final class ActiveContextBridge extends NativeBridge implements Identifia
   private static final Logger LOG = Logger.getLogger(ActiveContextBridge.class.getName());
 
   private final ActiveContext jactiveContext;
-  private final AvroConfigurationSerializer serializer;
   private final String contextId;
   private final String evaluatorId;
-  private final ClassHierarchy clrClassHierarchy;
 
-  ActiveContextBridge(final ActiveContext activeContext,
-                      final ClassHierarchy clrClassHierarchy,
-                      final AvroConfigurationSerializer serializer) {
+  ActiveContextBridge(final ActiveContext activeContext) {
     this.jactiveContext = activeContext;
-    this.clrClassHierarchy = clrClassHierarchy;
-    this.serializer = serializer;
     this.contextId = activeContext.getId();
     this.evaluatorId = activeContext.getEvaluatorId();
   }

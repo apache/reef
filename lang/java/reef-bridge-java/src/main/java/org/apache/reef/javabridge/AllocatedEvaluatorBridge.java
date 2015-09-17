@@ -18,11 +18,9 @@
  */
 package org.apache.reef.javabridge;
 
+import org.apache.reef.io.naming.Identifiable;
 import org.apache.reef.runtime.common.driver.evaluator.AllocatedEvaluatorImpl;
 import org.apache.reef.driver.evaluator.AllocatedEvaluator;
-import org.apache.reef.tang.ClassHierarchy;
-import org.apache.reef.tang.Configuration;
-import org.apache.reef.tang.formats.AvroConfigurationSerializer;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -30,13 +28,11 @@ import java.util.logging.Logger;
 /**
  * The AllocatedEvaluatorBridge object to bridge operations between REEF .NET and Java allocated evaluator operations.
  */
-public final class AllocatedEvaluatorBridge extends NativeBridge {
+public final class AllocatedEvaluatorBridge extends NativeBridge implements Identifiable {
 
   private static final Logger LOG = Logger.getLogger(AllocatedEvaluatorBridge.class.getName());
 
   private final AllocatedEvaluator jallocatedEvaluator;
-  private final AvroConfigurationSerializer serializer;
-  private final ClassHierarchy clrClassHierarchy;
   private final String evaluatorId;
   private final String nameServerInfo;
 
@@ -44,12 +40,8 @@ public final class AllocatedEvaluatorBridge extends NativeBridge {
    * This constructor should only be called by the AllocatedEvaluatorBridgeFactory.
    */
   AllocatedEvaluatorBridge(final AllocatedEvaluator allocatedEvaluator,
-                           final ClassHierarchy clrClassHierarchy,
-                           final String serverInfo,
-                           final AvroConfigurationSerializer serializer) {
+                           final String serverInfo) {
     this.jallocatedEvaluator = allocatedEvaluator;
-    this.serializer = serializer;
-    this.clrClassHierarchy = clrClassHierarchy;
     this.evaluatorId = allocatedEvaluator.getId();
     this.nameServerInfo = serverInfo;
   }
@@ -67,20 +59,11 @@ public final class AllocatedEvaluatorBridge extends NativeBridge {
     if (taskConfigurationString.isEmpty()) {
       throw new RuntimeException("empty taskConfigurationString provided.");
     }
-    final Configuration contextConfiguration;
-    final Configuration taskConfiguration;
-    try {
-      contextConfiguration = serializer.fromString(contextConfigurationString, clrClassHierarchy);
-    } catch (final Exception e) {
-      final String message = "Unable to de-serialize CLR context or task configurations using class hierarchy.";
-      LOG.log(Level.SEVERE, message, e);
-      throw new RuntimeException(message, e);
-    }
-
-    //When submit over the bridge, we would keep the task configuration as a serialized string.
-    //submitContextAndTask(final Configuration contextConfiguration,
+    //When submit over the bridge, we would keep the task configurations as a serialized strings.
+    //submitContextAndTask(final String contextConfiguration,
     //final String taskConfiguration) is not exposed in the interface. Therefore cast is necessary.
-    ((AllocatedEvaluatorImpl)jallocatedEvaluator).submitContextAndTask(contextConfiguration, taskConfigurationString);
+    ((AllocatedEvaluatorImpl)jallocatedEvaluator)
+        .submitContextAndTask(contextConfigurationString, taskConfigurationString);
   }
 
   /**
@@ -91,15 +74,11 @@ public final class AllocatedEvaluatorBridge extends NativeBridge {
     if (contextConfigurationString.isEmpty()) {
       throw new RuntimeException("empty contextConfigurationString provided.");
     }
-    final Configuration contextConfiguration;
-    try {
-      contextConfiguration = serializer.fromString(contextConfigurationString, clrClassHierarchy);
-    } catch (final Exception e) {
-      final String message = "Unable to de-serialize CLR context configurations using class hierarchy.";
-      LOG.log(Level.SEVERE, message, e);
-      throw new RuntimeException(message, e);
-    }
-    jallocatedEvaluator.submitContext(contextConfiguration);
+
+    //When submit over the bridge, we would keep the contextConfigurationString as serialized strings.
+    //public void submitContext(final String contextConfiguration)
+    // is not exposed in the interface. Therefore cast is necessary.
+    ((AllocatedEvaluatorImpl)jallocatedEvaluator).submitContext(contextConfigurationString);
   }
 
   /**
@@ -116,17 +95,11 @@ public final class AllocatedEvaluatorBridge extends NativeBridge {
       throw new RuntimeException("empty serviceConfigurationString provided.");
     }
 
-    final Configuration contextConfiguration;
-    final Configuration servicetConfiguration;
-    try {
-      contextConfiguration = serializer.fromString(contextConfigurationString, clrClassHierarchy);
-      servicetConfiguration = serializer.fromString(serviceConfigurationString, clrClassHierarchy);
-    } catch (final Exception e) {
-      final String message = "Unable to de-serialize CLR context or service  configurations using class hierarchy.";
-      LOG.log(Level.SEVERE, message, e);
-      throw new RuntimeException(message, e);
-    }
-    jallocatedEvaluator.submitContextAndService(contextConfiguration, servicetConfiguration);
+    //When submit over the bridge, we would keep the configurations as serialized strings.
+    //public void submitContextAndService(final String contextConfiguration,
+    //final String serviceConfiguration) is not exposed in the interface. Therefore cast is necessary.
+    ((AllocatedEvaluatorImpl)jallocatedEvaluator)
+        .submitContextAndService(contextConfigurationString, serviceConfigurationString);
   }
 
   /**
@@ -148,24 +121,12 @@ public final class AllocatedEvaluatorBridge extends NativeBridge {
     if (taskConfigurationString.isEmpty()) {
       throw new RuntimeException("empty taskConfigurationString provided.");
     }
-    final Configuration contextConfiguration;
-    final Configuration servicetConfiguration;
-    final Configuration taskConfiguration;
-    try {
-      contextConfiguration = serializer.fromString(contextConfigurationString, clrClassHierarchy);
-      servicetConfiguration = serializer.fromString(serviceConfigurationString, clrClassHierarchy);
-    } catch (final Exception e) {
-      final String message =
-          "Unable to de-serialize CLR context or service or task configurations using class hierarchy.";
-      LOG.log(Level.SEVERE, message, e);
-      throw new RuntimeException(message, e);
-    }
 
     //When submit over the bridge, we would keep the task configuration as a serialized string.
     //submitContextAndServiceAndTask(final Configuration contextConfiguration, final Configuration serviceConfiguration,
     //final String taskConfiguration) is not exposed in the interface. Therefore cast is necessary.
-    ((AllocatedEvaluatorImpl)jallocatedEvaluator)
-        .submitContextAndServiceAndTask(contextConfiguration, servicetConfiguration, taskConfigurationString);
+    ((AllocatedEvaluatorImpl)jallocatedEvaluator).submitContextAndServiceAndTask(
+        contextConfigurationString, serviceConfigurationString, taskConfigurationString);
   }
 
   /**
@@ -177,6 +138,14 @@ public final class AllocatedEvaluatorBridge extends NativeBridge {
         Utilities.getEvaluatorDescriptorString(jallocatedEvaluator.getEvaluatorDescriptor());
     LOG.log(Level.INFO, "allocated evaluator - serialized evaluator descriptor: " + descriptorString);
     return descriptorString;
+  }
+
+  /**
+   * @return the evaluator id.
+   */
+  @Override
+  public String getId() {
+    return evaluatorId;
   }
 
   /**

@@ -18,12 +18,9 @@
  */
 package org.apache.reef.javabridge;
 
-import net.jcip.annotations.GuardedBy;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.driver.evaluator.AllocatedEvaluator;
-import org.apache.reef.tang.ClassHierarchy;
-import org.apache.reef.tang.formats.AvroConfigurationSerializer;
 
 import javax.inject.Inject;
 
@@ -34,18 +31,12 @@ import javax.inject.Inject;
 @DriverSide
 @Private
 public final class AllocatedEvaluatorBridgeFactory {
-  @GuardedBy("this")
-  private ClassHierarchy clrClassHierarchy;
-  private AvroConfigurationSerializer serializer;
-
   /**
    * This is always instantiated via Tang.
    */
   @Inject
-  private AllocatedEvaluatorBridgeFactory(final AvroConfigurationSerializer serializer) {
-    this.serializer = serializer;
+  private AllocatedEvaluatorBridgeFactory() {
   }
-
 
   /**
    * Instantiates a new AllocatedEvaluatorBridge.
@@ -55,18 +46,6 @@ public final class AllocatedEvaluatorBridgeFactory {
    */
   public AllocatedEvaluatorBridge getAllocatedEvaluatorBridge(final AllocatedEvaluator allocatedEvaluator,
                                                               final String serverInfo) {
-    return new AllocatedEvaluatorBridge(allocatedEvaluator, getClrClassHierarchy(), serverInfo, serializer);
-  }
-
-  /**
-   * Returns the clr ClassHierarchy. Loads it if needed.
-   *
-   * @return the clr ClassHierarchy.
-   */
-  private synchronized ClassHierarchy getClrClassHierarchy() {
-    if (null == this.clrClassHierarchy) {
-      this.clrClassHierarchy = Utilities.loadClassHierarchy(NativeInterop.CLASS_HIERARCHY_FILENAME);
-    }
-    return this.clrClassHierarchy;
+    return new AllocatedEvaluatorBridge(allocatedEvaluator, serverInfo);
   }
 }

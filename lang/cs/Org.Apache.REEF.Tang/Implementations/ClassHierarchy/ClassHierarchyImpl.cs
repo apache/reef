@@ -20,6 +20,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -79,9 +80,30 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
 
             foreach (var a in loader.Assemblies)
             {
-                foreach (var t in a.GetTypes())
+                Type[] types;
+                try
                 {
-                    RegisterType(t);
+                    types  = a.GetTypes();
+                }
+                catch (ReflectionTypeLoadException exception)
+                {
+                    LOGGER.Log(Level.Warning,
+                        "GetTypes failed for assembly: {0} LoaderExceptions: {1}",
+                        a,
+                        string.Join<Exception>("; ", exception.LoaderExceptions));
+                    continue;
+                }
+
+                foreach (var t in types)
+                {
+                    try
+                    {
+                        RegisterType(t);
+                    }
+                    catch (FileNotFoundException exception)
+                    {
+                        LOGGER.Log(Level.Warning, "Could not register type: {0} Exception: {1}", t, exception);
+                    }
                 }
             }
         }

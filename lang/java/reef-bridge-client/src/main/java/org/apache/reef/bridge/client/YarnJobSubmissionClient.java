@@ -30,6 +30,7 @@ import org.apache.reef.javabridge.generic.JobDriver;
 import org.apache.reef.runtime.common.driver.parameters.ClientRemoteIdentifier;
 import org.apache.reef.runtime.common.files.ClasspathProvider;
 import org.apache.reef.runtime.common.files.REEFFileNames;
+import org.apache.reef.runtime.common.launch.parameters.DriverLaunchCommandPrefix;
 import org.apache.reef.runtime.yarn.client.SecurityTokenProvider;
 import org.apache.reef.runtime.yarn.client.YarnClientConfiguration;
 import org.apache.reef.runtime.yarn.client.YarnSubmissionHelper;
@@ -52,6 +53,8 @@ import javax.inject.Inject;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -70,6 +73,7 @@ public final class YarnJobSubmissionClient {
   private final int maxApplicationSubmissions;
   private final int driverRestartEvaluatorRecoverySeconds;
   private final SecurityTokenProvider tokenProvider;
+  private final List<String> commandPrefixList;
 
   @Inject
   YarnJobSubmissionClient(final JobUploader uploader,
@@ -79,6 +83,7 @@ public final class YarnJobSubmissionClient {
                           final ClasspathProvider classpath,
                           @Parameter(MaxApplicationSubmissions.class)
                           final int maxApplicationSubmissions,
+                          @Parameter(DriverLaunchCommandPrefix.class) final List<String> commandPrefixList,
                           @Parameter(SubmissionDriverRestartEvaluatorRecoverySeconds.class)
                           final int driverRestartEvaluatorRecoverySeconds,
                           final SecurityTokenProvider tokenProvider) {
@@ -90,6 +95,7 @@ public final class YarnJobSubmissionClient {
     this.maxApplicationSubmissions = maxApplicationSubmissions;
     this.driverRestartEvaluatorRecoverySeconds = driverRestartEvaluatorRecoverySeconds;
     this.tokenProvider = tokenProvider;
+    this.commandPrefixList = commandPrefixList;
   }
 
   private Configuration addYarnDriverConfiguration(final File driverFolder,
@@ -177,7 +183,7 @@ public final class YarnJobSubmissionClient {
     // ------------------------------------------------------------------------
     // Get an application ID
     try (final YarnSubmissionHelper submissionHelper =
-             new YarnSubmissionHelper(yarnConfiguration, fileNames, classpath, tokenProvider)) {
+             new YarnSubmissionHelper(yarnConfiguration, fileNames, classpath, tokenProvider, commandPrefixList)) {
 
 
       // ------------------------------------------------------------------------
@@ -230,10 +236,14 @@ public final class YarnJobSubmissionClient {
         .bindNamedParameter(TcpPortRangeTryCount.class, Integer.toString(tcpTryCount))
         .build();
 
+    ArrayList<String> driverLaunchCommandPrefixList = new ArrayList<String>();
+    driverLaunchCommandPrefixList.add(new REEFFileNames().getDriverLauncherExeFile().toString());
+
     final Configuration yarnJobSubmissionClientParamsConfig = Tang.Factory.getTang().newConfigurationBuilder()
         .bindNamedParameter(SubmissionDriverRestartEvaluatorRecoverySeconds.class,
             Integer.toString(driverRecoveryTimeout))
         .bindNamedParameter(MaxApplicationSubmissions.class, Integer.toString(maxApplicationSubmissions))
+        .bindList(DriverLaunchCommandPrefix.class, driverLaunchCommandPrefixList)
         .build();
 
     return Configurations.merge(yarnClientConfig, providerConfig, yarnJobSubmissionClientParamsConfig);

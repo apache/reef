@@ -16,7 +16,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.reef.runtime.common.launch.parameters;
+
+import org.apache.reef.tang.annotations.Name;
+import org.apache.reef.tang.annotations.NamedParameter;
+import java.util.List;
+
 /**
- * Checkpoints that provide APIs and implementations to store and retrieve the state of a task.
+ * List of strings to be prepended to driver launch command (I.E. wrapper, debugger..).
  */
-package org.apache.reef.io.checkpoint;
+@NamedParameter(doc = "List of strings to be prepended to driver launch command.")
+public final class DriverLaunchCommandPrefix implements Name<List<String>> {
+}

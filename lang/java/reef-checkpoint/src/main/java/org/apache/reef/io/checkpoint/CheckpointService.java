@@ -92,9 +92,15 @@ public interface CheckpointService {
    */
   boolean delete(CheckpointID checkpointId) throws IOException, InterruptedException;
 
+  /**
+   * A channel to write to a checkpoint.
+   */
   interface CheckpointWriteChannel extends WritableByteChannel {
   }
 
+  /**
+   * A channel to read from a checkpoint.
+   */
   interface CheckpointReadChannel extends ReadableByteChannel {
   }
 }

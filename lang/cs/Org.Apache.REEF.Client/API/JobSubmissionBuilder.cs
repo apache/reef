@@ -34,6 +34,7 @@ namespace Org.Apache.REEF.Client.API
         private int _driverMemory = 512;
         private string _jobIdentifier;
         private readonly ISet<IConfigurationProvider> _configurationProviders;
+        private string _driverConfigurationFileContents;
 
         internal JobSubmissionBuilder(ISet<IConfigurationProvider> configurationProviders)
         {
@@ -141,6 +142,19 @@ namespace Org.Apache.REEF.Client.API
         }
 
         /// <summary>
+        /// Driver config file contents (Org.Apache.REEF.Bridge.exe.config) contents
+        /// Can be use to redirect assembly versions
+        /// </summary>
+        /// <param name="driverConfigurationFileContents">Driver configuration file contents.</param>
+        /// <returns>this</returns>
+        public IJobSubmissionBuilder SetDriverConfigurationFileContents(string driverConfigurationFileContents)
+        {
+            _driverConfigurationFileContents = driverConfigurationFileContents;
+            return this;
+        }
+
+
+        /// <summary>
         /// Finds the path to the assembly the given Type was loaded from.
         /// </summary>
         /// <param name="type"></param>
@@ -163,7 +177,7 @@ namespace Org.Apache.REEF.Client.API
             }
 
             return new JobSubmission(_driverConfigurations, _globalAssemblies, _globalFiles, _localAssemblies,
-                _localFiles, _driverMemory, _jobIdentifier);
+                _localFiles, _driverMemory, _jobIdentifier, _driverConfigurationFileContents);
         }
     }
 }

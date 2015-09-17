@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * FileSystem based checkpoints.
  */
 package org.apache.reef.io.checkpoint.fs;

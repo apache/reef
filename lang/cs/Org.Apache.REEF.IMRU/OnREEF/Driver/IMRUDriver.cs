@@ -20,6 +20,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Threading;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Driver;
 using Org.Apache.REEF.Driver.Context;
@@ -30,7 +31,6 @@ using Org.Apache.REEF.IMRU.OnREEF.IMRUTasks;
 using Org.Apache.REEF.IMRU.OnREEF.MapInputWithControlMessage;
 using Org.Apache.REEF.IMRU.OnREEF.Parameters;
 using Org.Apache.REEF.IO.PartitionedData;
-using Org.Apache.REEF.Network.Group.Config;
 using Org.Apache.REEF.Network.Group.Driver;
 using Org.Apache.REEF.Network.Group.Driver.Impl;
 using Org.Apache.REEF.Network.Group.Pipelining;
@@ -41,6 +41,7 @@ using Org.Apache.REEF.Tang.Implementations.Configuration;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
+using Org.Apache.REEF.Utilities.Diagnostics;
 using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Wake.Remote.Parameters;
 
@@ -53,7 +54,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
     /// <typeparam name="TMapOutput">Map output</typeparam>
     /// <typeparam name="TResult">Result</typeparam>
     internal sealed class IMRUDriver<TMapInput, TMapOutput, TResult> : IObserver<IDriverStarted>,
-        IObserver<IAllocatedEvaluator>, IObserver<IActiveContext>, IObserver<ICompletedTask>
+        IObserver<IAllocatedEvaluator>, IObserver<IActiveContext>, IObserver<ICompletedTask>, IObserver<IFailedEvaluator>
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof (IMRUDriver<TMapInput, TMapOutput, TResult>));
 
@@ -63,29 +64,32 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         private ICommunicationGroupDriver _commGroup;
         private readonly IGroupCommDriver _groupCommDriver;
         private readonly TaskStarter _groupCommTaskStarter;
-        private IConfiguration _tcpPortProviderConfig;
         private readonly ConcurrentStack<string> _taskIdStack;
         private readonly ConcurrentStack<IConfiguration> _perMapperConfiguration;
-        private readonly ConcurrentStack<IPartitionDescriptor> _partitionDescriptorStack;
+        private readonly Stack<IPartitionDescriptor> _partitionDescriptorStack;
         private readonly int _coresPerMapper;
         private readonly int _coresForUpdateTask;
         private readonly int _memoryPerMapper;
         private readonly int _memoryForUpdateTask;
         private readonly ISet<IPerMapperConfigGenerator> _perMapperConfigs;
-        private bool _allocatedUpdateTaskEvaluator;
         private readonly ConcurrentBag<ICompletedTask> _completedTasks;
-            
+        private readonly int _allowedFailedEvaluators;
+        private int _currentFailedEvaluators = 0;
+        private bool _reachedUpdateTaskActiveContext = false;
+
+        private readonly ServiceAndContextConfigurationProvider<TMapInput, TMapOutput>
+            _serviceAndContextConfigurationProvider;
+
         [Inject]
         private IMRUDriver(IPartitionedDataSet dataSet,
-            [Parameter(typeof(PerMapConfigGeneratorSet))] ISet<IPerMapperConfigGenerator> perMapperConfigs,
+            [Parameter(typeof (PerMapConfigGeneratorSet))] ISet<IPerMapperConfigGenerator> perMapperConfigs,
             ConfigurationManager configurationManager,
             IEvaluatorRequestor evaluatorRequestor,
-            [Parameter(typeof (TcpPortRangeStart))] int startingPort,
-            [Parameter(typeof (TcpPortRangeCount))] int portRange,
-            [Parameter(typeof(CoresPerMapper))] int coresPerMapper,
-            [Parameter(typeof(CoresForUpdateTask))] int coresForUpdateTask,
-            [Parameter(typeof(MemoryPerMapper))] int memoryPerMapper,
-            [Parameter(typeof(MemoryForUpdateTask))] int memoryForUpdateTask,
+            [Parameter(typeof (CoresPerMapper))] int coresPerMapper,
+            [Parameter(typeof (CoresForUpdateTask))] int coresForUpdateTask,
+            [Parameter(typeof (MemoryPerMapper))] int memoryPerMapper,
+            [Parameter(typeof (MemoryForUpdateTask))] int memoryForUpdateTask,
+            [Parameter(typeof (AllowedFailedEvaluatorsFraction))] double failedEvaluatorsFraction,
             IGroupCommDriver groupCommDriver)
         {
             _dataSet = dataSet;
@@ -97,22 +101,19 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             _memoryPerMapper = memoryPerMapper;
             _memoryForUpdateTask = memoryForUpdateTask;
             _perMapperConfigs = perMapperConfigs;
-            _allocatedUpdateTaskEvaluator = false;
             _completedTasks = new ConcurrentBag<ICompletedTask>();
+            _allowedFailedEvaluators = (int) (failedEvaluatorsFraction*dataSet.Count);
 
             AddGroupCommunicationOperators();
-            
-            //TODO[REEF-600]: Once the configuration module for TcpPortProvider 
-            //TODO[REEF-600]: will be provided, the configuraiton will be automatically
-            //TODO[REEF-600]: carried over to evaluators and below function will be obsolete.
-            ConstructTcpPortProviderConfig(startingPort, portRange);
-
             _groupCommTaskStarter = new TaskStarter(_groupCommDriver, _dataSet.Count + 1);
 
             _taskIdStack = new ConcurrentStack<string>();
             _perMapperConfiguration = new ConcurrentStack<IConfiguration>();
-            _partitionDescriptorStack = new ConcurrentStack<IPartitionDescriptor>();
+            _partitionDescriptorStack = new Stack<IPartitionDescriptor>();
             ConstructTaskIdAndPartitionDescriptorStack();
+            _serviceAndContextConfigurationProvider =
+                new ServiceAndContextConfigurationProvider<TMapInput, TMapOutput>(dataSet.Count + 1, groupCommDriver,
+                    _configurationManager, _partitionDescriptorStack);
         }
 
         /// <summary>
@@ -121,83 +122,20 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// <param name="value">Event fired when driver started</param>
         public void OnNext(IDriverStarted value)
         {
-            var request =
-                _evaluatorRequestor.NewBuilder()
-                    .SetCores(_coresForUpdateTask)
-                    .SetMegabytes(_memoryForUpdateTask)
-                    .SetNumber(1)
-                    .Build();
-            _evaluatorRequestor.Submit(request);
+            RequestUpdateEvaluator();
             //TODO[REEF-598]: Set a timeout for this request to be satisfied. If it is not within that time, exit the Driver.
         }
 
         /// <summary>
         /// Specifies context and service configuration for evaluator depending
         /// on whether it is for Update function or for map function
+        /// Also handles evaluator failures
         /// </summary>
         /// <param name="allocatedEvaluator">The allocated evaluator</param>
         public void OnNext(IAllocatedEvaluator allocatedEvaluator)
         {
-            IConfiguration contextConf = _groupCommDriver.GetContextConfiguration();
-            IConfiguration serviceConf = _groupCommDriver.GetServiceConfiguration();
-
-            if (!_allocatedUpdateTaskEvaluator)
-            {
-                var codecConfig =
-                    TangFactory.GetTang()
-                        .NewConfigurationBuilder(
-                            new[]
-                            {
-                                StreamingCodecConfiguration<MapInputWithControlMessage<TMapInput>>.Conf.Set(
-                                    StreamingCodecConfiguration<MapInputWithControlMessage<TMapInput>>.Codec,
-                                    GenericType<MapInputWithControlMessageCodec<TMapInput>>.Class).Build(),
-                                StreamingCodecConfigurationMinusMessage<TMapOutput>.Conf.Build(),
-                                _configurationManager.UpdateFunctionCodecsConfiguration
-                            }
-                        ).Build();
-               
-                serviceConf = Configurations.Merge(serviceConf, codecConfig, _tcpPortProviderConfig);
-                _allocatedUpdateTaskEvaluator = true;
-
-                var request =
-                    _evaluatorRequestor.NewBuilder()
-                        .SetMegabytes(_memoryForUpdateTask)
-                        .SetNumber(_dataSet.Count)
-                        .SetCores(_coresPerMapper)
-                        .Build();
-                _evaluatorRequestor.Submit(request);
-                //TODO[REEF-598]: Set a timeout for this request to be satisfied. If it is not within that time, exit the Driver.
-            }
-            else
-            {
-                IPartitionDescriptor partitionDescriptor;
-
-                if (!_partitionDescriptorStack.TryPop(out partitionDescriptor))
-                {
-                    Logger.Log(Level.Warning, "partition descriptor exist for the context of evaluator");
-                    allocatedEvaluator.Dispose();
-                    return;
-                }
-
-                var codecConfig =
-                    TangFactory.GetTang()
-                        .NewConfigurationBuilder(
-                            new[]
-                            {
-                                StreamingCodecConfiguration<MapInputWithControlMessage<TMapInput>>.Conf.Set(
-                                    StreamingCodecConfiguration<MapInputWithControlMessage<TMapInput>>.Codec,
-                                    GenericType<MapInputWithControlMessageCodec<TMapInput>>.Class).Build(),
-                                StreamingCodecConfigurationMinusMessage<TMapOutput>.Conf.Build(),
-                                _configurationManager.MapInputCodecConfiguration
-                            }
-                        ).Build();
-
-                contextConf = Configurations.Merge(contextConf, partitionDescriptor.GetPartitionConfiguration());
-                serviceConf = Configurations.Merge(serviceConf, codecConfig,
-                    _tcpPortProviderConfig);
-            }
-            
-            allocatedEvaluator.SubmitContextAndService(contextConf, serviceConf);
+            var configs = _serviceAndContextConfigurationProvider.GetNextConfiguration(allocatedEvaluator.Id);
+            allocatedEvaluator.SubmitContextAndService(configs.Context, configs.Service);
         }
 
         /// <summary>
@@ -210,6 +148,9 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
 
             if (_groupCommDriver.IsMasterTaskContext(activeContext))
             {
+                _reachedUpdateTaskActiveContext = true;
+                RequestMapEvaluators(_dataSet.Count);
+
                 var partialTaskConf =
                     TangFactory.GetTang()
                         .NewConfigurationBuilder(new[]
@@ -283,6 +224,39 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             {
                 Logger.Log(Level.Verbose, String.Format("Disposing task: {0}", task.Id));
                 task.ActiveContext.Dispose();
+            }
+        }
+
+        public void OnNext(IFailedEvaluator value)
+        {
+            Logger.Log(Level.Info, "An evaluator failed, checking if it failed before context and service was submitted");
+            int currFailedEvaluators = Interlocked.Increment(ref _currentFailedEvaluators);
+
+            if (value.FailedContexts != null && value.FailedContexts.Count != 0)
+            {
+                Logger.Log(Level.Info, "Some active context failed, cannot continue IMRU task");        
+                Exceptions.Throw(new Exception(), Logger);
+            }
+
+            if (currFailedEvaluators > _allowedFailedEvaluators)
+            {
+                Exceptions.Throw(new Exception("Cannot continue IMRU job, Failed evaluators reach maximum limit"),
+                    Logger);
+            }
+
+            Logger.Log(Level.Info, "Requesting for the failed evaluator again");
+
+            _serviceAndContextConfigurationProvider.EvaluatorFailed(value.Id);
+
+            //If active context stage is reached for Update Task then assume that failed
+            //evaluator belongs to mapper
+            if (_reachedUpdateTaskActiveContext)
+            {
+                RequestMapEvaluators(1);
+            }
+            else
+            {
+                RequestUpdateEvaluator();
             }
         }
 
@@ -366,16 +340,6 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                     .Build();
         }
 
-        private void ConstructTcpPortProviderConfig(int startingPort, int portRange)
-        {
-            _tcpPortProviderConfig = TangFactory.GetTang().NewConfigurationBuilder()
-                .BindNamedParameter<TcpPortRangeStart, int>(GenericType<TcpPortRangeStart>.Class,
-                    startingPort.ToString(CultureInfo.InvariantCulture))
-                .BindNamedParameter<TcpPortRangeCount, int>(GenericType<TcpPortRangeCount>.Class,
-                    portRange.ToString(CultureInfo.InvariantCulture))
-                .Build();
-        }
-
         private void ConstructTaskIdAndPartitionDescriptorStack()
         {
             int counter = 0;
@@ -391,6 +355,26 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                 _perMapperConfiguration.Push(config);
                 counter++;
             }
+        }
+
+        private void RequestMapEvaluators(int numEvaluators)
+        {
+            _evaluatorRequestor.Submit(
+                _evaluatorRequestor.NewBuilder()
+                    .SetMegabytes(_memoryPerMapper)
+                    .SetNumber(numEvaluators)
+                    .SetCores(_coresPerMapper)
+                    .Build());
+        }
+
+        private void RequestUpdateEvaluator()
+        {
+            _evaluatorRequestor.Submit(
+                _evaluatorRequestor.NewBuilder()
+                    .SetCores(_coresForUpdateTask)
+                    .SetMegabytes(_memoryForUpdateTask)
+                    .SetNumber(1)
+                    .Build());
         }
     }
 }

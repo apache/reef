@@ -36,7 +36,6 @@ under the License.
       <dependency id="Org.Apache.REEF.Driver" version="$version$" />
       <dependency id="Org.Apache.REEF.Network" version="$version$" />
       <dependency id="Org.Apache.REEF.Evaluator" version="$version$" />
-      <dependency id="Org.Apache.REEF.Bridge" version="$version$" />      
       <dependency id="Org.Apache.REEF.Examples" version="$version$" />
       <dependency id="Org.Apache.REEF.Client" version="$version$" />
      </dependencies>

@@ -24,6 +24,7 @@ import org.apache.reef.runtime.common.files.REEFFileNames;
 import org.apache.reef.runtime.common.launch.JavaLaunchCommandBuilder;
 import org.apache.reef.runtime.local.process.LoggingRunnableProcessObserver;
 import org.apache.reef.runtime.local.process.RunnableProcess;
+import org.apache.reef.tang.annotations.Parameter;
 
 import javax.inject.Inject;
 import java.io.File;
@@ -31,6 +32,7 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.apache.reef.runtime.common.launch.parameters.DriverLaunchCommandPrefix;
 
 /**
  * Launcher for a already prepared driver folder.
@@ -45,6 +47,8 @@ public class PreparedDriverFolderLauncher {
   private final ExecutorService executor;
   private final REEFFileNames fileNames;
   private final ClasspathProvider classpath;
+  private final List<String> commandPrefixList;
+
   /**
    * The (hard-coded) amount of memory to be used for the driver.
    */
@@ -54,10 +58,12 @@ public class PreparedDriverFolderLauncher {
 
   @Inject
   PreparedDriverFolderLauncher(final ExecutorService executor, final REEFFileNames fileNames,
+                               @Parameter(DriverLaunchCommandPrefix.class) final List<String> commandPrefixList,
                                final ClasspathProvider classpath) {
     this.executor = executor;
     this.fileNames = fileNames;
     this.classpath = classpath;
+    this.commandPrefixList = commandPrefixList;
   }
 
   /**
@@ -84,7 +90,7 @@ public class PreparedDriverFolderLauncher {
 
   private List<String> makeLaunchCommand(final String jobId, final String clientRemoteId) {
 
-    final List<String> command = new JavaLaunchCommandBuilder()
+    final List<String> command = new JavaLaunchCommandBuilder(commandPrefixList)
         .setConfigurationFileName(this.fileNames.getDriverConfigurationPath())
         .setClassPath(this.classpath.getDriverClasspath())
         .setMemory(DRIVER_MEMORY)

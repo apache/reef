@@ -527,3 +527,69 @@ JNIEXPORT void JNICALL Java_org_apache_reef_javabridge_NativeInterop_clrSystemDr
 		ManagedLog::LOGGER->LogError(errorMessage, ex);
 	}
 }
+
+static JNINativeMethod methods[] = {
+	{ "loadClrAssembly", "(Ljava/lang/String;)V", (void*)&Java_org_apache_reef_javabridge_NativeInterop_loadClrAssembly },
+
+	{ "clrBufferedLog", "(ILjava/lang/String;)V", (void*)&Java_org_apache_reef_javabridge_NativeInterop_clrBufferedLog },
+
+	{ "callClrSystemOnStartHandler", "(Ljava/lang/String;Ljava/lang/String;Lorg/apache/reef/javabridge/EvaluatorRequestorBridge;)[J",
+	(void*)&Java_org_apache_reef_javabridge_NativeInterop_callClrSystemOnStartHandler },
+
+	{ "clrSystemAllocatedEvaluatorHandlerOnNext", "(JLorg/apache/reef/javabridge/AllocatedEvaluatorBridge;Lorg/apache/reef/javabridge/InteropLogger;)V",
+	(void*)&Java_org_apache_reef_javabridge_NativeInterop_clrSystemAllocatedEvaluatorHandlerOnNext },
+
+	{ "clrSystemActiveContextHandlerOnNext", "(JLorg/apache/reef/javabridge/ActiveContextBridge;Lorg/apache/reef/javabridge/InteropLogger;)V",
+	(void*)&Java_org_apache_reef_javabridge_NativeInterop_clrSystemActiveContextHandlerOnNext },
+
+	{ "clrSystemTaskMessageHandlerOnNext", "(J[BLorg/apache/reef/javabridge/TaskMessageBridge;Lorg/apache/reef/javabridge/InteropLogger;)V",
+	(void*)&Java_org_apache_reef_javabridge_NativeInterop_clrSystemTaskMessageHandlerOnNext },
+
+	{ "clrSystemFailedTaskHandlerOnNext", "(JLorg/apache/reef/javabridge/FailedTaskBridge;Lorg/apache/reef/javabridge/InteropLogger;)V",
+	(void*)&Java_org_apache_reef_javabridge_NativeInterop_clrSystemFailedTaskHandlerOnNext },
+
+	{ "clrSystemHttpServerHandlerOnNext", "(JLorg/apache/reef/javabridge/HttpServerEventBridge;Lorg/apache/reef/javabridge/InteropLogger;)V",
+	(void*)&Java_org_apache_reef_javabridge_NativeInterop_clrSystemHttpServerHandlerOnNext },
+
+	{ "clrSystemFailedEvaluatorHandlerOnNext", "(JLorg/apache/reef/javabridge/FailedEvaluatorBridge;Lorg/apache/reef/javabridge/InteropLogger;)V",
+	(void*)&Java_org_apache_reef_javabridge_NativeInterop_clrSystemFailedEvaluatorHandlerOnNext },
+
+	{ "clrSystemCompletedTaskHandlerOnNext", "(JLorg/apache/reef/javabridge/CompletedTaskBridge;Lorg/apache/reef/javabridge/InteropLogger;)V",
+	(void*)&Java_org_apache_reef_javabridge_NativeInterop_clrSystemCompletedTaskHandlerOnNext },
+
+	{ "clrSystemRunningTaskHandlerOnNext", "(JLorg/apache/reef/javabridge/RunningTaskBridge;Lorg/apache/reef/javabridge/InteropLogger;)V",
+	(void*)&Java_org_apache_reef_javabridge_NativeInterop_clrSystemRunningTaskHandlerOnNext },
+
+	{ "clrSystemSuspendedTaskHandlerOnNext", "(JLorg/apache/reef/javabridge/SuspendedTaskBridge;)V",
+	(void*)&Java_org_apache_reef_javabridge_NativeInterop_clrSystemSuspendedTaskHandlerOnNext },
+
+	{ "clrSystemCompletedEvaluatorHandlerOnNext", "(JLorg/apache/reef/javabridge/CompletedEvaluatorBridge;)V",
+	(void*)&Java_org_apache_reef_javabridge_NativeInterop_clrSystemCompletedEvaluatorHandlerOnNext },
+
+	{ "clrSystemClosedContextHandlerOnNext", "(JLorg/apache/reef/javabridge/ClosedContextBridge;)V",
+	(void*)&Java_org_apache_reef_javabridge_NativeInterop_clrSystemClosedContextHandlerOnNext },
+
+	{ "clrSystemFailedContextHandlerOnNext", "(JLorg/apache/reef/javabridge/FailedContextBridge;)V",
+	(void*)&Java_org_apache_reef_javabridge_NativeInterop_clrSystemFailedContextHandlerOnNext },
+
+	{ "clrSystemContextMessageHandlerOnNext", "(JLorg/apache/reef/javabridge/ContextMessageBridge;)V",
+	(void*)&Java_org_apache_reef_javabridge_NativeInterop_clrSystemContextMessageHandlerOnNext },
+
+	{ "callClrSystemOnRestartHandlerOnNext", "(Ljava/lang/String;Ljava/lang/String;Lorg/apache/reef/javabridge/EvaluatorRequestorBridge;)[J",
+	(void*)&Java_org_apache_reef_javabridge_NativeInterop_callClrSystemOnRestartHandlerOnNext },
+
+	{ "clrSystemDriverRestartActiveContextHandlerOnNext", "(JLorg/apache/reef/javabridge/ActiveContextBridge;)V",
+	(void*)&Java_org_apache_reef_javabridge_NativeInterop_clrSystemDriverRestartActiveContextHandlerOnNext },
+
+	{ "clrSystemDriverRestartRunningTaskHandlerOnNext", "(JLorg/apache/reef/javabridge/RunningTaskBridge;)V",
+	(void*)&Java_org_apache_reef_javabridge_NativeInterop_clrSystemDriverRestartRunningTaskHandlerOnNext },
+
+	{ "clrSystemDriverRestartCompletedHandlerOnNext", "(J)V",
+	(void*)&Java_org_apache_reef_javabridge_NativeInterop_clrSystemDriverRestartCompletedHandlerOnNext },
+};
+
+JNIEXPORT void JNICALL
+Java_org_apache_reef_javabridge_NativeInterop_registerNatives(JNIEnv *env, jclass cls)
+{
+	env->RegisterNatives(cls, methods, sizeof(methods) / sizeof(methods[0]));
+}

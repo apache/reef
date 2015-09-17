@@ -76,5 +76,13 @@ namespace Org.Apache.REEF.Client.API
         /// Set driver memory in megabytes
         /// </summary>
         IJobSubmissionBuilder SetDriverMemory(int driverMemoryInMb);
+
+        /// <summary>
+        /// Driver config file contents (Org.Apache.REEF.Bridge.exe.config) contents
+        /// Can be used to redirect assembly versions
+        /// </summary>
+        /// <param name="driverConfigurationFileContents">Driver configuration file contents.</param>
+        /// <returns>IJobSubmissionBuilder</returns>
+        IJobSubmissionBuilder SetDriverConfigurationFileContents(string driverConfigurationFileContents);
     }
 }

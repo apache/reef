@@ -19,6 +19,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
 using Org.Apache.REEF.Utilities.Logging;
 
@@ -35,7 +36,14 @@ namespace Org.Apache.REEF.Tang.Util
             Assemblies = new List<Assembly>();
             foreach (var a in files)
             {
-                Assemblies.Add(Assembly.Load(a));
+                try
+                {
+                    Assemblies.Add(Assembly.Load(a));
+                }
+                catch (FileNotFoundException exception)
+                {
+                    LOGGER.Log(Level.Warning, "Could not load assembly: {0} Exception: {1}", a, exception);
+                }
             }
         }
 
@@ -66,6 +74,36 @@ namespace Org.Apache.REEF.Tang.Util
                 Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(new ApplicationException("Not able to get Type from the name provided: " + name), LOGGER);
             }
             return t;
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns>True, if the path given is an assembly</returns>
+        public static Boolean IsAssembly(string path)
+        {
+            if (string.IsNullOrWhiteSpace(path) || Path.GetExtension(path).ToLower() != ".dll")
+            {
+                return false;
+            }
+
+            try
+            {
+                var assembly = System.Reflection.AssemblyName.GetAssemblyName(path);
+                return true;
+            }
+            catch (System.IO.FileNotFoundException)
+            {
+                return false;
+            }
+            catch (System.BadImageFormatException)
+            {
+                return false;
+            }
+            catch (System.IO.FileLoadException)
+            {
+                return true;
+            }
         }
     }
 }

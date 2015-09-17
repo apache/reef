@@ -48,7 +48,8 @@ namespace Org.Apache.REEF.Common.Files
         private const string DRIVER_CONFIGURATION_NAME = "driver.conf";
         private const string EVALUATOR_CONFIGURATION_NAME = "evaluator.conf";
         private const string CLR_DRIVER_CONFIGURATION_NAME = "clrdriver.conf";
-        private const string BRIDGE_DLL_NAME = "Org.Apache.REEF.Bridge.dll";
+        private const string BRIDGE_EXE_NAME = "Org.Apache.REEF.Bridge.exe";
+        private const string BRIDGE_EXE_CONFIG_NAME = "Org.Apache.REEF.Bridge.exe.config";
 
         [Inject]
         public REEFFileNames()
@@ -211,12 +212,21 @@ namespace Org.Apache.REEF.Common.Files
         }
 
         /// <summary>
-        /// The name of the Bridge DLL.
+        /// The path of the Driver Launcher exe.
         /// </summary>
-        /// <returns>The name of the Bridge DLL.</returns>
-        public string GetBridgeDLLName()
+        /// <returns>path of the Driver Launcher EXE.</returns>
+        public string GetBridgeExePath()
         {
-            return BRIDGE_DLL_NAME;
+            return Path.Combine(REEF_BASE_FOLDER, BRIDGE_EXE_NAME);
+        }
+
+        /// <summary>
+        /// The path of the Driver Launcher exe config .
+        /// </summary>
+        /// <returns>path of the Driver Launcher exe config.</returns>
+        public string GetBridgeExeConfigPath()
+        {
+            return Path.Combine(REEF_BASE_FOLDER, BRIDGE_EXE_CONFIG_NAME);
         }
 
         private static readonly string GLOBAL_FOLDER_PATH = Path.Combine(REEF_BASE_FOLDER, GLOBAL_FOLDER);
