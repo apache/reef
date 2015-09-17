@@ -21,39 +21,35 @@ package org.apache.reef.bridge.client;
 import org.apache.hadoop.yarn.api.records.LocalResource;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.exceptions.YarnException;
-import org.apache.reef.client.parameters.DriverConfigurationProviders;
 import org.apache.reef.client.DriverRestartConfiguration;
 import org.apache.reef.driver.parameters.MaxApplicationSubmissions;
 import org.apache.reef.driver.parameters.ResourceManagerPreserveEvaluators;
-import org.apache.reef.io.TcpPortConfigurationProvider;
 import org.apache.reef.javabridge.generic.JobDriver;
 import org.apache.reef.runtime.common.driver.parameters.ClientRemoteIdentifier;
 import org.apache.reef.runtime.common.files.ClasspathProvider;
 import org.apache.reef.runtime.common.files.REEFFileNames;
 import org.apache.reef.runtime.common.launch.parameters.DriverLaunchCommandPrefix;
 import org.apache.reef.runtime.yarn.client.SecurityTokenProvider;
-import org.apache.reef.runtime.yarn.client.YarnClientConfiguration;
 import org.apache.reef.runtime.yarn.client.YarnSubmissionHelper;
 import org.apache.reef.runtime.yarn.client.uploader.JobFolder;
 import org.apache.reef.runtime.yarn.client.uploader.JobUploader;
 import org.apache.reef.runtime.yarn.driver.YarnDriverConfiguration;
 import org.apache.reef.runtime.yarn.driver.YarnDriverRestartConfiguration;
-import org.apache.reef.tang.*;
+import org.apache.reef.tang.Configuration;
+import org.apache.reef.tang.Configurations;
+import org.apache.reef.tang.Injector;
+import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.tang.formats.ConfigurationSerializer;
 import org.apache.reef.util.JARFileMaker;
-import org.apache.reef.wake.remote.ports.parameters.TcpPortRangeBegin;
-import org.apache.reef.wake.remote.ports.parameters.TcpPortRangeCount;
-import org.apache.reef.wake.remote.ports.parameters.TcpPortRangeTryCount;
 
 import javax.inject.Inject;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -160,26 +156,7 @@ public final class YarnJobSubmissionClient {
     return jarFile;
   }
 
-  /**
-   * @param driverFolder the folder on the local filesystem that contains the driver's working directory to be
-   *                     submitted.
-   * @param jobId        the ID of the job
-   * @param priority     the priority associated with this Driver
-   * @param queue        the queue to submit the driver to
-   * @param driverMemory in MB
-   * @throws IOException
-   * @throws YarnException
-   */
-  private void launch(final File driverFolder,
-                      final String jobId,
-                      final int priority,
-                      final String queue,
-                      final int driverMemory)
-      throws IOException, YarnException {
-    if (!driverFolder.exists()) {
-      throw new IOException("The Driver folder" + driverFolder.getAbsolutePath() + "doesn't exist.");
-    }
-
+  private void launch(final YarnSubmissionFromCS yarnSubmission) throws IOException, YarnException {
     // ------------------------------------------------------------------------
     // Get an application ID
     try (final YarnSubmissionHelper submissionHelper =
@@ -190,8 +167,9 @@ public final class YarnJobSubmissionClient {
       // Prepare the JAR
       final JobFolder jobFolderOnDFS = this.uploader.createJobFolder(submissionHelper.getApplicationId());
       final Configuration jobSubmissionConfiguration =
-          this.addYarnDriverConfiguration(driverFolder, jobId, jobFolderOnDFS.getPath().toString());
-      final File jarFile = makeJar(driverFolder);
+          this.addYarnDriverConfiguration(yarnSubmission.getDriverFolder(), yarnSubmission.getJobId(),
+              jobFolderOnDFS.getPath().toString());
+      final File jarFile = makeJar(yarnSubmission.getDriverFolder());
       LOG.log(Level.INFO, "Created job submission jar file: {0}", jarFile);
 
 
@@ -201,17 +179,17 @@ public final class YarnJobSubmissionClient {
       final LocalResource jarFileOnDFS = jobFolderOnDFS.uploadAsLocalResource(jarFile);
       LOG.info("Uploaded job submission JAR");
 
-      final Injector jobParamsInjector  = Tang.Factory.getTang().newInjector(jobSubmissionConfiguration);
+      final Injector jobParamsInjector = Tang.Factory.getTang().newInjector(jobSubmissionConfiguration);
 
       // ------------------------------------------------------------------------
       // Submit
       try {
         submissionHelper
             .addLocalResource(this.fileNames.getREEFFolderName(), jarFileOnDFS)
-            .setApplicationName(jobId)
-            .setDriverMemory(driverMemory)
-            .setPriority(priority)
-            .setQueue(queue)
+            .setApplicationName(yarnSubmission.getJobId())
+            .setDriverMemory(yarnSubmission.getDriverMemory())
+            .setPriority(yarnSubmission.getPriority())
+            .setQueue(yarnSubmission.getQueue())
             .setMaxApplicationAttempts(this.maxApplicationSubmissions)
             .setPreserveEvaluators(jobParamsInjector.getNamedInstance(ResourceManagerPreserveEvaluators.class))
             .submit();
@@ -219,34 +197,6 @@ public final class YarnJobSubmissionClient {
         throw new RuntimeException("Unable to submit job due to " + ie);
       }
     }
-  }
-
-  private static Configuration getRuntimeConfiguration(final int tcpBeginPort,
-                                                       final int tcpRangeCount,
-                                                       final int tcpTryCount,
-                                                       final int driverRecoveryTimeout,
-                                                       final int maxApplicationSubmissions) {
-    final Configuration yarnClientConfig = YarnClientConfiguration.CONF
-        .build();
-
-    final Configuration providerConfig = Tang.Factory.getTang().newConfigurationBuilder()
-        .bindSetEntry(DriverConfigurationProviders.class, TcpPortConfigurationProvider.class)
-        .bindNamedParameter(TcpPortRangeBegin.class, Integer.toString(tcpBeginPort))
-        .bindNamedParameter(TcpPortRangeCount.class, Integer.toString(tcpRangeCount))
-        .bindNamedParameter(TcpPortRangeTryCount.class, Integer.toString(tcpTryCount))
-        .build();
-
-    ArrayList<String> driverLaunchCommandPrefixList = new ArrayList<String>();
-    driverLaunchCommandPrefixList.add(new REEFFileNames().getDriverLauncherExeFile().toString());
-
-    final Configuration yarnJobSubmissionClientParamsConfig = Tang.Factory.getTang().newConfigurationBuilder()
-        .bindNamedParameter(SubmissionDriverRestartEvaluatorRecoverySeconds.class,
-            Integer.toString(driverRecoveryTimeout))
-        .bindNamedParameter(MaxApplicationSubmissions.class, Integer.toString(maxApplicationSubmissions))
-        .bindList(DriverLaunchCommandPrefix.class, driverLaunchCommandPrefixList)
-        .build();
-
-    return Configurations.merge(yarnClientConfig, providerConfig, yarnJobSubmissionClientParamsConfig);
   }
 
   /**
@@ -259,26 +209,13 @@ public final class YarnJobSubmissionClient {
    * [7]: int. Evaluator recovery timeout for driver restart. > 0 => restart is enabled.
    */
   public static void main(final String[] args) throws InjectionException, IOException, YarnException {
-    final File driverFolder = new File(args[0]);
-    final String jobId = args[1];
-    final int driverMemory = Integer.valueOf(args[2]);
-    final int tcpBeginPort = Integer.valueOf(args[3]);
-    final int tcpRangeCount = Integer.valueOf(args[4]);
-    final int tcpTryCount = Integer.valueOf(args[5]);
-    final int maxApplicationSubmissions = Integer.valueOf(args[6]);
-    final int driverRecoveryTimeout = Integer.valueOf(args[7]);
-
-    // Static for now
-    final int priority = 1;
-    final String queue = "default";
-
-    final Configuration yarnConfiguration = getRuntimeConfiguration(
-        tcpBeginPort, tcpRangeCount, tcpTryCount, driverRecoveryTimeout, maxApplicationSubmissions);
+    final YarnSubmissionFromCS yarnSubmission = YarnSubmissionFromCS.fromCommandLine(args);
+    LOG.log(Level.INFO, "YARN job submission received from C#: {0}", yarnSubmission);
+    final Configuration yarnConfiguration = yarnSubmission.getRuntimeConfiguration();
     final YarnJobSubmissionClient client = Tang.Factory.getTang()
         .newInjector(yarnConfiguration)
         .getInstance(YarnJobSubmissionClient.class);
-
-    client.launch(driverFolder, jobId, priority, queue, driverMemory);
+    client.launch(yarnSubmission);
   }
 }
 

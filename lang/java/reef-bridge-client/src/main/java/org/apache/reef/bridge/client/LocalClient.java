@@ -19,32 +19,28 @@
 package org.apache.reef.bridge.client;
 
 import org.apache.reef.client.parameters.DriverConfigurationProviders;
-import org.apache.reef.io.TcpPortConfigurationProvider;
 import org.apache.reef.runtime.common.driver.parameters.ClientRemoteIdentifier;
 import org.apache.reef.runtime.common.files.REEFFileNames;
-import org.apache.reef.runtime.common.launch.parameters.DriverLaunchCommandPrefix;
 import org.apache.reef.runtime.local.client.DriverConfigurationProvider;
-import org.apache.reef.runtime.local.client.LocalRuntimeConfiguration;
 import org.apache.reef.runtime.local.client.PreparedDriverFolderLauncher;
 import org.apache.reef.tang.*;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.tang.formats.AvroConfigurationSerializer;
-import org.apache.reef.wake.remote.ports.parameters.TcpPortRangeBegin;
-import org.apache.reef.wake.remote.ports.parameters.TcpPortRangeCount;
-import org.apache.reef.wake.remote.ports.parameters.TcpPortRangeTryCount;
 
 import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Submits a folder containing a Driver to the local runtime.
  */
-public class LocalClient {
+public final class LocalClient {
 
+  private static final Logger LOG = Logger.getLogger(LocalClient.class.getName());
   private static final String CLIENT_REMOTE_ID = ClientRemoteIdentifier.NONE;
   private final AvroConfigurationSerializer configurationSerializer;
   private final PreparedDriverFolderLauncher launcher;
@@ -53,12 +49,12 @@ public class LocalClient {
   private final Set<ConfigurationProvider> configurationProviders;
 
   @Inject
-  public LocalClient(final AvroConfigurationSerializer configurationSerializer,
-                     final PreparedDriverFolderLauncher launcher,
-                     final REEFFileNames fileNames,
-                     final DriverConfigurationProvider driverConfigurationProvider,
-                     @Parameter(DriverConfigurationProviders.class)
-                     final Set<ConfigurationProvider> configurationProviders)  {
+  private LocalClient(final AvroConfigurationSerializer configurationSerializer,
+                      final PreparedDriverFolderLauncher launcher,
+                      final REEFFileNames fileNames,
+                      final DriverConfigurationProvider driverConfigurationProvider,
+                      @Parameter(DriverConfigurationProviders.class)
+                      final Set<ConfigurationProvider> configurationProviders) {
     this.configurationSerializer = configurationSerializer;
     this.launcher = launcher;
     this.fileNames = fileNames;
@@ -66,84 +62,39 @@ public class LocalClient {
     this.configurationProviders = configurationProviders;
   }
 
-  public void submit(final File jobFolder, final String jobId) throws IOException {
-    if (!jobFolder.exists()) {
-      throw new IOException("The Job folder" + jobFolder.getAbsolutePath() + "doesn't exist.");
-    }
-
-    final File driverFolder = new File(jobFolder, PreparedDriverFolderLauncher.DRIVER_FOLDER_NAME);
+  private void submit(final LocalSubmissionFromCS localSubmissionFromCS) throws IOException {
+    final File driverFolder = new File(localSubmissionFromCS.getJobFolder(),
+        PreparedDriverFolderLauncher.DRIVER_FOLDER_NAME);
     if (!driverFolder.exists()) {
       throw new IOException("The Driver folder " + driverFolder.getAbsolutePath() + " doesn't exist.");
     }
 
     final Configuration driverConfiguration1 = driverConfigurationProvider
-        .getDriverConfiguration(jobFolder, CLIENT_REMOTE_ID, jobId,
-            Constants.DRIVER_CONFIGURATION_WITH_HTTP_AND_NAMESERVER);
+        .getDriverConfiguration(localSubmissionFromCS.getJobFolder(), CLIENT_REMOTE_ID,
+            localSubmissionFromCS.getJobId(), Constants.DRIVER_CONFIGURATION_WITH_HTTP_AND_NAMESERVER);
     final ConfigurationBuilder configurationBuilder = Tang.Factory.getTang().newConfigurationBuilder();
     for (final ConfigurationProvider configurationProvider : this.configurationProviders) {
       configurationBuilder.addConfiguration(configurationProvider.getConfiguration());
     }
-    final Configuration providedConfigurations =  configurationBuilder.build();
+    final Configuration providedConfigurations = configurationBuilder.build();
     final Configuration driverConfiguration = Configurations.merge(
         driverConfiguration1,
         providedConfigurations);
 
     final File driverConfigurationFile = new File(driverFolder, fileNames.getDriverConfigurationPath());
     configurationSerializer.toFile(driverConfiguration, driverConfigurationFile);
-    launcher.launch(driverFolder, jobId, CLIENT_REMOTE_ID);
+    launcher.launch(driverFolder, localSubmissionFromCS.getJobId(), CLIENT_REMOTE_ID);
   }
 
-
   public static void main(final String[] args) throws InjectionException, IOException {
-    // TODO: Make the parameters of the local runtime command line arguments of this tool.
-
-    // We assume the given path to be the one of the driver. The job folder is one level up from there.
-    final File jobFolder = new File(args[0]).getParentFile();
-    final String runtimeRootFolder = jobFolder.getParentFile().getAbsolutePath();
-    final String jobId = args[1];
-    // The number of evaluators the local runtime can create
-    final int numberOfEvaluators = Integer.valueOf(args[2]);
-    final int tcpBeginPort = Integer.valueOf(args[3]);
-    final int tcpRangeCount = Integer.valueOf(args[4]);
-    final int tcpTryCount = Integer.valueOf(args[5]);
-
-
-    final Configuration runtimeConfiguration = getRuntimeConfiguration(new File(args[0]), numberOfEvaluators,
-        runtimeRootFolder, tcpBeginPort, tcpRangeCount, tcpTryCount);
+    final LocalSubmissionFromCS localSubmissionFromCS = LocalSubmissionFromCS.fromCommandLine(args);
+    LOG.log(Level.INFO, "Local job submission received from C#: {0}", localSubmissionFromCS);
+    final Configuration runtimeConfiguration = localSubmissionFromCS.getRuntimeConfiguration();
 
     final LocalClient client = Tang.Factory.getTang()
         .newInjector(runtimeConfiguration)
         .getInstance(LocalClient.class);
 
-    client.submit(jobFolder, jobId);
-  }
-
-  private static Configuration getRuntimeConfiguration(
-      final File jobFolder,
-      final int numberOfEvaluators,
-      final String runtimeRootFolder,
-      final int tcpBeginPort,
-      final int tcpRangeCount,
-      final int tcpTryCount) {
-    final Configuration runtimeConfiguration = getRuntimeConfiguration(numberOfEvaluators, runtimeRootFolder);
-    ArrayList<String> driverLaunchCommandPrefixList = new ArrayList<String>();
-    String path = new File(jobFolder, new REEFFileNames().getDriverLauncherExeFile().toString()).toString();
-
-    driverLaunchCommandPrefixList.add(path);
-    final Configuration userproviderConfiguration = Tang.Factory.getTang().newConfigurationBuilder()
-        .bindSetEntry(DriverConfigurationProviders.class, TcpPortConfigurationProvider.class)
-        .bindNamedParameter(TcpPortRangeBegin.class, Integer.toString(tcpBeginPort))
-        .bindNamedParameter(TcpPortRangeCount.class, Integer.toString(tcpRangeCount))
-        .bindNamedParameter(TcpPortRangeTryCount.class, Integer.toString(tcpTryCount))
-        .bindList(DriverLaunchCommandPrefix.class, driverLaunchCommandPrefixList)
-        .build();
-    return Configurations.merge(runtimeConfiguration, userproviderConfiguration);
-  }
-
-  private static Configuration getRuntimeConfiguration(final int numberOfEvaluators, final String runtimeRootFolder) {
-    return LocalRuntimeConfiguration.CONF
-        .set(LocalRuntimeConfiguration.MAX_NUMBER_OF_EVALUATORS, Integer.toString(numberOfEvaluators))
-        .set(LocalRuntimeConfiguration.RUNTIME_ROOT_FOLDER, runtimeRootFolder)
-        .build();
+    client.submit(localSubmissionFromCS);
   }
 }
