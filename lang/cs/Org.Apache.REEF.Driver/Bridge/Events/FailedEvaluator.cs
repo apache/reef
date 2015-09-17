@@ -21,6 +21,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using Org.Apache.REEF.Driver.Bridge.Clr2java;
+using Org.Apache.REEF.Driver.Context;
 using Org.Apache.REEF.Driver.Evaluator;
 using Org.Apache.REEF.Driver.Task;
 using Org.Apache.REEF.Utilities;
@@ -30,34 +31,49 @@ using Org.Apache.REEF.Utilities.Logging;
 namespace Org.Apache.REEF.Driver.Bridge.Events
 {
     [DataContract]
-    internal class FailedEvaluator : IFailedEvaluator
+    internal sealed class FailedEvaluator : IFailedEvaluator
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(FailedEvaluator));
+        private readonly string _id;
 
         public FailedEvaluator(IFailedEvaluatorClr2Java clr2Java)
         {
             InstanceId = Guid.NewGuid().ToString("N");
             FailedEvaluatorClr2Java = clr2Java;
             EvaluatorRequestorClr2Java = FailedEvaluatorClr2Java.GetEvaluatorRequestor();
-            Id = FailedEvaluatorClr2Java.GetId();
+            _id = FailedEvaluatorClr2Java.GetId();
         }
 
         [DataMember]
         public string InstanceId { get; set; }
-
-        public string Id { get; private set; }
-
-        public EvaluatorException EvaluatorException { get; set; }
-
-        public List<FailedContext> FailedContexts { get; set; }
-
-        public Optional<IFailedTask> FailedTask { get; set; }
 
         [DataMember]
         private IFailedEvaluatorClr2Java FailedEvaluatorClr2Java { get; set; }
 
         [DataMember]
         private IEvaluatorRequestorClr2Java EvaluatorRequestorClr2Java { get; set; }
+
+        public string Id
+        {
+            get { return _id; }
+        }
+
+        //TODO[REEF-769]: Implement
+        public EvaluatorException EvaluatorException
+        {
+            get { return null; }
+        }
+
+        //TODO[REEF-769]: Implement
+        public IList<IFailedContext> FailedContexts
+        {
+            get { return new List<IFailedContext>(0); }
+        }
+        //TODO[REEF-769]: Implement
+        public Optional<IFailedTask> FailedTask
+        {
+            get { return Optional<IFailedTask>.Empty(); }
+        }
 
         public IEvaluatorRequestor GetEvaluatorRequetor()
         {

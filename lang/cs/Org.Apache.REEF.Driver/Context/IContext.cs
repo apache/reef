@@ -30,16 +30,16 @@ namespace Org.Apache.REEF.Driver.Context
         /// <summary>
         /// the identifier of the Evaluator this EvaluatorContext is instantiated on.
         /// </summary>
-        string EvaluatorId { get; set; }
+        string EvaluatorId { get; }
 
         /// <summary>
         /// ID of the parent context, if there is any.
         /// </summary>
-        Optional<string> ParentId { get; set; }
+        Optional<string> ParentId { get; }
 
         /// <summary>
         /// descriptor of the Evaluator this Context is on.
         /// </summary>
-        IEvaluatorDescriptor EvaluatorDescriptor { get; set; }
+        IEvaluatorDescriptor EvaluatorDescriptor { get; }
     }
 }

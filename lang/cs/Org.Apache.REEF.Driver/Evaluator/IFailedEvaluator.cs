@@ -19,7 +19,7 @@
 
 using System;
 using System.Collections.Generic;
-using Org.Apache.REEF.Driver.Bridge.Events;
+using Org.Apache.REEF.Driver.Context;
 using Org.Apache.REEF.Driver.Task;
 using Org.Apache.REEF.Utilities;
 
@@ -28,13 +28,26 @@ namespace Org.Apache.REEF.Driver.Evaluator
     /// <summary>
     /// Represents an Evaluator that became unavailable.
     /// </summary>
+    /// <remarks>
+    /// As per REEF-769, this interface isn't actually implemented beyond the Id property.
+    /// </remarks>
     public interface IFailedEvaluator : IIdentifiable
     {
-        EvaluatorException EvaluatorException { get; set; }
+        /// <summary>
+        /// The exception captured on the Evaluator or null if none is available.
+        /// </summary>
+        EvaluatorException EvaluatorException { get; }
 
-        List<FailedContext> FailedContexts { get; set; }
+        /// <summary>
+        /// The list of contexts that were active on the Evaluator when it crashed.
+        /// </summary>
+        /// <remarks>The list is empty if there were none.</remarks>
+        IList<IFailedContext> FailedContexts { get; }
 
-        Optional<IFailedTask> FailedTask { get; set; }
+        /// <summary>
+        /// The task that failed with the Evaluator if there was one.
+        /// </summary>
+        Optional<IFailedTask> FailedTask { get; }
 
         [Obsolete("Will be removed after 0.13. Have an instance injected instead.")]
         IEvaluatorRequestor GetEvaluatorRequetor();
