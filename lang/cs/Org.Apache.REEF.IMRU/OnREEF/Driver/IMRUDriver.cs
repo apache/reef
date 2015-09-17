@@ -64,7 +64,6 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         private ICommunicationGroupDriver _commGroup;
         private readonly IGroupCommDriver _groupCommDriver;
         private readonly TaskStarter _groupCommTaskStarter;
-        private IConfiguration _tcpPortProviderConfig;
         private readonly ConcurrentStack<string> _taskIdStack;
         private readonly ConcurrentStack<IConfiguration> _perMapperConfiguration;
         private readonly Stack<IPartitionDescriptor> _partitionDescriptorStack;
@@ -86,8 +85,6 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             [Parameter(typeof (PerMapConfigGeneratorSet))] ISet<IPerMapperConfigGenerator> perMapperConfigs,
             ConfigurationManager configurationManager,
             IEvaluatorRequestor evaluatorRequestor,
-            [Parameter(typeof (TcpPortRangeStart))] int startingPort,
-            [Parameter(typeof (TcpPortRangeCount))] int portRange,
             [Parameter(typeof (CoresPerMapper))] int coresPerMapper,
             [Parameter(typeof (CoresForUpdateTask))] int coresForUpdateTask,
             [Parameter(typeof (MemoryPerMapper))] int memoryPerMapper,
@@ -108,12 +105,6 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             _allowedFailedEvaluators = (int) (failedEvaluatorsFraction*dataSet.Count);
 
             AddGroupCommunicationOperators();
-
-            //TODO[REEF-600]: Once the configuration module for TcpPortProvider 
-            //TODO[REEF-600]: will be provided, the configuraiton will be automatically
-            //TODO[REEF-600]: carried over to evaluators and below function will be obsolete.
-            ConstructTcpPortProviderConfig(startingPort, portRange);
-
             _groupCommTaskStarter = new TaskStarter(_groupCommDriver, _dataSet.Count + 1);
 
             _taskIdStack = new ConcurrentStack<string>();
@@ -122,7 +113,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             ConstructTaskIdAndPartitionDescriptorStack();
             _serviceAndContextConfigurationProvider =
                 new ServiceAndContextConfigurationProvider<TMapInput, TMapOutput>(dataSet.Count + 1, groupCommDriver,
-                    _configurationManager, _tcpPortProviderConfig, _partitionDescriptorStack);
+                    _configurationManager, _partitionDescriptorStack);
         }
 
         /// <summary>
@@ -347,16 +338,6 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                         reduceFunctionConfig,
                         mapOutputPipelineDataConverterConfig)
                     .Build();
-        }
-
-        private void ConstructTcpPortProviderConfig(int startingPort, int portRange)
-        {
-            _tcpPortProviderConfig = TangFactory.GetTang().NewConfigurationBuilder()
-                .BindNamedParameter<TcpPortRangeStart, int>(GenericType<TcpPortRangeStart>.Class,
-                    startingPort.ToString(CultureInfo.InvariantCulture))
-                .BindNamedParameter<TcpPortRangeCount, int>(GenericType<TcpPortRangeCount>.Class,
-                    portRange.ToString(CultureInfo.InvariantCulture))
-                .Build();
         }
 
         private void ConstructTaskIdAndPartitionDescriptorStack()

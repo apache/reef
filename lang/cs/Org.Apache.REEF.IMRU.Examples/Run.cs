@@ -20,6 +20,7 @@
 using System;
 using System.Globalization;
 using System.Linq;
+using Org.Apache.REEF.Client.API;
 using Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
@@ -142,10 +143,10 @@ namespace Org.Apache.REEF.IMRU.Examples
                 }
             }
 
-            var tcpPortConfig = TangFactory.GetTang().NewConfigurationBuilder()
-                .BindNamedParameter(typeof(TcpPortRangeStart),
+            var tcpPortConfig = TcpPortConfigurationModule.ConfigurationModule
+                .Set(TcpPortConfigurationModule.PortRangeStart,
                     startPort.ToString(CultureInfo.InvariantCulture))
-                .BindNamedParameter(typeof(TcpPortRangeCount),
+                .Set(TcpPortConfigurationModule.PortRangeCount,
                     portRange.ToString(CultureInfo.InvariantCulture))
                 .Build();
 
