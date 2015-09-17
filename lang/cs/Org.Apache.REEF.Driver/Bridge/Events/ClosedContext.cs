@@ -26,13 +26,12 @@ using Org.Apache.REEF.Utilities;
 
 namespace Org.Apache.REEF.Driver.Bridge.Events
 {
-    public class ClosedContext : IClosedContext
+    internal sealed class ClosedContext : IClosedContext
     {
+        private readonly string _evaluatorId;
         private readonly string _id;
 
-        private readonly string _evaluatorId;
-
-        public ClosedContext(IClosedContextClr2Java clr2java)
+        internal ClosedContext(IClosedContextClr2Java clr2java)
         {
             InstanceId = Guid.NewGuid().ToString("N");
             _id = clr2java.GetId();
@@ -40,52 +39,35 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
         }
 
         [DataMember]
-        public string InstanceId { get; set; }
+        public string InstanceId { get; private set; }
+
+        private IActiveContextClr2Java ParentContextClr2Java { get; set; }
+        private IClosedContextClr2Java ClosedContextClr2JavaClr2Java { get; set; }
 
         public string Id
         {
-            get
-            {
-                return _id;
-            }
+            get { return _id; }
         }
 
         public string EvaluatorId
         {
-            get
-            {
-                return _evaluatorId;
-            }
-
-            set
-            {
-            }
+            get { return _evaluatorId; }
         }
 
-        public Optional<string> ParentId { get; set; }
+        public Optional<string> ParentId
+        {
+            // TODO[REEF-762]: Implement
+            get { return Optional<string>.Empty(); }
+        }
 
         public IEvaluatorDescriptor EvaluatorDescriptor
         {
-            get
-            {
-                return ClosedContextClr2JavaClr2Java.GetEvaluatorDescriptor();
-            }
-
-            set
-            {
-            }
+            get { return ClosedContextClr2JavaClr2Java.GetEvaluatorDescriptor(); }
         }
 
         public IActiveContext ParentContext
         {
-            get
-            {
-                return new ActiveContext(ParentContextClr2Java);
-            }
+            get { return new ActiveContext(ParentContextClr2Java); }
         }
-
-        private IActiveContextClr2Java ParentContextClr2Java { get; set; }
-
-        private IClosedContextClr2Java ClosedContextClr2JavaClr2Java { get; set; }
     }
 }

@@ -24,15 +24,13 @@ using Org.Apache.REEF.Utilities;
 
 namespace Org.Apache.REEF.Driver.Bridge.Events
 {
-    public class FailedContext : IFailedContext
+    internal class FailedContext : IFailedContext
     {
-        private readonly string _id;
-
         private readonly string _evaluatorId;
-
+        private readonly string _id;
         private readonly string _parentId;
 
-        public FailedContext(IFailedContextClr2Java clr2Java)
+        internal FailedContext(IFailedContextClr2Java clr2Java)
         {
             _id = clr2Java.GetId();
             _evaluatorId = clr2Java.GetEvaluatorId();
@@ -40,68 +38,44 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
             FailedContextClr2Java = clr2Java;
         }
 
+        private IFailedContextClr2Java FailedContextClr2Java { get; set; }
+
         public string Id
         {
-            get
-            {
-                return _id;
-            }
+            get { return _id; }
         }
 
         public string EvaluatorId
         {
-            get
-            {
-                return _evaluatorId;
-            }
-
-            set
-            {
-            }
+            get { return _evaluatorId; }
         }
 
         public Optional<string> ParentId
         {
             get
             {
-                return string.IsNullOrEmpty(_parentId) ? 
-                    Optional<string>.Empty() : 
-                    Optional<string>.Of(_parentId);
-            }
-
-            set
-            {
+                return string.IsNullOrEmpty(_parentId)
+                    ? Optional<string>.Empty()
+                    : Optional<string>.Of(_parentId);
             }
         }
 
         public IEvaluatorDescriptor EvaluatorDescriptor
         {
-            get
-            {
-                return FailedContextClr2Java.GetEvaluatorDescriptor();
-            }
-
-            set
-            {
-            }
+            get { return FailedContextClr2Java.GetEvaluatorDescriptor(); }
         }
 
         public Optional<IActiveContext> ParentContext
         {
             get
             {
-                IActiveContextClr2Java context = FailedContextClr2Java.GetParentContext();
+                var context = FailedContextClr2Java.GetParentContext();
                 if (context != null)
                 {
                     return Optional<IActiveContext>.Of(new ActiveContext(context));
                 }
-                else
-                {
-                    return Optional<IActiveContext>.Empty();
-                }
+                return Optional<IActiveContext>.Empty();
             }
         }
-
-        private IFailedContextClr2Java FailedContextClr2Java { get; set; }
     }
 }

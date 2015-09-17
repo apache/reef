@@ -26,6 +26,7 @@ using Org.Apache.REEF.Driver.Task;
 using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Utilities.Diagnostics;
 using Org.Apache.REEF.Utilities.Logging;
+using Org.Apache.REEF.Driver.Context;
 
 namespace Org.Apache.REEF.Driver.Bridge.Events
 {
@@ -49,7 +50,7 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
 
         public EvaluatorException EvaluatorException { get; set; }
 
-        public List<FailedContext> FailedContexts { get; set; }
+        public List<IFailedContext> FailedContexts { get; set; }
 
         public Optional<IFailedTask> FailedTask { get; set; }
 

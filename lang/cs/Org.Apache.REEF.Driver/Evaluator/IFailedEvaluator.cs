@@ -22,6 +22,7 @@ using System.Collections.Generic;
 using Org.Apache.REEF.Driver.Bridge.Events;
 using Org.Apache.REEF.Driver.Task;
 using Org.Apache.REEF.Utilities;
+using Org.Apache.REEF.Driver.Context;
 
 namespace Org.Apache.REEF.Driver.Evaluator
 {
@@ -32,7 +33,7 @@ namespace Org.Apache.REEF.Driver.Evaluator
     {
         EvaluatorException EvaluatorException { get; set; }
 
-        List<FailedContext> FailedContexts { get; set; }
+        List<IFailedContext> FailedContexts { get; set; }
 
         Optional<IFailedTask> FailedTask { get; set; }
 
