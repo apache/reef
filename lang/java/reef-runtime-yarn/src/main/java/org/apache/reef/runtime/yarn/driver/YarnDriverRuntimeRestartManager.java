@@ -78,31 +78,44 @@ public final class YarnDriverRuntimeRestartManager implements DriverRuntimeResta
   }
 
   /**
-   * Determines whether the application master has been restarted based on the container ID environment
+   * Determines the number of times the Driver has been submitted based on the container ID environment
    * variable provided by YARN. If that fails, determine whether the application master is a restart
-   * based on the number of previous containers reported by YARN.
-   * @return true if the application master is a restarted instance, false otherwise.
+   * based on the number of previous containers reported by YARN. In the failure scenario, returns 1 if restart, 0
+   * otherwise.
+   * @return > 0 if the application master is a restarted instance, 0 otherwise.
    */
   @Override
-  public boolean hasRestarted() {
+  public int getResubmissionAttempts() {
     final String containerIdString = getContainerIdString();
 
     if (containerIdString == null) {
       // container id should always be set in the env by the framework
       LOG.log(Level.WARNING, "Container ID is null, determining restart based on previous containers.");
-      return this.isRestartByPreviousContainers();
+      if (this.isRestartByPreviousContainers()) {
+        LOG.log(Level.WARNING, "Driver is a restarted instance. Returning 1.");
+        return 1;
+      }
+
+      return 0;
     }
 
     final ApplicationAttemptId appAttemptID = getAppAttemptId(containerIdString);
 
     if (appAttemptID == null) {
       LOG.log(Level.WARNING, "applicationAttempt ID is null, determining restart based on previous containers.");
-      return this.isRestartByPreviousContainers();
+      if (this.isRestartByPreviousContainers()) {
+        LOG.log(Level.WARNING, "Driver is a restarted instance. Returning 1.");
+        return 1;
+      }
+
+      return 0;
     }
 
-    LOG.log(Level.FINE, "Application attempt: " + appAttemptID.getAttemptId());
+    int appAttempt = appAttemptID.getAttemptId();
 
-    return appAttemptID.getAttemptId() > 1;
+    LOG.log(Level.FINE, "Application attempt: " + appAttempt);
+    assert appAttempt > 0;
+    return appAttempt - 1;
   }
 
   private static String getContainerIdString() {

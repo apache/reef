@@ -89,7 +89,7 @@ public final class NativeInterop {
 
   public static native void clrSystemTaskMessageHandlerOnNext(
       final long handle,
-      final byte[] mesage,
+      final byte[] message,
       final TaskMessageBridge javaTaskMessageBridge,
       final InteropLogger interopLogger
   );
@@ -149,7 +149,7 @@ public final class NativeInterop {
       final ContextMessageBridge contextMessageBridge
   );
 
-  public static native long[] callClrSystemOnRestartHandlerOnNext(
+  public static native long[] callClrSystemOnRestartHandler(
       final String httpServerPortNumber,
       final EvaluatorRequestorBridge javaEvaluatorRequestorBridge,
       final DriverRestartedBridge driverRestartedBridge

@@ -27,23 +27,23 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
     /// </summary>
     internal sealed class DriverRestarted : IDriverRestarted
     {
-        private readonly DateTime _startTime;
-        private readonly ISet<string> _expectedEvaluatorIds; 
+        private readonly ISet<string> _expectedEvaluatorIds;
 
         internal DriverRestarted(IDriverRestartedClr2Java driverRestartedClr2Java)
         {
-            _startTime = driverRestartedClr2Java.GetStartTime();
             _expectedEvaluatorIds = new HashSet<string>(driverRestartedClr2Java.GetExpectedEvaluatorIds());
+            StartTime = driverRestartedClr2Java.GetStartTime();
+            ResubmissionAttempts = driverRestartedClr2Java.GetResubmissionAttempts();
         }
 
-        public DateTime StartTime
-        {
-            get { return _startTime; }
-        }
 
         public ISet<string> ExpectedEvaluatorIds
         {
             get { return new HashSet<string>(_expectedEvaluatorIds); }
-        } 
+        }
+
+        public DateTime StartTime { get; private set; }
+
+        public int ResubmissionAttempts { get; private set; }
     }
 }

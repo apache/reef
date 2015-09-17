@@ -38,11 +38,12 @@ import java.util.Set;
 @DefaultImplementation(DefaultDriverRuntimeRestartMangerImpl.class)
 public interface DriverRuntimeRestartManager {
   /**
-   * @return true if the driver has been restarted. Note that this is different from whether
-   * the driver is in the process of restarting. This returns true both on when the driver is in the
-   * restart process or has already finished restarting. The default implementation always returns false.
+   * @return > 0 if the driver has been restarted as reported by the resource manager. 0 otherwise.
+   * Note that this is different from whether the driver is in the process of restarting.
+   * This returns > 0 both on when the driver is in the restart process or has already finished restarting.
+   * The default implementation always returns 0.
    */
-  boolean hasRestarted();
+  int getResubmissionAttempts();
 
   /**
    * Records the evaluators when it is allocated.
