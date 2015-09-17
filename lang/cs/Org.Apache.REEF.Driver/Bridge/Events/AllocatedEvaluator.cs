@@ -108,8 +108,9 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
         {
             LOGGER.Log(Level.Info, "AllocatedEvaluator::SubmitContextAndService");
 
+            var serviceConf = MergeWithConfigurationProviders(serviceConfiguration);
             string context = _serializer.ToString(contextConfiguration);
-            string service = _serializer.ToString(WrapServiceConfigAsString(serviceConfiguration));
+            string service = _serializer.ToString(WrapServiceConfigAsString(serviceConf));
 
             LOGGER.Log(Level.Verbose, "serialized contextConfiguration: " + context);
             LOGGER.Log(Level.Verbose, "serialized serviceConfiguration: " + service);
@@ -121,10 +122,9 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
         {
             LOGGER.Log(Level.Info, "AllocatedEvaluator::SubmitContextAndServiceAndTask");
 
-            //TODO: Change this to service configuration when REEF-289(https://issues.apache.org/jira/browse/REEF-289) is fixed.
-            taskConfiguration = MergeWithConfigurationProviders(taskConfiguration);
+            var serviceConf = MergeWithConfigurationProviders(serviceConfiguration);
             string context = _serializer.ToString(contextConfiguration);
-            string service = _serializer.ToString(WrapServiceConfigAsString(serviceConfiguration));
+            string service = _serializer.ToString(WrapServiceConfigAsString(serviceConf));
             string task = _serializer.ToString(taskConfiguration);
 
             LOGGER.Log(Level.Verbose, "serialized contextConfiguration: " + context);
