@@ -20,6 +20,11 @@ package org.apache.reef.wake.storage;
 
 import java.io.FileInputStream;
 
+/**
+ * @deprecated in 0.13
+ */
+
+@Deprecated
 public class FileHandlePool {
   public FileInputStream get(final StorageIdentifier f) {
     return null;

@@ -20,16 +20,18 @@ package org.apache.reef.io.storage.util;
 
 import org.apache.reef.io.serialization.Codec;
 
+import java.nio.charset.StandardCharsets;
+
 public class IntegerCodec implements Codec<Integer> {
 
   @Override
   public byte[] encode(final Integer obj) {
-    return Integer.toString(obj).getBytes();
+    return Integer.toString(obj).getBytes(StandardCharsets.UTF_8);
   }
 
   @Override
   public Integer decode(final byte[] buf) {
-    return Integer.decode(new String(buf));
+    return Integer.decode(new String(buf, StandardCharsets.UTF_8));
   }
 
 }

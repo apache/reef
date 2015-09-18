@@ -21,6 +21,7 @@ package org.apache.reef.runtime.hdinsight.cli;
 import org.apache.hadoop.io.file.tfile.TFile;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.logging.Logger;
 
 /**
@@ -61,7 +62,8 @@ final class LogFileEntry {
     try (final DataInputStream keyStream = entry.getKeyStream();
          final DataInputStream valueStream = entry.getValueStream();) {
       final String containerId = keyStream.readUTF();
-      try (final Writer outputWriter = new FileWriter(new File(folder, containerId + ".txt"))) {
+      try (final Writer outputWriter = new OutputStreamWriter(
+          new FileOutputStream(new File(folder, containerId + ".txt")), StandardCharsets.UTF_8)) {
         this.writeFiles(valueStream, outputWriter);
       }
     }
@@ -89,8 +91,8 @@ final class LogFileEntry {
   }
 
   /**
-   * Writes the next numberOfBytes bytes from the sream to the outputWriter, assuming that the bytes are UTF-8 encoded
-   * caharcters.
+   * Writes the next numberOfBytes bytes from the stream to the outputWriter, assuming that the bytes are UTF-8 encoded
+   * characters.
    *
    * @param stream
    * @param outputWriter

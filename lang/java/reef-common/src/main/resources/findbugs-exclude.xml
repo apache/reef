@@ -24,4 +24,18 @@
     <Match>
         <Class name="~.*\.avro\..*" />
     </Match>
+    <Match>
+        <!-- Justified call of GC; explained in code -->
+        <Class name="org.apache.reef.runtime.common.evaluator.context.ContextManager" />
+        <Bug code="Dm" />
+    </Match>
+    <Match>
+        <!-- Test code -->
+        <Class name="org.apache.reef.util.MemoryUtils" />
+        <Bug code="DLS" />
+    </Match>
+    <Match>
+        <Class name="org.apache.reef.javabridge.NativeInterop" />
+        <Bug code="MS" />
+    </Match>
 </FindBugsFilter>

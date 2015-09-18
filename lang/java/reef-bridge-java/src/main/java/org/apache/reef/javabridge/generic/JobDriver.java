@@ -49,10 +49,9 @@ import org.apache.reef.webserver.*;
 import javax.inject.Inject;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -201,7 +200,8 @@ public final class JobDriver {
       if (portNumber != null){
         try {
           final File outputFileName = new File(reefFileNames.getDriverHttpEndpoint());
-          BufferedWriter out = new BufferedWriter(new FileWriter(outputFileName));
+          BufferedWriter out = new BufferedWriter(
+              new OutputStreamWriter(new FileOutputStream(outputFileName), StandardCharsets.UTF_8));
           out.write(localAddressProvider.getLocalAddress() + ":" + portNumber + "\n");
           out.close();
         } catch (IOException ex) {
@@ -299,7 +299,7 @@ public final class JobDriver {
         }
         String message = "Evaluator " + eval.getId() + " failed with message: "
             + eval.getEvaluatorException().getMessage();
-        JobDriver.this.jobMessageObserver.sendMessageToClient(message.getBytes());
+        JobDriver.this.jobMessageObserver.sendMessageToClient(message.getBytes(StandardCharsets.UTF_8));
 
         if (isRestartFailed) {
           evaluatorFailedHandlerWaitForCLRBridgeSetup(driverRestartFailedEvaluatorHandler, eval, isRestartFailed);
@@ -317,8 +317,7 @@ public final class JobDriver {
       if (JobDriver.this.clrBridgeSetup) {
         final String message = "No CLR FailedEvaluator handler was set, exiting now";
         LOG.log(Level.WARNING, message);
-        JobDriver.this.jobMessageObserver.sendMessageToClient(message.getBytes());
-        return;
+        JobDriver.this.jobMessageObserver.sendMessageToClient(message.getBytes(StandardCharsets.UTF_8));
       } else {
         clock.scheduleAlarm(0, new EventHandler<Alarm>() {
           @Override
@@ -357,7 +356,7 @@ public final class JobDriver {
           additionalRequestedEvaluatorNumber);
     }
 
-    JobDriver.this.jobMessageObserver.sendMessageToClient(message.getBytes());
+    JobDriver.this.jobMessageObserver.sendMessageToClient(message.getBytes(StandardCharsets.UTF_8));
   }
 
   /**
@@ -422,7 +421,7 @@ public final class JobDriver {
         // Take the message returned by the task and add it to the running result.
         String result = "default result";
         try {
-          result = new String(task.get());
+          result = new String(task.get(), StandardCharsets.UTF_8);
         } catch (final Exception e) {
           LOG.log(Level.WARNING, "failed to decode task outcome");
         }
@@ -488,7 +487,7 @@ public final class JobDriver {
         final AvroHttpRequest avroHttpRequest = httpSerializer.toAvro(parsedHttpRequest);
 
         final String requestString = httpSerializer.toString(avroHttpRequest);
-        final byte[] requestBytes = requestString.getBytes();
+        final byte[] requestBytes = requestString.getBytes(Charset.forName(AvroHttpSerializer.JSON_CHARSET));
         //final byte[] requestBytes = httpSerializer.toBytes(avroHttpRequest);
 
         try {
@@ -691,7 +690,7 @@ public final class JobDriver {
   public final class TaskMessageHandler implements EventHandler<TaskMessage> {
     @Override
     public void onNext(final TaskMessage taskMessage) {
-      final String msg = new String(taskMessage.get());
+      final String msg = new String(taskMessage.get(), StandardCharsets.UTF_8);
       LOG.log(Level.INFO, "Received TaskMessage: {0} from CLR", msg);
       //try (LoggingScope ls = loggingScopeFactory.taskMessageReceived(new String(msg))) {
       if (JobDriver.this.taskMessageHandler != 0) {
@@ -800,7 +799,8 @@ public final class JobDriver {
     @Override
     public void onNext(final ContextMessage message) {
       LOG.log(Level.SEVERE, "Received ContextMessage:", message.get());
-      try (final LoggingScope ls = loggingScopeFactory.contextMessageReceived(message.get().toString())) {
+      try (final LoggingScope ls =
+               loggingScopeFactory.contextMessageReceived(new String(message.get(), StandardCharsets.UTF_8))) {
         if (JobDriver.this.contextMessageHandler != 0) {
           final ContextMessageBridge contextMessageBridge = new ContextMessageBridge(message);
           // if CLR implements the context message handler, handle it in CLR

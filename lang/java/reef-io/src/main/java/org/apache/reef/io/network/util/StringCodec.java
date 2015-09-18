@@ -21,7 +21,7 @@ package org.apache.reef.io.network.util;
 import org.apache.reef.wake.remote.Codec;
 
 import javax.inject.Inject;
-
+import java.nio.charset.StandardCharsets;
 
 public class StringCodec implements Codec<String> {
 
@@ -32,11 +32,11 @@ public class StringCodec implements Codec<String> {
 
   @Override
   public byte[] encode(final String obj) {
-    return obj.getBytes();
+    return obj.getBytes(StandardCharsets.UTF_8);
   }
 
   @Override
   public String decode(final byte[] buf) {
-    return new String(buf);
+    return new String(buf, StandardCharsets.UTF_8);
   }
 }

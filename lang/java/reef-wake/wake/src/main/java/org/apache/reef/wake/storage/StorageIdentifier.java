@@ -20,6 +20,11 @@ package org.apache.reef.wake.storage;
 
 import org.apache.reef.wake.Identifier;
 
+/**
+ * @deprecated in 0.13
+ */
+
+@Deprecated
 public interface StorageIdentifier extends Identifier {
 
 }

@@ -32,6 +32,7 @@ import org.apache.reef.tang.exceptions.BindException;
 import org.apache.reef.wake.EventHandler;
 
 import javax.inject.Inject;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -110,7 +111,7 @@ public class LineCounter {
       LOG.log(Level.FINEST, "Completed Task: {0}", taskId);
 
       final byte[] retBytes = completedTask.get();
-      final String retStr = retBytes == null ? "No RetVal" : new String(retBytes);
+      final String retStr = retBytes == null ? "No RetVal" : new String(retBytes, StandardCharsets.UTF_8);
       LOG.log(Level.FINE, "Line count from {0} : {1}", new String[]{taskId, retStr});
 
       lineCnt.addAndGet(Integer.parseInt(retStr));

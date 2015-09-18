@@ -35,7 +35,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.InetSocketAddress;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -86,7 +86,7 @@ public final class HttpServerReefEventHandler implements HttpHandler {
    * read a file and output it as a String.
    */
   private static String readFile(final String fileName) throws IOException {
-    return new String(Files.readAllBytes(Paths.get(fileName)));
+    return new String(Files.readAllBytes(Paths.get(fileName)), StandardCharsets.UTF_8);
   }
 
   /**
@@ -176,7 +176,7 @@ public final class HttpServerReefEventHandler implements HttpHandler {
         response.getWriter().println(String.format("Unsupported file names: [%s] ", fileName));
       }
       try {
-        final byte[] outputBody = readFile((String) names.get(0)).getBytes(Charset.forName("UTF-8"));
+        final byte[] outputBody = readFile((String) names.get(0)).getBytes(StandardCharsets.UTF_8);
         response.getOutputStream().write(outputBody);
       } catch(final IOException e) {
         response.getWriter().println(String.format("Cannot find the log file: [%s].", fileName));
@@ -341,7 +341,7 @@ public final class HttpServerReefEventHandler implements HttpHandler {
    * Write a String to HTTP Response.
    */
   private void writeResponse(final HttpServletResponse response, final String data) throws IOException {
-    final byte[] outputBody = data.getBytes(Charset.forName("UTF-8"));
+    final byte[] outputBody = data.getBytes(StandardCharsets.UTF_8);
     response.getOutputStream().write(outputBody);
   }
 

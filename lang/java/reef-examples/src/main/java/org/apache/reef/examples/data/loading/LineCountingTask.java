@@ -26,6 +26,7 @@ import org.apache.reef.io.network.util.Pair;
 import org.apache.reef.task.Task;
 
 import javax.inject.Inject;
+import java.nio.charset.StandardCharsets;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -54,6 +55,6 @@ public class LineCountingTask implements Task {
       ++numEx;
     }
     LOG.log(Level.FINER, "LineCounting task finished: read {0} lines", numEx);
-    return Integer.toString(numEx).getBytes();
+    return Integer.toString(numEx).getBytes(StandardCharsets.UTF_8);
   }
 }

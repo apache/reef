@@ -21,10 +21,8 @@ package org.apache.reef.runtime.local.process;
 import org.apache.reef.runtime.common.evaluator.PIDStoreStartHandler;
 import org.apache.reef.util.OSUtils;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -235,8 +233,9 @@ public final class RunnableProcess implements Runnable {
    */
   private long readPID() throws IOException {
     final String pidFileName = this.folder.getAbsolutePath() + "/" + PIDStoreStartHandler.PID_FILE_NAME;
-    try (final BufferedReader r = new BufferedReader(new FileReader(pidFileName))) {
-      return Long.valueOf(r.readLine());
+    try (final BufferedReader r =
+             new BufferedReader(new InputStreamReader(new FileInputStream(pidFileName), StandardCharsets.UTF_8))) {
+      return Long.parseLong(r.readLine());
     }
   }
 

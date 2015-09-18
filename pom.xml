@@ -304,7 +304,7 @@ under the License.
                     <version>${findbugs.version}</version>
                     <configuration>
                         <effort>Max</effort>
-                        <threshold>Low</threshold>
+                        <threshold>High</threshold>
                         <failOnError>false</failOnError>
                         <findbugsXmlOutputDirectory>${project.build.directory}/findbugs</findbugsXmlOutputDirectory>
                         <excludeFilterFile>${rootPath}/lang/java/reef-common/src/main/resources/findbugs-exclude.xml</excludeFilterFile>

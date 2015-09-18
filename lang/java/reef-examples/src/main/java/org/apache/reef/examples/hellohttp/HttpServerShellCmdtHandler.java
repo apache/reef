@@ -29,7 +29,7 @@ import javax.inject.Inject;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -126,11 +126,13 @@ class HttpServerShellCmdtHandler implements HttpHandler {
           LOG.log(Level.WARNING, "HttpServeShellCmdtHandler onHttpRequest InterruptedException: {0}", e);
         }
       }
-      response.getOutputStream().write(cmdOutput.getBytes(Charset.forName("UTF-8")));
-      cmdOutput = null;
+      if (cmdOutput != null) {
+        response.getOutputStream().write(cmdOutput.getBytes(StandardCharsets.UTF_8));
+        cmdOutput = null;
+      }
     } else if (parsedHttpRequest.getTargetEntity().equalsIgnoreCase("Driver")) {
       final String commandOutput = CommandUtils.runCommand(queryStr);
-      response.getOutputStream().write(commandOutput.getBytes(Charset.forName("UTF-8")));
+      response.getOutputStream().write(commandOutput.getBytes(StandardCharsets.UTF_8));
     }
   }
 

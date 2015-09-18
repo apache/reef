@@ -203,7 +203,7 @@ public final class AvroConfigurationSerializer implements ConfigurationSerialize
 
   @Override
   public void toTextFile(final Configuration conf, final File file) throws IOException {
-    try (final Writer w = new FileWriter(file)) {
+    try (final Writer w = new OutputStreamWriter(new FileOutputStream(file), JSON_CHARSET)) {
       w.write(this.toString(conf));
     }
   }
@@ -290,7 +290,8 @@ public final class AvroConfigurationSerializer implements ConfigurationSerialize
 
   private StringBuilder readFromTextFile(final File file) throws IOException {
     final StringBuilder result = new StringBuilder();
-    try (final BufferedReader reader = new BufferedReader(new FileReader(file))) {
+    try (final BufferedReader reader =
+             new BufferedReader(new InputStreamReader(new FileInputStream(file), JSON_CHARSET))) {
       String line = reader.readLine();
       while (line != null) {
         result.append(line);

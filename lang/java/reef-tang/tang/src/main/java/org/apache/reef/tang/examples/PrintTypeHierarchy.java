@@ -33,8 +33,11 @@ import org.apache.reef.tang.util.walk.graphviz.GraphvizConfigVisitor;
 import org.apache.reef.tang.util.walk.graphviz.GraphvizInjectionPlanVisitor;
 
 import javax.inject.Inject;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Build a Graphviz representation of TANG configuration and injection plan.
@@ -49,7 +52,7 @@ public final class PrintTypeHierarchy {
   /**
    * Constructor to test the parameter injection.
    *
-   * @param aId test parameter
+   * @param id test parameter
    */
   @Inject
   public PrintTypeHierarchy(@Parameter(PrintTypeHierarchy.Id.class) final int id) {
@@ -74,14 +77,16 @@ public final class PrintTypeHierarchy {
     final Injector injector = tang.newInjector(config);
     final PrintTypeHierarchy myself = injector.getInstance(PrintTypeHierarchy.class);
 
-    try (final FileWriter out = new FileWriter("type-hierarchy.dot")) {
+    try (final Writer out = new OutputStreamWriter(
+            new FileOutputStream("type-hierarchy.dot"), StandardCharsets.UTF_8)) {
       out.write(GraphvizConfigVisitor.getGraphvizString(config, true, true));
     }
 
     final InjectionPlan<PrintTypeHierarchy> plan =
         injector.getInjectionPlan(PrintTypeHierarchy.class);
 
-    try (final FileWriter out = new FileWriter("injection-plan.dot")) {
+    try (final Writer out = new OutputStreamWriter(
+            new FileOutputStream("injection-plan.dot"), StandardCharsets.UTF_8)) {
       out.write(GraphvizInjectionPlanVisitor.getGraphvizString(plan, true));
     }
 

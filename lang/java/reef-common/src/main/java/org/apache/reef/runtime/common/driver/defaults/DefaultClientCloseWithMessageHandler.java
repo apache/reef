@@ -21,6 +21,7 @@ package org.apache.reef.runtime.common.driver.defaults;
 import org.apache.reef.wake.EventHandler;
 
 import javax.inject.Inject;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Default handler for close messages from the client: Throw an Exception.
@@ -34,6 +35,6 @@ public final class DefaultClientCloseWithMessageHandler implements EventHandler<
   @Override
   public void onNext(final byte[] bytes) {
     throw new RuntimeException(
-        "No handler bound for client Close With Message event: " + new String(bytes));
+        "No handler bound for client Close With Message event: " + new String(bytes, StandardCharsets.UTF_8));
   }
 }
