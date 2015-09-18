@@ -58,7 +58,7 @@ final class LocalSubmissionFromCS {
                                 final int tcpTryCount) {
     Validate.isTrue(driverFolder.exists(), "The driver folder does not exist.");
     Validate.notEmpty(jobId, "The job is is null or empty.");
-    Validate.isTrue(numberOfEvaluators > 0, "The number of evaluators is <= 0.");
+    Validate.isTrue(numberOfEvaluators >= 0, "The number of evaluators is < 0.");
     Validate.isTrue(tcpBeginPort >= 0, "The tcp start port given is < 0.");
     Validate.isTrue(tcpRangeCount > 0, "The tcp range given is <= 0.");
     Validate.isTrue(tcpTryCount > 0, "The tcp retry count given is <= 0.");

@@ -168,12 +168,12 @@ namespace Org.Apache.REEF.Tests.Functional
 
             if (string.IsNullOrWhiteSpace(driverContainerDirectory))
             {
-                throw new InvalidOperationException("Cannot find driver container directory");
+                throw new InvalidOperationException("Cannot find driver container directory: " + driverContainerDirectory);
             }
             string logFile = Path.Combine(driverContainerDirectory, logFileName);
             if (!File.Exists(logFile))
             {
-                throw new InvalidOperationException("Driver stdout file not found");
+                throw new InvalidOperationException("Driver stdout file not found: " + logFile);
             }
             return logFile;
         }
