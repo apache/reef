@@ -17,6 +17,10 @@
  * under the License.
  */
 
+using System;
+using Org.Apache.REEF.Client.Common;
+using Org.Apache.REEF.Common.Attributes;
+
 namespace Org.Apache.REEF.Client.API
 {
     /// <summary>
@@ -30,5 +34,14 @@ namespace Org.Apache.REEF.Client.API
         /// </summary>
         /// <param name="jobSubmission"></param>
         void Submit(IJobSubmission jobSubmission);
+
+        /// <summary>
+        /// Submit the job described in jobSubmission to the cluster.
+        /// Expect IDriverHttpEndpoint returned after the call.
+        /// </summary>
+        /// <param name="jobSubmission"></param>
+        /// <returns>IDriverHttpEndpoint</returns>
+        [Unstable("0.13", "Working in progress for what to return after submit")]
+        IDriverHttpEndpoint SubmitAndGetDriverUrl(IJobSubmission jobSubmission);
     }
 }

@@ -22,6 +22,7 @@ using System.IO;
 using System.Linq;
 using Org.Apache.REEF.Client.API;
 using Org.Apache.REEF.Client.Common;
+using Org.Apache.REEF.Common.Files;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Utilities.Logging;
@@ -38,15 +39,19 @@ namespace Org.Apache.REEF.Client.YARN
         private static readonly Logger Logger = Logger.GetLogger(typeof(YARNClient));
         private readonly DriverFolderPreparationHelper _driverFolderPreparationHelper;
         private readonly JavaClientLauncher _javaClientLauncher;
+        private String _driverUrl;
+        private REEFFileNames _fileNames;
 
         [Inject]
         internal YARNClient(JavaClientLauncher javaClientLauncher,
             DriverFolderPreparationHelper driverFolderPreparationHelper,
+            REEFFileNames fileNames,
             YarnCommandLineEnvironment yarn)
         {
             _javaClientLauncher = javaClientLauncher;
             _javaClientLauncher.AddToClassPath(yarn.GetYarnClasspathList());
             _driverFolderPreparationHelper = driverFolderPreparationHelper;
+            _fileNames = fileNames;
         }
 
         public void Submit(IJobSubmission jobSubmission)
@@ -55,6 +60,27 @@ namespace Org.Apache.REEF.Client.YARN
             var driverFolderPath = CreateDriverFolder(jobSubmission.JobIdentifier);
             Logger.Log(Level.Info, "Preparing driver folder in " + driverFolderPath);
 
+            Launch(jobSubmission, driverFolderPath);
+        }
+
+        public IDriverHttpEndpoint SubmitAndGetDriverUrl(IJobSubmission jobSubmission)
+        {
+            // Prepare the job submission folder
+            var driverFolderPath = CreateDriverFolder(jobSubmission.JobIdentifier);
+            Logger.Log(Level.Info, "Preparing driver folder in " + driverFolderPath);
+
+            Launch(jobSubmission, driverFolderPath);
+
+            var pointerFileName = Path.Combine(driverFolderPath, _fileNames.DriverHttpEndpoint);
+
+            var httpClient = new HttpClientHelper();
+            _driverUrl = httpClient.GetDriverUrlForYarn(pointerFileName);
+
+            return httpClient;
+        }
+
+        private void Launch(IJobSubmission jobSubmission, string driverFolderPath)
+        {
             _driverFolderPreparationHelper.PrepareDriverFolder(jobSubmission, driverFolderPath);
 
             //TODO: Remove this when we have a generalized way to pass config to java
@@ -71,7 +97,12 @@ namespace Org.Apache.REEF.Client.YARN
                 javaParams.MaxApplicationSubmissions.ToString(),
                 javaParams.DriverRestartEvaluatorRecoverySeconds.ToString()
                 );
-            Logger.Log(Level.Info, "Submitted the Driver for execution.");
+            Logger.Log(Level.Info, "Submitted the Driver for execution." + jobSubmission.JobIdentifier);
+        }
+
+        public string DriverUrl
+        {
+            get { return _driverUrl; }
         }
 
         /// <summary>

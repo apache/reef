@@ -20,6 +20,7 @@
 using System;
 using System.IO;
 using Org.Apache.REEF.Client.API;
+using Org.Apache.REEF.Client.Common;
 using Org.Apache.REEF.Client.Local;
 using Org.Apache.REEF.Client.YARN;
 using Org.Apache.REEF.Common.Evaluator;
@@ -50,7 +51,7 @@ namespace Org.Apache.REEF.Examples.AllHandlers
             _jobSubmissionBuilderFactory = jobSubmissionBuilderFactory;
         }
 
-        private void Run()
+        private IDriverHttpEndpoint Run()
         {
             var helloDriverConfiguration = DriverConfiguration.ConfigurationModule
                 .Set(DriverConfiguration.OnEvaluatorAllocated, GenericType<HelloAllocatedEvaluatorHandler>.Class)
@@ -82,7 +83,8 @@ namespace Org.Apache.REEF.Examples.AllHandlers
                 .SetJobIdentifier("HelloDriver")
                 .Build();
 
-            _reefClient.Submit(helloJobSubmission);
+            IDriverHttpEndpoint driverHttpEndpoint = _reefClient.SubmitAndGetDriverUrl(helloJobSubmission);
+            return driverHttpEndpoint;
         }
 
         /// <summary></summary>
@@ -122,11 +124,12 @@ namespace Org.Apache.REEF.Examples.AllHandlers
         /// args[0] specify either running local or YARN. Default is local
         /// args[1] specify running folder. Default is REEF_LOCAL_RUNTIME
         /// </remarks>
-        public static void Run(string[] args)
+        public static IDriverHttpEndpoint Run(string[] args)
         {
             string runOnYarn = args.Length > 0 ? args[0] : Local;
             string runtimeFolder = args.Length > 1 ? args[1] : "REEF_LOCAL_RUNTIME";
-            TangFactory.GetTang().NewInjector(GetRuntimeConfiguration(runOnYarn, runtimeFolder)).GetInstance<AllHandlers>().Run();
+            IDriverHttpEndpoint driverEndPoint = TangFactory.GetTang().NewInjector(GetRuntimeConfiguration(runOnYarn, runtimeFolder)).GetInstance<AllHandlers>().Run();
+            return driverEndPoint;
         }
     }
 }
