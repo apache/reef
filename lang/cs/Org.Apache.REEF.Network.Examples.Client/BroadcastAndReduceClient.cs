@@ -105,7 +105,7 @@ namespace Org.Apache.REEF.Network.Examples.Client
                 .SetJobIdentifier(jobIdentifier)
                 .Build();
 
-            reefClient.Submit(jobSubmission);
+            reefClient.SubmitAsync(jobSubmission);
         }
 
         internal static IConfiguration GetRuntimeConfiguration(string runOnYarn, int numberOfEvaluator, string runtimeFolder)

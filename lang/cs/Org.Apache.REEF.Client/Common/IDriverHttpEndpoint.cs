@@ -1,4 +1,4 @@
-/*
+﻿/**
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -17,14 +17,15 @@
  * under the License.
  */
 
-package org.apache.reef.driver.parameters;
+using Org.Apache.REEF.Common.Attributes;
 
-import org.apache.reef.tang.annotations.NamedParameter;
-import org.apache.reef.tang.annotations.Name;
+namespace Org.Apache.REEF.Client.Common
+{   
+    [Unstable("0.13", "need to finalize in near future")]
+    public interface IDriverHttpEndpoint
+    {
+        string GetUrlResult(string url);
 
-/**
- * The job submission directory.
- */
-@NamedParameter(doc = "The job submission directory.")
-public final class JobSubmissionDirectory implements Name<String> {
+        string DriverUrl { get; }
+    }
 }

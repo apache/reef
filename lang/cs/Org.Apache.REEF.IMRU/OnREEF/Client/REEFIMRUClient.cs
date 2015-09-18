@@ -137,7 +137,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Client
                 .SetJobIdentifier(jobDefinition.JobName)
                 .Build();
 
-            _reefClient.Submit(imruJobSubmission);
+            _reefClient.SubmitAsync(imruJobSubmission);
 
             return null;
         }

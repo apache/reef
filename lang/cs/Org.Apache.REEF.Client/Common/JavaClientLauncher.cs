@@ -100,6 +100,7 @@ namespace Org.Apache.REEF.Client.Common
             IList<string> arguments = new List<string>();
             arguments.Add("-cp");
             arguments.Add(GetClientClasspath());
+            arguments.Add("-Djava.util.logging.config.class=org.apache.reef.util.logging.Config");
             arguments.Add(javaClassName);
             foreach (var parameter in parameters)
             {

@@ -18,6 +18,7 @@
  */
 package org.apache.reef.bridge.client;
 
+import org.apache.hadoop.fs.*;
 import org.apache.hadoop.yarn.api.records.LocalResource;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.exceptions.YarnException;
@@ -43,8 +44,8 @@ import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.tang.formats.ConfigurationSerializer;
 import org.apache.reef.util.JARFileMaker;
-
 import javax.inject.Inject;
+import java.io.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -173,7 +174,6 @@ public final class YarnJobSubmissionClient {
     try (final YarnSubmissionHelper submissionHelper =
              new YarnSubmissionHelper(yarnConfiguration, fileNames, classpath, tokenProvider, commandPrefixList)) {
 
-
       // ------------------------------------------------------------------------
       // Prepare the JAR
       final JobFolder jobFolderOnDFS = this.uploader.createJobFolder(submissionHelper.getApplicationId());
@@ -182,7 +182,6 @@ public final class YarnJobSubmissionClient {
               jobFolderOnDFS.getPath().toString());
       final File jarFile = makeJar(yarnSubmission.getDriverFolder());
       LOG.log(Level.INFO, "Created job submission jar file: {0}", jarFile);
-
 
       // ------------------------------------------------------------------------
       // Upload the JAR
@@ -207,7 +206,65 @@ public final class YarnJobSubmissionClient {
       } catch (InjectionException ie) {
         throw new RuntimeException("Unable to submit job due to " + ie);
       }
+      writeDriverHttpEndPoint(yarnSubmission.getDriverFolder(),
+          submissionHelper.getStringApplicationId(), jobFolderOnDFS.getPath());
     }
+  }
+
+  /**
+   * We leave a file behind in job submission directory so that clr client can figure out
+   * the applicationId and yarn rest endpoint.
+   * @param driverFolder
+   * @param applicationId
+   * @throws IOException
+   */
+  private void writeDriverHttpEndPoint(final File driverFolder,
+                                       final String applicationId,
+                                       final Path dfsPath) throws  IOException {
+    final FileSystem fs = FileSystem.get(yarnConfiguration);
+    final Path httpEndpointPath = new Path(dfsPath, fileNames.getDriverHttpEndpoint());
+
+    String trackingUri = null;
+    for (int i = 0; i < 60; i++) {
+      try {
+        LOG.log(Level.INFO, "Attempt " + i + " reading " + httpEndpointPath.toString());
+        if (fs.exists(httpEndpointPath)) {
+          FSDataInputStream input = fs.open(httpEndpointPath);
+          BufferedReader reader = new BufferedReader(new InputStreamReader(input));
+          trackingUri = reader.readLine();
+          reader.close();
+          break;
+        }
+      } catch (Exception ex) {
+      }
+      try{
+        Thread.sleep(1000);
+      } catch(InterruptedException ex2) {
+        break;
+      }
+    }
+
+    if (null == trackingUri) {
+      trackingUri = "";
+      LOG.log(Level.WARNING, "Failed reading " + httpEndpointPath.toString());
+    }
+
+    final File driverHttpEndpointFile = new File(driverFolder, fileNames.getDriverHttpEndpoint());
+    BufferedWriter out = new BufferedWriter(new FileWriter(driverHttpEndpointFile));
+    out.write(applicationId + "\n");
+    out.write(trackingUri + "\n");
+    String addr = yarnConfiguration.get("yarn.resourcemanager.webapp.address");
+    if (null == addr || addr.startsWith("0.0.0.0")) {
+      String str2 = yarnConfiguration.get("yarn.resourcemanager.ha.rm-ids");
+      if (null != str2) {
+        for (String rm : str2.split(",")) {
+          out.write(yarnConfiguration.get("yarn.resourcemanager.webapp.address." + rm) +"\n");
+        }
+      }
+    } else {
+      out.write(addr +"\n");
+    }
+    out.close();
   }
 
   /**

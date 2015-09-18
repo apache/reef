@@ -102,6 +102,14 @@ public final class YarnSubmissionHelper implements Closeable{
   }
 
   /**
+   *
+   * @return the application ID string representation assigned by YARN.
+   */
+  public String getStringApplicationId() {
+    return this.applicationId.toString();
+  }
+
+  /**
    * Set the name of the application to be submitted.
    * @param applicationName
    * @return

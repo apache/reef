@@ -20,6 +20,7 @@ package org.apache.reef.bridge.client;
 
 import org.apache.commons.lang.Validate;
 import org.apache.reef.client.parameters.DriverConfigurationProviders;
+import org.apache.reef.driver.parameters.JobSubmissionDirectory;
 import org.apache.reef.io.TcpPortConfigurationProvider;
 import org.apache.reef.runtime.common.files.REEFFileNames;
 import org.apache.reef.runtime.common.launch.parameters.DriverLaunchCommandPrefix;
@@ -93,6 +94,7 @@ final class LocalSubmissionFromCS {
         .bindNamedParameter(TcpPortRangeBegin.class, Integer.toString(tcpBeginPort))
         .bindNamedParameter(TcpPortRangeCount.class, Integer.toString(tcpRangeCount))
         .bindNamedParameter(TcpPortRangeTryCount.class, Integer.toString(tcpTryCount))
+        .bindNamedParameter(JobSubmissionDirectory.class, runtimeRootFolder.getAbsolutePath())
         .bindList(DriverLaunchCommandPrefix.class, driverLaunchCommandPrefixList)
         .build();
 

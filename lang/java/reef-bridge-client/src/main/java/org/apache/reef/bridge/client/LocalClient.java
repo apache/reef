@@ -19,6 +19,7 @@
 package org.apache.reef.bridge.client;
 
 import org.apache.reef.client.parameters.DriverConfigurationProviders;
+import org.apache.reef.driver.parameters.JobSubmissionDirectory;
 import org.apache.reef.runtime.common.driver.parameters.ClientRemoteIdentifier;
 import org.apache.reef.runtime.common.files.REEFFileNames;
 import org.apache.reef.runtime.local.client.DriverConfigurationProvider;
@@ -79,8 +80,11 @@ public final class LocalClient {
     final Configuration providedConfigurations = configurationBuilder.build();
     final Configuration driverConfiguration = Configurations.merge(
         driverConfiguration1,
+        Tang.Factory.getTang()
+            .newConfigurationBuilder()
+            .bindNamedParameter(JobSubmissionDirectory.class, driverFolder.toString())
+            .build(),
         providedConfigurations);
-
     final File driverConfigurationFile = new File(driverFolder, fileNames.getDriverConfigurationPath());
     configurationSerializer.toFile(driverConfiguration, driverConfigurationFile);
     launcher.launch(driverFolder, localSubmissionFromCS.getJobId(), CLIENT_REMOTE_ID);
