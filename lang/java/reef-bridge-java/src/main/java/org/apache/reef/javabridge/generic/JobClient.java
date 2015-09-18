@@ -40,6 +40,7 @@ import org.apache.reef.webserver.ReefEventStateManager;
 import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -185,7 +186,7 @@ public class JobClient {
       } else {
         String globalLibString = "";
         try {
-          globalLibString = new String(Files.readAllBytes(globalLibFile));
+          globalLibString = new String(Files.readAllBytes(globalLibFile), StandardCharsets.UTF_8);
         } catch (final Exception e) {
           LOG.log(Level.WARNING, "Cannot read from {0}, global libraries not added  " + globalLibFile.toAbsolutePath());
         }

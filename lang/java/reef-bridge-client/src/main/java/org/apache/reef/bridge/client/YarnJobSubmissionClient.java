@@ -45,13 +45,8 @@ import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.tang.formats.ConfigurationSerializer;
 import org.apache.reef.util.JARFileMaker;
 import javax.inject.Inject;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.FileWriter;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
@@ -233,7 +228,7 @@ public final class YarnJobSubmissionClient {
         LOG.log(Level.INFO, "Attempt " + i + " reading " + httpEndpointPath.toString());
         if (fs.exists(httpEndpointPath)) {
           FSDataInputStream input = fs.open(httpEndpointPath);
-          BufferedReader reader = new BufferedReader(new InputStreamReader(input, "UTF-8"));
+          BufferedReader reader = new BufferedReader(new InputStreamReader(input, StandardCharsets.UTF_8));
           trackingUri = reader.readLine();
           reader.close();
           break;
@@ -253,7 +248,8 @@ public final class YarnJobSubmissionClient {
     }
 
     final File driverHttpEndpointFile = new File(driverFolder, fileNames.getDriverHttpEndpoint());
-    BufferedWriter out = new BufferedWriter(new FileWriter(driverHttpEndpointFile));
+    BufferedWriter out = new BufferedWriter(new OutputStreamWriter(
+                   new FileOutputStream(driverHttpEndpointFile), StandardCharsets.UTF_8));
     out.write(applicationId + "\n");
     out.write(trackingUri + "\n");
     String addr = yarnConfiguration.get("yarn.resourcemanager.webapp.address");

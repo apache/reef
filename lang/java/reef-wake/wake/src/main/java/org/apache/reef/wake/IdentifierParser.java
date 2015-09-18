@@ -27,6 +27,11 @@ import javax.inject.Inject;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * @deprecated in 0.13
+ */
+
+@Deprecated
 public class IdentifierParser implements ExternalConstructor<Identifier> {
   private static final IdentifierFactory FACTORY;
 

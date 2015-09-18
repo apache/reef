@@ -157,7 +157,7 @@ public final class SchedulerDriver {
   public final class CompletedTaskHandler implements EventHandler<CompletedTask> {
     @Override
     public void onNext(final CompletedTask task) {
-      final int taskId = Integer.valueOf(task.getId());
+      final int taskId = Integer.parseInt(task.getId());
 
       synchronized (SchedulerDriver.this) {
         scheduler.setFinished(taskId);

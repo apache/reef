@@ -134,7 +134,7 @@ public final class SchedulerHttpHandler implements HttpHandler {
 
     try {
 
-      final int taskId = Integer.valueOf(args.get(0));
+      final int taskId = Integer.parseInt(args.get(0));
       return SchedulerResponse.ok(schedulerDriver.get().getTaskStatus(taskId));
 
     } catch (final NotFoundException e) {
@@ -161,7 +161,7 @@ public final class SchedulerHttpHandler implements HttpHandler {
 
     try {
 
-      final int taskId = Integer.valueOf(args.get(0));
+      final int taskId = Integer.parseInt(args.get(0));
       final int canceledId = schedulerDriver.get().cancelTask(taskId);
       return SchedulerResponse.ok("Canceled " + canceledId);
 
@@ -182,7 +182,7 @@ public final class SchedulerHttpHandler implements HttpHandler {
 
     try {
 
-      final int targetNum = Integer.valueOf(args.get(0));
+      final int targetNum = Integer.parseInt(args.get(0));
       final int maxEval = schedulerDriver.get().setMaxEvaluators(targetNum);
       return SchedulerResponse.ok("You can use up to " + maxEval + " evaluators.");
 

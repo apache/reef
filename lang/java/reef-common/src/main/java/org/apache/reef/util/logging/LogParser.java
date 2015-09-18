@@ -19,9 +19,8 @@
 
 package org.apache.reef.util.logging;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
 /**
@@ -69,33 +68,32 @@ public final class LogParser {
                                                            final String removeBeforeToken,
                                                            final String removeAfterToken) throws IOException{
     final ArrayList<String> filteredLines = new ArrayList<String>();
-    try (final FileReader fr =  new FileReader(fileName)) {
-      try (final BufferedReader in = new BufferedReader(fr)) {
-        String line = "";
-        while ((line = in.readLine()) != null) {
-          if (line.trim().length() == 0) {
-            continue;
-          }
-          if (line.contains(filter)) {
-            String trimedLine;
-            if (removeBeforeToken != null) {
-              final String[] p = line.split(removeBeforeToken);
-              if (p.length > 1) {
-                trimedLine = p[p.length-1];
-              } else {
-                trimedLine = line.trim();
-              }
+    try (final BufferedReader in = new BufferedReader(
+            new InputStreamReader(new FileInputStream(fileName), StandardCharsets.UTF_8))) {
+      String line = "";
+      while ((line = in.readLine()) != null) {
+        if (line.trim().length() == 0) {
+          continue;
+        }
+        if (line.contains(filter)) {
+          String trimedLine;
+          if (removeBeforeToken != null) {
+            final String[] p = line.split(removeBeforeToken);
+            if (p.length > 1) {
+              trimedLine = p[p.length-1];
             } else {
               trimedLine = line.trim();
             }
-            if (removeAfterToken != null) {
-              final String[] p = trimedLine.split(removeAfterToken);
-              if (p.length > 1) {
-                trimedLine = p[0];
-              }
-            }
-            filteredLines.add(trimedLine);
+          } else {
+            trimedLine = line.trim();
           }
+          if (removeAfterToken != null) {
+            final String[] p = trimedLine.split(removeAfterToken);
+            if (p.length > 1) {
+              trimedLine = p[0];
+            }
+          }
+          filteredLines.add(trimedLine);
         }
       }
     }

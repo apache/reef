@@ -23,10 +23,7 @@ import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.time.event.StartTime;
 
 import javax.inject.Inject;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.PrintWriter;
+import java.io.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -46,10 +43,10 @@ public class PIDStoreStartHandler implements EventHandler<StartTime> {
     final long pid = OSUtils.getPID();
     final File outfile = new File(PID_FILE_NAME);
     LOG.log(Level.FINEST, "Storing pid `" + pid + "` in file " + outfile.getAbsolutePath());
-    try (final PrintWriter p = new PrintWriter((new FileOutputStream(PID_FILE_NAME)))) {
+    try (final PrintWriter p = new PrintWriter(PID_FILE_NAME, "UTF-8")) {
       p.write(String.valueOf(pid));
       p.write("\n");
-    } catch (final FileNotFoundException e) {
+    } catch (final FileNotFoundException | UnsupportedEncodingException e) {
       LOG.log(Level.WARNING, "Unable to create PID file.", e);
     }
   }

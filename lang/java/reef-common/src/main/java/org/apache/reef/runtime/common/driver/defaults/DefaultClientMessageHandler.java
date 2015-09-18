@@ -21,6 +21,7 @@ package org.apache.reef.runtime.common.driver.defaults;
 import org.apache.reef.wake.EventHandler;
 
 import javax.inject.Inject;
+import java.nio.charset.StandardCharsets;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -37,6 +38,6 @@ public final class DefaultClientMessageHandler implements EventHandler<byte[]> {
 
   @Override
   public void onNext(final byte[] bytes) {
-    LOG.log(Level.INFO, "Received ClientMessage: {0}", new String(bytes));
+    LOG.log(Level.INFO, "Received ClientMessage: {0}", new String(bytes, StandardCharsets.UTF_8));
   }
 }

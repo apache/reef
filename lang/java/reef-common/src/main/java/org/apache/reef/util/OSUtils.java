@@ -19,6 +19,7 @@
 package org.apache.reef.util;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -57,7 +58,7 @@ public final class OSUtils {
             .start();
         final byte[] returnBytes = new byte[128];
         process.getInputStream().read(returnBytes);
-        final Long result = Long.valueOf(new String(returnBytes).trim());
+        final Long result = Long.valueOf(new String(returnBytes, StandardCharsets.UTF_8).trim());
         process.destroy();
         return result;
       } catch (final IOException e) {

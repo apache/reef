@@ -20,6 +20,8 @@ package org.apache.reef.wake.remote.impl;
 
 import org.apache.reef.wake.remote.Codec;
 
+import java.nio.charset.StandardCharsets;
+
 /**
  * Codec that encodes/decodes a string.
  */
@@ -33,7 +35,7 @@ public class StringCodec implements Codec<String> {
    */
   @Override
   public byte[] encode(final String obj) {
-    return obj.getBytes();
+    return obj.getBytes(StandardCharsets.UTF_8);
   }
 
   /**
@@ -44,7 +46,7 @@ public class StringCodec implements Codec<String> {
    */
   @Override
   public String decode(final byte[] buf) {
-    return new String(buf);
+    return new String(buf, StandardCharsets.UTF_8);
   }
 }
 

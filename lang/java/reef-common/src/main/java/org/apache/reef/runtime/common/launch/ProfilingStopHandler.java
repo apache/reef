@@ -27,6 +27,7 @@ import org.apache.reef.wake.time.event.StopTime;
 import javax.inject.Inject;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -49,9 +50,9 @@ public final class ProfilingStopHandler implements EventHandler<StopTime> {
 
   @Override
   public void onNext(final StopTime stopTime) {
-    try (final PrintWriter out = new PrintWriter("profile-" + launchID + ".json")) {
+    try (final PrintWriter out = new PrintWriter("profile-" + launchID + ".json", "UTF-8")) {
       out.print(profiler.objectGraphToString());
-    } catch (final FileNotFoundException e) {
+    } catch (final FileNotFoundException | UnsupportedEncodingException e) {
       LOG.log(Level.WARNING, "Unable to write the profile", e);
     }
   }

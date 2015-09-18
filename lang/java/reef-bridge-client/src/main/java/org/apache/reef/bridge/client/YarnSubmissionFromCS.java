@@ -177,12 +177,12 @@ final class YarnSubmissionFromCS {
   static YarnSubmissionFromCS fromCommandLine(final String[] args) {
     final File driverFolder = new File(args[0]);
     final String jobId = args[1];
-    final int driverMemory = Integer.valueOf(args[2]);
-    final int tcpBeginPort = Integer.valueOf(args[3]);
-    final int tcpRangeCount = Integer.valueOf(args[4]);
-    final int tcpTryCount = Integer.valueOf(args[5]);
-    final int maxApplicationSubmissions = Integer.valueOf(args[6]);
-    final int driverRecoveryTimeout = Integer.valueOf(args[7]);
+    final int driverMemory = Integer.parseInt(args[2]);
+    final int tcpBeginPort = Integer.parseInt(args[3]);
+    final int tcpRangeCount = Integer.parseInt(args[4]);
+    final int tcpTryCount = Integer.parseInt(args[5]);
+    final int maxApplicationSubmissions = Integer.parseInt(args[6]);
+    final int driverRecoveryTimeout = Integer.parseInt(args[7]);
     // Static for now
     final int priority = 1;
     final String queue = "default";

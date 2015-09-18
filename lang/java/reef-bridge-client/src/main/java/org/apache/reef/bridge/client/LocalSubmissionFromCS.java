@@ -142,10 +142,10 @@ final class LocalSubmissionFromCS {
   static LocalSubmissionFromCS fromCommandLine(final String[] args) {
     final File driverFolder = new File(args[0]);
     final String jobId = args[1];
-    final int numberOfEvaluators = Integer.valueOf(args[2]);
-    final int tcpBeginPort = Integer.valueOf(args[3]);
-    final int tcpRangeCount = Integer.valueOf(args[4]);
-    final int tcpTryCount = Integer.valueOf(args[5]);
+    final int numberOfEvaluators = Integer.parseInt(args[2]);
+    final int tcpBeginPort = Integer.parseInt(args[3]);
+    final int tcpRangeCount = Integer.parseInt(args[4]);
+    final int tcpTryCount = Integer.parseInt(args[5]);
 
     return new LocalSubmissionFromCS(driverFolder, jobId, numberOfEvaluators, tcpBeginPort, tcpRangeCount, tcpTryCount);
   }
