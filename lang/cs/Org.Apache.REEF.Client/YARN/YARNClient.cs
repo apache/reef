@@ -63,7 +63,7 @@ namespace Org.Apache.REEF.Client.YARN
             Launch(jobSubmission, driverFolderPath);
         }
 
-        public IDriverHttpEndpoint SubmitAsync(IJobSubmission jobSubmission)
+        public IDriverHttpEndpoint SubmitAndGetDriverUrl(IJobSubmission jobSubmission)
         {
             // Prepare the job submission folder
             var driverFolderPath = CreateDriverFolder(jobSubmission.JobIdentifier);

@@ -270,7 +270,7 @@ namespace Org.Apache.REEF.Tests.Functional
                 .SetJobIdentifier(jobIdentifier)
                 .Build();
 
-            reefClient.SubmitAsync(jobSubmission);
+            reefClient.Submit(jobSubmission);
         }
 
         private IConfiguration GetRuntimeConfiguration(string runOnYarn, int numberOfEvaluator, string runtimeFolder)

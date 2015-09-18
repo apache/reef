@@ -83,7 +83,7 @@ namespace Org.Apache.REEF.Examples.AllHandlers
                 .SetJobIdentifier("HelloDriver")
                 .Build();
 
-            IDriverHttpEndpoint driverHttpEndpoint = _reefClient.SubmitAsync(helloJobSubmission);
+            IDriverHttpEndpoint driverHttpEndpoint = _reefClient.SubmitAndGetDriverUrl(helloJobSubmission);
             return driverHttpEndpoint;
         }
 

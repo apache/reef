@@ -41,7 +41,7 @@ namespace Org.Apache.REEF.Client.API
         /// </summary>
         /// <param name="jobSubmission"></param>
         /// <returns>IDriverHttpEndpoint</returns>
-        [Unstable("0.13", "Working in progress for async calls")]
-        IDriverHttpEndpoint SubmitAsync(IJobSubmission jobSubmission);
+        [Unstable("0.13", "Working in progress for what to return after submit")]
+        IDriverHttpEndpoint SubmitAndGetDriverUrl(IJobSubmission jobSubmission);
     }
 }

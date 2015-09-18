@@ -20,8 +20,8 @@
 using Org.Apache.REEF.Common.Attributes;
 
 namespace Org.Apache.REEF.Client.Common
-{   
-    [Unstable("0.13", "need to finalize in near future")]
+{
+    [Unstable("0.13", "Working in progress for what to return after submit")]
     public interface IDriverHttpEndpoint
     {
         string GetUrlResult(string url);

@@ -109,7 +109,7 @@ namespace Org.Apache.REEF.Client.Local
             Logger.Log(Level.Info, "Submitted the Driver for execution.");
         }
 
-        public IDriverHttpEndpoint SubmitAsync(IJobSubmission jobSubmission)
+        public IDriverHttpEndpoint SubmitAndGetDriverUrl(IJobSubmission jobSubmission)
         {
             // Prepare the job submission folder
             var jobFolder = CreateJobFolder(jobSubmission.JobIdentifier);
