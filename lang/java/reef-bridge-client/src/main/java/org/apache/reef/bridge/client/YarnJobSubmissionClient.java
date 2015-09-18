@@ -22,6 +22,7 @@ import org.apache.hadoop.yarn.api.records.LocalResource;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.exceptions.YarnException;
 import org.apache.reef.client.DriverRestartConfiguration;
+import org.apache.reef.client.parameters.DriverConfigurationProviders;
 import org.apache.reef.driver.parameters.MaxApplicationSubmissions;
 import org.apache.reef.driver.parameters.ResourceManagerPreserveEvaluators;
 import org.apache.reef.javabridge.generic.JobDriver;
@@ -35,10 +36,7 @@ import org.apache.reef.runtime.yarn.client.uploader.JobFolder;
 import org.apache.reef.runtime.yarn.client.uploader.JobUploader;
 import org.apache.reef.runtime.yarn.driver.YarnDriverConfiguration;
 import org.apache.reef.runtime.yarn.driver.YarnDriverRestartConfiguration;
-import org.apache.reef.tang.Configuration;
-import org.apache.reef.tang.Configurations;
-import org.apache.reef.tang.Injector;
-import org.apache.reef.tang.Tang;
+import org.apache.reef.tang.*;
 import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
 import org.apache.reef.tang.annotations.Parameter;
@@ -51,6 +49,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -66,6 +65,7 @@ public final class YarnJobSubmissionClient {
   private final REEFFileNames fileNames;
   private final YarnConfiguration yarnConfiguration;
   private final ClasspathProvider classpath;
+  private final Set<ConfigurationProvider> configurationProviders;
   private final int maxApplicationSubmissions;
   private final int driverRestartEvaluatorRecoverySeconds;
   private final SecurityTokenProvider tokenProvider;
@@ -77,9 +77,12 @@ public final class YarnJobSubmissionClient {
                           final ConfigurationSerializer configurationSerializer,
                           final REEFFileNames fileNames,
                           final ClasspathProvider classpath,
+                          @Parameter(DriverConfigurationProviders.class)
+                          final Set<ConfigurationProvider> configurationProviders,
                           @Parameter(MaxApplicationSubmissions.class)
                           final int maxApplicationSubmissions,
-                          @Parameter(DriverLaunchCommandPrefix.class) final List<String> commandPrefixList,
+                          @Parameter(DriverLaunchCommandPrefix.class)
+                          final List<String> commandPrefixList,
                           @Parameter(SubmissionDriverRestartEvaluatorRecoverySeconds.class)
                           final int driverRestartEvaluatorRecoverySeconds,
                           final SecurityTokenProvider tokenProvider) {
@@ -88,6 +91,7 @@ public final class YarnJobSubmissionClient {
     this.fileNames = fileNames;
     this.yarnConfiguration = yarnConfiguration;
     this.classpath = classpath;
+    this.configurationProviders = configurationProviders;
     this.maxApplicationSubmissions = maxApplicationSubmissions;
     this.driverRestartEvaluatorRecoverySeconds = driverRestartEvaluatorRecoverySeconds;
     this.tokenProvider = tokenProvider;
@@ -106,9 +110,16 @@ public final class YarnJobSubmissionClient {
         .set(YarnDriverConfiguration.JVM_HEAP_SLACK, 0.0)
         .build();
 
+    final ConfigurationBuilder configurationBuilder = Tang.Factory.getTang().newConfigurationBuilder();
+    for (final ConfigurationProvider configurationProvider : this.configurationProviders) {
+      configurationBuilder.addConfiguration(configurationProvider.getConfiguration());
+    }
+    final Configuration providedConfigurations =  configurationBuilder.build();
+
     Configuration driverConfiguration = Configurations.merge(
         Constants.DRIVER_CONFIGURATION_WITH_HTTP_AND_NAMESERVER,
-        yarnDriverConfiguration);
+        yarnDriverConfiguration,
+        providedConfigurations);
 
     if (driverRestartEvaluatorRecoverySeconds > 0) {
       LOG.log(Level.FINE, "Driver restart is enabled.");
