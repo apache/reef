@@ -28,13 +28,15 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
     {
         private readonly string _evaluatorId;
         private readonly string _id;
-        private readonly string _parentId;
+        private readonly Optional<string> _parentId;
 
         internal FailedContext(IFailedContextClr2Java clr2Java)
         {
             _id = clr2Java.GetId();
             _evaluatorId = clr2Java.GetEvaluatorId();
-            _parentId = clr2Java.GetParentId();
+            _parentId = string.IsNullOrEmpty(clr2Java.GetParentId())
+                ? Optional<string>.Empty()
+                : Optional<string>.Of(clr2Java.GetParentId());
             FailedContextClr2Java = clr2Java;
         }
 
@@ -52,12 +54,7 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
 
         public Optional<string> ParentId
         {
-            get
-            {
-                return string.IsNullOrEmpty(_parentId)
-                    ? Optional<string>.Empty()
-                    : Optional<string>.Of(_parentId);
-            }
+            get { return _parentId; }
         }
 
         public IEvaluatorDescriptor EvaluatorDescriptor
