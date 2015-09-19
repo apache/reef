@@ -51,7 +51,7 @@ namespace Org.Apache.REEF.Tests.Functional
 
         private const string Local = "local";
         private const string YARN = "yarn";
-        private const int SleppTime = 1000;
+        private const int SleepTime = 1000;
 
         private readonly static Logger Logger = Logger.GetLogger(typeof(ReefFunctionalTest));
         private const string StorageAccountKeyEnvironmentVariable = "REEFTestStorageAccountKey";
@@ -150,7 +150,7 @@ namespace Org.Apache.REEF.Tests.Functional
                 }
                 catch (Exception)
                 {
-                    Thread.Sleep(SleppTime);
+                    Thread.Sleep(SleepTime);
                 }
             }
 
@@ -167,7 +167,7 @@ namespace Org.Apache.REEF.Tests.Functional
             else
             {
                 Console.WriteLine("Cannot read from log file");
-                Assert.IsNotNull(null);
+                Assert.Fail();
             }
         }
 
