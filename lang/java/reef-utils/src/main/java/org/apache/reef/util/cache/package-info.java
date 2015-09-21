@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * Cache utilities.
  */
 package org.apache.reef.util.cache;
