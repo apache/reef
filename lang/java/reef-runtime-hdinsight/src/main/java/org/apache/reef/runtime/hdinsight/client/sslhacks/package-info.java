@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * Utils which do not check SSL.
  */
 package org.apache.reef.runtime.hdinsight.client.sslhacks;

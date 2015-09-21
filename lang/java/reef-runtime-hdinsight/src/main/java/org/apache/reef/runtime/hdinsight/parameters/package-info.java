@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * Parameters for HDInsight connection.
  */
 package org.apache.reef.runtime.hdinsight.parameters;
