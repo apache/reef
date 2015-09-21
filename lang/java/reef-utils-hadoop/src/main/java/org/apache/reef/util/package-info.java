@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * Utilities for using REEF on Hadoop.
  */
 package org.apache.reef.util;
