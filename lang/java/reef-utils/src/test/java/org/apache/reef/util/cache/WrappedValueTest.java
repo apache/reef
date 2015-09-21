@@ -27,6 +27,9 @@ import java.util.concurrent.Future;
 
 import static org.junit.Assert.*;
 
+/**
+ * Test for WrappedValue.
+ */
 public final class WrappedValueTest {
   private static final CurrentTime SYSTEM_TIME = new SystemTime();
   private static final int NUM_THREADS = 10;

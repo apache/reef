@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * Utilities used across reef modules. Subpackages are structred following the java.utils package.
+ * Utilities used across reef modules. Subpackages are structured following the java.utils package.
  */
 package org.apache.reef.util;
