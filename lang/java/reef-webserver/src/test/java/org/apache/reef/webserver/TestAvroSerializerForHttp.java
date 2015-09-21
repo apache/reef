@@ -108,6 +108,9 @@ public class TestAvroSerializerForHttp {
     }
   }
 
+  /**
+   * Configuration Module Builder for EvaluatorDescriptor.
+   */
   public static final class EvaluatorDescriptorConfig extends ConfigurationModuleBuilder {
     static final ConfigurationModule CONF = new EvaluatorDescriptorConfig()
         .bindImplementation(EvaluatorDescriptor.class, EvaluatorDescriptorMock.class)

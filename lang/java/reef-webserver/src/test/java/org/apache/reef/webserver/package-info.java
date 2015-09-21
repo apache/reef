@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * Tests for HTTP Server component.
  */
 package org.apache.reef.webserver;

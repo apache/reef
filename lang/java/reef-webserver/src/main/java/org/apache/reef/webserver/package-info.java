@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * HTTP Server component to implement a REST API for the Driver or Evaluators.
  */
 package org.apache.reef.webserver;

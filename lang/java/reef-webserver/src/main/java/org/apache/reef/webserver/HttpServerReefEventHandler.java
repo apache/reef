@@ -45,6 +45,9 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Http handler for REEF events.
+ */
 public final class HttpServerReefEventHandler implements HttpHandler {
 
   private static final Logger LOG = Logger.getLogger(HttpServerReefEventHandler.class.getName());
