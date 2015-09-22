@@ -52,6 +52,8 @@ namespace Org.Apache.REEF.Common.Files
         private const string DRIVER_HTTP_ENDPOINT_FILE_NAME = "DriverHttpEndpoint.txt";
         private const string BRIDGE_EXE_NAME = "Org.Apache.REEF.Bridge.exe";
         private const string BRIDGE_EXE_CONFIG_NAME = "Org.Apache.REEF.Bridge.exe.config";
+        private const string SECURITY_TOKEN_IDENTIFIER_FILE = "SecurityTokenId";
+        private const string SECURITY_TOKEN_PASSWORD_FILE = "SecurityTokenPwd";
 
         [Inject]
         public REEFFileNames()
@@ -229,6 +231,26 @@ namespace Org.Apache.REEF.Common.Files
         public string GetBridgeExeConfigPath()
         {
             return Path.Combine(REEF_BASE_FOLDER, BRIDGE_EXE_CONFIG_NAME);
+        }
+
+        /// <summary>
+        /// The filename for security token identifier
+        /// </summary>
+        /// <returns>filename which contains raw bytes of security token identifier</returns>
+        [Unstable("0.13", "Security token should be handled by .NET only REEF client in the future")]
+        public string GetSecurityTokenIdentifierFileName()
+        {
+            return SECURITY_TOKEN_IDENTIFIER_FILE;
+        }
+
+        /// <summary>
+        /// The filename for security token password
+        /// </summary>
+        /// <returns>filename which contains raw bytes of security token password</returns>
+        [Unstable("0.13", "Security token should be handled by .NET only REEF client in the future")]
+        public string GetSecurityTokenPasswordFileName()
+        {
+            return SECURITY_TOKEN_PASSWORD_FILE;
         }
 
         /// <summary>

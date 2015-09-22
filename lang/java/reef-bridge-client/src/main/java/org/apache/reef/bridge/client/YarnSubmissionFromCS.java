@@ -25,6 +25,7 @@ import org.apache.reef.io.TcpPortConfigurationProvider;
 import org.apache.reef.runtime.common.files.REEFFileNames;
 import org.apache.reef.runtime.common.launch.parameters.DriverLaunchCommandPrefix;
 import org.apache.reef.runtime.yarn.client.YarnClientConfiguration;
+import org.apache.reef.runtime.yarn.driver.parameters.JobSubmissionDirectoryPrefix;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Configurations;
 import org.apache.reef.tang.Tang;
@@ -54,6 +55,9 @@ final class YarnSubmissionFromCS {
   // Static for now
   private final int priority;
   private final String queue;
+  private final String tokenKind;
+  private final String tokenService;
+  private final String jobSubmissionDirectoryPrefix;
 
   private YarnSubmissionFromCS(final File driverFolder,
                                final String jobId,
@@ -64,7 +68,10 @@ final class YarnSubmissionFromCS {
                                final int maxApplicationSubmissions,
                                final int driverRecoveryTimeout,
                                final int priority,
-                               final String queue) {
+                               final String queue,
+                               final String tokenKind,
+                               final String tokenService,
+                               final String jobSubmissionDirectoryPrefix) {
 
     Validate.isTrue(driverFolder.exists(), "The driver folder given does not exist.");
     Validate.notEmpty(jobId, "The job id is null or empty");
@@ -74,6 +81,9 @@ final class YarnSubmissionFromCS {
     Validate.isTrue(tcpTryCount > 0, "The tcp retry count given is <= 0.");
     Validate.isTrue(maxApplicationSubmissions > 0, "The maximum number of app submissions given is <= 0.");
     Validate.notEmpty(queue, "The queue is null or empty");
+    Validate.notEmpty(tokenKind, "Token kind should be either NULL or some custom non empty value");
+    Validate.notEmpty(tokenService, "Token service should be either NULL or some custom non empty value");
+    Validate.notEmpty(jobSubmissionDirectoryPrefix, "Job submission directory prefix should not be empty");
 
     this.driverFolder = driverFolder;
     this.jobId = jobId;
@@ -85,6 +95,9 @@ final class YarnSubmissionFromCS {
     this.driverRecoveryTimeout = driverRecoveryTimeout;
     this.priority = priority;
     this.queue = queue;
+    this.tokenKind = tokenKind;
+    this.tokenService = tokenService;
+    this.jobSubmissionDirectoryPrefix = jobSubmissionDirectoryPrefix;
   }
 
   @Override
@@ -100,6 +113,9 @@ final class YarnSubmissionFromCS {
         ", driverRecoveryTimeout=" + driverRecoveryTimeout +
         ", priority=" + priority +
         ", queue='" + queue + '\'' +
+        ", tokenKind='" + tokenKind + '\'' +
+        ", tokenService='" + tokenService + '\'' +
+        ", jobSubmissionDirectoryPrefix='" + jobSubmissionDirectoryPrefix + '\'' +
         '}';
   }
 
@@ -114,6 +130,7 @@ final class YarnSubmissionFromCS {
         .bindNamedParameter(TcpPortRangeBegin.class, Integer.toString(tcpBeginPort))
         .bindNamedParameter(TcpPortRangeCount.class, Integer.toString(tcpRangeCount))
         .bindNamedParameter(TcpPortRangeTryCount.class, Integer.toString(tcpTryCount))
+        .bindNamedParameter(JobSubmissionDirectoryPrefix.class, jobSubmissionDirectoryPrefix)
         .build();
 
     final List<String> driverLaunchCommandPrefixList = new ArrayList<>();
@@ -166,6 +183,20 @@ final class YarnSubmissionFromCS {
   }
 
   /**
+   * @return The security token kind
+   */
+  String getTokenKind() {
+    return tokenKind;
+  }
+
+  /**
+   * @return The security token service
+   */
+  String getTokenService() {
+    return tokenService;
+  }
+
+  /**
    * Takes 5 parameters from the C# side:
    * [0]: String. Driver folder.
    * [1]: String. Driver identifier.
@@ -173,6 +204,9 @@ final class YarnSubmissionFromCS {
    * [3~5]: int. TCP configurations.
    * [6]: int. Max application submissions.
    * [7]: int. Evaluator recovery timeout for driver restart. > 0 => restart is enabled.
+   * [8]: string: Security token kind. "NULL" => No security token is used
+   * [9]: string: Security token service. "NULL" => No security token is used
+   * [10]: string: Job submission directory prefix.
    */
   static YarnSubmissionFromCS fromCommandLine(final String[] args) {
     final File driverFolder = new File(args[0]);
@@ -183,10 +217,15 @@ final class YarnSubmissionFromCS {
     final int tcpTryCount = Integer.parseInt(args[5]);
     final int maxApplicationSubmissions = Integer.parseInt(args[6]);
     final int driverRecoveryTimeout = Integer.parseInt(args[7]);
+    final String securityTokenKind = args[8];
+    final String securityTokenService = args[9];
+    final String jobSubmissionDirectoryPrefix = args[10];
+
     // Static for now
     final int priority = 1;
     final String queue = "default";
     return new YarnSubmissionFromCS(driverFolder, jobId, driverMemory, tcpBeginPort, tcpRangeCount, tcpTryCount,
-        maxApplicationSubmissions, driverRecoveryTimeout, priority, queue);
+        maxApplicationSubmissions, driverRecoveryTimeout, priority, queue, securityTokenKind, securityTokenService,
+        jobSubmissionDirectoryPrefix);
   }
 }

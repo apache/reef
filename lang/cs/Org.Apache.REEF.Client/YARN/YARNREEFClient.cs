@@ -22,6 +22,7 @@ using System.IO;
 using System.Linq;
 using Org.Apache.REEF.Client.API;
 using Org.Apache.REEF.Client.Common;
+using Org.Apache.REEF.Client.YARN;
 using Org.Apache.REEF.Common.Files;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Implementations.Tang;
@@ -39,6 +40,9 @@ namespace Org.Apache.REEF.Client.Yarn
         private static readonly Logger Logger = Logger.GetLogger(typeof(YarnREEFClient));
         private readonly DriverFolderPreparationHelper _driverFolderPreparationHelper;
         private readonly JavaClientLauncher _javaClientLauncher;
+        private readonly string _securityTokenKind;
+        private readonly string _securityTokenService;
+        private readonly string _jobSubmissionPrefix;
         private String _driverUrl;
         private REEFFileNames _fileNames;
 
@@ -46,8 +50,14 @@ namespace Org.Apache.REEF.Client.Yarn
         internal YarnREEFClient(JavaClientLauncher javaClientLauncher,
             DriverFolderPreparationHelper driverFolderPreparationHelper,
             REEFFileNames fileNames,
-            YarnCommandLineEnvironment yarn)
+            YarnCommandLineEnvironment yarn,
+            [Parameter(typeof(SecurityTokenKindParameter))] string securityTokenKind,
+            [Parameter(typeof(SecurityTokenServiceParameter))] string securityTokenService,
+            [Parameter(typeof(JobSubmissionDirectoryPrefixParameter))] string jobSubmissionPrefix)
         {
+            _jobSubmissionPrefix = jobSubmissionPrefix;
+            _securityTokenKind = securityTokenKind;
+            _securityTokenService = securityTokenService;
             _javaClientLauncher = javaClientLauncher;
             _javaClientLauncher.AddToClassPath(yarn.GetYarnClasspathList());
             _driverFolderPreparationHelper = driverFolderPreparationHelper;
@@ -89,13 +99,19 @@ namespace Org.Apache.REEF.Client.Yarn
                 .GetInstance<ClrClient2JavaClientCuratedParameters>();
 
             // Submit the driver
-            _javaClientLauncher.Launch(JavaClassName, driverFolderPath, jobSubmission.JobIdentifier,
-                jobSubmission.DriverMemory.ToString(),
-                javaParams.TcpPortRangeStart.ToString(),
-                javaParams.TcpPortRangeCount.ToString(),
-                javaParams.TcpPortRangeTryCount.ToString(),
-                javaParams.MaxApplicationSubmissions.ToString(),
-                javaParams.DriverRestartEvaluatorRecoverySeconds.ToString()
+            _javaClientLauncher.Launch(
+                JavaClassName,
+                driverFolderPath, // arg: 0
+                jobSubmission.JobIdentifier, // arg: 1
+                jobSubmission.DriverMemory.ToString(), // arg: 2
+                javaParams.TcpPortRangeStart.ToString(), // arg: 3
+                javaParams.TcpPortRangeCount.ToString(), // arg: 4
+                javaParams.TcpPortRangeTryCount.ToString(), // arg: 5
+                javaParams.MaxApplicationSubmissions.ToString(), // arg: 6
+                javaParams.DriverRestartEvaluatorRecoverySeconds.ToString(), // arg: 7
+                _securityTokenKind, // arg: 8
+                _securityTokenService, // arg: 9
+                _jobSubmissionPrefix // arg: 10
                 );
             Logger.Log(Level.Info, "Submitted the Driver for execution." + jobSubmission.JobIdentifier);
         }
