@@ -15,7 +15,7 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
-<Project InitialTargets="ExtractPOMVersion" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project InitialTargets="ExtractPOMVersion" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <!-- Common build paths -->
   <PropertyGroup>
     <Prefer32Bit>false</Prefer32Bit>
@@ -79,8 +79,8 @@ under the License.
 
   <!--
        ########################################################################
-         Extract the REEF Version from the POM file 
-       ######################################################################## 
+         Extract the REEF Version from the POM file
+       ########################################################################
   -->
   <!--A Task that extracts the version from the pom in a given folder.-->
   <UsingTask
@@ -123,14 +123,14 @@ under the License.
     </GetMavenProjectVersion>
     <Message Text="Extracted the following version from the POM: $(REEF_Version)"/>
   </Target>
-  
+
   <Target Name="BuildJarProject">
     <ItemGroup>
       <AllConfigs Include="$(SolutionDir)\Org.Apache.REEF.Bridge.JAR\Org.Apache.REEF.Bridge.JAR.csproj" />
     </ItemGroup>
     <MSBuild Projects="@(AllConfigs)" Targets="Build"/>
   </Target>
-  
+
   <Target Name="CopyJarFiles" DependsOnTargets="BuildJarProject">
     <MSBuild Targets="Build" BuildInParallel="$(BuildInParallel)" Properties="Chip=$(Chip);Lang=$(Lang)" Projects="@(ProjectFile)" />
 	<ItemGroup>
