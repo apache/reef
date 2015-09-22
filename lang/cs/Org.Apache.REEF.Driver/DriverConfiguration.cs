@@ -233,10 +233,7 @@ namespace Org.Apache.REEF.Driver
                         MaxApplicationSubmissions)
                     .BindNamedParameter(GenericType<DriverBridgeConfigurationOptions.DriverRestartEvaluatorRecoverySeconds>.Class,
                         DriverRestartEvaluatorRecoverySeconds)
-                    .Build()
-                    // TODO: Move this up
-                    .Set(OnDriverStarted, GenericType<ClassHierarchyGeneratingDriverStartObserver>.Class)
-                    .Set(OnDriverRestarted, GenericType<ClassHierarchyGeneratingDriverStartObserver>.Class);
+                    .Build();
             }
         }
     }

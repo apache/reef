@@ -52,7 +52,6 @@ namespace Org.Apache.REEF.Tests.Functional.Messaging
         [Inject]
         public MessageDriver(IEvaluatorRequestor evaluatorRequestor)
         {
-            CreateClassHierarchy();
             _evaluatorRequestor = evaluatorRequestor;
         }
         public void OnNext(IAllocatedEvaluator eval)
@@ -112,16 +111,6 @@ namespace Org.Apache.REEF.Tests.Functional.Messaging
         public void OnError(Exception error)
         {
             throw new NotImplementedException();
-        }
-
-        private void CreateClassHierarchy()
-        {
-            HashSet<string> clrDlls = new HashSet<string>();
-            clrDlls.Add(typeof(IDriver).Assembly.GetName().Name);
-            clrDlls.Add(typeof(ITask).Assembly.GetName().Name);
-            clrDlls.Add(typeof(MessageTask).Assembly.GetName().Name);
-
-            ClrHandlerHelper.GenerateClassHierarchy(clrDlls);
         }
     }
 }
