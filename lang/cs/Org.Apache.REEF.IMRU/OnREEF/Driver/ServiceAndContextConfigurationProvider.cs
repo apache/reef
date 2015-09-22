@@ -154,8 +154,8 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                         _configurationManager.MapInputCodecConfiguration
                     ).Build();
 
-            var contextConf = Configurations.Merge(_groupCommDriver.GetContextConfiguration(), partitionDescriptor.GetPartitionConfiguration());
-            var serviceConf = Configurations.Merge(_groupCommDriver.GetServiceConfiguration(), codecConfig);
+            var contextConf = _groupCommDriver.GetContextConfiguration();
+            var serviceConf = Configurations.Merge(_groupCommDriver.GetServiceConfiguration(), codecConfig, partitionDescriptor.GetPartitionConfiguration());
 
             return new ContextAndServiceConfiguration(contextConf, serviceConf);
         }
