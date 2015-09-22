@@ -19,6 +19,9 @@
 package org.apache.reef.bridge.client;
 
 import org.apache.hadoop.fs.*;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.security.UserGroupInformation;
+import org.apache.hadoop.security.token.Token;
 import org.apache.hadoop.yarn.api.records.LocalResource;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.exceptions.YarnException;
@@ -47,6 +50,8 @@ import org.apache.reef.util.JARFileMaker;
 import javax.inject.Inject;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
@@ -209,6 +214,19 @@ public final class YarnJobSubmissionClient {
     }
   }
 
+  private static void writeSecurityTokenToUserCredential(final YarnSubmissionFromCS yarnSubmission) throws IOException {
+    final UserGroupInformation currentUser = UserGroupInformation.getCurrentUser();
+    final REEFFileNames fileNames = new REEFFileNames();
+    final String securityTokenIdentifierFile = fileNames.getSecurityTokenIdentifierFile();
+    final String securityTokenPasswordFile = fileNames.getSecurityTokenPasswordFile();
+    final Text tokenKind = new Text(yarnSubmission.getTokenKind());
+    final Text tokenService = new Text(yarnSubmission.getTokenService());
+    byte[] identifier = Files.readAllBytes(Paths.get(securityTokenIdentifierFile));
+    byte[] password = Files.readAllBytes(Paths.get(securityTokenPasswordFile));
+    Token token = new Token(identifier, password, tokenKind, tokenService);
+    currentUser.addToken(token);
+  }
+
   /**
    * We leave a file behind in job submission directory so that clr client can figure out
    * the applicationId and yarn rest endpoint.
@@ -281,6 +299,15 @@ public final class YarnJobSubmissionClient {
   public static void main(final String[] args) throws InjectionException, IOException, YarnException {
     final YarnSubmissionFromCS yarnSubmission = YarnSubmissionFromCS.fromCommandLine(args);
     LOG.log(Level.INFO, "YARN job submission received from C#: {0}", yarnSubmission);
+    if (!yarnSubmission.getTokenKind().equalsIgnoreCase("NULL")) {
+      // We have to write security token to user credential before YarnJobSubmissionClient is created
+      // as that will need initialization of FileSystem which could need the token.
+      LOG.log(Level.INFO, "Writing security token to user credential");
+      writeSecurityTokenToUserCredential(yarnSubmission);
+    } else{
+      LOG.log(Level.FINE, "Did not find security token");
+    }
+
     final Configuration yarnConfiguration = yarnSubmission.getRuntimeConfiguration();
     final YarnJobSubmissionClient client = Tang.Factory.getTang()
         .newInjector(yarnConfiguration)
