@@ -114,8 +114,6 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.BroadcastReduceDri
                     .Build();
 
             _groupCommTaskStarter = new TaskStarter(_groupCommDriver, numEvaluators);
-
-            CreateClassHierarchy();
         }
 
         public void OnNext(IAllocatedEvaluator allocatedEvaluator)
@@ -195,17 +193,6 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.BroadcastReduceDri
 
         public void OnCompleted()
         {
-        }
-
-        private void CreateClassHierarchy()
-        {
-            HashSet<string> clrDlls = new HashSet<string>();
-            clrDlls.Add(typeof(IDriver).Assembly.GetName().Name);
-            clrDlls.Add(typeof(ITask).Assembly.GetName().Name);
-            clrDlls.Add(typeof(BroadcastReduceDriver).Assembly.GetName().Name);
-            clrDlls.Add(typeof(INameClient).Assembly.GetName().Name);
-            clrDlls.Add(typeof(INetworkService<>).Assembly.GetName().Name);
-            ClrHandlerHelper.GenerateClassHierarchy(clrDlls);
         }
 
         private class SumFunction : IReduceFunction<int>
