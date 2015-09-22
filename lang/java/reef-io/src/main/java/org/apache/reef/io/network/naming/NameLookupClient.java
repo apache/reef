@@ -18,12 +18,20 @@
  */
 package org.apache.reef.io.network.naming;
 
+import com.google.inject.Inject;
 import org.apache.reef.io.naming.NameAssignment;
 import org.apache.reef.io.naming.NamingLookup;
 import org.apache.reef.io.network.naming.exception.NamingException;
+import org.apache.reef.io.network.naming.parameters.NameResolverCacheTimeout;
+import org.apache.reef.io.network.naming.parameters.NameResolverIdentifierFactory;
+import org.apache.reef.io.network.naming.parameters.NameResolverNameServerAddr;
+import org.apache.reef.io.network.naming.parameters.NameResolverNameServerPort;
+import org.apache.reef.io.network.naming.parameters.NameResolverRetryCount;
+import org.apache.reef.io.network.naming.parameters.NameResolverRetryTimeout;
 import org.apache.reef.io.network.naming.serialization.NamingLookupRequest;
 import org.apache.reef.io.network.naming.serialization.NamingLookupResponse;
 import org.apache.reef.io.network.naming.serialization.NamingMessage;
+import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.util.cache.Cache;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.Identifier;
@@ -72,7 +80,10 @@ public class NameLookupClient implements Stage, NamingLookup {
    * @param serverPort a server port number
    * @param factory    an identifier factory
    * @param cache      an cache
+   *
+   * @deprecated in 0.13. Have an instance injected instead or use the NameResolver interface.
    */
+  @Deprecated
   public NameLookupClient(final String serverAddr,
                           final int serverPort,
                           final IdentifierFactory factory,
@@ -91,7 +102,10 @@ public class NameLookupClient implements Stage, NamingLookup {
    * @param timeout    request timeout in ms
    * @param factory    an identifier factory
    * @param cache      an cache
+   *
+   * @deprecated in 0.13. Have an instance injected instead or use the NameResolver interface.
    */
+  @Deprecated
   public NameLookupClient(final String serverAddr,
                           final int serverPort,
                           final long timeout,
@@ -113,7 +127,10 @@ public class NameLookupClient implements Stage, NamingLookup {
    * @param factory    an identifier factory
    * @param cache      an cache
    * @param tpFactory  a transport factory
+   *
+   * @deprecated in 0.13. Have an instance injected instead or use the NameResolver interface.
    */
+  @Deprecated
   public NameLookupClient(final String serverAddr,
                           final int serverPort,
                           final long timeout,
@@ -138,6 +155,58 @@ public class NameLookupClient implements Stage, NamingLookup {
     this.retryCount = retryCount;
     this.retryTimeout = retryTimeout;
   }
+
+  /**
+    * Constructs a naming lookup client.
+    *
+    * @param serverAddr a server address
+    * @param serverPort a server port number
+    * @param timeout    request timeout in ms
+    * @param factory    an identifier factory
+    * @param tpFactory  a transport factory
+    */
+  @Inject
+  private NameLookupClient(
+            @Parameter(NameResolverNameServerAddr.class) final String serverAddr,
+            @Parameter(NameResolverNameServerPort.class) final int serverPort,
+            @Parameter(NameResolverCacheTimeout.class) final long timeout,
+            @Parameter(NameResolverIdentifierFactory.class) final IdentifierFactory factory,
+            @Parameter(NameResolverRetryCount.class) final int retryCount,
+            @Parameter(NameResolverRetryTimeout.class) final int retryTimeout,
+            final LocalAddressProvider localAddressProvider,
+            final TransportFactory tpFactory) {
+
+    this.serverSocketAddr = new InetSocketAddress(serverAddr, serverPort);
+    this.timeout = timeout;
+    this.cache = new NameCache(timeout);
+    this.codec = NamingCodecFactory.createLookupCodec(factory);
+    this.replyQueue = new LinkedBlockingQueue<>();
+
+    this.transport = tpFactory.newInstance(localAddressProvider.getLocalAddress(), 0,
+            new SyncStage<>(new NamingLookupClientHandler(
+                    new NamingLookupResponseHandler(this.replyQueue), this.codec)),
+            null, retryCount, retryTimeout);
+
+    this.retryCount = retryCount;
+    this.retryTimeout = retryTimeout;
+  }
+
+  /**
+   * Constructs a naming lookup client.
+   *
+   * @param serverAddr a server address
+   * @param serverPort a server port number
+   * @param timeout request timeout in ms
+   * @param factory an identifier factory
+   * @param retryCount number of retries
+   * @param retryTimeout a timeout for a retry attempt, msec
+   * @param replyQueue a queue of naming lookup responses
+   * @param transport transport for sending and receiving data
+   * @param cache a name cache
+   *
+   * @deprecated in 0.13. Have an instance injected instead or use the NameResolver interface.
+   */
+  @Deprecated
   NameLookupClient(final String serverAddr, final int serverPort, final long timeout,
                    final IdentifierFactory factory, final int retryCount, final int retryTimeout,
                    final BlockingQueue<NamingLookupResponse> replyQueue, final Transport transport,
