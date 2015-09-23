@@ -23,6 +23,7 @@ using System.Linq;
 using Org.Apache.REEF.Client.API;
 using Org.Apache.REEF.Driver;
 using Org.Apache.REEF.IMRU.API;
+using Org.Apache.REEF.Driver.Bridge;
 using Org.Apache.REEF.IMRU.OnREEF.Driver;
 using Org.Apache.REEF.IMRU.OnREEF.Parameters;
 using Org.Apache.REEF.Network.Group.Config;
@@ -95,6 +96,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Client
                         GenericType<IMRUDriver<TMapInput, TMapOutput, TResult>>.Class)
                     .Set(DriverConfiguration.OnEvaluatorFailed,
                         GenericType<IMRUDriver<TMapInput, TMapOutput, TResult>>.Class)
+                    .Set(DriverConfiguration.CustomTraceLevel, TraceLevel.Info.ToString())
                     .Build(),
                 TangFactory.GetTang().NewConfigurationBuilder()
                     .BindStringNamedParam<GroupCommConfigurationOptions.DriverId>(driverId)
