@@ -223,12 +223,13 @@ public final class YarnJobSubmissionClient {
     final Path httpEndpointPath = new Path(dfsPath, fileNames.getDriverHttpEndpoint());
 
     String trackingUri = null;
+    LOG.log(Level.INFO, "Attempt to reading " + httpEndpointPath.toString());
     for (int i = 0; i < 60; i++) {
       try {
-        LOG.log(Level.INFO, "Attempt " + i + " reading " + httpEndpointPath.toString());
+        LOG.log(Level.FINE, "Attempt " + i + " reading " + httpEndpointPath.toString());
         if (fs.exists(httpEndpointPath)) {
-          FSDataInputStream input = fs.open(httpEndpointPath);
-          BufferedReader reader = new BufferedReader(new InputStreamReader(input, StandardCharsets.UTF_8));
+          final FSDataInputStream input = fs.open(httpEndpointPath);
+          final BufferedReader reader = new BufferedReader(new InputStreamReader(input, StandardCharsets.UTF_8));
           trackingUri = reader.readLine();
           reader.close();
           break;
@@ -245,6 +246,8 @@ public final class YarnJobSubmissionClient {
     if (null == trackingUri) {
       trackingUri = "";
       LOG.log(Level.WARNING, "Failed reading " + httpEndpointPath.toString());
+    } else {
+      LOG.log(Level.INFO, "Completed reading trackingUri :" + trackingUri);
     }
 
     final File driverHttpEndpointFile = new File(driverFolder, fileNames.getDriverHttpEndpoint());
