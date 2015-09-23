@@ -53,6 +53,12 @@ public class StringIdentifier implements ComparableIdentifier {
    * @return true if the object is the same as the object argument; false, otherwise
    */
   public boolean equals(final Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
     return str.equals(((StringIdentifier) o).toString());
   }
 
