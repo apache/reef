@@ -93,7 +93,11 @@ namespace Org.Apache.REEF.Driver.Evaluator
             return this;
         }
 
-        // TODO[REEF-718]: Document.
+        /// <summary>
+        /// Sets the batch ID for requested evaluators in the same request. The batch of Evaluators requested in the 
+        /// same request will have the same Evaluator Batch ID.
+        /// </summary>
+        /// <param name="evaluatorBatchId">The batch ID for the Evaluator request.</param>
         public EvaluatorRequestBuilder SetEvaluatorBatchId(string evaluatorBatchId)
         {
             _evaluatorBatchId = evaluatorBatchId;
