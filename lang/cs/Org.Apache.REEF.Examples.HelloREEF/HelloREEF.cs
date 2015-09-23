@@ -63,7 +63,7 @@ namespace Org.Apache.REEF.Examples.HelloREEF
                 .SetJobIdentifier("HelloREEF")
                 .Build();
 
-            _reefClient.Submit(helloJobSubmission);
+            _reefClient.SubmitAndGetDriverUrl(helloJobSubmission);
         }
 
         /// <summary>

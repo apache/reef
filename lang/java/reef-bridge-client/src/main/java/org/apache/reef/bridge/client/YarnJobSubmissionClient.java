@@ -225,7 +225,7 @@ public final class YarnJobSubmissionClient {
     String trackingUri = null;
     for (int i = 0; i < 60; i++) {
       try {
-        LOG.log(Level.INFO, "Attempt " + i + " reading " + httpEndpointPath.toString());
+        LOG.log(Level.FINE, "Attempt " + i + " reading " + httpEndpointPath.toString());
         if (fs.exists(httpEndpointPath)) {
           FSDataInputStream input = fs.open(httpEndpointPath);
           BufferedReader reader = new BufferedReader(new InputStreamReader(input, StandardCharsets.UTF_8));
