@@ -232,7 +232,6 @@ public final class YarnJobSubmissionClient {
           final BufferedReader reader = new BufferedReader(new InputStreamReader(input, StandardCharsets.UTF_8));
           trackingUri = reader.readLine();
           reader.close();
-          LOG.log(Level.INFO, "Successfully reading trackingUri :" + trackingUri);
           break;
         }
       } catch (Exception ex) {
@@ -247,6 +246,8 @@ public final class YarnJobSubmissionClient {
     if (null == trackingUri) {
       trackingUri = "";
       LOG.log(Level.WARNING, "Failed reading " + httpEndpointPath.toString());
+    } else {
+      LOG.log(Level.INFO, "Completed reading trackingUri :" + trackingUri);
     }
 
     final File driverHttpEndpointFile = new File(driverFolder, fileNames.getDriverHttpEndpoint());
