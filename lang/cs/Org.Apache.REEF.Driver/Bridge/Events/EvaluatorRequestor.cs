@@ -18,6 +18,7 @@
  */
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Runtime.Serialization;
@@ -33,9 +34,10 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
     [DataContract]
     internal class EvaluatorRequestor : IEvaluatorRequestor
     {
+        internal const char BatchIdxSeparator = '_';
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(EvaluatorRequestor));
-
-        private static Dictionary<string, IEvaluatorDescriptor> _evaluators;
+        private static readonly Lazy<IDictionary<string, IEvaluatorDescriptor>> EvaluatorsInstantiator = 
+            new Lazy<IDictionary<string, IEvaluatorDescriptor>>(() => new Dictionary<string, IEvaluatorDescriptor>()); 
 
         internal EvaluatorRequestor(IEvaluatorRequestorClr2Java clr2Java)
         {
@@ -43,15 +45,15 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
             Clr2Java = clr2Java;
         }
 
-        internal static Dictionary<string, IEvaluatorDescriptor> Evaluators
+        /// <summary>
+        /// A map of EvaluatorBatchID + BatchIdxSeparator + (Evaluator number in the batch) to 
+        /// the Evaluator descriptor for the Evaluator.
+        /// </summary>
+        internal static IDictionary<string, IEvaluatorDescriptor> Evaluators
         {
             get
             {
-                if (_evaluators == null)
-                {
-                    _evaluators = new Dictionary<string, IEvaluatorDescriptor>();
-                }
-                return _evaluators;
+                return EvaluatorsInstantiator.Value;
             }
         }
 
@@ -65,17 +67,17 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
 
         public void Submit(IEvaluatorRequest request)
         {
-            LOGGER.Log(Level.Info, string.Format(CultureInfo.InvariantCulture, "Submitting request for {0} evaluators and {1} MB memory and  {2} core to rack {3}.", request.Number, request.MemoryMegaBytes, request.VirtualCore, request.Rack));
+            LOGGER.Log(Level.Info, "Submitting request for {0} evaluators and {1} MB memory and  {2} core to rack {3}.", request.Number, request.MemoryMegaBytes, request.VirtualCore, request.Rack);
 
             lock (Evaluators)
             {
-                for (int i = 0; i < request.Number; i++)
+                for (var i = 0; i < request.Number; i++)
                 {
-                    EvaluatorDescriptorImpl descriptor = new EvaluatorDescriptorImpl(new NodeDescriptorImpl(), EvaluatorType.CLR, request.MemoryMegaBytes, request.VirtualCore, request.Rack);
-                    string key = string.Format(CultureInfo.InvariantCulture, "{0}_{1}", request.EvaluatorBatchId, i);
+                    var descriptor = new EvaluatorDescriptorImpl(new NodeDescriptorImpl(), EvaluatorType.CLR, request.MemoryMegaBytes, request.VirtualCore, request.Rack);
+                    var key = string.Format(CultureInfo.InvariantCulture, "{0}{1}{2}", request.EvaluatorBatchId, BatchIdxSeparator, i);
                     try
                     {
-                        _evaluators.Add(key, descriptor);
+                        Evaluators.Add(key, descriptor);
                     }
                     catch (ArgumentException e)
                     {

@@ -173,18 +173,12 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
                 {
                     if (pair.Value.Equals(_evaluatorDescriptor))
                     {
-                        string key = pair.Key;
+                        var key = pair.Key;
                         EvaluatorRequestor.Evaluators.Remove(key);
-                        string assignedId = key.Substring(0, key.LastIndexOf('_'));
-                        string message = string.Format(
-                            CultureInfo.InvariantCulture,
-                            "Received evalautor [{0}] of memory {1}MB that matches request of {2}MB with batch id [{3}].",
-                            Id,
-                            _evaluatorDescriptor.Memory,
-                            pair.Value.Memory,
-                            assignedId);
+                        var assignedId = key.Substring(0, key.LastIndexOf(EvaluatorRequestor.BatchIdxSeparator));
 
-                        LOGGER.Log(Level.Verbose, message);
+                        LOGGER.Log(Level.Verbose, "Received evalautor [{0}] of memory {1}MB that matches request of {2}MB with batch id [{3}].", 
+                            Id, _evaluatorDescriptor.Memory, pair.Value.Memory, assignedId);
                         EvaluatorBatchId = assignedId;
                         break;
                     }
