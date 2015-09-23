@@ -223,14 +223,16 @@ public final class YarnJobSubmissionClient {
     final Path httpEndpointPath = new Path(dfsPath, fileNames.getDriverHttpEndpoint());
 
     String trackingUri = null;
+    LOG.log(Level.INFO, "Attempt to reading " + httpEndpointPath.toString());
     for (int i = 0; i < 60; i++) {
       try {
         LOG.log(Level.FINE, "Attempt " + i + " reading " + httpEndpointPath.toString());
         if (fs.exists(httpEndpointPath)) {
-          FSDataInputStream input = fs.open(httpEndpointPath);
-          BufferedReader reader = new BufferedReader(new InputStreamReader(input, StandardCharsets.UTF_8));
+          final FSDataInputStream input = fs.open(httpEndpointPath);
+          final BufferedReader reader = new BufferedReader(new InputStreamReader(input, StandardCharsets.UTF_8));
           trackingUri = reader.readLine();
           reader.close();
+          LOG.log(Level.INFO, "Successfully reading trackingUri :" + trackingUri);
           break;
         }
       } catch (Exception ex) {
