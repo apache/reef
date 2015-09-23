@@ -32,6 +32,12 @@ public class TestRemoteIdentifier implements RemoteIdentifier {
   }
 
   public boolean equals(final Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
     return str.equals(((TestRemoteIdentifier) o).getString());
   }
 

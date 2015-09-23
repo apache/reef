@@ -55,11 +55,11 @@ public abstract class AbstractNode implements Node {
 
   @Override
   public boolean equals(final Object o) {
-    if (o == null) {
-      return false;
-    }
-    if (o == this) {
+    if (this == o) {
       return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
     }
 
     final AbstractNode n = (AbstractNode) o;
