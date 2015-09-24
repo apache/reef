@@ -77,8 +77,8 @@ under the License.
     <Compile Include="Local\Parameters\LocalRuntimeDirectory.cs" />
     <Compile Include="Local\Parameters\NumberOfEvaluators.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="YARN\JobSubmissionDirectoryPrefixParameter.cs" />
-    <Compile Include="YARN\SecurityTokenParameters.cs" />
+    <Compile Include="YARN\Parameters\JobSubmissionDirectoryPrefixParameter.cs" />
+    <Compile Include="YARN\Parameters\SecurityTokenParameters.cs" />
     <Compile Include="YARN\YARNREEFClient.cs" />
     <Compile Include="YARN\RestClient\IRestClientFactory.cs" />
     <Compile Include="YARN\RestClient\RestRequestExecutor.cs" />

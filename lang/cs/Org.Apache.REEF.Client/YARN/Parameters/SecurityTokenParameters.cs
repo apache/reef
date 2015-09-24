@@ -17,10 +17,15 @@
 
 using Org.Apache.REEF.Tang.Annotations;
 
-namespace Org.Apache.REEF.Client.YARN
+namespace Org.Apache.REEF.Client.YARN.Parameters
 {
     [NamedParameter("Security token kind.", defaultValue:"NULL")]
     public sealed class SecurityTokenKindParameter : Name<string>
+    {
+    }
+
+    [NamedParameter("Security token service name.", defaultValue: "NULL")]
+    public sealed class SecurityTokenServiceParameter : Name<string>
     {
     }
 }

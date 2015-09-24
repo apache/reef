@@ -5,9 +5,9 @@
 // to you under the Apache License, Version 2.0 (the
 // "License"); you may not use this file except in compliance
 // with the License.  You may obtain a copy of the License at
-// 
+//
 //   http://www.apache.org/licenses/LICENSE-2.0
-// 
+//
 // Unless required by applicable law or agreed to in writing,
 // software distributed under the License is distributed on an
 // "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -17,15 +17,10 @@
 
 using Org.Apache.REEF.Tang.Annotations;
 
-namespace Org.Apache.REEF.Client.YARN
+namespace Org.Apache.REEF.Client.YARN.Parameters
 {
-    [NamedParameter("Security token kind.", defaultValue:"NULL")]
-    public sealed class SecurityTokenKindParameter : Name<string>
-    {
-    }
-
-    [NamedParameter("Security token service name.", defaultValue: "NULL")]
-    public sealed class SecurityTokenServiceParameter : Name<string>
+    [NamedParameter("Directory used to upload job resources from the client", defaultValue: @"/vol1/tmp")]
+    public class JobSubmissionDirectoryPrefixParameter : Name<string>
     {
     }
 }

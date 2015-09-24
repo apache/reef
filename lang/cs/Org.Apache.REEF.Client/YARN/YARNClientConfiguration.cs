@@ -19,6 +19,7 @@
 
 using Org.Apache.REEF.Client.API;
 using Org.Apache.REEF.Client.YARN;
+using Org.Apache.REEF.Client.YARN.Parameters;
 using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Util;
 
