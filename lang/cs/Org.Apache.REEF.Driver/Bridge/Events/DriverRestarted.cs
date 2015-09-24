@@ -36,7 +36,6 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
             ResubmissionAttempts = driverRestartedClr2Java.GetResubmissionAttempts();
         }
 
-
         public ISet<string> ExpectedEvaluatorIds
         {
             get { return new HashSet<string>(_expectedEvaluatorIds); }

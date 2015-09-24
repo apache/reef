@@ -65,7 +65,7 @@ namespace Org.Apache.REEF.Examples.DriverRestart
         {
             _exceptionTimer = new Timer(obj =>
             {
-                throw new Exception("Expected driver to be finished by now.");
+                throw new ApplicationException("Expected driver to be finished by now.");
             }, new object(), TimeSpan.FromMinutes(10), TimeSpan.FromMinutes(10));
 
             _evaluatorRequestor = evaluatorRequestor;
@@ -107,7 +107,7 @@ namespace Org.Apache.REEF.Examples.DriverRestart
         {
             if (value.ResubmissionAttempts != 1)
             {
-                throw new Exception("Only expected the driver to restart once.");
+                throw new ApplicationException("Only expected the driver to restart once.");
             }
 
             _isRestart = true;
