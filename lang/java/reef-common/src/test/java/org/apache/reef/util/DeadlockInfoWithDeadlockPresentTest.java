@@ -42,9 +42,9 @@ import static org.junit.Assert.fail;
 /**
  * Test DeadlockInfo by creating a deadlock.
  */
-public final class DeadlockInfoTest {
 
-  private static final Logger LOG = Logger.getLogger(DeadlockInfoTest.class.getName());
+public final class DeadlockInfoWithDeadlockPresentTest {
+  private static final Logger LOG = Logger.getLogger(DeadlockInfoWithDeadlockPresentTest.class.getName());
 
   private static final long TIMEOUT_MILLIS = 100;
 
