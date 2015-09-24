@@ -177,7 +177,7 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
                         EvaluatorRequestor.Evaluators.Remove(key);
                         var assignedId = key.Substring(0, key.LastIndexOf(EvaluatorRequestor.BatchIdxSeparator));
 
-                        LOGGER.Log(Level.Verbose, "Received evalautor [{0}] of memory {1}MB that matches request of {2}MB with batch id [{3}].", 
+                        LOGGER.Log(Level.Verbose, "Received evaluator [{0}] of memory {1}MB that matches request of {2}MB with batch id [{3}].", 
                             Id, _evaluatorDescriptor.Memory, pair.Value.Memory, assignedId);
                         EvaluatorBatchId = assignedId;
                         break;

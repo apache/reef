@@ -32,12 +32,13 @@ using Org.Apache.REEF.Utilities.Logging;
 namespace Org.Apache.REEF.Driver.Bridge.Events
 {
     [DataContract]
-    internal class EvaluatorRequestor : IEvaluatorRequestor
+    internal sealed class EvaluatorRequestor : IEvaluatorRequestor
     {
         internal const char BatchIdxSeparator = '_';
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(EvaluatorRequestor));
-        private static readonly Lazy<IDictionary<string, IEvaluatorDescriptor>> EvaluatorsInstantiator = 
-            new Lazy<IDictionary<string, IEvaluatorDescriptor>>(() => new Dictionary<string, IEvaluatorDescriptor>()); 
+
+        private static readonly IDictionary<string, IEvaluatorDescriptor> EvaluatorDescriptorsDictionary =
+            new Dictionary<string, IEvaluatorDescriptor>();
 
         internal EvaluatorRequestor(IEvaluatorRequestorClr2Java clr2Java)
         {
@@ -51,10 +52,7 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
         /// </summary>
         internal static IDictionary<string, IEvaluatorDescriptor> Evaluators
         {
-            get
-            {
-                return EvaluatorsInstantiator.Value;
-            }
+            get { return EvaluatorDescriptorsDictionary; }
         }
 
         public IResourceCatalog ResourceCatalog { get; set; }
