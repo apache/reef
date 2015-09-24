@@ -38,7 +38,13 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
         [DataMember]
         public string InstanceId { get; set; }
 
-        public byte[] Message { get; set; }
+        public byte[] Message
+        {
+            get
+            {
+                return CompletedTaskClr2Java.Get();
+            }
+        }
 
         public string Id
         {

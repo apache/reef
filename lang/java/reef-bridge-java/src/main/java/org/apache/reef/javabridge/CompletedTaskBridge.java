@@ -19,14 +19,15 @@
 package org.apache.reef.javabridge;
 
 import org.apache.reef.driver.task.CompletedTask;
+import org.apache.reef.io.Message;
 
-public class CompletedTaskBridge extends NativeBridge {
+public class CompletedTaskBridge extends NativeBridge implements Message {
 
+  /**
+   *  These fields are used by the C++ code. Please do not remove without testing.
+   */
   private final CompletedTask jcompletedTask;
-
   private final String taskId;
-
-  // used by the C++ code
   private final ActiveContextBridge jactiveContext;
 
   public CompletedTaskBridge(final CompletedTask completedTask, final ActiveContextBridgeFactory factory) {
@@ -37,5 +38,10 @@ public class CompletedTaskBridge extends NativeBridge {
 
   @Override
   public void close() {
+  }
+
+  @Override
+  public byte[] get() {
+    return jcompletedTask.get();
   }
 }

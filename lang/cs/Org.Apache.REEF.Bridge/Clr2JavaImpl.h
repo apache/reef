@@ -148,6 +148,7 @@ namespace Org {
 						  virtual void OnError(String^ message);
 						  virtual IActiveContextClr2Java^ GetActiveContext();
 						  virtual String^ GetId();
+						  virtual array<byte>^ Get();
 					  };
 
 					  public ref class SuspendedTaskClr2Java : public ISuspendedTaskClr2Java {

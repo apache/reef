@@ -44,6 +44,7 @@ under the License.
     <Compile Include="Bridge\Clr2java\IAllocatedEvaluaotrClr2Java.cs" />
     <Compile Include="Bridge\Clr2java\IClosedContextClr2Java.cs" />
     <Compile Include="Bridge\Clr2java\IClr2Java.cs" />
+    <Compile Include="Bridge\Clr2java\IClr2JavaTaskMessage.cs" />
     <Compile Include="Bridge\Clr2java\ICompletedEvaluatorClr2Java.cs" />
     <Compile Include="Bridge\Clr2java\ICompletedTaskClr2Java.cs" />
     <Compile Include="Bridge\Clr2java\IContextMessageClr2Java.cs" />

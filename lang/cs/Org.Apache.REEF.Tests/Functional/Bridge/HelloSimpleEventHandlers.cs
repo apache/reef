@@ -174,7 +174,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
         {
             using (Logger.LogFunction("HelloSimpleEventHandlers::CompletedTask received"))
             {
-                Logger.Log(Level.Info, string.Format(CultureInfo.InvariantCulture, "Received CompletedTask: {0}, task id: {1}", value.Id, _taskContext.CurrentTaskId()));
+                Logger.Log(Level.Info, string.Format(CultureInfo.InvariantCulture, "Received CompletedTask: {0}, task id: {1}, task value: {2}.", value.Id, _taskContext.CurrentTaskId(), ByteUtilities.ByteArrarysToString(value.Message)));
                 _taskContext.UpdateTaskStatus(value.Id, TaskStatus.Completed);
                 _taskContext.TaskCompleted++;
                 SubmitNextTask(value.ActiveContext);
