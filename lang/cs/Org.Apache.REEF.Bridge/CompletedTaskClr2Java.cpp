@@ -65,6 +65,20 @@ namespace Org {
 						  JNIEnv *env = RetrieveEnv(_jvm);
 						  return ManagedStringFromJavaString(env, _jstringId);
 					  }
+
+					  array<byte>^ CompletedTaskClr2Java::Get() {
+						  ManagedLog::LOGGER->Log("CompletedTaskClr2Java::GetMessage");
+						  JNIEnv *env = RetrieveEnv(_jvm);
+						  jclass jclassCompletedTask = env->GetObjectClass(_jobjectCompletedTask);
+						  jmethodID jmidGet = env->GetMethodID(jclassCompletedTask, "get", "()[B");
+
+						  if (jmidGet == NULL) {
+							  ManagedLog::LOGGER->Log("jmidGet is NULL");
+							  return nullptr;
+						  }
+						  jbyteArray jMessage = (jbyteArray)env->CallObjectMethod(_jobjectCompletedTask, jmidGet);
+						  return ManagedByteArrayFromJavaByteArray(env, jMessage);
+					  }
 				  }
 			  }
 		  }

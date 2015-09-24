@@ -20,6 +20,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Net;
 using System.Text;
 using Org.Apache.REEF.Common.Tasks;
@@ -174,7 +175,12 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
         {
             using (Logger.LogFunction("HelloSimpleEventHandlers::CompletedTask received"))
             {
-                Logger.Log(Level.Info, string.Format(CultureInfo.InvariantCulture, "Received CompletedTask: {0}, task id: {1}", value.Id, _taskContext.CurrentTaskId()));
+                Logger.Log(Level.Info, "Received CompletedTask: {0}, task id: {1}.", value.Id, _taskContext.CurrentTaskId());
+                
+                var messageStr = value.Message == null || value.Message.Length == 0 ?
+                    string.Empty : ByteUtilities.ByteArrarysToString(value.Message);
+                Logger.Log(Level.Verbose, "Message received from CompletedTask {0} is: [{1}]", value.Id, messageStr);
+
                 _taskContext.UpdateTaskStatus(value.Id, TaskStatus.Completed);
                 _taskContext.TaskCompleted++;
                 SubmitNextTask(value.ActiveContext);

@@ -19,7 +19,7 @@
 
 namespace Org.Apache.REEF.Driver.Bridge.Clr2java
 {
-    public interface ISuspendedTaskClr2Java : IClr2Java
+    public interface ISuspendedTaskClr2Java : IClr2Java, IClr2JavaTaskMessage
     {
         /// <summary>
         /// get active context the task is running in
@@ -32,11 +32,5 @@ namespace Org.Apache.REEF.Driver.Bridge.Clr2java
         /// </summary>
         /// <returns>suspsended task id</returns>
         string GetId();
-
-        /// <summary>
-        /// get the message
-        /// </summary>
-        /// <returns>suspended task message</returns>
-        byte[] Get();
     }
 }

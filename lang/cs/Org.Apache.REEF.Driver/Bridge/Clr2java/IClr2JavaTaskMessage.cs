@@ -19,10 +19,14 @@
 
 namespace Org.Apache.REEF.Driver.Bridge.Clr2java
 {
-    public interface ICompletedTaskClr2Java : IClr2Java, IClr2JavaTaskMessage
+    /// <summary>
+    /// An message sent from a Task to a Driver.
+    /// </summary>
+    public interface IClr2JavaTaskMessage
     {
-        IActiveContextClr2Java GetActiveContext();
-        
-        string GetId();
+        /// <summary>
+        /// Gets returns the byte array task message.
+        /// </summary>
+        byte[] Get();
     }
 }
