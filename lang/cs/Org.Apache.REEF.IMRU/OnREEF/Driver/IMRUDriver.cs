@@ -311,7 +311,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             try
             {
                 TangFactory.GetTang()
-                    .NewInjector(mapInputPipelineDataConverterConfig)
+                    .NewInjector(mapOutputPipelineDataConverterConfig)
                     .GetInstance<IPipelineDataConverter<TMapOutput>>();
             }
             catch (Exception)
