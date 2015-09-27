@@ -130,6 +130,8 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Client
                     jobDefinition.MapperMemory.ToString(CultureInfo.InvariantCulture))
                 .BindNamedParameter(typeof (MemoryForUpdateTask),
                     jobDefinition.UpdateTaskMemory.ToString(CultureInfo.InvariantCulture))
+                .BindNamedParameter(typeof (InvokeGC),
+                    jobDefinition.InvokeGarbageCollectorAfterIteration.ToString(CultureInfo.InvariantCulture))
                 .Build();
 
             // The JobSubmission contains the Driver configuration as well as the files needed on the Driver.

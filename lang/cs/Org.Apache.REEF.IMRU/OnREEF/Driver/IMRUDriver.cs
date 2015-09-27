@@ -76,6 +76,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         private readonly int _allowedFailedEvaluators;
         private int _currentFailedEvaluators = 0;
         private bool _reachedUpdateTaskActiveContext = false;
+        private readonly bool _invokeGC;
 
         private readonly ServiceAndContextConfigurationProvider<TMapInput, TMapOutput>
             _serviceAndContextConfigurationProvider;
@@ -90,6 +91,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             [Parameter(typeof (MemoryPerMapper))] int memoryPerMapper,
             [Parameter(typeof (MemoryForUpdateTask))] int memoryForUpdateTask,
             [Parameter(typeof (AllowedFailedEvaluatorsFraction))] double failedEvaluatorsFraction,
+            [Parameter(typeof(InvokeGC))] bool invokeGC,
             IGroupCommDriver groupCommDriver)
         {
             _dataSet = dataSet;
@@ -103,6 +105,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             _perMapperConfigs = perMapperConfigs;
             _completedTasks = new ConcurrentBag<ICompletedTask>();
             _allowedFailedEvaluators = (int) (failedEvaluatorsFraction*dataSet.Count);
+            _invokeGC = invokeGC;
 
             AddGroupCommunicationOperators();
             _groupCommTaskStarter = new TaskStarter(_groupCommDriver, _dataSet.Count + 1);
@@ -202,6 +205,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                             _configurationManager.MapFunctionConfiguration,
                             mapSpecificConfig
                         })
+                        .BindNamedParameter(typeof (InvokeGC), _invokeGC.ToString())
                         .Build();
 
                 _commGroup.AddTask(taskId);

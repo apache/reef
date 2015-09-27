@@ -15,10 +15,13 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using System;
+using System.Diagnostics;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.IMRU.API;
 using Org.Apache.REEF.IMRU.OnREEF.Driver;
 using Org.Apache.REEF.IMRU.OnREEF.MapInputWithControlMessage;
+using Org.Apache.REEF.IMRU.OnREEF.Parameters;
 using Org.Apache.REEF.Network.Group.Operators;
 using Org.Apache.REEF.Network.Group.Task;
 using Org.Apache.REEF.Tang.Annotations;
@@ -39,20 +42,24 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
         private readonly IReduceReceiver<TMapOutput> _dataReceiver;
         private readonly IBroadcastSender<MapInputWithControlMessage<TMapInput>> _dataAndControlMessageSender;
         private readonly IUpdateFunction<TMapInput, TMapOutput, TResult> _updateTask;
+        private readonly bool _invokeGC;
 
         /// <summary>
         /// </summary>
         /// <param name="updateTask">The UpdateTask hosted in this REEF Task.</param>
         /// <param name="groupCommunicationsClient">Used to setup the communications.</param>
+        /// <param name="invokeGC">Whether to call Garbage Collector after each iteration or not</param>
         [Inject]
         private UpdateTaskHost(
             IUpdateFunction<TMapInput, TMapOutput, TResult> updateTask,
-            IGroupCommClient groupCommunicationsClient)
+            IGroupCommClient groupCommunicationsClient,
+            [Parameter(typeof(InvokeGC))] bool invokeGC)
         {
             _updateTask = updateTask;
             var cg = groupCommunicationsClient.GetCommunicationGroup(IMRUConstants.CommunicationGroupName);
             _dataAndControlMessageSender = cg.GetBroadcastSender<MapInputWithControlMessage<TMapInput>>(IMRUConstants.BroadcastOperatorName);
             _dataReceiver = cg.GetReduceReceiver<TMapOutput>(IMRUConstants.ReduceOperatorName);
+            _invokeGC = invokeGC;
         }
 
         /// <summary>
@@ -63,22 +70,36 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
         public byte[] Call(byte[] memento)
         {
             var updateResult = _updateTask.Initialize();
-            MapInputWithControlMessage<TMapInput> message =
-                new MapInputWithControlMessage<TMapInput>(MapControlMessage.AnotherRound);
 
             while (updateResult.HasMapInput)
-            {
-                message.Message = updateResult.MapInput;
-                _dataAndControlMessageSender.Send(message);
-                updateResult = _updateTask.Update(_dataReceiver.Reduce());
+            {        
+                using (
+                    var message = new MapInputWithControlMessage<TMapInput>(updateResult.MapInput,
+                        MapControlMessage.AnotherRound))
+                {
+                    _dataAndControlMessageSender.Send(message);
+                }
+
+                var input = _dataReceiver.Reduce();
+
+                if (_invokeGC)
+                {
+                    Logger.Log(Level.Verbose, "Calling Garbage Collector");
+                    GC.Collect();
+                    GC.WaitForPendingFinalizers();
+                }
+
+                updateResult = _updateTask.Update(input);
+
                 if (updateResult.HasResult)
                 {
                     // TODO[REEF-576]: Emit output somewhere.
                 }
             }
 
-            message.ControlMessage = MapControlMessage.Stop;
-            _dataAndControlMessageSender.Send(message);
+            MapInputWithControlMessage<TMapInput> stopMessage =
+                    new MapInputWithControlMessage<TMapInput>(MapControlMessage.Stop);
+            _dataAndControlMessageSender.Send(stopMessage);
 
             if (updateResult.HasResult)
             {
