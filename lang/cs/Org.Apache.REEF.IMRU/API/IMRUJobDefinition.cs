@@ -41,6 +41,7 @@ namespace Org.Apache.REEF.IMRU.API
         private readonly int _memoryPerMapper;
         private readonly int _updateTaskMemory;
         private readonly ISet<IConfiguration> _perMapConfigGeneratorConfig;
+        private readonly bool _invokeGC;
 
         /// <summary>
         /// Constructor
@@ -61,6 +62,7 @@ namespace Org.Apache.REEF.IMRU.API
         /// <param name="numberOfMappers">Number of mappers</param>
         /// <param name="memoryPerMapper">Per Mapper memory.</param>
         /// <param name="jobName">Job name</param>
+        /// <param name="invokeGC">Whether to call garbage collector after each iteration</param>
         internal IMRUJobDefinition(
             IConfiguration mapFunctionConfiguration,
             IConfiguration mapInputCodecConfiguration,
@@ -74,7 +76,8 @@ namespace Org.Apache.REEF.IMRU.API
             int numberOfMappers,
             int memoryPerMapper,
             int updateTaskMemory,
-            string jobName)
+            string jobName,
+            bool invokeGC)
         {
             _mapFunctionConfiguration = mapFunctionConfiguration;
             _mapInputCodecConfiguration = mapInputCodecConfiguration;
@@ -89,6 +92,7 @@ namespace Org.Apache.REEF.IMRU.API
             _memoryPerMapper = memoryPerMapper;
             _updateTaskMemory = updateTaskMemory;
             _perMapConfigGeneratorConfig = perMapConfigGeneratorConfig;
+            _invokeGC = invokeGC;
         }
 
         /// <summary>
@@ -196,6 +200,14 @@ namespace Org.Apache.REEF.IMRU.API
         internal ISet<IConfiguration> PerMapConfigGeneratorConfig
         {
             get { return _perMapConfigGeneratorConfig; }
+        }
+
+        /// <summary>
+        /// Whether to call Garbage Collector after each iteration
+        /// </summary>
+        internal bool InvokeGarbageCollectorAfterIteration
+        {
+            get { return _invokeGC; }
         }
     }
 }

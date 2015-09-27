@@ -15,6 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using System;
+
 namespace Org.Apache.REEF.IMRU.OnREEF.MapInputWithControlMessage
 {
     /// <summary>
@@ -23,7 +25,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.MapInputWithControlMessage
     /// message from UpdateTask
     /// </summary>
     /// <typeparam name="TMapInput"></typeparam>
-    internal class MapInputWithControlMessage<TMapInput>
+    internal class MapInputWithControlMessage<TMapInput> : IDisposable
     {
         /// <summary>
         /// Internal constructor
@@ -54,5 +56,9 @@ namespace Org.Apache.REEF.IMRU.OnREEF.MapInputWithControlMessage
         /// Control message from Update Task to Map task
         /// </summary>
         internal MapControlMessage ControlMessage { get; set; }
+
+        public void Dispose()
+        {
+        }
     }
 }

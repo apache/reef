@@ -51,6 +51,7 @@ namespace Org.Apache.REEF.IMRU.API
         private IConfiguration _mapInputPipelineDataConverterConfiguration;
         private IConfiguration _partitionedDatasetConfiguration;
         private readonly ISet<IConfiguration> _perMapConfigGeneratorConfig;
+        private bool _invokeGC;
 
         private static readonly IConfiguration EmptyConfiguration =
             TangFactory.GetTang().NewConfigurationBuilder().Build();
@@ -65,6 +66,7 @@ namespace Org.Apache.REEF.IMRU.API
             _partitionedDatasetConfiguration = EmptyConfiguration;
             _memoryPerMapper = 512;
             _updateTaskMemory = 512;
+            _invokeGC = true;
             _perMapConfigGeneratorConfig = new HashSet<IConfiguration>();
         }
 
@@ -220,6 +222,18 @@ namespace Org.Apache.REEF.IMRU.API
         }
 
         /// <summary>
+        /// Whether to invoke Garbage Collector after each IMRU iteration
+        /// </summary>
+        /// <param name="invokeGC">variable telling whether to invoke or not</param>
+        /// <returns>The modified definition builder</returns>
+        public IMRUJobDefinitionBuilder InvokeGarbageCollectorAfterIteration(bool invokeGC)
+        {
+            _invokeGC = invokeGC;
+            return this;
+        }
+
+
+        /// <summary>
         /// Instantiate the IMRUJobDefinition.
         /// </summary>
         /// <returns>The IMRUJobDefintion configured.</returns>
@@ -271,7 +285,8 @@ namespace Org.Apache.REEF.IMRU.API
                 _numberOfMappers,
                 _memoryPerMapper,
                 _updateTaskMemory,
-                _jobName);
+                _jobName,
+                _invokeGC);
         }
     }
 }

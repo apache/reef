@@ -96,7 +96,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Client
                         GenericType<IMRUDriver<TMapInput, TMapOutput, TResult>>.Class)
                     .Set(DriverConfiguration.OnEvaluatorFailed,
                         GenericType<IMRUDriver<TMapInput, TMapOutput, TResult>>.Class)
-                    .Set(DriverConfiguration.CustomTraceLevel, TraceLevel.Info.ToString())
+                    .Set(DriverConfiguration.CustomTraceLevel, TraceLevel.Verbose.ToString())
                     .Build(),
                 TangFactory.GetTang().NewConfigurationBuilder()
                     .BindStringNamedParam<GroupCommConfigurationOptions.DriverId>(driverId)
