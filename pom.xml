@@ -305,7 +305,7 @@ under the License.
                     <configuration>
                         <effort>Max</effort>
                         <threshold>High</threshold>
-                        <failOnError>false</failOnError>
+                        <failOnError>true</failOnError>
                         <findbugsXmlOutputDirectory>${project.build.directory}/findbugs</findbugsXmlOutputDirectory>
                         <excludeFilterFile>${rootPath}/lang/java/reef-common/src/main/resources/findbugs-exclude.xml</excludeFilterFile>
                     </configuration>
@@ -405,6 +405,19 @@ under the License.
                         <goals>
                             <goal>check</goal>
                             <goal>checkstyle</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>findbugs-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>analyze-compile</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>check</goal>
                         </goals>
                     </execution>
                 </executions>
