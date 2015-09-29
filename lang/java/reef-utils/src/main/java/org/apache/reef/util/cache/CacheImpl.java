@@ -26,6 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.Map.Entry;
 
 /**
  * Implementation that supports expire-after-write.
@@ -106,13 +107,11 @@ public final class CacheImpl<K, V> implements Cache<K, V> {
   }
 
   private void expireEntriesAtTime(final long now) {
-    for (final K key : internalMap.keySet()) {
-      final WrappedValue<V> wrappedValue = internalMap.get(key);
-      if (wrappedValue != null) {
-        final Optional<Long> writeTime = wrappedValue.getWriteTime();
-        if (writeTime.isPresent() &&
-                writeTime.get() + timeoutMillis < now) {
-          invalidate(key);
+    for (final Entry<K, WrappedValue<V>> entry : internalMap.entrySet()) {
+      if (entry.getValue() != null) {
+        final Optional<Long> writeTime = entry.getValue().getWriteTime();
+        if (writeTime.isPresent() && writeTime.get() + timeoutMillis < now) {
+          invalidate(entry.getKey());
         }
       }
     }

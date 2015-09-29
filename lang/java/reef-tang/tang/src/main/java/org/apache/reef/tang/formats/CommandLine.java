@@ -33,6 +33,7 @@ import org.apache.reef.tang.util.ReflectionUtilities;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 public final class CommandLine {
 
@@ -86,8 +87,9 @@ public final class CommandLine {
   private Options getCommandLineOptions() {
 
     final Options opts = new Options();
-    for (final String shortName : shortNames.keySet()) {
-      final String longName = shortNames.get(shortName);
+    for (final Entry<String, String> entry : shortNames.entrySet()) {
+      final String shortName = entry.getKey();
+      final String longName = entry.getValue();
       try {
         opts.addOption(OptionBuilder
             .withArgName(conf.classPrettyDefaultString(longName)).hasArg()

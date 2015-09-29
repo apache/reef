@@ -27,6 +27,7 @@ import org.apache.reef.tang.annotations.Parameter;
 
 import javax.inject.Inject;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListMap;
 
@@ -67,8 +68,8 @@ public class CodecRamMap<T> implements ExternalMap<T> {
 
   @Override
   public void putAll(final Map<? extends CharSequence, ? extends T> m) {
-    for (final CharSequence x : m.keySet()) {
-      map.put(x, c.encode(m.get(x)));
+    for (final Entry<? extends CharSequence, ? extends T> entry : m.entrySet()) {
+      map.put(entry.getKey(), c.encode(entry.getValue()));
     }
   }
 
