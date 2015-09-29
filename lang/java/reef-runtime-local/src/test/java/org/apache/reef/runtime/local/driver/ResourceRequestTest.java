@@ -22,6 +22,9 @@ import org.apache.reef.runtime.common.driver.api.ResourceRequestEventImpl;
 import org.junit.Assert;
 import org.junit.Test;
 
+/**
+ * Test for ResourceRequest.
+ */
 public final class ResourceRequestTest {
 
   @Test()

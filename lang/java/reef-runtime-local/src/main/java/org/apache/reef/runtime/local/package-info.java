@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * A local implementation of REEF that uses local JVMs for execution.
  */
 package org.apache.reef.runtime.local;
