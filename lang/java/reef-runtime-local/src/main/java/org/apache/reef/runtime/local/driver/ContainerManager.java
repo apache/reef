@@ -212,7 +212,7 @@ final class ContainerManager implements AutoCloseable {
             .setRackName(rackName)
             .setHostName(this.localAddress)
             .setPort(j)
-            .setMemorySize(this.defaultMemorySize) // TODO Find the actual system memory on this machine.
+            .setMemorySize(this.defaultMemorySize) // TODO[JIRA REEF-792] Find the actual system memory on this machine.
             .build());
         j++;
       }
@@ -229,8 +229,8 @@ final class ContainerManager implements AutoCloseable {
    * Returns the node name of the container to be allocated if it's available, selected from the list of preferred
    * node names. If the list is empty, then an empty optional is returned
    *
-   * @param rackNames
-   *          the list of preferred racks
+   * @param nodeNames
+   *          the list of preferred nodes
    * @return the node name where to allocate the container
    */
   private Optional<String> getPreferredNode(final List<String> nodeNames) {
