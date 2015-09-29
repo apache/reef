@@ -62,6 +62,7 @@ under the License.
     <Compile Include="HelloRunningTaskHandler.cs" />
     <Compile Include="HelloTaskMessageHandler.cs" />
     <Compile Include="HelloTraceListener.cs" />
+    <Compile Include="HelloTaskCompletedHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
