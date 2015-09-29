@@ -18,10 +18,12 @@
  */
 package org.apache.reef.javabridge;
 
+import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.driver.task.CompletedTask;
 import org.apache.reef.io.Message;
 
-public class CompletedTaskBridge extends NativeBridge implements Message {
+@Private
+public final class CompletedTaskBridge extends NativeBridge implements Message {
 
   /**
    *  These fields are used by the C++ code. Please do not remove without testing.

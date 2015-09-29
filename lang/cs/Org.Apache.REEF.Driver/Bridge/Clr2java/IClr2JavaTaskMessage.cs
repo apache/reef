@@ -19,6 +19,9 @@
 
 namespace Org.Apache.REEF.Driver.Bridge.Clr2java
 {
+    /// <summary>
+    /// An message sent from a Task to a Driver.
+    /// </summary>
     public interface IClr2JavaTaskMessage
     {
         /// <summary>
