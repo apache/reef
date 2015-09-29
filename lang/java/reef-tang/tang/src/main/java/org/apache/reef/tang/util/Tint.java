@@ -211,10 +211,9 @@ public class Tint {
         }
       }
 
-      for (final Field f : modules.keySet()) {
-        final ConfigurationModule m = modules.get(f);
-        final String fS = ReflectionUtilities.getFullName(f);
-        final Set<NamedParameterNode<?>> nps = m.getBoundNamedParameters();
+      for (final Entry<Field, ConfigurationModule> entry: modules.entrySet()) {
+        final String fS = ReflectionUtilities.getFullName(entry.getKey());
+        final Set<NamedParameterNode<?>> nps = entry.getValue().getBoundNamedParameters();
         for (final NamedParameterNode<?> np : nps) {
           final String npS = np.getFullName();
           if (!setters.contains(npS, fS)) {
