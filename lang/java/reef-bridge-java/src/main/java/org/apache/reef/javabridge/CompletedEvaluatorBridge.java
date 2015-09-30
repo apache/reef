@@ -21,6 +21,9 @@ package org.apache.reef.javabridge;
 import org.apache.reef.driver.evaluator.CompletedEvaluator;
 import org.apache.reef.io.naming.Identifiable;
 
+/**
+ * The Java-CLR bridge object for {@link org.apache.reef.driver.evaluator.CompletedEvaluator}.
+ */
 public class CompletedEvaluatorBridge extends NativeBridge implements Identifiable {
 
   private final CompletedEvaluator jcompletedEvaluator;

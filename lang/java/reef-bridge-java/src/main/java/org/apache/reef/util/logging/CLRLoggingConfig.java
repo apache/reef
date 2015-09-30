@@ -21,6 +21,9 @@ package org.apache.reef.util.logging;
 import java.io.IOException;
 import java.util.logging.LogManager;
 
+/**
+ * Loader for CLR logging configuration.
+ */
 public final class CLRLoggingConfig {
 
   public CLRLoggingConfig() throws IOException {

@@ -22,6 +22,9 @@ import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Logger called from CLR code.
+ */
 public class InteropLogger {
   private static final Logger LOG = Logger.getLogger("InteropLogger");
   private HashMap<Integer, Level> levelHashMap;

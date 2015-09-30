@@ -26,6 +26,9 @@ import org.apache.reef.util.logging.LoggingScopeFactory;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * The Java-CLR bridge object for {@link org.apache.reef.driver.evaluator.EvaluatorRequestor}.
+ */
 public final class EvaluatorRequestorBridge extends NativeBridge {
   private static final Logger LOG = Logger.getLogger(EvaluatorRequestorBridge.class.getName());
   private final boolean isBlocked;

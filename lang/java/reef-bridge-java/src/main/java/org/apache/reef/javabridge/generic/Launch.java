@@ -111,10 +111,8 @@ public final class Launch {
           .set(ClientConfiguration.ON_JOB_COMPLETED, JobClient.CompletedJobHandler.class)
           .set(ClientConfiguration.ON_JOB_FAILED, JobClient.FailedJobHandler.class)
           .set(ClientConfiguration.ON_RUNTIME_ERROR, JobClient.RuntimeErrorHandler.class)
-          //.set(ClientConfiguration.ON_WAKE_ERROR, JobClient.WakeErrorHandler.class )
           .build();
 
-      // TODO: Remove the injector, have stuff injected.
       final Injector commandLineInjector = Tang.Factory.getTang().newInjector(commandLineConf);
       final boolean isLocal = commandLineInjector.getNamedInstance(Local.class);
       final Configuration runtimeConfiguration;

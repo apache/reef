@@ -25,6 +25,9 @@ import org.apache.reef.runtime.common.driver.context.EvaluatorContext;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * The Java-CLR bridge object for {@link org.apache.reef.driver.context.ActiveContext}.
+ */
 public final class ActiveContextBridge extends NativeBridge implements Identifiable {
   private static final Logger LOG = Logger.getLogger(ActiveContextBridge.class.getName());
 

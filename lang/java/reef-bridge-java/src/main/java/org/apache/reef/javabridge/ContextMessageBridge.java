@@ -20,6 +20,9 @@ package org.apache.reef.javabridge;
 
 import org.apache.reef.driver.context.ContextMessage;
 
+/**
+ * The Java-CLR bridge object for {@link org.apache.reef.driver.context.ContextMessage}.
+ */
 public class ContextMessageBridge extends NativeBridge implements ContextMessage {
 
   private ContextMessage jcontextMessage;
