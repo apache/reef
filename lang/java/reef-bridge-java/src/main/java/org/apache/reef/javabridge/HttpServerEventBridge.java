@@ -18,6 +18,9 @@
  */
 package org.apache.reef.javabridge;
 
+/**
+ * The Java-CLR bridge object for http server events.
+ */
 public final class HttpServerEventBridge extends NativeBridge {
   private String queryString;
   private byte[] queryRequestData;

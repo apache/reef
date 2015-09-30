@@ -24,6 +24,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * The Java-CLR bridge object for {@link org.apache.reef.driver.task.FailedTask}.
+ */
 public final class FailedTaskBridge extends NativeBridge {
   private static final Logger LOG = Logger.getLogger(FailedTaskBridge.class.getName());
 
@@ -47,7 +50,7 @@ public final class FailedTaskBridge extends NativeBridge {
     final String data = jfailedTask.getData().isPresent() ?
         new String(jfailedTask.getData().get(), StandardCharsets.UTF_8).replace("=", "").replace(",", "") : "";
 
-    // TODO: deserialize/serialize with proper Avro schema
+    // TODO[JIRA REEF-796]: deserialize/serialize with proper Avro schema
     final String poorSerializedString = "Identifier=" + jfailedTask.getId().replace("=", "").replace(",", "")
         + ", Message=" + jfailedTask.getMessage().replace("=", "").replace(",", "")
         + ", Description=" + description

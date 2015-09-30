@@ -18,6 +18,9 @@
  */
 package org.apache.reef.javabridge;
 
+/**
+ * TODO[JIRA REEF-383] Document/Refactor JavaBridge.
+ */
 public class JavaBridge {
   private static final String CPP_BRIDGE = "JavaClrBridge";
 

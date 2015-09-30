@@ -22,6 +22,10 @@ import org.apache.reef.javabridge.generic.DriverRestartCompletedBridge;
 
 import java.util.HashMap;
 
+/**
+ * Java interfaces of CLR/Java bridge.
+ * Implementations of the methods can be found at lang/cs/Org.Apache.REEF.Bridge/JavaClrBridge.cpp.
+ */
 public final class NativeInterop {
   public static final String CLASS_HIERARCHY_FILENAME = "clrClassHierarchy.bin";
   public static final String GLOBAL_LIBRARIES_FILENAME = "userSuppliedGlobalLibraries.txt";

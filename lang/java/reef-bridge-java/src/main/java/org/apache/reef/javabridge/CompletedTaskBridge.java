@@ -22,6 +22,9 @@ import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.driver.task.CompletedTask;
 import org.apache.reef.io.Message;
 
+/**
+ * The Java-CLR bridge object for {@link org.apache.reef.driver.task.CompletedTask}.
+ */
 @Private
 public final class CompletedTaskBridge extends NativeBridge implements Message {
 

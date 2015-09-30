@@ -27,6 +27,9 @@ import org.apache.reef.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * The Java-CLR bridge object for {@link org.apache.reef.driver.context.FailedContext}.
+ */
 public final class FailedContextBridge extends NativeBridge implements ContextBase {
 
   private static final Logger LOG = Logger.getLogger(FailedContextBridge.class.getName());

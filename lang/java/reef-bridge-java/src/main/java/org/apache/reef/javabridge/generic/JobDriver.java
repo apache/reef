@@ -687,6 +687,9 @@ public final class JobDriver {
     }
   }
 
+  /**
+   * Handler for message received from the Task.
+   */
   public final class TaskMessageHandler implements EventHandler<TaskMessage> {
     @Override
     public void onNext(final TaskMessage taskMessage) {

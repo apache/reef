@@ -26,6 +26,9 @@ import org.apache.reef.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * The Java-CLR bridge object for {@link org.apache.reef.driver.context.ClosedContext}.
+ */
 public class ClosedContextBridge extends NativeBridge implements ClosedContext {
 
   private static final Logger LOG = Logger.getLogger(ClosedContextBridge.class.getName());
