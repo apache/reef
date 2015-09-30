@@ -96,7 +96,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Client
                         GenericType<IMRUDriver<TMapInput, TMapOutput, TResult>>.Class)
                     .Set(DriverConfiguration.OnEvaluatorFailed,
                         GenericType<IMRUDriver<TMapInput, TMapOutput, TResult>>.Class)
-                    .Set(DriverConfiguration.CustomTraceLevel, TraceLevel.Verbose.ToString())
+                    .Set(DriverConfiguration.CustomTraceLevel, TraceLevel.Info.ToString())
                     .Build(),
                 TangFactory.GetTang().NewConfigurationBuilder()
                     .BindStringNamedParam<GroupCommConfigurationOptions.DriverId>(driverId)
@@ -130,6 +130,8 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Client
                     jobDefinition.MapperMemory.ToString(CultureInfo.InvariantCulture))
                 .BindNamedParameter(typeof (MemoryForUpdateTask),
                     jobDefinition.UpdateTaskMemory.ToString(CultureInfo.InvariantCulture))
+                .BindNamedParameter(typeof (InvokeGC),
+                    jobDefinition.InvokeGarbageCollectorAfterIteration.ToString(CultureInfo.InvariantCulture))
                 .Build();
 
             // The JobSubmission contains the Driver configuration as well as the files needed on the Driver.
