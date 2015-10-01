@@ -30,6 +30,7 @@ import org.apache.hadoop.yarn.client.api.async.NMClientAsync;
 import org.apache.hadoop.yarn.client.api.async.impl.NMClientAsyncImpl;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.exceptions.YarnException;
+import org.apache.reef.driver.ProgressProvider;
 import org.apache.reef.driver.parameters.JobSubmissionDirectory;
 import org.apache.reef.exception.DriverFatalRuntimeException;
 import org.apache.reef.proto.ReefServiceProtos;
@@ -81,6 +82,7 @@ final class YarnContainerManager
   private final String jobSubmissionDirectory;
   private final REEFFileNames reefFileNames;
   private final RackNameFormatter rackNameFormatter;
+  private final ProgressProvider progressProvider;
 
   @Inject
   YarnContainerManager(
@@ -94,7 +96,8 @@ final class YarnContainerManager
       final REEFFileNames reefFileNames,
       @Parameter(JobSubmissionDirectory.class) final String jobSubmissionDirectory,
       final TrackingURLProvider trackingURLProvider,
-      final RackNameFormatter rackNameFormatter) throws IOException {
+      final RackNameFormatter rackNameFormatter,
+      final ProgressProvider progressProvider) throws IOException {
     this.reefEventHandlers = reefEventHandlers;
     this.driverStatusManager = driverStatusManager;
 
@@ -112,6 +115,7 @@ final class YarnContainerManager
     this.nodeManager = new NMClientAsyncImpl(this);
     this.jobSubmissionDirectory = jobSubmissionDirectory;
     this.reefFileNames = reefFileNames;
+    this.progressProvider = progressProvider;
     LOG.log(Level.FINEST, "Instantiated YarnContainerManager");
   }
 
@@ -158,7 +162,7 @@ final class YarnContainerManager
 
   @Override
   public float getProgress() {
-    return 0; // TODO: return actual values for progress
+    return progressProvider.getProgress();
   }
 
   @Override
