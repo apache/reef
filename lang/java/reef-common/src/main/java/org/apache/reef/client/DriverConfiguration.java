@@ -21,6 +21,7 @@ package org.apache.reef.client;
 import org.apache.reef.annotations.Provided;
 import org.apache.reef.annotations.audience.ClientSide;
 import org.apache.reef.annotations.audience.Public;
+import org.apache.reef.driver.ProgressProvider;
 import org.apache.reef.driver.context.ActiveContext;
 import org.apache.reef.driver.context.ClosedContext;
 import org.apache.reef.driver.context.ContextMessage;
@@ -177,6 +178,11 @@ public final class DriverConfiguration extends ConfigurationModuleBuilder {
   public static final OptionalImpl<EventHandler<ContextMessage>> ON_CONTEXT_MESSAGE = new OptionalImpl<>();
 
   /**
+   * @see {@link ProgressProvider}
+   */
+  public static final OptionalImpl<ProgressProvider> PROGRESS_PROVIDER = new OptionalImpl<>();
+
+  /**
    * Number of threads allocated per evaluator to dispatch events from this Evaluator.
    */
   public static final OptionalParameter<Integer> EVALUATOR_DISPATCHER_THREADS = new OptionalParameter<>();
@@ -229,5 +235,6 @@ public final class DriverConfiguration extends ConfigurationModuleBuilder {
 
           // Various parameters
       .bindNamedParameter(EvaluatorDispatcherThreads.class, EVALUATOR_DISPATCHER_THREADS)
+      .bindImplementation(ProgressProvider.class, PROGRESS_PROVIDER)
       .build();
 }

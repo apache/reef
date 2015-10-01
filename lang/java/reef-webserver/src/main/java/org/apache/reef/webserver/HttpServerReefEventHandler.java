@@ -185,6 +185,8 @@ public final class HttpServerReefEventHandler implements HttpHandler {
         response.getWriter().println(String.format("Cannot find the log file: [%s].", fileName));
       }
       break;
+    // TODO[JIRA REEF-798] Use this provider in the HTTP
+    case "progress":
     default:
       response.getWriter().println(String.format("Unsupported query for entity: [%s].", target));
     }
