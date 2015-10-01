@@ -141,7 +141,7 @@ under the License.
       DestinationFiles="@(MySourceFiles->'$(TargetDir)%(Filename)%(Extension)')"
     />
   </Target>
-  <Import Project="$(SolutionDir)\StyleCop.MSBuild.Targets" Condition="Exists('$(SolutionDir)\StyleCop.MSBuild.Targets')" />
+<<<<<<< HEAD
     <ItemGroup>
         <DirectoriesToRemove Include="$(IntermediateOutputPath)" />
      </ItemGroup>
@@ -149,4 +149,14 @@ under the License.
         <RemoveDir Directories="@(DirectoriesToRemove)" Condition="!Exists('$(IntermediateOutputPath)\$(RootNamespace).log')"/>
         <RemoveDir Directories="$(OutputPath)" />
      </Target>
+=======
+  <Import Project="$(SolutionDir)\StyleCop.MSBuild.Targets" Condition="Exists('$(SolutionDir)\StyleCop.MSBuild.Targets')" />
+  <ItemGroup>
+    <DirectoriesToRemove Include="$(IntermediateOutputPath)" />
+  </ItemGroup>
+  <Target Name="RemoveIntermediateDirectories"  AfterTargets="clean">
+    <RemoveDir Directories="@(DirectoriesToRemove)" Condition="!Exists('$(IntermediateOutputPath)\$(RootNamespace).log')"/>
+    <RemoveDir Directories="$(OutputPath)" />
+  </Target>
+>>>>>>> 209b8a8... Add stylecop support to all projects with all rules disabled
 </Project>
