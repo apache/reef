@@ -141,6 +141,7 @@ under the License.
       DestinationFiles="@(MySourceFiles->'$(TargetDir)%(Filename)%(Extension)')"
     />
   </Target>
+  <Import Project="$(PackagesDir)\StyleCop.MSBuild.4.7.49.1\build\StyleCop.MSBuild.Targets" Condition="Exists('$(PackagesDir)\StyleCop.MSBuild.4.7.49.1\build\StyleCop.MSBuild.Targets')" />
     <ItemGroup>
         <DirectoriesToRemove Include="$(IntermediateOutputPath)" />
      </ItemGroup>

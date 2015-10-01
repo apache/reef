@@ -25,10 +25,13 @@ under the License.
     <AssemblyName>Org.Apache.REEF.IMRU</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <RestorePackages>true</RestorePackages>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..</SolutionDir>
   </PropertyGroup>
   <Import Project="$(SolutionDir)\build.props" />
+  <PropertyGroup>
+    <BuildPackage>false</BuildPackage>
+    <RestorePackages>true</RestorePackages>
+  </PropertyGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <ItemGroup>
@@ -130,6 +133,7 @@ under the License.
   </ItemGroup>
   <ItemGroup>
     <None Include="Org.Apache.REEF.IMRU.nuspec" />
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup />
 </Project>
