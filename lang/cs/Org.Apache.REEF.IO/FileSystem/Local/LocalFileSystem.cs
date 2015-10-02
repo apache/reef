@@ -28,9 +28,18 @@ namespace Org.Apache.REEF.IO.FileSystem.Local
     /// </summary>
     internal sealed class LocalFileSystem : IFileSystem
     {
+        private readonly string _uriPrefix;
+
         [Inject]
         private LocalFileSystem()
         {
+            _uriPrefix = "";
+        }
+
+        public string UriPrefix
+        {
+            get { return _uriPrefix; }
+
         }
 
         public Stream Open(Uri fileUri)

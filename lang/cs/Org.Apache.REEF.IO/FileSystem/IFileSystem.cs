@@ -104,5 +104,11 @@ namespace Org.Apache.REEF.IO.FileSystem
         /// <returns></returns>
         /// <exception cref="IOException"></exception>
         IEnumerable<Uri> GetChildren(Uri directoryUri);
+
+        /// <summary>
+        /// Returns Url prefix 
+        /// </summary>
+        /// <returns></returns>
+        string UriPrefix { get; }
     }
 }

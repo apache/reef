@@ -17,26 +17,17 @@
  * under the License.
  */
 
-using System;
+using System.Collections.Generic;
+using Org.Apache.REEF.Tang.Annotations;
 
-namespace Org.Apache.REEF.IO.PartitionedData
+namespace Org.Apache.REEF.IO.PartitionedData.FileSystem.Parameters
 {
     /// <summary>
-    /// Evaluator-Side representation of a data set partition.
+    /// Each element in the set contains input files for one partition, seperated by semicolon. 
+    /// The set contains file paths for all the partitions
     /// </summary>
-    /// <typeparam name="T">Generic Type representing data pointer.
-    /// For example, for data in local file it can be file pointer </typeparam>
-    public interface IPartition<T> 
+    [NamedParameter("All file paths")]
+    internal sealed class FilePathsForPatitions : Name<ISet<string>>
     {
-        /// <summary>
-        /// The id of the partition.
-        /// </summary>
-        string Id { get; }
-
-        /// <summary>
-        /// Gives a pointer to the underlying partition.
-        /// </summary>
-        /// <returns>The pointer to the underlying partition</returns>
-        T GetPartitionHandle();
     }
 }
