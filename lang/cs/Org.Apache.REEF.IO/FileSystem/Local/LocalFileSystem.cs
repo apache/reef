@@ -31,7 +31,10 @@ namespace Org.Apache.REEF.IO.FileSystem.Local
         [Inject]
         private LocalFileSystem()
         {
+            UriPrefix = "";
         }
+
+        public string UriPrefix { get; private set; }
 
         public Stream Open(Uri fileUri)
         {
