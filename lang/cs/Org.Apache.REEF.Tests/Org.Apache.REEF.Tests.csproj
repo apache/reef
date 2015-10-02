@@ -107,10 +107,6 @@ under the License.
       <Project>{1b983182-9c30-464c-948d-f87eb93a8240}</Project>
       <Name>Org.Apache.REEF.Evaluator</Name>
     </ProjectReference>
-    <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.Bridge\Org.Apache.REEF.Bridge.vcxproj">
-      <Project>{4e69d40a-26d6-4d4a-b96d-729946c07fe1}</Project>
-      <Name>Org.Apache.REEF.Bridge</Name>
-    </ProjectReference>
     <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.Network.Examples\Org.Apache.REEF.Network.Examples.csproj">
       <Project>{b1b43b60-ddd0-4805-a9b4-ba84a0ccb7c7}</Project>
       <Name>Org.Apache.REEF.Network.Examples</Name>
