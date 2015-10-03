@@ -40,6 +40,8 @@ namespace Org.Apache.REEF.IMRU.API
         private readonly int _numberOfMappers;
         private readonly int _memoryPerMapper;
         private readonly int _updateTaskMemory;
+        private readonly int _mapTaskCores;
+        private readonly int _updateTaskCores;
         private readonly ISet<IConfiguration> _perMapConfigGeneratorConfig;
         private readonly bool _invokeGC;
 
@@ -61,6 +63,9 @@ namespace Org.Apache.REEF.IMRU.API
         /// <param name="perMapConfigGeneratorConfig">Per mapper configuration</param>
         /// <param name="numberOfMappers">Number of mappers</param>
         /// <param name="memoryPerMapper">Per Mapper memory.</param>
+        /// <param name="updateTaskMemory">Update task memory</param>
+        /// <param name="mapTaskCores">Number of map task cores</param>
+        /// <param name="updateTaskCores">Number of update task cores</param>
         /// <param name="jobName">Job name</param>
         /// <param name="invokeGC">Whether to call garbage collector after each iteration</param>
         internal IMRUJobDefinition(
@@ -76,6 +81,8 @@ namespace Org.Apache.REEF.IMRU.API
             int numberOfMappers,
             int memoryPerMapper,
             int updateTaskMemory,
+            int mapTaskCores,
+            int updateTaskCores,
             string jobName,
             bool invokeGC)
         {
@@ -91,6 +98,8 @@ namespace Org.Apache.REEF.IMRU.API
             _jobName = jobName;
             _memoryPerMapper = memoryPerMapper;
             _updateTaskMemory = updateTaskMemory;
+            _mapTaskCores = mapTaskCores;
+            _updateTaskCores = updateTaskCores;
             _perMapConfigGeneratorConfig = perMapConfigGeneratorConfig;
             _invokeGC = invokeGC;
         }
@@ -192,6 +201,23 @@ namespace Org.Apache.REEF.IMRU.API
         internal int UpdateTaskMemory
         {
             get { return _updateTaskMemory; }
+        }
+
+
+        /// <summary>
+        /// Cores for each mapper
+        /// </summary>
+        internal int MapTaskCores
+        {
+            get { return _mapTaskCores; }
+        }
+
+        /// <summary>
+        /// Cores for update task
+        /// </summary>
+        internal int UpdateTaskCores
+        {
+            get { return _updateTaskCores; }
         }
 
         /// <summary>
