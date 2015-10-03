@@ -166,6 +166,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                                 .Build(),
                             _configurationManager.UpdateFunctionConfiguration
                         })
+                        .BindNamedParameter(typeof (InvokeGC), _invokeGC.ToString())
                         .Build();
 
                 _commGroup.AddTask(IMRUConstants.UpdateTaskName);
