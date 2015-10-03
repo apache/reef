@@ -68,6 +68,8 @@ namespace Org.Apache.REEF.IMRU.Examples.MapperCount
                     .SetPartitionedDatasetConfiguration(
                         RandomDataConfiguration.ConfigurationModule.Set(RandomDataConfiguration.NumberOfPartitions,
                             numberofMappers.ToString()).Build())
+                    .SetMapTaskCores(2)
+                    .SetUpdateTaskCores(3)
                     .SetJobName("MapperCount")
                     .SetNumberOfMappers(numberofMappers)
                     .Build());

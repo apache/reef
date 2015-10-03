@@ -112,25 +112,29 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Client
                 jobDefinition.PartitionedDatasetConfiguration,
                 overallPerMapConfig
             })
-                .BindNamedParameter(typeof (SerializedMapConfiguration),
+                .BindNamedParameter(typeof(SerializedMapConfiguration),
                     _configurationSerializer.ToString(jobDefinition.MapFunctionConfiguration))
-                .BindNamedParameter(typeof (SerializedUpdateConfiguration),
+                .BindNamedParameter(typeof(SerializedUpdateConfiguration),
                     _configurationSerializer.ToString(jobDefinition.UpdateFunctionConfiguration))
-                .BindNamedParameter(typeof (SerializedMapInputCodecConfiguration),
+                .BindNamedParameter(typeof(SerializedMapInputCodecConfiguration),
                     _configurationSerializer.ToString(jobDefinition.MapInputCodecConfiguration))
-                .BindNamedParameter(typeof (SerializedMapInputPipelineDataConverterConfiguration),
+                .BindNamedParameter(typeof(SerializedMapInputPipelineDataConverterConfiguration),
                     _configurationSerializer.ToString(jobDefinition.MapInputPipelineDataConverterConfiguration))
-                .BindNamedParameter(typeof (SerializedUpdateFunctionCodecsConfiguration),
+                .BindNamedParameter(typeof(SerializedUpdateFunctionCodecsConfiguration),
                     _configurationSerializer.ToString(jobDefinition.UpdateFunctionCodecsConfiguration))
-                .BindNamedParameter(typeof (SerializedMapOutputPipelineDataConverterConfiguration),
+                .BindNamedParameter(typeof(SerializedMapOutputPipelineDataConverterConfiguration),
                     _configurationSerializer.ToString(jobDefinition.MapOutputPipelineDataConverterConfiguration))
-                .BindNamedParameter(typeof (SerializedReduceConfiguration),
+                .BindNamedParameter(typeof(SerializedReduceConfiguration),
                     _configurationSerializer.ToString(jobDefinition.ReduceFunctionConfiguration))
-                .BindNamedParameter(typeof (MemoryPerMapper),
+                .BindNamedParameter(typeof(MemoryPerMapper),
                     jobDefinition.MapperMemory.ToString(CultureInfo.InvariantCulture))
-                .BindNamedParameter(typeof (MemoryForUpdateTask),
+                .BindNamedParameter(typeof(MemoryForUpdateTask),
                     jobDefinition.UpdateTaskMemory.ToString(CultureInfo.InvariantCulture))
-                .BindNamedParameter(typeof (InvokeGC),
+                .BindNamedParameter(typeof(CoresPerMapper),
+                    jobDefinition.MapTaskCores.ToString(CultureInfo.InvariantCulture))
+                .BindNamedParameter(typeof(CoresForUpdateTask),
+                    jobDefinition.UpdateTaskCores.ToString(CultureInfo.InvariantCulture))
+                .BindNamedParameter(typeof(InvokeGC),
                     jobDefinition.InvokeGarbageCollectorAfterIteration.ToString(CultureInfo.InvariantCulture))
                 .Build();
 

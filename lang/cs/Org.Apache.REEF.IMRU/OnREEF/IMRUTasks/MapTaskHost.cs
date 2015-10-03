@@ -74,7 +74,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
             {
                 if (_invokeGC)
                 {
-                    Logger.Log(Level.Verbose,"Calling Garbage Collector");
+                    Logger.Log(Level.Verbose, "Calling Garbage Collector");
                     GC.Collect();
                     GC.WaitForPendingFinalizers();
                 }

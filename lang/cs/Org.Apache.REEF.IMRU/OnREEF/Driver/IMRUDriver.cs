@@ -117,6 +117,10 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             _serviceAndContextConfigurationProvider =
                 new ServiceAndContextConfigurationProvider<TMapInput, TMapOutput>(dataSet.Count + 1, groupCommDriver,
                     _configurationManager, _partitionDescriptorStack);
+
+            Logger.Log(Level.Info,
+                string.Format("map task memory:{0}, update task memory:{1}, map task cores:{2}, update task cores:{3}",
+                    _memoryPerMapper, _memoryForUpdateTask, _coresPerMapper, _coresForUpdateTask));
         }
 
         /// <summary>
