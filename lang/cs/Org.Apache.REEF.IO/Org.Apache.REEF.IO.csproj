@@ -43,6 +43,7 @@ under the License.
   <ItemGroup>
     <Compile Include="FileSystem\Hadoop\CommandResult.cs" />
     <Compile Include="FileSystem\Hadoop\HadoopFileSystemConfiguration.cs" />
+    <Compile Include="FileSystem\Hadoop\HadoopFileSystemConfigurationProvider.cs" />
     <Compile Include="FileSystem\Hadoop\HDFSCommandRunner.cs" />
     <Compile Include="FileSystem\Hadoop\HadoopFileSystem.cs" />
     <Compile Include="FileSystem\Hadoop\Parameters\CommandTimeOut.cs" />

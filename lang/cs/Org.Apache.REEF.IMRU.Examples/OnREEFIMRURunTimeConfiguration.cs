@@ -21,6 +21,7 @@ using System.Globalization;
 using Org.Apache.REEF.Client.Local;
 using Org.Apache.REEF.Client.Yarn;
 using Org.Apache.REEF.IMRU.OnREEF.Client;
+using Org.Apache.REEF.IO.FileSystem.Hadoop;
 using Org.Apache.REEF.Tang.Implementations.Configuration;
 using Org.Apache.REEF.Tang.Interface;
 
@@ -72,9 +73,11 @@ namespace Org.Apache.REEF.IMRU.Examples
             IConfiguration imruClientConfig =
                 REEFIMRUClientConfiguration<TMapInput, TMapOutput, TResult>.ConfigurationModule.Build();
 
+            var fileSystemConfig = HadoopFileSystemConfiguration.ConfigurationModule.Build();
+
             IConfiguration runtimeConfig =
                 YARNClientConfiguration.ConfigurationModule.Build();
-            return Configurations.Merge(runtimeConfig, imruClientConfig);
+            return Configurations.Merge(runtimeConfig, imruClientConfig, fileSystemConfig);
         }
     }
 }

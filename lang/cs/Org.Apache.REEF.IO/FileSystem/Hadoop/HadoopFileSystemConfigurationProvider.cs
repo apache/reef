@@ -18,29 +18,35 @@
  */
 
 using Org.Apache.REEF.Common.Evaluator.Parameters;
+using Org.Apache.REEF.IO.FileSystem.Hadoop.Parameters;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
-using Org.Apache.REEF.Wake.Remote.Parameters;
+using Org.Apache.REEF.Tang.Util;
 
-namespace Org.Apache.REEF.Common.Io
+namespace Org.Apache.REEF.IO.FileSystem.Hadoop
 {
-    public class TcpPortConfigurationProvider : IConfigurationProvider
+    /// <summary>
+    /// This provider provides configuration for HardoopFileSystem
+    /// The client that is going to use HadoopFileSystem in its driver and evaluators should set 
+    /// configuration data through HadoopFileSystemConfiguration module in he client's configuration
+    /// </summary>
+    internal sealed class HadoopFileSystemConfigurationProvider : IConfigurationProvider
     {
         private readonly IConfiguration _configuration;
+
         [Inject]
-        private TcpPortConfigurationProvider(
-            [Parameter(typeof(TcpPortRangeStart))] int tcpPortRangeStart,
-            [Parameter(typeof(TcpPortRangeCount))] int tcpPortRangeCount,
-            [Parameter(typeof(TcpPortRangeTryCount))] int tcpPortRangeTryCount,
-            [Parameter(typeof(TcpPortRangeSeed))] int tcpPortRangeTrySeed)
+        private HadoopFileSystemConfigurationProvider(
+            [Parameter(typeof(NumberOfRetries))] int numberOfRetries,
+            [Parameter(typeof(CommandTimeOut))] int commandTimeOut,
+            [Parameter(typeof(HadoopHome))] string hadoopHome)
         {
             _configuration = TangFactory.GetTang().NewConfigurationBuilder()
-                .BindIntNamedParam<TcpPortRangeStart>(tcpPortRangeStart.ToString())
-                .BindIntNamedParam<TcpPortRangeCount>(tcpPortRangeCount.ToString())
-                .BindIntNamedParam<TcpPortRangeTryCount>(tcpPortRangeTryCount.ToString())
-                .BindIntNamedParam<TcpPortRangeSeed>(tcpPortRangeTrySeed.ToString())
-                .BindSetEntry<EvaluatorConfigurationProviders, TcpPortConfigurationProvider, IConfigurationProvider>()
+                .BindImplementation(GenericType<IFileSystem>.Class, GenericType<HadoopFileSystem>.Class)
+                .BindIntNamedParam<NumberOfRetries>(numberOfRetries.ToString())
+                .BindIntNamedParam<CommandTimeOut>(commandTimeOut.ToString())
+                .BindStringNamedParam<HadoopHome>(hadoopHome)
+                .BindSetEntry<EvaluatorConfigurationProviders, HadoopFileSystemConfigurationProvider, IConfigurationProvider>()
                 .Build();
         }
 

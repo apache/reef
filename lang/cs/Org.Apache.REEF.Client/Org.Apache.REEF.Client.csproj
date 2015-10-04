@@ -62,7 +62,6 @@ under the License.
     <Compile Include="API\JobSubmission.cs" />
     <Compile Include="API\JobSubmissionBuilder.cs" />
     <Compile Include="API\JobSubmissionBuilderFactory.cs" />
-    <Compile Include="API\Parameters\DriverConfigurationProviders.cs" />
     <Compile Include="API\TcpPortConfigurationModule.cs" />
     <Compile Include="Common\ClientConstants.cs" />
     <Compile Include="Common\ClrClient2JavaClientCuratedParameters.cs" />
