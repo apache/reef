@@ -21,10 +21,10 @@ using System.Collections.Generic;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Interface;
 
-namespace Org.Apache.REEF.Client.API.Parameters
+namespace Org.Apache.REEF.Common.Parameters
 {
     /// <summary>
-    // This name parameter is used to target receviers Configuration providers at driver level
+    // This name parameter is used to target receivers Configuration providers at driver level
     /// </summary>
     [NamedParameter]
     public sealed class DriverConfigurationProviders : Name<ISet<IConfigurationProvider>>

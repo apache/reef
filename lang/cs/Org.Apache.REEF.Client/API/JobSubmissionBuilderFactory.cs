@@ -18,7 +18,7 @@
  */
 
 using System.Collections.Generic;
-using Org.Apache.REEF.Client.API.Parameters;
+using Org.Apache.REEF.Common.Parameters;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Interface;
 
