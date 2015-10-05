@@ -20,7 +20,6 @@ package org.apache.reef.io.watcher;
 
 import org.apache.reef.driver.parameters.*;
 import org.apache.reef.io.watcher.param.EventStreams;
-import org.apache.reef.io.watcher.param.Path;
 import org.apache.reef.tang.formats.*;
 import org.apache.reef.wake.time.Clock;
 
@@ -29,13 +28,13 @@ import org.apache.reef.wake.time.Clock;
  */
 public final class WatcherConfiguration extends ConfigurationModuleBuilder {
 
+  /**
+   * Types of EventStream where events subscribed by Watcher will be reported.
+   */
   public static final OptionalImpl<EventStream> EVENT_STREAMS = new OptionalImpl<>();
-
-  public static final OptionalParameter<String> PATH = new OptionalParameter<>();
 
   public static final ConfigurationModule CONF = new WatcherConfiguration()
       .bindSetEntry(EventStreams.class, EVENT_STREAMS)
-      .bindNamedParameter(Path.class, PATH)
       .bindSetEntry(Clock.RuntimeStartHandler.class, Watcher.DriverRuntimeStartHandler.class)
       .bindSetEntry(Clock.StartHandler.class, Watcher.DriverStartHandler.class)
       .bindSetEntry(Clock.StopHandler.class, Watcher.DriverStopHandler.class)

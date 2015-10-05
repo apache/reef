@@ -27,7 +27,8 @@ import org.apache.reef.tang.annotations.DefaultImplementation;
 public interface EventStream {
 
   /**
-   * Write an eventRecord with specific type.
+   * Write an eventRecord with specific type. This should be thread-safe
+   * since multiple event handlers can concurrently call the method.
    *
    * @param type a event type
    * @param jsonEncodedEvent an event encoded as json

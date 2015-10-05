@@ -35,6 +35,6 @@ public final class LogEventStream implements EventStream {
 
   @Override
   public void onEvent(final EventType type, final String jsonEncodedEvent) {
-    LOG.log(Level.INFO, "[{0}] {1}", new Object[]{type.toString(), jsonEncodedEvent});
+    LOG.log(Level.INFO, "[{0}] {1}", new Object[]{type, jsonEncodedEvent});
   }
 }

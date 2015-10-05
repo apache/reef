@@ -18,6 +18,7 @@
  */
 package org.apache.reef.io.watcher.param;
 
+import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.io.watcher.EventStream;
 import org.apache.reef.io.watcher.LogEventStream;
 import org.apache.reef.tang.annotations.Name;
@@ -28,6 +29,7 @@ import java.util.Set;
 /**
  * Set of EventStreams.
  */
+@Private
 @NamedParameter(default_classes = {LogEventStream.class})
 public final class EventStreams implements Name<Set<EventStream>> {
 

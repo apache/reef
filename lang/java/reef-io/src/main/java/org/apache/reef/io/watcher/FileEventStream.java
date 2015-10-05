@@ -18,8 +18,9 @@
  */
 package org.apache.reef.io.watcher;
 
-import org.apache.reef.io.watcher.param.Path;
 import org.apache.reef.io.watcher.util.RunnableExecutingHandler;
+import org.apache.reef.tang.annotations.Name;
+import org.apache.reef.tang.annotations.NamedParameter;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.wake.EStage;
 import org.apache.reef.wake.impl.ThreadPoolStage;
@@ -90,5 +91,10 @@ public final class FileEventStream implements EventStream {
 
   private void onRuntimeStop() {
     printWriter.close();
+  }
+
+  @NamedParameter(doc = "The relative path of the reporting file.", default_value = "watcher_report.txt")
+  public static final class Path implements Name<String> {
+
   }
 }
