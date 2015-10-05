@@ -17,11 +17,12 @@
  * under the License.
  */
 
+using System;
 using System.Collections.Generic;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Interface;
 
-namespace Org.Apache.REEF.Common.Parameters
+namespace Org.Apache.REEF.Common.Client.Parameters
 {
     /// <summary>
     // This name parameter is used to target receivers Configuration providers at driver level

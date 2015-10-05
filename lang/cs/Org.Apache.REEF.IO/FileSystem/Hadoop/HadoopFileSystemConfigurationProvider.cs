@@ -31,7 +31,7 @@ namespace Org.Apache.REEF.IO.FileSystem.Hadoop
     /// The client that is going to use HadoopFileSystem in its driver and evaluators should set 
     /// configuration data through HadoopFileSystemConfiguration module in he client's configuration
     /// </summary>
-    public class HadoopFileSystemConfigurationProvider : IConfigurationProvider
+    internal sealed class HadoopFileSystemConfigurationProvider : IConfigurationProvider
     {
         private readonly IConfiguration _configuration;
 

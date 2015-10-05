@@ -17,7 +17,7 @@
 
 using Org.Apache.REEF.Common.Attributes;
 using Org.Apache.REEF.Common.Io;
-using Org.Apache.REEF.Common.Parameters;
+using Org.Apache.REEF.Common.Client.Parameters;
 using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;

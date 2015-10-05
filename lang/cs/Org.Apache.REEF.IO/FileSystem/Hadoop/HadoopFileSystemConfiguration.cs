@@ -16,7 +16,7 @@
 // under the License.
 
 using Org.Apache.REEF.Common.Io;
-using Org.Apache.REEF.Common.Parameters;
+using Org.Apache.REEF.Common.Client.Parameters;
 using Org.Apache.REEF.IO.FileSystem.Hadoop.Parameters;
 using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Interface;
