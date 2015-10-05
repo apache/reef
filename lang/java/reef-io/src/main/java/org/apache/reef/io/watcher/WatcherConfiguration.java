@@ -51,4 +51,10 @@ public final class WatcherConfiguration extends ConfigurationModuleBuilder {
       .bindSetEntry(ServiceEvaluatorFailedHandlers.class, Watcher.EvaluatorFailedHandler.class)
       .bindSetEntry(ServiceEvaluatorCompletedHandlers.class, Watcher.EvaluatorCompletedHandler.class)
       .build();
+
+  /**
+   * Construct a WatcherConfiguration.
+   */
+  private WatcherConfiguration() {
+  }
 }

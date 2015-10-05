@@ -26,4 +26,10 @@ import org.apache.reef.tang.annotations.NamedParameter;
  */
 @NamedParameter
 public final class Path implements Name<String> {
+
+  /**
+   * This class should not be instantiated.
+   */
+  private Path() {
+  }
 }
