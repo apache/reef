@@ -38,6 +38,7 @@ import org.apache.reef.runtime.local.client.parameters.RootFolder;
 import org.apache.reef.runtime.local.process.ReefRunnableProcessObserver;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.util.CollectionUtils;
+import org.apache.reef.util.MemoryUtils;
 import org.apache.reef.util.Optional;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.remote.RemoteMessage;
@@ -67,6 +68,7 @@ final class ContainerManager implements AutoCloseable {
   private static final Logger LOG = Logger.getLogger(ContainerManager.class.getName());
 
   private static final Collection<String> DEFAULT_RACKS = Arrays.asList(RackNames.DEFAULT_RACK_NAME);
+
 
   /**
    * Map from containerID -> Container.
@@ -207,13 +209,17 @@ final class ContainerManager implements AutoCloseable {
         final String id = idmaker.getNextID();
         this.racksPerNode.put(id, rackName);
         this.freeNodesPerRack.get(rackName).put(id, Boolean.TRUE);
+
+        final int totalMemorySizeInMB = MemoryUtils.getTotalPhysicalMemorySizeInMB();
+        final int nodeMemorySizeInMB  = (-1 == totalMemorySizeInMB) ? this.defaultMemorySize : totalMemorySizeInMB;
+
         this.nodeDescriptorHandler.onNext(NodeDescriptorEventImpl.newBuilder()
-            .setIdentifier(id)
-            .setRackName(rackName)
-            .setHostName(this.localAddress)
-            .setPort(j)
-            .setMemorySize(this.defaultMemorySize) // TODO[JIRA REEF-792] Find the actual system memory on this machine.
-            .build());
+                .setIdentifier(id)
+                .setRackName(rackName)
+                .setHostName(this.localAddress)
+                .setPort(j)
+                .setMemorySize(nodeMemorySizeInMB)
+                .build());
         j++;
       }
     }
