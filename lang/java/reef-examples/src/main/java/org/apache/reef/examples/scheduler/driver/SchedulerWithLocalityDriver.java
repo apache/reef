@@ -258,10 +258,6 @@ public final class SchedulerWithLocalityDriver {
       throw new IllegalArgumentException("The path should not be null");
     }
 
-    /**
-     * HDFS File system.
-     */
-//  private FileSystem fs;
     FileSystem fs;
 
     final JobConf jobConf = new JobConf();
