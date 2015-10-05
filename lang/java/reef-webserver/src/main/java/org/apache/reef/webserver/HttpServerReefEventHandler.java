@@ -18,6 +18,7 @@
  */
 package org.apache.reef.webserver;
 
+import org.apache.reef.driver.ProgressProvider;
 import org.apache.reef.driver.evaluator.EvaluatorDescriptor;
 import org.apache.reef.driver.parameters.ClientCloseHandlers;
 import org.apache.reef.runtime.common.files.REEFFileNames;
@@ -61,6 +62,7 @@ public final class HttpServerReefEventHandler implements HttpHandler {
   private final ReefEventStateManager reefStateManager;
   private final Set<EventHandler<Void>> clientCloseHandlers;
   private final LoggingScopeFactory loggingScopeFactory;
+  private final ProgressProvider progressProvider;
 
   /**
    * Log level string prefix in the log lines.
@@ -78,11 +80,13 @@ public final class HttpServerReefEventHandler implements HttpHandler {
       @Parameter(ClientCloseHandlers.class) final Set<EventHandler<Void>> clientCloseHandlers,
       @Parameter(LogLevelName.class) final String logLevel,
       final LoggingScopeFactory loggingScopeFactory,
-      final REEFFileNames reefFileNames) {
+      final REEFFileNames reefFileNames,
+      final ProgressProvider progressProvider) {
     this.reefStateManager = reefStateManager;
     this.clientCloseHandlers = clientCloseHandlers;
     this.loggingScopeFactory = loggingScopeFactory;
     this.logLevelPrefix = new StringBuilder().append(logLevel).append(": ").toString();
+    this.progressProvider = progressProvider;
     driverStdoutFile = reefFileNames.getDriverStdoutFileName();
     driverStderrFile = reefFileNames.getDriverStderrFileName();
   }
@@ -189,8 +193,9 @@ public final class HttpServerReefEventHandler implements HttpHandler {
         }
       }
       break;
-    // TODO[JIRA REEF-798] Use this provider in the HTTP
     case "progress":
+      response.getWriter().println(progressProvider.getProgress());
+      break;
     default:
       response.getWriter().println(String.format("Unsupported query for entity: [%s].", target));
     }
