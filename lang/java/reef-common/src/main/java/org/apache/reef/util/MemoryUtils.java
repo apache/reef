@@ -29,7 +29,7 @@ import java.util.List;
  */
 public final class MemoryUtils {
 
-  private static final int MBS = 1024 * 1024;
+  private static final int BYTES_IN_MEGABYTE = 1024 * 1024;
 
   private MemoryUtils() {
   }
@@ -61,7 +61,7 @@ public final class MemoryUtils {
     final List<MemoryPoolMXBean> memoryPoolMXBeans = ManagementFactory.getMemoryPoolMXBeans();
     for (final MemoryPoolMXBean bean : memoryPoolMXBeans) {
       if (bean.getName().toLowerCase().indexOf(name) != -1) {
-        return bean.getUsage().getUsed() / MBS;
+        return bean.getUsage().getUsed() / BYTES_IN_MEGABYTE;
       }
     }
     return 0;
@@ -83,7 +83,7 @@ public final class MemoryUtils {
     final List<MemoryPoolMXBean> memoryPoolMXBeans = ManagementFactory.getMemoryPoolMXBeans();
     for (final MemoryPoolMXBean bean : memoryPoolMXBeans) {
       if (bean.getName().toLowerCase().indexOf(name) != -1) {
-        return bean.getPeakUsage().getUsed() / MBS;
+        return bean.getPeakUsage().getUsed() / BYTES_IN_MEGABYTE;
       }
     }
     return 0;
@@ -94,6 +94,28 @@ public final class MemoryUtils {
     for (final MemoryPoolMXBean memoryPoolMXBean : memoryPoolMXBeans) {
       memoryPoolMXBean.resetPeakUsage();
     }
+  }
+
+  /**
+   * Returns the total amount of physical memory on the current machine in megabytes.
+   *
+   * Some JVMs may not support the underlying API call.
+   *
+   * @return memory size in MB if the call succeeds; -1 otherwise
+   */
+  public static int getTotalPhysicalMemorySizeInMB() {
+
+    int memorySizeInMB;
+    try {
+      long memorySizeInBytes = ((com.sun.management.OperatingSystemMXBean) ManagementFactory
+                    .getOperatingSystemMXBean()).getTotalPhysicalMemorySize();
+
+      memorySizeInMB = (int) (memorySizeInBytes / BYTES_IN_MEGABYTE);
+    } catch (Exception e) {
+      memorySizeInMB = -1;
+    }
+
+    return memorySizeInMB;
   }
 
   public static void main(final String[] args) {
