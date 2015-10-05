@@ -25,7 +25,9 @@ import org.apache.reef.driver.evaluator.AllocatedEvaluator;
 import org.apache.reef.driver.evaluator.CompletedEvaluator;
 import org.apache.reef.driver.evaluator.FailedEvaluator;
 import org.apache.reef.driver.task.*;
+import org.apache.reef.io.watcher.param.EventStreams;
 import org.apache.reef.io.watcher.util.WatcherAvroUtil;
+import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.tang.annotations.Unit;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.time.event.StartTime;
@@ -34,6 +36,7 @@ import org.apache.reef.wake.time.runtime.event.RuntimeStart;
 import org.apache.reef.wake.time.runtime.event.RuntimeStop;
 
 import javax.inject.Inject;
+import java.util.Set;
 
 /**
  * Subscribe events and transfer them as wrapping with corresponding avro classes.
@@ -41,19 +44,24 @@ import javax.inject.Inject;
 @Unit
 public final class Watcher {
 
-  private final EventStream eventStream;
+  private final Set<EventStream> eventStreamSet;
 
   @Inject
-  private Watcher(final EventStream eventStream) {
-    this.eventStream = eventStream;
+  private Watcher(@Parameter(EventStreams.class) final Set<EventStream> eventStreamSet) {
+    this.eventStreamSet = eventStreamSet;
+  }
+
+  private void onEvent(final EventType eventType, final String jsonEncodedEvent) {
+    for (final EventStream eventStream : eventStreamSet) {
+      eventStream.onEvent(eventType, jsonEncodedEvent);
+    }
   }
 
   public final class DriverRuntimeStartHandler implements EventHandler<RuntimeStart> {
 
     @Override
     public void onNext(final RuntimeStart runtimeStart) {
-      eventStream.onEvent(EventType.RuntimeStart,
-          WatcherAvroUtil.toString(WatcherAvroUtil.toAvroRuntimeStart(runtimeStart)));
+      onEvent(EventType.RuntimeStart, WatcherAvroUtil.toString(WatcherAvroUtil.toAvroRuntimeStart(runtimeStart)));
     }
   }
 
@@ -61,8 +69,7 @@ public final class Watcher {
 
     @Override
     public void onNext(final StartTime startTime) {
-      eventStream.onEvent(EventType.StartTime,
-          WatcherAvroUtil.toString(WatcherAvroUtil.toAvroStartTime(startTime)));
+      onEvent(EventType.StartTime, WatcherAvroUtil.toString(WatcherAvroUtil.toAvroStartTime(startTime)));
     }
   }
 
@@ -70,8 +77,7 @@ public final class Watcher {
 
     @Override
     public void onNext(final StopTime stopTime) {
-      eventStream.onEvent(EventType.StopTime,
-          WatcherAvroUtil.toString(WatcherAvroUtil.toAvroStopTime(stopTime)));
+      onEvent(EventType.StopTime, WatcherAvroUtil.toString(WatcherAvroUtil.toAvroStopTime(stopTime)));
     }
   }
 
@@ -79,8 +85,7 @@ public final class Watcher {
 
     @Override
     public void onNext(final RuntimeStop runtimeStop) {
-      eventStream.onEvent(EventType.RuntimeStop,
-          WatcherAvroUtil.toString(WatcherAvroUtil.toAvroRuntimeStop(runtimeStop)));
+      onEvent(EventType.RuntimeStop, WatcherAvroUtil.toString(WatcherAvroUtil.toAvroRuntimeStop(runtimeStop)));
     }
   }
 
@@ -88,8 +93,7 @@ public final class Watcher {
 
     @Override
     public void onNext(final ActiveContext activeContext) {
-      eventStream.onEvent(EventType.ActiveContext,
-          WatcherAvroUtil.toString(WatcherAvroUtil.toAvroActiveContext(activeContext)));
+      onEvent(EventType.ActiveContext, WatcherAvroUtil.toString(WatcherAvroUtil.toAvroActiveContext(activeContext)));
     }
   }
 
@@ -97,8 +101,7 @@ public final class Watcher {
 
     @Override
     public void onNext(final ClosedContext closedContext) {
-      eventStream.onEvent(EventType.ClosedContext,
-          WatcherAvroUtil.toString(WatcherAvroUtil.toAvroClosedContext(closedContext)));
+      onEvent(EventType.ClosedContext, WatcherAvroUtil.toString(WatcherAvroUtil.toAvroClosedContext(closedContext)));
     }
   }
 
@@ -106,8 +109,7 @@ public final class Watcher {
 
     @Override
     public void onNext(final FailedContext failedContext) {
-      eventStream.onEvent(EventType.FailedContext,
-          WatcherAvroUtil.toString(WatcherAvroUtil.toAvroFailedContext(failedContext)));
+      onEvent(EventType.FailedContext, WatcherAvroUtil.toString(WatcherAvroUtil.toAvroFailedContext(failedContext)));
     }
   }
 
@@ -115,8 +117,7 @@ public final class Watcher {
 
     @Override
     public void onNext(final CompletedTask completedTask) {
-      eventStream.onEvent(EventType.CompletedTask,
-          WatcherAvroUtil.toString(WatcherAvroUtil.toAvroCompletedTask(completedTask)));
+      onEvent(EventType.CompletedTask, WatcherAvroUtil.toString(WatcherAvroUtil.toAvroCompletedTask(completedTask)));
     }
   }
 
@@ -124,8 +125,7 @@ public final class Watcher {
 
     @Override
     public void onNext(final FailedTask failedTask) {
-      eventStream.onEvent(EventType.FailedTask,
-          WatcherAvroUtil.toString(WatcherAvroUtil.toAvroFailedTask(failedTask)));
+      onEvent(EventType.FailedTask, WatcherAvroUtil.toString(WatcherAvroUtil.toAvroFailedTask(failedTask)));
     }
   }
 
@@ -133,8 +133,7 @@ public final class Watcher {
 
     @Override
     public void onNext(final RunningTask runningTask) {
-      eventStream.onEvent(EventType.RunningTask,
-          WatcherAvroUtil.toString(WatcherAvroUtil.toAvroRunningTask(runningTask)));
+      onEvent(EventType.RunningTask, WatcherAvroUtil.toString(WatcherAvroUtil.toAvroRunningTask(runningTask)));
     }
   }
 
@@ -142,8 +141,7 @@ public final class Watcher {
 
     @Override
     public void onNext(final TaskMessage taskMessage) {
-      eventStream.onEvent(EventType.TaskMessage,
-          WatcherAvroUtil.toString(WatcherAvroUtil.toAvroTaskMessage(taskMessage)));
+      onEvent(EventType.TaskMessage, WatcherAvroUtil.toString(WatcherAvroUtil.toAvroTaskMessage(taskMessage)));
     }
   }
 
@@ -151,8 +149,7 @@ public final class Watcher {
 
     @Override
     public void onNext(final SuspendedTask suspendedTask) {
-      eventStream.onEvent(EventType.SuspendedTask,
-          WatcherAvroUtil.toString(WatcherAvroUtil.toAvroSuspendedTask(suspendedTask)));
+      onEvent(EventType.SuspendedTask, WatcherAvroUtil.toString(WatcherAvroUtil.toAvroSuspendedTask(suspendedTask)));
     }
   }
 
@@ -160,7 +157,7 @@ public final class Watcher {
 
     @Override
     public void onNext(final AllocatedEvaluator allocatedEvaluator) {
-      eventStream.onEvent(EventType.AllocatedEvaluator,
+      onEvent(EventType.AllocatedEvaluator,
           WatcherAvroUtil.toString(WatcherAvroUtil.toAvroAllocatedEvaluator(allocatedEvaluator)));
     }
   }
@@ -169,7 +166,7 @@ public final class Watcher {
 
     @Override
     public void onNext(final FailedEvaluator failedEvaluator) {
-      eventStream.onEvent(EventType.FailedEvaluator,
+      onEvent(EventType.FailedEvaluator,
           WatcherAvroUtil.toString(WatcherAvroUtil.toAvroFailedEvaluator(failedEvaluator)));
     }
   }
@@ -178,7 +175,7 @@ public final class Watcher {
 
     @Override
     public void onNext(final CompletedEvaluator completedEvaluator) {
-      eventStream.onEvent(EventType.CompletedEvaluator,
+      onEvent(EventType.CompletedEvaluator,
           WatcherAvroUtil.toString(WatcherAvroUtil.toAvroCompletedEvaluator(completedEvaluator)));
     }
   }
