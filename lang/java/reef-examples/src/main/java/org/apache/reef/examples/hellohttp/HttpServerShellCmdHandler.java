@@ -39,11 +39,11 @@ import java.util.logging.Logger;
  * Http Event handler for Shell Command.
  */
 @Unit
-class HttpServerShellCmdtHandler implements HttpHandler {
+class HttpServerShellCmdHandler implements HttpHandler {
   /**
    * Standard Java logger.
    */
-  private static final Logger LOG = Logger.getLogger(HttpServerShellCmdtHandler.class.getName());
+  private static final Logger LOG = Logger.getLogger(HttpServerShellCmdHandler.class.getName());
 
   private static final int WAIT_TIMEOUT = 10 * 1000;
 
@@ -65,10 +65,10 @@ class HttpServerShellCmdtHandler implements HttpHandler {
   private String cmdOutput = null;
 
   /**
-   * HttpServerDistributedShellEventHandler constructor.
+   * HttpServerShellEventHandler constructor.
    */
   @Inject
-  public HttpServerShellCmdtHandler(final InjectionFuture<HttpShellJobDriver.ClientMessageHandler> messageHandler) {
+  public HttpServerShellCmdHandler(final InjectionFuture<HttpShellJobDriver.ClientMessageHandler> messageHandler) {
     this.messageHandler = messageHandler;
   }
 
@@ -101,14 +101,14 @@ class HttpServerShellCmdtHandler implements HttpHandler {
   public final synchronized void onHttpRequest(final ParsedHttpRequest parsedHttpRequest,
                                                final HttpServletResponse response)
       throws IOException, ServletException {
-    LOG.log(Level.INFO, "HttpServeShellCmdtHandler in webserver onHttpRequest is called: {0}",
+    LOG.log(Level.INFO, "HttpServeShellCmdHandler in webserver onHttpRequest is called: {0}",
         parsedHttpRequest.getRequestUri());
     final Map<String, List<String>> queries = parsedHttpRequest.getQueryMap();
     final String queryStr = parsedHttpRequest.getQueryString();
 
     if (parsedHttpRequest.getTargetEntity().equalsIgnoreCase("Evaluators")) {
       final byte[] b = HttpShellJobDriver.CODEC.encode(queryStr);
-      LOG.log(Level.INFO, "HttpServeShellCmdtHandler call HelloDriver onCommand(): {0}", queryStr);
+      LOG.log(Level.INFO, "HttpServeShellCmdHandler call HelloDriver onCommand(): {0}", queryStr);
       messageHandler.get().onNext(b);
 
       notify();
@@ -123,7 +123,7 @@ class HttpServerShellCmdtHandler implements HttpHandler {
         try {
           wait(WAIT_TIME);
         } catch (final InterruptedException e) {
-          LOG.log(Level.WARNING, "HttpServeShellCmdtHandler onHttpRequest InterruptedException: {0}", e);
+          LOG.log(Level.WARNING, "HttpServeShellCmdHandler onHttpRequest InterruptedException: {0}", e);
         }
       }
       if (cmdOutput != null) {
@@ -152,10 +152,10 @@ class HttpServerShellCmdtHandler implements HttpHandler {
       try {
         wait(WAIT_TIME);
       } catch (final InterruptedException e) {
-        LOG.log(Level.WARNING, "HttpServeShellCmdtHandler onHttpCallback InterruptedException: {0}", e);
+        LOG.log(Level.WARNING, "HttpServeShellCmdHandler onHttpCallback InterruptedException: {0}", e);
       }
     }
-    LOG.log(Level.INFO, "HttpServeShellCmdtHandler OnCallback: {0}", HttpShellJobDriver.CODEC.decode(message));
+    LOG.log(Level.INFO, "HttpServeShellCmdHandler OnCallback: {0}", HttpShellJobDriver.CODEC.decode(message));
     cmdOutput = HttpShellJobDriver.CODEC.decode(message);
 
     notify();
@@ -167,7 +167,7 @@ class HttpServerShellCmdtHandler implements HttpHandler {
   final class ClientCallBackHandler implements EventHandler<byte[]> {
     @Override
     public void onNext(final byte[] message) {
-      HttpServerShellCmdtHandler.this.onHttpCallback(message);
+      HttpServerShellCmdHandler.this.onHttpCallback(message);
     }
   }
 }

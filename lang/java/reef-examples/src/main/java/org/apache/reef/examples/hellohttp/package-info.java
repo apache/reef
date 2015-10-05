@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * Distributed shell example based on REEF HTTP Server component.
  */
 package org.apache.reef.examples.hellohttp;

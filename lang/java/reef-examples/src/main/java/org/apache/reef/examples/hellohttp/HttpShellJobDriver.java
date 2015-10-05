@@ -53,19 +53,19 @@ import java.util.logging.Logger;
 @SuppressWarnings("checkstyle:hideutilityclassconstructor")
 @Unit
 public final class HttpShellJobDriver {
+  private static final Logger LOG = Logger.getLogger(HttpShellJobDriver.class.getName());
 
   /**
    * String codec is used to encode the results
    * before passing them back to the client.
    */
   public static final ObjectSerializableCodec<String> CODEC = new ObjectSerializableCodec<>();
-  private static final Logger LOG = Logger.getLogger(HttpShellJobDriver.class.getName());
   /**
    * Evaluator Requester.
    */
   private final EvaluatorRequestor evaluatorRequestor;
   /**
-   * Number of Evalutors to request (default is 1).
+   * Number of Evaluators to request (default is 2).
    */
   private final int numEvaluators = 2;
   /**
@@ -92,7 +92,7 @@ public final class HttpShellJobDriver {
   /**
    * Callback handler for http return message.
    */
-  private HttpServerShellCmdtHandler.ClientCallBackHandler httpCallbackHandler;
+  private HttpServerShellCmdHandler.ClientCallBackHandler httpCallbackHandler;
 
   /**
    * Job Driver Constructor.
@@ -102,10 +102,10 @@ public final class HttpShellJobDriver {
    */
   @Inject
   public HttpShellJobDriver(final EvaluatorRequestor requestor,
-                            final HttpServerShellCmdtHandler.ClientCallBackHandler clientCallBackHandler) {
+                            final HttpServerShellCmdHandler.ClientCallBackHandler clientCallBackHandler) {
     this.evaluatorRequestor = requestor;
     this.httpCallbackHandler = clientCallBackHandler;
-    LOG.log(Level.FINE, "Instantiated 'HelloDriver'");
+    LOG.log(Level.FINE, "Instantiated 'HttpShellJobDriver'");
   }
 
   /**

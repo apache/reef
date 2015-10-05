@@ -32,10 +32,8 @@ import org.apache.reef.webserver.HttpHandlerConfiguration;
 import org.apache.reef.webserver.HttpServerReefEventHandler;
 import org.apache.reef.webserver.ReefEventStateManager;
 
-import java.util.logging.Logger;
-
 /**
- * Example to run HelloREEF with a webserver.
+ * Distributed shell example based on REEF HTTP Server component.
  */
 public final class HelloREEFHttp {
   /**
@@ -47,7 +45,6 @@ public final class HelloREEFHttp {
    * Number of milliseconds to wait for the job to complete.
    */
   public static final int JOB_TIMEOUT = 60 * 1000; // 60 sec.
-  private static final Logger LOG = Logger.getLogger(HelloREEFHttp.class.getName());
 
   /**
    * @return the driver-side configuration to be merged into the DriverConfiguration to enable the HTTP server.
@@ -55,7 +52,7 @@ public final class HelloREEFHttp {
   public static Configuration getHTTPConfiguration() {
     final Configuration httpHandlerConfiguration = HttpHandlerConfiguration.CONF
         .set(HttpHandlerConfiguration.HTTP_HANDLERS, HttpServerReefEventHandler.class)
-        .set(HttpHandlerConfiguration.HTTP_HANDLERS, HttpServerShellCmdtHandler.class)
+        .set(HttpHandlerConfiguration.HTTP_HANDLERS, HttpServerShellCmdHandler.class)
         .build();
     final Configuration driverConfigurationForHttpServer = DriverServiceConfiguration.CONF
         .set(DriverServiceConfiguration.ON_EVALUATOR_ALLOCATED,
@@ -74,7 +71,7 @@ public final class HelloREEFHttp {
   public static Configuration getDriverConfiguration() {
     return DriverConfiguration.CONF
         .set(DriverConfiguration.GLOBAL_LIBRARIES, EnvironmentUtils.getClassLocation(HttpShellJobDriver.class))
-        .set(DriverConfiguration.DRIVER_IDENTIFIER, "HelloHTTP")
+        .set(DriverConfiguration.DRIVER_IDENTIFIER, "HelloREEF")
         .set(DriverConfiguration.ON_DRIVER_STARTED, HttpShellJobDriver.StartHandler.class)
         .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, HttpShellJobDriver.AllocatedEvaluatorHandler.class)
         .set(DriverConfiguration.ON_EVALUATOR_FAILED, HttpShellJobDriver.FailedEvaluatorHandler.class)
