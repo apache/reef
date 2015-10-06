@@ -51,8 +51,8 @@ using namespace System::Security::Permissions;
 // by using the '*' as shown below:
 
 //[assembly:AssemblyVersionAttribute("1.0.*")];
-[assembly:AssemblyVersionAttribute("0.13.0.0")];
-[assembly:AssemblyFileVersion("0.13.0.0")]
+[assembly:AssemblyVersionAttribute("0.14.0.0")];
+[assembly:AssemblyFileVersion("0.14.0.0")]
 [assembly:ComVisible(false)];
 
 [assembly:CLSCompliantAttribute(true)];
