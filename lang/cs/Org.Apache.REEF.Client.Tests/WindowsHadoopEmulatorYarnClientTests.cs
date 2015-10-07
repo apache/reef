@@ -19,8 +19,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.ServiceProcess;
+using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.Client.Yarn.RestClient;
+using Org.Apache.REEF.Client.YARN.RestClient.DataModel;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 
 namespace Org.Apache.REEF.Client.Tests
@@ -66,11 +68,11 @@ namespace Org.Apache.REEF.Client.Tests
 
         [TestMethod]
         [TestCategory("Functional")]
-        public void TestGetClusterInfo()
+        public async Task TestGetClusterInfo()
         {
             var client = TangFactory.GetTang().NewInjector().GetInstance<IYarnRMClient>();
 
-            var clusterInfo = client.GetClusterInfoAsync().GetAwaiter().GetResult();
+            var clusterInfo = await client.GetClusterInfoAsync();
 
             Assert.IsNotNull(clusterInfo);
             Assert.AreEqual("STARTED", clusterInfo.State);
@@ -80,34 +82,89 @@ namespace Org.Apache.REEF.Client.Tests
 
         [TestMethod]
         [TestCategory("Functional")]
-        public void TestGetClusterMetrics()
+        public async Task TestGetClusterMetrics()
         {
             var client = TangFactory.GetTang().NewInjector().GetInstance<IYarnRMClient>();
 
-            var clusterMetrics = client.GetClusterMetricsAsync().GetAwaiter().GetResult();
+            var clusterMetrics = await client.GetClusterMetricsAsync();
 
             Assert.IsNotNull(clusterMetrics);
             Assert.IsTrue(clusterMetrics.TotalMB > 0);
             Assert.IsTrue(clusterMetrics.ActiveNodes > 0);
         }
 
-        //// TODO: [REEF-757] Once submit API is in place, submit an app then get the details
-        ////[TestMethod]
-        ////[TestCategory("Functional")]
-        ////public void TestGetApplication()
-        ////{
-        ////    const string applicationName = @"application_1440795762187_0001";
+        [TestMethod]
+        [TestCategory("Functional")]
+        public async Task TestApplicationSubmissionAndQuery()
+        {
+            var client = TangFactory.GetTang().NewInjector().GetInstance<IYarnRMClient>();
 
-        ////    var client = TangFactory.GetTang().NewInjector().GetInstance<IYarnRMClient>();
+            var newApplication = await client.CreateNewApplicationAsync();
 
-        ////    var application = client.GetApplicationAsync(applicationName).GetAwaiter().GetResult();
+            Assert.IsNotNull(newApplication);
+            Assert.IsFalse(string.IsNullOrEmpty(newApplication.ApplicationId));
+            Assert.IsTrue(newApplication.MaximumResourceCapability.MemoryMB > 0);
+            Assert.IsTrue(newApplication.MaximumResourceCapability.VCores > 0);
 
-        ////    Assert.IsNotNull(application);
-        ////}
+            string applicationName = "REEFTEST_APPLICATION_" + Guid.NewGuid();
+            Console.WriteLine(applicationName);
+
+            const string anyApplicationType = "REEFTest";
+            var submitApplicationRequest = new SubmitApplication
+            {
+                ApplicationId = newApplication.ApplicationId,
+                AmResource = new Resouce
+                {
+                    MemoryMB = 500,
+                    VCores = 1
+                },
+                ApplicationType = anyApplicationType,
+                ApplicationName = applicationName,
+                KeepContainersAcrossApplicationAttempts = false,
+                MaxAppAttempts = 1,
+                Priority = 1,
+                UnmanagedAM = false,
+                AmContainerSpec = new AmContainerSpec
+                {
+                    Commands = new Commands
+                    {
+                        Command = @"DONTCARE"
+                    },
+                    LocalResources = new LocalResources
+                    {
+                        Entry = new List<KeyValuePair<string, LocalResourcesValue>>
+                        {
+                            new KeyValuePair<string, LocalResourcesValue>(
+                                "APPLICATIONWILLFAILBUTWEDONTCAREHERE",
+                                new LocalResourcesValue
+                                {
+                                    Resource = "Foo",
+                                    Type = ResourceType.FILE,
+                                    Visibility = Visibility.APPLICATION
+                                })
+                        }
+                    }
+                }
+            };
+
+            var application = await client.SubmitApplicationAsync(submitApplicationRequest);
+
+            Assert.IsNotNull(application);
+            Assert.AreEqual(newApplication.ApplicationId, application.Id);
+            Assert.AreEqual(applicationName, application.Name);
+            Assert.AreEqual(anyApplicationType, application.ApplicationType);
+
+            var getApplicationResult = client.GetApplicationAsync(newApplication.ApplicationId).GetAwaiter().GetResult();
+
+            Assert.IsNotNull(getApplicationResult);
+            Assert.AreEqual(newApplication.ApplicationId, getApplicationResult.Id);
+            Assert.AreEqual(applicationName, getApplicationResult.Name);
+            Assert.AreEqual(anyApplicationType, getApplicationResult.ApplicationType);
+        }
 
         [TestMethod]
         [TestCategory("Functional")]
-        public void TestErrorResponse()
+        public async Task TestErrorResponse()
         {
             const string WrongApplicationName = @"Something";
 
@@ -115,7 +172,7 @@ namespace Org.Apache.REEF.Client.Tests
 
             try
             {
-                client.GetApplicationAsync(WrongApplicationName).GetAwaiter().GetResult();
+                await client.GetApplicationAsync(WrongApplicationName);
                 Assert.Fail("Should throw YarnRestAPIException");
             }
             catch (YarnRestAPIException)

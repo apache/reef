@@ -15,7 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Org.Apache.REEF.Client.YARN.RestClient.DataModel;
@@ -41,11 +40,11 @@ namespace Org.Apache.REEF.Client.Yarn.RestClient
         Task<NewApplication> CreateNewApplicationAsync();
 
         Task<NewApplication> CreateNewApplicationAsync(CancellationToken cancellationToken);
-    }
 
-    [DefaultImplementation(typeof(YarnConfigurationUrlProvider))]
-    internal interface IUrlProvider
-    {
-        Task<Uri> GetUrlAsync();
+        Task<Application> SubmitApplicationAsync(SubmitApplication submitApplicationRequest);
+
+        Task<Application> SubmitApplicationAsync(
+            SubmitApplication submitApplicationRequest,
+            CancellationToken cancellationToken);
     }
 }

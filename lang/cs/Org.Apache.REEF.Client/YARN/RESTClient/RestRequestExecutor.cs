@@ -26,15 +26,6 @@ using RestSharp;
 
 namespace Org.Apache.REEF.Client.Yarn.RestClient
 {
-    [DefaultImplementation(typeof(RestRequestExecutor))]
-    internal interface IRestRequestExecutor
-    {
-        Task<T> ExecuteAsync<T>(
-            IRestRequest request,
-            Uri uri,
-            CancellationToken cancellationToken) where T : new();
-    }
-
     internal class RestRequestExecutor : IRestRequestExecutor
     {
         private readonly IRestClientFactory _clientFactory;
@@ -56,14 +47,18 @@ namespace Org.Apache.REEF.Client.Yarn.RestClient
             var response =
                 await
                     client.ExecuteTaskAsync<T>(request, cancellationToken);
+
             if (response.ErrorException != null)
             {
-                throw new Exception("Executing REST API failed", response.ErrorException);
+                throw new YarnRestAPIException("Executing REST API failed", response.ErrorException);
             }
 
             try
             {
-                if (response.StatusCode != HttpStatusCode.OK)
+                // HTTP status code greater than 300 is unexpected here.
+                // See if the server sent a error response and throw suitable
+                // exception to user.
+                if (response.StatusCode >= HttpStatusCode.Ambiguous)
                 {
                     var errorResponse = JsonConvert.DeserializeObject<Error>(response.Content);
                     throw new YarnRestAPIException { Error = errorResponse };
@@ -75,6 +70,20 @@ namespace Org.Apache.REEF.Client.Yarn.RestClient
             }
 
             return response.Data;
+        }
+
+        public async Task<IRestResponse> ExecuteAsync(IRestRequest request, Uri uri, CancellationToken cancellationToken)
+        {
+            var client = _clientFactory.CreateRestClient(uri);
+
+            try
+            {
+                return await client.ExecuteTaskAsync(request, cancellationToken);
+            }
+            catch (Exception exception)
+            {
+                throw new YarnRestAPIException("Unhandled exception in executing REST request.", exception);
+            }
         }
     }
 }

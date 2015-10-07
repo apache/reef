@@ -16,8 +16,10 @@
 // under the License.
 
 using System;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using Org.Apache.REEF.Client.YARN.RestClient;
 using Org.Apache.REEF.Client.YARN.RestClient.DataModel;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities.AsyncUtils;
@@ -49,11 +51,8 @@ namespace Org.Apache.REEF.Client.Yarn.RestClient
         {
             await new RemoveSynchronizationContextAwaiter();
 
-            IRestRequest request = new RestRequest
-            {
-                Resource = _baseResourceString + ClusterInfo.Resource,
-                RootElement = ClusterInfo.RootElement
-            };
+            IRestRequest request = CreateRestRequest( ClusterInfo.Resource, Method.GET, ClusterInfo.RootElement
+            );
 
             return
                 await GenerateUrlAndExecuteRequestAsync<ClusterInfo>(request, cancellationToken);
@@ -63,11 +62,7 @@ namespace Org.Apache.REEF.Client.Yarn.RestClient
         {
             await new RemoveSynchronizationContextAwaiter();
 
-            var request = new RestRequest
-            {
-                Resource = _baseResourceString + ClusterMetrics.Resource,
-                RootElement = ClusterMetrics.RootElement
-            };
+            var request = CreateRestRequest(ClusterMetrics.Resource, Method.GET, ClusterMetrics.RootElement);
 
             return
                 await
@@ -78,11 +73,7 @@ namespace Org.Apache.REEF.Client.Yarn.RestClient
         {
             await new RemoveSynchronizationContextAwaiter();
 
-            var request = new RestRequest
-            {
-                Resource = _baseResourceString + Application.Resource + appId,
-                RootElement = Application.RootElement
-            };
+            var request = CreateRestRequest(Application.Resource + appId, Method.GET, Application.RootElement);
 
             return
                 await GenerateUrlAndExecuteRequestAsync<Application>(request, cancellationToken);
@@ -92,16 +83,48 @@ namespace Org.Apache.REEF.Client.Yarn.RestClient
         {
             await new RemoveSynchronizationContextAwaiter();
 
-            var request = new RestRequest
-            {
-                Resource = _baseResourceString + NewApplication.Resource,
-                Method = Method.POST
-            };
+            var request = CreateRestRequest(NewApplication.Resource, Method.POST);
 
             return
                 await
                     GenerateUrlAndExecuteRequestAsync<NewApplication>(request, cancellationToken);
         }
+
+        public async Task<Application> SubmitApplicationAsync(
+            SubmitApplication submitApplication,
+            CancellationToken cancellationToken)
+        {
+            await new RemoveSynchronizationContextAwaiter();
+
+            var request = CreateRestRequest(SubmitApplication.Resource, Method.POST);
+
+            request.AddBody(submitApplication);
+            var submitResponse = await GenerateUrlAndExecuteRequestAsync(request, cancellationToken);
+
+            if (submitResponse.StatusCode != HttpStatusCode.Accepted)
+            {
+                throw new YarnRestAPIException(
+                    string.Format("Application submission failed with HTTP STATUS {0}",
+                    submitResponse.StatusCode));
+            }
+
+            return await GetApplicationAsync(submitApplication.ApplicationId, cancellationToken);
+        }
+
+        private RestRequest CreateRestRequest(string resourcePath, Method method, string rootElement = null)
+        {
+            var request = new RestRequest
+            {
+                Resource = _baseResourceString + resourcePath,
+                RootElement = rootElement,
+                Method = method,
+                RequestFormat = DataFormat.Json,
+                JsonSerializer = new RestJsonSerializer()
+            };
+
+            return request;
+        }
+
 
         private async Task<T> GenerateUrlAndExecuteRequestAsync<T>(IRestRequest request,
             CancellationToken cancellationToken)
@@ -111,6 +134,15 @@ namespace Org.Apache.REEF.Client.Yarn.RestClient
             return
                 await
                     _restRequestExecutor.ExecuteAsync<T>(request, yarnRmUri, cancellationToken);
+        }
+
+        private async Task<IRestResponse> GenerateUrlAndExecuteRequestAsync(IRestRequest request,
+            CancellationToken cancellationToken)
+        {
+            Uri yarnRmUri = await _yarnRmUrlProviderUri.GetUrlAsync();
+            return
+                await
+                    _restRequestExecutor.ExecuteAsync(request, yarnRmUri, cancellationToken);
         }
     }
 }

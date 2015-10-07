@@ -15,6 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using Newtonsoft.Json;
+
 namespace Org.Apache.REEF.Client.YARN.RestClient.DataModel
 {
     /// <summary>
@@ -22,10 +24,21 @@ namespace Org.Apache.REEF.Client.YARN.RestClient.DataModel
     /// <see cref="!:http://hadoop.apache.org/docs/r2.6.0/hadoop-yarn/hadoop-yarn-site/WebServicesIntro.html">
     /// Hadoop RM REST API </see> documentation.
     /// </summary>
-    internal sealed class MaximumResourceCapability
+    internal sealed class AmContainerSpec
     {
-        public int Memory { get; set; }
+        [JsonProperty(PropertyName = "local-resources")]
+        public LocalResources LocalResources { get; set; }
 
-        public int VCores { get; set; }
+        public Environment Environment { get; set; }
+
+        public Commands Commands { get; set; }
+
+        [JsonProperty(PropertyName = "service-data")]
+        public ServiceData ServiceData { get; set; }
+
+        public Credentials Credentials { get; set; }
+
+        [JsonProperty(PropertyName = "application-acls")]
+        public Acls ApplicationAcls { get; set; }
     }
 }
