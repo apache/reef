@@ -37,15 +37,20 @@ namespace Org.Apache.REEF.IO.FileSystem.Hadoop
         private static readonly Regex NoSuchFileOrDirectoryRegEx = new Regex("^ls: `.*': No such file or directory");
         private static readonly Regex LsFirstLineRegex = new Regex("^Found .* items");
         private readonly HdfsCommandRunner _commandRunner;
+        private readonly string _uriPrefix;
 
         [Inject]
         private HadoopFileSystem(HdfsCommandRunner commandRunner)
         {
             _commandRunner = commandRunner;
-            UriPrefix = GetUriPrefix();
+            _uriPrefix = GetUriPrefix();
         }
 
-        public string UriPrefix { get; private set; }
+        public string UriPrefix
+        {
+            get { return _uriPrefix; }
+
+        }
 
         /// <summary>
         /// Not implemented by this IFileSystem.
@@ -117,13 +122,12 @@ namespace Org.Apache.REEF.IO.FileSystem.Hadoop
                 .Select(x => new Uri(x[x.Length - 1]));
         }
 
-
         /// <summary>
         /// The Prefix used for URIs on this FileSystem.
         /// </summary>
         private string GetUriPrefix()
         {
-            return _commandRunner.Run("getconf -confKey fs.defaultFS").StdOut.First();         
+            return _commandRunner.Run("getconf -confKey fs.default.name").StdOut.First();         
         }
     }
 }

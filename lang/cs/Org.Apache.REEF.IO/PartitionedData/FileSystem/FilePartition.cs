@@ -19,13 +19,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using Org.Apache.REEF.IO.FileSystem;
-using Org.Apache.REEF.IO.FileSystem.Hadoop;
-using Org.Apache.REEF.IO.FileSystem.Local;
 using Org.Apache.REEF.IO.PartitionedData.FileSystem.Parameters;
 using Org.Apache.REEF.IO.PartitionedData.Random.Parameters;
 using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Utilities.Diagnostics;
 using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
@@ -35,36 +35,42 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
         private static readonly Logger Logger = Logger.GetLogger(typeof(FilePartition<T>));
 
         private readonly string _id;
-        private readonly ISet<string> _filePaths;
         private readonly IFileSystem _fileSystem;
-        private readonly IFileSerializer<T> _fileSerializer;
-        private IList<string> localFileNames = new List<string>();
+        private readonly IFileDeSerializer<T> _fileSerializer;
+        private IList<string> _localFileNames = new List<string>();
+        private readonly ISet<string> _filePaths;
+        private bool _isInitialized;
+        private object _lock = new object();
+        private string _localFileFolder;
 
         [Inject]
-        private FilePartition([Parameter(typeof(PartitionId))] string id,
-            [Parameter(typeof(FilePathsInPartition))] ISet<string> filePaths,
+        private FilePartition([Parameter(typeof (PartitionId))] string id,
+            [Parameter(typeof (FilePathsInPartition))] ISet<string> filePaths,
             IFileSystem fileSystem,
-            IFileSerializer<T> fileSerializer)
+            IFileDeSerializer<T> fileSerializer)
         {
             _id = id;
-            _filePaths = filePaths;
             _fileSystem = fileSystem;
             _fileSerializer = fileSerializer;
-
-            if (fileSystem is HadoopFileSystem)
-            {
-                Logger.Log(Level.Info, "+++++HadoopFileSystem");
-            }
-
-            if (fileSystem is LocalFileSystem)
-            {
-                Logger.Log(Level.Info, "!!!!!LocalFileSystem");
-            }
+            _filePaths = filePaths;
+            _isInitialized = false;
         }
 
         public string Id
         {
             get { return _id; }
+        }
+
+        private void Initialize()
+        {
+            lock (_lock)
+            {
+                if (!_isInitialized)
+                {
+                    CopyFromRemote();
+                    _isInitialized = true;
+                }
+            }
         }
 
         /// <summary>
@@ -75,54 +81,110 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
         /// <returns></returns>
         public IEnumerable<T> GetPartitionHandle()
         {
-            foreach (var f in _filePaths)
+            if (!_isInitialized)
             {
-                Logger.Log(Level.Info, "remoteFileName: " + f);
-                localFileNames.Add(CopyFromRemote(f));
+                Initialize();
             }
-
-            return _fileSerializer.Deserialize(localFileNames);
+            return _fileSerializer.Deserialize(_localFileFolder);
         }
 
-        private string CopyFromRemote(string sourceFilePath)
+        private void CopyFromRemote()
         {
-            Logger.Log(Level.Info, "GetUriPrefix: " + _fileSystem.UriPrefix);
+            _localFileFolder = Path.GetTempPath() + "-partition-" + Guid.NewGuid().ToString("N").Substring(0, 8);
+            Directory.CreateDirectory(_localFileFolder);
 
-            Uri sourceUri = new Uri(_fileSystem.UriPrefix + sourceFilePath);
-            Logger.Log(Level.Info, "remoteUri: " + sourceUri);
-
-            if (!_fileSystem.Exists(sourceUri))
+            foreach (var sourceFilePath in _filePaths)
             {
-                throw new ApplicationException("Remote File does not exists.");
+                Uri sourceUri = new Uri(_fileSystem.UriPrefix + sourceFilePath);
+                Logger.Log(Level.Info, string.Format
+                        (CultureInfo.CurrentCulture, "sourceUri {0}: ", sourceUri));
+                if (!_fileSystem.Exists(sourceUri))
+                {
+                    throw new FileNotFoundException(string.Format(CultureInfo.CurrentCulture,
+                        "Remote File {0} does not exists.", sourceUri));
+                }
+
+                var localFilePath = _localFileFolder + "\\" + Guid.NewGuid().ToString("N").Substring(0, 8);
+                Logger.Log(Level.Info, string.Format
+                       (CultureInfo.CurrentCulture, "localFilePath {0}: ", localFilePath));
+                if (File.Exists(localFilePath))
+                {
+                    File.Delete(localFilePath);
+                    Logger.Log(Level.Warning, "localFile already exists, delete it: " + localFilePath);
+                }
+
+                _fileSystem.CopyToLocal(sourceUri, localFilePath);
+                if (File.Exists(localFilePath))
+                {
+                    Logger.Log(Level.Info, string.Format
+                        (CultureInfo.CurrentCulture, "File {0} is Copied to local {1}.", sourceUri, localFilePath));
+                }
+                else
+                {
+                    string msg = string.Format
+                        (CultureInfo.CurrentCulture, "File {0} is NOT Copied to local {1}.", sourceUri, localFilePath);
+                    Exceptions.Throw(new FileLoadException(), msg, Logger);
+                }
             }
-
-            var localFilePath = Path.GetTempPath() + "-partition-" + DateTime.Now.ToString("yyyyMMddHHmmssfff");
-
-            Logger.Log(Level.Info, "localFile: " + localFilePath);
-
-            if (File.Exists(localFilePath))
-            {
-                File.Delete(localFilePath);
-            }
-
-            _fileSystem.CopyToLocal(sourceUri, localFilePath);
-            if (File.Exists(localFilePath))
-            {
-                Logger.Log(Level.Info, "File CopyToLocal!");
-            }
-            else
-            {
-                Logger.Log(Level.Info, "File doesn't CopyToLocal!");               
-            }
-
-            return localFilePath;
         }
+
+        //private string CopyFromRemote(string sourceFilePath)
+        //{
+        //    Logger.Log(Level.Info, "GetUriPrefix: " + _fileSystem.UriPrefix);
+
+        //    Uri sourceUri = new Uri(_fileSystem.UriPrefix + sourceFilePath);
+        //    Logger.Log(Level.Info, "remoteUri: " + sourceUri);
+
+        //    if (!_fileSystem.Exists(sourceUri))
+        //    {
+        //        throw new FileNotFoundException(string.Format(CultureInfo.CurrentCulture, "Remote File {0} does not exists.", sourceUri));
+        //    }
+
+        //    var localFilePath = Path.GetTempPath() + "-partition-" + DateTime.Now.ToString("yyyyMMddHHmmssfff");
+
+        //    Logger.Log(Level.Info, "localFile: " + localFilePath);
+
+        //    if (File.Exists(localFilePath))
+        //    {
+        //        File.Delete(localFilePath);
+        //        Logger.Log(Level.Warning, "localFile already exists, delete it: " + localFilePath);
+        //    }
+
+        //    _fileSystem.CopyToLocal(sourceUri, localFilePath);
+        //    if (File.Exists(localFilePath))
+        //    {
+        //        Logger.Log(Level.Info, string.Format
+        //            (CultureInfo.CurrentCulture, "File {0} is Copied to local {1}.", sourceUri, localFilePath));
+        //    }
+        //    else
+        //    {
+        //        Logger.Log(Level.Info, string.Format
+        //            (CultureInfo.CurrentCulture, "File {0} is not Copied to local {1}.", sourceUri, localFilePath));
+        //    }
+
+        //    return localFilePath;
+        //}
 
         ~FilePartition()
         {
-            foreach (var fileName in localFileNames)
+            Dispose(false);
+        }
+
+        public void Dispose() { Dispose(true); }
+        private void Dispose(bool disposing)
+        {
+            if (disposing)
             {
-                File.Delete(fileName);
+                GC.SuppressFinalize(this);
+            }
+
+            if (_localFileNames != null)
+            {
+                foreach (var fileName in _localFileNames)
+                {
+                    File.Delete(fileName);
+                }
+                _localFileNames = null;
             }
         }
     }

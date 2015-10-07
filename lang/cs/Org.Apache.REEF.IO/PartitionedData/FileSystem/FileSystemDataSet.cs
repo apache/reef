@@ -17,7 +17,11 @@
  * under the License.
  */
 
+using System;
 using System.Collections.Generic;
+using System.Collections;
+using System.IO;
+using System.Linq;
 using Org.Apache.REEF.IO.FileSystem;
 using Org.Apache.REEF.IO.PartitionedData.FileSystem.Parameters;
 using Org.Apache.REEF.Tang.Annotations;
@@ -36,30 +40,33 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
     internal sealed class FileSystemDataSet<T> : IPartitionedDataSet
     {
         private readonly Dictionary<string, IPartitionDescriptor> _partitions;
-        private readonly int _count ; 
+        private readonly int _count ;
+        private const string StringSeparators = ";";
+        private const string IdPrefix = "FileSystemDataSet-";
+        private readonly string _id;
         
         [Inject]
         private FileSystemDataSet(
-            [Parameter(typeof(AllFilePaths))] ISet<string> filePaths,
+            [Parameter(typeof(FilePathsForPatitions))] ISet<string> filePaths,
             IFileSystem fileSystem,
             [Parameter(typeof(FileSerializerConfigString))] string fileSerializerConfigString,
             AvroConfigurationSerializer avroConfigurationSerializer
             )
         {
             _count = filePaths.Count;
-
+            _id = FormId(filePaths);
             _partitions = new Dictionary<string, IPartitionDescriptor>(_count);
+
+            var fileSerializerConfig = 
+                avroConfigurationSerializer.FromString(fileSerializerConfigString); 
 
             int i = 0;
             foreach (var path in filePaths)
             {
+                var paths = path.Split(new string[] { StringSeparators }, StringSplitOptions.None);
+               
                 var id = "FilePartition-" + i++;
-                _partitions[id] = new FilePartitionDescriptor<T>(
-                    id,
-                    path,
-                    Configurations.Merge(
-                        FileSystemConfiguration(fileSystem),
-                        avroConfigurationSerializer.FromString(fileSerializerConfigString))); 
+                _partitions[id] = new FilePartitionDescriptor<T>(id, paths.ToList(), fileSerializerConfig); 
             }
         }
 
@@ -76,7 +83,7 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
         /// </summary>
         public string Id
         {
-            get { return "FileSystemDataSet"; }
+            get { return _id; }
         }
 
         /// <summary>
@@ -109,16 +116,28 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
         /// Returns IEnumerator of IPartitionDescriptor in the partitions
         /// </summary>
         /// <returns></returns>
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+        IEnumerator IEnumerable.GetEnumerator()
         {
             return _partitions.Values.GetEnumerator();
         }
 
-        private IConfiguration FileSystemConfiguration(IFileSystem fileSystem)
+        private static string FormId(ISet<string> filePaths)
         {
-            return TangFactory.GetTang().NewConfigurationBuilder()
-                .BindImplementation(typeof(IFileSystem), fileSystem.GetType())
-                .Build();
+            string id = "";
+            if (filePaths != null && filePaths.Count > 0)
+            {
+                var path = filePaths.First();
+                var paths = path.Split(new string[] {StringSeparators}, StringSplitOptions.None);
+                if (paths.Length > 0)
+                {
+                    FileInfo fInfo = new FileInfo(paths[0]);
+                    if (fInfo.Directory != null)
+                    {
+                        id = fInfo.Directory.Name;
+                    }
+                }
+            }
+            return IdPrefix + id;
         }
     }
 }

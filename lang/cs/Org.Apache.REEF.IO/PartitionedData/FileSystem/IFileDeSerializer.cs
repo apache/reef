@@ -18,12 +18,17 @@
  */
 
 using System.Collections.Generic;
-using Org.Apache.REEF.Tang.Annotations;
 
-namespace Org.Apache.REEF.IO.PartitionedData.FileSystem.Parameters
+namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
 {
-    [NamedParameter("All file paths")]
-    internal sealed class AllFilePaths : Name<ISet<string>>
+    /// <summary>
+    /// A interface for user to implement its deserializer.
+    /// The input is a list of file names.
+    /// The out put is an IEnumerable of T which is defined by the client
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public interface IFileDeSerializer<T>
     {
+        IEnumerable<T> Deserialize(string fileFolder);
     }
 }

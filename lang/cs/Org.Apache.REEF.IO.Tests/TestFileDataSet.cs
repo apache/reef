@@ -37,30 +37,48 @@ namespace Org.Apache.REEF.IO.Tests
     [TestClass]
     public class TestFileDataSet
     {
+        const string tempFileName1 = "REEF.TestLocalFileSystem1.tmp";
+        const string tempFileName2 = "REEF.TestLocalFileSystem2.tmp";
+        string sourceFilePath1 = Path.Combine(Path.GetTempPath(), tempFileName1);
+        string sourceFilePath2 = Path.Combine(Path.GetTempPath(), tempFileName2);
+
         /// <remarks>
         /// This test creates IPartitionDataSet with FileSystemPartitionConfiguration module.
         /// It then instantiates each IPartition using the IConfiguration provided by the IPartitionDescriptor.
         /// </remarks>
         [TestMethod]
-        public void TestEvaluatorSide()
+        public void TestEvaluatorSideWithMultipleFilesOnePartition()
         {
-            var c = GetByteSerilizerConfigString();
+            MakeLocalTestFile(sourceFilePath1, new byte[] { 111, 112, 113 });
+            MakeLocalTestFile(sourceFilePath2, new byte[] { 114, 115, 116, 117 });
+
             var dataSet = TangFactory.GetTang()
                 .NewInjector(FileSystemPartitionConfiguration<byte>.ConfigurationModule
-                    .Set(FileSystemPartitionConfiguration<byte>.FilePaths, "abc;ppp")
-                    .Set(FileSystemPartitionConfiguration<byte>.FilePaths, "def;ooo;iii")
-                    .Set(FileSystemPartitionConfiguration<byte>.FileSerializerConfig, c)
+                    .Set(FileSystemPartitionConfiguration<byte>.FilePathForPartitions, sourceFilePath1 + ";" + sourceFilePath2)
+                    .Set(FileSystemPartitionConfiguration<byte>.FileSerializerConfig, GetByteSerilizerConfigString())
                     .Build())
                 .GetInstance<IPartitionedDataSet>();
 
+            Assert.AreEqual(dataSet.Count, 1);
+
             foreach (var partitionDescriptor in dataSet)
             {
-                var partition =
+                using (var partition =
                     TangFactory.GetTang()
                         .NewInjector(partitionDescriptor.GetPartitionConfiguration())
-                        .GetInstance<IPartition<IEnumerable<byte>>>();
-                Assert.IsNotNull(partition);
-                Assert.IsNotNull(partition.Id);
+                        .GetInstance<IPartition<IEnumerable<byte>>>())
+                {
+                    Assert.IsNotNull(partition);
+                    Assert.IsNotNull(partition.Id);
+                    int count = 0;
+                    var e = partition.GetPartitionHandle();
+                    foreach (var v in e)
+                    {
+                        Console.WriteLine(v);
+                        count++;
+                    }
+                    Assert.AreEqual(count, 7);
+                }
             }
         }
 
@@ -69,29 +87,34 @@ namespace Org.Apache.REEF.IO.Tests
         /// It sets multiple files in each Partition
         /// </remarks>
         [TestMethod]
-        public void TestWithoutConfigurationModule()
+        public void TestWithoutConfigurationModuleWithTwoPartitions()
         {
-            var c = GetByteSerilizerConfigString();
+            MakeLocalTestFile(sourceFilePath1, new byte[] { 111, 112, 113 });
+            MakeLocalTestFile(sourceFilePath2, new byte[] { 114, 115, 116, 117 });
 
             var partitionConfig = TangFactory.GetTang().NewConfigurationBuilder()
                 .BindImplementation(GenericType<IPartitionedDataSet>.Class, GenericType<FileSystemDataSet<byte>>.Class)
-                .BindStringNamedParam<FileSerializerConfigString>(c)
-                .BindSetEntry<AllFilePaths, string>(GenericType<AllFilePaths>.Class, "www;ttt")
-                .BindSetEntry<AllFilePaths, string>(GenericType<AllFilePaths>.Class, "eee")
+                .BindStringNamedParam<FileSerializerConfigString>(GetByteSerilizerConfigString())
+                .BindSetEntry<FilePathsForPatitions, string>(GenericType<FilePathsForPatitions>.Class, sourceFilePath1)
+                .BindSetEntry<FilePathsForPatitions, string>(GenericType<FilePathsForPatitions>.Class, sourceFilePath2)
                 .Build();
 
             var dataSet = TangFactory.GetTang()
                 .NewInjector(partitionConfig)
                 .GetInstance<IPartitionedDataSet>();
 
+            Assert.AreEqual(dataSet.Count, 2);
+
             foreach (var partitionDescriptor in dataSet)
             {
-                var partition =
+                using (var partition =
                     TangFactory.GetTang()
                         .NewInjector(partitionDescriptor.GetPartitionConfiguration())
-                        .GetInstance<IPartition<IEnumerable<byte>>>();
-                Assert.IsNotNull(partition);
-                Assert.IsNotNull(partition.Id);
+                        .GetInstance<IPartition<IEnumerable<byte>>>())
+                {
+                    Assert.IsNotNull(partition);
+                    Assert.IsNotNull(partition.Id);
+                }
             }
         }
 
@@ -101,19 +124,14 @@ namespace Org.Apache.REEF.IO.Tests
         [TestMethod]
         public void TestWithByteDeserializer()
         {
-            const string tempFileName1 = "REEF.TestLocalFileSystem1.tmp";
-            const string tempFileName2 = "REEF.TestLocalFileSystem2.tmp";
-            var sourceFilePath1 = Path.Combine(Path.GetTempPath(), tempFileName1);
-            var sourceFilePath2 = Path.Combine(Path.GetTempPath(), tempFileName2);
-
             MakeLocalTestFile(sourceFilePath1, new byte[] { 111, 112, 113 });
             MakeLocalTestFile(sourceFilePath2, new byte[] { 114, 115, 116, 117 });
 
             var c = TangFactory.GetTang().NewConfigurationBuilder()
                 .BindImplementation(GenericType<IPartitionedDataSet>.Class, GenericType<FileSystemDataSet<byte>>.Class)
                 .BindStringNamedParam<FileSerializerConfigString>(GetByteSerilizerConfigString())
-                .BindSetEntry<AllFilePaths, string>(GenericType<AllFilePaths>.Class, sourceFilePath1)
-                .BindSetEntry<AllFilePaths, string>(GenericType<AllFilePaths>.Class, sourceFilePath2)
+                .BindSetEntry<FilePathsForPatitions, string>(GenericType<FilePathsForPatitions>.Class, sourceFilePath1)
+                .BindSetEntry<FilePathsForPatitions, string>(GenericType<FilePathsForPatitions>.Class, sourceFilePath2)
                 .Build();
 
             var dataSet = TangFactory.GetTang()
@@ -123,16 +141,18 @@ namespace Org.Apache.REEF.IO.Tests
             int count = 0;
             foreach (var partitionDescriptor in dataSet)
             {
-                var partition =
+                using (var partition =
                     TangFactory.GetTang()
                         .NewInjector(partitionDescriptor.GetPartitionConfiguration())
-                        .GetInstance<IPartition<IEnumerable<byte>>>();
-
-                var e = partition.GetPartitionHandle();
-                foreach (var v in e)
+                        .GetInstance<IPartition<IEnumerable<byte>>>())
                 {
-                    Console.WriteLine(v);
-                    count++;
+
+                    var e = partition.GetPartitionHandle();
+                    foreach (var v in e)
+                    {
+                        Console.WriteLine(v);
+                        count++;
+                    }
                 }
             }
             Assert.AreEqual(count, 7);
@@ -144,18 +164,13 @@ namespace Org.Apache.REEF.IO.Tests
         [TestMethod]
         public void TestWithRowDeserializer()
         {
-            const string tempFileName1 = "REEF.TestLocalFileSystem1.tmp";
-            const string tempFileName2 = "REEF.TestLocalFileSystem2.tmp";
-            var sourceFilePath1 = Path.Combine(Path.GetTempPath(), tempFileName1);
-            var sourceFilePath2 = Path.Combine(Path.GetTempPath(), tempFileName2);
-
             MakeLocalTestFile(sourceFilePath1, new byte[] {111, 112, 113});
             MakeLocalTestFile(sourceFilePath2, new byte[] { 114, 115 });
 
             var dataSet = TangFactory.GetTang()
                 .NewInjector(FileSystemPartitionConfiguration<Row>.ConfigurationModule
-                    .Set(FileSystemPartitionConfiguration<Row>.FilePaths, sourceFilePath1)
-                    .Set(FileSystemPartitionConfiguration<Row>.FilePaths, sourceFilePath2)
+                    .Set(FileSystemPartitionConfiguration<Row>.FilePathForPartitions, sourceFilePath1)
+                    .Set(FileSystemPartitionConfiguration<Row>.FilePathForPartitions, sourceFilePath2)
                     .Set(FileSystemPartitionConfiguration<Row>.FileSerializerConfig, GetRowSerilizerConfigString())
                     .Build())
                 .GetInstance<IPartitionedDataSet>();
@@ -163,17 +178,19 @@ namespace Org.Apache.REEF.IO.Tests
             int count = 0;
             foreach (var partitionDescriptor in dataSet)
             {
-                var partition =
+                using (var partition =
                     TangFactory.GetTang()
                         .NewInjector(partitionDescriptor.GetPartitionConfiguration())
-                        .GetInstance<IPartition<IEnumerable<Row>>>();
-
-                IEnumerable<Row> e = partition.GetPartitionHandle();
-
-                foreach (var row in e)
+                        .GetInstance<IPartition<IEnumerable<Row>>>())
                 {
-                    Console.WriteLine(row.GetValue());
-                    count++;
+
+                    IEnumerable<Row> e = partition.GetPartitionHandle();
+
+                    foreach (var row in e)
+                    {
+                        Console.WriteLine(row.GetValue());
+                        count++;
+                    }
                 }
             }
             Assert.AreEqual(count, 5);
@@ -196,8 +213,8 @@ namespace Org.Apache.REEF.IO.Tests
         private string GetByteSerilizerConfigString()
         {
             var serializerConf = TangFactory.GetTang().NewConfigurationBuilder()
-                .BindImplementation<IFileSerializer<byte>, ByteSerializer>(
-                    GenericType<IFileSerializer<byte>>.Class,
+                .BindImplementation<IFileDeSerializer<byte>, ByteSerializer>(
+                    GenericType<IFileDeSerializer<byte>>.Class,
                     GenericType<ByteSerializer>.Class)
                 .Build();
             return (new AvroConfigurationSerializer()).ToString(serializerConf);
@@ -206,23 +223,28 @@ namespace Org.Apache.REEF.IO.Tests
         private string GetRowSerilizerConfigString()
         {
             var serializerConf = TangFactory.GetTang().NewConfigurationBuilder()
-                .BindImplementation<IFileSerializer<Row>, RowSerializer>(
-                    GenericType<IFileSerializer<Row>>.Class,
+                .BindImplementation<IFileDeSerializer<Row>, RowSerializer>(
+                    GenericType<IFileDeSerializer<Row>>.Class,
                     GenericType<RowSerializer>.Class)
                 .Build();
             return (new AvroConfigurationSerializer()).ToString(serializerConf);
         }
     }
 
-    public class ByteSerializer : IFileSerializer<byte>
+    public class ByteSerializer : IFileDeSerializer<byte>
     {
         [Inject]
         public ByteSerializer()
         { }
 
-        public IEnumerable<byte> Deserialize(IList<string> filePaths)
+        /// <summary>
+        /// Enumerate all the files in the file foder and return each byte read
+        /// </summary>
+        /// <param name="fileFolder"></param>
+        /// <returns></returns>
+        public IEnumerable<byte> Deserialize(string fileFolder)
         {
-            foreach (var f in filePaths)
+            foreach (var f in Directory.GetFiles(fileFolder))
             {
                 using (FileStream stream = File.Open(f, FileMode.Open))
                 {
@@ -234,6 +256,7 @@ namespace Org.Apache.REEF.IO.Tests
                 }
             }
         }
+
     }
 
     public class Row
@@ -251,15 +274,20 @@ namespace Org.Apache.REEF.IO.Tests
         }
     }
 
-    public class RowSerializer : IFileSerializer<Row>
+    internal class RowSerializer : IFileDeSerializer<Row>
     {
         [Inject]
-        public RowSerializer()
+        private RowSerializer()
         { }
 
-        public IEnumerable<Row> Deserialize(IList<string> filePaths)
+        /// <summary>
+        /// read all the files in the fileFolder cand return byte read one by one
+        /// </summary>
+        /// <param name="fileFolder"></param>
+        /// <returns></returns>
+        public IEnumerable<Row> Deserialize(string fileFolder)
         {
-            foreach (var f in filePaths)
+            foreach (var f in Directory.GetFiles(fileFolder))
             {
                 using (FileStream stream = File.Open(f, FileMode.Open))
                 {

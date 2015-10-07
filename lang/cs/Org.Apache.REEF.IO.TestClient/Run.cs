@@ -18,18 +18,20 @@
  */
 
 using System;
+using System.IO;
+using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.IO.TestClient
 {
+    //TODO: once move to Nunit, tose test should be moved to Test project
     /// <summary>
     /// This purpose of this test is to run tests in Yarn envionment
     /// 
     /// </summary>
     public class Run
-    {       
+    {
         private static void Main(string[] args)
         {
-            Console.WriteLine("start running client: " + DateTime.Now);
 
             if (args.Length > 0 && args[0].Equals("p"))
             {

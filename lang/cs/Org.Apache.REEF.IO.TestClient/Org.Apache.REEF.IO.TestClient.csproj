@@ -25,12 +25,12 @@ under the License.
     <AssemblyName>Org.Apache.REEF.IO.TestClient</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..</SolutionDir>
-    <RestorePackages>true</RestorePackages>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..</SolutionDir>    
   </PropertyGroup>
   <Import Project="$(SolutionDir)\build.props" />
   <PropertyGroup>
     <BuildPackage>false</BuildPackage>
+    <RestorePackages>true</RestorePackages>
     <UseVSHostingProcess>false</UseVSHostingProcess>
   </PropertyGroup>
   <ItemGroup>
@@ -89,21 +89,12 @@ under the License.
       <Project>{cdfb3464-4041-42b1-9271-83af24cd5008}</Project>
       <Name>Org.Apache.REEF.Wake</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Org.Apache.REEF.IO\Org.Apache.REEF.IO.csproj">
+    <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.IO\Org.Apache.REEF.IO.csproj">
       <Project>{dec0f0a8-dbef-4ebf-b69c-e2369c15abf1}</Project>
       <Name>Org.Apache.REEF.IO</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!--begin jar reference-->
-  <PropertyGroup>
-    <AfterBuildDependsOn>
-      $(AfterBuildDependsOn);
-      CopyJarFiles;
-    </AfterBuildDependsOn>
-  </PropertyGroup>
-  <Target Name="AfterBuild" DependsOnTargets="$(AfterBuildDependsOn);" />
-  <!--end jar reference-->
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

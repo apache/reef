@@ -25,7 +25,14 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
 {
     public sealed class FileSystemPartitionConfiguration<T> : ConfigurationModuleBuilder
     {
-        public static readonly RequiredParameter<string> FilePaths = new RequiredParameter<string>();
+        /// <summary>
+        /// This parameter contains file paths required for file partition dataset
+        /// </summary>
+        public static readonly RequiredParameter<string> FilePathForPartitions = new RequiredParameter<string>();
+
+        /// <summary>
+        /// This is serialized configuration for ISerializer
+        /// </summary>
         public static readonly RequiredParameter<string> FileSerializerConfig = new RequiredParameter<string>();
 
         /// <summary>
@@ -34,7 +41,7 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
         /// </summary>
         public static ConfigurationModule ConfigurationModule = new FileSystemPartitionConfiguration<T>()
             .BindImplementation(GenericType<IPartitionedDataSet>.Class, GenericType<FileSystemDataSet<T>>.Class)
-            .BindSetEntry(GenericType<AllFilePaths>.Class, FilePaths)
+            .BindSetEntry(GenericType<FilePathsForPatitions>.Class, FilePathForPartitions)
             .BindNamedParameter(GenericType<FileSerializerConfigString>.Class, FileSerializerConfig)
             .Build();
     }

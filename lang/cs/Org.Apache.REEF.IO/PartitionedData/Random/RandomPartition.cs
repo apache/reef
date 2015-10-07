@@ -64,5 +64,20 @@ namespace Org.Apache.REEF.IO.PartitionedData.Random
         {
             return new MemoryStream(_randomData, false);
         }
+
+        ~RandomPartition()
+        {
+            Dispose(false); 
+        }
+
+        public void Dispose() { Dispose(true); }
+
+        private void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                GC.SuppressFinalize(this);
+            }
+        }
     }
 }

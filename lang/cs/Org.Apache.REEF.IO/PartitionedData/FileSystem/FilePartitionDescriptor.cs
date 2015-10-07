@@ -30,15 +30,14 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
 {
     internal sealed class FilePartitionDescriptor<T> : IPartitionDescriptor
     {
-        private const string StringSeparators = ";";
         private readonly string _id;
-        private readonly string[] _filePaths;
+        private readonly IList<string> _filePaths;
         private readonly IConfiguration _fileSystemPartitionConfig;
 
-        internal FilePartitionDescriptor(string id, string filePaths, IConfiguration fileSystemPartitionConfig)
+        internal FilePartitionDescriptor(string id, IList<string> filePaths, IConfiguration fileSystemPartitionConfig)
         {
             _id = id;
-            _filePaths = filePaths.Split(new string[] { StringSeparators }, StringSplitOptions.None);
+            _filePaths = filePaths;
             _fileSystemPartitionConfig = fileSystemPartitionConfig;
         }
 

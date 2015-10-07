@@ -18,15 +18,19 @@
  */
 
 using System;
+using System.Globalization;
 using System.IO;
 using Org.Apache.REEF.IO.FileSystem;
 using Org.Apache.REEF.IO.FileSystem.Hadoop;
 using Org.Apache.REEF.Tang.Implementations.Tang;
+using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.IO.TestClient
 {
     class HadoopFileSystemTest
     {
+        private static readonly Logger Logger = Logger.GetLogger(typeof(HadoopFileSystemTest));
+
         public IFileSystem _fileSystem;
 
         internal HadoopFileSystemTest()
@@ -41,66 +45,59 @@ namespace Org.Apache.REEF.IO.TestClient
         {
             return
                 new Uri(_fileSystem.UriPrefix + "vol1/test/TestHadoopFileSystem-" +
-                        DateTime.Now.ToString("yyyyMMddHHmmssfff"));
+                        Guid.NewGuid().ToString("N").Substring(0, 8));
         }
 
         internal void TestCopyFromLocalAndBack()
         {
             var localFile = MakeLocalBanaryFile();
-            Console.WriteLine("localFile: " + localFile);
+            Logger.Log(Level.Info, string.Format(CultureInfo.CurrentCulture, "localFile {0}: ", localFile));
 
             var localFileDownloaded = localFile + ".2";
-            Console.WriteLine("localFileDownloaded: " + localFileDownloaded);
-
             var remoteUri = GetTempUri();
-            Console.WriteLine("remoteUri: " + remoteUri);
 
             _fileSystem.CopyFromLocal(localFile, remoteUri);
-            Console.WriteLine("File CopyFromLocal!");
+            Logger.Log(Level.Info, string.Format(CultureInfo.CurrentCulture, "File CopyFromLocal {0}: ", remoteUri));
 
             _fileSystem.CopyToLocal(remoteUri, localFileDownloaded);
-            Console.WriteLine("File CopyToLocal!");
+            Logger.Log(Level.Info, string.Format(CultureInfo.CurrentCulture, "File CopyToLocal {0}: ", localFileDownloaded));
 
-            if (!File.Exists(localFileDownloaded))
+            if (File.Exists(localFileDownloaded))
             {
-                Console.WriteLine("File does not exist!");
+                Logger.Log(Level.Info, string.Format(CultureInfo.CurrentCulture, "File copied exists {0}: ", localFileDownloaded));
+                ReadFileTest(localFileDownloaded);
+                File.Delete(localFileDownloaded);
             }
             else
             {
-                Console.WriteLine("File copied! - " + localFile);
+                Logger.Log(Level.Info, "File does not exist!");
             }
-
-            ReadFileTest(localFileDownloaded);
-
-            Console.WriteLine("End of TestCopyFromLocalAndBack2!");
 
             _fileSystem.Delete(remoteUri);
             File.Delete(localFile);
-            File.Delete(localFileDownloaded);
+            Logger.Log(Level.Info, "End of TestCopyFromLocalAndBack2!");
+
         }
 
         internal void TestCopyFromRemote()
         {
-            //var remoteUri = new Uri(_fileSystem.GetUriPrefix() + "vol1/public/libraries/Scope/Data/Ads/1Month/stat.txt");
-            //var remoteUri = new Uri(_fileSystem.UriPrefix + "vol1/public/libraries/Scope/Data/Ads/1Month/test20150925145717050.txt");
             var remoteUri = new Uri(_fileSystem.UriPrefix + "vol1/test/TestHadoopFilePartition-20151002160654404");
-            
-            Console.WriteLine("remoteUri: " + remoteUri);
+            Logger.Log(Level.Info, string.Format(CultureInfo.CurrentCulture, "remoteUri {0}: ", remoteUri));
 
             if (!_fileSystem.Exists(remoteUri))
             {
-                Console.WriteLine("Remote File does not exists.");
+                Logger.Log(Level.Info, string.Format(CultureInfo.CurrentCulture, "Remote File {0} doesn't exist.", remoteUri));
             }
             else
             {
-                Console.WriteLine("Remote File found exists." + remoteUri);
+                Logger.Log(Level.Info, string.Format(CultureInfo.CurrentCulture, "Remote File {0} found exists.", remoteUri));
             }
 
             var localFile = Path.GetTempPath() + "-" + DateTime.Now.ToString("yyyyMMddHHmmssfff");
-            Console.WriteLine("localFile: " + localFile);
+            Logger.Log(Level.Info, string.Format(CultureInfo.CurrentCulture, "localFile {0}.", localFile));
 
             _fileSystem.CopyToLocal(remoteUri, localFile);
-            Console.WriteLine("File CopyToLocal!");
+            Logger.Log(Level.Info, "File CopyToLocal!");
         }
 
         private string MakeLocalBanaryFile()
@@ -145,12 +142,12 @@ namespace Org.Apache.REEF.IO.TestClient
                 int autoSaveTime = reader.ReadInt32();
                 bool showStatusBar = reader.ReadBoolean();
 
-                Console.WriteLine("strContent1: " + strContent1);
-                Console.WriteLine("strContent2: " + strContent2);
-                Console.WriteLine("Aspect ratio set to: " + aspectRatio);
-                Console.WriteLine("Temp directory is: " + tempDirectory);
-                Console.WriteLine("Auto save time set to: " + autoSaveTime);
-                Console.WriteLine("Show status bar: " + showStatusBar);
+                Logger.Log(Level.Info, "strContent1: " + strContent1);
+                Logger.Log(Level.Info, "strContent2: " + strContent2);
+                Logger.Log(Level.Info, "Aspect ratio set to: " + aspectRatio);
+                Logger.Log(Level.Info, "Temp directory is: " + tempDirectory);
+                Logger.Log(Level.Info, "Auto save time set to: " + autoSaveTime);
+                Logger.Log(Level.Info, "Show status bar: " + showStatusBar);
             }
         }
     }

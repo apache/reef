@@ -22,6 +22,9 @@ using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.IO.PartitionedData.FileSystem.Parameters
 {
+    /// <summary>
+    /// This set contains the filepaths in one partition
+    /// </summary>
     [NamedParameter("File paths for a partition")]
     internal sealed class FilePathsInPartition : Name<ISet<string>>
     {

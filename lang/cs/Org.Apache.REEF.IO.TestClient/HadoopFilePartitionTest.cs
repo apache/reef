@@ -19,59 +19,69 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using Org.Apache.REEF.IO.FileSystem;
 using Org.Apache.REEF.IO.FileSystem.Hadoop;
+using Org.Apache.REEF.IO.FileSystem.Local;
 using Org.Apache.REEF.IO.PartitionedData;
 using Org.Apache.REEF.IO.PartitionedData.FileSystem;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Implementations.Tang;
+using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
+using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.IO.TestClient
 {
+    //TODO: once move to Nunit, tose test should be moved to Test project
     internal class HadoopFilePartitionTest
     {
+        private static readonly Logger Logger = Logger.GetLogger(typeof(HadoopFilePartitionTest));
+
         internal static void TestWithByteDeserializer()
         {
             string remoteFilePath1 = MakeRemoteTestFile(new byte[] { 111, 112, 113 });
             string remoteFilePath2 = MakeRemoteTestFile(new byte[] { 114, 115, 116, 117 });
 
             var serializerConf = TangFactory.GetTang().NewConfigurationBuilder()
-                .BindImplementation<IFileSerializer<byte>, ByteSerializer>(GenericType<IFileSerializer<byte>>.Class,
+                .BindImplementation<IFileDeSerializer<byte>, ByteSerializer>(GenericType<IFileDeSerializer<byte>>.Class,
                     GenericType<ByteSerializer>.Class)
                 .Build();
             var serializerConfString = (new AvroConfigurationSerializer()).ToString(serializerConf);
 
             var dataSet = TangFactory.GetTang()
                 .NewInjector(FileSystemPartitionConfiguration<byte>.ConfigurationModule
-                    .Set(FileSystemPartitionConfiguration<byte>.FilePaths, remoteFilePath1)
-                    .Set(FileSystemPartitionConfiguration<byte>.FilePaths, remoteFilePath2)
+                    .Set(FileSystemPartitionConfiguration<byte>.FilePathForPartitions, remoteFilePath1)
+                    .Set(FileSystemPartitionConfiguration<byte>.FilePathForPartitions, remoteFilePath2)
                     .Set(FileSystemPartitionConfiguration<byte>.FileSerializerConfig, serializerConfString)
                 .Build(),
                   HadoopFileSystemConfiguration.ConfigurationModule.Build())
                 .GetInstance<IPartitionedDataSet>();
-       
-            Console.WriteLine("IPartitionedDataSet created. ");
+
+            Logger.Log(Level.Info, "IPartitionedDataSet created.");
+
             int count = 0;
             foreach (var partitionDescriptor in dataSet)
             {
-                var partition =
+                using (var partition =
                     TangFactory.GetTang()
-                        .NewInjector(partitionDescriptor.GetPartitionConfiguration())
-                        .GetInstance<IPartition<IEnumerable<byte>>>();
-
-                Console.WriteLine("get partition instance.");
-
-                var e = partition.GetPartitionHandle();
-                foreach (var v in e)
+                        .NewInjector(partitionDescriptor.GetPartitionConfiguration(), GetHadoopFileSystemConfiguration())
+                        .GetInstance<IPartition<IEnumerable<byte>>>())
                 {
-                    Console.WriteLine(v);
-                    count++;
+
+                    Logger.Log(Level.Info, "get partition instance.");
+
+                    var e = partition.GetPartitionHandle();
+                    foreach (var v in e)
+                    {
+                        Logger.Log(Level.Info, string.Format(CultureInfo.CurrentCulture, "Data read {0}: ", v));
+                        count++;
+                    }
                 }
             }
-            Console.WriteLine("Total count returend: " + count);            
+            Logger.Log(Level.Info, "Total count returend: " + count);            
         }
 
         internal static string MakeRemoteTestFile(byte[] bytes)
@@ -87,10 +97,10 @@ namespace Org.Apache.REEF.IO.TestClient
                                     DateTime.Now.ToString("yyyyMMddHHmmssfff");
 
             var remoteUri = new Uri(fileSystem.UriPrefix + remoteFileName);
-            Console.WriteLine("remoteUri: " + remoteUri);
+            Logger.Log(Level.Info, string.Format(CultureInfo.CurrentCulture, "remoteUri {0}: ", remoteUri));
 
             fileSystem.CopyFromLocal(localFile, remoteUri);
-            Console.WriteLine("File CopyFromLocal!");
+            Logger.Log(Level.Info, string.Format(CultureInfo.CurrentCulture, "File CopyFromLocal {0}: ", localFile));
 
             return remoteFileName;
         }
@@ -115,17 +125,29 @@ namespace Org.Apache.REEF.IO.TestClient
             MakeLocalTestFile(result, bytes);
             return result;
         }
+
+        private static IConfiguration GetHadoopFileSystemConfiguration()
+        {
+            return TangFactory.GetTang().NewConfigurationBuilder()
+                .BindImplementation(typeof(IFileSystem), typeof(HadoopFileSystem))
+                .Build();
+        }
     }
 
-    internal class ByteSerializer : IFileSerializer<byte>
+    internal class ByteSerializer : IFileDeSerializer<byte>
     {
         [Inject]
         private ByteSerializer()
         { }
 
-        public IEnumerable<byte> Deserialize(IList<string> filePaths)
+        /// <summary>
+        /// Read bytes from all the files in the file folder and return one by one
+        /// </summary>
+        /// <param name="fileFolder"></param>
+        /// <returns></returns>
+        public IEnumerable<byte> Deserialize(string fileFolder)
         {
-            foreach (var f in filePaths)
+            foreach (var f in Directory.GetFiles(fileFolder))
             {
                 using (FileStream stream = File.Open(f, FileMode.Open))
                 {
