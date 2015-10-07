@@ -15,6 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using System.Collections.Generic;
+
 namespace Org.Apache.REEF.Client.YARN.RestClient.DataModel
 {
     /// <summary>
@@ -22,10 +24,8 @@ namespace Org.Apache.REEF.Client.YARN.RestClient.DataModel
     /// <see cref="!:http://hadoop.apache.org/docs/r2.6.0/hadoop-yarn/hadoop-yarn-site/WebServicesIntro.html">
     /// Hadoop RM REST API </see> documentation.
     /// </summary>
-    internal sealed class MaximumResourceCapability
+    internal sealed class Environment
     {
-        public int Memory { get; set; }
-
-        public int VCores { get; set; }
+        public IList<KeyValuePair<string, string>> Entry { get; set; }
     }
 }

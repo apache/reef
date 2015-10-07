@@ -16,8 +16,10 @@
 // under the License.
 
 using System;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using Org.Apache.REEF.Client.YARN.RestClient;
 using Org.Apache.REEF.Client.YARN.RestClient.DataModel;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities.AsyncUtils;
@@ -103,6 +105,33 @@ namespace Org.Apache.REEF.Client.Yarn.RestClient
                     GenerateUrlAndExecuteRequestAsync<NewApplication>(request, cancellationToken);
         }
 
+        public async Task<Application> SubmitApplicationAsync(
+            SubmitApplication submitApplication,
+            CancellationToken cancellationToken)
+        {
+            await new RemoveSynchronizationContextAwaiter();
+
+            var request = new RestRequest
+            {
+                Resource = _baseResourceString + SubmitApplication.Resource,
+                Method = Method.POST,
+                RequestFormat = DataFormat.Json,
+                JsonSerializer = new RestJsonSerializer()
+            };
+
+            request.AddBody(submitApplication);
+            var submitResponse = await GenerateUrlAndExecuteRequestAsync(request, cancellationToken);
+
+            if (submitResponse.StatusCode != HttpStatusCode.Accepted)
+            {
+                throw new YarnRestAPIException(string.Format("Application submission failed with HTTP STATUS {0}",
+                    submitResponse.StatusCode));
+            }
+
+            return await GetApplicationAsync(submitApplication.ApplicationId, cancellationToken);
+        }
+
+
         private async Task<T> GenerateUrlAndExecuteRequestAsync<T>(IRestRequest request,
             CancellationToken cancellationToken)
             where T : new()
@@ -111,6 +140,15 @@ namespace Org.Apache.REEF.Client.Yarn.RestClient
             return
                 await
                     _restRequestExecutor.ExecuteAsync<T>(request, yarnRmUri, cancellationToken);
+        }
+
+        private async Task<IRestResponse> GenerateUrlAndExecuteRequestAsync(IRestRequest request,
+            CancellationToken cancellationToken)
+        {
+            Uri yarnRmUri = await _yarnRmUrlProviderUri.GetUrlAsync();
+            return
+                await
+                    _restRequestExecutor.ExecuteAsync(request, yarnRmUri, cancellationToken);
         }
     }
 }

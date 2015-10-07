@@ -16,7 +16,7 @@
 // under the License.
 
 using System;
-using System.Net;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
@@ -33,6 +33,11 @@ namespace Org.Apache.REEF.Client.Yarn.RestClient
             IRestRequest request,
             Uri uri,
             CancellationToken cancellationToken) where T : new();
+
+        Task<IRestResponse> ExecuteAsync(
+            IRestRequest request,
+            Uri uri,
+            CancellationToken cancellationToken);
     }
 
     internal class RestRequestExecutor : IRestRequestExecutor
@@ -56,6 +61,7 @@ namespace Org.Apache.REEF.Client.Yarn.RestClient
             var response =
                 await
                     client.ExecuteTaskAsync<T>(request, cancellationToken);
+
             if (response.ErrorException != null)
             {
                 throw new Exception("Executing REST API failed", response.ErrorException);
@@ -63,7 +69,7 @@ namespace Org.Apache.REEF.Client.Yarn.RestClient
 
             try
             {
-                if (response.StatusCode != HttpStatusCode.OK)
+                if ((int)response.StatusCode >= 300)
                 {
                     var errorResponse = JsonConvert.DeserializeObject<Error>(response.Content);
                     throw new YarnRestAPIException { Error = errorResponse };
@@ -75,6 +81,13 @@ namespace Org.Apache.REEF.Client.Yarn.RestClient
             }
 
             return response.Data;
+        }
+
+        public async Task<IRestResponse> ExecuteAsync(IRestRequest request, Uri uri, CancellationToken cancellationToken)
+        {
+            var client = _clientFactory.CreateRestClient(uri);
+
+            return await client.ExecuteTaskAsync(request, cancellationToken);
         }
     }
 }

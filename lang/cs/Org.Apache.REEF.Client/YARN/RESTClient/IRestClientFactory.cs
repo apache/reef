@@ -40,7 +40,10 @@ namespace Org.Apache.REEF.Client.Yarn.RestClient
             // as one client can contact only one baseUri.
             // This is not very bad but it might still be worth
             // it to cache clients per baseUri in the future.
-            return new RestSharp.RestClient(baseUri);
+            return new RestSharp.RestClient(baseUri)
+            {
+                FollowRedirects = true
+            };
         }
     }
 }
