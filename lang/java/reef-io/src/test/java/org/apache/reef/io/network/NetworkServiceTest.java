@@ -18,6 +18,7 @@
  */
 package org.apache.reef.io.network;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.reef.exception.evaluator.NetworkException;
 import org.apache.reef.io.network.impl.NetworkService;
 import org.apache.reef.io.network.naming.NameResolver;
@@ -183,18 +184,12 @@ public class NetworkServiceTest {
           server.register(factory.getNewInstance("task1"), new InetSocketAddress(this.localAddress, port1));
 
           final Identifier destId = factory.getNewInstance(name2);
-
-          // build the message
-          final StringBuilder msb = new StringBuilder();
-          for (int i = 0; i < size; i++) {
-            msb.append("1");
-          }
-          final String message = msb.toString();
+          final String message = StringUtils.repeat('1', size);
 
           final long start = System.currentTimeMillis();
           try (Connection<String> conn = ns1.newConnection(destId)) {
+            conn.open();
             for (int i = 0; i < numMessages; i++) {
-              conn.open();
               conn.write(message);
             }
             monitor.mwait();
@@ -276,17 +271,11 @@ public class NetworkServiceTest {
                 server.register(factory.getNewInstance(name1), new InetSocketAddress(localAddress, port1));
 
                 final Identifier destId = factory.getNewInstance(name2);
-
-                // build the message
-                final StringBuilder msb = new StringBuilder();
-                for (int i = 0; i < size; i++) {
-                  msb.append("1");
-                }
-                final String message = msb.toString();
+                final String message = StringUtils.repeat('1', size);
 
                 try (Connection<String> conn = ns1.newConnection(destId)) {
+                  conn.open();
                   for (int i = 0; i < numMessages; i++) {
-                    conn.open();
                     conn.write(message);
                   }
                   monitor.mwait();
@@ -376,13 +365,7 @@ public class NetworkServiceTest {
           try (final Connection<String> conn = ns1.newConnection(destId)) {
             conn.open();
 
-            // build the message
-            final StringBuilder msb = new StringBuilder();
-            for (int i = 0; i < size; i++) {
-              msb.append("1");
-            }
-            final String message = msb.toString();
-
+            final String message = StringUtils.repeat('1', size);
             final ExecutorService e = Executors.newCachedThreadPool();
 
             final long start = System.currentTimeMillis();
@@ -468,23 +451,13 @@ public class NetworkServiceTest {
           server.register(factory.getNewInstance("task1"), new InetSocketAddress(this.localAddress, port1));
 
           final Identifier destId = factory.getNewInstance(name2);
-
-          // build the message
-          final StringBuilder msb = new StringBuilder();
-          for (int i = 0; i < size; i++) {
-            msb.append("1");
-          }
-          final String message = msb.toString();
+          final String message = StringUtils.repeat('1', batchSize);
 
           final long start = System.currentTimeMillis();
           try (Connection<String> conn = ns1.newConnection(destId)) {
+            conn.open();
             for (int i = 0; i < numMessages; i++) {
-              final StringBuilder sb = new StringBuilder();
-              for (int j = 0; j < batchSize / size; j++) {
-                sb.append(message);
-              }
-              conn.open();
-              conn.write(sb.toString());
+              conn.write(message);
             }
             monitor.mwait();
           } catch (final NetworkException e) {
