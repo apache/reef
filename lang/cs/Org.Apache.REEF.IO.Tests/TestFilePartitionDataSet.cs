@@ -19,6 +19,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.IO.PartitionedData;
@@ -28,6 +29,7 @@ using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Util;
+using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.IO.Tests
 {
@@ -35,8 +37,10 @@ namespace Org.Apache.REEF.IO.Tests
     /// Tests for Org.Apache.REEF.IO.PartitionedData.FileSystem.
     /// </summary>
     [TestClass]
-    public class TestFileDataSet
+    public class TestFilePartitionDataSet
     {
+        private static readonly Logger Logger = Logger.GetLogger(typeof(TestFilePartitionDataSet));
+
         const string tempFileName1 = "REEF.TestLocalFileSystem1.tmp";
         const string tempFileName2 = "REEF.TestLocalFileSystem2.tmp";
         string sourceFilePath1 = Path.Combine(Path.GetTempPath(), tempFileName1);
@@ -76,7 +80,7 @@ namespace Org.Apache.REEF.IO.Tests
                     var e = partition.GetPartitionHandle();
                     foreach (var v in e)
                     {
-                        Console.WriteLine(v);
+                        Logger.Log(Level.Info, string.Format(CultureInfo.CurrentCulture, "Data read {0}: ", v));
                         count++;
                     }
                     Assert.AreEqual(count, 7);
@@ -155,7 +159,7 @@ namespace Org.Apache.REEF.IO.Tests
                     var e = partition.GetPartitionHandle();
                     foreach (var v in e)
                     {
-                        Console.WriteLine(v);
+                        Logger.Log(Level.Info, string.Format(CultureInfo.CurrentCulture, "Data read {0}: ", v));
                         count++;
                     }
                 }
@@ -193,7 +197,7 @@ namespace Org.Apache.REEF.IO.Tests
 
                     foreach (var row in e)
                     {
-                        Console.WriteLine(row.GetValue());
+                        Logger.Log(Level.Info, string.Format(CultureInfo.CurrentCulture, "Data read {0}: ", row.GetValue()));
                         count++;
                     }
                 }

@@ -46,6 +46,9 @@ namespace Org.Apache.REEF.IO.FileSystem.Hadoop
             _uriPrefix = GetUriPrefix();
         }
 
+        /// <summary>
+        /// The Prefix used for URIs on this FileSystem.
+        /// </summary>
         public string UriPrefix
         {
             get { return _uriPrefix; }
@@ -121,12 +124,9 @@ namespace Org.Apache.REEF.IO.FileSystem.Hadoop
                 .Select(x => new Uri(x[x.Length - 1]));
         }
 
-        /// <summary>
-        /// The Prefix used for URIs on this FileSystem.
-        /// </summary>
         private string GetUriPrefix()
         {
-            return _commandRunner.Run("getconf -confKey fs.default.name").StdOut.First();         
+            return _commandRunner.Run("getconf -confKey fs.default.name").StdOut.First();
         }
     }
 }

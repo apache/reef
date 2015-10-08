@@ -37,10 +37,9 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
         private readonly string _id;
         private readonly IFileSystem _fileSystem;
         private readonly IFileDeSerializer<T> _fileSerializer;
-        private IList<string> _localFileNames = new List<string>();
         private readonly ISet<string> _filePaths;
         private bool _isInitialized;
-        private object _lock = new object();
+        private readonly object _lock = new object();
         private string _localFileFolder;
 
         [Inject]
@@ -135,13 +134,14 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
         /// </summary>
         public void Dispose()
         {
-            if (_localFileNames != null)
+            if (_localFileFolder != null)
             {
-                foreach (var fileName in _localFileNames)
+                foreach (var fileName in Directory.GetFiles(_localFileFolder))
                 {
                     File.Delete(fileName);
                 }
-                _localFileNames = null;
+                Directory.Delete(_localFileFolder);
+                _localFileFolder = null;
             }
         }
     }

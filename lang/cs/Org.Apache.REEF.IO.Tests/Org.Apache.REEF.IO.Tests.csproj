@@ -42,7 +42,7 @@ under the License.
   <ItemGroup>
     <Compile Include="FileSystemTestUtilities.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TestFileDataSet.cs" />
+    <Compile Include="TestFilePartitionDataSet.cs" />
     <Compile Include="TestHadoopFileSystem.cs" />
     <Compile Include="TestLocalFileSystem.cs" />
     <Compile Include="TestRandomDataSet.cs" />
