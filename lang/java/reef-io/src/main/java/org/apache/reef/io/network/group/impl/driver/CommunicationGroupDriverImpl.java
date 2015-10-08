@@ -276,10 +276,18 @@ public class CommunicationGroupDriverImpl implements CommunicationGroupDriver {
     }
     synchronized (topologiesLock) {
       LOG.finest(getQualifiedName() + "Acquired topologiesLock");
+
+      boolean isRootOfSomeTopology = false;
       for (final Class<? extends Name<String>> operName : operatorSpecs.keySet()) {
         final Topology topology = topologies.get(operName);
         topology.addTask(taskId);
+        isRootOfSomeTopology |= topology.getRootId().equals(taskId);
       }
+
+      if (isRootOfSomeTopology) {
+        topologiesLock.notifyAll();
+      }
+
       perTaskState.put(taskId, TaskState.NOT_STARTED);
       LOG.finest(getQualifiedName() + "Released topologiesLock");
     }
@@ -323,10 +331,27 @@ public class CommunicationGroupDriverImpl implements CommunicationGroupDriver {
     synchronized (topologiesLock) {
       if (perTaskState.containsKey(id)) {
         LOG.finest(getQualifiedName() + "Acquired topologiesLock");
+
+        for (final Class<? extends Name<String>> operName : operatorSpecs.keySet()) {
+          final Topology topology = topologies.get(operName);
+          while (!topology.isRootPresent() && !topology.getRootId().equals(id)) {
+            try {
+              // wait until the root node has been added to the topology
+              topologiesLock.wait();
+            } catch (final InterruptedException e) {
+              throw new RuntimeException(getQualifiedName() +
+                  "InterruptedException while waiting on topologiesLock", e);
+            }
+          }
+        }
+
+        // This loop shouldn't be merged with the one above, because the one above contains a lock.wait().
+        // All topologies must be modified at one go, without giving up the turn.
         for (final Class<? extends Name<String>> operName : operatorSpecs.keySet()) {
           final Topology topology = topologies.get(operName);
           topology.onRunningTask(id);
         }
+
         allTasksAdded.decrement();
         perTaskState.put(id, TaskState.RUNNING);
         LOG.finest(getQualifiedName() + "Released topologiesLock. Waiting to acquire yetToRunLock");
