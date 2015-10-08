@@ -35,4 +35,4 @@ notifications:
 install: ./dev/travis-install-dependencies.sh
 
 script:
-  mvn clean install -ff -Dsurefire.useFile=false -DLOG_LEVEL=WARN
+  mvn clean install -q -ff -Dsurefire.useFile=false -DLOG_LEVEL=WARN
