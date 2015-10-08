@@ -52,12 +52,12 @@ under the License.
     <Compile Include="FileSystem\IFileSystem.cs" />
     <Compile Include="FileSystem\Local\LocalFileSystem.cs" />
     <Compile Include="FileSystem\Local\LocalFileSystemConfiguration.cs" />
-    <Compile Include="PartitionedData\FileSystem\FilePartition.cs" />
+    <Compile Include="PartitionedData\FileSystem\FileSystemPartition.cs" />
     <Compile Include="PartitionedData\FileSystem\FilePartitionDescriptor.cs" />
     <Compile Include="PartitionedData\FileSystem\Parameters\FileSerializerConfigString.cs" />
     <Compile Include="PartitionedData\FileSystem\FileSystemType.cs" />
     <Compile Include="PartitionedData\FileSystem\IFileDeSerializer.cs" />
-    <Compile Include="PartitionedData\FileSystem\FileSystemDataSet.cs" />
+    <Compile Include="PartitionedData\FileSystem\FileSystemPartitionDataSet.cs" />
     <Compile Include="PartitionedData\FileSystem\FileSystemPartitionConfiguration.cs" />
     <Compile Include="PartitionedData\FileSystem\Parameters\FilePathsForPatitions.cs" />
     <Compile Include="PartitionedData\FileSystem\Parameters\FilePathsInPartition.cs" />

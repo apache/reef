@@ -32,13 +32,13 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
     {
         private readonly string _id;
         private readonly IList<string> _filePaths;
-        private readonly IConfiguration _fileSystemPartitionConfig;
+        private readonly IConfiguration _filePartitionDeserializerConfig;
 
-        internal FilePartitionDescriptor(string id, IList<string> filePaths, IConfiguration fileSystemPartitionConfig)
+        internal FilePartitionDescriptor(string id, IList<string> filePaths, IConfiguration filePartitionDeserializerConfig)
         {
             _id = id;
             _filePaths = filePaths;
-            _fileSystemPartitionConfig = fileSystemPartitionConfig;
+            _filePartitionDeserializerConfig = filePartitionDeserializerConfig;
         }
 
         public string Id
@@ -53,7 +53,7 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
         public IConfiguration GetPartitionConfiguration()
         {
             var builder = TangFactory.GetTang().NewConfigurationBuilder()
-                .BindImplementation(GenericType<IPartition<IEnumerable<T>>>.Class, GenericType<FilePartition<T>>.Class)
+                .BindImplementation(GenericType<IPartition<IEnumerable<T>>>.Class, GenericType<FileSystemPartition<T>>.Class)
                 .BindStringNamedParam<PartitionId>(_id);
 
             foreach (string p in _filePaths)
@@ -62,7 +62,7 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
                     (GenericType<FilePathsInPartition>.Class, p);
             }
 
-            return Configurations.Merge(builder.Build(), _fileSystemPartitionConfig);
+            return Configurations.Merge(builder.Build(), _filePartitionDeserializerConfig);
         }
     }
 }

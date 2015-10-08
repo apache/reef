@@ -63,10 +63,12 @@ namespace Org.Apache.REEF.IO.Tests
 
             foreach (var partitionDescriptor in dataSet)
             {
-                using (var partition =
+                var partition =
                     TangFactory.GetTang()
                         .NewInjector(partitionDescriptor.GetPartitionConfiguration())
-                        .GetInstance<IPartition<IEnumerable<byte>>>())
+                        .GetInstance<IPartition<IEnumerable<byte>>>();
+
+                using (partition as IDisposable)
                 {
                     Assert.IsNotNull(partition);
                     Assert.IsNotNull(partition.Id);
@@ -93,7 +95,7 @@ namespace Org.Apache.REEF.IO.Tests
             MakeLocalTestFile(sourceFilePath2, new byte[] { 114, 115, 116, 117 });
 
             var partitionConfig = TangFactory.GetTang().NewConfigurationBuilder()
-                .BindImplementation(GenericType<IPartitionedDataSet>.Class, GenericType<FileSystemDataSet<byte>>.Class)
+                .BindImplementation(GenericType<IPartitionedDataSet>.Class, GenericType<FileSystemPartitionDataSet<byte>>.Class)
                 .BindStringNamedParam<FileSerializerConfigString>(GetByteSerilizerConfigString())
                 .BindSetEntry<FilePathsForPatitions, string>(GenericType<FilePathsForPatitions>.Class, sourceFilePath1)
                 .BindSetEntry<FilePathsForPatitions, string>(GenericType<FilePathsForPatitions>.Class, sourceFilePath2)
@@ -105,12 +107,14 @@ namespace Org.Apache.REEF.IO.Tests
 
             Assert.AreEqual(dataSet.Count, 2);
 
+
             foreach (var partitionDescriptor in dataSet)
             {
-                using (var partition =
+                var partition =
                     TangFactory.GetTang()
                         .NewInjector(partitionDescriptor.GetPartitionConfiguration())
-                        .GetInstance<IPartition<IEnumerable<byte>>>())
+                        .GetInstance<IPartition<IEnumerable<byte>>>();
+                using (partition as IDisposable)
                 {
                     Assert.IsNotNull(partition);
                     Assert.IsNotNull(partition.Id);
@@ -128,7 +132,7 @@ namespace Org.Apache.REEF.IO.Tests
             MakeLocalTestFile(sourceFilePath2, new byte[] { 114, 115, 116, 117 });
 
             var c = TangFactory.GetTang().NewConfigurationBuilder()
-                .BindImplementation(GenericType<IPartitionedDataSet>.Class, GenericType<FileSystemDataSet<byte>>.Class)
+                .BindImplementation(GenericType<IPartitionedDataSet>.Class, GenericType<FileSystemPartitionDataSet<byte>>.Class)
                 .BindStringNamedParam<FileSerializerConfigString>(GetByteSerilizerConfigString())
                 .BindSetEntry<FilePathsForPatitions, string>(GenericType<FilePathsForPatitions>.Class, sourceFilePath1)
                 .BindSetEntry<FilePathsForPatitions, string>(GenericType<FilePathsForPatitions>.Class, sourceFilePath2)
@@ -141,10 +145,11 @@ namespace Org.Apache.REEF.IO.Tests
             int count = 0;
             foreach (var partitionDescriptor in dataSet)
             {
-                using (var partition =
+                var partition =
                     TangFactory.GetTang()
                         .NewInjector(partitionDescriptor.GetPartitionConfiguration())
-                        .GetInstance<IPartition<IEnumerable<byte>>>())
+                        .GetInstance<IPartition<IEnumerable<byte>>>();
+                using (partition as IDisposable)
                 {
 
                     var e = partition.GetPartitionHandle();
@@ -178,12 +183,12 @@ namespace Org.Apache.REEF.IO.Tests
             int count = 0;
             foreach (var partitionDescriptor in dataSet)
             {
-                using (var partition =
+                var partition =
                     TangFactory.GetTang()
                         .NewInjector(partitionDescriptor.GetPartitionConfiguration())
-                        .GetInstance<IPartition<IEnumerable<Row>>>())
+                        .GetInstance<IPartition<IEnumerable<Row>>>();
+                using (partition as IDisposable)
                 {
-
                     IEnumerable<Row> e = partition.GetPartitionHandle();
 
                     foreach (var row in e)
@@ -256,7 +261,6 @@ namespace Org.Apache.REEF.IO.Tests
                 }
             }
         }
-
     }
 
     public class Row

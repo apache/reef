@@ -49,7 +49,6 @@ namespace Org.Apache.REEF.IO.FileSystem.Hadoop
         public string UriPrefix
         {
             get { return _uriPrefix; }
-
         }
 
         /// <summary>

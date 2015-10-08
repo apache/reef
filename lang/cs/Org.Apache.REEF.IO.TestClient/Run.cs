@@ -18,36 +18,55 @@
  */
 
 using System;
-using System.IO;
 using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.IO.TestClient
 {
-    //TODO: once move to Nunit, tose test should be moved to Test project
+    //TODO[JIRA REEF-815]: once move to Nunit, tose test should be moved to Test project
     /// <summary>
     /// This purpose of this test is to run tests in Yarn envionment
     /// 
     /// </summary>
     public class Run
-    {
+    {    
         private static void Main(string[] args)
         {
-
             if (args.Length > 0 && args[0].Equals("p"))
             {
-                HadoopFilePartitionTest.TestWithByteDeserializer();
+                bool result = HadoopFilePartitionTest.TestWithByteDeserializer();
+                Assert.IsTrue(result);
             }
 
             if (args.Length > 0 && args[0].Equals("c"))
             {
                 HadoopFileSystemTest t = new HadoopFileSystemTest();
-                t.TestCopyFromRemote();
+                Assert.IsTrue(t.TestCopyFromRemote());
             }
+
             if (args.Length > 0 && args[0].Equals("b"))
             {
                 HadoopFileSystemTest t = new HadoopFileSystemTest();
-                t.TestCopyFromLocalAndBack();
+                Assert.IsTrue(t.TestCopyFromLocalAndBack());
             }            
         }
+    }
+
+    public static class Assert
+    {
+        private static readonly Logger Logger = Logger.GetLogger(typeof(Assert));
+
+        public static void IsTrue(bool condition, string message = null)
+        {
+            if (!condition)
+            {
+                Logger.Log(Level.Error, "Assert failed; {0}", message);
+                throw new AssertFailedException(message);
+            }
+        }
+    }
+
+    public class AssertFailedException : Exception
+    {
+        public AssertFailedException(string message) : base(message) { }
     }
 }

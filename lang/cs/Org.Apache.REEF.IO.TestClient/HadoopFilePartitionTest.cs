@@ -23,7 +23,6 @@ using System.Globalization;
 using System.IO;
 using Org.Apache.REEF.IO.FileSystem;
 using Org.Apache.REEF.IO.FileSystem.Hadoop;
-using Org.Apache.REEF.IO.FileSystem.Local;
 using Org.Apache.REEF.IO.PartitionedData;
 using Org.Apache.REEF.IO.PartitionedData.FileSystem;
 using Org.Apache.REEF.Tang.Annotations;
@@ -35,12 +34,12 @@ using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.IO.TestClient
 {
-    //TODO: once move to Nunit, tose test should be moved to Test project
+    //TODO[JIRA REEF-815]: once move to Nunit, tose test should be moved to Test project
     internal class HadoopFilePartitionTest
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(HadoopFilePartitionTest));
 
-        internal static void TestWithByteDeserializer()
+        internal static bool TestWithByteDeserializer()
         {
             string remoteFilePath1 = MakeRemoteTestFile(new byte[] { 111, 112, 113 });
             string remoteFilePath2 = MakeRemoteTestFile(new byte[] { 114, 115, 116, 117 });
@@ -65,12 +64,12 @@ namespace Org.Apache.REEF.IO.TestClient
             int count = 0;
             foreach (var partitionDescriptor in dataSet)
             {
-                using (var partition =
-                    TangFactory.GetTang()
-                        .NewInjector(partitionDescriptor.GetPartitionConfiguration(), GetHadoopFileSystemConfiguration())
-                        .GetInstance<IPartition<IEnumerable<byte>>>())
-                {
+                var partition = TangFactory.GetTang()
+                    .NewInjector(partitionDescriptor.GetPartitionConfiguration(), GetHadoopFileSystemConfiguration())
+                    .GetInstance<IPartition<IEnumerable<byte>>>();
 
+                using (partition as IDisposable)
+                {
                     Logger.Log(Level.Info, "get partition instance.");
 
                     var e = partition.GetPartitionHandle();
@@ -81,7 +80,8 @@ namespace Org.Apache.REEF.IO.TestClient
                     }
                 }
             }
-            Logger.Log(Level.Info, "Total count returend: " + count);            
+            Logger.Log(Level.Info, "Total count returend: " + count);
+            return true;
         }
 
         internal static string MakeRemoteTestFile(byte[] bytes)

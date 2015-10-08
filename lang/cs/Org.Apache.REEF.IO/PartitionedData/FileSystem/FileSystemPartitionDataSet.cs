@@ -35,9 +35,10 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
     /// <summary>
     /// This class is an implementation of IPartitionedDataSet for FileSystem.
     /// It requires the client to provide configuration for FileSerializer 
+    /// T is a type for data, e.g. a class like Row, or int, byte
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    internal sealed class FileSystemDataSet<T> : IPartitionedDataSet
+    internal sealed class FileSystemPartitionDataSet<T> : IPartitionedDataSet
     {
         private readonly Dictionary<string, IPartitionDescriptor> _partitions;
         private readonly int _count ;
@@ -46,7 +47,7 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
         private readonly string _id;
         
         [Inject]
-        private FileSystemDataSet(
+        private FileSystemPartitionDataSet(
             [Parameter(typeof(FilePathsForPatitions))] ISet<string> filePaths,
             IFileSystem fileSystem,
             [Parameter(typeof(FileSerializerConfigString))] string fileSerializerConfigString,
@@ -87,20 +88,14 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
         }
 
         /// <summary>
-        /// It returns PArtition Dewscriptor by given id
+        /// It returns Partition Descriptor by given id
+        /// If id doesn't exists, it is callers responsibility to catch and handle exception
         /// </summary>
         /// <param name="partitionId"></param>
         /// <returns></returns>
         public IPartitionDescriptor GetPartitionDescriptorForId(string partitionId)
         {
-            try
-            {
-                return _partitions[partitionId];
-            }
-            catch (KeyNotFoundException)
-            {
-                return null;
-            }
+            return _partitions[partitionId];
         }
 
         /// <summary>
@@ -121,7 +116,7 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
             return _partitions.Values.GetEnumerator();
         }
 
-        private static string FormId(ISet<string> filePaths)
+        private string FormId(ISet<string> filePaths)
         {
             string id = "";
             if (filePaths != null && filePaths.Count > 0)

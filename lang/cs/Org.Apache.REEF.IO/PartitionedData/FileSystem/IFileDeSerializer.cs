@@ -23,12 +23,17 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
 {
     /// <summary>
     /// A interface for user to implement its deserializer.
-    /// The input is a list of file names.
-    /// The out put is an IEnumerable of T which is defined by the client
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public interface IFileDeSerializer<T>
     {
+        /// <summary>
+        /// The input is a file folder which contains all input files in one partition.
+        /// The output is an IEnumerable of T which is defined by the client
+        /// If there is any IO error, IOException could be thrown.
+        /// </summary>
+        /// <param name="fileFolder"></param>
+        /// <returns></returns>
         IEnumerable<T> Deserialize(string fileFolder);
     }
 }

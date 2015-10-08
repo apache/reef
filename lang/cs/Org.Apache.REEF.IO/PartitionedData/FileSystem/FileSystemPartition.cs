@@ -30,9 +30,9 @@ using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
 {
-    internal sealed class FilePartition<T> : IPartition<IEnumerable<T>>
+    internal sealed class FileSystemPartition<T> : IPartition<IEnumerable<T>>, IDisposable
     {
-        private static readonly Logger Logger = Logger.GetLogger(typeof(FilePartition<T>));
+        private static readonly Logger Logger = Logger.GetLogger(typeof(FileSystemPartition<T>));
 
         private readonly string _id;
         private readonly IFileSystem _fileSystem;
@@ -44,7 +44,7 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
         private string _localFileFolder;
 
         [Inject]
-        private FilePartition([Parameter(typeof (PartitionId))] string id,
+        private FileSystemPartition([Parameter(typeof (PartitionId))] string id,
             [Parameter(typeof (FilePathsInPartition))] ISet<string> filePaths,
             IFileSystem fileSystem,
             IFileDeSerializer<T> fileSerializer)
@@ -128,56 +128,13 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
             }
         }
 
-        //private string CopyFromRemote(string sourceFilePath)
-        //{
-        //    Logger.Log(Level.Info, "GetUriPrefix: " + _fileSystem.UriPrefix);
-
-        //    Uri sourceUri = new Uri(_fileSystem.UriPrefix + sourceFilePath);
-        //    Logger.Log(Level.Info, "remoteUri: " + sourceUri);
-
-        //    if (!_fileSystem.Exists(sourceUri))
-        //    {
-        //        throw new FileNotFoundException(string.Format(CultureInfo.CurrentCulture, "Remote File {0} does not exists.", sourceUri));
-        //    }
-
-        //    var localFilePath = Path.GetTempPath() + "-partition-" + DateTime.Now.ToString("yyyyMMddHHmmssfff");
-
-        //    Logger.Log(Level.Info, "localFile: " + localFilePath);
-
-        //    if (File.Exists(localFilePath))
-        //    {
-        //        File.Delete(localFilePath);
-        //        Logger.Log(Level.Warning, "localFile already exists, delete it: " + localFilePath);
-        //    }
-
-        //    _fileSystem.CopyToLocal(sourceUri, localFilePath);
-        //    if (File.Exists(localFilePath))
-        //    {
-        //        Logger.Log(Level.Info, string.Format
-        //            (CultureInfo.CurrentCulture, "File {0} is Copied to local {1}.", sourceUri, localFilePath));
-        //    }
-        //    else
-        //    {
-        //        Logger.Log(Level.Info, string.Format
-        //            (CultureInfo.CurrentCulture, "File {0} is not Copied to local {1}.", sourceUri, localFilePath));
-        //    }
-
-        //    return localFilePath;
-        //}
-
-        ~FilePartition()
+        /// <summary>
+        /// Implementation of the IDisposable.
+        /// The caller should use using pattern and this method will be 
+        /// called automatically when the object is out of scope.
+        /// </summary>
+        public void Dispose()
         {
-            Dispose(false);
-        }
-
-        public void Dispose() { Dispose(true); }
-        private void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                GC.SuppressFinalize(this);
-            }
-
             if (_localFileNames != null)
             {
                 foreach (var fileName in _localFileNames)

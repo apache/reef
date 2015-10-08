@@ -66,14 +66,7 @@ namespace Org.Apache.REEF.IO.PartitionedData.Random
 
         public IPartitionDescriptor GetPartitionDescriptorForId(string partitionId)
         {
-            try
-            {
-                return _partitions[partitionId];
-            }
-            catch (KeyNotFoundException)
-            {
-                return null;
-            }
+            return _partitions[partitionId];
         }
     }
 }

@@ -48,8 +48,10 @@ namespace Org.Apache.REEF.IO.TestClient
                         Guid.NewGuid().ToString("N").Substring(0, 8));
         }
 
-        internal void TestCopyFromLocalAndBack()
+        internal bool TestCopyFromLocalAndBack()
         {
+            bool result = false;
+
             var localFile = MakeLocalBanaryFile();
             Logger.Log(Level.Info, string.Format(CultureInfo.CurrentCulture, "localFile {0}: ", localFile));
 
@@ -67,19 +69,22 @@ namespace Org.Apache.REEF.IO.TestClient
                 Logger.Log(Level.Info, string.Format(CultureInfo.CurrentCulture, "File copied exists {0}: ", localFileDownloaded));
                 ReadFileTest(localFileDownloaded);
                 File.Delete(localFileDownloaded);
+                result = true;
             }
             else
             {
                 Logger.Log(Level.Info, "File does not exist!");
+                result = false;
             }
 
             _fileSystem.Delete(remoteUri);
             File.Delete(localFile);
             Logger.Log(Level.Info, "End of TestCopyFromLocalAndBack2!");
 
+            return result;
         }
 
-        internal void TestCopyFromRemote()
+        internal bool TestCopyFromRemote()
         {
             var remoteUri = new Uri(_fileSystem.UriPrefix + "vol1/test/TestHadoopFilePartition-20151002160654404");
             Logger.Log(Level.Info, string.Format(CultureInfo.CurrentCulture, "remoteUri {0}: ", remoteUri));
@@ -87,6 +92,7 @@ namespace Org.Apache.REEF.IO.TestClient
             if (!_fileSystem.Exists(remoteUri))
             {
                 Logger.Log(Level.Info, string.Format(CultureInfo.CurrentCulture, "Remote File {0} doesn't exist.", remoteUri));
+                return false;
             }
             else
             {
@@ -98,6 +104,8 @@ namespace Org.Apache.REEF.IO.TestClient
 
             _fileSystem.CopyToLocal(remoteUri, localFile);
             Logger.Log(Level.Info, "File CopyToLocal!");
+
+            return true;
         }
 
         private string MakeLocalBanaryFile()

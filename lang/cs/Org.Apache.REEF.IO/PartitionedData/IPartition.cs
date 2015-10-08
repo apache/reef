@@ -26,7 +26,7 @@ namespace Org.Apache.REEF.IO.PartitionedData
     /// </summary>
     /// <typeparam name="T">Generic Type representing data pointer.
     /// For example, for data in local file it can be file pointer </typeparam>
-    public interface IPartition<T> : IDisposable
+    public interface IPartition<T> 
     {
         /// <summary>
         /// The id of the partition.
