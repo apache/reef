@@ -55,7 +55,6 @@ under the License.
     <Compile Include="PartitionedData\FileSystem\FileSystemPartition.cs" />
     <Compile Include="PartitionedData\FileSystem\FilePartitionDescriptor.cs" />
     <Compile Include="PartitionedData\FileSystem\Parameters\FileSerializerConfigString.cs" />
-    <Compile Include="PartitionedData\FileSystem\FileSystemType.cs" />
     <Compile Include="PartitionedData\FileSystem\IFileDeSerializer.cs" />
     <Compile Include="PartitionedData\FileSystem\FileSystemPartitionDataSet.cs" />
     <Compile Include="PartitionedData\FileSystem\FileSystemPartitionConfiguration.cs" />

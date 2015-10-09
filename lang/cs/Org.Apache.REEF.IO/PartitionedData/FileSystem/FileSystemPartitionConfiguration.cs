@@ -23,6 +23,11 @@ using Org.Apache.REEF.Tang.Util;
 
 namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
 {
+    /// <summary>
+    /// This configuration module set FileSystemDataSet as IPartitionedDataSet.
+    /// It also set required parameters for injecting FileSystemDataSet
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public sealed class FileSystemPartitionConfiguration<T> : ConfigurationModuleBuilder
     {
         /// <summary>
