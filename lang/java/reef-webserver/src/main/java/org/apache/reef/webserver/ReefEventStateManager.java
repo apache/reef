@@ -63,7 +63,7 @@ public final class ReefEventStateManager {
    */
   private final Map<String, ActiveContext> contexts = new HashMap<>();
 
-  private final List<AvroReefServiceInfo> serviceInfoList = new ArrayList<AvroReefServiceInfo>();
+  private final List<AvroReefServiceInfo> serviceInfoList = new ArrayList<>();
 
   /**
    * Remote manager in driver the carries information such as driver endpoint identifier.

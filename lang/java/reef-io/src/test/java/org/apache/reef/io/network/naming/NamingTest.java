@@ -87,7 +87,7 @@ public class NamingTest {
     LOG.log(Level.FINEST, this.name.getMethodName());
 
     // names 
-    final Map<Identifier, InetSocketAddress> idToAddrMap = new HashMap<Identifier, InetSocketAddress>();
+    final Map<Identifier, InetSocketAddress> idToAddrMap = new HashMap<>();
     idToAddrMap.put(this.factory.getNewInstance("task1"), new InetSocketAddress(localAddress, 7001));
     idToAddrMap.put(this.factory.getNewInstance("task2"), new InetSocketAddress(localAddress, 7002));
 
@@ -108,7 +108,7 @@ public class NamingTest {
         final Identifier id1 = this.factory.getNewInstance("task1");
         final Identifier id2 = this.factory.getNewInstance("task2");
 
-        final Map<Identifier, InetSocketAddress> respMap = new HashMap<Identifier, InetSocketAddress>();
+        final Map<Identifier, InetSocketAddress> respMap = new HashMap<>();
         final InetSocketAddress addr1 = client.lookup(id1);
         respMap.put(id1, addr1);
         final InetSocketAddress addr2 = client.lookup(id2);
@@ -140,7 +140,7 @@ public class NamingTest {
       LOG.log(Level.FINEST, "test {0}", i);
 
       // names 
-      final Map<Identifier, InetSocketAddress> idToAddrMap = new HashMap<Identifier, InetSocketAddress>();
+      final Map<Identifier, InetSocketAddress> idToAddrMap = new HashMap<>();
       idToAddrMap.put(this.factory.getNewInstance("task1"), new InetSocketAddress(localAddress, 7001));
       idToAddrMap.put(this.factory.getNewInstance("task2"), new InetSocketAddress(localAddress, 7002));
       idToAddrMap.put(this.factory.getNewInstance("task3"), new InetSocketAddress(localAddress, 7003));
@@ -165,8 +165,7 @@ public class NamingTest {
 
           final ExecutorService e = Executors.newCachedThreadPool();
 
-          final ConcurrentMap<Identifier, InetSocketAddress> respMap = 
-              new ConcurrentHashMap<Identifier, InetSocketAddress>();
+          final ConcurrentMap<Identifier, InetSocketAddress> respMap = new ConcurrentHashMap<>();
 
           final Future<?> f1 = e.submit(new Runnable() {
             @Override
@@ -240,7 +239,7 @@ public class NamingTest {
       final String localAddress = localAddressProvider.getLocalAddress();
 
       // names to start with
-      final Map<Identifier, InetSocketAddress> idToAddrMap = new HashMap<Identifier, InetSocketAddress>();
+      final Map<Identifier, InetSocketAddress> idToAddrMap = new HashMap<>();
       idToAddrMap.put(this.factory.getNewInstance("task1"), new InetSocketAddress(localAddress, 7001));
       idToAddrMap.put(this.factory.getNewInstance("task2"), new InetSocketAddress(localAddress, 7002));
 
@@ -257,7 +256,7 @@ public class NamingTest {
         busyWait(server, ids.size(), ids);
 
         // check the server side
-        Map<Identifier, InetSocketAddress> serverMap = new HashMap<Identifier, InetSocketAddress>();
+        Map<Identifier, InetSocketAddress> serverMap = new HashMap<>();
         Iterable<NameAssignment> nas = server.lookup(ids);
 
         for (final NameAssignment na : nas) {
@@ -276,7 +275,7 @@ public class NamingTest {
         // wait
         busyWait(server, 0, ids);
 
-        serverMap = new HashMap<Identifier, InetSocketAddress>();
+        serverMap = new HashMap<>();
         nas = server.lookup(ids);
         for (final NameAssignment na : nas) {
           serverMap.put(na.getIdentifier(), na.getAddress());
@@ -304,7 +303,7 @@ public class NamingTest {
     try (final NameServer server = injector.getInstance(NameServer.class)) {
       this.port = server.getPort();
 
-      final Map<Identifier, InetSocketAddress> idToAddrMap = new HashMap<Identifier, InetSocketAddress>();
+      final Map<Identifier, InetSocketAddress> idToAddrMap = new HashMap<>();
       idToAddrMap.put(this.factory.getNewInstance("task1"), new InetSocketAddress(localAddress, 7001));
       idToAddrMap.put(this.factory.getNewInstance("task2"), new InetSocketAddress(localAddress, 7002));
 
@@ -332,7 +331,7 @@ public class NamingTest {
         final Identifier id1 = this.factory.getNewInstance("task1");
         final Identifier id2 = this.factory.getNewInstance("task2");
 
-        final Map<Identifier, InetSocketAddress> respMap = new HashMap<Identifier, InetSocketAddress>();
+        final Map<Identifier, InetSocketAddress> respMap = new HashMap<>();
         InetSocketAddress addr1 = client.lookup(id1);
         respMap.put(id1, addr1);
         InetSocketAddress addr2 = client.lookup(id2);
@@ -352,7 +351,7 @@ public class NamingTest {
         // wait
         busyWait(server, 0, ids);
 
-        final Map<Identifier, InetSocketAddress> serverMap = new HashMap<Identifier, InetSocketAddress>();
+        final Map<Identifier, InetSocketAddress> serverMap = new HashMap<>();
         addr1 = server.lookup(id1);
         if (addr1 != null) {
           serverMap.put(id1, addr1);

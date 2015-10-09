@@ -45,7 +45,7 @@ public class ThreadPoolStageTest {
     final Set<TestEvent> orgSet = Collections.synchronizedSet(new HashSet<TestEvent>());
 
     final EventHandler<TestEventA> eventHandler = new TestEventHandlerA(procSet);
-    final EStage<TestEventA> stage = new SingleThreadStage<TestEventA>(eventHandler, 20);
+    final EStage<TestEventA> stage = new SingleThreadStage<>(eventHandler, 20);
 
     for (int i = 0; i < 10; ++i) {
       final TestEventA a = new TestEventA();
@@ -69,7 +69,7 @@ public class ThreadPoolStageTest {
 
     final Set<TestEvent> procSet = Collections.synchronizedSet(new HashSet<TestEvent>());
     final EventHandler<TestEventA> eventHandler = new TestEventHandlerA(procSet);
-    final EStage<TestEventA> stage = new SingleThreadStage<TestEventA>(eventHandler, 1);
+    final EStage<TestEventA> stage = new SingleThreadStage<>(eventHandler, 1);
 
     for (int i = 0; i < 10000; ++i) {
       final TestEventA a = new TestEventA();
@@ -88,7 +88,7 @@ public class ThreadPoolStageTest {
 
     final EventHandler<TestEventA> eventHandler = new TestEventHandlerA(procSet);
 
-    final EStage<TestEventA> stage = new ThreadPoolStage<TestEventA>(eventHandler, 10);
+    final EStage<TestEventA> stage = new ThreadPoolStage<>(eventHandler, 10);
 
     for (int i = 0; i < 10; ++i) {
       final TestEventA a = new TestEventA();
@@ -113,13 +113,12 @@ public class ThreadPoolStageTest {
     final Set<TestEvent> procSet = Collections.synchronizedSet(new HashSet<TestEvent>());
     final Set<TestEvent> orgSet = Collections.synchronizedSet(new HashSet<TestEvent>());
 
-    final Map<Class<? extends TestEvent>, EventHandler<? extends TestEvent>> map
-        = new HashMap<Class<? extends TestEvent>, EventHandler<? extends TestEvent>>();
+    final Map<Class<? extends TestEvent>, EventHandler<? extends TestEvent>> map = new HashMap<>();
     map.put(TestEventA.class, new TestEventHandlerA(procSet));
     map.put(TestEventB.class, new TestEventHandlerB(procSet));
-    final EventHandler<TestEvent> eventHandler = new MultiEventHandler<TestEvent>(map);
+    final EventHandler<TestEvent> eventHandler = new MultiEventHandler<>(map);
 
-    final EStage<TestEvent> stage = new ThreadPoolStage<TestEvent>(eventHandler, 10);
+    final EStage<TestEvent> stage = new ThreadPoolStage<>(eventHandler, 10);
 
     for (int i = 0; i < 10; ++i) {
       final TestEventA a = new TestEventA();
@@ -144,7 +143,7 @@ public class ThreadPoolStageTest {
   public void testMeter() throws Exception {
     System.out.println(LOG_PREFIX + name.getMethodName());
     final EventHandler<TestEvent> eventHandler = new TestEventHandler();
-    final ThreadPoolStage<TestEvent> stage = new ThreadPoolStage<TestEvent>(eventHandler, 10);
+    final ThreadPoolStage<TestEvent> stage = new ThreadPoolStage<>(eventHandler, 10);
 
     final TestEvent e = new TestEvent();
     for (int i = 0; i < 1000000; ++i) {
@@ -160,8 +159,8 @@ public class ThreadPoolStageTest {
   public void testMeterTwoStages() throws Exception {
     System.out.println(LOG_PREFIX + name.getMethodName());
     final EventHandler<TestEvent> eventHandler = new TestEventHandler();
-    final ThreadPoolStage<TestEvent> stage2 = new ThreadPoolStage<TestEvent>(eventHandler, 5);
-    final ThreadPoolStage<TestEvent> stage1 = new ThreadPoolStage<TestEvent>(stage2, 5);
+    final ThreadPoolStage<TestEvent> stage2 = new ThreadPoolStage<>(eventHandler, 5);
+    final ThreadPoolStage<TestEvent> stage1 = new ThreadPoolStage<>(stage2, 5);
 
     final TestEvent e = new TestEvent();
     for (int i = 0; i < 1000000; ++i) {

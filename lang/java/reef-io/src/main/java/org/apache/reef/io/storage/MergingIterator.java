@@ -29,8 +29,7 @@ public class MergingIterator<T> implements Iterator<T> {
   private final PriorityQueue<Tuple<T, Iterator<T>>> heap;
 
   public MergingIterator(final Comparator<T> c, final Iterator<T>[] its) {
-    this.heap = new PriorityQueue<Tuple<T, Iterator<T>>>(11,
-        new TupleKeyComparator<T, Iterator<T>>(c));
+    this.heap = new PriorityQueue<>(11, new TupleKeyComparator<T, Iterator<T>>(c));
 
     for (final Iterator<T> it : its) {
       final T b = it.hasNext() ? it.next() : null;

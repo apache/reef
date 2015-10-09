@@ -97,7 +97,7 @@ public final class ParsedHttpRequest {
    * @return
    */
   public List<HeaderEntry> getHeaderEntryList() {
-    final List<HeaderEntry> list = new ArrayList<HeaderEntry>();
+    final List<HeaderEntry> list = new ArrayList<>();
     final Iterator it = this.headers.entrySet().iterator();
     while (it.hasNext()) {
       final Map.Entry pair = (Map.Entry)it.next();

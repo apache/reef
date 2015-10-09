@@ -30,7 +30,7 @@ public class InteropLogger {
   private HashMap<Integer, Level> levelHashMap;
 
   {
-    levelHashMap = new HashMap<Integer, Level>();
+    levelHashMap = new HashMap<>();
     levelHashMap.put(Level.OFF.intValue(), Level.OFF);
     levelHashMap.put(Level.SEVERE.intValue(), Level.SEVERE);
     levelHashMap.put(Level.WARNING.intValue(), Level.WARNING);

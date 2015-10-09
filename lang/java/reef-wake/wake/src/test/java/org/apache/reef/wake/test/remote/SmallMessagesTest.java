@@ -71,19 +71,18 @@ public class SmallMessagesTest {
 
     // receiver stage
     // decoder map
-    final Map<Class<?>, Decoder<?>> clazzToDecoderMap = new HashMap<Class<?>, Decoder<?>>();
+    final Map<Class<?>, Decoder<?>> clazzToDecoderMap = new HashMap<>();
     clazzToDecoderMap.put(TestEvent.class, new ObjectSerializableCodec<TestEvent>());
     clazzToDecoderMap.put(TestEvent2.class, new ObjectSerializableCodec<TestEvent2>());
-    final Decoder<Object> decoder = new MultiDecoder<Object>(clazzToDecoderMap);
+    final Decoder<Object> decoder = new MultiDecoder<>(clazzToDecoderMap);
 
     // receive handlers
     final int finalSize = 6; // 6 events will be sent
-    //int finalSize = 200000; // 6 events will be sent
-    final Map<Class<?>, EventHandler<?>> clazzToHandlerMap = new HashMap<Class<?>, EventHandler<?>>();
-    final Set<Object> set = Collections.synchronizedSet(new HashSet<Object>());
+    final Map<Class<?>, EventHandler<?>> clazzToHandlerMap = new HashMap<>();
+    final Set<Object> set = Collections.synchronizedSet(new HashSet<>());
     clazzToHandlerMap.put(TestEvent.class, new ConsoleEventHandler<TestEvent>("recvEH1", set, finalSize, monitor));
     clazzToHandlerMap.put(TestEvent2.class, new ConsoleEventHandler<TestEvent2>("recvEH2", set, finalSize, monitor));
-    final EventHandler<Object> handler = new MultiEventHandler<Object>(clazzToHandlerMap);
+    final EventHandler<Object> handler = new MultiEventHandler<>(clazzToHandlerMap);
 
     // receiver stage
     final RemoteReceiverStage reRecvStage = new RemoteReceiverStage(
@@ -95,10 +94,10 @@ public class SmallMessagesTest {
     final Transport transport = tpFactory.newInstance(hostAddress, port, reRecvStage, reRecvStage, 1, 10000);
 
     // mux encoder with encoder map
-    final Map<Class<?>, Encoder<?>> clazzToEncoderMap = new HashMap<Class<?>, Encoder<?>>();
+    final Map<Class<?>, Encoder<?>> clazzToEncoderMap = new HashMap<>();
     clazzToEncoderMap.put(TestEvent.class, new ObjectSerializableCodec<TestEvent>());
     clazzToEncoderMap.put(TestEvent2.class, new ObjectSerializableCodec<TestEvent2>());
-    final Encoder<Object> encoder = new MultiEncoder<Object>(clazzToEncoderMap);
+    final Encoder<Object> encoder = new MultiEncoder<>(clazzToEncoderMap);
 
     // sender stage
     final RemoteSenderStage reSendStage = new RemoteSenderStage(encoder, transport, 10);
@@ -109,7 +108,7 @@ public class SmallMessagesTest {
 
 
     // proxy handler for a remotely running handler
-    final ProxyEventHandler<TestEvent> proxyHandler1 = new ProxyEventHandler<TestEvent>(
+    final ProxyEventHandler<TestEvent> proxyHandler1 = new ProxyEventHandler<>(
         myId, remoteId, "recvEH1", reSendStage.<TestEvent>getHandler(), new RemoteSeqNumGenerator());
     final long start = System.nanoTime();
     for (int i = 0; i < finalSize; i++) {

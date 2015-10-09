@@ -67,7 +67,7 @@ public final class LogParser {
                                                            final String filter,
                                                            final String removeBeforeToken,
                                                            final String removeAfterToken) throws IOException{
-    final ArrayList<String> filteredLines = new ArrayList<String>();
+    final ArrayList<String> filteredLines = new ArrayList<>();
     try (final BufferedReader in = new BufferedReader(
             new InputStreamReader(new FileInputStream(fileName), StandardCharsets.UTF_8))) {
       String line = "";
@@ -119,7 +119,7 @@ public final class LogParser {
    * @return
    */
   public static ArrayList<String> filter(final ArrayList<String> original, final String filter, final String token) {
-    final ArrayList<String> result = new ArrayList<String>();
+    final ArrayList<String> result = new ArrayList<>();
     for (final String line : original) {
       if (line.contains(filter)) {
         final String[] p = line.split(token);
@@ -138,7 +138,7 @@ public final class LogParser {
    * @return
    */
   public static ArrayList<String> findStages(final ArrayList<String> lines, final String[] stageIndicators) {
-    final ArrayList<String> stages = new ArrayList<String>();
+    final ArrayList<String> stages = new ArrayList<>();
 
     int i = 0;
     for (final String line: lines) {
@@ -153,7 +153,7 @@ public final class LogParser {
   }
 
   public static ArrayList<String> mergeStages(final ArrayList<String> startStages, final ArrayList<String> endStages) {
-    final ArrayList<String> mergeStage = new ArrayList<String>();
+    final ArrayList<String> mergeStage = new ArrayList<>();
     for (int i = 0; i < startStages.size(); i++) {
       final String end = startStages.get(i).replace(LoggingScopeImpl.START_PREFIX, LoggingScopeImpl.EXIT_PREFIX);
       if (endStages.contains(end)) {
