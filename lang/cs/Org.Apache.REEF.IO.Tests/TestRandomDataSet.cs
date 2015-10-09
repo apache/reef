@@ -17,6 +17,7 @@
  * under the License.
  */
 
+using System.Collections.Generic;
 using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.IO.PartitionedData;
@@ -62,7 +63,14 @@ namespace Org.Apache.REEF.IO.Tests
             Assert.IsNotNull(dataSet.Id);
             Assert.IsNotNull(dataSet.GetEnumerator());
             Assert.AreEqual(NumberOfPartitions, dataSet.Count);
-            Assert.IsNull(dataSet.GetPartitionDescriptorForId("THIS_IS_AN_ID_THAT_CANNOT_BE_IN_THE_DATASET"));
+
+            IEnumerator<IPartitionDescriptor> desriptors = dataSet.GetEnumerator();
+            while (desriptors.MoveNext())
+            {
+                var descriptor1 = desriptors.Current;
+                var descriptor2 = dataSet.GetPartitionDescriptorForId(descriptor1.Id);
+                Assert.AreEqual(descriptor1, descriptor2);
+            }
         }
 
         /// <summary>
