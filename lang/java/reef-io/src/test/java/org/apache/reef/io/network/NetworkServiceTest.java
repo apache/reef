@@ -99,10 +99,10 @@ public class NetworkServiceTest {
       LOG.log(Level.FINEST, "=== Test network service receiver start");
       LOG.log(Level.FINEST, "=== Test network service sender start");
       try (final NameResolver nameResolver = injector2.getInstance(NameResolver.class);
-           final NetworkService<String> ns2 = new NetworkService<String>(factory, 0, nameResolver,
+           final NetworkService<String> ns2 = new NetworkService<>(factory, 0, nameResolver,
                new StringCodec(), injector.getInstance(MessagingTransportFactory.class),
                new MessageHandler<String>(name2, monitor, numMessages), new ExceptionHandler(), localAddressProvider);
-           final NetworkService<String> ns1 = new NetworkService<String>(factory, 0, nameResolver,
+           final NetworkService<String> ns1 = new NetworkService<>(factory, 0, nameResolver,
                new StringCodec(), injector.getInstance(MessagingTransportFactory.class),
                new MessageHandler<String>(name1, null, 0), new ExceptionHandler(), localAddressProvider)) {
 
@@ -168,10 +168,10 @@ public class NetworkServiceTest {
         LOG.log(Level.FINEST, "=== Test network service receiver start");
         LOG.log(Level.FINEST, "=== Test network service sender start");
         try (final NameResolver nameResolver = injector2.getInstance(NameResolver.class);
-             NetworkService<String> ns2 = new NetworkService<String>(factory, 0, nameResolver,
+             NetworkService<String> ns2 = new NetworkService<>(factory, 0, nameResolver,
                  new StringCodec(), injector.getInstance(MessagingTransportFactory.class),
                  new MessageHandler<String>(name2, monitor, numMessages), new ExceptionHandler(), localAddressProvider);
-             NetworkService<String> ns1 = new NetworkService<String>(factory, 0, nameResolver,
+             NetworkService<String> ns1 = new NetworkService<>(factory, 0, nameResolver,
                  new StringCodec(), injector.getInstance(MessagingTransportFactory.class),
                  new MessageHandler<String>(name1, null, 0), new ExceptionHandler(), localAddressProvider)) {
 
@@ -222,7 +222,7 @@ public class NetworkServiceTest {
     try (final NameServer server = injector.getInstance(NameServer.class)) {
       final int nameServerPort = server.getPort();
 
-      final BlockingQueue<Object> barrier = new LinkedBlockingQueue<Object>();
+      final BlockingQueue<Object> barrier = new LinkedBlockingQueue<>();
 
       final int numThreads = 4;
       final int size = 2000;
@@ -344,11 +344,11 @@ public class NetworkServiceTest {
         LOG.log(Level.FINEST, "=== Test network service receiver start");
         LOG.log(Level.FINEST, "=== Test network service sender start");
         try (final NameResolver nameResolver = injector2.getInstance(NameResolver.class);
-             NetworkService<String> ns2 = new NetworkService<String>(factory, 0, nameResolver,
+             NetworkService<String> ns2 = new NetworkService<>(factory, 0, nameResolver,
                  new StringCodec(), injector.getInstance(MessagingTransportFactory.class),
                  new MessageHandler<String>(name2, monitor, totalNumMessages),
                  new ExceptionHandler(), localAddressProvider);
-             NetworkService<String> ns1 = new NetworkService<String>(factory, 0, nameResolver,
+             NetworkService<String> ns1 = new NetworkService<>(factory, 0, nameResolver,
                  new StringCodec(), injector.getInstance(MessagingTransportFactory.class),
                  new MessageHandler<String>(name1, null, 0), new ExceptionHandler(), localAddressProvider)) {
 
@@ -435,10 +435,10 @@ public class NetworkServiceTest {
         LOG.log(Level.FINEST, "=== Test network service receiver start");
         LOG.log(Level.FINEST, "=== Test network service sender start");
         try (final NameResolver nameResolver = injector2.getInstance(NameResolver.class);
-             NetworkService<String> ns2 = new NetworkService<String>(factory, 0, nameResolver,
+             NetworkService<String> ns2 = new NetworkService<>(factory, 0, nameResolver,
                  new StringCodec(), injector.getInstance(MessagingTransportFactory.class),
                  new MessageHandler<String>(name2, monitor, numMessages), new ExceptionHandler(), localAddressProvider);
-             NetworkService<String> ns1 = new NetworkService<String>(factory, 0, nameResolver,
+             NetworkService<String> ns1 = new NetworkService<>(factory, 0, nameResolver,
                  new StringCodec(), injector.getInstance(MessagingTransportFactory.class),
                  new MessageHandler<String>(name1, null, 0), new ExceptionHandler(), localAddressProvider)) {
 

@@ -76,7 +76,7 @@ public class CodecRamMap<T> implements ExternalMap<T> {
   @Override
   public Iterable<Map.Entry<CharSequence, T>> getAll(
       final Set<? extends CharSequence> keys) {
-    return new GetAllIterable<T>(keys, this);
+    return new GetAllIterable<>(keys, this);
   }
 
   @NamedParameter

@@ -50,7 +50,7 @@ public class CLRBufferedLogHandler extends Handler {
   public CLRBufferedLogHandler() {
     super();
     this.formatter = new SimpleFormatter();
-    this.logs = new ArrayList<LogRecord>();
+    this.logs = new ArrayList<>();
     this.driverInitialized = false;
     this.logScheduler = new ScheduledThreadPoolExecutor(NUM_THREADS);
   }

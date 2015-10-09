@@ -34,7 +34,7 @@ import java.util.List;
  */
 public final class RamSpool<T> implements Spool<T> {
 
-  private final List<T> backingStore = new ArrayList<T>();
+  private final List<T> backingStore = new ArrayList<>();
   private boolean canAppend = true;
   private boolean canGetAccumulator = true;
 

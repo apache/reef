@@ -153,7 +153,7 @@ public class WakeProfiler implements Aspect {
     } else {
       ret = constructor.newInstance(args);
     }
-    final Vertex<T> v = new Vertex<T>(ret, constructorDef, vArgs);
+    final Vertex<T> v = new Vertex<>(ret, constructorDef, vArgs);
     vertexObject.put(ret, v);
     return ret;
   }
@@ -201,7 +201,7 @@ public class WakeProfiler implements Aspect {
 
     final StringBuffer sb = new StringBuffer("{\"nodes\":[\n");
 
-    final List<String> nodes = new ArrayList<String>();
+    final List<String> nodes = new ArrayList<>();
     final LinkedList<Vertex<?>> workQueue = new LinkedList<>();
     for (final Object o : vertexObject.keySet()) {
       if (whitelist(o)) {

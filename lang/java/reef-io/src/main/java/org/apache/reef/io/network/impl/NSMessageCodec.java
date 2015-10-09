@@ -105,7 +105,7 @@ public class NSMessageCodec<T> implements Codec<NSMessage<T>> {
           final Identifier srcId = factory.getNewInstance(dais.readUTF());
           final Identifier destId = factory.getNewInstance(dais.readUTF());
           final int size = dais.readInt();
-          final List<T> list = new ArrayList<T>(size);
+          final List<T> list = new ArrayList<>(size);
           for (int i = 0; i < size; i++) {
             list.add(streamingCodec.decodeFromStream(dais));
           }
@@ -122,11 +122,11 @@ public class NSMessageCodec<T> implements Codec<NSMessage<T>> {
         e.printStackTrace();
         throw new NetworkRuntimeException(e);
       }
-      final List<T> list = new ArrayList<T>();
+      final List<T> list = new ArrayList<>();
       for (final NSRecordPBuf rbuf : pbuf.getMsgsList()) {
         list.add(codec.decode(rbuf.getData().toByteArray()));
       }
-      return new NSMessage<T>(factory.getNewInstance(pbuf.getSrcid()), factory.getNewInstance(pbuf.getDestid()), list);
+      return new NSMessage<>(factory.getNewInstance(pbuf.getSrcid()), factory.getNewInstance(pbuf.getDestid()), list);
     }
   }
 

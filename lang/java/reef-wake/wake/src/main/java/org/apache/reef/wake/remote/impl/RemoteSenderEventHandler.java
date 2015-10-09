@@ -54,11 +54,11 @@ class RemoteSenderEventHandler<T> implements EventHandler<RemoteEvent<T>> {
    * @param executor  the executor service used for creating channels
    */
   RemoteSenderEventHandler(final Encoder<T> encoder, final Transport transport, final ExecutorService executor) {
-    this.encoder = new RemoteEventEncoder<T>(encoder);
+    this.encoder = new RemoteEventEncoder<>(encoder);
     this.transport = transport;
     this.executor = executor;
-    this.linkRef = new AtomicReference<Link<byte[]>>();
-    this.queue = new LinkedBlockingQueue<RemoteEvent<T>>();
+    this.linkRef = new AtomicReference<>();
+    this.queue = new LinkedBlockingQueue<>();
   }
 
   void setLink(final Link<byte[]> link) {
@@ -99,7 +99,7 @@ class RemoteSenderEventHandler<T> implements EventHandler<RemoteEvent<T>> {
           return;
         }
 
-        final ConnectFutureTask<Link<byte[]>> cf = new ConnectFutureTask<Link<byte[]>>(
+        final ConnectFutureTask<Link<byte[]>> cf = new ConnectFutureTask<>(
             new ConnectCallable(transport, value.localAddress(), value.remoteAddress()),
             new ConnectEventHandler<T>(this));
         executor.submit(cf);

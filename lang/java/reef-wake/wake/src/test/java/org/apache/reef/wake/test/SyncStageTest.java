@@ -43,7 +43,7 @@ public class SyncStageTest {
     final Set<TestEvent> procSet = Collections.synchronizedSet(new HashSet<TestEvent>());
     final Set<TestEvent> orgSet = Collections.synchronizedSet(new HashSet<TestEvent>());
 
-    final EStage<TestEventA> stage = new SyncStage<TestEventA>(new TestEventHandlerA(procSet));
+    final EStage<TestEventA> stage = new SyncStage<>(new TestEventHandlerA(procSet));
 
     for (int i = 0; i < 10; ++i) {
       final TestEventA a = new TestEventA();
@@ -64,14 +64,13 @@ public class SyncStageTest {
     final Set<TestEvent> procSet = Collections.synchronizedSet(new HashSet<TestEvent>());
     final Set<TestEvent> orgSet = Collections.synchronizedSet(new HashSet<TestEvent>());
 
-    final Map<Class<? extends TestEvent>, EventHandler<? extends TestEvent>> map
-        = new HashMap<Class<? extends TestEvent>, EventHandler<? extends TestEvent>>();
+    final Map<Class<? extends TestEvent>, EventHandler<? extends TestEvent>> map = new HashMap<>();
     map.put(TestEventA.class, new TestEventHandlerA(procSet));
     map.put(TestEventB.class, new TestEventHandlerB(procSet));
 
-    final EventHandler<TestEvent> eventHandler = new MultiEventHandler<TestEvent>(map);
+    final EventHandler<TestEvent> eventHandler = new MultiEventHandler<>(map);
 
-    final EStage<TestEvent> stage = new SyncStage<TestEvent>(eventHandler);
+    final EStage<TestEvent> stage = new SyncStage<>(eventHandler);
 
     for (int i = 0; i < 10; ++i) {
       final TestEventA a = new TestEventA();
