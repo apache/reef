@@ -102,6 +102,25 @@ namespace Org {
 							ManagedLog::LOGGER->LogStart("ActiveContextClr2Java::GetEvaluatorDescriptor");
 							return CommonUtilities::RetrieveEvaluatorDescriptor(_jobjectActiveContext, _jvm);
 						}
+
+						void ActiveContextClr2Java::SendMessage(array<byte>^ message) {
+							ManagedLog::LOGGER->LogStart("ActiveContextClr2Java::SendMessage");
+							JNIEnv *env = RetrieveEnv(_jvm);
+							jclass jclassActiveContext = env->GetObjectClass(_jobjectActiveContext);
+							jmethodID jmidSendMessage = env->GetMethodID(jclassActiveContext, "sendMessage", "([B)V");
+
+							if (jmidSendMessage == NULL) {
+								ManagedLog::LOGGER->Log("jmidSendMessage is NULL");
+								return;
+							}
+
+							env->CallObjectMethod(
+								_jobjectActiveContext,
+								jmidSendMessage,
+								JavaByteArrayFromManagedByteArray(env, message));
+
+							ManagedLog::LOGGER->LogStop("ActiveContextClr2Java::SendMessage");
+						}
 					}
 				}
 			}

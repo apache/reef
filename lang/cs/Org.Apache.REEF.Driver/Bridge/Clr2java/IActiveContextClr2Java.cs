@@ -32,5 +32,7 @@ namespace Org.Apache.REEF.Driver.Bridge.Clr2java
         string GetEvaluatorId();
 
         IEvaluatorDescriptor GetEvaluatorDescriptor();
+
+        void SendMessage(byte[] message);
     }
 }
