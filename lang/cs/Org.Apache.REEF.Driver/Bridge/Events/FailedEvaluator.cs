@@ -25,7 +25,6 @@ using Org.Apache.REEF.Driver.Context;
 using Org.Apache.REEF.Driver.Evaluator;
 using Org.Apache.REEF.Driver.Task;
 using Org.Apache.REEF.Utilities;
-using Org.Apache.REEF.Utilities.Diagnostics;
 using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Driver.Bridge.Events
@@ -40,7 +39,6 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
         {
             InstanceId = Guid.NewGuid().ToString("N");
             FailedEvaluatorClr2Java = clr2Java;
-            EvaluatorRequestorClr2Java = FailedEvaluatorClr2Java.GetEvaluatorRequestor();
             _id = FailedEvaluatorClr2Java.GetId();
         }
 
@@ -49,9 +47,6 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
 
         [DataMember]
         private IFailedEvaluatorClr2Java FailedEvaluatorClr2Java { get; set; }
-
-        [DataMember]
-        private IEvaluatorRequestorClr2Java EvaluatorRequestorClr2Java { get; set; }
 
         public string Id
         {
@@ -73,15 +68,6 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
         public Optional<IFailedTask> FailedTask
         {
             get { return Optional<IFailedTask>.Empty(); }
-        }
-
-        public IEvaluatorRequestor GetEvaluatorRequetor()
-        {
-            if (EvaluatorRequestorClr2Java == null)
-            {
-                Exceptions.Throw(new InvalidOperationException("EvaluatorRequestorClr2Java not initialized."), LOGGER);
-            }
-            return new EvaluatorRequestor(EvaluatorRequestorClr2Java);
         }
     }
 }

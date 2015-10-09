@@ -48,8 +48,5 @@ namespace Org.Apache.REEF.Driver.Evaluator
         /// The task that failed with the Evaluator if there was one.
         /// </summary>
         Optional<IFailedTask> FailedTask { get; }
-
-        [Obsolete("Will be removed after 0.13. Have an instance injected instead.")]
-        IEvaluatorRequestor GetEvaluatorRequetor();
     }
 }
