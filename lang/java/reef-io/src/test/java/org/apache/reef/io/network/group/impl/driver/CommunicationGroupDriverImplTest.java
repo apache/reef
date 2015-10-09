@@ -43,6 +43,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Tests for {@link CommunicationGroupDriverImpl}.
@@ -120,7 +121,8 @@ public final class CommunicationGroupDriverImplTest {
     });
 
     pool.shutdown();
-    countDownLatch.await(5000, TimeUnit.MILLISECONDS);
+    final boolean allThreadsFinished = countDownLatch.await(1000, TimeUnit.MILLISECONDS);
+    assertTrue("all threads finished", allThreadsFinished);
 
     // 3 connections: rootTask - childTask1, rootTask - childTask2, childTask1 - childTask-3
     // 2 messages per connection
