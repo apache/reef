@@ -74,7 +74,7 @@ public class RemoteManagerTest {
     final Monitor monitor = new Monitor();
     final TimerStage timer = new TimerStage(new TimeoutHandler(monitor), 2000, 2000);
 
-    final Map<Class<?>, Codec<?>> clazzToCodecMap = new HashMap<Class<?>, Codec<?>>();
+    final Map<Class<?>, Codec<?>> clazzToCodecMap = new HashMap<>();
     clazzToCodecMap.put(StartEvent.class, new ObjectSerializableCodec<StartEvent>());
     clazzToCodecMap.put(TestEvent.class, new ObjectSerializableCodec<TestEvent>());
     clazzToCodecMap.put(TestEvent1.class, new ObjectSerializableCodec<TestEvent1>());
@@ -141,7 +141,7 @@ public class RemoteManagerTest {
     final int numOfSenderThreads = 5;
     final ExecutorService smExecutor = Executors.newFixedThreadPool(numOfSenderThreads);
     final ExecutorService rmExecutor = Executors.newFixedThreadPool(1);
-    final ArrayList<Future<Integer>> smFutures = new ArrayList<Future<Integer>>(numOfSenderThreads);
+    final ArrayList<Future<Integer>> smFutures = new ArrayList<>(numOfSenderThreads);
 
     final RemoteManager sendingManager = getTestRemoteManager("sender", 9030, 3, 5000);
 
@@ -178,7 +178,7 @@ public class RemoteManagerTest {
     final Monitor monitor = new Monitor();
     final TimerStage timer = new TimerStage(new TimeoutHandler(monitor), 2000, 2000);
 
-    final Map<Class<?>, Codec<?>> clazzToCodecMap = new HashMap<Class<?>, Codec<?>>();
+    final Map<Class<?>, Codec<?>> clazzToCodecMap = new HashMap<>();
     clazzToCodecMap.put(StartEvent.class, new ObjectSerializableCodec<StartEvent>());
     clazzToCodecMap.put(TestEvent.class, new ObjectSerializableCodec<TestEvent>());
     clazzToCodecMap.put(TestEvent1.class, new ObjectSerializableCodec<TestEvent1>());
@@ -225,7 +225,7 @@ public class RemoteManagerTest {
     final Monitor monitor = new Monitor();
     final TimerStage timer = new TimerStage(new TimeoutHandler(monitor), 2000, 2000);
 
-    final Map<Class<?>, Codec<?>> clazzToCodecMap = new HashMap<Class<?>, Codec<?>>();
+    final Map<Class<?>, Codec<?>> clazzToCodecMap = new HashMap<>();
     clazzToCodecMap.put(TestEvent.class, new TestEventCodec());
     final Codec<?> codec = new MultiCodec<Object>(clazzToCodecMap);
 
@@ -262,7 +262,7 @@ public class RemoteManagerTest {
     final Monitor monitor = new Monitor();
     final TimerStage timer = new TimerStage(new TimeoutHandler(monitor), 2000, 2000);
 
-    final Map<Class<?>, Codec<?>> clazzToCodecMap = new HashMap<Class<?>, Codec<?>>();
+    final Map<Class<?>, Codec<?>> clazzToCodecMap = new HashMap<>();
     clazzToCodecMap.put(StartEvent.class, new ObjectSerializableCodec<StartEvent>());
     clazzToCodecMap.put(TestEvent.class, new ObjectSerializableCodec<TestEvent>());
     final Codec<?> codec = new MultiCodec<Object>(clazzToCodecMap);
@@ -291,7 +291,7 @@ public class RemoteManagerTest {
 
   private RemoteManager getTestRemoteManager(final String rmName, final int localPort,
                                              final int retry, final int retryTimeout) {
-    final Map<Class<?>, Codec<?>> clazzToCodecMap = new HashMap<Class<?>, Codec<?>>();
+    final Map<Class<?>, Codec<?>> clazzToCodecMap = new HashMap<>();
     clazzToCodecMap.put(StartEvent.class, new ObjectSerializableCodec<StartEvent>());
     clazzToCodecMap.put(TestEvent1.class, new ObjectSerializableCodec<TestEvent1>());
     clazzToCodecMap.put(TestEvent2.class, new ObjectSerializableCodec<TestEvent1>());

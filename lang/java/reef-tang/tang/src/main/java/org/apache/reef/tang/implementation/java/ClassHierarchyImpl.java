@@ -154,7 +154,7 @@ public class ClassHierarchyImpl implements JavaClassHierarchy {
     Class<?> clazz;
     String fullName;
     try {
-      clazz = (Class<?>) classForName(iface.getFullName());
+      clazz = classForName(iface.getFullName());
       fullName = null;
     } catch (final ClassNotFoundException e) {
       clazz = null;

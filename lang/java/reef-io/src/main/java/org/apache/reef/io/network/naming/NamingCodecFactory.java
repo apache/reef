@@ -39,10 +39,10 @@ final class NamingCodecFactory {
    */
   static Codec<NamingMessage> createLookupCodec(final IdentifierFactory factory) {
     final Map<Class<? extends NamingMessage>, Codec<? extends NamingMessage>> clazzToCodecMap
-        = new HashMap<Class<? extends NamingMessage>, Codec<? extends NamingMessage>>();
+        = new HashMap<>();
     clazzToCodecMap.put(NamingLookupRequest.class, new NamingLookupRequestCodec(factory));
     clazzToCodecMap.put(NamingLookupResponse.class, new NamingLookupResponseCodec(factory));
-    final Codec<NamingMessage> codec = new MultiCodec<NamingMessage>(clazzToCodecMap);
+    final Codec<NamingMessage> codec = new MultiCodec<>(clazzToCodecMap);
     return codec;
   }
 
@@ -54,12 +54,12 @@ final class NamingCodecFactory {
    */
   static Codec<NamingMessage> createRegistryCodec(final IdentifierFactory factory) {
     final Map<Class<? extends NamingMessage>, Codec<? extends NamingMessage>> clazzToCodecMap
-        = new HashMap<Class<? extends NamingMessage>, Codec<? extends NamingMessage>>();
+        = new HashMap<>();
     clazzToCodecMap.put(NamingRegisterRequest.class, new NamingRegisterRequestCodec(factory));
     clazzToCodecMap.put(NamingRegisterResponse.class,
         new NamingRegisterResponseCodec(new NamingRegisterRequestCodec(factory)));
     clazzToCodecMap.put(NamingUnregisterRequest.class, new NamingUnregisterRequestCodec(factory));
-    final Codec<NamingMessage> codec = new MultiCodec<NamingMessage>(clazzToCodecMap);
+    final Codec<NamingMessage> codec = new MultiCodec<>(clazzToCodecMap);
     return codec;
   }
 
@@ -71,14 +71,14 @@ final class NamingCodecFactory {
    */
   static Codec<NamingMessage> createFullCodec(final IdentifierFactory factory) {
     final Map<Class<? extends NamingMessage>, Codec<? extends NamingMessage>> clazzToCodecMap
-        = new HashMap<Class<? extends NamingMessage>, Codec<? extends NamingMessage>>();
+        = new HashMap<>();
     clazzToCodecMap.put(NamingLookupRequest.class, new NamingLookupRequestCodec(factory));
     clazzToCodecMap.put(NamingLookupResponse.class, new NamingLookupResponseCodec(factory));
     clazzToCodecMap.put(NamingRegisterRequest.class, new NamingRegisterRequestCodec(factory));
     clazzToCodecMap.put(NamingRegisterResponse.class,
         new NamingRegisterResponseCodec(new NamingRegisterRequestCodec(factory)));
     clazzToCodecMap.put(NamingUnregisterRequest.class, new NamingUnregisterRequestCodec(factory));
-    final Codec<NamingMessage> codec = new MultiCodec<NamingMessage>(clazzToCodecMap);
+    final Codec<NamingMessage> codec = new MultiCodec<>(clazzToCodecMap);
     return codec;
   }
 

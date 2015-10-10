@@ -78,7 +78,7 @@ public final class NamingLookupResponseCodec implements Codec<NamingLookupRespon
   @Override
   public NamingLookupResponse decode(final byte[] buf) {
     final AvroNamingLookupResponse avroResponse = AvroUtils.fromBytes(buf, AvroNamingLookupResponse.class);
-    final List<NameAssignment> nas = new ArrayList<NameAssignment>(avroResponse.getTuples().size());
+    final List<NameAssignment> nas = new ArrayList<>(avroResponse.getTuples().size());
     for (final AvroNamingAssignment tuple : avroResponse.getTuples()) {
       nas.add(
           new NameAssignmentTuple(

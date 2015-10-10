@@ -121,7 +121,7 @@ public class ProtocolBufferInjectionPlan {
       final InjectionPlan<?>[] ipArgs = new InjectionPlan[protoBufArgs.length];
 
       for (int i = 0; i < protoBufArgs.length; i++) {
-        ipArgs[i] = (InjectionPlan<?>) deserialize(ch, protoBufArgs[i]);
+        ipArgs[i] = deserialize(ch, protoBufArgs[i]);
       }
 
       final ConstructorDef<T> constructor = cn.getConstructorDef(cnArgs);
@@ -137,7 +137,7 @@ public class ProtocolBufferInjectionPlan {
 
       final InjectionPlan<T>[] subPlans = new InjectionPlan[protoBufPlans.length];
       for (int i = 0; i < protoBufPlans.length; i++) {
-        subPlans[i] = (InjectionPlan<T>) deserialize(ch, protoBufPlans[i]);
+        subPlans[i] = deserialize(ch, protoBufPlans[i]);
       }
       final Node n = ch.getNode(fullName);
       return new Subplan<T>(n, subPlans);

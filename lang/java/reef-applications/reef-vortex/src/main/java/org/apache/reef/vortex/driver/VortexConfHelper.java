@@ -33,7 +33,7 @@ public final class VortexConfHelper {
   private VortexConfHelper() {
   }
 
-  private static final int DEFAULT_NUM_OF_VORTEX_START_THERAD = 1;
+  private static final int DEFAULT_NUM_OF_VORTEX_START_THREAD = 1;
 
   /**
    * @return Configuration for Vortex job.
@@ -60,7 +60,7 @@ public final class VortexConfHelper {
         .set(VortexMasterConf.WORKER_CORES, workerCores)
         .set(VortexMasterConf.WORKER_CAPACITY, workerCapacity)
         .set(VortexMasterConf.VORTEX_START, vortexStart)
-        .set(VortexMasterConf.NUM_OF_VORTEX_START_THERAD, DEFAULT_NUM_OF_VORTEX_START_THERAD) // fixed to 1 for now
+        .set(VortexMasterConf.NUM_OF_VORTEX_START_THREAD, DEFAULT_NUM_OF_VORTEX_START_THREAD) // fixed to 1 for now
         .build();
 
     return Configurations.merge(vortexDriverConf, vortexMasterConf);
