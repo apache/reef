@@ -107,7 +107,7 @@ public class TreeTopology implements Topology {
   public boolean isRootPresent() {
     LOG.entering("TreeTopology", "isRootPresent", getQualifiedName());
     final boolean retVal = root != null;
-    LOG.exiting("TreeTopology", "isRootPresent", getQualifiedName() + retVal);
+    LOG.exiting("TreeTopology", "isRootPresent", String.format("%s%s", getQualifiedName(), retVal));
     return retVal;
   }
 

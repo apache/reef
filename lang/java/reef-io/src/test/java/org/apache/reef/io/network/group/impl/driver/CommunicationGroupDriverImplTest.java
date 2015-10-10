@@ -121,13 +121,13 @@ public final class CommunicationGroupDriverImplTest {
     });
 
     pool.shutdown();
-    final boolean allThreadsFinished = countDownLatch.await(1000, TimeUnit.MILLISECONDS);
+    final boolean allThreadsFinished = countDownLatch.await(10, TimeUnit.SECONDS);
     assertTrue("all threads finished", allThreadsFinished);
 
-    // 3 connections: rootTask - childTask1, rootTask - childTask2, childTask1 - childTask-3
+    // 3 connections between 4 tasks
     // 2 messages per connection
     // 2 operations (broadcast & reduce)
-    // gives us a total of 3*2*2 = 12 messages
+    // this gives us a total of 3*2*2 = 12 messages
     assertEquals("number of messages sent from driver", 12, numMsgs.get());
 
   }
