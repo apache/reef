@@ -59,7 +59,7 @@ namespace Org.Apache.REEF.IO.Tests
             var dataSet = TangFactory.GetTang()
                 .NewInjector(FileSystemPartitionConfiguration<byte>.ConfigurationModule
                     .Set(FileSystemPartitionConfiguration<byte>.FilePathForPartitions, sourceFilePath1 + ";" + sourceFilePath2)
-                    .Set(FileSystemPartitionConfiguration<byte>.FileSerializerConfig, GetByteSerilizerConfigString())
+                    .Set(FileSystemPartitionConfiguration<byte>.FileSerializerConfig, GetByteSerializerConfigString())
                     .Build())
                 .GetInstance<IPartitionedDataSet>();
 
@@ -100,9 +100,9 @@ namespace Org.Apache.REEF.IO.Tests
 
             var partitionConfig = TangFactory.GetTang().NewConfigurationBuilder()
                 .BindImplementation(GenericType<IPartitionedDataSet>.Class, GenericType<FileSystemPartitionDataSet<byte>>.Class)
-                .BindStringNamedParam<FileSerializerConfigString>(GetByteSerilizerConfigString())
-                .BindSetEntry<FilePathsForPatitions, string>(GenericType<FilePathsForPatitions>.Class, sourceFilePath1)
-                .BindSetEntry<FilePathsForPatitions, string>(GenericType<FilePathsForPatitions>.Class, sourceFilePath2)
+                .BindStringNamedParam<FileSerializerConfigString>(GetByteSerializerConfigString())
+                .BindSetEntry<FilePathsForPartitions, string>(GenericType<FilePathsForPartitions>.Class, sourceFilePath1)
+                .BindSetEntry<FilePathsForPartitions, string>(GenericType<FilePathsForPartitions>.Class, sourceFilePath2)
                 .Build();
 
             var dataSet = TangFactory.GetTang()
@@ -137,9 +137,9 @@ namespace Org.Apache.REEF.IO.Tests
 
             var c = TangFactory.GetTang().NewConfigurationBuilder()
                 .BindImplementation(GenericType<IPartitionedDataSet>.Class, GenericType<FileSystemPartitionDataSet<byte>>.Class)
-                .BindStringNamedParam<FileSerializerConfigString>(GetByteSerilizerConfigString())
-                .BindSetEntry<FilePathsForPatitions, string>(GenericType<FilePathsForPatitions>.Class, sourceFilePath1)
-                .BindSetEntry<FilePathsForPatitions, string>(GenericType<FilePathsForPatitions>.Class, sourceFilePath2)
+                .BindStringNamedParam<FileSerializerConfigString>(GetByteSerializerConfigString())
+                .BindSetEntry<FilePathsForPartitions, string>(GenericType<FilePathsForPartitions>.Class, sourceFilePath1)
+                .BindSetEntry<FilePathsForPartitions, string>(GenericType<FilePathsForPartitions>.Class, sourceFilePath2)
                 .Build();
 
             var dataSet = TangFactory.GetTang()
@@ -180,7 +180,7 @@ namespace Org.Apache.REEF.IO.Tests
                 .NewInjector(FileSystemPartitionConfiguration<Row>.ConfigurationModule
                     .Set(FileSystemPartitionConfiguration<Row>.FilePathForPartitions, sourceFilePath1)
                     .Set(FileSystemPartitionConfiguration<Row>.FilePathForPartitions, sourceFilePath2)
-                    .Set(FileSystemPartitionConfiguration<Row>.FileSerializerConfig, GetRowSerilizerConfigString())
+                    .Set(FileSystemPartitionConfiguration<Row>.FileSerializerConfig, GetRowSerializerConfigString())
                     .Build())
                 .GetInstance<IPartitionedDataSet>();
 
@@ -219,7 +219,7 @@ namespace Org.Apache.REEF.IO.Tests
             }
         }
 
-        private string GetByteSerilizerConfigString()
+        private string GetByteSerializerConfigString()
         {
             var serializerConf = TangFactory.GetTang().NewConfigurationBuilder()
                 .BindImplementation<IFileDeSerializer<byte>, ByteSerializer>(
@@ -229,7 +229,7 @@ namespace Org.Apache.REEF.IO.Tests
             return (new AvroConfigurationSerializer()).ToString(serializerConf);
         }
 
-        private string GetRowSerilizerConfigString()
+        private string GetRowSerializerConfigString()
         {
             var serializerConf = TangFactory.GetTang().NewConfigurationBuilder()
                 .BindImplementation<IFileDeSerializer<Row>, RowSerializer>(
