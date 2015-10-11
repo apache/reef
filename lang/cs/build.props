@@ -58,7 +58,7 @@ under the License.
   <PropertyGroup>
     <RemoveIncubating>true</RemoveIncubating>
     <IsSnapshot>true</IsSnapshot>
-    <SnapshotNumber>03</SnapshotNumber>
+    <SnapshotNumber>02</SnapshotNumber>
     <PushPackages>false</PushPackages>
     <NuGetRepository>https://www.nuget.org</NuGetRepository>
   </PropertyGroup>
