@@ -46,7 +46,7 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
         /// </summary>
         public static ConfigurationModule ConfigurationModule = new FileSystemPartitionConfiguration<T>()
             .BindImplementation(GenericType<IPartitionedDataSet>.Class, GenericType<FileSystemPartitionDataSet<T>>.Class)
-            .BindSetEntry(GenericType<FilePathsForPatitions>.Class, FilePathForPartitions)
+            .BindSetEntry(GenericType<FilePathsForPartitions>.Class, FilePathForPartitions)
             .BindNamedParameter(GenericType<FileSerializerConfigString>.Class, FileSerializerConfig)
             .Build();
     }

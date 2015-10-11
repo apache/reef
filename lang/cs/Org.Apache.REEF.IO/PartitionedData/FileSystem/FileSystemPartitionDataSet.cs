@@ -48,7 +48,7 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
         
         [Inject]
         private FileSystemPartitionDataSet(
-            [Parameter(typeof(FilePathsForPatitions))] ISet<string> filePaths,
+            [Parameter(typeof(FilePathsForPartitions))] ISet<string> filePaths,
             IFileSystem fileSystem,
             [Parameter(typeof(FileSerializerConfigString))] string fileSerializerConfigString,
             AvroConfigurationSerializer avroConfigurationSerializer

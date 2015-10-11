@@ -23,11 +23,11 @@ using Org.Apache.REEF.Tang.Annotations;
 namespace Org.Apache.REEF.IO.PartitionedData.FileSystem.Parameters
 {
     /// <summary>
-    /// Each element in the set contains input files for one partition, seperated by semicolon. 
+    /// Each element in the set contains input files for one partition, separated by semicolon. 
     /// The set contains file paths for all the partitions
     /// </summary>
     [NamedParameter("All file paths")]
-    internal sealed class FilePathsForPatitions : Name<ISet<string>>
+    internal sealed class FilePathsForPartitions : Name<ISet<string>>
     {
     }
 }
