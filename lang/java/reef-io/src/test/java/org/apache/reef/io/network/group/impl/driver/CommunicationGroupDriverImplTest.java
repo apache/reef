@@ -52,26 +52,28 @@ public final class CommunicationGroupDriverImplTest {
 
   /**
    * Check that the topology builds up as expected even when the root task is added after child tasks start running.
+   * Also checks that TreeTopology works correctly with the following task add sequence: child -> root -> child.
    */
   @Test
   public void testLateRootTask() throws InterruptedException {
     final String rootTaskId = "rootTaskId";
-    final String[] childTaskIds = new String[]{"childTaskId1", "childTaskId2", "childTaskId3"};
+    final String[] childTaskIds = new String[]{"childTaskId1", "childTaskId2", "childTaskId3", "childTaskId4",
+        "childTaskId5", "childTaskId6", "childTaskId7"};
     final AtomicInteger numMsgs = new AtomicInteger(0);
 
     final EStage<GroupCommunicationMessage> senderStage =
         new ThreadPoolStage<>(new EventHandler<GroupCommunicationMessage>() {
-            @Override
-            public void onNext(final GroupCommunicationMessage msg) {
-              numMsgs.getAndIncrement();
-            }
+          @Override
+          public void onNext(final GroupCommunicationMessage msg) {
+            numMsgs.getAndIncrement();
+          }
         }, 1);
 
     final CommunicationGroupDriverImpl communicationGroupDriver = new CommunicationGroupDriverImpl(
         GroupName.class, new AvroConfigurationSerializer(), senderStage,
         new BroadcastingEventHandler<RunningTask>(), new BroadcastingEventHandler<FailedTask>(),
         new BroadcastingEventHandler<FailedEvaluator>(), new BroadcastingEventHandler<GroupCommunicationMessage>(),
-        "DriverId", 4, 2);
+        "DriverId", 8, 2);
 
     communicationGroupDriver
         .addBroadcast(BroadcastOperatorName.class,
@@ -79,11 +81,11 @@ public final class CommunicationGroupDriverImplTest {
         .addReduce(ReduceOperatorName.class,
             ReduceOperatorSpec.newBuilder().setReceiverId(rootTaskId).build());
 
-    final ExecutorService pool = Executors.newFixedThreadPool(4);
-    final CountDownLatch countDownLatch = new CountDownLatch(4);
+    final ExecutorService pool = Executors.newFixedThreadPool(8);
+    final CountDownLatch countDownLatch = new CountDownLatch(8);
 
-    // first add child tasks and start them up
-    for (int index = 0; index < 3; index++) {
+    // first add two child tasks and start them up
+    for (int index = 0; index < 2; index++) {
       final String childId = childTaskIds[index];
       pool.submit(new Runnable() {
         @Override
@@ -120,15 +122,38 @@ public final class CommunicationGroupDriverImplTest {
       }
     });
 
+    // then add 5 child tasks and start them up
+    for (int index = 2; index < 7; index++) {
+      final String childId = childTaskIds[index];
+      pool.submit(new Runnable() {
+        @Override
+        public void run() {
+          try {
+            // purposely delay the addition of the root task
+            Thread.sleep(6000);
+          } catch (final InterruptedException e) {
+            throw new RuntimeException(e);
+          }
+          final Configuration childTaskConf = TaskConfiguration.CONF
+              .set(TaskConfiguration.IDENTIFIER, childId)
+              .set(TaskConfiguration.TASK, DummyTask.class)
+              .build();
+          communicationGroupDriver.addTask(childTaskConf);
+          communicationGroupDriver.runTask(childId);
+          countDownLatch.countDown();
+        }
+      });
+    }
+
     pool.shutdown();
     final boolean allThreadsFinished = countDownLatch.await(10, TimeUnit.SECONDS);
     assertTrue("all threads finished", allThreadsFinished);
 
-    // 3 connections between 4 tasks
+    // 7 connections between 8 tasks
     // 2 messages per connection
     // 2 operations (broadcast & reduce)
-    // this gives us a total of 3*2*2 = 12 messages
-    assertEquals("number of messages sent from driver", 12, numMsgs.get());
+    // this gives us a total of 7*2*2 = 28 messages
+    assertEquals("number of messages sent from driver", 28, numMsgs.get());
 
   }
 
