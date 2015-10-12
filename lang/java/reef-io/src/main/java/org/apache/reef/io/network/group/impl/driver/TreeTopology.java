@@ -206,7 +206,6 @@ public class TreeTopology implements Topology {
     } else {
       addChild(taskId);
     }
-    prev = nodes.get(taskId);
     LOG.exiting("TreeTopology", "addTask", getQualifiedName() + taskId);
   }
 
@@ -216,6 +215,7 @@ public class TreeTopology implements Topology {
     final TaskNode node = new TaskNodeImpl(senderStage, groupName, operName, taskId, driverId, false);
     if (logicalRoot != null) {
       addTaskNode(node);
+      prev = node;
     }
     nodes.put(taskId, node);
     LOG.exiting("TreeTopology", "addChild", getQualifiedName() + taskId);
