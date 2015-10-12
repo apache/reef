@@ -22,12 +22,10 @@ using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Driver.Bridge
 {
-    // TODO[REEF-709] Act on the obsoletes here.
     public sealed class CustomTraceLevel
     {
-        [Obsolete("This constructor will be made `private` after 0.13.")]
         [Inject]
-        public CustomTraceLevel([Parameter(typeof(DriverBridgeConfigurationOptions.TraceLevel))] string traceLevel)
+        private CustomTraceLevel([Parameter(typeof(DriverBridgeConfigurationOptions.TraceLevel))] string traceLevel)
         {
             var level = Level.Verbose;
             if (Enum.TryParse(traceLevel.ToString(CultureInfo.InvariantCulture), out level))
@@ -41,7 +39,6 @@ namespace Org.Apache.REEF.Driver.Bridge
             TraceLevel = level;
         }
 
-        [Obsolete("The setter will be made `private` after 0.13.")]
-        public Level TraceLevel { get; set; }
+        public Level TraceLevel { get; private set; }
     }
 }

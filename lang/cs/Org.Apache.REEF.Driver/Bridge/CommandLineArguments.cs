@@ -21,18 +21,15 @@ using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.Driver.Bridge
 {
-    // TODO[REEF-710] Act on the obsoletes
     public sealed class CommandLineArguments
     {
-        [Obsolete("This constructor will be made `private` after 0.13.")]
         [Inject]
-        public CommandLineArguments(
+        private CommandLineArguments(
             [Parameter(typeof(DriverBridgeConfigurationOptions.ArgumentSets))] ISet<string> arguments)
         {
             Arguments = arguments;
         }
 
-        [Obsolete("The setter will be made `private` after 0.13.")]
-        public ISet<string> Arguments { get; set; }
+        public ISet<string> Arguments { get; private set; }
     }
 }
