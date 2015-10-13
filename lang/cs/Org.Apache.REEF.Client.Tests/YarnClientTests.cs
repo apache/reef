@@ -36,7 +36,7 @@ namespace Org.Apache.REEF.Client.Tests
     public class YarnClientTests
     {
         [TestMethod]
-        public void TestGetClusterInfo()
+        public async Task TestGetClusterInfo()
         {
             // arrange
             var ctx = new TestContext();
@@ -60,15 +60,15 @@ namespace Org.Apache.REEF.Client.Tests
 
             // act
             var yarnClient = ctx.GetClient();
-            ClusterInfo actualClusterInfo = yarnClient.GetClusterInfoAsync().GetAwaiter().GetResult();
+            ClusterInfo actualClusterInfo = await yarnClient.GetClusterInfoAsync();
 
             // assert
             Assert.AreEqual(anyClusterInfo, actualClusterInfo);
-            urlProvider.Received(1).GetUrlAsync();
+            var unused = urlProvider.Received(1).GetUrlAsync();
         }
 
         [TestMethod]
-        public void TestGetClusterMetrics()
+        public async Task TestGetClusterMetrics()
         {
             var ctx = new TestContext();
             var urlProvider = ctx.UrlProviderFake;
@@ -91,14 +91,14 @@ namespace Org.Apache.REEF.Client.Tests
                 CancellationToken.None).Returns(Task.FromResult(anyClusterMetrics));
 
             var yarnClient = ctx.GetClient();
-            ClusterMetrics actualClusterMetrics = yarnClient.GetClusterMetricsAsync().GetAwaiter().GetResult();
+            ClusterMetrics actualClusterMetrics = await yarnClient.GetClusterMetricsAsync();
 
             Assert.AreEqual(anyClusterMetrics, actualClusterMetrics);
-            urlProvider.Received(1).GetUrlAsync();
+            var unused = urlProvider.Received(1).GetUrlAsync();
         }
 
         [TestMethod]
-        public void TestGetApplication()
+        public async Task TestGetApplication()
         {
             var ctx = new TestContext();
             var urlProvider = ctx.UrlProviderFake;
@@ -126,14 +126,14 @@ namespace Org.Apache.REEF.Client.Tests
                 CancellationToken.None).Returns(Task.FromResult(anyApplication));
 
             var yarnClient = ctx.GetClient();
-            Application actualApplication = yarnClient.GetApplicationAsync(applicationId).GetAwaiter().GetResult();
+            Application actualApplication = await yarnClient.GetApplicationAsync(applicationId);
 
             Assert.AreEqual(anyApplication, actualApplication);
-            urlProvider.Received(1).GetUrlAsync();
+            var unused = urlProvider.Received(1).GetUrlAsync();
         }
 
         [TestMethod]
-        public void TestCreateNewApplication()
+        public async Task TestCreateNewApplication()
         {
             var ctx = new TestContext();
             var urlProvider = ctx.UrlProviderFake;
@@ -154,14 +154,14 @@ namespace Org.Apache.REEF.Client.Tests
                 CancellationToken.None).Returns(Task.FromResult(anyNewApplication));
 
             var yarnClient = ctx.GetClient();
-            NewApplication actualNewApplication = yarnClient.CreateNewApplicationAsync().GetAwaiter().GetResult();
+            NewApplication actualNewApplication = await yarnClient.CreateNewApplicationAsync();
 
             Assert.AreEqual(anyNewApplication, actualNewApplication);
-            urlProvider.Received(1).GetUrlAsync();
+            var unused = urlProvider.Received(1).GetUrlAsync();
         }
 
         [TestMethod]
-        public void TestSubmitNewApplication()
+        public async Task TestSubmitNewApplication()
         {
             var ctx = new TestContext();
             var urlProvider = ctx.UrlProviderFake;
@@ -208,12 +208,47 @@ namespace Org.Apache.REEF.Client.Tests
                 }
             };
 
-            const string expectedJson = @"{""application-id"":""AnyApplicationId"",""application-name"":""AnyAPP""," +
-@"""Queue"":null,""Priority"":1,""am-container-spec"":{""local-resources"":{""Entry"":[{""Key"":""APPLICATIONWILLFAILBUTWEDONTCAREHERE""," +
-@"""Value"":{""Resource"":""Foo"",""Type"":1,""Visibility"":2,""Size"":0,""Timestamp"":0}}]},""Environment"":null," +
-@"""Commands"":{""Command"":""DONTCARE""},""service-data"":null,""Credentials"":null,""application-acls"":null}," +
-@"""unmanaged-am"":false,""max-app-attempts"":1,""resource"":{""memory"":500,""VCores"":1},""application-type"":""REEFTest""," +
-@"""keep-containers-across-application-attempts"":false,""application-tags"":null}";
+            const string expectedJson = @"{" +
+                                            @"""application-id"":""AnyApplicationId""," +
+                                            @"""application-name"":""AnyAPP""," +
+                                            @"""Queue"":null,""Priority"":1," +
+                                            @"""am-container-spec"":" +
+                                            @"{" +
+                                                @"""local-resources"":" +
+                                                @"{" +
+                                                    @"""Entry"":" +
+                                                    @"[" +
+                                                        @"{" +
+                                                            @"""Key"":""APPLICATIONWILLFAILBUTWEDONTCAREHERE""," +
+                                                            @"""Value"":" +
+                                                            @"{" +
+                                                                @"""Resource"":""Foo""," +
+                                                                @"""Type"":1," +
+                                                                @"""Visibility"":2," +
+                                                                @"""Size"":0," +
+                                                                @"""Timestamp"":0" +
+                                                            @"}" +
+                                                        @"}" +
+                                                    @"]" +
+                                                @"}," + 
+                                            @"""Environment"":null," +
+                                            @"""Commands"":" +
+                                            @"{" +
+                                                @"""Command"":""DONTCARE""" +
+                                            @"}," +
+                                            @"""service-data"":null," +
+                                            @"""Credentials"":null," +
+                                            @"""application-acls"":null}," +
+                                            @"""unmanaged-am"":false," +
+                                            @"""max-app-attempts"":1," +
+                                            @"""resource"":" +
+                                            @"{" +
+                                                @"""memory"":500," +
+                                                @"""VCores"":1" +
+                                            @"},""application-type"":""REEFTest""," +
+                                            @"""keep-containers-across-application-attempts"":false," +
+                                            @"""application-tags"":null" +
+                                        @"}";
 
             var thisApplication = new Application
             {
@@ -244,7 +279,7 @@ namespace Org.Apache.REEF.Client.Tests
                         && req.Method == Method.POST
                         && req.JsonSerializer is RestJsonSerializer
                         && req.Parameters.First().Name == "application/json"
-                        && (string)req.Parameters.First().Value == expectedJson),
+                        && B(req, expectedJson)),
                 anyUri,
                 CancellationToken.None).Returns(Task.FromResult(response));
 
@@ -258,11 +293,15 @@ namespace Org.Apache.REEF.Client.Tests
                 CancellationToken.None).Returns(Task.FromResult(thisApplication));
 
             var yarnClient = ctx.GetClient();
-            Application actualApplication =
-                yarnClient.SubmitApplicationAsync(anySubmitApplication).GetAwaiter().GetResult();
+            Application actualApplication = await yarnClient.SubmitApplicationAsync(anySubmitApplication);
 
             Assert.AreEqual(thisApplication, actualApplication);
-            urlProvider.Received(2).GetUrlAsync();
+            var unused = urlProvider.Received(2).GetUrlAsync();
+        }
+
+        private static bool B(IRestRequest req, string expectedJson)
+        {
+            return (string)req.Parameters.First().Value == expectedJson;
         }
 
         private class TestContext

@@ -15,24 +15,15 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using Newtonsoft.Json;
-using RestSharp.Deserializers;
+using System;
+using System.Threading.Tasks;
+using Org.Apache.REEF.Tang.Annotations;
 
-namespace Org.Apache.REEF.Client.YARN.RestClient.DataModel
+namespace Org.Apache.REEF.Client.Yarn.RestClient
 {
-    /// <summary>
-    /// Class generated based on schema provided in
-    /// <see cref="!:http://hadoop.apache.org/docs/r2.6.0/hadoop-yarn/hadoop-yarn-site/WebServicesIntro.html">
-    /// Hadoop RM REST API </see> documentation.
-    /// </summary>
-    internal sealed class NewApplication
+    [DefaultImplementation(typeof(YarnConfigurationUrlProvider))]
+    internal interface IUrlProvider
     {
-        internal static readonly string Resource = @"cluster/apps/new-application";
-
-        [JsonProperty(PropertyName = "application-id")]
-        public string ApplicationId { get; set; }
-
-        [JsonProperty(PropertyName = "maximum-resource-capability")]
-        public Resouce MaximumResourceCapability { get; set; }
+        Task<Uri> GetUrlAsync();
     }
 }

@@ -19,6 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.ServiceProcess;
+using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.Client.Yarn.RestClient;
 using Org.Apache.REEF.Client.YARN.RestClient.DataModel;
@@ -67,11 +68,11 @@ namespace Org.Apache.REEF.Client.Tests
 
         [TestMethod]
         [TestCategory("Functional")]
-        public void TestGetClusterInfo()
+        public async Task TestGetClusterInfo()
         {
             var client = TangFactory.GetTang().NewInjector().GetInstance<IYarnRMClient>();
 
-            var clusterInfo = client.GetClusterInfoAsync().GetAwaiter().GetResult();
+            var clusterInfo = await client.GetClusterInfoAsync();
 
             Assert.IsNotNull(clusterInfo);
             Assert.AreEqual("STARTED", clusterInfo.State);
@@ -81,11 +82,11 @@ namespace Org.Apache.REEF.Client.Tests
 
         [TestMethod]
         [TestCategory("Functional")]
-        public void TestGetClusterMetrics()
+        public async Task TestGetClusterMetrics()
         {
             var client = TangFactory.GetTang().NewInjector().GetInstance<IYarnRMClient>();
 
-            var clusterMetrics = client.GetClusterMetricsAsync().GetAwaiter().GetResult();
+            var clusterMetrics = await client.GetClusterMetricsAsync();
 
             Assert.IsNotNull(clusterMetrics);
             Assert.IsTrue(clusterMetrics.TotalMB > 0);
@@ -94,11 +95,11 @@ namespace Org.Apache.REEF.Client.Tests
 
         [TestMethod]
         [TestCategory("Functional")]
-        public void TestApplicationSubmissionAndQuery()
+        public async Task TestApplicationSubmissionAndQuery()
         {
             var client = TangFactory.GetTang().NewInjector().GetInstance<IYarnRMClient>();
 
-            var newApplication = client.CreateNewApplicationAsync().GetAwaiter().GetResult();
+            var newApplication = await client.CreateNewApplicationAsync();
 
             Assert.IsNotNull(newApplication);
             Assert.IsFalse(string.IsNullOrEmpty(newApplication.ApplicationId));
@@ -146,7 +147,7 @@ namespace Org.Apache.REEF.Client.Tests
                 }
             };
 
-            var application = client.SubmitApplicationAsync(submitApplicationRequest).GetAwaiter().GetResult();
+            var application = await client.SubmitApplicationAsync(submitApplicationRequest);
 
             Assert.IsNotNull(application);
             Assert.AreEqual(newApplication.ApplicationId, application.Id);
@@ -163,7 +164,7 @@ namespace Org.Apache.REEF.Client.Tests
 
         [TestMethod]
         [TestCategory("Functional")]
-        public void TestErrorResponse()
+        public async Task TestErrorResponse()
         {
             const string WrongApplicationName = @"Something";
 
@@ -171,7 +172,7 @@ namespace Org.Apache.REEF.Client.Tests
 
             try
             {
-                client.GetApplicationAsync(WrongApplicationName).GetAwaiter().GetResult();
+                await client.GetApplicationAsync(WrongApplicationName);
                 Assert.Fail("Should throw YarnRestAPIException");
             }
             catch (YarnRestAPIException)

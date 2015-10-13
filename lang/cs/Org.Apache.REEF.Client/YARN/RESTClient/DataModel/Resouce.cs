@@ -29,7 +29,6 @@ namespace Org.Apache.REEF.Client.YARN.RestClient.DataModel
     internal sealed class Resouce
     {
         [JsonProperty(PropertyName = "memory")]
-        [DeserializeAs(Name = "memory")]
         public int MemoryMB { get; set; }
 
         public int VCores { get; set; }

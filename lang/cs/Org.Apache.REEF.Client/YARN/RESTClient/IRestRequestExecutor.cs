@@ -5,9 +5,9 @@
 // to you under the Apache License, Version 2.0 (the
 // "License"); you may not use this file except in compliance
 // with the License.  You may obtain a copy of the License at
-//
+// 
 //   http://www.apache.org/licenses/LICENSE-2.0
-//
+// 
 // Unless required by applicable law or agreed to in writing,
 // software distributed under the License is distributed on an
 // "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -15,24 +15,25 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using Newtonsoft.Json;
-using RestSharp.Deserializers;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+using Org.Apache.REEF.Tang.Annotations;
+using RestSharp;
 
-namespace Org.Apache.REEF.Client.YARN.RestClient.DataModel
+namespace Org.Apache.REEF.Client.Yarn.RestClient
 {
-    /// <summary>
-    /// Class generated based on schema provided in
-    /// <see cref="!:http://hadoop.apache.org/docs/r2.6.0/hadoop-yarn/hadoop-yarn-site/WebServicesIntro.html">
-    /// Hadoop RM REST API </see> documentation.
-    /// </summary>
-    internal sealed class NewApplication
+    [DefaultImplementation(typeof(RestRequestExecutor))]
+    internal interface IRestRequestExecutor
     {
-        internal static readonly string Resource = @"cluster/apps/new-application";
+        Task<T> ExecuteAsync<T>(
+            IRestRequest request,
+            Uri uri,
+            CancellationToken cancellationToken) where T : new();
 
-        [JsonProperty(PropertyName = "application-id")]
-        public string ApplicationId { get; set; }
-
-        [JsonProperty(PropertyName = "maximum-resource-capability")]
-        public Resouce MaximumResourceCapability { get; set; }
+        Task<IRestResponse> ExecuteAsync(
+            IRestRequest request,
+            Uri uri,
+            CancellationToken cancellationToken);
     }
 }

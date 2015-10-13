@@ -51,11 +51,8 @@ namespace Org.Apache.REEF.Client.Yarn.RestClient
         {
             await new RemoveSynchronizationContextAwaiter();
 
-            IRestRequest request = new RestRequest
-            {
-                Resource = _baseResourceString + ClusterInfo.Resource,
-                RootElement = ClusterInfo.RootElement
-            };
+            IRestRequest request = CreateRestRequest( ClusterInfo.Resource, Method.GET, ClusterInfo.RootElement
+            );
 
             return
                 await GenerateUrlAndExecuteRequestAsync<ClusterInfo>(request, cancellationToken);
@@ -65,11 +62,7 @@ namespace Org.Apache.REEF.Client.Yarn.RestClient
         {
             await new RemoveSynchronizationContextAwaiter();
 
-            var request = new RestRequest
-            {
-                Resource = _baseResourceString + ClusterMetrics.Resource,
-                RootElement = ClusterMetrics.RootElement
-            };
+            var request = CreateRestRequest(ClusterMetrics.Resource, Method.GET, ClusterMetrics.RootElement);
 
             return
                 await
@@ -80,11 +73,7 @@ namespace Org.Apache.REEF.Client.Yarn.RestClient
         {
             await new RemoveSynchronizationContextAwaiter();
 
-            var request = new RestRequest
-            {
-                Resource = _baseResourceString + Application.Resource + appId,
-                RootElement = Application.RootElement
-            };
+            var request = CreateRestRequest(Application.Resource + appId, Method.GET, Application.RootElement);
 
             return
                 await GenerateUrlAndExecuteRequestAsync<Application>(request, cancellationToken);
@@ -94,11 +83,7 @@ namespace Org.Apache.REEF.Client.Yarn.RestClient
         {
             await new RemoveSynchronizationContextAwaiter();
 
-            var request = new RestRequest
-            {
-                Resource = _baseResourceString + NewApplication.Resource,
-                Method = Method.POST
-            };
+            var request = CreateRestRequest(NewApplication.Resource, Method.POST);
 
             return
                 await
@@ -111,24 +96,33 @@ namespace Org.Apache.REEF.Client.Yarn.RestClient
         {
             await new RemoveSynchronizationContextAwaiter();
 
-            var request = new RestRequest
-            {
-                Resource = _baseResourceString + SubmitApplication.Resource,
-                Method = Method.POST,
-                RequestFormat = DataFormat.Json,
-                JsonSerializer = new RestJsonSerializer()
-            };
+            var request = CreateRestRequest(SubmitApplication.Resource, Method.POST);
 
             request.AddBody(submitApplication);
             var submitResponse = await GenerateUrlAndExecuteRequestAsync(request, cancellationToken);
 
             if (submitResponse.StatusCode != HttpStatusCode.Accepted)
             {
-                throw new YarnRestAPIException(string.Format("Application submission failed with HTTP STATUS {0}",
+                throw new YarnRestAPIException(
+                    string.Format("Application submission failed with HTTP STATUS {0}",
                     submitResponse.StatusCode));
             }
 
             return await GetApplicationAsync(submitApplication.ApplicationId, cancellationToken);
+        }
+
+        private RestRequest CreateRestRequest(string resourcePath, Method method, string rootElement = null)
+        {
+            var request = new RestRequest
+            {
+                Resource = _baseResourceString + resourcePath,
+                RootElement = rootElement,
+                Method = method,
+                RequestFormat = DataFormat.Json,
+                JsonSerializer = new RestJsonSerializer()
+            };
+
+            return request;
         }
 
 

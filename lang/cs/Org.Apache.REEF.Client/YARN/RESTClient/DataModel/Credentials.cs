@@ -15,8 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System.Collections.Generic;
-
 namespace Org.Apache.REEF.Client.YARN.RestClient.DataModel
 {
     /// <summary>
@@ -29,25 +27,5 @@ namespace Org.Apache.REEF.Client.YARN.RestClient.DataModel
         public Tokens Tokens;
 
         public Secrets Secrets;
-    }
-
-    /// <summary>
-    /// Class generated based on schema provided in
-    /// <see cref="!:http://hadoop.apache.org/docs/r2.6.0/hadoop-yarn/hadoop-yarn-site/WebServicesIntro.html">
-    /// Hadoop RM REST API </see> documentation.
-    /// </summary>
-    internal sealed class Tokens
-    {
-        public IList<KeyValuePair<string, string>> Entry { get; set; }
-    }
-
-    /// <summary>
-    /// Class generated based on schema provided in
-    /// <see cref="!:http://hadoop.apache.org/docs/r2.6.0/hadoop-yarn/hadoop-yarn-site/WebServicesIntro.html">
-    /// Hadoop RM REST API </see> documentation.
-    /// </summary>
-    internal sealed class Secrets
-    {
-        public IList<KeyValuePair<string, string>> Entry { get; set; }
     }
 }

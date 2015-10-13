@@ -5,9 +5,9 @@
 // to you under the Apache License, Version 2.0 (the
 // "License"); you may not use this file except in compliance
 // with the License.  You may obtain a copy of the License at
-// 
+//
 //   http://www.apache.org/licenses/LICENSE-2.0
-// 
+//
 // Unless required by applicable law or agreed to in writing,
 // software distributed under the License is distributed on an
 // "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -15,7 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Org.Apache.REEF.Client.YARN.RestClient.DataModel;
@@ -23,7 +22,7 @@ using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.Client.Yarn.RestClient
 {
-    [DefaultImplementation(typeof (YarnClient))]
+    [DefaultImplementation(typeof(YarnClient))]
     internal interface IYarnRMClient
     {
         Task<ClusterInfo> GetClusterInfoAsync();
@@ -47,11 +46,5 @@ namespace Org.Apache.REEF.Client.Yarn.RestClient
         Task<Application> SubmitApplicationAsync(
             SubmitApplication submitApplicationRequest,
             CancellationToken cancellationToken);
-    }
-
-    [DefaultImplementation(typeof (YarnConfigurationUrlProvider))]
-    internal interface IUrlProvider
-    {
-        Task<Uri> GetUrlAsync();
     }
 }

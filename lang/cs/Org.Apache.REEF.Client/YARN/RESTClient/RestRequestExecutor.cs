@@ -16,7 +16,7 @@
 // under the License.
 
 using System;
-using System.Linq;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
@@ -26,20 +26,6 @@ using RestSharp;
 
 namespace Org.Apache.REEF.Client.Yarn.RestClient
 {
-    [DefaultImplementation(typeof(RestRequestExecutor))]
-    internal interface IRestRequestExecutor
-    {
-        Task<T> ExecuteAsync<T>(
-            IRestRequest request,
-            Uri uri,
-            CancellationToken cancellationToken) where T : new();
-
-        Task<IRestResponse> ExecuteAsync(
-            IRestRequest request,
-            Uri uri,
-            CancellationToken cancellationToken);
-    }
-
     internal class RestRequestExecutor : IRestRequestExecutor
     {
         private readonly IRestClientFactory _clientFactory;
@@ -69,7 +55,10 @@ namespace Org.Apache.REEF.Client.Yarn.RestClient
 
             try
             {
-                if ((int)response.StatusCode >= 300)
+                // HTTP status code greater than 300 is unexpected here.
+                // See if the server sent a error response and throw suitable
+                // exception to user.
+                if (response.StatusCode >= HttpStatusCode.Ambiguous)
                 {
                     var errorResponse = JsonConvert.DeserializeObject<Error>(response.Content);
                     throw new YarnRestAPIException { Error = errorResponse };
@@ -87,7 +76,14 @@ namespace Org.Apache.REEF.Client.Yarn.RestClient
         {
             var client = _clientFactory.CreateRestClient(uri);
 
-            return await client.ExecuteTaskAsync(request, cancellationToken);
+            try
+            {
+                return await client.ExecuteTaskAsync(request, cancellationToken);
+            }
+            catch (Exception exception)
+            {
+                throw new YarnRestAPIException("Unhandled exception in executing REST request.", exception);
+            }
         }
     }
 }

@@ -16,6 +16,7 @@
 // under the License.
 
 using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace Org.Apache.REEF.Client.YARN.RestClient.DataModel
 {
@@ -26,6 +27,7 @@ namespace Org.Apache.REEF.Client.YARN.RestClient.DataModel
     /// </summary>
     internal sealed class Environment
     {
-        public IList<KeyValuePair<string, string>> Entry { get; set; }
+        [JsonProperty(PropertyName = "entry")]
+        public IList<KeyValuePair<string, string>> Entries { get; set; }
     }
 }

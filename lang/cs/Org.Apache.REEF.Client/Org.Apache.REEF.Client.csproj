@@ -85,8 +85,12 @@ under the License.
     <Compile Include="YARN\RestClient\DataModel\Credentials.cs" />
     <Compile Include="YARN\RestClient\DataModel\Environment.cs" />
     <Compile Include="YARN\RestClient\DataModel\LocalResources.cs" />
+    <Compile Include="YARN\RestClient\DataModel\Secrets.cs" />
     <Compile Include="YARN\RestClient\DataModel\ServiceData.cs" />
     <Compile Include="YARN\RestClient\DataModel\SubmitApplication.cs" />
+    <Compile Include="YARN\RestClient\DataModel\Tokens.cs" />
+    <Compile Include="YARN\RestClient\IRestRequestExecutor.cs" />
+    <Compile Include="YARN\RestClient\IUrlProvider.cs" />
     <Compile Include="YARN\RestClient\RestJsonSerializer.cs" />
     <Compile Include="YARN\YARNREEFClient.cs" />
     <Compile Include="YARN\RestClient\IRestClientFactory.cs" />
