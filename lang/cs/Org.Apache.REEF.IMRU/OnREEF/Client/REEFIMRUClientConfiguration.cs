@@ -27,15 +27,15 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Client
     /// <summary>
     /// A configuration module for specifying REEFIMRUClient
     /// </summary>
-    public sealed class REEFIMRUClientConfiguration<TMapInput, TMapOutput, TResult> : ConfigurationModuleBuilder
+    public sealed class REEFIMRUClientConfiguration : ConfigurationModuleBuilder
     {
         /// <summary>
         /// Configuration module
         /// </summary>
         public static ConfigurationModule ConfigurationModule =
-            new REEFIMRUClientConfiguration<TMapInput, TMapOutput, TResult>()
-                .BindImplementation(GenericType<IIMRUClient<TMapInput, TMapOutput, TResult>>.Class,
-                    GenericType<REEFIMRUClient<TMapInput, TMapOutput, TResult>>.Class)
+            new REEFIMRUClientConfiguration()
+                .BindImplementation(GenericType<IIMRUClient>.Class,
+                    GenericType<REEFIMRUClient>.Class)
                 .Build();
     }
 }

@@ -43,7 +43,7 @@ namespace Org.Apache.REEF.IMRU.Examples
         {
             IConfiguration runtimeConfig;
             IConfiguration imruClientConfig =
-                REEFIMRUClientConfiguration<TMapInput, TMapOutput, TResult>.ConfigurationModule.Build();
+                REEFIMRUClientConfiguration.ConfigurationModule.Build();
 
             if (runTimeDir.Length != 0)
             {
@@ -71,7 +71,7 @@ namespace Org.Apache.REEF.IMRU.Examples
         internal static IConfiguration GetYarnIMRUConfiguration()
         {
             IConfiguration imruClientConfig =
-                REEFIMRUClientConfiguration<TMapInput, TMapOutput, TResult>.ConfigurationModule.Build();
+                REEFIMRUClientConfiguration.ConfigurationModule.Build();
 
             var fileSystemConfig = HadoopFileSystemConfiguration.ConfigurationModule.Build();
 

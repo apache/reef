@@ -41,8 +41,8 @@ namespace Org.Apache.REEF.IMRU.Tests
             var tested =
                 TangFactory.GetTang()
                     .NewInjector(
-                        InProcessIMRUConfiguration<int, int, int>.ConfigurationModule
-                            .Set(InProcessIMRUConfiguration<int, int, int>.NumberOfMappers, NumberOfMappers.ToString())
+                        InProcessIMRUConfiguration.ConfigurationModule
+                            .Set(InProcessIMRUConfiguration.NumberOfMappers, NumberOfMappers.ToString())
                             .Build()
                     )
                     .GetInstance<MapperCount>();

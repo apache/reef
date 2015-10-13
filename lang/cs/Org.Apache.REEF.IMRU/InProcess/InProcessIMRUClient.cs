@@ -40,14 +40,11 @@ namespace Org.Apache.REEF.IMRU.InProcess
     /// </summary>
     /// <remarks>
     /// This client assumes that all given Configurations can be merged in a conflict-free way.
-    /// </remarks>
-    /// <typeparam name="TMapInput">The type of the side information provided to the Map function</typeparam>
-    /// <typeparam name="TMapOutput">The return type of the Map function</typeparam>
-    /// <typeparam name="TResult">The return type of the computation.</typeparam>
-    public class InProcessIMRUClient<TMapInput, TMapOutput, TResult> : IIMRUClient<TMapInput, TMapOutput, TResult>
+    /// </remarks> 
+    public class InProcessIMRUClient : IIMRUClient
     {
         private static readonly Logger Logger =
-            Logger.GetLogger(typeof (InProcessIMRUClient<TMapInput, TMapOutput, TResult>));
+            Logger.GetLogger(typeof (InProcessIMRUClient));
 
         private readonly int _numberOfMappers;
 
@@ -65,9 +62,12 @@ namespace Org.Apache.REEF.IMRU.InProcess
         /// <summary>
         /// Submits the map job
         /// </summary>
+        /// <typeparam name="TMapInput">The type of the side information provided to the Map function</typeparam>
+        /// <typeparam name="TMapOutput">The return type of the Map function</typeparam>
+        /// <typeparam name="TResult">The return type of the computation.</typeparam>
         /// <param name="jobDefinition">Job definition given by the user</param>
         /// <returns>The result of the job</returns>
-        public IEnumerable<TResult> Submit(IMRUJobDefinition jobDefinition)
+        public IEnumerable<TResult> Submit<TMapInput, TMapOutput, TResult>(IMRUJobDefinition jobDefinition)
         {
             IConfiguration overallPerMapConfig = null;
             try
@@ -91,7 +91,8 @@ namespace Org.Apache.REEF.IMRU.InProcess
                 (ISet<IPerMapperConfigGenerator>) injector.GetNamedInstance(typeof (PerMapConfigGeneratorSet));
 
             injector.BindVolatileInstance(GenericType<MapFunctions<TMapInput, TMapOutput>>.Class,
-                MakeMapFunctions(jobDefinition.MapFunctionConfiguration, jobDefinition.PartitionedDatasetConfiguration, perMapConfigGenerators));
+                MakeMapFunctions<TMapInput, TMapOutput>(jobDefinition.MapFunctionConfiguration,
+                    jobDefinition.PartitionedDatasetConfiguration, perMapConfigGenerators));
 
             var runner = injector.GetInstance<IMRURunner<TMapInput, TMapOutput, TResult>>();
             return runner.Run();
@@ -104,7 +105,7 @@ namespace Org.Apache.REEF.IMRU.InProcess
         /// <param name="partitionedDataSetConfig">Partitioned dataset configuration</param>
         /// <param name="perMapConfigGenerators">Per map configuration generators</param>
         /// <returns></returns>
-        private MapFunctions<TMapInput, TMapOutput> MakeMapFunctions(IConfiguration mapConfiguration, IConfiguration partitionedDataSetConfig, ISet<IPerMapperConfigGenerator> perMapConfigGenerators)
+        private MapFunctions<TMapInput, TMapOutput> MakeMapFunctions<TMapInput, TMapOutput>(IConfiguration mapConfiguration, IConfiguration partitionedDataSetConfig, ISet<IPerMapperConfigGenerator> perMapConfigGenerators)
         {
             IPartitionedDataSet dataset =
                 TangFactory.GetTang().NewInjector(partitionedDataSetConfig).GetInstance<IPartitionedDataSet>();
