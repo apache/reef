@@ -27,7 +27,7 @@ namespace Org.Apache.REEF.Network.Group.Config
     public class CodecConfiguration<T> : ConfigurationModuleBuilder
     {
         /// <summary>
-        /// RequiredImpl for Codec. Client needs to set implementation for this paramter
+        /// RequiredImpl for Codec. Client needs to set implementation for this parameter
         /// </summary>
         public static readonly RequiredImpl<ICodec<T>> Codec = new RequiredImpl<ICodec<T>>();
 

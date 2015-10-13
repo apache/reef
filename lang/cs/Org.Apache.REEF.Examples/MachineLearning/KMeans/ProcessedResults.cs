@@ -48,7 +48,7 @@ namespace Org.Apache.REEF.Examples.MachineLearning.KMeans
         /// <returns>seralized string</returns>
         public override string ToString()
         {
-            return ByteUtilities.ByteArrarysToString(new ProcessedResultsCodec().Encode(this));
+            return ByteUtilities.ByteArraysToString(new ProcessedResultsCodec().Encode(this));
         }
     }
 }

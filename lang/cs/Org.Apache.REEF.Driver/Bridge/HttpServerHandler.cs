@@ -85,7 +85,7 @@ namespace Org.Apache.REEF.Driver.Bridge
             {
                 LOGGER.Log(Level.Info, "HttpHandler OnNext, handling http request.");
                 byte[] byteData = httpMessage.GetQueryReuestData();
-                AvroHttpRequest avroHttpRequest = AvroHttpSerializer.FromBytesWithJoson(byteData);
+                AvroHttpRequest avroHttpRequest = AvroHttpSerializer.FromBytesWithJson(byteData);
                 LOGGER.Log(Level.Info, string.Format(CultureInfo.CurrentCulture, "HttpHandler OnNext, requestData:", avroHttpRequest));
 
                 string spec = GetSpecification(avroHttpRequest.PathInfo);

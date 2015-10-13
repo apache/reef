@@ -152,7 +152,7 @@ namespace Org.Apache.REEF.Tang.Implementations.Tang
             {
                 Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Caught(e, Level.Error, LOGGER);
                 Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(new IllegalStateException(
-                    "Caught unexpeceted bind exception!  Implementation bug.", e), LOGGER);
+                    "Caught unexpected bind exception!  Implementation bug.", e), LOGGER);
                 return null;
             }
         }
@@ -167,7 +167,7 @@ namespace Org.Apache.REEF.Tang.Implementations.Tang
             {
                 Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Caught(e, Level.Error, LOGGER);
                 Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(new IllegalStateException(
-                    "Caught unexpeceted bind exception!  Implementation bug.", e), LOGGER);
+                    "Caught unexpected bind exception!  Implementation bug.", e), LOGGER);
                 return null;
             }
         }

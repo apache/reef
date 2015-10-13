@@ -120,7 +120,7 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
 
         public INode RegisterType(Type type)
         {
-            if (ReflectionUtilities.IsAnnonymousType(type))
+            if (ReflectionUtilities.IsAnonymousType(type))
             {
                 // DevNote: Kinda hacky way to indicate the no-op case.
                 return rootNode;

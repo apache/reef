@@ -60,7 +60,7 @@ namespace Org.Apache.REEF.Network.Naming
         /// </summary>
         /// <param name="id">The id for the IPEndPoint</param>
         /// <param name="token">The cancellation token used for timeout</param>
-        /// <returns>The registered IPEndpoint, or null if the identifer has not 
+        /// <returns>The registered IPEndpoint, or null if the identifier has not 
         /// been registered with the NameServer or if the operation times out.</returns>
         public IPEndPoint Lookup(string id, CancellationToken token)
         {

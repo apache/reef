@@ -29,6 +29,7 @@ using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Tang.Util
 {
+    // TODO[REEF-842] Act on the obsoletes
     public class ReflectionUtilities
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(ReflectionUtilities));
@@ -79,7 +80,7 @@ namespace Org.Apache.REEF.Tang.Util
             }
 
             //The following lines should be not reached by C# syntax definition. However, it happens  for some generic type such as AbstractObserver<T>
-            //It results in name as null. When null name in the class node gets deserialzed, as name is required filed in class hierarchy proto buffer schame,
+            //It results in name as null. When null name in the class node gets deserialized, as name is required filed in class hierarchy proto buffer schema,
             //it causes exception during deserialization. The code below is to use first portion of AssemblyQualifiedName for the name of the node node in case type.name is null. 
             string[] parts = GetAssemblyQualifiedName(name).Split(',');
             return parts[0];
@@ -300,7 +301,7 @@ namespace Org.Apache.REEF.Tang.Util
 
         /// <summary>
         /// Ensures the type of the interface. For generic types, full name could be null. In this case, we need to 
-        /// get GetGenericTypeDefinition for the type so that to rerain all teh type information
+        /// get GetGenericTypeDefinition for the type so that to retain all teh type information
         /// </summary>
         /// <param name="interf">The interf.</param>
         /// <returns></returns>
@@ -501,10 +502,16 @@ namespace Org.Apache.REEF.Tang.Util
                 return type.GetInterfaces().Except(type.BaseType.GetInterfaces());
         }
 
-        // Here is a more elaborate hack to test for annonymous type:
+        // Here is a more elaborate hack to test for anonymous type:
         // http://stackoverflow.com/questions/2483023/how-to-test-if-a-type-is-anonymous
         // compiler generated classes are always recreatable and need not additional references to check for.
+        [Obsolete("Deprecated in 0.14, please use IsAnonymousType instead.")]
         public static bool IsAnnonymousType(Type type)
+        {
+            return IsAnonymousType(type);
+        }
+
+        public static bool IsAnonymousType(Type type)
         {
             if (type != null)
             {

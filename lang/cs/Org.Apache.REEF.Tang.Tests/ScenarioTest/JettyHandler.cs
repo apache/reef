@@ -23,16 +23,16 @@ using Org.Apache.REEF.Tang.Annotations;
 namespace Org.Apache.REEF.Tang.Tests.ScenarioTest
 {
     [NamedParameter()]
-    public class HttpEventHanlders : Name<ISet<IHttpHandler>>
+    public class HttpEventHandlers : Name<ISet<IHttpHandler>>
     {
     }
 
     public class JettyHandler //: AbstractHandler
     {
         [Inject]
-        public JettyHandler([Parameter(typeof(HttpEventHanlders))] ISet<IHttpHandler> httpeventHanlders)
+        public JettyHandler([Parameter(typeof(HttpEventHandlers))] ISet<IHttpHandler> httpEventHandlers)
         {
-            HttpeventHanlders = httpeventHanlders;
+            HttpeventHanlders = httpEventHandlers;
         }
 
         public ISet<IHttpHandler> HttpeventHanlders { get; set; }

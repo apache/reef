@@ -149,7 +149,7 @@ namespace Org.Apache.REEF.Network.Group.Topology
                 throw new NotSupportedException("Spec type not supported");
             }
 
-            return Configurations.Merge(confBuilder.Build(), OperatorSpec.Configiration);
+            return Configurations.Merge(confBuilder.Build(), OperatorSpec.Configuration);
         }
 
         private static void SetMessageType(Type operatorType, ICsConfigurationBuilder confBuilder)

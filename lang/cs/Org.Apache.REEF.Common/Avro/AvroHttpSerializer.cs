@@ -17,6 +17,7 @@
  * under the License.
  */
 
+using System;
 using System.IO;
 using Microsoft.Hadoop.Avro;
 using Newtonsoft.Json;
@@ -27,6 +28,7 @@ namespace Org.Apache.REEF.Common.Avro
     /// <summary>
     /// Class AvroHttpSerializer. Provides methods to serialize and deserialize HttpRequest
     /// </summary>
+    // TODO[REEF-842] Act on the obsoletes
     public class AvroHttpSerializer
     {
         public static AvroHttpRequest FromBytes(byte[] serializedBytes)
@@ -39,24 +41,35 @@ namespace Org.Apache.REEF.Common.Avro
         }
 
         /// <summary>
-        /// Conver bytes which contains Json string into AvroHttpRequest object
+        /// Convert bytes which contains Json string into AvroHttpRequest object
         /// </summary>
         /// <param name="serializedBytes">The serialized bytes.</param>
         /// <returns>AvroHttpRequest.</returns>
+        [Obsolete("Deprecated in 0.14, please use FromBytesWithJson instead.")]
         public static AvroHttpRequest FromBytesWithJoson(byte[] serializedBytes)
         {
-            string s = ByteUtilities.ByteArrarysToString(serializedBytes);
+            return FromBytesWithJson(serializedBytes);
+        }
+
+        /// <summary>
+        /// Convert bytes which contains Json string into AvroHttpRequest object
+        /// </summary>
+        /// <param name="serializedBytes">The serialized bytes.</param>
+        /// <returns>AvroHttpRequest.</returns>
+        public static AvroHttpRequest FromBytesWithJson(byte[] serializedBytes)
+        {
+            string s = ByteUtilities.ByteArraysToString(serializedBytes);
             return FromJson(s);
         }
 
         /// <summary>
         /// Convert from Json string into AvroHttpRequest object
         /// </summary>
-        /// <param name="josonString">The joson string.</param>
+        /// <param name="jsonString">The json string.</param>
         /// <returns>AvroHttpRequest.</returns>
-        public static AvroHttpRequest FromJson(string josonString)
+        public static AvroHttpRequest FromJson(string jsonString)
         {
-           return JsonConvert.DeserializeObject<AvroHttpRequest>(josonString);
+           return JsonConvert.DeserializeObject<AvroHttpRequest>(jsonString);
         }
 
         /// <summary>

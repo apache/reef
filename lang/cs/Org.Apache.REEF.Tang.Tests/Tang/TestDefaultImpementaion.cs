@@ -47,7 +47,7 @@ namespace Org.Apache.REEF.Tang.Tests.Tang
     }
 
     [TestClass]
-    public class TestDefaultImplmentation
+    public class TestDefaultImplementation
     {
         [TestMethod]
         public void TestDefaultConstructor()
@@ -57,7 +57,7 @@ namespace Org.Apache.REEF.Tang.Tests.Tang
         }
 
         [TestMethod]
-        public void TestDefaultImplementaion()
+        public void TestDefaultImpl()
         {
             ClassWithDefaultConstructor impl = (ClassWithDefaultConstructor)TangFactory.GetTang().NewInjector().GetInstance(typeof(ClassWithDefaultConstructor));
             Assert.IsNotNull(impl);

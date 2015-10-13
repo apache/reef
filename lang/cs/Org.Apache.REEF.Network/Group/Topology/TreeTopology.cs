@@ -52,7 +52,7 @@ namespace Org.Apache.REEF.Network.Group.Topology
         /// <param name="rootId">The root Task identifier</param>
         /// <param name="driverId">The driver identifier</param>
         /// <param name="operatorSpec">The operator specification</param>
-        /// <param name="fanOut">The number of chldren for a tree node</param>
+        /// <param name="fanOut">The number of children for a tree node</param>
         public TreeTopology(
             string operatorName, 
             string groupName, 
@@ -164,7 +164,7 @@ namespace Org.Apache.REEF.Network.Group.Topology
                 throw new NotSupportedException("Spec type not supported");
             }
 
-            return Configurations.Merge(confBuilder.Build(), OperatorSpec.Configiration);
+            return Configurations.Merge(confBuilder.Build(), OperatorSpec.Configuration);
         }
 
         public void AddTask(string taskId)

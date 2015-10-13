@@ -73,7 +73,7 @@ namespace Org.Apache.REEF.Tests.Functional
             set { _testSuccess = value; }
         }
 
-        protected bool IsOnLocalRuntiime
+        protected bool IsOnLocalRuntime
         {
             get { return _onLocalRuntime; }
             set { _onLocalRuntime = value; }
@@ -227,11 +227,11 @@ namespace Org.Apache.REEF.Tests.Functional
         /// <exception cref="Exception">If the environment variables aren't set.</exception>
         private static string GetStorageConnectionString()
         {
-            var accountName = GetEnvironmentVariabe(StorageAccountNameEnvironmentVariable,
+            var accountName = GetEnvironmentVariable(StorageAccountNameEnvironmentVariable,
                 "Please set " + StorageAccountNameEnvironmentVariable +
                 " to the storage account name to be used for the tests");
 
-            var accountKey = GetEnvironmentVariabe(StorageAccountKeyEnvironmentVariable,
+            var accountKey = GetEnvironmentVariable(StorageAccountKeyEnvironmentVariable,
                 "Please set " + StorageAccountKeyEnvironmentVariable +
                 " to the key of the storage account to be used for the tests");
 
@@ -249,7 +249,7 @@ namespace Org.Apache.REEF.Tests.Functional
         /// If the environment variables is not set. The message is taken from
         /// errorMessageIfNotAvailable
         /// </exception>
-        private static string GetEnvironmentVariabe(string variableName, string errorMessageIfNotAvailable)
+        private static string GetEnvironmentVariable(string variableName, string errorMessageIfNotAvailable)
         {
             var result = Environment.GetEnvironmentVariable(variableName);
             if (string.IsNullOrWhiteSpace(result))
@@ -259,13 +259,13 @@ namespace Org.Apache.REEF.Tests.Functional
             return result;
         }
 
-        protected void TestRun(IConfiguration driverCondig, Type globalAssemblyType, int numberOfEvaluator, string jobIdentifier = "myDriver", string runOnYarn = "local", string runtimeFolder = DefaultRuntimeFolder)
+        protected void TestRun(IConfiguration driverConfig, Type globalAssemblyType, int numberOfEvaluator, string jobIdentifier = "myDriver", string runOnYarn = "local", string runtimeFolder = DefaultRuntimeFolder)
         {
             IInjector injector = TangFactory.GetTang().NewInjector(GetRuntimeConfiguration(runOnYarn, numberOfEvaluator, runtimeFolder));
             var reefClient = injector.GetInstance<IREEFClient>();
             var jobSubmissionBuilderFactory = injector.GetInstance<JobSubmissionBuilderFactory>();
             var jobSubmission = jobSubmissionBuilderFactory.GetJobSubmissionBuilder()
-                .AddDriverConfiguration(driverCondig)
+                .AddDriverConfiguration(driverConfig)
                 .AddGlobalAssemblyForType(globalAssemblyType)
                 .SetJobIdentifier(jobIdentifier)
                 .Build();

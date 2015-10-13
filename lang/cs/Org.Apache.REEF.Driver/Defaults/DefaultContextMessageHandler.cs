@@ -26,7 +26,7 @@ using Org.Apache.REEF.Utilities.Logging;
 namespace Org.Apache.REEF.Driver.Defaults
 {
     /// <summary>
-    /// efault event handler for ContextMessage: Logging it.
+    /// Default event handler for ContextMessage: Logging it.
     /// </summary>
     public class DefaultContextMessageHandler : IObserver<IContextMessage>
     {
@@ -39,7 +39,7 @@ namespace Org.Apache.REEF.Driver.Defaults
 
         public void OnNext(IContextMessage value)
         {
-            LOGGER.Log(Level.Info, "Received ContextMessage: " + ByteUtilities.ByteArrarysToString(value.Message));
+            LOGGER.Log(Level.Info, "Received ContextMessage: " + ByteUtilities.ByteArraysToString(value.Message));
         }
 
         public void OnError(Exception error)

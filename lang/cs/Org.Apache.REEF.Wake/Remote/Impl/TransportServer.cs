@@ -45,8 +45,8 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
 
         /// <summary>
         /// Constructs a TransportServer to listen for remote events.  
-        /// Listens on the specified remote endpoint.  When it recieves a remote
-        /// event, it will envoke the specified remote handler.
+        /// Listens on the specified remote endpoint.  When it receives a remote
+        /// event, it will invoke the specified remote handler.
         /// </summary>
         /// <param name="localEndpoint">Endpoint to listen on</param>
         /// <param name="remoteHandler">The handler to invoke when receiving incoming
@@ -192,7 +192,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         }
 
         /// <summary>
-        /// Recieves event from connected TcpClient and invokes handler on the event.
+        /// Receives event from connected TcpClient and invokes handler on the event.
         /// </summary>
         /// <param name="client">The connected client</param>
         private async Task ProcessClient(TcpClient client)

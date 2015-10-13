@@ -279,7 +279,7 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.PipelineBroadcastR
                 if (data.Length%sizeof (Int32) != 0)
                 {
                     throw new Exception(
-                        "error inside integer array decoder, byte array length not a multiple of interger size");
+                        "error inside integer array decoder, byte array length not a multiple of integer size");
                 }
 
                 var result = new int[data.Length/sizeof (Int32)];

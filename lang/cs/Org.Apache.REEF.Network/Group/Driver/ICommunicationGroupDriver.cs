@@ -71,7 +71,7 @@ namespace Org.Apache.REEF.Network.Group.Driver
         /// </summary>
         /// <param name="operatorName">The name of the scatter operator</param>
         /// <param name="senderId">The sender id</param>
-        /// <param name="topologyType">type of topology used in the operaor</param>
+        /// <param name="topologyType">type of topology used in the operator</param>
         /// <returns>The same CommunicationGroupDriver with the added Scatter operator info</returns>
         ICommunicationGroupDriver AddScatter(string operatorName, string senderId, TopologyTypes topologyType = TopologyTypes.Flat);
 
@@ -82,7 +82,7 @@ namespace Org.Apache.REEF.Network.Group.Driver
         /// <param name="configurations">The configuration for task</param>
         /// <param name="operatorName">The name of the scatter operator</param>
         /// <param name="senderId">The sender id</param>
-        /// <param name="topologyType">type of topology used in the operaor</param>
+        /// <param name="topologyType">type of topology used in the operator</param>
         /// <returns>The same CommunicationGroupDriver with the added Scatter operator info</returns>
         ICommunicationGroupDriver AddScatter<T>(string operatorName, string senderId, TopologyTypes topologyType, params IConfiguration[] configurations);
 

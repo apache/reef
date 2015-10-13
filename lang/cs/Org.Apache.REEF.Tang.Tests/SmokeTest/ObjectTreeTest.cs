@@ -29,7 +29,7 @@ namespace Org.Apache.REEF.Tang.Tests.SmokeTest
         public static IConfiguration GetConfiguration()
         {
             return TestConfigurationModuleBuilder.CONF
-                .Set(TestConfigurationModuleBuilder.OPTIONALSTRING, TestConfigurationModuleBuilder.OptionaStringValue)
+                .Set(TestConfigurationModuleBuilder.OPTIONALSTRING, TestConfigurationModuleBuilder.OptionalStringValue)
                 .Set(TestConfigurationModuleBuilder.REQUIREDSTRING, TestConfigurationModuleBuilder.RequiredStringValue)
                 .Build();
         }

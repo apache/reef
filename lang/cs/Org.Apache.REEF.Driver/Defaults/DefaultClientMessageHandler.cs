@@ -38,7 +38,7 @@ namespace Org.Apache.REEF.Driver.Defaults
 
         public void OnNext(byte[] value)
         {
-            LOGGER.Log(Level.Info, "Received message: " + ByteUtilities.ByteArrarysToString(value));
+            LOGGER.Log(Level.Info, "Received message: " + ByteUtilities.ByteArraysToString(value));
         }
 
         public void OnError(Exception error)

@@ -126,7 +126,7 @@ namespace Org.Apache.REEF.Tests.Functional.ML.KMeans
         [Timeout(180 * 1000)]
         public void TestKMeansOnLocalRuntimeWithGroupCommunications()
         {
-            IsOnLocalRuntiime = true;
+            IsOnLocalRuntime = true;
             string testFolder = DefaultRuntimeFolder + TestNumber++;
             CleanUp(testFolder);
             TestRun(DriverConfiguration(), typeof(KMeansDriverHandlers), Partitions + 1, "KMeansDriverHandlers", "local", testFolder);

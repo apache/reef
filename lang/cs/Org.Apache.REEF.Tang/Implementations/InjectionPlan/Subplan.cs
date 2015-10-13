@@ -32,7 +32,7 @@ namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(Subplan));
 
-        readonly InjectionPlan[] alternatives; //all implementatios on the same interface
+        readonly InjectionPlan[] alternatives; //all implementations on the same interface
         readonly int numAlternatives;
         readonly int selectedIndex; //the implementation that is bound
 

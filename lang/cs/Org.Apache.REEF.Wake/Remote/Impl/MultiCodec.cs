@@ -73,7 +73,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         }
 
         /// <summary>
-        /// Decodes byte array into the appripriate object type.
+        /// Decodes byte array into the appropriate object type.
         /// </summary>
         /// <param name="data">Data to be decoded</param>
         public T Decode(byte[] data)

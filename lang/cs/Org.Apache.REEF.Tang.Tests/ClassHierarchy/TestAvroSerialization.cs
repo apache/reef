@@ -66,20 +66,20 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
         {
             Type timerType = typeof(Timer);
             Type secondType = typeof(Timer.Seconds);
-            Type simpleCOnstuctorType = typeof(SimpleConstructors);
+            Type simpleConstructorType = typeof(SimpleConstructors);
 
             IClassHierarchy ns = TangFactory.GetTang().GetClassHierarchy(
                 new string[] { typeof(Timer).Assembly.GetName().Name, typeof(SimpleConstructors).Assembly.GetName().Name });
             IClassNode timerClassNode = (IClassNode)ns.GetNode(timerType.AssemblyQualifiedName);
             INode secondNode = ns.GetNode(secondType.AssemblyQualifiedName);
-            IClassNode simpleConstructorsClassNode = (IClassNode)ns.GetNode(simpleCOnstuctorType.AssemblyQualifiedName);
+            IClassNode simpleConstructorsClassNode = (IClassNode)ns.GetNode(simpleConstructorType.AssemblyQualifiedName);
 
             AvroNode n =_serializer.ToAvroNode(ns);
             IClassHierarchy ns2 = _serializer.FromAvroNode(n);
 
             IClassNode timerClassNode2 = (IClassNode)ns2.GetNode(timerType.AssemblyQualifiedName);
             INode secondNode2 = ns2.GetNode(secondType.AssemblyQualifiedName);
-            IClassNode simpleConstructorsClassNode2 = (IClassNode)ns2.GetNode(simpleCOnstuctorType.AssemblyQualifiedName);
+            IClassNode simpleConstructorsClassNode2 = (IClassNode)ns2.GetNode(simpleConstructorType.AssemblyQualifiedName);
 
             Assert.AreEqual(timerClassNode, timerClassNode2);
             Assert.AreEqual(secondNode, secondNode2);
@@ -89,7 +89,7 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
         /// <summary>
         /// This is to test AvroSerializer.Create<AvroNode>() 
         /// Manually changing return type from object into strong type like AvroClassNode in AvroNode class will result in GetSchema() fail. 
-        /// I have manully synced all the IList into List in auto generated code. Otherswise AvroSerializer.Create<AvroNode>() will throw the following error
+        /// I have manually synced all the IList into List in auto generated code. Otherwise AvroSerializer.Create<AvroNode>() will throw the following error
         /// "Could not find any matching known type for 'System.Collections.Generic.IList`1[Org.Apache.REEF.Tang.Implementations.ClassHierarchy.AvroDataContract.AvroConstructorDef]'."
         /// </summary>
         [TestMethod]
@@ -153,7 +153,7 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
 
         /// <summary>
         /// Test serialize a class hierarchy to a Json string then deserialize it
-        /// In desrialization, in ParseSubHierarchy(), exception is thrown: 
+        /// In deserialization, in ParseSubHierarchy(), exception is thrown: 
         /// Unable to cast object of type 'Newtonsoft.Json.Linq.JObject' to type 'Org.Apache.REEF.Tang.Implementations.ClassHierarchy.AvroDataContract.AvroClassNode'.
         /// This is because auto generated code use object as return type instead of AvroClassNode
         /// </summary>
@@ -163,20 +163,20 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
         {
             Type timerType = typeof(Timer);
             Type secondType = typeof(Timer.Seconds);
-            Type simpleCOnstuctorType = typeof(SimpleConstructors);
+            Type simpleConstructorType = typeof(SimpleConstructors);
 
             IClassHierarchy ns = TangFactory.GetTang().GetClassHierarchy(
                 new string[] { typeof(Timer).Assembly.GetName().Name, typeof(SimpleConstructors).Assembly.GetName().Name });
             IClassNode timerClassNode = (IClassNode)ns.GetNode(timerType.AssemblyQualifiedName);
             INode secondNode = ns.GetNode(secondType.AssemblyQualifiedName);
-            IClassNode simpleConstructorsClassNode = (IClassNode)ns.GetNode(simpleCOnstuctorType.AssemblyQualifiedName);
+            IClassNode simpleConstructorsClassNode = (IClassNode)ns.GetNode(simpleConstructorType.AssemblyQualifiedName);
 
             string s = _serializer.ToString(ns);
             IClassHierarchy ns2 = _serializer.FromString(s);
 
             IClassNode timerClassNode2 = (IClassNode)ns2.GetNode(timerType.AssemblyQualifiedName);
             INode secondNode2 = ns2.GetNode(secondType.AssemblyQualifiedName);
-            IClassNode simpleConstructorsClassNode2 = (IClassNode)ns2.GetNode(simpleCOnstuctorType.AssemblyQualifiedName);
+            IClassNode simpleConstructorsClassNode2 = (IClassNode)ns2.GetNode(simpleConstructorType.AssemblyQualifiedName);
 
             Assert.AreEqual(timerClassNode, timerClassNode2);
             Assert.AreEqual(secondNode, secondNode2);
@@ -185,7 +185,7 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
 
         /// <summary>
         /// Test serialize a class hierarchy to a text file then deserialize it
-        /// In desrialization, in ParseSubHierarchy(), exception is thrown: 
+        /// In deserialization, in ParseSubHierarchy(), exception is thrown: 
         /// Unable to cast object of type 'Newtonsoft.Json.Linq.JObject' to type 'Org.Apache.REEF.Tang.Implementations.ClassHierarchy.AvroDataContract.AvroClassNode'.
         /// This is because auto generated code use object as return type instead of AvroClassNode
         /// </summary>
@@ -195,20 +195,20 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
         {
             Type timerType = typeof(Timer);
             Type secondType = typeof(Timer.Seconds);
-            Type simpleCOnstuctorType = typeof(SimpleConstructors);
+            Type simpleConstructorType = typeof(SimpleConstructors);
 
             IClassHierarchy ns = TangFactory.GetTang().GetClassHierarchy(
                 new string[] { typeof(Timer).Assembly.GetName().Name, typeof(SimpleConstructors).Assembly.GetName().Name });
             IClassNode timerClassNode = (IClassNode)ns.GetNode(timerType.AssemblyQualifiedName);
             INode secondNode = ns.GetNode(secondType.AssemblyQualifiedName);
-            IClassNode simpleConstructorsClassNode = (IClassNode)ns.GetNode(simpleCOnstuctorType.AssemblyQualifiedName);
+            IClassNode simpleConstructorsClassNode = (IClassNode)ns.GetNode(simpleConstructorType.AssemblyQualifiedName);
 
             _serializer.ToTextFile(ns, "avroEven.txt");
             IClassHierarchy ns2 = _serializer.FromTextFile("avroEven.txt");
 
             IClassNode timerClassNode2 = (IClassNode)ns2.GetNode(timerType.AssemblyQualifiedName);
             INode secondNode2 = ns2.GetNode(secondType.AssemblyQualifiedName);
-            IClassNode simpleConstructorsClassNode2 = (IClassNode)ns2.GetNode(simpleCOnstuctorType.AssemblyQualifiedName);
+            IClassNode simpleConstructorsClassNode2 = (IClassNode)ns2.GetNode(simpleConstructorType.AssemblyQualifiedName);
 
             Assert.AreEqual(timerClassNode, timerClassNode2);
             Assert.AreEqual(secondNode, secondNode2);
@@ -216,8 +216,8 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
         }
 
         /// <summary>
-        /// Test serialize a class hierarchy to a fiel and deserialize from the  file
-        /// Currently, in ToFile() method, writer.Write(avronNodeData) throw exception "Value cannot be null.\r\nParameter name: value". 
+        /// Test serialize a class hierarchy to a file and deserialize from the file
+        /// Currently, in ToFile() method, writer.Write(avroNodeData) throw exception "Value cannot be null.\r\nParameter name: value". 
         /// </summary>
         [Ignore]  //TODO: after Avro fix the issue. Enable the test
         [TestMethod]
@@ -225,20 +225,20 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
         {
             Type timerType = typeof(Timer);
             Type secondType = typeof(Timer.Seconds);
-            Type simpleCOnstuctorType = typeof(SimpleConstructors);
+            Type simpleConstructorType = typeof(SimpleConstructors);
 
             IClassHierarchy ns = TangFactory.GetTang().GetClassHierarchy(
                 new string[] { typeof(Timer).Assembly.GetName().Name, typeof(SimpleConstructors).Assembly.GetName().Name });
             IClassNode timerClassNode = (IClassNode)ns.GetNode(timerType.AssemblyQualifiedName);
             INode secondNode = ns.GetNode(secondType.AssemblyQualifiedName);
-            IClassNode simpleConstructorsClassNode = (IClassNode)ns.GetNode(simpleCOnstuctorType.AssemblyQualifiedName);
+            IClassNode simpleConstructorsClassNode = (IClassNode)ns.GetNode(simpleConstructorType.AssemblyQualifiedName);
 
             _serializer.ToFile(ns, "avroEven.bin");
             IClassHierarchy ns2 = _serializer.FromFile("avroEven.bin");
 
             IClassNode timerClassNode2 = (IClassNode)ns2.GetNode(timerType.AssemblyQualifiedName);
             INode secondNode2 = ns2.GetNode(secondType.AssemblyQualifiedName);
-            IClassNode simpleConstructorsClassNode2 = (IClassNode)ns2.GetNode(simpleCOnstuctorType.AssemblyQualifiedName);
+            IClassNode simpleConstructorsClassNode2 = (IClassNode)ns2.GetNode(simpleConstructorType.AssemblyQualifiedName);
 
             Assert.AreEqual(timerClassNode, timerClassNode2);
             Assert.AreEqual(secondNode, secondNode2);
@@ -255,20 +255,20 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
         {
             Type timerType = typeof(Timer);
             Type secondType = typeof(Timer.Seconds);
-            Type simpleCOnstuctorType = typeof(SimpleConstructors);
+            Type simpleConstructorType = typeof(SimpleConstructors);
 
             IClassHierarchy ns = TangFactory.GetTang().GetClassHierarchy(
                 new string[] { typeof(Timer).Assembly.GetName().Name, typeof(SimpleConstructors).Assembly.GetName().Name });
             IClassNode timerClassNode = (IClassNode)ns.GetNode(timerType.AssemblyQualifiedName);
             INode secondNode = ns.GetNode(secondType.AssemblyQualifiedName);
-            IClassNode simpleConstructorsClassNode = (IClassNode)ns.GetNode(simpleCOnstuctorType.AssemblyQualifiedName);
+            IClassNode simpleConstructorsClassNode = (IClassNode)ns.GetNode(simpleConstructorType.AssemblyQualifiedName);
 
             byte[] b = _serializer.ToByteArray(ns);
             IClassHierarchy ns2 = _serializer.FromByteArray(b);
 
             IClassNode timerClassNode2 = (IClassNode)ns2.GetNode(timerType.AssemblyQualifiedName);
             INode secondNode2 = ns2.GetNode(secondType.AssemblyQualifiedName);
-            IClassNode simpleConstructorsClassNode2 = (IClassNode)ns2.GetNode(simpleCOnstuctorType.AssemblyQualifiedName);
+            IClassNode simpleConstructorsClassNode2 = (IClassNode)ns2.GetNode(simpleConstructorType.AssemblyQualifiedName);
 
             Assert.AreEqual(timerClassNode, timerClassNode2);
             Assert.AreEqual(secondNode, secondNode2);

@@ -40,42 +40,42 @@ namespace Org.Apache.REEF.Tang.Interface
         void ToTextFile(IClassHierarchy c, string fileName);
 
         /// <summary>
-        /// erialize a ClassHierarchy into a Jason string
+        /// Serialize a ClassHierarchy into a Jason string
         /// </summary>
         /// <param name="c"></param>
         /// <returns></returns>
         string ToString(IClassHierarchy c);
 
         /// <summary>
-        /// erialize a ClassHierarchy into a byte array
+        /// Serialize a ClassHierarchy into a byte array
         /// </summary>
         /// <param name="c"></param>
         /// <returns></returns>
         byte[] ToByteArray(IClassHierarchy c);
 
         /// <summary>
-        /// Deserailize a ClassHierarchy from a file
+        /// Deserialize a ClassHierarchy from a file
         /// </summary>
         /// <param name="fileName"></param>
         /// <returns></returns>
         IClassHierarchy FromFile(string fileName);
 
         /// <summary>
-        /// Deserailize a ClassHierarchy from a text file
+        /// Deserialize a ClassHierarchy from a text file
         /// </summary>
         /// <param name="fileName"></param>
         /// <returns></returns>
         IClassHierarchy FromTextFile(string fileName);
 
         /// <summary>
-        /// Deserailize a ClassHierarchy from a byte array
+        /// Deserialize a ClassHierarchy from a byte array
         /// </summary>
         /// <param name="bytes"></param>
         /// <returns></returns>
         IClassHierarchy FromByteArray(byte[] bytes);
 
         /// <summary>
-        /// Deserailize a ClassHierarchy from a Jason string
+        /// Deserialize a ClassHierarchy from a Jason string
         /// </summary>
         /// <param name="jsonString"></param>
         /// <returns></returns>
