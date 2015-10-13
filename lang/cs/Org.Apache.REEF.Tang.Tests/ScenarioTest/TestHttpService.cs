@@ -31,12 +31,12 @@ namespace Org.Apache.REEF.Tang.Tests.ScenarioTest
     public class TestHttpService
     {
         [TestMethod]
-        public void HttpEventHanldersTest()
+        public void HttpEventHandlersTest()
         {
             ConfigurationModule module =
                 new ConfigurationModuleBuilder()
-                .BindSetEntry<HttpEventHanlders, HttpServerReefEventHandler, IHttpHandler>(GenericType<HttpEventHanlders>.Class, GenericType<HttpServerReefEventHandler>.Class)
-                .BindSetEntry<HttpEventHanlders, HttpServerNrtEventHandler, IHttpHandler>(GenericType<HttpEventHanlders>.Class, GenericType<HttpServerNrtEventHandler>.Class)
+                .BindSetEntry<HttpEventHandlers, HttpServerReefEventHandler, IHttpHandler>(GenericType<HttpEventHandlers>.Class, GenericType<HttpServerReefEventHandler>.Class)
+                .BindSetEntry<HttpEventHandlers, HttpServerNrtEventHandler, IHttpHandler>(GenericType<HttpEventHandlers>.Class, GenericType<HttpServerNrtEventHandler>.Class)
                 .Build();
 
            IConfiguration c = module.Build();

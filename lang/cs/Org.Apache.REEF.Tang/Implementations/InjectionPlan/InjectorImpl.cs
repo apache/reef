@@ -112,7 +112,7 @@ namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
                     //C# - InjectionFuture<object> ret = new InjectionFutureImpl<object>(this, classHierarchy.ClassForName(fut.GetNode().GetFullName()));
                     //We cannot simply create an object from generic with object as <T>
                     //typeof(InjectionFutureImpl<>).MakeGenericType(t) will get the InjectionFutureImpl generic Type with <T> as t 
-                    //for ClassNode, t is the Type of the class, for NamedParamterNode, t is the Type of the argument
+                    //for ClassNode, t is the Type of the class, for NamedParameterNode, t is the Type of the argument
                     //we then use reflection to invoke the constructor
                     //To retain generic argument information??                   
                     Type injectionFuture = typeof (InjectionFutureImpl<>).MakeGenericType(t);
@@ -843,7 +843,7 @@ namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
                 return p;
             }
             Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(new InjectionException("Fail to get injection plan" + n), LOGGER);
-            return null;//this line shouild be not reached as Throw throws exception
+            return null;//this line should be not reached as Throw throws exception
         }
 
         public bool IsInjectable(string name)

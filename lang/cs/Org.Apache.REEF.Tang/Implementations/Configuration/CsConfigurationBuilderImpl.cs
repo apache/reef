@@ -79,7 +79,7 @@ namespace Org.Apache.REEF.Tang.Implementations.Configuration
         {
             if (value == null)
             {
-                var ex = new IllegalStateException(string.Format(CultureInfo.CurrentCulture, "The value null set to the named parameter {0} is illegel.", name));
+                var ex = new IllegalStateException(string.Format(CultureInfo.CurrentCulture, "The value null set to the named parameter {0} is illegal.", name));
                 Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(ex, LOGGER);
             }
             INode np = GetNode(name);
@@ -154,7 +154,7 @@ namespace Org.Apache.REEF.Tang.Implementations.Configuration
         }
 
         /// <summary>
-        /// Binds an implementaion to a named parameter.
+        /// Binds an implementation to a named parameter.
         /// </summary>
         /// <typeparam name="U"></typeparam>
         /// <typeparam name="V"></typeparam>
@@ -200,7 +200,7 @@ namespace Org.Apache.REEF.Tang.Implementations.Configuration
 
         //public <T> void bindSetEntry(Class<? extends Name<Set<T>>> iface, Class<? extends T> impl) throws BindException;
         /// <summary>
-        /// Binds an implementaion of T to a named parameter of ISet of T.
+        /// Binds an implementation of T to a named parameter of ISet of T.
         /// </summary>
         /// <typeparam name="U"></typeparam>
         /// <typeparam name="V"></typeparam>
@@ -341,7 +341,7 @@ namespace Org.Apache.REEF.Tang.Implementations.Configuration
 
         //public <T> void bindSetEntry(Class<? extends Name<Set<T>>> iface, Class<? extends T> impl) throws BindException;
         /// <summary>
-        /// Binds an implementaion to a named parameter of ISset entry.
+        /// Binds an implementation to a named parameter of ISet entry.
         /// </summary>
         /// <param name="iface">The iface.</param>
         /// <param name="impl">The impl.</param>

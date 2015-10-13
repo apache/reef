@@ -43,6 +43,6 @@ namespace Org.Apache.REEF.Tang.Formats
 
         IConfiguration FromBase64String(string serializedConfig);
 
-        IConfiguration FromString(string josonString);
+        IConfiguration FromString(string jsonString);
     }
 }

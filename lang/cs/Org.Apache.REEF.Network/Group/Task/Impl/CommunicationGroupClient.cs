@@ -178,7 +178,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         }
 
         /// <summary>
-        /// Call each Operator to easure all the nodes in the topology group has been registered
+        /// Call each Operator to ensure all the nodes in the topology group has been registered
         /// </summary>
         void ICommunicationGroupClientInternal.WaitingForRegistration()
         {

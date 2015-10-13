@@ -146,7 +146,7 @@ namespace Org.Apache.REEF.Driver.Bridge
         {
             foreach (TraceListener listener in traceListeners)
             {
-                Logger.AddTraceListner(listener);
+                Logger.AddTraceListener(listener);
             }
             _logger = Logger.GetLogger(typeof(DriverBridge));
             _logger.Log(Level.Info, "Constructing DriverBridge");
@@ -243,7 +243,7 @@ namespace Org.Apache.REEF.Driver.Bridge
             foreach (var handler in _runningTaskHandlers)
             {
                 _runningTaskSubscriber.Subscribe(handler);
-                _logger.Log(Level.Verbose, "subscribed to IRunningask handler: " + handler);
+                _logger.Log(Level.Verbose, "subscribed to IRunningTask handler: " + handler);
             }
             handlers[Constants.Handlers[Constants.RunningTaskHandler]] = ClrHandlerHelper.CreateHandler(_runningTaskSubscriber);
 

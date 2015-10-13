@@ -120,7 +120,7 @@ namespace Org.Apache.REEF.Utilities.Diagnostics
         /// </example>
         /// <param name="exception">The exception being caught.</param>
         /// <param name="level">The log level.</param>
-        /// <param name="message">The additional messag to log.</param>
+        /// <param name="message">The additional message to log.</param>
         /// <param name="logger">The Logger from the caller class.</param>
         public static void Caught(Exception exception, Level level, string message, Logger logger)
         {
@@ -161,7 +161,7 @@ namespace Org.Apache.REEF.Utilities.Diagnostics
         /// </summary>
         /// <remarks>
         /// Catch statements which catch all exceptions must call this method immediately and rethrow
-        /// wihtout further processing if the method returns true.
+        /// without further processing if the method returns true.
         /// </remarks>
         /// <example>
         /// try
@@ -188,8 +188,8 @@ namespace Org.Apache.REEF.Utilities.Diagnostics
         /// <summary>
         /// Gets an exception message that includes the messages of the inner exceptions..
         /// </summary>
-        /// <param name="e">The excption.</param>
-        /// <returns>The meessage</returns>
+        /// <param name="e">The exception.</param>
+        /// <returns>The message</returns>
         public static string GetFullMessage(Exception e)
         {
             var fullMessage = new StringBuilder();

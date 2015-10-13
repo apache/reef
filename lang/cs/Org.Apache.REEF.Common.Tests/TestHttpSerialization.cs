@@ -39,14 +39,14 @@ namespace Org.Apache.REEF.Common.Tests
         [TestMethod]
         public void TestHttpRequestSerializationJasonRoundTrip()
         {
-            AvroHttpRequest r = CreatAvorHttpRequest();
+            AvroHttpRequest r = CreateAvroHttpRequest();
 
             string str = AvroHttpSerializer.ToJson(r);
             byte[] bytes = ByteUtilities.StringToByteArrays(str);
-            var r1 = AvroHttpSerializer.FromBytesWithJoson(bytes);
+            var r1 = AvroHttpSerializer.FromBytesWithJson(bytes);
 
-            var ri = ByteUtilities.ByteArrarysToString(r.InputStream);
-            var ri1 = ByteUtilities.ByteArrarysToString(r1.InputStream);
+            var ri = ByteUtilities.ByteArraysToString(r.InputStream);
+            var ri1 = ByteUtilities.ByteArraysToString(r1.InputStream);
             Assert.AreEqual(ri, ri1);
             Assert.AreEqual(r.QueryString, r1.QueryString);
         }
@@ -57,22 +57,22 @@ namespace Org.Apache.REEF.Common.Tests
         [TestMethod]
         public void TestHttpRequestSerializationBytesRoundTrip()
         {
-            AvroHttpRequest r = CreatAvorHttpRequest();
+            AvroHttpRequest r = CreateAvroHttpRequest();
 
             var b = AvroHttpSerializer.ToBytes(r);
             var r1 = AvroHttpSerializer.FromBytes(b);
 
-            var ri = ByteUtilities.ByteArrarysToString(r.InputStream);
-            var ri1 = ByteUtilities.ByteArrarysToString(r1.InputStream);
+            var ri = ByteUtilities.ByteArraysToString(r.InputStream);
+            var ri1 = ByteUtilities.ByteArraysToString(r1.InputStream);
             Assert.AreEqual(ri, ri1);
             Assert.AreEqual(r.QueryString, r1.QueryString);
         }
 
         /// <summary>
-        /// Creats an Avor HTTP request for unit tests.
+        /// Creates an Avro HTTP request for unit tests.
         /// </summary>
         /// <returns>AvroHttpRequest.</returns>
-        private AvroHttpRequest CreatAvorHttpRequest()
+        private AvroHttpRequest CreateAvroHttpRequest()
         {
             AvroHttpRequest r = new AvroHttpRequest();
             r.Header = new List<HeaderEntry>();

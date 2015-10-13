@@ -27,7 +27,7 @@ using Org.Apache.REEF.Tang.Util;
 namespace Org.Apache.REEF.IO.FileSystem.Hadoop
 {
     /// <summary>
-    /// This provider provides configuration for HardoopFileSystem
+    /// This provider provides configuration for HadoopFileSystem
     /// The client that is going to use HadoopFileSystem in its driver and evaluators should set 
     /// configuration data through HadoopFileSystemConfiguration module in he client's configuration
     /// </summary>

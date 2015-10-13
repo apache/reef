@@ -153,17 +153,17 @@ namespace Org.Apache.REEF.Driver
             new OptionalImpl<IObserver<IFailedEvaluator>>();
 
         /// <summary>
-        /// Additional set of string arguments that can be pssed to handlers through client
+        /// Additional set of string arguments that can be passed to handlers through client
         /// </summary>
         public static readonly OptionalParameter<string> CommandLineArguments = new OptionalParameter<string>();
 
         /// <summary>
-        /// The trace level of the TraceListner
+        /// The trace level of the TraceListener
         /// </summary>
         public static readonly OptionalParameter<string> CustomTraceLevel = new OptionalParameter<string>();
 
         /// <summary>
-        /// Additional set of trace listners provided by client
+        /// Additional set of trace listeners provided by client
         /// </summary>
         public static readonly OptionalParameter<TraceListener> CustomTraceListeners =
             new OptionalParameter<TraceListener>();

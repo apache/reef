@@ -70,7 +70,7 @@ namespace Org.Apache.REEF.Evaluator
                     DateTime.Now));
                 Stopwatch timer = new Stopwatch();
                 InitInjector();
-                SetCustomTraceListners();  // _logger is reset by this.
+                SetCustomTraceListeners();  // _logger is reset by this.
                 timer.Stop();
                 Console.WriteLine(string.Format(CultureInfo.InvariantCulture,
                     "EXIT: {0} Evaluator::InitInjector. Duration: [{1}].", DateTime.Now, timer.Elapsed));
@@ -96,7 +96,7 @@ namespace Org.Apache.REEF.Evaluator
                         Utilities.Diagnostics.Exceptions.Throw(e, _logger);
                     }
 
-                    // evaluator configuraiton file
+                    // evaluator configuration file
                     string evaluatorConfigurationPath = args[0];
 
                     // Parse the evaluator configuration.
@@ -213,7 +213,7 @@ namespace Org.Apache.REEF.Evaluator
                 _heartbeatMaxRetry = maxHeartbeatRetry;
             }
             _logger.Log(Level.Verbose,
-                "Evaluator heatrbeat max retry set to be " + _heartbeatMaxRetry + " times.");
+                "Evaluator heartbeat max retry set to be " + _heartbeatMaxRetry + " times.");
         }
 
 
@@ -265,10 +265,10 @@ namespace Org.Apache.REEF.Evaluator
         /// <returns></returns>
         private static RuntimeClock InstantiateClock()
         {
-            IConfiguration clockConfiguraiton = new ConfigurationModuleBuilder().Build().Build();
+            IConfiguration clockConfiguration = new ConfigurationModuleBuilder().Build().Build();
             try
             {
-                return TangFactory.GetTang().NewInjector(clockConfiguraiton).GetInstance<RuntimeClock>();
+                return TangFactory.GetTang().NewInjector(clockConfiguration).GetInstance<RuntimeClock>();
             }
             catch (Exception exception)
             {
@@ -276,7 +276,7 @@ namespace Org.Apache.REEF.Evaluator
             } 
         }
 
-        private static void SetCustomTraceListners()
+        private static void SetCustomTraceListeners()
         {
             ISet<TraceListener> customTraceListeners;
             try
@@ -286,12 +286,12 @@ namespace Org.Apache.REEF.Evaluator
             catch (Exception e)
             {
                 Utilities.Diagnostics.Exceptions.Caught(e, Level.Error, _logger);
-                // custom trace listner not set properly, use empty set
+                // custom trace listener not set properly, use empty set
                 customTraceListeners = new HashSet<TraceListener>();
             }
             foreach (TraceListener listener in customTraceListeners)
             {
-                Logger.AddTraceListner(listener);
+                Logger.AddTraceListener(listener);
             }
             _logger = Logger.GetLogger(typeof(Evaluator));
             CustomTraceLevel traceLevel = _injector.GetInstance<CustomTraceLevel>();

@@ -61,7 +61,7 @@ namespace Org.Apache.REEF.Evaluator.Tests
         public void TestEvaluatorConfigurationFile()
         {
             AvroConfigurationSerializer serializer = new AvroConfigurationSerializer();
-            var avroConfiguration = serializer.AvroDeseriaizeFromFile("evaluator.conf");
+            var avroConfiguration = serializer.AvroDeserializeFromFile("evaluator.conf");
 
             Assert.IsNotNull(avroConfiguration);
             Assert.AreEqual(avroConfiguration.language, AvroConfigurationSerializer.Java);

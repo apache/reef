@@ -115,7 +115,7 @@ namespace Org.Apache.REEF.Examples.Tasks.HelloTask
                 LOGGER.Log(Level.Verbose, "Receieved a message from driver, handling it with HelloDriverMessageHandler");
                 if (value.Message.IsPresent())
                 {
-                    message = ByteUtilities.ByteArrarysToString(value.Message.Value);
+                    message = ByteUtilities.ByteArraysToString(value.Message.Value);
                 }
                 _parentTask.HandleDriverMessage(message);
             }

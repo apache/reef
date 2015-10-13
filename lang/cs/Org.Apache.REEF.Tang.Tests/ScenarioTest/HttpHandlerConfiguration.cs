@@ -29,7 +29,7 @@ namespace Org.Apache.REEF.Tang.Tests.ScenarioTest
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2104:DoNotDeclareReadOnlyMutableReferenceTypes", Justification = "Not Applicable")]
         public static readonly ConfigurationModule CONF = new HttpHandlerConfiguration().Merge(HttpRuntimeConfiguration.CONF)
-        .BindSetEntry<HttpEventHanlders, IHttpHandler>(GenericType<HttpEventHanlders>.Class, HttpHandlerConfiguration.P)
+        .BindSetEntry<HttpEventHandlers, IHttpHandler>(GenericType<HttpEventHandlers>.Class, HttpHandlerConfiguration.P)
         .Build();
     }
 }

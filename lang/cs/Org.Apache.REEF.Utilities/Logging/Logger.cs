@@ -24,6 +24,7 @@ using System.Globalization;
 
 namespace Org.Apache.REEF.Utilities.Logging
 {
+    // TODO[REEF-842] Act on the obsoletes
     public class Logger
     {
         private static readonly string[] LogLevel = new string[]
@@ -107,7 +108,13 @@ namespace Org.Apache.REEF.Utilities.Logging
             _customLevel = customLevel;
         }
 
+        [Obsolete("Deprecated in 0.14, please use AddTraceListener instead.")]
         public static void AddTraceListner(TraceListener listener)
+        {
+            AddTraceListener(listener);
+        }
+
+        public static void AddTraceListener(TraceListener listener)
         {
             TraceListeners.Add(listener);
         }

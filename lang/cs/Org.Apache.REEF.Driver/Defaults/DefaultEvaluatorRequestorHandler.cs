@@ -39,7 +39,7 @@ namespace Org.Apache.REEF.Driver.Defaults
 
         public void OnNext(IEvaluatorRequestor value)
         {
-            LOGGER.Log(Level.Info, "Default evaluator requstor: requesting 1 evaluator with 512 MB");
+            LOGGER.Log(Level.Info, "Default evaluator requestor: requesting 1 evaluator with 512 MB");
             int evaluatorsNumber = 1;
             int memory = 512;
             string rack = "WonderlandRack";

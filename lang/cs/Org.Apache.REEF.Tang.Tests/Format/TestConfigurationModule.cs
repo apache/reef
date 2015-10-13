@@ -111,7 +111,7 @@ namespace Org.Apache.REEF.Tang.Tests.Format
            
             //this is to test the file generated from Java. name,value b=must be recognized by C# class hierarchy
             AvroConfigurationSerializer serializer = new AvroConfigurationSerializer();
-            var avroConfig = serializer.AvroDeseriaizeFromFile("Evaluator.conf");
+            var avroConfig = serializer.AvroDeserializeFromFile("Evaluator.conf");
             Assert.IsNotNull(avroConfig);
         }
 

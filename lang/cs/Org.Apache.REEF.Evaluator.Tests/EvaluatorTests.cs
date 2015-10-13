@@ -48,7 +48,7 @@ namespace Org.Apache.REEF.Evaluator.Tests
             Assert.IsNotNull(tmp);
 
             AvroConfigurationSerializer serializer = new AvroConfigurationSerializer();
-            AvroConfiguration avroConfiguration = serializer.AvroDeseriaizeFromFile("evaluator.conf");
+            AvroConfiguration avroConfiguration = serializer.AvroDeserializeFromFile("evaluator.conf");
             Assert.IsNotNull(avroConfiguration);
 
             ICsConfigurationBuilder cb = TangFactory.GetTang().NewConfigurationBuilder();
@@ -84,7 +84,7 @@ namespace Org.Apache.REEF.Evaluator.Tests
 
         [TestMethod, Priority(0), TestCategory("Unit")]
         [Description("Test driver information extracted from Http server")]
-        public void CanExtractDriverInformaiton()
+        public void CanExtractDriverInformation()
         {
             const string infoString = "{\"remoteId\":\"socket://10.121.136.231:14272\",\"startTime\":\"2014 08 28 10:50:32\",\"services\":[{\"serviceName\":\"NameServer\",\"serviceInfo\":\"10.121.136.231:16663\"}]}";
             AvroDriverInfo info = AvroJsonSerializer<AvroDriverInfo>.FromString(infoString);

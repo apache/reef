@@ -128,7 +128,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
 
         public void OnNext(IDriverStarted driverStarted)
         {
-            using (Logger.LogFunction("HelloSimpleEventHandlers::evalutorRequestor received"))
+            using (Logger.LogFunction("HelloSimpleEventHandlers::evaluatorRequestor received"))
             {
                 int evaluatorsNumber = _numberOfEvaluators;
                 int memory = 1024 * 3;
@@ -178,7 +178,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
                 Logger.Log(Level.Info, "Received CompletedTask: {0}, task id: {1}.", value.Id, _taskContext.CurrentTaskId());
                 
                 var messageStr = value.Message == null || value.Message.Length == 0 ?
-                    string.Empty : ByteUtilities.ByteArrarysToString(value.Message);
+                    string.Empty : ByteUtilities.ByteArraysToString(value.Message);
                 Logger.Log(Level.Verbose, "Message received from CompletedTask {0} is: [{1}]", value.Id, messageStr);
 
                 _taskContext.UpdateTaskStatus(value.Id, TaskStatus.Completed);

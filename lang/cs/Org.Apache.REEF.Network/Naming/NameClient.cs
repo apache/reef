@@ -184,7 +184,7 @@ namespace Org.Apache.REEF.Network.Naming
         /// Do not use cache
         /// </summary>
         /// <param name="ids">The list of identifiers to look up</param>
-        /// <returns>The list of NameAssignments representing a pair of identifer
+        /// <returns>The list of NameAssignments representing a pair of identifier
         /// and mapped IPEndpoint for that identifier.  If any of the requested identifiers
         /// are not registered with the NameService, their corresponding NameAssignment
         /// IPEndpoint value will be null.</returns>

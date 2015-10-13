@@ -40,7 +40,7 @@ namespace Org.Apache.REEF.Examples.AllHandlers
         /// <param name="completedTask"></param>
         public void OnNext(ICompletedTask completedTask)
         {
-            Console.WriteLine("Received CompletedTask: {0}, with message [{1}].", completedTask.Id, ByteUtilities.ByteArrarysToString(completedTask.Message));
+            Console.WriteLine("Received CompletedTask: {0}, with message [{1}].", completedTask.Id, ByteUtilities.ByteArraysToString(completedTask.Message));
         }
 
         public void OnError(Exception error)

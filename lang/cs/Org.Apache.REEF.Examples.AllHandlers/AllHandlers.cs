@@ -73,13 +73,13 @@ namespace Org.Apache.REEF.Examples.AllHandlers
                 .Set(DriverConfiguration.OnDriverRestartTaskRunning, GenericType<HelloDriverRestartRunningTaskHandler>.Class)
                 .Build();
 
-            var driverCondig = TangFactory.GetTang().NewConfigurationBuilder(helloDriverConfiguration)
+            var driverConfig = TangFactory.GetTang().NewConfigurationBuilder(helloDriverConfiguration)
                 .BindSetEntry<DriverBridgeConfigurationOptions.SetOfAssemblies, string>(typeof(HelloTask).Assembly.GetName().Name)
                 .BindSetEntry<DriverBridgeConfigurationOptions.SetOfAssemblies, string>(typeof(NameClient).Assembly.GetName().Name)
                 .Build();
 
             var helloJobSubmission = _jobSubmissionBuilderFactory.GetJobSubmissionBuilder()
-                .AddDriverConfiguration(driverCondig)
+                .AddDriverConfiguration(driverConfig)
                 .AddGlobalAssemblyForType(typeof(HelloDriverStartHandler))
                 .SetJobIdentifier("HelloDriver")
                 .Build();

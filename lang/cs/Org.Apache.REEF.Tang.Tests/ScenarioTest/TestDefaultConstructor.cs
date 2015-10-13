@@ -27,7 +27,7 @@ namespace Org.Apache.REEF.Tang.Tests.ScenarioTest
     public class TestDefaultConstructor
     {
         [TestMethod]
-        public void TestDefaultCOnstructorWithoutBinding()
+        public void TestDefaultConstructorWithoutBinding()
         {
             var r = (A)TangFactory.GetTang().NewInjector().GetInstance(typeof(A));
             System.Diagnostics.Debug.WriteLine(r.Instance);

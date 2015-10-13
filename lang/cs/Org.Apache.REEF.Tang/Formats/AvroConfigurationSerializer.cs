@@ -51,6 +51,7 @@ namespace Org.Apache.REEF.Tang.Formats
         }
     }
 
+    // TODO[REEF-842] Act on the obsoletes
     public class AvroConfigurationSerializer : IConfigurationSerializer
     {
         public const string Java = "Java";
@@ -108,26 +109,26 @@ namespace Org.Apache.REEF.Tang.Formats
 
         public IConfiguration FromByteArray(byte[] bytes)
         {
-            AvroConfiguration avroConf = AvroDeseriaize(bytes);
+            AvroConfiguration avroConf = AvroDeserialize(bytes);
             return FromAvro(avroConf);
         }
 
         public IConfiguration AddFromByteArray(ICsConfigurationBuilder cb, byte[] bytes)
         {
-            AvroConfiguration avroConf = AvroDeseriaize(bytes);
+            AvroConfiguration avroConf = AvroDeserialize(bytes);
             return AddFromAvro(cb, avroConf);
         }
 
         public IConfiguration FromFileStream(string fileName)
         {
             byte[] bytes = File.ReadAllBytes(fileName);
-            AvroConfiguration avroConf = AvroDeseriaize(bytes);
+            AvroConfiguration avroConf = AvroDeserialize(bytes);
             return FromAvro(avroConf);
         }
 
         public IConfiguration FromFile(string fileName)
         {
-            AvroConfiguration avroConf = AvroDeseriaizeFromFile(fileName);
+            AvroConfiguration avroConf = AvroDeserializeFromFile(fileName);
             return FromAvro(avroConf);
         }
 
@@ -145,18 +146,24 @@ namespace Org.Apache.REEF.Tang.Formats
         public string ToString(IConfiguration c)
         {
             byte[] bytes = ToByteArray(c);
-            AvroConfiguration avroConf = AvroDeseriaize(bytes);
+            AvroConfiguration avroConf = AvroDeserialize(bytes);
             string s = JsonConvert.SerializeObject(avroConf, Formatting.Indented);
             return s;
         }
 
-        public IConfiguration FromString(string josonString)
+        public IConfiguration FromString(string jsonString)
         {
-            AvroConfiguration avroConf = JsonConvert.DeserializeObject<AvroConfiguration>(josonString);
+            AvroConfiguration avroConf = JsonConvert.DeserializeObject<AvroConfiguration>(jsonString);
             return FromAvro(avroConf);
         }
 
+        [Obsolete("Deprecated in 0.14, please use AvroDeserializeFromFile instead.")]
         public AvroConfiguration AvroDeseriaizeFromFile(string fileName)
+        {
+            return AvroDeserializeFromFile(fileName);
+        }
+
+        public AvroConfiguration AvroDeserializeFromFile(string fileName)
         {
             AvroConfiguration avroConf = null;
             try
@@ -268,12 +275,12 @@ namespace Org.Apache.REEF.Tang.Formats
             }
         }
 
-        private AvroConfiguration AvroDeseriaize(string serializedConfig)
+        private AvroConfiguration AvroDeserialize(string serializedConfig)
         {
-            return AvroDeseriaize(Convert.FromBase64String(serializedConfig));
+            return AvroDeserialize(Convert.FromBase64String(serializedConfig));
         }
 
-        private AvroConfiguration AvroDeseriaize(byte[] serializedBytes)
+        private AvroConfiguration AvroDeserialize(byte[] serializedBytes)
         {
             var serializer = AvroSerializer.Create<AvroConfiguration>();
             using (var stream = new MemoryStream(serializedBytes))

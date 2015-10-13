@@ -29,7 +29,7 @@ namespace Org.Apache.REEF.Tang.Tests.SmokeTest
     {
         public static readonly string RequiredStringValue = "Required String Value";
 
-        public static readonly string OptionaStringValue = "Optional String Value";
+        public static readonly string OptionalStringValue = "Optional String Value";
 
         public static readonly RequiredParameter<string> REQUIREDSTRING = new RequiredParameter<string>();
 

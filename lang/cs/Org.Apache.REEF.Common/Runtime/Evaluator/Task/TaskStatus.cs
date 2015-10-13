@@ -274,7 +274,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
         {
             if (_result.IsPresent() && _lastException.IsPresent())
             {
-                LOGGER.Log(Level.Warning, "Both task result and exception are present, the expcetion will take over. Thrown away result:" + ByteUtilities.ByteArrarysToString(_result.Value));
+                LOGGER.Log(Level.Warning, "Both task result and exception are present, the expcetion will take over. Thrown away result:" + ByteUtilities.ByteArraysToString(_result.Value));
                 State = TaskState.Failed;
                 _result = Optional<byte[]>.Empty();
             }

@@ -71,16 +71,16 @@ namespace Org.Apache.REEF.Driver
 
             AvroConfigurationSerializer serializer = new AvroConfigurationSerializer();
 
-            IClassHierarchy drvierClassHierarchy = ProtocolBufferClassHierarchy.DeSerialize(DriverChFile);
+            IClassHierarchy driverClassHierarchy = ProtocolBufferClassHierarchy.DeSerialize(DriverChFile);
 
-            AvroConfiguration jobDriverAvroconfiguration = serializer.AvroDeseriaizeFromFile(JobDriverConfigFile);
-            IConfiguration jobDriverConfiguration = serializer.FromAvro(jobDriverAvroconfiguration, drvierClassHierarchy);
+            AvroConfiguration jobDriverAvroconfiguration = serializer.AvroDeserializeFromFile(JobDriverConfigFile);
+            IConfiguration jobDriverConfiguration = serializer.FromAvro(jobDriverAvroconfiguration, driverClassHierarchy);
 
-            AvroConfiguration httpAvroconfiguration = serializer.AvroDeseriaizeFromFile(HttpServerConfigFile);
-            IConfiguration httpConfiguration = serializer.FromAvro(httpAvroconfiguration, drvierClassHierarchy);
+            AvroConfiguration httpAvroconfiguration = serializer.AvroDeserializeFromFile(HttpServerConfigFile);
+            IConfiguration httpConfiguration = serializer.FromAvro(httpAvroconfiguration, driverClassHierarchy);
 
-            AvroConfiguration nameAvroconfiguration = serializer.AvroDeseriaizeFromFile(NameServerConfigFile);
-            IConfiguration nameConfiguration = serializer.FromAvro(nameAvroconfiguration, drvierClassHierarchy);
+            AvroConfiguration nameAvroconfiguration = serializer.AvroDeserializeFromFile(NameServerConfigFile);
+            IConfiguration nameConfiguration = serializer.FromAvro(nameAvroconfiguration, driverClassHierarchy);
 
             IConfiguration merged;
 

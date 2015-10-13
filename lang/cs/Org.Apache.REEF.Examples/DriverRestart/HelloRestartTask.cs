@@ -56,7 +56,7 @@ namespace Org.Apache.REEF.Examples.DriverRestart
 
         public void Handle(IDriverMessage message)
         {
-            Logger.Log(Level.Verbose, "Receieved a message from driver. We should exit now...");
+            Logger.Log(Level.Verbose, "Received a message from driver. We should exit now...");
             _exit = true;
         }
 

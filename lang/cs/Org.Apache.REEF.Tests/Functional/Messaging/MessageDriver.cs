@@ -42,7 +42,7 @@ namespace Org.Apache.REEF.Tests.Functional.Messaging
         IObserver<IRunningTask>, 
         IObserver<IDriverStarted>
     {
-        public const int NumerOfEvaluator = 1;
+        public const int NumberOfEvaluator = 1;
 
         public const string Message = "MESSAGE::DRIVER";
 
@@ -74,7 +74,7 @@ namespace Org.Apache.REEF.Tests.Functional.Messaging
 
         public void OnNext(ITaskMessage taskMessage)
         {
-            string msgReceived = ByteUtilities.ByteArrarysToString(taskMessage.Message);
+            string msgReceived = ByteUtilities.ByteArraysToString(taskMessage.Message);
 
             LOGGER.Log(Level.Info, string.Format(CultureInfo.InvariantCulture, "CLR TaskMessagingTaskMessageHandler received following message from Task: {0}, Message: {1}.", taskMessage.TaskId, msgReceived));
 
@@ -94,7 +94,7 @@ namespace Org.Apache.REEF.Tests.Functional.Messaging
         {
             var request =
                 _evaluatorRequestor.NewBuilder()
-                    .SetNumber(NumerOfEvaluator)
+                    .SetNumber(NumberOfEvaluator)
                     .SetMegabytes(512)
                     .SetCores(2)
                     .SetRackName("WonderlandRack")
