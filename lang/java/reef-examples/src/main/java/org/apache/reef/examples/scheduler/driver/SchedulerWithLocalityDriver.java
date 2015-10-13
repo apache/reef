@@ -251,17 +251,21 @@ public final class SchedulerWithLocalityDriver {
   }
 
   /**
-   * Request an evaluator for a given path. This requests a single evaluator.
+   * Request as many evaluators for each block location for the given path.
+   * TODO: Update to handle splits instead of blocks
+   * TODO: Add use of InputFormatLoadingService
+   * TODO: Add tests
+   * TODO: Remove other methods that do not deal with path
+   * TODO: Determine a better way to present the two examples together?
    */
   private synchronized void requestEvaluator(final String path) throws IOException {
     if (path == null) {
       throw new IllegalArgumentException("The path should not be null");
     }
 
-    FileSystem fs;
-
+    
     final JobConf jobConf = new JobConf();
-    fs = FileSystem.get(jobConf);
+    final FileSystem fs = FileSystem.get(jobConf);
     final RemoteIterator<LocatedFileStatus> listLocatedStatus = fs.listLocatedStatus(new Path(path));
     while (listLocatedStatus.hasNext()) {
       final LocatedFileStatus next = listLocatedStatus.next();
