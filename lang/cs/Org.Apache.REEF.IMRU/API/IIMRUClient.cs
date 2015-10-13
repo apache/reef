@@ -21,18 +21,16 @@ using System.Collections.Generic;
 
 namespace Org.Apache.REEF.IMRU.API
 {
-    /// <summary>
-    /// Job submission interface for IMRU jobs.
-    /// </summary>
-    /// <typeparam name="TMapInput">The type of the side information provided to the Map function</typeparam>
-    /// <typeparam name="TMapOutput">The return type of the Map function</typeparam>
-    /// <typeparam name="TResult">The return type of the computation.</typeparam>
-    public interface IIMRUClient<TMapInput, TMapOutput, out TResult>
-    {
+    public interface IIMRUClient
+    {        
         /// <summary>
         /// Submit the given job for execution.
         /// </summary>
-        /// <param name="jobDefinition"></param>
-        IEnumerable<TResult> Submit(IMRUJobDefinition jobDefinition);
+        /// <typeparam name="TMapInput">The type of the side information provided to the Map function</typeparam>
+        /// <typeparam name="TMapOutput">The return type of the Map function</typeparam>
+        /// <typeparam name="TResult">The return type of the computation.</typeparam>
+        /// <param name="jobDefinition">IMRU job definition</param>
+        /// <returns>Result of IMRU</returns>
+        IEnumerable<TResult> Submit<TMapInput, TMapOutput, TResult>(IMRUJobDefinition jobDefinition);
     }
 }

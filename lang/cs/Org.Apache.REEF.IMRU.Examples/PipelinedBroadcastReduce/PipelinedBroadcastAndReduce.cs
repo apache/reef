@@ -32,10 +32,10 @@ namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
     /// </summary>
     public sealed class PipelinedBroadcastAndReduce
     {
-        private readonly IIMRUClient<int[], int[], int[]> _imruClient;
+        private readonly IIMRUClient _imruClient;
 
         [Inject]
-        private PipelinedBroadcastAndReduce(IIMRUClient<int[], int[], int[]> imruClient)
+        private PipelinedBroadcastAndReduce(IIMRUClient imruClient)
         {
             _imruClient = imruClient;
         }
@@ -75,7 +75,7 @@ namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
                         chunkSize.ToString(CultureInfo.InvariantCulture))
                     .Build();
 
-            var results = _imruClient.Submit(
+            var results = _imruClient.Submit<int[], int[], int[]>(
                 new IMRUJobDefinitionBuilder()
                     .SetMapFunctionConfiguration(IMRUMapConfiguration<int[], int[]>.ConfigurationModule
                         .Set(IMRUMapConfiguration<int[], int[]>.MapFunction,

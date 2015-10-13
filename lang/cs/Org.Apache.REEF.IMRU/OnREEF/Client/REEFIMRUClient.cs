@@ -43,12 +43,9 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Client
     /// <summary>
     /// Implements the IMRU client API on REEF.
     /// </summary>
-    /// <typeparam name="TMapInput">The type of the side information provided to the Map function</typeparam>
-    /// <typeparam name="TMapOutput">The return type of the Map function</typeparam>
-    /// <typeparam name="TResult">The return type of the computation.</typeparam>
-    internal sealed class REEFIMRUClient<TMapInput, TMapOutput, TResult> : IIMRUClient<TMapInput, TMapOutput, TResult>
+    internal sealed class REEFIMRUClient : IIMRUClient
     {
-        private static readonly Logger Logger = Logger.GetLogger(typeof(IMRUDriver<TMapInput, TMapOutput, TResult>));
+        private static readonly Logger Logger = Logger.GetLogger(typeof (REEFIMRUClient));
 
         private readonly IREEFClient _reefClient;
         private readonly JobSubmissionBuilderFactory _jobSubmissionBuilderFactory;
@@ -66,13 +63,16 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Client
         /// <summary>
         /// Submits the job to reefClient
         /// </summary>
+        /// <typeparam name="TMapInput">The type of the side information provided to the Map function</typeparam>
+        /// <typeparam name="TMapOutput">The return type of the Map function</typeparam>
+        /// <typeparam name="TResult">The return type of the computation.</typeparam>
         /// <param name="jobDefinition">IMRU job definition given by the user</param>
         /// <returns>Null as results will be later written to some directory</returns>
-        IEnumerable<TResult> IIMRUClient<TMapInput, TMapOutput, TResult>.Submit(IMRUJobDefinition jobDefinition)
+        IEnumerable<TResult> IIMRUClient.Submit<TMapInput, TMapOutput, TResult>(IMRUJobDefinition jobDefinition)
         {
             string driverId = string.Format("IMRU-{0}-Driver", jobDefinition.JobName);
             IConfiguration overallPerMapConfig = null;
-            
+
             try
             {
                 overallPerMapConfig = Configurations.Merge(jobDefinition.PerMapConfigGeneratorConfig.ToArray());

@@ -31,10 +31,10 @@ namespace Org.Apache.REEF.IMRU.Examples.MapperCount
     /// </summary>
     public sealed class MapperCount
     {
-        private readonly IIMRUClient<int, int, int> _imruClient;
+        private readonly IIMRUClient _imruClient;
 
         [Inject]
-        private MapperCount(IIMRUClient<int, int, int> imruClient)
+        private MapperCount(IIMRUClient imruClient)
         {
             _imruClient = imruClient;
         }
@@ -45,7 +45,7 @@ namespace Org.Apache.REEF.IMRU.Examples.MapperCount
         /// <returns>The number of MapFunction instances that are part of the job.</returns>
         public int Run(int numberofMappers)
         {
-            var results = _imruClient.Submit(
+            var results = _imruClient.Submit<int, int, int>(
                 new IMRUJobDefinitionBuilder()
                     .SetMapFunctionConfiguration(IMRUMapConfiguration<int, int>.ConfigurationModule
                         .Set(IMRUMapConfiguration<int, int>.MapFunction, GenericType<IdentityMapFunction>.Class)

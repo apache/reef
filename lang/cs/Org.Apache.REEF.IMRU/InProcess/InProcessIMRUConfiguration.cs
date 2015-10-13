@@ -27,10 +27,7 @@ namespace Org.Apache.REEF.IMRU.InProcess
     /// <summary>
     /// Configuration module for the in-process IMRU.
     /// </summary>
-    /// <typeparam name="TMapInput">The type of the side information provided to the Map function</typeparam>
-    /// <typeparam name="TMapOutput">The return type of the Map function</typeparam>
-    /// <typeparam name="TResult">The return type of the computation.</typeparam>
-    public sealed class InProcessIMRUConfiguration<TMapInput, TMapOutput, TResult> : ConfigurationModuleBuilder
+    public sealed class InProcessIMRUConfiguration : ConfigurationModuleBuilder
     {
         /// <summary>
         /// The number of Mappers to instantiate.
@@ -41,9 +38,9 @@ namespace Org.Apache.REEF.IMRU.InProcess
         /// Configuration module
         /// </summary>
         public static ConfigurationModule ConfigurationModule =
-            new InProcessIMRUConfiguration<TMapInput, TMapOutput, TResult>()
-                .BindImplementation(GenericType<IIMRUClient<TMapInput, TMapOutput, TResult>>.Class,
-                    GenericType<InProcessIMRUClient<TMapInput, TMapOutput, TResult>>.Class)
+            new InProcessIMRUConfiguration()
+                .BindImplementation(GenericType<IIMRUClient>.Class,
+                    GenericType<InProcessIMRUClient>.Class)
                 .BindNamedParameter(GenericType<NumberOfMappers>.Class, NumberOfMappers)
                 .Build();
     }
