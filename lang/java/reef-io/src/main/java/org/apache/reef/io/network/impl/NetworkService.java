@@ -172,7 +172,7 @@ public final class NetworkService<T> implements Stage, ConnectionFactory<T> {
       return conn;
     }
 
-    final Connection<T> newConnection = new NSConnection<T>(
+    final Connection<T> newConnection = new NSConnection<>(
         this.myId, destId, new LoggingLinkListener<T>(), this);
 
     final Connection<T> existing = this.idToConnMap.putIfAbsent(destId, newConnection);
@@ -198,7 +198,7 @@ class MessageHandler<T> implements EventHandler<TransportEvent> {
   public MessageHandler(final EventHandler<Message<T>> handler,
                         final Codec<T> codec, final IdentifierFactory factory) {
     this.handler = handler;
-    this.codec = new NSMessageCodec<T>(codec, factory);
+    this.codec = new NSMessageCodec<>(codec, factory);
   }
 
   @Override

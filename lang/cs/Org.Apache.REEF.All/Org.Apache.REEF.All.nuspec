@@ -25,7 +25,7 @@ under the License.
     <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
     <projectUrl>http://reef.incubator.apache.org/</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>Provide single entry point that references all necesary REEF/WAKE/TAKE projects.</description>
+    <description>Provide single entry point that references all necessary REEF/WAKE/TANG projects.</description>
     <copyright>The Apache Software Foundation</copyright>
     <tags>Single entry point to reference all Reef/Wake/Tang projects </tags>
      <dependencies>
@@ -35,9 +35,15 @@ under the License.
       <dependency id="Org.Apache.REEF.Common" version="$version$" />
       <dependency id="Org.Apache.REEF.Driver" version="$version$" />
       <dependency id="Org.Apache.REEF.Network" version="$version$" />
+      <dependency id="Org.Apache.REEF.IO" version="$version$" />
       <dependency id="Org.Apache.REEF.Evaluator" version="$version$" />
       <dependency id="Org.Apache.REEF.Examples" version="$version$" />
       <dependency id="Org.Apache.REEF.Client" version="$version$" />
+      <dependency id="Org.Apache.REEF.IMRU" version="$version$" />
      </dependencies>
   </metadata>
+  <files>
+     <file src="..\bin\$Platform$\$Configuration$\Org.Apache.REEF.All\Org.Apache.REEF.All.dll" target="lib\net45" />
+     <file src="..\bin\$Platform$\$Configuration$\Org.Apache.REEF.All\Org.Apache.REEF.All.pdb" target="lib\net45" />
+  </files>
 </package>

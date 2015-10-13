@@ -94,7 +94,7 @@ public final class VortexMasterConf extends ConfigurationModuleBuilder {
   /**
    * Number of Vortex Start threads.
    */
-  public static final RequiredParameter<Integer> NUM_OF_VORTEX_START_THERAD = new RequiredParameter<>();
+  public static final RequiredParameter<Integer> NUM_OF_VORTEX_START_THREAD = new RequiredParameter<>();
 
   /**
    * Vortex Master configuration.
@@ -105,6 +105,6 @@ public final class VortexMasterConf extends ConfigurationModuleBuilder {
       .bindNamedParameter(WorkerCores.class, WORKER_CORES)
       .bindNamedParameter(WorkerCapacity.class, WORKER_CAPACITY)
       .bindImplementation(VortexStart.class, VORTEX_START)
-      .bindNamedParameter(NumberOfVortexStartThreads.class, NUM_OF_VORTEX_START_THERAD)
+      .bindNamedParameter(NumberOfVortexStartThreads.class, NUM_OF_VORTEX_START_THREAD)
       .build();
 }

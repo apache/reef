@@ -17,25 +17,17 @@
  * under the License.
  */
 
-using Org.Apache.REEF.Client.API;
-using Org.Apache.REEF.IMRU.API;
-using Org.Apache.REEF.Tang.Formats;
-using Org.Apache.REEF.Tang.Util;
+using System.Collections.Generic;
+using Org.Apache.REEF.Tang.Annotations;
 
-namespace Org.Apache.REEF.IMRU.OnREEF.Client
+namespace Org.Apache.REEF.IO.PartitionedData.FileSystem.Parameters
 {
     /// <summary>
-    /// A configuration module for specifying REEFIMRUClient
+    /// Each element in the set contains input files for one partition, separated by semicolon. 
+    /// The set contains file paths for all the partitions
     /// </summary>
-    public sealed class REEFIMRUClientConfiguration : ConfigurationModuleBuilder
+    [NamedParameter("All file paths")]
+    internal sealed class FilePathsForPartitions : Name<ISet<string>>
     {
-        /// <summary>
-        /// Configuration module
-        /// </summary>
-        public static ConfigurationModule ConfigurationModule =
-            new REEFIMRUClientConfiguration()
-                .BindImplementation(GenericType<IIMRUClient>.Class,
-                    GenericType<REEFIMRUClient>.Class)
-                .Build();
     }
 }

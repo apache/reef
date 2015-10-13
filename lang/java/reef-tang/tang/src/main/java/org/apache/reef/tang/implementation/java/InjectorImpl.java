@@ -183,7 +183,7 @@ public class InjectorImpl implements Injector {
           .addAll(Arrays.asList(thisCN.getInjectableConstructors()));
 
       for (final ConstructorDef<T> def : constructorList) {
-        final List<InjectionPlan<?>> args = new ArrayList<InjectionPlan<?>>();
+        final List<InjectionPlan<?>> args = new ArrayList<>();
         final ConstructorArg[] defArgs = def.getArgs();
 
         for (final ConstructorArg arg : defArgs) {
@@ -199,8 +199,7 @@ public class InjectorImpl implements Injector {
             }
           } else {
             try {
-              args.add(new InjectionFuturePlan<>(namespace.getNode(arg
-                  .getName())));
+              args.add(new InjectionFuturePlan<>(namespace.getNode(arg.getName())));
             } catch (final NameResolutionException e) {
               throw new IllegalStateException("Detected unresolvable "
                   + "constructor arg while building injection plan.  "
@@ -208,7 +207,7 @@ public class InjectorImpl implements Injector {
             }
           }
         }
-        final Constructor<T> constructor = new Constructor<T>(thisCN, def,
+        final Constructor<T> constructor = new Constructor<>(thisCN, def,
             args.toArray(new InjectionPlan[0]));
         constructors.add(constructor);
       }
@@ -227,10 +226,8 @@ public class InjectorImpl implements Injector {
       // by others.
       for (int i = 0; i < liveIndices.size(); i++) {
         for (int j = i + 1; j < liveIndices.size(); j++) {
-          final ConstructorDef<T> ci = constructors.get(liveIndices.get(i))
-              .getConstructorDef();
-          final ConstructorDef<T> cj = constructors.get(liveIndices.get(j))
-              .getConstructorDef();
+          final ConstructorDef<T> ci = constructors.get(liveIndices.get(i)).getConstructorDef();
+          final ConstructorDef<T> cj = constructors.get(liveIndices.get(j)).getConstructorDef();
 
           if (ci.isMoreSpecificThan(cj)) {
             liveIndices.remove(j);
@@ -631,7 +628,7 @@ public class InjectorImpl implements Injector {
         concurrentModificationGuard = true;
         T ret;
         try {
-          final ConstructorDef<T> def = (ConstructorDef<T>) constructor.getConstructorDef();
+          final ConstructorDef<T> def = constructor.getConstructorDef();
           final java.lang.reflect.Constructor<T> construct = getConstructor(def);
 
           if (aspect != null) {

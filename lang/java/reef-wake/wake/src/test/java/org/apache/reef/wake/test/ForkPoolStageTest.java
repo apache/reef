@@ -48,7 +48,7 @@ public class ForkPoolStageTest {
 
     final WakeSharedPool p = new WakeSharedPool(10);
 
-    final EStage<TestEventA> stage = new ForkPoolStage<TestEventA>(eventHandler, p);
+    final EStage<TestEventA> stage = new ForkPoolStage<>(eventHandler, p);
 
     for (int i = 0; i < 10; ++i) {
       final TestEventA a = new TestEventA();
@@ -78,8 +78,8 @@ public class ForkPoolStageTest {
 
     final WakeSharedPool p = new WakeSharedPool(10);
 
-    final EStage<TestEventA> stage1 = new ForkPoolStage<TestEventA>(eventHandler, p);
-    final EStage<TestEventA> stage2 = new ForkPoolStage<TestEventA>(eventHandler, p);
+    final EStage<TestEventA> stage1 = new ForkPoolStage<>(eventHandler, p);
+    final EStage<TestEventA> stage2 = new ForkPoolStage<>(eventHandler, p);
 
     for (int i = 0; i < 10; ++i) {
       final TestEventA a = new TestEventA();
@@ -112,14 +112,13 @@ public class ForkPoolStageTest {
     final Set<TestEvent> procSet = Collections.synchronizedSet(new HashSet<TestEvent>());
     final Set<TestEvent> orgSet = Collections.synchronizedSet(new HashSet<TestEvent>());
 
-    final Map<Class<? extends TestEvent>, EventHandler<? extends TestEvent>> map
-        = new HashMap<Class<? extends TestEvent>, EventHandler<? extends TestEvent>>();
+    final Map<Class<? extends TestEvent>, EventHandler<? extends TestEvent>> map = new HashMap<>();
     map.put(TestEventA.class, new TestEventHandlerA(procSet));
     map.put(TestEventB.class, new TestEventHandlerB(procSet));
-    final EventHandler<TestEvent> eventHandler = new MultiEventHandler<TestEvent>(map);
+    final EventHandler<TestEvent> eventHandler = new MultiEventHandler<>(map);
 
     final WakeSharedPool p = new WakeSharedPool(10);
-    final EStage<TestEvent> stage = new ForkPoolStage<TestEvent>(eventHandler, p);
+    final EStage<TestEvent> stage = new ForkPoolStage<>(eventHandler, p);
 
     for (int i = 0; i < 10; ++i) {
       final TestEventA a = new TestEventA();
@@ -146,7 +145,7 @@ public class ForkPoolStageTest {
     System.out.println(LOG_PREFIX + name.getMethodName());
     final WakeSharedPool p = new WakeSharedPool(10);
     final EventHandler<TestEvent> eventHandler = new TestEventHandler();
-    final ForkPoolStage<TestEvent> stage = new ForkPoolStage<TestEvent>(eventHandler, p);
+    final ForkPoolStage<TestEvent> stage = new ForkPoolStage<>(eventHandler, p);
 
     final TestEvent e = new TestEvent();
     for (int i = 0; i < 1000000; ++i) {
@@ -163,8 +162,8 @@ public class ForkPoolStageTest {
     System.out.println(LOG_PREFIX + name.getMethodName());
     final WakeSharedPool p = new WakeSharedPool(10);
     final EventHandler<TestEvent> eventHandler = new TestEventHandler();
-    final ForkPoolStage<TestEvent> stage2 = new ForkPoolStage<TestEvent>(eventHandler, p);
-    final ForkPoolStage<TestEvent> stage1 = new ForkPoolStage<TestEvent>(stage2, p);
+    final ForkPoolStage<TestEvent> stage2 = new ForkPoolStage<>(eventHandler, p);
+    final ForkPoolStage<TestEvent> stage1 = new ForkPoolStage<>(stage2, p);
 
     final TestEvent e = new TestEvent();
     for (int i = 0; i < 1000000; ++i) {

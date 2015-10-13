@@ -1,4 +1,4 @@
-﻿/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -16,18 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-using System.Collections.Generic;
-using Org.Apache.REEF.Tang.Annotations;
-
-namespace Org.Apache.REEF.IO.PartitionedData.FileSystem.Parameters
-{
-    /// <summary>
-    /// Each element in the set contains input files for one partition, seperated by semicolon. 
-    /// The set contains file paths for all the partitions
-    /// </summary>
-    [NamedParameter("All file paths")]
-    internal sealed class FilePathsForPatitions : Name<ISet<string>>
-    {
-    }
-}
+/**
+ * Tests for driver-side group communication classes.
+ */
+package org.apache.reef.io.network.group.impl.driver;

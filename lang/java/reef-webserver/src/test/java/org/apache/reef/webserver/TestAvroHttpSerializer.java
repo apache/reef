@@ -266,7 +266,7 @@ public final class TestAvroHttpSerializer {
   }
 
   private ArrayList<HeaderEntry> createHeader() {
-    final ArrayList<HeaderEntry> list = new ArrayList<HeaderEntry>();
+    final ArrayList<HeaderEntry> list = new ArrayList<>();
     final HeaderEntry e1 = HeaderEntry.newBuilder()
         .setKey("a")
         .setValue("xxx")
