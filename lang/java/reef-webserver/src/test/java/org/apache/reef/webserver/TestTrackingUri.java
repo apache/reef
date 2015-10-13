@@ -24,6 +24,7 @@ import org.apache.reef.tang.JavaConfigurationBuilder;
 import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.exceptions.BindException;
 import org.apache.reef.tang.exceptions.InjectionException;
+import org.apache.reef.wake.remote.ports.parameters.TcpPortRangeBegin;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -55,7 +56,7 @@ public class TestTrackingUri {
   @Test
   public void testHttpTrackingUri() throws InjectionException, UnknownHostException, BindException {
     final JavaConfigurationBuilder cb = Tang.Factory.getTang().newConfigurationBuilder()
-        .bindNamedParameter(PortNumber.class, "8888")
+        .bindNamedParameter(TcpPortRangeBegin.class, "8888")
         .bindImplementation(TrackingURLProvider.class, HttpTrackingURLProvider.class)
         .bindImplementation(HttpServer.class, HttpServerImpl.class);
 
