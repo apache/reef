@@ -33,20 +33,31 @@ import org.apache.reef.wake.EventHandler;
  */
 @RuntimeAuthor
 public final class RuntimeParameters {
-
+  /**
+   * The resource allocation handler that stub runtimes send along allocated resources e.g., containers.
+   */
   @NamedParameter(doc = "The resource allocation handler that stub runtimes send along allocated resources " +
       "e.g., containers.")
   public static final class ResourceAllocationHandler implements Name<EventHandler<ResourceAllocationEvent>> {
   }
 
+  /**
+   * The node descriptor handler that stub runtimes send along node information.
+   */
   @NamedParameter(doc = "The node descriptor handler that stub runtimes send along node information.")
   public static final class NodeDescriptorHandler implements Name<EventHandler<NodeDescriptorEvent>> {
   }
 
+  /**
+   * The resource status handler.
+   */
   @NamedParameter(doc = "The resource status handler.")
   public static final class ResourceStatusHandler implements Name<EventHandler<ResourceStatusEvent>> {
   }
 
+  /**
+   * The resourcemanager status handler.
+   */
   @NamedParameter(doc = "The resourcemanager status handler.")
   public static final class RuntimeStatusHandler implements Name<EventHandler<RuntimeStatusEvent>> {
   }

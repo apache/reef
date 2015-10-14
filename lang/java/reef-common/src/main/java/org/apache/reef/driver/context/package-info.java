@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * Driver Contexts and their configurations.
  */
 package org.apache.reef.driver.context;

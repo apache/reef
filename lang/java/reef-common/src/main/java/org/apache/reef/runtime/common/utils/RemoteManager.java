@@ -26,6 +26,9 @@ import javax.inject.Inject;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Wrapper for org.apache.reef.wake.remote.RemoteManager.
+ */
 public class RemoteManager {
 
   private static final Logger LOG = Logger.getLogger(RemoteManager.class.getName());
@@ -65,7 +68,7 @@ public class RemoteManager {
     return this.raw.registerHandler(messageType, theHandler);
   }
 
-  // TODO[REEF-547]: This method uses deprecated raw.registerErrorHandler.
+  // TODO[JIRA REEF-547]: This method uses deprecated raw.registerErrorHandler.
   public AutoCloseable registerErrorHandler(final EventHandler<Exception> theHandler) {
     return this.raw.registerErrorHandler(theHandler);
   }

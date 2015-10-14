@@ -23,6 +23,9 @@ import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.driver.context.ActiveContext;
 import org.apache.reef.driver.task.SuspendedTask;
 
+/**
+ * Implementation of SuspendedTask.
+ */
 @Private
 @DriverSide
 public final class SuspendedTaskImpl implements SuspendedTask {

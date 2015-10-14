@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * Exceptions thrown by Tasks and Task Handlers.
  */
 package org.apache.reef.runtime.common.evaluator.task.exceptions;

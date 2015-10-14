@@ -38,6 +38,9 @@ import java.util.Collection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Heartbeat manager.
+ */
 @Unit
 public final class HeartBeatManager {
 
@@ -84,12 +87,12 @@ public final class HeartBeatManager {
   }
 
   /**
-   * Called with a specific TaskStatus that must be delivered to the driver.
+   * Called with a specific ContextStatus that must be delivered to the driver.
    */
   public synchronized void sendContextStatus(
       final ReefServiceProtos.ContextStatusProto contextStatusProto) {
 
-    // TODO: Write a test that checks for the order.
+    // TODO[JIRA REEF-833]: Write a test that verifies correct order of heartbeats.
     final Collection<ReefServiceProtos.ContextStatusProto> contextStatusList = new ArrayList<>();
     contextStatusList.add(contextStatusProto);
     contextStatusList.addAll(this.contextManager.get().getContextStatusCollection());
@@ -114,7 +117,7 @@ public final class HeartBeatManager {
   }
 
   /**
-   * Sends the actual heartbeat out and logs it, so desired.
+   * Sends the actual heartbeat out and logs it, if so desired.
    *
    * @param heartbeatProto
    */

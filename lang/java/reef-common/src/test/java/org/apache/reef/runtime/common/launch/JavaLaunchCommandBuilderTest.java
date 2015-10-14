@@ -25,6 +25,9 @@ import java.util.List;
 import static org.apache.reef.runtime.common.launch.JavaLaunchCommandBuilder.JVMOption;
 import static org.junit.Assert.*;
 
+/**
+ * Test for JavaLaunchCommandBuilder.
+ */
 public final class JavaLaunchCommandBuilderTest {
 
   @Test

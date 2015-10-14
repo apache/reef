@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * REEF Common.
  */
 package org.apache.reef.common;

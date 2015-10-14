@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * Tasks.
  */
 package org.apache.reef.task;

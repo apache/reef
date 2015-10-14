@@ -51,11 +51,14 @@ public interface ResourceCatalog {
   /**
    * Get the node descriptor with the given identifier.
    *
-   * @param id of the node.
+   * @param nodeId id of the node.
    * @return the node descriptor assigned to the identifier.
    */
   NodeDescriptor getNode(String nodeId);
 
+  /**
+   * Resource descriptor interface.
+   */
   public interface Descriptor {
 
     String getName();

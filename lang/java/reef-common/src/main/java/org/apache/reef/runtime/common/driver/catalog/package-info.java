@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * Implementations of descriptors for resources available to a REEF instance (physical nodes, racks etc).
  */
 package org.apache.reef.runtime.common.driver.catalog;

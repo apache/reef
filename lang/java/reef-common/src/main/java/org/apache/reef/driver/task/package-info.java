@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * Tasks and their configurations.
  */
 package org.apache.reef.driver.task;

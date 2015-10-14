@@ -31,7 +31,7 @@ public interface ExceptionCodec {
    * Deserializes a Throwable that has been serialized using toBytes().
    *
    * @param bytes
-   * @return the Throable or Optional.empty() if the deserialization fails.
+   * @return the Throwable or Optional.empty() if the deserialization fails.
    */
   Optional<Throwable> fromBytes(final byte[] bytes);
 

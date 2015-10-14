@@ -23,6 +23,9 @@ import org.junit.Test;
 
 import java.util.List;
 
+/**
+ * Test for SingletonAsserter.
+ */
 public final class SingletonAsserterTest {
 
   @Test

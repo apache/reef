@@ -30,6 +30,9 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * A catalog of the resources available to a REEF instance.
+ */
 @Private
 public final class ResourceCatalogImpl implements ResourceCatalog {
 

@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * Task-related events.
  */
 package org.apache.reef.task.events;

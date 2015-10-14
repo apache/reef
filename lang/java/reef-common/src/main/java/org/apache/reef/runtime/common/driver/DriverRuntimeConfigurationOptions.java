@@ -27,6 +27,9 @@ import org.apache.reef.wake.EventHandler;
  * Houses the Driver resourcemanager configuration's NamedParameters.
  */
 public class DriverRuntimeConfigurationOptions {
+  /**
+   * Handler called when a job control message is received by the client.
+   */
   @NamedParameter(doc = "Called when a job control message is received by the client.")
   public static final class JobControlHandler implements Name<EventHandler<ClientRuntimeProtocol.JobControlProto>> {
   }

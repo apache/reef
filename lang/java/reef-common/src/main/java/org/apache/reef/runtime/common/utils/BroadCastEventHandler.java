@@ -24,6 +24,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+/**
+ * Handler for BroadCastEvent which sends event to all handlers in the list.
+ */
 public class BroadCastEventHandler<E> implements EventHandler<E> {
   private final List<EventHandler<E>> handlers;
 

@@ -21,8 +21,14 @@ package org.apache.reef.runtime.common.client.api;
 import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
 
+/**
+ * Parameters used by client runtime.
+ */
 public final class ClientRuntimeParameters {
 
+  /**
+   * The runtime error handler RID.
+   */
   @NamedParameter(doc = "The runtime error handler RID.")
   public static final class RuntimeErrorHandlerRID implements Name<String> {
   }

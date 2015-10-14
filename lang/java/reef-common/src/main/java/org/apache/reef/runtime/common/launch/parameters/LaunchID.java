@@ -21,6 +21,9 @@ package org.apache.reef.runtime.common.launch.parameters;
 import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
 
+/**
+ * The launch identifier.
+ */
 @NamedParameter(doc = "The launch identifier.", short_name = LaunchID.SHORT_NAME)
 public final class LaunchID implements Name<String> {
   public static final String SHORT_NAME = "launch_id";

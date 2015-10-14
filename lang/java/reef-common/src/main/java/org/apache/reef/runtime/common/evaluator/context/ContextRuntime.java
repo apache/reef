@@ -77,7 +77,7 @@ public final class ContextRuntime {
 
   private Thread taskRuntimeThread = null;
 
-  // TODO: Which lock guards this?
+  // TODO[JIRA REEF-835]: Which lock guards this?
   private ReefServiceProtos.ContextStatusProto.State contextState =
       ReefServiceProtos.ContextStatusProto.State.READY;
 

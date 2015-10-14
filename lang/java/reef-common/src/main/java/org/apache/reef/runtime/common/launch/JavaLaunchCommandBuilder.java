@@ -32,6 +32,9 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Build the launch command for Java REEF processes.
+ */
 public final class JavaLaunchCommandBuilder implements LaunchCommandBuilder {
   private static final Logger LOG = Logger.getLogger(JavaLaunchCommandBuilder.class.getName());
 
@@ -138,7 +141,7 @@ public final class JavaLaunchCommandBuilder implements LaunchCommandBuilder {
   /**
    * Set the path to the java executable. Will default to a heuristic search if not set.
    *
-   * @param path
+   * @param path Path to the java executable.
    * @return this
    */
   public JavaLaunchCommandBuilder setJavaPath(final String path) {
@@ -177,7 +180,7 @@ public final class JavaLaunchCommandBuilder implements LaunchCommandBuilder {
    * Enable or disable assertions on the child process.
    * If not set, the setting is taken from the JVM that executes the code.
    *
-   * @param assertionsEnabled
+   * @param assertionsEnabled If true, enable assertions.
    * @return this
    */
   @SuppressWarnings("checkstyle:hiddenfield")

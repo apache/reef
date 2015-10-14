@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * Runtime utilities used by various REEF modules.
  */
 package org.apache.reef.runtime.common.utils;
