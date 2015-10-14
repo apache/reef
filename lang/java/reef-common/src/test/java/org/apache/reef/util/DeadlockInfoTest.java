@@ -18,36 +18,46 @@
  */
 package org.apache.reef.util;
 
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.lang.management.ThreadInfo;
+
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 /**
  * Test DeadlockInfo by creating a deadlock.
  */
 public final class DeadlockInfoTest {
+
   private static final Logger LOG = Logger.getLogger(DeadlockInfoTest.class.getName());
 
-  private static final long TIMEOUT_MILLIS = 50;
+  private static final long TIMEOUT_MILLIS = 100;
+
+  private static final Lock LOCK_1 = new ReentrantLock();
+  private static final Lock LOCK_2 = new ReentrantLock();
+
+  private static Thread thread1;
+  private static Thread thread2;
 
   /**
    * Create a deadlock consisting of two threads.
-   * The threads wait on a barrier, and once the barrier is met they proceed to deadlock.
-   * setUpClass sleeps for TIMEOUT_MILLIS to allow the threads time to progress past the barrier into deadlock.
    *
-   * One thread holds an Object and Long lock, and is waiting on an Integer lock.
-   * The other thread holds the Integer lock and is waiting on the Long lock.
+   * setUpClass sleeps for TIMEOUT_MILLIS to allow the threads to progress into deadlock.
    */
   @BeforeClass
   public static void setUpClass() {
@@ -56,30 +66,80 @@ public final class DeadlockInfoTest {
   }
 
   /**
-   * Create a deadlock consisting of two threads,
-   * then test that DeadlockInfo returns the expected values given the deadlock.
+   * Remove  the deadlock by interrupting the first thread.
    *
-   * One thread holds an Object and Long lock, and is waiting on an Integer lock.
-   * The other thread holds the Integer lock and is waiting on the Long lock.
+   * This ensures that future DeadlockInfo test does not
+   * detect the unnecessary deadlock.
+   */
+  @AfterClass
+  public static void tearDownClass() {
+    thread1.interrupt();
+    threadSleep(TIMEOUT_MILLIS);
+  }
+
+  /**
+   * The first thread holds the LOCK_1, and waits interruptibly on the LOCK_2;
+   * the other one holds the LOCK_2 and waits on the LOCK_1.
+   *
+   * The barrier in between lock acquisition ensures that the deadlock occurs.
+   *
+   * Since there is no way to kill a thread, to resolve the deadlock we instead
+   * interrupt the first thread and simply allow it to finish. This releases LOCK_1.
+   *
+   * The second thread should then terminate normally.
+   */
+  private static void createDeadlock() {
+
+    final CyclicBarrier barrier = new CyclicBarrier(2);
+
+    thread1 = new Thread() {
+          @Override
+          public void run() {
+
+            try {
+              LOCK_1.lock();
+              barrierAwait(barrier);
+              LOCK_2.lockInterruptibly();
+            } catch (InterruptedException e) {
+              LOG.info(Thread.currentThread().getName() + " is interrupted."
+                      + " This interrupt is expected because it resolves the deadlock.");
+            }
+
+          }
+      };
+
+    thread2 = new Thread() {
+          @Override
+          public void run() {
+            LOCK_2.lock();
+            barrierAwait(barrier);
+            LOCK_1.lock();
+          }
+      };
+
+    thread1.start();
+    thread2.start();
+
+  }
+
+  /**
+   * Test that DeadlockInfo returns the expected values given the deadlock.
    */
   @Test
   public void testDeadlockInfo() {
+
     final DeadlockInfo deadlockInfo = new DeadlockInfo();
 
     final ThreadInfo[] threadInfos = deadlockInfo.getDeadlockedThreads();
-    assertEquals(2, threadInfos.length);
+    assertEquals("There must be two deadlocked threads", 2, threadInfos.length);
 
     for (final ThreadInfo threadInfo : deadlockInfo.getDeadlockedThreads()) {
       final String waitingLockString = deadlockInfo.getWaitingLockString(threadInfo);
-      assertNotNull("Each thread is expected to have a waiting lock", waitingLockString);
-      if (waitingLockString.contains("Integer")) {
-        assertNumberOfLocksHeld(2, deadlockInfo, threadInfo);
-      } else if (waitingLockString.contains("Long")) {
-        assertNumberOfLocksHeld(1, deadlockInfo, threadInfo);
-      } else {
-        fail("Unexpected waitingLockString of "+waitingLockString);
-      }
+      assertNotNull("Each thread should wait on a lock and"
+              + " hence have the non-null waitingLockString", waitingLockString);
+      assertTrue("Each Thread should wait on the ReentrantLock", waitingLockString.contains("ReentrantLock"));
     }
+
   }
 
   @Test
@@ -87,47 +147,9 @@ public final class DeadlockInfoTest {
     LOG.log(Level.INFO, ThreadLogger.getFormattedDeadlockInfo("Deadlock test, this deadlock is expected"));
   }
 
-  private static void assertNumberOfLocksHeld(
-      final int expected, final DeadlockInfo deadlockInfo, final ThreadInfo threadInfo) {
-    int sum = 0;
-    for (final StackTraceElement stackTraceElement : threadInfo.getStackTrace()) {
-      sum += deadlockInfo.getMonitorLockedElements(threadInfo, stackTraceElement).size();
-    }
-    assertEquals(expected, sum);
-  }
-
-  private static void createDeadlock() {
-    final CyclicBarrier barrier = new CyclicBarrier(2);
-
-    final Integer lock1 = new Integer(0);
-    final Long lock2 = new Long(0);
-
-    final Thread thread1 = new Thread() {
-      @Override
-      public void run() {
-        synchronized (lock1) {
-          barrierAwait(barrier);
-          lockLeaf(lock2);
-        }
-      }
-    };
-
-    final Thread thread2 = new Thread() {
-      @Override
-      public void run() {
-        synchronized (new Object()) {
-          synchronized (lock2) {
-            barrierAwait(barrier);
-            lockLeaf(lock1);
-          }
-        }
-      }
-    };
-
-    thread1.start();
-    thread2.start();
-  }
-
+  /**
+   * Once the barrier is met, the threads proceed to deadlock.
+   */
   private static void barrierAwait(final CyclicBarrier barrier) {
     try {
       barrier.await(TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
@@ -143,12 +165,6 @@ public final class DeadlockInfoTest {
     }
   }
 
-  private static void lockLeaf(final Object lock) {
-    synchronized (lock) {
-      fail("The unit test failed to create a deadlock");
-    }
-  }
-
   private static void threadSleep(final long millis) {
     try {
       Thread.sleep(millis);
@@ -156,4 +172,5 @@ public final class DeadlockInfoTest {
       e.printStackTrace();
     }
   }
+
 }
