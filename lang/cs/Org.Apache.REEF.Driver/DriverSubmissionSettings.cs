@@ -24,6 +24,7 @@ namespace Org.Apache.REEF.Driver
 {
     // TODO: merge with EvaluatorConfigurations class
     // TODO[REEF-842] Act on the obsoletes
+    [Obsolete("Deprecated in 0.14. Please use DriverConfigurationSettings instead.")]
     public class DriverSubmissionSettings
     {
         // default to "ReefDevClrBridge"
