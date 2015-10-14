@@ -80,7 +80,6 @@ public final class FileEventStream implements EventStream {
             .toString();
 
         printWriter.println(eventDescription);
-        printWriter.flush();
 
         if (type == EventType.RuntimeStop) {
           onRuntimeStop();
@@ -90,6 +89,7 @@ public final class FileEventStream implements EventStream {
   }
 
   private void onRuntimeStop() {
+    printWriter.flush();
     printWriter.close();
   }
 
