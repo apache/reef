@@ -41,7 +41,7 @@ public interface PreemptionEvent {
   /**
    * @return the Set of RunningEvaluators that the underlying resource manager is about to take away from the Driver.
    */
-  // TODO: We need to have a set of things to present to the user as preempted.
+  // TODO[JIRA REEF-836]: We need to have a set of things to present to the user as preempted.
   // Probably a Set<String> with the Evaluator IDs.
   // public Set<RunningEvaluator> getToBePreemptedEvaluators();
 

@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * Tests for implementation of the Driver-side REEF APIs.
  */
 package org.apache.reef.runtime.common.driver;

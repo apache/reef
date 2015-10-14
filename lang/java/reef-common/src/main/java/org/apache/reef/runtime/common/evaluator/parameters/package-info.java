@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * Parameters used by Evaluator.
  */
 package org.apache.reef.runtime.common.evaluator.parameters;

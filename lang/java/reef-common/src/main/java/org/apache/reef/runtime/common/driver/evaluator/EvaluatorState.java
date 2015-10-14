@@ -31,7 +31,7 @@ enum EvaluatorState {
   ALLOCATED,  // initial state
   SUBMITTED,  // client called AllocatedEvaluator.submitTask() and we're waiting for first contact
   RUNNING,    // first contact received, all communication channels established, Evaluator sent to client.
-  // TODO: Add CLOSING state
+  // TODO[JIRA REEF-832]: Add CLOSING state
   DONE,       // clean shutdown
   FAILED,     // some failure occurred.
   KILLED      // unclean shutdown

@@ -22,6 +22,9 @@ import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.driver.task.TaskMessage;
 
+/**
+ * Implementation of TaskMessage.
+ */
 @Private
 @DriverSide
 public final class TaskMessageImpl implements TaskMessage {

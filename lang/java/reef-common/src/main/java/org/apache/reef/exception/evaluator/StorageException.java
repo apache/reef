@@ -18,6 +18,9 @@
  */
 package org.apache.reef.exception.evaluator;
 
+/**
+ * Storage exception.
+ */
 public class StorageException extends ServiceException {
   private static final long serialVersionUID = 1L;
 

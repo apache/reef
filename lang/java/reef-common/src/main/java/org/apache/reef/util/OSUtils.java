@@ -23,6 +23,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * OS utils.
+ */
 public final class OSUtils {
   private static final Logger LOG = Logger.getLogger(OSUtils.class.getName());
 
@@ -74,7 +77,7 @@ public final class OSUtils {
   /**
    * Applies `kill -9` to the process.
    *
-   * @param pid
+   * @param pid Process id
    * @throws IOException
    */
   public static void kill(final long pid) throws IOException, InterruptedException {
@@ -90,7 +93,7 @@ public final class OSUtils {
   }
 
   /**
-   * Formats the given variable for expansion by Windows (<code>%VARIABE%</code>) or Linux (<code>$VARIABLE</code>).
+   * Formats the given variable for expansion by Windows (<code>%VARIABLE%</code>) or Linux (<code>$VARIABLE</code>).
    *
    * @param variableName
    * @return

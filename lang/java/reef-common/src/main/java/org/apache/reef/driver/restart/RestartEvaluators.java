@@ -73,6 +73,9 @@ public final class RestartEvaluators {
     return new Builder();
   }
 
+  /**
+   * Builder to build {@link RestartEvaluators}.
+   */
   public static final class Builder implements org.apache.reef.util.Builder<RestartEvaluators>{
     private final Map<String, EvaluatorRestartInfo> restartInfoMap = new HashMap<>();
 

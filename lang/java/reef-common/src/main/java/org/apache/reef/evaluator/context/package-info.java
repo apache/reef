@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * Evaluator Contexts.
  */
 package org.apache.reef.evaluator.context;

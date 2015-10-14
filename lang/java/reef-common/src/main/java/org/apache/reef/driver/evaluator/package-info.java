@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * Evaluator-related utilities.
  */
 package org.apache.reef.driver.evaluator;

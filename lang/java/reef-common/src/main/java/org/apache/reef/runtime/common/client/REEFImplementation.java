@@ -41,6 +41,9 @@ import javax.inject.Inject;
 import java.util.Set;
 import java.util.logging.Logger;
 
+/**
+ * Default REEF implementation.
+ */
 @ClientSide
 @Provided
 @Private
@@ -128,6 +131,9 @@ public final class REEFImplementation implements REEF {
     return configurationBuilder.build();
   }
 
+  /**
+   * The driver remote identifier.
+   */
   @NamedParameter(doc = "The driver remote identifier.")
   public static final class DriverRemoteIdentifier implements Name<String> {
   }

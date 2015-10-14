@@ -146,7 +146,7 @@ public final class ResourceManagerStatus implements EventHandler<RuntimeStatusEv
 
 
   private synchronized void setState(final ReefServiceProtos.State state) {
-    // TODO: Add state transition check
+    // TODO[JIRA REEF-826]: Add state transition check
     this.state = state;
   }
 

@@ -155,7 +155,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
    * Get the id of current job/application.
    */
   public static String getJobIdentifier() {
-    // TODO: currently we obtain the job id directly by parsing execution (container) directory path
+    // TODO[JIRA REEF-818]: currently we obtain the job id directly by parsing execution (container) directory path
     // #845 is open to get the id from RM properly
     for (File directory = new File(System.getProperty("user.dir"));
          directory != null; directory = directory.getParentFile()) {
@@ -576,10 +576,17 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
   }
 
   // Dynamic Parameters
+
+  /**
+   * The Evaluator Identifier.
+   */
   @NamedParameter(doc = "The Evaluator Identifier.")
   public static final class EvaluatorIdentifier implements Name<String> {
   }
 
+  /**
+   * The Evaluator Host.
+   */
   @NamedParameter(doc = "The Evaluator Host.")
   public static final class EvaluatorDescriptorName implements Name<EvaluatorDescriptorImpl> {
   }

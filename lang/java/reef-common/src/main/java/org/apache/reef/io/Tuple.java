@@ -20,7 +20,9 @@ package org.apache.reef.io;
 
 import org.apache.reef.annotations.Unstable;
 
-// TODO: Document
+/**
+ * A key-value pair of elements.
+ */
 @Unstable
 public final class Tuple<K, V> {
   private final K k;

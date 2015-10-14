@@ -21,6 +21,9 @@ package org.apache.reef.runtime.common.client.api;
 import org.apache.reef.annotations.audience.RuntimeAuthor;
 import org.apache.reef.wake.EventHandler;
 
+/**
+ * A Handler for JobSubmissionEvent.
+ */
 @RuntimeAuthor
 public interface JobSubmissionHandler extends EventHandler<JobSubmissionEvent>, AutoCloseable {
 

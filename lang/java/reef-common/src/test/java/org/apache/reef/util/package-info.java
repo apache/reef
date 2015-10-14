@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * Tests for utilities used by various REEF modules.
  */
 package org.apache.reef.util;

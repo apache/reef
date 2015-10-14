@@ -22,13 +22,10 @@ import org.apache.reef.runtime.common.driver.resourcemanager.NodeDescriptorEvent
 import org.junit.Assert;
 import org.junit.Test;
 
+/**
+ * Basic catalog test that adds some nodes and checks that they exist.
+ */
 public final class CatalogTest {
-
-
-  /**
-   * Basic catalog test that addes some nodes and checks
-   * that they exist.
-   */
   @Test
   public void testResourceCatalog() {
     final int nodes = 10;

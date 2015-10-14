@@ -23,7 +23,7 @@ import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Public;
 
 /**
- * Represents a Context that has been closed succesfully.
+ * Represents a Context that has been closed successfully.
  */
 @Public
 @DriverSide

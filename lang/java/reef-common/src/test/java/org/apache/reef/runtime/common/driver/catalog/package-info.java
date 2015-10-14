@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * Tests for driver resource catalog.
  */
 package org.apache.reef.runtime.common.driver.catalog;

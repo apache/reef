@@ -60,9 +60,6 @@ public final class REEFErrorHandler implements EventHandler<Throwable>, AutoClos
   @Override
   public void onNext(final Throwable e) {
     LOG.log(Level.SEVERE, "Uncaught exception.", e);
-    // TODO: This gets a new EventHandler each time an exception is caught. It would be better to cache the handler. But
-    // that introduces threading issues and isn't really worth it, as the JVM typically will be killed once we catch an
-    // Exception in here.
     if (!this.errorHandlerRID.equals(ErrorHandlerRID.NONE)) {
       final EventHandler<ReefServiceProtos.RuntimeErrorProto> runtimeErrorHandler = this.remoteManager.get()
           .getHandler(errorHandlerRID, ReefServiceProtos.RuntimeErrorProto.class);

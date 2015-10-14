@@ -20,9 +20,9 @@ package org.apache.reef.io;
 
 import org.apache.reef.annotations.Unstable;
 
-// FIXME:
-// This was another more type safe
-// alternative to integer partitions
+/**
+ * This was another more type safe alternative to integer partitions.
+ */
 @Unstable
 public class PartitionSpec {
   private final Type type;
@@ -41,6 +41,9 @@ public class PartitionSpec {
     return id;
   }
 
+  /**
+   * Partition type.
+   */
   public enum Type {
     SINGLE,
     ALL,

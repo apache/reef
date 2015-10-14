@@ -29,7 +29,7 @@ import org.apache.reef.tang.Configuration;
 /**
  * Represents an active context on an Evaluator.
  * <p/>
- * A context consists of twp configurations:
+ * A context consists of two configurations:
  * <ol>
  * <li>ContextConfiguration: Its visibility is limited to the context itself and tasks spawned from it.</li>
  * <li>ServiceConfiguration: This is "inherited" by child context spawned.</li>
@@ -64,7 +64,7 @@ public interface ActiveContext extends Identifiable, AutoCloseable, ContextBase,
    * Send the active context the message, which will be delivered to all registered
    * {@link org.apache.reef.evaluator.context.ContextMessageHandler}, for this context.
    *
-   * @param message
+   * @param message The message to be sent.
    */
   void sendMessage(final byte[] message);
 

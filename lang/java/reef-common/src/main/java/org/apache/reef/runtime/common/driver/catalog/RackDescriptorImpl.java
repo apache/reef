@@ -25,6 +25,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * A rack in the cluster.
+ */
 public final class RackDescriptorImpl implements RackDescriptor {
 
   private final String name;

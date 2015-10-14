@@ -69,7 +69,6 @@ public final class TaskRuntime implements Runnable {
 
   private final TaskStatus currentStatus;
 
-  // TODO: Document
   @Inject
   private TaskRuntime(
       final HeartBeatManager heartBeatManager,
@@ -86,7 +85,6 @@ public final class TaskRuntime implements Runnable {
         taskLifeCycleHandlers);
   }
 
-  // TODO: Document
   @Inject
   private TaskRuntime(
       final HeartBeatManager heartBeatManager,
