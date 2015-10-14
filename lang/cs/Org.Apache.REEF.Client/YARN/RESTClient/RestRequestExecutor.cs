@@ -50,7 +50,7 @@ namespace Org.Apache.REEF.Client.Yarn.RestClient
 
             if (response.ErrorException != null)
             {
-                throw new Exception("Executing REST API failed", response.ErrorException);
+                throw new YarnRestAPIException("Executing REST API failed", response.ErrorException);
             }
 
             try
