@@ -129,36 +129,6 @@ namespace Org.Apache.REEF.Client.Tests
         }
 
         [TestMethod]
-        public void UrlProviderReadsUpdatedConfigFile()
-        {
-            string tempFile = Path.GetTempFileName();
-            string tempDir = Path.GetDirectoryName(tempFile);
-            string yarnConfigFile = Path.Combine(tempDir, YarnConfigFileName);
-
-            using (new TempFileWriter(yarnConfigFile, YarnConfigurationXmlContent))
-            {
-                YarnConfigurationUrlProvider urlProvider = GetYarnConfigurationUrlProvider(
-                    anyHadoopConfigDir: tempDir);
-                var url = urlProvider.GetUrlAsync().GetAwaiter().GetResult();
-
-                Assert.AreEqual("http", url.Scheme);
-                Assert.AreEqual(AnyHttpAddressConfig.Split(':')[0], url.Host);
-                Assert.AreEqual(AnyHttpAddressConfig.Split(':')[1], url.Port.ToString(CultureInfo.InvariantCulture));
-
-                File.WriteAllText(yarnConfigFile, YarnConfigurationXmlContentChanged);
-
-                // Wait for file to be reloaded or timeout
-                Assert.IsTrue(urlProvider.TestHook_ConfigReloaded.Wait(TimeSpan.FromSeconds(10)), "Config reload failed");
-
-                url = urlProvider.GetUrlAsync().GetAwaiter().GetResult();
-                // assert updated changes loaded
-                Assert.AreEqual("http", url.Scheme);
-                Assert.AreEqual(AnyHttpAddressConfigUpdated.Split(':')[0], url.Host);
-                Assert.AreEqual(AnyHttpAddressConfigUpdated.Split(':')[1], url.Port.ToString(CultureInfo.InvariantCulture));
-            }
-        }
-
-        [TestMethod]
         public void CannotFindHadoopConfigDirThrowsArgumentException()
         {
             using (new TemporaryOverrideEnvironmentVariable(HadoopConfDirEnvVariable, string.Empty))
