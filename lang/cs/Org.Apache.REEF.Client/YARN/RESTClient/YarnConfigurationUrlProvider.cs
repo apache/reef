@@ -18,7 +18,6 @@
 using System;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using Org.Apache.REEF.Tang.Annotations;
@@ -68,22 +67,7 @@ namespace Org.Apache.REEF.Client.Yarn.RestClient
             Logger.Log(Level.Verbose, "Using {0} as hadoop configuration directory", hadoopConfigDir);
             string yarnConfigurationFile = Path.Combine(hadoopConfigDir, YarnConfigFileName);
             LoadYarnConfiguration(yarnConfigurationFile, useHttps);
-
-            var configFileWatcher = new FileSystemWatcher(hadoopConfigDir, YarnConfigFileName)
-            {
-                NotifyFilter = NotifyFilters.LastWrite,
-                EnableRaisingEvents = true
-            };
-
-            TestHook_ConfigReloaded = new ManualResetEventSlim(false);
-            configFileWatcher.Changed += (sender, args) =>
-            {
-                LoadYarnConfiguration(yarnConfigurationFile, useHttps);
-                TestHook_ConfigReloaded.Set();
-            };
         }
-
-        internal ManualResetEventSlim TestHook_ConfigReloaded { get; set; }
 
         public Task<Uri> GetUrlAsync()
         {
