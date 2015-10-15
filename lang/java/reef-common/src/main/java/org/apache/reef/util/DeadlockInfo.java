@@ -36,11 +36,18 @@ import java.util.Map;
 final class DeadlockInfo {
   private final ThreadMXBean mxBean;
   private final ThreadInfo[] deadlockedThreads;
+  private final long[]  deadlockedThreadsIDs;
+  private static final ThreadInfo[] EMPTY_ARRAY = new ThreadInfo[0];
   private final Map<ThreadInfo, Map<StackTraceElement, List<MonitorInfo>>> monitorLockedElements;
 
   public DeadlockInfo() {
     mxBean = ManagementFactory.getThreadMXBean();
-    deadlockedThreads = mxBean.getThreadInfo(mxBean.findDeadlockedThreads(), true, true);
+    deadlockedThreadsIDs = mxBean.findDeadlockedThreads();
+
+    deadlockedThreads = (null == deadlockedThreadsIDs)
+                        ? EMPTY_ARRAY
+                        : mxBean.getThreadInfo(deadlockedThreadsIDs, true, true);
+
     monitorLockedElements = new HashMap<>();
     for (final ThreadInfo threadInfo : deadlockedThreads) {
       monitorLockedElements.put(threadInfo, constructMonitorLockedElements(threadInfo));
@@ -48,7 +55,7 @@ final class DeadlockInfo {
   }
 
   /**
-   * @return An array of deadlocked threads
+   * @return A (potentially empty) array of deadlocked threads
    */
   public ThreadInfo[] getDeadlockedThreads() {
     return deadlockedThreads;

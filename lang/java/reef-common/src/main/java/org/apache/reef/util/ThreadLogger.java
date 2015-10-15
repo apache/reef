@@ -98,7 +98,15 @@ public final class ThreadLogger {
     final StringBuilder message = new StringBuilder(prefix);
 
     final DeadlockInfo deadlockInfo = new DeadlockInfo();
-    for (final ThreadInfo threadInfo : deadlockInfo.getDeadlockedThreads()) {
+
+    final ThreadInfo[] deadlockedThreads = deadlockInfo.getDeadlockedThreads();
+
+    if (0 == deadlockedThreads.length) {
+      message.append(" none ");
+      return message.toString();
+    }
+
+    for (final ThreadInfo threadInfo : deadlockedThreads) {
       message.append(threadPrefix).append("Thread '").append(threadInfo.getThreadName())
           .append("' with state ").append(threadInfo.getThreadState());
 
