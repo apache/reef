@@ -46,7 +46,7 @@ public class RemoteIdentifierFactoryTest {
   public void testRemoteIdentifierFactory() {
     System.out.println(LOG_PREFIX + name.getMethodName());
 
-    final Map<String, Class<? extends Identifier>> typeToIdMap = new HashMap<String, Class<? extends Identifier>>();
+    final Map<String, Class<? extends Identifier>> typeToIdMap = new HashMap<>();
     typeToIdMap.put("test", TestRemoteIdentifier.class);
     final IdentifierFactory factory = new DefaultIdentifierFactory(typeToIdMap);
 
@@ -63,7 +63,7 @@ public class RemoteIdentifierFactoryTest {
         .getInstance(RemoteManagerFactory.class);
 
     final int port = 9100;
-    final Map<Class<?>, Codec<?>> clazzToCodecMap = new HashMap<Class<?>, Codec<?>>();
+    final Map<Class<?>, Codec<?>> clazzToCodecMap = new HashMap<>();
     clazzToCodecMap.put(TestEvent.class, new TestEventCodec());
     final Codec<?> codec = new MultiCodec<Object>(clazzToCodecMap);
 

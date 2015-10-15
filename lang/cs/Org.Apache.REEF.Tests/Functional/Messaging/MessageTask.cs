@@ -72,7 +72,7 @@ namespace Org.Apache.REEF.Tests.Functional.Messaging
 
         private void DriverMessage(string message)
         {
-            LOGGER.Log(Level.Info, "Receieved DriverMessage in TaskMsg: " + message);
+            LOGGER.Log(Level.Info, "Received DriverMessage in TaskMsg: " + message);
             if (!message.Equals(MessageDriver.Message))
             {
                 Exceptions.Throw(new Exception("Unexpected driver message: " + message), "Unexpected driver message received: " + message, LOGGER);
@@ -92,10 +92,10 @@ namespace Org.Apache.REEF.Tests.Functional.Messaging
             public void Handle(IDriverMessage value)
             {
                 string message = string.Empty;
-                LOGGER.Log(Level.Verbose, "Receieved a message from driver, handling it with MessagingDriverMessageHandler");
+                LOGGER.Log(Level.Verbose, "Received a message from driver, handling it with MessagingDriverMessageHandler");
                 if (value.Message.IsPresent())
                 {
-                    message = ByteUtilities.ByteArrarysToString(value.Message.Value);
+                    message = ByteUtilities.ByteArraysToString(value.Message.Value);
                 }
                 _parentTask.DriverMessage(message);
             }

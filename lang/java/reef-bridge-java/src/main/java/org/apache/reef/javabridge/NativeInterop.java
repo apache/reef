@@ -22,6 +22,10 @@ import org.apache.reef.javabridge.generic.DriverRestartCompletedBridge;
 
 import java.util.HashMap;
 
+/**
+ * Java interfaces of CLR/Java bridge.
+ * Implementations of the methods can be found at lang/cs/Org.Apache.REEF.Bridge/JavaClrBridge.cpp.
+ */
 public final class NativeInterop {
   public static final String CLASS_HIERARCHY_FILENAME = "clrClassHierarchy.bin";
   public static final String GLOBAL_LIBRARIES_FILENAME = "userSuppliedGlobalLibraries.txt";
@@ -89,7 +93,7 @@ public final class NativeInterop {
 
   public static native void clrSystemTaskMessageHandlerOnNext(
       final long handle,
-      final byte[] mesage,
+      final byte[] message,
       final TaskMessageBridge javaTaskMessageBridge,
       final InteropLogger interopLogger
   );
@@ -149,7 +153,7 @@ public final class NativeInterop {
       final ContextMessageBridge contextMessageBridge
   );
 
-  public static native long[] callClrSystemOnRestartHandlerOnNext(
+  public static native long[] callClrSystemOnRestartHandler(
       final String httpServerPortNumber,
       final EvaluatorRequestorBridge javaEvaluatorRequestorBridge,
       final DriverRestartedBridge driverRestartedBridge

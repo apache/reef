@@ -18,12 +18,15 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using Org.Apache.REEF.IO.FileSystem.Local;
+using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.IO.FileSystem
 {
     /// <summary>
     /// A file system abstraction.
     /// </summary>
+    [DefaultImplementation(typeof(LocalFileSystem), "default")]
     public interface IFileSystem
     {
         /// <summary>
@@ -101,5 +104,11 @@ namespace Org.Apache.REEF.IO.FileSystem
         /// <returns></returns>
         /// <exception cref="IOException"></exception>
         IEnumerable<Uri> GetChildren(Uri directoryUri);
+
+        /// <summary>
+        /// Returns Url prefix 
+        /// </summary>
+        /// <returns></returns>
+        string UriPrefix { get; }
     }
 }

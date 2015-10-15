@@ -29,10 +29,10 @@ namespace Org.Apache.REEF.Driver
         // default to _defaultSubmissionDirectory if not provided
         private string _submissionDirectory = "reefTmp/job_" + DateTime.Now.Millisecond;
 
-        // deault to 512MB if no value is provided
+        // default to 512MB if no value is provided
         private int _driverMemory = 512;
 
-        // folder path that constains clr dlls used by reef
+        // folder path that contains clr dlls used by reef
         private string _clrFolder = ".";
 
         // folder that contains jar File provided Byte REEF
@@ -58,7 +58,7 @@ namespace Org.Apache.REEF.Driver
             {
                 if (value < 0)
                 {
-                    throw new ArgumentException("driver memory cannot be negatvie value.");
+                    throw new ArgumentException("driver memory cannot be negative value.");
                 }
                 _driverMemory = value;
             }
@@ -99,7 +99,7 @@ namespace Org.Apache.REEF.Driver
 
         /// <summary>
         /// Driver job submission directory in (H)DFS where jar file shall be uploaded, default to a tmp directory with GUID name
-        /// If set by CLR user, the user must guarantee the uniquness of the directory across multiple jobs
+        /// If set by CLR user, the user must guarantee the uniqueness of the directory across multiple jobs
         /// </summary>
         public string SubmissionDirectory
         {

@@ -22,6 +22,7 @@ using System.Collections.Generic;
 
 namespace Org.Apache.REEF.Driver
 {
+    // TODO[REEF-842] Act on the obsoletes
     public class Constants
     {
         /// <summary>
@@ -32,10 +33,16 @@ namespace Org.Apache.REEF.Driver
         /// <summary>
         /// The class hierarchy file from .NET.
         /// </summary>
+        [Obsolete("Deprecated in 0.14, please use ClassHierarchyBin instead.")]
         public const string ClassHierarachyBin = "clrClassHierarchy.bin";
 
         /// <summary>
-        /// The file containing user supplied libaries.
+        /// The class hierarchy file from .NET.
+        /// </summary>
+        public const string ClassHierarchyBin = "clrClassHierarchy.bin";
+
+        /// <summary>
+        /// The file containing user supplied libraries.
         /// </summary>
         public const string GlobalUserSuppliedJavaLibraries = "userSuppliedGlobalLibraries.txt";
 
@@ -150,7 +157,7 @@ namespace Org.Apache.REEF.Driver
         /// <summary>
         /// The bridge JAR name.
         /// </summary>
-        public const string JavaBridgeJarFileName = "reef-bridge-java-0.13.0-incubating-SNAPSHOT-shaded.jar";
+        public const string JavaBridgeJarFileName = "reef-bridge-java-0.14.0-incubating-SNAPSHOT-shaded.jar";
 
         public const string BridgeLaunchClass = "org.apache.reef.javabridge.generic.Launch";
 

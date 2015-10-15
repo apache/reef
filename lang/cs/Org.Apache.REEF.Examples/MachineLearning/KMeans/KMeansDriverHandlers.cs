@@ -122,8 +122,6 @@ namespace Org.Apache.REEF.Examples.MachineLearning.KMeans
                    .Build();
 
             _groupCommTaskStarter = new TaskStarter(_groupCommDriver, _totalEvaluators);
-
-            CreateClassHierarchy();  
         }
 
         public void OnNext(IAllocatedEvaluator allocatedEvaluator)
@@ -203,18 +201,6 @@ namespace Org.Apache.REEF.Examples.MachineLearning.KMeans
         public void OnCompleted()
         {
             throw new NotImplementedException();
-        }
-
-        private void CreateClassHierarchy()
-        {
-            HashSet<string> clrDlls = new HashSet<string>();
-            clrDlls.Add(typeof(IDriver).Assembly.GetName().Name);
-            clrDlls.Add(typeof(ITask).Assembly.GetName().Name);
-            clrDlls.Add(typeof(LegacyKMeansTask).Assembly.GetName().Name);
-            clrDlls.Add(typeof(INameClient).Assembly.GetName().Name);
-            clrDlls.Add(typeof(INetworkService<>).Assembly.GetName().Name);
-
-            ClrHandlerHelper.GenerateClassHierarchy(clrDlls);
         }
     }
 

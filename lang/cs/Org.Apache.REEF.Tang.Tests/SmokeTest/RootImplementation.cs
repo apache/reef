@@ -70,7 +70,7 @@ namespace Org.Apache.REEF.Tang.Tests.SmokeTest
                 return false;
             }
 
-            if (!this.optionalString.Equals(TestConfigurationModuleBuilder.OptionaStringValue))
+            if (!this.optionalString.Equals(TestConfigurationModuleBuilder.OptionalStringValue))
             {
                 return false;
             }

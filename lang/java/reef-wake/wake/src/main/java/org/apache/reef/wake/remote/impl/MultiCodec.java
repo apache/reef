@@ -24,6 +24,7 @@ import org.apache.reef.wake.remote.Encoder;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * Codec using the WakeTuple protocol buffer.
@@ -42,16 +43,14 @@ public class MultiCodec<T> implements Codec<T> {
    * @param clazzToDecoderMap
    */
   public MultiCodec(final Map<Class<? extends T>, Codec<? extends T>> clazzToCodecMap) {
-    final Map<Class<? extends T>, Encoder<? extends T>> clazzToEncoderMap =
-        new HashMap<Class<? extends T>, Encoder<? extends T>>();
-    final Map<Class<? extends T>, Decoder<? extends T>> clazzToDecoderMap =
-        new HashMap<Class<? extends T>, Decoder<? extends T>>();
-    for (final Class<? extends T> clazz : clazzToCodecMap.keySet()) {
-      clazzToEncoderMap.put(clazz, clazzToCodecMap.get(clazz));
-      clazzToDecoderMap.put(clazz, clazzToCodecMap.get(clazz));
+    final Map<Class<? extends T>, Encoder<? extends T>> clazzToEncoderMap = new HashMap<>();
+    final Map<Class<? extends T>, Decoder<? extends T>> clazzToDecoderMap = new HashMap<>();
+    for (final Entry<Class<? extends T>, Codec<? extends T>> e : clazzToCodecMap.entrySet()) {
+      clazzToEncoderMap.put(e.getKey(), e.getValue());
+      clazzToDecoderMap.put(e.getKey(), e.getValue());
     }
-    encoder = new MultiEncoder<T>(clazzToEncoderMap);
-    decoder = new MultiDecoder<T>(clazzToDecoderMap);
+    encoder = new MultiEncoder<>(clazzToEncoderMap);
+    decoder = new MultiDecoder<>(clazzToDecoderMap);
   }
 
   /**

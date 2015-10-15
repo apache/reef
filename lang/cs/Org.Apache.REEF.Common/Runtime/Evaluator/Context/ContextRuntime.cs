@@ -425,6 +425,23 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                 return contextStatusProto;
             }
         }
+
+        /// <summary>
+        /// Propagates the IDriverConnection message to the TaskRuntime.
+        /// </summary>
+        internal void HandleDriverConnectionMessage(IDriverConnectionMessage message)
+        {
+            lock (_contextLifeCycle)
+            {
+                if (!_task.IsPresent())
+                {
+                    LOGGER.Log(Level.Warning, "Received a IDriverConnectionMessage while there was no task running. Ignored");
+                    return;
+                }
+
+                _task.Value.HandleDriverConnectionMessage(message);
+            }
+        }
     }
 }
         ///// <summary>

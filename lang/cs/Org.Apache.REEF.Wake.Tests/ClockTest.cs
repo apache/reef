@@ -86,7 +86,7 @@ namespace Org.Apache.REEF.Wake.Tests
         }
 
         [TestMethod]
-        public void TestSimulatenousAlarms()
+        public void TestSimultaneousAlarms()
         {
             using (RuntimeClock clock = BuildClock())
             {

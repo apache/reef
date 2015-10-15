@@ -22,7 +22,7 @@ using System.Globalization;
 using System.IO;
 using Org.Apache.REEF.Client.API;
 using Org.Apache.REEF.Client.Local;
-using Org.Apache.REEF.Client.YARN;
+using Org.Apache.REEF.Client.Yarn;
 using Org.Apache.REEF.Driver;
 using Org.Apache.REEF.Driver.Bridge;
 using Org.Apache.REEF.Network.Examples.GroupCommunication;
@@ -94,18 +94,18 @@ namespace Org.Apache.REEF.Network.Examples.Client
             TestRun(merged, typeof(BroadcastReduceDriver), numTasks, "BroadcastReduceDriver", runPlatform);
         }
 
-        internal static void TestRun(IConfiguration driverCondig, Type globalAssemblyType, int numberOfEvaluator, string jobIdentifier = "myDriver", string runOnYarn = "local", string runtimeFolder = DefaultRuntimeFolder)
+        internal static void TestRun(IConfiguration driverConfig, Type globalAssemblyType, int numberOfEvaluator, string jobIdentifier = "myDriver", string runOnYarn = "local", string runtimeFolder = DefaultRuntimeFolder)
         {
             IInjector injector = TangFactory.GetTang().NewInjector(GetRuntimeConfiguration(runOnYarn, numberOfEvaluator, runtimeFolder));
             var reefClient = injector.GetInstance<IREEFClient>();
             var jobSubmissionBuilderFactory = injector.GetInstance<JobSubmissionBuilderFactory>();
             var jobSubmission = jobSubmissionBuilderFactory.GetJobSubmissionBuilder()
-                .AddDriverConfiguration(driverCondig)
+                .AddDriverConfiguration(driverConfig)
                 .AddGlobalAssemblyForType(globalAssemblyType)
                 .SetJobIdentifier(jobIdentifier)
                 .Build();
 
-            reefClient.Submit(jobSubmission);
+            reefClient.SubmitAndGetDriverUrl(jobSubmission);
         }
 
         internal static IConfiguration GetRuntimeConfiguration(string runOnYarn, int numberOfEvaluator, string runtimeFolder)

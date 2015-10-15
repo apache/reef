@@ -36,8 +36,8 @@ public class RemoteEventCodec<T> implements Codec<RemoteEvent<T>> {
    * @param codec the codec for the event
    */
   public RemoteEventCodec(final Codec<T> codec) {
-    encoder = new RemoteEventEncoder<T>(codec);
-    decoder = new RemoteEventDecoder<T>(codec);
+    encoder = new RemoteEventEncoder<>(codec);
+    decoder = new RemoteEventDecoder<>(codec);
   }
 
   /**

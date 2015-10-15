@@ -46,7 +46,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
 
         public override string ToString()
         {
-            return "DriverMessage [value=" + ByteUtilities.ByteArrarysToString(_value.Value) + "]";
+            return "DriverMessage [value=" + ByteUtilities.ByteArraysToString(_value.Value) + "]";
         }
     }
 }

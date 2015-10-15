@@ -17,6 +17,7 @@
  * under the License.
  */
 
+using System;
 using Org.Apache.REEF.Tang.Implementations.Configuration;
 using Org.Apache.REEF.Tang.Interface;
 
@@ -25,6 +26,7 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
     /// <summary>
     /// The specification used to define Scatter Group Communication Operators.
     /// </summary>
+    /// TODO[REEF-842] Act on the obsoletes
     public class ScatterOperatorSpec : IOperatorSpec
     {
         /// <summary>
@@ -35,7 +37,7 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
         public ScatterOperatorSpec(string senderId, params IConfiguration[] configurations)
         {
             SenderId = senderId;
-            Configiration = Configurations.Merge(configurations);
+            Configuration = Configurations.Merge(configurations);
         }
 
         /// <summary>
@@ -47,6 +49,16 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
         /// <summary>
         /// Returns the Configuration for Codec, ReduceFunction and DataConverter
         /// </summary>
-        public IConfiguration Configiration { get; private set; }
+        [Obsolete("Deprecated in 0.14, please use Configuration instead.")]
+        public IConfiguration Configiration
+        {
+            get { return Configuration; }
+            private set { Configuration = value; }
+        }
+
+        /// <summary>
+        /// Returns the Configuration for Codec, ReduceFunction and DataConverter
+        /// </summary>
+        public IConfiguration Configuration { get; private set; }
     }
 }

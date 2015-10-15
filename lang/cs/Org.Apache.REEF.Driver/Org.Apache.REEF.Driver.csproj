@@ -44,6 +44,7 @@ under the License.
     <Compile Include="Bridge\Clr2java\IAllocatedEvaluaotrClr2Java.cs" />
     <Compile Include="Bridge\Clr2java\IClosedContextClr2Java.cs" />
     <Compile Include="Bridge\Clr2java\IClr2Java.cs" />
+    <Compile Include="Bridge\Clr2java\IClr2JavaTaskMessage.cs" />
     <Compile Include="Bridge\Clr2java\ICompletedEvaluatorClr2Java.cs" />
     <Compile Include="Bridge\Clr2java\ICompletedTaskClr2Java.cs" />
     <Compile Include="Bridge\Clr2java\IContextMessageClr2Java.cs" />
@@ -91,7 +92,6 @@ under the License.
     <Compile Include="Bridge\ILogger.cs" />
     <Compile Include="Bridge\ReefHttpRequest.cs" />
     <Compile Include="Bridge\ReefHttpResponse.cs" />
-    <Compile Include="ClassHierarchyGeneratingDriverStartObserver.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="Context\ContextConfiguration.cs" />
     <Compile Include="Context\ContextConfigurationOptions.cs" />

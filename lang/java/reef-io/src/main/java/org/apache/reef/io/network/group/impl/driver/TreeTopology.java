@@ -104,6 +104,14 @@ public class TreeTopology implements Topology {
   }
 
   @Override
+  public boolean isRootPresent() {
+    LOG.entering("TreeTopology", "isRootPresent", getQualifiedName());
+    final boolean retVal = root != null;
+    LOG.exiting("TreeTopology", "isRootPresent", String.format("%s%s", getQualifiedName(), retVal));
+    return retVal;
+  }
+
+  @Override
   public void setOperatorSpecification(final OperatorSpec spec) {
     LOG.entering("TreeTopology", "setOperSpec", new Object[]{getQualifiedName(), spec});
     this.operatorSpec = spec;
@@ -198,7 +206,6 @@ public class TreeTopology implements Topology {
     } else {
       addChild(taskId);
     }
-    prev = nodes.get(taskId);
     LOG.exiting("TreeTopology", "addTask", getQualifiedName() + taskId);
   }
 
@@ -208,6 +215,7 @@ public class TreeTopology implements Topology {
     final TaskNode node = new TaskNodeImpl(senderStage, groupName, operName, taskId, driverId, false);
     if (logicalRoot != null) {
       addTaskNode(node);
+      prev = node;
     }
     nodes.put(taskId, node);
     LOG.exiting("TreeTopology", "addChild", getQualifiedName() + taskId);
@@ -252,6 +260,7 @@ public class TreeTopology implements Topology {
   private void unsetRootNode(final String taskId) {
     LOG.entering("TreeTopology", "unsetRootNode", new Object[]{getQualifiedName(), taskId});
     nodes.remove(rootId);
+    root = null;
 
     for (final Map.Entry<String, TaskNode> nodeEntry : nodes.entrySet()) {
       final String id = nodeEntry.getKey();

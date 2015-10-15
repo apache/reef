@@ -38,7 +38,7 @@ namespace Org.Apache.REEF.Examples.MachineLearning.KMeans
         /// <returns>the serialized string</returns>
         public override string ToString()
         {
-            return ByteUtilities.ByteArrarysToString(new CentroidsCodec().Encode(this));
+            return ByteUtilities.ByteArraysToString(new CentroidsCodec().Encode(this));
         }
     }
 }

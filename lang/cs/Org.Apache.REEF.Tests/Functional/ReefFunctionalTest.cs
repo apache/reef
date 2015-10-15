@@ -29,7 +29,7 @@ using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
 using Org.Apache.REEF.Client.API;
 using Org.Apache.REEF.Client.Local;
-using Org.Apache.REEF.Client.YARN;
+using Org.Apache.REEF.Client.Yarn;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Utilities;
@@ -51,6 +51,7 @@ namespace Org.Apache.REEF.Tests.Functional
 
         private const string Local = "local";
         private const string YARN = "yarn";
+        private const int SleepTime = 1000;
 
         private readonly static Logger Logger = Logger.GetLogger(typeof(ReefFunctionalTest));
         private const string StorageAccountKeyEnvironmentVariable = "REEFTestStorageAccountKey";
@@ -72,7 +73,7 @@ namespace Org.Apache.REEF.Tests.Functional
             set { _testSuccess = value; }
         }
 
-        protected bool IsOnLocalRuntiime
+        protected bool IsOnLocalRuntime
         {
             get { return _onLocalRuntime; }
             set { _onLocalRuntime = value; }
@@ -139,14 +140,35 @@ namespace Org.Apache.REEF.Tests.Functional
             const string successIndication = "EXIT: ActiveContextClr2Java::Close";
             const string failedTaskIndication = "Java_com_microsoft_reef_javabridge_NativeInterop_clrSystemFailedTaskHandlerOnNext";
             const string failedEvaluatorIndication = "Java_com_microsoft_reef_javabridge_NativeInterop_clrSystemFailedEvaluatorHandlerOnNext";
-            string[] lines = File.ReadAllLines(GetLogFile(_stdout, testFolder));
-            Console.WriteLine("Lines read from log file : " + lines.Count());
-            string[] successIndicators = lines.Where(s => s.Contains(successIndication)).ToArray();
-            string[] failedTaskIndicators = lines.Where(s => s.Contains(failedTaskIndication)).ToArray();
-            string[] failedIndicators = lines.Where(s => s.Contains(failedEvaluatorIndication)).ToArray();
-            Assert.IsTrue(successIndicators.Count() == numberOfEvaluatorsToClose);
-            Assert.IsFalse(failedTaskIndicators.Any());
-            Assert.IsFalse(failedIndicators.Any());
+            string[] lines = null;
+            for (int i = 0; i < 60; i++)
+            {
+                try
+                {
+                    lines = File.ReadAllLines(GetLogFile(_stdout, testFolder));
+                    break;
+                }
+                catch (Exception)
+                {
+                    Thread.Sleep(SleepTime);
+                }
+            }
+
+            if (lines != null)
+            {
+                Console.WriteLine("Lines read from log file : " + lines.Count());
+                string[] successIndicators = lines.Where(s => s.Contains(successIndication)).ToArray();
+                string[] failedTaskIndicators = lines.Where(s => s.Contains(failedTaskIndication)).ToArray();
+                string[] failedIndicators = lines.Where(s => s.Contains(failedEvaluatorIndication)).ToArray();
+                Assert.IsTrue(successIndicators.Count() == numberOfEvaluatorsToClose);
+                Assert.IsFalse(failedTaskIndicators.Any());
+                Assert.IsFalse(failedIndicators.Any());
+            }
+            else
+            {
+                Console.WriteLine("Cannot read from log file");
+                Assert.Fail();
+            }
         }
 
         protected void PeriodicUploadLog(object source, ElapsedEventArgs e)
@@ -168,12 +190,12 @@ namespace Org.Apache.REEF.Tests.Functional
 
             if (string.IsNullOrWhiteSpace(driverContainerDirectory))
             {
-                throw new InvalidOperationException("Cannot find driver container directory");
+                throw new InvalidOperationException("Cannot find driver container directory: " + driverContainerDirectory);
             }
             string logFile = Path.Combine(driverContainerDirectory, logFileName);
             if (!File.Exists(logFile))
             {
-                throw new InvalidOperationException("Driver stdout file not found");
+                throw new InvalidOperationException("Driver stdout file not found: " + logFile);
             }
             return logFile;
         }
@@ -205,11 +227,11 @@ namespace Org.Apache.REEF.Tests.Functional
         /// <exception cref="Exception">If the environment variables aren't set.</exception>
         private static string GetStorageConnectionString()
         {
-            var accountName = GetEnvironmentVariabe(StorageAccountNameEnvironmentVariable,
+            var accountName = GetEnvironmentVariable(StorageAccountNameEnvironmentVariable,
                 "Please set " + StorageAccountNameEnvironmentVariable +
                 " to the storage account name to be used for the tests");
 
-            var accountKey = GetEnvironmentVariabe(StorageAccountKeyEnvironmentVariable,
+            var accountKey = GetEnvironmentVariable(StorageAccountKeyEnvironmentVariable,
                 "Please set " + StorageAccountKeyEnvironmentVariable +
                 " to the key of the storage account to be used for the tests");
 
@@ -227,7 +249,7 @@ namespace Org.Apache.REEF.Tests.Functional
         /// If the environment variables is not set. The message is taken from
         /// errorMessageIfNotAvailable
         /// </exception>
-        private static string GetEnvironmentVariabe(string variableName, string errorMessageIfNotAvailable)
+        private static string GetEnvironmentVariable(string variableName, string errorMessageIfNotAvailable)
         {
             var result = Environment.GetEnvironmentVariable(variableName);
             if (string.IsNullOrWhiteSpace(result))
@@ -237,18 +259,18 @@ namespace Org.Apache.REEF.Tests.Functional
             return result;
         }
 
-        protected void TestRun(IConfiguration driverCondig, Type globalAssemblyType, int numberOfEvaluator, string jobIdentifier = "myDriver", string runOnYarn = "local", string runtimeFolder = DefaultRuntimeFolder)
+        protected void TestRun(IConfiguration driverConfig, Type globalAssemblyType, int numberOfEvaluator, string jobIdentifier = "myDriver", string runOnYarn = "local", string runtimeFolder = DefaultRuntimeFolder)
         {
             IInjector injector = TangFactory.GetTang().NewInjector(GetRuntimeConfiguration(runOnYarn, numberOfEvaluator, runtimeFolder));
             var reefClient = injector.GetInstance<IREEFClient>();
             var jobSubmissionBuilderFactory = injector.GetInstance<JobSubmissionBuilderFactory>();
             var jobSubmission = jobSubmissionBuilderFactory.GetJobSubmissionBuilder()
-                .AddDriverConfiguration(driverCondig)
+                .AddDriverConfiguration(driverConfig)
                 .AddGlobalAssemblyForType(globalAssemblyType)
                 .SetJobIdentifier(jobIdentifier)
                 .Build();
 
-            reefClient.Submit(jobSubmission);
+            reefClient.SubmitAndGetDriverUrl(jobSubmission);
         }
 
         private IConfiguration GetRuntimeConfiguration(string runOnYarn, int numberOfEvaluator, string runtimeFolder)

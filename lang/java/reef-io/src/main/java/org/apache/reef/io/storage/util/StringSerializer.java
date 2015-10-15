@@ -26,6 +26,7 @@ import org.apache.reef.io.serialization.Serializer;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 
 public class StringSerializer implements
     Serializer<String, OutputStream> {
@@ -40,7 +41,7 @@ public class StringSerializer implements
 
           @Override
           public void add(final String datum) throws ServiceException {
-            final byte[] b = datum.getBytes();
+            final byte[] b = datum.getBytes(StandardCharsets.UTF_8);
             try {
               dos.writeInt(b.length);
               dos.write(b);

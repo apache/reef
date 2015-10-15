@@ -36,7 +36,7 @@ public class TangImpl implements Tang {
    * it to rebuild them over time.
    */
   public static void reset() {
-    defaultClassHierarchy = new HashMap<>(); //new ClassHierarchyImpl();
+    defaultClassHierarchy = new HashMap<>();
   }
 
   @Override
@@ -51,7 +51,7 @@ public class TangImpl implements Tang {
       return newConfigurationBuilder(new URL[0], new Configuration[0], new Class[0]);
     } catch (final BindException e) {
       throw new IllegalStateException(
-          "Caught unexpeceted bind exception!  Implementation bug.", e);
+          "Caught unexpected bind exception! Implementation bug.", e);
     }
   }
 
@@ -67,7 +67,7 @@ public class TangImpl implements Tang {
       return newConfigurationBuilder(jars, new Configuration[0], new Class[0]);
     } catch (final BindException e) {
       throw new IllegalStateException(
-          "Caught unexpeceted bind exception!  Implementation bug.", e);
+          "Caught unexpected bind exception! Implementation bug.", e);
     }
   }
 
@@ -88,11 +88,7 @@ public class TangImpl implements Tang {
   public JavaConfigurationBuilder newConfigurationBuilder(final URL[] jars, final Configuration[] confs,
           final Class<? extends ExternalConstructor<?>>[] parameterParsers)
       throws BindException {
-    final JavaConfigurationBuilder cb = new JavaConfigurationBuilderImpl(jars, confs, parameterParsers);
-//    for (Configuration c : confs) {
-//      cb.addConfiguration(c);
-//    }
-    return cb;
+    return new JavaConfigurationBuilderImpl(jars, confs, parameterParsers);
   }
 
   @SuppressWarnings("unchecked")
@@ -136,7 +132,7 @@ public class TangImpl implements Tang {
     private final Set<Object> key;
 
     public SetValuedKey(final Object[] ts, final Object[] us) {
-      key = new HashSet<Object>(Arrays.asList(ts));
+      key = new HashSet<>(Arrays.asList(ts));
       key.addAll(Arrays.asList(us));
     }
 
@@ -151,6 +147,12 @@ public class TangImpl implements Tang {
 
     @Override
     public boolean equals(final Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
       final SetValuedKey other = (SetValuedKey) o;
       if (other.key.size() != this.key.size()) {
         return false;

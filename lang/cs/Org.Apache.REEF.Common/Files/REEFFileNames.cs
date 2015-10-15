@@ -19,6 +19,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using Org.Apache.REEF.Common.Attributes;
 using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.Common.Files
@@ -48,8 +49,11 @@ namespace Org.Apache.REEF.Common.Files
         private const string DRIVER_CONFIGURATION_NAME = "driver.conf";
         private const string EVALUATOR_CONFIGURATION_NAME = "evaluator.conf";
         private const string CLR_DRIVER_CONFIGURATION_NAME = "clrdriver.conf";
+        private const string DRIVER_HTTP_ENDPOINT_FILE_NAME = "DriverHttpEndpoint.txt";
         private const string BRIDGE_EXE_NAME = "Org.Apache.REEF.Bridge.exe";
         private const string BRIDGE_EXE_CONFIG_NAME = "Org.Apache.REEF.Bridge.exe.config";
+        private const string SECURITY_TOKEN_IDENTIFIER_FILE = "SecurityTokenId";
+        private const string SECURITY_TOKEN_PASSWORD_FILE = "SecurityTokenPwd";
 
         [Inject]
         public REEFFileNames()
@@ -228,6 +232,32 @@ namespace Org.Apache.REEF.Common.Files
         {
             return Path.Combine(REEF_BASE_FOLDER, BRIDGE_EXE_CONFIG_NAME);
         }
+
+        /// <summary>
+        /// The filename for security token identifier
+        /// </summary>
+        /// <returns>filename which contains raw bytes of security token identifier</returns>
+        [Unstable("0.13", "Security token should be handled by .NET only REEF client in the future")]
+        public string GetSecurityTokenIdentifierFileName()
+        {
+            return SECURITY_TOKEN_IDENTIFIER_FILE;
+        }
+
+        /// <summary>
+        /// The filename for security token password
+        /// </summary>
+        /// <returns>filename which contains raw bytes of security token password</returns>
+        [Unstable("0.13", "Security token should be handled by .NET only REEF client in the future")]
+        public string GetSecurityTokenPasswordFileName()
+        {
+            return SECURITY_TOKEN_PASSWORD_FILE;
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <returns>File name that contains the dfs path for the DriverHttpEndpoint</returns>
+        [Unstable("0.13", "Working in progress for what to return after submit")]
+        public string DriverHttpEndpoint { get { return DRIVER_HTTP_ENDPOINT_FILE_NAME; } }
 
         private static readonly string GLOBAL_FOLDER_PATH = Path.Combine(REEF_BASE_FOLDER, GLOBAL_FOLDER);
         private static readonly string LOCAL_FOLDER_PATH = Path.Combine(REEF_BASE_FOLDER, LOCAL_FOLDER);

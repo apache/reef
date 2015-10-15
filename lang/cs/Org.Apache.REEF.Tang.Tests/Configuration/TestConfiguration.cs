@@ -67,10 +67,10 @@ namespace Org.Apache.REEF.Tang.Tests.Configuration
             ProtocolBufferClassHierarchy.Serialize("TaskTimer.bin", conf1.GetClassHierarchy());
             IClassHierarchy ns = ProtocolBufferClassHierarchy.DeSerialize("TaskTimer.bin");
 
-            AvroConfiguration taskAvroconfiguration = serializer.AvroDeseriaizeFromFile("task.config");
+            AvroConfiguration taskAvroconfiguration = serializer.AvroDeserializeFromFile("task.config");
             IConfiguration taskConfiguration = serializer.FromAvro(taskAvroconfiguration, ns);
 
-            AvroConfiguration timerAvroconfiguration = serializer.AvroDeseriaizeFromFile("timer.config");
+            AvroConfiguration timerAvroconfiguration = serializer.AvroDeserializeFromFile("timer.config");
             IConfiguration timerConfiguration = serializer.FromAvro(timerAvroconfiguration, ns);
 
             IConfiguration merged = Configurations.MergeDeserializedConfs(taskConfiguration, timerConfiguration);
@@ -128,7 +128,7 @@ namespace Org.Apache.REEF.Tang.Tests.Configuration
         }
 
         [TestMethod]
-        public void TestActivityConfigWithSeperateAssembly()
+        public void TestActivityConfigWithSeparateAssembly()
         {
             Type activityInterfaceType = typeof (ITask);
             ITang tang = TangFactory.GetTang();
@@ -151,7 +151,7 @@ namespace Org.Apache.REEF.Tang.Tests.Configuration
         }
 
         [TestMethod]
-        public void TestGetConfgiFromProtoBufClassHierarchy()
+        public void TestGetConfigFromProtoBufClassHierarchy()
         {
             Type iTaskType = typeof(ITask);
             Type helloTaskType = typeof(HelloTask);
@@ -478,13 +478,13 @@ namespace Org.Apache.REEF.Tang.Tests.Configuration
         }
 
         [TestMethod]
-        public void TestNullStringVaue()
+        public void TestNullStringValue()
         {
             string msg = null;
             try
             {
                 TangFactory.GetTang().NewConfigurationBuilder()
-                    .BindNamedParameter<NamedParamterNoDefault.NamedString, string>(GenericType<NamedParamterNoDefault.NamedString>.Class, null)
+                    .BindNamedParameter<NamedParameterNoDefault.NamedString, string>(GenericType<NamedParameterNoDefault.NamedString>.Class, null)
                     .Build();
             }
             catch (IllegalStateException e)
@@ -546,7 +546,7 @@ namespace Org.Apache.REEF.Tang.Tests.Configuration
         }
     }
 
-    class NamedParamterNoDefault
+    class NamedParameterNoDefault
     {
         private readonly string str;
 
@@ -556,7 +556,7 @@ namespace Org.Apache.REEF.Tang.Tests.Configuration
         }
 
         [Inject]
-        NamedParamterNoDefault([Parameter(typeof (NamedString))] string str)
+        NamedParameterNoDefault([Parameter(typeof (NamedString))] string str)
         {
             this.str = str;
         }

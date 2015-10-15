@@ -94,6 +94,11 @@ public class FlatTopology implements Topology {
   }
 
   @Override
+  public boolean isRootPresent() {
+    return root != null;
+  }
+
+  @Override
   public void setOperatorSpecification(final OperatorSpec spec) {
     this.operatorSpec = spec;
   }
@@ -226,6 +231,7 @@ public class FlatTopology implements Topology {
   private void unsetRootNode(final String taskId) {
     LOG.finest(getQualifiedName() + "Unsetting " + rootId + " as root");
     nodes.remove(rootId);
+    root = null;
 
     for (final Map.Entry<String, TaskNode> nodeEntry : nodes.entrySet()) {
       final String id = nodeEntry.getKey();

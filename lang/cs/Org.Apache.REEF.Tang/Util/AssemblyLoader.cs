@@ -36,7 +36,14 @@ namespace Org.Apache.REEF.Tang.Util
             Assemblies = new List<Assembly>();
             foreach (var a in files)
             {
-                Assemblies.Add(Assembly.Load(a));
+                try
+                {
+                    Assemblies.Add(Assembly.Load(a));
+                }
+                catch (FileNotFoundException exception)
+                {
+                    LOGGER.Log(Level.Warning, "Could not load assembly: {0} Exception: {1}", a, exception);
+                }
             }
         }
 

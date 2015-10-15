@@ -22,7 +22,7 @@ namespace Org.Apache.REEF.Network.Group.Task
     internal interface ICommunicationGroupClientInternal : ICommunicationGroupClient
     {
         /// <summary>
-        /// Call each Operator to easure all the nodes in the topology group has been registered
+        /// Call each Operator to ensure all the nodes in the topology group has been registered
         /// </summary>
         void WaitingForRegistration();
     }

@@ -24,6 +24,9 @@ import org.apache.reef.util.logging.LoggingScopeFactory;
 
 import java.util.logging.Logger;
 
+/**
+ * The Java-CLR bridge object for {@link org.apache.reef.driver.evaluator.FailedEvaluator}.
+ */
 public class FailedEvaluatorBridge extends NativeBridge {
   private static final Logger LOG = Logger.getLogger(FailedEvaluatorBridge.class.getName());
   private FailedEvaluator jfailedEvaluator;

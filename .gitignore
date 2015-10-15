@@ -10,6 +10,7 @@ REEF_MESOS_RUNTIME
 target
 generated
 build
+StyleCop.Cache
 #
 # ----------------------------------------------------------------------
 # IDE settings

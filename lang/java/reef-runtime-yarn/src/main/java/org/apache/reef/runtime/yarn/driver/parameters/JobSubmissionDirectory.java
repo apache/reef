@@ -16,10 +16,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.runtime.yarn.driver.parameters;
 
-import org.apache.reef.tang.annotations.Name;
+package org.apache.reef.driver.parameters;
+
 import org.apache.reef.tang.annotations.NamedParameter;
+import org.apache.reef.tang.annotations.Name;
 
 /**
  * The job submission directory.

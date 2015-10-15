@@ -67,14 +67,14 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
         /// <param name="fileName"></param>
         public void ToFile(IClassHierarchy c, string fileName)
         {
-            var avronNodeData = ToAvroNode(c);
+            var avroNodeData = ToAvroNode(c);
             using (var buffer = new MemoryStream())
             {
                 using (var w = AvroContainer.CreateWriter<AvroNode>(buffer, Codec.Null))
                 {
                     using (var writer = new SequentialWriter<AvroNode>(w, 24))
                     {
-                        writer.Write(avronNodeData);
+                        writer.Write(avroNodeData);
                     }
                 }
 
@@ -99,7 +99,7 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
         }
 
         /// <summary>
-        /// erialize a ClassHierarchy into a byte array
+        /// Serialize a ClassHierarchy into a byte array
         /// </summary>
         /// <param name="c"></param>
         /// <returns></returns>
@@ -122,7 +122,7 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
         }
 
         /// <summary>
-        /// Deserailize a ClassHierarchy from a file
+        /// Deserialize a ClassHierarchy from a file
         /// </summary>
         /// <param name="fileName"></param>
         /// <returns></returns>
@@ -133,7 +133,7 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
         }
 
         /// <summary>
-        /// Get Json string from the text file, the deserailize it into ClassHierarchy
+        /// Get Json string from the text file, the deserialize it into ClassHierarchy
         /// </summary>
         /// <param name="fileName"></param>
         /// <returns></returns>
@@ -153,7 +153,7 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
         }
 
         /// <summary>
-        /// Deserailize a ClassHierarchy from a byte array
+        /// Deserialize a ClassHierarchy from a byte array
         /// </summary>
         /// <param name="bytes"></param>
         /// <returns></returns>
@@ -164,7 +164,7 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
         }
 
         /// <summary>
-        /// Deserailize a ClassHierarchy from a Json string
+        /// Deserialize a ClassHierarchy from a Json string
         /// </summary>
         /// <param name="jsonString"></param>
         /// <returns></returns>
@@ -185,7 +185,7 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
         }
 
         /// <summary>
-        /// Deserailize ClassHierarchy from an AvroNode into AvroClassHierarchy object
+        /// Deserialize ClassHierarchy from an AvroNode into AvroClassHierarchy object
         /// </summary>
         /// <param name="n"></param>
         /// <returns></returns>
@@ -230,7 +230,7 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
                 List<string> implFullNames = new List<string>();
                 foreach (IClassNode impl in cn.GetKnownImplementations())
                 {
-                    implFullNames.Add(impl.GetFullName()); //we use class fully qualifed name 
+                    implFullNames.Add(impl.GetFullName()); //we use class fully qualified name 
                 }
 
                 return NewClassNode(cn.GetName(), cn.GetFullName(),

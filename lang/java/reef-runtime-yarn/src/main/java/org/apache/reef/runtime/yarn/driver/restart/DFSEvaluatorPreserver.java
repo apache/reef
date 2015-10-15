@@ -33,6 +33,7 @@ import org.apache.reef.tang.annotations.Parameter;
 
 import javax.inject.Inject;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Level;
@@ -117,8 +118,8 @@ public final class DFSEvaluatorPreserver implements EvaluatorPreserver, AutoClos
         // empty set
         return expectedContainers;
       } else {
-        final BufferedReader br =
-            new BufferedReader(new InputStreamReader(this.fileSystem.open(this.changeLogLocation)));
+        final BufferedReader br = new BufferedReader(
+            new InputStreamReader(this.fileSystem.open(this.changeLogLocation), StandardCharsets.UTF_8));
         String line = br.readLine();
         while (line != null) {
           if (line.startsWith(ADD_FLAG)) {
@@ -191,27 +192,18 @@ public final class DFSEvaluatorPreserver implements EvaluatorPreserver, AutoClos
 
   private void handleException(final Exception e, final String errorMsg, final String fatalMsg){
     if (this.failDriverOnEvaluatorLogErrors) {
-      final Level logLevel;
-      if (this.failDriverOnEvaluatorLogErrors) {
-        logLevel = Level.SEVERE;
-      } else {
-        logLevel = Level.WARNING;
+      LOG.log(Level.SEVERE, errorMsg, e);
+
+      try {
+        this.close();
+      } catch (Exception e1) {
+        LOG.log(Level.SEVERE, "Failed on closing resource with " + e1.getStackTrace());
       }
 
-      LOG.log(logLevel, errorMsg, e);
-
-      if (this.failDriverOnEvaluatorLogErrors) {
-        try {
-          this.close();
-        } catch (Exception e1) {
-          LOG.log(Level.SEVERE, "Failed on closing resource with " + e1.getStackTrace());
-        }
-
-        if (fatalMsg != null) {
-          throw new DriverFatalRuntimeException(fatalMsg, e);
-        } else {
-          throw new DriverFatalRuntimeException("Driver failed on Evaluator log error.", e);
-        }
+      if (fatalMsg != null) {
+        throw new DriverFatalRuntimeException(fatalMsg, e);
+      } else {
+        throw new DriverFatalRuntimeException("Driver failed on Evaluator log error.", e);
       }
     }
   }

@@ -20,8 +20,9 @@
 using System;
 using System.IO;
 using Org.Apache.REEF.Client.API;
+using Org.Apache.REEF.Client.Common;
 using Org.Apache.REEF.Client.Local;
-using Org.Apache.REEF.Client.YARN;
+using Org.Apache.REEF.Client.Yarn;
 using Org.Apache.REEF.Common.Evaluator;
 using Org.Apache.REEF.Driver;
 using Org.Apache.REEF.Driver.Bridge;
@@ -50,7 +51,7 @@ namespace Org.Apache.REEF.Examples.AllHandlers
             _jobSubmissionBuilderFactory = jobSubmissionBuilderFactory;
         }
 
-        private void Run()
+        private IDriverHttpEndpoint Run()
         {
             var helloDriverConfiguration = DriverConfiguration.ConfigurationModule
                 .Set(DriverConfiguration.OnEvaluatorAllocated, GenericType<HelloAllocatedEvaluatorHandler>.Class)
@@ -60,6 +61,7 @@ namespace Org.Apache.REEF.Examples.AllHandlers
                 .Set(DriverConfiguration.OnEvaluatorFailed, GenericType<HelloFailedEvaluatorHandler>.Class)
                 .Set(DriverConfiguration.OnTaskFailed, GenericType<HelloFailedTaskHandler>.Class)
                 .Set(DriverConfiguration.OnTaskRunning, GenericType<HelloRunningTaskHandler>.Class)
+                .Set(DriverConfiguration.OnTaskCompleted, GenericType<HelloTaskCompletedHandler>.Class)
                 .Set(DriverConfiguration.OnDriverStarted, GenericType<HelloDriverStartHandler>.Class)
                 .Set(DriverConfiguration.OnHttpEvent, GenericType<HelloHttpHandler>.Class)
                 .Set(DriverConfiguration.OnEvaluatorCompleted, GenericType<HelloCompletedEvaluatorHandler>.Class)
@@ -71,18 +73,19 @@ namespace Org.Apache.REEF.Examples.AllHandlers
                 .Set(DriverConfiguration.OnDriverRestartTaskRunning, GenericType<HelloDriverRestartRunningTaskHandler>.Class)
                 .Build();
 
-            var driverCondig = TangFactory.GetTang().NewConfigurationBuilder(helloDriverConfiguration)
+            var driverConfig = TangFactory.GetTang().NewConfigurationBuilder(helloDriverConfiguration)
                 .BindSetEntry<DriverBridgeConfigurationOptions.SetOfAssemblies, string>(typeof(HelloTask).Assembly.GetName().Name)
                 .BindSetEntry<DriverBridgeConfigurationOptions.SetOfAssemblies, string>(typeof(NameClient).Assembly.GetName().Name)
                 .Build();
 
             var helloJobSubmission = _jobSubmissionBuilderFactory.GetJobSubmissionBuilder()
-                .AddDriverConfiguration(driverCondig)
+                .AddDriverConfiguration(driverConfig)
                 .AddGlobalAssemblyForType(typeof(HelloDriverStartHandler))
                 .SetJobIdentifier("HelloDriver")
                 .Build();
 
-            _reefClient.Submit(helloJobSubmission);
+            IDriverHttpEndpoint driverHttpEndpoint = _reefClient.SubmitAndGetDriverUrl(helloJobSubmission);
+            return driverHttpEndpoint;
         }
 
         /// <summary></summary>
@@ -122,11 +125,12 @@ namespace Org.Apache.REEF.Examples.AllHandlers
         /// args[0] specify either running local or YARN. Default is local
         /// args[1] specify running folder. Default is REEF_LOCAL_RUNTIME
         /// </remarks>
-        public static void Run(string[] args)
+        public static IDriverHttpEndpoint Run(string[] args)
         {
             string runOnYarn = args.Length > 0 ? args[0] : Local;
             string runtimeFolder = args.Length > 1 ? args[1] : "REEF_LOCAL_RUNTIME";
-            TangFactory.GetTang().NewInjector(GetRuntimeConfiguration(runOnYarn, runtimeFolder)).GetInstance<AllHandlers>().Run();
+            IDriverHttpEndpoint driverEndPoint = TangFactory.GetTang().NewInjector(GetRuntimeConfiguration(runOnYarn, runtimeFolder)).GetInstance<AllHandlers>().Run();
+            return driverEndPoint;
         }
     }
 }

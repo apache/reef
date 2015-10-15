@@ -22,6 +22,9 @@ import org.apache.reef.driver.task.SuspendedTask;
 import org.apache.reef.io.Message;
 import org.apache.reef.io.naming.Identifiable;
 
+/**
+ * The Java-CLR bridge object for {@link org.apache.reef.driver.task.SuspendedTask}.
+ */
 public final class SuspendedTaskBridge extends NativeBridge implements Identifiable, Message {
 
   private final SuspendedTask jsuspendedTask;

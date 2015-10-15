@@ -52,11 +52,11 @@ public class PubSubThreadPoolStageTest {
     final Set<TestEvent> orgSet = Collections.synchronizedSet(new HashSet<TestEvent>());
     final int expected = 10;
 
-    final PubSubEventHandler<TestEvent> handler = new PubSubEventHandler<TestEvent>();
+    final PubSubEventHandler<TestEvent> handler = new PubSubEventHandler<>();
     handler.subscribe(TestEvent.class, new TestEventHandler("Handler1", monitor, procSet, expected));
     handler.subscribe(TestEvent.class, new TestEventHandler("Handler2", monitor, procSet, expected));
 
-    final EStage<TestEvent> stage = new ThreadPoolStage<TestEvent>(handler, 10);
+    final EStage<TestEvent> stage = new ThreadPoolStage<>(handler, 10);
 
     for (int i = 0; i < expected; ++i) {
       final TestEvent a = new TestEvent("aaa");

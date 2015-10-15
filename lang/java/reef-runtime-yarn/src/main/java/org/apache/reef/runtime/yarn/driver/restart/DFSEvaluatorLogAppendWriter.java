@@ -25,6 +25,7 @@ import org.apache.reef.annotations.audience.Private;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 
 /**
  * The DFS evaluator logger that performs regular append. dfs.support.append should be true.
@@ -55,8 +56,10 @@ public final class DFSEvaluatorLogAppendWriter implements DFSEvaluatorLogWriter 
 
     try (
         final BufferedWriter bw = fileCreated ?
-            new BufferedWriter(new OutputStreamWriter(this.fileSystem.append(this.changelogPath))) :
-            new BufferedWriter(new OutputStreamWriter(this.fileSystem.create(this.changelogPath)))
+            new BufferedWriter(new OutputStreamWriter(
+                this.fileSystem.append(this.changelogPath), StandardCharsets.UTF_8)) :
+            new BufferedWriter(new OutputStreamWriter(
+                this.fileSystem.create(this.changelogPath), StandardCharsets.UTF_8))
     ) {
       bw.write(formattedEntry);
     }

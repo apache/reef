@@ -209,9 +209,9 @@ public final class DataLoadingRequestBuilder
           .newBuilder()
           .setPath(inputPath)
           .setLocation(Constants.ANY_RACK)
-          .setDesiredSplits(
-              numberOfDesiredSplits > 0 ? numberOfDesiredSplits : Integer
-                  .valueOf(NumberOfDesiredSplits.DEFAULT_DESIRED_SPLITS)).build());
+          .setDesiredSplits(numberOfDesiredSplits > 0 ?
+                                numberOfDesiredSplits :
+                                Integer.parseInt(NumberOfDesiredSplits.DEFAULT_DESIRED_SPLITS)).build());
       this.distributedDataSet = dds;
     } else {
       if (this.inputPath != null) {

@@ -49,11 +49,10 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         private int _assignedPartitionDescriptors;
         private readonly IGroupCommDriver _groupCommDriver;
         private readonly ConfigurationManager _configurationManager;
-        private readonly IConfiguration _tcpPortProviderConfig;
         private readonly Stack<IPartitionDescriptor> _partitionDescriptors;
 
         internal ServiceAndContextConfigurationProvider(int numNodes, IGroupCommDriver groupCommDriver,
-            ConfigurationManager configurationManager, IConfiguration tcpPortProviderConfig, Stack<IPartitionDescriptor> partitionDescriptors)
+            ConfigurationManager configurationManager, Stack<IPartitionDescriptor> partitionDescriptors)
         {
             _configurationProvider = new Dictionary<string, ContextAndServiceConfiguration>();
             _failedEvaluators = new HashSet<string>();
@@ -61,7 +60,6 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             _numNodes = numNodes;
             _groupCommDriver = groupCommDriver;
             _configurationManager = configurationManager;
-            _tcpPortProviderConfig = tcpPortProviderConfig;
             _assignedPartitionDescriptors = 0;
             _partitionDescriptors = partitionDescriptors;
             _lock = new object();
@@ -156,9 +154,8 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                         _configurationManager.MapInputCodecConfiguration
                     ).Build();
 
-            var contextConf = Configurations.Merge(_groupCommDriver.GetContextConfiguration(), partitionDescriptor.GetPartitionConfiguration());
-            var serviceConf = Configurations.Merge(_groupCommDriver.GetServiceConfiguration(), codecConfig,
-                            _tcpPortProviderConfig);
+            var contextConf = _groupCommDriver.GetContextConfiguration();
+            var serviceConf = Configurations.Merge(_groupCommDriver.GetServiceConfiguration(), codecConfig, partitionDescriptor.GetPartitionConfiguration());
 
             return new ContextAndServiceConfiguration(contextConf, serviceConf);
         }
@@ -178,8 +175,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                         }
                     ).Build();
 
-            var serviceConf = Configurations.Merge(_groupCommDriver.GetServiceConfiguration(), codecConfig,
-                _tcpPortProviderConfig);
+            var serviceConf = Configurations.Merge(_groupCommDriver.GetServiceConfiguration(), codecConfig);
             return new ContextAndServiceConfiguration(_groupCommDriver.GetContextConfiguration(), serviceConf);
         }
     }

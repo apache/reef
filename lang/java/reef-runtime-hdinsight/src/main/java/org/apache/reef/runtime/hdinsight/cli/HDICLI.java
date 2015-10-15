@@ -29,6 +29,7 @@ import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -122,7 +123,7 @@ public final class HDICLI {
    */
   private void logs(final String applicationId) throws IOException {
     LOG.log(Level.INFO, "Fetching logs for application [{0}]", applicationId);
-    this.logFetcher.fetch(applicationId, new OutputStreamWriter(System.out));
+    this.logFetcher.fetch(applicationId, new OutputStreamWriter(System.out, StandardCharsets.UTF_8));
   }
 
   /**

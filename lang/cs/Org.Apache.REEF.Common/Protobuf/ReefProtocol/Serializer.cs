@@ -107,7 +107,7 @@ namespace Org.Apache.REEF.Common.Protobuf.ReefProtocol
             {
                 foreach (TaskStatusProto.TaskMessageProto taskMessageProto in task_status.task_message)
                 {
-                    taskStatusMessage += ByteUtilities.ByteArrarysToString(taskMessageProto.message);
+                    taskStatusMessage += ByteUtilities.ByteArraysToString(taskMessageProto.message);
                 }
             }
             return string.Format(CultureInfo.InvariantCulture, "EvaluatorHeartbeatProto: task_id=[{0}], task_status=[{1}], task_message=[{2}], evaluator_status=[{3}], context_status=[{4}], timestamp=[{5}], recoveryFlag =[{6}]",

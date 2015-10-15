@@ -23,6 +23,8 @@ using Org.Apache.REEF.Utilities.Logging;
 namespace Org.Apache.REEF.Driver
 {
     // TODO: merge with EvaluatorConfigurations class
+    // TODO[REEF-842] Act on the obsoletes
+    [Obsolete("Deprecated in 0.14. Please use DriverConfigurationSettings instead.")]
     public class DriverSubmissionSettings
     {
         // default to "ReefDevClrBridge"
@@ -171,7 +173,13 @@ namespace Org.Apache.REEF.Driver
             }
         }
 
+        [Obsolete("Deprecated in 0.14, please use ToCommandLineArguments instead.")]
         public string ToComamndLineArguments()
+        {
+            return ToCommandLineArguments();
+        }
+
+        public string ToCommandLineArguments()
         {
             return
                 (RunOnYarn ? " -local false" : string.Empty) +

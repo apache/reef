@@ -24,6 +24,7 @@ import org.apache.reef.io.serialization.Deserializer;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 
 public class StringDeserializer implements
@@ -49,7 +50,7 @@ public class StringDeserializer implements
               len = dis.readInt();
               final byte[] b = new byte[len];
               dis.readFully(b);
-              return new String(b);
+              return new String(b, StandardCharsets.UTF_8);
             } catch (final IOException e) {
               throw new ServiceRuntimeException(e);
             }

@@ -25,6 +25,7 @@ import org.apache.hadoop.io.IOUtils;
 import org.apache.reef.annotations.audience.Private;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 
 /**
  * The DFS evaluator logger that does not support append and does append by overwrite.
@@ -56,9 +57,8 @@ public final class DFSEvaluatorLogOverwriteWriter implements DFSEvaluatorLogWrit
     final boolean fileCreated = this.fileSystem.exists(this.changelogPath);
 
     if (!fileCreated) {
-      try (
-          final BufferedWriter bw =
-              new BufferedWriter(new OutputStreamWriter(this.fileSystem.create(this.changelogPath)))) {
+      try (final BufferedWriter bw = new BufferedWriter(
+              new OutputStreamWriter(this.fileSystem.create(this.changelogPath), StandardCharsets.UTF_8))) {
         bw.write(formattedEntry);
       }
     } else {
@@ -81,11 +81,11 @@ public final class DFSEvaluatorLogOverwriteWriter implements DFSEvaluatorLogWrit
       IOUtils.copyBytes(inputStream, outputStream, 4096, true);
     }
 
-    final String newContent = outputStream.toString() + appendEntry;
+    final String newContent = outputStream.toString("UTF-8") + appendEntry;
     this.fileSystem.delete(this.changelogPath, true);
 
     try (final FSDataOutputStream newOutput = this.fileSystem.create(this.changelogPath);
-         final InputStream newInput = new ByteArrayInputStream(newContent.getBytes())) {
+         final InputStream newInput = new ByteArrayInputStream(newContent.getBytes(StandardCharsets.UTF_8))) {
       IOUtils.copyBytes(newInput, newOutput, 4096, true);
     }
   }

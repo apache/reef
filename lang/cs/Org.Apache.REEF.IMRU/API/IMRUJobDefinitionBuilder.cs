@@ -42,6 +42,8 @@ namespace Org.Apache.REEF.IMRU.API
         private int _numberOfMappers;
         private int _memoryPerMapper;
         private int _updateTaskMemory;
+        private int _coresPerMapper;
+        private int _updateTaskCores;
         private IConfiguration _mapFunctionConfiguration;
         private IConfiguration _mapInputCodecConfiguration;
         private IConfiguration _updateFunctionCodecsConfiguration;
@@ -51,6 +53,7 @@ namespace Org.Apache.REEF.IMRU.API
         private IConfiguration _mapInputPipelineDataConverterConfiguration;
         private IConfiguration _partitionedDatasetConfiguration;
         private readonly ISet<IConfiguration> _perMapConfigGeneratorConfig;
+        private bool _invokeGC;
 
         private static readonly IConfiguration EmptyConfiguration =
             TangFactory.GetTang().NewConfigurationBuilder().Build();
@@ -65,6 +68,9 @@ namespace Org.Apache.REEF.IMRU.API
             _partitionedDatasetConfiguration = EmptyConfiguration;
             _memoryPerMapper = 512;
             _updateTaskMemory = 512;
+            _coresPerMapper = 1;
+            _updateTaskCores = 1;
+            _invokeGC = true;
             _perMapConfigGeneratorConfig = new HashSet<IConfiguration>();
         }
 
@@ -209,6 +215,28 @@ namespace Org.Apache.REEF.IMRU.API
         }
 
         /// <summary>
+        /// Sets cores for map tasks
+        /// </summary>
+        /// <param name="cores">number of cores</param>
+        /// <returns></returns>
+        public IMRUJobDefinitionBuilder SetMapTaskCores(int cores)
+        {
+            _coresPerMapper = cores;
+            return this;
+        }
+
+        /// <summary>
+        /// Set update task cores
+        /// </summary>
+        /// <param name="cores">number of cores</param>
+        /// <returns></returns>
+        public IMRUJobDefinitionBuilder SetUpdateTaskCores(int cores)
+        {
+            _updateTaskCores = cores;
+            return this;
+        }
+
+        /// <summary>
         /// Sets Per Map Configuration
         /// </summary>
         /// <param name="perMapperConfig">Mapper configs</param>
@@ -218,6 +246,18 @@ namespace Org.Apache.REEF.IMRU.API
             _perMapConfigGeneratorConfig.Add(perMapperConfig);
             return this;
         }
+
+        /// <summary>
+        /// Whether to invoke Garbage Collector after each IMRU iteration
+        /// </summary>
+        /// <param name="invokeGC">variable telling whether to invoke or not</param>
+        /// <returns>The modified definition builder</returns>
+        public IMRUJobDefinitionBuilder InvokeGarbageCollectorAfterIteration(bool invokeGC)
+        {
+            _invokeGC = invokeGC;
+            return this;
+        }
+
 
         /// <summary>
         /// Instantiate the IMRUJobDefinition.
@@ -271,7 +311,10 @@ namespace Org.Apache.REEF.IMRU.API
                 _numberOfMappers,
                 _memoryPerMapper,
                 _updateTaskMemory,
-                _jobName);
+                _coresPerMapper,
+                _updateTaskCores,
+                _jobName,
+                _invokeGC);
         }
     }
 }

@@ -57,7 +57,7 @@ final class NetworkConnection<T> implements Connection<T> {
   public void write(final List<T> messageList) {
     final NetworkConnectionServiceMessage<T> nsMessage = new NetworkConnectionServiceMessage<>(
         connFactory.getConnectionFactoryId().toString(),
-        connFactory.getSrcId(),
+        connFactory.getLocalEndPointId(),
         destId,
         messageList);
     link.write(nsMessage);
@@ -82,7 +82,7 @@ final class NetworkConnection<T> implements Connection<T> {
   public String toString() {
     final StringBuilder sb = new StringBuilder();
     sb.append("Connection from")
-        .append(connFactory.getSrcId())
+        .append(connFactory.getLocalEndPointId())
         .append(":")
         .append(connFactory.getConnectionFactoryId())
         .append(" to ")

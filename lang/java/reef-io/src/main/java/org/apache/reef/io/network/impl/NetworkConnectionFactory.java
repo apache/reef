@@ -77,21 +77,7 @@ final class NetworkConnectionFactory<T> implements ConnectionFactory<T> {
   }
 
   Link<NetworkConnectionServiceMessage<T>> openLink(final Identifier remoteId) throws NetworkException {
-    // TODO[JIRA REEF-637] : Remove below if statement.
-    if (isRegisteredByDeprecatedMethod()) {
-      return networkService.openLink(remoteId);
-    }
-
     return networkService.openLink(connectionFactoryId, remoteId);
-  }
-
-  // TODO[JIRA REEF-637] Remove the deprecated method.
-  /**
-   * @deprecated in 0.13.
-   */
-  @Deprecated
-  boolean isRegisteredByDeprecatedMethod() {
-    return localEndPointId == null;
   }
 
   @Override
@@ -102,19 +88,6 @@ final class NetworkConnectionFactory<T> implements ConnectionFactory<T> {
   @Override
   public Identifier getLocalEndPointId() {
     return localEndPointId;
-  }
-
-  // TODO[JIRA REEF-637] Remove the deprecated method.
-  /**
-   * @deprecated in 0.13. Use getLocalEndPointId() instead.
-   */
-  @Deprecated
-  Identifier getSrcId() {
-    if (localEndPointId == null) {
-      return this.networkService.getNetworkConnectionServiceId();
-    } else {
-      return localEndPointId;
-    }
   }
 
   EventHandler<Message<T>> getEventHandler() {

@@ -35,7 +35,7 @@ import org.apache.reef.runtime.common.parameters.JVMHeapSlack;
 import org.apache.reef.runtime.hdinsight.HDInsightClasspathProvider;
 import org.apache.reef.runtime.hdinsight.HDInsightJVMPathProvider;
 import org.apache.reef.runtime.yarn.driver.*;
-import org.apache.reef.runtime.yarn.driver.parameters.JobSubmissionDirectory;
+import org.apache.reef.driver.parameters.JobSubmissionDirectory;
 import org.apache.reef.runtime.yarn.driver.parameters.YarnHeartbeatPeriod;
 import org.apache.reef.runtime.yarn.util.YarnConfigurationConstructor;
 import org.apache.reef.tang.formats.ConfigurationModule;

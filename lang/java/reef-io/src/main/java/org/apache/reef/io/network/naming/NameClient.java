@@ -65,6 +65,7 @@ public final class NameClient implements NameResolver {
      * @param tpFactory transport factory
      */
   @Inject
+  @SuppressWarnings("deprecation")
   private NameClient(
       @Parameter(NameResolverNameServerAddr.class) final String serverAddr,
       @Parameter(NameResolverNameServerPort.class) final int serverPort,

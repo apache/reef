@@ -17,12 +17,10 @@
  * under the License.
  */
 
-using System;
 using Org.Apache.REEF.Common.Evaluator.Parameters;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
-using Org.Apache.REEF.Wake.Remote;
 using Org.Apache.REEF.Wake.Remote.Parameters;
 
 namespace Org.Apache.REEF.Common.Io

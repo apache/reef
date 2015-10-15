@@ -64,7 +64,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Utils
                 }
                 _configFile = configFile;
                 AvroConfigurationSerializer serializer = new AvroConfigurationSerializer();
-                _avroConfiguration = serializer.AvroDeseriaizeFromFile(_configFile);
+                _avroConfiguration = serializer.AvroDeserializeFromFile(_configFile);
             }
         }
 

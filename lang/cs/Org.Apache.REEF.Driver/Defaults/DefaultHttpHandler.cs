@@ -39,7 +39,7 @@ namespace Org.Apache.REEF.Driver.Defaults
             return "Ping";
         }
 
-        public void OnHttpRequest(ReefHttpRequest requet, ReefHttpResponse response) 
+        public void OnHttpRequest(ReefHttpRequest request, ReefHttpResponse response) 
         {
             LOGGER.Log(Level.Info, "OnHttpRequest in DefaultHttpHandler is called.");
             response.Status = HttpStatusCode.OK;

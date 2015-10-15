@@ -19,7 +19,7 @@
 
 using System;
 using Org.Apache.REEF.Client.API;
-using Org.Apache.REEF.Client.YARN;
+using Org.Apache.REEF.Client.Yarn;
 using Org.Apache.REEF.Common.Evaluator;
 using Org.Apache.REEF.Driver;
 using Org.Apache.REEF.Tang.Annotations;
@@ -76,7 +76,7 @@ namespace Org.Apache.REEF.Examples.DriverRestart
                 .SetJobIdentifier("DriverRestart")
                 .Build();
 
-            _reefClient.Submit(restartJobSubmission);
+            _reefClient.SubmitAndGetDriverUrl(restartJobSubmission);
         }
 
         public static void Main(string[] args)

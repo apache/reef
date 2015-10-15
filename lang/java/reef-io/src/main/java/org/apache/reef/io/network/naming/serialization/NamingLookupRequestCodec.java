@@ -69,7 +69,7 @@ public final class NamingLookupRequestCodec implements Codec<NamingLookupRequest
   public NamingLookupRequest decode(final byte[] buf) {
     final AvroNamingLookupRequest req = AvroUtils.fromBytes(buf, AvroNamingLookupRequest.class);
 
-    final List<Identifier> ids = new ArrayList<Identifier>(req.getIds().size());
+    final List<Identifier> ids = new ArrayList<>(req.getIds().size());
     for (final CharSequence s : req.getIds()) {
       ids.add(factory.getNewInstance(s.toString()));
     }

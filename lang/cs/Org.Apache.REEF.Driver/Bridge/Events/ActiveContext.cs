@@ -33,10 +33,9 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
     internal class ActiveContext : IActiveContext
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(ActiveContext));
-
         private readonly AvroConfigurationSerializer _serializer;
 
-        public ActiveContext(IActiveContextClr2Java clr2Java)
+        internal ActiveContext(IActiveContextClr2Java clr2Java)
         {
             InstanceId = Guid.NewGuid().ToString("N");
             Clr2Java = clr2Java;
@@ -44,48 +43,35 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
         }
 
         [DataMember]
-        public string InstanceId { get; set; }
+        public string InstanceId { get; private set; }
+
+        private IActiveContextClr2Java Clr2Java { get; set; }
 
         public string Id
         {
-            get
-            {
-                return Clr2Java.GetId();
-            }
+            get { return Clr2Java.GetId(); }
         }
 
         public string EvaluatorId
         {
-            get
-            {
-                return Clr2Java.GetEvaluatorId();
-            }
-
-            set
-            {
-            }
+            get { return Clr2Java.GetEvaluatorId(); }
         }
 
-        public Optional<string> ParentId { get; set; }
+        public Optional<string> ParentId
+        {
+            // TODO[REEF-760]: Implement
+            get { return Optional<string>.Empty(); }
+        }
 
         public IEvaluatorDescriptor EvaluatorDescriptor
         {
-            get
-            {
-                return Clr2Java.GetEvaluatorDescriptor();
-            }
-
-            set
-            {
-            }
+            get { return Clr2Java.GetEvaluatorDescriptor(); }
         }
-
-        private IActiveContextClr2Java Clr2Java { get; set; }
 
         public void SubmitTask(IConfiguration taskConfiguration)
         {
             LOGGER.Log(Level.Info, "ActiveContext::SubmitTask");
-            string task = _serializer.ToString(taskConfiguration);
+            var task = _serializer.ToString(taskConfiguration);
             LOGGER.Log(Level.Verbose, "serialized taskConfiguration: " + task);
             Clr2Java.SubmitTask(task);
         }

@@ -16,19 +16,29 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 using Org.Apache.REEF.Client.API;
+using Org.Apache.REEF.Client.YARN;
+using Org.Apache.REEF.Client.YARN.Parameters;
 using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Util;
 
-namespace Org.Apache.REEF.Client.YARN
+namespace Org.Apache.REEF.Client.Yarn
 {
     /// <summary>
     /// The Configuration for the YARN Client
     /// </summary>
     public sealed class YARNClientConfiguration : ConfigurationModuleBuilder
     {
+        public static readonly OptionalParameter<string> JobSubmissionFolderPrefix = new OptionalParameter<string>();
+        public static readonly OptionalParameter<string> SecurityTokenKind = new OptionalParameter<string>();
+        public static readonly OptionalParameter<string> SecurityTokenService = new OptionalParameter<string>();
+
         public static ConfigurationModule ConfigurationModule = new YARNClientConfiguration()
-            .BindImplementation(GenericType<IREEFClient>.Class, GenericType<YARNClient>.Class)
+            .BindImplementation(GenericType<IREEFClient>.Class, GenericType<YarnREEFClient>.Class)
+            .BindNamedParameter(GenericType<JobSubmissionDirectoryPrefixParameter>.Class, JobSubmissionFolderPrefix)
+            .BindNamedParameter(GenericType<SecurityTokenKindParameter>.Class, SecurityTokenKind)
+            .BindNamedParameter(GenericType<SecurityTokenServiceParameter>.Class, SecurityTokenService)
             .Build();
     }
 }

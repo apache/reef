@@ -65,7 +65,7 @@ namespace Org.Apache.REEF.Examples.DriverRestart
         {
             _exceptionTimer = new Timer(obj =>
             {
-                throw new Exception("Expected driver to be finished by now.");
+                throw new ApplicationException("Expected driver to be finished by now.");
             }, new object(), TimeSpan.FromMinutes(10), TimeSpan.FromMinutes(10));
 
             _evaluatorRequestor = evaluatorRequestor;
@@ -85,6 +85,7 @@ namespace Org.Apache.REEF.Examples.DriverRestart
                 .Set(TaskConfiguration.Identifier, "HelloRestartTask")
                 .Set(TaskConfiguration.Task, GenericType<HelloRestartTask>.Class)
                 .Set(TaskConfiguration.OnMessage, GenericType<HelloRestartTask>.Class)
+                .Set(TaskConfiguration.OnDriverConnectionChanged, GenericType<HelloRestartTask>.Class)
                 .Build();
 
             allocatedEvaluator.SubmitTask(taskConfiguration);
@@ -105,6 +106,11 @@ namespace Org.Apache.REEF.Examples.DriverRestart
         /// </summary>
         public void OnNext(IDriverRestarted value)
         {
+            if (value.ResubmissionAttempts != 1)
+            {
+                throw new ApplicationException("Only expected the driver to restart once.");
+            }
+
             _isRestart = true;
             Logger.Log(Level.Info, "Hello! HelloRestartDriver has restarted! Expecting these Evaluator IDs [{0}]", string.Join(", ", value.ExpectedEvaluatorIds));
             foreach (var expectedEvaluatorId in value.ExpectedEvaluatorIds)

@@ -47,7 +47,7 @@ public interface Observer<T> {
   void onCompleted();
 }
 ```
-The `Observer` is designed for stateful event handlers that need to be explicitly torn down at exit, or when errors occor.  Such event handlers may maintain open network sockets, write to disk, buffer output, and so on.  As with `onNext()`, neither `onError()` nor `onCompleted()` throw exceptions.  Instead, callers should assume that they are asynchronously invoked.
+The `Observer` is designed for stateful event handlers that need to be explicitly torn down at exit, or when errors occur.  Such event handlers may maintain open network sockets, write to disk, buffer output, and so on.  As with `onNext()`, neither `onError()` nor `onCompleted()` throw exceptions.  Instead, callers should assume that they are asynchronously invoked.
 
 `EventHandler` and `Observer` implementations should be threadsafe and handle concurrent invocations of `onNext()`.  However, it is illegal to call `onCompleted()` or `onError()` in race with any calls to `onNext()`, and the call to `onCompleted()` or `onError()` must be the last call made to the object.  Therefore, implementations of `onCompleted()` and `onError()` can assume they have a lock on `this`, and that `this` has not been torn down and is still in a valid state.
 
@@ -69,7 +69,7 @@ or they can contain `Observable`s, as [RxStage](wake/src/main/java/org/apache/re
 ```java
 public interface RxStage<T> extends Observer<T>, Stage { }
 ```
-In both cases, the stage simply exposes the same API as the event handler that it manages.  This allows code that produces events to treat downstream stages and raw `EventHandlers` / `Observers` interchangebly.   Recall that Wake implements thread sharing by allowing EventHandlers and Observers to directly invoke each other.  Since Stages implement the same interface as raw EventHandlers and Observers, this pushes the placement of thread boundaries and other scheduling tradeoffs to the code that is instantiating the application.  In turn, this simplifies testing and improves the reusability of code written on top of Wake.
+In both cases, the stage simply exposes the same API as the event handler that it manages.  This allows code that produces events to treat downstream stages and raw `EventHandlers` / `Observers` interchangeably.   Recall that Wake implements thread sharing by allowing EventHandlers and Observers to directly invoke each other.  Since Stages implement the same interface as raw EventHandlers and Observers, this pushes the placement of thread boundaries and other scheduling tradeoffs to the code that is instantiating the application.  In turn, this simplifies testing and improves the reusability of code written on top of Wake.
 
 #### `close()` vs. `onCompleted()`
 
@@ -79,7 +79,7 @@ In contrast, `close()` is synchronous, and is not allowed to return until all qu
 
 `Observer` implementations do not expose a `close()` method, and generally do not invoke `close()`.  Instead, when `onCompleted()` is invoked, it should arrange for `onCompleted()` to be called on any `Observer` instances that `this` directly invokes, free any resources it is holding, and then return.  Since the downstream `onCompleted()` calls are potentially asynchronous, it cannot assume that downstream cleanup completes before it returns.
 
-In a thread pool `Stage`, the final `close()` call will block until there are no more outstanding events queued in the stage.  Once `close()` has been called (and returns) on each stage, no events are left in any queues, and no `Observer` or `EventHandler` objects are holding resources or scheduled on any cores, so shutdown is compelete.
+In a thread pool `Stage`, the final `close()` call will block until there are no more outstanding events queued in the stage.  Once `close()` has been called (and returns) on each stage, no events are left in any queues, and no `Observer` or `EventHandler` objects are holding resources or scheduled on any cores, so shutdown is completed.
 
 Helper libraries
 ----------------

@@ -43,6 +43,7 @@ under the License.
   <ItemGroup>
     <Compile Include="FileSystem\Hadoop\CommandResult.cs" />
     <Compile Include="FileSystem\Hadoop\HadoopFileSystemConfiguration.cs" />
+    <Compile Include="FileSystem\Hadoop\HadoopFileSystemConfigurationProvider.cs" />
     <Compile Include="FileSystem\Hadoop\HDFSCommandRunner.cs" />
     <Compile Include="FileSystem\Hadoop\HadoopFileSystem.cs" />
     <Compile Include="FileSystem\Hadoop\Parameters\CommandTimeOut.cs" />
@@ -51,6 +52,14 @@ under the License.
     <Compile Include="FileSystem\IFileSystem.cs" />
     <Compile Include="FileSystem\Local\LocalFileSystem.cs" />
     <Compile Include="FileSystem\Local\LocalFileSystemConfiguration.cs" />
+    <Compile Include="PartitionedData\FileSystem\FileSystemPartition.cs" />
+    <Compile Include="PartitionedData\FileSystem\FilePartitionDescriptor.cs" />
+    <Compile Include="PartitionedData\FileSystem\Parameters\FileSerializerConfigString.cs" />
+    <Compile Include="PartitionedData\FileSystem\IFileDeSerializer.cs" />
+    <Compile Include="PartitionedData\FileSystem\FileSystemPartitionDataSet.cs" />
+    <Compile Include="PartitionedData\FileSystem\FileSystemPartitionConfiguration.cs" />
+    <Compile Include="PartitionedData\FileSystem\Parameters\FilePathsForPartitions.cs" />
+    <Compile Include="PartitionedData\FileSystem\Parameters\FilePathsInPartition.cs" />
     <Compile Include="PartitionedData\IPartition.cs" />
     <Compile Include="PartitionedData\IPartitionDescriptor.cs" />
     <Compile Include="PartitionedData\IPartitionedDataSet.cs" />
@@ -65,6 +74,7 @@ under the License.
   </ItemGroup>
   <ItemGroup>
     <None Include="Org.Apache.REEF.IO.nuspec" />
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.Tang\Org.Apache.REEF.Tang.csproj">

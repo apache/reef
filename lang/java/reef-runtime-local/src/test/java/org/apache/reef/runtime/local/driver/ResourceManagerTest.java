@@ -113,7 +113,7 @@ public class ResourceManagerTest {
   @Test(expected = InjectionException.class)
   public void testInvalidRacksConfigured() throws InjectionException {
     // Given
-    final Set<String> availableRacks = new HashSet<String>(Arrays.asList("/rack1/*"));
+    final Set<String> availableRacks = new HashSet<>(Arrays.asList("/rack1/*"));
     injector.bindVolatileParameter(RackNames.class, availableRacks);
     // When
     containerManager = injector.getInstance(ContainerManager.class);
@@ -158,7 +158,7 @@ public class ResourceManagerTest {
   public void testTwoAllocationsInDifferentRacks() throws InjectionException {
     // Given
     final List<String> availableRacks = Arrays.asList("/rack1", "/rack2");
-    final Set<String> availableRacksSet = new HashSet<String>(availableRacks);
+    final Set<String> availableRacksSet = new HashSet<>(availableRacks);
     injector.bindVolatileParameter(RackNames.class, availableRacksSet); // 2 available racks
     injector.bindVolatileParameter(MaxNumberOfEvaluators.class, 2); // 1 evaluator per rack
     containerManager = injector.getInstance(ContainerManager.class); // inject containerManager with this updated info
@@ -200,7 +200,7 @@ public class ResourceManagerTest {
   public void testOneAllocationInRack1AndTwoInDatacenter2() throws InjectionException {
     // Given
     final List<String> availableRacks = Arrays.asList("/dc1/rack1", "/dc2/rack1", "/dc2/rack2");
-    final Set<String> availableRacksSet = new HashSet<String>(availableRacks);
+    final Set<String> availableRacksSet = new HashSet<>(availableRacks);
     injector.bindVolatileParameter(RackNames.class, availableRacksSet); // 3 available racks
     injector.bindVolatileParameter(MaxNumberOfEvaluators.class, 3); // 1 evaluator per rack
     containerManager = injector.getInstance(ContainerManager.class);
@@ -253,7 +253,7 @@ public class ResourceManagerTest {
   public void testOneAllocationInRack1AndTwoInDifferentRacksDueToRelaxLocality() throws InjectionException {
     // Given
     final List<String> availableRacks = Arrays.asList("/dc1/rack1", "/dc2/rack1", "/dc3/rack1");
-    final Set<String> availableRacksSet = new HashSet<String>(availableRacks);
+    final Set<String> availableRacksSet = new HashSet<>(availableRacks);
     injector.bindVolatileParameter(RackNames.class, availableRacksSet);
     injector.bindVolatileParameter(MaxNumberOfEvaluators.class, 3); // 3 evaluators in three different racks
     containerManager = injector.getInstance(ContainerManager.class);

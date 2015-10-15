@@ -44,7 +44,10 @@ namespace Org.Apache.REEF.Driver.Evaluator
         /// </summary>
         string Rack { get; }
 
-        // TODO[REEF-718] Document
+        /// <summary>
+        /// The batch ID for requested evaluators. Evaluators requested in the same batch
+        /// will have the same Batch ID.
+        /// </summary>
         string EvaluatorBatchId { get; }
     }
 }

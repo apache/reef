@@ -27,7 +27,6 @@ under the License.
     <AssemblyName>Org.Apache.REEF.Examples.AllHandlers</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <RestorePackages>true</RestorePackages>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..</SolutionDir>
   </PropertyGroup>
   <PropertyGroup>
@@ -35,6 +34,8 @@ under the License.
   </PropertyGroup>
   <Import Project="$(SolutionDir)\build.props" />
   <PropertyGroup>
+    <RestorePackages>true</RestorePackages>
+    <BuildPackage>false</BuildPackage>
     <UseVSHostingProcess>false</UseVSHostingProcess>
   </PropertyGroup>
   <ItemGroup>
@@ -62,6 +63,7 @@ under the License.
     <Compile Include="HelloRunningTaskHandler.cs" />
     <Compile Include="HelloTaskMessageHandler.cs" />
     <Compile Include="HelloTraceListener.cs" />
+    <Compile Include="HelloTaskCompletedHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -107,6 +109,7 @@ under the License.
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="packages.config" />
     <None Include="Readme.md" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
@@ -118,5 +121,12 @@ under the License.
     </AfterBuildDependsOn>
   </PropertyGroup>
   <Target Name="AfterBuild" DependsOnTargets="$(AfterBuildDependsOn);" />
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
+  </Target>
   <!--end jar reference-->
 </Project>

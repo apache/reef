@@ -31,9 +31,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+/**
+ * CLR/Java bridge utilities.
+ */
 public final class Utilities {
   public static ClassHierarchy loadClassHierarchy(final String classHierarchyFile) {
-    // TODO The file should be created via AvroClassHierarchySerializer
+    // TODO[JIRA REEF-400] The file should be created via AvroClassHierarchySerializer
     Path p = Paths.get(classHierarchyFile);
     if (!Files.exists(p)) {
       p = Paths.get(System.getProperty("user.dir") + "/reef/global/" + classHierarchyFile);
@@ -41,7 +44,7 @@ public final class Utilities {
     if (!Files.exists(p)) {
       throw new RuntimeException("cannot find file " + p.toAbsolutePath());
     }
-    // TODO Use the AvroClassHierarchy in place of protobuf
+    // TODO[JIRA REEF-400] Use the AvroClassHierarchySerializer in place of protobuf
     try (final InputStream chin = new FileInputStream(p.toAbsolutePath().toString())) {
       final ClassHierarchyProto.Node root = ClassHierarchyProto.Node.parseFrom(chin);
       final ClassHierarchy ch = new ProtocolBufferClassHierarchy(root);

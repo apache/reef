@@ -23,11 +23,25 @@ under the License.
     <parent>
         <groupId>org.apache.reef</groupId>
         <artifactId>reef-project</artifactId>
-        <version>0.13.0-incubating-SNAPSHOT</version>
+        <version>0.14.0-incubating-SNAPSHOT</version>
         <relativePath>../../..</relativePath>
     </parent>
     <name>REEF Runtime for HDInsight</name>
     <artifactId>reef-runtime-hdinsight</artifactId>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-checkstyle-plugin</artifactId>
+                    <configuration>
+                        <configLocation>lang/java/reef-common/src/main/resources/checkstyle-strict.xml</configLocation>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
 
     <dependencies>
         <dependency>

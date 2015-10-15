@@ -37,10 +37,7 @@ import org.reflections.scanners.SubTypesScanner;
 import org.reflections.scanners.TypeAnnotationsScanner;
 
 import javax.inject.Inject;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.PrintStream;
+import java.io.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.net.MalformedURLException;
@@ -214,10 +211,9 @@ public class Tint {
         }
       }
 
-      for (final Field f : modules.keySet()) {
-        final ConfigurationModule m = modules.get(f);
-        final String fS = ReflectionUtilities.getFullName(f);
-        final Set<NamedParameterNode<?>> nps = m.getBoundNamedParameters();
+      for (final Entry<Field, ConfigurationModule> entry: modules.entrySet()) {
+        final String fS = ReflectionUtilities.getFullName(entry.getKey());
+        final Set<NamedParameterNode<?>> nps = entry.getValue().getBoundNamedParameters();
         for (final NamedParameterNode<?> np : nps) {
           final String npS = np.getFullName();
           if (!setters.contains(npS, fS)) {
@@ -283,7 +279,8 @@ public class Tint {
    * @throws FileNotFoundException
    * @throws MalformedURLException
    */
-  public static void main(final String[] args) throws FileNotFoundException, MalformedURLException {
+  public static void main(final String[] args)
+      throws FileNotFoundException, MalformedURLException, UnsupportedEncodingException {
     int i = 0;
     String doc = null;
     String jar = null;
@@ -314,7 +311,7 @@ public class Tint {
     }
 
     if (doc != null) {
-      try (final PrintStream out = new PrintStream(new FileOutputStream(new File(doc)))) {
+      try (final PrintStream out = new PrintStream(doc, "UTF-8")) {
         out.println("<html><head><title>TangDoc</title>");
 
         out.println("<style>");

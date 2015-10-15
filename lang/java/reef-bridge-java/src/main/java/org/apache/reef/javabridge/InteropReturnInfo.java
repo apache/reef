@@ -20,10 +20,13 @@ package org.apache.reef.javabridge;
 
 import java.util.ArrayList;
 
+/**
+ * Information about return codes/exceptions coming from bridge.
+ */
 public class InteropReturnInfo {
 
   private int returnCode;
-  private ArrayList<String> exceptionList = new ArrayList<String>();
+  private ArrayList<String> exceptionList = new ArrayList<>();
 
   public void addExceptionString(final String exceptionString) {
     exceptionList.add(exceptionString);

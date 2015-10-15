@@ -19,7 +19,10 @@ using System;
 using System.IO;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Org.Apache.REEF.IO.FileSystem;
 using Org.Apache.REEF.IO.FileSystem.Hadoop;
+using Org.Apache.REEF.IO.FileSystem.Hadoop.Parameters;
+using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 
 namespace Org.Apache.REEF.IO.Tests
@@ -27,7 +30,7 @@ namespace Org.Apache.REEF.IO.Tests
     /// <summary>
     /// Tests for HadoopFileSystem.
     /// </summary>
-    /// <see cref="HadoopFileSystem" />
+    /// <see cref="HadoopFileSystem" />    
     [TestClass]
     [Ignore] // These tests need to be run in an environment with HDFS installed.
     public sealed class TestHadoopFileSystem
@@ -142,6 +145,29 @@ namespace Org.Apache.REEF.IO.Tests
         public void TestCreate()
         {
             _fileSystem.Create(GetTempUri());
+        }
+
+        /// <summary>
+        /// This test is to make sure with the HadoopFileSystemConfiguration, HadoopFileSystem can be injected.
+        /// </summary>
+        [TestMethod]
+        public void TestHadoopFileSystemConfiguration()
+        {
+            var fileSystemTest = TangFactory.GetTang().NewInjector(HadoopFileSystemConfiguration.ConfigurationModule
+                .Build())
+                .GetInstance<FileSystemTest>();
+            Assert.IsTrue(fileSystemTest.FileSystem is HadoopFileSystem);
+        }
+    }
+
+    class FileSystemTest
+    {
+        public IFileSystem FileSystem { get; private set; }
+
+        [Inject]
+        private FileSystemTest(IFileSystem fileSystem)
+        {
+            FileSystem = fileSystem;
         }
     }
 }

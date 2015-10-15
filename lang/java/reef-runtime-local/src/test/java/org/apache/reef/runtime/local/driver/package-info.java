@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * Test for the resource manager for the local runtime.
  */
 package org.apache.reef.runtime.local.driver;

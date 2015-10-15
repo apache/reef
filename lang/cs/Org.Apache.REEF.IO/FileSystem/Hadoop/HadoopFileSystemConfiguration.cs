@@ -15,8 +15,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using Org.Apache.REEF.Common.Io;
+using Org.Apache.REEF.Common.Client.Parameters;
 using Org.Apache.REEF.IO.FileSystem.Hadoop.Parameters;
 using Org.Apache.REEF.Tang.Formats;
+using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 
 namespace Org.Apache.REEF.IO.FileSystem.Hadoop
@@ -46,7 +49,13 @@ namespace Org.Apache.REEF.IO.FileSystem.Hadoop
         /// </summary>
         public static readonly OptionalParameter<string> HadoopHome = new OptionalParameter<string>();
 
+        /// <summary>
+        /// Set HadoopFileSystemConfigurationProvider to DriverConfigurationProviders.
+        /// Set all the parameters needed for injecting HadoopFileSystemConfigurationProvider.
+        /// </summary>
         public static readonly ConfigurationModule ConfigurationModule = new HadoopFileSystemConfiguration()
+            .BindSetEntry<DriverConfigurationProviders, HadoopFileSystemConfigurationProvider, IConfigurationProvider>(
+                GenericType<DriverConfigurationProviders>.Class, GenericType<HadoopFileSystemConfigurationProvider>.Class)
             .BindImplementation(GenericType<IFileSystem>.Class, GenericType<HadoopFileSystem>.Class)
             .BindNamedParameter(GenericType<NumberOfRetries>.Class, CommandRetries)
             .BindNamedParameter(GenericType<CommandTimeOut>.Class, CommandTimeOut)

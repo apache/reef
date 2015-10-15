@@ -42,9 +42,8 @@ final class DriverRestartClrHandlersInitializer implements ClrHandlersInitialize
 
   @Override
   public long[] getClrHandlers(final String portNumber, final EvaluatorRequestorBridge evaluatorRequestorBridge) {
-    // TODO[REEF-689]: Make callClrSystemOnRestartedHandlerOnNext take DriverRestarted object.
-    return NativeInterop.callClrSystemOnRestartHandlerOnNext(
+    return NativeInterop.callClrSystemOnRestartHandler(
         portNumber,
-        evaluatorRequestorBridge, new DriverRestartedBridge(driverRestarted.getExpectedEvaluatorIds()));
+        evaluatorRequestorBridge, new DriverRestartedBridge(driverRestarted));
   }
 }

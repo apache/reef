@@ -40,7 +40,7 @@ namespace Org.Apache.REEF.Common.Avro
 
         public static T FromBytes(byte[] bytes)
         {
-            return FromString(ByteUtilities.ByteArrarysToString(bytes));
+            return FromString(ByteUtilities.ByteArraysToString(bytes));
         }
 
         public static byte[] ToBytes(T obj)

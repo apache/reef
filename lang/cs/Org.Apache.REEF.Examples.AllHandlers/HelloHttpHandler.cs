@@ -46,12 +46,11 @@ namespace Org.Apache.REEF.Examples.AllHandlers
         /// <summary>
         /// Sample code after receiving http request and send back the http response
         /// </summary>
-        /// <param name="requet"></param>
+        /// <param name="request"></param>
         /// <param name="response"></param>
-        public void OnHttpRequest(ReefHttpRequest requet, ReefHttpResponse response)  
+        public void OnHttpRequest(ReefHttpRequest request, ReefHttpResponse response)  
         {
-            Logger.Log(Level.Info, string.Format(CultureInfo.CurrentCulture, "HelloHttpHandler OnHttpRequest: URL: {0}, QueryString: {1}, inputStream: {2}.", requet.Url, requet.Querystring, ByteUtilities.ByteArrarysToString(requet.InputStream)));
-            response.Status = HttpStatusCode.OK;
+            Logger.Log(Level.Info, string.Format(CultureInfo.CurrentCulture, "HelloHttpHandler OnHttpRequest: URL: {0}, QueryString: {1}, inputStream: {2}.", request.Url, request.Querystring, ByteUtilities.ByteArraysToString(request.InputStream)));response.Status = HttpStatusCode.OK;
             response.OutputStream =
                 ByteUtilities.StringToByteArrays("Byte array returned from HelloHttpHandler in CLR!!!");
         }

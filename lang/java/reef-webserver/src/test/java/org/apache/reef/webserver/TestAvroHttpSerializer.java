@@ -28,7 +28,7 @@ import org.junit.rules.ExpectedException;
 import javax.servlet.ServletException;
 import java.io.*;
 import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
 /**
@@ -43,7 +43,7 @@ public final class TestAvroHttpSerializer {
   public static String readStream(final InputStream is) {
     final StringBuilder sb = new StringBuilder(512);
     try {
-      final Reader r = new InputStreamReader(is, "UTF-8");
+      final Reader r = new InputStreamReader(is, StandardCharsets.UTF_8);
       int c = 0;
       while ((c = r.read()) != -1) {
         sb.append((char) c);
@@ -57,7 +57,7 @@ public final class TestAvroHttpSerializer {
   @Before
   public void setUp() throws Exception {
     final String s = "test binary stream data";
-    final byte[] b = s.getBytes(Charset.forName("UTF-8"));
+    final byte[] b = s.getBytes(StandardCharsets.UTF_8);
     avroRequest = AvroHttpRequest.newBuilder()
         .setRequestUrl("http://localhost:8080/reef/evaluators?id=12&id=34&a=b")
         .setHttpMethod("POST")
@@ -172,7 +172,7 @@ public final class TestAvroHttpSerializer {
     thrown.expect(AvroRuntimeException.class);
     thrown.expectMessage("Field queryString type:STRING pos:3 not set and has no default value");
     final String s = "test binary stream data";
-    final byte[] b = s.getBytes(Charset.forName("UTF-8"));
+    final byte[] b = s.getBytes(StandardCharsets.UTF_8);
     avroRequest = AvroHttpRequest.newBuilder()
         .setRequestUrl("http://localhost:8080/reef/evaluators?id=12&id=34&a=b")
         .setHttpMethod("POST")
@@ -190,7 +190,7 @@ public final class TestAvroHttpSerializer {
     thrown.expect(AvroRuntimeException.class);
     thrown.expectMessage("Field queryString type:STRING pos:3 does not accept null values");
     final String s = "test binary stream data";
-    final byte[] b = s.getBytes(Charset.forName("UTF-8"));
+    final byte[] b = s.getBytes(StandardCharsets.UTF_8);
     avroRequest = AvroHttpRequest.newBuilder()
         .setRequestUrl("http://localhost:8080/reef/evaluators?id=12&id=34&a=b")
         .setHttpMethod("POST")
@@ -209,7 +209,7 @@ public final class TestAvroHttpSerializer {
     thrown.expect(AvroRuntimeException.class);
     thrown.expectMessage("Field inputStream type:BYTES pos:5 does not accept null values");
     final String s = "test binary stream data";
-    final byte[] b = s.getBytes(Charset.forName("UTF-8"));
+    final byte[] b = s.getBytes(StandardCharsets.UTF_8);
 
     avroRequest = AvroHttpRequest.newBuilder()
         .setRequestUrl("http://localhost:8080/reef/evaluators?id=12&id=34&a=b")
@@ -227,7 +227,7 @@ public final class TestAvroHttpSerializer {
   @Test
   public void testEmptyString() {
     final String s = "test binary stream data";
-    final byte[] b = s.getBytes(Charset.forName("UTF-8"));
+    final byte[] b = s.getBytes(StandardCharsets.UTF_8);
 
     avroRequest = AvroHttpRequest.newBuilder()
         .setRequestUrl("http://localhost:8080/reef/evaluators?id=12&id=34&a=b")
@@ -266,7 +266,7 @@ public final class TestAvroHttpSerializer {
   }
 
   private ArrayList<HeaderEntry> createHeader() {
-    final ArrayList<HeaderEntry> list = new ArrayList<HeaderEntry>();
+    final ArrayList<HeaderEntry> list = new ArrayList<>();
     final HeaderEntry e1 = HeaderEntry.newBuilder()
         .setKey("a")
         .setValue("xxx")

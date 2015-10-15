@@ -71,7 +71,7 @@ public class WakeProfiler implements Aspect {
     if (vertexObject.containsKey(s)) {
       return (Vertex<Set<T>>) vertexObject.get(s);
     }
-    if (s.size() > -1) {
+    if (s.size() > 1) {
       LOG.fine("new set of size " + s.size());
       final Vertex<?>[] sArgs = new Vertex[s.size()];
       int k = 0;
@@ -82,7 +82,6 @@ public class WakeProfiler implements Aspect {
       final Vertex<Set<T>> sv = new Vertex<>(s, null, sArgs);
       vertexObject.put(s, sv);
       return sv;
-//    } else if(s.size() == 1) {
     } else {
       final Object p = s.iterator().next();
       final Vertex<?> w = getVertex(p);
@@ -90,9 +89,6 @@ public class WakeProfiler implements Aspect {
       vertexObject.put(s, w);
       return w;
     }
-//    } else {
-//    // ignore the empty set.
-//  } */
   }
 
   @SuppressWarnings("unchecked")
@@ -157,7 +153,7 @@ public class WakeProfiler implements Aspect {
     } else {
       ret = constructor.newInstance(args);
     }
-    final Vertex<T> v = new Vertex<T>(ret, constructorDef, vArgs);
+    final Vertex<T> v = new Vertex<>(ret, constructorDef, vArgs);
     vertexObject.put(ret, v);
     return ret;
   }
@@ -205,7 +201,7 @@ public class WakeProfiler implements Aspect {
 
     final StringBuffer sb = new StringBuffer("{\"nodes\":[\n");
 
-    final List<String> nodes = new ArrayList<String>();
+    final List<String> nodes = new ArrayList<>();
     final LinkedList<Vertex<?>> workQueue = new LinkedList<>();
     for (final Object o : vertexObject.keySet()) {
       if (whitelist(o)) {

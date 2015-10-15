@@ -65,7 +65,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
                     }
                     if (remoteEvent.evaluatorControl.context_control.task_message != null)
                     {
-                        task_message = ByteUtilities.ByteArrarysToString(remoteEvent.evaluatorControl.context_control.task_message);
+                        task_message = ByteUtilities.ByteArraysToString(remoteEvent.evaluatorControl.context_control.task_message);
                     }
 
                     if (!(string.IsNullOrEmpty(context_message) && string.IsNullOrEmpty(task_message)))

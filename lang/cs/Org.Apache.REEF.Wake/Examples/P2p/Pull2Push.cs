@@ -87,7 +87,7 @@ namespace Org.Apache.REEF.Wake.Examples.P2p
                     else
                     {
                         // The message source has returned null as the next message. We drop the message source in that case.
-                        LOGGER.Log(Level.Info, "Droping message source {0} from the queue " + nextSource.ToString());
+                        LOGGER.Log(Level.Info, "Dropping message source {0} from the queue " + nextSource.ToString());
                     }
                 }
             }

@@ -29,7 +29,7 @@ namespace Org.Apache.REEF.Examples.DriverRestart
     /// <summary>
     /// A Task that merely prints a greeting and exits.
     /// </summary>
-    public sealed class HelloRestartTask : ITask, IDriverMessageHandler
+    public sealed class HelloRestartTask : ITask, IDriverMessageHandler, IDriverConnectionMessageHandler
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(HelloRestartTask));
         private bool _exit;
@@ -56,8 +56,34 @@ namespace Org.Apache.REEF.Examples.DriverRestart
 
         public void Handle(IDriverMessage message)
         {
-            Logger.Log(Level.Verbose, "Receieved a message from driver. We should exit now...");
+            Logger.Log(Level.Verbose, "Received a message from driver. We should exit now...");
             _exit = true;
+        }
+
+        public void OnNext(IDriverConnectionMessage value)
+        {
+            switch (value.State)
+            {
+                case DriverConnectionState.Disconnected:
+                    Logger.Log(Level.Warning, "Task lost connection with Driver!");
+                    break;
+                case DriverConnectionState.Reconnected:
+                    Logger.Log(Level.Info, "Task reconnected with new Driver!");
+                    break;
+                default:
+                    Logger.Log(Level.Warning, "Task driver connection status: " + value.State);
+                    break;
+            }
+        }
+
+        public void OnError(Exception error)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void OnCompleted()
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -72,13 +72,7 @@ public final class NetworkConnectionServiceImpl implements NetworkConnectionServ
    * A map of (id of connection factory, a connection factory instance).
    */
   private final ConcurrentMap<String, NetworkConnectionFactory> connFactoryMap;
-  // TODO[JIRA REEF-637] Remove the deprecated field.
-  /**
-   * A network connection service identifier.
-   * @deprecated in 0.13. Use ConnectionFactory.getLocalEndPointId instead.
-   */
-  @Deprecated
-  private Identifier myId;
+
   /**
    * A network connection service message codec.
    */
@@ -153,28 +147,6 @@ public final class NetworkConnectionServiceImpl implements NetworkConnectionServ
     this.isClosed = new AtomicBoolean();
   }
 
-  // TODO[JIRA REEF-637] Remove the deprecated method.
-  /**
-   * @deprecated in 0.13. Use registerConnectionFactory(Identifier, Codec, EventHandler, LinkListener, Identifier)
-   * instead.
-   */
-  @Deprecated
-  @Override
-  public <T> void registerConnectionFactory(final Identifier connFactoryId,
-                                            final Codec<T> codec,
-                                            final EventHandler<Message<T>> eventHandler,
-                                            final LinkListener<Message<T>> linkListener) throws NetworkException {
-    final String id = connFactoryId.toString();
-    if (connFactoryMap.get(id) != null) {
-      throw new NetworkException("ConnectionFactory " + connFactoryId + " was already registered.");
-    }
-    final ConnectionFactory connFactory = connFactoryMap.putIfAbsent(id,
-        new NetworkConnectionFactory<>(this, connFactoryId, codec, eventHandler, linkListener, null));
-
-    if (connFactory != null) {
-      throw new NetworkException("ConnectionFactory " + connFactoryId + " was already registered.");
-    }
-  }
 
   private void checkBeforeRegistration(final String connectionFactoryId) {
     if (isClosed.get()) {
@@ -222,35 +194,14 @@ public final class NetworkConnectionServiceImpl implements NetworkConnectionServ
     if (connFactory != null) {
       LOG.log(Level.INFO, "ConnectionFactory {0} was unregistered", id);
 
-      if (!connFactory.isRegisteredByDeprecatedMethod()) { // TODO[JIRA REEF-637] : Remove the redundant check.
-        final Identifier localId = getEndPointIdWithConnectionFactoryId(
+      final Identifier localId = getEndPointIdWithConnectionFactoryId(
             connFactoryId, connFactory.getLocalEndPointId());
-        nameServiceUnregisteringStage.onNext(localId);
-      }
+      nameServiceUnregisteringStage.onNext(localId);
     } else {
       LOG.log(Level.WARNING, "ConnectionFactory of {0} is null", id);
     }
   }
 
-  // TODO[JIRA REEF-637] Remove the deprecated method.
-  /**
-   * Registers a source identifier of NetworkConnectionService.
-   * @param ncsId
-   * @throws Exception
-   * @deprecated in 0.13. Use registerConnectionFactory(Identifier, Codec, EventHandler, LinkListener, Identifier)
-   * instead.
-   */
-  @Deprecated
-  @Override
-  public void registerId(final Identifier ncsId) {
-    LOG.log(Level.INFO, "Registering NetworkConnectionService " + ncsId);
-    this.myId = ncsId;
-    final Tuple<Identifier, InetSocketAddress> tuple =
-        new Tuple<>(ncsId, (InetSocketAddress) this.transport.getLocalAddress());
-    LOG.log(Level.FINEST, "Binding {0} to NetworkConnectionService@({1})",
-        new Object[]{tuple.getKey(), tuple.getValue()});
-    this.nameServiceRegisteringStage.onNext(tuple);
-  }
 
   /**
    * Open a channel for destination identifier of NetworkConnectionService.
@@ -272,25 +223,6 @@ public final class NetworkConnectionServiceImpl implements NetworkConnectionServ
     }
   }
 
-  // TODO[JIRA REEF-637] Remove the deprecated method.
-  /**
-   * Open a channel for destination identifier of NetworkConnectionService.
-   * @param remoteEndPointId
-   * @throws NetworkException
-   * @deprecated in 0.13. Use openLink(Identifier, Identifier) instead.
-   */
-  @Deprecated
-  <T> Link<NetworkConnectionServiceMessage<T>> openLink(final Identifier remoteEndPointId) throws NetworkException {
-    try {
-      final SocketAddress address = nameResolver.lookup(remoteEndPointId);
-      if (address == null) {
-        throw new NetworkException("Lookup " + remoteEndPointId + " is null");
-      }
-      return transport.open(address, nsCodec, nsLinkListener);
-    } catch(final Exception e) {
-      throw new NetworkException(e);
-    }
-  }
 
   private Identifier getEndPointIdWithConnectionFactoryId(
       final Identifier connectionFactoryId, final Identifier endPointId) {
@@ -309,31 +241,6 @@ public final class NetworkConnectionServiceImpl implements NetworkConnectionServ
       throw new RuntimeException("Cannot find ConnectionFactory of " + connFactoryId + ".");
     }
     return connFactory;
-  }
-
-  // TODO[JIRA REEF-637] Remove the deprecated method.
-  /**
-   * @param ncsId network connection service identifier
-   * @deprecated in 0.13.
-   */
-  @Deprecated
-  @Override
-  public void unregisterId(final Identifier ncsId) {
-    LOG.log(Level.FINEST, "Unbinding {0} to NetworkConnectionService@({1})",
-        new Object[]{ncsId, this.transport.getLocalAddress()});
-    this.myId = null;
-    this.nameServiceUnregisteringStage.onNext(ncsId);
-  }
-
-  // TODO[JIRA REEF-637] Remove the deprecated method.
-  /**
-   * @return the identifier of this NetworkConnectionService
-   * @deprecated in 0.13.
-   */
-  @Deprecated
-  @Override
-  public Identifier getNetworkConnectionServiceId() {
-    return this.myId;
   }
 
   @Override

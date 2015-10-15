@@ -61,6 +61,7 @@ public final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
    * The set of files to be places on the Evaluator.
    */
   private final Collection<File> files = new HashSet<>();
+
   /**
    * The set of libraries.
    */
@@ -96,14 +97,21 @@ public final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
         .set(ContextConfiguration.IDENTIFIER, "RootContext_" + this.getId())
         .build();
     this.submitContextAndTask(contextConfiguration, taskConfiguration);
-
   }
 
+  /**
+   * Submit Task with configuration strings.
+   * This method should be called from bridge and the configuration strings are
+   * serialized at .Net side.
+   * @param taskConfiguration
+   */
   public void submitTask(final String taskConfiguration) {
     final Configuration contextConfiguration = ContextConfiguration.CONF
         .set(ContextConfiguration.IDENTIFIER, "RootContext_" + this.getId())
         .build();
-    this.submitContextAndTask(contextConfiguration, taskConfiguration);
+    final String contextConfigurationString = this.configurationSerializer.toString(contextConfiguration);
+    this.launchWithConfigurationString(
+        contextConfigurationString, Optional.<String>empty(), Optional.of(taskConfiguration));
   }
 
   @Override
@@ -111,16 +119,37 @@ public final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
     return this.evaluatorManager.getEvaluatorDescriptor();
   }
 
-
   @Override
   public void submitContext(final Configuration contextConfiguration) {
-    launchWithTaskString(contextConfiguration, Optional.<Configuration>empty(), Optional.<String>empty());
+    launch(contextConfiguration, Optional.<Configuration>empty(), Optional.<Configuration>empty());
+  }
+
+  /**
+   * Submit Context with configuration strings.
+   * This method should be called from bridge and the configuration strings are
+   * serialized at .Net side.
+   * @param contextConfiguration
+   */
+  public void submitContext(final String contextConfiguration) {
+    launchWithConfigurationString(contextConfiguration, Optional.<String>empty(), Optional.<String>empty());
   }
 
   @Override
   public void submitContextAndService(final Configuration contextConfiguration,
                                       final Configuration serviceConfiguration) {
-    launchWithTaskString(contextConfiguration, Optional.of(serviceConfiguration), Optional.<String>empty());
+    launch(contextConfiguration, Optional.of(serviceConfiguration), Optional.<Configuration>empty());
+  }
+
+  /**
+   * Submit Context and Service with configuration strings.
+   * This method should be called from bridge and the configuration strings are
+   * serialized at .Net side.
+   * @param contextConfiguration
+   * @param serviceConfiguration
+   */
+  public void submitContextAndService(final String contextConfiguration,
+                                      final String serviceConfiguration) {
+    launchWithConfigurationString(contextConfiguration, Optional.of(serviceConfiguration), Optional.<String>empty());
   }
 
   @Override
@@ -129,11 +158,17 @@ public final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
     launch(contextConfiguration, Optional.<Configuration>empty(), Optional.of(taskConfiguration));
   }
 
-  public void submitContextAndTask(final Configuration contextConfiguration,
+  /**
+   * Submit Context and Task with configuration strings.
+   * This method should be called from bridge and the configuration strings are
+   * serialized at .Net side.
+   * @param contextConfiguration
+   * @param taskConfiguration
+   */
+  public void submitContextAndTask(final String contextConfiguration,
                                    final String taskConfiguration) {
-    launchWithTaskString(contextConfiguration, Optional.<Configuration>empty(), Optional.of(taskConfiguration));
+    this.launchWithConfigurationString(contextConfiguration, Optional.<String>empty(), Optional.of(taskConfiguration));
   }
-
 
   @Override
   public void submitContextAndServiceAndTask(final Configuration contextConfiguration,
@@ -142,10 +177,19 @@ public final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
     launch(contextConfiguration, Optional.of(serviceConfiguration), Optional.of(taskConfiguration));
   }
 
-  public void submitContextAndServiceAndTask(final Configuration contextConfiguration,
-                                             final Configuration serviceConfiguration,
+  /**
+   * Submit Context and Service with configuration strings.
+   * This method should be called from bridge and the configuration strings are
+   * serialized at .Net side
+   * @param contextConfiguration
+   * @param serviceConfiguration
+   * @param taskConfiguration
+   */
+  public void submitContextAndServiceAndTask(final String contextConfiguration,
+                                             final String serviceConfiguration,
                                              final String taskConfiguration) {
-    launchWithTaskString(contextConfiguration, Optional.of(serviceConfiguration), Optional.of(taskConfiguration));
+    launchWithConfigurationString(
+        contextConfiguration, Optional.of(serviceConfiguration), Optional.of(taskConfiguration));
   }
 
   @Override
@@ -166,13 +210,25 @@ public final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
   private void launch(final Configuration contextConfiguration,
                       final Optional<Configuration> serviceConfiguration,
                       final Optional<Configuration> taskConfiguration) {
-    launchWithTaskString(contextConfiguration, serviceConfiguration,
-        Optional.of(this.configurationSerializer.toString(taskConfiguration.get())));
+    try (final LoggingScope lb = loggingScopeFactory.evaluatorLaunch(this.getId())) {
+      final Configuration evaluatorConfiguration =
+          makeEvaluatorConfiguration(contextConfiguration, serviceConfiguration, taskConfiguration);
+
+      resourceBuildAndLaunch(evaluatorConfiguration);
+    }
   }
 
-  private void launchWithTaskString(final Configuration contextConfiguration,
-                      final Optional<Configuration> serviceConfiguration,
-                      final Optional<String> taskConfiguration) {
+  /**
+   * Submit Context, Service and Task with configuration strings.
+   * This method should be called from bridge and the configuration strings are
+   * serialized at .Net side
+   * @param contextConfiguration
+   * @param serviceConfiguration
+   * @param taskConfiguration
+   */
+  private void launchWithConfigurationString(final String contextConfiguration,
+                                    final Optional<String> serviceConfiguration,
+                                    final Optional<String> taskConfiguration) {
     try (final LoggingScope lb = loggingScopeFactory.evaluatorLaunch(this.getId())) {
       final Configuration evaluatorConfiguration =
           makeEvaluatorConfiguration(contextConfiguration, serviceConfiguration, taskConfiguration);
@@ -194,11 +250,47 @@ public final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
     this.evaluatorManager.onResourceLaunch(rbuilder.build());
   }
 
+  /**
+   * Make configuration for evaluator.
+   * @param contextConfiguration
+   * @param serviceConfiguration
+   * @param taskConfiguration
+   * @return Configuration
+   */
   private Configuration makeEvaluatorConfiguration(final Configuration contextConfiguration,
                                                    final Optional<Configuration> serviceConfiguration,
-                                                   final Optional<String> taskConfiguration) {
+                                                   final Optional<Configuration> taskConfiguration) {
 
     final String contextConfigurationString = this.configurationSerializer.toString(contextConfiguration);
+
+    final Optional<String> taskConfigurationString;
+    if (taskConfiguration.isPresent()) {
+      taskConfigurationString = Optional.of(this.configurationSerializer.toString(taskConfiguration.get()));
+    } else {
+      taskConfigurationString = Optional.<String>empty();
+    }
+
+    final Optional<Configuration> mergedServiceConfiguration = makeRootServiceConfiguration(serviceConfiguration);
+    if (mergedServiceConfiguration.isPresent()) {
+      final String serviceConfigurationString = this.configurationSerializer.toString(mergedServiceConfiguration.get());
+      return makeEvaluatorConfiguration(
+          contextConfigurationString, Optional.of(serviceConfigurationString), taskConfigurationString);
+    } else {
+      return makeEvaluatorConfiguration(contextConfigurationString,  Optional.<String>empty(), taskConfigurationString);
+    }
+  }
+
+  /**
+   * Make configuration for Evaluator.
+   * @param contextConfiguration
+   * @param serviceConfiguration
+   * @param taskConfiguration
+   * @return Configuration
+   */
+  private Configuration makeEvaluatorConfiguration(final String contextConfiguration,
+                                                   final Optional<String> serviceConfiguration,
+                                                   final Optional<String> taskConfiguration) {
+
     final ConfigurationModule evaluatorConfigModule;
     if (this.evaluatorManager.getEvaluatorDescriptor().getProcess() instanceof CLRProcess) {
       evaluatorConfigModule = EvaluatorConfiguration.CONFCLR;
@@ -209,21 +301,18 @@ public final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
         .set(EvaluatorConfiguration.APPLICATION_IDENTIFIER, this.jobIdentifier)
         .set(EvaluatorConfiguration.DRIVER_REMOTE_IDENTIFIER, this.remoteID)
         .set(EvaluatorConfiguration.EVALUATOR_IDENTIFIER, this.getId())
-        .set(EvaluatorConfiguration.ROOT_CONTEXT_CONFIGURATION, contextConfigurationString);
+        .set(EvaluatorConfiguration.ROOT_CONTEXT_CONFIGURATION, contextConfiguration);
 
     // Add the (optional) service configuration
-    final Optional<Configuration> mergedServiceConfiguration = makeRootServiceConfiguration(serviceConfiguration);
-    if (mergedServiceConfiguration.isPresent()) {
-      final String serviceConfigurationString = this.configurationSerializer.toString(mergedServiceConfiguration.get());
+    if (serviceConfiguration.isPresent()) {
       evaluatorConfigurationModule = evaluatorConfigurationModule
-          .set(EvaluatorConfiguration.ROOT_SERVICE_CONFIGURATION, serviceConfigurationString);
+          .set(EvaluatorConfiguration.ROOT_SERVICE_CONFIGURATION, serviceConfiguration.get());
     }
 
     // Add the (optional) task configuration
     if (taskConfiguration.isPresent()) {
-      final String taskConfigurationString = taskConfiguration.get();
       evaluatorConfigurationModule = evaluatorConfigurationModule
-          .set(EvaluatorConfiguration.TASK_CONFIGURATION, taskConfigurationString);
+          .set(EvaluatorConfiguration.TASK_CONFIGURATION, taskConfiguration.get());
     }
 
     // Create the evaluator configuration.

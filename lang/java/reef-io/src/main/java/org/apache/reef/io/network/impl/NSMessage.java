@@ -44,7 +44,7 @@ public class NSMessage<T> implements Message<T> {
   public NSMessage(final Identifier srcId, final Identifier destId, final T data) {
     this.srcId = srcId;
     this.destId = destId;
-    this.data = new ArrayList<T>(1);
+    this.data = new ArrayList<>(1);
     this.data.add(data);
   }
 

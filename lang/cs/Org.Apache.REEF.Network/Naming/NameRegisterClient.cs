@@ -58,7 +58,7 @@ namespace Org.Apache.REEF.Network.Naming
         /// <summary>
         /// Synchronously unregisters the identifier with the NameServer.
         /// </summary>
-        /// <param name="id">The identifer to unregister</param>
+        /// <param name="id">The identifier to unregister</param>
         public void Unregister(string id)
         {
             _client.Send(new NamingUnregisterRequest(id));

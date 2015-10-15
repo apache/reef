@@ -44,10 +44,10 @@ namespace Org.Apache.REEF.Examples.MachineLearning.KMeans.codecs
 
         public ProcessedResults Decode(byte[] data)
         {
-            string[] parts = ByteUtilities.ByteArrarysToString(data).Split('+');
+            string[] parts = ByteUtilities.ByteArraysToString(data).Split('+');
             if (parts.Count() != 2)
             {
-                throw new ArgumentException("cannot deserialize from" + ByteUtilities.ByteArrarysToString(data));
+                throw new ArgumentException("cannot deserialize from" + ByteUtilities.ByteArraysToString(data));
             }
             float loss = float.Parse(parts[0], CultureInfo.InvariantCulture);
             List<PartialMean> means = parts[1].Split('@').Select(PartialMean.FromString).ToList();

@@ -108,8 +108,9 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
         {
             LOGGER.Log(Level.Info, "AllocatedEvaluator::SubmitContextAndService");
 
+            var serviceConf = MergeWithConfigurationProviders(serviceConfiguration);
             string context = _serializer.ToString(contextConfiguration);
-            string service = _serializer.ToString(WrapServiceConfigAsString(serviceConfiguration));
+            string service = _serializer.ToString(WrapServiceConfigAsString(serviceConf));
 
             LOGGER.Log(Level.Verbose, "serialized contextConfiguration: " + context);
             LOGGER.Log(Level.Verbose, "serialized serviceConfiguration: " + service);
@@ -121,10 +122,9 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
         {
             LOGGER.Log(Level.Info, "AllocatedEvaluator::SubmitContextAndServiceAndTask");
 
-            //TODO: Change this to service configuration when REEF-289(https://issues.apache.org/jira/browse/REEF-289) is fixed.
-            taskConfiguration = MergeWithConfigurationProviders(taskConfiguration);
+            var serviceConf = MergeWithConfigurationProviders(serviceConfiguration);
             string context = _serializer.ToString(contextConfiguration);
-            string service = _serializer.ToString(WrapServiceConfigAsString(serviceConfiguration));
+            string service = _serializer.ToString(WrapServiceConfigAsString(serviceConf));
             string task = _serializer.ToString(taskConfiguration);
 
             LOGGER.Log(Level.Verbose, "serialized contextConfiguration: " + context);
@@ -173,18 +173,12 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
                 {
                     if (pair.Value.Equals(_evaluatorDescriptor))
                     {
-                        string key = pair.Key;
+                        var key = pair.Key;
                         EvaluatorRequestor.Evaluators.Remove(key);
-                        string assignedId = key.Substring(0, key.LastIndexOf('_'));
-                        string message = string.Format(
-                            CultureInfo.InvariantCulture,
-                            "Received evalautor [{0}] of memory {1}MB that matches request of {2}MB with batch id [{3}].",
-                            Id,
-                            _evaluatorDescriptor.Memory,
-                            pair.Value.Memory,
-                            assignedId);
+                        var assignedId = key.Substring(0, key.LastIndexOf(EvaluatorRequestor.BatchIdxSeparator));
 
-                        LOGGER.Log(Level.Verbose, message);
+                        LOGGER.Log(Level.Verbose, "Received evaluator [{0}] of memory {1}MB that matches request of {2}MB with batch id [{3}].", 
+                            Id, _evaluatorDescriptor.Memory, pair.Value.Memory, assignedId);
                         EvaluatorBatchId = assignedId;
                         break;
                     }

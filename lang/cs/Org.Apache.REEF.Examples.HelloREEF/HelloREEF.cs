@@ -20,7 +20,7 @@
 using System;
 using Org.Apache.REEF.Client.API;
 using Org.Apache.REEF.Client.Local;
-using Org.Apache.REEF.Client.YARN;
+using Org.Apache.REEF.Client.Yarn;
 using Org.Apache.REEF.Driver;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Implementations.Tang;
@@ -63,7 +63,7 @@ namespace Org.Apache.REEF.Examples.HelloREEF
                 .SetJobIdentifier("HelloREEF")
                 .Build();
 
-            _reefClient.Submit(helloJobSubmission);
+            _reefClient.SubmitAndGetDriverUrl(helloJobSubmission);
         }
 
         /// <summary>

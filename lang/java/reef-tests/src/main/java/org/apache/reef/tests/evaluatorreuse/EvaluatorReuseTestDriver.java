@@ -35,6 +35,7 @@ import org.apache.reef.wake.EventHandler;
 
 import javax.inject.Inject;
 import javax.xml.bind.DatatypeConverter;
+import java.nio.charset.StandardCharsets;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -60,8 +61,8 @@ final class EvaluatorReuseTestDriver {
     if (counter < numberOfIterations) {
       try {
         this.lastMessage = "ECHO-" + counter;
-        client.sendMessageToClient(("Submitting iteration " + counter).getBytes());
-        final String memento = DatatypeConverter.printBase64Binary(this.lastMessage.getBytes());
+        client.sendMessageToClient(("Submitting iteration " + counter).getBytes(StandardCharsets.UTF_8));
+        final String memento = DatatypeConverter.printBase64Binary(this.lastMessage.getBytes(StandardCharsets.UTF_8));
         context.submitTask(TaskConfiguration.CONF
             .set(TaskConfiguration.IDENTIFIER, this.lastMessage)
             .set(TaskConfiguration.TASK, EchoTask.class)
@@ -73,7 +74,7 @@ final class EvaluatorReuseTestDriver {
         throw new RuntimeException(e);
       }
     } else {
-      client.sendMessageToClient("Done. Closing the Context".getBytes());
+      client.sendMessageToClient("Done. Closing the Context".getBytes(StandardCharsets.UTF_8));
       context.close();
     }
   }
@@ -85,9 +86,9 @@ final class EvaluatorReuseTestDriver {
   final class TaskCompletedHandler implements EventHandler<CompletedTask> {
     @Override
     public void onNext(final CompletedTask completed) {
-      final String returned = new String(completed.get());
+      final String returned = new String(completed.get(), StandardCharsets.UTF_8);
       final String msg = "CompletedTask returned: \"" + returned + "\"";
-      client.sendMessageToClient(msg.getBytes());
+      client.sendMessageToClient(msg.getBytes(StandardCharsets.UTF_8));
       if (!returned.equals(lastMessage)) {
         throw new UnexpectedTaskReturnValue(lastMessage, returned);
       } else {

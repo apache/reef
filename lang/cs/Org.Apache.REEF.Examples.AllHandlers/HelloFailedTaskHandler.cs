@@ -48,7 +48,7 @@ namespace Org.Apache.REEF.Examples.AllHandlers
                 failedTask.Reason.IsPresent() ? failedTask.Reason.Value : string.Empty,
                 failedTask.Message,
                 failedTask.Description.IsPresent() ? failedTask.Description.Value : string.Empty,
-                failedTask.Data.IsPresent() ? ByteUtilities.ByteArrarysToString(failedTask.Data.Value) : string.Empty);
+                failedTask.Data.IsPresent() ? ByteUtilities.ByteArraysToString(failedTask.Data.Value) : string.Empty);
 
             Console.WriteLine(errorMessage);
 

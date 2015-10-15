@@ -48,6 +48,13 @@ public interface Topology {
   String getRootId();
 
   /**
+   * Check whether the root node has been added or not.
+   *
+   * @return {@code true} if root has been added, {@code false} otherwise
+   */
+  boolean isRootPresent();
+
+  /**
    * Set task with id 'senderId' as.
    * the root of this topology
    *

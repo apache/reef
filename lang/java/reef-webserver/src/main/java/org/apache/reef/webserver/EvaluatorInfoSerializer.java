@@ -24,6 +24,9 @@ import org.apache.reef.tang.annotations.DefaultImplementation;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Interface for EvaluatorInfoSerializer.
+ */
 @DefaultImplementation(AvroEvaluatorInfoSerializer.class)
 public interface EvaluatorInfoSerializer {
 

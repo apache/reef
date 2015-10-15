@@ -148,6 +148,7 @@ namespace Org {
 						  virtual void OnError(String^ message);
 						  virtual IActiveContextClr2Java^ GetActiveContext();
 						  virtual String^ GetId();
+						  virtual array<byte>^ Get();
 					  };
 
 					  public ref class SuspendedTaskClr2Java : public ISuspendedTaskClr2Java {
@@ -221,11 +222,13 @@ namespace Org {
 						  JavaVM* _jvm;
 						  array<String^>^ _expectedEvaluatorIds;
 						  DateTime _startTime;
+						  int _resubmissionAttempts;
 					  public:
 						  DriverRestartedClr2Java(JNIEnv *env, jobject jobjectDriverRestarted);
 						  virtual void OnError(String^ message);
 						  virtual array<String^>^ GetExpectedEvaluatorIds();
 						  virtual DateTime GetStartTime();
+						  virtual int GetResubmissionAttempts();
 					  };
 
 					  public ref class DriverRestartCompletedClr2Java : public IDriverRestartCompletedClr2Java {

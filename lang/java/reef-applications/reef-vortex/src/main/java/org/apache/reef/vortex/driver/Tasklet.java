@@ -28,7 +28,7 @@ import java.io.Serializable;
  * Representation of user task in Driver.
  */
 @DriverSide
-class Tasklet<TInput extends Serializable, TOutput extends Serializable> implements Serializable {
+class Tasklet<TInput extends Serializable, TOutput extends Serializable> {
   private final int taskletId;
   private final VortexFunction<TInput, TOutput> userTask;
   private final TInput input;

@@ -51,7 +51,7 @@ namespace Org.Apache.REEF.Tang.Tests.ScenarioTest
     }
 
     [TestClass]
-    public class TestSenarios
+    public class TestScenarios
     {
         [TestMethod]
         public void TestRuntimeClock()
@@ -68,9 +68,9 @@ namespace Org.Apache.REEF.Tang.Tests.ScenarioTest
                 new ConfigurationModuleBuilder()
                 .BindSetEntry<RuntimeStartHandler, EvaluatorRuntime, IObserver<RuntimeStart>>(GenericType<RuntimeStartHandler>.Class, GenericType<EvaluatorRuntime>.Class)
                 .Build();
-            IConfiguration clockConfiguraiton = module.Build();
+            IConfiguration clockConfiguration = module.Build();
 
-            RuntimeClock clock = TangFactory.GetTang().NewInjector(clockConfiguraiton).GetInstance<RuntimeClock>();
+            RuntimeClock clock = TangFactory.GetTang().NewInjector(clockConfiguration).GetInstance<RuntimeClock>();
             var r = clock.ClockRuntimeStartHandler.Get();
             Assert.AreEqual(r.Count, 1);
             foreach (var e in r)

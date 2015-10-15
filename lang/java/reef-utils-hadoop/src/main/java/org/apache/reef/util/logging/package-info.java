@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * Utilities for logging on Hadoop.
  */
 package org.apache.reef.util.logging;

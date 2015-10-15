@@ -108,6 +108,7 @@ under the License.
     <Compile Include="Tang\TestExternalConstructors.cs" />
     <Compile Include="Tang\TestLegacyConstructors.cs" />
     <Compile Include="Tang\TestTang.cs" />
+    <Compile Include="Utilities\AssemblyLoaderTests.cs" />
     <Compile Include="Utilities\TestUtilities.cs" />
     <Compile Include="Utilities\Utilities.cs" />
   </ItemGroup>

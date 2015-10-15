@@ -39,7 +39,9 @@ namespace Org {
 
 							jclass jclassDriverRestarted = env->GetObjectClass(_jobjectDriverRestarted);
 							jfieldID jidExpectedEvaluatorIds = env->GetFieldID(jclassDriverRestarted, "expectedEvaluatorIds", "[Ljava/lang/String;");
+							jfieldID jidResubmissionAttempts = env->GetFieldID(jclassDriverRestarted, "resubmissionAttempts", "I");
 
+							_resubmissionAttempts = env->GetIntField(_jobjectDriverRestarted, jidResubmissionAttempts);
 							jobjectArray jevaluatorIds = reinterpret_cast<jobjectArray>(env->NewGlobalRef(env->GetObjectField(_jobjectDriverRestarted, jidExpectedEvaluatorIds)));
 							_startTime = System::DateTime::Now;
 							int count = env->GetArrayLength(jevaluatorIds);
@@ -59,6 +61,10 @@ namespace Org {
 
 						DateTime DriverRestartedClr2Java::GetStartTime() {
 							return _startTime;
+						}
+
+						int DriverRestartedClr2Java::GetResubmissionAttempts() {
+							return _resubmissionAttempts;
 						}
 
 						void DriverRestartedClr2Java::OnError(String^ message) {

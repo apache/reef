@@ -19,7 +19,7 @@
 
 namespace Org.Apache.REEF.Driver.Bridge.Clr2java
 {
-    public interface ICompletedTaskClr2Java : IClr2Java
+    public interface ICompletedTaskClr2Java : IClr2Java, IClr2JavaTaskMessage
     {
         IActiveContextClr2Java GetActiveContext();
         

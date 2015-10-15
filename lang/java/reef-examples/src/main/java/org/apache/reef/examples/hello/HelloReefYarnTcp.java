@@ -91,9 +91,9 @@ public final class HelloReefYarnTcp {
    * @throws InjectionException configuration error.
    */
   public static void main(final String[] args) throws BindException, InjectionException {
-    final int tcpBeginPort = args.length > 0 ? Integer.valueOf(args[0]) : DEFAULT_TCP_BEGIN_PORT;
-    final int tcpRangeCount = args.length > 1 ? Integer.valueOf(args[1]) : DEFAULT_TCP_RANGE_COUNT;
-    final int tcpTryCount = args.length > 2 ? Integer.valueOf(args[2]) : DEFAULT_TCP_RANGE_TRY_COUNT;
+    final int tcpBeginPort = args.length > 0 ? Integer.parseInt(args[0]) : DEFAULT_TCP_BEGIN_PORT;
+    final int tcpRangeCount = args.length > 1 ? Integer.parseInt(args[1]) : DEFAULT_TCP_RANGE_COUNT;
+    final int tcpTryCount = args.length > 2 ? Integer.parseInt(args[2]) : DEFAULT_TCP_RANGE_TRY_COUNT;
 
     final Configuration runtimeConf = getRuntimeConfiguration(tcpBeginPort, tcpRangeCount, tcpTryCount);
     final Configuration driverConf = getDriverConfiguration();

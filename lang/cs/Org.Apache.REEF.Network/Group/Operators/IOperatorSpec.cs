@@ -17,6 +17,7 @@
  * under the License.
  */
 
+using System;
 using Org.Apache.REEF.Tang.Interface;
 
 namespace Org.Apache.REEF.Network.Group.Operators
@@ -24,8 +25,12 @@ namespace Org.Apache.REEF.Network.Group.Operators
     /// <summary>
     /// The specification used to define Broadcast Operators.
     /// </summary>
+    // TODO[REEF-842] Act on the obsoletes
     public interface IOperatorSpec
     {
+        [Obsolete("Deprecated in 0.14, please use Configuration instead.")]
         IConfiguration Configiration { get; }
+
+        IConfiguration Configuration { get; }
     }
 }

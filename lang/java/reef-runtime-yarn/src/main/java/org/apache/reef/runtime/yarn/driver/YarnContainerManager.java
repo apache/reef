@@ -20,6 +20,7 @@ package org.apache.reef.runtime.yarn.driver;
 
 import com.google.protobuf.ByteString;
 import org.apache.commons.collections.ListUtils;
+import org.apache.hadoop.fs.*;
 import org.apache.hadoop.service.Service;
 import org.apache.hadoop.yarn.api.records.*;
 import org.apache.hadoop.yarn.client.api.AMRMClient;
@@ -29,6 +30,8 @@ import org.apache.hadoop.yarn.client.api.async.NMClientAsync;
 import org.apache.hadoop.yarn.client.api.async.impl.NMClientAsyncImpl;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.exceptions.YarnException;
+import org.apache.reef.driver.ProgressProvider;
+import org.apache.reef.driver.parameters.JobSubmissionDirectory;
 import org.apache.reef.exception.DriverFatalRuntimeException;
 import org.apache.reef.proto.ReefServiceProtos;
 import org.apache.reef.runtime.common.driver.DriverStatusManager;
@@ -36,6 +39,7 @@ import org.apache.reef.runtime.common.driver.resourcemanager.NodeDescriptorEvent
 import org.apache.reef.runtime.common.driver.resourcemanager.ResourceEventImpl;
 import org.apache.reef.runtime.common.driver.resourcemanager.ResourceStatusEventImpl;
 import org.apache.reef.runtime.common.driver.resourcemanager.RuntimeStatusEventImpl;
+import org.apache.reef.runtime.common.files.REEFFileNames;
 import org.apache.reef.runtime.yarn.driver.parameters.YarnHeartbeatPeriod;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.util.Optional;
@@ -75,7 +79,10 @@ final class YarnContainerManager
   private final ContainerRequestCounter containerRequestCounter;
   private final DriverStatusManager driverStatusManager;
   private final TrackingURLProvider trackingURLProvider;
+  private final String jobSubmissionDirectory;
+  private final REEFFileNames reefFileNames;
   private final RackNameFormatter rackNameFormatter;
+  private final ProgressProvider progressProvider;
 
   @Inject
   YarnContainerManager(
@@ -86,9 +93,11 @@ final class YarnContainerManager
       final ApplicationMasterRegistration registration,
       final ContainerRequestCounter containerRequestCounter,
       final DriverStatusManager driverStatusManager,
+      final REEFFileNames reefFileNames,
+      @Parameter(JobSubmissionDirectory.class) final String jobSubmissionDirectory,
       final TrackingURLProvider trackingURLProvider,
-      final RackNameFormatter rackNameFormatter) throws IOException {
-
+      final RackNameFormatter rackNameFormatter,
+      final ProgressProvider progressProvider) throws IOException {
     this.reefEventHandlers = reefEventHandlers;
     this.driverStatusManager = driverStatusManager;
 
@@ -104,6 +113,9 @@ final class YarnContainerManager
 
     this.resourceManager = AMRMClientAsync.createAMRMClientAsync(yarnRMHeartbeatPeriod, this);
     this.nodeManager = new NMClientAsyncImpl(this);
+    this.jobSubmissionDirectory = jobSubmissionDirectory;
+    this.reefFileNames = reefFileNames;
+    this.progressProvider = progressProvider;
     LOG.log(Level.FINEST, "Instantiated YarnContainerManager");
   }
 
@@ -150,7 +162,7 @@ final class YarnContainerManager
 
   @Override
   public float getProgress() {
-    return 0; // TODO: return actual values for progress
+    return progressProvider.getProgress();
   }
 
   @Override
@@ -250,7 +262,12 @@ final class YarnContainerManager
       this.registration.setRegistration(this.resourceManager.registerApplicationMaster(
           "", 0, this.trackingURLProvider.getTrackingUrl()));
       LOG.log(Level.FINE, "YARN registration: {0}", registration);
-
+      final FileSystem fs = FileSystem.get(this.yarnConf);
+      final Path outputFileName = new Path(this.jobSubmissionDirectory, this.reefFileNames.getDriverHttpEndpoint());
+      final FSDataOutputStream out = fs.create(outputFileName);
+      out.writeBytes(this.trackingURLProvider.getTrackingUrl() + "\n");
+      out.flush();
+      out.close();
     } catch (final YarnException | IOException e) {
       LOG.log(Level.WARNING, "Unable to register application master.", e);
       onRuntimeError(e);

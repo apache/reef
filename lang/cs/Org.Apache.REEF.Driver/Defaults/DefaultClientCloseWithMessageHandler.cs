@@ -37,7 +37,7 @@ namespace Org.Apache.REEF.Driver.Defaults
         
         public void OnNext(byte[] value)
         {
-            Exceptions.Throw(new InvalidOperationException("No handler bound for client Close With Message event:" + ByteUtilities.ByteArrarysToString(value)), 
+            Exceptions.Throw(new InvalidOperationException("No handler bound for client Close With Message event:" + ByteUtilities.ByteArraysToString(value)), 
                 Logger.GetLogger(typeof(DefaultClientCloseWithMessageHandler)));
         }
 

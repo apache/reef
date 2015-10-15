@@ -45,7 +45,7 @@ public class PubSubEventHandler<T> implements EventHandler<T> {
    * Constructs a pub-sub event handler.
    */
   public PubSubEventHandler() {
-    this.clazzToListOfHandlersMap = new HashMap<Class<? extends T>, List<EventHandler<? extends T>>>();
+    this.clazzToListOfHandlersMap = new HashMap<>();
   }
 
   /**

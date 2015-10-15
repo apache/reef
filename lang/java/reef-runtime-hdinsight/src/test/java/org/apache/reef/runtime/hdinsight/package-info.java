@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * Tests for HDInsight support.
  */
 package org.apache.reef.runtime.hdinsight;

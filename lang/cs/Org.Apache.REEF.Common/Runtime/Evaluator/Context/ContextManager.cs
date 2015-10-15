@@ -237,6 +237,14 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
         }
 
         /// <summary>
+        /// Propagates the IDriverConnection message to the top level ContextRuntime.
+        /// </summary>
+        internal void HandleDriverConnectionMessage(IDriverConnectionMessage message)
+        {
+            _contextStack.Peek().HandleDriverConnectionMessage(message);
+        }
+
+        /// <summary>
         /// Add a context to the stack.
         /// </summary>
         /// <param name="addContextProto"></param>

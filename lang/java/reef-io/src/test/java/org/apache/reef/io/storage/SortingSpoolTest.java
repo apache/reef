@@ -74,7 +74,7 @@ public class SortingSpoolTest {
 
   void genericTest(final Spool<Integer> s, final Comparator<Integer> comparator)
       throws ServiceException {
-    final List<Integer> l = new ArrayList<Integer>();
+    final List<Integer> l = new ArrayList<>();
     final Random r = new Random(42);
     while (l.size() < 100) {
       l.add(r.nextInt(75));
@@ -84,7 +84,7 @@ public class SortingSpoolTest {
       a.add(l.get(i));
     }
     a.close();
-    final List<Integer> m = new ArrayList<Integer>();
+    final List<Integer> m = new ArrayList<>();
     for (final int i : s) {
       m.add(i);
     }

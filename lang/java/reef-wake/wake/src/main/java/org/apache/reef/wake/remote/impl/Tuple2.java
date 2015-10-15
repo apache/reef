@@ -49,6 +49,12 @@ public class Tuple2<T1, T2> {
 
   @Override
   public boolean equals(final Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
     final Tuple2<T1, T2> tuple = (Tuple2<T1, T2>) o;
     return t1.equals((Object) tuple.getT1()) && t2.equals((Object) tuple.getT2());
   }
