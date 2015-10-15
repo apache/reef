@@ -46,7 +46,7 @@ public final class LegacyLocalAddressProvider implements LocalAddressProvider {
    */
   @Inject
   private LegacyLocalAddressProvider() {
-    LOG.log(Level.INFO, "Instantiating LegacyLocalAddressProvider");
+    LOG.log(Level.FINE, "Instantiating LegacyLocalAddressProvider");
   }
 
   @Override
