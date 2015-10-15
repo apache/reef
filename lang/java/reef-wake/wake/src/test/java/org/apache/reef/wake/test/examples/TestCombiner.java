@@ -57,7 +57,6 @@ public class TestCombiner {
 
           @Override
           public void onNext(final Entry<Integer, Integer> value) {
-            System.out.println(value.getKey() + "=" + value.getValue());
             x.incrementAndGet();
             try {
               if (!done) {
