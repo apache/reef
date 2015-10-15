@@ -30,8 +30,7 @@ import org.apache.reef.io.network.group.api.driver.CommunicationGroupDriver;
 import org.apache.reef.io.network.group.api.driver.GroupCommServiceDriver;
 import org.apache.reef.io.network.group.impl.GroupCommunicationMessage;
 import org.apache.reef.io.network.group.impl.GroupCommunicationMessageCodec;
-import org.apache.reef.io.network.group.impl.config.parameters.SerializedGroupConfigs;
-import org.apache.reef.io.network.group.impl.config.parameters.TreeTopologyFanOut;
+import org.apache.reef.io.network.group.impl.config.parameters.*;
 import org.apache.reef.io.network.group.impl.task.GroupCommNetworkHandlerImpl;
 import org.apache.reef.io.network.group.impl.utils.BroadcastingEventHandler;
 import org.apache.reef.io.network.group.impl.utils.Utils;
@@ -66,6 +65,7 @@ import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -80,6 +80,8 @@ public class GroupCommDriverImpl implements GroupCommServiceDriver {
    * TANG instance.
    */
   private static final Tang TANG = Tang.Factory.getTang();
+
+  private final CommunicationGroupDriverFactory commGroupDriverFactory;
 
   private final AtomicInteger contextIds = new AtomicInteger(0);
 
@@ -96,9 +98,6 @@ public class GroupCommDriverImpl implements GroupCommServiceDriver {
 
   private final NetworkService<GroupCommunicationMessage> netService;
 
-  private final EStage<GroupCommunicationMessage> senderStage;
-
-  private final String driverId;
   private final BroadcastingEventHandler<RunningTask> groupCommRunningTaskHandler;
   private final EStage<RunningTask> groupCommRunningTaskStage;
   private final BroadcastingEventHandler<FailedTask> groupCommFailedTaskHandler;
@@ -135,7 +134,6 @@ public class GroupCommDriverImpl implements GroupCommServiceDriver {
                              final TransportFactory tpFactory,
                              final NameServer nameService) {
     assert (SingletonAsserter.assertSingleton(getClass()));
-    this.driverId = driverId;
     this.fanOut = fanOut;
     this.nameService = nameService;
     this.nameServiceAddr = localAddressProvider.getLocalAddress();
@@ -157,10 +155,9 @@ public class GroupCommDriverImpl implements GroupCommServiceDriver {
         .build())
         .build();
 
-    final Injector injector = Tang.Factory.getTang().newInjector(nameResolverConf);
     NameResolver nameResolver = null;
     try {
-      nameResolver = injector.getInstance(NameResolver.class);
+      nameResolver = Tang.Factory.getTang().newInjector(nameResolverConf).getInstance(NameResolver.class);
     } catch (final InjectionException e) {
       throw new RuntimeException(e);
     }
@@ -175,7 +172,21 @@ public class GroupCommDriverImpl implements GroupCommServiceDriver {
           }
         }, new LoggingEventHandler<Exception>(), localAddressProvider);
     this.netService.registerId(idFac.getNewInstance(driverId));
-    this.senderStage = new ThreadPoolStage<>("SrcCtrlMsgSender", new CtrlMsgSender(idFac, netService), 5);
+    final EStage<GroupCommunicationMessage> senderStage
+        = new ThreadPoolStage<>("SrcCtrlMsgSender", new CtrlMsgSender(idFac, netService), 5);
+
+    final Injector injector = TANG.newInjector();
+    injector.bindVolatileParameter(GroupCommSenderStage.class, senderStage);
+    injector.bindVolatileParameter(DriverIdentifier.class, driverId);
+    injector.bindVolatileParameter(GroupCommRunningTaskHandler.class, groupCommRunningTaskHandler);
+    injector.bindVolatileParameter(GroupCommFailedTaskHandler.class, groupCommFailedTaskHandler);
+    injector.bindVolatileParameter(GroupCommFailedEvalHandler.class, groupCommFailedEvaluatorHandler);
+
+    try {
+      commGroupDriverFactory = injector.getInstance(CommunicationGroupDriverFactory.class);
+    } catch (final InjectionException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   @Override
@@ -189,21 +200,19 @@ public class GroupCommDriverImpl implements GroupCommServiceDriver {
                                                         final int numberOfTasks, final int customFanOut) {
     LOG.entering("GroupCommDriverImpl", "newCommunicationGroup",
         new Object[]{Utils.simpleName(groupName), numberOfTasks});
-    final BroadcastingEventHandler<RunningTask> commGroupRunningTaskHandler = new BroadcastingEventHandler<>();
-    final BroadcastingEventHandler<FailedTask> commGroupFailedTaskHandler = new BroadcastingEventHandler<>();
-    final BroadcastingEventHandler<FailedEvaluator> commGroupFailedEvaluatorHandler = new BroadcastingEventHandler<>();
-    final BroadcastingEventHandler<GroupCommunicationMessage> commGroupMessageHandler =
-        new BroadcastingEventHandler<>();
-    final CommunicationGroupDriver commGroupDriver = new CommunicationGroupDriverImpl(groupName, confSerializer,
-        senderStage,
-        commGroupRunningTaskHandler,
-        commGroupFailedTaskHandler,
-        commGroupFailedEvaluatorHandler,
-        commGroupMessageHandler,
-        driverId, numberOfTasks, customFanOut);
+
+    final BroadcastingEventHandler<GroupCommunicationMessage> commGroupMessageHandler
+        = new BroadcastingEventHandler<>();
+    final CommunicationGroupDriver commGroupDriver;
+    try {
+      commGroupDriver
+          = commGroupDriverFactory.getNewInstance(groupName, commGroupMessageHandler, numberOfTasks, customFanOut);
+    } catch (final InjectionException e) {
+      LOG.log(Level.WARNING, "Cannot inject new CommunicationGroupDriver");
+      throw new RuntimeException(e);
+    }
+
     commGroupDrivers.put(groupName, commGroupDriver);
-    groupCommRunningTaskHandler.addHandler(commGroupRunningTaskHandler);
-    groupCommFailedTaskHandler.addHandler(commGroupFailedTaskHandler);
     groupCommMessageHandler.addHandler(groupName, commGroupMessageHandler);
     LOG.exiting("GroupCommDriverImpl", "newCommunicationGroup",
         "Created communication group: " + Utils.simpleName(groupName));

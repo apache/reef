@@ -33,9 +33,7 @@ import org.apache.reef.io.network.group.impl.config.BroadcastOperatorSpec;
 import org.apache.reef.io.network.group.impl.config.GatherOperatorSpec;
 import org.apache.reef.io.network.group.impl.config.ReduceOperatorSpec;
 import org.apache.reef.io.network.group.impl.config.ScatterOperatorSpec;
-import org.apache.reef.io.network.group.impl.config.parameters.CommunicationGroupName;
-import org.apache.reef.io.network.group.impl.config.parameters.OperatorName;
-import org.apache.reef.io.network.group.impl.config.parameters.SerializedOperConfigs;
+import org.apache.reef.io.network.group.impl.config.parameters.*;
 import org.apache.reef.io.network.group.impl.utils.BroadcastingEventHandler;
 import org.apache.reef.io.network.group.impl.utils.CountingSemaphore;
 import org.apache.reef.io.network.group.impl.utils.SetMap;
@@ -46,14 +44,17 @@ import org.apache.reef.tang.Injector;
 import org.apache.reef.tang.JavaConfigurationBuilder;
 import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.annotations.Name;
+import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.tang.formats.ConfigurationSerializer;
 import org.apache.reef.wake.EStage;
 
+import javax.inject.Inject;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @DriverSide
@@ -68,9 +69,7 @@ public class CommunicationGroupDriverImpl implements CommunicationGroupDriver {
   private final Map<String, TaskState> perTaskState = new HashMap<>();
   private boolean finalised = false;
   private final ConfigurationSerializer confSerializer;
-  private final EStage<GroupCommunicationMessage> senderStage;
   private final String driverId;
-  private final int numberOfTasks;
 
   private final CountingSemaphore allTasksAdded;
 
@@ -83,33 +82,76 @@ public class CommunicationGroupDriverImpl implements CommunicationGroupDriver {
 
   private final SetMap<MsgKey, IndexedMsg> msgQue = new SetMap<>();
 
-  private final int fanOut;
+  private final TopologyFactory topologyFactory;
 
+  /**
+   * @Deprecated in 0.14. Use Tang to obtain an instance of this instead.
+   */
+  @Deprecated
   public CommunicationGroupDriverImpl(final Class<? extends Name<String>> groupName,
                                       final ConfigurationSerializer confSerializer,
                                       final EStage<GroupCommunicationMessage> senderStage,
-                                      final BroadcastingEventHandler<RunningTask> commGroupRunningTaskHandler,
-                                      final BroadcastingEventHandler<FailedTask> commGroupFailedTaskHandler,
-                                      final BroadcastingEventHandler<FailedEvaluator> commGroupFailedEvaluatorHandler,
+                                      final BroadcastingEventHandler<RunningTask> groupCommRunningTaskHandler,
+                                      final BroadcastingEventHandler<FailedTask> groupCommFailedTaskHandler,
+                                      final BroadcastingEventHandler<FailedEvaluator> groupCommFailedEvaluatorHandler,
                                       final BroadcastingEventHandler<GroupCommunicationMessage> commGroupMessageHandler,
                                       final String driverId, final int numberOfTasks, final int fanOut) {
     super();
     this.groupName = groupName;
-    this.numberOfTasks = numberOfTasks;
     this.driverId = driverId;
     this.confSerializer = confSerializer;
-    this.senderStage = senderStage;
-    this.fanOut = fanOut;
     this.allTasksAdded = new CountingSemaphore(numberOfTasks, getQualifiedName(), topologiesLock);
 
-    final TopologyRunningTaskHandler topologyRunningTaskHandler = new TopologyRunningTaskHandler(this);
-    commGroupRunningTaskHandler.addHandler(topologyRunningTaskHandler);
-    final TopologyFailedTaskHandler topologyFailedTaskHandler = new TopologyFailedTaskHandler(this);
-    commGroupFailedTaskHandler.addHandler(topologyFailedTaskHandler);
-    final TopologyFailedEvaluatorHandler topologyFailedEvaluatorHandler = new TopologyFailedEvaluatorHandler(this);
-    commGroupFailedEvaluatorHandler.addHandler(topologyFailedEvaluatorHandler);
-    final TopologyMessageHandler topologyMessageHandler = new TopologyMessageHandler(this);
-    commGroupMessageHandler.addHandler(topologyMessageHandler);
+    registerHandlers(groupCommRunningTaskHandler, groupCommFailedTaskHandler,
+        groupCommFailedEvaluatorHandler, commGroupMessageHandler);
+    final Injector injector = Tang.Factory.getTang().newInjector();
+    injector.bindVolatileParameter(CommGroupNameClass.class, groupName);
+    injector.bindVolatileParameter(GroupCommSenderStage.class, senderStage);
+    injector.bindVolatileParameter(DriverIdentifier.class, driverId);
+    injector.bindVolatileParameter(CommGroupNumTask.class, numberOfTasks);
+    injector.bindVolatileParameter(TreeTopologyFanOut.class, fanOut);
+    try {
+      topologyFactory = injector.getInstance(TopologyFactory.class);
+    } catch (final InjectionException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  @Inject
+  private CommunicationGroupDriverImpl(
+      @Parameter(CommGroupNameClass.class) final Class<? extends Name<String>> groupName,
+      final ConfigurationSerializer confSerializer,
+      @Parameter(GroupCommRunningTaskHandler.class)
+          final BroadcastingEventHandler<RunningTask> groupCommRunningTaskHandler,
+      @Parameter(GroupCommFailedTaskHandler.class)
+          final BroadcastingEventHandler<FailedTask> groupCommFailedTaskHandler,
+      @Parameter(GroupCommFailedEvalHandler.class)
+          final BroadcastingEventHandler<FailedEvaluator> groupCommFailedEvaluatorHandler,
+      @Parameter(CommGroupMessageHandler.class)
+          final BroadcastingEventHandler<GroupCommunicationMessage> commGroupMessageHandler,
+      @Parameter(DriverIdentifier.class) final String driverId,
+      @Parameter(CommGroupNumTask.class) final int numberOfTasks,
+      final TopologyFactory topologyFactory) {
+    super();
+    this.groupName = groupName;
+    this.driverId = driverId;
+    this.confSerializer = confSerializer;
+    this.allTasksAdded = new CountingSemaphore(numberOfTasks, getQualifiedName(), topologiesLock);
+
+    registerHandlers(groupCommRunningTaskHandler, groupCommFailedTaskHandler,
+        groupCommFailedEvaluatorHandler, commGroupMessageHandler);
+    this.topologyFactory = topologyFactory;
+  }
+
+  private void registerHandlers(
+      final BroadcastingEventHandler<RunningTask> runningTaskHandler,
+      final BroadcastingEventHandler<FailedTask> failedTaskHandler,
+      final BroadcastingEventHandler<FailedEvaluator> failedEvaluatorHandler,
+      final BroadcastingEventHandler<GroupCommunicationMessage> groupCommMessageHandler) {
+    runningTaskHandler.addHandler(new TopologyRunningTaskHandler(this));
+    failedTaskHandler.addHandler(new TopologyFailedTaskHandler(this));
+    failedEvaluatorHandler.addHandler(new TopologyFailedEvaluatorHandler(this));
+    groupCommMessageHandler.addHandler(new TopologyMessageHandler(this));
   }
 
   @Override
@@ -121,7 +163,15 @@ public class CommunicationGroupDriverImpl implements CommunicationGroupDriver {
       throw new IllegalStateException("Can't add more operators to a finalised spec");
     }
     operatorSpecs.put(operatorName, spec);
-    final Topology topology = new TreeTopology(senderStage, groupName, operatorName, driverId, numberOfTasks, fanOut);
+
+    final Topology topology;
+    try {
+      topology = topologyFactory.getNewInstance(operatorName, TreeTopology.class);
+    } catch (final InjectionException e) {
+      LOG.log(Level.WARNING, "Cannot inject new topology named {0}", operatorName);
+      throw new RuntimeException(e);
+    }
+
     topology.setRootTask(spec.getSenderId());
     topology.setOperatorSpecification(spec);
     topologies.put(operatorName, topology);
@@ -140,7 +190,15 @@ public class CommunicationGroupDriverImpl implements CommunicationGroupDriver {
     }
     LOG.finer(getQualifiedName() + "Adding reduce operator to tree topology: " + spec);
     operatorSpecs.put(operatorName, spec);
-    final Topology topology = new TreeTopology(senderStage, groupName, operatorName, driverId, numberOfTasks, fanOut);
+
+    final Topology topology;
+    try {
+      topology = topologyFactory.getNewInstance(operatorName, TreeTopology.class);
+    } catch (final InjectionException e) {
+      LOG.log(Level.WARNING, "Cannot inject new topology named {0}", operatorName);
+      throw new RuntimeException(e);
+    }
+
     topology.setRootTask(spec.getReceiverId());
     topology.setOperatorSpecification(spec);
     topologies.put(operatorName, topology);
@@ -158,7 +216,15 @@ public class CommunicationGroupDriverImpl implements CommunicationGroupDriver {
       throw new IllegalStateException("Can't add more operators to a finalised spec");
     }
     operatorSpecs.put(operatorName, spec);
-    final Topology topology = new TreeTopology(senderStage, groupName, operatorName, driverId, numberOfTasks, fanOut);
+
+    final Topology topology;
+    try {
+      topology = topologyFactory.getNewInstance(operatorName, TreeTopology.class);
+    } catch (final InjectionException e) {
+      LOG.log(Level.WARNING, "Cannot inject new topology named {0}", operatorName);
+      throw new RuntimeException(e);
+    }
+
     topology.setRootTask(spec.getSenderId());
     topology.setOperatorSpecification(spec);
     topologies.put(operatorName, topology);
@@ -176,7 +242,15 @@ public class CommunicationGroupDriverImpl implements CommunicationGroupDriver {
       throw new IllegalStateException("Can't add more operators to a finalised spec");
     }
     operatorSpecs.put(operatorName, spec);
-    final Topology topology = new TreeTopology(senderStage, groupName, operatorName, driverId, numberOfTasks, fanOut);
+
+    final Topology topology;
+    try {
+      topology = topologyFactory.getNewInstance(operatorName, TreeTopology.class);
+    } catch (final InjectionException e) {
+      LOG.log(Level.WARNING, "Cannot inject new topology named {0}", operatorName);
+      throw new RuntimeException(e);
+    }
+
     topology.setRootTask(spec.getReceiverId());
     topology.setOperatorSpecification(spec);
     topologies.put(operatorName, topology);
