@@ -30,7 +30,7 @@ using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
 {
-    internal sealed class FileSystemPartition<T> : IPartition<IEnumerable<T>>, IDisposable
+    internal sealed class FileSystemPartition<T> : IPartition<T>, IDisposable
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(FileSystemPartition<T>));
 
@@ -78,7 +78,7 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
         /// provided by the Serializer
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<T> GetPartitionHandle()
+        public T GetPartitionHandle()
         {
             if (!_isInitialized)
             {

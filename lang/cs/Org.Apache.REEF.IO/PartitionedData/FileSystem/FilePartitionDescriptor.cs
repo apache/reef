@@ -53,7 +53,7 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
         public IConfiguration GetPartitionConfiguration()
         {
             var builder = TangFactory.GetTang().NewConfigurationBuilder()
-                .BindImplementation(GenericType<IPartition<IEnumerable<T>>>.Class, GenericType<FileSystemPartition<T>>.Class)
+                .BindImplementation(GenericType<IPartition<T>>.Class, GenericType<FileSystemPartition<T>>.Class)
                 .BindStringNamedParam<PartitionId>(_id);
 
             foreach (string p in _filePaths)
