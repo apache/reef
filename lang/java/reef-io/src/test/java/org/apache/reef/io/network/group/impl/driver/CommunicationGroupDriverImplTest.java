@@ -33,7 +33,7 @@ import org.apache.reef.tang.formats.AvroConfigurationSerializer;
 import org.apache.reef.task.Task;
 import org.apache.reef.wake.EStage;
 import org.apache.reef.wake.EventHandler;
-import org.apache.reef.wake.impl.ThreadPoolStage;
+import org.apache.reef.wake.impl.SyncStage;
 import org.junit.Test;
 
 import java.util.concurrent.CountDownLatch;
@@ -60,12 +60,12 @@ public final class CommunicationGroupDriverImplTest {
     final AtomicInteger numMsgs = new AtomicInteger(0);
 
     final EStage<GroupCommunicationMessage> senderStage =
-        new ThreadPoolStage<>(new EventHandler<GroupCommunicationMessage>() {
+        new SyncStage<>(new EventHandler<GroupCommunicationMessage>() {
           @Override
           public void onNext(final GroupCommunicationMessage msg) {
             numMsgs.getAndIncrement();
           }
-        }, 1);
+        });
 
     final CommunicationGroupDriverImpl communicationGroupDriver = new CommunicationGroupDriverImpl(
         GroupName.class, new AvroConfigurationSerializer(), senderStage,
@@ -143,12 +143,12 @@ public final class CommunicationGroupDriverImplTest {
     final AtomicInteger numMsgs = new AtomicInteger(0);
 
     final EStage<GroupCommunicationMessage> senderStage =
-        new ThreadPoolStage<>(new EventHandler<GroupCommunicationMessage>() {
+        new SyncStage<>(new EventHandler<GroupCommunicationMessage>() {
           @Override
           public void onNext(final GroupCommunicationMessage msg) {
             numMsgs.getAndIncrement();
           }
-        }, 1);
+        });
 
     final CommunicationGroupDriverImpl communicationGroupDriver = new CommunicationGroupDriverImpl(
         GroupName.class, new AvroConfigurationSerializer(), senderStage,
