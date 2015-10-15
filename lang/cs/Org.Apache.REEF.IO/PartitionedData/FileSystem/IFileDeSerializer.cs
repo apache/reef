@@ -17,8 +17,6 @@
  * under the License.
  */
 
-using System.Collections.Generic;
-
 namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
 {
     /// <summary>
@@ -29,11 +27,11 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
     {
         /// <summary>
         /// The input is a file folder which contains all input files in one partition.
-        /// The output is an IEnumerable of T which is defined by the client
+        /// The output is of type T which is defined by the client
         /// If there is any IO error, IOException could be thrown.
         /// </summary>
         /// <param name="fileFolder"></param>
         /// <returns></returns>
-        IEnumerable<T> Deserialize(string fileFolder);
+        T Deserialize(string fileFolder);
     }
 }

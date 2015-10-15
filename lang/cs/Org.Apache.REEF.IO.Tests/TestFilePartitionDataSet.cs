@@ -57,9 +57,11 @@ namespace Org.Apache.REEF.IO.Tests
             MakeLocalTestFile(sourceFilePath2, new byte[] { 114, 115, 116, 117 });
 
             var dataSet = TangFactory.GetTang()
-                .NewInjector(FileSystemPartitionConfiguration<byte>.ConfigurationModule
-                    .Set(FileSystemPartitionConfiguration<byte>.FilePathForPartitions, sourceFilePath1 + ";" + sourceFilePath2)
-                    .Set(FileSystemPartitionConfiguration<byte>.FileSerializerConfig, GetByteSerializerConfigString())
+                .NewInjector(FileSystemPartitionConfiguration<IEnumerable<byte>>.ConfigurationModule
+                    .Set(FileSystemPartitionConfiguration<IEnumerable<byte>>.FilePathForPartitions,
+                        sourceFilePath1 + ";" + sourceFilePath2)
+                    .Set(FileSystemPartitionConfiguration<IEnumerable<byte>>.FileSerializerConfig,
+                        GetByteSerializerConfigString())
                     .Build())
                 .GetInstance<IPartitionedDataSet>();
 
@@ -99,7 +101,8 @@ namespace Org.Apache.REEF.IO.Tests
             MakeLocalTestFile(sourceFilePath2, new byte[] { 114, 115, 116, 117 });
 
             var partitionConfig = TangFactory.GetTang().NewConfigurationBuilder()
-                .BindImplementation(GenericType<IPartitionedDataSet>.Class, GenericType<FileSystemPartitionDataSet<byte>>.Class)
+                .BindImplementation(GenericType<IPartitionedDataSet>.Class,
+                    GenericType<FileSystemPartitionDataSet<IEnumerable<byte>>>.Class)
                 .BindStringNamedParam<FileSerializerConfigString>(GetByteSerializerConfigString())
                 .BindSetEntry<FilePathsForPartitions, string>(GenericType<FilePathsForPartitions>.Class, sourceFilePath1)
                 .BindSetEntry<FilePathsForPartitions, string>(GenericType<FilePathsForPartitions>.Class, sourceFilePath2)
@@ -110,7 +113,6 @@ namespace Org.Apache.REEF.IO.Tests
                 .GetInstance<IPartitionedDataSet>();
 
             Assert.AreEqual(dataSet.Count, 2);
-
 
             foreach (var partitionDescriptor in dataSet)
             {
@@ -136,7 +138,7 @@ namespace Org.Apache.REEF.IO.Tests
             MakeLocalTestFile(sourceFilePath2, new byte[] { 114, 115, 116, 117 });
 
             var c = TangFactory.GetTang().NewConfigurationBuilder()
-                .BindImplementation(GenericType<IPartitionedDataSet>.Class, GenericType<FileSystemPartitionDataSet<byte>>.Class)
+                .BindImplementation(GenericType<IPartitionedDataSet>.Class, GenericType < FileSystemPartitionDataSet<IEnumerable<byte>>>.Class)
                 .BindStringNamedParam<FileSerializerConfigString>(GetByteSerializerConfigString())
                 .BindSetEntry<FilePathsForPartitions, string>(GenericType<FilePathsForPartitions>.Class, sourceFilePath1)
                 .BindSetEntry<FilePathsForPartitions, string>(GenericType<FilePathsForPartitions>.Class, sourceFilePath2)
@@ -155,7 +157,6 @@ namespace Org.Apache.REEF.IO.Tests
                         .GetInstance<IPartition<IEnumerable<byte>>>();
                 using (partition as IDisposable)
                 {
-
                     var e = partition.GetPartitionHandle();
                     foreach (var v in e)
                     {
@@ -177,10 +178,10 @@ namespace Org.Apache.REEF.IO.Tests
             MakeLocalTestFile(sourceFilePath2, new byte[] { 114, 115 });
 
             var dataSet = TangFactory.GetTang()
-                .NewInjector(FileSystemPartitionConfiguration<Row>.ConfigurationModule
-                    .Set(FileSystemPartitionConfiguration<Row>.FilePathForPartitions, sourceFilePath1)
-                    .Set(FileSystemPartitionConfiguration<Row>.FilePathForPartitions, sourceFilePath2)
-                    .Set(FileSystemPartitionConfiguration<Row>.FileSerializerConfig, GetRowSerializerConfigString())
+                .NewInjector(FileSystemPartitionConfiguration<IEnumerable<Row>>.ConfigurationModule
+                    .Set(FileSystemPartitionConfiguration<IEnumerable<Row>>.FilePathForPartitions, sourceFilePath1)
+                    .Set(FileSystemPartitionConfiguration<IEnumerable<Row>>.FilePathForPartitions, sourceFilePath2)
+                    .Set(FileSystemPartitionConfiguration<IEnumerable<Row>>.FileSerializerConfig, GetRowSerializerConfigString())
                     .Build())
                 .GetInstance<IPartitionedDataSet>();
 
@@ -222,8 +223,8 @@ namespace Org.Apache.REEF.IO.Tests
         private string GetByteSerializerConfigString()
         {
             var serializerConf = TangFactory.GetTang().NewConfigurationBuilder()
-                .BindImplementation<IFileDeSerializer<byte>, ByteSerializer>(
-                    GenericType<IFileDeSerializer<byte>>.Class,
+                .BindImplementation<IFileDeSerializer<IEnumerable<byte>>, ByteSerializer>(
+                    GenericType<IFileDeSerializer<IEnumerable<byte>>>.Class,
                     GenericType<ByteSerializer>.Class)
                 .Build();
             return (new AvroConfigurationSerializer()).ToString(serializerConf);
@@ -232,15 +233,15 @@ namespace Org.Apache.REEF.IO.Tests
         private string GetRowSerializerConfigString()
         {
             var serializerConf = TangFactory.GetTang().NewConfigurationBuilder()
-                .BindImplementation<IFileDeSerializer<Row>, RowSerializer>(
-                    GenericType<IFileDeSerializer<Row>>.Class,
+                .BindImplementation<IFileDeSerializer<IEnumerable<Row>>, RowSerializer>(
+                    GenericType <IFileDeSerializer<IEnumerable<Row>>>.Class,
                     GenericType<RowSerializer>.Class)
                 .Build();
             return (new AvroConfigurationSerializer()).ToString(serializerConf);
         }
     }
 
-    public class ByteSerializer : IFileDeSerializer<byte>
+    public class ByteSerializer : IFileDeSerializer<IEnumerable<byte>>
     {
         [Inject]
         public ByteSerializer()
@@ -282,7 +283,7 @@ namespace Org.Apache.REEF.IO.Tests
         }
     }
 
-    internal class RowSerializer : IFileDeSerializer<Row>
+    internal class RowSerializer : IFileDeSerializer<IEnumerable<Row>>
     {
         [Inject]
         private RowSerializer()

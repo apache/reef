@@ -45,7 +45,7 @@ namespace Org.Apache.REEF.IO.TestClient
             string remoteFilePath2 = MakeRemoteTestFile(new byte[] { 114, 115, 116, 117 });
 
             var serializerConf = TangFactory.GetTang().NewConfigurationBuilder()
-                .BindImplementation<IFileDeSerializer<byte>, ByteSerializer>(GenericType<IFileDeSerializer<byte>>.Class,
+                .BindImplementation<IFileDeSerializer<IEnumerable<byte>>, ByteSerializer>(GenericType<IFileDeSerializer<IEnumerable<byte>>>.Class,
                     GenericType<ByteSerializer>.Class)
                 .Build();
             var serializerConfString = (new AvroConfigurationSerializer()).ToString(serializerConf);
@@ -134,7 +134,7 @@ namespace Org.Apache.REEF.IO.TestClient
         }
     }
 
-    internal class ByteSerializer : IFileDeSerializer<byte>
+    internal class ByteSerializer : IFileDeSerializer<IEnumerable<byte>>
     {
         [Inject]
         private ByteSerializer()
