@@ -234,7 +234,7 @@ namespace Org.Apache.REEF.IO.Tests
         {
             var serializerConf = TangFactory.GetTang().NewConfigurationBuilder()
                 .BindImplementation<IFileDeSerializer<IEnumerable<Row>>, RowSerializer>(
-                    GenericType < IFileDeSerializer<IEnumerable<Row>>>.Class,
+                    GenericType <IFileDeSerializer<IEnumerable<Row>>>.Class,
                     GenericType<RowSerializer>.Class)
                 .Build();
             return (new AvroConfigurationSerializer()).ToString(serializerConf);
