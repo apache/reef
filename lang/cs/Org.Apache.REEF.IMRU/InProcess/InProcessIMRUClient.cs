@@ -21,6 +21,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using Org.Apache.REEF.Client.Common;
 using Org.Apache.REEF.IMRU.API;
 using Org.Apache.REEF.IMRU.InProcess.Parameters;
 using Org.Apache.REEF.IO.PartitionedData;
@@ -44,7 +45,7 @@ namespace Org.Apache.REEF.IMRU.InProcess
     public class InProcessIMRUClient : IIMRUClient
     {
         private static readonly Logger Logger =
-            Logger.GetLogger(typeof (InProcessIMRUClient));
+            Logger.GetLogger(typeof(InProcessIMRUClient));
 
         private readonly int _numberOfMappers;
 
@@ -96,6 +97,14 @@ namespace Org.Apache.REEF.IMRU.InProcess
 
             var runner = injector.GetInstance<IMRURunner<TMapInput, TMapOutput, TResult>>();
             return runner.Run();
+        }
+
+        /// <summary>
+        /// DriverHttpEndPoint returned by IReefClient after job submission
+        /// </summary>
+        public IDriverHttpEndpoint DriverHttpEndpoint
+        {
+            get { return null; }
         }
 
         /// <summary>
