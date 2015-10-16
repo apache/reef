@@ -18,6 +18,8 @@
  */
 
 using System.Collections.Generic;
+using Org.Apache.REEF.Client.Common;
+using Org.Apache.REEF.Common.Attributes;
 
 namespace Org.Apache.REEF.IMRU.API
 {
@@ -32,5 +34,13 @@ namespace Org.Apache.REEF.IMRU.API
         /// <param name="jobDefinition">IMRU job definition</param>
         /// <returns>Result of IMRU</returns>
         IEnumerable<TResult> Submit<TMapInput, TMapOutput, TResult>(IMRUJobDefinition jobDefinition);
+
+        /// <summary>
+        /// DriverHttpEndPoint returned by IReefClient after job submission
+        /// returning null is a valid option for implementations that do not run on yarn or multi-core
+        /// For example: see InProcessIMRUCLient.cs
+        /// </summary>
+        [Unstable("0.13", "This depends on IREEFClient API which itself in unstable ")]
+        IDriverHttpEndpoint DriverHttpEndpoint { get; }
     }
 }

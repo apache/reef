@@ -21,6 +21,7 @@ using System.Data;
 using System.Globalization;
 using System.Linq;
 using Org.Apache.REEF.Client.API;
+using Org.Apache.REEF.Client.Common;
 using Org.Apache.REEF.Driver;
 using Org.Apache.REEF.IMRU.API;
 using Org.Apache.REEF.Driver.Bridge;
@@ -50,6 +51,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Client
         private readonly IREEFClient _reefClient;
         private readonly JobSubmissionBuilderFactory _jobSubmissionBuilderFactory;
         private readonly AvroConfigurationSerializer _configurationSerializer;
+        private IDriverHttpEndpoint _httpEndPoint;
 
         [Inject]
         private REEFIMRUClient(IREEFClient reefClient, AvroConfigurationSerializer configurationSerializer,
@@ -145,9 +147,17 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Client
                 .SetJobIdentifier(jobDefinition.JobName)
                 .Build();
 
-            _reefClient.SubmitAndGetDriverUrl(imruJobSubmission);
+            _httpEndPoint = _reefClient.SubmitAndGetDriverUrl(imruJobSubmission);
 
             return null;
+        }
+
+        /// <summary>
+        /// DriverHttpEndPoint returned by IReefClient after job submission
+        /// </summary>
+        public IDriverHttpEndpoint DriverHttpEndpoint
+        {
+            get { return _httpEndPoint; }
         }
     }
 }
