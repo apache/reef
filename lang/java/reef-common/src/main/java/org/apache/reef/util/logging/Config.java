@@ -21,6 +21,9 @@ package org.apache.reef.util.logging;
 import java.io.IOException;
 import java.util.logging.LogManager;
 
+/**
+ * Wrapper for logging config.
+ */
 public final class Config {
 
   public Config() throws IOException {

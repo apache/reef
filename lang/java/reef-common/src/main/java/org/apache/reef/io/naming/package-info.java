@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * Utilities for assigning Identifiers to objects and associating socket addresses with them.
  */
 package org.apache.reef.io.naming;

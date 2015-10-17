@@ -24,6 +24,9 @@ import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.driver.context.ActiveContext;
 import org.apache.reef.driver.task.CompletedTask;
 
+/**
+ * Implementation of CompletedTask.
+ */
 @Private
 @DriverSide
 public final class CompletedTaskImpl implements CompletedTask {

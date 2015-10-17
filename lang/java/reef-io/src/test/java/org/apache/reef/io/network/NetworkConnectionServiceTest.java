@@ -18,6 +18,7 @@
  */
 package org.apache.reef.io.network;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.reef.exception.evaluator.NetworkException;
 import org.apache.reef.io.network.util.*;
 import org.apache.reef.tang.exceptions.InjectionException;
@@ -182,18 +183,12 @@ public class NetworkConnectionServiceTest {
     final int[] messageSizes = {1, 16, 32, 64, 512, 64 * 1024, 1024 * 1024};
 
     for (final int size : messageSizes) {
+      final String message = StringUtils.repeat('1', size);
       final int numMessages = 300000 / (Math.max(1, size / 512));
       final Monitor monitor = new Monitor();
       final Codec<String> codec = new StringCodec();
       try (final NetworkMessagingTestService messagingTestService = new NetworkMessagingTestService(localAddress)) {
         messagingTestService.registerTestConnectionFactory(groupCommClientId, numMessages, monitor, codec);
-
-        // build the message
-        final StringBuilder msb = new StringBuilder();
-        for (int i = 0; i < size; i++) {
-          msb.append("1");
-        }
-        final String message = msb.toString();
 
         try (final Connection<String> conn =
                  messagingTestService.getConnectionFromSenderToReceiver(groupCommClientId)) {
@@ -232,6 +227,7 @@ public class NetworkConnectionServiceTest {
     final int size = 2000;
     final int numMessages = 300000 / (Math.max(1, size / 512));
     final int totalNumMessages = numMessages * numThreads;
+    final String message = StringUtils.repeat('1', size);
 
     final ExecutorService e = Executors.newCachedThreadPool();
     for (int t = 0; t < numThreads; t++) {
@@ -246,14 +242,6 @@ public class NetworkConnectionServiceTest {
             messagingTestService.registerTestConnectionFactory(groupCommClientId, numMessages, monitor, codec);
             try (final Connection<String> conn =
                      messagingTestService.getConnectionFromSenderToReceiver(groupCommClientId)) {
-
-              // build the message
-              final StringBuilder msb = new StringBuilder();
-              for (int i = 0; i < size; i++) {
-                msb.append("1");
-              }
-              final String message = msb.toString();
-
               try {
                 conn.open();
                 for (int count = 0; count < numMessages; ++count) {
@@ -293,6 +281,7 @@ public class NetworkConnectionServiceTest {
     final int[] messageSizes = {2000}; // {1,16,32,64,512,64*1024,1024*1024};
 
     for (final int size : messageSizes) {
+      final String message = StringUtils.repeat('1', size);
       final int numMessages = 300000 / (Math.max(1, size / 512));
       final int numThreads = 2;
       final int totalNumMessages = numMessages * numThreads;
@@ -303,12 +292,6 @@ public class NetworkConnectionServiceTest {
 
         final ExecutorService e = Executors.newCachedThreadPool();
 
-        // build the message
-        final StringBuilder msb = new StringBuilder();
-        for (int i = 0; i < size; i++) {
-          msb.append("1");
-        }
-        final String message = msb.toString();
         try (final Connection<String> conn =
                  messagingTestService.getConnectionFromSenderToReceiver(groupCommClientId)) {
 
@@ -354,6 +337,7 @@ public class NetworkConnectionServiceTest {
     final int[] messageSizes = {32, 64, 512};
 
     for (final int size : messageSizes) {
+      final String message = StringUtils.repeat('1', batchSize);
       final int numMessages = 300 / (Math.max(1, size / 512));
       final Monitor monitor = new Monitor();
       final Codec<String> codec = new StringCodec();
@@ -361,23 +345,11 @@ public class NetworkConnectionServiceTest {
         messagingTestService.registerTestConnectionFactory(groupCommClientId, numMessages, monitor, codec);
         try (final Connection<String> conn =
                  messagingTestService.getConnectionFromSenderToReceiver(groupCommClientId)) {
-
-          // build the message
-          final StringBuilder msb = new StringBuilder();
-          for (int i = 0; i < size; i++) {
-            msb.append("1");
-          }
-          final String message = msb.toString();
-
           final long start = System.currentTimeMillis();
           try {
+            conn.open();
             for (int i = 0; i < numMessages; i++) {
-              final StringBuilder sb = new StringBuilder();
-              for (int j = 0; j < batchSize / size; j++) {
-                sb.append(message);
-              }
-              conn.open();
-              conn.write(sb.toString());
+              conn.write(message);
             }
             monitor.mwait();
           } catch (final NetworkException e) {

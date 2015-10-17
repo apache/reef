@@ -38,6 +38,9 @@ import org.apache.reef.tang.formats.ConfigurationModule;
 import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
 import org.apache.reef.wake.time.Clock;
 
+/**
+ * ConfigurationModule for driver runtime.
+ */
 @Private
 @ClientSide
 public final class DriverRuntimeConfiguration extends ConfigurationModuleBuilder {

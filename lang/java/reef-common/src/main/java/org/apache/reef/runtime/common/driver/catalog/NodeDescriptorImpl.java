@@ -24,6 +24,9 @@ import org.apache.reef.driver.catalog.RackDescriptor;
 
 import java.net.InetSocketAddress;
 
+/**
+ * Descriptor of the physical setup of an Evaluator.
+ */
 @Private
 public class NodeDescriptorImpl implements NodeDescriptor {
 

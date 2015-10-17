@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * Serialization utilities.
  */
 package org.apache.reef.io.serialization;

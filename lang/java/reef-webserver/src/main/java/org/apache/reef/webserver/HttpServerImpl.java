@@ -22,6 +22,7 @@ import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.util.logging.LoggingScope;
 import org.apache.reef.util.logging.LoggingScopeFactory;
 import org.apache.reef.wake.remote.ports.TcpPortProvider;
+import org.apache.reef.wake.remote.ports.parameters.TcpPortRangeBegin;
 import org.mortbay.jetty.Server;
 
 import javax.inject.Inject;
@@ -68,10 +69,7 @@ public final class HttpServerImpl implements HttpServer {
    */
   @Inject
   HttpServerImpl(final JettyHandler jettyHandler,
-                 @Parameter(PortNumber.class) final int portNumber,
-                 @Parameter(MaxPortNumber.class) final int maxPortNumber,
-                 @Parameter(MinPortNumber.class) final int minPortNumber,
-                 @Parameter(MaxRetryAttempts.class) final int maxRetryAttempts,
+                 @Parameter(TcpPortRangeBegin.class) final int portNumber,
                  final TcpPortProvider tcpPortProvider,
                  final LoggingScopeFactory loggingScopeFactory) throws Exception {
 
@@ -81,22 +79,11 @@ public final class HttpServerImpl implements HttpServer {
     Server srv = null;
 
     try (final LoggingScope ls = this.loggingScopeFactory.httpServer()) {
-      if (portNumber != Integer.parseInt(PortNumber.DEFAULT_VALUE)) {
-        // legacy path to be removed
-        for (int attempt = 0; attempt < maxRetryAttempts && srv  == null; ++attempt) {
-          if (attempt > 0) {
-            // first attempt should be portNumber passed in
-            availablePort = getNextPort(maxPortNumber, minPortNumber);
-          }
-          srv = tryPort(availablePort);
-        }
-      } else {
-        // new TcpPortProvider path
-        final Iterator<Integer> ports = tcpPortProvider.iterator();
-        while (ports.hasNext() && srv  == null) {
-          availablePort = ports.next();
-          srv = tryPort(availablePort);
-        }
+
+      final Iterator<Integer> ports = tcpPortProvider.iterator();
+      while (ports.hasNext() && srv  == null) {
+        availablePort = ports.next();
+        srv = tryPort(availablePort);
       }
 
       if (srv  != null) {

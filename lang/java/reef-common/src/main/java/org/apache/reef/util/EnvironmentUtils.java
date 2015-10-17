@@ -26,6 +26,9 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Utils which detect environment settings.
+ */
 public final class EnvironmentUtils {
 
   private static final Logger LOG = Logger.getLogger(EnvironmentUtils.class.getName());

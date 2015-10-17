@@ -53,6 +53,9 @@ import java.util.logging.Logger;
  */
 public final class REEFLauncher {
 
+  /**
+   * Parameter which enables profiling.
+   */
   @NamedParameter(doc = "If true, profiling will be enabled", short_name = "profiling", default_value = "false")
   public static final class ProfilingEnabled implements Name<Boolean> {
   }

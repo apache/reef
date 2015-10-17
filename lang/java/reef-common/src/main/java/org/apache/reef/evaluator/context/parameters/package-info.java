@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * Named parameters used by the Evaluator.
  */
 package org.apache.reef.evaluator.context.parameters;

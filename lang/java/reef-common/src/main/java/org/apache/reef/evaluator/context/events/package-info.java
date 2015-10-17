@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * Events signaling change of Evaluator state.
  */
 package org.apache.reef.evaluator.context.events;

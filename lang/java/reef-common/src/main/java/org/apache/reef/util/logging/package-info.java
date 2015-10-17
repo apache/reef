@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * Logging utilities.
  */
 package org.apache.reef.util.logging;

@@ -24,7 +24,7 @@ import org.apache.reef.task.events.TaskStart;
 import org.apache.reef.wake.EventHandler;
 
 /**
- * Thrown when a TastStart handler throws an exception.
+ * Thrown when a TaskStart handler throws an exception.
  */
 @EvaluatorSide
 @Private

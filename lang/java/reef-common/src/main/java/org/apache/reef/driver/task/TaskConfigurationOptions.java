@@ -40,37 +40,61 @@ import java.util.Set;
 @Provided
 public final class TaskConfigurationOptions {
 
+  /**
+   * The Identifier of the Task.
+   */
   @NamedParameter(default_value = "Unnamed Task", doc = "The Identifier of the Task")
   public static final class Identifier implements Name<String> {
   }
 
+  /**
+   * The memento to be used for the Task.
+   */
   @NamedParameter(doc = "The memento to be used for the Task.")
   public final class Memento implements Name<String> {
   }
 
+  /**
+   * TaskMessageSource instances.
+   */
   @NamedParameter(doc = "TaskMessageSource instances.")
   public final class TaskMessageSources implements Name<Set<TaskMessageSource>> {
   }
 
+  /**
+   * The set of event handlers for the TaskStart event.
+   */
   @NamedParameter(doc = "The set of event handlers for the TaskStart event.")
   public final class StartHandlers implements Name<Set<EventHandler<TaskStart>>> {
   }
 
+  /**
+   * The set of event handlers for the TaskStop event.
+   */
   @NamedParameter(doc = "The set of event handlers for the TaskStop event.")
   public final class StopHandlers implements Name<Set<EventHandler<TaskStop>>> {
   }
 
-  @NamedParameter(doc = "The event handler that receives the close event",
+  /**
+   * The event handler that receives the close event.
+   */
+  @NamedParameter(doc = "The event handler that receives the close event.",
       default_class = DefaultCloseHandler.class)
   public final class CloseHandler implements Name<EventHandler<CloseEvent>> {
   }
 
-  @NamedParameter(doc = "The event handler that receives the suspend event",
+  /**
+   * The event handler that receives the suspend event.
+   */
+  @NamedParameter(doc = "The event handler that receives the suspend event.",
       default_class = DefaultSuspendHandler.class)
   public final class SuspendHandler implements Name<EventHandler<SuspendEvent>> {
   }
 
-  @NamedParameter(doc = "The event handler that receives messages from the driver",
+  /**
+   * The event handler that receives messages from the driver.
+   */
+  @NamedParameter(doc = "The event handler that receives messages from the driver.",
       default_class = DefaultDriverMessageHandler.class)
   public final class MessageHandler implements Name<EventHandler<DriverMessage>> {
   }

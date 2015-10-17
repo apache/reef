@@ -18,10 +18,12 @@
  */
 package org.apache.reef.io.parameters;
 
-
 import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
 
-@NamedParameter(doc = "directory for temp files", default_value = "./reef/temp")
+/**
+ * Directory for temp files.
+ */
+@NamedParameter(doc = "Directory for temp files", default_value = "./reef/temp")
 public final class TempFileRootFolder implements Name<String> {
 }

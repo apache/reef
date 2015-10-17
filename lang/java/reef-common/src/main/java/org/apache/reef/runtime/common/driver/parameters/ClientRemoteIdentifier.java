@@ -30,6 +30,7 @@ public final class ClientRemoteIdentifier implements Name<String> {
   /**
    * Indicates that there is no Client.
    */
+  // TODO[JIRA REEF-837]: Replace comparisons with this constant with interface with different implementations
   public static final String NONE = ErrorHandlerRID.NONE;
 
   /**

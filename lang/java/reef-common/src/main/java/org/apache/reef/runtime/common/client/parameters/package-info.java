@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * Parameters used by client.
  */
 package org.apache.reef.runtime.common.client.parameters;

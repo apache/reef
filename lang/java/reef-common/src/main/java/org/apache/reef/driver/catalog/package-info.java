@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * Interfaces describing resources available to a REEF instance (physical nodes, racks etc).
  */
 package org.apache.reef.driver.catalog;
