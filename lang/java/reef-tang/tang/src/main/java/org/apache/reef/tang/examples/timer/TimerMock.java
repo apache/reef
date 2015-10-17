@@ -45,7 +45,7 @@ public class TimerMock implements Timer {
     this.seconds = seconds;
   }
 
-  public static void main(final String[] args) throws BindException, InjectionException, Exception {
+  public static void main(final String[] args) throws BindException, InjectionException, InterruptedException {
     final Configuration c = TimerMock.CONF
         .set(TimerMockConf.MOCK_SLEEP_TIME, 1)
         .build();
@@ -57,7 +57,7 @@ public class TimerMock implements Timer {
 
   @Override
   public void sleep() {
-    System.out.println("Would have slept for " + seconds + "sec.");
+    System.out.println("Would have slept for " + seconds + " sec.");
   }
 
   public static class TimerMockConf extends ConfigurationModuleBuilder {
