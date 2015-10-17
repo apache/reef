@@ -28,7 +28,9 @@ import org.apache.reef.wake.impl.ThreadPoolStage;
 import javax.inject.Inject;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.nio.charset.Charset;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -48,7 +50,9 @@ public final class FileEventStream implements EventStream {
     this.singleThreadedExecutor = new ThreadPoolStage<>(new RunnableExecutingHandler(), 1);
 
     try {
-      this.printWriter = new PrintWriter(new FileOutputStream(createFileWithPath(path)));
+      final OutputStreamWriter writer = new OutputStreamWriter(
+          new FileOutputStream(createFileWithPath(path)), Charset.forName("UTF-8"));
+      this.printWriter = new PrintWriter(writer, true);
     } catch (final Exception e) {
       throw new RuntimeException(e);
     }
@@ -95,6 +99,5 @@ public final class FileEventStream implements EventStream {
 
   @NamedParameter(doc = "The relative path of the reporting file.", default_value = "watcher_report.txt")
   public static final class Path implements Name<String> {
-
   }
 }

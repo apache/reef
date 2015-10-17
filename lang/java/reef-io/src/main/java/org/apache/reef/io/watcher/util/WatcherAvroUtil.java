@@ -57,6 +57,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -283,7 +284,7 @@ public final class WatcherAvroUtil {
       final SpecificDatumWriter datumWriter = new SpecificDatumWriter(record.getClass());
       datumWriter.write(record, encoder);
       encoder.flush();
-      jsonEncodedRecord = new String(bos.toByteArray());
+      jsonEncodedRecord = new String(bos.toByteArray(), Charset.forName("UTF-8"));
     } catch (final IOException e) {
       throw new RuntimeException(e);
     }

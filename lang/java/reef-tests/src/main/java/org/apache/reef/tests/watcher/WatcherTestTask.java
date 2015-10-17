@@ -29,17 +29,19 @@ import org.apache.reef.util.Optional;
 import org.apache.reef.wake.EventHandler;
 
 import javax.inject.Inject;
+import java.nio.charset.Charset;
 
 @Unit
 public final class WatcherTestTask implements Task, TaskMessageSource {
 
-  private static final TaskMessage TASK_MESSAGE = TaskMessage.from("MESSAGE_SOURCE", "MESSAGE".getBytes());
+  private final TaskMessage taskMessage;
   private final HeartBeatTriggerManager heartBeatTriggerManager;
   private final boolean isTaskSuspended;
   private boolean isRunning;
   @Inject
   private WatcherTestTask(final HeartBeatTriggerManager heartBeatTriggerManager,
                           @Parameter(IsTaskSuspended.class) final boolean isTaskSuspended) {
+    this.taskMessage = TaskMessage.from("MESSAGE_SOURCE", "MESSAGE".getBytes(Charset.forName("UTF-8")));
     this.heartBeatTriggerManager = heartBeatTriggerManager;
     this.isTaskSuspended = isTaskSuspended;
     this.isRunning = true;
@@ -62,7 +64,7 @@ public final class WatcherTestTask implements Task, TaskMessageSource {
 
   @Override
   public Optional<TaskMessage> getMessage() {
-    return Optional.of(TASK_MESSAGE);
+    return Optional.of(taskMessage);
   }
 
   public final class TaskSuspendedHandler implements EventHandler<SuspendEvent> {
