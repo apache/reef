@@ -138,7 +138,7 @@ public interface Tang {
   /**
    * A factory that returns the default implementation of the Tang interface.
    */
-  public final class Factory {
+  final class Factory {
     /**
      * Return an instance of the default implementation of Tang.
      *

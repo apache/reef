@@ -35,8 +35,8 @@ public class TimerImpl implements Timer {
   }
 
   @Override
-  public void sleep() throws Exception {
-    java.lang.Thread.sleep(seconds);
+  public void sleep() throws InterruptedException {
+    java.lang.Thread.sleep(seconds * 1000);
   }
 
 }

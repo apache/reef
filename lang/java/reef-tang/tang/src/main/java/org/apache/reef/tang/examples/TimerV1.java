@@ -41,7 +41,7 @@ public class TimerV1 {
 
   public static void main(final String[] args) throws BindException, InjectionException {
     final Tang tang = Tang.Factory.getTang();
-    final JavaConfigurationBuilder cb = (JavaConfigurationBuilder) tang.newConfigurationBuilder();
+    final JavaConfigurationBuilder cb = tang.newConfigurationBuilder();
     final Configuration conf = cb.build();
     final Injector injector = tang.newInjector(conf);
     final TimerV1 timer = injector.getInstance(TimerV1.class);

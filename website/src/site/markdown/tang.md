@@ -104,7 +104,7 @@ Suppose you are implementing a new class, and would like to automatically pass c
         this.seconds = seconds;
       }
     
-      public void sleep() throws Exception {
+      public void sleep() throws InterruptedException {
         java.lang.Thread.sleep(seconds * 1000);
       }
     }
@@ -151,7 +151,7 @@ In order for Tang to instantiate an object, we need to annotate the constructor 
         this.seconds = seconds;
       }
     
-      public void sleep() throws Exception {
+      public void sleep() throws InterruptedException {
         java.lang.Thread.sleep(seconds * 1000);
       }
     }
@@ -204,8 +204,8 @@ The process of instantiting an object with Tang is called _injection_.  As with 
     public interface Timer {
       @NamedParameter(default_value="10",
           doc="Number of seconds to sleep", short_name="sec")
-      public static class Seconds implements Name<Integer> { }
-      public void sleep() throws Exception;
+      class Seconds implements Name<Integer> { }
+      void sleep() throws InterruptedException;
     }
     
     public class TimerImpl implements Timer {
@@ -219,8 +219,8 @@ The process of instantiting an object with Tang is called _injection_.  As with 
         this.seconds = seconds;
       }
       @Override
-      public void sleep() throws Exception {
-        java.lang.Thread.sleep(seconds);
+      public void sleep() throws InterruptedException {
+        java.lang.Thread.sleep(seconds * 1000);
       }
     
     }
@@ -249,7 +249,7 @@ The process of instantiting an object with Tang is called _injection_.  As with 
         System.out.println("Would have slept for " + seconds + "sec.");
       }
     
-      public static void main(String[] args) throws BindException, InjectionException, Exception {
+      public static void main(String[] args) throws BindException, InjectionException, InterruptedException {
         Configuration c = TimerMock.CONF
           .set(TimerMockConf.MOCK_SLEEP_TIME, 1)
           .build();
@@ -270,7 +270,7 @@ Again, there are a few things going on here:
 `ConfigurationModule`s serve a number of purposes:
 
    - They allow application and library developers to encapsulate the details surrounding their code's instantiation.
-   - They provide Java APIs that expose `OptionalParameter`, `RequiredParameter`, `OptionalImplementation`, `RequiredImpementation` fields.  These fields tell users of the ConfigurationModule which subsystems of the application require which configuration parameters, and allow the author of the ConfigurationModule to use JavaDoc to document the parameters they export.
+   - They provide Java APIs that expose `OptionalParameter`, `RequiredParameter`, `OptionalImplementation`, `RequiredImplementation` fields.  These fields tell users of the ConfigurationModule which subsystems of the application require which configuration parameters, and allow the author of the ConfigurationModule to use JavaDoc to document the parameters they export.
    - Finally, because ConfigurationModule data structures are populated at class load time (before the application begins to run), they can be inspected by Tang's static analysis tools.
 
 These tools are provided by `org.apache.reef.tang.util.Tint`, which is included by default in all Tang builds.  As long as Tang is on the classpath, invoking:
@@ -453,3 +453,4 @@ ClassHierarchy objects can be serialized to protocol buffers.  The following fil
 The java interfaces are available in this package:
 
 [https://github.com/apache/incubator-reef/tree/master/lang/java/reef-tang/tang/src/main/java/org/apache/reef/tang/types](https://github.com/apache/incubator-reef/tree/master/lang/java/reef-tang/tang/src/main/java/org/apache/reef/tang/types)
+

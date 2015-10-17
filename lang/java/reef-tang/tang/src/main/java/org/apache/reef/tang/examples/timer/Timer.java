@@ -24,10 +24,10 @@ import org.apache.reef.tang.annotations.NamedParameter;
 
 @DefaultImplementation(TimerImpl.class)
 public interface Timer {
-  void sleep() throws Exception;
+  void sleep() throws InterruptedException;
 
   @NamedParameter(default_value = "10",
       doc = "Number of seconds to sleep", short_name = "sec")
-  public static class Seconds implements Name<Integer> {
+  class Seconds implements Name<Integer> {
   }
 }

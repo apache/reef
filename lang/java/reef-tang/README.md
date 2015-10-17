@@ -85,7 +85,7 @@ public class Timer {
     this.seconds = seconds;
   }
 
-  public void sleep() throws Exception {
+  public void sleep() throws InterruptedException {
     java.lang.Thread.sleep(seconds * 1000);
   }
 }
@@ -191,8 +191,8 @@ import org.apache.reef.tang.formats.OptionalParameter;
 public interface Timer {
   @NamedParameter(default_value="10",
       doc="Number of seconds to sleep", short_name="sec")
-  public static class Seconds implements Name<Integer> { }
-  public void sleep() throws Exception;
+  class Seconds implements Name<Integer> { }
+  void sleep() throws Exception;
 }
 
 public class TimerImpl implements Timer {
@@ -206,8 +206,8 @@ public class TimerImpl implements Timer {
     this.seconds = seconds;
   }
   @Override
-  public void sleep() throws Exception {
-    java.lang.Thread.sleep(seconds);
+  public void sleep() throws InterruptedException {
+    java.lang.Thread.sleep(seconds * 1000);
   }
 
 }
@@ -236,7 +236,7 @@ public class TimerMock implements Timer {
     System.out.println("Would have slept for " + seconds + "sec.");
   }
 
-  public static void main(String[] args) throws BindException, InjectionException, Exception {
+  public static void main(String[] args) throws BindException, InjectionException {
     Configuration c = TimerMock.CONF
       .set(TimerMockConf.MOCK_SLEEP_TIME, 1)
       .build();
@@ -546,7 +546,7 @@ InjectionPlan objects can be serialized to protocol buffers.  The following file
 
 https://github.com/apache/incubator-reef/blob/master/lang/java/reef-tang/tang/src/main/proto/injection_plan.proto
 
-### ClassHierachy
+### ClassHierarchy
 
 InjectionPlan explains what would happen if you asked Tang to take some action, but it doesn't provide much insight into Tang's view of the object hierarchy, parameter defaults and so on.  ClassHierarchy objects encode the state that Tang gets from .class files, including class inheritance relationships, parameter annotations, and so on.
 
