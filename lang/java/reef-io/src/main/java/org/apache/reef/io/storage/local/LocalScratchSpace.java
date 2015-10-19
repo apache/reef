@@ -29,7 +29,7 @@ public class LocalScratchSpace implements ScratchSpace {
 
   private final String jobName;
   private final String evaluatorName;
-  private final Set<File> tempFiles = new ConcurrentSkipListSet<File>();
+  private final Set<File> tempFiles = new ConcurrentSkipListSet<>();
   /**
    * Zero denotes "unlimited".
    */

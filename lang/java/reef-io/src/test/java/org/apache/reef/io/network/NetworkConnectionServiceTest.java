@@ -221,7 +221,7 @@ public class NetworkConnectionServiceTest {
   @Test
   public void testMessagingNetworkConnServiceRateDisjoint() throws Exception {
     LOG.log(Level.FINEST, name.getMethodName());
-    final BlockingQueue<Object> barrier = new LinkedBlockingQueue<Object>();
+    final BlockingQueue<Object> barrier = new LinkedBlockingQueue<>();
 
     final int numThreads = 4;
     final int size = 2000;

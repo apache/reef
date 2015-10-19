@@ -54,6 +54,7 @@ under the License.
         <jackson.version>1.9.13</jackson.version>
         <protobuf.version>2.5.0</protobuf.version>
         <maven-checkstyle-plugin.version>2.15</maven-checkstyle-plugin.version>
+        <sevntu.checkstyle.plugin.version>1.15.0</sevntu.checkstyle.plugin.version>
         <checkstyle.version>6.6</checkstyle.version>
         <findbugs.version>3.0.2</findbugs.version>
         <rootPath>${user.dir}</rootPath>
@@ -87,6 +88,14 @@ under the License.
     <prerequisites>
         <maven>3.0</maven>
     </prerequisites>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>sevntu-maven</id>
+            <name>sevntu-maven</name>
+            <url>http://sevntu-checkstyle.github.io/sevntu.checkstyle/maven2</url>
+        </pluginRepository>
+    </pluginRepositories>
 
     <build>
         <pluginManagement>
@@ -303,9 +312,15 @@ under the License.
                             <artifactId>checkstyle</artifactId>
                             <version>${checkstyle.version}</version>
                         </dependency>
+                        <dependency>
+                            <groupId>com.github.sevntu.checkstyle</groupId>
+                            <artifactId>sevntu-checkstyle-maven-plugin</artifactId>
+                            <version>${sevntu.checkstyle.plugin.version}</version>
+                        </dependency>
                     </dependencies>
                     <configuration>
                         <configLocation>lang/java/reef-common/src/main/resources/checkstyle.xml</configLocation>
+                        <packageNamesLocation>lang/java/reef-common/src/main/resources/packagenames.xml</packageNamesLocation>
                         <failOnViolation>true</failOnViolation>
                         <format>xml</format>
                         <format>html</format>

@@ -40,7 +40,7 @@ public class TestCombiner {
 
   @Test
   public void test() throws Exception {
-    final CombinerStage<Integer, Integer> stage = new CombinerStage<Integer, Integer>(
+    final CombinerStage<Integer, Integer> stage = new CombinerStage<>(
         new Combiner<Integer, Integer>() {
 
           @Override

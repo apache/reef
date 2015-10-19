@@ -184,6 +184,11 @@
         <module name="MissingSwitchDefault"/>
         <module name="SimplifyBooleanExpression"/>
         <module name="SimplifyBooleanReturn"/>
+
+        <!-- Detects places in Java code where the diamond operator can be used -->
+        <!-- See REEF-838 -->
+        <module name="DiamondOperatorForVariableDefinition" />
+
 	<module name="FinalParameters"/>
 
         <!-- Checks for class design                         -->

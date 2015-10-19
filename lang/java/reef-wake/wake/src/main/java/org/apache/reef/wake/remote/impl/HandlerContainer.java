@@ -56,9 +56,11 @@ final class HandlerContainer<T> implements EventHandler<RemoteEvent<byte[]>> {
     this.transport = transport;
   }
 
+  @SuppressWarnings("checkstyle:diamondoperatorforvariabledefinition")
   public AutoCloseable registerHandler(final RemoteIdentifier sourceIdentifier,
                                        final Class<? extends T> messageType,
                                        final EventHandler<? extends T> theHandler) {
+
 
     final Tuple2<RemoteIdentifier, Class<? extends T>> tuple =
         new Tuple2<RemoteIdentifier, Class<? extends T>>(sourceIdentifier, messageType);
@@ -120,6 +122,7 @@ final class HandlerContainer<T> implements EventHandler<RemoteEvent<byte[]>> {
    *
    * @param value
    */
+  @SuppressWarnings("checkstyle:diamondoperatorforvariabledefinition")
   @Override
   public synchronized void onNext(final RemoteEvent<byte[]> value) {
 

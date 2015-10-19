@@ -151,7 +151,7 @@ public class SpoolFileTest {
   @Test
   public void testFile() throws ServiceException {
     final LocalStorageService service = new LocalStorageService("spoolTest", "file");
-    final Spool<Integer> f = new SerializerFileSpool<Integer>(service, serializer,
+    final Spool<Integer> f = new SerializerFileSpool<>(service, serializer,
         deserializer);
     test(f);
     service.getScratchSpace().delete();
@@ -163,9 +163,9 @@ public class SpoolFileTest {
     final Codec<Integer> c = new IntegerCodec();
 
 
-    final CodecFileAccumulable<Integer, Codec<Integer>> f = new CodecFileAccumulable<Integer, Codec<Integer>>(
+    final CodecFileAccumulable<Integer, Codec<Integer>> f = new CodecFileAccumulable<>(
         service, c);
-    final CodecFileIterable<Integer, Codec<Integer>> g = new CodecFileIterable<Integer, Codec<Integer>>(
+    final CodecFileIterable<Integer, Codec<Integer>> g = new CodecFileIterable<>(
         new File(f.getName()), c);
     test(f, g);
     service.getScratchSpace().delete();

@@ -112,7 +112,7 @@ public abstract class AbstractEvaluatorToPartitionStrategy implements EvaluatorT
     for (int splitNum = 0; splitNum < splits.length; splitNum++) {
       LOG.log(Level.FINE, "Processing split: " + splitNum);
       final InputSplit split = splits[splitNum];
-      final NumberedSplit<InputSplit> numberedSplit = new NumberedSplit<InputSplit>(split, splitNum,
+      final NumberedSplit<InputSplit> numberedSplit = new NumberedSplit<>(split, splitNum,
           partitions[splitNum]);
       unallocatedSplits.add(numberedSplit);
       updateLocations(numberedSplit);

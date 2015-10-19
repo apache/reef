@@ -42,7 +42,7 @@ public class MergingIteratorTest {
         Arrays.asList(new Integer[]{2, 5, 8, 11}).iterator(),
         Arrays.asList(new Integer[]{3, 6, 9, 12}).iterator()
     };
-    MergingIterator<Integer> merge = new MergingIterator<Integer>(cmp, its);
+    MergingIterator<Integer> merge = new MergingIterator<>(cmp, its);
     int i = 1;
     while (merge.hasNext()) {
       Assert.assertEquals(i, (int) merge.next());

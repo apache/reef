@@ -65,6 +65,7 @@ public class SuspendTestTask implements Task, TaskMessageSource {
   /**
    * Codec to serialize/deserialize checkpoint IDs for suspend/resume.
    */
+  @SuppressWarnings("checkstyle:diamondoperatorforvariabledefinition")
   private final ObjectWritableCodec<CheckpointID> codecCheckpoint =
       new ObjectWritableCodec<CheckpointID>(FSCheckpointID.class);
   /**

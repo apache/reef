@@ -77,8 +77,8 @@ public final class NameClient implements NameResolver {
       final TransportFactory tpFactory) {
 
     final NameCache cache = new NameCache(timeout);
-    final BlockingQueue<NamingLookupResponse> replyLookupQueue = new LinkedBlockingQueue<NamingLookupResponse>();
-    final BlockingQueue<NamingRegisterResponse> replyRegisterQueue = new LinkedBlockingQueue<NamingRegisterResponse>();
+    final BlockingQueue<NamingLookupResponse> replyLookupQueue = new LinkedBlockingQueue<>();
+    final BlockingQueue<NamingRegisterResponse> replyRegisterQueue = new LinkedBlockingQueue<>();
     final Codec<NamingMessage> codec = NamingCodecFactory.createFullCodec(factory);
 
     this.transport = tpFactory.newInstance(localAddressProvider.getLocalAddress(), 0,
