@@ -61,7 +61,7 @@ public class MasterTask implements Task {
   private final double lambda;
   private final int maxIters;
   private final ArrayList<Double> losses = new ArrayList<>();
-  private final Codec<ArrayList<Double>> lossCodec = new SerializableCodec<ArrayList<Double>>();
+  private final Codec<ArrayList<Double>> lossCodec = new SerializableCodec<>();
   private final Vector model;
 
   private boolean sendModel = true;

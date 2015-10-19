@@ -34,7 +34,7 @@ import java.util.concurrent.ConcurrentSkipListMap;
  */
 public class RamMap<T> implements ExternalMap<T> {
 
-  private final ConcurrentSkipListMap<CharSequence, T> map = new ConcurrentSkipListMap<CharSequence, T>();
+  private final ConcurrentSkipListMap<CharSequence, T> map = new ConcurrentSkipListMap<>();
 
   @Inject
   public RamMap(final RamStorageService ramStore) {

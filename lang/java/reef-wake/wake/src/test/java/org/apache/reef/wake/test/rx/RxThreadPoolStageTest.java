@@ -42,7 +42,7 @@ public class RxThreadPoolStageTest {
     System.out.println(name.getMethodName());
 
     final TestObserver to = new TestObserver("o1");
-    final RxStage<TestEvent> stage = new RxThreadPoolStage<TestEvent>(to, 1);
+    final RxStage<TestEvent> stage = new RxThreadPoolStage<>(to, 1);
 
     int i = 0;
     int sum = 0;
@@ -68,7 +68,7 @@ public class RxThreadPoolStageTest {
     System.out.println(name.getMethodName());
 
     final TestObserver to = new TestObserver("o1");
-    final RxStage<TestEvent> stage = new RxThreadPoolStage<TestEvent>(to, 11);
+    final RxStage<TestEvent> stage = new RxThreadPoolStage<>(to, 11);
 
     int i = 0;
     int sum = 0;
@@ -94,7 +94,7 @@ public class RxThreadPoolStageTest {
     System.out.println(name.getMethodName());
 
     final TestObserver to = new TestObserver("o1");
-    final RxStage<TestEvent> stage = new RxThreadPoolStage<TestEvent>(to, 11);
+    final RxStage<TestEvent> stage = new RxThreadPoolStage<>(to, 11);
 
     final int tn = 7;
     final ExecutorService taskmaster = Executors.newFixedThreadPool(tn);

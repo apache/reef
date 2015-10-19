@@ -54,7 +54,7 @@ public final class SingleDataCenterEvaluatorToPartitionStrategy extends Abstract
       final InputSplit split = numberedSplit.getEntry();
       final String[] locations = split.getLocations();
       for (final String location : locations) {
-        BlockingQueue<NumberedSplit<InputSplit>> newSplitQue = new LinkedBlockingQueue<NumberedSplit<InputSplit>>();
+        BlockingQueue<NumberedSplit<InputSplit>> newSplitQue = new LinkedBlockingQueue<>();
         final BlockingQueue<NumberedSplit<InputSplit>> splitQue = locationToSplits.putIfAbsent(location, newSplitQue);
         if (splitQue != null) {
           newSplitQue = splitQue;

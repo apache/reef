@@ -142,7 +142,7 @@ public final class JobDriver {
   // We are holding on to following on bridge side.
   // Need to add references here so that GC does not collect them.
   private final HashMap<String, AllocatedEvaluatorBridge> allocatedEvaluatorBridges =
-      new HashMap<String, AllocatedEvaluatorBridge>();
+      new HashMap<>();
   private EvaluatorRequestorBridge evaluatorRequestorBridge;
 
 
