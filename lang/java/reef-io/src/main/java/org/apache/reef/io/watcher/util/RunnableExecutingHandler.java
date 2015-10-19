@@ -35,7 +35,7 @@ public final class RunnableExecutingHandler implements EventHandler<Runnable> {
     try {
       runnable.run();
     } catch(final Throwable exception) {
-      LOG.log(Level.SEVERE, "An exception occurred while writing event with Watcher. {0}", exception.getMessage());
+      LOG.log(Level.INFO, "An exception occurred while writing event with Watcher. {0}", exception.getMessage());
     }
   }
 }

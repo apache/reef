@@ -52,7 +52,7 @@ public final class FileEventStream implements EventStream {
     try {
       final OutputStreamWriter writer = new OutputStreamWriter(
           new FileOutputStream(createFileWithPath(path)), Charset.forName("UTF-8"));
-      this.printWriter = new PrintWriter(writer, true);
+      this.printWriter = new PrintWriter(writer);
     } catch (final Exception e) {
       throw new RuntimeException(e);
     }

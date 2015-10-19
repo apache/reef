@@ -38,6 +38,7 @@ public final class WatcherTestTask implements Task, TaskMessageSource {
   private final HeartBeatTriggerManager heartBeatTriggerManager;
   private final boolean isTaskSuspended;
   private boolean isRunning;
+
   @Inject
   private WatcherTestTask(final HeartBeatTriggerManager heartBeatTriggerManager,
                           @Parameter(IsTaskSuspended.class) final boolean isTaskSuspended) {
