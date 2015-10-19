@@ -36,7 +36,9 @@ import java.util.logging.Logger;
 
 /**
  * An implementation of LocalAddressProvider using the (removed) code from NetUtils.getLocalAddress().
+ * @deprecated in 0.14. Use HostnameBasedLocalAddressProvider instead
  */
+@Deprecated
 public final class LegacyLocalAddressProvider implements LocalAddressProvider {
   private static final Logger LOG = Logger.getLogger(LegacyLocalAddressProvider.class.getName());
   private final AtomicReference<String> cached = new AtomicReference<>();
