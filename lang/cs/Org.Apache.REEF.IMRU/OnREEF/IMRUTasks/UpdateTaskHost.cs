@@ -16,7 +16,6 @@
 // under the License.
 
 using System;
-using System.Diagnostics;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.IMRU.API;
 using Org.Apache.REEF.IMRU.OnREEF.Driver;
@@ -43,23 +42,28 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
         private readonly IBroadcastSender<MapInputWithControlMessage<TMapInput>> _dataAndControlMessageSender;
         private readonly IUpdateFunction<TMapInput, TMapOutput, TResult> _updateTask;
         private readonly bool _invokeGC;
+        private readonly IIMRUResultHandler<TResult> _resultHandler;
 
         /// <summary>
         /// </summary>
         /// <param name="updateTask">The UpdateTask hosted in this REEF Task.</param>
         /// <param name="groupCommunicationsClient">Used to setup the communications.</param>
+        /// <param name="resultHandler">Result handler</param>
         /// <param name="invokeGC">Whether to call Garbage Collector after each iteration or not</param>
         [Inject]
         private UpdateTaskHost(
             IUpdateFunction<TMapInput, TMapOutput, TResult> updateTask,
             IGroupCommClient groupCommunicationsClient,
-            [Parameter(typeof(InvokeGC))] bool invokeGC)
+            IIMRUResultHandler<TResult> resultHandler,
+            [Parameter(typeof (InvokeGC))] bool invokeGC)
         {
             _updateTask = updateTask;
             var cg = groupCommunicationsClient.GetCommunicationGroup(IMRUConstants.CommunicationGroupName);
-            _dataAndControlMessageSender = cg.GetBroadcastSender<MapInputWithControlMessage<TMapInput>>(IMRUConstants.BroadcastOperatorName);
+            _dataAndControlMessageSender =
+                cg.GetBroadcastSender<MapInputWithControlMessage<TMapInput>>(IMRUConstants.BroadcastOperatorName);
             _dataReceiver = cg.GetReduceReceiver<TMapOutput>(IMRUConstants.ReduceOperatorName);
             _invokeGC = invokeGC;
+            _resultHandler = resultHandler;
         }
 
         /// <summary>
@@ -70,9 +74,12 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
         public byte[] Call(byte[] memento)
         {
             var updateResult = _updateTask.Initialize();
+            int iterNo = 0;
 
             while (updateResult.HasMapInput)
-            {        
+            {
+                iterNo++;
+
                 using (
                     var message = new MapInputWithControlMessage<TMapInput>(updateResult.MapInput,
                         MapControlMessage.AnotherRound))
@@ -93,7 +100,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
 
                 if (updateResult.HasResult)
                 {
-                    // TODO[REEF-576]: Emit output somewhere.
+                    _resultHandler.HandleResult(updateResult.Result);
                 }
             }
 
@@ -101,11 +108,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
                     new MapInputWithControlMessage<TMapInput>(MapControlMessage.Stop);
             _dataAndControlMessageSender.Send(stopMessage);
 
-            if (updateResult.HasResult)
-            {
-                // TODO[REEF-576]: Emit output somewhere.
-            }
-
+            _resultHandler.Dispose();
             return null;
         }
 

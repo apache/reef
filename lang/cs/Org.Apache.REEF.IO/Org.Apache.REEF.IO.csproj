@@ -42,6 +42,7 @@ under the License.
   </ItemGroup>
   <ItemGroup>
     <Compile Include="FileSystem\Hadoop\CommandResult.cs" />
+    <Compile Include="FileSystem\Hadoop\HDFSConfigurationWithoutDriverBinding.cs" />
     <Compile Include="FileSystem\Hadoop\HadoopFileSystemConfiguration.cs" />
     <Compile Include="FileSystem\Hadoop\HadoopFileSystemConfigurationProvider.cs" />
     <Compile Include="FileSystem\Hadoop\HDFSCommandRunner.cs" />

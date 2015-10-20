@@ -46,7 +46,7 @@ namespace Org.Apache.REEF.IMRU.Tests
                             .Build()
                     )
                     .GetInstance<MapperCount>();
-            var result = tested.Run(NumberOfMappers);
+            var result = tested.Run(NumberOfMappers, "", TangFactory.GetTang().NewConfigurationBuilder().Build());
             Assert.AreEqual(NumberOfMappers, result, "The result of the run should be the number of Mappers.");
         }
     }

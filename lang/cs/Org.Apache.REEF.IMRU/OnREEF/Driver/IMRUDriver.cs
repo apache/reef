@@ -18,7 +18,6 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Threading;
 using Org.Apache.REEF.Common.Tasks;
@@ -30,6 +29,7 @@ using Org.Apache.REEF.IMRU.API;
 using Org.Apache.REEF.IMRU.OnREEF.IMRUTasks;
 using Org.Apache.REEF.IMRU.OnREEF.MapInputWithControlMessage;
 using Org.Apache.REEF.IMRU.OnREEF.Parameters;
+using Org.Apache.REEF.IMRU.OnREEF.ResultHandler;
 using Org.Apache.REEF.IO.PartitionedData;
 using Org.Apache.REEF.Network.Group.Driver;
 using Org.Apache.REEF.Network.Group.Driver.Impl;
@@ -37,13 +37,13 @@ using Org.Apache.REEF.Network.Group.Pipelining;
 using Org.Apache.REEF.Network.Group.Pipelining.Impl;
 using Org.Apache.REEF.Network.Group.Topology;
 using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Tang.Exceptions;
 using Org.Apache.REEF.Tang.Implementations.Configuration;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities.Diagnostics;
 using Org.Apache.REEF.Utilities.Logging;
-using Org.Apache.REEF.Wake.Remote.Parameters;
 
 namespace Org.Apache.REEF.IMRU.OnREEF.Driver
 {
@@ -168,10 +168,27 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                                 .Set(TaskConfiguration.Task,
                                     GenericType<UpdateTaskHost<TMapInput, TMapOutput, TResult>>.Class)
                                 .Build(),
-                            _configurationManager.UpdateFunctionConfiguration
+                            _configurationManager.UpdateFunctionConfiguration,
+                            _configurationManager.ResultHandlerConfiguration
                         })
                         .BindNamedParameter(typeof (InvokeGC), _invokeGC.ToString())
                         .Build();
+
+                try
+                {
+                    TangFactory.GetTang()
+                        .NewInjector(partialTaskConf, _configurationManager.UpdateFunctionCodecsConfiguration)
+                        .GetInstance<IIMRUResultHandler<TResult>>();
+                }
+                catch(InjectionException)
+                {
+                    partialTaskConf = TangFactory.GetTang().NewConfigurationBuilder(partialTaskConf)
+                        .BindImplementation(GenericType<IIMRUResultHandler<TResult>>.Class,
+                            GenericType<DefaultResultHandler<TResult>>.Class)
+                        .Build();
+                    Logger.Log(Level.Warning,
+                        "User has not given any way to handle IMRU result, defaulting to ignoring it");
+                }
 
                 _commGroup.AddTask(IMRUConstants.UpdateTaskName);
                 _groupCommTaskStarter.QueueTask(partialTaskConf, activeContext);
