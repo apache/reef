@@ -52,6 +52,7 @@ namespace Org.Apache.REEF.IMRU.API
         private IConfiguration _mapOutputPipelineDataConverterConfiguration;
         private IConfiguration _mapInputPipelineDataConverterConfiguration;
         private IConfiguration _partitionedDatasetConfiguration;
+        private IConfiguration _resultHandlerConfiguration;
         private readonly ISet<IConfiguration> _perMapConfigGeneratorConfig;
         private bool _invokeGC;
 
@@ -66,6 +67,7 @@ namespace Org.Apache.REEF.IMRU.API
             _mapInputPipelineDataConverterConfiguration = EmptyConfiguration;
             _mapOutputPipelineDataConverterConfiguration = EmptyConfiguration;
             _partitionedDatasetConfiguration = EmptyConfiguration;
+            _resultHandlerConfiguration = EmptyConfiguration;
             _memoryPerMapper = 512;
             _updateTaskMemory = 512;
             _coresPerMapper = 1;
@@ -248,6 +250,17 @@ namespace Org.Apache.REEF.IMRU.API
         }
 
         /// <summary>
+        /// Sets Result handler Configuration
+        /// </summary>
+        /// <param name="resultHandlerConfig">Result handler config</param>
+        /// <returns></returns>
+        public IMRUJobDefinitionBuilder SetResultHandlerConfiguration(IConfiguration resultHandlerConfig)
+        {
+            _resultHandlerConfiguration = resultHandlerConfig;
+            return this;
+        }
+
+        /// <summary>
         /// Whether to invoke Garbage Collector after each IMRU iteration
         /// </summary>
         /// <param name="invokeGC">variable telling whether to invoke or not</param>
@@ -307,6 +320,7 @@ namespace Org.Apache.REEF.IMRU.API
                 _mapOutputPipelineDataConverterConfiguration,
                 _mapInputPipelineDataConverterConfiguration,
                 _partitionedDatasetConfiguration,
+                _resultHandlerConfiguration,
                 _perMapConfigGeneratorConfig,
                 _numberOfMappers,
                 _memoryPerMapper,

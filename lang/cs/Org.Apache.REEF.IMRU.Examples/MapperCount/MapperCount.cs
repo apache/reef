@@ -17,10 +17,16 @@
  * under the License.
  */
 
+using System;
 using System.Linq;
 using Org.Apache.REEF.IMRU.API;
+using Org.Apache.REEF.IMRU.OnREEF.Parameters;
+using Org.Apache.REEF.IMRU.OnREEF.ResultHandler;
+using Org.Apache.REEF.IO.FileSystem.Local;
 using Org.Apache.REEF.IO.PartitionedData.Random;
 using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Tang.Implementations.Tang;
+using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Wake.StreamingCodec.CommonStreamingCodecs;
 
@@ -43,7 +49,7 @@ namespace Org.Apache.REEF.IMRU.Examples.MapperCount
         /// Runs the actual mapper count job
         /// </summary>
         /// <returns>The number of MapFunction instances that are part of the job.</returns>
-        public int Run(int numberofMappers)
+        public int Run(int numberofMappers, string outputFile, IConfiguration fileSystemConfig)
         {
             var results = _imruClient.Submit<int, int, int>(
                 new IMRUJobDefinitionBuilder()
@@ -66,8 +72,16 @@ namespace Org.Apache.REEF.IMRU.Examples.MapperCount
                             GenericType<IntSumReduceFunction>.Class)
                         .Build())
                     .SetPartitionedDatasetConfiguration(
-                        RandomInputDataConfiguration.ConfigurationModule.Set(RandomInputDataConfiguration.NumberOfPartitions,
+                        RandomInputDataConfiguration.ConfigurationModule.Set(
+                            RandomInputDataConfiguration.NumberOfPartitions,
                             numberofMappers.ToString()).Build())
+                    .SetResultHandlerConfiguration(
+                        TangFactory.GetTang()
+                            .NewConfigurationBuilder(fileSystemConfig)
+                            .BindImplementation(GenericType<IObserver<int>>.Class,
+                                GenericType<WriteResultHandler<int>>.Class)
+                            .BindNamedParameter(typeof(ResultOutputLocation), outputFile)
+                            .Build())
                     .SetMapTaskCores(2)
                     .SetUpdateTaskCores(3)
                     .SetJobName("MapperCount")

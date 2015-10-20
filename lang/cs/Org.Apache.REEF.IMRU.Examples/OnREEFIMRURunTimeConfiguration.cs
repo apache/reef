@@ -73,11 +73,9 @@ namespace Org.Apache.REEF.IMRU.Examples
             IConfiguration imruClientConfig =
                 REEFIMRUClientConfiguration.ConfigurationModule.Build();
 
-            var fileSystemConfig = HadoopFileSystemConfiguration.ConfigurationModule.Build();
-
             IConfiguration runtimeConfig =
                 YARNClientConfiguration.ConfigurationModule.Build();
-            return Configurations.Merge(runtimeConfig, imruClientConfig, fileSystemConfig);
+            return Configurations.Merge(runtimeConfig, imruClientConfig);
         }
     }
 }

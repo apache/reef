@@ -21,10 +21,12 @@ using System;
 using System.Globalization;
 using System.Linq;
 using Org.Apache.REEF.Client.API;
+using Org.Apache.REEF.Client.Yarn;
 using Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce;
+using Org.Apache.REEF.IO.FileSystem.Hadoop;
+using Org.Apache.REEF.IO.FileSystem.Local;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
-using Org.Apache.REEF.Wake.Remote.Parameters;
 using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.IMRU.Examples
@@ -36,24 +38,27 @@ namespace Org.Apache.REEF.IMRU.Examples
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(Run));
 
-        private static void RunMapperTest(IConfiguration tcpPortConfig, bool runOnYarn, int numNodes)
+        private static void RunMapperTest(IConfiguration tcpPortConfig, bool runOnYarn, int numNodes, string filename)
         {
             IInjector injector;
+            IConfiguration fileSystemConfig;
 
             if (!runOnYarn)
             {
                 injector =
                     TangFactory.GetTang()
                         .NewInjector(OnREEFIMRURunTimeConfiguration<int, int, int>.GetLocalIMRUConfiguration(numNodes), tcpPortConfig);
+                fileSystemConfig = LocalFileSystemConfiguration.ConfigurationModule.Build();
             }
             else
             {
                 injector = TangFactory.GetTang()
                     .NewInjector(OnREEFIMRURunTimeConfiguration<int, int, int>.GetYarnIMRUConfiguration(), tcpPortConfig);
+                fileSystemConfig = HadoopFileSystemConfiguration.ConfigurationModule.Build();
             }
 
             var mapperCountExample = injector.GetInstance<MapperCount.MapperCount>();
-            mapperCountExample.Run(numNodes - 1);
+            mapperCountExample.Run(numNodes - 1, filename, fileSystemConfig);
         }
 
         private static void RunBroadcastReduceTest(IConfiguration tcpPortConfig, bool runOnYarn, int numNodes, string[] args)
@@ -114,6 +119,7 @@ namespace Org.Apache.REEF.IMRU.Examples
             int numNodes = 2;
             int startPort = 8900;
             int portRange = 1000;
+            string resultFilename = " ";
 
             if (args != null)
             {
@@ -154,7 +160,11 @@ namespace Org.Apache.REEF.IMRU.Examples
             {
                 case "mappercount":
                     Logger.Log(Level.Info, "Running Mapper count");
-                    RunMapperTest(tcpPortConfig, runOnYarn, numNodes);
+                    if (args.Length > 5)
+                    {
+                        resultFilename = args[5];
+                    }
+                    RunMapperTest(tcpPortConfig, runOnYarn, numNodes, resultFilename);
                     Logger.Log(Level.Info, "Done Running Mapper count");
                     return;
 

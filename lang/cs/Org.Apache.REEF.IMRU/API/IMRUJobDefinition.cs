@@ -37,6 +37,7 @@ namespace Org.Apache.REEF.IMRU.API
         private readonly IConfiguration _mapOutputPipelineDataConverterConfiguration;
         private readonly IConfiguration _mapInputPipelineDataConverterConfiguration;
         private readonly IConfiguration _partitionedDatasetConfiguration;
+        private readonly IConfiguration _resultHandlerConfiguration;
         private readonly int _numberOfMappers;
         private readonly int _memoryPerMapper;
         private readonly int _updateTaskMemory;
@@ -60,6 +61,7 @@ namespace Org.Apache.REEF.IMRU.API
         /// PipelineDataConverter for TMapInput</param>
         /// <param name="partitionedDatasetConfiguration">Configuration of partitioned 
         /// dataset</param>
+        /// <param name="resultHandlerConfiguration">Configuration of result handler</param>
         /// <param name="perMapConfigGeneratorConfig">Per mapper configuration</param>
         /// <param name="numberOfMappers">Number of mappers</param>
         /// <param name="memoryPerMapper">Per Mapper memory.</param>
@@ -77,6 +79,7 @@ namespace Org.Apache.REEF.IMRU.API
             IConfiguration mapOutputPipelineDataConverterConfiguration,
             IConfiguration mapInputPipelineDataConverterConfiguration,
             IConfiguration partitionedDatasetConfiguration,
+            IConfiguration resultHandlerConfiguration,
             ISet<IConfiguration> perMapConfigGeneratorConfig,
             int numberOfMappers,
             int memoryPerMapper,
@@ -102,6 +105,7 @@ namespace Org.Apache.REEF.IMRU.API
             _updateTaskCores = updateTaskCores;
             _perMapConfigGeneratorConfig = perMapConfigGeneratorConfig;
             _invokeGC = invokeGC;
+            _resultHandlerConfiguration = resultHandlerConfiguration;
         }
 
         /// <summary>
@@ -234,6 +238,15 @@ namespace Org.Apache.REEF.IMRU.API
         internal bool InvokeGarbageCollectorAfterIteration
         {
             get { return _invokeGC; }
+        }
+
+        /// <summary>
+        /// Configuration of the result handler 
+        /// </summary>
+        /// <returns></returns>
+        internal IConfiguration ResultHandlerConfiguration
+        {
+            get { return _resultHandlerConfiguration; }
         }
     }
 }

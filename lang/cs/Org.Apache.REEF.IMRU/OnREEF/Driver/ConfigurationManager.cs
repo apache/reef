@@ -39,6 +39,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         private readonly IConfiguration _updateFunctionConfiguration;
         private readonly IConfiguration _mapOutputPipelineDataConverterConfiguration;
         private readonly IConfiguration _mapInputPipelineDataConverterConfiguration;
+        private readonly IConfiguration _resultHandlerConfiguration;
 
         [Inject]
         private ConfigurationManager(
@@ -48,14 +49,17 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             [Parameter(typeof(SerializedUpdateConfiguration))] string updateConfig,
             [Parameter(typeof(SerializedMapInputCodecConfiguration))] string mapInputCodecConfig,
             [Parameter(typeof(SerializedUpdateFunctionCodecsConfiguration))] string updateFunctionCodecsConfig,
-            [Parameter(typeof(SerializedMapOutputPipelineDataConverterConfiguration))] string mapOutputPipelineDataConverterConfiguration,
-            [Parameter(typeof(SerializedMapInputPipelineDataConverterConfiguration))] string mapInputPipelineDataConverterConfiguration)
+            [Parameter(typeof(SerializedMapOutputPipelineDataConverterConfiguration))] string
+                mapOutputPipelineDataConverterConfiguration,
+            [Parameter(typeof(SerializedMapInputPipelineDataConverterConfiguration))] string
+                mapInputPipelineDataConverterConfiguration,
+            [Parameter(typeof(SerializedResultHandlerConfiguration))] string resultHandlerConfiguration)
         {
             try
             {
                 _mapFunctionConfiguration = configurationSerializer.FromString(mapConfig);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Exceptions.Throw(e, "Unable to deserialize map function configuration", Logger);
             }
@@ -110,6 +114,17 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             {
                 _mapInputPipelineDataConverterConfiguration =
                     configurationSerializer.FromString(mapInputPipelineDataConverterConfiguration);
+            }
+            catch (Exception e)
+            {
+                Exceptions.Throw(e, "Unable to deserialize map input pipeline data converter configuration", Logger);
+            }
+
+            try
+            {
+                _resultHandlerConfiguration =
+                    configurationSerializer.FromString(resultHandlerConfiguration);
+                Logger.Log(Level.Verbose,"Serialized result handler is " + resultHandlerConfiguration);
             }
             catch (Exception e)
             {
@@ -172,6 +187,14 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         internal IConfiguration MapInputPipelineDataConverterConfiguration
         {
             get { return _mapInputPipelineDataConverterConfiguration; }
+        }
+
+        /// <summary>
+        /// Configuration of Result handler
+        /// </summary>
+        internal IConfiguration ResultHandlerConfiguration
+        {
+            get { return _resultHandlerConfiguration; }
         }
     }
 }
