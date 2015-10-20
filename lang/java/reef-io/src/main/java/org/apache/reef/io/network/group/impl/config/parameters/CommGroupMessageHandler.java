@@ -23,7 +23,10 @@ import org.apache.reef.io.network.group.impl.utils.BroadcastingEventHandler;
 import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
 
-@NamedParameter(doc = "Message handler of comm group")
+/**
+ * Message handler of the comm group.
+ */
+@NamedParameter(doc = "Message handler of the comm group")
 public final class CommGroupMessageHandler implements Name<BroadcastingEventHandler<GroupCommunicationMessage>> {
   private CommGroupMessageHandler() {
   }

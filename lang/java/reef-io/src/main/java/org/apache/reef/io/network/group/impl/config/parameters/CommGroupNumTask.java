@@ -21,6 +21,9 @@ package org.apache.reef.io.network.group.impl.config.parameters;
 import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
 
+/**
+ * Number of tasks in the comm group.
+ */
 @NamedParameter(doc = "Number of tasks in the comm group")
 public final class CommGroupNumTask implements Name<Integer> {
   private CommGroupNumTask() {
