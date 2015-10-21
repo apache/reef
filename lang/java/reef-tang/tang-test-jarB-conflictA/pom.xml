@@ -22,7 +22,7 @@ under the License.
     <parent>
         <groupId>org.apache.reef</groupId>
         <artifactId>tang-project</artifactId>
-        <version>0.13.0-incubating</version>
+        <version>0.14.0-incubating-SNAPSHOT</version>
     </parent>
 
     <artifactId>tang-test-jarB-conflictA</artifactId>
