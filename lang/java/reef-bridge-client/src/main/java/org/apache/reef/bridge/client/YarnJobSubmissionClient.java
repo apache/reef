@@ -313,6 +313,9 @@ public final class YarnJobSubmissionClient {
         .newInjector(yarnConfiguration)
         .getInstance(YarnJobSubmissionClient.class);
     client.launch(yarnSubmission);
+    LOG.log(Level.INFO, "Returned from launch in Java YarnJobSubmissionClient");
+    System.exit(0);
+    LOG.log(Level.INFO, "End of main in Java YarnJobSubmissionClient");
   }
 }
 
