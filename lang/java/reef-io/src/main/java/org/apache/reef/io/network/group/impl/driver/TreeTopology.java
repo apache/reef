@@ -95,10 +95,10 @@ public class TreeTopology implements Topology {
 
   @Inject
   private TreeTopology(@Parameter(GroupCommSenderStage.class) final EStage<GroupCommunicationMessage> senderStage,
-                      @Parameter(CommGroupNameClass.class) final Class<? extends Name<String>> groupName,
-                      @Parameter(OperatorNameClass.class) final Class<? extends Name<String>> operatorName,
-                      @Parameter(DriverIdentifier.class) final String driverId,
-                      @Parameter(TreeTopologyFanOut.class) final int fanOut) {
+                       @Parameter(CommGroupNameClass.class) final Class<? extends Name<String>> groupName,
+                       @Parameter(OperatorNameClass.class) final Class<? extends Name<String>> operatorName,
+                       @Parameter(DriverIdentifier.class) final String driverId,
+                       @Parameter(TreeTopologyFanOut.class) final int fanOut) {
     this.senderStage = senderStage;
     this.groupName = groupName;
     this.operName = operatorName;

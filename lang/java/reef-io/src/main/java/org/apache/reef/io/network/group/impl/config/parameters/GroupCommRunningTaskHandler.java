@@ -24,9 +24,9 @@ import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
 
 /**
- * Running task handler of group comm.
+ * Name class of group comm running task handler.
  */
-@NamedParameter(doc = "Running task handler of group comm")
+@NamedParameter(doc = "Name class of group comm running task handler")
 public final class GroupCommRunningTaskHandler implements Name<BroadcastingEventHandler<RunningTask>> {
   private GroupCommRunningTaskHandler() {
   }

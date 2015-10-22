@@ -122,15 +122,16 @@ public class CommunicationGroupDriverImpl implements CommunicationGroupDriver {
       @Parameter(CommGroupNameClass.class) final Class<? extends Name<String>> groupName,
       final ConfigurationSerializer confSerializer,
       @Parameter(GroupCommRunningTaskHandler.class)
-      final BroadcastingEventHandler<RunningTask> groupCommRunningTaskHandler,
+          final BroadcastingEventHandler<RunningTask> groupCommRunningTaskHandler,
       @Parameter(GroupCommFailedTaskHandler.class)
-      final BroadcastingEventHandler<FailedTask> groupCommFailedTaskHandler,
+          final BroadcastingEventHandler<FailedTask> groupCommFailedTaskHandler,
       @Parameter(GroupCommFailedEvalHandler.class)
-      final BroadcastingEventHandler<FailedEvaluator> groupCommFailedEvaluatorHandler,
+          final BroadcastingEventHandler<FailedEvaluator> groupCommFailedEvaluatorHandler,
       @Parameter(CommGroupMessageHandler.class)
-      final BroadcastingEventHandler<GroupCommunicationMessage> commGroupMessageHandler,
+          final BroadcastingEventHandler<GroupCommunicationMessage> commGroupMessageHandler,
       @Parameter(DriverIdentifier.class) final String driverId,
-      @Parameter(CommGroupNumTask.class) final int numberOfTasks, final TopologyFactory topologyFactory) {
+      @Parameter(CommGroupNumTask.class) final int numberOfTasks,
+      final TopologyFactory topologyFactory) {
     super();
     this.groupName = groupName;
     this.driverId = driverId;

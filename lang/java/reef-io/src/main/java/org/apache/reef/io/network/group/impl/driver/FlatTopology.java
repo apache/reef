@@ -86,9 +86,9 @@ public class FlatTopology implements Topology {
 
   @Inject
   private FlatTopology(@Parameter(GroupCommSenderStage.class) final EStage<GroupCommunicationMessage> senderStage,
-                      @Parameter(CommGroupNameClass.class) final Class<? extends Name<String>> groupName,
-                      @Parameter(OperatorNameClass.class) final Class<? extends Name<String>> operatorName,
-                      @Parameter(DriverIdentifier.class) final String driverId) {
+                       @Parameter(CommGroupNameClass.class) final Class<? extends Name<String>> groupName,
+                       @Parameter(OperatorNameClass.class) final Class<? extends Name<String>> operatorName,
+                       @Parameter(DriverIdentifier.class) final String driverId) {
     this.senderStage = senderStage;
     this.groupName = groupName;
     this.operName = operatorName;

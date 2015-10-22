@@ -22,9 +22,9 @@ import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
 
 /**
- * Number of tasks in the comm group.
+ * Name class of the number of tasks in the comm group.
  */
-@NamedParameter(doc = "Number of tasks in the comm group")
+@NamedParameter(doc = "Name class of the number of tasks in the comm group")
 public final class CommGroupNumTask implements Name<Integer> {
   private CommGroupNumTask() {
   }

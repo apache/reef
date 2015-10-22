@@ -52,7 +52,8 @@ public final class CommunicationGroupDriverFactory {
   public CommunicationGroupDriver getNewInstance(
       final Class<? extends Name<String>> groupName,
       final BroadcastingEventHandler<GroupCommunicationMessage> commGroupMessageHandler,
-      final int numberOfTasks, final int customFanOut) throws InjectionException {
+      final int numberOfTasks,
+      final int customFanOut) throws InjectionException {
 
     final Injector newInjector = injector.forkInjector();
     newInjector.bindVolatileParameter(CommGroupNameClass.class, groupName);

@@ -24,9 +24,9 @@ import org.apache.reef.tang.annotations.NamedParameter;
 import org.apache.reef.wake.EStage;
 
 /**
- * Sender stage of group comm.
+ * Name class of group comm sender stage.
  */
-@NamedParameter(doc = "Sender stage of group comm")
+@NamedParameter(doc = "Name class of group comm sender stage")
 public final class GroupCommSenderStage implements Name<EStage<GroupCommunicationMessage>> {
   private GroupCommSenderStage() {
   }

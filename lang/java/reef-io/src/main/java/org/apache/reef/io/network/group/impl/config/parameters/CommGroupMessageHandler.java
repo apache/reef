@@ -24,9 +24,9 @@ import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
 
 /**
- * Message handler of the comm group.
+ * Name class of the comm group message handler.
  */
-@NamedParameter(doc = "Message handler of the comm group")
+@NamedParameter(doc = "Name class of the comm group message handler")
 public final class CommGroupMessageHandler implements Name<BroadcastingEventHandler<GroupCommunicationMessage>> {
   private CommGroupMessageHandler() {
   }

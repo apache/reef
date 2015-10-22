@@ -24,9 +24,9 @@ import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
 
 /**
- * Failed evaluator handler of group comm.
+ * Name class of group comm failed evaluator handler.
  */
-@NamedParameter(doc = "Failed evaluator handler of group comm")
+@NamedParameter(doc = "Name class of group comm failed evaluator handler")
 public final class GroupCommFailedEvalHandler implements Name<BroadcastingEventHandler<FailedEvaluator>> {
   private GroupCommFailedEvalHandler() {
   }

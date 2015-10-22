@@ -22,9 +22,9 @@ import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
 
 /**
- * Name class of the comm group.
+ * NamedParameter wrapper for the name class of the comm group.
  */
-@NamedParameter(doc = "Name class of the comm group")
+@NamedParameter(doc = "NamedParameter wrapper for the name class of the comm group")
 public final class CommGroupNameClass implements Name<Class<? extends Name<String>>> {
   private CommGroupNameClass() {
   }

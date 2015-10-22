@@ -22,9 +22,9 @@ import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
 
 /**
- * Name class of the operator.
+ * NamedParameter wrapper for the name class of the operator.
  */
-@NamedParameter(doc = "Name class of the operator")
+@NamedParameter(doc = "NamedParameter wrapper for the name class of the operator")
 public final class OperatorNameClass implements Name<Class<? extends Name<String>>> {
   private OperatorNameClass() {
   }
