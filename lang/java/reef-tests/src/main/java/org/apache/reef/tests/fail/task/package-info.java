@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * Tests for Tasks fail in various cases.
  */
 package org.apache.reef.tests.fail.task;
