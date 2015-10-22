@@ -18,11 +18,16 @@
  */
 package org.apache.reef.io.network.group.impl.driver;
 
+import org.apache.reef.driver.parameters.DriverIdentifier;
 import org.apache.reef.io.network.group.api.driver.Topology;
-import org.apache.reef.io.network.group.impl.config.parameters.OperatorNameClass;
+import org.apache.reef.io.network.group.impl.GroupCommunicationMessage;
+import org.apache.reef.io.network.group.impl.config.parameters.*;
 import org.apache.reef.tang.Injector;
+import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.annotations.Name;
+import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.tang.exceptions.InjectionException;
+import org.apache.reef.wake.EStage;
 
 import javax.inject.Inject;
 
@@ -35,8 +40,17 @@ public final class TopologyFactory {
   private final Injector injector;
 
   @Inject
-  private TopologyFactory(final Injector injector) {
-    this.injector = injector;
+  private TopologyFactory(@Parameter(GroupCommSenderStage.class) final EStage<GroupCommunicationMessage> senderStage,
+                          @Parameter(CommGroupNameClass.class) final Class<? extends Name<String>> groupName,
+                          @Parameter(DriverIdentifier.class) final String driverId,
+                          @Parameter(CommGroupNumTask.class) final int numberOfTasks,
+                          @Parameter(TreeTopologyFanOut.class) final int fanOut) {
+    injector = Tang.Factory.getTang().newInjector();
+    injector.bindVolatileParameter(GroupCommSenderStage.class, senderStage);
+    injector.bindVolatileParameter(CommGroupNameClass.class, groupName);
+    injector.bindVolatileParameter(DriverIdentifier.class, driverId);
+    injector.bindVolatileParameter(CommGroupNumTask.class, numberOfTasks);
+    injector.bindVolatileParameter(TreeTopologyFanOut.class, fanOut);
   }
 
   /**

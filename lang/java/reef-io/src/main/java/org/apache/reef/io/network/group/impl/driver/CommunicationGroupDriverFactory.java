@@ -18,13 +18,20 @@
  */
 package org.apache.reef.io.network.group.impl.driver;
 
+import org.apache.reef.driver.evaluator.FailedEvaluator;
+import org.apache.reef.driver.parameters.DriverIdentifier;
+import org.apache.reef.driver.task.FailedTask;
+import org.apache.reef.driver.task.RunningTask;
 import org.apache.reef.io.network.group.api.driver.CommunicationGroupDriver;
 import org.apache.reef.io.network.group.impl.GroupCommunicationMessage;
 import org.apache.reef.io.network.group.impl.config.parameters.*;
 import org.apache.reef.io.network.group.impl.utils.BroadcastingEventHandler;
 import org.apache.reef.tang.Injector;
+import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.annotations.Name;
+import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.tang.exceptions.InjectionException;
+import org.apache.reef.wake.EStage;
 
 import javax.inject.Inject;
 
@@ -37,8 +44,21 @@ public final class CommunicationGroupDriverFactory {
   private final Injector injector;
 
   @Inject
-  private CommunicationGroupDriverFactory(final Injector injector) {
-    this.injector = injector;
+  private CommunicationGroupDriverFactory(
+      @Parameter(DriverIdentifier.class) final String driverId,
+      @Parameter(GroupCommSenderStage.class) final EStage<GroupCommunicationMessage> senderStage,
+      @Parameter(GroupCommRunningTaskHandler.class)
+          final BroadcastingEventHandler<RunningTask> groupCommRunningTaskHandler,
+      @Parameter(GroupCommFailedTaskHandler.class)
+          final BroadcastingEventHandler<FailedTask> groupCommFailedTaskHandler,
+      @Parameter(GroupCommFailedEvalHandler.class)
+          final BroadcastingEventHandler<FailedEvaluator> groupCommFailedEvaluatorHandler) {
+    injector = Tang.Factory.getTang().newInjector();
+    injector.bindVolatileParameter(GroupCommSenderStage.class, senderStage);
+    injector.bindVolatileParameter(DriverIdentifier.class, driverId);
+    injector.bindVolatileParameter(GroupCommRunningTaskHandler.class, groupCommRunningTaskHandler);
+    injector.bindVolatileParameter(GroupCommFailedTaskHandler.class, groupCommFailedTaskHandler);
+    injector.bindVolatileParameter(GroupCommFailedEvalHandler.class, groupCommFailedEvaluatorHandler);
   }
 
   /**
