@@ -37,9 +37,9 @@ namespace Org.Apache.REEF.IO.Tests
     /// Tests for Org.Apache.REEF.IO.PartitionedData.FileSystem.
     /// </summary>
     [TestClass]
-    public class TestFilePartitionDataSet
+    public class TestFilePartitionInputDataSet
     {
-        private static readonly Logger Logger = Logger.GetLogger(typeof(TestFilePartitionDataSet));
+        private static readonly Logger Logger = Logger.GetLogger(typeof(TestFilePartitionInputDataSet));
 
         const string tempFileName1 = "REEF.TestLocalFileSystem1.tmp";
         const string tempFileName2 = "REEF.TestLocalFileSystem2.tmp";
@@ -47,8 +47,8 @@ namespace Org.Apache.REEF.IO.Tests
         string sourceFilePath2 = Path.Combine(Path.GetTempPath(), tempFileName2);
 
         /// <remarks>
-        /// This test creates IPartitionDataSet with FileSystemPartitionConfiguration module.
-        /// It then instantiates each IPartition using the IConfiguration provided by the IPartitionDescriptor.
+        /// This test creates IPartitionDataSet with FileSystemInputPartitionConfiguration module.
+        /// It then instantiates each IInputPartition using the IConfiguration provided by the IPartitionDescriptor.
         /// </remarks>
         [TestMethod]
         public void TestEvaluatorSideWithMultipleFilesOnePartition()
@@ -57,13 +57,13 @@ namespace Org.Apache.REEF.IO.Tests
             MakeLocalTestFile(sourceFilePath2, new byte[] { 114, 115, 116, 117 });
 
             var dataSet = TangFactory.GetTang()
-                .NewInjector(FileSystemPartitionConfiguration<IEnumerable<byte>>.ConfigurationModule
-                    .Set(FileSystemPartitionConfiguration<IEnumerable<byte>>.FilePathForPartitions,
+                .NewInjector(FileSystemInputPartitionConfiguration<IEnumerable<byte>>.ConfigurationModule
+                    .Set(FileSystemInputPartitionConfiguration<IEnumerable<byte>>.FilePathForPartitions,
                         sourceFilePath1 + ";" + sourceFilePath2)
-                    .Set(FileSystemPartitionConfiguration<IEnumerable<byte>>.FileSerializerConfig,
+                    .Set(FileSystemInputPartitionConfiguration<IEnumerable<byte>>.FileSerializerConfig,
                         GetByteSerializerConfigString())
                     .Build())
-                .GetInstance<IPartitionedDataSet>();
+                .GetInstance<IPartitionedInputDataSet>();
 
             Assert.AreEqual(dataSet.Count, 1);
 
@@ -72,7 +72,7 @@ namespace Org.Apache.REEF.IO.Tests
                 var partition =
                     TangFactory.GetTang()
                         .NewInjector(partitionDescriptor.GetPartitionConfiguration())
-                        .GetInstance<IPartition<IEnumerable<byte>>>();
+                        .GetInstance<IInputPartition<IEnumerable<byte>>>();
 
                 using (partition as IDisposable)
                 {
@@ -101,16 +101,16 @@ namespace Org.Apache.REEF.IO.Tests
             MakeLocalTestFile(sourceFilePath2, new byte[] { 114, 115, 116, 117 });
 
             var partitionConfig = TangFactory.GetTang().NewConfigurationBuilder()
-                .BindImplementation(GenericType<IPartitionedDataSet>.Class,
-                    GenericType<FileSystemPartitionDataSet<IEnumerable<byte>>>.Class)
-                .BindStringNamedParam<FileSerializerConfigString>(GetByteSerializerConfigString())
-                .BindSetEntry<FilePathsForPartitions, string>(GenericType<FilePathsForPartitions>.Class, sourceFilePath1)
-                .BindSetEntry<FilePathsForPartitions, string>(GenericType<FilePathsForPartitions>.Class, sourceFilePath2)
+                .BindImplementation(GenericType<IPartitionedInputDataSet>.Class,
+                    GenericType<FileSystemPartitionInputDataSet<IEnumerable<byte>>>.Class)
+                .BindStringNamedParam<FileDeSerializerConfigString>(GetByteSerializerConfigString())
+                .BindSetEntry<FilePathsForInputPartitions, string>(GenericType<FilePathsForInputPartitions>.Class, sourceFilePath1)
+                .BindSetEntry<FilePathsForInputPartitions, string>(GenericType<FilePathsForInputPartitions>.Class, sourceFilePath2)
                 .Build();
 
             var dataSet = TangFactory.GetTang()
                 .NewInjector(partitionConfig)
-                .GetInstance<IPartitionedDataSet>();
+                .GetInstance<IPartitionedInputDataSet>();
 
             Assert.AreEqual(dataSet.Count, 2);
 
@@ -119,7 +119,7 @@ namespace Org.Apache.REEF.IO.Tests
                 var partition =
                     TangFactory.GetTang()
                         .NewInjector(partitionDescriptor.GetPartitionConfiguration())
-                        .GetInstance<IPartition<IEnumerable<byte>>>();
+                        .GetInstance<IInputPartition<IEnumerable<byte>>>();
                 using (partition as IDisposable)
                 {
                     Assert.IsNotNull(partition);
@@ -138,15 +138,15 @@ namespace Org.Apache.REEF.IO.Tests
             MakeLocalTestFile(sourceFilePath2, new byte[] { 114, 115, 116, 117 });
 
             var c = TangFactory.GetTang().NewConfigurationBuilder()
-                .BindImplementation(GenericType<IPartitionedDataSet>.Class, GenericType < FileSystemPartitionDataSet<IEnumerable<byte>>>.Class)
-                .BindStringNamedParam<FileSerializerConfigString>(GetByteSerializerConfigString())
-                .BindSetEntry<FilePathsForPartitions, string>(GenericType<FilePathsForPartitions>.Class, sourceFilePath1)
-                .BindSetEntry<FilePathsForPartitions, string>(GenericType<FilePathsForPartitions>.Class, sourceFilePath2)
+                .BindImplementation(GenericType<IPartitionedInputDataSet>.Class, GenericType < FileSystemPartitionInputDataSet<IEnumerable<byte>>>.Class)
+                .BindStringNamedParam<FileDeSerializerConfigString>(GetByteSerializerConfigString())
+                .BindSetEntry<FilePathsForInputPartitions, string>(GenericType<FilePathsForInputPartitions>.Class, sourceFilePath1)
+                .BindSetEntry<FilePathsForInputPartitions, string>(GenericType<FilePathsForInputPartitions>.Class, sourceFilePath2)
                 .Build();
 
             var dataSet = TangFactory.GetTang()
                 .NewInjector(c)
-                .GetInstance<IPartitionedDataSet>();
+                .GetInstance<IPartitionedInputDataSet>();
             
             int count = 0;
             foreach (var partitionDescriptor in dataSet)
@@ -154,7 +154,7 @@ namespace Org.Apache.REEF.IO.Tests
                 var partition =
                     TangFactory.GetTang()
                         .NewInjector(partitionDescriptor.GetPartitionConfiguration())
-                        .GetInstance<IPartition<IEnumerable<byte>>>();
+                        .GetInstance<IInputPartition<IEnumerable<byte>>>();
                 using (partition as IDisposable)
                 {
                     var e = partition.GetPartitionHandle();
@@ -178,12 +178,12 @@ namespace Org.Apache.REEF.IO.Tests
             MakeLocalTestFile(sourceFilePath2, new byte[] { 114, 115 });
 
             var dataSet = TangFactory.GetTang()
-                .NewInjector(FileSystemPartitionConfiguration<IEnumerable<Row>>.ConfigurationModule
-                    .Set(FileSystemPartitionConfiguration<IEnumerable<Row>>.FilePathForPartitions, sourceFilePath1)
-                    .Set(FileSystemPartitionConfiguration<IEnumerable<Row>>.FilePathForPartitions, sourceFilePath2)
-                    .Set(FileSystemPartitionConfiguration<IEnumerable<Row>>.FileSerializerConfig, GetRowSerializerConfigString())
+                .NewInjector(FileSystemInputPartitionConfiguration<IEnumerable<Row>>.ConfigurationModule
+                    .Set(FileSystemInputPartitionConfiguration<IEnumerable<Row>>.FilePathForPartitions, sourceFilePath1)
+                    .Set(FileSystemInputPartitionConfiguration<IEnumerable<Row>>.FilePathForPartitions, sourceFilePath2)
+                    .Set(FileSystemInputPartitionConfiguration<IEnumerable<Row>>.FileSerializerConfig, GetRowSerializerConfigString())
                     .Build())
-                .GetInstance<IPartitionedDataSet>();
+                .GetInstance<IPartitionedInputDataSet>();
 
             int count = 0;
             foreach (var partitionDescriptor in dataSet)
@@ -191,7 +191,7 @@ namespace Org.Apache.REEF.IO.Tests
                 var partition =
                     TangFactory.GetTang()
                         .NewInjector(partitionDescriptor.GetPartitionConfiguration())
-                        .GetInstance<IPartition<IEnumerable<Row>>>();
+                        .GetInstance<IInputPartition<IEnumerable<Row>>>();
                 using (partition as IDisposable)
                 {
                     IEnumerable<Row> e = partition.GetPartitionHandle();

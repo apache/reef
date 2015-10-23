@@ -30,7 +30,7 @@ namespace Org.Apache.REEF.IO.Tests
     /// Tests for Org.Apache.REEF.IO.PartitionedData.Random.
     /// </summary>
     [TestClass]
-    public sealed class TestRandomDataSet
+    public sealed class TestRandomInputDataSet
     {
         /// <summary>
         /// The number of partitions the tested dataset will have.
@@ -77,7 +77,7 @@ namespace Org.Apache.REEF.IO.Tests
         /// Tests the Evaluator side of the IPartionedDataSet.
         /// </summary>
         /// <remarks>
-        /// This instantiates each IPartition using the IConfiguration provided by the IPartitionDescriptor.
+        /// This instantiates each IInputPartition using the IConfiguration provided by the IPartitionDescriptor.
         /// </remarks>
         [TestMethod]
         public void TestEvaluatorSide()
@@ -88,7 +88,7 @@ namespace Org.Apache.REEF.IO.Tests
                 var partition =
                     TangFactory.GetTang()
                         .NewInjector(partitionDescriptor.GetPartitionConfiguration())
-                        .GetInstance<IPartition<Stream>>();
+                        .GetInstance<IInputPartition<Stream>>();
                 Assert.IsNotNull(partition);
                 Assert.IsNotNull(partition.Id);
 
@@ -106,12 +106,12 @@ namespace Org.Apache.REEF.IO.Tests
         /// Make a DataSet instance using the RandomDataConfiguration.
         /// </summary>
         /// <returns></returns>
-        private IPartitionedDataSet MakeRandomDataSet()
+        private IPartitionedInputDataSet MakeRandomDataSet()
         {
-            return TangFactory.GetTang().NewInjector(RandomDataConfiguration.ConfigurationModule
-                .Set(RandomDataConfiguration.NumberOfDoublesPerPartition, NumberOfDoublesPerPartition.ToString())
-                .Set(RandomDataConfiguration.NumberOfPartitions, NumberOfPartitions.ToString())
-                .Build()).GetInstance<IPartitionedDataSet>();
+            return TangFactory.GetTang().NewInjector(RandomInputDataConfiguration.ConfigurationModule
+                .Set(RandomInputDataConfiguration.NumberOfDoublesPerPartition, NumberOfDoublesPerPartition.ToString())
+                .Set(RandomInputDataConfiguration.NumberOfPartitions, NumberOfPartitions.ToString())
+                .Build()).GetInstance<IPartitionedInputDataSet>();
         }
     }
 }

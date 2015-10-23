@@ -35,9 +35,9 @@ using Org.Apache.REEF.Utilities.Logging;
 namespace Org.Apache.REEF.IO.TestClient
 {
     //TODO[JIRA REEF-815]: once move to Nunit, tose test should be moved to Test project
-    internal class HadoopFilePartitionTest
+    internal class HadoopFileInputPartitionTest
     {
-        private static readonly Logger Logger = Logger.GetLogger(typeof(HadoopFilePartitionTest));
+        private static readonly Logger Logger = Logger.GetLogger(typeof(HadoopFileInputPartitionTest));
 
         internal static bool TestWithByteDeserializer()
         {
@@ -51,13 +51,13 @@ namespace Org.Apache.REEF.IO.TestClient
             var serializerConfString = (new AvroConfigurationSerializer()).ToString(serializerConf);
 
             var dataSet = TangFactory.GetTang()
-                .NewInjector(FileSystemPartitionConfiguration<byte>.ConfigurationModule
-                    .Set(FileSystemPartitionConfiguration<byte>.FilePathForPartitions, remoteFilePath1)
-                    .Set(FileSystemPartitionConfiguration<byte>.FilePathForPartitions, remoteFilePath2)
-                    .Set(FileSystemPartitionConfiguration<byte>.FileSerializerConfig, serializerConfString)
+                .NewInjector(FileSystemInputPartitionConfiguration<byte>.ConfigurationModule
+                    .Set(FileSystemInputPartitionConfiguration<byte>.FilePathForPartitions, remoteFilePath1)
+                    .Set(FileSystemInputPartitionConfiguration<byte>.FilePathForPartitions, remoteFilePath2)
+                    .Set(FileSystemInputPartitionConfiguration<byte>.FileSerializerConfig, serializerConfString)
                 .Build(),
                   HadoopFileSystemConfiguration.ConfigurationModule.Build())
-                .GetInstance<IPartitionedDataSet>();
+                .GetInstance<IPartitionedInputDataSet>();
 
             Logger.Log(Level.Info, "IPartitionedDataSet created.");
 
@@ -66,7 +66,7 @@ namespace Org.Apache.REEF.IO.TestClient
             {
                 var partition = TangFactory.GetTang()
                     .NewInjector(partitionDescriptor.GetPartitionConfiguration(), GetHadoopFileSystemConfiguration())
-                    .GetInstance<IPartition<IEnumerable<byte>>>();
+                    .GetInstance<IInputPartition<IEnumerable<byte>>>();
 
                 using (partition as IDisposable)
                 {

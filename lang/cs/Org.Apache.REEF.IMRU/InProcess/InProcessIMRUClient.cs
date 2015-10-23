@@ -108,7 +108,7 @@ namespace Org.Apache.REEF.IMRU.InProcess
         }
 
         /// <summary>
-        /// We also need IPartition at each map function
+        /// We also need IInputPartition at each map function
         /// </summary>
         /// <param name="mapConfiguration">Map configuration given by user</param>
         /// <param name="partitionedDataSetConfig">Partitioned dataset configuration</param>
@@ -116,8 +116,8 @@ namespace Org.Apache.REEF.IMRU.InProcess
         /// <returns></returns>
         private MapFunctions<TMapInput, TMapOutput> MakeMapFunctions<TMapInput, TMapOutput>(IConfiguration mapConfiguration, IConfiguration partitionedDataSetConfig, ISet<IPerMapperConfigGenerator> perMapConfigGenerators)
         {
-            IPartitionedDataSet dataset =
-                TangFactory.GetTang().NewInjector(partitionedDataSetConfig).GetInstance<IPartitionedDataSet>();
+            IPartitionedInputDataSet dataset =
+                TangFactory.GetTang().NewInjector(partitionedDataSetConfig).GetInstance<IPartitionedInputDataSet>();
 
             ISet<IMapFunction<TMapInput, TMapOutput>> mappers = new HashSet<IMapFunction<TMapInput, TMapOutput>>();
 

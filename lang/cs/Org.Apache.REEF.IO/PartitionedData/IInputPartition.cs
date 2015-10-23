@@ -17,30 +17,26 @@
  * under the License.
  */
 
-using System.Collections.Generic;
+using System;
 
 namespace Org.Apache.REEF.IO.PartitionedData
 {
     /// <summary>
-    /// Driver-Side representation of a partitioned data set.
+    /// Evaluator-Side representation of a data set partition.
     /// </summary>
-    public interface IPartitionedDataSet : IEnumerable<IPartitionDescriptor>
+    /// <typeparam name="T">Generic Type representing data pointer.
+    /// For example, for data in local file it can be file pointer </typeparam>
+    public interface IInputPartition<T> 
     {
         /// <summary>
-        /// The number of partitions.
-        /// </summary>
-        int Count { get; }
-
-        /// <summary>
-        /// The Id of this dataset
+        /// The id of the partition.
         /// </summary>
         string Id { get; }
 
         /// <summary>
-        /// Get the PartitionDescriptor for the given Id.
+        /// Gives a pointer to the underlying partition.
         /// </summary>
-        /// <param name="partitionId"></param>
-        /// <returns>The IPartitionDescriptor found or null if none exists.</returns>
-        IPartitionDescriptor GetPartitionDescriptorForId(string partitionId);
+        /// <returns>The pointer to the underlying partition</returns>
+        T GetPartitionHandle();
     }
 }

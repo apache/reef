@@ -66,7 +66,7 @@ namespace Org.Apache.REEF.IMRU.Examples.MapperCount
                             GenericType<IntSumReduceFunction>.Class)
                         .Build())
                     .SetPartitionedDatasetConfiguration(
-                        RandomDataConfiguration.ConfigurationModule.Set(RandomDataConfiguration.NumberOfPartitions,
+                        RandomInputDataConfiguration.ConfigurationModule.Set(RandomInputDataConfiguration.NumberOfPartitions,
                             numberofMappers.ToString()).Build())
                     .SetMapTaskCores(2)
                     .SetUpdateTaskCores(3)

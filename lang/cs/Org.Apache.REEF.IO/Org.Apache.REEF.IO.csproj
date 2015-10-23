@@ -52,24 +52,24 @@ under the License.
     <Compile Include="FileSystem\IFileSystem.cs" />
     <Compile Include="FileSystem\Local\LocalFileSystem.cs" />
     <Compile Include="FileSystem\Local\LocalFileSystemConfiguration.cs" />
-    <Compile Include="PartitionedData\FileSystem\FileSystemPartition.cs" />
-    <Compile Include="PartitionedData\FileSystem\FilePartitionDescriptor.cs" />
-    <Compile Include="PartitionedData\FileSystem\Parameters\FileSerializerConfigString.cs" />
+    <Compile Include="PartitionedData\FileSystem\FileSystemInputPartition.cs" />
+    <Compile Include="PartitionedData\FileSystem\FileInputPartitionDescriptor.cs" />
+    <Compile Include="PartitionedData\FileSystem\Parameters\FileDeSerializerConfigString.cs" />
     <Compile Include="PartitionedData\FileSystem\IFileDeSerializer.cs" />
-    <Compile Include="PartitionedData\FileSystem\FileSystemPartitionDataSet.cs" />
-    <Compile Include="PartitionedData\FileSystem\FileSystemPartitionConfiguration.cs" />
-    <Compile Include="PartitionedData\FileSystem\Parameters\FilePathsForPartitions.cs" />
-    <Compile Include="PartitionedData\FileSystem\Parameters\FilePathsInPartition.cs" />
-    <Compile Include="PartitionedData\IPartition.cs" />
+    <Compile Include="PartitionedData\FileSystem\FileSystemPartitionInputDataSet.cs" />
+    <Compile Include="PartitionedData\FileSystem\FileSystemInputPartitionConfiguration.cs" />
+    <Compile Include="PartitionedData\FileSystem\Parameters\FilePathsForInputPartitions.cs" />
+    <Compile Include="PartitionedData\FileSystem\Parameters\FilePathsInInputPartition.cs" />
+    <Compile Include="PartitionedData\IInputPartition.cs" />
     <Compile Include="PartitionedData\IPartitionDescriptor.cs" />
-    <Compile Include="PartitionedData\IPartitionedDataSet.cs" />
+    <Compile Include="PartitionedData\IPartitionedInputDataSet.cs" />
     <Compile Include="PartitionedData\Random\Parameters\NumberOfDoublesPerPartition.cs" />
     <Compile Include="PartitionedData\Random\Parameters\NumberOfPartitions.cs" />
     <Compile Include="PartitionedData\Random\Parameters\PartitionId.cs" />
-    <Compile Include="PartitionedData\Random\RandomDataConfiguration.cs" />
-    <Compile Include="PartitionedData\Random\RandomDataSet.cs" />
-    <Compile Include="PartitionedData\Random\RandomPartition.cs" />
-    <Compile Include="PartitionedData\Random\RandomPartitionDescriptor.cs" />
+    <Compile Include="PartitionedData\Random\RandomInputDataConfiguration.cs" />
+    <Compile Include="PartitionedData\Random\RandomInputDataSet.cs" />
+    <Compile Include="PartitionedData\Random\RandomInputPartition.cs" />
+    <Compile Include="PartitionedData\Random\RandomInputPartitionDescriptor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
