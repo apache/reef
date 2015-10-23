@@ -36,6 +36,9 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Does client side manipulation of driver configuration for local runtime.
+ */
 final class LocalRuntimeDriverConfigurationGenerator {
   private static final Logger LOG = Logger.getLogger(LocalRuntimeDriverConfigurationGenerator.class.getName());
   private final REEFFileNames fileNames;
@@ -44,7 +47,7 @@ final class LocalRuntimeDriverConfigurationGenerator {
   private final AvroConfigurationSerializer configurationSerializer;
 
   @Inject
-  LocalRuntimeDriverConfigurationGenerator(final AvroConfigurationSerializer configurationSerializer,
+  private LocalRuntimeDriverConfigurationGenerator(final AvroConfigurationSerializer configurationSerializer,
                                            final REEFFileNames fileNames,
                                            final DriverConfigurationProvider driverConfigurationProvider,
                                            @Parameter(DriverConfigurationProviders.class)
@@ -55,6 +58,14 @@ final class LocalRuntimeDriverConfigurationGenerator {
     this.configurationSerializer = configurationSerializer;
   }
 
+  /**
+   * Writes driver configuration to disk.
+   * @param jobFolder The folder in which the job is staged.
+   * @param jobId id of the job to be submitted
+   * @param clientRemoteId
+   * @return
+   * @throws IOException
+   */
   public Configuration writeConfiguration(final File jobFolder,
                                           final String jobId,
                                           final String clientRemoteId) throws IOException {
@@ -83,13 +94,11 @@ final class LocalRuntimeDriverConfigurationGenerator {
   public static void main(final String[] args) throws InjectionException, IOException {
     final LocalSubmissionFromCS localSubmission = LocalSubmissionFromCS.fromCommandLine(args);
     LOG.log(Level.INFO, "Local driver config generation received from C#: {0}", localSubmission);
-    final Configuration yarnConfiguration = localSubmission.getRuntimeConfiguration();
+    final Configuration localRuntimeConfiguration = localSubmission.getRuntimeConfiguration();
     final LocalRuntimeDriverConfigurationGenerator localConfigurationGenerator = Tang.Factory.getTang()
-        .newInjector(yarnConfiguration)
+        .newInjector(localRuntimeConfiguration)
         .getInstance(LocalRuntimeDriverConfigurationGenerator.class);
     localConfigurationGenerator.writeConfiguration(localSubmission.getJobFolder(),
         localSubmission.getJobId(), ClientRemoteIdentifier.NONE);
-    System.exit(0);
-    LOG.log(Level.INFO, "End of main in Java LocalRuntimeDriverConfigurationGenerator");
   }
 }

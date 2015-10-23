@@ -41,7 +41,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Does client side manipulation of configuration for driver.
+ * Does client side manipulation of driver configuration for YARN runtime.
  */
 final class YarnDriverConfigurationGenerator {
   private static final Logger LOG = Logger.getLogger(YarnDriverConfigurationGenerator.class.getName());
@@ -51,7 +51,7 @@ final class YarnDriverConfigurationGenerator {
   private final ConfigurationSerializer configurationSerializer;
 
   @Inject
-  YarnDriverConfigurationGenerator(@Parameter(DriverConfigurationProviders.class)
+  private YarnDriverConfigurationGenerator(@Parameter(DriverConfigurationProviders.class)
                                    final Set<ConfigurationProvider> configurationProviders,
                                    @Parameter(SubmissionDriverRestartEvaluatorRecoverySeconds.class)
                                    final int driverRestartEvaluatorRecoverySeconds,
@@ -63,6 +63,14 @@ final class YarnDriverConfigurationGenerator {
     this.configurationSerializer = configurationSerializer;
   }
 
+  /**
+   * Writes driver configuration to disk.
+   * @param driverFolder the folder containing the `reef` folder. Only that `reef` folder will be in the JAR.
+   * @param jobId id of the job to be submitted
+   * @param jobSubmissionFolder job submission folder on DFS
+   * @return the prepared driver configuration
+   * @throws IOException
+   */
   public Configuration writeConfiguration(final File driverFolder,
                                           final String jobId,
                                           final String jobSubmissionFolder) throws IOException {
