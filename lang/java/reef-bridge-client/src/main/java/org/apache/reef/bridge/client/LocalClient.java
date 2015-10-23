@@ -18,21 +18,15 @@
  */
 package org.apache.reef.bridge.client;
 
-import org.apache.reef.client.parameters.DriverConfigurationProviders;
-import org.apache.reef.driver.parameters.JobSubmissionDirectory;
 import org.apache.reef.runtime.common.driver.parameters.ClientRemoteIdentifier;
-import org.apache.reef.runtime.common.files.REEFFileNames;
-import org.apache.reef.runtime.local.client.DriverConfigurationProvider;
 import org.apache.reef.runtime.local.client.PreparedDriverFolderLauncher;
-import org.apache.reef.tang.*;
-import org.apache.reef.tang.annotations.Parameter;
+import org.apache.reef.tang.Configuration;
+import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.exceptions.InjectionException;
-import org.apache.reef.tang.formats.AvroConfigurationSerializer;
 
 import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -43,24 +37,14 @@ public final class LocalClient {
 
   private static final Logger LOG = Logger.getLogger(LocalClient.class.getName());
   private static final String CLIENT_REMOTE_ID = ClientRemoteIdentifier.NONE;
-  private final AvroConfigurationSerializer configurationSerializer;
   private final PreparedDriverFolderLauncher launcher;
-  private final REEFFileNames fileNames;
-  private final DriverConfigurationProvider driverConfigurationProvider;
-  private final Set<ConfigurationProvider> configurationProviders;
+  private final LocalRuntimeDriverConfigurationGenerator configurationGenerator;
 
   @Inject
-  private LocalClient(final AvroConfigurationSerializer configurationSerializer,
-                      final PreparedDriverFolderLauncher launcher,
-                      final REEFFileNames fileNames,
-                      final DriverConfigurationProvider driverConfigurationProvider,
-                      @Parameter(DriverConfigurationProviders.class)
-                      final Set<ConfigurationProvider> configurationProviders) {
-    this.configurationSerializer = configurationSerializer;
+  private LocalClient(final PreparedDriverFolderLauncher launcher,
+                      final LocalRuntimeDriverConfigurationGenerator configurationGenerator) {
     this.launcher = launcher;
-    this.fileNames = fileNames;
-    this.driverConfigurationProvider = driverConfigurationProvider;
-    this.configurationProviders = configurationProviders;
+    this.configurationGenerator = configurationGenerator;
   }
 
   private void submit(final LocalSubmissionFromCS localSubmissionFromCS) throws IOException {
@@ -70,23 +54,8 @@ public final class LocalClient {
       throw new IOException("The Driver folder " + driverFolder.getAbsolutePath() + " doesn't exist.");
     }
 
-    final Configuration driverConfiguration1 = driverConfigurationProvider
-        .getDriverConfiguration(localSubmissionFromCS.getJobFolder(), CLIENT_REMOTE_ID,
-            localSubmissionFromCS.getJobId(), Constants.DRIVER_CONFIGURATION_WITH_HTTP_AND_NAMESERVER);
-    final ConfigurationBuilder configurationBuilder = Tang.Factory.getTang().newConfigurationBuilder();
-    for (final ConfigurationProvider configurationProvider : this.configurationProviders) {
-      configurationBuilder.addConfiguration(configurationProvider.getConfiguration());
-    }
-    final Configuration providedConfigurations = configurationBuilder.build();
-    final Configuration driverConfiguration = Configurations.merge(
-        driverConfiguration1,
-        Tang.Factory.getTang()
-            .newConfigurationBuilder()
-            .bindNamedParameter(JobSubmissionDirectory.class, driverFolder.toString())
-            .build(),
-        providedConfigurations);
-    final File driverConfigurationFile = new File(driverFolder, fileNames.getDriverConfigurationPath());
-    configurationSerializer.toFile(driverConfiguration, driverConfigurationFile);
+    configurationGenerator.writeConfiguration(localSubmissionFromCS.getJobFolder(),
+        localSubmissionFromCS.getJobId(), CLIENT_REMOTE_ID);
     launcher.launch(driverFolder, localSubmissionFromCS.getJobId(), CLIENT_REMOTE_ID);
   }
 

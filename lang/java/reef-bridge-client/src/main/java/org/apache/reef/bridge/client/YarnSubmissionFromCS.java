@@ -197,7 +197,7 @@ final class YarnSubmissionFromCS {
   }
 
   /**
-   * Takes 5 parameters from the C# side:
+   * Takes 9 parameters from the C# side:
    * [0]: String. Driver folder.
    * [1]: String. Driver identifier.
    * [2]: int. Driver memory.
