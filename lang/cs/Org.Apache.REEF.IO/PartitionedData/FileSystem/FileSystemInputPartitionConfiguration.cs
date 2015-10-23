@@ -28,7 +28,7 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
     /// It also set required parameters for injecting FileSystemDataSet
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public sealed class FileSystemPartitionConfiguration<T> : ConfigurationModuleBuilder
+    public sealed class FileSystemInputPartitionConfiguration<T> : ConfigurationModuleBuilder
     {
         /// <summary>
         /// This parameter contains file paths required for file partition dataset
@@ -44,10 +44,10 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
         /// This configuration module set FileSystemDataSet as IPartitionedDataSet.
         /// It also set required parameters for injecting FileSystemDataSet
         /// </summary>
-        public static ConfigurationModule ConfigurationModule = new FileSystemPartitionConfiguration<T>()
-            .BindImplementation(GenericType<IPartitionedDataSet>.Class, GenericType<FileSystemPartitionDataSet<T>>.Class)
-            .BindSetEntry(GenericType<FilePathsForPartitions>.Class, FilePathForPartitions)
-            .BindNamedParameter(GenericType<FileSerializerConfigString>.Class, FileSerializerConfig)
+        public static ConfigurationModule ConfigurationModule = new FileSystemInputPartitionConfiguration<T>()
+            .BindImplementation(GenericType<IPartitionedInputDataSet>.Class, GenericType<FileSystemPartitionInputDataSet<T>>.Class)
+            .BindSetEntry(GenericType<FilePathsForInputPartitions>.Class, FilePathForPartitions)
+            .BindNamedParameter(GenericType<FileDeSerializerConfigString>.Class, FileSerializerConfig)
             .Build();
     }
 }

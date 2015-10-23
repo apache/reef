@@ -18,15 +18,29 @@
  */
 
 using System.Collections.Generic;
-using Org.Apache.REEF.Tang.Annotations;
 
-namespace Org.Apache.REEF.IO.PartitionedData.FileSystem.Parameters
+namespace Org.Apache.REEF.IO.PartitionedData
 {
     /// <summary>
-    /// This set contains the filepaths in one partition
+    /// Driver-Side representation of a partitioned data set.
     /// </summary>
-    [NamedParameter("File paths for a partition")]
-    internal sealed class FilePathsInPartition : Name<ISet<string>>
+    public interface IPartitionedInputDataSet : IEnumerable<IPartitionDescriptor>
     {
+        /// <summary>
+        /// The number of partitions.
+        /// </summary>
+        int Count { get; }
+
+        /// <summary>
+        /// The Id of this dataset
+        /// </summary>
+        string Id { get; }
+
+        /// <summary>
+        /// Get the PartitionDescriptor for the given Id.
+        /// </summary>
+        /// <param name="partitionId"></param>
+        /// <returns>The IPartitionDescriptor found or null if none exists.</returns>
+        IPartitionDescriptor GetPartitionDescriptorForId(string partitionId);
     }
 }

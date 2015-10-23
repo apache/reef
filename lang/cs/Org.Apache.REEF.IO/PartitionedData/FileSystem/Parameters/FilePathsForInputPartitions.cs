@@ -27,7 +27,7 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem.Parameters
     /// The set contains file paths for all the partitions
     /// </summary>
     [NamedParameter("All file paths")]
-    internal sealed class FilePathsForPartitions : Name<ISet<string>>
+    internal sealed class FilePathsForInputPartitions : Name<ISet<string>>
     {
     }
 }

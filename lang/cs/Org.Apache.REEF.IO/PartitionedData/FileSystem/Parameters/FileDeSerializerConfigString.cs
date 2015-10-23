@@ -22,7 +22,7 @@ using Org.Apache.REEF.Tang.Annotations;
 namespace Org.Apache.REEF.IO.PartitionedData.FileSystem.Parameters
 {
     [NamedParameter("File serializer serialized configuration")]
-    internal sealed class FileSerializerConfigString : Name<string>
+    internal sealed class FileDeSerializerConfigString : Name<string>
     {
     }
 }

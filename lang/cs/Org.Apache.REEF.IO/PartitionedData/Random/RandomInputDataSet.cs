@@ -28,19 +28,19 @@ namespace Org.Apache.REEF.IO.PartitionedData.Random
     /// An implementation of IPartitionedDataSet that produces a given number of partitions containing a given number of random
     /// doubles.
     /// </summary>
-    internal sealed class RandomDataSet : IPartitionedDataSet
+    internal sealed class RandomInputDataSet : IPartitionedInputDataSet
     {
         private readonly Dictionary<string, IPartitionDescriptor> _partitions;
 
         [Inject]
-        private RandomDataSet([Parameter(typeof(NumberOfPartitions))] int numberOfPartitions,
+        private RandomInputDataSet([Parameter(typeof(NumberOfPartitions))] int numberOfPartitions,
             [Parameter(typeof(NumberOfDoublesPerPartition))] int numberOfDoublesPerPartition)
         {
             _partitions = new Dictionary<string, IPartitionDescriptor>(numberOfPartitions);
             for (var i = 0; i < numberOfPartitions; ++i)
             {
-                var id = "RandomPartition-" + i;
-                _partitions[id] = new RandomPartitionDescriptor(id, numberOfDoublesPerPartition);
+                var id = "RandomInputPartition-" + i;
+                _partitions[id] = new RandomInputPartitionDescriptor(id, numberOfDoublesPerPartition);
             }
         }
 

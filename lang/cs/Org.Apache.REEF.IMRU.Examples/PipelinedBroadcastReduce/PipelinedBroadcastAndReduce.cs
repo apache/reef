@@ -95,7 +95,7 @@ namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
                     .SetMapInputPipelineDataConverterConfiguration(dataConverterConfig1)
                     .SetMapOutputPipelineDataConverterConfiguration(dataConverterConfig2)
                     .SetPartitionedDatasetConfiguration(
-                        RandomDataConfiguration.ConfigurationModule.Set(RandomDataConfiguration.NumberOfPartitions,
+                        RandomInputDataConfiguration.ConfigurationModule.Set(RandomInputDataConfiguration.NumberOfPartitions,
                             numberofMappers.ToString()).Build())
                     .SetJobName("BroadcastReduce")
                     .SetNumberOfMappers(numberofMappers)

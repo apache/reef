@@ -26,15 +26,15 @@ using Org.Apache.REEF.Tang.Annotations;
 namespace Org.Apache.REEF.IO.PartitionedData.Random
 {
     /// <summary>
-    /// An implementation of IPartition that returns a configurable number of random doubles.
+    /// An implementation of IInputPartition that returns a configurable number of random doubles.
     /// </summary>
-    internal sealed class RandomPartition : IPartition<Stream>
+    internal sealed class RandomInputPartition : IInputPartition<Stream>
     {
         private readonly string _id;
         private readonly byte[] _randomData;
 
         [Inject]
-        private RandomPartition([Parameter(typeof(PartitionId))] string id,
+        private RandomInputPartition([Parameter(typeof(PartitionId))] string id,
             [Parameter(typeof(NumberOfDoublesPerPartition))] int numberOfDoubles)
         {
             _id = id;
