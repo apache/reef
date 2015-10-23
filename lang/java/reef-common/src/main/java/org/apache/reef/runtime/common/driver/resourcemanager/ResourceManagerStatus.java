@@ -144,10 +144,84 @@ public final class ResourceManagerStatus implements EventHandler<RuntimeStatusEv
     return ReefServiceProtos.State.RUNNING.equals(this.state);
   }
 
+  /**
+  *
+  * Checks if the ResourceManager can switch from the current state to the target state.
+  * See REEF-826 for the state transition matrix.
+  *
+  * @param from current state
+  * @param to   state to switch to
+  *
+  * @return true if the transition is legal; false otherwise
+  *
+  */
+  private synchronized boolean isLegalStateTransition(final ReefServiceProtos.State from,
+                                                      final ReefServiceProtos.State to) {
 
-  private synchronized void setState(final ReefServiceProtos.State state) {
-    // TODO[JIRA REEF-826]: Add state transition check
-    this.state = state;
+    // handle diagonal elements of the transition matrix
+    if (from.equals(to)){
+      LOG.warning("Transition from " + from + " state to the same state. This shouldn't happen.");
+      return true;
+    }
+
+    // handle non-diagonal elements
+    switch (from) {
+
+    case INIT:
+      switch (to) {
+      case RUNNING:
+      case SUSPEND:
+      case DONE:
+      case FAILED:
+      case KILLED:
+        return true;
+      default:
+        return false;
+      }
+
+    case RUNNING:
+      switch (to) {
+      case SUSPEND:
+      case DONE:
+      case FAILED:
+      case KILLED:
+        return true;
+      default:
+        return false;
+      }
+
+    case SUSPEND:
+      switch (to) {
+      case RUNNING:
+      case FAILED:
+      case KILLED:
+        return true;
+      default:
+        return false;
+      }
+
+    case DONE:
+    case FAILED:
+    case KILLED:
+      return false;
+
+    default:
+      return false;
+
+    }
+
+  }
+
+  private synchronized void setState(final ReefServiceProtos.State newState) {
+
+    if (isLegalStateTransition(this.state, newState)) {
+      this.state = newState;
+    } else {
+      throw new IllegalStateException("Resource manager attempts illegal state transition from "
+                + this.state + " to "
+                + newState);
+    }
+
   }
 
 
