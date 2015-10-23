@@ -18,19 +18,17 @@
  */
 package org.apache.reef.bridge.client;
 
-import org.apache.hadoop.fs.*;
+import org.apache.hadoop.fs.FSDataInputStream;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.security.token.Token;
 import org.apache.hadoop.yarn.api.records.LocalResource;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.exceptions.YarnException;
-import org.apache.reef.client.DriverRestartConfiguration;
-import org.apache.reef.client.parameters.DriverConfigurationProviders;
 import org.apache.reef.driver.parameters.MaxApplicationSubmissions;
 import org.apache.reef.driver.parameters.ResourceManagerPreserveEvaluators;
-import org.apache.reef.javabridge.generic.JobDriver;
-import org.apache.reef.runtime.common.driver.parameters.ClientRemoteIdentifier;
 import org.apache.reef.runtime.common.files.ClasspathProvider;
 import org.apache.reef.runtime.common.files.REEFFileNames;
 import org.apache.reef.runtime.common.launch.parameters.DriverLaunchCommandPrefix;
@@ -38,22 +36,20 @@ import org.apache.reef.runtime.yarn.client.SecurityTokenProvider;
 import org.apache.reef.runtime.yarn.client.YarnSubmissionHelper;
 import org.apache.reef.runtime.yarn.client.uploader.JobFolder;
 import org.apache.reef.runtime.yarn.client.uploader.JobUploader;
-import org.apache.reef.runtime.yarn.driver.YarnDriverConfiguration;
-import org.apache.reef.runtime.yarn.driver.YarnDriverRestartConfiguration;
-import org.apache.reef.tang.*;
-import org.apache.reef.tang.annotations.Name;
-import org.apache.reef.tang.annotations.NamedParameter;
+import org.apache.reef.tang.Configuration;
+import org.apache.reef.tang.Injector;
+import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.tang.formats.ConfigurationSerializer;
 import org.apache.reef.util.JARFileMaker;
+
 import javax.inject.Inject;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -69,11 +65,10 @@ public final class YarnJobSubmissionClient {
   private final REEFFileNames fileNames;
   private final YarnConfiguration yarnConfiguration;
   private final ClasspathProvider classpath;
-  private final Set<ConfigurationProvider> configurationProviders;
   private final int maxApplicationSubmissions;
-  private final int driverRestartEvaluatorRecoverySeconds;
   private final SecurityTokenProvider tokenProvider;
   private final List<String> commandPrefixList;
+  private final YarnDriverConfigurationGenerator configurationGenerator;
 
   @Inject
   YarnJobSubmissionClient(final JobUploader uploader,
@@ -81,78 +76,21 @@ public final class YarnJobSubmissionClient {
                           final ConfigurationSerializer configurationSerializer,
                           final REEFFileNames fileNames,
                           final ClasspathProvider classpath,
-                          @Parameter(DriverConfigurationProviders.class)
-                          final Set<ConfigurationProvider> configurationProviders,
                           @Parameter(MaxApplicationSubmissions.class)
                           final int maxApplicationSubmissions,
                           @Parameter(DriverLaunchCommandPrefix.class)
                           final List<String> commandPrefixList,
-                          @Parameter(SubmissionDriverRestartEvaluatorRecoverySeconds.class)
-                          final int driverRestartEvaluatorRecoverySeconds,
-                          final SecurityTokenProvider tokenProvider) {
+                          final SecurityTokenProvider tokenProvider,
+                          final YarnDriverConfigurationGenerator configurationGenerator) {
     this.uploader = uploader;
     this.configurationSerializer = configurationSerializer;
     this.fileNames = fileNames;
     this.yarnConfiguration = yarnConfiguration;
     this.classpath = classpath;
-    this.configurationProviders = configurationProviders;
     this.maxApplicationSubmissions = maxApplicationSubmissions;
-    this.driverRestartEvaluatorRecoverySeconds = driverRestartEvaluatorRecoverySeconds;
     this.tokenProvider = tokenProvider;
     this.commandPrefixList = commandPrefixList;
-  }
-
-  private Configuration addYarnDriverConfiguration(final File driverFolder,
-                                                   final String jobId,
-                                                   final String jobSubmissionFolder)
-      throws IOException {
-    final File driverConfigurationFile = new File(driverFolder, this.fileNames.getDriverConfigurationPath());
-    final Configuration yarnDriverConfiguration = YarnDriverConfiguration.CONF
-        .set(YarnDriverConfiguration.JOB_SUBMISSION_DIRECTORY, jobSubmissionFolder)
-        .set(YarnDriverConfiguration.JOB_IDENTIFIER, jobId)
-        .set(YarnDriverConfiguration.CLIENT_REMOTE_IDENTIFIER, ClientRemoteIdentifier.NONE)
-        .set(YarnDriverConfiguration.JVM_HEAP_SLACK, 0.0)
-        .build();
-
-    final ConfigurationBuilder configurationBuilder = Tang.Factory.getTang().newConfigurationBuilder();
-    for (final ConfigurationProvider configurationProvider : this.configurationProviders) {
-      configurationBuilder.addConfiguration(configurationProvider.getConfiguration());
-    }
-    final Configuration providedConfigurations =  configurationBuilder.build();
-
-    Configuration driverConfiguration = Configurations.merge(
-        Constants.DRIVER_CONFIGURATION_WITH_HTTP_AND_NAMESERVER,
-        yarnDriverConfiguration,
-        providedConfigurations);
-
-    if (driverRestartEvaluatorRecoverySeconds > 0) {
-      LOG.log(Level.FINE, "Driver restart is enabled.");
-
-      final Configuration yarnDriverRestartConfiguration =
-          YarnDriverRestartConfiguration.CONF
-              .build();
-
-      final Configuration driverRestartConfiguration =
-          DriverRestartConfiguration.CONF
-              .set(DriverRestartConfiguration.ON_DRIVER_RESTARTED, JobDriver.RestartHandler.class)
-              .set(DriverRestartConfiguration.ON_DRIVER_RESTART_CONTEXT_ACTIVE,
-                  JobDriver.DriverRestartActiveContextHandler.class)
-              .set(DriverRestartConfiguration.ON_DRIVER_RESTART_TASK_RUNNING,
-                  JobDriver.DriverRestartRunningTaskHandler.class)
-              .set(DriverRestartConfiguration.DRIVER_RESTART_EVALUATOR_RECOVERY_SECONDS,
-                  driverRestartEvaluatorRecoverySeconds)
-              .set(DriverRestartConfiguration.ON_DRIVER_RESTART_COMPLETED,
-                  JobDriver.DriverRestartCompletedHandler.class)
-              .set(DriverRestartConfiguration.ON_DRIVER_RESTART_EVALUATOR_FAILED,
-                  JobDriver.DriverRestartFailedEvaluatorHandler.class)
-              .build();
-
-      driverConfiguration = Configurations.merge(
-          driverConfiguration, yarnDriverRestartConfiguration, driverRestartConfiguration);
-    }
-
-    this.configurationSerializer.toFile(driverConfiguration, driverConfigurationFile);
-    return driverConfiguration;
+    this.configurationGenerator = configurationGenerator;
   }
 
   /**
@@ -181,8 +119,9 @@ public final class YarnJobSubmissionClient {
       // Prepare the JAR
       final JobFolder jobFolderOnDFS = this.uploader.createJobFolder(submissionHelper.getApplicationId());
       final Configuration jobSubmissionConfiguration =
-          this.addYarnDriverConfiguration(yarnSubmission.getDriverFolder(), yarnSubmission.getJobId(),
-              jobFolderOnDFS.getPath().toString());
+          this.configurationGenerator.writeConfiguration(yarnSubmission.getDriverFolder(),
+            yarnSubmission.getJobId(),
+            jobFolderOnDFS.getPath().toString());
       final File jarFile = makeJar(yarnSubmission.getDriverFolder());
       LOG.log(Level.INFO, "Created job submission jar file: {0}", jarFile);
 
@@ -316,18 +255,5 @@ public final class YarnJobSubmissionClient {
     LOG.log(Level.INFO, "Returned from launch in Java YarnJobSubmissionClient");
     System.exit(0);
     LOG.log(Level.INFO, "End of main in Java YarnJobSubmissionClient");
-  }
-}
-
-/**
- * How long the driver should wait before timing out on evaluator
- * recovery in seconds. Defaults to -1. If value is negative, the restart functionality will not be
- * enabled. Only used by .NET job submission.
- */
-@NamedParameter(doc = "How long the driver should wait before timing out on evaluator" +
-    " recovery in seconds. Defaults to -1. If value is negative, the restart functionality will not be" +
-    " enabled. Only used by .NET job submission.", default_value = "-1")
-final class SubmissionDriverRestartEvaluatorRecoverySeconds implements Name<Integer> {
-  private SubmissionDriverRestartEvaluatorRecoverySeconds() {
   }
 }
