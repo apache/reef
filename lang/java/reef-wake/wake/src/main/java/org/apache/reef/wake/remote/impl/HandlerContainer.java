@@ -81,7 +81,7 @@ final class HandlerContainer<T> implements EventHandler<RemoteEvent<byte[]>> {
       final EventHandler<RemoteMessage<? extends T>> theHandler) {
 
     final EventHandler<RemoteMessage<? extends T>> prevHandler =
-        this.msgTypeToHandlerMap.put(messageType, theHandler);
+        this.msgTypeToHandlerMap.putIfAbsent(messageType, theHandler);
 
     if (prevHandler != null) {
       this.msgTypeToHandlerMap.replace(messageType, theHandler);
