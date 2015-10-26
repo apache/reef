@@ -37,10 +37,11 @@ namespace Org.Apache.REEF.IO.TestClient
                 Assert.IsTrue(result);
             }
 
-            if (args.Length > 0 && args[0].Equals("c"))
+            //the remote path name can be either full or relative, passing with the second argument
+            if (args.Length > 1 && args[0].Equals("c"))
             {
                 HadoopFileSystemTest t = new HadoopFileSystemTest();
-                Assert.IsTrue(t.TestCopyFromRemote());
+                Assert.IsTrue(t.TestCopyFromRemote(args[1]));
             }
 
             if (args.Length > 0 && args[0].Equals("b"))

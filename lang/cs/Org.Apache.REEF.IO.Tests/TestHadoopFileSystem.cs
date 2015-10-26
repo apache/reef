@@ -40,7 +40,7 @@ namespace Org.Apache.REEF.IO.Tests
         private Uri GetTempUri()
         {
             return
-                new Uri(_fileSystem.UriPrefix + "/tmp/TestHadoopFileSystem-" +
+                _fileSystem.CreateUriForPath("/tmp/TestHadoopFileSystem-" +
                         DateTime.Now.ToString("yyyyMMddHHmmssfff"));
         }
 

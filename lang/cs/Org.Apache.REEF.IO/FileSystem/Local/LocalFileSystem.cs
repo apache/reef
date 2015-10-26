@@ -28,18 +28,24 @@ namespace Org.Apache.REEF.IO.FileSystem.Local
     /// </summary>
     internal sealed class LocalFileSystem : IFileSystem
     {
-        private readonly string _uriPrefix;
-
         [Inject]
         private LocalFileSystem()
         {
-            _uriPrefix = "";
         }
 
-        public string UriPrefix
+        /// <summary>
+        /// Create Uri from given file name
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        public Uri CreateUriForPath(string path)
         {
-            get { return _uriPrefix; }
+            if (path == null)
+            {
+                throw new ArgumentException("null path passed in CreateUriForPath");
+            }
 
+            return new Uri(path);
         }
 
         public Stream Open(Uri fileUri)

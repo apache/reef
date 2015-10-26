@@ -17,10 +17,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.IO.FileSystem.Hadoop
 {
@@ -34,10 +36,13 @@ namespace Org.Apache.REEF.IO.FileSystem.Hadoop
     /// <see cref="http://hadoop.apache.org/docs/current/hadoop-project-dist/hadoop-common/FileSystemShell.html" />
     internal sealed class HadoopFileSystem : IFileSystem
     {
+        private static readonly Logger Logger = Logger.GetLogger(typeof(HadoopFileSystem));
+
         private static readonly Regex NoSuchFileOrDirectoryRegEx = new Regex("^ls: `.*': No such file or directory");
         private static readonly Regex LsFirstLineRegex = new Regex("^Found .* items");
         private readonly HdfsCommandRunner _commandRunner;
         private readonly string _uriPrefix;
+        private const string PrefixTemplate = "{0}://{1}/";
 
         [Inject]
         private HadoopFileSystem(HdfsCommandRunner commandRunner)
@@ -47,11 +52,39 @@ namespace Org.Apache.REEF.IO.FileSystem.Hadoop
         }
 
         /// <summary>
-        /// The Prefix used for URIs on this FileSystem.
+        /// Create Uri from a given file name
+        /// If the path already contains prefix, use it directly and verify the prefix after it is created.
+        /// Otherwise add the prefix in fron of the relative path.
+        /// If path is null or the prefix doesn't match the prefix in the FileSystem, throw ArgumentException
         /// </summary>
-        public string UriPrefix
+        /// <param name="path"></param>
+        /// <returns></returns>
+        public Uri CreateUriForPath(string path)
         {
-            get { return _uriPrefix; }
+            if (path == null)
+            {
+                throw new ArgumentException("null path passed in CreateUriForPath");
+            }
+
+            Uri uri;
+            try
+            {
+                uri = new Uri(path);
+                var preFix = string.Format(CultureInfo.CurrentCulture,
+                    string.Format(PrefixTemplate, uri.Scheme, uri.Authority));
+                Logger.Log(Level.Info, string.Format(CultureInfo.CurrentCulture, "preFix in the path: {0}.", preFix));
+
+                if (!preFix.Equals(_uriPrefix))
+                {
+                    throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Wrong prefix in the path {0} provided.", path));
+                }
+            }
+            catch (UriFormatException)
+            {
+                uri = new Uri(_uriPrefix + path); 
+            }
+
+            return uri;
         }
 
         /// <summary>

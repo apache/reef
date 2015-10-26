@@ -51,10 +51,10 @@ namespace Org.Apache.REEF.IO.TestClient
             var serializerConfString = (new AvroConfigurationSerializer()).ToString(serializerConf);
 
             var dataSet = TangFactory.GetTang()
-                .NewInjector(FileSystemInputPartitionConfiguration<byte>.ConfigurationModule
-                    .Set(FileSystemInputPartitionConfiguration<byte>.FilePathForPartitions, remoteFilePath1)
-                    .Set(FileSystemInputPartitionConfiguration<byte>.FilePathForPartitions, remoteFilePath2)
-                    .Set(FileSystemInputPartitionConfiguration<byte>.FileSerializerConfig, serializerConfString)
+                .NewInjector(FileSystemInputPartitionConfiguration<IEnumerable<byte>>.ConfigurationModule
+                    .Set(FileSystemInputPartitionConfiguration<IEnumerable<byte>>.FilePathForPartitions, remoteFilePath1)
+                    .Set(FileSystemInputPartitionConfiguration<IEnumerable<byte>>.FilePathForPartitions, remoteFilePath2)
+                    .Set(FileSystemInputPartitionConfiguration<IEnumerable<byte>>.FileSerializerConfig, serializerConfString)
                 .Build(),
                   HadoopFileSystemConfiguration.ConfigurationModule.Build())
                 .GetInstance<IPartitionedInputDataSet>();
@@ -68,6 +68,7 @@ namespace Org.Apache.REEF.IO.TestClient
                     .NewInjector(partitionDescriptor.GetPartitionConfiguration(), GetHadoopFileSystemConfiguration())
                     .GetInstance<IInputPartition<IEnumerable<byte>>>();
 
+                Logger.Log(Level.Info, "GetInstance of partition.");
                 using (partition as IDisposable)
                 {
                     Logger.Log(Level.Info, "get partition instance.");
@@ -93,10 +94,10 @@ namespace Org.Apache.REEF.IO.TestClient
 
             string localFile = MakeLocalTempFile(bytes);
 
-            string remoteFileName = "vol1/test/TestHadoopFilePartition-" +
+            string remoteFileName = "/tmp/TestHadoopFilePartition-" +
                                     DateTime.Now.ToString("yyyyMMddHHmmssfff");
 
-            var remoteUri = new Uri(fileSystem.UriPrefix + remoteFileName);
+            var remoteUri = fileSystem.CreateUriForPath(remoteFileName);
             Logger.Log(Level.Info, string.Format(CultureInfo.CurrentCulture, "remoteUri {0}: ", remoteUri));
 
             fileSystem.CopyFromLocal(localFile, remoteUri);

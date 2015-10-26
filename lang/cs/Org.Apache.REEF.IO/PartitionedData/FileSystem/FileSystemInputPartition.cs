@@ -94,7 +94,7 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
 
             foreach (var sourceFilePath in _filePaths)
             {
-                Uri sourceUri = new Uri(_fileSystem.UriPrefix + sourceFilePath);
+                Uri sourceUri = _fileSystem.CreateUriForPath(sourceFilePath);
                 Logger.Log(Level.Info, string.Format
                         (CultureInfo.CurrentCulture, "sourceUri {0}: ", sourceUri));
                 if (!_fileSystem.Exists(sourceUri))
