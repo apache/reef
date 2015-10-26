@@ -23,6 +23,7 @@ import org.apache.reef.driver.parameters.DriverIdentifier;
 import org.apache.reef.driver.task.FailedTask;
 import org.apache.reef.driver.task.RunningTask;
 import org.apache.reef.io.network.group.api.driver.CommunicationGroupDriver;
+import org.apache.reef.io.network.group.api.driver.Topology;
 import org.apache.reef.io.network.group.impl.GroupCommunicationMessage;
 import org.apache.reef.io.network.group.impl.config.parameters.*;
 import org.apache.reef.io.network.group.impl.utils.BroadcastingEventHandler;
@@ -64,6 +65,8 @@ public final class CommunicationGroupDriverFactory {
   /**
    * Instantiates a new CommunicationGroupDriver instance.
    * @param groupName specified name of the communication group
+   * @param topologyClass topology implementation
+   * @param commGroupMessageHandler message handler for the communication group
    * @param numberOfTasks minimum number of tasks needed in this group before start
    * @param customFanOut fanOut for TreeTopology
    * @return CommunicationGroupDriver instance
@@ -71,12 +74,14 @@ public final class CommunicationGroupDriverFactory {
    */
   public CommunicationGroupDriver getNewInstance(
       final Class<? extends Name<String>> groupName,
+      final Class<? extends Topology> topologyClass,
       final BroadcastingEventHandler<GroupCommunicationMessage> commGroupMessageHandler,
       final int numberOfTasks,
       final int customFanOut) throws InjectionException {
 
     final Injector newInjector = injector.forkInjector();
     newInjector.bindVolatileParameter(CommGroupNameClass.class, groupName);
+    newInjector.bindVolatileParameter(TopologyClass.class, topologyClass);
     newInjector.bindVolatileParameter(CommGroupMessageHandler.class, commGroupMessageHandler);
     newInjector.bindVolatileParameter(CommGroupNumTask.class, numberOfTasks);
     newInjector.bindVolatileParameter(TreeTopologyFanOut.class, customFanOut);

@@ -28,6 +28,7 @@ import org.apache.reef.driver.task.RunningTask;
 import org.apache.reef.io.network.Message;
 import org.apache.reef.io.network.group.api.driver.CommunicationGroupDriver;
 import org.apache.reef.io.network.group.api.driver.GroupCommServiceDriver;
+import org.apache.reef.io.network.group.api.driver.Topology;
 import org.apache.reef.io.network.group.impl.GroupCommunicationMessage;
 import org.apache.reef.io.network.group.impl.GroupCommunicationMessageCodec;
 import org.apache.reef.io.network.group.impl.config.parameters.*;
@@ -192,11 +193,19 @@ public class GroupCommDriverImpl implements GroupCommServiceDriver {
   @Override
   public CommunicationGroupDriver newCommunicationGroup(final Class<? extends Name<String>> groupName,
                                                         final int numberOfTasks) {
-    return newCommunicationGroup(groupName, numberOfTasks, fanOut);
+    return newCommunicationGroup(groupName, TreeTopology.class, numberOfTasks, fanOut);
   }
 
   @Override
   public CommunicationGroupDriver newCommunicationGroup(final Class<? extends Name<String>> groupName,
+                                                        final int numberOfTasks, final int customFanOut) {
+    return newCommunicationGroup(groupName, TreeTopology.class, numberOfTasks, customFanOut);
+  }
+
+  // TODO[JIRA REEF-391]: Allow different topology implementations for different operations in the same CommGroup.
+  @Override
+  public CommunicationGroupDriver newCommunicationGroup(final Class<? extends Name<String>> groupName,
+                                                        final Class<? extends Topology> topologyClass,
                                                         final int numberOfTasks, final int customFanOut) {
     LOG.entering("GroupCommDriverImpl", "newCommunicationGroup",
         new Object[]{Utils.simpleName(groupName), numberOfTasks});
@@ -205,8 +214,8 @@ public class GroupCommDriverImpl implements GroupCommServiceDriver {
         = new BroadcastingEventHandler<>();
     final CommunicationGroupDriver commGroupDriver;
     try {
-      commGroupDriver
-          = commGroupDriverFactory.getNewInstance(groupName, commGroupMessageHandler, numberOfTasks, customFanOut);
+      commGroupDriver = commGroupDriverFactory.getNewInstance(
+          groupName, topologyClass, commGroupMessageHandler, numberOfTasks, customFanOut);
     } catch (final InjectionException e) {
       LOG.log(Level.WARNING, "Cannot inject new CommunicationGroupDriver");
       throw new RuntimeException(e);

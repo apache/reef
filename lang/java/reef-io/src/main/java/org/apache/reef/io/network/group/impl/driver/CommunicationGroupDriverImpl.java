@@ -83,6 +83,7 @@ public class CommunicationGroupDriverImpl implements CommunicationGroupDriver {
   private final SetMap<MsgKey, IndexedMsg> msgQue = new SetMap<>();
 
   private final TopologyFactory topologyFactory;
+  private final Class<? extends Topology> topologyClass;
 
   /**
    * @Deprecated in 0.14. Use Tang to obtain an instance of this instead.
@@ -115,6 +116,7 @@ public class CommunicationGroupDriverImpl implements CommunicationGroupDriver {
     } catch (final InjectionException e) {
       throw new RuntimeException(e);
     }
+    this.topologyClass = TreeTopology.class;
   }
 
   @Inject
@@ -131,7 +133,8 @@ public class CommunicationGroupDriverImpl implements CommunicationGroupDriver {
           final BroadcastingEventHandler<GroupCommunicationMessage> commGroupMessageHandler,
       @Parameter(DriverIdentifier.class) final String driverId,
       @Parameter(CommGroupNumTask.class) final int numberOfTasks,
-      final TopologyFactory topologyFactory) {
+      final TopologyFactory topologyFactory,
+      @Parameter(TopologyClass.class) final Class<? extends Topology> topologyClass) {
     super();
     this.groupName = groupName;
     this.driverId = driverId;
@@ -141,6 +144,7 @@ public class CommunicationGroupDriverImpl implements CommunicationGroupDriver {
     registerHandlers(groupCommRunningTaskHandler, groupCommFailedTaskHandler,
         groupCommFailedEvaluatorHandler, commGroupMessageHandler);
     this.topologyFactory = topologyFactory;
+    this.topologyClass = topologyClass;
   }
 
   private void registerHandlers(
@@ -166,7 +170,7 @@ public class CommunicationGroupDriverImpl implements CommunicationGroupDriver {
 
     final Topology topology;
     try {
-      topology = topologyFactory.getNewInstance(operatorName, TreeTopology.class);
+      topology = topologyFactory.getNewInstance(operatorName, topologyClass);
     } catch (final InjectionException e) {
       LOG.log(Level.WARNING, "Cannot inject new topology named {0}", operatorName);
       throw new RuntimeException(e);
@@ -193,7 +197,7 @@ public class CommunicationGroupDriverImpl implements CommunicationGroupDriver {
 
     final Topology topology;
     try {
-      topology = topologyFactory.getNewInstance(operatorName, TreeTopology.class);
+      topology = topologyFactory.getNewInstance(operatorName, topologyClass);
     } catch (final InjectionException e) {
       LOG.log(Level.WARNING, "Cannot inject new topology named {0}", operatorName);
       throw new RuntimeException(e);
@@ -219,7 +223,7 @@ public class CommunicationGroupDriverImpl implements CommunicationGroupDriver {
 
     final Topology topology;
     try {
-      topology = topologyFactory.getNewInstance(operatorName, TreeTopology.class);
+      topology = topologyFactory.getNewInstance(operatorName, topologyClass);
     } catch (final InjectionException e) {
       LOG.log(Level.WARNING, "Cannot inject new topology named {0}", operatorName);
       throw new RuntimeException(e);
@@ -245,7 +249,7 @@ public class CommunicationGroupDriverImpl implements CommunicationGroupDriver {
 
     final Topology topology;
     try {
-      topology = topologyFactory.getNewInstance(operatorName, TreeTopology.class);
+      topology = topologyFactory.getNewInstance(operatorName, topologyClass);
     } catch (final InjectionException e) {
       LOG.log(Level.WARNING, "Cannot inject new topology named {0}", operatorName);
       throw new RuntimeException(e);
