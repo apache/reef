@@ -55,7 +55,8 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
             )
         {
             _count = filePaths.Count;
-            _id = FormId(filePaths);
+            _id = IdPrefix + Guid.NewGuid().ToString("N").Substring(0, 8);
+
             _partitions = new Dictionary<string, IPartitionDescriptor>(_count);
 
             var fileSerializerConfig = 
@@ -114,25 +115,6 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
         IEnumerator IEnumerable.GetEnumerator()
         {
             return _partitions.Values.GetEnumerator();
-        }
-
-        private string FormId(ISet<string> filePaths)
-        {
-            string id = "";
-            if (filePaths != null && filePaths.Count > 0)
-            {
-                var path = filePaths.First();
-                var paths = path.Split(new string[] {StringSeparators}, StringSplitOptions.None);
-                if (paths.Length > 0)
-                {
-                    FileInfo fInfo = new FileInfo(paths[0]);
-                    if (fInfo.Directory != null)
-                    {
-                        id = fInfo.Directory.Name;
-                    }
-                }
-            }
-            return IdPrefix + id;
         }
     }
 }
