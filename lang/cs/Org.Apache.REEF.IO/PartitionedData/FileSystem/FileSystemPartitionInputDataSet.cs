@@ -20,6 +20,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using Org.Apache.REEF.IO.FileSystem;
@@ -29,6 +30,7 @@ using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Implementations.Configuration;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
+using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
 {
@@ -40,6 +42,7 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
     /// <typeparam name="T"></typeparam>
     internal sealed class FileSystemPartitionInputDataSet<T> : IPartitionedInputDataSet
     {
+        private static readonly Logger Logger = Logger.GetLogger(typeof(FileSystemPartitionInputDataSet<T>));
         private readonly Dictionary<string, IPartitionDescriptor> _partitions;
         private readonly int _count ;
         private const string StringSeparators = ";";
@@ -56,6 +59,7 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
         {
             _count = filePaths.Count;
             _id = FormId(filePaths);
+
             _partitions = new Dictionary<string, IPartitionDescriptor>(_count);
 
             var fileSerializerConfig = 
@@ -116,22 +120,31 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
             return _partitions.Values.GetEnumerator();
         }
 
-        private string FormId(ISet<string> filePaths)
+        /// <summary>
+        /// The id is derived form the a input file name. For whatever reason if it doesn't work out, default will be used.
+        /// </summary>
+        /// <param name="filePaths"></param>
+        /// <returns></returns>
+        private static string FormId(ISet<string> filePaths)
         {
             string id = "";
-            if (filePaths != null && filePaths.Count > 0)
+            try
             {
-                var path = filePaths.First();
-                var paths = path.Split(new string[] {StringSeparators}, StringSplitOptions.None);
-                if (paths.Length > 0)
+                if (filePaths != null && filePaths.Count > 0)
                 {
-                    FileInfo fInfo = new FileInfo(paths[0]);
-                    if (fInfo.Directory != null)
+                    var path = filePaths.First();
+                    var paths = path.Split(new string[] {"/", "//", "\\"}, StringSplitOptions.None);
+                    if (paths.Length > 0)
                     {
-                        id = fInfo.Directory.Name;
+                        id = paths[paths.Length - 1];
                     }
                 }
             }
+            catch (Exception e)
+            {
+                Logger.Log(Level.Warning, string.Format(CultureInfo.CurrentCulture, "The filePaths cannot be parsed for generating dataset id", e));
+            }
+
             return IdPrefix + id;
         }
     }
