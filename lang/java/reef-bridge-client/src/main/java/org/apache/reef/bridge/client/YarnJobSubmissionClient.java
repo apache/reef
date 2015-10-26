@@ -227,13 +227,8 @@ public final class YarnJobSubmissionClient {
   }
 
   /**
-   * Takes 5 parameters from the C# side:
-   * [0]: String. Driver folder.
-   * [1]: String. Driver identifier.
-   * [2]: int. Driver memory.
-   * [3~5]: int. TCP configurations.
-   * [6]: int. Max application submissions.
-   * [7]: int. Evaluator recovery timeout for driver restart. > 0 => restart is enabled.
+   * For arguments detail:
+   * @see org.apache.reef.bridge.client.YarnSubmissionFromCS#fromCommandLine(String[])
    */
   public static void main(final String[] args) throws InjectionException, IOException, YarnException {
     final YarnSubmissionFromCS yarnSubmission = YarnSubmissionFromCS.fromCommandLine(args);
