@@ -72,6 +72,7 @@ namespace Org {
 						  virtual String^ GetId();
 						  virtual String^ GetEvaluatorId();
 						  virtual IEvaluatorDescriptor^ GetEvaluatorDescriptor();
+						  virtual void SendMessage(array<byte>^ message);
 					  };
 
 					  public ref class EvaluatorRequestorClr2Java : public IEvaluatorRequestorClr2Java {

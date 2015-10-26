@@ -1,4 +1,4 @@
-/*
+﻿/**
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -16,7 +16,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-/**
- * Tests for Tasks fail in various cases.
- */
-package org.apache.reef.tests.fail.task;
+
+using System.Collections.Generic;
+using Org.Apache.REEF.Tang.Annotations;
+
+namespace Org.Apache.REEF.IO.PartitionedData.FileSystem.Parameters
+{
+    /// <summary>
+    /// This set contains the filepaths in one partition
+    /// </summary>
+    [NamedParameter("File paths for a partition")]
+    internal sealed class FilePathsInInputPartition : Name<ISet<string>>
+    {
+    }
+}

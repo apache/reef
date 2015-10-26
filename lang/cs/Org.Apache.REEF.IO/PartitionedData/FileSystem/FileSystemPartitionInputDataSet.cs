@@ -38,7 +38,7 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
     /// T is a type for data, e.g. a class like Row, or int, byte
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    internal sealed class FileSystemPartitionDataSet<T> : IPartitionedDataSet
+    internal sealed class FileSystemPartitionInputDataSet<T> : IPartitionedInputDataSet
     {
         private readonly Dictionary<string, IPartitionDescriptor> _partitions;
         private readonly int _count ;
@@ -47,10 +47,10 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
         private readonly string _id;
         
         [Inject]
-        private FileSystemPartitionDataSet(
-            [Parameter(typeof(FilePathsForPartitions))] ISet<string> filePaths,
+        private FileSystemPartitionInputDataSet(
+            [Parameter(typeof(FilePathsForInputPartitions))] ISet<string> filePaths,
             IFileSystem fileSystem,
-            [Parameter(typeof(FileSerializerConfigString))] string fileSerializerConfigString,
+            [Parameter(typeof(FileDeSerializerConfigString))] string fileSerializerConfigString,
             AvroConfigurationSerializer avroConfigurationSerializer
             )
         {
@@ -67,7 +67,7 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
                 var paths = path.Split(new string[] { StringSeparators }, StringSplitOptions.None);
                
                 var id = "FilePartition-" + i++;
-                _partitions[id] = new FilePartitionDescriptor<T>(id, paths.ToList(), fileSerializerConfig); 
+                _partitions[id] = new FileInputPartitionDescriptor<T>(id, paths.ToList(), fileSerializerConfig); 
             }
         }
 

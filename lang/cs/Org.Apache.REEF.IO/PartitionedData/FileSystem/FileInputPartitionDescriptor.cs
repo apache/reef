@@ -28,13 +28,13 @@ using Org.Apache.REEF.Tang.Util;
 
 namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
 {
-    internal sealed class FilePartitionDescriptor<T> : IPartitionDescriptor
+    internal sealed class FileInputPartitionDescriptor<T> : IPartitionDescriptor
     {
         private readonly string _id;
         private readonly IList<string> _filePaths;
         private readonly IConfiguration _filePartitionDeserializerConfig;
 
-        internal FilePartitionDescriptor(string id, IList<string> filePaths, IConfiguration filePartitionDeserializerConfig)
+        internal FileInputPartitionDescriptor(string id, IList<string> filePaths, IConfiguration filePartitionDeserializerConfig)
         {
             _id = id;
             _filePaths = filePaths;
@@ -47,19 +47,19 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
         }
 
         /// <summary>
-        /// This method is to provide Configurations required to inject the corresponding IPartition. 
+        /// This method is to provide Configurations required to inject the corresponding IInputPartition. 
         /// </summary>
         /// <returns></returns>
         public IConfiguration GetPartitionConfiguration()
         {
             var builder = TangFactory.GetTang().NewConfigurationBuilder()
-                .BindImplementation(GenericType<IPartition<T>>.Class, GenericType<FileSystemPartition<T>>.Class)
+                .BindImplementation(GenericType<IInputPartition<T>>.Class, GenericType<FileSystemInputPartition<T>>.Class)
                 .BindStringNamedParam<PartitionId>(_id);
 
             foreach (string p in _filePaths)
             {
-                builder = builder.BindSetEntry<FilePathsInPartition, string>
-                    (GenericType<FilePathsInPartition>.Class, p);
+                builder = builder.BindSetEntry<FilePathsInInputPartition, string>
+                    (GenericType<FilePathsInInputPartition>.Class, p);
             }
 
             return Configurations.Merge(builder.Build(), _filePartitionDeserializerConfig);

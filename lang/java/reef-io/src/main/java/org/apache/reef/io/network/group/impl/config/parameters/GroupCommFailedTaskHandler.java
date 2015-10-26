@@ -16,7 +16,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.reef.io.network.group.impl.config.parameters;
+
+import org.apache.reef.driver.task.FailedTask;
+import org.apache.reef.io.network.group.impl.utils.BroadcastingEventHandler;
+import org.apache.reef.tang.annotations.Name;
+import org.apache.reef.tang.annotations.NamedParameter;
+
 /**
- * Tests for Tasks fail in various cases.
+ * Name class of group comm failed task handler.
  */
-package org.apache.reef.tests.fail.task;
+@NamedParameter(doc = "Name class of group comm failed task handler")
+public final class GroupCommFailedTaskHandler implements Name<BroadcastingEventHandler<FailedTask>> {
+  private GroupCommFailedTaskHandler() {
+  }
+}

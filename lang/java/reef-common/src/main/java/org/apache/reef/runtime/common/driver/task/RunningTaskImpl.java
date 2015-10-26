@@ -86,13 +86,13 @@ public final class RunningTaskImpl implements RunningTask {
   public void close() {
     LOG.log(Level.FINEST, "CLOSE: TaskRuntime id[" + taskId + "] on evaluator id[" + evaluatorManager.getId() + "]");
 
-    if (this.taskRepresenter.isNotRunning()) {
-      LOG.log(Level.FINE, "Ignoring call to .close() because the task is no longer RUNNING.");
-    } else {
+    if (this.taskRepresenter.isClosable()) {
       final ContextControlProto contextControlProto = ContextControlProto.newBuilder()
           .setStopTask(StopTaskProto.newBuilder().build())
           .build();
       this.evaluatorManager.sendContextControlMessage(contextControlProto);
+    } else {
+      LOG.log(Level.FINE, "Ignoring call to .close() because the task is no longer RUNNING.");
     }
   }
 
@@ -100,15 +100,15 @@ public final class RunningTaskImpl implements RunningTask {
   public void close(final byte[] message) {
     LOG.log(Level.FINEST, "CLOSE: TaskRuntime id[" + taskId + "] on evaluator id[" + evaluatorManager.getId() +
         "] with message.");
-    if (this.taskRepresenter.isNotRunning()) {
+    if (this.taskRepresenter.isClosable()) {
+      final ContextControlProto contextControlProto = ContextControlProto.newBuilder()
+          .setStopTask(StopTaskProto.newBuilder().build())
+          .setTaskMessage(ByteString.copyFrom(message))
+          .build();
+      this.evaluatorManager.sendContextControlMessage(contextControlProto);
+    } else {
       throw new RuntimeException("Trying to send a message to a Task that is no longer RUNNING.");
     }
-
-    final ContextControlProto contextControlProto = ContextControlProto.newBuilder()
-        .setStopTask(StopTaskProto.newBuilder().build())
-        .setTaskMessage(ByteString.copyFrom(message))
-        .build();
-    this.evaluatorManager.sendContextControlMessage(contextControlProto);
   }
 
   @Override

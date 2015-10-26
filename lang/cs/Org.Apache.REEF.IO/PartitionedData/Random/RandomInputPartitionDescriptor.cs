@@ -24,12 +24,12 @@ using Org.Apache.REEF.Tang.Interface;
 
 namespace Org.Apache.REEF.IO.PartitionedData.Random
 {
-    internal sealed class RandomPartitionDescriptor : IPartitionDescriptor
+    internal sealed class RandomInputPartitionDescriptor : IPartitionDescriptor
     {
         private readonly string _id;
         private readonly int _numberOfDoubles;
 
-        internal RandomPartitionDescriptor(string id, int numberOfDoubles)
+        internal RandomInputPartitionDescriptor(string id, int numberOfDoubles)
         {
             _id = id;
             _numberOfDoubles = numberOfDoubles;
@@ -43,7 +43,7 @@ namespace Org.Apache.REEF.IO.PartitionedData.Random
         public IConfiguration GetPartitionConfiguration()
         {
             return TangFactory.GetTang().NewConfigurationBuilder()
-                .BindImplementation(typeof(IPartition<Stream>), typeof(RandomPartition))
+                .BindImplementation(typeof(IInputPartition<Stream>), typeof(RandomInputPartition))
                 .BindNamedParameter(typeof(PartitionId), _id)
                 .BindNamedParameter(typeof(NumberOfDoublesPerPartition), _numberOfDoubles.ToString())
                 .Build();

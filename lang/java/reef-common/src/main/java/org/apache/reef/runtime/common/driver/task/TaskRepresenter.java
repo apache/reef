@@ -202,6 +202,13 @@ public final class TaskRepresenter {
     return this.state != ReefServiceProtos.State.RUNNING;
   }
 
+  /**
+   * @return true, if this task is in INIT or RUNNING status.
+   */
+  public boolean isClosable() {
+    return this.state == ReefServiceProtos.State.INIT || this.state == ReefServiceProtos.State.RUNNING;
+  }
+
   private void setState(final ReefServiceProtos.State newState) {
     LOG.log(Level.FINE, "Task [{0}] state transition from [{1}] to [{2}]",
         new Object[]{this.taskId, this.state, newState});

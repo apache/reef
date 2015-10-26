@@ -16,7 +16,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.reef.io.network.group.impl.config.parameters;
+
+import org.apache.reef.tang.annotations.Name;
+import org.apache.reef.tang.annotations.NamedParameter;
+
 /**
- * Tests for Tasks fail in various cases.
+ * Name class of the number of tasks in the comm group.
  */
-package org.apache.reef.tests.fail.task;
+@NamedParameter(doc = "Name class of the number of tasks in the comm group")
+public final class CommGroupNumTask implements Name<Integer> {
+  private CommGroupNumTask() {
+  }
+}

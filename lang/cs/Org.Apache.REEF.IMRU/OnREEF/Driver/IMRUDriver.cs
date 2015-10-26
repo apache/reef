@@ -59,7 +59,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         private static readonly Logger Logger = Logger.GetLogger(typeof (IMRUDriver<TMapInput, TMapOutput, TResult>));
 
         private readonly ConfigurationManager _configurationManager;
-        private readonly IPartitionedDataSet _dataSet;
+        private readonly IPartitionedInputDataSet _dataSet;
         private readonly IEvaluatorRequestor _evaluatorRequestor;
         private ICommunicationGroupDriver _commGroup;
         private readonly IGroupCommDriver _groupCommDriver;
@@ -82,7 +82,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             _serviceAndContextConfigurationProvider;
 
         [Inject]
-        private IMRUDriver(IPartitionedDataSet dataSet,
+        private IMRUDriver(IPartitionedInputDataSet dataSet,
             [Parameter(typeof (PerMapConfigGeneratorSet))] ISet<IPerMapperConfigGenerator> perMapperConfigs,
             ConfigurationManager configurationManager,
             IEvaluatorRequestor evaluatorRequestor,

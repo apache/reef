@@ -26,7 +26,7 @@ namespace Org.Apache.REEF.IO.PartitionedData.Random
     /// <summary>
     /// Configuration module for the random dataset generator.
     /// </summary>
-    public sealed class RandomDataConfiguration : ConfigurationModuleBuilder
+    public sealed class RandomInputDataConfiguration : ConfigurationModuleBuilder
     {
         /// <summary>
         /// The number of doubles to serialize into the stream per partition.
@@ -38,8 +38,8 @@ namespace Org.Apache.REEF.IO.PartitionedData.Random
         /// </summary>
         public static readonly OptionalParameter<int> NumberOfPartitions = new OptionalParameter<int>();
 
-        public static ConfigurationModule ConfigurationModule = new RandomDataConfiguration()
-            .BindImplementation(GenericType<IPartitionedDataSet>.Class, GenericType<RandomDataSet>.Class)
+        public static ConfigurationModule ConfigurationModule = new RandomInputDataConfiguration()
+            .BindImplementation(GenericType<IPartitionedInputDataSet>.Class, GenericType<RandomInputDataSet>.Class)
             .BindNamedParameter(GenericType<NumberOfPartitions>.Class, NumberOfPartitions)
             .BindNamedParameter(GenericType<NumberOfDoublesPerPartition>.Class, NumberOfDoublesPerPartition)
             .Build();

@@ -17,17 +17,12 @@
  * under the License.
  */
 
-using System.Collections.Generic;
 using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.IO.PartitionedData.FileSystem.Parameters
 {
-    /// <summary>
-    /// Each element in the set contains input files for one partition, separated by semicolon. 
-    /// The set contains file paths for all the partitions
-    /// </summary>
-    [NamedParameter("All file paths")]
-    internal sealed class FilePathsForPartitions : Name<ISet<string>>
+    [NamedParameter("File serializer serialized configuration")]
+    internal sealed class FileDeSerializerConfigString : Name<string>
     {
     }
 }

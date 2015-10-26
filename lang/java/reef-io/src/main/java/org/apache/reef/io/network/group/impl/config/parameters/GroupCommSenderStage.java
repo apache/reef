@@ -16,7 +16,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.reef.io.network.group.impl.config.parameters;
+
+import org.apache.reef.io.network.group.impl.GroupCommunicationMessage;
+import org.apache.reef.tang.annotations.Name;
+import org.apache.reef.tang.annotations.NamedParameter;
+import org.apache.reef.wake.EStage;
+
 /**
- * Tests for Tasks fail in various cases.
+ * Name class of group comm sender stage.
  */
-package org.apache.reef.tests.fail.task;
+@NamedParameter(doc = "Name class of group comm sender stage")
+public final class GroupCommSenderStage implements Name<EStage<GroupCommunicationMessage>> {
+  private GroupCommSenderStage() {
+  }
+}

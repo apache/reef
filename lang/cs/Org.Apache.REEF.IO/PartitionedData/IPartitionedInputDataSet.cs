@@ -17,22 +17,30 @@
  * under the License.
  */
 
-using Org.Apache.REEF.Driver.Evaluator;
+using System.Collections.Generic;
 
-namespace Org.Apache.REEF.Driver.Bridge.Clr2java
+namespace Org.Apache.REEF.IO.PartitionedData
 {
-    public interface IActiveContextClr2Java : IClr2Java
+    /// <summary>
+    /// Driver-Side representation of a partitioned data set.
+    /// </summary>
+    public interface IPartitionedInputDataSet : IEnumerable<IPartitionDescriptor>
     {
-        void SubmitTask(string taskConfigStr);
-        
-        void Close();
+        /// <summary>
+        /// The number of partitions.
+        /// </summary>
+        int Count { get; }
 
-        string GetId();
+        /// <summary>
+        /// The Id of this dataset
+        /// </summary>
+        string Id { get; }
 
-        string GetEvaluatorId();
-
-        IEvaluatorDescriptor GetEvaluatorDescriptor();
-
-        void SendMessage(byte[] message);
+        /// <summary>
+        /// Get the PartitionDescriptor for the given Id.
+        /// </summary>
+        /// <param name="partitionId"></param>
+        /// <returns>The IPartitionDescriptor found or null if none exists.</returns>
+        IPartitionDescriptor GetPartitionDescriptorForId(string partitionId);
     }
 }

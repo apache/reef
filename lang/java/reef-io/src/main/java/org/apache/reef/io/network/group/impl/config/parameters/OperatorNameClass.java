@@ -1,4 +1,4 @@
-﻿/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -16,13 +16,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.reef.io.network.group.impl.config.parameters;
 
-using Org.Apache.REEF.Tang.Annotations;
+import org.apache.reef.tang.annotations.Name;
+import org.apache.reef.tang.annotations.NamedParameter;
 
-namespace Org.Apache.REEF.IO.PartitionedData.FileSystem.Parameters
-{
-    [NamedParameter("File serializer serialized configuration")]
-    internal sealed class FileSerializerConfigString : Name<string>
-    {
-    }
+/**
+ * NamedParameter wrapper for the name class of the operator.
+ */
+@NamedParameter(doc = "NamedParameter wrapper for the name class of the operator")
+public final class OperatorNameClass implements Name<Class<? extends Name<String>>> {
+  private OperatorNameClass() {
+  }
 }

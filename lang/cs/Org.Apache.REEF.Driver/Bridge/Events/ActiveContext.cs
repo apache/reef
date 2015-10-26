@@ -94,7 +94,7 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
 
         public void SendMessage(byte[] message)
         {
-            throw new NotImplementedException();
+            Clr2Java.SendMessage(message);
         }
     }
 }

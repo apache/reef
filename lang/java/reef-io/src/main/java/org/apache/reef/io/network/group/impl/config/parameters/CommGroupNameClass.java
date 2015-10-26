@@ -1,4 +1,4 @@
-﻿/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -16,27 +16,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.reef.io.network.group.impl.config.parameters;
 
-using System;
+import org.apache.reef.tang.annotations.Name;
+import org.apache.reef.tang.annotations.NamedParameter;
 
-namespace Org.Apache.REEF.IO.PartitionedData
-{
-    /// <summary>
-    /// Evaluator-Side representation of a data set partition.
-    /// </summary>
-    /// <typeparam name="T">Generic Type representing data pointer.
-    /// For example, for data in local file it can be file pointer </typeparam>
-    public interface IPartition<T> 
-    {
-        /// <summary>
-        /// The id of the partition.
-        /// </summary>
-        string Id { get; }
-
-        /// <summary>
-        /// Gives a pointer to the underlying partition.
-        /// </summary>
-        /// <returns>The pointer to the underlying partition</returns>
-        T GetPartitionHandle();
-    }
+/**
+ * NamedParameter wrapper for the name class of the comm group.
+ */
+@NamedParameter(doc = "NamedParameter wrapper for the name class of the comm group")
+public final class CommGroupNameClass implements Name<Class<? extends Name<String>>> {
+  private CommGroupNameClass() {
+  }
 }

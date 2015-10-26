@@ -30,9 +30,9 @@ using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
 {
-    internal sealed class FileSystemPartition<T> : IPartition<T>, IDisposable
+    internal sealed class FileSystemInputPartition<T> : IInputPartition<T>, IDisposable
     {
-        private static readonly Logger Logger = Logger.GetLogger(typeof(FileSystemPartition<T>));
+        private static readonly Logger Logger = Logger.GetLogger(typeof(FileSystemInputPartition<T>));
 
         private readonly string _id;
         private readonly IFileSystem _fileSystem;
@@ -43,8 +43,8 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
         private string _localFileFolder;
 
         [Inject]
-        private FileSystemPartition([Parameter(typeof (PartitionId))] string id,
-            [Parameter(typeof (FilePathsInPartition))] ISet<string> filePaths,
+        private FileSystemInputPartition([Parameter(typeof (PartitionId))] string id,
+            [Parameter(typeof (FilePathsInInputPartition))] ISet<string> filePaths,
             IFileSystem fileSystem,
             IFileDeSerializer<T> fileSerializer)
         {

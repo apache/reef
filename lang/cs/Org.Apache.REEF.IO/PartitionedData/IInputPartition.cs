@@ -1,4 +1,4 @@
-/*
+﻿/**
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -16,7 +16,27 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-/**
- * Tests for Tasks fail in various cases.
- */
-package org.apache.reef.tests.fail.task;
+
+using System;
+
+namespace Org.Apache.REEF.IO.PartitionedData
+{
+    /// <summary>
+    /// Evaluator-Side representation of a data set partition.
+    /// </summary>
+    /// <typeparam name="T">Generic Type representing data pointer.
+    /// For example, for data in local file it can be file pointer </typeparam>
+    public interface IInputPartition<T> 
+    {
+        /// <summary>
+        /// The id of the partition.
+        /// </summary>
+        string Id { get; }
+
+        /// <summary>
+        /// Gives a pointer to the underlying partition.
+        /// </summary>
+        /// <returns>The pointer to the underlying partition</returns>
+        T GetPartitionHandle();
+    }
+}

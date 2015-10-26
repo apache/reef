@@ -33,7 +33,7 @@ namespace Org.Apache.REEF.IO.TestClient
         {
             if (args.Length > 0 && args[0].Equals("p"))
             {
-                bool result = HadoopFilePartitionTest.TestWithByteDeserializer();
+                bool result = HadoopFileInputPartitionTest.TestWithByteDeserializer();
                 Assert.IsTrue(result);
             }
 

@@ -18,6 +18,7 @@
  */
 package org.apache.reef.io.network.group.impl.driver;
 
+import org.apache.reef.driver.parameters.DriverIdentifier;
 import org.apache.reef.io.network.group.api.operators.GroupCommOperator;
 import org.apache.reef.io.network.group.api.GroupChanges;
 import org.apache.reef.io.network.group.api.config.OperatorSpec;
@@ -30,9 +31,7 @@ import org.apache.reef.io.network.group.impl.config.BroadcastOperatorSpec;
 import org.apache.reef.io.network.group.impl.config.GatherOperatorSpec;
 import org.apache.reef.io.network.group.impl.config.ReduceOperatorSpec;
 import org.apache.reef.io.network.group.impl.config.ScatterOperatorSpec;
-import org.apache.reef.io.network.group.impl.config.parameters.DataCodec;
-import org.apache.reef.io.network.group.impl.config.parameters.ReduceFunctionParam;
-import org.apache.reef.io.network.group.impl.config.parameters.TaskVersion;
+import org.apache.reef.io.network.group.impl.config.parameters.*;
 import org.apache.reef.io.network.group.impl.operators.*;
 import org.apache.reef.io.network.group.impl.utils.Utils;
 import org.apache.reef.io.network.proto.ReefNetworkGroupCommProtos;
@@ -41,12 +40,14 @@ import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.JavaConfigurationBuilder;
 import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.annotations.Name;
+import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.tang.formats.AvroConfigurationSerializer;
 import org.apache.reef.tang.formats.ConfigurationSerializer;
 import org.apache.reef.wake.EStage;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.impl.SingleThreadStage;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -76,10 +77,28 @@ public class TreeTopology implements Topology {
   private final ConcurrentMap<String, TaskNode> nodes = new ConcurrentSkipListMap<>();
   private final ConfigurationSerializer confSer = new AvroConfigurationSerializer();
 
-
+  /**
+   * @Deprecated in 0.14. Use Tang to obtain an instance of this instead.
+   */
+  @Deprecated
   public TreeTopology(final EStage<GroupCommunicationMessage> senderStage,
-                      final Class<? extends Name<String>> groupName, final Class<? extends Name<String>> operatorName,
+                      final Class<? extends Name<String>> groupName,
+                      final Class<? extends Name<String>> operatorName,
                       final String driverId, final int numberOfTasks, final int fanOut) {
+    this.senderStage = senderStage;
+    this.groupName = groupName;
+    this.operName = operatorName;
+    this.driverId = driverId;
+    this.fanOut = fanOut;
+    LOG.config(getQualifiedName() + "Tree Topology running with a fan-out of " + fanOut);
+  }
+
+  @Inject
+  private TreeTopology(@Parameter(GroupCommSenderStage.class) final EStage<GroupCommunicationMessage> senderStage,
+                       @Parameter(CommGroupNameClass.class) final Class<? extends Name<String>> groupName,
+                       @Parameter(OperatorNameClass.class) final Class<? extends Name<String>> operatorName,
+                       @Parameter(DriverIdentifier.class) final String driverId,
+                       @Parameter(TreeTopologyFanOut.class) final int fanOut) {
     this.senderStage = senderStage;
     this.groupName = groupName;
     this.operName = operatorName;

@@ -45,10 +45,10 @@ under the License.
   <ItemGroup>
     <Compile Include="FileSystemTestUtilities.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TestFilePartitionDataSet.cs" />
+    <Compile Include="TestFilePartitionInputDataSet.cs" />
     <Compile Include="TestHadoopFileSystem.cs" />
     <Compile Include="TestLocalFileSystem.cs" />
-    <Compile Include="TestRandomDataSet.cs" />
+    <Compile Include="TestRandomInputDataSet.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.Common\Org.Apache.REEF.Common.csproj">
