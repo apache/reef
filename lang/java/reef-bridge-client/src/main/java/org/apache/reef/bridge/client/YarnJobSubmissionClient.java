@@ -227,6 +227,7 @@ public final class YarnJobSubmissionClient {
   }
 
   /**
+   * .NET client calls into this main method for job submission.
    * For arguments detail:
    * @see org.apache.reef.bridge.client.YarnSubmissionFromCS#fromCommandLine(String[])
    */
