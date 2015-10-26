@@ -43,6 +43,7 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
         private readonly Dictionary<string, IPartitionDescriptor> _partitions;
         private readonly int _count ;
         private const string StringSeparators = ";";
+        private const string FolderSeparators = "/";
         private const string IdPrefix = "FileSystemDataSet-";
         private readonly string _id;
         
@@ -55,7 +56,7 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
             )
         {
             _count = filePaths.Count;
-            _id = IdPrefix + Guid.NewGuid().ToString("N").Substring(0, 8);
+            _id = FormId(filePaths);
 
             _partitions = new Dictionary<string, IPartitionDescriptor>(_count);
 
@@ -115,6 +116,21 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
         IEnumerator IEnumerable.GetEnumerator()
         {
             return _partitions.Values.GetEnumerator();
+        }
+
+        private static string FormId(ISet<string> filePaths)
+        {
+            string id = "";
+            if (filePaths != null && filePaths.Count > 0)
+            {
+                var path = filePaths.First();
+                var paths = path.Split(new string[] { FolderSeparators }, StringSplitOptions.None);
+                if (paths.Length > 0)
+                {
+                    id = paths[paths.Length - 1];
+                }
+            }
+            return "myId" + id;
         }
     }
 }
