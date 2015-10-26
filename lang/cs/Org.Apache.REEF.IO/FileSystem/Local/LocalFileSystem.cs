@@ -40,6 +40,11 @@ namespace Org.Apache.REEF.IO.FileSystem.Local
         /// <returns></returns>
         public Uri CreateUriForPath(string path)
         {
+            if (path == null)
+            {
+                throw new ArgumentException("null path passed in CreateUriForPath");
+            }
+
             return new Uri(path);
         }
 

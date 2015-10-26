@@ -89,15 +89,17 @@ namespace Org.Apache.REEF.IO.TestClient
             var remoteUri = _fileSystem.CreateUriForPath("vol1/test/TestHadoopFilePartition-20151002160654404");
             Logger.Log(Level.Info, string.Format(CultureInfo.CurrentCulture, "remoteUri {0}: ", remoteUri));
 
+            return CopyRemoteToLocal(remoteUri);
+        }
+
+        private bool CopyRemoteToLocal(Uri remoteUri)
+        {
             if (!_fileSystem.Exists(remoteUri))
             {
                 Logger.Log(Level.Info, string.Format(CultureInfo.CurrentCulture, "Remote File {0} doesn't exist.", remoteUri));
                 return false;
             }
-            else
-            {
-                Logger.Log(Level.Info, string.Format(CultureInfo.CurrentCulture, "Remote File {0} found exists.", remoteUri));
-            }
+            Logger.Log(Level.Info, string.Format(CultureInfo.CurrentCulture, "Remote File {0} found exists.", remoteUri));
 
             var localFile = Path.GetTempPath() + "-" + DateTime.Now.ToString("yyyyMMddHHmmssfff");
             Logger.Log(Level.Info, string.Format(CultureInfo.CurrentCulture, "localFile {0}.", localFile));

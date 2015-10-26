@@ -106,7 +106,9 @@ namespace Org.Apache.REEF.IO.FileSystem
         IEnumerable<Uri> GetChildren(Uri directoryUri);
 
         /// <summary>
-        /// Create Uri from a given file name
+        /// Create Uri from a given file path.
+        /// The file path can be full with prefix or relative without prefix.
+        /// If null is passed as the path, ArgumentException will be thrown.
         /// </summary>
         /// <param name="path"></param>
         /// <returns></returns>
