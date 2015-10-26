@@ -47,11 +47,20 @@ namespace Org.Apache.REEF.IO.FileSystem.Hadoop
         }
 
         /// <summary>
-        /// The Prefix used for URIs on this FileSystem.
+        /// CReate Uri from a given file name
+        /// If the file doesn't contain the preFIx, add the prefix in front
+        /// otherwise, use it directly
         /// </summary>
-        public string UriPrefix
+        /// <param name="path"></param>
+        /// <returns></returns>
+        public Uri CreateUriForPath(string path)
         {
-            get { return _uriPrefix; }
+            var fullName = path;
+            if (!path.StartsWith(_uriPrefix))
+            {
+                fullName = _uriPrefix + path;
+            }
+            return new Uri(fullName);
         }
 
         /// <summary>

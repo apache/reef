@@ -96,7 +96,7 @@ namespace Org.Apache.REEF.IO.TestClient
             string remoteFileName = "vol1/test/TestHadoopFilePartition-" +
                                     DateTime.Now.ToString("yyyyMMddHHmmssfff");
 
-            var remoteUri = new Uri(fileSystem.UriPrefix + remoteFileName);
+            var remoteUri = fileSystem.CreateUriForPath(remoteFileName);
             Logger.Log(Level.Info, string.Format(CultureInfo.CurrentCulture, "remoteUri {0}: ", remoteUri));
 
             fileSystem.CopyFromLocal(localFile, remoteUri);

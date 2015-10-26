@@ -44,7 +44,7 @@ namespace Org.Apache.REEF.IO.TestClient
         private Uri GetTempUri()
         {
             return
-                new Uri(_fileSystem.UriPrefix + "vol1/test/TestHadoopFileSystem-" +
+                _fileSystem.CreateUriForPath("vol1/test/TestHadoopFileSystem-" +
                         Guid.NewGuid().ToString("N").Substring(0, 8));
         }
 
@@ -86,7 +86,7 @@ namespace Org.Apache.REEF.IO.TestClient
 
         internal bool TestCopyFromRemote()
         {
-            var remoteUri = new Uri(_fileSystem.UriPrefix + "vol1/test/TestHadoopFilePartition-20151002160654404");
+            var remoteUri = _fileSystem.CreateUriForPath("vol1/test/TestHadoopFilePartition-20151002160654404");
             Logger.Log(Level.Info, string.Format(CultureInfo.CurrentCulture, "remoteUri {0}: ", remoteUri));
 
             if (!_fileSystem.Exists(remoteUri))
