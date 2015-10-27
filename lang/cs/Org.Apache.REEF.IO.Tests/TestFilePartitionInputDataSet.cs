@@ -46,6 +46,21 @@ namespace Org.Apache.REEF.IO.Tests
         string sourceFilePath1 = Path.Combine(Path.GetTempPath(), tempFileName1);
         string sourceFilePath2 = Path.Combine(Path.GetTempPath(), tempFileName2);
 
+        [TestMethod]
+        public void TestDataSetId()
+        {
+            var dataSet = TangFactory.GetTang()
+                .NewInjector(FileSystemInputPartitionConfiguration<IEnumerable<byte>>.ConfigurationModule
+                    .Set(FileSystemInputPartitionConfiguration<IEnumerable<byte>>.FilePathForPartitions,
+                        "/tmp/abc" + ";" + "tmp//cde.txt" + ";" + "efg" +";" + "tmp\\hhh")
+                    .Set(FileSystemInputPartitionConfiguration<IEnumerable<byte>>.FileSerializerConfig,
+                        GetByteSerializerConfigString())
+                    .Build())
+                .GetInstance<IPartitionedInputDataSet>();
+
+            Assert.AreEqual(dataSet.Id, "FileSystemDataSet-hhh");
+        }
+
         /// <remarks>
         /// This test creates IPartitionDataSet with FileSystemInputPartitionConfiguration module.
         /// It then instantiates each IInputPartition using the IConfiguration provided by the IPartitionDescriptor.

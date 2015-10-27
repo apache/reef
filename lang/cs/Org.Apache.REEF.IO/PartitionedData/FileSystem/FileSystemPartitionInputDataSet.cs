@@ -20,6 +20,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using Org.Apache.REEF.IO.FileSystem;
@@ -29,6 +30,7 @@ using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Implementations.Configuration;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
+using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
 {
@@ -40,10 +42,10 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
     /// <typeparam name="T"></typeparam>
     internal sealed class FileSystemPartitionInputDataSet<T> : IPartitionedInputDataSet
     {
+        private static readonly Logger Logger = Logger.GetLogger(typeof(FileSystemPartitionInputDataSet<T>));
         private readonly Dictionary<string, IPartitionDescriptor> _partitions;
         private readonly int _count ;
         private const string StringSeparators = ";";
-        private const string FolderSeparators = "/";
         private const string IdPrefix = "FileSystemDataSet-";
         private readonly string _id;
         
@@ -118,19 +120,32 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
             return _partitions.Values.GetEnumerator();
         }
 
+        /// <summary>
+        /// The id is derived form the a input file name. For whatever reason if it doesn't work out, default will be used.
+        /// </summary>
+        /// <param name="filePaths"></param>
+        /// <returns></returns>
         private static string FormId(ISet<string> filePaths)
         {
             string id = "";
-            if (filePaths != null && filePaths.Count > 0)
+            try
             {
-                var path = filePaths.First();
-                var paths = path.Split(new string[] { FolderSeparators }, StringSplitOptions.None);
-                if (paths.Length > 0)
+                if (filePaths != null && filePaths.Count > 0)
                 {
-                    id = paths[paths.Length - 1];
+                    var path = filePaths.First();
+                    var paths = path.Split(new string[] {"/", "//", "\\"}, StringSplitOptions.None);
+                    if (paths.Length > 0)
+                    {
+                        id = paths[paths.Length - 1];
+                    }
                 }
             }
-            return "myId" + id;
+            catch (Exception e)
+            {
+                Logger.Log(Level.Warning, string.Format(CultureInfo.CurrentCulture, "The filePaths cannot be parsed for generating dataset id", e));
+            }
+
+            return IdPrefix + id;
         }
     }
 }
