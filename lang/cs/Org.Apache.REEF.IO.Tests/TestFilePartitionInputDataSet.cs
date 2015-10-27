@@ -49,10 +49,11 @@ namespace Org.Apache.REEF.IO.Tests
         [TestMethod]
         public void TestDataSetId()
         {
+            string filePaths = string.Format(CultureInfo.CurrentCulture, "{0};{1};{2};{3}", "/tmp/abc", "tmp//cde.txt", "efg", "tmp\\hhh");
+
             var dataSet = TangFactory.GetTang()
                 .NewInjector(FileSystemInputPartitionConfiguration<IEnumerable<byte>>.ConfigurationModule
-                    .Set(FileSystemInputPartitionConfiguration<IEnumerable<byte>>.FilePathForPartitions,
-                        "/tmp/abc" + ";" + "tmp//cde.txt" + ";" + "efg" +";" + "tmp\\hhh")
+                    .Set(FileSystemInputPartitionConfiguration<IEnumerable<byte>>.FilePathForPartitions, filePaths)
                     .Set(FileSystemInputPartitionConfiguration<IEnumerable<byte>>.FileSerializerConfig,
                         GetByteSerializerConfigString())
                     .Build())
