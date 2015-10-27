@@ -44,7 +44,7 @@ namespace Org.Apache.REEF.IO.TestClient
         private Uri GetTempUri()
         {
             return
-                _fileSystem.CreateUriForPath("vol1/test/TestHadoopFileSystem-" +
+                _fileSystem.CreateUriForPath("/tmp/TestHadoopFileSystem-" +
                         Guid.NewGuid().ToString("N").Substring(0, 8));
         }
 
@@ -57,6 +57,8 @@ namespace Org.Apache.REEF.IO.TestClient
 
             var localFileDownloaded = localFile + ".2";
             var remoteUri = GetTempUri();
+            Logger.Log(Level.Info, string.Format(CultureInfo.CurrentCulture, "remoteUri {0}: ", remoteUri.AbsolutePath));
+
 
             _fileSystem.CopyFromLocal(localFile, remoteUri);
             Logger.Log(Level.Info, string.Format(CultureInfo.CurrentCulture, "File CopyFromLocal {0}: ", remoteUri));
@@ -84,9 +86,9 @@ namespace Org.Apache.REEF.IO.TestClient
             return result;
         }
 
-        internal bool TestCopyFromRemote()
+        internal bool TestCopyFromRemote(string path)
         {
-            var remoteUri = _fileSystem.CreateUriForPath("vol1/test/TestHadoopFilePartition-20151002160654404");
+            var remoteUri = _fileSystem.CreateUriForPath(path);
             Logger.Log(Level.Info, string.Format(CultureInfo.CurrentCulture, "remoteUri {0}: ", remoteUri));
 
             return CopyRemoteToLocal(remoteUri);

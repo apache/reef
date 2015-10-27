@@ -42,6 +42,7 @@ namespace Org.Apache.REEF.IO.FileSystem.Hadoop
         private static readonly Regex LsFirstLineRegex = new Regex("^Found .* items");
         private readonly HdfsCommandRunner _commandRunner;
         private readonly string _uriPrefix;
+        private const string PrefixTemplate = "{0}://{1}/";
 
         [Inject]
         private HadoopFileSystem(HdfsCommandRunner commandRunner)
@@ -69,8 +70,9 @@ namespace Org.Apache.REEF.IO.FileSystem.Hadoop
             try
             {
                 uri = new Uri(path);
-                var preFix = uri.Scheme + "://" + uri.Authority + "/";
-                Logger.Log(Level.Info, String.Format(CultureInfo.CurrentCulture, "preFix in the path: {0}.", preFix));
+                var preFix = string.Format(CultureInfo.CurrentCulture,
+                    string.Format(PrefixTemplate, uri.Scheme, uri.Authority));
+                Logger.Log(Level.Info, string.Format(CultureInfo.CurrentCulture, "preFix in the path: {0}.", preFix));
 
                 if (!preFix.Equals(_uriPrefix))
                 {
