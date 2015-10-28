@@ -114,7 +114,7 @@ public final class RuntimeClock implements Clock {
       this.schedule.add(new StopTime(timer.getCurrent()));
       this.schedule.notifyAll();
       this.closed = true;
-      if (this.stoppedOnException != null) {
+      if (this.stoppedOnException == null) {
         this.stoppedOnException = stopOnException;
       }
     }
