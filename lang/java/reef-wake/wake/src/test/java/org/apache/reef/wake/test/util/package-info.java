@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- *
+ * Tests for org.apache.reef.wake.util package.
  */
 package org.apache.reef.wake.test.util;

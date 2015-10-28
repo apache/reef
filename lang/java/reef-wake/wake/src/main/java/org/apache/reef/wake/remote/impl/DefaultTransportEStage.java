@@ -22,6 +22,9 @@ import org.apache.reef.wake.EStage;
 
 import javax.inject.Inject;
 
+/**
+ * A default event-based message transporting stage for both client and server.
+ */
 public class DefaultTransportEStage implements EStage<TransportEvent> {
 
   @Inject

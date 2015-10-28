@@ -37,7 +37,7 @@ public class MultiDecoder<T> implements Decoder<T> {
   /**
    * Constructs a decoder that decodes bytes based on the class name.
    *
-   * @param clazzToDecoderMap
+   * @param clazzToDecoderMap a map of decoder for class
    */
   public MultiDecoder(final Map<Class<? extends T>, Decoder<? extends T>> clazzToDecoderMap) {
     this.clazzToDecoderMap = clazzToDecoderMap;

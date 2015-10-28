@@ -18,13 +18,12 @@
  */
 package org.apache.reef.wake;
 
-/*
+/**
  * An identifier class for REEF.  Identifiers are a generic naming primitive
  * that carry some information about the type of the object they point to.
  * Typical examples are server sockets, filenames, and requests.
- * 
+ *
  * Identifier constructors should take zero arguments, or take a single string.
- * 
  */
 public interface Identifier {
 

@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- *
+ * Wake's RX-style communication.
  */
 package org.apache.reef.wake.rx;

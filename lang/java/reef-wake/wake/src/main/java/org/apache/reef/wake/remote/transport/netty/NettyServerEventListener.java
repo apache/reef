@@ -28,6 +28,9 @@ import java.net.SocketAddress;
 import java.util.concurrent.ConcurrentMap;
 import java.util.logging.Level;
 
+/**
+ * A Netty event listener for server side.
+ */
 final class NettyServerEventListener extends AbstractNettyEventListener {
 
   public NettyServerEventListener(

@@ -21,8 +21,8 @@ package org.apache.reef.wake;
 import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
 
-/*
- * Default parameters for Wake
+/**
+ * Default parameters for Wake.
  */
 public final class WakeParameters {
 
@@ -32,15 +32,24 @@ public final class WakeParameters {
 
   public static final long REMOTE_EXECUTOR_SHUTDOWN_TIMEOUT = 10000;
 
-  @NamedParameter(doc = "Maximum frame length unit", default_value = "" + MAX_FRAME_LENGTH)
+  /**
+   * Maximum frame length unit.
+   */
+  @NamedParameter(doc = "Maximum frame length unit.", default_value = "" + MAX_FRAME_LENGTH)
   public static final class MaxFrameLength implements Name<Integer> {
   }
 
-  @NamedParameter(doc = "Executor shutdown timeout", default_value = "" + EXECUTOR_SHUTDOWN_TIMEOUT)
+  /**
+   * Executor shutdown timeout.
+   */
+  @NamedParameter(doc = "Executor shutdown timeout.", default_value = "" + EXECUTOR_SHUTDOWN_TIMEOUT)
   public static final class ExecutorShutdownTimeout implements Name<Integer> {
   }
 
-  @NamedParameter(doc = "Remote send timeout", default_value = "" + REMOTE_EXECUTOR_SHUTDOWN_TIMEOUT)
+  /**
+   * Remote send timeout.
+   */
+  @NamedParameter(doc = "Remote send timeout.", default_value = "" + REMOTE_EXECUTOR_SHUTDOWN_TIMEOUT)
   public static final class RemoteSendTimeout implements Name<Integer> {
   }
 

@@ -21,7 +21,7 @@ package org.apache.reef.wake.test.util;
 import org.apache.reef.wake.remote.Encoder;
 
 /**
- *
+ * A simple encoder which does nothing, i.e., returns the original value.
  */
 public class PassThroughEncoder implements Encoder<byte[]> {
 

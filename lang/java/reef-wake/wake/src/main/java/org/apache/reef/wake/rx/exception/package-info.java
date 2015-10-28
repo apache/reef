@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- *
+ * RX-style communication exceptions.
  */
 package org.apache.reef.wake.rx.exception;

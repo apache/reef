@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- *
+ * Wake remote transport exceptions.
  */
 package org.apache.reef.wake.remote.transport.exception;

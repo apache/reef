@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- *
+ * Wake's remote transportation.
  */
 package org.apache.reef.wake.remote.transport;

@@ -30,6 +30,9 @@ import org.junit.rules.TestName;
 import java.util.*;
 
 
+/**
+ * Sync stage tests.
+ */
 public class SyncStageTest {
 
   private static final String LOG_PREFIX = "TEST ";

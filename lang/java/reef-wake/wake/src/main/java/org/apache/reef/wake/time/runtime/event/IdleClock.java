@@ -20,6 +20,9 @@ package org.apache.reef.wake.time.runtime.event;
 
 import org.apache.reef.wake.time.Time;
 
+/**
+ * An event when there is no scheduled event.
+ */
 public final class IdleClock extends Time {
 
   public IdleClock(final long timestamp) {

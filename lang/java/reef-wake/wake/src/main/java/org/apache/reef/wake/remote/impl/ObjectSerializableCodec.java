@@ -27,7 +27,7 @@ import java.io.*;
 /**
  * Codec that uses Java serialization.
  *
- * @param <T>
+ * @param <T> type
  */
 public class ObjectSerializableCodec<T> implements Codec<T> {
 

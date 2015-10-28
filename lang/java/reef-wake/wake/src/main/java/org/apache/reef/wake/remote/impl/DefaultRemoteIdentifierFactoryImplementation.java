@@ -26,6 +26,9 @@ import org.apache.reef.wake.remote.RemoteIdentifierFactory;
 import javax.inject.Inject;
 import java.util.Map;
 
+/**
+ * A default implementation for RemoteIdentifierFactory interface.
+ */
 public class DefaultRemoteIdentifierFactoryImplementation extends DefaultIdentifierFactory
     implements RemoteIdentifierFactory {
 

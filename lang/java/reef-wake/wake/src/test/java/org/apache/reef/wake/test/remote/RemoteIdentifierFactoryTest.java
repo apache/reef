@@ -36,6 +36,9 @@ import org.junit.rules.TestName;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Tests for RemoteIdentifierFactory.
+ */
 public class RemoteIdentifierFactoryTest {
   @Rule
   public final TestName name = new TestName();

@@ -23,7 +23,9 @@ import org.apache.reef.wake.rx.StaticObservable;
 
 import java.util.concurrent.ConcurrentSkipListSet;
 
-
+/**
+ * Blocking join.
+ */
 public class BlockingJoin implements StaticObservable {
   private final Observer<TupleEvent> out;
   private final ConcurrentSkipListSet<TupleEvent> left = new ConcurrentSkipListSet<>();

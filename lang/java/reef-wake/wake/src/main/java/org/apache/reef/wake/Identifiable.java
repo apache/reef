@@ -18,6 +18,9 @@
  */
 package org.apache.reef.wake;
 
+/**
+ * This interface imposes that each object of the class that implements it has an identifier.
+ */
 public interface Identifiable {
 
   /**

@@ -20,8 +20,6 @@ package org.apache.reef.wake;
 
 /**
  * Identifier that can be totally ordered.
- *
- * @param <T> type
  */
 public interface ComparableIdentifier extends Identifier, Comparable<Identifier> {
 }

@@ -32,6 +32,9 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 
+/**
+ * Tests for RxThreadPoolStage.
+ */
 public class RxThreadPoolStageTest {
 
   @Rule

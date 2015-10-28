@@ -20,6 +20,9 @@ package org.apache.reef.wake.time.runtime;
 
 import org.apache.reef.tang.annotations.DefaultImplementation;
 
+/**
+ * An interface for Timer.
+ */
 @DefaultImplementation(RealTimer.class)
 public interface Timer {
   long getCurrent();

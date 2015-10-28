@@ -47,7 +47,7 @@ public class OrderedRemoteReceiverStage implements EStage<TransportEvent> {
   private final ThreadPoolStage<OrderedEventStream> pullStage;
 
   /**
-   * Constructs a ordered remote receiver stage.
+   * Constructs an ordered remote receiver stage.
    *
    * @param handler      the handler of remote events
    * @param errorHandler the exception handler
@@ -119,7 +119,7 @@ class OrderedPushEventHandler implements EventHandler<TransportEvent> {
 
   OrderedPushEventHandler(final ConcurrentMap<SocketAddress, OrderedEventStream> streamMap,
                           final ThreadPoolStage<OrderedEventStream> pullStage) {
-    this.codec = new RemoteEventCodec<byte[]>(new ByteCodec());
+    this.codec = new RemoteEventCodec<>(new ByteCodec());
     this.streamMap = streamMap;
     this.pullStage = pullStage;
   }
@@ -180,7 +180,7 @@ class OrderedEventStream {
   private long nextSeq; // the number of the next event to consume
 
   OrderedEventStream() {
-    queue = new PriorityBlockingQueue<RemoteEvent<byte[]>>(11, new RemoteEventComparator<byte[]>());
+    queue = new PriorityBlockingQueue<>(11, new RemoteEventComparator<byte[]>());
     nextSeq = 0;
   }
 

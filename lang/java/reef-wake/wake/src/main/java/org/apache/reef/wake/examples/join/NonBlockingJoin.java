@@ -24,7 +24,9 @@ import org.apache.reef.wake.rx.StaticObservable;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-
+/**
+ * Non-blocking Join.
+ */
 public class NonBlockingJoin implements StaticObservable {
   private final AtomicBoolean leftDone = new AtomicBoolean(false);
   private final AtomicBoolean completed = new AtomicBoolean(false);

@@ -29,7 +29,7 @@ import java.util.Map;
  * Encoder using the WakeTuple protocol buffer.
  * (class name and bytes)
  *
- * @param <T>
+ * @param <T> type
  */
 public class MultiEncoder<T> implements Encoder<T> {
 
@@ -38,7 +38,7 @@ public class MultiEncoder<T> implements Encoder<T> {
   /**
    * Constructs an encoder that encodes an object to bytes based on the class name.
    *
-   * @param clazzToEncoderMap
+   * @param clazzToEncoderMap a map of encoder for class
    */
   public MultiEncoder(final Map<Class<? extends T>, Encoder<? extends T>> clazzToEncoderMap) {
     this.clazzToEncoderMap = clazzToEncoderMap;
@@ -47,7 +47,7 @@ public class MultiEncoder<T> implements Encoder<T> {
   /**
    * Encodes an object to a byte array.
    *
-   * @param obj
+   * @param obj an object to be encoded
    */
   @Override
   public byte[] encode(final T obj) {

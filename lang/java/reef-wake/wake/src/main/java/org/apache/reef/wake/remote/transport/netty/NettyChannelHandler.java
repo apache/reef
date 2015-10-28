@@ -27,7 +27,9 @@ import io.netty.util.ReferenceCountUtil;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
+/**
+ * Netty channel handler for channel status(active/inactive) and incoming data.
+ */
 class NettyChannelHandler extends ChannelInboundHandlerAdapter {
 
   private static final Logger LOG = Logger.getLogger(NettyChannelHandler.class.getName());
@@ -60,7 +62,6 @@ class NettyChannelHandler extends ChannelInboundHandlerAdapter {
   @Override
   public void channelRead(
       final ChannelHandlerContext ctx, final Object msg) throws Exception {
-    //LOG.log(Level.FINEST, "Read {0} {1}", new Object[]{ctx.channel(), msg});
     try {
       this.listener.channelRead(ctx, msg);
     } finally {

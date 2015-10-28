@@ -20,6 +20,11 @@ package org.apache.reef.wake.examples.join;
 
 import org.apache.reef.wake.rx.Observer;
 
+/**
+ * Event printer.
+ *
+ * @param <T> the type of the event
+ */
 public class EventPrinter<T> implements Observer<T> {
 
   @Override
