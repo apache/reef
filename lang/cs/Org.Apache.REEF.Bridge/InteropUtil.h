@@ -63,6 +63,8 @@ jlongArray JavaLongArrayFromManagedLongArray(
 
 JNIEnv* RetrieveEnv(JavaVM* jvm);
 
+String^ FormatJavaExceptionMessage(String^ errorMessage, Exception^ exception);
+
 void HandleClr2JavaError(
   JNIEnv *env,
   String^ errorMessage,

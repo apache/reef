@@ -133,3 +133,7 @@ JNIEnv* RetrieveEnv(JavaVM* jvm) {
   }
   return env;
 }
+
+String^ FormatJavaExceptionMessage(String^ errorMessage, Exception^ exception) {
+	return String::Concat(errorMessage, Environment::NewLine, exception->StackTrace);
+}
