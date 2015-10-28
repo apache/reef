@@ -131,9 +131,9 @@ JNIEXPORT void JNICALL Java_org_apache_reef_javabridge_NativeInterop_clrSystemAl
     ClrSystemHandlerWrapper::Call_ClrSystemAllocatedEvaluatorHandler_OnNext(handle, allocatedEval);
   }
   catch (System::Exception^ ex) {
-    String^ errorMessage = "Exception in Call_clrSystemAllocatedEvaluatorHandler_OnNext";
+    String^ errorMessage = "Exception in Call_clrSystemAllocatedEvaluatorHandler_OnNext:";
     ManagedLog::LOGGER->LogError(errorMessage, ex);
-    allocatedEval -> OnError(errorMessage);
+    allocatedEval->OnError(FormatJavaExceptionMessage(errorMessage, ex));
   }
 }
 
@@ -145,14 +145,14 @@ JNIEXPORT void JNICALL Java_org_apache_reef_javabridge_NativeInterop_clrSystemAl
 JNIEXPORT void JNICALL Java_org_apache_reef_javabridge_NativeInterop_clrSystemActiveContextHandlerOnNext
 (JNIEnv *env, jclass cls, jlong handle, jobject jactiveContextBridge, jobject jlogger) {
   ManagedLog::LOGGER->Log("+Java_org_apache_reef_javabridge_NativeInterop_clrSystemActiveContextHandlerOnNext");
-  ActiveContextClr2Java^ activeContextBrdige = gcnew ActiveContextClr2Java(env, jactiveContextBridge);
+  ActiveContextClr2Java^ activeContextBridge = gcnew ActiveContextClr2Java(env, jactiveContextBridge);
   try {
-    ClrSystemHandlerWrapper::Call_ClrSystemActiveContextHandler_OnNext(handle, activeContextBrdige);
+    ClrSystemHandlerWrapper::Call_ClrSystemActiveContextHandler_OnNext(handle, activeContextBridge);
   }
   catch (System::Exception^ ex) {
     String^ errorMessage = "Exception in Call_ClrSystemActiveContextHandler_OnNext";
     ManagedLog::LOGGER->LogError(errorMessage, ex);
-    activeContextBrdige -> OnError(errorMessage);
+    activeContextBridge->OnError(FormatJavaExceptionMessage(errorMessage, ex));
   }
 }
 
@@ -171,7 +171,7 @@ JNIEXPORT void JNICALL Java_org_apache_reef_javabridge_NativeInterop_ClrSystemEv
   catch (System::Exception^ ex) {
     String^ errorMessage = "Exception in Call_ClrSystemEvaluatorRequestor_OnNext";
     ManagedLog::LOGGER->LogError(errorMessage, ex);
-    evaluatorRequestorBridge -> OnError(errorMessage);
+    evaluatorRequestorBridge->OnError(FormatJavaExceptionMessage(errorMessage, ex));
   }
 }
 
@@ -191,7 +191,7 @@ JNIEXPORT void JNICALL Java_org_apache_reef_javabridge_NativeInterop_clrSystemTa
   catch (System::Exception^ ex) {
     String^ errorMessage = "Exception in Call_ClrSystemTaskMessage_OnNext";
     ManagedLog::LOGGER->LogError(errorMessage, ex);
-    taskMesageBridge -> OnError(errorMessage);
+    taskMesageBridge->OnError(FormatJavaExceptionMessage(errorMessage, ex));
   }
 }
 
@@ -210,7 +210,7 @@ JNIEXPORT void JNICALL Java_org_apache_reef_javabridge_NativeInterop_clrSystemFa
   catch (System::Exception^ ex) {
     String^ errorMessage = "Exception in Call_ClrSystemTaskMessage_OnNext";
     ManagedLog::LOGGER->LogError(errorMessage, ex);
-    failedTaskBridge -> OnError(errorMessage);
+    failedTaskBridge->OnError(FormatJavaExceptionMessage(errorMessage, ex));
   }
 }
 
@@ -229,7 +229,7 @@ JNIEXPORT void JNICALL Java_org_apache_reef_javabridge_NativeInterop_clrSystemRu
   catch (System::Exception^ ex) {
     String^ errorMessage = "Exception in Call_ClrSystemRunningTask_OnNext";
     ManagedLog::LOGGER->LogError(errorMessage, ex);
-    runningTaskBridge -> OnError(errorMessage);
+    runningTaskBridge->OnError(FormatJavaExceptionMessage(errorMessage, ex));
   }
 }
 
@@ -248,7 +248,7 @@ JNIEXPORT void JNICALL Java_org_apache_reef_javabridge_NativeInterop_clrSystemFa
   catch (System::Exception^ ex) {
     String^ errorMessage = "Exception in Call_ClrSystemFailedEvaluator_OnNext";
     ManagedLog::LOGGER->LogError(errorMessage, ex);
-    failedEvaluatorBridge -> OnError(errorMessage);
+    failedEvaluatorBridge->OnError(FormatJavaExceptionMessage(errorMessage, ex));
   }
 }
 
@@ -267,7 +267,7 @@ JNIEXPORT void JNICALL Java_org_apache_reef_javabridge_NativeInterop_clrSystemHt
   catch (System::Exception^ ex) {
     String^ errorMessage = "Exception in Call_ClrSystemHttpServer_OnNext";
     ManagedLog::LOGGER->LogError(errorMessage, ex);
-    httpServerClr2Java -> OnError(errorMessage);
+    httpServerClr2Java->OnError(FormatJavaExceptionMessage(errorMessage, ex));
   }
 }
 
@@ -286,7 +286,7 @@ JNIEXPORT void JNICALL Java_org_apache_reef_javabridge_NativeInterop_clrSystemCo
   catch (System::Exception^ ex) {
     String^ errorMessage = "Exception in Call_ClrSystemCompletedTask_OnNext";
     ManagedLog::LOGGER->LogError(errorMessage, ex);
-    completedTaskBridge -> OnError(errorMessage);
+    completedTaskBridge->OnError(FormatJavaExceptionMessage(errorMessage, ex));
   }
 }
 
@@ -351,7 +351,7 @@ JNIEXPORT void JNICALL Java_org_apache_reef_javabridge_NativeInterop_clrSystemSu
   catch (System::Exception^ ex) {
     String^ errorMessage = "Exception in Call_ClrSystemSuspendedTask_OnNext";
     ManagedLog::LOGGER->LogError(errorMessage, ex);
-    suspendedTaskBridge -> OnError(errorMessage);
+    suspendedTaskBridge->OnError(FormatJavaExceptionMessage(errorMessage, ex));
   }
 }
 
@@ -370,7 +370,7 @@ JNIEXPORT void JNICALL Java_org_apache_reef_javabridge_NativeInterop_clrSystemCo
   catch (System::Exception^ ex) {
     String^ errorMessage = "Exception in Call_ClrSystemCompletedEvaluator_OnNext";
     ManagedLog::LOGGER->LogError(errorMessage, ex);
-    completedEvaluatorBridge -> OnError(errorMessage);
+    completedEvaluatorBridge->OnError(FormatJavaExceptionMessage(errorMessage, ex));
   }
 }
 
@@ -389,7 +389,7 @@ JNIEXPORT void JNICALL Java_org_apache_reef_javabridge_NativeInterop_clrSystemCl
   catch (System::Exception^ ex) {
     String^ errorMessage = "Exception in Call_ClrSystemClosedContext_OnNext";
     ManagedLog::LOGGER->LogError(errorMessage, ex);
-    closedContextBridge -> OnError(errorMessage);
+    closedContextBridge->OnError(FormatJavaExceptionMessage(errorMessage, ex));
   }
 }
 
@@ -408,7 +408,7 @@ JNIEXPORT void JNICALL Java_org_apache_reef_javabridge_NativeInterop_clrSystemFa
   catch (System::Exception^ ex) {
     String^ errorMessage = "Exception in Call_ClrSystemFailedContext_OnNext";
     ManagedLog::LOGGER->LogError(errorMessage, ex);
-    failedContextBridge -> OnError(errorMessage);
+    failedContextBridge->OnError(FormatJavaExceptionMessage(errorMessage, ex));
   }
 }
 
@@ -427,7 +427,7 @@ JNIEXPORT void JNICALL Java_org_apache_reef_javabridge_NativeInterop_clrSystemCo
   catch (System::Exception^ ex) {
     String^ errorMessage = "Exception in Call_ClrSystemContextMessage_OnNext";
     ManagedLog::LOGGER->LogError(errorMessage, ex);
-    contextMessageBridge -> OnError(errorMessage);
+    contextMessageBridge->OnError(FormatJavaExceptionMessage(errorMessage, ex));
   }
 }
 
@@ -462,14 +462,14 @@ JNIEXPORT jlongArray JNICALL Java_org_apache_reef_javabridge_NativeInterop_callC
 JNIEXPORT void JNICALL Java_org_apache_reef_javabridge_NativeInterop_clrSystemDriverRestartActiveContextHandlerOnNext
 (JNIEnv *env, jclass cls, jlong handle, jobject jactiveContextBridge) {
   ManagedLog::LOGGER->Log("+Java_org_apache_reef_javabridge_NativeInterop_clrSystemDriverRestartActiveContextHandlerOnNext");
-  ActiveContextClr2Java^ activeContextBrdige = gcnew ActiveContextClr2Java(env, jactiveContextBridge);
+  ActiveContextClr2Java^ activeContextBridge = gcnew ActiveContextClr2Java(env, jactiveContextBridge);
   try {
-    ClrSystemHandlerWrapper::Call_ClrSystemDriverRestartActiveContextHandler_OnNext(handle, activeContextBrdige);
+    ClrSystemHandlerWrapper::Call_ClrSystemDriverRestartActiveContextHandler_OnNext(handle, activeContextBridge);
   }
   catch (System::Exception^ ex) {
     String^ errorMessage = "Exception in Call_ClrSystemDriverRestartActiveContextHandler_OnNext";
     ManagedLog::LOGGER -> LogError(errorMessage, ex);
-    activeContextBrdige -> OnError(errorMessage);
+    activeContextBridge->OnError(FormatJavaExceptionMessage(errorMessage, ex));
   }
 }
 
@@ -488,7 +488,7 @@ JNIEXPORT void JNICALL Java_org_apache_reef_javabridge_NativeInterop_clrSystemDr
   catch (System::Exception^ ex) {
     String^ errorMessage = "Exception in Call_ClrSystemDriverRestartRunningTask_OnNext";
     ManagedLog::LOGGER->LogError(errorMessage, ex);
-    runningTaskBridge -> OnError(errorMessage);
+    runningTaskBridge->OnError(FormatJavaExceptionMessage(errorMessage, ex));
   }
 }
 
