@@ -20,6 +20,9 @@ package org.apache.reef.wake.test.remote;
 
 import org.apache.reef.wake.remote.RemoteIdentifier;
 
+/**
+ * A test remote identifier.
+ */
 public class TestRemoteIdentifier implements RemoteIdentifier {
   private final String str;
 

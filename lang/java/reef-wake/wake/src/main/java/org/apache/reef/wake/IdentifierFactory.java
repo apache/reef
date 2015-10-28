@@ -18,6 +18,9 @@
  */
 package org.apache.reef.wake;
 
+/**
+ * The factory interface for Wake.
+ */
 public interface IdentifierFactory {
 
   /**

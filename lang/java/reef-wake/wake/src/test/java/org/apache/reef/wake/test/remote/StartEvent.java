@@ -18,6 +18,9 @@
  */
 package org.apache.reef.wake.test.remote;
 
+/**
+ * A simplest test event.
+ */
 public class StartEvent implements java.io.Serializable {
 
   private static final long serialVersionUID = 1L;

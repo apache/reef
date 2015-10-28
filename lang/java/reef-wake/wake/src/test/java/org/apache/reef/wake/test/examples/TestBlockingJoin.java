@@ -24,7 +24,9 @@ import org.apache.reef.wake.examples.join.TupleEvent;
 import org.apache.reef.wake.examples.join.TupleSource;
 import org.junit.Test;
 
-
+/**
+ * Tests for BlockingJoin.
+ */
 public class TestBlockingJoin {
   @Test
   public void testJoin() throws Exception {

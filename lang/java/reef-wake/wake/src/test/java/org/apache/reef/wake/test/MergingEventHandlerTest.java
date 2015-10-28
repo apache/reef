@@ -29,6 +29,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * Merging event handler tests.
+ */
 public class MergingEventHandlerTest {
 
   @Test

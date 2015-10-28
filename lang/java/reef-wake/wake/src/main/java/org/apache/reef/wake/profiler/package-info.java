@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * A graphical profiler that automatically instruments Tang-based Wake applications.
  */
 package org.apache.reef.wake.profiler;

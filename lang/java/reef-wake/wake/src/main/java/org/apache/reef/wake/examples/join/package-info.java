@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- *
+ * Blocking and non-blocking join example.
  */
 package org.apache.reef.wake.examples.join;

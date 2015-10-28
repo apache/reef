@@ -23,6 +23,11 @@ import org.apache.reef.wake.rx.Subject;
 
 import java.util.concurrent.TimeoutException;
 
+/**
+ * A class implementing Subject<T> with timeout.
+ *
+ * @param <T>
+ */
 public class TimeoutSubject<T> implements Subject<T, T> {
   private Thread timeBomb;
   private Observer<T> destination;

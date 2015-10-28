@@ -22,6 +22,9 @@ import org.apache.reef.wake.Stage;
 import org.apache.reef.wake.rx.Observer;
 import org.apache.reef.wake.rx.StaticObservable;
 
+/**
+ * A source class generating TupleEvent.
+ */
 public class TupleSource implements StaticObservable, Stage {
   private final Thread[] threads;
   private final Observer<TupleEvent> out;

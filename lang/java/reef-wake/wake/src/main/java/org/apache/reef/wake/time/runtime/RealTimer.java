@@ -20,6 +20,9 @@ package org.apache.reef.wake.time.runtime;
 
 import javax.inject.Inject;
 
+/**
+ * A system-time based Timer.
+ */
 public final class RealTimer implements Timer {
 
   @Inject

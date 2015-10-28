@@ -81,34 +81,34 @@ public interface Clock extends Runnable, AutoCloseable {
    * Bind this to an event handler to statically subscribe to the StartTime Event.
    */
   @NamedParameter(default_class = MissingStartHandlerHandler.class, doc = "Will be called upon the start event")
-  public class StartHandler implements Name<Set<EventHandler<StartTime>>> {
+  class StartHandler implements Name<Set<EventHandler<StartTime>>> {
   }
 
   /**
    * Bind this to an event handler to statically subscribe to the StopTime Event.
    */
   @NamedParameter(default_class = LoggingEventHandler.class, doc = "Will be called upon the stop event")
-  public class StopHandler implements Name<Set<EventHandler<StopTime>>> {
+  class StopHandler implements Name<Set<EventHandler<StopTime>>> {
   }
 
   /**
    * Bind this to an event handler to statically subscribe to the RuntimeStart Event.
    */
   @NamedParameter(default_class = LoggingEventHandler.class, doc = "Will be called upon the runtime start event")
-  public class RuntimeStartHandler implements Name<Set<EventHandler<RuntimeStart>>> {
+  class RuntimeStartHandler implements Name<Set<EventHandler<RuntimeStart>>> {
   }
 
   /**
    * Bind this to an event handler to statically subscribe to the RuntimeStart Event.
    */
   @NamedParameter(default_class = LoggingEventHandler.class, doc = "Will be called upon the runtime stop event")
-  public class RuntimeStopHandler implements Name<Set<EventHandler<RuntimeStop>>> {
+  class RuntimeStopHandler implements Name<Set<EventHandler<RuntimeStop>>> {
   }
 
   /**
    * Bind this to an event handler to statically subscribe to the IdleClock Event.
    */
   @NamedParameter(default_class = LoggingEventHandler.class, doc = "Will be called upon the Idle event")
-  public class IdleHandler implements Name<Set<EventHandler<IdleClock>>> {
+  class IdleHandler implements Name<Set<EventHandler<IdleClock>>> {
   }
 }

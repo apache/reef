@@ -24,7 +24,7 @@ import java.util.Iterator;
 
 /**
  * Provides an iterator that returns port numbers.
-*/
+ */
 @DefaultImplementation(RangeTcpPortProvider.class)
 public interface TcpPortProvider extends Iterable<Integer> {
   /**

@@ -35,6 +35,9 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Logger;
 
+/**
+ * A graphical profiler class that instruments Tang-based Wake applications.
+ */
 public class WakeProfiler implements Aspect {
   private static final Logger LOG = Logger.getLogger(WakeProfiler.class.toString());
   private final Map<Object, Vertex<?>> vertexObject = new MonotonicHashMap<>();
@@ -69,7 +72,7 @@ public class WakeProfiler implements Aspect {
   @SuppressWarnings("unchecked")
   private <T> Vertex<?> newSetVertex(final Set<T> s) {
     if (vertexObject.containsKey(s)) {
-      return (Vertex<Set<T>>) vertexObject.get(s);
+      return vertexObject.get(s);
     }
     if (s.size() > 1) {
       LOG.fine("new set of size " + s.size());
@@ -95,7 +98,6 @@ public class WakeProfiler implements Aspect {
   @Override
   public <T> T inject(final ConstructorDef<T> constructorDef, final Constructor<T> constructor, final Object[] args)
       throws InvocationTargetException, IllegalAccessException, IllegalArgumentException, InstantiationException {
-//    LOG.info("inject" + constructor + "->" + args.length);
     final Vertex<?>[] vArgs = new Vertex[args.length];
     for (int i = 0; i < args.length; i++) {
       final Object o = args[i];
@@ -130,7 +132,6 @@ public class WakeProfiler implements Aspect {
 
             if (method.getName().equals("onNext")) {
               final long start = System.nanoTime();
-//              LOG.info(object + "." + method.getName() + " called");
               final Object o = methodProxy.invokeSuper(object, args);
               final long stop = System.nanoTime();
 
@@ -233,8 +234,6 @@ public class WakeProfiler implements Aspect {
         LOG.warning("Set of size " + ((Set<?>) o).size() + " with " + v.getOutEdges().length + " out edges");
         s = "{...}";
         tooltip = null;
-////      } else if(false && (o instanceof EventHandler || o instanceof Stage)) {
-////        s = jsonEscape(v.getObject().toString());
       } else {
         final Stats stat = stats.get(o);
         if (stat != null) {

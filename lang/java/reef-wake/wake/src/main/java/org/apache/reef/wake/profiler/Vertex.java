@@ -30,7 +30,6 @@ public class Vertex<T> {
   private final String name;
   private final ConstructorDef<T> constructorDef;
   private final Vertex<?>[] constructorArguments;
-//  private final Set<Object> referencesToThisObject = new MonotonicHashSet<>();
 
   public Vertex(final T object, final String name, final ConstructorDef<T> constructorDef,
                 final Vertex<?>[] constructorArguments) {
@@ -73,12 +72,6 @@ public class Vertex<T> {
     this.constructorArguments = null;
   }
 
-  //  public void addReference(Vertex<?> v) {
-//    referencesToThisObject.add(v);
-//  }
-//  public Vertex<?>[] getInEdges() {
-//    return referencesToThisObject.toArray(new Vertex[0]);
-//  }
   public ConstructorDef<T> getConstructorDef() {
     return this.constructorDef;
   }

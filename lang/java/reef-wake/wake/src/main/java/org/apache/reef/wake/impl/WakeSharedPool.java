@@ -34,17 +34,19 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
-// This implementation uses the fork join framework to reduce the cost of spawning
-// events in stages. For two participating stages back to back, the pool allows
-// for the thread in the first stage to execute the event it submits to the second stage.
-// These choices are made by the ForkJoinPool.
-// 
-// So, this does sort of go against the reason for stages, but doesn't eliminate them
-// and raises the level of abstraction that Wake sees above threads. 
-//
-// this will only be deadlock free if blocking synchronization done by events is safe.
-// That is no event submitted to the pool can have a producer/consumer dependency
-// on another event submitted to the pool
+/**
+ * This implementation uses the fork join framework to reduce the cost of spawning
+ * events in stages. For two participating stages back to back, the pool allows
+ * for the thread in the first stage to execute the event it submits to the second stage.
+ * These choices are made by the ForkJoinPool.
+ *
+ * So, this does sort of go against the reason for stages, but doesn't eliminate them
+ * and raises the level of abstraction that Wake sees above threads.
+ *
+ * this will only be deadlock free if blocking synchronization done by events is safe.
+ * That is no event submitted to the pool can have a producer/consumer dependency
+ * on another event submitted to the pool
+ */
 public class WakeSharedPool implements Stage {
   private static final Logger LOG = Logger.getLogger(WakeSharedPool.class.getName());
 

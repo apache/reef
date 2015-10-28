@@ -20,6 +20,9 @@ package org.apache.reef.wake.test.remote;
 
 import java.io.Serializable;
 
+/**
+ * A test event having two data; message and load.
+ */
 public class TestEvent implements Serializable {
 
   private static final long serialVersionUID = 1L;

@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- *
+ * A time-based events (start/stop/alarm).
  */
 package org.apache.reef.wake.time.event;

@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- *
+ * Wake's implementation.
  */
 package org.apache.reef.wake.impl;

@@ -31,10 +31,6 @@ import java.util.logging.Logger;
  * This stage uses a thread pool to schedule events in parallel.
  * Should be used when input events are already materialized in a List and
  * can be fired in any order.
- *
- * @param numThreads  fixed number of threads available in the pool
- * @param granularity maximum number of events executed serially.
- *                    The right choice will balance task spawn overhead with parallelism.
  */
 public class IndependentIterationsThreadPoolStage<T> extends AbstractEStage<List<T>> {
 
@@ -42,6 +38,14 @@ public class IndependentIterationsThreadPoolStage<T> extends AbstractEStage<List
   private EventHandler<T> handler;
   private ExecutorService executor;
 
+  /**
+   * Create a thread pool with fixed threads.
+   *
+   * @param handler     an event handler
+   * @param numThreads  fixed number of threads available in the pool
+   * @param granularity maximum number of events executed serially.
+   *                    The right choice will balance task spawn overhead with parallelism.
+   */
   public IndependentIterationsThreadPoolStage(
       final EventHandler<T> handler, final int numThreads, final int granularity) {
     super(handler.getClass().getName());

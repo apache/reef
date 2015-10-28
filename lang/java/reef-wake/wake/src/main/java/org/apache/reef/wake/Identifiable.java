@@ -18,6 +18,9 @@
  */
 package org.apache.reef.wake;
 
+/**
+ * Identifier that can have id.
+ */
 public interface Identifiable {
 
   /**
