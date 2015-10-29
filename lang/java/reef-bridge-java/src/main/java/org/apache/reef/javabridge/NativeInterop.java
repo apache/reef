@@ -20,63 +20,21 @@ package org.apache.reef.javabridge;
 
 import org.apache.reef.javabridge.generic.DriverRestartCompletedBridge;
 
-import java.util.HashMap;
-
 /**
  * Java interfaces of CLR/Java bridge.
  * Implementations of the methods can be found at lang/cs/Org.Apache.REEF.Bridge/JavaClrBridge.cpp.
  */
 public final class NativeInterop {
-  public static final String CLASS_HIERARCHY_FILENAME = "clrClassHierarchy.bin";
   public static final String GLOBAL_LIBRARIES_FILENAME = "userSuppliedGlobalLibraries.txt";
-  public static final String ALLOCATED_EVALUATOR_KEY = "AllocatedEvaluator";
-  public static final String ACTIVE_CONTEXT_KEY = "ActiveContext";
-  public static final String TASK_MESSAGE_KEY = "TaskMessage";
-  public static final String FAILED_TASK_KEY = "FailedTask";
-  public static final String FAILED_EVALUATOR_KEY = "FailedEvaluator";
-  public static final String HTTP_SERVER_KEY = "HttpServerKey";
-  public static final String COMPLETED_TASK_KEY = "CompletedTask";
-  public static final String RUNNING_TASK_KEY = "RunningTask";
-  public static final String SUSPENDED_TASK_KEY = "SuspendedTask";
-  public static final String COMPLETED_EVALUATOR_KEY = "CompletedEvaluator";
-  public static final String CLOSED_CONTEXT_KEY = "ClosedContext";
-  public static final String FAILED_CONTEXT_KEY = "FailedContext";
-  public static final String CONTEXT_MESSAGE_KEY = "ContextMessage";
-  public static final String DRIVER_RESTART_ACTIVE_CONTEXT_KEY = "DriverRestartActiveContext";
-  public static final String DRIVER_RESTART_RUNNING_TASK_KEY = "DriverRestartRunningTask";
-  public static final String DRIVER_RESTART_COMPLETED_KEY = "DriverRestartCompleted";
-  public static final String DRIVER_RESTART_FAILED_EVALUATOR_KEY = "DriverRestartFailedEvaluator";
-  public static final HashMap<String, Integer> HANDLERS = new HashMap<String, Integer>() {
-    {
-      put(ALLOCATED_EVALUATOR_KEY, 1);
-      put(ACTIVE_CONTEXT_KEY, 2);
-      put(TASK_MESSAGE_KEY, 3);
-      put(FAILED_TASK_KEY, 4);
-      put(FAILED_EVALUATOR_KEY, 5);
-      put(HTTP_SERVER_KEY, 6);
-      put(COMPLETED_TASK_KEY, 7);
-      put(RUNNING_TASK_KEY, 8);
-      put(SUSPENDED_TASK_KEY, 9);
-      put(COMPLETED_EVALUATOR_KEY, 10);
-      put(CLOSED_CONTEXT_KEY, 11);
-      put(FAILED_CONTEXT_KEY, 12);
-      put(CONTEXT_MESSAGE_KEY, 13);
-      put(DRIVER_RESTART_ACTIVE_CONTEXT_KEY, 14);
-      put(DRIVER_RESTART_RUNNING_TASK_KEY, 15);
-      put(DRIVER_RESTART_COMPLETED_KEY, 16);
-      put(DRIVER_RESTART_FAILED_EVALUATOR_KEY, 17);
-    }
-  };
-
-  public static final int N_HANDLERS = 18;
 
   public static native void loadClrAssembly(final String filePath);
 
   public static native void clrBufferedLog(final int level, final String message);
 
-  public static native long[] callClrSystemOnStartHandler(
+  public static native void callClrSystemOnStartHandler(
       final String dateTime,
       final String httpServerPortNumber,
+      final BridgeHandlerManager bridgeHandlerManager,
       final EvaluatorRequestorBridge javaEvaluatorRequestorBridge);
 
   public static native void clrSystemAllocatedEvaluatorHandlerOnNext(
@@ -153,8 +111,9 @@ public final class NativeInterop {
       final ContextMessageBridge contextMessageBridge
   );
 
-  public static native long[] callClrSystemOnRestartHandler(
+  public static native void callClrSystemOnRestartHandler(
       final String httpServerPortNumber,
+      final BridgeHandlerManager bridgeHandlerManager,
       final EvaluatorRequestorBridge javaEvaluatorRequestorBridge,
       final DriverRestartedBridge driverRestartedBridge
   );

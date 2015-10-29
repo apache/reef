@@ -18,7 +18,6 @@
  */
 
 using System;
-using System.Collections.Generic;
 
 namespace Org.Apache.REEF.Driver
 {
@@ -50,101 +49,6 @@ namespace Org.Apache.REEF.Driver
         /// The default memory granularity for evaluators.
         /// </summary>
         public const int DefaultMemoryGranularity = 1024;
-
-        /// <summary>
-        /// The number of handlers total. Tightly coupled with Java.
-        /// </summary>
-        public const int HandlersNumber = 18;
-
-        /// <summary>
-        /// The name for EvaluatorRequestorHandler. Tightly coupled with Java.
-        /// </summary>
-        public const string EvaluatorRequestorHandler = "EvaluatorRequestor";
-
-        /// <summary>
-        /// The name for AllocatedEvaluatorHandler. Tightly coupled with Java.
-        /// </summary>
-        public const string AllocatedEvaluatorHandler = "AllocatedEvaluator";
-
-        /// <summary>
-        /// The name for CompletedEvaluatorHandler. Tightly coupled with Java.
-        /// </summary>
-        public const string CompletedEvaluatorHandler = "CompletedEvaluator";
-
-        /// <summary>
-        /// The name for ActiveContextHandler. Tightly coupled with Java.
-        /// </summary>
-        public const string ActiveContextHandler = "ActiveContext";
-
-        /// <summary>
-        /// The name for ClosedContextHandler. Tightly coupled with Java.
-        /// </summary>
-        public const string ClosedContextHandler = "ClosedContext";
-
-        /// <summary>
-        /// The name for FailedContextHandler. Tightly coupled with Java.
-        /// </summary>
-        public const string FailedContextHandler = "FailedContext";
-        
-        /// <summary>
-        /// The name for ContextMessageHandler. Tightly coupled with Java.
-        /// </summary>
-        public const string ContextMessageHandler = "ContextMessage";
-
-        /// <summary>
-        /// The name for TaskMessageHandler. Tightly coupled with Java.
-        /// </summary>
-        public const string TaskMessageHandler = "TaskMessage";
-
-        /// <summary>
-        /// The name for FailedTaskHandler. Tightly coupled with Java.
-        /// </summary>
-        public const string FailedTaskHandler = "FailedTask";
-
-        /// <summary>
-        /// The name for RunningTaskHandler. Tightly coupled with Java.
-        /// </summary>
-        public const string RunningTaskHandler = "RunningTask";
-
-        /// <summary>
-        /// The name for FailedEvaluatorHandler. Tightly coupled with Java.
-        /// </summary>
-        public const string FailedEvaluatorHandler = "FailedEvaluator";
-
-        /// <summary>
-        /// The name for CompletedTaskHandler. Tightly coupled with Java.
-        /// </summary>
-        public const string CompletedTaskHandler = "CompletedTask";
-
-        /// <summary>
-        /// The name for SuspendedTaskHandler. Tightly coupled with Java.
-        /// </summary>
-        public const string SuspendedTaskHandler = "SuspendedTask";
-
-        /// <summary>
-        /// The name for HttpServerHandler. Tightly coupled with Java.
-        /// </summary>
-        public const string HttpServerHandler = "HttpServerHandler";
-
-        /// <summary>
-        /// The name for DriverRestartActiveContextHandler. Tightly coupled with Java.
-        /// </summary>
-        public const string DriverRestartActiveContextHandler = "DriverRestartActiveContext";
-
-        /// <summary>
-        /// The name for DriverRestartRunningTaskHandler. Tightly coupled with Java.
-        /// </summary>
-        public const string DriverRestartRunningTaskHandler = "DriverRestartRunningTask";
-
-        /// <summary>
-        /// The name for DriverRestartCompletedHandler. Tightly coupled with Java.
-        /// </summary>
-        public const string DriverRestartCompletedHandler = "DriverRestartCompleted";
-
-        /// <summary>
-        /// The name for DriverRestartFailedEvaluatorHandler. Tightly coupled with Java
-        /// </summary>
-        public const string DriverRestartFailedEvaluatorHandler = "DriverRestartFailedEvaluator";
 
         [Obsolete(message:"Use REEFFileNames instead.")]
         public const string DriverBridgeConfiguration = Common.Constants.ClrBridgeRuntimeConfiguration;
@@ -184,37 +88,5 @@ namespace Org.Apache.REEF.Driver
         /// Configuration for Java verbose logging.
         /// </summary>
         public const string JavaVerboseLoggingConfig = "-Djava.util.logging.config.class=org.apache.reef.util.logging.Config";
-
-        /// <summary>
-        /// A dictionary of handler constants to handler descriptors.
-        /// </summary>
-        public static Dictionary<string, int> Handlers
-        {
-            get
-            {
-                return
-                    new Dictionary<string, int>()
-                    {
-                        { EvaluatorRequestorHandler, 0 },
-                        { AllocatedEvaluatorHandler, 1 },
-                        { ActiveContextHandler, 2 },
-                        { TaskMessageHandler, 3 },
-                        { FailedTaskHandler, 4 },
-                        { FailedEvaluatorHandler, 5 },
-                        { HttpServerHandler, 6 },
-                        { CompletedTaskHandler, 7 },
-                        { RunningTaskHandler, 8 },
-                        { SuspendedTaskHandler, 9 },
-                        { CompletedEvaluatorHandler, 10 },
-                        { ClosedContextHandler, 11 },
-                        { FailedContextHandler, 12 },
-                        { ContextMessageHandler, 13 },
-                        { DriverRestartActiveContextHandler, 14 },
-                        { DriverRestartRunningTaskHandler, 15 },
-                        { DriverRestartCompletedHandler, 16 },
-                        { DriverRestartFailedEvaluatorHandler, 17 }
-                    };
-            }
-        }
     }
 }

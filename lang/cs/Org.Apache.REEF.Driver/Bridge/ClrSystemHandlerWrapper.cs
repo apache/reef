@@ -230,20 +230,7 @@ namespace Org.Apache.REEF.Driver.Bridge
             }
         }
 
-        //Deprecate, remove after both Java and C# code gets checked in
-        public static ulong[] Call_ClrSystemStartHandler_OnStart(
-            DateTime startTime,
-            IEvaluatorRequestorClr2Java  evaluatorRequestorClr2Java)
-        {
-            IEvaluatorRequestor evaluatorRequestor = new EvaluatorRequestor(evaluatorRequestorClr2Java);
-            using (LOGGER.LogFunction("ClrSystemHandlerWrapper::Call_ClrSystemStartHandler_OnStart"))
-            {
-                LOGGER.Log(Level.Info, "*** Start time is " + startTime);
-                return GetHandlers(null, evaluatorRequestor);
-            }
-        }
-
-        public static ulong[] Call_ClrSystemStartHandler_OnStart(
+        public static BridgeHandlerManager Call_ClrSystemStartHandler_OnStart(
             DateTime startTime, 
             string httpServerPort,
             IEvaluatorRequestorClr2Java evaluatorRequestorClr2Java)
@@ -260,7 +247,7 @@ namespace Org.Apache.REEF.Driver.Bridge
             }   
         }
 
-        public static ulong[] Call_ClrSystemRestartHandler_OnRestart(
+        public static BridgeHandlerManager Call_ClrSystemRestartHandler_OnRestart(
             string httpServerPort,
             IEvaluatorRequestorClr2Java evaluatorRequestorClr2Java,
             IDriverRestartedClr2Java driverRestartedClr2Java)
@@ -277,7 +264,7 @@ namespace Org.Apache.REEF.Driver.Bridge
             }
         }
 
-        private static ulong[] GetHandlers(string httpServerPortNumber, IEvaluatorRequestor evaluatorRequestor)
+        private static BridgeHandlerManager GetHandlers(string httpServerPortNumber, IEvaluatorRequestor evaluatorRequestor)
         {
             var injector = BridgeConfigurationProvider.GetBridgeInjector(evaluatorRequestor);
 
