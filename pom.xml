@@ -320,6 +320,7 @@ under the License.
                     </dependencies>
                     <configuration>
                         <configLocation>lang/java/reef-common/src/main/resources/checkstyle.xml</configLocation>
+                        <suppressionsLocation>lang/java/reef-common/src/main/resources/checkstyle-suppress.xml</suppressionsLocation>
                         <packageNamesLocation>lang/java/reef-common/src/main/resources/packagenames.xml</packageNamesLocation>
                         <failOnViolation>true</failOnViolation>
                         <format>xml</format>
@@ -368,6 +369,22 @@ under the License.
                                 </fileMappers>
                             </transformationSet>
                         </transformationSets>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>cobertura-maven-plugin</artifactId>
+                    <version>2.7</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-pmd-plugin</artifactId>
+                    <version>3.5</version>
+                    <configuration>
+                        <targetJdk>1.7</targetJdk>
+                        <excludes>
+                            <exclude>*/target/generated-sources/*</exclude>
+                        </excludes>
                     </configuration>
                 </plugin>
             </plugins>
@@ -448,6 +465,28 @@ under the License.
                         <phase>compile</phase>
                         <goals>
                             <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>cobertura-maven-plugin</artifactId>
+                <configuration>
+                    <instrumentation>
+                        <excludes>
+                            <exclude>org/apache/reef/examples/**/*.class</exclude>
+                            <exclude>org/apache/reef/tang/examples/**/*.class</exclude>
+                            <exclude>org/apache/reef/vortex/examples/**/*.class</exclude>
+                            <exclude>org/apache/reef/wake/examples/**/*.class</exclude>
+                        </excludes>
+                    </instrumentation>
+                    <aggregate>true</aggregate>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>clean</goal>
                         </goals>
                     </execution>
                 </executions>
@@ -808,4 +847,5 @@ under the License.
             </build>
         </profile>
     </profiles>
+
 </project>
