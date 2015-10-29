@@ -21,6 +21,7 @@ package org.apache.reef.javabridge.generic;
 import org.apache.reef.annotations.Unstable;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
+import org.apache.reef.javabridge.BridgeHandlerManager;
 import org.apache.reef.javabridge.EvaluatorRequestorBridge;
 import org.apache.reef.javabridge.NativeInterop;
 import org.apache.reef.wake.time.event.StartTime;
@@ -40,7 +41,12 @@ final class DriverStartClrHandlersInitializer implements ClrHandlersInitializer 
   }
 
   @Override
-  public long[] getClrHandlers(final String portNumber, final EvaluatorRequestorBridge evaluatorRequestorBridge) {
-    return NativeInterop.callClrSystemOnStartHandler(startTime.toString(), portNumber, evaluatorRequestorBridge);
+  public BridgeHandlerManager getClrHandlers(final String portNumber,
+                                             final EvaluatorRequestorBridge evaluatorRequestorBridge) {
+    BridgeHandlerManager bridgeHandlerManager = new BridgeHandlerManager();
+    NativeInterop.callClrSystemOnStartHandler(startTime.toString(), portNumber, bridgeHandlerManager,
+        evaluatorRequestorBridge);
+
+    return bridgeHandlerManager;
   }
 }

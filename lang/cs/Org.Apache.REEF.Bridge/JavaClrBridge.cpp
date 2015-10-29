@@ -57,6 +57,43 @@ static void MarshalErrorToJava (
   env->SetObjectField(jerrorInfo, fieldID, jexceptionString);
 }
 
+void populateJavaBridgeHandlerManager(JNIEnv * env, jobject jbridgeHandlerManager, BridgeHandlerManager^ bridgeHandlerManager) {
+    jclass cls = env->GetObjectClass(jbridgeHandlerManager);
+    jmethodID jsetAllocatedEvaluatorHandlerMid = env->GetMethodID(cls, "setAllocatedEvaluatorHandler", "(J)V");
+    env->CallVoidMethod(jbridgeHandlerManager, jsetAllocatedEvaluatorHandlerMid, bridgeHandlerManager->AllocatedEvaluatorHandler);
+    jmethodID jsetActiveContextHandlerMid = env->GetMethodID(cls, "setActiveContextHandler", "(J)V");
+    env->CallVoidMethod(jbridgeHandlerManager, jsetActiveContextHandlerMid, bridgeHandlerManager->ActiveContextHandler);
+    jmethodID jsetTaskMessageHandlerMid = env->GetMethodID(cls, "setTaskMessageHandler", "(J)V");
+    env->CallVoidMethod(jbridgeHandlerManager, jsetTaskMessageHandlerMid, bridgeHandlerManager->TaskMessageHandler);
+    jmethodID jsetFailedTaskHandlerMid = env->GetMethodID(cls, "setFailedTaskHandler", "(J)V");
+    env->CallVoidMethod(jbridgeHandlerManager, jsetFailedTaskHandlerMid, bridgeHandlerManager->FailedTaskHandler);
+    jmethodID jsetFailedEvaluatorHandlerMid = env->GetMethodID(cls, "setFailedEvaluatorHandler", "(J)V");
+    env->CallVoidMethod(jbridgeHandlerManager, jsetFailedEvaluatorHandlerMid, bridgeHandlerManager->FailedEvaluatorHandler);
+    jmethodID jsetHttpServerEventHandlerMid = env->GetMethodID(cls, "setHttpServerEventHandler", "(J)V");
+    env->CallVoidMethod(jbridgeHandlerManager, jsetHttpServerEventHandlerMid, bridgeHandlerManager->HttpServerHandler);
+    jmethodID jsetCompletedTaskHandlerMid = env->GetMethodID(cls, "setCompletedTaskHandler", "(J)V");
+    env->CallVoidMethod(jbridgeHandlerManager, jsetCompletedTaskHandlerMid, bridgeHandlerManager->CompletedTaskHandler);
+    jmethodID jsetRunningTaskHandlerMid = env->GetMethodID(cls, "setRunningTaskHandler", "(J)V");
+    env->CallVoidMethod(jbridgeHandlerManager, jsetRunningTaskHandlerMid, bridgeHandlerManager->RunningTaskHandler);
+    jmethodID jsetSuspendedTaskHandlerMid = env->GetMethodID(cls, "setSuspendedTaskHandler", "(J)V");
+    env->CallVoidMethod(jbridgeHandlerManager, jsetSuspendedTaskHandlerMid, bridgeHandlerManager->SuspendedTaskHandler);
+    jmethodID jsetCompletedEvaluatorHandlerMid = env->GetMethodID(cls, "setCompletedEvaluatorHandler", "(J)V");
+    env->CallVoidMethod(jbridgeHandlerManager, jsetCompletedEvaluatorHandlerMid, bridgeHandlerManager->CompletedEvaluatorHandler);
+    jmethodID jsetClosedContextHandlerMid = env->GetMethodID(cls, "setClosedContextHandler", "(J)V");
+    env->CallVoidMethod(jbridgeHandlerManager, jsetClosedContextHandlerMid, bridgeHandlerManager->ClosedContextHandler);
+    jmethodID jsetFailedContextHandlerMid = env->GetMethodID(cls, "setFailedContextHandler", "(J)V");
+    env->CallVoidMethod(jbridgeHandlerManager, jsetFailedContextHandlerMid, bridgeHandlerManager->FailedContextHandler);
+    jmethodID jsetContextMessageHandlerMid = env->GetMethodID(cls, "setContextMessageHandler", "(J)V");
+    env->CallVoidMethod(jbridgeHandlerManager, jsetContextMessageHandlerMid, bridgeHandlerManager->ContextMessageHandler);
+    jmethodID jsetDriverRestartActiveContextHandlerMid = env->GetMethodID(cls, "setDriverRestartActiveContextHandler", "(J)V");
+    env->CallVoidMethod(jbridgeHandlerManager, jsetDriverRestartActiveContextHandlerMid, bridgeHandlerManager->DriverRestartActiveContextHandler);
+    jmethodID jsetDriverRestartRunningTaskHandlerMid = env->GetMethodID(cls, "setDriverRestartRunningTaskHandler", "(J)V");
+    env->CallVoidMethod(jbridgeHandlerManager, jsetDriverRestartRunningTaskHandlerMid, bridgeHandlerManager->DriverRestartRunningTaskHandler);
+    jmethodID jsetDriverRestartCompletedHandlerMid = env->GetMethodID(cls, "setDriverRestartCompletedHandler", "(J)V");
+    env->CallVoidMethod(jbridgeHandlerManager, jsetDriverRestartCompletedHandlerMid, bridgeHandlerManager->DriverRestartCompletedHandler);
+    jmethodID jsetDriverRestartFailedEvaluatorHandlerMid = env->GetMethodID(cls, "setDriverRestartFailedEvaluatorHandler", "(J)V");
+    env->CallVoidMethod(jbridgeHandlerManager, jsetDriverRestartFailedEvaluatorHandlerMid, bridgeHandlerManager->DriverRestartFailedEvaluatorHandler);
+}
 
 // Loading Clr Assembly. Note that we do not use ManagerLogger in this method since the
 // logger assembly needs to be loaded by this method before it can be used.
@@ -97,10 +134,10 @@ JNIEXPORT void JNICALL Java_org_apache_reef_javabridge_NativeInterop_loadClrAsse
 /*
  * Class:     org_apache_reef_javabridge_NativeInterop
  * Method:    callClrSystemOnStartHandler
- * Signature: (Ljava/lang/String;Ljava/lang/String;Lorg/apache/reef/javabridge/EvaluatorRequestorBridge;)[J
+ * Signature: (Ljava/lang/String;Ljava/lang/String;Lorg/apache/reef/javabridge/BridgeHandlerManager;Lorg/apache/reef/javabridge/EvaluatorRequestorBridge;)V
  */
-JNIEXPORT jlongArray JNICALL Java_org_apache_reef_javabridge_NativeInterop_callClrSystemOnStartHandler
-(JNIEnv * env, jclass jclassx, jstring dateTimeString, jstring httpServerPort, jobject jevaluatorRequestorBridge) {
+JNIEXPORT void JNICALL Java_org_apache_reef_javabridge_NativeInterop_callClrSystemOnStartHandler
+(JNIEnv * env, jclass jclassx, jstring dateTimeString, jstring httpServerPort, jobject jbridgeHandlerManager, jobject jevaluatorRequestorBridge) {
   try {
     ManagedLog::LOGGER->Log("+Java_org_apache_reef_javabridge_NativeInterop_callClrSystemOnStartHandler");
     DateTime dt = DateTime::Now;
@@ -108,13 +145,12 @@ JNIEXPORT jlongArray JNICALL Java_org_apache_reef_javabridge_NativeInterop_callC
 	String^ strPort = ManagedStringFromJavaString(env, httpServerPort);
 
 	EvaluatorRequestorClr2Java^ evaluatorRequestorBridge = gcnew EvaluatorRequestorClr2Java(env, jevaluatorRequestorBridge);
-	array<unsigned long long>^ handlers = ClrSystemHandlerWrapper::Call_ClrSystemStartHandler_OnStart(dt, strPort, evaluatorRequestorBridge);
-    return JavaLongArrayFromManagedLongArray(env, handlers);
+	BridgeHandlerManager^ handlerManager = ClrSystemHandlerWrapper::Call_ClrSystemStartHandler_OnStart(dt, strPort, evaluatorRequestorBridge);
+    populateJavaBridgeHandlerManager(env, jbridgeHandlerManager, handlerManager);
   }
   catch (System::Exception^ ex) {
     // we cannot get error back to java here since we don't have an object to call back (although we ideally should...)
     ManagedLog::LOGGER->LogError("Exceptions in Java_org_apache_reef_javabridge_NativeInterop_callClrSystemOnStartHandler", ex);
-    return NULL;
   }
 }
 
@@ -432,25 +468,24 @@ JNIEXPORT void JNICALL Java_org_apache_reef_javabridge_NativeInterop_clrSystemCo
 }
 
 /*
-* Class:     org_apache_reef_javabridge_NativeInterop
-* Method:    callClrSystemOnRestartHandler
-* Signature: (Ljava/lang/String;Lorg/apache/reef/javabridge/EvaluatorRequestorBridge;Lorg/apache/reef/javabridge/DriverRestartedBridge;)[J
-*/
-JNIEXPORT jlongArray JNICALL Java_org_apache_reef_javabridge_NativeInterop_callClrSystemOnRestartHandler
-(JNIEnv * env, jclass jclassx, jstring httpServerPort, jobject jevaluatorRequestorBridge, jobject jdriverRestartedBridge) {
+ * Class:     org_apache_reef_javabridge_NativeInterop
+ * Method:    callClrSystemOnRestartHandler
+ * Signature: (Ljava/lang/String;Lorg/apache/reef/javabridge/BridgeHandlerManager;Lorg/apache/reef/javabridge/EvaluatorRequestorBridge;Lorg/apache/reef/javabridge/DriverRestartedBridge;)V
+ */
+JNIEXPORT void JNICALL Java_org_apache_reef_javabridge_NativeInterop_callClrSystemOnRestartHandler
+(JNIEnv * env, jclass jclassx, jstring httpServerPort, jobject jbridgeHandlerManager, jobject jevaluatorRequestorBridge, jobject jdriverRestartedBridge) {
 	try {
 		ManagedLog::LOGGER->Log("+Java_org_apache_reef_javabridge_NativeInterop_callClrSystemOnRestartHandler");
 		String^ strPort = ManagedStringFromJavaString(env, httpServerPort);
 
 		EvaluatorRequestorClr2Java^ evaluatorRequestorBridge = gcnew EvaluatorRequestorClr2Java(env, jevaluatorRequestorBridge);
 		DriverRestartedClr2Java^ driverRestartedBridge = gcnew DriverRestartedClr2Java(env, jdriverRestartedBridge);
-		array<unsigned long long>^ handlers = ClrSystemHandlerWrapper::Call_ClrSystemRestartHandler_OnRestart(strPort, evaluatorRequestorBridge, driverRestartedBridge);
-		return JavaLongArrayFromManagedLongArray(env, handlers);
+        BridgeHandlerManager^ handlerManager = ClrSystemHandlerWrapper::Call_ClrSystemRestartHandler_OnRestart(strPort, evaluatorRequestorBridge, driverRestartedBridge);
+        populateJavaBridgeHandlerManager(env, jbridgeHandlerManager, handlerManager);
 	}
 	catch (System::Exception^ ex) {
 		// we cannot get error back to java here since we don't have an object to call back (although we ideally should...)
 		ManagedLog::LOGGER->LogError("Exceptions in Java_org_apache_reef_javabridge_NativeInterop_callClrSystemOnRestartHandler", ex);
-		return NULL;
 	}
 }
 
@@ -533,7 +568,7 @@ static JNINativeMethod methods[] = {
 
 	{ "clrBufferedLog", "(ILjava/lang/String;)V", (void*)&Java_org_apache_reef_javabridge_NativeInterop_clrBufferedLog },
 
-	{ "callClrSystemOnStartHandler", "(Ljava/lang/String;Ljava/lang/String;Lorg/apache/reef/javabridge/EvaluatorRequestorBridge;)[J",
+	{ "callClrSystemOnStartHandler", "(Ljava/lang/String;Ljava/lang/String;Lorg/apache/reef/javabridge/BridgeHandlerManager;Lorg/apache/reef/javabridge/EvaluatorRequestorBridge;)V",
 	(void*)&Java_org_apache_reef_javabridge_NativeInterop_callClrSystemOnStartHandler },
 
 	{ "clrSystemAllocatedEvaluatorHandlerOnNext", "(JLorg/apache/reef/javabridge/AllocatedEvaluatorBridge;Lorg/apache/reef/javabridge/InteropLogger;)V",
@@ -575,7 +610,7 @@ static JNINativeMethod methods[] = {
 	{ "clrSystemContextMessageHandlerOnNext", "(JLorg/apache/reef/javabridge/ContextMessageBridge;)V",
 	(void*)&Java_org_apache_reef_javabridge_NativeInterop_clrSystemContextMessageHandlerOnNext },
 
-	{ "callClrSystemOnRestartHandler", "(Ljava/lang/String;Lorg/apache/reef/javabridge/EvaluatorRequestorBridge;Lorg/apache/reef/javabridge/DriverRestartedBridge;)[J",
+	{ "callClrSystemOnRestartHandler", "(Ljava/lang/String;Lorg/apache/reef/javabridge/BridgeHandlerManager;Lorg/apache/reef/javabridge/EvaluatorRequestorBridge;Lorg/apache/reef/javabridge/DriverRestartedBridge;)V",
 	(void*)&Java_org_apache_reef_javabridge_NativeInterop_callClrSystemOnRestartHandler },
 
 	{ "clrSystemDriverRestartActiveContextHandlerOnNext", "(JLorg/apache/reef/javabridge/ActiveContextBridge;)V",
