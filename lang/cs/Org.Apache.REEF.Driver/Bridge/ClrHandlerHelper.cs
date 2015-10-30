@@ -40,6 +40,7 @@ namespace Org.Apache.REEF.Driver.Bridge
         /// <summary>
         /// The set of REEF assemblies required for the Driver.
         /// </summary>
+        [Obsolete("Deprecated in 0.14. Will be removed in 0.15.")]
         public static string[] ReefAssemblies
         {
             get
@@ -69,6 +70,7 @@ namespace Org.Apache.REEF.Driver.Bridge
         /// </summary>
         /// <param name="handler">The EventHandler</param>
         /// <returns>The InterOp handle</returns>
+        [Obsolete("Deprecated in 0.14. Will be removed in 0.15.")]
         public static ulong CreateHandler(object handler)
         {
             GCHandle gc = GCHandle.Alloc(handler);
@@ -81,6 +83,7 @@ namespace Org.Apache.REEF.Driver.Bridge
         /// Frees a .NET handle.
         /// </summary>
         /// <param name="handle">The handle to free</param>
+        [Obsolete("Deprecated in 0.14. Will be removed in 0.15.")]
         public static void FreeHandle(ulong handle)
         {
             GCHandle gc = GCHandle.FromIntPtr((IntPtr)handle);
@@ -91,6 +94,7 @@ namespace Org.Apache.REEF.Driver.Bridge
         /// Sets the memory granularity in megabytes for the Evaluator Descriptors.
         /// </summary>
         /// <param name="granularity">The memory granularity in megabytes</param>
+        [Obsolete("Deprecated in 0.14. Will be removed in 0.15.")]
         public static void SetMemoryGranuality(int granularity)
         {
             if (granularity <= 0)
@@ -105,6 +109,7 @@ namespace Org.Apache.REEF.Driver.Bridge
         /// Returns the null handle not used on the Java side (i.e. 0).
         /// </summary>
         /// <returns>The null handle</returns>
+        [Obsolete("Deprecated in 0.14. Will be removed in 0.15.")]
         public static ulong CreateNullHandler()
         {
             return Constants.NullHandler;
@@ -114,6 +119,7 @@ namespace Org.Apache.REEF.Driver.Bridge
         /// Gets the command line arguments as specified in <see cref="DriverBridgeConfigurationOptions.ArgumentSets"/>.
         /// </summary>
         /// <returns>The set of command line arguments</returns>
+        [Obsolete("Deprecated in 0.14. Will be removed in 0.15. Inject the CommandLineArguments in your Handler instead.")]
         public static ISet<string> GetCommandLineArguments()
         {
             using (LOGGER.LogFunction("ClrHandlerHelper::GetCommandLineArguments"))
@@ -139,6 +145,7 @@ namespace Org.Apache.REEF.Driver.Bridge
         /// executing directory containing classpath information.
         /// </summary>
         /// <param name="classPaths">classpaths to the Java classes</param>
+        [Obsolete("Deprecated in 0.14. Will be removed in 0.15.")]
         public static void SupplyAdditionalClassPath(params string[] classPaths)
         {
             var path = Path.Combine(Directory.GetCurrentDirectory(), Constants.GlobalUserSuppliedJavaLibraries);
@@ -150,6 +157,7 @@ namespace Org.Apache.REEF.Driver.Bridge
         /// <see cref="Constants.ClassHierarchyBin"/>.
         /// </summary>
         /// <param name="clrDlls">The set of DLLs generating the class hierarchy</param>
+        [Obsolete("Deprecated in 0.14. Will be removed in 0.15.")]
         public static void GenerateClassHierarchy(ISet<string> clrDlls)
         {
             using (LOGGER.LogFunction("ClrHandlerHelper::GenerateClassHierarchy"))
