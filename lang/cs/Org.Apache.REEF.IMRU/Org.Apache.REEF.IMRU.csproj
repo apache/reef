@@ -45,6 +45,7 @@ under the License.
   </ItemGroup>
   <ItemGroup>
     <Compile Include="API\IIMRUClient.cs" />
+    <Compile Include="API\IIMRUResultHandler.cs" />
     <Compile Include="API\IMapFunction.cs" />
     <Compile Include="API\IMRUCodecConfiguration.cs" />
     <Compile Include="API\IMRUPipelineDataConverterConfiguration.cs" />

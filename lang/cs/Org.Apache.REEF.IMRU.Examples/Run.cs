@@ -54,7 +54,7 @@ namespace Org.Apache.REEF.IMRU.Examples
             {
                 injector = TangFactory.GetTang()
                     .NewInjector(OnREEFIMRURunTimeConfiguration<int, int, int>.GetYarnIMRUConfiguration(), tcpPortConfig);
-                fileSystemConfig = HadoopFileSystemConfiguration.ConfigurationModule.Build();
+                fileSystemConfig = HDFSConfigurationWithoutDriverBinding.ConfigurationModule.Build();
             }
 
             var mapperCountExample = injector.GetInstance<MapperCount.MapperCount>();

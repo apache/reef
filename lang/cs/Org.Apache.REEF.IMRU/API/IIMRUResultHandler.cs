@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -18,32 +18,20 @@
  */
 
 using System;
-using Org.Apache.REEF.IMRU.API;
-using Org.Apache.REEF.Tang.Annotations;
 
-namespace Org.Apache.REEF.IMRU.OnREEF.ResultHandler
+namespace Org.Apache.REEF.IMRU.API
 {
-    internal class DefaultResultHandler<TResult> : IIMRUResultHandler<TResult>
+    /// <summary>
+    /// Interface defining how to handle the output of Update function in IMRU
+    /// </summary>
+    /// <typeparam name="T">Result type</typeparam>
+    public interface IIMRUResultHandler<in T> : IDisposable
     {
-        [Inject]
-        private DefaultResultHandler()
-        {
-        }
-
         /// <summary>
-        /// Specifies how to handle the IMRU results from UpdateTask. Does nothing
+        /// Handles the result of IMRU updata function.
+        /// For example, do nothing, write to file etc.
         /// </summary>
-        /// <param name="result">The result of IMRU</param>
-        public void HandleResult(TResult result)
-        {
-        }
-
-        /// <summary>
-        /// Handles what to do on completion
-        /// In this case do nothing
-        /// </summary>
-        public void Dispose()
-        {
-        }
+        /// <param name="result">The output of IMRU update function</param>
+        void HandleResult(T result);
     }
 }

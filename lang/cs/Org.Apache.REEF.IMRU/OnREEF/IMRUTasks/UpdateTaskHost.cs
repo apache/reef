@@ -42,7 +42,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
         private readonly IBroadcastSender<MapInputWithControlMessage<TMapInput>> _dataAndControlMessageSender;
         private readonly IUpdateFunction<TMapInput, TMapOutput, TResult> _updateTask;
         private readonly bool _invokeGC;
-        private readonly IObserver<TResult> _resultHandler;
+        private readonly IIMRUResultHandler<TResult> _resultHandler;
 
         /// <summary>
         /// </summary>
@@ -54,7 +54,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
         private UpdateTaskHost(
             IUpdateFunction<TMapInput, TMapOutput, TResult> updateTask,
             IGroupCommClient groupCommunicationsClient,
-            IObserver<TResult> resultHandler,
+            IIMRUResultHandler<TResult> resultHandler,
             [Parameter(typeof (InvokeGC))] bool invokeGC)
         {
             _updateTask = updateTask;
@@ -100,7 +100,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
 
                 if (updateResult.HasResult)
                 {
-                    _resultHandler.OnNext(updateResult.Result);
+                    _resultHandler.HandleResult(updateResult.Result);
                 }
             }
 
@@ -108,7 +108,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
                     new MapInputWithControlMessage<TMapInput>(MapControlMessage.Stop);
             _dataAndControlMessageSender.Send(stopMessage);
 
-            _resultHandler.OnCompleted();
+            _resultHandler.Dispose();
             return null;
         }
 

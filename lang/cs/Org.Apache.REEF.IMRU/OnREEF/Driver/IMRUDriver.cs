@@ -37,6 +37,7 @@ using Org.Apache.REEF.Network.Group.Pipelining;
 using Org.Apache.REEF.Network.Group.Pipelining.Impl;
 using Org.Apache.REEF.Network.Group.Topology;
 using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Tang.Exceptions;
 using Org.Apache.REEF.Tang.Implementations.Configuration;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
@@ -177,12 +178,12 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                 {
                     TangFactory.GetTang()
                         .NewInjector(partialTaskConf, _configurationManager.UpdateFunctionCodecsConfiguration)
-                        .GetInstance<IObserver<TResult>>();
+                        .GetInstance<IIMRUResultHandler<TResult>>();
                 }
-                catch(Exception)
+                catch(InjectionException)
                 {
                     partialTaskConf = TangFactory.GetTang().NewConfigurationBuilder(partialTaskConf)
-                        .BindImplementation(GenericType<IObserver<TResult>>.Class,
+                        .BindImplementation(GenericType<IIMRUResultHandler<TResult>>.Class,
                             GenericType<DefaultResultHandler<TResult>>.Class)
                         .Build();
                     Logger.Log(Level.Warning,

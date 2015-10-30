@@ -78,7 +78,7 @@ namespace Org.Apache.REEF.IMRU.Examples.MapperCount
                     .SetResultHandlerConfiguration(
                         TangFactory.GetTang()
                             .NewConfigurationBuilder(fileSystemConfig)
-                            .BindImplementation(GenericType<IObserver<int>>.Class,
+                            .BindImplementation(GenericType<IIMRUResultHandler<int>>.Class,
                                 GenericType<WriteResultHandler<int>>.Class)
                             .BindNamedParameter(typeof(ResultOutputLocation), outputFile)
                             .Build())

@@ -19,6 +19,7 @@
 
 using System;
 using System.IO;
+using Org.Apache.REEF.IMRU.API;
 using Org.Apache.REEF.IO.FileSystem;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities.Diagnostics;
@@ -32,7 +33,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.ResultHandler
     /// Writes IMRU result from Update task to a file
     ///  </summary>
     /// <typeparam name="TResult"></typeparam>
-    public class WriteResultHandler<TResult> : IObserver<TResult>
+    public class WriteResultHandler<TResult> : IIMRUResultHandler<TResult>
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof (WriteResultHandler<>));
 
@@ -57,7 +58,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.ResultHandler
         /// Specifies how to handle the IMRU results from the Update Task. Writes it to a location
         /// </summary>
         /// <param name="value">The result of IMRU from the UpdateTask</param>
-        public void OnNext(TResult value)
+        public void HandleResult(TResult value)
         {
             if (string.IsNullOrWhiteSpace(_remoteFileName))
             {
@@ -68,19 +69,10 @@ namespace Org.Apache.REEF.IMRU.OnREEF.ResultHandler
         }
 
         /// <summary>
-        ///  Handles error scenario. Just throw it in this case
-        /// </summary>
-        /// <param name="error">Exception</param>
-        public void OnError(Exception error)
-        {
-            throw error;
-        }
-
-        /// <summary>
         /// Handles what to do on completion
         /// In this case write to remote location
         /// </summary>
-        public void OnCompleted()
+        public void Dispose()
         {
             if (string.IsNullOrWhiteSpace(_remoteFileName))
             {
