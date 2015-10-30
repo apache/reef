@@ -35,6 +35,13 @@ import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Default implementation of clock.
+ *
+ * After invoking `RuntimeStart` and `StartTime` events initially,
+ * this invokes scheduled events on time. If there is no scheduled event,
+ * `IdleClock` event is invoked.
+ */
 public final class RuntimeClock implements Clock {
 
   private static final Logger LOG = Logger.getLogger(Clock.class.toString());

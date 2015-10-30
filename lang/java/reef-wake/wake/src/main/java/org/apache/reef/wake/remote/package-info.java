@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- *
+ * Wake's remote communication.
  */
 package org.apache.reef.wake.remote;

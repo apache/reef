@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- *
+ * Public interfaces and factories for Wake's core API.
  */
 package org.apache.reef.wake;

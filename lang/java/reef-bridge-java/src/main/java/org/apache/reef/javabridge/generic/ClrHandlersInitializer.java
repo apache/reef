@@ -21,6 +21,7 @@ package org.apache.reef.javabridge.generic;
 import org.apache.reef.annotations.Unstable;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
+import org.apache.reef.javabridge.BridgeHandlerManager;
 import org.apache.reef.javabridge.EvaluatorRequestorBridge;
 
 /**
@@ -34,5 +35,5 @@ interface ClrHandlersInitializer {
   /**
    * Returns the set of CLR handles.
    */
-  long[] getClrHandlers(final String portNumber, final EvaluatorRequestorBridge evaluatorRequestorBridge);
+  BridgeHandlerManager getClrHandlers(final String portNumber, final EvaluatorRequestorBridge evaluatorRequestorBridge);
 }

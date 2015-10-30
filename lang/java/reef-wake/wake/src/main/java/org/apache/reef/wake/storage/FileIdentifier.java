@@ -22,6 +22,9 @@ import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+/**
+ * An identifier has a File URI.
+ */
 public class FileIdentifier implements StorageIdentifier {
   private final File f;
 

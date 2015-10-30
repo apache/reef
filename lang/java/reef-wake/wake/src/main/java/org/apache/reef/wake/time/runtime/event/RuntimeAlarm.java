@@ -21,6 +21,9 @@ package org.apache.reef.wake.time.runtime.event;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.time.event.Alarm;
 
+/**
+ * An event for non-client alarm.
+ */
 public final class RuntimeAlarm extends Alarm {
 
   public RuntimeAlarm(final long timestamp, final EventHandler<Alarm> handler) {

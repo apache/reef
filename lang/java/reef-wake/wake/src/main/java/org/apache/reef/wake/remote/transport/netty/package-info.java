@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- *
+ * Netty-based remote transport implementation.
  */
 package org.apache.reef.wake.remote.transport.netty;

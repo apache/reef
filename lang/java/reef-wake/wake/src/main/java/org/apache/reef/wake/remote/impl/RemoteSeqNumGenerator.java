@@ -32,7 +32,7 @@ public class RemoteSeqNumGenerator {
   private final ConcurrentMap<SocketAddress, AtomicLong> seqMap;
 
   public RemoteSeqNumGenerator() {
-    seqMap = new ConcurrentHashMap<SocketAddress, AtomicLong>();
+    seqMap = new ConcurrentHashMap<>();
   }
 
   public long getNextSeq(final SocketAddress addr) {

@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- *
+ * Runtime-related Wake events.
  */
 package org.apache.reef.wake.time.runtime.event;

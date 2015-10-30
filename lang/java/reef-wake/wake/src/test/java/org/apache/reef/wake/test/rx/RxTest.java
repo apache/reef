@@ -26,6 +26,9 @@ import org.junit.Test;
 import org.junit.rules.TestName;
 
 
+/**
+ * Tests for Rx-style communication.
+ */
 public class RxTest {
 
   @Rule

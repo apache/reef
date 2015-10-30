@@ -21,6 +21,9 @@ package org.apache.reef.wake.test.util;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.impl.PeriodicEvent;
 
+/**
+ * A timeout handler using monitor.
+ */
 public class TimeoutHandler implements EventHandler<PeriodicEvent> {
 
   private final Monitor monitor;

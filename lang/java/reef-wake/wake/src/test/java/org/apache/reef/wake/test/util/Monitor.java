@@ -20,6 +20,9 @@ package org.apache.reef.wake.test.util;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
+/**
+ * A monitor used in tests.
+ */
 public class Monitor {
   private AtomicBoolean finished = new AtomicBoolean(false);
 

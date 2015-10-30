@@ -27,6 +27,9 @@ import org.junit.rules.TestName;
 
 import java.util.Random;
 
+/**
+ * Metrics tests.
+ */
 public class MetricsTest {
 
   private static final String LOG_PREFIX = "TEST ";

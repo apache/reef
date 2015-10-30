@@ -29,7 +29,7 @@ public interface Decoder<T> {
   /**
    * Decodes the given byte array into an object.
    *
-   * @param buf
+   * @param data the data to be decoded
    * @return the decoded object
    */
   T decode(byte[] data);

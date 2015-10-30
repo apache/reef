@@ -30,7 +30,7 @@ import java.io.IOException;
 import java.util.logging.Logger;
 
 /**
- * Thin wrapper around ChunkedWriteHandler
+ * Thin wrapper around ChunkedWriteHandler.
  * <p/>
  * ChunkedWriteHandler only handles the down stream parts
  * and just emits the chunks up stream. So we add an upstream
@@ -177,8 +177,8 @@ public class ChunkedReadWriteHandler extends ChunkedWriteHandler {
     return ret;
   }
 
-  /*
-   * Release Bytebuf when the stream closes
+  /**
+   * Release Bytebuf when the stream closes.
    */
   private class ByteBufCloseableStream extends ByteBufInputStream {
     private final ByteBuf buffer;

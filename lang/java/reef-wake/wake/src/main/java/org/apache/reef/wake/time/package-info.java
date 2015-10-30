@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- *
+ * Clock and time-based events(start/stop/alarm) implementation.
  */
 package org.apache.reef.wake.time;

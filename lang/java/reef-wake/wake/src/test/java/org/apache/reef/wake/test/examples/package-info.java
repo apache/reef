@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * Tests for org.apache.reef.wake.examples package.
  */
 package org.apache.reef.wake.test.examples;

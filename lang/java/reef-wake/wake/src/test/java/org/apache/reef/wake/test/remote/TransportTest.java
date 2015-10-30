@@ -44,6 +44,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 
 
+/**
+ * Tests for Transport.
+ */
 public class TransportTest {
   private final LocalAddressProvider localAddressProvider;
   private final TransportFactory tpFactory;

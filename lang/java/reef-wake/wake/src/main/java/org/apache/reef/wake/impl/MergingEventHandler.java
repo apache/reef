@@ -60,7 +60,7 @@ public final class MergingEventHandler<L, R> {
     reset();
   }
 
-  /*
+  /**
    * Not thread safe. Must be externally synchronized.
    */
   private void reset() {
@@ -68,6 +68,12 @@ public final class MergingEventHandler<L, R> {
     leftEvent = null;
   }
 
+  /**
+   * A pair having two independent typed items.
+   *
+   * @param <S1> a type of first item
+   * @param <S2> a type of second item
+   */
   public static final class Pair<S1, S2> {
     private final S1 first;
     private final S2 second;

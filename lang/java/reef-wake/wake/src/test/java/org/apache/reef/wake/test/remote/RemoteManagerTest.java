@@ -49,6 +49,9 @@ import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 
+/**
+ * Tests for RemoteManagerFactory.
+ */
 public class RemoteManagerTest {
 
   private final LocalAddressProvider localAddressProvider;

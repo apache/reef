@@ -30,7 +30,7 @@ import java.util.Map.Entry;
  * Codec using the WakeTuple protocol buffer.
  * (class name and bytes)
  *
- * @param <T>
+ * @param <T> type
  */
 public class MultiCodec<T> implements Codec<T> {
 
@@ -40,7 +40,7 @@ public class MultiCodec<T> implements Codec<T> {
   /**
    * Constructs a codec that encodes/decodes an object to/from bytes based on the class name.
    *
-   * @param clazzToDecoderMap
+   * @param clazzToCodecMap a map of codec for class
    */
   public MultiCodec(final Map<Class<? extends T>, Codec<? extends T>> clazzToCodecMap) {
     final Map<Class<? extends T>, Encoder<? extends T>> clazzToEncoderMap = new HashMap<>();
@@ -56,7 +56,7 @@ public class MultiCodec<T> implements Codec<T> {
   /**
    * Encodes an object to a byte array.
    *
-   * @param obj
+   * @param obj object to be encoded
    */
   @Override
   public byte[] encode(final T obj) {

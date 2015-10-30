@@ -31,6 +31,9 @@ import org.junit.rules.TestName;
 import java.util.concurrent.atomic.AtomicInteger;
 
 
+/**
+ * Timer stage tests.
+ */
 public class TimerStageTest {
 
   private static final String LOG_PREFIX = "TEST ";

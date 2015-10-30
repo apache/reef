@@ -27,6 +27,9 @@ import java.util.Map.Entry;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * Tests for CombinerStage.
+ */
 public class TestCombiner {
 
   private static final int BUCKET_COUNT = 1000;

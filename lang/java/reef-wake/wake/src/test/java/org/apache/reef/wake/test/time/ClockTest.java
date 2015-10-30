@@ -40,6 +40,9 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
+/**
+ * Tests for Clock.
+ */
 public class ClockTest {
 
   private static RuntimeClock buildClock() throws Exception {

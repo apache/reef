@@ -39,6 +39,7 @@ under the License.
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Bridge\BridgeConfigurationProvider.cs" />
+    <Compile Include="Bridge\BridgeHandlerManager.cs" />
     <Compile Include="Bridge\BridgeLogger.cs" />
     <Compile Include="Bridge\Clr2java\IActiveContextClr2Java.cs" />
     <Compile Include="Bridge\Clr2java\IAllocatedEvaluaotrClr2Java.cs" />

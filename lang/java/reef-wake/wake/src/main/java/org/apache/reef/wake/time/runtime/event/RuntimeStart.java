@@ -20,6 +20,9 @@ package org.apache.reef.wake.time.runtime.event;
 
 import org.apache.reef.wake.time.Time;
 
+/**
+ * An event for a runtime started.
+ */
 public final class RuntimeStart extends Time {
 
   public RuntimeStart(final long timestamp) {

@@ -20,6 +20,9 @@ package org.apache.reef.wake.time.runtime;
 
 import javax.inject.Inject;
 
+/**
+ * Logical timer.
+ */
 public final class LogicalTimer implements Timer {
 
   private long current = 0;
