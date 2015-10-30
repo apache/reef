@@ -56,7 +56,6 @@ import org.apache.reef.wake.EStage;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.IdentifierFactory;
 import org.apache.reef.wake.impl.LoggingEventHandler;
-import org.apache.reef.wake.impl.SingleThreadStage;
 import org.apache.reef.wake.impl.SyncStage;
 import org.apache.reef.wake.impl.ThreadPoolStage;
 import org.apache.reef.wake.remote.address.LocalAddressProvider;
@@ -148,7 +147,7 @@ public class GroupCommDriverImpl implements GroupCommServiceDriver {
     this.groupCommFailedEvaluatorStage = new SyncStage<>("GroupCommFailedEvaluatorStage",
         groupCommFailedEvaluatorHandler);
     this.groupCommMessageHandler = new GroupCommMessageHandler();
-    this.groupCommMessageStage = new SingleThreadStage<>("GroupCommMessageStage", groupCommMessageHandler, 100 * 1000);
+    this.groupCommMessageStage = new SyncStage<>("GroupCommMessageStage", groupCommMessageHandler);
 
     final Configuration nameResolverConf = Tang.Factory.getTang().newConfigurationBuilder(NameResolverConfiguration.CONF
         .set(NameResolverConfiguration.NAME_SERVER_HOSTNAME, nameServiceAddr)
@@ -182,6 +181,7 @@ public class GroupCommDriverImpl implements GroupCommServiceDriver {
     injector.bindVolatileParameter(GroupCommRunningTaskHandler.class, groupCommRunningTaskHandler);
     injector.bindVolatileParameter(GroupCommFailedTaskHandler.class, groupCommFailedTaskHandler);
     injector.bindVolatileParameter(GroupCommFailedEvalHandler.class, groupCommFailedEvaluatorHandler);
+    injector.bindVolatileInstance(GroupCommMessageHandler.class, groupCommMessageHandler);
 
     try {
       commGroupDriverFactory = injector.getInstance(CommunicationGroupDriverFactory.class);
@@ -210,19 +210,16 @@ public class GroupCommDriverImpl implements GroupCommServiceDriver {
     LOG.entering("GroupCommDriverImpl", "newCommunicationGroup",
         new Object[]{Utils.simpleName(groupName), numberOfTasks});
 
-    final BroadcastingEventHandler<GroupCommunicationMessage> commGroupMessageHandler
-        = new BroadcastingEventHandler<>();
     final CommunicationGroupDriver commGroupDriver;
     try {
-      commGroupDriver = commGroupDriverFactory.getNewInstance(
-          groupName, topologyClass, commGroupMessageHandler, numberOfTasks, customFanOut);
+      commGroupDriver
+          = commGroupDriverFactory.getNewInstance(groupName, topologyClass, numberOfTasks, customFanOut);
     } catch (final InjectionException e) {
       LOG.log(Level.WARNING, "Cannot inject new CommunicationGroupDriver");
       throw new RuntimeException(e);
     }
 
     commGroupDrivers.put(groupName, commGroupDriver);
-    groupCommMessageHandler.addHandler(groupName, commGroupMessageHandler);
     LOG.exiting("GroupCommDriverImpl", "newCommunicationGroup",
         "Created communication group: " + Utils.simpleName(groupName));
     return commGroupDriver;

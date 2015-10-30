@@ -22,7 +22,10 @@ import org.apache.reef.io.network.group.impl.GroupCommunicationMessage;
 import org.apache.reef.io.network.group.impl.utils.BroadcastingEventHandler;
 import org.apache.reef.io.network.group.impl.utils.Utils;
 import org.apache.reef.tang.annotations.Name;
+import org.apache.reef.wake.AbstractEStage;
 import org.apache.reef.wake.EventHandler;
+import org.apache.reef.wake.impl.SingleThreadStage;
+import org.apache.reef.wake.impl.SyncStage;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -35,13 +38,24 @@ public class GroupCommMessageHandler implements EventHandler<GroupCommunicationM
 
   private static final Logger LOG = Logger.getLogger(GroupCommMessageHandler.class.getName());
 
-  private final Map<Class<? extends Name<String>>, BroadcastingEventHandler<GroupCommunicationMessage>>
-      commGroupMessageHandlers = new HashMap<>();
+  private final Map<Class<? extends Name<String>>, AbstractEStage<GroupCommunicationMessage>>
+      commGroupMessageStages = new HashMap<>();
 
+  /**
+   * @deprecated in 0.14.
+   */
+  @Deprecated
   public void addHandler(final Class<? extends Name<String>> groupName,
                          final BroadcastingEventHandler<GroupCommunicationMessage> handler) {
     LOG.entering("GroupCommMessageHandler", "addHandler", new Object[]{Utils.simpleName(groupName), handler});
-    commGroupMessageHandlers.put(groupName, handler);
+    commGroupMessageStages.put(groupName, new SyncStage<>(groupName.getName(), handler));
+    LOG.exiting("GroupCommMessageHandler", "addHandler", Utils.simpleName(groupName));
+  }
+
+  public void addHandler(final Class<? extends Name<String>> groupName,
+                         final SingleThreadStage<GroupCommunicationMessage> stage) {
+    LOG.entering("GroupCommMessageHandler", "addHandler", new Object[]{Utils.simpleName(groupName), stage});
+    commGroupMessageStages.put(groupName, stage);
     LOG.exiting("GroupCommMessageHandler", "addHandler", Utils.simpleName(groupName));
   }
 
@@ -49,7 +63,7 @@ public class GroupCommMessageHandler implements EventHandler<GroupCommunicationM
   public void onNext(final GroupCommunicationMessage msg) {
     LOG.entering("GroupCommMessageHandler", "onNext", msg);
     final Class<? extends Name<String>> groupName = Utils.getClass(msg.getGroupname());
-    commGroupMessageHandlers.get(groupName).onNext(msg);
+    commGroupMessageStages.get(groupName).onNext(msg);
     LOG.exiting("GroupCommMessageHandler", "onNext", msg);
   }
 }

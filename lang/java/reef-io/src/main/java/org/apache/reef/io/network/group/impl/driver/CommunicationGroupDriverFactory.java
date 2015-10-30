@@ -53,16 +53,19 @@ public final class CommunicationGroupDriverFactory {
       @Parameter(GroupCommFailedTaskHandler.class)
           final BroadcastingEventHandler<FailedTask> groupCommFailedTaskHandler,
       @Parameter(GroupCommFailedEvalHandler.class)
-          final BroadcastingEventHandler<FailedEvaluator> groupCommFailedEvaluatorHandler) {
+          final BroadcastingEventHandler<FailedEvaluator> groupCommFailedEvaluatorHandler,
+      final GroupCommMessageHandler groupCommMessageHandler) {
     injector = Tang.Factory.getTang().newInjector();
     injector.bindVolatileParameter(GroupCommSenderStage.class, senderStage);
     injector.bindVolatileParameter(DriverIdentifier.class, driverId);
     injector.bindVolatileParameter(GroupCommRunningTaskHandler.class, groupCommRunningTaskHandler);
     injector.bindVolatileParameter(GroupCommFailedTaskHandler.class, groupCommFailedTaskHandler);
     injector.bindVolatileParameter(GroupCommFailedEvalHandler.class, groupCommFailedEvaluatorHandler);
+    injector.bindVolatileInstance(GroupCommMessageHandler.class, groupCommMessageHandler);
   }
 
   /**
+   * @deprecated in 0.14.
    * Instantiates a new CommunicationGroupDriver instance.
    * @param groupName specified name of the communication group
    * @param topologyClass topology implementation
@@ -72,6 +75,7 @@ public final class CommunicationGroupDriverFactory {
    * @return CommunicationGroupDriver instance
    * @throws InjectionException
    */
+  @Deprecated
   public CommunicationGroupDriver getNewInstance(
       final Class<? extends Name<String>> groupName,
       final Class<? extends Topology> topologyClass,
@@ -83,6 +87,29 @@ public final class CommunicationGroupDriverFactory {
     newInjector.bindVolatileParameter(CommGroupNameClass.class, groupName);
     newInjector.bindVolatileParameter(TopologyClass.class, topologyClass);
     newInjector.bindVolatileParameter(CommGroupMessageHandler.class, commGroupMessageHandler);
+    newInjector.bindVolatileParameter(CommGroupNumTask.class, numberOfTasks);
+    newInjector.bindVolatileParameter(TreeTopologyFanOut.class, customFanOut);
+    return newInjector.getInstance(CommunicationGroupDriver.class);
+  }
+
+  /**
+   * Instantiates a new CommunicationGroupDriver instance.
+   * @param groupName specified name of the communication group
+   * @param topologyClass topology implementation
+   * @param numberOfTasks minimum number of tasks needed in this group before start
+   * @param customFanOut fanOut for TreeTopology
+   * @return CommunicationGroupDriver instance
+   * @throws InjectionException
+   */
+  public CommunicationGroupDriver getNewInstance(
+      final Class<? extends Name<String>> groupName,
+      final Class<? extends Topology> topologyClass,
+      final int numberOfTasks,
+      final int customFanOut) throws InjectionException {
+
+    final Injector newInjector = injector.forkInjector();
+    newInjector.bindVolatileParameter(CommGroupNameClass.class, groupName);
+    newInjector.bindVolatileParameter(TopologyClass.class, topologyClass);
     newInjector.bindVolatileParameter(CommGroupNumTask.class, numberOfTasks);
     newInjector.bindVolatileParameter(TreeTopologyFanOut.class, customFanOut);
     return newInjector.getInstance(CommunicationGroupDriver.class);
