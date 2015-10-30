@@ -20,6 +20,7 @@ package org.apache.reef.runtime.yarn.driver;
 
 import com.google.protobuf.ByteString;
 import org.apache.commons.collections.ListUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.hadoop.fs.*;
 import org.apache.hadoop.service.Service;
 import org.apache.hadoop.yarn.api.records.*;
@@ -32,7 +33,6 @@ import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.exceptions.YarnException;
 import org.apache.reef.driver.ProgressProvider;
 import org.apache.reef.driver.parameters.JobSubmissionDirectory;
-import org.apache.reef.exception.DriverFatalRuntimeException;
 import org.apache.reef.proto.ReefServiceProtos;
 import org.apache.reef.runtime.common.driver.DriverStatusManager;
 import org.apache.reef.runtime.common.driver.resourcemanager.NodeDescriptorEventImpl;
@@ -285,9 +285,16 @@ final class YarnContainerManager
         if (exception == null) {
           this.resourceManager.unregisterApplicationMaster(
               FinalApplicationStatus.SUCCEEDED, null, null);
-        } else if (exception instanceof DriverFatalRuntimeException) {
+        } else {
+          // Note: We don't allow RM to restart our applications if it's an application level failure.
+          // If applications are to be long-running, they should catch Exceptions before the REEF level
+          // instead of relying on the RM restart mechanism.
+          // For this case, we make a strong assumption that REEF does not allow its own unhandled Exceptions
+          // to leak to this stage.
+          final String failureMsg = String.format("Application failed due to:%n%s%n" +
+              "With stack trace:%n%s", exception.getMessage(), ExceptionUtils.getStackTrace(exception));
           this.resourceManager.unregisterApplicationMaster(
-              FinalApplicationStatus.FAILED, null, null);
+              FinalApplicationStatus.FAILED, failureMsg, null);
         }
 
         this.resourceManager.close();

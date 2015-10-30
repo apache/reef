@@ -252,7 +252,7 @@ public class NameLookupClient implements Stage, NamingLookup {
                   "Caught Naming Exception while looking up " + id
                       + " with Name Server. Will retry " + retriesLeft
                       + " time(s) after waiting for " + currentRetryTimeout + " msec.");
-              Thread.sleep(currentRetryTimeout * retriesLeft);
+              Thread.sleep(currentRetryTimeout);
               --retriesLeft;
             }
           }

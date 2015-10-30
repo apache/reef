@@ -112,7 +112,7 @@ public final class LocalNameResolverImpl implements NameResolver {
                   "Caught Naming Exception while looking up " + id
                       + " with Name Server. Will retry " + retriesLeft
                       + " time(s) after waiting for " + retTimeout + " msec.");
-              Thread.sleep(retTimeout * retriesLeft);
+              Thread.sleep(retTimeout);
               --retriesLeft;
             }
           }
