@@ -39,6 +39,11 @@ namespace Org.Apache.REEF.Driver.Bridge
     internal sealed class BridgeConfigurationProvider
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(BridgeConfigurationProvider));
+        private static readonly object LockObject = new object();
+
+        private static IConfiguration BridgeConfiguration = null;
+        private static IInjector BridgeInjector = null;
+
         private readonly REEFFileNames _fileNames;
 
         [Inject]
@@ -120,7 +125,15 @@ namespace Org.Apache.REEF.Driver.Bridge
         /// <returns></returns>
         internal static IConfiguration GetBridgeConfiguration()
         {
-            return new BridgeConfigurationProvider(new REEFFileNames()).LoadBridgeConfiguration();
+            lock (LockObject)
+            {
+                if (BridgeConfiguration == null)
+                {
+                    BridgeConfiguration = new BridgeConfigurationProvider(new REEFFileNames()).LoadBridgeConfiguration();
+                }
+
+                return BridgeConfiguration;
+            }
         }
 
         /// <summary>
@@ -129,12 +142,19 @@ namespace Org.Apache.REEF.Driver.Bridge
         /// <returns></returns>
         internal static IInjector GetBridgeInjector(IEvaluatorRequestor evaluatorRequestor)
         {
-            var injector = TangFactory.GetTang().NewInjector(GetBridgeConfiguration());
-            if (evaluatorRequestor != null)
+            lock (LockObject)
             {
-                injector.BindVolatileInstance(GenericType<IEvaluatorRequestor>.Class, evaluatorRequestor);
+                if (BridgeInjector == null)
+                {
+                    BridgeInjector = TangFactory.GetTang().NewInjector(GetBridgeConfiguration());
+                    if (evaluatorRequestor != null)
+                    {
+                        BridgeInjector.BindVolatileInstance(GenericType<IEvaluatorRequestor>.Class, evaluatorRequestor);
+                    }
+                }
+
+                return BridgeInjector;
             }
-            return injector;
         }
     }
 }
