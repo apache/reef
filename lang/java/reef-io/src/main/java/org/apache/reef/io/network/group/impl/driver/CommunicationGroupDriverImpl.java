@@ -48,6 +48,7 @@ import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.tang.formats.ConfigurationSerializer;
 import org.apache.reef.wake.EStage;
+import org.apache.reef.wake.impl.SingleThreadStage;
 
 import javax.inject.Inject;
 import java.util.*;
@@ -103,8 +104,10 @@ public class CommunicationGroupDriverImpl implements CommunicationGroupDriver {
     this.confSerializer = confSerializer;
     this.allTasksAdded = new CountingSemaphore(numberOfTasks, getQualifiedName(), topologiesLock);
 
-    registerHandlers(groupCommRunningTaskHandler, groupCommFailedTaskHandler,
-        groupCommFailedEvaluatorHandler, commGroupMessageHandler);
+    groupCommRunningTaskHandler.addHandler(new TopologyRunningTaskHandler(this));
+    groupCommFailedTaskHandler.addHandler(new TopologyFailedTaskHandler(this));
+    groupCommFailedEvaluatorHandler.addHandler(new TopologyFailedEvaluatorHandler(this));
+    commGroupMessageHandler.addHandler(new TopologyMessageHandler(this));
     final Injector injector = Tang.Factory.getTang().newInjector();
     injector.bindVolatileParameter(CommGroupNameClass.class, groupName);
     injector.bindVolatileParameter(GroupCommSenderStage.class, senderStage);
@@ -129,8 +132,7 @@ public class CommunicationGroupDriverImpl implements CommunicationGroupDriver {
           final BroadcastingEventHandler<FailedTask> groupCommFailedTaskHandler,
       @Parameter(GroupCommFailedEvalHandler.class)
           final BroadcastingEventHandler<FailedEvaluator> groupCommFailedEvaluatorHandler,
-      @Parameter(CommGroupMessageHandler.class)
-          final BroadcastingEventHandler<GroupCommunicationMessage> commGroupMessageHandler,
+          final GroupCommMessageHandler groupCommMessageHandler,
       @Parameter(DriverIdentifier.class) final String driverId,
       @Parameter(CommGroupNumTask.class) final int numberOfTasks,
       final TopologyFactory topologyFactory,
@@ -142,7 +144,7 @@ public class CommunicationGroupDriverImpl implements CommunicationGroupDriver {
     this.allTasksAdded = new CountingSemaphore(numberOfTasks, getQualifiedName(), topologiesLock);
 
     registerHandlers(groupCommRunningTaskHandler, groupCommFailedTaskHandler,
-        groupCommFailedEvaluatorHandler, commGroupMessageHandler);
+        groupCommFailedEvaluatorHandler, groupCommMessageHandler);
     this.topologyFactory = topologyFactory;
     this.topologyClass = topologyClass;
   }
@@ -151,11 +153,11 @@ public class CommunicationGroupDriverImpl implements CommunicationGroupDriver {
       final BroadcastingEventHandler<RunningTask> runningTaskHandler,
       final BroadcastingEventHandler<FailedTask> failedTaskHandler,
       final BroadcastingEventHandler<FailedEvaluator> failedEvaluatorHandler,
-      final BroadcastingEventHandler<GroupCommunicationMessage> groupCommMessageHandler) {
+      final GroupCommMessageHandler groupCommMessageHandler) {
     runningTaskHandler.addHandler(new TopologyRunningTaskHandler(this));
     failedTaskHandler.addHandler(new TopologyFailedTaskHandler(this));
     failedEvaluatorHandler.addHandler(new TopologyFailedEvaluatorHandler(this));
-    groupCommMessageHandler.addHandler(new TopologyMessageHandler(this));
+    groupCommMessageHandler.addHandler(groupName, new SingleThreadStage<>(new TopologyMessageHandler(this), 100 * 100));
   }
 
   @Override
