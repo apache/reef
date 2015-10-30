@@ -27,6 +27,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
+/**
+ * Blocking signal event handler test.
+ */
 public class BlockingSignalEventHandlerTest {
 
   @Test

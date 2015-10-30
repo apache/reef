@@ -31,6 +31,9 @@ import org.junit.rules.TestName;
 import java.util.*;
 
 
+/**
+ * Thread pool stage tests.
+ */
 public class ThreadPoolStageTest {
 
   private static final String LOG_PREFIX = "TEST ";

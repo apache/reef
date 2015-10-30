@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- *
+ * Wake examples.
  */
 package org.apache.reef.wake.examples;

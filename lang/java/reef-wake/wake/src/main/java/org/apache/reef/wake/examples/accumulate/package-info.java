@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * A key-value combiner example.
  */
 package org.apache.reef.wake.examples.accumulate;

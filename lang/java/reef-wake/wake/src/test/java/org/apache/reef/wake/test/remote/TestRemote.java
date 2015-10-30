@@ -29,6 +29,9 @@ import org.apache.reef.wake.remote.impl.DefaultRemoteIdentifierFactoryImplementa
 import javax.inject.Inject;
 import java.net.UnknownHostException;
 
+/**
+ * An app to test Wake's remote implementation.
+ */
 public class TestRemote implements Runnable {
   private final RemoteManagerFactory remoteManagerFactory;
   private final LocalAddressProvider localAddressProvider;
@@ -69,6 +72,9 @@ public class TestRemote implements Runnable {
   }
 }
 
+/**
+ * An event handler to receive an event, TestEvent.
+ */
 class TestEventHandler implements EventHandler<RemoteMessage<TestEvent>> {
 
   private final EventHandler<TestEvent> proxy;

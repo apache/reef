@@ -29,7 +29,7 @@ public interface Encoder<T> {
   /**
    * Encodes the given object into a Byte Array.
    *
-   * @param obj
+   * @param obj an object to be encoded
    * @return a byte[] representation of the object
    */
   byte[] encode(T obj);

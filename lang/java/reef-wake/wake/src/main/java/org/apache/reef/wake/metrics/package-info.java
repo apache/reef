@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- *
+ * Implementations of standard latency and throughput instrumentation.
  */
 package org.apache.reef.wake.metrics;

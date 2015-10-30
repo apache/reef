@@ -25,6 +25,9 @@ import org.apache.reef.wake.examples.join.TupleSource;
 import org.junit.Test;
 
 
+/**
+ * Tests for NonBlockingJoin.
+ */
 public class TestJoin {
   @Test
   public void testJoin() throws Exception {

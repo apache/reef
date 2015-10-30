@@ -35,6 +35,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 
+/**
+ * Publish/subscribe event handler tests.
+ */
 public class PubSubThreadPoolStageTest {
 
   private static final String LOG_PREFIX = "TEST ";

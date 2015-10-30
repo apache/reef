@@ -24,6 +24,9 @@ import org.apache.reef.wake.examples.join.TupleSource;
 import org.junit.Test;
 
 
+/**
+ * Tests for TupleSource.
+ */
 public class TestTupleSource {
   @Test
   public void testOneThread() throws Exception {

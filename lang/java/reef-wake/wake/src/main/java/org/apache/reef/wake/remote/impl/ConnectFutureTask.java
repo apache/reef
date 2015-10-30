@@ -23,6 +23,11 @@ import org.apache.reef.wake.EventHandler;
 import java.util.concurrent.Callable;
 import java.util.concurrent.FutureTask;
 
+/**
+ * FutureTask for network connection.
+ *
+ * @param <T> type
+ */
 public class ConnectFutureTask<T> extends FutureTask<T> {
 
   private final EventHandler<ConnectFutureTask<T>> handler;

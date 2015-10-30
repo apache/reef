@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * Parameters for TCP port selection.
  */
 package org.apache.reef.wake.remote.ports.parameters;

@@ -18,6 +18,9 @@
  */
 package org.apache.reef.wake.test.remote;
 
+/**
+ * A test event extending other event.
+ */
 public class TestEvent1 extends TestEvent {
 
   private static final long serialVersionUID = 1L;

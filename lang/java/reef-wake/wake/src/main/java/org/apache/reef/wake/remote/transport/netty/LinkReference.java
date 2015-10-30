@@ -22,6 +22,10 @@ import org.apache.reef.wake.remote.transport.Link;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * A reference for a link.
+ * When channel became active, LinkReference is created and mapped with remote address.
+ */
 final class LinkReference {
 
   private final AtomicInteger connectInProgress = new AtomicInteger(0);

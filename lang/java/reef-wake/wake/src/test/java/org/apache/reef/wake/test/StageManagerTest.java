@@ -24,6 +24,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
 
+/**
+ * Stage manager tests.
+ */
 public class StageManagerTest {
   @Rule
   public TestName name = new TestName();

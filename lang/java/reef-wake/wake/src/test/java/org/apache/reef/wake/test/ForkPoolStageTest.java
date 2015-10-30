@@ -31,6 +31,9 @@ import org.junit.rules.TestName;
 import java.util.*;
 
 
+/**
+ * ForkPool stage test.
+ */
 public class ForkPoolStageTest {
 
   private static final String LOG_PREFIX = "TEST ";

@@ -25,6 +25,12 @@ import org.apache.reef.wake.rx.Observer;
 import java.util.Map;
 import java.util.concurrent.ConcurrentSkipListMap;
 
+/**
+ * key-value pair Combiner stage.
+ *
+ * @param <K> key
+ * @param <V> value
+ */
 public class CombinerStage<K extends Comparable<K>, V> implements Stage {
 
   private final Combiner<K, V> c;
@@ -87,10 +93,22 @@ public class CombinerStage<K extends Comparable<K>, V> implements Stage {
     worker.join();
   }
 
+  /**
+   * key-value pair Combiner Interface.
+   *
+   * @param <K> key
+   * @param <V> value
+   */
   public interface Combiner<K extends Comparable<K>, V> {
     V combine(K key, V old, V cur);
   }
 
+  /**
+   * A comparable key-value pair.
+   *
+   * @param <K> key
+   * @param <V> value
+   */
   public static class Pair<K extends Comparable<K>, V> implements Map.Entry<K, V>, Comparable<Map.Entry<K, V>> {
     private final K k;
     private final V v;

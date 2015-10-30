@@ -42,6 +42,9 @@ import java.net.InetSocketAddress;
 import java.util.logging.Level;
 
 
+/**
+ * Tests the race condition during transporting events.
+ */
 public class TransportRaceTest {
   private final LocalAddressProvider localAddressProvider;
   private final TransportFactory tpFactory;

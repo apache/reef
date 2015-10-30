@@ -47,6 +47,9 @@ import java.net.UnknownHostException;
 import java.util.*;
 import java.util.logging.Level;
 
+/**
+ * Tests for remote event.
+ */
 public class RemoteTest {
   private final LocalAddressProvider localAddressProvider;
   private final TransportFactory tpFactory;

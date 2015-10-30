@@ -43,6 +43,9 @@ import org.junit.rules.TestName;
 import java.util.*;
 import java.util.logging.Level;
 
+/**
+ * Test transferring small messages.
+ */
 public class SmallMessagesTest {
   private final LocalAddressProvider localAddressProvider;
   private final TransportFactory tpFactory;

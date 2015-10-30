@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- *
+ * Wake exceptions.
  */
 package org.apache.reef.wake.exception;

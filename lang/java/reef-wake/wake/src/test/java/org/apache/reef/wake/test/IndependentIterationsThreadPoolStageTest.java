@@ -30,6 +30,9 @@ import java.util.logging.Logger;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
+/**
+ * IndependentIterationsThreadPoolStage test.
+ */
 public class IndependentIterationsThreadPoolStageTest {
 
   @Test
