@@ -18,6 +18,7 @@
  */
 
 using System;
+using System.Runtime.ExceptionServices;
 using System.Text;
 using Org.Apache.REEF.Utilities.Logging;
 
@@ -51,7 +52,7 @@ namespace Org.Apache.REEF.Utilities.Diagnostics
             {
                 logger.Log(Level.Error, logMessage, exception);
             }
-            throw exception;
+            ExceptionDispatchInfo.Capture(exception).Throw();
         }
 
         /// <summary>
@@ -151,7 +152,7 @@ namespace Org.Apache.REEF.Utilities.Diagnostics
             {
                 logger.Log(level, logMessage, exception);
             }
-            throw exception;
+            ExceptionDispatchInfo.Capture(exception).Throw();
         }
 
         /// <summary>

@@ -339,8 +339,7 @@ namespace Org.Apache.REEF.Evaluator
         {
             var message = "Unhandled exception caught in Evaluator. Current files in the working directory: " +
                           GetDirectoryListing(Directory.GetCurrentDirectory());
-            _logger.Log(Level.Error, message, ex);
-            throw ex;
+            Utilities.Diagnostics.Exceptions.Throw(ex, message, _logger);
         }
     }
 }
