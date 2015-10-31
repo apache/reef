@@ -230,6 +230,16 @@ namespace Org.Apache.REEF.Driver.Bridge
             }
         }
 
+        public static float Call_ProgressProvider_GetProgress(ulong handle)
+        {
+            using (LOGGER.LogFunction("ClrSystemHandlerWrapper::Call_ProgressProvider_GetProgress"))
+            {
+                GCHandle gc = GCHandle.FromIntPtr((IntPtr)handle);
+                IProgressProvider obj = (IProgressProvider)gc.Target;
+                return obj.Progress;
+            }
+        }
+
         public static BridgeHandlerManager Call_ClrSystemStartHandler_OnStart(
             DateTime startTime, 
             string httpServerPort,

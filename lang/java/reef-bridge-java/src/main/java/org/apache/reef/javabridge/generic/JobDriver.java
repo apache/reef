@@ -776,4 +776,18 @@ public final class JobDriver {
       }
     }
   }
+
+  /**
+   * Gets the progress of the application from .NET side.
+   */
+  public final class ProgressProvider implements org.apache.reef.driver.ProgressProvider {
+    @Override
+    public float getProgress() {
+      if (JobDriver.this.handlerManager != null && JobDriver.this.handlerManager.getProgressProvider() != 0) {
+        return NativeInterop.clrSystemProgressProviderGetProgress(JobDriver.this.handlerManager.getProgressProvider());
+      }
+
+      return 0f;
+    }
+  }
 }
