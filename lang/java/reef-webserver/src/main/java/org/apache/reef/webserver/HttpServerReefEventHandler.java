@@ -22,6 +22,7 @@ import org.apache.reef.driver.ProgressProvider;
 import org.apache.reef.driver.evaluator.EvaluatorDescriptor;
 import org.apache.reef.driver.parameters.ClientCloseHandlers;
 import org.apache.reef.runtime.common.files.REEFFileNames;
+import org.apache.reef.tang.InjectionFuture;
 import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.tang.exceptions.InjectionException;
@@ -62,7 +63,7 @@ public final class HttpServerReefEventHandler implements HttpHandler {
   private final ReefEventStateManager reefStateManager;
   private final Set<EventHandler<Void>> clientCloseHandlers;
   private final LoggingScopeFactory loggingScopeFactory;
-  private final ProgressProvider progressProvider;
+  private final InjectionFuture<ProgressProvider> progressProvider;
 
   /**
    * Log level string prefix in the log lines.
@@ -81,7 +82,7 @@ public final class HttpServerReefEventHandler implements HttpHandler {
       @Parameter(LogLevelName.class) final String logLevel,
       final LoggingScopeFactory loggingScopeFactory,
       final REEFFileNames reefFileNames,
-      final ProgressProvider progressProvider) {
+      final InjectionFuture<ProgressProvider> progressProvider) {
     this.reefStateManager = reefStateManager;
     this.clientCloseHandlers = clientCloseHandlers;
     this.loggingScopeFactory = loggingScopeFactory;
@@ -194,7 +195,7 @@ public final class HttpServerReefEventHandler implements HttpHandler {
       }
       break;
     case "progress":
-      response.getWriter().println(progressProvider.getProgress());
+      response.getWriter().println(progressProvider.get().getProgress());
       break;
     default:
       response.getWriter().println(String.format("Unsupported query for entity: [%s].", target));

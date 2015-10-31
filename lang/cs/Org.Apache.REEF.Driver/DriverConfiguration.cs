@@ -184,6 +184,11 @@ namespace Org.Apache.REEF.Driver
         /// </summary>
         public static readonly OptionalParameter<int> DriverRestartEvaluatorRecoverySeconds = new OptionalParameter<int>();
 
+        /// <summary>
+        /// The progress provider that will be injected at the Driver.
+        /// </summary>
+        public static readonly OptionalImpl<IProgressProvider> ProgressProvider = new OptionalImpl<IProgressProvider>();
+
         public static ConfigurationModule ConfigurationModule
         {
             get
@@ -233,6 +238,7 @@ namespace Org.Apache.REEF.Driver
                         MaxApplicationSubmissions)
                     .BindNamedParameter(GenericType<DriverBridgeConfigurationOptions.DriverRestartEvaluatorRecoverySeconds>.Class,
                         DriverRestartEvaluatorRecoverySeconds)
+                    .BindImplementation(GenericType<IProgressProvider>.Class, ProgressProvider)
                     .Build();
             }
         }

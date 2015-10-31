@@ -51,6 +51,7 @@ public final class Constants {
       .set(DriverConfiguration.ON_DRIVER_STARTED, JobDriver.StartHandler.class)
       .set(DriverConfiguration.ON_TASK_SUSPENDED, JobDriver.SuspendedTaskHandler.class)
       .set(DriverConfiguration.ON_EVALUATOR_COMPLETED, JobDriver.CompletedEvaluatorHandler.class)
+      .set(DriverConfiguration.PROGRESS_PROVIDER, JobDriver.ProgressProvider.class)
       .build();
 
   /**

@@ -139,6 +139,8 @@ public final class NativeInterop {
       final InteropLogger interopLogger
   );
 
+  public static native float clrSystemProgressProviderGetProgress(final long handle);
+
   /**
    * Empty private constructor to prohibit instantiation of utility class.
    */

@@ -93,6 +93,8 @@ void populateJavaBridgeHandlerManager(JNIEnv * env, jobject jbridgeHandlerManage
     env->CallVoidMethod(jbridgeHandlerManager, jsetDriverRestartCompletedHandlerMid, bridgeHandlerManager->DriverRestartCompletedHandler);
     jmethodID jsetDriverRestartFailedEvaluatorHandlerMid = env->GetMethodID(cls, "setDriverRestartFailedEvaluatorHandler", "(J)V");
     env->CallVoidMethod(jbridgeHandlerManager, jsetDriverRestartFailedEvaluatorHandlerMid, bridgeHandlerManager->DriverRestartFailedEvaluatorHandler);
+    jmethodID jsetProgressProviderMid = env->GetMethodID(cls, "setProgressProvider", "(J)V");
+    env->CallVoidMethod(jbridgeHandlerManager, jsetProgressProviderMid, bridgeHandlerManager->ProgressProvider);
 }
 
 // Loading Clr Assembly. Note that we do not use ManagerLogger in this method since the
@@ -528,10 +530,10 @@ JNIEXPORT void JNICALL Java_org_apache_reef_javabridge_NativeInterop_clrSystemDr
 }
 
 /*
-* Class:     org_apache_reef_javabridge_NativeInterop
-* Method:    clrSystemDriverRestartCompletedHandlerOnNext
-* Signature: (JLorg/apache/reef/javabridge/generic/DriverRestartCompletedBridge;)V
-*/
+ * Class:     org_apache_reef_javabridge_NativeInterop
+ * Method:    clrSystemDriverRestartCompletedHandlerOnNext
+ * Signature: (JLorg/apache/reef/javabridge/generic/DriverRestartCompletedBridge;)V
+ */
 JNIEXPORT void JNICALL Java_org_apache_reef_javabridge_NativeInterop_clrSystemDriverRestartCompletedHandlerOnNext
 (JNIEnv * env, jclass cls , jlong handler, jobject jdriverRestartCompleted) {
 	ManagedLog::LOGGER->Log("+Java_org_apache_reef_javabridge_NativeInterop_clrSystemDriverRestartCompletedHandlerOnNext");
@@ -546,10 +548,10 @@ JNIEXPORT void JNICALL Java_org_apache_reef_javabridge_NativeInterop_clrSystemDr
 }
 
 /*
-* Class:     org_apache_reef_javabridge_NativeInterop
-* Method:    clrSystemDriverRestartFailedEvaluatorHandlerOnNext
-* Signature: (JLorg/apache/reef/javabridge/FailedEvaluatorBridge;Lorg/apache/reef/javabridge/InteropLogger;)V
-*/
+ * Class:     org_apache_reef_javabridge_NativeInterop
+ * Method:    clrSystemDriverRestartFailedEvaluatorHandlerOnNext
+ * Signature: (JLorg/apache/reef/javabridge/FailedEvaluatorBridge;Lorg/apache/reef/javabridge/InteropLogger;)V
+ */
 JNIEXPORT void JNICALL Java_org_apache_reef_javabridge_NativeInterop_clrSystemDriverRestartFailedEvaluatorHandlerOnNext
 (JNIEnv * env, jclass cls, jlong handler, jobject jfailedEvaluator, jobject jlogger) {
 	ManagedLog::LOGGER->Log("+Java_org_apache_reef_javabridge_NativeInterop_clrSystemDriverRestartFailedEvaluatorHandlerOnNext");
@@ -561,6 +563,24 @@ JNIEXPORT void JNICALL Java_org_apache_reef_javabridge_NativeInterop_clrSystemDr
 		String^ errorMessage = "Exception in Call_ClrSystemDriverRestartFailedEvaluator_OnNext";
 		ManagedLog::LOGGER->LogError(errorMessage, ex);
 	}
+}
+
+/*
+ * Class:     org_apache_reef_javabridge_NativeInterop
+ * Method:    clrSystemProgressProviderGetProgress
+ * Signature: (J)F
+ */
+JNIEXPORT jfloat JNICALL Java_org_apache_reef_javabridge_NativeInterop_clrSystemProgressProviderGetProgress
+(JNIEnv * env, jclass cls, jlong handler) {
+    ManagedLog::LOGGER->Log("+Java_org_apache_reef_javabridge_NativeInterop_clrSystemProgressProviderGetProgress");
+    try {
+        return (jfloat)ClrSystemHandlerWrapper::Call_ProgressProvider_GetProgress(handler);
+    }
+    catch (System::Exception^ ex) {
+        String^ errorMessage = "Exception in Call_ProgressProvider_GetProgress";
+        ManagedLog::LOGGER->LogError(errorMessage, ex);
+        return 0;
+    }
 }
 
 static JNINativeMethod methods[] = {
@@ -621,6 +641,9 @@ static JNINativeMethod methods[] = {
 
 	{ "clrSystemDriverRestartCompletedHandlerOnNext", "(JLorg/apache/reef/javabridge/generic/DriverRestartCompletedBridge;)V",
 	(void*)&Java_org_apache_reef_javabridge_NativeInterop_clrSystemDriverRestartCompletedHandlerOnNext },
+
+	{ "clrSystemProgressProviderGetProgress", "(J)F",
+	(void*)&Java_org_apache_reef_javabridge_NativeInterop_clrSystemProgressProviderGetProgress },
 };
 
 JNIEXPORT void JNICALL

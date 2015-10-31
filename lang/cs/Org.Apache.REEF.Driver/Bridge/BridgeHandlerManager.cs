@@ -57,5 +57,7 @@ namespace Org.Apache.REEF.Driver.Bridge
         public ulong DriverRestartFailedEvaluatorHandler { get; internal set; }
 
         public ulong HttpServerHandler { get; internal set; }
+
+        public ulong ProgressProvider { get; internal set; }
     }
 }
