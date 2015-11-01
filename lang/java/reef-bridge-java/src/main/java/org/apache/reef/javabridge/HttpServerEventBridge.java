@@ -18,9 +18,16 @@
  */
 package org.apache.reef.javabridge;
 
+import org.apache.reef.annotations.audience.Interop;
+import org.apache.reef.annotations.audience.Private;
+
 /**
  * The Java-CLR bridge object for http server events.
  */
+@Private
+@Interop(
+    CppFiles = { "Clr2JavaImpl.h",  "HttpServerClr2Java.cpp"},
+    CsFiles = { "IHttpServerBridgeClr2Java.cs", "HttpMessage.cs" })
 public final class HttpServerEventBridge extends NativeBridge {
   private String queryString;
   private byte[] queryRequestData;

@@ -18,12 +18,17 @@
  */
 package org.apache.reef.javabridge;
 
+import org.apache.reef.annotations.audience.Interop;
+import org.apache.reef.annotations.audience.Private;
+
 import java.util.ArrayList;
 
 /**
  * Information about return codes/exceptions coming from bridge.
  */
-public class InteropReturnInfo {
+@Private
+@Interop(CppFiles = { "InteropReturnInfo.cpp", "InteropReturnInfo.cs"}, CsFiles = { "IInteropReturnInfo.cs" })
+public final class InteropReturnInfo {
 
   private int returnCode;
   private ArrayList<String> exceptionList = new ArrayList<>();

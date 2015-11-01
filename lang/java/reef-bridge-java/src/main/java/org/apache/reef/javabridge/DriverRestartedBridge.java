@@ -20,6 +20,7 @@ package org.apache.reef.javabridge;
 
 import org.apache.reef.annotations.Unstable;
 import org.apache.reef.annotations.audience.DriverSide;
+import org.apache.reef.annotations.audience.Interop;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.driver.restart.DriverRestarted;
 
@@ -31,6 +32,9 @@ import java.util.Set;
 @Private
 @DriverSide
 @Unstable
+@Interop(
+    CppFiles = { "Clr2JavaImpl.h", "DriverRestartedClr2Java.cpp" },
+    CsFiles = { "IDriverRestartedClr2Java.cs", "DriverRestarted.cs" })
 public final class DriverRestartedBridge extends NativeBridge {
   // Used by bridge to extract field. Please take this into consideration when changing the name of the field.
   private final String[] expectedEvaluatorIds;

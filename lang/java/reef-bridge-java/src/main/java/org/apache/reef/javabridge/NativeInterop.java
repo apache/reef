@@ -18,12 +18,16 @@
  */
 package org.apache.reef.javabridge;
 
+import org.apache.reef.annotations.audience.Interop;
+import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.javabridge.generic.DriverRestartCompletedBridge;
 
 /**
  * Java interfaces of CLR/Java bridge.
  * Implementations of the methods can be found at lang/cs/Org.Apache.REEF.Bridge/JavaClrBridge.cpp.
  */
+@Private
+@Interop(CppFiles = { "JavaClrBridge.h", "JavaClrBridge.cpp" })
 public final class NativeInterop {
   public static final String GLOBAL_LIBRARIES_FILENAME = "userSuppliedGlobalLibraries.txt";
 

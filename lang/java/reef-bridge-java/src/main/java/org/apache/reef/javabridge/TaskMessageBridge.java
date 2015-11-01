@@ -18,12 +18,18 @@
  */
 package org.apache.reef.javabridge;
 
+import org.apache.reef.annotations.audience.Interop;
+import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.driver.task.TaskMessage;
 
 /**
  * The Java-CLR bridge object for {@link org.apache.reef.driver.task.TaskMessage}.
  */
-public class TaskMessageBridge extends NativeBridge {
+@Private
+@Interop(
+    CppFiles = { "Clr2JavaImpl.h", "TaskMessageClr2Java.cpp" },
+    CsFiles = { "ITaskMessageClr2Java.cs", "TaskMessage.cs" })
+public final class TaskMessageBridge extends NativeBridge {
   private TaskMessage jtaskMessage;
   private String taskId;
 

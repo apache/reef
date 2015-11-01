@@ -18,6 +18,8 @@
  */
 package org.apache.reef.javabridge;
 
+import org.apache.reef.annotations.audience.Interop;
+import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.driver.evaluator.EvaluatorRequest;
 import org.apache.reef.driver.evaluator.EvaluatorRequestor;
 import org.apache.reef.util.logging.LoggingScope;
@@ -29,6 +31,10 @@ import java.util.logging.Logger;
 /**
  * The Java-CLR bridge object for {@link org.apache.reef.driver.evaluator.EvaluatorRequestor}.
  */
+@Private
+@Interop(
+    CppFiles = { "Clr2JavaImpl.h", "EvaluatorRequestorClr2Java.cpp" },
+    CsFiles = { "IEvaluatorRequestorClr2Java.cs", "EvaluatorRequestor.cs" })
 public final class EvaluatorRequestorBridge extends NativeBridge {
   private static final Logger LOG = Logger.getLogger(EvaluatorRequestorBridge.class.getName());
   private final boolean isBlocked;
