@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * A parser interface and implementation for SVMLight records.
  */
 package org.apache.reef.examples.group.bgd.data.parser;

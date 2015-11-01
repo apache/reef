@@ -56,6 +56,7 @@ public final class EnvironmentUtils {
    * Get a set of all classpath entries EXCEPT of those under excludeEnv directories.
    * Every excludeEnv entry is an environment variable name.
    *
+   * @param excludeEnv A set of environments to be excluded.
    * @return A set of classpath entries as strings.
    */
   public static Set<String> getAllClasspathJars(final String... excludeEnv) {
@@ -113,7 +114,7 @@ public final class EnvironmentUtils {
   }
 
   /**
-   * @param clazz
+   * @param clazz class
    * @return the location (JAR or .class file) where the given class is located.
    */
   public static String getClassLocation(final Class<?> clazz) {

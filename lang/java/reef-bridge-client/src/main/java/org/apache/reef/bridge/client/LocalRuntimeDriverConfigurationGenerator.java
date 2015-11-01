@@ -63,7 +63,7 @@ final class LocalRuntimeDriverConfigurationGenerator {
    * @param jobFolder The folder in which the job is staged.
    * @param jobId id of the job to be submitted
    * @param clientRemoteId
-   * @return
+   * @return the configuration
    * @throws IOException
    */
   public Configuration writeConfiguration(final File jobFolder,

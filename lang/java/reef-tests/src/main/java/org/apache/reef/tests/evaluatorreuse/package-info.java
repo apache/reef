@@ -18,6 +18,6 @@
  */
 /**
  * This package contains a test of the Evaluator reuse. It submits the EchoTask several times to the same Evaluator.
- * This test also incidentially tests whether the memento is transferred correctly from and to the Task.
+ * This test also incidentally tests whether the memento is transferred correctly from and to the Task.
  */
 package org.apache.reef.tests.evaluatorreuse;

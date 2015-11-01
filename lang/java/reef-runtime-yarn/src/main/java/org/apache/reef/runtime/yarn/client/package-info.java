@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * Client-side event handlers for YARN resourcemanager.
  */
 package org.apache.reef.runtime.yarn.client;

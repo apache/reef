@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * Utility functions for BGD.
  */
 package org.apache.reef.examples.group.bgd.utils;

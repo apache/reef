@@ -27,7 +27,7 @@
  * specified.
  *
  * After the GroupCommDriver is configured the driver would want to submit
- * tasks with the Communication Groups & their operators configured. To do
+ * tasks with the Communication Groups and their operators configured. To do
  * that the user has to create a partial task configuration containing his
  * set of configurations and add it to the relevant communication group.
  * Based on whether the given task is a Master/Slave different roles for

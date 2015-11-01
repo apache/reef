@@ -26,7 +26,7 @@ import org.apache.reef.tang.formats.*;
 
 /**
  * The base configuration module for driver restart configurations of all runtimes.
- * <p/>
+ * <p>
  */
 @Private
 @ClientSide

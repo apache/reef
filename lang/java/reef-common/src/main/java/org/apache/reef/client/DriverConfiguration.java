@@ -178,7 +178,7 @@ public final class DriverConfiguration extends ConfigurationModuleBuilder {
   public static final OptionalImpl<EventHandler<ContextMessage>> ON_CONTEXT_MESSAGE = new OptionalImpl<>();
 
   /**
-   * @see {@link ProgressProvider}
+   * Progress provider. See {@link ProgressProvider}.
    */
   public static final OptionalImpl<ProgressProvider> PROGRESS_PROVIDER = new OptionalImpl<>();
 

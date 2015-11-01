@@ -28,10 +28,10 @@ import java.util.logging.Logger;
 
 /**
  * This is used as the Exception handler for REEF client processes (Driver, Evaluator).
- * <p/>
+ * <p>
  * It catches all exceptions and sends them to the controlling process.
  * For Evaluators, that is the Driver. For the Driver, that is the Client.
- * <p/>
+ * <p>
  * After sending the exception, this shuts down the JVM, as this JVM is then officially dead.
  */
 public final class REEFUncaughtExceptionHandler implements Thread.UncaughtExceptionHandler {

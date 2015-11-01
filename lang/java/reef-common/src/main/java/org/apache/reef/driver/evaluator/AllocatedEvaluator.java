@@ -42,7 +42,6 @@ public interface AllocatedEvaluator
    * Puts the given file into the working directory of the Evaluator.
    *
    * @param file the file to be copied
-   * @throws java.io.IOException if the copy fails.
    */
   void addFile(final File file);
 
@@ -50,7 +49,6 @@ public interface AllocatedEvaluator
    * Puts the given file into the working directory of the Evaluator and adds it to its classpath.
    *
    * @param file the file to be copied
-   * @throws java.io.IOException if the copy fails.
    */
   void addLibrary(final File file);
 
@@ -75,7 +73,7 @@ public interface AllocatedEvaluator
 
   /**
    * Submits the given Task for execution.
-   * <p/>
+   * <p>
    * This generates a ContextConfiguration for the root context with a generated ID derived from the EvaluatorId.
    *
    * @param taskConfiguration the Configuration. See TaskConfiguration for details.

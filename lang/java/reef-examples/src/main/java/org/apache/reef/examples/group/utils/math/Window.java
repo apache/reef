@@ -23,7 +23,9 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-// TODO: Document
+/**
+ * Maintaining a fixed-size queue for sliding window operation.
+ */
 public class Window {
 
   private final int maxSize;

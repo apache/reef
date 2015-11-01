@@ -45,7 +45,6 @@ public final class ParsedHttpRequest {
    *
    * @param request
    * @throws IOException
-   * @throws javax.servlet.ServletException
    */
   public ParsedHttpRequest(final HttpServletRequest request) throws IOException {
     this.pathInfo = request.getPathInfo() != null ? request.getPathInfo() : "";

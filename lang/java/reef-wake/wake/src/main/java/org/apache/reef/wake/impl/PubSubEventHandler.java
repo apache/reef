@@ -51,7 +51,7 @@ public class PubSubEventHandler<T> implements EventHandler<T> {
   /**
    * Constructs a pub-sub event handler with initial subscribed event handlers.
    *
-   * @param map a map of event class types to lists of event handlers
+   * @param clazzToListOfHandlersMap a map of event class types to lists of event handlers
    */
   public PubSubEventHandler(final Map<Class<? extends T>, List<EventHandler<? extends T>>> clazzToListOfHandlersMap) {
     this.clazzToListOfHandlersMap = clazzToListOfHandlersMap;

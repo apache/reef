@@ -67,7 +67,6 @@ public class BGDClient {
    *
    * @param runtimeConfiguration the runtime to run on.
    * @param jobName              the name of the job on the runtime.
-   * @return
    */
   public void submit(final Configuration runtimeConfiguration, final String jobName) throws Exception {
     final Configuration driverConfiguration = getDriverConfiguration(jobName);

@@ -46,14 +46,14 @@ import java.util.*;
 
 /**
  * (De-)Serializing Configuration to and from AvroConfiguration.
- * <p/>
+ * <p>
  * This class is stateless and is therefore safe to reuse.
  */
 public final class AvroConfigurationSerializer implements ConfigurationSerializer {
 
   /**
    * The Charset used for the JSON encoding.
-   * <p/>
+   * <p>
    * Copied from <code>org.apache.avro.io.JsonDecoder.CHARSET</code>
    */
   private static final String JSON_CHARSET = "ISO-8859-1";
@@ -241,7 +241,7 @@ public final class AvroConfigurationSerializer implements ConfigurationSerialize
   /**
    * Converts a given AvroConfiguration to Configuration.
    *
-   * @param avroConfiguration
+   * @param avroConfiguration a Avro configuration
    * @return a Configuration version of the given AvroConfiguration
    */
   public Configuration fromAvro(final AvroConfiguration avroConfiguration) throws BindException {
@@ -253,7 +253,7 @@ public final class AvroConfigurationSerializer implements ConfigurationSerialize
   /**
    * Converts a given AvroConfiguration to Configuration.
    *
-   * @param avroConfiguration
+   * @param avroConfiguration a Avro configuration
    * @param classHierarchy    the class hierarchy used for validation.
    * @return a Configuration version of the given AvroConfiguration
    */
@@ -326,10 +326,10 @@ public final class AvroConfigurationSerializer implements ConfigurationSerialize
   /**
    * Converts a given serialized string to ConfigurationBuilder from which Configuration can be produced.
    *
-   * @param theString
-   * @param configBuilder
-   * @throws IOException
-   * @throws BindException
+   * @param theString the String containing configuration
+   * @param configBuilder a configuration builder
+   * @throws IOException if the string is not Avro format
+   * @throws BindException if the content of configuration string is invalid to bind
    */
   public void configurationBuilderFromString(final String theString, final ConfigurationBuilder configBuilder)
       throws IOException, BindException {

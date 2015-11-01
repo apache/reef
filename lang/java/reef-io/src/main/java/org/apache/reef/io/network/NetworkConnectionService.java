@@ -28,21 +28,23 @@ import org.apache.reef.wake.remote.transport.LinkListener;
 
 /**
  * NetworkConnectionService.
- *
+ * <p>
  * NetworkConnectionService is a service which is designed for communicating messages with each other.
  * It creates multiple ConnectionFactories, which create multiple connections.
- *
+ * <p>
  * Flow of message transfer:
- * [Downstream]: connection.write(message) -> ConnectionFactory
- * -> src NetworkConnectionService (encode) -> dest NetworkConnectionService.
- * [Upstream]: message -> dest NetworkConnectionService (decode) -> ConnectionFactory -> EventHandler.
- *
+ * <ul>
+ * <li>[Downstream]: {@code connection.write(message) -> ConnectionFactory
+ * -> src NetworkConnectionService (encode) -> dest NetworkConnectionService}.</li>
+ * <li>[Upstream]: {@code message -> dest NetworkConnectionService (decode) -> ConnectionFactory -> EventHandler}.</li>
+ * </ul>
+ * <p>
  * Users can register a ConnectionFactory by registering their Codec, EventHandler, LinkListener and end point id.
  * When users send messages via connections created by the ConnectionFactory,
- *
+ * <p>
  * NetworkConnectionService encodes the messages according to the Codec
  * registered in the ConnectionFactory and sends them to the destination NetworkConnectionService.
- *
+ * <p>
  * Also, it receives the messages by decoding the messages and forwarding them
  * to the corresponding EventHandler registered in the ConnectionFactory.
  */
@@ -58,8 +60,8 @@ public interface NetworkConnectionService extends AutoCloseable {
    * is the contact point, which is registered to NameServer through this method.
    *
    * @param connectionFactoryId a connection factory id
-   * @param codec a codec for type <T>
-   * @param eventHandler an event handler for type <T>
+   * @param codec a codec for type T
+   * @param eventHandler an event handler for type T
    * @param linkListener a link listener
    * @param localEndPointId a local end point id
    * @return the registered connection factory

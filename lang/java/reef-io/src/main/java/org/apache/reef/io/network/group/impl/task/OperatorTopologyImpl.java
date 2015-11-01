@@ -103,18 +103,18 @@ public class OperatorTopologyImpl implements OperatorTopology {
    * received TopologySetup but not yet created the effectiveTopology.
    * Most times the msgs in the deletionDeltas will be discarded as stale
    * msgs
-   * <p/>
+   * <p>
    * No synchronization is needed while handling *Dead messages.
-   * There 2 states: UpdatingTopo & NotUpdatingTopo
+   * There 2 states: UpdatingTopo and NotUpdatingTopo
    * If UpdatingTopo, deltas.put still takes care of adding this msg to effTop through baseTopo changes.
    * If not, we add to effTopo. So we are good.
-   * <p/>
+   * <p>
    * However, for data msgs synchronization is needed. Look at doc of
    * DataHandlingStage
-   * <p/>
+   * <p>
    * Adding to deletionDeltas should be outside
    * effTopo!=null block. There is a rare possibility that during initialization
-   * just after baseTopo is created(so deltas will be ignored) & just before
+   * just after baseTopo is created(so deltas will be ignored) and just before
    * effTopo is created(so effTopo will be null) where we can miss a deletion
    * msg if not added to deletionDelta because this method is synchronized
    */
@@ -296,7 +296,7 @@ public class OperatorTopologyImpl implements OperatorTopology {
   /**
    * Blocking method that waits till the base topology is updated Unblocks when.
    * we receive a TopologySetup msg from driver
-   * <p/>
+   * <p>
    * Will also update the effective topology when the base topology is updated
    * so that creation of effective topology is limited to just this method and
    * refresh will only refresh the effective topology with deletion msgs from

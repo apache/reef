@@ -28,7 +28,7 @@ import java.util.List;
 
 /**
  * MPI Reduce operator.
- * <p/>
+ * <p>
  * This is another operator with root being receiver All senders send an element
  * to the receiver. These elements are passed through a reduce function and its
  * result is made available at the root

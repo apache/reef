@@ -31,18 +31,18 @@ import java.util.logging.Logger;
 
 /**
  * Thin wrapper around ChunkedWriteHandler.
- * <p/>
+ * <p>
  * ChunkedWriteHandler only handles the down stream parts
  * and just emits the chunks up stream. So we add an upstream
  * handler that aggregates the chunks into its original form. This
  * is guaranteed to be thread serial so state can be shared.
- * <p/>
+ * <p>
  * On the down stream side, we just decorate the original message
  * with its size and allow the thread-serial base class to actually
  * handle the chunking. We need to be careful since the decoration
  * itself has to be thread-safe since netty does not guarantee thread
  * serial access to down stream handlers.
- * <p/>
+ * <p>
  * We do not need to tag the writes since the base class ChunkedWriteHandler
  * serializes access to the channel and first write will complete before
  * the second begins.
@@ -111,7 +111,7 @@ public class ChunkedReadWriteHandler extends ChunkedWriteHandler {
    * Just prepend size to the message and stream it through
    * a chunked stream and let the base method handle the actual
    * chunking.
-   * <p/>
+   * <p>
    * We do not need to tag the writes since the base class ChunkedWriteHandler
    * serializes access to the channel and first write will complete before
    * the second begins.

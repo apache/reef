@@ -134,7 +134,7 @@ public class ClassHierarchyImpl implements JavaClassHierarchy {
 
   /**
    * Parse a string, assuming that it is of the type expected by a given NamedParameter.
-   * <p/>
+   * <p>
    * This method does not deal with sets; if the NamedParameter is set valued, then the provided
    * string should correspond to a single member of the set.  It is up to the caller to call parse
    * once for each value that should be parsed as a member of the set.

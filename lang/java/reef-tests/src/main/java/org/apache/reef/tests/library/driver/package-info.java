@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * Commonly used event handler implementations in our tests.
  */
 package org.apache.reef.tests.library.driver;

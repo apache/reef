@@ -133,7 +133,7 @@ public final class ContextRuntime {
 
   /**
    * Spawns a new context.
-   * <p/>
+   * <p>
    * The new context will have a serviceInjector that is created by forking the one in this object with the given
    * serviceConfiguration. The contextConfiguration is used to fork the contextInjector from that new serviceInjector.
    *
@@ -187,7 +187,7 @@ public final class ContextRuntime {
 
   /**
    * Spawns a new context without services of its own.
-   * <p/>
+   * <p>
    * The new context will have a serviceInjector that is created by forking the one in this object. The
    * contextConfiguration is used to fork the contextInjector from that new serviceInjector.
    *
@@ -307,7 +307,7 @@ public final class ContextRuntime {
 
   /**
    * Deliver the given message to the Task.
-   * <p/>
+   * <p>
    * Note that due to races, the task might have already ended. In that case, we drop this call and leave a WARNING
    * in the log.
    *
@@ -325,7 +325,7 @@ public final class ContextRuntime {
 
   /**
    * Issue a close call to the Task
-   * <p/>
+   * <p>
    * Note that due to races, the task might have already ended. In that case, we drop this call and leave a WARNING
    * in the log.
    *
@@ -343,7 +343,7 @@ public final class ContextRuntime {
 
   /**
    * Deliver a message to the Task
-   * <p/>
+   * <p>
    * Note that due to races, the task might have already ended. In that case, we drop this call and leave a WARNING
    * in the log.
    *

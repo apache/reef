@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * Network service exceptions.
  */
 package org.apache.reef.io.network.exception;

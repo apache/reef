@@ -25,7 +25,7 @@ import org.apache.reef.wake.EventHandler;
 import javax.inject.Inject;
 
 /**
- * Default implementation for EventHandler<CloseEvent>.
+ * Default implementation for {@code EventHandler<CloseEvent>}.
  */
 @Private
 public final class DefaultCloseHandler implements EventHandler<CloseEvent> {

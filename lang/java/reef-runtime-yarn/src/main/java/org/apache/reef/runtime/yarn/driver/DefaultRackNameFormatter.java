@@ -38,7 +38,7 @@ public final class DefaultRackNameFormatter implements RackNameFormatter {
   }
 
   /**
-   * @see {@link RackNameFormatter#getRackName(Container)}.
+   * @see RackNameFormatter#getRackName(Container)
    */
   @Override
   public String getRackName(final Container container) {

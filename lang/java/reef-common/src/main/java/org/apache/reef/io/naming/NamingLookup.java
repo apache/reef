@@ -33,8 +33,8 @@ public interface NamingLookup {
   /**
    * Lookup an Address for a given Identifier.
    *
-   * @param id
-   * @return
+   * @param id the identifier to be searched
+   * @return the Inet address
    * @throws java.io.IOException
    */
   InetSocketAddress lookup(final Identifier id) throws Exception;

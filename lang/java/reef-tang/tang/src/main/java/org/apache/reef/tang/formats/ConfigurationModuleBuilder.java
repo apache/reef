@@ -127,6 +127,9 @@ public abstract class ConfigurationModuleBuilder {
   /**
    * TODO: It would be nice if this incorporated d by reference so that static analysis / documentation tools
    * could document the dependency between c and d.
+   *
+   * @param d a configuration module to merge
+   * @return the merged configuration module builder
    */
   public final ConfigurationModuleBuilder merge(final ConfigurationModule d) {
     if (d == null) {

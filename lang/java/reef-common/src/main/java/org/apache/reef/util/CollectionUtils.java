@@ -32,6 +32,7 @@ public final class CollectionUtils {
 
   /**
    * Checks if the collection is null or empty.
+   * @param <T> a type of element of collection
    * @param parameter the collection
    * @return true if the collection is null or empty
    */
@@ -41,9 +42,9 @@ public final class CollectionUtils {
 
   /**
    * Checks if the collection is not null and not empty.
+   * @param <T> a type of element of collection
    * @param parameter the collection
    * @return true if the collection is not null nor empty
-   *
    */
   public static <T> boolean isNotEmpty(final Collection<T> parameter) {
     return !isEmpty(parameter);

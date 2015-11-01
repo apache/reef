@@ -49,11 +49,12 @@ public final class ReflectionUtilities {
 
   /**
    * Given a primitive type, return its boxed representation.
-   * <p/>
+   * <p>
    * Examples:
+   * <pre>{@code
    * boxClass(int.class) -> Integer.class
    * boxClass(String.class) -> String.class
-   *
+   * }</pre>
    * @param c The class to be boxed.
    * @return The boxed version of c, or c if it is not a primitive type.
    */
@@ -88,13 +89,15 @@ public final class ReflectionUtilities {
 
   /**
    * Given a Type, return all of the classes it extends and interfaces it implements (including the class itself).
-   * <p/>
+   * <p>
    * Examples:
+   * <pre>{@code
    * Integer.class -> {Integer.class, Number.class, Object.class}
    * T -> Object
    * ? -> Object
    * HashSet<T> -> {HashSet<T>, Set<T>, Collection<T>, Object}
    * FooEventHandler -> {FooEventHandler, EventHandler<Foo>, Object}
+   * }</pre>
    */
   public static Iterable<Type> classAndAncestors(final Type c) {
     final List<Type> workQueue = new ArrayList<>();
@@ -139,10 +142,10 @@ public final class ReflectionUtilities {
    * Check to see if one class can be coerced into another.  A class is
    * coercable to another if, once both are boxed, the target class is a
    * superclass or implemented interface of the source class.
-   * <p/>
+   * <p>
    * If both classes are numeric types, then this method returns true iff
    * the conversion will not result in a loss of precision.
-   * <p/>
+   * <p>
    * TODO: Float and double are currently coercible to int and long.  This is a bug.
    */
   public static boolean isCoercable(final Class<?> to, final Class<?> from) {
@@ -210,12 +213,12 @@ public final class ReflectionUtilities {
 
   /**
    * Return the full name of the raw type of the provided Type.
-   * <p/>
+   * <p>
    * Examples:
-   * <p/>
+   * <pre>{@code
    * java.lang.String.class -> "java.lang.String"
    * Set<String> -> "java.util.Set"  // such types can occur as constructor arguments, for example
-   *
+   * }</pre>
    * @param name
    * @return
    */
@@ -227,10 +230,11 @@ public final class ReflectionUtilities {
    * Return the full name of the provided field.  This will be globally
    * unique.  Following Java semantics, the full name will have all the
    * generic parameters stripped out of it.
-   * <p/>
+   * <p>
    * Example:
-   * <p/>
+   * <pre>{@code
    * Set<X> { int size; } -> java.util.Set.size
+   * }</pre>
    */
   public static String getFullName(final Field f) {
     return getFullName(f.getDeclaringClass()) + "." + f.getName();
@@ -239,9 +243,9 @@ public final class ReflectionUtilities {
   /**
    * This method takes a class called clazz that *directly* implements a generic interface or generic class, iface.
    * Iface should take a single parameter, which this method will return.
-   * <p/>
+   * <p>
    * TODO This is only tested for interfaces, and the type parameters associated with method arguments.
-   * TODO Not sure what we should do in the face of deeply nested generics (eg: Set<Set<String>)
+   * TODO Not sure what we should do in the face of deeply nested generics (eg: {@code Set<Set<String>})
    * TODO Recurse up the class hierarchy in case there are intermediate interfaces
    *
    * @param iface A generic interface; we're looking up it's first (and only) parameter.
@@ -291,7 +295,7 @@ public final class ReflectionUtilities {
 
   /**
    * @param clazz
-   * @return T if clazz implements Name<T>, null otherwise
+   * @return T if clazz implements {@code Name<T>}, null otherwise
    * @throws org.apache.reef.tang.exceptions.BindException
    * If clazz's definition incorrectly uses Name or @NamedParameter
    */
@@ -381,12 +385,14 @@ public final class ReflectionUtilities {
   /**
    * Coerce a Type into a Class.  This strips out any generic paramters, and
    * resolves wildcards and free parameters to Object.
-   * <p/>
+   * <p>
    * Examples:
+   * <pre>{@code
    * java.util.Set<String> -> java.util.Set
    * ? extends T -> Object
    * T -> Object
    * ? -> Object
+   * }</pre>
    */
   public static Class<?> getRawClass(final Type clazz) {
     if (clazz instanceof Class) {

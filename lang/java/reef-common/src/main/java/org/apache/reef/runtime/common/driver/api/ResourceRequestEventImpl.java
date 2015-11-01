@@ -131,7 +131,7 @@ public final class ResourceRequestEventImpl implements ResourceRequestEvent {
 
     /**
      * Add a list of node names.
-     * @see {@link ResourceRequestEventImpl.Builder#addNodeName}
+     * @see ResourceRequestEventImpl.Builder#addNodeName
      */
     public Builder addNodeNames(final List<String> nodeNames) {
       for (final String nodeName : nodeNames) {
@@ -141,8 +141,8 @@ public final class ResourceRequestEventImpl implements ResourceRequestEvent {
     }
 
     /**
-     * Add an entry to rackNameList.
-     * @see ResourceRequestEvent#getRackNameList()
+     * Add a list of rack names.
+     * @see ResourceRequestEventImpl.Builder#addRackName
      */
     public Builder addRackName(final String rackName) {
       this.rackNameList.add(rackName);
@@ -150,8 +150,8 @@ public final class ResourceRequestEventImpl implements ResourceRequestEvent {
     }
 
     /**
-     * Add a list of rack names.
-     * @see {@link ResourceRequestEventImpl.Builder#addRackName}
+     * Add an entry to rackNameList.
+     * @see ResourceRequestEvent#getRackNameList
      */
     public Builder addRackNames(final List<String> rackNames) {
       for (final String rackName : rackNames) {
@@ -161,7 +161,7 @@ public final class ResourceRequestEventImpl implements ResourceRequestEvent {
     }
 
     /**
-     * @see ResourceRequestEvent#getMemorySize()
+     * @see ResourceRequestEvent#getMemorySize
      */
     public Builder setMemorySize(final int memorySize) {
       this.memorySize = memorySize;
@@ -169,7 +169,7 @@ public final class ResourceRequestEventImpl implements ResourceRequestEvent {
     }
 
     /**
-     * @see ResourceRequestEvent#getPriority()
+     * @see ResourceRequestEvent#getPriority
      */
     public Builder setPriority(final int priority) {
       this.priority = priority;
@@ -177,7 +177,7 @@ public final class ResourceRequestEventImpl implements ResourceRequestEvent {
     }
 
     /**
-     * @see ResourceRequestEvent#getVirtualCores()
+     * @see ResourceRequestEvent#getVirtualCores
      */
     public Builder setVirtualCores(final int virtualCores) {
       this.virtualCores = virtualCores;
@@ -185,7 +185,7 @@ public final class ResourceRequestEventImpl implements ResourceRequestEvent {
     }
 
     /**
-     * @see ResourceRequestEvent#getRelaxLocality()
+     * @see ResourceRequestEvent#getRelaxLocality
      */
     public Builder setRelaxLocality(final boolean relaxLocality) {
       this.relaxLocality = relaxLocality;

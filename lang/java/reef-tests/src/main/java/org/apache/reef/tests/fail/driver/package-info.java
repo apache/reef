@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * Tests for Driver-side failures.
  */
 package org.apache.reef.tests.fail.driver;

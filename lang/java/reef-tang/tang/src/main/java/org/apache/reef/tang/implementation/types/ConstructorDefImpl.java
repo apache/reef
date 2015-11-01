@@ -94,7 +94,7 @@ public class ConstructorDefImpl<T> implements ConstructorDef<T> {
    * Check to see if two boundConstructors take indistinguishable arguments. If
    * so (and they are in the same class), then this would lead to ambiguous
    * injection targets, and we want to fail fast.
-   * <p/>
+   * <p>
    * TODO could be faster. Currently O(n^2) in number of parameters.
    *
    * @param def

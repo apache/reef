@@ -28,10 +28,11 @@ import javax.inject.Inject;
 /**
  * Helper class for immediately sending heartbeat messages.
  * This can be used together with TaskMessageSource to push urgent messages to the Driver.
- * <p/>
+ * <p>
  * CAUTION: Do not overuse as the Driver can be saturated with heartbeats.
  *
- * @see https://issues.apache.org/jira/browse/REEF-33 for the ongoing discussion of alternatives to this design.
+ * @see <a href="https://issues.apache.org/jira/browse/REEF-33">REEF-33</a> for the ongoing discussion of
+ * alternatives to this design.
  */
 @TaskSide
 @Public

@@ -17,6 +17,8 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * A line counter example using data loading service.
+ *
+ * Data loading service easily loads data either from HDFS or the local file system
  */
 package org.apache.reef.examples.data.loading;

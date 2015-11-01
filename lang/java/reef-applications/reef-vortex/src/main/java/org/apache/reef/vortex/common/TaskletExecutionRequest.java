@@ -42,7 +42,7 @@ public final class TaskletExecutionRequest<TInput extends Serializable, TOutput 
   }
 
   /**
-   * Vortex Master -> Vortex Worker request to execute a tasklet.
+   * Request from Vortex Master to Vortex Worker to execute a tasklet.
    */
   public TaskletExecutionRequest(final int taskletId,
                                  final VortexFunction<TInput, TOutput> userFunction,

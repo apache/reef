@@ -195,8 +195,6 @@ public final class ThreadPoolStage<T> extends AbstractEStage<T> {
 
   /**
    * Closes resources.
-   *
-   * @return Exception
    */
   @Override
   public void close() throws Exception {

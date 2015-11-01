@@ -191,7 +191,7 @@ public class JavaConfigurationBuilderImpl extends ConfigurationBuilderImpl
    * Binding list method for JavaConfigurationBuilder. It checks the type of a given named parameter,
    * and whether all the list's elements can be applied to the named parameter. The elements' type
    * should be either java Class or String.
-   * <p/>
+   * <p>
    * It does not check whether the list's String values can be parsed to T, like bindSetEntry.
    *
    * @param iface    target named parameter to be instantiated

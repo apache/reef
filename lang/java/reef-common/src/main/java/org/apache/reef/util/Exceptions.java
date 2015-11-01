@@ -28,8 +28,8 @@ public final class Exceptions {
   /**
    * Walks the .getCause() chain till it hits the leaf node.
    *
-   * @param throwable
-   * @return
+   * @param throwable a throwable object
+   * @return the most inner cause
    */
   public static Throwable getUltimateCause(final Throwable throwable) {
     if (throwable.getCause() == null) {

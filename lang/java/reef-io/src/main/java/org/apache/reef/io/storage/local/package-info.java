@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * Implementations for local filesystem-based storage service.
  */
 package org.apache.reef.io.storage.local;

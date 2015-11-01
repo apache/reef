@@ -52,6 +52,8 @@ public final class EvaluatorRequest {
   }
 
   /**
+   * Get a new builder.
+   *
    * @return a new EvaluatorRequest Builder.
    */
   public static Builder newBuilder() {
@@ -59,6 +61,8 @@ public final class EvaluatorRequest {
   }
 
   /**
+   * Get a new builder from the existing request.
+   *
    * @return a new EvaluatorRequest Builder with settings initialized
    * from an existing request.
    */
@@ -85,6 +89,8 @@ public final class EvaluatorRequest {
   }
 
   /**
+   * Access the number of memory requested.
+   *
    * @return the minimum size of Evaluator requested.
    */
   public int getMegaBytes() {
@@ -92,6 +98,8 @@ public final class EvaluatorRequest {
   }
 
   /**
+   * Access the preferred node.
+   *
    * @return the node names that we prefer the Evaluator to run on
    */
   public List<String> getNodeNames() {
@@ -99,6 +107,8 @@ public final class EvaluatorRequest {
   }
 
   /**
+   * Access the preferred rack name.
+   *
    * @return the rack names that we prefer the Evaluator to run on
    */
   public List<String> getRackNames() {
@@ -122,8 +132,8 @@ public final class EvaluatorRequest {
     /**
      * Pre-populates the builder with the values extracted from the request.
      *
-     * @param request
-     *          the request
+     * @param request the request
+     * @return this Builder
      */
     private Builder(final EvaluatorRequest request) {
       setNumber(request.getNumber());
@@ -138,6 +148,8 @@ public final class EvaluatorRequest {
     }
 
     /**
+     * Set the amount of memory.
+     *
      * @param megaBytes the amount of megabytes to request for the Evaluator.
      * @return this builder
      */
@@ -148,10 +160,10 @@ public final class EvaluatorRequest {
     }
 
     /**
-     * set number of cores.
+     * Set number of cores.
      *
      * @param cores the number of cores
-     * @return
+     * @return this Builder.
      */
     @SuppressWarnings("checkstyle:hiddenfield")
     public Builder setNumberOfCores(final int cores) {
@@ -162,7 +174,7 @@ public final class EvaluatorRequest {
     /**
      * Set the number of Evaluators requested.
      *
-     * @param n
+     * @param n the number of evaluators
      * @return this Builder.
      */
     @SuppressWarnings("checkstyle:hiddenfield")
@@ -175,6 +187,9 @@ public final class EvaluatorRequest {
      * Adds a node name.It is the preferred location where the evaluator should
      * run on. If the node is available, the RM will try to allocate the
      * evaluator there
+     *
+     * @param nodeName a preferred node name
+     * @return this Builder.
      */
     public Builder addNodeName(final String nodeName) {
       this.nodeNames.add(nodeName);
@@ -186,6 +201,9 @@ public final class EvaluatorRequest {
      * run on. If the rack is available, the RM will try to allocate the
      * evaluator in one of its nodes. The RM will try to match node names first,
      * and then fallback to rack names
+     *
+     * @param rackName a preferred rack name
+     * @return this Builder.
      */
     public Builder addRackName(final String rackName) {
       this.rackNames.add(rackName);

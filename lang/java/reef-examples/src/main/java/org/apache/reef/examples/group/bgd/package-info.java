@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * Runs BGD on the given runtime.
  */
 package org.apache.reef.examples.group.bgd;

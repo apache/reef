@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * Driver-side parameters for Mesos job submission.
  */
 package org.apache.reef.runtime.mesos.driver.parameters;

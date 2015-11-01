@@ -28,7 +28,7 @@ import java.util.logging.Logger;
 /**
  * An EventHandler combines two events of different types into a single Pair of events.
  * Handler will block until both events are received.
- * <p/>
+ * <p>
  * onNext is thread safe
  *
  * @param <L> type of event

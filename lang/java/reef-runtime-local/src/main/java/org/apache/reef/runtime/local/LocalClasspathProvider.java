@@ -31,7 +31,7 @@ import java.util.List;
 
 /**
  * RuntimeClasspathProvider for the local runtime.
- * <p/>
+ * <p>
  * The prefix for the local runtime is empty, the suffix is the classpath of the current JVM. That classpath is filtered
  * to not contain subfolders of JAVA_HOME. Also, duplicates are removed.
  */

@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * Client-side parameters for YARN job submission.
  */
 package org.apache.reef.runtime.yarn.client.parameters;

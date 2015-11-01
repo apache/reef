@@ -23,7 +23,7 @@ import org.apache.reef.annotations.Unstable;
 import java.io.Serializable;
 
 /**
- * Master -> Worker protocol.
+ * Master-to-Worker protocol.
  */
 @Unstable
 public interface VortexRequest extends Serializable {

@@ -23,7 +23,7 @@ package org.apache.reef.tang.exceptions;
  * The first is that the InjectionPlan that Tang produced is ambiguous or
  * infeasible.  The second is that a constructor invoked by Tang itself threw
  * an exception.
- * <p/>
+ * <p>
  * A third, less common issue arises when constructors obtain a handle to the
  * Tang Injector that created them, and then attempt to modify its state.
  * Doing so is illegal, and results in a runtime exception that Tang converts

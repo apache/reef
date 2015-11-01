@@ -136,7 +136,7 @@ public final class ContextManager implements AutoCloseable {
 
   /**
    * Processes the given ContextControlProto to launch / close / suspend Tasks and Contexts.
-   * <p/>
+   * <p>
    * This also triggers the HeartBeatManager to send a heartbeat with the result of this operation.
    *
    * @param controlMessage the message to process

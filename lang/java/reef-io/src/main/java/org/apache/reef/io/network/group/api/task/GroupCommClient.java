@@ -34,7 +34,7 @@ import org.apache.reef.tang.annotations.Name;
 public interface GroupCommClient {
 
   /**
-   * @param string
+   * @param groupName a group name
    * @return The communication group client with the given name that gives access
    * to the operators configured on it that will be used to do group communication
    */

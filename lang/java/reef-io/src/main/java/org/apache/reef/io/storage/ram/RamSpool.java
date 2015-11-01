@@ -29,7 +29,7 @@ import java.util.List;
 
 /**
  * A SpoolFile implementation that is backed by RAM.
- * <p/>
+ * <p>
  * It uses an ArrayList to store the objects in.
  */
 public final class RamSpool<T> implements Spool<T> {

@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * Implementations for Elastic Group Communications.
  */
 package org.apache.reef.io.network.group.impl;

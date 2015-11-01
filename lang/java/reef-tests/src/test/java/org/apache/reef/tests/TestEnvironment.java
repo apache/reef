@@ -23,7 +23,7 @@ import org.apache.reef.tang.Configuration;
 
 /**
  * Environment for REEF unit tests.
- * <p/>
+ * <p>
  * The idea is to use an instance of this class to gain access
  * to a REEF resource manager environment in order to make the tests
  * portable amongst REEF runtimes (e.g. YARN, Local, ...)

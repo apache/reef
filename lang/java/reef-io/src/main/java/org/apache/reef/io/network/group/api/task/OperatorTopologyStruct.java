@@ -33,7 +33,7 @@ import java.util.Set;
  * The actual local topology maintaining the
  * children and parent that reacts to update
  * and data msgs. The actual nodes are represented
- * by NodeStruct and it handles receiving &
+ * by NodeStruct and it handles receiving and
  * providing data
  */
 public interface OperatorTopologyStruct {

@@ -39,7 +39,7 @@ import java.util.List;
 
 /**
  * Represents a job submission from the CS code.
- * <p/>
+ * <p>
  * This class exists mostly to parse and validate the command line parameters provided by the C# class
  * `Org.Apache.REEF.Client.YARN.YARNClient`
  */

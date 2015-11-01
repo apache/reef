@@ -44,7 +44,7 @@ import java.util.Set;
  * ConfigurationModules store such information in static data structures that
  * can be statically discovered and sanity-checked.
  *
- * @see org.apache.reef.tang.formats.TestConfigurationModule for more information and examples.
+ * See org.apache.reef.tang.formats.TestConfigurationModule for more information and examples.
  */
 public class ConfigurationModule {
   private final ConfigurationModuleBuilder builder;
@@ -115,8 +115,8 @@ public class ConfigurationModule {
    *
    * @param opt      Target optional/required Impl
    * @param implList List object to be injected
-   * @param <T>
-   * @return
+   * @param <T> a type
+   * @return the configuration module
    */
   public final <T> ConfigurationModule set(final Impl<List> opt, final List implList) {
     final ConfigurationModule c = deepCopy();
@@ -153,8 +153,8 @@ public class ConfigurationModule {
    *
    * @param opt    Target Param
    * @param values Values to bind to the Param
-   * @param <T>
-   * @return
+   * @param <T> type
+   * @return the Configuration module
    */
   public final <T> ConfigurationModule setMultiple(final Param<T> opt, final Iterable<String> values) {
     ConfigurationModule c = deepCopy();
@@ -169,8 +169,8 @@ public class ConfigurationModule {
    *
    * @param opt    Target Param
    * @param values Values to bind to the Param
-   * @param <T>
-   * @return
+   * @param <T> type
+   * @return the Configuration module
    */
   public final <T> ConfigurationModule setMultiple(final Param<T> opt, final String... values) {
     ConfigurationModule c = deepCopy();
@@ -185,8 +185,8 @@ public class ConfigurationModule {
    *
    * @param opt      target optional/required Param
    * @param implList List object to be injected
-   * @param <T>
-   * @return
+   * @param <T>      type
+   * @return the Configuration module
    */
   public final <T> ConfigurationModule set(final Param<List> opt, final List implList) {
     final ConfigurationModule c = deepCopy();

@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * Implementations of Data Loading Service.
  */
 package org.apache.reef.io.data.loading.impl;

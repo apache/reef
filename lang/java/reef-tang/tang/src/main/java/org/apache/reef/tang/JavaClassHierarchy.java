@@ -28,7 +28,7 @@ public interface JavaClassHierarchy extends ClassHierarchy {
    * Look up a class object in this ClassHierarchy. Unlike the version that
    * takes a string in ClassHierarchy, this version does not throw
    * NameResolutionException.
-   * <p/>
+   * <p>
    * The behavior of this method is undefined if the provided Class object is
    * not from the ClassLoader (or an ancestor of the ClassLoader) associated
    * with this JavaClassHierarchy. By default, Tang uses the default runtime
@@ -45,9 +45,10 @@ public interface JavaClassHierarchy extends ClassHierarchy {
   /**
    * Parse a string value that has been passed into a named parameter.
    *
+   * @param <T> A type
    * @param name  The named parameter that will receive the value.
    * @param value A string value to be validated and parsed.
-   * @return An instance of T, or a ClassNode<? extends T>.
+   * @return An instance of T, or a {@code ClassNode<? extends T>}.
    * @throws ParseException if the value failed to parse, or parsed to the
    *                        wrong type (such as when it specifies a class that does not implement
    *                        or extend T).
@@ -57,6 +58,7 @@ public interface JavaClassHierarchy extends ClassHierarchy {
   /**
    * Obtain a parsed instance of the default value of a named parameter.
    *
+   * @param <T> A type
    * @param name The named parameter that should be checked for a default instance.
    * @return The default instance or null, unless T is a set type.  If T is a set,
    * then this method returns a (potentially empty) set of default instances.

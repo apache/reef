@@ -27,7 +27,7 @@ import org.apache.reef.util.Optional;
 /**
  * Represents Context that failed.
  * A typical case would be that its ContextStartHandler threw an exception.
- * <p/>
+ * <p>
  * The underlying Evaluator is still accessible and a new context can be established. Note that REEF can't guarantee
  * consistency of the Evaluator for all applications. It is up to the application to decide whether it is safe to keep
  * using the Evaluator.

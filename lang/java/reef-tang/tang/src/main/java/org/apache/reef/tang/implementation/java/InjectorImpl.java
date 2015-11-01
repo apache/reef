@@ -155,16 +155,16 @@ public class InjectorImpl implements Injector {
 
   /**
    * Produce a list of "interesting" constructors from a set of ClassNodes.
-   * <p/>
+   * <p>
    * Tang Constructors expose a isMoreSpecificThan function that embeds all
    * a skyline query over the lattices.  Precisely:
-   * <p/>
+   * <p>
    * Let candidateConstructors be the union of all constructors defined by
    * ClassNodes in candidateImplementations.
-   * <p/>
+   * <p>
    * This function returns a set called filteredImplementations, defined as
    * follows:
-   * <p/>
+   * <p>
    * For each member f of filteredConstructors, there does not exist
    * a g in candidateConstructors s.t. g.isMoreSpecificThan(f).
    */
@@ -577,7 +577,7 @@ public class InjectorImpl implements Injector {
    * registered by callees after each recursive invocation of injectFromPlan or
    * constructor invocations. The error handling currently bails if the thing we
    * just instantiated should be discarded.
-   * <p/>
+   * <p>
    * This could happen if (for instance), a constructor did a
    * bindVolatileInstance of its own class to an instance, or somehow triggered
    * an injection of itself with a different plan (an injection of itself with

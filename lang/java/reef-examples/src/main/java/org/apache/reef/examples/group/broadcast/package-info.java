@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * Broadcast Group Communication example.
  */
 package org.apache.reef.examples.group.broadcast;

@@ -24,7 +24,7 @@ import org.apache.reef.tang.annotations.DefaultImplementation;
 import org.apache.reef.util.Optional;
 
 /**
- * Event from Driver Runtime -> Driver Process.
+ * Event from Driver Runtime to Driver Process.
  * Description of a node in the cluster
  */
 @RuntimeAuthor

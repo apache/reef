@@ -55,7 +55,7 @@ import java.util.logging.Logger;
  * the ones that need data loading have a context stacked
  * that enables a task to get access to Data via the
  * {@link DataSet}.
- * <p/>
+ * <p>
  * TODO: Add timeouts
  */
 @DriverSide

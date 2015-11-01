@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * Exceptions used in our tests.
  */
 package org.apache.reef.tests.library.exceptions;

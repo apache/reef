@@ -96,7 +96,7 @@ public final class Evaluators implements AutoCloseable {
 
   /**
    * Create new EvaluatorManager and add it to the collection.
-   * <p/>
+   * <p>
    * FIXME: This method is a temporary fix for the race condition
    * described in issues #828 and #839.
    *

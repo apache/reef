@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * Driver-side event handlers for Mesos resourcemanager.
  */
 package org.apache.reef.runtime.mesos.driver;

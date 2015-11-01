@@ -51,16 +51,16 @@ import org.apache.reef.tang.formats.RequiredParameter;
 public final class HDInsightDriverConfiguration extends ConfigurationModuleBuilder {
 
   /**
-   * @see org.apache.reef.runtime.yarn.driver.parameters.JobSubmissionDirectory
+   * @see org.apache.reef.driver.parameters.JobSubmissionDirectory
    */
   public static final RequiredParameter<String> JOB_SUBMISSION_DIRECTORY = new RequiredParameter<>();
   /**
-   * @see org.apache.reef.runtime.yarn.driver.parameters.YarnHeartbeatPeriod.class
+   * @see org.apache.reef.runtime.yarn.driver.parameters.YarnHeartbeatPeriod
    */
   public static final OptionalParameter<Integer> YARN_HEARTBEAT_INTERVAL = new OptionalParameter<>();
 
   /**
-   * @see JobIdentifier.class
+   * @see JobIdentifier
    */
   public static final RequiredParameter<String> JOB_IDENTIFIER = new RequiredParameter<>();
 
