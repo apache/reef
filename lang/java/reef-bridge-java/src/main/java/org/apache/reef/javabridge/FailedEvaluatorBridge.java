@@ -18,6 +18,8 @@
  */
 package org.apache.reef.javabridge;
 
+import org.apache.reef.annotations.audience.Interop;
+import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.driver.evaluator.EvaluatorRequestor;
 import org.apache.reef.driver.evaluator.FailedEvaluator;
 import org.apache.reef.util.logging.LoggingScopeFactory;
@@ -27,7 +29,9 @@ import java.util.logging.Logger;
 /**
  * The Java-CLR bridge object for {@link org.apache.reef.driver.evaluator.FailedEvaluator}.
  */
-public class FailedEvaluatorBridge extends NativeBridge {
+@Private
+@Interop(CppFiles = { "FailedEvaluatorClr2Java.cpp" }, CsFiles = { "IFailedEvaluatorClr2Java", "FailedEvaluator" })
+public final class FailedEvaluatorBridge extends NativeBridge {
   private static final Logger LOG = Logger.getLogger(FailedEvaluatorBridge.class.getName());
   private FailedEvaluator jfailedEvaluator;
   private EvaluatorRequestorBridge evaluatorRequestorBridge;

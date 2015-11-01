@@ -18,6 +18,7 @@
  */
 package org.apache.reef.javabridge;
 
+import org.apache.reef.annotations.audience.Interop;
 import org.apache.reef.annotations.audience.Private;
 
 /**
@@ -26,6 +27,7 @@ import org.apache.reef.annotations.audience.Private;
  * UNLESS YOU KNOW WHAT YOU ARE DOING!
  */
 @Private
+@Interop(CppFiles = { "JavaClrBridge.cpp" }, CsFiles = { "BridgeHandlerManager.cs" })
 public final class BridgeHandlerManager {
   private long allocatedEvaluatorHandler = 0;
   private long activeContextHandler = 0;

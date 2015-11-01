@@ -18,6 +18,8 @@
  */
 package org.apache.reef.javabridge;
 
+import org.apache.reef.annotations.audience.Interop;
+import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.driver.context.ActiveContext;
 import org.apache.reef.driver.context.ClosedContext;
 import org.apache.reef.driver.evaluator.EvaluatorDescriptor;
@@ -29,7 +31,11 @@ import java.util.logging.Logger;
 /**
  * The Java-CLR bridge object for {@link org.apache.reef.driver.context.ClosedContext}.
  */
-public class ClosedContextBridge extends NativeBridge implements ClosedContext {
+@Private
+@Interop(
+    CppFiles = { "Clr2JavaImpl.h", "ClosedContextClr2Java.cpp" },
+    CsFiles = { "IClosedContextClr2Java.cs", "ClosedContext.cs" })
+public final class ClosedContextBridge extends NativeBridge implements ClosedContext {
 
   private static final Logger LOG = Logger.getLogger(ClosedContextBridge.class.getName());
 

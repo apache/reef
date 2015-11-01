@@ -18,6 +18,9 @@
  */
 package org.apache.reef.javabridge;
 
+import org.apache.reef.annotations.audience.Interop;
+import org.apache.reef.annotations.audience.Private;
+
 import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -25,7 +28,9 @@ import java.util.logging.Logger;
 /**
  * Logger called from CLR code.
  */
-public class InteropLogger {
+@Private
+@Interop(CppFiles = { "JavaClrBridge.cpp", "InteropLogger.h", "InteropLogger.cpp" })
+public final class InteropLogger {
   private static final Logger LOG = Logger.getLogger("InteropLogger");
   private HashMap<Integer, Level> levelHashMap;
 

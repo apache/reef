@@ -18,6 +18,7 @@
  */
 package org.apache.reef.javabridge;
 
+import org.apache.reef.annotations.audience.Interop;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.driver.task.CompletedTask;
 import org.apache.reef.io.Message;
@@ -26,6 +27,9 @@ import org.apache.reef.io.Message;
  * The Java-CLR bridge object for {@link org.apache.reef.driver.task.CompletedTask}.
  */
 @Private
+@Interop(
+    CppFiles = { "Clr2JavaImpl.h", "CompletedTaskClr2Java.cpp" },
+    CsFiles = { "ICompletedTaskClr2Java.cs", "CompletedTask.cs" })
 public final class CompletedTaskBridge extends NativeBridge implements Message {
 
   /**

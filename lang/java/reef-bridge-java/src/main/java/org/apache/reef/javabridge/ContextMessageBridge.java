@@ -18,12 +18,18 @@
  */
 package org.apache.reef.javabridge;
 
+import org.apache.reef.annotations.audience.Interop;
+import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.driver.context.ContextMessage;
 
 /**
  * The Java-CLR bridge object for {@link org.apache.reef.driver.context.ContextMessage}.
  */
-public class ContextMessageBridge extends NativeBridge implements ContextMessage {
+@Private
+@Interop(
+    CppFiles = { "Clr2JavaImpl.h", "ContextMessageClr2Java.cpp" },
+    CsFiles = { "IContextMessageClr2Java.cs", "ContextMessage.cs" })
+public final class ContextMessageBridge extends NativeBridge implements ContextMessage {
 
   private ContextMessage jcontextMessage;
   private String contextMessageId;

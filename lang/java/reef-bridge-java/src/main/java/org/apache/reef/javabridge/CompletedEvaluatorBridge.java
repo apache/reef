@@ -18,13 +18,19 @@
  */
 package org.apache.reef.javabridge;
 
+import org.apache.reef.annotations.audience.Interop;
+import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.driver.evaluator.CompletedEvaluator;
 import org.apache.reef.io.naming.Identifiable;
 
 /**
  * The Java-CLR bridge object for {@link org.apache.reef.driver.evaluator.CompletedEvaluator}.
  */
-public class CompletedEvaluatorBridge extends NativeBridge implements Identifiable {
+@Private
+@Interop(
+    CppFiles = { "Clr2JavaImpl.h", "CompletedEvaluatorClr2Java.cpp" },
+    CsFiles = { "ICompletedEvaluatorClr2Java.cs", "CompletedEvaluator.cs" })
+public final class CompletedEvaluatorBridge extends NativeBridge implements Identifiable {
 
   private final CompletedEvaluator jcompletedEvaluator;
 

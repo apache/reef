@@ -18,6 +18,8 @@
  */
 package org.apache.reef.javabridge;
 
+import org.apache.reef.annotations.audience.Interop;
+import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.driver.task.FailedTask;
 
 import java.nio.charset.StandardCharsets;
@@ -27,6 +29,10 @@ import java.util.logging.Logger;
 /**
  * The Java-CLR bridge object for {@link org.apache.reef.driver.task.FailedTask}.
  */
+@Private
+@Interop(
+    CppFiles = { "Clr2JavaImpl.h", "FailedTaskClr2Java.cpp" },
+    CsFiles = { "IFailedTaskClr2Java.cs", "FailedTask.cs" })
 public final class FailedTaskBridge extends NativeBridge {
   private static final Logger LOG = Logger.getLogger(FailedTaskBridge.class.getName());
 

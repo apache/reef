@@ -18,6 +18,8 @@
  */
 package org.apache.reef.javabridge;
 
+import org.apache.reef.annotations.audience.Interop;
+import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.driver.task.RunningTask;
 
 import java.util.logging.Logger;
@@ -25,6 +27,10 @@ import java.util.logging.Logger;
 /**
  * The Java-CLR bridge object for {@link org.apache.reef.driver.task.RunningTask}.
  */
+@Private
+@Interop(
+    CppFiles = { "Clr2JavaImpl.h", "RunningTaskClr2Java.cpp" },
+    CsFiles = { "IRunningTaskClr2Java.cs", "RunningTask.cs" })
 public final class RunningTaskBridge extends NativeBridge {
   private static final Logger LOG = Logger.getLogger(RunningTaskBridge.class.getName());
 
