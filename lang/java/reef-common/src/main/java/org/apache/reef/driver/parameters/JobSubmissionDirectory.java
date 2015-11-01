@@ -17,14 +17,15 @@
  * under the License.
  */
 
-package org.apache.reef.runtime.yarn.driver.parameters;
+package org.apache.reef.driver.parameters;
 
 import org.apache.reef.tang.annotations.NamedParameter;
 import org.apache.reef.tang.annotations.Name;
 
 /**
- * The job submission directory.
+ * @deprecated in 0.14. Use org.apache.reef.runtime.yarn.driver.parameters.JobSubmissionDirectory.
  */
+// TODO[JIRA REEF-904]: Act on deprecated JobSubmissionDirectory and JOB_SUBMISSION_DIRECTORY
 @NamedParameter(doc = "The job submission directory.")
 public final class JobSubmissionDirectory implements Name<String> {
 }

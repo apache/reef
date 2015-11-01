@@ -35,7 +35,7 @@ import org.apache.reef.runtime.common.parameters.JVMHeapSlack;
 import org.apache.reef.runtime.hdinsight.HDInsightClasspathProvider;
 import org.apache.reef.runtime.hdinsight.HDInsightJVMPathProvider;
 import org.apache.reef.runtime.yarn.driver.*;
-import org.apache.reef.driver.parameters.JobSubmissionDirectory;
+import org.apache.reef.runtime.yarn.driver.parameters.JobSubmissionDirectory;
 import org.apache.reef.runtime.yarn.driver.parameters.YarnHeartbeatPeriod;
 import org.apache.reef.runtime.yarn.util.YarnConfigurationConstructor;
 import org.apache.reef.tang.formats.ConfigurationModule;
@@ -54,6 +54,7 @@ public final class HDInsightDriverConfiguration extends ConfigurationModuleBuild
    * @see org.apache.reef.driver.parameters.JobSubmissionDirectory
    */
   public static final RequiredParameter<String> JOB_SUBMISSION_DIRECTORY = new RequiredParameter<>();
+
   /**
    * @see org.apache.reef.runtime.yarn.driver.parameters.YarnHeartbeatPeriod
    */
@@ -90,11 +91,13 @@ public final class HDInsightDriverConfiguration extends ConfigurationModuleBuild
       .bindConstructor(YarnConfiguration.class, YarnConfigurationConstructor.class)
       .bindImplementation(TempFileCreator.class, WorkingDirectoryTempFileCreator.class)
 
-          // Bind the YARN Configuration parameters
+      // Bind the YARN Configuration parameters
+      // TODO[JIRA REEF-904]: Act on deprecated JobSubmissionDirectory and JOB_SUBMISSION_DIRECTORY
+      .bindNamedParameter(org.apache.reef.driver.parameters.JobSubmissionDirectory.class, JOB_SUBMISSION_DIRECTORY)
       .bindNamedParameter(JobSubmissionDirectory.class, JOB_SUBMISSION_DIRECTORY)
       .bindNamedParameter(YarnHeartbeatPeriod.class, YARN_HEARTBEAT_INTERVAL)
 
-          // Bind the fields bound in AbstractDriverRuntimeConfiguration
+      // Bind the fields bound in AbstractDriverRuntimeConfiguration
       .bindNamedParameter(JobIdentifier.class, JOB_IDENTIFIER)
       .bindNamedParameter(LaunchID.class, JOB_IDENTIFIER)
       .bindNamedParameter(ClientRemoteIdentifier.class, CLIENT_REMOTE_IDENTIFIER)
