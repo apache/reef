@@ -39,9 +39,9 @@ final class FileSet {
 
   /**
    * Add a file to the FileSet.
-   * <p/>
+   * <p>
    * If the file is a directory, it is turned into a JAR and the resulting JAR is added.
-   * <p/>
+   * <p>
    * Files already added will be ignored.
    *
    * @param file the file to be added.

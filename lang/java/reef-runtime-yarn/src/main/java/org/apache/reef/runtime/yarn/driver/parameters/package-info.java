@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * Driver-side parameters of YARN job submission.
  */
 package org.apache.reef.runtime.yarn.driver.parameters;

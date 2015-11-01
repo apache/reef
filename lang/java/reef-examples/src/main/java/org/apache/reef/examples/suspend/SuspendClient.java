@@ -130,7 +130,7 @@ public class SuspendClient {
 
   /**
    * Receive notification from the driver that the job had failed.
-   * <p/>
+   * <p>
    * FailedJob is a proxy for the failed job driver
    * (contains job ID and exception thrown from the driver).
    */

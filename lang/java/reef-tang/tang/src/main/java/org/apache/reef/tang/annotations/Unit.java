@@ -26,15 +26,15 @@ import java.lang.annotation.Target;
 /**
  * A TANG Unit consists of an outer class and some non-static inner classes.
  * TANG injectors automatically treat all the classes in a unit as singletons.
- * <p/>
+ * <p>
  * In order to inject the singleton instance of each inner class, TANG first
  * instantiates the outer class and then uses the resulting instance to
  * instantiate each inner class.
- * <p/>
+ * <p>
  * Classes annotated in this way must have at least one non-static inner class
  * and no static inner classes. The inner classes must not declare any
  * constructors.
- * <p/>
+ * <p>
  * Furthermore, classes annotated with Unit may not have injectable (or Unit)
  * subclasses.
  *

@@ -32,24 +32,36 @@ public interface Injector {
    * the existing instance will be returned. Otherwise, a new instance will be
    * returned, and registered in the current scope.
    *
-   * @param iface
-   * @return
-   * @throws NameResolutionException
-   * @throws ReflectiveOperationException
+   * @param <U> a type
+   * @param iface an interface
+   * @return an instance
+   * @throws InjectionException if it fails to find corresponding class
    */
   <U> U getInstance(Class<U> iface) throws InjectionException;
 
+  /**
+   * Gets an instance of iface, or the implementation that has been bound to it.
+   * If an instance has already been created in this (or a parent) scope, then
+   * the existing instance will be returned. Otherwise, a new instance will be
+   * returned, and registered in the current scope.
+   *
+   * @param <U> a type
+   * @param iface a name of interface
+   * @return an instance
+   * @throws InjectionException if it fails to find corresponding class
+   * @throws NameResolutionException if name resolution fails
+   */
   <U> U getInstance(String iface) throws InjectionException,
       NameResolutionException;
 
   /**
    * Gets the value stored for the given named parameter.
    *
-   * @param <U>
-   * @param iface
+   * @param <U> a type
+   * @param iface the name of interface
    * @return an Instance of the class configured as the implementation for the
    * given interface class.
-   * @throws InjectionException
+   * @throws InjectionException if name resolution fails
    */
   <U> U getNamedInstance(Class<? extends Name<U>> iface)
       throws InjectionException;
@@ -60,10 +72,10 @@ public interface Injector {
    * Injectors, none of those objects can be serialized back to a configuration
    * file).
    *
-   * @param iface
-   * @param inst
-   * @return A copy of this injector that reflects the new binding.
-   * @throws BindException
+   * @param <T> a type
+   * @param iface an interface cass
+   * @param inst an instance
+   * @throws BindException when trying to re-bind
    */
   <T> void bindVolatileInstance(Class<T> iface, T inst)
       throws BindException;
@@ -74,19 +86,20 @@ public interface Injector {
   /**
    * Binds a TANG Aspect to this injector.  Tang Aspects interpose on each
    * injection performed by an injector, and return an instance of their choosing.
-   * <p/>
+   * <p>
    * A given aspect will be invoked once for each object that Tang injects, and aspects
    * will be copied in a way that mirrors the scoping that Tang creates at runtime.
    *
-   * @param a
-   * @throws BindException
+   * @param <T> a type
+   * @param a aspect
+   * @throws BindException if there exists a bound aspect already
    */
   <T> void bindAspect(Aspect a) throws BindException;
 
   /**
    * Allows InjectionFuture to tell the aspect when get() is invoked.  Package private.
    *
-   * @return
+   * @return the aspect
    */
   Aspect getAspect();
 
@@ -95,8 +108,7 @@ public interface Injector {
    * created by this Injector, but reflects additional Configuration objects.
    * This can be used to create trees of Injectors that obey hierarchical
    * scoping rules.
-   * <p/>
-   * <p/>
+   * <p>
    * Except for the fact that the child Injector will have references to this
    * injector's instances, the returned Injector is equivalent to the one you
    * would get by using ConfigurationBuilder to build a merged Configuration,
@@ -104,6 +116,8 @@ public interface Injector {
    * returned by ConfigurationBuilders are always independent, and never
    * share references to the same instances of injected objects.
    *
+   * @param configurations configurations
+   * @return an injector
    * @throws BindException If any of the configurations conflict with each other, or the
    *                       existing Injector's Configuration.
    */
@@ -113,9 +127,9 @@ public interface Injector {
    * Returns true if this Injector is able to instantiate the object named by
    * name.
    *
-   * @param name
-   * @return
-   * @throws BindException
+   * @param name a name of object
+   * @return whether the name is injectable
+   * @throws BindException if there is a loop or the name is package name
    */
   boolean isInjectable(String name) throws BindException;
 

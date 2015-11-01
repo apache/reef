@@ -50,7 +50,7 @@ public interface TaskNodeStatus {
    * To be called before sending a ctrl msg to the task
    * represented by this node. All ctrl msgs sent to this
    * node need to be ACKed.
-   * Ctrl msgs will be sent        from a src &
+   * Ctrl msgs will be sent        from a src and
    * ACK sent from the task will be for a src.
    * As this is called from the TaskNodeImpl use srcId of msg
    * In TaskNodeImpl while processMsg        use dstId of msg

@@ -24,7 +24,7 @@ import org.apache.reef.util.Optional;
 
 /**
  * Message source for control flow messages from a task to the Driver.
- * <p/>
+ * <p>
  * The getMessage() method in an Implementation of this interface will be called by the Evaluator resourcemanager
  * whenever it is about to communicate with the Driver anyway.
  * Hence, this can be used for occasional status updates etc.

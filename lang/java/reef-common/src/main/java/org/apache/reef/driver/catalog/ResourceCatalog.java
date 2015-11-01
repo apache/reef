@@ -24,10 +24,10 @@ import java.util.Collection;
 
 /**
  * A catalog of the resources available to a REEF instance.
- * <p/>
+ * <p>
  * This catalog contains static information about the resources and does not
  * reflect that dynamic availability of resources. In other words: Its entries
- * are an upper bound to what is available to a REEF {@link Driver} at any given
+ * are an upper bound to what is available to a REEF Driver at any given
  * moment in time.
  */
 @Unstable

@@ -32,7 +32,7 @@ import java.util.logging.Logger;
 
 /**
  * Represents the files added to a driver.
- * <p/>
+ * <p>
  * This class is constructed via the from() method that instantiates it based on a JobSubmissionProto
  */
 final class DriverFiles {
@@ -120,7 +120,7 @@ final class DriverFiles {
 
   /**
    * Copies this set of files to the destination folder given.
-   * <p/>
+   * <p>
    * Will attempt to create symbolic links for the files to the destination
    * folder.  If the filesystem does not support symbolic links or the user
    * does not have appropriate permissions, the entire file will be copied instead.

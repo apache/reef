@@ -28,7 +28,7 @@ import java.util.List;
 
 /**
  * A helper class to assemble a class path.
- * <p/>
+ * <p>
  * It uses a TreeSet internally for both a prefix and a suffix of the classpath. This makes sure that duplicate entries
  * are avoided.
  */

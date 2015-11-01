@@ -26,7 +26,7 @@ import org.apache.reef.util.Optional;
 import java.util.List;
 
 /**
- * Event from Driver Process -> Driver Runtime.
+ * Event from Driver Process to Driver Runtime.
  * A request to the Driver Runtime to allocate resources with the given specification
  */
 @RuntimeAuthor

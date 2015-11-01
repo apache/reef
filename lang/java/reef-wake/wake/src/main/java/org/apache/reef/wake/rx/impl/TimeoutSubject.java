@@ -24,9 +24,9 @@ import org.apache.reef.wake.rx.Subject;
 import java.util.concurrent.TimeoutException;
 
 /**
- * A class implementing Subject<T> with timeout.
+ * A class implementing {@code Subject<T>} with timeout.
  *
- * @param <T>
+ * @param <T> a type of subject
  * @deprecated in 0.14 as unused
  */
 @Deprecated

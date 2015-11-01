@@ -28,7 +28,7 @@ import java.util.logging.Logger;
 /**
  * Utility map class that wraps a CountingMap.
  * in a ConcurrentMap
- * Equivalent to Map<K,Map<V,Integer>>
+ * Equivalent to {@code Map<K,Map<V,Integer>>}
  */
 public class ConcurrentCountingMap<K, V> {
   private static final Logger LOG = Logger.getLogger(ConcurrentCountingMap.class.getName());

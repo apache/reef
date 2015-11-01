@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * Implementations for RAM-based storage service.
  */
 package org.apache.reef.io.storage.ram;

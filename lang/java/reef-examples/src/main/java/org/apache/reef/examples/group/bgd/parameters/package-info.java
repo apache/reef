@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * Parameters for BGD.
  */
 package org.apache.reef.examples.group.bgd.parameters;

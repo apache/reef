@@ -24,7 +24,7 @@ import java.util.logging.Logger;
 
 /**
  * A {@link Codec} for {@link Serializable} objects.
- * <p/>
+ * <p>
  * It uses java serialization, use with caution.
  *
  * @param <T> The type of objects Serialized

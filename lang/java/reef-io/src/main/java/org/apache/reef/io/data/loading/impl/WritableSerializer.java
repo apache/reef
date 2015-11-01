@@ -29,7 +29,7 @@ import java.io.*;
 /**
  * A serializer class that serializes {@link Writable}s
  * into String using the below {@link Codec} that
- * encodes & decodes {@link Writable}s
+ * encodes and decodes {@link Writable}s
  * By default this stores the class name in the serialized
  * form so that the specific type can be instantiated on
  * de-serialization. However, this also needs the jobconf

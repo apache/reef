@@ -50,6 +50,7 @@ public interface ClassHierarchySerializer {
    * Serializes a ClassHierarchy as a byte[].
    *
    * @param classHierarchy the ClassHierarchy to store
+   * @return the byte array containing the serialized class hierarchy
    * @throws IOException if there is an error in the process
    */
   byte[] toByteArray(final ClassHierarchy classHierarchy) throws IOException;
@@ -58,6 +59,7 @@ public interface ClassHierarchySerializer {
    * Serializes a ClassHierarchy as a String.
    *
    * @param classHierarchy the ClassHierarchy to store
+   * @return the string containing the serialized class hierarchy
    * @throws IOException if there is an error in the process
    */
   String toString(final ClassHierarchy classHierarchy) throws IOException;
@@ -66,6 +68,7 @@ public interface ClassHierarchySerializer {
    * Loads a ClassHierarchy from a file created with toFile().
    *
    * @param file the File to read from
+   * @return the class hierarchy
    * @throws IOException if the File can't be read or parsed
    */
   ClassHierarchy fromFile(final File file) throws IOException;
@@ -74,6 +77,7 @@ public interface ClassHierarchySerializer {
    * Loads a ClassHierarchy from a text file created with toTextFile().
    *
    * @param file the File to read from
+   * @return the class hierarchy
    * @throws IOException if the File can't be read or parsed
    */
   ClassHierarchy fromTextFile(final File file) throws IOException;
@@ -82,6 +86,7 @@ public interface ClassHierarchySerializer {
    * Deserializes a ClassHierarchy from a byte[] created with toByteArray().
    *
    * @param theBytes the byte[] to deserialize
+   * @return the class hierarchy
    * @throws IOException if the byte[] can't be read or parsed
    */
   ClassHierarchy fromByteArray(final byte[] theBytes) throws IOException;
@@ -90,6 +95,7 @@ public interface ClassHierarchySerializer {
    * Deserializes a ClassHierarchy from a String created with toString().
    *
    * @param theString the String to deserialize
+   * @return the class hierarchy
    * @throws IOException if the String can't be read or parsed
    */
   ClassHierarchy fromString(final String theString) throws IOException;

@@ -23,9 +23,9 @@ import org.apache.reef.annotations.audience.TaskSide;
 
 /**
  * The interface for Tasks.
- * <p/>
+ * <p>
  * This interface is to be implemented for Tasks.
- * <p/>
+ * <p>
  * The main entry point for a Task is the call() method inherited from
  * {@link java.util.concurrent.Callable}. The REEF Evaluator will call this method in order to run
  * the Task. The byte[] returned by it will be pushed to the Job Driver.

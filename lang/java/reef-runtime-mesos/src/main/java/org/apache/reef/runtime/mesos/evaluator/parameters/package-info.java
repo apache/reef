@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * Evaluator-side parameters for Mesos job.
  */
 package org.apache.reef.runtime.mesos.evaluator.parameters;

@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * Client-side parameters for Mesos job submission.
  */
 package org.apache.reef.runtime.mesos.client.parameters;

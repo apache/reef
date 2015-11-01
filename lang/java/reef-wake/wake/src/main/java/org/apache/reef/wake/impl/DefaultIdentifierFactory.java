@@ -32,7 +32,7 @@ import java.util.Map;
 /**
  * Default remote identifier factory that creates a specific remote identifier
  * from a string representation
- * <p/>
+ * <p>
  * A string representation is broken into two parts type and type-specific details separated by "://"
  * A remote identifier implementation should implement a constructor that accepts a string.
  * The factory invokes a proper constructor by reflection.

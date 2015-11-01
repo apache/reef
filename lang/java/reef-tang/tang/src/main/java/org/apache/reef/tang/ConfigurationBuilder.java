@@ -32,7 +32,7 @@ import java.util.Set;
  * configurations are simply sets of bindings of various types.  The most
  * common bindings are of interfaces (or superclasses) to implementation
  * classes, and of configuration options ("NamedParameters") to values.
- * <p/>
+ * <p>
  * Implementations of this class type check the bindings against an underlying
  * ClassHierarchy implementation.  Typically, the backing ClassHierarchy will
  * be delegate to the default classloader (the one that loaded the code that is
@@ -42,12 +42,11 @@ import java.util.Set;
  * objects that are derived from reflection data from other languages, such as
  * C#.  This enables cross-language injection sessions, where Java code
  * configures C# code, or vice versa.
- * <p/>
- * <p/>
+ * <p>
  * When possible, the methods in this interface eagerly check for these
  * errors.  Methods that check for configuration and other runtime or
  * application-level errors are declared to throw BindException.
- * <p/>
+ * <p>
  * Furthermore, all methods in Tang, may throw RuntimeException if they
  * encounter inconsistencies in the underlying ClassHierarchy.  Such errors
  * reflect problems that existed when the application was compiled or
@@ -62,7 +61,7 @@ import java.util.Set;
  * @see JavaConfigurationBuilder for convenience methods that assume the
  * underlying ClassHierarchy object delegates to the default
  * classloader, and enable many compile time static checks.
- * @see ConfigurationModule which pushes additional type checks to class load
+ * @see org.apache.reef.tang.formats.ConfigurationModule which pushes additional type checks to class load
  * time.  This allows Tint, Tang's static analysis tool, to detect a wide
  * range of runtime configuration errors at build time.
  */
@@ -71,7 +70,7 @@ public interface ConfigurationBuilder {
   /**
    * Add all configuration parameters from the given Configuration object.
    *
-   * @param c
+   * @param c the configuration to be added
    */
   void addConfiguration(final Configuration c) throws BindException;
 
@@ -89,7 +88,7 @@ public interface ConfigurationBuilder {
   /**
    * Force Tang to treat the specified constructor as though it had an @Inject
    * annotation.
-   * <p/>
+   * <p>
    * This method takes ClassNode objects.  Like all of the methods in this
    * API, the ClassNode objects must come from the ClassHierarchy instance
    * returned by getClassHierarchy().
@@ -115,12 +114,12 @@ public interface ConfigurationBuilder {
   /**
    * Force Tang to treat the specified constructor as though it had an @Inject
    * annotation.
-   * <p/>
+   * <p>
    * This method takes ClassNode and ConstructorArg objects.  Like all of the
    * methods in this API, these objects must come from the ClassHierarchy
    * instance returned by getClassHierarchy().
    *
-   * @param cn   The class the constructor instantiates.
+   * @param c   The class the constructor instantiates.
    * @param args The parsed ConstructorArg objects corresponding to the types of the arguments taken by the constructor,
    *             in declaration order.
    * @throws BindException if the constructor does not exist, or if it has already been bound as a legacy constructor.
@@ -132,12 +131,13 @@ public interface ConfigurationBuilder {
    * Bind classes to each other, based on their full class names; alternatively,
    * bound a NamedParameter configuration option to a configuration value.
    *
+   * @param <T> a type
    * @param iface The full name of the interface that should resolve to impl,
    *              or the NamedParameter to be set.
    * @param impl  The full name of the implementation that will be used in
    *              place of impl, or the value the NamedParameter should be set to.
    * @throws BindException If (In the case of interfaces and implementations)
-   *                       the underlying ClassHierarchy does not recognice iface and
+   *                       the underlying ClassHierarchy does not recognise iface and
    *                       impl as known, valid classes, or if impl is not a in
    *                       implementation of iface, or (in the case of NamedParameters
    *                       and values) if iface is not a NamedParameter, or if impl
@@ -149,15 +149,15 @@ public interface ConfigurationBuilder {
   /**
    * Bind classes to each other, based on their full class names; alternatively,
    * bound a NamedParameter configuration option to a configuration value.
-   * <p/>
+   * <p>
    * This method takes Node objects.  Like all of the methods in this API,
    * these objects must come from the ClassHierarchy instance returned by
    * getClassHierarchy().
    *
-   * @param key   The interface / NamedParmaeter to be bound.
-   * @param value The implementation / value iface should be set to.
+   * @param iface   The interface / NamedParameter to be bound.
+   * @param impl The implementation / value iface should be set to.
    * @throws BindException if there is a type checking error
-   * @see bind(String, String) for a more complete description.
+   * See {@link #bind(String, String) bind(String,String)} for a more complete description.
    */
   void bind(Node iface, Node impl) throws BindException;
 
@@ -166,9 +166,9 @@ public interface ConfigurationBuilder {
    * ExternalConstructors are proxy classes that instantiate some
    * other class.  They have two primary use cases: (1) adding new
    * constructors to classes that you cannot modify and (2) implementing
-   * constructors that exmanine their arguments and return an instance of a
+   * constructors that examine their arguments and return an instance of a
    * subclass of the requested object.
-   * <p/>
+   * <p>
    * To see how the second use case could be useful, consider a implementing a
    * URI interface with a distinct subclass for each valid URI prefix (e.g.,
    * http://, ssh://, etc...).  An ExternalConstructor could examine the prefix
@@ -177,15 +177,16 @@ public interface ConfigurationBuilder {
    * URI's external constructor would return the validated subclass of URI that
    * corresponds to the provided string, allowing instanceof and downcasts to
    * behave as expected in the code that invoked Tang.
-   * <p/>
+   * <p>
    * Both use cases should be avoided when possible, since they can
    * unnecessarily complicate object injections and undermine Tang's ability
    * to statically check a given configuration.
-   * <p/>
+   * <p>
    * This method takes ClassNode objects.  Like all of the methods in this API,
    * these objects must come from the ClassHierarchy instance returned by
    * getClassHierarchy().
    *
+   * @param <T> a type
    * @param iface The class or interface to be instantiated.
    * @param impl  The ExternalConstructor class that will be used to instantiate iface.
    * @throws BindException If impl does not instantiate a subclass of iface.
@@ -195,14 +196,22 @@ public interface ConfigurationBuilder {
       throws BindException;
 
   /**
-   * Pretty print the default implementation / value of the provided class / NamedParamter.
+   * Pretty print the default implementation / value of the provided class / NamedParameter.
    * This is used by Tang to produce human readable error messages.
+   *
+   * @param longName a name of class or parameter
+   * @return a pretty-formatted string for class or named parameter
+   * @throws BindException if name resolution fails
    */
   String classPrettyDefaultString(String longName) throws BindException;
 
   /**
-   * Pretty print the human readable documentation of the provided class / NamedParamter.
+   * Pretty print the human readable documentation of the provided class / NamedParameter.
    * This is used by Tang to produce human readable error messages.
+   *
+   * @param longName a name of class or parameter
+   * @return a pretty-formatted class description string
+   * @throws BindException if name resolution fails
    */
   String classPrettyDescriptionString(String longName)
       throws BindException;
@@ -212,12 +221,12 @@ public interface ConfigurationBuilder {
    * bindings and ClassHierarchy of this ConfigurationBuilder.  Future
    * changes to this ConfigurationBuilder will not be reflected in the
    * returned Configuration.
-   * <p/>
+   * <p>
    * Since Tang eagerly checks for configuration errors, this method does not
    * perform any additional validation, and does not throw any checkable
    * exceptions.
    *
-   * @return
+   * @return the Configuration
    */
   Configuration build();
 
@@ -235,15 +244,16 @@ public interface ConfigurationBuilder {
    * Bind an list of implementations(Class or String) to an given NamedParameter.
    * Unlike bindSetEntry, bindListEntry will bind a whole list to the parameter,
    * not an element of the list.
-   * <p/>
+   * <p>
    * Since ordering of the list is important, list binding cannot be repeated or
    * merged unlike set binding. If the elements of the list are Classes, the objects
    * created by the Classes will be injected. If the elements are Strings, the values
    * will be injected directly to a given list parameter.
    *
+   * @param <T> a type
    * @param iface    The list named parameter to be instantiated
    * @param implList The list of class or value will be used to instantiated the named parameter
-   * @throws BindException
+   * @throws BindException if implementation class does not fit to the named parameter
    */
   <T> void bindList(NamedParameterNode<List<T>> iface, List implList) throws BindException;
 

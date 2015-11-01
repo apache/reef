@@ -37,7 +37,7 @@ public interface RemoteManager extends Stage {
    * Returns an event handler that can be used to send messages of type T to the
    * given destination.
    *
-   * @param <T>
+   * @param <T> type of message
    * @param destinationIdentifier a destination identifier
    * @param messageType           a message class type
    * @return an event handler
@@ -47,10 +47,11 @@ public interface RemoteManager extends Stage {
   /**
    * Registers the given EventHandler to be invoked when messages of Type T
    * arrive from sourceIdentifier.
-   * <p/>
+   * <p>
    * Calling this method twice overrides the initial registration.
    *
-   * @param <T,              U extends T>
+   * @param <T> type of event
+   * @param <U> type of message
    * @param sourceIdentifier a source identifier
    * @param messageType      a message class type
    * @param theHandler       the event handler
@@ -63,10 +64,11 @@ public interface RemoteManager extends Stage {
   /**
    * Registers the given EventHandler to be called for the given message type
    * from any source.
-   * <p/>
+   * <p>
    * If there is an EventHandler registered for this EventType
    *
-   * @param <T,         U extends T>
+   * @param <T> a type of remote message of event
+   * @param <U> a type of message
    * @param messageType a message class type
    * @param theHandler  the event handler
    * @return the subscription that can be used to unsubscribe later

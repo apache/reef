@@ -29,18 +29,19 @@ import java.lang.reflect.InvocationTargetException;
  * design patterns by interposing wrapper objects at injection time.  It
  * can also be used for more mundane purposes, such as tracking the
  * relationship between the objects that are instantiated at runtime.
- * <p/>
+ * <p>
  * The Wake project contains a full-featured implementation of this API that
  * may serve as a useful example.
  */
 public interface Aspect {
   /**
    * Inject an object of type T.
-   * <p/>
+   * <p>
    * Note that it is never OK to return an instance of ExternalConstructor.
    * Typical implementations check to see if they are about to return an
    * instance of ExternalConstructor.  If so, they return ret.newInstance()
    * instead.
+   * It throws a number of exceptions which are passed-through from the wrapped call to newInstance().
    *
    * @param def         information about the constructor to be invoked.  This is
    *                    mostly useful because it contains references to any relevant named
@@ -51,7 +52,10 @@ public interface Aspect {
    * @param args        The parameters to be passed into constructor.newInstance(), in the correct order.
    * @return A new instance of T.
    * Note, it is inject()'s responsibility to call <tt>ret.getInstance() if ret instanceof ExternalConstructor</tt>.
-   * @throws A number of exceptions which are passed-through from the wrapped call to newInstance().
+   * @throws InvocationTargetException
+   * @throws IllegalAccessException
+   * @throws IllegalArgumentException
+   * @throws InstantiationException
    */
   <T> T inject(ConstructorDef<T> def, Constructor<T> constructor, Object[] args)
       throws InvocationTargetException, IllegalAccessException, IllegalArgumentException, InstantiationException;

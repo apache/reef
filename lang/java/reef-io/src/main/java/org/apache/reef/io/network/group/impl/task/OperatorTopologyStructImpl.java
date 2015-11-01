@@ -450,7 +450,7 @@ public class OperatorTopologyStructImpl implements OperatorTopologyStruct {
    * Updates the topology structure with the received
    * message. Does not make assumptions about msg order
    * Tries to handle OOS msgs
-   * <p/>
+   * <p>
    * Expects only control messages
    */
   @Override

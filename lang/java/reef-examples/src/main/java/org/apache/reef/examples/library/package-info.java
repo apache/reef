@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * A library for distributed shell example.
  */
 package org.apache.reef.examples.library;

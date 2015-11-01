@@ -27,12 +27,12 @@ import java.util.Set;
 
 /**
  * Represents a flexible preemption request: It contains:
- * <p/>
+ * <p>
  * <ol>
  * <li>a set of EvaluatorRequests that the resource manager wants to have satisfied and also</li>
  * <li>a set of Evaluators it will choose to kill if the request isn't satisfied otherwise.</li>
  * </ol>
- * <p/>
+ * <p>
  * NOTE: This currently not implemented. Consider it a preview of the API.
  */
 @Private

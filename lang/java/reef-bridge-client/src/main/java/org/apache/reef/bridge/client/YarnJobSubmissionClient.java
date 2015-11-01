@@ -95,7 +95,7 @@ public final class YarnJobSubmissionClient {
 
   /**
    * @param driverFolder the folder containing the `reef` folder. Only that `reef` folder will be in the JAR.
-   * @return
+   * @return the jar file
    * @throws IOException
    */
   private File makeJar(final File driverFolder) throws IOException {

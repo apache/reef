@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * Utility for YARN runtime.
  */
 package org.apache.reef.runtime.yarn.util;

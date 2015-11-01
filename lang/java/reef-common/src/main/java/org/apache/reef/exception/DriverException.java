@@ -21,7 +21,7 @@ package org.apache.reef.exception;
 import java.util.concurrent.ExecutionException;
 
 /**
- * Thrown by the {@link Driver} and to the clients of {@link REEF}.
+ * Thrown by the Driver and to the clients of REEF.
  */
 public class DriverException extends ExecutionException {
 

@@ -64,11 +64,11 @@ public interface ExternalMap<T> {
    * removed. (The map can contain at most one such mapping.) Returns the
    * value to which this map previously associated the key, or null if the map
    * contained no mapping for the key.
-   * <p/>
+   * <p>
    * If this map permits null values, then a return value of null does not
    * necessarily indicate that the map contained no mapping for the key; it's
    * also possible that the map explicitly mapped the key to null.
-   * <p/>
+   * <p>
    * The map will not contain a mapping for the specified key once the call
    * returns.
    *

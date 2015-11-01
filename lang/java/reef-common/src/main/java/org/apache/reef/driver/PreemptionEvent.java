@@ -25,11 +25,11 @@ import org.apache.reef.annotations.audience.Public;
 
 /**
  * Represents Preemption requests issued by the underlying resource manager.
- * <p/>
+ * <p>
  * REEF exposes two kinds of preemption requests: Strict ones merely inform the Driver about machines that are about to
  * be preempted. Flexible ones provide that list, but also expose the resource request that the underlying resource
  * manager wants to satisfy, thereby giving the Driver a chance to satisfy it in another way.
- * <p/>
+ * <p>
  * NOTE: This currently not implemented. Consider it a preview of the API.
  */
 @DriverSide

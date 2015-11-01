@@ -22,7 +22,7 @@ import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.RuntimeAuthor;
 
 /**
- * Event from Driver Runtime -> Driver Process
+ * Event from Driver Runtime to Driver Process
  * A Resource allocated by the Driver Runtime. In response to a ResourceRequestEvent.
  */
 @RuntimeAuthor

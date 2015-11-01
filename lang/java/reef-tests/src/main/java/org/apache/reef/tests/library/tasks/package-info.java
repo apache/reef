@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * Commonly used task implementations in our tests.
  */
 package org.apache.reef.tests.library.tasks;

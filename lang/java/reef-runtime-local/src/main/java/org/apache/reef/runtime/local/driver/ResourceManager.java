@@ -112,7 +112,7 @@ public final class ResourceManager {
 
   /**
    * Receives a resource request.
-   * <p/>
+   * <p>
    * If the request can be met, it will also be satisfied immediately.
    *
    * @param resourceRequest the resource request to be handled.

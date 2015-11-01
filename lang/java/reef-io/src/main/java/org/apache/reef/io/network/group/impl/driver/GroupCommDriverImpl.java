@@ -71,8 +71,8 @@ import java.util.logging.Logger;
 /**
  * Sets up various stages to handle REEF events and adds the per communication
  * group stages to them whenever a new communication group is created.
- * <p/>
- * Also starts the NameService & the NetworkService on the driver
+ * <p>
+ * Also starts the NameService and the NetworkService on the driver
  */
 public class GroupCommDriverImpl implements GroupCommServiceDriver {
   private static final Logger LOG = Logger.getLogger(GroupCommDriverImpl.class.getName());

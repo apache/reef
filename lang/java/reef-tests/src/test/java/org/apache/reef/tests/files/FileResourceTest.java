@@ -45,7 +45,7 @@ import java.util.logging.Logger;
 
 /**
  * Tests whether a set of files makes it to the Driver and from there to the Evaluator.
- * <p/>
+ * <p>
  * The test is shallow: It only makes sure that files with the same (random) names exist. It doesn't check for file
  * contents.
  */

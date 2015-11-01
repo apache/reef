@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * Logging and Blocking event handlers.
  */
 package org.apache.reef.examples.utils.wake;

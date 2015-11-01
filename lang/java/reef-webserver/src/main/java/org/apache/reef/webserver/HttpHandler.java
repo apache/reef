@@ -27,16 +27,14 @@ import java.io.IOException;
  */
 public interface HttpHandler {
   /**
-   * return specification of the handler. e.g Reef
+   * Return specification of the handler. e.g Reef
    *
    * @return
    */
   String getUriSpecification();
 
   /**
-   * return specification of the handler. e.g Reef
-   *
-   * @return
+   * Set specification of the handler. e.g Reef
    */
   void setUriSpecification(final String s);
 

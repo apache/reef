@@ -28,16 +28,16 @@ import org.apache.reef.tang.Configuration;
 
 /**
  * Represents an active context on an Evaluator.
- * <p/>
+ * <p>
  * A context consists of two configurations:
  * <ol>
  * <li>ContextConfiguration: Its visibility is limited to the context itself and tasks spawned from it.</li>
  * <li>ServiceConfiguration: This is "inherited" by child context spawned.</li>
  * </ol>
- * <p/>
+ * <p>
  * Contexts have identifiers. A context is instantiated on a single Evaluator. Contexts are either created on an
  * AllocatedEvaluator (for what is called the "root Context") or by forming sub-Contexts.
- * <p/>
+ * <p>
  * Contexts form a stack. Only the topmost context is active. Child Contexts or Tasks can be submitted to the
  * active Context. Contexts can be closed, in which case their parent becomes active.
  * In the case of the root context, closing is equivalent to releasing the Evaluator. A child context "sees" all

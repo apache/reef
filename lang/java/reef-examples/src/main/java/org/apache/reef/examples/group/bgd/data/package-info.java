@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * Interface for example data instance for linear models.
  */
 package org.apache.reef.examples.group.bgd.data;

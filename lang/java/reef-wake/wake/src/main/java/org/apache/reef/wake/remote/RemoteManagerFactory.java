@@ -26,7 +26,7 @@ import org.apache.reef.wake.remote.ports.TcpPortProvider;
 
 /**
  * Injectable Factory for RemoteManager instances.
- * <p/>
+ * <p>
  * Use when direct injection of the RemoteManager is impossible.
  */
 @DefaultImplementation(DefaultRemoteManagerFactory.class)

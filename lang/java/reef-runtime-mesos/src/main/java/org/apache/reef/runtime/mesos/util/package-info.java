@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * Utility for Mesos runtime.
  */
 package org.apache.reef.runtime.mesos.util;

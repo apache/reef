@@ -115,11 +115,14 @@ public final class CommandLine {
   }
 
   /**
-   * @param args
+   * Process command line arguments.
+   *
+   * @param <T> a type
+   * @param args the command line arguments to be parsed
+   * @param argClasses the target named classes to be set
    * @return Selfie if the command line parsing succeeded, null (or exception) otherwise.
-   * @throws IOException
-   * @throws NumberFormatException
-   * @throws ParseException
+   * @throws IOException if parsing fails
+   * @throws BindException if a binding of short-named parameter fails
    */
   @SafeVarargs
   @SuppressWarnings("checkstyle:redundantmodifier")
@@ -168,7 +171,7 @@ public final class CommandLine {
 
   /**
    * Utility method to quickly parse a command line to a Configuration.
-   * <p/>
+   * <p>
    * This is equivalent to
    * <code>parseToConfigurationBuilder(args, argClasses).build()</code>
    *
@@ -185,7 +188,7 @@ public final class CommandLine {
 
   /**
    * Utility method to quickly parse a command line to a ConfigurationBuilder.
-   * <p/>
+   * <p>
    * This is equivalent to
    * <code>new CommandLine().processCommandLine(args, argClasses).getBuilder()</code>, but with additional checks.
    *

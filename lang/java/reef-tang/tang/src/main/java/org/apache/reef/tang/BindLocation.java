@@ -20,7 +20,7 @@ package org.apache.reef.tang;
 
 /**
  * This interface is used to track the source of configuration bindings.
- * <p/>
+ * <p>
  * This can be explicitly set (such as by configuration file parsers), or be
  * implicitly bound to the stack trace of bind() invocation.
  */

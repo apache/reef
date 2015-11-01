@@ -25,7 +25,7 @@ import org.apache.reef.annotations.audience.Public;
 
 /**
  * The driver uses this interface to communicate with the job client.
- * <p/>
+ * <p>
  * Note that as of REEF 0.4, the presence of a client is no longer guaranteed, depending on the deployment environment.
  */
 @Public

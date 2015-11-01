@@ -148,8 +148,7 @@ public final class REEFLauncher {
   /**
    * Launches a REEF client process (Driver or Evaluator).
    *
-   * @param args
-   * @throws Exception
+   * @param args command-line args
    */
   public static void main(final String[] args) {
     LOG.log(Level.INFO, "Entering REEFLauncher.main().");

@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * Uploader to copy job resource files to YARN.
  */
 package org.apache.reef.runtime.yarn.client.uploader;

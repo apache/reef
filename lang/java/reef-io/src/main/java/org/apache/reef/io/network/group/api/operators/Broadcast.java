@@ -25,9 +25,9 @@ import org.apache.reef.tang.annotations.DefaultImplementation;
 
 /**
  * MPI Broadcast operator.
- * <p/>
+ * <p>
  * The sender or root send's an element that is received by all the receivers or other tasks.
- * <p/>
+ * <p>
  * This is an asymmetric operation and hence the differentiation b/w Sender and Receiver.
  */
 public interface Broadcast {

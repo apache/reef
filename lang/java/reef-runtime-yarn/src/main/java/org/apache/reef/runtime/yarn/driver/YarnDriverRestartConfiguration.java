@@ -32,7 +32,7 @@ import org.apache.reef.tang.formats.OptionalImpl;
 
 /**
  * Use this ConfigurationModule to configure YARN-specific Restart options for the driver.
- * <p/>
+ * <p>
  */
 @ClientSide
 @Public

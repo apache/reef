@@ -25,7 +25,7 @@ package org.apache.reef.wake.rx.exception;
  * an ObserverCompleted exception whenever this API is violated. Violating the
  * API leaves the Observer (and any resources that it holds) in an undefined
  * state, and throwing ObserverCompleted exceptions is optional.
- * <p/>
+ * <p>
  * Callers receiving this exception should simply pass it up the stack to the
  * Aura runtime. They should not attempt to forward it on to upstream or
  * downstream stages. The easiest way to do this is to ignore the exception

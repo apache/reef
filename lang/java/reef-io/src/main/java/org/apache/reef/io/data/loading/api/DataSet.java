@@ -25,12 +25,12 @@ import org.apache.reef.io.network.util.Pair;
  * A view of the data set to be loaded
  * at an evaluator as an iterable of
  * key value pairs.
- * <p/>
+ * <p>
  * Implementations need not materialize
  * and clients should not assume that the
  * data is materialized. Any such thing
  * is left as a post-processing step.
- * <p/>
+ * <p>
  * Client also can't assume that the iterator
  * returned here can be restarted
  *

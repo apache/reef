@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * Tests for State-passing.
  */
 package org.apache.reef.tests.statepassing;

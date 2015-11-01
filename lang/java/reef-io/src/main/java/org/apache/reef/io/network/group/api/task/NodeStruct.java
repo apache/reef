@@ -23,10 +23,10 @@ import org.apache.reef.io.network.group.impl.GroupCommunicationMessage;
 /**
  * The actual node that is part of the operator topology
  *
- * Receives data from the handlers & provides them to the
+ * Receives data from the handlers and provides them to the
  * operators/OperatorTopologyStruct when they need it.
  *
- * This implementation decouples the send & receive.
+ * This implementation decouples the send and receive.
  */
 public interface NodeStruct {
 

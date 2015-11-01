@@ -29,7 +29,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * An EventHandler that blocks until a set number of Events has been received.
  * Once they have been received, the downstream event handler is called with an
  * Iterable of the events spooled.
- * <p/>
+ * <p>
  * onNext is thread safe
  *
  * @param <T> type of events

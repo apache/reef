@@ -54,16 +54,16 @@ public interface ConfigurationSerializer {
   /**
    * Writes the Configuration to a byte[].
    *
-   * @param conf
-   * @return
-   * @throws IOException
+   * @param conf the Configuration to be converted
+   * @return the byte array
+   * @throws IOException if encoding fails to write
    */
   byte[] toByteArray(final Configuration conf) throws IOException;
 
   /**
    * Writes the Configuration as a String.
    *
-   * @param configuration
+   * @param configuration the Configuration to be converted
    * @return a String representation of the Configuration
    */
   String toString(final Configuration configuration);
@@ -92,10 +92,10 @@ public interface ConfigurationSerializer {
   /**
    * Loads a Configuration from a File created with toFile() with ClassHierarchy.
    *
-   * @param file
-   * @param classHierarchy
-   * @return
-   * @throws IOException
+   * @param file the File to read from.
+   * @param classHierarchy the class hierarchy to be used.
+   * @return the Configuration stored in the file.
+   * @throws IOException if the File can't be read or parsed
    */
   Configuration fromTextFile(final File file, final ClassHierarchy classHierarchy) throws IOException;
 

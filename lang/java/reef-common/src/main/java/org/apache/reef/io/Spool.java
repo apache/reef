@@ -33,21 +33,20 @@ public interface Spool<T> extends Iterable<T>, Accumulable<T> {
 
   /**
    * Returns an Iterable over the spool file.
-   * <p/>
+   * <p>
    * Depending on the implementation, this method may be called only once per
    * Spool instance, or it may be called repeatedly. Similarly, with some Spool
    * implementations, attempts to append to the SpoolFile after calling
    * iterator() may fail fast with a ConcurrentModificationException.
    *
    * @return An Iterator over the SpoolFile, in the order data was inserted.
-   * @throws Exception
    */
   @Override
   Iterator<T> iterator();
 
   /**
    * Returns an Accumulator for the spool file.
-   * <p/>
+   * <p>
    * Depending on the implementation, this method may be called only once per
    * Spool instance, or it may be called repeatedly. Similarly, with some Spool
    * implementations, attempts to append to the SpoolFile after calling

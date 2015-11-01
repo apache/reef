@@ -32,11 +32,11 @@ import org.apache.reef.tang.Configuration;
 public interface ContextAndTaskSubmittable {
   /**
    * Submit a Context and a Task.
-   * <p/>
+   * <p>
    * The semantics of this call are the same as first submitting the context and then, on the fired ActiveContext event
    * to submit the Task. The performance of this will be better, though as it potentially saves some roundtrips on
    * the network.
-   * <p/>
+   * <p>
    * REEF will not fire an ActiveContext as a result of this. Instead, it will fire a TaskRunning event.
    *
    * @param contextConfiguration the Configuration of the EvaluatorContext. See ContextConfiguration for details.
@@ -46,11 +46,11 @@ public interface ContextAndTaskSubmittable {
 
   /**
    * Submit a Context with Services and a Task.
-   * <p/>
+   * <p>
    * The semantics of this call are the same as first submitting the context and services and then, on the fired
    * ActiveContext event to submit the Task. The performance of this will be better, though as it potentially saves
    * some roundtrips on the network.
-   * <p/>
+   * <p>
    * REEF will not fire an ActiveContext as a result of this. Instead, it will fire a TaskRunning event.
    *
    * @param contextConfiguration

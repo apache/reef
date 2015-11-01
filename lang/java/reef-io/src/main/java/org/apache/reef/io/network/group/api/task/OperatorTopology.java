@@ -28,18 +28,18 @@ import java.util.Map;
 
 /**
  * Represents the local topology of tasks for an operator. It
- * provides methods to send/rcv from parents & children
- * <p/>
- * Every operator is an EventHandler<GroupCommunicationMessage>
+ * provides methods to send/rcv from parents and children
+ * <p>
+ * Every operator is an {@code EventHandler<GroupCommunicationMessage>}
  * and it will use an instance of this type to delegate the
  * handling of the message and also uses it to communicate
  * with its parents and children
- * <p/>
+ * <p>
  * This is an operator facing interface. The actual topology is
  * maintained in OperatorTopologyStruct. Current strategy is to
  * maintain two versions of the topology and current operations
  * are always delegated to effectiveTopology and the baseTopology
- * is updated while initialization & when user calls updateTopology.
+ * is updated while initialization and when user calls updateTopology.
  * So this is only a wrapper around the two versions of topologies
  * and manages when to create/update them based on the messages from
  * the driver.

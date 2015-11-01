@@ -33,7 +33,7 @@ public final class Configurations {
   /**
    * Merge a set of Configurations.
    *
-   * @param configurations
+   * @param configurations the configuration to be merged
    * @return the merged configuration.
    * @throws org.apache.reef.tang.exceptions.BindException if the merge fails.
    */
@@ -44,7 +44,7 @@ public final class Configurations {
   /**
    * Merge a set of Configurations.
    *
-   * @param configurations
+   * @param configurations the configuration to be merged
    * @return the merged configuration.
    * @throws org.apache.reef.tang.exceptions.BindException if the merge fails.
    */

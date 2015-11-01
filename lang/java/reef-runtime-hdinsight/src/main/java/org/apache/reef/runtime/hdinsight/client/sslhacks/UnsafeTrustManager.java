@@ -25,7 +25,7 @@ import java.security.cert.X509Certificate;
 
 /**
  * A TrustManager that trusts all certificates. Basically the "GOTO FAIL" bug implemented in Java.
- * <p/>
+ * <p>
  * Hence: DO NOT USE THIS CLASS UNLESS DEBUGGING.
  */
 final class UnsafeTrustManager implements X509TrustManager {

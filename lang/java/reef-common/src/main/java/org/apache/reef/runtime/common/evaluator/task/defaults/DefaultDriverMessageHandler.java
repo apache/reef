@@ -25,7 +25,7 @@ import org.apache.reef.wake.EventHandler;
 import javax.inject.Inject;
 
 /**
- * A default implementation of EventHandler<DriverMessage>.
+ * A default implementation of {@code EventHandler<DriverMessage>}.
  */
 @Private
 public final class DefaultDriverMessageHandler implements EventHandler<DriverMessage> {

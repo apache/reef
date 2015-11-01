@@ -48,7 +48,7 @@ public abstract class AbstractRxStage<T> implements RxStage<T> {
 
   /**
    * Updates the input meter.
-   * <p/>
+   * <p>
    * Stages that want to meter their
    * input must call this each time an event is input.
    */
@@ -58,7 +58,7 @@ public abstract class AbstractRxStage<T> implements RxStage<T> {
 
   /**
    * Updates the output meter.
-   * <p/>
+   * <p>
    * Stages that want to meter their
    * output must call this each time an event is output.
    */
