@@ -24,7 +24,9 @@ import java.net.URISyntaxException;
 
 /**
  * An identifier has a File URI.
+ * @deprecated in 0.14 as unused
  */
+@Deprecated
 public class FileIdentifier implements StorageIdentifier {
   private final File f;
 

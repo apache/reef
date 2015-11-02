@@ -40,7 +40,7 @@ public final class BlockingEventHandler<T> implements EventHandler<T> {
   private final int expectedSize;
   private final EventHandler<Iterable<T>> destination;
   private final AtomicInteger cursor;
-  // TODO: a queue is likely overly conservative given that we only need
+  // TODO[JIRA REEF-911]: a queue is likely overly conservative given that we only need
   // to preserve order of those pairs of events that didn't race (have an ordering)
   private BlockingQueue<T> events = new LinkedBlockingQueue<>();
 
@@ -56,7 +56,7 @@ public final class BlockingEventHandler<T> implements EventHandler<T> {
     final int newCursor = this.cursor.incrementAndGet();
 
     if (newCursor % expectedSize == 0) {
-      // FIXME: There is a race here where the person draining the events might
+      // TODO[JIRA REEF-911]: There is a race here where the person draining the events might
       // not include their event as the last one. I'm going to assume this does not
       // matter, since all events will still be drained exactly once by someone in
       // the proper order
@@ -67,7 +67,7 @@ public final class BlockingEventHandler<T> implements EventHandler<T> {
         // drainTo(maxElements) does not suffice because it has undefined behavior for
         // any modifications (a better spec would possibly be undefined behavior except for appends)
 
-        // TODO: a non-locking implementation will simply atomically update the head of the 
+        // TODO[JIRA REEF-911]: a non-locking implementation will simply atomically update the head of the
         // queue to index=expectedSize, so that the drainer may drain without synchronization
         for (int i = 0; i < expectedSize; i++) {
           nonConcurrent.add(events.poll());

@@ -57,7 +57,7 @@ public class ForkPoolStage<T> extends AbstractEStage<T> {
     super(stageName);
     this.pool = sharedPool;
     this.handler = handler;
-    //TODO: should WakeSharedPool register its stages?
+    //TODO[JIRA REEF-911]: should WakeSharedPool register its stages?
 
     StageManager.instance().register(this);
   }
