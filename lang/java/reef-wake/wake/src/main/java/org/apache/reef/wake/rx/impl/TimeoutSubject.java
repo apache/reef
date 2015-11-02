@@ -27,7 +27,9 @@ import java.util.concurrent.TimeoutException;
  * A class implementing Subject<T> with timeout.
  *
  * @param <T>
+ * @deprecated in 0.14 as unused
  */
+@Deprecated
 public class TimeoutSubject<T> implements Subject<T, T> {
   private Thread timeBomb;
   private Observer<T> destination;
@@ -71,7 +73,7 @@ public class TimeoutSubject<T> implements Subject<T, T> {
       }
     }
     if (!wasFinished) {
-      // TODO: change Subject to specify conversion to T
+      // TODO[JIRA unneeded due to deprecation]: change Subject to specify conversion to T
       destination.onNext(value);
       destination.onCompleted();
     }

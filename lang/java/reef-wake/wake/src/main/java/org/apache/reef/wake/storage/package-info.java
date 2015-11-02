@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * Deprecated in 0.14.
  */
 package org.apache.reef.wake.storage;
