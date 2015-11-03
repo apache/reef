@@ -18,6 +18,8 @@
  */
 package org.apache.reef.javabridge;
 
+import org.apache.reef.annotations.audience.Interop;
+import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.driver.evaluator.EvaluatorDescriptor;
 import org.apache.reef.tang.ClassHierarchy;
 import org.apache.reef.tang.implementation.protobuf.ProtocolBufferClassHierarchy;
@@ -34,6 +36,8 @@ import java.nio.file.Paths;
 /**
  * CLR/Java bridge utilities.
  */
+@Private
+@Interop
 public final class Utilities {
   public static ClassHierarchy loadClassHierarchy(final String classHierarchyFile) {
     // TODO[JIRA REEF-400] The file should be created via AvroClassHierarchySerializer

@@ -18,6 +18,8 @@
  */
 package org.apache.reef.javabridge;
 
+import org.apache.reef.annotations.audience.Interop;
+import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.driver.context.ActiveContext;
 import org.apache.reef.io.naming.Identifiable;
 import org.apache.reef.runtime.common.driver.context.EvaluatorContext;
@@ -28,6 +30,10 @@ import java.util.logging.Logger;
 /**
  * The Java-CLR bridge object for {@link org.apache.reef.driver.context.ActiveContext}.
  */
+@Private
+@Interop(
+    CppFiles = { "Clr2JavaImpl.h", "ActiveContextClr2Java.cpp" },
+    CsFiles = { "IActiveContextClr2Java.cs", "ActiveContext.cs" })
 public final class ActiveContextBridge extends NativeBridge implements Identifiable {
   private static final Logger LOG = Logger.getLogger(ActiveContextBridge.class.getName());
 

@@ -16,23 +16,24 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.javabridge;
-
-import org.apache.reef.annotations.audience.Private;
-
-import java.util.logging.Level;
-import java.util.logging.Logger;
+package org.apache.reef.annotations.audience;
 
 /**
- * Abstract bridge class.
+ * Indicates that a class, function, or instance variable is used
+ * at the Interop layer, and should not be modified or removed without
+ * testing, knowing its consequences, and making corresponding changes
+ * in C# and C++ code.
  */
-@Private
-public abstract class NativeBridge implements AutoCloseable {
+public @interface Interop {
+  /**
+   * @return The C++ files related to the Interop class/function/instance variable.
+   * Note that the coverage may not be absolute.
+   */
+  String[] CppFiles() default "";
 
-  private static final Logger LOG = Logger.getLogger(NativeBridge.class.getName());
-
-  public void onError(final String errorMessage) {
-    LOG.log(Level.SEVERE, "Bridge received error from CLR: " + errorMessage);
-    throw new RuntimeException("Bridge received error from CLR: " + errorMessage);
-  }
+  /**
+   * @return The C# files related to the interop class/function/instance variable.
+   * Note that the coverage may not be absolute.
+   */
+  String[] CsFiles() default "";
 }

@@ -18,6 +18,8 @@
  */
 package org.apache.reef.javabridge;
 
+import org.apache.reef.annotations.audience.Interop;
+import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.driver.context.ActiveContext;
 import org.apache.reef.driver.context.ContextBase;
 import org.apache.reef.driver.context.FailedContext;
@@ -30,6 +32,10 @@ import java.util.logging.Logger;
 /**
  * The Java-CLR bridge object for {@link org.apache.reef.driver.context.FailedContext}.
  */
+@Private
+@Interop(
+    CppFiles = { "Clr2JavaImpl.h", "FailedContextClr2Java.cpp" },
+    CsFiles = { "IFailedContextClr2Java.cs", "FailedContext.cs" })
 public final class FailedContextBridge extends NativeBridge implements ContextBase {
 
   private static final Logger LOG = Logger.getLogger(FailedContextBridge.class.getName());

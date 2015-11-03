@@ -18,6 +18,8 @@
  */
 package org.apache.reef.javabridge;
 
+import org.apache.reef.annotations.audience.Interop;
+import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.io.naming.Identifiable;
 import org.apache.reef.runtime.common.driver.evaluator.AllocatedEvaluatorImpl;
 import org.apache.reef.driver.evaluator.AllocatedEvaluator;
@@ -28,6 +30,10 @@ import java.util.logging.Logger;
 /**
  * The AllocatedEvaluatorBridge object to bridge operations between REEF .NET and Java allocated evaluator operations.
  */
+@Private
+@Interop(
+    CppFiles = { "Clr2JavaImpl.h", "AllocatedEvaluatorClr2Java.cpp" },
+    CsFiles = { "IAllocatedEvaluatorClr2Java.cs", "AllocatedEvaluator.cs" })
 public final class AllocatedEvaluatorBridge extends NativeBridge implements Identifiable {
 
   private static final Logger LOG = Logger.getLogger(AllocatedEvaluatorBridge.class.getName());
