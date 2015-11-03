@@ -18,6 +18,7 @@
  */
 
 using System;
+using Org.Apache.REEF.Common.Attributes;
 
 namespace Org.Apache.REEF.IMRU.API
 {
@@ -25,6 +26,7 @@ namespace Org.Apache.REEF.IMRU.API
     /// Interface defining how to handle the output of Update function in IMRU
     /// </summary>
     /// <typeparam name="T">Result type</typeparam>
+    [Unstable("0.14", "This API will change after introducing proper API for output in REEF.IO")]
     public interface IIMRUResultHandler<in T> : IDisposable
     {
         /// <summary>

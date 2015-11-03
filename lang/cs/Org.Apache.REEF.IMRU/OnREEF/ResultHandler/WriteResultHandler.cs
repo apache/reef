@@ -19,6 +19,7 @@
 
 using System;
 using System.IO;
+using Org.Apache.REEF.Common.Attributes;
 using Org.Apache.REEF.IMRU.API;
 using Org.Apache.REEF.IO.FileSystem;
 using Org.Apache.REEF.Tang.Annotations;
@@ -33,6 +34,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.ResultHandler
     /// Writes IMRU result from Update task to a file
     ///  </summary>
     /// <typeparam name="TResult"></typeparam>
+    [Unstable("0.14", "This API will change after introducing proper API for output in REEF.IO")]
     public class WriteResultHandler<TResult> : IIMRUResultHandler<TResult>
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof (WriteResultHandler<>));

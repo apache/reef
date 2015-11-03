@@ -18,11 +18,13 @@
  */
 
 using System;
+using Org.Apache.REEF.Common.Attributes;
 using Org.Apache.REEF.IMRU.API;
 using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.IMRU.OnREEF.ResultHandler
 {
+    [Unstable("0.14", "This API will change after introducing proper API for output in REEF.IO")]
     internal class DefaultResultHandler<TResult> : IIMRUResultHandler<TResult>
     {
         [Inject]
