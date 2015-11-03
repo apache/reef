@@ -21,7 +21,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
-using System.Linq;
 using Org.Apache.REEF.Common.Context;
 using Org.Apache.REEF.Driver.Context;
 using Org.Apache.REEF.Driver.Evaluator;
@@ -29,10 +28,10 @@ using Org.Apache.REEF.Driver.Task;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Utilities.Logging;
-using Org.Apache.REEF.Wake.Time.Event;
 using Org.Apache.REEF.Common.Evaluator.Parameters;
 using Org.Apache.REEF.Driver.Bridge.Clr2java;
 using Org.Apache.REEF.Driver.Bridge.Events;
+using Org.Apache.REEF.Driver.Defaults;
 
 namespace Org.Apache.REEF.Driver.Bridge
 {
@@ -118,6 +117,8 @@ namespace Org.Apache.REEF.Driver.Bridge
 
         private readonly ISet<IConfigurationProvider> _configurationProviders;
 
+        private readonly IProgressProvider _progressProvider;
+
         [Inject]
         public DriverBridge(
             [Parameter(Value = typeof(DriverBridgeConfigurationOptions.DriverStartedHandlers))] ISet<IObserver<IDriverStarted>> driverStartHandlers,
@@ -142,7 +143,8 @@ namespace Org.Apache.REEF.Driver.Bridge
             [Parameter(Value = typeof(DriverBridgeConfigurationOptions.TraceListenersSet))] ISet<TraceListener> traceListeners,
             [Parameter(Value = typeof(EvaluatorConfigurationProviders))] ISet<IConfigurationProvider> configurationProviders,
             [Parameter(Value = typeof(DriverBridgeConfigurationOptions.TraceLevel))] string traceLevel,
-            HttpServerHandler httpServerHandler)
+            HttpServerHandler httpServerHandler,
+            IProgressProvider progressProvider)
         {
             foreach (TraceListener listener in traceListeners)
             {
@@ -182,6 +184,7 @@ namespace Org.Apache.REEF.Driver.Bridge
             _driverRestartFailedEvaluatorHandlers = driverRestartFailedEvaluatorHandlers;
             _httpServerHandler = httpServerHandler;
             _configurationProviders = configurationProviders;
+            _progressProvider = progressProvider;
             
             _allocatedEvaluatorSubscriber = new ClrSystemHandler<IAllocatedEvaluator>();
             _completedEvaluatorSubscriber = new ClrSystemHandler<ICompletedEvaluator>();
@@ -339,6 +342,12 @@ namespace Org.Apache.REEF.Driver.Bridge
             _httpServerEventSubscriber.Subscribe(_httpServerHandler);
             _logger.Log(Level.Verbose, "subscribed to IHttpMessage handler  :" + _httpServerHandler);
             bridgeHandlerManager.HttpServerHandler = ClrHandlerHelper.CreateHandler(_httpServerEventSubscriber);
+
+            // bind progress provider to provide application progress
+            // Bind null handler if user does not specify their own implementation of IProgressProvider. This is
+            // used to get around the overhead of Interop calls since the Java side checks for null handler here.
+            bridgeHandlerManager.ProgressProvider = _progressProvider is DefaultProgressProvider ? 
+                ClrHandlerHelper.CreateNullHandler() : ClrHandlerHelper.CreateHandler(_progressProvider);
 
             return bridgeHandlerManager;
         }

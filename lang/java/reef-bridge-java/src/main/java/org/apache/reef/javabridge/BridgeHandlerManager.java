@@ -44,6 +44,7 @@ public final class BridgeHandlerManager {
   private long driverRestartRunningTaskHandler = 0;
   private long driverRestartCompletedHandler = 0;
   private long driverRestartFailedEvaluatorHandler = 0;
+  private long progressProvider = 0;
 
   public BridgeHandlerManager() {
   }
@@ -182,5 +183,13 @@ public final class BridgeHandlerManager {
 
   public void setDriverRestartFailedEvaluatorHandler(final long driverRestartFailedEvaluatorHandler) {
     this.driverRestartFailedEvaluatorHandler = driverRestartFailedEvaluatorHandler;
+  }
+
+  public long getProgressProvider() {
+    return progressProvider;
+  }
+
+  public void setProgressProvider(final long progressProvider) {
+    this.progressProvider = progressProvider;
   }
 }

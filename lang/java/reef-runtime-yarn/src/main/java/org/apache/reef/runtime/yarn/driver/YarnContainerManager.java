@@ -41,6 +41,7 @@ import org.apache.reef.runtime.common.driver.resourcemanager.ResourceStatusEvent
 import org.apache.reef.runtime.common.driver.resourcemanager.RuntimeStatusEventImpl;
 import org.apache.reef.runtime.common.files.REEFFileNames;
 import org.apache.reef.runtime.yarn.driver.parameters.YarnHeartbeatPeriod;
+import org.apache.reef.tang.InjectionFuture;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.util.Optional;
 import org.apache.reef.wake.remote.Encoder;
@@ -82,7 +83,7 @@ final class YarnContainerManager
   private final String jobSubmissionDirectory;
   private final REEFFileNames reefFileNames;
   private final RackNameFormatter rackNameFormatter;
-  private final ProgressProvider progressProvider;
+  private final InjectionFuture<ProgressProvider> progressProvider;
 
   @Inject
   YarnContainerManager(
@@ -97,7 +98,7 @@ final class YarnContainerManager
       @Parameter(JobSubmissionDirectory.class) final String jobSubmissionDirectory,
       final TrackingURLProvider trackingURLProvider,
       final RackNameFormatter rackNameFormatter,
-      final ProgressProvider progressProvider) throws IOException {
+      final InjectionFuture<ProgressProvider> progressProvider) throws IOException {
     this.reefEventHandlers = reefEventHandlers;
     this.driverStatusManager = driverStatusManager;
 
@@ -162,7 +163,14 @@ final class YarnContainerManager
 
   @Override
   public float getProgress() {
-    return progressProvider.getProgress();
+    try {
+      return Math.max(Math.min(1, progressProvider.get().getProgress()), 0);
+    } catch (final Exception e) {
+      // An Exception must be caught and logged here because YARN swallows the Exception and fails the job.
+      LOG.log(Level.WARNING, "An exception occurred in ProgressProvider.getProgress(), with message : " +
+          e.getMessage() + ". Returning 0 as progress.");
+      return 0f;
+    }
   }
 
   @Override
