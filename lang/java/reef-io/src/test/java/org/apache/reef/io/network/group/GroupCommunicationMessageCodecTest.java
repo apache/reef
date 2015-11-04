@@ -48,14 +48,14 @@ public class GroupCommunicationMessageCodecTest {
   class OperName implements Name<String> {
   }
 
-  @Test(timeout = 100)
+  @Test(timeout = 1000)
   public final void testInstantiation() throws InjectionException {
     final GroupCommunicationMessageCodec codec =
         Tang.Factory.getTang().newInjector().getInstance(GroupCommunicationMessageCodec.class);
     Assert.assertNotNull("tang.getInstance(GroupCommunicationMessageCodec.class): ", codec);
   }
 
-  @Test(timeout = 100)
+  @Test(timeout = 1000)
   public final void testEncodeDecode() {
     final Random r = new Random();
     final byte[] data = new byte[100];
