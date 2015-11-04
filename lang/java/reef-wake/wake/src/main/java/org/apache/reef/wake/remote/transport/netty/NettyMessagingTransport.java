@@ -164,7 +164,7 @@ public class NettyMessagingTransport implements Transport {
         final Iterator<Integer> ports = tcpPortProvider.iterator();
         while (acceptorFound == null) {
           if (!ports.hasNext()) {
-            break;
+            throw new IllegalStateException("tcpPortProvider cannot find a free port.");
           }
           p = ports.next();
           LOG.log(Level.FINEST, "Try port {0}", p);
@@ -179,6 +179,16 @@ public class NettyMessagingTransport implements Transport {
           }
         }
       }
+    } catch (final IllegalStateException ex) {
+      final RuntimeException transportException =
+                new TransportRuntimeException("tcpPortProvider failed to return free ports.");
+      LOG.log(Level.SEVERE, "Cannot find a free port with " + tcpPortProvider, transportException);
+
+      this.clientWorkerGroup.shutdownGracefully();
+      this.serverBossGroup.shutdownGracefully();
+      this.serverWorkerGroup.shutdownGracefully();
+      throw transportException;
+
     } catch (final Exception ex) {
       final RuntimeException transportException =
           new TransportRuntimeException("Cannot bind to port " + p);
