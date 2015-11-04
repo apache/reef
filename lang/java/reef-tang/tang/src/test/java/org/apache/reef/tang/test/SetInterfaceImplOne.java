@@ -28,7 +28,7 @@ final class SetInterfaceImplOne implements SetInterface {
   private final int magicNumber;
 
   @Inject
-  public SetInterfaceImplOne() {
+  SetInterfaceImplOne() {
     this.magicNumber = 42;
   }
 

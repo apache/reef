@@ -145,7 +145,7 @@ public class TestJettyHandler {
 final class HttpAbcEventHandler implements HttpHandler {
 
   @Inject
-  public HttpAbcEventHandler() {
+  HttpAbcEventHandler() {
   }
 
   @Override

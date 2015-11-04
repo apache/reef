@@ -54,11 +54,11 @@ public final class WritableSerializer {
   static class WritableCodec<E extends Writable> implements Codec<E> {
     private final JobConf jobConf;
 
-    public WritableCodec(final JobConf jobConf) {
+    WritableCodec(final JobConf jobConf) {
       this.jobConf = jobConf;
     }
 
-    public WritableCodec() {
+    WritableCodec() {
       this.jobConf = new JobConf();
     }
 

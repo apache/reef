@@ -31,7 +31,7 @@ final class MemorySizeTask implements Task {
   private final int memorySize;
 
   @Inject
-  public MemorySizeTask(@Parameter(EvaluatorSizeTestConfiguration.MemorySize.class) final int memorySize) {
+  MemorySizeTask(@Parameter(EvaluatorSizeTestConfiguration.MemorySize.class) final int memorySize) {
     this.memorySize = memorySize;
   }
 

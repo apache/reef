@@ -35,7 +35,7 @@ final class AvroClassHierarchy implements ClassHierarchy {
   private final PackageNode namespace;
   private final HashMap<String, Node> lookupTable = new HashMap<>();
 
-  public AvroClassHierarchy(final AvroNode root) {
+  AvroClassHierarchy(final AvroNode root) {
     namespace = new PackageNodeImpl();
     if (root.getPackageNode() == null) {
       throw new IllegalArgumentException("Expected a package node. Got: " + root);

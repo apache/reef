@@ -35,7 +35,7 @@ final class LocalResourceLaunchHandler implements ResourceLaunchHandler {
   private final ResourceManager resourceManager;
 
   @Inject
-  public LocalResourceLaunchHandler(final ResourceManager resourceManager) {
+  LocalResourceLaunchHandler(final ResourceManager resourceManager) {
     this.resourceManager = resourceManager;
   }
 

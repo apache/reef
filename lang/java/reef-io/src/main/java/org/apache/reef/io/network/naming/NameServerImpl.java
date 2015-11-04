@@ -264,7 +264,7 @@ class NamingLookupRequestHandler implements EventHandler<NamingLookupRequest> {
   private final NameServer server;
   private final Codec<NamingMessage> codec;
 
-  public NamingLookupRequestHandler(final NameServer server, final Codec<NamingMessage> codec) {
+  NamingLookupRequestHandler(final NameServer server, final Codec<NamingMessage> codec) {
     this.server = server;
     this.codec = codec;
   }
@@ -288,7 +288,7 @@ class NamingRegisterRequestHandler implements EventHandler<NamingRegisterRequest
   private final NameServer server;
   private final Codec<NamingMessage> codec;
 
-  public NamingRegisterRequestHandler(final NameServer server, final Codec<NamingMessage> codec) {
+  NamingRegisterRequestHandler(final NameServer server, final Codec<NamingMessage> codec) {
     this.server = server;
     this.codec = codec;
   }
@@ -308,7 +308,7 @@ class NamingUnregisterRequestHandler implements EventHandler<NamingUnregisterReq
 
   private final NameServer server;
 
-  public NamingUnregisterRequestHandler(final NameServer server) {
+  NamingUnregisterRequestHandler(final NameServer server) {
     this.server = server;
   }
 

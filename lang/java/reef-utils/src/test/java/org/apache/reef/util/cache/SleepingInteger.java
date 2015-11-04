@@ -33,7 +33,7 @@ class SleepingInteger implements Callable<Integer> {
    * @param returnValue value to return
    * @param sleepMillis amount to sleep
    */
-  public SleepingInteger(final int returnValue, final long sleepMillis) {
+  SleepingInteger(final int returnValue, final long sleepMillis) {
     this.returnValue = returnValue;
     this.sleepMillis = sleepMillis;
   }

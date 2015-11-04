@@ -418,7 +418,7 @@ class IncestuousInterfaceSingletons {
 
 class IsBrokenClassInjectable {
   @Inject
-  public IsBrokenClassInjectable() {
+  IsBrokenClassInjectable() {
     throw new UnsupportedOperationException();
   }
 }

@@ -245,7 +245,7 @@ public final class NetworkConnectionServiceImpl implements NetworkConnectionServ
 
   @Override
   public void close() throws Exception {
-    if (isClosed.compareAndSet(false , true)) {
+    if (isClosed.compareAndSet(false, true)) {
       LOG.log(Level.FINE, "Shutting down");
       this.nameServiceRegisteringStage.close();
       this.nameServiceUnregisteringStage.close();

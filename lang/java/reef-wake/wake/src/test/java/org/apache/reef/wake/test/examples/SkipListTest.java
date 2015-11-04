@@ -330,8 +330,8 @@ public class SkipListTest {
               mm.put(i, i);
             }
           }
-        }
-            , 10, TimeUnit.SECONDS);
+        },
+            10, TimeUnit.SECONDS);
       }
       final long inend = System.currentTimeMillis();
 

@@ -33,7 +33,7 @@ import java.util.logging.Level;
  */
 final class NettyServerEventListener extends AbstractNettyEventListener {
 
-  public NettyServerEventListener(
+  NettyServerEventListener(
       final ConcurrentMap<SocketAddress, LinkReference> addrToLinkRefMap,
       final EStage<TransportEvent> stage) {
     super(addrToLinkRefMap, stage);

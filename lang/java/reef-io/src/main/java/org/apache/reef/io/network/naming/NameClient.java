@@ -168,7 +168,7 @@ class NamingClientEventHandler implements EventHandler<TransportEvent> {
   private final EventHandler<NamingMessage> handler;
   private final Codec<NamingMessage> codec;
 
-  public NamingClientEventHandler(
+  NamingClientEventHandler(
       final EventHandler<NamingMessage> handler, final Codec<NamingMessage> codec) {
     this.handler = handler;
     this.codec = codec;

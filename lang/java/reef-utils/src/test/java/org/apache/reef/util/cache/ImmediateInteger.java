@@ -26,7 +26,7 @@ import java.util.concurrent.Callable;
 class ImmediateInteger implements Callable<Integer> {
   private final int returnValue;
 
-  public ImmediateInteger(final int returnValue) {
+  ImmediateInteger(final int returnValue) {
     this.returnValue = returnValue;
   }
 

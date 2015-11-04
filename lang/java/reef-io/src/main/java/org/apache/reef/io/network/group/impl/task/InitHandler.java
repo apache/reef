@@ -32,7 +32,7 @@ class InitHandler implements EventHandler<GroupCommOperator> {
   private ParentDeadException exception = null;
   private final CountDownLatch initLatch;
 
-  public InitHandler(final CountDownLatch initLatch) {
+  InitHandler(final CountDownLatch initLatch) {
     this.initLatch = initLatch;
   }
 

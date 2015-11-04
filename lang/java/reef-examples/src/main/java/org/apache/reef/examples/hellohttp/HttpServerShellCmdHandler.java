@@ -68,7 +68,7 @@ class HttpServerShellCmdHandler implements HttpHandler {
    * HttpServerShellEventHandler constructor.
    */
   @Inject
-  public HttpServerShellCmdHandler(final InjectionFuture<HttpShellJobDriver.ClientMessageHandler> messageHandler) {
+  HttpServerShellCmdHandler(final InjectionFuture<HttpShellJobDriver.ClientMessageHandler> messageHandler) {
     this.messageHandler = messageHandler;
   }
 

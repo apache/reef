@@ -354,7 +354,7 @@ public class ConfigurationModule {
       private final String k;
       private final String v;
 
-      public MyEntry(final String k, final String v) {
+      MyEntry(final String k, final String v) {
         this.k = k;
         this.v = v;
       }

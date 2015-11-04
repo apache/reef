@@ -79,7 +79,7 @@ class TestEventHandler implements EventHandler<RemoteMessage<TestEvent>> {
 
   private final EventHandler<TestEvent> proxy;
 
-  public TestEventHandler(final EventHandler<TestEvent> proxy) {
+  TestEventHandler(final EventHandler<TestEvent> proxy) {
     this.proxy = proxy;
   }
 

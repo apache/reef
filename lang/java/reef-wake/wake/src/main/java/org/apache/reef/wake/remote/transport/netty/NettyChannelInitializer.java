@@ -35,7 +35,7 @@ class NettyChannelInitializer extends ChannelInitializer<SocketChannel> {
   public static final int MAXFRAMELENGTH = 10 * 1024 * 1024;
   private final NettyChannelHandlerFactory handlerFactory;
 
-  public NettyChannelInitializer(final NettyChannelHandlerFactory handlerFactory) {
+  NettyChannelInitializer(final NettyChannelHandlerFactory handlerFactory) {
     this.handlerFactory = handlerFactory;
   }
 

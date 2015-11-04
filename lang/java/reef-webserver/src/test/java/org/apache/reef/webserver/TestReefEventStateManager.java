@@ -98,8 +98,8 @@ final class MockEvaluatorDescriptor implements EvaluatorDescriptor {
   private final EvaluatorProcessFactory evaluatorProcessFactory;
 
   @Inject
-  public MockEvaluatorDescriptor(final NodeDescriptor nodeDescriptor,
-                                 final EvaluatorProcessFactory evaluatorProcessFactory) {
+  MockEvaluatorDescriptor(final NodeDescriptor nodeDescriptor,
+                          final EvaluatorProcessFactory evaluatorProcessFactory) {
     this.nodeDescriptor = nodeDescriptor;
     this.evaluatorProcessFactory = evaluatorProcessFactory;
   }
@@ -127,7 +127,7 @@ final class MockEvaluatorDescriptor implements EvaluatorDescriptor {
 
 final class MockNodeDescriptor implements NodeDescriptor {
   @Inject
-  public MockNodeDescriptor() {
+  MockNodeDescriptor() {
   }
 
   @Override

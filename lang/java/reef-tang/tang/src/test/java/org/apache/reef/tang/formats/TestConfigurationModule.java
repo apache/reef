@@ -428,13 +428,13 @@ class SetClassConfigurationModule extends ConfigurationModuleBuilder {
 
 class SubA implements Super {
   @Inject
-  public SubA() {
+  SubA() {
   }
 }
 
 class SubB implements Super {
   @Inject
-  public SubB() {
+  SubB() {
   }
 }
 

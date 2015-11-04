@@ -35,7 +35,7 @@ final class NettyClientEventListener extends AbstractNettyEventListener {
 
   private static final Logger LOG = Logger.getLogger(NettyClientEventListener.class.getName());
 
-  public NettyClientEventListener(
+  NettyClientEventListener(
       final ConcurrentMap<SocketAddress, LinkReference> addrToLinkRefMap,
       final EStage<TransportEvent> stage) {
     super(addrToLinkRefMap, stage);

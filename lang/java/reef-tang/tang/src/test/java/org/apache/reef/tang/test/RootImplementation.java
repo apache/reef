@@ -44,20 +44,20 @@ final class RootImplementation implements RootInterface {
   private final CyclicDependency cyclicDependency;
 
   @Inject
-  public RootImplementation(@Parameter(TestConfiguration.RequiredString.class) final String requiredString,
-                            @Parameter(TestConfiguration.OptionalString.class) final String optionalString,
-                            @Parameter(TestConfiguration.StringHandler.class) final Handler<String> stringHandler,
-                            @Parameter(TestConfiguration.IntegerHandler.class) final Handler<Integer> integerHandler,
-                            @Parameter(TestConfiguration.NamedParameterInteger.class) final int anInt,
-                            @Parameter(TestConfiguration.NamedParameterDouble.class) final double aDouble,
-                            final UnitClass unit,
-                            final AnInterface anInterface,
-                            final InjectableClass injectableClass,
-                            final SetOfImplementations setOfImplementations,
-                            final SetOfBaseTypes setOfBaseTypes,
-                            final ListOfImplementations listOfImplementations,
-                            final ListOfBaseTypes listOfBaseTypes,
-                            final CyclicDependency cyclicDependency) {
+  RootImplementation(@Parameter(TestConfiguration.RequiredString.class) final String requiredString,
+                     @Parameter(TestConfiguration.OptionalString.class) final String optionalString,
+                     @Parameter(TestConfiguration.StringHandler.class) final Handler<String> stringHandler,
+                     @Parameter(TestConfiguration.IntegerHandler.class) final Handler<Integer> integerHandler,
+                     @Parameter(TestConfiguration.NamedParameterInteger.class) final int anInt,
+                     @Parameter(TestConfiguration.NamedParameterDouble.class) final double aDouble,
+                     final UnitClass unit,
+                     final AnInterface anInterface,
+                     final InjectableClass injectableClass,
+                     final SetOfImplementations setOfImplementations,
+                     final SetOfBaseTypes setOfBaseTypes,
+                     final ListOfImplementations listOfImplementations,
+                     final ListOfBaseTypes listOfBaseTypes,
+                     final CyclicDependency cyclicDependency) {
     this.requiredString = requiredString;
     this.optionalString = optionalString;
     this.unit = unit;

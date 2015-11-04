@@ -195,8 +195,8 @@ class MessageHandler<T> implements EventHandler<TransportEvent> {
   private final EventHandler<Message<T>> handler;
   private final NSMessageCodec<T> codec;
 
-  public MessageHandler(final EventHandler<Message<T>> handler,
-                        final Codec<T> codec, final IdentifierFactory factory) {
+  MessageHandler(final EventHandler<Message<T>> handler,
+                 final Codec<T> codec, final IdentifierFactory factory) {
     this.handler = handler;
     this.codec = new NSMessageCodec<>(codec, factory);
   }

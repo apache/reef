@@ -40,7 +40,7 @@ final class DeadlockInfo {
   private static final ThreadInfo[] EMPTY_ARRAY = new ThreadInfo[0];
   private final Map<ThreadInfo, Map<StackTraceElement, List<MonitorInfo>>> monitorLockedElements;
 
-  public DeadlockInfo() {
+  DeadlockInfo() {
     mxBean = ManagementFactory.getThreadMXBean();
     deadlockedThreadsIDs = mxBean.findDeadlockedThreads();
 

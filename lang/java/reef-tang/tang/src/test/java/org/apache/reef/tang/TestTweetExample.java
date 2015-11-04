@@ -65,7 +65,7 @@ public class TestTweetExample {
 
   static class MockTweetFactory implements TweetFactory {
     @Inject
-    public MockTweetFactory() {
+    MockTweetFactory() {
     }
 
     @Override
@@ -76,7 +76,7 @@ public class TestTweetExample {
 
   static class MockSMS implements SMS {
     @Inject
-    public MockSMS() {
+    MockSMS() {
     }
 
     @Override
@@ -94,8 +94,8 @@ public class TestTweetExample {
     private final long phoneNumber;
 
     @Inject
-    public Tweeter(final TweetFactory tw, final SMS sms,
-                   @Parameter(PhoneNumber.class) final long phoneNumber) {
+    Tweeter(final TweetFactory tw, final SMS sms,
+            @Parameter(PhoneNumber.class) final long phoneNumber) {
       this.tw = tw;
       this.sms = sms;
       this.phoneNumber = phoneNumber;
