@@ -183,7 +183,7 @@ public class ChunkedReadWriteHandler extends ChunkedWriteHandler {
   private class ByteBufCloseableStream extends ByteBufInputStream {
     private final ByteBuf buffer;
 
-    public ByteBufCloseableStream(final ByteBuf buffer) {
+    ByteBufCloseableStream(final ByteBuf buffer) {
       super(buffer);
       this.buffer = buffer;
     }

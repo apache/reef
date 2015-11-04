@@ -54,7 +54,7 @@ final class LocalJobSubmissionHandler implements JobSubmissionHandler {
   private final DriverConfigurationProvider driverConfigurationProvider;
 
   @Inject
-  public LocalJobSubmissionHandler(
+  LocalJobSubmissionHandler(
       final ExecutorService executor,
       @Parameter(RootFolder.class) final String rootFolderName,
       final ConfigurationSerializer configurationSerializer,

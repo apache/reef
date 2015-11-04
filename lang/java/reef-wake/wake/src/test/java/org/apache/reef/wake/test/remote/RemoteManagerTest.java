@@ -312,7 +312,7 @@ public class RemoteManagerTest {
     private final int timeout;
     private RemoteManager rm;
 
-    public SendingRemoteManagerThread(final RemoteManager rm, final int remotePort, final int timeout) {
+    SendingRemoteManagerThread(final RemoteManager rm, final int remotePort, final int timeout) {
       this.remotePort = remotePort;
       this.timeout = timeout;
       this.rm = rm;
@@ -355,8 +355,8 @@ public class RemoteManagerTest {
     private final int numOfEvent;
     private RemoteManager rm;
 
-    public ReceivingRemoteManagerThread(final RemoteManager rm, final int timeout,
-                                        final int numOfConnection, final int numOfEvent) {
+    ReceivingRemoteManagerThread(final RemoteManager rm, final int timeout,
+                                 final int numOfConnection, final int numOfEvent) {
       this.rm = rm;
       this.timeout = timeout;
       this.numOfConnection = numOfConnection;
@@ -479,7 +479,7 @@ public class RemoteManagerTest {
   final class TestRuntimeException extends RuntimeException {
     private static final long serialVersionUID = 1L;
 
-    public TestRuntimeException(final String s) {
+    TestRuntimeException(final String s) {
       super(s);
     }
   }

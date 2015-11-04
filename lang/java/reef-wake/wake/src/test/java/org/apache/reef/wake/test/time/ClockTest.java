@@ -216,11 +216,11 @@ public class ClockTest {
 
     private final CountDownLatch eventCountLatch;
 
-    public EventRecorder() {
+    EventRecorder() {
       this(null);
     }
 
-    public EventRecorder(final CountDownLatch latch) {
+    EventRecorder(final CountDownLatch latch) {
       eventCountLatch = latch;
     }
 
@@ -248,7 +248,7 @@ public class ClockTest {
     private final CountDownLatch eventCountLatch;
     private final Random rand;
 
-    public RandomAlarmProducer(final RuntimeClock clock, final CountDownLatch latch) {
+    RandomAlarmProducer(final RuntimeClock clock, final CountDownLatch latch) {
       this.clock = clock;
       this.eventCountLatch = latch;
       this.rand = new Random();

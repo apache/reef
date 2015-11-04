@@ -717,14 +717,14 @@ public class TestTang {
 
 class Fail {
   @Inject
-  public Fail() {
+  Fail() {
     throw new UnsupportedOperationException();
   }
 }
 
 class Pass {
   @Inject
-  public Pass() {
+  Pass() {
   }
 }
 
@@ -755,11 +755,11 @@ class InjectInjector {
 
 class SingletonMultiConst implements SMC {
   @Inject
-  public SingletonMultiConst(@Parameter(A.class) final String a) {
+  SingletonMultiConst(@Parameter(A.class) final String a) {
   }
 
   @Inject
-  public SingletonMultiConst(@Parameter(A.class) final String a, @Parameter(B.class) final String b) {
+  SingletonMultiConst(@Parameter(A.class) final String a, @Parameter(B.class) final String b) {
   }
 
   @NamedParameter
@@ -779,7 +779,7 @@ class HaveDefaultImplImpl implements HaveDefaultImpl {
 
 class OverrideDefaultImpl implements HaveDefaultImpl {
   @Inject
-  public OverrideDefaultImpl() {
+  OverrideDefaultImpl() {
   }
 }
 
@@ -791,7 +791,7 @@ class HaveDefaultStringImplImpl implements HaveDefaultStringImpl {
 
 class OverrideDefaultStringImpl implements HaveDefaultStringImpl {
   @Inject
-  public OverrideDefaultStringImpl() {
+  OverrideDefaultStringImpl() {
   }
 }
 
@@ -810,7 +810,7 @@ class MustBeSingleton {
   protected static boolean alreadyInstantiated;
 
   @Inject
-  public MustBeSingleton() {
+  MustBeSingleton() {
     if (alreadyInstantiated) {
       throw new IllegalStateException("Can't instantiate me twice!");
     }
@@ -945,7 +945,7 @@ class ExternalConstructorExample {
     protected final Integer x;
     protected final String y;
 
-    public Legacy(final Integer x, final String y) {
+    Legacy(final Integer x, final String y) {
       this.x = x;
       this.y = y;
     }
@@ -956,7 +956,7 @@ class LegacyConstructor {
   protected final Integer x;
   protected final String y;
 
-  public LegacyConstructor(final Integer x, final String y) {
+  LegacyConstructor(final Integer x, final String y) {
     this.x = x;
     this.y = y;
   }
@@ -1326,7 +1326,7 @@ class WantSomeFutureHandlersName {
 class OuterUnitWithStatic {
 
   @Inject
-  public OuterUnitWithStatic() {
+  OuterUnitWithStatic() {
   }
 
   public void bar() {
@@ -1334,7 +1334,7 @@ class OuterUnitWithStatic {
   }
 
   static class InnerStaticClass {
-    public InnerStaticClass() {
+    InnerStaticClass() {
     }
 
     public void baz() {
@@ -1343,7 +1343,7 @@ class OuterUnitWithStatic {
 
   static class InnerStaticClass2 {
     @Inject
-    public InnerStaticClass2() {
+    InnerStaticClass2() {
     }
 
     public void baz() {

@@ -53,9 +53,9 @@ under the License.
         <jetty.version>6.1.26</jetty.version>
         <jackson.version>1.9.13</jackson.version>
         <protobuf.version>2.5.0</protobuf.version>
-        <maven-checkstyle-plugin.version>2.15</maven-checkstyle-plugin.version>
+        <maven-checkstyle-plugin.version>2.17</maven-checkstyle-plugin.version>
         <sevntu.checkstyle.plugin.version>1.15.0</sevntu.checkstyle.plugin.version>
-        <checkstyle.version>6.6</checkstyle.version>
+        <checkstyle.version>6.12</checkstyle.version>
         <findbugs.version>3.0.2</findbugs.version>
         <rootPath>${user.dir}</rootPath>
     </properties>

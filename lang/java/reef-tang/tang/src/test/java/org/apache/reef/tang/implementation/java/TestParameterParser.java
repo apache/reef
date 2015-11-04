@@ -136,7 +136,7 @@ public class TestParameterParser {
     private final Foo foo;
 
     @Inject
-    public FooParser(final String s) {
+    FooParser(final String s) {
       this.foo = new Foo(s);
     }
 
@@ -150,7 +150,7 @@ public class TestParameterParser {
     private final Bar bar;
 
     @Inject
-    public BarParser(final String s) {
+    BarParser(final String s) {
       this.bar = new Bar(s);
     }
 
@@ -166,13 +166,13 @@ public class TestParameterParser {
       return s;
     }
 
-    public Foo(final String s) {
+    Foo(final String s) {
       this.s = s;
     }
   }
 
   private static class Bar extends Foo {
-    public Bar(final String s) {
+    Bar(final String s) {
       super(s);
     }
   }
@@ -204,7 +204,7 @@ public class TestParameterParser {
     private ParseableType instance;
 
     @Inject
-    public TypeParser(final String s) {
+    TypeParser(final String s) {
       if (s.equals("a")) {
         instance = new ParseTypeA();
       }
@@ -237,14 +237,14 @@ public class TestParameterParser {
 
   private static class NeedsA {
     @Inject
-    public NeedsA(@Parameter(ParseNameA.class) final ParseableType a) {
+    NeedsA(@Parameter(ParseNameA.class) final ParseableType a) {
       Assert.assertTrue(a instanceof ParseTypeA);
     }
   }
 
   private static class NeedsB {
     @Inject
-    public NeedsB(@Parameter(ParseNameB.class) final ParseTypeB b) {
+    NeedsB(@Parameter(ParseNameB.class) final ParseTypeB b) {
       Assert.assertTrue(b instanceof ParseTypeB);
     }
   }

@@ -138,7 +138,7 @@ public class TestImplicitConversions {
     private final Identifier id;
 
     @Inject
-    public IdentifierParser(final String id) {
+    IdentifierParser(final String id) {
       this.id = id.startsWith("a://") ? new AIdentifierImpl(id) :
                 id.startsWith("b://") ? new BIdentifierImpl(id) :
                     null;

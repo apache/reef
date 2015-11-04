@@ -37,7 +37,7 @@ final class TFileParser {
   private final FileSystem fileSystem;
   private final Configuration configuration;
 
-  public TFileParser(final Configuration conf, final FileSystem fs) {
+  TFileParser(final Configuration conf, final FileSystem fs) {
     this.configuration = conf;
     this.fileSystem = fs;
   }

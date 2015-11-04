@@ -45,7 +45,7 @@ final class NetworkConnectionServiceMessage<T> implements Message<T> {
    * @param destId   the destination identifier of NetworkConnectionService
    * @param messages  the list of messages
    */
-  public NetworkConnectionServiceMessage(
+  NetworkConnectionServiceMessage(
       final String connFactoryId,
       final Identifier srcId,
       final Identifier destId,

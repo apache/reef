@@ -83,7 +83,7 @@ public class PubSubThreadPoolStageTest {
   class TestEvent {
     private final String msg;
 
-    public TestEvent(final String msg) {
+    TestEvent(final String msg) {
       this.msg = msg;
     }
 

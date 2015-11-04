@@ -41,7 +41,7 @@ abstract class AbstractNettyEventListener implements NettyEventListener {
   protected final EStage<TransportEvent> stage;
   protected EventHandler<Exception> exceptionHandler;
 
-  public AbstractNettyEventListener(
+  AbstractNettyEventListener(
       final ConcurrentMap<SocketAddress, LinkReference> addrToLinkRefMap,
       final EStage<TransportEvent> stage) {
     this.addrToLinkRefMap = addrToLinkRefMap;

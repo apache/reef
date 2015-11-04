@@ -45,7 +45,7 @@ class NettyChannelHandler extends ChannelInboundHandlerAdapter {
    * @param channelGroup the channel group
    * @param listener     the Netty event listener
    */
-  public NettyChannelHandler(
+  NettyChannelHandler(
       final String tag, final ChannelGroup channelGroup, final NettyEventListener listener) {
     this.tag = tag;
     this.channelGroup = channelGroup;

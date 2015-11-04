@@ -27,7 +27,7 @@ final class TaskEntity {
   private final int taskId;
   private final String command;
 
-  public TaskEntity(final int taskId, final String command) {
+  TaskEntity(final int taskId, final String command) {
     this.taskId = taskId;
     this.command = command;
   }

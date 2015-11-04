@@ -38,7 +38,7 @@ final class PoissonPoisonedTaskStartHandler implements EventHandler<TaskStart> {
   private final int timeToCrash;
 
   @Inject
-  public PoissonPoisonedTaskStartHandler(
+  PoissonPoisonedTaskStartHandler(
       @Parameter(CrashProbability.class) final double lambda, final Clock clock) {
 
     this.clock = clock;

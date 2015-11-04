@@ -155,7 +155,7 @@ public class TestHttpConfiguration {
 final class MockActiveContext implements ActiveContext {
 
   @Inject
-  public MockActiveContext() {
+  MockActiveContext() {
   }
 
   @Override

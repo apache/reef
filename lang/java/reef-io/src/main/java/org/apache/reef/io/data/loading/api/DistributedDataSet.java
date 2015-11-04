@@ -83,9 +83,9 @@ public final class DistributedDataSet implements Iterable<DistributedDataSetPart
     private final List<DistributedDataSetPartition> partitions;
     private int position;
 
-    public DistributedDataSetIterator(
+    DistributedDataSetIterator(
         final Collection<DistributedDataSetPartition> partitions) {
-      this.partitions = new LinkedList<DistributedDataSetPartition>(partitions);
+      this.partitions = new LinkedList<>(partitions);
       position = 0;
     }
 

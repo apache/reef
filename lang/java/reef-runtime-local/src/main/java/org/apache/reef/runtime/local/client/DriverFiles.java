@@ -45,7 +45,7 @@ final class DriverFiles {
   private final FileSet globalLibs = new FileSet();
   private final REEFFileNames fileNames;
 
-  public DriverFiles(final REEFFileNames fileNames) {
+  DriverFiles(final REEFFileNames fileNames) {
     this.fileNames = fileNames;
   }
 

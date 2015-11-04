@@ -140,7 +140,7 @@ public class CombinerStage<K extends Comparable<K>, V> implements Stage {
   }
 
   private class OutputThread extends Thread {
-    public OutputThread() {
+    OutputThread() {
       super("grouper-output-thread");
     }
 

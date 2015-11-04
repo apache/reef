@@ -38,7 +38,7 @@ final class PoissonPoisonedContextStartHandler implements EventHandler<ContextSt
   private final int timeToCrash;
 
   @Inject
-  public PoissonPoisonedContextStartHandler(
+  PoissonPoisonedContextStartHandler(
       @Parameter(CrashProbability.class) final double lambda, final Clock clock) {
 
     this.clock = clock;

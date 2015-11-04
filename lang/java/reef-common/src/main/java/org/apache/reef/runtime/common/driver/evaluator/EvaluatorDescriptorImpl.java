@@ -36,10 +36,10 @@ final class EvaluatorDescriptorImpl implements EvaluatorDescriptor {
   private final int numberOfCores;
   private EvaluatorProcess process;
 
-  public EvaluatorDescriptorImpl(final NodeDescriptor nodeDescriptor,
-                                 final int megaBytes,
-                                 final int numberOfCores,
-                                 final EvaluatorProcess process) {
+  EvaluatorDescriptorImpl(final NodeDescriptor nodeDescriptor,
+                          final int megaBytes,
+                          final int numberOfCores,
+                          final EvaluatorProcess process) {
     this.nodeDescriptor = nodeDescriptor;
     this.megaBytes = megaBytes;
     this.numberOfCores = numberOfCores;

@@ -42,7 +42,7 @@ final class WrappedValue<V> {
    * @param valueFetcher method used to fetch the value
    * @param currentTime  class that returns the current time
    */
-  public WrappedValue(final Callable<V> valueFetcher,
+  WrappedValue(final Callable<V> valueFetcher,
                       final CurrentTime currentTime) {
     this.valueFetcher = valueFetcher;
     this.currentTime = currentTime;

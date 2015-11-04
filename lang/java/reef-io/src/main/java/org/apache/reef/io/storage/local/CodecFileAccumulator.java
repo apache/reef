@@ -30,7 +30,7 @@ final class CodecFileAccumulator<T> implements Accumulator<T> {
   private final Codec<T> codec;
   private final ObjectOutputStream out;
 
-  public CodecFileAccumulator(final Codec<T> codec, final File file) throws IOException {
+  CodecFileAccumulator(final Codec<T> codec, final File file) throws IOException {
     this.codec = codec;
     this.out = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(file)));
   }
