@@ -81,8 +81,8 @@ final class RunningJobsImpl implements RunningJobs {
     }
 
     this.get(jobIdentifier).onNext(status);
-    if ((status.getState() != ReefServiceProtos.State.RUNNING) &&
-        (status.getState() != ReefServiceProtos.State.INIT)) {
+    if (status.getState() != ReefServiceProtos.State.RUNNING &&
+        status.getState() != ReefServiceProtos.State.INIT) {
       this.remove(status.getIdentifier());
     }
     LOG.log(Level.FINE, "Done processing message from Job " + jobIdentifier);

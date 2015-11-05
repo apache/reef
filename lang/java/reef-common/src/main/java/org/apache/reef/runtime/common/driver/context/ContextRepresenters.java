@@ -144,7 +144,7 @@ public final class ContextRepresenters {
   }
 
   private synchronized void onContextFailed(final ReefServiceProtos.ContextStatusProto contextStatusProto) {
-    assert (ReefServiceProtos.ContextStatusProto.State.FAIL == contextStatusProto.getContextState());
+    assert ReefServiceProtos.ContextStatusProto.State.FAIL == contextStatusProto.getContextState();
     final String contextID = contextStatusProto.getContextId();
     LOG.log(Level.FINE, "Context {0} failed", contextID);
     // It could have failed right away.
@@ -157,7 +157,7 @@ public final class ContextRepresenters {
   }
 
   private synchronized void onContextDone(final ReefServiceProtos.ContextStatusProto contextStatusProto) {
-    assert (ReefServiceProtos.ContextStatusProto.State.DONE == contextStatusProto.getContextState());
+    assert ReefServiceProtos.ContextStatusProto.State.DONE == contextStatusProto.getContextState();
     final String contextID = contextStatusProto.getContextId();
     if (isUnknownContextId(contextID)) {
       throw new RuntimeException("Received DONE for context " + contextID + " which is unknown.");
@@ -184,7 +184,7 @@ public final class ContextRepresenters {
    */
   private synchronized void onContextReady(final ReefServiceProtos.ContextStatusProto contextStatusProto,
                                            final boolean notifyClientOnNewActiveContext) {
-    assert (ReefServiceProtos.ContextStatusProto.State.READY == contextStatusProto.getContextState());
+    assert ReefServiceProtos.ContextStatusProto.State.READY == contextStatusProto.getContextState();
     final String contextID = contextStatusProto.getContextId();
     // This could be the first message we get from that context
     if (this.isUnknownContextId(contextID)) {

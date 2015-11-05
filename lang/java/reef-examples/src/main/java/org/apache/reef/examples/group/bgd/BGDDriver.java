@@ -194,7 +194,7 @@ public class BGDDriver {
 
     private void submitTask(final ActiveContext activeContext) {
 
-      assert (groupCommDriver.isConfigured(activeContext));
+      assert groupCommDriver.isConfigured(activeContext);
 
       final Configuration partialTaskConfiguration;
       if (activeContext.getId().equals(communicationsGroupMasterContextId) && !masterTaskSubmitted()) {

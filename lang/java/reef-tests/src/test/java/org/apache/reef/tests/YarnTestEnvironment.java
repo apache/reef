@@ -37,7 +37,7 @@ public final class YarnTestEnvironment extends TestEnvironmentBase implements Te
 
   @Override
   public synchronized Configuration getRuntimeConfiguration() {
-    assert (this.ready);
+    assert this.ready;
     try {
       return YarnClientConfiguration.CONF.build();
     } catch (final BindException ex) {
@@ -47,7 +47,7 @@ public final class YarnTestEnvironment extends TestEnvironmentBase implements Te
 
   @Override
   public synchronized void tearDown() {
-    assert (this.ready);
+    assert this.ready;
     this.ready = false;
   }
 

@@ -37,7 +37,7 @@ abstract class AbstractImmutableVector implements ImmutableVector {
 
   @Override
   public double dot(final Vector that) {
-    assert (this.size() == that.size());
+    assert this.size() == that.size();
 
     double result = 0.0;
     for (int index = 0; index < this.size(); ++index) {

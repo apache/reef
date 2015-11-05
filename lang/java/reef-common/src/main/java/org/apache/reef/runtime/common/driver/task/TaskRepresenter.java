@@ -118,7 +118,7 @@ public final class TaskRepresenter {
   }
 
   private void onTaskInit(final ReefServiceProtos.TaskStatusProto taskStatusProto) {
-    assert ((ReefServiceProtos.State.INIT == taskStatusProto.getState()));
+    assert ReefServiceProtos.State.INIT == taskStatusProto.getState();
     if (this.isKnown()) {
       LOG.log(Level.WARNING, "Received a INIT message for task with id {0}" +
           " which we have seen before. Ignoring the second message", this.taskId);
@@ -131,8 +131,7 @@ public final class TaskRepresenter {
   }
 
   private void onTaskRunning(final ReefServiceProtos.TaskStatusProto taskStatusProto) {
-
-    assert (taskStatusProto.getState() == ReefServiceProtos.State.RUNNING);
+    assert taskStatusProto.getState() == ReefServiceProtos.State.RUNNING;
 
     if (this.isNotRunning()) {
       throw new IllegalStateException("Received a task status message from task " + this.taskId +
@@ -156,23 +155,23 @@ public final class TaskRepresenter {
   }
 
   private void onTaskSuspend(final ReefServiceProtos.TaskStatusProto taskStatusProto) {
-    assert (ReefServiceProtos.State.SUSPEND == taskStatusProto.getState());
-    assert (this.isKnown());
+    assert ReefServiceProtos.State.SUSPEND == taskStatusProto.getState();
+    assert this.isKnown();
     this.messageDispatcher.onTaskSuspended(
         new SuspendedTaskImpl(this.context, getResult(taskStatusProto), this.taskId));
     this.setState(ReefServiceProtos.State.SUSPEND);
   }
 
   private void onTaskDone(final ReefServiceProtos.TaskStatusProto taskStatusProto) {
-    assert (ReefServiceProtos.State.DONE == taskStatusProto.getState());
-    assert (this.isKnown());
+    assert ReefServiceProtos.State.DONE == taskStatusProto.getState();
+    assert this.isKnown();
     this.messageDispatcher.onTaskCompleted(
         new CompletedTaskImpl(this.context, getResult(taskStatusProto), this.taskId));
     this.setState(ReefServiceProtos.State.DONE);
   }
 
   private void onTaskFailed(final ReefServiceProtos.TaskStatusProto taskStatusProto) {
-    assert (ReefServiceProtos.State.FAILED == taskStatusProto.getState());
+    assert ReefServiceProtos.State.FAILED == taskStatusProto.getState();
     final Optional<ActiveContext> evaluatorContext = Optional.<ActiveContext>of(this.context);
     final Optional<byte[]> bytes = Optional.ofNullable(getResult(taskStatusProto));
     final Optional<Throwable> exception = this.exceptionCodec.fromBytes(bytes);

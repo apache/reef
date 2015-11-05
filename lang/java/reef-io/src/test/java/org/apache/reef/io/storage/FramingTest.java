@@ -47,7 +47,7 @@ public class FramingTest {
       } else {
         o.nextFrame();
       }
-      offset += (4 + i);
+      offset += 4 + i;
       Assert.assertEquals(offset, o.getCurrentOffset());
       a.add(b);
       Assert.assertEquals(offset, o2.getCurrentOffset());

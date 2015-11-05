@@ -112,17 +112,15 @@ public abstract class AbstractMonotonicMultiMap<K, V> implements Collection<Entr
 
       @Override
       public boolean hasNext() {
-        return it.hasNext() || (cur != null && cur.hasNext());
+        return it.hasNext() || cur != null && cur.hasNext();
       }
 
       @Override
       public Entry<K, V> next() {
-        if (cur == null) {
-          if (it.hasNext()) {
-            final Entry<K, Set<V>> e = it.next();
-            curKey = e.getKey();
-            cur = e.getValue().iterator();
-          }
+        if (cur == null && it.hasNext()) {
+          final Entry<K, Set<V>> e = it.next();
+          curKey = e.getKey();
+          cur = e.getValue().iterator();
         }
         final K k = curKey;
         final V v = cur.next();

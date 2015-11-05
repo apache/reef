@@ -100,9 +100,9 @@ final class EvaluatorStatusManager {
   }
 
   private static boolean isDoneOrFailedOrKilled(final EvaluatorState state) {
-    return (state == EvaluatorState.DONE ||
-            state == EvaluatorState.FAILED ||
-            state == EvaluatorState.KILLED);
+    return state == EvaluatorState.DONE ||
+           state == EvaluatorState.FAILED ||
+           state == EvaluatorState.KILLED;
   }
 
   synchronized void setRunning() {
@@ -134,9 +134,9 @@ final class EvaluatorStatusManager {
   }
 
   synchronized boolean isAllocatedOrSubmittedOrRunning() {
-    return (this.state == EvaluatorState.ALLOCATED ||
-        this.state == EvaluatorState.SUBMITTED ||
-        this.state == EvaluatorState.RUNNING);
+    return this.state == EvaluatorState.ALLOCATED ||
+           this.state == EvaluatorState.SUBMITTED ||
+           this.state == EvaluatorState.RUNNING;
   }
 
   synchronized boolean isSubmitted() {

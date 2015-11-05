@@ -78,7 +78,7 @@ public class TreeTopology implements Topology {
   private final ConfigurationSerializer confSer = new AvroConfigurationSerializer();
 
   /**
-   * @Deprecated in 0.14. Use Tang to obtain an instance of this instead.
+   * @deprecated in 0.14. Use Tang to obtain an instance of this instead.
    */
   @Deprecated
   public TreeTopology(final EStage<GroupCommunicationMessage> senderStage,
@@ -262,8 +262,7 @@ public class TreeTopology implements Topology {
 
   private void setRootNode(final String newRootId) {
     LOG.entering("TreeTopology", "setRootNode", new Object[]{getQualifiedName(), newRootId});
-    final TaskNode node = new TaskNodeImpl(senderStage, groupName, operName, newRootId, driverId, true);
-    this.root = node;
+    this.root = new TaskNodeImpl(senderStage, groupName, operName, newRootId, driverId, true);
     this.logicalRoot = this.root;
     this.prev = this.root;
 
@@ -282,7 +281,6 @@ public class TreeTopology implements Topology {
     root = null;
 
     for (final Map.Entry<String, TaskNode> nodeEntry : nodes.entrySet()) {
-      final String id = nodeEntry.getKey();
       final TaskNode leaf = nodeEntry.getValue();
       leaf.setParent(null);
     }

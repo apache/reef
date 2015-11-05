@@ -64,7 +64,7 @@ public final class LauncherStatus {
   @Override
   public boolean equals(final Object other) {
     return this == other ||
-        (other instanceof LauncherStatus && ((LauncherStatus) other).state == this.state);
+        other instanceof LauncherStatus && ((LauncherStatus) other).state == this.state;
   }
 
   @Override

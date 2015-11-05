@@ -44,7 +44,7 @@ class VortexWorkerManager {
 
   <TInput extends Serializable, TOutput extends Serializable>
       void launchTasklet(final Tasklet<TInput, TOutput> tasklet) {
-    assert(!runningTasklets.containsKey(tasklet.getId()));
+    assert !runningTasklets.containsKey(tasklet.getId());
     runningTasklets.put(tasklet.getId(), tasklet);
     final TaskletExecutionRequest<TInput, TOutput> taskletExecutionRequest
         = new TaskletExecutionRequest<>(tasklet.getId(), tasklet.getUserFunction(), tasklet.getInput());
@@ -53,14 +53,14 @@ class VortexWorkerManager {
 
   <TOutput extends Serializable> Tasklet taskletCompleted(final Integer taskletId, final TOutput result) {
     final Tasklet<?, TOutput> tasklet = runningTasklets.remove(taskletId);
-    assert(tasklet != null); // Tasklet should complete/error only once
+    assert tasklet != null; // Tasklet should complete/error only once
     tasklet.completed(result);
     return tasklet;
   }
 
   Tasklet taskletThrewException(final Integer taskletId, final Exception exception) {
     final Tasklet tasklet = runningTasklets.remove(taskletId);
-    assert(tasklet != null); // Tasklet should complete/error only once
+    assert tasklet != null; // Tasklet should complete/error only once
     tasklet.threwException(exception);
     return tasklet;
   }

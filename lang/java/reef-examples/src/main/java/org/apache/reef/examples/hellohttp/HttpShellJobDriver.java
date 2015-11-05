@@ -129,7 +129,7 @@ public final class HttpShellJobDriver {
   private void submit(final String command) {
     LOG.log(Level.INFO, "Submit command {0} to {1} evaluators. state: {2}",
         new Object[]{command, this.contexts.size(), this.state});
-    assert (this.state == State.READY);
+    assert this.state == State.READY;
     this.expectCount = this.contexts.size();
     this.state = State.WAIT_TASKS;
     this.cmd = null;
@@ -165,7 +165,7 @@ public final class HttpShellJobDriver {
    * Request the evaluators.
    */
   private synchronized void requestEvaluators() {
-    assert (this.state == State.INIT);
+    assert this.state == State.INIT;
     LOG.log(Level.INFO, "Schedule on {0} Evaluators.", this.numEvaluators);
     this.evaluatorRequestor.submit(
         EvaluatorRequest.newBuilder()
@@ -200,7 +200,7 @@ public final class HttpShellJobDriver {
       synchronized (HttpShellJobDriver.this) {
         LOG.log(Level.INFO, "Allocated Evaluator: {0} expect {1} running {2}",
             new Object[]{eval.getId(), HttpShellJobDriver.this.expectCount, HttpShellJobDriver.this.contexts.size()});
-        assert (HttpShellJobDriver.this.state == State.WAIT_EVALUATORS);
+        assert HttpShellJobDriver.this.state == State.WAIT_EVALUATORS;
         try {
           eval.submitContext(ContextConfiguration.CONF.set(
               ContextConfiguration.IDENTIFIER, eval.getId() + "_context").build());
@@ -239,7 +239,7 @@ public final class HttpShellJobDriver {
       synchronized (HttpShellJobDriver.this) {
         LOG.log(Level.INFO, "Context available: {0} expect {1} state {2}",
             new Object[]{context.getId(), HttpShellJobDriver.this.expectCount, HttpShellJobDriver.this.state});
-        assert (HttpShellJobDriver.this.state == State.WAIT_EVALUATORS);
+        assert HttpShellJobDriver.this.state == State.WAIT_EVALUATORS;
         HttpShellJobDriver.this.contexts.put(context.getId(), context);
         if (--HttpShellJobDriver.this.expectCount <= 0) {
           HttpShellJobDriver.this.state = State.READY;
@@ -328,12 +328,12 @@ public final class HttpShellJobDriver {
         final String command = CODEC.decode(message);
         LOG.log(Level.INFO, "Client message: {0} state: {1}",
             new Object[]{command, HttpShellJobDriver.this.state});
-        assert (HttpShellJobDriver.this.cmd == null);
+        assert HttpShellJobDriver.this.cmd == null;
         if (HttpShellJobDriver.this.state == State.READY) {
           HttpShellJobDriver.this.submit(command);
         } else {
           // not ready yet - save the command for better times.
-          assert (HttpShellJobDriver.this.state == State.WAIT_EVALUATORS);
+          assert HttpShellJobDriver.this.state == State.WAIT_EVALUATORS;
           HttpShellJobDriver.this.cmd = command;
         }
       }
@@ -347,7 +347,7 @@ public final class HttpShellJobDriver {
     @Override
     public void onNext(final StartTime startTime) {
       LOG.log(Level.INFO, "{0} StartTime: {1}", new Object[]{state, startTime});
-      assert (state == State.INIT);
+      assert state == State.INIT;
       requestEvaluators();
     }
   }

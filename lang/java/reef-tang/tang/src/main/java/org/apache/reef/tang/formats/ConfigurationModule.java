@@ -246,10 +246,8 @@ public class ConfigurationModule {
         c.builder.b.bindSetEntry((Class) clazz, paramStr);
         foundOne = true;
       }
-      if (!foundOne) {
-        if (!(p instanceof OptionalParameter)) {
-          throw new IllegalStateException();
-        }
+      if (!foundOne && !(p instanceof OptionalParameter)) {
+        throw new IllegalStateException();
       }
     }
     return c.builder.b.build();

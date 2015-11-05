@@ -113,7 +113,7 @@ public final class FailDriverDelayedMsg {
     @Override
     public void onNext(final TaskMessage msg) {
       LOG.log(Level.INFO, "ENTER: FailDriverDelayedMsg.send(TaskMessage): {0}", msg);
-      assert (Arrays.equals(HELLO_STR, msg.get()));
+      assert Arrays.equals(HELLO_STR, msg.get());
       FailDriverDelayedMsg.this.task.close();
     }
   }

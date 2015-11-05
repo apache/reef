@@ -81,7 +81,7 @@ public final class JavaLaunchCommandBuilder implements LaunchCommandBuilder {
           add(javaPath);
         }
 
-        if ((assertionsEnabled != null && assertionsEnabled)
+        if (assertionsEnabled != null && assertionsEnabled
             || EnvironmentUtils.areAssertionsEnabled()) {
           addOption("-ea");
         }

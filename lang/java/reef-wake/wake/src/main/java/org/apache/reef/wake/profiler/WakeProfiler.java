@@ -210,7 +210,7 @@ public class WakeProfiler implements Aspect {
       }
     }
     for (final Object o : futures.values()) {
-      if ((!vertexObject.containsKey(o)) && whitelist(o)) {
+      if (!vertexObject.containsKey(o) && whitelist(o)) {
         workQueue.add(getVertex(o));
       }
     }

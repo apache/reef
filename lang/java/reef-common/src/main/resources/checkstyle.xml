@@ -189,7 +189,8 @@
         <!-- See REEF-838 -->
         <module name="DiamondOperatorForVariableDefinition" />
 
-	<module name="FinalParameters"/>
+        <module name="FinalParameters"/>
+        <module name="UnnecessaryParentheses"/>
 
         <!-- Checks for class design                         -->
         <!-- See http://checkstyle.sf.net/config_design.html -->

@@ -28,7 +28,7 @@ public interface Injector {
 
   /**
    * Gets an instance of iface, or the implementation that has been bound to it.
-   * If an instance has alread been created in this (or a parent) scope, then
+   * If an instance has already been created in this (or a parent) scope, then
    * the existing instance will be returned. Otherwise, a new instance will be
    * returned, and registered in the current scope.
    *
@@ -46,7 +46,7 @@ public interface Injector {
    * Gets the value stored for the given named parameter.
    *
    * @param <U>
-   * @param name
+   * @param iface
    * @return an Instance of the class configured as the implementation for the
    * given interface class.
    * @throws InjectionException

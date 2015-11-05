@@ -281,10 +281,9 @@ final class ContainerManager implements AutoCloseable {
           // remove the any modifier
           final String newRackName = rackName.substring(0,
               rackName.length() - 1);
-          if (possibleRackName.startsWith(newRackName)) {
-            if (freeNodesPerRack.get(possibleRackName).size() > 0) {
-              return Optional.of(possibleRackName);
-            }
+          if (possibleRackName.startsWith(newRackName) &&
+              freeNodesPerRack.get(possibleRackName).size() > 0) {
+            return Optional.of(possibleRackName);
           }
         }
       }

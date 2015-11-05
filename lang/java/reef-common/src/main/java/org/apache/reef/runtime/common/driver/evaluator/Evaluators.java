@@ -51,7 +51,7 @@ public final class Evaluators implements AutoCloseable {
   @Inject
   Evaluators() {
     LOG.log(Level.FINE, "Instantiated 'Evaluators'");
-    assert (SingletonAsserter.assertSingleton(Evaluators.class));
+    assert SingletonAsserter.assertSingleton(Evaluators.class);
   }
 
   /**

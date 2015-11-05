@@ -56,7 +56,7 @@ public final class LocalAddressProviderFactory {
    * Makes the instance.
    */
   private static void makeInstance() {
-    assert (null == instance);
+    assert null == instance;
     try {
       LOGGER.log(Level.FINER, "Instantiating default LocalAddressProvider for legacy users.");
       instance = Tang.Factory.getTang().newInjector().getInstance(LocalAddressProvider.class);
@@ -64,6 +64,6 @@ public final class LocalAddressProviderFactory {
     } catch (final InjectionException e) {
       throw new RuntimeException("Unable to instantiate default LocalAddressProvider for legacy users.", e);
     }
-    assert (null != instance);
+    assert null != instance;
   }
 }

@@ -74,7 +74,7 @@ public class PreparedDriverFolderLauncher {
    * @param clientRemoteId
    */
   public void launch(final File driverFolder, final String jobId, final String clientRemoteId) {
-    assert (driverFolder.isDirectory());
+    assert driverFolder.isDirectory();
 
     final List<String> command = makeLaunchCommand(jobId, clientRemoteId);
 

@@ -112,9 +112,9 @@ public class SlaveTask implements Task {
       case ComputeGradientWithMinEta:
         failPerhaps();
         final double minEta = minEtaBroadcaster.receive();
-          assert (descentDirection != null);
+        assert descentDirection != null;
         this.descentDirection.scale(minEta);
-          assert (model != null);
+        assert model != null;
         this.model.add(descentDirection);
         lossAndGradientReducer.send(computeLossAndGradient());
         break;

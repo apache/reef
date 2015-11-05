@@ -284,7 +284,7 @@ public class ProtocolBufferClassHierarchy implements ClassHierarchy {
   }
 
   private static ConstructorDef<?> parseConstructorDef(
-      final org.apache.reef.tang.proto.ClassHierarchyProto.ConstructorDef def,
+      final ClassHierarchyProto.ConstructorDef def,
       final boolean isInjectable) {
     final List<ConstructorArg> args = new ArrayList<>();
     for (final ClassHierarchyProto.ConstructorArg arg : def.getArgsList()) {

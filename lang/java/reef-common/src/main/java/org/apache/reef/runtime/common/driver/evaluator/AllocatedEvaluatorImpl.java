@@ -330,7 +330,7 @@ public final class AllocatedEvaluatorImpl implements AllocatedEvaluator {
       return serviceConfiguration;
     }
 
-    if ((!serviceConfiguration.isPresent()) && this.evaluatorConfigurationProviders.isEmpty()) {
+    if (!serviceConfiguration.isPresent() && this.evaluatorConfigurationProviders.isEmpty()) {
       // No configurations to merge.
       LOG.info("No service configuration given and no ConfigurationProviders set.");
       return Optional.empty();

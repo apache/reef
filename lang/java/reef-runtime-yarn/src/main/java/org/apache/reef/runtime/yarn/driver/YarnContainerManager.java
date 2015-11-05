@@ -493,7 +493,7 @@ final class YarnContainerManager
     final boolean rackCondition = request.getRacks() == null
         || request.getRacks().contains(this.nodeIdToRackName.get(container.getNodeId().toString()));
 
-    return resourceCondition && (request.getRelaxLocality() || (rackCondition && nodeCondition));
+    return resourceCondition && (request.getRelaxLocality() || rackCondition && nodeCondition);
   }
 
   /**

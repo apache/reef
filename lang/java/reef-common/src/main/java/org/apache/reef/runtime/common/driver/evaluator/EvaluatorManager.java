@@ -262,7 +262,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
    */
   public boolean isClosed() {
     return this.messageDispatcher.isEmpty() &&
-        (this.stateManager.isDoneOrFailedOrKilled());
+           this.stateManager.isDoneOrFailedOrKilled();
   }
 
   /**
@@ -412,7 +412,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
    * @param message
    */
   private synchronized void onEvaluatorDone(final ReefServiceProtos.EvaluatorStatusProto message) {
-    assert (message.getState() == ReefServiceProtos.State.DONE);
+    assert message.getState() == ReefServiceProtos.State.DONE;
     LOG.log(Level.FINEST, "Evaluator {0} done.", getId());
     this.stateManager.setDone();
     this.messageDispatcher.onEvaluatorCompleted(new CompletedEvaluatorImpl(this.evaluatorId));
@@ -425,7 +425,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
    * @param evaluatorStatusProto
    */
   private synchronized void onEvaluatorFailed(final ReefServiceProtos.EvaluatorStatusProto evaluatorStatusProto) {
-    assert (evaluatorStatusProto.getState() == ReefServiceProtos.State.FAILED);
+    assert evaluatorStatusProto.getState() == ReefServiceProtos.State.FAILED;
     final EvaluatorException evaluatorException;
     if (evaluatorStatusProto.hasError()) {
       final Optional<Throwable> exception =

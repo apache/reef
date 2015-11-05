@@ -155,7 +155,7 @@ public final class RuntimeClock implements Clock {
     long time = timer.getCurrent();
     for (final Time t : this.schedule) {
       if (t instanceof ClientAlarm) {
-        assert (time <= t.getTimeStamp());
+        assert time <= t.getTimeStamp();
         time = t.getTimeStamp();
       }
     }
@@ -230,7 +230,7 @@ public final class RuntimeClock implements Clock {
               this.schedule.wait();
             }
 
-            assert (this.schedule.first() != null);
+            assert this.schedule.first() != null;
 
             // Wait until the first scheduled time is ready
             for (long duration = this.timer.getDuration(this.schedule.first().getTimeStamp());
@@ -242,7 +242,7 @@ public final class RuntimeClock implements Clock {
             }
             // Remove the event from the schedule and process it:
             time = this.schedule.pollFirst();
-            assert (time != null);
+            assert time != null;
           }
 
           if (time instanceof Alarm) {

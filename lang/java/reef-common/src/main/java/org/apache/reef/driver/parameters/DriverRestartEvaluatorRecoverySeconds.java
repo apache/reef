@@ -37,7 +37,7 @@ public final class DriverRestartEvaluatorRecoverySeconds implements Name<Integer
   /**
    * The driver waits forever until all expected evaluators report back or fail.
    */
-  public static final String INFINITE = new Long(Integer.MAX_VALUE).toString();
+  public static final String INFINITE = Long.toString(Integer.MAX_VALUE);
 
   /**
    * Default restart wait for the driver is 3 minutes.

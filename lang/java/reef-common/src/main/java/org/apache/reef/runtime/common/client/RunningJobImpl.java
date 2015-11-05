@@ -141,10 +141,10 @@ public final class RunningJobImpl implements RunningJob, EventHandler<JobStatusP
   /**
    * Inform the client of a failed job.
    *
-   * @param jobStatusProto
+   * @param jobStatusProto status of the failed job
    */
   private synchronized void onJobFailure(final JobStatusProto jobStatusProto) {
-    assert (jobStatusProto.getState() == ReefServiceProtos.State.FAILED);
+    assert jobStatusProto.getState() == ReefServiceProtos.State.FAILED;
 
     final String id = this.jobId;
     final Optional<byte[]> data = jobStatusProto.hasException() ?

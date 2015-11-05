@@ -200,14 +200,12 @@ public final class ThreadPoolStage<T> extends AbstractEStage<T> {
    */
   @Override
   public void close() throws Exception {
-    if (closed.compareAndSet(false, true)) {
-      if (numThreads > 0) {
-        executor.shutdown();
-        if (!executor.awaitTermination(shutdownTimeout, TimeUnit.MILLISECONDS)) {
-          LOG.log(Level.WARNING, "Executor did not terminate in " + shutdownTimeout + "ms.");
-          final List<Runnable> droppedRunnables = executor.shutdownNow();
-          LOG.log(Level.WARNING, "Executor dropped " + droppedRunnables.size() + " tasks.");
-        }
+    if (closed.compareAndSet(false, true) && numThreads > 0) {
+      executor.shutdown();
+      if (!executor.awaitTermination(shutdownTimeout, TimeUnit.MILLISECONDS)) {
+        LOG.log(Level.WARNING, "Executor did not terminate in " + shutdownTimeout + "ms.");
+        final List<Runnable> droppedRunnables = executor.shutdownNow();
+        LOG.log(Level.WARNING, "Executor dropped " + droppedRunnables.size() + " tasks.");
       }
     }
   }

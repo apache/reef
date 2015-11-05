@@ -298,7 +298,7 @@ public final class ReflectionUtilities {
   public static Type getNamedParameterTargetOrNull(final Class<?> clazz)
       throws ClassHierarchyException {
     final Annotation npAnnotation = clazz.getAnnotation(NamedParameter.class);
-    final boolean hasSuperClass = (clazz.getSuperclass() != Object.class);
+    final boolean hasSuperClass = clazz.getSuperclass() != Object.class;
 
     boolean isInjectable = false;
     boolean hasConstructor = false;
@@ -333,7 +333,7 @@ public final class ReflectionUtilities {
 
     final Class<?>[] allInterfaces = clazz.getInterfaces();
 
-    final boolean hasMultipleInterfaces = (allInterfaces.length > 1);
+    final boolean hasMultipleInterfaces = allInterfaces.length > 1;
     boolean implementsName;
     Type parameterClass = null;
     try {

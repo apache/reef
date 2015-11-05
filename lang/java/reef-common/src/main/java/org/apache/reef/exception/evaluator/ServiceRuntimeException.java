@@ -41,7 +41,7 @@ public class ServiceRuntimeException extends RuntimeException {
    * declare throws clauses, and legacy interfaces that do not.  This constructor
    * wraps ServiceExceptions, and is the preferred way to deal with such situations.
    *
-   * @param cause
+   * @param cause ServiceException to wrap
    */
   public ServiceRuntimeException(final ServiceException cause) {
     super("Wrapped ServiceException", cause);
@@ -61,7 +61,7 @@ public class ServiceRuntimeException extends RuntimeException {
 
   public ServiceRuntimeException(final Throwable cause) {
     super(cause);
-    this.isWrappedServiceException = (cause instanceof ServiceException);
+    this.isWrappedServiceException = cause instanceof ServiceException;
   }
 
   /**

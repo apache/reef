@@ -30,7 +30,6 @@ import org.apache.reef.io.network.naming.NameServer;
 import org.apache.reef.javabridge.*;
 import org.apache.reef.driver.restart.DriverRestartCompleted;
 import org.apache.reef.runtime.common.driver.DriverStatusManager;
-import org.apache.reef.driver.evaluator.EvaluatorProcess;
 import org.apache.reef.runtime.common.files.REEFFileNames;
 import org.apache.reef.tang.annotations.Unit;
 import org.apache.reef.util.Optional;
@@ -179,8 +178,8 @@ public final class JobDriver {
         LOG.log(Level.INFO, "CLRBufferedLogHandler init complete.");
       }
 
-      final String portNumber = httpServer == null ? null : Integer.toString((httpServer.getPort()));
-      if (portNumber != null){
+      final String portNumber = httpServer == null ? null : Integer.toString(httpServer.getPort());
+      if (portNumber != null) {
         try {
           final File outputFileName = new File(reefFileNames.getDriverHttpEndpoint());
           BufferedWriter out = new BufferedWriter(

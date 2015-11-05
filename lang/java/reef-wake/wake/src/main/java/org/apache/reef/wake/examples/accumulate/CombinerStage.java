@@ -58,7 +58,7 @@ public class CombinerStage<K extends Comparable<K>, V> implements Stage {
           old = register.get(pair.getKey());
           newVal = c.combine(pair.getKey(), old, pair.getValue());
           if (old == null) {
-            succ = (null == register.putIfAbsent(pair.getKey(), newVal));
+            succ = null == register.putIfAbsent(pair.getKey(), newVal);
           } else {
             succ = register.replace(pair.getKey(), old, newVal);
           }

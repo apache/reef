@@ -95,7 +95,7 @@ public final class SchedulerDriver {
     @Override
     public void onNext(final StartTime startTime) {
       LOG.log(Level.INFO, "Driver started at {0}", startTime);
-      assert (state == State.INIT);
+      assert state == State.INIT;
       state = State.WAIT_EVALUATORS;
 
       requestEvaluator(1); // Allocate an initial evaluator to avoid idle state.

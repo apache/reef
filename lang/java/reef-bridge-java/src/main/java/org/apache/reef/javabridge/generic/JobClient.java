@@ -19,7 +19,6 @@
 package org.apache.reef.javabridge.generic;
 
 import org.apache.reef.client.*;
-import org.apache.reef.client.DriverRestartConfiguration;
 import org.apache.reef.io.network.naming.NameServerConfiguration;
 import org.apache.reef.javabridge.NativeInterop;
 import org.apache.reef.runtime.yarn.driver.YarnDriverRestartConfiguration;

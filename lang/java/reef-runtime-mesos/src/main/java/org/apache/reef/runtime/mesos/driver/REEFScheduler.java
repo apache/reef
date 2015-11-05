@@ -460,7 +460,7 @@ final class REEFScheduler implements Scheduler {
     final String logging = "-Djava.util.logging.config.class=org.apache.reef.util.logging.Config";
     final String mesosExecutorId = "-mesos_executor_id " + executorID;
 
-    return (new StringBuilder()
+    return new StringBuilder()
         .append(defaultJavaPath + " ")
         .append("-XX:PermSize=128m" + " ")
         .append("-XX:MaxPermSize=128m" + " ")
@@ -469,7 +469,7 @@ final class REEFScheduler implements Scheduler {
         .append(logging + " ")
         .append(REEFExecutor.class.getName() + " ")
         .append(mesosExecutorId + " ")
-        .toString());
+        .toString();
   }
 
   private String getReefTarUri(final String jobIdentifier) {

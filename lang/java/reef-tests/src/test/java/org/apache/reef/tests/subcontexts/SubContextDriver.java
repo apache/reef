@@ -89,7 +89,7 @@ final class SubContextDriver {
       if (activeContext.getId().equals(CONTEXT_1_IDENTIFIER)) {
 
         synchronized (SubContextDriver.this) {
-          assert (SubContextDriver.this.state == State.CONTEXT_1_SUBMITTED);
+          assert SubContextDriver.this.state == State.CONTEXT_1_SUBMITTED;
         }
 
         LOG.log(Level.FINE, "Submitting sub context");
@@ -124,7 +124,7 @@ final class SubContextDriver {
       if (closedContext.getId().equals(CONTEXT_2_IDENTIFIER)) {
 
         synchronized (SubContextDriver.this) {
-          assert (SubContextDriver.this.state == State.CONTEXT_2_SUBMITTED);
+          assert SubContextDriver.this.state == State.CONTEXT_2_SUBMITTED;
         }
 
         closedContext.getParentContext().close();
@@ -133,7 +133,7 @@ final class SubContextDriver {
       } else if (closedContext.getId().equals(CONTEXT_1_IDENTIFIER)) {
 
         synchronized (SubContextDriver.this) {
-          assert (SubContextDriver.this.state == State.CONTEXT_2_CLOSED);
+          assert SubContextDriver.this.state == State.CONTEXT_2_CLOSED;
         }
 
         throw new IllegalStateException("Received a closed context for the root context");
