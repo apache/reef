@@ -302,7 +302,7 @@ public final class JobDriver {
           failedEvaluatorBridge, JobDriver.this.interopLogger);
     } else {
       NativeInterop.clrSystemFailedEvaluatorHandlerOnNext(
-          JobDriver.this.handlerManager.getDriverRestartFailedEvaluatorHandler(),
+          JobDriver.this.handlerManager.getFailedEvaluatorHandler(),
           failedEvaluatorBridge,
           JobDriver.this.interopLogger);
     }
