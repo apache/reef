@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * Test for suspend/review demo.
  */
 package org.apache.reef.examples.suspend;

@@ -126,11 +126,17 @@ public final class DataLoadingREEF {
   public static final class Local implements Name<Boolean> {
   }
 
+  /**
+   * Number of minutes before timeout.
+   */
   @NamedParameter(doc = "Number of minutes before timeout",
       short_name = "timeout", default_value = "2")
   public static final class TimeOut implements Name<Integer> {
   }
 
+  /**
+   * Input path.
+   */
   @NamedParameter(short_name = "input")
   public static final class InputDir implements Name<String> {
   }

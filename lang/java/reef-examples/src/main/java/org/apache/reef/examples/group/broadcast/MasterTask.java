@@ -38,6 +38,9 @@ import javax.inject.Inject;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Slave task for broadcast example.
+ */
 public class MasterTask implements Task {
 
   public static final String TASK_ID = "MasterTask";

@@ -60,6 +60,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Driver for BGD example.
+ */
 @DriverSide
 @Unit
 public class BGDDriver {

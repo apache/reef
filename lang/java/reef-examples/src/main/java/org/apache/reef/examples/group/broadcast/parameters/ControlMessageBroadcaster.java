@@ -21,6 +21,9 @@ package org.apache.reef.examples.group.broadcast.parameters;
 import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
 
+/**
+ * Control messages broadcaster.
+ */
 @NamedParameter()
 public final class ControlMessageBroadcaster implements Name<String> {
 }

@@ -72,7 +72,7 @@ import java.util.Set;
  * a compiler error.  It used to be that you'd get a cryptic NPE from the
  * classloader.  Also, note that adding methods to ConfigurationModule() won't
  * work.  The bind calls implement immutability by using a secret final clone
- * method called deepCopy() that strips your subclass off, and uses an anonomyous
+ * method called deepCopy() that strips your subclass off, and uses an anonymous
  * inner class instead.
  * 
  * 

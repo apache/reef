@@ -43,6 +43,9 @@ import java.net.InetSocketAddress;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Control process which sends suspend/resume commands.
+ */
 public final class Control {
 
   private static final Logger LOG = Logger.getLogger(Control.class.getName());
@@ -96,10 +99,16 @@ public final class Control {
     }
   }
 
+  /**
+   * Task id.
+   */
   @NamedParameter(doc = "Task id", short_name = "task")
   public static final class TaskId implements Name<String> {
   }
 
+  /**
+   * Command: 'suspend' or 'resume'.
+   */
   @NamedParameter(doc = "Command: 'suspend' or 'resume'", short_name = "cmd")
   public static final class Command implements Name<String> {
   }

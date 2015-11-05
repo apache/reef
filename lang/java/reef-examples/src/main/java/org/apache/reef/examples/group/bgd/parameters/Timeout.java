@@ -21,8 +21,9 @@ package org.apache.reef.examples.group.bgd.parameters;
 import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
 
-
-// TODO: Document
+/**
+ * Timeout.
+ */
 @NamedParameter(short_name = "timeout", default_value = "2")
 public final class Timeout implements Name<Integer> {
 }

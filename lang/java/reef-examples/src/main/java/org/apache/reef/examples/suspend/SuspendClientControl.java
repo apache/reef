@@ -73,6 +73,9 @@ public class SuspendClientControl implements AutoCloseable {
     this.transport.close();
   }
 
+  /**
+   * Port for suspend/resume control commands.
+   */
   @NamedParameter(doc = "Port for suspend/resume control commands",
       short_name = "port", default_value = "7008")
   public static final class Port implements Name<Integer> {

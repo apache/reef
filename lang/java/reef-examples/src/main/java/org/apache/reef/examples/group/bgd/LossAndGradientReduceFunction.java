@@ -25,6 +25,9 @@ import org.apache.reef.io.network.util.Pair;
 
 import javax.inject.Inject;
 
+/**
+ * Loss and gradient reduce function.
+ */
 public class LossAndGradientReduceFunction
     implements ReduceFunction<Pair<Pair<Double, Integer>, Vector>> {
 

@@ -20,6 +20,9 @@ package org.apache.reef.examples.group.bgd.loss;
 
 import javax.inject.Inject;
 
+/**
+ * Weighted logistic {@link LossFunction}.
+ */
 public final class WeightedLogisticLossFunction implements LossFunction {
 
   private static final double POS = 0.0025;
@@ -33,8 +36,8 @@ public final class WeightedLogisticLossFunction implements LossFunction {
    */
   @Inject
   public WeightedLogisticLossFunction() {
-    this.posWeight = (this.POS + this.NEG) / (2 * this.POS);
-    this.negWeight = (this.POS + this.NEG) / (2 * this.NEG);
+    this.posWeight = (POS + NEG) / (2 * POS);
+    this.negWeight = (POS + NEG) / (2 * NEG);
   }
 
   @Override

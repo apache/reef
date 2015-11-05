@@ -23,7 +23,7 @@ import org.apache.reef.io.network.group.api.operators.Reduce.ReduceFunction;
 import javax.inject.Inject;
 
 /**
- *
+ * Reduce function for model receive acknowledgement.
  */
 public class ModelReceiveAckReduceFunction implements ReduceFunction<Boolean> {
 

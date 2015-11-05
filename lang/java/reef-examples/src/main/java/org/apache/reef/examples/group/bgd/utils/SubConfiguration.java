@@ -33,6 +33,9 @@ import org.apache.reef.tang.formats.ConfigurationSerializer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Subconfiguration: limit given configuration to a given list of classes.
+ */
 public final class SubConfiguration {
 
   private static final Logger LOG = Logger.getLogger(SubConfiguration.class.getName());

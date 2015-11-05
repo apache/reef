@@ -21,6 +21,9 @@ package org.apache.reef.examples.group.bgd.operatornames;
 import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
 
+/**
+ * The name of the MinEta broadcast operator.
+ */
 @NamedParameter()
 public final class MinEtaBroadcaster implements Name<String> {
 }

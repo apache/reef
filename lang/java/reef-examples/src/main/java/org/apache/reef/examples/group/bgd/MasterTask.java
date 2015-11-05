@@ -42,6 +42,9 @@ import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Master task for BGD example.
+ */
 public class MasterTask implements Task {
 
   public static final String TASK_ID = "MasterTask";

@@ -25,6 +25,9 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+/**
+ * Test for ObjectWritableCodec.
+ */
 public class ObjectWritableCodecTest {
 
   private static ObjectWritableCodec<CheckpointID> codec;

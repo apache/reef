@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * The Hello REEF example for the HDInsight.
  */
 package org.apache.reef.examples.hello;

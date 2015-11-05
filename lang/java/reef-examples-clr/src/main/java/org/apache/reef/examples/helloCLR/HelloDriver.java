@@ -95,9 +95,9 @@ public final class HelloDriver {
    * @return
    */
   private static ClassHierarchy loadClassHierarchy() {
-    // TODO The file should be created by AvroClassHierarchySerializer
+    // TODO[JIRA REEF-400] The file should be created by AvroClassHierarchySerializer
     try (final InputStream chin = new FileInputStream(HelloCLR.CLASS_HIERARCHY_FILENAME)) {
-      // TODO Use AvroClassHierarchySerializer instead
+      // TODO[JIRA REEF-400] Use AvroClassHierarchySerializer instead
       final ClassHierarchyProto.Node root = ClassHierarchyProto.Node.parseFrom(chin); // A
       final ClassHierarchy ch = new ProtocolBufferClassHierarchy(root);
       return ch;

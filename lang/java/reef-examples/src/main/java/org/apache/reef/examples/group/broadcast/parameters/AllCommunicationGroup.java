@@ -22,7 +22,7 @@ import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
 
 /**
- *
+ * Communication group name.
  */
 @NamedParameter()
 public final class AllCommunicationGroup implements Name<String> {

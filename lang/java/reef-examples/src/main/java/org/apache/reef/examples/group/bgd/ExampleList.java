@@ -32,7 +32,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
+ * The list of BGD examples.
  */
 public class ExampleList {
 

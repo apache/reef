@@ -42,6 +42,9 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Client for broadcast example.
+ */
 @ClientSide
 public final class BroadcastREEF {
   private static final Logger LOG = Logger.getLogger(BroadcastREEF.class.getName());
@@ -60,6 +63,9 @@ public final class BroadcastREEF {
   public static final class Local implements Name<Boolean> {
   }
 
+  /**
+   * Input path.
+   */
   @NamedParameter(short_name = "input")
   public static final class InputDir implements Name<String> {
   }
@@ -146,9 +152,9 @@ public final class BroadcastREEF {
     LOG.log(Level.INFO, "REEF job completed: {0}", state);
   }
 
-    /**
-     * Empty private constructor to prohibit instantiation of utility class.
-     */
+  /**
+   * Empty private constructor to prohibit instantiation of utility class.
+   */
   private BroadcastREEF() {
   }
 }

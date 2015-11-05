@@ -56,6 +56,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Driver for broadcast example.
+ */
 @DriverSide
 @Unit
 public class BroadcastDriver {
@@ -148,6 +151,9 @@ public class BroadcastDriver {
     }
   }
 
+  /**
+   * FailedTask handler.
+   */
   public class FailedTaskHandler implements EventHandler<FailedTask> {
 
     @Override
@@ -179,6 +185,9 @@ public class BroadcastDriver {
     }
   }
 
+  /**
+   * ActiveContext handler.
+   */
   public class ContextActiveHandler implements EventHandler<ActiveContext> {
 
     private final AtomicBoolean storeMasterId = new AtomicBoolean(false);
@@ -270,6 +279,9 @@ public class BroadcastDriver {
     }
   }
 
+  /**
+   * ClosedContext handler.
+   */
   public class ContextCloseHandler implements EventHandler<ClosedContext> {
 
     @Override

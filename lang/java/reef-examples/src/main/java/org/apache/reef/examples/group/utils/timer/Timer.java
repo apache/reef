@@ -21,6 +21,9 @@ package org.apache.reef.examples.group.utils.timer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Timer.
+ */
 public class Timer implements AutoCloseable {
 
   private static final Logger LOG = Logger.getLogger(Timer.class.getName());

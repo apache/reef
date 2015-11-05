@@ -165,6 +165,9 @@ public class SuspendTestTask implements Task, TaskMessageSource {
     this.checkpointService.delete(checkpointId);
   }
 
+  /**
+   * Handler for suspend event.
+   */
   public class SuspendHandler implements EventHandler<SuspendEvent> {
 
     @Override
