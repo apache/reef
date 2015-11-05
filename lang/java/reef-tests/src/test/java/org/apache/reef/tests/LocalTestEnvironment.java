@@ -46,7 +46,7 @@ public final class LocalTestEnvironment extends TestEnvironmentBase implements T
 
   @Override
   public synchronized Configuration getRuntimeConfiguration() {
-    assert (this.ready);
+    assert this.ready;
     final String rootFolder = System.getProperty("org.apache.reef.runtime.local.folder");
     final JavaConfigurationBuilder jcb = Tang.Factory.getTang().newConfigurationBuilder();
     jcb.bindNamedParameter(TempFileRootFolder.class, "./target/reef/temp");
@@ -66,7 +66,7 @@ public final class LocalTestEnvironment extends TestEnvironmentBase implements T
 
   @Override
   public synchronized void tearDown() {
-    assert (this.ready);
+    assert this.ready;
     this.ready = false;
   }
 

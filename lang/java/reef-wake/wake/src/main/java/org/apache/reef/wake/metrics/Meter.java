@@ -92,7 +92,7 @@ public class Meter {
     if (getCount() == 0) {
       return 0.0;
     } else {
-      final double elapsed = (getTick() - startTime);
+      final double elapsed = getTick() - startTime;
       return getCount() / elapsed * TimeUnit.SECONDS.toNanos(1);
     }
   }

@@ -148,7 +148,6 @@ public class TaskNodeStatusImpl implements TaskNodeStatus {
   @Override
   public void processAcknowledgement(final GroupCommunicationMessage gcm) {
     LOG.entering("TaskNodeStatusImpl", "processMsg", new Object[]{getQualifiedName(), gcm});
-    final String self = gcm.getSrcid();
     final Type msgType = gcm.getType();
     final Type msgAcked = getAckedMsg(msgType);
     final String sourceId = gcm.getDestid();

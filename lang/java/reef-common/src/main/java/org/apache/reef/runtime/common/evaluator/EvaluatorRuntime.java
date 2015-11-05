@@ -170,7 +170,7 @@ final class EvaluatorRuntime implements EventHandler<EvaluatorControlProto> {
       synchronized (EvaluatorRuntime.this.heartBeatManager) {
         try {
           LOG.log(Level.FINEST, "runtime start");
-          assert (ReefServiceProtos.State.INIT == EvaluatorRuntime.this.state);
+          assert ReefServiceProtos.State.INIT == EvaluatorRuntime.this.state;
           EvaluatorRuntime.this.state = ReefServiceProtos.State.RUNNING;
           EvaluatorRuntime.this.contextManager.start();
           EvaluatorRuntime.this.heartBeatManager.sendHeartbeat();

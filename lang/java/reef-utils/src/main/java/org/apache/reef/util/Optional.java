@@ -117,7 +117,7 @@ public final class Optional<T> implements Serializable {
     }
 
     final Optional that = (Optional) obj;
-    return this.value == that.value || (this.value != null && this.value.equals(that.value));
+    return this.value == that.value || this.value != null && this.value.equals(that.value);
   }
 
   @Override

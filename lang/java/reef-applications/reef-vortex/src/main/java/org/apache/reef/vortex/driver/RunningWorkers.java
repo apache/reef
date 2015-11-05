@@ -151,15 +151,13 @@ final class RunningWorkers {
                        final Serializable result) {
     lock.lock();
     try {
-      if (!terminated) {
-        if (runningWorkers.containsKey(workerId)) { // Preemption can come before
-          final VortexWorkerManager worker = this.runningWorkers.get(workerId);
-          final Tasklet tasklet = worker.taskletCompleted(taskletId, result);
-          this.schedulingPolicy.taskletCompleted(worker, tasklet);
+      if (!terminated && runningWorkers.containsKey(workerId)) { // Preemption can come before
+        final VortexWorkerManager worker = this.runningWorkers.get(workerId);
+        final Tasklet tasklet = worker.taskletCompleted(taskletId, result);
+        this.schedulingPolicy.taskletCompleted(worker, tasklet);
 
-          // Notify (possibly) waiting scheduler
-          noWorkerOrResource.signal();
-        }
+        // Notify (possibly) waiting scheduler
+        noWorkerOrResource.signal();
       }
     } finally {
       lock.unlock();
@@ -176,15 +174,13 @@ final class RunningWorkers {
                     final Exception exception) {
     lock.lock();
     try {
-      if (!terminated) {
-        if (runningWorkers.containsKey(workerId)) { // Preemption can come before
-          final VortexWorkerManager worker = this.runningWorkers.get(workerId);
-          final Tasklet tasklet = worker.taskletThrewException(taskletId, exception);
-          this.schedulingPolicy.taskletFailed(worker, tasklet);
+      if (!terminated && runningWorkers.containsKey(workerId)) { // Preemption can come before
+        final VortexWorkerManager worker = this.runningWorkers.get(workerId);
+        final Tasklet tasklet = worker.taskletThrewException(taskletId, exception);
+        this.schedulingPolicy.taskletFailed(worker, tasklet);
 
-          // Notify (possibly) waiting scheduler
-          noWorkerOrResource.signal();
-        }
+        // Notify (possibly) waiting scheduler
+        noWorkerOrResource.signal();
       }
     } finally {
       lock.unlock();

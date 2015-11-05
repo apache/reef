@@ -290,7 +290,7 @@ public class InjectorImpl implements Injector {
                                                   final int selectedIndex) {
     if (list.size() == 0) {
       return new Subplan<>(infeasibleNode);
-    } else if ((!forceAmbiguous) && list.size() == 1) {
+    } else if (!forceAmbiguous && list.size() == 1) {
       return list.get(0);
     } else {
       return new Subplan<>(infeasibleNode, selectedIndex, list.toArray(new InjectionPlan[0]));

@@ -60,7 +60,7 @@ public class EWMA {
     final long count = uncounted.getAndSet(0);
     final double instantRate = count / interval;
     if (initialized) {
-      rate += (alpha * (instantRate - rate));
+      rate += alpha * (instantRate - rate);
     } else {
       rate = instantRate;
       initialized = true;

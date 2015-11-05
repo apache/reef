@@ -46,7 +46,7 @@ public final class ContextMessage implements Message {
    * @return a new EvaluatorMessage with the given content.
    */
   public static ContextMessage from(final String messageSourceID, final byte[] theBytes) {
-    assert (theBytes != null && messageSourceID != null);
+    assert theBytes != null && messageSourceID != null;
     return new ContextMessage(messageSourceID, theBytes);
   }
 

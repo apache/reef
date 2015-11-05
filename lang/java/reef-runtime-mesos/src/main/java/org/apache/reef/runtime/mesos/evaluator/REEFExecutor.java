@@ -195,13 +195,13 @@ public final class REEFExecutor implements Executor {
 
   public void onEvaluatorRelease(final EvaluatorRelease evaluatorRelease) {
     LOG.log(Level.INFO, "Release!!!! {0}", evaluatorRelease.toString());
-    assert(evaluatorRelease.getIdentifier().toString().equals(this.mesosExecutorId));
+    assert evaluatorRelease.getIdentifier().toString().equals(this.mesosExecutorId);
     this.onStop();
   }
 
   public void onEvaluatorLaunch(final EvaluatorLaunch evaluatorLaunch) {
     LOG.log(Level.INFO, "Launch!!!! {0}", evaluatorLaunch.toString());
-    assert(evaluatorLaunch.getIdentifier().toString().equals(this.mesosExecutorId));
+    assert evaluatorLaunch.getIdentifier().toString().equals(this.mesosExecutorId);
     final ExecutorService evaluatorLaunchExecutorService = Executors.newSingleThreadExecutor();
     evaluatorLaunchExecutorService.submit(new Thread() {
       public void run() {

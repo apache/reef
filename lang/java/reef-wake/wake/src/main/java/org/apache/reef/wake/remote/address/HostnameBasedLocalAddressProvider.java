@@ -53,7 +53,7 @@ public final class HostnameBasedLocalAddressProvider implements LocalAddressProv
         throw new RuntimeException(message, ex);
       }
     }
-    assert (null != cached);
+    assert null != cached;
     return cached;
   }
 

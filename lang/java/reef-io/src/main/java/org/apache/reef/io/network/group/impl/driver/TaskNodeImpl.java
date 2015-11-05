@@ -334,8 +334,8 @@ public class TaskNodeImpl implements TaskNode {
   public void checkAndSendTopologySetupMessage() {
     LOG.entering("TaskNodeImpl", "checkAndSendTopologySetupMessage", getQualifiedName());
     if (!topoSetupSent.get()
-        && (parentActive() && activeNeighborOfParent())
-        && (allChildrenActive() && activeNeighborOfAllChildren())) {
+        && parentActive() && activeNeighborOfParent()
+        && allChildrenActive() && activeNeighborOfAllChildren()) {
       sendTopoSetupMsg();
     }
     LOG.exiting("TaskNodeImpl", "checkAndSendTopologySetupMessage", getQualifiedName());
@@ -490,7 +490,7 @@ public class TaskNodeImpl implements TaskNode {
     if (obj != this) {
       if (obj instanceof TaskNodeImpl) {
         final TaskNodeImpl that = (TaskNodeImpl) obj;
-        return (this.taskId.equals(that.taskId) && this.version.get() == that.version.get());
+        return this.taskId.equals(that.taskId) && this.version.get() == that.version.get();
       } else {
         return false;
       }

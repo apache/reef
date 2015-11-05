@@ -37,7 +37,7 @@ public final class MesosTestEnvironment extends TestEnvironmentBase implements T
 
   @Override
   public synchronized Configuration getRuntimeConfiguration() {
-    assert (this.ready);
+    assert this.ready;
     try {
       if (System.getenv("REEF_TEST_MESOS_MASTER_IP").equals("")) {
         throw new RuntimeException("REEF_TEST_MESOS_MASTER_IP unspecified");
@@ -54,7 +54,7 @@ public final class MesosTestEnvironment extends TestEnvironmentBase implements T
 
   @Override
   public synchronized void tearDown() {
-    assert (this.ready);
+    assert this.ready;
     this.ready = false;
   }
 

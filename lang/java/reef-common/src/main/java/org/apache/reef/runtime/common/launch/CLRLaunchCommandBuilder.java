@@ -48,10 +48,10 @@ public class CLRLaunchCommandBuilder implements LaunchCommandBuilder {
     }
     result.add(f.getPath());
     result.add(evaluatorConfigurationPath);
-    if ((null != this.standardOutPath) && (!standardOutPath.isEmpty())) {
+    if (null != this.standardOutPath && !standardOutPath.isEmpty()) {
       result.add(">" + this.standardOutPath);
     }
-    if ((null != this.standardErrPath) && (!standardErrPath.isEmpty())) {
+    if (null != this.standardErrPath && !standardErrPath.isEmpty()) {
       result.add("2>" + this.standardErrPath);
     }
     LOG.log(Level.FINE, "Launch Exe: {0}", StringUtils.join(result, ' '));

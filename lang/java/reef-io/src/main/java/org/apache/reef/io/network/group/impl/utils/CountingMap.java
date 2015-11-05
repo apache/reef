@@ -24,11 +24,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Utility class to provide a map that allows to.
+ * Utility class to provide a map that allows to
  * add multiple keys and automatically
  * incrementing the count on each add
  * decrementing the count on each remove
- * and removing key on count==0
+ * and removing key on count==0.
  */
 public class CountingMap<L> {
   private static final Logger LOG = Logger.getLogger(CountingMap.class.getName());
@@ -54,7 +54,7 @@ public class CountingMap<L> {
   }
 
   public void add(final L value) {
-    int cnt = (map.containsKey(value)) ? map.get(value) : 0;
+    int cnt = map.containsKey(value) ? map.get(value) : 0;
     map.put(value, ++cnt);
   }
 

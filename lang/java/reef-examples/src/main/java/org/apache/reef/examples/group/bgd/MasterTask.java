@@ -97,7 +97,7 @@ public class MasterTask implements Task {
 
     double gradientNorm = Double.MAX_VALUE;
     for (int iteration = 1; !converged(iteration, gradientNorm); ++iteration) {
-      try (final Timer t = new Timer("Current Iteration(" + (iteration) + ")")) {
+      try (final Timer t = new Timer("Current Iteration(" + iteration + ")")) {
         final Pair<Double, Vector> lossAndGradient = computeLossAndGradient();
         losses.add(lossAndGradient.getFirst());
         final Vector descentDirection = getDescentDirection(lossAndGradient.getSecond());
@@ -155,7 +155,7 @@ public class MasterTask implements Task {
       }
 
       sendModel = chkAndUpdate();
-    } while (allDead || (!ignoreAndContinue && sendModel));
+    } while (allDead || !ignoreAndContinue && sendModel);
     return lineSearchResults;
   }
 
@@ -180,7 +180,7 @@ public class MasterTask implements Task {
           LOG.log(Level.INFO, "OUT: #Examples: {0}", numExamples);
           final double lossPerExample = lossAndGradient.getFirst().getFirst() / numExamples;
           LOG.log(Level.INFO, "OUT: Loss: {0}", lossPerExample);
-          final double objFunc = ((lambda / 2) * model.norm2Sqr()) + lossPerExample;
+          final double objFunc = (lambda / 2) * model.norm2Sqr() + lossPerExample;
           LOG.log(Level.INFO, "OUT: Objective Func Value: {0}", objFunc);
           final Vector gradient = lossAndGradient.getSecond();
           gradient.scale(1.0 / numExamples);
@@ -192,7 +192,7 @@ public class MasterTask implements Task {
         }
       }
       sendModel = chkAndUpdate();
-    } while (allDead || (!ignoreAndContinue && sendModel));
+    } while (allDead || !ignoreAndContinue && sendModel);
     return returnValue;
   }
 

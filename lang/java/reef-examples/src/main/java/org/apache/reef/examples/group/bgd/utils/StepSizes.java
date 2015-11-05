@@ -33,7 +33,7 @@ public class StepSizes {
   @Inject
   public StepSizes() {
     this.t = new double[gridSize];
-    final int mid = (gridSize / 2);
+    final int mid = gridSize / 2;
     t[mid] = 1;
     for (int i = mid - 1; i >= 0; i--) {
       t[i] = t[i + 1] / 2.0;

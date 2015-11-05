@@ -100,7 +100,7 @@ public final class RunnableProcess implements Runnable {
     this.command = new ArrayList<>(command);
     this.id = id;
     this.folder = folder;
-    assert (this.folder.isDirectory());
+    assert this.folder.isDirectory();
     this.folder.mkdirs();
     this.standardOutFileName = standardOutFileName;
     this.standardErrorFileName = standardErrorFileName;

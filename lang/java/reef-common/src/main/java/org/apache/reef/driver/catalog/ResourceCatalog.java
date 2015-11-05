@@ -59,7 +59,7 @@ public interface ResourceCatalog {
   /**
    * Resource descriptor interface.
    */
-  public interface Descriptor {
+  interface Descriptor {
 
     String getName();
 

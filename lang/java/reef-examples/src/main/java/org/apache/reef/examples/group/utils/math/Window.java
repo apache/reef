@@ -59,8 +59,8 @@ public class Window {
     if (list.isEmpty()) {
       return d;
     }
-    final int start = (list.size() < maxSize) ? 0 : 1;
-    final int numElems = (list.size() < maxSize) ? list.size() + 1 : maxSize;
+    final int start = list.size() < maxSize ? 0 : 1;
+    final int numElems = list.size() < maxSize ? list.size() + 1 : maxSize;
     for (int i = start; i < list.size(); i++) {
       d += list.get(i);
     }

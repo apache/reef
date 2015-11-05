@@ -65,7 +65,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
       throws BindException {
     this.namespace = Tang.Factory.getTang().getDefaultClassHierarchy(jars, parsers);
     for (final Configuration tc : confs) {
-      addConfiguration(((ConfigurationImpl) tc));
+      addConfiguration((ConfigurationImpl) tc);
     }
   }
 
@@ -98,8 +98,8 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
   private <T> void addConfiguration(final ClassHierarchy ns, final ConfigurationBuilderImpl builder)
       throws BindException {
     namespace = namespace.merge(ns);
-    if ((namespace instanceof ClassHierarchyImpl || builder.namespace instanceof ClassHierarchyImpl)) {
-      if ((namespace instanceof ClassHierarchyImpl && builder.namespace instanceof ClassHierarchyImpl)) {
+    if (namespace instanceof ClassHierarchyImpl || builder.namespace instanceof ClassHierarchyImpl) {
+      if (namespace instanceof ClassHierarchyImpl && builder.namespace instanceof ClassHierarchyImpl) {
         ((ClassHierarchyImpl) namespace).getParameterParser()
             .mergeIn(((ClassHierarchyImpl) builder.namespace).getParameterParser());
       } else {

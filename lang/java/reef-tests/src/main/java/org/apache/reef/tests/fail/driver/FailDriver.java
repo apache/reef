@@ -307,8 +307,8 @@ public final class FailDriver {
     @Override
     public void onNext(final TaskMessage msg) {
       checkMsgOrder(msg);
-      assert (Arrays.equals(HELLO_STR, msg.get()));
-      assert (state == DriverState.SEND_MSG);
+      assert Arrays.equals(HELLO_STR, msg.get());
+      assert state == DriverState.SEND_MSG;
       state = DriverState.SUSPEND;
       clock.scheduleAlarm(MSG_DELAY, new AlarmHandler());
     }

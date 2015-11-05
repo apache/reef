@@ -427,7 +427,7 @@ public class Tint {
   }
 
   private boolean classFilter(final boolean checkTang, final String s) {
-    return (checkTang || !s.startsWith("org.apache.reef.tang"));
+    return checkTang || !s.startsWith("org.apache.reef.tang");
   }
 
   private void processDefaultAnnotation(final Class<?> cmb) {
@@ -571,10 +571,8 @@ public class Tint {
         if (setterKeys.contains(nodeS)) {
           names.add(node);
         }
-        if (usedKeys.contains(nodeS)) {
-          if (!names.contains(node)) {
-            names.add(node);
-          }
+        if (usedKeys.contains(nodeS) && !names.contains(node)) {
+          names.add(node);
         }
 
         return true;

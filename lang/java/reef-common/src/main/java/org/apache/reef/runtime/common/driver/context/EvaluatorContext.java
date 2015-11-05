@@ -250,7 +250,7 @@ public final class EvaluatorContext implements ActiveContext {
   public synchronized FailedContext getFailedContext(
       final ReefServiceProtos.ContextStatusProto contextStatusProto) {
 
-    assert (ReefServiceProtos.ContextStatusProto.State.FAIL == contextStatusProto.getContextState());
+    assert ReefServiceProtos.ContextStatusProto.State.FAIL == contextStatusProto.getContextState();
 
     final String id = this.getId();
     final Optional<String> description = Optional.empty();

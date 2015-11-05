@@ -134,7 +134,7 @@ public class GroupCommDriverImpl implements GroupCommServiceDriver {
                              final LocalAddressProvider localAddressProvider,
                              final TransportFactory tpFactory,
                              final NameServer nameService) {
-    assert (SingletonAsserter.assertSingleton(getClass()));
+    assert SingletonAsserter.assertSingleton(getClass());
     this.fanOut = fanOut;
     this.nameService = nameService;
     this.nameServiceAddr = localAddressProvider.getLocalAddress();

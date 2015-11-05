@@ -46,7 +46,7 @@ public final class TaskMessage implements Message {
    * @return a new TaskMessage with the given content.
    */
   public static TaskMessage from(final String messageSourceID, final byte[] theBytes) {
-    assert (theBytes != null && messageSourceID != null);
+    assert theBytes != null && messageSourceID != null;
     return new TaskMessage(messageSourceID, theBytes);
   }
 

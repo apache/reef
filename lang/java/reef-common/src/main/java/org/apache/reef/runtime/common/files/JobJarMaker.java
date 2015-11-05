@@ -74,7 +74,7 @@ public final class JobJarMaker {
         );
       } else {
         try {
-          java.nio.file.Files.copy(sourceFile.toPath(), destinationFile.toPath());
+          Files.copy(sourceFile.toPath(), destinationFile.toPath());
         } catch (final IOException e) {
           final String message = new StringBuilder("Copy of file [")
               .append(sourceFile.getAbsolutePath())

@@ -71,7 +71,7 @@ public class FlatTopology implements Topology {
   private final ConcurrentMap<String, TaskNode> nodes = new ConcurrentSkipListMap<>();
 
   /**
-   * @Deprecated in 0.14. Use Tang to obtain an instance of this instead.
+   * @deprecated in 0.14. Use Tang to obtain an instance of this instead.
    */
   @Deprecated
   public FlatTopology(final EStage<GroupCommunicationMessage> senderStage,
@@ -232,8 +232,6 @@ public class FlatTopology implements Topology {
     this.root = node;
 
     for (final Map.Entry<String, TaskNode> nodeEntry : nodes.entrySet()) {
-      final String id = nodeEntry.getKey();
-
       final TaskNode leaf = nodeEntry.getValue();
       root.addChild(leaf);
       leaf.setParent(root);
@@ -250,7 +248,6 @@ public class FlatTopology implements Topology {
     root = null;
 
     for (final Map.Entry<String, TaskNode> nodeEntry : nodes.entrySet()) {
-      final String id = nodeEntry.getKey();
       final TaskNode leaf = nodeEntry.getValue();
       leaf.setParent(null);
     }

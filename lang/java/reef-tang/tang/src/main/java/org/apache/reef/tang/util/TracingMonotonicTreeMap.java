@@ -44,7 +44,7 @@ public final class TracingMonotonicTreeMap<K, V> implements TracingMonotonicMap<
   }
 
   @Override
-  public Set<java.util.Map.Entry<K, V>> entrySet() {
+  public Set<Entry<K, V>> entrySet() {
     throw new UnsupportedOperationException();
   }
 

@@ -117,18 +117,18 @@ public final class ResourceManagerStatus implements EventHandler<RuntimeStatusEv
 
 
   private synchronized void onRMFailure(final RuntimeStatusEvent runtimeStatusEvent) {
-    assert (runtimeStatusEvent.getState() == ReefServiceProtos.State.FAILED);
+    assert runtimeStatusEvent.getState() == ReefServiceProtos.State.FAILED;
     this.resourceManagerErrorHandler.onNext(runtimeStatusEvent.getError().get());
   }
 
   private synchronized void onRMDone(final RuntimeStatusEvent runtimeStatusEvent) {
-    assert (runtimeStatusEvent.getState() == ReefServiceProtos.State.DONE);
+    assert runtimeStatusEvent.getState() == ReefServiceProtos.State.DONE;
     LOG.log(Level.INFO, "Resource Manager shutdown happened. Triggering Driver shutdown.");
     this.driverStatusManager.onComplete();
   }
 
   private synchronized void onRMRunning(final RuntimeStatusEvent runtimeStatusEvent) {
-    assert (runtimeStatusEvent.getState() == ReefServiceProtos.State.RUNNING);
+    assert runtimeStatusEvent.getState() == ReefServiceProtos.State.RUNNING;
     if (this.isIdle()) {
       this.driverIdleManager.get().onPotentiallyIdle(IDLE_MESSAGE);
     }

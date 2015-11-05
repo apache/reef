@@ -101,7 +101,7 @@ public final class LegacyLocalAddressProvider implements LocalAddressProvider {
 
     // get unsigned byte.
     private static int u(final byte b) {
-      return ((int) b); // & 0xff;
+      return (int) b; // & 0xff;
     }
 
     @Override

@@ -65,7 +65,7 @@ public final class VortexFuture<TOutput> implements Future<TOutput> {
     if (userResult != null) {
       return userResult;
     } else {
-      assert(userException != null);
+      assert userException != null;
       throw new ExecutionException(userException);
     }
   }
@@ -83,7 +83,7 @@ public final class VortexFuture<TOutput> implements Future<TOutput> {
     if (userResult != null) {
       return userResult;
     } else {
-      assert(userException != null);
+      assert userException != null;
       throw new ExecutionException(userException);
     }
   }

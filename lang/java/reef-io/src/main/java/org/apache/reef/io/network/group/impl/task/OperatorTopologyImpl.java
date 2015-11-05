@@ -201,7 +201,7 @@ public class OperatorTopologyImpl implements OperatorTopology {
       throws ParentDeadException {
     LOG.entering("OperatorTopologyImpl", "sendToParent", new Object[] {getQualifiedName(), msgType});
     refreshEffectiveTopology();
-    assert (effectiveTopology != null);
+    assert effectiveTopology != null;
     effectiveTopology.sendToParent(data, msgType);
     LOG.exiting("OperatorTopologyImpl", "sendToParent", getQualifiedName());
   }
@@ -211,7 +211,7 @@ public class OperatorTopologyImpl implements OperatorTopology {
       throws ParentDeadException {
     LOG.entering("OperatorTopologyImpl", "sendToChildren", new Object[]{getQualifiedName(), msgType});
     refreshEffectiveTopology();
-    assert (effectiveTopology != null);
+    assert effectiveTopology != null;
     effectiveTopology.sendToChildren(data, msgType);
     LOG.exiting("OperatorTopologyImpl", "sendToChildren", getQualifiedName());
   }
@@ -222,7 +222,7 @@ public class OperatorTopologyImpl implements OperatorTopology {
       throws ParentDeadException {
     LOG.entering("OperatorTopologyImpl", "sendToChildren", new Object[]{getQualifiedName(), msgType});
     refreshEffectiveTopology();
-    assert (effectiveTopology != null);
+    assert effectiveTopology != null;
     effectiveTopology.sendToChildren(dataMap, msgType);
     LOG.exiting("OperatorTopologyImpl", "sendToChildren", getQualifiedName());
   }
@@ -232,7 +232,7 @@ public class OperatorTopologyImpl implements OperatorTopology {
       throws ParentDeadException {
     LOG.entering("OperatorTopologyImpl", "recvFromParent", new Object[] {getQualifiedName(), msgType});
     refreshEffectiveTopology();
-    assert (effectiveTopology != null);
+    assert effectiveTopology != null;
     final byte[] retVal = effectiveTopology.recvFromParent(msgType);
     LOG.exiting("OperatorTopologyImpl", "recvFromParent", getQualifiedName());
     return retVal;
@@ -243,7 +243,7 @@ public class OperatorTopologyImpl implements OperatorTopology {
       throws ParentDeadException {
     LOG.entering("OperatorTopologyImpl", "recvFromChildren", getQualifiedName());
     refreshEffectiveTopology();
-    assert (effectiveTopology != null);
+    assert effectiveTopology != null;
     final T retVal = effectiveTopology.recvFromChildren(redFunc, dataCodec);
     LOG.exiting("OperatorTopologyImpl", "recvFromChildren", getQualifiedName());
     return retVal;
@@ -253,7 +253,7 @@ public class OperatorTopologyImpl implements OperatorTopology {
   public byte[] recvFromChildren() throws ParentDeadException {
     LOG.entering("OperatorTopologyImpl", "recvFromChildren", getQualifiedName());
     refreshEffectiveTopology();
-    assert (effectiveTopology != null);
+    assert effectiveTopology != null;
     final byte[] retVal = effectiveTopology.recvFromChildren();
     LOG.exiting("OperatorTopologyImpl", "recvFromChildren", getQualifiedName());
     return retVal;
@@ -271,7 +271,7 @@ public class OperatorTopologyImpl implements OperatorTopology {
     synchronized (topologyLock) {
       LOG.finest(getQualifiedName() + "Acquired topoLock");
 
-      assert (effectiveTopology != null);
+      assert effectiveTopology != null;
 
       final Set<GroupCommunicationMessage> deletionDeltasSet = new HashSet<>();
       copyDeletionDeltas(deletionDeltasSet);
@@ -310,7 +310,7 @@ public class OperatorTopologyImpl implements OperatorTopology {
     synchronized (topologyLock) {
       LOG.finest(getQualifiedName() + "Acquired topoLock");
       try {
-        assert (baseTopology != null);
+        assert baseTopology != null;
         LOG.finest(getQualifiedName() + "Updating base topology. So setting dirty bit");
         baseTopology.setChanges(true);
 
@@ -392,8 +392,8 @@ public class OperatorTopologyImpl implements OperatorTopology {
 
   private void updateEffTopologyFromBaseTopology() {
     LOG.entering("OperatorTopologyImpl", "updateEffTopologyFromBaseTopology", getQualifiedName());
-    assert (baseTopology != null);
-    LOG.finest(getQualifiedName() + "Updaing effective topology");
+    assert baseTopology != null;
+    LOG.finest(getQualifiedName() + "Updating effective topology");
     if (baseTopology.hasChanges()) {
       //Create effectiveTopology from baseTopology
       effectiveTopology = new OperatorTopologyStructImpl(baseTopology);
@@ -474,8 +474,8 @@ public class OperatorTopologyImpl implements OperatorTopology {
   private final class BaseTopologyUpdateHandler implements EventHandler<GroupCommunicationMessage> {
     @Override
     public void onNext(final GroupCommunicationMessage msg) {
-      assert (msg.getType() == ReefNetworkGroupCommProtos.GroupCommMessage.Type.UpdateTopology);
-      assert (effectiveTopology != null);
+      assert msg.getType() == ReefNetworkGroupCommProtos.GroupCommMessage.Type.UpdateTopology;
+      assert effectiveTopology != null;
       LOG.entering("OperatorTopologyImpl.BaseTopologyUpdateHandler", "onNext", new Object[]{getQualifiedName(), msg});
       LOG.finest(getQualifiedName() + "Waiting to acquire topoLock");
       synchronized (topologyLock) {
