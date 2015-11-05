@@ -25,7 +25,7 @@ import org.apache.reef.task.Task;
 import javax.inject.Inject;
 
 /**
- * Master task used for testing multiple communication groups
+ * Master task used for testing multiple communication groups.
  */
 public final class MasterTask implements Task {
 

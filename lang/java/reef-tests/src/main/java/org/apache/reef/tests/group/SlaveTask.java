@@ -25,7 +25,7 @@ import org.apache.reef.task.Task;
 import javax.inject.Inject;
 
 /**
- * Slave task used for testing multiple communication groups
+ * Slave task used for testing multiple communication groups.
  */
 public final class SlaveTask implements Task {
 
