@@ -20,6 +20,9 @@ package org.apache.reef.examples.group.bgd.loss;
 
 import javax.inject.Inject;
 
+/**
+ * Logistic {@link LossFunction}.
+ */
 public final class LogisticLossFunction implements LossFunction {
 
   /**

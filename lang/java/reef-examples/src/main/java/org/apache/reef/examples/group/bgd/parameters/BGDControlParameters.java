@@ -26,6 +26,9 @@ import org.apache.reef.tang.formats.CommandLine;
 
 import javax.inject.Inject;
 
+/**
+ * Control parameters for BGD example.
+ */
 public final class BGDControlParameters {
 
   private final int dimensions;

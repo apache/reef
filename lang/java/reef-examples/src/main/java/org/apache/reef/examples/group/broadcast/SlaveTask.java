@@ -32,7 +32,7 @@ import org.apache.reef.task.Task;
 import javax.inject.Inject;
 
 /**
- *
+ * Slave task for broadcast example.
  */
 public class SlaveTask implements Task {
   private final CommunicationGroupClient communicationGroupClient;

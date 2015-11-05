@@ -23,6 +23,9 @@ import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Step sizes array.
+ */
 public class StepSizes {
 
   private static final Logger LOG = Logger.getLogger(StepSizes.class.getName());
@@ -52,7 +55,6 @@ public class StepSizes {
   }
 
   public static void main(final String[] args) {
-    // TODO Auto-generated method stub
     final StepSizes t = new StepSizes();
     LOG.log(Level.INFO, "OUT: {0}", Arrays.toString(t.getT()));
   }

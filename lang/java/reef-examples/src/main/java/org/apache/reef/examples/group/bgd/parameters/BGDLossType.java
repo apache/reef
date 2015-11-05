@@ -28,6 +28,9 @@ import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Type of loss function used in example.
+ */
 public class BGDLossType {
 
   private static final Map<String, Class<? extends LossFunction>> LOSS_FUNCTIONS =

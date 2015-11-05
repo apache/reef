@@ -20,6 +20,9 @@ package org.apache.reef.examples.group.bgd;
 
 import java.io.Serializable;
 
+/**
+ * Control messages used in BGD example.
+ */
 public enum ControlMessages implements Serializable {
   ComputeGradientWithModel,
   ComputeGradientWithMinEta,

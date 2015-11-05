@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * Test for Hello REEF example.
  */
 package org.apache.reef.examples.hello;

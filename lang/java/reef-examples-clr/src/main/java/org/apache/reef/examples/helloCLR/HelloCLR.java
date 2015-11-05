@@ -40,8 +40,8 @@ public final class HelloCLR {
 
   /**
    * The name of the class hierarchy file.
+   * TODO[JIRA REEF-919] delete this constant
    */
-  // TODO: Make this a config option
   public static final String CLASS_HIERARCHY_FILENAME = "HelloTask.bin";
 
   private static final Logger LOG = Logger.getLogger(HelloCLR.class.getName());

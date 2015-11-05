@@ -104,7 +104,6 @@ public final class Launch {
         .set(ClientConfiguration.ON_RUNTIME_ERROR, SuspendClient.RuntimeErrorHandler.class)
         .build();
 
-    // TODO: Remove the injector, have stuff injected.
     final Injector commandLineInjector = Tang.Factory.getTang().newInjector(commandLineConf);
     final boolean isLocal = commandLineInjector.getNamedInstance(Local.class);
     final Configuration runtimeConfiguration;

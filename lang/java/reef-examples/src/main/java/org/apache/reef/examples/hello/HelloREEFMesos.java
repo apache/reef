@@ -29,6 +29,9 @@ import org.apache.reef.tang.exceptions.InjectionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * The Client for running HelloREEF on Mesos.
+ */
 public final class HelloREEFMesos {
   private static final Logger LOG = Logger.getLogger(HelloREEFMesos.class.getName());
 

@@ -27,6 +27,9 @@ import org.apache.reef.tang.exceptions.InjectionException;
 import org.junit.Assert;
 import org.junit.Test;
 
+/**
+ * Test for HelloREEFHttp.
+ */
 public class HelloHttpTest {
   @Test
   public void testHttpServer() throws BindException, InjectionException {

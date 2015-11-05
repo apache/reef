@@ -38,6 +38,9 @@ import javax.inject.Inject;
 import java.util.List;
 import java.util.logging.Logger;
 
+/**
+ * Slave task for BGD example.
+ */
 public class SlaveTask implements Task {
 
   private static final Logger LOG = Logger.getLogger(SlaveTask.class.getName());

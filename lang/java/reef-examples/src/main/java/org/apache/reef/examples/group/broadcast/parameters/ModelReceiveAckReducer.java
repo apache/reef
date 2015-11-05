@@ -21,6 +21,9 @@ package org.apache.reef.examples.group.broadcast.parameters;
 import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
 
+/**
+ * Reduce operator name for model receive acknowledgement.
+ */
 @NamedParameter()
 public final class ModelReceiveAckReducer implements Name<String> {
 }

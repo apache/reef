@@ -58,6 +58,9 @@ public class LineCounter {
     this.completedDataTasks.set(dataLoadingService.getNumberOfPartitions());
   }
 
+  /**
+   * Handler for ActiveContext.
+   */
   public class ContextActiveHandler implements EventHandler<ActiveContext> {
 
     @Override
@@ -103,6 +106,9 @@ public class LineCounter {
     }
   }
 
+  /**
+   * Completed task handler.
+   */
   public class TaskCompletedHandler implements EventHandler<CompletedTask> {
     @Override
     public void onNext(final CompletedTask completedTask) {

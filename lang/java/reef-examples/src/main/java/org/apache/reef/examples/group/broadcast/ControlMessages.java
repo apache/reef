@@ -20,6 +20,9 @@ package org.apache.reef.examples.group.broadcast;
 
 import java.io.Serializable;
 
+/**
+ * Control messages used in broadcast example.
+ */
 public enum ControlMessages implements Serializable {
   ReceiveModel,
   Stop

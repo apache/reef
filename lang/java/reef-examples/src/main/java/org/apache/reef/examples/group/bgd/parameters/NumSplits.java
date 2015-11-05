@@ -22,9 +22,8 @@ import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
 
 /**
- *
+ * Number of splits.
  */
-// TODO: Document
 @NamedParameter(short_name = "splits", default_value = "5")
 public final class NumSplits implements Name<Integer> {
 }

@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * suspend/resume demo.
+ * Suspend/resume demo.
  */
 package org.apache.reef.examples.suspend;

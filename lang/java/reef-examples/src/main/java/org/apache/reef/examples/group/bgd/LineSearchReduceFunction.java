@@ -25,6 +25,9 @@ import org.apache.reef.io.network.util.Pair;
 
 import javax.inject.Inject;
 
+/**
+ * Reduce function implementing line search.
+ */
 public class LineSearchReduceFunction implements Reduce.ReduceFunction<Pair<Vector, Integer>> {
 
   @Inject

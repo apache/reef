@@ -21,6 +21,9 @@ package org.apache.reef.examples.group.broadcast.parameters;
 import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
 
+/**
+ * Model broadcaster.
+ */
 @NamedParameter()
 public final class ModelBroadcaster implements Name<String> {
 }
