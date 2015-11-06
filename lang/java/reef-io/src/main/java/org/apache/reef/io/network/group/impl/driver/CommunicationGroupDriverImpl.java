@@ -55,6 +55,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -72,7 +73,7 @@ public class CommunicationGroupDriverImpl implements CommunicationGroupDriver {
   private final ConfigurationSerializer confSerializer;
   private final String driverId;
 
-  private final CountingSemaphore allTasksAdded;
+  private final CountingSemaphore allInitialTasksRunning;
 
   private final Object topologiesLock = new Object();
   private final Object configLock = new Object();
@@ -102,7 +103,7 @@ public class CommunicationGroupDriverImpl implements CommunicationGroupDriver {
     this.groupName = groupName;
     this.driverId = driverId;
     this.confSerializer = confSerializer;
-    this.allTasksAdded = new CountingSemaphore(numberOfTasks, getQualifiedName(), topologiesLock);
+    this.allInitialTasksRunning = new CountingSemaphore(numberOfTasks, getQualifiedName(), topologiesLock);
 
     groupCommRunningTaskHandler.addHandler(new TopologyRunningTaskHandler(this));
     groupCommFailedTaskHandler.addHandler(new TopologyFailedTaskHandler(this));
@@ -141,7 +142,7 @@ public class CommunicationGroupDriverImpl implements CommunicationGroupDriver {
     this.groupName = groupName;
     this.driverId = driverId;
     this.confSerializer = confSerializer;
-    this.allTasksAdded = new CountingSemaphore(numberOfTasks, getQualifiedName(), topologiesLock);
+    this.allInitialTasksRunning = new CountingSemaphore(numberOfTasks, getQualifiedName(), topologiesLock);
 
     registerHandlers(groupCommRunningTaskHandler, groupCommFailedTaskHandler,
         groupCommFailedEvaluatorHandler, groupCommMessageHandler);
@@ -431,8 +432,9 @@ public class CommunicationGroupDriverImpl implements CommunicationGroupDriver {
           final Topology topology = topologies.get(operName);
           topology.onRunningTask(id);
         }
-
-        allTasksAdded.decrement();
+        if (initializing.get()) {
+          allInitialTasksRunning.decrement();
+        }
         perTaskState.put(id, TaskState.RUNNING);
         LOG.finest(getQualifiedName() + "Released topologiesLock. Waiting to acquire yetToRunLock");
       } else {
@@ -485,7 +487,9 @@ public class CommunicationGroupDriverImpl implements CommunicationGroupDriver {
         final Topology topology = topologies.get(operName);
         topology.onFailedTask(id);
       }
-      allTasksAdded.increment();
+      if (initializing.get()) {
+        allInitialTasksRunning.increment();
+      }
       perTaskState.put(id, TaskState.FAILED);
       LOG.finest(getQualifiedName() + "Removing msgs associated with dead task " + id + " from msgQue.");
       final Set<MsgKey> keys = msgQue.keySet();
@@ -594,11 +598,11 @@ public class CommunicationGroupDriverImpl implements CommunicationGroupDriver {
         LOG.finer(getQualifiedName() + "Discarding msg. Released topologiesLock");
         return;
       }
-      if (initializing.get() || msg.getType().equals(ReefNetworkGroupCommProtos.GroupCommMessage.Type.UpdateTopology)) {
+      if (initializing.get()) {
         LOG.fine(getQualifiedName() + msg.getSimpleOperName() + ": Waiting for all required(" +
-            allTasksAdded.getInitialCount() + ") nodes to run");
-        allTasksAdded.await();
-        LOG.fine(getQualifiedName() + msg.getSimpleOperName() + ": All required(" + allTasksAdded.getInitialCount() +
+            allInitialTasksRunning.getInitialCount() + ") nodes to run");
+        allInitialTasksRunning.await();
+        LOG.fine(getQualifiedName() + msg.getSimpleOperName() + ": All required(" + allInitialTasksRunning.getInitialCount() +
             ") nodes are running");
         initializing.compareAndSet(true, false);
       }
