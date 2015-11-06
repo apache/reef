@@ -25,42 +25,35 @@ namespace Org.Apache.REEF.Driver.Evaluator
     /// <summary>
     /// Default implementation of IEvaluatorRequest.
     /// </summary>
-    [Obsolete("This class will be internal after 0.13")]
     [DataContract]
-    public class EvaluatorRequest : IEvaluatorRequest
+    internal class EvaluatorRequest : IEvaluatorRequest
     {
-        [Obsolete("This constructor will be internal after 0.13")]
-        public EvaluatorRequest()
+        internal EvaluatorRequest()
             : this(0, 0, 1, string.Empty, Guid.NewGuid().ToString("N"))
         {
         }
 
-        [Obsolete("This constructor will be internal after 0.13")]
-        public EvaluatorRequest(int number, int megaBytes)
+        internal EvaluatorRequest(int number, int megaBytes)
             : this(number, megaBytes, 1, string.Empty, Guid.NewGuid().ToString("N"))
         {
         }
 
-        [Obsolete("This constructor will be internal after 0.13")]
-        public EvaluatorRequest(int number, int megaBytes, int core)
+        internal EvaluatorRequest(int number, int megaBytes, int core)
             : this(number, megaBytes, core, string.Empty, Guid.NewGuid().ToString("N"))
         {
         }
 
-        [Obsolete("This constructor will be internal after 0.13")]
-        public EvaluatorRequest(int number, int megaBytes, string rack)
+        internal EvaluatorRequest(int number, int megaBytes, string rack)
             : this(number, megaBytes, 1, rack, Guid.NewGuid().ToString("N"))
         {
         }
 
-        [Obsolete("This constructor will be internal after 0.13")]
-        public EvaluatorRequest(int number, int megaBytes, int core, string rack)
+        internal EvaluatorRequest(int number, int megaBytes, int core, string rack)
             : this(number, megaBytes, core, rack, Guid.NewGuid().ToString("N"))
         {
         }
 
-        [Obsolete("This constructor will be internal after 0.13")]
-        public EvaluatorRequest(int number, int megaBytes, int core, string rack, string evaluatorBatchId)
+        internal EvaluatorRequest(int number, int megaBytes, int core, string rack, string evaluatorBatchId)
         {
             Number = number;
             MemoryMegaBytes = megaBytes;
@@ -87,14 +80,12 @@ namespace Org.Apache.REEF.Driver.Evaluator
         [DataMember]
         public string EvaluatorBatchId { get; private set; }
 
-        [Obsolete("Use IEvaluatorRequestor.NewBuilder() instead.")]
-        public static EvaluatorRequestBuilder NewBuilder()
+        internal static EvaluatorRequestBuilder NewBuilder()
         {
             return new EvaluatorRequestBuilder();
         }
 
-        [Obsolete("Use IEvaluatorRequestor.NewBuilder() instead.")]
-        public static EvaluatorRequestBuilder NewBuilder(EvaluatorRequest request)
+        internal static EvaluatorRequestBuilder NewBuilder(EvaluatorRequest request)
         {
             return new EvaluatorRequestBuilder(request);
         }
