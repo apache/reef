@@ -23,7 +23,7 @@ import org.apache.reef.tang.annotations.NamedParameter;
 
 /**
  * The RM application/job identifier.
- * <p/>
+ * <p>
  * In YARN, this is the applicationID assigned by the resource manager.
  */
 @NamedParameter(doc = "The RM application/job identifier.")

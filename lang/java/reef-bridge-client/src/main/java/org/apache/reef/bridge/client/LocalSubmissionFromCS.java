@@ -37,7 +37,7 @@ import java.util.ArrayList;
 
 /**
  * Represents a job submission from the CS code.
- * <p/>
+ * <p>
  * This class exists mostly to parse and validate the command line parameters provided by the C# class
  * `Org.Apache.REEF.Client.Local.LocalClient`
  */
@@ -131,7 +131,7 @@ final class LocalSubmissionFromCS {
 
   /**
    * Gets parameters from C#:
-   * <p/>
+   * <p>
    * args[0]: Driver folder.
    * args[1]: Job ID.
    * args[2]: Number of Evaluators.

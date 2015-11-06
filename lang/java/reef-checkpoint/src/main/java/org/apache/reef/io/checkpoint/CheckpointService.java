@@ -24,14 +24,14 @@ import java.nio.channels.WritableByteChannel;
 
 /**
  * The CheckpointService provides a simple API to store and retrieve the state of a task.
- * <p/>
+ * <p>
  * Checkpoints are atomic, single-writer, write-once, multiple-readers, ready-many type of objects.
  * This is provided by releasing the CheckpointID for a checkpoint only upon commit of the checkpoint,
  * and by preventing a checkpoint to be re-opened for writes.
- * <p/>
+ * <p>
  * Non-functional properties such as durability, availability, compression, garbage collection,
  * quotas are left to the implementation.
- * <p/>
+ * <p>
  * This API is envisioned as the basic building block for a checkpoint service, on top of which richer
  * interfaces can be layered (e.g., frameworks providing object-serialization, checkpoint metadata and
  * provenance, etc.)

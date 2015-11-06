@@ -88,7 +88,7 @@ public final class UnsafeHDInsightRuntimeConfiguration extends ConfigurationModu
    * @return the RuntimeConfiguration that is stored in a file refered to by the environment
    * variable HDInsightRuntimeConfiguration.HDINSIGHT_CONFIGURATION_FILE_ENVIRONMENT_VARIABLE.
    * @throws IOException
-   * @see HDInsightRuntimeConfiguration.HDINSIGHT_CONFIGURATION_FILE_ENVIRONMENT_VARIABLE
+   * @see HDInsightRuntimeConfiguration#HDINSIGHT_CONFIGURATION_FILE_ENVIRONMENT_VARIABLE
    */
   public static Configuration fromEnvironment() throws IOException {
 

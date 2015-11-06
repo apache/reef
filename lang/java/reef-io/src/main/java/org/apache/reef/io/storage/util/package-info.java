@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * Utilities for storage services.
  */
 package org.apache.reef.io.storage.util;

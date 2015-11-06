@@ -31,7 +31,7 @@ import org.apache.reef.io.serialization.Codec;
 public interface OperatorSpec {
 
   /**
-   * @return The codec class to be used to serialize & deserialize data
+   * @return The codec class to be used to serialize and deserialize data
    * in the group communication operators.
    */
   Class<? extends Codec> getDataCodecClass();

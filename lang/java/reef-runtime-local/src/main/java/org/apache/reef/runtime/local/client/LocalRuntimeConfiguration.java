@@ -51,7 +51,7 @@ public class LocalRuntimeConfiguration extends ConfigurationModuleBuilder {
    * The folder in which the sub-folders, one per Node, will be created. Those will contain one folder per
    * Evaluator instantiated on the virtual node. Those inner folders will be named by the time when the Evaluator was
    * launched.
-   * <p/>
+   * <p>
    * If none is given, a folder "REEF_LOCAL_RUNTIME" will be created in the local directory.
    */
   public static final OptionalParameter<String> RUNTIME_ROOT_FOLDER = new OptionalParameter<>();

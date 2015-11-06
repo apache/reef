@@ -34,9 +34,9 @@ public interface TempFileCreator {
   /**
    * Creates a temporary file.
    *
-   * @param prefix
-   * @param suffix
-   * @return
+   * @param prefix the prefix for the file
+   * @param suffix the suffix for the file
+   * @return the created file.
    * @throws IOException
    */
   File createTempFile(final String prefix, final String suffix) throws IOException;
@@ -44,9 +44,9 @@ public interface TempFileCreator {
   /**
    * Creates a temporary folder.
    *
-   * @param prefix
-   * @param attrs
-   * @return
+   * @param prefix the prefix for the file
+   * @param attrs the attributes for the file
+   * @return the created folder.
    * @throws IOException
    */
   File createTempDirectory(final String prefix, final FileAttribute<?> attrs) throws IOException;
@@ -55,8 +55,8 @@ public interface TempFileCreator {
   /**
    * Create a temporary folder.
    *
-   * @param prefix
-   * @return
+   * @param prefix the prefix for the folder
+   * @return the created folder
    * @throws IOException
    */
   File createTempDirectory(final String prefix) throws IOException;

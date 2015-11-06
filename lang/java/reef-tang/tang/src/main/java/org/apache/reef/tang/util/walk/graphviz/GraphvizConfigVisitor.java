@@ -80,9 +80,9 @@ public final class GraphvizConfigVisitor
   /**
    * Create a new TANG configuration visitor.
    *
-   * @param aConfig     Entire TANG configuration object.
-   * @param aShowImpl   If true, plot IS-A edges for know implementations.
-   * @param aShowLegend If true, add legend to the plot.
+   * @param config     Entire TANG configuration object.
+   * @param showImpl   If true, plot IS-A edges for know implementations.
+   * @param showLegend If true, add legend to the plot.
    */
   public GraphvizConfigVisitor(final Configuration config,
                                final boolean showImpl, final boolean showLegend) {

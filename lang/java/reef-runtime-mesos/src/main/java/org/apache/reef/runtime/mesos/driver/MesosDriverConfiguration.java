@@ -45,7 +45,7 @@ import org.apache.reef.wake.impl.SingleThreadStage;
  */
 public final class MesosDriverConfiguration extends ConfigurationModuleBuilder {
   /**
-   * @see JobIdentifier.class
+   * @see JobIdentifier
    */
   public static final RequiredParameter<String> JOB_IDENTIFIER = new RequiredParameter<>();
 

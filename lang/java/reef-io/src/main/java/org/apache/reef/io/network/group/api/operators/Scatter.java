@@ -28,7 +28,7 @@ import java.util.List;
 
 /**
  * MPI Scatter operator
- * <p/>
+ * <p>
  * Scatter a list of elements to the receivers The receivers will receive a
  * sub-list of elements targeted for them. Supports non-uniform distribution
  * through the specification of counts

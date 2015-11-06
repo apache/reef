@@ -41,7 +41,7 @@ public abstract class AbstractEStage<T> implements EStage<T> {
   /**
    * Constructs an abstract estage.
    *
-   * @parm stageName the stage name
+   * @param stageName the stage name
    */
   public AbstractEStage(final String stageName) {
     this.closed = new AtomicBoolean(false);
@@ -70,7 +70,7 @@ public abstract class AbstractEStage<T> implements EStage<T> {
 
   /**
    * Updates the input meter.
-   * <p/>
+   * <p>
    * Stages that want to meter their
    * input must call this each time an event is input.
    */
@@ -80,7 +80,7 @@ public abstract class AbstractEStage<T> implements EStage<T> {
 
   /**
    * Updates the output meter.
-   * <p/>
+   * <p>
    * Stages that want to meter their
    * output must call this each time an event is output.
    */

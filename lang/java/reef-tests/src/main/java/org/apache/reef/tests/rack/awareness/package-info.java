@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * Tests for Rack-awareness.
  */
 package org.apache.reef.tests.rack.awareness;

@@ -34,7 +34,7 @@ import java.util.logging.Logger;
 
 /**
  * The RuntimeStart handler of the Driver.
- * <p/>
+ * <p>
  * This instantiates the DriverSingletons upon construction. Upon onNext(), it sets the resource manager status and
  * wires up the remote event handler connections to the client and the evaluators.
  */

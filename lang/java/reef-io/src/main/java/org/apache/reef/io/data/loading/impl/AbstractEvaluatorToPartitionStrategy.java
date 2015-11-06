@@ -161,7 +161,7 @@ public abstract class AbstractEvaluatorToPartitionStrategy implements EvaluatorT
 
   /**
    * Get an input split to be assigned to this evaluator.
-   * <p/>
+   * <p>
    * Allocates one if its not already allocated
    *
    * @param evaluatorId

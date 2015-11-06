@@ -28,7 +28,7 @@ import java.util.List;
 
 /**
  * MPI Gather Operator.
- * <p/>
+ * <p>
  * This is an operator where the root is a receiver and there are multiple senders.
  * The root or receiver gathers all the elements sent by the senders in a List.
  */

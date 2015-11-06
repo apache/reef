@@ -62,9 +62,9 @@ public final class TimerStage implements Stage {
   /**
    * Constructs a timer stage with no initial delay.
    *
+   * @param name the stage name
    * @param handler an event handler
    * @param period  a period in milli-seconds
-   * @name name the stage name
    */
   @Inject
   public TimerStage(@Parameter(StageName.class) final String name,

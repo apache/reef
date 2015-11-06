@@ -33,6 +33,8 @@ public interface Tang {
   /**
    * Returns an Injector for the given Configurations.
    *
+   * @param confs a configuration
+   * @return an injector
    * @throws BindException If the confs conflict, a BindException will be thrown.
    */
   Injector newInjector(final Configuration... confs)
@@ -40,11 +42,16 @@ public interface Tang {
 
   /**
    * Returns an Injector for the given Configuration.
+   *
+   * @param confs a configuration
+   * @return an injector
    */
   Injector newInjector(final Configuration confs);
 
   /**
    * Returns an Injector based on an empty Configuration.
+
+   * @return an injector
    */
   Injector newInjector();
 
@@ -65,6 +72,7 @@ public interface Tang {
    * then the first classpath entry / jar passed to this method, then the
    * second, and so on.
    *
+   * @param jars the locations of jar files
    * @return a new JavaConfigurationBuilder
    */
   JavaConfigurationBuilder newConfigurationBuilder(URL... jars);
@@ -72,12 +80,13 @@ public interface Tang {
   /**
    * Merge a set of configurations into a new JavaConfiurationBuilder.  If
    * the configurations conflict, this method will throw a bind exception.
-   * <p/>
+   * <p>
    * The underlying ClassHierarchies and parameter parsers of the
    * configurations will be checked for consistency.  The returned
    * configuration builder will be backed by a ClassHierachy that incorporates
    * the classpath and parsers from all of the provided Configurations.
    *
+   * @param confs configurations
    * @return a new ConfigurationBuilder
    * @throws BindException if any of the configurations contain duplicated or
    *                       conflicting bindings, or if the backing ClassHierarchy objects conflict
@@ -91,7 +100,11 @@ public interface Tang {
    * application-specific configuration values.  The returned
    * JavaConfigurationBuilder will be backed by the default classloader.
    *
+   * @param parameterParsers the parsers for parameters
    * @return a new ConfigurationBuilder
+   * @throws BindException if any of the configurations contain duplicated or
+   *                       conflicting bindings, or if the backing ClassHierarchy objects conflict
+   *                       in some way.
    */
   JavaConfigurationBuilder newConfigurationBuilder(
       @SuppressWarnings("unchecked") Class<? extends ExternalConstructor<?>>... parameterParsers)
@@ -102,9 +115,14 @@ public interface Tang {
    * incorporates existing configuration data and / or can parse
    * application-specific types.
    *
-   * @see The documentation for the other newConfigurationBuilder methods in
+   * See the documentation for the other newConfigurationBuilder methods in
    * this class for detailed information about each of the parameters to
    * this method.
+   *
+   * @param jars the locations of jar files
+   * @param confs configurations
+   * @param parameterParsers the parsers for parameters
+   * @return a configuration builder
    */
   JavaConfigurationBuilder newConfigurationBuilder(URL[] jars,
                                                    Configuration[] confs,
@@ -114,6 +132,8 @@ public interface Tang {
   /**
    * Create a new empty ConfigurationBuilder that is backed by the default
    * classloader.
+   *
+   * @return a configuration builder
    */
   JavaConfigurationBuilder newConfigurationBuilder();
 
@@ -125,10 +145,14 @@ public interface Tang {
   JavaClassHierarchy getDefaultClassHierarchy();
 
   /**
+   * Get a default class hierarchy.
+   *
+   * @param jars the locations of jar files
+   * @param parsers the parsers
    * @return a custom instance of JavaClassHierarchy.  ClassHierarchy objects
    * are immutable, so multiple invocations of this method may return the
    * same instance.
-   * @TODO Is the class hierarchy returned here backed by the default
+   * TODO Is the class hierarchy returned here backed by the default
    * classloader or not?  If not, then callers will need to merge it with
    * getDefaultClassHierarchy().  If so, we should add a new method like
    * getNonDefaultClassHiearchy() that takes the same options as this one.
@@ -142,7 +166,7 @@ public interface Tang {
     /**
      * Return an instance of the default implementation of Tang.
      *
-     * @return
+     * @return an instance of Tang.
      */
     public static Tang getTang() {
       return new TangImpl();

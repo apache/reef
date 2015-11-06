@@ -27,11 +27,11 @@ import java.util.logging.Logger;
 
 /**
  * Performs a Pull-to-Push conversion in Wake.
- * <p/>
+ * <p>
  * The class pulls from a set of event sources, and pushes to a single
  * EventHandler. If the downstream event handler blocks, this will block,
  * providing a simple rate limiting scheme.
- * <p/>
+ * <p>
  * The EventSources are managed in a basic Queue.
  *
  * @param <T> the message type

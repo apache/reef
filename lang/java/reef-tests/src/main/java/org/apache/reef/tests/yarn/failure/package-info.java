@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * Tests for YARN failures.
  */
 package org.apache.reef.tests.yarn.failure;

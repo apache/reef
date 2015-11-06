@@ -25,7 +25,7 @@ import org.apache.reef.driver.catalog.NodeDescriptor;
 import org.apache.reef.io.data.loading.impl.NumberedSplit;
 
 /**
- * Interface that tracks the mapping between evaluators & the data partitions
+ * Interface that tracks the mapping between evaluators and the data partitions
  * assigned to those evaluators. Its part of the implementation of a
  * {@link org.apache.reef.io.data.loading.api.DataLoadingService} that uses the
  * Hadoop {@link org.apache.hadoop.mapred.InputFormat} to partition the data and

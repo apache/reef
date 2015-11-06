@@ -19,10 +19,10 @@
 package org.apache.reef.wake.rx;
 
 /**
- * A class implementing Observer<InType> and StaticObservable<OutType>.
+ * A class implementing {@code Observer<InType>} and {@code StaticObservable<OutType>}.
  *
- * @param <InType>
- * @param <OutType>
+ * @param <InType> type for in
+ * @param <OutType> type for out
  */
 public interface Subject<InType, OutType> extends Observer<InType>, StaticObservable {
   // intentionally empty

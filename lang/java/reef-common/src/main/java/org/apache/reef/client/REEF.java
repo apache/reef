@@ -26,7 +26,7 @@ import org.apache.reef.tang.annotations.DefaultImplementation;
 
 /**
  * The main entry point into the REEF resourcemanager.
- * <p/>
+ * <p>
  * Every REEF resourcemanager provides an implementation of this interface. That
  * instance is used to submitTask the Driver class for execution to REEF. As with
  * all submissions in REEF, this is done in the form of a TANG Configuration
@@ -45,7 +45,7 @@ public interface REEF extends AutoCloseable {
 
   /**
    * Submits the Driver set up in the given Configuration for execution.
-   * <p/>
+   * <p>
    * The Configuration needs to bind the Driver interface to an actual
    * implementation of that interface for the job at hand.
    *

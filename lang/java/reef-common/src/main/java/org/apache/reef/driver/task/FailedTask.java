@@ -59,10 +59,10 @@ public final class FailedTask extends AbstractFailure {
 
   /**
    * Access the context the task ran (and crashed) on, if it could be recovered.
-   * <p/>
+   * <p>
    * An ActiveContext is given when the task fails but the context remains alive.
    * On context failure, the context also fails and is surfaced via the FailedContext event.
-   * <p/>
+   * <p>
    * Note that receiving an ActiveContext here is no guarantee that the context (and evaluator)
    * are in a consistent state. Application developers need to investigate the reason available
    * via getCause() to make that call.

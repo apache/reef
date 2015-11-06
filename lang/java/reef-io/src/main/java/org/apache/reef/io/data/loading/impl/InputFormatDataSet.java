@@ -33,7 +33,7 @@ import java.util.Iterator;
 /**
  * An implementation of {@link DataSet} that reads records using a RecordReader
  * encoded inside an InputSplit.
- * <p/>
+ * <p>
  * The input split is injected through an external constructor by deserializing
  * the input split assigned to this evaluator.
  *

@@ -44,7 +44,7 @@ public class MultiEventHandler<T> implements EventHandler<T> {
   /**
    * Invokes a specific handler for the event class type if it exists.
    *
-   * @param an event
+   * @param event an event
    * @throws WakeRuntimeException
    */
   @Override

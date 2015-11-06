@@ -30,9 +30,9 @@ import java.util.logging.LogRecord;
 
 /**
  * A denser logging format for REEF that is similar to the standard SimpleFormatter.
- * <p/>
+ * <p>
  * The following config properties are available:
- * <p/>
+ * <p>
  * * `org.apache.reef.util.logging.ThreadLogFormatter.format`
  * is a format string for String.format() that takes same arguments and in
  * the same order as the standard SimpleFormatter, plus the thread name:
@@ -43,7 +43,7 @@ import java.util.logging.LogRecord;
  * 5. message
  * 6. stack trace
  * 7. thread name
- * <p/>
+ * <p>
  * * `org.apache.reef.util.logging.ThreadLogFormatter.dropPrefix`
  * contains a comma-separated list of package name prefixes that should be
  * removed from the class name for logging. e.g. value `com.microsoft.,org.apache.`

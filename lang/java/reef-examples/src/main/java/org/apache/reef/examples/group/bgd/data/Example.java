@@ -36,7 +36,7 @@ public interface Example extends Serializable {
 
   /**
    * Computes the prediction for this Example, given the model w.
-   * <p/>
+   * <p>
    * w.dot(this.getFeatures())
    *
    * @param w the model

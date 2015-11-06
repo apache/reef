@@ -27,7 +27,7 @@ import java.util.Set;
 
 /**
  * Immutable, type-checked configuration data.
- * <p/>
+ * <p>
  * Tang Configuration objects are constructed via
  * ConfigurationBuilders, and most applications interact with the
  * Configuration API much more than the one described here.  See
@@ -35,12 +35,12 @@ import java.util.Set;
  * semantics of configuration options.  The documentation provided
  * here is primarily for people that wish to extend Tang or implement
  * formats that export data from Configuration objects to other systems.
- * <p/>
+ * <p>
  * Conceptually, a configuration contains a set of key
  * value pairs.  Each pair either maps from an interface to an
  * implementation (a class) or from a configuration option to a
  * value (e.g., an integer or string).
- * <p/>
+ * <p>
  * Under the hood, Configuration objects carry much richer type
  * information than this, and also refer to the ClassHierarchy
  * object they were checked against.  Configurations can be
@@ -49,7 +49,7 @@ import java.util.Set;
  * Tang automatically merges the reflection data from the underlying
  * ClassHierarchy objects, and re-validates the merged configuration
  * data against the merged classpath.
- * <p/>
+ * <p>
  * Note that the left hand side of each configuration object (the
  * "key" in the key value pair) is unique.  Although there are many
  * APIs that take NamedParameterNode objects in this API, a given
@@ -64,21 +64,23 @@ public interface Configuration {
    * Create a new ConfigurationBuilder object based on the same classpath
    * as this Configuration, and populate it with the configuration options
    * of this object.
-   * <p/>
+   * <p>
    * This API is unstable and should be considered private.  Use the methods
    * in org.apache.reef.Tang instead.
+   *
+   * @return a new configuration builder
    */
   ConfigurationBuilder newBuilder();
 
   /**
    * Return the value of the given named parameter as an unparsed string.
-   * <p/>
+   * <p>
    * If nothing was explicitly bound, this method returns null (it does not
    * return default values).
    *
    * @param np A NamedParameter object from this Configuration's class hierarchy.
    * @return The validated string that this parameter is bound to, or null.
-   * @see getClassHierarchy()
+   * @see #getClassHierarchy()
    */
   String getNamedParameter(NamedParameterNode<?> np);
 
@@ -89,7 +91,7 @@ public interface Configuration {
    * @param np A NamedParameterNode from this Configuration's class hierarchy.
    * @return A set of ClassHierarchy Node objects or a set of strings, depending on
    * whether the NamedParameterNode refers to an interface or configuration options, respectively.
-   * @see getClassHierarchy()
+   * @see #getClassHierarchy()
    */
   Set<Object> getBoundSet(NamedParameterNode<Set<?>> np);
 
@@ -102,11 +104,19 @@ public interface Configuration {
   List<Object> getBoundList(NamedParameterNode<List<?>> np);
 
   /**
+   * Return the bound constructor.
+   *
+   * @param <T> a type
+   * @param cn a class node
    * @return the external constructor that cn has been explicitly bound to, or null.  Defaults are not returned.
    */
   <T> ClassNode<ExternalConstructor<T>> getBoundConstructor(ClassNode<T> cn);
 
   /**
+   * Returns the bound implementation.
+   *
+   * @param <T> a type
+   * @param cn a class node
    * @return the implementation that cn has been explicitly bound to, or null.  Defaults are not returned.
    */
   <T> ClassNode<T> getBoundImplementation(ClassNode<T> cn);
@@ -114,10 +124,14 @@ public interface Configuration {
   /**
    * Return the LegacyConstructor that has been bound to this Class.
    * Such constructors are defined in the class, but missing their @Inject annotation.
-   * <p/>
+   * <p>
    * For now, only one legacy constructor can be bound per class.
-   * <p/>
-   * TODO: Should this return Set<ConstructorDef<T>> instead?
+   * <p>
+   * TODO: Should this return {@code Set<ConstructorDef<T>>} instead?
+   *
+   * @param <T> a type
+   * @param cn a class node
+   * @return the legacy constructor
    */
   <T> ConstructorDef<T> getLegacyConstructor(ClassNode<T> cn);
 

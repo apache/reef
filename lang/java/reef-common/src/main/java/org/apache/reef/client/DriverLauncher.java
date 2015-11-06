@@ -35,11 +35,11 @@ import java.util.logging.Logger;
 
 /**
  * A launcher for REEF Drivers.
- * <p/>
+ * <p>
  * It can be instantiated using a configuration that can create a REEF instance.
  * For example, the local resourcemanager and the YARN resourcemanager can do this.
- * <p/>
- * {@see org.apache.reef.examples.hello.HelloREEF} for a demo use case.
+ * <p>
+ * See {@link org.apache.reef.examples.hello} package for a demo use case.
  */
 @Public
 @Provided

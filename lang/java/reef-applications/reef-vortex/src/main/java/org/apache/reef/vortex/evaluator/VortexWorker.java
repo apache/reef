@@ -63,7 +63,7 @@ public final class VortexWorker implements Task, TaskMessageSource {
   }
 
   /**
-   * Starts the scheduler & executor and waits until termination.
+   * Starts the scheduler and executor and waits until termination.
    */
   @Override
   public byte[] call(final byte[] memento) throws Exception {

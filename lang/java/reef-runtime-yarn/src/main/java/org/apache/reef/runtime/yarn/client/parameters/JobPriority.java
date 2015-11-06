@@ -22,7 +22,7 @@ import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
 
 /**
- * The prioroty of the submitted job.
+ * The priority of the submitted job.
  */
 @NamedParameter(doc = "The job priority.", default_value = "0", short_name = "yarn_priority")
 public final class JobPriority implements Name<Integer> {

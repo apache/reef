@@ -87,7 +87,7 @@ public class CommunicationGroupDriverImpl implements CommunicationGroupDriver {
   private final Class<? extends Topology> topologyClass;
 
   /**
-   * @Deprecated in 0.14. Use Tang to obtain an instance of this instead.
+   * @deprecated in 0.14. Use Tang to obtain an instance of this instead.
    */
   @Deprecated
   public CommunicationGroupDriverImpl(final Class<? extends Name<String>> groupName,

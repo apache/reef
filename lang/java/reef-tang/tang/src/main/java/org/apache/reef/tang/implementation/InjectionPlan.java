@@ -118,9 +118,9 @@ public abstract class InjectionPlan<T> implements Traversable<InjectionPlan<?>> 
 
   /**
    * Algorithm for generating cant inject string:
-   * <p/>
+   * <p>
    * For infeasible plans:
-   * <p/>
+   * <p>
    * Some node types are "leaves":
    * <ul>
    * <li>NamedParameterNode</li>
@@ -130,9 +130,9 @@ public abstract class InjectionPlan<T> implements Traversable<InjectionPlan<?>> 
    * most constructor arguments. When we encounter a constructor whose arguments
    * are all either injectable or non-injectable leaf nodes, we return the name
    * of its parent, and the name of the non-injectable leaves.
-   * <p/>
+   * <p>
    * For ambiguous plans:
-   * <p/>
+   * <p>
    * We perform a depth first search of the ambiguous constructors, as above. We
    * return the name of the first class that has multiple constructors that are
    * feasible or ambiguous (as opposed to having a single constructor with an

@@ -33,7 +33,7 @@ import java.util.logging.Logger;
 /**
  * Link implementation with Netty.
  *
- * If you set a LinkListener<T>, it keeps message until writeAndFlush operation completes
+ * If you set a {@code LinkListener<T>}, it keeps message until writeAndFlush operation completes
  * and notifies whether the sent message transferred successfully through the listener.
  */
 public class NettyLink<T> implements Link<T> {

@@ -27,7 +27,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Once they have been received, the downstream event handler is called with
  * the <i>last event</i> received. The handler resets atomically to start
  * receiving the next batch of events.
- * <p/>
+ * <p>
  * onNext is thread safe
  *
  * @param <T> type of events

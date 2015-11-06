@@ -23,7 +23,7 @@ import org.apache.reef.annotations.Unstable;
 import java.io.Serializable;
 
 /**
- * Worker -> Master protocol.
+ * Worker-to-Master protocol.
  */
 @Unstable
 public interface WorkerReport extends Serializable {

@@ -22,7 +22,7 @@ import org.apache.commons.lang.Validate;
 
 /**
  * A tuple of an object of type E and an integer index.
- * Used inside {@link EvaluatorToPartitionStrategy} implementations to
+ * Used inside {@link org.apache.reef.io.data.loading.api.EvaluatorToPartitionStrategy} implementations to
  * mark the partitions associated with each {@link org.apache.hadoop.mapred.InputSplit}
  *
  * @param <E>

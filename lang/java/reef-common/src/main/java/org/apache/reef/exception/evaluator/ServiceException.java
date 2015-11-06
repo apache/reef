@@ -20,7 +20,7 @@ package org.apache.reef.exception.evaluator;
 
 /**
  * The base class for exceptions thrown by REEF libraries and services.
- * <p/>
+ * <p>
  * Rules of thumb for exception handling in REEF:
  * <ul>
  * <li>When possible, throw a subclass of ServiceException, with the following exceptions (no pun intended)</li>

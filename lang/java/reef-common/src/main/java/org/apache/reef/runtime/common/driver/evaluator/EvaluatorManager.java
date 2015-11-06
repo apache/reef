@@ -68,12 +68,12 @@ import java.util.logging.Logger;
 /**
  * Manages a single Evaluator instance including all lifecycle instances:
  * (AllocatedEvaluator, CompletedEvaluator, FailedEvaluator).
- * <p/>
- * A (periodic) heartbeat channel is established EvaluatorRuntime -> EvaluatorManager.
+ * <p>
+ * A (periodic) heartbeat channel is established from EvaluatorRuntime to EvaluatorManager.
  * The EvaluatorRuntime will (periodically) send (status) messages to the EvaluatorManager using this
  * heartbeat channel.
- * <p/>
- * A (push-based) EventHandler channel is established EvaluatorManager -> EvaluatorRuntime.
+ * <p>
+ * A (push-based) EventHandler channel is established from EvaluatorManager to EvaluatorRuntime.
  * The EvaluatorManager uses this to forward Driver messages, launch Tasks, and initiate
  * control information (e.g., shutdown, suspend).
  */

@@ -54,8 +54,8 @@ public final class SyncStage<T> extends AbstractEStage<T> {
   /**
    * Constructs a synchronous stage.
    *
+   * @param name the stage name
    * @param handler the event handler
-   * @name name the stage name
    */
   @Inject
   public SyncStage(@Parameter(StageName.class) final String name,
@@ -66,9 +66,9 @@ public final class SyncStage<T> extends AbstractEStage<T> {
   /**
    * Constructs a synchronous stage.
    *
+   * @param name the stage name
    * @param handler      the event handler
    * @param errorHandler the error handler
-   * @name name the stage name
    */
   @Inject
   public SyncStage(@Parameter(StageName.class) final String name,

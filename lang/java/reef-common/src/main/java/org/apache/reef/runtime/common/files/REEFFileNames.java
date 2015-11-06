@@ -169,7 +169,7 @@ public final class REEFFileNames {
 
   /**
    * The prefix used whenever REEF is asked to create a job folder, on (H)DFS or locally.
-   * <p/>
+   * <p>
    * This prefix is also used with JAR files created to represent a job.
    */
   public String getJobFolderPrefix() {

@@ -32,7 +32,7 @@ import java.util.logging.SimpleFormatter;
 /**
  * Logging Handler to intercept java logs and transfer them
  * to the CLR side via the reef-bridge.
- * <p/>
+ * <p>
  * Logs are buffered to avoid the cost of reef-bridge function calls.
  * A thread is also scheduled to flush the log buffer at a certain interval,
  * in case the log buffer remains unfilled for an extended period of time.
@@ -68,7 +68,7 @@ public class CLRBufferedLogHandler extends Handler {
 
   /**
    * Called whenever a log message is received on the java side.
-   * <p/>
+   * <p>
    * Adds the log record to the log buffer. If the log buffer is full and
    * the driver has already been initialized, flush the buffer of the logs.
    */
@@ -110,7 +110,7 @@ public class CLRBufferedLogHandler extends Handler {
 
   /**
    * Starts a thread to flush the log buffer on an interval.
-   * <p/>
+   * <p>
    * This will ensure that logs get flushed periodically, even
    * if the log buffer is not full.
    */

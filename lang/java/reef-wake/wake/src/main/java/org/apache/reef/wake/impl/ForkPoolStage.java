@@ -28,14 +28,14 @@ import java.util.concurrent.ForkJoinTask;
 import java.util.logging.Logger;
 
 /**
- * This Wake event handling stage uses a {@link ForkJoinPool}
+ * This Wake event handling stage uses a {@link java.util.concurrent.ForkJoinPool}
  * to submit tasks. The advantage is that underlying workers
  * have separate queues instead of sharing one. The queues are load
  * balanced with work stealing.
- * <p/>
+ * <p>
  * The pool is provided to the constructor, so multiple stages
  * may use the same pool.
- * <p/>
+ * <p>
  * Some advantage in throughput over other stage implementations should be seen
  * when one wake stage is submitting to another using the same
  * {@link WakeSharedPool}. In this case, the new event may be executed

@@ -25,7 +25,7 @@ import java.util.List;
 
 /**
  * MPI AllGather Operator.
- * <p/>
+ * <p>
  * Each task applies this operator on an element of type T. The result will be
  * a list of elements constructed using the elements all-gathered at each
  * task.

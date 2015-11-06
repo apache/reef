@@ -22,11 +22,11 @@ import java.lang.annotation.*;
 
 /**
  * Allows interfaces to specify a default implementation.
- * <p/>
+ * <p>
  * Note that the default can be overridden after the fact
  * by explicitly binding a different implementation to the
  * interface.
- * <p/>
+ * <p>
  * For "normal" injections of a given library, this reduces
  * the amount of boilerplate configuration code needed,
  * and also shrinks the Tang configuration objects that

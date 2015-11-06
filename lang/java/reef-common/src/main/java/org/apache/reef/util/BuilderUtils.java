@@ -24,6 +24,9 @@ package org.apache.reef.util;
 public final class BuilderUtils {
   /**
    * Throws a runtime exception if the parameter is null.
+   * @param <T> a type of parameter
+   * @param parameter
+   * @return the parameter if it is not null
    */
   public static <T> T notNull(final T parameter) {
     if (parameter == null) {

@@ -88,7 +88,7 @@ public final class YarnDriverRuntimeRestartManager implements DriverRuntimeResta
    * variable provided by YARN. If that fails, determine whether the application master is a restart
    * based on the number of previous containers reported by YARN. In the failure scenario, returns 1 if restart, 0
    * otherwise.
-   * @return > 0 if the application master is a restarted instance, 0 otherwise.
+   * @return positive value if the application master is a restarted instance, 0 otherwise.
    */
   @Override
   public int getResubmissionAttempts() {

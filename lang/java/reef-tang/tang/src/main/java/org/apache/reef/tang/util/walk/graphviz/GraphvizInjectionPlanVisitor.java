@@ -54,7 +54,7 @@ public final class GraphvizInjectionPlanVisitor
   /**
    * Create a new visitor to build a graphviz string for the injection plan.
    *
-   * @param aShowLegend if true, show legend on the graph.
+   * @param showLegend if true, show legend on the graph.
    */
   public GraphvizInjectionPlanVisitor(final boolean showLegend) {
     if (showLegend) {

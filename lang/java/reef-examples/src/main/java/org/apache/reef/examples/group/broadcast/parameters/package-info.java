@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * Parameters for Broadcast group communication.
  */
 package org.apache.reef.examples.group.broadcast.parameters;

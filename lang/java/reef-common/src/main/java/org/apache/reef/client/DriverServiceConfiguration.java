@@ -39,7 +39,7 @@ import org.apache.reef.wake.time.event.StopTime;
 
 /**
  * Use this ConfigurationModule to configure Services to be run in the Driver.
- * <p/>
+ * <p>
  * A service is a set of event handlers that are informed of events in addition to * the event handlers defined in
  * DriverConfiguration. However, most services will treat the events as read-only. Doing differently should be
  * documented clearly in the Service documentation.

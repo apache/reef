@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * Loss Functions for BGD.
  */
 package org.apache.reef.examples.group.bgd.loss;

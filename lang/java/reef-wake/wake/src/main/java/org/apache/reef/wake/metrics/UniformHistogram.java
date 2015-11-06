@@ -22,7 +22,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicLongArray;
 
 /**
- * An {@link Histogram} that implements uniform binning of numbers (>=0).
+ * An {@link Histogram} that implements uniform binning of numbers ({@code >=0}).
  */
 public class UniformHistogram implements Histogram {
   private final AtomicLong count;

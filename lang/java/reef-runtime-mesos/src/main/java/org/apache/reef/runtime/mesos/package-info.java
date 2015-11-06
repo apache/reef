@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * An YARN implementation of REEF that uses Mesos slaves for execution.
  */
 package org.apache.reef.runtime.mesos;

@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * Timer for Group Communication.
  */
 package org.apache.reef.examples.group.utils.timer;

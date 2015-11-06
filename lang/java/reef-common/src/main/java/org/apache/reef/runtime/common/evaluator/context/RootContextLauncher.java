@@ -93,7 +93,7 @@ final class RootContextLauncher {
 
   /**
    * Instantiates the root context.
-   * <p/>
+   * <p>
    * This also launches the initial task if there is any.
    *
    * @param injector

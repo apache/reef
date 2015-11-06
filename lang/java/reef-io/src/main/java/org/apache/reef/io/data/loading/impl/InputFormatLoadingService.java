@@ -43,10 +43,10 @@ import java.util.logging.Logger;
 /**
  * An implementation of {@link DataLoadingService}
  * that uses the Hadoop {@link org.apache.hadoop.mapred.InputFormat} to find
- * partitions of data & request resources.
- * <p/>
+ * partitions of data and request resources.
+ * <p>
  * The InputFormat is taken from the job configurations
- * <p/>
+ * <p>
  * The {@link EvaluatorToPartitionStrategy} is injected via Tang,
  * in order to support different ways to map evaluators to data
  */

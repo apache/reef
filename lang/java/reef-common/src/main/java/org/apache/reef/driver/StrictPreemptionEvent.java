@@ -26,7 +26,7 @@ import org.apache.reef.annotations.audience.Public;
 /**
  * Represents a strict preemption event: It contains the set of Evaluators that the underlying resource manager will
  * take away from the Driver.
- * <p/>
+ * <p>
  * NOTE: This currently not implemented. Consider it a preview of the API.
  */
 @Unstable

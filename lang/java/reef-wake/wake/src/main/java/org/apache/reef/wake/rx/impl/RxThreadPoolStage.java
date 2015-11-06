@@ -37,13 +37,13 @@ import java.util.logging.Logger;
 
 /**
  * Stage that executes the observer with a thread pool.
- * <p/>
+ * <p>
  * {@code onNext}'s will be arbitrarily subject to reordering, as with most stages.
- * <p/>
+ * <p>
  * All {@code onNext}'s for which returning from the method call
  * happens-before the call to {@code onComplete} will maintain
  * this relationship when passed to the observer.
- * <p/>
+ * <p>
  * Any {@code onNext} whose return is not ordered before
  * {@code onComplete} may or may not get dropped.
  *
@@ -167,8 +167,6 @@ public final class RxThreadPoolStage<T> extends AbstractRxStage<T> {
 
   /**
    * Closes the stage.
-   *
-   * @return Exception
    */
   @Override
   public void close() throws Exception {

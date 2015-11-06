@@ -26,11 +26,11 @@ import org.apache.reef.tang.types.Node;
  * ClassHierarchy objects store information about the interfaces
  * and implementations that are available in a particular runtime
  * environment.
- * <p/>
+ * <p>
  * When Tang is running inside the same environment as the injected
  * objects, ClassHierarchy is simply a read-only representation of
  * information that is made available via language reflection.
- * <p/>
+ * <p>
  * If Tang is set up to perform remote injection, then the ClassHierarchy
  * it runs against is backed by a flat file, or other summary of the
  * libraries that will be available during injection.
@@ -42,11 +42,15 @@ public interface ClassHierarchy {
    * @param fullName The full name of the class that will be looked up.
    * @return A non-null reference to a ClassNode or a NamedParameterNode.
    * @throws NameResolutionException If the class is not found.
-   * @throws ClassHierarchyException If the class does not pass Tang's static analysis.
+   * @throws org.apache.reef.tang.exceptions.ClassHierarchyException If the class does not pass Tang's static analysis.
    */
   Node getNode(String fullName) throws NameResolutionException;
 
   /**
+   * Return whether the impl is a subclass of inter.
+   *
+   * @param inter a interface class
+   * @param impl a implementation class
    * @return true if impl is a subclass of inter.
    */
   boolean isImplementation(ClassNode<?> inter, ClassNode<?> impl);
@@ -60,9 +64,12 @@ public interface ClassHierarchy {
    * objects.  The Configuration API transparently invokes merge as necessary,
    * allowing applications to combine configurations that were built against
    * differing classpaths.
-   * <p/>
+   * <p>
    * ClassHierarchies derived from applications written in different languages
    * cannot be merged.
+   *
+   * @param ch a class hierarchy to be merged
+   * @return the merged class hierarchy
    */
   ClassHierarchy merge(ClassHierarchy ch);
 
@@ -74,7 +81,7 @@ public interface ClassHierarchy {
    * There is no way to provide an interface that enumerates known claases
    * without exposing this fact; therefore, the Node returned by this method
    * can change over time.
-   * <p/>
+   * <p>
    * Normal callers (all use cases except ClassHierarchy serialization)
    * should use getNode(String) to lookup classes, since getNamespace() can
    * not support lazy loading of unknown classes.
