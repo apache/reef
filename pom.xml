@@ -511,9 +511,10 @@ under the License.
             <!-- Testing -->
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>test-jar</artifactId>
+                <artifactId>reef-tests</artifactId>
+                <type>test-jar</type>
                 <version>${project.version}</version>
-                <classifier>tests</classifier>
+                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>junit</groupId>
