@@ -144,6 +144,8 @@ public final class YarnJobSubmissionClient {
             .setQueue(yarnSubmission.getQueue())
             .setMaxApplicationAttempts(this.maxApplicationSubmissions)
             .setPreserveEvaluators(jobParamsInjector.getNamedInstance(ResourceManagerPreserveEvaluators.class))
+            .setLauncherCommandFormatter(
+                BootstrapLauncherCommandFormatter.getLauncherCommand().addFlag(BootstrapLauncher.DIRECT_LAUNCH))
             .submit();
       } catch (InjectionException ie) {
         throw new RuntimeException("Unable to submit job due to " + ie);

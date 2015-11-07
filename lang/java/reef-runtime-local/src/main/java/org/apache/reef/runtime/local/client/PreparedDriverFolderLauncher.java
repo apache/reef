@@ -22,6 +22,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.reef.runtime.common.files.ClasspathProvider;
 import org.apache.reef.runtime.common.files.REEFFileNames;
 import org.apache.reef.runtime.common.launch.JavaLaunchCommandBuilder;
+import org.apache.reef.runtime.common.launch.LauncherCommandFormatter;
 import org.apache.reef.runtime.local.process.LoggingRunnableProcessObserver;
 import org.apache.reef.runtime.local.process.RunnableProcess;
 import org.apache.reef.tang.annotations.Parameter;
@@ -73,10 +74,13 @@ public class PreparedDriverFolderLauncher {
    * @param jobId
    * @param clientRemoteId
    */
-  public void launch(final File driverFolder, final String jobId, final String clientRemoteId) {
+  public void launch(final LauncherCommandFormatter launcherCommandFormatter,
+                     final File driverFolder,
+                     final String jobId,
+                     final String clientRemoteId) {
     assert driverFolder.isDirectory();
 
-    final List<String> command = makeLaunchCommand(jobId, clientRemoteId);
+    final List<String> command = makeLaunchCommand(launcherCommandFormatter, jobId, clientRemoteId);
 
     final RunnableProcess process = new RunnableProcess(command,
         "driver",
@@ -88,9 +92,10 @@ public class PreparedDriverFolderLauncher {
     this.executor.shutdown();
   }
 
-  private List<String> makeLaunchCommand(final String jobId, final String clientRemoteId) {
+  private List<String> makeLaunchCommand(final LauncherCommandFormatter launcherCommandFormatter, final String jobId,
+                                         final String clientRemoteId) {
 
-    final List<String> command = new JavaLaunchCommandBuilder(commandPrefixList)
+    final List<String> command = new JavaLaunchCommandBuilder(launcherCommandFormatter, commandPrefixList)
         .setConfigurationFileName(this.fileNames.getDriverConfigurationPath())
         .setClassPath(this.classpath.getDriverClasspath())
         .setMemory(DRIVER_MEMORY)
@@ -99,6 +104,8 @@ public class PreparedDriverFolderLauncher {
     if (LOG.isLoggable(Level.FINEST)) {
       LOG.log(Level.FINEST, "REEF app command: {0}", StringUtils.join(command, ' '));
     }
+
+    LOG.log(Level.WARNING, "REEF app command: {0}", StringUtils.join(command, ' '));
     return command;
   }
 

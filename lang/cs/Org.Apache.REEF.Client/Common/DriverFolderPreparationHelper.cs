@@ -52,7 +52,7 @@ namespace Org.Apache.REEF.Client.Common
         // We embed certain binaries in client dll.
         // Following items in tuples refer to resource names in Org.Apache.REEF.Client.dll
         // The first resource item contains the name of the file 
-        // such as "reef-bridge-java-0.13.0-incubating-SNAPSHOT-shaded.jar". The second resource
+        // such as "reef-bridge-java-0.14.0-incubating-SNAPSHOT-shaded.jar". The second resource
         // item contains the byte contents for said file.
         // Please note that the identifiers below need to be in sync with 2 other files
         // 1. $(SolutionDir)\Org.Apache.REEF.Client\Properties\Resources.xml
@@ -182,7 +182,8 @@ namespace Org.Apache.REEF.Client.Common
             var lowerCasePath = fileName.ToLower();
             return lowerCasePath.EndsWith(DLLFileNameExtension) ||
                    lowerCasePath.EndsWith(EXEFileNameExtension) ||
-                   lowerCasePath.StartsWith(ClientConstants.DriverJarFilePrefix);
+                   lowerCasePath.StartsWith(ClientConstants.DriverJarFilePrefix) ||
+                   lowerCasePath.StartsWith(ClientConstants.ClientJarFilePrefix);
         }
     }
 }

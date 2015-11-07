@@ -42,28 +42,48 @@ public final class JavaLaunchCommandBuilder implements LaunchCommandBuilder {
   private static final String[] DEFAULT_OPTIONS = {"-XX:PermSize=128m", "-XX:MaxPermSize=128m"};
   private String stderrPath = null;
   private String stdoutPath = null;
-  private String evaluatorConfigurationPath = null;
   private String javaPath = null;
   private String classPath = null;
   private Boolean assertionsEnabled = null;
   private Map<String, JVMOption> options = new HashMap<>();
   private final List<String> commandPrefixList;
+  private final LauncherCommandFormatter launcherCommandFormatter;
 
   /**
    * Constructor that populates default options.
    */
   public JavaLaunchCommandBuilder() {
-    this(null);
+    this(null, null);
+  }
+
+  /**
+   * Constructor that populates class.
+   */
+  public JavaLaunchCommandBuilder(final LauncherCommandFormatter launcherCommandFormatter) {
+    this(launcherCommandFormatter, null);
   }
 
   /**
    * Constructor that populates prefix.
    */
   public JavaLaunchCommandBuilder(final List<String> commandPrefixList) {
+    this(null, commandPrefixList);
+  }
+
+  /**
+   * Constructor that populates class and prefix.
+   */
+  public JavaLaunchCommandBuilder(final LauncherCommandFormatter launcherCommandFormatter,
+                                  final List<String> commandPrefixList) {
     for (final String defaultOption : DEFAULT_OPTIONS) {
       addOption(defaultOption);
     }
     this.commandPrefixList = commandPrefixList;
+    if (launcherCommandFormatter == null) {
+      this.launcherCommandFormatter = REEFLauncherCommandFormatter.getLauncherCommand();
+    } else {
+      this.launcherCommandFormatter = launcherCommandFormatter;
+    }
   }
 
   @Override
@@ -99,8 +119,13 @@ public final class JavaLaunchCommandBuilder implements LaunchCommandBuilder {
         REEFLauncher.propagateProperties(this, false,
             "java.util.logging.config.file", "java.util.logging.config.class");
 
-        add(REEFLauncher.class.getName());
-        add(evaluatorConfigurationPath);
+        add(launcherCommandFormatter.getLauncherClass());
+
+        for (final String param : launcherCommandFormatter.getFlags()) {
+          add(param);
+        }
+
+        add(launcherCommandFormatter.getConfigurationFileName());
 
         if (stdoutPath != null && !stdoutPath.isEmpty()) {
           add("1>");
@@ -122,7 +147,7 @@ public final class JavaLaunchCommandBuilder implements LaunchCommandBuilder {
 
   @Override
   public JavaLaunchCommandBuilder setConfigurationFileName(final String configurationFileName) {
-    this.evaluatorConfigurationPath = configurationFileName;
+    launcherCommandFormatter.setConfigurationFileName(configurationFileName);
     return this;
   }
 
