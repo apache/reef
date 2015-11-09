@@ -38,7 +38,6 @@ import org.apache.reef.io.network.group.impl.utils.BroadcastingEventHandler;
 import org.apache.reef.io.network.group.impl.utils.CountingSemaphore;
 import org.apache.reef.io.network.group.impl.utils.SetMap;
 import org.apache.reef.io.network.group.impl.utils.Utils;
-import org.apache.reef.io.network.proto.ReefNetworkGroupCommProtos;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Injector;
 import org.apache.reef.tang.JavaConfigurationBuilder;
@@ -55,7 +54,6 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -602,8 +600,8 @@ public class CommunicationGroupDriverImpl implements CommunicationGroupDriver {
         LOG.fine(getQualifiedName() + msg.getSimpleOperName() + ": Waiting for all required(" +
             allInitialTasksRunning.getInitialCount() + ") nodes to run");
         allInitialTasksRunning.await();
-        LOG.fine(getQualifiedName() + msg.getSimpleOperName() + ": All required(" + allInitialTasksRunning.getInitialCount() +
-            ") nodes are running");
+        LOG.fine(getQualifiedName() + msg.getSimpleOperName() + ": All required(" +
+            allInitialTasksRunning.getInitialCount() + ") nodes are running");
         initializing.compareAndSet(true, false);
       }
       queNProcessMsg(msg);
