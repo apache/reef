@@ -50,7 +50,7 @@ const char ClassPathSeparatorCharForWindows = ';';
 
 // we look for this to delineate java vm arguments from app arguments.
 // todo: be smarter about this. Accomodate arbitrary apps.
-const char* launcherClass = "org.apache.reef.runtime.common.REEFLauncher";
+const char* launcherClass = "org.apache.reef.bridge.client.BootstrapLauncher";
 
 // method to invoke
 const char* JavaMainMethodName = "main";

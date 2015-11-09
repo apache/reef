@@ -29,6 +29,8 @@ import org.apache.hadoop.yarn.exceptions.YarnException;
 import org.apache.reef.runtime.common.files.ClasspathProvider;
 import org.apache.reef.runtime.common.files.REEFFileNames;
 import org.apache.reef.runtime.common.launch.JavaLaunchCommandBuilder;
+import org.apache.reef.runtime.common.launch.LauncherCommandFormatter;
+import org.apache.reef.runtime.common.launch.REEFLauncherCommandFormatter;
 import org.apache.reef.runtime.yarn.util.YarnTypes;
 
 import java.io.Closeable;
@@ -57,6 +59,7 @@ public final class YarnSubmissionHelper implements Closeable{
   private boolean preserveEvaluators;
   private int maxAppSubmissions;
   private final List<String> commandPrefixList;
+  private LauncherCommandFormatter launcherCommandFormatter = null;
 
   public YarnSubmissionHelper(final YarnConfiguration yarnConfiguration,
                               final REEFFileNames fileNames,
@@ -91,12 +94,10 @@ public final class YarnSubmissionHelper implements Closeable{
     this(yarnConfiguration, fileNames, classpath, tokenProvider, null);
   }
 
-
-
-    /**
-     *
-     * @return the application ID assigned by YARN.
-     */
+  /**
+   *
+   * @return the application ID assigned by YARN.
+   */
   public int getApplicationId() {
     return this.applicationId.getId();
   }
@@ -107,6 +108,14 @@ public final class YarnSubmissionHelper implements Closeable{
    */
   public String getStringApplicationId() {
     return this.applicationId.toString();
+  }
+
+  /**
+   *
+   * @return the command formatter of the YARN job to account for bootstrap submission.
+   */
+  public LauncherCommandFormatter getLauncherCommandFormatter() {
+    return this.launcherCommandFormatter;
   }
 
   /**
@@ -201,15 +210,29 @@ public final class YarnSubmissionHelper implements Closeable{
     return this;
   }
 
+  /**
+   * Sets the command formatter for launching the Driver.
+   * @param launcherCommandFormatter
+   * @return
+   */
+  public YarnSubmissionHelper setLauncherCommandFormatter(final LauncherCommandFormatter launcherCommandFormatter) {
+    this.launcherCommandFormatter = launcherCommandFormatter;
+    return this;
+  }
+
   public void submit() throws IOException, YarnException {
+    final LauncherCommandFormatter submissionLauncherCommandFormatter =
+        launcherCommandFormatter == null ? REEFLauncherCommandFormatter.getLauncherCommand() : launcherCommandFormatter;
+
     // SET EXEC COMMAND
-    final List<String> launchCommand = new JavaLaunchCommandBuilder(commandPrefixList)
-        .setConfigurationFileName(this.fileNames.getDriverConfigurationPath())
-        .setClassPath(this.classpath.getDriverClasspath())
-        .setMemory(this.applicationSubmissionContext.getResource().getMemory())
-        .setStandardOut(ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/" + this.fileNames.getDriverStdoutFileName())
-        .setStandardErr(ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/" + this.fileNames.getDriverStderrFileName())
-        .build();
+    final List<String> launchCommand =
+        new JavaLaunchCommandBuilder(submissionLauncherCommandFormatter, commandPrefixList)
+            .setConfigurationFileName(this.fileNames.getDriverConfigurationPath())
+            .setClassPath(this.classpath.getDriverClasspath())
+            .setMemory(this.applicationSubmissionContext.getResource().getMemory())
+            .setStandardOut(ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/" + this.fileNames.getDriverStdoutFileName())
+            .setStandardErr(ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/" + this.fileNames.getDriverStderrFileName())
+            .build();
 
     if (this.applicationSubmissionContext.getKeepContainersAcrossApplicationAttempts() &&
         this.applicationSubmissionContext.getMaxAppAttempts() == 1) {

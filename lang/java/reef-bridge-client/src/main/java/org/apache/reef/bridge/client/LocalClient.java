@@ -56,7 +56,8 @@ public final class LocalClient {
 
     configurationGenerator.writeConfiguration(localSubmissionFromCS.getJobFolder(),
         localSubmissionFromCS.getJobId(), CLIENT_REMOTE_ID);
-    launcher.launch(driverFolder, localSubmissionFromCS.getJobId(), CLIENT_REMOTE_ID);
+    launcher.launch(BootstrapLauncherCommandFormatter.getLauncherCommand().addFlag(BootstrapLauncher.DIRECT_LAUNCH),
+        driverFolder, localSubmissionFromCS.getJobId(), CLIENT_REMOTE_ID);
   }
 
   public static void main(final String[] args) throws InjectionException, IOException {

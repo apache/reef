@@ -23,6 +23,7 @@ import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.runtime.common.client.api.JobSubmissionEvent;
 import org.apache.reef.runtime.common.client.api.JobSubmissionHandler;
 import org.apache.reef.runtime.common.files.REEFFileNames;
+import org.apache.reef.runtime.common.launch.REEFLauncherCommandFormatter;
 import org.apache.reef.runtime.local.client.parameters.RootFolder;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.annotations.Parameter;
@@ -101,7 +102,8 @@ final class LocalJobSubmissionHandler implements JobSubmissionHandler {
 
         this.configurationSerializer.toFile(driverConfiguration,
             new File(driverFolder, this.fileNames.getDriverConfigurationPath()));
-        this.driverLauncher.launch(driverFolder, t.getIdentifier(), t.getRemoteId());
+        this.driverLauncher.launch(REEFLauncherCommandFormatter.getLauncherCommand(), driverFolder, t.getIdentifier(),
+            t.getRemoteId());
       } catch (final Exception e) {
         LOG.log(Level.SEVERE, "Unable to setup driver.", e);
         throw new RuntimeException("Unable to setup driver.", e);

@@ -34,6 +34,7 @@ import org.apache.reef.wake.remote.ports.parameters.TcpPortRangeTryCount;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Represents a job submission from the CS code.
@@ -83,11 +84,9 @@ final class LocalSubmissionFromCS {
         .set(LocalRuntimeConfiguration.RUNTIME_ROOT_FOLDER, runtimeRootFolder.getAbsolutePath())
         .build();
 
-    final ArrayList<String> driverLaunchCommandPrefixList = new ArrayList<>();
+    final List<String> driverLaunchCommandPrefixList = new ArrayList<>();
     driverLaunchCommandPrefixList.add(
-        new File(driverFolder,
-            new REEFFileNames().getDriverLauncherExeFile().toString()
-        ).toString());
+        new File(driverFolder, new REEFFileNames().getDriverLauncherExeFile().toString()).toString());
 
     final Configuration userProviderConfiguration = Tang.Factory.getTang().newConfigurationBuilder()
         .bindSetEntry(DriverConfigurationProviders.class, TcpPortConfigurationProvider.class)
