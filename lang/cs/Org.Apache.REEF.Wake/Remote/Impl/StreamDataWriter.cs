@@ -21,11 +21,15 @@ using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using Org.Apache.REEF.Utilities.Diagnostics;
+using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Wake.Remote.Impl
 {
     public class StreamDataWriter : IDataWriter
     {
+        Logger Logger = Logger.GetLogger(typeof(StreamDataWriter));
+
          /// <summary>
         /// Stream to which to write
         /// </summary>
@@ -215,6 +219,20 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         public async Task WriteAsync(byte[] buffer, int index, int count, CancellationToken token)
         {
             await _stream.WriteAsync(buffer, index, count, token);
+        }
+
+        /// <summary>
+        /// Gets underlying stream. Throws null exception if 
+        /// stream is null or not available
+        /// </summary>
+        /// <returns>The underlying stream</returns>
+        public Stream GetStream()
+        {
+            if (_stream == null)
+            {
+                Exceptions.Throw(new NullReferenceException("Stream is null or not available"), Logger);
+            }
+            return _stream;
         }
     }
 }
