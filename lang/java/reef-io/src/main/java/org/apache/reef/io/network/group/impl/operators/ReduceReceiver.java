@@ -18,7 +18,6 @@
  */
 package org.apache.reef.io.network.group.impl.operators;
 
-import org.apache.reef.driver.parameters.DriverIdentifier;
 import org.apache.reef.driver.task.TaskConfigurationOptions;
 import org.apache.reef.exception.evaluator.NetworkException;
 import org.apache.reef.io.network.exception.ParentDeadException;
@@ -70,7 +69,7 @@ public class ReduceReceiver<T> implements Reduce.Receiver<T>, EventHandler<Group
                         @Parameter(TaskConfigurationOptions.Identifier.class) final String selfId,
                         @Parameter(DataCodec.class) final Codec<T> dataCodec,
                         @Parameter(ReduceFunctionParam.class) final ReduceFunction<T> reduceFunction,
-                        @Parameter(DriverIdentifier.class) final String driverId,
+                        @Parameter(DriverIdentifierGroupComm.class) final String driverId,
                         @Parameter(TaskVersion.class) final int version,
                         final CommGroupNetworkHandler commGroupNetworkHandler,
                         final NetworkService<GroupCommunicationMessage> netService,

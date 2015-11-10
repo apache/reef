@@ -16,16 +16,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.tests.group;
+package org.apache.reef.io.network.group.impl.config.parameters;
 
-import org.apache.reef.tests.group.conf.TestGroupCommServiceInjection;
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+import org.apache.reef.tang.annotations.Name;
+import org.apache.reef.tang.annotations.NamedParameter;
 
-@RunWith(Suite.class)
-@Suite.SuiteClasses({
-    TestMultipleCommGroups.class,
-    TestGroupCommServiceInjection.class
-    })
-public final class GroupCommTestSuite {
+@NamedParameter(doc = "Identifier of the driver, used in group communication")
+public final class DriverIdentifierGroupComm implements Name<String> {
 }
