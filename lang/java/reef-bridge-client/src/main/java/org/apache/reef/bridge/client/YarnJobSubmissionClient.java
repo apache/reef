@@ -229,10 +229,10 @@ public final class YarnJobSubmissionClient {
   /**
    * .NET client calls into this main method for job submission.
    * For arguments detail:
-   * @see org.apache.reef.bridge.client.YarnSubmissionFromCS#fromCommandLine(String[])
+   * @see org.apache.reef.bridge.client.YarnSubmissionFromCS#fromBootstrapConfigFile(String)
    */
   public static void main(final String[] args) throws InjectionException, IOException, YarnException {
-    final YarnSubmissionFromCS yarnSubmission = YarnSubmissionFromCS.fromCommandLine(args);
+    final YarnSubmissionFromCS yarnSubmission = YarnSubmissionFromCS.fromBootstrapConfigFile(args[0]);
     LOG.log(Level.INFO, "YARN job submission received from C#: {0}", yarnSubmission);
     if (!yarnSubmission.getTokenKind().equalsIgnoreCase("NULL")) {
       // We have to write security token to user credential before YarnJobSubmissionClient is created

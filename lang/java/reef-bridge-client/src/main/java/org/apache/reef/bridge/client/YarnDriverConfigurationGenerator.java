@@ -125,10 +125,10 @@ final class YarnDriverConfigurationGenerator {
   /**
    * This main is executed from .NET to perform driver config generation.
    * For arguments detail:
-   * @see org.apache.reef.bridge.client.YarnSubmissionFromCS#fromCommandLine(String[])
+   * @see org.apache.reef.bridge.client.YarnSubmissionFromCS#fromBootstrapConfigFile(String)
    */
   public static void main(final String[] args) throws InjectionException, IOException {
-    final YarnSubmissionFromCS yarnSubmission = YarnSubmissionFromCS.fromCommandLine(args);
+    final YarnSubmissionFromCS yarnSubmission = YarnSubmissionFromCS.fromBootstrapConfigFile(args[0]);
     LOG.log(Level.INFO, "YARN driver config generation received from C#: {0}", yarnSubmission);
     final Configuration yarnConfiguration = yarnSubmission.getRuntimeConfiguration();
 

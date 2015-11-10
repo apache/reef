@@ -59,15 +59,20 @@ public final class LocalClient {
     launcher.launch(driverFolder, localSubmissionFromCS.getJobId(), CLIENT_REMOTE_ID);
   }
 
-  public static void main(final String[] args) throws InjectionException, IOException {
-    final LocalSubmissionFromCS localSubmissionFromCS = LocalSubmissionFromCS.fromCommandLine(args);
-    LOG.log(Level.INFO, "Local job submission received from C#: {0}", localSubmissionFromCS);
-    final Configuration runtimeConfiguration = localSubmissionFromCS.getRuntimeConfiguration();
+  public static void main(final String[] args) throws IOException, InjectionException {
+    try {
+      final LocalSubmissionFromCS localSubmissionFromCS = LocalSubmissionFromCS.fromBootstrapConfigFile(args[0]);
+      LOG.log(Level.INFO, "Local job submission received from C#: {0}", localSubmissionFromCS);
+      final Configuration runtimeConfiguration = localSubmissionFromCS.getRuntimeConfiguration();
 
-    final LocalClient client = Tang.Factory.getTang()
-        .newInjector(runtimeConfiguration)
-        .getInstance(LocalClient.class);
+      final LocalClient client = Tang.Factory.getTang()
+          .newInjector(runtimeConfiguration)
+          .getInstance(LocalClient.class);
 
-    client.submit(localSubmissionFromCS);
+      client.submit(localSubmissionFromCS);
+    } catch (final Exception e) {
+      LOG.log(Level.WARNING, "FAILED TO START DUE TO " + e.getMessage());
+      throw e;
+    }
   }
 }

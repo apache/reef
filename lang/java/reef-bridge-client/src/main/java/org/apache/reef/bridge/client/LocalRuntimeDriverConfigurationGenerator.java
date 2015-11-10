@@ -92,7 +92,7 @@ final class LocalRuntimeDriverConfigurationGenerator {
   }
 
   public static void main(final String[] args) throws InjectionException, IOException {
-    final LocalSubmissionFromCS localSubmission = LocalSubmissionFromCS.fromCommandLine(args);
+    final LocalSubmissionFromCS localSubmission = LocalSubmissionFromCS.fromBootstrapConfigFile(args[0]);
     LOG.log(Level.INFO, "Local driver config generation received from C#: {0}", localSubmission);
     final Configuration localRuntimeConfiguration = localSubmission.getRuntimeConfiguration();
     final LocalRuntimeDriverConfigurationGenerator localConfigurationGenerator = Tang.Factory.getTang()
