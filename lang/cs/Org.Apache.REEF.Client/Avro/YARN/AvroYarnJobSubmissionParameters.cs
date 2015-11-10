@@ -18,17 +18,17 @@
  */
 
 using System.Runtime.Serialization;
-using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.Client.Avro.YARN
 {
     /// <summary>
-    /// Used to serialize and deserialize Avro record org.apache.reef.reef.bridge.client.AvroYarnBootstrapArgs.
+    /// Used to serialize and deserialize Avro record org.apache.reef.reef.bridge.client.avro.AvroYarnJobSubmissionParameters.
+    /// This is a (mostly) auto-generated class. For instructions on how to regenerate, please view the README.md in the same folder.
     /// </summary>
-    [DataContract(Namespace = "org.apache.reef.reef.bridge.client")]
-    public sealed class AvroYarnBootstrapArgs
+    [DataContract(Namespace = "org.apache.reef.reef.bridge.client.avro")]
+    public sealed class AvroYarnJobSubmissionParameters
     {
-        private const string JsonSchema = @"{""type"":""record"",""name"":""org.apache.reef.reef.bridge.client.AvroYarnBootstrapArgs"",""fields"":[{""name"":""sharedBootstrapArgs"",""type"":{""type"":""record"",""name"":""org.apache.reef.reef.bridge.client.AvroBootstrapArgs"",""fields"":[{""name"":""jobId"",""type"":""string""},{""name"":""tcpBeginPort"",""type"":""int""},{""name"":""tcpRangeCount"",""type"":""int""},{""name"":""tcpTryCount"",""type"":""int""},{""name"":""jobSubmissionFolder"",""type"":""string""}]}},{""name"":""driverMemory"",""type"":""int""},{""name"":""driverRecoveryTimeout"",""type"":""int""},{""name"":""jobSubmissionDirectoryPrefix"",""type"":""string""}]}";
+        private const string JsonSchema = @"{""type"":""record"",""name"":""org.apache.reef.reef.bridge.client.avro.AvroYarnJobSubmissionParameters"",""doc"":""General cross-language submission parameters to the YARN runtime"",""fields"":[{""name"":""sharedJobSubmissionParameters"",""type"":{""type"":""record"",""name"":""org.apache.reef.reef.bridge.client.avro.AvroJobSubmissionParameters"",""doc"":""General cross-language submission parameters shared by all runtimes"",""fields"":[{""name"":""jobId"",""type"":""string""},{""name"":""tcpBeginPort"",""type"":""int""},{""name"":""tcpRangeCount"",""type"":""int""},{""name"":""tcpTryCount"",""type"":""int""},{""name"":""jobSubmissionFolder"",""type"":""string""}]}},{""name"":""driverMemory"",""type"":""int""},{""name"":""driverRecoveryTimeout"",""type"":""int""},{""name"":""jobSubmissionDirectoryPrefix"",""type"":""string""}]}";
 
         /// <summary>
         /// Gets the schema.
@@ -40,12 +40,12 @@ namespace Org.Apache.REEF.Client.Avro.YARN
                 return JsonSchema;
             }
         }
-      
+
         /// <summary>
-        /// Gets or sets the sharedBootstrapArgs field.
+        /// Gets or sets the sharedJobSubmissionParameters field.
         /// </summary>
         [DataMember]
-        public AvroBootstrapArgs sharedBootstrapArgs { get; set; }
+        public AvroJobSubmissionParameters sharedJobSubmissionParameters { get; set; }
 
         /// <summary>
         /// Gets or sets the driverMemory field.
@@ -58,30 +58,30 @@ namespace Org.Apache.REEF.Client.Avro.YARN
         /// </summary>
         [DataMember]
         public int driverRecoveryTimeout { get; set; }
-              
+
         /// <summary>
         /// Gets or sets the jobSubmissionDirectoryPrefix field.
         /// </summary>
         [DataMember]
         public string jobSubmissionDirectoryPrefix { get; set; }
-                
+
         /// <summary>
-        /// Initializes a new instance of the <see cref="AvroYarnBootstrapArgs"/> class.
+        /// Initializes a new instance of the <see cref="AvroYarnJobSubmissionParameters"/> class.
         /// </summary>
-        public AvroYarnBootstrapArgs()
+        public AvroYarnJobSubmissionParameters()
         {
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="AvroYarnBootstrapArgs"/> class.
+        /// Initializes a new instance of the <see cref="AvroYarnJobSubmissionParameters"/> class.
         /// </summary>
-        /// <param name="sharedBootstrapArgs">The sharedBootstrapArgs.</param>
+        /// <param name="sharedJobSubmissionParameters">The sharedJobSubmissionParameters.</param>
         /// <param name="driverMemory">The driverMemory.</param>
         /// <param name="driverRecoveryTimeout">The driverRecoveryTimeout.</param>
         /// <param name="jobSubmissionDirectoryPrefix">The jobSubmissionDirectoryPrefix.</param>
-        public AvroYarnBootstrapArgs(AvroBootstrapArgs sharedBootstrapArgs, int driverMemory, int driverRecoveryTimeout, string jobSubmissionDirectoryPrefix)
+        public AvroYarnJobSubmissionParameters(AvroJobSubmissionParameters sharedJobSubmissionParameters, int driverMemory, int driverRecoveryTimeout, string jobSubmissionDirectoryPrefix)
         {
-            this.sharedBootstrapArgs = sharedBootstrapArgs;
+            this.sharedJobSubmissionParameters = sharedJobSubmissionParameters;
             this.driverMemory = driverMemory;
             this.driverRecoveryTimeout = driverRecoveryTimeout;
             this.jobSubmissionDirectoryPrefix = jobSubmissionDirectoryPrefix;

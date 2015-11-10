@@ -54,6 +54,7 @@ namespace Org.Apache.REEF.Common.Files
         private const string BRIDGE_EXE_CONFIG_NAME = "Org.Apache.REEF.Bridge.exe.config";
         private const string SECURITY_TOKEN_IDENTIFIER_FILE = "SecurityTokenId";
         private const string SECURITY_TOKEN_PASSWORD_FILE = "SecurityTokenPwd";
+        private const string JOB_SUBMISSION_PARAMETERS_FILE = "job-submission-params.json";
 
         [Inject]
         public REEFFileNames()
@@ -231,6 +232,15 @@ namespace Org.Apache.REEF.Common.Files
         public string GetBridgeExeConfigPath()
         {
             return Path.Combine(REEF_BASE_FOLDER, BRIDGE_EXE_CONFIG_NAME);
+        }
+
+        /// <summary>
+        /// The Job Submission parameters file that is used to submit a job through Java,
+        /// either directly or via a "bootstrap" method.
+        /// </summary>
+        public string GetJobSubmissionParametersFile()
+        {
+            return JOB_SUBMISSION_PARAMETERS_FILE;
         }
 
         /// <summary>

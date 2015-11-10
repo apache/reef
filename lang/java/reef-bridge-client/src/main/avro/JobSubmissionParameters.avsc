@@ -18,9 +18,10 @@
  */
 [
   {
-      "namespace": "org.apache.reef.reef.bridge.client",
+      "namespace": "org.apache.reef.reef.bridge.client.avro",
       "type": "record",
-      "name": "AvroBootstrapArgs",
+      "name": "AvroJobSubmissionParameters",
+	  "doc": "General cross-language submission parameters shared by all runtimes",
       "fields": [
         { "name": "jobId", "type": "string" },
         { "name": "tcpBeginPort", "type": "int" },
@@ -30,31 +31,34 @@
       ]
   },
   {
-      "namespace": "org.apache.reef.reef.bridge.client",
+      "namespace": "org.apache.reef.reef.bridge.client.avro",
       "type": "record",
-      "name": "AvroLocalBootstrapArgs",
+      "name": "AvroLocalJobSubmissionParameters",
+	  "doc": "Cross-language submission parameters to the Local runtime",
       "fields": [
-        { "name": "sharedBootstrapArgs", "type": "AvroBootstrapArgs" },
-        { "name": "numberOfEvaluators", "type": "int" }
+        { "name": "sharedJobSubmissionParameters", "type": "AvroJobSubmissionParameters" },
+        { "name": "maxNumberOfConcurrentEvaluators", "type": "int" }
       ]
   },
   {
-      "namespace": "org.apache.reef.reef.bridge.client",
+      "namespace": "org.apache.reef.reef.bridge.client.avro",
       "type": "record",
-      "name": "AvroYarnBootstrapArgs",
+      "name": "AvroYarnJobSubmissionParameters",
+	  "doc": "General cross-language submission parameters to the YARN runtime",
       "fields": [
-        { "name": "sharedBootstrapArgs", "type": "AvroBootstrapArgs" },
+        { "name": "sharedJobSubmissionParameters", "type": "AvroJobSubmissionParameters" },
         { "name": "driverMemory", "type": "int" },
         { "name": "driverRecoveryTimeout", "type": "int" },
         { "name": "jobSubmissionDirectoryPrefix", "type": "string" }
       ]
   },
   {
-      "namespace": "org.apache.reef.reef.bridge.client",
+      "namespace": "org.apache.reef.reef.bridge.client.avro",
       "type": "record",
-      "name": "AvroYarnClusterBootstrapArgs",
+      "name": "AvroYarnClusterJobSubmissionParameters",
+	  "doc": "Cross-language submission parameters to the YARN runtime using Hadoop's submission client",
       "fields": [
-        { "name": "yarnBootstrapArgs", "type": "AvroYarnBootstrapArgs" },
+        { "name": "yarnJobSubmissionParameters", "type": "AvroYarnJobSubmissionParameters" },
         { "name": "maxApplicationSubmissions", "type": "int" },
         { "name": "securityTokenKind", "type": "string" },
         { "name": "securityTokenService", "type": "string" }

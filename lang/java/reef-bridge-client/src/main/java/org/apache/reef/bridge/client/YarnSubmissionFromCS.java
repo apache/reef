@@ -25,9 +25,9 @@ import org.apache.commons.lang.Validate;
 import org.apache.reef.client.parameters.DriverConfigurationProviders;
 import org.apache.reef.driver.parameters.MaxApplicationSubmissions;
 import org.apache.reef.io.TcpPortConfigurationProvider;
-import org.apache.reef.reef.bridge.client.AvroBootstrapArgs;
-import org.apache.reef.reef.bridge.client.AvroYarnBootstrapArgs;
-import org.apache.reef.reef.bridge.client.AvroYarnClusterBootstrapArgs;
+import org.apache.reef.reef.bridge.client.avro.AvroJobSubmissionParameters;
+import org.apache.reef.reef.bridge.client.avro.AvroYarnClusterJobSubmissionParameters;
+import org.apache.reef.reef.bridge.client.avro.AvroYarnJobSubmissionParameters;
 import org.apache.reef.runtime.common.files.REEFFileNames;
 import org.apache.reef.runtime.common.launch.parameters.DriverLaunchCommandPrefix;
 import org.apache.reef.runtime.yarn.client.YarnClientConfiguration;
@@ -71,23 +71,26 @@ final class YarnSubmissionFromCS {
   private final String tokenService;
   private final String jobSubmissionDirectoryPrefix;
 
-  private YarnSubmissionFromCS(final AvroYarnClusterBootstrapArgs yarnClusterBootstrapArgs) {
-    final AvroYarnBootstrapArgs yarnBootstrapArgs = yarnClusterBootstrapArgs.getYarnBootstrapArgs();
-    final AvroBootstrapArgs bootstrapArgs = yarnBootstrapArgs.getSharedBootstrapArgs();
+  private YarnSubmissionFromCS(final AvroYarnClusterJobSubmissionParameters yarnClusterJobSubmissionParameters) {
+    final AvroYarnJobSubmissionParameters yarnJobSubmissionParameters =
+        yarnClusterJobSubmissionParameters.getYarnJobSubmissionParameters();
 
-    this.driverFolder = new File(bootstrapArgs.getJobSubmissionFolder().toString());
-    this.jobId = bootstrapArgs.getJobId().toString();
-    this.tcpBeginPort = bootstrapArgs.getTcpBeginPort();
-    this.tcpRangeCount = bootstrapArgs.getTcpRangeCount();
-    this.tcpTryCount = bootstrapArgs.getTcpTryCount();
-    this.maxApplicationSubmissions = yarnClusterBootstrapArgs.getMaxApplicationSubmissions();
-    this.driverRecoveryTimeout = yarnBootstrapArgs.getDriverRecoveryTimeout();
-    this.driverMemory = yarnBootstrapArgs.getDriverMemory();
+    final AvroJobSubmissionParameters jobSubmissionParameters =
+        yarnJobSubmissionParameters.getSharedJobSubmissionParameters();
+
+    this.driverFolder = new File(jobSubmissionParameters.getJobSubmissionFolder().toString());
+    this.jobId = jobSubmissionParameters.getJobId().toString();
+    this.tcpBeginPort = jobSubmissionParameters.getTcpBeginPort();
+    this.tcpRangeCount = jobSubmissionParameters.getTcpRangeCount();
+    this.tcpTryCount = jobSubmissionParameters.getTcpTryCount();
+    this.maxApplicationSubmissions = yarnClusterJobSubmissionParameters.getMaxApplicationSubmissions();
+    this.driverRecoveryTimeout = yarnJobSubmissionParameters.getDriverRecoveryTimeout();
+    this.driverMemory = yarnJobSubmissionParameters.getDriverMemory();
     this.priority = DEFAULT_PRIORITY;
     this.queue = DEFAULT_QUEUE;
-    this.tokenKind = yarnClusterBootstrapArgs.getSecurityTokenKind().toString();
-    this.tokenService = yarnClusterBootstrapArgs.getSecurityTokenService().toString();
-    this.jobSubmissionDirectoryPrefix = yarnBootstrapArgs.getJobSubmissionDirectoryPrefix().toString();
+    this.tokenKind = yarnClusterJobSubmissionParameters.getSecurityTokenKind().toString();
+    this.tokenService = yarnClusterJobSubmissionParameters.getSecurityTokenService().toString();
+    this.jobSubmissionDirectoryPrefix = yarnJobSubmissionParameters.getJobSubmissionDirectoryPrefix().toString();
 
     Validate.isTrue(driverFolder.exists(), "The driver folder given does not exist.");
     Validate.notEmpty(jobId, "The job id is null or empty");
@@ -199,15 +202,18 @@ final class YarnSubmissionFromCS {
   }
 
   /**
-   * Takes the YARN cluster bootstrap configuration file, deserializes it, and creates submission object.
+   * Takes the YARN cluster job submission configuration file, deserializes it, and creates submission object.
    */
-  static YarnSubmissionFromCS fromBootstrapConfigFile(final String yarnClusterBootstrapConfigFile) throws IOException {
-    final JsonDecoder decoder = DecoderFactory.get().jsonDecoder(
-        AvroYarnClusterBootstrapArgs.getClassSchema(), new FileInputStream(yarnClusterBootstrapConfigFile));
-    final SpecificDatumReader<AvroYarnClusterBootstrapArgs> reader = new SpecificDatumReader<>(
-        AvroYarnClusterBootstrapArgs.class);
-    final AvroYarnClusterBootstrapArgs yarnClusterBootstrapArgs = reader.read(null, decoder);
+  static YarnSubmissionFromCS fromJobSubmissionParametersFile(final File yarnClusterJobSubmissionParametersFile)
+      throws IOException {
+    try (final FileInputStream fileInputStream = new FileInputStream(yarnClusterJobSubmissionParametersFile)) {
+      final JsonDecoder decoder = DecoderFactory.get().jsonDecoder(
+          AvroYarnClusterJobSubmissionParameters.getClassSchema(), fileInputStream);
+      final SpecificDatumReader<AvroYarnClusterJobSubmissionParameters> reader = new SpecificDatumReader<>(
+          AvroYarnClusterJobSubmissionParameters.class);
+      final AvroYarnClusterJobSubmissionParameters yarnClusterJobSubmissionParameters = reader.read(null, decoder);
 
-    return new YarnSubmissionFromCS(yarnClusterBootstrapArgs);
+      return new YarnSubmissionFromCS(yarnClusterJobSubmissionParameters);
+    }
   }
 }

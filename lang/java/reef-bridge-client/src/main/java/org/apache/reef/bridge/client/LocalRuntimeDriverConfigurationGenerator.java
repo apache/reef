@@ -92,8 +92,15 @@ final class LocalRuntimeDriverConfigurationGenerator {
   }
 
   public static void main(final String[] args) throws InjectionException, IOException {
-    final LocalSubmissionFromCS localSubmission = LocalSubmissionFromCS.fromBootstrapConfigFile(args[0]);
-    LOG.log(Level.INFO, "Local driver config generation received from C#: {0}", localSubmission);
+    final File jobSubmissionParametersFile = new File(args[0]);
+    if (!(jobSubmissionParametersFile.exists() && jobSubmissionParametersFile.canRead())) {
+      throw new IOException("Unable to open and read " + jobSubmissionParametersFile.getAbsolutePath());
+    }
+
+    final LocalSubmissionFromCS localSubmission =
+        LocalSubmissionFromCS.fromJobSubmissionParametersFile(jobSubmissionParametersFile);
+
+    LOG.log(Level.FINE, "Local driver config generation received from C#: {0}", localSubmission);
     final Configuration localRuntimeConfiguration = localSubmission.getRuntimeConfiguration();
     final LocalRuntimeDriverConfigurationGenerator localConfigurationGenerator = Tang.Factory.getTang()
         .newInjector(localRuntimeConfiguration)

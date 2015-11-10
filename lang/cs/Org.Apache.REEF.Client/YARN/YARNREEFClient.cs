@@ -24,14 +24,12 @@ using Org.Apache.REEF.Client.API;
 using Org.Apache.REEF.Client.Avro;
 using Org.Apache.REEF.Client.Avro.YARN;
 using Org.Apache.REEF.Client.Common;
-using Org.Apache.REEF.Client.YARN;
 using Org.Apache.REEF.Client.YARN.Parameters;
 using Org.Apache.REEF.Common.Avro;
 using Org.Apache.REEF.Common.Files;
 using Org.Apache.REEF.Driver.Bridge;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Implementations.Tang;
-using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Wake.Remote.Parameters;
 
@@ -104,7 +102,7 @@ namespace Org.Apache.REEF.Client.Yarn
             var paramInjector = TangFactory.GetTang().NewInjector(jobSubmission.DriverConfigurations.ToArray());
                 
 
-            var avroBootstrapArgs = new AvroBootstrapArgs
+            var avroJobSubmissionParameters = new AvroJobSubmissionParameters
             {
                 jobId = jobSubmission.JobIdentifier,
                 tcpBeginPort = paramInjector.GetNamedInstance<TcpPortRangeStart, int>(),
@@ -113,26 +111,26 @@ namespace Org.Apache.REEF.Client.Yarn
                 jobSubmissionFolder = driverFolderPath
             };
 
-            var avroYarnBootstrapArgs = new AvroYarnBootstrapArgs
+            var avroYarnJobSubmissionParameters = new AvroYarnJobSubmissionParameters
             {
                 driverMemory = jobSubmission.DriverMemory,
                 driverRecoveryTimeout = paramInjector.GetNamedInstance<DriverBridgeConfigurationOptions.DriverRestartEvaluatorRecoverySeconds, int>(),
                 jobSubmissionDirectoryPrefix = _jobSubmissionPrefix,
-                sharedBootstrapArgs = avroBootstrapArgs
+                sharedJobSubmissionParameters = avroJobSubmissionParameters
             };
 
-            var avroYarnClusterBootstrapArgs = new AvroYarnClusterBootstrapArgs
+            var avroYarnClusterJobSubmissionParameters = new AvroYarnClusterJobSubmissionParameters
             {
                 maxApplicationSubmissions = paramInjector.GetNamedInstance<DriverBridgeConfigurationOptions.MaxApplicationSubmissions, int>(),
                 securityTokenKind = _securityTokenKind,
                 securityTokenService = _securityTokenService,
-                yarnBootstrapArgs = avroYarnBootstrapArgs
+                yarnJobSubmissionParameters = avroYarnJobSubmissionParameters
             };
 
-            var submissionArgsFilePath = Path.Combine(driverFolderPath, "argsfile.json");
+            var submissionArgsFilePath = Path.Combine(driverFolderPath, _fileNames.GetJobSubmissionParametersFile());
             using (var argsFileStream = new FileStream(submissionArgsFilePath, FileMode.CreateNew))
             {
-                var serializedArgs = AvroJsonSerializer<AvroYarnClusterBootstrapArgs>.ToBytes(avroYarnClusterBootstrapArgs);
+                var serializedArgs = AvroJsonSerializer<AvroYarnClusterJobSubmissionParameters>.ToBytes(avroYarnClusterJobSubmissionParameters);
                 argsFileStream.Write(serializedArgs, 0, serializedArgs.Length);
             }
 

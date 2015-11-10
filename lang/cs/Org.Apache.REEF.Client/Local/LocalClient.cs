@@ -53,7 +53,7 @@ namespace Org.Apache.REEF.Client.Local
         private static readonly Logger Logger = Logger.GetLogger(typeof(LocalClient));
         private readonly DriverFolderPreparationHelper _driverFolderPreparationHelper;
         private readonly JavaClientLauncher _javaClientLauncher;
-        private readonly int _numberOfEvaluators;
+        private readonly int _maxNumberOfConcurrentEvaluators;
         private readonly string _runtimeFolder;
         private string _driverUrl;
         private REEFFileNames _fileNames;
@@ -61,13 +61,13 @@ namespace Org.Apache.REEF.Client.Local
         [Inject]
         private LocalClient(DriverFolderPreparationHelper driverFolderPreparationHelper,
             [Parameter(typeof(LocalRuntimeDirectory))] string runtimeFolder,
-            [Parameter(typeof(NumberOfEvaluators))] int numberOfEvaluators,
+            [Parameter(typeof(NumberOfEvaluators))] int maxNumberOfConcurrentEvaluators,
             JavaClientLauncher javaClientLauncher,
             REEFFileNames fileNames)
         {
             _driverFolderPreparationHelper = driverFolderPreparationHelper;
             _runtimeFolder = runtimeFolder;
-            _numberOfEvaluators = numberOfEvaluators;
+            _maxNumberOfConcurrentEvaluators = maxNumberOfConcurrentEvaluators;
             _javaClientLauncher = javaClientLauncher;
             _fileNames = fileNames;
         }
@@ -94,7 +94,7 @@ namespace Org.Apache.REEF.Client.Local
         {
             var paramInjector = TangFactory.GetTang().NewInjector(jobSubmission.DriverConfigurations.ToArray());
 
-            var bootstrapArgs = new AvroBootstrapArgs
+            var bootstrapArgs = new AvroJobSubmissionParameters
             {
                 jobSubmissionFolder = driverFolder,
                 jobId = jobSubmission.JobIdentifier,
@@ -103,16 +103,16 @@ namespace Org.Apache.REEF.Client.Local
                 tcpTryCount = paramInjector.GetNamedInstance<TcpPortRangeTryCount, int>(),
             };
 
-            var avroLocalBootstrapArgs = new AvroLocalBootstrapArgs
+            var avroLocalBootstrapArgs = new AvroLocalJobSubmissionParameters
             {
-                sharedBootstrapArgs = bootstrapArgs,
-                numberOfEvaluators = _numberOfEvaluators
+                sharedJobSubmissionParameters = bootstrapArgs,
+                maxNumberOfConcurrentEvaluators = _maxNumberOfConcurrentEvaluators
             };
 
-            var submissionArgsFilePath = Path.Combine(driverFolder, "argsfile.json");
+            var submissionArgsFilePath = Path.Combine(driverFolder, _fileNames.GetJobSubmissionParametersFile());
             using (var argsFileStream = new FileStream(submissionArgsFilePath, FileMode.CreateNew))
             {
-                var serializedArgs = AvroJsonSerializer<AvroLocalBootstrapArgs>.ToBytes(avroLocalBootstrapArgs);
+                var serializedArgs = AvroJsonSerializer<AvroLocalJobSubmissionParameters>.ToBytes(avroLocalBootstrapArgs);
                 argsFileStream.Write(serializedArgs, 0, serializedArgs.Length);
             }
 

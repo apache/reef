@@ -24,8 +24,8 @@ import org.apache.avro.specific.SpecificDatumReader;
 import org.apache.commons.lang.Validate;
 import org.apache.reef.client.parameters.DriverConfigurationProviders;
 import org.apache.reef.io.TcpPortConfigurationProvider;
-import org.apache.reef.reef.bridge.client.AvroBootstrapArgs;
-import org.apache.reef.reef.bridge.client.AvroLocalBootstrapArgs;
+import org.apache.reef.reef.bridge.client.avro.AvroJobSubmissionParameters;
+import org.apache.reef.reef.bridge.client.avro.AvroLocalJobSubmissionParameters;
 import org.apache.reef.runtime.common.files.REEFFileNames;
 import org.apache.reef.runtime.common.launch.parameters.DriverLaunchCommandPrefix;
 import org.apache.reef.runtime.local.client.LocalRuntimeConfiguration;
@@ -53,26 +53,27 @@ final class LocalSubmissionFromCS {
   private final File jobFolder;
   private final File runtimeRootFolder;
   private final String jobId;
-  private final int numberOfEvaluators;
+  private final int maxNumberOfConcurrentEvaluators;
   private final int tcpBeginPort;
   private final int tcpRangeCount;
   private final int tcpTryCount;
 
-  private LocalSubmissionFromCS(final AvroLocalBootstrapArgs avroLocalBootstrapArgs) {
+  private LocalSubmissionFromCS(final AvroLocalJobSubmissionParameters avroLocalJobSubmissionParameters) {
     // We assume the given path to be the one of the driver. The job folder is one level up from there.
-    final AvroBootstrapArgs bootstrapArgs = avroLocalBootstrapArgs.getSharedBootstrapArgs();
-    this.driverFolder = new File(bootstrapArgs.getJobSubmissionFolder().toString());
-    this.jobId = bootstrapArgs.getJobId().toString();
-    this.numberOfEvaluators = avroLocalBootstrapArgs.getNumberOfEvaluators();
-    this.tcpBeginPort = bootstrapArgs.getTcpBeginPort();
-    this.tcpRangeCount = bootstrapArgs.getTcpRangeCount();
-    this.tcpTryCount = bootstrapArgs.getTcpTryCount();
+    final AvroJobSubmissionParameters jobSubmissionParameters =
+        avroLocalJobSubmissionParameters.getSharedJobSubmissionParameters();
+    this.driverFolder = new File(jobSubmissionParameters.getJobSubmissionFolder().toString());
+    this.jobId = jobSubmissionParameters.getJobId().toString();
+    this.maxNumberOfConcurrentEvaluators = avroLocalJobSubmissionParameters.getMaxNumberOfConcurrentEvaluators();
+    this.tcpBeginPort = jobSubmissionParameters.getTcpBeginPort();
+    this.tcpRangeCount = jobSubmissionParameters.getTcpRangeCount();
+    this.tcpTryCount = jobSubmissionParameters.getTcpTryCount();
     this.jobFolder = driverFolder.getParentFile();
     this.runtimeRootFolder = jobFolder.getParentFile();
 
     Validate.isTrue(driverFolder.exists(), "The driver folder does not exist.");
     Validate.notEmpty(jobId, "The job is is null or empty.");
-    Validate.isTrue(numberOfEvaluators >= 0, "The number of evaluators is < 0.");
+    Validate.isTrue(maxNumberOfConcurrentEvaluators >= 0, "The number of evaluators is < 0.");
     Validate.isTrue(tcpBeginPort >= 0, "The tcp start port given is < 0.");
     Validate.isTrue(tcpRangeCount > 0, "The tcp range given is <= 0.");
     Validate.isTrue(tcpTryCount > 0, "The tcp retry count given is <= 0.");
@@ -83,7 +84,7 @@ final class LocalSubmissionFromCS {
    */
   Configuration getRuntimeConfiguration() {
     final Configuration runtimeConfiguration = LocalRuntimeConfiguration.CONF
-        .set(LocalRuntimeConfiguration.MAX_NUMBER_OF_EVALUATORS, Integer.toString(numberOfEvaluators))
+        .set(LocalRuntimeConfiguration.MAX_NUMBER_OF_EVALUATORS, Integer.toString(maxNumberOfConcurrentEvaluators))
         .set(LocalRuntimeConfiguration.RUNTIME_ROOT_FOLDER, runtimeRootFolder.getAbsolutePath())
         .build();
 
@@ -112,7 +113,7 @@ final class LocalSubmissionFromCS {
         ", jobFolder=" + jobFolder +
         ", runtimeRootFolder=" + runtimeRootFolder +
         ", jobId='" + jobId + '\'' +
-        ", numberOfEvaluators=" + numberOfEvaluators +
+        ", maxNumberOfConcurrentEvaluators=" + maxNumberOfConcurrentEvaluators +
         ", tcpBeginPort=" + tcpBeginPort +
         ", tcpRangeCount=" + tcpRangeCount +
         ", tcpTryCount=" + tcpTryCount +
@@ -134,14 +135,18 @@ final class LocalSubmissionFromCS {
   }
 
   /**
-   * Takes the local bootstrap configuration file, deserializes it, and creates submission object.
+   * Takes the local job submission configuration file, deserializes it, and creates submission object.
    */
-  static LocalSubmissionFromCS fromBootstrapConfigFile(final String localBootstrapConfigFile) throws IOException {
-    final JsonDecoder decoder = DecoderFactory.get().jsonDecoder(
-        AvroLocalBootstrapArgs.getClassSchema(), new FileInputStream(localBootstrapConfigFile));
-    final SpecificDatumReader<AvroLocalBootstrapArgs> reader = new SpecificDatumReader<>(AvroLocalBootstrapArgs.class);
-    final AvroLocalBootstrapArgs localBootstrapArgs = reader.read(null, decoder);
+  static LocalSubmissionFromCS fromJobSubmissionParametersFile(final File localJobSubmissionParametersFile)
+      throws IOException {
+    try (final FileInputStream fileInputStream = new FileInputStream(localJobSubmissionParametersFile)) {
+      final JsonDecoder decoder = DecoderFactory.get().jsonDecoder(
+          AvroLocalJobSubmissionParameters.getClassSchema(), fileInputStream);
+      final SpecificDatumReader<AvroLocalJobSubmissionParameters> reader =
+          new SpecificDatumReader<>(AvroLocalJobSubmissionParameters.class);
+      final AvroLocalJobSubmissionParameters localJobSubmissionParameters = reader.read(null, decoder);
 
-    return new LocalSubmissionFromCS(localBootstrapArgs);
+      return new LocalSubmissionFromCS(localJobSubmissionParameters);
+    }
   }
 }
