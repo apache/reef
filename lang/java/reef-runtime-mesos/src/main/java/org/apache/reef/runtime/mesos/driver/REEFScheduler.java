@@ -35,6 +35,7 @@ import org.apache.reef.runtime.common.driver.resourcemanager.RuntimeStatusEventI
 import org.apache.reef.runtime.common.files.ClasspathProvider;
 import org.apache.reef.runtime.common.files.REEFFileNames;
 import org.apache.reef.runtime.mesos.driver.parameters.MesosMasterIp;
+import org.apache.reef.runtime.mesos.driver.parameters.MesosSlavePort;
 import org.apache.reef.runtime.mesos.driver.parameters.JobSubmissionDirectoryPrefix;
 import org.apache.reef.runtime.mesos.evaluator.REEFExecutor;
 import org.apache.reef.runtime.mesos.util.EvaluatorControl;
@@ -93,8 +94,6 @@ final class REEFScheduler implements Scheduler {
   private static final Logger LOG = Logger.getLogger(REEFScheduler.class.getName());
   private static final String REEF_TAR = "reef.tar.gz";
   private static final String RUNTIME_NAME = "MESOS";
-  private static final int MESOS_SLAVE_PORT = 5051;
-  //  Assumes for now that all slaves use port 5051(default) TODO: make it configurable.
   private static final String REEF_JOB_NAME_PREFIX = "reef-job-";
 
   private final String reefTarUri;
@@ -105,6 +104,7 @@ final class REEFScheduler implements Scheduler {
   private final MesosRemoteManager mesosRemoteManager;
 
   private final SchedulerDriver mesosMaster;
+  private int mesosSlavePort;
   private final String jobSubmissionDirectoryPrefix;
   private final EStage<SchedulerDriver> schedulerDriverEStage;
   private final Map<String, Offer> offers = new ConcurrentHashMap<>();
@@ -123,6 +123,7 @@ final class REEFScheduler implements Scheduler {
                 final ClasspathProvider classpath,
                 @Parameter(JobIdentifier.class) final String jobIdentifier,
                 @Parameter(MesosMasterIp.class) final String masterIp,
+                @Parameter(MesosSlavePort.class) final int slavePort,
                 @Parameter(JobSubmissionDirectoryPrefix.class) final String jobSubmissionDirectoryPrefix) {
     this.mesosRemoteManager = mesosRemoteManager;
     this.reefEventHandlers = reefEventHandlers;
@@ -138,6 +139,7 @@ final class REEFScheduler implements Scheduler {
         .setName(REEF_JOB_NAME_PREFIX + jobIdentifier)
         .build();
     this.mesosMaster = new MesosSchedulerDriver(this, frameworkInfo, masterIp);
+    this.mesosSlavePort = slavePort;
   }
 
   @Override
@@ -165,7 +167,7 @@ final class REEFScheduler implements Scheduler {
         nodeDescriptorEvents.put(offer.getSlaveId().getValue(), NodeDescriptorEventImpl.newBuilder()
                 .setIdentifier(offer.getSlaveId().getValue())
                 .setHostName(offer.getHostname())
-                .setPort(MESOS_SLAVE_PORT)
+                .setPort(this.mesosSlavePort)
                 .setMemorySize(getMemory(offer)));
       } else {
         final NodeDescriptorEventImpl.Builder builder = nodeDescriptorEvents.get(offer.getSlaveId().getValue());
