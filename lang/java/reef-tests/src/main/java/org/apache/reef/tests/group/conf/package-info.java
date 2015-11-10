@@ -16,16 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.tests.group;
-
-import org.apache.reef.tests.group.conf.TestGroupCommServiceInjection;
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-
-@RunWith(Suite.class)
-@Suite.SuiteClasses({
-    TestMultipleCommGroups.class,
-    TestGroupCommServiceInjection.class
-    })
-public final class GroupCommTestSuite {
-}
+/**
+ * Classes used in tang configuration related tests for group communication.
+ */
+package org.apache.reef.tests.group.conf;

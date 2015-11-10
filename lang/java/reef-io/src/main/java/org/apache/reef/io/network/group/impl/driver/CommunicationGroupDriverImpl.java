@@ -271,7 +271,6 @@ public class CommunicationGroupDriverImpl implements CommunicationGroupDriver {
     final JavaConfigurationBuilder jcb = Tang.Factory.getTang().newConfigurationBuilder();
     final String taskId = taskId(taskConf);
     if (perTaskState.containsKey(taskId)) {
-      jcb.bindNamedParameter(DriverIdentifier.class, driverId);
       jcb.bindNamedParameter(CommunicationGroupName.class, groupName.getName());
       LOG.finest(getQualifiedName() + "Task has been added. Waiting to acquire configLock");
       synchronized (configLock) {

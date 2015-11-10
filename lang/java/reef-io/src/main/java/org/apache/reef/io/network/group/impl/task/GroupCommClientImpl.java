@@ -48,6 +48,13 @@ public class GroupCommClientImpl implements GroupCommClient {
   private final Map<Class<? extends Name<String>>, CommunicationGroupServiceClient> communicationGroups =
       new HashMap<>();
 
+  /**
+   * @deprecated in 0.14.
+   * Use the other constructor that receives an {@code injector} as a parameter instead.
+   * The parameters {@code taskId} and {@code netService} can be removed from the other constructor when
+   * this constructor gets deleted.
+   */
+  @Deprecated
   @Inject
   public GroupCommClientImpl(
       @Parameter(SerializedGroupConfigs.class) final Set<String> groupConfigs,
@@ -69,6 +76,32 @@ public class GroupCommClientImpl implements GroupCommClient {
 
         final CommunicationGroupServiceClient commGroupClient =
             injector.getInstance(CommunicationGroupServiceClient.class);
+
+        this.communicationGroups.put(commGroupClient.getName(), commGroupClient);
+
+      } catch (final InjectionException | IOException e) {
+        throw new RuntimeException("Unable to deserialize operator config", e);
+      }
+    }
+  }
+
+  @Inject
+  private GroupCommClientImpl(@Parameter(SerializedGroupConfigs.class) final Set<String> groupConfigs,
+                              @Parameter(TaskConfigurationOptions.Identifier.class) final String taskId,
+                              final GroupCommNetworkHandler groupCommNetworkHandler,
+                              final NetworkService<ReefNetworkGroupCommProtos.GroupCommMessage> netService,
+                              final ConfigurationSerializer configSerializer,
+                              final Injector injector) {
+
+    LOG.log(Level.FINEST, "GroupCommHandler-{0}", groupCommNetworkHandler);
+
+    for (final String groupConfigStr : groupConfigs) {
+      try {
+        final Configuration groupConfig = configSerializer.fromString(groupConfigStr);
+        final Injector forkedInjector = injector.forkInjector(groupConfig);
+
+        final CommunicationGroupServiceClient commGroupClient =
+            forkedInjector.getInstance(CommunicationGroupServiceClient.class);
 
         this.communicationGroups.put(commGroupClient.getName(), commGroupClient);
 
