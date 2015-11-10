@@ -22,12 +22,16 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Org.Apache.REEF.Client.API;
+using Org.Apache.REEF.Client.Avro;
+using Org.Apache.REEF.Client.Avro.Local;
 using Org.Apache.REEF.Client.Common;
 using Org.Apache.REEF.Client.Local.Parameters;
+using Org.Apache.REEF.Common.Avro;
 using Org.Apache.REEF.Common.Files;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Utilities.Logging;
+using Org.Apache.REEF.Wake.Remote.Parameters;
 
 namespace Org.Apache.REEF.Client.Local
 {
@@ -49,7 +53,7 @@ namespace Org.Apache.REEF.Client.Local
         private static readonly Logger Logger = Logger.GetLogger(typeof(LocalClient));
         private readonly DriverFolderPreparationHelper _driverFolderPreparationHelper;
         private readonly JavaClientLauncher _javaClientLauncher;
-        private readonly int _numberOfEvaluators;
+        private readonly int _maxNumberOfConcurrentEvaluators;
         private readonly string _runtimeFolder;
         private string _driverUrl;
         private REEFFileNames _fileNames;
@@ -57,13 +61,13 @@ namespace Org.Apache.REEF.Client.Local
         [Inject]
         private LocalClient(DriverFolderPreparationHelper driverFolderPreparationHelper,
             [Parameter(typeof(LocalRuntimeDirectory))] string runtimeFolder,
-            [Parameter(typeof(NumberOfEvaluators))] int numberOfEvaluators,
+            [Parameter(typeof(NumberOfEvaluators))] int maxNumberOfConcurrentEvaluators,
             JavaClientLauncher javaClientLauncher,
             REEFFileNames fileNames)
         {
             _driverFolderPreparationHelper = driverFolderPreparationHelper;
             _runtimeFolder = runtimeFolder;
-            _numberOfEvaluators = numberOfEvaluators;
+            _maxNumberOfConcurrentEvaluators = maxNumberOfConcurrentEvaluators;
             _javaClientLauncher = javaClientLauncher;
             _fileNames = fileNames;
         }
@@ -86,7 +90,36 @@ namespace Org.Apache.REEF.Client.Local
             // Intentionally left blank.
         }
 
-        public void Submit(IJobSubmission jobSubmission)
+        private string CreateBootstrapAvroConfig(IJobSubmission jobSubmission, string driverFolder)
+        {
+            var paramInjector = TangFactory.GetTang().NewInjector(jobSubmission.DriverConfigurations.ToArray());
+
+            var bootstrapArgs = new AvroJobSubmissionParameters
+            {
+                jobSubmissionFolder = driverFolder,
+                jobId = jobSubmission.JobIdentifier,
+                tcpBeginPort = paramInjector.GetNamedInstance<TcpPortRangeStart, int>(),
+                tcpRangeCount = paramInjector.GetNamedInstance<TcpPortRangeCount, int>(),
+                tcpTryCount = paramInjector.GetNamedInstance<TcpPortRangeTryCount, int>(),
+            };
+
+            var avroLocalBootstrapArgs = new AvroLocalJobSubmissionParameters
+            {
+                sharedJobSubmissionParameters = bootstrapArgs,
+                maxNumberOfConcurrentEvaluators = _maxNumberOfConcurrentEvaluators
+            };
+
+            var submissionArgsFilePath = Path.Combine(driverFolder, _fileNames.GetJobSubmissionParametersFile());
+            using (var argsFileStream = new FileStream(submissionArgsFilePath, FileMode.CreateNew))
+            {
+                var serializedArgs = AvroJsonSerializer<AvroLocalJobSubmissionParameters>.ToBytes(avroLocalBootstrapArgs);
+                argsFileStream.Write(serializedArgs, 0, serializedArgs.Length);
+            }
+
+            return submissionArgsFilePath;
+        }
+
+        private string PrepareDriverFolder(IJobSubmission jobSubmission)
         {
             // Prepare the job submission folder
             var jobFolder = CreateJobFolder(jobSubmission.JobIdentifier);
@@ -95,41 +128,23 @@ namespace Org.Apache.REEF.Client.Local
 
             _driverFolderPreparationHelper.PrepareDriverFolder(jobSubmission, driverFolder);
 
-            //TODO: Remove this when we have a generalized way to pass config to java
-            var javaParams = TangFactory.GetTang()
-                .NewInjector(jobSubmission.DriverConfigurations.ToArray())
-                .GetInstance<ClrClient2JavaClientCuratedParameters>();
+            return driverFolder;
+        }
 
-            _javaClientLauncher.Launch(JavaClassName, driverFolder, jobSubmission.JobIdentifier,
-                _numberOfEvaluators.ToString(),
-                javaParams.TcpPortRangeStart.ToString(),
-                javaParams.TcpPortRangeCount.ToString(),
-                javaParams.TcpPortRangeTryCount.ToString()
-                );
+        public void Submit(IJobSubmission jobSubmission)
+        {
+            var driverFolder = PrepareDriverFolder(jobSubmission);
+            var submissionArgsFilePath = CreateBootstrapAvroConfig(jobSubmission, driverFolder);
+            _javaClientLauncher.Launch(JavaClassName, submissionArgsFilePath);
             Logger.Log(Level.Info, "Submitted the Driver for execution.");
         }
 
         public IDriverHttpEndpoint SubmitAndGetDriverUrl(IJobSubmission jobSubmission)
         {
-            // Prepare the job submission folder
-            var jobFolder = CreateJobFolder(jobSubmission.JobIdentifier);
-            var driverFolder = Path.Combine(jobFolder, DriverFolderName);
-            Logger.Log(Level.Info, "Preparing driver folder in " + driverFolder);
+            var driverFolder = PrepareDriverFolder(jobSubmission);
+            var submissionArgsFilePath = CreateBootstrapAvroConfig(jobSubmission, driverFolder);
 
-            _driverFolderPreparationHelper.PrepareDriverFolder(jobSubmission, driverFolder);
-
-            //TODO: Remove this when we have a generalized way to pass config to java
-            var javaParams = TangFactory.GetTang()
-                .NewInjector(jobSubmission.DriverConfigurations.ToArray())
-                .GetInstance<ClrClient2JavaClientCuratedParameters>();
-
-            Task.Run(() =>
-            _javaClientLauncher.Launch(JavaClassName, driverFolder, jobSubmission.JobIdentifier,
-                _numberOfEvaluators.ToString(),
-                javaParams.TcpPortRangeStart.ToString(),
-                javaParams.TcpPortRangeCount.ToString(),
-                javaParams.TcpPortRangeTryCount.ToString()
-                ));
+            Task.Run(() => _javaClientLauncher.Launch(JavaClassName, submissionArgsFilePath));
 
             var fileName = Path.Combine(driverFolder, _fileNames.DriverHttpEndpoint);
             HttpClientHelper helper = new HttpClientHelper();

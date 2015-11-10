@@ -18,10 +18,16 @@
  */
 package org.apache.reef.bridge.client;
 
+import org.apache.avro.io.DecoderFactory;
+import org.apache.avro.io.JsonDecoder;
+import org.apache.avro.specific.SpecificDatumReader;
 import org.apache.commons.lang.Validate;
 import org.apache.reef.client.parameters.DriverConfigurationProviders;
 import org.apache.reef.driver.parameters.MaxApplicationSubmissions;
 import org.apache.reef.io.TcpPortConfigurationProvider;
+import org.apache.reef.reef.bridge.client.avro.AvroJobSubmissionParameters;
+import org.apache.reef.reef.bridge.client.avro.AvroYarnClusterJobSubmissionParameters;
+import org.apache.reef.reef.bridge.client.avro.AvroYarnJobSubmissionParameters;
 import org.apache.reef.runtime.common.files.REEFFileNames;
 import org.apache.reef.runtime.common.launch.parameters.DriverLaunchCommandPrefix;
 import org.apache.reef.runtime.yarn.client.YarnClientConfiguration;
@@ -34,6 +40,8 @@ import org.apache.reef.wake.remote.ports.parameters.TcpPortRangeCount;
 import org.apache.reef.wake.remote.ports.parameters.TcpPortRangeTryCount;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,6 +52,9 @@ import java.util.List;
  * `Org.Apache.REEF.Client.YARN.YARNClient`
  */
 final class YarnSubmissionFromCS {
+  private static final int DEFAULT_PRIORITY = 1;
+  private static final String DEFAULT_QUEUE = "default";
+
   private final File driverFolder;
   private final String jobId;
   private final int driverMemory;
@@ -52,6 +63,7 @@ final class YarnSubmissionFromCS {
   private final int tcpTryCount;
   private final int maxApplicationSubmissions;
   private final int driverRecoveryTimeout;
+
   // Static for now
   private final int priority;
   private final String queue;
@@ -59,19 +71,26 @@ final class YarnSubmissionFromCS {
   private final String tokenService;
   private final String jobSubmissionDirectoryPrefix;
 
-  private YarnSubmissionFromCS(final File driverFolder,
-                               final String jobId,
-                               final int driverMemory,
-                               final int tcpBeginPort,
-                               final int tcpRangeCount,
-                               final int tcpTryCount,
-                               final int maxApplicationSubmissions,
-                               final int driverRecoveryTimeout,
-                               final int priority,
-                               final String queue,
-                               final String tokenKind,
-                               final String tokenService,
-                               final String jobSubmissionDirectoryPrefix) {
+  private YarnSubmissionFromCS(final AvroYarnClusterJobSubmissionParameters yarnClusterJobSubmissionParameters) {
+    final AvroYarnJobSubmissionParameters yarnJobSubmissionParameters =
+        yarnClusterJobSubmissionParameters.getYarnJobSubmissionParameters();
+
+    final AvroJobSubmissionParameters jobSubmissionParameters =
+        yarnJobSubmissionParameters.getSharedJobSubmissionParameters();
+
+    this.driverFolder = new File(jobSubmissionParameters.getJobSubmissionFolder().toString());
+    this.jobId = jobSubmissionParameters.getJobId().toString();
+    this.tcpBeginPort = jobSubmissionParameters.getTcpBeginPort();
+    this.tcpRangeCount = jobSubmissionParameters.getTcpRangeCount();
+    this.tcpTryCount = jobSubmissionParameters.getTcpTryCount();
+    this.maxApplicationSubmissions = yarnClusterJobSubmissionParameters.getMaxApplicationSubmissions();
+    this.driverRecoveryTimeout = yarnJobSubmissionParameters.getDriverRecoveryTimeout();
+    this.driverMemory = yarnJobSubmissionParameters.getDriverMemory();
+    this.priority = DEFAULT_PRIORITY;
+    this.queue = DEFAULT_QUEUE;
+    this.tokenKind = yarnClusterJobSubmissionParameters.getSecurityTokenKind().toString();
+    this.tokenService = yarnClusterJobSubmissionParameters.getSecurityTokenService().toString();
+    this.jobSubmissionDirectoryPrefix = yarnJobSubmissionParameters.getJobSubmissionDirectoryPrefix().toString();
 
     Validate.isTrue(driverFolder.exists(), "The driver folder given does not exist.");
     Validate.notEmpty(jobId, "The job id is null or empty");
@@ -84,20 +103,6 @@ final class YarnSubmissionFromCS {
     Validate.notEmpty(tokenKind, "Token kind should be either NULL or some custom non empty value");
     Validate.notEmpty(tokenService, "Token service should be either NULL or some custom non empty value");
     Validate.notEmpty(jobSubmissionDirectoryPrefix, "Job submission directory prefix should not be empty");
-
-    this.driverFolder = driverFolder;
-    this.jobId = jobId;
-    this.driverMemory = driverMemory;
-    this.tcpBeginPort = tcpBeginPort;
-    this.tcpRangeCount = tcpRangeCount;
-    this.tcpTryCount = tcpTryCount;
-    this.maxApplicationSubmissions = maxApplicationSubmissions;
-    this.driverRecoveryTimeout = driverRecoveryTimeout;
-    this.priority = priority;
-    this.queue = queue;
-    this.tokenKind = tokenKind;
-    this.tokenService = tokenService;
-    this.jobSubmissionDirectoryPrefix = jobSubmissionDirectoryPrefix;
   }
 
   @Override
@@ -197,35 +202,18 @@ final class YarnSubmissionFromCS {
   }
 
   /**
-   * Takes 9 parameters from the C# side:
-   * [0]: String. Driver folder.
-   * [1]: String. Driver identifier.
-   * [2]: int. Driver memory.
-   * [3~5]: int. TCP configurations.
-   * [6]: int. Max application submissions.
-   * [7]: int. Evaluator recovery timeout for driver restart. > 0 => restart is enabled.
-   * [8]: string: Security token kind. "NULL" => No security token is used
-   * [9]: string: Security token service. "NULL" => No security token is used
-   * [10]: string: Job submission directory prefix.
+   * Takes the YARN cluster job submission configuration file, deserializes it, and creates submission object.
    */
-  static YarnSubmissionFromCS fromCommandLine(final String[] args) {
-    final File driverFolder = new File(args[0]);
-    final String jobId = args[1];
-    final int driverMemory = Integer.parseInt(args[2]);
-    final int tcpBeginPort = Integer.parseInt(args[3]);
-    final int tcpRangeCount = Integer.parseInt(args[4]);
-    final int tcpTryCount = Integer.parseInt(args[5]);
-    final int maxApplicationSubmissions = Integer.parseInt(args[6]);
-    final int driverRecoveryTimeout = Integer.parseInt(args[7]);
-    final String securityTokenKind = args[8];
-    final String securityTokenService = args[9];
-    final String jobSubmissionDirectoryPrefix = args[10];
+  static YarnSubmissionFromCS fromJobSubmissionParametersFile(final File yarnClusterJobSubmissionParametersFile)
+      throws IOException {
+    try (final FileInputStream fileInputStream = new FileInputStream(yarnClusterJobSubmissionParametersFile)) {
+      final JsonDecoder decoder = DecoderFactory.get().jsonDecoder(
+          AvroYarnClusterJobSubmissionParameters.getClassSchema(), fileInputStream);
+      final SpecificDatumReader<AvroYarnClusterJobSubmissionParameters> reader = new SpecificDatumReader<>(
+          AvroYarnClusterJobSubmissionParameters.class);
+      final AvroYarnClusterJobSubmissionParameters yarnClusterJobSubmissionParameters = reader.read(null, decoder);
 
-    // Static for now
-    final int priority = 1;
-    final String queue = "default";
-    return new YarnSubmissionFromCS(driverFolder, jobId, driverMemory, tcpBeginPort, tcpRangeCount, tcpTryCount,
-        maxApplicationSubmissions, driverRecoveryTimeout, priority, queue, securityTokenKind, securityTokenService,
-        jobSubmissionDirectoryPrefix);
+      return new YarnSubmissionFromCS(yarnClusterJobSubmissionParameters);
+    }
   }
 }

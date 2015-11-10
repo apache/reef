@@ -21,13 +21,17 @@ using System;
 using System.IO;
 using System.Linq;
 using Org.Apache.REEF.Client.API;
+using Org.Apache.REEF.Client.Avro;
+using Org.Apache.REEF.Client.Avro.YARN;
 using Org.Apache.REEF.Client.Common;
-using Org.Apache.REEF.Client.YARN;
 using Org.Apache.REEF.Client.YARN.Parameters;
+using Org.Apache.REEF.Common.Avro;
 using Org.Apache.REEF.Common.Files;
+using Org.Apache.REEF.Driver.Bridge;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Utilities.Logging;
+using Org.Apache.REEF.Wake.Remote.Parameters;
 
 namespace Org.Apache.REEF.Client.Yarn
 {
@@ -95,25 +99,43 @@ namespace Org.Apache.REEF.Client.Yarn
             _driverFolderPreparationHelper.PrepareDriverFolder(jobSubmission, driverFolderPath);
 
             //TODO: Remove this when we have a generalized way to pass config to java
-            var javaParams = TangFactory.GetTang()
-                .NewInjector(jobSubmission.DriverConfigurations.ToArray())
-                .GetInstance<ClrClient2JavaClientCuratedParameters>();
+            var paramInjector = TangFactory.GetTang().NewInjector(jobSubmission.DriverConfigurations.ToArray());
+                
+
+            var avroJobSubmissionParameters = new AvroJobSubmissionParameters
+            {
+                jobId = jobSubmission.JobIdentifier,
+                tcpBeginPort = paramInjector.GetNamedInstance<TcpPortRangeStart, int>(),
+                tcpRangeCount = paramInjector.GetNamedInstance<TcpPortRangeCount, int>(),
+                tcpTryCount = paramInjector.GetNamedInstance<TcpPortRangeTryCount, int>(),
+                jobSubmissionFolder = driverFolderPath
+            };
+
+            var avroYarnJobSubmissionParameters = new AvroYarnJobSubmissionParameters
+            {
+                driverMemory = jobSubmission.DriverMemory,
+                driverRecoveryTimeout = paramInjector.GetNamedInstance<DriverBridgeConfigurationOptions.DriverRestartEvaluatorRecoverySeconds, int>(),
+                jobSubmissionDirectoryPrefix = _jobSubmissionPrefix,
+                sharedJobSubmissionParameters = avroJobSubmissionParameters
+            };
+
+            var avroYarnClusterJobSubmissionParameters = new AvroYarnClusterJobSubmissionParameters
+            {
+                maxApplicationSubmissions = paramInjector.GetNamedInstance<DriverBridgeConfigurationOptions.MaxApplicationSubmissions, int>(),
+                securityTokenKind = _securityTokenKind,
+                securityTokenService = _securityTokenService,
+                yarnJobSubmissionParameters = avroYarnJobSubmissionParameters
+            };
+
+            var submissionArgsFilePath = Path.Combine(driverFolderPath, _fileNames.GetJobSubmissionParametersFile());
+            using (var argsFileStream = new FileStream(submissionArgsFilePath, FileMode.CreateNew))
+            {
+                var serializedArgs = AvroJsonSerializer<AvroYarnClusterJobSubmissionParameters>.ToBytes(avroYarnClusterJobSubmissionParameters);
+                argsFileStream.Write(serializedArgs, 0, serializedArgs.Length);
+            }
 
             // Submit the driver
-            _javaClientLauncher.Launch(
-                JavaClassName,
-                driverFolderPath, // arg: 0
-                jobSubmission.JobIdentifier, // arg: 1
-                jobSubmission.DriverMemory.ToString(), // arg: 2
-                javaParams.TcpPortRangeStart.ToString(), // arg: 3
-                javaParams.TcpPortRangeCount.ToString(), // arg: 4
-                javaParams.TcpPortRangeTryCount.ToString(), // arg: 5
-                javaParams.MaxApplicationSubmissions.ToString(), // arg: 6
-                javaParams.DriverRestartEvaluatorRecoverySeconds.ToString(), // arg: 7
-                _securityTokenKind, // arg: 8
-                _securityTokenService, // arg: 9
-                _jobSubmissionPrefix // arg: 10
-                );
+            _javaClientLauncher.Launch(JavaClassName, submissionArgsFilePath);
             Logger.Log(Level.Info, "Submitted the Driver for execution." + jobSubmission.JobIdentifier);
         }
 

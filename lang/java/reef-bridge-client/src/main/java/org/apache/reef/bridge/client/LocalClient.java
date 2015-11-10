@@ -59,8 +59,14 @@ public final class LocalClient {
     launcher.launch(driverFolder, localSubmissionFromCS.getJobId(), CLIENT_REMOTE_ID);
   }
 
-  public static void main(final String[] args) throws InjectionException, IOException {
-    final LocalSubmissionFromCS localSubmissionFromCS = LocalSubmissionFromCS.fromCommandLine(args);
+  public static void main(final String[] args) throws IOException, InjectionException {
+    final File jobSubmissionParametersFile = new File(args[0]);
+    if (!(jobSubmissionParametersFile.exists() && jobSubmissionParametersFile.canRead())) {
+      throw new IOException("Unable to open and read " + jobSubmissionParametersFile.getAbsolutePath());
+    }
+
+    final LocalSubmissionFromCS localSubmissionFromCS =
+        LocalSubmissionFromCS.fromJobSubmissionParametersFile(jobSubmissionParametersFile);
     LOG.log(Level.INFO, "Local job submission received from C#: {0}", localSubmissionFromCS);
     final Configuration runtimeConfiguration = localSubmissionFromCS.getRuntimeConfiguration();
 
