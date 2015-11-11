@@ -47,6 +47,7 @@ under the License.
     <Reference Include="System.ServiceProcess" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="LegacyJobResourceUploaderTests.cs" />
     <Compile Include="MultipleRMUrlProviderTests.cs" />
     <Compile Include="WindowsHadoopEmulatorYarnClientTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

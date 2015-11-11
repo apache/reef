@@ -55,7 +55,7 @@ namespace Org.Apache.REEF.Client.Local
 
         private static readonly Logger Logger = Logger.GetLogger(typeof(LocalClient));
         private readonly DriverFolderPreparationHelper _driverFolderPreparationHelper;
-        private readonly JavaClientLauncher _javaClientLauncher;
+        private readonly IJavaClientLauncher _javaClientLauncher;
         private readonly int _maxNumberOfConcurrentEvaluators;
         private readonly string _runtimeFolder;
         private REEFFileNames _fileNames;
@@ -64,7 +64,7 @@ namespace Org.Apache.REEF.Client.Local
         private LocalClient(DriverFolderPreparationHelper driverFolderPreparationHelper,
             [Parameter(typeof(LocalRuntimeDirectory))] string runtimeFolder,
             [Parameter(typeof(NumberOfEvaluators))] int maxNumberOfConcurrentEvaluators,
-            JavaClientLauncher javaClientLauncher,
+            IJavaClientLauncher javaClientLauncher,
             REEFFileNames fileNames)
         {
             _driverFolderPreparationHelper = driverFolderPreparationHelper;
@@ -85,7 +85,7 @@ namespace Org.Apache.REEF.Client.Local
         private LocalClient(
             DriverFolderPreparationHelper driverFolderPreparationHelper,
             [Parameter(typeof(NumberOfEvaluators))] int numberOfEvaluators,
-            JavaClientLauncher javaClientLauncher,
+            IJavaClientLauncher javaClientLauncher,
             REEFFileNames fileNames)
             : this(driverFolderPreparationHelper, Path.GetTempPath(), numberOfEvaluators, javaClientLauncher, fileNames)
         {

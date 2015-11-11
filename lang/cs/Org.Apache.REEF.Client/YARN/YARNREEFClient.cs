@@ -49,7 +49,7 @@ namespace Org.Apache.REEF.Client.Yarn
 
         private static readonly Logger Logger = Logger.GetLogger(typeof(YarnREEFClient));
         private readonly DriverFolderPreparationHelper _driverFolderPreparationHelper;
-        private readonly JavaClientLauncher _javaClientLauncher;
+        private readonly IJavaClientLauncher _javaClientLauncher;
         private readonly string _securityTokenKind;
         private readonly string _securityTokenService;
         private readonly string _jobSubmissionPrefix;
@@ -57,7 +57,7 @@ namespace Org.Apache.REEF.Client.Yarn
         private readonly IYarnRMClient _yarnClient;
 
         [Inject]
-        internal YarnREEFClient(JavaClientLauncher javaClientLauncher,
+        internal YarnREEFClient(IJavaClientLauncher javaClientLauncher,
             DriverFolderPreparationHelper driverFolderPreparationHelper,
             REEFFileNames fileNames,
             YarnCommandLineEnvironment yarn,
