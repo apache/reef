@@ -33,7 +33,7 @@ namespace Org.Apache.REEF.Client.Common
     /// <summary>
     /// Helper class to launch the java side of the various clients.
     /// </summary>
-    internal class JavaClientLauncher
+    internal class JavaClientLauncher : IJavaClientLauncher
     {
         /// <summary>
         /// The folder in which we search for the client jar.
@@ -48,7 +48,12 @@ namespace Org.Apache.REEF.Client.Common
         {
         }
 
-        internal void Launch(string javaClassName, params string[] parameters)
+        /// <summary>
+        /// Launch a java class in ClientConstants.ClientJarFilePrefix with provided parameters.
+        /// </summary>
+        /// <param name="javaClassName"></param>
+        /// <param name="parameters"></param>
+        public void Launch(string javaClassName, params string[] parameters)
         {
             var startInfo = new ProcessStartInfo
             {
@@ -174,7 +179,7 @@ namespace Org.Apache.REEF.Client.Common
         /// Add entries to the end of the classpath of the java client.
         /// </summary>
         /// <param name="entries"></param>
-        internal void AddToClassPath(IEnumerable<string> entries)
+        public void AddToClassPath(IEnumerable<string> entries)
         {
             foreach (var entry in entries)
             {
