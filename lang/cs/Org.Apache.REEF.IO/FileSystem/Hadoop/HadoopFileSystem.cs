@@ -85,6 +85,16 @@ namespace Org.Apache.REEF.IO.FileSystem.Hadoop
         /// <summary>
         /// Not implemented by this IFileSystem.
         /// </summary>
+        /// <param name="remoteFileUri"></param>
+        /// <returns></returns>
+        public FileStatus GetFileStatus(Uri remoteFileUri)
+        {
+            throw new NotImplementedException("GetFileStatus() is not implemented for HadoopFileSystem");
+        }
+
+        /// <summary>
+        /// Not implemented by this IFileSystem.
+        /// </summary>
         /// <param name="fileUri"></param>
         /// <returns></returns>
         public Stream Open(Uri fileUri)

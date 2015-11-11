@@ -41,6 +41,7 @@ under the License.
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FileSystem\FileStatus.cs" />
     <Compile Include="FileSystem\Hadoop\CommandResult.cs" />
     <Compile Include="FileSystem\Hadoop\HDFSConfigurationWithoutDriverBinding.cs" />
     <Compile Include="FileSystem\Hadoop\HadoopFileSystemConfiguration.cs" />
