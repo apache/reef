@@ -16,10 +16,13 @@
 // under the License.
 
 
+using Newtonsoft.Json;
+
 namespace Org.Apache.REEF.Client.YARN.RestClient.DataModel
 {
     internal class Commands
     {
+        [JsonProperty(PropertyName = "command")]
         public string Command { get; set; }
     }
 }

@@ -15,35 +15,21 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System.Collections.Generic;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
-
-// ReSharper disable InconsistentNaming; Name kept in sync with YARN 
-// API documentation
 
 namespace Org.Apache.REEF.Client.YARN.RestClient.DataModel
 {
     /// <summary>
-    /// Class generated based on schema provided in
-    /// <see cref="!:http://hadoop.apache.org/docs/r2.6.0/hadoop-yarn/hadoop-yarn-site/WebServicesIntro.html">
-    /// Hadoop RM REST API </see> documentation.
+    /// YARNRM does not allow case mismatch in received JSON.
+    /// Hence we need our own implementation of KeyValuePair
+    /// where we can annotate PropertyName
     /// </summary>
-    internal sealed class Acls
+    internal sealed class KeyValuePair<T1, T2>
     {
-        [JsonProperty(ItemConverterType = typeof(StringEnumConverter), PropertyName = "entry")]
-        public IList<KeyValuePair<AclsType, string>> Entries { get; set; }
-    }
+        [JsonProperty(PropertyName = "key")]
+        public T1 Key { get; set; }
 
-    /// <summary>
-    /// Enum generated based on schema provided in
-    /// <see cref="!:http://hadoop.apache.org/docs/r2.6.0/hadoop-yarn/hadoop-yarn-site/WebServicesIntro.html">
-    /// Hadoop RM REST API </see> documentation.
-    /// </summary>
-    internal enum AclsType
-    {
-        VIEW_APP,
-
-        MODIFY_APP
+        [JsonProperty(PropertyName = "value")]
+        public T2 Value { get; set; }
     }
 }

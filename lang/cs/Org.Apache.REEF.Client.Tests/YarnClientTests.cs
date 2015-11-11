@@ -231,16 +231,18 @@ namespace Org.Apache.REEF.Client.Tests
                     },
                     LocalResources = new LocalResources
                     {
-                        Entry = new List<KeyValuePair<string, LocalResourcesValue>>
+                        Entries = new List<YARN.RestClient.DataModel.KeyValuePair<string, LocalResourcesValue>>
                         {
-                            new KeyValuePair<string, LocalResourcesValue>(
-                                "APPLICATIONWILLFAILBUTWEDONTCAREHERE",
-                                new LocalResourcesValue
+                            new YARN.RestClient.DataModel.KeyValuePair<string, LocalResourcesValue>
+                            {
+                                Key = "APPLICATIONWILLFAILBUTWEDONTCAREHERE",
+                                Value = new LocalResourcesValue
                                 {
                                     Resource = "Foo",
                                     Type = ResourceType.FILE,
                                     Visibility = Visibility.APPLICATION
-                                })
+                                }
+                            }
                         }
                     }
                 }
@@ -249,40 +251,40 @@ namespace Org.Apache.REEF.Client.Tests
             const string expectedJson = @"{" +
                                             @"""application-id"":""AnyApplicationId""," +
                                             @"""application-name"":""AnyAPP""," +
-                                            @"""Queue"":null,""Priority"":1," +
+                                            @"""queue"":null,""priority"":1," +
                                             @"""am-container-spec"":" +
                                             @"{" +
                                                 @"""local-resources"":" +
                                                 @"{" +
-                                                    @"""Entry"":" +
+                                                    @"""entry"":" +
                                                     @"[" +
                                                         @"{" +
-                                                            @"""Key"":""APPLICATIONWILLFAILBUTWEDONTCAREHERE""," +
-                                                            @"""Value"":" +
+                                                            @"""key"":""APPLICATIONWILLFAILBUTWEDONTCAREHERE""," +
+                                                            @"""value"":" +
                                                             @"{" +
-                                                                @"""Resource"":""Foo""," +
-                                                                @"""Type"":1," +
-                                                                @"""Visibility"":2," +
-                                                                @"""Size"":0," +
-                                                                @"""Timestamp"":0" +
+                                                                @"""resource"":""Foo""," +
+                                                                @"""type"":""FILE""," +
+                                                                @"""visibility"":""APPLICATION""," +
+                                                                @"""size"":0," +
+                                                                @"""timestamp"":0" +
                                                             @"}" +
                                                         @"}" +
                                                     @"]" +
                                                 @"}," + 
-                                            @"""Environment"":null," +
-                                            @"""Commands"":" +
+                                            @"""environment"":null," +
+                                            @"""commands"":" +
                                             @"{" +
-                                                @"""Command"":""DONTCARE""" +
+                                                @"""command"":""DONTCARE""" +
                                             @"}," +
                                             @"""service-data"":null," +
-                                            @"""Credentials"":null," +
+                                            @"""credentials"":null," +
                                             @"""application-acls"":null}," +
-                                            @"""unmanaged-am"":false," +
+                                            @"""unmanaged-AM"":false," +
                                             @"""max-app-attempts"":1," +
                                             @"""resource"":" +
                                             @"{" +
                                                 @"""memory"":500," +
-                                                @"""VCores"":1" +
+                                                @"""vCores"":1" +
                                             @"},""application-type"":""REEFTest""," +
                                             @"""keep-containers-across-application-attempts"":false," +
                                             @"""application-tags"":null" +
@@ -317,7 +319,7 @@ namespace Org.Apache.REEF.Client.Tests
                         && req.Method == Method.POST
                         && req.JsonSerializer is RestJsonSerializer
                         && req.Parameters.First().Name == "application/json"
-                        && B(req, expectedJson)),
+                        && IsExpectedJson(req, expectedJson)),
                 anyUri.First(),
                 CancellationToken.None).Returns(Task.FromResult(response));
 
@@ -337,7 +339,7 @@ namespace Org.Apache.REEF.Client.Tests
             var unused = urlProvider.Received(2).GetUrlAsync();
         }
 
-        private static bool B(IRestRequest req, string expectedJson)
+        private static bool IsExpectedJson(IRestRequest req, string expectedJson)
         {
             return (string)req.Parameters.First().Value == expectedJson;
         }

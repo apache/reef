@@ -15,10 +15,13 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using Newtonsoft.Json;
+
 namespace Org.Apache.REEF.Client.YARN.RestClient.DataModel
 {
     internal class ApplicationTag
     {
+        [JsonProperty(PropertyName = "tag")]
         public string Tag { get; set; }
     }
 }

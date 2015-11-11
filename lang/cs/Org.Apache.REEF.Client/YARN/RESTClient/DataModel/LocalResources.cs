@@ -30,7 +30,8 @@ namespace Org.Apache.REEF.Client.YARN.RestClient.DataModel
     /// </summary>
     internal sealed class LocalResources
     {
-        public IList<KeyValuePair<string, LocalResourcesValue>> Entry { get; set; }
+        [JsonProperty(PropertyName = "entry")]
+        public IList<KeyValuePair<string, LocalResourcesValue>> Entries { get; set; }
     }
 
     /// <summary>
@@ -40,16 +41,19 @@ namespace Org.Apache.REEF.Client.YARN.RestClient.DataModel
     /// </summary>
     internal sealed class LocalResourcesValue
     {
+        [JsonProperty(PropertyName = "resource")]
         public string Resource { get; set; }
 
-        [JsonProperty(ItemConverterType = typeof(StringEnumConverter))]
+        [JsonProperty(ItemConverterType = typeof(StringEnumConverter), PropertyName = "type")]
         public ResourceType Type { get; set; }
 
-        [JsonProperty(ItemConverterType = typeof(StringEnumConverter))]
+        [JsonProperty(ItemConverterType = typeof(StringEnumConverter), PropertyName = "visibility")]
         public Visibility Visibility { get; set; }
 
+        [JsonProperty(PropertyName = "size")]
         public long Size { get; set; }
 
+        [JsonProperty(PropertyName = "timestamp")]
         public long Timestamp { get; set; }
     }
 

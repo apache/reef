@@ -16,8 +16,6 @@
 // under the License.
 
 using Newtonsoft.Json;
-using RestSharp.Deserializers;
-using RestSharp.Serializers;
 
 namespace Org.Apache.REEF.Client.YARN.RestClient.DataModel
 {
@@ -31,6 +29,7 @@ namespace Org.Apache.REEF.Client.YARN.RestClient.DataModel
         [JsonProperty(PropertyName = "memory")]
         public int MemoryMB { get; set; }
 
+        [JsonProperty(PropertyName = "vCores")]
         public int VCores { get; set; }
     }
 }
