@@ -35,14 +35,16 @@ namespace Org.Apache.REEF.Client.YARN.RestClient.DataModel
         [JsonProperty(PropertyName = "application-name")]
         public string ApplicationName { get; set; }
 
+        [JsonProperty(PropertyName = "queue")]
         public string Queue { get; set; }
 
+        [JsonProperty(PropertyName = "priority")]
         public int Priority { get; set; }
 
         [JsonProperty(PropertyName = "am-container-spec")]
         public AmContainerSpec AmContainerSpec { get; set; }
 
-        [JsonProperty(PropertyName = "unmanaged-am")]
+        [JsonProperty(PropertyName = "unmanaged-AM")]
         public bool UnmanagedAM { get; set; }
 
         [JsonProperty(PropertyName = "max-app-attempts")]

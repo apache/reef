@@ -22,12 +22,14 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Org.Apache.REEF.Client.YARN.RestClient.DataModel;
 using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Utilities.Logging;
 using RestSharp;
 
 namespace Org.Apache.REEF.Client.Yarn.RestClient
 {
     internal class RestRequestExecutor : IRestRequestExecutor
     {
+        private static readonly Logger Log = Logger.GetLogger(typeof(RestRequestExecutor));
         private readonly IRestClientFactory _clientFactory;
 
         [Inject]
@@ -60,6 +62,7 @@ namespace Org.Apache.REEF.Client.Yarn.RestClient
                 // exception to user.
                 if (response.StatusCode >= HttpStatusCode.Ambiguous)
                 {
+                    Log.Log(Level.Error, "RESTRequest failed. StatusCode: {0}; Response: {1}", response.StatusCode, response.Content);
                     var errorResponse = JsonConvert.DeserializeObject<Error>(response.Content);
                     throw new YarnRestAPIException { Error = errorResponse };
                 }
