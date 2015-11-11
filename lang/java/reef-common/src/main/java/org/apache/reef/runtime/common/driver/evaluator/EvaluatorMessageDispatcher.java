@@ -41,7 +41,7 @@ import java.util.logging.Logger;
 /**
  * Central dispatcher for all Evaluator related events. This exists once per Evaluator.
  */
-public final class EvaluatorMessageDispatcher {
+public final class EvaluatorMessageDispatcher implements AutoCloseable {
 
   private static final Logger LOG = Logger.getLogger(EvaluatorMessageDispatcher.class.getName());
 
@@ -278,5 +278,13 @@ public final class EvaluatorMessageDispatcher {
   private <T, U extends T> void dispatchForRestartedDriver(final Class<T> type, final U message) {
     this.driverRestartServiceDispatcher.onNext(type, message);
     this.driverRestartApplicationDispatcher.onNext(type, message);
+  }
+
+  @Override
+  public void close() throws Exception {
+    /**
+     * This effectively closes all dispatchers as they share the same stage.
+     */
+    this.serviceDispatcher.close();
   }
 }
