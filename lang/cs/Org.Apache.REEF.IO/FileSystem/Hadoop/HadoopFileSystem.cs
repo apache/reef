@@ -87,6 +87,11 @@ namespace Org.Apache.REEF.IO.FileSystem.Hadoop
             return uri;
         }
 
+        public FileStatus GetFileStatus(Uri remoteFileUri)
+        {
+            throw new NotImplementedException("GetFileStatus() is not implemented for HadoopFileSystem");
+        }
+
         /// <summary>
         /// Not implemented by this IFileSystem.
         /// </summary>

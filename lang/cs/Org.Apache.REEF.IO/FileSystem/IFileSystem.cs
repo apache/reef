@@ -113,5 +113,13 @@ namespace Org.Apache.REEF.IO.FileSystem
         /// <param name="path"></param>
         /// <returns></returns>
         Uri CreateUriForPath(string path);
+
+        /// <summary>
+        /// Gets the FileStatus for remote file.
+        /// </summary>
+        /// <param name="remoteFileUri"></param>
+        /// <exception cref="ArgumentNullException">If remote file URI is null</exception>
+        /// <returns>FileStatus</returns>
+        FileStatus GetFileStatus(Uri remoteFileUri);
     }
 }

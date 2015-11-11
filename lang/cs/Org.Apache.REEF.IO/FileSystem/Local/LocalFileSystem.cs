@@ -48,6 +48,17 @@ namespace Org.Apache.REEF.IO.FileSystem.Local
             return new Uri(path);
         }
 
+        public FileStatus GetFileStatus(Uri remoteFileUri)
+        {
+            if (remoteFileUri == null)
+            {
+                throw new ArgumentNullException("remoteFileUri");
+            }
+
+            FileInfo fileInfo = new FileInfo(remoteFileUri.LocalPath);
+            return new FileStatus(fileInfo.LastWriteTime, fileInfo.Length);
+        }
+
         public Stream Open(Uri fileUri)
         {
             return File.Open(fileUri.LocalPath, FileMode.Open);
