@@ -48,7 +48,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
         [Timeout(180 * 1000)]
         public void RunSimpleEventHandlerOnLocalRuntime()
         {
-            string testFolder = DefaultRuntimeFolder + Guid.NewGuid().ToString("N").Substring(4);
+            string testFolder = DefaultRuntimeFolder + Guid.NewGuid().ToString("N").Substring(0, 4);
             CleanUp(testFolder);
             TestRun(DriverConfigurations(), typeof(HelloSimpleEventHandlers), 2, "simpleHandler", "local", testFolder);
             ValidateSuccessForLocalRuntime(1, testFolder);

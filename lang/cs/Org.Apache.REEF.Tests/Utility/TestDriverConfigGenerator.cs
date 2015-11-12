@@ -33,7 +33,7 @@ namespace Org.Apache.REEF.Tests.Utility
             {
                 DriverMemory = 1024,
                 DriverIdentifier = "juliaDriverId",
-                SubmissionDirectory = "reefClrBridgeTmp/job_" + Guid.NewGuid().ToString("N").Substring(0, 8),
+                SubmissionDirectory = "reefClrBridgeTmp/job_" + Guid.NewGuid().ToString("N").Substring(0, 4),
                 IncludingHttpServer = true,
                 IncludingNameServer = true,
                 ClrFolder = ".",
@@ -50,7 +50,7 @@ namespace Org.Apache.REEF.Tests.Utility
             {
                 DriverMemory = 1024,
                 DriverIdentifier = "juliaDriverId",
-                SubmissionDirectory = "reefClrBridgeTmp/job_" + Guid.NewGuid().ToString("N").Substring(0, 8),
+                SubmissionDirectory = "reefClrBridgeTmp/job_" + Guid.NewGuid().ToString("N").Substring(0, 4),
                 IncludingHttpServer = false,
                 IncludingNameServer = true,
                 ClrFolder = ".",
@@ -67,7 +67,7 @@ namespace Org.Apache.REEF.Tests.Utility
             {
                 DriverMemory = 1024,
                 DriverIdentifier = "juliaDriverId",
-                SubmissionDirectory = "reefClrBridgeTmp/job_" + Guid.NewGuid().ToString("N").Substring(0, 8),
+                SubmissionDirectory = "reefClrBridgeTmp/job_" + Guid.NewGuid().ToString("N").Substring(0, 4),
                 IncludingHttpServer = true,
                 IncludingNameServer = false,
                 ClrFolder = ".",
@@ -84,7 +84,7 @@ namespace Org.Apache.REEF.Tests.Utility
             {
                 DriverMemory = 1024,
                 DriverIdentifier = "juliaDriverId",
-                SubmissionDirectory = "reefClrBridgeTmp/job_" + Guid.NewGuid().ToString("N").Substring(0, 8),
+                SubmissionDirectory = "reefClrBridgeTmp/job_" + Guid.NewGuid().ToString("N").Substring(0, 4),
                 IncludingHttpServer = false,
                 IncludingNameServer = false,
                 ClrFolder = ".",
