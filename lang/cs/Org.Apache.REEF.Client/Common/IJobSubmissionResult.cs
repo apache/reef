@@ -17,15 +17,35 @@
  * under the License.
  */
 
+using Org.Apache.REEF.Client.YARN.RestClient.DataModel;
 using Org.Apache.REEF.Common.Attributes;
 
 namespace Org.Apache.REEF.Client.Common
 {
-    [Unstable("0.13", "Working in progress for what to return after submit")]
-    public interface IDriverHttpEndpoint
+    [Unstable("0.13", "Working in progress. For local runtime, some of the property, such as FinalState and AppId are not implemented yet.")]
+    public interface IJobSubmissionResult
     {
+        /// <summary>
+        /// Get http response for the given url
+        /// </summary>
+        /// <param name="url"></param>
+        /// <returns></returns>
         string GetUrlResult(string url);
 
+        /// <summary>
+        /// This method returns the url of http server running inside the driver.
+        /// e.g. http://hostname:port/
+        /// </summary>
         string DriverUrl { get; }
+
+        /// <summary>
+        /// Get Application final state
+        /// </summary>
+        FinalState FinalState { get; }
+
+        /// <summary>
+        /// Get Yarn application id after Job is submited
+        /// </summary>
+        string AppId { get; }
     }
 }

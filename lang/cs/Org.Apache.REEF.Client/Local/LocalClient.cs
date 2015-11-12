@@ -18,6 +18,7 @@
  */
 
 using System;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -26,6 +27,8 @@ using Org.Apache.REEF.Client.Avro;
 using Org.Apache.REEF.Client.Avro.Local;
 using Org.Apache.REEF.Client.Common;
 using Org.Apache.REEF.Client.Local.Parameters;
+using Org.Apache.REEF.Client.YARN.RestClient.DataModel;
+using Org.Apache.REEF.Common.Attributes;
 using Org.Apache.REEF.Common.Avro;
 using Org.Apache.REEF.Common.Files;
 using Org.Apache.REEF.Tang.Annotations;
@@ -55,7 +58,6 @@ namespace Org.Apache.REEF.Client.Local
         private readonly JavaClientLauncher _javaClientLauncher;
         private readonly int _maxNumberOfConcurrentEvaluators;
         private readonly string _runtimeFolder;
-        private string _driverUrl;
         private REEFFileNames _fileNames;
 
         [Inject]
@@ -139,7 +141,7 @@ namespace Org.Apache.REEF.Client.Local
             Logger.Log(Level.Info, "Submitted the Driver for execution.");
         }
 
-        public IDriverHttpEndpoint SubmitAndGetDriverUrl(IJobSubmission jobSubmission)
+        public IJobSubmissionResult SubmitAndGetJobStatus(IJobSubmission jobSubmission)
         {
             var driverFolder = PrepareDriverFolder(jobSubmission);
             var submissionArgsFilePath = CreateBootstrapAvroConfig(jobSubmission, driverFolder);
@@ -147,16 +149,24 @@ namespace Org.Apache.REEF.Client.Local
             Task.Run(() => _javaClientLauncher.Launch(JavaClassName, submissionArgsFilePath));
 
             var fileName = Path.Combine(driverFolder, _fileNames.DriverHttpEndpoint);
-            HttpClientHelper helper = new HttpClientHelper();
-            _driverUrl = helper.GetDriverUrlForLocalRuntime(fileName);
+            JobSubmissionResult result = new LocalJobSubmissionResult(this, fileName);
 
-            Logger.Log(Level.Info, "Submitted the Driver for execution. Returned driverUrl is: " + _driverUrl);
-            return helper;
+            var msg = string.Format(CultureInfo.CurrentCulture,
+                "Submitted the Driver for execution. Returned driverUrl is: {0}.", result.DriverUrl);
+            Logger.Log(Level.Info,  msg);
+            return result;
         }
 
-        public string DriverUrl
+        /// <summary>
+        /// Return current Job status
+        /// </summary>
+        /// <returns></returns>
+        /// //TODO: REEF-889
+        [Unstable("0.14", "Working in progress for rest API status returned")]
+        public async Task<FinalState> GetJobFinalStatus(string appId)
         {
-            get { return _driverUrl; }
+            await Task.Delay(0);
+            return FinalState.SUCCEEDED;
         }
 
         /// <summary>

@@ -16,6 +16,8 @@
 // under the License.
 
 using System;
+using System.Collections.Generic;
+using System.Globalization;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -23,6 +25,7 @@ using Org.Apache.REEF.Client.YARN.RestClient;
 using Org.Apache.REEF.Client.YARN.RestClient.DataModel;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities.AsyncUtils;
+using Org.Apache.REEF.Utilities.Logging;
 using RestSharp;
 
 namespace Org.Apache.REEF.Client.Yarn.RestClient
@@ -35,6 +38,7 @@ namespace Org.Apache.REEF.Client.Yarn.RestClient
     /// </summary>
     internal sealed partial class YarnClient : IYarnRMClient
     {
+        private static readonly Logger Logger = Logger.GetLogger(typeof(YarnClient));
         private readonly string _baseResourceString;
         private readonly IUrlProvider _yarnRmUrlProviderUri;
         private readonly IRestRequestExecutor _restRequestExecutor;
@@ -130,19 +134,49 @@ namespace Org.Apache.REEF.Client.Yarn.RestClient
             CancellationToken cancellationToken)
             where T : new()
         {
-            Uri yarnRmUri = await _yarnRmUrlProviderUri.GetUrlAsync();
-            return
-                await
-                    _restRequestExecutor.ExecuteAsync<T>(request, yarnRmUri, cancellationToken);
+            IEnumerable<Uri> yarnRmUris = await _yarnRmUrlProviderUri.GetUrlAsync();
+            var exceptions = new List<Exception>();
+            foreach (var yarnRmUri in yarnRmUris)
+            {
+                try
+                {
+                    return
+                        await
+                            _restRequestExecutor.ExecuteAsync<T>(request, yarnRmUri, cancellationToken);
+                }
+                catch (Exception e)
+                {
+                    exceptions.Add(e);
+                    Logger.Log(Level.Verbose, string.Format(
+                        CultureInfo.CurrentCulture, "Possibly transient error in rest call {0}", e.Message));
+                }
+            }
+
+            throw new AggregateException("Failed Rest Request", exceptions);
         }
 
         private async Task<IRestResponse> GenerateUrlAndExecuteRequestAsync(IRestRequest request,
             CancellationToken cancellationToken)
         {
-            Uri yarnRmUri = await _yarnRmUrlProviderUri.GetUrlAsync();
-            return
-                await
-                    _restRequestExecutor.ExecuteAsync(request, yarnRmUri, cancellationToken);
+            IEnumerable<Uri> yarnRmUris = await _yarnRmUrlProviderUri.GetUrlAsync();
+            var exceptions = new List<Exception>();
+            foreach (var yarnRmUri in yarnRmUris)
+            {
+                try
+                {
+                    return
+                        await
+                            _restRequestExecutor.ExecuteAsync(request, yarnRmUri, cancellationToken);
+                }
+                catch (Exception e)
+                {
+                    exceptions.Add(e);
+                    Logger.Log(Level.Verbose, string.Format(
+                        CultureInfo.CurrentCulture, "Possibly transient error in rest call {0}", e.Message));
+                }
+            }
+
+            throw new AggregateException("Failed Rest Request", exceptions);
         }
     }
 }

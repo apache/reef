@@ -51,7 +51,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Client
         private readonly IREEFClient _reefClient;
         private readonly JobSubmissionBuilderFactory _jobSubmissionBuilderFactory;
         private readonly AvroConfigurationSerializer _configurationSerializer;
-        private IDriverHttpEndpoint _httpEndPoint;
+        private IJobSubmissionResult _jobSubmissionResult;
 
         [Inject]
         private REEFIMRUClient(IREEFClient reefClient, AvroConfigurationSerializer configurationSerializer,
@@ -149,7 +149,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Client
                 .SetJobIdentifier(jobDefinition.JobName)
                 .Build();
 
-            _httpEndPoint = _reefClient.SubmitAndGetDriverUrl(imruJobSubmission);
+            _jobSubmissionResult = _reefClient.SubmitAndGetJobStatus(imruJobSubmission);
 
             return null;
         }
@@ -157,9 +157,9 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Client
         /// <summary>
         /// DriverHttpEndPoint returned by IReefClient after job submission
         /// </summary>
-        public IDriverHttpEndpoint DriverHttpEndpoint
+        public IJobSubmissionResult JobSubmissionResult
         {
-            get { return _httpEndPoint; }
+            get { return _jobSubmissionResult; }
         }
     }
 }

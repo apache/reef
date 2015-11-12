@@ -74,11 +74,12 @@ under the License.
     <Compile Include="Common\ClientConstants.cs" />
     <Compile Include="Common\DriverFolderPreparationHelper.cs" />
     <Compile Include="Common\FileSets.cs" />
-    <Compile Include="Common\HttpClientHelper.cs" />
-    <Compile Include="Common\IDriverHttpEndpoint.cs" />
+    <Compile Include="Common\JobSubmissionResult.cs" />
+    <Compile Include="Common\IJobSubmissionResult.cs" />
     <Compile Include="Common\JavaClientLauncher.cs" />
     <Compile Include="Common\ResourceHelper.cs" />
     <Compile Include="Local\LocalClient.cs" />
+    <Compile Include="Local\LocalJobSubmissionResult.cs" />
     <Compile Include="Local\LocalRuntimeClientConfiguration.cs" />
     <Compile Include="Local\Parameters\LocalRuntimeDirectory.cs" />
     <Compile Include="Local\Parameters\NumberOfEvaluators.cs" />
@@ -87,6 +88,7 @@ under the License.
     <Compile Include="YARN\Parameters\SecurityTokenParameters.cs" />
     <Compile Include="YARN\RestClient\DataModel\Acls.cs" />
     <Compile Include="YARN\RestClient\DataModel\AmContainerSpec.cs" />
+    <Compile Include="YARN\RestClient\DataModel\ApplicationFinalState.cs" />
     <Compile Include="YARN\RestClient\DataModel\ApplicationTag.cs" />
     <Compile Include="YARN\RestClient\DataModel\Commands.cs" />
     <Compile Include="YARN\RestClient\DataModel\Credentials.cs" />
@@ -98,7 +100,9 @@ under the License.
     <Compile Include="YARN\RestClient\DataModel\Tokens.cs" />
     <Compile Include="YARN\RestClient\IRestRequestExecutor.cs" />
     <Compile Include="YARN\RestClient\IUrlProvider.cs" />
+    <Compile Include="YARN\RestClient\MultipleRMUrlProvider.cs" />
     <Compile Include="YARN\RestClient\RestJsonSerializer.cs" />
+    <Compile Include="YARN\YarnJobSubmissionResult.cs" />
     <Compile Include="YARN\YARNREEFClient.cs" />
     <Compile Include="YARN\RestClient\IRestClientFactory.cs" />
     <Compile Include="YARN\RestClient\RestRequestExecutor.cs" />

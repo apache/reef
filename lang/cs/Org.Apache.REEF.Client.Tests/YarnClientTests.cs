@@ -17,12 +17,14 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NSubstitute;
+using Org.Apache.REEF.Client.Yarn;
 using Org.Apache.REEF.Client.Yarn.RestClient;
 using Org.Apache.REEF.Client.YARN.RestClient;
 using Org.Apache.REEF.Client.YARN.RestClient.DataModel;
@@ -42,7 +44,7 @@ namespace Org.Apache.REEF.Client.Tests
             var ctx = new TestContext();
             var urlProvider = ctx.UrlProviderFake;
             var restReqExecutor = ctx.RestRequestExecutorFake;
-            Uri anyUri = new Uri("anyscheme://anypath");
+            var anyUri = Enumerable.Repeat(new Uri("anyscheme://anypath"), 1);
             urlProvider.GetUrlAsync().Returns(Task.FromResult(anyUri));
             var anyClusterInfo = new ClusterInfo
             {
@@ -55,7 +57,7 @@ namespace Org.Apache.REEF.Client.Tests
                     req =>
                         req.Resource == "ws/v1/cluster/info" && req.RootElement == "clusterInfo" &&
                         req.Method == Method.GET),
-                anyUri,
+                anyUri.First(),
                 CancellationToken.None).Returns(Task.FromResult(anyClusterInfo));
 
             // act
@@ -73,7 +75,7 @@ namespace Org.Apache.REEF.Client.Tests
             var ctx = new TestContext();
             var urlProvider = ctx.UrlProviderFake;
             var restReqExecutor = ctx.RestRequestExecutorFake;
-            Uri anyUri = new Uri("anyscheme://anypath");
+            var anyUri = Enumerable.Repeat(new Uri("anyscheme://anypath"), 1);
             urlProvider.GetUrlAsync().Returns(Task.FromResult(anyUri));
             var anyClusterMetrics = new ClusterMetrics
             {
@@ -87,7 +89,7 @@ namespace Org.Apache.REEF.Client.Tests
                     req =>
                         req.Resource == "ws/v1/cluster/metrics" && req.RootElement == "clusterMetrics" &&
                         req.Method == Method.GET),
-                anyUri,
+                anyUri.First(),
                 CancellationToken.None).Returns(Task.FromResult(anyClusterMetrics));
 
             var yarnClient = ctx.GetClient();
@@ -103,7 +105,7 @@ namespace Org.Apache.REEF.Client.Tests
             var ctx = new TestContext();
             var urlProvider = ctx.UrlProviderFake;
             var restReqExecutor = ctx.RestRequestExecutorFake;
-            Uri anyUri = new Uri("anyscheme://anypath");
+            var anyUri = Enumerable.Repeat(new Uri("anyscheme://anypath"), 1);
             const string applicationId = "AnyApplicationId";
             urlProvider.GetUrlAsync().Returns(Task.FromResult(anyUri));
             var anyApplication = new Application
@@ -122,7 +124,7 @@ namespace Org.Apache.REEF.Client.Tests
                         req.Resource == "ws/v1/cluster/apps/" + applicationId
                         && req.RootElement == "app"
                         && req.Method == Method.GET),
-                anyUri,
+                anyUri.First(),
                 CancellationToken.None).Returns(Task.FromResult(anyApplication));
 
             var yarnClient = ctx.GetClient();
@@ -133,12 +135,48 @@ namespace Org.Apache.REEF.Client.Tests
         }
 
         [TestMethod]
+        public async Task TestGetApplicationFinalStatus()
+        {
+            var ctx = new TestContext();
+            var urlProvider = ctx.UrlProviderFake;
+            var restReqExecutor = ctx.RestRequestExecutorFake;
+            var anyUri = Enumerable.Repeat(new Uri("anyscheme://anypath"), 1);
+            const string applicationId = "AnyApplicationId";
+            urlProvider.GetUrlAsync().Returns(Task.FromResult(anyUri));
+            var anyApplication = new Application
+            {
+                AllocatedMB = 100,
+                AmHostHttpAddress = "http://anyhttpaddress",
+                AmContainerLogs = "SomeLogs",
+                ApplicationType = "AnyYarnApplicationType",
+                State = State.FINISHED,
+                FinalStatus = FinalState.SUCCEEDED,
+                Name = "AnyApplicationName",
+                RunningContainers = 0
+            };
+            restReqExecutor.ExecuteAsync<Application>(
+                Arg.Is<IRestRequest>(
+                    req =>
+                        req.Resource == "ws/v1/cluster/apps/" + applicationId
+                        && req.RootElement == "app"
+                        && req.Method == Method.GET),
+                anyUri.First(),
+                CancellationToken.None).Returns(Task.FromResult(anyApplication));
+
+            var yarnClient = ctx.GetClient();
+
+            Application actualApplication = await yarnClient.GetApplicationAsync(applicationId);
+
+            Assert.AreEqual(actualApplication.FinalStatus, FinalState.SUCCEEDED);
+        }
+
+        [TestMethod]
         public async Task TestCreateNewApplication()
         {
             var ctx = new TestContext();
             var urlProvider = ctx.UrlProviderFake;
             var restReqExecutor = ctx.RestRequestExecutorFake;
-            Uri anyUri = new Uri("anyscheme://anypath");
+            var anyUri = Enumerable.Repeat(new Uri("anyscheme://anypath"), 1);
             const string applicationId = "AnyApplicationId";
             urlProvider.GetUrlAsync().Returns(Task.FromResult(anyUri));
             var anyNewApplication = new NewApplication
@@ -150,7 +188,7 @@ namespace Org.Apache.REEF.Client.Tests
                     req =>
                         req.Resource == "ws/v1/cluster/apps/new-application"
                         && req.Method == Method.POST),
-                anyUri,
+                anyUri.First(),
                 CancellationToken.None).Returns(Task.FromResult(anyNewApplication));
 
             var yarnClient = ctx.GetClient();
@@ -166,7 +204,7 @@ namespace Org.Apache.REEF.Client.Tests
             var ctx = new TestContext();
             var urlProvider = ctx.UrlProviderFake;
             var restReqExecutor = ctx.RestRequestExecutorFake;
-            Uri anyUri = new Uri("anyscheme://anypath");
+            var anyUri = Enumerable.Repeat(new Uri("anyscheme://anypath"), 1);
             const string applicationId = "AnyApplicationId";
             const string anyApplicationType = "REEFTest";
             const string anyApplicationName = "AnyAPP";
@@ -280,7 +318,7 @@ namespace Org.Apache.REEF.Client.Tests
                         && req.JsonSerializer is RestJsonSerializer
                         && req.Parameters.First().Name == "application/json"
                         && B(req, expectedJson)),
-                anyUri,
+                anyUri.First(),
                 CancellationToken.None).Returns(Task.FromResult(response));
 
             restReqExecutor.ExecuteAsync<Application>(
@@ -289,7 +327,7 @@ namespace Org.Apache.REEF.Client.Tests
                         req.Resource == "ws/v1/cluster/apps/" + applicationId
                         && req.RootElement == "app"
                         && req.Method == Method.GET),
-                anyUri,
+                anyUri.First(),
                 CancellationToken.None).Returns(Task.FromResult(thisApplication));
 
             var yarnClient = ctx.GetClient();

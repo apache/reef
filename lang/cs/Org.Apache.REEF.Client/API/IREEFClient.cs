@@ -18,7 +18,9 @@
  */
 
 using System;
+using System.Threading.Tasks;
 using Org.Apache.REEF.Client.Common;
+using Org.Apache.REEF.Client.YARN.RestClient.DataModel;
 using Org.Apache.REEF.Common.Attributes;
 
 namespace Org.Apache.REEF.Client.API
@@ -37,11 +39,19 @@ namespace Org.Apache.REEF.Client.API
 
         /// <summary>
         /// Submit the job described in jobSubmission to the cluster.
-        /// Expect IDriverHttpEndpoint returned after the call.
+        /// Expect IJobSubmissionResult returned after the call.
         /// </summary>
         /// <param name="jobSubmission"></param>
-        /// <returns>IDriverHttpEndpoint</returns>
+        /// <returns>IJobSubmissionResult</returns>
         [Unstable("0.13", "Working in progress for what to return after submit")]
-        IDriverHttpEndpoint SubmitAndGetDriverUrl(IJobSubmission jobSubmission);
+        IJobSubmissionResult SubmitAndGetJobStatus(IJobSubmission jobSubmission);
+
+        /// <summary>
+        /// Returns the application status in running the job
+        /// </summary>
+        /// <param name="appId"></param>
+        /// <returns></returns>
+        [Unstable("0.14", "Working in progress for rest API status returned")]
+        Task<FinalState> GetJobFinalStatus(string appId);
     }
 }

@@ -41,6 +41,6 @@ namespace Org.Apache.REEF.IMRU.API
         /// For example: see InProcessIMRUCLient.cs
         /// </summary>
         [Unstable("0.13", "This depends on IREEFClient API which itself in unstable ")]
-        IDriverHttpEndpoint DriverHttpEndpoint { get; }
+        IJobSubmissionResult JobSubmissionResult { get; }
     }
 }

@@ -16,6 +16,7 @@
 // under the License.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -42,7 +43,7 @@ namespace Org.Apache.REEF.Client.Yarn.RestClient
         private static readonly string YarnRmWebappHttpsAddressPropertyName = "yarn.resourcemanager.webapp.https.address";
         private static readonly string YarnRmWebappHttpAddressPropertyName = "yarn.resourcemanager.webapp.address";
         private static readonly Logger Logger = Logger.GetLogger(typeof(YarnConfigurationUrlProvider));
-        private Uri _yarnRmUri;
+        private IList<Uri> _yarnRmUri;
 
         [Inject]
         private YarnConfigurationUrlProvider(
@@ -69,9 +70,9 @@ namespace Org.Apache.REEF.Client.Yarn.RestClient
             LoadYarnConfiguration(yarnConfigurationFile, useHttps);
         }
 
-        public Task<Uri> GetUrlAsync()
+        public Task<IEnumerable<Uri>> GetUrlAsync()
         {
-            return Task.FromResult(_yarnRmUri);
+            return Task.FromResult((IEnumerable<Uri>)_yarnRmUri);
         }
 
         private void LoadYarnConfiguration(string yarnConfigurationFile, bool useHttps)
@@ -91,7 +92,7 @@ namespace Org.Apache.REEF.Client.Yarn.RestClient
 
             address = address.TrimEnd('/') + @"/";
 
-            _yarnRmUri = new Uri(string.Format("{0}://{1}", prefix, address));
+            _yarnRmUri = new List<Uri> { new Uri(string.Format("{0}://{1}", prefix, address)) };
         }
     }
 }

@@ -26,6 +26,7 @@ using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
+using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Examples.HelloREEF
 {
@@ -34,6 +35,7 @@ namespace Org.Apache.REEF.Examples.HelloREEF
     /// </summary>
     public sealed class HelloREEF
     {
+        private static readonly Logger Logger = Logger.GetLogger(typeof(HelloREEF));
         private const string Local = "local";
         private const string YARN = "yarn";
         private readonly IREEFClient _reefClient;
@@ -63,7 +65,7 @@ namespace Org.Apache.REEF.Examples.HelloREEF
                 .SetJobIdentifier("HelloREEF")
                 .Build();
 
-            _reefClient.SubmitAndGetDriverUrl(helloJobSubmission);
+            _reefClient.SubmitAndGetJobStatus(helloJobSubmission);
         }
 
         /// <summary>

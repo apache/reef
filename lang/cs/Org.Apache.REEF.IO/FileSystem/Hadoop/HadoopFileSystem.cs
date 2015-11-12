@@ -61,6 +61,7 @@ namespace Org.Apache.REEF.IO.FileSystem.Hadoop
         /// <returns></returns>
         public Uri CreateUriForPath(string path)
         {
+            Logger.Log(Level.Info, string.Format(CultureInfo.CurrentCulture, "CreateUriForPath with path: {0}, _uriPrefix: {1}.", path, _uriPrefix));
             if (path == null)
             {
                 throw new ArgumentException("null path passed in CreateUriForPath");
@@ -70,18 +71,12 @@ namespace Org.Apache.REEF.IO.FileSystem.Hadoop
             try
             {
                 uri = new Uri(path);
-                var preFix = string.Format(CultureInfo.CurrentCulture,
-                    string.Format(PrefixTemplate, uri.Scheme, uri.Authority));
-                Logger.Log(Level.Info, string.Format(CultureInfo.CurrentCulture, "preFix in the path: {0}.", preFix));
-
-                if (!preFix.Equals(_uriPrefix))
-                {
-                    throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Wrong prefix in the path {0} provided.", path));
-                }
+                Logger.Log(Level.Info, string.Format(CultureInfo.CurrentCulture, "Uri {0} created in CreateUriForPath.", uri));
             }
             catch (UriFormatException)
             {
-                uri = new Uri(_uriPrefix + path); 
+                uri = new Uri(_uriPrefix + path);
+                Logger.Log(Level.Info, string.Format(CultureInfo.CurrentCulture, "Uri {0} created in CreateUriForPath with prefix added.", uri));
             }
 
             return uri;

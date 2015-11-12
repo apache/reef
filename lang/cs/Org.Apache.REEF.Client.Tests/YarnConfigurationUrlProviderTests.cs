@@ -16,10 +16,14 @@
 // under the License.
 
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.Client.Yarn.RestClient;
+using Org.Apache.REEF.Client.YARN.RestClient;
 using Org.Apache.REEF.Tang.Exceptions;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 
@@ -83,9 +87,9 @@ namespace Org.Apache.REEF.Client.Tests
                 YarnConfigurationUrlProvider urlProvider = GetYarnConfigurationUrlProvider();
                 var url = urlProvider.GetUrlAsync().GetAwaiter().GetResult();
 
-                Assert.AreEqual("http", url.Scheme);
-                Assert.AreEqual(AnyHttpAddressConfig.Split(':')[0], url.Host);
-                Assert.AreEqual(AnyHttpAddressConfig.Split(':')[1], url.Port.ToString(CultureInfo.InvariantCulture));
+                Assert.AreEqual("http", url.First().Scheme);
+                Assert.AreEqual(AnyHttpAddressConfig.Split(':')[0], url.First().Host);
+                Assert.AreEqual(AnyHttpAddressConfig.Split(':')[1], url.First().Port.ToString(CultureInfo.InvariantCulture));
             }
         }
 
@@ -100,11 +104,11 @@ namespace Org.Apache.REEF.Client.Tests
             using (new TemporaryOverrideEnvironmentVariable(HadoopConfDirEnvVariable, tempDir))
             {
                 YarnConfigurationUrlProvider urlProvider = GetYarnConfigurationUrlProvider(useHttps: true);
-                var url = urlProvider.GetUrlAsync().GetAwaiter().GetResult();
+                IEnumerable<Uri> url = urlProvider.GetUrlAsync().GetAwaiter().GetResult();
 
-                Assert.AreEqual("https", url.Scheme);
-                Assert.AreEqual(AnyHttpsAddressConfig.Split(':')[0], url.Host);
-                Assert.AreEqual(AnyHttpsAddressConfig.Split(':')[1], url.Port.ToString(CultureInfo.InvariantCulture));
+                Assert.AreEqual("https", url.First().Scheme);
+                Assert.AreEqual(AnyHttpsAddressConfig.Split(':')[0], url.First().Host);
+                Assert.AreEqual(AnyHttpsAddressConfig.Split(':')[1], url.First().Port.ToString(CultureInfo.InvariantCulture));
             }
         }
 
@@ -122,9 +126,9 @@ namespace Org.Apache.REEF.Client.Tests
                     useHttps: true);
                 var url = urlProvider.GetUrlAsync().GetAwaiter().GetResult();
 
-                Assert.AreEqual("https", url.Scheme);
-                Assert.AreEqual(AnyHttpsAddressConfig.Split(':')[0], url.Host);
-                Assert.AreEqual(AnyHttpsAddressConfig.Split(':')[1], url.Port.ToString(CultureInfo.InvariantCulture));
+                Assert.AreEqual("https", url.First().Scheme);
+                Assert.AreEqual(AnyHttpsAddressConfig.Split(':')[0], url.First().Host);
+                Assert.AreEqual(AnyHttpsAddressConfig.Split(':')[1], url.First().Port.ToString(CultureInfo.InvariantCulture));
             }
         }
 
@@ -165,7 +169,7 @@ namespace Org.Apache.REEF.Client.Tests
         /// even in the case of failure.
         /// Other tests in the assembly will see changed env var
         /// </summary>
-        private class TemporaryOverrideEnvironmentVariable : IDisposable
+        internal class TemporaryOverrideEnvironmentVariable : IDisposable
         {
             private readonly string _variableName;
             private readonly string _oldValue;
@@ -188,7 +192,7 @@ namespace Org.Apache.REEF.Client.Tests
         /// even in the case of failures.
         /// It is a shame we are writing to disk in unit test
         /// </summary>
-        private class TempFileWriter : IDisposable
+        internal class TempFileWriter : IDisposable
         {
             private readonly string _filePath;
 
