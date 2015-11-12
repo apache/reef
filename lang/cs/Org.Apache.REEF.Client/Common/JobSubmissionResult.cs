@@ -27,12 +27,14 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
+using Org.Apache.REEF.Client.API;
+using Org.Apache.REEF.Client.YARN.RestClient.DataModel;
 
 namespace Org.Apache.REEF.Client.Common
 {
-    internal class HttpClientHelper : IDriverHttpEndpoint
+    internal abstract class JobSubmissionResult : IJobSubmissionResult
     {
-        private static readonly Logger LOGGER = Logger.GetLogger(typeof (HttpClientHelper));
+        private static readonly Logger LOGGER = Logger.GetLogger(typeof (JobSubmissionResult));
         private const int MaxConnectAttemptCount = 20;
         private const int MilliSecondsToWaitBeforeNextConnectAttempt = 1000;
         private const int SecondsForHttpClientTimeout = 120;
@@ -43,26 +45,58 @@ namespace Org.Apache.REEF.Client.Common
         private const string AppJson = "application/json";
 
         private string _driverUrl;
+        protected string _appId;
 
         private readonly HttpClient _client;
+        private readonly IREEFClient _reefClient;
 
-        internal HttpClientHelper()
+        internal JobSubmissionResult(IREEFClient reefClient, string filePath)
         {
+            _reefClient = reefClient;
             _client = new HttpClient
             {
                 Timeout = TimeSpan.FromSeconds(SecondsForHttpClientTimeout),
             };
             _client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(AppJson));
+
+            _driverUrl = GetDriverUrl(filePath);
         }
 
-        public string DriverUrl { get { return _driverUrl; } }
+        /// <summary>
+        /// Returns http end point of the web server running in the driver
+        /// </summary>
+        public string DriverUrl { get { return _driverUrl; }
+        }
 
+        /// <summary>
+        /// Get application Id returned from Yarn job submission
+        /// </summary>
+        public string AppId
+        {
+            get { return _appId; }
+        }
+
+        /// <summary>
+        /// Get application final status from Yarn
+        /// </summary>
+        public FinalState FinalState
+        {
+            get { return _reefClient.GetJobFinalStatus(_appId).Result; }
+        }
+
+        /// <summary>
+        /// Return response for a given http request url
+        /// </summary>
+        /// <param name="url"></param>
+        /// <returns></returns>
         public string GetUrlResult(string url)
         {
             var task = Task.Run(() => CallUrl(url));
             task.Wait();
             return task.Result;
         }
+
+        protected abstract string GetDriverUrl(string filepath);
 
         enum UrlResultKind
         {
@@ -90,25 +124,6 @@ namespace Org.Apache.REEF.Client.Common
             }
         }
 
-        internal static string GetAppId(string filePath)
-        {
-            using (var sr = new StreamReader(File.Open(filePath, FileMode.Open, FileAccess.Read, FileShare.Read)))
-            {
-                var appId = sr.ReadLine();                
-                return appId;
-            }
-        }
-
-        internal static string GetTrackingUrl(string filePath)
-        {
-            using (var sr = new StreamReader(File.Open(filePath, FileMode.Open, FileAccess.Read, FileShare.Read)))
-            {
-                sr.ReadLine(); // appid
-                var trackingUrl = sr.ReadLine();
-                return "http://" + trackingUrl + "/";
-            }
-        }
-
         internal async Task<string> CallUrl (string url)
         {
             var result = await TryGetUri(url);
@@ -119,48 +134,7 @@ namespace Org.Apache.REEF.Client.Common
             LOGGER.Log(Level.Warning, "CallUrl result " + result.Item2);
             return result.Item2;
         }
-
-        internal string GetDriverUrlForYarn(String filePath)
-        {
-            _driverUrl = GetTrackingUrl(filePath);
-            return _driverUrl;
-        }
-
-        internal string GetDriverUrlForLocalRuntime(string filePath)
-        {
-            _driverUrl = null;
-            for (int i = 0; i < 10; i++)
-            {
-                var driverUrl = TryReadHttpServerIpAndPortFromFile(filePath);
-                if (!string.IsNullOrEmpty(driverUrl))
-                {
-                    _driverUrl = "http://" + driverUrl + "/";
-                    break;
-                }
-                Thread.Sleep(1000);
-            }
-            return _driverUrl;
-        }
-
-        private string TryReadHttpServerIpAndPortFromFile(String fileName)
-        {
-            string httpServerIpAndPort = null;
-            try
-            {
-                LOGGER.Log(Level.Info, "try open " + fileName);
-                using (var rdr = new StreamReader(File.OpenRead(fileName)))
-                {
-                    httpServerIpAndPort = rdr.ReadLine();
-                    LOGGER.Log(Level.Info, "httpServerIpAndPort is " + httpServerIpAndPort);
-                }
-            }
-            catch (FileNotFoundException)
-            {
-                LOGGER.Log(Level.Info, "File does not exist: " + fileName);
-            }
-            return httpServerIpAndPort;
-        }
-
+        
         internal async Task<string> GetAppIdTrackingUrl(string url)
         {
             var result = await TryGetUri(url);

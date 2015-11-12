@@ -5,9 +5,9 @@
 // to you under the Apache License, Version 2.0 (the
 // "License"); you may not use this file except in compliance
 // with the License.  You may obtain a copy of the License at
-//
+// 
 //   http://www.apache.org/licenses/LICENSE-2.0
-//
+// 
 // Unless required by applicable law or agreed to in writing,
 // software distributed under the License is distributed on an
 // "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -15,20 +15,22 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Org.Apache.REEF.Tang.Annotations;
-
-namespace Org.Apache.REEF.Client.Yarn.RestClient
+namespace Org.Apache.REEF.Client.YARN.RestClient.DataModel
 {
-    [DefaultImplementation(typeof(YarnConfigurationUrlProvider))]
-    public interface IUrlProvider
+    /// <summary>
+    /// Class generated based on schema provided in
+    /// <see cref="!:http://hadoop.apache.org/docs/r2.6.0/hadoop-yarn/hadoop-yarn-site/WebServicesIntro.html">
+    /// Hadoop RM REST API </see> documentation.
+    /// </summary>
+    // valid values are members of the YarnApplicationState enum
+    public enum FinalState
     {
-        /// <summary>
-        /// Returns available Yarn resourcemanager web address for the environment
-        /// </summary>
-        /// <returns></returns>
-        Task<IEnumerable<Uri>> GetUrlAsync();
+        UNDEFINED,
+
+        SUCCEEDED,
+
+        FAILED,
+
+        KILLED
     }
 }

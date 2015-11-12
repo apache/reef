@@ -39,7 +39,7 @@ namespace Org.Apache.REEF.Client.YARN.RestClient.DataModel
 
         public State State { get; set; }
 
-        public string FinalStatus { get; set; }
+        public FinalState FinalStatus { get; set; }
 
         public float Progress { get; set; }
 

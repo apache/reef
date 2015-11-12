@@ -66,13 +66,13 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
         private async void RunClrBridgeClient(bool runOnYarn, string testRuntimeFolder)
         {
             string[] a = new[] { runOnYarn ? "yarn" : "local", testRuntimeFolder };
-            IDriverHttpEndpoint driverHttpEndpoint = AllHandlers.Run(a);
+            IJobSubmissionResult driverHttpEndpoint = AllHandlers.Run(a);
 
             var uri = driverHttpEndpoint.DriverUrl + "NRT/status?a=1&b=2";
             var strStatus = driverHttpEndpoint.GetUrlResult(uri);
             Assert.IsTrue(strStatus.Equals("Byte array returned from HelloHttpHandler in CLR!!!\r\n"));
 
-            await ((HttpClientHelper)driverHttpEndpoint).TryUntilNoConnection(uri);
+            await ((JobSubmissionResult)driverHttpEndpoint).TryUntilNoConnection(uri);
 
             ValidateSuccessForLocalRuntime(2, testRuntimeFolder);
 

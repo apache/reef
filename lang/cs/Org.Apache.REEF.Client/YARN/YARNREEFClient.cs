@@ -18,13 +18,18 @@
  */
 
 using System;
+using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Org.Apache.REEF.Client.API;
 using Org.Apache.REEF.Client.Avro;
 using Org.Apache.REEF.Client.Avro.YARN;
 using Org.Apache.REEF.Client.Common;
+using Org.Apache.REEF.Client.Yarn.RestClient;
+using Org.Apache.REEF.Client.YARN;
 using Org.Apache.REEF.Client.YARN.Parameters;
+using Org.Apache.REEF.Client.YARN.RestClient.DataModel;
 using Org.Apache.REEF.Common.Avro;
 using Org.Apache.REEF.Common.Files;
 using Org.Apache.REEF.Driver.Bridge;
@@ -48,14 +53,15 @@ namespace Org.Apache.REEF.Client.Yarn
         private readonly string _securityTokenKind;
         private readonly string _securityTokenService;
         private readonly string _jobSubmissionPrefix;
-        private String _driverUrl;
-        private REEFFileNames _fileNames;
+        private readonly REEFFileNames _fileNames;
+        private readonly IYarnRMClient _yarnClient;
 
         [Inject]
         internal YarnREEFClient(JavaClientLauncher javaClientLauncher,
             DriverFolderPreparationHelper driverFolderPreparationHelper,
             REEFFileNames fileNames,
             YarnCommandLineEnvironment yarn,
+            IYarnRMClient yarnClient,
             [Parameter(typeof(SecurityTokenKindParameter))] string securityTokenKind,
             [Parameter(typeof(SecurityTokenServiceParameter))] string securityTokenService,
             [Parameter(typeof(JobSubmissionDirectoryPrefixParameter))] string jobSubmissionPrefix)
@@ -67,6 +73,7 @@ namespace Org.Apache.REEF.Client.Yarn
             _javaClientLauncher.AddToClassPath(yarn.GetYarnClasspathList());
             _driverFolderPreparationHelper = driverFolderPreparationHelper;
             _fileNames = fileNames;
+            _yarnClient = yarnClient;
         }
 
         public void Submit(IJobSubmission jobSubmission)
@@ -78,7 +85,7 @@ namespace Org.Apache.REEF.Client.Yarn
             Launch(jobSubmission, driverFolderPath);
         }
 
-        public IDriverHttpEndpoint SubmitAndGetDriverUrl(IJobSubmission jobSubmission)
+        public IJobSubmissionResult SubmitAndGetJobStatus(IJobSubmission jobSubmission)
         {
             // Prepare the job submission folder
             var driverFolderPath = CreateDriverFolder(jobSubmission.JobIdentifier);
@@ -87,11 +94,28 @@ namespace Org.Apache.REEF.Client.Yarn
             Launch(jobSubmission, driverFolderPath);
 
             var pointerFileName = Path.Combine(driverFolderPath, _fileNames.DriverHttpEndpoint);
+            var jobSubmitionResultImpl = new YarnJobSubmissionResult(this, pointerFileName);
 
-            var httpClient = new HttpClientHelper();
-            _driverUrl = httpClient.GetDriverUrlForYarn(pointerFileName);
+            var msg = string.Format(CultureInfo.CurrentCulture,
+                "Submitted the Driver for execution. Returned driverUrl is: {0}, appId is {1}.",
+                jobSubmitionResultImpl.DriverUrl, jobSubmitionResultImpl.AppId);
+            Logger.Log(Level.Info, msg);
 
-            return httpClient;
+            return jobSubmitionResultImpl;
+        }
+
+        /// <summary>
+        /// Pull Job status from Yarn for the given appId
+        /// </summary>
+        /// <returns></returns>
+        public async Task<FinalState> GetJobFinalStatus(string appId)
+        {
+            var application = await _yarnClient.GetApplicationAsync(appId);
+
+            Logger.Log(Level.Verbose, string.Format("application status {0}, Progress: {1}, trackingUri: {2}, Name: {3}, ApplicationId: {4}, State {5}.",
+                application.FinalStatus, application.Progress, application.TrackingUI, application.Name, application.Id, application.State));
+
+            return application.FinalStatus;
         }
 
         private void Launch(IJobSubmission jobSubmission, string driverFolderPath)
@@ -137,11 +161,6 @@ namespace Org.Apache.REEF.Client.Yarn
             // Submit the driver
             _javaClientLauncher.Launch(JavaClassName, submissionArgsFilePath);
             Logger.Log(Level.Info, "Submitted the Driver for execution." + jobSubmission.JobIdentifier);
-        }
-
-        public string DriverUrl
-        {
-            get { return _driverUrl; }
         }
 
         /// <summary>

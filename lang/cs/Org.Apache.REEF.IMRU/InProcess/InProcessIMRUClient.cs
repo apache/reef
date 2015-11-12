@@ -102,7 +102,7 @@ namespace Org.Apache.REEF.IMRU.InProcess
         /// <summary>
         /// DriverHttpEndPoint returned by IReefClient after job submission
         /// </summary>
-        public IDriverHttpEndpoint DriverHttpEndpoint
+        public IJobSubmissionResult JobSubmissionResult
         {
             get { return null; }
         }

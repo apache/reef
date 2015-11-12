@@ -76,7 +76,7 @@ namespace Org.Apache.REEF.Examples.DriverRestart
                 .SetJobIdentifier("DriverRestart")
                 .Build();
 
-            _reefClient.SubmitAndGetDriverUrl(restartJobSubmission);
+            _reefClient.SubmitAndGetJobStatus(restartJobSubmission);
         }
 
         public static void Main(string[] args)
