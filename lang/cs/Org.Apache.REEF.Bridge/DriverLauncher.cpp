@@ -49,8 +49,9 @@ const int maxPathBufSize = 16 * 1024;
 const char ClassPathSeparatorCharForWindows = ';';
 
 // we look for this to delineate java vm arguments from app arguments.
-// todo: be smarter about this. Accomodate arbitrary apps.
-const char* launcherClass = "org.apache.reef.runtime.common.REEFLauncher";
+// TODO: be smarter about this. Accomodate arbitrary apps that doesn't 
+// contain the term REEFLauncher.
+const char* launcherClassSearchStr = "REEFLauncher";
 
 // method to invoke
 const char* JavaMainMethodName = "main";
@@ -89,7 +90,7 @@ void GetCounts(
     firstArgOrdinal = -1;
 
     for (int i = firstOptionOrdinal; i < cArgs; i++) {
-        if (option && 0 == strcmp(argv[i], launcherClass)) {
+        if (option && NULL != strstr(argv[i], launcherClassSearchStr)) {
             option = false;
             firstArgOrdinal = i;
         }
@@ -99,6 +100,10 @@ void GetCounts(
         else {
             ++argCount;
         }
+    }
+
+    if (firstArgOrdinal < 0) {
+        throw gcnew ArgumentException("Unable to find a REEF Launcher");
     }
 }
 

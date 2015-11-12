@@ -43,7 +43,6 @@ import javax.inject.Inject;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Collection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -189,36 +188,6 @@ public final class REEFLauncher {
     if (LOG.isLoggable(Level.FINEST)) {
       LOG.log(Level.FINEST, ThreadLogger.getFormattedThreadList("Threads running after System.exit():"));
     }
-  }
-
-  /**
-   * Pass values of the properties specified in the propNames array as <code>-D...</code>
-   * command line parameters. Currently used only to pass logging configuration to child JVMs processes.
-   *
-   * @param vargs     List of command line parameters to append to.
-   * @param copyNull  create an empty parameter if the property is missing in current process.
-   * @param propNames property names.
-   */
-  public static void propagateProperties(
-          final Collection<String> vargs, final boolean copyNull, final String... propNames) {
-    for (final String propName : propNames) {
-      final String propValue = System.getProperty(propName);
-      if (propValue == null || propValue.isEmpty()) {
-        if (copyNull) {
-          vargs.add("-D" + propName);
-        }
-      } else {
-        vargs.add(String.format("-D%s=%s", propName, propValue));
-      }
-    }
-  }
-
-  /**
-   * Same as above, but with copyNull == false by default.
-   */
-  public static void propagateProperties(
-          final Collection<String> vargs, final String... propNames) {
-    propagateProperties(vargs, false, propNames);
   }
 
   private void logVersion() {
