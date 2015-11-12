@@ -26,6 +26,7 @@ import org.apache.hadoop.yarn.client.api.YarnClient;
 import org.apache.hadoop.yarn.client.api.YarnClientApplication;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.exceptions.YarnException;
+import org.apache.reef.runtime.common.REEFLauncher;
 import org.apache.reef.runtime.common.files.ClasspathProvider;
 import org.apache.reef.runtime.common.files.REEFFileNames;
 import org.apache.reef.runtime.common.launch.JavaLaunchCommandBuilder;
@@ -54,9 +55,9 @@ public final class YarnSubmissionHelper implements Closeable{
   private final REEFFileNames fileNames;
   private final ClasspathProvider classpath;
   private final SecurityTokenProvider tokenProvider;
-  private boolean preserveEvaluators;
-  private int maxAppSubmissions;
   private final List<String> commandPrefixList;
+  private Class launcherClazz;
+  private String confFileName;
 
   public YarnSubmissionHelper(final YarnConfiguration yarnConfiguration,
                               final REEFFileNames fileNames,
@@ -77,10 +78,10 @@ public final class YarnSubmissionHelper implements Closeable{
     this.applicationResponse = yarnClientApplication.getNewApplicationResponse();
     this.applicationSubmissionContext = yarnClientApplication.getApplicationSubmissionContext();
     this.applicationId = applicationSubmissionContext.getApplicationId();
-    this.maxAppSubmissions = 1;
-    this.preserveEvaluators = false;
     this.tokenProvider = tokenProvider;
     this.commandPrefixList = commandPrefixList;
+    this.launcherClazz = REEFLauncher.class;
+    this.confFileName = this.fileNames.getDriverConfigurationPath();
     LOG.log(Level.FINEST, "YARN Application ID: {0}", applicationId);
   }
 
@@ -201,10 +202,33 @@ public final class YarnSubmissionHelper implements Closeable{
     return this;
   }
 
+  /**
+   * Sets the launcher class for the job.
+   * @param launcherClass
+   * @return
+   */
+  public YarnSubmissionHelper setLauncherClass(final Class launcherClass) {
+    this.launcherClazz = launcherClass;
+    return this;
+  }
+
+  /**
+   * Sets the configuration file for the job.
+   * Note that this does not have to be the Driver TANG configuration. In the bootstrap
+   * launch case, this can be the Avro file that supports the generation of a driver
+   * configuration file natively at the Launcher.
+   * @param configurationFileName
+   * @return
+   */
+  public YarnSubmissionHelper setConfigurationFileName(final String configurationFileName) {
+    this.confFileName = configurationFileName;
+    return this;
+  }
+
   public void submit() throws IOException, YarnException {
     // SET EXEC COMMAND
-    final List<String> launchCommand = new JavaLaunchCommandBuilder(commandPrefixList)
-        .setConfigurationFileName(this.fileNames.getDriverConfigurationPath())
+    final List<String> launchCommand = new JavaLaunchCommandBuilder(launcherClazz, commandPrefixList)
+        .setConfigurationFileName(confFileName)
         .setClassPath(this.classpath.getDriverClasspath())
         .setMemory(this.applicationSubmissionContext.getResource().getMemory())
         .setStandardOut(ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/" + this.fileNames.getDriverStdoutFileName())

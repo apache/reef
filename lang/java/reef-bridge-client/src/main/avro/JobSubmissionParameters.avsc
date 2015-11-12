@@ -49,6 +49,7 @@
         { "name": "sharedJobSubmissionParameters", "type": "AvroJobSubmissionParameters" },
         { "name": "driverMemory", "type": "int" },
         { "name": "driverRecoveryTimeout", "type": "int" },
+		{ "name": "dfsJobSubmissionFolder", "type": ["null", "string"], "default" : null },
         { "name": "jobSubmissionDirectoryPrefix", "type": "string" }
       ]
   },
