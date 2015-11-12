@@ -253,6 +253,12 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
         }
       }
     }
+
+    try {
+      this.messageDispatcher.close();
+    } catch (Exception e) {
+      LOG.log(Level.SEVERE, "Exception while closing EvaluatorManager", e);
+    }
     this.idlenessSource.check();
   }
 
@@ -306,7 +312,6 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
           this.messageDispatcher.onDriverRestartEvaluatorFailed(failedEvaluator);
         } else {
           this.messageDispatcher.onEvaluatorFailed(failedEvaluator);
-          this.messageDispatcher.close();
         }
 
       } catch (final Exception e) {
@@ -417,11 +422,6 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
     LOG.log(Level.FINEST, "Evaluator {0} done.", getId());
     this.stateManager.setDone();
     this.messageDispatcher.onEvaluatorCompleted(new CompletedEvaluatorImpl(this.evaluatorId));
-    try {
-      this.messageDispatcher.close();
-    } catch (Exception e) {
-      LOG.log(Level.SEVERE, "Exception while handling CompletedEvaluator", e);
-    }
     close();
   }
 
