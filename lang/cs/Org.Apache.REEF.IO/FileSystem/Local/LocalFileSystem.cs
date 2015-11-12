@@ -48,6 +48,12 @@ namespace Org.Apache.REEF.IO.FileSystem.Local
             return new Uri(path);
         }
 
+        /// <summary>
+        /// Gets the FileStatus for given file.
+        /// </summary>
+        /// <param name="remoteFileUri"></param>
+        /// <exception cref="ArgumentNullException">If file URI is null</exception>
+        /// <returns>FileStatus</returns>
         public FileStatus GetFileStatus(Uri remoteFileUri)
         {
             if (remoteFileUri == null)

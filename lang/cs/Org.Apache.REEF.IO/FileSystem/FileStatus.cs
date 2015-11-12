@@ -19,16 +19,30 @@ using System;
 
 namespace Org.Apache.REEF.IO.FileSystem
 {
-    public class FileStatus
+    /// <summary>
+    /// Represents metadata about a file.
+    /// </summary>
+    public sealed class FileStatus
     {
-        public FileStatus(DateTime modificationTime, long length)
+        /// <summary>
+        /// Creates filestatus object.
+        /// </summary>
+        /// <param name="modificationTime">Last modification time of the file</param>
+        /// <param name="lengthBytes">Size of the file in bytes</param>
+        public FileStatus(DateTime modificationTime, long lengthBytes)
         {
             ModificationTime = modificationTime;
-            Length = length;
+            LengthBytes = lengthBytes;
         }
 
+        /// <summary>
+        /// Last modification time of the file
+        /// </summary>
         public DateTime ModificationTime { get; private set; }
 
-        public long Length { get; private set; }
+        /// <summary>
+        /// Size of the file in bytes.
+        /// </summary>
+        public long LengthBytes { get; private set; }
     }
 }
