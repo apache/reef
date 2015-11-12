@@ -18,6 +18,7 @@
  */
 package org.apache.reef.io.watcher;
 
+import org.apache.reef.annotations.Unstable;
 import org.apache.reef.driver.parameters.*;
 import org.apache.reef.io.watcher.param.EventStreams;
 import org.apache.reef.tang.formats.*;
@@ -26,6 +27,7 @@ import org.apache.reef.wake.time.Clock;
 /**
  * ConfigurationModule for Watcher.
  */
+@Unstable
 public final class WatcherConfiguration extends ConfigurationModuleBuilder {
 
   /**

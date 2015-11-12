@@ -18,9 +18,12 @@
  */
 package org.apache.reef.io.watcher;
 
+import org.apache.reef.annotations.Unstable;
+
 /**
  * Event types that Watcher subscribes.
  */
+@Unstable
 public enum EventType {
   RuntimeStart,
   StartTime,

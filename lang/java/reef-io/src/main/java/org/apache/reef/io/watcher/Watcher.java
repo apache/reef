@@ -18,6 +18,7 @@
  */
 package org.apache.reef.io.watcher;
 
+import org.apache.reef.annotations.Unstable;
 import org.apache.reef.driver.context.ActiveContext;
 import org.apache.reef.driver.context.ClosedContext;
 import org.apache.reef.driver.context.FailedContext;
@@ -41,6 +42,7 @@ import java.util.Set;
 /**
  * Subscribe events and transfer them as wrapping with corresponding avro classes.
  */
+@Unstable
 @Unit
 public final class Watcher {
 

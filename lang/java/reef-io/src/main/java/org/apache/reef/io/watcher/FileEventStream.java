@@ -18,6 +18,7 @@
  */
 package org.apache.reef.io.watcher;
 
+import org.apache.reef.annotations.Unstable;
 import org.apache.reef.io.watcher.util.RunnableExecutingHandler;
 import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
@@ -38,6 +39,7 @@ import java.util.Date;
 /**
  * Write events to a file in the root directory of the driver.
  */
+@Unstable
 public final class FileEventStream implements EventStream {
 
   private final DateFormat dateFormat;

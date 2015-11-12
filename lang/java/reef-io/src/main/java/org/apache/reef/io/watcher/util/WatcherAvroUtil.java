@@ -23,6 +23,7 @@ import org.apache.avro.io.Encoder;
 import org.apache.avro.io.EncoderFactory;
 import org.apache.avro.specific.SpecificDatumWriter;
 import org.apache.avro.specific.SpecificRecord;
+import org.apache.reef.annotations.Unstable;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.common.Failure;
 import org.apache.reef.driver.catalog.NodeDescriptor;
@@ -62,6 +63,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Private
+@Unstable
 public final class WatcherAvroUtil {
 
   public static AvroFailure toAvroFailure(final Failure failure) {

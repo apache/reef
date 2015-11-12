@@ -18,11 +18,13 @@
  */
 package org.apache.reef.io.watcher;
 
+import org.apache.reef.annotations.Unstable;
 import org.apache.reef.tang.annotations.DefaultImplementation;
 
 /**
  * Write events to a certain destination.
  */
+@Unstable
 @DefaultImplementation(LogEventStream.class)
 public interface EventStream {
 

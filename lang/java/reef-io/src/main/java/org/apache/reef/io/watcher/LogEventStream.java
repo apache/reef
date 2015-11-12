@@ -18,6 +18,8 @@
  */
 package org.apache.reef.io.watcher;
 
+import org.apache.reef.annotations.Unstable;
+
 import javax.inject.Inject;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -25,6 +27,7 @@ import java.util.logging.Logger;
 /**
  * Write events to driver.err using Logger.
  */
+@Unstable
 public final class LogEventStream implements EventStream {
 
   private static final Logger LOG = Logger.getLogger(LogEventStream.class.getName());

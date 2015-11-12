@@ -18,6 +18,7 @@
  */
 package org.apache.reef.io.watcher.util;
 
+import org.apache.reef.annotations.Unstable;
 import org.apache.reef.wake.EventHandler;
 
 import java.util.logging.Level;
@@ -26,6 +27,7 @@ import java.util.logging.Logger;
 /**
  * Handler that executes Runnable commands.
  */
+@Unstable
 public final class RunnableExecutingHandler implements EventHandler<Runnable> {
 
   private static final Logger LOG = Logger.getLogger(RunnableExecutingHandler.class.getName());
