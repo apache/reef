@@ -91,6 +91,9 @@ final class MyConfigurationModule extends ConfigurationModuleBuilder {
   // If you want, you can change the fooness.
   public static final OptionalParameter<Integer> FOO_NESS = new OptionalParameter<>();
 
+  // added to reproduce REEF-932
+  public static final RequiredParameter<String> FOO_STRING_NESS = new RequiredParameter<>();
+
   public static final ConfigurationModule CONF = new MyConfigurationModule()
 
       // This binds the above to tang configuration stuff.  You can use parameters more than
@@ -98,6 +101,7 @@ final class MyConfigurationModule extends ConfigurationModuleBuilder {
 
       .bindImplementation(TestConfigurationModule.Foo.class, MyConfigurationModule.THE_FOO)
       .bindNamedParameter(TestConfigurationModule.Fooness.class, MyConfigurationModule.FOO_NESS)
+      .bindNamedParameter(TestConfigurationModule.FooStringness.class, MyConfigurationModule.FOO_STRING_NESS)
       .build();
 }
 
@@ -128,9 +132,11 @@ public class TestConfigurationModule {
     // Here we set some configuration values.  In true tang style,
     // you won't be able to set them more than once ConfigurationModule's
     // implementation is complete.
+
     final Configuration c = MyConfigurationModule.CONF
         .set(MyConfigurationModule.THE_FOO, FooImpl.class)
         .set(MyConfigurationModule.FOO_NESS, "" + 12)
+        .set(MyConfigurationModule.FOO_STRING_NESS, "abc")
         .build();
     final Foo f = Tang.Factory.getTang().newInjector(c).getInstance(Foo.class);
     Assert.assertEquals(f.getFooness(), 12);
@@ -144,6 +150,7 @@ public class TestConfigurationModule {
     final Configuration c = MyConfigurationModule.CONF
         .set(MyConfigurationModule.THE_FOO, FooImpl.class)
         .set(MyConfigurationModule.FOO_NESS, "" + 12)
+        .set(MyConfigurationModule.FOO_STRING_NESS, "abc")
         .build();
     final Foo f = Tang.Factory.getTang().newInjector(c).getInstance(Foo.class);
     Assert.assertEquals(f.getFooness(), 12);
@@ -160,6 +167,7 @@ public class TestConfigurationModule {
     // Optional is optional.
     final Configuration c = MyConfigurationModule.CONF
         .set(MyConfigurationModule.THE_FOO, FooImpl.class)
+            .set(MyConfigurationModule.FOO_STRING_NESS, "abc")
         .build();
     final Foo f = Tang.Factory.getTang().newInjector(c).getInstance(Foo.class);
     Assert.assertEquals(f.getFooness(), 42);
@@ -171,11 +179,36 @@ public class TestConfigurationModule {
     thrown.expectMessage("Attempt to build configuration before setting required option(s): { THE_FOO }");
     try {
       MyConfigurationModule.CONF
+          .set(MyConfigurationModule.FOO_STRING_NESS, "abc")
           .set(MyConfigurationModule.FOO_NESS, "" + 12)
           .build();
     } catch (final ExceptionInInitializerError e) {
       throw e.getCause();
     }
+  }
+
+  /**
+   * Ensures RequiredParameters that may have been set to null
+   * are logged on failure.
+   *
+   * See REEF-932.
+   */
+  //TODO[REEF-968] split into two tests: one to test the REEF-968 fix and
+  // another one to test that IllegalStateException is thrown with a meaningful message
+  @Test
+  public void nullInRequiredParameterValueRaisesIllegalStateExceptionTest(){
+
+    thrown.expect(IllegalStateException.class);
+    thrown.expectMessage("Cannot find the value for the RequiredParameter of the class"
+              + " org.apache.reef.tang.formats.TestConfigurationModule$FooStringness."
+              + " Check that you don't pass null as the parameter value.");
+
+    MyConfigurationModule.CONF
+              .set(MyConfigurationModule.THE_FOO, FooImpl.class)
+              .set(MyConfigurationModule.FOO_NESS, "" + 12)
+              .set(MyConfigurationModule.FOO_STRING_NESS, (String) null)
+              .build();
+
   }
 
   @Test
@@ -251,7 +284,9 @@ public class TestConfigurationModule {
     final Configuration c = new MyConfigurationModule()
         .bindImplementation(Foo.class, MyConfigurationModule.THE_FOO)
         .bindNamedParameter(Fooness.class, MyConfigurationModule.FOO_NESS)
+        .bindNamedParameter(FooStringness.class, MyConfigurationModule.FOO_STRING_NESS)
         .build()
+        .set(MyConfigurationModule.FOO_STRING_NESS, "abc")
         .set(MyConfigurationModule.THE_FOO, FooImpl.class)
         .build();
     final Injector i = Tang.Factory.getTang().newInjector(c);
@@ -262,16 +297,18 @@ public class TestConfigurationModule {
   public void immutablilityTest() throws BindException, InjectionException {
     // builder methods return copies; the original module is immutable
     final ConfigurationModule builder1 = MyConfigurationModule.CONF
-        .set(MyConfigurationModule.THE_FOO, FooImpl.class);
+        .set(MyConfigurationModule.THE_FOO, FooImpl.class)
+            .set(MyConfigurationModule.FOO_STRING_NESS, "abc");
     Assert.assertFalse(builder1 == MyConfigurationModule.CONF);
     final Configuration config1 = builder1.build();
 
     // reusable
     final Configuration config2 = MyConfigurationModule.CONF
         .set(MyConfigurationModule.THE_FOO, FooAltImpl.class)
+        .set(MyConfigurationModule.FOO_STRING_NESS, "abc")
         .build();
 
-    // instantiation of each just to be sure everything is fine in this situation
+      // instantiation of each just to be sure everything is fine in this situation
     final Injector i1 = Tang.Factory.getTang().newInjector(config1);
     final Injector i2 = Tang.Factory.getTang().newInjector(config2);
     Assert.assertEquals(42, i1.getInstance(Foo.class).getFooness());
@@ -399,6 +436,10 @@ public class TestConfigurationModule {
 
   @NamedParameter(default_value = "42")
   class Fooness implements Name<Integer> {
+  }
+
+  @NamedParameter(default_value = "abc")
+  class FooStringness implements Name<String> {
   }
 
 }
