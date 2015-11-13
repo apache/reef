@@ -44,11 +44,11 @@ import java.util.Set;
  */
 public class TestRuntimeStartHandler {
 
-  private Configuration configuation;
+  private Configuration configuration;
 
   @Before
   public void setUp() throws InjectionException, IOException, ServletException {
-    final Configuration clockConfiguraiton = HttpHandlerConfiguration.CONF
+    final Configuration clockConfiguration = HttpHandlerConfiguration.CONF
         .set(HttpHandlerConfiguration.HTTP_HANDLERS, HttpServerReefEventHandler.class)
         .build();
     final Configuration remoteConfiguration = Tang.Factory.getTang().newConfigurationBuilder()
@@ -56,20 +56,20 @@ public class TestRuntimeStartHandler {
         .bindNamedParameter(RemoteConfiguration.MessageCodec.class, REEFMessageCodec.class)
         .bindNamedParameter(JobIdentifier.class, "my job")
         .build();
-    this.configuation = Configurations.merge(clockConfiguraiton, remoteConfiguration);
+    this.configuration = Configurations.merge(clockConfiguration, remoteConfiguration);
   }
 
   /**
    * With HttpHandlerConfiguration merged with HttpRuntimeConfiguration and binding for http handlers,
    * when inject RuntimeClock.
-   * all the nested objects including HeetServer, JettyHandler, HttpRuntimeStartHandler and  HttpRuntimeStopHandler
+   * all the nested objects including HttpServer, JettyHandler, HttpRuntimeStartHandler and  HttpRuntimeStopHandler
    *
    * @throws BindException
    * @throws InjectionException
    */
   @Test
   public void testHttpHandlerBindingWithRuntimeClock() throws BindException, InjectionException {
-    final RuntimeClock clock = Tang.Factory.getTang().newInjector(this.configuation).getInstance(RuntimeClock.class);
+    final RuntimeClock clock = Tang.Factory.getTang().newInjector(this.configuration).getInstance(RuntimeClock.class);
     Assert.assertNotNull(clock);
   }
 
@@ -81,7 +81,7 @@ public class TestRuntimeStartHandler {
    */
   @Test
   public void testRunTimeStartStopHandler() throws BindException, InjectionException {
-    final Injector injector = Tang.Factory.getTang().newInjector(this.configuation);
+    final Injector injector = Tang.Factory.getTang().newInjector(this.configuration);
     final Set<EventHandler<RuntimeStart>> startEventHandlers =
         injector.getNamedInstance(RuntimeClock.RuntimeStartHandler.class);
     for (final EventHandler<RuntimeStart> eventHandler : startEventHandlers) {
