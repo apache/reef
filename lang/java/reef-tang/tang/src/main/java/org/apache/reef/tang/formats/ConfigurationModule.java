@@ -37,6 +37,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Allows applications to bundle sets of configuration options together into
@@ -47,6 +49,9 @@ import java.util.Set;
  * See org.apache.reef.tang.formats.TestConfigurationModule for more information and examples.
  */
 public class ConfigurationModule {
+
+  private static final Logger LOG = Logger.getLogger(ConfigurationModule.class.getName());
+
   private final ConfigurationModuleBuilder builder;
   // Set of required unset parameters. Must be empty before build.
   private final Set<Field> reqSet = new MonotonicHashSet<>();
@@ -199,6 +204,8 @@ public class ConfigurationModule {
   public Configuration build() throws BindException {
     final ConfigurationModule c = deepCopy();
 
+    //TODO[REEF-968] check that required parameters have not been set to null
+
     if (!c.reqSet.containsAll(c.builder.reqDecl)) {
       final Set<Field> missingSet = new MonotonicHashSet<>();
       for (final Field f : c.builder.reqDecl) {
@@ -246,13 +253,21 @@ public class ConfigurationModule {
         c.builder.b.bindSetEntry((Class) clazz, paramStr);
         foundOne = true;
       }
+
       if (!foundOne && !(p instanceof OptionalParameter)) {
-        throw new IllegalStateException();
+        final IllegalStateException e =
+            new IllegalStateException("Cannot find the value for the RequiredParameter of the " + clazz
+                    + ". Check that you don't pass null as the parameter value.");
+        LOG.log(Level.SEVERE, "Failed to build configuration", e);
+        throw e;
       }
+
     }
+
     return c.builder.b.build();
 
   }
+
 
   public Set<NamedParameterNode<?>> getBoundNamedParameters() {
     final Configuration c = this.builder.b.build();
