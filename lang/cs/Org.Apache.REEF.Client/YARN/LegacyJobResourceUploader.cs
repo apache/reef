@@ -59,7 +59,7 @@ namespace Org.Apache.REEF.Client.Yarn
         public JobResource UploadJobResource(string driverLocalFolderPath)
         {
             driverLocalFolderPath = driverLocalFolderPath.TrimEnd('\\') + @"\";
-            string driverUploadPath = _jobSubmissionDirectoryProvider.GetJobSubmissionDirectory().TrimEnd('/') + @"/";
+            string driverUploadPath = _jobSubmissionDirectoryProvider.GetJobSubmissionRemoteDirectory().TrimEnd('/') + @"/";
             Log.Log(Level.Info, "DriverFolderPath: {0} DriverUploadPath: {1}", driverLocalFolderPath, driverUploadPath);
 
             var archivePath = _resourceArchiveFileGenerator.CreateArchiveToUpload(driverLocalFolderPath);

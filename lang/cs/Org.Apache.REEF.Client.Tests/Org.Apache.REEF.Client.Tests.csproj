@@ -47,6 +47,7 @@ under the License.
     <Reference Include="System.ServiceProcess" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="JobResourceUploaderTests.cs" />
     <Compile Include="LegacyJobResourceUploaderTests.cs" />
     <Compile Include="MultipleRMUrlProviderTests.cs" />
     <Compile Include="WindowsHadoopEmulatorYarnClientTests.cs" />
@@ -55,11 +56,15 @@ under the License.
     <Compile Include="YarnConfigurationUrlProviderTests.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Org.Apache.REEF.Client\Org.Apache.REEF.Client.csproj">
+    <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.Client\Org.Apache.REEF.Client.csproj">
       <Project>{5094c35b-4fdb-4322-ac05-45d684501cbf}</Project>
       <Name>Org.Apache.REEF.Client</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Org.Apache.REEF.Tang\Org.Apache.REEF.Tang.csproj">
+    <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.IO\Org.Apache.REEF.IO.csproj">
+      <Project>{DEC0F0A8-DBEF-4EBF-B69C-E2369C15ABF1}</Project>
+      <Name>Org.Apache.REEF.IO</Name>
+    </ProjectReference>
+    <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.Tang\Org.Apache.REEF.Tang.csproj">
       <Project>{97DBB573-3994-417A-9F69-FFA25F00D2A6}</Project>
       <Name>Org.Apache.REEF.Tang</Name>
     </ProjectReference>
