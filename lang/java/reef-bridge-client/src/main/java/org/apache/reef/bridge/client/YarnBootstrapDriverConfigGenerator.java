@@ -42,6 +42,7 @@ import javax.inject.Inject;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -60,9 +61,10 @@ final class YarnBootstrapDriverConfigGenerator {
     this.configurationSerializer = configurationSerializer;
   }
 
-  public String writeJobSubmissionParametersFile(final String bootstrapArgsLocation) throws IOException {
+  public String writeDriverConfigurationFile(final String bootstrapArgsLocation) throws IOException {
     final File bootstrapArgsFile = new File(bootstrapArgsLocation);
-    final AvroYarnJobSubmissionParameters yarnBootstrapArgs = getYarnJobSubmissionParametersFromFile(bootstrapArgsFile);
+    final AvroYarnJobSubmissionParameters yarnBootstrapArgs =
+        readYarnJobSubmissionParametersFromFile(bootstrapArgsFile);
     final String driverConfigPath = REEF_FILE_NAMES.getDriverConfigurationPath();
 
     this.configurationSerializer.toFile(getYarnDriverConfiguration(yarnBootstrapArgs),
@@ -71,7 +73,7 @@ final class YarnBootstrapDriverConfigGenerator {
     return driverConfigPath;
   }
 
-  private static Configuration getYarnDriverConfiguration(
+  static Configuration getYarnDriverConfiguration(
       final AvroYarnJobSubmissionParameters yarnJobSubmissionParams) {
     final AvroJobSubmissionParameters jobSubmissionParameters =
         yarnJobSubmissionParams.getSharedJobSubmissionParameters();
@@ -122,14 +124,20 @@ final class YarnBootstrapDriverConfigGenerator {
     return driverConfiguration;
   }
 
-  private static AvroYarnJobSubmissionParameters getYarnJobSubmissionParametersFromFile(final File file)
+  static AvroYarnJobSubmissionParameters readYarnJobSubmissionParametersFromFile(final File file)
       throws IOException {
     try (final FileInputStream fileInputStream = new FileInputStream(file)) {
-      final JsonDecoder decoder = DecoderFactory.get().jsonDecoder(
-          AvroYarnJobSubmissionParameters.getClassSchema(), fileInputStream);
-      final SpecificDatumReader<AvroYarnJobSubmissionParameters> reader = new SpecificDatumReader<>(
-          AvroYarnJobSubmissionParameters.class);
-      return reader.read(null, decoder);
+      // This is mainly a test hook.
+      return readYarnJobSubmissionParametersFromInputStream(fileInputStream);
     }
+  }
+
+  static AvroYarnJobSubmissionParameters readYarnJobSubmissionParametersFromInputStream(
+      final InputStream inputStream) throws IOException {
+    final JsonDecoder decoder = DecoderFactory.get().jsonDecoder(
+        AvroYarnJobSubmissionParameters.getClassSchema(), inputStream);
+    final SpecificDatumReader<AvroYarnJobSubmissionParameters> reader = new SpecificDatumReader<>(
+        AvroYarnJobSubmissionParameters.class);
+    return reader.read(null, decoder);
   }
 }

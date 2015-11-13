@@ -30,6 +30,7 @@ import javax.inject.Inject;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.logging.Logger;
 
 /**
@@ -55,18 +56,27 @@ final class YarnJobSubmissionParametersFileGenerator {
     final File yarnParametersFile = new File(yarnClusterSubmissionFromCS.getDriverFolder(),
         fileNames.getYarnBootstrapParamFilePath());
 
+    try (final FileOutputStream fileOutputStream = new FileOutputStream(yarnParametersFile)) {
+      // this is mainly a test hook.
+      writeAvroYarnJobSubmissionParametersToOutputStream(
+          yarnClusterSubmissionFromCS, jobFolderOnDFS.getPath().toString(), fileOutputStream);
+    }
+  }
+
+  static void writeAvroYarnJobSubmissionParametersToOutputStream(
+      final YarnClusterSubmissionFromCS yarnClusterSubmissionFromCS,
+      final String jobFolderOnDFSPath,
+      final OutputStream outputStream) throws IOException {
     final DatumWriter<AvroYarnJobSubmissionParameters> datumWriter =
         new SpecificDatumWriter<>(AvroYarnJobSubmissionParameters.class);
 
-    try (final FileOutputStream fileOutputStream = new FileOutputStream(yarnParametersFile)) {
-      final AvroYarnJobSubmissionParameters jobSubmissionParameters =
-          yarnClusterSubmissionFromCS.getYarnJobSubmissionParameters();
-      jobSubmissionParameters.setDfsJobSubmissionFolder(jobFolderOnDFS.getPath().toString());
-      final JsonEncoder encoder = EncoderFactory.get().jsonEncoder(jobSubmissionParameters.getSchema(),
-          fileOutputStream);
-      datumWriter.write(jobSubmissionParameters, encoder);
-      encoder.flush();
-      fileOutputStream.flush();
-    }
+    final AvroYarnJobSubmissionParameters jobSubmissionParameters =
+        yarnClusterSubmissionFromCS.getYarnJobSubmissionParameters();
+    jobSubmissionParameters.setDfsJobSubmissionFolder(jobFolderOnDFSPath);
+    final JsonEncoder encoder = EncoderFactory.get().jsonEncoder(jobSubmissionParameters.getSchema(),
+        outputStream);
+    datumWriter.write(jobSubmissionParameters, encoder);
+    encoder.flush();
+    outputStream.flush();
   }
 }

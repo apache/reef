@@ -51,7 +51,7 @@ public final class YarnBootstrapREEFLauncher {
     try {
       final YarnBootstrapDriverConfigGenerator yarnDriverConfigurationGenerator =
           Tang.Factory.getTang().newInjector().getInstance(YarnBootstrapDriverConfigGenerator.class);
-      REEFLauncher.main(new String[]{yarnDriverConfigurationGenerator.writeJobSubmissionParametersFile(args[0])});
+      REEFLauncher.main(new String[]{yarnDriverConfigurationGenerator.writeDriverConfigurationFile(args[0])});
     } catch (final Exception exception) {
       if (!(exception instanceof RuntimeException)) {
         throw fatal("Failed to initialize configurations.", exception);

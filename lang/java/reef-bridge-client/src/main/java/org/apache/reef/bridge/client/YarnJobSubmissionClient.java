@@ -18,6 +18,7 @@
  */
 package org.apache.reef.bridge.client;
 
+import org.apache.commons.lang.Validate;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -92,6 +93,7 @@ public final class YarnJobSubmissionClient {
    * @throws IOException
    */
   private File makeJar(final File driverFolder) throws IOException {
+    Validate.isTrue(driverFolder.exists());
     final File jarFile = new File(driverFolder.getParentFile(), driverFolder.getName() + ".jar");
     final File reefFolder = new File(driverFolder, fileNames.getREEFFolderName());
     if (!reefFolder.isDirectory()) {

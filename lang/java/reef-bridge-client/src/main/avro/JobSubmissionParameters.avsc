@@ -49,7 +49,7 @@
         { "name": "sharedJobSubmissionParameters", "type": "AvroJobSubmissionParameters" },
         { "name": "driverMemory", "type": "int" },
         { "name": "driverRecoveryTimeout", "type": "int" },
-		{ "name": "dfsJobSubmissionFolder", "type": ["null", "string"], "default" : null },
+        { "name": "dfsJobSubmissionFolder", "type": ["null", "string"], "default" : null },
         { "name": "jobSubmissionDirectoryPrefix", "type": "string" }
       ]
   },
@@ -61,8 +61,8 @@
       "fields": [
         { "name": "yarnJobSubmissionParameters", "type": "AvroYarnJobSubmissionParameters" },
         { "name": "maxApplicationSubmissions", "type": "int" },
-        { "name": "securityTokenKind", "type": "string" },
-        { "name": "securityTokenService", "type": "string" }
+        { "name": "securityTokenKind", "type": "string", "default": "NULL" },
+        { "name": "securityTokenService", "type": "string", "default": "NULL" }
       ]
   }
 ]

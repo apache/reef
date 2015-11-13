@@ -46,7 +46,7 @@ public final class JavaLaunchCommandBuilder implements LaunchCommandBuilder {
   private String javaPath = null;
   private String classPath = null;
   private Boolean assertionsEnabled = null;
-  private Map<String, JVMOption> options = new HashMap<>();
+  private final Map<String, JVMOption> options = new HashMap<>();
   private final List<String> commandPrefixList;
   private final Class launcherClass;
 
