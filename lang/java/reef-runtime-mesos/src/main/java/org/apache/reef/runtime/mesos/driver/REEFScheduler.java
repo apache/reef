@@ -35,6 +35,7 @@ import org.apache.reef.runtime.common.driver.resourcemanager.RuntimeStatusEventI
 import org.apache.reef.runtime.common.files.ClasspathProvider;
 import org.apache.reef.runtime.common.files.REEFFileNames;
 import org.apache.reef.runtime.mesos.driver.parameters.MesosMasterIp;
+import org.apache.reef.runtime.mesos.driver.parameters.JobSubmissionDirectoryPrefix;
 import org.apache.reef.runtime.mesos.evaluator.REEFExecutor;
 import org.apache.reef.runtime.mesos.util.EvaluatorControl;
 import org.apache.reef.runtime.mesos.util.EvaluatorRelease;
@@ -104,6 +105,7 @@ final class REEFScheduler implements Scheduler {
   private final MesosRemoteManager mesosRemoteManager;
 
   private final SchedulerDriver mesosMaster;
+  private final String jobSubmissionDirectoryPrefix;
   private final EStage<SchedulerDriver> schedulerDriverEStage;
   private final Map<String, Offer> offers = new ConcurrentHashMap<>();
 
@@ -120,11 +122,13 @@ final class REEFScheduler implements Scheduler {
                 final EStage<SchedulerDriver> schedulerDriverEStage,
                 final ClasspathProvider classpath,
                 @Parameter(JobIdentifier.class) final String jobIdentifier,
-                @Parameter(MesosMasterIp.class) final String masterIp) {
+                @Parameter(MesosMasterIp.class) final String masterIp,
+                @Parameter(JobSubmissionDirectoryPrefix.class) final String jobSubmissionDirectoryPrefix) {
     this.mesosRemoteManager = mesosRemoteManager;
     this.reefEventHandlers = reefEventHandlers;
     this.executors = executors;
     this.fileNames = fileNames;
+    this.jobSubmissionDirectoryPrefix = jobSubmissionDirectoryPrefix;
     this.reefTarUri = getReefTarUri(jobIdentifier);
     this.classpath = classpath;
     this.schedulerDriverEStage = schedulerDriverEStage;
@@ -498,7 +502,8 @@ final class REEFScheduler implements Scheduler {
       // Upload REEF_TAR to HDFS
       final FileSystem fileSystem = FileSystem.get(new Configuration());
       final org.apache.hadoop.fs.Path src = new org.apache.hadoop.fs.Path(REEF_TAR);
-      final String reefTarUriValue = fileSystem.getUri().toString() + "/" + jobIdentifier + "/" + REEF_TAR;
+      final String reefTarUriValue = fileSystem.getUri().toString() + this.jobSubmissionDirectoryPrefix + "/" +
+          jobIdentifier + "/" + REEF_TAR;
       final org.apache.hadoop.fs.Path dst = new org.apache.hadoop.fs.Path(reefTarUriValue);
       fileSystem.copyFromLocalFile(src, dst);
 
