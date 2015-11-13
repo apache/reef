@@ -31,6 +31,7 @@ import org.apache.reef.runtime.common.launch.parameters.LaunchID;
 import org.apache.reef.runtime.common.parameters.JVMHeapSlack;
 import org.apache.reef.runtime.mesos.MesosClasspathProvider;
 import org.apache.reef.runtime.mesos.driver.parameters.MesosMasterIp;
+import org.apache.reef.runtime.mesos.driver.parameters.JobSubmissionDirectoryPrefix;
 import org.apache.reef.runtime.mesos.util.HDFSConfigurationConstructor;
 import org.apache.reef.tang.formats.ConfigurationModule;
 import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
@@ -74,6 +75,11 @@ public final class MesosDriverConfiguration extends ConfigurationModuleBuilder {
    */
   public static final RequiredParameter<Integer> SCHEDULER_DRIVER_CAPACITY = new RequiredParameter<>();
 
+  /**
+   * The client remote identifier.
+   */
+  public static final OptionalParameter<String> JOB_SUBMISSION_DIRECTORY_PREFIX = new OptionalParameter<>();
+
   public static final ConfigurationModule CONF = new MesosDriverConfiguration()
       .bindImplementation(ResourceLaunchHandler.class, MesosResourceLaunchHandler.class)
       .bindImplementation(ResourceReleaseHandler.class, MesosResourceReleaseHandler.class)
@@ -87,6 +93,7 @@ public final class MesosDriverConfiguration extends ConfigurationModuleBuilder {
       .bindImplementation(RuntimeClasspathProvider.class, MesosClasspathProvider.class)
 
       .bindNamedParameter(StageConfiguration.Capacity.class, SCHEDULER_DRIVER_CAPACITY)
+      .bindNamedParameter(JobSubmissionDirectoryPrefix.class, JOB_SUBMISSION_DIRECTORY_PREFIX)
       .bindNamedParameter(StageConfiguration.StageHandler.class, MesosSchedulerDriverExecutor.class)
       .bindImplementation(EStage.class, SingleThreadStage.class)
 
