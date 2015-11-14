@@ -51,21 +51,23 @@ import java.util.logging.Logger;
  * the Driver configuration at runtime. Called by {@link YarnBootstrapREEFLauncher}.
  */
 final class YarnBootstrapDriverConfigGenerator {
-  private static final REEFFileNames REEF_FILE_NAMES = new REEFFileNames();
   private static final Logger LOG = Logger.getLogger(YarnBootstrapDriverConfigGenerator.class.getName());
 
+  private final REEFFileNames reefFileNames;
   private final ConfigurationSerializer configurationSerializer;
 
   @Inject
-  private YarnBootstrapDriverConfigGenerator(final ConfigurationSerializer configurationSerializer) {
+  private YarnBootstrapDriverConfigGenerator(final REEFFileNames reefFileNames,
+                                             final ConfigurationSerializer configurationSerializer) {
     this.configurationSerializer = configurationSerializer;
+    this.reefFileNames = reefFileNames;
   }
 
   public String writeDriverConfigurationFile(final String bootstrapArgsLocation) throws IOException {
     final File bootstrapArgsFile = new File(bootstrapArgsLocation);
     final AvroYarnJobSubmissionParameters yarnBootstrapArgs =
         readYarnJobSubmissionParametersFromFile(bootstrapArgsFile);
-    final String driverConfigPath = REEF_FILE_NAMES.getDriverConfigurationPath();
+    final String driverConfigPath = reefFileNames.getDriverConfigurationPath();
 
     this.configurationSerializer.toFile(getYarnDriverConfiguration(yarnBootstrapArgs),
         new File(driverConfigPath));
