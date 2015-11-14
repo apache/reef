@@ -40,10 +40,6 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
         * we insert nodes into the root.
         */
         public override void Add(INode n) {
-            if (children.Count == 289)
-            {
-                Console.WriteLine("Test");
-            }
             children.Add(n.GetFullName(), n);
         }
     }
