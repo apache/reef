@@ -54,6 +54,7 @@ under the License.
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="YarnClientTests.cs" />
     <Compile Include="YarnConfigurationUrlProviderTests.cs" />
+    <Compile Include="WindowsYarnJobCommandProviderTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.Client\Org.Apache.REEF.Client.csproj">
