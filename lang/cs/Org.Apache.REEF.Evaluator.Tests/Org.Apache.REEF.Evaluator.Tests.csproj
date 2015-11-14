@@ -63,9 +63,28 @@ under the License.
       <Project>{79e7f89a-1dfb-45e1-8d43-d71a954aeb98}</Project>
       <Name>Org.Apache.REEF.Utilities</Name>
     </ProjectReference>
+    <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.Driver\Org.Apache.REEF.Driver.csproj">
+      <Project>{a6baa2a7-f52f-4329-884e-1bcf711d6805}</Project>
+      <Name>Org.Apache.REEF.Driver</Name>
+    </ProjectReference>
+    <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.Examples.HelloREEF\Org.Apache.REEF.Examples.HelloREEF.csproj">
+      <Project>{0ff8cee9-b0b6-4a14-9a52-44441be048fe}</Project>
+      <Name>Org.Apache.REEF.Examples.HelloREEF</Name>
+    </ProjectReference>
+    <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.Network\Org.Apache.REEF.Network.csproj">
+      <Project>{883ce800-6a6a-4e0a-b7fe-c054f4f2c1dc}</Project>
+      <Name>Org.Apache.REEF.Network</Name>
+    </ProjectReference>
+    <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.Wake\Org.Apache.REEF.Wake.csproj">
+      <Project>{cdfb3464-4041-42b1-9271-83af24cd5008}</Project>
+      <Name>Org.Apache.REEF.Wake</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="$(SolutionDir)\Org.Apache.REEF.Examples\ConfigFiles\evaluator.conf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="$(SolutionDir)\Org.Apache.REEF.Examples\ConfigFiles\evaluatorWithService.conf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="packages.config" />

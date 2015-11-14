@@ -178,7 +178,7 @@ namespace Org.Apache.REEF.Tang.Implementations.Configuration
 
         public void RegisterLegacyConstructor(string s, IList<string> args)
         {
-            IClassNode cn = (IClassNode) this.ClassHierarchy.GetNode(s);
+            IClassNode cn = (IClassNode)this.ClassHierarchy.GetNode(s);
             IList<IClassNode> cnArgs = new List<IClassNode>();
             for (int i = 0; i < args.Count; i++)
             {
@@ -206,6 +206,11 @@ namespace Org.Apache.REEF.Tang.Implementations.Configuration
         public void Bind(string key, string value)
         {
             INode n = this.ClassHierarchy.GetNode(key);
+            BindNode(n, value);
+        }
+
+        private void BindNode(INode n, string value)
+        {
             if (n is INamedParameterNode)
             {
                 BindParameter((INamedParameterNode)n, value);
@@ -222,6 +227,12 @@ namespace Org.Apache.REEF.Tang.Implementations.Configuration
             }
         }
 
+        public void Bind(string key, string value, string aliasLanguage)
+        {
+            INode n = ClassHierarchy.GetNode(key, aliasLanguage);
+            BindNode(n, value);
+        }
+
         public void Bind(Types.INode key, Types.INode value)
         {
             if (key is INamedParameterNode)
@@ -236,7 +247,7 @@ namespace Org.Apache.REEF.Tang.Implementations.Configuration
                     IClassNode val = (IClassNode)value;
                     if (val.IsExternalConstructor() && !k.IsExternalConstructor())
                     {
-                        BindConstructor(k, (IClassNode) val);
+                        BindConstructor(k, (IClassNode)val);
                     }
                     else
                     {
@@ -334,7 +345,7 @@ namespace Org.Apache.REEF.Tang.Implementations.Configuration
 
         public string ClassPrettyDefaultString(string longName)
         {
-            INamedParameterNode param = (INamedParameterNode) this.ClassHierarchy.GetNode(longName);
+            INamedParameterNode param = (INamedParameterNode)this.ClassHierarchy.GetNode(longName);
             return param.GetSimpleArgName() + "=" + Join(",", param.GetDefaultInstanceAsStrings());
         }
 
@@ -358,7 +369,7 @@ namespace Org.Apache.REEF.Tang.Implementations.Configuration
 
         public string ClassPrettyDescriptionString(string fullName)
         {
-            INamedParameterNode param = (INamedParameterNode) this.ClassHierarchy.GetNode(fullName);
+            INamedParameterNode param = (INamedParameterNode)this.ClassHierarchy.GetNode(fullName);
             return param.GetDocumentation() + "\n" + param.GetFullName();
         }
     }

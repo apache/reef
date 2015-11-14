@@ -23,6 +23,8 @@ import org.apache.reef.tang.annotations.NamedParameter;
 
 /**
  * The evaluator identifier.
+ * An alias has been defined for this named parameter in .Net REEF as
+ * Org.Apache.REEF.Common.Runtime.Evaluator.Utils.EvaluatorIdentifier
  */
 @NamedParameter(doc = "The evaluator identifier.")
 public final class EvaluatorIdentifier implements Name<String> {

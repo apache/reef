@@ -37,7 +37,6 @@ namespace Org.Apache.REEF.Evaluator.Tests
     {
         [TestMethod, Priority(0), TestCategory("Functional")]
         [Description("Parse Evaluator configuration from Java, inject and execute Shell task with DIR command based on the configuration")]
-        [DeploymentItem(@"ConfigFiles")]
         public void CanInjectAndExecuteTask()
         {
             //To enforce that shell task dll be copied to output directory.
