@@ -89,11 +89,14 @@ under the License.
     <Compile Include="Local\Parameters\LocalRuntimeDirectory.cs" />
     <Compile Include="Local\Parameters\NumberOfEvaluators.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="YARN\IYarnJobCommandBuilder.cs" />
     <Compile Include="YARN\IJobResourceUploader.cs" />
     <Compile Include="YARN\IJobSubmissionDirectoryProvider.cs" />
+    <Compile Include="YARN\YarnJobCommandBuilder.cs" />
     <Compile Include="YARN\JobResource.cs" />
     <Compile Include="YARN\JobSubmissionDirectoryProvider.cs" />
     <Compile Include="YARN\LegacyJobResourceUploader.cs" />
+    <Compile Include="YARN\Parameters\EnableDebugLogging.cs" />
     <Compile Include="YARN\Parameters\JobSubmissionDirectoryPrefixParameter.cs" />
     <Compile Include="YARN\Parameters\SecurityTokenParameters.cs" />
     <Compile Include="YARN\RestClient\DataModel\Acls.cs" />
