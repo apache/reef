@@ -18,7 +18,6 @@
  */
 package org.apache.reef.io.network.group.impl.operators;
 
-import org.apache.reef.driver.parameters.DriverIdentifier;
 import org.apache.reef.driver.task.TaskConfigurationOptions;
 import org.apache.reef.exception.evaluator.NetworkException;
 import org.apache.reef.io.network.exception.ParentDeadException;
@@ -27,10 +26,7 @@ import org.apache.reef.io.network.group.api.task.CommGroupNetworkHandler;
 import org.apache.reef.io.network.group.api.task.CommunicationGroupServiceClient;
 import org.apache.reef.io.network.group.api.task.OperatorTopology;
 import org.apache.reef.io.network.group.impl.GroupCommunicationMessage;
-import org.apache.reef.io.network.group.impl.config.parameters.CommunicationGroupName;
-import org.apache.reef.io.network.group.impl.config.parameters.DataCodec;
-import org.apache.reef.io.network.group.impl.config.parameters.OperatorName;
-import org.apache.reef.io.network.group.impl.config.parameters.TaskVersion;
+import org.apache.reef.io.network.group.impl.config.parameters.*;
 import org.apache.reef.io.network.group.impl.task.OperatorTopologyImpl;
 import org.apache.reef.io.network.group.impl.utils.Utils;
 import org.apache.reef.io.network.impl.NetworkService;
@@ -66,7 +62,7 @@ public class GatherReceiver<T> implements Gather.Receiver<T>, EventHandler<Group
                         @Parameter(OperatorName.class) final String operName,
                         @Parameter(TaskConfigurationOptions.Identifier.class) final String selfId,
                         @Parameter(DataCodec.class) final Codec<T> dataCodec,
-                        @Parameter(DriverIdentifier.class) final String driverId,
+                        @Parameter(DriverIdentifierGroupComm.class) final String driverId,
                         @Parameter(TaskVersion.class) final int version,
                         final CommGroupNetworkHandler commGroupNetworkHandler,
                         final NetworkService<GroupCommunicationMessage> netService,
