@@ -18,10 +18,10 @@
  */
 package org.apache.reef.io.network.group.impl.task;
 
-import org.apache.reef.driver.parameters.DriverIdentifier;
 import org.apache.reef.driver.task.TaskConfigurationOptions;
 import org.apache.reef.exception.evaluator.NetworkException;
 import org.apache.reef.io.network.group.api.operators.*;
+import org.apache.reef.io.network.group.impl.config.parameters.DriverIdentifierGroupComm;
 import org.apache.reef.io.network.group.impl.driver.TopologySimpleNode;
 import org.apache.reef.io.network.group.impl.driver.TopologySerializer;
 import org.apache.reef.io.network.impl.NetworkService;
@@ -87,7 +87,7 @@ public class CommunicationGroupClientImpl implements CommunicationGroupServiceCl
   @Inject
   public CommunicationGroupClientImpl(@Parameter(CommunicationGroupName.class) final String groupName,
                                       @Parameter(TaskConfigurationOptions.Identifier.class) final String taskId,
-                                      @Parameter(DriverIdentifier.class) final String driverId,
+                                      @Parameter(DriverIdentifierGroupComm.class) final String driverId,
                                       final GroupCommNetworkHandler groupCommNetworkHandler,
                                       @Parameter(SerializedOperConfigs.class) final Set<String> operatorConfigs,
                                       final ConfigurationSerializer configSerializer,
@@ -143,7 +143,7 @@ public class CommunicationGroupClientImpl implements CommunicationGroupServiceCl
   @Inject
   private CommunicationGroupClientImpl(@Parameter(CommunicationGroupName.class) final String groupName,
                                       @Parameter(TaskConfigurationOptions.Identifier.class) final String taskId,
-                                      @Parameter(DriverIdentifier.class) final String driverId,
+                                      @Parameter(DriverIdentifierGroupComm.class) final String driverId,
                                       final GroupCommNetworkHandler groupCommNetworkHandler,
                                       @Parameter(SerializedOperConfigs.class) final Set<String> operatorConfigs,
                                       final ConfigurationSerializer configSerializer,

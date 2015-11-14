@@ -272,6 +272,7 @@ public class CommunicationGroupDriverImpl implements CommunicationGroupDriver {
     final String taskId = taskId(taskConf);
     if (perTaskState.containsKey(taskId)) {
       jcb.bindNamedParameter(CommunicationGroupName.class, groupName.getName());
+      jcb.bindNamedParameter(DriverIdentifierGroupComm.class, driverId);
       LOG.finest(getQualifiedName() + "Task has been added. Waiting to acquire configLock");
       synchronized (configLock) {
         LOG.finest(getQualifiedName() + "Acquired configLock");
@@ -293,7 +294,6 @@ public class CommunicationGroupDriverImpl implements CommunicationGroupDriver {
           final Topology topology = topologies.get(operName);
           final JavaConfigurationBuilder jcbInner = Tang.Factory.getTang()
               .newConfigurationBuilder(topology.getTaskConfiguration(taskId));
-          jcbInner.bindNamedParameter(DriverIdentifier.class, driverId);
           jcbInner.bindNamedParameter(OperatorName.class, operName.getName());
           jcb.bindSetEntry(SerializedOperConfigs.class, confSerializer.toString(jcbInner.build()));
         }
