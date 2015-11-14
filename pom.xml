@@ -297,7 +297,7 @@ under the License.
                             <exclude>Org.Apache.REEF.Common/Protobuf/ReefProtocol/*</exclude>
                             <exclude>Org.Apache.REEF.Common/Avro/*</exclude>
                             <!-- The below are binary data files used in tests -->
-                            <exclude>Org.Apache.REEF.Examples/ConfigFiles/evaluator.conf</exclude>
+                            <exclude>Org.Apache.REEF.Examples/ConfigFiles/*</exclude>
                             <exclude>Org.Apache.REEF.Tang.Tests/simpleConstructorJavaProto.bin</exclude>
                         </excludes>
                     </configuration>

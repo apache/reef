@@ -206,20 +206,33 @@ namespace Org.Apache.REEF.Tang.Implementations.Configuration
         public void Bind(string key, string value)
         {
             INode n = this.ClassHierarchy.GetNode(key);
+            BindNode(n, value);
+        }
+
+        private void BindNode(INode n, string value)
+        {
             if (n is INamedParameterNode)
             {
-                BindParameter((INamedParameterNode)n, value);
+                BindParameter((INamedParameterNode) n, value);
             }
             else if (n is IClassNode)
             {
                 INode m = this.ClassHierarchy.GetNode(value);
-                Bind((IClassNode)n, (IClassNode)m);
+                Bind((IClassNode) n, (IClassNode) m);
             }
             else
             {
-                var ex = new IllegalStateException(string.Format("getNode() returned {0} which is neither a ClassNode nor a NamedParameterNode", n));
+                var ex =
+                    new IllegalStateException(
+                        string.Format("getNode() returned {0} which is neither a ClassNode nor a NamedParameterNode", n));
                 Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(ex, LOGGER);
             }
+        }
+
+        public void Bind(string key, string value, string aliasLanguage)
+        {
+            INode n = ClassHierarchy.GetNode(key, aliasLanguage);
+            BindNode(n, value);
         }
 
         public void Bind(Types.INode key, Types.INode value)

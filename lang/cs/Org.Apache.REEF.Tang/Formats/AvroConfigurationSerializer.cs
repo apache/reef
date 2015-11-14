@@ -51,7 +51,6 @@ namespace Org.Apache.REEF.Tang.Formats
         }
     }
 
-    // TODO[REEF-842] Act on the obsoletes
     public class AvroConfigurationSerializer : IConfigurationSerializer
     {
         public const string Java = "Java";
@@ -132,6 +131,12 @@ namespace Org.Apache.REEF.Tang.Formats
             return FromAvro(avroConf);
         }
 
+        public IConfiguration FromFile(string fileName, IClassHierarchy classHierarchy)
+        {
+            AvroConfiguration avroConf = AvroDeserializeFromFile(fileName);
+            return FromAvro(avroConf, classHierarchy);
+        }
+
         public string ToBase64String(IConfiguration c)
         {
             return Convert.ToBase64String(ToByteArray(c));
@@ -157,10 +162,10 @@ namespace Org.Apache.REEF.Tang.Formats
             return FromAvro(avroConf);
         }
 
-        [Obsolete("Deprecated in 0.14, please use AvroDeserializeFromFile instead.")]
-        public AvroConfiguration AvroDeseriaizeFromFile(string fileName)
+        public IConfiguration FromString(string josonString, IClassHierarchy ch)
         {
-            return AvroDeserializeFromFile(fileName);
+            AvroConfiguration avroConf = JsonConvert.DeserializeObject<AvroConfiguration>(josonString);
+            return FromAvro(avroConf, ch);
         }
 
         public AvroConfiguration AvroDeserializeFromFile(string fileName)
@@ -329,7 +334,7 @@ namespace Org.Apache.REEF.Tang.Formats
             {
                 settings.Add(new KeyValuePair<string, string>(e.key, e.value));
             }
-            ConfigurationFile.ProcessConfigData(cb, settings);   //TODO
+            ConfigurationFile.ProcessConfigData(cb, settings, avroConfiguration.language); 
             return cb.Build();
         }
     }

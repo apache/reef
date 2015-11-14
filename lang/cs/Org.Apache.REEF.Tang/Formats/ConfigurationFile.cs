@@ -223,6 +223,29 @@ namespace Org.Apache.REEF.Tang.Formats
             return property;
         }
 
+        public static void ProcessConfigData(IConfigurationBuilder conf, IList<KeyValuePair<string, string>> settings, string language)
+        {
+            foreach (KeyValuePair<string, string> kv in settings)
+            {
+                try
+                {
+                    conf.Bind(kv.Key, kv.Value, language);
+                }
+                catch (BindException ex)
+                {
+                    Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Caught(ex, Level.Error, LOGGER);
+                    var e = new BindException("Failed to process configuration tuple: [" + kv.Key + "=" + kv.Value + "]", ex);
+                    Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(e, LOGGER);
+                }
+                catch (ClassHierarchyException ex)
+                {
+                    Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Caught(ex, Level.Error, LOGGER);
+                    var e = new ClassHierarchyException("Failed to process configuration tuple: [" + kv.Key + "=" + kv.Value + "]", ex);
+                    Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(e, LOGGER);
+                }
+            }
+        }
+
         public static void ProcessConfigData(IConfigurationBuilder conf, IList<KeyValuePair<string, string>> settings)
         {
             foreach (KeyValuePair<string, string> kv in settings)
