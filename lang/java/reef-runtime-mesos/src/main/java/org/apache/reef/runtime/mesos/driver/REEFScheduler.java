@@ -135,7 +135,7 @@ final class REEFScheduler implements Scheduler {
     this.schedulerDriverEStage = schedulerDriverEStage;
 
     final Protos.FrameworkInfo frameworkInfo = Protos.FrameworkInfo.newBuilder()
-        .setUser("") // TODO: make it configurable.
+        .setUser("")
         .setName(REEF_JOB_NAME_PREFIX + jobIdentifier)
         .build();
     this.mesosMaster = new MesosSchedulerDriver(this, frameworkInfo, masterIp);
