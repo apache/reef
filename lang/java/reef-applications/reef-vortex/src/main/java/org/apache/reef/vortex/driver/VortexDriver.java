@@ -18,7 +18,6 @@
  */
 package org.apache.reef.vortex.driver;
 
-import org.apache.commons.lang.SerializationUtils;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.driver.evaluator.*;
 import org.apache.reef.driver.task.RunningTask;
@@ -31,6 +30,7 @@ import org.apache.reef.tang.annotations.Unit;
 import org.apache.reef.vortex.api.VortexStart;
 import org.apache.reef.vortex.common.TaskletFailureReport;
 import org.apache.reef.vortex.common.TaskletResultReport;
+import org.apache.reef.vortex.common.VortexAvroUtils;
 import org.apache.reef.vortex.common.WorkerReport;
 import org.apache.reef.vortex.evaluator.VortexWorker;
 import org.apache.reef.wake.EStage;
@@ -154,15 +154,16 @@ final class VortexDriver {
     @Override
     public void onNext(final TaskMessage taskMessage) {
       final String workerId = taskMessage.getId();
-      final WorkerReport workerReport= (WorkerReport)SerializationUtils.deserialize(taskMessage.get());
+      final WorkerReport workerReport = VortexAvroUtils.toWorkerReport(taskMessage.get());
       switch (workerReport.getType()) {
       case TaskletResult:
-        final TaskletResultReport taskletResultReport = (TaskletResultReport)workerReport;
+        final TaskletResultReport taskletResultReport = (TaskletResultReport) workerReport;
         vortexMaster.taskletCompleted(workerId, taskletResultReport.getTaskletId(), taskletResultReport.getResult());
         break;
       case TaskletFailure:
-        final TaskletFailureReport taskletFailureReport = (TaskletFailureReport)workerReport;
-        vortexMaster.taskletErrored(workerId, taskletFailureReport.getTaskletId(), taskletFailureReport.getException());
+        final TaskletFailureReport taskletFailureReport = (TaskletFailureReport) workerReport;
+        vortexMaster.taskletErrored(workerId, taskletFailureReport.getTaskletId(),
+            taskletFailureReport.getException());
         break;
       default:
         throw new RuntimeException("Unknown Report");

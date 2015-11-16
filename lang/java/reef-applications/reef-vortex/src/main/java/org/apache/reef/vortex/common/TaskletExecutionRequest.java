@@ -65,4 +65,18 @@ public final class TaskletExecutionRequest<TInput extends Serializable, TOutput 
   public int getTaskletId() {
     return taskletId;
   }
+
+  /**
+   * Get function of the tasklet.
+   */
+  public VortexFunction getFunction() {
+    return userFunction;
+  }
+
+  /**
+   * Get input of the tasklet.
+   */
+  public TInput getInput() {
+    return input;
+  }
 }

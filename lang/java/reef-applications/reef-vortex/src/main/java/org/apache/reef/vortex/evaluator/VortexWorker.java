@@ -18,7 +18,6 @@
  */
 package org.apache.reef.vortex.evaluator;
 
-import org.apache.commons.lang.SerializationUtils;
 import org.apache.reef.annotations.Unstable;
 import org.apache.reef.annotations.audience.TaskSide;
 import org.apache.reef.tang.annotations.Parameter;
@@ -57,7 +56,7 @@ public final class VortexWorker implements Task, TaskMessageSource {
 
   @Inject
   private VortexWorker(final HeartBeatTriggerManager heartBeatTriggerManager,
-                      @Parameter(VortexWorkerConf.NumOfThreads.class) final int numOfThreads) {
+                       @Parameter(VortexWorkerConf.NumOfThreads.class) final int numOfThreads) {
     this.heartBeatTriggerManager = heartBeatTriggerManager;
     this.numOfThreads = numOfThreads;
   }
@@ -88,33 +87,32 @@ public final class VortexWorker implements Task, TaskMessageSource {
             @Override
             public void run() {
               // Command Executor: Deserialize the command
-              final VortexRequest vortexRequest = (VortexRequest) SerializationUtils.deserialize(message);
+              final VortexRequest vortexRequest = VortexAvroUtils.toVortexRequest(message);
               switch (vortexRequest.getType()) {
-                case ExecuteTasklet:
-                  final TaskletExecutionRequest taskletExecutionRequest = (TaskletExecutionRequest) vortexRequest;
-                  try {
-                    // Command Executor: Execute the command
-                    final Serializable result = taskletExecutionRequest.execute();
+              case ExecuteTasklet:
+                final TaskletExecutionRequest taskletExecutionRequest = (TaskletExecutionRequest) vortexRequest;
+                try {
+                  // Command Executor: Execute the command
+                  final Serializable result = taskletExecutionRequest.execute();
 
-                    // Command Executor: Tasklet successfully returns result
-                    final WorkerReport report =
-                        new TaskletResultReport<>(taskletExecutionRequest.getTaskletId(), result);
-                    workerReports.addLast(SerializationUtils.serialize(report));
-                  } catch (Exception e) {
-                    // Command Executor: Tasklet throws an exception
-                    final WorkerReport report =
-                        new TaskletFailureReport(taskletExecutionRequest.getTaskletId(), e);
-                    workerReports.addLast(SerializationUtils.serialize(report));
-                  }
+                  // Command Executor: Tasklet successfully returns result
+                  final WorkerReport report =
+                      new TaskletResultReport<>(taskletExecutionRequest.getTaskletId(), result);
+                  workerReports.addLast(VortexAvroUtils.toBytes(report));
+                } catch (Exception e) {
+                  // Command Executor: Tasklet throws an exception
+                  final WorkerReport report =
+                      new TaskletFailureReport(taskletExecutionRequest.getTaskletId(), e);
+                  workerReports.addLast(VortexAvroUtils.toBytes(report));
+                }
 
-                  heartBeatTriggerManager.triggerHeartBeat();
-                  break;
-                default:
-                  throw new RuntimeException("Unknown Command");
+                heartBeatTriggerManager.triggerHeartBeat();
+                break;
+              default:
+                throw new RuntimeException("Unknown Command");
               }
             }
           });
-
         }
       }
     });
