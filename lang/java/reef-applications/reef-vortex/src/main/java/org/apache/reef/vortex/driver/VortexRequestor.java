@@ -18,9 +18,9 @@
  */
 package org.apache.reef.vortex.driver;
 
-import org.apache.commons.lang.SerializationUtils;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.driver.task.RunningTask;
+import org.apache.reef.vortex.common.VortexAvroUtils;
 import org.apache.reef.vortex.common.VortexRequest;
 
 import javax.inject.Inject;
@@ -43,7 +43,7 @@ class VortexRequestor {
       @Override
       public void run() {
         //  Possible race condition with VortexWorkerManager#terminate is addressed by the global lock in VortexMaster
-        reefTask.send(SerializationUtils.serialize(vortexRequest));
+        reefTask.send(VortexAvroUtils.toBytes(vortexRequest));
       }
     });
   }
