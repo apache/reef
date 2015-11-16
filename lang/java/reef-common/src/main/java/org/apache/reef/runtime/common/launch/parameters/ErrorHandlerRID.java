@@ -23,6 +23,8 @@ import org.apache.reef.tang.annotations.NamedParameter;
 
 /**
  * The error handler remote identifier.
+ * An alais has been defined for this named parameter in .Net REEF as
+ * Org.Apache.REEF.Common.Runtime.Evaluator.Utils.ErrorHandlerRID
  */
 @NamedParameter(doc = "The error handler remote identifier.", short_name = ErrorHandlerRID.SHORT_NAME,
     default_value = ErrorHandlerRID.NONE)

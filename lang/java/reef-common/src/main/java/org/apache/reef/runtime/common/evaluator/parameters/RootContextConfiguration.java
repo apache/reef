@@ -23,6 +23,8 @@ import org.apache.reef.tang.annotations.NamedParameter;
 
 /**
  * The evaluator root context configuration.
+ * An alais has been defined for this named parameter in .Net REEF as
+ * Org.Apache.REEF.Common.Runtime.Evaluator.Utils.RootContextConfiguration
  */
 @NamedParameter(doc = "The evaluator root context configuration.")
 public final class RootContextConfiguration implements Name<String> {

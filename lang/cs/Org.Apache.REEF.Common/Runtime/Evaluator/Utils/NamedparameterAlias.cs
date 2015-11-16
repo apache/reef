@@ -26,10 +26,12 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Utils
     public class ApplicationIdentifier : Name<string>
     {
     }
+
     [NamedParameter(alias: "org.apache.reef.runtime.common.evaluator.parameters.DriverRemoteIdentifier", aliasLanguage: AvroConfigurationSerializer.Java)]
     public class DriverRemoteIdentifier : Name<string>
     {
     }
+
     [NamedParameter(alias: "org.apache.reef.runtime.common.evaluator.parameters.EvaluatorIdentifier", aliasLanguage: AvroConfigurationSerializer.Java)]
     public class EvaluatorIdentifier : Name<string>
     {
