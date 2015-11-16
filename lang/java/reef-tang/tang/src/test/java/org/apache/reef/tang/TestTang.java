@@ -27,6 +27,9 @@ import org.apache.reef.tang.exceptions.ClassHierarchyException;
 import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.tang.exceptions.NameResolutionException;
 import org.apache.reef.tang.formats.AvroConfigurationSerializer;
+import org.apache.reef.tang.formats.ConfigurationModule;
+import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
+import org.apache.reef.tang.formats.OptionalParameter;
 import org.apache.reef.tang.util.ReflectionUtilities;
 import org.junit.Assert;
 import org.junit.Before;
@@ -712,6 +715,27 @@ public class TestTang {
     final Injector i = Tang.Factory.getTang().newInjector(cb.build());
     final CheckChildIface o1 = i.getInstance(CheckChildIface.class);
     Assert.assertTrue(o1 instanceof CheckChildImpl);
+  }
+
+  /**
+   * Tang supports empty string, '', as a default value.
+   */
+  @Test
+  public void testEmptyStringAsDefaultValue() throws InjectionException {
+    final ConfigurationModule cm = new EmptyStringAsDefaultParamConf()
+        .bindNamedParameter(EmptyStringAsDefaultParam.class, EmptyStringAsDefaultParamConf.OPTIONAL_STRING)
+        .build();
+    final Configuration conf = cm.build();
+    String value = Tang.Factory.getTang().newInjector(conf).getNamedInstance(EmptyStringAsDefaultParam.class);
+    Assert.assertEquals("", value);
+  }
+
+  @NamedParameter(default_value = "")
+  class EmptyStringAsDefaultParam implements Name<String> {
+  }
+
+  public static class EmptyStringAsDefaultParamConf extends ConfigurationModuleBuilder {
+    public static final OptionalParameter<String> OPTIONAL_STRING = new OptionalParameter<>();
   }
 }
 
