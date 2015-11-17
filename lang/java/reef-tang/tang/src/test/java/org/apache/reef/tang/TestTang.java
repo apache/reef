@@ -722,10 +722,7 @@ public class TestTang {
    */
   @Test
   public void testEmptyStringAsDefaultValue() throws InjectionException {
-    final ConfigurationModule cm = new EmptyStringAsDefaultParamConf()
-        .bindNamedParameter(EmptyStringAsDefaultParam.class, EmptyStringAsDefaultParamConf.OPTIONAL_STRING)
-        .build();
-    final Configuration conf = cm.build();
+    final Configuration conf = EmptyStringAsDefaultParamConf.CONF.build();
     String value = Tang.Factory.getTang().newInjector(conf).getNamedInstance(EmptyStringAsDefaultParam.class);
     Assert.assertEquals("", value);
   }
@@ -736,6 +733,10 @@ public class TestTang {
 
   public static class EmptyStringAsDefaultParamConf extends ConfigurationModuleBuilder {
     public static final OptionalParameter<String> OPTIONAL_STRING = new OptionalParameter<>();
+
+    public static final ConfigurationModule CONF = new EmptyStringAsDefaultParamConf()
+        .bindNamedParameter(EmptyStringAsDefaultParam.class, EmptyStringAsDefaultParamConf.OPTIONAL_STRING)
+        .build();
   }
 }
 
