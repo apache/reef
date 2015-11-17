@@ -51,6 +51,7 @@ public final class REEFFileNames {
   private static final String BRIDGE_EXE_NAME = "Org.Apache.REEF.Bridge.exe";
   private static final String SECURITY_TOKEN_IDENTIFIER_FILE = "SecurityTokenId";
   private static final String SECURITY_TOKEN_PASSWORD_FILE = "SecurityTokenPwd";
+  private static final String YARN_BOOTSTRAP_PARAM_FILE = "yarnparameters.json";
 
   @Inject
   public REEFFileNames() {
@@ -230,5 +231,17 @@ public final class REEFFileNames {
    */
   public String getSecurityTokenPasswordFile() {
     return SECURITY_TOKEN_PASSWORD_FILE;
+  }
+
+  /**
+   * @return File name the contains the bootstrap parameters for YARN job submission
+   * without Java dependency.
+   */
+  public String getYarnBootstrapParamFile() {
+    return YARN_BOOTSTRAP_PARAM_FILE;
+  }
+
+  public String getYarnBootstrapParamFilePath() {
+    return LOCAL_FOLDER_PATH + '/' + getYarnBootstrapParamFile();
   }
 }

@@ -46,23 +46,35 @@ public final class JavaLaunchCommandBuilder implements LaunchCommandBuilder {
   private String javaPath = null;
   private String classPath = null;
   private Boolean assertionsEnabled = null;
-  private Map<String, JVMOption> options = new HashMap<>();
+  private final Map<String, JVMOption> options = new HashMap<>();
   private final List<String> commandPrefixList;
+  private final Class launcherClass;
 
   /**
-   * Constructor that populates default options.
+   * Constructor that populates default options, using the default Launcher
+   * class {@link REEFLauncher}.
    */
   public JavaLaunchCommandBuilder() {
-    this(null);
+    this(REEFLauncher.class, null);
   }
 
   /**
-   * Constructor that populates prefix.
+   * Constructor that uses the default Launcher class, {@link REEFLauncher}.
+   * @param commandPrefixList
    */
   public JavaLaunchCommandBuilder(final List<String> commandPrefixList) {
+    this(REEFLauncher.class, commandPrefixList);
+  }
+
+  /**
+   * Constructor that populates prefix and uses a custom Launcher class.
+   */
+  public JavaLaunchCommandBuilder(final Class launcherClass, final List<String> commandPrefixList) {
     for (final String defaultOption : DEFAULT_OPTIONS) {
       addOption(defaultOption);
     }
+
+    this.launcherClass = launcherClass;
     this.commandPrefixList = commandPrefixList;
   }
 
@@ -95,11 +107,11 @@ public final class JavaLaunchCommandBuilder implements LaunchCommandBuilder {
           add(classPath);
         }
 
-        REEFLauncher.propagateProperties(this, true, "proc_reef");
-        REEFLauncher.propagateProperties(this, false,
+        propagateProperties(this, true, "proc_reef");
+        propagateProperties(this, false,
             "java.util.logging.config.file", "java.util.logging.config.class");
 
-        add(REEFLauncher.class.getName());
+        add(launcherClass.getName());
         add(evaluatorConfigurationPath);
 
         if (stdoutPath != null && !stdoutPath.isEmpty()) {
@@ -166,6 +178,28 @@ public final class JavaLaunchCommandBuilder implements LaunchCommandBuilder {
    */
   public JavaLaunchCommandBuilder addOption(final String option) {
     return addOption(JVMOption.parse(option));
+  }
+
+  /**
+   * Pass values of the properties specified in the propNames array as <code>-D...</code>
+   * command line parameters. Currently used only to pass logging configuration to child JVMs processes.
+   *
+   * @param vargs     List of command line parameters to append to.
+   * @param copyNull  create an empty parameter if the property is missing in current process.
+   * @param propNames property names.
+   */
+  private static void propagateProperties(
+      final Collection<String> vargs, final boolean copyNull, final String... propNames) {
+    for (final String propName : propNames) {
+      final String propValue = System.getProperty(propName);
+      if (propValue == null || propValue.isEmpty()) {
+        if (copyNull) {
+          vargs.add("-D" + propName);
+        }
+      } else {
+        vargs.add(String.format("-D%s=%s", propName, propValue));
+      }
+    }
   }
 
   private JavaLaunchCommandBuilder addOption(final JVMOption jvmOption) {

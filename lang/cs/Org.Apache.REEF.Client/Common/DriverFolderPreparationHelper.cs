@@ -182,7 +182,7 @@ namespace Org.Apache.REEF.Client.Common
             var lowerCasePath = fileName.ToLower();
             return lowerCasePath.EndsWith(DLLFileNameExtension) ||
                    lowerCasePath.EndsWith(EXEFileNameExtension) ||
-                   lowerCasePath.StartsWith(ClientConstants.DriverJarFilePrefix);
+                   lowerCasePath.StartsWith(ClientConstants.ClientJarFilePrefix);
         }
     }
 }

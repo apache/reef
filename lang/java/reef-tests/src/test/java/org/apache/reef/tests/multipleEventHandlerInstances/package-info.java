@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * Tests for multiple event handler registration.
  */
 package org.apache.reef.tests.multipleEventHandlerInstances;

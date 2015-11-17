@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * Tests the messaging channel between client and driver.
  */
 package org.apache.reef.tests.messaging.driver;

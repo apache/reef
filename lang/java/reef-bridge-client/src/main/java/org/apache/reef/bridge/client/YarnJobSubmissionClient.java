@@ -18,6 +18,7 @@
  */
 package org.apache.reef.bridge.client;
 
+import org.apache.commons.lang.Validate;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -27,21 +28,20 @@ import org.apache.hadoop.security.token.Token;
 import org.apache.hadoop.yarn.api.records.LocalResource;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.exceptions.YarnException;
-import org.apache.reef.driver.parameters.MaxApplicationSubmissions;
-import org.apache.reef.driver.parameters.ResourceManagerPreserveEvaluators;
 import org.apache.reef.runtime.common.files.ClasspathProvider;
 import org.apache.reef.runtime.common.files.REEFFileNames;
+import org.apache.reef.runtime.common.files.RuntimeClasspathProvider;
 import org.apache.reef.runtime.common.launch.parameters.DriverLaunchCommandPrefix;
+import org.apache.reef.runtime.yarn.YarnClasspathProvider;
 import org.apache.reef.runtime.yarn.client.SecurityTokenProvider;
 import org.apache.reef.runtime.yarn.client.YarnSubmissionHelper;
 import org.apache.reef.runtime.yarn.client.uploader.JobFolder;
 import org.apache.reef.runtime.yarn.client.uploader.JobUploader;
+import org.apache.reef.runtime.yarn.util.YarnConfigurationConstructor;
 import org.apache.reef.tang.Configuration;
-import org.apache.reef.tang.Injector;
 import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.tang.exceptions.InjectionException;
-import org.apache.reef.tang.formats.ConfigurationSerializer;
 import org.apache.reef.util.JARFileMaker;
 
 import javax.inject.Inject;
@@ -49,6 +49,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -61,36 +62,29 @@ public final class YarnJobSubmissionClient {
 
   private static final Logger LOG = Logger.getLogger(YarnJobSubmissionClient.class.getName());
   private final JobUploader uploader;
-  private final ConfigurationSerializer configurationSerializer;
   private final REEFFileNames fileNames;
   private final YarnConfiguration yarnConfiguration;
   private final ClasspathProvider classpath;
-  private final int maxApplicationSubmissions;
   private final SecurityTokenProvider tokenProvider;
   private final List<String> commandPrefixList;
-  private final YarnDriverConfigurationGenerator configurationGenerator;
+  private final YarnJobSubmissionParametersFileGenerator jobSubmissionParametersGenerator;
 
   @Inject
   YarnJobSubmissionClient(final JobUploader uploader,
                           final YarnConfiguration yarnConfiguration,
-                          final ConfigurationSerializer configurationSerializer,
                           final REEFFileNames fileNames,
                           final ClasspathProvider classpath,
-                          @Parameter(MaxApplicationSubmissions.class)
-                          final int maxApplicationSubmissions,
                           @Parameter(DriverLaunchCommandPrefix.class)
                           final List<String> commandPrefixList,
                           final SecurityTokenProvider tokenProvider,
-                          final YarnDriverConfigurationGenerator configurationGenerator) {
+                          final YarnJobSubmissionParametersFileGenerator jobSubmissionParametersGenerator) {
     this.uploader = uploader;
-    this.configurationSerializer = configurationSerializer;
     this.fileNames = fileNames;
     this.yarnConfiguration = yarnConfiguration;
     this.classpath = classpath;
-    this.maxApplicationSubmissions = maxApplicationSubmissions;
     this.tokenProvider = tokenProvider;
     this.commandPrefixList = commandPrefixList;
-    this.configurationGenerator = configurationGenerator;
+    this.jobSubmissionParametersGenerator = jobSubmissionParametersGenerator;
   }
 
   /**
@@ -99,6 +93,7 @@ public final class YarnJobSubmissionClient {
    * @throws IOException
    */
   private File makeJar(final File driverFolder) throws IOException {
+    Validate.isTrue(driverFolder.exists());
     final File jarFile = new File(driverFolder.getParentFile(), driverFolder.getName() + ".jar");
     final File reefFolder = new File(driverFolder, fileNames.getREEFFolderName());
     if (!reefFolder.isDirectory()) {
@@ -109,7 +104,7 @@ public final class YarnJobSubmissionClient {
     return jarFile;
   }
 
-  private void launch(final YarnSubmissionFromCS yarnSubmission) throws IOException, YarnException {
+  private void launch(final YarnClusterSubmissionFromCS yarnSubmission) throws IOException, YarnException {
     // ------------------------------------------------------------------------
     // Get an application ID
     try (final YarnSubmissionHelper submissionHelper =
@@ -118,10 +113,7 @@ public final class YarnJobSubmissionClient {
       // ------------------------------------------------------------------------
       // Prepare the JAR
       final JobFolder jobFolderOnDFS = this.uploader.createJobFolder(submissionHelper.getApplicationId());
-      final Configuration jobSubmissionConfiguration =
-          this.configurationGenerator.writeConfiguration(yarnSubmission.getDriverFolder(),
-            yarnSubmission.getJobId(),
-            jobFolderOnDFS.getPath().toString());
+      this.jobSubmissionParametersGenerator.writeConfiguration(yarnSubmission, jobFolderOnDFS);
       final File jarFile = makeJar(yarnSubmission.getDriverFolder());
       LOG.log(Level.INFO, "Created job submission jar file: {0}", jarFile);
 
@@ -131,29 +123,26 @@ public final class YarnJobSubmissionClient {
       final LocalResource jarFileOnDFS = jobFolderOnDFS.uploadAsLocalResource(jarFile);
       LOG.info("Uploaded job submission JAR");
 
-      final Injector jobParamsInjector = Tang.Factory.getTang().newInjector(jobSubmissionConfiguration);
-
       // ------------------------------------------------------------------------
       // Submit
-      try {
-        submissionHelper
-            .addLocalResource(this.fileNames.getREEFFolderName(), jarFileOnDFS)
-            .setApplicationName(yarnSubmission.getJobId())
-            .setDriverMemory(yarnSubmission.getDriverMemory())
-            .setPriority(yarnSubmission.getPriority())
-            .setQueue(yarnSubmission.getQueue())
-            .setMaxApplicationAttempts(this.maxApplicationSubmissions)
-            .setPreserveEvaluators(jobParamsInjector.getNamedInstance(ResourceManagerPreserveEvaluators.class))
-            .submit();
-      } catch (InjectionException ie) {
-        throw new RuntimeException("Unable to submit job due to " + ie);
-      }
+      submissionHelper
+          .addLocalResource(this.fileNames.getREEFFolderName(), jarFileOnDFS)
+          .setApplicationName(yarnSubmission.getJobId())
+          .setDriverMemory(yarnSubmission.getDriverMemory())
+          .setPriority(yarnSubmission.getPriority())
+          .setQueue(yarnSubmission.getQueue())
+          .setMaxApplicationAttempts(yarnSubmission.getMaxApplicationSubmissions())
+          .setPreserveEvaluators(yarnSubmission.getDriverRecoveryTimeout() > 0)
+          .setLauncherClass(YarnBootstrapREEFLauncher.class)
+          .setConfigurationFileName(fileNames.getYarnBootstrapParamFilePath())
+          .submit();
       writeDriverHttpEndPoint(yarnSubmission.getDriverFolder(),
           submissionHelper.getStringApplicationId(), jobFolderOnDFS.getPath());
     }
   }
 
-  private static void writeSecurityTokenToUserCredential(final YarnSubmissionFromCS yarnSubmission) throws IOException {
+  private static void writeSecurityTokenToUserCredential(
+      final YarnClusterSubmissionFromCS yarnSubmission) throws IOException {
     final UserGroupInformation currentUser = UserGroupInformation.getCurrentUser();
     final REEFFileNames fileNames = new REEFFileNames();
     final String securityTokenIdentifierFile = fileNames.getSecurityTokenIdentifierFile();
@@ -229,7 +218,7 @@ public final class YarnJobSubmissionClient {
   /**
    * .NET client calls into this main method for job submission.
    * For arguments detail:
-   * @see org.apache.reef.bridge.client.YarnSubmissionFromCS#fromJobSubmissionParametersFile(File)
+   * @see YarnClusterSubmissionFromCS#fromJobSubmissionParametersFile(File)
    */
   public static void main(final String[] args) throws InjectionException, IOException, YarnException {
     final File jobSubmissionParametersFile = new File(args[0]);
@@ -237,8 +226,8 @@ public final class YarnJobSubmissionClient {
       throw new IOException("Unable to open and read " + jobSubmissionParametersFile.getAbsolutePath());
     }
 
-    final YarnSubmissionFromCS yarnSubmission =
-        YarnSubmissionFromCS.fromJobSubmissionParametersFile(jobSubmissionParametersFile);
+    final YarnClusterSubmissionFromCS yarnSubmission =
+        YarnClusterSubmissionFromCS.fromJobSubmissionParametersFile(jobSubmissionParametersFile);
 
     LOG.log(Level.INFO, "YARN job submission received from C#: {0}", yarnSubmission);
     if (!yarnSubmission.getTokenKind().equalsIgnoreCase("NULL")) {
@@ -250,11 +239,20 @@ public final class YarnJobSubmissionClient {
       LOG.log(Level.FINE, "Did not find security token");
     }
 
-    final Configuration yarnConfiguration = yarnSubmission.getRuntimeConfiguration();
-    final YarnJobSubmissionClient client = Tang.Factory.getTang()
-        .newInjector(yarnConfiguration)
+    final List<String> launchCommandPrefix = new ArrayList<String>() {{
+          add(new REEFFileNames().getDriverLauncherExeFile().toString());
+      }};
+
+    final Configuration yarnJobSubmissionClientConfig = Tang.Factory.getTang().newConfigurationBuilder()
+        .bindImplementation(RuntimeClasspathProvider.class, YarnClasspathProvider.class)
+        .bindConstructor(org.apache.hadoop.yarn.conf.YarnConfiguration.class, YarnConfigurationConstructor.class)
+        .bindList(DriverLaunchCommandPrefix.class, launchCommandPrefix)
+        .build();
+    final YarnJobSubmissionClient client = Tang.Factory.getTang().newInjector(yarnJobSubmissionClientConfig)
         .getInstance(YarnJobSubmissionClient.class);
+
     client.launch(yarnSubmission);
+
     LOG.log(Level.INFO, "Returned from launch in Java YarnJobSubmissionClient");
     System.exit(0);
     LOG.log(Level.INFO, "End of main in Java YarnJobSubmissionClient");
