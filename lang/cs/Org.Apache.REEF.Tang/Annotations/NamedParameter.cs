@@ -37,7 +37,7 @@ namespace Org.Apache.REEF.Tang.Annotations
         public string AliasLanguage { get; set; }
 
         public NamedParameterAttribute(string documentation = "", string shortName = "",
-            string defaultValue = "__REEF_UNINITIALIZED_VALUE__", Type defaultClass = null, string[] defaultValues = null, Type[] defaultClasses = null, string alias = null, string aliasLanguage = AvroConfigurationSerializer.Java)
+            string defaultValue = ReefUninitializedValue, Type defaultClass = null, string[] defaultValues = null, Type[] defaultClasses = null, string alias = null, string aliasLanguage = AvroConfigurationSerializer.Java)
         {
             this.Documentation = documentation;
             this.ShortName = shortName;
