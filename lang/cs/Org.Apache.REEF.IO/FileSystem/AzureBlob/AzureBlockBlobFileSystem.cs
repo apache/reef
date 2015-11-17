@@ -19,6 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
 using Org.Apache.REEF.Tang.Annotations;
@@ -80,7 +81,15 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureBlob
         /// </summary>
         public void Copy(Uri sourceUri, Uri destinationUri)
         {
-            _client.GetBlockBlobReference(destinationUri).StartCopyFromBlobAsync(sourceUri).GetAwaiter().GetResult();
+            _client.GetBlockBlobReference(destinationUri).StartCopy(sourceUri);
+            var blockBlob = _client.GetBlockBlobReference(destinationUri);
+            blockBlob.FetchAttributes();
+
+            while (blockBlob.CopyState.Status == CopyStatus.Pending)
+            {
+                Task.Delay(TimeSpan.FromMilliseconds(50));
+                blockBlob.FetchAttributes();
+            }
         }
 
         /// <summary>

@@ -25,7 +25,6 @@ using Microsoft.WindowsAzure.Storage.RetryPolicies;
 using NSubstitute;
 using Org.Apache.REEF.IO.FileSystem;
 using Org.Apache.REEF.IO.FileSystem.AzureBlob;
-using Org.Apache.REEF.IO.FileSystem.AzureBlob.Block;
 using Org.Apache.REEF.IO.FileSystem.AzureBlob.RetryPolicy;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Implementations.Tang;
@@ -88,16 +87,6 @@ namespace Org.Apache.REEF.IO.Tests
         }
 
         [TestMethod]
-        public void TestCopy()
-        {
-            var testContext = new TestContext();
-            var src = new Uri(FakeUri, "hello");
-            var dest = new Uri(FakeUri, "goodbye");
-            testContext.GetAzureFileSystem().Copy(src, dest);
-            testContext.TestCloudBlockBlob.Received(1).StartCopyFromBlobAsync(src);
-        }
-
-        [TestMethod]
         public void TestCreateDirectory()
         {
             var testContext = new TestContext();
@@ -105,7 +94,7 @@ namespace Org.Apache.REEF.IO.Tests
             testContext.TestCloudBlobClient.DidNotReceiveWithAnyArgs();
         }
 
-        [TestMethod, ExpectedException(typeof(ArgumentOutOfRangeException))]
+        [TestMethod, ExpectedException(typeof(StorageException))]
         public void TestDeleteDirectoryFails()
         {
             new TestContext().GetAzureFileSystem().DeleteDirectory(FakeUri);

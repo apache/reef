@@ -22,8 +22,18 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureBlob
     /// </summary>
     internal interface ICloudBlobContainer
     {
+        /// <summary>
+        /// Deletes the <see cref="ICloudBlobContainer"/> if it exists.
+        /// Does a round trip to the Blob Server.
+        /// </summary>
         void DeleteIfExists();
 
+        /// <summary>
+        /// Gets a reference to a blob "directory." Note that Azure Blob does not actually support
+        /// the concept of directories, so in reality this is more of a convenience method.
+        /// </summary>
+        /// <param name="directoryName">Name of the "directory"</param>
+        /// <returns>The reference to a "directory"</returns>
         ICloudBlobDirectory GetDirectoryReference(string directoryName);
     }
 }

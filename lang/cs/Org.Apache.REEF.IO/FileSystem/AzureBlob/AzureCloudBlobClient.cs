@@ -19,7 +19,6 @@ using System;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Auth;
 using Microsoft.WindowsAzure.Storage.Blob;
-using Org.Apache.REEF.IO.FileSystem.AzureBlob.Block;
 using Org.Apache.REEF.IO.FileSystem.AzureBlob.Parameters;
 using Org.Apache.REEF.IO.FileSystem.AzureBlob.RetryPolicy;
 using Org.Apache.REEF.Tang.Annotations;

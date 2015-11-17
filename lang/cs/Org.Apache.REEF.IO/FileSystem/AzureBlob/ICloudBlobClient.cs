@@ -19,7 +19,6 @@ using System;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Auth;
 using Microsoft.WindowsAzure.Storage.Blob;
-using Org.Apache.REEF.IO.FileSystem.AzureBlob.Block;
 using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.IO.FileSystem.AzureBlob
@@ -30,14 +29,35 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureBlob
     [DefaultImplementation(typeof(AzureCloudBlobClient))]
     internal interface ICloudBlobClient
     {
+        /// <summary>
+        /// Returns the StorageCredentials used to instantiate the <see cref="ICloudBlobClient"/>.
+        /// </summary>
         StorageCredentials Credentials { get; }
 
+        /// <summary>
+        /// Returns the Base URI for the <see cref="ICloudBlobClient"/>.
+        /// </summary>
         Uri BaseUri { get; }
 
+        /// <summary>
+        /// Gets a container reference for a storage account.
+        /// </summary>
+        /// <param name="containerName">Name of the container</param>
+        /// <returns>A reference to the blob container</returns>
         ICloudBlobContainer GetContainerReference(string containerName);
 
+        /// <summary>
+        /// Gets a reference to a block blob. Note that the metadata of the blob
+        /// will not be filled in, since this method does not do a round trip
+        /// to the server.
+        /// </summary>
+        /// <param name="uri">The absolute URI to the block blob</param>
+        /// <returns>A reference to the block blob</returns>
         ICloudBlockBlob GetBlockBlobReference(Uri uri);
 
+        /// <summary>
+        /// Paginates a blob listing with prefix.
+        /// </summary>
         BlobResultSegment ListBlobsSegmented(string prefix, bool useFlatListing, BlobListingDetails blobListingDetails, int? maxResults, 
             BlobContinuationToken continuationToken, BlobRequestOptions blobRequestOptions, OperationContext operationContext);
     }

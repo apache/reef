@@ -25,8 +25,25 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureBlob
     /// </summary>
     internal interface ICloudBlobDirectory
     {
+        /// <summary>
+        /// Gets a reference to a Blob "directory." Note that Azure Blob does not actually support
+        /// the concept of directories, so in reality this is more of a convenience method.
+        /// </summary>
+        /// <param name="directoryName">The name of the blob "directory"</param>
+        /// <returns>A reference to the blob "directory"</returns>
         ICloudBlobDirectory GetDirectoryReference(string directoryName);
 
+        /// <summary>
+        /// Lists the blobs.
+        /// </summary>
+        /// <param name="useFlatListing">
+        /// If true, recursively lists all blobs.
+        /// Otherwise, "directories" can be listed as well.
+        /// </param>
+        /// <returns>
+        /// An <see cref="IEnumerable{T}"/> of blob items that can be either a type of blob
+        /// or blob directories.
+        /// </returns>
         IEnumerable<IListBlobItem> ListBlobs(bool useFlatListing = false);
     }
 }

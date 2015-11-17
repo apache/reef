@@ -17,10 +17,10 @@
 
 using System;
 using System.IO;
-using System.Threading.Tasks;
+using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
 
-namespace Org.Apache.REEF.IO.FileSystem.AzureBlob.Block
+namespace Org.Apache.REEF.IO.FileSystem.AzureBlob
 {
     /// <summary>
     /// A proxy interface for <see cref="CloudBlockBlob"/>,
@@ -28,22 +28,64 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureBlob.Block
     /// </summary>
     internal interface ICloudBlockBlob
     {
+        /// <summary>
+        /// The actual, underlying <see cref="ICloudBlob"/>. Mainly a test hook.
+        /// </summary>
         ICloudBlob Blob { get; }
 
+        /// <summary>
+        /// The <see cref="BlobProperties"/> of the blob. Note that this metadata
+        /// will only be fetched if <see cref="FetchAttributes"/> is called first.
+        /// </summary>
         BlobProperties Properties { get; }
 
+        /// <summary>
+        /// The <see cref="CopyState"/> of the blob. Note that this metadata
+        /// will only be fetched if <see cref="FetchAttributes"/> is called first.
+        /// </summary>
+        CopyState CopyState { get; }
+
+        /// <summary>
+        /// Makes a round trip to the server to test if the blob exists.
+        /// </summary>
+        /// <returns>True if exists. False otherwise.</returns>
         bool Exists();
 
+        /// <summary>
+        /// Deletes the <see cref="ICloudBlockBlob"/> from the server.
+        /// </summary>
+        /// <exception cref="StorageException">If blob does not exist</exception>
         void Delete();
 
+        /// <summary>
+        /// Deletes the <see cref="ICloudBlockBlob"/> from the server, only if it exists.
+        /// </summary>
         void DeleteIfExists();
 
-        Task<string> StartCopyFromBlobAsync(Uri source);
+        /// <summary>
+        /// Starts the process to copy a <see cref="ICloudBlockBlob"/> to another <see cref="ICloudBlockBlob"/>.
+        /// </summary>
+        /// <param name="source">The URI of the source <see cref="ICloudBlockBlob"/></param>
+        /// <returns>The TaskID of the copy operation</returns>
+        string StartCopy(Uri source);
 
+        /// <summary>
+        /// Downloads the <see cref="ICloudBlockBlob"/> to a local file.
+        /// </summary>
+        /// <param name="path">Path to local file</param>
+        /// <param name="mode">Mode of the file</param>
         void DownloadToFile(string path, FileMode mode);
 
+        /// <summary>
+        /// Uploads to an <see cref="ICloudBlockBlob"/> from a local file.
+        /// </summary>
+        /// <param name="path">Path to local file</param>
+        /// <param name="mode">Mode of the file</param>
         void UploadFromFile(string path, FileMode mode);
 
+        /// <summary>
+        /// Makes a round trip to the server to fetch the metadata of the <see cref="ICloudBlockBlob"/>.
+        /// </summary>
         void FetchAttributes();
     }
 }

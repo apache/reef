@@ -17,11 +17,8 @@
 
 using System;
 using System.IO;
-using System.Threading.Tasks;
 using Microsoft.WindowsAzure.Storage.Auth;
 using Microsoft.WindowsAzure.Storage.Blob;
-using Org.Apache.REEF.IO.FileSystem.AzureBlob.Block;
-using Org.Apache.REEF.Utilities.AsyncUtils;
 
 namespace Org.Apache.REEF.IO.FileSystem.AzureBlob
 {
@@ -49,6 +46,14 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureBlob
             }
         }
 
+        public CopyState CopyState
+        {
+            get
+            {
+                return _blob.CopyState;
+            }
+        }
+
         public AzureCloudBlockBlob(Uri uri, StorageCredentials credentials)
         {
             _blob = new CloudBlockBlob(uri, credentials);
@@ -69,10 +74,9 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureBlob
             _blob.DeleteIfExists();
         }
 
-        public async Task<string> StartCopyFromBlobAsync(Uri source)
+        public string StartCopy(Uri source)
         {
-            await new RemoveSynchronizationContextAwaiter();
-            return await _blob.StartCopyFromBlobAsync(source);
+            return _blob.StartCopy(source);
         }
 
         public void DownloadToFile(string path, FileMode mode)
