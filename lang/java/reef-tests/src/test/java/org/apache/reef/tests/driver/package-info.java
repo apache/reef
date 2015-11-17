@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * Test for Driver start mechanism by launching noop driver.
  */
 package org.apache.reef.tests.driver;

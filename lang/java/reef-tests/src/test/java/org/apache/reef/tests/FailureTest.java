@@ -29,8 +29,6 @@ import org.junit.Test;
 
 public class FailureTest {
 
-  private static final int JOB_TIMEOUT = 2 * 60 * 1000;
-
   private final TestEnvironment testEnvironment = TestEnvironmentFactory.getNewTestEnvironment();
 
   @Before

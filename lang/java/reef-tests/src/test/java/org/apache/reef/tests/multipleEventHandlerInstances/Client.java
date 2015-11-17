@@ -40,7 +40,7 @@ public class Client {
   /**
    * Number of milliseconds to wait for the job to complete.
    */
-  private static final int JOB_TIMEOUT = 300000; // 10 sec.
+  private static final int JOB_TIMEOUT = 300000; // 300 sec.
 
   public static LauncherStatus runReefJob(final Configuration runtimeConf, final int timeOut)
       throws BindException, InjectionException {
@@ -61,7 +61,6 @@ public class Client {
   }
 
   /**
-   * @param args command line parameters.
    * @throws BindException      configuration error.
    * @throws InjectionException configuration error.
    */
