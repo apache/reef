@@ -118,7 +118,7 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureBlob
             var uriSplit = directoryUri.AbsolutePath.Split(new[] {"/"}, StringSplitOptions.RemoveEmptyEntries);
             if (!uriSplit.Any())
             {
-                throw new ArgumentOutOfRangeException(@"URI must contain at least the container");
+                throw new StorageException(string.Format("URI {0} must contain at least the container.", directoryUri));
             }
 
             var containerName = uriSplit[0];

@@ -47,12 +47,7 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureBlob
                 .Build();
         }
 
-        IConfiguration IConfigurationProvider.GetConfiguration()
-        {
-            return _configuration;
-        }
-
-        public IConfiguration Hello()
+        public IConfiguration GetConfiguration()
         {
             return _configuration;
         }

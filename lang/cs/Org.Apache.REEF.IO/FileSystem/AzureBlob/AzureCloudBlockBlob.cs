@@ -21,6 +21,7 @@ using System.Threading.Tasks;
 using Microsoft.WindowsAzure.Storage.Auth;
 using Microsoft.WindowsAzure.Storage.Blob;
 using Org.Apache.REEF.IO.FileSystem.AzureBlob.Block;
+using Org.Apache.REEF.Utilities.AsyncUtils;
 
 namespace Org.Apache.REEF.IO.FileSystem.AzureBlob
 {
@@ -70,6 +71,7 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureBlob
 
         public async Task<string> StartCopyFromBlobAsync(Uri source)
         {
+            await new RemoveSynchronizationContextAwaiter();
             return await _blob.StartCopyFromBlobAsync(source);
         }
 
