@@ -48,6 +48,9 @@ Choose a release version:
         <br />
         SHA512: <span id="sha512Text">8f542aeaf2dc3b241bdcd0d343c607355e1f09e1ca89bbc3431b0cc1f0908479511f60900a91a6731051ffef8af30488eb85df567c32bc2db9d3d91014c4fed7</span>
     </li>
+    <li>
+        <a id="releaseNotesLink" href="http://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315820&amp;version=12332972">Release notes</a>
+    </li>
 </ul>
 
 ##Development and Maintenance Branches

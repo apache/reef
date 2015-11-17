@@ -18,12 +18,14 @@
  */
 package org.apache.reef.tests.group;
 
+import org.apache.reef.tests.group.conf.TestGroupCommServiceInjection;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-    TestMultipleCommGroups.class
+    TestMultipleCommGroups.class,
+    TestGroupCommServiceInjection.class
     })
 public final class GroupCommTestSuite {
 }

@@ -16,6 +16,7 @@
 // under the License.
 
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using RestSharp.Serializers;
 
 namespace Org.Apache.REEF.Client.YARN.RestClient
@@ -26,7 +27,7 @@ namespace Org.Apache.REEF.Client.YARN.RestClient
     /// simple ISerializer implementation that uses Newtonsoft.Json
     /// for performing serialization
     /// </summary>
-    internal class RestJsonSerializer : ISerializer
+    internal sealed class RestJsonSerializer : ISerializer
     {
         public RestJsonSerializer()
         {
@@ -43,7 +44,7 @@ namespace Org.Apache.REEF.Client.YARN.RestClient
 
         public string Serialize(object obj)
         {
-            return JsonConvert.SerializeObject(obj);
+            return JsonConvert.SerializeObject(obj, new StringEnumConverter());
         }
     }
 }

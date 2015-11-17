@@ -15,7 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace Org.Apache.REEF.Client.YARN.RestClient.DataModel
 {
@@ -26,6 +26,7 @@ namespace Org.Apache.REEF.Client.YARN.RestClient.DataModel
     /// </summary>
     internal sealed class ServiceData
     {
+        [JsonProperty(PropertyName = "entry")]
         public KeyValuePair<string, string> Entry { get; set; }
     }
 }

@@ -31,6 +31,7 @@ import org.apache.reef.runtime.common.launch.parameters.LaunchID;
 import org.apache.reef.runtime.common.parameters.JVMHeapSlack;
 import org.apache.reef.runtime.mesos.MesosClasspathProvider;
 import org.apache.reef.runtime.mesos.driver.parameters.MesosMasterIp;
+import org.apache.reef.runtime.mesos.driver.parameters.MesosSlavePort;
 import org.apache.reef.runtime.mesos.driver.parameters.JobSubmissionDirectoryPrefix;
 import org.apache.reef.runtime.mesos.util.HDFSConfigurationConstructor;
 import org.apache.reef.tang.formats.ConfigurationModule;
@@ -61,6 +62,11 @@ public final class MesosDriverConfiguration extends ConfigurationModuleBuilder {
   public static final RequiredParameter<String> MESOS_MASTER_IP = new RequiredParameter<>();
 
   /**
+   * The port number of Mesos Slave.
+   */
+  public static final OptionalParameter<Integer> MESOS_SLAVE_PORT = new OptionalParameter<>();
+
+  /**
    * The client remote identifier.
    */
   public static final OptionalParameter<String> CLIENT_REMOTE_IDENTIFIER = new OptionalParameter<>();
@@ -89,6 +95,7 @@ public final class MesosDriverConfiguration extends ConfigurationModuleBuilder {
       .bindImplementation(TempFileCreator.class, WorkingDirectoryTempFileCreator.class)
 
       .bindNamedParameter(MesosMasterIp.class, MESOS_MASTER_IP)
+      .bindNamedParameter(MesosSlavePort.class, MESOS_SLAVE_PORT)
       .bindConstructor(Configuration.class, HDFSConfigurationConstructor.class)
       .bindImplementation(RuntimeClasspathProvider.class, MesosClasspathProvider.class)
 
@@ -97,7 +104,7 @@ public final class MesosDriverConfiguration extends ConfigurationModuleBuilder {
       .bindNamedParameter(StageConfiguration.StageHandler.class, MesosSchedulerDriverExecutor.class)
       .bindImplementation(EStage.class, SingleThreadStage.class)
 
-          // Bind the fields bound in AbstractDriverRuntimeConfiguration
+      // Bind the fields bound in AbstractDriverRuntimeConfiguration
       .bindNamedParameter(JobIdentifier.class, JOB_IDENTIFIER)
       .bindNamedParameter(LaunchID.class, JOB_IDENTIFIER)
       .bindNamedParameter(EvaluatorTimeout.class, EVALUATOR_TIMEOUT)

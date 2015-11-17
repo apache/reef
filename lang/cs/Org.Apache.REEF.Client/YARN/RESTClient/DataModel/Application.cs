@@ -15,6 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using Newtonsoft.Json;
+
 namespace Org.Apache.REEF.Client.YARN.RestClient.DataModel
 {
     /// <summary>
@@ -27,48 +29,70 @@ namespace Org.Apache.REEF.Client.YARN.RestClient.DataModel
         internal static readonly string Resource = @"cluster/apps/";
         internal static readonly string RootElement = @"app";
 
+        [JsonProperty("id")]
         public string Id { get; set; }
 
+        [JsonProperty("user")]
         public string User { get; set; }
 
+        [JsonProperty("name")]
         public string Name { get; set; }
 
+        [JsonProperty("applicationType")]
         public string ApplicationType { get; set; }
 
+        [JsonProperty("queue")]
         public string Queue { get; set; }
 
+        [JsonProperty("state")]
         public State State { get; set; }
 
+        [JsonProperty("finalStatus")]
         public FinalState FinalStatus { get; set; }
 
+        [JsonProperty("progress")]
         public float Progress { get; set; }
 
+        [JsonProperty("trackingUI")]
         public string TrackingUI { get; set; }
 
+        [JsonProperty("trackingUrl")]
         public string TrackingUrl { get; set; }
 
+        [JsonProperty("diagnostics")]
         public string Diagnostics { get; set; }
 
+        [JsonProperty("clusterId")]
         public long ClusterId { get; set; }
 
+        [JsonProperty("startedTime")]
         public long StartedTime { get; set; }
 
+        [JsonProperty("finishedTime")]
         public long FinishedTime { get; set; }
 
+        [JsonProperty("elapsedTime")]
         public long ElapsedTime { get; set; }
 
+        [JsonProperty("amContainerLogs")]
         public string AmContainerLogs { get; set; }
 
+        [JsonProperty("amHostHttpAddress")]
         public string AmHostHttpAddress { get; set; }
 
+        [JsonProperty("allocatedMB")]
         public int AllocatedMB { get; set; }
 
+        [JsonProperty("allocatedVCores")]
         public int AllocatedVCores { get; set; }
 
+        [JsonProperty("runningContainers")]
         public int RunningContainers { get; set; }
 
+        [JsonProperty("memorySeconds")]
         public long MemorySeconds { get; set; }
 
+        [JsonProperty("vcoreSeconds")]
         public long VcoreSeconds { get; set; }
     }
 }

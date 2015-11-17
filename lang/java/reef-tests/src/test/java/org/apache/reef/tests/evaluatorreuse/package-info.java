@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * Tests for Evaluator reusability across Tasks.
  */
 package org.apache.reef.tests.evaluatorreuse;

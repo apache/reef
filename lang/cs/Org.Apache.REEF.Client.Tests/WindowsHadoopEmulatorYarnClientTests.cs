@@ -75,8 +75,7 @@ namespace Org.Apache.REEF.Client.Tests
             var clusterInfo = await client.GetClusterInfoAsync();
 
             Assert.IsNotNull(clusterInfo);
-            Assert.AreEqual("STARTED", clusterInfo.State);
-            Assert.IsFalse(string.IsNullOrEmpty(clusterInfo.HaState));
+            Assert.AreEqual(ClusterState.STARTED, clusterInfo.State);
             Assert.IsTrue(clusterInfo.StartedOn > 0);
         }
 
@@ -132,16 +131,18 @@ namespace Org.Apache.REEF.Client.Tests
                     },
                     LocalResources = new LocalResources
                     {
-                        Entry = new List<KeyValuePair<string, LocalResourcesValue>>
+                        Entries = new List<YARN.RestClient.DataModel.KeyValuePair<string, LocalResourcesValue>>
                         {
-                            new KeyValuePair<string, LocalResourcesValue>(
-                                "APPLICATIONWILLFAILBUTWEDONTCAREHERE",
-                                new LocalResourcesValue
+                            new YARN.RestClient.DataModel.KeyValuePair<string, LocalResourcesValue>
+                            {
+                                Key = "APPLICATIONWILLFAILBUTWEDONTCAREHERE",
+                                Value = new LocalResourcesValue
                                 {
                                     Resource = "Foo",
                                     Type = ResourceType.FILE,
                                     Visibility = Visibility.APPLICATION
-                                })
+                                }
+                            }
                         }
                     }
                 }
@@ -166,17 +167,18 @@ namespace Org.Apache.REEF.Client.Tests
         [TestCategory("Functional")]
         public async Task TestErrorResponse()
         {
-            const string WrongApplicationName = @"Something";
+            const string wrongApplicationName = @"Something";
 
             var client = TangFactory.GetTang().NewInjector().GetInstance<IYarnRMClient>();
 
             try
             {
-                await client.GetApplicationAsync(WrongApplicationName);
+                await client.GetApplicationAsync(wrongApplicationName);
                 Assert.Fail("Should throw YarnRestAPIException");
             }
-            catch (YarnRestAPIException)
+            catch (AggregateException aggregateException)
             {
+                Assert.IsInstanceOfType(aggregateException.GetBaseException(), typeof(YarnRestAPIException));
             }
         }
     }

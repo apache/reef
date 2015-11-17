@@ -253,6 +253,12 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
         }
       }
     }
+
+    try {
+      this.messageDispatcher.close();
+    } catch (Exception e) {
+      LOG.log(Level.SEVERE, "Exception while closing EvaluatorManager", e);
+    }
     this.idlenessSource.check();
   }
 

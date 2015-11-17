@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * Tests for evaluator allocation by asking for allocations that it immediately closes.
  */
 package org.apache.reef.tests.close_eval;

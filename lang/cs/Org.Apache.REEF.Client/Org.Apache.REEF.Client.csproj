@@ -100,9 +100,12 @@ under the License.
     <Compile Include="YARN\RestClient\DataModel\AmContainerSpec.cs" />
     <Compile Include="YARN\RestClient\DataModel\ApplicationFinalState.cs" />
     <Compile Include="YARN\RestClient\DataModel\ApplicationTag.cs" />
+    <Compile Include="YARN\RestClient\DataModel\ClusterHaState.cs" />
+    <Compile Include="YARN\RestClient\DataModel\ClusterState.cs" />
     <Compile Include="YARN\RestClient\DataModel\Commands.cs" />
     <Compile Include="YARN\RestClient\DataModel\Credentials.cs" />
     <Compile Include="YARN\RestClient\DataModel\Environment.cs" />
+    <Compile Include="YARN\RestClient\DataModel\KeyValuePair.cs" />
     <Compile Include="YARN\RestClient\DataModel\LocalResources.cs" />
     <Compile Include="YARN\RestClient\DataModel\Secrets.cs" />
     <Compile Include="YARN\RestClient\DataModel\ServiceData.cs" />
@@ -112,6 +115,7 @@ under the License.
     <Compile Include="YARN\RestClient\IUrlProvider.cs" />
     <Compile Include="YARN\RestClient\JobResourceUploader.cs" />
     <Compile Include="YARN\RestClient\MultipleRMUrlProvider.cs" />
+    <Compile Include="YARN\RestClient\RestJsonDeserializer.cs" />
     <Compile Include="YARN\RestClient\RestJsonSerializer.cs" />
     <Compile Include="YARN\YarnJobSubmissionResult.cs" />
     <Compile Include="YARN\YARNREEFClient.cs" />

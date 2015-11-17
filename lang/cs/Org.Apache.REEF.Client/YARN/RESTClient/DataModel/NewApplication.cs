@@ -16,7 +16,6 @@
 // under the License.
 
 using Newtonsoft.Json;
-using RestSharp.Deserializers;
 
 namespace Org.Apache.REEF.Client.YARN.RestClient.DataModel
 {

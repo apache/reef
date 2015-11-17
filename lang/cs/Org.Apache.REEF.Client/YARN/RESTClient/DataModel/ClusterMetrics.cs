@@ -15,6 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using Newtonsoft.Json;
+
 namespace Org.Apache.REEF.Client.YARN.RestClient.DataModel
 {
     /// <summary>
@@ -27,50 +29,73 @@ namespace Org.Apache.REEF.Client.YARN.RestClient.DataModel
         internal static readonly string Resource = @"cluster/metrics";
         internal static readonly string RootElement = @"clusterMetrics";
 
+        [JsonProperty("appsSubmitted")]
         public int AppsSubmitted { get; set; }
 
+        [JsonProperty("appsCompleted")]
         public int AppsCompleted { get; set; }
 
+        [JsonProperty("appsPending")]
         public int AppsPending { get; set; }
 
+        [JsonProperty("appsRunning")]
         public int AppsRunning { get; set; }
 
+        [JsonProperty("appsFailed")]
         public int AppsFailed { get; set; }
 
+        [JsonProperty("appsKilled")]
         public int AppsKilled { get; set; }
 
+        [JsonProperty("reservedMB")]
         public long ReservedMB { get; set; }
 
+        [JsonProperty("availableMB")]
         public long AvailableMB { get; set; }
 
+        [JsonProperty("allocatedMB")]
         public long AllocatedMB { get; set; }
 
+        [JsonProperty("totalMB")]
         public long TotalMB { get; set; }
 
+        [JsonProperty("reservedVirtualCores")]
         public long ReservedVirtualCores { get; set; }
 
+        [JsonProperty("availableVirtualCores")]
         public long AvailableVirtualCores { get; set; }
 
+        [JsonProperty("allocatedVirtualCores")]
         public long AllocatedVirtualCores { get; set; }
 
+        [JsonProperty("totalVirtualCores")]
         public long TotalVirtualCores { get; set; }
 
+        [JsonProperty("containersAllocated")]
         public int ContainersAllocated { get; set; }
 
+        [JsonProperty("containersReserved")]
         public int ContainersReserved { get; set; }
 
+        [JsonProperty("containersPending")]
         public int ContainersPending { get; set; }
 
+        [JsonProperty("totalNodes")]
         public int TotalNodes { get; set; }
 
+        [JsonProperty("activeNodes")]
         public int ActiveNodes { get; set; }
 
+        [JsonProperty("lostNodes")]
         public int LostNodes { get; set; }
 
+        [JsonProperty("unhealthyNodes")]
         public int UnhealthyNodes { get; set; }
 
+        [JsonProperty("decommissionedNodes")]
         public int DecommissionedNodes { get; set; }
 
+        [JsonProperty("rebootedNodes")]
         public int RebootedNodes { get; set; }
     }
 }

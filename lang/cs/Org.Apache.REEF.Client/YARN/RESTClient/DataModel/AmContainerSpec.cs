@@ -29,13 +29,16 @@ namespace Org.Apache.REEF.Client.YARN.RestClient.DataModel
         [JsonProperty(PropertyName = "local-resources")]
         public LocalResources LocalResources { get; set; }
 
+        [JsonProperty(PropertyName = "environment")]
         public Environment Environment { get; set; }
 
+        [JsonProperty(PropertyName = "commands")]
         public Commands Commands { get; set; }
 
         [JsonProperty(PropertyName = "service-data")]
         public ServiceData ServiceData { get; set; }
 
+        [JsonProperty(PropertyName = "credentials")]
         public Credentials Credentials { get; set; }
 
         [JsonProperty(PropertyName = "application-acls")]

@@ -24,13 +24,15 @@ import java.lang.annotation.*;
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 public @interface NamedParameter {
+  String REEF_UNINITIALIZED_VALUE = "__REEF_UNINITIALIZED_VALUE__";
+
   //Class<?> type() default String.class;
   String doc() default "";
 
   String short_name() default "";
 
   // One of the following should be set.
-  String default_value() default "";
+  String default_value() default REEF_UNINITIALIZED_VALUE;
 
   Class<?> default_class() default Void.class;
 

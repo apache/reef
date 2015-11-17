@@ -172,11 +172,11 @@ public final class JavaNodeFactory {
     final boolean hasStringDefault, hasClassDefault, hasStringSetDefault, hasClassSetDefault;
 
     int defaultCount = 0;
-    if (!namedParameter.default_value().isEmpty()) {
+    if (namedParameter.default_value().equals(NamedParameter.REEF_UNINITIALIZED_VALUE)) {
+      hasStringDefault = false;
+    } else {
       hasStringDefault = true;
       defaultCount++;
-    } else {
-      hasStringDefault = false;
     }
     if (namedParameter.default_class() != Void.class) {
       hasClassDefault = true;

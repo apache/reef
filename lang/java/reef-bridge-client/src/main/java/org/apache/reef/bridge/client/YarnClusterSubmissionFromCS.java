@@ -22,28 +22,14 @@ import org.apache.avro.io.DecoderFactory;
 import org.apache.avro.io.JsonDecoder;
 import org.apache.avro.specific.SpecificDatumReader;
 import org.apache.commons.lang.Validate;
-import org.apache.reef.client.parameters.DriverConfigurationProviders;
-import org.apache.reef.driver.parameters.MaxApplicationSubmissions;
-import org.apache.reef.io.TcpPortConfigurationProvider;
 import org.apache.reef.reef.bridge.client.avro.AvroJobSubmissionParameters;
 import org.apache.reef.reef.bridge.client.avro.AvroYarnClusterJobSubmissionParameters;
 import org.apache.reef.reef.bridge.client.avro.AvroYarnJobSubmissionParameters;
-import org.apache.reef.runtime.common.files.REEFFileNames;
-import org.apache.reef.runtime.common.launch.parameters.DriverLaunchCommandPrefix;
-import org.apache.reef.runtime.yarn.client.YarnClientConfiguration;
-import org.apache.reef.runtime.yarn.driver.parameters.JobSubmissionDirectoryPrefix;
-import org.apache.reef.tang.Configuration;
-import org.apache.reef.tang.Configurations;
-import org.apache.reef.tang.Tang;
-import org.apache.reef.wake.remote.ports.parameters.TcpPortRangeBegin;
-import org.apache.reef.wake.remote.ports.parameters.TcpPortRangeCount;
-import org.apache.reef.wake.remote.ports.parameters.TcpPortRangeTryCount;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.io.InputStream;
 
 /**
  * Represents a job submission from the CS code.
@@ -51,7 +37,7 @@ import java.util.List;
  * This class exists mostly to parse and validate the command line parameters provided by the C# class
  * `Org.Apache.REEF.Client.YARN.YARNClient`
  */
-final class YarnSubmissionFromCS {
+final class YarnClusterSubmissionFromCS {
   private static final int DEFAULT_PRIORITY = 1;
   private static final String DEFAULT_QUEUE = "default";
 
@@ -70,10 +56,10 @@ final class YarnSubmissionFromCS {
   private final String tokenKind;
   private final String tokenService;
   private final String jobSubmissionDirectoryPrefix;
+  private final AvroYarnJobSubmissionParameters yarnJobSubmissionParameters;
 
-  private YarnSubmissionFromCS(final AvroYarnClusterJobSubmissionParameters yarnClusterJobSubmissionParameters) {
-    final AvroYarnJobSubmissionParameters yarnJobSubmissionParameters =
-        yarnClusterJobSubmissionParameters.getYarnJobSubmissionParameters();
+  private YarnClusterSubmissionFromCS(final AvroYarnClusterJobSubmissionParameters yarnClusterJobSubmissionParameters) {
+    yarnJobSubmissionParameters = yarnClusterJobSubmissionParameters.getYarnJobSubmissionParameters();
 
     final AvroJobSubmissionParameters jobSubmissionParameters =
         yarnJobSubmissionParameters.getSharedJobSubmissionParameters();
@@ -92,7 +78,6 @@ final class YarnSubmissionFromCS {
     this.tokenService = yarnClusterJobSubmissionParameters.getSecurityTokenService().toString();
     this.jobSubmissionDirectoryPrefix = yarnJobSubmissionParameters.getJobSubmissionDirectoryPrefix().toString();
 
-    Validate.isTrue(driverFolder.exists(), "The driver folder given does not exist.");
     Validate.notEmpty(jobId, "The job id is null or empty");
     Validate.isTrue(driverMemory > 0, "The amount of driver memory given is <= 0.");
     Validate.isTrue(tcpBeginPort >= 0, "The tcp start port given is < 0.");
@@ -107,7 +92,7 @@ final class YarnSubmissionFromCS {
 
   @Override
   public String toString() {
-    return "YarnSubmissionFromCS{" +
+    return "YarnClusterSubmissionFromCS{" +
         "driverFolder=" + driverFolder +
         ", jobId='" + jobId + '\'' +
         ", driverMemory=" + driverMemory +
@@ -122,34 +107,6 @@ final class YarnSubmissionFromCS {
         ", tokenService='" + tokenService + '\'' +
         ", jobSubmissionDirectoryPrefix='" + jobSubmissionDirectoryPrefix + '\'' +
         '}';
-  }
-
-  /**
-   * Produces the YARN Runtime Configuration based on the parameters passed from C#.
-   *
-   * @return the YARN Runtime Configuration based on the parameters passed from C#.
-   */
-  Configuration getRuntimeConfiguration() {
-    final Configuration providerConfig = Tang.Factory.getTang().newConfigurationBuilder()
-        .bindSetEntry(DriverConfigurationProviders.class, TcpPortConfigurationProvider.class)
-        .bindNamedParameter(TcpPortRangeBegin.class, Integer.toString(tcpBeginPort))
-        .bindNamedParameter(TcpPortRangeCount.class, Integer.toString(tcpRangeCount))
-        .bindNamedParameter(TcpPortRangeTryCount.class, Integer.toString(tcpTryCount))
-        .bindNamedParameter(JobSubmissionDirectoryPrefix.class, jobSubmissionDirectoryPrefix)
-        .build();
-
-    final List<String> driverLaunchCommandPrefixList = new ArrayList<>();
-    driverLaunchCommandPrefixList.add(new REEFFileNames().getDriverLauncherExeFile().toString());
-
-    final Configuration yarnJobSubmissionClientParamsConfig = Tang.Factory.getTang().newConfigurationBuilder()
-        .bindNamedParameter(SubmissionDriverRestartEvaluatorRecoverySeconds.class,
-            Integer.toString(driverRecoveryTimeout))
-        .bindNamedParameter(MaxApplicationSubmissions.class, Integer.toString(maxApplicationSubmissions))
-        .bindList(DriverLaunchCommandPrefix.class, driverLaunchCommandPrefixList)
-        .build();
-
-    return Configurations.merge(YarnClientConfiguration.CONF.build(), providerConfig,
-        yarnJobSubmissionClientParamsConfig);
   }
 
   /**
@@ -202,18 +159,44 @@ final class YarnSubmissionFromCS {
   }
 
   /**
+   * @return The max amount of times the application can be submitted.
+   */
+  int getMaxApplicationSubmissions(){
+    return maxApplicationSubmissions;
+  }
+
+  /**
+   * @return The time allowed for Driver recovery to recover all its Evaluators.
+   */
+  int getDriverRecoveryTimeout() {
+    return driverRecoveryTimeout;
+  }
+
+  /**
+   * @return The submission parameters for YARN jobs.
+   */
+  AvroYarnJobSubmissionParameters getYarnJobSubmissionParameters() {
+    return yarnJobSubmissionParameters;
+  }
+
+  /**
    * Takes the YARN cluster job submission configuration file, deserializes it, and creates submission object.
    */
-  static YarnSubmissionFromCS fromJobSubmissionParametersFile(final File yarnClusterJobSubmissionParametersFile)
+  static YarnClusterSubmissionFromCS fromJobSubmissionParametersFile(final File yarnClusterJobSubmissionParametersFile)
       throws IOException {
     try (final FileInputStream fileInputStream = new FileInputStream(yarnClusterJobSubmissionParametersFile)) {
-      final JsonDecoder decoder = DecoderFactory.get().jsonDecoder(
-          AvroYarnClusterJobSubmissionParameters.getClassSchema(), fileInputStream);
-      final SpecificDatumReader<AvroYarnClusterJobSubmissionParameters> reader = new SpecificDatumReader<>(
-          AvroYarnClusterJobSubmissionParameters.class);
-      final AvroYarnClusterJobSubmissionParameters yarnClusterJobSubmissionParameters = reader.read(null, decoder);
-
-      return new YarnSubmissionFromCS(yarnClusterJobSubmissionParameters);
+      // this is mainly a test hook
+      return readYarnClusterSubmissionFromCSFromInputStream(fileInputStream);
     }
+  }
+
+  static YarnClusterSubmissionFromCS readYarnClusterSubmissionFromCSFromInputStream(
+      final InputStream inputStream) throws IOException {
+    final JsonDecoder decoder = DecoderFactory.get().jsonDecoder(
+        AvroYarnClusterJobSubmissionParameters.getClassSchema(), inputStream);
+    final SpecificDatumReader<AvroYarnClusterJobSubmissionParameters> reader = new SpecificDatumReader<>(
+        AvroYarnClusterJobSubmissionParameters.class);
+    final AvroYarnClusterJobSubmissionParameters yarnClusterJobSubmissionParameters = reader.read(null, decoder);
+    return new YarnClusterSubmissionFromCS(yarnClusterJobSubmissionParameters);
   }
 }

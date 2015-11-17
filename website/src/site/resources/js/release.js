@@ -37,6 +37,13 @@ var releaseSha512 = {
     "0.13.0-incubating": "8f542aeaf2dc3b241bdcd0d343c607355e1f09e1ca89bbc3431b0cc1f0908479511f60900a91a6731051ffef8af30488eb85df567c32bc2db9d3d91014c4fed7"
 };
 
+var releaseNotes = {
+    "0.10.0-incubating": "https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315820&version=12329065",
+    "0.11.0-incubating": "https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315820&version=12329282",
+    "0.12.0-incubating": "https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315820&version=12332143",
+    "0.13.0-incubating": "https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315820&version=12332972"
+};
+
 function setReleaseLink() {
     var releaseVersion = this.document.getElementById("selectRelease").value;
     if (releaseDirect[releaseVersion] == undefined) {
@@ -49,6 +56,7 @@ function setReleaseLink() {
         this.document.getElementById("directLink").setAttribute("href", releaseDirectStr);
         this.document.getElementById("mirrorLink").setAttribute("href", releaseMirror[releaseVersion]);
         this.document.getElementById("sha512Text").innerHTML = releaseSha512[releaseVersion];
+        this.document.getElementById("releaseNotesLink").setAttribute("href", releaseNotes[releaseVersion]);
 
         var directReleaseStrSplit = releaseDirectStr.split("/");
         this.document.getElementById("directLink").innerHTML =

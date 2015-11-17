@@ -31,8 +31,8 @@ namespace Org.Apache.REEF.Client.YARN.RestClient.DataModel
     /// </summary>
     internal sealed class Acls
     {
-        [JsonProperty(ItemConverterType = typeof(StringEnumConverter))]
-        public IList<KeyValuePair<AclsType, string>> Entry { get; set; }
+        [JsonProperty(ItemConverterType = typeof(StringEnumConverter), PropertyName = "entry")]
+        public IList<KeyValuePair<AclsType, string>> Entries { get; set; }
     }
 
     /// <summary>

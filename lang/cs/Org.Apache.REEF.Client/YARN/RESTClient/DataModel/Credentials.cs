@@ -15,6 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using Newtonsoft.Json;
+
 namespace Org.Apache.REEF.Client.YARN.RestClient.DataModel
 {
     /// <summary>
@@ -24,8 +26,10 @@ namespace Org.Apache.REEF.Client.YARN.RestClient.DataModel
     /// </summary>
     internal sealed class Credentials
     {
+        [JsonProperty(PropertyName = "tokens")]
         public Tokens Tokens;
 
+        [JsonProperty(PropertyName = "secrets")]
         public Secrets Secrets;
     }
 }

@@ -15,6 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using Newtonsoft.Json;
+
 namespace Org.Apache.REEF.Client.YARN.RestClient.DataModel
 {
     /// <summary>
@@ -27,25 +29,34 @@ namespace Org.Apache.REEF.Client.YARN.RestClient.DataModel
         internal static readonly string Resource = @"cluster/info";
         internal static readonly string RootElement = @"clusterInfo";
 
+        [JsonProperty("id")]
         public long Id { get; set; }
 
+        [JsonProperty("startedOn")]
         public long StartedOn { get; set; }
 
-        public string State { get; set; }
+        [JsonProperty("state")]
+        public ClusterState State { get; set; }
 
-        public string HaState { get; set; }
+        [JsonProperty("haState")]
+        public ClusterHaState HaState { get; set; }
 
+        [JsonProperty("resourceManagerVersion")]
         public string ResourceManagerVersion { get; set; }
 
+        [JsonProperty("resourceManagerBuildVersion")]
         public string ResourceManagerBuildVersion { get; set; }
 
+        [JsonProperty("resourceManagerVersionBuiltOn")]
         public string ResourceManagerVersionBuiltOn { get; set; }
 
+        [JsonProperty("hadoopVersion")]
         public string HadoopVersion { get; set; }
 
+        [JsonProperty("hadoopBuildVersion")]
         public string HadoopBuildVersion { get; set; }
 
+        [JsonProperty("hadoopVersionBuiltOn")]
         public string HadoopVersionBuiltOn { get; set; }
-
     }
 }
