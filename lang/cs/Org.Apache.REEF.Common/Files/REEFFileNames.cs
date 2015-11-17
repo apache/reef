@@ -55,6 +55,7 @@ namespace Org.Apache.REEF.Common.Files
         private const string SECURITY_TOKEN_IDENTIFIER_FILE = "SecurityTokenId";
         private const string SECURITY_TOKEN_PASSWORD_FILE = "SecurityTokenPwd";
         private const string JOB_SUBMISSION_PARAMETERS_FILE = "job-submission-params.json";
+        private const string DRIVER_COMMAND_LOGGING_CONFIG = "1> <LOG_DIR>/driver.stdout 2> <LOG_DIR>/driver.stderr";
 
         [Inject]
         public REEFFileNames()
@@ -241,6 +242,16 @@ namespace Org.Apache.REEF.Common.Files
         public string GetJobSubmissionParametersFile()
         {
             return JOB_SUBMISSION_PARAMETERS_FILE;
+        }
+
+        /// <summary>
+        /// The command that allows redirecting Driver stdout and stderr logs
+        /// to appropriate files
+        /// </summary>
+        /// <returns></returns>
+        public string GetDriverLoggingConfigCommand()
+        {
+            return DRIVER_COMMAND_LOGGING_CONFIG;
         }
 
         /// <summary>

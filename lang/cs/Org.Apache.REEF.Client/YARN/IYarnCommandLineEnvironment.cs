@@ -15,33 +15,21 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using System.Collections.Generic;
 using Org.Apache.REEF.Tang.Annotations;
 
-namespace Org.Apache.REEF.Client.YARN
+namespace Org.Apache.REEF.Client.Yarn
 {
     /// <summary>
-    /// Provide the command to be submitted to RM for execution of .NET driver.
+    /// Helper methods to interact with the YARN command line.
     /// </summary>
-    [DefaultImplementation(typeof(WindowsYarnJobCommandBuilder))]
-    public interface IYarnJobCommandBuilder
+    [DefaultImplementation(typeof(YarnCommandLineEnvironment))]
+    internal interface IYarnCommandLineEnvironment
     {
         /// <summary>
-        /// Sets the max memory for Java driver in MegaBytes
+        /// Returns the class path returned by `yarn classpath`.
         /// </summary>
-        /// <returns></returns>
-        IYarnJobCommandBuilder SetMaxDriverAllocationPoolSizeMB(int sizeMB);
-
-        /// <summary>
-        /// Sets the maximum permgen size for Java driver in MegaBytes
-        /// </summary>
-        /// <param name="sizeMB"></param>
-        /// <returns></returns>
-        IYarnJobCommandBuilder SetDriverMaxPermSizeMB(int sizeMB);
-
-        /// <summary>
-        /// Builds the command to be submitted to YARNRM
-        /// </summary>
-        /// <returns>Command</returns>
-        string GetJobSubmissionCommand();
+        /// <returns>The class path returned by `yarn classpath`.</returns>
+        IList<string> GetYarnClasspathList();
     }
 }

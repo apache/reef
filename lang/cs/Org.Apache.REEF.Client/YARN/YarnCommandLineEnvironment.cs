@@ -32,7 +32,7 @@ namespace Org.Apache.REEF.Client.Yarn
     /// <summary>
     /// Helper class to interact with the YARN command line.
     /// </summary>
-    internal sealed class YarnCommandLineEnvironment
+    internal sealed class YarnCommandLineEnvironment : IYarnCommandLineEnvironment
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(YarnCommandLineEnvironment));
 
@@ -42,10 +42,19 @@ namespace Org.Apache.REEF.Client.Yarn
         }
 
         /// <summary>
+        /// Returns the class path returned by `yarn classpath`.
+        /// </summary>
+        /// <returns>The class path returned by `yarn classpath`.</returns>
+        public IList<string> GetYarnClasspathList()
+        {
+            return Yarn("classpath").Split(';').Distinct().ToList();
+        }
+
+        /// <summary>
         /// Returns the full Path to HADOOP_HOME
         /// </summary>
         /// <returns>The full Path to HADOOP_HOME</returns>
-        internal string GetHadoopHomePath()
+        private string GetHadoopHomePath()
         {
             var path = Environment.GetEnvironmentVariable("HADOOP_HOME");
             if (string.IsNullOrWhiteSpace(path))
@@ -70,7 +79,7 @@ namespace Org.Apache.REEF.Client.Yarn
         /// Returns the full Path to the `yarn.cmd` file.
         /// </summary>
         /// <returns>The full Path to the `yarn.cmd` file.</returns>
-        internal string GetYarnCommandPath()
+        private string GetYarnCommandPath()
         {
             var result = Path.Combine(GetHadoopHomePath(), "bin", "yarn.cmd");
             if (!File.Exists(result))
@@ -87,7 +96,7 @@ namespace Org.Apache.REEF.Client.Yarn
         /// </summary>
         /// <param name="arguments"></param>
         /// <returns>Whatever was printed to stdout by YARN.</returns>
-        internal string Yarn(params string[] arguments)
+        private string Yarn(params string[] arguments)
         {
             var startInfo = new ProcessStartInfo
             {
@@ -118,15 +127,6 @@ namespace Org.Apache.REEF.Client.Yarn
                 throw ex;
             }
             return output.ToString();
-        }
-
-        /// <summary>
-        /// Returns the class path returned by `yarn classpath`.
-        /// </summary>
-        /// <returns>The class path returned by `yarn classpath`.</returns>
-        internal IList<string> GetYarnClasspathList()
-        {
-            return Yarn("classpath").Split(';').Distinct().ToList();
         }
     }
 }

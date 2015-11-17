@@ -20,7 +20,7 @@ using Org.Apache.REEF.Tang.Annotations;
 namespace Org.Apache.REEF.Client.YARN.Parameters
 {
     [NamedParameter(
-        "Boolean indicating whether debug logging should be enabled.",
+        "Boolean indicating whether debug logging should be enabled in Java part of runtime.",
         defaultValue: "false")]
     public sealed class EnableDebugLogging : Name<bool>
     {
