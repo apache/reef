@@ -61,7 +61,7 @@ namespace Org.Apache.REEF.Client.Tests
             const string anyLocalArchivePath = @"Any\Local\Archive\Path.zip";
             testContext.ResourceArchiveFileGenerator.CreateArchiveToUpload(AnyDriverLocalFolderPath + @"\")
                 .Returns(anyLocalArchivePath);
-            testContext.JobSubmissionDirectoryProvider.GetJobSubmissionDirectory().Returns(AnyDriverResourceUploadPath);
+            testContext.JobSubmissionDirectoryProvider.GetJobSubmissionRemoteDirectory().Returns(AnyDriverResourceUploadPath);
             jobResourceUploader.UploadJobResource(AnyDriverLocalFolderPath);
 
             const string javaClassNameForResourceUploader = @"org.apache.reef.bridge.client.JobResourceUploader";

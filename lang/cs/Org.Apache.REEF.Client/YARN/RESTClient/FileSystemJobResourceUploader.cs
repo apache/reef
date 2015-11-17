@@ -25,7 +25,12 @@ using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Client.YARN.RestClient
 {
-    public sealed class JobResourceUploader : IJobResourceUploader
+    /// <summary>
+    /// Provides FileSystem agnostic job resource uploader.
+    /// User can provide custome implementation of 
+    /// <see cref="IFileSystem"/> for their choice of DFS.
+    /// </summary>
+    internal sealed class FileSystemJobResourceUploader : IJobResourceUploader
     {
         private static readonly Logger Log = Logger.GetLogger(typeof(LegacyJobResourceUploader));
         private static readonly DateTime Epoch = new DateTime(1970, 1, 1, 0, 0, 0, 0);
@@ -34,7 +39,7 @@ namespace Org.Apache.REEF.Client.YARN.RestClient
         private readonly IFileSystem _fileSystem;
 
         [Inject]
-        private JobResourceUploader(
+        private FileSystemJobResourceUploader(
             IJobSubmissionDirectoryProvider jobSubmissionDirectoryProvider,
             IResourceArchiveFileGenerator resourceArchiveFileGenerator,
             IFileSystem fileSystem)
@@ -47,13 +52,13 @@ namespace Org.Apache.REEF.Client.YARN.RestClient
         public JobResource UploadJobResource(string driverLocalFolderPath)
         {
             driverLocalFolderPath = driverLocalFolderPath.TrimEnd('\\') + @"\";
-            var driverUploadPath = _jobSubmissionDirectoryProvider.GetJobSubmissionDirectory().TrimEnd('/') + @"/";
-            Log.Log(Level.Info, "DriverFolderPath: {0} DriverUploadPath: {1}", driverLocalFolderPath, driverUploadPath);
+            var driverUploadPath = _jobSubmissionDirectoryProvider.GetJobSubmissionRemoteDirectory().TrimEnd('/') + @"/";
+            Log.Log(Level.Verbose, "DriverFolderPath: {0} DriverUploadPath: {1}", driverLocalFolderPath, driverUploadPath);
             var archivePath = _resourceArchiveFileGenerator.CreateArchiveToUpload(driverLocalFolderPath);
 
-            var destinationPath = Path.Combine(driverUploadPath, Path.GetFileName(archivePath));
+            var destinationPath = driverUploadPath + Path.GetFileName(archivePath);
             var remoteFileUri = _fileSystem.CreateUriForPath(destinationPath);
-            Log.Log(Level.Info, @"Copy {0} to {1}", archivePath, remoteFileUri);
+            Log.Log(Level.Verbose, @"Copy {0} to {1}", archivePath, remoteFileUri);
 
             var parentDirectoryUri = _fileSystem.CreateUriForPath(driverUploadPath);
             _fileSystem.CreateDirectory(parentDirectoryUri);

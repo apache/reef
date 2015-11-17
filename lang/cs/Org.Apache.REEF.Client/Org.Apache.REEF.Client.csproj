@@ -113,7 +113,7 @@ under the License.
     <Compile Include="YARN\RestClient\DataModel\Tokens.cs" />
     <Compile Include="YARN\RestClient\IRestRequestExecutor.cs" />
     <Compile Include="YARN\RestClient\IUrlProvider.cs" />
-    <Compile Include="YARN\RestClient\JobResourceUploader.cs" />
+    <Compile Include="YARN\RestClient\FileSystemJobResourceUploader.cs" />
     <Compile Include="YARN\RestClient\MultipleRMUrlProvider.cs" />
     <Compile Include="YARN\RestClient\RestJsonDeserializer.cs" />
     <Compile Include="YARN\RestClient\RestJsonSerializer.cs" />
@@ -182,7 +182,7 @@ under the License.
       <Project>{75503f90-7b82-4762-9997-94b5c68f15db}</Project>
       <Name>Org.Apache.REEF.Examples</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Org.Apache.REEF.IO\Org.Apache.REEF.IO.csproj">
+    <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.IO\Org.Apache.REEF.IO.csproj">
       <Project>{DEC0F0A8-DBEF-4EBF-B69C-E2369C15ABF1}</Project>
       <Name>Org.Apache.REEF.IO</Name>
     </ProjectReference>

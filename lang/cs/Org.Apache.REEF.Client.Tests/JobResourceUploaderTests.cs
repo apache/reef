@@ -44,7 +44,7 @@ namespace Org.Apache.REEF.Client.Tests
         [TestMethod]
         public void JobResourceUploaderCanInstantiateWithDefaultBindings()
         {
-            TangFactory.GetTang().NewInjector().GetInstance<JobResourceUploader>();
+            TangFactory.GetTang().NewInjector().GetInstance<FileSystemJobResourceUploader>();
         }
 
         [TestMethod]
@@ -96,7 +96,7 @@ namespace Org.Apache.REEF.Client.Tests
 
             jobResourceUploader.UploadJobResource(AnyDriverLocalFolderPath);
 
-            testContext.JobSubmissionDirectoryProvider.Received(1).GetJobSubmissionDirectory();
+            testContext.JobSubmissionDirectoryProvider.Received(1).GetJobSubmissionRemoteDirectory();
         }
 
         private class TestContext
@@ -108,10 +108,10 @@ namespace Org.Apache.REEF.Client.Tests
                 Substitute.For<IResourceArchiveFileGenerator>();
             public readonly IFileSystem FileSystem = Substitute.For<IFileSystem>();
 
-            public JobResourceUploader GetJobResourceUploader()
+            public FileSystemJobResourceUploader GetJobResourceUploader()
             {
                 var injector = TangFactory.GetTang().NewInjector();
-                JobSubmissionDirectoryProvider.GetJobSubmissionDirectory().Returns(AnyDriverResourceUploadPath);
+                JobSubmissionDirectoryProvider.GetJobSubmissionRemoteDirectory().Returns(AnyDriverResourceUploadPath);
                 FileSystem.GetFileStatus(new Uri(AnyUploadedResourceAbsoluteUri))
                     .Returns(new FileStatus(Epoch + TimeSpan.FromSeconds(AnyModificationTime), AnyResourceSize));
                 ResourceArchiveFileGenerator.CreateArchiveToUpload(AnyDriverLocalFolderPath)
@@ -123,7 +123,7 @@ namespace Org.Apache.REEF.Client.Tests
                 injector.BindVolatileInstance(GenericType<IJobSubmissionDirectoryProvider>.Class, JobSubmissionDirectoryProvider);
                 injector.BindVolatileInstance(GenericType<IResourceArchiveFileGenerator>.Class, ResourceArchiveFileGenerator);
                 injector.BindVolatileInstance(GenericType<IFileSystem>.Class, FileSystem);
-                return injector.GetInstance<JobResourceUploader>();
+                return injector.GetInstance<FileSystemJobResourceUploader>();
             }
         }
     }
