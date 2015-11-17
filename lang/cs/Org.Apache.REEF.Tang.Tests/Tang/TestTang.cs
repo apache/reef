@@ -23,6 +23,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Examples;
 using Org.Apache.REEF.Tang.Exceptions;
+using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Implementations.InjectionPlan;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
@@ -546,6 +547,14 @@ namespace Org.Apache.REEF.Tang.Tests.Tang
             IMultiLayer o = tang.NewInjector(cb.Build()).GetInstance<IMultiLayer>();
             Assert.IsNotNull(o);
         }
+
+        [TestMethod]
+        public void TestEmptyStringAsDefaultValue()
+        {
+            ICsConfigurationBuilder cb = tang.NewConfigurationBuilder(EmptyStringAsDefaultParamConf.ConfigurationModule.Build());
+            var value = tang.NewInjector(cb.Build()).GetNamedInstance<EmptyStringAsDefaultParam, string>();
+            Assert.IsNotNull(value.Equals(""));
+        }
     }
 
     internal class InjectInjector
@@ -831,8 +840,36 @@ namespace Org.Apache.REEF.Tang.Tests.Tang
             }
         }
     }
-    
-    class ThreeConstructors 
+
+    [NamedParameter(DefaultValue = "")]
+    public class EmptyStringAsDefaultParam : Name<string>
+    {
+    }
+
+    public class EmptyStringAsDefaultParamConf : ConfigurationModuleBuilder
+    {
+        public static readonly OptionalParameter<string> OptionalString = new OptionalParameter<string>();
+
+        public static ConfigurationModule ConfigurationModule = new EmptyStringAsDefaultParamConf()
+       .BindNamedParameter(GenericType<EmptyStringAsDefaultParam>.Class, OptionalString)
+       .Build();
+    }
+
+    [NamedParameter]
+    public class StringWithoutDefaultParam : Name<string>
+    {
+    }
+
+    public class StringWithoutDefaultParamConf : ConfigurationModuleBuilder
+    {
+        public static readonly OptionalParameter<string> OptionalString = new OptionalParameter<string>();
+
+        public static ConfigurationModule ConfigurationModule = new StringWithoutDefaultParamConf()
+       .BindNamedParameter(GenericType<StringWithoutDefaultParam>.Class, OptionalString)
+       .Build();
+    }
+
+    class ThreeConstructors
     {
         public int i;
         public string s;
