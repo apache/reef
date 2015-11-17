@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * Tests for failure handling mechanism.
  */
 package org.apache.reef.tests.fail;

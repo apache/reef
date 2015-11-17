@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * Test message exchange between the Task and the Driver.
  */
 package org.apache.reef.tests.messaging.task;
