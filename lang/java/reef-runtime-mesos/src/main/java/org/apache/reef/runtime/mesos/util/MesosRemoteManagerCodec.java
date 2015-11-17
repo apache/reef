@@ -39,14 +39,14 @@ public class MesosRemoteManagerCodec implements Codec<EvaluatorControl> {
   @Override
   public byte[] encode(final EvaluatorControl evaluatorControl) {
     try {
-      LOG.log(Level.INFO, "Before Eecoding: {0}", evaluatorControl.toString());
+      LOG.log(Level.FINEST, "Before Encoding: {0}", evaluatorControl.toString());
       final ByteArrayOutputStream out = new ByteArrayOutputStream();
       final BinaryEncoder encoder = EncoderFactory.get().binaryEncoder(out, null);
       final DatumWriter<EvaluatorControl> writer = new SpecificDatumWriter<>(EvaluatorControl.getClassSchema());
       writer.write(evaluatorControl, encoder);
       encoder.flush();
       out.close();
-      LOG.log(Level.INFO, "After Encoding");
+      LOG.log(Level.FINEST, "After Encoding");
       return out.toByteArray();
     } catch (final IOException ex) {
       throw new RemoteRuntimeException(ex);
@@ -56,10 +56,10 @@ public class MesosRemoteManagerCodec implements Codec<EvaluatorControl> {
   @Override
   public EvaluatorControl decode(final byte[] buf) {
     try {
-      LOG.log(Level.INFO, "Before Decoding: {0}", buf);
+      LOG.log(Level.FINEST, "Before Decoding: {0}", buf);
       final SpecificDatumReader<EvaluatorControl> reader = new SpecificDatumReader<>(EvaluatorControl.getClassSchema());
       final Decoder decoder = DecoderFactory.get().binaryDecoder(buf, null);
-      LOG.log(Level.INFO, "After Decoding");
+      LOG.log(Level.FINEST, "After Decoding");
       return reader.read(null, decoder);
     } catch (final IOException ex) {
       throw new RemoteRuntimeException(ex);
