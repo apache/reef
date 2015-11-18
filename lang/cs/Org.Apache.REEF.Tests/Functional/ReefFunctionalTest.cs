@@ -161,14 +161,21 @@ namespace Org.Apache.REEF.Tests.Functional
                 string[] failedTaskIndicators = lines.Where(s => s.Contains(failedTaskIndication)).ToArray();
                 string[] failedIndicators = lines.Where(s => s.Contains(failedEvaluatorIndication)).ToArray();
                 Assert.AreEqual(numberOfEvaluatorsToClose, successIndicators.Length);
-                Assert.AreEqual(numberOfTasksToFail * 3, failedTaskIndicators.Length);
-                Assert.AreEqual(numberOfEvaluatorsToFail * 3, failedIndicators.Length);
+                Assert.AreEqual(numberOfTasksToFail, failedTaskIndicators.Length);
+                Assert.AreEqual(numberOfEvaluatorsToFail, failedIndicators.Length);
             }
             else
             {
                 Console.WriteLine("Cannot read from log file");
                 Assert.Fail();
             }
+        }
+
+        protected void ValidateMessageSuccessfullyLogged(string message, string testFolder)
+        {
+            string[] lines = File.ReadAllLines(GetLogFile(_stdout, testFolder));
+            string[] successIndicators = lines.Where(s => s.Contains(message)).ToArray();
+            Assert.IsTrue(successIndicators.Any());
         }
 
         protected void PeriodicUploadLog(object source, ElapsedEventArgs e)
