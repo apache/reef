@@ -29,6 +29,8 @@ namespace Org.Apache.REEF.Client.YARN
     /// </summary>
     internal sealed class WindowsYarnJobCommandBuilder : IYarnJobCommandBuilder
     {
+        private const int DefaultDriverMaxMemoryAllocationPoolSizeMB = 512;
+        private const int DefaultDriverMaxPermSizeMB = 128;
         private static readonly string JavaExe = @"%JAVA_HOME%/bin/java";
 
         private static readonly string JvmOptionsPermSize = @"-XX:PermSize=128m";
@@ -56,8 +58,8 @@ namespace Org.Apache.REEF.Client.YARN
             _yarnCommandLineEnvironment = yarnCommandLineEnvironment;
             _enableDebugLogging = enableDebugLogging;
             _fileNames = fileNames;
-            _driverMaxMemoryAllocationPoolSizeMB = 512;
-            _driverMaxPermSizeMB = 128;
+            _driverMaxMemoryAllocationPoolSizeMB = DefaultDriverMaxMemoryAllocationPoolSizeMB;
+            _driverMaxPermSizeMB = DefaultDriverMaxPermSizeMB;
         }
 
         public IYarnJobCommandBuilder SetMaxDriverAllocationPoolSizeMB(int sizeMB)
