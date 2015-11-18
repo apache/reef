@@ -56,7 +56,7 @@ public final class AddOneTest {
   @Test
   public void testVortexAddOne() {
     final Configuration conf =
-        VortexConfHelper.getVortexConf("TEST_Vortex_AddOneTest", AddOneTestStart.class, 2, 1024, 4, 2000);
+        VortexConfHelper.getVortexConf("TEST_Vortex_AddOneTest", AddOneTestStart.class, 2, 64, 4, 2000);
     final LauncherStatus status = this.testEnvironment.run(conf);
     Assert.assertTrue("Job state after execution: " + status, status.isSuccess());
   }
