@@ -27,7 +27,7 @@ namespace Org.Apache.REEF.Client.YARN
     /// WindowsYarnJobCommandBuilder is .NET implementation of `org.apache.reef.runtime.common.launch.JavaLaunchCommandBuilder`
     /// This class provides the command to be submitted to RM for execution of .NET driver running on Windows environment.
     /// </summary>
-    public sealed class WindowsYarnJobCommandBuilder : IYarnJobCommandBuilder
+    internal sealed class WindowsYarnJobCommandBuilder : IYarnJobCommandBuilder
     {
         private static readonly string JavaExe = @"%JAVA_HOME%/bin/java";
 

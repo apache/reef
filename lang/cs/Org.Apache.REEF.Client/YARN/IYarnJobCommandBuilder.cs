@@ -23,7 +23,7 @@ namespace Org.Apache.REEF.Client.YARN
     /// Provide the command to be submitted to RM for execution of .NET driver.
     /// </summary>
     [DefaultImplementation(typeof(WindowsYarnJobCommandBuilder))]
-    public interface IYarnJobCommandBuilder
+    internal interface IYarnJobCommandBuilder
     {
         /// <summary>
         /// Sets the max memory for Java driver in MegaBytes
