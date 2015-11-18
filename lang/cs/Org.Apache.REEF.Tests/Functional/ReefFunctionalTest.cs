@@ -135,11 +135,11 @@ namespace Org.Apache.REEF.Tests.Functional
             }   
         }
 
-        protected void ValidateSuccessForLocalRuntime(int numberOfEvaluatorsToClose, string testFolder = DefaultRuntimeFolder)
+        protected void ValidateSuccessForLocalRuntime(int numberOfEvaluatorsToClose, int numberOfTasksToFail = 0, int numberOfEvaluatorsToFail = 0, string testFolder = DefaultRuntimeFolder)
         {
             const string successIndication = "EXIT: ActiveContextClr2Java::Close";
-            const string failedTaskIndication = "Java_com_microsoft_reef_javabridge_NativeInterop_clrSystemFailedTaskHandlerOnNext";
-            const string failedEvaluatorIndication = "Java_com_microsoft_reef_javabridge_NativeInterop_clrSystemFailedEvaluatorHandlerOnNext";
+            const string failedTaskIndication = "Java_org_apache_reef_javabridge_NativeInterop_clrSystemFailedTaskHandlerOnNext";
+            const string failedEvaluatorIndication = "Java_org_apache_reef_javabridge_NativeInterop_clrSystemFailedEvaluatorHandlerOnNext";
             string[] lines = null;
             for (int i = 0; i < 60; i++)
             {
@@ -160,9 +160,9 @@ namespace Org.Apache.REEF.Tests.Functional
                 string[] successIndicators = lines.Where(s => s.Contains(successIndication)).ToArray();
                 string[] failedTaskIndicators = lines.Where(s => s.Contains(failedTaskIndication)).ToArray();
                 string[] failedIndicators = lines.Where(s => s.Contains(failedEvaluatorIndication)).ToArray();
-                Assert.IsTrue(successIndicators.Count() == numberOfEvaluatorsToClose);
-                Assert.IsFalse(failedTaskIndicators.Any());
-                Assert.IsFalse(failedIndicators.Any());
+                Assert.AreEqual(numberOfEvaluatorsToClose, successIndicators.Length);
+                Assert.AreEqual(numberOfTasksToFail * 3, failedTaskIndicators.Length);
+                Assert.AreEqual(numberOfEvaluatorsToFail * 3, failedIndicators.Length);
             }
             else
             {
