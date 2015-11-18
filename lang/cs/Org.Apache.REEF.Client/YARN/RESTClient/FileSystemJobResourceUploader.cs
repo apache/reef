@@ -32,7 +32,7 @@ namespace Org.Apache.REEF.Client.YARN.RestClient
     /// </summary>
     internal sealed class FileSystemJobResourceUploader : IJobResourceUploader
     {
-        private static readonly Logger Log = Logger.GetLogger(typeof(LegacyJobResourceUploader));
+        private static readonly Logger Log = Logger.GetLogger(typeof(FileSystemJobResourceUploader));
         private static readonly DateTime Epoch = new DateTime(1970, 1, 1, 0, 0, 0, 0);
         private readonly IJobSubmissionDirectoryProvider _jobSubmissionDirectoryProvider;
         private readonly IResourceArchiveFileGenerator _resourceArchiveFileGenerator;
