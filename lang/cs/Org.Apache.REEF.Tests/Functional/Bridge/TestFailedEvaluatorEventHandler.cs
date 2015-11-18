@@ -42,6 +42,12 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
             Init();
         }
 
+        [TestCleanup]
+        public void TestCleanup()
+        {
+            CleanUp();
+        }
+
         [TestMethod, Priority(1), TestCategory("FunctionalGated")]
         [Description("Test invocation of FailedEvaluatorHandler")]
         [DeploymentItem(@".")]
