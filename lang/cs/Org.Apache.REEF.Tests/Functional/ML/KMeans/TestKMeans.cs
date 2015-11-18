@@ -130,7 +130,7 @@ namespace Org.Apache.REEF.Tests.Functional.ML.KMeans
             string testFolder = DefaultRuntimeFolder + TestNumber++;
             CleanUp(testFolder);
             TestRun(DriverConfiguration(), typeof(KMeansDriverHandlers), Partitions + 1, "KMeansDriverHandlers", "local", testFolder);
-            ValidateSuccessForLocalRuntime(Partitions + 1, testFolder);
+            ValidateSuccessForLocalRuntime(Partitions + 1, testFolder: testFolder);
         }
 
         [TestMethod, Priority(1), TestCategory("FunctionalGated")]

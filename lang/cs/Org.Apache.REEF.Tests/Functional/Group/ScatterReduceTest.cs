@@ -55,7 +55,7 @@ namespace Org.Apache.REEF.Tests.Functional.Group
             string testFolder = DefaultRuntimeFolder + TestNumber++;
             CleanUp(testFolder);
             TestScatterAndReduce(false, numTasks, testFolder);
-            ValidateSuccessForLocalRuntime(numTasks, testFolder);
+            ValidateSuccessForLocalRuntime(numTasks, testFolder: testFolder);
         }
 
         [Ignore]

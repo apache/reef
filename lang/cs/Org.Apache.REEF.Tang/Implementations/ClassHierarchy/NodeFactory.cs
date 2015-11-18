@@ -200,15 +200,14 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
 
             bool hasStringDefault, hasClassDefault, hasStringSetDefault, hasClassSetDefault;
             int default_count = 0;
-            //if(!namedParameter.default_value().isEmpty()) {  //QUESTION: difference from below? 
-            if (namedParameter.DefaultValue != null && namedParameter.DefaultValue.Length > 0)
+            if (namedParameter.DefaultValue == null || namedParameter.DefaultValue.Equals(NamedParameterAttribute.ReefUninitializedValue))
             {
-                hasStringDefault = true;
-                default_count++;
+                hasStringDefault = false;
             }
             else
             {
-                hasStringDefault = false;
+                hasStringDefault = true;
+                default_count++;
             }
 
             if (namedParameter.DefaultClass != null /*Void.class*/)

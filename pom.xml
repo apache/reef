@@ -795,7 +795,7 @@ under the License.
             <dependency>
                 <groupId>org.apache.mesos</groupId>
                 <artifactId>mesos</artifactId>
-                <version>0.21.0</version>
+                <version>0.25.0</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
