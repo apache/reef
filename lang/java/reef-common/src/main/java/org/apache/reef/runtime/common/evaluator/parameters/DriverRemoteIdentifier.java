@@ -23,7 +23,7 @@ import org.apache.reef.tang.annotations.NamedParameter;
 
 /**
  * The identifier used by the Evaluator to connect back to the Driver.
- * An alais has been defined for this named parameter in .Net REEF as
+ * An alias has been defined for this named parameter in .Net REEF as
  * Org.Apache.REEF.Common.Runtime.Evaluator.Utils.DriverRemoteIdentifier
  */
 @NamedParameter(doc = "The identifier used by the Evaluator to connect back to the Driver.")

@@ -23,42 +23,42 @@ using Org.Apache.REEF.Tang.Formats;
 namespace Org.Apache.REEF.Common.Runtime.Evaluator.Utils
 {
     [NamedParameter(alias: "org.apache.reef.runtime.common.evaluator.parameters.ApplicationIdentifier", aliasLanguage: AvroConfigurationSerializer.Java)]
-    public class ApplicationIdentifier : Name<string>
+    public sealed class ApplicationIdentifier : Name<string>
     {
     }
 
     [NamedParameter(alias: "org.apache.reef.runtime.common.evaluator.parameters.DriverRemoteIdentifier", aliasLanguage: AvroConfigurationSerializer.Java)]
-    public class DriverRemoteIdentifier : Name<string>
+    public sealed class DriverRemoteIdentifier : Name<string>
     {
     }
 
     [NamedParameter(alias: "org.apache.reef.runtime.common.evaluator.parameters.EvaluatorIdentifier", aliasLanguage: AvroConfigurationSerializer.Java)]
-    public class EvaluatorIdentifier : Name<string>
+    public sealed class EvaluatorIdentifier : Name<string>
     {
     }
 
     [NamedParameter(alias: "org.apache.reef.runtime.common.evaluator.parameters.InitialTaskConfiguration", aliasLanguage: AvroConfigurationSerializer.Java)]
-    public class InitialTaskConfiguration : Name<string>
+    public sealed class InitialTaskConfiguration : Name<string>
     {
     }
 
     [NamedParameter(alias: "org.apache.reef.runtime.common.evaluator.parameters.RootContextConfiguration", aliasLanguage: AvroConfigurationSerializer.Java)]
-    public class RootContextConfiguration : Name<string>
+    public sealed class RootContextConfiguration : Name<string>
     {
     }
 
     [NamedParameter(alias: "org.apache.reef.runtime.common.evaluator.parameters.RootServiceConfiguration", aliasLanguage: AvroConfigurationSerializer.Java)]
-    public class RootServiceConfiguration : Name<string>
+    public sealed class RootServiceConfiguration : Name<string>
     {
     }
 
     [NamedParameter(alias: "org.apache.reef.runtime.common.launch.parameters.ErrorHandlerRID", aliasLanguage: AvroConfigurationSerializer.Java)]
-    public class ErrorHandlerRid : Name<string>
+    public sealed class ErrorHandlerRid : Name<string>
     {
     }
 
     [NamedParameter(alias: "org.apache.reef.runtime.common.launch.parameters.LaunchID", aliasLanguage: AvroConfigurationSerializer.Java)]
-    public class LaunchId : Name<string>
+    public sealed class LaunchId : Name<string>
     {
     }
 }

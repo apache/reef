@@ -23,7 +23,7 @@ import org.apache.reef.tang.annotations.NamedParameter;
 
 /**
  * The launch identifier.
- * An alais has been defined for this named parameter in .Net REEF as
+ * An alias has been defined for this named parameter in .Net REEF as
  * Org.Apache.REEF.Common.Runtime.Evaluator.Utils.LaunchID
  */
 @NamedParameter(doc = "The launch identifier.", short_name = LaunchID.SHORT_NAME)
