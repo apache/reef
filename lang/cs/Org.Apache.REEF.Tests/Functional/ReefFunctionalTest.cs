@@ -171,6 +171,13 @@ namespace Org.Apache.REEF.Tests.Functional
             }
         }
 
+        protected void ValidateMessageSuccessfullyLogged(string message, string testFolder)
+        {
+            string[] lines = File.ReadAllLines(GetLogFile(_stdout, testFolder));
+            string[] successIndicators = lines.Where(s => s.Contains(message)).ToArray();
+            Assert.IsTrue(successIndicators.Any());
+        }
+
         protected void PeriodicUploadLog(object source, ElapsedEventArgs e)
         {
             try

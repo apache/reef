@@ -18,8 +18,6 @@
  */
 
 using System;
-using System.IO;
-using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Driver;
@@ -54,7 +52,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
             CleanUp(testFolder);
             TestRun(DriverConfigurations(), typeof(FailedEvaluatorDriver), 1, "failedEvaluatorTest", "local", testFolder);
             ValidateSuccessForLocalRuntime(0, numberOfEvaluatorsToFail: 1, testFolder: testFolder);
-            ValidateSuccessForFailedEvaluator(testFolder);
+            ValidateMessageSuccessfullyLogged(FailedEvaluatorMessage, testFolder);
             CleanUp(testFolder);
         }
 
@@ -70,13 +68,6 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
             return TangFactory.GetTang().NewConfigurationBuilder(driverConfig)
                 .BindSetEntry<DriverBridgeConfigurationOptions.SetOfAssemblies, string>(typeof(FailEvaluatorTask).Assembly.GetName().Name)
                 .Build();
-        }
-
-        private void ValidateSuccessForFailedEvaluator(string testFolder)
-        {
-            string[] lines = File.ReadAllLines(GetLogFile(_stdout, testFolder));
-            string[] successIndicators = lines.Where(s => s.Contains(FailedEvaluatorMessage)).ToArray();
-            Assert.IsTrue(successIndicators.Any());
         }
 
         private sealed class FailedEvaluatorDriver : IObserver<IDriverStarted>, IObserver<IAllocatedEvaluator>, 
@@ -107,7 +98,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
 
             public void OnNext(ICompletedEvaluator value)
             {
-                throw new Exception("Did not expecte completed evaluator.");
+                throw new Exception("Did not expect completed evaluator.");
             }
 
             public void OnNext(IFailedEvaluator value)
