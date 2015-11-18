@@ -119,6 +119,12 @@ namespace Org.Apache.REEF.Client.Yarn
                 };
                 process.BeginOutputReadLine();
                 process.WaitForExit();
+
+                if (process.ExitCode != 0)
+                {
+                    var ex = new Exception("YARN process exited with non-zero error code.");
+                    Exceptions.Throw(ex, Logger);
+                }
             }
             else
             {
