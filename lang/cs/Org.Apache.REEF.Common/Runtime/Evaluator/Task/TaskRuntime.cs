@@ -133,25 +133,11 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
                     var e = new InvalidOperationException("TaskRuntime not in Running state, instead it is in state " + _currentStatus.State);
                     Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(e, LOGGER);
                 }
-                byte[] result;
+
                 byte[] taskMemento = _memento.IsPresent() ? _memento.Value : null;
-                System.Threading.Tasks.Task<byte[]> runTask = new System.Threading.Tasks.Task<byte[]>(() => RunTask(taskMemento));
-                try
-                {
-                    runTask.Start();
-                    runTask.Wait();
-                }
-                catch (Exception e)
-                {
-                    Org.Apache.REEF.Utilities.Diagnostics.Exceptions.CaughtAndThrow(e, Level.Error, "Exception thrown during task running.", LOGGER);
-                }
-                result = runTask.Result;
+                var result = RunTask(taskMemento);
 
                 LOGGER.Log(Level.Info, "Task Call Finished");
-                if (_task != null)
-                {
-                    _task.Dispose();
-                }
                 _currentStatus.SetResult(result);
                 if (result != null && result.Length > 0)
                 {
@@ -160,12 +146,13 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
             }
             catch (Exception e)
             {
-                if (_task != null)
-                {
-                    _task.Dispose();
-                }
-                LOGGER.Log(Level.Warning, string.Format(CultureInfo.InvariantCulture, "Task failed caused by exception [{0}]", e));
+                LOGGER.Log(Level.Warning,
+                    string.Format(CultureInfo.InvariantCulture, "Task failed caused by exception [{0}]", e));
                 _currentStatus.SetException(e);
+            }
+            finally
+            {
+                _task.Dispose();
             }
         }
 
