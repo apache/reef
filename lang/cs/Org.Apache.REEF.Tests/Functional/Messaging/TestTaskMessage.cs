@@ -59,7 +59,7 @@ namespace Org.Apache.REEF.Tests.Functional.Messaging
             string testFolder = DefaultRuntimeFolder + TestNumber++;
             CleanUp(testFolder);
             TestRun(DriverConfigurations(), typeof(MessageDriver), 1, "simpleHandler", "local", testFolder);
-            ValidateSuccessForLocalRuntime(1, testFolder);
+            ValidateSuccessForLocalRuntime(1, testFolder: testFolder);
             CleanUp(testFolder);
         }
 

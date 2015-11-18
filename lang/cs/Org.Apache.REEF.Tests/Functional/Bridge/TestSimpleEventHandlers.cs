@@ -51,7 +51,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
             string testFolder = DefaultRuntimeFolder + Guid.NewGuid().ToString("N").Substring(0, 4);
             CleanUp(testFolder);
             TestRun(DriverConfigurations(), typeof(HelloSimpleEventHandlers), 2, "simpleHandler", "local", testFolder);
-            ValidateSuccessForLocalRuntime(1, testFolder);
+            ValidateSuccessForLocalRuntime(1, testFolder: testFolder);
             ValidateEvaluatorSetting(testFolder);
             CleanUp(testFolder);
         }
