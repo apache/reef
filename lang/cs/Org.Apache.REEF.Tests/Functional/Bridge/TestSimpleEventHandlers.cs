@@ -51,8 +51,8 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
             string testFolder = DefaultRuntimeFolder + Guid.NewGuid().ToString("N").Substring(0, 4);
             CleanUp(testFolder);
             TestRun(DriverConfigurations(), typeof(HelloSimpleEventHandlers), 2, "simpleHandler", "local", testFolder);
-            ValidateSuccessForLocalRuntime(1, testFolder);
-            ValidateEvaluatorSetting(testFolder);
+            ValidateSuccessForLocalRuntime(1, testFolder: testFolder);
+            ValidateMessageSuccessfullyLogged("Evaluator is assigned with 3072 MB of memory and 1 cores.", testFolder);
             CleanUp(testFolder);
         }
 
@@ -80,14 +80,6 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
                 .BindNamedParameter<IsRetain, bool>(GenericType<IsRetain>.Class, "false")
                 .BindNamedParameter<NumberOfEvaluators, Int32>(GenericType<NumberOfEvaluators>.Class, "1")
                 .Build();
-        }
-
-        private void ValidateEvaluatorSetting(string testFolder)
-        {
-            const string successIndication = "Evaluator is assigned with 3072 MB of memory and 1 cores.";
-            string[] lines = File.ReadAllLines(GetLogFile(_stdout, testFolder));
-            string[] successIndicators = lines.Where(s => s.Contains(successIndication)).ToArray();
-            Assert.IsTrue(successIndicators.Any());
         }
     }
 }

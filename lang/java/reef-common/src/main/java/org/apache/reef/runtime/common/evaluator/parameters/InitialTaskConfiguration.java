@@ -23,6 +23,8 @@ import org.apache.reef.tang.annotations.NamedParameter;
 
 /**
  * An initial task to launch on startup.
+ * An alias has been defined for this named parameter in .Net REEF as
+ * Org.Apache.REEF.Common.Runtime.Evaluator.Utils.InitialTaskConfiguration
  */
 @NamedParameter(doc = "An initial task to launch on startup.")
 public final class InitialTaskConfiguration implements Name<String> {

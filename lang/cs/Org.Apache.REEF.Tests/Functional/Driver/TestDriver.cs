@@ -55,7 +55,7 @@ namespace Org.Apache.REEF.Tests.Functional.Driver
             string testFolder = DefaultRuntimeFolder + TestNumber++;
             CleanUp(testFolder);
             TestRun(DriverConfigurations(), typeof(DriverTestStartHandler), 0, "DriverTestStartHandler", "local", testFolder);
-            ValidateSuccessForLocalRuntime(0, testFolder);
+            ValidateSuccessForLocalRuntime(0, testFolder: testFolder);
         }
 
         public IConfiguration DriverConfigurations()

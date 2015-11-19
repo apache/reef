@@ -37,7 +37,7 @@ namespace Org.Apache.REEF.Client.Yarn
             _jobSubmissionDirectoryPrefix = jobSubmissionDirectoryPrefix;
         }
 
-        public string GetJobSubmissionDirectory()
+        public string GetJobSubmissionRemoteDirectory()
         {
             return string.Format(@"{0}/{1}{2}/",
                 _jobSubmissionDirectoryPrefix,

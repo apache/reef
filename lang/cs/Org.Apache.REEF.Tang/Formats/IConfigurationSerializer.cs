@@ -39,10 +39,14 @@ namespace Org.Apache.REEF.Tang.Formats
 
         IConfiguration FromFile(string fileName);
 
+        IConfiguration FromFile(string fileName, IClassHierarchy classHierarchy);
+
         IConfiguration FromByteArray(byte[] bytes);
 
         IConfiguration FromBase64String(string serializedConfig);
 
         IConfiguration FromString(string jsonString);
+
+        IConfiguration FromString(string josonString, IClassHierarchy ch);
     }
 }

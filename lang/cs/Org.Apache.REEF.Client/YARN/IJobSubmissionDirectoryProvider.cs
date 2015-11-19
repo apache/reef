@@ -26,9 +26,9 @@ namespace Org.Apache.REEF.Client.Yarn
     public interface IJobSubmissionDirectoryProvider
     {
         /// <summary>
-        /// Returns path to job submission directory.
+        /// Returns path to job submission directory in DFS.
         /// </summary>
         /// <returns></returns>
-        string GetJobSubmissionDirectory();
+        string GetJobSubmissionRemoteDirectory();
     }
 }

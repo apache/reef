@@ -507,7 +507,7 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
                 {
                     return ch;
                 }
-                myJars.AddAll(otherJars);
+                myJars.Union(otherJars);
                 return new ClassHierarchyImpl(myJars.ToArray());
             }
         }

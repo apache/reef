@@ -28,6 +28,15 @@ namespace Org.Apache.REEF.Tang.Interface
         IClassHierarchy GetClassHierarchy();
         IConfiguration Build();
         void Bind(string iface, string impl);
+
+        /// <summary>
+        /// Bind an implementation to an interface with alias language
+        /// </summary>
+        /// <param name="iface"></param>
+        /// <param name="impl"></param>
+        /// <param name="language"></param>
+        void Bind(string iface, string impl, string language);
+
         void Bind(INode key, INode value);
 
         void BindConstructor(IClassNode k, IClassNode v); //v extended from ExternalConstructor

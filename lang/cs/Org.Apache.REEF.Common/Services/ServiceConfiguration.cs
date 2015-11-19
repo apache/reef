@@ -17,13 +17,10 @@
  * under the License.
  */
 
-using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using Org.Apache.REEF.Tang.Annotations;
-using Org.Apache.REEF.Tang.Exceptions;
 using Org.Apache.REEF.Tang.Formats;
-using Org.Apache.REEF.Tang.Implementations.Configuration;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
@@ -47,7 +44,6 @@ namespace Org.Apache.REEF.Common.Services
         public static readonly OptionalParameter<IService> Services = new OptionalParameter<IService>();
 
         public ServiceConfiguration()
-            : base()
         {
         }
 
@@ -86,8 +82,9 @@ namespace Org.Apache.REEF.Common.Services
         public ISet<IService> Services { get; set; }
     }
 
-    [NamedParameter("Set of services", "servicesSet", "")]
+    [NamedParameter("Set of services", "servicesSet")]
     class ServicesSet : Name<ISet<IService>>
     {      
     }
 }
+
