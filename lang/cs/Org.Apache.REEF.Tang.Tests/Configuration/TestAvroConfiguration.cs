@@ -25,6 +25,7 @@ using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Formats.AvroConfigurationDataContract;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
+using Org.Apache.REEF.Tang.Types;
 using Org.Apache.REEF.Tang.Util;
 
 namespace Org.Apache.REEF.Tang.Tests.Configuration
@@ -62,7 +63,7 @@ namespace Org.Apache.REEF.Tang.Tests.Configuration
             e2.value = "b1=b2";
             b.Add(e1);
             b.Add(e2);
-            var a = new AvroConfiguration(AvroConfigurationSerializer.Cs, b);
+            var a = new AvroConfiguration(Languages.Cs.ToString(), b);
             return a;
         }
     }

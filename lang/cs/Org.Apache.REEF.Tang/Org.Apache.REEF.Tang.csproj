@@ -128,6 +128,7 @@ under the License.
     <Compile Include="Types\INode.cs" />
     <Compile Include="Types\IPackageNode.cs" />
     <Compile Include="Types\ITraversable.cs" />
+    <Compile Include="Types\Languages.cs" />
     <Compile Include="Util\AbstractMonotonicMultiMap.cs" />
     <Compile Include="Util\AssemblyLoader.cs" />
     <Compile Include="Util\GenericType.cs" />

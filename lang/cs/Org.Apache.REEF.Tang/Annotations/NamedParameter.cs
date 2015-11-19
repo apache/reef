@@ -19,6 +19,7 @@
 
 using System;
 using Org.Apache.REEF.Tang.Formats;
+using Org.Apache.REEF.Tang.Types;
 
 namespace Org.Apache.REEF.Tang.Annotations
 {
@@ -34,10 +35,10 @@ namespace Org.Apache.REEF.Tang.Annotations
         public string[] DefaultValues { get; set; }
         public Type[] DefaultClasses { get; set; }
         public string Alias { get; set; }
-        public string AliasLanguage { get; set; }
+        public Languages AliasLanguage { get; set; }
 
         public NamedParameterAttribute(string documentation = "", string shortName = "",
-            string defaultValue = ReefUninitializedValue, Type defaultClass = null, string[] defaultValues = null, Type[] defaultClasses = null, string alias = null, string aliasLanguage = AvroConfigurationSerializer.Java)
+            string defaultValue = ReefUninitializedValue, Type defaultClass = null, string[] defaultValues = null, Type[] defaultClasses = null, string alias = null, Languages aliasLanguage = Languages.Cs)
         {
             this.Documentation = documentation;
             this.ShortName = shortName;

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -17,37 +17,11 @@
  * under the License.
  */
 
-using Org.Apache.REEF.Tang.Annotations;
-
 namespace Org.Apache.REEF.Tang.Types
 {
-    public interface INamedParameterNode : INode
+    public enum Languages
     {
-        string GetDocumentation();
-
-        string GetShortName();
-
-        string[] GetDefaultInstanceAsStrings();
-
-        string GetSimpleArgName();
-
-        string GetFullArgName();
-
-        bool IsSet();
-
-        bool IsList();
-
-        /// <summary>
-        /// It returns an alias of the NamedParameter
-        /// The alias is defined as an attribute of the NamedParameter
-        /// </summary>
-        /// <returns></returns>
-        string GetAlias();
-
-        /// <summary>
-        /// It returns the programming language for the alias
-        /// </summary>
-        /// <returns></returns>
-        Languages GetAliasLanguage();
+        Java,
+        Cs
     }
 }

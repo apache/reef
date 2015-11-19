@@ -53,8 +53,8 @@ namespace Org.Apache.REEF.Tang.Formats
 
     public class AvroConfigurationSerializer : IConfigurationSerializer
     {
-        public const string Java = "Java";
-        public const string Cs = "Cs";
+        //public const string Java = "Java";
+        //public const string Cs = "Cs";
 
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(AvroConfigurationResolver));
 
@@ -267,7 +267,7 @@ namespace Org.Apache.REEF.Tang.Formats
                 l.Add(new ConfigurationEntry(e.Key.GetFullName(), val));
             }
 
-            return new AvroConfiguration(Cs, l);
+            return new AvroConfiguration(Languages.Cs.ToString(), l);
         }
         
         private byte[] AvroSerialize(AvroConfiguration obj)
