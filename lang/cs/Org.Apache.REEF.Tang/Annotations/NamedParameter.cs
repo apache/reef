@@ -20,6 +20,7 @@
 using System;
 using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Types;
+using Org.Apache.REEF.Tang.Util;
 
 namespace Org.Apache.REEF.Tang.Annotations
 {
@@ -35,10 +36,10 @@ namespace Org.Apache.REEF.Tang.Annotations
         public string[] DefaultValues { get; set; }
         public Type[] DefaultClasses { get; set; }
         public string Alias { get; set; }
-        public Languages AliasLanguage { get; set; }
+        public Language AliasLanguage { get; set; }
 
         public NamedParameterAttribute(string documentation = "", string shortName = "",
-            string defaultValue = ReefUninitializedValue, Type defaultClass = null, string[] defaultValues = null, Type[] defaultClasses = null, string alias = null, Languages aliasLanguage = Languages.Cs)
+            string defaultValue = ReefUninitializedValue, Type defaultClass = null, string[] defaultValues = null, Type[] defaultClasses = null, string alias = null, Language aliasLanguage = Language.Cs)
         {
             this.Documentation = documentation;
             this.ShortName = shortName;

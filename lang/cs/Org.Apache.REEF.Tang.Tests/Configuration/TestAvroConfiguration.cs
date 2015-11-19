@@ -63,7 +63,7 @@ namespace Org.Apache.REEF.Tang.Tests.Configuration
             e2.value = "b1=b2";
             b.Add(e1);
             b.Add(e2);
-            var a = new AvroConfiguration(Languages.Cs.ToString(), b);
+            var a = new AvroConfiguration(Language.Cs.ToString(), b);
             return a;
         }
     }

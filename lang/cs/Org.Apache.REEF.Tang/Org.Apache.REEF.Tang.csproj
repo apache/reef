@@ -128,10 +128,10 @@ under the License.
     <Compile Include="Types\INode.cs" />
     <Compile Include="Types\IPackageNode.cs" />
     <Compile Include="Types\ITraversable.cs" />
-    <Compile Include="Types\Languages.cs" />
     <Compile Include="Util\AbstractMonotonicMultiMap.cs" />
     <Compile Include="Util\AssemblyLoader.cs" />
     <Compile Include="Util\GenericType.cs" />
+    <Compile Include="Util\Language.cs" />
     <Compile Include="Util\MonotonicHashMap.cs" />
     <Compile Include="Util\MonotonicHashSet.cs" />
     <Compile Include="Util\MonotonicMultiHashMap.cs" />

@@ -18,6 +18,7 @@
  */
 
 using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Tang.Util;
 
 namespace Org.Apache.REEF.Tang.Types
 {
@@ -48,6 +49,6 @@ namespace Org.Apache.REEF.Tang.Types
         /// It returns the programming language for the alias
         /// </summary>
         /// <returns></returns>
-        Languages GetAliasLanguage();
+        Language GetAliasLanguage();
     }
 }

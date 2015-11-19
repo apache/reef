@@ -34,6 +34,7 @@ using Org.Apache.REEF.Tang.Implementations.Configuration;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Types;
+using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Tang.Formats
@@ -264,7 +265,7 @@ namespace Org.Apache.REEF.Tang.Formats
                 l.Add(new ConfigurationEntry(e.Key.GetFullName(), val));
             }
 
-            return new AvroConfiguration(Languages.Cs.ToString(), l);
+            return new AvroConfiguration(Language.Cs.ToString(), l);
         }
         
         private byte[] AvroSerialize(AvroConfiguration obj)

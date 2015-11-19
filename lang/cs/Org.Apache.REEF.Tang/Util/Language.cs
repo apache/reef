@@ -17,9 +17,14 @@
  * under the License.
  */
 
-namespace Org.Apache.REEF.Tang.Types
+namespace Org.Apache.REEF.Tang.Util
 {
-    public enum Languages
+    /// <summary>
+    /// This is to define the programming language used in AvroConfiguration.
+    /// In Deserialization of a configuration, if a class name in the configuration cannot be found 
+    /// in class hiearchy, the language in the configuration is used to find the alias of that class name
+    /// </summary>
+    public enum Language
     {
         Java,
         Cs

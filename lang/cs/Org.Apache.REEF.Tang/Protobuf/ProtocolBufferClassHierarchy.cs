@@ -26,6 +26,7 @@ using Org.Apache.REEF.Tang.Exceptions;
 using Org.Apache.REEF.Tang.Implementations.ClassHierarchy;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Types;
+using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities.Logging;
 using ProtoBuf;
 
@@ -188,7 +189,7 @@ namespace Org.Apache.REEF.Tang.Protobuf
             string shortName, // can be null
             string[] instanceDefault, // can be null
             IList<Org.Apache.REEF.Tang.Protobuf.Node> children,
-            string alias, Languages aliasLanguage)
+            string alias, Language aliasLanguage)
         {
             Org.Apache.REEF.Tang.Protobuf.NamedParameterNode namedParameterNode = new Org.Apache.REEF.Tang.Protobuf.NamedParameterNode();
             namedParameterNode.simple_arg_class_name = simpleArgClassName;
@@ -301,7 +302,7 @@ namespace Org.Apache.REEF.Tang.Protobuf
 
         private void AddAlias(INamedParameterNode np)
         {
-            if (np.GetAlias() != null && !np.GetAlias().Equals(""))
+            if (!string.IsNullOrEmpty(np.GetAlias()))
             {
                 IDictionary<string, string> mapping = null;
                 _aliasLookupTable.TryGetValue(np.GetAliasLanguage().ToString(), out mapping);
@@ -333,9 +334,9 @@ namespace Org.Apache.REEF.Tang.Protobuf
             {
                 Org.Apache.REEF.Tang.Protobuf.NamedParameterNode np = n.named_parameter_node;
 
-                if (np.alias_name != null && np.alias_language != null)
+                if (!string.IsNullOrWhiteSpace(np.alias_name) && !string.IsNullOrWhiteSpace(np.alias_language))
                 {
-                    Languages language;
+                    Language language;
                     try
                     {                        
                         Enum.TryParse(np.alias_language, true, out language);
