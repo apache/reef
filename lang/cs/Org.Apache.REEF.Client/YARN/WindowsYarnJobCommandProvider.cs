@@ -24,10 +24,10 @@ using Org.Apache.REEF.Tang.Annotations;
 namespace Org.Apache.REEF.Client.YARN
 {
     /// <summary>
-    /// WindowsYarnJobCommandBuilder is .NET implementation of `org.apache.reef.runtime.common.launch.JavaLaunchCommandBuilder`
+    /// WindowsYarnJobCommandProvider is .NET implementation of `org.apache.reef.runtime.common.launch.JavaLaunchCommandBuilder`
     /// This class provides the command to be submitted to RM for execution of .NET driver running on Windows environment.
     /// </summary>
-    internal sealed class WindowsYarnJobCommandBuilder : IYarnJobCommandBuilder
+    internal sealed class WindowsYarnJobCommandProvider : IYarnJobCommandProvider
     {
         private static readonly string JavaExe = @"%JAVA_HOME%/bin/java";
 
@@ -48,7 +48,7 @@ namespace Org.Apache.REEF.Client.YARN
 
 
         [Inject]
-        private WindowsYarnJobCommandBuilder(
+        private WindowsYarnJobCommandProvider(
             [Parameter(typeof(EnableDebugLogging))] bool enableDebugLogging,
             [Parameter(typeof(DriverMaxMemoryAllicationPoolSizeMB))] int driverMaxMemoryAllocationPoolSizeMB,
             [Parameter(typeof(DriverMaxPermSizeMB))] int driverMaxPermSizeMB,

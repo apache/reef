@@ -27,7 +27,7 @@ using Org.Apache.REEF.Tang.Util;
 namespace Org.Apache.REEF.Client.Tests
 {
     [TestClass]
-    public class WindowsYarnJobCommandBuilderTests
+    public class WindowsYarnJobCommandProviderTests
     {
         private static readonly List<string> AnyClassPathItems = new List<string>
         {
@@ -58,7 +58,7 @@ namespace Org.Apache.REEF.Client.Tests
         [TestMethod]
         public void YarnJobCommandBuilderIsDefaultImplementationOfIYarnJobCommandBuilder()
         {
-            Assert.IsInstanceOfType(TangFactory.GetTang().NewInjector().GetInstance<IYarnJobCommandBuilder>(), typeof(WindowsYarnJobCommandBuilder));
+            Assert.IsInstanceOfType(TangFactory.GetTang().NewInjector().GetInstance<IYarnJobCommandProvider>(), typeof(WindowsYarnJobCommandProvider));
         }
 
         [TestMethod]
@@ -159,7 +159,7 @@ namespace Org.Apache.REEF.Client.Tests
 
         private class TestContext
         {
-            public WindowsYarnJobCommandBuilder GetCommandBuilder(bool enableLogging = false, 
+            public WindowsYarnJobCommandProvider GetCommandBuilder(bool enableLogging = false, 
                 int? maxPermSize = null,
                 int? maxMemAllocPoolSize = null)
             {
@@ -179,7 +179,7 @@ namespace Org.Apache.REEF.Client.Tests
                     injector.BindVolatileParameter<DriverMaxMemoryAllicationPoolSizeMB, int>(maxMemAllocPoolSize.Value);
                 }
 
-                return injector.GetInstance<WindowsYarnJobCommandBuilder>();
+                return injector.GetInstance<WindowsYarnJobCommandProvider>();
             }
         }
     }

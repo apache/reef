@@ -22,8 +22,8 @@ namespace Org.Apache.REEF.Client.YARN
     /// <summary>
     /// Provide the command to be submitted to RM for execution of .NET driver.
     /// </summary>
-    [DefaultImplementation(typeof(WindowsYarnJobCommandBuilder))]
-    internal interface IYarnJobCommandBuilder
+    [DefaultImplementation(typeof(WindowsYarnJobCommandProvider))]
+    internal interface IYarnJobCommandProvider
     {
         /// <summary>
         /// Builds the command to be submitted to YARNRM
