@@ -119,7 +119,7 @@ namespace Org.Apache.REEF.Tests.Functional
             }
             
             // Wait for file upload task to complete
-            Thread.Sleep(500);
+            Thread.Sleep(1000);
 
             string dir = Path.Combine(Directory.GetCurrentDirectory(), testFolder);
             try
@@ -141,6 +141,7 @@ namespace Org.Apache.REEF.Tests.Functional
             const string failedTaskIndication = "Java_org_apache_reef_javabridge_NativeInterop_clrSystemFailedTaskHandlerOnNext";
             const string failedEvaluatorIndication = "Java_org_apache_reef_javabridge_NativeInterop_clrSystemFailedEvaluatorHandlerOnNext";
             string[] lines = null;
+            Thread.Sleep(5000);
             for (int i = 0; i < 60; i++)
             {
                 try
