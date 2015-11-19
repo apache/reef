@@ -17,18 +17,12 @@
 
 using Org.Apache.REEF.Tang.Annotations;
 
-namespace Org.Apache.REEF.Client.YARN
+namespace Org.Apache.REEF.Client.YARN.Parameters
 {
-    /// <summary>
-    /// Provide the command to be submitted to RM for execution of .NET driver.
-    /// </summary>
-    [DefaultImplementation(typeof(WindowsYarnJobCommandBuilder))]
-    internal interface IYarnJobCommandBuilder
+    [NamedParameter(
+        "Maximum memory allocation pool size for Java driver in MegaBytes.",
+        defaultValue: "512")]
+    public sealed class DriverMaxMemoryAllicationPoolSizeMB : Name<int>
     {
-        /// <summary>
-        /// Builds the command to be submitted to YARNRM
-        /// </summary>
-        /// <returns>Command</returns>
-        string GetJobSubmissionCommand();
     }
 }

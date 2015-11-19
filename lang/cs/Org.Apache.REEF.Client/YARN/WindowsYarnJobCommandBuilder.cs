@@ -29,8 +29,6 @@ namespace Org.Apache.REEF.Client.YARN
     /// </summary>
     internal sealed class WindowsYarnJobCommandBuilder : IYarnJobCommandBuilder
     {
-        private const int DefaultDriverMaxMemoryAllocationPoolSizeMB = 512;
-        private const int DefaultDriverMaxPermSizeMB = 128;
         private static readonly string JavaExe = @"%JAVA_HOME%/bin/java";
 
         private static readonly string JvmOptionsPermSize = @"-XX:PermSize=128m";
@@ -45,33 +43,23 @@ namespace Org.Apache.REEF.Client.YARN
         private readonly REEFFileNames _fileNames;
         private readonly bool _enableDebugLogging;
         private readonly IYarnCommandLineEnvironment _yarnCommandLineEnvironment;
-        private int _driverMaxMemoryAllocationPoolSizeMB;
-        private int _driverMaxPermSizeMB;
+        private readonly int _driverMaxMemoryAllocationPoolSizeMB;
+        private readonly int _driverMaxPermSizeMB;
 
 
         [Inject]
         private WindowsYarnJobCommandBuilder(
             [Parameter(typeof(EnableDebugLogging))] bool enableDebugLogging,
+            [Parameter(typeof(DriverMaxMemoryAllicationPoolSizeMB))] int driverMaxMemoryAllocationPoolSizeMB,
+            [Parameter(typeof(DriverMaxPermSizeMB))] int driverMaxPermSizeMB,
             IYarnCommandLineEnvironment yarnCommandLineEnvironment,
             REEFFileNames fileNames)
         {
             _yarnCommandLineEnvironment = yarnCommandLineEnvironment;
             _enableDebugLogging = enableDebugLogging;
             _fileNames = fileNames;
-            _driverMaxMemoryAllocationPoolSizeMB = DefaultDriverMaxMemoryAllocationPoolSizeMB;
-            _driverMaxPermSizeMB = DefaultDriverMaxPermSizeMB;
-        }
-
-        public IYarnJobCommandBuilder SetMaxDriverAllocationPoolSizeMB(int sizeMB)
-        {
-            _driverMaxMemoryAllocationPoolSizeMB = sizeMB;
-            return this;
-        }
-
-        public IYarnJobCommandBuilder SetDriverMaxPermSizeMB(int sizeMB)
-        {
-            _driverMaxPermSizeMB = sizeMB;
-            return this;
+            _driverMaxMemoryAllocationPoolSizeMB = driverMaxMemoryAllocationPoolSizeMB;
+            _driverMaxPermSizeMB = driverMaxPermSizeMB;
         }
 
         /// <summary>

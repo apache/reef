@@ -93,6 +93,8 @@ under the License.
     <Compile Include="YARN\IYarnJobCommandBuilder.cs" />
     <Compile Include="YARN\IJobResourceUploader.cs" />
     <Compile Include="YARN\IJobSubmissionDirectoryProvider.cs" />
+    <Compile Include="YARN\Parameters\DriverMaxMemoryAllicationPoolSizeMB.cs" />
+    <Compile Include="YARN\Parameters\DriverMaxPermSizeMB.cs" />
     <Compile Include="YARN\WindowsYarnJobCommandBuilder.cs" />
     <Compile Include="YARN\JobResource.cs" />
     <Compile Include="YARN\JobSubmissionDirectoryProvider.cs" />

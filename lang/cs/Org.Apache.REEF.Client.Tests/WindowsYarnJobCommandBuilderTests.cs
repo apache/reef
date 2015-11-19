@@ -126,7 +126,7 @@ namespace Org.Apache.REEF.Client.Tests
                                                  "che.reef.bridge.client.YarnBootstrapREEFLauncher reef/local/job-submis" +
                                                  "sion-params.json 1> <LOG_DIR>/driver.stdout 2> <LOG_DIR>/driver.stderr";
             string expectedCommand = string.Format(expectedCommandFormat, sizeMB);
-            var commandBuilder = testContext.GetCommandBuilder().SetMaxDriverAllocationPoolSizeMB(sizeMB);
+            var commandBuilder = testContext.GetCommandBuilder(maxMemAllocPoolSize: sizeMB);
             var jobSubmissionCommand = commandBuilder.GetJobSubmissionCommand();
             Assert.AreEqual(expectedCommand, jobSubmissionCommand);
         }
@@ -150,21 +150,35 @@ namespace Org.Apache.REEF.Client.Tests
                                                  "che.reef.bridge.client.YarnBootstrapREEFLauncher reef/local/job-submis" +
                                                  "sion-params.json 1> <LOG_DIR>/driver.stdout 2> <LOG_DIR>/driver.stderr";
             string expectedCommand = string.Format(expectedCommandFormat, sizeMB);
-            var commandBuilder = testContext.GetCommandBuilder().SetDriverMaxPermSizeMB(sizeMB);
+            
+            var commandBuilder = testContext.GetCommandBuilder(maxPermSize: sizeMB);
             var jobSubmissionCommand = commandBuilder.GetJobSubmissionCommand();
+            
             Assert.AreEqual(expectedCommand, jobSubmissionCommand);
         }
 
         private class TestContext
         {
-            public readonly IYarnCommandLineEnvironment YarnCommandLineEnvironment = Substitute.For<IYarnCommandLineEnvironment>();
-
-            public WindowsYarnJobCommandBuilder GetCommandBuilder(bool enableLogging = false)
+            public WindowsYarnJobCommandBuilder GetCommandBuilder(bool enableLogging = false, 
+                int? maxPermSize = null,
+                int? maxMemAllocPoolSize = null)
             {
                 var injector = TangFactory.GetTang().NewInjector();
-                YarnCommandLineEnvironment.GetYarnClasspathList().Returns(AnyClassPathItems);
-                injector.BindVolatileInstance(GenericType<IYarnCommandLineEnvironment>.Class, YarnCommandLineEnvironment);
+         
+                IYarnCommandLineEnvironment yarnCommandLineEnvironment = Substitute.For<IYarnCommandLineEnvironment>();
+                yarnCommandLineEnvironment.GetYarnClasspathList().Returns(AnyClassPathItems);
+                
+                injector.BindVolatileInstance(GenericType<IYarnCommandLineEnvironment>.Class, yarnCommandLineEnvironment);
                 injector.BindVolatileParameter(GenericType<EnableDebugLogging>.Class, enableLogging);
+                if (maxPermSize.HasValue)
+                {
+                    injector.BindVolatileParameter<DriverMaxPermSizeMB, int>(maxPermSize.Value);
+                }
+                if (maxMemAllocPoolSize.HasValue)
+                {
+                    injector.BindVolatileParameter<DriverMaxMemoryAllicationPoolSizeMB, int>(maxMemAllocPoolSize.Value);
+                }
+
                 return injector.GetInstance<WindowsYarnJobCommandBuilder>();
             }
         }
