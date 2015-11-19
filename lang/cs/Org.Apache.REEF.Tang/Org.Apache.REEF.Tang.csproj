@@ -131,6 +131,7 @@ under the License.
     <Compile Include="Util\AbstractMonotonicMultiMap.cs" />
     <Compile Include="Util\AssemblyLoader.cs" />
     <Compile Include="Util\GenericType.cs" />
+    <Compile Include="Util\Language.cs" />
     <Compile Include="Util\MonotonicHashMap.cs" />
     <Compile Include="Util\MonotonicHashSet.cs" />
     <Compile Include="Util\MonotonicMultiHashMap.cs" />

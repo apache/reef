@@ -38,7 +38,7 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
             Assert.IsTrue(cls.GetDocumentation().Equals("NamedParameterWithDefaultValues"));
             Assert.IsTrue(cls.GetShortName().Equals("NamedParameterWithDefaultValues"));
             Assert.IsTrue(cls.GetAlias().Equals("org.apache.REEF.tang.tests.classHierarchy.NamedParameterWithDefaultValues"));
-            Assert.IsTrue(cls.GetAliasLanguage().Equals(AvroConfigurationSerializer.Java));
+            Assert.IsTrue(cls.GetAliasLanguage().ToString().Equals(Language.Java.ToString()));
         }
 
         [TestMethod]
@@ -47,7 +47,7 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
             var ns = TangFactory.GetTang().GetDefaultClassHierarchy();
             INamedParameterNode cls = (INamedParameterNode)ns.GetNode(typeof(NamedParameterWithAlias).AssemblyQualifiedName);
             Assert.IsTrue(cls.GetAlias().Equals("org.apache.REEF.tang.tests.classHierarchy.NamedParameterWithAlias"));
-            Assert.IsTrue(cls.GetAliasLanguage().Equals(AvroConfigurationSerializer.Java));
+            Assert.IsTrue(cls.GetAliasLanguage().ToString().Equals(Language.Java.ToString()));
         }
 
         [TestMethod]
@@ -60,7 +60,7 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
             var node2 = ns1.GetNode(typeof(NamedParameterWithAlias).AssemblyQualifiedName);
 
             Assert.IsTrue(node2 is INamedParameterNode);
-            Assert.IsTrue(((INamedParameterNode)node2).GetAliasLanguage().Equals(AvroConfigurationSerializer.Java));
+            Assert.IsTrue(((INamedParameterNode)node2).GetAliasLanguage().ToString().Equals(Language.Java.ToString()));
             Assert.IsTrue(((INamedParameterNode)node2).GetFullName().Equals(typeof(NamedParameterWithAlias).AssemblyQualifiedName));
             Assert.IsTrue(((INamedParameterNode)node2).GetAlias().Equals("org.apache.REEF.tang.tests.classHierarchy.NamedParameterWithAlias"));
         }
@@ -87,14 +87,14 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
         DefaultValues = null,
         DefaultClasses = null,
         Alias = "org.apache.REEF.tang.tests.classHierarchy.NamedParameterWithDefaultValues",
-        AliasLanguage = AvroConfigurationSerializer.Java
+        AliasLanguage = Language.Java
      )]
 
     public class NamedParameterWithDefaultValues : Name<string> 
     {
     }
 
-    [NamedParameter(alias: "org.apache.REEF.tang.tests.classHierarchy.NamedParameterWithAlias", aliasLanguage: AvroConfigurationSerializer.Java)]
+    [NamedParameter(alias: "org.apache.REEF.tang.tests.classHierarchy.NamedParameterWithAlias", aliasLanguage: Language.Java)]
     public class NamedParameterWithAlias : Name<string>
     {
     }

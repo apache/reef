@@ -201,11 +201,11 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
             if (np.GetAlias() != null && !np.GetAlias().Equals(""))
             {
                 IDictionary<string, string> mapping = null;
-                _aliasLookupTable.TryGetValue(np.GetAliasLanguage(), out mapping);
+                _aliasLookupTable.TryGetValue(np.GetAliasLanguage().ToString(), out mapping);
                 if (mapping == null)
                 {
                     mapping = new Dictionary<string, string>();
-                    _aliasLookupTable.Add(np.GetAliasLanguage(), mapping);
+                    _aliasLookupTable.Add(np.GetAliasLanguage().ToString(), mapping);
                 }
 
                 try

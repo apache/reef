@@ -51,7 +51,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
 
         public T Value { get; set; }
 
-        [Obsolete("This field is used in Java code only; keeping it for consistency across languages. See [REEF-445]", false)]
+        [Obsolete("This field is used in Java code only; keeping it for consistency across Language. See [REEF-445]", false)]
         public long Sequence { get; set; }
     }
 }

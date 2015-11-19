@@ -20,6 +20,7 @@
 using System;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Types;
+using Org.Apache.REEF.Tang.Util;
 
 namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
 {
@@ -33,11 +34,11 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
         private readonly bool isSet;
         private readonly bool isList;
         private readonly string alias;
-        private readonly string aliasLanguage;
+        private readonly Language aliasLanguage;
 
         public NamedParameterNodeImpl(INode parent, String simpleName,
             String fullName, String fullArgName, String simpleArgName, bool isSet, bool isList,
-            String documentation, String shortName, String[] defaultInstanceAsStrings, string alias, string aliasLanguage)
+            String documentation, String shortName, String[] defaultInstanceAsStrings, string alias = null, Language aliasLanguage = Language.Cs)
             : base(parent, simpleName, fullName)
         {
             this.fullArgName = fullArgName;
@@ -49,13 +50,6 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
             this.defaultInstanceAsStrings = defaultInstanceAsStrings;
             this.alias = alias;
             this.aliasLanguage = aliasLanguage;
-        }
-
-        public NamedParameterNodeImpl(INode parent, String simpleName,
-            String fullName, String fullArgName, String simpleArgName, bool isSet, bool isList,
-            String documentation, String shortName, String[] defaultInstanceAsStrings)
-            : this(parent, simpleName, fullName, simpleArgName, simpleArgName, isSet, isList, documentation, shortName, defaultInstanceAsStrings, null, null)
-        {
         }
 
         public override String ToString()
@@ -103,7 +97,7 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
             return alias;
         }
 
-        public string GetAliasLanguage()
+        public Language GetAliasLanguage()
         {
             return aliasLanguage;
         }

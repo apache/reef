@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -17,38 +17,16 @@
  * under the License.
  */
 
-using Org.Apache.REEF.Tang.Annotations;
-using Org.Apache.REEF.Tang.Util;
-
-namespace Org.Apache.REEF.Tang.Types
+namespace Org.Apache.REEF.Tang.Util
 {
-    public interface INamedParameterNode : INode
+    /// <summary>
+    /// This is to define the programming language used in AvroConfiguration.
+    /// In Deserialization of a configuration, if a class name in the configuration cannot be found 
+    /// in class hiearchy, the language in the configuration is used to find the alias of that class name
+    /// </summary>
+    public enum Language
     {
-        string GetDocumentation();
-
-        string GetShortName();
-
-        string[] GetDefaultInstanceAsStrings();
-
-        string GetSimpleArgName();
-
-        string GetFullArgName();
-
-        bool IsSet();
-
-        bool IsList();
-
-        /// <summary>
-        /// It returns an alias of the NamedParameter
-        /// The alias is defined as an attribute of the NamedParameter
-        /// </summary>
-        /// <returns></returns>
-        string GetAlias();
-
-        /// <summary>
-        /// It returns the programming language for the alias
-        /// </summary>
-        /// <returns></returns>
-        Language GetAliasLanguage();
+        Java,
+        Cs
     }
 }

@@ -26,6 +26,7 @@ using Org.Apache.REEF.Tang.Exceptions;
 using Org.Apache.REEF.Tang.Implementations.ClassHierarchy;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Types;
+using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities.Logging;
 using ProtoBuf;
 
@@ -188,7 +189,7 @@ namespace Org.Apache.REEF.Tang.Protobuf
             string shortName, // can be null
             string[] instanceDefault, // can be null
             IList<Org.Apache.REEF.Tang.Protobuf.Node> children,
-            string alias, string aliasLanguage)
+            string alias, Language aliasLanguage)
         {
             Org.Apache.REEF.Tang.Protobuf.NamedParameterNode namedParameterNode = new Org.Apache.REEF.Tang.Protobuf.NamedParameterNode();
             namedParameterNode.simple_arg_class_name = simpleArgClassName;
@@ -211,10 +212,7 @@ namespace Org.Apache.REEF.Tang.Protobuf
                 namedParameterNode.alias_name = alias;
             }
 
-            if (aliasLanguage != null)
-            {
-                namedParameterNode.alias_language = aliasLanguage;
-            }
+            namedParameterNode.alias_language = aliasLanguage.ToString();
 
             foreach (var id in instanceDefault)
             {
@@ -304,14 +302,14 @@ namespace Org.Apache.REEF.Tang.Protobuf
 
         private void AddAlias(INamedParameterNode np)
         {
-            if (np.GetAlias() != null && !np.GetAlias().Equals(""))
+            if (!string.IsNullOrEmpty(np.GetAlias()))
             {
                 IDictionary<string, string> mapping = null;
-                _aliasLookupTable.TryGetValue(np.GetAliasLanguage(), out mapping);
+                _aliasLookupTable.TryGetValue(np.GetAliasLanguage().ToString(), out mapping);
                 if (mapping == null)
                 {
                     mapping = new Dictionary<string, string>();
-                    _aliasLookupTable.Add(np.GetAliasLanguage(), mapping);
+                    _aliasLookupTable.Add(np.GetAliasLanguage().ToString(), mapping);
                 }
                 try
                 {
@@ -336,12 +334,23 @@ namespace Org.Apache.REEF.Tang.Protobuf
             {
                 Org.Apache.REEF.Tang.Protobuf.NamedParameterNode np = n.named_parameter_node;
 
-                if (np.alias_name != null && np.alias_language != null)
+                if (!string.IsNullOrWhiteSpace(np.alias_name) && !string.IsNullOrWhiteSpace(np.alias_language))
                 {
+                    Language language;
+                    try
+                    {                        
+                        Enum.TryParse(np.alias_language, true, out language);
+                    }
+                    catch (Exception)
+                    {
+                        string msg = string.Format(CultureInfo.CurrentCulture, "Language {0} passed in is not supported", np.alias_language);
+                        throw new ArgumentException(msg);
+                    }
+
                     parsed = new NamedParameterNodeImpl(parent, n.name,
                         n.full_name, np.full_arg_class_name, np.simple_arg_class_name,
                         np.is_set, np.is_list, np.documentation, np.short_name,
-                        np.instance_default.ToArray(), np.alias_name, np.alias_language);
+                        np.instance_default.ToArray(), np.alias_name, language);
                 }
                 else
                 {

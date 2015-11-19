@@ -26,6 +26,8 @@ using Org.Apache.REEF.Examples.HelloREEF;
 using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
+using Org.Apache.REEF.Tang.Types;
+using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Wake.Remote.Parameters;
 using Org.Apache.REEF.Wake.StreamingCodec;
@@ -74,7 +76,7 @@ namespace Org.Apache.REEF.Evaluator.Tests
             var avroConfiguration = serializer.AvroDeserializeFromFile("evaluator.conf");
 
             Assert.IsNotNull(avroConfiguration);
-            Assert.AreEqual(avroConfiguration.language, AvroConfigurationSerializer.Java);
+            Assert.AreEqual(avroConfiguration.language, Language.Java.ToString());
 
             foreach (var b in avroConfiguration.Bindings)
             {
@@ -88,7 +90,7 @@ namespace Org.Apache.REEF.Evaluator.Tests
             AvroConfigurationSerializer serializer = new AvroConfigurationSerializer();
             var avroConfiguration = serializer.AvroDeserializeFromFile("evaluator.conf");
             var language = avroConfiguration.language;
-            Assert.IsTrue(language.Equals(AvroConfigurationSerializer.Java));
+            Assert.IsTrue(language.ToString().Equals(Language.Java.ToString()));
 
             var classHierarchy = TangFactory.GetTang()
                 .GetClassHierarchy(new string[] { typeof(ApplicationIdentifier).Assembly.GetName().Name });
