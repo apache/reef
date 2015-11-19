@@ -71,7 +71,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
             // Invoke encoder for this type
             Type handlerType = typeof(IEncoder<>).MakeGenericType(new[] { obj.GetType() });
             MethodInfo info = handlerType.GetMethod("Encode");
-            byte[] data = (byte[]) info.Invoke(encoder, new[] { (object) obj });
+            byte[] data = (byte[])info.Invoke(encoder, new[] { (object)obj });
 
             // Serialize object type and object data into well known tuple
             // To decode, deserialize the tuple, get object type, and look up the

@@ -40,7 +40,7 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureBlob.RetryPolicy
         public bool ShouldRetry(int currentRetryCount, int statusCode, Exception lastException, out TimeSpan retryInterval,
             OperationContext operationContext)
         {
-            return _retryPolicy.ShouldRetry(currentRetryCount,statusCode, lastException, out retryInterval, operationContext);
+            return _retryPolicy.ShouldRetry(currentRetryCount, statusCode, lastException, out retryInterval, operationContext);
         }
     }
 }

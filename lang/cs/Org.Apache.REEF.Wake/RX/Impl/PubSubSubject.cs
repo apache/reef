@@ -103,7 +103,7 @@ namespace Org.Apache.REEF.Wake.RX.Impl
                 {
                     Type handlerType = typeof(IObserver<>).MakeGenericType(new[] { value.GetType() });
                     MethodInfo info = handlerType.GetMethod("OnNext");
-                    info.Invoke(handler, new[] { (object) value });
+                    info.Invoke(handler, new[] { (object)value });
                 }
             }
         }

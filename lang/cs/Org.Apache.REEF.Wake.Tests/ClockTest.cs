@@ -115,7 +115,7 @@ namespace Org.Apache.REEF.Wake.Tests
                 List<long> recordedTimestamps = new List<long>();
                 IObserver<Alarm> eventRecorder = Observer.Create<Alarm>(alarm => recordedTimestamps.Add(alarm.TimeStamp));
 
-                //  Schedule 10 alarms every 100 ms 
+                // Schedule 10 alarms every 100 ms 
                 List<long> expectedTimestamps = Enumerable.Range(0, 10).Select(offset => (long)offset * 100).ToList();
                 expectedTimestamps.ForEach(offset => clock.ScheduleAlarm(offset, eventRecorder));
     

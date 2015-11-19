@@ -91,8 +91,8 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.BroadcastReduceDri
                 {
                     Logger.Log(Level.Info,
                         string.Format("Average time (milliseconds) taken for broadcast: {0} and reduce: {1}",
-                            broadcastTime.ElapsedMilliseconds/((double) (i - 1)),
-                            reduceTime.ElapsedMilliseconds/((double) (i - 1))));
+                            broadcastTime.ElapsedMilliseconds / ((double)(i - 1)),
+                            reduceTime.ElapsedMilliseconds / ((double)(i - 1))));
                 }
             }
 

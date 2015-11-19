@@ -66,8 +66,8 @@ namespace Org.Apache.REEF.Network.Naming
         /// <param name="remotePort">The port of the NameServer</param>
         [Inject]
         private NameClient(
-            [Parameter(typeof (NamingConfigurationOptions.NameServerAddress))] string remoteAddress,
-            [Parameter(typeof (NamingConfigurationOptions.NameServerPort))] int remotePort)
+            [Parameter(typeof(NamingConfigurationOptions.NameServerAddress))] string remoteAddress,
+            [Parameter(typeof(NamingConfigurationOptions.NameServerPort))] int remotePort)
         {
             IPEndPoint remoteEndpoint = new IPEndPoint(IPAddress.Parse(remoteAddress), remotePort);
             Initialize(remoteEndpoint);
@@ -202,7 +202,7 @@ namespace Org.Apache.REEF.Network.Naming
                 return assignments;
             }
             Exceptions.Throw(new WakeRuntimeException("NameClient failed to look up ids."), _logger);
-            return null;  //above line will throw exception. So null will never be returned.
+            return null;  // above line will throw exception. So null will never be returned.
         }
 
         /// <summary>

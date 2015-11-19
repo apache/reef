@@ -83,7 +83,7 @@ namespace Org.Apache.REEF.Network.Group.Config
         {
         }
 
-        [NamedParameter("with of the tree in topology", defaultValue:"2")]
+        [NamedParameter("with of the tree in topology", defaultValue: "2")]
         public class FanOut : Name<int>
         {
         }

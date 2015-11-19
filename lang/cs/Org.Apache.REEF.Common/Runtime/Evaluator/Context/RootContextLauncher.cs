@@ -104,21 +104,21 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
         }
     }
 }
-//if (rootServiceInjector != null)
-//{
-//    try
-//    {
-//        rootServiceInjector = rootServiceInjector.ForkInjector(serviceConfigs);
-//    }
-//    catch (Exception e)
-//    {
-//        throw new ContextClientCodeException(ContextClientCodeException.GetId(rootContextConfiguration),
-//                                             Optional<String>.Empty(),
-//                                             "Unable to instatiate the root context", e);
-//    }
-//    result = new ContextRuntime(rootServiceInjector, rootContextConfiguration);
-//}
-//else
-//{
-//    result = new ContextRuntime(rootServiceInjector.ForkInjector(), rootContextConfiguration);
-//}
+////if (rootServiceInjector != null)
+////{
+////   try
+////   {
+////       rootServiceInjector = rootServiceInjector.ForkInjector(serviceConfigs);
+////   }
+////   catch (Exception e)
+////   {
+////       throw new ContextClientCodeException(ContextClientCodeException.GetId(rootContextConfiguration),
+////                                            Optional<String>.Empty(),
+////                                            "Unable to instatiate the root context", e);
+////   }
+////   result = new ContextRuntime(rootServiceInjector, rootContextConfiguration);
+////}
+////else
+////{
+////   result = new ContextRuntime(rootServiceInjector.ForkInjector(), rootContextConfiguration);
+////}

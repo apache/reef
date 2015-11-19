@@ -49,7 +49,7 @@ namespace Org.Apache.REEF.IO.Tests
                 .Set(AzureBlockBlobFileSystemConfiguration.ConnectionString, connectionString)
                 .Build();
 
-            _fileSystem= TangFactory.GetTang().NewInjector(conf).GetInstance<AzureBlockBlobFileSystem>();
+            _fileSystem = TangFactory.GetTang().NewInjector(conf).GetInstance<AzureBlockBlobFileSystem>();
             _container = CloudStorageAccount.Parse(connectionString).CreateCloudBlobClient().GetContainerReference(defaultContainerName);
             _container.CreateIfNotExists();
         }

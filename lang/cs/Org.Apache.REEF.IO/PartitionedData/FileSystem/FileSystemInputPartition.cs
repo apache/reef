@@ -43,8 +43,8 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
         private string _localFileFolder;
 
         [Inject]
-        private FileSystemInputPartition([Parameter(typeof (PartitionId))] string id,
-            [Parameter(typeof (FilePathsInInputPartition))] ISet<string> filePaths,
+        private FileSystemInputPartition([Parameter(typeof(PartitionId))] string id,
+            [Parameter(typeof(FilePathsInInputPartition))] ISet<string> filePaths,
             IFileSystem fileSystem,
             IFileDeSerializer<T> fileSerializer)
         {

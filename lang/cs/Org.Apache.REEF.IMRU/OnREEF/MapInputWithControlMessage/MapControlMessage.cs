@@ -22,7 +22,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.MapInputWithControlMessage
     /// </summary>
     internal enum MapControlMessage
     {
-        AnotherRound, //Do another round of map function
-        Stop //Stop
+        AnotherRound, // Do another round of map function
+        Stop // Stop
     }
 }

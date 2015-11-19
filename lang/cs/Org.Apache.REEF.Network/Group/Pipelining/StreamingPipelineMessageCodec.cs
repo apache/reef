@@ -50,7 +50,7 @@ namespace Org.Apache.REEF.Network.Group.Pipelining
         /// Instantiate the class from the reader.
         /// </summary>
         /// <param name="reader">The reader from which to read</param>
-        ///<returns>The Pipeline Message read from the reader</returns>
+        /// <returns>The Pipeline Message read from the reader</returns>
         public PipelineMessage<T> Read(IDataReader reader)
         {
             var message = BaseCodec.Read(reader);
@@ -69,10 +69,10 @@ namespace Org.Apache.REEF.Network.Group.Pipelining
             writer.WriteBoolean(obj.IsLast);
         }
 
-        ///  <summary>
-        ///  Instantiate the class from the reader.
-        ///  </summary>
-        ///  <param name="reader">The reader from which to read</param>
+        /// <summary>
+        /// Instantiate the class from the reader.
+        /// </summary>
+        /// <param name="reader">The reader from which to read</param>
         /// <param name="token">Cancellation token</param>
         /// <returns>The Pipeline Message  read from the reader</returns>
         public async Task<PipelineMessage<T>> ReadAsync(IDataReader reader, CancellationToken token)

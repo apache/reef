@@ -35,7 +35,7 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
 {
     public class ClassHierarchyImpl : ICsClassHierarchy
     {
-        private static readonly Logger LOGGER = Logger.GetLogger(typeof (ClassHierarchyImpl));
+        private static readonly Logger LOGGER = Logger.GetLogger(typeof(ClassHierarchyImpl));
         private readonly INode rootNode;
         private readonly MonotonicTreeMap<string, INamedParameterNode> shortNames = new MonotonicTreeMap<string, INamedParameterNode>();
         private readonly IList<string> assemblies;
@@ -44,7 +44,7 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
         private object _mergeLock = new object();
         private object _implLock = new object();
 
-        //alias is indexed by language, for each language, a mapping between alias and corresponding name kept in a Dictionary
+        // alias is indexed by language, for each language, a mapping between alias and corresponding name kept in a Dictionary
         private readonly IDictionary<string, IDictionary<string, string>> _aliasLookupTable = new Dictionary<string, IDictionary<string, string>>();
 
 
@@ -58,14 +58,14 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
         {
         }
 
-        //parameterParsers are classes that extends from IExternalConstructor
+        // parameterParsers are classes that extends from IExternalConstructor
         public ClassHierarchyImpl(string[] assemblies, Type[] parameterParsers)  
         {
             this.assemblies = assemblies;
             rootNode = NodeFactory.CreateRootPackageNode();
             loader = new AssemblyLoader(assemblies);
            
-            foreach (Type p in parameterParsers) //p must be extend from IExternalConstructor
+            foreach (Type p in parameterParsers) // p must be extend from IExternalConstructor
             {
                 try 
                 {
@@ -166,7 +166,7 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
                         {
                             Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(new ArgumentException("not type in arg"), LOGGER);
                         }
-                        RegisterType(constructorArg.Gettype());  //Gettype returns param's Type.fullname
+                        RegisterType(constructorArg.Gettype());  // Gettype returns param's Type.fullname
                         if (constructorArg.GetNamedParameterName() != null)
                         {
                             INamedParameterNode np = (INamedParameterNode)RegisterType(constructorArg.GetNamedParameterName());
@@ -174,7 +174,7 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
                             {
                                 if (np.IsSet() || np.IsList())
                                 {
-                                    //throw new NotImplementedException();
+                                    // throw new NotImplementedException();
                                 }
                                 else
                                 {
@@ -226,7 +226,7 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
                 Type baseType = type.BaseType;
                 if (baseType != null)
                 {
-                    IClassNode n = (IClassNode) GetAlreadyBoundNode(baseType);
+                    IClassNode n = (IClassNode)GetAlreadyBoundNode(baseType);
                     if (n != null)
                     {
                         n.PutImpl(classNode);
@@ -265,8 +265,8 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
             }
             INamedParameterNode np = NodeFactory.CreateNamedParameterNode(parent, type, argType);
 
-            if(Parameterparser.CanParse(ReflectionUtilities.GetAssemblyQualifiedName(argType))) {
-                if(type.GetCustomAttribute<NamedParameterAttribute>().DefaultClass != null) 
+            if (Parameterparser.CanParse(ReflectionUtilities.GetAssemblyQualifiedName(argType))) {
+                if (type.GetCustomAttribute<NamedParameterAttribute>().DefaultClass != null) 
                 {
                     var e = new ClassHierarchyException("Named parameter " + ReflectionUtilities.GetAssemblyQualifiedName(type) + " defines default implementation for parsable type " + ReflectionUtilities.GetAssemblyQualifiedName(argType));
                     Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(e, LOGGER);
@@ -279,7 +279,7 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
                 _aliasLookupTable.TryGetValue(np.GetAliasLanguage().ToString(), out mapping);
                 if (null == mapping)
                 {
-                    mapping= new Dictionary<string, string>();
+                    mapping = new Dictionary<string, string>();
                     _aliasLookupTable.Add(np.GetAliasLanguage().ToString(), mapping);
                 }
                 try
@@ -317,12 +317,12 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
             return np;            
         }
 
-        //return Type T if type implements Name<T>, null otherwise
-        //e.g. [NamedParameter(typeof(System.String), "Number of seconds to sleep", "10", "sec")]
-        //class Seconds : Name<Int32> { }
-        //return Int32
+        // return Type T if type implements Name<T>, null otherwise
+        // e.g. [NamedParameter(typeof(System.String), "Number of seconds to sleep", "10", "sec")]
+        // class Seconds : Name<Int32> { }
+        // return Int32
 
-        //TODO add error handlings
+        // TODO add error handlings
         public Type GetNamedParameterTargetOrNull(Type type)
         {
             var npAnnotation = type.GetCustomAttribute<NamedParameterAttribute>();
@@ -347,7 +347,7 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
 
         private INode GetAlreadyBoundNode(Type t)
         {
-            //get outclass names including itsself
+            // get outclass names including itsself
             string[] outerClassNames = ReflectionUtilities.GetEnclosingClassNames(t);
 
             INode current = rootNode;
@@ -366,21 +366,21 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
                         }
                     }
                     return null;
-                    //throw new NameResolutionException(t.FullName, sb.ToString());
+                    // throw new NameResolutionException(t.FullName, sb.ToString());
                 }
 
             }
             return current; 
         }
 
-        //starting from the root, get child for each eclosing class excluding the type itsself
-        //all enclosing classes should be already in the hierarchy
-        //Type B2 = asm.GetType(@"Org.Apache.REEF.Tang.Examples.B+B1+B2");
-        //string[] pathB2 = ClassNameParser.GetEnclosingClassShortNames(B2);
-        //Assert.AreEqual(pathB2[0], "B");
-        //Assert.AreEqual(pathB2[1], "B1");
-        //Assert.AreEqual(pathB2[2], "B2");
-        //return INode for B1
+        // starting from the root, get child for each eclosing class excluding the type itsself
+        // all enclosing classes should be already in the hierarchy
+        // Type B2 = asm.GetType(@"Org.Apache.REEF.Tang.Examples.B+B1+B2");
+        // string[] pathB2 = ClassNameParser.GetEnclosingClassShortNames(B2);
+        // Assert.AreEqual(pathB2[0], "B");
+        // Assert.AreEqual(pathB2[1], "B1");
+        // Assert.AreEqual(pathB2[2], "B2");
+        // return INode for B1
         private INode GetParentNode(Type type)
         {
             INode current = rootNode;
@@ -487,14 +487,14 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
                 Utilities.Diagnostics.Exceptions.Throw(new NotSupportedException("Can't merge java and non-java class hierarchies yet!"), LOGGER);
             }
 
-            if(this.assemblies.Count == 0) 
+            if (this.assemblies.Count == 0) 
             {
                 return ch;
             }
 
             lock (_mergeLock)
             {
-                ClassHierarchyImpl chi = (ClassHierarchyImpl) ch;
+                ClassHierarchyImpl chi = (ClassHierarchyImpl)ch;
                 MonotonicHashSet<string> otherJars = new MonotonicHashSet<string>();
                 otherJars.AddAll(chi.assemblies);
                 MonotonicHashSet<string> myJars = new MonotonicHashSet<string>();
@@ -519,7 +519,7 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
             {
                 iface = (IClassNode)GetNode(np.GetFullArgName());
             } 
-            catch(NameResolutionException e) 
+            catch (NameResolutionException e)
             {
                 Utilities.Diagnostics.Exceptions.Caught(e, Level.Error, LOGGER);
                 var ex = new IllegalStateException("Could not parse validated named parameter argument type.  NamedParameter is " + np.GetFullName() + " argument type is " + np.GetFullArgName(), e);
@@ -532,7 +532,7 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
                 clazz = (Type)ClassForName(iface.GetFullName());
                 fullName = null;
             } 
-            catch(TypeLoadException e) 
+            catch (TypeLoadException e)
             {
                 Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Caught(e, Level.Warning, LOGGER);
                 clazz = null;
@@ -556,7 +556,7 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
                     INode impl = GetNode(value);
                     if (impl is IClassNode)
                     {
-                        if (IsImplementation(iface, (IClassNode) impl))
+                        if (IsImplementation(iface, (IClassNode)impl))
                         {
                             return impl;
                         }
@@ -616,7 +616,7 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
             }
             var ec = new IllegalStateException("Multiple defaults for non-set named parameter! " + name.GetFullName());
             Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(ec, LOGGER);
-            return null; //this line would be never reached as Throw will throw an exception
+            return null; // this line would be never reached as Throw will throw an exception
         }
 
         public Type ClassForName(string name)

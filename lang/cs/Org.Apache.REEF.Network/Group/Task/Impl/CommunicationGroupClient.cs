@@ -174,7 +174,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
                 Exceptions.Throw(new ArgumentException("Operator is not added at Driver side:" + operatorName), LOGGER);
             }
 
-            return (T) op;
+            return (T)op;
         }
 
         /// <summary>

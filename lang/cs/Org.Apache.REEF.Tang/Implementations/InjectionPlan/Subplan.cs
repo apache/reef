@@ -32,9 +32,9 @@ namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(Subplan));
 
-        readonly InjectionPlan[] alternatives; //all implementations on the same interface
+        readonly InjectionPlan[] alternatives; // all implementations on the same interface
         readonly int numAlternatives;
-        readonly int selectedIndex; //the implementation that is bound
+        readonly int selectedIndex; // the implementation that is bound
 
         public Subplan(INode n, int selectedIndex, InjectionPlan[] alternatives)
             : base(n)
@@ -45,7 +45,7 @@ namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
                 Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(new IndexOutOfRangeException(), LOGGER);
             }
             this.selectedIndex = selectedIndex;
-            if (selectedIndex != -1)   //one was bound
+            if (selectedIndex != -1) // one was bound
             {
                 this.numAlternatives = alternatives[selectedIndex].GetNumAlternatives();
             }
@@ -151,14 +151,14 @@ namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
             return null;
         }
 
-        //public override bool HasFutureDependency()
-        //{
-        //    if (selectedIndex == -1)
-        //    {
-        //        throw new IllegalStateException("hasFutureDependency() called on ambiguous subplan!");
-        //    }
-        //    return alternatives[selectedIndex].HasFutureDependency();
-        //}
+        ////public override bool HasFutureDependency()
+        ////{
+        ////   if (selectedIndex == -1)
+        ////   {
+        ////       throw new IllegalStateException("hasFutureDependency() called on ambiguous subplan!");
+        ////   }
+        ////   return alternatives[selectedIndex].HasFutureDependency();
+        ////}
 
         public override string ToAmbiguousInjectString()
         {

@@ -39,8 +39,7 @@ namespace Org.Apache.REEF.Wake.Remote
             [Parameter(typeof(TcpPortRangeStart))] int tcpPortRangeStart,
             [Parameter(typeof(TcpPortRangeCount))] int tcpPortRangeCount,
             [Parameter(typeof(TcpPortRangeTryCount))] int tcpPortRangeTryCount,
-            [Parameter(typeof(TcpPortRangeSeed))] int tcpPortRangeSeed
-            )
+            [Parameter(typeof(TcpPortRangeSeed))] int tcpPortRangeSeed)
         {
             _tcpPortRangeStart = tcpPortRangeStart;
             _tcpPortRangeCount = tcpPortRangeCount;

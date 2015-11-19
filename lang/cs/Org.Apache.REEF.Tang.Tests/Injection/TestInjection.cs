@@ -298,7 +298,7 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
 
             IInjector injector = tang.NewInjector(cb.Build());
 
-            //bind an object to the injetor so that Tang will get this instance from cache directly instead of inject it when injecting ClassWithExternalObject
+            // bind an object to the injetor so that Tang will get this instance from cache directly instead of inject it when injecting ClassWithExternalObject
             injector.BindVolatileInstance(GenericType<ExternalClass>.Class, new ExternalClass());
             ClassWithExternalObject o = injector.GetInstance<ClassWithExternalObject>();
 
@@ -319,7 +319,7 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
 
             var injector = TangFactory.GetTang().NewInjector(c);
 
-            //argument type must be specified in injection
+            // argument type must be specified in injection
             var o1 = injector.GetInstance(typeof(IMyOperator<int>));
             var o2 = injector.GetInstance(typeof(IMyOperator<string>));
             var o3 = injector.GetInstance(typeof(MyOperatorTopology<int>));
@@ -343,11 +343,11 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
 
             var injector = TangFactory.GetTang().NewInjector(c);
 
-            //get argument type from configuration
+            // get argument type from configuration
             var messageTypeAsString = injector.GetNamedInstance<MessageType, string>(GenericType<MessageType>.Class);
             Type messageType = Type.GetType(messageTypeAsString);
 
-            //creat interface with generic type on the fly
+            // create interface with generic type on the fly
             Type genericInterfaceType = typeof(IMyOperator<>);
             Type interfaceOfMessageType = genericInterfaceType.MakeGenericType(messageType);
 

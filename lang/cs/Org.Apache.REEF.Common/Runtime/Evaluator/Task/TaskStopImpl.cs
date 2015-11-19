@@ -23,7 +23,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
 {
     public class TaskStopImpl : ITaskStop
     {
-        //INJECT
+        // INJECT
         public TaskStopImpl(string id)
         {
             Id = id;

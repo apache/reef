@@ -32,12 +32,12 @@ namespace Org.Apache.REEF.Network.NetworkService.Codec
 
         public byte[] Encode(ControlMessage message)
         {
-            return BitConverter.GetBytes((int) message);
+            return BitConverter.GetBytes((int)message);
         }
 
         public ControlMessage Decode(byte[] data)
         {
-            return (ControlMessage) BitConverter.ToInt32(data, 0);
+            return (ControlMessage)BitConverter.ToInt32(data, 0);
         }
     }
 }

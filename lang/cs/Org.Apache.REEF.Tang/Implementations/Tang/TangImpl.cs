@@ -40,7 +40,7 @@ namespace Org.Apache.REEF.Tang.Implementations.Tang
         {
             try
             {
-                return NewInjector(new ConfigurationImpl[] {});
+                return NewInjector(new ConfigurationImpl[] { });
             }
             catch (BindException e)
             {
@@ -66,16 +66,15 @@ namespace Org.Apache.REEF.Tang.Implementations.Tang
             return NewConfigurationBuilder(new IConfiguration[] { conf });
         }
 
-        //public IInjector NewInjector(string[] assemblies, IDictionary<string, string> configurations)
-        //{
-        //    ITang tang = TangFactory.GetTang();
-        //    ICsConfigurationBuilder cb1 = tang.NewConfigurationBuilder(assemblies);
-        //    ConfigurationFile.ProcessConfigData(cb1, configurations);
-        //    IConfiguration conf = cb1.Build();
-
-        //    IInjector injector = tang.NewInjector(conf);
-        //    return injector;
-        //}
+        ////public IInjector NewInjector(string[] assemblies, IDictionary<string, string> configurations)
+        ////{
+        ////   ITang tang = TangFactory.GetTang();
+        ////   ICsConfigurationBuilder cb1 = tang.NewConfigurationBuilder(assemblies);
+        ////   ConfigurationFile.ProcessConfigData(cb1, configurations);
+        ////   IConfiguration conf = cb1.Build();
+        ////   IInjector injector = tang.NewInjector(conf);
+        ////   return injector;
+        ////}
 
         public IInjector NewInjector(string[] assemblies, IDictionary<string, string> configurations)
         {
@@ -105,7 +104,7 @@ namespace Org.Apache.REEF.Tang.Implementations.Tang
 
         public IInjector NewInjector(IConfiguration conf)
         {
-            //return new InjectorImpl(conf);
+            // return new InjectorImpl(conf);
             try
             {
                 return NewInjector(new ConfigurationImpl[] { (ConfigurationImpl)conf });

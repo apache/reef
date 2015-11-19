@@ -50,7 +50,7 @@ namespace Org.Apache.REEF.IO.Tests
         /// <summary>
         /// The number of bytes we expect each partition's stream to return.
         /// </summary>
-        private const int ExpectedNumberOfBytesPerPartition = NumberOfDoublesPerPartition*BytesPerDouble;
+        private const int ExpectedNumberOfBytesPerPartition = NumberOfDoublesPerPartition * BytesPerDouble;
 
         /// <summary>
         /// Test for the driver side APIs of RandomDataSet.

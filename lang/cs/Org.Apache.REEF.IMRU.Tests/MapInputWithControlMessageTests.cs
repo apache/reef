@@ -51,7 +51,7 @@ namespace Org.Apache.REEF.IMRU.Tests
         [TestMethod]
         public void TestMapInputWithControlMessageCodec()
         {
-            float[] baseMessage = {0, 1};
+            float[] baseMessage = { 0, 1 };
 
             var config = TangFactory.GetTang().NewConfigurationBuilder()
                 .BindImplementation(GenericType<IStreamingCodec<float[]>>.Class,
@@ -101,7 +101,7 @@ namespace Org.Apache.REEF.IMRU.Tests
                     .NewInjector(config)
                     .GetInstance<MapInputwithControlMessagePipelineDataConverter<int[]>>();
 
-            int[] baseMessage = {1, 2, 3};
+            int[] baseMessage = { 1, 2, 3 };
 
             var chunks1 = dataConverter.PipelineMessage(new MapInputWithControlMessage<int[]>(baseMessage,
                 MapControlMessage.AnotherRound));

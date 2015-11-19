@@ -32,11 +32,11 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
         [TestMethod]
         public void AmbigousConstructorTest()
         {
-            //Cannot inject Org.Apache.REEF.Tang.Tests.Injection.AmbigousConstructorClass, Org.Apache.REEF.Tang.Test, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null 
-            //Ambiguous subplan Org.Apache.REEF.Tang.Tests.Injection.AmbigousConstructorClass, Org.Apache.REEF.Tang.Test, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
-            //  new Org.Apache.REEF.Tang.Tests.Injection.AmbigousConstructorClass(System.String Org.Apache.REEF.Tang.Tests.Injection.AmbigousConstructorClass+NamedString = foo, System.Int32 Org.Apache.REEF.Tang.Tests.Injection.AmbigousConstructorClass+NamedInt = 8) 
-            //  new Org.Apache.REEF.Tang.Tests.Injection.AmbigousConstructorClass(System.Int32 Org.Apache.REEF.Tang.Tests.Injection.AmbigousConstructorClass+NamedInt = 8, System.String Org.Apache.REEF.Tang.Tests.Injection.AmbigousConstructorClass+NamedString = foo) 
-            //]
+            // Cannot inject Org.Apache.REEF.Tang.Tests.Injection.AmbigousConstructorClass, Org.Apache.REEF.Tang.Test, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null 
+            // Ambiguous subplan Org.Apache.REEF.Tang.Tests.Injection.AmbigousConstructorClass, Org.Apache.REEF.Tang.Test, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+            // new Org.Apache.REEF.Tang.Tests.Injection.AmbigousConstructorClass(System.String Org.Apache.REEF.Tang.Tests.Injection.AmbigousConstructorClass+NamedString = foo, System.Int32 Org.Apache.REEF.Tang.Tests.Injection.AmbigousConstructorClass+NamedInt = 8) 
+            // new Org.Apache.REEF.Tang.Tests.Injection.AmbigousConstructorClass(System.Int32 Org.Apache.REEF.Tang.Tests.Injection.AmbigousConstructorClass+NamedInt = 8, System.String Org.Apache.REEF.Tang.Tests.Injection.AmbigousConstructorClass+NamedString = foo) 
+            // ]
             AmbigousConstructorClass obj = null;
             try
             {

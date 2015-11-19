@@ -70,9 +70,9 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
         [TestMethod]
         public void TestDeSerializeClassHierarchy()
         {
-            Type timerType = typeof (Timer);
-            Type SecondType = typeof (Timer.Seconds);
-            Type simpleCOnstuctorType = typeof (SimpleConstructors);
+            Type timerType = typeof(Timer);
+            Type SecondType = typeof(Timer.Seconds);
+            Type simpleCOnstuctorType = typeof(SimpleConstructors);
 
             IClassHierarchy ns = TangFactory.GetTang().GetClassHierarchy(new string[] { typeof(Timer).Assembly.GetName().Name });
             IClassNode timerClassNode = (IClassNode)ns.GetNode(timerType.AssemblyQualifiedName);
@@ -98,8 +98,8 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
         [TestMethod]
         public void TestDeSerializeClassHierarchyForTask()
         {
-            Type streamTask1Type = typeof (StreamTask1);
-            Type helloTaskType = typeof (HelloTask);
+            Type streamTask1Type = typeof(StreamTask1);
+            Type helloTaskType = typeof(HelloTask);
 
             IClassHierarchy ns = TangFactory.GetTang().GetClassHierarchy(new string[] { typeof(HelloTask).Assembly.GetName().Name });
             IClassNode StreamTask1ClassNode = (IClassNode)ns.GetNode(streamTask1Type.AssemblyQualifiedName);
@@ -118,7 +118,7 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
         [DeploymentItem(@".")]
         public void TestDeSerializeClassHierarchyFromJava()
         {
-            //the file comes from Java TestClassHierarchyRoundTrip SetUp3 testSimpleConstructors
+            // the file comes from Java TestClassHierarchyRoundTrip SetUp3 testSimpleConstructors
             IClassHierarchy ch = ProtocolBufferClassHierarchy.DeSerialize("simpleConstructorJavaProto.bin");
             IClassNode simpleConstructorNode = (IClassNode)ch.GetNode("org.apache.reef.tang.implementation.SimpleConstructors");
             Assert.AreEqual(simpleConstructorNode.GetChildren().Count, 0);
@@ -153,7 +153,7 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
             Assert.AreEqual(StreamTask1ClassNode.GetName(), StreamTask1ClassNode2.GetName());
             Assert.AreEqual(HelloTaskClassNode.GetName(), HelloTaskClassNode2.GetName());
 
-            //have to use original class hierarchy for the merge. ClassHierarchy from ProtoBuffer doesn't support merge. 
+            // have to use original class hierarchy for the merge. ClassHierarchy from ProtoBuffer doesn't support merge. 
             IConfigurationBuilder cb = TangFactory.GetTang()
                   .NewConfigurationBuilder(ns);
             cb.AddConfiguration(TaskConfiguration.ConfigurationModule
@@ -172,7 +172,7 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
             Type timerType = typeof(Timer);
             ITang tang = TangFactory.GetTang();
             ICsConfigurationBuilder cb = tang.NewConfigurationBuilder(new string[] { FileNames.Examples });
-            cb.BindNamedParameter<Timer.Seconds, Int32>(GenericType < Timer.Seconds>.Class, "2");
+            cb.BindNamedParameter<Timer.Seconds, Int32>(GenericType<Timer.Seconds>.Class, "2");
             IConfiguration conf = cb.Build();
             IInjector injector = tang.NewInjector(conf);
             Org.Apache.REEF.Tang.Implementations.InjectionPlan.InjectionPlan ip = injector.GetInjectionPlan(timerType);

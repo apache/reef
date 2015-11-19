@@ -111,7 +111,7 @@ namespace Org.Apache.REEF.Driver.Evaluator
         public IEvaluatorRequest Build()
         {
 #pragma warning disable 618
-            return new EvaluatorRequest(Number, MegaBytes, VirtualCore, rack:_rackName, evaluatorBatchId:_evaluatorBatchId);
+            return new EvaluatorRequest(Number, MegaBytes, VirtualCore, rack: _rackName, evaluatorBatchId: _evaluatorBatchId);
 #pragma warning restore 618
         }
     }

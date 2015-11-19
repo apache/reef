@@ -326,7 +326,7 @@ namespace Org.Apache.REEF.Evaluator
         // we only need runtimestart and runtimestop handlers now
         private static void SetRuntimeHandlers(EvaluatorRuntime evaluatorRuntime, RuntimeClock clock)
         {
-            ISet<IObserver<RuntimeStart>> runtimeStarts = new HashSet<IObserver<RuntimeStart>> {evaluatorRuntime};
+            ISet<IObserver<RuntimeStart>> runtimeStarts = new HashSet<IObserver<RuntimeStart>> { evaluatorRuntime };
             InjectionFutureImpl<ISet<IObserver<RuntimeStart>>> injectRuntimeStart = new InjectionFutureImpl<ISet<IObserver<RuntimeStart>>>(runtimeStarts);
             clock.InjectedRuntimeStartHandler = injectRuntimeStart;
 

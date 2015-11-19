@@ -27,15 +27,15 @@ namespace Org.Apache.REEF.Tang.Util
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(MonotonicSet<T>));
 
-        //private static readonly long serialVersionUID = 1L;
+        // private static readonly long serialVersionUID = 1L;
         public MonotonicSet() : base()
         {
         }
 
-        //public MonotonicSet(SortedSet<T> c) : base(c.Comparer)
-        //{
-        //    AddAll(c);
-        //}
+        ////public MonotonicSet(SortedSet<T> c) : base(c.Comparer)
+        ////{
+        ////   AddAll(c);
+        ////}
 
         public MonotonicSet(ICollection<T> c)
             : base(c)
@@ -47,7 +47,7 @@ namespace Org.Apache.REEF.Tang.Util
         {
         }
 
-        public new bool Add(T e) //TODO
+        public new bool Add(T e) // TODO
         {
             if (this.Contains(e))
             {

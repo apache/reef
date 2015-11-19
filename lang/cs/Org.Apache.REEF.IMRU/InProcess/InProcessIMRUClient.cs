@@ -89,7 +89,7 @@ namespace Org.Apache.REEF.IMRU.InProcess
             var injector = TangFactory.GetTang().NewInjector(mergedConfig);
 
             ISet<IPerMapperConfigGenerator> perMapConfigGenerators =
-                (ISet<IPerMapperConfigGenerator>) injector.GetNamedInstance(typeof (PerMapConfigGeneratorSet));
+                (ISet<IPerMapperConfigGenerator>)injector.GetNamedInstance(typeof(PerMapConfigGeneratorSet));
 
             injector.BindVolatileInstance(GenericType<MapFunctions<TMapInput, TMapOutput>>.Class,
                 MakeMapFunctions<TMapInput, TMapOutput>(jobDefinition.MapFunctionConfiguration,
@@ -122,7 +122,7 @@ namespace Org.Apache.REEF.IMRU.InProcess
             ISet<IMapFunction<TMapInput, TMapOutput>> mappers = new HashSet<IMapFunction<TMapInput, TMapOutput>>();
 
             int counter = 0;
-            foreach(var descriptor in dataset )
+            foreach (var descriptor in dataset)
             {
                 var emptyConfig = TangFactory.GetTang().NewConfigurationBuilder().Build();
                 IConfiguration perMapConfig = perMapConfigGenerators.Aggregate(emptyConfig,

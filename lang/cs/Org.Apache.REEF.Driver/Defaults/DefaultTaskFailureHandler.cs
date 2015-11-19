@@ -36,7 +36,7 @@ namespace Org.Apache.REEF.Driver.Defaults
 
         public void OnNext(IFailedTask value)
         {
-            throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "Task {0} has failed, and no handler was bound for IFailedTask", value.Id) );
+            throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "Task {0} has failed, and no handler was bound for IFailedTask", value.Id));
         }
 
         public void OnError(Exception error)

@@ -33,21 +33,21 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
 
         readonly MonotonicTreeMap<String, ConstructorInfo> parsers = new MonotonicTreeMap<String, ConstructorInfo>();
 
-        //ec: ACons, tc: A
+        // ec: ACons, tc: A
         public void AddParser(Type ec)
         {
             Type tc = (Type)ReflectionUtilities.GetInterfaceTarget(typeof(IExternalConstructor<>), ec);
             AddParser(tc, ec);
         }
 
-        //TODO
-        //public  <T, U extends T> void AddParser(Class<U> clazz, Class<? extends ExternalConstructor<T>> ec) throws BindException {
-        //public void AddParser<T, U, V>(GenericType<U> clazz, GenericType<V> ec) 
+        // TODO
+        // public  <T, U extends T> void AddParser(Class<U> clazz, Class<? extends ExternalConstructor<T>> ec) throws BindException {
+        // public void AddParser<T, U, V>(GenericType<U> clazz, GenericType<V> ec) 
         //    where U : T
         //    where V:  IExternalConstructor<T>
-        //{
+        // {
 
-        //clazz: A, ec: ACons
+        // clazz: A, ec: ACons
         private void AddParser(Type clazz, Type ec)
         {
             ConstructorInfo c = ec.GetConstructor(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(string) }, null);
@@ -58,7 +58,7 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
                 Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(e, LOGGER);
             }
 
-            //c.setAccessible(true); //set as public 
+            // c.setAccessible(true); // set as public 
             parsers.Add(ReflectionUtilities.GetAssemblyQualifiedName(clazz), c);
         }
 
@@ -91,7 +91,7 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
             }
         }
 
-        //(Integer, "3") return object of new Integer(3)
+        // (Integer, "3") return object of new Integer(3)
         public object Parse(Type c, String s)
         {
             Type d = ReflectionUtilities.BoxClass(c);
@@ -101,7 +101,7 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
                 if (parsers.ContainsKey(name))
                 {
                     object ret = Parse(name, s);
-                    if (c.IsAssignableFrom(ret.GetType())) //check if ret can be cast as c
+                    if (c.IsAssignableFrom(ret.GetType())) // check if ret can be cast as c
                     {
                         return ret;
                     }
@@ -115,7 +115,7 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
             return Parse(d.Name, s);
         }
 
-        //name: "Integer", value: "12"
+        // name: "Integer", value: "12"
         public object Parse(string name, string value)
         {
             if (parsers.ContainsKey(name))
@@ -126,7 +126,7 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
                     parsers.TryGetValue(name, out c);
                     var o = c.Invoke(new object[] { value });
                     var m = o.GetType().GetMethod("NewInstance", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                    return m.Invoke(o, new object[] {});
+                    return m.Invoke(o, new object[] { });
                 }
                 catch (TargetInvocationException e)
                 {
@@ -190,7 +190,7 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
                 typeof(float).AssemblyQualifiedName,
                 typeof(double).AssemblyQualifiedName,
                 typeof(bool).AssemblyQualifiedName
-            } ); 
+            }); 
         
         public bool CanParse(string name)
         {

@@ -392,7 +392,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
                 Logger.Log(Level.Verbose, "CurrentTaskId: " + _taskIds[NextTaskIndex - 1]);
                 return _taskIds[NextTaskIndex - 1];
             }
-            return null; //either not started or completed
+            return null; // either not started or completed
         }
 
         public void UpdateTaskStatus(string taskId, TaskStatus status)

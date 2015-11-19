@@ -57,7 +57,6 @@ namespace Org.Apache.REEF.Tang.Formats
             this.Builder = builder.DeepCopy();
         }
 
-         //public final <T> ConfigurationModule set(Impl<T> opt, Class<? extends T> impl)
         public ConfigurationModule Set<T, U>(IImpl<T> opt, GenericType<U> impl) 
             where U : T 
         {
@@ -107,12 +106,11 @@ namespace Org.Apache.REEF.Tang.Formats
         ////TODO
         ////public readonly ConfigurationModule set(Param<? extends Number> opt, Number val) 
         ////{
-        ////    return set(opt, val);
+        ////   return set(opt, val);
         ////}
 
         public ConfigurationModule Set<T>(IParam<T> opt, string val) 
         {
-            //var o = (IParam<object>)opt;
             ConfigurationModule c = DeepCopy();
             c.ProcessSet(opt);
             if (c.Builder.SetOpts.Contains(opt)) 
@@ -186,18 +184,18 @@ namespace Org.Apache.REEF.Tang.Formats
                 {
                     foreach (Type clz in c.setImplSets.GetValuesForKey(i))
                     {
-                        ICsInternalConfigurationBuilder b = (ICsInternalConfigurationBuilder) c.Builder.B;
+                        ICsInternalConfigurationBuilder b = (ICsInternalConfigurationBuilder)c.Builder.B;
                         b.BindSetEntry(clazz, clz);
                     }
                     foreach (string s in c.setLateImplSets.GetValuesForKey(i))
                     {
-                        ICsInternalConfigurationBuilder b = (ICsInternalConfigurationBuilder) c.Builder.B;
+                        ICsInternalConfigurationBuilder b = (ICsInternalConfigurationBuilder)c.Builder.B;
                         b.BindSetEntry(clazz, s);
                     }
                 } 
                 else if (c.setImplLists.ContainsKey(i))
                 {
-                    ICsConfigurationBuilder b = (ICsConfigurationBuilder) c.Builder.B;
+                    ICsConfigurationBuilder b = (ICsConfigurationBuilder)c.Builder.B;
                     b.BindList(clazz, setImplLists.Get(i));
                 }
                 else if (c.setLateImplLists.ContainsKey(i))
@@ -207,7 +205,6 @@ namespace Org.Apache.REEF.Tang.Formats
                 }
             }
             
-            //for (Class<? extends Name<?>> clazz : c.builder.freeParams.Keys) {
             foreach (Type clazz in c.Builder.FreeParams.Keys) 
             {
                 object p = c.Builder.FreeParams.Get(clazz);
@@ -237,7 +234,6 @@ namespace Org.Apache.REEF.Tang.Formats
 
                 if (!foundOne) 
                 {
-                    //if (!(p is OptionalParameter<object>)) //p: OptionalParameter<int>, "is" doesn't work here for generic type object
                     if (!ReflectionUtilities.IsInstanceOfGeneric(p, typeof(OptionalParameter<>)))
                     {
                         Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(new IllegalStateException(), LOGGER);

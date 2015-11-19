@@ -77,8 +77,7 @@ namespace Org.Apache.REEF.Driver.Bridge
                 Logger.Log(Level.Warning, "Found configurations in both the legacy location (" +
                                           legacyBridgeConfigurationPath + ") and the new location (" +
                                           newBridgeConfigurationPath +
-                                          "). Loading only the one found in the new location."
-                    );
+                                          "). Loading only the one found in the new location.");
             }
             if (newExists)
             {

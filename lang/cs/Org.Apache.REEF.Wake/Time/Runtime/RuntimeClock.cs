@@ -242,7 +242,7 @@ namespace Org.Apache.REEF.Wake.Time.Runtime
         {
             if (time is Alarm)
             {
-                Alarm alarm = (Alarm) time;
+                Alarm alarm = (Alarm)time;
                 alarm.Handle();
             }
             else

@@ -34,7 +34,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(ContextRuntime));
         // Context-local injector. This contains information that will not be available in child injectors.
         private readonly IInjector _contextInjector;
-        //// Service injector. State in this injector moves to child injectors.
+        // Service injector. State in this injector moves to child injectors.
         private readonly IInjector _serviceInjector;
 
         // Convenience class to hold all the event handlers for the context as well as the service instances.
@@ -444,52 +444,52 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
         }
     }
 }
-        ///// <summary>
-        ///// TODO: remove and use parameterless GetContextStatus above
-        ///// </summary>
-        ///// <returns>this context's status in protocol buffer form.</returns>
-        //public ContextStatusProto GetContextStatus(string contextId)
-        //{
-        //    ContextStatusProto contextStatusProto = new ContextStatusProto()
-        //    {
-        //        context_id = contextId,
-        //        context_state = _contextState,
-        //    };
-        //    return contextStatusProto;
-        //}
+        ////<summary>
+        ////TODO: remove and use parameterless GetContextStatus above
+        ////</summary>
+        ////<returns>this context's status in protocol buffer form.</returns>
+        ////public ContextStatusProto GetContextStatus(string contextId)
+        ////{
+        ////   ContextStatusProto contextStatusProto = new ContextStatusProto()
+        ////   {
+        ////       context_id = contextId,
+        ////       context_state = _contextState,
+        ////   };
+        ////   return contextStatusProto;
+        ////}
 
-        ////// TODO: remove and use injection
-        //public void StartTask(ITask task, HeartBeatManager heartBeatManager, string taskId, string contextId)
-        //{
-        //    lock (_contextLifeCycle)
-        //    {
-        //        if (_task.IsPresent() && _task.Value.HasEnded())
-        //        {
-        //            // clean up state
-        //            _task = Optional<TaskRuntime>.Empty();
-        //        }
-        //        if (_task.IsPresent())
-        //        {
-        //            throw new InvalidOperationException(
-        //                string.Format(CultureInfo.InvariantCulture, "Attempting to spawn a child context when an Task with id '{0}' is running", _task.Value.TaskId)); // note: java code is putting thread id here
-        //        }
-        //        if (_childContext.IsPresent())
-        //        {
-        //            throw new InvalidOperationException("Attempting to instantiate a child context on a context that is not the topmost active context.");
-        //        }
-        //        try
-        //        {
-        //            // final Injector taskInjector = contextInjector.forkInjector(taskConfiguration);
-        //            TaskRuntime taskRuntime  // taskInjector.getInstance(TaskRuntime.class);
-        //                = new TaskRuntime(task, heartBeatManager);
-        //            LOGGER.Log(Level.Info, string.Format(CultureInfo.InvariantCulture, "Starting task '{0}'", taskId));
-        //            taskRuntime.Initialize(taskId, contextId);
-        //            taskRuntime.Start();
-        //            _task = Optional<TaskRuntime>.Of(taskRuntime);
-        //        }
-        //        catch (Exception e)
-        //        {
-        //            throw new InvalidOperationException("Unable to instantiate the new task");
-        //        }
-        //    }
-        //}
+        ////TODO: remove and use injection
+        ////public void StartTask(ITask task, HeartBeatManager heartBeatManager, string taskId, string contextId)
+        ////{
+        ////  lock (_contextLifeCycle)
+        ////  {
+        ////      if (_task.IsPresent() && _task.Value.HasEnded())
+        ////      {
+        ////          // clean up state
+        ////          _task = Optional<TaskRuntime>.Empty();
+        ////      }
+        ////      if (_task.IsPresent())
+        ////      {
+        ////          throw new InvalidOperationException(
+        ////              string.Format(CultureInfo.InvariantCulture, "Attempting to spawn a child context when an Task with id '{0}' is running", _task.Value.TaskId)); // note: java code is putting thread id here
+        ////      }
+        ////      if (_childContext.IsPresent())
+        ////      {
+        ////          throw new InvalidOperationException("Attempting to instantiate a child context on a context that is not the topmost active context.");
+        ////      }
+        ////      try
+        ////      {
+        ////          // final Injector taskInjector = contextInjector.forkInjector(taskConfiguration);
+        ////          TaskRuntime taskRuntime  // taskInjector.getInstance(TaskRuntime.class);
+        ////              = new TaskRuntime(task, heartBeatManager);
+        ////          LOGGER.Log(Level.Info, string.Format(CultureInfo.InvariantCulture, "Starting task '{0}'", taskId));
+        ////          taskRuntime.Initialize(taskId, contextId);
+        ////          taskRuntime.Start();
+        ////          _task = Optional<TaskRuntime>.Of(taskRuntime);
+        ////      }
+        ////      catch (Exception e)
+        ////      {
+        ////          throw new InvalidOperationException("Unable to instantiate the new task");
+        ////      }
+        ////   }
+        ////}

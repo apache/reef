@@ -62,9 +62,9 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         /// <param name="reader">The reader from which to read </param>
         /// <param name="token">The cancellation token</param>
         /// <returns>The remote event</returns>
-        public async Task<IRemoteEvent<T>>  ReadAsync(IDataReader reader, CancellationToken token)
+        public async Task<IRemoteEvent<T>> ReadAsync(IDataReader reader, CancellationToken token)
         {
-            T message =  await _codec.ReadAsync(reader, token);
+            T message = await _codec.ReadAsync(reader, token);
             return new RemoteEvent<T>(null, null, message);     
         }
 

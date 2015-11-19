@@ -31,7 +31,7 @@ namespace Org.Apache.REEF.Tang.Tests.SmokeTest
         private readonly InjectableClass injectableClass;
         private readonly SetOfImplementations setOfImplementations;
         private readonly SetOfBaseTypes setOfBaseTypes;
-        //private readonly ListOfBaseTypes listOfBaseTypes;  //TODO: to recover once Avro NuGet support it
+        // private readonly ListOfBaseTypes listOfBaseTypes;  // TODO: to recover once Avro NuGet support it
         private readonly CyclicDependency cyclicDependency;
 
         [Inject]
@@ -43,7 +43,7 @@ namespace Org.Apache.REEF.Tang.Tests.SmokeTest
                                   InjectableClass injectableClass,
                                   SetOfImplementations setOfImplementations,
                                   SetOfBaseTypes setOfBaseTypes,
-                                  //ListOfBaseTypes listOfBaseTypes, //TODO: to recover once Avro NuGet support it
+                                  // ListOfBaseTypes listOfBaseTypes, // TODO: to recover once Avro NuGet support it
                                   CyclicDependency cyclicDependency) 
         {
                                 this.requiredString = requiredString;
@@ -54,7 +54,7 @@ namespace Org.Apache.REEF.Tang.Tests.SmokeTest
                                 this.injectableClass = injectableClass;
                                 this.setOfImplementations = setOfImplementations;
                                 this.setOfBaseTypes = setOfBaseTypes;
-                                //this.listOfBaseTypes = listOfBaseTypes;  //TODO: to recover once Avro NuGet support it
+                                // this.listOfBaseTypes = listOfBaseTypes;  // TODO: to recover once Avro NuGet support it
                                 this.cyclicDependency = cyclicDependency;
         }
 
@@ -149,11 +149,11 @@ namespace Org.Apache.REEF.Tang.Tests.SmokeTest
                 return false;
             }
 
-            //TODO: to recover once Avro NuGet support it
-            //if (listOfBaseTypes != null ? !listOfBaseTypes.Equals(that.listOfBaseTypes) : that.listOfBaseTypes != null)
-            //{
-            //    return false;
-            //}
+            ////TODO: to recover once Avro NuGet support it
+            ////if (listOfBaseTypes != null ? !listOfBaseTypes.Equals(that.listOfBaseTypes) : that.listOfBaseTypes != null)
+            ////{
+            ////   return false;
+            ////}
             if (cyclicDependency != null
                     ? !cyclicDependency.Equals(that.cyclicDependency)
                     : that.cyclicDependency != null)

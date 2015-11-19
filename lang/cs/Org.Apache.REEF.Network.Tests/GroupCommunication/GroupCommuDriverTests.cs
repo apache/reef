@@ -48,14 +48,14 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
                 groupName, fanOut,
                 numTasks);
 
-            //driver side to prepar for service config
+            // driver side to prepar for service config
             var codecConfig = CodecConfiguration<int>.Conf
                 .Set(CodecConfiguration<int>.Codec, GenericType<IntCodec>.Class)
                 .Build();
             var driverServiceConfig = groupCommunicationDriver.GetServiceConfiguration();
             var serviceConfig = Configurations.Merge(driverServiceConfig, codecConfig);
 
-            //wrap it before serializing
+            // wrap it before serializing
             var wrappedSeriveConfig = TangFactory.GetTang().NewConfigurationBuilder()
                 .BindNamedParameter<ServicesConfigurationOptions.ServiceConfigString, string>(
                     GenericType<ServicesConfigurationOptions.ServiceConfigString>.Class,
@@ -63,7 +63,7 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
                 .Build();
             var serviceConfigString = serializer.ToString(wrappedSeriveConfig);
 
-            //the configuration string is received at Evaluator side
+            // the configuration string is received at Evaluator side
             var serviceConfig2 = new ServiceConfiguration(serviceConfigString);
 
             Assert.AreEqual(serializer.ToString(serviceConfig), serializer.ToString(serviceConfig2.TangConfig));

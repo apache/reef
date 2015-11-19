@@ -56,12 +56,12 @@ namespace Org.Apache.REEF.Tang.Util
             }
         }
 
-        public new void Clear() //TODO
+        public new void Clear() // TODO
         {
             throw new NotSupportedException();
         }
 
-        public new void Remove(TKey key) //TODO
+        public new void Remove(TKey key) // TODO
         {
             throw new NotSupportedException();
         }

@@ -161,7 +161,7 @@ namespace Org.Apache.REEF.Client.Local
         /// Return current Job status
         /// </summary>
         /// <returns></returns>
-        /// //TODO: REEF-889
+        /// TODO: REEF-889
         [Unstable("0.14", "Working in progress for rest API status returned")]
         public async Task<FinalState> GetJobFinalStatus(string appId)
         {

@@ -148,7 +148,7 @@ namespace Org.Apache.REEF.Tang.Tests.ScenarioTest
 
         public void OnHttpRequest(HttpRequest request, Httpresponse response)
         {
-            //handle the event
+            // handle the event
         }
     }
 

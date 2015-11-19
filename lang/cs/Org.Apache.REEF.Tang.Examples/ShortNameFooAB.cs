@@ -27,7 +27,7 @@ namespace Org.Apache.REEF.Tang.Examples
     {
     }
 
-    //when same short name is used, exception would throw when building the class hierarchy
+    // when same short name is used, exception would throw when building the class hierarchy
     [NamedParameter(ShortName = "fooB")]
     public class ShortNameFooB : Name<Int32> 
     {

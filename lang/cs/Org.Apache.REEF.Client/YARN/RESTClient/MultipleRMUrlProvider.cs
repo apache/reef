@@ -61,8 +61,8 @@ namespace Org.Apache.REEF.Client.YARN.RestClient
             var configRoot = XElement.Load(yarnConfigurationFile);
             var address = configRoot.Elements("property")
                 .Where(x =>
-                    ((string) x.Element("name")).ToUpper().StartsWith(RmConfigKeyPrefix.ToUpper()))
-                .Select(x => (string) x.Element("value"));
+                    ((string)x.Element("name")).ToUpper().StartsWith(RmConfigKeyPrefix.ToUpper()))
+                .Select(x => (string)x.Element("value"));
             _yarnRmUri =
                 address.Select(x => x.TrimEnd('/') + @"/")
                     .Select(x => string.Format("http://{0}", x))

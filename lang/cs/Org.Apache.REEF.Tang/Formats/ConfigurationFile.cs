@@ -78,7 +78,7 @@ namespace Org.Apache.REEF.Tang.Formats
             catch (ApplicationException e)
             {
                 Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Caught(e, Level.Warning, LOGGER);
-                return name;//if name is not a type, return as it was
+                return name; // if name is not a type, return as it was
                 
             }
         }
@@ -93,13 +93,13 @@ namespace Org.Apache.REEF.Tang.Formats
             catch (ApplicationException e)
             {
                 Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Caught(e, Level.Warning, LOGGER);
-                return s;//if name is not a type, return as it was
+                return s; // if name is not a type, return as it was
             }
         }
 
         public static HashSet<String> ToConfigurationStringList(IConfiguration c) 
         {
-            ConfigurationImpl conf = (ConfigurationImpl) c;
+            ConfigurationImpl conf = (ConfigurationImpl)c;
             HashSet<string> l = new HashSet<string>();
             foreach (IClassNode opt in conf.GetBoundImplementations()) 
             {
@@ -289,7 +289,7 @@ namespace Org.Apache.REEF.Tang.Formats
         */
         private static string Escape(string str) 
         {
-            return str;  //TODO
+            return str;  // TODO
             // After regexp escaping \\\\ = 1 slash, \\\\\\\\ = 2 slashes.
 
             // Also, the second args of replaceAll are neither strings nor regexps, and
@@ -297,7 +297,7 @@ namespace Org.Apache.REEF.Tang.Formats
             // escape slashes (4 slashes) and quotes (3 slashes + ") in those strings.
             // Since we need to write \\ and \", we end up with 8 and 7 slashes,
             // respectively.
-            //return in.ReplaceAll("\\\\", "\\\\\\\\").replaceAll("\"", "\\\\\\\"");
+            // return in.ReplaceAll("\\\\", "\\\\\\\\").replaceAll("\"", "\\\\\\\"");
         }
 
         public static StringBuilder Join(StringBuilder sb, String sep, IConstructorArg[] types) 

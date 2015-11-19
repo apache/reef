@@ -21,7 +21,7 @@ using Org.Apache.REEF.Common.Tasks.Events;
 
 namespace Org.Apache.REEF.Common.Tasks
 {
-    //[DefaultImplementation(typeof(DefaultTaskMessageSource))]
+    // [DefaultImplementation(typeof(DefaultTaskMessageSource))]
     public interface IDriverMessageHandler
     {
         void Handle(IDriverMessage message);

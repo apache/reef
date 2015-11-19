@@ -157,7 +157,7 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
             return 0;
         }
 
-        //A(int i, string j) vs. A(string i, int j) is Ambiguous in injection
+        // A(int i, string j) vs. A(string i, int j) is Ambiguous in injection
         private bool EqualsIgnoreOrder(IConstructorDef def)
         {
             if (GetArgs().Count != def.GetArgs().Count)
@@ -188,7 +188,7 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
             return ToString().CompareTo(o.ToString());
         }
 
-        public bool IsInList(IList<IConstructorDef> list )
+        public bool IsInList(IList<IConstructorDef> list)
         {
             foreach (IConstructorDef def in list)
             {

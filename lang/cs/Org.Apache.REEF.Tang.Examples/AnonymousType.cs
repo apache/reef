@@ -36,7 +36,7 @@ namespace Org.Apache.REEF.Tang.Examples
         private readonly Dictionary<string, MyEventStreamDefinition> d = new Dictionary<string, MyEventStreamDefinition>();
         private Dictionary<string, int> d2;
 
-        //Anonymous class in injectable constructor
+        // Anonymous class in injectable constructor
         [Inject]
         public AnonymousType()
         {
@@ -45,7 +45,7 @@ namespace Org.Apache.REEF.Tang.Examples
                 .ToDictionary(e => e.Key, e => e.i);
         }
 
-        //Anonymous class in other constructor
+        // Anonymous class in other constructor
         public AnonymousType(Dictionary<string, MyEventStreamDefinition> d)
         {
             this.d = d;            

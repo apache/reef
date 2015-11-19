@@ -43,7 +43,7 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
             if (ns == null)
             {
                 TangImpl.Reset();
-                ns = TangFactory.GetTang().GetClassHierarchy(new string[] {FileNames.Examples, FileNames.Common, FileNames.Tasks});
+                ns = TangFactory.GetTang().GetClassHierarchy(new string[] { FileNames.Examples, FileNames.Common, FileNames.Tasks });
             }
         }
 
@@ -649,7 +649,7 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
     {
     }
 
-    //when same short name is used, exception would throw when building the class hierarchy
+    // when same short name is used, exception would throw when building the class hierarchy
     [NamedParameter(ShortName = "foo")]
     public class ShortNameFooB : Name<Int32>
     {
@@ -670,31 +670,31 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
 
         public class X1 : X
         {
-            //int i;
+            // int i;
         }
 
         public class Y1 : X
         {
-            //int j;
+            // int j;
         }
 
         public static X XObj = new X1();
         public static X YObj = new Y1();
     }
 
-    //Negative case: Int32 doesn't match string
+    // Negative case: Int32 doesn't match string
     [NamedParameter(DefaultClass = typeof(Int32))]
     class BadName : Name<string>
     {        
     }
 
-    //Negative case: Int32 doesn't match string in the ISet
+    // Negative case: Int32 doesn't match string in the ISet
     [NamedParameter(DefaultClass = typeof(Int32))]
     class BadNameForGeneric : Name<ISet<string>>
     {
     }
 
-    //Positive case: type matched. ISet is not in parsable list
+    // Positive case: type matched. ISet is not in parsable list
     [NamedParameter(DefaultClass = typeof(string))]
     class GoodNameForGeneric : Name<ISet<string>>
     {
@@ -705,7 +705,7 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
     {        
     }
 
-    //negative case: type matched. However, string is in the parsable list and DefaultClass is not null. 
+    // negative case: type matched. However, string is in the parsable list and DefaultClass is not null. 
     [NamedParameter(DefaultClass = typeof(string))]
     class BadParsableDefaultClass : Name<string>
     {        

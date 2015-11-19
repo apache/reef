@@ -36,7 +36,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
     /// <typeparam name="T">Generic Type of message.</typeparam>
     internal sealed class StreamingLink<T> : ILink<T>
     {
-        private static readonly Logger Logger = Logger.GetLogger(typeof (StreamingLink<T>));
+        private static readonly Logger Logger = Logger.GetLogger(typeof(StreamingLink<T>));
 
         private readonly IPEndPoint _localEndpoint;
         private bool _disposed;
@@ -112,7 +112,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         /// </summary>
         public IPEndPoint RemoteEndpoint
         {
-            get { return (IPEndPoint) _client.Client.RemoteEndPoint; }
+            get { return (IPEndPoint)_client.Client.RemoteEndPoint; }
         }
 
         /// <summary>
@@ -251,7 +251,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         private IPEndPoint GetLocalEndpoint()
         {
             IPAddress address = NetworkUtils.LocalIPAddress;
-            int port = ((IPEndPoint) _client.Client.LocalEndPoint).Port;
+            int port = ((IPEndPoint)_client.Client.LocalEndPoint).Port;
             return new IPEndPoint(address, port);
         }
     }

@@ -31,7 +31,7 @@ namespace Org.Apache.REEF.Client.Common
     /// </summary>
     internal sealed class FileSets
     {
-        private static readonly Logger Logger = Logger.GetLogger(typeof (FileSets));
+        private static readonly Logger Logger = Logger.GetLogger(typeof(FileSets));
         private readonly REEFFileNames _fileNames;
 
         private readonly ISet<string> _globalFileSet =

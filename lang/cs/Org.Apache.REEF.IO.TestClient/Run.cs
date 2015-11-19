@@ -22,7 +22,7 @@ using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.IO.TestClient
 {
-    //TODO[JIRA REEF-815]: once move to Nunit, tose test should be moved to Test project
+    // TODO[JIRA REEF-815]: once move to Nunit, tose test should be moved to Test project
     /// <summary>
     /// This purpose of this test is to run tests in Yarn envionment
     /// 
@@ -37,7 +37,7 @@ namespace Org.Apache.REEF.IO.TestClient
                 Assert.IsTrue(result);
             }
 
-            //the remote path name can be either full or relative, passing with the second argument
+            // the remote path name can be either full or relative, passing with the second argument
             if (args.Length > 1 && args[0].Equals("c"))
             {
                 HadoopFileSystemTest t = new HadoopFileSystemTest();

@@ -37,26 +37,25 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
         [TestMethod]
         public void TestMissingAllParameters()
         {
-            //Multiple infeasible plans: Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest
-            //, Org.Apache.REEF.Tang.Test
-            //, Version=1.0.0.0
-            //, Culture=neutral
-            //, PublicKeyToken=null:
-
-            //  [ Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest = new Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest
-            //    ( System.Boolean Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest+NamedBool = 
-            //    , System.Int32 Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest+NamedInt = 
-            //    ) 
-            //    | new Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest
-            //    ( System.String Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest+NamedString = 
-            //    , System.Int32 Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest+NamedInt = 
-            //    ) 
-            //    | new Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest
-            //    ( System.Boolean Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest+NamedBool = 
-            //    , System.String Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest+NamedString = 
-            //    , System.Int32 Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest+NamedInt = 
-            //    )
-            //  ]
+            // Multiple infeasible plans: Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest
+            // , Org.Apache.REEF.Tang.Test
+            // , Version=1.0.0.0
+            // , Culture=neutral
+            // , PublicKeyToken=null:
+            // [ Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest = new Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest
+            //   ( System.Boolean Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest+NamedBool = 
+            //   , System.Int32 Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest+NamedInt = 
+            //   ) 
+            //   | new Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest
+            //   ( System.String Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest+NamedString = 
+            //   , System.Int32 Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest+NamedInt = 
+            //   ) 
+            //   | new Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest
+            //   ( System.Boolean Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest+NamedBool = 
+            //   , System.String Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest+NamedString = 
+            //   , System.Int32 Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest+NamedInt = 
+            //   )
+            // ]
             MultiConstructorTest obj = null;
             try
             {
@@ -73,25 +72,25 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
         [TestMethod]
         public void TestMissingIntParameter()
         {
-            //Multiple infeasible plans: Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest
-            //, Org.Apache.REEF.Tang.Test
-            //, Version=1.0.0.0
-            //, Culture=neutral
-            //, PublicKeyToken=null:
-            //  [ Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest = new Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest
-            //    ( System.Boolean Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest+NamedBool = False
-            //    , System.Int32 Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest+NamedInt = 
-            //    ) 
-            //    | new Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest
-            //    ( System.String Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest+NamedString = foo
-            //    , System.Int32 Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest+NamedInt = 
-            //    ) 
-            //    | new Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest
-            //    ( System.Boolean Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest+NamedBool = False
-            //    , System.String Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest+NamedString = foo
-            //    , System.Int32 Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest+NamedInt = 
-            //    )
-            //  ]
+            // Multiple infeasible plans: Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest
+            // , Org.Apache.REEF.Tang.Test
+            // , Version=1.0.0.0
+            // , Culture=neutral
+            // , PublicKeyToken=null:
+            // [ Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest = new Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest
+            //   ( System.Boolean Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest+NamedBool = False
+            //   , System.Int32 Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest+NamedInt =
+            //   )
+            //   | new Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest
+            //   ( System.String Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest+NamedString = foo
+            //   , System.Int32 Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest+NamedInt =
+            //   )
+            //   | new Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest
+            //   ( System.Boolean Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest+NamedBool = False
+            //   , System.String Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest+NamedString = foo
+            //   , System.Int32 Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest+NamedInt =
+            //   )
+            // ]
             MultiConstructorTest obj = null;
             try
             {
@@ -110,25 +109,25 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
         [TestMethod]
         public void TestOnlyBoolParameter()
         {
-            //Multiple infeasible plans: Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest
-            //, Org.Apache.REEF.Tang.Test
-            //, Version=1.0.0.0
-            //, Culture=neutral
-            //, PublicKeyToken=null:
-            //  [ Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest = new Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest
-            //    ( System.Boolean Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest+NamedBool = False
-            //    , System.Int32 Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest+NamedInt = 
-            //    ) 
-            //    | new Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest
-            //    ( System.String Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest+NamedString = 
-            //    , System.Int32 Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest+NamedInt = 
-            //    ) 
-            //    | new Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest
-            //    ( System.Boolean Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest+NamedBool = False
-            //    , System.String Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest+NamedString = 
-            //    , System.Int32 Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest+NamedInt = 
-            //    )
-            //  ]
+            // Multiple infeasible plans: Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest
+            // , Org.Apache.REEF.Tang.Test
+            // , Version=1.0.0.0
+            // , Culture=neutral
+            // , PublicKeyToken=null:
+            // [ Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest = new Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest
+            //   ( System.Boolean Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest+NamedBool = False
+            //   , System.Int32 Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest+NamedInt =
+            //   )
+            //   | new Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest
+            //   ( System.String Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest+NamedString =
+            //   , System.Int32 Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest+NamedInt =
+            //   )
+            //   | new Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest
+            //   ( System.Boolean Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest+NamedBool = False
+            //   , System.String Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest+NamedString =
+            //   , System.Int32 Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest+NamedInt =
+            //   )
+            // ]
             MultiConstructorTest obj = null;
             try
             {
@@ -146,25 +145,25 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
         [TestMethod]
         public void TestOnlyIntParameter()
         {
-            //Multiple infeasible plans: Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest
-            //, Org.Apache.REEF.Tang.Test
-            //, Version=1.0.0.0
-            //, Culture=neutral
-            //, PublicKeyToken=null:
+            // Multiple infeasible plans: Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest
+            // , Org.Apache.REEF.Tang.Test
+            // , Version=1.0.0.0
+            // , Culture=neutral
+            // , PublicKeyToken=null:
             //  [ Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest = new Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest
-            //    ( System.Boolean Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest+NamedBool = 
-            //    , System.Int32 Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest+NamedInt = 8
-            //    ) 
-            //    | new Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest
-            //    ( System.String Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest+NamedString = 
-            //    , System.Int32 Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest+NamedInt = 8
-            //    ) 
-            //    | new Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest
-            //    ( System.Boolean Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest+NamedBool = 
-            //    , System.String Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest+NamedString = 
-            //    , System.Int32 Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest+NamedInt = 8
-            //    )
-            //  ]
+            //   ( System.Boolean Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest+NamedBool =
+            //   , System.Int32 Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest+NamedInt = 8
+            //   )
+            //   | new Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest
+            //   ( System.String Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest+NamedString =
+            //   , System.Int32 Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest+NamedInt = 8
+            //   )
+            //   | new Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest
+            //   ( System.Boolean Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest+NamedBool =
+            //   , System.String Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest+NamedString =
+            //   , System.Int32 Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest+NamedInt = 8
+            //   )
+            // ]
             MultiConstructorTest obj = null;
             try
             {
@@ -238,7 +237,7 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
 
             ICsConfigurationBuilder cb2 = TangFactory.GetTang().NewConfigurationBuilder();
             cb2.BindImplementation(typeof(IH), typeof(M));
-            cb2.BindImplementation(typeof(M), typeof(L)); //construcotr of L is explicitly bound
+            cb2.BindImplementation(typeof(M), typeof(L)); // constructor of L is explicitly bound
             IInjector i2 = TangFactory.GetTang().NewInjector(cb2.Build());
             var o2 = i2.GetInstance<IH>();
             Assert.IsTrue(o2 is L);
@@ -256,7 +255,7 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
             Assert.IsNotNull(o);
 
             ICsConfigurationBuilder cb2 = TangFactory.GetTang().NewConfigurationBuilder();
-            cb2.BindImplementation(typeof(IH), typeof(M1));  //M1 doesn't have injectable default constructor, no implementation L1 is bound to M1
+            cb2.BindImplementation(typeof(IH), typeof(M1));  // M1 doesn't have injectable default constructor, no implementation L1 is bound to M1
             IInjector i2 = TangFactory.GetTang().NewInjector(cb2.Build());
             string msg = null;
             try
@@ -266,8 +265,8 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
             }
             catch (Exception e)
             {
-                //Cannot inject Org.Apache.REEF.Tang.Tests.Injection.IH, Org.Apache.REEF.Tang.Test, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null: 
-                //No known implementations / injectable constructors for Org.Apache.REEF.Tang.Tests.Injection.M1, Org.Apache.REEF.Tang.Test, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+                // Cannot inject Org.Apache.REEF.Tang.Tests.Injection.IH, Org.Apache.REEF.Tang.Test, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null: 
+                // No known implementations / injectable constructors for Org.Apache.REEF.Tang.Tests.Injection.M1, Org.Apache.REEF.Tang.Test, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
                 msg = e.Message;
             }
             Assert.IsNotNull(msg);

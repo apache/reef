@@ -21,6 +21,6 @@ namespace Org.Apache.REEF.Wake.RX
 {
     public interface IStaticObservable
     {
-        //intentionally empty
+        // intentionally empty
     }
 }

@@ -79,10 +79,10 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
                 var networkServiceInjector1 = BuildNetworkServiceInjector(endpoint, handler1);
                 var networkServiceInjector2 = BuildNetworkServiceInjector(endpoint, handler2);
 
-                var networkService1 = networkServiceInjector1.GetInstance<
-                  StreamingNetworkService<GeneralGroupCommunicationMessage>>();
-                var networkService2 = networkServiceInjector2.GetInstance<
-                    StreamingNetworkService<GeneralGroupCommunicationMessage>>();
+                var networkService1 = 
+                    networkServiceInjector1.GetInstance<StreamingNetworkService<GeneralGroupCommunicationMessage>>();
+                var networkService2 = 
+                    networkServiceInjector2.GetInstance<StreamingNetworkService<GeneralGroupCommunicationMessage>>();
                 networkService1.Register(new StringIdentifier("id1"));
                 networkService2.Register(new StringIdentifier("id2"));
 
@@ -132,7 +132,7 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
 
             var commGroups = CommGroupClients(groupName, numTasks, groupCommunicationDriver, commGroup, GetDefaultCodecConfig());
 
-            //for master task
+            // for master task
             IBroadcastSender<int> broadcastSender = commGroups[0].GetBroadcastSender<int>(broadcastOperatorName);
             IReduceReceiver<int> sumReducer = commGroups[0].GetReduceReceiver<int>(reduceOperatorName);
 
@@ -211,7 +211,7 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
 
             var commGroups = CommGroupClients(groupName, numTasks, groupCommunicationDriver, commGroup, codecConfig);
 
-            //for master task
+            // for master task
             IBroadcastSender<int[]> broadcastSender = commGroups[0].GetBroadcastSender<int[]>(broadcastOperatorName);
             IReduceReceiver<int[]> sumReducer = commGroups[0].GetReduceReceiver<int[]>(reduceOperatorName);
 
@@ -280,7 +280,7 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
             Assert.IsNotNull(receiver4);
 
             List<int> data = Enumerable.Range(1, 100).ToList();
-            List<string> order = new List<string> {"task4", "task3", "task2", "task1"};
+            List<string> order = new List<string> { "task4", "task3", "task2", "task1" };
 
             sender.Send(data, order);
 
@@ -803,7 +803,7 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
 
             for (int i = 0; i < numTasks; i++)
             {
-                //get task configuration at driver side
+                // get task configuration at driver side
                 string taskId = "task" + i;
                 IConfiguration groupCommTaskConfig = groupCommDriver.GetGroupCommTaskConfiguration(taskId);
                 IConfiguration mergedConf = Configurations.Merge(groupCommTaskConfig, partialConfigs[i], serviceConfig);
@@ -814,7 +814,7 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
                     .Build();
                 IInjector injector = TangFactory.GetTang().NewInjector(conf);
 
-                //simulate injection at evaluator side
+                // simulate injection at evaluator side
                 IGroupCommClient groupCommClient = injector.GetInstance<IGroupCommClient>();
                 commGroups.Add(groupCommClient.GetCommunicationGroup(groupName));
             }
@@ -825,11 +825,11 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
             IPEndPoint nameServerEndpoint, IObserver<NsMessage<GeneralGroupCommunicationMessage>> handler)
         {
             var config = TangFactory.GetTang().NewConfigurationBuilder()
-                .BindNamedParameter(typeof (NamingConfigurationOptions.NameServerAddress),
+                .BindNamedParameter(typeof(NamingConfigurationOptions.NameServerAddress),
                     nameServerEndpoint.Address.ToString())
-                .BindNamedParameter(typeof (NamingConfigurationOptions.NameServerPort),
+                .BindNamedParameter(typeof(NamingConfigurationOptions.NameServerPort),
                     nameServerEndpoint.Port.ToString())
-                .BindNamedParameter(typeof (NetworkServiceOptions.NetworkServicePort),
+                .BindNamedParameter(typeof(NetworkServiceOptions.NetworkServicePort),
                     (0).ToString(CultureInfo.InvariantCulture))
                 .BindImplementation(GenericType<INameClient>.Class, GenericType<NameClient>.Class)
                 .Build();

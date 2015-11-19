@@ -23,7 +23,7 @@ namespace Org.Apache.REEF.Common
 {
     public class Constants
     {
-        [Obsolete(message:"Use REEFFileNames instead.")]
+        [Obsolete(message: "Use REEFFileNames instead.")]
         public const string ClrBridgeRuntimeConfiguration = "clrBridge.config";
 
         // if 8080 port is not used, then query would fail, 

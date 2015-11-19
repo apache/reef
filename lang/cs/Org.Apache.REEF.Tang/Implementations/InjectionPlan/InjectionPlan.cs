@@ -25,7 +25,7 @@ using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
 {
-    //contains the data for injecting a Node such as which Constructor to use, what are the arguments
+    // contains the data for injecting a Node such as which Constructor to use, what are the arguments
     public abstract class InjectionPlan : ITraversable<InjectionPlan> 
     {
         protected INode node;
@@ -62,7 +62,7 @@ namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
 
         abstract public bool IsInjectable();
 
-        //abstract public bool HasFutureDependency();
+        // abstract public bool HasFutureDependency();
 
         protected void pad(StringBuilder sb, int n)
         {
@@ -195,10 +195,10 @@ namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
             throw new NotSupportedException();
         }
 
-        //public override bool HasFutureDependency()
-        //{
-        //    throw new NotSupportedException();
-        //}
+        ////public override bool HasFutureDependency()
+        ////{
+        ////    throw new NotSupportedException();
+        ////}
 
         public override string ToAmbiguousInjectString()
         {

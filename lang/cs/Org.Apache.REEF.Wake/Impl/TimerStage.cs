@@ -24,7 +24,7 @@ namespace Org.Apache.REEF.Wake.Impl
     /// <summary>Stage that triggers an event handler periodically</summary>
     public class TimerStage : IStage
     {
-        //private readonly ScheduledExecutorService executor;
+        // private readonly ScheduledExecutorService executor;
         private readonly Timer _timer;
         private readonly PeriodicEvent _value = new PeriodicEvent();
         private readonly IEventHandler<PeriodicEvent> _handler;

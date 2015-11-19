@@ -34,7 +34,7 @@ namespace Org.Apache.REEF.Client.Common
         private readonly REEFFileNames _reefFileNames;
 
         [Inject]
-        private ResourceArchiveFileGenerator (REEFFileNames reefFileNames)
+        private ResourceArchiveFileGenerator(REEFFileNames reefFileNames)
         {
             _reefFileNames = reefFileNames;
         }

@@ -269,20 +269,20 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.PipelineBroadcastR
 
             public byte[] Encode(int[] obj)
             {
-                var result = new byte[sizeof (Int32)*obj.Length];
+                var result = new byte[sizeof(Int32) * obj.Length];
                 Buffer.BlockCopy(obj, 0, result, 0, result.Length);
                 return result;
             }
 
             public int[] Decode(byte[] data)
             {
-                if (data.Length%sizeof (Int32) != 0)
+                if (data.Length % sizeof(Int32) != 0)
                 {
                     throw new Exception(
                         "error inside integer array decoder, byte array length not a multiple of integer size");
                 }
 
-                var result = new int[data.Length/sizeof (Int32)];
+                var result = new int[data.Length / sizeof(Int32)];
                 Buffer.BlockCopy(data, 0, result, 0, data.Length);
                 return result;
             }
@@ -301,9 +301,9 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.PipelineBroadcastR
             public List<PipelineMessage<int[]>> PipelineMessage(int[] message)
             {
                 var messageList = new List<PipelineMessage<int[]>>();
-                var totalChunks = message.Length/_chunkSize;
+                var totalChunks = message.Length / _chunkSize;
 
-                if (message.Length%_chunkSize != 0)
+                if (message.Length % _chunkSize != 0)
                 {
                     totalChunks++;
                 }
@@ -312,7 +312,7 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.PipelineBroadcastR
                 for (var i = 0; i < message.Length; i += _chunkSize)
                 {
                     var data = new int[Math.Min(_chunkSize, message.Length - i)];
-                    Buffer.BlockCopy(message, i*sizeof (int), data, 0, data.Length*sizeof (int));
+                    Buffer.BlockCopy(message, i * sizeof(int), data, 0, data.Length * sizeof(int));
 
                     messageList.Add(counter == totalChunks - 1
                         ? new PipelineMessage<int[]>(data, true)
@@ -332,8 +332,8 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.PipelineBroadcastR
 
                 foreach (var message in pipelineMessage)
                 {
-                    Buffer.BlockCopy(message.Data, 0, data, offset, message.Data.Length*sizeof (int));
-                    offset += message.Data.Length*sizeof (int);
+                    Buffer.BlockCopy(message.Data, 0, data, offset, message.Data.Length * sizeof(int));
+                    offset += message.Data.Length * sizeof(int);
                 }
 
                 return data;

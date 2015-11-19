@@ -37,9 +37,9 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
     /// </summary>
     /// <typeparam name="TMapInput"></typeparam>
     /// <typeparam name="TMapOutput"></typeparam>
-    internal class ServiceAndContextConfigurationProvider<TMapInput,TMapOutput>
+    internal class ServiceAndContextConfigurationProvider<TMapInput, TMapOutput>
     {
-        private static readonly Logger Logger = Logger.GetLogger(typeof(ServiceAndContextConfigurationProvider<TMapInput,TMapOutput>));
+        private static readonly Logger Logger = Logger.GetLogger(typeof(ServiceAndContextConfigurationProvider<TMapInput, TMapOutput>));
 
         private readonly Dictionary<string, ContextAndServiceConfiguration> _configurationProvider;
         private readonly ISet<string> _failedEvaluators;
@@ -104,7 +104,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                     Exceptions.Throw(new Exception("No more configuration can be provided"), Logger);
                 }
 
-                //If some failed id exists return that configuration
+                // if some failed id exists return that configuration
                 if (_failedEvaluators.Count != 0)
                 {
                     string failedEvaluatorId = _failedEvaluators.First();
@@ -125,7 +125,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                             Logger);
                     }
 
-                    //Checks whether to put update task configuration or map task configuration
+                    // Checks whether to put update task configuration or map task configuration
                     if (_assignedPartitionDescriptors == 1)
                     {
                         _configurationProvider[evaluatorId] = GetUpdateTaskContextAndServiceConfiguration();
@@ -151,8 +151,8 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                             StreamingCodecConfiguration<MapInputWithControlMessage<TMapInput>>.Codec,
                             GenericType<MapInputWithControlMessageCodec<TMapInput>>.Class).Build(),
                         StreamingCodecConfigurationMinusMessage<TMapOutput>.Conf.Build(),
-                        _configurationManager.MapInputCodecConfiguration
-                    ).Build();
+                        _configurationManager.MapInputCodecConfiguration)
+                    .Build();
 
             var contextConf = _groupCommDriver.GetContextConfiguration();
             var serviceConf = Configurations.Merge(_groupCommDriver.GetServiceConfiguration(), codecConfig, partitionDescriptor.GetPartitionConfiguration());
@@ -172,8 +172,8 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                                 GenericType<MapInputWithControlMessageCodec<TMapInput>>.Class).Build(),
                             StreamingCodecConfigurationMinusMessage<TMapOutput>.Conf.Build(),
                             _configurationManager.UpdateFunctionCodecsConfiguration
-                        }
-                    ).Build();
+                        })
+                    .Build();
 
             var serviceConf = Configurations.Merge(_groupCommDriver.GetServiceConfiguration(), codecConfig);
             return new ContextAndServiceConfiguration(_groupCommDriver.GetContextConfiguration(), serviceConf);

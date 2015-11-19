@@ -177,7 +177,7 @@ namespace Org.Apache.REEF.Tang.Tests.Utilities
             Type iface = typeof(ISet<>);
             Type type = typeof(MySet<string>);
             Type p = ReflectionUtilities.GetInterfaceTarget(iface, type);
-            Assert.IsTrue(p.Equals(typeof (string)));
+            Assert.IsTrue(p.Equals(typeof(string)));
         }
 
         [TestMethod]

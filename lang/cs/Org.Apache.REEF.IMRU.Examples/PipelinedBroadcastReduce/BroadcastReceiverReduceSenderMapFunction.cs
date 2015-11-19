@@ -30,7 +30,7 @@ namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
     /// </summary>
     internal sealed class BroadcastReceiverReduceSenderMapFunction : IMapFunction<int[], int[]>
     {
-        private static readonly Logger Logger = Logger.GetLogger(typeof (BroadcastReceiverReduceSenderMapFunction));
+        private static readonly Logger Logger = Logger.GetLogger(typeof(BroadcastReceiverReduceSenderMapFunction));
 
         private int _iterations;
 

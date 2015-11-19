@@ -107,7 +107,7 @@ namespace Org.Apache.REEF.Driver
             b.Bind("org.apache.reef.driver.parameters.DriverMemory", driverConfigurationSettings.DriverMemory.ToString(CultureInfo.CurrentCulture));
             b.Bind("org.apache.reef.driver.parameters.DriverJobSubmissionDirectory", driverConfigurationSettings.SubmissionDirectory);
 
-            //add for all the globallibaries
+            // add for all the globallibaries
             if (File.Exists(UserSuppliedGlobalLibraries))
             {
                 var globalLibString = File.ReadAllText(UserSuppliedGlobalLibraries);
@@ -131,7 +131,7 @@ namespace Org.Apache.REEF.Driver
 
             Log.Log(Level.Info, string.Format(CultureInfo.CurrentCulture, "driver.config is written to: {0} {1}.", Directory.GetCurrentDirectory(), DriverConfigFile));
 
-            //additional file for easy to read
+            // additional file for easy to read
             using (StreamWriter outfile = new StreamWriter(DriverConfigFile + ".txt"))
             {
                 outfile.Write(serializer.ToString(c));

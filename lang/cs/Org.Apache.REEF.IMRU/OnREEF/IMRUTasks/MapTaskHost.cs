@@ -53,7 +53,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
         private MapTaskHost(
             IMapFunction<TMapInput, TMapOutput> mapTask,
             IGroupCommClient groupCommunicationsClient,
-            [Parameter(typeof (InvokeGC))] bool invokeGC)
+            [Parameter(typeof(InvokeGC))] bool invokeGC)
         {
             _mapTask = mapTask;
             var cg = groupCommunicationsClient.GetCommunicationGroup(IMRUConstants.CommunicationGroupName);

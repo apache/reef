@@ -27,7 +27,7 @@ namespace Org.Apache.REEF.Tang.Tests.ScenarioTest
     {
     }
 
-    public class JettyHandler //: AbstractHandler
+    public class JettyHandler // : AbstractHandler
     {
         [Inject]
         public JettyHandler([Parameter(typeof(HttpEventHandlers))] ISet<IHttpHandler> httpEventHandlers)

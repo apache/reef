@@ -190,7 +190,7 @@ namespace Org.Apache.REEF.Network.Tests.NetworkService
             StreamingCodecFunctionCache<A> cache = new StreamingCodecFunctionCache<A>(injector);
 
             var readFunc = cache.ReadFunction(typeof(B));
-            var writeFunc = cache.WriteFunction(typeof (B));
+            var writeFunc = cache.WriteFunction(typeof(B));
             var readAsyncFunc = cache.ReadAsyncFunction(typeof(B));
             var writeAsyncFunc = cache.WriteAsyncFunction(typeof(B));
 

@@ -34,7 +34,7 @@ namespace Org.Apache.REEF.Client.Common
 {
     internal abstract class JobSubmissionResult : IJobSubmissionResult
     {
-        private static readonly Logger LOGGER = Logger.GetLogger(typeof (JobSubmissionResult));
+        private static readonly Logger LOGGER = Logger.GetLogger(typeof(JobSubmissionResult));
         private const int MaxConnectAttemptCount = 20;
         private const int MilliSecondsToWaitBeforeNextConnectAttempt = 1000;
         private const int SecondsForHttpClientTimeout = 120;
@@ -124,7 +124,7 @@ namespace Org.Apache.REEF.Client.Common
             }
         }
 
-        internal async Task<string> CallUrl (string url)
+        internal async Task<string> CallUrl(string url)
         {
             var result = await TryGetUri(url);
             if (HasCommandFailed(result))

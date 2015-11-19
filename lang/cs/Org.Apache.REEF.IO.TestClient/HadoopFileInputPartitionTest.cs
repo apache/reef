@@ -34,7 +34,7 @@ using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.IO.TestClient
 {
-    //TODO[JIRA REEF-815]: once move to Nunit, tose test should be moved to Test project
+    // TODO[JIRA REEF-815]: once move to Nunit, tose test should be moved to Test project
     internal class HadoopFileInputPartitionTest
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(HadoopFileInputPartitionTest));

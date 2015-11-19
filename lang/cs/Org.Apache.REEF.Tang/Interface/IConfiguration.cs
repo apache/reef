@@ -29,8 +29,8 @@ namespace Org.Apache.REEF.Tang.Interface
         string GetNamedParameter(INamedParameterNode np);
         IClassHierarchy GetClassHierarchy();
 
-        ISet<Object> GetBoundSet(INamedParameterNode np); //named parameter for a set
-        IList<Object> GetBoundList(INamedParameterNode np); //named parameter for a list
+        ISet<Object> GetBoundSet(INamedParameterNode np); // named parameter for a set
+        IList<Object> GetBoundList(INamedParameterNode np); // named parameter for a list
 
         IClassNode GetBoundConstructor(IClassNode cn);
         IClassNode GetBoundImplementation(IClassNode cn);

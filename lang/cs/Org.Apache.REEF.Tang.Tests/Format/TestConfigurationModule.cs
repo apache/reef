@@ -109,7 +109,7 @@ namespace Org.Apache.REEF.Tang.Tests.Format
             IFoo f5 = (IFoo)TangFactory.GetTang().NewInjector(c5).GetInstance(fooType);
             Assert.AreEqual(f5.getFooness(), 12);
            
-            //this is to test the file generated from Java. name,value b=must be recognized by C# class hierarchy
+            // this is to test the file generated from Java. name,value b=must be recognized by C# class hierarchy
             AvroConfigurationSerializer serializer = new AvroConfigurationSerializer();
             var avroConfig = serializer.AvroDeserializeFromFile("Evaluator.conf");
             Assert.IsNotNull(avroConfig);
@@ -318,7 +318,7 @@ namespace Org.Apache.REEF.Tang.Tests.Format
             AvroConfigurationSerializer serializer = new AvroConfigurationSerializer();
             IConfiguration c2 = serializer.FromString(serializer.ToString(cb.Build()));
 
-            //ConfigurationFile.AddConfiguration(cb, ConfigurationFile.ToConfigurationString(c));
+            // ConfigurationFile.AddConfiguration(cb, ConfigurationFile.ToConfigurationString(c));
             ISet<ISuper> s = (ISet<ISuper>)TangFactory.GetTang().NewInjector(c2).GetNamedInstance(typeof(SetClass));
             Assert.AreEqual(2, s.Count);
             bool sawA = false, sawB = false;

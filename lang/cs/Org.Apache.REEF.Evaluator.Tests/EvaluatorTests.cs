@@ -39,7 +39,7 @@ namespace Org.Apache.REEF.Evaluator.Tests
         [Description("Parse Evaluator configuration from Java, inject and execute Shell task with DIR command based on the configuration")]
         public void CanInjectAndExecuteTask()
         {
-            //To enforce that shell task dll be copied to output directory.
+            // to enforce that shell task dll be copied to output directory.
             ShellTask tmpTask = new ShellTask("invalid");
             Assert.IsNotNull(tmpTask);
 
@@ -77,7 +77,7 @@ namespace Org.Apache.REEF.Evaluator.Tests
             byte[] bytes = task.Call(null);
             string result = System.Text.Encoding.Default.GetString(bytes);
 
-            //a dir command is executed in the container directory, which includes the file "evaluator.conf"
+            // a dir command is executed in the container directory, which includes the file "evaluator.conf"
             Assert.IsTrue(result.Contains("evaluator.conf"));
         }
 

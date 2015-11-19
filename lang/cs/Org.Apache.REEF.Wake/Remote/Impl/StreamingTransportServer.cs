@@ -35,7 +35,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
     /// <typeparam name="T">Generic Type of message. It is constrained to have implemented IWritable and IType interface</typeparam>
     internal sealed class StreamingTransportServer<T> : IDisposable
     {
-        private static readonly Logger LOGGER = Logger.GetLogger(typeof (TransportServer<>));
+        private static readonly Logger LOGGER = Logger.GetLogger(typeof(TransportServer<>));
 
         private TcpListener _listener;
         private readonly CancellationTokenSource _cancellationSource;
@@ -92,8 +92,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
             var foundAPort = false;
             var exception = new SocketException((int)SocketError.AddressAlreadyInUse);
             for (var enumerator = _tcpPortProvider.GetEnumerator();
-                !foundAPort && enumerator.MoveNext();
-                )
+                !foundAPort && enumerator.MoveNext();)
             {
                 _listener = new TcpListener(LocalEndpoint.Address, enumerator.Current);
                 try

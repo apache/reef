@@ -122,7 +122,7 @@ namespace Org.Apache.REEF.Client.Yarn
         {
             _driverFolderPreparationHelper.PrepareDriverFolder(jobSubmission, driverFolderPath);
 
-            //TODO: Remove this when we have a generalized way to pass config to java
+            // TODO: Remove this when we have a generalized way to pass config to java
             var paramInjector = TangFactory.GetTang().NewInjector(jobSubmission.DriverConfigurations.ToArray());
                 
 

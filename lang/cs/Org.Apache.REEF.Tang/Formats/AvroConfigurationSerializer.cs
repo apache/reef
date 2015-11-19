@@ -180,9 +180,6 @@ namespace Org.Apache.REEF.Tang.Formats
                     }
 
                     buffer.Seek(0, SeekOrigin.Begin);
-                    //AvroSerializerSettings settings = new AvroSerializerSettings();
-                    //settings.Resolver = new AvroConfigurationResolver();
-                    //using (var reader = new SequentialReader<AvroConfiguration>(AvroContainer.CreateReader<AvroConfiguration>(buffer, true, settings, new CodecFactory())))
                     using (var reader = new SequentialReader<AvroConfiguration>(AvroContainer.CreateReader<AvroConfiguration>(buffer, true))) 
                     {
                         var results = reader.Objects;

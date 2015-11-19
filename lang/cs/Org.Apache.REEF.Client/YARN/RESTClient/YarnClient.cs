@@ -55,8 +55,7 @@ namespace Org.Apache.REEF.Client.Yarn.RestClient
         {
             await new RemoveSynchronizationContextAwaiter();
 
-            IRestRequest request = CreateRestRequest( ClusterInfo.Resource, Method.GET, ClusterInfo.RootElement
-            );
+            IRestRequest request = CreateRestRequest(ClusterInfo.Resource, Method.GET, ClusterInfo.RootElement);
 
             return
                 await GenerateUrlAndExecuteRequestAsync<ClusterInfo>(request, cancellationToken);

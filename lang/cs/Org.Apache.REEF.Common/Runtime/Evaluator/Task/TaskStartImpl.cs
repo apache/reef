@@ -23,7 +23,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
 {
     public class TaskStartImpl : ITaskStart
     {        
-        //INJECT
+        // INJECT
         public TaskStartImpl(string id)
         {
             Id = id;

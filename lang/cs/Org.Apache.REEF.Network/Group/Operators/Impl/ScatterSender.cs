@@ -37,7 +37,7 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
     {
         private const int DefaultVersion = 1;
         private readonly IOperatorTopology<T> _topology;
-        private readonly bool _initialize ;
+        private readonly bool _initialize;
 
         /// <summary>
         /// Creates a new ScatterSender.

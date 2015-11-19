@@ -154,7 +154,7 @@ namespace Org.Apache.REEF.IO.Tests
             MakeLocalTestFile(sourceFilePath2, new byte[] { 114, 115, 116, 117 });
 
             var c = TangFactory.GetTang().NewConfigurationBuilder()
-                .BindImplementation(GenericType<IPartitionedInputDataSet>.Class, GenericType < FileSystemPartitionInputDataSet<IEnumerable<byte>>>.Class)
+                .BindImplementation(GenericType<IPartitionedInputDataSet>.Class, GenericType<FileSystemPartitionInputDataSet<IEnumerable<byte>>>.Class)
                 .BindStringNamedParam<FileDeSerializerConfigString>(GetByteSerializerConfigString())
                 .BindSetEntry<FilePathsForInputPartitions, string>(GenericType<FilePathsForInputPartitions>.Class, sourceFilePath1)
                 .BindSetEntry<FilePathsForInputPartitions, string>(GenericType<FilePathsForInputPartitions>.Class, sourceFilePath2)
@@ -190,7 +190,7 @@ namespace Org.Apache.REEF.IO.Tests
         [TestMethod]
         public void TestWithRowDeserializer()
         {
-            MakeLocalTestFile(sourceFilePath1, new byte[] {111, 112, 113});
+            MakeLocalTestFile(sourceFilePath1, new byte[] { 111, 112, 113 });
             MakeLocalTestFile(sourceFilePath2, new byte[] { 114, 115 });
 
             var dataSet = TangFactory.GetTang()
@@ -250,7 +250,7 @@ namespace Org.Apache.REEF.IO.Tests
         {
             var serializerConf = TangFactory.GetTang().NewConfigurationBuilder()
                 .BindImplementation<IFileDeSerializer<IEnumerable<Row>>, RowSerializer>(
-                    GenericType <IFileDeSerializer<IEnumerable<Row>>>.Class,
+                    GenericType<IFileDeSerializer<IEnumerable<Row>>>.Class,
                     GenericType<RowSerializer>.Class)
                 .Build();
             return (new AvroConfigurationSerializer()).ToString(serializerConf);

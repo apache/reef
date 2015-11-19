@@ -41,7 +41,7 @@ namespace Org.Apache.REEF.Wake.StreamingCodec.CommonStreamingCodecs
         /// Instantiate the class from the reader.
         /// </summary>
         /// <param name="reader">The reader from which to read</param>
-        ///<returns>The float read from the reader</returns>
+        /// <returns>The float read from the reader</returns>
         public float Read(IDataReader reader)
         {
             return reader.ReadFloat();
@@ -57,10 +57,10 @@ namespace Org.Apache.REEF.Wake.StreamingCodec.CommonStreamingCodecs
             writer.WriteFloat(obj);
         }
 
-        ///  <summary>
-        ///  Instantiate the class from the reader.
-        ///  </summary>
-        ///  <param name="reader">The reader from which to read</param>
+        /// <summary>
+        /// Instantiate the class from the reader.
+        /// </summary>
+        /// <param name="reader">The reader from which to read</param>
         /// <param name="token">Cancellation token</param>
         /// <returns>The float read from the reader</returns>
         public async Task<float> ReadAsync(IDataReader reader, CancellationToken token)

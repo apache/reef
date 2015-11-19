@@ -79,21 +79,21 @@ namespace Org.Apache.REEF.Tang.Util
                 return name.FullName;
             }
 
-            //The following lines should be not reached by C# syntax definition. However, it happens  for some generic type such as AbstractObserver<T>
-            //It results in name as null. When null name in the class node gets deserialized, as name is required filed in class hierarchy proto buffer schema,
-            //it causes exception during deserialization. The code below is to use first portion of AssemblyQualifiedName for the name of the node node in case type.name is null. 
+            // The following lines should be not reached by C# syntax definition. However, it happens  for some generic type such as AbstractObserver<T>
+            // It results in name as null. When null name in the class node gets deserialized, as name is required filed in class hierarchy proto buffer schema,
+            // it causes exception during deserialization. The code below is to use first portion of AssemblyQualifiedName for the name of the node node in case type.name is null. 
             string[] parts = GetAssemblyQualifiedName(name).Split(',');
             return parts[0];
         }
 
         /// <summary>
         /// Gets the interface target.
-        // Foo<T> ,  given Foo<T> and Foo return T
-        // example class Foo : Bar<U>, Bas<T>
-        // iface: Bar, type: Foo, return U
-        // iface: Bas, type: Foo, return T
-        // class ACons implements IExternalConstructor<A> 
-        // iface: IExternalConstructor<>, type: ACons return A
+        /// Foo<T> ,  given Foo<T> and Foo return T
+        /// example class Foo : Bar<U>, Bas<T>
+        /// iface: Bar, type: Foo, return U
+        /// iface: Bas, type: Foo, return T
+        /// class ACons implements IExternalConstructor<A> 
+        /// iface: IExternalConstructor<>, type: ACons return A
         /// </summary>
         /// <param name="iface">The iface.</param>
         /// <param name="type">The type.</param>
@@ -104,7 +104,7 @@ namespace Org.Apache.REEF.Tang.Util
             {
                 if (IsGenericTypeof(iface, t))
                 {
-                    return t.GetGenericArguments()[0]; //verify it
+                    return t.GetGenericArguments()[0]; // verify it
                 }
             }
             return null;
@@ -114,7 +114,7 @@ namespace Org.Apache.REEF.Tang.Util
         {
             if (IsGenericTypeof(iface, type))
             {
-                return type.GetGenericArguments()[0]; //verify it
+                return type.GetGenericArguments()[0]; // verify it
             }
             return null;
         }
@@ -155,7 +155,7 @@ namespace Org.Apache.REEF.Tang.Util
         public static IEnumerable<Type> ClassAndAncestors(Type c)
         {
             List<Type> workQueue = new List<Type>();
-            workQueue.Add(c); //including itself
+            workQueue.Add(c); // including itself
 
             foreach (Type t in c.GetInterfaces())
             {
@@ -180,7 +180,7 @@ namespace Org.Apache.REEF.Tang.Util
         public static IEnumerable<Type> ClassAndAncestorsExcludeSelf(Type c)
         {
             List<Type> workQueue = new List<Type>();
-            //workQueue.Add(c); //including itself
+            // workQueue.Add(c); // including itself
 
             foreach (Type t in c.GetInterfaces())
             {
@@ -270,12 +270,12 @@ namespace Org.Apache.REEF.Tang.Util
         {
             to = BoxClass(to);
             from = BoxClass(from);
-            //TODO
-            //if (Number.class.isAssignableFrom(to)
-            //    && Number.class.isAssignableFrom(from)) {
-            //return sizeof.get(from) <= sizeof.get(to);
+            ////TODO
+            ////if (Number.class.isAssignableFrom(to)
+            ////   && Number.class.isAssignableFrom(from)) {
+            ////return sizeof.get(from) <= sizeof.get(to);
             return to.IsAssignableFrom(from);
-            //return IsAssignableFromIgnoreGeneric(to, from);
+            // return IsAssignableFromIgnoreGeneric(to, from);
         }
 
         /// <summary>
@@ -309,7 +309,7 @@ namespace Org.Apache.REEF.Tang.Util
         {
             if (interf != null && interf.IsGenericType && null == interf.FullName)
             {
-                return interf.GetGenericTypeDefinition(); //this is to test if this line is ever reached
+                return interf.GetGenericTypeDefinition(); // this is to test if this line is ever reached
             }
             return interf;
         }
@@ -441,7 +441,7 @@ namespace Org.Apache.REEF.Tang.Util
         /// <param name="type">The type.</param>
         /// <returns></returns>
         /// <exception cref="ClassHierarchyException">Named parameter  + GetName(type) +  implements 
-        ///                                   + multiple interfaces.  It is only allowed to implement Name</exception>
+        /// + multiple interfaces.  It is only allowed to implement Name</exception>
         public static Type GetNamedParameterTargetOrNull(Type type)
         {
             var npAnnotation = type.GetCustomAttribute<NamedParameterAttribute>();
@@ -485,7 +485,7 @@ namespace Org.Apache.REEF.Tang.Util
                 return args[0];
             }
 
-            if (ImplementName(type)) //Implement Name<> but no  [NamedParameter] attribute
+            if (ImplementName(type)) // Implement Name<> but no  [NamedParameter] attribute
             {
                 var ex = new ClassHierarchyException("Named parameter " + GetName(type)
                                   + " is missing its [NamedParameter] attribute.");
@@ -540,7 +540,7 @@ namespace Org.Apache.REEF.Tang.Util
         {
             if (t.IsGenericType)
             {
-                return t.GetGenericTypeDefinition().AssemblyQualifiedName.Equals(typeof (Name<>).AssemblyQualifiedName);
+                return t.GetGenericTypeDefinition().AssemblyQualifiedName.Equals(typeof(Name<>).AssemblyQualifiedName);
             }
             return false;
         }

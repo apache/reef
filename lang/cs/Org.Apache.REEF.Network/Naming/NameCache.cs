@@ -41,15 +41,15 @@ namespace Org.Apache.REEF.Network.Naming
 
         [Inject]
         private NameCache(
-            [Parameter(typeof (NameCacheConfiguration.CacheEntryExpiryTime))] double expirationDuration,
-            [Parameter(typeof (NameCacheConfiguration.CacheMemoryLimit))] string memoryLimit,
-            [Parameter(typeof (NameCacheConfiguration.PollingInterval))] string pollingInterval)
+            [Parameter(typeof(NameCacheConfiguration.CacheEntryExpiryTime))] double expirationDuration,
+            [Parameter(typeof(NameCacheConfiguration.CacheMemoryLimit))] string memoryLimit,
+            [Parameter(typeof(NameCacheConfiguration.PollingInterval))] string pollingInterval)
         {
             var config = new NameValueCollection
             {
-                {"pollingInterval", pollingInterval},
-                {"physicalMemoryLimitPercentage", "0"},
-                {"cacheMemoryLimitMegabytes", memoryLimit}
+                { "pollingInterval", pollingInterval },
+                { "physicalMemoryLimitPercentage", "0" },
+                { "cacheMemoryLimitMegabytes", memoryLimit }
             };
 
             _cache = new MemoryCache("NameClientCache", config);

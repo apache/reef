@@ -195,7 +195,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
             {
                 return Optional<TaskStatusProto>.Empty();
 
-                //throw new InvalidOperationException("Asked for an Task status while there isn't even a context running.");
+                // throw new InvalidOperationException("Asked for an Task status while there isn't even a context running.");
             }
             return _contextStack.Peek().GetTaskStatus();
         }
@@ -300,7 +300,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                 }
                 _contextStack.Pop();
             }
-            //  System.gc(); // TODO: garbage collect?
+            // System.gc(); // TODO: garbage collect?
         }
 
         /// <summary>

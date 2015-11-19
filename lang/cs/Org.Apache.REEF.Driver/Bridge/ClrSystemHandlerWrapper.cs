@@ -164,20 +164,21 @@ namespace Org.Apache.REEF.Driver.Bridge
             {
                 try
                 {
-                    GCHandle gc = GCHandle.FromIntPtr((IntPtr) handle);
+                    GCHandle gc = GCHandle.FromIntPtr((IntPtr)handle);
                     if (!gc.IsAllocated)
                     {
                         LOGGER.Log(Level.Warning, "gc is not allocated.");
                     } 
-                    ClrSystemHandler<IHttpMessage> obj = (ClrSystemHandler<IHttpMessage>) gc.Target;
+                    ClrSystemHandler<IHttpMessage> obj = (ClrSystemHandler<IHttpMessage>)gc.Target;
                     obj.OnNext(new HttpMessage(clr2Java));
                 }
                 catch (Exception ex)
                 {
                   
-                    LOGGER.Log(Level.Info, "Caught exception: " + ex.Message + ex.StackTrace );
+                    LOGGER.Log(Level.Info, "Caught exception: " + ex.Message + ex.StackTrace);
                     Exceptions.CaughtAndThrow(ex, Level.Warning,  LOGGER);
-                }}
+                }
+            }
         }
 
         public static void Call_ClrSystemClosedContext_OnNext(ulong handle, IClosedContextClr2Java clr2Java)

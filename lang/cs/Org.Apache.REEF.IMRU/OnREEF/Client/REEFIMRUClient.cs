@@ -46,7 +46,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Client
     /// </summary>
     internal sealed class REEFIMRUClient : IIMRUClient
     {
-        private static readonly Logger Logger = Logger.GetLogger(typeof (REEFIMRUClient));
+        private static readonly Logger Logger = Logger.GetLogger(typeof(REEFIMRUClient));
 
         private readonly IREEFClient _reefClient;
         private readonly JobSubmissionBuilderFactory _jobSubmissionBuilderFactory;
@@ -145,7 +145,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Client
             // The JobSubmission contains the Driver configuration as well as the files needed on the Driver.
             var imruJobSubmission = _jobSubmissionBuilderFactory.GetJobSubmissionBuilder()
                 .AddDriverConfiguration(imruDriverConfiguration)
-                .AddGlobalAssemblyForType(typeof (IMRUDriver<TMapInput, TMapOutput, TResult>))
+                .AddGlobalAssemblyForType(typeof(IMRUDriver<TMapInput, TMapOutput, TResult>))
                 .SetJobIdentifier(jobDefinition.JobName)
                 .Build();
 

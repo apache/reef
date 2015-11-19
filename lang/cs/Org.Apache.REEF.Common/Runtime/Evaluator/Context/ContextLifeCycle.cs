@@ -70,11 +70,11 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
         {
             IContextStart contextStart = new ContextStartImpl(Id);
             
-            // TODO: enable
-            //foreach (IObserver<IContextStart> startHandler in _contextStartHandlers)
-            //{
-            //    startHandler.OnNext(contextStart);
-            //}
+            ////TODO: enable
+            ////foreach (IObserver<IContextStart> startHandler in _contextStartHandlers)
+            ////{
+            ////   startHandler.OnNext(contextStart);
+            ////}
         }
 
         /// <summary>
@@ -82,16 +82,16 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
         /// </summary>
         public void Close()
         {
-            //IContextStop contextStop = new ContextStopImpl(Id);
-            //foreach (IObserver<IContextStop> startHandler in _contextStopHandlers)
-            //{
-            //    startHandler.OnNext(contextStop);
-            //}
+            ////IContextStop contextStop = new ContextStopImpl(Id);
+            ////foreach (IObserver<IContextStop> startHandler in _contextStopHandlers)
+            ////{
+            ////   startHandler.OnNext(contextStop);
+            ////}
         }
 
         public void HandleContextMessage(byte[] message)
         {
-            //contextMessageHandler.onNext(message);
+            // contextMessageHandler.onNext(message);
         }
 
         /// <summary>

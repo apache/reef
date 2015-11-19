@@ -33,15 +33,15 @@ namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
     public class InjectionFutureImpl<T> : IInjectionFuture<T>
     {
         protected readonly InjectorImpl injector;
-        private readonly Type iface; //entend from T
+        private readonly Type iface; // entend from T
         private readonly T instance; 
 
-        //public InjectionFuture()
-        //{
-        //    injector = null;
-        //    iface = null;
-        //    instance = null;
-        //}
+        ////public InjectionFuture()
+        ////{
+        ////   injector = null;
+        ////   iface = null;
+        ////   instance = null;
+        ////}
 
         public InjectionFutureImpl(IInjector injector, Type iface) 
         {
@@ -57,25 +57,25 @@ namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
             this.instance = instance;
         }
 
-        //public bool Cancel(bool mayInterruptIfRunning) 
-        //{
-        //    return false;
-        //}
+        ////public bool Cancel(bool mayInterruptIfRunning) 
+        ////{
+        ////    return false;
+        ////}
 
-        //public bool IsCancelled()
-        //{
-        //    return false;
-        //}
+        ////public bool IsCancelled()
+        ////{
+        ////   return false;
+        ////}
 
-        //public bool IsDone()
-        //{
-        //    return true;
-        //}
+        ////public bool IsDone()
+        ////{
+        ////   return true;
+        ////}
 
         public T Get() 
         {
             if (instance != null) return instance;
-            lock(injector) 
+            lock (injector) 
             {
                 T t;
                 if (ReflectionUtilities.IsAssignableFromIgnoreGeneric(typeof(Name<>), iface))
@@ -87,7 +87,7 @@ namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
                     t = (T)injector.GetInstance(iface);
                 }
                 Aspect a = injector.GetAspect();
-                if(a != null) 
+                if (a != null) 
                 {
                     a.InjectionFutureInstantiated(this, t);
                 }

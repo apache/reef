@@ -30,15 +30,11 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
 
         public ConstructorArgImpl(String type, String namedParameterName, bool isInjectionFuture)
         {
-            if (type == null)
-            {
-                ;
-            }
             this.type = type;
             this.name = namedParameterName;
 
-            //if (name != null && name.Contains(','))
-            //    throw new ApplicationException("Name contains comma : " + name);
+            ////if (name != null && name.Contains(','))
+            ////   throw new ApplicationException("Name contains comma : " + name);
             this.isInjectionFuture = isInjectionFuture;
         }
 

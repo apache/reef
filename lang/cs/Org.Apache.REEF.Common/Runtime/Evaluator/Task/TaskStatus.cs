@@ -179,8 +179,8 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
             }
             else if (_lastException.IsPresent())
             {
-                //final Encoder<Throwable> codec = new ObjectSerializableCodec<>();
-                //final byte[] error = codec.encode(_lastException.get());
+                // final Encoder<Throwable> codec = new ObjectSerializableCodec<>();
+                // final byte[] error = codec.encode(_lastException.get());
                 byte[] error = ByteUtilities.StringToByteArrays(_lastException.Value.ToString());
                 taskStatusProto.result = ByteUtilities.CopyBytesFrom(error);
             }
@@ -307,7 +307,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
                     Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(new InvalidOperationException("Unknown state: " + _state), LOGGER);
                     break;
             }
-            return Protobuf.ReefProtocol.State.FAILED; //this line should not be reached as default case will throw exception
+            return Protobuf.ReefProtocol.State.FAILED; // this line should not be reached as default case will throw exception
         }
 
         private ICollection<TaskMessage> GetMessages()

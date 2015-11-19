@@ -103,7 +103,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
             // Invoke the decoder to decode the byte array
             Type handlerType = typeof(IDecoder<>).MakeGenericType(new[] { type });
             MethodInfo info = handlerType.GetMethod("Decode");
-            return (T) info.Invoke(decoder, new[] { (object) pbuf.data });
+            return (T)info.Invoke(decoder, new[] { (object)pbuf.data });
         }
     }
 }
