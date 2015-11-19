@@ -74,7 +74,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
 
             await ((JobSubmissionResult)driverHttpEndpoint).TryUntilNoConnection(uri);
 
-            ValidateSuccessForLocalRuntime(2, testFolder: testRuntimeFolder);
+            ValidateSuccessForLocalRuntime(0, testFolder: testRuntimeFolder);
 
             CleanUp(testRuntimeFolder);
         }
