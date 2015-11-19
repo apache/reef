@@ -406,43 +406,43 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
             Assert.IsTrue(actual.Contains(new TestSetInjection.Float(42.0001f)));
         }
 
-        ///// <summary>
-        ///// Tests the subclass inject with multiple instances.
-        ///// </summary>
-        //[TestMethod] 
-        //public void TestSubclassInjectWithMultipleInstances()
-        //{
-        //    ICsConfigurationBuilder cb1 = TangFactory.GetTang().NewConfigurationBuilder()
-        //        .BindNamedParameter<TestSetInjection.Integer3.NamedInt, int>(GenericType<TestSetInjection.Integer3.NamedInt>.Class, "10");
-        //    TestSetInjection.Integer3 integer3 = TangFactory.GetTang().NewInjector(cb1.Build()).GetInstance<TestSetInjection.Integer3>();
+        ////<summary>
+        ////Tests the subclass inject with multiple instances.
+        ////</summary>
+        ////[TestMethod] 
+        ////public void TestSubclassInjectWithMultipleInstances()
+        ////{
+        ////    ICsConfigurationBuilder cb1 = TangFactory.GetTang().NewConfigurationBuilder()
+        ////        .BindNamedParameter<TestSetInjection.Integer3.NamedInt, int>(GenericType<TestSetInjection.Integer3.NamedInt>.Class, "10");
+        ////    TestSetInjection.Integer3 integer3 = TangFactory.GetTang().NewInjector(cb1.Build()).GetInstance<TestSetInjection.Integer3>();
 
-        //    ICsClassHierarchy classH = TangFactory.GetTang().GetDefaultClassHierarchy();
-        //    INamedParameterNode np = (INamedParameterNode)classH.GetNode(typeof(ListOfClasses));
-        //    IList<object> injected = new List<object>();
-        //    injected.Add(new TestSetInjection.Integer1(42)); //instance from the same class
-        //    injected.Add(new TestSetInjection.Integer1(30)); //instance from the same class
-        //    injected.Add(new TestSetInjection.Float1(42.0001f)); //instance from another subclass of the same interface
-        //    injected.Add(typeof(TestSetInjection.Float1).AssemblyQualifiedName); //inject from another subclass of the same interface
-        //    injected.Add(typeof(TestSetInjection.Integer1).AssemblyQualifiedName); //inject using configuration
-        //    injected.Add(typeof(TestSetInjection.Integer2).AssemblyQualifiedName); //inject using default
-        //    injected.Add(integer3); //add pre injected instance
+        ////    ICsClassHierarchy classH = TangFactory.GetTang().GetDefaultClassHierarchy();
+        ////    INamedParameterNode np = (INamedParameterNode)classH.GetNode(typeof(ListOfClasses));
+        ////    IList<object> injected = new List<object>();
+        ////    injected.Add(new TestSetInjection.Integer1(42)); //instance from the same class
+        ////    injected.Add(new TestSetInjection.Integer1(30)); //instance from the same class
+        ////    injected.Add(new TestSetInjection.Float1(42.0001f)); //instance from another subclass of the same interface
+        ////    injected.Add(typeof(TestSetInjection.Float1).AssemblyQualifiedName); //inject from another subclass of the same interface
+        ////    injected.Add(typeof(TestSetInjection.Integer1).AssemblyQualifiedName); //inject using configuration
+        ////    injected.Add(typeof(TestSetInjection.Integer2).AssemblyQualifiedName); //inject using default
+        ////    injected.Add(integer3); //add pre injected instance
 
-        //    ICsConfigurationBuilder cb = TangFactory.GetTang().NewConfigurationBuilder();
-        //    cb.BindNamedParameter<TestSetInjection.Integer1.NamedInt, int>(GenericType<TestSetInjection.Integer1.NamedInt>.Class, "5");
-        //    cb.BindNamedParameter<TestSetInjection.Float1.NamedFloat, float>(GenericType<TestSetInjection.Float1.NamedFloat>.Class, "12.5");
-        //    cb.BindList(np, injected);
+        ////    ICsConfigurationBuilder cb = TangFactory.GetTang().NewConfigurationBuilder();
+        ////    cb.BindNamedParameter<TestSetInjection.Integer1.NamedInt, int>(GenericType<TestSetInjection.Integer1.NamedInt>.Class, "5");
+        ////    cb.BindNamedParameter<TestSetInjection.Float1.NamedFloat, float>(GenericType<TestSetInjection.Float1.NamedFloat>.Class, "12.5");
+        ////    cb.BindList(np, injected);
 
-        //    IInjector i = TangFactory.GetTang().NewInjector(cb.Build());
-        //    IList<INumber> actual = ((PoolListClass)i.GetInstance(typeof(PoolListClass))).Numbers;
-        //    Assert.IsTrue(actual.Count == 7);
-        //    Assert.IsTrue(actual.Contains(new TestSetInjection.Integer1(42)));
-        //    Assert.IsTrue(actual.Contains(new TestSetInjection.Integer1(30)));
-        //    Assert.IsTrue(actual.Contains(new TestSetInjection.Float1(42.0001f)));
-        //    Assert.IsTrue(actual.Contains(new TestSetInjection.Float1(12.5f)));
-        //    Assert.IsTrue(actual.Contains(new TestSetInjection.Integer1(5)));
-        //    Assert.IsTrue(actual.Contains(new TestSetInjection.Integer2()));
-        //    Assert.IsTrue(actual.Contains(new TestSetInjection.Integer3(10)));
-        //}
+        ////    IInjector i = TangFactory.GetTang().NewInjector(cb.Build());
+        ////    IList<INumber> actual = ((PoolListClass)i.GetInstance(typeof(PoolListClass))).Numbers;
+        ////    Assert.IsTrue(actual.Count == 7);
+        ////    Assert.IsTrue(actual.Contains(new TestSetInjection.Integer1(42)));
+        ////    Assert.IsTrue(actual.Contains(new TestSetInjection.Integer1(30)));
+        ////    Assert.IsTrue(actual.Contains(new TestSetInjection.Float1(42.0001f)));
+        ////    Assert.IsTrue(actual.Contains(new TestSetInjection.Float1(12.5f)));
+        ////    Assert.IsTrue(actual.Contains(new TestSetInjection.Integer1(5)));
+        ////    Assert.IsTrue(actual.Contains(new TestSetInjection.Integer2()));
+        ////    Assert.IsTrue(actual.Contains(new TestSetInjection.Integer3(10)));
+        ////}
     }
 
     [NamedParameter(DefaultValues = new string[] { "one", "two", "three" })]

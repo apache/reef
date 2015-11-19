@@ -40,7 +40,7 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
     /// </summary>
     public sealed class CommunicationGroupDriver : ICommunicationGroupDriver
     {
-        private static readonly Logger LOGGER = Logger.GetLogger(typeof (CommunicationGroupDriver));
+        private static readonly Logger LOGGER = Logger.GetLogger(typeof(CommunicationGroupDriver));
 
         private readonly string _groupName;
         private readonly string _driverId;
@@ -137,7 +137,7 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
         /// <returns>The same CommunicationGroupDriver with the added Broadcast operator info</returns>
         public ICommunicationGroupDriver AddBroadcast(string operatorName, string masterTaskId, TopologyTypes topologyType = TopologyTypes.Flat)
         {
-            return AddBroadcast<int>( operatorName, masterTaskId, topologyType, GetDefaultConfiguration());
+            return AddBroadcast<int>(operatorName, masterTaskId, topologyType, GetDefaultConfiguration());
         }
 
         /// <summary>
@@ -329,14 +329,14 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
         {
             var topology = _topologies[operatorName];
             MethodInfo info = topology.GetType().GetMethod("AddTask");
-            info.Invoke(topology, new[] {(object) taskId});
+            info.Invoke(topology, new[] { (object)taskId });
         }
 
         private IConfiguration GetOperatorConfiguration(string operatorName, string taskId)
         {
             var topology = _topologies[operatorName];
             MethodInfo info = topology.GetType().GetMethod("GetTaskConfiguration");
-            return (IConfiguration) info.Invoke(topology, new[] {(object) taskId});
+            return (IConfiguration)info.Invoke(topology, new[] { (object)taskId });
         }
 
         private IConfiguration[] GetDefaultConfiguration()

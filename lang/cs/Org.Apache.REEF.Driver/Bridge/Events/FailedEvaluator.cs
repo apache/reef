@@ -53,18 +53,18 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
             get { return _id; }
         }
 
-        //TODO[REEF-769]: Implement
+        // TODO[REEF-769]: Implement
         public EvaluatorException EvaluatorException
         {
             get { return null; }
         }
 
-        //TODO[REEF-769]: Implement
+        // TODO[REEF-769]: Implement
         public IList<IFailedContext> FailedContexts
         {
             get { return new List<IFailedContext>(0); }
         }
-        //TODO[REEF-769]: Implement
+        // TODO[REEF-769]: Implement
         public Optional<IFailedTask> FailedTask
         {
             get { return Optional<IFailedTask>.Empty(); }

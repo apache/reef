@@ -55,12 +55,20 @@ under the License.
     <Compile Include="Api\IAbstractFailure.cs" />
     <Compile Include="Api\IFailure.cs" />
     <Compile Include="Attributes\UnstableAttribute.cs" />
-    <Compile Include="Avro\AvroDriverInfo.cs" />
-    <Compile Include="Avro\AvroHttpRequest.cs" />
+    <Compile Include="Avro\AvroDriverInfo.cs">
+        <ExcludeFromStyleCop>true</ExcludeFromStyleCop>
+    </Compile>
+    <Compile Include="Avro\AvroHttpRequest.cs">
+        <ExcludeFromStyleCop>true</ExcludeFromStyleCop>
+    </Compile>
     <Compile Include="Avro\AvroHttpSerializer.cs" />
     <Compile Include="Avro\AvroJsonSerializer.cs" />
-    <Compile Include="Avro\AvroReefServiceInfo.cs" />
-    <Compile Include="Avro\HeaderEntry.cs" />
+    <Compile Include="Avro\AvroReefServiceInfo.cs">
+        <ExcludeFromStyleCop>true</ExcludeFromStyleCop>
+    </Compile>
+    <Compile Include="Avro\HeaderEntry.cs">
+        <ExcludeFromStyleCop>true</ExcludeFromStyleCop>
+    </Compile>
     <Compile Include="Catalog\Capabilities\CPU.cs" />
     <Compile Include="Catalog\Capabilities\ICapability.cs" />
     <Compile Include="Catalog\Capabilities\RAM.cs" />
@@ -98,13 +106,23 @@ under the License.
     <Compile Include="ITaskSubmittable.cs" />
     <Compile Include="Client\Parameters\DriverConfigurationProviders.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Protobuf\ReefProtocol\ClientRuntime.pb.cs" />
-    <Compile Include="Protobuf\ReefProtocol\DriverRuntime.pb.cs" />
+    <Compile Include="Protobuf\ReefProtocol\ClientRuntime.pb.cs">
+        <ExcludeFromStyleCop>true</ExcludeFromStyleCop>
+    </Compile>
+    <Compile Include="Protobuf\ReefProtocol\DriverRuntime.pb.cs">
+        <ExcludeFromStyleCop>true</ExcludeFromStyleCop>
+    </Compile>
     <Compile Include="Protobuf\ReefProtocol\EvaluatorHeartbeatProtoCodec.cs" />
-    <Compile Include="Protobuf\ReefProtocol\EvaluatorRunTime.pb.cs" />
+    <Compile Include="Protobuf\ReefProtocol\EvaluatorRunTime.pb.cs">
+        <ExcludeFromStyleCop>true</ExcludeFromStyleCop>
+    </Compile>
     <Compile Include="Protobuf\ReefProtocol\REEFMessageCodec.cs" />
-    <Compile Include="Protobuf\ReefProtocol\ReefProtocol.pb.cs" />
-    <Compile Include="Protobuf\ReefProtocol\ReefService.pb.cs" />
+    <Compile Include="Protobuf\ReefProtocol\ReefProtocol.pb.cs">
+        <ExcludeFromStyleCop>true</ExcludeFromStyleCop>
+    </Compile>
+    <Compile Include="Protobuf\ReefProtocol\ReefService.pb.cs">
+        <ExcludeFromStyleCop>true</ExcludeFromStyleCop>
+    </Compile>
     <Compile Include="Protobuf\ReefProtocol\Serializer.cs" />
     <Compile Include="Files\REEFFileNames.cs" />
     <Compile Include="Runtime\Evaluator\Constants.cs" />
@@ -180,6 +198,7 @@ under the License.
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
+  <Import Project="$(PackagesDir)\StyleCop.MSBuild.4.7.49.1\build\StyleCop.MSBuild.Targets" Condition="Exists('$(PackagesDir)\StyleCop.MSBuild.4.7.49.1\build\StyleCop.MSBuild.Targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

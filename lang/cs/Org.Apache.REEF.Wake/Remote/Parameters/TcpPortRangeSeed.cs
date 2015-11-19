@@ -22,7 +22,7 @@ using Org.Apache.REEF.Tang.Annotations;
 namespace Org.Apache.REEF.Wake.Remote.Parameters
 {
     [NamedParameter(Documentation = "Seed for the random port number generator", DefaultValue = "0")]
-    public class TcpPortRangeSeed: Name<int>
+    public class TcpPortRangeSeed : Name<int>
     {
     }
 }

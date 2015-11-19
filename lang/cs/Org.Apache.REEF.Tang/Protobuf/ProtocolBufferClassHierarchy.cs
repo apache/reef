@@ -92,7 +92,7 @@ namespace Org.Apache.REEF.Tang.Protobuf
                 List<string> implFullNames = new List<string>();
                 foreach (IClassNode impl in cn.GetKnownImplementations())
                 {
-                    implFullNames.Add(impl.GetFullName());  //we use class fully qualifed name 
+                    implFullNames.Add(impl.GetFullName());  // we use class fully qualifed name 
                 }
 
                 return NewClassNode(cn.GetName(), cn.GetFullName(),
@@ -261,7 +261,8 @@ namespace Org.Apache.REEF.Tang.Protobuf
             return new ProtocolBufferClassHierarchy(root);
         }
 
-        public ProtocolBufferClassHierarchy()  //create a ProtocolBufferClassHierarchy with empty nodes and lookup table. It can be used to merge other class hierarchy to it
+        // create a ProtocolBufferClassHierarchy with empty nodes and lookup table. It can be used to merge other class hierarchy to it
+        public ProtocolBufferClassHierarchy()
         {
             this.rootNode = new PackageNodeImpl();
         }
@@ -544,7 +545,7 @@ namespace Org.Apache.REEF.Tang.Protobuf
                 {
                     if (n is INamedParameterNode)
                     {
-                        INamedParameterNode np = (INamedParameterNode) n;
+                        INamedParameterNode np = (INamedParameterNode)n;
                         new NamedParameterNodeImpl(this.rootNode, np.GetName(),
                                                    np.GetFullName(), np.GetFullArgName(), np.GetSimpleArgName(),
                                                    np.IsSet(), np.IsList(), np.GetDocumentation(), np.GetShortName(),
@@ -552,7 +553,7 @@ namespace Org.Apache.REEF.Tang.Protobuf
                     }
                     else if (n is IClassNode)
                     {
-                        IClassNode cn = (IClassNode) n;
+                        IClassNode cn = (IClassNode)n;
                         new ClassNodeImpl(rootNode, cn.GetName(), cn.GetFullName(),
                                           cn.IsUnit(), cn.IsInjectionCandidate(),
                                           cn.IsExternalConstructor(), cn.GetInjectableConstructors(),

@@ -55,8 +55,8 @@ namespace Org.Apache.REEF.Examples.Tasks.StreamingTasks
 
         public void SIFirstNode()
         {
-            //var a = new SIFirstNodeXAM();
-            //a.Process(1111, 2222, ipAddress);
+            // var a = new SIFirstNodeXAM();
+            // a.Process(1111, 2222, ipAddress);
         }
 
         [NamedParameter("Ip Address", "IP", "10.121.32.158")]

@@ -35,8 +35,8 @@ namespace Org.Apache.REEF.Tang.Tests.Format
     [TestClass]
     public class TestConfigurationModuleForList
     {
-        //ConfigurationModuleBuilder BindList<U, T>(GenericType<U> iface, IParam<IList<T>> opt)
-        //public ConfigurationModule Set<T>(IImpl<IList<T>> opt, IList<string> impl)
+        // ConfigurationModuleBuilder BindList<U, T>(GenericType<U> iface, IParam<IList<T>> opt)
+        // public ConfigurationModule Set<T>(IImpl<IList<T>> opt, IList<string> impl)
         [TestMethod]
         public void ListParamTest()
         {
@@ -73,7 +73,7 @@ namespace Org.Apache.REEF.Tang.Tests.Format
             Assert.IsTrue(s[1] is ListSubB);
         }
 
-        //public ConfigurationModuleBuilder BindList<U, T>(GenericType<U> iface, IList<string> impl)
+        // public ConfigurationModuleBuilder BindList<U, T>(GenericType<U> iface, IList<string> impl)
         [TestMethod]
         public void ListStringTest()
         {

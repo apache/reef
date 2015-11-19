@@ -27,13 +27,13 @@ using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
 {
-    //Base case for an injection plan. A plan for a class. 
+    // Base case for an injection plan. A plan for a class. 
     public class Constructor : InjectionPlan
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(Constructor));
 
-        readonly IConstructorDef constructor;  //which constructor to use
-        readonly InjectionPlan[] args; //constructor arguments in which we already got injectionPlan for each (nested cases)
+        readonly IConstructorDef constructor; // which constructor to use
+        readonly InjectionPlan[] args; // constructor arguments in which we already got injectionPlan for each (nested cases)
         readonly int numAlternatives;
         readonly bool isAmbiguous;
         readonly bool isInjectable;
@@ -74,7 +74,7 @@ namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
 
         public new IClassNode GetNode() 
         {
-            return (IClassNode) node;
+            return (IClassNode)node;
         }
 
         public override int GetNumAlternatives() 
@@ -202,16 +202,16 @@ namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
             return false;
         }
 
-        //public override bool HasFutureDependency() 
-        //{
-        //    foreach (InjectionPlan p in args) 
-        //    {
-        //        if(p.HasFutureDependency()) 
-        //        {
-        //            return true;
-        //        }
-        //    }
-        //    return false;
-        //}
+        ////public override bool HasFutureDependency() 
+        ////{
+        ////   foreach (InjectionPlan p in args) 
+        ////   {
+        ////       if(p.HasFutureDependency()) 
+        ////       {
+        ////           return true;
+        ////       }
+        ////   }
+        ////   return false;
+        ////}
     }
 }

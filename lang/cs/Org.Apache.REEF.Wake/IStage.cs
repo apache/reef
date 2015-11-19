@@ -22,7 +22,7 @@ using System;
 namespace Org.Apache.REEF.Wake
 {
     /// <summary>Stage is an execution unit for events and provides a way to reclaim its resources
-    ///     </summary>
+    /// </summary>
     public interface IStage : IDisposable
     {
     }

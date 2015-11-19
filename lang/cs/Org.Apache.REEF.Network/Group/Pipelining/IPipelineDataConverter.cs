@@ -30,7 +30,7 @@ namespace Org.Apache.REEF.Network.Group.Pipelining
     /// amenable data and vice-versa 
     /// </summary>
     /// <typeparam name="T">The message type</typeparam>
-    //[DefaultImplementation(typeof(DefaultPipelineDataConverter<>))]
+    // [DefaultImplementation(typeof(DefaultPipelineDataConverter<>))]
     public interface IPipelineDataConverter<T>
     {
         /// <summary>

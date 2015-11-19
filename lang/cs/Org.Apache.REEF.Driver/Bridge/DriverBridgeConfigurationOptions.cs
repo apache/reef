@@ -40,7 +40,7 @@ namespace Org.Apache.REEF.Driver.Bridge
         // Level.Verbose (since enum is not suppoted for TANG, we use a string here)
         private const string _verboseLevel = "Verbose";
 
-        [NamedParameter(documentation:"The start point for application logic. Event fired after the Driver is done initializing.")]
+        [NamedParameter(documentation: "The start point for application logic. Event fired after the Driver is done initializing.")]
         public class DriverStartedHandlers : Name<ISet<IObserver<IDriverStarted>>>
         {
         }
@@ -50,7 +50,7 @@ namespace Org.Apache.REEF.Driver.Bridge
         {
         }
 
-        [NamedParameter(documentation: "Called when driver restart is completed.", defaultClasses: new[] { typeof (DefaultDriverRestartCompletedHandler) })]
+        [NamedParameter(documentation: "Called when driver restart is completed.", defaultClasses: new[] { typeof(DefaultDriverRestartCompletedHandler) })]
         public class DriverRestartCompletedHandlers : Name<ISet<IObserver<IDriverRestartCompleted>>>
         {
         }

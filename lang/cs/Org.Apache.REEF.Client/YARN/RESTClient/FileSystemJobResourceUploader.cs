@@ -75,7 +75,7 @@ namespace Org.Apache.REEF.Client.YARN.RestClient
 
         private long DateTimeToUnixTimestamp(DateTime dateTime)
         {
-            return (long) (dateTime - Epoch).TotalSeconds;
+            return (long)(dateTime - Epoch).TotalSeconds;
         }
     }
 }

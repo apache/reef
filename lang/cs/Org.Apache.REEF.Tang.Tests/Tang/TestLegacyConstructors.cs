@@ -45,7 +45,7 @@ namespace Org.Apache.REEF.Tang.Tests.Tang
             constructorArg.Add(ReflectionUtilities.GetAssemblyQualifiedName(typeof(int)));
             constructorArg.Add(ReflectionUtilities.GetAssemblyQualifiedName(typeof(string)));
             cb.RegisterLegacyConstructor(ReflectionUtilities.GetAssemblyQualifiedName(typeof(LegacyConstructor)), constructorArg);
-            //cb.Bind(typeof(LegacyConstructor), typeof(LegacyConstructor));
+            // cb.Bind(typeof(LegacyConstructor), typeof(LegacyConstructor));
             cb.BindImplementation(GenericType<LegacyConstructor>.Class, GenericType<LegacyConstructor>.Class);
 
             IInjector i = tang.NewInjector(cb.Build());

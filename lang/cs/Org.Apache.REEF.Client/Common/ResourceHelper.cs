@@ -65,7 +65,7 @@ namespace Org.Apache.REEF.Client.Common
             {
                 throw new ApplicationException(string.Format(CouldNotRetrieveResource, resourceName));
             }
-            return (T) resource;
+            return (T)resource;
         }
 
         /// <summary>

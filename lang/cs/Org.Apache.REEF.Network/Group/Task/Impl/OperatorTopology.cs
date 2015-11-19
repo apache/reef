@@ -363,7 +363,7 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
         /// <summary>
         /// Get a set of nodes containing an incoming message and belonging to candidate set of nodes.
         /// </summary>
-        ///<param name="nodeSetIdentifier">Candidate set of nodes from which data is to be received</param>
+        /// <param name="nodeSetIdentifier">Candidate set of nodes from which data is to be received</param>
         /// <returns>A Vector of NodeStruct with incoming data.</returns>
         private IEnumerable<NodeStruct<T>> GetNodeWithData(IEnumerable<string> nodeSetIdentifier)
         {

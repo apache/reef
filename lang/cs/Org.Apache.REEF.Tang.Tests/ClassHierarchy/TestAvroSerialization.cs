@@ -74,7 +74,7 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
             INode secondNode = ns.GetNode(secondType.AssemblyQualifiedName);
             IClassNode simpleConstructorsClassNode = (IClassNode)ns.GetNode(simpleConstructorType.AssemblyQualifiedName);
 
-            AvroNode n =_serializer.ToAvroNode(ns);
+            AvroNode n = _serializer.ToAvroNode(ns);
             IClassHierarchy ns2 = _serializer.FromAvroNode(n);
 
             IClassNode timerClassNode2 = (IClassNode)ns2.GetNode(timerType.AssemblyQualifiedName);
@@ -96,7 +96,7 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
         public void TestGetSchema()
         {
             var serializer = AvroSerializer.Create<AvroNode>();
-            var s =  serializer.WriterSchema.ToString();
+            var s = serializer.WriterSchema.ToString();
             Assert.IsNotNull(s);
         }
 
@@ -157,7 +157,7 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
         /// Unable to cast object of type 'Newtonsoft.Json.Linq.JObject' to type 'Org.Apache.REEF.Tang.Implementations.ClassHierarchy.AvroDataContract.AvroClassNode'.
         /// This is because auto generated code use object as return type instead of AvroClassNode
         /// </summary>
-        [Ignore]  //TODO: after Avro fix the issue. Enable the test
+        [Ignore]  // TODO: after Avro fix the issue. Enable the test
         [TestMethod]
         public void TestToFromJsonString()
         {
@@ -189,7 +189,7 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
         /// Unable to cast object of type 'Newtonsoft.Json.Linq.JObject' to type 'Org.Apache.REEF.Tang.Implementations.ClassHierarchy.AvroDataContract.AvroClassNode'.
         /// This is because auto generated code use object as return type instead of AvroClassNode
         /// </summary>
-        [Ignore] //TODO: after Avro fix the issue. Enable the test
+        [Ignore] // TODO: after Avro fix the issue. Enable the test
         [TestMethod]
         public void TestToFromTextFile()
         {
@@ -219,7 +219,7 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
         /// Test serialize a class hierarchy to a file and deserialize from the file
         /// Currently, in ToFile() method, writer.Write(avroNodeData) throw exception "Value cannot be null.\r\nParameter name: value". 
         /// </summary>
-        [Ignore]  //TODO: after Avro fix the issue. Enable the test
+        [Ignore]  // TODO: after Avro fix the issue. Enable the test
         [TestMethod]
         public void TestToFromFile()
         {
@@ -249,7 +249,7 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
         /// Test serialize class hierarchy to byte array and deserializa back to class hierarchy
         /// AvroSerializer.Serialize(stream, obj) doesn't allow any null values in the obj to be serialized even if it is nullable
         /// </summary>
-        [Ignore]  //TODO: after Avro fix the issue. Enable the test
+        [Ignore]  // TODO: after Avro fix the issue. Enable the test
         [TestMethod]
         public void TestToFromByteArray()
         {

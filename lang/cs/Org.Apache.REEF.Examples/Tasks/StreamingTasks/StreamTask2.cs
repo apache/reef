@@ -44,8 +44,8 @@ namespace Org.Apache.REEF.Examples.Tasks.StreamingTasks
 
         public void SISecondNode()
         {
-            //var a = new SISecondNodeXAM();
-            //a.Process(2222, 1111);
+            // var a = new SISecondNodeXAM();
+            // a.Process(2222, 1111);
         }
     }
 }

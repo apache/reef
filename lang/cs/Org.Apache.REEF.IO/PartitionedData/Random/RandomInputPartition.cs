@@ -38,7 +38,7 @@ namespace Org.Apache.REEF.IO.PartitionedData.Random
             [Parameter(typeof(NumberOfDoublesPerPartition))] int numberOfDoubles)
         {
             _id = id;
-            _randomData = new byte[numberOfDoubles*8];
+            _randomData = new byte[numberOfDoubles * 8];
             var random = new System.Random();
 
             for (var i = 0; i < numberOfDoubles; ++i)
@@ -48,7 +48,7 @@ namespace Org.Apache.REEF.IO.PartitionedData.Random
                 Debug.Assert(randomDoubleAsBytes.Length == 8);
                 for (var j = 0; j < 8; ++j)
                 {
-                    var index = i*8 + j;
+                    var index = i * 8 + j;
                     Debug.Assert(index < _randomData.Length);
                     _randomData[index] = randomDoubleAsBytes[j];
                 }

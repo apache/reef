@@ -49,11 +49,11 @@ namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
                 TangFactory.GetTang().NewConfigurationBuilder(IMRUUpdateConfiguration<int[], int[], int[]>.ConfigurationModule
                     .Set(IMRUUpdateConfiguration<int[], int[], int[]>.UpdateFunction,
                         GenericType<BroadcastSenderReduceReceiverUpdateFunction>.Class).Build())
-                    .BindNamedParameter(typeof (BroadcastReduceConfiguration.NumberOfIterations),
+                    .BindNamedParameter(typeof(BroadcastReduceConfiguration.NumberOfIterations),
                         numIterations.ToString(CultureInfo.InvariantCulture))
-                    .BindNamedParameter(typeof (BroadcastReduceConfiguration.Dimensions),
+                    .BindNamedParameter(typeof(BroadcastReduceConfiguration.Dimensions),
                         dim.ToString(CultureInfo.InvariantCulture))
-                    .BindNamedParameter(typeof (BroadcastReduceConfiguration.NumWorkers),
+                    .BindNamedParameter(typeof(BroadcastReduceConfiguration.NumWorkers),
                         numberofMappers.ToString(CultureInfo.InvariantCulture))
                     .Build();
 
@@ -62,7 +62,7 @@ namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
                     .NewConfigurationBuilder(IMRUPipelineDataConverterConfiguration<int[]>.ConfigurationModule
                         .Set(IMRUPipelineDataConverterConfiguration<int[]>.MapInputPiplelineDataConverter,
                             GenericType<PipelineIntDataConverter>.Class).Build())
-                    .BindNamedParameter(typeof (BroadcastReduceConfiguration.ChunkSize),
+                    .BindNamedParameter(typeof(BroadcastReduceConfiguration.ChunkSize),
                         chunkSize.ToString(CultureInfo.InvariantCulture))
                     .Build();
 
@@ -71,7 +71,7 @@ namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
                     .NewConfigurationBuilder(IMRUPipelineDataConverterConfiguration<int[]>.ConfigurationModule
                         .Set(IMRUPipelineDataConverterConfiguration<int[]>.MapInputPiplelineDataConverter,
                             GenericType<PipelineIntDataConverter>.Class).Build())
-                    .BindNamedParameter(typeof (BroadcastReduceConfiguration.ChunkSize),
+                    .BindNamedParameter(typeof(BroadcastReduceConfiguration.ChunkSize),
                         chunkSize.ToString(CultureInfo.InvariantCulture))
                     .Build();
 

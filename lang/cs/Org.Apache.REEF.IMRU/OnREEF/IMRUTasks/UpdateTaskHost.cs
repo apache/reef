@@ -55,7 +55,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.IMRUTasks
             IUpdateFunction<TMapInput, TMapOutput, TResult> updateTask,
             IGroupCommClient groupCommunicationsClient,
             IIMRUResultHandler<TResult> resultHandler,
-            [Parameter(typeof (InvokeGC))] bool invokeGC)
+            [Parameter(typeof(InvokeGC))] bool invokeGC)
         {
             _updateTask = updateTask;
             var cg = groupCommunicationsClient.GetCommunicationGroup(IMRUConstants.CommunicationGroupName);

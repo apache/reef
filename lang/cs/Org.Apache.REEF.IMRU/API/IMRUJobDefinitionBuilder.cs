@@ -36,7 +36,7 @@ namespace Org.Apache.REEF.IMRU.API
     /// <seealso cref="IMRUJobDefinition" />
     public sealed class IMRUJobDefinitionBuilder
     {
-        private static readonly Logger Logger = Logger.GetLogger(typeof (IMRUJobDefinitionBuilder));
+        private static readonly Logger Logger = Logger.GetLogger(typeof(IMRUJobDefinitionBuilder));
 
         private string _jobName;
         private int _numberOfMappers;

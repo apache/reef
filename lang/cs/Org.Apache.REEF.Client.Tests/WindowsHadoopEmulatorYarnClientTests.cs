@@ -40,7 +40,7 @@ namespace Org.Apache.REEF.Client.Tests
             ServiceController[] serviceControllers = ServiceController.GetServices();
             IEnumerable<string> actualServices = serviceControllers.Select(x => x.ServiceName);
 
-            string[] expectedServices = {"datanode", "namenode", "nodemanager", "resourcemanager"};
+            string[] expectedServices = { "datanode", "namenode", "nodemanager", "resourcemanager" };
 
             bool allServicesExist = expectedServices.All(expectedService => actualServices.Contains(expectedService));
 

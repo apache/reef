@@ -124,7 +124,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             {
                 _resultHandlerConfiguration =
                     configurationSerializer.FromString(resultHandlerConfiguration);
-                Logger.Log(Level.Verbose,"Serialized result handler is " + resultHandlerConfiguration);
+                Logger.Log(Level.Verbose, "Serialized result handler is " + resultHandlerConfiguration);
             }
             catch (Exception e)
             {

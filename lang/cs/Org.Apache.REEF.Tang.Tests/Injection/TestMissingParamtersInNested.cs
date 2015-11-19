@@ -53,9 +53,9 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
         [TestMethod]
         public void MissingAllParameterTest()
         {
-            //Cannot inject Org.Apache.REEF.Tang.Tests.Injection.OuterClass, Org.Apache.REEF.Tang.Test, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null: 
-            //Org.Apache.REEF.Tang.Tests.Injection.ReferencedClass, Org.Apache.REEF.Tang.Test, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null 
-            //missing argument Org.Apache.REEF.Tang.Tests.Injection.ReferencedClass+NamedInt, Org.Apache.REEF.Tang.Test, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+            // Cannot inject Org.Apache.REEF.Tang.Tests.Injection.OuterClass, Org.Apache.REEF.Tang.Test, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null: 
+            // Org.Apache.REEF.Tang.Tests.Injection.ReferencedClass, Org.Apache.REEF.Tang.Test, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null 
+            // missing argument Org.Apache.REEF.Tang.Tests.Injection.ReferencedClass+NamedInt, Org.Apache.REEF.Tang.Test, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
             OuterClass obj = null;
             try
             {
@@ -73,9 +73,9 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
         [TestMethod]
         public void MissingInnerParameterTest()
         {
-            //Cannot inject Org.Apache.REEF.Tang.Tests.Injection.OuterClass, Org.Apache.REEF.Tang.Test, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null: 
-            //Org.Apache.REEF.Tang.Tests.Injection.ReferencedClass, Org.Apache.REEF.Tang.Test, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null 
-            //missing argument Org.Apache.REEF.Tang.Tests.Injection.ReferencedClass+NamedInt, Org.Apache.REEF.Tang.Test, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+            // Cannot inject Org.Apache.REEF.Tang.Tests.Injection.OuterClass, Org.Apache.REEF.Tang.Test, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null: 
+            // Org.Apache.REEF.Tang.Tests.Injection.ReferencedClass, Org.Apache.REEF.Tang.Test, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null 
+            // missing argument Org.Apache.REEF.Tang.Tests.Injection.ReferencedClass+NamedInt, Org.Apache.REEF.Tang.Test, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
             OuterClass obj = null;
             try
             {
@@ -94,9 +94,9 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
         [TestMethod]
         public void MissingOuterParameterTest()
         {
-            //Cannot inject Org.Apache.REEF.Tang.Tests.Injection.OuterClass, Org.Apache.REEF.Tang.Test, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null: 
-            //Org.Apache.REEF.Tang.Tests.Injection.OuterClass, Org.Apache.REEF.Tang.Test, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null 
-            //missing argument Org.Apache.REEF.Tang.Tests.Injection.OuterClass+NamedString, Org.Apache.REEF.Tang.Test, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+            // Cannot inject Org.Apache.REEF.Tang.Tests.Injection.OuterClass, Org.Apache.REEF.Tang.Test, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null: 
+            // Org.Apache.REEF.Tang.Tests.Injection.OuterClass, Org.Apache.REEF.Tang.Test, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null 
+            // missing argument Org.Apache.REEF.Tang.Tests.Injection.OuterClass+NamedString, Org.Apache.REEF.Tang.Test, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
             OuterClass obj = null;
             try
             {

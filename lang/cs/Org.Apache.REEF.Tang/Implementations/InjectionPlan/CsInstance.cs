@@ -57,10 +57,10 @@ namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
             return instance.ToString();
         }
 
-        //public override bool HasFutureDependency()
-        //{
-        //    return false;
-        //}
+        ////public override bool HasFutureDependency()
+        ////{
+        ////    return false;
+        ////}
 
         public override string ToAmbiguousInjectString()
         {

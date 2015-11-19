@@ -26,20 +26,20 @@ namespace Org.Apache.REEF.Wake.RX
     /// </summary>
     public abstract class AbstractRxStage<T> : IRxStage<T>
     {
-        //protected internal readonly Meter meter;
+        // protected internal readonly Meter meter;
 
         /// <summary>Constructs an abstact rxstage</summary>
         /// <param name="meterName">the name of the meter</param>
         public AbstractRxStage(string meterName)
         {
-            //meter = new Meter(meterName);
+            // meter = new Meter(meterName);
         }
 
         /// <summary>Updates the meter</summary>
         /// <param name="value">the event</param>
         public virtual void OnNext(T value)
         {
-            //meter.Mark(1);
+            // meter.Mark(1);
         }
 
         public abstract void OnCompleted();

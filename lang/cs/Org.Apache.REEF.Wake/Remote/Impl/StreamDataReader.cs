@@ -91,7 +91,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         public long ReadLong()
         {
             byte[] longBytes = new byte[sizeof(long)];
-            int readBytes = Read(ref longBytes, 0, sizeof (long));
+            int readBytes = Read(ref longBytes, 0, sizeof(long));
 
             if (readBytes == -1)
             {
@@ -123,7 +123,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         public int ReadInt32()
         {
             byte[] intBytes = new byte[sizeof(int)];
-            int readBytes = Read(ref intBytes, 0, sizeof (int));
+            int readBytes = Read(ref intBytes, 0, sizeof(int));
 
             if (readBytes == -1)
             {
@@ -243,7 +243,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         public async Task<long> ReadLongAsync(CancellationToken token)
         {
             byte[] longBytes = new byte[sizeof(long)];
-            int readBytes = await ReadAsync(longBytes, 0, sizeof (long), token);
+            int readBytes = await ReadAsync(longBytes, 0, sizeof(long), token);
 
             if (readBytes == -1)
             {
@@ -277,7 +277,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         public async Task<int> ReadInt32Async(CancellationToken token)
         {
             byte[] intBytes = new byte[sizeof(int)];
-            int readBytes = await ReadAsync(intBytes, 0, sizeof (int), token);
+            int readBytes = await ReadAsync(intBytes, 0, sizeof(int), token);
 
             if (readBytes == -1)
             {
@@ -294,7 +294,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         public async Task<short> ReadInt16Async(CancellationToken token)
         {
             byte[] intBytes = new byte[sizeof(Int16)];
-            int readBytes = await ReadAsync(intBytes, 0, sizeof (Int16), token);
+            int readBytes = await ReadAsync(intBytes, 0, sizeof(Int16), token);
 
             if (readBytes == -1)
             {

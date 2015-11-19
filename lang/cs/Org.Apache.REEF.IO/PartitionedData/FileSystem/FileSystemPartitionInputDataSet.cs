@@ -44,7 +44,7 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(FileSystemPartitionInputDataSet<T>));
         private readonly Dictionary<string, IPartitionDescriptor> _partitions;
-        private readonly int _count ;
+        private readonly int _count;
         private const string StringSeparators = ";";
         private const string IdPrefix = "FileSystemDataSet-";
         private readonly string _id;
@@ -54,8 +54,7 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
             [Parameter(typeof(FilePathsForInputPartitions))] ISet<string> filePaths,
             IFileSystem fileSystem,
             [Parameter(typeof(FileDeSerializerConfigString))] string fileSerializerConfigString,
-            AvroConfigurationSerializer avroConfigurationSerializer
-            )
+            AvroConfigurationSerializer avroConfigurationSerializer)
         {
             _count = filePaths.Count;
             _id = FormId(filePaths);
@@ -133,7 +132,7 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
                 if (filePaths != null && filePaths.Count > 0)
                 {
                     var path = filePaths.First();
-                    var paths = path.Split(new string[] {"/", "//", "\\"}, StringSplitOptions.None);
+                    var paths = path.Split(new string[] { "/", "//", "\\" }, StringSplitOptions.None);
                     if (paths.Length > 0)
                     {
                         id = paths[paths.Length - 1];

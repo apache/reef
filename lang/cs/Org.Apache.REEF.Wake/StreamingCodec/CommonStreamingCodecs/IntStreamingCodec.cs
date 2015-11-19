@@ -41,7 +41,7 @@ namespace Org.Apache.REEF.Wake.StreamingCodec.CommonStreamingCodecs
         /// Instantiate the class from the reader.
         /// </summary>
         /// <param name="reader">The reader from which to read</param>
-        ///<returns>The iinteger read from the reader</returns>
+        /// <returns>The integer read from the reader</returns>
         public int Read(IDataReader reader)
         {
             return reader.ReadInt32();
@@ -57,10 +57,10 @@ namespace Org.Apache.REEF.Wake.StreamingCodec.CommonStreamingCodecs
             writer.WriteInt32(obj);
         }
 
-        ///  <summary>
-        ///  Instantiate the class from the reader.
-        ///  </summary>
-        ///  <param name="reader">The reader from which to read</param>
+        /// <summary>
+        /// Instantiate the class from the reader.
+        /// </summary>
+        /// <param name="reader">The reader from which to read</param>
         /// <param name="token">Cancellation token</param>
         /// <returns>The integer read from the reader</returns>
         public async Task<int> ReadAsync(IDataReader reader, CancellationToken token)

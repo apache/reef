@@ -90,7 +90,7 @@ namespace Org.Apache.REEF.Tang.Protobuf
         {
             if (ip is Org.Apache.REEF.Tang.Implementations.InjectionPlan.Constructor) 
             {
-                Org.Apache.REEF.Tang.Implementations.InjectionPlan.Constructor cons = (Org.Apache.REEF.Tang.Implementations.InjectionPlan.Constructor) ip;
+                Org.Apache.REEF.Tang.Implementations.InjectionPlan.Constructor cons = (Org.Apache.REEF.Tang.Implementations.InjectionPlan.Constructor)ip;
                 Org.Apache.REEF.Tang.Implementations.InjectionPlan.InjectionPlan[] args = cons.GetArgs();
                 Org.Apache.REEF.Tang.Protobuf.InjectionPlan[] protoArgs = new Org.Apache.REEF.Tang.Protobuf.InjectionPlan[args.Length];
                 for (int i = 0; i < args.Length; i++) 
@@ -101,7 +101,7 @@ namespace Org.Apache.REEF.Tang.Protobuf
             } 
             if (ip is Org.Apache.REEF.Tang.Implementations.InjectionPlan.Subplan) 
             {
-                Org.Apache.REEF.Tang.Implementations.InjectionPlan.Subplan sp = (Org.Apache.REEF.Tang.Implementations.InjectionPlan.Subplan) ip;
+                Org.Apache.REEF.Tang.Implementations.InjectionPlan.Subplan sp = (Org.Apache.REEF.Tang.Implementations.InjectionPlan.Subplan)ip;
                 Org.Apache.REEF.Tang.Implementations.InjectionPlan.InjectionPlan[] args = sp.GetPlans();
                 Org.Apache.REEF.Tang.Protobuf.InjectionPlan[] subPlans = new Org.Apache.REEF.Tang.Protobuf.InjectionPlan[args.Length];
                 for (int i = 0; i < args.Length; i++) 
@@ -113,7 +113,7 @@ namespace Org.Apache.REEF.Tang.Protobuf
             } 
             if (ip is CsInstance) 
             {
-                CsInstance ji = (CsInstance) ip;
+                CsInstance ji = (CsInstance)ip;
                 return NewInstance(ip.GetNode().GetFullName(), ji.GetInstanceAsString());
             } 
             Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(new IllegalStateException(
@@ -139,7 +139,7 @@ namespace Org.Apache.REEF.Tang.Protobuf
             if (ip.constructor != null) 
             {
                 Org.Apache.REEF.Tang.Protobuf.Constructor cons = ip.constructor;
-                IClassNode cn = (IClassNode) ch.GetNode(fullName);
+                IClassNode cn = (IClassNode)ch.GetNode(fullName);
 
                 Org.Apache.REEF.Tang.Protobuf.InjectionPlan[] protoBufArgs = cons.args.ToArray();
 

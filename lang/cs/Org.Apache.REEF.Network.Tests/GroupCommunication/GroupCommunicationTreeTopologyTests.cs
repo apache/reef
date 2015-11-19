@@ -212,7 +212,7 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
 
             var commGroups = GroupCommunicationTests.CommGroupClients(groupName, numTasks, groupCommDriver, commGroup, GetDefaultCodecConfig());
 
-            //for master task
+            // for master task
             IBroadcastSender<int> broadcastSender = commGroups[0].GetBroadcastSender<int>(broadcastOperatorName);
             IReduceReceiver<int> sumReducer = commGroups[0].GetReduceReceiver<int>(reduceOperatorName);
 
@@ -553,7 +553,7 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
             Assert.AreEqual(1, data3[0]);
             Assert.AreEqual(2, data3[1]);
             
-            var data4= receiver4.Receive().ToArray();
+            var data4 = receiver4.Receive().ToArray();
             Assert.AreEqual(3, data4[0]);
             Assert.AreEqual(4, data4[1]);
 

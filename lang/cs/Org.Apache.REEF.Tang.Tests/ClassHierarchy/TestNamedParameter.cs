@@ -87,8 +87,7 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
         DefaultValues = null,
         DefaultClasses = null,
         Alias = "org.apache.REEF.tang.tests.classHierarchy.NamedParameterWithDefaultValues",
-        AliasLanguage = Language.Java
-     )]
+        AliasLanguage = Language.Java)]
 
     public class NamedParameterWithDefaultValues : Name<string> 
     {

@@ -124,7 +124,7 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureBlob
         /// </summary>
         public void DeleteDirectory(Uri directoryUri)
         {
-            var uriSplit = directoryUri.AbsolutePath.Split(new[] {"/"}, StringSplitOptions.RemoveEmptyEntries);
+            var uriSplit = directoryUri.AbsolutePath.Split(new[] { "/" }, StringSplitOptions.RemoveEmptyEntries);
             if (!uriSplit.Any())
             {
                 throw new StorageException(string.Format("URI {0} must contain at least the container.", directoryUri));

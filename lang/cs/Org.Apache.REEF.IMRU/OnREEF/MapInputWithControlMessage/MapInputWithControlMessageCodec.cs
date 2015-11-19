@@ -80,11 +80,11 @@ namespace Org.Apache.REEF.IMRU.OnREEF.MapInputWithControlMessage
             switch (obj.ControlMessage)
             {
                 case MapControlMessage.AnotherRound:
-                    writer.Write(new byte[] {0}, 0, 1);
+                    writer.Write(new byte[] { 0 }, 0, 1);
                     _baseCodec.Write(obj.Message, writer);
                     break;
                 case MapControlMessage.Stop:
-                    writer.Write(new byte[] {1}, 0, 1);
+                    writer.Write(new byte[] { 1 }, 0, 1);
                     break;
             }
         }
@@ -95,8 +95,8 @@ namespace Org.Apache.REEF.IMRU.OnREEF.MapInputWithControlMessage
         /// <param name="reader">reader from which to read the message</param>
         /// <param name="token">Cancellation token</param>
         /// <returns>Read message</returns>
-        async Task<MapInputWithControlMessage<TMapInput>> IStreamingCodec<MapInputWithControlMessage<TMapInput>>.
-            ReadAsync(IDataReader reader, CancellationToken token)
+        async Task<MapInputWithControlMessage<TMapInput>> IStreamingCodec<MapInputWithControlMessage<TMapInput>>.ReadAsync(
+            IDataReader reader, CancellationToken token)
         {
             byte[] messageType = new byte[1];
             await reader.ReadAsync(messageType, 0, 1, token);

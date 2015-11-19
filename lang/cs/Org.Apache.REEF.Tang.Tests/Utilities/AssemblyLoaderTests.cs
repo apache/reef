@@ -28,13 +28,13 @@ namespace Org.Apache.REEF.Tang.Tests.Utilities
         [TestMethod]
         public void AssemblyLoadingFailsNoException()
         {
-            var notUsed = new AssemblyLoader(new []{"DoesNotExist.dll"});
+            var notUsed = new AssemblyLoader(new[] { "DoesNotExist.dll" });
         }
 
         [TestMethod]
         public void AssemblyLoadingSomeSucceedFailuresAreIgnored()
         {
-            var loader = new AssemblyLoader(new []{"DoesNotExist.dll", FileNames.Examples});
+            var loader = new AssemblyLoader(new[] { "DoesNotExist.dll", FileNames.Examples });
             Assert.AreEqual(1, loader.Assemblies.Count);
             Assert.IsTrue(loader.Assemblies.First().GetName().Name == FileNames.Examples);
         }

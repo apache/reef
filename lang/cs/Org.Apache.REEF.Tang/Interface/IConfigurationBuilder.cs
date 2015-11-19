@@ -39,7 +39,7 @@ namespace Org.Apache.REEF.Tang.Interface
 
         void Bind(INode key, INode value);
 
-        void BindConstructor(IClassNode k, IClassNode v); //v extended from ExternalConstructor
+        void BindConstructor(IClassNode k, IClassNode v); // v extended from ExternalConstructor
         string ClassPrettyDefaultString(string longName);
         string ClassPrettyDescriptionString(string longName);
 

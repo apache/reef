@@ -119,7 +119,7 @@ namespace Org.Apache.REEF.Common.Avro
             var bytes = ToBytes(avroHttprequest);
             using (var file = File.OpenWrite(fileName))
             {
-                file.Write(bytes,0,bytes.Length);
+                file.Write(bytes, 0, bytes.Length);
             }
         }
     }

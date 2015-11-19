@@ -56,7 +56,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
     internal sealed class IMRUDriver<TMapInput, TMapOutput, TResult> : IObserver<IDriverStarted>,
         IObserver<IAllocatedEvaluator>, IObserver<IActiveContext>, IObserver<ICompletedTask>, IObserver<IFailedEvaluator>
     {
-        private static readonly Logger Logger = Logger.GetLogger(typeof (IMRUDriver<TMapInput, TMapOutput, TResult>));
+        private static readonly Logger Logger = Logger.GetLogger(typeof(IMRUDriver<TMapInput, TMapOutput, TResult>));
 
         private readonly ConfigurationManager _configurationManager;
         private readonly IPartitionedInputDataSet _dataSet;
@@ -83,14 +83,14 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
 
         [Inject]
         private IMRUDriver(IPartitionedInputDataSet dataSet,
-            [Parameter(typeof (PerMapConfigGeneratorSet))] ISet<IPerMapperConfigGenerator> perMapperConfigs,
+            [Parameter(typeof(PerMapConfigGeneratorSet))] ISet<IPerMapperConfigGenerator> perMapperConfigs,
             ConfigurationManager configurationManager,
             IEvaluatorRequestor evaluatorRequestor,
-            [Parameter(typeof (CoresPerMapper))] int coresPerMapper,
-            [Parameter(typeof (CoresForUpdateTask))] int coresForUpdateTask,
-            [Parameter(typeof (MemoryPerMapper))] int memoryPerMapper,
-            [Parameter(typeof (MemoryForUpdateTask))] int memoryForUpdateTask,
-            [Parameter(typeof (AllowedFailedEvaluatorsFraction))] double failedEvaluatorsFraction,
+            [Parameter(typeof(CoresPerMapper))] int coresPerMapper,
+            [Parameter(typeof(CoresForUpdateTask))] int coresForUpdateTask,
+            [Parameter(typeof(MemoryPerMapper))] int memoryPerMapper,
+            [Parameter(typeof(MemoryForUpdateTask))] int memoryForUpdateTask,
+            [Parameter(typeof(AllowedFailedEvaluatorsFraction))] double failedEvaluatorsFraction,
             [Parameter(typeof(InvokeGC))] bool invokeGC,
             IGroupCommDriver groupCommDriver)
         {
@@ -104,7 +104,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             _memoryForUpdateTask = memoryForUpdateTask;
             _perMapperConfigs = perMapperConfigs;
             _completedTasks = new ConcurrentBag<ICompletedTask>();
-            _allowedFailedEvaluators = (int) (failedEvaluatorsFraction*dataSet.Count);
+            _allowedFailedEvaluators = (int)(failedEvaluatorsFraction * dataSet.Count);
             _invokeGC = invokeGC;
 
             AddGroupCommunicationOperators();
@@ -130,7 +130,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         public void OnNext(IDriverStarted value)
         {
             RequestUpdateEvaluator();
-            //TODO[REEF-598]: Set a timeout for this request to be satisfied. If it is not within that time, exit the Driver.
+            // TODO[REEF-598]: Set a timeout for this request to be satisfied. If it is not within that time, exit the Driver.
         }
 
         /// <summary>
@@ -171,7 +171,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                             _configurationManager.UpdateFunctionConfiguration,
                             _configurationManager.ResultHandlerConfiguration
                         })
-                        .BindNamedParameter(typeof (InvokeGC), _invokeGC.ToString())
+                        .BindNamedParameter(typeof(InvokeGC), _invokeGC.ToString())
                         .Build();
 
                 try
@@ -180,7 +180,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                         .NewInjector(partialTaskConf, _configurationManager.UpdateFunctionCodecsConfiguration)
                         .GetInstance<IIMRUResultHandler<TResult>>();
                 }
-                catch(InjectionException)
+                catch (InjectionException)
                 {
                     partialTaskConf = TangFactory.GetTang().NewConfigurationBuilder(partialTaskConf)
                         .BindImplementation(GenericType<IIMRUResultHandler<TResult>>.Class,
@@ -227,7 +227,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                             _configurationManager.MapFunctionConfiguration,
                             mapSpecificConfig
                         })
-                        .BindNamedParameter(typeof (InvokeGC), _invokeGC.ToString())
+                        .BindNamedParameter(typeof(InvokeGC), _invokeGC.ToString())
                         .Build();
 
                 _commGroup.AddTask(taskId);
@@ -274,8 +274,8 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
 
             _serviceAndContextConfigurationProvider.EvaluatorFailed(value.Id);
 
-            //If active context stage is reached for Update Task then assume that failed
-            //evaluator belongs to mapper
+            // if active context stage is reached for Update Task then assume that failed
+            // evaluator belongs to mapper
             if (_reachedUpdateTaskActiveContext)
             {
                 RequestMapEvaluators(1);
@@ -292,7 +292,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         /// <param name="error">Kind of exception</param>
         public void OnError(Exception error)
         {
-            Logger.Log(Level.Error,"Cannot currently handle the Exception in OnError function");
+            Logger.Log(Level.Error, "Cannot currently handle the Exception in OnError function");
             throw new NotImplementedException("Cannot currently handle exception in OneError", error);
         }
 

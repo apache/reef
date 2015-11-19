@@ -67,7 +67,7 @@ namespace Org.Apache.REEF.Tang.Examples
         readonly ISMS sms;
         readonly long phoneNumber;
 
-        [NamedParameter(Documentation="Phone number", ShortName="number", DefaultValue="1800")]
+        [NamedParameter(Documentation = "Phone number", ShortName = "number", DefaultValue = "1800")]
         public class PhoneNumber : Name<long> { }
         [Inject]
         public Tweeter(ITweetFactory tw, ISMS sms, [Parameter(typeof(PhoneNumber))] long phoneNumber)

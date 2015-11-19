@@ -38,7 +38,7 @@ namespace Org.Apache.REEF.Tang.Formats
         public readonly MonotonicHashSet<object> SetOpts = new MonotonicHashSet<object>();
         public readonly MonotonicHashMap<object, FieldInfo> Map = new MonotonicHashMap<object, FieldInfo>();
         public readonly MonotonicHashMap<Type, object> FreeImpls = new MonotonicHashMap<Type, object>();
-        public readonly MonotonicHashMap<Type, object> FreeParams = new MonotonicHashMap<Type, object>(); //Type must extends from Name<>
+        public readonly MonotonicHashMap<Type, object> FreeParams = new MonotonicHashMap<Type, object>(); // Type must extends from Name<>
 
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(ConfigurationModuleBuilder));
         private static readonly ISet<Type> ParamBlacklist = new MonotonicHashSet<Type>(new Type[] { typeof(IParam<>), typeof(IImpl<>) });
@@ -172,7 +172,7 @@ namespace Org.Apache.REEF.Tang.Formats
             c.reqUsed.AddAll(d.Builder.reqUsed);
             c.optUsed.AddAll(d.Builder.optUsed);
             c.SetOpts.AddAll(d.Builder.SetOpts);
-            //c.ListOpts.AddAll(d.Builder.ListOpts);
+            // c.ListOpts.AddAll(d.Builder.ListOpts);
             c.Map.AddAll(d.Builder.Map);
             c.FreeImpls.AddAll(d.Builder.FreeImpls);
             c.FreeParams.AddAll(d.Builder.FreeParams);
@@ -346,8 +346,8 @@ namespace Org.Apache.REEF.Tang.Formats
             return c;
         }
 
-        //public final <T> ConfigurationModuleBuilder bindNamedParameter(Class<? extends Name<T>> iface, Class<? extends T> impl)  
-        //if V is T, you'd better to use public ConfigurationModuleBuilder BindNamedParameter<U, T>(GenericType<U> iface, GenericType<T> impl) defined below
+        // public final <T> ConfigurationModuleBuilder bindNamedParameter(Class<? extends Name<T>> iface, Class<? extends T> impl)  
+        // if V is T, you'd better to use public ConfigurationModuleBuilder BindNamedParameter<U, T>(GenericType<U> iface, GenericType<T> impl) defined below
         public ConfigurationModuleBuilder BindNamedParameter<U, V, T>(GenericType<U> iface, GenericType<V> impl)
             where U : Name<T>
             where V : T
@@ -382,7 +382,7 @@ namespace Org.Apache.REEF.Tang.Formats
         }
 
         // public final <T> ConfigurationModuleBuilder bindNamedParameter(Class<? extends Name<T>> iface, Impl<? extends T> opt)
-        //if ValueType is T, you would better to use public ConfigurationModuleBuilder BindNamedParameter<U, T>(GenericType<U> iface, IImpl<T> opt)
+        // if ValueType is T, you would better to use public ConfigurationModuleBuilder BindNamedParameter<U, T>(GenericType<U> iface, IImpl<T> opt)
         public ConfigurationModuleBuilder BindNamedParameter<U, V, T>(GenericType<U> iface, IImpl<V> opt)
             where U : Name<T>
             where V : T

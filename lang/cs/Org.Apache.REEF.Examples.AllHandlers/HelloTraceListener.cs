@@ -37,7 +37,7 @@ namespace Org.Apache.REEF.Examples.AllHandlers
 
         public override void Write(string message)
         {
-            _listener.Write("[helloTrace]" + message );
+            _listener.Write("[helloTrace]" + message);
         }
 
         public override void WriteLine(string message)

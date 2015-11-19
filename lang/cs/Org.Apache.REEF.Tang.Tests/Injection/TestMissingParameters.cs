@@ -44,12 +44,12 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
         [TestMethod]
         public void MissingAllParameterTest()
         {
-            //Org.Apache.REEF.Tang.Tests.Injection.MultiParameterConstructor, Org.Apache.REEF.Tang.Test, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null 
-            //missing arguments: [ 
-            //Org.Apache.REEF.Tang.Tests.Injection.MultiParameterConstructor+NamedBool, Org.Apache.REEF.Tang.Test, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null 
-            //Org.Apache.REEF.Tang.Tests.Injection.MultiParameterConstructor+NamedString, Org.Apache.REEF.Tang.Test, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null 
-            //Org.Apache.REEF.Tang.Tests.Injection.MultiParameterConstructor+NamedInt, Org.Apache.REEF.Tang.Test, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null 
-            //]
+            // Org.Apache.REEF.Tang.Tests.Injection.MultiParameterConstructor, Org.Apache.REEF.Tang.Test, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null 
+            // missing arguments: [ 
+            // Org.Apache.REEF.Tang.Tests.Injection.MultiParameterConstructor+NamedBool, Org.Apache.REEF.Tang.Test, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null 
+            // Org.Apache.REEF.Tang.Tests.Injection.MultiParameterConstructor+NamedString, Org.Apache.REEF.Tang.Test, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null 
+            // Org.Apache.REEF.Tang.Tests.Injection.MultiParameterConstructor+NamedInt, Org.Apache.REEF.Tang.Test, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null 
+            // ]
             MultiParameterConstructor obj = null;
             try
             {
@@ -67,12 +67,12 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
         [TestMethod]
         public void MissingTwoParameterTest()
         {
-            //Cannot inject Org.Apache.REEF.Tang.Tests.Injection.MultiParameterConstructor, Org.Apache.REEF.Tang.Test, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null: 
-            //Org.Apache.REEF.Tang.Tests.Injection.MultiParameterConstructor, Org.Apache.REEF.Tang.Test, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null 
-            //missing arguments: [ 
-            //Org.Apache.REEF.Tang.Tests.Injection.MultiParameterConstructor+NamedString, Org.Apache.REEF.Tang.Test, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null 
-            //Org.Apache.REEF.Tang.Tests.Injection.MultiParameterConstructor+NamedInt, Org.Apache.REEF.Tang.Test, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null 
-            //]
+            // Cannot inject Org.Apache.REEF.Tang.Tests.Injection.MultiParameterConstructor, Org.Apache.REEF.Tang.Test, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null: 
+            // Org.Apache.REEF.Tang.Tests.Injection.MultiParameterConstructor, Org.Apache.REEF.Tang.Test, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null 
+            // missing arguments: [ 
+            // Org.Apache.REEF.Tang.Tests.Injection.MultiParameterConstructor+NamedString, Org.Apache.REEF.Tang.Test, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null 
+            // Org.Apache.REEF.Tang.Tests.Injection.MultiParameterConstructor+NamedInt, Org.Apache.REEF.Tang.Test, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null 
+            // ]
             MultiParameterConstructor obj = null;
             try
             {
@@ -91,9 +91,9 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
         [TestMethod]
         public void MissingOneParameterTest()
         {
-            //Cannot inject Org.Apache.REEF.Tang.Tests.Injection.MultiParameterConstructor, Org.Apache.REEF.Tang.Test, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null: 
-            //Org.Apache.REEF.Tang.Tests.Injection.MultiParameterConstructor, Org.Apache.REEF.Tang.Test, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null 
-            //missing argument Org.Apache.REEF.Tang.Tests.Injection.MultiParameterConstructor+NamedInt, Org.Apache.REEF.Tang.Test, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+            // Cannot inject Org.Apache.REEF.Tang.Tests.Injection.MultiParameterConstructor, Org.Apache.REEF.Tang.Test, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null: 
+            // Org.Apache.REEF.Tang.Tests.Injection.MultiParameterConstructor, Org.Apache.REEF.Tang.Test, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null 
+            // missing argument Org.Apache.REEF.Tang.Tests.Injection.MultiParameterConstructor+NamedInt, Org.Apache.REEF.Tang.Test, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
             MultiParameterConstructor obj = null;
             try
             {

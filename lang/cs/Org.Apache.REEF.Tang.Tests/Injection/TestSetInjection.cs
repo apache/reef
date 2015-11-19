@@ -172,8 +172,8 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
         public void TestSetOfClassBound()
         {
             ICsConfigurationBuilder cb = TangFactory.GetTang().NewConfigurationBuilder();
-            cb.BindSetEntry<SetOfClasses, Integer1, INumber>(GenericType<SetOfClasses>.Class, GenericType<Integer1>.Class)  //bind an impl to the interface of the set
-              .BindNamedParameter<Integer1.NamedInt, int>(GenericType<Integer1.NamedInt>.Class, "4"); //bind parameter for the impl
+            cb.BindSetEntry<SetOfClasses, Integer1, INumber>(GenericType<SetOfClasses>.Class, GenericType<Integer1>.Class)  // bind an impl to the interface of the set
+              .BindNamedParameter<Integer1.NamedInt, int>(GenericType<Integer1.NamedInt>.Class, "4"); // bind parameter for the impl
 
             IInjector i = TangFactory.GetTang().NewInjector(cb.Build());
 
@@ -214,7 +214,7 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
         {
             ICsConfigurationBuilder cb = TangFactory.GetTang().NewConfigurationBuilder();
 
-            //when adding another Timeshift into the set for named parameter SetOfTimeshifts, it ends up the same entry. 
+            // when adding another Timeshift into the set for named parameter SetOfTimeshifts, it ends up the same entry. 
             cb.BindSetEntry<SetOfTimeshifts, Timeshift, ITimeshift>(GenericType<SetOfTimeshifts>.Class, GenericType<Timeshift>.Class);
             cb.BindSetEntry<SetOfTimeshifts, Timeshift, ITimeshift>(GenericType<SetOfTimeshifts>.Class, GenericType<Timeshift>.Class);
             cb.BindNamedParameter<Timeshift.TimeshiftLinkId, string>(GenericType<Timeshift.TimeshiftLinkId>.Class, "123")
@@ -231,7 +231,7 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
         {
             ICsConfigurationBuilder cb = TangFactory.GetTang().NewConfigurationBuilder();
 
-            //Adding implementations from different subclasses
+            // Adding implementations from different subclasses
             cb.BindSetEntry<SetOfTimeshifts, Timeshift, ITimeshift>(GenericType<SetOfTimeshifts>.Class, GenericType<Timeshift>.Class);
             cb.BindSetEntry<SetOfTimeshifts, Timeshift1, ITimeshift>(GenericType<SetOfTimeshifts>.Class, GenericType<Timeshift1>.Class);
 

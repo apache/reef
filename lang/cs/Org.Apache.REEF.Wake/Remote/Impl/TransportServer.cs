@@ -97,8 +97,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
             var foundAPort = false;
             var exception = new SocketException((int)SocketError.AddressAlreadyInUse);
             for (var enumerator = _tcpPortProvider.GetEnumerator();
-                !foundAPort && enumerator.MoveNext();
-                )
+                !foundAPort && enumerator.MoveNext();)
             {
                 _listener = new TcpListener(LocalEndpoint.Address, enumerator.Current);
                 try

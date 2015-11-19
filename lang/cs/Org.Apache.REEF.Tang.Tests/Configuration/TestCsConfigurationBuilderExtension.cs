@@ -83,8 +83,8 @@ namespace Org.Apache.REEF.Tang.Tests.Configuration
         public void TestBindSetEntryImplValue()
         {
             ICsConfigurationBuilder cb = TangFactory.GetTang().NewConfigurationBuilder();
-            cb.BindSetEntry<TestSetInjection.SetOfClasses, TestSetInjection.Integer1, INumber>()  //bind an impl to the interface of the set
-              .BindIntNamedParam<TestSetInjection.Integer1.NamedInt>("4"); //bind parameter for the impl
+            cb.BindSetEntry<TestSetInjection.SetOfClasses, TestSetInjection.Integer1, INumber>()  // bind an impl to the interface of the set
+              .BindIntNamedParam<TestSetInjection.Integer1.NamedInt>("4"); // bind parameter for the impl
 
             IInjector i = TangFactory.GetTang().NewInjector(cb.Build());
 

@@ -45,7 +45,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
         [TestMethod, Priority(1), TestCategory("FunctionalGated")]
         [Description("Run CLR Bridge on local runtime")]
         [DeploymentItem(@".")]
-        [Ignore] //This test needs to be run on Yarn environment with test framework installed.
+        [Ignore] // this test needs to be run on Yarn environment with test framework installed.
         public void CanRunClrBridgeExampleOnYarn()
         {
             string testRuntimeFolder = DefaultRuntimeFolder + TestNumber++;
@@ -72,7 +72,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
             var strStatus = driverHttpEndpoint.GetUrlResult(uri);
             Assert.IsTrue(strStatus.Equals("Byte array returned from HelloHttpHandler in CLR!!!\r\n"));
 
-            await ((JobSubmissionResult)driverHttpEndpoint).TryUntilNoConnection(uri);
+            await((JobSubmissionResult)driverHttpEndpoint).TryUntilNoConnection(uri);
 
             ValidateSuccessForLocalRuntime(2, testFolder: testRuntimeFolder);
 

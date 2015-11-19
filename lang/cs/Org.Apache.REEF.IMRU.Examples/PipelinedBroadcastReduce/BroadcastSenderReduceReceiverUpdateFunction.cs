@@ -30,7 +30,7 @@ namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
     /// </summary>
     internal sealed class BroadcastSenderReduceReceiverUpdateFunction : IUpdateFunction<int[], int[], int[]>
     {
-        private static readonly Logger Logger = Logger.GetLogger(typeof (BroadcastSenderReduceReceiverUpdateFunction));
+        private static readonly Logger Logger = Logger.GetLogger(typeof(BroadcastSenderReduceReceiverUpdateFunction));
 
         private int _iterations;
         private readonly int _maxIters;
@@ -40,10 +40,9 @@ namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
 
         [Inject]
         private BroadcastSenderReduceReceiverUpdateFunction(
-            [Parameter(typeof (BroadcastReduceConfiguration.NumberOfIterations))] int maxIters,
-            [Parameter(typeof (BroadcastReduceConfiguration.Dimensions))] int dim,
-            [Parameter(typeof (BroadcastReduceConfiguration.NumWorkers))] int numWorkers
-            )
+            [Parameter(typeof(BroadcastReduceConfiguration.NumberOfIterations))] int maxIters,
+            [Parameter(typeof(BroadcastReduceConfiguration.Dimensions))] int dim,
+            [Parameter(typeof(BroadcastReduceConfiguration.NumWorkers))] int numWorkers)
         {
             _maxIters = maxIters;
             _iterations = 0;
@@ -61,7 +60,7 @@ namespace Org.Apache.REEF.IMRU.Examples.PipelinedBroadcastReduce
         {
             Logger.Log(Level.Info, string.Format("Received value {0}", input[0]));
 
-            if (input[0] != (_iterations + 1)*_workers)
+            if (input[0] != (_iterations + 1) * _workers)
             {
                 Exceptions.Throw(new Exception("Expected input to update functon not same as actual input"), Logger);
             }

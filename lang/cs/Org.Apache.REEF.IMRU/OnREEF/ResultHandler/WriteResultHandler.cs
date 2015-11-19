@@ -37,7 +37,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.ResultHandler
     [Unstable("0.14", "This API will change after introducing proper API for output in REEF.IO")]
     public class WriteResultHandler<TResult> : IIMRUResultHandler<TResult>
     {
-        private static readonly Logger Logger = Logger.GetLogger(typeof (WriteResultHandler<>));
+        private static readonly Logger Logger = Logger.GetLogger(typeof(WriteResultHandler<>));
 
         private readonly IStreamingCodec<TResult> _resultCodec;
         private readonly IFileSystem _fileSystem;

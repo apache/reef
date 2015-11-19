@@ -124,7 +124,7 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
                 {
                     var reducedValueOfChildren = _topology.ReceiveFromChildren(_pipelinedReduceFunc);
 
-                    var mergeddData = new List<PipelineMessage<T>> {message};
+                    var mergeddData = new List<PipelineMessage<T>> { message };
 
                     if (reducedValueOfChildren != null)
                     {

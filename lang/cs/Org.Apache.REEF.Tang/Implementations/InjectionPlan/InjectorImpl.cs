@@ -44,7 +44,7 @@ namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
         private Aspect aspect;
         private readonly ISet<IInjectionFuture<object>> pendingFutures = new HashSet<IInjectionFuture<object>>();
 
-        static readonly InjectionPlan BUILDING = new BuildingInjectionPlan(null); //TODO anonymous class
+        static readonly InjectionPlan BUILDING = new BuildingInjectionPlan(null); // TODO anonymous class
 
 
         private bool concurrentModificationGuard = false;
@@ -53,8 +53,8 @@ namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
         {
             if (concurrentModificationGuard)
             {
-                //TODO
-                //throw new ConcurrentModificationException("Detected attempt to use Injector from within an injected constructor!");
+                // TODO
+                // throw new ConcurrentModificationException("Detected attempt to use Injector from within an injected constructor!");
             }
         }
         public InjectorImpl(IConfiguration c)
@@ -99,7 +99,7 @@ namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
                         t = classHierarchy.ClassForName(nn.GetFullArgName());
                         if (nn.IsSet())
                         {
-                            t = typeof (ISet<>).MakeGenericType(new Type[] {t});
+                            t = typeof(ISet<>).MakeGenericType(new Type[] { t });
                         }
                     }
                     else
@@ -108,14 +108,14 @@ namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
                         Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(ex, LOGGER);
                     }
                     
-                    //Java - InjectionFuture<?> ret = new InjectionFuture<>(this, javaNamespace.classForName(fut.getNode().getFullName()));
-                    //C# - InjectionFuture<object> ret = new InjectionFutureImpl<object>(this, classHierarchy.ClassForName(fut.GetNode().GetFullName()));
-                    //We cannot simply create an object from generic with object as <T>
-                    //typeof(InjectionFutureImpl<>).MakeGenericType(t) will get the InjectionFutureImpl generic Type with <T> as t 
-                    //for ClassNode, t is the Type of the class, for NamedParameterNode, t is the Type of the argument
-                    //we then use reflection to invoke the constructor
-                    //To retain generic argument information??                   
-                    Type injectionFuture = typeof (InjectionFutureImpl<>).MakeGenericType(t);
+                    // Java - InjectionFuture<?> ret = new InjectionFuture<>(this, javaNamespace.classForName(fut.getNode().getFullName()));
+                    // C# - InjectionFuture<object> ret = new InjectionFutureImpl<object>(this, classHierarchy.ClassForName(fut.GetNode().GetFullName()));
+                    // We cannot simply create an object from generic with object as <T>
+                    // typeof(InjectionFutureImpl<>).MakeGenericType(t) will get the InjectionFutureImpl generic Type with <T> as t 
+                    // for ClassNode, t is the Type of the class, for NamedParameterNode, t is the Type of the argument
+                    // we then use reflection to invoke the constructor
+                    // To retain generic argument information??                   
+                    Type injectionFuture = typeof(InjectionFutureImpl<>).MakeGenericType(t);
                     var constructor = injectionFuture.GetConstructor(new Type[] { typeof(IInjector), typeof(Type) });
                     IInjectionFuture<object> ret = (IInjectionFuture<object>)constructor.Invoke(new object[] { this, nodeType }); 
 
@@ -135,7 +135,7 @@ namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
             else if (plan is CsInstance)
             {
                 // TODO: Must be named parameter node.  Check.
-                //      throw new IllegalStateException("Instance from plan not in Injector's set of instances?!?");
+                // throw new IllegalStateException("Instance from plan not in Injector's set of instances?!?");
                 return ((CsInstance)plan).instance;
             }
             else if (plan is Constructor)
@@ -227,14 +227,14 @@ namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
                 // Get constructor: MonotonicHashSet<int> -> public MonotonicHashSet<int>() { ... }
                 // Invoke: public MonotonicHashSet<int> -> new MonotonicHashSet<int>()
 
-                object ret = typeof(MonotonicHashSet<>).MakeGenericType(t).GetConstructor(new Type[] { }).Invoke(new object[] { }); //(this, classHierarchy.ClassForName(fut.GetNode().GetFullName()));
+                object ret = typeof(MonotonicHashSet<>).MakeGenericType(t).GetConstructor(new Type[] { }).Invoke(new object[] { }); // (this, classHierarchy.ClassForName(fut.GetNode().GetFullName()));
 
                 MethodInfo mf = ret.GetType().GetMethod("Add");
 
                 foreach (InjectionPlan subplan in setPlan.GetEntryPlans())
                 {
-//                    ret.Add(InjectFromPlan(subplan));
-                    mf.Invoke(ret, new object[] {InjectFromPlan(subplan)});
+                    // ret.Add(InjectFromPlan(subplan));
+                    mf.Invoke(ret, new object[] { InjectFromPlan(subplan) });
                 }
                 return ret;
             }
@@ -279,9 +279,9 @@ namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
         private object GetCachedInstance(IClassNode cn)
         {
             if (cn.GetFullName().Equals(ReflectionUtilities.GetAssemblyQualifiedName(typeof(IInjector))))
-                //if (cn.GetFullName().Equals(ReflectionUtilities.NonGenericFullName(typeof(IInjector))))
+                // if (cn.GetFullName().Equals(ReflectionUtilities.NonGenericFullName(typeof(IInjector))))
             {
-                return this.ForkInjector();// TODO: We should be insisting on injection futures here! .forkInjector();
+                return this.ForkInjector(); // TODO: We should be insisting on injection futures here! .forkInjector();
             }
             else
             {
@@ -315,8 +315,8 @@ namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
             }
 
             ConstructorInfo cons = clazz.GetConstructor(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, null, parameterTypes, null);
-            //TODO
-            //cons.setAccessible(true);
+            // TODO
+            // cons.setAccessible(true);
 
             if (cons == null)
             {
@@ -424,7 +424,7 @@ namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
         {
             ISet<InjectionPlan> plans = new MonotonicHashSet<InjectionPlan>();
             CreateInjectionPlanForCollectionElements(n, memo, entries, plans);
-            return  new SetInjectionPlan(n, plans);
+            return new SetInjectionPlan(n, plans);
         }
 
         private void CreateInjectionPlanForCollectionElements<T>(INode n, IDictionary<INode, InjectionPlan> memo, ICollection<T> entries, ICollection<InjectionPlan> plans)
@@ -433,9 +433,9 @@ namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
             {
                 if (entry is IClassNode)
                 {
-                    BuildInjectionPlan((IClassNode) entry, memo);
+                    BuildInjectionPlan((IClassNode)entry, memo);
                     InjectionPlan p2 = null;
-                    memo.TryGetValue((INode) entry, out p2);
+                    memo.TryGetValue((INode)entry, out p2);
                     if (p2 != null)
                     {
                         plans.Add(p2);
@@ -599,7 +599,7 @@ namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
                         IConstructorDef ci = ((Constructor)constructors[(liveIndices[i])]).GetConstructorDef();
                         IConstructorDef cj = ((Constructor)constructors[(liveIndices[j])]).GetConstructorDef();
 
-                        if (ci.IsMoreSpecificThan(cj)) //ci's arguments is a superset of cj's
+                        if (ci.IsMoreSpecificThan(cj)) // ci's arguments is a superset of cj's
                         {
                             k = i;
                         }
@@ -712,10 +712,10 @@ namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
                 {
                     try
                     {
-                        var r = this.classHierarchy.Parse(np, (string) o);
+                        var r = this.classHierarchy.Parse(np, (string)o);
                         if (r is INode)
                         {
-                            ret3.Add((INode) r);
+                            ret3.Add((INode)r);
                         }
                         else
                         {
@@ -771,7 +771,7 @@ namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
 
         private void CheckNamedParameter(Type t)
         {
-            if (ReflectionUtilities.IsAssignableFromIgnoreGeneric(typeof (Name<>), t))
+            if (ReflectionUtilities.IsAssignableFromIgnoreGeneric(typeof(Name<>), t))
             {
                 var ex = new InjectionException("GetInstance() called on Name "
                                              + ReflectionUtilities.GetName(t)
@@ -816,7 +816,7 @@ namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
 
         public object GetNamedInstance(Type t)
         {
-            if (!ReflectionUtilities.IsAssignableFromIgnoreGeneric(typeof (Name<>), t))
+            if (!ReflectionUtilities.IsAssignableFromIgnoreGeneric(typeof(Name<>), t))
             {
                 var ex = new ApplicationException(string.Format(CultureInfo.CurrentCulture, "The parameter {0} is not inherit from Name<>", t));
                 Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(ex, LOGGER);
@@ -843,7 +843,7 @@ namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
                 return p;
             }
             Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(new InjectionException("Fail to get injection plan" + n), LOGGER);
-            return null;//this line should be not reached as Throw throws exception
+            return null; // this line should be not reached as Throw throws exception
         }
 
         public bool IsInjectable(string name)
@@ -980,7 +980,7 @@ namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
             INode n = this.classHierarchy.GetNode(typeof(T));
             if (n is IClassNode) 
             {
-                IClassNode cn = (IClassNode) n;
+                IClassNode cn = (IClassNode)n;
                 object old = GetCachedInstance(cn);
                 if (old != null) {
                     Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(new BindException("Attempt to re-bind instance.  Old value was "
@@ -993,16 +993,16 @@ namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
             }
         }
 
-        //void BindVolatileParameterNoCopy(Class<? extends Name<T>> c, T o)
+        // void BindVolatileParameterNoCopy(Class<? extends Name<T>> c, T o)
         void BindVolatileParameterNoCopy<U, T>(GenericType<U> c, T o)
             where U : Name<T>
         {
             INode n = this.classHierarchy.GetNode(typeof(U));
             if (n is INamedParameterNode) 
             {
-                INamedParameterNode np = (INamedParameterNode) n;
+                INamedParameterNode np = (INamedParameterNode)n;
                 Object old = this.configuration.GetNamedParameter(np);
-                if(old != null) 
+                if (old != null) 
                 {
                     // XXX need to get the binding site here!
                     var ex = new BindException(
@@ -1030,7 +1030,7 @@ namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
             }
         }
 
-        //public <T> void bindVolatileInstance(Class<T> c, T o) throws BindException {
+        // public <T> void bindVolatileInstance(Class<T> c, T o) throws BindException {
         public void BindVolatileInstance<T>(GenericType<T> iface, T inst)
         {
             BindVolatileInstanceNoCopy(iface, inst);
@@ -1069,15 +1069,16 @@ namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
             BindVolatileParameter(GenericType<U>.Class, inst);
         }
 
-        //public T GetNamedParameter<U, T>(GenericType<U> name) where U : Name<T>
-        //{
-        //    return (T)GetNamedInstance(typeof(U));
-        //}
+        ////public T GetNamedParameter<U, T>(GenericType<U> name) where U : Name<T>
+        ////{
+        ////   return (T)GetNamedInstance(typeof(U));
+        ////}
 
-        //public IInjector CreateChildInjector(IConfiguration[] configurations)
-        //{
-        //    return ForkInjector(configurations);
-        //}
+        ////public IInjector CreateChildInjector(IConfiguration[] configurations)
+        ////{
+        ////   return ForkInjector(configurations);
+        ////}
+
         /// <summary>
         /// Gets the injection plan for a given class name
         /// </summary>

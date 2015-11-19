@@ -19,7 +19,7 @@ using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.Client.YARN.Parameters
 {
-    [NamedParameter("Security token kind.", defaultValue:"NULL")]
+    [NamedParameter("Security token kind.", defaultValue: "NULL")]
     public sealed class SecurityTokenKindParameter : Name<string>
     {
     }

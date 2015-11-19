@@ -115,11 +115,11 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
         {
             ParameterParser p = new ParameterParser();
             
-            //p.AddParser(typeof(FooParser));
+            // p.AddParser(typeof(FooParser));
             Foo f = null;
             try
             {
-                f = (Foo) p.Parse(typeof (Foo), "woot");
+                f = (Foo)p.Parse(typeof(Foo), "woot");
             }
             catch (NotSupportedException)
             {
@@ -182,7 +182,7 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
         public void testEndToEnd() 
         {
             ITang tang = TangFactory.GetTang();
-            ICsConfigurationBuilder cb = tang.NewConfigurationBuilder(new Type[] {typeof(BarParser) });
+            ICsConfigurationBuilder cb = tang.NewConfigurationBuilder(new Type[] { typeof(BarParser) });
             cb.BindNamedParameter<SomeNamedFoo, Foo>(GenericType<SomeNamedFoo>.Class, "hdfs://woot");
             ILikeBars ilb = tang.NewInjector(cb.Build()).GetInstance<ILikeBars>();
             Assert.IsNotNull(ilb);
@@ -196,14 +196,14 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
 
             ICsConfigurationBuilder cb2 = tang.NewConfigurationBuilder(new IConfiguration[] { cb.Build() });
 
-            cb2.BindNamedParameter<ParseName, ParseableType>(GenericType<ParseName>.Class, "a"); //ParseName : Name<ParseableType>
+            cb2.BindNamedParameter<ParseName, ParseableType>(GenericType<ParseName>.Class, "a"); // ParseName : Name<ParseableType>
 
             ParseableType t = (ParseableType)tang.NewInjector(cb2.Build()).GetNamedInstance(typeof(ParseName));
             Assert.IsTrue(t is ParseTypeA);
 
             cb2 = tang.NewConfigurationBuilder(cb.Build());
-            cb2.BindNamedParameter<ParseNameB, ParseTypeB>(GenericType<ParseNameB>.Class, "b"); //ParseNameB : Name<ParseTypeB : ParseableType>
-            cb2.BindNamedParameter<ParseNameA, ParseableType>(GenericType<ParseNameA>.Class, "a"); //ParseNameA : Name<ParseableType>
+            cb2.BindNamedParameter<ParseNameB, ParseTypeB>(GenericType<ParseNameB>.Class, "b"); // ParseNameB : Name<ParseTypeB : ParseableType>
+            cb2.BindNamedParameter<ParseNameA, ParseableType>(GenericType<ParseNameA>.Class, "a"); // ParseNameA : Name<ParseableType>
 
             tang.NewInjector(cb2.Build()).GetInstance(typeof(NeedsA));
             tang.NewInjector(cb2.Build()).GetInstance(typeof(NeedsB));

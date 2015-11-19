@@ -27,6 +27,6 @@ namespace Org.Apache.REEF.Utilities
         /// <summary>
         /// The Id of this object, e.g. the TaskId.
         /// </summary>
-        string Id { get;}
+        string Id { get; }
     }
 }

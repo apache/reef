@@ -74,8 +74,8 @@ namespace Org.Apache.REEF.IMRU.InProcess
 
                 foreach (var mapfunc in _mapfunctions)
                 {
-                    //We create a copy by doing coding and decoding since the map task might 
-                    //reuse the fields in next iteration and meanwhile update task might update it.
+                    // We create a copy by doing coding and decoding since the map task might 
+                    // reuse the fields in next iteration and meanwhile update task might update it.
                     using (MemoryStream mapInputStream = new MemoryStream(), mapOutputStream = new MemoryStream())
                     {
                         var mapInputWriter = new StreamDataWriter(mapInputStream);

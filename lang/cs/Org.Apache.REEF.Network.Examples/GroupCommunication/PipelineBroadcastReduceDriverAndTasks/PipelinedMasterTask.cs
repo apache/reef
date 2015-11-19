@@ -93,9 +93,9 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.PipelineBroadcastR
                 Logger.Log(Level.Info, "Received sum: {0} on iteration: {1} with array length: {2}", sum[0], i,
                     sum.Length);
 
-                int expected = TriangleNumber(i)*_numReduceSenders;
+                int expected = TriangleNumber(i) * _numReduceSenders;
 
-                if (sum[0] != TriangleNumber(i)*_numReduceSenders)
+                if (sum[0] != TriangleNumber(i) * _numReduceSenders)
                 {
                     throw new Exception("Expected " + expected + " but got " + sum[0]);
                 }
@@ -104,8 +104,8 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.PipelineBroadcastR
                 {
                     Logger.Log(Level.Info,
                         string.Format("Average time (milliseconds) taken for broadcast: {0} and reduce: {1}",
-                            broadcastTime.ElapsedMilliseconds/((double) (i - 1)),
-                            reduceTime.ElapsedMilliseconds/((double) (i - 1))));
+                            broadcastTime.ElapsedMilliseconds / ((double)(i - 1)),
+                            reduceTime.ElapsedMilliseconds / ((double)(i - 1))));
                 }
             }
 

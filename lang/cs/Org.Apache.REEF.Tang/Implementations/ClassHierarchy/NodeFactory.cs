@@ -41,24 +41,24 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
 
         public static INode CreateClassNode(INode parent, Type clazz)
         {
-            //var namedParameter = clazz.GetCustomAttribute<NamedParameterAttribute>();
+            // var namedParameter = clazz.GetCustomAttribute<NamedParameterAttribute>();
             var unit = null != clazz.GetCustomAttribute<UnitAttribute>();
             string simpleName = ReflectionUtilities.GetName(clazz);
             string fullName = ReflectionUtilities.GetAssemblyQualifiedName(clazz);
-            //bool isStatic = true; // clazz.IsSealed && clazz.IsAbstract; always true in C# for Java static class
-            //bool injectable = true; // always true in C#
+            // bool isStatic = true; // clazz.IsSealed && clazz.IsAbstract; always true in C# for Java static class
+            // bool injectable = true; // always true in C#
 
             bool isAssignableFromExternalConstructor = ReflectionUtilities.IsAssignableFromIgnoreGeneric(typeof(IExternalConstructor<>), clazz); 
 
-            //bool parentIsUnit = false; 
+            // bool parentIsUnit = false; 
 
-            //No such thing in C#, should be false
-            //bool foundNonStaticInnerClass = false;
-            //foreach (Type c in clazz.getNestedTypes()) {
-            //  if (!Modifier.isStatic(c.getModifiers())) {
-            //    foundNonStaticInnerClass = true;
-            //  }
-            //}
+            ////No such thing in C#, should be false
+            ////bool foundNonStaticInnerClass = false;
+            ////foreach (Type c in clazz.getNestedTypes()) {
+            ////  if (!Modifier.isStatic(c.getModifiers())) {
+            ////    foundNonStaticInnerClass = true;
+            ////  }
+            ////}
 
             var injectableConstructors = new List<IConstructorDef>();
             var allConstructors = new List<IConstructorDef>();
@@ -73,7 +73,7 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
 
                 if (constructorInjectable)
                 {
-//                    if (injectableConstructors.Contains(constructorDef))
+                    // if (injectableConstructors.Contains(constructorDef))
                     if (constructorDef.IsInList(injectableConstructors))
                     {
                         var e = new ClassHierarchyException(
@@ -122,7 +122,7 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
                 injectableConstructors, allConstructors, defaultImplementation);
         }
 
-        //TODO
+        // TODO
         private static ConstructorDefImpl CreateConstructorDef(ConstructorInfo constructor, bool injectable)
         {
             var parameters = constructor.GetParameters();
@@ -131,16 +131,16 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
 
             for (int i = 0; i < parameters.Length; i++)
             {
-                //TODO for getInterfaceTarget() call
+                // TODO for getInterfaceTarget() call
                 Type type = parameters[i].ParameterType;
                 type = ReflectionUtilities.EnsureInterfaceType(type);
-                //if (type.IsGenericType && type.FullName == null)
-                //{
-                //    type = type.GetGenericTypeDefinition();
-                //}
+                ////if (type.IsGenericType && type.FullName == null)
+                ////{
+                ////   type = type.GetGenericTypeDefinition();
+                ////}
                 bool isFuture;
 
-                if(ReflectionUtilities.IsAssignableFromIgnoreGeneric(typeof(IInjectionFuture<>), type)) 
+                if (ReflectionUtilities.IsAssignableFromIgnoreGeneric(typeof(IInjectionFuture<>), type)) 
                 {
                     type = ReflectionUtilities.GetInterfaceTarget(typeof(IInjectionFuture<>), type);
                     isFuture = true;
@@ -175,11 +175,11 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
         {
             Type setRawArgType = ReflectionUtilities.GetInterfaceTarget(typeof(ISet<>), argClass);
             bool isSet = setRawArgType != null;
-            if(isSet) {
+            if (isSet) {
                 argClass = setRawArgType;
             }
 
-            Type listRawArgType = ReflectionUtilities.GetInterfaceTargetForType(typeof (IList<>), argClass);
+            Type listRawArgType = ReflectionUtilities.GetInterfaceTargetForType(typeof(IList<>), argClass);
             bool isList = listRawArgType != null;
             if (isList)
             {
@@ -246,7 +246,7 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
                 Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(e, LOGGER);
             }
 
-            string[] defaultInstanceAsStrings = new string[]{};
+            string[] defaultInstanceAsStrings = new string[] { };
 
             if (default_count == 0)
             {

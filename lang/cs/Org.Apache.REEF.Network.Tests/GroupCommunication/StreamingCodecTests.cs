@@ -55,7 +55,7 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
             CancellationToken token = new CancellationToken();
 
             int obj = 5;
-            int[] intArr = {1, 2};
+            int[] intArr = { 1, 2 };
             double[] doubleArr = { 1, 2 };
             float[] floatArr = { 1, 2 };
             string stringObj = "hello";

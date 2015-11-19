@@ -42,11 +42,11 @@ namespace Org.Apache.REEF.Wake.StreamingCodec.CommonStreamingCodecs
         /// Instantiate the class from the reader.
         /// </summary>
         /// <param name="reader">The reader from which to read</param>
-        ///<returns>The float array read from the reader</returns>
+        /// <returns>The float array read from the reader</returns>
         public float[] Read(IDataReader reader)
         {
             int length = reader.ReadInt32();
-            byte[] buffer = new byte[sizeof(float)*length];
+            byte[] buffer = new byte[sizeof(float) * length];
             reader.Read(ref buffer, 0, buffer.Length);
             float[] floatArr = new float[length];
             Buffer.BlockCopy(buffer, 0, floatArr, 0, buffer.Length);
@@ -71,10 +71,10 @@ namespace Org.Apache.REEF.Wake.StreamingCodec.CommonStreamingCodecs
             writer.Write(buffer, 0, buffer.Length);
         }
 
-        ///  <summary>
-        ///  Instantiate the class from the reader.
-        ///  </summary>
-        ///  <param name="reader">The reader from which to read</param>
+        /// <summary>
+        /// Instantiate the class from the reader.
+        /// </summary>
+        /// <param name="reader">The reader from which to read</param>
         /// <param name="token">Cancellation token</param>
         /// <returns>The float array read from the reader</returns>
         public async Task<float[]> ReadAsync(IDataReader reader, CancellationToken token)

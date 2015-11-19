@@ -66,10 +66,10 @@ namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
            return isInjectable;
        }
 
-       //public override bool HasFutureDependency()
-       //{
-       //    return false;
-       //}
+       ////public override bool HasFutureDependency()
+       ////{
+       ////   return false;
+       ////}
 
        public ISet<InjectionPlan> GetEntryPlans()
        {
@@ -81,7 +81,7 @@ namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
             StringBuilder sb = new StringBuilder(GetNode().GetFullName() + "(set) includes ambiguous plans [");
             foreach (InjectionPlan ip in entries) 
             {
-                if(ip.IsAmbiguous()) 
+                if (ip.IsAmbiguous()) 
                 {
                     sb.Append("\n" + ip.ToAmbiguousInjectString());
                 }
@@ -95,7 +95,7 @@ namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
             StringBuilder sb = new StringBuilder(GetNode().GetFullName() + "(set) includes infeasible plans [");
             foreach (InjectionPlan ip in entries) 
             {
-                if(!ip.IsFeasible()) 
+                if (!ip.IsFeasible()) 
                 {
                     sb.Append("\n" + ip.ToInfeasibleInjectString());
                 }

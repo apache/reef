@@ -61,7 +61,7 @@ namespace Org.Apache.REEF.Tang.Implementations.Configuration
             this.ClassHierarchy = TangFactory.GetTang().GetDefaultClassHierarchy(assemblies, parsers);
             foreach (IConfiguration tc in confs) 
             {
-                AddConfiguration(((ConfigurationImpl) tc));
+                AddConfiguration(((ConfigurationImpl)tc));
             }
         }
 
@@ -95,11 +95,11 @@ namespace Org.Apache.REEF.Tang.Implementations.Configuration
         {
             this.ClassHierarchy = this.ClassHierarchy.Merge(ns);
             
-            if((ClassHierarchy is ClassHierarchyImpl || builder.ClassHierarchy is ClassHierarchyImpl)) 
+            if ((ClassHierarchy is ClassHierarchyImpl || builder.ClassHierarchy is ClassHierarchyImpl)) 
             {
-                if((ClassHierarchy is ClassHierarchyImpl && builder.ClassHierarchy is ClassHierarchyImpl)) 
+                if ((ClassHierarchy is ClassHierarchyImpl && builder.ClassHierarchy is ClassHierarchyImpl)) 
                 {
-                    ((ClassHierarchyImpl) ClassHierarchy).Parameterparser.MergeIn(((ClassHierarchyImpl) builder.ClassHierarchy).Parameterparser);
+                    ((ClassHierarchyImpl)ClassHierarchy).Parameterparser.MergeIn(((ClassHierarchyImpl)builder.ClassHierarchy).Parameterparser);
                 } 
                 else 
                 {
@@ -147,7 +147,7 @@ namespace Org.Apache.REEF.Tang.Implementations.Configuration
             foreach (KeyValuePair<INamedParameterNode, object> e in builder.BoundSetEntries) 
             {
               String name = ((INamedParameterNode)e.Key).GetFullName();
-              if(e.Value is INode) 
+              if (e.Value is INode) 
               {
                     BindSetEntry(name, (INode)e.Value);
               } 
@@ -265,7 +265,7 @@ namespace Org.Apache.REEF.Tang.Implementations.Configuration
                 ((ICsClassHierarchy)ClassHierarchy).Parse(name, value);
             }
 
-            if(name.IsSet()) 
+            if (name.IsSet()) 
             {
                 BindSetEntry((INamedParameterNode)name, value);
             } 

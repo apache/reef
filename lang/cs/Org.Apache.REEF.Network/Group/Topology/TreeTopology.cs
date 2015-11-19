@@ -103,13 +103,13 @@ namespace Org.Apache.REEF.Network.Group.Topology
                 parentId = parent.TaskId;
             }
 
-            //add parentid, if no parent, add itself
+            // add parentid, if no parent, add itself
             ICsConfigurationBuilder confBuilder = TangFactory.GetTang().NewConfigurationBuilder()
                 .BindNamedParameter<GroupCommConfigurationOptions.TopologyRootTaskId, string>(
                     GenericType<GroupCommConfigurationOptions.TopologyRootTaskId>.Class,
                     parentId);
 
-            //add all its children
+            // add all its children
             foreach (TaskNode childNode in selfTaskNode.GetChildren())
             {
                 confBuilder.BindSetEntry<GroupCommConfigurationOptions.TopologyChildTaskIds, string>(

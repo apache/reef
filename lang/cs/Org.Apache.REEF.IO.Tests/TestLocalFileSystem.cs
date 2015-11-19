@@ -143,7 +143,7 @@ namespace Org.Apache.REEF.IO.Tests
         public void TestGetChildren()
         {
             var fs = GetFileSystem();
-            var directoryUri = new Uri(Path.Combine(Path.GetTempPath(), TempFileName)+"/");
+            var directoryUri = new Uri(Path.Combine(Path.GetTempPath(), TempFileName) + "/");
             fs.CreateDirectory(directoryUri);
             var fileUri = new Uri(directoryUri, "testfile");
             

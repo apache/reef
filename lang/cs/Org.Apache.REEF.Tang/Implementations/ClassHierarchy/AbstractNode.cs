@@ -33,12 +33,12 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
 
         /// It is from Type.AssemblyQualifiedName. THis name is used as full name in a Node
         /// It is unique for a generic type with different type of arguments.
-        private readonly String fullName; //it comes from 
+        private readonly String fullName;
 
-        //parent node in the class hierarchy
+        // parent node in the class hierarchy
         private readonly INode parent; 
         
-        //children in the class hierarchy
+        // children in the class hierarchy
         protected IDictionary<String, INode> children = new MonotonicTreeMap<string, INode>();
 
         public AbstractNode(INode parent, String name, String fullName)
@@ -94,10 +94,10 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
 
         public override bool Equals(Object o) 
         {
-            if(o == null) return false;
-            if(o == this) return true;
+            if (o == null) return false;
+            if (o == this) return true;
     
-            AbstractNode n = (AbstractNode) o;
+            AbstractNode n = (AbstractNode)o;
             bool parentsEqual;
             if (n.parent == this.parent) {
                 parentsEqual = true;

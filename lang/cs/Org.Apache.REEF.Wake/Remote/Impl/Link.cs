@@ -104,7 +104,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         /// </summary>
         public IPEndPoint RemoteEndpoint
         {
-            get { return (IPEndPoint) Client.Client.RemoteEndPoint; }
+            get { return (IPEndPoint)Client.Client.RemoteEndPoint; }
         }
 
         /// <summary>
@@ -246,7 +246,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         private IPEndPoint GetLocalEndpoint()
         {
             IPAddress address = NetworkUtils.LocalIPAddress;
-            int port = ((IPEndPoint) Client.Client.LocalEndPoint).Port;
+            int port = ((IPEndPoint)Client.Client.LocalEndPoint).Port;
             return new IPEndPoint(address, port);
         }
     }

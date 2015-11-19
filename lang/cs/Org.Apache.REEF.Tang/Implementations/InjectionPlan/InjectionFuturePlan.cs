@@ -27,7 +27,7 @@ namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(InjectionFuturePlan));
 
-        public InjectionFuturePlan(INode name) : base (name)
+        public InjectionFuturePlan(INode name) : base(name)
         {
         }
 
@@ -46,10 +46,10 @@ namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
             return true;
         }
 
-        //public override bool HasFutureDependency()
-        //{
-        //    return true;
-        //}
+        ////public override bool HasFutureDependency()
+        ////{
+        ////   return true;
+        ////}
 
         public override string ToAmbiguousInjectString()
         {
@@ -68,7 +68,7 @@ namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
 
         public override string ToShallowString()
         {
-            return "InjectionFuture<"+GetNode().GetFullName()+">";
+            return "InjectionFuture<" + GetNode().GetFullName() + ">";
         }
     }
 }

@@ -104,7 +104,7 @@ namespace Org.Apache.REEF.Driver.Evaluator
 
             var ipEndPoint = new IPEndPoint(IPAddress.Parse(ipAddress), portNumber);
 
-            _nodeDescriptor = new NodeDescriptorImpl {InetSocketAddress = ipEndPoint, HostName = hostName};
+            _nodeDescriptor = new NodeDescriptorImpl { InetSocketAddress = ipEndPoint, HostName = hostName };
             _evaluatorType = EvaluatorType.CLR;
             _megaBytes = memoryInMegaBytes;
             _core = vCore;
@@ -158,8 +158,8 @@ namespace Org.Apache.REEF.Driver.Evaluator
             var granularity = ClrHandlerHelper.MemoryGranularity == 0
                 ? Constants.DefaultMemoryGranularity
                 : ClrHandlerHelper.MemoryGranularity;
-            var m1 = (Memory - 1)/granularity;
-            var m2 = (other.Memory - 1)/granularity;
+            var m1 = (Memory - 1) / granularity;
+            var m2 = (other.Memory - 1) / granularity;
             return (m1 == m2);
         }
     }

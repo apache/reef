@@ -205,7 +205,7 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
 
             if (n is IClassNode)
             {
-                IClassNode cn = (IClassNode) n;
+                IClassNode cn = (IClassNode)n;
                 IList<IConstructorDef> injectable = cn.GetInjectableConstructors();
                 IList<IConstructorDef> all = cn.GetAllConstructors();
                 IList<IConstructorDef> others = new List<IConstructorDef>(all);
@@ -230,7 +230,7 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
                 List<string> implFullNames = new List<string>();
                 foreach (IClassNode impl in cn.GetKnownImplementations())
                 {
-                    implFullNames.Add(impl.GetFullName()); //we use class fully qualified name 
+                    implFullNames.Add(impl.GetFullName()); // we use class fully qualified name 
                 }
 
                 return NewClassNode(cn.GetName(), cn.GetFullName(),
@@ -240,7 +240,7 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
 
             if (n is INamedParameterNode)
             {
-                INamedParameterNode np = (INamedParameterNode) n;
+                INamedParameterNode np = (INamedParameterNode)n;
                 return NewNamedParameterNode(np.GetName(), np.GetFullName(),
                     np.GetSimpleArgName(), np.GetFullArgName(), np.IsSet(), np.IsList(), np.GetDocumentation(),
                     np.GetShortName(), np.GetDefaultInstanceAsStrings(), children);

@@ -55,7 +55,7 @@ namespace Org.Apache.REEF.Network.NetworkService.Codec
         /// Instantiate the class from the reader.
         /// </summary>
         /// <param name="reader">The reader from which to read</param>
-        ///<returns>The instance of type NsMessage<T></T> read from the reader</returns>
+        /// <returns>The instance of type NsMessage<T></T> read from the reader</returns>
         public NsMessage<T> Read(IDataReader reader)
         {
             int metadataSize = reader.ReadInt32();
@@ -98,10 +98,10 @@ namespace Org.Apache.REEF.Network.NetworkService.Codec
             }
         }
 
-        ///  <summary>
-        ///  Instantiate the class from the reader.
-        ///  </summary>
-        ///  <param name="reader">The reader from which to read</param>
+        /// <summary>
+        /// Instantiate the class from the reader.
+        /// </summary>
+        /// <param name="reader">The reader from which to read</param>
         /// <param name="token">Cancellation token</param>
         /// <returns>The instance of type NsMessage<T> read from the reader</returns>
         public async Task<NsMessage<T>> ReadAsync(IDataReader reader, CancellationToken token)
@@ -147,7 +147,7 @@ namespace Org.Apache.REEF.Network.NetworkService.Codec
             }
         }
 
-        private static byte[] GenerateMetaDataEncoding(NsMessage<T> obj )
+        private static byte[] GenerateMetaDataEncoding(NsMessage<T> obj)
         {
             List<byte[]> metadataBytes = new List<byte[]>();
             byte[] sourceBytes = StringToBytes(obj.SourceId.ToString());
@@ -169,10 +169,10 @@ namespace Org.Apache.REEF.Network.NetworkService.Codec
         private Tuple<NsMessage<T>, int, Type> GenerateMetaDataDecoding(byte[] obj)
         {
             int srcCount = BitConverter.ToInt32(obj, 0);
-            int dstCount = BitConverter.ToInt32(obj, sizeof (int));
-            int msgTypeCount = BitConverter.ToInt32(obj, 2*sizeof (int));
+            int dstCount = BitConverter.ToInt32(obj, sizeof(int));
+            int msgTypeCount = BitConverter.ToInt32(obj, 2 * sizeof(int));
 
-            int offset = 3*sizeof (int);
+            int offset = 3 * sizeof(int);
             string srcString = BytesToString(obj.Skip(offset).Take(srcCount).ToArray());
             offset += srcCount;
             string dstString = BytesToString(obj.Skip(offset).Take(dstCount).ToArray());

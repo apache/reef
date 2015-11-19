@@ -32,7 +32,7 @@ namespace Org.Apache.REEF.Wake.StreamingCodec
         /// Instantiate the class from the reader.
         /// </summary>
         /// <param name="reader">The reader from which to read</param>
-        ///<returns>The instance of type T read from the reader</returns>
+        /// <returns>The instance of type T read from the reader</returns>
         T Read(IDataReader reader);
 
         /// <summary>
@@ -42,10 +42,10 @@ namespace Org.Apache.REEF.Wake.StreamingCodec
         /// <param name="writer">The writer to which to write</param>
         void Write(T obj, IDataWriter writer);
 
-        ///  <summary>
-        ///  Instantiate the class from the reader.
-        ///  </summary>
-        ///  <param name="reader">The reader from which to read</param>
+        /// <summary>
+        /// Instantiate the class from the reader.
+        /// </summary>
+        /// <param name="reader">The reader from which to read</param>
         /// <param name="token">Cancellation token</param>
         /// <returns>The instance of type T read from the reader</returns>
         Task<T> ReadAsync(IDataReader reader, CancellationToken token);

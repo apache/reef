@@ -186,9 +186,9 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
         private static Tuple<string, string, string, string, int> GenerateMetaDataDecoding(byte[] obj)
         {
             int groupCount = BitConverter.ToInt32(obj, 0);
-            int operatorCount = BitConverter.ToInt32(obj, sizeof (int));
-            int srcCount = BitConverter.ToInt32(obj, 2*sizeof (int));
-            int dstCount = BitConverter.ToInt32(obj, 3*sizeof (int));
+            int operatorCount = BitConverter.ToInt32(obj, sizeof(int));
+            int srcCount = BitConverter.ToInt32(obj, 2 * sizeof(int));
+            int dstCount = BitConverter.ToInt32(obj, 3 * sizeof(int));
 
             int offset = 4 * sizeof(int);
 

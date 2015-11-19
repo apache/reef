@@ -31,7 +31,7 @@ namespace Org.Apache.REEF.Tang.Interface
         /// </summary>
         /// <param name="name">The name.</param>
         /// <param name="value">The value.</param>
-        ICsConfigurationBuilder BindNamedParameter(Type name, string value);  //name must extend from Name<T>
+        ICsConfigurationBuilder BindNamedParameter(Type name, string value);  // name must extend from Name<T>
 
         /// <summary>
         /// Binds the class impl as the implementation of the interface iface
@@ -79,15 +79,15 @@ namespace Org.Apache.REEF.Tang.Interface
         ICsConfigurationBuilder BindImplementation<U, T>(GenericType<U> iface, GenericType<T> impl)
             where T : U;
 
-        //public <T> void bindConstructor(Class<T> c, Class<? extends ExternalConstructor<? extends T>> v) throws BindException;
+        // public <T> void bindConstructor(Class<T> c, Class<? extends ExternalConstructor<? extends T>> v) throws BindException;
         ICsConfigurationBuilder BindConstructor<T, U>(GenericType<T> c, GenericType<U> v)
             where U : IExternalConstructor<T>;
   
-        //public <T> void bindSetEntry(Class<? extends Name<Set<T>>> iface, String value) throws BindException;
+        // public <T> void bindSetEntry(Class<? extends Name<Set<T>>> iface, String value) throws BindException;
         ICsConfigurationBuilder BindSetEntry<U, T>(GenericType<U> iface, string value)
             where U : Name<ISet<T>>;
 
-         //public <T> void bindSetEntry(Class<? extends Name<Set<T>>> iface, Class<? extends T> impl) throws BindException;
+         // public <T> void bindSetEntry(Class<? extends Name<Set<T>>> iface, Class<? extends T> impl) throws BindException;
         ICsConfigurationBuilder BindSetEntry<U, V, T>(GenericType<U> iface, GenericType<V> impl)
             where U : Name<ISet<T>>
             where V : T;
