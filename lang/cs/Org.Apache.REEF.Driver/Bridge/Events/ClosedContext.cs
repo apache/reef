@@ -26,48 +26,63 @@ using Org.Apache.REEF.Utilities;
 
 namespace Org.Apache.REEF.Driver.Bridge.Events
 {
+    /// <summary>
+    /// A proxy for method calls to Java's ClosedContext.
+    /// </summary>
     internal sealed class ClosedContext : IClosedContext
     {
-        private readonly string _evaluatorId;
-        private readonly string _id;
+        private readonly IActiveContextClr2Java _parentContextClr2Java;
 
         internal ClosedContext(IClosedContextClr2Java clr2java)
         {
             InstanceId = Guid.NewGuid().ToString("N");
-            _id = clr2java.GetId();
-            _evaluatorId = clr2java.GetEvaluatorId();
+            Id = clr2java.GetId();
+            EvaluatorId = clr2java.GetEvaluatorId();
+            EvaluatorDescriptor = clr2java.GetEvaluatorDescriptor();
+
+            // TODO[JIRA REEF-762]: populate this
+            _parentContextClr2Java = null;
         }
 
+        /// <summary>
+        /// An ID for the ClosedContext instance.
+        /// </summary>
         [DataMember]
         public string InstanceId { get; private set; }
 
-        private IActiveContextClr2Java ParentContextClr2Java { get; set; }
-        private IClosedContextClr2Java ClosedContextClr2JavaClr2Java { get; set; }
+        /// <summary>
+        /// Gets the ID of the closed context.
+        /// </summary>
+        public string Id { get; private set; }
 
-        public string Id
-        {
-            get { return _id; }
-        }
+        /// <summary>
+        /// Gets the ID of the Evaluator on which the context was closed.
+        /// </summary>
+        public string EvaluatorId { get; private set; }
 
-        public string EvaluatorId
-        {
-            get { return _evaluatorId; }
-        }
-
+        /// <summary>
+        /// Gets the ID of the parent context of the closed context.
+        /// </summary>
         public Optional<string> ParentId
         {
             // TODO[REEF-762]: Implement
             get { return Optional<string>.Empty(); }
         }
 
-        public IEvaluatorDescriptor EvaluatorDescriptor
-        {
-            get { return ClosedContextClr2JavaClr2Java.GetEvaluatorDescriptor(); }
-        }
+        /// <summary>
+        /// Gets the <see cref="IEvaluatorDescriptor"/> of the Evaluator on which
+        /// the context was closed.
+        /// </summary>
+        public IEvaluatorDescriptor EvaluatorDescriptor { get; private set; }
 
+        /// <summary>
+        /// Gest the <see cref="IActiveContext"/> of the parent context of the
+        /// closed context.
+        /// </summary>
         public IActiveContext ParentContext
         {
-            get { return new ActiveContext(ParentContextClr2Java); }
+            // TODO[JIRA REEF-762]: make sure this doesn't fail.
+            get { return new ActiveContext(_parentContextClr2Java); }
         }
     }
 }

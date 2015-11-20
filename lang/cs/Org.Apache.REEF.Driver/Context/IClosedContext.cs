@@ -19,6 +19,9 @@
 
 namespace Org.Apache.REEF.Driver.Context
 {
+    /// <summary>
+    /// A closed context.
+    /// </summary>
     public interface IClosedContext : IContext
     {
         /// <summary>
