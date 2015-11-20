@@ -38,7 +38,7 @@ under the License.
                         <id>generate-sources</id>
                         <phase>generate-sources</phase>
                         <configuration>
-                            <tasks>
+                            <target>
                                 <mkdir dir="target/generated-sources/proto"/>
                                 <exec executable="protoc">
                                     <arg value="--proto_path=src/main/proto/"/>
@@ -50,7 +50,7 @@ under the License.
                                     <arg value="--java_out=target/generated-sources/proto"/>
                                     <arg value="src/main/proto/group_comm_protocol.proto"/>
                                 </exec>
-                            </tasks>
+                            </target>
                             <sourceRoot>target/generated-sources/proto</sourceRoot>
                         </configuration>
                         <goals>
