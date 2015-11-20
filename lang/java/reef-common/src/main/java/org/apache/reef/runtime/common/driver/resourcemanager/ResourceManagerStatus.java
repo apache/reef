@@ -160,7 +160,7 @@ public final class ResourceManagerStatus implements EventHandler<RuntimeStatusEv
 
     // handle diagonal elements of the transition matrix
     if (from.equals(to)){
-      LOG.warning("Transition from " + from + " state to the same state. This shouldn't happen.");
+      LOG.finest("Transition from " + from + " state to the same state.");
       return true;
     }
 
