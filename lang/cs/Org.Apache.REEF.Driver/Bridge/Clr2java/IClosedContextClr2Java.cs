@@ -21,14 +21,31 @@ using Org.Apache.REEF.Driver.Evaluator;
 
 namespace Org.Apache.REEF.Driver.Bridge.Clr2java
 {
+    /// <summary>
+    /// A closed context event from Java.
+    /// </summary>
     public interface IClosedContextClr2Java : IClr2Java
     {        
+        /// <summary>
+        /// Gets the ID of the closed context.
+        /// </summary>
         string GetId();
 
+        /// <summary>
+        /// Gets the Evaluator ID of the closed context.
+        /// </summary>
         string GetEvaluatorId();
 
+        /// <summary>
+        /// Gets the <see cref="IEvaluatorDescriptor"/> that describes properties
+        /// of the Evaluator of the closed context.
+        /// </summary>
         IEvaluatorDescriptor GetEvaluatorDescriptor();
 
+        /// <summary>
+        /// Gets the parent context of closed context.
+        /// </summary>
+        /// <returns></returns>
         IActiveContextClr2Java GetParentContext();
     }
 }

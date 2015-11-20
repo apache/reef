@@ -180,6 +180,11 @@ namespace Org.Apache.REEF.Driver.Bridge
                 }}
         }
 
+        /// <summary>
+        /// Invokes event handlers registered to the closed context event.
+        /// </summary>
+        /// <param name="handle">Pointer to the event handler object</param>
+        /// <param name="clr2Java">Proxy object to the Java closed context.</param>
         public static void Call_ClrSystemClosedContext_OnNext(ulong handle, IClosedContextClr2Java clr2Java)
         {
             using (LOGGER.LogFunction("ClrSystemHandlerWrapper::Call_ClrSystemClosedContext_OnNext"))
