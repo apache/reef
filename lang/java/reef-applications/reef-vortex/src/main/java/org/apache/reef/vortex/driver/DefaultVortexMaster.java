@@ -54,9 +54,15 @@ final class DefaultVortexMaster implements VortexMaster {
   @Override
   public <TInput extends Serializable, TOutput extends Serializable> VortexFuture<TOutput>
       enqueueTasklet(final VortexFunction<TInput, TOutput> function, final TInput input,
-                     final Collection<EventHandler<TOutput>> callbacks) {
+                     final Optional<EventHandler<TOutput>> callback) {
     // TODO[REEF-500]: Simple duplicate Vortex Tasklet launch.
-    final VortexFuture<TOutput> vortexFuture = new VortexFuture<>(callbacks);
+    final VortexFuture<TOutput> vortexFuture;
+    if (callback.isPresent()) {
+      vortexFuture = new VortexFuture<>(callback.get());
+    } else {
+      vortexFuture = new VortexFuture<>();
+    }
+
     this.pendingTasklets.addLast(new Tasklet<>(taskletIdCounter.getAndIncrement(), function, input, vortexFuture));
     return vortexFuture;
   }

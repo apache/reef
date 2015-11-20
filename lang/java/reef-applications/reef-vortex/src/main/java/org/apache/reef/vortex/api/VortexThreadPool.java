@@ -19,13 +19,12 @@
 package org.apache.reef.vortex.api;
 
 import org.apache.reef.annotations.Unstable;
+import org.apache.reef.util.Optional;
 import org.apache.reef.vortex.driver.VortexMaster;
 import org.apache.reef.wake.EventHandler;
 
 import javax.inject.Inject;
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.Collections;
 
 /**
  * Distributed thread pool.
@@ -48,20 +47,20 @@ public final class VortexThreadPool {
    */
   public <TInput extends Serializable, TOutput extends Serializable> VortexFuture<TOutput>
       submit(final VortexFunction<TInput, TOutput> function, final TInput input) {
-    return vortexMaster.enqueueTasklet(function, input, Collections.EMPTY_LIST);
+    return vortexMaster.enqueueTasklet(function, input, Optional.<EventHandler<TOutput>>empty());
   }
 
   /**
    * @param function to run on Vortex
    * @param input of the function
-   * @param callbacks of the function
+   * @param callback of the function
    * @param <TInput> input type
    * @param <TOutput> output type
    * @return VortexFuture for tracking execution progress
    */
   public <TInput extends Serializable, TOutput extends Serializable> VortexFuture<TOutput>
       submit(final VortexFunction<TInput, TOutput> function, final TInput input,
-             final Collection<EventHandler<TOutput>> callbacks) {
-    return vortexMaster.enqueueTasklet(function, input, callbacks);
+             final EventHandler<TOutput> callback) {
+    return vortexMaster.enqueueTasklet(function, input, Optional.of(callback));
   }
 }

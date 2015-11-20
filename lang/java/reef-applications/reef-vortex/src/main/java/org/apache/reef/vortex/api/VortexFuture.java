@@ -19,16 +19,13 @@
 package org.apache.reef.vortex.api;
 
 import org.apache.reef.annotations.Unstable;
-import org.apache.reef.runtime.common.utils.BroadCastEventHandler;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.impl.ThreadPoolStage;
 
-import java.util.Collection;
 import java.util.concurrent.*;
 
 /**
  * The interface between user code and submitted task.
- * TODO[REEF-505]: Callback features for VortexFuture.
  */
 @Unstable
 public final class VortexFuture<TOutput> implements Future<TOutput> {
@@ -37,8 +34,12 @@ public final class VortexFuture<TOutput> implements Future<TOutput> {
   private final CountDownLatch countDownLatch = new CountDownLatch(1);
   private final ThreadPoolStage<TOutput> stage;
 
-  public VortexFuture(final Collection<EventHandler<TOutput>> callbackHandlers) {
-    stage = new ThreadPoolStage<>(new BroadCastEventHandler(callbackHandlers), 1);
+  public VortexFuture() {
+    stage = null;
+  }
+
+  public VortexFuture(final EventHandler<TOutput> callbackHandler) {
+    stage = new ThreadPoolStage<>(callbackHandler, 1);
   }
 
   /**
@@ -102,7 +103,9 @@ public final class VortexFuture<TOutput> implements Future<TOutput> {
    */
   public void completed(final TOutput result) {
     this.userResult = result;
-    stage.onNext(userResult);
+    if (stage != null) {
+      stage.onNext(userResult);
+    }
     this.countDownLatch.countDown();
   }
 

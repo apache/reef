@@ -23,7 +23,6 @@ import org.apache.reef.vortex.api.VortexFunction;
 import org.apache.reef.vortex.api.VortexFuture;
 
 import java.io.Serializable;
-import java.util.Collections;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.mockito.Mockito.mock;
@@ -50,7 +49,7 @@ public class TestUtil {
    * @return a new dummy tasklet.
    */
   public Tasklet newTasklet() {
-    return new Tasklet(taskletId.getAndIncrement(), null, null, new VortexFuture(Collections.EMPTY_LIST));
+    return new Tasklet(taskletId.getAndIncrement(), null, null, new VortexFuture());
   }
 
   /**

@@ -18,6 +18,7 @@
  */
 package org.apache.reef.vortex.driver;
 
+import org.apache.reef.util.Optional;
 import org.apache.reef.vortex.api.VortexFunction;
 import org.apache.reef.vortex.api.VortexFuture;
 import org.apache.reef.wake.EventHandler;
@@ -48,18 +49,18 @@ public class DefaultVortexMasterTest {
 
     final AtomicBoolean callbackReceived = new AtomicBoolean(false);
     final CountDownLatch latch = new CountDownLatch(1);
-    final Set<EventHandler<Integer>> verificationCallbackSet = new HashSet<EventHandler<Integer>>() {{
-        add(new EventHandler<Integer>() {
-          @Override
-          public void onNext(final Integer value) {
-            callbackReceived.set(true);
-            latch.countDown();
-          }
-        });
-      }};
 
     vortexMaster.workerAllocated(vortexWorkerManager1);
-    final VortexFuture future = vortexMaster.enqueueTasklet(vortexFunction, null, verificationCallbackSet);
+
+    final EventHandler<Integer> testCallbackHandler = new EventHandler<Integer>() {
+      @Override
+      public void onNext(final Integer value) {
+        callbackReceived.set(true);
+        latch.countDown();
+      }};
+
+    final VortexFuture future = vortexMaster.enqueueTasklet(vortexFunction, null, Optional.of(testCallbackHandler));
+
     final ArrayList<Integer> taskletIds = launchTasklets(runningWorkers, pendingTasklets, 1);
     for (final int taskletId : taskletIds) {
       vortexMaster.taskletCompleted(vortexWorkerManager1.getId(), taskletId, null);
@@ -84,7 +85,8 @@ public class DefaultVortexMasterTest {
 
     // Allocate worker & tasklet and schedule
     vortexMaster.workerAllocated(vortexWorkerManager1);
-    final VortexFuture future = vortexMaster.enqueueTasklet(vortexFunction, null, Collections.EMPTY_LIST);
+    final VortexFuture future = vortexMaster.enqueueTasklet(vortexFunction, null,
+        Optional.<EventHandler<Integer>>empty());
     final ArrayList<Integer> taskletIds1 = launchTasklets(runningWorkers, pendingTasklets, 1);
 
     // Preemption!
@@ -126,7 +128,8 @@ public class DefaultVortexMasterTest {
     // Schedule tasklets
     final int numOfTasklets = 100;
     for (int i = 0; i < numOfTasklets; i++) {
-      vortexFutures.add(vortexMaster.enqueueTasklet(testUtil.newFunction(), null, Collections.EMPTY_LIST));
+      vortexFutures.add(vortexMaster.enqueueTasklet(testUtil.newFunction(), null,
+          Optional.<EventHandler<Integer>>empty()));
     }
     final ArrayList<Integer> taskletIds1 = launchTasklets(runningWorkers, pendingTasklets, numOfTasklets);
 

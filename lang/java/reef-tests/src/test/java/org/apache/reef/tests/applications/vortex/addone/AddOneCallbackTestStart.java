@@ -28,15 +28,11 @@ import org.junit.Assert;
 import javax.inject.Inject;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Test correctness of a simple vector calculation on Vortex, checking results with callbacks.
  */
 public final class AddOneCallbackTestStart implements VortexStart {
-  private static final Logger LOG = Logger.getLogger(AddOneCallbackTestStart.class.getName());
-
   @Inject
   private AddOneCallbackTestStart() {
   }
@@ -56,19 +52,15 @@ public final class AddOneCallbackTestStart implements VortexStart {
 
     final List<VortexFuture<Integer>> futures = new ArrayList<>();
     final AddOneFunction addOneFunction = new AddOneFunction();
-    final Set<EventHandler<Integer>> verificationCallbackSet = new HashSet<EventHandler<Integer>>() {{
-        add(new EventHandler<Integer>() {
-          @Override
-          public void onNext(final Integer value) {
-            LOG.log(Level.WARNING, "Retrieved " + value);
-            outputSet.add(value - 1);
-            latch.countDown();
-          }
-        });
-      }};
 
     for (final int i : inputVector) {
-      futures.add(vortexThreadPool.submit(addOneFunction, i, verificationCallbackSet));
+      futures.add(vortexThreadPool.submit(addOneFunction, i, new EventHandler<Integer>() {
+        @Override
+        public void onNext(final Integer value) {
+          outputSet.add(value - 1);
+          latch.countDown();
+        }
+      }));
     }
 
     try {
