@@ -81,15 +81,19 @@ public class MessagingTransportFactory implements TransportFactory {
     }
   }
 
-  // TODO[REEF-547]: This method uses deprecated RangeTcpPortProvider.Default. Must remove usages and deprecate.
   @Override
   public Transport newInstance(final String hostAddress, final int port,
                                final EStage<TransportEvent> clientStage,
                                final EStage<TransportEvent> serverStage,
                                final int numberOfTries,
                                final int retryTimeout) {
-    return newInstance(hostAddress, port, clientStage,
-        serverStage, numberOfTries, retryTimeout, RangeTcpPortProvider.Default);
+    try {
+      TcpPortProvider tcpPortProvider = Tang.Factory.getTang().newInjector().getInstance(RangeTcpPortProvider.class);
+      return newInstance(hostAddress, port, clientStage,
+              serverStage, numberOfTries, retryTimeout, tcpPortProvider);
+    } catch (final InjectionException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   @Override

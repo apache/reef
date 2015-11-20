@@ -58,16 +58,6 @@ public final class RangeTcpPortProvider implements TcpPortProvider {
     return new RandomRangeIterator(portRangeBegin, portRangeCount, portRangeTryCount);
   }
 
-  /**
-   * @deprecated in 0.12 have an instance injected instead.
-   */
-  @Deprecated
-  @SuppressWarnings("checkstyle:constantname")
-  public static final RangeTcpPortProvider Default = new RangeTcpPortProvider(
-      Integer.parseInt(TcpPortRangeBegin.DEFAULT_VALUE),
-      Integer.parseInt(TcpPortRangeCount.DEFAULT_VALUE),
-      Integer.parseInt(TcpPortRangeTryCount.DEFAULT_VALUE));
-
   @Override
   public String toString() {
     return "RangeTcpPortProvider{" +

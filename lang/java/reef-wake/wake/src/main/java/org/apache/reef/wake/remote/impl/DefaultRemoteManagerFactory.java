@@ -18,7 +18,9 @@
  */
 package org.apache.reef.wake.remote.impl;
 
+import org.apache.reef.tang.Injector;
 import org.apache.reef.tang.annotations.Parameter;
+import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.remote.Codec;
 import org.apache.reef.wake.remote.RemoteConfiguration;
@@ -35,13 +37,16 @@ import javax.inject.Inject;
  */
 public final class DefaultRemoteManagerFactory implements RemoteManagerFactory {
 
+  private final Injector injector;
+
   private final Codec<?> codec;
   private final EventHandler<Throwable> errorHandler;
   private final boolean orderingGuarantee;
   private final int numberOfTries;
   private final int retryTimeout;
   private final LocalAddressProvider localAddressProvider;
-  private final TransportFactory tpFactory;
+  private final TransportFactory transportFactory;
+  private final TcpPortProvider tcpPortProvider;
 
   @Inject
   private DefaultRemoteManagerFactory(
@@ -51,32 +56,39 @@ public final class DefaultRemoteManagerFactory implements RemoteManagerFactory {
       @Parameter(RemoteConfiguration.NumberOfTries.class) final int numberOfTries,
       @Parameter(RemoteConfiguration.RetryTimeout.class) final int retryTimeout,
       final LocalAddressProvider localAddressProvider,
-      final TransportFactory tpFactory) {
+      final TransportFactory tpFactory,
+      final TcpPortProvider tcpPortProvider,
+      final Injector injector) {
+    this.injector = injector;
     this.codec = codec;
     this.errorHandler = errorHandler;
     this.orderingGuarantee = orderingGuarantee;
     this.numberOfTries = numberOfTries;
     this.retryTimeout = retryTimeout;
     this.localAddressProvider = localAddressProvider;
-    this.tpFactory = tpFactory;
+    this.transportFactory = tpFactory;
+    this.tcpPortProvider = tcpPortProvider;
   }
 
-  // TODO[REEF-547]: This method uses deprecated DefaultRemoteManagerImplementation constructor.
   @Override
   public RemoteManager getInstance(final String name) {
-    return new DefaultRemoteManagerImplementation(name,
-        DefaultRemoteManagerImplementation.UNKNOWN_HOST_NAME, // Indicate to use the localAddressProvider
-        0, // Indicate to use the tcpPortProvider
-        this.codec,
-        this.errorHandler,
-        this.orderingGuarantee,
-        this.numberOfTries,
-        this.retryTimeout,
-        this.localAddressProvider,
-        this.tpFactory);
+    try {
+      final Injector newInjector = injector.forkInjector();
+      newInjector.bindVolatileParameter(RemoteConfiguration.ManagerName.class, name);
+      newInjector.bindVolatileParameter(RemoteConfiguration.MessageCodec.class, this.codec);
+      newInjector.bindVolatileParameter(RemoteConfiguration.ErrorHandler.class, this.errorHandler);
+      newInjector.bindVolatileParameter(RemoteConfiguration.OrderingGuarantee.class, this.orderingGuarantee);
+      newInjector.bindVolatileParameter(RemoteConfiguration.NumberOfTries.class, this.numberOfTries);
+      newInjector.bindVolatileParameter(RemoteConfiguration.RetryTimeout.class, this.retryTimeout);
+      newInjector.bindVolatileInstance(LocalAddressProvider.class, this.localAddressProvider);
+      newInjector.bindVolatileInstance(TransportFactory.class, this.transportFactory);
+      newInjector.bindVolatileInstance(TcpPortProvider.class, this.tcpPortProvider);
+      return newInjector.getInstance(RemoteManager.class);
+    } catch (InjectionException e) {
+      throw new RuntimeException(e);
+    }
   }
 
-  // TODO[REEF-547]: This method uses deprecated DefaultRemoteManagerImplementation constructor.
   @Override
   @SuppressWarnings("checkstyle:hiddenfield")
   public <T> RemoteManager getInstance(final String name,
@@ -89,19 +101,25 @@ public final class DefaultRemoteManagerFactory implements RemoteManagerFactory {
                                        final int retryTimeout,
                                        final LocalAddressProvider localAddressProvider,
                                        final TcpPortProvider tcpPortProvider) {
-    return new DefaultRemoteManagerImplementation(name,
-        hostAddress,
-        listeningPort,
-        codec,
-        errorHandler,
-        orderingGuarantee,
-        numberOfTries,
-        retryTimeout,
-        localAddressProvider,
-        tpFactory);
+    try {
+      final Injector newInjector = injector.forkInjector();
+      newInjector.bindVolatileParameter(RemoteConfiguration.ManagerName.class, name);
+      newInjector.bindVolatileParameter(RemoteConfiguration.HostAddress.class, hostAddress);
+      newInjector.bindVolatileParameter(RemoteConfiguration.Port.class, listeningPort);
+      newInjector.bindVolatileParameter(RemoteConfiguration.MessageCodec.class, codec);
+      newInjector.bindVolatileParameter(RemoteConfiguration.ErrorHandler.class, errorHandler);
+      newInjector.bindVolatileParameter(RemoteConfiguration.OrderingGuarantee.class, orderingGuarantee);
+      newInjector.bindVolatileParameter(RemoteConfiguration.NumberOfTries.class, numberOfTries);
+      newInjector.bindVolatileParameter(RemoteConfiguration.RetryTimeout.class, retryTimeout);
+      newInjector.bindVolatileInstance(LocalAddressProvider.class, localAddressProvider);
+      newInjector.bindVolatileInstance(TransportFactory.class, this.transportFactory);
+      newInjector.bindVolatileInstance(TcpPortProvider.class, tcpPortProvider);
+      return newInjector.getInstance(RemoteManager.class);
+    } catch (InjectionException e) {
+      throw new RuntimeException(e);
+    }
   }
 
-  // TODO[REEF-547]: This method uses deprecated DefaultRemoteManagerImplementation constructor.
   @Override
   @SuppressWarnings("checkstyle:hiddenfield")
   public <T> RemoteManager getInstance(final String name,
@@ -112,52 +130,67 @@ public final class DefaultRemoteManagerFactory implements RemoteManagerFactory {
                                        final boolean orderingGuarantee,
                                        final int numberOfTries,
                                        final int retryTimeout) {
-    return new DefaultRemoteManagerImplementation(name,
-        hostAddress,
-        listeningPort,
-        codec,
-        errorHandler,
-        orderingGuarantee,
-        numberOfTries,
-        retryTimeout,
-        this.localAddressProvider,
-        this.tpFactory);
-
+    try {
+      final Injector newInjector = injector.forkInjector();
+      newInjector.bindVolatileParameter(RemoteConfiguration.ManagerName.class, name);
+      newInjector.bindVolatileParameter(RemoteConfiguration.HostAddress.class, hostAddress);
+      newInjector.bindVolatileParameter(RemoteConfiguration.Port.class, listeningPort);
+      newInjector.bindVolatileParameter(RemoteConfiguration.MessageCodec.class, codec);
+      newInjector.bindVolatileParameter(RemoteConfiguration.ErrorHandler.class, errorHandler);
+      newInjector.bindVolatileParameter(RemoteConfiguration.OrderingGuarantee.class, orderingGuarantee);
+      newInjector.bindVolatileParameter(RemoteConfiguration.NumberOfTries.class, numberOfTries);
+      newInjector.bindVolatileParameter(RemoteConfiguration.RetryTimeout.class, retryTimeout);
+      newInjector.bindVolatileInstance(LocalAddressProvider.class, this.localAddressProvider);
+      newInjector.bindVolatileInstance(TransportFactory.class, this.transportFactory);
+      newInjector.bindVolatileInstance(TcpPortProvider.class, this.tcpPortProvider);
+      return newInjector.getInstance(RemoteManager.class);
+    } catch (InjectionException e) {
+      throw new RuntimeException(e);
+    }
   }
 
-  // TODO[REEF-547]: This method uses deprecated DefaultRemoteManagerImplementation constructor.
   @Override
   @SuppressWarnings("checkstyle:hiddenfield")
   public <T> RemoteManager getInstance(
       final String name, final Codec<T> codec, final EventHandler<Throwable> errorHandler) {
-    return new DefaultRemoteManagerImplementation(name,
-        DefaultRemoteManagerImplementation.UNKNOWN_HOST_NAME, // Indicate to use the localAddressProvider
-        0, // Indicate to use the tcpPortProvider,
-        codec,
-        errorHandler,
-        this.orderingGuarantee,
-        this.numberOfTries,
-        this.retryTimeout,
-        this.localAddressProvider,
-        this.tpFactory);
+    try {
+      final Injector newInjector = injector.forkInjector();
+      newInjector.bindVolatileParameter(RemoteConfiguration.ManagerName.class, name);
+      newInjector.bindVolatileParameter(RemoteConfiguration.MessageCodec.class, codec);
+      newInjector.bindVolatileParameter(RemoteConfiguration.ErrorHandler.class, errorHandler);
+      newInjector.bindVolatileParameter(RemoteConfiguration.OrderingGuarantee.class, this.orderingGuarantee);
+      newInjector.bindVolatileParameter(RemoteConfiguration.NumberOfTries.class, this.numberOfTries);
+      newInjector.bindVolatileParameter(RemoteConfiguration.RetryTimeout.class, this.retryTimeout);
+      newInjector.bindVolatileInstance(LocalAddressProvider.class, this.localAddressProvider);
+      newInjector.bindVolatileInstance(TransportFactory.class, this.transportFactory);
+      newInjector.bindVolatileInstance(TcpPortProvider.class, this.tcpPortProvider);
+      return newInjector.getInstance(RemoteManager.class);
+    } catch (InjectionException e) {
+      throw new RuntimeException(e);
+    }
   }
 
-  // TODO[REEF-547]: This method uses deprecated DefaultRemoteManagerImplementation constructor.
   @Override
   @SuppressWarnings("checkstyle:hiddenfield")
   public <T> RemoteManager getInstance(final String name,
                                        final int listeningPort,
                                        final Codec<T> codec,
                                        final EventHandler<Throwable> errorHandler) {
-    return new DefaultRemoteManagerImplementation(name,
-        DefaultRemoteManagerImplementation.UNKNOWN_HOST_NAME, // Indicate to use the localAddressProvider
-        listeningPort,
-        codec,
-        errorHandler,
-        this.orderingGuarantee,
-        this.numberOfTries,
-        this.retryTimeout,
-        this.localAddressProvider,
-        this.tpFactory);
+    try {
+      final Injector newInjector = injector.forkInjector();
+      newInjector.bindVolatileParameter(RemoteConfiguration.ManagerName.class, name);
+      newInjector.bindVolatileParameter(RemoteConfiguration.Port.class, listeningPort);
+      newInjector.bindVolatileParameter(RemoteConfiguration.MessageCodec.class, codec);
+      newInjector.bindVolatileParameter(RemoteConfiguration.ErrorHandler.class, errorHandler);
+      newInjector.bindVolatileParameter(RemoteConfiguration.OrderingGuarantee.class, this.orderingGuarantee);
+      newInjector.bindVolatileParameter(RemoteConfiguration.NumberOfTries.class, this.numberOfTries);
+      newInjector.bindVolatileParameter(RemoteConfiguration.RetryTimeout.class, this.retryTimeout);
+      newInjector.bindVolatileInstance(LocalAddressProvider.class, this.localAddressProvider);
+      newInjector.bindVolatileInstance(TransportFactory.class, this.transportFactory);
+      newInjector.bindVolatileInstance(TcpPortProvider.class, this.tcpPortProvider);
+      return newInjector.getInstance(RemoteManager.class);
+    } catch (InjectionException e) {
+      throw new RuntimeException(e);
+    }
   }
 }
