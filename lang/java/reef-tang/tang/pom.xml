@@ -37,7 +37,7 @@ under the License.
                         <id>generate-sources</id>
                         <phase>generate-sources</phase>
                         <configuration>
-                            <tasks>
+                            <target>
                                 <mkdir dir="target/generated-sources/proto"/>
                                 <exec executable="protoc">
                                     <arg value="--proto_path=src/main/proto/"/>
@@ -45,7 +45,7 @@ under the License.
                                     <arg value="src/main/proto/injection_plan.proto"/>
                                     <arg value="src/main/proto/class_hierarchy.proto"/>
                                 </exec>
-                            </tasks>
+                            </target>
                             <sourceRoot>target/generated-sources/proto</sourceRoot>
                         </configuration>
                         <goals>
