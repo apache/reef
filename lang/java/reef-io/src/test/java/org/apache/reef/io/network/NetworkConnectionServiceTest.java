@@ -21,12 +21,12 @@ package org.apache.reef.io.network;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.reef.exception.evaluator.NetworkException;
 import org.apache.reef.io.network.util.*;
+import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.wake.Identifier;
 import org.apache.reef.wake.IdentifierFactory;
 import org.apache.reef.wake.remote.Codec;
 import org.apache.reef.wake.remote.address.LocalAddressProvider;
-import org.apache.reef.wake.remote.address.LocalAddressProviderFactory;
 import org.apache.reef.wake.remote.impl.ObjectSerializableCodec;
 import org.junit.Rule;
 import org.junit.Test;
@@ -48,7 +48,7 @@ public class NetworkConnectionServiceTest {
   private final Identifier shuffleClientId;
 
   public NetworkConnectionServiceTest() throws InjectionException {
-    localAddressProvider = LocalAddressProviderFactory.getInstance();
+    localAddressProvider = Tang.Factory.getTang().newInjector().getInstance(LocalAddressProvider.class);
     localAddress = localAddressProvider.getLocalAddress();
 
     final IdentifierFactory idFac = new StringIdentifierFactory();

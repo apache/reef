@@ -36,7 +36,6 @@ import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.Identifier;
 import org.apache.reef.wake.IdentifierFactory;
 import org.apache.reef.wake.remote.address.LocalAddressProvider;
-import org.apache.reef.wake.remote.address.LocalAddressProviderFactory;
 import org.apache.reef.wake.remote.transport.netty.MessagingTransportFactory;
 import org.junit.Rule;
 import org.junit.Test;
@@ -58,7 +57,7 @@ public class NetworkServiceTest {
   private final String localAddress;
 
   public NetworkServiceTest() throws InjectionException {
-    localAddressProvider = LocalAddressProviderFactory.getInstance();
+    localAddressProvider = Tang.Factory.getTang().newInjector().getInstance(LocalAddressProvider.class);
     localAddress = localAddressProvider.getLocalAddress();
   }
 
