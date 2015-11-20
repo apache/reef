@@ -32,12 +32,9 @@ import org.apache.reef.wake.impl.SyncStage;
 import org.apache.reef.wake.remote.Codec;
 import org.apache.reef.wake.remote.RemoteConfiguration;
 import org.apache.reef.wake.remote.address.LocalAddressProvider;
-import org.apache.reef.wake.remote.address.LocalAddressProviderFactory;
 import org.apache.reef.wake.remote.impl.TransportEvent;
 import org.apache.reef.wake.remote.transport.Transport;
-import org.apache.reef.wake.remote.transport.TransportFactory;
 import org.apache.reef.wake.remote.transport.netty.NettyMessagingTransport;
-import org.apache.reef.webserver.AvroReefServiceInfo;
 import org.apache.reef.webserver.ReefEventStateManager;
 
 import javax.inject.Inject;
@@ -96,52 +93,6 @@ public final class NameServerImpl implements NameServer {
 
     LOG.log(Level.FINE, "NameServer starting, listening at port {0}", this.port);
   }
-
-  /**
-   * @deprecated have an instance injected instead
-   */
-  @Deprecated
-  public NameServerImpl(final int port, final IdentifierFactory factory) {
-    this(port, factory, LocalAddressProviderFactory.getInstance());
-  }
-
-  /**
-   * Constructs a name server.
-   *
-   * @param port                  a listening port number
-   * @param factory               an identifier factory
-   * @param reefEventStateManager the event state manager used to register name server info
-   * @param localAddressProvider  a local address provider
-   * @param tpFactory             a transport factory
-   * @deprecated in 0.12. Use Tang to obtain an instance of this or, better, NameServer, instead.
-   */
-  @Deprecated
-  @Inject
-  public NameServerImpl(
-      @Parameter(NameServerParameters.NameServerPort.class) final int port,
-      @Parameter(NameServerParameters.NameServerIdentifierFactory.class) final IdentifierFactory factory,
-      final ReefEventStateManager reefEventStateManager,
-      final LocalAddressProvider localAddressProvider,
-      final TransportFactory tpFactory) {
-    this.localAddressProvider = localAddressProvider;
-    this.reefEventStateManager = reefEventStateManager;
-    final Codec<NamingMessage> codec = NamingCodecFactory.createFullCodec(factory);
-    final EventHandler<NamingMessage> handler = createEventHandler(codec);
-
-    this.transport = tpFactory.newInstance(localAddressProvider.getLocalAddress(), port, null,
-        new SyncStage<>(new NamingServerHandler(handler, codec)), 3, 10000);
-
-    this.port = transport.getListeningPort();
-    this.idToAddrMap = Collections.synchronizedMap(new HashMap<Identifier, InetSocketAddress>());
-
-    this.reefEventStateManager.registerServiceInfo(
-        AvroReefServiceInfo.newBuilder()
-            .setServiceName("NameServer")
-            .setServiceInfo(getNameServerId())
-            .build());
-    LOG.log(Level.FINE, "NameServer starting, listening at port {0}", this.port);
-  }
-
 
   private EventHandler<NamingMessage> createEventHandler(final Codec<NamingMessage> codec) {
 

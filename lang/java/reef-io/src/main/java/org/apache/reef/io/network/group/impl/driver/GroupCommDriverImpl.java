@@ -39,7 +39,6 @@ import org.apache.reef.io.network.impl.*;
 import org.apache.reef.io.network.naming.NameResolver;
 import org.apache.reef.io.network.naming.NameResolverConfiguration;
 import org.apache.reef.io.network.naming.NameServer;
-import org.apache.reef.io.network.naming.NameServerImpl;
 import org.apache.reef.io.network.naming.parameters.NameResolverNameServerAddr;
 import org.apache.reef.io.network.naming.parameters.NameResolverNameServerPort;
 import org.apache.reef.io.network.util.StringIdentifierFactory;
@@ -107,20 +106,6 @@ public class GroupCommDriverImpl implements GroupCommServiceDriver {
   private final GroupCommMessageHandler groupCommMessageHandler;
   private final EStage<GroupCommunicationMessage> groupCommMessageStage;
   private final int fanOut;
-
-  /**
-   * @deprecated Have an instance injected instead.
-   */
-  @Deprecated
-  @Inject
-  public GroupCommDriverImpl(final ConfigurationSerializer confSerializer,
-                             @Parameter(DriverIdentifier.class) final String driverId,
-                             @Parameter(TreeTopologyFanOut.class) final int fanOut,
-                             final LocalAddressProvider localAddressProvider,
-                             final TransportFactory tpFactory) {
-    this(confSerializer, driverId, fanOut, localAddressProvider, tpFactory,
-        new NameServerImpl(0, new StringIdentifierFactory()));
-  }
 
   /**
    * @deprecated in 0.12. Use Tang to obtain an instance of this instead.
