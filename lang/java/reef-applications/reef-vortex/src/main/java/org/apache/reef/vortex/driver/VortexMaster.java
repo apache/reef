@@ -23,8 +23,10 @@ import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.tang.annotations.DefaultImplementation;
 import org.apache.reef.vortex.api.VortexFunction;
 import org.apache.reef.vortex.api.VortexFuture;
+import org.apache.reef.wake.EventHandler;
 
 import java.io.Serializable;
+import java.util.Collection;
 
 /**
  * The heart of Vortex.
@@ -35,10 +37,11 @@ import java.io.Serializable;
 @DefaultImplementation(DefaultVortexMaster.class)
 public interface VortexMaster {
   /**
-   * Submit a new Tasklet to be run sometime in the future.
+   * Submit a new Tasklet to be run sometime in the future, with callback functions on the result.
    */
   <TInput extends Serializable, TOutput extends Serializable> VortexFuture<TOutput>
-      enqueueTasklet(final VortexFunction<TInput, TOutput> vortexFunction, final TInput input);
+      enqueueTasklet(final VortexFunction<TInput, TOutput> vortexFunction, final TInput input,
+                 final Collection<EventHandler<TOutput>> callbacks);
 
   /**
    * Call this when a new worker is up and running.

@@ -19,7 +19,11 @@
 package org.apache.reef.vortex.api;
 
 import org.apache.reef.annotations.Unstable;
+import org.apache.reef.runtime.common.utils.BroadCastEventHandler;
+import org.apache.reef.wake.EventHandler;
+import org.apache.reef.wake.impl.ThreadPoolStage;
 
+import java.util.Collection;
 import java.util.concurrent.*;
 
 /**
@@ -31,6 +35,11 @@ public final class VortexFuture<TOutput> implements Future<TOutput> {
   private TOutput userResult;
   private Exception userException;
   private final CountDownLatch countDownLatch = new CountDownLatch(1);
+  private final ThreadPoolStage<TOutput> stage;
+
+  public VortexFuture(final Collection<EventHandler<TOutput>> callbackHandlers) {
+    stage = new ThreadPoolStage<>(new BroadCastEventHandler(callbackHandlers), 1);
+  }
 
   /**
    * TODO[REEF-502]: Support Vortex Tasklet(s) cancellation by user.
@@ -93,6 +102,7 @@ public final class VortexFuture<TOutput> implements Future<TOutput> {
    */
   public void completed(final TOutput result) {
     this.userResult = result;
+    stage.onNext(userResult);
     this.countDownLatch.countDown();
   }
 
