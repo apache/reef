@@ -63,4 +63,16 @@ public class TestUtil {
       }
     };
   }
+
+  /**
+   * @return a dummy integer-integer function.
+   */
+  public VortexFunction<Integer, Integer> newIntegerFunction() {
+    return new VortexFunction<Integer, Integer>() {
+      @Override
+      public Integer call(final Integer integer) throws Exception {
+        return 1;
+      }
+    };
+  }
 }
