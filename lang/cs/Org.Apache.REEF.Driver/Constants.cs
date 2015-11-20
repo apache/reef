@@ -61,7 +61,7 @@ namespace Org.Apache.REEF.Driver
         /// <summary>
         /// The bridge JAR name.
         /// </summary>
-        public const string JavaBridgeJarFileName = "reef-bridge-java-0.14.0-incubating-SNAPSHOT-shaded.jar";
+        public const string JavaBridgeJarFileName = "reef-bridge-java-0.14.0-SNAPSHOT-shaded.jar";
 
         public const string BridgeLaunchClass = "org.apache.reef.javabridge.generic.Launch";
 
