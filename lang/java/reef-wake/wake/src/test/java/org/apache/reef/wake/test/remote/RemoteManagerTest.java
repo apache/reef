@@ -30,7 +30,7 @@ import org.apache.reef.wake.remote.address.LocalAddressProvider;
 import org.apache.reef.wake.remote.impl.DefaultRemoteIdentifierFactoryImplementation;
 import org.apache.reef.wake.remote.impl.MultiCodec;
 import org.apache.reef.wake.remote.impl.ObjectSerializableCodec;
-import org.apache.reef.wake.remote.ports.RangeTcpPortProvider;
+import org.apache.reef.wake.remote.ports.TcpPortProvider;
 import org.apache.reef.wake.test.util.Monitor;
 import org.apache.reef.wake.test.util.TimeoutHandler;
 import org.junit.Assert;
@@ -88,7 +88,7 @@ public class RemoteManagerTest {
 
     final RemoteManager rm = this.remoteManagerFactory.getInstance(
         "name", hostAddress, PORT, codec, new LoggingEventHandler<Throwable>(), false, 3, 10000,
-        localAddressProvider, RangeTcpPortProvider.Default);
+        localAddressProvider, Tang.Factory.getTang().newInjector().getInstance(TcpPortProvider.class));
 
     final RemoteIdentifierFactory factory = new DefaultRemoteIdentifierFactoryImplementation();
     final RemoteIdentifier remoteId = factory.getNewInstance("socket://" + hostAddress + ":" + PORT);
@@ -192,7 +192,7 @@ public class RemoteManagerTest {
 
     final RemoteManager rm = this.remoteManagerFactory.getInstance(
         "name", hostAddress, PORT, codec, new LoggingEventHandler<Throwable>(), true, 3, 10000,
-        localAddressProvider, RangeTcpPortProvider.Default);
+        localAddressProvider, Tang.Factory.getTang().newInjector().getInstance(TcpPortProvider.class));
 
     final RemoteIdentifierFactory factory = new DefaultRemoteIdentifierFactoryImplementation();
     final RemoteIdentifier remoteId = factory.getNewInstance("socket://" + hostAddress + ":" + PORT);
@@ -236,7 +236,7 @@ public class RemoteManagerTest {
 
     final RemoteManager rm = this.remoteManagerFactory.getInstance(
         "name", hostAddress, PORT, codec, new LoggingEventHandler<Throwable>(), false, 3, 10000,
-        localAddressProvider, RangeTcpPortProvider.Default);
+        localAddressProvider, Tang.Factory.getTang().newInjector().getInstance(TcpPortProvider.class));
 
     final RemoteIdentifierFactory factory = new DefaultRemoteIdentifierFactoryImplementation();
     final RemoteIdentifier remoteId = factory.getNewInstance("socket://" + hostAddress + ":" + PORT);
@@ -301,9 +301,14 @@ public class RemoteManagerTest {
     final Codec<?> codec = new MultiCodec<Object>(clazzToCodecMap);
 
     final String hostAddress = localAddressProvider.getLocalAddress();
-    return remoteManagerFactory.getInstance(rmName, hostAddress, localPort,
-        codec, new LoggingEventHandler<Throwable>(), false, retry, retryTimeout,
-        localAddressProvider, RangeTcpPortProvider.Default);
+    try {
+      TcpPortProvider tcpPortProvider = Tang.Factory.getTang().newInjector().getInstance(TcpPortProvider.class);
+      return remoteManagerFactory.getInstance(rmName, hostAddress, localPort,
+              codec, new LoggingEventHandler<Throwable>(), false, retry, retryTimeout,
+              localAddressProvider, tcpPortProvider);
+    } catch (final InjectionException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   private class SendingRemoteManagerThread implements Callable<Integer> {

@@ -24,7 +24,6 @@ import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.impl.StageManager;
 import org.apache.reef.wake.remote.*;
 import org.apache.reef.wake.remote.address.LocalAddressProvider;
-import org.apache.reef.wake.remote.ports.RangeTcpPortProvider;
 import org.apache.reef.wake.remote.ports.TcpPortProvider;
 import org.apache.reef.wake.remote.transport.Transport;
 import org.apache.reef.wake.remote.transport.TransportFactory;
@@ -43,7 +42,7 @@ import java.util.logging.Logger;
 /**
  * Default remote manager implementation.
  */
-public class DefaultRemoteManagerImplementation implements RemoteManager {
+public final class DefaultRemoteManagerImplementation implements RemoteManager {
 
   private static final Logger LOG = Logger.getLogger(HandlerContainer.class.getName());
 
@@ -66,28 +65,8 @@ public class DefaultRemoteManagerImplementation implements RemoteManager {
    */
   public static final String UNKNOWN_HOST_NAME = NettyMessagingTransport.UNKNOWN_HOST_NAME;
 
-  /**
-   * @deprecated have an instance injected instead.
-   */
-  @Deprecated
   @Inject
-  public <T> DefaultRemoteManagerImplementation(
-      @Parameter(RemoteConfiguration.ManagerName.class) final String name,
-      @Parameter(RemoteConfiguration.HostAddress.class) final String hostAddress,
-      @Parameter(RemoteConfiguration.Port.class) final int listeningPort,
-      @Parameter(RemoteConfiguration.MessageCodec.class) final Codec<T> codec,
-      @Parameter(RemoteConfiguration.ErrorHandler.class) final EventHandler<Throwable> errorHandler,
-      @Parameter(RemoteConfiguration.OrderingGuarantee.class) final boolean orderingGuarantee,
-      @Parameter(RemoteConfiguration.NumberOfTries.class) final int numberOfTries,
-      @Parameter(RemoteConfiguration.RetryTimeout.class) final int retryTimeout,
-      final LocalAddressProvider localAddressProvider,
-      final TransportFactory tpFactory) {
-      this(name, hostAddress, listeningPort, codec, errorHandler, orderingGuarantee, numberOfTries, retryTimeout,
-              localAddressProvider, tpFactory, RangeTcpPortProvider.Default);
-  }
-
-  @Inject
-    private <T> DefaultRemoteManagerImplementation(
+  private <T> DefaultRemoteManagerImplementation(
             @Parameter(RemoteConfiguration.ManagerName.class) final String name,
             @Parameter(RemoteConfiguration.HostAddress.class) final String hostAddress,
             @Parameter(RemoteConfiguration.Port.class) final int listeningPort,

@@ -21,7 +21,6 @@ package org.apache.reef.wake.remote;
 import org.apache.reef.tang.annotations.DefaultImplementation;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.remote.address.LocalAddressProvider;
-import org.apache.reef.wake.remote.impl.DefaultRemoteManagerFactory;
 import org.apache.reef.wake.remote.ports.TcpPortProvider;
 
 /**
