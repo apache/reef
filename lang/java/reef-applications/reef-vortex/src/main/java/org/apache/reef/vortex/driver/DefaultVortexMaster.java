@@ -23,6 +23,7 @@ import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.util.Optional;
 import org.apache.reef.vortex.api.VortexFunction;
 import org.apache.reef.vortex.api.VortexFuture;
+import org.apache.reef.wake.EventHandler;
 
 import javax.inject.Inject;
 import java.io.Serializable;
@@ -50,14 +51,18 @@ final class DefaultVortexMaster implements VortexMaster {
     this.pendingTasklets = pendingTasklets;
   }
 
-  /**
-   * Add a new tasklet to pendingTasklets.
-   */
   @Override
   public <TInput extends Serializable, TOutput extends Serializable> VortexFuture<TOutput>
-      enqueueTasklet(final VortexFunction<TInput, TOutput> function, final TInput input) {
+      enqueueTasklet(final VortexFunction<TInput, TOutput> function, final TInput input,
+                     final Optional<EventHandler<TOutput>> callback) {
     // TODO[REEF-500]: Simple duplicate Vortex Tasklet launch.
-    final VortexFuture<TOutput> vortexFuture = new VortexFuture<>();
+    final VortexFuture<TOutput> vortexFuture;
+    if (callback.isPresent()) {
+      vortexFuture = new VortexFuture<>(callback.get());
+    } else {
+      vortexFuture = new VortexFuture<>();
+    }
+
     this.pendingTasklets.addLast(new Tasklet<>(taskletIdCounter.getAndIncrement(), function, input, vortexFuture));
     return vortexFuture;
   }

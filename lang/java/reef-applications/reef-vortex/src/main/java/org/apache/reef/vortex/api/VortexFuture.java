@@ -19,18 +19,28 @@
 package org.apache.reef.vortex.api;
 
 import org.apache.reef.annotations.Unstable;
+import org.apache.reef.wake.EventHandler;
+import org.apache.reef.wake.impl.ThreadPoolStage;
 
 import java.util.concurrent.*;
 
 /**
  * The interface between user code and submitted task.
- * TODO[REEF-505]: Callback features for VortexFuture.
  */
 @Unstable
 public final class VortexFuture<TOutput> implements Future<TOutput> {
   private TOutput userResult;
   private Exception userException;
   private final CountDownLatch countDownLatch = new CountDownLatch(1);
+  private final ThreadPoolStage<TOutput> stage;
+
+  public VortexFuture() {
+    stage = null;
+  }
+
+  public VortexFuture(final EventHandler<TOutput> callbackHandler) {
+    stage = new ThreadPoolStage<>(callbackHandler, 1);
+  }
 
   /**
    * TODO[REEF-502]: Support Vortex Tasklet(s) cancellation by user.
@@ -93,6 +103,9 @@ public final class VortexFuture<TOutput> implements Future<TOutput> {
    */
   public void completed(final TOutput result) {
     this.userResult = result;
+    if (stage != null) {
+      stage.onNext(userResult);
+    }
     this.countDownLatch.countDown();
   }
 
