@@ -34,10 +34,16 @@ public final class VortexFuture<TOutput> implements Future<TOutput> {
   private final CountDownLatch countDownLatch = new CountDownLatch(1);
   private final ThreadPoolStage<TOutput> stage;
 
+  /**
+   * Creates a {@link VortexFuture}.
+   */
   public VortexFuture() {
     stage = null;
   }
 
+  /**
+   * Creates a {@link VortexFuture} with a callback.
+   */
   public VortexFuture(final EventHandler<TOutput> callbackHandler) {
     stage = new ThreadPoolStage<>(callbackHandler, 1);
   }

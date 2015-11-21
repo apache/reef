@@ -51,6 +51,9 @@ final class DefaultVortexMaster implements VortexMaster {
     this.pendingTasklets = pendingTasklets;
   }
 
+  /**
+   * Add a new tasklet to pendingTasklets.
+   */
   @Override
   public <TInput extends Serializable, TOutput extends Serializable> VortexFuture<TOutput>
       enqueueTasklet(final VortexFunction<TInput, TOutput> function, final TInput input,
