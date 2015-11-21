@@ -38,13 +38,12 @@ namespace Org {
 						  _jobjectContextMessage = reinterpret_cast<jobject>(env->NewGlobalRef(jobjectContextMessage));
 						  jclass jclassContextMessage = env->GetObjectClass(_jobjectContextMessage);
 
-						  jfieldID jidId = env->GetFieldID(jclassContextMessage, "contextMessageId", "Ljava/lang/String;");
-						  jfieldID jidSourceId = env->GetFieldID(jclassContextMessage, "messageSourceId", "Ljava/lang/String;");
-						  jfieldID jidMessage = env->GetFieldID(jclassContextMessage, "message", "()[B");
+						  jmethodID jmidGetSourceId = env->GetMethodID(jclassContextMessage, "getMessageSourceId", "()Ljava/lang/String;");
+						  jmethodID jmidGetMessage = env->GetMethodID(jclassContextMessage, "get", "()[B");
 
-						  _jstringId = reinterpret_cast<jstring>(env->NewGlobalRef(env->GetObjectField(_jobjectContextMessage, jidId)));
-						  _jstringSourceId = reinterpret_cast<jstring>(env->NewGlobalRef(env->GetObjectField(_jobjectContextMessage, jidSourceId)));
-						  _jarrayMessage = reinterpret_cast<jbyteArray>(env->NewGlobalRef(env->GetObjectField(_jobjectContextMessage, jidMessage)));
+						  _jstringId = CommonUtilities::GetJObjectId(env, _jobjectContextMessage, jclassContextMessage);
+						  _jstringSourceId = CommonUtilities::CallGetMethodNewGlobalRef<jstring>(env, _jobjectContextMessage, jmidGetSourceId);
+						  _jarrayMessage = CommonUtilities::CallGetMethodNewGlobalRef<jbyteArray>(env, _jobjectContextMessage, jmidGetMessage);
 
 						  ManagedLog::LOGGER->LogStop("ContextMessageClr2Java::ContextMessageClr2Java");
 					  }

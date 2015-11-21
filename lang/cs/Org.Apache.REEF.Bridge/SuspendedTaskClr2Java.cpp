@@ -38,8 +38,7 @@ namespace Org {
 						  _jobjectSuspendedTask = reinterpret_cast<jobject>(env->NewGlobalRef(jobjectSuspendedTask));
 
 						  jclass jclassSuspendedTask = env->GetObjectClass(_jobjectSuspendedTask);
-						  jfieldID jidTaskId = env->GetFieldID(jclassSuspendedTask, "taskId", "Ljava/lang/String;");
-						  _jstringId = reinterpret_cast<jstring>(env->NewGlobalRef(env->GetObjectField(_jobjectSuspendedTask, jidTaskId)));
+						  _jstringId = CommonUtilities::GetJObjectId(env, _jobjectSuspendedTask, jclassSuspendedTask);
 						  ManagedLog::LOGGER->LogStop("SuspendedTaskClr2Java::SuspendedTaskClr2Java");
 					  }
 
@@ -48,8 +47,8 @@ namespace Org {
 						  JNIEnv *env = RetrieveEnv(_jvm);
 
 						  jclass jclassSuspendedTask = env->GetObjectClass(_jobjectSuspendedTask);
-						  jfieldID jidActiveContext = env->GetFieldID(jclassSuspendedTask, "jactiveContext", "Lorg/apache/reef/javabridge/ActiveContextBridge;");
-						  jobject jobjectActiveContext = env->GetObjectField(_jobjectSuspendedTask, jidActiveContext);
+						  jmethodID jmidGetActiveContext = env->GetMethodID(jclassSuspendedTask, "getActiveContext", "()Lorg/apache/reef/javabridge/ActiveContextBridge;");
+						  jobject jobjectActiveContext = env->CallObjectMethod(_jobjectSuspendedTask, jmidGetActiveContext);
 						  ManagedLog::LOGGER->LogStop("SuspendedTaskClr2Java::GetActiveContext");
 						  return gcnew ActiveContextClr2Java(env, jobjectActiveContext);
 					  }

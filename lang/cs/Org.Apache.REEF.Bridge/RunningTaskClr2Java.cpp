@@ -38,9 +38,7 @@ namespace Org {
 						  _jobjectRunningTask = reinterpret_cast<jobject>(env->NewGlobalRef(jobjectRunningTask));
 
 						  jclass jclassRunningTask = env->GetObjectClass(_jobjectRunningTask);
-						  jmethodID jmidGetId = env->GetMethodID(jclassRunningTask, "getId", "()Ljava/lang/String;");
-
-						  _jstringId = reinterpret_cast<jstring>(env->NewGlobalRef(env->CallObjectMethod(_jobjectRunningTask, jmidGetId)));
+						  _jstringId = CommonUtilities::GetJObjectId(env, _jobjectRunningTask, jclassRunningTask);
 						  ManagedLog::LOGGER->LogStop("RunningTaskClr2Java::RunningTaskClr2Java");
 					  }
 
@@ -50,8 +48,8 @@ namespace Org {
 						  JNIEnv *env = RetrieveEnv(_jvm);
 
 						  jclass jclassRunningTask = env->GetObjectClass(_jobjectRunningTask);
-						  jfieldID jidActiveContext = env->GetFieldID(jclassRunningTask, "jactiveContext", "Lorg/apache/reef/javabridge/ActiveContextBridge;");
-						  jobject jobjectActiveContext = env->GetObjectField(_jobjectRunningTask, jidActiveContext);
+						  jmethodID jmidGetActiveContext = env->GetMethodID(jclassRunningTask, "getActiveContext", "()Lorg/apache/reef/javabridge/ActiveContextBridge;");
+						  jobject jobjectActiveContext = env->CallObjectMethod(_jobjectRunningTask, jmidGetActiveContext);
 						  ManagedLog::LOGGER->LogStop("RunningTaskClr2Java::GetActiveContext");
 
 						  return gcnew ActiveContextClr2Java(env, jobjectActiveContext);

@@ -45,8 +45,8 @@ namespace Org {
 						  JNIEnv *env = RetrieveEnv(_jvm);
 
 						  jclass jclassFailedTask = env->GetObjectClass(_jobjectFailedTask);
-						  jfieldID jidActiveContext = env->GetFieldID(jclassFailedTask, "jactiveContext", "Lorg/apache/reef/javabridge/ActiveContextBridge;");
-						  jobject jobjectActiveContext = env->GetObjectField(_jobjectFailedTask, jidActiveContext);
+						  jmethodID jmidGetActiveContext = env->GetMethodID(jclassFailedTask, "getActiveContext", "()Lorg/apache/reef/javabridge/ActiveContextBridge;");
+						  jobject jobjectActiveContext = env->CallObjectMethod(_jobjectFailedTask, jmidGetActiveContext);
 
 						  ManagedLog::LOGGER->LogStop("FailedTaskClr2Java::GetActiveContext");
 						  return gcnew ActiveContextClr2Java(env, jobjectActiveContext);

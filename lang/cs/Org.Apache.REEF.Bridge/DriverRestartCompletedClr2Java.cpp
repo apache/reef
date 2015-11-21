@@ -38,9 +38,9 @@ namespace Org {
 							_jobjectDriverRestartCompleted = reinterpret_cast<jobject>(env->NewGlobalRef(jdriverRestartCompleted));
 
 							jclass jclassDriverRestartCompleted = env->GetObjectClass(_jobjectDriverRestartCompleted);
-							jfieldID jidIsTimedOut = env->GetFieldID(jclassDriverRestartCompleted, "isTimedOut", "Z");
+							jmethodID jmidIsTimedOut = env->GetMethodID(jclassDriverRestartCompleted, "isTimedOut", "()Z");
 
-							jboolean jisTimedOut = env->GetBooleanField(_jobjectDriverRestartCompleted, jidIsTimedOut);
+							jboolean jisTimedOut = env->CallBooleanMethod(_jobjectDriverRestartCompleted, jmidIsTimedOut);
 							_restartCompletedTime = System::DateTime::Now;
 							_isTimedOut = ClrBoolFromJavaBoolean(env, jisTimedOut);
 

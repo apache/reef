@@ -38,8 +38,7 @@ namespace Org {
 						  _jobjectTaskMessage = reinterpret_cast<jobject>(env->NewGlobalRef(jtaskMessage));
 
 						  jclass jclassTaskMessage = env->GetObjectClass(_jobjectTaskMessage);
-						  jfieldID jidTaskId = env->GetFieldID(jclassTaskMessage, "taskId", "Ljava/lang/String;");
-						  _jstringId = reinterpret_cast<jstring>(env->NewGlobalRef(env->GetObjectField(_jobjectTaskMessage, jidTaskId)));
+						  _jstringId = CommonUtilities::GetJObjectId(env, _jobjectTaskMessage, jclassTaskMessage);
 						  ManagedLog::LOGGER->LogStop("TaskMessageClr2Java::TaskMessageClr2Java");
 					  }
 

@@ -22,6 +22,7 @@ import org.apache.reef.annotations.audience.Interop;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.driver.evaluator.EvaluatorRequestor;
 import org.apache.reef.driver.evaluator.FailedEvaluator;
+import org.apache.reef.io.naming.Identifiable;
 import org.apache.reef.util.logging.LoggingScopeFactory;
 
 import java.util.logging.Logger;
@@ -31,7 +32,7 @@ import java.util.logging.Logger;
  */
 @Private
 @Interop(CppFiles = { "FailedEvaluatorClr2Java.cpp" }, CsFiles = { "IFailedEvaluatorClr2Java", "FailedEvaluator" })
-public final class FailedEvaluatorBridge extends NativeBridge {
+public final class FailedEvaluatorBridge extends NativeBridge implements Identifiable {
   private static final Logger LOG = Logger.getLogger(FailedEvaluatorBridge.class.getName());
   private FailedEvaluator jfailedEvaluator;
   private EvaluatorRequestorBridge evaluatorRequestorBridge;
@@ -51,8 +52,17 @@ public final class FailedEvaluatorBridge extends NativeBridge {
     return evaluatorRequestorBridge.getEvaluatorNumber();
   }
 
+  public EvaluatorRequestorBridge getEvaluatorRequestorBridge() {
+    return evaluatorRequestorBridge;
+  }
+
   @Override
   public void close() {
+  }
+
+  @Override
+  public String getId() {
+    return evaluatorId;
   }
 }
 

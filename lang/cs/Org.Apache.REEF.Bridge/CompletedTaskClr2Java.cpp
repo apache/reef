@@ -38,8 +38,8 @@ namespace Org {
 						  _jobjectCompletedTask = reinterpret_cast<jobject>(env->NewGlobalRef(jobjectCompletedTask));
 
 						  jclass jclassCompletedTask = env->GetObjectClass(_jobjectCompletedTask);
-						  jfieldID jidTaskId = env->GetFieldID(jclassCompletedTask, "taskId", "Ljava/lang/String;");
-						  _jstringId = reinterpret_cast<jstring>(env->NewGlobalRef(env->GetObjectField(_jobjectCompletedTask, jidTaskId)));
+						  jmethodID jmidGetTaskId = env->GetMethodID(jclassCompletedTask, "getTaskId", "()Ljava/lang/String;");
+						  _jstringId = CommonUtilities::CallGetMethodNewGlobalRef<jstring>(env, _jobjectCompletedTask, jmidGetTaskId);
 						  ManagedLog::LOGGER->LogStop("CompletedTaskClr2Java::CompletedTaskClr2Java");
 					  }
 
@@ -54,8 +54,8 @@ namespace Org {
 						  JNIEnv *env = RetrieveEnv(_jvm);
 
 						  jclass jclassCompletedTask = env->GetObjectClass(_jobjectCompletedTask);
-						  jfieldID jidActiveContext = env->GetFieldID(jclassCompletedTask, "jactiveContext", "Lorg/apache/reef/javabridge/ActiveContextBridge;");
-						  jobject jobjectActiveContext = env->GetObjectField(_jobjectCompletedTask, jidActiveContext);
+						  jmethodID jmidGetActiveContext = env->GetMethodID(jclassCompletedTask, "getActiveContext", "()Lorg/apache/reef/javabridge/ActiveContextBridge;");
+						  jobject jobjectActiveContext = env->CallObjectMethod(_jobjectCompletedTask, jmidGetActiveContext);
 						  ManagedLog::LOGGER->LogStop("CompletedTaskClr2Java::GetActiveContext");
 						  return gcnew ActiveContextClr2Java(env, jobjectActiveContext);
 					  }

@@ -38,8 +38,7 @@ namespace Org {
 						  _jobjectCompletedEvaluator = reinterpret_cast<jobject>(env->NewGlobalRef(jCompletedEvaluator));
 
 						  jclass jclassCompletedEvaluator = env->GetObjectClass(_jobjectCompletedEvaluator);
-						  jfieldID jidEvaluatorId = env->GetFieldID(jclassCompletedEvaluator, "evaluatorId", "Ljava/lang/String;");
-						  _jstringId = reinterpret_cast<jstring>(env->NewGlobalRef(env->GetObjectField(_jobjectCompletedEvaluator, jidEvaluatorId)));
+                          _jstringId = CommonUtilities::GetJObjectId(env, _jobjectCompletedEvaluator, jclassCompletedEvaluator);
 						  ManagedLog::LOGGER->LogStop("CompletedEvaluatorClr2Java::CompletedEvaluatorClr2Java");
 					  }
 
