@@ -81,7 +81,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
         {
             lock (_contextStack)
             {
-                return (_contextStack.Count == 0);
+                return _contextStack.Count == 0;
             }
         }
 

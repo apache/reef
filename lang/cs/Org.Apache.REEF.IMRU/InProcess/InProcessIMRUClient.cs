@@ -56,7 +56,7 @@ namespace Org.Apache.REEF.IMRU.InProcess
         [Inject]
         private InProcessIMRUClient([Parameter(typeof(NumberOfMappers))] int numberOfMappers)
         {
-            Debug.Assert(numberOfMappers > 0);
+            Debug.Assert(numberOfMappers > 0, "Number of mappers should be greater than zero.");
             _numberOfMappers = numberOfMappers;
         }
 

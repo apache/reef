@@ -596,8 +596,8 @@ namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
                 {
                     for (int j = i + 1; j < liveIndices.Count; j++)
                     {
-                        IConstructorDef ci = ((Constructor)constructors[(liveIndices[i])]).GetConstructorDef();
-                        IConstructorDef cj = ((Constructor)constructors[(liveIndices[j])]).GetConstructorDef();
+                        IConstructorDef ci = ((Constructor)constructors[liveIndices[i]]).GetConstructorDef();
+                        IConstructorDef cj = ((Constructor)constructors[liveIndices[j]]).GetConstructorDef();
 
                         if (ci.IsMoreSpecificThan(cj)) // ci's arguments is a superset of cj's
                         {

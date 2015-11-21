@@ -36,7 +36,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
     [TestClass]
     public class TestSimpleEventHandlers : ReefFunctionalTest
     {
-        [TestInitialize()]
+        [TestInitialize]
         public void TestSetup()
         {
             Init();

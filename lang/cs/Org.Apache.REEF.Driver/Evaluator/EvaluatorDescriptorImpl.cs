@@ -160,7 +160,7 @@ namespace Org.Apache.REEF.Driver.Evaluator
                 : ClrHandlerHelper.MemoryGranularity;
             var m1 = (Memory - 1) / granularity;
             var m2 = (other.Memory - 1) / granularity;
-            return (m1 == m2);
+            return m1 == m2;
         }
     }
 }

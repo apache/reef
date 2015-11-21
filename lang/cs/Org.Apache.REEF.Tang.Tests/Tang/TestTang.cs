@@ -50,14 +50,14 @@ namespace Org.Apache.REEF.Tang.Tests.Tang
         {
         }
 
-        [TestInitialize()]
+        [TestInitialize]
         public void TestSetup()
         {
             MustBeSingleton.alreadyInstantiated = false;
             tang = TangFactory.GetTang();
         }
 
-        [TestCleanup()]
+        [TestCleanup]
         public void TestCleanup()
         {
         }
@@ -615,7 +615,7 @@ namespace Org.Apache.REEF.Tang.Tests.Tang
         {
         }
 
-        [NamedParameter()]
+        [NamedParameter]
         public class B : Name<Int32>
         {
         }
@@ -628,12 +628,12 @@ namespace Org.Apache.REEF.Tang.Tests.Tang
 
     internal class RepeatedNamedSingletonArgs
     {
-        [NamedParameter()]
+        [NamedParameter]
         public class A : Name<MustBeSingleton>
         {
         }
 
-        [NamedParameter()]
+        [NamedParameter]
         public class B : Name<MustBeSingleton>
         {
         }
@@ -647,12 +647,12 @@ namespace Org.Apache.REEF.Tang.Tests.Tang
 
     internal class OneNamedSingletonArgs
     {
-        [NamedParameter()]
+        [NamedParameter]
         public class A : Name<MustBeSingleton>
         {
         }
 
-        [NamedParameter()]
+        [NamedParameter]
         public class B : Name<MustBeSingleton>
         {
         }

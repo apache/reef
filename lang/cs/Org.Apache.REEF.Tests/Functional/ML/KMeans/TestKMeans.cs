@@ -48,7 +48,7 @@ namespace Org.Apache.REEF.Tests.Functional.ML.KMeans
         private readonly bool _useSmallDataSet = false;
         private string _dataFile = MouseDataFile;
 
-        [TestInitialize()]
+        [TestInitialize]
         public void TestSetup()
         {
             if (_useSmallDataSet)

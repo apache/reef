@@ -182,8 +182,8 @@ namespace Org.Apache.REEF.Utilities.Diagnostics
         /// <returns>True if the exceptions is critical one and should not be caught and false otherwise.</returns>
         public static bool MustRethrow(Exception exception)
         {
-            return (exception is OutOfMemoryException ||
-                    exception is StackOverflowException);
+            return exception is OutOfMemoryException ||
+                   exception is StackOverflowException;
         }
 
         /// <summary>

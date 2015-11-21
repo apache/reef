@@ -30,10 +30,10 @@ namespace Org.Apache.REEF.Wake.Util
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(FixedThreadPoolTaskService));
 
-        readonly TaskFactory factory;
+        private readonly TaskFactory factory;
 
-        readonly List<Task> tasks = new List<Task>();        
-        bool shuttingDown;
+        private readonly List<Task> tasks = new List<Task>();
+        private bool shuttingDown;
 
         internal FixedThreadPoolTaskService(int maxDegreeOfParallelism)
         {

@@ -22,7 +22,7 @@ using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.Tang.Tests.ScenarioTest
 {
-    [NamedParameter()]
+    [NamedParameter]
     public class HttpEventHandlers : Name<ISet<IHttpHandler>>
     {
     }

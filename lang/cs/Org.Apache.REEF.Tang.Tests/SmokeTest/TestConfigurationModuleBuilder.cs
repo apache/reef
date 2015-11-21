@@ -60,9 +60,9 @@ namespace Org.Apache.REEF.Tang.Tests.SmokeTest
                     .BindSetEntry<SetOfBaseTypes.Strings, string>(GenericType<SetOfBaseTypes.Strings>.Class, "1")
                     .BindSetEntry<SetOfBaseTypes.Strings, string>(GenericType<SetOfBaseTypes.Strings>.Class, "2")
                     .BindSetEntry<SetOfBaseTypes.Strings, string>(GenericType<SetOfBaseTypes.Strings>.Class, "3")
-                    .BindList<ListOfBaseTypes.Integers, int>(GenericType<ListOfBaseTypes.Integers>.Class, (new List<string>(new string[] { "1", "2", "3" })))
-                    .BindList<ListOfBaseTypes.Doubles, double>(GenericType<ListOfBaseTypes.Doubles>.Class, (new List<string>(new string[] { "1", "2", "3" })))
-                    .BindList<ListOfBaseTypes.Strings, string>(GenericType<ListOfBaseTypes.Strings>.Class, (new List<string>(new string[] { "1", "2", "3" })))
+                    .BindList<ListOfBaseTypes.Integers, int>(GenericType<ListOfBaseTypes.Integers>.Class, new List<string>(new string[] { "1", "2", "3" }))
+                    .BindList<ListOfBaseTypes.Doubles, double>(GenericType<ListOfBaseTypes.Doubles>.Class, new List<string>(new string[] { "1", "2", "3" }))
+                    .BindList<ListOfBaseTypes.Strings, string>(GenericType<ListOfBaseTypes.Strings>.Class, new List<string>(new string[] { "1", "2", "3" }))
                     .Build();
             }
         }
@@ -77,22 +77,22 @@ namespace Org.Apache.REEF.Tang.Tests.SmokeTest
         {
         }
 
-        [NamedParameter()]
+        [NamedParameter]
         public class NamedParameterDouble : Name<double>
         {
         }
 
-        [NamedParameter()]
+        [NamedParameter]
         public class IntegerHandler : Name<IHandler<int>>
         {
         }
 
-        [NamedParameter()]
+        [NamedParameter]
         public class StringHandler : Name<IHandler<string>>
         {
         }
 
-        [NamedParameter()]
+        [NamedParameter]
         public class NamedParameterInteger : Name<int>
         {
         }

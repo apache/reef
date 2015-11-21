@@ -30,7 +30,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(TestBridgeClient));
 
-        [TestInitialize()]
+        [TestInitialize]
         public void TestSetup()
         {
             Init();

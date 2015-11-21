@@ -45,11 +45,11 @@ namespace Org.Apache.REEF.IO.PartitionedData.Random
             {
                 var randomDouble = random.NextDouble();
                 var randomDoubleAsBytes = BitConverter.GetBytes(randomDouble);
-                Debug.Assert(randomDoubleAsBytes.Length == 8);
+                Debug.Assert(randomDoubleAsBytes.Length == 8, "randomDoubleAsBytes.Length should be 8.");
                 for (var j = 0; j < 8; ++j)
                 {
-                    var index = i * 8 + j;
-                    Debug.Assert(index < _randomData.Length);
+                    var index = (i * 8) + j;
+                    Debug.Assert(index < _randomData.Length, "Index should be less than _randomData.Length.");
                     _randomData[index] = randomDoubleAsBytes[j];
                 }
             }

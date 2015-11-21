@@ -205,7 +205,7 @@ namespace Org.Apache.REEF.Tang.Util
             {
                 if (map.ContainsKey(k))
                 {
-                    return (GetValuesForKey(k).Count != 0);
+                    return GetValuesForKey(k).Count != 0;
                 }
                 return false;
             }

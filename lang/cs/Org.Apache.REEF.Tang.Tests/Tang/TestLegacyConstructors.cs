@@ -30,7 +30,7 @@ namespace Org.Apache.REEF.Tang.Tests.Tang
     {   
         static ITang tang;
 
-        [TestInitialize()]
+        [TestInitialize]
         public void TestSetup()
         {
             tang = TangFactory.GetTang();

@@ -117,7 +117,7 @@ namespace Org.Apache.REEF.Examples.MachineLearning.KMeans
                 throw new ArgumentException("cannot combine partial means with different labels");
             }
             aggreatedMean.Size = Size + other.Size;
-            aggreatedMean.Mean = (Mean.MultiplyScalar(Size).Add(other.Mean.MultiplyScalar(other.Size))).Normalize(aggreatedMean.Size);
+            aggreatedMean.Mean = Mean.MultiplyScalar(Size).Add(other.Mean.MultiplyScalar(other.Size)).Normalize(aggreatedMean.Size);
             return aggreatedMean;
         }
     }

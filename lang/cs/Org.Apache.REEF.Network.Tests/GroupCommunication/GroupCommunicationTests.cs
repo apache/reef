@@ -830,7 +830,7 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
                 .BindNamedParameter(typeof(NamingConfigurationOptions.NameServerPort),
                     nameServerEndpoint.Port.ToString())
                 .BindNamedParameter(typeof(NetworkServiceOptions.NetworkServicePort),
-                    (0).ToString(CultureInfo.InvariantCulture))
+                    0.ToString(CultureInfo.InvariantCulture))
                 .BindImplementation(GenericType<INameClient>.Class, GenericType<NameClient>.Class)
                 .Build();
 

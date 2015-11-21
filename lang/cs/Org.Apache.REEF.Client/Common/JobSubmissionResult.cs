@@ -151,8 +151,8 @@ namespace Org.Apache.REEF.Client.Common
         private static bool ShouldRetry(HttpRequestException httpRequestException)
         {
             var shouldRetry = false;
-            if (httpRequestException.Message.IndexOf(((int)(HttpStatusCode.NotFound)).ToString(), StringComparison.Ordinal) != -1 ||
-                httpRequestException.Message.IndexOf(((int)(HttpStatusCode.BadGateway)).ToString(), StringComparison.Ordinal) != -1)
+            if (httpRequestException.Message.IndexOf(((int)HttpStatusCode.NotFound).ToString(), StringComparison.Ordinal) != -1 ||
+                httpRequestException.Message.IndexOf(((int)HttpStatusCode.BadGateway).ToString(), StringComparison.Ordinal) != -1)
             {
                 shouldRetry = true;
             }
