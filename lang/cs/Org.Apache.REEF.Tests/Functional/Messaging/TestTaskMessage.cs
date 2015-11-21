@@ -33,7 +33,7 @@ namespace Org.Apache.REEF.Tests.Functional.Messaging
     [TestClass]
     public class TestTaskMessage : ReefFunctionalTest
     {
-        [TestInitialize()]
+        [TestInitialize]
         public void TestSetup()
         {
             CleanUp();

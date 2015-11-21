@@ -61,7 +61,7 @@ namespace Org.Apache.REEF.Tang.Implementations.Configuration
             this.ClassHierarchy = TangFactory.GetTang().GetDefaultClassHierarchy(assemblies, parsers);
             foreach (IConfiguration tc in confs) 
             {
-                AddConfiguration(((ConfigurationImpl)tc));
+                AddConfiguration((ConfigurationImpl)tc);
             }
         }
 
@@ -95,9 +95,9 @@ namespace Org.Apache.REEF.Tang.Implementations.Configuration
         {
             this.ClassHierarchy = this.ClassHierarchy.Merge(ns);
             
-            if ((ClassHierarchy is ClassHierarchyImpl || builder.ClassHierarchy is ClassHierarchyImpl)) 
+            if (ClassHierarchy is ClassHierarchyImpl || builder.ClassHierarchy is ClassHierarchyImpl) 
             {
-                if ((ClassHierarchy is ClassHierarchyImpl && builder.ClassHierarchy is ClassHierarchyImpl)) 
+                if (ClassHierarchy is ClassHierarchyImpl && builder.ClassHierarchy is ClassHierarchyImpl)
                 {
                     ((ClassHierarchyImpl)ClassHierarchy).Parameterparser.MergeIn(((ClassHierarchyImpl)builder.ClassHierarchy).Parameterparser);
                 } 

@@ -31,7 +31,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
     /// </summary>
     public class StreamDataReader : IDataReader
     {
-        Logger Logger = Logger.GetLogger(typeof(StreamDataReader));
+        private static readonly Logger Logger = Logger.GetLogger(typeof(StreamDataReader));
         
         /// <summary>
         /// Stream from which to read

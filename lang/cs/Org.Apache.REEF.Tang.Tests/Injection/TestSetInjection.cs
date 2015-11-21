@@ -347,7 +347,7 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
         {
         }
 
-        [NamedParameter()]
+        [NamedParameter]
         public class SetOfNumbersNoDefault : Name<ISet<string>>
         {
         }

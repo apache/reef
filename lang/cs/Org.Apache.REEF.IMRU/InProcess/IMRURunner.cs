@@ -68,7 +68,7 @@ namespace Org.Apache.REEF.IMRU.InProcess
                     results.Add(updateResult.Result);
                 }
 
-                Debug.Assert(updateResult.HasMapInput);
+                Debug.Assert(updateResult.HasMapInput, "MapInput is needed.");
                 var mapinput = updateResult.MapInput;
                 var mapOutputs = new List<TMapOutput>();
 

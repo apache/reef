@@ -82,7 +82,7 @@ namespace Org.Apache.REEF.Utilities
 
         public bool IsPresent()
         {
-            return (_value != null);
+            return _value != null;
         }
 
         public override bool Equals(object obj)

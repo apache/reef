@@ -139,7 +139,7 @@ namespace Org.Apache.REEF.Tang.Tests.Format
     class ListIntConfigurationModule : ConfigurationModuleBuilder
     {
         public static readonly ConfigurationModule CONF = new ListIntConfigurationModule()
-            .BindList<ListIntName, int>(GenericType<ListIntName>.Class, (new List<string>(new string[] { "1", "2" })))
+            .BindList<ListIntName, int>(GenericType<ListIntName>.Class, new List<string>(new string[] { "1", "2" }))
             .Build();
     }
 }

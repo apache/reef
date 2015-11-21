@@ -31,7 +31,7 @@ namespace Org.Apache.REEF.Tests.Functional.Driver
     [TestClass]
     public class TestDriver : ReefFunctionalTest
     {
-        [TestInitialize()]
+        [TestInitialize]
         public void TestSetup()
         {
             CleanUp();

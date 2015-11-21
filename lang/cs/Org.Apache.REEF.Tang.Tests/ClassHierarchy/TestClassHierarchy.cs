@@ -37,7 +37,7 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
     {
         public IClassHierarchy ns = null;
 
-        [TestInitialize()]
+        [TestInitialize]
         public void TestSetup()
         {
             if (ns == null)
@@ -47,7 +47,7 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
             }
         }
 
-        [TestCleanup()]
+        [TestCleanup]
         public void TestCleanup()
         {
         }

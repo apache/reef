@@ -47,7 +47,7 @@ namespace Org.Apache.REEF.Tang.Implementations.Configuration
 
             foreach (IConfiguration tc in configurations)
             {
-                cb.AddConfiguration(((ConfigurationImpl)tc));
+                cb.AddConfiguration((ConfigurationImpl)tc);
             }
 
             return cb.Build();

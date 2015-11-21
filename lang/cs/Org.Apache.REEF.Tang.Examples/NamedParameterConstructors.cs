@@ -24,7 +24,7 @@ namespace Org.Apache.REEF.Tang.Examples
 {
     public class NamedParameterConstructors
     {
-        [NamedParameter()]
+        [NamedParameter]
         public class X : Name<String> 
         {
         };

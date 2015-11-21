@@ -305,7 +305,7 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
                     isSubclass = true;
                 }
             }
-            if (!(isSubclass))
+            if (!isSubclass)
             {
                 var e = new ClassHierarchyException(namedparameter + " defines a default class "
                     + ReflectionUtilities.GetName(defaultclass) + " with a type that does not extend of its target's type " + argClass);

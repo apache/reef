@@ -26,7 +26,7 @@ namespace Org.Apache.REEF.Network.Examples.Client
 {
     public class Run
     {
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
             Console.WriteLine("start running client: " + DateTime.Now);
             bool runOnYarn = false;

@@ -53,12 +53,12 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
         {
         }
 
-        [TestInitialize()]
+        [TestInitialize]
         public void TestSetup()
         {
         }
 
-        [TestCleanup()]
+        [TestCleanup]
         public void TestCleanup()
         {
         }
