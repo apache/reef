@@ -42,11 +42,10 @@ namespace Org {
 						  _jobjectAllocatedEvaluator = reinterpret_cast<jobject>(env->NewGlobalRef(jallocatedEvaluator));
 
 						  jclass jclassAllocatedEvaluator = env->GetObjectClass(_jobjectAllocatedEvaluator);
-						  jfieldID jidEvaluatorId = env->GetFieldID(jclassAllocatedEvaluator, "evaluatorId", "Ljava/lang/String;");
-						  _jstringId = reinterpret_cast<jstring>(env->NewGlobalRef(env->GetObjectField(_jobjectAllocatedEvaluator, jidEvaluatorId)));
+						  _jstringId = CommonUtilities::GetJObjectId(env, _jobjectAllocatedEvaluator, jclassAllocatedEvaluator);
 
-						  jfieldID jidNameServerInfo = env->GetFieldID(jclassAllocatedEvaluator, "nameServerInfo", "Ljava/lang/String;");
-						  _jstringNameServerInfo = reinterpret_cast<jstring>(env->NewGlobalRef(env->GetObjectField(_jobjectAllocatedEvaluator, jidNameServerInfo)));
+						  jmethodID jmidGetNameServerInfo = env->GetMethodID(jclassAllocatedEvaluator, "getNameServerInfo", "()Ljava/lang/String;");
+						  _jstringNameServerInfo = CommonUtilities::CallGetMethodNewGlobalRef<jstring>(env, _jobjectAllocatedEvaluator, jmidGetNameServerInfo);
 
 						  ManagedLog::LOGGER->LogStop("AllocatedEvaluatorClr2Java::AllocatedEvaluatorClr2Java");
 					  }

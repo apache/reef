@@ -39,6 +39,19 @@ namespace Org {
                         public ref class CommonUtilities {
                         public:
                             static IEvaluatorDescriptor^ RetrieveEvaluatorDescriptor(jobject object, JavaVM* jvm);
+                            template<typename T> static T CallGetMethodNewGlobalRef(JNIEnv* env, jobject obj, jmethodID jmid) {
+                                return reinterpret_cast<T>(env->NewGlobalRef(env->CallObjectMethod(obj, jmid)));
+                            }
+
+                            static jstring GetJObjectId(JNIEnv* env, jobject obj, jclass javaClass) {
+                                jmethodID jmid = env->GetMethodID(javaClass, "getId", "()Ljava/lang/String;");
+                                return CommonUtilities::CallGetMethodNewGlobalRef<jstring>(env, obj, jmid);
+                            };
+
+                            static jstring GetJObjectEvaluatorId(JNIEnv* env, jobject obj, jclass javaClass) {
+                                jmethodID jmid = env->GetMethodID(javaClass, "getEvaluatorId", "()Ljava/lang/String;");
+                                return CommonUtilities::CallGetMethodNewGlobalRef<jstring>(env, obj, jmid);
+                            };
                         };
 
                         public ref class AllocatedEvaluatorClr2Java : public IAllocatedEvaluaotrClr2Java {
@@ -174,9 +187,6 @@ namespace Org {
                             virtual String^ GetId();
                         };
 
-                        /**
-                          See IClosedContextClr2Java.
-                          */
                         public ref class ClosedContextClr2Java : public IClosedContextClr2Java {
                             jobject  _jobjectClosedContext;
                             JavaVM* _jvm;

@@ -40,38 +40,36 @@ namespace Org {
                             _jobjectClosedContext = reinterpret_cast<jobject>(env->NewGlobalRef(jobjectClosedContext));
                             jclass jclassClosedContext = env->GetObjectClass(_jobjectClosedContext);
 
-                            // Gets the Java fields in order to get the field values from the actual Java objects of the field.
-                            // TODO[JIRA REEF-986]: Switch to get method call.
-                            jfieldID jidContextId = env->GetFieldID(jclassClosedContext, "contextId", "Ljava/lang/String;");
-                            jfieldID jidEvaluatorId = env->GetFieldID(jclassClosedContext, "evaluatorId", "Ljava/lang/String;");
-
                             // Gets the Context ID and Evaluator ID of the closed context from the Java closed context object.
-                            _jstringContextId = reinterpret_cast<jstring>(env->NewGlobalRef(env->GetObjectField(_jobjectClosedContext, jidContextId)));
-                            _jstringEvaluatorId = reinterpret_cast<jstring>(env->NewGlobalRef(env->GetObjectField(_jobjectClosedContext, jidEvaluatorId)));
+                            _jstringContextId = CommonUtilities::GetJObjectId(env, _jobjectClosedContext, jclassClosedContext);
+                            _jstringEvaluatorId = CommonUtilities::GetJObjectEvaluatorId(env, _jobjectClosedContext, jclassClosedContext);
 
                             ManagedLog::LOGGER->LogStop("ClosedContextClr2Java::ClosedContextClr2Java");
                         }
 
                         /**
-                          Gets the Parent context of the closed context through a JNI call to Java.
-                          */
+                         * Gets the Parent context of the closed context through a JNI call to Java.
+                         */
                         IActiveContextClr2Java^ ClosedContextClr2Java::GetParentContext() {
                             ManagedLog::LOGGER->LogStart("ClosedContextClr2Java::GetParentContext");
 
                             JNIEnv *env = RetrieveEnv(_jvm);
-
-                            // TODO[JIRA REEF-986]: Switch to get method call.
                             jclass jclassClosedContext = env->GetObjectClass(_jobjectClosedContext);
-                            jfieldID jidParentContext = env->GetFieldID(jclassClosedContext, "parentContext", "Lorg/apache/reef/javabridge/ActiveContextBridge;");
-                            jobject jobjectParentContext = env->GetObjectField(_jobjectClosedContext, jidParentContext);
+                            jmethodID jmidGetParentContext = env->GetMethodID(jclassClosedContext, "getParentContext", "()Lorg/apache/reef/javabridge/ActiveContextBridge;");
+                            if (jmidGetParentContext == NULL) {
+                                ManagedLog::LOGGER->Log("jmidGetParentContext is NULL");
+                                return nullptr;
+                            }
+
+                            jobject jobjectParentContext = CommonUtilities::CallGetMethodNewGlobalRef<jobject>(env, _jobjectClosedContext, jmidGetParentContext);
                             ManagedLog::LOGGER->LogStop("ClosedContextClr2Java::GetParentContext");
 
                             return gcnew ActiveContextClr2Java(env, jobjectParentContext);
                         }
 
                         /**
-                          Gets the ID of the closed context from Java.
-                          */
+                         * Gets the ID of the closed context from Java.
+                         */
                         String^ ClosedContextClr2Java::GetId() {
                             ManagedLog::LOGGER->Log("ClosedContextClr2Java::GetId");
                             JNIEnv *env = RetrieveEnv(_jvm);
@@ -79,8 +77,8 @@ namespace Org {
                         }
 
                         /**
-                          Gets the Evaluator ID of the Evaluator on which the Closed Context was active.
-                          */
+                         * Gets the Evaluator ID of the Evaluator on which the Closed Context was active.
+                         */
                         String^ ClosedContextClr2Java::GetEvaluatorId() {
                             ManagedLog::LOGGER->Log("ClosedContextClr2Java::GetEvaluatorId");
                             JNIEnv *env = RetrieveEnv(_jvm);
@@ -88,8 +86,8 @@ namespace Org {
                         }
 
                         /**
-                          Gets the EvaluatorDescriptor of the Evaluator on which the Closed Context was active.
-                          */
+                         * Gets the EvaluatorDescriptor of the Evaluator on which the Closed Context was active.
+                         */
                         IEvaluatorDescriptor^ ClosedContextClr2Java::GetEvaluatorDescriptor() {
                             ManagedLog::LOGGER->LogStart("ClosedContextClr2Java::GetEvaluatorDescriptor");
                             return CommonUtilities::RetrieveEvaluatorDescriptor(_jobjectClosedContext, _jvm);

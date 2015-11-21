@@ -38,13 +38,11 @@ namespace Org {
 						  _jobjectFailedContext = reinterpret_cast<jobject>(env->NewGlobalRef(jobjectFailedContext));
 						  jclass jclassFailedContext = env->GetObjectClass(_jobjectFailedContext);
 
-						  jfieldID jidContextId = env->GetFieldID(jclassFailedContext, "contextId", "Ljava/lang/String;");
-						  jfieldID jidEvaluatorId = env->GetFieldID(jclassFailedContext, "evaluatorId", "Ljava/lang/String;");
-						  jfieldID jidParentId = env->GetFieldID(jclassFailedContext, "parentContextId", "Ljava/lang/String;");
+						  jmethodID jmidGetParentId = env->GetMethodID(jclassFailedContext, "getParentId", "()Ljava/lang/String;");
 
-						  _jstringContextId = reinterpret_cast<jstring>(env->NewGlobalRef(env->GetObjectField(_jobjectFailedContext, jidContextId)));
-						  _jstringEvaluatorId = reinterpret_cast<jstring>(env->NewGlobalRef(env->GetObjectField(_jobjectFailedContext, jidEvaluatorId)));
-						  _jstringParentContextId = reinterpret_cast<jstring>(env->NewGlobalRef(env->GetObjectField(_jobjectFailedContext, jidParentId)));
+						  _jstringContextId = CommonUtilities::GetJObjectId(env, jobjectFailedContext, jclassFailedContext);
+						  _jstringEvaluatorId = CommonUtilities::GetJObjectEvaluatorId(env, jobjectFailedContext, jclassFailedContext);
+						  _jstringParentContextId = reinterpret_cast<jstring>(env->NewGlobalRef(env->CallObjectMethod(_jobjectFailedContext, jmidGetParentId)));
 
 						  ManagedLog::LOGGER->LogStop("FailedContextClr2Java::FailedContextClr2Java");
 					  }
@@ -55,8 +53,8 @@ namespace Org {
 						  JNIEnv *env = RetrieveEnv(_jvm);
 
 						  jclass jclassFailedContext = env->GetObjectClass(_jobjectFailedContext);
-						  jfieldID jidParentContext = env->GetFieldID(jclassFailedContext, "parentContext", "Lorg/apache/reef/javabridge/ActiveContextBridge;");
-						  jobject jobjectParentContext = env->GetObjectField(_jobjectFailedContext, jidParentContext);
+						  jmethodID jmidGetParentContext = env->GetMethodID(jclassFailedContext, "getParentContext", "()Lorg/apache/reef/javabridge/ActiveContextBridge;");
+						  jobject jobjectParentContext = env->CallObjectMethod(_jobjectFailedContext, jmidGetParentContext);
 						  ManagedLog::LOGGER->LogStop("FailedContextClr2Java::GetParentContext");
 
 						  return gcnew ActiveContextClr2Java(env, jobjectParentContext);
