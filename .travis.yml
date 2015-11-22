@@ -33,7 +33,7 @@ cache:
 
 notifications:
   email:
-  - issues@reef.incubator.apache.org
+  - false
 
 install: ./dev/travis-install-dependencies.sh
 
