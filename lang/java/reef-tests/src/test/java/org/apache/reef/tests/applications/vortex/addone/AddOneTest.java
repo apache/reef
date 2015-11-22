@@ -22,7 +22,6 @@ import org.apache.reef.client.LauncherStatus;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tests.TestEnvironment;
 import org.apache.reef.tests.TestEnvironmentFactory;
-import org.apache.reef.vortex.api.VortexFuture;
 import org.apache.reef.vortex.driver.VortexConfHelper;
 import org.junit.After;
 import org.junit.Assert;
@@ -64,7 +63,7 @@ public final class AddOneTest {
 
   /**
    * Run the AddOne test with a callback registered such that we check the results in the callback instead of
-   * using {@link VortexFuture#get()}.
+   * using {@link org.apache.reef.vortex.api.VortexFuture#get()}.
    */
   @Test
   public void testVortexAddOneCallback() {
