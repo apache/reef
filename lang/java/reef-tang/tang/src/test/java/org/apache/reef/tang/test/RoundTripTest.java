@@ -38,7 +38,7 @@ public abstract class RoundTripTest {
 
   @Test
   public void testRoundTrip() throws Exception {
-    // TODO: use 'getConfiguration' instead of 'getConfigurationWithoutList' after #192 is fixed
+    // TODO[JIRA REEF-1009]: use 'getConfiguration' instead of 'getConfigurationWithoutList' after REEF-402 is fixed
     final Configuration conf = ObjectTreeTest.getConfigurationWithoutList();
     final RootInterface before = Tang.Factory.getTang().newInjector(conf).getInstance(RootInterface.class);
     final RootInterface after = Tang.Factory.getTang().newInjector(roundTrip(conf)).getInstance(RootInterface.class);
@@ -47,7 +47,7 @@ public abstract class RoundTripTest {
 
   @Test
   public void testRoundTripWithClassHierarchy() throws Exception {
-    // TODO: use 'getConfiguration' instead of 'getConfigurationWithoutList' after #192 is fixed
+    // TODO[JIRA REEF-1009]: use 'getConfiguration' instead of 'getConfigurationWithoutList' after REEF-402 is fixed
     final Configuration confBefore = ObjectTreeTest.getConfigurationWithoutList();
     final AvroClassHierarchySerializer chSerializer = new AvroClassHierarchySerializer();
     final ClassHierarchy c = chSerializer.fromAvro(chSerializer.toAvro(confBefore.getClassHierarchy()));
