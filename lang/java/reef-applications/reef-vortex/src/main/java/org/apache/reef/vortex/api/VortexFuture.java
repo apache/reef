@@ -19,6 +19,7 @@
 package org.apache.reef.vortex.api;
 
 import org.apache.reef.annotations.Unstable;
+import org.apache.reef.util.Optional;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.impl.ThreadPoolStage;
 
@@ -29,7 +30,9 @@ import java.util.concurrent.*;
  */
 @Unstable
 public final class VortexFuture<TOutput> implements Future<TOutput> {
-  private TOutput userResult;
+  // userResult starts out as null. If not null => variable is set and tasklet returned.
+  // Otherwise tasklet has not completed.
+  private Optional<TOutput> userResult = null;
   private Exception userException;
   private final CountDownLatch countDownLatch = new CountDownLatch(1);
   private final ThreadPoolStage<TOutput> stage;
@@ -79,7 +82,7 @@ public final class VortexFuture<TOutput> implements Future<TOutput> {
   public TOutput get() throws InterruptedException, ExecutionException {
     countDownLatch.await();
     if (userResult != null) {
-      return userResult;
+      return userResult.get();
     } else {
       assert userException != null;
       throw new ExecutionException(userException);
@@ -97,7 +100,7 @@ public final class VortexFuture<TOutput> implements Future<TOutput> {
     }
 
     if (userResult != null) {
-      return userResult;
+      return userResult.get();
     } else {
       assert userException != null;
       throw new ExecutionException(userException);
@@ -108,9 +111,9 @@ public final class VortexFuture<TOutput> implements Future<TOutput> {
    * Called by VortexMaster to let the user know that the task completed.
    */
   public void completed(final TOutput result) {
-    this.userResult = result;
+    this.userResult = Optional.ofNullable(result);
     if (stage != null) {
-      stage.onNext(userResult);
+      stage.onNext(userResult.get());
     }
     this.countDownLatch.countDown();
   }
