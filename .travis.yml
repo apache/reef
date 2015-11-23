@@ -32,8 +32,7 @@ cache:
   - $HOME/local
 
 notifications:
-  email:
-  - false
+  email: false
 
 install: ./dev/travis-install-dependencies.sh
 
