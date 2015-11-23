@@ -19,8 +19,8 @@
 package org.apache.reef.runtime.local.process;
 
 import net.jcip.annotations.ThreadSafe;
-import org.apache.reef.proto.ReefServiceProtos;
 import org.apache.reef.runtime.common.driver.api.RuntimeParameters;
+import org.apache.reef.runtime.common.driver.evaluator.pojos.State;
 import org.apache.reef.runtime.common.driver.resourcemanager.ResourceStatusEvent;
 import org.apache.reef.runtime.common.driver.resourcemanager.ResourceStatusEventImpl;
 import org.apache.reef.runtime.local.driver.ResourceManager;
@@ -58,7 +58,7 @@ public final class ReefRunnableProcessObserver implements RunnableProcessObserve
     this.onResourceStatus(
         ResourceStatusEventImpl.newBuilder()
             .setIdentifier(processId)
-            .setState(ReefServiceProtos.State.RUNNING)
+            .setState(State.RUNNING)
             .build()
     );
   }
@@ -87,7 +87,7 @@ public final class ReefRunnableProcessObserver implements RunnableProcessObserve
     this.onResourceStatus(
         ResourceStatusEventImpl.newBuilder()
             .setIdentifier(processId)
-            .setState(ReefServiceProtos.State.DONE)
+            .setState(State.DONE)
             .setExitCode(0)
             .build()
     );
@@ -103,7 +103,7 @@ public final class ReefRunnableProcessObserver implements RunnableProcessObserve
     this.onResourceStatus(
         ResourceStatusEventImpl.newBuilder()
             .setIdentifier(processId)
-            .setState(ReefServiceProtos.State.FAILED)
+            .setState(State.FAILED)
             .setExitCode(exitCode)
             .build()
     );

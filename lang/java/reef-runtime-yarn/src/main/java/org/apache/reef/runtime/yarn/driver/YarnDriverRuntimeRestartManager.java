@@ -30,8 +30,8 @@ import org.apache.reef.annotations.audience.RuntimeAuthor;
 import org.apache.reef.driver.restart.DriverRuntimeRestartManager;
 import org.apache.reef.driver.restart.EvaluatorRestartInfo;
 import org.apache.reef.driver.restart.RestartEvaluators;
-import org.apache.reef.proto.ReefServiceProtos;
 import org.apache.reef.runtime.common.driver.EvaluatorPreserver;
+import org.apache.reef.runtime.common.driver.evaluator.pojos.State;
 import org.apache.reef.runtime.common.driver.resourcemanager.ResourceEventImpl;
 import org.apache.reef.runtime.common.driver.resourcemanager.ResourceStatusEventImpl;
 import org.apache.reef.runtime.yarn.driver.parameters.YarnEvaluatorPreserver;
@@ -256,7 +256,7 @@ public final class YarnDriverRuntimeRestartManager implements DriverRuntimeResta
       // trigger a failed evaluator event
       this.reefEventHandlers.onResourceStatus(ResourceStatusEventImpl.newBuilder()
           .setIdentifier(evaluatorId)
-          .setState(ReefServiceProtos.State.FAILED)
+          .setState(State.FAILED)
           .setExitCode(1)
           .setDiagnostics("Container [" + evaluatorId + "] failed during driver restart process.")
           .build());

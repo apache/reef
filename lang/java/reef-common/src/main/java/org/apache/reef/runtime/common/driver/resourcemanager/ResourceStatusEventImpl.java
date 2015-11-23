@@ -18,7 +18,7 @@
  */
 package org.apache.reef.runtime.common.driver.resourcemanager;
 
-import org.apache.reef.proto.ReefServiceProtos;
+import org.apache.reef.runtime.common.driver.evaluator.pojos.State;
 import org.apache.reef.util.BuilderUtils;
 import org.apache.reef.util.Optional;
 
@@ -28,7 +28,7 @@ import org.apache.reef.util.Optional;
  */
 public final class ResourceStatusEventImpl implements ResourceStatusEvent {
   private final String identifier;
-  private final ReefServiceProtos.State state;
+  private final State state;
   private final Optional<String> diagnostics;
   private final Optional<Integer> exitCode;
   private final String runtimeName;
@@ -52,7 +52,7 @@ public final class ResourceStatusEventImpl implements ResourceStatusEvent {
   }
 
   @Override
-  public ReefServiceProtos.State getState() {
+  public State getState() {
     return state;
   }
 
@@ -74,9 +74,10 @@ public final class ResourceStatusEventImpl implements ResourceStatusEvent {
    * Builder used to create ResourceStatusEvent instances.
    */
   public static final class Builder implements org.apache.reef.util.Builder<ResourceStatusEvent> {
+
     private String identifier;
     private String runtimeName;
-    private ReefServiceProtos.State state;
+    private State state;
     private String diagnostics;
     private Integer exitCode;
 
@@ -98,7 +99,7 @@ public final class ResourceStatusEventImpl implements ResourceStatusEvent {
     /**
      * @see ResourceStatusEvent#getState()
      */
-    public Builder setState(final ReefServiceProtos.State state) {
+    public Builder setState(final State state) {
       this.state = state;
       return this;
     }

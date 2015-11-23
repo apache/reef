@@ -16,44 +16,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.runtime.common.driver.resourcemanager;
+
+package org.apache.reef.runtime.common.driver.evaluator.pojos;
 
 import org.apache.reef.annotations.audience.DriverSide;
-import org.apache.reef.annotations.audience.RuntimeAuthor;
-import org.apache.reef.runtime.common.driver.evaluator.pojos.State;
-import org.apache.reef.tang.annotations.DefaultImplementation;
-import org.apache.reef.util.Optional;
+import org.apache.reef.annotations.audience.Private;
 
 /**
- * Event from Driver Runtime to Driver Process.
- * Status of a resource in the cluster
+ * DriverSide representation of ContextStatusProto.State.
  */
-@RuntimeAuthor
 @DriverSide
-@DefaultImplementation(ResourceStatusEventImpl.class)
-public interface ResourceStatusEvent {
-  /**
-   * @return Id of the resource
-   */
-  String getIdentifier();
-
-  /**
-   * @return Runtime name
-   */
-  String getRuntimeName();
-
-  /**
-   * @return State of the resource
-   */
-  State getState();
-
-  /**
-   * @return Diagnostics from the resource
-   */
-  Optional<String> getDiagnostics();
-
-  /**
-   * @return Exit code of the resource, if it has exited
-   */
-  Optional<Integer> getExitCode();
+@Private
+public enum ContextState {
+    READY,
+    DONE,
+    FAIL;
 }

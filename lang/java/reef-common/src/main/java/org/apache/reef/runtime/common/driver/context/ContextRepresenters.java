@@ -25,8 +25,10 @@ import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.driver.context.FailedContext;
 import org.apache.reef.driver.restart.DriverRestartManager;
 import org.apache.reef.driver.restart.EvaluatorRestartState;
-import org.apache.reef.proto.ReefServiceProtos;
 import org.apache.reef.runtime.common.driver.evaluator.EvaluatorMessageDispatcher;
+import org.apache.reef.runtime.common.driver.evaluator.pojos.ContextMessagePOJO;
+import org.apache.reef.runtime.common.driver.evaluator.pojos.ContextState;
+import org.apache.reef.runtime.common.driver.evaluator.pojos.ContextStatusPOJO;
 import org.apache.reef.util.Optional;
 
 import javax.inject.Inject;
@@ -97,14 +99,14 @@ public final class ContextRepresenters {
   /**
    * Process heartbeats from the contexts on an Evaluator.
    *
-   * @param contextStatusProtos
+   * @param contextStatusPOJOs
    * @param notifyClientOnNewActiveContext
    */
-  public synchronized void onContextStatusMessages(final Iterable<ReefServiceProtos.ContextStatusProto>
-                                                       contextStatusProtos,
+  public synchronized void onContextStatusMessages(final Iterable<ContextStatusPOJO>
+                                                       contextStatusPOJOs,
                                                    final boolean notifyClientOnNewActiveContext) {
-    for (final ReefServiceProtos.ContextStatusProto contextStatusProto : contextStatusProtos) {
-      this.onContextStatusMessage(contextStatusProto, notifyClientOnNewActiveContext);
+    for (final ContextStatusPOJO contextStatus : contextStatusPOJOs) {
+      this.onContextStatusMessage(contextStatus, notifyClientOnNewActiveContext);
     }
   }
 
@@ -112,53 +114,53 @@ public final class ContextRepresenters {
   /**
    * Process a heartbeat from a context.
    *
-   * @param contextStatusProto
+   * @param contextStatus
    * @param notifyClientOnNewActiveContext
    */
-  private synchronized void onContextStatusMessage(final ReefServiceProtos.ContextStatusProto contextStatusProto,
+  private synchronized void onContextStatusMessage(final ContextStatusPOJO contextStatus,
                                                    final boolean notifyClientOnNewActiveContext) {
 
-    LOG.log(Level.FINER, "Processing context status message for context {0}", contextStatusProto.getContextId());
-    switch (contextStatusProto.getContextState()) {
+    LOG.log(Level.FINER, "Processing context status message for context {0}", contextStatus.getContextId());
+    switch (contextStatus.getContextState()) {
     case READY:
-      this.onContextReady(contextStatusProto, notifyClientOnNewActiveContext);
+      this.onContextReady(contextStatus, notifyClientOnNewActiveContext);
       break;
     case FAIL:
-      this.onContextFailed(contextStatusProto);
+      this.onContextFailed(contextStatus);
       break;
     case DONE:
-      this.onContextDone(contextStatusProto);
+      this.onContextDone(contextStatus);
       break;
     default:
-      this.onUnknownContextStatus(contextStatusProto);
+      this.onUnknownContextStatus(contextStatus);
       break;
     }
-    LOG.log(Level.FINER, "Done processing context status message for context {0}", contextStatusProto.getContextId());
+    LOG.log(Level.FINER, "Done processing context status message for context {0}", contextStatus.getContextId());
 
   }
 
 
-  private synchronized void onUnknownContextStatus(final ReefServiceProtos.ContextStatusProto contextStatusProto) {
-    LOG.log(Level.WARNING, "Received unexpected context status: {0}", contextStatusProto);
-    throw new RuntimeException("Received unexpected context status: " + contextStatusProto.getContextState());
+  private synchronized void onUnknownContextStatus(final ContextStatusPOJO contextStatus) {
+    LOG.log(Level.WARNING, "Received unexpected context status: {0}", contextStatus);
+    throw new RuntimeException("Received unexpected context status: " + contextStatus.getContextState());
   }
 
-  private synchronized void onContextFailed(final ReefServiceProtos.ContextStatusProto contextStatusProto) {
-    assert ReefServiceProtos.ContextStatusProto.State.FAIL == contextStatusProto.getContextState();
-    final String contextID = contextStatusProto.getContextId();
+  private synchronized void onContextFailed(final ContextStatusPOJO contextStatus) {
+    assert ContextState.FAIL == contextStatus.getContextState();
+    final String contextID = contextStatus.getContextId();
     LOG.log(Level.FINE, "Context {0} failed", contextID);
     // It could have failed right away.
     if (this.isUnknownContextId(contextID)) {
-      this.onNewContext(contextStatusProto, false);
+      this.onNewContext(contextStatus, false);
     }
     final EvaluatorContext context = getContext(contextID);
     this.removeContext(context);
-    this.messageDispatcher.onContextFailed(context.getFailedContext(contextStatusProto));
+    this.messageDispatcher.onContextFailed(context.getFailedContext(contextStatus));
   }
 
-  private synchronized void onContextDone(final ReefServiceProtos.ContextStatusProto contextStatusProto) {
-    assert ReefServiceProtos.ContextStatusProto.State.DONE == contextStatusProto.getContextState();
-    final String contextID = contextStatusProto.getContextId();
+  private synchronized void onContextDone(final ContextStatusPOJO contextStatus) {
+    assert ContextState.DONE == contextStatus.getContextState();
+    final String contextID = contextStatus.getContextId();
     if (isUnknownContextId(contextID)) {
       throw new RuntimeException("Received DONE for context " + contextID + " which is unknown.");
     } else {
@@ -178,24 +180,24 @@ public final class ContextRepresenters {
   /**
    * Process a message with status READY from a context.
    *
-   * @param contextStatusProto
+   * @param contextStatus
    * @param notifyClientOnNewActiveContext whether or not to inform the application when this in fact refers to a new
    *                                       context.
    */
-  private synchronized void onContextReady(final ReefServiceProtos.ContextStatusProto contextStatusProto,
+  private synchronized void onContextReady(final ContextStatusPOJO contextStatus,
                                            final boolean notifyClientOnNewActiveContext) {
-    assert ReefServiceProtos.ContextStatusProto.State.READY == contextStatusProto.getContextState();
-    final String contextID = contextStatusProto.getContextId();
+    assert ContextState.READY == contextStatus.getContextState();
+    final String contextID = contextStatus.getContextId();
     // This could be the first message we get from that context
     if (this.isUnknownContextId(contextID)) {
-      this.onNewContext(contextStatusProto, notifyClientOnNewActiveContext);
+      this.onNewContext(contextStatus, notifyClientOnNewActiveContext);
     }
 
     // Dispatch the messages to the application, if there are any.
-    for (final ReefServiceProtos.ContextStatusProto.ContextMessageProto
-             contextMessageProto : contextStatusProto.getContextMessageList()) {
-      final byte[] theMessage = contextMessageProto.getMessage().toByteArray();
-      final String sourceID = contextMessageProto.getSourceId();
+    for (final ContextMessagePOJO
+             contextMessage : contextStatus.getContextMessageList()) {
+      final byte[] theMessage = contextMessage.getMessage();
+      final String sourceID = contextMessage.getSourceId();
       this.messageDispatcher.onContextMessage(new ContextMessageImpl(theMessage, contextID, sourceID));
     }
 
@@ -204,16 +206,16 @@ public final class ContextRepresenters {
   /**
    * Create and add a new context representer.
    *
-   * @param contextStatusProto             the message to create the context from
+   * @param contextStatus             the message to create the context from
    * @param notifyClientOnNewActiveContext whether or not to fire an event to the user.
    */
-  private synchronized void onNewContext(final ReefServiceProtos.ContextStatusProto contextStatusProto,
+  private synchronized void onNewContext(final ContextStatusPOJO contextStatus,
                                          final boolean notifyClientOnNewActiveContext) {
-    final String contextID = contextStatusProto.getContextId();
+    final String contextID = contextStatus.getContextId();
     LOG.log(Level.FINE, "Adding new context {0}.", contextID);
 
-    final Optional<String> parentID = contextStatusProto.hasParentId() ?
-        Optional.of(contextStatusProto.getParentId()) : Optional.<String>empty();
+    final Optional<String> parentID = contextStatus.hasParentId() ?
+        Optional.of(contextStatus.getParentId()) : Optional.<String>empty();
     final EvaluatorContext context = contextFactory.newContext(contextID, parentID);
     this.addContext(context);
     if (notifyClientOnNewActiveContext) {
