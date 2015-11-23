@@ -34,6 +34,7 @@ import org.apache.hadoop.yarn.exceptions.YarnException;
 import org.apache.reef.driver.ProgressProvider;
 import org.apache.reef.proto.ReefServiceProtos;
 import org.apache.reef.runtime.common.driver.DriverStatusManager;
+import org.apache.reef.runtime.common.driver.evaluator.pojos.State;
 import org.apache.reef.runtime.common.driver.resourcemanager.NodeDescriptorEventImpl;
 import org.apache.reef.runtime.common.driver.resourcemanager.ResourceEventImpl;
 import org.apache.reef.runtime.common.driver.resourcemanager.ResourceStatusEventImpl;
@@ -149,7 +150,7 @@ final class YarnContainerManager
   @Override
   public void onShutdownRequest() {
     this.reefEventHandlers.onRuntimeStatus(RuntimeStatusEventImpl.newBuilder()
-        .setName(RUNTIME_NAME).setState(ReefServiceProtos.State.DONE).build());
+        .setName(RUNTIME_NAME).setState(State.DONE).build());
     this.driverStatusManager.onError(new Exception("Shutdown requested by YARN."));
   }
 
@@ -199,7 +200,7 @@ final class YarnContainerManager
     if (hasContainer) {
       final ResourceStatusEventImpl.Builder resourceStatusBuilder =
           ResourceStatusEventImpl.newBuilder().setIdentifier(containerId.toString());
-      resourceStatusBuilder.setState(ReefServiceProtos.State.DONE);
+      resourceStatusBuilder.setState(State.DONE);
       this.reefEventHandlers.onResourceStatus(resourceStatusBuilder.build());
     }
   }
@@ -339,7 +340,7 @@ final class YarnContainerManager
     final ResourceStatusEventImpl.Builder resourceStatusBuilder =
         ResourceStatusEventImpl.newBuilder().setIdentifier(containerId.toString());
 
-    resourceStatusBuilder.setState(ReefServiceProtos.State.FAILED);
+    resourceStatusBuilder.setState(State.FAILED);
     resourceStatusBuilder.setExitCode(1);
     resourceStatusBuilder.setDiagnostics(throwable.getMessage());
     this.reefEventHandlers.onResourceStatus(resourceStatusBuilder.build());
@@ -366,19 +367,19 @@ final class YarnContainerManager
         LOG.log(Level.FINE, "Container completed: status {0}", value.getExitStatus());
         switch (value.getExitStatus()) {
         case 0:
-          status.setState(ReefServiceProtos.State.DONE);
+          status.setState(State.DONE);
           break;
         case 143:
-          status.setState(ReefServiceProtos.State.KILLED);
+          status.setState(State.KILLED);
           break;
         default:
-          status.setState(ReefServiceProtos.State.FAILED);
+          status.setState(State.FAILED);
         }
         status.setExitCode(value.getExitStatus());
         break;
       default:
         LOG.info("Container running");
-        status.setState(ReefServiceProtos.State.RUNNING);
+        status.setState(State.RUNNING);
       }
 
       if (value.getDiagnostics() != null) {
@@ -506,7 +507,7 @@ final class YarnContainerManager
     final RuntimeStatusEventImpl.Builder builder =
         RuntimeStatusEventImpl.newBuilder()
             .setName(RUNTIME_NAME)
-            .setState(ReefServiceProtos.State.RUNNING)
+            .setState(State.RUNNING)
             .setOutstandingContainerRequests(this.containerRequestCounter.get());
 
     for (final String allocatedContainerId : this.containers.getContainerIds()) {
@@ -530,7 +531,7 @@ final class YarnContainerManager
     }
 
     final RuntimeStatusEventImpl.Builder runtimeStatusBuilder = RuntimeStatusEventImpl.newBuilder()
-        .setState(ReefServiceProtos.State.FAILED)
+        .setState(State.FAILED)
         .setName(RUNTIME_NAME);
 
     final Encoder<Throwable> codec = new ObjectSerializableCodec<>();

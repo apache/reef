@@ -26,8 +26,9 @@ import org.apache.reef.driver.context.ClosedContext;
 import org.apache.reef.driver.context.FailedContext;
 import org.apache.reef.driver.evaluator.EvaluatorDescriptor;
 import org.apache.reef.proto.EvaluatorRuntimeProtocol;
-import org.apache.reef.proto.ReefServiceProtos;
 import org.apache.reef.runtime.common.driver.evaluator.EvaluatorMessageDispatcher;
+import org.apache.reef.runtime.common.driver.evaluator.pojos.ContextState;
+import org.apache.reef.runtime.common.driver.evaluator.pojos.ContextStatusPOJO;
 import org.apache.reef.runtime.common.utils.ExceptionCodec;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.formats.ConfigurationSerializer;
@@ -248,15 +249,15 @@ public final class EvaluatorContext implements ActiveContext {
   }
 
   public synchronized FailedContext getFailedContext(
-      final ReefServiceProtos.ContextStatusProto contextStatusProto) {
+      final ContextStatusPOJO contextStatus) {
 
-    assert ReefServiceProtos.ContextStatusProto.State.FAIL == contextStatusProto.getContextState();
+    assert ContextState.FAIL == contextStatus.getContextState();
 
     final String id = this.getId();
     final Optional<String> description = Optional.empty();
 
-    final Optional<byte[]> data = contextStatusProto.hasError() ?
-        Optional.of(contextStatusProto.getError().toByteArray()) :
+    final Optional<byte[]> data = contextStatus.hasError() ?
+        Optional.of(contextStatus.getError()) :
         Optional.<byte[]>empty();
 
     final Optional<Throwable> cause = data.isPresent() ?

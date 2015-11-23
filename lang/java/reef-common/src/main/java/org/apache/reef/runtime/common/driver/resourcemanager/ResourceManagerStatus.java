@@ -20,8 +20,8 @@ package org.apache.reef.runtime.common.driver.resourcemanager;
 
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
-import org.apache.reef.proto.ReefServiceProtos;
 import org.apache.reef.runtime.common.driver.DriverStatusManager;
+import org.apache.reef.runtime.common.driver.evaluator.pojos.State;
 import org.apache.reef.runtime.common.driver.idle.DriverIdleManager;
 import org.apache.reef.runtime.common.driver.idle.DriverIdlenessSource;
 import org.apache.reef.runtime.common.driver.idle.IdleMessage;
@@ -50,7 +50,7 @@ public final class ResourceManagerStatus implements EventHandler<RuntimeStatusEv
   private final InjectionFuture<DriverIdleManager> driverIdleManager;
 
   // Mutable state.
-  private ReefServiceProtos.State state = ReefServiceProtos.State.INIT;
+  private State state =  State.INIT;
   private int outstandingContainerRequests = 0;
   private int containerAllocationCount = 0;
 
@@ -65,7 +65,7 @@ public final class ResourceManagerStatus implements EventHandler<RuntimeStatusEv
 
   @Override
   public synchronized void onNext(final RuntimeStatusEvent runtimeStatusEvent) {
-    final ReefServiceProtos.State newState = runtimeStatusEvent.getState();
+    final State newState = runtimeStatusEvent.getState();
     LOG.log(Level.FINEST, "Runtime status " + runtimeStatusEvent);
     this.outstandingContainerRequests = runtimeStatusEvent.getOutstandingContainerRequests().orElse(0);
     this.containerAllocationCount = runtimeStatusEvent.getContainerAllocationList().size();
@@ -94,7 +94,7 @@ public final class ResourceManagerStatus implements EventHandler<RuntimeStatusEv
    * Change the state of the Resource Manager to be RUNNING.
    */
   public synchronized void setRunning() {
-    this.setState(ReefServiceProtos.State.RUNNING);
+    this.setState(State.RUNNING);
   }
 
   /**
@@ -117,18 +117,18 @@ public final class ResourceManagerStatus implements EventHandler<RuntimeStatusEv
 
 
   private synchronized void onRMFailure(final RuntimeStatusEvent runtimeStatusEvent) {
-    assert runtimeStatusEvent.getState() == ReefServiceProtos.State.FAILED;
+    assert runtimeStatusEvent.getState() == State.FAILED;
     this.resourceManagerErrorHandler.onNext(runtimeStatusEvent.getError().get());
   }
 
   private synchronized void onRMDone(final RuntimeStatusEvent runtimeStatusEvent) {
-    assert runtimeStatusEvent.getState() == ReefServiceProtos.State.DONE;
+    assert runtimeStatusEvent.getState() == State.DONE;
     LOG.log(Level.INFO, "Resource Manager shutdown happened. Triggering Driver shutdown.");
     this.driverStatusManager.onComplete();
   }
 
   private synchronized void onRMRunning(final RuntimeStatusEvent runtimeStatusEvent) {
-    assert runtimeStatusEvent.getState() == ReefServiceProtos.State.RUNNING;
+    assert runtimeStatusEvent.getState() == State.RUNNING;
     if (this.isIdle()) {
       this.driverIdleManager.get().onPotentiallyIdle(IDLE_MESSAGE);
     }
@@ -141,7 +141,7 @@ public final class ResourceManagerStatus implements EventHandler<RuntimeStatusEv
   }
 
   private synchronized boolean isRunning() {
-    return ReefServiceProtos.State.RUNNING.equals(this.state);
+    return State.RUNNING.equals(this.state);
   }
 
   /**
@@ -155,8 +155,8 @@ public final class ResourceManagerStatus implements EventHandler<RuntimeStatusEv
   * @return true if the transition is legal; false otherwise
   *
   */
-  private synchronized boolean isLegalStateTransition(final ReefServiceProtos.State from,
-                                                      final ReefServiceProtos.State to) {
+  private synchronized boolean isLegalStateTransition(final State from,
+                                                      final State to) {
 
     // handle diagonal elements of the transition matrix
     if (from.equals(to)){
@@ -212,7 +212,7 @@ public final class ResourceManagerStatus implements EventHandler<RuntimeStatusEv
 
   }
 
-  private synchronized void setState(final ReefServiceProtos.State newState) {
+  private synchronized void setState(final State newState) {
 
     if (isLegalStateTransition(this.state, newState)) {
       this.state = newState;
