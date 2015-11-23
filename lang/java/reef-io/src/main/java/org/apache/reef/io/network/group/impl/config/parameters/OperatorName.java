@@ -21,6 +21,9 @@ package org.apache.reef.io.network.group.impl.config.parameters;
 import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
 
+/**
+ * Name of the operator.
+ */
 @NamedParameter(doc = "Name of the operator")
 public final class OperatorName implements Name<String> {
   private OperatorName() {

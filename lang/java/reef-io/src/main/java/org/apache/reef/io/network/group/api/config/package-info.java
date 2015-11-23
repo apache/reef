@@ -16,7 +16,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 /**
- * TODO: Document.
+ * The operator configurations used by users.
  */
 package org.apache.reef.io.network.group.api.config;

@@ -23,6 +23,9 @@ import org.apache.reef.tang.annotations.NamedParameter;
 
 import java.util.Set;
 
+/**
+ * Serialized operator configurations.
+ */
 @NamedParameter(doc = "Serialized operator configurations")
 public final class SerializedOperConfigs implements Name<Set<String>> {
   private SerializedOperConfigs() {

@@ -26,7 +26,7 @@ import org.apache.reef.tang.annotations.Name;
 import java.util.Iterator;
 
 /**
- *
+ * Utility class for group communications.
  */
 public final class Utils {
 
@@ -64,6 +64,7 @@ public final class Utils {
   }
 
   /**
+   * Extract a group communication message object from a message.
    * @param msg
    * @return
    */

@@ -67,7 +67,7 @@ public interface CommunicationGroupClient {
 
   /**
    * The reduce receiver configured on this communication group.
-   * with the given oepratorName
+   * with the given operatorName
    *
    * @param operatorName
    * @return
@@ -76,7 +76,7 @@ public interface CommunicationGroupClient {
 
   /**
    * The reduce sender configured on this communication group.
-   * with the given oepratorName
+   * with the given operatorName
    *
    * @param operatorName
    * @return
