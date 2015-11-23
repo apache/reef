@@ -16,7 +16,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 /**
- * TODO: Document.
+ * Implementations for Elastic Group Communications Task-side API.
  */
 package org.apache.reef.io.network.group.impl.task;

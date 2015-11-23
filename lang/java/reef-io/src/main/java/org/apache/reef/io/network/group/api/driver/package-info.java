@@ -16,7 +16,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 /**
- * TODO: Document.
+ * Elastic Group Communications Driver-side API Interfaces.
  */
 package org.apache.reef.io.network.group.api.driver;

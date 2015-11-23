@@ -21,6 +21,9 @@ package org.apache.reef.io.network.group.impl.config.parameters;
 import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
 
+/**
+ * The fan out for the tree topology.
+ */
 @NamedParameter(doc = "The fan out for the tree topology", default_value = "2", short_name = "fanout")
 public final class TreeTopologyFanOut implements Name<Integer> {
   private TreeTopologyFanOut() {

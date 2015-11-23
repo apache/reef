@@ -24,7 +24,7 @@ import org.apache.reef.io.network.proto.ReefNetworkGroupCommProtos;
 import java.util.Arrays;
 
 /**
- *
+ * Group Communication Message.
  */
 public class GroupCommunicationMessage {
   private final String groupName;

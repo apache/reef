@@ -16,7 +16,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 /**
- * TODO: Document.
+ * Parameters for Elastic Group Communications.
  */
 package org.apache.reef.io.network.group.impl.config.parameters;

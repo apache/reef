@@ -22,6 +22,9 @@ import org.apache.reef.io.network.group.api.operators.Reduce.ReduceFunction;
 import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
 
+/**
+ * The reduce function class that is associated with a reduce operator.
+ */
 @NamedParameter(doc = "The reduce function class that is associated with a reduce operator")
 public final class ReduceFunctionParam implements Name<ReduceFunction> {
   private ReduceFunctionParam() {

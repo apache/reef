@@ -16,7 +16,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 /**
- * TODO: Document.
+ * Utilities for group communication.
  */
 package org.apache.reef.io.network.group.impl.utils;
