@@ -27,7 +27,6 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.IMRU.OnREEF;
 using Org.Apache.REEF.IMRU.OnREEF.MapInputWithControlMessage;
 using Org.Apache.REEF.Network.Group.Config;
@@ -39,16 +38,16 @@ using Org.Apache.REEF.Wake.Remote;
 using Org.Apache.REEF.Wake.Remote.Impl;
 using Org.Apache.REEF.Wake.StreamingCodec;
 using Org.Apache.REEF.Wake.StreamingCodec.CommonStreamingCodecs;
+using Xunit;
 
 namespace Org.Apache.REEF.IMRU.Tests
 {
-    [TestClass]
     public class MapInputWithControlMessageTests
     {
         /// <summary>
         /// Tests the codec for TMapInputWithControlMessage
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestMapInputWithControlMessageCodec()
         {
             float[] baseMessage = { 0, 1 };
@@ -73,17 +72,17 @@ namespace Org.Apache.REEF.IMRU.Tests
             var message1 = codec.Read(reader);
             var message2 = codec.Read(reader);
 
-            Assert.AreEqual(message1.Message[0], baseMessage[0]);
-            Assert.AreEqual(message1.Message[1], baseMessage[1]);
-            Assert.IsNull(message2.Message);
-            Assert.AreEqual(message1.ControlMessage, MapControlMessage.AnotherRound);
-            Assert.AreEqual(message2.ControlMessage, MapControlMessage.Stop);
+            Assert.Equal(message1.Message[0], baseMessage[0]);
+            Assert.Equal(message1.Message[1], baseMessage[1]);
+            Assert.Null(message2.Message);
+            Assert.Equal(message1.ControlMessage, MapControlMessage.AnotherRound);
+            Assert.Equal(message2.ControlMessage, MapControlMessage.Stop);
         }
 
         /// <summary>
         /// Tests the pipelining Data converter for TMapInputWithControlMessage
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestMapInputPipelining()
         {
             int chunkSize = 2;
@@ -108,31 +107,31 @@ namespace Org.Apache.REEF.IMRU.Tests
 
             var chunks2 = dataConverter.PipelineMessage(new MapInputWithControlMessage<int[]>(MapControlMessage.Stop));
 
-            Assert.AreEqual(chunks1.Count, 2);
-            Assert.IsTrue(chunks1[0].Data.Message.Length == 2);
-            Assert.IsTrue(chunks1[1].Data.Message.Length == 1);
-            Assert.AreEqual(chunks1[0].Data.Message[0], baseMessage[0]);
-            Assert.AreEqual(chunks1[0].Data.Message[1], baseMessage[1]);
-            Assert.AreEqual(chunks1[1].Data.Message[0], baseMessage[2]);
-            Assert.AreEqual(chunks1[0].Data.ControlMessage, MapControlMessage.AnotherRound);
-            Assert.AreEqual(chunks1[1].Data.ControlMessage, MapControlMessage.AnotherRound);
-            Assert.AreEqual(chunks1[0].IsLast, false);
-            Assert.AreEqual(chunks1[1].IsLast, true);
+            Assert.Equal(chunks1.Count, 2);
+            Assert.True(chunks1[0].Data.Message.Length == 2);
+            Assert.True(chunks1[1].Data.Message.Length == 1);
+            Assert.Equal(chunks1[0].Data.Message[0], baseMessage[0]);
+            Assert.Equal(chunks1[0].Data.Message[1], baseMessage[1]);
+            Assert.Equal(chunks1[1].Data.Message[0], baseMessage[2]);
+            Assert.Equal(chunks1[0].Data.ControlMessage, MapControlMessage.AnotherRound);
+            Assert.Equal(chunks1[1].Data.ControlMessage, MapControlMessage.AnotherRound);
+            Assert.Equal(chunks1[0].IsLast, false);
+            Assert.Equal(chunks1[1].IsLast, true);
 
-            Assert.AreEqual(chunks2.Count, 1);
-            Assert.IsNull(chunks2[0].Data.Message);
-            Assert.AreEqual(chunks2[0].Data.ControlMessage, MapControlMessage.Stop);
-            Assert.AreEqual(chunks2[0].IsLast, true);
+            Assert.Equal(chunks2.Count, 1);
+            Assert.Null(chunks2[0].Data.Message);
+            Assert.Equal(chunks2[0].Data.ControlMessage, MapControlMessage.Stop);
+            Assert.Equal(chunks2[0].IsLast, true);
 
             var fullMessage1 = dataConverter.FullMessage(chunks1);
             var fullMessage2 = dataConverter.FullMessage(chunks2);
 
-            Assert.AreEqual(fullMessage1.Message[0], baseMessage[0]);
-            Assert.AreEqual(fullMessage1.Message[1], baseMessage[1]);
-            Assert.AreEqual(fullMessage1.Message[2], baseMessage[2]);
-            Assert.AreEqual(fullMessage1.ControlMessage, chunks1[0].Data.ControlMessage);
-            Assert.IsNull(fullMessage2.Message);
-            Assert.AreEqual(fullMessage2.ControlMessage, chunks2[0].Data.ControlMessage);
+            Assert.Equal(fullMessage1.Message[0], baseMessage[0]);
+            Assert.Equal(fullMessage1.Message[1], baseMessage[1]);
+            Assert.Equal(fullMessage1.Message[2], baseMessage[2]);
+            Assert.Equal(fullMessage1.ControlMessage, chunks1[0].Data.ControlMessage);
+            Assert.Null(fullMessage2.Message);
+            Assert.Equal(fullMessage2.ControlMessage, chunks2[0].Data.ControlMessage);
         }
 
         [NamedParameter("Chunk size.")]

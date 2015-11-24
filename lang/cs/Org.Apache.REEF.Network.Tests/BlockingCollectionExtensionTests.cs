@@ -19,28 +19,27 @@
 
 using System;
 using System.Collections.Concurrent;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.Network.Utilities;
+using Xunit;
 
 namespace Org.Apache.REEF.Network.Tests
 {
-    [TestClass]
     public class BlockingCollectionExtensionTests
     {
-        [TestMethod]
+        [Fact]
         public void TestCollectionContainsElement()
         {
             string item = "abc";
             BlockingCollection<string> collection = new BlockingCollection<string>();
             collection.Add(item);
 
-            Assert.AreEqual(item, collection.Take(item));
+            Assert.Equal(item, collection.Take(item));
 
             // Check that item is no longer in collection
-            Assert.AreEqual(0, collection.Count);
+            Assert.Equal(0, collection.Count);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestCollectionContainsElement2()
         {
             string item = "abc";
@@ -49,16 +48,15 @@ namespace Org.Apache.REEF.Network.Tests
             collection.Add(item);
             collection.Add("dog");
 
-            Assert.AreEqual(item, collection.Take(item));
+            Assert.Equal(item, collection.Take(item));
 
             // Remove remaining items, check that item is not there
-            Assert.AreNotEqual(item, collection.Take());
-            Assert.AreNotEqual(item, collection.Take());
-            Assert.AreEqual(0, collection.Count);
+            Assert.NotEqual(item, collection.Take());
+            Assert.NotEqual(item, collection.Take());
+            Assert.Equal(0, collection.Count);
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(InvalidOperationException))]
+        [Fact]
         public void TestCollectionDoesNotContainsElement()
         {
             string item1 = "abc";
@@ -68,7 +66,7 @@ namespace Org.Apache.REEF.Network.Tests
             collection.Add(item2);
 
             // Should throw InvalidOperationException since item1 is not in collection
-            collection.Take(item1);
+            Assert.Throws<InvalidOperationException>(() => collection.Take(item1));
         }
     }
 }

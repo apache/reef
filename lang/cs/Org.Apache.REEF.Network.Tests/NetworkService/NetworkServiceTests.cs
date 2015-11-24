@@ -22,7 +22,6 @@ using System.Collections.Concurrent;
 using System.Globalization;
 using System.Linq;
 using System.Net;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.Common.Io;
 using Org.Apache.REEF.Network.Naming;
 using Org.Apache.REEF.Network.NetworkService;
@@ -34,13 +33,13 @@ using Org.Apache.REEF.Wake;
 using Org.Apache.REEF.Wake.Remote;
 using Org.Apache.REEF.Wake.Remote.Impl;
 using Org.Apache.REEF.Wake.Util;
+using Xunit;
 
 namespace Org.Apache.REEF.Network.Tests.NetworkService
 {
-    [TestClass]
     public class NetworkServiceTests
     {
-        [TestMethod]
+        [Fact]
         public void TestNetworkServiceOneWayCommunication()
         {
             int networkServicePort1 = NetworkUtils.GenerateRandomPort(6000, 7000);
@@ -68,15 +67,15 @@ namespace Org.Apache.REEF.Network.Tests.NetworkService
                         connection.Write("def");
                         connection.Write("ghi");
 
-                        Assert.AreEqual("abc", queue.Take());
-                        Assert.AreEqual("def", queue.Take());
-                        Assert.AreEqual("ghi", queue.Take());
+                        Assert.Equal("abc", queue.Take());
+                        Assert.Equal("def", queue.Take());
+                        Assert.Equal("ghi", queue.Take());
                     }
                 }
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void TestNetworkServiceTwoWayCommunication()
         {
             int networkServicePort1 = NetworkUtils.GenerateRandomPort(6000, 7000);
@@ -110,12 +109,12 @@ namespace Org.Apache.REEF.Network.Tests.NetworkService
                         connection2.Write("jkl");
                         connection2.Write("mno");
 
-                        Assert.AreEqual("abc", queue2.Take());
-                        Assert.AreEqual("def", queue2.Take());
-                        Assert.AreEqual("ghi", queue2.Take());
+                        Assert.Equal("abc", queue2.Take());
+                        Assert.Equal("def", queue2.Take());
+                        Assert.Equal("ghi", queue2.Take());
 
-                        Assert.AreEqual("jkl", queue1.Take());
-                        Assert.AreEqual("mno", queue1.Take());
+                        Assert.Equal("jkl", queue1.Take());
+                        Assert.Equal("mno", queue1.Take());
                     }
                 }
             }

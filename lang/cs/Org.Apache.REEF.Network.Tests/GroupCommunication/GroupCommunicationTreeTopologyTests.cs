@@ -19,7 +19,6 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.Network.Group.Config;
 using Org.Apache.REEF.Network.Group.Driver;
 using Org.Apache.REEF.Network.Group.Operators;
@@ -29,13 +28,13 @@ using Org.Apache.REEF.Network.Group.Topology;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Wake.StreamingCodec.CommonStreamingCodecs;
+using Xunit;
 
 namespace Org.Apache.REEF.Network.Tests.GroupCommunication
 {
-    [TestClass]
     public class GroupCommunicationTreeTopologyTests
     {
-        [TestMethod]
+        [Fact]
         public void TestTreeTopology()
         {
             TreeTopology<int> topology = new TreeTopology<int>("Operator", "Operator", "task1", "driverid",
@@ -52,7 +51,7 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void TestReduceOperator()
         {
             string groupName = "group1";
@@ -81,16 +80,16 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
             IReduceSender<int> sender8 = commGroups[8].GetReduceSender<int>(operatorName);
             IReduceSender<int> sender9 = commGroups[9].GetReduceSender<int>(operatorName);
 
-            Assert.IsNotNull(receiver);
-            Assert.IsNotNull(sender1);
-            Assert.IsNotNull(sender2);
-            Assert.IsNotNull(sender3);
-            Assert.IsNotNull(sender4);
-            Assert.IsNotNull(sender5);
-            Assert.IsNotNull(sender6);
-            Assert.IsNotNull(sender7);
-            Assert.IsNotNull(sender8);
-            Assert.IsNotNull(sender9);
+            Assert.NotNull(receiver);
+            Assert.NotNull(sender1);
+            Assert.NotNull(sender2);
+            Assert.NotNull(sender3);
+            Assert.NotNull(sender4);
+            Assert.NotNull(sender5);
+            Assert.NotNull(sender6);
+            Assert.NotNull(sender7);
+            Assert.NotNull(sender8);
+            Assert.NotNull(sender9);
 
             sender9.Send(9);
             sender8.Send(8);
@@ -102,10 +101,10 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
             sender2.Send(2);
             sender1.Send(1);
 
-            Assert.AreEqual(45, receiver.Reduce());
+            Assert.Equal(45, receiver.Reduce());
         }
 
-        [TestMethod]
+        [Fact]
         public void TestBroadcastOperator()
         {
             string groupName = "group1";
@@ -137,53 +136,53 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
             IBroadcastReceiver<int> receiver8 = commGroups[8].GetBroadcastReceiver<int>(operatorName);
             IBroadcastReceiver<int> receiver9 = commGroups[9].GetBroadcastReceiver<int>(operatorName);
 
-            Assert.IsNotNull(sender);
-            Assert.IsNotNull(receiver1);
-            Assert.IsNotNull(receiver2);
-            Assert.IsNotNull(receiver3);
-            Assert.IsNotNull(receiver4);
-            Assert.IsNotNull(receiver5);
-            Assert.IsNotNull(receiver6);
-            Assert.IsNotNull(receiver7);
-            Assert.IsNotNull(receiver8);
-            Assert.IsNotNull(receiver9);
+            Assert.NotNull(sender);
+            Assert.NotNull(receiver1);
+            Assert.NotNull(receiver2);
+            Assert.NotNull(receiver3);
+            Assert.NotNull(receiver4);
+            Assert.NotNull(receiver5);
+            Assert.NotNull(receiver6);
+            Assert.NotNull(receiver7);
+            Assert.NotNull(receiver8);
+            Assert.NotNull(receiver9);
 
             sender.Send(value1);
-            Assert.AreEqual(value1, receiver1.Receive());
-            Assert.AreEqual(value1, receiver2.Receive());
-            Assert.AreEqual(value1, receiver3.Receive());
-            Assert.AreEqual(value1, receiver4.Receive());
-            Assert.AreEqual(value1, receiver5.Receive());
-            Assert.AreEqual(value1, receiver6.Receive());
-            Assert.AreEqual(value1, receiver7.Receive());
-            Assert.AreEqual(value1, receiver8.Receive());
-            Assert.AreEqual(value1, receiver9.Receive());
+            Assert.Equal(value1, receiver1.Receive());
+            Assert.Equal(value1, receiver2.Receive());
+            Assert.Equal(value1, receiver3.Receive());
+            Assert.Equal(value1, receiver4.Receive());
+            Assert.Equal(value1, receiver5.Receive());
+            Assert.Equal(value1, receiver6.Receive());
+            Assert.Equal(value1, receiver7.Receive());
+            Assert.Equal(value1, receiver8.Receive());
+            Assert.Equal(value1, receiver9.Receive());
 
             sender.Send(value2);
-            Assert.AreEqual(value2, receiver1.Receive());
-            Assert.AreEqual(value2, receiver2.Receive());
-            Assert.AreEqual(value2, receiver3.Receive());
-            Assert.AreEqual(value2, receiver4.Receive());
-            Assert.AreEqual(value2, receiver5.Receive());
-            Assert.AreEqual(value2, receiver6.Receive());
-            Assert.AreEqual(value2, receiver7.Receive());
-            Assert.AreEqual(value2, receiver8.Receive());
-            Assert.AreEqual(value2, receiver9.Receive());
+            Assert.Equal(value2, receiver1.Receive());
+            Assert.Equal(value2, receiver2.Receive());
+            Assert.Equal(value2, receiver3.Receive());
+            Assert.Equal(value2, receiver4.Receive());
+            Assert.Equal(value2, receiver5.Receive());
+            Assert.Equal(value2, receiver6.Receive());
+            Assert.Equal(value2, receiver7.Receive());
+            Assert.Equal(value2, receiver8.Receive());
+            Assert.Equal(value2, receiver9.Receive());
 
             sender.Send(value3);
-            Assert.AreEqual(value3, receiver1.Receive());
-            Assert.AreEqual(value3, receiver2.Receive());
-            Assert.AreEqual(value3, receiver3.Receive());
-            Assert.AreEqual(value3, receiver4.Receive());
-            Assert.AreEqual(value3, receiver5.Receive());
-            Assert.AreEqual(value3, receiver6.Receive());
-            Assert.AreEqual(value3, receiver7.Receive());
-            Assert.AreEqual(value3, receiver8.Receive());
-            Assert.AreEqual(value3, receiver9.Receive());
+            Assert.Equal(value3, receiver1.Receive());
+            Assert.Equal(value3, receiver2.Receive());
+            Assert.Equal(value3, receiver3.Receive());
+            Assert.Equal(value3, receiver4.Receive());
+            Assert.Equal(value3, receiver5.Receive());
+            Assert.Equal(value3, receiver6.Receive());
+            Assert.Equal(value3, receiver7.Receive());
+            Assert.Equal(value3, receiver8.Receive());
+            Assert.Equal(value3, receiver9.Receive());
         }
 
 
-        [TestMethod]
+        [Fact]
         public void TestBroadcastReduceOperators()
         {
             string groupName = "group1";
@@ -256,15 +255,15 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
                 int n7 = broadcastReceiver7.Receive();
                 int n8 = broadcastReceiver8.Receive();
                 int n9 = broadcastReceiver9.Receive();
-                Assert.AreEqual(i, n1);
-                Assert.AreEqual(i, n2);
-                Assert.AreEqual(i, n3);
-                Assert.AreEqual(i, n4);
-                Assert.AreEqual(i, n5);
-                Assert.AreEqual(i, n6);
-                Assert.AreEqual(i, n7);
-                Assert.AreEqual(i, n8);
-                Assert.AreEqual(i, n9);
+                Assert.Equal(i, n1);
+                Assert.Equal(i, n2);
+                Assert.Equal(i, n3);
+                Assert.Equal(i, n4);
+                Assert.Equal(i, n5);
+                Assert.Equal(i, n6);
+                Assert.Equal(i, n7);
+                Assert.Equal(i, n8);
+                Assert.Equal(i, n9);
 
                 int triangleNum9 = GroupCommunicationTests.TriangleNumber(n9);
                 triangleNumberSender9.Send(triangleNum9);
@@ -295,11 +294,11 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
 
                 int sum = sumReducer.Reduce();
                 int expected = GroupCommunicationTests.TriangleNumber(i) * (numTasks - 1);
-                Assert.AreEqual(sum, expected);
+                Assert.Equal(sum, expected);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void TestScatterOperator()
         {
             string groupName = "group1";
@@ -323,28 +322,28 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
             IScatterReceiver<int> receiver3 = commGroups[3].GetScatterReceiver<int>(operatorName);
             IScatterReceiver<int> receiver4 = commGroups[4].GetScatterReceiver<int>(operatorName);
 
-            Assert.IsNotNull(sender);
-            Assert.IsNotNull(receiver1);
-            Assert.IsNotNull(receiver2);
-            Assert.IsNotNull(receiver3);
-            Assert.IsNotNull(receiver4);
+            Assert.NotNull(sender);
+            Assert.NotNull(receiver1);
+            Assert.NotNull(receiver2);
+            Assert.NotNull(receiver3);
+            Assert.NotNull(receiver4);
 
             List<int> data = new List<int> { 1, 2, 3, 4 };
 
             sender.Send(data);
             var receved1 = receiver1.Receive().ToArray();
-            Assert.AreEqual(1, receved1[0]);
-            Assert.AreEqual(2, receved1[1]);
+            Assert.Equal(1, receved1[0]);
+            Assert.Equal(2, receved1[1]);
 
             var receved2 = receiver2.Receive().ToArray();
-            Assert.AreEqual(3, receved2[0]);
-            Assert.AreEqual(4, receved2[1]);
+            Assert.Equal(3, receved2[0]);
+            Assert.Equal(4, receved2[1]);
 
-            Assert.AreEqual(1, receiver3.Receive().Single());
-            Assert.AreEqual(2, receiver4.Receive().Single());
+            Assert.Equal(1, receiver3.Receive().Single());
+            Assert.Equal(2, receiver4.Receive().Single());
         }
 
-        [TestMethod]
+        [Fact]
         public void TestScatterOperator2()
         {
             string groupName = "group1";
@@ -368,37 +367,37 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
             IScatterReceiver<int> receiver3 = commGroups[3].GetScatterReceiver<int>(operatorName);
             IScatterReceiver<int> receiver4 = commGroups[4].GetScatterReceiver<int>(operatorName);
 
-            Assert.IsNotNull(sender);
-            Assert.IsNotNull(receiver1);
-            Assert.IsNotNull(receiver2);
-            Assert.IsNotNull(receiver3);
-            Assert.IsNotNull(receiver4);
+            Assert.NotNull(sender);
+            Assert.NotNull(receiver1);
+            Assert.NotNull(receiver2);
+            Assert.NotNull(receiver3);
+            Assert.NotNull(receiver4);
 
             List<int> data = new List<int> { 1, 2, 3, 4, 5, 6, 7, 8 };
 
             sender.Send(data);
             var data1 = receiver1.Receive().ToArray();
-            Assert.AreEqual(1, data1[0]);
-            Assert.AreEqual(2, data1[1]);
-            Assert.AreEqual(3, data1[2]);
-            Assert.AreEqual(4, data1[3]);
+            Assert.Equal(1, data1[0]);
+            Assert.Equal(2, data1[1]);
+            Assert.Equal(3, data1[2]);
+            Assert.Equal(4, data1[3]);
 
             var data2 = receiver2.Receive().ToArray();
-            Assert.AreEqual(5, data2[0]);
-            Assert.AreEqual(6, data2[1]);
-            Assert.AreEqual(7, data2[2]);
-            Assert.AreEqual(8, data2[3]);
+            Assert.Equal(5, data2[0]);
+            Assert.Equal(6, data2[1]);
+            Assert.Equal(7, data2[2]);
+            Assert.Equal(8, data2[3]);
 
             var data3 = receiver3.Receive();
-            Assert.AreEqual(1, data3.First());
-            Assert.AreEqual(2, data3.Last());
+            Assert.Equal(1, data3.First());
+            Assert.Equal(2, data3.Last());
 
             var data4 = receiver4.Receive();
-            Assert.AreEqual(3, data4.First());
-            Assert.AreEqual(4, data4.Last());
+            Assert.Equal(3, data4.First());
+            Assert.Equal(4, data4.Last());
         }
 
-        [TestMethod]
+        [Fact]
         public void TestScatterOperator3()
         {
             string groupName = "group1";
@@ -421,35 +420,35 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
             IScatterReceiver<int> receiver2 = commGroups[2].GetScatterReceiver<int>(operatorName);
             IScatterReceiver<int> receiver3 = commGroups[3].GetScatterReceiver<int>(operatorName);
 
-            Assert.IsNotNull(sender);
-            Assert.IsNotNull(receiver1);
-            Assert.IsNotNull(receiver2);
-            Assert.IsNotNull(receiver3);
+            Assert.NotNull(sender);
+            Assert.NotNull(receiver1);
+            Assert.NotNull(receiver2);
+            Assert.NotNull(receiver3);
 
             List<int> data = new List<int> { 1, 2, 3, 4, 5, 6, 7, 8 };
 
             sender.Send(data);
 
             var data1 = receiver1.Receive().ToArray();
-            Assert.AreEqual(1, data1[0]);
-            Assert.AreEqual(2, data1[1]);
-            Assert.AreEqual(3, data1[2]);
-            Assert.AreEqual(4, data1[3]);
+            Assert.Equal(1, data1[0]);
+            Assert.Equal(2, data1[1]);
+            Assert.Equal(3, data1[2]);
+            Assert.Equal(4, data1[3]);
 
             var data2 = receiver2.Receive().ToArray();
-            Assert.AreEqual(5, data2[0]);
-            Assert.AreEqual(6, data2[1]);
-            Assert.AreEqual(7, data2[2]);
-            Assert.AreEqual(8, data2[3]);
+            Assert.Equal(5, data2[0]);
+            Assert.Equal(6, data2[1]);
+            Assert.Equal(7, data2[2]);
+            Assert.Equal(8, data2[3]);
 
             var data3 = receiver3.Receive().ToArray();
-            Assert.AreEqual(1, data3[0]);
-            Assert.AreEqual(2, data3[1]);
-            Assert.AreEqual(3, data3[2]);
-            Assert.AreEqual(4, data3[3]);
+            Assert.Equal(1, data3[0]);
+            Assert.Equal(2, data3[1]);
+            Assert.Equal(3, data3[2]);
+            Assert.Equal(4, data3[3]);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestScatterOperator4()
         {
             string groupName = "group1";
@@ -472,10 +471,10 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
             IScatterReceiver<int> receiver2 = commGroups[2].GetScatterReceiver<int>(operatorName);
             IScatterReceiver<int> receiver3 = commGroups[3].GetScatterReceiver<int>(operatorName);
 
-            Assert.IsNotNull(sender);
-            Assert.IsNotNull(receiver1);
-            Assert.IsNotNull(receiver2);
-            Assert.IsNotNull(receiver3);
+            Assert.NotNull(sender);
+            Assert.NotNull(receiver1);
+            Assert.NotNull(receiver2);
+            Assert.NotNull(receiver3);
 
             List<int> data = new List<int> { 1, 2, 3, 4, 5, 6, 7, 8 };
             List<string> order = new List<string> { "task2", "task1" };
@@ -483,25 +482,25 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
             sender.Send(data, order);
 
             var data2 = receiver2.Receive().ToArray();
-            Assert.AreEqual(1, data2[0]);
-            Assert.AreEqual(2, data2[1]);
-            Assert.AreEqual(3, data2[2]);
-            Assert.AreEqual(4, data2[3]);
+            Assert.Equal(1, data2[0]);
+            Assert.Equal(2, data2[1]);
+            Assert.Equal(3, data2[2]);
+            Assert.Equal(4, data2[3]);
 
             var data1 = receiver1.Receive().ToArray();
-            Assert.AreEqual(5, data1[0]);
-            Assert.AreEqual(6, data1[1]);
-            Assert.AreEqual(7, data1[2]);
-            Assert.AreEqual(8, data1[3]);
+            Assert.Equal(5, data1[0]);
+            Assert.Equal(6, data1[1]);
+            Assert.Equal(7, data1[2]);
+            Assert.Equal(8, data1[3]);
 
             var data3 = receiver3.Receive().ToArray();
-            Assert.AreEqual(5, data3[0]);
-            Assert.AreEqual(6, data3[1]);
-            Assert.AreEqual(7, data3[2]);
-            Assert.AreEqual(8, data3[3]);
+            Assert.Equal(5, data3[0]);
+            Assert.Equal(6, data3[1]);
+            Assert.Equal(7, data3[2]);
+            Assert.Equal(8, data3[3]);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestScatterOperator5()
         {
             string groupName = "group1";
@@ -526,45 +525,45 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
             IScatterReceiver<int> receiver4 = commGroups[4].GetScatterReceiver<int>(operatorName);
             IScatterReceiver<int> receiver5 = commGroups[5].GetScatterReceiver<int>(operatorName);
 
-            Assert.IsNotNull(sender);
-            Assert.IsNotNull(receiver1);
-            Assert.IsNotNull(receiver2);
-            Assert.IsNotNull(receiver3);
-            Assert.IsNotNull(receiver4);
-            Assert.IsNotNull(receiver5);
+            Assert.NotNull(sender);
+            Assert.NotNull(receiver1);
+            Assert.NotNull(receiver2);
+            Assert.NotNull(receiver3);
+            Assert.NotNull(receiver4);
+            Assert.NotNull(receiver5);
 
             List<int> data = new List<int> { 1, 2, 3, 4, 5, 6, 7, 8 };
 
             sender.Send(data);
 
             var data1 = receiver1.Receive().ToArray();
-            Assert.AreEqual(1, data1[0]);
-            Assert.AreEqual(2, data1[1]);
-            Assert.AreEqual(3, data1[2]);
-            Assert.AreEqual(4, data1[3]);
+            Assert.Equal(1, data1[0]);
+            Assert.Equal(2, data1[1]);
+            Assert.Equal(3, data1[2]);
+            Assert.Equal(4, data1[3]);
 
             var data2 = receiver2.Receive().ToArray();
-            Assert.AreEqual(5, data2[0]);
-            Assert.AreEqual(6, data2[1]);
-            Assert.AreEqual(7, data2[2]);
-            Assert.AreEqual(8, data2[3]);
+            Assert.Equal(5, data2[0]);
+            Assert.Equal(6, data2[1]);
+            Assert.Equal(7, data2[2]);
+            Assert.Equal(8, data2[3]);
 
             var data3 = receiver3.Receive().ToArray();
-            Assert.AreEqual(1, data3[0]);
-            Assert.AreEqual(2, data3[1]);
+            Assert.Equal(1, data3[0]);
+            Assert.Equal(2, data3[1]);
             
             var data4 = receiver4.Receive().ToArray();
-            Assert.AreEqual(3, data4[0]);
-            Assert.AreEqual(4, data4[1]);
+            Assert.Equal(3, data4[0]);
+            Assert.Equal(4, data4[1]);
 
             var data5 = receiver5.Receive().ToArray();
-            Assert.AreEqual(5, data5[0]);
-            Assert.AreEqual(6, data5[1]);
-            Assert.AreEqual(7, data5[2]);
-            Assert.AreEqual(8, data5[3]);
+            Assert.Equal(5, data5[0]);
+            Assert.Equal(6, data5[1]);
+            Assert.Equal(7, data5[2]);
+            Assert.Equal(8, data5[3]);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestScatterReduceOperators()
         {
             string groupName = "group1";
@@ -607,11 +606,11 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
             IScatterReceiver<int> receiver4 = commGroups[4].GetScatterReceiver<int>(scatterOperatorName);
             IReduceSender<int> sumSender4 = commGroups[4].GetReduceSender<int>(reduceOperatorName);
 
-            Assert.IsNotNull(sender);
-            Assert.IsNotNull(receiver1);
-            Assert.IsNotNull(receiver2);
-            Assert.IsNotNull(receiver3);
-            Assert.IsNotNull(receiver4);
+            Assert.NotNull(sender);
+            Assert.NotNull(receiver1);
+            Assert.NotNull(receiver2);
+            Assert.NotNull(receiver3);
+            Assert.NotNull(receiver4);
 
             List<int> data = Enumerable.Range(1, 100).ToList();
 
@@ -636,7 +635,7 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
             sumSender1.Send(sum1);
 
             int sum = sumReducer.Reduce();
-            Assert.AreEqual(sum, 6325);
+            Assert.Equal(sum, 6325);
         }
 
         private IConfiguration GetDefaultCodecConfig()

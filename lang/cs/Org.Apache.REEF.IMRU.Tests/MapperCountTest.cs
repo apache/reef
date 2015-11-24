@@ -17,17 +17,16 @@
  * under the License.
  */
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.IMRU.Examples.MapperCount;
 using Org.Apache.REEF.IMRU.InProcess;
 using Org.Apache.REEF.Tang.Implementations.Tang;
+using Xunit;
 
 namespace Org.Apache.REEF.IMRU.Tests
 {
     /// <summary>
     /// Tests of the mapper counting job.
     /// </summary>
-    [TestClass]
     public class MapperCountTest
     {
         private const int NumberOfMappers = 7;
@@ -35,7 +34,7 @@ namespace Org.Apache.REEF.IMRU.Tests
         /// <summary>
         /// Tests the mapper counting job using the in-process IMRU implementation.
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestMapperCountInProcess()
         {
             var tested =
@@ -46,7 +45,7 @@ namespace Org.Apache.REEF.IMRU.Tests
                             .Build())
                     .GetInstance<MapperCount>();
             var result = tested.Run(NumberOfMappers, "", TangFactory.GetTang().NewConfigurationBuilder().Build());
-            Assert.AreEqual(NumberOfMappers, result, "The result of the run should be the number of Mappers.");
+            Assert.True(NumberOfMappers == result, "The result of the run should be the number of Mappers.");
         }
     }
 }
