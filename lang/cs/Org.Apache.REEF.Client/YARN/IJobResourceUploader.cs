@@ -26,7 +26,8 @@ namespace Org.Apache.REEF.Client.Yarn
         /// Upload archived local driver folder to DFS destination path.
         /// </summary>
         /// <param name="driverLocalFolderPath">Local folder where REEF application resources are staged</param>
+        /// <param name="jobSubmissionDirectory">Remote directory path where we will upload resources</param>
         /// <returns>Path, modification time and size of uploaded file as JobResource</returns>
-        JobResource UploadJobResource(string driverLocalFolderPath);
+        JobResource UploadJobResource(string driverLocalFolderPath, string jobSubmissionDirectory);
     }
 }

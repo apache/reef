@@ -36,6 +36,7 @@ namespace Org.Apache.REEF.Examples.HelloREEF
         private static readonly Logger Logger = Logger.GetLogger(typeof(HelloREEF));
         private const string Local = "local";
         private const string YARN = "yarn";
+        private const string YARNRest = "yarnrest";
         private readonly IREEFClient _reefClient;
         private readonly JobSubmissionBuilderFactory _jobSubmissionBuilderFactory;
 
@@ -64,7 +65,7 @@ namespace Org.Apache.REEF.Examples.HelloREEF
                 .SetJobIdentifier("HelloREEF")
                 .Build();
 
-            _reefClient.SubmitAndGetJobStatus(helloJobSubmission);
+            _reefClient.Submit(helloJobSubmission);
         }
 
         /// <summary>
@@ -81,6 +82,8 @@ namespace Org.Apache.REEF.Examples.HelloREEF
                         .Build();
                 case YARN:
                     return YARNClientConfiguration.ConfigurationModule.Build();
+                case YARNRest:
+                    return YARNClientConfiguration.ConfigurationModuleYARNRest.Build();
                 default:
                     throw new Exception("Unknown runtime: " + name);
             }

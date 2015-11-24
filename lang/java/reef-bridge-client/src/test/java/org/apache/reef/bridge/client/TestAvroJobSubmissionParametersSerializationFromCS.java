@@ -57,10 +57,7 @@ public final class TestAvroJobSubmissionParametersSerializationFromCS {
           "}," +
           "\"driverMemory\":" + NUMBER_REP + "," +
           "\"driverRecoveryTimeout\":" + NUMBER_REP + "," +
-          "\"dfsJobSubmissionFolder\":" +
-          "{" +
-            "\"string\": " + STRING_REP_QUOTED +
-          "}," +
+          "\"dfsJobSubmissionFolder\":\"" + STRING_REP + "\"," +
           "\"jobSubmissionDirectoryPrefix\":" + STRING_REP_QUOTED +
       "}";
 

@@ -15,34 +15,39 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
 using Org.Apache.REEF.Client.YARN.Parameters;
 using Org.Apache.REEF.Common.Files;
 using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.Client.Yarn
 {
-    public class JobSubmissionDirectoryProvider : IJobSubmissionDirectoryProvider
+    /// <summary>
+    /// Provides path to job submission directory.
+    /// </summary>
+    public sealed class JobSubmissionDirectoryProvider : IJobSubmissionDirectoryProvider
     {
         private readonly string _jobSubmissionDirectoryPrefix;
-        private readonly REEFFileNames _filenames;
+        private readonly REEFFileNames _fileNames;
 
         [Inject]
         private JobSubmissionDirectoryProvider(
-            [Parameter(typeof(JobSubmissionDirectoryPrefixParameter))] 
+            [Parameter(typeof(JobSubmissionDirectoryPrefixParameter))]
             string jobSubmissionDirectoryPrefix,
-            REEFFileNames filenames)
+            REEFFileNames fileNames)
         {
-            _filenames = filenames;
+            _fileNames = fileNames;
             _jobSubmissionDirectoryPrefix = jobSubmissionDirectoryPrefix;
         }
 
-        public string GetJobSubmissionRemoteDirectory()
+        /// <summary>
+        /// Returns path to job submission directory in DFS.
+        /// </summary>
+        public string GetJobSubmissionRemoteDirectory(string applicationId)
         {
             return string.Format(@"{0}/{1}{2}/",
                 _jobSubmissionDirectoryPrefix,
-                DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss"),
-                _filenames.GetJobFolderPrefix());
+                _fileNames.GetJobFolderPrefix(),
+                applicationId);
         }
     }
 }

@@ -30,6 +30,6 @@ namespace Org.Apache.REEF.Client.Yarn
         /// Returns the class path returned by `yarn classpath`.
         /// </summary>
         /// <returns>The class path returned by `yarn classpath`.</returns>
-        IList<string> GetYarnClasspathList();
+        IReadOnlyList<string> GetYarnClasspathList();
     }
 }

@@ -15,6 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using System.Collections.Generic;
 using System.Text;
 using Org.Apache.REEF.Client.Yarn;
 using Org.Apache.REEF.Client.YARN.Parameters;
@@ -75,7 +76,14 @@ namespace Org.Apache.REEF.Client.YARN
             sb.Append(" " +
                       string.Format(JvmOptionsMaxMemoryAllocationPoolSizeFormat, _driverMaxMemoryAllocationPoolSizeMB));
             sb.Append(" " + ClassPathToken);
-            sb.Append(" " + string.Join(";", _yarnCommandLineEnvironment.GetYarnClasspathList()));
+
+            var yarnClasspathList = new List<string>(_yarnCommandLineEnvironment.GetYarnClasspathList())
+            {
+                string.Format("{0}/{1}/*", _fileNames.GetReefFolderName(), _fileNames.GetLocalFolderName()),
+                string.Format("{0}/{1}/*", _fileNames.GetReefFolderName(), _fileNames.GetGlobalFolderName())
+            };
+
+            sb.Append(" " + string.Join(";", yarnClasspathList));
             sb.Append(" " + ProcReefProperty);
             if (_enableDebugLogging)
             {
