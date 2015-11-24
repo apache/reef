@@ -21,7 +21,6 @@ using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
@@ -29,16 +28,16 @@ using Org.Apache.REEF.Wake.Remote;
 using Org.Apache.REEF.Wake.Remote.Impl;
 using Org.Apache.REEF.Wake.StreamingCodec;
 using Org.Apache.REEF.Wake.StreamingCodec.CommonStreamingCodecs;
+using Xunit;
 
 namespace Org.Apache.REEF.Network.Tests.GroupCommunication
 {
     /// <summary>
     /// Defines streaming codec tests
     /// </summary>
-    [TestClass]
     public class StreamingCodecTests
     {
-        [TestMethod]
+        [Fact]
         public async Task TestCommonStreamingCodecs()
         {
             IInjector injector = TangFactory.GetTang().NewInjector();
@@ -94,76 +93,72 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
             string resArr7 = stringCodec.Read(reader);
             string resArr8 = await stringCodec.ReadAsync(reader, token);
 
-            Assert.AreEqual(obj, res1);
-            Assert.AreEqual(obj + 1, res2);
-            Assert.AreEqual(obj + 2, res3);
-            Assert.AreEqual(obj + 3, res4);
-            Assert.AreEqual(obj + 4, res5);
-            Assert.AreEqual(obj + 5, res6);
-            Assert.AreEqual(stringObj, resArr7);
-            Assert.AreEqual(stringObj, resArr8);
+            Assert.Equal(obj, res1);
+            Assert.Equal(obj + 1, res2);
+            Assert.Equal(obj + 2, res3);
+            Assert.Equal(obj + 3, res4);
+            Assert.Equal(obj + 4, res5);
+            Assert.Equal(obj + 5, res6);
+            Assert.Equal(stringObj, resArr7);
+            Assert.Equal(stringObj, resArr8);
 
             for (int i = 0; i < intArr.Length; i++)
             {
-                Assert.AreEqual(intArr[i], resArr1[i]);
-                Assert.AreEqual(intArr[i], resArr2[i]);
+                Assert.Equal(intArr[i], resArr1[i]);
+                Assert.Equal(intArr[i], resArr2[i]);
             }
 
             for (int i = 0; i < doubleArr.Length; i++)
             {
-                Assert.AreEqual(doubleArr[i], resArr3[i]);
-                Assert.AreEqual(doubleArr[i], resArr4[i]);
+                Assert.Equal(doubleArr[i], resArr3[i]);
+                Assert.Equal(doubleArr[i], resArr4[i]);
             }
 
             for (int i = 0; i < floatArr.Length; i++)
             {
-                Assert.AreEqual(floatArr[i], resArr5[i]);
-                Assert.AreEqual(floatArr[i], resArr6[i]);
+                Assert.Equal(floatArr[i], resArr5[i]);
+                Assert.Equal(floatArr[i], resArr6[i]);
             }
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentNullException))]
+        [Fact]
         public void TestIntArrayStreamingCodecsNullException()
         {
             IInjector injector = TangFactory.GetTang().NewInjector();
             IStreamingCodec<int[]> intArrCodec = injector.GetInstance<IntArrayStreamingCodec>();
             var stream = new MemoryStream();
             IDataWriter writer = new StreamDataWriter(stream);
-            intArrCodec.Write(null, writer);
+            Assert.Throws<ArgumentNullException>(() => intArrCodec.Write(null, writer));
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentNullException))]
+        [Fact]
         public void TestFloatArrayStreamingCodecsNullException()
         {
             IInjector injector = TangFactory.GetTang().NewInjector();
             IStreamingCodec<float[]> floatArrCodec = injector.GetInstance<FloatArrayStreamingCodec>();
             var stream = new MemoryStream();
             IDataWriter writer = new StreamDataWriter(stream);
-            floatArrCodec.Write(null, writer);
+            Assert.Throws<ArgumentNullException>(() => floatArrCodec.Write(null, writer));
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentNullException))]
+        [Fact]
         public void TestDoubleArrayStreamingCodecsNullException()
         {
             IInjector injector = TangFactory.GetTang().NewInjector();
             IStreamingCodec<double[]> doubleArrCodec = injector.GetInstance<DoubleArrayStreamingCodec>();
             var stream = new MemoryStream();
             IDataWriter writer = new StreamDataWriter(stream);
-            doubleArrCodec.Write(null, writer);
+            Assert.Throws<ArgumentNullException>(() => doubleArrCodec.Write(null, writer));
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentNullException))]
+        [Fact]
         public void TestNullStreamException()
         {
-            IDataWriter writer = new StreamDataWriter(null);
-            writer.WriteFloat(2.0f);
+            IDataWriter writer;
+            Assert.Throws<ArgumentNullException>(() => writer = new StreamDataWriter(null));
         }
 
-        [TestMethod]
+        [Fact]
         public async Task TestCodecToStreamingCodec()
         {
             var config = TangFactory.GetTang().NewConfigurationBuilder()
@@ -187,8 +182,8 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
             IDataReader reader = new StreamDataReader(stream);
             int res1 = streamingCodec.Read(reader);
             int res2 = await streamingCodec.ReadAsync(reader, token);
-            Assert.AreEqual(obj, res1);
-            Assert.AreEqual(obj + 1, res2);
+            Assert.Equal(obj, res1);
+            Assert.Equal(obj + 1, res2);
         }
     }
 }

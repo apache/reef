@@ -22,7 +22,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Net;
 using System.Threading;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.Common.Io;
 using Org.Apache.REEF.Examples.Tasks.StreamingTasks;
 using Org.Apache.REEF.Network.Naming;
@@ -32,13 +31,13 @@ using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Wake.Remote.Parameters;
+using Xunit;
 
 namespace Org.Apache.REEF.Network.Tests.NamingService
 {
-    [TestClass]
     public class NameServerTests
     {
-        [TestMethod]
+        [Fact]
         public void TestNameServerNoRequests()
         {
            using (var server = BuildNameServer())
@@ -46,7 +45,7 @@ namespace Org.Apache.REEF.Network.Tests.NamingService
            }
         }
 
-        [TestMethod]
+        [Fact]
         public void TestNameServerNoRequestsTwoClients()
         {
            using (var server = BuildNameServer())
@@ -58,7 +57,7 @@ namespace Org.Apache.REEF.Network.Tests.NamingService
            }
         }
 
-        [TestMethod]
+        [Fact]
         public void TestNameServerNoRequestsTwoClients2()
         {
            using (var server = BuildNameServer())
@@ -70,7 +69,7 @@ namespace Org.Apache.REEF.Network.Tests.NamingService
            }
         }
 
-        [TestMethod]
+        [Fact]
         public void TestNameServerMultipleRequestsTwoClients()
         {
            using (var server = BuildNameServer())
@@ -82,7 +81,7 @@ namespace Org.Apache.REEF.Network.Tests.NamingService
            }
         }
 
-        [TestMethod]
+        [Fact]
         public void TestRegister()
         {
             using (INameServer server = BuildNameServer())
@@ -94,9 +93,9 @@ namespace Org.Apache.REEF.Network.Tests.NamingService
                     IPEndPoint endpoint3 = new IPEndPoint(IPAddress.Parse("100.0.0.3"), 300);
 
                     // Check that no endpoints have been registered
-                    Assert.IsNull(client.Lookup("a"));
-                    Assert.IsNull(client.Lookup("b"));
-                    Assert.IsNull(client.Lookup("c"));
+                    Assert.Null(client.Lookup("a"));
+                    Assert.Null(client.Lookup("b"));
+                    Assert.Null(client.Lookup("c"));
                 
                     // Register endpoints
                     client.Register("a", endpoint1);
@@ -104,14 +103,14 @@ namespace Org.Apache.REEF.Network.Tests.NamingService
                     client.Register("c", endpoint3);
 
                     // Check that they can be looked up correctly
-                    Assert.AreEqual(endpoint1, client.Lookup("a"));
-                    Assert.AreEqual(endpoint2, client.Lookup("b"));
-                    Assert.AreEqual(endpoint3, client.Lookup("c"));
+                    Assert.Equal(endpoint1, client.Lookup("a"));
+                    Assert.Equal(endpoint2, client.Lookup("b"));
+                    Assert.Equal(endpoint3, client.Lookup("c"));
                 }
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void TestUnregister()
         {
             using (INameServer server = BuildNameServer())
@@ -124,19 +123,19 @@ namespace Org.Apache.REEF.Network.Tests.NamingService
                     client.Register("a", endpoint1);
 
                     // Check that it can be looked up correctly
-                    Assert.AreEqual(endpoint1, client.Lookup("a"));
+                    Assert.Equal(endpoint1, client.Lookup("a"));
 
                     // Unregister endpoints
                     client.Unregister("a");
                     Thread.Sleep(1000);
 
                     // Make sure they were unregistered correctly
-                    Assert.IsNull(client.Lookup("a"));
+                    Assert.Null(client.Lookup("a"));
                 }
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void TestLookup()
         {
             using (INameServer server = BuildNameServer())
@@ -148,16 +147,16 @@ namespace Org.Apache.REEF.Network.Tests.NamingService
                 
                     // Register endpoint1
                     client.Register("a", endpoint1);
-                    Assert.AreEqual(endpoint1, client.Lookup("a"));
+                    Assert.Equal(endpoint1, client.Lookup("a"));
 
                     // Reregister identifer a
                     client.Register("a", endpoint2);
-                    Assert.AreEqual(endpoint2, client.Lookup("a"));
+                    Assert.Equal(endpoint2, client.Lookup("a"));
                 }
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void TestLookupList()
         {
             using (INameServer server = BuildNameServer())
@@ -178,20 +177,20 @@ namespace Org.Apache.REEF.Network.Tests.NamingService
                     List<NameAssignment> assignments = client.Lookup(ids);
 
                     // Check that a, b, and c are registered
-                    Assert.AreEqual("a", assignments[0].Identifier);
-                    Assert.AreEqual(endpoint1, assignments[0].Endpoint);
-                    Assert.AreEqual("b", assignments[1].Identifier);
-                    Assert.AreEqual(endpoint2, assignments[1].Endpoint);
-                    Assert.AreEqual("c", assignments[2].Identifier);
-                    Assert.AreEqual(endpoint3, assignments[2].Endpoint);
+                    Assert.Equal("a", assignments[0].Identifier);
+                    Assert.Equal(endpoint1, assignments[0].Endpoint);
+                    Assert.Equal("b", assignments[1].Identifier);
+                    Assert.Equal(endpoint2, assignments[1].Endpoint);
+                    Assert.Equal("c", assignments[2].Identifier);
+                    Assert.Equal(endpoint3, assignments[2].Endpoint);
 
                     // Check that d is not registered
-                    Assert.AreEqual(3, assignments.Count);
+                    Assert.Equal(3, assignments.Count);
                 }
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void TestNameClientRestart()
         {
             int oldPort = 6666;
@@ -203,7 +202,7 @@ namespace Org.Apache.REEF.Network.Tests.NamingService
                 IPEndPoint endpoint = new IPEndPoint(IPAddress.Parse("100.0.0.1"), 100);
             
                 client.Register("a", endpoint);
-                Assert.AreEqual(endpoint, client.Lookup("a"));
+                Assert.Equal(endpoint, client.Lookup("a"));
 
                 server.Dispose();
 
@@ -211,13 +210,13 @@ namespace Org.Apache.REEF.Network.Tests.NamingService
                 client.Restart(server.LocalEndpoint);
 
                 client.Register("b", endpoint);
-                Assert.AreEqual(endpoint, client.Lookup("b"));
+                Assert.Equal(endpoint, client.Lookup("b"));
 
                 server.Dispose();
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void TestConstructorInjection()
         {
             int port = 6666;
@@ -232,11 +231,11 @@ namespace Org.Apache.REEF.Network.Tests.NamingService
                     .NewInjector(nameClientConfiguration)
                     .GetInstance<ConstructorInjection>();
 
-                Assert.IsNotNull(c);
+                Assert.NotNull(c);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void TestNameCache()
         {
             double interval = 50;
@@ -254,13 +253,13 @@ namespace Org.Apache.REEF.Network.Tests.NamingService
             cache.Set("dst1", new IPEndPoint(IPAddress.Any, 0));
             Thread.Sleep(100);
             var value = cache.Get("dst1");
-            Assert.IsNull(value);
+            Assert.Null(value);
 
             IPAddress address = new IPAddress(1234);
             cache.Set("dst1", new IPEndPoint(address, 0));
             value = cache.Get("dst1");
-            Assert.IsNotNull(value);
-            Assert.AreEqual(address, value.Address);
+            Assert.NotNull(value);
+            Assert.Equal(address, value.Address);
         }
 
         public static INameServer BuildNameServer(int listenPort = 0)

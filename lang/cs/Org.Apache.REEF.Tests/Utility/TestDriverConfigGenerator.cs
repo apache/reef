@@ -18,15 +18,14 @@
  */
 
 using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.Driver;
+using Xunit;
 
 namespace Org.Apache.REEF.Tests.Utility
 {
-    [TestClass]
     public class TestDriverConfigGenerator
     {
-        [TestMethod]
+        [Fact]
         public void TestGeneratingFullDriverConfigFile()
         {
             DriverConfigurationSettings driverSubmissionSettings = new DriverConfigurationSettings()
@@ -43,7 +42,7 @@ namespace Org.Apache.REEF.Tests.Utility
             DriverConfigGenerator.DriverConfigurationBuilder(driverSubmissionSettings);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestGeneratingDriverConfigFileWithoutHttp()
         {
             DriverConfigurationSettings driverSubmissionSettings = new DriverConfigurationSettings()
@@ -60,7 +59,7 @@ namespace Org.Apache.REEF.Tests.Utility
             DriverConfigGenerator.DriverConfigurationBuilder(driverSubmissionSettings);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestGeneratingDriverConfigFileWithoutNameServer()
         {
             DriverConfigurationSettings driverSubmissionSettings = new DriverConfigurationSettings()
@@ -77,7 +76,7 @@ namespace Org.Apache.REEF.Tests.Utility
             DriverConfigGenerator.DriverConfigurationBuilder(driverSubmissionSettings);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestGeneratingDriverConfigFileDriverOnly()
         {
             DriverConfigurationSettings driverSubmissionSettings = new DriverConfigurationSettings()

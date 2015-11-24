@@ -18,17 +18,16 @@
  */
 
 using System.Collections.Generic;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.Common.Avro;
 using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Utilities.Logging;
+using Xunit;
 
 namespace Org.Apache.REEF.Common.Tests
 {
     /// <summary>
     /// Class TestHttpSerialization. This class contains unit tests for HttpRequest serailization and deserialization.
     /// </summary>
-    [TestClass]
     public class TestHttpSerialization
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(TestHttpSerialization));
@@ -36,7 +35,7 @@ namespace Org.Apache.REEF.Common.Tests
         /// <summary>
         /// Tests the HTTP request serialization jason round trip.
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestHttpRequestSerializationJasonRoundTrip()
         {
             AvroHttpRequest r = CreateAvroHttpRequest();
@@ -47,14 +46,14 @@ namespace Org.Apache.REEF.Common.Tests
 
             var ri = ByteUtilities.ByteArraysToString(r.InputStream);
             var ri1 = ByteUtilities.ByteArraysToString(r1.InputStream);
-            Assert.AreEqual(ri, ri1);
-            Assert.AreEqual(r.QueryString, r1.QueryString);
+            Assert.Equal(ri, ri1);
+            Assert.Equal(r.QueryString, r1.QueryString);
         }
 
         /// <summary>
         /// Tests the HTTP request serialization round trip.
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestHttpRequestSerializationBytesRoundTrip()
         {
             AvroHttpRequest r = CreateAvroHttpRequest();
@@ -64,8 +63,8 @@ namespace Org.Apache.REEF.Common.Tests
 
             var ri = ByteUtilities.ByteArraysToString(r.InputStream);
             var ri1 = ByteUtilities.ByteArraysToString(r1.InputStream);
-            Assert.AreEqual(ri, ri1);
-            Assert.AreEqual(r.QueryString, r1.QueryString);
+            Assert.Equal(ri, ri1);
+            Assert.Equal(r.QueryString, r1.QueryString);
         }
 
         /// <summary>

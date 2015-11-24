@@ -18,18 +18,17 @@
  */
 
 using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.Utilities.Diagnostics;
 using Org.Apache.REEF.Utilities.Logging;
+using Xunit;
 
 namespace Org.Apache.REEF.Tests.Utility
 {
-    [TestClass]
     public class TestExceptions
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(TestExceptions));
 
-        [TestMethod]
+        [Fact]
         public void TestThrowCaught()
         {
             string msg = null;
@@ -37,13 +36,13 @@ namespace Org.Apache.REEF.Tests.Utility
             {
                 Exceptions.Throw(new ApplicationException("test"), LOGGER);
                 msg = "not supposed to reach here";
-                Assert.Fail(msg);
+                Assert.True(false, msg);
             }
             catch (ApplicationException e)
             {
                 Exceptions.Caught(e, Level.Info, LOGGER);
             }
-            Assert.IsNull(msg);
+            Assert.Null(msg);
         }
     }
 }
