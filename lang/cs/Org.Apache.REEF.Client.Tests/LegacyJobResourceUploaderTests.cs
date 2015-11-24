@@ -36,18 +36,12 @@ namespace Org.Apache.REEF.Client.Tests
         private const long AnyResourceSize = 53092;
 
         [TestMethod]
-        public void LegacyJobResourceUploaderCanInstantiateWithDefaultBindings()
-        {
-            TangFactory.GetTang().NewInjector().GetInstance<LegacyJobResourceUploader>();
-        }
-
-        [TestMethod]
         public void UploadJobResourceCreatesResourceArchive()
         {
             var testContext = new TestContext();
             var jobResourceUploader = testContext.GetJobResourceUploader();
             
-            jobResourceUploader.UploadJobResource(AnyDriverLocalFolderPath);
+            jobResourceUploader.UploadJobResource(AnyDriverLocalFolderPath, AnyDriverResourceUploadPath);
 
             // Archive file generator recieved exactly one call with correct driver local folder path with trailing \
             testContext.ResourceArchiveFileGenerator.Received(1).CreateArchiveToUpload(AnyDriverLocalFolderPath + @"\");
@@ -61,8 +55,7 @@ namespace Org.Apache.REEF.Client.Tests
             const string anyLocalArchivePath = @"Any\Local\Archive\Path.zip";
             testContext.ResourceArchiveFileGenerator.CreateArchiveToUpload(AnyDriverLocalFolderPath + @"\")
                 .Returns(anyLocalArchivePath);
-            testContext.JobSubmissionDirectoryProvider.GetJobSubmissionRemoteDirectory().Returns(AnyDriverResourceUploadPath);
-            jobResourceUploader.UploadJobResource(AnyDriverLocalFolderPath);
+            jobResourceUploader.UploadJobResource(AnyDriverLocalFolderPath, AnyDriverResourceUploadPath);
 
             const string javaClassNameForResourceUploader = @"org.apache.reef.bridge.client.JobResourceUploader";
             Guid notUsed;
@@ -86,7 +79,7 @@ namespace Org.Apache.REEF.Client.Tests
             var jobResourceUploader = testContext.GetJobResourceUploader(fileExistsReturnValue: false);
 
             // throws filenotfound exception
-            jobResourceUploader.UploadJobResource(AnyDriverLocalFolderPath);
+            jobResourceUploader.UploadJobResource(AnyDriverLocalFolderPath, AnyDriverResourceUploadPath);
         }
 
         [TestMethod]
@@ -95,7 +88,7 @@ namespace Org.Apache.REEF.Client.Tests
             var testContext = new TestContext();
             var jobResourceUploader = testContext.GetJobResourceUploader();
 
-            var jobResource = jobResourceUploader.UploadJobResource(AnyDriverLocalFolderPath);
+            var jobResource = jobResourceUploader.UploadJobResource(AnyDriverLocalFolderPath, AnyDriverResourceUploadPath);
 
             Assert.AreEqual(AnyModificationTime, jobResource.LastModificationUnixTimestamp);
             Assert.AreEqual(AnyResourceSize, jobResource.ResourceSize);
@@ -105,11 +98,8 @@ namespace Org.Apache.REEF.Client.Tests
         private class TestContext
         {
             public readonly IJavaClientLauncher JavaClientLauncher = Substitute.For<IJavaClientLauncher>();
-            public readonly IJobSubmissionDirectoryProvider JobSubmissionDirectoryProvider =
-                Substitute.For<IJobSubmissionDirectoryProvider>();
             public readonly IResourceArchiveFileGenerator ResourceArchiveFileGenerator =
                 Substitute.For<IResourceArchiveFileGenerator>();
-            public readonly IFile File = Substitute.For<IFile>();
 
             public LegacyJobResourceUploader GetJobResourceUploader(bool fileExistsReturnValue = true,
                 string uploadedResourcePath = AnyUploadedResourcePath,
@@ -117,13 +107,15 @@ namespace Org.Apache.REEF.Client.Tests
                 long resourceSize = AnyResourceSize)
             {
                 var injector = TangFactory.GetTang().NewInjector();
-                File.Exists(Arg.Any<string>()).Returns(fileExistsReturnValue);
-                File.ReadAllText(Arg.Any<string>())
+                IFile file = Substitute.For<IFile>();
+                IYarnCommandLineEnvironment yarn = Substitute.For<IYarnCommandLineEnvironment>();
+                file.Exists(Arg.Any<string>()).Returns(fileExistsReturnValue);
+                file.ReadAllText(Arg.Any<string>())
                     .Returns(string.Format("{0};{1};{2}", uploadedResourcePath, modificationTime, resourceSize));
                 injector.BindVolatileInstance(GenericType<IJavaClientLauncher>.Class, JavaClientLauncher);
-                injector.BindVolatileInstance(GenericType<IJobSubmissionDirectoryProvider>.Class, JobSubmissionDirectoryProvider);
                 injector.BindVolatileInstance(GenericType<IResourceArchiveFileGenerator>.Class, ResourceArchiveFileGenerator);
-                injector.BindVolatileInstance(GenericType<IFile>.Class, File);
+                injector.BindVolatileInstance(GenericType<IFile>.Class, file);
+                injector.BindVolatileInstance(GenericType<IYarnCommandLineEnvironment>.Class, yarn);
                 return injector.GetInstance<LegacyJobResourceUploader>();
             }
         }

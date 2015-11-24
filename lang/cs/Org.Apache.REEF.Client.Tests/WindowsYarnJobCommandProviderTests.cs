@@ -50,9 +50,7 @@ namespace Org.Apache.REEF.Client.Tests
             "%HADOOP_HOME%/share/hadoop/hdfs/*",
             "%HADOOP_HOME%/share/hadoop/hdfs/lib/*",
             "%HADOOP_HOME%/share/hadoop/mapreduce/*",
-            "%HADOOP_HOME%/share/hadoop/mapreduce/lib/*",
-            "reef/local/*",
-            "reef/global/*"
+            "%HADOOP_HOME%/share/hadoop/mapreduce/lib/*"
         };
 
         [TestMethod]

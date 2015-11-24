@@ -34,25 +34,22 @@ namespace Org.Apache.REEF.Client.YARN.RestClient
     {
         private static readonly Logger Log = Logger.GetLogger(typeof(FileSystemJobResourceUploader));
         private static readonly DateTime Epoch = new DateTime(1970, 1, 1, 0, 0, 0, 0);
-        private readonly IJobSubmissionDirectoryProvider _jobSubmissionDirectoryProvider;
         private readonly IResourceArchiveFileGenerator _resourceArchiveFileGenerator;
         private readonly IFileSystem _fileSystem;
 
         [Inject]
         private FileSystemJobResourceUploader(
-            IJobSubmissionDirectoryProvider jobSubmissionDirectoryProvider,
             IResourceArchiveFileGenerator resourceArchiveFileGenerator,
             IFileSystem fileSystem)
         {
             _fileSystem = fileSystem;
             _resourceArchiveFileGenerator = resourceArchiveFileGenerator;
-            _jobSubmissionDirectoryProvider = jobSubmissionDirectoryProvider;
         }
 
-        public JobResource UploadJobResource(string driverLocalFolderPath)
+        public JobResource UploadJobResource(string driverLocalFolderPath, string jobSubmissionDirectory)
         {
             driverLocalFolderPath = driverLocalFolderPath.TrimEnd('\\') + @"\";
-            var driverUploadPath = _jobSubmissionDirectoryProvider.GetJobSubmissionRemoteDirectory().TrimEnd('/') + @"/";
+            var driverUploadPath = jobSubmissionDirectory.TrimEnd('/') + @"/";
             Log.Log(Level.Verbose, "DriverFolderPath: {0} DriverUploadPath: {1}", driverLocalFolderPath, driverUploadPath);
             var archivePath = _resourceArchiveFileGenerator.CreateArchiveToUpload(driverLocalFolderPath);
 

@@ -29,6 +29,6 @@ namespace Org.Apache.REEF.Client.Yarn
         /// Returns path to job submission directory in DFS.
         /// </summary>
         /// <returns></returns>
-        string GetJobSubmissionRemoteDirectory();
+        string GetJobSubmissionRemoteDirectory(string applicationId);
     }
 }

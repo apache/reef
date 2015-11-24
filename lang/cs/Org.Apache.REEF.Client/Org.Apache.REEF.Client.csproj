@@ -142,6 +142,7 @@ under the License.
     <Compile Include="YARN\RestClient\YarnRestAPIException.cs" />
     <Compile Include="YARN\YARNClientConfiguration.cs" />
     <Compile Include="YARN\YarnCommandLineEnvironment.cs" />
+    <Compile Include="YARN\YarnREEFDotNetClient.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Org.Apache.REEF.Client.nuspec" />

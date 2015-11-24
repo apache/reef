@@ -21,11 +21,11 @@ package org.apache.reef.bridge.client;
 import org.apache.commons.lang.Validate;
 import org.apache.hadoop.yarn.api.records.LocalResource;
 import org.apache.hadoop.yarn.api.records.URL;
-import org.apache.reef.runtime.yarn.client.YarnClientConfiguration;
+import org.apache.reef.runtime.common.files.RuntimeClasspathProvider;
+import org.apache.reef.runtime.yarn.YarnClasspathProvider;
 import org.apache.reef.runtime.yarn.client.uploader.JobUploader;
-import org.apache.reef.runtime.yarn.driver.parameters.JobSubmissionDirectoryPrefix;
+import org.apache.reef.runtime.yarn.util.YarnConfigurationConstructor;
 import org.apache.reef.tang.Configuration;
-import org.apache.reef.tang.Configurations;
 import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.exceptions.InjectionException;
 
@@ -57,11 +57,10 @@ public final class JobResourceUploader {
 
     LOG.log(Level.INFO, "Received args: LocalPath " + localFile.getAbsolutePath() + " Submission directory " +
         jobSubmissionDirectory + " LocalOutputPath " + localOutputPath);
-    final Configuration configuration = Configurations.merge(
-        Tang.Factory.getTang().newConfigurationBuilder()
-            .bindNamedParameter(JobSubmissionDirectoryPrefix.class, jobSubmissionDirectory)
-            .build(),
-        YarnClientConfiguration.CONF.build());
+    final Configuration configuration = Tang.Factory.getTang().newConfigurationBuilder()
+        .bindImplementation(RuntimeClasspathProvider.class, YarnClasspathProvider.class)
+        .bindConstructor(org.apache.hadoop.yarn.conf.YarnConfiguration.class, YarnConfigurationConstructor.class)
+        .build();
 
     final JobUploader jobUploader = Tang.Factory.getTang()
         .newInjector(configuration)
