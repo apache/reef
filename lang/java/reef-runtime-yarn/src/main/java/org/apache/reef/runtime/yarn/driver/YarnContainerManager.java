@@ -365,12 +365,22 @@ final class YarnContainerManager
       case COMPLETE:
         LOG.log(Level.FINE, "Container completed: status {0}", value.getExitStatus());
         switch (value.getExitStatus()) {
-        case 0:
+        case ContainerExitStatus.SUCCESS:
           status.setState(ReefServiceProtos.State.DONE);
           break;
-        case 143:
+        case ContainerExitStatus.KILLED_BY_RESOURCEMANAGER:
+        case ContainerExitStatus.KILLED_EXCEEDED_PMEM:
+        case ContainerExitStatus.KILLED_EXCEEDED_VMEM:
           status.setState(ReefServiceProtos.State.KILLED);
           break;
+        case ContainerExitStatus.PREEMPTED:
+          status.setState(ReefServiceProtos.State.PREEMPTED);
+          break;
+        case ContainerExitStatus.ABORTED:
+        case ContainerExitStatus.DISKS_FAILED:
+        case ContainerExitStatus.KILLED_AFTER_APP_COMPLETION:
+        case ContainerExitStatus.KILLED_BY_APPMASTER:
+        case ContainerExitStatus.INVALID: // This actually shouldn't happen. See YARN ContainerStatus#getExitStatus.
         default:
           status.setState(ReefServiceProtos.State.FAILED);
         }

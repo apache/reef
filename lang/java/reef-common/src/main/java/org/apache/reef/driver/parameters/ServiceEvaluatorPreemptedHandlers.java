@@ -16,16 +16,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.apache.reef.driver.parameters;
 
+import org.apache.reef.driver.evaluator.PreemptedEvaluator;
 import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
+import org.apache.reef.wake.EventHandler;
+
+import java.util.Set;
 
 /**
- * @deprecated in 0.14. Use org.apache.reef.runtime.yarn.driver.parameters.JobSubmissionDirectory.
+ * Called when a preemption occurs on a running evaluator.
  */
-// TODO[JIRA REEF-904]: Act on deprecated JobSubmissionDirectory and JOB_SUBMISSION_DIRECTORY
-@NamedParameter(doc = "The job submission directory.")
-public final class JobSubmissionDirectory implements Name<String> {
+@NamedParameter(doc = "Called when a preemption occurs on a running evaluator.")
+public final class ServiceEvaluatorPreemptedHandlers implements Name<Set<EventHandler<PreemptedEvaluator>>> {
+  private ServiceEvaluatorPreemptedHandlers() {
+  }
 }

@@ -20,25 +20,22 @@ package org.apache.reef.runtime.common.driver.evaluator;
 
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
-import org.apache.reef.driver.evaluator.FailedEvaluator;
+import org.apache.reef.driver.context.ActiveContext;
+import org.apache.reef.driver.context.FailedContext;
+import org.apache.reef.driver.evaluator.*;
 import org.apache.reef.driver.parameters.EvaluatorConfigurationProviders;
 import org.apache.reef.driver.restart.DriverRestartManager;
 import org.apache.reef.driver.restart.EvaluatorRestartState;
-import org.apache.reef.tang.ConfigurationProvider;
-import org.apache.reef.driver.context.ActiveContext;
-import org.apache.reef.driver.context.FailedContext;
-import org.apache.reef.driver.evaluator.AllocatedEvaluator;
-import org.apache.reef.driver.evaluator.EvaluatorDescriptor;
 import org.apache.reef.driver.task.FailedTask;
 import org.apache.reef.exception.EvaluatorException;
 import org.apache.reef.exception.EvaluatorKilledByResourceManagerException;
+import org.apache.reef.exception.EvaluatorPreemptedException;
 import org.apache.reef.io.naming.Identifiable;
 import org.apache.reef.proto.EvaluatorRuntimeProtocol;
 import org.apache.reef.proto.ReefServiceProtos;
-import org.apache.reef.driver.evaluator.EvaluatorProcess;
 import org.apache.reef.runtime.common.driver.api.ResourceLaunchEvent;
-import org.apache.reef.runtime.common.driver.api.ResourceReleaseEventImpl;
 import org.apache.reef.runtime.common.driver.api.ResourceLaunchHandler;
+import org.apache.reef.runtime.common.driver.api.ResourceReleaseEventImpl;
 import org.apache.reef.runtime.common.driver.api.ResourceReleaseHandler;
 import org.apache.reef.runtime.common.driver.context.ContextControlHandler;
 import org.apache.reef.runtime.common.driver.context.ContextRepresenters;
@@ -47,6 +44,7 @@ import org.apache.reef.runtime.common.driver.resourcemanager.ResourceStatusEvent
 import org.apache.reef.runtime.common.driver.task.TaskRepresenter;
 import org.apache.reef.runtime.common.utils.ExceptionCodec;
 import org.apache.reef.runtime.common.utils.RemoteManager;
+import org.apache.reef.tang.ConfigurationProvider;
 import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
 import org.apache.reef.tang.annotations.Parameter;
@@ -189,10 +187,11 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
     }
   }
 
-  private static boolean isDoneOrFailedOrKilled(final ResourceStatusEvent resourceStatusEvent) {
+  private static boolean isDoneOrFailedOrKilledOrPreempted(final ResourceStatusEvent resourceStatusEvent) {
     return resourceStatusEvent.getState() == ReefServiceProtos.State.DONE ||
         resourceStatusEvent.getState() == ReefServiceProtos.State.FAILED ||
-        resourceStatusEvent.getState() == ReefServiceProtos.State.KILLED;
+        resourceStatusEvent.getState() == ReefServiceProtos.State.KILLED ||
+        resourceStatusEvent.getState() == ReefServiceProtos.State.PREEMPTED;
   }
 
   @Override
@@ -272,7 +271,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
   }
 
   /**
-   * EvaluatorException will trigger is FailedEvaluator and state transition to FAILED.
+   * EvaluatorException will trigger a FailedEvaluator or a PreemptedEvaluator and state transition to FAILED.
    *
    * @param exception on the EvaluatorRuntime
    */
@@ -308,10 +307,21 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
         final FailedEvaluator failedEvaluator = new FailedEvaluatorImpl(exception, failedContextList,
             failedTaskOptional, this.evaluatorId);
 
-        if (driverRestartManager.getEvaluatorRestartState(evaluatorId).isFailedOrExpired()) {
-          this.messageDispatcher.onDriverRestartEvaluatorFailed(failedEvaluator);
+        if (exception instanceof EvaluatorPreemptedException) {
+          if (driverRestartManager.getEvaluatorRestartState(evaluatorId).isFailedOrExpired()) {
+            // In case of Driver restart, treat preemption the same as failure (for now)
+            this.messageDispatcher.onDriverRestartEvaluatorFailed(failedEvaluator);
+          } else {
+            // Invoke preemption handler(s)
+            this.messageDispatcher.onEvaluatorPreempted(new PreemptedEvaluatorImpl(exception, failedContextList,
+                failedTaskOptional, this.evaluatorId));
+          }
         } else {
-          this.messageDispatcher.onEvaluatorFailed(failedEvaluator);
+          if (driverRestartManager.getEvaluatorRestartState(evaluatorId).isFailedOrExpired()) {
+            this.messageDispatcher.onDriverRestartEvaluatorFailed(failedEvaluator);
+          } else {
+            this.messageDispatcher.onEvaluatorFailed(failedEvaluator);
+          }
         }
 
       } catch (final Exception e) {
@@ -533,10 +543,11 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
   public void onResourceStatusMessage(final ResourceStatusEvent resourceStatusEvent) {
     synchronized (this.evaluatorDescriptor) {
       LOG.log(Level.FINEST, "Resource manager state update: {0}", resourceStatusEvent.getState());
-      if (this.stateManager.isDoneOrFailedOrKilled()) {
+      if (this.stateManager.isDoneOrFailedOrKilled()) { // "Killed" includes preemption
         LOG.log(Level.FINE, "Ignoring resource status update for Evaluator {0} which is already in state {1}.",
             new Object[]{this.getId(), this.stateManager});
-      } else if (isDoneOrFailedOrKilled(resourceStatusEvent) && this.stateManager.isAllocatedOrSubmittedOrRunning()) {
+      } else if (isDoneOrFailedOrKilledOrPreempted(resourceStatusEvent)
+          && this.stateManager.isAllocatedOrSubmittedOrRunning()) {
         // something is wrong. The resource manager reports that the Evaluator is done or failed, but the Driver assumes
         // it to be alive.
         final StringBuilder messageBuilder = new StringBuilder("Evaluator [")
@@ -565,6 +576,10 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
 
         if (resourceStatusEvent.getState() == ReefServiceProtos.State.KILLED) {
           this.onEvaluatorException(new EvaluatorKilledByResourceManagerException(this.evaluatorId,
+              messageBuilder.toString()));
+        } else if (resourceStatusEvent.getState() == ReefServiceProtos.State.PREEMPTED) {
+          // Treat Preemption as a type of Exception
+          this.onEvaluatorException(new EvaluatorPreemptedException(this.evaluatorId,
               messageBuilder.toString()));
         } else {
           this.onEvaluatorException(new EvaluatorException(this.evaluatorId, messageBuilder.toString()));

@@ -16,16 +16,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.reef.driver.evaluator;
 
-package org.apache.reef.driver.parameters;
-
-import org.apache.reef.tang.annotations.Name;
-import org.apache.reef.tang.annotations.NamedParameter;
+import org.apache.reef.annotations.Provided;
+import org.apache.reef.annotations.audience.DriverSide;
+import org.apache.reef.annotations.audience.Public;
 
 /**
- * @deprecated in 0.14. Use org.apache.reef.runtime.yarn.driver.parameters.JobSubmissionDirectory.
+ * Represents an Evaluator that was preempted.
+ * It has the same interface as FailedEvaluator, on the basis that preemption is just a type of failure.
+ *
+ * If no EventHandler<PreemptedEvaluator> is registered by the user,
+ * PreemptedEvaluator will be translated into FailedEvaluator and EventHandler<FailedEvaluator> will be invoked.
+ * Refer to DefaultEvaluatorPreemptionHandler for more information.
  */
-// TODO[JIRA REEF-904]: Act on deprecated JobSubmissionDirectory and JOB_SUBMISSION_DIRECTORY
-@NamedParameter(doc = "The job submission directory.")
-public final class JobSubmissionDirectory implements Name<String> {
+@DriverSide
+@Public
+@Provided
+public interface PreemptedEvaluator extends FailedEvaluator {
 }

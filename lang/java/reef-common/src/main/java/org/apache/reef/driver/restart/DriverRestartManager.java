@@ -27,9 +27,9 @@ import org.apache.reef.driver.parameters.ServiceDriverRestartCompletedHandlers;
 import org.apache.reef.exception.DriverFatalRuntimeException;
 import org.apache.reef.runtime.common.driver.idle.DriverIdlenessSource;
 import org.apache.reef.runtime.common.driver.idle.IdleMessage;
+import org.apache.reef.runtime.common.driver.resourcemanager.ResourceRecoverEvent;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.wake.EventHandler;
-import org.apache.reef.runtime.common.driver.resourcemanager.ResourceRecoverEvent;
 import org.apache.reef.wake.time.event.StartTime;
 
 import javax.inject.Inject;
