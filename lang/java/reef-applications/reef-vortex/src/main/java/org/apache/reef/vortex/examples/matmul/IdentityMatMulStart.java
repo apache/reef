@@ -26,7 +26,6 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.Vector;
 import java.util.concurrent.CountDownLatch;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -35,16 +34,16 @@ import java.util.logging.Logger;
  * MatMul User Code Example.
  * This example multiplies two matrices by distributing computation to multiple Tasklets.
  * Each Tasklet receives split of the matrix on the left side, and copy of the matrix on the right side.
- * To check whether the results are correct, Identity matrix is used for the matrix on the right side.
+ * To check whether the result is correct, Identity matrix is multiplied on the right side.
  */
-final class MatMulStart implements VortexStart {
-  private static final Logger LOG = Logger.getLogger(MatMulStart.class.getName());
+final class IdentityMatMulStart implements VortexStart {
+  private static final Logger LOG = Logger.getLogger(IdentityMatMulStart.class.getName());
   private static final int DIVIDE_FACTOR = 10000;
   private static final int NUM_ROWS = 100000;
   private static final int NUM_COLUMNS = 10;
 
   @Inject
-  private MatMulStart() {
+  private IdentityMatMulStart() {
   }
 
   /**
@@ -52,9 +51,7 @@ final class MatMulStart implements VortexStart {
    */
   @Override
   public void start(final VortexThreadPool vortexThreadPool) {
-
-    final Matrix<Double> left = generateRandomMatrix(NUM_ROWS, NUM_COLUMNS);
-    final List<Matrix<Double>> leftSplits = split(left, DIVIDE_FACTOR);
+    final List<Matrix<Double>> leftSplits = generateMatrixSplits(NUM_ROWS, NUM_COLUMNS, DIVIDE_FACTOR);
     final Matrix<Double> right = generateIdentityMatrix(NUM_COLUMNS);
 
     // Measure job finish time starting from here..
@@ -98,16 +95,16 @@ final class MatMulStart implements VortexStart {
    * @return Matrix that consists of random values.
    */
   private Matrix<Double> generateRandomMatrix(final int numRows, final int numColumns) {
-    final List<Vector<Double>> vectors = new ArrayList<>(numRows);
+    final List<List<Double>> rows = new ArrayList<>(numRows);
     final Random random = new Random();
     for (int i = 0; i < numRows; i++) {
-      final Vector<Double> vector = new Vector<>();
+      final List<Double> row = new ArrayList<>(numColumns);
       for (int j = 0; j < numColumns; j++) {
-        vector.add(random.nextDouble());
+        row.add(random.nextDouble());
       }
-      vectors.add(vector);
+      rows.add(row);
     }
-    return new RowMatrix(vectors);
+    return new RowMatrix(rows);
   }
 
   /**
@@ -116,41 +113,39 @@ final class MatMulStart implements VortexStart {
    * @return Identity matrix.
    */
   private Matrix<Double> generateIdentityMatrix(final int numDimension) {
-    final List<Vector<Double>> vectors = new ArrayList<>(numDimension);
+    final List<List<Double>> rows = new ArrayList<>(numDimension);
     for (int i = 0; i < numDimension; i++) {
-      final Vector<Double> vector = new Vector<>();
+      final List<Double> row = new ArrayList<>(numDimension);
       for (int j = 0; j < numDimension; j++) {
         final double value = i == j ? 1 : 0;
-        vector.add(value);
+        row.add(value);
       }
-      vectors.add(vector);
+      rows.add(row);
     }
-    return new RowMatrix(vectors);
+    return new RowMatrix(rows);
   }
 
   /**
-   * Split a matrix into sub-matrices as many as {@param divideFactor}.
+   * Generate sub-matrices which splits a matrix as many as {@param divideFactor}.
    * Note that the matrix is split in row-wise, so the number of columns remain same while
    * the number of rows is divided by {@param divideFactor}.
-   * @param matrix Matrix to Split.
+   * @param numRows Number of rows of the original Matrix.
+   * @param numColumns Number of columns of the original Matrix.
    * @param divideFactor Number of partitions to split the matrix into.
    * @return List of matrices divided into multiple sub-matrices.
    */
-  private List<Matrix<Double>> split(final Matrix<Double> matrix, final int divideFactor) {
-    final List<Matrix<Double>> result = new ArrayList<>(divideFactor);
-    final int totalNumRows = matrix.getNumRows();
-    final int splitNumRows = (totalNumRows + divideFactor - 1) / divideFactor;
+  private List<Matrix<Double>> generateMatrixSplits(final int numRows, final int numColumns, final int divideFactor) {
+    final List<Matrix<Double>> splits = new ArrayList<>(divideFactor);
 
-    int rowIndex = 0;
+    int remainingNumSplits = divideFactor;
+    int remainingNumRows = numRows;
     for (int i = 0; i < divideFactor; i++) {
-      final List<Vector<Double>> vectors = new ArrayList<>(splitNumRows);
-      // Fill each split, but terminate once there is no more data.
-      for (int j = 0; rowIndex < totalNumRows && j < splitNumRows; j++) {
-        vectors.add(matrix.getRows().get(rowIndex));
-        rowIndex++;
-      }
-      result.add(new RowMatrix(vectors));
+      final int splitNumRows = (remainingNumRows + remainingNumSplits - 1) / remainingNumSplits;
+      splits.add(generateRandomMatrix(splitNumRows, numColumns));
+
+      remainingNumRows -= splitNumRows;
+      remainingNumSplits--;
     }
-    return result;
+    return splits;
   }
 }

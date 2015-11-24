@@ -20,7 +20,6 @@ package org.apache.reef.vortex.examples.matmul;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.Vector;
 
 /**
  * Interface of serializable Matrix.
@@ -51,9 +50,11 @@ interface Matrix<T> extends Serializable {
   Matrix<T> transpose();
 
   /**
+   * Get the rows of the matrix. It is highly recommended to return {@link java.util.Collections.UnmodifiableList}
+   * for making the result immutable.
    * @return Rows of the matrix.
    */
-  List<Vector<T>> getRows();
+  List<List<T>> getRows();
 
   /**
    * @return Number of rows.

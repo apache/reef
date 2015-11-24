@@ -31,6 +31,6 @@ final class MatMul {
    * Launch the vortex job, passing appropriate arguments.
    */
   public static void main(final String[] args) {
-    VortexLauncher.launchLocal("Vortex_Example_MatMul", MatMulStart.class, 2, 1024, 4, 2000);
+    VortexLauncher.launchLocal("Vortex_Example_MatMul", IdentityMatMulStart.class, 2, 1024, 4, 2000);
   }
 }
