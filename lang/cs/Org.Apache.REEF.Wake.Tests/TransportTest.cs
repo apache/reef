@@ -22,21 +22,20 @@ using System.Collections.Generic;
 using System.Net;
 using System.Reactive;
 using System.Threading.Tasks;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Wake.Remote;
 using Org.Apache.REEF.Wake.Remote.Impl;
 using Org.Apache.REEF.Wake.Remote.Parameters;
 using Org.Apache.REEF.Wake.Util;
+using Xunit;
 
 namespace Org.Apache.REEF.Wake.Tests
 {
-    [TestClass]
     public class TransportTest
     {
         private readonly IPAddress _localIpAddress = IPAddress.Parse("127.0.0.1");
         private readonly ITcpPortProvider _tcpPortProvider = GetTcpProvider(8900, 8940);
-        [TestMethod]
+        [Fact]
         public void TestTransportServer()
         {
             ICodec<string> codec = new StringCodec();
@@ -65,10 +64,13 @@ namespace Org.Apache.REEF.Wake.Tests
                 } 
             }
 
-            Assert.AreEqual(3, events.Count);
+            Assert.Equal(3, events.Count);
+            Assert.Equal(events[0], "Hello");
+            Assert.Equal(events[1], ", ");
+            Assert.Equal(events[2], "World!");
         }
 
-        [TestMethod]
+        [Fact]
         public void TestTransportServerEvent()
         {
             ICodec<TestEvent> codec = new TestEventCodec();
@@ -96,10 +98,13 @@ namespace Org.Apache.REEF.Wake.Tests
                 } 
             }
 
-            Assert.AreEqual(3, events.Count);
+            Assert.Equal(3, events.Count);
+            Assert.Equal(events[0].Message, "Hello");
+            Assert.Equal(events[1].Message, ", ");
+            Assert.Equal(events[2].Message, "World!");
         }
 
-        [TestMethod]
+        [Fact]
         public void TestTransportSenderStage()
         {
             ICodec<string> codec = new StringCodec();
@@ -129,10 +134,13 @@ namespace Org.Apache.REEF.Wake.Tests
                 } 
             }
 
-            Assert.AreEqual(3, events.Count);
+            Assert.Equal(3, events.Count);
+            Assert.Equal(events[0], "Hello");
+            Assert.Equal(events[1], ", ");
+            Assert.Equal(events[2], " World");
         }
 
-        [TestMethod]
+        [Fact]
         public void TestRaceCondition()
         {
             ICodec<string> codec = new StringCodec();
@@ -168,7 +176,7 @@ namespace Org.Apache.REEF.Wake.Tests
                 }
             }
 
-            Assert.AreEqual(numEventsExpected, events.Count);
+            Assert.Equal(numEventsExpected, events.Count);
         }
 
         private class TestEvent

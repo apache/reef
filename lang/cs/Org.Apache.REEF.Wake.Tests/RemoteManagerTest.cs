@@ -21,20 +21,19 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Net;
 using System.Reactive;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Wake.Remote;
 using Org.Apache.REEF.Wake.Remote.Impl;
 using Org.Apache.REEF.Wake.Util;
+using Xunit;
 
 namespace Org.Apache.REEF.Wake.Tests
 {
-    [TestClass]
     public class RemoteManagerTest
     {
         private readonly IRemoteManagerFactory _remoteManagerFactory =
             TangFactory.GetTang().NewInjector().GetInstance<IRemoteManagerFactory>();
-        [TestMethod]
+        [Fact]
         public void TestOneWayCommunication()
         {
             IPAddress listeningAddress = IPAddress.Parse("127.0.0.1");
@@ -59,10 +58,10 @@ namespace Org.Apache.REEF.Wake.Tests
                 events.Add(queue.Take());
             }
 
-            Assert.AreEqual(3, events.Count);
+            Assert.Equal(3, events.Count);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestOneWayCommunicationClientOnly()
         {
             IPAddress listeningAddress = IPAddress.Parse("127.0.0.1");
@@ -87,10 +86,10 @@ namespace Org.Apache.REEF.Wake.Tests
                 events.Add(queue.Take());
             }
 
-            Assert.AreEqual(3, events.Count);
+            Assert.Equal(3, events.Count);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestTwoWayCommunication()
         {
             IPAddress listeningAddress = IPAddress.Parse("127.0.0.1");
@@ -133,11 +132,11 @@ namespace Org.Apache.REEF.Wake.Tests
                 events2.Add(queue2.Take());
             }
 
-            Assert.AreEqual(4, events1.Count);
-            Assert.AreEqual(3, events2.Count);
+            Assert.Equal(4, events1.Count);
+            Assert.Equal(3, events2.Count);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestCommunicationThreeNodesOneWay()
         {
             IPAddress listeningAddress = IPAddress.Parse("127.0.0.1");
@@ -168,10 +167,10 @@ namespace Org.Apache.REEF.Wake.Tests
                 }
             }
 
-            Assert.AreEqual(5, events.Count);
+            Assert.Equal(5, events.Count);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestCommunicationThreeNodesBothWays()
         {
             IPAddress listeningAddress = IPAddress.Parse("127.0.0.1");
@@ -230,12 +229,12 @@ namespace Org.Apache.REEF.Wake.Tests
                 events3.Add(queue3.Take());
             }
 
-            Assert.AreEqual(2, events1.Count);
-            Assert.AreEqual(3, events2.Count);
-            Assert.AreEqual(5, events3.Count);
+            Assert.Equal(2, events1.Count);
+            Assert.Equal(3, events2.Count);
+            Assert.Equal(5, events3.Count);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestRemoteSenderCallback()
         {
             IPAddress listeningAddress = IPAddress.Parse("127.0.0.1");
@@ -270,13 +269,13 @@ namespace Org.Apache.REEF.Wake.Tests
                 events.Add(queue.Take());
             }
 
-            Assert.AreEqual(3, events.Count);
-            Assert.AreEqual("received message: hello", events[0]);
-            Assert.AreEqual("received message: there", events[1]);
-            Assert.AreEqual("received message: buddy", events[2]);
+            Assert.Equal(3, events.Count);
+            Assert.Equal("received message: hello", events[0]);
+            Assert.Equal("received message: there", events[1]);
+            Assert.Equal("received message: buddy", events[2]);
         }
         
-        [TestMethod]
+        [Fact]
         public void TestRegisterObserverByType()
         {
             IPAddress listeningAddress = IPAddress.Parse("127.0.0.1");
@@ -302,10 +301,10 @@ namespace Org.Apache.REEF.Wake.Tests
                 events.Add(queue.Take());
             }
 
-            Assert.AreEqual(3, events.Count);
+            Assert.Equal(3, events.Count);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestCachedConnection()
         {
             IPAddress listeningAddress = IPAddress.Parse("127.0.0.1");
@@ -334,7 +333,7 @@ namespace Org.Apache.REEF.Wake.Tests
                 events.Add(queue.Take());
             }
 
-            Assert.AreEqual(4, events.Count);
+            Assert.Equal(4, events.Count);
         }
 
         private IRemoteManager<string> GetRemoteManager()

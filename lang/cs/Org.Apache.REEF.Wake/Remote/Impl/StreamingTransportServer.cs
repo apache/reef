@@ -35,7 +35,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
     /// <typeparam name="T">Generic Type of message. It is constrained to have implemented IWritable and IType interface</typeparam>
     internal sealed class StreamingTransportServer<T> : IDisposable
     {
-        private static readonly Logger LOGGER = Logger.GetLogger(typeof(TransportServer<>));
+        private static readonly Logger LOGGER = Logger.GetLogger(typeof(StreamingTransportServer<>));
 
         private TcpListener _listener;
         private readonly CancellationTokenSource _cancellationSource;
@@ -173,11 +173,11 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
             }
             catch (InvalidOperationException)
             {
-                LOGGER.Log(Level.Info, "TransportServer has been closed.");
+                LOGGER.Log(Level.Info, "StreamingTransportServer has been closed.");
             }
             catch (OperationCanceledException)
             {
-                LOGGER.Log(Level.Info, "TransportServer has been closed.");
+                LOGGER.Log(Level.Info, "StreamingTransportServer has been closed.");
             }
         }
 

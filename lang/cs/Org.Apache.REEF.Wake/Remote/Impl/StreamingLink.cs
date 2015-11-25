@@ -127,7 +127,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
             }
             if (_disposed)
             {
-                Exceptions.Throw(new IllegalStateException("Link has been closed."), Logger);
+                Exceptions.Throw(new IllegalStateException("StreamingLink has been closed."), Logger);
             }
 
             _streamingCodec.Write(value, _writer);
@@ -142,7 +142,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         {
             if (_disposed)
             {
-                Exceptions.Throw(new IllegalStateException("Link has been closed."), Logger);
+                Exceptions.Throw(new IllegalStateException("StreamingLink has been closed."), Logger);
             }
 
             await _streamingCodec.WriteAsync(value, _writer, token);

@@ -23,18 +23,17 @@ using System.Linq;
 using System.Reactive;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Wake.Time.Event;
 using Org.Apache.REEF.Wake.Time.Runtime;
+using Xunit;
 
 namespace Org.Apache.REEF.Wake.Tests
 {
-    [TestClass]
     public class ClockTest
     {
-        [TestMethod]
+        [Fact]
         public void TestClock()
         {
             using (RuntimeClock clock = BuildClock())
@@ -45,11 +44,11 @@ namespace Org.Apache.REEF.Wake.Tests
                 heartBeat.OnNext(null);
                 Thread.Sleep(5000);
 
-                Assert.AreEqual(100, heartBeat.EventCount);
+                Assert.Equal(100, heartBeat.EventCount);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void TestAlarmRegistrationRaceConditions()
         {
             using (RuntimeClock clock = BuildClock())
@@ -72,20 +71,20 @@ namespace Org.Apache.REEF.Wake.Tests
 
                 // The earlier alarm should not have fired after 1 second
                 Thread.Sleep(1000);
-                Assert.AreEqual(0, events1.Count);
+                Assert.Equal(0, events1.Count);
 
                 // The earlier alarm will have fired after another 1.5 seconds, but the later will have not
                 Thread.Sleep(1500);
-                Assert.AreEqual(1, events1.Count);
-                Assert.AreEqual(0, events2.Count);
+                Assert.Equal(1, events1.Count);
+                Assert.Equal(0, events2.Count);
 
                 // The later alarm will have fired after 2 seconds
                 Thread.Sleep(2000);
-                Assert.AreEqual(1, events1.Count);
+                Assert.Equal(1, events1.Count);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void TestSimultaneousAlarms()
         {
             using (RuntimeClock clock = BuildClock())
@@ -100,11 +99,11 @@ namespace Org.Apache.REEF.Wake.Tests
                 clock.ScheduleAlarm(1000, eventRecorder);
 
                 Thread.Sleep(1500);
-                Assert.AreEqual(3, events.Count);
+                Assert.Equal(3, events.Count);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void TestAlarmOrder()
         {
             using (RuntimeClock clock = BuildLogicalClock())
@@ -121,7 +120,7 @@ namespace Org.Apache.REEF.Wake.Tests
     
                 // Check that the recorded timestamps are in the same order that they were scheduled
                 Thread.Sleep(1500);
-                Assert.IsTrue(expectedTimestamps.SequenceEqual(recordedTimestamps));
+                Assert.True(expectedTimestamps.SequenceEqual(recordedTimestamps));
             }
         }
 
