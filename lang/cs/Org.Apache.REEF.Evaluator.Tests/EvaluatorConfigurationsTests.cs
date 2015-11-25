@@ -70,6 +70,7 @@ namespace Org.Apache.REEF.Evaluator.Tests
         }
 
         [TestMethod, Priority(0), TestCategory("Unit")]
+        [DeploymentItem(@".")]
         public void TestEvaluatorConfigurationFile()
         {
             AvroConfigurationSerializer serializer = new AvroConfigurationSerializer();
@@ -85,6 +86,7 @@ namespace Org.Apache.REEF.Evaluator.Tests
         }
 
         [TestMethod, Priority(0), TestCategory("Unit")]
+        [DeploymentItem(@".")]
         public void TestDeserializationWithAlias()
         {
             AvroConfigurationSerializer serializer = new AvroConfigurationSerializer();
@@ -117,6 +119,7 @@ namespace Org.Apache.REEF.Evaluator.Tests
         /// It contains task and context configuration strings.  
         /// </summary>
         [TestMethod, Priority(0), TestCategory("Unit")]
+        [DeploymentItem(@".")]
         public void TestDeserializationForContextAndTask()
         {
             AvroConfigurationSerializer serializer = new AvroConfigurationSerializer();
@@ -161,6 +164,7 @@ namespace Org.Apache.REEF.Evaluator.Tests
         /// It contains service and context configuration strings.  
         /// </summary>
         [TestMethod, Priority(0), TestCategory("Unit")]
+        [DeploymentItem(@".")]
         public void TestDeserializationForServiceAndContext()
         {
             AvroConfigurationSerializer serializer = new AvroConfigurationSerializer();
