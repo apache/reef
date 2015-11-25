@@ -36,6 +36,7 @@ namespace Org.Apache.REEF.Tang.Implementations.Tang
 
         private static IDictionary<SetValuedKey, ICsClassHierarchy> defaultClassHierarchy = new Dictionary<SetValuedKey, ICsClassHierarchy>();
 
+        private static object classHierarchyLock = new object();
         public IInjector NewInjector()
         {
             try
@@ -132,11 +133,14 @@ namespace Org.Apache.REEF.Tang.Implementations.Tang
             SetValuedKey key = new SetValuedKey(assemblies, parameterParsers);
 
             ICsClassHierarchy ret = null;
-            defaultClassHierarchy.TryGetValue(key, out ret);
-            if (ret == null)
+            lock (classHierarchyLock)
             {
-                ret = new ClassHierarchyImpl(assemblies, parameterParsers);
-                defaultClassHierarchy.Add(key, ret);
+                defaultClassHierarchy.TryGetValue(key, out ret);
+                if (ret == null)
+                {
+                    ret = new ClassHierarchyImpl(assemblies, parameterParsers);
+                    defaultClassHierarchy.Add(key, ret);
+                }
             }
             return ret;
         }
