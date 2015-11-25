@@ -19,16 +19,15 @@
 
 using System;
 using System.Text;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.Wake.Remote;
 using Org.Apache.REEF.Wake.Remote.Impl;
+using Xunit;
 
 namespace Org.Apache.REEF.Wake.Tests
 {
-    [TestClass]
     public class MultiCodecTest
     {
-        [TestMethod]
+        [Fact]
         public void TestMultiCodec()
         {
             MultiCodec<BaseEvent> codec = new MultiCodec<BaseEvent>();
@@ -41,8 +40,8 @@ namespace Org.Apache.REEF.Wake.Tests
             Event1 e1 = (Event1)codec.Decode(d1Data);
             Event2 e2 = (Event2)codec.Decode(d2Data);
 
-            Assert.AreEqual(42, e1.Number);
-            Assert.AreEqual("Tony", e2.Name);
+            Assert.Equal(42, e1.Number);
+            Assert.Equal("Tony", e2.Name);
         }
 
         private class BaseEvent
