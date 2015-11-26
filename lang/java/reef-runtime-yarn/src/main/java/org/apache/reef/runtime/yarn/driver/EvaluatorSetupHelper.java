@@ -22,7 +22,6 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.yarn.api.records.LocalResource;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.io.TempFileCreator;
-import org.apache.reef.io.WorkingDirectoryTempFileCreator;
 import org.apache.reef.runtime.common.driver.api.ResourceLaunchEvent;
 import org.apache.reef.runtime.common.files.JobJarMaker;
 import org.apache.reef.runtime.common.files.REEFFileNames;
@@ -141,7 +140,6 @@ final class EvaluatorSetupHelper {
       throws IOException {
     return Tang.Factory.getTang()
         .newConfigurationBuilder(resourceLaunchEvent.getEvaluatorConf())
-        .bindImplementation(TempFileCreator.class, WorkingDirectoryTempFileCreator.class)
         .build();
   }
 }

@@ -18,6 +18,8 @@
  */
 package org.apache.reef.runtime.common.evaluator;
 
+import org.apache.reef.io.TempFileCreator;
+import org.apache.reef.io.WorkingDirectoryTempFileCreator;
 import org.apache.reef.runtime.common.evaluator.parameters.*;
 import org.apache.reef.runtime.common.launch.parameters.ErrorHandlerRID;
 import org.apache.reef.runtime.common.launch.parameters.LaunchID;
@@ -67,6 +69,7 @@ public final class EvaluatorConfiguration extends ConfigurationModuleBuilder {
    * This is ConfigurationModule for Java Evaluator.
    */
   public static final ConfigurationModule CONF = EVALUATOR_CONFIG_MODULE_BUILDER
+      .bindImplementation(TempFileCreator.class, WorkingDirectoryTempFileCreator.class)
       .bindSetEntry(Clock.RuntimeStartHandler.class, EvaluatorRuntime.RuntimeStartHandler.class)
       .bindSetEntry(Clock.RuntimeStopHandler.class, EvaluatorRuntime.RuntimeStopHandler.class)
       .bindConstructor(ExecutorService.class, ExecutorServiceConstructor.class)
