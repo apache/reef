@@ -18,6 +18,7 @@
  */
 package org.apache.reef.tests.evaluatorfailure;
 
+import org.apache.reef.driver.context.ActiveContext;
 import org.apache.reef.driver.context.ContextConfiguration;
 import org.apache.reef.driver.context.FailedContext;
 import org.apache.reef.driver.evaluator.AllocatedEvaluator;
@@ -67,6 +68,12 @@ final class EvaluatorFailureDuringAlarmDriver {
       } else {
         throw new DriverSideFailure("Received an unexpected exception", failedEvaluator.getEvaluatorException());
       }
+    }
+  }
+
+  final class ActiveContextHandler implements EventHandler<ActiveContext> {
+    @Override
+    public void onNext(final ActiveContext context) throws DriverSideFailure {
     }
   }
 

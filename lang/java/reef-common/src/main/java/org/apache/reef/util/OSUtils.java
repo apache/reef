@@ -42,6 +42,15 @@ public final class OSUtils {
   }
 
   /**
+   * Determines whether the current JVM is running on the Unix-based OS.
+   *
+   * @return true, if the JVM is running on Linux/Mac. false, otherwise
+   */
+  public static boolean isUnix() {
+    return isLinux() || isMac();
+  }
+
+  /**
    * Determines whether the current JVM is running on the Linux OS.
    *
    * @return true, if the JVM is running on Linux. false, otherwise
@@ -51,10 +60,19 @@ public final class OSUtils {
   }
 
   /**
-   * @return the process ID of the JVM, if running on Linux. This returns -1 for other OSs.
+   * Determines whether the current JVM is running on the Mac OS.
+   *
+   * @return true, if the JVM is running on Mac. false, otherwise
+   */
+  public static boolean isMac() {
+    return System.getProperty("os.name").toLowerCase().contains("mac");
+  }
+
+  /**
+   * @return the process ID of the JVM, if running on Linux/Windows. This returns -1 for other OSs.
    */
   public static long getPID() {
-    if (isLinux()) {
+    if (isUnix()) {
       try {
         final Process process = new ProcessBuilder()
             .command("bash", "-c", "echo $PPID")
@@ -64,31 +82,50 @@ public final class OSUtils {
         final Long result = Long.valueOf(new String(returnBytes, StandardCharsets.UTF_8).trim());
         process.destroy();
         return result;
-      } catch (final IOException e) {
+      } catch (final Exception e) {
         LOG.log(Level.SEVERE, "Unable to determine PID", e);
         return -1;
       }
-
+    } else if (isWindows()) {
+      try {
+        final Process process = new ProcessBuilder()
+            .command("powershell.exe", "-Command", "wmic process where processid=$pid get parentprocessid")
+            .start();
+        final byte[] returnBytes = new byte[128];
+        process.getInputStream().read(returnBytes);
+        final Long result = Long.valueOf(new String(returnBytes, StandardCharsets.UTF_8).split("\n")[1].trim());
+        process.destroy();
+        return result;
+      } catch (final Exception e) {
+        LOG.log(Level.SEVERE, "Unable to determine PID", e);
+        return -1;
+      }
     } else {
       return -1;
     }
   }
 
   /**
-   * Applies `kill -9` to the process.
+   * Kill the process.
    *
    * @param pid Process id
    * @throws IOException
    */
   public static void kill(final long pid) throws IOException, InterruptedException {
-    if (isLinux()) {
+    if (isUnix()) {
       final Process process = new ProcessBuilder()
           .command("bash", "-c", "kill", "-9", String.valueOf(pid))
           .start();
       final int returnCode = process.waitFor();
       LOG.fine("Kill returned: " + returnCode);
+    } else if (isWindows()) {
+      final Process process = new ProcessBuilder()
+          .command("taskkill.exe", "/f", "/pid", String.valueOf(pid))
+          .start();
+      final int returnCode = process.waitFor();
+      LOG.fine("Kill returned: " + returnCode);
     } else {
-      throw new UnsupportedOperationException("Unable to execute kill on non-linux OS");
+      throw new UnsupportedOperationException("Unable to execute kill on unknown OS");
     }
   }
 
