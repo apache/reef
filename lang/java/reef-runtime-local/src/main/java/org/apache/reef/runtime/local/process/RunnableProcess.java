@@ -208,12 +208,12 @@ public final class RunnableProcess implements Runnable {
 
       if (this.processIsRunning()) {
         LOG.log(Level.WARNING, "The child process survived Process.destroy()");
-        if (OSUtils.isLinux()) {
+        if (OSUtils.isUnix() || OSUtils.isWindows()) {
           LOG.log(Level.WARNING, "Attempting to kill the process via the kill command line");
           try {
             final long pid = readPID();
             OSUtils.kill(pid);
-          } catch (final IOException | InterruptedException e) {
+          } catch (final IOException | InterruptedException | NumberFormatException e) {
             LOG.log(Level.SEVERE, "Unable to kill the process.", e);
           }
         }
