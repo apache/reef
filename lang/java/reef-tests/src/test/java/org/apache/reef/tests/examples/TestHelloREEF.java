@@ -31,7 +31,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Tests whether the HelloREEF example runs sucesfully.
+ * Tests whether the HelloREEF example runs successfully.
  */
 public class TestHelloREEF {
   private final TestEnvironment testEnvironment = TestEnvironmentFactory.getNewTestEnvironment();

@@ -77,7 +77,7 @@ public final class HelloCLR {
   }
 
   /**
-   * Start Hello REEF job. Runs method runHelloReef().
+   * Start Hello REEF job. Runs method runHelloCLR().
    *
    * @param args command line parameters.
    * @throws org.apache.reef.tang.exceptions.BindException      configuration error.
