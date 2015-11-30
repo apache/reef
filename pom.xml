@@ -58,6 +58,7 @@ under the License.
         <checkstyle.version>6.12</checkstyle.version>
         <findbugs.version>3.0.2</findbugs.version>
         <reflections.version>0.9.9-RC1</reflections.version>
+        <jsr305.version>3.0.1</jsr305.version>
         <rootPath>${user.dir}</rootPath>
     </properties>
 
