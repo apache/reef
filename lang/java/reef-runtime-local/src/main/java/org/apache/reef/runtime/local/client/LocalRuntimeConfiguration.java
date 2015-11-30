@@ -21,6 +21,7 @@ package org.apache.reef.runtime.local.client;
 import org.apache.reef.client.parameters.DriverConfigurationProviders;
 import org.apache.reef.runtime.common.client.CommonRuntimeConfiguration;
 import org.apache.reef.runtime.common.client.api.JobSubmissionHandler;
+import org.apache.reef.runtime.common.evaluator.PIDStoreStartHandler;
 import org.apache.reef.runtime.common.files.RuntimeClasspathProvider;
 import org.apache.reef.runtime.common.parameters.JVMHeapSlack;
 import org.apache.reef.runtime.local.LocalClasspathProvider;
@@ -32,6 +33,7 @@ import org.apache.reef.tang.formats.ConfigurationModule;
 import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
 import org.apache.reef.tang.formats.OptionalImpl;
 import org.apache.reef.tang.formats.OptionalParameter;
+import org.apache.reef.wake.time.Clock;
 
 import java.util.concurrent.ExecutorService;
 
@@ -86,6 +88,7 @@ public class LocalRuntimeConfiguration extends ConfigurationModuleBuilder {
       .bindNamedParameter(RootFolder.class, RUNTIME_ROOT_FOLDER)
       .bindNamedParameter(JVMHeapSlack.class, JVM_HEAP_SLACK)
       .bindSetEntry(DriverConfigurationProviders.class, DRIVER_CONFIGURATION_PROVIDERS)
+      .bindSetEntry(Clock.StartHandler.class, PIDStoreStartHandler.class)
       .bindSetEntry(RackNames.class, RACK_NAMES)
       .build();
 

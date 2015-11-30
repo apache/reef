@@ -61,6 +61,7 @@ public class EvaluatorFailureTest {
             EnvironmentUtils.getClassLocation(EvaluatorFailureDuringAlarmDriver.class))
         .set(DriverConfiguration.DRIVER_IDENTIFIER, "TEST_EvaluatorFailureTest")
         .set(DriverConfiguration.ON_DRIVER_STARTED, OnDriverStartedAllocateOne.class)
+        .set(DriverConfiguration.ON_CONTEXT_ACTIVE, EvaluatorFailureDuringAlarmDriver.ActiveContextHandler.class)
         .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED,
             EvaluatorFailureDuringAlarmDriver.EvaluatorAllocatedHandler.class)
         .set(DriverConfiguration.ON_EVALUATOR_FAILED, EvaluatorFailureDuringAlarmDriver.EvaluatorFailureHandler.class)
