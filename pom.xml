@@ -57,6 +57,8 @@ under the License.
         <sevntu.checkstyle.plugin.version>1.15.0</sevntu.checkstyle.plugin.version>
         <checkstyle.version>6.12</checkstyle.version>
         <findbugs.version>3.0.2</findbugs.version>
+        <reflections.version>0.9.9-RC1</reflections.version>
+        <jsr305.version>3.0.1</jsr305.version>
         <rootPath>${user.dir}</rootPath>
     </properties>
 
@@ -754,12 +756,6 @@ under the License.
                 <groupId>javax.inject</groupId>
                 <artifactId>javax.inject</artifactId>
                 <version>1</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.reflections</groupId>
-                <artifactId>reflections</artifactId>
-                <version>0.9.9-RC1</version>
             </dependency>
 
             <!-- Microsoft Azure libraries -->
