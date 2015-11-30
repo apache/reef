@@ -64,7 +64,7 @@ public final class HelloREEFYarn {
   }
 
   /**
-   * Start Hello REEF job. Runs method runHelloReef().
+   * Start Hello REEF job.
    *
    * @param args command line parameters.
    * @throws BindException      configuration error.
