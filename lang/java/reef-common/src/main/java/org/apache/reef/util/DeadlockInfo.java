@@ -18,7 +18,8 @@
  */
 package org.apache.reef.util;
 
-import javax.annotation.Nullable;
+import org.apache.avro.reflect.Nullable;
+
 import java.lang.management.ManagementFactory;
 import java.lang.management.MonitorInfo;
 import java.lang.management.ThreadInfo;
