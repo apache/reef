@@ -17,42 +17,41 @@
  * under the License.
  */
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
+using Xunit;
 
 namespace Org.Apache.REEF.Tang.Tests.ScenarioTest
 {
-    [TestClass]
     public class TestTrackingURIProvider
     {
-        [TestMethod]
+        [Fact]
         public void TrackingIdThroughNamedParameterTest()
         {
             ICsConfigurationBuilder cba = TangFactory.GetTang().NewConfigurationBuilder();
             string trackingId = System.Environment.MachineName + ":8080";
             cba.BindNamedParameter<TrackingId, string>(GenericType<TrackingId>.Class, trackingId);
             string id = (string)TangFactory.GetTang().NewInjector(cba.Build()).GetNamedInstance(typeof(TrackingId));
-            Assert.AreEqual(id, trackingId);
+            Assert.Equal(id, trackingId);
         }
 
-        [TestMethod]
+        [Fact]
         public void DefaultTrackingIdThroughInterfaceTest()
         {
             string trackingId = System.Environment.MachineName + ":8080";
             var id = TangFactory.GetTang().NewInjector().GetInstance<ITrackingURIProvider>();
-            Assert.AreEqual(id.GetURI(), trackingId);
+            Assert.Equal(id.GetURI(), trackingId);
         }
 
-        [TestMethod]
+        [Fact]
         public void TrackingIdThroughInterfaceTest()
         {
             ICsConfigurationBuilder cba = TangFactory.GetTang().NewConfigurationBuilder();
             cba.BindNamedParameter<PortNumber, string>(GenericType<PortNumber>.Class, "8080");
             string trackingId = System.Environment.MachineName + ":8080";
             var id = TangFactory.GetTang().NewInjector().GetInstance<ITrackingURIProvider>();
-            Assert.AreEqual(id.GetURI(), trackingId);
+            Assert.Equal(id.GetURI(), trackingId);
         }
     }
 }

@@ -18,19 +18,18 @@
  */
 
 using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Implementations.ClassHierarchy;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
+using Xunit;
 
 namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
 {
-    [TestClass]
     public class TestParameterParser
     {
-        [TestMethod]
+        [Fact]
         public void ParseIntTest()
         {
             var parser = new ParameterParser();
@@ -38,79 +37,79 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
 
         }
 
-        [TestMethod]
+        [Fact]
         public void ParseBoolTest()
         {
             var parser = new ParameterParser();
             Boolean o = (Boolean)parser.Parse(typeof(Boolean), "false");
         }
 
-        [TestMethod]
+        [Fact]
         public void ParseLongTest()
         {
             var parser = new ParameterParser();
             long o = (long)parser.Parse(typeof(long), "8675309");
         }
 
-        [TestMethod]
+        [Fact]
         public void ParseStringTest()
         {
             var parser = new ParameterParser();
             string o = (string)parser.Parse(typeof(string), "hello");
         }
 
-        [TestMethod]
+        [Fact]
         public void ParseDoubleTest()
         {
             var parser = new ParameterParser();
             Double o = (Double)parser.Parse(typeof(double), "12.6");
         }
 
-        [TestMethod]
+        [Fact]
         public void ParseCharTest()
         {
             var parser = new ParameterParser();
             Char o = (Char)parser.Parse(typeof(char), "c");
         }
 
-        [TestMethod]
+        [Fact]
         public void ParseByteTest()
         {
             var parser = new ParameterParser();
             Byte o = (Byte)parser.Parse(typeof(byte), "8");
         }
 
-        [TestMethod]
+        [Fact]
         public void ParseShortTest()
         {
             var parser = new ParameterParser();
             Int16 o = (Int16)parser.Parse(typeof(short), "8");
         }
 
-        [TestMethod]
+        [Fact]
         public void ParseFloatTest()
         {
             var parser = new ParameterParser();
             Single o = (Single)parser.Parse(typeof(float), "8.567");
         }
 
-        [TestMethod]
+        [Fact]
         public void ParseByteArrayTest()
         {
             var parser = new ParameterParser();
             byte[] o = (byte[])parser.Parse(typeof(byte[]), "hello");
         }
 
-        [TestMethod]
+        [Fact]
         public void ParameterParserTest()
         {
             ParameterParser p = new ParameterParser();
             p.AddParser(typeof(FooParser));
             Foo f = (Foo)p.Parse(typeof(Foo), "woot");
-            Assert.AreEqual(f.s, "woot");
+            Assert.Equal(f.s, "woot");
         }
         
-        [TestMethod]
+        [Fact]
         public void TestUnregisteredParameterParser() 
         {
             ParameterParser p = new ParameterParser();
@@ -124,19 +123,19 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
             catch (NotSupportedException)
             {
             }
-            Assert.IsNull(f);           
+            Assert.Null(f);           
         }
 
-       [TestMethod]
+       [Fact]
         public void TestReturnSubclass() 
        {
             ParameterParser p = new ParameterParser();
             p.AddParser(typeof(BarParser));
             Bar f = (Bar)p.Parse(typeof(Foo), "woot");
-            Assert.AreEqual(f.s, "woot");    
+            Assert.Equal(f.s, "woot");    
         }
 
-        [TestMethod]
+        [Fact]
         public void TestGoodMerge()
         {
             ParameterParser old = new ParameterParser();
@@ -144,10 +143,10 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
             ParameterParser nw = new ParameterParser();
             nw.MergeIn(old);
             Bar f = (Bar)nw.Parse(typeof(Foo), "woot");
-            Assert.AreEqual(f.s, "woot");   
+            Assert.Equal(f.s, "woot");   
         }
 
-        [TestMethod]
+        [Fact]
         public void TestGoodMerge2()
         {
             ParameterParser old = new ParameterParser();
@@ -156,10 +155,10 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
             nw.AddParser(typeof(BarParser));
             nw.MergeIn(old);
             Bar f = (Bar)nw.Parse(typeof(Foo), "woot");
-            Assert.AreEqual(f.s, "woot");   
+            Assert.Equal(f.s, "woot");   
         }
 
-        [TestMethod]
+        [Fact]
         public void TestBadMerge()
         {
             string msg = null;
@@ -175,20 +174,20 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
             catch (ArgumentException)
             {
             }
-            Assert.IsNull(msg);
+            Assert.Null(msg);
         }
 
-        [TestMethod]
+        [Fact]
         public void testEndToEnd() 
         {
             ITang tang = TangFactory.GetTang();
             ICsConfigurationBuilder cb = tang.NewConfigurationBuilder(new Type[] { typeof(BarParser) });
             cb.BindNamedParameter<SomeNamedFoo, Foo>(GenericType<SomeNamedFoo>.Class, "hdfs://woot");
             ILikeBars ilb = tang.NewInjector(cb.Build()).GetInstance<ILikeBars>();
-            Assert.IsNotNull(ilb);
+            Assert.NotNull(ilb);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestDelegatingParser()
         {
             ITang tang = TangFactory.GetTang();
@@ -199,7 +198,7 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
             cb2.BindNamedParameter<ParseName, ParseableType>(GenericType<ParseName>.Class, "a"); // ParseName : Name<ParseableType>
 
             ParseableType t = (ParseableType)tang.NewInjector(cb2.Build()).GetNamedInstance(typeof(ParseName));
-            Assert.IsTrue(t is ParseTypeA);
+            Assert.True(t is ParseTypeA);
 
             cb2 = tang.NewConfigurationBuilder(cb.Build());
             cb2.BindNamedParameter<ParseNameB, ParseTypeB>(GenericType<ParseNameB>.Class, "b"); // ParseNameB : Name<ParseTypeB : ParseableType>
@@ -257,7 +256,7 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
             ILikeBars([Parameter(typeof(SomeNamedFoo))] Foo bar)
             {
                 Bar b = (Bar)bar;
-                Assert.AreEqual(b.s, "hdfs://woot");
+                Assert.Equal(b.s, "hdfs://woot");
             }
         }
 
@@ -309,7 +308,7 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
             [Inject]
             public NeedsA([Parameter(typeof(ParseNameA))] ParseableType a)
             {
-                Assert.IsTrue(a is ParseTypeA);
+                Assert.True(a is ParseTypeA);
             }
         }
 
@@ -318,7 +317,7 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
             [Inject]
             public NeedsB([Parameter(typeof(ParseNameB))] ParseTypeB b)
             {
-                Assert.IsTrue(b is ParseTypeB);
+                Assert.True(b is ParseTypeB);
             }
         }
     }

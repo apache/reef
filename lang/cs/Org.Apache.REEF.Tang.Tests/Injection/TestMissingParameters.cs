@@ -17,19 +17,18 @@
  * under the License.
  */
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Exceptions;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
+using Xunit;
 
 namespace Org.Apache.REEF.Tang.Tests.Injection
 {
-    [TestClass]
     public class TestMissingParameters
     {
-        [TestMethod]
+        [Fact]
         public void MultipleParameterTest()
         {
             ICsConfigurationBuilder cb = TangFactory.GetTang().NewConfigurationBuilder();
@@ -41,7 +40,7 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
             o.Verify("foo", 8, true);
         }
 
-        [TestMethod]
+        [Fact]
         public void MissingAllParameterTest()
         {
             // Org.Apache.REEF.Tang.Tests.Injection.MultiParameterConstructor, Org.Apache.REEF.Tang.Test, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null 
@@ -61,10 +60,10 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
             {
                 System.Diagnostics.Debug.WriteLine(e);
             }
-            Assert.IsNull(obj);
+            Assert.Null(obj);
         }
 
-        [TestMethod]
+        [Fact]
         public void MissingTwoParameterTest()
         {
             // Cannot inject Org.Apache.REEF.Tang.Tests.Injection.MultiParameterConstructor, Org.Apache.REEF.Tang.Test, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null: 
@@ -85,10 +84,10 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
             {
                 System.Diagnostics.Debug.WriteLine(e);
             }
-            Assert.IsNull(obj);
+            Assert.Null(obj);
         }
 
-        [TestMethod]
+        [Fact]
         public void MissingOneParameterTest()
         {
             // Cannot inject Org.Apache.REEF.Tang.Tests.Injection.MultiParameterConstructor, Org.Apache.REEF.Tang.Test, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null: 
@@ -107,7 +106,7 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
             {
                 System.Diagnostics.Debug.WriteLine(e);
             }
-            Assert.IsNull(obj);
+            Assert.Null(obj);
         }
     }
 
@@ -127,9 +126,9 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
 
         public void Verify(string s, int i, bool b)
         {
-            Assert.AreEqual(str, s);
-            Assert.AreEqual(iVal, i);
-            Assert.AreEqual(bVal, b);
+            Assert.Equal(str, s);
+            Assert.Equal(iVal, i);
+            Assert.Equal(bVal, b);
         }
 
         [NamedParameter]

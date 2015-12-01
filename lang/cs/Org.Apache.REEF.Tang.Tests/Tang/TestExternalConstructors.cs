@@ -17,26 +17,24 @@
  * under the License.
  */
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
+using Xunit;
 
 namespace Org.Apache.REEF.Tang.Tests.Tang
 {
-    [TestClass]
     public class TestExternalConstructors
     {
         static ITang tang;
 
-        [TestInitialize]
-        public void TestSetup()
+        public TestExternalConstructors()
         {
             tang = TangFactory.GetTang();
         }
 
-        [TestMethod]
+        [Fact]
         public void TestBindConstructor()
         {
             ICsConfigurationBuilder b = TangFactory.GetTang().NewConfigurationBuilder();
@@ -46,16 +44,16 @@ namespace Org.Apache.REEF.Tang.Tests.Tang
             TangFactory.GetTang().NewInjector(b.Build()).GetInstance(typeof(B));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestSImpleExternalConstructor()
         {
             ICsConfigurationBuilder b = TangFactory.GetTang().NewConfigurationBuilder();
             b.BindConstructor(GenericType<A>.Class, GenericType<ACons>.Class);
             A aRef = (A)TangFactory.GetTang().NewInjector(b.Build()).GetInstance(typeof(A));
-            Assert.IsNotNull(aRef);
+            Assert.NotNull(aRef);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestExternalLegacyConstructor()
         {
             ICsConfigurationBuilder cb = tang.NewConfigurationBuilder();
@@ -64,8 +62,8 @@ namespace Org.Apache.REEF.Tang.Tests.Tang
             i.BindVolatileInstance(GenericType<int>.Class, 42);
             i.BindVolatileInstance(GenericType<string>.Class, "The meaning of life is ");
             ExternalConstructorExample.Legacy l = i.GetInstance<ExternalConstructorExample.Legacy>();
-            Assert.AreEqual(42, l.X);
-            Assert.AreEqual("The meaning of life is ", l.Y);
+            Assert.Equal(42, l.X);
+            Assert.Equal("The meaning of life is ", l.Y);
         }
 
         public class A

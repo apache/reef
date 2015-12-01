@@ -16,27 +16,26 @@
 // under the License.
 
 using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.Tang.Examples;
 using Org.Apache.REEF.Tang.Util;
+using Xunit;
 
 namespace Org.Apache.REEF.Tang.Tests.Utilities
 {
-    [TestClass]
     public class AssemblyLoaderTests
     {
-        [TestMethod]
+        [Fact]
         public void AssemblyLoadingFailsNoException()
         {
             var notUsed = new AssemblyLoader(new[] { "DoesNotExist.dll" });
         }
 
-        [TestMethod]
+        [Fact]
         public void AssemblyLoadingSomeSucceedFailuresAreIgnored()
         {
             var loader = new AssemblyLoader(new[] { "DoesNotExist.dll", FileNames.Examples });
-            Assert.AreEqual(1, loader.Assemblies.Count);
-            Assert.IsTrue(loader.Assemblies.First().GetName().Name == FileNames.Examples);
+            Assert.Equal(1, loader.Assemblies.Count);
+            Assert.True(loader.Assemblies.First().GetName().Name == FileNames.Examples);
         }
     }
 }

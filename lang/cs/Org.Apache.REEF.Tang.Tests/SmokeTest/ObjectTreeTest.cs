@@ -17,13 +17,12 @@
  * under the License.
  */
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
+using Xunit;
 
 namespace Org.Apache.REEF.Tang.Tests.SmokeTest
 {
-    [TestClass]
     public class ObjectTreeTest
     {
         public static IConfiguration GetConfiguration()
@@ -34,21 +33,21 @@ namespace Org.Apache.REEF.Tang.Tests.SmokeTest
                 .Build();
         }
 
-        [TestMethod]
+        [Fact]
         public void TestInstantiation() 
         {
             IRootInterface root = TangFactory.GetTang().NewInjector(GetConfiguration()).GetInstance<IRootInterface>();
-            Assert.IsTrue(root.IsValid(), "Object instantiation left us in an inconsistent state.");
+            Assert.True(root.IsValid(), "Object instantiation left us in an inconsistent state.");
         }
 
-        [TestMethod]
+        [Fact]
         public void TestTwoInstantiations() 
         {
             IRootInterface firstRoot = TangFactory.GetTang().NewInjector(GetConfiguration()).GetInstance<IRootInterface>();
             IRootInterface secondRoot = TangFactory.GetTang().NewInjector(GetConfiguration()).GetInstance<IRootInterface>();
 
-            Assert.AreNotSame(firstRoot, secondRoot, "Two instantiations of the object tree should not be the same");
-            Assert.AreEqual(firstRoot, secondRoot, "Two instantiations of the object tree should be equal");
+            Assert.False(firstRoot == secondRoot, "Two instantiations of the object tree should not be the same");
+            Assert.True(firstRoot.Equals(secondRoot), "Two instantiations of the object tree should be equal");
         }
     }
 }

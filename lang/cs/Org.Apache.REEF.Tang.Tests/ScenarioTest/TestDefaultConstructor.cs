@@ -17,16 +17,15 @@
  * under the License.
  */
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Implementations.Tang;
+using Xunit;
 
 namespace Org.Apache.REEF.Tang.Tests.ScenarioTest
 {
-    [TestClass]
     public class TestDefaultConstructor
     {
-        [TestMethod]
+        [Fact]
         public void TestDefaultConstructorWithoutBinding()
         {
             var r = (A)TangFactory.GetTang().NewInjector().GetInstance(typeof(A));

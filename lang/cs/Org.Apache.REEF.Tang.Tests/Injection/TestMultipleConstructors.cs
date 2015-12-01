@@ -18,12 +18,12 @@
  */
 
 using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Exceptions;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
+using Xunit;
 
 namespace Org.Apache.REEF.Tang.Tests.Injection
 {
@@ -31,10 +31,9 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
     {
     }
 
-    [TestClass]
     public class TestMultipleConstructors
     {
-        [TestMethod]
+        [Fact]
         public void TestMissingAllParameters()
         {
             // Multiple infeasible plans: Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest
@@ -66,10 +65,10 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
             catch (InjectionException)
             {               
             }
-            Assert.IsNull(obj);
+            Assert.Null(obj);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestMissingIntParameter()
         {
             // Multiple infeasible plans: Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest
@@ -103,10 +102,10 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
             catch (InjectionException)
             {
             }
-            Assert.IsNull(obj);
+            Assert.Null(obj);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestOnlyBoolParameter()
         {
             // Multiple infeasible plans: Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest
@@ -139,10 +138,10 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
             catch (InjectionException)
             {
             }
-            Assert.IsNull(obj);
+            Assert.Null(obj);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestOnlyIntParameter()
         {
             // Multiple infeasible plans: Org.Apache.REEF.Tang.Tests.Injection.MultiConstructorTest
@@ -175,10 +174,10 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
             catch (InjectionException)
             {
             }
-            Assert.IsNull(obj);
+            Assert.Null(obj);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestMultipleConstructor()
         {
             ICsConfigurationBuilder cb = TangFactory.GetTang().NewConfigurationBuilder();
@@ -190,7 +189,7 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
             o.Verify("foo", 8, true);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestMultiLayersWithMiddleLayerFirst()
         {
             TangImpl.Reset();
@@ -198,16 +197,16 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
             cb2.BindImplementation(typeof(IH), typeof(M));
             IInjector i2 = TangFactory.GetTang().NewInjector(cb2.Build());
             var o2 = i2.GetInstance<IH>();
-            Assert.IsTrue(o2 is M);
+            Assert.True(o2 is M);
 
             ICsConfigurationBuilder cb = TangFactory.GetTang().NewConfigurationBuilder();
             cb.BindImplementation(typeof(IH), typeof(L));
             IInjector i = TangFactory.GetTang().NewInjector(cb.Build());
             var o = i.GetInstance<IH>();
-            Assert.IsTrue(o is L);           
+            Assert.True(o is L);           
         }
 
-        [TestMethod]
+        [Fact]
         public void TestMultiLayersWithLowerLayerFirst()
         {
             TangImpl.Reset(); 
@@ -215,16 +214,16 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
             cb.BindImplementation(typeof(IH), typeof(L));
             IInjector i = TangFactory.GetTang().NewInjector(cb.Build());
             var o = i.GetInstance<IH>();
-            Assert.IsTrue(o is L);
+            Assert.True(o is L);
 
             ICsConfigurationBuilder cb2 = TangFactory.GetTang().NewConfigurationBuilder();
             cb2.BindImplementation(typeof(IH), typeof(M));                              
             IInjector i2 = TangFactory.GetTang().NewInjector(cb2.Build());
             var o2 = i2.GetInstance<IH>();
-            Assert.IsTrue(o2 is M);
+            Assert.True(o2 is M);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestMultiLayersWithBindImpl()
         {
             TangImpl.Reset(); 
@@ -233,17 +232,17 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
             cb.BindImplementation(typeof(IH), typeof(L));
             IInjector i = TangFactory.GetTang().NewInjector(cb.Build());
             var o = i.GetInstance<IH>();
-            Assert.IsTrue(o is L);
+            Assert.True(o is L);
 
             ICsConfigurationBuilder cb2 = TangFactory.GetTang().NewConfigurationBuilder();
             cb2.BindImplementation(typeof(IH), typeof(M));
             cb2.BindImplementation(typeof(M), typeof(L)); // constructor of L is explicitly bound
             IInjector i2 = TangFactory.GetTang().NewInjector(cb2.Build());
             var o2 = i2.GetInstance<IH>();
-            Assert.IsTrue(o2 is L);
+            Assert.True(o2 is L);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestMultiLayersWithNoInjectableDefaultConstructor()
         {
             TangImpl.Reset(); 
@@ -252,7 +251,7 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
             cb.BindImplementation(typeof(IH), typeof(L1));
             IInjector i = TangFactory.GetTang().NewInjector(cb.Build());
             var o = i.GetInstance<IH>();
-            Assert.IsNotNull(o);
+            Assert.NotNull(o);
 
             ICsConfigurationBuilder cb2 = TangFactory.GetTang().NewConfigurationBuilder();
             cb2.BindImplementation(typeof(IH), typeof(M1));  // M1 doesn't have injectable default constructor, no implementation L1 is bound to M1
@@ -261,7 +260,7 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
             try
             {
                 var o2 = i2.GetInstance<IH>();
-                Assert.IsTrue(o2 is L1);
+                Assert.True(o2 is L1);
             }
             catch (Exception e)
             {
@@ -269,7 +268,7 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
                 // No known implementations / injectable constructors for Org.Apache.REEF.Tang.Tests.Injection.M1, Org.Apache.REEF.Tang.Test, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
                 msg = e.Message;
             }
-            Assert.IsNotNull(msg);
+            Assert.NotNull(msg);
         }
     }
 
@@ -305,9 +304,9 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
 
         public void Verify(string s, int i, bool b)
         {
-            Assert.AreEqual(str, s);
-            Assert.AreEqual(iVal, i);
-            Assert.AreEqual(bVal, b);
+            Assert.Equal(str, s);
+            Assert.Equal(iVal, i);
+            Assert.Equal(bVal, b);
         }
 
         [NamedParameter]

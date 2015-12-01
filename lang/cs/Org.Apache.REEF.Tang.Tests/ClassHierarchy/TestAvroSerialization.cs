@@ -20,7 +20,6 @@
 using System;
 using System.IO;
 using Microsoft.Hadoop.Avro;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.Examples.Tasks.HelloTask;
 using Org.Apache.REEF.Tang.Examples;
 using Org.Apache.REEF.Tang.Implementations.ClassHierarchy;
@@ -28,40 +27,20 @@ using Org.Apache.REEF.Tang.Implementations.ClassHierarchy.AvroDataContract;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Types;
+using Xunit;
 
 namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
 {
-    [TestClass]
     public class TestAvroSerialization
     {
         private AvroClassHierarchySerializer _serializer =
             (AvroClassHierarchySerializer)TangFactory.GetTang().NewInjector().GetInstance<IClassHierarchySerializer>();
 
-        [ClassInitialize]
-        public static void ClassSetup(TestContext context)
-        {
-        }
-
-        [ClassCleanup]
-        public static void ClassCleanup()
-        {
-        }
-
-        [TestInitialize]
-        public void TestSetup()
-        {
-        }
-
-        [TestCleanup]
-        public void TestCleanup()
-        {
-        }
-
         /// <summary>
         /// This test is to convert an ClassHierarchy into AvroNode object, and then convert it back to an 
         /// AvroClassHierarchy. 
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestToFromAvroNode()
         {
             Type timerType = typeof(Timer);
@@ -81,9 +60,9 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
             INode secondNode2 = ns2.GetNode(secondType.AssemblyQualifiedName);
             IClassNode simpleConstructorsClassNode2 = (IClassNode)ns2.GetNode(simpleConstructorType.AssemblyQualifiedName);
 
-            Assert.AreEqual(timerClassNode, timerClassNode2);
-            Assert.AreEqual(secondNode, secondNode2);
-            Assert.AreEqual(simpleConstructorsClassNode, simpleConstructorsClassNode2);
+            Assert.Equal(timerClassNode, timerClassNode2);
+            Assert.Equal(secondNode, secondNode2);
+            Assert.Equal(simpleConstructorsClassNode, simpleConstructorsClassNode2);
         }
 
         /// <summary>
@@ -92,18 +71,18 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
         /// I have manually synced all the IList into List in auto generated code. Otherwise AvroSerializer.Create<AvroNode>() will throw the following error
         /// "Could not find any matching known type for 'System.Collections.Generic.IList`1[Org.Apache.REEF.Tang.Implementations.ClassHierarchy.AvroDataContract.AvroConstructorDef]'."
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestGetSchema()
         {
             var serializer = AvroSerializer.Create<AvroNode>();
             var s = serializer.WriterSchema.ToString();
-            Assert.IsNotNull(s);
+            Assert.NotNull(s);
         }
 
         /// <summary>
         /// This test is to merge two AvroClassHierarchies
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestAvroClassHierarchyMerge()
         {
             IClassHierarchy ns = TangFactory.GetTang().GetClassHierarchy(
@@ -125,30 +104,30 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
             IClassNode timerClassNode2 = (IClassNode)ns5.GetNode(typeof(Timer).AssemblyQualifiedName);
             IClassNode avroNodeClassNode2 = (IClassNode)ns5.GetNode(typeof(AvroNode).AssemblyQualifiedName);
 
-            Assert.AreEqual(timerClassNode, timerClassNode2);
-            Assert.AreEqual(avroNodeClassNode, avroNodeClassNode2);
+            Assert.Equal(timerClassNode, timerClassNode2);
+            Assert.Equal(avroNodeClassNode, avroNodeClassNode2);
         }
 
         /// <summary>
         /// Test serialize a class hierarchy into a test file
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestToTextFileForTask()
         {
             IClassHierarchy ns = TangFactory.GetTang().GetClassHierarchy(new string[] { typeof(HelloTask).Assembly.GetName().Name });
             _serializer.ToTextFile(ns, "avroTask.bin");
-            Assert.IsTrue(File.Exists("avroTask.bin"));
+            Assert.True(File.Exists("avroTask.bin"));
         }
 
         /// <summary>
         /// Test serialize a class hierarchy into a JSon string
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestToString()
         {
             IClassHierarchy ns = TangFactory.GetTang().GetClassHierarchy(new string[] { typeof(HelloTask).Assembly.GetName().Name });
             string s = _serializer.ToString(ns);
-            Assert.IsNotNull(s);
+            Assert.NotNull(s);
         }
 
         /// <summary>
@@ -157,8 +136,7 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
         /// Unable to cast object of type 'Newtonsoft.Json.Linq.JObject' to type 'Org.Apache.REEF.Tang.Implementations.ClassHierarchy.AvroDataContract.AvroClassNode'.
         /// This is because auto generated code use object as return type instead of AvroClassNode
         /// </summary>
-        [Ignore]  // TODO: after Avro fix the issue. Enable the test
-        [TestMethod]
+        [Fact(Skip = "TODO: after Avro fix the issue, enable the test")]
         public void TestToFromJsonString()
         {
             Type timerType = typeof(Timer);
@@ -178,9 +156,9 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
             INode secondNode2 = ns2.GetNode(secondType.AssemblyQualifiedName);
             IClassNode simpleConstructorsClassNode2 = (IClassNode)ns2.GetNode(simpleConstructorType.AssemblyQualifiedName);
 
-            Assert.AreEqual(timerClassNode, timerClassNode2);
-            Assert.AreEqual(secondNode, secondNode2);
-            Assert.AreEqual(simpleConstructorsClassNode, simpleConstructorsClassNode2);
+            Assert.Equal(timerClassNode, timerClassNode2);
+            Assert.Equal(secondNode, secondNode2);
+            Assert.Equal(simpleConstructorsClassNode, simpleConstructorsClassNode2);
         }
 
         /// <summary>
@@ -189,8 +167,7 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
         /// Unable to cast object of type 'Newtonsoft.Json.Linq.JObject' to type 'Org.Apache.REEF.Tang.Implementations.ClassHierarchy.AvroDataContract.AvroClassNode'.
         /// This is because auto generated code use object as return type instead of AvroClassNode
         /// </summary>
-        [Ignore] // TODO: after Avro fix the issue. Enable the test
-        [TestMethod]
+        [Fact(Skip = "TODO: after Avro fix the issue, enable the test")]
         public void TestToFromTextFile()
         {
             Type timerType = typeof(Timer);
@@ -210,17 +187,16 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
             INode secondNode2 = ns2.GetNode(secondType.AssemblyQualifiedName);
             IClassNode simpleConstructorsClassNode2 = (IClassNode)ns2.GetNode(simpleConstructorType.AssemblyQualifiedName);
 
-            Assert.AreEqual(timerClassNode, timerClassNode2);
-            Assert.AreEqual(secondNode, secondNode2);
-            Assert.AreEqual(simpleConstructorsClassNode, simpleConstructorsClassNode2);
+            Assert.Equal(timerClassNode, timerClassNode2);
+            Assert.Equal(secondNode, secondNode2);
+            Assert.Equal(simpleConstructorsClassNode, simpleConstructorsClassNode2);
         }
 
         /// <summary>
         /// Test serialize a class hierarchy to a file and deserialize from the file
         /// Currently, in ToFile() method, writer.Write(avroNodeData) throw exception "Value cannot be null.\r\nParameter name: value". 
         /// </summary>
-        [Ignore]  // TODO: after Avro fix the issue. Enable the test
-        [TestMethod]
+        [Fact(Skip = "TODO: after Avro fix the issue, enable the test")]
         public void TestToFromFile()
         {
             Type timerType = typeof(Timer);
@@ -240,17 +216,16 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
             INode secondNode2 = ns2.GetNode(secondType.AssemblyQualifiedName);
             IClassNode simpleConstructorsClassNode2 = (IClassNode)ns2.GetNode(simpleConstructorType.AssemblyQualifiedName);
 
-            Assert.AreEqual(timerClassNode, timerClassNode2);
-            Assert.AreEqual(secondNode, secondNode2);
-            Assert.AreEqual(simpleConstructorsClassNode, simpleConstructorsClassNode2);
+            Assert.Equal(timerClassNode, timerClassNode2);
+            Assert.Equal(secondNode, secondNode2);
+            Assert.Equal(simpleConstructorsClassNode, simpleConstructorsClassNode2);
         }
 
         /// <summary>
         /// Test serialize class hierarchy to byte array and deserializa back to class hierarchy
         /// AvroSerializer.Serialize(stream, obj) doesn't allow any null values in the obj to be serialized even if it is nullable
         /// </summary>
-        [Ignore]  // TODO: after Avro fix the issue. Enable the test
-        [TestMethod]
+        [Fact(Skip = "TODO: after Avro fix the issue, enable the test")]
         public void TestToFromByteArray()
         {
             Type timerType = typeof(Timer);
@@ -270,9 +245,9 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
             INode secondNode2 = ns2.GetNode(secondType.AssemblyQualifiedName);
             IClassNode simpleConstructorsClassNode2 = (IClassNode)ns2.GetNode(simpleConstructorType.AssemblyQualifiedName);
 
-            Assert.AreEqual(timerClassNode, timerClassNode2);
-            Assert.AreEqual(secondNode, secondNode2);
-            Assert.AreEqual(simpleConstructorsClassNode, simpleConstructorsClassNode2);
+            Assert.Equal(timerClassNode, timerClassNode2);
+            Assert.Equal(secondNode, secondNode2);
+            Assert.Equal(simpleConstructorsClassNode, simpleConstructorsClassNode2);
         }
     }
 }

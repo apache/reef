@@ -19,7 +19,6 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Examples.Tasks.HelloTask;
 using Org.Apache.REEF.Tang.Annotations;
@@ -34,18 +33,13 @@ using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Protobuf;
 using Org.Apache.REEF.Tang.Tests.ScenarioTest;
 using Org.Apache.REEF.Tang.Util;
+using Xunit;
 
 namespace Org.Apache.REEF.Tang.Tests.Configuration
 {
-    [TestClass]
     public class TestConfiguration
     {
-        [ClassInitialize]
-        public static void ClassSetup(TestContext context)
-        {
-        }
-
-        [TestMethod]
+        [Fact]
         public void TestDeserializedConfigMerge()
         {
             Type activityInterfaceType = typeof(ITask);
@@ -78,7 +72,7 @@ namespace Org.Apache.REEF.Tang.Tests.Configuration
             var b = merged.newBuilder().Build();
         }
 
-        [TestMethod]
+        [Fact]
         public void TestActivityConfiguration()
         {
             Type activityInterfaceType = typeof(ITask);
@@ -99,10 +93,10 @@ namespace Org.Apache.REEF.Tang.Tests.Configuration
 
             IInjector injector = tang1.NewInjector(conf1);
             var activityRef = (ITask)injector.GetInstance(activityInterfaceType);
-            Assert.IsNotNull(activityRef);
+            Assert.NotNull(activityRef);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestMultipleConfiguration()
         {
             Type activityInterfaceType = typeof(ITask);
@@ -120,14 +114,14 @@ namespace Org.Apache.REEF.Tang.Tests.Configuration
 
             IInjector injector = TangFactory.GetTang().NewInjector(new IConfiguration[] { conf, httpConfiguraiton });
             var activityRef = (ITask)injector.GetInstance(activityInterfaceType);
-            Assert.IsNotNull(activityRef);
+            Assert.NotNull(activityRef);
 
             RuntimeClock clock = injector.GetInstance<RuntimeClock>();
             var rh = clock.ClockRuntimeStartHandler.Get();
-            Assert.AreEqual(rh.Count, 1);
+            Assert.Equal(rh.Count, 1);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestActivityConfigWithSeparateAssembly()
         {
             Type activityInterfaceType = typeof(ITask);
@@ -147,10 +141,10 @@ namespace Org.Apache.REEF.Tang.Tests.Configuration
                    .NewInjector(new string[] { FileNames.Common, FileNames.Tasks }, "TaskConf1.txt")
                    .GetInstance(typeof(ITask));
 
-            Assert.IsNotNull(activityRef);
+            Assert.NotNull(activityRef);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestGetConfigFromProtoBufClassHierarchy()
         {
             Type iTaskType = typeof(ITask);
@@ -168,7 +162,7 @@ namespace Org.Apache.REEF.Tang.Tests.Configuration
             ConfigurationFile.WriteConfigurationFile(conf, "taskConf2.txt");
         }
 
-        [TestMethod]
+        [Fact]
         public void TestActivityConfig()
         {
             Type activityInterfaceType = typeof(ITask);
@@ -182,10 +176,10 @@ namespace Org.Apache.REEF.Tang.Tests.Configuration
             IInjector injector = tang.NewInjector(new string[] { FileNames.Common, FileNames.Tasks }, "TaskConf.txt");
             var activityRef = (ITask)injector.GetInstance(activityInterfaceType);
 
-            Assert.IsNotNull(activityRef);
+            Assert.NotNull(activityRef);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestActivityConfigWithString()
         {
             Type activityInterfaceType = typeof(ITask);
@@ -202,10 +196,10 @@ namespace Org.Apache.REEF.Tang.Tests.Configuration
             IInjector injector = tang.NewInjector(conf2);
             var activityRef = (ITask)injector.GetInstance(activityInterfaceType);
 
-            Assert.IsNotNull(activityRef);
+            Assert.NotNull(activityRef);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestTweetConfiguration()
         {
             Type tweeterType = typeof(Tweeter);
@@ -228,7 +222,7 @@ namespace Org.Apache.REEF.Tang.Tests.Configuration
             tweeter.sendMessage();
         }
 
-        [TestMethod]
+        [Fact]
         public void TestTweetConfig()
         {
             Type tweeterType = typeof(Tweeter);
@@ -248,7 +242,7 @@ namespace Org.Apache.REEF.Tang.Tests.Configuration
         }
 
 
-        [TestMethod]
+        [Fact]
         public void TestTweetConfigWithAvroThroughFile()
         {
             Type tweeterType = typeof(Tweeter);
@@ -270,7 +264,7 @@ namespace Org.Apache.REEF.Tang.Tests.Configuration
             tweeter.sendMessage();
         }
 
-        [TestMethod]
+        [Fact]
         public void TestTweetConfigAddConfigurationFromString()
         {
             Type tweeterType = typeof(Tweeter);
@@ -294,7 +288,7 @@ namespace Org.Apache.REEF.Tang.Tests.Configuration
             tweeter.sendMessage();
         }
 
-        [TestMethod]
+        [Fact]
         public void TestTweetConfigWithAvroSerialization()
         {
             Type tweeterType = typeof(Tweeter);
@@ -316,7 +310,7 @@ namespace Org.Apache.REEF.Tang.Tests.Configuration
             tweeter.sendMessage();
         }
 
-        [TestMethod]
+        [Fact]
         public void TestTweetConfigGetConfigurationFromString()
         {
             Type tweeterType = typeof(Tweeter);
@@ -338,7 +332,7 @@ namespace Org.Apache.REEF.Tang.Tests.Configuration
             tweeter.sendMessage();
         }
 
-        [TestMethod]
+        [Fact]
         public void TestTweetInvalidBinding()
         {
             string msg = null;
@@ -352,10 +346,10 @@ namespace Org.Apache.REEF.Tang.Tests.Configuration
             {
                 msg = e.Message;
             }
-            Assert.IsNotNull(msg);
+            Assert.NotNull(msg);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestTimerConfiguration()
         {
             Type timerType = typeof(Timer);
@@ -375,12 +369,12 @@ namespace Org.Apache.REEF.Tang.Tests.Configuration
             IInjector injector = tang.NewInjector(conf1);
             var timer = (Timer)injector.GetInstance(timerType);
 
-            Assert.IsNotNull(timer);
+            Assert.NotNull(timer);
 
             timer.sleep();
         }
 
-        [TestMethod]
+        [Fact]
         public void TestDocumentLoadNamedParameterConfiguration()
         {
             Type documentedLocalNamedParameterType = typeof(DocumentedLocalNamedParameter);
@@ -401,11 +395,11 @@ namespace Org.Apache.REEF.Tang.Tests.Configuration
             IInjector injector = tang1.NewInjector(conf1);
             var doc = (DocumentedLocalNamedParameter)injector.GetInstance(documentedLocalNamedParameterType);
 
-            Assert.IsNotNull(doc);
+            Assert.NotNull(doc);
             var s = doc.ToString();
         }
 
-        [TestMethod]
+        [Fact]
         public void TestTimerConfigurationWithClassHierarchy()
         {
             Type timerType = typeof(Timer);
@@ -427,11 +421,11 @@ namespace Org.Apache.REEF.Tang.Tests.Configuration
             IInjector injector = tang1.NewInjector(conf1);
             var timer = (Timer)injector.GetInstance(timerType);
 
-            Assert.IsNotNull(timer);
+            Assert.NotNull(timer);
             timer.sleep();
         }
 
-        [TestMethod]
+        [Fact]
         public void TestSetConfig()
         {
             IConfiguration conf = TangFactory.GetTang().NewConfigurationBuilder()
@@ -449,12 +443,12 @@ namespace Org.Apache.REEF.Tang.Tests.Configuration
             Box b2 = (Box)TangFactory.GetTang().NewInjector(conf2).GetInstance(typeof(Box));
             ISet<string> actual = b2.Numbers;
 
-            Assert.IsTrue(actual.Contains("four"));
-            Assert.IsTrue(actual.Contains("five"));
-            Assert.IsTrue(actual.Contains("six"));
+            Assert.True(actual.Contains("four"));
+            Assert.True(actual.Contains("five"));
+            Assert.True(actual.Contains("six"));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestSetConfigWithAvroSerialization()
         {
             IConfiguration conf = TangFactory.GetTang().NewConfigurationBuilder()
@@ -472,12 +466,12 @@ namespace Org.Apache.REEF.Tang.Tests.Configuration
             Box b2 = (Box)TangFactory.GetTang().NewInjector(conf2).GetInstance(typeof(Box));
             ISet<string> actual = b2.Numbers;
 
-            Assert.IsTrue(actual.Contains("four"));
-            Assert.IsTrue(actual.Contains("five"));
-            Assert.IsTrue(actual.Contains("six"));
+            Assert.True(actual.Contains("four"));
+            Assert.True(actual.Contains("five"));
+            Assert.True(actual.Contains("six"));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestNullStringValue()
         {
             string msg = null;
@@ -491,10 +485,10 @@ namespace Org.Apache.REEF.Tang.Tests.Configuration
             {
                 msg = e.Message;
             }
-            Assert.IsNotNull(msg);
+            Assert.NotNull(msg);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestSetConfigNullValue()
         {
             string msg = null;
@@ -510,7 +504,7 @@ namespace Org.Apache.REEF.Tang.Tests.Configuration
             {
                 msg = e.Message;
             }
-            Assert.IsNotNull(msg);
+            Assert.NotNull(msg);
         }
     }
 

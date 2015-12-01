@@ -18,7 +18,6 @@
  */
 
 using System.Collections.Generic;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Examples.Tasks.HelloTask;
 using Org.Apache.REEF.Tang.Formats;
@@ -27,13 +26,13 @@ using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Types;
 using Org.Apache.REEF.Tang.Util;
+using Xunit;
 
 namespace Org.Apache.REEF.Tang.Tests.Configuration
 {
-    [TestClass]
     public class TestAvroConfiguration
     {
-        [TestMethod]
+        [Fact]
         public void TestFromJsonString()
         {
             IConfigurationSerializer serializerImpl = (IConfigurationSerializer)TangFactory.GetTang().NewInjector().GetInstance(typeof(IConfigurationSerializer));
@@ -44,12 +43,12 @@ namespace Org.Apache.REEF.Tang.Tests.Configuration
             string jsonStr = serializerImpl.ToString(conf);
 
             IConfiguration c = serializerImpl.FromString(jsonStr);
-            Assert.IsNotNull(c);
+            Assert.NotNull(c);
 
             string jsonStr2 = serializerImpl.ToString(c);
 
             IConfiguration c1 = serializerImpl.FromString(jsonStr2);
-            Assert.IsNotNull(c1);
+            Assert.NotNull(c1);
         }
 
         private AvroConfiguration ToAvroConfiguration()

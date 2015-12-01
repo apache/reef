@@ -20,47 +20,46 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.Tang.Examples;
 using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
+using Xunit;
 
 namespace Org.Apache.REEF.Tang.Tests.Utilities
 {
-    [TestClass]
     public class TestUtilities
     {
-        [TestMethod]
+        [Fact]
         public void TestIsAssignableFromIgnoreGeneric()
         {
             var result = ReflectionUtilities.IsAssignableFromIgnoreGeneric(typeof(IExternalConstructor<>), typeof(Foo));
-            Assert.IsTrue(result);
+            Assert.True(result);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestIsAssignableFromIgnoreGenericNegtive()
         {
             var result = ReflectionUtilities.IsAssignableFromIgnoreGeneric(typeof(ISet<>), typeof(Foo));
-            Assert.IsFalse(result);
+            Assert.False(result);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestIsInstanceOfGeneric()
         {
             var p1 = new OptionalParameter<int>();
             bool r1 = ReflectionUtilities.IsInstanceOfGeneric(p1, typeof(OptionalParameter<>));
             var p2 = new RequiredParameter<string>();
             bool r2 = ReflectionUtilities.IsInstanceOfGeneric(p2, typeof(RequiredParameter<>));
-            Assert.IsTrue(r1);
-            Assert.IsTrue(r2);
+            Assert.True(r1);
+            Assert.True(r2);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestGetInterfaceTargetForTypeInheritFromGeneric()
         {
             Type result = ReflectionUtilities.GetInterfaceTarget(typeof(IExternalConstructor<>), typeof(Foo));
-            Assert.AreEqual(result, typeof(Int32));
+            Assert.Equal(result, typeof(Int32));
         }
 
         class Foo : IExternalConstructor<Int32>
@@ -71,7 +70,7 @@ namespace Org.Apache.REEF.Tang.Tests.Utilities
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void TestGetEnclosingClassShortNameByType()
         {
             var asm = Assembly.Load(FileNames.Examples);
@@ -79,35 +78,35 @@ namespace Org.Apache.REEF.Tang.Tests.Utilities
             Type timer = asm.GetType(FileNames.Timer);
 
             string[] pathSeconds = ReflectionUtilities.GetEnclosingClassNames(seconds);
-            Assert.AreEqual(pathSeconds[0], timer.AssemblyQualifiedName);
-            Assert.AreEqual(pathSeconds[1], seconds.AssemblyQualifiedName);
+            Assert.Equal(pathSeconds[0], timer.AssemblyQualifiedName);
+            Assert.Equal(pathSeconds[1], seconds.AssemblyQualifiedName);
 
             string[] pathTime = ReflectionUtilities.GetEnclosingClassNames(timer);
-            Assert.AreEqual(pathTime[0], timer.AssemblyQualifiedName);
+            Assert.Equal(pathTime[0], timer.AssemblyQualifiedName);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestGetName()
         {
             var asm = Assembly.Load(FileNames.Examples);
             Type B2 = asm.GetType(FileNames.B2);
 
             string n = ReflectionUtilities.GetName(B2);
-            Assert.AreEqual(n, B2.FullName);
+            Assert.Equal(n, B2.FullName);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestGetEnclosingTypesInclusive()
         {
             var asm = Assembly.Load(FileNames.Examples);
             Type B2 = asm.GetType(FileNames.B2);
             Type[] ts = ReflectionUtilities.GetEnclosingClasses(B2);
-            Assert.AreEqual(ts[0], asm.GetType(FileNames.B));
-            Assert.AreEqual(ts[1], asm.GetType(FileNames.B1));
-            Assert.AreEqual(ts[2], asm.GetType(FileNames.B2));
+            Assert.Equal(ts[0], asm.GetType(FileNames.B));
+            Assert.Equal(ts[1], asm.GetType(FileNames.B1));
+            Assert.Equal(ts[2], asm.GetType(FileNames.B2));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestGetEnclosingClassShortNameByName()
         {
             var asm = Assembly.Load(FileNames.Examples);
@@ -116,12 +115,12 @@ namespace Org.Apache.REEF.Tang.Tests.Utilities
             Type b2 = asm.GetType(FileNames.B2);
 
             string[] path = ReflectionUtilities.GetEnclosingClassNames(FileNames.B2);
-            Assert.AreEqual(path[0], b.AssemblyQualifiedName);
-            Assert.AreEqual(path[1], b1.AssemblyQualifiedName);
-            Assert.AreEqual(path[2], b2.AssemblyQualifiedName);
+            Assert.Equal(path[0], b.AssemblyQualifiedName);
+            Assert.Equal(path[1], b1.AssemblyQualifiedName);
+            Assert.Equal(path[2], b2.AssemblyQualifiedName);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestGetEnclosingClassShortNameByFullName()
         {
             var asm = Assembly.Load(FileNames.Examples);
@@ -130,12 +129,12 @@ namespace Org.Apache.REEF.Tang.Tests.Utilities
             Type b1 = asm.GetType(FileNames.B1);
             Type b2 = asm.GetType(FileNames.B2);
             string[] path = ReflectionUtilities.GetEnclosingClassNames(c.FullName);
-            Assert.AreEqual(path[0], b.AssemblyQualifiedName);
-            Assert.AreEqual(path[1], b1.AssemblyQualifiedName);
-            Assert.AreEqual(path[2], b2.AssemblyQualifiedName);
+            Assert.Equal(path[0], b.AssemblyQualifiedName);
+            Assert.Equal(path[1], b1.AssemblyQualifiedName);
+            Assert.Equal(path[2], b2.AssemblyQualifiedName);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestGetEnclosingClassShortNameByAssemblyQualifiedName()
         {
             var asm = Assembly.Load(FileNames.Examples);
@@ -146,12 +145,12 @@ namespace Org.Apache.REEF.Tang.Tests.Utilities
 
             string[] path = ReflectionUtilities.GetEnclosingClassNames(c.AssemblyQualifiedName);
 
-            Assert.AreEqual(path[0], b.AssemblyQualifiedName);
-            Assert.AreEqual(path[1], b1.AssemblyQualifiedName);
-            Assert.AreEqual(path[2], b2.AssemblyQualifiedName);
+            Assert.Equal(path[0], b.AssemblyQualifiedName);
+            Assert.Equal(path[1], b1.AssemblyQualifiedName);
+            Assert.Equal(path[2], b2.AssemblyQualifiedName);
         }
         
-        [TestMethod]
+        [Fact]
         public void AssemblyNamesTest()
         {
             var asm = Assembly.Load(FileNames.Examples);
@@ -171,22 +170,22 @@ namespace Org.Apache.REEF.Tang.Tests.Utilities
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void TestGetInterfaceTargetForGenericType()
         {
             Type iface = typeof(ISet<>);
             Type type = typeof(MySet<string>);
             Type p = ReflectionUtilities.GetInterfaceTarget(iface, type);
-            Assert.IsTrue(p.Equals(typeof(string)));
+            Assert.True(p.Equals(typeof(string)));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestGetInterfaceTargetForSystemGenericType()
         {
             Type iface = typeof(ISet<>);
             Type type = typeof(ISet<int>);
             Type p = ReflectionUtilities.GetInterfaceTarget(iface, type);
-            Assert.IsTrue(p.Equals(typeof(int)));
+            Assert.True(p.Equals(typeof(int)));
         }
     }
 

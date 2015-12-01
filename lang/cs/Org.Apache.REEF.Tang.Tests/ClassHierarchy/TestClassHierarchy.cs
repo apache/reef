@@ -19,7 +19,6 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Examples.Tasks.HelloTask;
 using Org.Apache.REEF.Tang.Annotations;
@@ -29,16 +28,15 @@ using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Types;
 using Org.Apache.REEF.Tang.Util;
+using Xunit;
 
 namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
 {
-    [TestClass]
     public class TestClassHierarchy
     {
         public IClassHierarchy ns = null;
 
-        [TestInitialize]
-        public void TestSetup()
+        public TestClassHierarchy()
         {
             if (ns == null)
             {
@@ -47,12 +45,7 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
             }
         }
 
-        [TestCleanup]
-        public void TestCleanup()
-        {
-        }
-
-        [TestMethod]
+        [Fact]
         public void TestString()
         {
             INode n = null;
@@ -66,9 +59,9 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
             catch (NameResolutionException)
             {
             }
-            Assert.IsNull(n);
+            Assert.Null(n);
 
-            Assert.IsNotNull(ns.GetNode(typeof(System.String).AssemblyQualifiedName));
+            Assert.NotNull(ns.GetNode(typeof(System.String).AssemblyQualifiedName));
 
             string msg = null;  
             try
@@ -83,10 +76,10 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
             {
 
             }
-            Assert.IsNull(msg, msg);  
+            Assert.True(msg == null, msg);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestInt()
         {
             INode n = null;
@@ -100,9 +93,9 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
             catch (NameResolutionException)
             {
             }
-            Assert.IsNull(n);
+            Assert.Null(n);
 
-            Assert.IsNotNull(ns.GetNode(typeof(System.Int32).AssemblyQualifiedName));
+            Assert.NotNull(ns.GetNode(typeof(System.Int32).AssemblyQualifiedName));
 
             string msg = null;      
             try
@@ -117,159 +110,159 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
             {
 
             }
-            Assert.IsNull(msg, msg);        
+            Assert.True(msg == null, msg);        
         }
 
-        [TestMethod]
+        [Fact]
         public void TestSimpleConstructors()
         {
             IClassNode cls = (IClassNode)ns.GetNode(typeof(SimpleConstructors).AssemblyQualifiedName);
-            Assert.IsTrue(cls.GetChildren().Count == 0);
+            Assert.True(cls.GetChildren().Count == 0);
             IList<IConstructorDef> def = cls.GetInjectableConstructors();
-            Assert.AreEqual(3, def.Count);
+            Assert.Equal(3, def.Count);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestTimer()
         {
             IClassNode timerClassNode = (IClassNode)ns.GetNode(typeof(Timer).AssemblyQualifiedName);
             INode secondNode = ns.GetNode(typeof(Timer.Seconds).AssemblyQualifiedName);
-            Assert.AreEqual(secondNode.GetFullName(), ReflectionUtilities.GetAssemblyQualifiedName(typeof(Timer.Seconds)));
+            Assert.Equal(secondNode.GetFullName(), ReflectionUtilities.GetAssemblyQualifiedName(typeof(Timer.Seconds)));
 
         }
 
-        [TestMethod]
+        [Fact]
         public void TestNamedParameterConstructors()
         {
             var node = ns.GetNode(typeof(NamedParameterConstructors).AssemblyQualifiedName);
-            Assert.AreEqual(node.GetFullName(), ReflectionUtilities.GetAssemblyQualifiedName(typeof(NamedParameterConstructors)));
+            Assert.Equal(node.GetFullName(), ReflectionUtilities.GetAssemblyQualifiedName(typeof(NamedParameterConstructors)));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestArray()
         {
             Type t = (new string[0]).GetType();
             INode node = ns.GetNode(t.AssemblyQualifiedName);
-            Assert.AreEqual(node.GetFullName(), t.AssemblyQualifiedName);
+            Assert.Equal(node.GetFullName(), t.AssemblyQualifiedName);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestRepeatConstructorArg()
         {
             TestNegativeCase(typeof(RepeatConstructorArg),
                 "Repeated constructor parameter detected.  Cannot inject constructor RepeatConstructorArg(int,int).");
         }
 
-        [TestMethod]
+        [Fact]
         public void TestRepeatConstructorArgClasses()
         {
             TestNegativeCase(typeof(RepeatConstructorArgClasses),
                 "Repeated constructor parameter detected.  Cannot inject constructor RepeatConstructorArgClasses(A, A).");
         }
 
-        [TestMethod]
+        [Fact]
         public void testLeafRepeatedConstructorArgClasses()
         {
             INode node = ns.GetNode(typeof(LeafRepeatedConstructorArgClasses).AssemblyQualifiedName);
-            Assert.AreEqual(node.GetFullName(), typeof(LeafRepeatedConstructorArgClasses).AssemblyQualifiedName);
+            Assert.Equal(node.GetFullName(), typeof(LeafRepeatedConstructorArgClasses).AssemblyQualifiedName);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestNamedRepeatConstructorArgClasses()
         {
             INode node = ns.GetNode(typeof(NamedRepeatConstructorArgClasses).AssemblyQualifiedName);
-            Assert.AreEqual(node.GetFullName(), typeof(NamedRepeatConstructorArgClasses).AssemblyQualifiedName);
+            Assert.Equal(node.GetFullName(), typeof(NamedRepeatConstructorArgClasses).AssemblyQualifiedName);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestResolveDependencies() 
         {
             ns.GetNode(typeof(SimpleConstructors).AssemblyQualifiedName);
-            Assert.IsNotNull(ns.GetNode(typeof(string).AssemblyQualifiedName));
+            Assert.NotNull(ns.GetNode(typeof(string).AssemblyQualifiedName));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestDocumentedLocalNamedParameter()
         {
             var node = ns.GetNode(typeof(DocumentedLocalNamedParameter).AssemblyQualifiedName);
-            Assert.AreEqual(node.GetFullName(), ReflectionUtilities.GetAssemblyQualifiedName(typeof(DocumentedLocalNamedParameter)));
+            Assert.Equal(node.GetFullName(), ReflectionUtilities.GetAssemblyQualifiedName(typeof(DocumentedLocalNamedParameter)));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestNamedParameterTypeMismatch()
         {
             TestNegativeCase(typeof(NamedParameterTypeMismatch),
                 "Named parameter type mismatch in NamedParameterTypeMismatch. Constructor expects a System.String but Foo is a System.Int32.");
         }
 
-        [TestMethod]
+        [Fact]
         public void TestUnannotatedName()
         {
             TestNegativeCase(typeof(UnannotatedName),
                 "Named parameter UnannotatedName is missing its [NamedParameter] attribute.");
         }
 
-        [TestMethod]
+        [Fact]
         public void TestAnnotatedNotName()
         {
             TestNegativeCase(typeof(AnnotatedNotName),
                 "Found illegal [NamedParameter] AnnotatedNotName does not implement Name<T>.");
         }
 
-        [TestMethod]
+        [Fact]
         public void TestAnnotatedNameWrongInterface()
         {
             TestNegativeCase(typeof(AnnotatedNameWrongInterface),
                 "Found illegal [NamedParameter] AnnotatedNameWrongInterface does not implement Name<T>.");
         }
 
-        [TestMethod]
+        [Fact]
         public void TestAnnotatedNameMultipleInterfaces()
         {
             TestNegativeCase(typeof(AnnotatedNameMultipleInterfaces),
                 "Named parameter Org.Apache.REEF.Tang.Implementation.AnnotatedNameMultipleInterfaces implements multiple interfaces.  It is only allowed to implement Name<T>.");
         }
 
-        [TestMethod]
+        [Fact]
         public void TestUnAnnotatedNameMultipleInterfaces()
         {
             TestNegativeCase(typeof(UnAnnotatedNameMultipleInterfaces),
                 "Named parameter Org.Apache.REEF.Tang.Implementation.UnAnnotatedNameMultipleInterfaces is missing its @NamedParameter annotation.");
         }
 
-        [TestMethod]
+        [Fact]
         public void TestNameWithConstructor()
         {
             TestNegativeCase(typeof(NameWithConstructor),
                 "Named parameter Org.Apache.REEF.Tang.Implementation.NameWithConstructor has a constructor.  Named parameters must not declare any constructors.");
         }
 
-        [TestMethod]
+        [Fact]
         public void TestNameWithZeroArgInject()
         {
             TestNegativeCase(typeof(NameWithZeroArgInject),
                 "Named parameter Org.Apache.REEF.Tang.Implementation.NameWithZeroArgInject has an injectable constructor.  Named parameters must not declare any constructors.");
         }
 
-        [TestMethod]
+        [Fact]
         public void TestInjectNonStaticLocalArgClass()
         {
             var node = ns.GetNode(typeof(InjectNonStaticLocalArgClass).AssemblyQualifiedName);
-            Assert.AreEqual(node.GetFullName(), typeof(InjectNonStaticLocalArgClass).AssemblyQualifiedName);
+            Assert.Equal(node.GetFullName(), typeof(InjectNonStaticLocalArgClass).AssemblyQualifiedName);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestInjectNonStaticLocalType()
         {
             var node = ns.GetNode(typeof(InjectNonStaticLocalType).AssemblyQualifiedName);
-            Assert.AreEqual(node.GetFullName(), typeof(InjectNonStaticLocalType).AssemblyQualifiedName);
+            Assert.Equal(node.GetFullName(), typeof(InjectNonStaticLocalType).AssemblyQualifiedName);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestOKShortNames()
         {
             var node = ns.GetNode(typeof(ShortNameFooA).AssemblyQualifiedName);
-            Assert.AreEqual(node.GetFullName(), typeof(ShortNameFooA).AssemblyQualifiedName);
+            Assert.Equal(node.GetFullName(), typeof(ShortNameFooA).AssemblyQualifiedName);
         }
 
         public void TestConflictingShortNames()
@@ -287,30 +280,30 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
             {
                 Console.WriteLine(e);
             }
-            Assert.IsNull(msg, msg);
+            Assert.True(msg == null, msg);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestRoundTripInnerClassNames()
         {
             INode node = ns.GetNode(typeof(Nested.Inner).AssemblyQualifiedName);
-            Assert.AreEqual(node.GetFullName(), typeof(Nested.Inner).AssemblyQualifiedName);
+            Assert.Equal(node.GetFullName(), typeof(Nested.Inner).AssemblyQualifiedName);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestRoundTripAnonInnerClassNames()
         {
             INode node1 = ns.GetNode(typeof(AnonNested.X1).AssemblyQualifiedName);
             INode node2 = ns.GetNode(typeof(AnonNested.Y1).AssemblyQualifiedName);
-            Assert.AreNotEqual(node1.GetFullName(), node2.GetFullName());
+            Assert.NotEqual(node1.GetFullName(), node2.GetFullName());
 
             Type t1 = ReflectionUtilities.GetTypeByName(node1.GetFullName());
             Type t2 = ReflectionUtilities.GetTypeByName(node2.GetFullName());
 
-            Assert.AreNotSame(t1, t2);
+            Assert.NotSame(t1, t2);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestNameCantBindWrongSubclassAsDefault()
         {
             TestNegativeCase(typeof(BadName),
@@ -318,22 +311,22 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
         }
 
 
-        [TestMethod]
+        [Fact]
         public void TestNameCantBindWrongSubclassOfArgumentAsDefault()
         {
             TestNegativeCase(typeof(BadNameForGeneric),
                         "class BadNameForGeneric defines a default class Int32 with a type that does not extend of its target's string in ISet<string>");
         }
 
-        [TestMethod]
+        [Fact]
         public void TestNameCantBindSubclassOfArgumentAsDefault()
         {
             ns = TangFactory.GetTang().GetClassHierarchy(new string[] { FileNames.Examples, FileNames.Common, FileNames.Tasks });
             INode node = ns.GetNode(typeof(GoodNameForGeneric).AssemblyQualifiedName);
-            Assert.AreEqual(node.GetFullName(), typeof(GoodNameForGeneric).AssemblyQualifiedName);
+            Assert.Equal(node.GetFullName(), typeof(GoodNameForGeneric).AssemblyQualifiedName);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestInterfaceCantBindWrongImplAsDefault()
         {
             TestNegativeCase(typeof(IBadIfaceDefault),
@@ -351,32 +344,32 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
             catch (Exception)
             {
             }
-            Assert.IsNull(msg, msg);
+            Assert.True(msg == null, msg);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestParseableDefaultClassNotOK()
         {
             TestNegativeCase(typeof(BadParsableDefaultClass),
                  "Named parameter BadParsableDefaultClass defines default implementation for parsable type System.string");
         }
 
-        [TestMethod]
+        [Fact]
         public void testGenericTorture1()
         {
             g(typeof(GenericTorture1));
         }
-        [TestMethod]
+        [Fact]
         public void testGenericTorture2()
         {
             g(typeof(GenericTorture2));
         }
-        [TestMethod]
+        [Fact]
         public void testGenericTorture3()
         {
             g(typeof(GenericTorture3));
         }
-        [TestMethod]
+        [Fact]
         public void testGenericTorture4()
         {
             g(typeof(GenericTorture4));
@@ -389,31 +382,31 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
         public INode g(Type t)
         {
             INode n = ns.GetNode(s(t)); 
-            Assert.IsNotNull(n);
+            Assert.NotNull(n);
             return n;
         }
 
-        [TestMethod]
+        [Fact]
         public void TestHelloTaskNode()
         {
             var node = ns.GetNode(typeof(HelloTask).AssemblyQualifiedName);
-            Assert.AreEqual(node.GetFullName(), ReflectionUtilities.GetAssemblyQualifiedName(typeof(HelloTask)));
+            Assert.Equal(node.GetFullName(), ReflectionUtilities.GetAssemblyQualifiedName(typeof(HelloTask)));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestITackNode()
         {
             var node = ns.GetNode(typeof(ITask).AssemblyQualifiedName);
-            Assert.AreEqual(node.GetFullName(), ReflectionUtilities.GetAssemblyQualifiedName(typeof(ITask)));
+            Assert.Equal(node.GetFullName(), ReflectionUtilities.GetAssemblyQualifiedName(typeof(ITask)));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestNamedParameterIdentifier()
         {
             var node = ns.GetNode(typeof(TaskConfigurationOptions.Identifier).AssemblyQualifiedName);
-            Assert.AreEqual(node.GetFullName(), ReflectionUtilities.GetAssemblyQualifiedName(typeof(TaskConfigurationOptions.Identifier)));
+            Assert.Equal(node.GetFullName(), ReflectionUtilities.GetAssemblyQualifiedName(typeof(TaskConfigurationOptions.Identifier)));
         }
-        [TestMethod]
+        [Fact]
         public void TestInterface()
         {
             g(typeof(A));
@@ -435,11 +428,11 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
             var b = (B)i.GetInstance(typeof(B));
             var c = (C)i.GetInstance(typeof(C));
 
-            Assert.IsNotNull(a);
-            Assert.IsNotNull(implString);
-            Assert.IsNotNull(implInt);
-            Assert.IsNotNull(b);
-            Assert.IsNotNull(c);
+            Assert.NotNull(a);
+            Assert.NotNull(implString);
+            Assert.NotNull(implInt);
+            Assert.NotNull(b);
+            Assert.NotNull(c);
         }
     }
 

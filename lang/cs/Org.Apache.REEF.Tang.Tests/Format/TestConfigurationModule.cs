@@ -19,13 +19,13 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Exceptions;
 using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
+using Xunit;
 
 namespace Org.Apache.REEF.Tang.Tests.Format
 {
@@ -38,30 +38,9 @@ namespace Org.Apache.REEF.Tang.Tests.Format
     {
     }
 
-    [TestClass]
     public class TestConfigurationModule
     {
-        [ClassInitialize]
-        public static void ClassSetup(TestContext context)
-        {
-        }
-
-        [ClassCleanup]
-        public static void ClassCleanup()
-        {
-        }
-
-        [TestInitialize]
-        public void TestSetup()
-        {
-        }
-
-        [TestCleanup]
-        public void TestCleanup()
-        {
-        }
-    
-        [TestMethod]
+        [Fact]
         public void SmokeTest() 
         {
             // Here we set some configuration values.  In true tang style,
@@ -74,10 +53,10 @@ namespace Org.Apache.REEF.Tang.Tests.Format
                 .Set(MyConfigurationModule.FooNess, "12")
                 .Build();
                 IFoo f = (IFoo)TangFactory.GetTang().NewInjector(c).GetInstance(fooType);
-                Assert.AreEqual(f.getFooness(), 12);
+                Assert.Equal(f.getFooness(), 12);
           }
 
-        [TestMethod]
+        [Fact]
         public void SmokeTestConfig()
         {
             // Here we set some configuration values.  In true tang style,
@@ -90,32 +69,32 @@ namespace Org.Apache.REEF.Tang.Tests.Format
                 .Set(MyConfigurationModule.FooNess, "12")
                 .Build();
             IFoo f = (IFoo)TangFactory.GetTang().NewInjector(c).GetInstance(fooType);
-            Assert.AreEqual(f.getFooness(), 12);
+            Assert.Equal(f.getFooness(), 12);
             AvroConfigurationSerializer serializerCs = new AvroConfigurationSerializer();
 
             serializerCs.ToFileStream(c, "TangTestCs.avroconf");
             var c3 = serializerCs.FromFileStream("TangTestCs.avroconf");
             IFoo f3 = (IFoo)TangFactory.GetTang().NewInjector(c3).GetInstance(fooType);
-            Assert.AreEqual(f3.getFooness(), 12);
+            Assert.Equal(f3.getFooness(), 12);
 
             serializerCs.ToFile(c, "TangTestCs1.avro");
             var c4 = serializerCs.FromFile("TangTestCs1.avro");
             IFoo f4 = (IFoo)TangFactory.GetTang().NewInjector(c4).GetInstance(fooType);
-            Assert.AreEqual(f4.getFooness(), 12);
+            Assert.Equal(f4.getFooness(), 12);
 
             IConfigurationSerializer serializerImpl = (IConfigurationSerializer)TangFactory.GetTang().NewInjector().GetInstance(typeof(IConfigurationSerializer));
             serializerImpl.ToFile(c, "TangTestCs1.avro");
             var c5 = serializerImpl.FromFile("TangTestCs1.avro");
             IFoo f5 = (IFoo)TangFactory.GetTang().NewInjector(c5).GetInstance(fooType);
-            Assert.AreEqual(f5.getFooness(), 12);
+            Assert.Equal(f5.getFooness(), 12);
            
             // this is to test the file generated from Java. name,value b=must be recognized by C# class hierarchy
             AvroConfigurationSerializer serializer = new AvroConfigurationSerializer();
             var avroConfig = serializer.AvroDeserializeFromFile("Evaluator.conf");
-            Assert.IsNotNull(avroConfig);
+            Assert.NotNull(avroConfig);
         }
 
-        [TestMethod]
+        [Fact]
         public void OmitOptionalTest()  
         {
             Type fooType = typeof(Org.Apache.REEF.Tang.Tests.Format.IFoo);
@@ -124,10 +103,10 @@ namespace Org.Apache.REEF.Tang.Tests.Format
                 .Set(MyConfigurationModule.TheFoo, GenericType<FooImpl>.Class)
                 .Build();
             IFoo f = (IFoo)TangFactory.GetTang().NewInjector(c).GetInstance(fooType);
-            Assert.AreEqual(f.getFooness(), 42);
+            Assert.Equal(f.getFooness(), 42);
         }
 
-        [TestMethod]
+        [Fact]
         public void OmitRequiredTest()
         {
             string msg = null;
@@ -141,10 +120,10 @@ namespace Org.Apache.REEF.Tang.Tests.Format
             catch (Exception) 
             {
             }
-            Assert.IsNull(msg);
+            Assert.Null(msg);
         }
 
-        [TestMethod]
+        [Fact]
         public void BadConfTest()
         {
             string msg = null;
@@ -156,16 +135,16 @@ namespace Org.Apache.REEF.Tang.Tests.Format
             catch (Exception)
             {
             }
-            Assert.IsNull(msg);
+            Assert.Null(msg);
         }
 
-        [TestMethod]
+        [Fact]
         public void NonExistentStringBindOK()
         {
             new MyBadConfigurationModule().BindImplementation(GenericType<IFoo>.Class, "i.do.not.exist");
         }
 
-        [TestMethod]
+        [Fact]
         public void NonExistentStringBindNotOK()
         {
             string msg = null;
@@ -177,10 +156,10 @@ namespace Org.Apache.REEF.Tang.Tests.Format
             catch (Exception)
             {
             }
-            Assert.IsNull(msg);            
+            Assert.Null(msg);            
         }
 
-        [TestMethod]
+        [Fact]
         public void MultiBindTest() 
         {
             // Here we set some configuration values.  In true tang style,
@@ -192,12 +171,12 @@ namespace Org.Apache.REEF.Tang.Tests.Format
                 .Build();
             IFoo f = (IFoo)TangFactory.GetTang().NewInjector(c).GetInstance(typeof(IFoo));
             IFoo g = (IFoo)TangFactory.GetTang().NewInjector(c).GetInstance(typeof(object));
-            Assert.AreEqual(f.getFooness(), 12);
-            Assert.AreEqual(g.getFooness(), 12);
-            Assert.IsFalse(f == g);
+            Assert.Equal(f.getFooness(), 12);
+            Assert.Equal(g.getFooness(), 12);
+            Assert.False(f == g);
           }
 
-        [TestMethod]
+        [Fact]
         public void ForeignSetTest()
         {
             string msg = null;
@@ -209,10 +188,10 @@ namespace Org.Apache.REEF.Tang.Tests.Format
             catch (Exception)
             {
             }
-            Assert.IsNull(msg);
+            Assert.Null(msg);
         }
 
-        [TestMethod]
+        [Fact]
         public void ForeignBindTest()
         {
             string msg = null;
@@ -224,10 +203,10 @@ namespace Org.Apache.REEF.Tang.Tests.Format
             catch (Exception)
             {
             }
-            Assert.IsNull(msg);
+            Assert.Null(msg);
         }
 
-        [TestMethod]
+        [Fact]
         public void SingletonTest() 
         {
             IConfiguration c = new MyConfigurationModule()
@@ -237,17 +216,17 @@ namespace Org.Apache.REEF.Tang.Tests.Format
               .Set(MyConfigurationModule.TheFoo, GenericType<FooImpl>.Class)
               .Build();
             IInjector i = TangFactory.GetTang().NewInjector(c);
-            Assert.IsTrue(i.GetInstance(typeof(IFoo)) == i.GetInstance(typeof(IFoo)));
+            Assert.True(i.GetInstance(typeof(IFoo)) == i.GetInstance(typeof(IFoo)));
         }
 
-        [TestMethod]
+        [Fact]
         public void ImmutablilityTest() 
         {
             // builder methods return copies; the original module is immutable
             ConfigurationModule builder1 = MyConfigurationModule.Conf
             .Set(MyConfigurationModule.TheFoo, GenericType<FooImpl>.Class);
    
-            Assert.IsFalse(builder1 == MyConfigurationModule.Conf);
+            Assert.False(builder1 == MyConfigurationModule.Conf);
 
             IConfiguration config1 = builder1.Build();
   
@@ -259,11 +238,11 @@ namespace Org.Apache.REEF.Tang.Tests.Format
             // instantiation of each just to be sure everything is fine in this situation
             IInjector i1 = TangFactory.GetTang().NewInjector(config1);
             IInjector i2 = TangFactory.GetTang().NewInjector(config2);
-            Assert.AreEqual(42, ((IFoo)i1.GetInstance(typeof(IFoo))).getFooness());
-            Assert.AreEqual(7, ((IFoo)i2.GetInstance(typeof(IFoo))).getFooness());
+            Assert.Equal(42, ((IFoo)i1.GetInstance(typeof(IFoo))).getFooness());
+            Assert.Equal(7, ((IFoo)i2.GetInstance(typeof(IFoo))).getFooness());
         }
 
-        [TestMethod]
+        [Fact]
         public void SetParamTest() 
         {
             IConfiguration c = SetConfigurationModule.CONF
@@ -272,12 +251,12 @@ namespace Org.Apache.REEF.Tang.Tests.Format
                 .Build();
     
             ISet<string> s = (ISet<string>)TangFactory.GetTang().NewInjector(c).GetNamedInstance(typeof(SetName));
-            Assert.AreEqual(s.Count, 2);
-            Assert.IsTrue(s.Contains("a"));
-            Assert.IsTrue(s.Contains("b"));
+            Assert.Equal(s.Count, 2);
+            Assert.True(s.Contains("a"));
+            Assert.True(s.Contains("b"));
         }
 
-        [TestMethod]
+        [Fact]
         public void SetClassTest() 
         {
             IConfiguration c = SetClassConfigurationModule.CONF
@@ -285,7 +264,7 @@ namespace Org.Apache.REEF.Tang.Tests.Format
                 .Set(SetClassConfigurationModule.P, GenericType<SubB>.Class)
                 .Build();
             ISet<ISuper> s = (ISet<ISuper>)TangFactory.GetTang().NewInjector(c).GetNamedInstance(typeof(SetClass));
-            Assert.AreEqual(2, s.Count);
+            Assert.Equal(2, s.Count);
             
             bool sawA = false, sawB = false;    
             foreach (ISuper sup in s)
@@ -300,13 +279,13 @@ namespace Org.Apache.REEF.Tang.Tests.Format
                 } 
                 else 
                 {
-                    Assert.Fail();
+                    Assert.True(false);
                 }
             }
-            Assert.IsTrue(sawA && sawB);
+            Assert.True(sawA && sawB);
         }
 
-        [TestMethod]
+        [Fact]
         public void SetClassRoundTripTest() 
         {
             IConfiguration c = SetClassConfigurationModule.CONF
@@ -320,7 +299,7 @@ namespace Org.Apache.REEF.Tang.Tests.Format
 
             // ConfigurationFile.AddConfiguration(cb, ConfigurationFile.ToConfigurationString(c));
             ISet<ISuper> s = (ISet<ISuper>)TangFactory.GetTang().NewInjector(c2).GetNamedInstance(typeof(SetClass));
-            Assert.AreEqual(2, s.Count);
+            Assert.Equal(2, s.Count);
             bool sawA = false, sawB = false;
             foreach (ISuper sup in s)
             {
@@ -334,13 +313,13 @@ namespace Org.Apache.REEF.Tang.Tests.Format
                 }
                 else
                 {
-                    Assert.Fail();
+                    Assert.True(false);
                 }
             }
-            Assert.IsTrue(sawA && sawB);
+            Assert.True(sawA && sawB);
         }
 
-        [TestMethod]
+        [Fact]
         public void ErrorOnStaticTimeSet()
         {
             string msg = null;
@@ -353,10 +332,10 @@ namespace Org.Apache.REEF.Tang.Tests.Format
             catch (ClassHierarchyException)
             {
             }
-            Assert.IsNull(msg);
+            Assert.Null(msg);
         }
 
-         [TestMethod]
+         [Fact]
          public void ErrorOnSetMerge()
          {
              ConfigurationModuleBuilder cb = null;
@@ -369,7 +348,7 @@ namespace Org.Apache.REEF.Tang.Tests.Format
              {
                  System.Diagnostics.Debug.WriteLine(e);
              }
-             Assert.IsNull(cb);
+             Assert.Null(cb);
         }
     }
 
