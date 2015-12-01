@@ -19,55 +19,54 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Types;
 using Org.Apache.REEF.Tang.Util;
+using Xunit;
 
 namespace Org.Apache.REEF.Tang.Tests.Injection
 {
     /// <summary>
     /// Test injection with a List
     /// </summary>
-    [TestClass]
     public class TestListInjection
     {
         /// <summary>
         /// Tests the string inject default.
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestStringInjectDefault()
         {
             StringClass b = TangFactory.GetTang().NewInjector().GetInstance<StringClass>();
 
             IList<string> actual = b.StringList;
 
-            Assert.IsTrue(actual.Contains("one"));
-            Assert.IsTrue(actual.Contains("two"));
-            Assert.IsTrue(actual.Contains("three"));
+            Assert.True(actual.Contains("one"));
+            Assert.True(actual.Contains("two"));
+            Assert.True(actual.Contains("three"));
         }
 
         /// <summary>
         /// Tests the int inject default.
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestIntInjectDefault()
         {
             IntClass b = TangFactory.GetTang().NewInjector().GetInstance<IntClass>();
 
             IList<int> actual = b.IntList;
 
-            Assert.IsTrue(actual.Contains(1));
-            Assert.IsTrue(actual.Contains(2));
-            Assert.IsTrue(actual.Contains(3));
+            Assert.True(actual.Contains(1));
+            Assert.True(actual.Contains(2));
+            Assert.True(actual.Contains(3));
         }
 
         /// <summary>
         /// Tests the string inject configuration builder.
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestStringInjectConfigurationBuilder()
         {
             ICsClassHierarchy classH = TangFactory.GetTang().GetDefaultClassHierarchy();
@@ -83,16 +82,16 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
             IInjector i = TangFactory.GetTang().NewInjector(cb.Build());
             IList<string> actual = ((StringClass)i.GetInstance(typeof(StringClass))).StringList;
 
-            Assert.IsTrue(actual.Contains("hi"));
-            Assert.IsTrue(actual.Contains("hello"));
-            Assert.IsTrue(actual.Contains("bye"));
-            Assert.AreEqual(actual.Count, 3);
+            Assert.True(actual.Contains("hi"));
+            Assert.True(actual.Contains("hello"));
+            Assert.True(actual.Contains("bye"));
+            Assert.Equal(actual.Count, 3);
         }
 
         /// <summary>
         /// Tests the bool list with named parameter.
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestBoolListWithNamedParameter()
         {
             ICsClassHierarchy classH = TangFactory.GetTang().GetDefaultClassHierarchy();
@@ -118,7 +117,7 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
         /// <summary>
         /// Tests the type of the bool list with generic.
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestBoolListWithGenericType()
         {
             IList<string> injected = new List<string>();
@@ -142,7 +141,7 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
         /// <summary>
         /// Tests the int list with named parameter.
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestIntListWithNamedParameter()
         {
             ICsClassHierarchy classH = TangFactory.GetTang().GetDefaultClassHierarchy();
@@ -168,7 +167,7 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
         /// <summary>
         /// Tests the type of the int list with generic.
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestIntListWithGenericType()
         {
             IList<string> injected = new List<string>();
@@ -192,7 +191,7 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
         /// <summary>
         /// Tests the string inject.
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestStringInject()
         {
             IList<string> injected = new List<string>();
@@ -206,16 +205,16 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
             IInjector i = TangFactory.GetTang().NewInjector(cb.Build());
             IList<string> actual = ((StringClass)i.GetInstance(typeof(StringClass))).StringList;
 
-            Assert.IsTrue(actual.Contains("hi"));
-            Assert.IsTrue(actual.Contains("hello"));
-            Assert.IsTrue(actual.Contains("bye"));
-            Assert.AreEqual(actual.Count, 3);
+            Assert.True(actual.Contains("hi"));
+            Assert.True(actual.Contains("hello"));
+            Assert.True(actual.Contains("bye"));
+            Assert.Equal(actual.Count, 3);
         }
 
         /// <summary>
         /// Tests the node inject and bind volatile instance.
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestNodeInjectAndBindVolatileInstance()
         {
             ICsClassHierarchy classH = TangFactory.GetTang().GetDefaultClassHierarchy();
@@ -232,14 +231,14 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
             i.BindVolatileInstance(GenericType<TestSetInjection.Float>.Class, new TestSetInjection.Float(42.0001f));
             IList<INumber> actual = ((PoolListClass)i.GetInstance(typeof(PoolListClass))).Numbers;
 
-            Assert.IsTrue(actual.Contains(new TestSetInjection.Integer(42)));
-            Assert.IsTrue(actual.Contains(new TestSetInjection.Float(42.0001f)));
+            Assert.True(actual.Contains(new TestSetInjection.Integer(42)));
+            Assert.True(actual.Contains(new TestSetInjection.Float(42.0001f)));
         }
 
         /// <summary>
         /// Tests the class name inject with named parameter node.
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestClassNameInjectWithNamedParameterNode()
         {
             ICsClassHierarchy classH = TangFactory.GetTang().GetDefaultClassHierarchy();
@@ -257,14 +256,14 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
             i.BindVolatileInstance(GenericType<TestSetInjection.Float>.Class, new TestSetInjection.Float(42.0001f));
             IList<INumber> actual = ((PoolListClass)i.GetInstance(typeof(PoolListClass))).Numbers;
 
-            Assert.IsTrue(actual.Contains(new TestSetInjection.Integer(42)));
-            Assert.IsTrue(actual.Contains(new TestSetInjection.Float(42.0001f)));
+            Assert.True(actual.Contains(new TestSetInjection.Integer(42)));
+            Assert.True(actual.Contains(new TestSetInjection.Float(42.0001f)));
         }
 
         /// <summary>
         /// Tests the name of the class name inject with named parameter.
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestClassNameInjectWithNamedParameterName()
         {
             IList<string> injected = new List<string>();
@@ -279,14 +278,14 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
             i.BindVolatileInstance(GenericType<TestSetInjection.Float>.Class, new TestSetInjection.Float(42.0001f));
             IList<INumber> actual = ((PoolListClass)i.GetInstance(typeof(PoolListClass))).Numbers;
 
-            Assert.IsTrue(actual.Contains(new TestSetInjection.Integer(42)));
-            Assert.IsTrue(actual.Contains(new TestSetInjection.Float(42.0001f)));
+            Assert.True(actual.Contains(new TestSetInjection.Integer(42)));
+            Assert.True(actual.Contains(new TestSetInjection.Float(42.0001f)));
         }
 
         /// <summary>
         /// Tests the object inject with injectable subclasses.
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestObjectInjectWithInjectableSubclasses()
         {
             IList<string> injected = new List<string>();
@@ -303,16 +302,16 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
             
             IList<INumber> actual = ((PoolListClass)i.GetInstance(typeof(PoolListClass))).Numbers;
 
-            Assert.IsTrue(actual.Count == 3);
-            Assert.IsTrue(actual.Contains(new TestSetInjection.Integer1(5)));
-            Assert.IsTrue(actual.Contains(new TestSetInjection.Integer2()));
-            Assert.IsTrue(actual.Contains(new TestSetInjection.Integer3(10)));
+            Assert.True(actual.Count == 3);
+            Assert.True(actual.Contains(new TestSetInjection.Integer1(5)));
+            Assert.True(actual.Contains(new TestSetInjection.Integer2()));
+            Assert.True(actual.Contains(new TestSetInjection.Integer3(10)));
         }
 
         /// <summary>
         /// Tests the object inject with injectable subclasses multiple instances.
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestObjectInjectWithInjectableSubclassesMultipleInstances()
         {
             IList<string> injected = new List<string>();
@@ -329,16 +328,16 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
 
             IList<INumber> actual = ((PoolListClass)i.GetInstance(typeof(PoolListClass))).Numbers;
 
-            Assert.IsTrue(actual.Count == 3);
-            Assert.IsTrue(actual.Contains(new TestSetInjection.Integer1(5)));
-            Assert.IsTrue(actual.Contains(new TestSetInjection.Integer1(5)));
-            Assert.IsTrue(actual.Contains(new TestSetInjection.Float1(12.5f)));
+            Assert.True(actual.Count == 3);
+            Assert.True(actual.Contains(new TestSetInjection.Integer1(5)));
+            Assert.True(actual.Contains(new TestSetInjection.Integer1(5)));
+            Assert.True(actual.Contains(new TestSetInjection.Float1(12.5f)));
         }
 
         /// <summary>
         /// Tests the object inject with injectable subclasses and typeof named parameter.
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestObjectInjectWithInjectableSubclassesAndTypeofNamedParameter()
         {
             IList<string> injected = new List<string>();
@@ -355,16 +354,16 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
 
             IList<INumber> actual = ((PoolListClass)i.GetInstance(typeof(PoolListClass))).Numbers;
 
-            Assert.IsTrue(actual.Count == 3);
-            Assert.IsTrue(actual.Contains(new TestSetInjection.Integer1(5)));
-            Assert.IsTrue(actual.Contains(new TestSetInjection.Integer2()));
-            Assert.IsTrue(actual.Contains(new TestSetInjection.Integer3(10)));
+            Assert.True(actual.Count == 3);
+            Assert.True(actual.Contains(new TestSetInjection.Integer1(5)));
+            Assert.True(actual.Contains(new TestSetInjection.Integer2()));
+            Assert.True(actual.Contains(new TestSetInjection.Integer3(10)));
         }
 
         /// <summary>
         /// Tests the object inject with names configuration builder.
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestObjectInjectWithNames()
         {
             ICsClassHierarchy classH = TangFactory.GetTang().GetDefaultClassHierarchy();
@@ -380,14 +379,14 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
             i.BindVolatileInstance(GenericType<TestSetInjection.Float>.Class, new TestSetInjection.Float(42.0001f));
             IList<INumber> actual = ((PoolListClass)i.GetInstance(typeof(PoolListClass))).Numbers;
 
-            Assert.IsTrue(actual.Contains(new TestSetInjection.Integer(42)));
-            Assert.IsTrue(actual.Contains(new TestSetInjection.Float(42.0001f)));
+            Assert.True(actual.Contains(new TestSetInjection.Integer(42)));
+            Assert.True(actual.Contains(new TestSetInjection.Float(42.0001f)));
         }
 
         /// <summary>
         /// Tests the object inject with type type cs configuration builder.
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestObjectInjectWithTypeType()
         {
             IList<Type> injected = new List<Type>();
@@ -402,14 +401,14 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
             i.BindVolatileInstance(GenericType<TestSetInjection.Float>.Class, new TestSetInjection.Float(42.0001f));
             IList<INumber> actual = ((PoolListClass)i.GetInstance(typeof(PoolListClass))).Numbers;
 
-            Assert.IsTrue(actual.Contains(new TestSetInjection.Integer(42)));
-            Assert.IsTrue(actual.Contains(new TestSetInjection.Float(42.0001f)));
+            Assert.True(actual.Contains(new TestSetInjection.Integer(42)));
+            Assert.True(actual.Contains(new TestSetInjection.Float(42.0001f)));
         }
 
         ////<summary>
         ////Tests the subclass inject with multiple instances.
         ////</summary>
-        ////[TestMethod] 
+        ////[Fact] 
         ////public void TestSubclassInjectWithMultipleInstances()
         ////{
         ////    ICsConfigurationBuilder cb1 = TangFactory.GetTang().NewConfigurationBuilder()
@@ -434,14 +433,14 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
 
         ////    IInjector i = TangFactory.GetTang().NewInjector(cb.Build());
         ////    IList<INumber> actual = ((PoolListClass)i.GetInstance(typeof(PoolListClass))).Numbers;
-        ////    Assert.IsTrue(actual.Count == 7);
-        ////    Assert.IsTrue(actual.Contains(new TestSetInjection.Integer1(42)));
-        ////    Assert.IsTrue(actual.Contains(new TestSetInjection.Integer1(30)));
-        ////    Assert.IsTrue(actual.Contains(new TestSetInjection.Float1(42.0001f)));
-        ////    Assert.IsTrue(actual.Contains(new TestSetInjection.Float1(12.5f)));
-        ////    Assert.IsTrue(actual.Contains(new TestSetInjection.Integer1(5)));
-        ////    Assert.IsTrue(actual.Contains(new TestSetInjection.Integer2()));
-        ////    Assert.IsTrue(actual.Contains(new TestSetInjection.Integer3(10)));
+        ////    Assert.True(actual.Count == 7);
+        ////    Assert.True(actual.Contains(new TestSetInjection.Integer1(42)));
+        ////    Assert.True(actual.Contains(new TestSetInjection.Integer1(30)));
+        ////    Assert.True(actual.Contains(new TestSetInjection.Float1(42.0001f)));
+        ////    Assert.True(actual.Contains(new TestSetInjection.Float1(12.5f)));
+        ////    Assert.True(actual.Contains(new TestSetInjection.Integer1(5)));
+        ////    Assert.True(actual.Contains(new TestSetInjection.Integer2()));
+        ////    Assert.True(actual.Contains(new TestSetInjection.Integer3(10)));
         ////}
     }
 
@@ -521,10 +520,10 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
 
         public void Verify(IList<bool> v)
         {
-            Assert.AreEqual(v.Count, b.Count);
+            Assert.Equal(v.Count, b.Count);
             foreach (bool bv in v)
             {
-                Assert.IsTrue(b.Contains(bv));
+                Assert.True(b.Contains(bv));
             }
         }
 
@@ -546,10 +545,10 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
 
         public void Verify(IList<int> v)
         {
-            Assert.AreEqual(v.Count, l.Count);
+            Assert.Equal(v.Count, l.Count);
             foreach (int iv in v)
             {
-                Assert.IsTrue(l.Contains(iv));
+                Assert.True(l.Contains(iv));
             }
         }
 

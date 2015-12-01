@@ -18,16 +18,15 @@
  */
 
 using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Implementations.Tang;
+using Xunit;
 
 namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
 {
-    [TestClass]
     public class TestMultipleInterface
     {
-        [TestMethod]
+        [Fact]
         public void TestFoo()
         {
             var ch = TangFactory.GetTang().GetDefaultClassHierarchy();

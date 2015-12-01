@@ -19,13 +19,13 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Implementations.InjectionPlan;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
+using Xunit;
 
 namespace Org.Apache.REEF.Tang.Tests.ScenarioTest
 {
@@ -50,18 +50,17 @@ namespace Org.Apache.REEF.Tang.Tests.ScenarioTest
         void OnNext(T value);
     }
 
-    [TestClass]
     public class TestScenarios
     {
-        [TestMethod]
+        [Fact]
         public void TestRuntimeClock()
         {
             var r = (RuntimeClock)TangFactory.GetTang().NewInjector().GetInstance(typeof(RuntimeClock));
-            Assert.IsNotNull(r);
+            Assert.NotNull(r);
             r.CurrentTime();
         }
 
-        [TestMethod]
+        [Fact]
         public void TestEvaluatorRuntime()
         {
             ConfigurationModule module =
@@ -72,10 +71,10 @@ namespace Org.Apache.REEF.Tang.Tests.ScenarioTest
 
             RuntimeClock clock = TangFactory.GetTang().NewInjector(clockConfiguration).GetInstance<RuntimeClock>();
             var r = clock.ClockRuntimeStartHandler.Get();
-            Assert.AreEqual(r.Count, 1);
+            Assert.Equal(r.Count, 1);
             foreach (var e in r)
             {
-                Assert.IsTrue(e is EvaluatorRuntime);
+                Assert.True(e is EvaluatorRuntime);
             }
         }
     }

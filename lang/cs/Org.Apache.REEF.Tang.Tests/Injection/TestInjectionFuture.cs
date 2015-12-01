@@ -17,12 +17,12 @@
  * under the License.
  */
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Implementations.InjectionPlan;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
+using Xunit;
 
 namespace Org.Apache.REEF.Tang.Tests.Injection
 {
@@ -35,19 +35,18 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
     {
     }
 
-    [TestClass]
     public class TestInjectionFuture
     {
-        [TestMethod]
+        [Fact]
         public void TestProactiveFutures()
         {
             IInjector i = TangFactory.GetTang().NewInjector();
             IsFuture.Instantiated = false;
             i.GetInstance(typeof(NeedsFuture));
-            Assert.IsTrue(IsFuture.Instantiated);
+            Assert.True(IsFuture.Instantiated);
         }
 
-        [TestMethod]
+        [Fact]
         public void testFutures() 
         {
             ICsConfigurationBuilder cb = TangFactory.GetTang().NewConfigurationBuilder();
@@ -55,18 +54,18 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
             IInjector i2 = TangFactory.GetTang().NewInjector(cb.Build());
     
             Futurist f = (Futurist)i.GetInstance(typeof(Futurist));
-            Assert.IsTrue(f == f.getMyCar().getDriver());
-            Assert.IsTrue(f.getMyCar() == f.getMyCar().getDriver().getMyCar());
+            Assert.True(f == f.getMyCar().getDriver());
+            Assert.True(f.getMyCar() == f.getMyCar().getDriver().getMyCar());
     
             Futurist f2 = (Futurist)i2.GetInstance(typeof(Futurist));
-            Assert.IsTrue(f2 == f2.getMyCar().getDriver());
-            Assert.IsTrue(f2.getMyCar() == f2.getMyCar().getDriver().getMyCar());
+            Assert.True(f2 == f2.getMyCar().getDriver());
+            Assert.True(f2.getMyCar() == f2.getMyCar().getDriver().getMyCar());
 
-            Assert.IsTrue(f != f2.getMyCar().getDriver());
-            Assert.IsTrue(f.getMyCar() != f2.getMyCar().getDriver().getMyCar());
+            Assert.True(f != f2.getMyCar().getDriver());
+            Assert.True(f.getMyCar() != f2.getMyCar().getDriver().getMyCar());
         }
         
-        [TestMethod]
+        [Fact]
           public void testFutures2()  
           {
             ICsConfigurationBuilder cb = TangFactory.GetTang().NewConfigurationBuilder();
@@ -74,37 +73,37 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
             IInjector i2 = i.ForkInjector(new IConfiguration[] { });
     
             FlyingCar c = (FlyingCar)i.GetInstance(typeof(FlyingCar));
-            Assert.IsTrue(c == c.getDriver().getMyCar());
-            Assert.IsTrue(c.getDriver() == c.getDriver().getMyCar().getDriver());
+            Assert.True(c == c.getDriver().getMyCar());
+            Assert.True(c.getDriver() == c.getDriver().getMyCar().getDriver());
 
             FlyingCar c2 = (FlyingCar)i2.GetInstance(typeof(FlyingCar));
-            Assert.IsTrue(c2 == c2.getDriver().getMyCar());
-            Assert.IsTrue(c2.getDriver() == c2.getDriver().getMyCar().getDriver());
+            Assert.True(c2 == c2.getDriver().getMyCar());
+            Assert.True(c2.getDriver() == c2.getDriver().getMyCar().getDriver());
 
-            Assert.IsTrue(c2 != c.getDriver().getMyCar());
-            Assert.IsTrue(c2.getDriver() != c.getDriver().getMyCar().getDriver());
+            Assert.True(c2 != c.getDriver().getMyCar());
+            Assert.True(c2.getDriver() != c.getDriver().getMyCar().getDriver());
           }
 
-        [TestMethod]
+        [Fact]
           public void TestNamedParameterInjectionFuture() 
           {
             ICsConfigurationBuilder cb = TangFactory.GetTang().NewConfigurationBuilder();
             cb.BindImplementation(GenericType<FlyingCar>.Class, GenericType<FlyingCar>.Class);
             IInjector i = TangFactory.GetTang().NewInjector(cb.Build());
             PickyFuturist f = (PickyFuturist)i.GetInstance(typeof(PickyFuturist));
-            Assert.IsNotNull(f.getMyCar());
+            Assert.NotNull(f.getMyCar());
           }
 
-         [TestMethod]
+         [Fact]
           public void TestNamedParameterInjectionFutureDefaultImpl() 
           {
             ICsConfigurationBuilder cb = TangFactory.GetTang().NewConfigurationBuilder();
             IInjector i = TangFactory.GetTang().NewInjector(cb.Build());
             PickyFuturist f = (PickyFuturist)i.GetInstance(typeof(PickyFuturist));
-            Assert.IsNotNull(f.getMyCar());
+            Assert.NotNull(f.getMyCar());
           }
 
-        [TestMethod]
+        [Fact]
           public void TestNamedParameterInjectionFutureBindImpl()
           {
             ICsConfigurationBuilder cb = TangFactory.GetTang().NewConfigurationBuilder();
@@ -112,23 +111,23 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
             cb.BindNamedParameter<MyFlyingCar, BigFlyingCar, FlyingCar>(GenericType<MyFlyingCar>.Class, GenericType<BigFlyingCar>.Class);
             IInjector i = TangFactory.GetTang().NewInjector(cb.Build());
             PickyFuturist f = (PickyFuturist)i.GetInstance(typeof(PickyFuturist));
-            Assert.IsNotNull((BigFlyingCar)f.getMyCar());
+            Assert.NotNull((BigFlyingCar)f.getMyCar());
           }
 
-        [TestMethod]
+        [Fact]
         public void TestNamedParameterBoundToDelegatingInterface() 
         {
             IInjector i = TangFactory.GetTang().NewInjector();
             C c = (C)i.GetNamedInstance(typeof(AName));
-            Assert.IsNotNull(c);
+            Assert.NotNull(c);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestBoundToDelegatingInterface() 
         {
             IInjector i = TangFactory.GetTang().NewInjector();
             C c = (C)i.GetInstance(typeof(IBinj));
-            Assert.IsNotNull(c);
+            Assert.NotNull(c);
         }
 
         [DefaultImplementation(typeof(Futurist), "Futurist")]

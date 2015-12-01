@@ -18,25 +18,23 @@
  */
 
 using System.Collections.Generic;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
+using Xunit;
 
 namespace Org.Apache.REEF.Tang.Tests.Tang
 {
-    [TestClass]
     public class TestLegacyConstructors
     {   
         static ITang tang;
 
-        [TestInitialize]
-        public void TestSetup()
+        public TestLegacyConstructors()
         {
             tang = TangFactory.GetTang();
         }
 
-        [TestMethod]
+        [Fact]
         public void TestLegacyConstructor()
         {
             ICsConfigurationBuilder cb = tang.NewConfigurationBuilder();
@@ -52,8 +50,8 @@ namespace Org.Apache.REEF.Tang.Tests.Tang
             i.BindVolatileInstance(GenericType<int>.Class, 42);
             i.BindVolatileInstance(GenericType<string>.Class, "The meaning of life is ");
             LegacyConstructor l = i.GetInstance<LegacyConstructor>();
-            Assert.AreEqual(42, l.X);
-            Assert.AreEqual("The meaning of life is ", l.Y);
+            Assert.Equal(42, l.X);
+            Assert.Equal("The meaning of life is ", l.Y);
         }
     }
 

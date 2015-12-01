@@ -18,23 +18,21 @@
  */
 
 using System.Collections.Generic;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.Tang.Examples;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Wake.RX;
+using Xunit;
 
 namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
 {
-    [TestClass]
     public class TestGeneric
     {
-        [ClassInitialize]
-        public static void ClassSetup(TestContext context)
+        public TestGeneric()
         {
             TangImpl.Reset();
         }
 
-        [TestMethod]
+        [Fact]
         public void TestGenericClassWithT()
         {
             List<string> appDlls = new List<string>();

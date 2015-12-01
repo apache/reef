@@ -17,19 +17,18 @@
  * under the License.
  */
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Exceptions;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
+using Xunit;
 
 namespace Org.Apache.REEF.Tang.Tests.Injection
 {
-    [TestClass]
     public class TestAmbigousConstructors
     {
-        [TestMethod]
+        [Fact]
         public void AmbigousConstructorTest()
         {
             // Cannot inject Org.Apache.REEF.Tang.Tests.Injection.AmbigousConstructorClass, Org.Apache.REEF.Tang.Test, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null 
@@ -50,7 +49,7 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
             {
                 System.Diagnostics.Debug.WriteLine(e);
             }
-            Assert.IsNull(obj);
+            Assert.Null(obj);
         }
     }
 

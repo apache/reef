@@ -17,29 +17,28 @@
  * under the License.
  */
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Exceptions;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
+using Xunit;
 
 namespace Org.Apache.REEF.Tang.Tests.Injection
 {
-    [TestClass]
     public class TestMissingParamtersInNested
     {
-        [TestMethod]
+        [Fact]
         public void InnerParameterTest()
         {
             ICsConfigurationBuilder cb = TangFactory.GetTang().NewConfigurationBuilder();
             cb.BindNamedParameter<ReferencedClass.NamedInt, int>(GenericType<ReferencedClass.NamedInt>.Class, "8");
             IInjector i = TangFactory.GetTang().NewInjector(cb.Build());
             var o = i.GetInstance<ReferencedClass>();
-            Assert.IsNotNull(o);
+            Assert.NotNull(o);
         }
 
-        [TestMethod]
+        [Fact]
         public void NestedParameterTest()
         {
             ICsConfigurationBuilder cb = TangFactory.GetTang().NewConfigurationBuilder();
@@ -47,10 +46,10 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
             cb.BindNamedParameter<ReferencedClass.NamedInt, int>(GenericType<ReferencedClass.NamedInt>.Class, "8");
             IInjector i = TangFactory.GetTang().NewInjector(cb.Build());
             var o = i.GetInstance<OuterClass>();
-            Assert.IsNotNull(o);
+            Assert.NotNull(o);
         }
 
-        [TestMethod]
+        [Fact]
         public void MissingAllParameterTest()
         {
             // Cannot inject Org.Apache.REEF.Tang.Tests.Injection.OuterClass, Org.Apache.REEF.Tang.Test, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null: 
@@ -67,10 +66,10 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
             {
                 System.Diagnostics.Debug.WriteLine(e);
             }
-            Assert.IsNull(obj);
+            Assert.Null(obj);
         }
     
-        [TestMethod]
+        [Fact]
         public void MissingInnerParameterTest()
         {
             // Cannot inject Org.Apache.REEF.Tang.Tests.Injection.OuterClass, Org.Apache.REEF.Tang.Test, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null: 
@@ -88,10 +87,10 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
             {
                 System.Diagnostics.Debug.WriteLine(e);
             }
-            Assert.IsNull(obj);
+            Assert.Null(obj);
         }
 
-        [TestMethod]
+        [Fact]
         public void MissingOuterParameterTest()
         {
             // Cannot inject Org.Apache.REEF.Tang.Tests.Injection.OuterClass, Org.Apache.REEF.Tang.Test, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null: 
@@ -109,7 +108,7 @@ namespace Org.Apache.REEF.Tang.Tests.Injection
             {
                 System.Diagnostics.Debug.WriteLine(e);
             }
-            Assert.IsNull(obj);
+            Assert.Null(obj);
         }
     }
 

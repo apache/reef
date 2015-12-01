@@ -18,19 +18,18 @@
  */
 
 using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
+using Xunit;
 
 namespace Org.Apache.REEF.Tang.Tests.ScenarioTest
 {
-    [TestClass]
     public class TestHttpService
     {
-        [TestMethod]
+        [Fact]
         public void HttpEventHandlersTest()
         {
             ConfigurationModule module =
@@ -41,13 +40,13 @@ namespace Org.Apache.REEF.Tang.Tests.ScenarioTest
 
            IConfiguration c = module.Build();
            var service = TangFactory.GetTang().NewInjector(c).GetInstance<HttpServer>();
-           Assert.IsNotNull(service);
+           Assert.NotNull(service);
 
            var j = TangFactory.GetTang().NewInjector(c).GetInstance<HttpRunTimeStartHandler>();
-           Assert.IsNotNull(j);
+           Assert.NotNull(j);
         }
 
-        [TestMethod]
+        [Fact]
         public void RuntimeStartHandlerTest()
         {
             ConfigurationModule module =
@@ -59,17 +58,17 @@ namespace Org.Apache.REEF.Tang.Tests.ScenarioTest
 
             RuntimeClock clock = TangFactory.GetTang().NewInjector(clockConfiguraiton).GetInstance<RuntimeClock>();
             var rh = clock.ClockRuntimeStartHandler.Get();
-            Assert.AreEqual(rh.Count, 1);
+            Assert.Equal(rh.Count, 1);
             foreach (var e in rh)
             {
-                Assert.IsTrue(e is HttpRunTimeStartHandler);
+                Assert.True(e is HttpRunTimeStartHandler);
                 HttpRunTimeStartHandler r = (HttpRunTimeStartHandler)e;
                 var s = r.Server;
-                Assert.AreEqual(s.JettyHandler.HttpeventHanlders.Count, 0); // no handlers are bound
+                Assert.Equal(s.JettyHandler.HttpeventHanlders.Count, 0); // no handlers are bound
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void RuntimeStartStopHandlerTest()
         {
             IConfiguration clockConfiguraiton = HttpRuntimeConfiguration.CONF.Build();
@@ -80,26 +79,26 @@ namespace Org.Apache.REEF.Tang.Tests.ScenarioTest
             HttpRunTimeStartHandler start = null;
             HttpRunTimeStopHandler stop = null;
 
-            Assert.AreEqual(starts.Count, 1);
+            Assert.Equal(starts.Count, 1);
             foreach (var e in starts)
             {
-                Assert.IsTrue(e is HttpRunTimeStartHandler);
+                Assert.True(e is HttpRunTimeStartHandler);
                 start = (HttpRunTimeStartHandler)e;
             }
 
-            Assert.AreEqual(stops.Count, 1);
+            Assert.Equal(stops.Count, 1);
             foreach (var e in stops)
             {
-                Assert.IsTrue(e is HttpRunTimeStopHandler);
+                Assert.True(e is HttpRunTimeStopHandler);
                 stop = (HttpRunTimeStopHandler)e;
             }
 
-            Assert.AreEqual(start.Server, stop.Server);
-            Assert.AreEqual(start.Server.JettyHandler.HttpeventHanlders, stop.Server.JettyHandler.HttpeventHanlders);
-            Assert.AreSame(start.Server, stop.Server); 
+            Assert.Equal(start.Server, stop.Server);
+            Assert.Equal(start.Server.JettyHandler.HttpeventHanlders, stop.Server.JettyHandler.HttpeventHanlders);
+            Assert.Same(start.Server, stop.Server); 
         }
 
-        [TestMethod]
+        [Fact]
         public void RuntimeStartHandlerMergeTest()
         {
             IConfiguration clockConfiguraiton = HttpHandlerConfiguration.CONF
@@ -112,10 +111,10 @@ namespace Org.Apache.REEF.Tang.Tests.ScenarioTest
             RuntimeClock clock = TangFactory.GetTang().NewInjector(clockConfiguraiton).GetInstance<RuntimeClock>();
 
             var rh = clock.ClockRuntimeStartHandler.Get();
-            Assert.AreEqual(rh.Count, 1);
+            Assert.Equal(rh.Count, 1);
             foreach (var e in rh)
             {
-                Assert.IsTrue(e is HttpRunTimeStartHandler);
+                Assert.True(e is HttpRunTimeStartHandler);
                 HttpRunTimeStartHandler r = (HttpRunTimeStartHandler)e;
                 var s = r.Server;
                 foreach (IHttpHandler h in s.JettyHandler.HttpeventHanlders)
