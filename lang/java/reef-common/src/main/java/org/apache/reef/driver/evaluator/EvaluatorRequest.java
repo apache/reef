@@ -21,6 +21,7 @@ package org.apache.reef.driver.evaluator;
 import org.apache.reef.annotations.Provided;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Public;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

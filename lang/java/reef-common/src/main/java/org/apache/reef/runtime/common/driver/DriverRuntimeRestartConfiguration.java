@@ -22,7 +22,8 @@ import org.apache.reef.annotations.audience.ClientSide;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.driver.parameters.*;
 import org.apache.reef.driver.restart.*;
-import org.apache.reef.tang.formats.*;
+import org.apache.reef.tang.formats.ConfigurationModule;
+import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
 
 /**
  * The base configuration module for driver restart configurations of all runtimes.
