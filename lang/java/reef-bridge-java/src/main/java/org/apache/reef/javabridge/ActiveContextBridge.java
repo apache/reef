@@ -47,6 +47,20 @@ public final class ActiveContextBridge extends NativeBridge implements Identifia
     this.evaluatorId = activeContext.getEvaluatorId();
   }
 
+  /**
+   * @return the context ID.
+   */
+  public String getContextId() {
+    return contextId;
+  }
+
+  /**
+   * @return the Evaluator ID of the Evaluator on which the Context runs.
+   */
+  public String getEvaluatorId() {
+    return evaluatorId;
+  }
+
   public void submitTaskString(final String taskConfigurationString) {
     if (taskConfigurationString.isEmpty()) {
       throw new RuntimeException("empty taskConfigurationString provided.");

@@ -39,13 +39,9 @@ namespace Org {
 							_jobjectActiveContext = reinterpret_cast<jobject>(env->NewGlobalRef(jobjectActiveContext));
 
 							jclass jclassActiveContext = env->GetObjectClass(_jobjectActiveContext);
-
-							jfieldID jidContextId = env->GetFieldID(jclassActiveContext, "contextId", "Ljava/lang/String;");
-							_jstringId = reinterpret_cast<jstring>(env->NewGlobalRef(env->GetObjectField(_jobjectActiveContext, jidContextId)));
-
-							jfieldID jidEvaluatorId = env->GetFieldID(jclassActiveContext, "evaluatorId", "Ljava/lang/String;");
-							_jstringEvaluatorId = (jstring)env->GetObjectField(_jobjectActiveContext, jidEvaluatorId);
-							_jstringEvaluatorId = reinterpret_cast<jstring>(env->NewGlobalRef(_jstringEvaluatorId));
+							jmethodID jmidGetContextId = env->GetMethodID(jclassActiveContext, "getContextId", "()Ljava/lang/String;");
+							_jstringId = CommonUtilities::CallGetMethodNewGlobalRef<jstring>(env, _jobjectActiveContext, jmidGetContextId);
+							_jstringEvaluatorId = CommonUtilities::GetJObjectEvaluatorId(env, _jobjectActiveContext, jclassActiveContext);
 
 							ManagedLog::LOGGER->LogStop("ActiveContextClr2Java::ActiveContextClr2Java");
 						}

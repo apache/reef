@@ -87,6 +87,13 @@ public final class FailedContextBridge extends NativeBridge implements ContextBa
     return evaluatorDescriptor;
   }
 
+  /**
+   * @return the parent {@link ActiveContextBridge}.
+   */
+  public ActiveContextBridge getParentContext() {
+    return parentContext;
+  }
+
   public String getEvaluatorDescriptorSring() {
     final String descriptorString = Utilities.getEvaluatorDescriptorString(evaluatorDescriptor);
     LOG.log(Level.INFO, "Failed Context - serialized evaluator descriptor: " + descriptorString);

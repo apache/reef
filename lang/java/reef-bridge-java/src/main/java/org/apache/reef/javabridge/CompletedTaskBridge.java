@@ -45,6 +45,14 @@ public final class CompletedTaskBridge extends NativeBridge implements Message {
     jactiveContext = factory.getActiveContextBridge(completedTask.getActiveContext());
   }
 
+  public String getTaskId() {
+    return taskId;
+  }
+
+  public ActiveContextBridge getActiveContext() {
+    return jactiveContext;
+  }
+
   @Override
   public void close() {
   }

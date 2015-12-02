@@ -38,11 +38,11 @@ namespace Org {
 							_jobjectDriverRestarted = reinterpret_cast<jobject>(env->NewGlobalRef(jdriverRestarted));
 
 							jclass jclassDriverRestarted = env->GetObjectClass(_jobjectDriverRestarted);
-							jfieldID jidExpectedEvaluatorIds = env->GetFieldID(jclassDriverRestarted, "expectedEvaluatorIds", "[Ljava/lang/String;");
-							jfieldID jidResubmissionAttempts = env->GetFieldID(jclassDriverRestarted, "resubmissionAttempts", "I");
+							jmethodID jmidGetExpectedEvaluatorIds = env->GetMethodID(jclassDriverRestarted, "getExpectedEvaluatorIds", "()[Ljava/lang/String;");
+							jmethodID jmidGetResubmissionAttempts = env->GetMethodID(jclassDriverRestarted, "getResubmissionAttempts", "()I");
 
-							_resubmissionAttempts = env->GetIntField(_jobjectDriverRestarted, jidResubmissionAttempts);
-							jobjectArray jevaluatorIds = reinterpret_cast<jobjectArray>(env->NewGlobalRef(env->GetObjectField(_jobjectDriverRestarted, jidExpectedEvaluatorIds)));
+							_resubmissionAttempts = env->CallIntMethod(_jobjectDriverRestarted, jmidGetResubmissionAttempts);
+							jobjectArray jevaluatorIds = CommonUtilities::CallGetMethodNewGlobalRef<jobjectArray>(env, _jobjectDriverRestarted, jmidGetExpectedEvaluatorIds);
 							_startTime = System::DateTime::Now;
 							int count = env->GetArrayLength(jevaluatorIds);
 							_expectedEvaluatorIds = gcnew array<String^>(count);

@@ -20,6 +20,7 @@ package org.apache.reef.javabridge.generic;
 
 import org.apache.reef.annotations.Unstable;
 import org.apache.reef.annotations.audience.DriverSide;
+import org.apache.reef.annotations.audience.Interop;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.driver.restart.DriverRestartCompleted;
 import org.apache.reef.javabridge.NativeBridge;
@@ -30,8 +31,9 @@ import org.apache.reef.javabridge.NativeBridge;
 @Private
 @DriverSide
 @Unstable
+@Interop(CppFiles = { "Clr2JavaImpl.h", "DriverRestartCompletedClr2Java.cpp" },
+    CsFiles = { "IDriverRestartCompletedClr2Java.cs", "DriverRestartCompleted.cs" })
 public final class DriverRestartCompletedBridge extends NativeBridge {
-  // Used by bridge to extract field. Please take this into consideration when changing the name of the field.
   private boolean isTimedOut;
 
   DriverRestartCompletedBridge(final DriverRestartCompleted driverRestartCompleted) {

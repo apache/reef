@@ -21,6 +21,7 @@ package org.apache.reef.javabridge;
 import org.apache.reef.annotations.audience.Interop;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.driver.task.RunningTask;
+import org.apache.reef.io.naming.Identifiable;
 
 import java.util.logging.Logger;
 
@@ -31,7 +32,7 @@ import java.util.logging.Logger;
 @Interop(
     CppFiles = { "Clr2JavaImpl.h", "RunningTaskClr2Java.cpp" },
     CsFiles = { "IRunningTaskClr2Java.cs", "RunningTask.cs" })
-public final class RunningTaskBridge extends NativeBridge {
+public final class RunningTaskBridge extends NativeBridge implements Identifiable {
   private static final Logger LOG = Logger.getLogger(RunningTaskBridge.class.getName());
 
   private final RunningTask jrunningTask;
@@ -42,12 +43,17 @@ public final class RunningTaskBridge extends NativeBridge {
     this.jactiveContext = factory.getActiveContextBridge(runningTask.getActiveContext());
   }
 
-  public String getId() {
-    return jrunningTask.getId();
-  }
-
   public void send(final byte[] message) {
     jrunningTask.send(message);
+  }
+
+  public ActiveContextBridge getActiveContext() {
+    return jactiveContext;
+  }
+
+  @Override
+  public String getId() {
+    return jrunningTask.getId();
   }
 
   @Override

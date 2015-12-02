@@ -48,6 +48,10 @@ public final class FailedTaskBridge extends NativeBridge {
     }
   }
 
+  public ActiveContextBridge getActiveContext() {
+    return jactiveContext;
+  }
+
   public String getFailedTaskString() {
     final String description = jfailedTask.getDescription().isPresent() ?
         jfailedTask.getDescription().get().replace("=", "").replace(",", "") : "";

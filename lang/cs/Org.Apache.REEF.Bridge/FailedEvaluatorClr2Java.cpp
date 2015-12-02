@@ -40,8 +40,7 @@ namespace Org {
 						  _jobjectFailedEvaluator = reinterpret_cast<jobject>(env->NewGlobalRef(jobjectFailedEvaluator));
 
 						  jclass jclassFailedEvaluator = env->GetObjectClass(_jobjectFailedEvaluator);
-						  jfieldID jidEvaluatorId = env->GetFieldID(jclassFailedEvaluator, "evaluatorId", "Ljava/lang/String;");
-						  _jstringId = reinterpret_cast<jstring>(env->NewGlobalRef(env->GetObjectField(_jobjectFailedEvaluator, jidEvaluatorId)));
+						  _jstringId = CommonUtilities::GetJObjectId(env, _jobjectFailedEvaluator, jclassFailedEvaluator);
 						  ManagedLog::LOGGER->LogStop("FailedEvaluatorClr2Java::FailedEvaluatorClr2Java");
 					  }
 
@@ -50,8 +49,8 @@ namespace Org {
 						  JNIEnv *env = RetrieveEnv(_jvm);
 
 						  jclass jclassFailedEvaluator = env->GetObjectClass(_jobjectFailedEvaluator);
-						  jfieldID jidEvaluatorRequestor = env->GetFieldID(jclassFailedEvaluator, "evaluatorRequestorBridge", "Lorg/apache/reef/javabridge/EvaluatorRequestorBridge;");
-						  jobject jobjectEvaluatorRequestor = env->GetObjectField(_jobjectFailedEvaluator, jidEvaluatorRequestor);
+						  jmethodID jmidGetEvaluatorRequestor = env->GetMethodID(jclassFailedEvaluator, "getEvaluatorRequestorBridge", "()Lorg/apache/reef/javabridge/EvaluatorRequestorBridge;");
+						  jobject jobjectEvaluatorRequestor = env->CallObjectMethod(_jobjectFailedEvaluator, jmidGetEvaluatorRequestor);
 						  ManagedLog::LOGGER->LogStop("FailedEvaluatorClr2Java::GetEvaluatorRequestor");
 						  return gcnew EvaluatorRequestorClr2Java(env, jobjectEvaluatorRequestor);
 					  }

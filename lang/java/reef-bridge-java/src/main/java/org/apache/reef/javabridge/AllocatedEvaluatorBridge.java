@@ -147,6 +147,13 @@ public final class AllocatedEvaluatorBridge extends NativeBridge implements Iden
   }
 
   /**
+   * @return the nameServerInfo string.
+   */
+  public String getNameServerInfo() {
+    return nameServerInfo;
+  }
+
+  /**
    * @return the evaluator id.
    */
   @Override

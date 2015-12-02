@@ -36,7 +36,6 @@ import java.util.Set;
     CppFiles = { "Clr2JavaImpl.h", "DriverRestartedClr2Java.cpp" },
     CsFiles = { "IDriverRestartedClr2Java.cs", "DriverRestarted.cs" })
 public final class DriverRestartedBridge extends NativeBridge {
-  // Used by bridge to extract field. Please take this into consideration when changing the name of the field.
   private final String[] expectedEvaluatorIds;
   private final int resubmissionAttempts;
 
