@@ -18,10 +18,9 @@
  */
 package org.apache.reef.vortex.api;
 
+import com.google.common.util.concurrent.FutureCallback;
 import org.apache.reef.annotations.Unstable;
 import org.apache.reef.util.Optional;
-import org.apache.reef.wake.EventHandler;
-import org.apache.reef.wake.impl.ThreadPoolStage;
 
 import java.util.concurrent.*;
 
@@ -35,20 +34,20 @@ public final class VortexFuture<TOutput> implements Future<TOutput> {
   private Optional<TOutput> userResult = null;
   private Exception userException;
   private final CountDownLatch countDownLatch = new CountDownLatch(1);
-  private final ThreadPoolStage<TOutput> stage;
+  private final FutureCallback<TOutput> callbackHandler;
 
   /**
    * Creates a {@link VortexFuture}.
    */
   public VortexFuture() {
-    stage = null;
+    callbackHandler = null;
   }
 
   /**
    * Creates a {@link VortexFuture} with a callback.
    */
-  public VortexFuture(final EventHandler<TOutput> callbackHandler) {
-    stage = new ThreadPoolStage<>(callbackHandler, 1);
+  public VortexFuture(final FutureCallback<TOutput> callbackHandler) {
+    this.callbackHandler = callbackHandler;
   }
 
   /**
@@ -112,8 +111,8 @@ public final class VortexFuture<TOutput> implements Future<TOutput> {
    */
   public void completed(final TOutput result) {
     this.userResult = Optional.ofNullable(result);
-    if (stage != null) {
-      stage.onNext(userResult.get());
+    if (callbackHandler != null) {
+      callbackHandler.onSuccess(userResult.get());
     }
     this.countDownLatch.countDown();
   }
@@ -123,6 +122,9 @@ public final class VortexFuture<TOutput> implements Future<TOutput> {
    */
   public void threwException(final Exception exception) {
     this.userException = exception;
+    if (callbackHandler != null) {
+      callbackHandler.onFailure(exception);
+    }
     this.countDownLatch.countDown();
   }
 }

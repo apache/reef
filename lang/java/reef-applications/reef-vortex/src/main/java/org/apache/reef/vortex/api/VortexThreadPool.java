@@ -18,10 +18,10 @@
  */
 package org.apache.reef.vortex.api;
 
+import com.google.common.util.concurrent.FutureCallback;
 import org.apache.reef.annotations.Unstable;
 import org.apache.reef.util.Optional;
 import org.apache.reef.vortex.driver.VortexMaster;
-import org.apache.reef.wake.EventHandler;
 
 import javax.inject.Inject;
 import java.io.Serializable;
@@ -47,7 +47,7 @@ public final class VortexThreadPool {
    */
   public <TInput extends Serializable, TOutput extends Serializable> VortexFuture<TOutput>
       submit(final VortexFunction<TInput, TOutput> function, final TInput input) {
-    return vortexMaster.enqueueTasklet(function, input, Optional.<EventHandler<TOutput>>empty());
+    return vortexMaster.enqueueTasklet(function, input, Optional.<FutureCallback<TOutput>>empty());
   }
 
   /**
@@ -60,7 +60,7 @@ public final class VortexThreadPool {
    */
   public <TInput extends Serializable, TOutput extends Serializable> VortexFuture<TOutput>
       submit(final VortexFunction<TInput, TOutput> function, final TInput input,
-             final EventHandler<TOutput> callback) {
+             final FutureCallback<TOutput> callback) {
     return vortexMaster.enqueueTasklet(function, input, Optional.of(callback));
   }
 }

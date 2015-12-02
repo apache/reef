@@ -16,17 +16,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.tests.applications.vortex;
+package org.apache.reef.tests.applications.vortex.exception;
 
-import org.apache.reef.tests.applications.vortex.addone.AddOneTest;
-import org.apache.reef.tests.applications.vortex.exception.VortexExceptionTest;
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+import org.apache.reef.vortex.api.VortexFunction;
 
-@RunWith(Suite.class)
-@Suite.SuiteClasses({
-    AddOneTest.class,
-    VortexExceptionTest.class
-    })
-public final class VortexTestSuite {
+/**
+ * A test Vortex function that throws an Exception.
+ */
+public final class ExceptionFunction implements VortexFunction<Integer, Integer> {
+  @Override
+  public Integer call(final Integer integer) throws Exception {
+    throw new RuntimeException("Expected test exception.");
+  }
 }

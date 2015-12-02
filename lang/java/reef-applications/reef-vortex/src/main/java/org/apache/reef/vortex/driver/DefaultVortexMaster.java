@@ -18,12 +18,12 @@
  */
 package org.apache.reef.vortex.driver;
 
+import com.google.common.util.concurrent.FutureCallback;
 import net.jcip.annotations.ThreadSafe;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.util.Optional;
 import org.apache.reef.vortex.api.VortexFunction;
 import org.apache.reef.vortex.api.VortexFuture;
-import org.apache.reef.wake.EventHandler;
 
 import javax.inject.Inject;
 import java.io.Serializable;
@@ -57,7 +57,7 @@ final class DefaultVortexMaster implements VortexMaster {
   @Override
   public <TInput extends Serializable, TOutput extends Serializable> VortexFuture<TOutput>
       enqueueTasklet(final VortexFunction<TInput, TOutput> function, final TInput input,
-                     final Optional<EventHandler<TOutput>> callback) {
+                     final Optional<FutureCallback<TOutput>> callback) {
     // TODO[REEF-500]: Simple duplicate Vortex Tasklet launch.
     final VortexFuture<TOutput> vortexFuture;
     if (callback.isPresent()) {

@@ -16,17 +16,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.tests.applications.vortex;
 
-import org.apache.reef.tests.applications.vortex.addone.AddOneTest;
-import org.apache.reef.tests.applications.vortex.exception.VortexExceptionTest;
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-
-@RunWith(Suite.class)
-@Suite.SuiteClasses({
-    AddOneTest.class,
-    VortexExceptionTest.class
-    })
-public final class VortexTestSuite {
-}
+/**
+ * Vortex Exception test.
+ */
+package org.apache.reef.tests.applications.vortex.exception;

@@ -18,11 +18,11 @@
  */
 package org.apache.reef.tests.applications.vortex.addone;
 
+import com.google.common.util.concurrent.FutureCallback;
 import io.netty.util.internal.ConcurrentSet;
 import org.apache.reef.vortex.api.VortexFuture;
 import org.apache.reef.vortex.api.VortexStart;
 import org.apache.reef.vortex.api.VortexThreadPool;
-import org.apache.reef.wake.EventHandler;
 import org.junit.Assert;
 
 import javax.inject.Inject;
@@ -54,11 +54,16 @@ public final class AddOneCallbackTestStart implements VortexStart {
     final AddOneFunction addOneFunction = new AddOneFunction();
 
     for (final int i : inputVector) {
-      futures.add(vortexThreadPool.submit(addOneFunction, i, new EventHandler<Integer>() {
+      futures.add(vortexThreadPool.submit(addOneFunction, i, new FutureCallback<Integer>() {
         @Override
-        public void onNext(final Integer value) {
-          outputSet.add(value - 1);
+        public void onSuccess(final Integer result) {
+          outputSet.add(result - 1);
           latch.countDown();
+        }
+
+        @Override
+        public void onFailure(final Throwable t) {
+          throw new RuntimeException("Did not expect exception in test.", t);
         }
       }));
     }
