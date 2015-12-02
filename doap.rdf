@@ -23,12 +23,12 @@ under the License.
          xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
          xmlns:asfext="http://projects.apache.org/ns/asfext#"
          xmlns:foaf="http://xmlns.com/foaf/0.1/">
-  <Project rdf:about="http://reef.incubator.apache.org/">
+  <Project rdf:about="http://reef.apache.org/">
     <created>2014-08-12</created>
     <license rdf:resource="http://www.apache.org/licenses/LICENSE-2.0" />
-    <name>Apache REEF (Incubating)</name>
-    <homepage rdf:resource="http://reef.incubator.apache.org/" />
-    <asfext:pmc rdf:resource="http://reef.incubator.apache.org/" />
+    <name>Apache REEF</name>
+    <homepage rdf:resource="http://reef.apache.org/" />
+    <asfext:pmc rdf:resource="http://reef.apache.org/" />
     <shortdesc>
       Apache REEF (Retainable Evaluator Execution Framework) is 
       a scale-out computing fabric that eases the development of Big Data 
@@ -44,8 +44,8 @@ under the License.
       platforms that support a Resource Manager service.
     </description>
     <bug-database rdf:resource="http://issues.apache.org/jira/browse/REEF" />
-    <mailing-list rdf:resource="http://reef.incubator.apache.org/mailing-list.html" />
-    <download-page rdf:resource="http://reef.incubator.apache.org/downloads.html" />
+    <mailing-list rdf:resource="http://reef.apache.org/mailing-list.html" />
+    <download-page rdf:resource="http://reef.apache.org/downloads.html" />
     <programming-language>Java</programming-language>
     <programming-language>C#</programming-language>
     <programming-language>C++</programming-language>
@@ -59,8 +59,8 @@ under the License.
     </release>
     <repository>
       <GitRepository>
-        <location rdf:resource="https://git-wip-us.apache.org/repos/asf/incubator-reef.git"/>
-        <browse rdf:resource="https://git-wip-us.apache.org/repos/asf?p=incubator-reef.git"/>
+        <location rdf:resource="https://git-wip-us.apache.org/repos/asf/reef.git"/>
+        <browse rdf:resource="https://git-wip-us.apache.org/repos/asf?p=reef.git"/>
       </GitRepository>
     </repository>
   </Project>
