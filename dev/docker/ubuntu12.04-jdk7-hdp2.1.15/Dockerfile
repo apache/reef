@@ -16,7 +16,7 @@
 # under the License.
 
 FROM reefrt/ubuntu12.04-jdk7
-MAINTAINER Apache REEF (incubator) <dev@reef.incubator.apache.org>
+MAINTAINER Apache REEF <dev@reef.apache.org>
 
 # HDP 2.1.15
 RUN \

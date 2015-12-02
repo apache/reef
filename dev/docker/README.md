@@ -1,7 +1,7 @@
-Apache REEF (incubator) Docker Tests
+Apache REEF&trade; Docker Tests
 ====================================
 
-[Apache REEF (incubator)](http://reef.incubator.apache.org/) is
+[Apache REEF](http://reef.apache.org/)&trade; is
 an approach to simplify and unify the lower layers of big data systems
 on modern resource managers. This project maintains docker images
 to simulate the target underlying systems as similar as possible.

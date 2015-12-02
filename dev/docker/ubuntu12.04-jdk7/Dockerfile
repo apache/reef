@@ -16,7 +16,7 @@
 # under the License.
 
 FROM ubuntu:12.04
-MAINTAINER Apache REEF (incubator) <dev@reef.incubator.apache.org>
+MAINTAINER Apache REEF <dev@reef.apache.org>
 
 RUN \
   apt-get update && \
