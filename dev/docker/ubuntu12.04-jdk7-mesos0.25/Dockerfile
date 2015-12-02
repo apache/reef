@@ -16,7 +16,7 @@
 # under the License.
 
 FROM reefrt/apache2.7
-MAINTAINER Apache REEF (incubator) <dev@reef.incubator.apache.org>
+MAINTAINER Apache REEF <dev@reef.apache.org>
 
 RUN ln -s /usr/lib/jvm/java-7-oracle/jre/lib/amd64/server/libjvm.so /usr/bin/libjvm.so
 

@@ -16,7 +16,7 @@
 # under the License.
 
 FROM reefrt/ubuntu12.04-jdk7
-MAINTAINER Apache REEF (incubator) <dev@reef.incubator.apache.org>
+MAINTAINER Apache REEF <dev@reef.apache.org>
 
 # Apache Hadoop 2.7.1
 RUN \
