@@ -19,9 +19,9 @@
 package org.apache.reef.vortex.driver;
 
 import org.apache.reef.util.Optional;
+import org.apache.reef.vortex.api.FutureCallback;
 import org.apache.reef.vortex.api.VortexFunction;
 import org.apache.reef.vortex.api.VortexFuture;
-import org.apache.reef.wake.EventHandler;
 import org.junit.Test;
 
 import java.util.*;
@@ -45,19 +45,25 @@ public class DefaultVortexMasterTest {
     final VortexWorkerManager vortexWorkerManager1 = testUtil.newWorker();
     final RunningWorkers runningWorkers = new RunningWorkers(new RandomSchedulingPolicy());
     final PendingTasklets pendingTasklets = new PendingTasklets();
-    final DefaultVortexMaster vortexMaster = new DefaultVortexMaster(runningWorkers, pendingTasklets);
+    final DefaultVortexMaster vortexMaster = new DefaultVortexMaster(runningWorkers, pendingTasklets, 5);
 
     final AtomicBoolean callbackReceived = new AtomicBoolean(false);
     final CountDownLatch latch = new CountDownLatch(1);
 
     vortexMaster.workerAllocated(vortexWorkerManager1);
 
-    final EventHandler<Integer> testCallbackHandler = new EventHandler<Integer>() {
+    final FutureCallback<Integer> testCallbackHandler = new FutureCallback<Integer>() {
       @Override
-      public void onNext(final Integer value) {
+      public void onSuccess(final Integer integer) {
         callbackReceived.set(true);
         latch.countDown();
-      }};
+      }
+
+      @Override
+      public void onFailure(final Throwable throwable) {
+        throw new RuntimeException("Did not expect exception in test.", throwable);
+      }
+    };
 
     final VortexFuture future = vortexMaster.enqueueTasklet(vortexFunction, null, Optional.of(testCallbackHandler));
 
@@ -81,12 +87,12 @@ public class DefaultVortexMasterTest {
     final VortexWorkerManager vortexWorkerManager2 = testUtil.newWorker();
     final RunningWorkers runningWorkers = new RunningWorkers(new RandomSchedulingPolicy());
     final PendingTasklets pendingTasklets = new PendingTasklets();
-    final DefaultVortexMaster vortexMaster = new DefaultVortexMaster(runningWorkers, pendingTasklets);
+    final DefaultVortexMaster vortexMaster = new DefaultVortexMaster(runningWorkers, pendingTasklets, 5);
 
     // Allocate worker & tasklet and schedule
     vortexMaster.workerAllocated(vortexWorkerManager1);
     final VortexFuture future = vortexMaster.enqueueTasklet(vortexFunction, null,
-        Optional.<EventHandler<Integer>>empty());
+        Optional.<FutureCallback<Integer>>empty());
     final ArrayList<Integer> taskletIds1 = launchTasklets(runningWorkers, pendingTasklets, 1);
 
     // Preemption!
@@ -114,7 +120,7 @@ public class DefaultVortexMasterTest {
     final ArrayList<VortexFuture> vortexFutures = new ArrayList<>();
     final RunningWorkers runningWorkers = new RunningWorkers(new RandomSchedulingPolicy());
     final PendingTasklets pendingTasklets = new PendingTasklets();
-    final DefaultVortexMaster vortexMaster = new DefaultVortexMaster(runningWorkers, pendingTasklets);
+    final DefaultVortexMaster vortexMaster = new DefaultVortexMaster(runningWorkers, pendingTasklets, 5);
 
     // Allocate iniital evaluators (will all be preempted later...)
     final List<VortexWorkerManager> initialWorkers = new ArrayList<>();
@@ -129,7 +135,7 @@ public class DefaultVortexMasterTest {
     final int numOfTasklets = 100;
     for (int i = 0; i < numOfTasklets; i++) {
       vortexFutures.add(vortexMaster.enqueueTasklet(testUtil.newFunction(), null,
-          Optional.<EventHandler<Integer>>empty()));
+          Optional.<FutureCallback<Integer>>empty()));
     }
     final ArrayList<Integer> taskletIds1 = launchTasklets(runningWorkers, pendingTasklets, numOfTasklets);
 
@@ -154,6 +160,47 @@ public class DefaultVortexMasterTest {
     for (final VortexFuture vortexFuture : vortexFutures) {
       assertTrue("The VortexFuture should be done", vortexFuture.isDone());
     }
+  }
+
+  /**
+   * Test handling of single tasklet execution with a failure.
+   */
+  @Test(timeout = 10000)
+  public void testTaskletThrowException() throws Exception {
+    final VortexFunction vortexFunction = testUtil.newIntegerFunction();
+    final VortexWorkerManager vortexWorkerManager1 = testUtil.newWorker();
+    final RunningWorkers runningWorkers = new RunningWorkers(new RandomSchedulingPolicy());
+    final PendingTasklets pendingTasklets = new PendingTasklets();
+    final DefaultVortexMaster vortexMaster = new DefaultVortexMaster(runningWorkers, pendingTasklets, 5);
+
+    final AtomicBoolean callbackReceived = new AtomicBoolean(false);
+    final CountDownLatch latch = new CountDownLatch(1);
+
+    vortexMaster.workerAllocated(vortexWorkerManager1);
+
+    final FutureCallback<Integer> testCallbackHandler = new FutureCallback<Integer>() {
+      @Override
+      public void onSuccess(final Integer integer) {
+        throw new RuntimeException("Did not expect success in test.");
+      }
+
+      @Override
+      public void onFailure(final Throwable throwable) {
+        callbackReceived.set(true);
+        latch.countDown();
+      }
+    };
+
+    final VortexFuture future = vortexMaster.enqueueTasklet(vortexFunction, null, Optional.of(testCallbackHandler));
+
+    final ArrayList<Integer> taskletIds = launchTasklets(runningWorkers, pendingTasklets, 1);
+    for (final int taskletId : taskletIds) {
+      vortexMaster.taskletErrored(vortexWorkerManager1.getId(), taskletId, new RuntimeException("Test exception"));
+    }
+
+    assertTrue("The VortexFuture should be done", future.isDone());
+    latch.await();
+    assertTrue("Callback should have been received", callbackReceived.get());
   }
 
   /**

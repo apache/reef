@@ -23,6 +23,8 @@ import org.apache.reef.vortex.api.VortexFunction;
 import org.apache.reef.vortex.api.VortexFuture;
 
 import java.io.Serializable;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.mockito.Mockito.mock;
@@ -31,9 +33,10 @@ import static org.mockito.Mockito.when;
 /**
  * Utility methods for tests.
  */
-public class TestUtil {
+public final class TestUtil {
   private final AtomicInteger taskletId = new AtomicInteger(0);
   private final AtomicInteger workerId = new AtomicInteger(0);
+  private final Executor executor = Executors.newFixedThreadPool(5);
 
   /**
    * @return a new mocked worker.
@@ -49,7 +52,7 @@ public class TestUtil {
    * @return a new dummy tasklet.
    */
   public Tasklet newTasklet() {
-    return new Tasklet(taskletId.getAndIncrement(), null, null, new VortexFuture());
+    return new Tasklet(taskletId.getAndIncrement(), null, null, new VortexFuture(executor));
   }
 
   /**

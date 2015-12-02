@@ -16,17 +16,25 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.tests.applications.vortex;
+package org.apache.reef.vortex.api;
 
-import org.apache.reef.tests.applications.vortex.addone.AddOneTest;
-import org.apache.reef.tests.applications.vortex.exception.VortexExceptionTest;
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+/**
+ * A callback for accepting the results of a {@link VortexFuture} computation asynchronously.
+ * Only one of either {@link FutureCallback#onSuccess} or {@link FutureCallback#onFailure(Throwable)}
+ * will be invoked.
+ * Based on Google Guava's FutureCallback.
+ */
+public interface FutureCallback<V> {
 
-@RunWith(Suite.class)
-@Suite.SuiteClasses({
-    AddOneTest.class,
-    VortexExceptionTest.class
-    })
-public final class VortexTestSuite {
+  /**
+   * Invoked with the result of the Tasklet computation on success.
+   * @param result the result.
+   */
+  void onSuccess(final V result);
+
+  /**
+   * Invoked with the error of the Tasklet computation on failure.
+   * @param t the error.
+   */
+  void onFailure(final Throwable t);
 }

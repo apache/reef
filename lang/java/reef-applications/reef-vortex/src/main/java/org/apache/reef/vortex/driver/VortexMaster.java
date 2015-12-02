@@ -22,9 +22,9 @@ import org.apache.reef.annotations.Unstable;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.tang.annotations.DefaultImplementation;
 import org.apache.reef.util.Optional;
+import org.apache.reef.vortex.api.FutureCallback;
 import org.apache.reef.vortex.api.VortexFunction;
 import org.apache.reef.vortex.api.VortexFuture;
-import org.apache.reef.wake.EventHandler;
 
 import java.io.Serializable;
 
@@ -41,7 +41,7 @@ public interface VortexMaster {
    */
   <TInput extends Serializable, TOutput extends Serializable> VortexFuture<TOutput>
       enqueueTasklet(final VortexFunction<TInput, TOutput> vortexFunction, final TInput input,
-                     final Optional<EventHandler<TOutput>> callback);
+                     final Optional<FutureCallback<TOutput>> callback);
 
   /**
    * Call this when a new worker is up and running.
