@@ -44,4 +44,9 @@ public interface EvaluatorDescriptor {
    * @return the number of virtual core allocated to this Evaluator.
    */
   int getNumberOfCores();
+
+  /**
+   * @return name of the runtime that was used to allocate this Evaluator
+   */
+  String getRuntimeName();
 }

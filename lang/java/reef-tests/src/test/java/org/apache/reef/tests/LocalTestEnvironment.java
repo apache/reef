@@ -22,6 +22,7 @@ import org.apache.reef.io.ConfigurableDirectoryTempFileCreator;
 import org.apache.reef.io.TempFileCreator;
 import org.apache.reef.io.parameters.TempFileRootFolder;
 import org.apache.reef.runtime.local.client.LocalRuntimeConfiguration;
+import org.apache.reef.runtime.local.driver.RuntimeIdentifier;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Configurations;
 import org.apache.reef.tang.JavaConfigurationBuilder;
@@ -73,5 +74,10 @@ public final class LocalTestEnvironment extends TestEnvironmentBase implements T
   @Override
   public int getTestTimeout() {
     return 60000; // 1 min.
+  }
+
+  @Override
+  public String getRuntimeName() {
+    return RuntimeIdentifier.RUNTIME_NAME;
   }
 }

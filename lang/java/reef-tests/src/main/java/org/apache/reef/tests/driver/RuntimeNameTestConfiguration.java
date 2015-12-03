@@ -16,31 +16,23 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-[
-  {
-    "namespace": "org.apache.reef.webserver",
-    "type": "record",
-    "name": "AvroEvaluatorInfo",
-    "fields": [
-      { "name": "evaluatorId", "type": "string" },
-      { "name": "nodeId", "type": "string" },
-      { "name": "nodeName", "type": "string" },
-      { "name": "memory", "type": "int" },
-      { "name": "type", "type": "string" },
-      { "name": "internetAddress", "type": "string" },
-      { "name": "runtimeName", "type": "string" }
-    ]
-  },
-  {
-    "namespace": "org.apache.reef.webserver",
-    "type": "record",
-    "name": "AvroEvaluatorsInfo",
-    "fields": [
-      {
-        "name": "evaluatorsInfo",
-        "type": { "type": "array", "items": "AvroEvaluatorInfo" }
-      }
-    ]
-  }
-]
+package org.apache.reef.tests.driver;
 
+import org.apache.reef.tang.annotations.Name;
+import org.apache.reef.tang.annotations.NamedParameter;
+import org.apache.reef.tang.formats.ConfigurationModule;
+import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
+import org.apache.reef.tang.formats.RequiredParameter;
+
+public final class RuntimeNameTestConfiguration extends ConfigurationModuleBuilder {
+
+  public static final RequiredParameter<String> RUNTIME_NAME = new RequiredParameter<>();
+  public static final ConfigurationModule CONF = new RuntimeNameTestConfiguration()
+      .bindNamedParameter(RuntimeName.class, RUNTIME_NAME)
+      .build();
+
+  @NamedParameter(doc = "The runtime name")
+  public static class RuntimeName implements Name<String> {
+  }
+
+}

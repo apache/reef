@@ -19,6 +19,7 @@
 package org.apache.reef.tests;
 
 import org.apache.reef.runtime.yarn.client.YarnClientConfiguration;
+import org.apache.reef.runtime.yarn.driver.RuntimeIdentifier;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.exceptions.BindException;
 
@@ -56,5 +57,9 @@ public final class YarnTestEnvironment extends TestEnvironmentBase implements Te
     return 300000; // 5 minutes
   }
 
+  @Override
+  public String getRuntimeName() {
+    return RuntimeIdentifier.RUNTIME_NAME;
+  }
 
 }

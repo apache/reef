@@ -16,46 +16,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.runtime.common.driver.resourcemanager;
+package org.apache.reef.runtime.mesos.driver;
 
-import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
-import org.apache.reef.util.Optional;
 
 /**
- * An interface capturing the characteristics of a resource event.
+ * Runtime Identifier Implementation.
  */
-@DriverSide
 @Private
-public interface ResourceEvent {
+public final class RuntimeIdentifier {
+  public static final String RUNTIME_NAME = "Mesos";
 
-  /**
-   * @return Id of the resource
-   */
-  String getIdentifier();
-
-  /**
-   * @return Memory size of the resource, in MB
-   */
-  int getResourceMemory();
-
-  /**
-   * @return Id of the node where resource is
-   */
-  String getNodeId();
-
-  /**
-   * @return Number of virtual CPU cores on the resource
-   */
-  Optional<Integer> getVirtualCores();
-
-  /**
-   * @return Rack name of the resource
-   */
-  Optional<String> getRackName();
-
-  /**
-   * @return Runtime name of the resource
-   */
-  String getRuntimeName();
+  private RuntimeIdentifier() { }
 }

@@ -35,15 +35,18 @@ final class EvaluatorDescriptorImpl implements EvaluatorDescriptor {
   private final int megaBytes;
   private final int numberOfCores;
   private EvaluatorProcess process;
+  private final String runtimeName;
 
   EvaluatorDescriptorImpl(final NodeDescriptor nodeDescriptor,
                           final int megaBytes,
                           final int numberOfCores,
-                          final EvaluatorProcess process) {
+                          final EvaluatorProcess process,
+                          final String runtimeName) {
     this.nodeDescriptor = nodeDescriptor;
     this.megaBytes = megaBytes;
     this.numberOfCores = numberOfCores;
     this.process = process;
+    this.runtimeName = runtimeName;
   }
 
   @Override
@@ -71,5 +74,10 @@ final class EvaluatorDescriptorImpl implements EvaluatorDescriptor {
   @Override
   public int getNumberOfCores() {
     return this.numberOfCores;
+  }
+
+  @Override
+  public String getRuntimeName() {
+    return this.runtimeName;
   }
 }

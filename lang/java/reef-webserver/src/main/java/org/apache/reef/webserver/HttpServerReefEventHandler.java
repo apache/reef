@@ -280,6 +280,8 @@ public final class HttpServerReefEventHandler implements HttpHandler {
         writer.write("<br/>");
         writer.println("Evaluator Type: " + evaluatorDescriptor.getProcess());
         writer.write("<br/>");
+        writer.println("Evaluator Runtime Name: " + evaluatorDescriptor.getRuntimeName());
+        writer.write("<br/>");
       } else {
         writer.println("Incorrect Evaluator Id: " + id);
       }

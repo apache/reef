@@ -32,6 +32,7 @@ public final class ResourceEventImpl implements ResourceAllocationEvent, Resourc
   private final String nodeId;
   private final Optional<Integer> virtualCores;
   private final Optional<String> rackName;
+  private final String runtimeName;
 
 
   private ResourceEventImpl(final Builder builder) {
@@ -40,6 +41,7 @@ public final class ResourceEventImpl implements ResourceAllocationEvent, Resourc
     this.nodeId = builder.recovery ? builder.nodeId : BuilderUtils.notNull(builder.nodeId);
     this.virtualCores = Optional.ofNullable(builder.virtualCores);
     this.rackName = Optional.ofNullable(builder.rackName);
+    this.runtimeName = BuilderUtils.notNull(builder.runtimeName);
   }
 
   @Override
@@ -67,6 +69,11 @@ public final class ResourceEventImpl implements ResourceAllocationEvent, Resourc
     return rackName;
   }
 
+  @Override
+  public String getRuntimeName() {
+    return runtimeName;
+  }
+
   public static Builder newAllocationBuilder() {
     return new Builder(false);
   }
@@ -86,6 +93,7 @@ public final class ResourceEventImpl implements ResourceAllocationEvent, Resourc
     private String nodeId;
     private Integer virtualCores;
     private String rackName;
+    private String runtimeName;
 
     private Builder(final boolean recovery){
       this.recovery = recovery;
@@ -128,6 +136,14 @@ public final class ResourceEventImpl implements ResourceAllocationEvent, Resourc
      */
     public Builder setRackName(final String rackName) {
       this.rackName = rackName;
+      return this;
+    }
+
+    /**
+     * @see ResourceAllocationEvent#getRuntimeName()
+     */
+    public Builder setRuntimeName(final String runtimeName) {
+      this.runtimeName = runtimeName;
       return this;
     }
 

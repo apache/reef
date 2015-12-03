@@ -16,31 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-[
-  {
-    "namespace": "org.apache.reef.webserver",
-    "type": "record",
-    "name": "AvroEvaluatorInfo",
-    "fields": [
-      { "name": "evaluatorId", "type": "string" },
-      { "name": "nodeId", "type": "string" },
-      { "name": "nodeName", "type": "string" },
-      { "name": "memory", "type": "int" },
-      { "name": "type", "type": "string" },
-      { "name": "internetAddress", "type": "string" },
-      { "name": "runtimeName", "type": "string" }
-    ]
-  },
-  {
-    "namespace": "org.apache.reef.webserver",
-    "type": "record",
-    "name": "AvroEvaluatorsInfo",
-    "fields": [
-      {
-        "name": "evaluatorsInfo",
-        "type": { "type": "array", "items": "AvroEvaluatorInfo" }
-      }
-    ]
-  }
-]
-
+/**
+ * Test for Driver start mechanism by launching noop driver.
+ */
+package org.apache.reef.tests.runtimename;
