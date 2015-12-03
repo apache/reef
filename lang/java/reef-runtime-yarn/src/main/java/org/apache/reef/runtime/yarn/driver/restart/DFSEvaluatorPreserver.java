@@ -28,7 +28,7 @@ import org.apache.reef.driver.parameters.DriverJobSubmissionDirectory;
 import org.apache.reef.driver.parameters.FailDriverOnEvaluatorLogErrors;
 import org.apache.reef.exception.DriverFatalRuntimeException;
 import org.apache.reef.runtime.common.driver.EvaluatorPreserver;
-import org.apache.reef.runtime.common.driver.evaluator.EvaluatorManager;
+import org.apache.reef.runtime.common.evaluator.parameters.ApplicationIdentifier;
 import org.apache.reef.tang.annotations.Parameter;
 
 import javax.inject.Inject;
@@ -62,9 +62,11 @@ public final class DFSEvaluatorPreserver implements EvaluatorPreserver, AutoClos
 
   private boolean writerClosed = false;
 
-  @Inject DFSEvaluatorPreserver(@Parameter(FailDriverOnEvaluatorLogErrors.class)
+  @Inject DFSEvaluatorPreserver(@Parameter(ApplicationIdentifier.class)
+                                final String applicationIdentifier,
+                                @Parameter(FailDriverOnEvaluatorLogErrors.class)
                                 final boolean failDriverOnEvaluatorLogErrors) {
-    this(failDriverOnEvaluatorLogErrors, "/ReefApplications/" + EvaluatorManager.getJobIdentifier());
+    this(failDriverOnEvaluatorLogErrors, "/ReefApplications/" + applicationIdentifier);
   }
 
   @Inject

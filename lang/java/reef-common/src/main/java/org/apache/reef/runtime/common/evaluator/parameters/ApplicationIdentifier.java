@@ -28,7 +28,7 @@ import org.apache.reef.tang.annotations.NamedParameter;
  * <p>
  * In YARN, this is the applicationID assigned by the resource manager.
  */
-@NamedParameter(doc = "The RM application/job identifier.")
+@NamedParameter(doc = "The RM application/job identifier.", default_value = "REEF_LOCAL_RUNTIME")
 public final class ApplicationIdentifier implements Name<String> {
   private ApplicationIdentifier() {
   }
