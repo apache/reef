@@ -17,17 +17,17 @@
  * under the License.
  */
 var releaseDirect = {
-    "0.10.0-incubating": "http://www.apache.org/dist/incubator/reef/0.10.0-incubating/apache-reef-0.10.0-incubating.tar.gz",
-    "0.11.0-incubating": "http://www.apache.org/dist/incubator/reef/0.11.0-incubating/apache-reef-0.11.0-incubating.tar.gz",
-    "0.12.0-incubating": "http://www.apache.org/dist/incubator/reef/0.12.0-incubating/apache-reef-0.12.0-incubating.tar.gz",
-    "0.13.0-incubating": "http://www.apache.org/dist/incubator/reef/0.13.0-incubating/apache-reef-0.13.0-incubating.tar.gz"
+    "0.10.0-incubating": "http://www.apache.org/dist/reef/0.10.0-incubating/apache-reef-0.10.0-incubating.tar.gz",
+    "0.11.0-incubating": "http://www.apache.org/dist/reef/0.11.0-incubating/apache-reef-0.11.0-incubating.tar.gz",
+    "0.12.0-incubating": "http://www.apache.org/dist/reef/0.12.0-incubating/apache-reef-0.12.0-incubating.tar.gz",
+    "0.13.0-incubating": "http://www.apache.org/dist/reef/0.13.0-incubating/apache-reef-0.13.0-incubating.tar.gz"
 };
 
 var releaseMirror = {
-    "0.10.0-incubating": "http://www.apache.org/dyn/closer.cgi/incubator/reef/0.10.0-incubating",
-    "0.11.0-incubating": "http://www.apache.org/dyn/closer.cgi/incubator/reef/0.11.0-incubating",
-    "0.12.0-incubating": "http://www.apache.org/dyn/closer.cgi/incubator/reef/0.12.0-incubating",
-    "0.13.0-incubating": "http://www.apache.org/dyn/closer.cgi/incubator/reef/0.13.0-incubating"
+    "0.10.0-incubating": "http://www.apache.org/dyn/closer.cgi/reef/0.10.0-incubating",
+    "0.11.0-incubating": "http://www.apache.org/dyn/closer.cgi/reef/0.11.0-incubating",
+    "0.12.0-incubating": "http://www.apache.org/dyn/closer.cgi/reef/0.12.0-incubating",
+    "0.13.0-incubating": "http://www.apache.org/dyn/closer.cgi/reef/0.13.0-incubating"
 };
 
 var releaseSha512 = {

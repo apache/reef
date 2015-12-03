@@ -82,7 +82,7 @@ under the License.
                 <version>1.1</version>
                 <configuration>
                     <tryUpdate>true</tryUpdate>
-                    <pubScmUrl>scm:svn:https://svn.apache.org/repos/asf/incubator/reef/</pubScmUrl>
+                    <pubScmUrl>scm:svn:https://svn.apache.org/repos/asf/reef/</pubScmUrl>
                     <ignorePathsToDelete>
                         <ignorePathToDelete>apidocs/**</ignorePathToDelete>
                     </ignorePathsToDelete>

@@ -544,7 +544,7 @@ Number of plans:1
 
 InjectionPlan objects can be serialized to protocol buffers.  The following file documents their format:
 
-https://github.com/apache/incubator-reef/blob/master/lang/java/reef-tang/tang/src/main/proto/injection_plan.proto
+https://github.com/apache/reef/blob/master/lang/java/reef-tang/tang/src/main/proto/injection_plan.proto
 
 ### ClassHierarchy
 
@@ -554,9 +554,9 @@ Internally, in the example above, TypeHierarchy walks the class definition for T
 
 ClassHierarchy objects can be serialized to protocol buffers.  The following file documents their format:
 
-https://github.com/apache/incubator-reef/blob/master/lang/java/reef-tang/tang/src/main/proto/class_hierarchy.proto
+https://github.com/apache/reef/blob/master/lang/java/reef-tang/tang/src/main/proto/class_hierarchy.proto
 
 The java interfaces are available in this package:
 
-https://github.com/apache/incubator-reef/tree/master/lang/java/reef-tang/tang/src/main/java/org/apache/reef/tang/types
+https://github.com/apache/reef/tree/master/lang/java/reef-tang/tang/src/main/java/org/apache/reef/tang/types
 

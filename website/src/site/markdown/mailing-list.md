@@ -27,14 +27,14 @@ under the License.
 
 This gets traffic from both the JIRAs filed on REEF as well as the general development discussions	
 
-- [Subscribe](mailto:dev-subscribe@reef.incubator.apache.org) (dev-subscribe@reef.incubator.apache.org)
-- [Unsusbscribe](mailto:dev-unsubscribe@reef.incubator.apache.org) (dev-unsubscribe@reef.incubator.apache.org)
-- [Archive](http://mail-archives.apache.org/mod_mbox/incubator-reef-dev/)
+- [Subscribe](mailto:dev-subscribe@reef.apache.org) (dev-subscribe@reef.apache.org)
+- [Unsusbscribe](mailto:dev-unsubscribe@reef.apache.org) (dev-unsubscribe@reef.apache.org)
+- [Archive](http://mail-archives.apache.org/mod_mbox/reef-dev/)
 
 ###<a name="commits"></a>Commits Mailing List
 
 This email list contains gets all commits made to REEF
 
-- [Subscribe](mailto:commits-subscribe@reef.incubator.apache.org) (commits-subscribe@reef.incubator.apache.org)
-- [Unsusbscribe](mailto:commits-unsubscribe@reef.incubator.apache.org) (commits-unsubscribe@reef.incubator.apache.org)
-- [Archive](http://mail-archives.apache.org/mod_mbox/incubator-reef-commits/)
+- [Subscribe](mailto:commits-subscribe@reef.apache.org) (commits-subscribe@reef.apache.org)
+- [Unsusbscribe](mailto:commits-unsubscribe@reef.apache.org) (commits-unsubscribe@reef.apache.org)
+- [Archive](http://mail-archives.apache.org/mod_mbox/reef-commits/)

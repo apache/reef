@@ -31,18 +31,18 @@ Choose a release version:
 <ul id="listRelease">
     <li>
         Download directly:
-        <a id="directLink" href="http://www.apache.org/dist/incubator/reef/0.13.0-incubating/apache-reef-0.13.0-incubating.tar.gz">
+        <a id="directLink" href="http://www.apache.org/dist/reef/0.13.0-incubating/apache-reef-0.13.0-incubating.tar.gz">
             apache-reef-0.13.0-incubating.tar.gz
         </a>
     </li>
     <li>
         Download from mirror:
-        <a id="mirrorLink" href="http://www.apache.org/dyn/closer.cgi/incubator/reef/0.13.0-incubating">
+        <a id="mirrorLink" href="http://www.apache.org/dyn/closer.cgi/reef/0.13.0-incubating">
         Closest Apache Mirror</a>
     </li>
     <li>
         Verification:
-        <a id="verificationLink" href="http://www.apache.org/dist/incubator/reef/0.13.0-incubating/">
+        <a id="verificationLink" href="http://www.apache.org/dist/reef/0.13.0-incubating/">
             Signatures and checksums
         </a>
         <br />
@@ -57,13 +57,13 @@ Choose a release version:
 
 If you are interested in working with the newest under-development code or contributing to REEF, you can also check out the master branch from Git:
 
-    $ git clone git://git.apache.org/incubator-reef.git
+    $ git clone git://git.apache.org/reef.git
 
 ##How to verify the integrity of the files
 
 It is essential that you verify the integrity of the downloaded files using the PGP or MD5 signatures. Please read [Verifying Apache HTTP Server Releases](http://www.apache.org/info/verification.html) for more information on why you should verify our releases.
 
-The PGP signatures can be verified using [PGP](http://www.pgpi.org/) or [GPG](https://www.gnupg.org/). First download the [KEYS](http://www.apache.org/dist/incubator/reef/KEYS) as well as the `*.asc` signature file for the relevant distribution. Make sure you get these files from the [main distribution directory](http://www.apache.org/dist/incubator/reef/) rather than from a mirror. Then verify the signatures using one of the following sets of commands:
+The PGP signatures can be verified using [PGP](http://www.pgpi.org/) or [GPG](https://www.gnupg.org/). First download the [KEYS](http://www.apache.org/dist/reef/KEYS) as well as the `*.asc` signature file for the relevant distribution. Make sure you get these files from the [main distribution directory](http://www.apache.org/dist/reef/) rather than from a mirror. Then verify the signatures using one of the following sets of commands:
 
     % pgpk -a KEYS
     % pgpv downloaded_file.asc

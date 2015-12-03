@@ -50,7 +50,7 @@ Core API
 
 ### Event Handlers
 
-Wake provides two APIs for event handler implementations.  The first is the [EventHandler](https://github.com/apache/incubator-reef/blob/master/reef-wake/wake/src/main/java/org/apache/reef/wake/EventHandler.java) interface:
+Wake provides two APIs for event handler implementations.  The first is the [EventHandler](https://github.com/apache/reef/blob/master/lang/java/reef-wake/wake/src/main/java/org/apache/reef/wake/EventHandler.java) interface:
 
     public interface EventHandler<T> {
       void onNext(T value);
@@ -58,7 +58,7 @@ Wake provides two APIs for event handler implementations.  The first is the [Eve
 
 Callers of `onNext()` should assume that it is asynchronous, and that it always succeeds.  Unrecoverable errors should be reported by throwing a runtime exception (which should not be caught, and will instead take down the process).  Recoverable errors are reported by invoking an event handler that contains the appropriate error handling logic.
 
-The latter approach can be implemented by registering separate event handlers for each type of error.  However, for convenience, it is formalized in Wake's simplified version of the Rx [Observer](https://github.com/apache/incubator-reef/blob/master/reef-wake/wake/src/main/java/org/apache/reef/wake/rx/Observer.java) interface:
+The latter approach can be implemented by registering separate event handlers for each type of error.  However, for convenience, it is formalized in Wake's simplified version of the Rx [Observer](https://github.com/apache/reef/blob/master/lang/java/reef-wake/wake/src/main/java/org/apache/reef/wake/rx/Observer.java) interface:
     
     public interface Observer<T> {
       void onNext(final T value);
@@ -74,15 +74,15 @@ We chose these invariants because they are simple and easy to enforce.  In most 
 
 ### Stages
 
-Wake Stages are responsible for resource management.  The base [Stage](https://github.com/apache/incubator-reef/blob/master/reef-wake/wake/src/main/java/org/apache/reef/wake/Stage.java) interface is fairly simple:
+Wake Stages are responsible for resource management.  The base [Stage](https://github.com/apache/reef/blob/master/lang/java/reef-wake/wake/src/main/java/org/apache/reef/wake/Stage.java) interface is fairly simple:
 
     public interface Stage extends AutoCloseable { }
 
-The only method it contains is `close()` from auto-closable.  This reflects the fact that Wake stages can either contain `EventHandler`s, as [EStage](https://github.com/apache/incubator-reef/blob/master/reef-wake/wake/src/main/java/org/apache/reef/wake/EStage.java) implementations do:
+The only method it contains is `close()` from auto-closable.  This reflects the fact that Wake stages can either contain `EventHandler`s, as [EStage](https://github.com/apache/reef/blob/master/lang/java/reef-wake/wake/src/main/java/org/apache/reef/wake/EStage.java) implementations do:
 
     public interface EStage<T> extends EventHandler<T>, Stage { }
 
-or they can contain `Observable`s, as [RxStage](https://github.com/apache/incubator-reef/blob/master/reef-wake/wake/src/main/java/org/apache/reef/wake/rx/RxStage.java) implementations do:
+or they can contain `Observable`s, as [RxStage](https://github.com/apache/reef/blob/master/lang/java/reef-wake/wake/src/main/java/org/apache/reef/wake/rx/RxStage.java) implementations do:
 
     public interface RxStage<T> extends Observer<T>, Stage { }
 

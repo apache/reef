@@ -51,8 +51,8 @@ under the License.
     <href></href>
   </bannerLeft>
   <bannerRight>
-    <src>ApacheIncubator.png</src>
-    <href>http://incubator.apache.org/</href>
+    <src>apache-feather.gif</src>
+    <href>http://apache.org/</href>
   </bannerRight>
   
   <version position="none"/>
@@ -76,9 +76,8 @@ under the License.
 	      <item name="Apache REEF" href="index.html"/>
 	    </breadcrumbs>
         <links>
-            <item name="Apache REEF GitHub" href="https://github.com/apache/incubator-reef"/>
+            <item name="Apache REEF GitHub" href="https://github.com/apache/reef"/>
 	        <item name="Apache" href="http://www.apache.org"/>
-	        <item name="Apache Incubator" href="http://incubator.apache.org/"/>
         </links>
         <menu name="Apache REEF">
             <item name="Overview" href="index.html"/>
@@ -114,7 +113,6 @@ under the License.
         <menu name="ASF">
             <item name="Apache Software Foundation" href="http://www.apache.org/foundation/"/>
             <item name="How Apache Works" href="http://www.apache.org/foundation/how-it-works.html"/>
-            <item name="Apache Incubator" href="http://incubator.apache.org/"/>
             <item name="Apache License" href="http://www.apache.org/licenses/LICENSE-2.0.html"/>
             <item name="Sponsorship" href="http://www.apache.org/foundation/sponsorship.html"/>
             <item name="Thanks" href="http://www.apache.org/foundation/thanks.html"/>
