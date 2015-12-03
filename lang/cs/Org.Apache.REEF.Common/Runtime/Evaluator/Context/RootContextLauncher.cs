@@ -56,7 +56,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
             set { _rootContextConfiguration = value; }
         }
 
-        public ContextRuntime GetRootContext()
+        internal ContextRuntime GetRootContext()
         {
             if (_rootContext == null)
             {
