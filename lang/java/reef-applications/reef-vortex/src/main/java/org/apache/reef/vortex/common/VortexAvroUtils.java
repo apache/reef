@@ -45,6 +45,9 @@ public final class VortexAvroUtils {
     switch (vortexRequest.getType()) {
     case ExecuteTasklet:
       final TaskletExecutionRequest taskletExecutionRequest = (TaskletExecutionRequest) vortexRequest;
+      // The following TODOs are sub-issues of cleaning up Serializable in Vortex (REEF-504).
+      // The purpose is to reduce serialization cost, which leads to bottleneck in Master.
+      // Temporarily those are left as TODOs, but will be addressed in separate PRs.
       // TODO[REEF-1005]: Allow custom codecs for input/output data in Vortex.
       final byte[] serializedInput = SerializationUtils.serialize(taskletExecutionRequest.getInput());
       // TODO[REEF-1003]: Use reflection instead of serialization when launching VortexFunction
