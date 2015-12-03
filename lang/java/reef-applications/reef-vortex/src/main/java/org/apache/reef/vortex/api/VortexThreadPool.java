@@ -18,7 +18,6 @@
  */
 package org.apache.reef.vortex.api;
 
-import com.google.common.util.concurrent.FutureCallback;
 import org.apache.reef.annotations.Unstable;
 import org.apache.reef.util.Optional;
 import org.apache.reef.vortex.driver.VortexMaster;

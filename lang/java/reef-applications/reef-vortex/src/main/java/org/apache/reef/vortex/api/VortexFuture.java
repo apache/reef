@@ -18,7 +18,6 @@
  */
 package org.apache.reef.vortex.api;
 
-import com.google.common.util.concurrent.FutureCallback;
 import org.apache.reef.annotations.Unstable;
 import org.apache.reef.util.Optional;
 
@@ -112,7 +111,12 @@ public final class VortexFuture<TOutput> implements Future<TOutput> {
   public void completed(final TOutput result) {
     this.userResult = Optional.ofNullable(result);
     if (callbackHandler != null) {
-      callbackHandler.onSuccess(userResult.get());
+      new Thread() {
+        @Override
+        public void run() {
+          callbackHandler.onSuccess(userResult.get());
+        }
+      }.start();
     }
     this.countDownLatch.countDown();
   }
@@ -123,7 +127,12 @@ public final class VortexFuture<TOutput> implements Future<TOutput> {
   public void threwException(final Exception exception) {
     this.userException = exception;
     if (callbackHandler != null) {
-      callbackHandler.onFailure(exception);
+      new Thread() {
+        @Override
+        public void run() {
+          callbackHandler.onFailure(exception);
+        }
+      }.start();
     }
     this.countDownLatch.countDown();
   }

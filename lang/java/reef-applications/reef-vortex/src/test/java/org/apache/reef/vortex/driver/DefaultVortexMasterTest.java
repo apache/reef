@@ -18,8 +18,8 @@
  */
 package org.apache.reef.vortex.driver;
 
-import com.google.common.util.concurrent.FutureCallback;
 import org.apache.reef.util.Optional;
+import org.apache.reef.vortex.api.FutureCallback;
 import org.apache.reef.vortex.api.VortexFunction;
 import org.apache.reef.vortex.api.VortexFuture;
 import org.junit.Test;
@@ -162,7 +162,6 @@ public class DefaultVortexMasterTest {
     }
   }
 
-
   /**
    * Test handling of single tasklet execution with a failure.
    */
@@ -203,7 +202,6 @@ public class DefaultVortexMasterTest {
     latch.await();
     assertTrue("Callback should have been received", callbackReceived.get());
   }
-
 
   /**
    * Launch specified number of tasklets as a substitute for PendingTaskletLauncher.

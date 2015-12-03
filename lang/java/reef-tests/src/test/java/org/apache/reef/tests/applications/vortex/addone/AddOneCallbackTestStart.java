@@ -18,8 +18,8 @@
  */
 package org.apache.reef.tests.applications.vortex.addone;
 
-import com.google.common.util.concurrent.FutureCallback;
 import io.netty.util.internal.ConcurrentSet;
+import org.apache.reef.vortex.api.FutureCallback;
 import org.apache.reef.vortex.api.VortexFuture;
 import org.apache.reef.vortex.api.VortexStart;
 import org.apache.reef.vortex.api.VortexThreadPool;
