@@ -16,7 +16,7 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
-#Apache REEF
+#Apache REEF&trade;
 
 ###What is REEF?
 
@@ -38,9 +38,9 @@ In that sense, our long-term vision is that REEF will mature into a Big Data App
 
 The official home for the REEF (and Tang and Wake) source code is at the Apache Software Foundation. You can check out the current code via:
 
-    $ git clone git://git.apache.org/incubator-reef.git
+    $ git clone git://git.apache.org/reef.git
 
-or directly access its GitHub page [here](https://github.com/apache/incubator-reef).
+or directly access its GitHub page [here](https://github.com/apache/reef).
 
 Detailed information about REEF and using it can be found in the [FAQ](faq.html) and the [Tutorial](https://cwiki.apache.org/confluence/display/REEF/Tutorials).
 
@@ -49,7 +49,3 @@ If you wish to contribute, start at the [Contributing](https://cwiki.apache.org/
 ###Further questions?
 
 Please visit our [Frequently Asked Questions](faq.html) page or use our [Mailing List](mailing-list.html) to send us a question!
-
-###Disclaimer
-
-Apache REEF is an effort undergoing incubation at The Apache Software Foundation (ASF), sponsored by the Apache Incubator. Incubation is required of all newly accepted projects until a further review indicates that the infrastructure, communications, and decision making process have stabilized in a manner consistent with other successful ASF projects. While incubation status is not necessarily a reflection of the completeness or stability of the code, it does indicate that the project has yet to be fully endorsed by the ASF.
