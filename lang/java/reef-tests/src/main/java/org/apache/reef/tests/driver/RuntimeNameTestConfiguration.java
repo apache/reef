@@ -16,37 +16,23 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.driver.evaluator;
+package org.apache.reef.tests.driver;
 
-import org.apache.reef.driver.catalog.NodeDescriptor;
+import org.apache.reef.tang.annotations.Name;
+import org.apache.reef.tang.annotations.NamedParameter;
+import org.apache.reef.tang.formats.ConfigurationModule;
+import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
+import org.apache.reef.tang.formats.RequiredParameter;
 
-/**
- * Metadata about an Evaluator.
- */
-public interface EvaluatorDescriptor {
+public final class RuntimeNameTestConfiguration extends ConfigurationModuleBuilder {
 
-  /**
-   * @return the NodeDescriptor of the node where this Evaluator is running.
-   */
-  NodeDescriptor getNodeDescriptor();
+  public static final RequiredParameter<String> RUNTIME_NAME = new RequiredParameter<>();
+  public static final ConfigurationModule CONF = new RuntimeNameTestConfiguration()
+      .bindNamedParameter(RuntimeName.class, RUNTIME_NAME)
+      .build();
 
-  /**
-   * @return the process to be run on the Evaluator.
-   */
-  EvaluatorProcess getProcess();
+  @NamedParameter(doc = "The runtime name")
+  public static class RuntimeName implements Name<String> {
+  }
 
-  /**
-   * @return the amount of memory allocated to this Evaluator.
-   */
-  int getMemory();
-
-  /**
-   * @return the number of virtual core allocated to this Evaluator.
-   */
-  int getNumberOfCores();
-
-  /**
-   * @return name of the runtime that was used to allocate this Evaluator
-   */
-  String getRuntimeName();
 }

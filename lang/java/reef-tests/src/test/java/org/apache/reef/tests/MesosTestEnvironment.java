@@ -19,6 +19,7 @@
 package org.apache.reef.tests;
 
 import org.apache.reef.runtime.mesos.client.MesosClientConfiguration;
+import org.apache.reef.runtime.mesos.driver.RuntimeIdentifier;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.exceptions.BindException;
 
@@ -63,5 +64,9 @@ public final class MesosTestEnvironment extends TestEnvironmentBase implements T
     return 300000; // 5 minutes
   }
 
+  @Override
+  public String getRuntimeName() {
+    return RuntimeIdentifier.RUNTIME_NAME;
+  }
 
 }

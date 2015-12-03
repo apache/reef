@@ -16,37 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.driver.evaluator;
-
-import org.apache.reef.driver.catalog.NodeDescriptor;
+package org.apache.reef.runtime.mesos.driver;
 
 /**
- * Metadata about an Evaluator.
+ * Runtime Identifier Implementation.
  */
-public interface EvaluatorDescriptor {
+public final class RuntimeIdentifier {
+  public static final String RUNTIME_NAME = "Mesos";
 
-  /**
-   * @return the NodeDescriptor of the node where this Evaluator is running.
-   */
-  NodeDescriptor getNodeDescriptor();
-
-  /**
-   * @return the process to be run on the Evaluator.
-   */
-  EvaluatorProcess getProcess();
-
-  /**
-   * @return the amount of memory allocated to this Evaluator.
-   */
-  int getMemory();
-
-  /**
-   * @return the number of virtual core allocated to this Evaluator.
-   */
-  int getNumberOfCores();
-
-  /**
-   * @return name of the runtime that was used to allocate this Evaluator
-   */
-  String getRuntimeName();
+  private RuntimeIdentifier() { }
 }

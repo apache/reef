@@ -63,7 +63,7 @@ public final class Utilities {
     final InetSocketAddress socketAddress = evaluatorDescriptor.getNodeDescriptor().getInetSocketAddress();
     return "IP=" + socketAddress.getAddress() + ", Port=" + socketAddress.getPort() + ", HostName=" +
         socketAddress.getHostName() + ", Memory=" + evaluatorDescriptor.getMemory() + ", Core=" +
-        evaluatorDescriptor.getNumberOfCores();
+        evaluatorDescriptor.getNumberOfCores() + ", RuntimeName=" + evaluatorDescriptor.getRuntimeName();
   }
 
   /**

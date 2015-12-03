@@ -220,7 +220,7 @@ public final class ResourceManager {
         final ResourceAllocationEvent alloc = ResourceEventImpl.newAllocationBuilder()
             .setIdentifier(container.getContainerID()).setNodeId(container.getNodeID())
             .setResourceMemory(container.getMemory()).setVirtualCores(container.getNumberOfCores())
-            .setRackName(container.getRackName()).build();
+            .setRackName(container.getRackName()).setRuntimeName(RuntimeIdentifier.RUNTIME_NAME).build();
 
         LOG.log(Level.FINEST, "Allocating container: {0}", container);
         this.allocationHandler.onNext(alloc);
