@@ -57,7 +57,6 @@ under the License.
 
   <!-- REEF NuGet properties -->
   <PropertyGroup>
-    <RemoveIncubating>true</RemoveIncubating>
     <IsSnapshot>true</IsSnapshot>
     <SnapshotNumber>02</SnapshotNumber>
     <PushPackages>false</PushPackages>
@@ -106,9 +105,8 @@ under the License.
           Version = XDocument.Load(Path.Combine(ProjectFolder, "pom.xml")).Descendants()
             .Where(x => x.Name.ToString().Contains("version"))
             .FirstOrDefault().Value;
-          var shortVer = $(RemoveIncubating) ? Version.Replace("-incubating","") : Version ;
-          var snapshortNumberAsString = ($(SnapshotNumber) >= 0 && $(SnapshotNumber) <=9) ? "0" + $(SnapshotNumber) : $(SnapshotNumber).ToString();
-          NugetVersion = $(IsSnapshot) ? shortVer + "-" + snapshortNumberAsString : shortVer.Replace("-SNAPSHOT","");
+          var snapshotNumberAsString = ($(SnapshotNumber) >= 0 && $(SnapshotNumber) <=9) ? "0" + $(SnapshotNumber) : $(SnapshotNumber).ToString();
+          NugetVersion = $(IsSnapshot) ? Version + "-" + snapshotNumberAsString : Version.Replace("-SNAPSHOT","");
         ]]>
       </Code>
     </Task>
