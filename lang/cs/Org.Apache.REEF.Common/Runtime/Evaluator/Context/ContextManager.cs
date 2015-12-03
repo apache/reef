@@ -31,15 +31,13 @@ using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
 {
-    public class ContextManager : IDisposable
+    public sealed class ContextManager : IDisposable
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(ContextManager));
-        
-        private readonly Stack<ContextRuntime> _contextStack = new Stack<ContextRuntime>();
-
         private readonly HeartBeatManager _heartBeatManager;
-
         private readonly RootContextLauncher _rootContextLauncher;
+        private readonly object _contextLock = new object();
+        private ContextRuntime _topContext = null;
 
         public ContextManager(HeartBeatManager heartBeatManager, Optional<ServiceConfiguration> rootServiceConfig, Optional<TaskConfiguration> rootTaskConfig)
         {
@@ -55,22 +53,21 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
         /// </summary>
         public void Start()
         {
-            lock (_contextStack)
+            lock (_contextLock)
             {
-                ContextRuntime rootContext = _rootContextLauncher.GetRootContext();
-                LOGGER.Log(Level.Info, string.Format(CultureInfo.InvariantCulture, "Instantiating root context with Id {0}", rootContext.Id));
-                _contextStack.Push(rootContext);
+                _topContext = _rootContextLauncher.GetRootContext();
+                LOGGER.Log(Level.Info, string.Format(CultureInfo.InvariantCulture, "Instantiating root context with Id {0}", _topContext.Id));
 
                 if (_rootContextLauncher.RootTaskConfig.IsPresent())
                 {
                     LOGGER.Log(Level.Info, "Launching the initial Task");
                     try
                     {
-                        _contextStack.Peek().StartTask(_rootContextLauncher.RootTaskConfig.Value, _rootContextLauncher.RootContextConfig.Id, _heartBeatManager);
+                        _topContext.StartTask(_rootContextLauncher.RootTaskConfig.Value, _rootContextLauncher.RootContextConfig.Id, _heartBeatManager);
                     }
                     catch (TaskClientCodeException e)
                     {
-                        Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Caught(e, Level.Error, "Exception when trying to start a task.", LOGGER);
+                        Utilities.Diagnostics.Exceptions.Caught(e, Level.Error, "Exception when trying to start a task.", LOGGER);
                         HandleTaskException(e);
                     }
                 }
@@ -79,9 +76,9 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
 
         public bool ContextStackIsEmpty()
         {
-            lock (_contextStack)
+            lock (_contextLock)
             {
-                return _contextStack.Count == 0;
+                return _topContext == null;
             }
         }
 
@@ -99,7 +96,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                 byte[] message = controlMessage.task_message;
                 if (controlMessage.add_context != null && controlMessage.remove_context != null)
                 {
-                    Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(new InvalidOperationException("Received a message with both add and remove context. This is unsupported."), LOGGER);
+                    Utilities.Diagnostics.Exceptions.Throw(new InvalidOperationException("Received a message with both add and remove context. This is unsupported."), LOGGER);
                 }
                 if (controlMessage.add_context != null)
                 {
@@ -132,56 +129,67 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                 else if (controlMessage.stop_task != null)
                 {
                     LOGGER.Log(Level.Info, "CloseTask");
-                    _contextStack.Peek().CloseTask(message);
+                    lock (_contextLock)
+                    {
+                        _topContext.CloseTask(message);
+                    }
                 }
                 else if (controlMessage.suspend_task != null)
                 {
                     LOGGER.Log(Level.Info, "SuspendTask");
-                    _contextStack.Peek().SuspendTask(message);
+                    lock (_contextLock)
+                    {
+                        _topContext.SuspendTask(message);
+                    }
                 }
                 else if (controlMessage.task_message != null)
                 {
                     LOGGER.Log(Level.Info, "DeliverTaskMessage");
-                    _contextStack.Peek().DeliverTaskMessage(message);
+                    lock (_contextLock)
+                    {
+                        _topContext.DeliverTaskMessage(message);
+                    }
                 }
                 else if (controlMessage.context_message != null)
                 {
                     LOGGER.Log(Level.Info, "Handle context contol message");
                     ContextMessageProto contextMessageProto = controlMessage.context_message;
-                    bool deliveredMessage = false;
-                    foreach (ContextRuntime context in _contextStack)
+                    ContextRuntime context = null;
+                    lock (_contextLock)
                     {
-                        if (context.Id.Equals(contextMessageProto.context_id))
+                        if (_topContext != null)
                         {
-                            LOGGER.Log(Level.Info, string.Format(CultureInfo.InvariantCulture, "Handle context message {0}", controlMessage.context_message.message));
-                            context.HandleContextMessaage(controlMessage.context_message.message);
-                            deliveredMessage = true;
-                            break;
+                            context = _topContext.GetContextStack().FirstOrDefault(ctx => ctx.Id.Equals(contextMessageProto.context_id));
                         }
                     }
-                    if (!deliveredMessage)
+
+                    if (context != null)
                     {
-                        InvalidOperationException e = new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "Sent message to unknown context {0}", contextMessageProto.context_id));
-                        Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(e, LOGGER);
+                        context.HandleContextMessage(controlMessage.context_message.message);
+                    }
+                    else
+                    {
+                        var e = new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "Sent message to unknown context {0}", contextMessageProto.context_id));
+                        Utilities.Diagnostics.Exceptions.Throw(e, LOGGER);
                     }
                 }
                 else
                 {
                     InvalidOperationException e = new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "Unknown task control message: {0}", controlMessage.ToString()));
-                    Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(e, LOGGER);
+                    Utilities.Diagnostics.Exceptions.Throw(e, LOGGER);
                 } 
             }
             catch (Exception e)
             {
                 if (e is TaskClientCodeException)
                 {
-                    HandleTaskException((TaskClientCodeException)e);
+                    HandleTaskException(e as TaskClientCodeException);
                 }
                 else if (e is ContextClientCodeException)
                 {
-                    HandlContextException((ContextClientCodeException)e);
+                    HandleContextException(e as ContextClientCodeException);
                 }
-                Org.Apache.REEF.Utilities.Diagnostics.Exceptions.CaughtAndThrow(e, Level.Error, LOGGER);
+                Utilities.Diagnostics.Exceptions.CaughtAndThrow(e, Level.Error, LOGGER);
             }  
         }
 
@@ -191,13 +199,10 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
         /// <returns>the TaskStatusProto of the currently running task, if there is any</returns>
         public Optional<TaskStatusProto> GetTaskStatus()
         {
-            if (_contextStack.Count == 0)
+            lock (_contextLock)
             {
-                return Optional<TaskStatusProto>.Empty();
-
-                // throw new InvalidOperationException("Asked for an Task status while there isn't even a context running.");
+                return _topContext == null ? Optional<TaskStatusProto>.Empty() : _topContext.GetTaskStatus();
             }
-            return _contextStack.Peek().GetTaskStatus();
         }
 
         /// <summary>
@@ -207,11 +212,16 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
         public ICollection<ContextStatusProto> GetContextStatusCollection()
         {
             ICollection<ContextStatusProto> result = new Collection<ContextStatusProto>();
-            foreach (ContextRuntime runtime in _contextStack)
+            lock (_contextLock)
             {
-                ContextStatusProto contextStatusProto = runtime.GetContextStatus();
-                LOGGER.Log(Level.Verbose, string.Format(CultureInfo.InvariantCulture, "Add context status: {0}", contextStatusProto));
-                result.Add(contextStatusProto);
+                if (_topContext != null)
+                {
+                    foreach (var contextStatusProto in _topContext.GetContextStack().Select(context => context.GetContextStatus()))
+                    {
+                        LOGGER.Log(Level.Verbose, string.Format(CultureInfo.InvariantCulture, "Add context status: {0}", contextStatusProto));
+                        result.Add(contextStatusProto);
+                    }
+                }
             }
             return result;
         }
@@ -222,16 +232,13 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
         /// </summary>
         public void Dispose()
         {
-            lock (_contextStack)
+            lock (_contextLock)
             {
-                if (_contextStack != null && _contextStack.Any())
+                if (_topContext != null)
                 {
                     LOGGER.Log(Level.Info, "context stack not empty, forcefully closing context runtime.");
-                    ContextRuntime runtime = _contextStack.Last();
-                    if (runtime != null)
-                    {
-                        runtime.Dispose();
-                    }
+                    _topContext.Dispose();
+                    _topContext = null;
                 }
             }
         }
@@ -241,7 +248,10 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
         /// </summary>
         internal void HandleDriverConnectionMessage(IDriverConnectionMessage message)
         {
-            _contextStack.Peek().HandleDriverConnectionMessage(message);
+            lock (_contextLock)
+            {
+                _topContext.HandleDriverConnectionMessage(message);
+            }
         }
 
         /// <summary>
@@ -250,29 +260,29 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
         /// <param name="addContextProto"></param>
         private void AddContext(AddContextProto addContextProto)
         {
-            lock (_contextStack)
+            lock (_contextLock)
             {
-                ContextRuntime currentTopContext = _contextStack.Peek();
+                var currentTopContext = _topContext;
                 if (!currentTopContext.Id.Equals(addContextProto.parent_context_id, StringComparison.OrdinalIgnoreCase))
                 {
                     var e = new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "Trying to instantiate a child context on context with id '{0}' while the current top context id is {1}",
                         addContextProto.parent_context_id,
                         currentTopContext.Id));
-                    Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(e, LOGGER);
+                    Utilities.Diagnostics.Exceptions.Throw(e, LOGGER);
                 }
                 string contextConfigString = addContextProto.context_configuration;
-                ContextConfiguration contextConfiguration = new ContextConfiguration(contextConfigString);
+                var contextConfiguration = new ContextConfiguration(contextConfigString);
                 ContextRuntime newTopContext;
                 if (addContextProto.service_configuration != null)
                 {
-                    ServiceConfiguration serviceConfiguration = new ServiceConfiguration(addContextProto.service_configuration);
+                    var serviceConfiguration = new ServiceConfiguration(addContextProto.service_configuration);
                     newTopContext = currentTopContext.SpawnChildContext(contextConfiguration, serviceConfiguration.TangConfig);
                 }
                 else
                 {
                     newTopContext = currentTopContext.SpawnChildContext(contextConfiguration);
                 }
-                _contextStack.Push(newTopContext);
+                _topContext = newTopContext;
             }
         }
 
@@ -282,23 +292,26 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
         /// <param name="contextId"> context id</param>
         private void RemoveContext(string contextId)
         {
-            lock (_contextStack)
+            lock (_contextLock)
             {
-                string currentTopContextId = _contextStack.Peek().Id;
-                if (!contextId.Equals(_contextStack.Peek().Id, StringComparison.OrdinalIgnoreCase))
+                string currentTopContextId = _topContext.Id;
+                if (!contextId.Equals(_topContext.Id, StringComparison.OrdinalIgnoreCase))
                 {
                     var e = new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "Trying to close context with id '{0}' while the top context id is {1}", contextId, currentTopContextId));
-                    Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(e, LOGGER);
+                    Utilities.Diagnostics.Exceptions.Throw(e, LOGGER);
                 }
-                _contextStack.Peek().Dispose();
-                if (_contextStack.Count > 1)
+                var hasParentContext = _topContext.ParentContext.IsPresent();
+                _topContext.Dispose();
+                if (hasParentContext)
                 {
                     // We did not close the root context. Therefore, we need to inform the
                     // driver explicitly that this context is closed. The root context notification
                     // is implicit in the Evaluator close/done notification.
                     _heartBeatManager.OnNext(); // Ensure Driver gets notified of context DONE state
                 }
-                _contextStack.Pop();
+
+                // does not matter if null.
+                _topContext = _topContext.ParentContext.Value;
             }
             // System.gc(); // TODO: garbage collect?
         }
@@ -309,14 +322,15 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
         /// <param name="startTaskProto"></param>
         private void StartTask(StartTaskProto startTaskProto)
         {
-            lock (_contextStack)
+            lock (_contextLock)
             {
-                ContextRuntime currentActiveContext = _contextStack.Peek();
+                ContextRuntime currentActiveContext = _topContext;
                 string expectedContextId = startTaskProto.context_id;
                 if (!expectedContextId.Equals(currentActiveContext.Id, StringComparison.OrdinalIgnoreCase))
                 {
-                    var e = new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "Task expected context '{0}' but the active context has Id '{1}'", expectedContextId, currentActiveContext.Id));
-                    Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(e, LOGGER);
+                    var e = new InvalidOperationException(
+                        string.Format(CultureInfo.InvariantCulture, "Task expected context '{0}' but the active context has Id '{1}'", expectedContextId, currentActiveContext.Id));
+                    Utilities.Diagnostics.Exceptions.Throw(e, LOGGER);
                 }
                 TaskConfiguration taskConfiguration = new TaskConfiguration(startTaskProto.configuration);
                 currentActiveContext.StartTask(taskConfiguration, expectedContextId, _heartBeatManager);
@@ -338,7 +352,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                 result = exception,
                 state = State.FAILED
             };
-            LOGGER.Log(Level.Error, string.Format(CultureInfo.InvariantCulture, "Sending Heartbeatb for a failed task: {0}", taskStatus.ToString()));
+            LOGGER.Log(Level.Error, "Sending Heartbeat for a failed task: {0}", taskStatus);
             _heartBeatManager.OnNext(taskStatus);
         }
 
@@ -346,7 +360,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
         /// THIS ASSUMES THAT IT IS CALLED ON A THREAD HOLDING THE LOCK ON THE HeartBeatManager
         /// </summary>
         /// <param name="e"></param>
-        private void HandlContextException(ContextClientCodeException e)
+        private void HandleContextException(ContextClientCodeException e)
         {
             LOGGER.Log(Level.Error, "ContextClientCodeException", e);
             byte[] exception = ByteUtilities.StringToByteArrays(e.ToString());
@@ -360,7 +374,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
             {
                 contextStatusProto.parent_id = e.ParentId.Value;
             }
-            LOGGER.Log(Level.Error, string.Format(CultureInfo.InvariantCulture, "Sending Heartbeat for a failed context: {0}", contextStatusProto.ToString()));
+            LOGGER.Log(Level.Error, "Sending Heartbeat for a failed context: {0}", contextStatusProto);
             _heartBeatManager.OnNext(contextStatusProto);
         }
     }

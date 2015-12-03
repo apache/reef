@@ -21,12 +21,9 @@ using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Diagnostics;
-using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using Org.Apache.REEF.Common.Protobuf.ReefProtocol;
 using Org.Apache.REEF.Common.Runtime.Evaluator;
 using Org.Apache.REEF.Common.Runtime.Evaluator.Context;
@@ -45,41 +42,34 @@ using Org.Apache.REEF.Wake.Remote;
 using Org.Apache.REEF.Wake.Remote.Impl;
 using Org.Apache.REEF.Wake.Time.Runtime;
 using Org.Apache.REEF.Wake.Time.Runtime.Event;
-using Org.Apache.REEF.Wake.Util;
 
 namespace Org.Apache.REEF.Evaluator
 {
     public sealed class Evaluator
     {
-        private static Logger _logger = Logger.GetLogger(typeof(Evaluator));
-
-        private static int _heartbeatPeriodInMs = Constants.DefaultEvaluatorHeartbeatPeriodInMs;
-
-        private static int _heartbeatMaxRetry = Constants.DefaultEvaluatorHeartbeatMaxRetry;
-
-        private static IInjector _injector;
-
-        private static EvaluatorConfigurations _evaluatorConfig;
+        private static Logger logger = Logger.GetLogger(typeof(Evaluator));
+        private static int heartbeatPeriodInMs = Constants.DefaultEvaluatorHeartbeatPeriodInMs;
+        private static int heartbeatMaxRetry = Constants.DefaultEvaluatorHeartbeatMaxRetry;
+        private static IInjector injector;
+        private static EvaluatorConfigurations evaluatorConfig;
 
         public static void Main(string[] args)
         {
-            
             try
             {
-                Console.WriteLine(string.Format(CultureInfo.InvariantCulture, "START: {0} Evaluator::InitInjector.",
-                    DateTime.Now));
+                Console.WriteLine("START: {0} Evaluator::InitInjector.", DateTime.Now);
                 Stopwatch timer = new Stopwatch();
                 InitInjector();
-                SetCustomTraceListeners();  // _logger is reset by this.
+                SetCustomTraceListeners();  // logger is reset by this.
                 timer.Stop();
-                Console.WriteLine(string.Format(CultureInfo.InvariantCulture,
-                    "EXIT: {0} Evaluator::InitInjector. Duration: [{1}].", DateTime.Now, timer.Elapsed));
-
+                Console.WriteLine("EXIT: {0} Evaluator::InitInjector. Duration: [{1}].", DateTime.Now, timer.Elapsed);
                 
-                using (_logger.LogScope("Evaluator::Main"))
+                using (logger.LogScope("Evaluator::Main"))
                 {
-                    // Wait for the debugger, if enabled
-                    AttachDebuggerIfEnabled();
+                    if (IsDebuggingEnabled())
+                    {
+                        AttachDebugger();
+                    }
 
                     // Register our exception handler
                     AppDomain.CurrentDomain.UnhandledException += UnhandledExceptionHandler;
@@ -93,40 +83,38 @@ namespace Org.Apache.REEF.Evaluator
                     if (args.Count() != 1)
                     {
                         var e = new InvalidOperationException("must supply only the evaluator config file!");
-                        Utilities.Diagnostics.Exceptions.Throw(e, _logger);
+                        Utilities.Diagnostics.Exceptions.Throw(e, logger);
                     }
 
                     // evaluator configuration file
                     string evaluatorConfigurationPath = args[0];
 
                     // Parse the evaluator configuration.
-                    _evaluatorConfig = new EvaluatorConfigurations(evaluatorConfigurationPath);
+                    evaluatorConfig = new EvaluatorConfigurations(evaluatorConfigurationPath);
 
-                    string rId = _evaluatorConfig.ErrorHandlerRID;
-                    ContextConfiguration rootContextConfiguration = _evaluatorConfig.RootContextConfiguration;
-                    Optional<TaskConfiguration> rootTaskConfig = _evaluatorConfig.TaskConfiguration;
-                    Optional<ServiceConfiguration> rootServiceConfig = _evaluatorConfig.RootServiceConfiguration;
+                    string rId = evaluatorConfig.ErrorHandlerRID;
+                    ContextConfiguration rootContextConfiguration = evaluatorConfig.RootContextConfiguration;
+                    Optional<TaskConfiguration> rootTaskConfig = evaluatorConfig.TaskConfiguration;
+                    Optional<ServiceConfiguration> rootServiceConfig = evaluatorConfig.RootServiceConfiguration;
 
                     // remoteManager used as client-only in evaluator
-                    IRemoteManager<REEFMessage> remoteManager = _injector.GetInstance<IRemoteManagerFactory>().GetInstance(new REEFMessageCodec());
+                    IRemoteManager<REEFMessage> remoteManager = injector.GetInstance<IRemoteManagerFactory>().GetInstance(new REEFMessageCodec());
                     IRemoteIdentifier remoteId = new SocketRemoteIdentifier(NetUtilities.ParseIpEndpoint(rId));
 
-
                     RuntimeClock clock = InstantiateClock();
-                    _logger.Log(Level.Info, "Application Id: " + _evaluatorConfig.ApplicationId);
+                    logger.Log(Level.Info, "Application Id: " + evaluatorConfig.ApplicationId);
                     EvaluatorSettings evaluatorSettings = new EvaluatorSettings(
-                        _evaluatorConfig.ApplicationId,
-                        _evaluatorConfig.EvaluatorId,
-                        _heartbeatPeriodInMs,
-                        _heartbeatMaxRetry,
+                        evaluatorConfig.ApplicationId,
+                        evaluatorConfig.EvaluatorId,
+                        heartbeatPeriodInMs,
+                        heartbeatMaxRetry,
                         rootContextConfiguration,
                         clock,
                         remoteManager,
-                        _injector);
+                        injector);
 
                     HeartBeatManager heartBeatManager = new HeartBeatManager(evaluatorSettings, remoteId);
-                    ContextManager contextManager = new ContextManager(heartBeatManager, rootServiceConfig,
-                        rootTaskConfig);
+                    ContextManager contextManager = new ContextManager(heartBeatManager, rootServiceConfig, rootTaskConfig);
                     EvaluatorRuntime evaluatorRuntime = new EvaluatorRuntime(contextManager, heartBeatManager);
 
                     // TODO: replace with injectionFuture
@@ -135,9 +123,7 @@ namespace Org.Apache.REEF.Evaluator
 
                     SetRuntimeHandlers(evaluatorRuntime, clock);
 
-
-                    Task evaluatorTask = Task.Run(new Action(clock.Run));
-                    evaluatorTask.Wait();
+                    clock.Run();
                 }
             }
             catch (Exception e)
@@ -150,7 +136,7 @@ namespace Org.Apache.REEF.Evaluator
         /// Determines whether debugging is enabled.
         /// </summary>
         /// <returns>true, if debugging is enabled</returns>
-        private static Boolean IsDebuggingEnabled()
+        private static bool IsDebuggingEnabled()
         {
             var debugEnabledString = Environment.GetEnvironmentVariable("Org.Apache.REEF.EvaluatorDebug");
             return !string.IsNullOrWhiteSpace(debugEnabledString) &&
@@ -160,23 +146,18 @@ namespace Org.Apache.REEF.Evaluator
         /// <summary>
         /// Waits for the debugger to be attached.
         /// </summary>
-        private static void AttachDebuggerIfEnabled()
+        private static void AttachDebugger()
         {
-            if (IsDebuggingEnabled())
+            // Wait for the debugger
+            while (true)
             {
-                while (true)
+                if (Debugger.IsAttached)
                 {
-                    if (Debugger.IsAttached)
-                    {
-                        break;
-                    }
-                    else
-                    {
-                        _logger.Log(Level.Info,
-                            "Evaluator in debug mode, waiting for debugger to be attached...");
-                        Thread.Sleep(2000);
-                    }
+                    break;
                 }
+
+                logger.Log(Level.Info, "Evaluator in debug mode, waiting for debugger to be attached...");
+                Thread.Sleep(2000);
             }
         }
 
@@ -192,10 +173,10 @@ namespace Org.Apache.REEF.Evaluator
             if (!string.IsNullOrWhiteSpace(heartbeatPeriodFromConfig) &&
                 int.TryParse(heartbeatPeriodFromConfig, out heartbeatPeriod))
             {
-                _heartbeatPeriodInMs = heartbeatPeriod;
+                heartbeatPeriodInMs = heartbeatPeriod;
             }
-            _logger.Log(Level.Verbose,
-                "Evaluator heartbeat period set to be " + _heartbeatPeriodInMs + " milliSeconds.");
+            logger.Log(Level.Verbose,
+                "Evaluator heartbeat period set to be " + heartbeatPeriodInMs + " milliSeconds.");
         }
 
         /// <summary>
@@ -210,10 +191,10 @@ namespace Org.Apache.REEF.Evaluator
             if (!string.IsNullOrWhiteSpace(heartbeatMaxRetryFromConfig) &&
                 int.TryParse(heartbeatMaxRetryFromConfig, out maxHeartbeatRetry))
             {
-                _heartbeatMaxRetry = maxHeartbeatRetry;
+                heartbeatMaxRetry = maxHeartbeatRetry;
             }
-            _logger.Log(Level.Verbose,
-                "Evaluator heartbeat max retry set to be " + _heartbeatMaxRetry + " times.");
+            logger.Log(Level.Verbose,
+                "Evaluator heartbeat max retry set to be " + heartbeatMaxRetry + " times.");
         }
 
 
@@ -225,7 +206,7 @@ namespace Org.Apache.REEF.Evaluator
         {
             try
             {
-                _injector = TangFactory.GetTang().NewInjector(ReadEvaluatorConfiguration());
+                injector = TangFactory.GetTang().NewInjector(ReadEvaluatorConfiguration());
             }
             catch (Exception e)
             {
@@ -281,11 +262,11 @@ namespace Org.Apache.REEF.Evaluator
             ISet<TraceListener> customTraceListeners;
             try
             {
-                customTraceListeners = _injector.GetInstance<CustomTraceListeners>().Listeners;
+                customTraceListeners = injector.GetInstance<CustomTraceListeners>().Listeners;
             }
             catch (Exception e)
             {
-                Utilities.Diagnostics.Exceptions.Caught(e, Level.Error, _logger);
+                Utilities.Diagnostics.Exceptions.Caught(e, Level.Error, logger);
                 // custom trace listener not set properly, use empty set
                 customTraceListeners = new HashSet<TraceListener>();
             }
@@ -293,8 +274,8 @@ namespace Org.Apache.REEF.Evaluator
             {
                 Logger.AddTraceListener(listener);
             }
-            _logger = Logger.GetLogger(typeof(Evaluator));
-            CustomTraceLevel traceLevel = _injector.GetInstance<CustomTraceLevel>();
+            logger = Logger.GetLogger(typeof(Evaluator));
+            CustomTraceLevel traceLevel = injector.GetInstance<CustomTraceLevel>();
             Logger.SetCustomLevel(traceLevel.TraceLevel);
         }
 
@@ -303,43 +284,22 @@ namespace Org.Apache.REEF.Evaluator
             Fail((Exception)e.ExceptionObject);
         }
 
-        private static string GetDirectoryListing(string path, StringBuilder resultBuilder = null)
-        {
-            if (null == resultBuilder)
-            {
-                resultBuilder = new StringBuilder();
-            }
-
-            // First, add the files to the listing
-            var files = Directory.GetFiles(path).Select(e => Path.Combine(path, e));
-            resultBuilder.Append(string.Join(", ", files));
-            // Second, add the directories recursively
-            var dirs = Directory.GetDirectories(path).Select(e => Path.Combine(path, e));
-            foreach (var dir in dirs)
-            {
-                GetDirectoryListing(dir, resultBuilder);
-            }
-            return resultBuilder.ToString();
-        }
-
         // set the handlers for runtimeclock manually
         // we only need runtimestart and runtimestop handlers now
         private static void SetRuntimeHandlers(EvaluatorRuntime evaluatorRuntime, RuntimeClock clock)
         {
             ISet<IObserver<RuntimeStart>> runtimeStarts = new HashSet<IObserver<RuntimeStart>> { evaluatorRuntime };
-            InjectionFutureImpl<ISet<IObserver<RuntimeStart>>> injectRuntimeStart = new InjectionFutureImpl<ISet<IObserver<RuntimeStart>>>(runtimeStarts);
-            clock.InjectedRuntimeStartHandler = injectRuntimeStart;
+            clock.InjectedRuntimeStartHandler = new InjectionFutureImpl<ISet<IObserver<RuntimeStart>>>(runtimeStarts);
 
             ISet<IObserver<RuntimeStop>> runtimeStops = new HashSet<IObserver<RuntimeStop>> { evaluatorRuntime };
-            InjectionFutureImpl<ISet<IObserver<RuntimeStop>>> injectRuntimeStop = new InjectionFutureImpl<ISet<IObserver<RuntimeStop>>>(runtimeStops);
-            clock.InjectedRuntimeStopHandler = injectRuntimeStop;
+            clock.InjectedRuntimeStopHandler = new InjectionFutureImpl<ISet<IObserver<RuntimeStop>>>(runtimeStops);
         }
 
         private static void Fail(Exception ex)
         {
             var message = "Unhandled exception caught in Evaluator. Current files in the working directory: " +
-                          GetDirectoryListing(Directory.GetCurrentDirectory());
-            Utilities.Diagnostics.Exceptions.Throw(ex, message, _logger);
+                          string.Join(", ", Directory.EnumerateFiles(Directory.GetCurrentDirectory(), "*.*", SearchOption.AllDirectories));
+            Utilities.Diagnostics.Exceptions.Throw(ex, message, logger);
         }
     }
 }
