@@ -24,42 +24,35 @@ using Org.Apache.REEF.Common.Runtime.Evaluator.Context;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Utilities.Logging;
-using Org.Apache.REEF.Wake.Remote;
 using Org.Apache.REEF.Wake.Time;
 using Org.Apache.REEF.Wake.Time.Runtime.Event;
 
 namespace Org.Apache.REEF.Common.Runtime.Evaluator
 {
-    public class EvaluatorRuntime : IObserver<RuntimeStart>, IObserver<RuntimeStop>, IObserver<REEFMessage>
+    public sealed class EvaluatorRuntime : IObserver<RuntimeStart>, IObserver<RuntimeStop>, IObserver<REEFMessage>
     {
-        private static readonly Logger LOGGER = Logger.GetLogger(typeof(EvaluatorRuntime));
+        private static readonly Logger Logger = Logger.GetLogger(typeof(EvaluatorRuntime));
         
         private readonly string _evaluatorId;
-
         private readonly ContextManager _contextManager;
-
         private readonly HeartBeatManager _heartBeatManager;
-
-        private readonly IRemoteManager<REEFMessage> _remoteManager;
-
         private readonly IClock _clock;
+        private readonly IDisposable _evaluatorControlChannel; 
 
         private State _state = State.INIT;
-
-        private readonly IDisposable _evaluatorControlChannel; 
 
         [Inject]
         public EvaluatorRuntime(
             ContextManager contextManager,
             HeartBeatManager heartBeatManager)
         {
-            using (LOGGER.LogFunction("EvaluatorRuntime::EvaluatorRuntime"))
+            using (Logger.LogFunction("EvaluatorRuntime::EvaluatorRuntime"))
             {
                 _clock = heartBeatManager.EvaluatorSettings.RuntimeClock;
                 _heartBeatManager = heartBeatManager;
                 _contextManager = contextManager;
                 _evaluatorId = heartBeatManager.EvaluatorSettings.EvalutorId;
-                _remoteManager = heartBeatManager.EvaluatorSettings.RemoteManager;
+                var remoteManager = heartBeatManager.EvaluatorSettings.RemoteManager;
 
                 ReefMessageProtoObserver driverObserver = new ReefMessageProtoObserver();
 
@@ -67,7 +60,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
                 driverObserver.Subscribe(o => OnNext(o.Message));
 
                 // register the driver observer
-                _evaluatorControlChannel = _remoteManager.RegisterObserver(driverObserver);
+                _evaluatorControlChannel = remoteManager.RegisterObserver(driverObserver);
 
                 // start the hearbeat
                 _clock.ScheduleAlarm(0, heartBeatManager);
@@ -86,7 +79,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
         {
             lock (_heartBeatManager)
             {
-                LOGGER.Log(Level.Info, "Handle Evaluator control message");
+                Logger.Log(Level.Info, "Handle Evaluator control message");
                 if (!message.identifier.Equals(_evaluatorId, StringComparison.OrdinalIgnoreCase))
                 {
                     Handle(new InvalidOperationException(
@@ -101,13 +94,13 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
                 {
                     if (message.context_control != null)
                     {
-                        LOGGER.Log(Level.Info, "Send task control message to ContextManager");
+                        Logger.Log(Level.Info, "Send task control message to ContextManager");
                         try
                         {
                             _contextManager.HandleTaskControl(message.context_control);
                             if (_contextManager.ContextStackIsEmpty() && _state == State.RUNNING)
                             {
-                                LOGGER.Log(Level.Info, "Context stack is empty, done");
+                                Logger.Log(Level.Info, "Context stack is empty, done");
                                 _state = State.DONE;
                                 _heartBeatManager.OnNext(GetEvaluatorStatus());
                                 _clock.Dispose();
@@ -115,14 +108,14 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
                         }
                         catch (Exception e)
                         {
-                            Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Caught(e, Level.Error, LOGGER);
+                            Utilities.Diagnostics.Exceptions.Caught(e, Level.Error, Logger);
                             Handle(e);
-                            Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(new InvalidOperationException(e.ToString(), e), LOGGER);
+                            Utilities.Diagnostics.Exceptions.Throw(new InvalidOperationException(e.ToString(), e), Logger);
                         }
                     }
                     if (message.kill_evaluator != null)
                     {
-                        LOGGER.Log(Level.Info, string.Format(CultureInfo.InvariantCulture, "Evaluator {0} has been killed by the driver.", _evaluatorId));
+                        Logger.Log(Level.Info, string.Format(CultureInfo.InvariantCulture, "Evaluator {0} has been killed by the driver.", _evaluatorId));
                         _state = State.KILLED;
                         _clock.Dispose();
                     }
@@ -132,8 +125,8 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
 
         public EvaluatorStatusProto GetEvaluatorStatus()
         {
-            LOGGER.Log(Level.Info, string.Format(CultureInfo.InvariantCulture, "Evaluator state : {0}", _state));
-            EvaluatorStatusProto evaluatorStatusProto = new EvaluatorStatusProto()
+            Logger.Log(Level.Info, string.Format(CultureInfo.InvariantCulture, "Evaluator state : {0}", _state));
+            EvaluatorStatusProto evaluatorStatusProto = new EvaluatorStatusProto
             {
                 evaluator_id = _evaluatorId,
                 state = _state
@@ -147,11 +140,11 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
             {
                 try
                 {
-                    LOGGER.Log(Level.Info, "Runtime start");
+                    Logger.Log(Level.Info, "Runtime start");
                     if (_state != State.INIT)
                     {
                         var e = new InvalidOperationException("State should be init.");
-                        Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(e, LOGGER);
+                        Utilities.Diagnostics.Exceptions.Throw(e, Logger);
                     }
                     _state = State.RUNNING;
                     _contextManager.Start();
@@ -159,45 +152,15 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
                 }
                 catch (Exception e)
                 {
-                    Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Caught(e, Level.Error, LOGGER);
+                    Utilities.Diagnostics.Exceptions.Caught(e, Level.Error, Logger);
                     Handle(e);
                 }
             }
         }
 
-        void IObserver<RuntimeStart>.OnError(Exception error)
-        {
-            throw new NotImplementedException();
-        }
-
-        void IObserver<REEFMessage>.OnCompleted()
-        {
-            throw new NotImplementedException();
-        }
-
-        void IObserver<REEFMessage>.OnError(Exception error)
-        {
-            throw new NotImplementedException();
-        }
-
-        void IObserver<RuntimeStop>.OnCompleted()
-        {
-            throw new NotImplementedException();
-        }
-
-        void IObserver<RuntimeStop>.OnError(Exception error)
-        {
-            throw new NotImplementedException();
-        }
-
-        void IObserver<RuntimeStart>.OnCompleted()
-        {
-            throw new NotImplementedException();
-        }
-
         public void OnNext(RuntimeStop runtimeStop)
         {
-            LOGGER.Log(Level.Info, "Runtime stop");
+            Logger.Log(Level.Info, "Runtime stop");
             _contextManager.Dispose();
 
             if (_state == State.RUNNING)
@@ -211,16 +174,16 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
             }
             catch (Exception e)
             {
-                Org.Apache.REEF.Utilities.Diagnostics.Exceptions.CaughtAndThrow(new InvalidOperationException("Cannot stop evaluator properly", e), Level.Error, "Exception during shut down.", LOGGER);
+                Utilities.Diagnostics.Exceptions.CaughtAndThrow(new InvalidOperationException("Cannot stop evaluator properly", e), Level.Error, "Exception during shut down.", Logger);
             }
-            LOGGER.Log(Level.Info, "EvaluatorRuntime shutdown complete");        
+            Logger.Log(Level.Info, "EvaluatorRuntime shutdown complete");        
         }
 
         public void OnNext(REEFMessage value)
         {
             if (value != null && value.evaluatorControl != null)
             {
-                LOGGER.Log(Level.Info, "Received a REEFMessage with EvaluatorControl");
+                Logger.Log(Level.Info, "Received a REEFMessage with EvaluatorControl");
                 Handle(value.evaluatorControl);
             }
         }
@@ -229,7 +192,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
         {
             lock (_heartBeatManager)
             {
-                LOGGER.Log(Level.Error, string.Format(CultureInfo.InvariantCulture, "evaluator {0} failed with exception", _evaluatorId), e);
+                Logger.Log(Level.Error, string.Format(CultureInfo.InvariantCulture, "evaluator {0} failed with exception", _evaluatorId), e);
                 _state = State.FAILED;
                 string errorMessage = string.Format(
                         CultureInfo.InvariantCulture,
@@ -246,6 +209,16 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
                 _heartBeatManager.OnNext(evaluatorStatusProto);
                 _contextManager.Dispose();
             }       
+        }
+
+        public void OnError(Exception error)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void OnCompleted()
+        {
+            throw new NotImplementedException();
         }
     }
 }

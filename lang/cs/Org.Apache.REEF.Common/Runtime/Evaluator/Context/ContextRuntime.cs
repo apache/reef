@@ -18,6 +18,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using Org.Apache.REEF.Common.Context;
 using Org.Apache.REEF.Common.Protobuf.ReefProtocol;
@@ -331,9 +332,15 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
             }
         }
 
-        public void HandleContextMessaage(byte[] mesage)
+        [Obsolete("Deprecated in 0.14, please use HandleContextMessage instead.")]
+        public void HandleContextMessaage(byte[] message)
         {
-            _contextLifeCycle.HandleContextMessage(mesage);
+            _contextLifeCycle.HandleContextMessage(message);
+        }
+
+        public void HandleContextMessage(byte[] message)
+        {
+            _contextLifeCycle.HandleContextMessage(message);
         }
 
         /// <summary>
@@ -440,6 +447,16 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                 }
 
                 _task.Value.HandleDriverConnectionMessage(message);
+            }
+        }
+
+        internal IEnumerable<ContextRuntime> GetContextStack()
+        {
+            var context = Optional<ContextRuntime>.Of(this);
+            while (context.IsPresent())
+            {
+                yield return context.Value;
+                context = context.Value.ParentContext;
             }
         }
     }
