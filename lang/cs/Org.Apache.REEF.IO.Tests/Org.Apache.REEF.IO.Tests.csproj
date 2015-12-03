@@ -75,6 +75,7 @@ under the License.
     <Compile Include="TestAzureBlockBlobFileSystem.cs" />
     <Compile Include="TestAzureBlockBlobFileSystemE2E.cs" />
     <Compile Include="TestFilePartitionInputDataSet.cs" />
+    <Compile Include="TestFilePartitionOutputDataSet.cs" />
     <Compile Include="TestHadoopFileSystem.cs" />
     <Compile Include="TestLocalFileSystem.cs" />
     <Compile Include="TestRandomInputDataSet.cs" />
