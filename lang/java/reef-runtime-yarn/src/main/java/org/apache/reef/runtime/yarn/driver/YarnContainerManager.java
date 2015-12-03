@@ -445,6 +445,7 @@ final class YarnContainerManager
             .setResourceMemory(container.getResource().getMemory())
             .setVirtualCores(container.getResource().getVirtualCores())
             .setRackName(rackNameFormatter.getRackName(container))
+            .setRuntimeName(RuntimeIdentifier.RUNTIME_NAME)
             .build());
         this.updateRuntimeStatus();
       } else {

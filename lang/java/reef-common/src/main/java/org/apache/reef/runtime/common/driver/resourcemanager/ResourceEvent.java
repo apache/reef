@@ -54,4 +54,8 @@ public interface ResourceEvent {
    */
   Optional<String> getRackName();
 
+  /**
+   * @return Runtime name of the resource
+   */
+  String getRuntimeName();
 }

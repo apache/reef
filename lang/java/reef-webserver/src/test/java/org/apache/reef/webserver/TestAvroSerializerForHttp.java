@@ -157,6 +157,11 @@ public class TestAvroSerializerForHttp {
     public int getNumberOfCores() {
       return 1;
     }
+
+    @Override
+    public String getRuntimeName() {
+      return "Local";
+    }
   }
 
   static class NodeDescriptorMock implements NodeDescriptor {

@@ -35,7 +35,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Helper class that creates new EvaluatorManager instances from alloations.
+ * Helper class that creates new EvaluatorManager instances from allocations.
  */
 @Private
 @DriverSide
@@ -74,7 +74,7 @@ public final class EvaluatorManagerFactory {
     }
     final EvaluatorDescriptorImpl evaluatorDescriptor = new EvaluatorDescriptorImpl(nodeDescriptor,
         resourceEvent.getResourceMemory(), resourceEvent.getVirtualCores().get(),
-        processFactory.newEvaluatorProcess());
+        processFactory.newEvaluatorProcess(), resourceEvent.getRuntimeName());
 
     LOG.log(Level.FINEST, "Resource allocation: new evaluator id[{0}]", resourceEvent.getIdentifier());
     final EvaluatorManager evaluatorManager =
@@ -134,7 +134,8 @@ public final class EvaluatorManagerFactory {
   public EvaluatorManager getNewEvaluatorManagerForEvaluatorFailedDuringDriverRestart(
       final ResourceStatusEvent resourceStatusEvent) {
     return getNewEvaluatorManagerInstance(resourceStatusEvent.getIdentifier(),
-        new EvaluatorDescriptorImpl(null, 128, 1, processFactory.newEvaluatorProcess()));
+        new EvaluatorDescriptorImpl(null, 128, 1, processFactory.newEvaluatorProcess(),
+                resourceStatusEvent.getRuntimeName()));
   }
 
   /**

@@ -56,4 +56,9 @@ public interface TestEnvironment {
 
   LauncherStatus run(final Configuration driverConfiguration);
 
+  /**
+   * Returns the runtimeName for the environment.
+   * @return runtimeName
+   */
+  String getRuntimeName();
 }
