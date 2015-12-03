@@ -23,7 +23,7 @@ under the License.
     <authors>The Apache REEF project</authors>
     <owners>The Apache REEF project</owners>
     <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
-    <projectUrl>http://reef.incubator.apache.org/</projectUrl>
+    <projectUrl>http://reef.apache.org/</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Driver for REEF.NET</description>
     <copyright>The Apache Software Foundation</copyright>

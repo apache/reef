@@ -240,7 +240,6 @@ under the License.
       var Version = XDocument.Load(Path.Combine(ProjectFolder, "pom.xml")).Descendants()
         .Where(x => x.Name.ToString().Contains("version"))
         .FirstOrDefault().Value;
-      var shortVer = $(RemoveIncubating) ? Version.Replace("-incubating","") : Version ;
       var snapshortNumberAsString = ($(SnapshotNumber) >= 0 && $(SnapshotNumber) <=9) ? "0" + $(SnapshotNumber) : $(SnapshotNumber).ToString();
       var reefVersion = Version;
 
