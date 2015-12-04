@@ -16,11 +16,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.tests.driver;
+package org.apache.reef.tests.runtimename;
 
 import org.apache.reef.driver.evaluator.AllocatedEvaluator;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.tang.annotations.Unit;
+import org.apache.reef.tests.driver.RuntimeNameTestConfiguration;
 import org.apache.reef.tests.library.exceptions.DriverSideFailure;
 import org.apache.reef.wake.EventHandler;
 

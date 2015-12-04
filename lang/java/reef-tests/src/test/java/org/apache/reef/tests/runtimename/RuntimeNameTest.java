@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.tests.driver;
+package org.apache.reef.tests.runtimename;
 
 import org.apache.reef.client.DriverConfiguration;
 import org.apache.reef.client.DriverLauncher;
@@ -27,6 +27,7 @@ import org.apache.reef.tang.exceptions.BindException;
 import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.tests.TestEnvironment;
 import org.apache.reef.tests.TestEnvironmentFactory;
+import org.apache.reef.tests.driver.RuntimeNameTestConfiguration;
 import org.apache.reef.tests.library.driver.OnDriverStartedAllocateOne;
 import org.apache.reef.util.EnvironmentUtils;
 import org.junit.After;
