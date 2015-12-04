@@ -133,7 +133,7 @@ under the License.
   <Target Name="CopyJarFiles" DependsOnTargets="BuildJarProject">
     <MSBuild Targets="Build" BuildInParallel="$(BuildInParallel)" Properties="Chip=$(Chip);Lang=$(Lang)" Projects="@(ProjectFile)" />
 	<ItemGroup>
-        <MySourceFiles Include="$(Bindir)\**\*.jar"/>
+        <MySourceFiles Include="$(Bindir)\**\Org.Apache.REEF.Bridge.JAR\*.jar"/>
     </ItemGroup>
     <Copy
       SourceFiles="@(MySourceFiles)"
