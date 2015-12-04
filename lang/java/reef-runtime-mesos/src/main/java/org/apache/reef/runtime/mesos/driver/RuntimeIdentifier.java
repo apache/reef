@@ -18,9 +18,12 @@
  */
 package org.apache.reef.runtime.mesos.driver;
 
+import org.apache.reef.annotations.audience.Private;
+
 /**
  * Runtime Identifier Implementation.
  */
+@Private
 public final class RuntimeIdentifier {
   public static final String RUNTIME_NAME = "Mesos";
 
