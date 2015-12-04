@@ -41,6 +41,7 @@ public interface ResourceStatusEvent {
    * @return Runtime name
    */
   String getRuntimeName();
+
   /**
    * @return State of the resource
    */

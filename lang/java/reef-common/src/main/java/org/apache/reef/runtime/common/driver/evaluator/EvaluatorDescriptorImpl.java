@@ -35,7 +35,7 @@ final class EvaluatorDescriptorImpl implements EvaluatorDescriptor {
   private final int megaBytes;
   private final int numberOfCores;
   private EvaluatorProcess process;
-  private String runtimeName;
+  private final String runtimeName;
 
   EvaluatorDescriptorImpl(final NodeDescriptor nodeDescriptor,
                           final int megaBytes,
