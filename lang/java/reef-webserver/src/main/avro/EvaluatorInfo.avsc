@@ -28,6 +28,7 @@
       { "name": "memory", "type": "int" },
       { "name": "type", "type": "string" },
       { "name": "internetAddress", "type": "string" }
+      { "name": "runtimeName", "type": "string" }
     ]
   },
   {
