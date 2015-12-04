@@ -51,14 +51,6 @@ public final class TestEventStream implements EventStream {
     }
   }
 
-  private void checkGreaterThan(final EventType type, final int num) {
-    final int actualNum = eventCounter.get(type).get();
-    if (actualNum < num) {
-      throw new RuntimeException("The number of event " + type + " should be greater than " + num
-          + " but " + actualNum + " times occurred");
-    }
-  }
-
   /**
    * This validation is called in WatcherTestDriver#RuntimeStopHandler, so RuntimeStop should not be guaranteed
    * to be called before this.
@@ -71,9 +63,7 @@ public final class TestEventStream implements EventStream {
     checkEqualTo(EventType.ActiveContext, 2);
     checkEqualTo(EventType.FailedContext, 1);
     checkEqualTo(EventType.FailedTask, 1);
-    checkEqualTo(EventType.RunningTask, 2);
-    checkEqualTo(EventType.SuspendedTask, 1);
-    checkGreaterThan(EventType.TaskMessage, 0);
+    checkEqualTo(EventType.RunningTask, 1);
     checkEqualTo(EventType.CompletedTask, 1);
     checkEqualTo(EventType.ClosedContext, 1);
     checkEqualTo(EventType.CompletedEvaluator, 1);

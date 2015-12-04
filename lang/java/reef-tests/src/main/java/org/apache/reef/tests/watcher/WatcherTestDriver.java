@@ -26,11 +26,8 @@ import org.apache.reef.driver.evaluator.EvaluatorRequest;
 import org.apache.reef.driver.evaluator.EvaluatorRequestor;
 import org.apache.reef.driver.evaluator.FailedEvaluator;
 import org.apache.reef.driver.task.FailedTask;
-import org.apache.reef.driver.task.RunningTask;
-import org.apache.reef.driver.task.SuspendedTask;
 import org.apache.reef.driver.task.TaskConfiguration;
 import org.apache.reef.tang.Configuration;
-import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.annotations.Unit;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.time.event.StartTime;
@@ -53,18 +50,12 @@ public final class WatcherTestDriver {
    */
   private final AtomicBoolean isFirstEvaluator;
 
-  /**
-   * The first task will be suspended to generate SuspendedTask.
-   */
-  private final AtomicBoolean isFirstTask;
-
   @Inject
   private WatcherTestDriver(final EvaluatorRequestor evaluatorRequestor,
                             final TestEventStream testEventStream) {
     this.evaluatorRequestor = evaluatorRequestor;
     this.testEventStream = testEventStream;
     this.isFirstEvaluator = new AtomicBoolean(true);
-    this.isFirstTask = new AtomicBoolean(true);
   }
 
   public final class DriverStartedHandler implements EventHandler<StartTime> {
@@ -124,29 +115,11 @@ public final class WatcherTestDriver {
     }
   }
 
-  public final class TaskRunningHandler implements EventHandler<RunningTask> {
-
-    @Override
-    public void onNext(final RunningTask runningTask) {
-      if (isFirstTask.compareAndSet(true, false)) {
-        runningTask.suspend();
-      }
-    }
-  }
-
   public final class TaskFailedHandler implements EventHandler<FailedTask> {
 
     @Override
     public void onNext(final FailedTask failedTask) {
-      failedTask.getActiveContext().get().submitTask(getTaskConfiguration(true));
-    }
-  }
-
-  public final class TaskSuspendedHandler implements EventHandler<SuspendedTask> {
-
-    @Override
-    public void onNext(final SuspendedTask value) {
-      value.getActiveContext().submitTask(getTaskConfiguration(false));
+      failedTask.getActiveContext().get().submitTask(getTaskConfiguration());
     }
   }
 
@@ -158,16 +131,10 @@ public final class WatcherTestDriver {
     }
   }
 
-  private Configuration getTaskConfiguration(final boolean isTaskSuspended) {
-    final Configuration taskConf = TaskConfiguration.CONF
+  private Configuration getTaskConfiguration() {
+    return TaskConfiguration.CONF
         .set(TaskConfiguration.TASK, WatcherTestTask.class)
         .set(TaskConfiguration.IDENTIFIER, "TASK")
-        .set(TaskConfiguration.ON_SEND_MESSAGE, WatcherTestTask.class)
-        .set(TaskConfiguration.ON_SUSPEND, WatcherTestTask.TaskSuspendedHandler.class)
-        .build();
-
-    return Tang.Factory.getTang().newConfigurationBuilder(taskConf)
-        .bindNamedParameter(IsTaskSuspended.class, String.valueOf(isTaskSuspended))
         .build();
   }
 
