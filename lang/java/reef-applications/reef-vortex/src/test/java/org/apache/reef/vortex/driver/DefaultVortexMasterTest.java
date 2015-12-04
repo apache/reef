@@ -45,7 +45,7 @@ public class DefaultVortexMasterTest {
     final VortexWorkerManager vortexWorkerManager1 = testUtil.newWorker();
     final RunningWorkers runningWorkers = new RunningWorkers(new RandomSchedulingPolicy());
     final PendingTasklets pendingTasklets = new PendingTasklets();
-    final DefaultVortexMaster vortexMaster = new DefaultVortexMaster(runningWorkers, pendingTasklets);
+    final DefaultVortexMaster vortexMaster = new DefaultVortexMaster(runningWorkers, pendingTasklets, 5);
 
     final AtomicBoolean callbackReceived = new AtomicBoolean(false);
     final CountDownLatch latch = new CountDownLatch(1);
@@ -87,7 +87,7 @@ public class DefaultVortexMasterTest {
     final VortexWorkerManager vortexWorkerManager2 = testUtil.newWorker();
     final RunningWorkers runningWorkers = new RunningWorkers(new RandomSchedulingPolicy());
     final PendingTasklets pendingTasklets = new PendingTasklets();
-    final DefaultVortexMaster vortexMaster = new DefaultVortexMaster(runningWorkers, pendingTasklets);
+    final DefaultVortexMaster vortexMaster = new DefaultVortexMaster(runningWorkers, pendingTasklets, 5);
 
     // Allocate worker & tasklet and schedule
     vortexMaster.workerAllocated(vortexWorkerManager1);
@@ -120,7 +120,7 @@ public class DefaultVortexMasterTest {
     final ArrayList<VortexFuture> vortexFutures = new ArrayList<>();
     final RunningWorkers runningWorkers = new RunningWorkers(new RandomSchedulingPolicy());
     final PendingTasklets pendingTasklets = new PendingTasklets();
-    final DefaultVortexMaster vortexMaster = new DefaultVortexMaster(runningWorkers, pendingTasklets);
+    final DefaultVortexMaster vortexMaster = new DefaultVortexMaster(runningWorkers, pendingTasklets, 5);
 
     // Allocate iniital evaluators (will all be preempted later...)
     final List<VortexWorkerManager> initialWorkers = new ArrayList<>();
@@ -171,7 +171,7 @@ public class DefaultVortexMasterTest {
     final VortexWorkerManager vortexWorkerManager1 = testUtil.newWorker();
     final RunningWorkers runningWorkers = new RunningWorkers(new RandomSchedulingPolicy());
     final PendingTasklets pendingTasklets = new PendingTasklets();
-    final DefaultVortexMaster vortexMaster = new DefaultVortexMaster(runningWorkers, pendingTasklets);
+    final DefaultVortexMaster vortexMaster = new DefaultVortexMaster(runningWorkers, pendingTasklets, 5);
 
     final AtomicBoolean callbackReceived = new AtomicBoolean(false);
     final CountDownLatch latch = new CountDownLatch(1);

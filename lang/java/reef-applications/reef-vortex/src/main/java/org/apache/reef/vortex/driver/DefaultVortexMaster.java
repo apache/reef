@@ -20,6 +20,7 @@ package org.apache.reef.vortex.driver;
 
 import net.jcip.annotations.ThreadSafe;
 import org.apache.reef.annotations.audience.DriverSide;
+import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.util.Optional;
 import org.apache.reef.vortex.api.FutureCallback;
 import org.apache.reef.vortex.api.VortexFunction;
@@ -28,6 +29,8 @@ import org.apache.reef.vortex.api.VortexFuture;
 import javax.inject.Inject;
 import java.io.Serializable;
 import java.util.*;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -40,13 +43,16 @@ final class DefaultVortexMaster implements VortexMaster {
   private final AtomicInteger taskletIdCounter = new AtomicInteger();
   private final RunningWorkers runningWorkers;
   private final PendingTasklets pendingTasklets;
+  private final Executor executor;
 
   /**
    * @param runningWorkers for managing all running workers.
    */
   @Inject
   DefaultVortexMaster(final RunningWorkers runningWorkers,
-                      final PendingTasklets pendingTasklets) {
+                      final PendingTasklets pendingTasklets,
+                      @Parameter(VortexMasterConf.CallbackThreadpoolSize.class) final int threadPoolSize) {
+    this.executor = Executors.newFixedThreadPool(threadPoolSize);
     this.runningWorkers = runningWorkers;
     this.pendingTasklets = pendingTasklets;
   }
@@ -61,9 +67,9 @@ final class DefaultVortexMaster implements VortexMaster {
     // TODO[REEF-500]: Simple duplicate Vortex Tasklet launch.
     final VortexFuture<TOutput> vortexFuture;
     if (callback.isPresent()) {
-      vortexFuture = new VortexFuture<>(callback.get());
+      vortexFuture = new VortexFuture<>(executor, callback.get());
     } else {
-      vortexFuture = new VortexFuture<>();
+      vortexFuture = new VortexFuture<>(executor);
     }
 
     this.pendingTasklets.addLast(new Tasklet<>(taskletIdCounter.getAndIncrement(), function, input, vortexFuture));
