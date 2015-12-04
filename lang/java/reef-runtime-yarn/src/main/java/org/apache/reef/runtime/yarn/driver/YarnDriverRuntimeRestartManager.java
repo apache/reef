@@ -234,7 +234,8 @@ public final class YarnDriverRuntimeRestartManager implements DriverRuntimeResta
             ResourceEventImpl.newRecoveryBuilder().setIdentifier(container.getId().toString())
                 .setNodeId(container.getNodeId().toString()).setRackName(rackNameFormatter.getRackName(container))
                 .setResourceMemory(container.getResource().getMemory())
-                .setVirtualCores(container.getResource().getVirtualCores()).build()));
+                .setVirtualCores(container.getResource().getVirtualCores())
+                .setRuntimeName(RuntimeIdentifier.RUNTIME_NAME).build()));
       }
     }
 

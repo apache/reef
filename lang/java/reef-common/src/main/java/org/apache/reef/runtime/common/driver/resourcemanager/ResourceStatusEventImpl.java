@@ -31,17 +31,24 @@ public final class ResourceStatusEventImpl implements ResourceStatusEvent {
   private final ReefServiceProtos.State state;
   private final Optional<String> diagnostics;
   private final Optional<Integer> exitCode;
+  private final String runtimeName;
 
   private ResourceStatusEventImpl(final Builder builder) {
     this.identifier = BuilderUtils.notNull(builder.identifier);
     this.state = BuilderUtils.notNull(builder.state);
     this.diagnostics = Optional.ofNullable(builder.diagnostics);
     this.exitCode = Optional.ofNullable(builder.exitCode);
+    this.runtimeName = BuilderUtils.notNull(builder.identifier);
   }
 
   @Override
   public String getIdentifier() {
     return identifier;
+  }
+
+  @Override
+  public String getRuntimeName() {
+    return runtimeName;
   }
 
   @Override
@@ -68,6 +75,7 @@ public final class ResourceStatusEventImpl implements ResourceStatusEvent {
    */
   public static final class Builder implements org.apache.reef.util.Builder<ResourceStatusEvent> {
     private String identifier;
+    private String runtimeName;
     private ReefServiceProtos.State state;
     private String diagnostics;
     private Integer exitCode;
@@ -80,6 +88,13 @@ public final class ResourceStatusEventImpl implements ResourceStatusEvent {
       return this;
     }
 
+    /**
+     * @see ResourceStatusEvent#getIdentifier()
+     */
+    public Builder setRuntimeName(final String runtimeName) {
+      this.runtimeName = runtimeName;
+      return this;
+    }
     /**
      * @see ResourceStatusEvent#getState()
      */

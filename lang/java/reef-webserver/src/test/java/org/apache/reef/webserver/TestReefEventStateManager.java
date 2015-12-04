@@ -123,6 +123,11 @@ final class MockEvaluatorDescriptor implements EvaluatorDescriptor {
   public int getNumberOfCores() {
     return 1;
   }
+
+  @Override
+  public String getRuntimeName() {
+    return "Local";
+  }
 }
 
 final class MockNodeDescriptor implements NodeDescriptor {
