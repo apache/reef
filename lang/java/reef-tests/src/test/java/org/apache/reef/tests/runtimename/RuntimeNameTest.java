@@ -51,23 +51,23 @@ public class RuntimeNameTest {
   public void testRuntimeName() throws BindException, InjectionException {
     final Configuration runtimeConfiguration = this.testEnvironment.getRuntimeConfiguration();
     final Configuration testConfiguration = RuntimeNameTestConfiguration.CONF
-      .set(RuntimeNameTestConfiguration.RUNTIME_NAME, this.testEnvironment.getRuntimeName())
-      .build();
+        .set(RuntimeNameTestConfiguration.RUNTIME_NAME, this.testEnvironment.getRuntimeName())
+        .build();
 
 
 
     final Configuration driverConfiguration = DriverConfiguration.CONF
-      .set(DriverConfiguration.GLOBAL_LIBRARIES, EnvironmentUtils.getClassLocation(OnDriverStartedAllocateOne.class))
-      .set(DriverConfiguration.DRIVER_IDENTIFIER, "TEST_DriverTest")
-      .set(DriverConfiguration.ON_DRIVER_STARTED, OnDriverStartedAllocateOne.class)
-      .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, RuntimeNameDriver.EvaluatorAllocatedHandler.class)
-      .build();
+        .set(DriverConfiguration.GLOBAL_LIBRARIES, EnvironmentUtils.getClassLocation(OnDriverStartedAllocateOne.class))
+        .set(DriverConfiguration.DRIVER_IDENTIFIER, "TEST_DriverTest")
+        .set(DriverConfiguration.ON_DRIVER_STARTED, OnDriverStartedAllocateOne.class)
+        .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, RuntimeNameDriver.EvaluatorAllocatedHandler.class)
+        .build();
 
     final Configuration mergedDriverConfiguration = Tang.Factory.getTang()
-      .newConfigurationBuilder(driverConfiguration, testConfiguration).build();
+        .newConfigurationBuilder(driverConfiguration, testConfiguration).build();
 
     final LauncherStatus status = DriverLauncher.getLauncher(runtimeConfiguration)
-      .run(mergedDriverConfiguration, this.testEnvironment.getTestTimeout());
+        .run(mergedDriverConfiguration, this.testEnvironment.getTestTimeout());
 
     Assert.assertTrue("Job state after execution: " + status, status.isSuccess());
   }
