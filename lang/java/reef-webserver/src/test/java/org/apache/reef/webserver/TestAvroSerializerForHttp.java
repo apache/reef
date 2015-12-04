@@ -79,7 +79,7 @@ public class TestAvroSerializerForHttp {
       final AvroEvaluatorsInfo evaluatorInfo = serializer.toAvro(ids, data);
       final String evaluatorInfoString = serializer.toString(evaluatorInfo);
       Assert.assertEquals(evaluatorInfoString, "{\"evaluatorsInfo\":[{\"evaluatorId\":\"abc\",\"nodeId\":\"\"," +
-          "\"nodeName\":\"mock\",\"memory\":64,\"type\":\"CLR\",\"internetAddress\":\"\"}]}");
+          "\"nodeName\":\"mock\",\"memory\":64,\"type\":\"CLR\",\"internetAddress\":\"\",\"runtimeName\":\"Local\"}]}");
     } catch (final InjectionException e) {
       Assert.fail("Not able to inject EvaluatorInfoSerializer");
     }

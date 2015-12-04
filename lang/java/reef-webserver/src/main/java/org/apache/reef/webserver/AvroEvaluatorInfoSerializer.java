@@ -59,6 +59,7 @@ public class AvroEvaluatorInfoSerializer implements EvaluatorInfoSerializer {
       InetSocketAddress address = null;
       int memory = 0;
       String type = null;
+      String runtimeName = null;
 
       if (evaluatorDescriptor != null) {
         nodeId = evaluatorDescriptor.getNodeDescriptor().getId();
@@ -66,6 +67,7 @@ public class AvroEvaluatorInfoSerializer implements EvaluatorInfoSerializer {
         address = evaluatorDescriptor.getNodeDescriptor().getInetSocketAddress();
         memory = evaluatorDescriptor.getMemory();
         type = evaluatorDescriptor.getProcess().getType().toString();
+        runtimeName = evaluatorDescriptor.getRuntimeName();
       }
 
       evaluatorsInfo.add(AvroEvaluatorInfo.newBuilder()
@@ -75,6 +77,7 @@ public class AvroEvaluatorInfoSerializer implements EvaluatorInfoSerializer {
           .setInternetAddress(address != null ? address.toString() : "")
           .setMemory(memory)
           .setType(type != null ? type : "")
+          .setRuntimeName(runtimeName != null ? runtimeName : "")
           .build());
     }
 
