@@ -180,6 +180,13 @@ final class YarnClusterSubmissionFromCS {
   }
 
   /**
+   * @return job Submission Directory Prefix which is serialized from C#
+   */
+  String getJobSubmissionDirectoryPrefix() {
+    return jobSubmissionDirectoryPrefix;
+  }
+
+  /**
    * Takes the YARN cluster job submission configuration file, deserializes it, and creates submission object.
    */
   static YarnClusterSubmissionFromCS fromJobSubmissionParametersFile(final File yarnClusterJobSubmissionParametersFile)

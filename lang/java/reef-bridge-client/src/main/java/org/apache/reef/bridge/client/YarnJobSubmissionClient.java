@@ -37,6 +37,7 @@ import org.apache.reef.runtime.yarn.client.SecurityTokenProvider;
 import org.apache.reef.runtime.yarn.client.YarnSubmissionHelper;
 import org.apache.reef.runtime.yarn.client.uploader.JobFolder;
 import org.apache.reef.runtime.yarn.client.uploader.JobUploader;
+import org.apache.reef.runtime.yarn.driver.parameters.JobSubmissionDirectoryPrefix;
 import org.apache.reef.runtime.yarn.util.YarnConfigurationConstructor;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.Tang;
@@ -246,6 +247,7 @@ public final class YarnJobSubmissionClient {
     final Configuration yarnJobSubmissionClientConfig = Tang.Factory.getTang().newConfigurationBuilder()
         .bindImplementation(RuntimeClasspathProvider.class, YarnClasspathProvider.class)
         .bindConstructor(org.apache.hadoop.yarn.conf.YarnConfiguration.class, YarnConfigurationConstructor.class)
+        .bindNamedParameter(JobSubmissionDirectoryPrefix.class, yarnSubmission.getJobSubmissionDirectoryPrefix())
         .bindList(DriverLaunchCommandPrefix.class, launchCommandPrefix)
         .build();
     final YarnJobSubmissionClient client = Tang.Factory.getTang().newInjector(yarnJobSubmissionClientConfig)
