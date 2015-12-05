@@ -26,6 +26,8 @@ import org.junit.Test;
 
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.Assert.*;
@@ -201,6 +203,56 @@ public class DefaultVortexMasterTest {
     assertTrue("The VortexFuture should be done", future.isDone());
     latch.await();
     assertTrue("Callback should have been received", callbackReceived.get());
+  }
+
+  /**
+   * Test handling of single tasklet execution with a cancellation after launch.
+   */
+  @Test(timeout = 10000)
+  public void testSingleTaskletCancellation() throws Exception {
+    final RunningWorkers runningWorkers = new RunningWorkers(new RandomSchedulingPolicy());
+    final PendingTasklets pendingTasklets = new PendingTasklets();
+    final VortexFuture future = createTaskletCancellationFuture(runningWorkers, pendingTasklets);
+    launchTasklets(runningWorkers, pendingTasklets, 1);
+
+    assertTrue(future.cancel(true));
+    assertTrue("The VortexFuture should be cancelled.", future.isCancelled());
+    assertTrue("The VortexFuture should be done", future.isDone());
+  }
+
+  /**
+   * Test handling of single tasklet execution with a cancellation before launch.
+   */
+  @Test(timeout = 10000)
+  public void testSingleTaskletCancellationBeforeLaunch() throws Exception {
+
+    final RunningWorkers runningWorkers = new RunningWorkers(new RandomSchedulingPolicy());
+    final PendingTasklets pendingTasklets = new PendingTasklets();
+    final VortexFuture future = createTaskletCancellationFuture(runningWorkers, pendingTasklets);
+
+    try {
+      future.cancel(true, 100, TimeUnit.MILLISECONDS);
+      fail();
+    } catch (final TimeoutException e) {
+      // TimeoutException is expected.
+    }
+
+    launchTasklets(runningWorkers, pendingTasklets, 1);
+    assertTrue(future.cancel(true));
+    assertTrue("The VortexFuture should be cancelled.", future.isCancelled());
+    assertTrue("The VortexFuture should be done", future.isDone());
+  }
+
+  private VortexFuture createTaskletCancellationFuture(final RunningWorkers runningWorkers,
+                                                       final PendingTasklets pendingTasklets) {
+    final VortexFunction vortexFunction = testUtil.newInfiniteLoopFunction();
+    final VortexWorkerManager vortexWorkerManager1 = testUtil.newWorker();
+
+    final DefaultVortexMaster vortexMaster = new DefaultVortexMaster(runningWorkers, pendingTasklets, 5);
+
+    // Allocate worker & tasklet and schedule
+    vortexMaster.workerAllocated(vortexWorkerManager1);
+    return vortexMaster.enqueueTasklet(vortexFunction, null, Optional.<FutureCallback<Integer>>empty());
   }
 
   /**

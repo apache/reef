@@ -66,14 +66,24 @@ final class DefaultVortexMaster implements VortexMaster {
                      final Optional<FutureCallback<TOutput>> callback) {
     // TODO[REEF-500]: Simple duplicate Vortex Tasklet launch.
     final VortexFuture<TOutput> vortexFuture;
+    final int id = taskletIdCounter.getAndIncrement();
     if (callback.isPresent()) {
-      vortexFuture = new VortexFuture<>(executor, callback.get());
+      vortexFuture = new VortexFuture<>(executor, this, id, callback.get());
     } else {
-      vortexFuture = new VortexFuture<>(executor);
+      vortexFuture = new VortexFuture<>(executor, this, id);
     }
 
-    this.pendingTasklets.addLast(new Tasklet<>(taskletIdCounter.getAndIncrement(), function, input, vortexFuture));
+    final Tasklet tasklet = new Tasklet<>(id, function, input, vortexFuture);
+    this.pendingTasklets.addLast(tasklet);
     return vortexFuture;
+  }
+
+  /**
+   * Cancels tasklets on the running workers.
+   */
+  @Override
+  public void cancelTasklet(final boolean mayInterruptIfRunning, final int taskletId) {
+    this.runningWorkers.cancelTasklet(mayInterruptIfRunning, taskletId);
   }
 
   /**
@@ -113,6 +123,14 @@ final class DefaultVortexMaster implements VortexMaster {
   @Override
   public void taskletErrored(final String workerId, final int taskletId, final Exception exception) {
     runningWorkers.errorTasklet(workerId, taskletId, exception);
+  }
+
+  /**
+   * Notify tasklet cancellation to runningWorkers.
+   */
+  @Override
+  public void taskletCancelled(final String workerId, final int taskletId) {
+    runningWorkers.taskletCancelled(workerId, taskletId);
   }
 
   /**

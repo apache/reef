@@ -143,6 +143,12 @@ class FirstFitSchedulingPolicy implements SchedulingPolicy {
     removeTasklet(workerId);
   }
 
+  @Override
+  public void taskletCancelled(final VortexWorkerManager vortexWorker, final Tasklet tasklet) {
+    final String workerId = vortexWorker.getId();
+    removeTasklet(workerId);
+  }
+
   private void removeTasklet(final String workerId) {
     if (idLoadMap.containsKey(workerId)) {
       idLoadMap.put(workerId, Math.max(0, idLoadMap.get(workerId) - 1));

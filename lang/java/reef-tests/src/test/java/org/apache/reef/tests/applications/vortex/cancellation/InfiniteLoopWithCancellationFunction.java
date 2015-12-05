@@ -16,33 +16,29 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.vortex.common;
 
-import org.apache.reef.annotations.Unstable;
+package org.apache.reef.tests.applications.vortex.cancellation;
+
+import org.apache.reef.vortex.api.VortexFunction;
 
 import java.io.Serializable;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
- * Worker-to-Master protocol.
+ * Runs an infinite loop and waits for cancellation.
  */
-@Unstable
-public interface WorkerReport extends Serializable {
-  /**
-   * Type of WorkerReport.
-   */
-  enum WorkerReportType {
-    TaskletResult,
-    TaskletCancelled,
-    TaskletFailure
+public final class InfiniteLoopWithCancellationFunction implements VortexFunction {
+  private static final Logger LOG = Logger.getLogger(InfiniteLoopWithCancellationFunction.class.getName());
+
+  @Override
+  public Serializable call(final Serializable serializable) throws Exception {
+    LOG.log(Level.FINE, "Entered Infinite Loop Tasklet.");
+    while (true) {
+      Thread.sleep(100);
+      if (Thread.currentThread().isInterrupted()) {
+        throw new InterruptedException("Expected exception!");
+      }
+    }
   }
-
-  /**
-   * @return the type of this WorkerReport.
-   */
-  WorkerReportType getType();
-
-  /**
-   * @return the taskletId of this WorkerReport.
-   */
-  int getTaskletId();
 }

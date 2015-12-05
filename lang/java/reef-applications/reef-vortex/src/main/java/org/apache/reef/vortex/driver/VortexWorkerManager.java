@@ -21,6 +21,7 @@ package org.apache.reef.vortex.driver;
 import net.jcip.annotations.NotThreadSafe;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.driver.task.RunningTask;
+import org.apache.reef.vortex.common.TaskletCancellationRequest;
 import org.apache.reef.vortex.common.TaskletExecutionRequest;
 
 import java.io.Serializable;
@@ -51,6 +52,11 @@ class VortexWorkerManager {
     vortexRequestor.send(reefTask, taskletExecutionRequest);
   }
 
+  void cancelTasklet(final int taskletId) {
+    final TaskletCancellationRequest cancellationRequest = new TaskletCancellationRequest(taskletId);
+    vortexRequestor.send(reefTask, cancellationRequest);
+  }
+
   <TOutput extends Serializable> Tasklet taskletCompleted(final Integer taskletId, final TOutput result) {
     final Tasklet<?, TOutput> tasklet = runningTasklets.remove(taskletId);
     assert tasklet != null; // Tasklet should complete/error only once
@@ -62,6 +68,13 @@ class VortexWorkerManager {
     final Tasklet tasklet = runningTasklets.remove(taskletId);
     assert tasklet != null; // Tasklet should complete/error only once
     tasklet.threwException(exception);
+    return tasklet;
+  }
+
+  Tasklet taskletCancelled(final Integer taskletId) {
+    final Tasklet tasklet = runningTasklets.remove(taskletId);
+    assert tasklet != null; // Tasklet should finish only once.
+    tasklet.cancelled();
     return tasklet;
   }
 

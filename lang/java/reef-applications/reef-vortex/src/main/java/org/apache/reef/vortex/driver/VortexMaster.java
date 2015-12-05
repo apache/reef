@@ -44,6 +44,14 @@ public interface VortexMaster {
                      final Optional<FutureCallback<TOutput>> callback);
 
   /**
+   * Call this when a Tasklet is to be cancelled.
+   * @param mayInterruptIfRunning if true, will attempt to cancel running Tasklets; otherwise will only
+   *                              prevent a pending Tasklet from running.
+   * @param taskletId the ID of the Tasklet.
+   */
+  void cancelTasklet(final boolean mayInterruptIfRunning, final int taskletId);
+
+  /**
    * Call this when a new worker is up and running.
    */
   void workerAllocated(final VortexWorkerManager vortexWorkerManager);
@@ -62,6 +70,11 @@ public interface VortexMaster {
    * Call this when a Tasklet errored.
    */
   void taskletErrored(final String workerId, final int taskletId, final Exception exception);
+
+  /**
+   * Call this when a Tasklet is cancelled and the cancellation is honored.
+   */
+  void taskletCancelled(final String workerId, final int taskletId);
 
   /**
    * Release all resources and shut down.

@@ -54,11 +54,21 @@ public final class VortexAvroUtils {
       final byte[] serializedFunction = SerializationUtils.serialize(taskletExecutionRequest.getFunction());
       avroVortexRequest = AvroVortexRequest.newBuilder()
           .setRequestType(AvroRequestType.ExecuteTasklet)
-          .setTaskletExecutionRequest(
+          .setTaskletRequest(
               AvroTaskletExecutionRequest.newBuilder()
                   .setTaskletId(taskletExecutionRequest.getTaskletId())
                   .setSerializedInput(ByteBuffer.wrap(serializedInput))
                   .setSerializedUserFunction(ByteBuffer.wrap(serializedFunction))
+                  .build())
+          .build();
+      break;
+    case CancelTasklet:
+      final TaskletCancellationRequest taskletCancellationRequest = (TaskletCancellationRequest) vortexRequest;
+      avroVortexRequest = AvroVortexRequest.newBuilder()
+          .setRequestType(AvroRequestType.CancelTasklet)
+          .setTaskletRequest(
+              AvroTaskletCancellationRequest.newBuilder()
+                  .setTaskletId(taskletCancellationRequest.getTaskletId())
                   .build())
           .build();
       break;
@@ -85,10 +95,20 @@ public final class VortexAvroUtils {
       final byte[] serializedOutput = SerializationUtils.serialize(taskletResultReport.getResult());
       avroWorkerReport = AvroWorkerReport.newBuilder()
           .setReportType(AvroReportType.TaskletResult)
-          .setTaskletResult(
+          .setTaskletReport(
               AvroTaskletResultReport.newBuilder()
                   .setTaskletId(taskletResultReport.getTaskletId())
                   .setSerializedOutput(ByteBuffer.wrap(serializedOutput))
+                  .build())
+          .build();
+      break;
+    case TaskletCancelled:
+      final TaskletCancelledReport taskletCancelledReport = (TaskletCancelledReport) workerReport;
+      avroWorkerReport = AvroWorkerReport.newBuilder()
+          .setReportType(AvroReportType.TaskletCancelled)
+          .setTaskletReport(
+              AvroTaskletCancelledReport.newBuilder()
+                  .setTaskletId(workerReport.getTaskletId())
                   .build())
           .build();
       break;
@@ -97,7 +117,7 @@ public final class VortexAvroUtils {
       final byte[] serializedException = SerializationUtils.serialize(taskletFailureReport.getException());
       avroWorkerReport = AvroWorkerReport.newBuilder()
           .setReportType(AvroReportType.TaskletFailure)
-          .setTaskletFailure(
+          .setTaskletReport(
               AvroTaskletFailureReport.newBuilder()
                   .setTaskletId(taskletFailureReport.getTaskletId())
                   .setSerializedException(ByteBuffer.wrap(serializedException))
@@ -123,7 +143,8 @@ public final class VortexAvroUtils {
     final VortexRequest vortexRequest;
     switch (avroVortexRequest.getRequestType()) {
     case ExecuteTasklet:
-      final AvroTaskletExecutionRequest taskletExecutionRequest = avroVortexRequest.getTaskletExecutionRequest();
+      final AvroTaskletExecutionRequest taskletExecutionRequest =
+          (AvroTaskletExecutionRequest)avroVortexRequest.getTaskletRequest();
       // TODO[REEF-1003]: Use reflection instead of serialization when launching VortexFunction
       final VortexFunction function =
           (VortexFunction) SerializationUtils.deserialize(
@@ -133,6 +154,11 @@ public final class VortexAvroUtils {
           (Serializable) SerializationUtils.deserialize(
               taskletExecutionRequest.getSerializedInput().array());
       vortexRequest = new TaskletExecutionRequest(taskletExecutionRequest.getTaskletId(), function, input);
+      break;
+    case CancelTasklet:
+      final AvroTaskletCancellationRequest taskletCancellationRequest =
+          (AvroTaskletCancellationRequest)avroVortexRequest.getTaskletRequest();
+      vortexRequest = new TaskletCancellationRequest(taskletCancellationRequest.getTaskletId());
       break;
     default:
       throw new RuntimeException("Undefined VortexRequest type");
@@ -150,14 +176,21 @@ public final class VortexAvroUtils {
     final AvroWorkerReport avroWorkerReport = toAvroObject(bytes, AvroWorkerReport.class);
     switch (avroWorkerReport.getReportType()) {
     case TaskletResult:
-      final AvroTaskletResultReport taskletResultReport = avroWorkerReport.getTaskletResult();
+      final AvroTaskletResultReport taskletResultReport =
+          (AvroTaskletResultReport)avroWorkerReport.getTaskletReport();
       // TODO[REEF-1005]: Allow custom codecs for input/output data in Vortex.
       final Serializable output =
           (Serializable) SerializationUtils.deserialize(taskletResultReport.getSerializedOutput().array());
       workerReport = new TaskletResultReport<>(taskletResultReport.getTaskletId(), output);
       break;
+    case TaskletCancelled:
+      final AvroTaskletCancelledReport taskletCancelledReport =
+          (AvroTaskletCancelledReport)avroWorkerReport.getTaskletReport();
+      workerReport = new TaskletCancelledReport(taskletCancelledReport.getTaskletId());
+      break;
     case TaskletFailure:
-      final AvroTaskletFailureReport taskletFailureReport = avroWorkerReport.getTaskletFailure();
+      final AvroTaskletFailureReport taskletFailureReport =
+          (AvroTaskletFailureReport)avroWorkerReport.getTaskletReport();
       final Exception exception =
           (Exception) SerializationUtils.deserialize(taskletFailureReport.getSerializedException().array());
       workerReport = new TaskletFailureReport(taskletFailureReport.getTaskletId(), exception);

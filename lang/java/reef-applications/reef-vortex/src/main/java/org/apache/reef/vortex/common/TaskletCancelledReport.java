@@ -20,29 +20,27 @@ package org.apache.reef.vortex.common;
 
 import org.apache.reef.annotations.Unstable;
 
-import java.io.Serializable;
-
 /**
- * Worker-to-Master protocol.
+ * The report of a cancelled Tasklet.
  */
 @Unstable
-public interface WorkerReport extends Serializable {
+public final class TaskletCancelledReport implements WorkerReport {
+  private int taskletId;
+
   /**
-   * Type of WorkerReport.
+   * @param taskletId of the cancelled tasklet.
    */
-  enum WorkerReportType {
-    TaskletResult,
-    TaskletCancelled,
-    TaskletFailure
+  public TaskletCancelledReport(final int taskletId) {
+    this.taskletId = taskletId;
   }
 
-  /**
-   * @return the type of this WorkerReport.
-   */
-  WorkerReportType getType();
+  @Override
+  public WorkerReportType getType() {
+    return WorkerReportType.TaskletCancelled;
+  }
 
-  /**
-   * @return the taskletId of this WorkerReport.
-   */
-  int getTaskletId();
+  @Override
+  public int getTaskletId() {
+    return taskletId;
+  }
 }

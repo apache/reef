@@ -57,4 +57,9 @@ interface SchedulingPolicy {
    * Tasklet failed.
    */
   void taskletFailed(final VortexWorkerManager vortexWorker, final Tasklet tasklet);
+
+  /**
+   * Tasklet cancelled.
+   */
+  void taskletCancelled(final VortexWorkerManager vortexWorker, final Tasklet tasklet);
 }

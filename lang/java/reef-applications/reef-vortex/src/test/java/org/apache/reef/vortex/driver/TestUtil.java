@@ -21,12 +21,18 @@ package org.apache.reef.vortex.driver;
 import org.apache.reef.driver.task.RunningTask;
 import org.apache.reef.vortex.api.VortexFunction;
 import org.apache.reef.vortex.api.VortexFuture;
+import org.apache.reef.vortex.common.TaskletCancellationRequest;
+import org.apache.reef.vortex.common.VortexRequest;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 import java.io.Serializable;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -37,6 +43,7 @@ public final class TestUtil {
   private final AtomicInteger taskletId = new AtomicInteger(0);
   private final AtomicInteger workerId = new AtomicInteger(0);
   private final Executor executor = Executors.newFixedThreadPool(5);
+  private final VortexMaster vortexMaster = mock(VortexMaster.class);
 
   /**
    * @return a new mocked worker.
@@ -45,14 +52,28 @@ public final class TestUtil {
     final RunningTask reefTask = mock(RunningTask.class);
     when(reefTask.getId()).thenReturn("worker" + String.valueOf(workerId.getAndIncrement()));
     final VortexRequestor vortexRequestor = mock(VortexRequestor.class);
-    return new VortexWorkerManager(vortexRequestor, reefTask);
+    final VortexWorkerManager workerManager = new VortexWorkerManager(vortexRequestor, reefTask);
+    doAnswer(new Answer() {
+      @Override
+      public Object answer(final InvocationOnMock invocation) throws Throwable {
+        final VortexRequest request = (VortexRequest)invocation.getArguments()[1];
+        if (request instanceof TaskletCancellationRequest) {
+          workerManager.taskletCancelled(request.getTaskletId());
+        }
+
+        return null;
+      }
+    }).when(vortexRequestor).send(any(RunningTask.class), any(VortexRequest.class));
+
+    return workerManager;
   }
 
   /**
    * @return a new dummy tasklet.
    */
   public Tasklet newTasklet() {
-    return new Tasklet(taskletId.getAndIncrement(), null, null, new VortexFuture(executor));
+    final int id = taskletId.getAndIncrement();
+    return new Tasklet(id, null, null, new VortexFuture(executor, vortexMaster, id));
   }
 
   /**
@@ -63,6 +84,23 @@ public final class TestUtil {
       @Override
       public Serializable call(final Serializable serializable) throws Exception {
         return null;
+      }
+    };
+  }
+
+  /**
+   * @return a new dummy function.
+   */
+  public VortexFunction newInfiniteLoopFunction() {
+    return new VortexFunction() {
+      @Override
+      public Serializable call(final Serializable serializable) throws Exception {
+        while(true) {
+          Thread.sleep(100);
+          if (Thread.currentThread().isInterrupted()) {
+            throw new InterruptedException();
+          }
+        }
       }
     };
   }

@@ -28,6 +28,7 @@ import org.apache.reef.tang.Configurations;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.tang.annotations.Unit;
 import org.apache.reef.vortex.api.VortexStart;
+import org.apache.reef.vortex.common.TaskletCancelledReport;
 import org.apache.reef.vortex.common.TaskletFailureReport;
 import org.apache.reef.vortex.common.TaskletResultReport;
 import org.apache.reef.vortex.common.VortexAvroUtils;
@@ -159,6 +160,10 @@ final class VortexDriver {
       case TaskletResult:
         final TaskletResultReport taskletResultReport = (TaskletResultReport) workerReport;
         vortexMaster.taskletCompleted(workerId, taskletResultReport.getTaskletId(), taskletResultReport.getResult());
+        break;
+      case TaskletCancelled:
+        final TaskletCancelledReport taskletCancelledReport = (TaskletCancelledReport)workerReport;
+        vortexMaster.taskletCancelled(workerId, taskletCancelledReport.getTaskletId());
         break;
       case TaskletFailure:
         final TaskletFailureReport taskletFailureReport = (TaskletFailureReport) workerReport;

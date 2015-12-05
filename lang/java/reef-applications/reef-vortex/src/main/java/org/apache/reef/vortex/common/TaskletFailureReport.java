@@ -48,6 +48,7 @@ public final class TaskletFailureReport implements WorkerReport {
   /**
    * @return the id of the tasklet.
    */
+  @Override
   public int getTaskletId() {
     return taskletId;
   }

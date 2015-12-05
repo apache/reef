@@ -80,6 +80,13 @@ class Tasklet<TInput extends Serializable, TOutput extends Serializable> {
   }
 
   /**
+   * Called by VortexMaster to let the user know that the task has been cancelled.
+   */
+  void cancelled(){
+    vortexFuture.cancelled();
+  }
+
+  /**
    * For tests.
    */
   boolean isCompleted() {

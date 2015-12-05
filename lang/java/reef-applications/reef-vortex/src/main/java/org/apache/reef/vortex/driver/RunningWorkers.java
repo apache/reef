@@ -30,6 +30,8 @@ import java.util.*;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Keeps track of all running VortexWorkers and Tasklets.
@@ -38,8 +40,12 @@ import java.util.concurrent.locks.ReentrantLock;
 @ThreadSafe
 @DriverSide
 final class RunningWorkers {
+  private static final Logger LOG = Logger.getLogger(RunningWorkers.class.getName());
+
   // RunningWorkers and its locks
   private final HashMap<String, VortexWorkerManager> runningWorkers = new HashMap<>(); // Running workers/tasklets
+  private final Set<Integer> taskletsToCancel = new HashSet<>();
+
   private final Lock lock = new ReentrantLock();
   private final Condition noWorkerOrResource = lock.newCondition();
 
@@ -132,9 +138,41 @@ final class RunningWorkers {
           }
         }
 
+        // TODO[JIRA REEF-500]: Will need to support duplicate tasklets.
+        if (taskletsToCancel.contains(tasklet.getId())) {
+          tasklet.cancelled();
+          taskletsToCancel.remove(tasklet.getId());
+          LOG.log(Level.FINE, "Cancelled tasklet %d", tasklet.getId());
+          return;
+        }
+
         final VortexWorkerManager vortexWorkerManager = runningWorkers.get(workerId.get());
         vortexWorkerManager.launchTasklet(tasklet);
         schedulingPolicy.taskletLaunched(vortexWorkerManager, tasklet);
+      }
+    } finally {
+      lock.unlock();
+    }
+  }
+
+  /**
+   * Concurrency: Called by multiple threads.
+   * Parameter: Same taskletId can come in multiple times.
+   */
+  void cancelTasklet(final boolean mayInterruptIfRunning, final int taskletId) {
+    lock.lock();
+    try {
+      // This is not ideal since we are using a linear time search on all the workers.
+      final String workerId = getWhereTaskletWasScheduledTo(taskletId);
+      if (workerId == null) {
+        // launchTasklet called but not yet running.
+        taskletsToCancel.add(taskletId);
+        return;
+      }
+
+      if (mayInterruptIfRunning) {
+        LOG.log(Level.FINE, "Cancelling running Tasklet with ID %d.", taskletId);
+        runningWorkers.get(workerId).cancelTasklet(taskletId);
       }
     } finally {
       lock.unlock();
@@ -158,6 +196,8 @@ final class RunningWorkers {
 
         // Notify (possibly) waiting scheduler
         noWorkerOrResource.signal();
+
+        taskletsToCancel.remove(taskletId); // cleanup to prevent memory leak.
       }
     } finally {
       lock.unlock();
@@ -181,6 +221,32 @@ final class RunningWorkers {
 
         // Notify (possibly) waiting scheduler
         noWorkerOrResource.signal();
+
+        taskletsToCancel.remove(taskletId); // cleanup to prevent memory leak.
+      }
+    } finally {
+      lock.unlock();
+    }
+  }
+
+  /**
+   * Concurrency: Called by multiple threads.
+   * Parameter: Same arguments can come in multiple times.
+   * (e.g. preemption message coming before tasklet error message multiple times)
+   */
+  void taskletCancelled(final String workerId,
+                        final int taskletId) {
+    lock.lock();
+    try {
+      if (!terminated && runningWorkers.containsKey(workerId)) { // Preemption can come before
+        final VortexWorkerManager worker = this.runningWorkers.get(workerId);
+        final Tasklet tasklet = worker.taskletCancelled(taskletId);
+        this.schedulingPolicy.taskletCancelled(worker, tasklet);
+
+        // Notify (possibly) waiting scheduler
+        noWorkerOrResource.signal();
+
+        taskletsToCancel.remove(taskletId); // cleanup to prevent memory leak.
       }
     } finally {
       lock.unlock();
@@ -209,17 +275,8 @@ final class RunningWorkers {
     return terminated;
   }
 
-  ///////////////////////////////////////// For Tests Only
-
   /**
-   * For unit tests to check whether the worker is running.
-   */
-  boolean isWorkerRunning(final String workerId) {
-    return runningWorkers.containsKey(workerId);
-  }
-
-  /**
-   * For unit tests to see where a tasklet is scheduled to.
+   * Find where a tasklet is scheduled to.
    * @param taskletId id of the tasklet in question
    * @return id of the worker (null if the tasklet was not scheduled to any worker)
    */
@@ -232,5 +289,14 @@ final class RunningWorkers {
       }
     }
     return null;
+  }
+
+  ///////////////////////////////////////// For Tests Only
+
+  /**
+   * For unit tests to check whether the worker is running.
+   */
+  boolean isWorkerRunning(final String workerId) {
+    return runningWorkers.containsKey(workerId);
   }
 }

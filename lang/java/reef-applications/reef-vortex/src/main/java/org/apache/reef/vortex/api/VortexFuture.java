@@ -21,28 +21,36 @@ package org.apache.reef.vortex.api;
 import org.apache.reef.annotations.Unstable;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.util.Optional;
+import org.apache.reef.vortex.driver.VortexMaster;
 
 import java.util.concurrent.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * The interface between user code and submitted task.
  */
 @Unstable
 public final class VortexFuture<TOutput> implements Future<TOutput> {
+  private static final Logger LOG = Logger.getLogger(VortexFuture.class.getName());
+
   // userResult starts out as null. If not null => variable is set and tasklet returned.
   // Otherwise tasklet has not completed.
   private Optional<TOutput> userResult = null;
   private Exception userException;
+  private boolean cancelled = false;
   private final CountDownLatch countDownLatch = new CountDownLatch(1);
   private final FutureCallback<TOutput> callbackHandler;
   private final Executor executor;
+  private final VortexMaster vortexMaster;
+  private final int taskletId;
 
   /**
    * Creates a {@link VortexFuture}.
    */
   @Private
-  public VortexFuture(final Executor executor) {
-    this(executor, null);
+  public VortexFuture(final Executor executor, final VortexMaster vortexMaster, final int taskletId) {
+    this(executor, vortexMaster, taskletId, null);
   }
 
   /**
@@ -50,25 +58,71 @@ public final class VortexFuture<TOutput> implements Future<TOutput> {
    */
   @Private
   public VortexFuture(final Executor executor,
+                      final VortexMaster vortexMaster,
+                      final int taskletId,
                       final FutureCallback<TOutput> callbackHandler) {
     this.executor = executor;
+    this.vortexMaster = vortexMaster;
+    this.taskletId = taskletId;
     this.callbackHandler = callbackHandler;
   }
 
   /**
-   * TODO[REEF-502]: Support Vortex Tasklet(s) cancellation by user.
+   * Sends a cancel signal and blocks and waits until the task is cancelled, completed, or failed.
+   * @return true if task did not start or was cancelled, false if task failed or completed
    */
   @Override
   public boolean cancel(final boolean mayInterruptIfRunning) {
-    throw new UnsupportedOperationException("Cancel not yet supported");
+    try {
+      return cancel(mayInterruptIfRunning, Optional.<Long>empty(), Optional.<TimeUnit>empty());
+    } catch (final TimeoutException e) {
+      // This should never happen.
+      LOG.log(Level.WARNING, "Received a TimeoutException in VortexFuture.cancel(). Should not have occurred.");
+      return false;
+    }
   }
 
   /**
-   * TODO[REEF-502]: Support Vortex Tasklet(s) cancellation by user.
+   * Sends a cancel signal and blocks and waits until the task is cancelled, completed, or failed, or
+   * if the timeout has expired.
+   * @return true if task did not start or was cancelled, false if task failed or completed
+   */
+  public boolean cancel(final boolean mayInterruptIfRunning, final long timeout, final TimeUnit unit)
+      throws TimeoutException {
+    return cancel(mayInterruptIfRunning, Optional.of(timeout), Optional.of(unit));
+  }
+
+  private boolean cancel(final boolean mayInterruptIfRunning,
+                         final Optional<Long> timeout,
+                         final Optional<TimeUnit> unit) throws TimeoutException {
+    if (isDone()) {
+      return isCancelled();
+    }
+
+    vortexMaster.cancelTasklet(mayInterruptIfRunning, taskletId);
+
+    try {
+      if (timeout.isPresent() && unit.isPresent()) {
+        if (!countDownLatch.await(timeout.get(), unit.get())) {
+          throw new TimeoutException();
+        }
+      } else {
+        countDownLatch.await();
+      }
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+      return false;
+    }
+
+    return isCancelled();
+  }
+
+  /**
+   * @return true if the task is cancelled, false if not.
    */
   @Override
   public boolean isCancelled() {
-    throw new UnsupportedOperationException("Cancel not yet supported");
+    return cancelled;
   }
 
   /**
@@ -88,8 +142,12 @@ public final class VortexFuture<TOutput> implements Future<TOutput> {
     if (userResult != null) {
       return userResult.get();
     } else {
-      assert userException != null;
-      throw new ExecutionException(userException);
+      assert this.cancelled || userException != null;
+      if (userException != null) {
+        throw new ExecutionException(userException);
+      }
+
+      throw new ExecutionException(new InterruptedException("Task was cancelled."));
     }
   }
 
@@ -106,8 +164,12 @@ public final class VortexFuture<TOutput> implements Future<TOutput> {
     if (userResult != null) {
       return userResult.get();
     } else {
-      assert userException != null;
-      throw new ExecutionException(userException);
+      assert this.cancelled || userException != null;
+      if (userException != null) {
+        throw new ExecutionException(userException);
+      }
+
+      throw new ExecutionException(new InterruptedException("Task was cancelled."));
     }
   }
 
@@ -130,6 +192,7 @@ public final class VortexFuture<TOutput> implements Future<TOutput> {
   /**
    * Called by VortexMaster to let the user know that the task threw an exception.
    */
+  @Private
   public void threwException(final Exception exception) {
     this.userException = exception;
     if (callbackHandler != null) {
@@ -140,6 +203,15 @@ public final class VortexFuture<TOutput> implements Future<TOutput> {
         }
       });
     }
+    this.countDownLatch.countDown();
+  }
+
+  /**
+   * Called by VortexMaster to let the user know that the task was cancelled.
+   */
+  @Private
+  public void cancelled() {
+    this.cancelled = true;
     this.countDownLatch.countDown();
   }
 }
