@@ -16,33 +16,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.vortex.common;
-
-import org.apache.reef.annotations.Unstable;
-
-import java.io.Serializable;
 
 /**
- * Worker-to-Master protocol.
+ * Package for testing Vortex Tasklet cancellation.
  */
-@Unstable
-public interface WorkerReport extends Serializable {
-  /**
-   * Type of WorkerReport.
-   */
-  enum WorkerReportType {
-    TaskletResult,
-    TaskletCancelled,
-    TaskletFailure
-  }
-
-  /**
-   * @return the type of this WorkerReport.
-   */
-  WorkerReportType getType();
-
-  /**
-   * @return the taskletId of this WorkerReport.
-   */
-  int getTaskletId();
-}
+package org.apache.reef.tests.applications.vortex.cancellation;

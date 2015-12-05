@@ -50,6 +50,7 @@ public final class TaskletResultReport<TOutput extends Serializable> implements 
   /**
    * @return the id of the tasklet.
    */
+  @Override
   public int getTaskletId() {
     return taskletId;
   }

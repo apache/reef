@@ -30,10 +30,24 @@
   {
     "namespace": "org.apache.reef.vortex.common.avro",
     "type": "record",
+    "name": "AvroTaskletCancellationRequest",
+    "fields": [{"name": "taskletId", "type": "int"}]
+  },
+  {
+    "namespace": "org.apache.reef.vortex.common.avro",
+    "type": "record",
     "name": "AvroVortexRequest",
     "fields": [
-      {"name": "requestType", "type": {"type": "enum", "name": "AvroRequestType", "symbols": ["ExecuteTasklet"]}},
-      {"name": "taskletExecutionRequest", "type": ["null", "AvroTaskletExecutionRequest"], "default": null}
+      {
+        "name": "requestType",
+        "type": {"type": "enum", "name": "AvroRequestType",
+        "symbols": ["ExecuteTasklet", "CancelTasklet"]}
+      },
+      {
+        "name": "taskletRequest",
+        "type": ["null", "AvroTaskletExecutionRequest", "AvroTaskletCancellationRequest"],
+        "default": null
+      }
     ]
   }
 ]

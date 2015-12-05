@@ -29,6 +29,14 @@
   {
     "namespace": "org.apache.reef.vortex.common.avro",
     "type": "record",
+    "name": "AvroTaskletCancelledReport",
+    "fields": [
+      {"name": "taskletId", "type": "int"}
+    ]
+  },
+  {
+    "namespace": "org.apache.reef.vortex.common.avro",
+    "type": "record",
     "name": "AvroTaskletFailureReport",
     "fields": [
       {"name": "taskletId", "type": "int"},
@@ -42,15 +50,15 @@
     "fields": [
       {
         "name": "reportType",
-        "type": {"type": "enum", "name": "AvroReportType", "symbols": ["TaskletResult", "TaskletFailure"]}
+        "type": {
+          "type": "enum",
+          "name": "AvroReportType",
+          "symbols": ["TaskletResult", "TaskletCancelled", "TaskletFailure"]}
       },
       {
-        "name": "taskletResult",
-        "type": ["null", "AvroTaskletResultReport"], "default": null
-      },
-      {
-        "name": "taskletFailure",
-        "type": ["null", "AvroTaskletFailureReport"], "default": null
+        "name": "taskletReport",
+        "type": ["null", "AvroTaskletResultReport", "AvroTaskletCancelledReport", "AvroTaskletFailureReport"],
+        "default": null
       }
     ]
   }

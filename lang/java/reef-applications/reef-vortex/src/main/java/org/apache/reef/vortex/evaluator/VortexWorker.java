@@ -36,6 +36,8 @@ import org.apache.reef.wake.EventHandler;
 import javax.inject.Inject;
 import java.io.Serializable;
 import java.util.concurrent.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Receives commands from VortexMaster, executes them, and returns the results.
@@ -45,6 +47,7 @@ import java.util.concurrent.*;
 @Unit
 @TaskSide
 public final class VortexWorker implements Task, TaskMessageSource {
+  private static final Logger LOG = Logger.getLogger(VortexWorker.class.getName());
   private static final String MESSAGE_SOURCE_ID = ""; // empty string as there is no use for it
 
   private final BlockingDeque<byte[]> pendingRequests = new LinkedBlockingDeque<>();
@@ -68,6 +71,7 @@ public final class VortexWorker implements Task, TaskMessageSource {
   public byte[] call(final byte[] memento) throws Exception {
     final ExecutorService schedulerThread = Executors.newSingleThreadExecutor();
     final ExecutorService commandExecutor = Executors.newFixedThreadPool(numOfThreads);
+    final ConcurrentMap<Integer, Future> futures = new ConcurrentHashMap<>();
 
     // Scheduling thread starts
     schedulerThread.execute(new Runnable() {
@@ -82,37 +86,66 @@ public final class VortexWorker implements Task, TaskMessageSource {
             throw new RuntimeException(e);
           }
 
-          // Scheduler Thread: Pass the command to the worker thread pool to be executed
-          commandExecutor.execute(new Runnable() {
-            @Override
-            public void run() {
-              // Command Executor: Deserialize the command
-              final VortexRequest vortexRequest = VortexAvroUtils.toVortexRequest(message);
-              switch (vortexRequest.getType()) {
-              case ExecuteTasklet:
-                final TaskletExecutionRequest taskletExecutionRequest = (TaskletExecutionRequest) vortexRequest;
-                try {
-                  // Command Executor: Execute the command
-                  final Serializable result = taskletExecutionRequest.execute();
+          // Command Executor: Deserialize the command
+          final VortexRequest vortexRequest = VortexAvroUtils.toVortexRequest(message);
 
-                  // Command Executor: Tasklet successfully returns result
-                  final WorkerReport report =
-                      new TaskletResultReport<>(taskletExecutionRequest.getTaskletId(), result);
-                  workerReports.addLast(VortexAvroUtils.toBytes(report));
-                } catch (Exception e) {
-                  // Command Executor: Tasklet throws an exception
-                  final WorkerReport report =
-                      new TaskletFailureReport(taskletExecutionRequest.getTaskletId(), e);
-                  workerReports.addLast(VortexAvroUtils.toBytes(report));
-                }
+          switch (vortexRequest.getType()) {
+            case ExecuteTasklet:
+              final CountDownLatch latch = new CountDownLatch(1);
 
-                heartBeatTriggerManager.triggerHeartBeat();
-                break;
-              default:
-                throw new RuntimeException("Unknown Command");
+              // Scheduler Thread: Pass the command to the worker thread pool to be executed
+              // Record future to support cancellation.
+              futures.put(
+                  vortexRequest.getTaskletId(),
+                  commandExecutor.submit(new Runnable() {
+                    @Override
+                    public void run() {
+                      final TaskletExecutionRequest taskletExecutionRequest = (TaskletExecutionRequest) vortexRequest;
+                      try {
+                        // Command Executor: Execute the command
+                        final Serializable result = taskletExecutionRequest.execute();
+                        final WorkerReport report =
+                            new TaskletResultReport<>(taskletExecutionRequest.getTaskletId(), result);
+                        workerReports.addLast(VortexAvroUtils.toBytes(report));
+                      } catch (final InterruptedException ex) {
+                        // Assumes that user's thread follows convention that cancelled Futures
+                        // should throw InterruptedException.
+                        final WorkerReport report = new TaskletCancelledReport(taskletExecutionRequest.getTaskletId());
+                        LOG.log(Level.WARNING, "Tasklet with ID {0} has been cancelled", vortexRequest.getTaskletId());
+                        workerReports.addLast(VortexAvroUtils.toBytes(report));
+                      } catch (Exception e) {
+                        // Command Executor: Tasklet throws an exception
+                        final WorkerReport report =
+                            new TaskletFailureReport(taskletExecutionRequest.getTaskletId(), e);
+                        workerReports.addLast(VortexAvroUtils.toBytes(report));
+                      }
+
+                      try {
+                        latch.await();
+                      } catch (final InterruptedException e) {
+                        LOG.log(Level.SEVERE, "Cannot wait for Future to be put.");
+                        throw new RuntimeException(e);
+                      }
+
+                      futures.remove(vortexRequest.getTaskletId());
+                      heartBeatTriggerManager.triggerHeartBeat();
+                    }
+                  }));
+
+              // Signal that future is put.
+              latch.countDown();
+              break;
+            case CancelTasklet:
+              LOG.log(Level.FINE, "Cancelling Tasklet with ID {0}.", vortexRequest.getTaskletId());
+              final Future future = futures.get(vortexRequest.getTaskletId());
+              if (future != null) {
+                future.cancel(true);
               }
-            }
-          });
+
+              break;
+            default:
+              throw new RuntimeException("Unknown Command");
+          }
         }
       }
     });

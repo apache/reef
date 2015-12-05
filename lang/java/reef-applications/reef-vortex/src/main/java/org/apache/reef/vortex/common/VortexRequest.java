@@ -31,8 +31,14 @@ public interface VortexRequest extends Serializable {
    * Type of Request.
    */
   enum RequestType {
-    ExecuteTasklet
+    ExecuteTasklet,
+    CancelTasklet
   }
+
+  /**
+   * @return the ID of the VortexTasklet associated with this VortexRequest.
+   */
+  int getTaskletId();
 
   /**
    * @return the type of this VortexRequest.
