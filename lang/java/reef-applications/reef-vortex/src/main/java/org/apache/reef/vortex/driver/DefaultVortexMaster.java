@@ -51,7 +51,7 @@ final class DefaultVortexMaster implements VortexMaster {
   @Inject
   DefaultVortexMaster(final RunningWorkers runningWorkers,
                       final PendingTasklets pendingTasklets,
-                      @Parameter(VortexMasterConf.CallbackThreadpoolSize.class) final int threadPoolSize) {
+                      @Parameter(VortexMasterConf.CallbackThreadPoolSize.class) final int threadPoolSize) {
     this.executor = Executors.newFixedThreadPool(threadPoolSize);
     this.runningWorkers = runningWorkers;
     this.pendingTasklets = pendingTasklets;

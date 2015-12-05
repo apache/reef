@@ -70,7 +70,7 @@ public final class VortexMasterConf extends ConfigurationModuleBuilder {
    * Size of threadpool for callbacks on {@link org.apache.reef.vortex.api.VortexFuture}.
    */
   @NamedParameter(doc = "Size of threadpool for callbacks on VortexFuture.", default_value = "10")
-  final class CallbackThreadpoolSize implements Name<Integer> {
+  final class CallbackThreadPoolSize implements Name<Integer> {
   }
 
   /**
@@ -106,7 +106,7 @@ public final class VortexMasterConf extends ConfigurationModuleBuilder {
   /**
    * Size of threadpool for callbacks on VortexFuture.
    */
-  public static final OptionalParameter<Integer> FUTURE_CALLBACK_THREADPOOL_SIZE = new OptionalParameter<>();
+  public static final OptionalParameter<Integer> FUTURE_CALLBACK_THREAD_POOL_SIZE = new OptionalParameter<>();
 
   /**
    * Vortex Master configuration.
@@ -118,6 +118,6 @@ public final class VortexMasterConf extends ConfigurationModuleBuilder {
       .bindNamedParameter(WorkerCapacity.class, WORKER_CAPACITY)
       .bindImplementation(VortexStart.class, VORTEX_START)
       .bindNamedParameter(NumberOfVortexStartThreads.class, NUM_OF_VORTEX_START_THREAD)
-      .bindNamedParameter(CallbackThreadpoolSize.class, FUTURE_CALLBACK_THREADPOOL_SIZE)
+      .bindNamedParameter(CallbackThreadPoolSize.class, FUTURE_CALLBACK_THREAD_POOL_SIZE)
       .build();
 }

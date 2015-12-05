@@ -63,7 +63,7 @@ public final class VortexConfHelper {
         .set(VortexMasterConf.NUM_OF_VORTEX_START_THREAD, DEFAULT_NUM_OF_VORTEX_START_THREAD) // fixed to 1 for now
         .build();
 
-    // TODO[JIRA REEF-1000]: Consider exposing VortexMasterConf.FUTURE_CALLBACK_THREADPOOL_SIZE.
+    // TODO[JIRA REEF-1000]: Consider exposing VortexMasterConf.FUTURE_CALLBACK_THREAD_POOL_SIZE.
     // For now, use default value defined in the NamedParameter.
 
     return Configurations.merge(vortexDriverConf, vortexMasterConf);
