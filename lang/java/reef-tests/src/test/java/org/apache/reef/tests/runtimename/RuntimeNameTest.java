@@ -54,8 +54,6 @@ public class RuntimeNameTest {
         .set(RuntimeNameTestConfiguration.RUNTIME_NAME, this.testEnvironment.getRuntimeName())
         .build();
 
-
-
     final Configuration driverConfiguration = DriverConfiguration.CONF
         .set(DriverConfiguration.GLOBAL_LIBRARIES, EnvironmentUtils.getClassLocation(OnDriverStartedAllocateOne.class))
         .set(DriverConfiguration.DRIVER_IDENTIFIER, "TEST_DriverTest")
