@@ -18,7 +18,10 @@
  */
 package org.apache.reef.vortex.examples.hello;
 
+import org.apache.reef.tang.Configuration;
+import org.apache.reef.vortex.driver.VortexJobConf;
 import org.apache.reef.vortex.driver.VortexLauncher;
+import org.apache.reef.vortex.driver.VortexMasterConf;
 
 /**
  * User's main function.
@@ -31,6 +34,19 @@ final class HelloVortex {
    * Launch the vortex job, passing appropriate arguments.
    */
   public static void main(final String[] args) {
-    VortexLauncher.launchLocal("Vortex_Example_HelloVortex", HelloVortexStart.class, 1, 1024, 1, 2000);
+    final Configuration vortexMasterConf = VortexMasterConf.CONF
+        .set(VortexMasterConf.WORKER_NUM, 1)
+        .set(VortexMasterConf.WORKER_MEM, 1024)
+        .set(VortexMasterConf.WORKER_CORES, 1)
+        .set(VortexMasterConf.WORKER_CAPACITY, 2000)
+        .set(VortexMasterConf.VORTEX_START, HelloVortexStart.class)
+        .build();
+
+    final VortexJobConf vortexJobConf = VortexJobConf.newBuilder()
+        .setVortexMasterConf(vortexMasterConf)
+        .setJobName("HelloVortex")
+        .build();
+
+    VortexLauncher.launchLocal(vortexJobConf);
   }
 }

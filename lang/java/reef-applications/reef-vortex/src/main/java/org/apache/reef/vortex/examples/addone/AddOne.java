@@ -18,7 +18,13 @@
  */
 package org.apache.reef.vortex.examples.addone;
 
+import org.apache.reef.tang.Configuration;
+import org.apache.reef.tang.Tang;
+import org.apache.reef.tang.annotations.Name;
+import org.apache.reef.tang.annotations.NamedParameter;
+import org.apache.reef.vortex.driver.VortexJobConf;
 import org.apache.reef.vortex.driver.VortexLauncher;
+import org.apache.reef.vortex.driver.VortexMasterConf;
 
 /**
  * User's main function.
@@ -31,6 +37,28 @@ final class AddOne {
    * Launch the vortex job, passing appropriate arguments.
    */
   public static void main(final String[] args) {
-    VortexLauncher.launchLocal("Vortex_Example_AddOne", AddOneStart.class, 2, 1024, 4, 2000);
+    final Configuration vortexMasterConf = VortexMasterConf.CONF
+        .set(VortexMasterConf.WORKER_NUM, 2)
+        .set(VortexMasterConf.WORKER_MEM, 1024)
+        .set(VortexMasterConf.WORKER_CORES, 4)
+        .set(VortexMasterConf.WORKER_CAPACITY, 2000)
+        .set(VortexMasterConf.VORTEX_START, AddOneStart.class)
+        .build();
+
+    final Configuration userConf = Tang.Factory.getTang().newConfigurationBuilder()
+        .bindNamedParameter(Dimension.class, "1000")
+        .build();
+
+    final VortexJobConf vortexJobConf = VortexJobConf.newBuilder()
+        .setJobName("Vortex_Example_AddOne")
+        .setVortexMasterConf(vortexMasterConf)
+        .setUserConf(userConf)
+        .build();
+
+    VortexLauncher.launchLocal(vortexJobConf);
+  }
+
+  @NamedParameter(doc = "dimension of input vector")
+  public static class Dimension implements Name<Integer> {
   }
 }
