@@ -161,6 +161,8 @@ public class ConstructorDefImpl<T> implements ConstructorDef<T> {
   public int hashCode() {
     final ConstructorArg[] argsSort = getArgs().clone();
     Arrays.sort(argsSort);
-    return Arrays.hashCode(argsSort);
+    int result = Arrays.hashCode(argsSort);
+    result = 31 * result + (this.className == null ? 0 : this.className.hashCode());
+    return result;
   }
 }
