@@ -20,6 +20,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Threading;
 using Org.Apache.REEF.Common.Io;
 using Org.Apache.REEF.Common.Protobuf.ReefProtocol;
 using Org.Apache.REEF.Common.Tasks;
@@ -33,15 +34,13 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
 {
     internal sealed class TaskRuntime : IObserver<ICloseEvent>, IObserver<ISuspendEvent>, IObserver<IDriverMessage>
     {
-        private static readonly Logger LOGGER = Logger.GetLogger(typeof(TaskRuntime));
+        private static readonly Logger Logger = Logger.GetLogger(typeof(TaskRuntime));
 
         private readonly IInjector _injector;
-
         private readonly TaskStatus _currentStatus;
-
         private readonly Lazy<IDriverConnectionMessageHandler> _driverConnectionMessageHandler;
-
         private readonly Lazy<IDriverMessageHandler> _driverMessageHandler;
+        private int taskRan = 0;
 
         public TaskRuntime(IInjector taskInjector, string contextId, string taskId, HeartBeatManager heartBeatManager)
         {
@@ -55,7 +54,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
             }
             catch (Exception e)
             {
-                Utilities.Diagnostics.Exceptions.Caught(e, Level.Warning, "Cannot inject task message source with error: " + e.StackTrace, LOGGER);
+                Utilities.Diagnostics.Exceptions.Caught(e, Level.Warning, "Cannot inject task message source with error: " + e.StackTrace, Logger);
                 // do not rethrow since this is benign
             }
             try
@@ -65,7 +64,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
             catch (InjectionException)
             {
                 // do not rethrow since user is not required to provide name client
-                LOGGER.Log(Level.Warning, "Cannot inject name client from task configuration.");
+                Logger.Log(Level.Warning, "Cannot inject name client from task configuration.");
             }
 
             _driverConnectionMessageHandler = new Lazy<IDriverConnectionMessageHandler>(() =>
@@ -76,7 +75,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
                 }
                 catch (InjectionException)
                 {
-                    LOGGER.Log(Level.Info, "User did not implement IDriverConnectionMessageHandler.");
+                    Logger.Log(Level.Info, "User did not implement IDriverConnectionMessageHandler.");
                 }
 
                 return null;
@@ -90,13 +89,13 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
                 }
                 catch (InjectionException ie)
                 {
-                    Utilities.Diagnostics.Exceptions.CaughtAndThrow(ie, Level.Error, "Received Driver message, but unable to inject handler for driver message ", LOGGER);
+                    Utilities.Diagnostics.Exceptions.CaughtAndThrow(ie, Level.Error, "Received Driver message, but unable to inject handler for driver message ", Logger);
                 }
 
                 return null;
             });
 
-            LOGGER.Log(Level.Info, "task message source injected");
+            Logger.Log(Level.Info, "task message source injected");
             _currentStatus = new TaskStatus(heartBeatManager, contextId, taskId, messageSources);
         }
 
@@ -110,23 +109,18 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
             get { return _currentStatus.ContextId; }
         }
 
-        public void Initialize()
-        {
-            _currentStatus.SetRunning();
-        }
-
         /// <summary>
         /// Runs the task asynchronously.
         /// </summary>
         public void RunTask()
         {
-            LOGGER.Log(Level.Info, "Call Task");
-            if (_currentStatus.IsNotRunning())
+            if (Interlocked.Exchange(ref taskRan, 1) != 0)
             {
-                var e = new InvalidOperationException("TaskRuntime not in Running state, instead it is in state " + _currentStatus.State);
-                Utilities.Diagnostics.Exceptions.Throw(e, LOGGER);
+                // Return if we have already called RunTask
+                throw new InvalidOperationException("TaskRun has already been called on TaskRuntime.");
             }
 
+            _currentStatus.SetRunning();
             ITask userTask;
             try
             {
@@ -134,7 +128,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
             }
             catch (Exception e)
             {
-                Utilities.Diagnostics.Exceptions.CaughtAndThrow(new InvalidOperationException("Unable to inject task.", e), Level.Error, "Unable to inject task.", LOGGER);
+                Utilities.Diagnostics.Exceptions.CaughtAndThrow(new InvalidOperationException("Unable to inject task.", e), Level.Error, "Unable to inject task.", Logger);
                 return;
             }
 
@@ -146,7 +140,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
                         // Task failed.
                         if (runTask.IsFaulted)
                         {
-                            LOGGER.Log(Level.Warning,
+                            Logger.Log(Level.Warning,
                                 string.Format(CultureInfo.InvariantCulture, "Task failed caused by exception [{0}]", runTask.Exception));
                             _currentStatus.SetException(runTask.Exception);
                             return;
@@ -154,18 +148,18 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
 
                         if (runTask.IsCanceled)
                         {
-                            LOGGER.Log(Level.Warning,
+                            Logger.Log(Level.Warning,
                                 string.Format(CultureInfo.InvariantCulture, "Task failed caused by task cancellation"));
                             return;
                         }
 
                         // Task completed.
                         var result = runTask.Result;
-                        LOGGER.Log(Level.Info, "Task Call Finished");
+                        Logger.Log(Level.Info, "Task Call Finished");
                         _currentStatus.SetResult(result);
                         if (result != null && result.Length > 0)
                         {
-                            LOGGER.Log(Level.Info, "Task running result:\r\n" + System.Text.Encoding.Default.GetString(result));
+                            Logger.Log(Level.Info, "Task running result:\r\n" + System.Text.Encoding.Default.GetString(result));
                         }
                     }
                     finally
@@ -197,10 +191,10 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
 
         public void Close(byte[] message)
         {
-            LOGGER.Log(Level.Info, string.Format(CultureInfo.InvariantCulture, "Trying to close Task {0}", TaskId));
+            Logger.Log(Level.Info, string.Format(CultureInfo.InvariantCulture, "Trying to close Task {0}", TaskId));
             if (_currentStatus.IsNotRunning())
             {
-                LOGGER.Log(Level.Warning, string.Format(CultureInfo.InvariantCulture, "Trying to close an task that is in {0} state. Ignored.", _currentStatus.State));
+                Logger.Log(Level.Warning, string.Format(CultureInfo.InvariantCulture, "Trying to close an task that is in {0} state. Ignored.", _currentStatus.State));
                 return;
             }
             try
@@ -210,18 +204,18 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
             }
             catch (Exception e)
             {
-                Utilities.Diagnostics.Exceptions.Caught(e, Level.Error, "Error during Close.", LOGGER);
+                Utilities.Diagnostics.Exceptions.Caught(e, Level.Error, "Error during Close.", Logger);
                 _currentStatus.SetException(new TaskClientCodeException(TaskId, ContextId, "Error during Close().", e));
             }
         }
 
         public void Suspend(byte[] message)
         {
-            LOGGER.Log(Level.Info, string.Format(CultureInfo.InvariantCulture, "Trying to suspend Task {0}", TaskId));
+            Logger.Log(Level.Info, string.Format(CultureInfo.InvariantCulture, "Trying to suspend Task {0}", TaskId));
 
             if (_currentStatus.IsNotRunning())
             {
-                LOGGER.Log(Level.Warning, string.Format(CultureInfo.InvariantCulture, "Trying to supend an task that is in {0} state. Ignored.", _currentStatus.State));
+                Logger.Log(Level.Warning, string.Format(CultureInfo.InvariantCulture, "Trying to supend an task that is in {0} state. Ignored.", _currentStatus.State));
                 return;
             }
             try
@@ -231,7 +225,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
             }
             catch (Exception e)
             {
-                Utilities.Diagnostics.Exceptions.Caught(e, Level.Error, "Error during Suspend.", LOGGER);
+                Utilities.Diagnostics.Exceptions.Caught(e, Level.Error, "Error during Suspend.", Logger);
                 _currentStatus.SetException(
                     new TaskClientCodeException(TaskId, ContextId, "Error during Suspend().", e));
             }
@@ -241,7 +235,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
         {
             if (_currentStatus.IsNotRunning())
             {
-                LOGGER.Log(Level.Warning, string.Format(CultureInfo.InvariantCulture, "Trying to send a message to an task that is in {0} state. Ignored.", _currentStatus.State));
+                Logger.Log(Level.Warning, string.Format(CultureInfo.InvariantCulture, "Trying to send a message to an task that is in {0} state. Ignored.", _currentStatus.State));
                 return;
             }
             try
@@ -250,7 +244,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
             }
             catch (Exception e)
             {
-                Utilities.Diagnostics.Exceptions.Caught(e, Level.Error, "Error during message delivery.", LOGGER);
+                Utilities.Diagnostics.Exceptions.Caught(e, Level.Error, "Error during message delivery.", Logger);
                 _currentStatus.SetException(
                     new TaskClientCodeException(TaskId, ContextId, "Error during message delivery.", e));
             }
@@ -258,19 +252,19 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
 
         public void OnNext(ICloseEvent value)
         {
-            LOGGER.Log(Level.Info, "TaskRuntime::OnNext(ICloseEvent value)");
+            Logger.Log(Level.Info, "TaskRuntime::OnNext(ICloseEvent value)");
             // TODO: send a heartbeat
         }
 
         public void OnNext(ISuspendEvent value)
         {
-            LOGGER.Log(Level.Info, "TaskRuntime::OnNext(ISuspendEvent value)");
+            Logger.Log(Level.Info, "TaskRuntime::OnNext(ISuspendEvent value)");
             // TODO: send a heartbeat
         }
 
         public void OnNext(IDriverMessage value)
         {
-            LOGGER.Log(Level.Info, "TaskRuntime::OnNext(IDriverMessage value)");
+            Logger.Log(Level.Info, "TaskRuntime::OnNext(IDriverMessage value)");
 
             if (_driverMessageHandler.Value == null)
             {
@@ -282,7 +276,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
             }
             catch (Exception e)
             {
-                Utilities.Diagnostics.Exceptions.Caught(e, Level.Warning, "Exception throw when handling driver message: " + e, LOGGER);
+                Utilities.Diagnostics.Exceptions.Caught(e, Level.Warning, "Exception throw when handling driver message: " + e, Logger);
                 _currentStatus.RecordExecptionWithoutHeartbeat(e);
             }
         }

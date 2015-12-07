@@ -229,7 +229,6 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                     IInjector taskInjector = _contextInjector.ForkInjector(taskConfiguration.TangConfig);
                     LOGGER.Log(Level.Info, "Trying to inject task with configuration" + taskConfiguration.ToString());
                     TaskRuntime taskRuntime = new TaskRuntime(taskInjector, contextId, taskConfiguration.TaskId, heartBeatManager);
-                    taskRuntime.Initialize();
                     taskRuntime.RunTask();
                     _task = Optional<TaskRuntime>.Of(taskRuntime);
                 }
