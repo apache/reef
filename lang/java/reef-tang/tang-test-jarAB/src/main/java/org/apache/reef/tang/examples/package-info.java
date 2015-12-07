@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * Tang test example package.
  */
 package org.apache.reef.tang.examples;

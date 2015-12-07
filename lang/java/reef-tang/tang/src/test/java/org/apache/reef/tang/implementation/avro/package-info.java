@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * Tests for Tang Avro implementations.
  */
 package org.apache.reef.tang.implementation.avro;

@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * Tests for Tang format classes that encode and decode information.
  */
 package org.apache.reef.tang.formats;
