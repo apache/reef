@@ -39,22 +39,10 @@ public final class VortexLauncher {
   /**
    * Launch a Vortex job using the local runtime.
    */
-  public static LauncherStatus launchLocal(final String jobName,
-                                           final Class<? extends VortexStart> vortexUserCode,
-                                           final int numOfWorkers,
-                                           final int workerMemory,
-                                           final int workerCores,
-                                           final int workerCapacity) {
+  public static LauncherStatus launchLocal(final Configuration vortexConf) {
     final Configuration runtimeConf = LocalRuntimeConfiguration.CONF
         .set(LocalRuntimeConfiguration.MAX_NUMBER_OF_EVALUATORS, MAX_NUMBER_OF_EVALUATORS)
         .build();
-    final Configuration vortexConf = VortexConfHelper.getVortexConf(
-        jobName,
-        vortexUserCode,
-        numOfWorkers,
-        workerMemory,
-        workerCores,
-        workerCapacity);
     return launch(runtimeConf, vortexConf);
   }
 

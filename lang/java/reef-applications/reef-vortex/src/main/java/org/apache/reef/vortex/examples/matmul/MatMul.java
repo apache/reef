@@ -18,6 +18,12 @@
  */
 package org.apache.reef.vortex.examples.matmul;
 
+import org.apache.reef.tang.Configuration;
+import org.apache.reef.tang.Configurations;
+import org.apache.reef.tang.Tang;
+import org.apache.reef.tang.annotations.Name;
+import org.apache.reef.tang.annotations.NamedParameter;
+import org.apache.reef.vortex.driver.VortexConfHelper;
 import org.apache.reef.vortex.driver.VortexLauncher;
 
 /**
@@ -31,6 +37,26 @@ final class MatMul {
    * Launch the vortex job, passing appropriate arguments.
    */
   public static void main(final String[] args) {
-    VortexLauncher.launchLocal("Vortex_Example_MatMul", IdentityMatMulStart.class, 2, 1024, 4, 2000);
+    final Configuration vortexConf =
+        Configurations.merge(
+            VortexConfHelper.getVortexConf("Vortex_Example_MatMul", IdentityMatMulStart.class, 2, 1024, 4, 2000),
+            Tang.Factory.getTang().newConfigurationBuilder()
+                .bindNamedParameter(DivideFactor.class, String.valueOf("10000"))
+                .bindNamedParameter(NumRows.class, String.valueOf("100000"))
+                .bindNamedParameter(NumColumns.class, String.valueOf("10"))
+                .build());
+    VortexLauncher.launchLocal(vortexConf);
+  }
+
+  @NamedParameter(doc = "Number of splits the matrix is divided into")
+  public static class DivideFactor implements Name<Integer> {
+  }
+
+  @NamedParameter(doc = "Number of rows of the original matrix")
+  public static class NumRows implements Name<Integer> {
+  }
+
+  @NamedParameter(doc = "Number of columns of the original matrix")
+  public static class NumColumns implements Name<Integer> {
   }
 }

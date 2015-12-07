@@ -18,6 +18,7 @@
  */
 package org.apache.reef.vortex.examples.addone;
 
+import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.vortex.api.VortexFuture;
 import org.apache.reef.vortex.api.VortexThreadPool;
 import org.apache.reef.vortex.api.VortexStart;
@@ -32,8 +33,11 @@ import java.util.concurrent.ExecutionException;
  * AddOne User Code Example.
  */
 final class AddOneStart implements VortexStart {
+  private final int dimension;
+
   @Inject
-  private AddOneStart() {
+  private AddOneStart(@Parameter(AddOne.Dimension.class) final int dimension) {
+    this.dimension = dimension;
   }
 
   /**
@@ -42,7 +46,7 @@ final class AddOneStart implements VortexStart {
   @Override
   public void start(final VortexThreadPool vortexThreadPool) {
     final Vector<Integer> inputVector = new Vector<>();
-    for (int i = 0; i < 1000; i++) {
+    for (int i = 0; i < dimension; i++) {
       inputVector.add(i);
     }
 

@@ -18,6 +18,7 @@
  */
 package org.apache.reef.vortex.examples.matmul;
 
+import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.vortex.api.FutureCallback;
 import org.apache.reef.vortex.api.VortexStart;
 import org.apache.reef.vortex.api.VortexThreadPool;
@@ -38,12 +39,18 @@ import java.util.logging.Logger;
  */
 final class IdentityMatMulStart implements VortexStart {
   private static final Logger LOG = Logger.getLogger(IdentityMatMulStart.class.getName());
-  private static final int DIVIDE_FACTOR = 10000;
-  private static final int NUM_ROWS = 100000;
-  private static final int NUM_COLUMNS = 10;
+
+  private final int divideFactor;
+  private final int numRows;
+  private final int numColumns;
 
   @Inject
-  private IdentityMatMulStart() {
+  private IdentityMatMulStart(@Parameter(MatMul.DivideFactor.class) final int divideFactor,
+                              @Parameter(MatMul.NumRows.class) final int numRows,
+                              @Parameter(MatMul.NumColumns.class) final int numColumns) {
+    this.divideFactor = divideFactor;
+    this.numRows = numRows;
+    this.numColumns = numColumns;
   }
 
   /**
@@ -51,14 +58,14 @@ final class IdentityMatMulStart implements VortexStart {
    */
   @Override
   public void start(final VortexThreadPool vortexThreadPool) {
-    final List<Matrix<Double>> leftSplits = generateMatrixSplits(NUM_ROWS, NUM_COLUMNS, DIVIDE_FACTOR);
-    final Matrix<Double> right = generateIdentityMatrix(NUM_COLUMNS);
+    final List<Matrix<Double>> leftSplits = generateMatrixSplits(numRows, numColumns, divideFactor);
+    final Matrix<Double> right = generateIdentityMatrix(numColumns);
 
     // Measure job finish time starting from here..
     final double start = System.currentTimeMillis();
 
     // Define callback that is invoked when Tasklets finish.
-    final CountDownLatch latch = new CountDownLatch(DIVIDE_FACTOR);
+    final CountDownLatch latch = new CountDownLatch(divideFactor);
     final FutureCallback<MatMulOutput> callback = new FutureCallback<MatMulOutput>() {
       @Override
       public void onSuccess(final MatMulOutput output) {
@@ -80,7 +87,7 @@ final class IdentityMatMulStart implements VortexStart {
 
     // Submit Tasklets and register callback.
     final MatMulFunction matMulFunction = new MatMulFunction();
-    for (int i = 0; i < DIVIDE_FACTOR; i++) {
+    for (int i = 0; i < divideFactor; i++) {
       vortexThreadPool.submit(matMulFunction, new MatMulInput(i, leftSplits.get(i), right), callback);
     }
 
@@ -95,16 +102,16 @@ final class IdentityMatMulStart implements VortexStart {
 
   /**
    * Generate a matrix with random values.
-   * @param numRows number of matrix's rows.
-   * @param numColumns number of matrix's columns.
+   * @param nRows number of matrix's rows.
+   * @param nColumns number of matrix's columns.
    * @return Matrix that consists of random values.
    */
-  private Matrix<Double> generateRandomMatrix(final int numRows, final int numColumns) {
-    final List<List<Double>> rows = new ArrayList<>(numRows);
+  private Matrix<Double> generateRandomMatrix(final int nRows, final int nColumns) {
+    final List<List<Double>> rows = new ArrayList<>(nRows);
     final Random random = new Random();
-    for (int i = 0; i < numRows; i++) {
-      final List<Double> row = new ArrayList<>(numColumns);
-      for (int j = 0; j < numColumns; j++) {
+    for (int i = 0; i < nRows; i++) {
+      final List<Double> row = new ArrayList<>(nColumns);
+      for (int j = 0; j < nColumns; j++) {
         row.add(random.nextDouble());
       }
       rows.add(row);
@@ -131,22 +138,22 @@ final class IdentityMatMulStart implements VortexStart {
   }
 
   /**
-   * Generate sub-matrices which splits a matrix as many as {@param divideFactor}.
+   * Generate sub-matrices which splits a matrix as many as {@param nSplits}.
    * Note that the matrix is split in row-wise, so the number of columns remain same while
-   * the number of rows is divided by {@param divideFactor}.
-   * @param numRows Number of rows of the original Matrix.
-   * @param numColumns Number of columns of the original Matrix.
-   * @param divideFactor Number of partitions to split the matrix into.
+   * the number of rows is divided by {@param nSplits}.
+   * @param nRows Number of rows of the original Matrix.
+   * @param nColumns Number of columns of the original Matrix.
+   * @param nSplits Number of partitions to split the matrix into.
    * @return List of matrices divided into multiple sub-matrices.
    */
-  private List<Matrix<Double>> generateMatrixSplits(final int numRows, final int numColumns, final int divideFactor) {
-    final List<Matrix<Double>> splits = new ArrayList<>(divideFactor);
+  private List<Matrix<Double>> generateMatrixSplits(final int nRows, final int nColumns, final int nSplits) {
+    final List<Matrix<Double>> splits = new ArrayList<>(nSplits);
 
-    int remainingNumSplits = divideFactor;
-    int remainingNumRows = numRows;
-    for (int i = 0; i < divideFactor; i++) {
+    int remainingNumSplits = nSplits;
+    int remainingNumRows = nRows;
+    for (int i = 0; i < nSplits; i++) {
       final int splitNumRows = (remainingNumRows + remainingNumSplits - 1) / remainingNumSplits;
-      splits.add(generateRandomMatrix(splitNumRows, numColumns));
+      splits.add(generateRandomMatrix(splitNumRows, nColumns));
 
       remainingNumRows -= splitNumRows;
       remainingNumSplits--;
