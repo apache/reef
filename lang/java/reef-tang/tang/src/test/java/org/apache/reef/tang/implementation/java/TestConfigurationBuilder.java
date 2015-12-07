@@ -36,21 +36,21 @@ public class TestConfigurationBuilder {
   public ExpectedException thrown = ExpectedException.none();
 
   @Test
-  public void nullStringVaueTest() {
+  public void nullStringValueTest() {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("The value null set to the named parameter is illegal: class " +
-        "org.apache.reef.tang.implementation.java.TestConfigurationBuilder$NamedParamterNoDefault$NamedString");
+        "org.apache.reef.tang.implementation.java.TestConfigurationBuilder$NamedParameterNoDefault$NamedString");
 
     Tang.Factory.getTang().newConfigurationBuilder()
-        .bindNamedParameter(NamedParamterNoDefault.NamedString.class, (String) null)
+        .bindNamedParameter(NamedParameterNoDefault.NamedString.class, (String) null)
         .build();
   }
 
-  static class NamedParamterNoDefault {
+  static class NamedParameterNoDefault {
     private final String str;
 
     @Inject
-    NamedParamterNoDefault(@Parameter(NamedString.class) final String str) {
+    NamedParameterNoDefault(@Parameter(NamedString.class) final String str) {
       this.str = str;
     }
 
