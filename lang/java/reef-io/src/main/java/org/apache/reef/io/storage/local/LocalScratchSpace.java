@@ -24,8 +24,11 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.logging.Logger;
 
 public class LocalScratchSpace implements ScratchSpace {
+
+  private static final Logger LOG = Logger.getLogger(LocalScratchSpace.class.getName());
 
   private final String jobName;
   private final String evaluatorName;
@@ -68,18 +71,25 @@ public class LocalScratchSpace implements ScratchSpace {
   public long usedSpace() {
     long ret = 0;
     for (final File f : tempFiles) {
-      // TODO: Error handling...
-      ret += f.length();
+      try {
+        ret += f.length();
+      } catch (final SecurityException e) {
+        LOG.info("Fail to get file info:" + f.getAbsolutePath());
+      }
     }
     return ret;
   }
 
   @Override
   public void delete() {
-    // TODO: Error handling. Files.delete() would give us an exception. We
-    // should pass a set of Exceptions into a ReefRuntimeException.
     for (final File f : tempFiles) {
-      f.delete();
+      try {
+        if (!f.delete()) {
+          f.deleteOnExit();
+        }
+      } catch (final SecurityException e) {
+        throw new RuntimeException("Fail to delete file:" + f.getAbsolutePath(), e);
+      }
     }
     tempFiles.clear();
   }
