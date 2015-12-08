@@ -19,7 +19,7 @@
 
 namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
 {
-    public enum TaskState
+    internal enum TaskState
     {
         Init = 0,
         

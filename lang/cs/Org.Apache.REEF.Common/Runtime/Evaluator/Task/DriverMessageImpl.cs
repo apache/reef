@@ -22,7 +22,7 @@ using Org.Apache.REEF.Utilities;
 
 namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
 {
-    public class DriverMessageImpl : IDriverMessage
+    internal sealed class DriverMessageImpl : IDriverMessage
     {
         private readonly Optional<byte[]> _value;
  

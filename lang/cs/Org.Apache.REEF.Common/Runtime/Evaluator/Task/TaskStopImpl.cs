@@ -21,7 +21,7 @@ using Org.Apache.REEF.Common.Tasks.Events;
 
 namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
 {
-    public class TaskStopImpl : ITaskStop
+    internal sealed class TaskStopImpl : ITaskStop
     {
         // INJECT
         public TaskStopImpl(string id)

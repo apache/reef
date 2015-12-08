@@ -22,7 +22,7 @@ using Org.Apache.REEF.Utilities;
 
 namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
 {
-    public class CloseEventImpl : ICloseEvent
+    internal sealed class CloseEventImpl : ICloseEvent
     {
         public CloseEventImpl()
         {

@@ -28,7 +28,7 @@ using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
 {
-    public class ContextConfiguration : IConfiguration
+    internal sealed class ContextConfiguration : IConfiguration
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(ContextConfiguration));
         

@@ -31,7 +31,7 @@ using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
 {
-    public sealed class ContextManager : IDisposable
+    internal sealed class ContextManager : IDisposable
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(ContextManager));
         private readonly HeartBeatManager _heartBeatManager;

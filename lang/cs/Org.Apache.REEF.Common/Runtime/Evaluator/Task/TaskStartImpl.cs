@@ -21,7 +21,7 @@ using Org.Apache.REEF.Common.Tasks.Events;
 
 namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
 {
-    public class TaskStartImpl : ITaskStart
+    internal sealed class TaskStartImpl : ITaskStart
     {        
         // INJECT
         public TaskStartImpl(string id)

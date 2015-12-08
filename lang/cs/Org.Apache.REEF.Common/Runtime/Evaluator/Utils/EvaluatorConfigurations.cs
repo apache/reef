@@ -32,7 +32,7 @@ using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Common.Runtime.Evaluator.Utils
 {
-    public class EvaluatorConfigurations
+    internal sealed class EvaluatorConfigurations
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(EvaluatorConfigurations));
 

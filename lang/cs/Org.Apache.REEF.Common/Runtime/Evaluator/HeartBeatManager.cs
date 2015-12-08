@@ -37,7 +37,7 @@ using Org.Apache.REEF.Wake.Time.Event;
 
 namespace Org.Apache.REEF.Common.Runtime.Evaluator
 {
-    public class HeartBeatManager : IObserver<Alarm>
+    internal sealed class HeartBeatManager : IObserver<Alarm>
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(HeartBeatManager));
 

@@ -27,7 +27,7 @@ using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
 {
-    public class TaskStatus
+    internal sealed class TaskStatus
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(TaskStatus));
         private readonly TaskLifeCycle _taskLifeCycle;
