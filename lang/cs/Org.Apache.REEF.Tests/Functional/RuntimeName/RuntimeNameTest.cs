@@ -58,18 +58,19 @@ namespace Org.Apache.REEF.Tests.Functional.Driver
             string testFolder = DefaultRuntimeFolder + TestNumber++;
             CleanUp(testFolder);
             TestRun(DriverConfigurationsWithEvaluatorRequest(), typeof(EvaluatorRequestingDriver), 1, "EvaluatorRequestingDriver", "local", testFolder);
-            ValidateMessageSuccessfullyLogged("Received evaluator from runtime: Local", testFolder);
+            ValidateMessageSuccessfullyLogged("Runtime Name: Local", testFolder, 2);
             CleanUp(testFolder);
         }
 
         public IConfiguration DriverConfigurationsWithEvaluatorRequest()
         {
             IConfiguration driverConfig = DriverConfiguration.ConfigurationModule
-            .Set(DriverConfiguration.OnDriverStarted, GenericType<EvaluatorRequestingDriver>.Class)
-            .Set(DriverConfiguration.OnEvaluatorAllocated, GenericType<EvaluatorRequestingDriver>.Class)
-            .Set(DriverConfiguration.CustomTraceListeners, GenericType<DefaultCustomTraceListener>.Class)
-            .Set(DriverConfiguration.CustomTraceLevel, Level.Info.ToString())
-            .Build();
+                .Set(DriverConfiguration.OnDriverStarted, GenericType<EvaluatorRequestingDriver>.Class)
+                .Set(DriverConfiguration.OnEvaluatorAllocated, GenericType<EvaluatorRequestingDriver>.Class)
+                .Set(DriverConfiguration.OnTaskRunning, GenericType<EvaluatorRequestingDriver>.Class)
+                .Set(DriverConfiguration.CustomTraceListeners, GenericType<DefaultCustomTraceListener>.Class)
+                .Set(DriverConfiguration.CustomTraceLevel, Level.Info.ToString())
+                .Build();
 
             IConfiguration taskConfig = TangFactory.GetTang().NewConfigurationBuilder()
                 .BindSetEntry<DriverBridgeConfigurationOptions.SetOfAssemblies, string>(typeof(RuntimeNameTask).Assembly.GetName().Name)

@@ -29,7 +29,6 @@ using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Tests.Functional.Messaging;
-using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Tests.Functional.Driver
@@ -38,9 +37,8 @@ namespace Org.Apache.REEF.Tests.Functional.Driver
         IObserver<IDriverStarted>, 
         IObserver<IAllocatedEvaluator>,         
         IObserver<IRunningTask>
-
     {
-        private static readonly Logger LOGGER = Logger.GetLogger(typeof(EvaluatorRequestingDriver));
+        private static readonly Logger Logger = Logger.GetLogger(typeof(EvaluatorRequestingDriver));
 
         private readonly IEvaluatorRequestor _evaluatorRequestor;
 
@@ -52,7 +50,7 @@ namespace Org.Apache.REEF.Tests.Functional.Driver
 
         public void OnNext(IDriverStarted value)
         {
-            LOGGER.Log(Level.Info, string.Format(CultureInfo.InvariantCulture, "ondriver.start {0}", value.StartTime));
+            Logger.Log(Level.Info, string.Format(CultureInfo.InvariantCulture, "ondriver.start {0}", value.StartTime));
             var request =
                 _evaluatorRequestor.NewBuilder()
                     .SetNumber(1)
@@ -61,16 +59,15 @@ namespace Org.Apache.REEF.Tests.Functional.Driver
                     .SetRackName("WonderlandRack")
                     .SetEvaluatorBatchId("TestEvaluator")
                     .Build();
-            LOGGER.Log(Level.Info, string.Format(CultureInfo.InvariantCulture, "submitting evaluator request"));
+            Logger.Log(Level.Info, string.Format(CultureInfo.InvariantCulture, "submitting evaluator request"));
             _evaluatorRequestor.Submit(request);
-            LOGGER.Log(Level.Info, string.Format(CultureInfo.InvariantCulture, "evaluator request submitted"));
+            Logger.Log(Level.Info, string.Format(CultureInfo.InvariantCulture, "evaluator request submitted"));
         }
 
         public void OnNext(IAllocatedEvaluator eval)
         {
-            LOGGER.Log(Level.Info, string.Format(CultureInfo.InvariantCulture, "Received evaluator from runtime: {0}.", eval.GetEvaluatorDescriptor().RuntimeName));
-            eval.Dispose();
-            /*string taskId = "Task_" + eval.Id;
+            Logger.Log(Level.Info, string.Format(CultureInfo.InvariantCulture, "Received evaluator. Runtime Name: {0}.", eval.GetEvaluatorDescriptor().RuntimeName));
+            string taskId = "Task_" + eval.Id;
 
             IConfiguration contextConfiguration = ContextConfiguration.ConfigurationModule
                 .Set(ContextConfiguration.Identifier, taskId)
@@ -82,42 +79,38 @@ namespace Org.Apache.REEF.Tests.Functional.Driver
                 .Build();
 
             eval.SubmitContextAndTask(contextConfiguration, taskConfiguration);
-             */
         }
 
         public void OnNext(IRunningTask runningTask)
         {
-            LOGGER.Log(Level.Info, string.Format(CultureInfo.InvariantCulture, "Runtime Name {0}", runningTask.ActiveContext.EvaluatorDescriptor.RuntimeName));
+            Logger.Log(Level.Info, string.Format(CultureInfo.InvariantCulture, "Received runing task. Runtime Name: {0}", runningTask.ActiveContext.EvaluatorDescriptor.RuntimeName));
         }
 
         public void OnError(Exception error)
         {
-            throw new NotImplementedException();
+            Logger.Log(Level.Info, string.Format(CultureInfo.InvariantCulture, "On error: {0}", error.ToString()));
         }
 
         public void OnCompleted()
         {
-            throw new NotImplementedException();
         }
 
         void IObserver<IAllocatedEvaluator>.OnError(Exception error)
         {
-            throw new NotImplementedException();
+            Logger.Log(Level.Info, string.Format(CultureInfo.InvariantCulture, "On error: {0}", error.ToString()));
         }
 
         void IObserver<IAllocatedEvaluator>.OnCompleted()
         {
-            throw new NotImplementedException();
         }
 
         void IObserver<IDriverStarted>.OnError(Exception error)
         {
-            throw new NotImplementedException();
+            Logger.Log(Level.Info, string.Format(CultureInfo.InvariantCulture, "On error: {0}", error.ToString()));
         }
 
         void IObserver<IDriverStarted>.OnCompleted()
         {
-            throw new NotImplementedException();
         }
     }
 }

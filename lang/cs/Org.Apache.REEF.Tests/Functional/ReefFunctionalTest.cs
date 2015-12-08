@@ -171,7 +171,7 @@ namespace Org.Apache.REEF.Tests.Functional
             }
         }
 
-        protected void ValidateMessageSuccessfullyLogged(string message, string testFolder)
+        protected void ValidateMessageSuccessfullyLogged(string message, string testFolder, int numberOfoccurances = 1)
         {
             string[] lines = null;
             for (int i = 0; i < 60; i++)
@@ -190,7 +190,7 @@ namespace Org.Apache.REEF.Tests.Functional
             if (lines != null)
             {
                 string[] successIndicators = lines.Where(s => s.Contains(message)).ToArray();
-                Assert.IsTrue(successIndicators.Any());
+                Assert.AreEqual(numberOfoccurances, successIndicators.Count());
             }
             else
             {

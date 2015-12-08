@@ -146,6 +146,7 @@ namespace Org.Apache.REEF.Driver.Evaluator
         {
             get { return _runtimeName; }
         }
+
         public override bool Equals(object obj)
         {
             var other = obj as EvaluatorDescriptorImpl;

@@ -25,28 +25,27 @@ using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Tests.Functional.Messaging
 {
-    public class RuntimeNameTask : ITask
+    public sealed class RuntimeNameTask : ITask
     {
         public const string MessageSend = "MESSAGE:TASK";
 
-        private static readonly Logger LOGGER = Logger.GetLogger(typeof(RuntimeNameTask));
+        private static readonly Logger Logger = Logger.GetLogger(typeof(RuntimeNameTask));
 
         [Inject]
         public RuntimeNameTask()
         {
         }
-
-
+        
         public byte[] Call(byte[] memento)
         {
-            Console.WriteLine("Hello, CLR TaskMsg!");
+            Logger.Log(Level.Info, "Hello, CLR Task!");
             Thread.Sleep(5 * 1000);
             return null;
         }
 
         public void Dispose()
         {
-            LOGGER.Log(Level.Info, "Msg disposed.");
+            Logger.Log(Level.Info, "Msg disposed.");
         }
     }
 }
