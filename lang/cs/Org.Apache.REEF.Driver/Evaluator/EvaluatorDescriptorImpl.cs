@@ -39,15 +39,16 @@ namespace Org.Apache.REEF.Driver.Evaluator
         private readonly int _megaBytes;
         private readonly INodeDescriptor _nodeDescriptor;
         private readonly string _rack;
+        private readonly string _runtimeName;
 
-        internal EvaluatorDescriptorImpl(INodeDescriptor nodeDescriptor, EvaluatorType type, int megaBytes, int core,
-            string rack = DefaultRackName)
+        internal EvaluatorDescriptorImpl(INodeDescriptor nodeDescriptor, EvaluatorType type, int megaBytes, int core, string rack = DefaultRackName, string runtimeName = "")
         {
             _nodeDescriptor = nodeDescriptor;
             _evaluatorType = type;
             _megaBytes = megaBytes;
             _core = core;
             _rack = rack;
+            _runtimeName = runtimeName;
         }
 
         /// <summary>
@@ -67,6 +68,11 @@ namespace Org.Apache.REEF.Driver.Evaluator
                     Exceptions.Throw(e, LOGGER);
                 }
                 settings.Add(pair[0], pair[1]);
+            }
+            string runtimeName;
+            if (!settings.TryGetValue("RuntimeName", out runtimeName))
+            {
+                Exceptions.Throw(new ArgumentException("cannot find RuntimeName entry"), LOGGER);
             }
             string ipAddress;
             if (!settings.TryGetValue("IP", out ipAddress))
@@ -108,6 +114,7 @@ namespace Org.Apache.REEF.Driver.Evaluator
             _evaluatorType = EvaluatorType.CLR;
             _megaBytes = memoryInMegaBytes;
             _core = vCore;
+            _runtimeName = runtimeName;
         }
 
         public INodeDescriptor NodeDescriptor
@@ -135,6 +142,10 @@ namespace Org.Apache.REEF.Driver.Evaluator
             get { return _rack; }
         }
 
+        public string RuntimeName
+        {
+            get { return _runtimeName; }
+        }
         public override bool Equals(object obj)
         {
             var other = obj as EvaluatorDescriptorImpl;
