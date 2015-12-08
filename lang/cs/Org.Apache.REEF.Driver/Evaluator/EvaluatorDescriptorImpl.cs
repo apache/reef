@@ -41,6 +41,7 @@ namespace Org.Apache.REEF.Driver.Evaluator
         private readonly string _rack;
         private readonly string _runtimeName;
 
+        // TODO[JIRA REEF-1054]: make runtimeName not optional
         internal EvaluatorDescriptorImpl(INodeDescriptor nodeDescriptor, EvaluatorType type, int megaBytes, int core, string rack = DefaultRackName, string runtimeName = "")
         {
             _nodeDescriptor = nodeDescriptor;
