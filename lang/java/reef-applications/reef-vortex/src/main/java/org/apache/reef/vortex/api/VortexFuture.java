@@ -24,6 +24,7 @@ import org.apache.reef.util.Optional;
 import org.apache.reef.vortex.driver.VortexMaster;
 
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -38,7 +39,7 @@ public final class VortexFuture<TOutput> implements Future<TOutput> {
   // Otherwise tasklet has not completed.
   private Optional<TOutput> userResult = null;
   private Exception userException;
-  private boolean cancelled = false;
+  private AtomicBoolean cancelled = new AtomicBoolean(false);
   private final CountDownLatch countDownLatch = new CountDownLatch(1);
   private final FutureCallback<TOutput> callbackHandler;
   private final Executor executor;
@@ -122,7 +123,7 @@ public final class VortexFuture<TOutput> implements Future<TOutput> {
    */
   @Override
   public boolean isCancelled() {
-    return cancelled;
+    return cancelled.get();
   }
 
   /**
@@ -142,7 +143,7 @@ public final class VortexFuture<TOutput> implements Future<TOutput> {
     if (userResult != null) {
       return userResult.get();
     } else {
-      assert this.cancelled || userException != null;
+      assert this.cancelled.get() || userException != null;
       if (userException != null) {
         throw new ExecutionException(userException);
       }
@@ -164,7 +165,7 @@ public final class VortexFuture<TOutput> implements Future<TOutput> {
     if (userResult != null) {
       return userResult.get();
     } else {
-      assert this.cancelled || userException != null;
+      assert this.cancelled.get() || userException != null;
       if (userException != null) {
         throw new ExecutionException(userException);
       }
@@ -211,7 +212,15 @@ public final class VortexFuture<TOutput> implements Future<TOutput> {
    */
   @Private
   public void cancelled() {
-    this.cancelled = true;
+    this.cancelled.set(true);
+    if (callbackHandler != null) {
+      executor.execute(new Runnable() {
+        @Override
+        public void run() {
+          callbackHandler.onFailure(new InterruptedException("VortexFuture has been cancelled on request."));
+        }
+      });
+    }
     this.countDownLatch.countDown();
   }
 }

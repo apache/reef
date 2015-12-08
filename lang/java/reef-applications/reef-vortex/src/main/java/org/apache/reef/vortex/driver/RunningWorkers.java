@@ -142,7 +142,7 @@ final class RunningWorkers {
         if (taskletsToCancel.contains(tasklet.getId())) {
           tasklet.cancelled();
           taskletsToCancel.remove(tasklet.getId());
-          LOG.log(Level.FINE, "Cancelled tasklet %d", tasklet.getId());
+          LOG.log(Level.FINE, "Cancelled tasklet {0}.", tasklet.getId());
           return;
         }
 
@@ -171,7 +171,7 @@ final class RunningWorkers {
       }
 
       if (mayInterruptIfRunning) {
-        LOG.log(Level.FINE, "Cancelling running Tasklet with ID %d.", taskletId);
+        LOG.log(Level.FINE, "Cancelling running Tasklet with ID {0}.", taskletId);
         runningWorkers.get(workerId).cancelTasklet(taskletId);
       }
     } finally {

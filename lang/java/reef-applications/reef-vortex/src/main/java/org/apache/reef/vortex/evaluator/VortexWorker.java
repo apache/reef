@@ -111,8 +111,7 @@ public final class VortexWorker implements Task, TaskMessageSource {
                         // Assumes that user's thread follows convention that cancelled Futures
                         // should throw InterruptedException.
                         final WorkerReport report = new TaskletCancelledReport(taskletExecutionRequest.getTaskletId());
-                        LOG.log(Level.WARNING, "Tasklet with ID " + vortexRequest.getTaskletId() +
-                            " has been cancelled.");
+                        LOG.log(Level.WARNING, "Tasklet with ID {0} has been cancelled", vortexRequest.getTaskletId());
                         workerReports.addLast(VortexAvroUtils.toBytes(report));
                       } catch (Exception e) {
                         // Command Executor: Tasklet throws an exception
@@ -137,7 +136,7 @@ public final class VortexWorker implements Task, TaskMessageSource {
               latch.countDown();
               break;
             case CancelTasklet:
-              LOG.log(Level.FINE, "Cancelling Tasklet with ID %d.", vortexRequest.getTaskletId());
+              LOG.log(Level.FINE, "Cancelling Tasklet with ID {0}.", vortexRequest.getTaskletId());
               final Future future = futures.get(vortexRequest.getTaskletId());
               if (future != null) {
                 future.cancel(true);
