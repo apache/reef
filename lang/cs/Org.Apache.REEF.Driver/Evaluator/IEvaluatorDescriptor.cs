@@ -51,5 +51,10 @@ namespace Org.Apache.REEF.Driver.Evaluator
         /// rack on which the evaluator was allocated
         /// </summary>
         string Rack { get; }
+
+        /// <summary>
+        /// name of the runtime that allocated this evaluator
+        /// </summary>
+        string RuntimeName { get; }
     }
 }

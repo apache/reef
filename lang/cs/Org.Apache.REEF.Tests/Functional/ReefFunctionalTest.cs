@@ -171,11 +171,32 @@ namespace Org.Apache.REEF.Tests.Functional
             }
         }
 
-        protected void ValidateMessageSuccessfullyLogged(string message, string testFolder)
+        protected void ValidateMessageSuccessfullyLogged(string message, string testFolder, int numberOfoccurances = 1)
         {
-            string[] lines = File.ReadAllLines(GetLogFile(_stdout, testFolder));
-            string[] successIndicators = lines.Where(s => s.Contains(message)).ToArray();
-            Assert.IsTrue(successIndicators.Any());
+            string[] lines = null;
+            for (int i = 0; i < 60; i++)
+            {
+                try
+                {
+                    lines = File.ReadAllLines(GetLogFile(_stdout, testFolder));
+                    break;
+                }
+                catch (Exception)
+                {
+                    Thread.Sleep(SleepTime);
+                }
+            }
+
+            if (lines != null)
+            {
+                string[] successIndicators = lines.Where(s => s.Contains(message)).ToArray();
+                Assert.AreEqual(numberOfoccurances, successIndicators.Count());
+            }
+            else
+            {
+                Console.WriteLine("Cannot read from log file");
+                Assert.Fail();
+            }
         }
 
         protected void PeriodicUploadLog(object source, ElapsedEventArgs e)
