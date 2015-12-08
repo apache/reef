@@ -33,7 +33,7 @@ using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Tests.Functional.Driver
 {
-    public class EvaluatorRequestingDriver : 
+    public sealed class EvaluatorRequestingDriver : 
         IObserver<IDriverStarted>, 
         IObserver<IAllocatedEvaluator>,         
         IObserver<IRunningTask>
@@ -88,29 +88,12 @@ namespace Org.Apache.REEF.Tests.Functional.Driver
 
         public void OnError(Exception error)
         {
-            Logger.Log(Level.Info, string.Format(CultureInfo.InvariantCulture, "On error: {0}", error.ToString()));
+            Logger.Log(Level.Info, string.Format(CultureInfo.InvariantCulture, "On error: {0}", error));
         }
 
         public void OnCompleted()
         {
-        }
-
-        void IObserver<IAllocatedEvaluator>.OnError(Exception error)
-        {
-            Logger.Log(Level.Info, string.Format(CultureInfo.InvariantCulture, "On error: {0}", error.ToString()));
-        }
-
-        void IObserver<IAllocatedEvaluator>.OnCompleted()
-        {
-        }
-
-        void IObserver<IDriverStarted>.OnError(Exception error)
-        {
-            Logger.Log(Level.Info, string.Format(CultureInfo.InvariantCulture, "On error: {0}", error.ToString()));
-        }
-
-        void IObserver<IDriverStarted>.OnCompleted()
-        {
+            throw new NotImplementedException();
         }
     }
 }
