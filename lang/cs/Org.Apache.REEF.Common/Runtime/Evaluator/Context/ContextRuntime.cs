@@ -30,7 +30,7 @@ using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
 {
-    public class ContextRuntime
+    internal sealed class ContextRuntime
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(ContextRuntime));
         // Context-local injector. This contains information that will not be available in child injectors.

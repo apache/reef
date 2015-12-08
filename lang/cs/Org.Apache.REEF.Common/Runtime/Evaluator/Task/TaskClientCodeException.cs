@@ -22,7 +22,7 @@ using Org.Apache.REEF.Tang.Interface;
 
 namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
 {
-    public class TaskClientCodeException : Exception
+    internal sealed class TaskClientCodeException : Exception
     {
         private readonly string _taskId;
 

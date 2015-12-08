@@ -31,7 +31,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
     /// <summary>
     ///  Helper class that encapsulates the root context configuration: With or without services and an initial task.
     /// </summary>
-    public sealed class RootContextLauncher
+    internal sealed class RootContextLauncher
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(RootContextLauncher));
         

@@ -27,7 +27,7 @@ using Org.Apache.REEF.Wake.Remote;
 
 namespace Org.Apache.REEF.Common.Runtime.Evaluator
 {
-    public class ReefMessageProtoObserver :
+    internal sealed class ReefMessageProtoObserver :
         IObserver<IRemoteMessage<REEFMessage>>,
         IObservable<IRemoteMessage<REEFMessage>>,
         IDisposable

@@ -29,7 +29,7 @@ using Org.Apache.REEF.Wake.Time;
 namespace Org.Apache.REEF.Common.Runtime.Evaluator
 {
     // TODO: merge with EvaluatorConfigurations class
-    public class EvaluatorSettings
+    internal sealed class EvaluatorSettings
     {
         private readonly string _applicationId;
 

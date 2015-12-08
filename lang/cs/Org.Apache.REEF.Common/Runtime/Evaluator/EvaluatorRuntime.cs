@@ -29,7 +29,7 @@ using Org.Apache.REEF.Wake.Time.Runtime.Event;
 
 namespace Org.Apache.REEF.Common.Runtime.Evaluator
 {
-    public sealed class EvaluatorRuntime : IObserver<RuntimeStart>, IObserver<RuntimeStop>, IObserver<REEFMessage>
+    internal sealed class EvaluatorRuntime : IObserver<RuntimeStart>, IObserver<RuntimeStop>, IObserver<REEFMessage>
     {
         private static readonly Logger Logger = Logger.GetLogger(typeof(EvaluatorRuntime));
         

@@ -23,7 +23,7 @@ using Org.Apache.REEF.Common.Tasks.Events;
 
 namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
 {
-    public class TaskLifeCycle
+    internal sealed class TaskLifeCycle
     {
         private readonly HashSet<IObserver<ITaskStop>> _taskStopHandlers;
         private readonly HashSet<IObserver<ITaskStart>> _taskStartHandlers;

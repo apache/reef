@@ -23,7 +23,7 @@ using Org.Apache.REEF.Utilities;
 
 namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
 {
-    public class ContextClientCodeException : Exception
+    internal sealed class ContextClientCodeException : Exception
     {
         private readonly string _contextId;
         private readonly Optional<string> _parentId;

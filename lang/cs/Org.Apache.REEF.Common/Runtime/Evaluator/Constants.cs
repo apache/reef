@@ -19,7 +19,7 @@
 
 namespace Org.Apache.REEF.Common.Runtime.Evaluator
 {
-    public class Constants
+    internal static class Constants
     {
         public const string RootContextConfiguration = "RootContextConfiguration";
 

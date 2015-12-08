@@ -27,7 +27,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
     /// <summary>
     /// This class is used to trigger all the context life-cycle dependent events.
     /// </summary>
-    class ContextLifeCycle
+    internal sealed class ContextLifeCycle
     {
         private HashSet<IObserver<IContextStart>> _contextStartHandlers;
 

@@ -21,7 +21,7 @@ using Org.Apache.REEF.Common.Events;
 
 namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
 {
-    class ContextStopImpl : IContextStop
+    internal sealed class ContextStopImpl : IContextStop
     {
         public ContextStopImpl(string id)
         {
