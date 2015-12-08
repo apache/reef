@@ -97,6 +97,7 @@ under the License.
     <Compile Include="Functional\Bridge\TestFailedTaskEventHandler.cs" />
     <Compile Include="Functional\Bridge\TestSimpleEventHandlers.cs" />
     <Compile Include="Functional\Driver\DriverTestStartHandler.cs" />
+    <Compile Include="Functional\RuntimeName\EvaluatorRequestingDriver.cs" />
     <Compile Include="Functional\Driver\TestDriver.cs" />
     <Compile Include="Functional\Messaging\MessageDriver.cs" />
     <Compile Include="Functional\Messaging\MessageTask.cs" />
@@ -106,6 +107,8 @@ under the License.
     <Compile Include="Functional\Group\PipelinedBroadcastReduceTest.cs" />
     <Compile Include="Functional\Group\ScatterReduceTest.cs" />
     <Compile Include="Functional\ReefFunctionalTest.cs" />
+    <Compile Include="Functional\RuntimeName\RuntimeNameTask.cs" />
+    <Compile Include="Functional\RuntimeName\RuntimeNameTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utility\TestDriverConfigGenerator.cs" />
     <Compile Include="Utility\TestExceptions.cs" />
