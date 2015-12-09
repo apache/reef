@@ -44,7 +44,9 @@ public final class TaskletCancellationTestStart implements VortexStart {
     final VortexFuture future = vortexThreadPool.submit(function, 0);
 
     try {
-      future.get(10, TimeUnit.SECONDS); // Hacky way to increase probability that the task has been launched.
+      // Hacky way to increase probability that the task has been launched.
+      // TODO[JIRA REEF-1051]: Query the VortexMaster for the Tasklet status.
+      future.get(10, TimeUnit.SECONDS);
     } catch (final TimeoutException e) {
       // Harmless.
     } catch (final Exception e) {
