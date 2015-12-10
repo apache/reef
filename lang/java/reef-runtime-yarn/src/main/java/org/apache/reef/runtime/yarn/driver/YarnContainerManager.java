@@ -424,7 +424,8 @@ final class YarnContainerManager
         // Therefore it is necessary avoid sending zero-container request, even it means getting extra containers.
         // It is okay to send nonzero m-capacity and n-capacity request together since bigger containers
         // can be matched.
-        // TODO: revisit this when implementing locality-strictness (i.e. a specific rack request can be ignored)
+        // TODO[JIRA REEF-42, REEF-942]: revisit this when implementing locality-strictness
+        // (i.e. a specific rack request can be ignored)
         if (this.requestsAfterSentToRM.size() > 1) {
           try {
             this.resourceManager.removeContainerRequest(matchedRequest);
@@ -488,7 +489,7 @@ final class YarnContainerManager
 
     final AMRMClient.ContainerRequest request = this.requestsAfterSentToRM.peek();
     final boolean resourceCondition = container.getResource().getMemory() >= request.getCapability().getMemory();
-    // TODO: check vcores once YARN-2380 is resolved
+    // TODO[JIRA REEF-35]: check vcores once YARN-2380 is resolved
     final boolean nodeCondition = request.getNodes() == null
         || request.getNodes().contains(container.getNodeId().getHost());
     final boolean rackCondition = request.getRacks() == null

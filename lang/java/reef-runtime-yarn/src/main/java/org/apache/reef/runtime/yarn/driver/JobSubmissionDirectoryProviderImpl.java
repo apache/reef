@@ -27,6 +27,10 @@ import javax.inject.Inject;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
+/**
+ * Default implementation of JobSubmissionDirectoryProvider.
+ * Constructs path to job submission directory based on current date and time and applicationId.
+ */
 public final class JobSubmissionDirectoryProviderImpl implements JobSubmissionDirectoryProvider {
 
   /**
