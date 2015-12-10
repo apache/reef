@@ -24,7 +24,6 @@ import org.apache.reef.client.LauncherStatus;
 import org.apache.reef.runtime.local.client.LocalRuntimeConfiguration;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tang.exceptions.InjectionException;
-import org.apache.reef.vortex.api.VortexStart;
 
 /**
  * Launches a Vortex Job.
@@ -39,11 +38,11 @@ public final class VortexLauncher {
   /**
    * Launch a Vortex job using the local runtime.
    */
-  public static LauncherStatus launchLocal(final Configuration vortexConf) {
+  public static LauncherStatus launchLocal(final VortexJobConf vortexConf) {
     final Configuration runtimeConf = LocalRuntimeConfiguration.CONF
         .set(LocalRuntimeConfiguration.MAX_NUMBER_OF_EVALUATORS, MAX_NUMBER_OF_EVALUATORS)
         .build();
-    return launch(runtimeConf, vortexConf);
+    return launch(runtimeConf, vortexConf.getConfiguration());
   }
 
   private static LauncherStatus launch(final Configuration runtimeConf, final Configuration vortexConf) {
