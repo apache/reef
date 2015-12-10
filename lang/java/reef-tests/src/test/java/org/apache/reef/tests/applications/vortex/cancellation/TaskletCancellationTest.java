@@ -23,7 +23,8 @@ import org.apache.reef.client.LauncherStatus;
 import org.apache.reef.tang.Configuration;
 import org.apache.reef.tests.TestEnvironment;
 import org.apache.reef.tests.TestEnvironmentFactory;
-import org.apache.reef.vortex.driver.VortexConfHelper;
+import org.apache.reef.vortex.driver.VortexJobConf;
+import org.apache.reef.vortex.driver.VortexMasterConf;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -53,10 +54,20 @@ public final class TaskletCancellationTest {
 
   @Test
   public void testVortexTaskletCancellation() {
-    final Configuration conf =
-        VortexConfHelper.getVortexConf(
-            "TEST_Vortex_TaskletCancellationTest", TaskletCancellationTestStart.class, 2, 64, 4, 2000);
-    final LauncherStatus status = this.testEnvironment.run(conf);
+    final Configuration vortexMasterConf = VortexMasterConf.CONF
+        .set(VortexMasterConf.WORKER_NUM, 2)
+        .set(VortexMasterConf.WORKER_MEM, 64)
+        .set(VortexMasterConf.WORKER_CORES, 4)
+        .set(VortexMasterConf.WORKER_CAPACITY, 2000)
+        .set(VortexMasterConf.VORTEX_START, TaskletCancellationTestStart.class)
+        .build();
+
+    final VortexJobConf vortexJobConf = VortexJobConf.newBuilder()
+        .setJobName("TEST_Vortex_TaskletCancellationTest")
+        .setVortexMasterConf(vortexMasterConf)
+        .build();
+
+    final LauncherStatus status = this.testEnvironment.run(vortexJobConf.getConfiguration());
     Assert.assertTrue("Job state after execution: " + status, status.isSuccess());
   }
 }
