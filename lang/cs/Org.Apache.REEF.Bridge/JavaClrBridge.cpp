@@ -642,6 +642,9 @@ static JNINativeMethod methods[] = {
 	{ "clrSystemDriverRestartCompletedHandlerOnNext", "(JLorg/apache/reef/javabridge/generic/DriverRestartCompletedBridge;)V",
 	(void*)&Java_org_apache_reef_javabridge_NativeInterop_clrSystemDriverRestartCompletedHandlerOnNext },
 
+	{ "clrSystemDriverRestartFailedEvaluatorHandlerOnNext", "(JLorg/apache/reef/javabridge/FailedEvaluatorBridge;Lorg/apache/reef/javabridge/InteropLogger;)V",
+	(void*)&Java_org_apache_reef_javabridge_NativeInterop_clrSystemDriverRestartFailedEvaluatorHandlerOnNext },
+
 	{ "clrSystemProgressProviderGetProgress", "(J)F",
 	(void*)&Java_org_apache_reef_javabridge_NativeInterop_clrSystemProgressProviderGetProgress },
 };
