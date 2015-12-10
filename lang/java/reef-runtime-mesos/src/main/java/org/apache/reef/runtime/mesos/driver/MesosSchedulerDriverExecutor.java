@@ -26,6 +26,9 @@ import javax.inject.Inject;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Handler for Mesos SchedulerDriver.
+ */
 public class MesosSchedulerDriverExecutor implements EventHandler<SchedulerDriver> {
   private static final Logger LOG = Logger.getLogger(MesosSchedulerDriverExecutor.class.getName());
 

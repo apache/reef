@@ -23,6 +23,9 @@ import org.apache.reef.tang.ExternalConstructor;
 
 import javax.inject.Inject;
 
+/**
+ * Configuration wrapper which allows it to be injected.
+ */
 public final class HDFSConfigurationConstructor implements ExternalConstructor<Configuration> {
   @Inject
   HDFSConfigurationConstructor() {

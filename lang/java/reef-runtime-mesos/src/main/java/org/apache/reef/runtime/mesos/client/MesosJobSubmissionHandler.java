@@ -44,7 +44,7 @@ import java.util.List;
 
 /**
  * The current implementation runs the driver as a local process, similar to reef-runtime-local.
- * TODO: run the driver on a slave node in the cluster
+ * TODO[JIRA REEF-98]: run the driver on a slave node in the cluster
  */
 @Private
 @ClientSide

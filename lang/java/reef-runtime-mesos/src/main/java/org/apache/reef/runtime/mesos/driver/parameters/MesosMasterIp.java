@@ -21,6 +21,9 @@ package org.apache.reef.runtime.mesos.driver.parameters;
 import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
 
+/**
+ * The ip address of Mesos Master.
+ */
 @NamedParameter(doc = "The ip address of Mesos Master")
 public final class MesosMasterIp implements Name<String> {
 }

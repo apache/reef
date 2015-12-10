@@ -29,6 +29,9 @@ import java.io.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * EvaluatorControl codec.
+ */
 public class MesosRemoteManagerCodec implements Codec<EvaluatorControl> {
   private static final Logger LOG = Logger.getLogger(MesosRemoteManagerCodec.class.getName());
 

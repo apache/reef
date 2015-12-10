@@ -56,6 +56,9 @@ import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * REEF implementation of Mesos Executor.
+ */
 public final class REEFExecutor implements Executor {
   private static final Logger LOG = Logger.getLogger(REEFExecutor.class.getName());
 
@@ -165,7 +168,7 @@ public final class REEFExecutor implements Executor {
               .build())
           .setState(TaskState.TASK_FINISHED)
           .setData(ByteString.copyFromUtf8("eval_not_run"))
-          // TODO: a hack to pass closeEvaluator test, replace this with a better interface
+          // TODO[JIRA REEF-102]: a hack to pass closeEvaluator test, replace this with a better interface
           .setMessage("Evaluator Process exited with status " + String.valueOf(evaluatorProcessExitValue))
           .build());
     }

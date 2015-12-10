@@ -21,6 +21,9 @@ package org.apache.reef.runtime.mesos.client.parameters;
 import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
 
+/**
+ * The root folder where logs etc. will be stored.
+ */
 @NamedParameter(doc = "The root folder where logs etc. will be stored.", default_value = "REEF_MESOS_RUNTIME")
 public final class RootFolder implements Name<String> {
 }
