@@ -26,7 +26,7 @@ import java.util.logging.Logger;
 
 /**
  * ErrorHandler for MesosRemoteManager.
- * TODO: Replace this class once Tang's namespace feature is enabled
+ * TODO[JIRA REEF-103]: Replace this class once Tang's namespace feature is enabled
  */
 public final class MesosErrorHandler implements EventHandler<Throwable> {
 

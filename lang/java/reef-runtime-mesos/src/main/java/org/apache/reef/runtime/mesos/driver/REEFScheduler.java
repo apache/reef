@@ -211,7 +211,7 @@ final class REEFScheduler implements Scheduler {
       break;
     case TASK_FINISHED:
       if (taskStatus.getData().toStringUtf8().equals("eval_not_run")) {
-        // TODO: a hack to pass closeEvaluator test, replace this with a better interface
+        // TODO[JIRA REEF-102]: a hack to pass closeEvaluator test, replace this with a better interface
         return;
       }
       resourceStatus.setState(State.DONE);
@@ -308,7 +308,7 @@ final class REEFScheduler implements Scheduler {
   /**
    * Greedily acquire resources by launching a Mesos Task(w/ our custom MesosExecutor) on REEF Evaluator request.
    * Either called from onResourceRequest(for a new request) or resourceOffers(for an outstanding request).
-   * TODO: reflect priority and rack/node locality specified in resourceRequestEvent.
+   * TODO[JIRA REEF-102]: reflect priority and rack/node locality specified in resourceRequestEvent.
    */
   private synchronized void doResourceRequest(final ResourceRequestEvent resourceRequestEvent) {
     int tasksToLaunchCounter = resourceRequestEvent.getResourceCount();

@@ -29,7 +29,7 @@ import javax.inject.Inject;
 /**
  * Since the existing RemoteManager cannot use an additional codec,
  * we need this additional RemoteManager to use MesosMessageCodec.
- * TODO: Replace this class once Tang's namespace feature is enabled
+ * TODO[JIRA REEF-103]: Replace this class once Tang's namespace feature is enabled
  */
 public final class MesosRemoteManager {
   private final RemoteManager raw;

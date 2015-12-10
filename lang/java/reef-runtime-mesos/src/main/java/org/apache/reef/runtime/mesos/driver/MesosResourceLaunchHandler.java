@@ -98,7 +98,7 @@ final class MesosResourceLaunchHandler implements ResourceLaunchHandler {
       final Path hdfsFolder = new Path(fileSystem.getUri() + "/" + resourceLaunchEvent.getIdentifier() + "/");
       FileUtil.copy(localStagingFolder, fileSystem, hdfsFolder, false, new org.apache.hadoop.conf.Configuration());
 
-      // TODO: Replace REEFExecutor with a simple launch command (we only need to launch REEFExecutor)
+      // TODO[JIRA REEF-102]: Replace REEFExecutor with a simple launch command (we only need to launch REEFExecutor)
       final List<String> command =
           getLaunchCommand(resourceLaunchEvent, this.executors.getMemory(resourceLaunchEvent.getIdentifier()));
       this.executors.launchEvaluator(

@@ -21,6 +21,9 @@ package org.apache.reef.runtime.mesos.evaluator.parameters;
 import org.apache.reef.tang.annotations.Name;
 import org.apache.reef.tang.annotations.NamedParameter;
 
+/**
+ * Mesos Executor's id.
+ */
 @NamedParameter(doc = "The Executor's id", short_name = "mesos_executor_id")
 public final class MesosExecutorId implements Name<String> {
 }
