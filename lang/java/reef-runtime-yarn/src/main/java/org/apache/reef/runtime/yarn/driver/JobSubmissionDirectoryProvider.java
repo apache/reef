@@ -23,7 +23,6 @@ import org.apache.reef.tang.annotations.DefaultImplementation;
 
 /**
  * Provides path to job submission directory.
- *
  */
 @DefaultImplementation(JobSubmissionDirectoryProviderImpl.class)
 public interface JobSubmissionDirectoryProvider {

@@ -26,12 +26,15 @@ import javax.inject.Inject;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Default implementation of rack names formatter.
+ * Extracts rack name from host name, if possible.
+ */
 @Private
 @DriverSide
 public final class DefaultRackNameFormatter implements RackNameFormatter {
 
   private static final Logger LOG = Logger.getLogger(DefaultRackNameFormatter.class.getName());
-
 
   @Inject
   private DefaultRackNameFormatter() {

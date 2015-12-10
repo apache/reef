@@ -21,12 +21,15 @@ package org.apache.reef.runtime.yarn.driver;
 import org.apache.hadoop.yarn.client.api.AMRMClient;
 import org.apache.reef.tang.annotations.DefaultImplementation;
 
+/**
+ * Interface to request containers from YARN using AMRMClient.ContainerRequest requests.
+ */
 @DefaultImplementation(YarnContainerRequestHandlerImpl.class)
 public interface YarnContainerRequestHandler {
   /**
    * Enqueue a set of container requests with YARN.
    *
-   * @param containerRequests
+   * @param containerRequests set of container requests
    */
   void onContainerRequest(final AMRMClient.ContainerRequest... containerRequests);
 }
