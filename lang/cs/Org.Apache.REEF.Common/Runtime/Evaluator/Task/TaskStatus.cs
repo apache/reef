@@ -30,24 +30,24 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
     internal sealed class TaskStatus
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(TaskStatus));
+
+        private readonly object _stateLock = new object();
         private readonly TaskLifeCycle _taskLifeCycle;
         private readonly HeartBeatManager _heartBeatManager;
         private readonly Optional<ISet<ITaskMessageSource>> _evaluatorMessageSources;
 
-        private readonly string _taskId;
-        private readonly string _contextId;
         private Optional<Exception> _lastException = Optional<Exception>.Empty();
         private Optional<byte[]> _result = Optional<byte[]>.Empty();
         private TaskState _state;
 
         public TaskStatus(HeartBeatManager heartBeatManager, string contextId, string taskId, Optional<ISet<ITaskMessageSource>> evaluatorMessageSources)
         {
-            _contextId = contextId;
-            _taskId = taskId;
             _heartBeatManager = heartBeatManager;
             _taskLifeCycle = new TaskLifeCycle();
             _evaluatorMessageSources = evaluatorMessageSources;
             State = TaskState.Init;
+            TaskId = taskId;
+            ContextId = contextId;
         }
 
         public TaskState State
@@ -57,7 +57,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
                 return _state;
             }
 
-            set
+            private set
             {
                 if (IsLegalStateTransition(_state, value))
                 {
@@ -67,83 +67,112 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
                 {
                     string message = string.Format(CultureInfo.InvariantCulture, "Illegal state transition from [{0}] to [{1}]", _state, value);
                     LOGGER.Log(Level.Error, message);
-                    Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(new InvalidOperationException(message), LOGGER);
+                    Utilities.Diagnostics.Exceptions.Throw(new InvalidOperationException(message), LOGGER);
                 }
             }
         }
 
-        public string TaskId
-        {
-            get { return _taskId; }
-        }
+        public string TaskId { get; private set; }
 
-        public string ContextId
-        {
-            get { return _contextId; }
-        }
+        public string ContextId { get; private set; }
 
         public void SetException(Exception e)
         {
-            RecordExecptionWithoutHeartbeat(e);
-            Heartbeat();
-            _lastException = Optional<Exception>.Empty();
+            lock (_stateLock)
+            {
+                if (!_lastException.IsPresent())
+                {
+                    _lastException = Optional<Exception>.Of(e);
+                }
+                State = TaskState.Failed;
+                _taskLifeCycle.Stop();
+                Heartbeat();
+            }
         }
 
         public void SetResult(byte[] result)
         {
-            _result = Optional<byte[]>.OfNullable(result);
-            if (State == TaskState.Running)
+            lock (_stateLock)
             {
-                State = TaskState.Done;
+                _result = Optional<byte[]>.OfNullable(result);
+                switch (State)
+                {
+                    case TaskState.SuspendRequested:
+                        State = TaskState.Suspended;
+                        break;
+                    case TaskState.Running:
+                    case TaskState.CloseRequested:
+                        State = TaskState.Done;
+                        break;
+                }
+                _taskLifeCycle.Stop();
+                Heartbeat();
             }
-            else if (State == TaskState.SuspendRequested)
-            {
-                State = TaskState.Suspended;
-            }
-            else if (State == TaskState.CloseRequested)
-            {
-                State = TaskState.Done;
-            }
-            _taskLifeCycle.Stop();
-            Heartbeat();
         }
 
         public void SetRunning()
         {
-            LOGGER.Log(Level.Verbose, "TaskStatus::SetRunning");
-            if (_state == TaskState.Init)
+            lock (_stateLock)
             {
-                try
+                LOGGER.Log(Level.Verbose, "TaskStatus::SetRunning");
+                if (_state == TaskState.Init)
                 {
-                    _taskLifeCycle.Start();
-
-                    // Need to send an INIT heartbeat to the driver prompting it to create an RunningTask event. 
-                    LOGGER.Log(Level.Info, string.Format(CultureInfo.InvariantCulture, "Sending task INIT heartbeat"));
-                    Heartbeat();
-                    State = TaskState.Running;
-                }
-                catch (Exception e)
-                {
-                    Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Caught(e, Level.Error, "Cannot set task status to running.", LOGGER);
-                    SetException(e);
+                    try
+                    {
+                        _taskLifeCycle.Start();
+                        // Need to send an INIT heartbeat to the driver prompting it to create an RunningTask event. 
+                        LOGGER.Log(Level.Info, "Sending task INIT heartbeat");
+                        Heartbeat();
+                        State = TaskState.Running;
+                    }
+                    catch (Exception e)
+                    {
+                        Utilities.Diagnostics.Exceptions.Caught(e, Level.Error, "Cannot set task status to running.", LOGGER);
+                        SetException(e);
+                    }
                 }
             }
         }
 
         public void SetCloseRequested()
         {
-            State = TaskState.CloseRequested;
+            lock (_stateLock)
+            {
+                if (HasEnded())
+                {
+                    return;
+                }
+
+                State = TaskState.CloseRequested;
+            }
         }
 
         public void SetSuspendRequested()
         {
-            State = TaskState.SuspendRequested;
+            lock (_stateLock)
+            {
+                if (HasEnded())
+                {
+                    return;
+                }
+
+                State = TaskState.SuspendRequested;
+            }
         }
 
         public void SetKilled()
         {
-            State = TaskState.Killed;
-            Heartbeat();
+            lock (_stateLock)
+            {
+                if (HasEnded())
+                {
+                    LOGGER.Log(Level.Warning, "Trying to kill a task that is in {0} state. Ignored.", State);
+                    return;
+                }
+
+                State = TaskState.Killed;
+                Heartbeat();
+            }
         }
 
         public bool IsNotRunning()
@@ -167,47 +196,40 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
 
         public TaskStatusProto ToProto()
         {
-            Check();
-            TaskStatusProto taskStatusProto = new TaskStatusProto()
+            // This is locked because the Task continuation thread which sets the
+            // result is potentially different from the HeartBeat thread.
+            lock (_stateLock)
             {
-                context_id = _contextId,
-                task_id = _taskId,
-                state = GetProtoState(),
-            };
-            if (_result.IsPresent())
-            {
-                taskStatusProto.result = ByteUtilities.CopyBytesFrom(_result.Value);
-            }
-            else if (_lastException.IsPresent())
-            {
-                // final Encoder<Throwable> codec = new ObjectSerializableCodec<>();
-                // final byte[] error = codec.encode(_lastException.get());
-                byte[] error = ByteUtilities.StringToByteArrays(_lastException.Value.ToString());
-                taskStatusProto.result = ByteUtilities.CopyBytesFrom(error);
-            }
-            else if (_state == TaskState.Running)
-            {
-                foreach (TaskMessage message in GetMessages())
+                Check();
+                TaskStatusProto taskStatusProto = new TaskStatusProto()
                 {
-                    TaskStatusProto.TaskMessageProto taskMessageProto = new TaskStatusProto.TaskMessageProto()
-                    {
-                        source_id = message.MessageSourceId,
-                        message = ByteUtilities.CopyBytesFrom(message.Message),
-                    };
-                    taskStatusProto.task_message.Add(taskMessageProto);
+                    context_id = ContextId,
+                    task_id = TaskId,
+                    state = GetProtoState()
+                };
+                if (_result.IsPresent())
+                {
+                    taskStatusProto.result = ByteUtilities.CopyBytesFrom(_result.Value);
                 }
+                else if (_lastException.IsPresent())
+                {
+                    byte[] error = ByteUtilities.StringToByteArrays(_lastException.Value.ToString());
+                    taskStatusProto.result = ByteUtilities.CopyBytesFrom(error);
+                }
+                else if (_state == TaskState.Running)
+                {
+                    foreach (TaskMessage message in GetMessages())
+                    {
+                        TaskStatusProto.TaskMessageProto taskMessageProto = new TaskStatusProto.TaskMessageProto()
+                        {
+                            source_id = message.MessageSourceId,
+                            message = ByteUtilities.CopyBytesFrom(message.Message),
+                        };
+                        taskStatusProto.task_message.Add(taskMessageProto);
+                    }
+                }
+                return taskStatusProto;
             }
-            return taskStatusProto;
-        }
-
-        internal void RecordExecptionWithoutHeartbeat(Exception e)
-        {
-            if (!_lastException.IsPresent())
-            {
-                _lastException = Optional<Exception>.Of(e);
-            }
-            State = TaskState.Failed;
-            _taskLifeCycle.Stop();
         }
 
         private static bool IsLegalStateTransition(TaskState? from, TaskState to)
@@ -265,9 +287,17 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
 
                 case TaskState.Failed:
                 case TaskState.Done:
-                case TaskState.Killed:           
+                case TaskState.Killed:
+                    if (from == to)
+                    {
+                        LOGGER.Log(Level.Warning, "Transitioning to the same state from {0} to {1}.", from, to);
+                        return true;
+                    }
+
+                    return false;
                 default:
-                    return true;
+                    LOGGER.Log(Level.Error, "Unknown \"from\" state: {0}", from);
+                    return false;
             }
         }
 
@@ -305,7 +335,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
                 case TaskState.Killed:
                     return Protobuf.ReefProtocol.State.KILLED;
                 default:
-                    Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(new InvalidOperationException("Unknown state: " + _state), LOGGER);
+                    Utilities.Diagnostics.Exceptions.Throw(new InvalidOperationException("Unknown state: " + _state), LOGGER);
                     break;
             }
             return Protobuf.ReefProtocol.State.FAILED; // this line should not be reached as default case will throw exception

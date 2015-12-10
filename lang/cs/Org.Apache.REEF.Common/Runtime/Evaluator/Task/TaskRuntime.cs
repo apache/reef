@@ -121,6 +121,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
                 throw new InvalidOperationException("TaskRun has already been called on TaskRuntime.");
             }
 
+            // Send heartbeat such that user receives a TaskRunning message.
             _currentStatus.SetRunning();
             ITask userTask;
             try
@@ -133,8 +134,11 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
                 return;
             }
 
-            System.Threading.Tasks.Task.Run(() => userTask.Call(null)).ContinueWith(
-                runTask =>
+            System.Threading.Tasks.Task.Run(() =>
+            {
+                Logger.Log(Level.Info, "Calling into user's task.");
+                return userTask.Call(null);
+            }).ContinueWith(runTask =>
                 {
                     try
                     {
@@ -278,7 +282,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
             catch (Exception e)
             {
                 Utilities.Diagnostics.Exceptions.Caught(e, Level.Warning, "Exception throw when handling driver message: " + e, Logger);
-                _currentStatus.RecordExecptionWithoutHeartbeat(e);
+                _currentStatus.SetException(e);
             }
         }
 
