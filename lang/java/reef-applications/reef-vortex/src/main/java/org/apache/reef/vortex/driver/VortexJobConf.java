@@ -32,16 +32,10 @@ import org.apache.reef.util.Optional;
  */
 @Unstable
 public final class VortexJobConf {
-  private final String jobName;
-  private final Configuration vortexMasterConf;
-  private final Optional<Configuration> userConf;
+  private final Configuration conf;
 
-  private VortexJobConf(final String jobName,
-                        final Configuration vortexMasterConf,
-                        final Optional<Configuration> userConf) {
-    this.jobName = jobName;
-    this.vortexMasterConf = vortexMasterConf;
-    this.userConf = userConf;
+  private VortexJobConf(final Configuration conf) {
+    this.conf = conf;
   }
 
   /**
@@ -56,21 +50,7 @@ public final class VortexJobConf {
    */
   @Private
   public Configuration getConfiguration() {
-    final Configuration vortexDriverConf = DriverConfiguration.CONF
-        .set(DriverConfiguration.GLOBAL_LIBRARIES, EnvironmentUtils.getClassLocation(VortexDriver.class))
-        .set(DriverConfiguration.ON_DRIVER_STARTED, VortexDriver.StartHandler.class)
-        .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, VortexDriver.AllocatedEvaluatorHandler.class)
-        .set(DriverConfiguration.ON_TASK_RUNNING, VortexDriver.RunningTaskHandler.class)
-        .set(DriverConfiguration.ON_TASK_MESSAGE, VortexDriver.TaskMessageHandler.class)
-        .set(DriverConfiguration.ON_EVALUATOR_FAILED, VortexDriver.FailedEvaluatorHandler.class)
-        .set(DriverConfiguration.DRIVER_IDENTIFIER, jobName)
-        .build();
-
-    if (userConf.isPresent()) {
-      return Configurations.merge(vortexDriverConf, vortexMasterConf, userConf.get());
-    } else {
-      return Configurations.merge(vortexDriverConf, vortexMasterConf);
-    }
+    return conf;
   }
 
   /**
@@ -112,7 +92,24 @@ public final class VortexJobConf {
     public VortexJobConf build() {
       BuilderUtils.notNull(jobName);
       BuilderUtils.notNull(vortexMasterConf);
-      return new VortexJobConf(jobName, vortexMasterConf, userConf);
+
+      final Configuration vortexDriverConf = DriverConfiguration.CONF
+          .set(DriverConfiguration.GLOBAL_LIBRARIES, EnvironmentUtils.getClassLocation(VortexDriver.class))
+          .set(DriverConfiguration.ON_DRIVER_STARTED, VortexDriver.StartHandler.class)
+          .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, VortexDriver.AllocatedEvaluatorHandler.class)
+          .set(DriverConfiguration.ON_TASK_RUNNING, VortexDriver.RunningTaskHandler.class)
+          .set(DriverConfiguration.ON_TASK_MESSAGE, VortexDriver.TaskMessageHandler.class)
+          .set(DriverConfiguration.ON_EVALUATOR_FAILED, VortexDriver.FailedEvaluatorHandler.class)
+          .set(DriverConfiguration.DRIVER_IDENTIFIER, jobName)
+          .build();
+
+      final Configuration jobConf;
+      if (userConf.isPresent()) {
+        jobConf = Configurations.merge(vortexDriverConf, vortexMasterConf, userConf.get());
+      } else {
+        jobConf = Configurations.merge(vortexDriverConf, vortexMasterConf);
+      }
+      return new VortexJobConf(jobConf);
     }
   }
 }
