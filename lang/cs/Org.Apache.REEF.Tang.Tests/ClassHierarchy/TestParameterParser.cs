@@ -34,7 +34,6 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
         {
             var parser = new ParameterParser();
             Int32 o = (Int32)parser.Parse(typeof(Int32), "4");
-
         }
 
         [Fact]
@@ -240,15 +239,22 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
         class Foo
         {
             public readonly string s;
-            public Foo(string s) { this.s = s; }
+            public Foo(string s) 
+            { 
+                this.s = s; 
+            }
         }
         class Bar : Foo
         {
-            public Bar(string s) : base(s) { }
+            public Bar(string s) : base(s) 
+            { 
+            }
         }
 
         [NamedParameter]
-        class SomeNamedFoo : Name<Foo> { }
+        class SomeNamedFoo : Name<Foo> 
+        { 
+        }
 
         class ILikeBars
         {
@@ -278,8 +284,14 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
             [Inject]
             public TypeParser(String s)
             {
-                if (s.Equals("a")) { instance = new ParseTypeA(); }
-                if (s.Equals("b")) { instance = new ParseTypeB(); }
+                if (s.Equals("a")) 
+                { 
+                    instance = new ParseTypeA(); 
+                }
+                if (s.Equals("b")) 
+                { 
+                    instance = new ParseTypeB(); 
+                }
             }
 
             public ParseableType NewInstance()

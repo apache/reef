@@ -81,6 +81,7 @@ namespace Org.Apache.REEF.Wake.Examples.P2p
                     {
                         // Add the source to the end of the queue again.
                         _sources.Enqueue(nextSource);
+
                         // Send the message. Note that this may block depending on the underlying EventHandler.
                         _output.OnNext(message);
                     }

@@ -47,7 +47,7 @@ namespace Org.Apache.REEF.Tang.Examples
         public ForksInjectorInConstructor(IInjector i)
         {
             ICsConfigurationBuilder cb = TangFactory.GetTang().NewConfigurationBuilder(new string[] { @"Org.Apache.REEF.Tang.Examples" });
-            // cb.BindImplementation(Number.class, typeof(Int32));
+            //// cb.BindImplementation(Number.class, typeof(Int32));
             i.ForkInjector(cb.Build());
         }
     }

@@ -130,7 +130,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         public void OnNext(IDriverStarted value)
         {
             RequestUpdateEvaluator();
-            // TODO[REEF-598]: Set a timeout for this request to be satisfied. If it is not within that time, exit the Driver.
+            //// TODO[REEF-598]: Set a timeout for this request to be satisfied. If it is not within that time, exit the Driver.
         }
 
         /// <summary>
@@ -244,7 +244,10 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
         {
             _completedTasks.Add(completedTask);
 
-            if (_completedTasks.Count != _dataSet.Count + 1) return;
+            if (_completedTasks.Count != _dataSet.Count + 1)
+            {
+                return;
+            }
             
             foreach (var task in _completedTasks)
             {

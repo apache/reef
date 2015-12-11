@@ -24,13 +24,12 @@ using Org.Apache.REEF.Tang.Interface;
 
 namespace Org.Apache.REEF.Network.Group.Pipelining
 {
-
     /// <summary>
     /// User specified class to convert the message to be communicated in to pipelining 
     /// amenable data and vice-versa 
     /// </summary>
     /// <typeparam name="T">The message type</typeparam>
-    // [DefaultImplementation(typeof(DefaultPipelineDataConverter<>))]
+    //// [DefaultImplementation(typeof(DefaultPipelineDataConverter<>))]
     public interface IPipelineDataConverter<T>
     {
         /// <summary>

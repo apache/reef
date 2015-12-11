@@ -154,7 +154,6 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
                         var ex = new IllegalStateException("When reading protocol buffer node "
                             + n + " refers to non-existent implementation:" + impl);
                         Utilities.Diagnostics.Exceptions.Throw(ex, LOGGER);
-
                     }
                     catch (InvalidCastException e)
                     {

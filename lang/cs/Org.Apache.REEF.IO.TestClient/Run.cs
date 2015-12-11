@@ -22,7 +22,8 @@ using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.IO.TestClient
 {
-    // TODO[JIRA REEF-815]: once move to Nunit, tose test should be moved to Test project
+    //// TODO[JIRA REEF-815]: once move to Nunit, tose test should be moved to Test project
+
     /// <summary>
     /// This purpose of this test is to run tests in Yarn envionment
     /// 
@@ -68,6 +69,8 @@ namespace Org.Apache.REEF.IO.TestClient
 
     public class AssertFailedException : Exception
     {
-        public AssertFailedException(string message) : base(message) { }
+        public AssertFailedException(string message) : base(message) 
+        { 
+        }
     }
 }

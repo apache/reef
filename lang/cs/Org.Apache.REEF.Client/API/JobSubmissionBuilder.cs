@@ -41,7 +41,6 @@ namespace Org.Apache.REEF.Client.API
             _configurationProviders = configurationProviders;
         }
 
-
         /// <summary>
         /// Add a file to be made available in all containers.
         /// </summary>
@@ -152,7 +151,6 @@ namespace Org.Apache.REEF.Client.API
             _driverConfigurationFileContents = driverConfigurationFileContents;
             return this;
         }
-
 
         /// <summary>
         /// Finds the path to the assembly the given Type was loaded from.

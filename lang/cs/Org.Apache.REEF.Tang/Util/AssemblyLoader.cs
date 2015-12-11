@@ -65,7 +65,9 @@ namespace Org.Apache.REEF.Tang.Util
                 {
                     t = a.GetType(name);
                     if (t != null)
+                    {
                         break;
+                    }
                 }
             }
 

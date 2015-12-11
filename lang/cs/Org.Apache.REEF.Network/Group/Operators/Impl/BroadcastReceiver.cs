@@ -109,7 +109,8 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
                 }
 
                 messageList.Add(message);
-            } while (!message.IsLast);
+            } 
+            while (!message.IsLast);
 
             return PipelineDataConverter.FullMessage(messageList);
         }

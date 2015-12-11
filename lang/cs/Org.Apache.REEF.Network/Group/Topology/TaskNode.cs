@@ -76,7 +76,8 @@ namespace Org.Apache.REEF.Network.Group.Topology
             _children.Add(child);
         }
 
-        public int GetNumberOfChildren() {
+        public int GetNumberOfChildren() 
+        {
             return _children.Count;
         }
 

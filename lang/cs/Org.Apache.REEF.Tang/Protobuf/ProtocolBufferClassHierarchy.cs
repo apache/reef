@@ -40,7 +40,6 @@ namespace Org.Apache.REEF.Tang.Protobuf
         private readonly IDictionary<string, INode> lookupTable = new Dictionary<string, INode>();
         private readonly IDictionary<string, IDictionary<string, string>> _aliasLookupTable = new Dictionary<string, IDictionary<string, string>>();
 
-
         public static void Serialize(string fileName, IClassHierarchy classHierarchy)
         {
             Org.Apache.REEF.Tang.Protobuf.Node node = Serialize(classHierarchy);
@@ -274,6 +273,7 @@ namespace Org.Apache.REEF.Tang.Protobuf
             {
                 Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(new ArgumentException("Expected a package node.  Got: " + root), LOGGER); 
             }
+
             // Register all the classes.
             foreach (Org.Apache.REEF.Tang.Protobuf.Node child in root.children)
             {
@@ -377,7 +377,6 @@ namespace Org.Apache.REEF.Tang.Protobuf
                 {
                     IConstructorDef def = ParseConstructorDef(other, false);
                     allConstructors.Add(def);
-
                 }
 
                 IConstructorDef[] dummy = new ConstructorDefImpl[0];
@@ -436,7 +435,6 @@ namespace Org.Apache.REEF.Tang.Protobuf
                         var ex = new IllegalStateException("When reading protocol buffer node "
                             + n + " refers to non-existent implementation:" + impl);
                         Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(ex, LOGGER); 
-
                     }
                     catch (InvalidCastException e)
                     {

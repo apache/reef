@@ -180,7 +180,7 @@ namespace Org.Apache.REEF.Tang.Util
         public static IEnumerable<Type> ClassAndAncestorsExcludeSelf(Type c)
         {
             List<Type> workQueue = new List<Type>();
-            // workQueue.Add(c); // including itself
+            //// workQueue.Add(c); // including itself
 
             foreach (Type t in c.GetInterfaces())
             {
@@ -275,7 +275,7 @@ namespace Org.Apache.REEF.Tang.Util
             ////   && Number.class.isAssignableFrom(from)) {
             ////return sizeof.get(from) <= sizeof.get(to);
             return to.IsAssignableFrom(from);
-            // return IsAssignableFromIgnoreGeneric(to, from);
+            //// return IsAssignableFromIgnoreGeneric(to, from);
         }
 
         /// <summary>
@@ -367,7 +367,9 @@ namespace Org.Apache.REEF.Tang.Util
                 {
                     t = a.GetType(name);
                     if (t != null)
+                    {
                         break;
+                    }
                 }
             }
             if (t == null)
@@ -453,7 +455,6 @@ namespace Org.Apache.REEF.Tang.Util
                     var ex = new ClassHierarchyException("Named parameter " + GetName(type) + " implements "
                                   + "multiple interfaces.  It is only allowed to implement Name<T>");
                     Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(ex, LOGGER);
-
                 }
                 else if (intfs.Length == 0 || !IsName(intfs[0]))
                 {
@@ -497,9 +498,13 @@ namespace Org.Apache.REEF.Tang.Util
         public static IEnumerable<Type> GetInterfaces(Type type, bool includeInherited)
         {
             if (includeInherited || type.BaseType == null)
+            {
                 return type.GetInterfaces();
+            }
             else
+            {
                 return type.GetInterfaces().Except(type.BaseType.GetInterfaces());
+            }
         }
 
         // Here is a more elaborate hack to test for anonymous type:

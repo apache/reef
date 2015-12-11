@@ -24,7 +24,6 @@ using Org.Apache.REEF.Tang.Util;
 
 namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
 {
-
     public interface IInjectionFuture<out T>
     {
         T Get();
@@ -74,7 +73,10 @@ namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
 
         public T Get() 
         {
-            if (instance != null) return instance;
+            if (instance != null)
+            {
+                return instance;
+            }
             lock (injector) 
             {
                 T t;
@@ -94,6 +96,5 @@ namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
                 return t;
             }
         }
-
     }
 }

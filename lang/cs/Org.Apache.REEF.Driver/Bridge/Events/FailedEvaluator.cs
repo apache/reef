@@ -64,6 +64,7 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
         {
             get { return new List<IFailedContext>(0); }
         }
+
         // TODO[REEF-769]: Implement
         public Optional<IFailedTask> FailedTask
         {

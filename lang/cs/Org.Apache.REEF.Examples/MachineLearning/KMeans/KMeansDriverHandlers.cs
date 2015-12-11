@@ -175,6 +175,7 @@ namespace Org.Apache.REEF.Examples.MachineLearning.KMeans
             else
             {
                 string slaveTaskId = Constants.SlaveTaskIdPrefix + activeContext.Id;
+
                 // Configure Slave Task
                 taskConfiguration = TaskConfiguration.ConfigurationModule
                     .Set(TaskConfiguration.Identifier, Constants.SlaveTaskIdPrefix + activeContext.Id)

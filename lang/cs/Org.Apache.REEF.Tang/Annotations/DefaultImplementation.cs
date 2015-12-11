@@ -35,6 +35,5 @@ namespace Org.Apache.REEF.Tang.Annotations
             Name = n;
             Value = val;
         }
-
     }
 }

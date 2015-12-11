@@ -28,6 +28,8 @@ namespace Org.Apache.REEF.Tang.Examples
     public class CheckChildImpl : CheckChildIface
     {
         [Inject]
-        public CheckChildImpl() { }
+        public CheckChildImpl() 
+        { 
+        }
     }
 }

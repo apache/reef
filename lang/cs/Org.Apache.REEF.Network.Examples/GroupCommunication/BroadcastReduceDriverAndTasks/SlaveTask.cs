@@ -59,6 +59,7 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.BroadcastReduceDri
             for (int i = 0; i < _numIterations; i++)
             {
                 broadcastTime.Start();
+
                 // Receive n from Master Task
                 int n = _broadcastReceiver.Receive();
                 broadcastTime.Stop();

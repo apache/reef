@@ -174,7 +174,6 @@ namespace Org.Apache.REEF.Driver.Bridge
                 }
                 catch (Exception ex)
                 {
-                  
                     LOGGER.Log(Level.Info, "Caught exception: " + ex.Message + ex.StackTrace);
                     Exceptions.CaughtAndThrow(ex, Level.Warning,  LOGGER);
                 }

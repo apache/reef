@@ -125,7 +125,6 @@ namespace Org.Apache.REEF.Client.Yarn
             // TODO: Remove this when we have a generalized way to pass config to java
             var paramInjector = TangFactory.GetTang().NewInjector(jobSubmission.DriverConfigurations.ToArray());
                 
-
             var avroJobSubmissionParameters = new AvroJobSubmissionParameters
             {
                 jobId = jobSubmission.JobIdentifier,

@@ -16,7 +16,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-﻿namespace Org.Apache.REEF.Tang.Types
+
+namespace Org.Apache.REEF.Tang.Types
 {
     public interface IPackageNode : INode
     {

@@ -32,7 +32,10 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureBlob
     {
         private readonly CloudBlobClient _client;
 
-        public StorageCredentials Credentials { get { return _client.Credentials; } }
+        public StorageCredentials Credentials 
+        { 
+            get { return _client.Credentials; } 
+        }
 
         [Inject]
         private AzureCloudBlobClient([Parameter(typeof(AzureStorageConnectionString))] string connectionString,

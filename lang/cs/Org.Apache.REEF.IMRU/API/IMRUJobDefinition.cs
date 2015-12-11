@@ -187,7 +187,8 @@ namespace Org.Apache.REEF.IMRU.API
         /// TODO: automatically from IPartitionedDataset. However, right now 
         /// TODO: GroupComm. instantiated in IMRUDriver needs this parameter 
         /// TODO: in constructor. This will be removed once we remove it from GroupComm. 
-        internal int NumberOfMappers {
+        internal int NumberOfMappers 
+        {
             get { return _numberOfMappers; }
         }
 
@@ -206,7 +207,6 @@ namespace Org.Apache.REEF.IMRU.API
         {
             get { return _updateTaskMemory; }
         }
-
 
         /// <summary>
         /// Cores for each mapper

@@ -20,7 +20,6 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
 // ReSharper disable InconsistentNaming; Name replicates YARN REST API
-
 namespace Org.Apache.REEF.Client.YARN.RestClient.DataModel
 {
     /// <summary>

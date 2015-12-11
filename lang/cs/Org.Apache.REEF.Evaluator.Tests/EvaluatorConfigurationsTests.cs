@@ -43,7 +43,6 @@ namespace Org.Apache.REEF.Evaluator.Tests
         private const string RemoteIdPrefix = "socket://";
         private const string AppIdForTest = "REEF_LOCAL_RUNTIME";
 
-
         [TestMethod, Priority(0), TestCategory("Unit")]
         public void TestEvaluatorConfigurations()
         {

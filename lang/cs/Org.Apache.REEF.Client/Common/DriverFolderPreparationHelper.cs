@@ -17,7 +17,6 @@
  * under the License.
  */
 
-
 using System;
 using System.IO;
 using System.Linq;
@@ -172,7 +171,6 @@ namespace Org.Apache.REEF.Client.Common
         /// <param name="filePath"></param>
         /// <returns></returns>
         private static Boolean IsAssemblyToCopy(string filePath)
-
         {
             var fileName = Path.GetFileName(filePath);
             if (string.IsNullOrWhiteSpace(fileName))

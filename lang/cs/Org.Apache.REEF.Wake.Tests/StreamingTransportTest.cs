@@ -85,7 +85,6 @@ namespace Org.Apache.REEF.Wake.Tests
         [Fact]
         public void TestStreamingTransportSenderStage()
         {
-            
             IPEndPoint endpoint = new IPEndPoint(IPAddress.Any, 0);
 
             List<string> events = new List<string>();
@@ -160,7 +159,6 @@ namespace Org.Apache.REEF.Wake.Tests
             }
 
             Assert.Equal(numEventsExpected, events.Count);
-
         }
 
         private static ITcpPortProvider GetTcpProvider(int portRangeStart, int portRangeEnd)

@@ -59,7 +59,6 @@ namespace Org.Apache.REEF.Network.Group.Driver.Impl
         private readonly Dictionary<string, ICommunicationGroupDriver> _commGroups;
         private readonly AvroConfigurationSerializer _configSerializer;
 
-
         /// <summary>
         /// Create a new GroupCommunicationDriver object.
         /// </summary>

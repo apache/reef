@@ -116,6 +116,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
                 try
                 {
                     _taskLifeCycle.Start();
+
                     // Need to send an INIT heartbeat to the driver prompting it to create an RunningTask event. 
                     LOGGER.Log(Level.Info, string.Format(CultureInfo.InvariantCulture, "Sending task INIT heartbeat"));
                     Heartbeat();

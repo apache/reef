@@ -67,6 +67,5 @@ namespace Org.Apache.REEF.Client.API
         /// Can be used to redirect assembly versions
         /// </summary>
         string DriverConfigurationFileContents { get; }
-
     }
 }

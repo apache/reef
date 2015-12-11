@@ -73,7 +73,6 @@ namespace Org.Apache.REEF.Tang.Protobuf
             plan.name = fullName;
             plan.instance = instance;
             return plan;
-
         }
 
         public static void Serialize(string fileName, Org.Apache.REEF.Tang.Implementations.InjectionPlan.InjectionPlan ip)
@@ -109,7 +108,6 @@ namespace Org.Apache.REEF.Tang.Protobuf
                     subPlans[i] = Serialize(args[i]);
                 }
                 return NewSubplan(ip.GetNode().GetFullName(), sp.GetSelectedIndex(), subPlans.ToList<Org.Apache.REEF.Tang.Protobuf.InjectionPlan>());
-
             } 
             if (ip is CsInstance) 
             {

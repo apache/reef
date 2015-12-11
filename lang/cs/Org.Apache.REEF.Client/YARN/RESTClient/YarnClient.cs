@@ -128,7 +128,6 @@ namespace Org.Apache.REEF.Client.Yarn.RestClient
             return request;
         }
 
-
         private async Task<T> GenerateUrlAndExecuteRequestAsync<T>(IRestRequest request,
             CancellationToken cancellationToken)
             where T : new()

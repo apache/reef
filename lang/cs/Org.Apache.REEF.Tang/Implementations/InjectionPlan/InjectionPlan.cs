@@ -62,7 +62,7 @@ namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
 
         abstract public bool IsInjectable();
 
-        // abstract public bool HasFutureDependency();
+        //// abstract public bool HasFutureDependency();
 
         protected void pad(StringBuilder sb, int n)
         {
@@ -169,12 +169,10 @@ namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
         public abstract bool IsInfeasibleLeaf();
 
         public abstract string ToShallowString();
-
     }
 
     public class BuildingInjectionPlan : InjectionPlan
     {
-
         public BuildingInjectionPlan(INode node)
             : base(node)
         {

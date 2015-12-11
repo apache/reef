@@ -27,7 +27,7 @@ namespace Org.Apache.REEF.IMRU.InProcess
     /// </summary>
     /// <typeparam name="TMapInput"></typeparam>
     /// <typeparam name="TMapOutput"></typeparam>
-    // This is needed as Tang doesn't support BindVolatile into a Set.
+    /// This is needed as Tang doesn't support BindVolatile into a Set.
     internal sealed class MapFunctions<TMapInput, TMapOutput>
     {
         private readonly ISet<IMapFunction<TMapInput, TMapOutput>> _mappers;

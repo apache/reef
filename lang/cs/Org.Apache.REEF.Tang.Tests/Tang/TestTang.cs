@@ -81,7 +81,6 @@ namespace Org.Apache.REEF.Tang.Tests.Tang
             }
             catch (InjectionException)
             {
-
             }
             Assert.IsNull(obj);
         }
@@ -140,7 +139,6 @@ namespace Org.Apache.REEF.Tang.Tests.Tang
             OneNamedSingletonArgs o = i.GetInstance<OneNamedSingletonArgs>();
             Assert.IsNotNull(o);
         }
-
 
         [TestMethod]
         public void TestRepeatedNamedArgs()
@@ -392,7 +390,7 @@ namespace Org.Apache.REEF.Tang.Tests.Tang
         {
             IInjector i = TangFactory.GetTang().NewInjector();
             var ii = (InjectInjector)i.GetInstance(typeof(InjectInjector));
-            // Assert.IsTrue(ii.i is IInjector);
+            //// Assert.IsTrue(ii.i is IInjector);
             Assert.AreNotSame(i, ii.i);
         }
 
@@ -524,7 +522,8 @@ namespace Org.Apache.REEF.Tang.Tests.Tang
             {
                 i.GetInstance<Fail>();
                 Assert.Fail("Injecting Fail should not have worked!");
-            } catch (InjectionException) 
+            } 
+            catch (InjectionException) 
             {
                  i.GetInstance<Pass>();
             }
@@ -876,13 +875,19 @@ namespace Org.Apache.REEF.Tang.Tests.Tang
         public float f;
 
         [NamedParameter]
-        public class TCInt : Name<Int32> { }
+        public class TCInt : Name<Int32> 
+        { 
+        }
 
         [NamedParameter]
-        public class TCString : Name<string> { }
+        public class TCString : Name<string> 
+        { 
+        }
 
         [NamedParameter]
-        public class TCFloat : Name<float> { }
+        public class TCFloat : Name<float> 
+        { 
+        }
 
         [Inject]
         public ThreeConstructors([Parameter(typeof(TCInt))] int i, [Parameter(typeof(TCString))] string s) 
@@ -917,11 +922,14 @@ namespace Org.Apache.REEF.Tang.Tests.Tang
         public string s;
 
         [NamedParameter]
-        public class TCInt : Name<Int32> { }
+        public class TCInt : Name<Int32> 
+        { 
+        }
 
         [NamedParameter]
-        public class TCString : Name<string> { }
-
+        public class TCString : Name<string> 
+        { 
+        }
 
         [Inject]
         public TwoConstructors([Parameter(typeof(TCInt))] int i, [Parameter(typeof(TCString))] string s)
@@ -938,21 +946,31 @@ namespace Org.Apache.REEF.Tang.Tests.Tang
         }
     }
 
-    interface SMC { }
+    interface SMC 
+    { 
+    }
 
     class SingletonMultiConst : SMC 
     {
         [NamedParameter]
-        public class A : Name<string> { }
+        public class A : Name<string> 
+        { 
+        }
   
         [NamedParameter]
-        public class B : Name<string> { }
+        public class B : Name<string> 
+        { 
+        }
   
         [Inject]
-        public SingletonMultiConst([Parameter(typeof(A))] String a) { }
+        public SingletonMultiConst([Parameter(typeof(A))] String a) 
+        { 
+        }
         
         [Inject]
-        public SingletonMultiConst([Parameter(typeof(A))] string a, [Parameter(typeof(B))] string b) { }
+        public SingletonMultiConst([Parameter(typeof(A))] string a, [Parameter(typeof(B))] string b) 
+        { 
+        }
     }
 
     internal class ABCName
@@ -966,25 +984,25 @@ namespace Org.Apache.REEF.Tang.Tests.Tang
         {
         }
 
-        // [NamedParameter(DefaultClass = typeof(XAA))]
-        // public class XNameDA : Name<X<BB>>
-        // {
-        // }
+        //// [NamedParameter(DefaultClass = typeof(XAA))]
+        //// public class XNameDA : Name<X<BB>>
+        //// {
+        //// }
 
         [NamedParameter(DefaultClass = typeof(XBB))]
         public class XNameDB : Name<X<BB>>
         {
         }
 
-        // [NamedParameter(DefaultClass = typeof(XCC))]
-        // public class XNameDC : Name<X<BB>>
-        // {
-        // }
+        //// [NamedParameter(DefaultClass = typeof(XCC))]
+        //// public class XNameDC : Name<X<BB>>
+        //// {
+        //// }
 
-        // [NamedParameter(DefaultClass = typeof(XCC))]
-        // public class XNameDAA : Name<XBB>
-        // {
-        // }
+        //// [NamedParameter(DefaultClass = typeof(XCC))]
+        //// public class XNameDAA : Name<XBB>
+        //// {
+        //// }
 
         [NamedParameter(DefaultClass = typeof(XXBB))]
         public class XNameDDAA : Name<XBB>
@@ -1053,8 +1071,8 @@ namespace Org.Apache.REEF.Tang.Tests.Tang
         }
     }
 
-    interface Bottle<Y> {
-  
+    interface Bottle<Y> 
+    {  
     }
     class WaterBottle : Bottle<Water> 
     {  
@@ -1062,77 +1080,116 @@ namespace Org.Apache.REEF.Tang.Tests.Tang
     class GasCan : Bottle<Gas> 
     {  
     }
-    class Water { }
-    class Gas { }
+    class Water 
+    { 
+    }
+    class Gas 
+    { 
+    }
 
     [NamedParameter(DefaultClass = typeof(GasCan))]
-    class WaterBottleName : Name<Bottle<Water>> { }
+    class WaterBottleName : Name<Bottle<Water>> 
+    { 
+    }
 
-    interface IEventHandler<T> { }
+    interface IEventHandler<T> 
+    { 
+    }
     class MyEventHandler<T> : IEventHandler<T> 
     { 
         [Inject]
-        MyEventHandler() { }
+        MyEventHandler() 
+        { 
+        }
     }
 
     [DefaultImplementation(typeof(MyEventHandler<Foo>))]
-    interface MyEventHandlerIface : IEventHandler<Foo> { }
+    interface MyEventHandlerIface : IEventHandler<Foo> 
+    { 
+    }
 
     [NamedParameter(DefaultClass = typeof(MyEventHandler<Foo>))]
-    class FooEventHandler : Name<IEventHandler<Foo>> { }
+    class FooEventHandler : Name<IEventHandler<Foo>> 
+    { 
+    }
 
     internal class Foo : Name<String>
     {
     }
 
-    interface SomeIface { }
+    interface SomeIface 
+    { 
+    }
+
     [NamedParameter(DefaultClass = typeof(MyEventHandler<SomeIface>))]
-    class IfaceEventHandler : Name<IEventHandler<SomeIface>> { }
+    class IfaceEventHandler : Name<IEventHandler<SomeIface>> 
+    { 
+    }
 
     class AH
     {
         [Inject]
-        AH() { }
+        AH() 
+        { 
+        }
     }
     class BH
     {
         [Inject]
-        BH() { }
+        BH() 
+        { 
+        }
     }
 
     [DefaultImplementation(typeof(AHandlerImpl))]
-    interface IAHandler : IEventHandler<AH> { }
+    interface IAHandler : IEventHandler<AH> 
+    { 
+    }
 
     [DefaultImplementation(typeof(BHandlerImpl))]
-    interface IBHandler : IEventHandler<BH> { }
+    interface IBHandler : IEventHandler<BH> 
+    { 
+    }
 
     class AHandlerImpl : IAHandler
     {
         [Inject]
-        public AHandlerImpl() { }
+        public AHandlerImpl() 
+        { 
+        }
     }
     class BHandlerImpl : IBHandler 
     {
         [Inject]
-        public BHandlerImpl() { }
+        public BHandlerImpl() 
+        { 
+        }
     }
 
     class WantSomeHandlers 
     {
         [Inject]
-        WantSomeHandlers(IAHandler a, IBHandler b) { }
+        WantSomeHandlers(IAHandler a, IBHandler b) 
+        { 
+        }
     }
     class WantSomeFutureHandlers 
     {
         [Inject]
-        WantSomeFutureHandlers(IInjectionFuture<IAHandler> a, IInjectionFuture<IBHandler> b) { }
+        WantSomeFutureHandlers(IInjectionFuture<IAHandler> a, IInjectionFuture<IBHandler> b) 
+        { 
+        }
     }
 
     [NamedParameter(DefaultClass = typeof(AHandlerImpl))]
-    class AHandlerName : Name<IEventHandler<AH>> { }
+    class AHandlerName : Name<IEventHandler<AH>> 
+    { 
+    }
     
     [NamedParameter(DefaultClass = typeof(BHandlerImpl))]
-    class BHandlerName : Name<IEventHandler<BH>> { }
+    class BHandlerName : Name<IEventHandler<BH>> 
+    { 
+    }
 
     class WantSomeFutureHandlersName 
     {
@@ -1163,35 +1220,41 @@ namespace Org.Apache.REEF.Tang.Tests.Tang
 
     abstract class MultiLayer
     {
-         
     }
 
     class MiddleLayer : MultiLayer
     {
-       [Inject]
-        public MiddleLayer() { }
+        [Inject]
+        public MiddleLayer() 
+        { 
+        }
     }
 
     class LowerLayer : MiddleLayer 
     {
-       [Inject]
-        public LowerLayer() { }
+        [Inject]
+        public LowerLayer() 
+        { 
+        }
     }
 
     interface IMultiLayer
     {
-
     }
 
     class MiddleLayerImpl : IMultiLayer
     {
         [Inject]
-        public MiddleLayerImpl() { }
+        public MiddleLayerImpl() 
+        { 
+        }
     }
 
     class LowerLayerImpl : MiddleLayerImpl
     {
         [Inject]
-        public LowerLayerImpl() { }
+        public LowerLayerImpl() 
+        { 
+        }
     }
 }

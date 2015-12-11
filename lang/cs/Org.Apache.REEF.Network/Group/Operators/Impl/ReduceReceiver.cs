@@ -116,7 +116,8 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
             {
                 message = _topology.ReceiveFromChildren(_pipelinedReduceFunc);
                 messageList.Add(message);
-            } while (!message.IsLast);
+            } 
+            while (!message.IsLast);
 
             return PipelineDataConverter.FullMessage(messageList);
         }

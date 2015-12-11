@@ -91,6 +91,7 @@ namespace Org.Apache.REEF.Driver.Bridge
                                           "). Loading only the one found in the legacy location.");
                 return legacyBridgeConfigurationPath;
             }
+
             // If we reached this, we weren't able to find the configuration file.
             var message = "Unable to find brigde configuration. Paths checked: ['" +
                           newBridgeConfigurationPath + "', '" +

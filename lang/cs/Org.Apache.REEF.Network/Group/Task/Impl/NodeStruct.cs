@@ -23,7 +23,6 @@ using Org.Apache.REEF.Network.Group.Driver.Impl;
 
 namespace Org.Apache.REEF.Network.Group.Task.Impl
 {
-
     /// <summary>
     /// Stores all incoming messages sent by a particular Task.
     /// Writable version

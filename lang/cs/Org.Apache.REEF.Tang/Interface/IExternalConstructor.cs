@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-﻿
+
 namespace Org.Apache.REEF.Tang.Interface
 {
     public interface IExternalConstructor<out T>

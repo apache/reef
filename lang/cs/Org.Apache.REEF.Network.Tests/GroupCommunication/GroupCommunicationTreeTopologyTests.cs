@@ -181,7 +181,6 @@ namespace Org.Apache.REEF.Network.Tests.GroupCommunication
             Assert.Equal(value3, receiver9.Receive());
         }
 
-
         [Fact]
         public void TestBroadcastReduceOperators()
         {

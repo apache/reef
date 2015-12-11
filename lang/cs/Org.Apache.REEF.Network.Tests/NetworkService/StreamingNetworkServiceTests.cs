@@ -300,6 +300,7 @@ namespace Org.Apache.REEF.Network.Tests.NetworkService
                 await writer.WriteStringAsync(obj.Value2, token);
             }
         } 
+
         /// <summary>
         /// The observer to handle incoming messages for string
         /// </summary>

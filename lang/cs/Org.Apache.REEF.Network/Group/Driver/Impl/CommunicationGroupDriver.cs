@@ -30,7 +30,6 @@ using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities.Logging;
 
-
 namespace Org.Apache.REEF.Network.Group.Driver.Impl
 {
     /// <summary>

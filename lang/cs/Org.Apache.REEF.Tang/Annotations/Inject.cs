@@ -16,7 +16,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-﻿namespace Org.Apache.REEF.Tang.Annotations
+
+namespace Org.Apache.REEF.Tang.Annotations
 {
     /// <summary>
     /// InjectAttribute

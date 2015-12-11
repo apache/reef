@@ -159,6 +159,7 @@ namespace Org.Apache.REEF.Driver.Evaluator
             }
 
             return EquivalentMemory(other);
+
             // we don't care about rack now;
             // && string.Equals(_rack, other.Rack, StringComparison.OrdinalIgnoreCase);
         }

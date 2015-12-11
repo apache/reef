@@ -113,7 +113,6 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
                 String.Format("Listening on {0}", _listener.LocalEndpoint.ToString()));
         }
 
-
         /// <summary>
         /// Close the TransportServer and all open connections
         /// </summary>

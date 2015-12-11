@@ -177,7 +177,6 @@ namespace Org.Apache.REEF.IMRU.Examples
                 default:
                     Logger.Log(Level.Info, "wrong test name");
                     return;
-
             }
         }
     }

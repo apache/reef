@@ -43,7 +43,6 @@ namespace Org.Apache.REEF.Wake.Tests
             BlockingCollection<string> queue = new BlockingCollection<string>();
             List<string> events = new List<string>();
 
-
             IPEndPoint endpoint = new IPEndPoint(_localIpAddress, 0);
             var remoteHandler = Observer.Create<TransportEvent<string>>(tEvent => queue.Add(tEvent.Data));
 
@@ -207,7 +206,6 @@ namespace Org.Apache.REEF.Wake.Tests
             }
         }
 
-
         private static ITcpPortProvider GetTcpProvider(int portRangeStart, int portRangeEnd)
         {
             var configuration = TangFactory.GetTang().NewConfigurationBuilder()
@@ -217,6 +215,5 @@ namespace Org.Apache.REEF.Wake.Tests
                 .Build();
             return TangFactory.GetTang().NewInjector(configuration).GetInstance<ITcpPortProvider>();
         }
-
     }
 }

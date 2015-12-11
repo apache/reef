@@ -132,7 +132,6 @@ namespace Org.Apache.REEF.Wake.Remote
         /// <returns>Task handler that reads string</returns>
         Task<string> ReadStringAsync(CancellationToken token);
 
-
         /// <summary>
         /// Reads data in to the buffer asynchronously
         /// </summary>

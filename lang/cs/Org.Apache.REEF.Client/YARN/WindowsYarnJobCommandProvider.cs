@@ -46,7 +46,6 @@ namespace Org.Apache.REEF.Client.YARN
         private readonly int _driverMaxMemoryAllocationPoolSizeMB;
         private readonly int _driverMaxPermSizeMB;
 
-
         [Inject]
         private WindowsYarnJobCommandProvider(
             [Parameter(typeof(EnableDebugLogging))] bool enableDebugLogging,

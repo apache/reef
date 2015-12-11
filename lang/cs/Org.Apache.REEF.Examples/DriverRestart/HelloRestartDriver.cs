@@ -145,7 +145,6 @@ namespace Org.Apache.REEF.Examples.DriverRestart
                 Logger.Log(Level.Info, "{0} running task with ID [{1}] from evaluator with ID [{2}]",
                     _evaluators[evaluatorId], value.Id, evaluatorId);
 
-
                 if (_evaluators[evaluatorId] == EvaluatorState.Expected)
                 {
                     value.Send(Encoding.UTF8.GetBytes("Hello from driver!"));
@@ -156,6 +155,7 @@ namespace Org.Apache.REEF.Examples.DriverRestart
                     _evaluators[evaluatorId] = EvaluatorState.NewRunning;
 
                     var newRunningCount = CountState(EvaluatorState.NewRunning);
+
                     // Kill itself in order for the driver to restart it.
                     if (!_isRestart && newRunningCount == NumberOfTasksToSubmit)
                     {

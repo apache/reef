@@ -174,7 +174,8 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureBlob
                 }
 
                 blobContinuationToken = listing.ContinuationToken;
-            } while (blobContinuationToken != null);
+            } 
+            while (blobContinuationToken != null);
         }
 
         /// <summary>

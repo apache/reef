@@ -47,7 +47,6 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
         // alias is indexed by language, for each language, a mapping between alias and corresponding name kept in a Dictionary
         private readonly IDictionary<string, IDictionary<string, string>> _aliasLookupTable = new Dictionary<string, IDictionary<string, string>>();
 
-
         public ParameterParser Parameterparser = new ParameterParser();
 
         public ClassHierarchyImpl(string file) : this(new string[] { file }, new Type[0])
@@ -265,7 +264,8 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
             }
             INamedParameterNode np = NodeFactory.CreateNamedParameterNode(parent, type, argType);
 
-            if (Parameterparser.CanParse(ReflectionUtilities.GetAssemblyQualifiedName(argType))) {
+            if (Parameterparser.CanParse(ReflectionUtilities.GetAssemblyQualifiedName(argType))) 
+            {
                 if (type.GetCustomAttribute<NamedParameterAttribute>().DefaultClass != null) 
                 {
                     var e = new ClassHierarchyException("Named parameter " + ReflectionUtilities.GetAssemblyQualifiedName(type) + " defines default implementation for parsable type " + ReflectionUtilities.GetAssemblyQualifiedName(argType));
@@ -312,7 +312,6 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
                     Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(e, LOGGER);
                 }
                 shortNames.Add(shortName, np);
-
             }
             return np;            
         }
@@ -340,7 +339,6 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
                         }
                     }
                 }
-
             }
             return null;   
         }
@@ -366,9 +364,8 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
                         }
                     }
                     return null;
-                    // throw new NameResolutionException(t.FullName, sb.ToString());
+                    //// throw new NameResolutionException(t.FullName, sb.ToString());
                 }
-
             }
             return current; 
         }
@@ -480,7 +477,10 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
 
         public IClassHierarchy Merge(IClassHierarchy ch)
         {
-            if (this == ch) { return this; }
+            if (this == ch) 
+            { 
+                return this; 
+            }
 
             if (!(ch is ClassHierarchyImpl)) 
             {

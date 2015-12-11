@@ -92,9 +92,11 @@ namespace Org.Apache.REEF.Examples.MachineLearning.KMeans
         public static List<DataVector> ShuffleDataAndGetInitialCentriods(string originalDataFile, int partitionsNum, int clustersNum, string executionDirectory)
         {
             List<DataVector> data = DataPartitionCache.ReadDataFile(originalDataFile);
-            // shuffle, not truely random, but sufficient for our purpose
+
+            // shuffle, not truly random, but sufficient for our purpose
             data = data.OrderBy(a => Guid.NewGuid()).ToList();
             string dataDirectory = Path.Combine(executionDirectory, Constants.DataDirectory);
+
             // clean things up first
             if (Directory.Exists(dataDirectory))
             {

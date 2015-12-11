@@ -94,21 +94,35 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
 
         public override bool Equals(Object o) 
         {
-            if (o == null) return false;
-            if (o == this) return true;
+            if (o == null)
+            {
+                return false;
+            }
+            if (o == this)
+            {
+                return true;
+            }
     
             AbstractNode n = (AbstractNode)o;
             bool parentsEqual;
-            if (n.parent == this.parent) {
+            if (n.parent == this.parent) 
+            {
                 parentsEqual = true;
-            } else if (n.parent == null) {
+            } 
+            else if (n.parent == null) 
+            {
                 parentsEqual = false;
-            } else if (this.parent == null) {
+            } 
+            else if (this.parent == null) 
+            {
                 parentsEqual = false;
-            } else {
+            } 
+            else 
+            {
                 parentsEqual = n.parent.Equals(this.parent);
             }
-            if (!parentsEqual) {
+            if (!parentsEqual) 
+            {
                 return false;
             }
             return fullName.Equals(n.fullName);

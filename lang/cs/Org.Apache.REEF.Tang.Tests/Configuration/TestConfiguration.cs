@@ -241,7 +241,6 @@ namespace Org.Apache.REEF.Tang.Tests.Configuration
             tweeter.sendMessage();
         }
 
-
         [Fact]
         public void TestTweetConfigWithAvroThroughFile()
         {
