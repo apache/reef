@@ -232,7 +232,9 @@ namespace Org.Apache.REEF.IO.Tests
             using (var s = File.Create(filePath))
             {
                 foreach (var b in bytes)
+                {
                     s.WriteByte(b);
+                }
             }
         }
 
@@ -261,7 +263,8 @@ namespace Org.Apache.REEF.IO.Tests
     {
         [Inject]
         public ByteSerializer()
-        { }
+        { 
+        }
 
         /// <summary>
         /// Enumerate all the files in the file foder and return each byte read
@@ -303,7 +306,8 @@ namespace Org.Apache.REEF.IO.Tests
     {
         [Inject]
         private RowSerializer()
-        { }
+        { 
+        }
 
         /// <summary>
         /// read all the files in the fileFolder cand return byte read one by one

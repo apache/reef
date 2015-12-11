@@ -116,7 +116,9 @@ namespace Org.Apache.REEF.IO.TestClient
             using (var s = File.Create(filePath))
             {
                 foreach (var b in bytes)
+                {
                     s.WriteByte(b);
+                }
             }
         }
 
@@ -139,7 +141,8 @@ namespace Org.Apache.REEF.IO.TestClient
     {
         [Inject]
         private ByteSerializer()
-        { }
+        { 
+        }
 
         /// <summary>
         /// Read bytes from all the files in the file folder and return one by one

@@ -46,7 +46,6 @@ namespace Org.Apache.REEF.Wake.Remote
         /// <param name="codec">The codec used for serializing messages</param>
         IRemoteManager<T> GetInstance<T>(IPAddress localAddress, ICodec<T> codec);
 
- 
         /// <summary>
         /// Constructs a DefaultRemoteManager. Does not listen for incoming messages.
         /// </summary>

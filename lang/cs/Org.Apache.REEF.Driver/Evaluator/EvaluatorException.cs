@@ -23,7 +23,8 @@ using Org.Apache.REEF.Utilities;
 
 namespace Org.Apache.REEF.Driver.Evaluator
 {
-    // Public only such that it can be used in the bridge.
+    //// Public only such that it can be used in the bridge.
+
     /// <summary>
     /// </summary>
     public sealed class EvaluatorException : Exception, IIdentifiable

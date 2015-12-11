@@ -35,7 +35,8 @@ namespace Org.Apache.REEF.Tang.Examples
     public class MockTweetFactory : ITweetFactory 
     {
         [Inject]
-        public MockTweetFactory() {
+        public MockTweetFactory() 
+        {
         }
 
         public String GetTweet() 
@@ -57,6 +58,7 @@ namespace Org.Apache.REEF.Tang.Examples
             {
                 throw new ArgumentException("Unknown recipient");
             }
+
             // success!
         }
     }
@@ -68,7 +70,9 @@ namespace Org.Apache.REEF.Tang.Examples
         readonly long phoneNumber;
 
         [NamedParameter(Documentation = "Phone number", ShortName = "number", DefaultValue = "1800")]
-        public class PhoneNumber : Name<long> { }
+        public class PhoneNumber : Name<long>
+        { 
+        }
         [Inject]
         public Tweeter(ITweetFactory tw, ISMS sms, [Parameter(typeof(PhoneNumber))] long phoneNumber)
         {

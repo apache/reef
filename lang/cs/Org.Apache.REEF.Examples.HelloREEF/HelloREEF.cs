@@ -58,6 +58,7 @@ namespace Org.Apache.REEF.Examples.HelloREEF
                 .Set(DriverConfiguration.OnEvaluatorAllocated, GenericType<HelloDriver>.Class)
                 .Set(DriverConfiguration.OnDriverStarted, GenericType<HelloDriver>.Class)
                 .Build();
+
             // The JobSubmission contains the Driver configuration as well as the files needed on the Driver.
             var helloJobSubmission = _jobSubmissionBuilderFactory.GetJobSubmissionBuilder()
                 .AddDriverConfiguration(helloDriverConfiguration)

@@ -378,6 +378,9 @@ namespace Org.Apache.REEF.Driver.Bridge
             }
         }
 
-        internal ISet<IConfigurationProvider> ConfigurationProviders { get { return _configurationProviders; } }
+        internal ISet<IConfigurationProvider> ConfigurationProviders 
+        { 
+            get { return _configurationProviders; } 
+        }
     }
 }

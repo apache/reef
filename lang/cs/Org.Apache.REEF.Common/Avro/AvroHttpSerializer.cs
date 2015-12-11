@@ -28,7 +28,7 @@ namespace Org.Apache.REEF.Common.Avro
     /// <summary>
     /// Class AvroHttpSerializer. Provides methods to serialize and deserialize HttpRequest
     /// </summary>
-    // TODO[REEF-842] Act on the obsoletes
+    //// TODO[REEF-842] Act on the obsoletes
     public class AvroHttpSerializer
     {
         public static AvroHttpRequest FromBytes(byte[] serializedBytes)

@@ -70,11 +70,13 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.BroadcastReduceDri
                 }
 
                 broadcastTime.Start();
+
                 // Each slave task calculates the nth triangle number
                 _broadcastSender.Send(i);
                 broadcastTime.Stop();
 
                 reduceTime.Start();
+
                 // Sum up all of the calculated triangle numbers
                 int sum = _sumReducer.Reduce();
                 reduceTime.Stop();

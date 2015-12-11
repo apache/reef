@@ -101,7 +101,6 @@ namespace Org.Apache.REEF.Client.Tests
 
         private class TestContext
         {
-
             public readonly IJobSubmissionDirectoryProvider JobSubmissionDirectoryProvider =
                 Substitute.For<IJobSubmissionDirectoryProvider>();
             public readonly IResourceArchiveFileGenerator ResourceArchiveFileGenerator =

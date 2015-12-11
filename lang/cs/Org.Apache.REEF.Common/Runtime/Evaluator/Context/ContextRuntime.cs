@@ -33,8 +33,10 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
     internal sealed class ContextRuntime
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(ContextRuntime));
+
         // Context-local injector. This contains information that will not be available in child injectors.
         private readonly IInjector _contextInjector;
+
         // Service injector. State in this injector moves to child injectors.
         private readonly IInjector _serviceInjector;
 
@@ -87,6 +89,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                 
                 Utilities.Diagnostics.Exceptions.Throw(ex, LOGGER);
             }
+
             // Trigger the context start events on contextInjector.
             _contextLifeCycle.Start();
         }

@@ -65,7 +65,9 @@ namespace Org.Apache.REEF.Client.Common
         /// <summary>
         /// Returns http end point of the web server running in the driver
         /// </summary>
-        public string DriverUrl { get { return _driverUrl; }
+        public string DriverUrl 
+        {
+            get { return _driverUrl; }
         }
 
         /// <summary>
@@ -307,7 +309,6 @@ namespace Org.Apache.REEF.Client.Common
                     {
                         resultKind = UrlResultKind.GotAppIdUrl;
                     }
-
                 }
             }
 

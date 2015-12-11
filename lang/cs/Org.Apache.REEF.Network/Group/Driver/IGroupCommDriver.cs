@@ -35,7 +35,6 @@ namespace Org.Apache.REEF.Network.Group.Driver
 
         ICommunicationGroupDriver DefaultGroup { get; }
 
-
         /// <summary>
         /// Create a new CommunicationGroup with the given name and number of tasks/operators. 
         /// </summary>

@@ -221,6 +221,7 @@ namespace Org.Apache.REEF.IO.FileSystem.Hadoop
                     errList.Add(e.Data.Trim());
                 }
             };
+
             // Start it
             process.Start();
             process.BeginErrorReadLine();

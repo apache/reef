@@ -68,7 +68,8 @@ namespace Org.Apache.REEF.Tang.Implementations.Configuration
         public ConfigurationBuilderImpl(ConfigurationBuilderImpl t) 
         {
             this.ClassHierarchy = t.GetClassHierarchy();
-            try {
+            try 
+            {
                 AddConfiguration(t.GetClassHierarchy(), t);
             } 
             catch (BindException e) 
@@ -146,18 +147,20 @@ namespace Org.Apache.REEF.Tang.Implementations.Configuration
 
             foreach (KeyValuePair<INamedParameterNode, object> e in builder.BoundSetEntries) 
             {
-              String name = ((INamedParameterNode)e.Key).GetFullName();
-              if (e.Value is INode) 
-              {
+                String name = ((INamedParameterNode)e.Key).GetFullName();
+                if (e.Value is INode) 
+                {
                     BindSetEntry(name, (INode)e.Value);
-              } 
-              else if (e.Value is string) 
-              {
+                } 
+                else if (e.Value is string) 
+                {
                     BindSetEntry(name, (string)e.Value);
-              } else {
-                var ex = new IllegalStateException(string.Format(CultureInfo.CurrentCulture, "The value {0} set to the named parameter {1} is illegel.", e.Value, name));
-                Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(ex, LOGGER);
-              }
+                } 
+                else 
+                {
+                    var ex = new IllegalStateException(string.Format(CultureInfo.CurrentCulture, "The value {0} set to the named parameter {1} is illegel.", e.Value, name));
+                    Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(ex, LOGGER);
+                }
             }
 
             foreach (var p in builder.BoundLists)

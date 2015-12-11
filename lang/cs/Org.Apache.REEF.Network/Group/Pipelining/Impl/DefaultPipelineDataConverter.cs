@@ -22,10 +22,8 @@ using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Annotations;
 
-
 namespace Org.Apache.REEF.Network.Group.Pipelining.Impl
 {
-
     /// <summary>
     /// Default IPipelineDataConverter implementation
     /// This basically is a non-pipelined implementation that just packs the whole message in one single PipelineMessage

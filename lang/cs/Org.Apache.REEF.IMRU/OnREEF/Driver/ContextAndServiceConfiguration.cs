@@ -41,6 +41,5 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             Context = context;
             Service = service;
         }
-
     }
 }

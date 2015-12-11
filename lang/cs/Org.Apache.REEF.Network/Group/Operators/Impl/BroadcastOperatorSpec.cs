@@ -54,6 +54,7 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
             get { return Configuration; }
             private set { Configuration = value; }
         }
+
         /// <summary>
         /// Returns the Configuration for Codec, ReduceFunction and DataConverter
         /// </summary>

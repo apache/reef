@@ -197,7 +197,6 @@ namespace Org.Apache.REEF.Evaluator
                 "Evaluator heartbeat max retry set to be " + heartbeatMaxRetry + " times.");
         }
 
-
         /// <summary>
         /// Instantiates the root injector of the Evaluator.
         /// </summary>
@@ -267,6 +266,7 @@ namespace Org.Apache.REEF.Evaluator
             catch (Exception e)
             {
                 Utilities.Diagnostics.Exceptions.Caught(e, Level.Error, logger);
+
                 // custom trace listener not set properly, use empty set
                 customTraceListeners = new HashSet<TraceListener>();
             }

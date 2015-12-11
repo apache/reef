@@ -95,7 +95,8 @@ namespace Org.Apache.REEF.Client.API
         /// <summary>
         /// The Job's identifier
         /// </summary>
-        string IJobSubmission.JobIdentifier {
+        string IJobSubmission.JobIdentifier 
+        {
             get { return _jobIdentifier; }
         }
 
@@ -107,7 +108,5 @@ namespace Org.Apache.REEF.Client.API
         {
             get { return _driverConfigurationFileContents; }
         }
-
-
     }
 }

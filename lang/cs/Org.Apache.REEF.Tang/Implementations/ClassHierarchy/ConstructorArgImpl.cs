@@ -88,7 +88,6 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
                 return false;
             }
             return name.Equals(arg.name);
-
         }
     }
 }

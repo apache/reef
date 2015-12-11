@@ -406,7 +406,6 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
                 }
 
                 return new NodeStruct<T>[] { potentialNode };
-
             }
             catch (OperationCanceledException)
             {

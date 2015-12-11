@@ -45,8 +45,9 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
             var unit = null != clazz.GetCustomAttribute<UnitAttribute>();
             string simpleName = ReflectionUtilities.GetName(clazz);
             string fullName = ReflectionUtilities.GetAssemblyQualifiedName(clazz);
-            // bool isStatic = true; // clazz.IsSealed && clazz.IsAbstract; always true in C# for Java static class
-            // bool injectable = true; // always true in C#
+
+            //// bool isStatic = true; // clazz.IsSealed && clazz.IsAbstract; always true in C# for Java static class
+            //// bool injectable = true; // always true in C#
 
             bool isAssignableFromExternalConstructor = ReflectionUtilities.IsAssignableFromIgnoreGeneric(typeof(IExternalConstructor<>), clazz); 
 
@@ -88,7 +89,6 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
                     }
                 }
                 allConstructors.Add(constructorDef);
-
             }
 
             string defaultImplementation = null;
@@ -175,7 +175,8 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
         {
             Type setRawArgType = ReflectionUtilities.GetInterfaceTarget(typeof(ISet<>), argClass);
             bool isSet = setRawArgType != null;
-            if (isSet) {
+            if (isSet) 
+            {
                 argClass = setRawArgType;
             }
 

@@ -74,7 +74,6 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
             }
             catch (NameResolutionException)
             {
-
             }
             Assert.True(msg == null, msg);
         }
@@ -108,7 +107,6 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
             }
             catch (NameResolutionException)
             {
-
             }
             Assert.True(msg == null, msg);        
         }
@@ -128,7 +126,6 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
             IClassNode timerClassNode = (IClassNode)ns.GetNode(typeof(Timer).AssemblyQualifiedName);
             INode secondNode = ns.GetNode(typeof(Timer.Seconds).AssemblyQualifiedName);
             Assert.Equal(secondNode.GetFullName(), ReflectionUtilities.GetAssemblyQualifiedName(typeof(Timer.Seconds)));
-
         }
 
         [Fact]
@@ -310,7 +307,6 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
             "class org.apache.reef.tang.implementation.BadName defines a default class Int32 with a type that does not extend of its target's type string");
         }
 
-
         [Fact]
         public void TestNameCantBindWrongSubclassOfArgumentAsDefault()
         {
@@ -437,7 +433,8 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
     }
 
     [NamedParameter]
-    class GenericTorture1 : Name<ISet<string>> {
+    class GenericTorture1 : Name<ISet<string>> 
+    {
     }
     [NamedParameter]
     class GenericTorture2 : Name<ISet<ISet<string>>>
@@ -454,7 +451,6 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
 
     public interface MyInterface<T>
     {
-
     }
 
     public class RepeatConstructorArg
@@ -513,7 +509,6 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
     }
     public class LeafRepeatedConstructorArgClasses
     {
-
         public static class A
         {
             public class AA
@@ -571,7 +566,8 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
         }
     }
 
-    class UnannotatedName : Name<string> {
+    class UnannotatedName : Name<string> 
+    {
     }
 
     interface I1 

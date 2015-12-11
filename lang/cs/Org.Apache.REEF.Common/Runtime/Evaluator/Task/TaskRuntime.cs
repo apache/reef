@@ -55,6 +55,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
             catch (Exception e)
             {
                 Utilities.Diagnostics.Exceptions.Caught(e, Level.Warning, "Cannot inject task message source with error: " + e.StackTrace, Logger);
+
                 // do not rethrow since this is benign
             }
             try
@@ -253,13 +254,13 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
         public void OnNext(ICloseEvent value)
         {
             Logger.Log(Level.Info, "TaskRuntime::OnNext(ICloseEvent value)");
-            // TODO: send a heartbeat
+            //// TODO: send a heartbeat
         }
 
         public void OnNext(ISuspendEvent value)
         {
             Logger.Log(Level.Info, "TaskRuntime::OnNext(ISuspendEvent value)");
-            // TODO: send a heartbeat
+            //// TODO: send a heartbeat
         }
 
         public void OnNext(IDriverMessage value)

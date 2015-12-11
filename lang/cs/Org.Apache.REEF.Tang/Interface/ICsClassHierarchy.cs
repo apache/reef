@@ -28,7 +28,5 @@ namespace Org.Apache.REEF.Tang.Interface
         Type ClassForName(string name);
         object Parse(INamedParameterNode name, string value);
         object ParseDefaultValue(INamedParameterNode name);
-
-
     }
 }

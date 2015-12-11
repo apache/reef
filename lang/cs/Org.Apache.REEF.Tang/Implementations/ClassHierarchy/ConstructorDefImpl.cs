@@ -106,10 +106,14 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
                         break;
                     }
                 }
+
                 // If not, then argument j from def is not in our list.  Return false.
                 if (found == false)
+                {
                     return false;
+                }
             }
+
             // Everything in def's arg list is in ours.  Do we have at least one extra
             // argument?
             return GetArgs().Count > def.GetArgs().Count;
@@ -142,7 +146,6 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
                 {
                     i++;
                 }
-
             }
             return true;
         }
@@ -196,7 +199,6 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
                 {
                     return true;
                 }
-
             }
             return false;
         }

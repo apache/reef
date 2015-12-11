@@ -75,6 +75,7 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.PipelineBroadcastR
                 }
 
                 broadcastTime.Start();
+
                 // Receive n from Master Task
                 int[] intVec = _broadcastReceiver.Receive();
                 broadcastTime.Stop();

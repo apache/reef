@@ -66,6 +66,7 @@ namespace Org.Apache.REEF.Examples.MachineLearning.KMeans
                     break;
                 }
                 Centroids centroids = _dataBroadcastReceiver.Receive();
+
                 // we compute the loss here before data is relabled, this does not reflect the latest clustering result at the end of current iteration, 
                 // but it will save another round of group communications in each iteration
                 _logger.Log(Level.Info, "Received centroids from master: " + centroids);

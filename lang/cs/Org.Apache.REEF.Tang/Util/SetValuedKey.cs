@@ -49,7 +49,10 @@ namespace Org.Apache.REEF.Tang.Util
         public override bool Equals(Object o)
         {
             SetValuedKey other = (SetValuedKey)o;
-            if (other.key.Count != this.key.Count) { return false; }
+            if (other.key.Count != this.key.Count) 
+            { 
+                return false; 
+            }
             for (int i = 0; i < this.key.Count; i++)
             {
                 if (this.key[i].Equals(other.key[i]))

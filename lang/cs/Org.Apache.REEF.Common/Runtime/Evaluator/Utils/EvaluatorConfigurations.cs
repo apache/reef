@@ -138,6 +138,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Utils
                 return _rootContextConfiguration;
             }
         }
+
         /// <summary>
         /// The ContextConfiguration for the root context.
         /// </summary>

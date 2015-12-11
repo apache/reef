@@ -156,8 +156,6 @@ namespace Org.Apache.REEF.IO.Tests
             }
         }
 
-        
-
         [TestMethod]
         public void TestDeleteDirectoryAtContainerE2E()
         {

@@ -25,7 +25,6 @@ using Org.Apache.REEF.Tang.Implementations.Tang;
 
 namespace Org.Apache.REEF.IO.Tests
 {
-
     /// <summary>
     /// Tests for Org.Apache.REEF.IO.FileSystem.Local.LocalFileSystem
     /// </summary>
@@ -39,7 +38,6 @@ namespace Org.Apache.REEF.IO.Tests
         public void TestCreateAndOpenAndDelete()
         {
             var fs = GetFileSystem();
-
 
             // Create a temp file
             var tempFilePath = Path.Combine(Path.GetTempPath(), TempFileName);

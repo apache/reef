@@ -184,7 +184,8 @@ namespace Org.Apache.REEF.Tang.Implementations.Configuration
             return ((ICsInternalConfigurationBuilder)this).BindConstructor(typeof(T), typeof(U));
         }
 
-        // public <T> void bindSetEntry(Class<? extends Name<Set<T>>> iface, String value) throws BindException;
+        //// public <T> void bindSetEntry(Class<? extends Name<Set<T>>> iface, String value) throws BindException;
+
         /// <summary>
         /// Binds a string value to a named parameter of ISet.
         /// </summary>
@@ -199,7 +200,8 @@ namespace Org.Apache.REEF.Tang.Implementations.Configuration
             return ((ICsInternalConfigurationBuilder)this).BindSetEntry(typeof(U), value);
         }
 
-        // public <T> void bindSetEntry(Class<? extends Name<Set<T>>> iface, Class<? extends T> impl) throws BindException;
+        //// public <T> void bindSetEntry(Class<? extends Name<Set<T>>> iface, Class<? extends T> impl) throws BindException;
+
         /// <summary>
         /// Binds an implementation of T to a named parameter of ISet of T.
         /// </summary>
@@ -310,7 +312,8 @@ namespace Org.Apache.REEF.Tang.Implementations.Configuration
             return this;
         }
 
-        // public <T> void bindSetEntry(Class<? extends Name<Set<T>>> iface, String value) throws BindException;
+        //// public <T> void bindSetEntry(Class<? extends Name<Set<T>>> iface, String value) throws BindException;
+
         /// <summary>
         /// Binds a string value to to a named parameter of ISet entry
         /// </summary>
@@ -335,12 +338,13 @@ namespace Org.Apache.REEF.Tang.Implementations.Configuration
                 var ex = new BindException("BindSetEntry got a NamedParameter that takes a " + setType + "; expected Set<...>");
                 Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(ex, LOGGER);
             }
-            // Type valType = ReflectionUtilities.getInterfaceTarget(Set.class, setType);
+            //// Type valType = ReflectionUtilities.getInterfaceTarget(Set.class, setType);
             BindSetEntry((INamedParameterNode)n, value);
             return this;
         }
 
-        // public <T> void bindSetEntry(Class<? extends Name<Set<T>>> iface, Class<? extends T> impl) throws BindException;
+        //// public <T> void bindSetEntry(Class<? extends Name<Set<T>>> iface, Class<? extends T> impl) throws BindException;
+
         /// <summary>
         /// Binds an implementation to a named parameter of ISet entry.
         /// </summary>
@@ -370,7 +374,7 @@ namespace Org.Apache.REEF.Tang.Implementations.Configuration
             Type valType = ReflectionUtilities.GetInterfaceTarget(typeof(ISet<>), setType);
 
             if (!valType.IsAssignableFrom(impl))
-            // if (!ReflectionUtilities.GetRawClass(valType).IsAssignableFrom(impl))
+            //// if (!ReflectionUtilities.GetRawClass(valType).IsAssignableFrom(impl))
             {
                 var ex = new BindException("BindSetEntry got implementation " + impl + " that is incompatible with expected type " + valType);
                 Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(ex, LOGGER);
@@ -401,7 +405,8 @@ namespace Org.Apache.REEF.Tang.Implementations.Configuration
             return this;
         }
 
-        // public <T> void bindConstructor(Class<T> c, Class<? extends ExternalConstructor<? extends T>> v) throws BindException;
+        //// public <T> void bindConstructor(Class<T> c, Class<? extends ExternalConstructor<? extends T>> v) throws BindException;
+
         /// <summary>
         /// Binds an external constructor.
         /// </summary>

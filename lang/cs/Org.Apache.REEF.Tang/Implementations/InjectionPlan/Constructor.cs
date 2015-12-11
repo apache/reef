@@ -136,7 +136,6 @@ namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
 
         public override string ToAmbiguousInjectString() 
         {
-
             if (!isAmbiguous) 
             {
                 var ex = new ArgumentException(GetNode().GetFullName() + " is NOT ambiguous.");
@@ -168,7 +167,8 @@ namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
                     if (ip.IsInfeasibleLeaf()) 
                     {
                         leaves.Add(ip);
-                    } else 
+                    } 
+                    else 
                     {
                         return ip.ToInfeasibleInjectString();
                     }

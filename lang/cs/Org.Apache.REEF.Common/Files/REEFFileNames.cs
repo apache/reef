@@ -278,7 +278,10 @@ namespace Org.Apache.REEF.Common.Files
         /// </summary>
         /// <returns>File name that contains the dfs path for the DriverHttpEndpoint</returns>
         [Unstable("0.13", "Working in progress for what to return after submit")]
-        public string DriverHttpEndpoint { get { return DRIVER_HTTP_ENDPOINT_FILE_NAME; } }
+        public string DriverHttpEndpoint 
+        { 
+            get { return DRIVER_HTTP_ENDPOINT_FILE_NAME; } 
+        }
 
         private static readonly string GLOBAL_FOLDER_PATH = Path.Combine(REEF_BASE_FOLDER, GLOBAL_FOLDER);
         private static readonly string LOCAL_FOLDER_PATH = Path.Combine(REEF_BASE_FOLDER, LOCAL_FOLDER);

@@ -22,7 +22,7 @@ namespace Org.Apache.REEF.Client.YARN.RestClient.DataModel
     /// <see cref="!:http://hadoop.apache.org/docs/r2.6.0/hadoop-yarn/hadoop-yarn-site/WebServicesIntro.html">
     /// Hadoop RM REST API </see> documentation.
     /// </summary>
-    // valid values are members of the YarnApplicationState enum
+    /// valid values are members of the YarnApplicationState enum
     internal enum State
     {
         NEW,

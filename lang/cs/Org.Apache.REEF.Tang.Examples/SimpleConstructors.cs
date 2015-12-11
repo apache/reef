@@ -38,6 +38,5 @@ namespace Org.Apache.REEF.Tang.Examples
         public SimpleConstructors(int x, String y) 
         {
         }
-
     }
 }

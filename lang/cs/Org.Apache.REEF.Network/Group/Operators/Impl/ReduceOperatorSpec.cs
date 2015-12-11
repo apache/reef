@@ -55,7 +55,8 @@ namespace Org.Apache.REEF.Network.Group.Operators.Impl
         /// Returns the Configuration for Codec, ReduceFunction and DataConverter
         /// </summary>
         [Obsolete("Deprecated in 0.14, please use Configuration instead.")]
-        public IConfiguration Configiration {
+        public IConfiguration Configiration 
+        {
             get { return Configuration; }
             private set { Configuration = value; }
         }

@@ -100,7 +100,6 @@ namespace Org.Apache.REEF.Network.Group.Task.Impl
                 Exceptions.Throw(new ApplicationException("No handler registered yet with the operator name: " + operatorName), LOGGER);
             }
             return handler;
-
         }
 
         public void OnError(Exception error)

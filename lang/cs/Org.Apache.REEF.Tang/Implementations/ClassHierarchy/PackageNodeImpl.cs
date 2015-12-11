@@ -39,7 +39,8 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
         * children into account.  Therefore, we use the full name as the key when
         * we insert nodes into the root.
         */
-        public override void Add(INode n) {
+        public override void Add(INode n) 
+        {
             children.Add(n.GetFullName(), n);
         }
     }

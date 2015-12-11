@@ -46,7 +46,6 @@ namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
 
         static readonly InjectionPlan BUILDING = new BuildingInjectionPlan(null); // TODO anonymous class
 
-
         private bool concurrentModificationGuard = false;
 
         private void AssertNotConcurrent()
@@ -223,10 +222,10 @@ namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
                 }
 
                 Type t = classHierarchy.ClassForName(typeOfSet);
+
                 // MakeGenericType(t = int: MonotonicHashSet<> -> MonotonicHashSet<int>
                 // Get constructor: MonotonicHashSet<int> -> public MonotonicHashSet<int>() { ... }
                 // Invoke: public MonotonicHashSet<int> -> new MonotonicHashSet<int>()
-
                 object ret = typeof(MonotonicHashSet<>).MakeGenericType(t).GetConstructor(new Type[] { }).Invoke(new object[] { }); // (this, classHierarchy.ClassForName(fut.GetNode().GetFullName()));
 
                 MethodInfo mf = ret.GetType().GetMethod("Add");
@@ -279,7 +278,7 @@ namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
         private object GetCachedInstance(IClassNode cn)
         {
             if (cn.GetFullName().Equals(ReflectionUtilities.GetAssemblyQualifiedName(typeof(IInjector))))
-                // if (cn.GetFullName().Equals(ReflectionUtilities.NonGenericFullName(typeof(IInjector))))
+                //// if (cn.GetFullName().Equals(ReflectionUtilities.NonGenericFullName(typeof(IInjector))))
             {
                 return this.ForkInjector(); // TODO: We should be insisting on injection futures here! .forkInjector();
             }
@@ -315,8 +314,9 @@ namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
             }
 
             ConstructorInfo cons = clazz.GetConstructor(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, null, parameterTypes, null);
-            // TODO
-            // cons.setAccessible(true);
+
+            //// TODO
+            //// cons.setAccessible(true);
 
             if (cons == null)
             {
@@ -393,7 +393,6 @@ namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
                 {
                     ip = new CsInstance(np, instance);
                 }
-
             }
             else if (n is IClassNode)
             {
@@ -589,6 +588,7 @@ namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
                         liveIndices.Add(i);
                     }
                 }
+
                 // Now, do an all-by-all comparison, removing indices that are dominated
                 // by others.
                 int k = -1;
@@ -621,7 +621,6 @@ namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
             #endregion each implementation
             return sub_ips;
         }
-
 
         private InjectionPlan WrapInjectionPlans(IClassNode infeasibleNode,
             List<InjectionPlan> list, bool forceAmbiguous, int selectedIndex)
@@ -982,12 +981,15 @@ namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
             {
                 IClassNode cn = (IClassNode)n;
                 object old = GetCachedInstance(cn);
-                if (old != null) {
+                if (old != null) 
+                {
                     Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(new BindException("Attempt to re-bind instance.  Old value was "
                     + old + " new value is " + o), LOGGER);
                 }
                 instances.Add(cn, o);
-            } else {
+            } 
+            else 
+            {
                 Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(new ArgumentException("Expected Class but got " + c
                     + " (probably a named parameter)."), LOGGER);
             }
@@ -1087,7 +1089,6 @@ namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
         public InjectionPlan GetInjectionPlan(string name)
         {
             return GetInjectionPlan(this.classHierarchy.GetNode(name));
-
         }
     }
 }

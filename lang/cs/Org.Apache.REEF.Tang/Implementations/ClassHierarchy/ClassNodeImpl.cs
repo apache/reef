@@ -46,7 +46,6 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
             String defaultImplementation)
             : base(parent, simpleName, fullName)
         {
-
             this.unit = unit;
             this.injectable = injectable;
             this.externalConstructor = externalConstructor;

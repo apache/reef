@@ -25,7 +25,7 @@ namespace Org.Apache.REEF.Network.Group.Operators
     /// <summary>
     /// The specification used to define Broadcast Operators.
     /// </summary>
-    // TODO[REEF-842] Act on the obsoletes
+    //// TODO[REEF-842] Act on the obsoletes
     public interface IOperatorSpec
     {
         [Obsolete("Deprecated in 0.14, please use Configuration instead.")]

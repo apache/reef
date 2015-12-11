@@ -104,13 +104,16 @@ namespace Org.Apache.REEF.IO.Tests
             // Make a directory
             var remoteDirectory = GetTempUri();
             _fileSystem.CreateDirectory(remoteDirectory);
+
             // Check that it is empty
             Assert.AreEqual(message: "The directory should be empty.", expected: 0,
                 actual: _fileSystem.GetChildren(remoteDirectory).Count());
+
             // Upload some localfile there
             var localTempFile = FileSystemTestUtilities.MakeLocalTempFile();
             var remoteUri = new Uri(remoteDirectory, Path.GetFileName(localTempFile));
             _fileSystem.CopyFromLocal(localTempFile, remoteUri);
+
             // Check that it is on the listing
             var uriInResult = _fileSystem.GetChildren(remoteUri).First();
             Assert.AreEqual(remoteUri, uriInResult);
@@ -124,9 +127,11 @@ namespace Org.Apache.REEF.IO.Tests
 
             // Delete the file
             _fileSystem.Delete(remoteUri);
+
             // Check that the folder is empty again
             Assert.AreEqual(message: "The directory should be empty.", expected: 0,
                 actual: _fileSystem.GetChildren(remoteDirectory).Count());
+
             // Delete the folder
             _fileSystem.DeleteDirectory(remoteDirectory);
         }

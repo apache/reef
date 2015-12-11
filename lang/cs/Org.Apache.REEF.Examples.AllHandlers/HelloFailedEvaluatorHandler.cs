@@ -53,7 +53,6 @@ namespace Org.Apache.REEF.Examples.AllHandlers
                 var newRequest =
                     _evaluatorRequestor.NewBuilder().SetNumber(1).SetMegabytes(512).SetRackName("somerack").Build();
                 _evaluatorRequestor.Submit(newRequest);
-
             }
             else
             {

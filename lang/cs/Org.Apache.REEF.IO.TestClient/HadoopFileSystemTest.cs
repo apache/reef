@@ -59,7 +59,6 @@ namespace Org.Apache.REEF.IO.TestClient
             var remoteUri = GetTempUri();
             Logger.Log(Level.Info, string.Format(CultureInfo.CurrentCulture, "remoteUri {0}: ", remoteUri.AbsolutePath));
 
-
             _fileSystem.CopyFromLocal(localFile, remoteUri);
             Logger.Log(Level.Info, string.Format(CultureInfo.CurrentCulture, "File CopyFromLocal {0}: ", remoteUri));
 

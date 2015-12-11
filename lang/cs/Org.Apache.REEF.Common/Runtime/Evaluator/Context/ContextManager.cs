@@ -102,6 +102,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                 {
                     LOGGER.Log(Level.Info, "AddContext");
                     AddContext(controlMessage.add_context);
+
                     // support submitContextAndTask()
                     if (controlMessage.start_task != null)
                     {
@@ -313,7 +314,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                 // does not matter if null.
                 _topContext = _topContext.ParentContext.Value;
             }
-            // System.gc(); // TODO: garbage collect?
+            //// System.gc(); // TODO: garbage collect?
         }
 
         /// <summary>

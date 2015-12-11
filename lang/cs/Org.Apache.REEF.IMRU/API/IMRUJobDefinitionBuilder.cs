@@ -271,7 +271,6 @@ namespace Org.Apache.REEF.IMRU.API
             return this;
         }
 
-
         /// <summary>
         /// Instantiate the IMRUJobDefinition.
         /// </summary>

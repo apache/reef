@@ -62,7 +62,6 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
             parsers.Add(ReflectionUtilities.GetAssemblyQualifiedName(clazz), c);
         }
 
-
         public void MergeIn(ParameterParser p)
         {
             foreach (string s in p.parsers.Keys)

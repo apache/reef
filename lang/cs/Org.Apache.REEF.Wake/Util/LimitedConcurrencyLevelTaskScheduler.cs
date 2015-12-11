@@ -168,15 +168,18 @@ namespace Org.Apache.REEF.Wake.Util
                                 --_delegatesQueuedOrRunning;
                                 break;
                             }
+
                             // Get the next item from the queue
                             item = _tasks.First.Value;
                             _tasks.RemoveFirst();
                         }
+
                         // Execute the task we pulled out of the queue
                         base.TryExecuteTask(item);
                     }
                 }
-                    // We're done processing items on the current thread
+
+                // We're done processing items on the current thread
                 finally
                 {
                     _currentThreadIsProcessingItems = false;

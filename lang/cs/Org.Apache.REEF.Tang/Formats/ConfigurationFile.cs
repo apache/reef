@@ -67,7 +67,6 @@ namespace Org.Apache.REEF.Tang.Formats
             return t.FullName;
         }
     
-
         private static string GetFullName(string name)
         {
             try
@@ -79,7 +78,6 @@ namespace Org.Apache.REEF.Tang.Formats
             {
                 Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Caught(e, Level.Warning, LOGGER);
                 return name; // if name is not a type, return as it was
-                
             }
         }
 
@@ -120,7 +118,6 @@ namespace Org.Apache.REEF.Tang.Formats
                 Join(sb, "-", conf.GetLegacyConstructor(cn).GetArgs().ToArray<IConstructorArg>());
                 l.Add(GetFullName(cn) + Escape('=' + ConfigurationBuilderImpl.INIT + '(' + sb.ToString() + ')'));
             }
-
 
             IEnumerator bs = conf.GetBoundSets();
             while (bs.MoveNext())
