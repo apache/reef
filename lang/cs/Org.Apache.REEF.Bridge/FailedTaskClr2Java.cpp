@@ -39,6 +39,17 @@ namespace Org {
 						  ManagedLog::LOGGER->LogStop("FailedTaskClr2Java::AllocatedEvaluatorClr2Java");
 					  }
 
+					  FailedTaskClr2Java::~FailedTaskClr2Java() {
+						  this->!FailedTaskClr2Java();
+					  }
+
+					  FailedTaskClr2Java::!FailedTaskClr2Java() {
+						  if (_jobjectFailedTask != NULL) {
+							  JNIEnv *env = RetrieveEnv(_jvm);
+							  env->DeleteGlobalRef(_jobjectFailedTask);
+						  }
+					  }
+
 					  IActiveContextClr2Java^ FailedTaskClr2Java::GetActiveContext() {
 						  ManagedLog::LOGGER->LogStart("FailedTaskClr2Java::GetActiveContext");
 

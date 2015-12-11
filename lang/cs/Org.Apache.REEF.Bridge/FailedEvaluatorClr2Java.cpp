@@ -44,6 +44,21 @@ namespace Org {
 						  ManagedLog::LOGGER->LogStop("FailedEvaluatorClr2Java::FailedEvaluatorClr2Java");
 					  }
 
+					  FailedEvaluatorClr2Java::~FailedEvaluatorClr2Java() {
+						  this->!FailedEvaluatorClr2Java();
+					  }
+
+					  FailedEvaluatorClr2Java::!FailedEvaluatorClr2Java() {
+						  JNIEnv *env = RetrieveEnv(_jvm);
+						  if (_jobjectFailedEvaluator != NULL) {
+							  env->DeleteGlobalRef(_jobjectFailedEvaluator);
+						  }
+
+						  if (_jstringId != NULL) {
+							  env->DeleteGlobalRef(_jstringId);
+						  }
+					  }
+
 					  IEvaluatorRequestorClr2Java^ FailedEvaluatorClr2Java::GetEvaluatorRequestor() {
 						  ManagedLog::LOGGER->LogStart("FailedEvaluatorClr2Java::GetEvaluatorRequestor");
 						  JNIEnv *env = RetrieveEnv(_jvm);

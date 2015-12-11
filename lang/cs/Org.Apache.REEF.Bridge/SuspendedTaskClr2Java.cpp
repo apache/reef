@@ -42,6 +42,21 @@ namespace Org {
 						  ManagedLog::LOGGER->LogStop("SuspendedTaskClr2Java::SuspendedTaskClr2Java");
 					  }
 
+					  SuspendedTaskClr2Java::~SuspendedTaskClr2Java() {
+						  this->!SuspendedTaskClr2Java();
+					  }
+
+					  SuspendedTaskClr2Java::!SuspendedTaskClr2Java() {
+						  JNIEnv *env = RetrieveEnv(_jvm);
+						  if (_jobjectSuspendedTask != NULL) {
+							  env->DeleteGlobalRef(_jobjectSuspendedTask);
+						  }
+
+						  if (_jstringId != NULL) {
+							  env->DeleteGlobalRef(_jstringId);
+						  }
+					  }
+
 					  IActiveContextClr2Java^ SuspendedTaskClr2Java::GetActiveContext() {
 						  ManagedLog::LOGGER->LogStart("SuspendedTaskClr2Java::GetActiveContext");
 						  JNIEnv *env = RetrieveEnv(_jvm);

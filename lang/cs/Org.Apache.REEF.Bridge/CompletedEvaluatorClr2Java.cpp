@@ -42,6 +42,21 @@ namespace Org {
 						  ManagedLog::LOGGER->LogStop("CompletedEvaluatorClr2Java::CompletedEvaluatorClr2Java");
 					  }
 
+					  CompletedEvaluatorClr2Java::~CompletedEvaluatorClr2Java() {
+						  this->!CompletedEvaluatorClr2Java();
+					  }
+
+					  CompletedEvaluatorClr2Java::!CompletedEvaluatorClr2Java() {
+						  JNIEnv *env = RetrieveEnv(_jvm);
+						  if (_jobjectCompletedEvaluator != NULL) {
+							  env->DeleteGlobalRef(_jobjectCompletedEvaluator);
+						  }
+
+						  if (_jstringId != NULL) {
+							  env->DeleteGlobalRef(_jstringId); 
+						  }
+					  }
+
 					  void CompletedEvaluatorClr2Java::OnError(String^ message) {
 						  ManagedLog::LOGGER->Log("CompletedEvaluatorClr2Java::OnError");
 						  JNIEnv *env = RetrieveEnv(_jvm);

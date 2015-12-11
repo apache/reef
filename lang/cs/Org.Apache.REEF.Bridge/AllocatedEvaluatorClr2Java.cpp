@@ -50,6 +50,25 @@ namespace Org {
 						  ManagedLog::LOGGER->LogStop("AllocatedEvaluatorClr2Java::AllocatedEvaluatorClr2Java");
 					  }
 
+					  AllocatedEvaluatorClr2Java::~AllocatedEvaluatorClr2Java() {
+						  this->!AllocatedEvaluatorClr2Java();
+					  }
+
+					  AllocatedEvaluatorClr2Java::!AllocatedEvaluatorClr2Java() {
+						  JNIEnv *env = RetrieveEnv(_jvm);
+						  if (_jobjectAllocatedEvaluator != NULL) {
+							  env->DeleteGlobalRef(_jobjectAllocatedEvaluator);
+						  }
+
+						  if (_jstringId != NULL) {
+							  env->DeleteGlobalRef(_jstringId);
+						  }
+
+						  if (_jstringNameServerInfo != NULL) {
+							  env->DeleteGlobalRef(_jstringNameServerInfo);
+						  }
+					  }
+
 					  void AllocatedEvaluatorClr2Java::SubmitContext(String^ contextConfigStr) {
 						  ManagedLog::LOGGER->LogStart("AllocatedEvaluatorClr2Java::SubmitContext");
 						  JNIEnv *env = RetrieveEnv(_jvm);

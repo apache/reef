@@ -46,6 +46,25 @@ namespace Org {
 							ManagedLog::LOGGER->LogStop("ActiveContextClr2Java::ActiveContextClr2Java");
 						}
 
+						ActiveContextClr2Java::~ActiveContextClr2Java() {
+							this->!ActiveContextClr2Java();
+						}
+
+						ActiveContextClr2Java::!ActiveContextClr2Java() {
+							JNIEnv *env = RetrieveEnv(_jvm);
+							if (_jobjectActiveContext != NULL) {
+								env->DeleteGlobalRef(_jobjectActiveContext); 
+							}
+
+							if (_jstringId != NULL) {
+								env->DeleteGlobalRef(_jstringId);
+							}
+
+							if (_jstringEvaluatorId != NULL) {
+								env->DeleteGlobalRef(_jstringEvaluatorId);
+							}
+						}
+
 						void ActiveContextClr2Java::SubmitTask(String^ taskConfigStr) {
 							ManagedLog::LOGGER->LogStart("ActiveContextClr2Java::SubmitTask");
 							JNIEnv *env = RetrieveEnv(_jvm);

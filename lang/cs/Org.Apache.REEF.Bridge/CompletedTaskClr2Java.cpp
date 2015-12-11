@@ -43,6 +43,21 @@ namespace Org {
 						  ManagedLog::LOGGER->LogStop("CompletedTaskClr2Java::CompletedTaskClr2Java");
 					  }
 
+					  CompletedTaskClr2Java::~CompletedTaskClr2Java(){
+						  this->!CompletedTaskClr2Java();
+					  }
+
+					  CompletedTaskClr2Java::!CompletedTaskClr2Java() {
+						  JNIEnv *env = RetrieveEnv(_jvm);
+						  if (_jobjectCompletedTask != NULL) {
+							  env->DeleteGlobalRef(_jobjectCompletedTask);
+						  }
+
+						  if (_jstringId != NULL) {
+							  env->DeleteGlobalRef(_jstringId);
+						  }
+					  }
+
 					  void CompletedTaskClr2Java::OnError(String^ message) {
 						  ManagedLog::LOGGER->Log("CompletedTaskClr2Java::OnError");
 						  JNIEnv *env = RetrieveEnv(_jvm);

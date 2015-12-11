@@ -47,6 +47,25 @@ namespace Org {
                             ManagedLog::LOGGER->LogStop("ClosedContextClr2Java::ClosedContextClr2Java");
                         }
 
+                        ClosedContextClr2Java::~ClosedContextClr2Java() {
+                            this->!ClosedContextClr2Java();
+                        }
+
+                        ClosedContextClr2Java::!ClosedContextClr2Java() {
+                            JNIEnv *env = RetrieveEnv(_jvm);
+                            if (_jobjectClosedContext != NULL) {
+                                env->DeleteGlobalRef(_jobjectClosedContext);
+                            }
+                            
+                            if (_jstringContextId != NULL) {
+                                env->DeleteGlobalRef(_jstringContextId);
+                            }
+
+                            if (_jstringEvaluatorId != NULL) {
+                                env->DeleteGlobalRef(_jstringEvaluatorId);
+                            }
+                        }
+
                         /**
                          * Gets the Parent context of the closed context through a JNI call to Java.
                          */

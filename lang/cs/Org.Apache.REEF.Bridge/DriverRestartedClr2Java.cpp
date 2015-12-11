@@ -52,7 +52,20 @@ namespace Org {
 								_expectedEvaluatorIds[i] = ManagedStringFromJavaString(env, string);
 							}
 
+							env->DeleteGlobalRef(jevaluatorIds);
+
 							ManagedLog::LOGGER->LogStop("DriverRestartedClr2Java::DriverRestartedClr2Java");
+						}
+
+						DriverRestartedClr2Java::~DriverRestartedClr2Java() {
+							this->!DriverRestartedClr2Java();
+						}
+
+						DriverRestartedClr2Java::!DriverRestartedClr2Java() {
+							if (_jobjectDriverRestarted != NULL) {
+								JNIEnv *env = RetrieveEnv(_jvm);
+								env->DeleteGlobalRef(_jobjectDriverRestarted);
+							}
 						}
 
 						array<String^>^ DriverRestartedClr2Java::GetExpectedEvaluatorIds() {
