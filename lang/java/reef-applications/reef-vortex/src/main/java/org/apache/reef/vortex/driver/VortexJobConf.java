@@ -88,6 +88,16 @@ public final class VortexJobConf {
       return this;
     }
 
+    /**
+     * Instantiate a {@link VortexJobConf} object, where a Configuration is built by Tang internally.
+     *
+     * {@link IllegalArgumentException} will be thrown if required parameters are not set
+     * (See {@link #setJobName(String)} and {@link #setVortexMasterConf(Configuration)}).
+     *
+     * Also, {@link org.apache.reef.tang.exceptions.BindException} can be thrown while merging the configurations.
+     *
+     * @return An instance of VortexJobConf object.
+     */
     @Override
     public VortexJobConf build() {
       BuilderUtils.notNull(jobName);
