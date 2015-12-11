@@ -47,6 +47,29 @@ namespace Org {
 						  ManagedLog::LOGGER->LogStop("FailedContextClr2Java::FailedContextClr2Java");
 					  }
 
+					  FailedContextClr2Java::~FailedContextClr2Java() {
+						  this->!FailedContextClr2Java();
+					  }
+
+					  FailedContextClr2Java::!FailedContextClr2Java() {
+						  JNIEnv *env = RetrieveEnv(_jvm);
+						  if (_jobjectFailedContext != NULL) {
+							  env->DeleteGlobalRef(_jobjectFailedContext);
+						  }
+
+						  if (_jstringContextId != NULL) {
+							  env->DeleteGlobalRef(_jstringContextId);
+						  }
+
+						  if (_jstringEvaluatorId != NULL) {
+							  env->DeleteGlobalRef(_jstringEvaluatorId);
+						  }
+
+						  if (_jstringParentContextId != NULL) {
+							  env->DeleteGlobalRef(_jstringParentContextId);
+						  }
+					  }
+
 					  IActiveContextClr2Java^ FailedContextClr2Java::GetParentContext() {
 						  ManagedLog::LOGGER->LogStart("FailedContextClr2Java::GetParentContext");
 

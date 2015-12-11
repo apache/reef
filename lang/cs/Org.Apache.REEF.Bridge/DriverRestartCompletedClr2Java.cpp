@@ -47,6 +47,17 @@ namespace Org {
 							ManagedLog::LOGGER->LogStop("DriverRestartCompletedClr2Java::DriverRestartCompletedClr2Java");
 						}
 
+						DriverRestartCompletedClr2Java::~DriverRestartCompletedClr2Java() {
+							this->!DriverRestartCompletedClr2Java();
+						}
+
+						DriverRestartCompletedClr2Java::!DriverRestartCompletedClr2Java() {
+							if (_jobjectDriverRestartCompleted != NULL) {
+								JNIEnv *env = RetrieveEnv(_jvm);
+								env->DeleteGlobalRef(_jobjectDriverRestartCompleted);
+							}
+						}
+
 						bool DriverRestartCompletedClr2Java::IsTimedOut() {
 							return _isTimedOut;
 						}

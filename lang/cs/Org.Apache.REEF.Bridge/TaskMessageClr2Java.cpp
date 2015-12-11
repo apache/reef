@@ -42,6 +42,21 @@ namespace Org {
 						  ManagedLog::LOGGER->LogStop("TaskMessageClr2Java::TaskMessageClr2Java");
 					  }
 
+					  TaskMessageClr2Java::~TaskMessageClr2Java() {
+						  this->!TaskMessageClr2Java();
+					  }
+
+					  TaskMessageClr2Java::!TaskMessageClr2Java() {
+						  JNIEnv *env = RetrieveEnv(_jvm);
+						  if (_jobjectTaskMessage != NULL) {
+							  env->DeleteGlobalRef(_jobjectTaskMessage);
+						  }
+
+						  if (_jstringId != NULL) {
+							  env->DeleteGlobalRef(_jstringId);
+						  }
+					  }
+
 					  void TaskMessageClr2Java::OnError(String^ message) {
 						  ManagedLog::LOGGER->Log("TaskMessageClr2Java::OnError");
 						  JNIEnv *env = RetrieveEnv(_jvm);

@@ -39,6 +39,17 @@ namespace Org {
 						  ManagedLog::LOGGER->LogStop("EvaluatorRequestorClr2Java::EvaluatorRequestorClr2Java");
 					  }
 
+					  EvaluatorRequestorClr2Java::~EvaluatorRequestorClr2Java() {
+						  this->!EvaluatorRequestorClr2Java();
+					  }
+
+					  EvaluatorRequestorClr2Java::!EvaluatorRequestorClr2Java() {
+						  if (_jobjectEvaluatorRequestor != NULL) {
+							  JNIEnv *env = RetrieveEnv(_jvm);
+							  env->DeleteGlobalRef(_jobjectEvaluatorRequestor);
+						  }
+					  }
+
 					  void EvaluatorRequestorClr2Java::Submit(IEvaluatorRequest^ request) {
 						  ManagedLog::LOGGER->LogStart("EvaluatorRequestorClr2Java::Submit");
 						  JNIEnv *env = RetrieveEnv(_jvm);

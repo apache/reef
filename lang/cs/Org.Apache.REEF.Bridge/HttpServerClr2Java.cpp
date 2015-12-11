@@ -39,6 +39,17 @@ namespace Org {
 						  ManagedLog::LOGGER->LogStop("HttpServerClr2Java::HttpServerClr2Java");
 					  }
 
+					  HttpServerClr2Java::~HttpServerClr2Java() {
+						  this->!HttpServerClr2Java();
+					  }
+
+					  HttpServerClr2Java::!HttpServerClr2Java() {
+						  if (_jhttpServerEventBridge != NULL) {
+							  JNIEnv *env = RetrieveEnv(_jvm);
+							  env->DeleteGlobalRef(_jhttpServerEventBridge); 
+						  }
+					  }
+
 					  String^ HttpServerClr2Java::GetQueryString() {
 						  ManagedLog::LOGGER->LogStart("HttpServerClr2Java::GetQueryString");
 						  JNIEnv *env = RetrieveEnv(_jvm);

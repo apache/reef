@@ -48,6 +48,29 @@ namespace Org {
 						  ManagedLog::LOGGER->LogStop("ContextMessageClr2Java::ContextMessageClr2Java");
 					  }
 
+					  ContextMessageClr2Java::~ContextMessageClr2Java() {
+						  this->!ContextMessageClr2Java();
+					  }
+
+					  ContextMessageClr2Java::!ContextMessageClr2Java() {
+						  JNIEnv *env = RetrieveEnv(_jvm);
+						  if (_jobjectContextMessage != NULL) {
+							  env->DeleteGlobalRef(_jobjectContextMessage);
+						  }
+
+						  if (_jstringId != NULL) {
+							  env->DeleteGlobalRef(_jstringId);
+						  }
+
+						  if (_jstringSourceId != NULL) {
+							  env->DeleteGlobalRef(_jstringSourceId);
+						  }
+
+						  if (_jarrayMessage != NULL) {
+							  env->DeleteGlobalRef(_jarrayMessage);
+						  }
+					  }
+
 					  String^ ContextMessageClr2Java::GetId() {
 						  ManagedLog::LOGGER->Log("ContextMessageClr2Java::GetId");
 						  JNIEnv *env = RetrieveEnv(_jvm);
