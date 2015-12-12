@@ -31,30 +31,25 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+/**
+ * Utility class for REEF IO network module.
+ */
 public final class Utils {
 
   private static final String DELIMITER = "-";
 
   /**
-   * TODO: Merge with parseListCmp() into one generic implementation.
+   * Parse a string of multiple IDs.
+   *
+   * @param ids A string containing multiple IDs
+   * @param factory An Identifier factory
+   * @param <T> A type
+   * @return A list of identifier
    */
-  public static List<Identifier> parseList(
-      final String ids, final IdentifierFactory factory) {
-    final List<Identifier> result = new ArrayList<>();
+  public static <T extends Identifier> List<T> parseList(final String ids, final IdentifierFactory factory) {
+    final List<T> result = new ArrayList<>();
     for (final String token : ids.split(DELIMITER)) {
-      result.add(factory.getNewInstance(token.trim()));
-    }
-    return result;
-  }
-
-  /**
-   * TODO: Merge with parseList() into one generic implementation.
-   */
-  public static List<ComparableIdentifier> parseListCmp(
-      final String ids, final IdentifierFactory factory) {
-    final List<ComparableIdentifier> result = new ArrayList<>();
-    for (final String token : ids.split(DELIMITER)) {
-      result.add((ComparableIdentifier) factory.getNewInstance(token.trim()));
+      result.add((T) factory.getNewInstance(token.trim()));
     }
     return result;
   }
