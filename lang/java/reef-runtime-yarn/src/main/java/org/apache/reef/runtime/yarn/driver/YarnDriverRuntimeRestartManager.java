@@ -18,11 +18,8 @@
  */
 package org.apache.reef.runtime.yarn.driver;
 
-import org.apache.hadoop.yarn.api.ApplicationConstants;
 import org.apache.hadoop.yarn.api.records.ApplicationAttemptId;
 import org.apache.hadoop.yarn.api.records.Container;
-import org.apache.hadoop.yarn.api.records.ContainerId;
-import org.apache.hadoop.yarn.util.ConverterUtils;
 import org.apache.reef.annotations.Unstable;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
@@ -35,6 +32,7 @@ import org.apache.reef.runtime.common.driver.EvaluatorPreserver;
 import org.apache.reef.runtime.common.driver.resourcemanager.ResourceEventImpl;
 import org.apache.reef.runtime.common.driver.resourcemanager.ResourceStatusEventImpl;
 import org.apache.reef.runtime.yarn.driver.parameters.YarnEvaluatorPreserver;
+import org.apache.reef.runtime.yarn.util.YarnUtilities;
 import org.apache.reef.tang.annotations.Parameter;
 
 import javax.inject.Inject;
@@ -92,8 +90,8 @@ public final class YarnDriverRuntimeRestartManager implements DriverRuntimeResta
    */
   @Override
   public int getResubmissionAttempts() {
-    final String containerIdString = getContainerIdString();
-    final ApplicationAttemptId appAttemptID = getAppAttemptId(containerIdString);
+    final String containerIdString = YarnUtilities.getContainerIdString();
+    final ApplicationAttemptId appAttemptID = YarnUtilities.getAppAttemptId(containerIdString);
 
     if (containerIdString == null || appAttemptID == null) {
       LOG.log(Level.WARNING, "Was not able to fetch application attempt, container ID is [" + containerIdString +
@@ -114,31 +112,6 @@ public final class YarnDriverRuntimeRestartManager implements DriverRuntimeResta
     LOG.log(Level.FINE, "Application attempt: " + appAttempt);
     assert appAttempt > 0;
     return appAttempt - 1;
-  }
-
-  private static String getContainerIdString() {
-    try {
-      return System.getenv(ApplicationConstants.Environment.CONTAINER_ID.key());
-    } catch (Exception e) {
-      LOG.log(Level.WARNING, "Unable to get the container ID from the environment, exception " +
-          e + " was thrown.");
-      return null;
-    }
-  }
-
-  private static ApplicationAttemptId getAppAttemptId(final String containerIdString) {
-    if (containerIdString == null) {
-      return null;
-    }
-
-    try {
-      final ContainerId containerId = ConverterUtils.toContainerId(containerIdString);
-      return containerId.getApplicationAttemptId();
-    } catch (Exception e) {
-      LOG.log(Level.WARNING, "Unable to get the applicationAttempt ID from the environment, exception " +
-          e + " was thrown.");
-      return null;
-    }
   }
 
   /**

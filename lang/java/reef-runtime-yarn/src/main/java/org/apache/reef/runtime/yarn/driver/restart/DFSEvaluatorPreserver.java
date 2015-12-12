@@ -29,6 +29,7 @@ import org.apache.reef.driver.parameters.FailDriverOnEvaluatorLogErrors;
 import org.apache.reef.exception.DriverFatalRuntimeException;
 import org.apache.reef.runtime.common.driver.EvaluatorPreserver;
 import org.apache.reef.runtime.common.driver.evaluator.EvaluatorManager;
+import org.apache.reef.runtime.yarn.util.YarnUtilities;
 import org.apache.reef.tang.annotations.Parameter;
 
 import javax.inject.Inject;
@@ -62,9 +63,10 @@ public final class DFSEvaluatorPreserver implements EvaluatorPreserver, AutoClos
 
   private boolean writerClosed = false;
 
-  @Inject DFSEvaluatorPreserver(@Parameter(FailDriverOnEvaluatorLogErrors.class)
-                                final boolean failDriverOnEvaluatorLogErrors) {
-    this(failDriverOnEvaluatorLogErrors, "/ReefApplications/" + EvaluatorManager.getJobIdentifier());
+  @Inject
+  DFSEvaluatorPreserver(@Parameter(FailDriverOnEvaluatorLogErrors.class)
+                        final boolean failDriverOnEvaluatorLogErrors) {
+    this(failDriverOnEvaluatorLogErrors, "/ReefApplications/" + getEvaluatorChangeLogFolderLocation());
   }
 
   @Inject
@@ -98,6 +100,23 @@ public final class DFSEvaluatorPreserver implements EvaluatorPreserver, AutoClos
       this.changeLogLocation = null;
       this.writer = null;
     }
+  }
+
+  /**
+   * @return the folder for Evaluator changelog.
+   */
+  private static String getEvaluatorChangeLogFolderLocation() {
+    final String appId = YarnUtilities.getApplicationId().toString();
+    if (appId != null) {
+      return appId;
+    }
+
+    final String jobIdentifier = EvaluatorManager.getJobIdentifier();
+    if (jobIdentifier != null) {
+      return jobIdentifier;
+    }
+
+    throw new RuntimeException("Could not retrieve a suitable DFS folder for preserving Evaluator changelog.");
   }
 
   /**

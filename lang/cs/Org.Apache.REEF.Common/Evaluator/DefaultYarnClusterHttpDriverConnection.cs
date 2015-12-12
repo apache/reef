@@ -22,20 +22,27 @@ using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.Common.Evaluator
 {
-    public class DefaultYarnClusterHttpDriverConnection : IDriverConnection
+    public sealed class DefaultYarnClusterHttpDriverConnection : IDriverConnection
     {
+        private readonly string _applicationId;
+
         [Inject]
-        public DefaultYarnClusterHttpDriverConnection()
+        private DefaultYarnClusterHttpDriverConnection()
         {
+            _applicationId = Environment.GetEnvironmentVariable(Constants.ReefYarnApplicationIdEnvironmentVariable);
+            if (_applicationId == null)
+            {
+                throw new ApplicationException("Could not fetch the application ID from YARN's container environment variables.");
+            }
         }
 
-        public DriverInformation GetDriverInformation(string applicationId)
+        public DriverInformation GetDriverInformation()
         {
             // e.g., http://headnodehost:9014/proxy/application_1407519727821_0012/reef/v1/driver
             Uri queryUri = new Uri(
                 string.Concat(
                 Constants.HDInsightClusterHttpEndpointBaseUri,
-                applicationId + "/",
+                _applicationId + "/",
                 Constants.HttpReefUriSpecification,
                 Constants.HttpDriverUriTarget));
             return DriverInformation.GetDriverInformationFromHttp(queryUri);

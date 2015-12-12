@@ -19,12 +19,14 @@
 package org.apache.reef.runtime.yarn.util;
 
 import org.apache.hadoop.util.VersionInfo;
+import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.api.records.ContainerLaunchContext;
 import org.apache.hadoop.yarn.api.records.LocalResource;
 import org.apache.hadoop.yarn.util.Records;
 import org.apache.reef.annotations.audience.Private;
 
 import java.nio.ByteBuffer;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -49,9 +51,28 @@ public final class YarnTypes {
       final List<String> commands,
       final Map<String, LocalResource> localResources,
       final byte[] securityTokenBuffer) {
+    return getContainerLaunchContext(commands, localResources, securityTokenBuffer, null);
+  }
+
+  /**
+   * Gets a LaunchContext and sets the environment variable
+   * {@link YarnUtilities#REEF_YARN_APPLICATION_ID_ENV_VAR} for REEF Evaluators.
+   * @return a ContainerLaunchContext with the given commands and LocalResources.
+   */
+  public static ContainerLaunchContext getContainerLaunchContext(
+      final List<String> commands,
+      final Map<String, LocalResource> localResources,
+      final byte[] securityTokenBuffer,
+      final ApplicationId applicationId) {
     final ContainerLaunchContext context = Records.newRecord(ContainerLaunchContext.class);
     context.setLocalResources(localResources);
     context.setCommands(commands);
+    final Map<String, String> envMap = new HashMap<>();
+    if (applicationId != null) {
+      envMap.put(YarnUtilities.REEF_YARN_APPLICATION_ID_ENV_VAR, applicationId.toString());
+    }
+
+    context.setEnvironment(envMap);
     if (securityTokenBuffer != null) {
       context.setTokens(ByteBuffer.wrap(securityTokenBuffer));
       LOG.log(Level.INFO, "Added tokens to container launch context");

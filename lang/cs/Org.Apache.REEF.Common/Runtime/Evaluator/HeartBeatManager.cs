@@ -251,7 +251,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
                     LOGGER.Log(Level.Verbose, string.Format(CultureInfo.InvariantCulture, "Ignoring regular heartbeat since Evaluator operation state is [{0}] and runtime state is [{1}]. ", _evaluatorSettings.OperationState,  _evaluatorRuntime.State));
                     try
                     {
-                        DriverInformation driverInformation = _driverConnection.GetDriverInformation(_evaluatorSettings.ApplicationId);
+                        DriverInformation driverInformation = _driverConnection.GetDriverInformation();
                         if (driverInformation == null)
                         {
                             LOGGER.Log(Level.Verbose, "In RECOVERY mode, cannot retrieve driver information, will try again later.");

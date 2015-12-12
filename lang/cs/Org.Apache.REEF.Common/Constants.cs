@@ -37,5 +37,7 @@ namespace Org.Apache.REEF.Common
         public const string HttpDriverUriTarget = @"Driver/";
 
         public const string NameServerServiceName = "NameServer";
+
+        public const string ReefYarnApplicationIdEnvironmentVariable = "REEF_YARN_APPLICATION_ID";
     }
 }
