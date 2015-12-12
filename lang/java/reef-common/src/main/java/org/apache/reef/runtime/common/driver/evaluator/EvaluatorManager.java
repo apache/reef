@@ -24,6 +24,7 @@ import org.apache.reef.driver.evaluator.FailedEvaluator;
 import org.apache.reef.driver.parameters.EvaluatorConfigurationProviders;
 import org.apache.reef.driver.restart.DriverRestartManager;
 import org.apache.reef.driver.restart.EvaluatorRestartState;
+import org.apache.reef.runtime.common.evaluator.parameters.ApplicationIdentifier;
 import org.apache.reef.tang.ConfigurationProvider;
 import org.apache.reef.driver.context.ActiveContext;
 import org.apache.reef.driver.context.FailedContext;
@@ -59,7 +60,6 @@ import org.apache.reef.wake.time.Clock;
 import org.apache.reef.wake.time.event.Alarm;
 
 import javax.inject.Inject;
-import java.io.File;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
@@ -101,6 +101,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
   private final LoggingScopeFactory loggingScopeFactory;
   private final Set<ConfigurationProvider> evaluatorConfigurationProviders;
   private final DriverRestartManager driverRestartManager;
+  private final String applicationIdentifier;
 
   // Mutable fields
   private Optional<TaskRepresenter> task = Optional.empty();
@@ -115,6 +116,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
       final ResourceLaunchHandler resourceLaunchHandler,
       @Parameter(EvaluatorIdentifier.class) final String evaluatorId,
       @Parameter(EvaluatorDescriptorName.class) final EvaluatorDescriptorImpl evaluatorDescriptor,
+      @Parameter(ApplicationIdentifier.class) final String applicationIdentifier,
       final ContextRepresenters contextRepresenters,
       final ConfigurationSerializer configurationSerializer,
       final EvaluatorMessageDispatcher messageDispatcher,
@@ -147,26 +149,8 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
     this.loggingScopeFactory = loggingScopeFactory;
     this.evaluatorConfigurationProviders = evaluatorConfigurationProviders;
     this.driverRestartManager = driverRestartManager;
-
+    this.applicationIdentifier = applicationIdentifier;
     LOG.log(Level.FINEST, "Instantiated 'EvaluatorManager' for evaluator: [{0}]", this.getId());
-  }
-
-  /**
-   * Get the id of current job/application.
-   */
-  public static String getJobIdentifier() {
-    // TODO[JIRA REEF-818]: currently we obtain the job id directly by parsing execution (container) directory path
-    // #845 is open to get the id from RM properly
-    for (File directory = new File(System.getProperty("user.dir"));
-         directory != null; directory = directory.getParentFile()) {
-      final String currentDirectoryName = directory.getName();
-      if (currentDirectoryName.toLowerCase().contains("application_")) {
-        return currentDirectoryName;
-      }
-    }
-    // cannot find a directory that contains application_, presumably we are on local runtime
-    // again, this is a hack for now, we need #845 as a proper solution
-    return "REEF_LOCAL_RUNTIME";
   }
 
   /**
@@ -178,7 +162,7 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
           new AllocatedEvaluatorImpl(this,
               remoteManager.getMyIdentifier(),
               configurationSerializer,
-              getJobIdentifier(),
+              this.applicationIdentifier,
               loggingScopeFactory,
               evaluatorConfigurationProviders);
       LOG.log(Level.FINEST, "Firing AllocatedEvaluator event for Evaluator with ID [{0}]", evaluatorId);
