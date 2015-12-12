@@ -37,13 +37,13 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
         private readonly IList<IConstructorDef> injectableConstructors;
         private readonly IList<IConstructorDef> allConstructors;
         private readonly MonotonicSet<IClassNode> knownImpls;
-        private readonly String defaultImpl;
+        private readonly string defaultImpl;
 
-        public ClassNodeImpl(INode parent, String simpleName, String fullName,
+        public ClassNodeImpl(INode parent, string simpleName, string fullName,
             bool unit, bool injectable, bool externalConstructor,
             IList<IConstructorDef> injectableConstructors,
             IList<IConstructorDef> allConstructors,
-            String defaultImplementation)
+            string defaultImplementation)
             : base(parent, simpleName, fullName)
         {
             this.unit = unit;
@@ -75,7 +75,7 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
             return externalConstructor;
         }
 
-        public override String ToString()
+        public override string ToString()
         {
             StringBuilder sb = new StringBuilder(base.ToString() + ": ");
             if (GetInjectableConstructors() != null)
@@ -148,7 +148,7 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
             return false;
         }
 
-        public String GetDefaultImplementation()
+        public string GetDefaultImplementation()
         {
             return defaultImpl;
         }

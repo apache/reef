@@ -26,12 +26,12 @@ namespace Org.Apache.REEF.Tang.Examples
     {
         readonly string value;
         [NamedParameter(Documentation = "doc stuff", ShortName = "DocFoo", DefaultValue = "some value")]
-        public sealed class Foo : Name<String> 
+        public sealed class Foo : Name<string> 
         {
         }
 
         [Inject]
-        public DocumentedLocalNamedParameter([Parameter(typeof(Foo))] String s) 
+        public DocumentedLocalNamedParameter([Parameter(typeof(Foo))] string s) 
         {
             value = s;
         }

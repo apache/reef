@@ -45,12 +45,14 @@ namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
                 Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(new IndexOutOfRangeException(), LOGGER);
             }
             this.selectedIndex = selectedIndex;
-            if (selectedIndex != -1) // one was bound
+            if (selectedIndex != -1)
             {
+                // one was bound
                 this.numAlternatives = alternatives[selectedIndex].GetNumAlternatives();
             }
-            else // no one was bound, but anyone could be used
+            else
             {
+                // no one was bound, but anyone could be used
                 int numAlternatives = 0;
                 foreach (InjectionPlan a in alternatives)
                 {

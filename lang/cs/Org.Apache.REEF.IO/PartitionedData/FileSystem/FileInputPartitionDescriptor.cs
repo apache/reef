@@ -58,8 +58,7 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
 
             foreach (string p in _filePaths)
             {
-                builder = builder.BindSetEntry<FilePathsInInputPartition, string>
-                    (GenericType<FilePathsInInputPartition>.Class, p);
+                builder = builder.BindSetEntry<FilePathsInInputPartition, string>(GenericType<FilePathsInInputPartition>.Class, p);
             }
 
             return Configurations.Merge(builder.Build(), _filePartitionDeserializerConfig);

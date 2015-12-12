@@ -35,7 +35,7 @@ namespace Org.Apache.REEF.Tang.Examples
         }
 
         [Inject]
-        public SimpleConstructors(int x, String y) 
+        public SimpleConstructors(int x, string y) 
         {
         }
     }

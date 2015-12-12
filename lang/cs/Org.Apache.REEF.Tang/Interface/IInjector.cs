@@ -75,7 +75,7 @@ namespace Org.Apache.REEF.Tang.Interface
         /// </summary>
         /// <param name="name">The name.</param>
         /// <returns></returns>
-        InjectionPlan GetInjectionPlan(String name);
+        InjectionPlan GetInjectionPlan(string name);
 
         /// <summary>
         /// Binds the aspect.
@@ -105,7 +105,7 @@ namespace Org.Apache.REEF.Tang.Interface
         /// <returns>
         ///   <c>true</c> if [is parameter set] [the specified name]; otherwise, <c>false</c>.
         /// </returns>
-        bool IsParameterSet(String name);
+        bool IsParameterSet(string name);
 
         /// <summary>
         /// Determines whether the specified clazz is injectable.

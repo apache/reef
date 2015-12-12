@@ -24,7 +24,7 @@ namespace Org.Apache.REEF.Tang.Exceptions
     public class ParseException : BindException
     {
        // private static readonly long serialVersionUID = 1L;
-        public ParseException(String message)
+        public ParseException(string message)
             : base(message)
         {           
         }

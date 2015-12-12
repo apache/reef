@@ -251,23 +251,23 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
 
             if (default_count == 0)
             {
-                defaultInstanceAsStrings = new String[] { };
+                defaultInstanceAsStrings = new string[] { };
             }
             else if (hasClassDefault)
             {
                 Type default_class = namedParameter.DefaultClass;
                 AssertIsSubclassOf(clazz, default_class, argClass);
-                defaultInstanceAsStrings = new String[] { ReflectionUtilities.GetAssemblyQualifiedName(default_class) };
+                defaultInstanceAsStrings = new string[] { ReflectionUtilities.GetAssemblyQualifiedName(default_class) };
             }
             else if (hasStringDefault)
             {
                 // Don't know if the string is a class or literal here, so don't bother validating.
-                defaultInstanceAsStrings = new String[] { namedParameter.DefaultValue };
+                defaultInstanceAsStrings = new string[] { namedParameter.DefaultValue };
             }
             else if (hasClassSetDefault)
             {
                 Type[] clzs = namedParameter.DefaultClasses;
-                defaultInstanceAsStrings = new String[clzs.Length];
+                defaultInstanceAsStrings = new string[clzs.Length];
                 for (int i = 0; i < clzs.Length; i++)
                 {
                     AssertIsSubclassOf(clazz, clzs[i], argClass);

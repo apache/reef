@@ -82,7 +82,7 @@ namespace Org.Apache.REEF.Tang.Util
         /// </summary>
         /// <param name="path"></param>
         /// <returns>True, if the path given is an assembly</returns>
-        public static Boolean IsAssembly(string path)
+        public static bool IsAssembly(string path)
         {
             if (string.IsNullOrWhiteSpace(path) || Path.GetExtension(path).ToLower() != ".dll")
             {

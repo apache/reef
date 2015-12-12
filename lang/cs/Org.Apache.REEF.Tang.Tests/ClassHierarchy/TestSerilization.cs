@@ -172,7 +172,7 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
             Type timerType = typeof(Timer);
             ITang tang = TangFactory.GetTang();
             ICsConfigurationBuilder cb = tang.NewConfigurationBuilder(new string[] { FileNames.Examples });
-            cb.BindNamedParameter<Timer.Seconds, Int32>(GenericType<Timer.Seconds>.Class, "2");
+            cb.BindNamedParameter<Timer.Seconds, int>(GenericType<Timer.Seconds>.Class, "2");
             IConfiguration conf = cb.Build();
             IInjector injector = tang.NewInjector(conf);
             Org.Apache.REEF.Tang.Implementations.InjectionPlan.InjectionPlan ip = injector.GetInjectionPlan(timerType);

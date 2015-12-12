@@ -23,7 +23,7 @@ namespace Org.Apache.REEF.Tang.Exceptions
 {
     public class InjectionException : Exception
     {
-        public InjectionException(String msg)
+        public InjectionException(string msg)
             : base(msg)
         {           
         }

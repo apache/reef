@@ -134,7 +134,7 @@ namespace Org.Apache.REEF.Tang.Protobuf
         }
 
         private static Org.Apache.REEF.Tang.Protobuf.ConstructorDef newConstructorDef(
-             String fullClassName, IList<Org.Apache.REEF.Tang.Protobuf.ConstructorArg> args)
+             string fullClassName, IList<Org.Apache.REEF.Tang.Protobuf.ConstructorArg> args)
         {
             Org.Apache.REEF.Tang.Protobuf.ConstructorDef constDef = new Org.Apache.REEF.Tang.Protobuf.ConstructorDef();
             constDef.full_class_name = fullClassName;
@@ -146,12 +146,12 @@ namespace Org.Apache.REEF.Tang.Protobuf
             return constDef;
         }
 
-        private static Org.Apache.REEF.Tang.Protobuf.Node NewClassNode(String name,
-            String fullName, bool isInjectionCandidate,
+        private static Org.Apache.REEF.Tang.Protobuf.Node NewClassNode(string name,
+            string fullName, bool isInjectionCandidate,
             bool isExternalConstructor, bool isUnit,
             IList<Org.Apache.REEF.Tang.Protobuf.ConstructorDef> injectableConstructors,
             IList<Org.Apache.REEF.Tang.Protobuf.ConstructorDef> otherConstructors,
-            IList<String> implFullNames, IList<Org.Apache.REEF.Tang.Protobuf.Node> children)
+            IList<string> implFullNames, IList<Org.Apache.REEF.Tang.Protobuf.Node> children)
         {
             Org.Apache.REEF.Tang.Protobuf.ClassNode classNode = new Org.Apache.REEF.Tang.Protobuf.ClassNode();
             classNode.is_injection_candidate = isInjectionCandidate;
@@ -423,7 +423,7 @@ namespace Org.Apache.REEF.Tang.Protobuf
                         + n.full_name + " does not exist.  Full record is " + n, e);
                     Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(ex, LOGGER); 
                 }
-                foreach (String impl in cn.impl_full_names)
+                foreach (string impl in cn.impl_full_names)
                 {
                     try
                     {
@@ -459,7 +459,7 @@ namespace Org.Apache.REEF.Tang.Protobuf
             }
         }
 
-        public INode GetNode(String fullName)
+        public INode GetNode(string fullName)
         {
             INode ret;
             lookupTable.TryGetValue(fullName, out ret);

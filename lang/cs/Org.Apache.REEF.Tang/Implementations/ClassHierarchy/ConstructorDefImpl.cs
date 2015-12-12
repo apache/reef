@@ -32,9 +32,9 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(ConstructorDefImpl));
 
         private readonly IList<IConstructorArg> args = new List<IConstructorArg>();
-        private readonly String className;
+        private readonly string className;
 
-        public ConstructorDefImpl(String className, IConstructorArg[] args, bool injectable)
+        public ConstructorDefImpl(string className, IConstructorArg[] args, bool injectable)
         {
             this.args = args;
             this.className = className;
@@ -60,12 +60,12 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
             return args;
         }
 
-        public String GetClassName()
+        public string GetClassName()
         {
             return className;
         }
 
-        private String Join(String sep, Object[] vals)
+        private string Join(string sep, object[] vals)
         {
             if (vals.Length != 0)
             {
@@ -78,11 +78,11 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
             }
             else
             {
-                return "";
+                return string.Empty;
             }
         }
 
-        public override String ToString()
+        public override string ToString()
         {
             StringBuilder sb = new StringBuilder(className);
             sb.Append("(");
@@ -150,7 +150,7 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
             return true;
         }
 
-        public override bool Equals(Object o)
+        public override bool Equals(object o)
         {
             return EqualsIgnoreOrder((IConstructorDef)o);
         }

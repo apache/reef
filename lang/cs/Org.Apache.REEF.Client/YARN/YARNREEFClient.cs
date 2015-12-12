@@ -112,8 +112,9 @@ namespace Org.Apache.REEF.Client.Yarn
         {
             var application = await _yarnClient.GetApplicationAsync(appId);
 
-            Logger.Log(Level.Verbose, string.Format("application status {0}, Progress: {1}, trackingUri: {2}, Name: {3}, ApplicationId: {4}, State {5}.",
-                application.FinalStatus, application.Progress, application.TrackingUI, application.Name, application.Id, application.State));
+            var msg = string.Format("application status {0}, Progress: {1}, trackingUri: {2}, Name: {3}, ApplicationId: {4}, State {5}.",
+                application.FinalStatus, application.Progress, application.TrackingUI, application.Name, application.Id, application.State);
+            Logger.Log(Level.Verbose, msg);
 
             return application.FinalStatus;
         }

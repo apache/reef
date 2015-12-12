@@ -59,12 +59,12 @@ namespace Org.Apache.REEF.Tang.Tests.Utilities
         public void TestGetInterfaceTargetForTypeInheritFromGeneric()
         {
             Type result = ReflectionUtilities.GetInterfaceTarget(typeof(IExternalConstructor<>), typeof(Foo));
-            Assert.Equal(result, typeof(Int32));
+            Assert.Equal(result, typeof(int));
         }
 
-        class Foo : IExternalConstructor<Int32>
+        class Foo : IExternalConstructor<int>
         {
-            public Int32 NewInstance()
+            public int NewInstance()
             {
                 return 3;
             }

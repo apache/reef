@@ -110,7 +110,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
                 Exceptions.Throw(exception, "Could not find a port to listen on", LOGGER);
             }
             LOGGER.Log(Level.Info,
-                String.Format("Listening on {0}", _listener.LocalEndpoint.ToString()));
+                string.Format("Listening on {0}", _listener.LocalEndpoint.ToString()));
         }
 
         /// <summary>

@@ -214,35 +214,35 @@ namespace Org.Apache.REEF.Tang.Util
             {
                 if (c == typeof(bool))
                 {
-                    return typeof(Boolean);
+                    return typeof(bool);
                 }
                 else if (c == typeof(byte))
                 {
-                    return typeof(Byte);
+                    return typeof(byte);
                 }
                 else if (c == typeof(char))
                 {
-                    return typeof(Char);
+                    return typeof(char);
                 }
                 else if (c == typeof(short))
                 {
-                    return typeof(Int16);
+                    return typeof(short);
                 }
                 else if (c == typeof(int))
                 {
-                    return typeof(Int32);
+                    return typeof(int);
                 }
                 else if (c == typeof(long))
                 {
-                    return typeof(Int64);
+                    return typeof(long);
                 }
                 else if (c == typeof(float))
                 {
-                    return typeof(Single);
+                    return typeof(float);
                 }
                 else if (c == typeof(double))
                 {
-                    return typeof(Double);
+                    return typeof(double);
                 }
                 else
                 {
@@ -486,8 +486,9 @@ namespace Org.Apache.REEF.Tang.Util
                 return args[0];
             }
 
-            if (ImplementName(type)) // Implement Name<> but no  [NamedParameter] attribute
+            if (ImplementName(type))
             {
+                // Implement Name<> but no  [NamedParameter] attribute
                 var ex = new ClassHierarchyException("Named parameter " + GetName(type)
                                   + " is missing its [NamedParameter] attribute.");
                 Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(ex, LOGGER);

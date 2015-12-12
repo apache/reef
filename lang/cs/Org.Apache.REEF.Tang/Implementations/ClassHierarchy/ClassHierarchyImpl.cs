@@ -64,8 +64,9 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
             rootNode = NodeFactory.CreateRootPackageNode();
             loader = new AssemblyLoader(assemblies);
            
-            foreach (Type p in parameterParsers) // p must be extend from IExternalConstructor
+            foreach (Type p in parameterParsers)
             {
+                // p must be extend from IExternalConstructor
                 try 
                 {
                     Parameterparser.AddParser(p);
@@ -294,7 +295,7 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
             }
 
             string shortName = np.GetShortName();
-            if (shortName != null && !shortName.Equals(""))
+            if (shortName != null && !shortName.Equals(string.Empty))
             {
                 INamedParameterNode oldNode = null;
                 shortNames.TryGetValue(shortName, out oldNode);
@@ -583,7 +584,7 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
         public object ParseDefaultValue(INamedParameterNode name)
         {
             string[] vals = name.GetDefaultInstanceAsStrings();
-            object[] ret = new Object[vals.Length];
+            object[] ret = new object[vals.Length];
             for (int i = 0; i < vals.Length; i++)
             {
                 string val = vals[i];

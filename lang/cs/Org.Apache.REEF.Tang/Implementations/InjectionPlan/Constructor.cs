@@ -107,7 +107,7 @@ namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
             return sb.ToString();
         }
 
-        private String ShallowArgString(InjectionPlan arg) 
+        private string ShallowArgString(InjectionPlan arg) 
         {
             if (arg is Constructor || arg is Subplan) 
             {

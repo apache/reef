@@ -28,7 +28,7 @@ namespace Org.Apache.REEF.Tang.Exceptions
         {
         }
 
-        public IllegalStateException(String msg)
+        public IllegalStateException(string msg)
             : base(msg)
         {           
         }

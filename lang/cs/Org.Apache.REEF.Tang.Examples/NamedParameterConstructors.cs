@@ -25,12 +25,12 @@ namespace Org.Apache.REEF.Tang.Examples
     public class NamedParameterConstructors
     {
         [NamedParameter]
-        public class X : Name<String> 
+        public class X : Name<string> 
         {
-        };
+        }
 
         [Inject]
-        public NamedParameterConstructors(String x, [Parameter(typeof(X))] String y) 
+        public NamedParameterConstructors(string x, [Parameter(typeof(X))] string y) 
         {
         }
     }

@@ -73,8 +73,8 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Utils
 
                 IInjector evaluatorInjector = TangFactory.GetTang().NewInjector(evaluatorConfiguration);
 
-                LOGGER.Log(Level.Info, String.Format(CultureInfo.CurrentCulture,
-                    "Evaluator Configuration is deserialized from file {0}:", configFile));
+                LOGGER.Log(Level.Info, 
+                    string.Format(CultureInfo.CurrentCulture, "Evaluator Configuration is deserialized from file {0}:", configFile));
                 try
                 {
                     _taskConfiguration = evaluatorInjector.GetNamedInstance<InitialTaskConfiguration, string>();

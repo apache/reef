@@ -29,19 +29,19 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
         /// It is from Type.FullName. This name is used as Name in a Node. 
         /// It is not unique for a generic type with different type of arguments.
         /// It is used for toString or debug info as AssemblyQualifiedName is really long
-        private readonly String name;
+        private readonly string name;
 
         /// It is from Type.AssemblyQualifiedName. THis name is used as full name in a Node
         /// It is unique for a generic type with different type of arguments.
-        private readonly String fullName;
+        private readonly string fullName;
 
         // parent node in the class hierarchy
         private readonly INode parent; 
         
         // children in the class hierarchy
-        protected IDictionary<String, INode> children = new MonotonicTreeMap<string, INode>();
+        protected IDictionary<string, INode> children = new MonotonicTreeMap<string, INode>();
 
-        public AbstractNode(INode parent, String name, String fullName)
+        public AbstractNode(INode parent, string name, string fullName)
         {
             this.parent = parent;
             this.name = name;
@@ -57,12 +57,12 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
             return children.Values;
         }
 
-        public bool Contains(String key) 
+        public bool Contains(string key) 
         {
             return children.ContainsKey(key);
         }
 
-        public INode Get(String key)
+        public INode Get(string key)
         {
             INode val;
             if (children.TryGetValue(key, out val))
@@ -92,7 +92,7 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
             return parent;
         }
 
-        public override bool Equals(Object o) 
+        public override bool Equals(object o) 
         {
             if (o == null)
             {
@@ -133,7 +133,7 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
             return fullName.GetHashCode();
         }
 
-        public override String ToString()
+        public override string ToString()
         {
             return "[" + this.GetType().FullName + " '" + fullName + "']";
         }

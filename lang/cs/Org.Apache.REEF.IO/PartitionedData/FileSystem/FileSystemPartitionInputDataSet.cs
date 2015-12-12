@@ -126,7 +126,7 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
         /// <returns></returns>
         private static string FormId(ISet<string> filePaths)
         {
-            string id = "";
+            string id = string.Empty;
             try
             {
                 if (filePaths != null && filePaths.Count > 0)

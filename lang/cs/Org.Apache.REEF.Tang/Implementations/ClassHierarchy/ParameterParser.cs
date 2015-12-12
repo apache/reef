@@ -31,7 +31,7 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(ParameterParser));
 
-        readonly MonotonicTreeMap<String, ConstructorInfo> parsers = new MonotonicTreeMap<String, ConstructorInfo>();
+        readonly MonotonicTreeMap<string, ConstructorInfo> parsers = new MonotonicTreeMap<string, ConstructorInfo>();
 
         // ec: ACons, tc: A
         public void AddParser(Type ec)
@@ -91,16 +91,19 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
         }
 
         // (Integer, "3") return object of new Integer(3)
-        public object Parse(Type c, String s)
+        public object Parse(Type c, string s)
         {
             Type d = ReflectionUtilities.BoxClass(c);
-            foreach (Type e in ReflectionUtilities.ClassAndAncestors(d)) // get all the super classes of Integer for example
+            foreach (Type e in ReflectionUtilities.ClassAndAncestors(d))
             {
+                // get all the super classes of Integer for example
                 string name = ReflectionUtilities.GetAssemblyQualifiedName(e);
                 if (parsers.ContainsKey(name))
                 {
                     object ret = Parse(name, s);
-                    if (c.IsAssignableFrom(ret.GetType())) // check if ret can be cast as c
+
+                    // check if ret can be cast as c
+                    if (c.IsAssignableFrom(ret.GetType()))
                     {
                         return ret;
                     }
@@ -137,37 +140,37 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
             {
                 return (object)value;
             }
-            if (name.Equals(typeof(Byte).Name))
+            if (name.Equals(typeof(byte).Name))
             {
-                return (object)(Byte)Byte.Parse(value);
+                return (object)(byte)byte.Parse(value);
             }
-            if (name.Equals(typeof(Char).Name))
+            if (name.Equals(typeof(char).Name))
             {
-                return (object)(Char)value[0];
+                return (object)(char)value[0];
             }
             if (name.Equals(typeof(short).Name))
             {
-                return (System.Int16)System.Int16.Parse(value);
+                return (short)short.Parse(value);
             }
             if (name.Equals(typeof(int).Name))
             {
-                return (object)(Int32)Int32.Parse(value);
+                return (object)(int)int.Parse(value);
             }
             if (name.Equals(typeof(long).Name))
             {
-                return (object)(Int64)Int64.Parse(value);
+                return (object)(long)long.Parse(value);
             }
             if (name.Equals(typeof(float).Name))
             {
-                return (object)(Single)Single.Parse(value);
+                return (object)(float)float.Parse(value);
             }
-            if (name.Equals(typeof(Double).Name))
+            if (name.Equals(typeof(double).Name))
             {
-                return (object)(Double)Double.Parse(value);
+                return (object)(double)double.Parse(value);
             }
-            if (name.Equals(typeof(Boolean).Name))
+            if (name.Equals(typeof(bool).Name))
             {
-                return (object)(Boolean)Boolean.Parse(value);
+                return (object)(bool)bool.Parse(value);
             }
             if (name.Equals(typeof(byte[]).Name))  
             {
@@ -181,10 +184,10 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
         private static readonly ISet<string> BUILTIN_NAMES = new HashSet<string>(new string[]
             {
                 typeof(string).AssemblyQualifiedName, 
-                typeof(Byte).AssemblyQualifiedName,
+                typeof(byte).AssemblyQualifiedName,
                 typeof(char).AssemblyQualifiedName,
                 typeof(short).AssemblyQualifiedName,
-                typeof(Int32).AssemblyQualifiedName,
+                typeof(int).AssemblyQualifiedName,
                 typeof(long).AssemblyQualifiedName,
                 typeof(float).AssemblyQualifiedName,
                 typeof(double).AssemblyQualifiedName,

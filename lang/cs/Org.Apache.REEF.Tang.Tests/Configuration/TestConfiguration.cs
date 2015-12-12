@@ -54,7 +54,7 @@ namespace Org.Apache.REEF.Tang.Tests.Configuration
             serializer.ToFile(conf1, "task.config");
 
             ICsConfigurationBuilder cb2 = tang.NewConfigurationBuilder();
-            cb2.BindNamedParameter<Timer.Seconds, Int32>(GenericType<Timer.Seconds>.Class, "2");
+            cb2.BindNamedParameter<Timer.Seconds, int>(GenericType<Timer.Seconds>.Class, "2");
             IConfiguration conf2 = cb2.Build();
             serializer.ToFile(conf2, "timer.config");
 
@@ -354,7 +354,7 @@ namespace Org.Apache.REEF.Tang.Tests.Configuration
             Type timerType = typeof(Timer);
             ITang tang = TangFactory.GetTang();
             ICsConfigurationBuilder cb = tang.NewConfigurationBuilder(new string[] { FileNames.Examples });
-            cb.BindNamedParameter<Timer.Seconds, Int32>(GenericType<Timer.Seconds>.Class, "2");
+            cb.BindNamedParameter<Timer.Seconds, int>(GenericType<Timer.Seconds>.Class, "2");
             IConfiguration conf = cb.Build();
 
             ConfigurationFile.WriteConfigurationFile(conf, "timerConf.txt");
@@ -406,7 +406,7 @@ namespace Org.Apache.REEF.Tang.Tests.Configuration
 
             ITang tang = TangFactory.GetTang();
             IConfiguration conf = tang.NewConfigurationBuilder(classHierarchyImpl)
-                                      .BindNamedParameter<Timer.Seconds, Int32>(GenericType<Timer.Seconds>.Class, "1")
+                                      .BindNamedParameter<Timer.Seconds, int>(GenericType<Timer.Seconds>.Class, "1")
                                       .Build();
 
             ConfigurationFile.WriteConfigurationFile(conf, "timerConfH.txt");

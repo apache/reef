@@ -98,7 +98,7 @@ namespace Org.Apache.REEF.Tang.Implementations.Configuration
             return Builder.LegacyConstructors.Keys;
         }
 
-        public ISet<Object> GetBoundSet(INamedParameterNode np) 
+        public ISet<object> GetBoundSet(INamedParameterNode np) 
         {
             return Builder.BoundSetEntries.GetValuesForKey(np);
         }

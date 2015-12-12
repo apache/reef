@@ -49,10 +49,8 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             [Parameter(typeof(SerializedUpdateConfiguration))] string updateConfig,
             [Parameter(typeof(SerializedMapInputCodecConfiguration))] string mapInputCodecConfig,
             [Parameter(typeof(SerializedUpdateFunctionCodecsConfiguration))] string updateFunctionCodecsConfig,
-            [Parameter(typeof(SerializedMapOutputPipelineDataConverterConfiguration))] string
-                mapOutputPipelineDataConverterConfiguration,
-            [Parameter(typeof(SerializedMapInputPipelineDataConverterConfiguration))] string
-                mapInputPipelineDataConverterConfiguration,
+            [Parameter(typeof(SerializedMapOutputPipelineDataConverterConfiguration))] string mapOutputPipelineDataConverterConfiguration,
+            [Parameter(typeof(SerializedMapInputPipelineDataConverterConfiguration))] string mapInputPipelineDataConverterConfiguration,
             [Parameter(typeof(SerializedResultHandlerConfiguration))] string resultHandlerConfiguration)
         {
             try

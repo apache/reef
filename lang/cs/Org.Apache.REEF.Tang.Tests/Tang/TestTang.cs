@@ -106,8 +106,8 @@ namespace Org.Apache.REEF.Tang.Tests.Tang
         public void TestRepeatedOKArgs()
         {
             ICsConfigurationBuilder cb = tang.NewConfigurationBuilder();
-            cb.BindNamedParameter<RepeatedNamedArgs.A, Int32>(GenericType<RepeatedNamedArgs.A>.Class, "1");
-            cb.BindNamedParameter<RepeatedNamedArgs.B, Int32>(GenericType<RepeatedNamedArgs.B>.Class, "2");
+            cb.BindNamedParameter<RepeatedNamedArgs.A, int>(GenericType<RepeatedNamedArgs.A>.Class, "1");
+            cb.BindNamedParameter<RepeatedNamedArgs.B, int>(GenericType<RepeatedNamedArgs.B>.Class, "2");
 
             IInjector injector = tang.NewInjector(cb.Build());
             injector.GetInstance(typeof(RepeatedNamedArgs));
@@ -288,14 +288,14 @@ namespace Org.Apache.REEF.Tang.Tests.Tang
         public void testThreeConstructors() 
         {
             ICsConfigurationBuilder cb = tang.NewConfigurationBuilder();
-            cb.BindNamedParameter<ThreeConstructors.TCInt, Int32>(GenericType<ThreeConstructors.TCInt>.Class, "1");
+            cb.BindNamedParameter<ThreeConstructors.TCInt, int>(GenericType<ThreeConstructors.TCInt>.Class, "1");
             cb.BindNamedParameter<ThreeConstructors.TCString, string>(GenericType<ThreeConstructors.TCString>.Class, "s");
             ThreeConstructors tc = tang.NewInjector(cb.Build()).GetInstance<ThreeConstructors>();
             Assert.AreEqual(1, tc.i);
             Assert.AreEqual("s", tc.s);
     
             cb = tang.NewConfigurationBuilder();
-            cb.BindNamedParameter<ThreeConstructors.TCInt, Int32>(GenericType<ThreeConstructors.TCInt>.Class, "1");
+            cb.BindNamedParameter<ThreeConstructors.TCInt, int>(GenericType<ThreeConstructors.TCInt>.Class, "1");
             tc = tang.NewInjector(cb.Build()).GetInstance<ThreeConstructors>();
             Assert.AreEqual(1, tc.i);
             Assert.AreEqual("default", tc.s);
@@ -347,7 +347,7 @@ namespace Org.Apache.REEF.Tang.Tests.Tang
             try
             {
                 ICsConfigurationBuilder cb = tang.NewConfigurationBuilder();
-                cb.BindNamedParameter<TwoConstructors.TCInt, Int32>(GenericType<TwoConstructors.TCInt>.Class, "1");
+                cb.BindNamedParameter<TwoConstructors.TCInt, int>(GenericType<TwoConstructors.TCInt>.Class, "1");
                 cb.BindNamedParameter<ThreeConstructors.TCString, string>(GenericType<ThreeConstructors.TCString>.Class, "s");
                 tang.NewInjector(cb.Build()).GetInstance<TwoConstructors>();
                 msg = @"Cannot inject Org.Apache.REEF.Tang.Tests.Tang.TwoConstructors, Org.Apache.REEF.Tang.Test, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null " +
@@ -552,7 +552,7 @@ namespace Org.Apache.REEF.Tang.Tests.Tang
         {
             ICsConfigurationBuilder cb = tang.NewConfigurationBuilder(EmptyStringAsDefaultParamConf.ConfigurationModule.Build());
             var value = tang.NewInjector(cb.Build()).GetNamedInstance<EmptyStringAsDefaultParam, string>();
-            Assert.IsNotNull(value.Equals(""));
+            Assert.IsNotNull(value.Equals(string.Empty));
         }
     }
 
@@ -610,12 +610,12 @@ namespace Org.Apache.REEF.Tang.Tests.Tang
     public class RepeatedNamedArgs
     {
         [NamedParameter]
-        public class A : Name<Int32>
+        public class A : Name<int>
         {
         }
 
         [NamedParameter]
-        public class B : Name<Int32>
+        public class B : Name<int>
         {
         }
 
@@ -663,7 +663,7 @@ namespace Org.Apache.REEF.Tang.Tests.Tang
     }
 
     [NamedParameter(Documentation = "woo", ShortName = "woo", DefaultValue = "42")]
-    internal class Param : Name<Int32>
+    internal class Param : Name<int>
     {
     }
 
@@ -711,7 +711,7 @@ namespace Org.Apache.REEF.Tang.Tests.Tang
         public string b;
 
         [Inject]
-        private TwoNamedStringArgs([Parameter(typeof(A))] string a, [Parameter(typeof(B))] String b)
+        private TwoNamedStringArgs([Parameter(typeof(A))] string a, [Parameter(typeof(B))] string b)
         {
             this.a = a;
             this.b = b;
@@ -875,7 +875,7 @@ namespace Org.Apache.REEF.Tang.Tests.Tang
         public float f;
 
         [NamedParameter]
-        public class TCInt : Name<Int32> 
+        public class TCInt : Name<int> 
         { 
         }
 
@@ -922,7 +922,7 @@ namespace Org.Apache.REEF.Tang.Tests.Tang
         public string s;
 
         [NamedParameter]
-        public class TCInt : Name<Int32> 
+        public class TCInt : Name<int> 
         { 
         }
 
@@ -963,7 +963,7 @@ namespace Org.Apache.REEF.Tang.Tests.Tang
         }
   
         [Inject]
-        public SingletonMultiConst([Parameter(typeof(A))] String a) 
+        public SingletonMultiConst([Parameter(typeof(A))] string a) 
         { 
         }
         
@@ -1113,7 +1113,7 @@ namespace Org.Apache.REEF.Tang.Tests.Tang
     { 
     }
 
-    internal class Foo : Name<String>
+    internal class Foo : Name<string>
     {
     }
 

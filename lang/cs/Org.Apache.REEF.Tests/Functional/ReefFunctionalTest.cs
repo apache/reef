@@ -256,12 +256,10 @@ namespace Org.Apache.REEF.Tests.Functional
         private static string GetStorageConnectionString()
         {
             var accountName = GetEnvironmentVariable(StorageAccountNameEnvironmentVariable,
-                "Please set " + StorageAccountNameEnvironmentVariable +
-                " to the storage account name to be used for the tests");
+                "Please set " + StorageAccountNameEnvironmentVariable + " to the storage account name to be used for the tests");
 
             var accountKey = GetEnvironmentVariable(StorageAccountKeyEnvironmentVariable,
-                "Please set " + StorageAccountKeyEnvironmentVariable +
-                " to the key of the storage account to be used for the tests");
+                "Please set " + StorageAccountKeyEnvironmentVariable + " to the key of the storage account to be used for the tests");
 
             var result = @"DefaultEndpointsProtocol=https;AccountName=" + accountName + ";AccountKey=" + accountKey;
             return result;

@@ -97,7 +97,7 @@ namespace Org.Apache.REEF.Tang.Util
             Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(new NotSupportedException("Attempt to clear MonotonicSet!"), LOGGER);
         }
 
-        public bool Remove(Object o)
+        public bool Remove(object o)
         {
             Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(new NotSupportedException("Attempt to remove " + o
                 + " from MonotonicSet!"), LOGGER);

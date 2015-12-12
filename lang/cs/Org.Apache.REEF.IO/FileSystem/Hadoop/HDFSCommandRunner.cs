@@ -120,7 +120,7 @@ namespace Org.Apache.REEF.IO.FileSystem.Hadoop
             };
             for (var attemptNumber = 0; attemptNumber < _numberOfRetries; ++attemptNumber)
             {
-                var processName = String.Format("HDFS_Attempt_{0}_of_{1}", attemptNumber, _numberOfRetries);
+                var processName = string.Format("HDFS_Attempt_{0}_of_{1}", attemptNumber, _numberOfRetries);
                 var result = RunAttempt(processStartInfo, _timeOutInMilliSeconds, processName);
                 if (null != result)
                 {

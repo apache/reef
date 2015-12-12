@@ -22,8 +22,8 @@ namespace Org.Apache.REEF.Driver.Bridge
 {
     public interface IInteropReturnInfo
     {
-        void AddExceptionString(String exceptionString);       
-        Boolean HasExceptions();
+        void AddExceptionString(string exceptionString);       
+        bool HasExceptions();
         void SetReturnCode(int rc);
         int GetReturnCode();
     }

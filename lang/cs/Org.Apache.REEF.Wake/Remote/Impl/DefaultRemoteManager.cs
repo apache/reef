@@ -148,10 +148,10 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
             {
                 TransportClient<IRemoteEvent<T>> client = 
                     new TransportClient<IRemoteEvent<T>>(remoteEndpoint, _codec, _observerContainer);
-                LOGGER.Log(Level.Info, 
-                    String.Format("NewClientConnection: Local {0} connected to Remote {1}",
+                var msg = string.Format("NewClientConnection: Local {0} connected to Remote {1}",
                     client.Link.LocalEndpoint.ToString(), 
-                    client.Link.RemoteEndpoint.ToString()));
+                    client.Link.RemoteEndpoint.ToString());
+                LOGGER.Log(Level.Info, msg);
 
                 remoteObserver = new ProxyObserver(client);
                 _cachedClients[remoteEndpoint] = remoteObserver;

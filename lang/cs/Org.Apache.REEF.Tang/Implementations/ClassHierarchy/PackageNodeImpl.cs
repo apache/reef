@@ -24,13 +24,13 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
 {
     public class PackageNodeImpl : AbstractNode, IPackageNode
     {
-        public PackageNodeImpl(INode parent, String name, String fullName) : 
+        public PackageNodeImpl(INode parent, string name, string fullName) : 
             base(parent, name, fullName)
         {
         }
 
         public PackageNodeImpl()
-            : base(null, "", "[root node]")
+            : base(null, string.Empty, "[root node]")
         {
         }
 

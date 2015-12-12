@@ -170,7 +170,7 @@ namespace Org.Apache.REEF.Client.Common
         /// </summary>
         /// <param name="filePath"></param>
         /// <returns></returns>
-        private static Boolean IsAssemblyToCopy(string filePath)
+        private static bool IsAssemblyToCopy(string filePath)
         {
             var fileName = Path.GetFileName(filePath);
             if (string.IsNullOrWhiteSpace(fileName))

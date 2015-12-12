@@ -118,9 +118,9 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
                 new ServiceAndContextConfigurationProvider<TMapInput, TMapOutput>(dataSet.Count + 1, groupCommDriver,
                     _configurationManager, _partitionDescriptorStack);
 
-            Logger.Log(Level.Info,
-                string.Format("map task memory:{0}, update task memory:{1}, map task cores:{2}, update task cores:{3}",
-                    _memoryPerMapper, _memoryForUpdateTask, _coresPerMapper, _coresForUpdateTask));
+            var msg = string.Format("map task memory:{0}, update task memory:{1}, map task cores:{2}, update task cores:{3}",
+                _memoryPerMapper, _memoryForUpdateTask, _coresPerMapper, _coresForUpdateTask);
+            Logger.Log(Level.Info, msg);
         }
 
         /// <summary>
@@ -251,7 +251,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.Driver
             
             foreach (var task in _completedTasks)
             {
-                Logger.Log(Level.Verbose, String.Format("Disposing task: {0}", task.Id));
+                Logger.Log(Level.Verbose, string.Format("Disposing task: {0}", task.Id));
                 task.ActiveContext.Dispose();
             }
         }

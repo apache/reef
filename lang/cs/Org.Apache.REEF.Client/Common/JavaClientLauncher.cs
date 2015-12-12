@@ -64,8 +64,9 @@ namespace Org.Apache.REEF.Client.Common
                 RedirectStandardError = true
             };
 
-            Logger.Log(Level.Info, string.Format(CultureInfo.CurrentCulture, "Launch Java with command: {0} {1}",
-                startInfo.FileName, startInfo.Arguments));
+            var msg = string.Format(CultureInfo.CurrentCulture, "Launch Java with command: {0} {1}",
+                startInfo.FileName, startInfo.Arguments);
+            Logger.Log(Level.Info, msg);
 
             var process = Process.Start(startInfo);
             if (process != null)

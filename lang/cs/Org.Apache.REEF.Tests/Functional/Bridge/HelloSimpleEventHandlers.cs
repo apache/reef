@@ -422,7 +422,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
     }
 
     [NamedParameter(Documentation = "NumberOfTasks", ShortName = "NumberOfTasks", DefaultValue = "2")]
-    class NumberOfEvaluators : Name<Int32>
+    class NumberOfEvaluators : Name<int>
     {        
     }
 

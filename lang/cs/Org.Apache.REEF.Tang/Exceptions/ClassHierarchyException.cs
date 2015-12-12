@@ -23,7 +23,7 @@ namespace Org.Apache.REEF.Tang.Exceptions
 {
     public class ClassHierarchyException : SystemException
     {
-        public ClassHierarchyException(String msg) : base(msg)
+        public ClassHierarchyException(string msg) : base(msg)
         {           
         }
 
