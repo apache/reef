@@ -16,7 +16,28 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-/**
- * Utility for REEF IO network module.
- */
 package org.apache.reef.io.network.util;
+
+import org.apache.reef.wake.ComparableIdentifier;
+import org.apache.reef.wake.Identifier;
+import org.apache.reef.wake.IdentifierFactory;
+import org.junit.Test;
+
+import java.util.List;
+
+/**
+ * Tests for REEF IO network utilities.
+ */
+public class UtilsTest {
+
+  /**
+   * Generic parseList test.
+   */
+  @Test
+  public void testParseList() {
+    final IdentifierFactory factory = new StringIdentifierFactory();
+
+    final List<Identifier> list1 = Utils.parseList("1,2,3", factory);
+    final List<ComparableIdentifier> list2 = Utils.parseList("1,2,3", factory);
+  }
+}

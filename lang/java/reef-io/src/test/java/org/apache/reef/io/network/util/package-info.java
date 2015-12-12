@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * TODO: Document.
+ * Tests for REEF IO network utilities.
  */
 package org.apache.reef.io.network.util;
