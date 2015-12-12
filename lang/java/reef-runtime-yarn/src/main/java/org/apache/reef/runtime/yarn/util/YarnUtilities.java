@@ -23,6 +23,7 @@ import org.apache.hadoop.yarn.api.records.ApplicationAttemptId;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.api.records.ContainerId;
 import org.apache.hadoop.yarn.util.ConverterUtils;
+import org.apache.reef.annotations.audience.Private;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -30,6 +31,7 @@ import java.util.logging.Logger;
 /**
  * A helper class for YARN applications.
  */
+@Private
 public final class YarnUtilities {
   public static final String REEF_YARN_APPLICATION_ID_ENV_VAR = "REEF_YARN_APPLICATION_ID";
   private static final Logger LOG = Logger.getLogger(YarnUtilities.class.getName());
