@@ -24,6 +24,7 @@ import org.apache.reef.tang.types.ConstructorArg;
 import org.apache.reef.tang.types.ConstructorDef;
 
 import java.util.Arrays;
+import java.util.HashMap;
 
 public class ConstructorDefImpl<T> implements ConstructorDef<T> {
   private final ConstructorArg[] args;
@@ -94,24 +95,17 @@ public class ConstructorDefImpl<T> implements ConstructorDef<T> {
    * Check to see if two boundConstructors take indistinguishable arguments. If
    * so (and they are in the same class), then this would lead to ambiguous
    * injection targets, and we want to fail fast.
-   * <p>
-   * TODO could be faster. Currently O(n^2) in number of parameters.
    *
    * @param def
    * @return
    */
   private boolean equalsIgnoreOrder(final ConstructorDef<?> def) {
-    if (getArgs().length != def.getArgs().length) {
-      return false;
+    HashMap map = new HashMap();
+    for (ConstructorArg a : def.getArgs()) {
+      map.put(a.getName(), null);
     }
-    for (int i = 0; i < getArgs().length; i++) {
-      boolean found = false;
-      for (int j = 0; j < def.getArgs().length; j++) {
-        if (getArgs()[i].getName().equals(def.getArgs()[j].getName())) {
-          found = true;
-        }
-      }
-      if (!found) {
+    for (ConstructorArg a : getArgs()) {
+      if (!map.containsKey(a.getName())) {
         return false;
       }
     }
@@ -126,7 +120,19 @@ public class ConstructorDefImpl<T> implements ConstructorDef<T> {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    return equalsIgnoreOrder((ConstructorDef<?>) o);
+
+    int length = getArgs().length;
+    ConstructorDef<?> def = (ConstructorDef<?>) o;
+    if (length != def.getArgs().length) {
+      return false;
+    }
+    if (length == 0) {
+      return true;
+    }
+    if (length == 1) {
+      return getArgs()[0].getName().equals(def.getArgs()[0].getName());
+    }
+    return equalsIgnoreOrder(def);
   }
 
   @Override
