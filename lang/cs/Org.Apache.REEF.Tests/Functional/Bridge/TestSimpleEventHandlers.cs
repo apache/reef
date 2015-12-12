@@ -78,7 +78,7 @@ namespace Org.Apache.REEF.Tests.Functional.Bridge
                 .BindSetEntry<DriverBridgeConfigurationOptions.SetOfAssemblies, string>(typeof(HelloTask).Assembly.GetName().Name)
                 .BindSetEntry<DriverBridgeConfigurationOptions.SetOfAssemblies, string>(typeof(NameClient).Assembly.GetName().Name)
                 .BindNamedParameter<IsRetain, bool>(GenericType<IsRetain>.Class, "false")
-                .BindNamedParameter<NumberOfEvaluators, Int32>(GenericType<NumberOfEvaluators>.Class, "1")
+                .BindNamedParameter<NumberOfEvaluators, int>(GenericType<NumberOfEvaluators>.Class, "1")
                 .Build();
         }
     }

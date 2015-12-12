@@ -33,14 +33,14 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
         public void ParseIntTest()
         {
             var parser = new ParameterParser();
-            Int32 o = (Int32)parser.Parse(typeof(Int32), "4");
+            int o = (int)parser.Parse(typeof(int), "4");
         }
 
         [Fact]
         public void ParseBoolTest()
         {
             var parser = new ParameterParser();
-            Boolean o = (Boolean)parser.Parse(typeof(Boolean), "false");
+            bool o = (bool)parser.Parse(typeof(bool), "false");
         }
 
         [Fact]
@@ -61,35 +61,35 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
         public void ParseDoubleTest()
         {
             var parser = new ParameterParser();
-            Double o = (Double)parser.Parse(typeof(double), "12.6");
+            double o = (double)parser.Parse(typeof(double), "12.6");
         }
 
         [Fact]
         public void ParseCharTest()
         {
             var parser = new ParameterParser();
-            Char o = (Char)parser.Parse(typeof(char), "c");
+            char o = (char)parser.Parse(typeof(char), "c");
         }
 
         [Fact]
         public void ParseByteTest()
         {
             var parser = new ParameterParser();
-            Byte o = (Byte)parser.Parse(typeof(byte), "8");
+            byte o = (byte)parser.Parse(typeof(byte), "8");
         }
 
         [Fact]
         public void ParseShortTest()
         {
             var parser = new ParameterParser();
-            Int16 o = (Int16)parser.Parse(typeof(short), "8");
+            short o = (short)parser.Parse(typeof(short), "8");
         }
 
         [Fact]
         public void ParseFloatTest()
         {
             var parser = new ParameterParser();
-            Single o = (Single)parser.Parse(typeof(float), "8.567");
+            float o = (float)parser.Parse(typeof(float), "8.567");
         }
 
         [Fact]
@@ -226,7 +226,7 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
         {
             private readonly Bar bar;
             [Inject]
-            public BarParser(String s)
+            public BarParser(string s)
             {
                 this.bar = new Bar(s);
             }
@@ -282,7 +282,7 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
         {
             readonly ParseableType instance;
             [Inject]
-            public TypeParser(String s)
+            public TypeParser(string s)
             {
                 if (s.Equals("a")) 
                 { 

@@ -256,13 +256,13 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
             return null;
         }
 
-        private AvroNode NewClassNode(String name,
-            String fullName,
+        private AvroNode NewClassNode(string name,
+            string fullName,
             bool isInjectionCandidate,
             bool isExternalConstructor, bool isUnit,
             IList<AvroConstructorDef> injectableConstructors,
             IList<AvroConstructorDef> otherConstructors,
-            IList<String> implFullNames, IList<AvroNode> children)
+            IList<string> implFullNames, IList<AvroNode> children)
         {
             AvroClassNode classNode = new AvroClassNode();
 

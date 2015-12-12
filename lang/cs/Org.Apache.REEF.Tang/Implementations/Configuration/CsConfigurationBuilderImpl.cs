@@ -373,8 +373,8 @@ namespace Org.Apache.REEF.Tang.Implementations.Configuration
 
             Type valType = ReflectionUtilities.GetInterfaceTarget(typeof(ISet<>), setType);
 
-            if (!valType.IsAssignableFrom(impl))
             //// if (!ReflectionUtilities.GetRawClass(valType).IsAssignableFrom(impl))
+            if (!valType.IsAssignableFrom(impl))
             {
                 var ex = new BindException("BindSetEntry got implementation " + impl + " that is incompatible with expected type " + valType);
                 Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(ex, LOGGER);

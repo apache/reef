@@ -36,7 +36,7 @@ namespace Org.Apache.REEF.Tang.Util
             try
             {
                 TVal val;
-                if (base.TryGetValue(key, out val))
+                if (TryGetValue(key, out val))
                 {
                     var ex = new ArgumentException("Attempt to re-add: [" + key
                                                    + "]\n old value: " + val + " new value " + value);

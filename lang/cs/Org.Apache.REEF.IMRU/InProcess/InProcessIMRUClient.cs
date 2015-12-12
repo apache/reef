@@ -92,8 +92,7 @@ namespace Org.Apache.REEF.IMRU.InProcess
                 (ISet<IPerMapperConfigGenerator>)injector.GetNamedInstance(typeof(PerMapConfigGeneratorSet));
 
             injector.BindVolatileInstance(GenericType<MapFunctions<TMapInput, TMapOutput>>.Class,
-                MakeMapFunctions<TMapInput, TMapOutput>(jobDefinition.MapFunctionConfiguration,
-                    jobDefinition.PartitionedDatasetConfiguration, perMapConfigGenerators));
+                MakeMapFunctions<TMapInput, TMapOutput>(jobDefinition.MapFunctionConfiguration, jobDefinition.PartitionedDatasetConfiguration, perMapConfigGenerators));
 
             var runner = injector.GetInstance<IMRURunner<TMapInput, TMapOutput, TResult>>();
             return runner.Run();

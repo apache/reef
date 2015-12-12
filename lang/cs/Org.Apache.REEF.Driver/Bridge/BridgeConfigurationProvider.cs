@@ -74,10 +74,10 @@ namespace Org.Apache.REEF.Driver.Bridge
 
             if (newExists && oldExists)
             {
-                Logger.Log(Level.Warning, "Found configurations in both the legacy location (" +
-                                          legacyBridgeConfigurationPath + ") and the new location (" +
-                                          newBridgeConfigurationPath +
-                                          "). Loading only the one found in the new location.");
+                var msg = "Found configurations in both the legacy location (" + legacyBridgeConfigurationPath + 
+                    ") and the new location (" + newBridgeConfigurationPath +
+                    "). Loading only the one found in the new location.";
+                Logger.Log(Level.Warning, msg);
             }
             if (newExists)
             {
@@ -85,10 +85,10 @@ namespace Org.Apache.REEF.Driver.Bridge
             }
             if (oldExists)
             {
-                Logger.Log(Level.Warning, "Only found configuration in the legacy location (" +
-                                          legacyBridgeConfigurationPath + ") and not the new location (" +
-                                          newBridgeConfigurationPath +
-                                          "). Loading only the one found in the legacy location.");
+                var msg = "Only found configuration in the legacy location (" + legacyBridgeConfigurationPath + 
+                    ") and not the new location (" + newBridgeConfigurationPath +
+                    "). Loading only the one found in the legacy location.";
+                Logger.Log(Level.Warning, msg);
                 return legacyBridgeConfigurationPath;
             }
 

@@ -40,7 +40,7 @@ namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
         readonly IDictionary<INamedParameterNode, object> namedParameterInstances = new MonotonicTreeMap<INamedParameterNode, object>();
         private readonly ICsClassHierarchy classHierarchy;
         private readonly IConfiguration configuration;
-        readonly IDictionary<IClassNode, Object> instances = new MonotonicTreeMap<IClassNode, Object>();
+        readonly IDictionary<IClassNode, object> instances = new MonotonicTreeMap<IClassNode, object>();
         private Aspect aspect;
         private readonly ISet<IInjectionFuture<object>> pendingFutures = new HashSet<IInjectionFuture<object>>();
 
@@ -170,7 +170,7 @@ namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
                     {
                         Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Caught(e, Level.Error, LOGGER);
                         StringBuilder sb = new StringBuilder("Internal Tang error?  Could not call constructor " + constructor.GetConstructorDef() + " with arguments [");
-                        foreach (Object o in args)
+                        foreach (object o in args)
                         {
                             sb.Append("\n\t" + o);
                         }
@@ -277,8 +277,8 @@ namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
 
         private object GetCachedInstance(IClassNode cn)
         {
+            //// if (cn.GetFullName().Equals(ReflectionUtilities.NonGenericFullName(typeof(IInjector))))
             if (cn.GetFullName().Equals(ReflectionUtilities.GetAssemblyQualifiedName(typeof(IInjector))))
-                //// if (cn.GetFullName().Equals(ReflectionUtilities.NonGenericFullName(typeof(IInjector))))
             {
                 return this.ForkInjector(); // TODO: We should be insisting on injection futures here! .forkInjector();
             }
@@ -509,7 +509,7 @@ namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
         {
             List<InjectionPlan> sub_ips = new List<InjectionPlan>();
 
-            #region each implementation
+            // each implementation
             foreach (IClassNode thisCN in candidateImplementations)
             {
                 List<InjectionPlan> constructors = new List<InjectionPlan>();
@@ -524,13 +524,13 @@ namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
                     constructorList.Add(c);
                 }
 
-                #region each constructor
+                // each constructor
                 foreach (IConstructorDef def in constructorList)
                 {
                     List<InjectionPlan> args = new List<InjectionPlan>();
                     IConstructorArg[] defArgs = def.GetArgs().ToArray<IConstructorArg>();
 
-                    #region each argument
+                    // each argument
                     foreach (IConstructorArg arg in defArgs)
                     {
                         if (!arg.IsInjectionFuture())
@@ -569,18 +569,16 @@ namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
                             }
                         }
                     }
-                    #endregion each argument
 
                     Constructor constructor = new Constructor(thisCN, def, args.ToArray());
                     constructors.Add(constructor);
                 }
-                #endregion each constructor
 
                 // The constructors are embedded in a lattice defined by
                 // isMoreSpecificThan().  We want to see if, amongst the injectable
                 // plans, there is a unique dominant plan, and select it.
                 // First, compute the set of injectable plans.
-                List<Int32> liveIndices = new List<Int32>();
+                List<int> liveIndices = new List<int>();
                 for (int i = 0; i < constructors.Count; i++)
                 {
                     if (constructors[i].GetNumAlternatives() > 0)
@@ -599,8 +597,9 @@ namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
                         IConstructorDef ci = ((Constructor)constructors[liveIndices[i]]).GetConstructorDef();
                         IConstructorDef cj = ((Constructor)constructors[liveIndices[j]]).GetConstructorDef();
 
-                        if (ci.IsMoreSpecificThan(cj)) // ci's arguments is a superset of cj's
+                        if (ci.IsMoreSpecificThan(cj))
                         {
+                            // ci's arguments is a superset of cj's
                             k = i;
                         }
                         else if (cj.IsMoreSpecificThan(ci))
@@ -618,7 +617,6 @@ namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
                     sub_ips.Add(WrapInjectionPlans(thisCN, constructors, false, k != -1 ? liveIndices[k] : -1));
                 }
             }
-            #endregion each implementation
             return sub_ips;
         }
 
@@ -935,7 +933,7 @@ namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
                 || cn.GetFullName().Equals(ReflectionUtilities.GetAssemblyQualifiedName(typeof(InjectorImpl))))
                 {
                     // This would imply that we're treating injector as a singleton somewhere.  It should be copied fresh each time.
-                    Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(new IllegalStateException(""), LOGGER);
+                    Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(new IllegalStateException(string.Empty), LOGGER);
                 }
                 try
                 {
@@ -959,7 +957,7 @@ namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
             foreach (INamedParameterNode np in old.namedParameterInstances.Keys)
             {
                 // if (!builder.namedParameters.containsKey(np)) {
-                Object o = null;
+                object o = null;
                 old.namedParameterInstances.TryGetValue(np, out o);
                 INamedParameterNode new_np = (INamedParameterNode)injector.classHierarchy.GetNode(np.GetFullName());
                 injector.namedParameterInstances.Add(new_np, o);
@@ -1003,7 +1001,7 @@ namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
             if (n is INamedParameterNode) 
             {
                 INamedParameterNode np = (INamedParameterNode)n;
-                Object old = this.configuration.GetNamedParameter(np);
+                object old = this.configuration.GetNamedParameter(np);
                 if (old != null) 
                 {
                     // XXX need to get the binding site here!

@@ -49,7 +49,7 @@ namespace Org.Apache.REEF.Tang.Formats
             }
         }
 
-        public static String ToConfigurationString(IConfiguration c) 
+        public static string ToConfigurationString(IConfiguration c) 
         {
             StringBuilder sb = new StringBuilder();
             foreach (string s in ToConfigurationStringList(c)) 
@@ -95,7 +95,7 @@ namespace Org.Apache.REEF.Tang.Formats
             }
         }
 
-        public static HashSet<String> ToConfigurationStringList(IConfiguration c) 
+        public static HashSet<string> ToConfigurationStringList(IConfiguration c) 
         {
             ConfigurationImpl conf = (ConfigurationImpl)c;
             HashSet<string> l = new HashSet<string>();
@@ -297,7 +297,7 @@ namespace Org.Apache.REEF.Tang.Formats
             // return in.ReplaceAll("\\\\", "\\\\\\\\").replaceAll("\"", "\\\\\\\"");
         }
 
-        public static StringBuilder Join(StringBuilder sb, String sep, IConstructorArg[] types) 
+        public static StringBuilder Join(StringBuilder sb, string sep, IConstructorArg[] types) 
         {
             if (types.Length > 0) 
             {

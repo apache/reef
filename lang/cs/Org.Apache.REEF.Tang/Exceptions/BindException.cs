@@ -24,7 +24,7 @@ namespace Org.Apache.REEF.Tang.Exceptions
     public class BindException : SystemException
     {
         // private static readonly long serialVersionUID = 1L;
-        public BindException(String message)
+        public BindException(string message)
             : base(message)
         {           
         }

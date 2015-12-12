@@ -145,8 +145,8 @@ namespace Org.Apache.REEF.Client.Yarn.RestClient
                 catch (Exception e)
                 {
                     exceptions.Add(e);
-                    Logger.Log(Level.Verbose, string.Format(
-                        CultureInfo.CurrentCulture, "Possibly transient error in rest call {0}", e.Message));
+                    Logger.Log(Level.Verbose, 
+                        string.Format(CultureInfo.CurrentCulture, "Possibly transient error in rest call {0}", e.Message));
                 }
             }
 
@@ -169,8 +169,8 @@ namespace Org.Apache.REEF.Client.Yarn.RestClient
                 catch (Exception e)
                 {
                     exceptions.Add(e);
-                    Logger.Log(Level.Verbose, string.Format(
-                        CultureInfo.CurrentCulture, "Possibly transient error in rest call {0}", e.Message));
+                    Logger.Log(Level.Verbose, 
+                        string.Format(CultureInfo.CurrentCulture, "Possibly transient error in rest call {0}", e.Message));
                 }
             }
 

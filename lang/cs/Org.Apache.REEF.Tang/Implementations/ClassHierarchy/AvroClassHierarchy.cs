@@ -77,11 +77,11 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
         private void ParseSubHierarchy(INode parent, AvroNode n)
         {
             INode parsed = null;
-            if (n.packageNode != null && !n.packageNode.Equals(""))
+            if (n.packageNode != null && !n.packageNode.Equals(string.Empty))
             {
                 parsed = new PackageNodeImpl(parent, n.name, n.fullName);
             }
-            else if (n.namedParameterNode != null && !n.namedParameterNode.Equals(""))
+            else if (n.namedParameterNode != null && !n.namedParameterNode.Equals(string.Empty))
             {
                 AvroNamedParameterNode np = (AvroNamedParameterNode)n.namedParameterNode;
                 parsed = new NamedParameterNodeImpl(parent, n.name,
@@ -89,7 +89,7 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
                     np.isSet, np.isList, np.documentation, np.shortName,
                     np.instanceDefault.ToArray());
             }
-            else if (n.classNode != null && !n.classNode.Equals(""))
+            else if (n.classNode != null && !n.classNode.Equals(string.Empty))
             {
                 AvroClassNode cn = (AvroClassNode)n.classNode;
                 IList<IConstructorDef> injectableConstructors = new List<IConstructorDef>();
@@ -125,7 +125,7 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
 
         private void WireUpInheritanceRelationships(AvroNode n)
         {
-            if (n.classNode != null && !n.classNode.Equals(""))
+            if (n.classNode != null && !n.classNode.Equals(string.Empty))
             {
                 AvroClassNode cn = (AvroClassNode)n.classNode;
                 IClassNode iface = null;
@@ -197,7 +197,7 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
 
         private void AddAlias(INamedParameterNode np)
         {
-            if (np.GetAlias() != null && !np.GetAlias().Equals(""))
+            if (np.GetAlias() != null && !np.GetAlias().Equals(string.Empty))
             {
                 IDictionary<string, string> mapping = null;
                 _aliasLookupTable.TryGetValue(np.GetAliasLanguage().ToString(), out mapping);

@@ -81,9 +81,9 @@ namespace Org.Apache.REEF.Tang.Implementations.InjectionPlan
             }
         }
 
-        public String ToPrettyString()
+        public string ToPrettyString()
         {
-            String ugly = node.GetFullName() + ":\n" + ToString();
+            string ugly = node.GetFullName() + ":\n" + ToString();
             StringBuilder pretty = new StringBuilder();
             int currentIndent = 1;
             for (int i = 0; i < ugly.Length; i++)

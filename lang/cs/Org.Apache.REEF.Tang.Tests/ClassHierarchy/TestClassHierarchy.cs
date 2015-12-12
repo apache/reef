@@ -61,7 +61,7 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
             }
             Assert.Null(n);
 
-            Assert.NotNull(ns.GetNode(typeof(System.String).AssemblyQualifiedName));
+            Assert.NotNull(ns.GetNode(typeof(string).AssemblyQualifiedName));
 
             string msg = null;  
             try
@@ -94,7 +94,7 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
             }
             Assert.Null(n);
 
-            Assert.NotNull(ns.GetNode(typeof(System.Int32).AssemblyQualifiedName));
+            Assert.NotNull(ns.GetNode(typeof(int).AssemblyQualifiedName));
 
             string msg = null;      
             try
@@ -556,7 +556,7 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
     class NamedParameterTypeMismatch 
     {
         [NamedParameter(Documentation = "doc.stuff", DefaultValue = "1")]
-        class Foo : Name<Int32> 
+        class Foo : Name<int> 
         {
         }
 
@@ -634,13 +634,13 @@ namespace Org.Apache.REEF.Tang.Tests.ClassHierarchy
     }
 
     [NamedParameter(ShortName = "foo")]
-    public class ShortNameFooA : Name<String>
+    public class ShortNameFooA : Name<string>
     {
     }
 
     // when same short name is used, exception would throw when building the class hierarchy
     [NamedParameter(ShortName = "foo")]
-    public class ShortNameFooB : Name<Int32>
+    public class ShortNameFooB : Name<int>
     {
     }
 

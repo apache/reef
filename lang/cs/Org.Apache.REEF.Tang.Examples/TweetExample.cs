@@ -24,12 +24,12 @@ namespace Org.Apache.REEF.Tang.Examples
 {
     public interface ISMS
     {
-        void SendSMS(String msg, long phoneNumber);
+        void SendSMS(string msg, long phoneNumber);
     }
 
     public interface ITweetFactory
     {
-        String GetTweet();
+        string GetTweet();
     } 
 
     public class MockTweetFactory : ITweetFactory 
@@ -39,7 +39,7 @@ namespace Org.Apache.REEF.Tang.Examples
         {
         }
 
-        public String GetTweet() 
+        public string GetTweet() 
         {
             return "@tw #bbq bbqftw!!! gopher://vuwed.wefd/bbqftw!";
         }
@@ -52,7 +52,7 @@ namespace Org.Apache.REEF.Tang.Examples
         {
         }
 
-        public void SendSMS(String msg, long phoneNumber) 
+        public void SendSMS(string msg, long phoneNumber) 
         {
             if (phoneNumber != 8675309) 
             {

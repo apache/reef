@@ -23,13 +23,13 @@ using Org.Apache.REEF.Tang.Annotations;
 namespace Org.Apache.REEF.Tang.Examples
 {
     [NamedParameter(ShortName = "fooA")]
-    public class ShortNameFooA : Name<String> 
+    public class ShortNameFooA : Name<string> 
     {
     }
 
     // when same short name is used, exception would throw when building the class hierarchy
     [NamedParameter(ShortName = "fooB")]
-    public class ShortNameFooB : Name<Int32> 
+    public class ShortNameFooB : Name<int> 
     {
     }
 }

@@ -95,8 +95,7 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
             foreach (var sourceFilePath in _filePaths)
             {
                 Uri sourceUri = _fileSystem.CreateUriForPath(sourceFilePath);
-                Logger.Log(Level.Info, string.Format
-                        (CultureInfo.CurrentCulture, "sourceUri {0}: ", sourceUri));
+                Logger.Log(Level.Info, string.Format(CultureInfo.CurrentCulture, "sourceUri {0}: ", sourceUri));
                 if (!_fileSystem.Exists(sourceUri))
                 {
                     throw new FileNotFoundException(string.Format(CultureInfo.CurrentCulture,
@@ -104,8 +103,7 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
                 }
 
                 var localFilePath = _localFileFolder + "\\" + Guid.NewGuid().ToString("N").Substring(0, 8);
-                Logger.Log(Level.Info, string.Format
-                       (CultureInfo.CurrentCulture, "localFilePath {0}: ", localFilePath));
+                Logger.Log(Level.Info, string.Format(CultureInfo.CurrentCulture, "localFilePath {0}: ", localFilePath));
                 if (File.Exists(localFilePath))
                 {
                     File.Delete(localFilePath);
@@ -115,13 +113,13 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
                 _fileSystem.CopyToLocal(sourceUri, localFilePath);
                 if (File.Exists(localFilePath))
                 {
-                    Logger.Log(Level.Info, string.Format
-                        (CultureInfo.CurrentCulture, "File {0} is Copied to local {1}.", sourceUri, localFilePath));
+                    Logger.Log(Level.Info, 
+                        string.Format(CultureInfo.CurrentCulture, "File {0} is Copied to local {1}.", sourceUri, localFilePath));
                 }
                 else
                 {
-                    string msg = string.Format
-                        (CultureInfo.CurrentCulture, "The IFilesystem completed the copy of `{0}` to `{1}`. But the file `{1}` does not exist.", sourceUri, localFilePath);
+                    string msg = string.Format(CultureInfo.CurrentCulture, 
+                        "The IFilesystem completed the copy of `{0}` to `{1}`. But the file `{1}` does not exist.", sourceUri, localFilePath);
                     Exceptions.Throw(new FileLoadException(msg), msg, Logger);
                 }
             }

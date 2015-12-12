@@ -37,7 +37,7 @@ namespace Org.Apache.REEF.Tang.Implementations.Configuration
 
         public readonly IDictionary<IClassNode, IClassNode> BoundImpls = new MonotonicTreeMap<IClassNode, IClassNode>();
         public readonly IDictionary<IClassNode, IClassNode> BoundConstructors = new MonotonicTreeMap<IClassNode, IClassNode>();
-        public readonly IDictionary<INamedParameterNode, String> NamedParameters = new MonotonicTreeMap<INamedParameterNode, String>();
+        public readonly IDictionary<INamedParameterNode, string> NamedParameters = new MonotonicTreeMap<INamedParameterNode, string>();
         public readonly IDictionary<IClassNode, IConstructorDef> LegacyConstructors = new MonotonicTreeMap<IClassNode, IConstructorDef>();
         public readonly MonotonicMultiMap<INamedParameterNode, object> BoundSetEntries = new MonotonicMultiMap<INamedParameterNode, object>();
         public readonly IDictionary<INamedParameterNode, IList<object>> BoundLists = new MonotonicTreeMap<INamedParameterNode, IList<object>>();
@@ -147,7 +147,7 @@ namespace Org.Apache.REEF.Tang.Implementations.Configuration
 
             foreach (KeyValuePair<INamedParameterNode, object> e in builder.BoundSetEntries) 
             {
-                String name = ((INamedParameterNode)e.Key).GetFullName();
+                string name = ((INamedParameterNode)e.Key).GetFullName();
                 if (e.Value is INode) 
                 {
                     BindSetEntry(name, (INode)e.Value);
@@ -260,7 +260,7 @@ namespace Org.Apache.REEF.Tang.Implementations.Configuration
             }
         }
 
-        public void BindParameter(INamedParameterNode name, String value)
+        public void BindParameter(INamedParameterNode name, string value)
         {
             /* Parse and discard value; this is just for type checking, skip for now*/
             if (this.ClassHierarchy is ICsClassHierarchy) 
@@ -291,17 +291,17 @@ namespace Org.Apache.REEF.Tang.Implementations.Configuration
             }
         }
 
-        public void BindSetEntry(String iface, String impl)
+        public void BindSetEntry(string iface, string impl)
         {
             BoundSetEntries.Add((INamedParameterNode)this.ClassHierarchy.GetNode(iface), impl);
         }
 
-        public void BindSetEntry(String iface, INode impl)
+        public void BindSetEntry(string iface, INode impl)
         {
             BoundSetEntries.Add((INamedParameterNode)ClassHierarchy.GetNode(iface), impl);
         }
 
-        public void BindSetEntry(INamedParameterNode iface, String impl)
+        public void BindSetEntry(INamedParameterNode iface, string impl)
         {
             BoundSetEntries.Add(iface, impl);
         }
@@ -352,7 +352,7 @@ namespace Org.Apache.REEF.Tang.Implementations.Configuration
             return param.GetSimpleArgName() + "=" + Join(",", param.GetDefaultInstanceAsStrings());
         }
 
-        private String Join(string sep, string[] s)
+        private string Join(string sep, string[] s)
         {
             if (s.Length == 0)
             {

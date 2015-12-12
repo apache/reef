@@ -96,7 +96,7 @@ namespace Org.Apache.REEF.IMRU.OnREEF.ResultHandler
         {
             string localFileFolder = Path.GetTempPath() + "-partition-" + Guid.NewGuid().ToString("N").Substring(0, 8);
             Directory.CreateDirectory(localFileFolder);
-            var localFilePath = String.Format("{0}\\{1}", localFileFolder, Guid.NewGuid().ToString("N").Substring(0, 8));
+            var localFilePath = string.Format("{0}\\{1}", localFileFolder, Guid.NewGuid().ToString("N").Substring(0, 8));
 
             if (File.Exists(localFilePath))
             {

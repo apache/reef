@@ -41,7 +41,7 @@ namespace Org.Apache.REEF.Driver.Evaluator
             Number = 1;
             VirtualCore = 1;
             MegaBytes = 64;
-            _rackName = String.Empty;
+            _rackName = string.Empty;
             _evaluatorBatchId = Guid.NewGuid().ToString("N");
         }
 

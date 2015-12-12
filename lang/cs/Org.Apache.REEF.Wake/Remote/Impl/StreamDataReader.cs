@@ -139,8 +139,8 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         /// <returns>read short</returns>
         public short ReadInt16()
         {
-            byte[] intBytes = new byte[sizeof(Int16)];
-            int readBytes = Read(ref intBytes, 0, sizeof(Int16));
+            byte[] intBytes = new byte[sizeof(short)];
+            int readBytes = Read(ref intBytes, 0, sizeof(short));
 
             if (readBytes == -1)
             {
@@ -293,8 +293,8 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         /// <returns>Task handler that reads short</returns>
         public async Task<short> ReadInt16Async(CancellationToken token)
         {
-            byte[] intBytes = new byte[sizeof(Int16)];
-            int readBytes = await ReadAsync(intBytes, 0, sizeof(Int16), token);
+            byte[] intBytes = new byte[sizeof(short)];
+            int readBytes = await ReadAsync(intBytes, 0, sizeof(short), token);
 
             if (readBytes == -1)
             {

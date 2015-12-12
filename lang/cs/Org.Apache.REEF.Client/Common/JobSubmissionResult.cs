@@ -172,7 +172,7 @@ namespace Org.Apache.REEF.Client.Common
             return shouldRetry;
         }
 
-        private static Tuple<bool, string> CommandFailed(String reason)
+        private static Tuple<bool, string> CommandFailed(string reason)
         {
             return new Tuple<bool, string>(false, null);
         }
@@ -208,8 +208,7 @@ namespace Org.Apache.REEF.Client.Common
                     if (!ShouldRetry(httpRequestException))
                     {
                         LOGGER.Log(Level.Error,
-                            commandUri + " exception " + httpRequestException.Message + "\n" +
-                            httpRequestException.StackTrace);
+                            commandUri + " exception " + httpRequestException.Message + "\n" + httpRequestException.StackTrace);
                         result = CommandFailed(httpRequestException.Message);
                         LOGGER.Log(Level.Warning, "Connection failed. connectAttemptCount was " + connectAttemptCount + ".");
                         break;
@@ -301,7 +300,7 @@ namespace Org.Apache.REEF.Client.Common
                     _driverUrl = values[TrackingUrlKey].ToString();
                     LOGGER.Log(Level.Info, "trackingUrl[" + _driverUrl + "]");
 
-                    if (0 == String.Compare(_driverUrl, UnAssigned))
+                    if (0 == string.Compare(_driverUrl, UnAssigned))
                     {
                         resultKind = UrlResultKind.UrlNotAssignedYet;
                     }

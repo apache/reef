@@ -148,8 +148,8 @@ namespace Org.Apache.REEF.Network.NetworkService.Codec
                 var codec = _injector.GetInstance(codecType);
 
                 MethodInfo readMethod = codec.GetType().GetMethod("Read");
-                _readFuncCache[messageType] = (Func<IDataReader, T>)Delegate.CreateDelegate
-                    (typeof(Func<IDataReader, T>), codec, readMethod);
+                _readFuncCache[messageType] = 
+                    (Func<IDataReader, T>)Delegate.CreateDelegate(typeof(Func<IDataReader, T>), codec, readMethod);
 
                 MethodInfo readAsyncMethod = codec.GetType().GetMethod("ReadAsync");
                 MethodInfo genericHelper = GetType()
@@ -177,8 +177,8 @@ namespace Org.Apache.REEF.Network.NetworkService.Codec
 
         private Action<T, IDataWriter> WriteHelperFunc<T1>(MethodInfo method, object codec) where T1 : class
         {
-            Action<T1, IDataWriter> func = (Action<T1, IDataWriter>)Delegate.CreateDelegate
-                (typeof(Action<T1, IDataWriter>), codec, method);
+            Action<T1, IDataWriter> func = 
+                (Action<T1, IDataWriter>)Delegate.CreateDelegate(typeof(Action<T1, IDataWriter>), codec, method);
 
             Action<T, IDataWriter> ret = (obj, writer) => func(obj as T1, writer);
             return ret;
@@ -188,8 +188,8 @@ namespace Org.Apache.REEF.Network.NetworkService.Codec
             where T1 : class
         {
             Func<T1, IDataWriter, CancellationToken, Task> func =
-                (Func<T1, IDataWriter, CancellationToken, Task>)Delegate.CreateDelegate
-                    (typeof(Func<T1, IDataWriter, CancellationToken, Task>), codec, method);
+                (Func<T1, IDataWriter, CancellationToken, Task>)
+                Delegate.CreateDelegate(typeof(Func<T1, IDataWriter, CancellationToken, Task>), codec, method);
 
             Func<T, IDataWriter, CancellationToken, Task> ret = (obj, writer, token) => func(obj as T1, writer, token);
             return ret;
@@ -199,8 +199,8 @@ namespace Org.Apache.REEF.Network.NetworkService.Codec
             where T1 : class
         {
             Func<IDataReader, CancellationToken, Task<T1>> func =
-                (Func<IDataReader, CancellationToken, Task<T1>>)Delegate.CreateDelegate
-                    (typeof(Func<IDataReader, CancellationToken, Task<T1>>), codec, method);
+                (Func<IDataReader, CancellationToken, Task<T1>>)
+                Delegate.CreateDelegate(typeof(Func<IDataReader, CancellationToken, Task<T1>>), codec, method);
 
             Func<IDataReader, CancellationToken, T1> func1 = (writer, token) => func(writer, token).Result;
             Func<IDataReader, CancellationToken, T> func2 = (writer, token) => ((T)(object)func1(writer, token));

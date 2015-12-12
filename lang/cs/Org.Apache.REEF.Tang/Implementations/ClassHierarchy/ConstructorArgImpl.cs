@@ -24,11 +24,11 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
 {
     public class ConstructorArgImpl : IConstructorArg
     {
-        private readonly String type;
-        private readonly String name;
+        private readonly string type;
+        private readonly string name;
         private readonly bool isInjectionFuture;
 
-        public ConstructorArgImpl(String type, String namedParameterName, bool isInjectionFuture)
+        public ConstructorArgImpl(string type, string namedParameterName, bool isInjectionFuture)
         {
             this.type = type;
             this.name = namedParameterName;
@@ -58,7 +58,7 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
             return isInjectionFuture;
         }
 
-        public override String ToString()
+        public override string ToString()
         {
             return name == null ? type : type + " " + name;
         }
@@ -68,7 +68,7 @@ namespace Org.Apache.REEF.Tang.Implementations.ClassHierarchy
             return 0;
         }
 
-        public override bool Equals(Object o)
+        public override bool Equals(object o)
         {
             ConstructorArgImpl arg = (ConstructorArgImpl)o;
             if (!type.Equals(arg.type))

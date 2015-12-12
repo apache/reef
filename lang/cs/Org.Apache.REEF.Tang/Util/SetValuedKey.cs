@@ -46,7 +46,7 @@ namespace Org.Apache.REEF.Tang.Util
             return i;
         }
 
-        public override bool Equals(Object o)
+        public override bool Equals(object o)
         {
             SetValuedKey other = (SetValuedKey)o;
             if (other.key.Count != this.key.Count) 

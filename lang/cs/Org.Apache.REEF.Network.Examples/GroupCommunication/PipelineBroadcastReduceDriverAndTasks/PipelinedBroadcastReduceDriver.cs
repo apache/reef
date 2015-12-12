@@ -269,20 +269,20 @@ namespace Org.Apache.REEF.Network.Examples.GroupCommunication.PipelineBroadcastR
 
             public byte[] Encode(int[] obj)
             {
-                var result = new byte[sizeof(Int32) * obj.Length];
+                var result = new byte[sizeof(int) * obj.Length];
                 Buffer.BlockCopy(obj, 0, result, 0, result.Length);
                 return result;
             }
 
             public int[] Decode(byte[] data)
             {
-                if (data.Length % sizeof(Int32) != 0)
+                if (data.Length % sizeof(int) != 0)
                 {
                     throw new Exception(
                         "error inside integer array decoder, byte array length not a multiple of integer size");
                 }
 
-                var result = new int[data.Length / sizeof(Int32)];
+                var result = new int[data.Length / sizeof(int)];
                 Buffer.BlockCopy(data, 0, result, 0, data.Length);
                 return result;
             }

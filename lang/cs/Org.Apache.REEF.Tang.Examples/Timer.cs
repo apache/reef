@@ -26,7 +26,7 @@ namespace Org.Apache.REEF.Tang.Examples
     public class Timer
     {
         [NamedParameter("Number of seconds to sleep", "sec", "10")]
-        public class Seconds : Name<Int32> 
+        public class Seconds : Name<int> 
         { 
         }
         private readonly int seconds;

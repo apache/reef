@@ -32,6 +32,6 @@ namespace Org.Apache.REEF.Driver.Bridge
 
     public interface ILogger
     {
-        void Log(TraceLevel traceLevel, String message);
+        void Log(TraceLevel traceLevel, string message);
     }
 }

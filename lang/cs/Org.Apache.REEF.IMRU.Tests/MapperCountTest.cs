@@ -44,7 +44,7 @@ namespace Org.Apache.REEF.IMRU.Tests
                             .Set(InProcessIMRUConfiguration.NumberOfMappers, NumberOfMappers.ToString())
                             .Build())
                     .GetInstance<MapperCount>();
-            var result = tested.Run(NumberOfMappers, "", TangFactory.GetTang().NewConfigurationBuilder().Build());
+            var result = tested.Run(NumberOfMappers, string.Empty, TangFactory.GetTang().NewConfigurationBuilder().Build());
             Assert.True(NumberOfMappers == result, "The result of the run should be the number of Mappers.");
         }
     }

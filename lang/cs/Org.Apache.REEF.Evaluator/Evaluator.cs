@@ -143,8 +143,8 @@ namespace Org.Apache.REEF.Evaluator
             try
             {
                 var clrDriverConfig = new AvroConfigurationSerializer().FromFile(clrRuntimeConfigurationFile);
-                logger.Log(Level.Info, string.Format(CultureInfo.CurrentCulture,
-                    "Clr Driver Configuration is deserialized from file {0}:", clrRuntimeConfigurationFile));
+                logger.Log(Level.Info, 
+                    string.Format(CultureInfo.CurrentCulture, "Clr Driver Configuration is deserialized from file {0}:", clrRuntimeConfigurationFile));
                 return clrDriverConfig;
             }
             catch (Exception e)
@@ -169,8 +169,8 @@ namespace Org.Apache.REEF.Evaluator
                 .GetClassHierarchy(new string[] { typeof(ApplicationIdentifier).Assembly.GetName().Name });
             var evaluatorConfiguration = serializer.FromFile(evaluatorConfigFile, classHierarchy);
 
-            logger.Log(Level.Info, string.Format(CultureInfo.CurrentCulture,
-                "Evaluator Configuration is deserialized from file {0}:", evaluatorConfigFile));
+            logger.Log(Level.Info, 
+                string.Format(CultureInfo.CurrentCulture, "Evaluator Configuration is deserialized from file {0}:", evaluatorConfigFile));
 
             return evaluatorConfiguration;
         }

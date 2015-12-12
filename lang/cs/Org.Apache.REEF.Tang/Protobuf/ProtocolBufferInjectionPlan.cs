@@ -190,7 +190,7 @@ namespace Org.Apache.REEF.Tang.Protobuf
             return null;
         }
 
-        private static object Parse(String type, String value)
+        private static object Parse(string type, string value)
         {
             // XXX this is a placeholder for now.  We need a parser API that will
             // either produce a live java object or (partially) validate stuff to
