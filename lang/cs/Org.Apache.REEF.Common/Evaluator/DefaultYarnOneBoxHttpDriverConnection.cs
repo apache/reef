@@ -25,19 +25,26 @@ namespace Org.Apache.REEF.Common.Evaluator
 {
     public class DefaultYarnOneBoxHttpDriverConnection : IDriverConnection
     {
+        private readonly string _applicationId;
+
         [Inject]
-        public DefaultYarnOneBoxHttpDriverConnection()
+        private DefaultYarnOneBoxHttpDriverConnection()
         {
+            _applicationId = Environment.GetEnvironmentVariable(Constants.ReefYarnApplicationIdEnvironmentVariable);
+            if (_applicationId == null)
+            {
+                throw new ApplicationException("Could not fetch the application ID from YARN's container environment variables.");
+            }
         }
 
-        public DriverInformation GetDriverInformation(string applicationId)
+        public DriverInformation GetDriverInformation()
         {
             // e.g., http://yingdac1:8088/proxy/application_1407519727821_0012/reef/v1/driver
             string oneBoxHost = string.Format(CultureInfo.InvariantCulture, "http://{0}:8088/proxy/", Environment.MachineName);
             Uri queryUri = new Uri(
                 string.Concat(
                 oneBoxHost,
-                applicationId,
+                _applicationId + '/',
                 Constants.HttpReefUriSpecification,
                 Constants.HttpDriverUriTarget));
             return DriverInformation.GetDriverInformationFromHttp(queryUri);

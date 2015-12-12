@@ -22,12 +22,12 @@ using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.Common.Evaluator
 {
-    public class DefaultLocalHttpDriverConnection : IDriverConnection
+    public sealed class DefaultLocalHttpDriverConnection : IDriverConnection
     {
         private readonly Uri _queryUri;
 
         [Inject]
-        public DefaultLocalHttpDriverConnection()
+        private DefaultLocalHttpDriverConnection()
         {
             _queryUri = new Uri(
                     string.Concat(
@@ -36,7 +36,7 @@ namespace Org.Apache.REEF.Common.Evaluator
                     Constants.HttpDriverUriTarget));
         }
 
-        public DriverInformation GetDriverInformation(string applicationId)
+        public DriverInformation GetDriverInformation()
         {
             // application id not needed for local runtime
             return DriverInformation.GetDriverInformationFromHttp(_queryUri);

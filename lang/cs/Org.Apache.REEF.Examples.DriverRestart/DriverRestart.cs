@@ -73,7 +73,7 @@ namespace Org.Apache.REEF.Examples.DriverRestart
             var restartJobSubmission = _jobSubmissionBuilderFactory.GetJobSubmissionBuilder()
                 .AddDriverConfiguration(driverConfiguration)
                 .AddGlobalAssemblyForType(typeof(HelloRestartDriver))
-                .SetJobIdentifier("DriverRestart")
+                .SetJobIdentifier("DriverRestart_" + Guid.NewGuid().ToString().Substring(0, 6))
                 .Build();
 
             _reefClient.SubmitAndGetJobStatus(restartJobSubmission);

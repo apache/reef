@@ -21,6 +21,6 @@ namespace Org.Apache.REEF.Common.Evaluator
 {
     public interface IDriverConnection
     {
-        DriverInformation GetDriverInformation(string applicationId);
+        DriverInformation GetDriverInformation();
     }
 }
