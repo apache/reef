@@ -55,7 +55,7 @@ final class DefaultRemoteManagerFactory implements RemoteManagerFactory {
       final TransportFactory tpFactory,
       final TcpPortProvider tcpPortProvider,
       final Injector injector) {
-    this.injector = injector;
+    this.injector = injector.forkInjector();
     this.codec = codec;
     this.errorHandler = errorHandler;
     this.orderingGuarantee = orderingGuarantee;
