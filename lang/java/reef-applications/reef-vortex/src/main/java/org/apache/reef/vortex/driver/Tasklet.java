@@ -20,7 +20,6 @@ package org.apache.reef.vortex.driver;
 
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.vortex.api.VortexFunction;
-import org.apache.reef.vortex.api.VortexFuture;
 
 import java.io.Serializable;
 
@@ -32,16 +31,16 @@ class Tasklet<TInput extends Serializable, TOutput extends Serializable> {
   private final int taskletId;
   private final VortexFunction<TInput, TOutput> userTask;
   private final TInput input;
-  private final VortexFuture<TOutput> vortexFuture;
+  private final TaskletStateDelegate<TOutput> stateDelegate;
 
   Tasklet(final int taskletId,
           final VortexFunction<TInput, TOutput> userTask,
           final TInput input,
-          final VortexFuture<TOutput> vortexFuture) {
+          final TaskletStateDelegate<TOutput> taskletStateDelegate) {
     this.taskletId = taskletId;
     this.userTask = userTask;
     this.input = input;
-    this.vortexFuture = vortexFuture;
+    this.stateDelegate = taskletStateDelegate;
   }
 
   /**
@@ -69,28 +68,28 @@ class Tasklet<TInput extends Serializable, TOutput extends Serializable> {
    * Called by VortexMaster to let the user know that the task completed.
    */
   void completed(final TOutput result) {
-    vortexFuture.completed(result);
+    stateDelegate.completed(getId(), result);
   }
 
   /**
    * Called by VortexMaster to let the user know that the task threw an exception.
    */
   void threwException(final Exception exception) {
-    vortexFuture.threwException(exception);
+    stateDelegate.threwException(getId(), exception);
   }
 
   /**
    * Called by VortexMaster to let the user know that the task has been cancelled.
    */
   void cancelled(){
-    vortexFuture.cancelled();
+    stateDelegate.cancelled(getId());
   }
 
   /**
    * For tests.
    */
   boolean isCompleted() {
-    return vortexFuture.isDone();
+    return stateDelegate.isDone(getId());
   }
 
   /**

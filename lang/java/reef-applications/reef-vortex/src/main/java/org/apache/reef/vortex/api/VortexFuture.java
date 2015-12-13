@@ -21,8 +21,10 @@ package org.apache.reef.vortex.api;
 import org.apache.reef.annotations.Unstable;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.util.Optional;
+import org.apache.reef.vortex.driver.TaskletStateDelegate;
 import org.apache.reef.vortex.driver.VortexMaster;
 
+import java.io.Serializable;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
@@ -32,7 +34,8 @@ import java.util.logging.Logger;
  * The interface between user code and submitted task.
  */
 @Unstable
-public final class VortexFuture<TOutput> implements Future<TOutput> {
+public final class VortexFuture<TOutput extends Serializable>
+    implements Future<TOutput>, TaskletStateDelegate<TOutput> {
   private static final Logger LOG = Logger.getLogger(VortexFuture.class.getName());
 
   // userResult starts out as null. If not null => variable is set and tasklet returned.
@@ -44,7 +47,7 @@ public final class VortexFuture<TOutput> implements Future<TOutput> {
   private final FutureCallback<TOutput> callbackHandler;
   private final Executor executor;
   private final VortexMaster vortexMaster;
-  private final int taskletId;
+  private final int futureTaskletId;
 
   /**
    * Creates a {@link VortexFuture}.
@@ -64,7 +67,7 @@ public final class VortexFuture<TOutput> implements Future<TOutput> {
                       final FutureCallback<TOutput> callbackHandler) {
     this.executor = executor;
     this.vortexMaster = vortexMaster;
-    this.taskletId = taskletId;
+    this.futureTaskletId = taskletId;
     this.callbackHandler = callbackHandler;
   }
 
@@ -100,7 +103,7 @@ public final class VortexFuture<TOutput> implements Future<TOutput> {
       return isCancelled();
     }
 
-    vortexMaster.cancelTasklet(mayInterruptIfRunning, taskletId);
+    vortexMaster.cancelTasklet(mayInterruptIfRunning, futureTaskletId);
 
     try {
       if (timeout.isPresent() && unit.isPresent()) {
@@ -174,10 +177,10 @@ public final class VortexFuture<TOutput> implements Future<TOutput> {
     }
   }
 
-  /**
-   * Called by VortexMaster to let the user know that the task completed.
-   */
-  public void completed(final TOutput result) {
+  @Private
+  @Override
+  public void completed(final int taskletId, final TOutput result) {
+    assert taskletId == this.futureTaskletId;
     this.userResult = Optional.ofNullable(result);
     if (callbackHandler != null) {
       executor.execute(new Runnable() {
@@ -190,11 +193,10 @@ public final class VortexFuture<TOutput> implements Future<TOutput> {
     this.countDownLatch.countDown();
   }
 
-  /**
-   * Called by VortexMaster to let the user know that the task threw an exception.
-   */
   @Private
-  public void threwException(final Exception exception) {
+  @Override
+  public void threwException(final int taskletId, final Exception exception) {
+    assert taskletId == this.futureTaskletId;
     this.userException = exception;
     if (callbackHandler != null) {
       executor.execute(new Runnable() {
@@ -207,11 +209,10 @@ public final class VortexFuture<TOutput> implements Future<TOutput> {
     this.countDownLatch.countDown();
   }
 
-  /**
-   * Called by VortexMaster to let the user know that the task was cancelled.
-   */
   @Private
-  public void cancelled() {
+  @Override
+  public void cancelled(final int taskletId) {
+    assert taskletId == this.futureTaskletId;
     this.cancelled.set(true);
     if (callbackHandler != null) {
       executor.execute(new Runnable() {
@@ -222,5 +223,13 @@ public final class VortexFuture<TOutput> implements Future<TOutput> {
       });
     }
     this.countDownLatch.countDown();
+  }
+
+
+  @Private
+  @Override
+  public boolean isDone(final int taskletId) {
+    assert taskletId == this.futureTaskletId;
+    return countDownLatch.getCount() == 0;
   }
 }
