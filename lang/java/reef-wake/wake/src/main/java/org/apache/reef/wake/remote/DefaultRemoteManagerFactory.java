@@ -16,16 +16,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.wake.remote.impl;
+package org.apache.reef.wake.remote;
 
 import org.apache.reef.tang.Injector;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.wake.EventHandler;
-import org.apache.reef.wake.remote.Codec;
-import org.apache.reef.wake.remote.RemoteConfiguration;
-import org.apache.reef.wake.remote.RemoteManager;
-import org.apache.reef.wake.remote.RemoteManagerFactory;
 import org.apache.reef.wake.remote.address.LocalAddressProvider;
 import org.apache.reef.wake.remote.ports.TcpPortProvider;
 import org.apache.reef.wake.remote.transport.TransportFactory;
@@ -35,7 +31,7 @@ import javax.inject.Inject;
 /**
  * Default implementation of RemoteManagerFactory.
  */
-public final class DefaultRemoteManagerFactory implements RemoteManagerFactory {
+final class DefaultRemoteManagerFactory implements RemoteManagerFactory {
 
   private final Injector injector;
 
