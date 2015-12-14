@@ -50,12 +50,12 @@
     "fields": [
       {
         "name": "reportType",
-        "type": 
-		{
+        "type":
+        {
           "type": "enum",
           "name": "AvroReportType",
           "symbols": ["TaskletResult", "TaskletCancelled", "TaskletFailure"]
-		}
+        }
       },
       {
         "name": "taskletReport",
@@ -71,11 +71,11 @@
     "fields": [
       {
         "name": "taskletReports",
-        "type": 
-		{
-			"type": "array",
-			"items": "AvroTaskletReport"
-		}
+        "type":
+        {
+          "type": "array",
+          "items": "AvroTaskletReport"
+        }
       }
     ]
   }

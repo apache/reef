@@ -83,7 +83,7 @@ public final class VortexAvroUtils {
   }
 
   /**
-   * Serialize TaskletReport to byte array.
+   * Serialize WorkerReport to byte array.
    * @param workerReport Worker report message to serialize.
    * @return Serialized byte array.
    */
