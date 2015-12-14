@@ -136,9 +136,12 @@ public final class VortexFuture<TOutput> implements Future<TOutput> {
 
   /**
    * Infinitely wait for the result of the task.
+   * @throws InterruptedException if the thread is interrupted.
+   * @throws ExecutionException if the Tasklet execution failed to complete.
+   * @throws CancellationException if the Tasklet was cancelled.
    */
   @Override
-  public TOutput get() throws InterruptedException, ExecutionException {
+  public TOutput get() throws InterruptedException, ExecutionException, CancellationException {
     countDownLatch.await();
     if (userResult != null) {
       return userResult.get();
@@ -148,30 +151,25 @@ public final class VortexFuture<TOutput> implements Future<TOutput> {
         throw new ExecutionException(userException);
       }
 
-      throw new ExecutionException(new InterruptedException("Task was cancelled."));
+      throw new CancellationException("Tasklet was cancelled.");
     }
   }
 
   /**
    * Wait a certain period of time for the result of the task.
+   * @throws TimeoutException if the timeout provided hits before the Tasklet is done.
+   * @throws InterruptedException if the thread is interrupted.
+   * @throws ExecutionException if the Tasklet execution failed to complete.
+   * @throws CancellationException if the Tasklet was cancelled.
    */
   @Override
   public TOutput get(final long timeout, final TimeUnit unit)
-      throws InterruptedException, ExecutionException, TimeoutException {
+      throws InterruptedException, ExecutionException, TimeoutException, CancellationException {
     if (!countDownLatch.await(timeout, unit)) {
       throw new TimeoutException();
     }
 
-    if (userResult != null) {
-      return userResult.get();
-    } else {
-      assert this.cancelled.get() || userException != null;
-      if (userException != null) {
-        throw new ExecutionException(userException);
-      }
-
-      throw new ExecutionException(new InterruptedException("Task was cancelled."));
-    }
+    return get();
   }
 
   /**
