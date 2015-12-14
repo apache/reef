@@ -19,28 +19,34 @@
 package org.apache.reef.vortex.common;
 
 import org.apache.reef.annotations.Unstable;
+import org.apache.reef.annotations.audience.DriverSide;
+import org.apache.reef.annotations.audience.Private;
+
+import java.io.Serializable;
 
 /**
- * The report of a cancelled Tasklet.
+ * The interface for a status report from the {@link org.apache.reef.vortex.evaluator.VortexWorker}.
  */
 @Unstable
-public final class TaskletCancelledReport implements TaskletReport {
-  private int taskletId;
+@Private
+@DriverSide
+public interface TaskletReport extends Serializable {
+  /**
+   * Type of TaskletReport.
+   */
+  enum TaskletReportType {
+    TaskletResult,
+    TaskletCancelled,
+    TaskletFailure
+  }
 
   /**
-   * @param taskletId of the cancelled tasklet.
+   * @return the type of this TaskletReport.
    */
-  public TaskletCancelledReport(final int taskletId) {
-    this.taskletId = taskletId;
-  }
+  TaskletReportType getType();
 
-  @Override
-  public TaskletReportType getType() {
-    return TaskletReportType.TaskletCancelled;
-  }
-
-  @Override
-  public int getTaskletId() {
-    return taskletId;
-  }
+  /**
+   * @return the taskletId of this TaskletReport.
+   */
+  int getTaskletId();
 }

@@ -35,6 +35,8 @@ import org.apache.reef.wake.EventHandler;
 
 import javax.inject.Inject;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -101,25 +103,31 @@ public final class VortexWorker implements Task, TaskMessageSource {
                     @Override
                     public void run() {
                       final TaskletExecutionRequest taskletExecutionRequest = (TaskletExecutionRequest) vortexRequest;
+                      final WorkerReport workerReport;
+                      final List<TaskletReport> taskletReports = new ArrayList<>();
+
                       try {
                         // Command Executor: Execute the command
                         final Serializable result = taskletExecutionRequest.execute();
-                        final WorkerReport report =
+                        final TaskletReport taskletReport =
                             new TaskletResultReport<>(taskletExecutionRequest.getTaskletId(), result);
-                        workerReports.addLast(VortexAvroUtils.toBytes(report));
+                        taskletReports.add(taskletReport);
                       } catch (final InterruptedException ex) {
                         // Assumes that user's thread follows convention that cancelled Futures
                         // should throw InterruptedException.
-                        final WorkerReport report = new TaskletCancelledReport(taskletExecutionRequest.getTaskletId());
+                        final TaskletReport taskletReport =
+                            new TaskletCancelledReport(taskletExecutionRequest.getTaskletId());
                         LOG.log(Level.WARNING, "Tasklet with ID {0} has been cancelled", vortexRequest.getTaskletId());
-                        workerReports.addLast(VortexAvroUtils.toBytes(report));
+                        taskletReports.add(taskletReport);
                       } catch (Exception e) {
                         // Command Executor: Tasklet throws an exception
-                        final WorkerReport report =
+                        final TaskletReport taskletReport =
                             new TaskletFailureReport(taskletExecutionRequest.getTaskletId(), e);
-                        workerReports.addLast(VortexAvroUtils.toBytes(report));
+                        taskletReports.add(taskletReport);
                       }
 
+                      workerReport = new WorkerReport(taskletReports);
+                      workerReports.addLast(VortexAvroUtils.toBytes(workerReport));
                       try {
                         latch.await();
                       } catch (final InterruptedException e) {

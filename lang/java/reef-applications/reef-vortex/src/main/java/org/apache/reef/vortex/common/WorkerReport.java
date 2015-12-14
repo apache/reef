@@ -19,30 +19,34 @@
 package org.apache.reef.vortex.common;
 
 import org.apache.reef.annotations.Unstable;
+import org.apache.reef.annotations.audience.DriverSide;
+import org.apache.reef.annotations.audience.Private;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Worker-to-Master protocol.
+ * A report of Tasklet statuses sent form the {@link org.apache.reef.vortex.evaluator.VortexWorker}
+ * to the {@link org.apache.reef.vortex.driver.VortexMaster}.
  */
+@Private
 @Unstable
-public interface WorkerReport extends Serializable {
-  /**
-   * Type of WorkerReport.
-   */
-  enum WorkerReportType {
-    TaskletResult,
-    TaskletCancelled,
-    TaskletFailure
+@DriverSide
+public final class WorkerReport implements Serializable {
+  private ArrayList<TaskletReport> taskletReports;
+
+  public WorkerReport(final Collection<TaskletReport> taskletReports) {
+    this.taskletReports = new ArrayList<>(taskletReports);
   }
 
   /**
-   * @return the type of this WorkerReport.
+   * @return the list of Tasklet reports.
    */
-  WorkerReportType getType();
-
-  /**
-   * @return the taskletId of this WorkerReport.
-   */
-  int getTaskletId();
+  public List<TaskletReport> getTaskletReports() {
+    return Collections.unmodifiableList(taskletReports);
+  }
 }

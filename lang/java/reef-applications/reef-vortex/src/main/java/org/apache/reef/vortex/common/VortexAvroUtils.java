@@ -29,6 +29,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Serialize and deserialize Vortex message to/from byte array.
@@ -86,47 +88,57 @@ public final class VortexAvroUtils {
    * @return Serialized byte array.
    */
   public static byte[] toBytes(final WorkerReport workerReport) {
-    // Convert WorkerReport message to Avro message.
-    final AvroWorkerReport avroWorkerReport;
-    switch (workerReport.getType()) {
-    case TaskletResult:
-      final TaskletResultReport taskletResultReport = (TaskletResultReport) workerReport;
-      // TODO[REEF-1005]: Allow custom codecs for input/output data in Vortex.
-      final byte[] serializedOutput = SerializationUtils.serialize(taskletResultReport.getResult());
-      avroWorkerReport = AvroWorkerReport.newBuilder()
-          .setReportType(AvroReportType.TaskletResult)
-          .setTaskletReport(
-              AvroTaskletResultReport.newBuilder()
-                  .setTaskletId(taskletResultReport.getTaskletId())
-                  .setSerializedOutput(ByteBuffer.wrap(serializedOutput))
-                  .build())
-          .build();
-      break;
-    case TaskletCancelled:
-      final TaskletCancelledReport taskletCancelledReport = (TaskletCancelledReport) workerReport;
-      avroWorkerReport = AvroWorkerReport.newBuilder()
-          .setReportType(AvroReportType.TaskletCancelled)
-          .setTaskletReport(
-              AvroTaskletCancelledReport.newBuilder()
-                  .setTaskletId(workerReport.getTaskletId())
-                  .build())
-          .build();
-      break;
-    case TaskletFailure:
-      final TaskletFailureReport taskletFailureReport = (TaskletFailureReport) workerReport;
-      final byte[] serializedException = SerializationUtils.serialize(taskletFailureReport.getException());
-      avroWorkerReport = AvroWorkerReport.newBuilder()
-          .setReportType(AvroReportType.TaskletFailure)
-          .setTaskletReport(
-              AvroTaskletFailureReport.newBuilder()
-                  .setTaskletId(taskletFailureReport.getTaskletId())
-                  .setSerializedException(ByteBuffer.wrap(serializedException))
-                  .build())
-          .build();
-      break;
-    default:
-      throw new RuntimeException("Undefined message type");
+    final List<AvroTaskletReport> workerTaskletReports = new ArrayList<>();
+
+    for (final TaskletReport taskletReport : workerReport.getTaskletReports()) {
+      final AvroTaskletReport avroTaskletReport;
+      switch (taskletReport.getType()) {
+      case TaskletResult:
+        final TaskletResultReport taskletResultReport = (TaskletResultReport) taskletReport;
+        // TODO[REEF-1005]: Allow custom codecs for input/output data in Vortex.
+        final byte[] serializedOutput = SerializationUtils.serialize(taskletResultReport.getResult());
+        avroTaskletReport = AvroTaskletReport.newBuilder()
+            .setReportType(AvroReportType.TaskletResult)
+            .setTaskletReport(
+                AvroTaskletResultReport.newBuilder()
+                    .setTaskletId(taskletResultReport.getTaskletId())
+                    .setSerializedOutput(ByteBuffer.wrap(serializedOutput))
+                    .build())
+            .build();
+        break;
+      case TaskletCancelled:
+        final TaskletCancelledReport taskletCancelledReport = (TaskletCancelledReport) taskletReport;
+        avroTaskletReport = AvroTaskletReport.newBuilder()
+            .setReportType(AvroReportType.TaskletCancelled)
+            .setTaskletReport(
+                AvroTaskletCancelledReport.newBuilder()
+                    .setTaskletId(taskletCancelledReport.getTaskletId())
+                    .build())
+            .build();
+        break;
+      case TaskletFailure:
+        final TaskletFailureReport taskletFailureReport = (TaskletFailureReport) taskletReport;
+        final byte[] serializedException = SerializationUtils.serialize(taskletFailureReport.getException());
+        avroTaskletReport = AvroTaskletReport.newBuilder()
+            .setReportType(AvroReportType.TaskletFailure)
+            .setTaskletReport(
+                AvroTaskletFailureReport.newBuilder()
+                    .setTaskletId(taskletFailureReport.getTaskletId())
+                    .setSerializedException(ByteBuffer.wrap(serializedException))
+                    .build())
+            .build();
+        break;
+      default:
+        throw new RuntimeException("Undefined message type");
+      }
+
+      workerTaskletReports.add(avroTaskletReport);
     }
+
+    // Convert WorkerReport message to Avro message.
+    final AvroWorkerReport avroWorkerReport = AvroWorkerReport.newBuilder()
+        .setTaskletReports(workerTaskletReports)
+        .build();
 
     // Serialize the Avro message to byte array.
     return toBytes(avroWorkerReport, AvroWorkerReport.class);
@@ -172,33 +184,41 @@ public final class VortexAvroUtils {
    * @return De-serialized WorkerReport.
    */
   public static WorkerReport toWorkerReport(final byte[] bytes) {
-    final WorkerReport workerReport;
     final AvroWorkerReport avroWorkerReport = toAvroObject(bytes, AvroWorkerReport.class);
-    switch (avroWorkerReport.getReportType()) {
-    case TaskletResult:
-      final AvroTaskletResultReport taskletResultReport =
-          (AvroTaskletResultReport)avroWorkerReport.getTaskletReport();
-      // TODO[REEF-1005]: Allow custom codecs for input/output data in Vortex.
-      final Serializable output =
-          (Serializable) SerializationUtils.deserialize(taskletResultReport.getSerializedOutput().array());
-      workerReport = new TaskletResultReport<>(taskletResultReport.getTaskletId(), output);
-      break;
-    case TaskletCancelled:
-      final AvroTaskletCancelledReport taskletCancelledReport =
-          (AvroTaskletCancelledReport)avroWorkerReport.getTaskletReport();
-      workerReport = new TaskletCancelledReport(taskletCancelledReport.getTaskletId());
-      break;
-    case TaskletFailure:
-      final AvroTaskletFailureReport taskletFailureReport =
-          (AvroTaskletFailureReport)avroWorkerReport.getTaskletReport();
-      final Exception exception =
-          (Exception) SerializationUtils.deserialize(taskletFailureReport.getSerializedException().array());
-      workerReport = new TaskletFailureReport(taskletFailureReport.getTaskletId(), exception);
-      break;
-    default:
-      throw new RuntimeException("Undefined WorkerReport type");
+    final List<TaskletReport> workerTaskletReports = new ArrayList<>();
+
+    for (final AvroTaskletReport avroTaskletReport : avroWorkerReport.getTaskletReports()) {
+      final TaskletReport taskletReport;
+
+      switch (avroTaskletReport.getReportType()) {
+      case TaskletResult:
+        final AvroTaskletResultReport taskletResultReport =
+            (AvroTaskletResultReport)avroTaskletReport.getTaskletReport();
+        // TODO[REEF-1005]: Allow custom codecs for input/output data in Vortex.
+        final Serializable output =
+            (Serializable) SerializationUtils.deserialize(taskletResultReport.getSerializedOutput().array());
+        taskletReport = new TaskletResultReport<>(taskletResultReport.getTaskletId(), output);
+        break;
+      case TaskletCancelled:
+        final AvroTaskletCancelledReport taskletCancelledReport =
+            (AvroTaskletCancelledReport)avroTaskletReport.getTaskletReport();
+        taskletReport = new TaskletCancelledReport(taskletCancelledReport.getTaskletId());
+        break;
+      case TaskletFailure:
+        final AvroTaskletFailureReport taskletFailureReport =
+            (AvroTaskletFailureReport)avroTaskletReport.getTaskletReport();
+        final Exception exception =
+            (Exception) SerializationUtils.deserialize(taskletFailureReport.getSerializedException().array());
+        taskletReport = new TaskletFailureReport(taskletFailureReport.getTaskletId(), exception);
+        break;
+      default:
+        throw new RuntimeException("Undefined TaskletReport type");
+      }
+
+      workerTaskletReports.add(taskletReport);
     }
-    return workerReport;
+
+    return new WorkerReport(workerTaskletReports);
   }
 
   /**
