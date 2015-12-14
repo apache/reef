@@ -39,7 +39,9 @@ public final class TaskletCancelledReport implements TaskletReport {
     return TaskletReportType.TaskletCancelled;
   }
 
-  @Override
+  /**
+   * @return the taskletId of this TaskletReport.
+   */
   public int getTaskletId() {
     return taskletId;
   }

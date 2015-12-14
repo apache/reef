@@ -20,20 +20,24 @@ package org.apache.reef.vortex.common;
 
 import org.apache.reef.annotations.Unstable;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 /**
  * Report of a tasklet exception.
  */
 @Unstable
 public final class TaskletFailureReport implements TaskletReport {
-  private final int taskletId;
+  private final List<Integer> taskletIds;
   private final Exception exception;
 
   /**
-   * @param taskletId of the failed tasklet.
+   * @param taskletIds of the failed tasklet(s).
    * @param exception that caused the tasklet failure.
    */
-  public TaskletFailureReport(final int taskletId, final Exception exception) {
-    this.taskletId = taskletId;
+  public TaskletFailureReport(final List<Integer> taskletIds, final Exception exception) {
+    this.taskletIds = Collections.unmodifiableList(new ArrayList<>(taskletIds));
     this.exception = exception;
   }
 
@@ -46,11 +50,12 @@ public final class TaskletFailureReport implements TaskletReport {
   }
 
   /**
-   * @return the id of the tasklet.
+   * Returns multiple TaskletIds if an aggregation of Tasklets fail.
+   * Returns a single TaskletId if a Tasklet fails.
+   * @return the taskletId(s) of this TaskletReport.
    */
-  @Override
-  public int getTaskletId() {
-    return taskletId;
+  public List<Integer> getTaskletIds() {
+    return taskletIds;
   }
 
   /**

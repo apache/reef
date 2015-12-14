@@ -21,21 +21,24 @@ package org.apache.reef.vortex.common;
 import org.apache.reef.annotations.Unstable;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Report of a tasklet execution result.
  */
 @Unstable
 public final class TaskletResultReport<TOutput extends Serializable> implements TaskletReport {
-  private final int taskletId;
+  private final List<Integer> taskletIds;
   private final TOutput result;
 
   /**
-   * @param taskletId of the tasklet.
+   * @param taskletIds of the tasklets.
    * @param result of the tasklet execution.
    */
-  public TaskletResultReport(final int taskletId, final TOutput result) {
-    this.taskletId = taskletId;
+  public TaskletResultReport(final List<Integer> taskletIds, final TOutput result) {
+    this.taskletIds = Collections.unmodifiableList(new ArrayList<>(taskletIds));
     this.result = result;
   }
 
@@ -48,11 +51,12 @@ public final class TaskletResultReport<TOutput extends Serializable> implements 
   }
 
   /**
-   * @return the id of the tasklet.
+   * Returns multiple TaskletIds if the result is from an Aggregation.
+   * Returns a single TaskletId if the result is from a single Tasklet.
+   * @return the TaskletId(s) of this TaskletReport
    */
-  @Override
-  public int getTaskletId() {
-    return taskletId;
+  public List<Integer> getTaskletIds() {
+    return taskletIds;
   }
 
   /**

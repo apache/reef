@@ -37,6 +37,7 @@ import org.apache.reef.wake.impl.ThreadPoolStage;
 import org.apache.reef.wake.time.event.StartTime;
 
 import javax.inject.Inject;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -160,7 +161,13 @@ final class VortexDriver {
       switch (taskletReport.getType()) {
       case TaskletResult:
         final TaskletResultReport taskletResultReport = (TaskletResultReport) taskletReport;
-        vortexMaster.taskletCompleted(workerId, taskletResultReport.getTaskletId(), taskletResultReport.getResult());
+
+        // TODO[JIRA REEF-942]: Fix when aggregation is allowed.
+        final List<Integer> resultTaskletIds = taskletResultReport.getTaskletIds();
+
+        assert resultTaskletIds.size() == 1;
+        vortexMaster.taskletCompleted(workerId, resultTaskletIds.get(0),
+            taskletResultReport.getResult());
         break;
       case TaskletCancelled:
         final TaskletCancelledReport taskletCancelledReport = (TaskletCancelledReport) taskletReport;
@@ -168,7 +175,7 @@ final class VortexDriver {
         break;
       case TaskletFailure:
         final TaskletFailureReport taskletFailureReport = (TaskletFailureReport) taskletReport;
-        vortexMaster.taskletErrored(workerId, taskletFailureReport.getTaskletId(),
+        vortexMaster.taskletErrored(workerId, taskletFailureReport.getTaskletIds().get(0),
             taskletFailureReport.getException());
         break;
       default:
