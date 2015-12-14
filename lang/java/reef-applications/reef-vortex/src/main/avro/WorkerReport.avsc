@@ -46,19 +46,36 @@
   {
     "namespace": "org.apache.reef.vortex.common.avro",
     "type": "record",
-    "name": "AvroWorkerReport",
+    "name": "AvroTaskletReport",
     "fields": [
       {
         "name": "reportType",
-        "type": {
+        "type": 
+		{
           "type": "enum",
           "name": "AvroReportType",
-          "symbols": ["TaskletResult", "TaskletCancelled", "TaskletFailure"]}
+          "symbols": ["TaskletResult", "TaskletCancelled", "TaskletFailure"]
+		}
       },
       {
         "name": "taskletReport",
         "type": ["null", "AvroTaskletResultReport", "AvroTaskletCancelledReport", "AvroTaskletFailureReport"],
         "default": null
+      }
+    ]
+  },
+  {
+    "namespace": "org.apache.reef.vortex.common.avro",
+    "type": "record",
+    "name": "AvroWorkerReport",
+    "fields": [
+      {
+        "name": "taskletReports",
+        "type": 
+		{
+			"type": "array",
+			"items": "AvroTaskletReport"
+		}
       }
     ]
   }

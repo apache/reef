@@ -26,7 +26,7 @@ import java.io.Serializable;
  * Report of a tasklet execution result.
  */
 @Unstable
-public final class TaskletResultReport<TOutput extends Serializable> implements WorkerReport {
+public final class TaskletResultReport<TOutput extends Serializable> implements TaskletReport {
   private final int taskletId;
   private final TOutput result;
 
@@ -40,11 +40,11 @@ public final class TaskletResultReport<TOutput extends Serializable> implements 
   }
 
   /**
-   * @return the type of this WorkerReport.
+   * @return the type of this TaskletReport.
    */
   @Override
-  public WorkerReportType getType() {
-    return WorkerReportType.TaskletResult;
+  public TaskletReportType getType() {
+    return TaskletReportType.TaskletResult;
   }
 
   /**

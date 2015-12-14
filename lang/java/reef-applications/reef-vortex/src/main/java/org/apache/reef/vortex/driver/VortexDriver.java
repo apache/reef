@@ -28,11 +28,7 @@ import org.apache.reef.tang.Configurations;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.tang.annotations.Unit;
 import org.apache.reef.vortex.api.VortexStart;
-import org.apache.reef.vortex.common.TaskletCancelledReport;
-import org.apache.reef.vortex.common.TaskletFailureReport;
-import org.apache.reef.vortex.common.TaskletResultReport;
-import org.apache.reef.vortex.common.VortexAvroUtils;
-import org.apache.reef.vortex.common.WorkerReport;
+import org.apache.reef.vortex.common.*;
 import org.apache.reef.vortex.evaluator.VortexWorker;
 import org.apache.reef.wake.EStage;
 import org.apache.reef.wake.EventHandler;
@@ -156,17 +152,22 @@ final class VortexDriver {
     public void onNext(final TaskMessage taskMessage) {
       final String workerId = taskMessage.getId();
       final WorkerReport workerReport = VortexAvroUtils.toWorkerReport(taskMessage.get());
-      switch (workerReport.getType()) {
+
+      // TODO[JIRA REEF-942]: Fix when aggregation is allowed.
+      assert workerReport.getTaskletReports().size() == 1;
+
+      final TaskletReport taskletReport = workerReport.getTaskletReports().get(0);
+      switch (taskletReport.getType()) {
       case TaskletResult:
-        final TaskletResultReport taskletResultReport = (TaskletResultReport) workerReport;
+        final TaskletResultReport taskletResultReport = (TaskletResultReport) taskletReport;
         vortexMaster.taskletCompleted(workerId, taskletResultReport.getTaskletId(), taskletResultReport.getResult());
         break;
       case TaskletCancelled:
-        final TaskletCancelledReport taskletCancelledReport = (TaskletCancelledReport)workerReport;
+        final TaskletCancelledReport taskletCancelledReport = (TaskletCancelledReport) taskletReport;
         vortexMaster.taskletCancelled(workerId, taskletCancelledReport.getTaskletId());
         break;
       case TaskletFailure:
-        final TaskletFailureReport taskletFailureReport = (TaskletFailureReport) workerReport;
+        final TaskletFailureReport taskletFailureReport = (TaskletFailureReport) taskletReport;
         vortexMaster.taskletErrored(workerId, taskletFailureReport.getTaskletId(),
             taskletFailureReport.getException());
         break;
