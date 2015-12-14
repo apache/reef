@@ -25,6 +25,7 @@ import org.apache.reef.vortex.api.VortexThreadPool;
 import org.junit.Assert;
 
 import javax.inject.Inject;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -59,9 +60,9 @@ public final class TaskletCancellationTestStart implements VortexStart {
     try {
       future.get();
       Assert.fail();
-    } catch (final ExecutionException e) {
+    } catch (final CancellationException e) {
       // Expected.
-    } catch (InterruptedException e) {
+    } catch (final ExecutionException|InterruptedException e) {
       e.printStackTrace();
       Assert.fail();
     }
