@@ -121,8 +121,8 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
                 else
                 {
                     string msg = string.Format
-                        (CultureInfo.CurrentCulture, "File {0} is NOT Copied to local {1}.", sourceUri, localFilePath);
-                    Exceptions.Throw(new FileLoadException(), msg, Logger);
+                        (CultureInfo.CurrentCulture, "The IFilesystem completed the copy of `{0}` to `{1}`. But the file `{1}` does not exist.", sourceUri, localFilePath);
+                    Exceptions.Throw(new FileLoadException(msg), msg, Logger);
                 }
             }
         }
