@@ -25,7 +25,7 @@ import org.apache.reef.annotations.audience.Private;
 import java.io.Serializable;
 
 /**
- * The interface for a status report from the {@link org.apache.reef.vortex.evaluator.VortexWorker}
+ * The interface for a status report from the {@link org.apache.reef.vortex.evaluator.VortexWorker}.
  */
 @Unstable
 @Private
