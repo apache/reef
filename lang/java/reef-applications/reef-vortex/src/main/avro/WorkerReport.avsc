@@ -22,7 +22,14 @@
     "type": "record",
     "name": "AvroTaskletResultReport",
     "fields": [
-      {"name": "taskletId", "type": "int"},
+      {
+        "name": "taskletIds",
+        "type":
+        {
+          "type": "array",
+          "items": "int"
+        }
+      },
       {"name": "serializedOutput", "type": "bytes"}
     ]
   },
@@ -39,7 +46,14 @@
     "type": "record",
     "name": "AvroTaskletFailureReport",
     "fields": [
-      {"name": "taskletId", "type": "int"},
+      {
+        "name": "taskletIds",
+        "type":
+        {
+          "type": "array",
+          "items": "int"
+        }
+      },
       {"name": "serializedException", "type": "bytes"}
     ]
   },
@@ -59,8 +73,7 @@
       },
       {
         "name": "taskletReport",
-        "type": ["null", "AvroTaskletResultReport", "AvroTaskletCancelledReport", "AvroTaskletFailureReport"],
-        "default": null
+        "type": ["AvroTaskletResultReport", "AvroTaskletCancelledReport", "AvroTaskletFailureReport"]
       }
     ]
   },

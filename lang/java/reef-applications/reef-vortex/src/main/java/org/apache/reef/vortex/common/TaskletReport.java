@@ -44,9 +44,4 @@ public interface TaskletReport extends Serializable {
    * @return the type of this TaskletReport.
    */
   TaskletReportType getType();
-
-  /**
-   * @return the taskletId of this TaskletReport.
-   */
-  int getTaskletId();
 }

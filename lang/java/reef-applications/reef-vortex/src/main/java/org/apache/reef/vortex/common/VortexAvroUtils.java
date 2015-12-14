@@ -101,7 +101,7 @@ public final class VortexAvroUtils {
             .setReportType(AvroReportType.TaskletResult)
             .setTaskletReport(
                 AvroTaskletResultReport.newBuilder()
-                    .setTaskletId(taskletResultReport.getTaskletId())
+                    .setTaskletIds(taskletResultReport.getTaskletIds())
                     .setSerializedOutput(ByteBuffer.wrap(serializedOutput))
                     .build())
             .build();
@@ -123,7 +123,7 @@ public final class VortexAvroUtils {
             .setReportType(AvroReportType.TaskletFailure)
             .setTaskletReport(
                 AvroTaskletFailureReport.newBuilder()
-                    .setTaskletId(taskletFailureReport.getTaskletId())
+                    .setTaskletIds(taskletFailureReport.getTaskletIds())
                     .setSerializedException(ByteBuffer.wrap(serializedException))
                     .build())
             .build();
@@ -197,7 +197,7 @@ public final class VortexAvroUtils {
         // TODO[REEF-1005]: Allow custom codecs for input/output data in Vortex.
         final Serializable output =
             (Serializable) SerializationUtils.deserialize(taskletResultReport.getSerializedOutput().array());
-        taskletReport = new TaskletResultReport<>(taskletResultReport.getTaskletId(), output);
+        taskletReport = new TaskletResultReport<>(taskletResultReport.getTaskletIds(), output);
         break;
       case TaskletCancelled:
         final AvroTaskletCancelledReport taskletCancelledReport =
@@ -209,7 +209,7 @@ public final class VortexAvroUtils {
             (AvroTaskletFailureReport)avroTaskletReport.getTaskletReport();
         final Exception exception =
             (Exception) SerializationUtils.deserialize(taskletFailureReport.getSerializedException().array());
-        taskletReport = new TaskletFailureReport(taskletFailureReport.getTaskletId(), exception);
+        taskletReport = new TaskletFailureReport(taskletFailureReport.getTaskletIds(), exception);
         break;
       default:
         throw new RuntimeException("Undefined TaskletReport type");
