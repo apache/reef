@@ -21,7 +21,7 @@ using System;
 using System.Threading.Tasks;
 using Org.Apache.REEF.Client.Common;
 using Org.Apache.REEF.Client.YARN.RestClient.DataModel;
-using Org.Apache.REEF.Common.Attributes;
+using Org.Apache.REEF.Utilities.Attributes;
 
 namespace Org.Apache.REEF.Client.API
 {

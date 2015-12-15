@@ -19,10 +19,10 @@
 
 using System;
 using System.IO;
-using Org.Apache.REEF.Common.Attributes;
 using Org.Apache.REEF.IMRU.API;
 using Org.Apache.REEF.IO.FileSystem;
 using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Utilities.Attributes;
 using Org.Apache.REEF.Utilities.Diagnostics;
 using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Wake.Remote.Impl;
