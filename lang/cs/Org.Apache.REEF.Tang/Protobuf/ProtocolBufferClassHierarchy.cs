@@ -40,6 +40,8 @@ namespace Org.Apache.REEF.Tang.Protobuf
         private readonly IDictionary<string, INode> lookupTable = new Dictionary<string, INode>();
         private readonly IDictionary<string, IDictionary<string, string>> _aliasLookupTable = new Dictionary<string, IDictionary<string, string>>();
 
+        private static object childIteratorLock = new object();
+
         public static void Serialize(string fileName, IClassHierarchy classHierarchy)
         {
             Org.Apache.REEF.Tang.Protobuf.Node node = Serialize(classHierarchy);
@@ -59,9 +61,12 @@ namespace Org.Apache.REEF.Tang.Protobuf
         {
             IList<Org.Apache.REEF.Tang.Protobuf.Node> children = new List<Org.Apache.REEF.Tang.Protobuf.Node>();
 
-            foreach (INode child in n.GetChildren())
+            lock (childIteratorLock)
             {
-                children.Add(SerializeNode(child));
+                foreach (INode child in n.GetChildren())
+                {
+                    children.Add(SerializeNode(child));
+                }
             }
 
             if (n is IClassNode)
