@@ -17,7 +17,7 @@
 
 using System;
 
-namespace Org.Apache.REEF.Common.Attributes
+namespace Org.Apache.REEF.Utilities.Attributes
 {
     /// <summary>
     /// Signals that the API is NOT stabilized.

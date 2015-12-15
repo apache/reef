@@ -54,7 +54,6 @@ under the License.
     <Compile Include="Api\AbstractFailure.cs" />
     <Compile Include="Api\IAbstractFailure.cs" />
     <Compile Include="Api\IFailure.cs" />
-    <Compile Include="Attributes\UnstableAttribute.cs" />
     <Compile Include="Avro\AvroDriverInfo.cs">
       <ExcludeFromStyleCop>true</ExcludeFromStyleCop>
     </Compile>

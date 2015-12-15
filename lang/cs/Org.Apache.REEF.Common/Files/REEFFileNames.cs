@@ -19,8 +19,8 @@
 
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using Org.Apache.REEF.Common.Attributes;
 using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Utilities.Attributes;
 
 namespace Org.Apache.REEF.Common.Files
 {

@@ -19,7 +19,7 @@
 
 using System.Collections.Generic;
 using Org.Apache.REEF.Client.Common;
-using Org.Apache.REEF.Common.Attributes;
+using Org.Apache.REEF.Utilities.Attributes;
 
 namespace Org.Apache.REEF.IMRU.API
 {

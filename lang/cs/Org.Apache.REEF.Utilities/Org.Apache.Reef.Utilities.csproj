@@ -38,6 +38,13 @@ under the License.
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AsyncUtils\RemoveSynchronizationContextAwaiter.cs" />
+    <Compile Include="Attributes\ClientSideAttribute.cs" />
+    <Compile Include="Attributes\DriverSideAttribute.cs" />
+    <Compile Include="Attributes\EvaluatorSideAttribute.cs" />
+    <Compile Include="Attributes\InteropAttribute.cs" />
+    <Compile Include="Attributes\PrivateAttribute.cs" />
+    <Compile Include="Attributes\TaskSideAttribute.cs" />
+    <Compile Include="Attributes\UnstableAttribute.cs" />
     <Compile Include="AvroUtils.cs" />
     <Compile Include="ByteUtilities.cs" />
     <Compile Include="Diagnostics\DiagnosticsMessages.cs" />

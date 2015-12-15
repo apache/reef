@@ -18,9 +18,9 @@
  */
 
 using System;
-using Org.Apache.REEF.Common.Attributes;
 using Org.Apache.REEF.IMRU.API;
 using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Utilities.Attributes;
 
 namespace Org.Apache.REEF.IMRU.OnREEF.ResultHandler
 {
