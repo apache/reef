@@ -35,6 +35,8 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
         private readonly TaskLifeCycle _taskLifeCycle;
         private readonly HeartBeatManager _heartBeatManager;
         private readonly Optional<ISet<ITaskMessageSource>> _evaluatorMessageSources;
+        private readonly string _taskId;
+        private readonly string _contextId;
 
         private Optional<Exception> _lastException = Optional<Exception>.Empty();
         private Optional<byte[]> _result = Optional<byte[]>.Empty();
@@ -46,8 +48,8 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
             _taskLifeCycle = new TaskLifeCycle();
             _evaluatorMessageSources = evaluatorMessageSources;
             State = TaskState.Init;
-            TaskId = taskId;
-            ContextId = contextId;
+            _taskId = taskId;
+            _contextId = contextId;
         }
 
         public TaskState State
@@ -72,9 +74,15 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
             }
         }
 
-        public string TaskId { get; private set; }
+        public string TaskId
+        {
+            get { return _taskId; }
+        }
 
-        public string ContextId { get; private set; }
+        public string ContextId
+        {
+            get { return _contextId; }
+        }
 
         public void SetException(Exception e)
         {
@@ -238,6 +246,13 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
             {
                 return to == TaskState.Init;
             }
+
+            if (from == to)
+            {
+                LOGGER.Log(Level.Warning, "Transitioning to the same state from {0} to {1}.", from, to);
+                return true;
+            }
+
             switch (from)
             {
                 case TaskState.Init:
@@ -288,12 +303,6 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Task
                 case TaskState.Failed:
                 case TaskState.Done:
                 case TaskState.Killed:
-                    if (from == to)
-                    {
-                        LOGGER.Log(Level.Warning, "Transitioning to the same state from {0} to {1}.", from, to);
-                        return true;
-                    }
-
                     return false;
                 default:
                     LOGGER.Log(Level.Error, "Unknown \"from\" state: {0}", from);
