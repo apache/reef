@@ -50,7 +50,7 @@ namespace Org.Apache.REEF.Evaluator.Tests
 
             var eId = evaluatorConfigurations.EvaluatorId;
             var aId = evaluatorConfigurations.ApplicationId;
-            var rId = evaluatorConfigurations.ErrorHandlerRID;
+            var rId = evaluatorConfigurations.ErrorHandlerRid;
 
             Logger.Log(Level.Info, "EvaluatorId = " + eId);
             Logger.Log(Level.Info, "ApplicationId = " + aId);

@@ -18,13 +18,13 @@
  */
 
 using System;
+using System.Globalization;
 using System.IO;
-using System.Linq;
 using Org.Apache.REEF.Common.Runtime.Evaluator.Context;
 using Org.Apache.REEF.Common.Services;
 using Org.Apache.REEF.Common.Tasks;
+using Org.Apache.REEF.Tang.Exceptions;
 using Org.Apache.REEF.Tang.Formats;
-using Org.Apache.REEF.Tang.Formats.AvroConfigurationDataContract;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Utilities;
@@ -32,27 +32,26 @@ using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Common.Runtime.Evaluator.Utils
 {
+    [Obsolete("Deprecated in 0.14, please use EvaluatorSettings.")]
     internal sealed class EvaluatorConfigurations
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(EvaluatorConfigurations));
 
-        private readonly AvroConfiguration _avroConfiguration;
+        private readonly string _applicationId;
 
-        private readonly IConfiguration _evaluatorConfiguration;
+        private readonly string _evaluatorId;
 
-        private readonly string _configFile;
+        private readonly string _taskConfiguration;
 
-        private string _applicationId;
+        private readonly string _rootContextConfiguration;
 
-        private string _evaluatorId;
+        private readonly string _rootServiceConfiguration;
 
-        private string _taskConfiguration;
+        private readonly string _errorHandlerRid;
 
-        private string _rootContextConfiguration;
+        private readonly string _remoteId;
 
-        private string _rootServiceConfiguration;
-
-        private string _errorHandlerRid;
+        private readonly string _launchId;
 
         public EvaluatorConfigurations(string configFile)
         {
@@ -60,22 +59,54 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Utils
             {
                 if (string.IsNullOrWhiteSpace(configFile))
                 {
-                    Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(new ArgumentNullException("configFile"), LOGGER);
+                    Utilities.Diagnostics.Exceptions.Throw(new ArgumentNullException("configFile"), LOGGER);
                 }
                 if (!File.Exists(configFile))
                 {
-                    Org.Apache.REEF.Utilities.Diagnostics.Exceptions.Throw(new FileNotFoundException("cannot find file " + configFile), LOGGER);
+                    Utilities.Diagnostics.Exceptions.Throw(new FileNotFoundException("cannot find file " + configFile), LOGGER);
                 }
-                _configFile = configFile;
+
                 AvroConfigurationSerializer serializer = new AvroConfigurationSerializer();
-                _avroConfiguration = serializer.AvroDeserializeFromFile(_configFile);
-
-                var language = _avroConfiguration.language;
-                LOGGER.Log(Level.Info, "The language that created the configFile is " + language);
-
                 var classHierarchy = TangFactory.GetTang()
                     .GetClassHierarchy(new string[] { typeof(ApplicationIdentifier).Assembly.GetName().Name });
-                _evaluatorConfiguration = serializer.FromAvro(_avroConfiguration, classHierarchy);
+                var evaluatorConfiguration = serializer.FromFile(configFile, classHierarchy);
+
+                IInjector evaluatorInjector = TangFactory.GetTang().NewInjector(evaluatorConfiguration);
+
+                LOGGER.Log(Level.Info, String.Format(CultureInfo.CurrentCulture,
+                    "Evaluator Configuration is deserialized from file {0}:", configFile));
+                try
+                {
+                    _taskConfiguration = evaluatorInjector.GetNamedInstance<InitialTaskConfiguration, string>();
+                }
+                catch (InjectionException)
+                {
+                    LOGGER.Log(Level.Info, "InitialTaskConfiguration is not set in Evaluator.config.");
+                }
+
+                try
+                {
+                    _rootContextConfiguration = evaluatorInjector.GetNamedInstance<RootContextConfiguration, string>();
+                }
+                catch (InjectionException)
+                {
+                    LOGGER.Log(Level.Warning, "RootContextConfiguration is not set in Evaluator.config.");
+                }
+
+                try
+                {
+                    _rootServiceConfiguration = evaluatorInjector.GetNamedInstance<RootServiceConfiguration, string>();
+                }
+                catch (InjectionException)
+                {
+                    LOGGER.Log(Level.Info, "RootServiceConfiguration is not set in Evaluator.config.");
+                }
+
+                _applicationId = evaluatorInjector.GetNamedInstance<ApplicationIdentifier, string>();
+                _remoteId = evaluatorInjector.GetNamedInstance<DriverRemoteIdentifier, string>();
+                _evaluatorId = evaluatorInjector.GetNamedInstance<EvaluatorIdentifier, string>();
+                _errorHandlerRid = evaluatorInjector.GetNamedInstance<ErrorHandlerRid, string>();
+                _launchId = evaluatorInjector.GetNamedInstance<LaunchId, string>();
             }
         }
 
@@ -83,7 +114,6 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Utils
         {
             get
             {
-                _taskConfiguration = _taskConfiguration ?? GetSettingValue(Constants.TaskConfiguration);
                 return _taskConfiguration;
             }
         }
@@ -107,7 +137,6 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Utils
         {
             get
             {
-                _evaluatorId = _evaluatorId ?? GetSettingValue(Constants.EvaluatorIdentifier);
                 return _evaluatorId;
             }
         }
@@ -116,17 +145,31 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Utils
         {
             get
             {
-                _applicationId = _applicationId ?? GetSettingValue(Constants.ApplicationIdentifier);
                 return _applicationId;
             }
         }
 
-        public string ErrorHandlerRID
+        public string ErrorHandlerRid
         {
             get
             {
-                _errorHandlerRid = _errorHandlerRid ?? GetSettingValue(Constants.ErrorHandlerRID);
                 return _errorHandlerRid;
+            }
+        }
+
+        public string RemoteId
+        {
+            get
+            {
+                return _remoteId;
+            }
+        }
+
+        public string LaunchId
+        {
+            get
+            {
+                return _launchId;
             }
         }
 
@@ -134,7 +177,6 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Utils
         {
             get
             {
-                _rootContextConfiguration = _rootContextConfiguration ?? GetSettingValue(Constants.RootContextConfiguration);
                 return _rootContextConfiguration;
             }
         }
@@ -161,7 +203,6 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Utils
         {
             get
             {
-                _rootServiceConfiguration = _rootServiceConfiguration ?? GetSettingValue(Constants.RootServiceConfiguration);
                 return _rootServiceConfiguration;
             }
         }
@@ -181,18 +222,6 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Utils
                         new ServiceConfiguration(
                             rootServiceConfigString));
             }
-        } 
-
-        private string GetSettingValue(string settingKey)
-        {
-            ConfigurationEntry configurationEntry =
-                _avroConfiguration.Bindings.SingleOrDefault(b => b.key.EndsWith(settingKey, StringComparison.OrdinalIgnoreCase));
-            if (configurationEntry == null)
-            {
-                return string.Empty;
-            }
-
-            return configurationEntry.value;
         }
     }
 }

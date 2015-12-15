@@ -22,76 +22,86 @@ using Org.Apache.REEF.Common.Evaluator;
 using Org.Apache.REEF.Common.Io;
 using Org.Apache.REEF.Common.Protobuf.ReefProtocol;
 using Org.Apache.REEF.Common.Runtime.Evaluator.Context;
+using Org.Apache.REEF.Common.Runtime.Evaluator.Parameters;
+using Org.Apache.REEF.Common.Runtime.Evaluator.Utils;
+using Org.Apache.REEF.Common.Services;
+using Org.Apache.REEF.Common.Tasks;
+using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Tang.Exceptions;
 using Org.Apache.REEF.Tang.Interface;
+using Org.Apache.REEF.Utilities;
+using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Wake.Remote;
 using Org.Apache.REEF.Wake.Time;
+using Org.Apache.REEF.Wake.Time.Runtime;
 
 namespace Org.Apache.REEF.Common.Runtime.Evaluator
 {
-    // TODO: merge with EvaluatorConfigurations class
     internal sealed class EvaluatorSettings
     {
+        private static readonly Logger Logger = Logger.GetLogger(typeof(EvaluatorSettings));
+
         private readonly string _applicationId;
-
         private readonly string _evaluatorId;
-
         private readonly int _heartBeatPeriodInMs;
-
         private readonly int _maxHeartbeatRetries;
-
-        private readonly ContextConfiguration _rootContextConfig;
-
         private readonly IClock _clock;
-
         private readonly IRemoteManager<REEFMessage> _remoteManager;
-
         private readonly IInjector _injector;
+        private readonly ContextConfiguration _rootContextConfig;
+        private readonly Optional<TaskConfiguration> _rootTaskConfiguration;
+        private readonly Optional<ServiceConfiguration> _rootServiceConfiguration;
 
         private EvaluatorOperationState _operationState;
-
         private INameClient _nameClient;
 
-        public EvaluatorSettings(
-            string applicationId,
-            string evaluatorId,
-            int heartbeatPeriodInMs,
-            int maxHeartbeatRetries,
-            ContextConfiguration rootContextConfig,
-            IClock clock,
-            IRemoteManager<REEFMessage> remoteManager,
-            IInjector injecor)
+        /// <summary>
+        /// Constructor with
+        /// </summary>
+        /// <param name="applicationId"></param>
+        /// <param name="evaluatorId"></param>
+        /// <param name="heartbeatPeriodInMs"></param>
+        /// <param name="maxHeartbeatRetries"></param>
+        /// <param name="rootContextConfigString"></param>
+        /// <param name="clock"></param>
+        /// <param name="remoteManagerFactory"></param>
+        /// <param name="reefMessageCodec"></param>
+        /// <param name="injector"></param>
+        [Inject]
+        private EvaluatorSettings(
+            [Parameter(typeof(ApplicationIdentifier))] string applicationId,
+            [Parameter(typeof(EvaluatorIdentifier))] string evaluatorId,
+            [Parameter(typeof(EvaluatorHeartbeatPeriodInMs))] int heartbeatPeriodInMs,
+            [Parameter(typeof(HeartbeatMaxRetry))] int maxHeartbeatRetries,
+            [Parameter(typeof(RootContextConfiguration))] string rootContextConfigString,
+            RuntimeClock clock,
+            IRemoteManagerFactory remoteManagerFactory,
+            REEFMessageCodec reefMessageCodec,
+            IInjector injector)
         {
-            if (string.IsNullOrWhiteSpace(evaluatorId))
-            {
-                throw new ArgumentNullException("evaluatorId");
-            }
-            if (rootContextConfig == null)
-            {
-                throw new ArgumentNullException("rootContextConfig");
-            }
-            if (clock == null)
-            {
-                throw new ArgumentNullException("clock");
-            }
-            if (remoteManager == null)
-            {
-                throw new ArgumentNullException("remoteManager");
-            }
-            if (injecor == null)
-            {
-                throw new ArgumentNullException("injecor");
-            }
+            _injector = injector;
             _applicationId = applicationId;
             _evaluatorId = evaluatorId;
             _heartBeatPeriodInMs = heartbeatPeriodInMs;
             _maxHeartbeatRetries = maxHeartbeatRetries;
-            _rootContextConfig = rootContextConfig;
             _clock = clock;
-            _remoteManager = remoteManager;
-            _injector = injecor;
+
+            if (string.IsNullOrWhiteSpace(rootContextConfigString))
+            {
+                Utilities.Diagnostics.Exceptions.Throw(
+                    new ArgumentException("empty or null rootContextConfigString"), Logger);
+            }
+            _rootContextConfig = new ContextConfiguration(rootContextConfigString);
+            _rootTaskConfiguration = CreateTaskConfiguration();
+            _rootServiceConfiguration = CreateRootServiceConfiguration();
+
+            _remoteManager = remoteManagerFactory.GetInstance(reefMessageCodec);
             _operationState = EvaluatorOperationState.OPERATIONAL;
         }
 
+        /// <summary>
+        /// Operator State. Can be set and get.
+        /// </summary>
         public EvaluatorOperationState OperationState
         {
             get
@@ -105,6 +115,9 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
             }
         }
 
+        /// <summary>
+        /// Return Evaluator Id got from Evaluator Configuration
+        /// </summary>
         public string EvalutorId
         {
             get
@@ -113,6 +126,9 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
             }
         }
 
+        /// <summary>
+        /// Return HeartBeatPeriodInMs from NamedParameter
+        /// </summary>
         public int HeartBeatPeriodInMs
         {
             get
@@ -121,6 +137,9 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
             }
         }
 
+        /// <summary>
+        /// Return Application Id got from Evaluator Configuration
+        /// </summary>
         public string ApplicationId
         {
             get
@@ -129,7 +148,10 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
             }
         }
 
-        public int MaxHeartbeatFailures
+        /// <summary>
+        /// Return MaxHeartbeatRetries from NamedParameter
+        /// </summary>
+        public int MaxHeartbeatRetries
         {
             get
             {
@@ -137,14 +159,33 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
             }
         }
 
+        /// <summary>
+        /// return Root Context Configuration passed from Evaluator configuration
+        /// </summary>
         public ContextConfiguration RootContextConfig
         {
-            get
-            {
-                return _rootContextConfig;
-            }
+            get { return _rootContextConfig; }
         }
 
+        /// <summary>
+        /// return Root Task Configuration passed from Evaluator configuration
+        /// </summary>
+        public Optional<TaskConfiguration> RootTaskConfiguration
+        {
+            get { return _rootTaskConfiguration; }
+        }
+
+        /// <summary>
+        /// return Root Service Configuration passed from Evaluator configuration
+        /// </summary>
+        public Optional<ServiceConfiguration> RootServiceConfiguration
+        {
+            get { return _rootServiceConfiguration; }
+        }
+
+        /// <summary>
+        /// return Runtime Clock injected from the constructor
+        /// </summary>
         public IClock RuntimeClock
         {
             get
@@ -153,6 +194,9 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
             }
         }
 
+        /// <summary>
+        /// Return Name Client
+        /// </summary>
         public INameClient NameClient
         {
             get
@@ -166,6 +210,9 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
             }
         }
 
+        /// <summary>
+        /// return Remote manager
+        /// </summary>
         public IRemoteManager<REEFMessage> RemoteManager
         {
             get
@@ -174,12 +221,49 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
             }
         }
 
-        public IInjector Injector
+        /// <summary>
+        /// Injector that contains clrDrive configuration and Evaluator configuration
+        /// </summary>
+        public IInjector EvaluatorInjector
         {
             get
             {
                 return _injector;
             }
+        }
+
+        private Optional<TaskConfiguration> CreateTaskConfiguration()
+        {
+            string taskConfigString = null;
+            try
+            {
+                taskConfigString = _injector.GetNamedInstance<InitialTaskConfiguration, string>();
+            }
+            catch (InjectionException)
+            {
+                Logger.Log(Level.Info, "InitialTaskConfiguration is not set in Evaluator.config.");
+            }
+            return string.IsNullOrEmpty(taskConfigString)
+                ? Optional<TaskConfiguration>.Empty()
+                : Optional<TaskConfiguration>.Of(
+                    new TaskConfiguration(taskConfigString));
+        }
+
+        private Optional<ServiceConfiguration> CreateRootServiceConfiguration()
+        {
+            string rootServiceConfigString = null;
+            try
+            {
+                rootServiceConfigString = _injector.GetNamedInstance<RootServiceConfiguration, string>();
+            }
+            catch (InjectionException)
+            {
+                Logger.Log(Level.Info, "RootServiceConfiguration is not set in Evaluator.config.");
+            }
+            return string.IsNullOrEmpty(rootServiceConfigString)
+                ? Optional<ServiceConfiguration>.Empty()
+                : Optional<ServiceConfiguration>.Of(
+                    new ServiceConfiguration(rootServiceConfigString));
         }
     }
 }

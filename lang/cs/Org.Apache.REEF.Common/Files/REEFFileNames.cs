@@ -49,6 +49,7 @@ namespace Org.Apache.REEF.Common.Files
         private const string DRIVER_CONFIGURATION_NAME = "driver.conf";
         private const string EVALUATOR_CONFIGURATION_NAME = "evaluator.conf";
         private const string CLR_DRIVER_CONFIGURATION_NAME = "clrdriver.conf";
+        private const string CLR_BRIDGE_CONFIGURATION_NAME = "clrBridge.config";
         private const string DRIVER_HTTP_ENDPOINT_FILE_NAME = "DriverHttpEndpoint.txt";
         private const string BRIDGE_EXE_NAME = "Org.Apache.REEF.Bridge.exe";
         private const string BRIDGE_EXE_CONFIG_NAME = "Org.Apache.REEF.Bridge.exe.config";
@@ -149,6 +150,14 @@ namespace Org.Apache.REEF.Common.Files
         public string GetEvaluatorConfigurationPath()
         {
             return EVALUATOR_CONFIGURATION_PATH;
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <returns>It returns the clrBridge.config file name</returns>
+        public string GetClrBridgeConfigurationName()
+        {
+            return CLR_BRIDGE_CONFIGURATION_NAME;
         }
 
         /// <summary>
