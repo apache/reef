@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * Utility for REEF IO network module.
+ * Tests for REEF IO network utilities.
  */
 package org.apache.reef.io.network.util;

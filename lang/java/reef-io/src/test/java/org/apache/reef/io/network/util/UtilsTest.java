@@ -25,9 +25,16 @@ import org.junit.Test;
 
 import java.util.List;
 
+/**
+ * Tests for REEF IO network utilities.
+ */
 public class UtilsTest {
+
+  /**
+   * Generic parseList test.
+   */
   @Test
-  public void testParseList() throws Exception {
+  public void testParseList() {
     final IdentifierFactory factory = new StringIdentifierFactory();
 
     final List<Identifier> list1 = Utils.parseList("1,2,3", factory);
