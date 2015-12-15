@@ -18,26 +18,11 @@
  */
 
 using Org.Apache.REEF.Tang.Annotations;
-using Org.Apache.REEF.Wake.Remote;
 
-namespace Org.Apache.REEF.Common.Protobuf.ReefProtocol
+namespace Org.Apache.REEF.Common.Runtime.Evaluator.Parameters
 {
-    public class REEFMessageCodec : ICodec<REEFMessage>
+    [NamedParameter(Documentation = "Evaluator Heartbeat Period in ms", ShortName = "EvaluatorHeartbeatPeriodInMs", DefaultValue = "4000")]
+    internal sealed class EvaluatorHeartbeatPeriodInMs : Name<int>
     {
-        [Inject]
-        private REEFMessageCodec()
-        {
-        }
-
-        public byte[] Encode(REEFMessage obj)
-        {
-            return obj.Serialize();
-        }
-
-        public REEFMessage Decode(byte[] data)
-        {
-            REEFMessage pbuf = REEFMessage.Deserialize(data);
-            return pbuf;
-        }
     }
 }

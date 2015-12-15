@@ -48,11 +48,11 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
         {
             using (Logger.LogFunction("EvaluatorRuntime::EvaluatorRuntime"))
             {
-                _clock = heartBeatManager.EvaluatorSettings.RuntimeClock;
                 _heartBeatManager = heartBeatManager;
+                _clock = _heartBeatManager.EvaluatorSettings.RuntimeClock;
                 _contextManager = contextManager;
-                _evaluatorId = heartBeatManager.EvaluatorSettings.EvalutorId;
-                var remoteManager = heartBeatManager.EvaluatorSettings.RemoteManager;
+                _evaluatorId = _heartBeatManager.EvaluatorSettings.EvalutorId;
+                var remoteManager = _heartBeatManager.EvaluatorSettings.RemoteManager;
 
                 ReefMessageProtoObserver driverObserver = new ReefMessageProtoObserver();
 
@@ -62,8 +62,8 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
                 // register the driver observer
                 _evaluatorControlChannel = remoteManager.RegisterObserver(driverObserver);
 
-                // start the hearbeat
-                _clock.ScheduleAlarm(0, heartBeatManager);
+                // start the heart beat
+                _clock.ScheduleAlarm(0, _heartBeatManager);
             }
         }
 
@@ -196,7 +196,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
                 _state = State.FAILED;
                 string errorMessage = string.Format(
                         CultureInfo.InvariantCulture,
-                        "failed with error [{0}] with mesage [{1}] and stack trace [{2}]",
+                        "failed with error [{0}] with message [{1}] and stack trace [{2}]",
                         e,
                         e.Message,
                         e.StackTrace);

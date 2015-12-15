@@ -137,6 +137,8 @@ under the License.
     <Compile Include="Runtime\Evaluator\EvaluatorRuntime.cs" />
     <Compile Include="Runtime\Evaluator\EvaluatorSettings.cs" />
     <Compile Include="Runtime\Evaluator\HeartBeatManager.cs" />
+    <Compile Include="Runtime\Evaluator\Parameters\EvaluatorHeartbeatPeriodInMs.cs" />
+    <Compile Include="Runtime\Evaluator\Parameters\HeartbeatMaxRetry.cs" />
     <Compile Include="Runtime\Evaluator\ReefMessageProtoObserver.cs" />
     <Compile Include="Runtime\Evaluator\Task\CloseEventImpl.cs" />
     <Compile Include="Runtime\Evaluator\Task\DriverMessageImpl.cs" />

@@ -19,27 +19,22 @@
 
 using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using Org.Apache.REEF.Common.Protobuf.ReefProtocol;
+using Org.Apache.REEF.Common.Files;
 using Org.Apache.REEF.Common.Runtime.Evaluator;
-using Org.Apache.REEF.Common.Runtime.Evaluator.Context;
 using Org.Apache.REEF.Common.Runtime.Evaluator.Utils;
-using Org.Apache.REEF.Common.Services;
-using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Driver.Bridge;
 using Org.Apache.REEF.Evaluator.Exceptions;
+using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Implementations.InjectionPlan;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
-using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Utilities.Logging;
-using Org.Apache.REEF.Wake.Remote;
-using Org.Apache.REEF.Wake.Remote.Impl;
 using Org.Apache.REEF.Wake.Time.Runtime;
 using Org.Apache.REEF.Wake.Time.Runtime.Event;
 
@@ -48,83 +43,51 @@ namespace Org.Apache.REEF.Evaluator
     public sealed class Evaluator
     {
         private static Logger logger = Logger.GetLogger(typeof(Evaluator));
-        private static int heartbeatPeriodInMs = Constants.DefaultEvaluatorHeartbeatPeriodInMs;
-        private static int heartbeatMaxRetry = Constants.DefaultEvaluatorHeartbeatMaxRetry;
-        private static IInjector injector;
-        private static EvaluatorConfigurations evaluatorConfig;
+        private readonly RuntimeClock _clock;
 
+        [Inject]
+        private Evaluator(
+            RuntimeClock clock,
+            EvaluatorRuntime evaluatorRuntime,
+            CustomTraceListeners customTraceListeners,
+            CustomTraceLevel customTraceLevel)
+        {
+            _clock = clock;
+            SetCustomTraceListeners(customTraceListeners, customTraceLevel);
+            SetRuntimeHandlers(evaluatorRuntime, clock);
+        }
+
+        private void Run()
+        {
+            _clock.Run();
+        }
+
+        /// <summary>
+        /// The command line to run it is "evaluator.exe evaluator.config"
+        /// </summary>
+        /// <param name="args"></param>
         public static void Main(string[] args)
         {
             try
             {
-                Console.WriteLine("START: {0} Evaluator::InitInjector.", DateTime.Now);
-                Stopwatch timer = new Stopwatch();
-                InitInjector();
-                SetCustomTraceListeners();  // logger is reset by this.
-                timer.Stop();
-                Console.WriteLine("EXIT: {0} Evaluator::InitInjector. Duration: [{1}].", DateTime.Now, timer.Elapsed);
-                
-                using (logger.LogScope("Evaluator::Main"))
+                if (args.Count() != 1)
                 {
-                    if (IsDebuggingEnabled())
-                    {
-                        AttachDebugger();
-                    }
-
-                    // Register our exception handler
-                    AppDomain.CurrentDomain.UnhandledException += UnhandledExceptionHandler;
-
-                    // Fetch some settings from the ConfigurationManager
-                    SetHeartbeatPeriod();
-                    SetHeartbeatMaxRetry();
-
-                    // Parse the command line
-                    // The error handler RID should now be written in the configuration file instead
-                    if (args.Count() != 1)
-                    {
-                        var e = new InvalidOperationException("must supply only the evaluator config file!");
-                        Utilities.Diagnostics.Exceptions.Throw(e, logger);
-                    }
-
-                    // evaluator configuration file
-                    string evaluatorConfigurationPath = args[0];
-
-                    // Parse the evaluator configuration.
-                    evaluatorConfig = new EvaluatorConfigurations(evaluatorConfigurationPath);
-
-                    string rId = evaluatorConfig.ErrorHandlerRID;
-                    ContextConfiguration rootContextConfiguration = evaluatorConfig.RootContextConfiguration;
-                    Optional<TaskConfiguration> rootTaskConfig = evaluatorConfig.TaskConfiguration;
-                    Optional<ServiceConfiguration> rootServiceConfig = evaluatorConfig.RootServiceConfiguration;
-
-                    // remoteManager used as client-only in evaluator
-                    IRemoteManager<REEFMessage> remoteManager = injector.GetInstance<IRemoteManagerFactory>().GetInstance(new REEFMessageCodec());
-                    IRemoteIdentifier remoteId = new SocketRemoteIdentifier(NetUtilities.ParseIpEndpoint(rId));
-
-                    RuntimeClock clock = InstantiateClock();
-                    logger.Log(Level.Info, "Application Id: " + evaluatorConfig.ApplicationId);
-                    EvaluatorSettings evaluatorSettings = new EvaluatorSettings(
-                        evaluatorConfig.ApplicationId,
-                        evaluatorConfig.EvaluatorId,
-                        heartbeatPeriodInMs,
-                        heartbeatMaxRetry,
-                        rootContextConfiguration,
-                        clock,
-                        remoteManager,
-                        injector);
-
-                    HeartBeatManager heartBeatManager = new HeartBeatManager(evaluatorSettings, remoteId);
-                    ContextManager contextManager = new ContextManager(heartBeatManager, rootServiceConfig, rootTaskConfig);
-                    EvaluatorRuntime evaluatorRuntime = new EvaluatorRuntime(contextManager, heartBeatManager);
-
-                    // TODO: replace with injectionFuture
-                    heartBeatManager._evaluatorRuntime = evaluatorRuntime;
-                    heartBeatManager._contextManager = contextManager;
-
-                    SetRuntimeHandlers(evaluatorRuntime, clock);
-
-                    clock.Run();
+                    var e = new InvalidOperationException("Must supply only the evaluator.config file!");
+                    Utilities.Diagnostics.Exceptions.Throw(e, logger);
                 }
+
+                if (IsDebuggingEnabled())
+                {
+                    AttachDebugger();
+                }
+                AppDomain.CurrentDomain.UnhandledException += UnhandledExceptionHandler;
+
+                Evaluator evaluator = TangFactory.GetTang()
+                    .NewInjector(ReadClrBridgeConfiguration(), ReadEvaluatorConfiguration(args[0]))
+                    .GetInstance<Evaluator>();
+
+                evaluator.Run();
+                logger.Log(Level.Info, "Evaluator is returned from Run()");
             }
             catch (Exception e)
             {
@@ -162,67 +125,16 @@ namespace Org.Apache.REEF.Evaluator
         }
 
         /// <summary>
-        /// Sets the heartbeat period from the ConfigurationManager
-        /// </summary>
-        private static void SetHeartbeatPeriod()
-        {
-            var heartbeatPeriodFromConfig = ConfigurationManager.AppSettings["EvaluatorHeartbeatPeriodInMs"];
-
-            var heartbeatPeriod = 0;
-
-            if (!string.IsNullOrWhiteSpace(heartbeatPeriodFromConfig) &&
-                int.TryParse(heartbeatPeriodFromConfig, out heartbeatPeriod))
-            {
-                heartbeatPeriodInMs = heartbeatPeriod;
-            }
-            logger.Log(Level.Verbose,
-                "Evaluator heartbeat period set to be " + heartbeatPeriodInMs + " milliSeconds.");
-        }
-
-        /// <summary>
-        /// Sets the heartbeat retry count from the ConfigurationManager
-        /// </summary>
-        private static void SetHeartbeatMaxRetry()
-        {
-            var maxHeartbeatRetry = 0;
-            var heartbeatMaxRetryFromConfig =
-                ConfigurationManager.AppSettings["EvaluatorHeartbeatRetryMaxTimes"];
-
-            if (!string.IsNullOrWhiteSpace(heartbeatMaxRetryFromConfig) &&
-                int.TryParse(heartbeatMaxRetryFromConfig, out maxHeartbeatRetry))
-            {
-                heartbeatMaxRetry = maxHeartbeatRetry;
-            }
-            logger.Log(Level.Verbose,
-                "Evaluator heartbeat max retry set to be " + heartbeatMaxRetry + " times.");
-        }
-
-        /// <summary>
-        /// Instantiates the root injector of the Evaluator.
-        /// </summary>
-        /// <exception cref="EvaluatorInjectorInstantiationException">If the injector cannot be instantiated.</exception>
-        private static void InitInjector()
-        {
-            try
-            {
-                injector = TangFactory.GetTang().NewInjector(ReadEvaluatorConfiguration());
-            }
-            catch (Exception e)
-            {
-                throw new EvaluatorInjectorInstantiationException(e);
-            }
-        }
-
-        /// <summary>
         /// Reads the Evaluator Configuration.
         /// </summary>
         /// <exception cref="EvaluatorConfigurationFileNotFoundException">When the configuration file cannot be found.</exception>
         /// <exception cref="EvaluatorConfigurationParseException">When the configuration file exists, but can't be deserialized.</exception>
         /// <returns></returns>
-        private static IConfiguration ReadEvaluatorConfiguration()
+        private static IConfiguration ReadClrBridgeConfiguration()
         {
-            string clrRuntimeConfigurationFile = Path.Combine(Directory.GetCurrentDirectory(), "reef", "global",
-                                                                 Common.Constants.ClrBridgeRuntimeConfiguration);
+            var clrRuntimeConfigurationFile = Path.Combine(Directory.GetCurrentDirectory(), "reef", "global",
+                new REEFFileNames().GetClrBridgeConfigurationName());
+
             if (!File.Exists(clrRuntimeConfigurationFile))
             {
                 throw new EvaluatorConfigurationFileNotFoundException(clrRuntimeConfigurationFile);
@@ -230,7 +142,10 @@ namespace Org.Apache.REEF.Evaluator
             
             try
             {
-                return new AvroConfigurationSerializer().FromFile(clrRuntimeConfigurationFile);
+                var clrDriverConfig = new AvroConfigurationSerializer().FromFile(clrRuntimeConfigurationFile);
+                logger.Log(Level.Info, string.Format(CultureInfo.CurrentCulture,
+                    "Clr Driver Configuration is deserialized from file {0}:", clrRuntimeConfigurationFile));
+                return clrDriverConfig;
             }
             catch (Exception e)
             {
@@ -238,44 +153,36 @@ namespace Org.Apache.REEF.Evaluator
             }
         }
 
-        /// <summary>
-        /// Instantiates the RuntimeClock
-        /// </summary>
-        /// <exception cref="ClockInstantiationException">When the clock can't be instantiated.</exception>
-        /// <returns></returns>
-        private static RuntimeClock InstantiateClock()
+        private static IConfiguration ReadEvaluatorConfiguration(string evaluatorConfigFile)
         {
-            IConfiguration clockConfiguration = new ConfigurationModuleBuilder().Build().Build();
-            try
+            if (string.IsNullOrWhiteSpace(evaluatorConfigFile))
             {
-                return TangFactory.GetTang().NewInjector(clockConfiguration).GetInstance<RuntimeClock>();
+                Utilities.Diagnostics.Exceptions.Throw(new ArgumentNullException("configFile"), logger);
             }
-            catch (Exception exception)
+            if (!File.Exists(evaluatorConfigFile))
             {
-                throw new ClockInstantiationException("Unable to instantiate the clock", exception);
-            } 
+                Utilities.Diagnostics.Exceptions.Throw(new FileNotFoundException("cannot find file " + evaluatorConfigFile), logger);
+            }
+
+            AvroConfigurationSerializer serializer = new AvroConfigurationSerializer();
+            var classHierarchy = TangFactory.GetTang()
+                .GetClassHierarchy(new string[] { typeof(ApplicationIdentifier).Assembly.GetName().Name });
+            var evaluatorConfiguration = serializer.FromFile(evaluatorConfigFile, classHierarchy);
+
+            logger.Log(Level.Info, string.Format(CultureInfo.CurrentCulture,
+                "Evaluator Configuration is deserialized from file {0}:", evaluatorConfigFile));
+
+            return evaluatorConfiguration;
         }
 
-        private static void SetCustomTraceListeners()
+        private static void SetCustomTraceListeners(CustomTraceListeners customTraceListener, CustomTraceLevel traceLevel)
         {
-            ISet<TraceListener> customTraceListeners;
-            try
-            {
-                customTraceListeners = injector.GetInstance<CustomTraceListeners>().Listeners;
-            }
-            catch (Exception e)
-            {
-                Utilities.Diagnostics.Exceptions.Caught(e, Level.Error, logger);
-
-                // custom trace listener not set properly, use empty set
-                customTraceListeners = new HashSet<TraceListener>();
-            }
+            ISet<TraceListener> customTraceListeners = customTraceListener.Listeners;
             foreach (TraceListener listener in customTraceListeners)
             {
                 Logger.AddTraceListener(listener);
             }
             logger = Logger.GetLogger(typeof(Evaluator));
-            CustomTraceLevel traceLevel = injector.GetInstance<CustomTraceLevel>();
             Logger.SetCustomLevel(traceLevel.TraceLevel);
         }
 

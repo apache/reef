@@ -27,7 +27,10 @@ using System.Threading;
 using Org.Apache.REEF.Common.Evaluator;
 using Org.Apache.REEF.Common.Protobuf.ReefProtocol;
 using Org.Apache.REEF.Common.Runtime.Evaluator.Context;
+using Org.Apache.REEF.Common.Runtime.Evaluator.Utils;
 using Org.Apache.REEF.Common.Tasks;
+using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Tang.Implementations.InjectionPlan;
 using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Wake.Remote;
@@ -51,8 +54,6 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
 
         private readonly int _maxHeartbeatRetries = 0;
 
-        private readonly string _evaluatorId;
-
         private IRemoteIdentifier _remoteId;
 
         private IObserver<REEFMessage> _observer;
@@ -61,46 +62,61 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
 
         private IDriverConnection _driverConnection;
 
-        private EvaluatorSettings _evaluatorSettings;
+        private readonly EvaluatorSettings _evaluatorSettings;
+
+        private readonly IInjectionFuture<EvaluatorRuntime> _evaluatorRuntime;
+
+        private readonly IInjectionFuture<ContextManager> _contextManager;
 
         // the queue can only contains the following:
         // 1. all failed heartbeats (regular and event-based) before entering RECOVERY state
         // 2. event-based heartbeats generated in RECOVERY state (since there will be no attempt to send regular heartbeat)
         private readonly Queue<EvaluatorHeartbeatProto> _queuedHeartbeats = new Queue<EvaluatorHeartbeatProto>();
 
-        public HeartBeatManager(EvaluatorSettings settings, IRemoteIdentifier remoteId)
+        [Inject]
+        private HeartBeatManager(
+            EvaluatorSettings settings,
+            IInjectionFuture<EvaluatorRuntime> evaluatorRuntime,
+            IInjectionFuture<ContextManager> contextManager,
+            [Parameter(typeof(ErrorHandlerRid))] string errorHandlerRid)
         {
             using (LOGGER.LogFunction("HeartBeatManager::HeartBeatManager"))
             {
+                _evaluatorSettings = settings;
+                _evaluatorRuntime = evaluatorRuntime;
+                _contextManager = contextManager;
                 _remoteManager = settings.RemoteManager;
-                _remoteId = remoteId;
-                _evaluatorId = settings.EvalutorId;
+                _remoteId = new SocketRemoteIdentifier(NetUtilities.ParseIpEndpoint(errorHandlerRid));
                 _observer = _remoteManager.GetRemoteObserver(new RemoteEventEndPoint<REEFMessage>(_remoteId));
                 _clock = settings.RuntimeClock;
                 _heartBeatPeriodInMillSeconds = settings.HeartBeatPeriodInMs;
-                _maxHeartbeatRetries = settings.MaxHeartbeatFailures;
-                EvaluatorSettings = settings;
+                _maxHeartbeatRetries = settings.MaxHeartbeatRetries;
                 MachineStatus.ToString(); // kick start the CPU perf counter
             }
         }
 
-        [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1307:AccessibleFieldsMustBeginWithUpperCaseLetter", Justification = "Intended to be private, exposed now before using future injection")]
-        public EvaluatorRuntime _evaluatorRuntime { get; set; }
-
-        [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1307:AccessibleFieldsMustBeginWithUpperCaseLetter", Justification = "Intended to be private, exposed now before using future injection")]
-        public ContextManager _contextManager { get; set; }
-
-        public EvaluatorSettings EvaluatorSettings
+        /// <summary>
+        /// Return EvaluatorRuntime referenced from HeartBeatManager
+        /// </summary>
+        public EvaluatorRuntime EvaluatorRuntime
         {
-            get
-            {
-                return _evaluatorSettings;
-            }
+            get { return _evaluatorRuntime.Get(); }
+        }
 
-            private set
-            {
-                _evaluatorSettings = value;
-            }
+        /// <summary>
+        /// Return ContextManager referenced from HeartBeatManager
+        /// </summary>
+        public ContextManager ContextManager
+        {
+            get { return _contextManager.Get(); }
+        }
+
+        /// <summary>
+        /// EvaluatorSettings contains the configuration data of the evaluators
+        /// </summary>
+        internal EvaluatorSettings EvaluatorSettings
+        {
+            get { return _evaluatorSettings; }
         }
 
         public void Send(EvaluatorHeartbeatProto evaluatorHeartbeatProto)
@@ -137,11 +153,11 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
                     {
                         LOGGER.Log(Level.Warning, "Heartbeat communications to driver reached max of {0} failures. Driver is considered dead/unreachable", _heartbeatFailures);
                         LOGGER.Log(Level.Info, "=========== Entering RECOVERY mode. ===========");
-                        _contextManager.HandleDriverConnectionMessage(new DriverConnectionMessageImpl(DriverConnectionState.Disconnected));
+                        ContextManager.HandleDriverConnectionMessage(new DriverConnectionMessageImpl(DriverConnectionState.Disconnected));
 
                         try
                         {
-                            _driverConnection = _evaluatorSettings.Injector.GetInstance<IDriverConnection>();
+                            _driverConnection = _evaluatorSettings.EvaluatorInjector.GetInstance<IDriverConnection>();
                         }
                         catch (Exception ex)
                         {
@@ -162,7 +178,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
         /// </summary>
         public void OnNext()
         {
-            LOGGER.Log(Level.Verbose, "Before aqcuiring lock: HeartbeatManager::OnNext()");
+            LOGGER.Log(Level.Verbose, "Before acquiring lock: HeartbeatManager::OnNext()");
             lock (this)
             {
                 LOGGER.Log(Level.Verbose, "HeartbeatManager::OnNext()");
@@ -178,13 +194,13 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
         /// <param name="taskStatusProto"></param>
         public void OnNext(TaskStatusProto taskStatusProto)
         {
-            LOGGER.Log(Level.Verbose, "Before aqcuiring lock: HeartbeatManager::OnNext(TaskStatusProto)");
+            LOGGER.Log(Level.Verbose, "Before acquiring lock: HeartbeatManager::OnNext(TaskStatusProto)");
             lock (this)
             {
                 LOGGER.Log(Level.Verbose, "HeartbeatManager::OnNext(TaskStatusProto)");
                 EvaluatorHeartbeatProto heartbeatProto = GetEvaluatorHeartbeatProto(
-                    _evaluatorRuntime.GetEvaluatorStatus(),
-                    _contextManager.GetContextStatusCollection(),
+                    EvaluatorRuntime.GetEvaluatorStatus(),
+                    ContextManager.GetContextStatusCollection(),
                      Optional<TaskStatusProto>.Of(taskStatusProto));
                 LOGGER.Log(Level.Info, string.Format(CultureInfo.InvariantCulture, "Triggered a heartbeat: {0}.", heartbeatProto));
                 Send(heartbeatProto);
@@ -197,15 +213,15 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
         /// <param name="contextStatusProto"></param>
         public void OnNext(ContextStatusProto contextStatusProto)
         {
-            LOGGER.Log(Level.Verbose, "Before aqcuiring lock: HeartbeatManager::OnNext(ContextStatusProto)");
+            LOGGER.Log(Level.Verbose, "Before acquiring lock: HeartbeatManager::OnNext(ContextStatusProto)");
             lock (this)
             {
                 LOGGER.Log(Level.Verbose, "HeartbeatManager::OnNext(ContextStatusProto)");
                 List<ContextStatusProto> contextStatusProtos = new List<ContextStatusProto>();
                 contextStatusProtos.Add(contextStatusProto);
-                contextStatusProtos.AddRange(_contextManager.GetContextStatusCollection());
+                contextStatusProtos.AddRange(ContextManager.GetContextStatusCollection());
                 EvaluatorHeartbeatProto heartbeatProto = GetEvaluatorHeartbeatProto(
-                    _evaluatorRuntime.GetEvaluatorStatus(),
+                    EvaluatorRuntime.GetEvaluatorStatus(),
                     contextStatusProtos,
                     Optional<TaskStatusProto>.Empty());
                 LOGGER.Log(Level.Info, string.Format(CultureInfo.InvariantCulture, "Triggered a heartbeat: {0}.", heartbeatProto));
@@ -219,7 +235,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
         /// <param name="evaluatorStatusProto"></param>
         public void OnNext(EvaluatorStatusProto evaluatorStatusProto)
         {
-            LOGGER.Log(Level.Verbose, "Before acquring lock: HeartbeatManager::OnNext(EvaluatorStatusProto)");
+            LOGGER.Log(Level.Verbose, "Before acquiring lock: HeartbeatManager::OnNext(EvaluatorStatusProto)");
             lock (this)
             {
                 LOGGER.Log(Level.Verbose, "HeartbeatManager::OnNext(EvaluatorStatusProto)");
@@ -235,11 +251,11 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
 
         public void OnNext(Alarm value)
         {
-            LOGGER.Log(Level.Verbose, "Before acquring lock: HeartbeatManager::OnNext(Alarm)");
+            LOGGER.Log(Level.Verbose, "Before acquiring lock: HeartbeatManager::OnNext(Alarm)");
             lock (this)
             {
                 LOGGER.Log(Level.Verbose, "HeartbeatManager::OnNext(Alarm)");
-                if (_evaluatorSettings.OperationState == EvaluatorOperationState.OPERATIONAL && _evaluatorRuntime.State == State.RUNNING)
+                if (_evaluatorSettings.OperationState == EvaluatorOperationState.OPERATIONAL && EvaluatorRuntime.State == State.RUNNING)
                 {
                     EvaluatorHeartbeatProto evaluatorHeartbeatProto = GetEvaluatorHeartbeatProto();
                     LOGGER.Log(Level.Verbose, string.Format(CultureInfo.InvariantCulture, "Triggered a heartbeat: {0}. {1}Node Health: {2}", evaluatorHeartbeatProto, Environment.NewLine, MachineStatus.ToString()));
@@ -248,7 +264,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
                 }
                 else
                 {
-                    LOGGER.Log(Level.Verbose, string.Format(CultureInfo.InvariantCulture, "Ignoring regular heartbeat since Evaluator operation state is [{0}] and runtime state is [{1}]. ", _evaluatorSettings.OperationState,  _evaluatorRuntime.State));
+                    LOGGER.Log(Level.Verbose, string.Format(CultureInfo.InvariantCulture, "Ignoring regular heartbeat since Evaluator operation state is [{0}] and runtime state is [{1}]. ", EvaluatorSettings.OperationState,  EvaluatorRuntime.State));
                     try
                     {
                         DriverInformation driverInformation = _driverConnection.GetDriverInformation(_evaluatorSettings.ApplicationId);
@@ -346,10 +362,10 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
                     }
                     Thread.Sleep(500);
                 }
-            }        
-            
+            }
+
             _evaluatorSettings.OperationState = EvaluatorOperationState.OPERATIONAL;
-            _contextManager.HandleDriverConnectionMessage(new DriverConnectionMessageImpl(DriverConnectionState.Reconnected));
+            ContextManager.HandleDriverConnectionMessage(new DriverConnectionMessageImpl(DriverConnectionState.Reconnected));
 
             LOGGER.Log(Level.Info, "=========== Exiting RECOVERY mode. ===========");
         }
@@ -365,9 +381,9 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator
         private EvaluatorHeartbeatProto GetEvaluatorHeartbeatProto()
         {
             return GetEvaluatorHeartbeatProto(
-                _evaluatorRuntime.GetEvaluatorStatus(),
-                _contextManager.GetContextStatusCollection(),
-                _contextManager.GetTaskStatus());
+                EvaluatorRuntime.GetEvaluatorStatus(),
+                ContextManager.GetContextStatusCollection(),
+                ContextManager.GetTaskStatus());
         }
 
         private EvaluatorHeartbeatProto GetEvaluatorHeartbeatProto(

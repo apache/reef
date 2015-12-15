@@ -26,6 +26,7 @@ using Org.Apache.REEF.Common.Protobuf.ReefProtocol;
 using Org.Apache.REEF.Common.Runtime.Evaluator.Task;
 using Org.Apache.REEF.Common.Services;
 using Org.Apache.REEF.Common.Tasks;
+using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Utilities.Logging;
 
@@ -39,12 +40,18 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
         private readonly object _contextLock = new object();
         private ContextRuntime _topContext = null;
 
-        public ContextManager(HeartBeatManager heartBeatManager, Optional<ServiceConfiguration> rootServiceConfig, Optional<TaskConfiguration> rootTaskConfig)
+        [Inject]
+        private ContextManager(
+            HeartBeatManager heartBeatManager,
+            EvaluatorSettings evaluatorSetting)
         {
             using (LOGGER.LogFunction("ContextManager::ContextManager"))
             {
                 _heartBeatManager = heartBeatManager;
-                _rootContextLauncher = new RootContextLauncher(_heartBeatManager.EvaluatorSettings.RootContextConfig, rootServiceConfig, rootTaskConfig);
+                _rootContextLauncher = new RootContextLauncher(
+                    evaluatorSetting.RootContextConfig,
+                    evaluatorSetting.RootServiceConfiguration,
+                    evaluatorSetting.RootTaskConfiguration);
             }
         }
 
@@ -102,7 +109,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                 {
                     LOGGER.Log(Level.Info, "AddContext");
                     AddContext(controlMessage.add_context);
-
+                    
                     // support submitContextAndTask()
                     if (controlMessage.start_task != null)
                     {
@@ -153,7 +160,7 @@ namespace Org.Apache.REEF.Common.Runtime.Evaluator.Context
                 }
                 else if (controlMessage.context_message != null)
                 {
-                    LOGGER.Log(Level.Info, "Handle context contol message");
+                    LOGGER.Log(Level.Info, "Handle context control message");
                     ContextMessageProto contextMessageProto = controlMessage.context_message;
                     ContextRuntime context = null;
                     lock (_contextLock)
