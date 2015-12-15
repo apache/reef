@@ -18,9 +18,9 @@
  */
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Net;
-using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Wake.Util;
 
@@ -35,7 +35,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
 
         private readonly ObserverContainer<T> _observerContainer;
         private readonly TransportServer<IRemoteEvent<T>> _server; 
-        private readonly Dictionary<IPEndPoint, ProxyObserver> _cachedClients;
+        private readonly ConcurrentDictionary<IPEndPoint, ProxyObserver> _cachedClients;
         private readonly ICodec<IRemoteEvent<T>> _codec;
 
         /// <summary>
@@ -63,7 +63,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
 
             _observerContainer = new ObserverContainer<T>();
             _codec = new RemoteEventCodec<T>(codec);
-            _cachedClients = new Dictionary<IPEndPoint, ProxyObserver>();
+            _cachedClients = new ConcurrentDictionary<IPEndPoint, ProxyObserver>();
 
             IPEndPoint localEndpoint = new IPEndPoint(localAddress, port);
 
@@ -91,7 +91,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
 
                 _observerContainer = new ObserverContainer<T>();
                 _codec = new RemoteEventCodec<T>(codec);
-                _cachedClients = new Dictionary<IPEndPoint, ProxyObserver>();
+                _cachedClients = new ConcurrentDictionary<IPEndPoint, ProxyObserver>();
 
                 LocalEndpoint = new IPEndPoint(NetworkUtils.LocalIPAddress, 0);
                 Identifier = new SocketRemoteIdentifier(LocalEndpoint);
@@ -153,7 +153,12 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
                     client.Link.RemoteEndpoint.ToString());
                 LOGGER.Log(Level.Info, msg);
 
-                remoteObserver = new ProxyObserver(client);
+                remoteObserver = new ProxyObserver(client,
+                    () =>
+                        {
+                            ProxyObserver val;
+                            _cachedClients.TryRemove(remoteEndpoint, out val);
+                        });
                 _cachedClients[remoteEndpoint] = remoteObserver;
             }
 
@@ -245,6 +250,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         private class ProxyObserver : IObserver<T>, IDisposable
         {
             private readonly TransportClient<IRemoteEvent<T>> _client;
+            private readonly Action _removeFromCache;
             private int _messageCount;
 
             /// <summary>
@@ -252,10 +258,12 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
             /// </summary>
             /// <param name="client">The connected transport client used to send
             /// messages to remote host</param>
-            public ProxyObserver(TransportClient<IRemoteEvent<T>> client)
+            /// <param name="removeFromCache">This action will be used to remove the ProxyObserver from cache</param>
+            public ProxyObserver(TransportClient<IRemoteEvent<T>> client, Action removeFromCache)
             {
                 _client = client;
                 _messageCount = 0;
+                _removeFromCache = removeFromCache;
             }
 
             /// <summary>
@@ -288,7 +296,8 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
 
             public void OnCompleted()
             {
-                throw new NotImplementedException();
+                Dispose();
+                _removeFromCache();
             }
         }
     }

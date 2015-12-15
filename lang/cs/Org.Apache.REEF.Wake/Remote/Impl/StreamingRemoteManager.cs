@@ -18,6 +18,7 @@
  */
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Net;
 using Org.Apache.REEF.Wake.StreamingCodec;
@@ -32,7 +33,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
     {
         private readonly ObserverContainer<T> _observerContainer;
         private readonly StreamingTransportServer<IRemoteEvent<T>> _server;
-        private readonly Dictionary<IPEndPoint, ProxyObserver> _cachedClients;
+        private readonly ConcurrentDictionary<IPEndPoint, ProxyObserver> _cachedClients;
         private readonly IStreamingCodec<IRemoteEvent<T>> _remoteEventCodec;
 
         /// <summary>
@@ -50,7 +51,7 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
             }
 
             _observerContainer = new ObserverContainer<T>();
-            _cachedClients = new Dictionary<IPEndPoint, ProxyObserver>();
+            _cachedClients = new ConcurrentDictionary<IPEndPoint, ProxyObserver>();
             _remoteEventCodec = new RemoteEventStreamingCodec<T>(streamingCodec);
 
             // Begin to listen for incoming messages
@@ -112,7 +113,12 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
                 StreamingTransportClient<IRemoteEvent<T>> client =
                     new StreamingTransportClient<IRemoteEvent<T>>(remoteEndpoint, _observerContainer, _remoteEventCodec);
 
-                remoteObserver = new ProxyObserver(client);
+                remoteObserver = new ProxyObserver(client,
+                    () =>
+                    {
+                        ProxyObserver val;
+                        _cachedClients.TryRemove(remoteEndpoint, out val);
+                    });
                 _cachedClients[remoteEndpoint] = remoteObserver;
             }
 
@@ -210,14 +216,18 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
         {
             private readonly StreamingTransportClient<IRemoteEvent<T>> _client;
 
+            private readonly Action _removeFromCache;
+
             /// <summary>
             /// Create new ProxyObserver
             /// </summary>
             /// <param name="client">The connected WritableTransport client used to send
             /// messages to remote host</param>
-            public ProxyObserver(StreamingTransportClient<IRemoteEvent<T>> client)
+            /// <param name="removeFromCache">Action that is used to remove proxy observer from cache</param>
+            public ProxyObserver(StreamingTransportClient<IRemoteEvent<T>> client, Action removeFromCache)
             {
                 _client = client;
+                _removeFromCache = removeFromCache;
             }
 
             /// <summary>
@@ -248,7 +258,8 @@ namespace Org.Apache.REEF.Wake.Remote.Impl
 
             public void OnCompleted()
             {
-                throw new NotImplementedException();
+                Dispose();
+                _removeFromCache();
             }
         }
     }
