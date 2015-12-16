@@ -17,8 +17,11 @@
  * under the License.
  */
 
+using Org.Apache.REEF.Utilities.Attributes;
+
 namespace Org.Apache.REEF.Driver.Bridge.Clr2java
 {
+    [Private, Interop]
     public interface IClr2Java
     {
         void OnError(string message);

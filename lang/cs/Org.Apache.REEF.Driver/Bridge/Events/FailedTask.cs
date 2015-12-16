@@ -29,7 +29,7 @@ using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Driver.Bridge.Events
 {
-    public class FailedTask : IFailedTask
+    internal sealed class FailedTask : IFailedTask
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(FailedTask));
         

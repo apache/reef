@@ -27,7 +27,7 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
     /// TaskMessage which wraps ITaskMessageClr2Java
     /// </summary>
     [DataContract]
-    internal class TaskMessage : ITaskMessage
+    internal sealed class TaskMessage : ITaskMessage
     {
         private readonly byte[] _message;
         private readonly ITaskMessageClr2Java _taskMessageClr2Java;

@@ -22,7 +22,7 @@ using System;
 namespace Org.Apache.REEF.Driver
 {
     // TODO[REEF-842] Act on the obsoletes
-    public class Constants
+    public static class Constants
     {
         /// <summary>
         /// Null handler that is not used on Java side.

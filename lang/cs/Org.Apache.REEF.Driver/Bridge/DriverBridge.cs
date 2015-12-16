@@ -35,7 +35,7 @@ using Org.Apache.REEF.Driver.Defaults;
 
 namespace Org.Apache.REEF.Driver.Bridge
 {
-    public class DriverBridge
+    internal sealed class DriverBridge
     {
         private static Logger _logger;
         

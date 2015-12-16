@@ -17,9 +17,11 @@
  * under the License.
  */
 using System;
+using Org.Apache.REEF.Utilities.Attributes;
 
 namespace Org.Apache.REEF.Driver.Bridge.Clr2java
 {
+    [Private, Interop("DriverRestartCompletedClr2Java.cpp", "Clr2JavaImpl.h")]
     public interface IDriverRestartCompletedClr2Java
     {
         /// <summary>

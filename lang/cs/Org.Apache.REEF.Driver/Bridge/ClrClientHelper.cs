@@ -28,7 +28,7 @@ using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Driver.Bridge
 {
-    public class ClrClientHelper
+    public static class ClrClientHelper
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(ClrClientHelper));
 

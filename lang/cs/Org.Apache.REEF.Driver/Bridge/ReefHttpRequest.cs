@@ -31,8 +31,12 @@ namespace Org.Apache.REEF.Driver.Bridge
         Delete
     }
 
-    public class ReefHttpRequest
+    public sealed class ReefHttpRequest
     {
+        internal ReefHttpRequest()
+        {
+        }
+
         public HttpMethod Method { get; set; }
 
         public string Url { get; set; }

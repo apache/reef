@@ -21,8 +21,12 @@ using System.Net;
 
 namespace Org.Apache.REEF.Driver.Bridge
 {
-    public class ReefHttpResponse
+    public sealed class ReefHttpResponse
     {
+        internal ReefHttpResponse()
+        {
+        }
+
         public byte[] OutputStream { get; set; }
 
         public HttpStatusCode Status { get; set; }

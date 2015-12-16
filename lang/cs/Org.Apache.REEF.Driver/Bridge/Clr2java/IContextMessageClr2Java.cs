@@ -17,8 +17,11 @@
  * under the License.
  */
 
+using Org.Apache.REEF.Utilities.Attributes;
+
 namespace Org.Apache.REEF.Driver.Bridge.Clr2java
 {
+    [Private, Interop("ContextMessageClr2Java.cpp", "Clr2JavaImpl.h")]
     public interface IContextMessageClr2Java : IClr2Java
     {
         byte[] Get();

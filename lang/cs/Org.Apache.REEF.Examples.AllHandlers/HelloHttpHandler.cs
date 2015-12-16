@@ -31,7 +31,7 @@ namespace Org.Apache.REEF.Examples.AllHandlers
     /// </summary>
     public class HelloHttpHandler : IHttpHandler
     {
-        private static readonly Logger Logger = Logger.GetLogger(typeof(HttpServerHandler));
+        private static readonly Logger Logger = Logger.GetLogger(typeof(HelloHttpHandler));
 
         [Inject]
         private HelloHttpHandler()

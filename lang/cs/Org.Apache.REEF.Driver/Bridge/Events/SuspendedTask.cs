@@ -26,7 +26,7 @@ using Org.Apache.REEF.Driver.Task;
 namespace Org.Apache.REEF.Driver.Bridge.Events
 {
     [DataContract]
-    internal class SuspendedTask : ISuspendedTask
+    internal sealed class SuspendedTask : ISuspendedTask
     {
         internal SuspendedTask(ISuspendedTaskClr2Java suspendedTaskClr2Java)
         {

@@ -17,8 +17,11 @@
  * under the License.
  */
 
+using Org.Apache.REEF.Utilities.Attributes;
+
 namespace Org.Apache.REEF.Driver.Bridge.Clr2java
 {
+    [Private, Interop("FailedEvaluatorClr2Java.cpp", "Clr2JavaImpl.h")]
     public interface IFailedEvaluatorClr2Java
     {
         IEvaluatorRequestorClr2Java GetEvaluatorRequestor();

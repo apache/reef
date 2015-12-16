@@ -32,7 +32,7 @@ namespace Org.Apache.REEF.Driver.Bridge
     /// <summary>
     ///  HttpServerHandler, the handler for all CLR http events
     /// </summary>
-    public class HttpServerHandler : IObserver<IHttpMessage>
+    internal sealed class HttpServerHandler : IObserver<IHttpMessage>
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(HttpServerHandler));
 
@@ -48,7 +48,7 @@ namespace Org.Apache.REEF.Driver.Bridge
         /// <param name="httpEventHandlers">The HTTP event handlers.</param>
         /// <param name="httpServerPort">The HTTP server port.</param>
         [Inject]
-        public HttpServerHandler([Parameter(Value = typeof(DriverBridgeConfigurationOptions.HttpEventHandlers))] ISet<IHttpHandler> httpEventHandlers,
+        private HttpServerHandler([Parameter(Value = typeof(DriverBridgeConfigurationOptions.HttpEventHandlers))] ISet<IHttpHandler> httpEventHandlers,
                                  HttpServerPort httpServerPort)
         {
             LOGGER.Log(Level.Info, "Constructing HttpServerHandler");       

@@ -18,10 +18,12 @@
  */
 
 using System;
+using Org.Apache.REEF.Utilities.Attributes;
 
 namespace Org.Apache.REEF.Driver
 {
-    public class DriverConfigurationSettings
+    [ClientSide]
+    public sealed class DriverConfigurationSettings
     {
         // default to "ReefDevClrBridge"
         private string _driverIdentifier = "ReefDevClrBridge";

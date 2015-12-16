@@ -18,9 +18,11 @@
  */
 
 using System;
+using Org.Apache.REEF.Utilities.Attributes;
 
 namespace Org.Apache.REEF.Driver.Bridge.Clr2java
 {
+    [Private, Interop("DriverRestartedClr2Java.cpp", "Clr2JavaImpl.h")]
     public interface IDriverRestartedClr2Java : IClr2Java
     {
         /// <summary>

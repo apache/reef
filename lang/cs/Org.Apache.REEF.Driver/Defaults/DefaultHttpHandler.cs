@@ -25,12 +25,12 @@ using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Driver.Defaults
 {
-    public class DefaultHttpHandler : IHttpHandler
+    public sealed class DefaultHttpHandler : IHttpHandler
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(DefaultHttpHandler));
 
         [Inject]
-        public DefaultHttpHandler()
+        private DefaultHttpHandler()
         {
         }
 

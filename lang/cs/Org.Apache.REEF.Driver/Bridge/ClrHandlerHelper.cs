@@ -32,7 +32,7 @@ using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Driver.Bridge
 {
-    public class ClrHandlerHelper
+    public static class ClrHandlerHelper
     {
         private const string DllExtension = ".dll";
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(ClrHandlerHelper));

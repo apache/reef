@@ -29,7 +29,7 @@ namespace Org.Apache.REEF.Utilities.Attributes
     {
         private readonly ISet<string> _cppFiles;
 
-        public InteropAttribute(ISet<string> cppFiles = null)
+        public InteropAttribute(params string[] cppFiles)
         {
             _cppFiles = cppFiles == null ? new HashSet<string>() : new HashSet<string>(cppFiles);
         }
