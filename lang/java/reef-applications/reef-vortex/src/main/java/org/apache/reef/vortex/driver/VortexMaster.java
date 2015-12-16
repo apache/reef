@@ -25,6 +25,7 @@ import org.apache.reef.util.Optional;
 import org.apache.reef.vortex.api.FutureCallback;
 import org.apache.reef.vortex.api.VortexFunction;
 import org.apache.reef.vortex.api.VortexFuture;
+import org.apache.reef.vortex.common.WorkerReport;
 
 import java.io.Serializable;
 
@@ -62,19 +63,9 @@ public interface VortexMaster {
   void workerPreempted(final String id);
 
   /**
-   * Call this when a Tasklet is completed.
+   * Call this when a worker has reported back.
    */
-  void taskletCompleted(final String workerId, final int taskletId, final Serializable result);
-
-  /**
-   * Call this when a Tasklet errored.
-   */
-  void taskletErrored(final String workerId, final int taskletId, final Exception exception);
-
-  /**
-   * Call this when a Tasklet is cancelled and the cancellation is honored.
-   */
-  void taskletCancelled(final String workerId, final int taskletId);
+  void workerReported(final String workerId, final WorkerReport workerReport);
 
   /**
    * Release all resources and shut down.

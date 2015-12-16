@@ -19,14 +19,18 @@
 package org.apache.reef.vortex.driver;
 
 import org.apache.reef.driver.task.RunningTask;
+import org.apache.reef.util.Optional;
 import org.apache.reef.vortex.api.VortexFunction;
 import org.apache.reef.vortex.api.VortexFuture;
-import org.apache.reef.vortex.common.TaskletCancellationRequest;
-import org.apache.reef.vortex.common.VortexRequest;
+import org.apache.reef.vortex.common.*;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import java.io.Serializable;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -46,9 +50,16 @@ public final class TestUtil {
   private final VortexMaster vortexMaster = mock(VortexMaster.class);
 
   /**
-   * @return a new mocked worker.
+   * @return a new mocked worker, with a mocked {@link VortexMaster}.
    */
   public VortexWorkerManager newWorker() {
+    return newWorker(vortexMaster);
+  }
+
+  /**
+   * @return a new mocked worker, with the {@link VortexMaster} passed in.
+   */
+  public VortexWorkerManager newWorker(final VortexMaster master) {
     final RunningTask reefTask = mock(RunningTask.class);
     when(reefTask.getId()).thenReturn("worker" + String.valueOf(workerId.getAndIncrement()));
     final VortexRequestor vortexRequestor = mock(VortexRequestor.class);
@@ -58,7 +69,8 @@ public final class TestUtil {
       public Object answer(final InvocationOnMock invocation) throws Throwable {
         final VortexRequest request = (VortexRequest)invocation.getArguments()[1];
         if (request instanceof TaskletCancellationRequest) {
-          workerManager.taskletCancelled(request.getTaskletId());
+          final TaskletReport cancelReport = new TaskletCancelledReport(request.getTaskletId());
+          master.workerReported(workerManager.getId(), new WorkerReport(Collections.singleton(cancelReport)));
         }
 
         return null;
@@ -89,6 +101,13 @@ public final class TestUtil {
   }
 
   /**
+   * @return a queryable {@link org.apache.reef.vortex.driver.TestUtil.TestSchedulingPolicy}
+   */
+  public TestSchedulingPolicy newSchedulingPolicy() {
+    return new TestSchedulingPolicy();
+  }
+
+  /**
    * @return a new dummy function.
    */
   public VortexFunction newInfiniteLoopFunction() {
@@ -115,5 +134,48 @@ public final class TestUtil {
         return 1;
       }
     };
+  }
+
+  static final class TestSchedulingPolicy implements SchedulingPolicy  {
+    private final SchedulingPolicy policy = new RandomSchedulingPolicy();
+    private final Set<Integer> doneTasklets = new HashSet<>();
+
+    private TestSchedulingPolicy() {
+    }
+
+    @Override
+    public Optional<String> trySchedule(final Tasklet tasklet) {
+      return policy.trySchedule(tasklet);
+    }
+
+    @Override
+    public void workerAdded(final VortexWorkerManager vortexWorker) {
+      policy.workerAdded(vortexWorker);
+    }
+
+    @Override
+    public void workerRemoved(final VortexWorkerManager vortexWorker) {
+      policy.workerRemoved(vortexWorker);
+    }
+
+    @Override
+    public void taskletLaunched(final VortexWorkerManager vortexWorker, final Tasklet tasklet) {
+      policy.taskletLaunched(vortexWorker, tasklet);
+    }
+
+    @Override
+    public void taskletsDone(final VortexWorkerManager vortexWorker, final List<Tasklet> tasklets) {
+      policy.taskletsDone(vortexWorker, tasklets);
+      for (final Tasklet t : tasklets) {
+        doneTasklets.add(t.getId());
+      }
+    }
+
+    /**
+     * @return true if Tasklet with taskletId is done, false otherwise.
+     */
+    public boolean taskletIsDone(final int taskletId) {
+      return doneTasklets.contains(taskletId);
+    }
   }
 }

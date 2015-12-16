@@ -25,6 +25,7 @@ import org.apache.reef.util.Optional;
 import org.apache.reef.vortex.api.FutureCallback;
 import org.apache.reef.vortex.api.VortexFunction;
 import org.apache.reef.vortex.api.VortexFuture;
+import org.apache.reef.vortex.common.*;
 
 import javax.inject.Inject;
 import java.io.Serializable;
@@ -40,6 +41,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 @ThreadSafe
 @DriverSide
 final class DefaultVortexMaster implements VortexMaster {
+  private final Map<Integer, VortexFutureDelegate> taskletFutureMap = new HashMap<>();
   private final AtomicInteger taskletIdCounter = new AtomicInteger();
   private final RunningWorkers runningWorkers;
   private final PendingTasklets pendingTasklets;
@@ -74,7 +76,9 @@ final class DefaultVortexMaster implements VortexMaster {
     }
 
     final Tasklet tasklet = new Tasklet<>(id, function, input, vortexFuture);
+    putDelegate(Collections.singletonList(tasklet), vortexFuture);
     this.pendingTasklets.addLast(tasklet);
+
     return vortexFuture;
   }
 
@@ -107,30 +111,58 @@ final class DefaultVortexMaster implements VortexMaster {
     }
   }
 
-  /**
-   * Notify task completion to runningWorkers.
-   */
   @Override
-  public void taskletCompleted(final String workerId,
-                               final int taskletId,
-                               final Serializable result) {
-    runningWorkers.completeTasklet(workerId, taskletId, result);
-  }
+  public void workerReported(final String workerId, final WorkerReport workerReport) {
+    for (final TaskletReport taskletReport : workerReport.getTaskletReports()) {
+      switch (taskletReport.getType()) {
+      case TaskletResult:
+        final TaskletResultReport taskletResultReport = (TaskletResultReport) taskletReport;
 
-  /**
-   * Notify task failure to runningWorkers.
-   */
-  @Override
-  public void taskletErrored(final String workerId, final int taskletId, final Exception exception) {
-    runningWorkers.errorTasklet(workerId, taskletId, exception);
-  }
+        final int resultTaskletId = taskletResultReport.getTaskletId();
+        final List<Integer> singletonResultTaskletId = Collections.singletonList(resultTaskletId);
+        runningWorkers.doneTasklets(workerId, singletonResultTaskletId);
+        fetchDelegate(singletonResultTaskletId).completed(resultTaskletId, taskletResultReport.getResult());
 
-  /**
-   * Notify tasklet cancellation to runningWorkers.
-   */
-  @Override
-  public void taskletCancelled(final String workerId, final int taskletId) {
-    runningWorkers.taskletCancelled(workerId, taskletId);
+        break;
+      case TaskletAggregationResult:
+        final TaskletAggregationResultReport taskletAggregationResultReport =
+            (TaskletAggregationResultReport) taskletReport;
+
+        final List<Integer> aggregatedTaskletIds = taskletAggregationResultReport.getTaskletIds();
+        runningWorkers.doneTasklets(workerId, aggregatedTaskletIds);
+        fetchDelegate(aggregatedTaskletIds).aggregationCompleted(
+            aggregatedTaskletIds, taskletAggregationResultReport.getResult());
+
+        break;
+      case TaskletCancelled:
+        final TaskletCancelledReport taskletCancelledReport = (TaskletCancelledReport) taskletReport;
+        final List<Integer> cancelledIdToList = Collections.singletonList(taskletCancelledReport.getTaskletId());
+        runningWorkers.doneTasklets(workerId, cancelledIdToList);
+        fetchDelegate(cancelledIdToList).cancelled(taskletCancelledReport.getTaskletId());
+
+        break;
+      case TaskletFailure:
+        final TaskletFailureReport taskletFailureReport = (TaskletFailureReport) taskletReport;
+
+        final int failureTaskletId = taskletFailureReport.getTaskletId();
+        final List<Integer> singletonFailedTaskletId = Collections.singletonList(failureTaskletId);
+        runningWorkers.doneTasklets(workerId, singletonFailedTaskletId);
+        fetchDelegate(singletonFailedTaskletId).threwException(failureTaskletId, taskletFailureReport.getException());
+
+        break;
+      case TaskletAggregationFailure:
+        final TaskletAggregationFailureReport taskletAggregationFailureReport =
+            (TaskletAggregationFailureReport) taskletReport;
+
+        final List<Integer> aggregationFailedTaskletIds = taskletAggregationFailureReport.getTaskletIds();
+        runningWorkers.doneTasklets(workerId, aggregationFailedTaskletIds);
+        fetchDelegate(aggregationFailedTaskletIds).aggregationThrewException(aggregationFailedTaskletIds,
+            taskletAggregationFailureReport.getException());
+        break;
+      default:
+        throw new RuntimeException("Unknown Report");
+      }
+    }
   }
 
   /**
@@ -140,4 +172,36 @@ final class DefaultVortexMaster implements VortexMaster {
   public void terminate() {
     runningWorkers.terminate();
   }
+
+  /**
+   * Puts a delegate to associate with a Tasklet.
+   */
+  private synchronized void putDelegate(final List<Tasklet> tasklets, final VortexFutureDelegate delegate) {
+    for (final Tasklet tasklet : tasklets) {
+      taskletFutureMap.put(tasklet.getId(), delegate);
+    }
+  }
+
+  /**
+   * Fetches a delegate that maps to the list of Tasklets.
+   */
+  private synchronized VortexFutureDelegate fetchDelegate(final List<Integer> taskletIds) {
+    VortexFutureDelegate delegate = null;
+    for (final int taskletId : taskletIds) {
+      final VortexFutureDelegate currDelegate = taskletFutureMap.remove(taskletId);
+      if (currDelegate == null) {
+        // TODO[JIRA REEF-500]: Consider duplicate tasklets.
+        throw new RuntimeException("Tasklet should only be removed once.");
+      }
+
+      if (delegate == null) {
+        delegate = currDelegate;
+      } else {
+        assert delegate == currDelegate;
+      }
+    }
+
+    return delegate;
+  }
+
 }

@@ -25,8 +25,7 @@ import org.apache.reef.vortex.common.TaskletCancellationRequest;
 import org.apache.reef.vortex.common.TaskletExecutionRequest;
 
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.HashMap;
+import java.util.*;
 
 /**
  * Representation of a VortexWorkerManager in Driver.
@@ -57,25 +56,13 @@ class VortexWorkerManager {
     vortexRequestor.send(reefTask, cancellationRequest);
   }
 
-  <TOutput extends Serializable> Tasklet taskletCompleted(final Integer taskletId, final TOutput result) {
-    final Tasklet<?, TOutput> tasklet = runningTasklets.remove(taskletId);
-    assert tasklet != null; // Tasklet should complete/error only once
-    tasklet.completed(result);
-    return tasklet;
-  }
+  List<Tasklet> taskletsDone(final List<Integer> taskletIds) {
+    final List<Tasklet> taskletList = new ArrayList<>();
+    for (final int taskletId : taskletIds) {
+      taskletList.add(runningTasklets.remove(taskletId));
+    }
 
-  Tasklet taskletThrewException(final Integer taskletId, final Exception exception) {
-    final Tasklet tasklet = runningTasklets.remove(taskletId);
-    assert tasklet != null; // Tasklet should complete/error only once
-    tasklet.threwException(exception);
-    return tasklet;
-  }
-
-  Tasklet taskletCancelled(final Integer taskletId) {
-    final Tasklet tasklet = runningTasklets.remove(taskletId);
-    assert tasklet != null; // Tasklet should finish only once.
-    tasklet.cancelled();
-    return tasklet;
+    return Collections.unmodifiableList(taskletList);
   }
 
   Collection<Tasklet> removed() {

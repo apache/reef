@@ -125,33 +125,17 @@ class FirstFitSchedulingPolicy implements SchedulingPolicy {
 
   /**
    * @param vortexWorker that the tasklet completed in
-   * @param tasklet completed
+   * @param tasklets completed
    */
   @Override
-  public void taskletCompleted(final VortexWorkerManager vortexWorker, final Tasklet tasklet) {
+  public void taskletsDone(final VortexWorkerManager vortexWorker, final List<Tasklet> tasklets) {
     final String workerId = vortexWorker.getId();
-    removeTasklet(workerId);
+    removeTasklet(workerId, tasklets);
   }
 
-  /**
-   * @param vortexWorker that the tasklet failed in
-   * @param tasklet failed
-   */
-  @Override
-  public void taskletFailed(final VortexWorkerManager vortexWorker, final Tasklet tasklet) {
-    final String workerId = vortexWorker.getId();
-    removeTasklet(workerId);
-  }
-
-  @Override
-  public void taskletCancelled(final VortexWorkerManager vortexWorker, final Tasklet tasklet) {
-    final String workerId = vortexWorker.getId();
-    removeTasklet(workerId);
-  }
-
-  private void removeTasklet(final String workerId) {
+  private void removeTasklet(final String workerId, final List<Tasklet> tasklets) {
     if (idLoadMap.containsKey(workerId)) {
-      idLoadMap.put(workerId, Math.max(0, idLoadMap.get(workerId) - 1));
+      idLoadMap.put(workerId, Math.max(0, idLoadMap.get(workerId) - tasklets.size()));
     }
   }
 }

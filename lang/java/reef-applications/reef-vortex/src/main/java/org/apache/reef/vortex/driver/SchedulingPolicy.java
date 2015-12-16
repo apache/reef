@@ -21,6 +21,8 @@ package org.apache.reef.vortex.driver;
 import org.apache.reef.tang.annotations.DefaultImplementation;
 import org.apache.reef.util.Optional;
 
+import java.util.List;
+
 /**
  * For choosing which worker to schedule the tasklet onto.
  */
@@ -49,17 +51,7 @@ interface SchedulingPolicy {
   void taskletLaunched(final VortexWorkerManager vortexWorker, final Tasklet tasklet);
 
   /**
-   * Tasklet completed.
+   * Tasklets completed.
    */
-  void taskletCompleted(final VortexWorkerManager vortexWorker, final Tasklet tasklet);
-
-  /**
-   * Tasklet failed.
-   */
-  void taskletFailed(final VortexWorkerManager vortexWorker, final Tasklet tasklet);
-
-  /**
-   * Tasklet cancelled.
-   */
-  void taskletCancelled(final VortexWorkerManager vortexWorker, final Tasklet tasklet);
+  void taskletsDone(final VortexWorkerManager vortexWorker, final List<Tasklet> tasklets);
 }

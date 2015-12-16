@@ -20,7 +20,9 @@ package org.apache.reef.vortex.driver;
 
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -30,8 +32,9 @@ import static org.junit.Assert.assertTrue;
  * Test Possible Race Conditions.
  */
 public class RunningWorkersTest {
-  private final RunningWorkers runningWorkers = new RunningWorkers(new RandomSchedulingPolicy());
   private final TestUtil testUtil = new TestUtil();
+  private final TestUtil.TestSchedulingPolicy schedulingPolicy = testUtil.newSchedulingPolicy();
+  private final RunningWorkers runningWorkers = new RunningWorkers(schedulingPolicy);
 
   /**
    * Test executor preemption -> executor allocation.
@@ -58,7 +61,12 @@ public class RunningWorkersTest {
     final Collection<Tasklet> tasklets = runningWorkers.removeWorker(vortexWorkerManager.getId()).get();
     assertEquals("Only 1 Tasklet must have been running", 1, tasklets.size());
     assertTrue("This Tasklet must have been running", tasklets.contains(tasklet));
-    runningWorkers.completeTasklet(vortexWorkerManager.getId(), tasklet.getId(), null);
-    assertFalse("Tasklet must not have been completed", tasklet.isCompleted());
+    final List<Integer> taskletIds = new ArrayList<>();
+    for (final Tasklet taskletIter : tasklets) {
+      taskletIds.add(taskletIter.getId());
+    }
+
+    runningWorkers.doneTasklets(vortexWorkerManager.getId(), taskletIds);
+    assertFalse("Tasklet must not have been completed", schedulingPolicy.taskletIsDone(tasklet.getId()));
   }
 }

@@ -36,8 +36,10 @@ public interface TaskletReport extends Serializable {
    */
   enum TaskletReportType {
     TaskletResult,
+    TaskletAggregationResult,
     TaskletCancelled,
-    TaskletFailure
+    TaskletFailure,
+    TaskletAggregationFailure
   }
 
   /**

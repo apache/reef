@@ -21,8 +21,11 @@ package org.apache.reef.vortex.api;
 import org.apache.reef.annotations.Unstable;
 import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.util.Optional;
+import org.apache.reef.vortex.common.VortexFutureDelegate;
 import org.apache.reef.vortex.driver.VortexMaster;
 
+import java.io.Serializable;
+import java.util.List;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
@@ -32,7 +35,8 @@ import java.util.logging.Logger;
  * The interface between user code and submitted task.
  */
 @Unstable
-public final class VortexFuture<TOutput> implements Future<TOutput> {
+public final class VortexFuture<TOutput extends Serializable>
+    implements Future<TOutput>, VortexFutureDelegate<TOutput> {
   private static final Logger LOG = Logger.getLogger(VortexFuture.class.getName());
 
   // userResult starts out as null. If not null => variable is set and tasklet returned.
@@ -173,9 +177,13 @@ public final class VortexFuture<TOutput> implements Future<TOutput> {
   }
 
   /**
-   * Called by VortexMaster to let the user know that the task completed.
+   * Called by VortexMaster to let the user know that the Tasklet completed.
    */
-  public void completed(final TOutput result) {
+  @Private
+  @Override
+  public void completed(final int pTaskletId, final TOutput result) {
+    assert taskletId == pTaskletId;
+
     this.userResult = Optional.ofNullable(result);
     if (callbackHandler != null) {
       executor.execute(new Runnable() {
@@ -189,10 +197,22 @@ public final class VortexFuture<TOutput> implements Future<TOutput> {
   }
 
   /**
-   * Called by VortexMaster to let the user know that the task threw an exception.
+   * VortexMaster should never call this.
    */
   @Private
-  public void threwException(final Exception exception) {
+  @Override
+  public void aggregationCompleted(final List<Integer> taskletIds, final TOutput result) {
+    throw new RuntimeException("Functions not associated with AggregationFunctions cannot be aggregated.");
+  }
+
+  /**
+   * Called by VortexMaster to let the user know that the Tasklet threw an exception.
+   */
+  @Private
+  @Override
+  public void threwException(final int pTaskletId, final Exception exception) {
+    assert taskletId == pTaskletId;
+
     this.userException = exception;
     if (callbackHandler != null) {
       executor.execute(new Runnable() {
@@ -206,10 +226,22 @@ public final class VortexFuture<TOutput> implements Future<TOutput> {
   }
 
   /**
-   * Called by VortexMaster to let the user know that the task was cancelled.
+   * VortexMaster should never call this.
    */
   @Private
-  public void cancelled() {
+  @Override
+  public void aggregationThrewException(final List<Integer> taskletIds, final Exception exception) {
+    throw new RuntimeException("Functions not associated with AggregationFunctions cannot be aggregated");
+  }
+
+  /**
+   * Called by VortexMaster to let the user know that the Tasklet was cancelled.
+   */
+  @Private
+  @Override
+  public void cancelled(final int pTaskletId) {
+    assert taskletId == pTaskletId;
+
     this.cancelled.set(true);
     if (callbackHandler != null) {
       executor.execute(new Runnable() {

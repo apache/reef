@@ -22,6 +22,15 @@
     "type": "record",
     "name": "AvroTaskletResultReport",
     "fields": [
+      {"name": "taskletId", "type": "int"},
+      {"name": "serializedOutput", "type": "bytes"}
+    ]
+  },
+  {
+    "namespace": "org.apache.reef.vortex.common.avro",
+    "type": "record",
+    "name": "AvroTaskletAggregationResultReport",
+    "fields": [
       {
         "name": "taskletIds",
         "type":
@@ -46,6 +55,15 @@
     "type": "record",
     "name": "AvroTaskletFailureReport",
     "fields": [
+      {"name": "taskletId", "type": "int"},
+      {"name": "serializedException", "type": "bytes"}
+    ]
+  },
+  {
+    "namespace": "org.apache.reef.vortex.common.avro",
+    "type": "record",
+    "name": "AvroTaskletAggregationFailureReport",
+    "fields": [
       {
         "name": "taskletIds",
         "type":
@@ -68,12 +86,24 @@
         {
           "type": "enum",
           "name": "AvroReportType",
-          "symbols": ["TaskletResult", "TaskletCancelled", "TaskletFailure"]
+          "symbols": [
+            "TaskletResult",
+            "TaskletAggregationResult",
+            "TaskletCancelled",
+            "TaskletFailure",
+            "TaskletAggregationFailure"
+          ]
         }
       },
       {
         "name": "taskletReport",
-        "type": ["AvroTaskletResultReport", "AvroTaskletCancelledReport", "AvroTaskletFailureReport"]
+        "type": [
+          "AvroTaskletResultReport",
+          "AvroTaskletAggregationResultReport",
+          "AvroTaskletCancelledReport",
+          "AvroTaskletFailureReport",
+          "AvroTaskletAggregationFailureReport"
+        ]
       }
     ]
   },
