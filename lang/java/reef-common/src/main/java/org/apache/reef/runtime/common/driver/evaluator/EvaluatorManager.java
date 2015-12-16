@@ -374,6 +374,9 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
         }
       }
 
+      // All messages from a heartbeat receive the heartbeat timestamp as a sequence number. See REEF-806.
+      final long messageSequenceNumber = evaluatorHeartbeatProto.getTimestamp();
+
       // Process the Evaluator status message
       if (evaluatorHeartbeatProto.hasEvaluatorStatus()) {
         EvaluatorStatusPOJO evaluatorStatus = new EvaluatorStatusPOJO(evaluatorHeartbeatProto.getEvaluatorStatus());
@@ -384,16 +387,15 @@ public final class EvaluatorManager implements Identifiable, AutoCloseable {
       final boolean informClientOfNewContexts = !evaluatorHeartbeatProto.hasTaskStatus();
       final List<ContextStatusPOJO> contextStatusList = new ArrayList<>();
       for (ReefServiceProtos.ContextStatusProto proto : evaluatorHeartbeatProto.getContextStatusList()) {
-        contextStatusList.add(new ContextStatusPOJO(proto));
+        contextStatusList.add(new ContextStatusPOJO(proto, messageSequenceNumber));
       }
 
       this.contextRepresenters.onContextStatusMessages(contextStatusList,
           informClientOfNewContexts);
 
       // Process the Task status message
-
       if (evaluatorHeartbeatProto.hasTaskStatus()) {
-        TaskStatusPOJO taskStatus = new TaskStatusPOJO(evaluatorHeartbeatProto.getTaskStatus());
+        TaskStatusPOJO taskStatus = new TaskStatusPOJO(evaluatorHeartbeatProto.getTaskStatus(), messageSequenceNumber);
         this.onTaskStatusMessage(taskStatus);
       }
       LOG.log(Level.FINE, "DONE with evaluator heartbeat from Evaluator {0}", this.getId());

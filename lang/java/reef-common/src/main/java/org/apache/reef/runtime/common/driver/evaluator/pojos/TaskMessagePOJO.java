@@ -21,6 +21,7 @@ package org.apache.reef.runtime.common.driver.evaluator.pojos;
 
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
+import org.apache.reef.io.Numberable;
 import org.apache.reef.proto.ReefServiceProtos;
 
 /**
@@ -28,14 +29,16 @@ import org.apache.reef.proto.ReefServiceProtos;
  */
 @DriverSide
 @Private
-public final class TaskMessagePOJO {
+public final class TaskMessagePOJO implements Numberable {
 
   private final byte[] message;
   private final String sourceId;
+  private final long sequenceNumber;
 
-  TaskMessagePOJO(final ReefServiceProtos.TaskStatusProto.TaskMessageProto proto){
+  TaskMessagePOJO(final ReefServiceProtos.TaskStatusProto.TaskMessageProto proto, final long sequenceNumber) {
     message = proto.getMessage().toByteArray();
     sourceId = proto.getSourceId();
+    this.sequenceNumber = sequenceNumber;
   }
 
   /**
@@ -51,4 +54,15 @@ public final class TaskMessagePOJO {
   public String getSourceId(){
     return sourceId;
   }
+
+  /**
+   * @return the sequence number of a message
+   *
+   * {@see TaskMessage#getSequenceNumber()}
+   */
+  @Override
+  public long getSequenceNumber(){
+    return this.sequenceNumber;
+  }
+
 }

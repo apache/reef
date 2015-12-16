@@ -149,10 +149,10 @@ public final class TaskRepresenter {
     }
 
     for (final TaskMessagePOJO
-             taskMessageProto : taskStatus.getTaskMessageList()) {
+             taskMessagePOJO : taskStatus.getTaskMessageList()) {
       this.messageDispatcher.onTaskMessage(
-          new TaskMessageImpl(taskMessageProto.getMessage(),
-              this.taskId, this.context.getId(), taskMessageProto.getSourceId()));
+          new TaskMessageImpl(taskMessagePOJO.getMessage(),
+              this.taskId, this.context.getId(), taskMessagePOJO.getSourceId(), taskMessagePOJO.getSequenceNumber()));
     }
   }
 

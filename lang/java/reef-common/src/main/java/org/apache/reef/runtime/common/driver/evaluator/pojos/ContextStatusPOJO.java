@@ -41,7 +41,7 @@ public final class ContextStatusPOJO {
   private final List<ContextMessagePOJO> contextMessages = new ArrayList<>();
 
 
-  public ContextStatusPOJO(final ReefServiceProtos.ContextStatusProto proto){
+  public ContextStatusPOJO(final ReefServiceProtos.ContextStatusProto proto, final long sequenceNumber){
 
     contextId = proto.getContextId();
     parentId = proto.hasParentId() ? proto.getParentId() : null;
@@ -49,7 +49,7 @@ public final class ContextStatusPOJO {
     contextState = proto.hasContextState()? getContextStateFromProto(proto.getContextState()) : null;
 
     for (final ContextMessageProto contextMessageProto : proto.getContextMessageList()) {
-      contextMessages.add(new ContextMessagePOJO(contextMessageProto));
+      contextMessages.add(new ContextMessagePOJO(contextMessageProto,  sequenceNumber));
     }
 
   }
