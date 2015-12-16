@@ -22,7 +22,7 @@ using Org.Apache.REEF.Driver.Bridge.Clr2java;
 
 namespace Org.Apache.REEF.Driver.Bridge.Events
 {
-    public class ContextMessage : IContextMessage
+    internal sealed class ContextMessage : IContextMessage
     {
         private readonly string _messageSourcId;
         private readonly byte[] _bytes;

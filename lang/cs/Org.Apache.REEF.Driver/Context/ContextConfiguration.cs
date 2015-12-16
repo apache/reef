@@ -25,12 +25,14 @@ using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Common.Tasks.Events;
 using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Util;
+using Org.Apache.REEF.Utilities.Attributes;
 
 [module: SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1401:FieldsMustBePrivate", Justification = "static field, typical usage in configurations")]
 
 namespace Org.Apache.REEF.Driver.Context
 {
-    public class ContextConfiguration : ConfigurationModuleBuilder
+    [ClientSide]
+    public sealed class ContextConfiguration : ConfigurationModuleBuilder
     {
         /// <summary>
         ///  The identifier of the context.

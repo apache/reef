@@ -24,7 +24,7 @@ using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Driver.Bridge.Events
 {
-    public class RunningTask : IRunningTask
+    internal sealed class RunningTask : IRunningTask
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(RunningTask));
         private readonly IRunningTaskClr2Java _runningTaskClr2Java;

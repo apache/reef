@@ -24,7 +24,7 @@ using Org.Apache.REEF.Utilities;
 
 namespace Org.Apache.REEF.Driver.Bridge.Events
 {
-    internal class FailedContext : IFailedContext
+    internal sealed class FailedContext : IFailedContext
     {
         private readonly string _evaluatorId;
         private readonly string _id;

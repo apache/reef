@@ -17,11 +17,14 @@
  * under the License.
  */
 
+using Org.Apache.REEF.Utilities.Attributes;
+
 namespace Org.Apache.REEF.Driver.Bridge.Clr2java
 {
     /// <summary>
     /// An message sent from a Task to a Driver.
     /// </summary>
+    [Private, Interop]
     public interface IClr2JavaTaskMessage
     {
         /// <summary>

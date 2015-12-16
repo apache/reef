@@ -27,12 +27,14 @@ using Org.Apache.REEF.Driver.Evaluator;
 using Org.Apache.REEF.Driver.Task;
 using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Util;
+using Org.Apache.REEF.Utilities.Attributes;
 
 namespace Org.Apache.REEF.Driver
 {
     /// <summary>
     /// Fill this out to configure a Driver.
     /// </summary>
+    [ClientSide]
     public sealed class DriverConfiguration : ConfigurationModuleBuilder
     {
         /// <summary>

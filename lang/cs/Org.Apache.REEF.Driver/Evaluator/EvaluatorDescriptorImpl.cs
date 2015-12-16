@@ -24,12 +24,14 @@ using System.Net;
 using Org.Apache.REEF.Common.Catalog;
 using Org.Apache.REEF.Common.Evaluator;
 using Org.Apache.REEF.Driver.Bridge;
+using Org.Apache.REEF.Utilities.Attributes;
 using Org.Apache.REEF.Utilities.Diagnostics;
 using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Driver.Evaluator
 {
     // This class is `public` because it is called from C++ code.
+    [Private]
     public sealed class EvaluatorDescriptorImpl : IEvaluatorDescriptor
     {
         private const string DefaultRackName = "default_rack";

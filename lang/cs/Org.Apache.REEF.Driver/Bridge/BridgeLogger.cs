@@ -18,6 +18,7 @@
  */
 
 using System;
+using Org.Apache.REEF.Utilities.Attributes;
 using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Driver.Bridge
@@ -27,7 +28,8 @@ namespace Org.Apache.REEF.Driver.Bridge
     /// logging in CPP bridge code. 
     /// This is enabled when trace leve is above Level.Info (included)
     /// </summary>
-    public class BridgeLogger
+    [Private]
+    public sealed class BridgeLogger
     {
         private readonly Logger _logger;
 

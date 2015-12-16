@@ -26,13 +26,15 @@ using Org.Apache.REEF.Driver.Bridge.Events;
 using Org.Apache.REEF.Driver.Context;
 using Org.Apache.REEF.Driver.Evaluator;
 using Org.Apache.REEF.Driver.Task;
+using Org.Apache.REEF.Utilities.Attributes;
 using Org.Apache.REEF.Utilities.Diagnostics;
 using Org.Apache.REEF.Utilities.Logging;
 using ContextMessage = Org.Apache.REEF.Driver.Bridge.Events.ContextMessage;
 
 namespace Org.Apache.REEF.Driver.Bridge
 {
-    public class ClrSystemHandlerWrapper
+    [Private]
+    public static class ClrSystemHandlerWrapper
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(ClrSystemHandlerWrapper));
 

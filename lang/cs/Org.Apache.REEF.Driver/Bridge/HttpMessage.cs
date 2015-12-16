@@ -23,7 +23,7 @@ using Org.Apache.REEF.Driver.Bridge.Clr2java;
 namespace Org.Apache.REEF.Driver.Bridge
 {
     [DataContract]
-    public class HttpMessage : IHttpMessage
+    internal sealed class HttpMessage : IHttpMessage
     {
         public HttpMessage(IHttpServerBridgeClr2Java httpServerBridgeClr2Java)
         {

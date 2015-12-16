@@ -24,13 +24,15 @@ using Org.Apache.REEF.Common.Events;
 using Org.Apache.REEF.Driver.Context.Defaults;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Formats;
+using Org.Apache.REEF.Utilities.Attributes;
 
 namespace Org.Apache.REEF.Driver.Context
 {
     /// <summary>
     ///  Configuration parameters for ContextConfiguration module.
     /// </summary>
-    public class ContextConfigurationOptions : ConfigurationModuleBuilder 
+    [ClientSide]
+    public sealed class ContextConfigurationOptions : ConfigurationModuleBuilder 
     {
         [NamedParameter(documentation: "The identifier for the context.")]
         public class ContextIdentifier : Name<string>

@@ -21,10 +21,10 @@ using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.Driver.Bridge
 {
-    public class HttpServerPort
+    public sealed class HttpServerPort
     {
         [Inject]
-        public HttpServerPort()
+        private HttpServerPort()
         {            
         }
 

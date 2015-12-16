@@ -22,7 +22,7 @@ using System.Collections.Generic;
 
 namespace Org.Apache.REEF.Driver.Bridge
 {
-    public class ClrSystemHandler<T> : IObserver<T>, IObservable<T>
+    internal sealed class ClrSystemHandler<T> : IObserver<T>, IObservable<T>
     {
         readonly List<IObserver<T>> userHandlers = new List<IObserver<T>>();
 

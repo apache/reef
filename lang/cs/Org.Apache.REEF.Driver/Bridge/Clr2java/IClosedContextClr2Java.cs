@@ -18,12 +18,14 @@
  */
 
 using Org.Apache.REEF.Driver.Evaluator;
+using Org.Apache.REEF.Utilities.Attributes;
 
 namespace Org.Apache.REEF.Driver.Bridge.Clr2java
 {
     /// <summary>
     /// A closed context event from Java.
     /// </summary>
+    [Private, Interop("ClosedContextClr2Java.cpp", "Clr2JavaImpl.h")]
     public interface IClosedContextClr2Java : IClr2Java
     {        
         /// <summary>

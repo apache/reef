@@ -17,14 +17,12 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Globalization;
 using System.Linq;
 using Org.Apache.REEF.Client.API;
 using Org.Apache.REEF.Client.Common;
 using Org.Apache.REEF.Driver;
 using Org.Apache.REEF.IMRU.API;
-using Org.Apache.REEF.Driver.Bridge;
 using Org.Apache.REEF.IMRU.OnREEF.Driver;
 using Org.Apache.REEF.IMRU.OnREEF.Parameters;
 using Org.Apache.REEF.Network.Group.Config;
@@ -38,6 +36,7 @@ using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities.Diagnostics;
 using Org.Apache.REEF.Utilities.Logging;
+using TraceLevel = System.Diagnostics.TraceLevel;
 
 namespace Org.Apache.REEF.IMRU.OnREEF.Client
 {

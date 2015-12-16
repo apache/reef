@@ -26,11 +26,13 @@ using Org.Apache.REEF.Tang.Formats.AvroConfigurationDataContract;
 using Org.Apache.REEF.Tang.Implementations.Configuration;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Protobuf;
+using Org.Apache.REEF.Utilities.Attributes;
 using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Driver
 {
-    public class DriverConfigGenerator
+    [ClientSide]
+    public static class DriverConfigGenerator
     {
         public const string DriverConfigFile = "driver.config";
         public const string JobDriverConfigFile = "jobDriver.config";
