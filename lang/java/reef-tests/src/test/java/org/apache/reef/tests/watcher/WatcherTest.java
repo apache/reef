@@ -63,8 +63,6 @@ public final class WatcherTest {
         .set(DriverConfiguration.ON_CONTEXT_ACTIVE, WatcherTestDriver.ContextActivatedHandler.class)
         .set(DriverConfiguration.ON_CONTEXT_FAILED, WatcherTestDriver.ContextFailedHandler.class)
         .set(DriverConfiguration.ON_TASK_FAILED, WatcherTestDriver.TaskFailedHandler.class)
-        .set(DriverConfiguration.ON_TASK_RUNNING, WatcherTestDriver.TaskRunningHandler.class)
-        .set(DriverConfiguration.ON_TASK_SUSPENDED, WatcherTestDriver.TaskSuspendedHandler.class)
         .build();
 
     final Configuration runtimeStopConf = Tang.Factory.getTang().newConfigurationBuilder()

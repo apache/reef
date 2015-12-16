@@ -18,64 +18,24 @@
  */
 package org.apache.reef.tests.watcher;
 
-import org.apache.reef.tang.annotations.Parameter;
-import org.apache.reef.tang.annotations.Unit;
 import org.apache.reef.task.HeartBeatTriggerManager;
 import org.apache.reef.task.Task;
-import org.apache.reef.task.TaskMessage;
-import org.apache.reef.task.TaskMessageSource;
-import org.apache.reef.task.events.SuspendEvent;
-import org.apache.reef.util.Optional;
-import org.apache.reef.wake.EventHandler;
 
 import javax.inject.Inject;
-import java.nio.charset.Charset;
 
-@Unit
-public final class WatcherTestTask implements Task, TaskMessageSource {
+public final class WatcherTestTask implements Task {
 
-  private final TaskMessage taskMessage;
   private final HeartBeatTriggerManager heartBeatTriggerManager;
-  private final boolean isTaskSuspended;
-  private boolean isRunning;
 
   @Inject
-  private WatcherTestTask(final HeartBeatTriggerManager heartBeatTriggerManager,
-                          @Parameter(IsTaskSuspended.class) final boolean isTaskSuspended) {
-    this.taskMessage = TaskMessage.from("MESSAGE_SOURCE", "MESSAGE".getBytes(Charset.forName("UTF-8")));
+  private WatcherTestTask(final HeartBeatTriggerManager heartBeatTriggerManager) {
     this.heartBeatTriggerManager = heartBeatTriggerManager;
-    this.isTaskSuspended = isTaskSuspended;
-    this.isRunning = true;
   }
 
   @Override
   public byte[] call(final byte[] memento) throws Exception {
-    if (isTaskSuspended) {
-      synchronized (this) {
-        while (isRunning) {
-          wait();
-        }
-      }
-    } else {
-      heartBeatTriggerManager.triggerHeartBeat();
-    }
+    heartBeatTriggerManager.triggerHeartBeat();
 
     return null;
-  }
-
-  @Override
-  public Optional<TaskMessage> getMessage() {
-    return Optional.of(taskMessage);
-  }
-
-  public final class TaskSuspendedHandler implements EventHandler<SuspendEvent> {
-
-    @Override
-    public void onNext(final SuspendEvent value) {
-      synchronized (WatcherTestTask.this) {
-        isRunning = false;
-        WatcherTestTask.this.notify();
-      }
-    }
   }
 }
