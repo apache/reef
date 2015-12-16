@@ -40,7 +40,7 @@ public final class TaskStatusPOJO {
   private final byte[] result;
   private final List<TaskMessagePOJO> taskMessages = new ArrayList<>();
 
-  public TaskStatusPOJO(final ReefServiceProtos.TaskStatusProto proto){
+  public TaskStatusPOJO(final ReefServiceProtos.TaskStatusProto proto, final long sequenceNumber){
 
     taskId = proto.getTaskId();
     contextId = proto.getContextId();
@@ -48,7 +48,7 @@ public final class TaskStatusPOJO {
     result = proto.hasResult() ? proto.getResult().toByteArray() : null;
 
     for (final TaskMessageProto taskMessageProto : proto.getTaskMessageList()) {
-      taskMessages.add(new TaskMessagePOJO(taskMessageProto));
+      taskMessages.add(new TaskMessagePOJO(taskMessageProto, sequenceNumber));
     }
 
   }

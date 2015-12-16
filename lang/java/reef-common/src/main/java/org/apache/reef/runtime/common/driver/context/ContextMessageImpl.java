@@ -28,14 +28,18 @@ import org.apache.reef.driver.context.ContextMessage;
 @Private
 @DriverSide
 public final class ContextMessageImpl implements ContextMessage {
+
   private final byte[] theMessage;
   private final String theContextID;
   private final String theMessageSourceId;
+  private final long sequenceNumber;
 
-  public ContextMessageImpl(final byte[] theMessage, final String theContextID, final String theMessageSourceId) {
+  public ContextMessageImpl(final byte[] theMessage, final String theContextID, final String theMessageSourceId,
+                            final long sequenceNumber) {
     this.theMessage = theMessage;
     this.theContextID = theContextID;
     this.theMessageSourceId = theMessageSourceId;
+    this.sequenceNumber = sequenceNumber;
   }
 
   @Override
@@ -51,5 +55,10 @@ public final class ContextMessageImpl implements ContextMessage {
   @Override
   public String getMessageSourceID() {
     return this.theMessageSourceId;
+  }
+
+  @Override
+  public long getSequenceNumber() {
+    return this.sequenceNumber;
   }
 }

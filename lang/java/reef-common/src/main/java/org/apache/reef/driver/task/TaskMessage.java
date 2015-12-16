@@ -22,6 +22,7 @@ import org.apache.reef.annotations.Provided;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Public;
 import org.apache.reef.io.Message;
+import org.apache.reef.io.Numberable;
 import org.apache.reef.io.naming.Identifiable;
 
 /**
@@ -30,7 +31,7 @@ import org.apache.reef.io.naming.Identifiable;
 @DriverSide
 @Public
 @Provided
-public interface TaskMessage extends Message, Identifiable {
+public interface TaskMessage extends Message, Identifiable, Numberable {
 
   /**
    * @return the message.
@@ -43,6 +44,27 @@ public interface TaskMessage extends Message, Identifiable {
    */
   @Override
   String getId();
+
+  /**
+   * @return the sequence number of the message
+   *
+   * Terminology: a source sends a message to a target.
+   * Example sources are Tasks or Contexts. Example targets are Drivers.
+   *
+   * The method guarantees that sequence numbers increase strictly monotonically per message source.
+   * So numbers of messages from different sources should not be compared to each other.
+   *
+   * Clients of this method must not assume any particular method implementation
+   * because it may change in the future.
+   *
+   * The current implementation returns the timestamp of a heartbeat that contained the message.
+   * A heartbeat may contain several messages; all such message will get the same sequence number.
+   * A source can attach only one message to a single heartbeat, so the strict sequence number monotonicity
+   * per source is guaranteed.
+   *
+   */
+  @Override
+  long getSequenceNumber();
 
   /**
    * @return the id of the context the sending task is running in.

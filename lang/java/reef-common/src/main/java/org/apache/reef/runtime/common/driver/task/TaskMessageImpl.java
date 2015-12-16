@@ -33,13 +33,16 @@ public final class TaskMessageImpl implements TaskMessage {
   private final String taskId;
   private final String contextId;
   private final String theMessageSourceId;
+  private final long   sequenceNumber;
 
   public TaskMessageImpl(final byte[] theMessage, final String taskId,
-                         final String contextId, final String theMessageSourceId) {
+                         final String contextId, final String theMessageSourceId,
+                         final long sequenceNumber) {
     this.theMessage = theMessage;
     this.taskId = taskId;
     this.contextId = contextId;
     this.theMessageSourceId = theMessageSourceId;
+    this.sequenceNumber = sequenceNumber;
   }
 
   @Override
@@ -61,4 +64,10 @@ public final class TaskMessageImpl implements TaskMessage {
   public String getMessageSourceID() {
     return this.theMessageSourceId;
   }
+
+  @Override
+  public long getSequenceNumber() {
+    return this.sequenceNumber;
+  }
+  
 }

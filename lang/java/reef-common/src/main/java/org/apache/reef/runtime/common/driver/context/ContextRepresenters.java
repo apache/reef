@@ -198,7 +198,8 @@ public final class ContextRepresenters {
              contextMessage : contextStatus.getContextMessageList()) {
       final byte[] theMessage = contextMessage.getMessage();
       final String sourceID = contextMessage.getSourceId();
-      this.messageDispatcher.onContextMessage(new ContextMessageImpl(theMessage, contextID, sourceID));
+      final long sequenceNumber = contextMessage.getSequenceNumber();
+      this.messageDispatcher.onContextMessage(new ContextMessageImpl(theMessage, contextID, sourceID, sequenceNumber));
     }
 
   }
