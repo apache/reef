@@ -22,6 +22,9 @@ import org.apache.avro.io.*;
 import org.apache.avro.specific.SpecificDatumReader;
 import org.apache.avro.specific.SpecificDatumWriter;
 import org.apache.commons.lang.SerializationUtils;
+import org.apache.reef.annotations.Unstable;
+import org.apache.reef.annotations.audience.DriverSide;
+import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.vortex.api.VortexFunction;
 import org.apache.reef.vortex.common.avro.*;
 
@@ -35,6 +38,9 @@ import java.util.List;
 /**
  * Serialize and deserialize Vortex message to/from byte array.
  */
+@Private
+@DriverSide
+@Unstable
 public final class VortexAvroUtils {
   /**
    * Serialize VortexRequest to byte array.
@@ -101,8 +107,23 @@ public final class VortexAvroUtils {
             .setReportType(AvroReportType.TaskletResult)
             .setTaskletReport(
                 AvroTaskletResultReport.newBuilder()
-                    .setTaskletIds(taskletResultReport.getTaskletIds())
+                    .setTaskletId(taskletResultReport.getTaskletId())
                     .setSerializedOutput(ByteBuffer.wrap(serializedOutput))
+                    .build())
+            .build();
+        break;
+      case TaskletAggregationResult:
+        final TaskletAggregationResultReport taskletAggregationResultReport =
+            (TaskletAggregationResultReport) taskletReport;
+        // TODO[REEF-1005]: Allow custom codecs for input/output data in Vortex.
+        final byte[] serializedAggregationOutput =
+            SerializationUtils.serialize(taskletAggregationResultReport.getResult());
+        avroTaskletReport = AvroTaskletReport.newBuilder()
+            .setReportType(AvroReportType.TaskletAggregationResult)
+            .setTaskletReport(
+                AvroTaskletAggregationResultReport.newBuilder()
+                    .setTaskletIds(taskletAggregationResultReport.getTaskletIds())
+                    .setSerializedOutput(ByteBuffer.wrap(serializedAggregationOutput))
                     .build())
             .build();
         break;
@@ -123,8 +144,22 @@ public final class VortexAvroUtils {
             .setReportType(AvroReportType.TaskletFailure)
             .setTaskletReport(
                 AvroTaskletFailureReport.newBuilder()
-                    .setTaskletIds(taskletFailureReport.getTaskletIds())
+                    .setTaskletId(taskletFailureReport.getTaskletId())
                     .setSerializedException(ByteBuffer.wrap(serializedException))
+                    .build())
+            .build();
+        break;
+      case TaskletAggregationFailure:
+        final TaskletAggregationFailureReport taskletAggregationFailureReport =
+            (TaskletAggregationFailureReport) taskletReport;
+        final byte[] serializedAggregationException =
+            SerializationUtils.serialize(taskletAggregationFailureReport.getException());
+        avroTaskletReport = AvroTaskletReport.newBuilder()
+            .setReportType(AvroReportType.TaskletAggregationFailure)
+            .setTaskletReport(
+                AvroTaskletAggregationFailureReport.newBuilder()
+                    .setTaskletIds(taskletAggregationFailureReport.getTaskletIds())
+                    .setSerializedException(ByteBuffer.wrap(serializedAggregationException))
                     .build())
             .build();
         break;
@@ -197,7 +232,16 @@ public final class VortexAvroUtils {
         // TODO[REEF-1005]: Allow custom codecs for input/output data in Vortex.
         final Serializable output =
             (Serializable) SerializationUtils.deserialize(taskletResultReport.getSerializedOutput().array());
-        taskletReport = new TaskletResultReport<>(taskletResultReport.getTaskletIds(), output);
+        taskletReport = new TaskletResultReport<>(taskletResultReport.getTaskletId(), output);
+        break;
+      case TaskletAggregationResult:
+        final AvroTaskletAggregationResultReport taskletAggregationResultReport =
+            (AvroTaskletAggregationResultReport)avroTaskletReport.getTaskletReport();
+        final Serializable aggregationOutput =
+            (Serializable) SerializationUtils.deserialize(
+                taskletAggregationResultReport.getSerializedOutput().array());
+        taskletReport =
+            new TaskletAggregationResultReport<>(taskletAggregationResultReport.getTaskletIds(), aggregationOutput);
         break;
       case TaskletCancelled:
         final AvroTaskletCancelledReport taskletCancelledReport =
@@ -209,7 +253,16 @@ public final class VortexAvroUtils {
             (AvroTaskletFailureReport)avroTaskletReport.getTaskletReport();
         final Exception exception =
             (Exception) SerializationUtils.deserialize(taskletFailureReport.getSerializedException().array());
-        taskletReport = new TaskletFailureReport(taskletFailureReport.getTaskletIds(), exception);
+        taskletReport = new TaskletFailureReport(taskletFailureReport.getTaskletId(), exception);
+        break;
+      case TaskletAggregationFailure:
+        final AvroTaskletAggregationFailureReport taskletAggregationFailureReport =
+            (AvroTaskletAggregationFailureReport)avroTaskletReport.getTaskletReport();
+        final Exception aggregationException =
+            (Exception) SerializationUtils.deserialize(
+                taskletAggregationFailureReport.getSerializedException().array());
+        taskletReport =
+            new TaskletAggregationFailureReport(taskletAggregationFailureReport.getTaskletIds(), aggregationException);
         break;
       default:
         throw new RuntimeException("Undefined TaskletReport type");

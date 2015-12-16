@@ -36,7 +36,6 @@ import org.apache.reef.wake.EventHandler;
 import javax.inject.Inject;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.*;
 import java.util.logging.Level;
@@ -111,8 +110,7 @@ public final class VortexWorker implements Task, TaskMessageSource {
                         // Command Executor: Execute the command
                         final Serializable result = taskletExecutionRequest.execute();
                         final TaskletReport taskletReport =
-                            new TaskletResultReport<>(Collections.singletonList(
-                                taskletExecutionRequest.getTaskletId()), result);
+                            new TaskletResultReport<>(taskletExecutionRequest.getTaskletId(), result);
                         taskletReports.add(taskletReport);
                       } catch (final InterruptedException ex) {
                         // Assumes that user's thread follows convention that cancelled Futures
@@ -124,8 +122,7 @@ public final class VortexWorker implements Task, TaskMessageSource {
                       } catch (Exception e) {
                         // Command Executor: Tasklet throws an exception
                         final TaskletReport taskletReport =
-                            new TaskletFailureReport(Collections.singletonList(
-                                taskletExecutionRequest.getTaskletId()), e);
+                            new TaskletFailureReport(taskletExecutionRequest.getTaskletId(), e);
                         taskletReports.add(taskletReport);
                       }
 

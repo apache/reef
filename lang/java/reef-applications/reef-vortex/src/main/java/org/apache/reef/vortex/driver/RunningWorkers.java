@@ -25,7 +25,6 @@ import org.apache.reef.util.Optional;
 
 import javax.inject.Inject;
 
-import java.io.Serializable;
 import java.util.*;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
@@ -184,69 +183,18 @@ final class RunningWorkers {
    * Parameter: Same arguments can come in multiple times.
    * (e.g. preemption message coming before tasklet completion message multiple times)
    */
-  void completeTasklet(final String workerId,
-                       final int taskletId,
-                       final Serializable result) {
+  void doneTasklets(final String workerId, final List<Integer> taskletIds) {
     lock.lock();
     try {
       if (!terminated && runningWorkers.containsKey(workerId)) { // Preemption can come before
         final VortexWorkerManager worker = this.runningWorkers.get(workerId);
-        final Tasklet tasklet = worker.taskletCompleted(taskletId, result);
-        this.schedulingPolicy.taskletCompleted(worker, tasklet);
+        final List<Tasklet> tasklets = worker.taskletsDone(taskletIds);
+        this.schedulingPolicy.taskletsDone(worker, tasklets);
+
+        taskletsToCancel.removeAll(taskletIds); // cleanup to prevent memory leak.
 
         // Notify (possibly) waiting scheduler
         noWorkerOrResource.signal();
-
-        taskletsToCancel.remove(taskletId); // cleanup to prevent memory leak.
-      }
-    } finally {
-      lock.unlock();
-    }
-  }
-
-  /**
-   * Concurrency: Called by multiple threads.
-   * Parameter: Same arguments can come in multiple times.
-   * (e.g. preemption message coming before tasklet error message multiple times)
-   */
-  void errorTasklet(final String workerId,
-                    final int taskletId,
-                    final Exception exception) {
-    lock.lock();
-    try {
-      if (!terminated && runningWorkers.containsKey(workerId)) { // Preemption can come before
-        final VortexWorkerManager worker = this.runningWorkers.get(workerId);
-        final Tasklet tasklet = worker.taskletThrewException(taskletId, exception);
-        this.schedulingPolicy.taskletFailed(worker, tasklet);
-
-        // Notify (possibly) waiting scheduler
-        noWorkerOrResource.signal();
-
-        taskletsToCancel.remove(taskletId); // cleanup to prevent memory leak.
-      }
-    } finally {
-      lock.unlock();
-    }
-  }
-
-  /**
-   * Concurrency: Called by multiple threads.
-   * Parameter: Same arguments can come in multiple times.
-   * (e.g. preemption message coming before tasklet error message multiple times)
-   */
-  void taskletCancelled(final String workerId,
-                        final int taskletId) {
-    lock.lock();
-    try {
-      if (!terminated && runningWorkers.containsKey(workerId)) { // Preemption can come before
-        final VortexWorkerManager worker = this.runningWorkers.get(workerId);
-        final Tasklet tasklet = worker.taskletCancelled(taskletId);
-        this.schedulingPolicy.taskletCancelled(worker, tasklet);
-
-        // Notify (possibly) waiting scheduler
-        noWorkerOrResource.signal();
-
-        taskletsToCancel.remove(taskletId); // cleanup to prevent memory leak.
       }
     } finally {
       lock.unlock();

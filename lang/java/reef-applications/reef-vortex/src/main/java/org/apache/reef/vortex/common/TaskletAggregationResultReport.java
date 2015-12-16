@@ -22,23 +22,28 @@ import org.apache.reef.annotations.Unstable;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 /**
- * Report of a Tasklet exception.
+ * Report of a Tasklet aggregation execution result.
  */
-@Unstable
 @Private
 @DriverSide
-public final class TaskletFailureReport implements TaskletReport {
-  private final int taskletId;
-  private final Exception exception;
+@Unstable
+public final class TaskletAggregationResultReport<TOutput extends Serializable> implements TaskletReport {
+  private final List<Integer> taskletIds;
+  private final TOutput result;
 
   /**
-   * @param taskletId of the failed Tasklet.
-   * @param exception that caused the tasklet failure.
+   * @param taskletIds of the tasklets.
+   * @param result of the tasklet execution.
    */
-  public TaskletFailureReport(final int taskletId, final Exception exception) {
-    this.taskletId = taskletId;
-    this.exception = exception;
+  public TaskletAggregationResultReport(final List<Integer> taskletIds, final TOutput result) {
+    this.taskletIds = Collections.unmodifiableList(new ArrayList<>(taskletIds));
+    this.result = result;
   }
 
   /**
@@ -46,20 +51,21 @@ public final class TaskletFailureReport implements TaskletReport {
    */
   @Override
   public TaskletReportType getType() {
-    return TaskletReportType.TaskletFailure;
+    return TaskletReportType.TaskletAggregationResult;
   }
 
   /**
-   * @return the taskletId of this TaskletReport.
+   * @return the TaskletId(s) of this TaskletReport
    */
-  public int getTaskletId() {
-    return taskletId;
+  public List<Integer> getTaskletIds() {
+    return taskletIds;
   }
 
   /**
-   * @return the exception that caused the Tasklet failure.
+   * @return the result of the Tasklet aggregation execution.
    */
-  public Exception getException() {
-    return exception;
+  public TOutput getResult() {
+    return result;
   }
+
 }

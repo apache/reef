@@ -22,44 +22,40 @@ import org.apache.reef.annotations.Unstable;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
 
+import java.io.Serializable;
+import java.util.List;
+
 /**
- * Report of a Tasklet exception.
+ * Exposes functions to be called by the {@link org.apache.reef.vortex.driver.VortexMaster}
+ * to note that a list of Tasklets associated with a Future has completed.
  */
 @Unstable
-@Private
 @DriverSide
-public final class TaskletFailureReport implements TaskletReport {
-  private final int taskletId;
-  private final Exception exception;
+@Private
+public interface VortexFutureDelegate<TOutput extends Serializable> {
 
   /**
-   * @param taskletId of the failed Tasklet.
-   * @param exception that caused the tasklet failure.
+   * A Tasklet associated with the future has completed with a result.
    */
-  public TaskletFailureReport(final int taskletId, final Exception exception) {
-    this.taskletId = taskletId;
-    this.exception = exception;
-  }
+  void completed(final int taskletId, final TOutput result);
 
   /**
-   * @return the type of this TaskletReport.
+   * The list of aggregated Tasklets associated with the Future that have completed with a result.
    */
-  @Override
-  public TaskletReportType getType() {
-    return TaskletReportType.TaskletFailure;
-  }
+  void aggregationCompleted(final List<Integer> taskletIds, final TOutput result);
 
   /**
-   * @return the taskletId of this TaskletReport.
+   * A Tasklet associated with the Future has thrown an Exception.
    */
-  public int getTaskletId() {
-    return taskletId;
-  }
+  void threwException(final int taskletId, final Exception exception);
 
   /**
-   * @return the exception that caused the Tasklet failure.
+   * The list of Tasklets associated with the Future that have thrown an Exception.
    */
-  public Exception getException() {
-    return exception;
-  }
+  void aggregationThrewException(final List<Integer> taskletIds, final Exception exception);
+
+  /**
+   * A Tasklet associated with the Future has been cancelled.
+   */
+  void cancelled(final int taskletId);
 }

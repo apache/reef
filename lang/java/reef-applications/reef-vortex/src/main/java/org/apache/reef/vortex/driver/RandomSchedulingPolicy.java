@@ -90,24 +90,7 @@ class RandomSchedulingPolicy implements SchedulingPolicy {
    * Do nothing.
    */
   @Override
-  public void taskletCompleted(final VortexWorkerManager vortexWorker, final Tasklet tasklet) {
+  public void taskletsDone(final VortexWorkerManager vortexWorker, final List<Tasklet> tasklets) {
     // Do nothing
   }
-
-  /**
-   * Do nothing.
-   */
-  @Override
-  public void taskletFailed(final VortexWorkerManager vortexWorker, final Tasklet tasklet) {
-    // Do nothing
-  }
-
-  /**
-   * Do nothing.
-   */
-  @Override
-  public void taskletCancelled(final VortexWorkerManager vortexWorker, final Tasklet tasklet) {
-    // Do nothing
-  }
-
 }

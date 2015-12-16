@@ -19,26 +19,27 @@
 package org.apache.reef.vortex.common;
 
 import org.apache.reef.annotations.Unstable;
+import org.apache.reef.annotations.audience.DriverSide;
+import org.apache.reef.annotations.audience.Private;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * Report of a tasklet execution result.
  */
 @Unstable
+@Private
+@DriverSide
 public final class TaskletResultReport<TOutput extends Serializable> implements TaskletReport {
-  private final List<Integer> taskletIds;
+  private final int taskletId;
   private final TOutput result;
 
   /**
-   * @param taskletIds of the tasklets.
-   * @param result of the tasklet execution.
+   * @param taskletId of the Tasklet.
+   * @param result of the Tasklet execution.
    */
-  public TaskletResultReport(final List<Integer> taskletIds, final TOutput result) {
-    this.taskletIds = Collections.unmodifiableList(new ArrayList<>(taskletIds));
+  public TaskletResultReport(final int taskletId, final TOutput result) {
+    this.taskletId = taskletId;
     this.result = result;
   }
 
@@ -51,16 +52,14 @@ public final class TaskletResultReport<TOutput extends Serializable> implements 
   }
 
   /**
-   * Returns multiple TaskletIds if the result is from an Aggregation.
-   * Returns a single TaskletId if the result is from a single Tasklet.
-   * @return the TaskletId(s) of this TaskletReport
+   * @return the TaskletId of this TaskletReport
    */
-  public List<Integer> getTaskletIds() {
-    return taskletIds;
+  public int getTaskletId() {
+    return taskletId;
   }
 
   /**
-   * @return the result of the tasklet execution.
+   * @return the result of the Tasklet execution.
    */
   public TOutput getResult() {
     return result;
