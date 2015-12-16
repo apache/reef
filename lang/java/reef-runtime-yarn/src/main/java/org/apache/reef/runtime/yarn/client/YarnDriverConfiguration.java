@@ -20,6 +20,7 @@ package org.apache.reef.runtime.yarn.client;
 
 import org.apache.reef.annotations.audience.ClientSide;
 import org.apache.reef.annotations.audience.Public;
+import org.apache.reef.runtime.yarn.driver.parameters.JobSubmissionDirectoryPrefix;
 import org.apache.reef.runtime.yarn.client.parameters.JobQueue;
 import org.apache.reef.tang.formats.ConfigurationModule;
 import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
@@ -36,11 +37,17 @@ public final class YarnDriverConfiguration extends ConfigurationModuleBuilder {
    * The queue to submit this Driver to.
    */
   public static final OptionalParameter<String> QUEUE = new OptionalParameter<>();
+  
+  /**
+   * The job submission directory.
+   */
+  public static final OptionalParameter<String> JOB_SUBMISSION_DIRECTORY_PREFIX = new OptionalParameter<>();
 
   /**
    * ConfigurationModule to set YARN-Specific configuration options to be merged with DriverConfiguration.
    */
   public static final ConfigurationModule CONF = new YarnDriverConfiguration()
       .bindNamedParameter(JobQueue.class, QUEUE)
+      .bindNamedParameter(JobSubmissionDirectoryPrefix.class, JOB_SUBMISSION_DIRECTORY_PREFIX)
       .build();
 }

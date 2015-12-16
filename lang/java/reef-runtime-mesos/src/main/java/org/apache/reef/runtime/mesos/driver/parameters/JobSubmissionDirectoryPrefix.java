@@ -24,6 +24,6 @@ import org.apache.reef.tang.annotations.NamedParameter;
 /**
  * The job submission directory.
  */
-@NamedParameter(doc = "The job submission directory prefix.", default_value = "/vol1/tmp")
+@NamedParameter(doc = "The job submission directory prefix.", default_value = "/tmp")
 public final class JobSubmissionDirectoryPrefix implements Name<String> {
 }
