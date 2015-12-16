@@ -78,6 +78,7 @@ namespace Org.Apache.REEF.IO.Tests
                         sourceFilePath1 + ";" + sourceFilePath2)
                     .Set(FileSystemInputPartitionConfiguration<IEnumerable<byte>>.FileSerializerConfig,
                         GetByteSerializerConfigString())
+                    .Set(FileSystemInputPartitionConfiguration<IEnumerable<byte>>.TempFileFolder, @".\reef\mytest\")
                     .Build())
                 .GetInstance<IPartitionedInputDataSet>();
 

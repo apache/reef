@@ -41,10 +41,12 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
         private bool _isInitialized;
         private readonly object _lock = new object();
         private string _localFileFolder;
+        private readonly string _tempFileFolder;
 
         [Inject]
         private FileSystemInputPartition([Parameter(typeof(PartitionId))] string id,
             [Parameter(typeof(FilePathsInInputPartition))] ISet<string> filePaths,
+            [Parameter(typeof(TempFileFolderForInputPartition))] string tempFieFolder,
             IFileSystem fileSystem,
             IFileDeSerializer<T> fileSerializer)
         {
@@ -53,6 +55,7 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
             _fileSerializer = fileSerializer;
             _filePaths = filePaths;
             _isInitialized = false;
+            _tempFileFolder = tempFieFolder;
         }
 
         public string Id
@@ -89,7 +92,7 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
 
         private void CopyFromRemote()
         {
-            _localFileFolder = Path.GetTempPath() + "-partition-" + Guid.NewGuid().ToString("N").Substring(0, 8);
+            _localFileFolder = _tempFileFolder + "-partition-" + Guid.NewGuid().ToString("N").Substring(0, 8);
             Directory.CreateDirectory(_localFileFolder);
 
             foreach (var sourceFilePath in _filePaths)
@@ -97,6 +100,7 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
                 Uri sourceUri = _fileSystem.CreateUriForPath(sourceFilePath);
                 Logger.Log(Level.Info, string.Format
                         (CultureInfo.CurrentCulture, "sourceUri {0}: ", sourceUri));
+
                 if (!_fileSystem.Exists(sourceUri))
                 {
                     throw new FileNotFoundException(string.Format(CultureInfo.CurrentCulture,

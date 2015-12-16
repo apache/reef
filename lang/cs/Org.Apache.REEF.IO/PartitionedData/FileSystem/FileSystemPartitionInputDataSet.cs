@@ -54,6 +54,7 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
             [Parameter(typeof(FilePathsForInputPartitions))] ISet<string> filePaths,
             IFileSystem fileSystem,
             [Parameter(typeof(FileDeSerializerConfigString))] string fileSerializerConfigString,
+            [Parameter(typeof(TempFileFolderForInputPartition))] string tempFieFolder,
             AvroConfigurationSerializer avroConfigurationSerializer)
         {
             _count = filePaths.Count;
@@ -70,7 +71,7 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
                 var paths = path.Split(new string[] { StringSeparators }, StringSplitOptions.None);
                
                 var id = "FilePartition-" + i++;
-                _partitions[id] = new FileInputPartitionDescriptor<T>(id, paths.ToList(), fileSerializerConfig); 
+                _partitions[id] = new FileInputPartitionDescriptor<T>(id, paths.ToList(), fileSerializerConfig, tempFieFolder); 
             }
         }
 

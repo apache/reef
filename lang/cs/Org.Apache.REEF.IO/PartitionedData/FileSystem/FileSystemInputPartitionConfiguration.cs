@@ -41,6 +41,11 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
         public static readonly RequiredParameter<string> FileSerializerConfig = new RequiredParameter<string>();
 
         /// <summary>
+        /// This is the temp file folder for store local file downloaded from remote
+        /// </summary>
+        public static readonly OptionalParameter<string> TempFileFolder = new OptionalParameter<string>();
+
+        /// <summary>
         /// This configuration module set FileSystemDataSet as IPartitionedDataSet.
         /// It also set required parameters for injecting FileSystemDataSet
         /// </summary>
@@ -48,6 +53,7 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
             .BindImplementation(GenericType<IPartitionedInputDataSet>.Class, GenericType<FileSystemPartitionInputDataSet<T>>.Class)
             .BindSetEntry(GenericType<FilePathsForInputPartitions>.Class, FilePathForPartitions)
             .BindNamedParameter(GenericType<FileDeSerializerConfigString>.Class, FileSerializerConfig)
+            .BindNamedParameter(GenericType<TempFileFolderForInputPartition>.Class, TempFileFolder)
             .Build();
     }
 }

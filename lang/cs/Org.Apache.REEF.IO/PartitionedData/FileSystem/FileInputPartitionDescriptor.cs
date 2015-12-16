@@ -33,12 +33,14 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
         private readonly string _id;
         private readonly IList<string> _filePaths;
         private readonly IConfiguration _filePartitionDeserializerConfig;
+        private readonly string _tempFileFolder;
 
-        internal FileInputPartitionDescriptor(string id, IList<string> filePaths, IConfiguration filePartitionDeserializerConfig)
+        internal FileInputPartitionDescriptor(string id, IList<string> filePaths, IConfiguration filePartitionDeserializerConfig, string tempFileFolder)
         {
             _id = id;
             _filePaths = filePaths;
             _filePartitionDeserializerConfig = filePartitionDeserializerConfig;
+            _tempFileFolder = tempFileFolder;
         }
 
         public string Id
@@ -54,7 +56,8 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
         {
             var builder = TangFactory.GetTang().NewConfigurationBuilder()
                 .BindImplementation(GenericType<IInputPartition<T>>.Class, GenericType<FileSystemInputPartition<T>>.Class)
-                .BindStringNamedParam<PartitionId>(_id);
+                .BindStringNamedParam<PartitionId>(_id)
+                .BindStringNamedParam<TempFileFolderForInputPartition>(_tempFileFolder);
 
             foreach (string p in _filePaths)
             {

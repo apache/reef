@@ -55,6 +55,7 @@ namespace Org.Apache.REEF.IO.TestClient
                     .Set(FileSystemInputPartitionConfiguration<IEnumerable<byte>>.FilePathForPartitions, remoteFilePath1)
                     .Set(FileSystemInputPartitionConfiguration<IEnumerable<byte>>.FilePathForPartitions, remoteFilePath2)
                     .Set(FileSystemInputPartitionConfiguration<IEnumerable<byte>>.FileSerializerConfig, serializerConfString)
+                    .Set(FileSystemInputPartitionConfiguration<IEnumerable<byte>>.TempFileFolder, @".\reef\mytest\")
                 .Build(),
                   HadoopFileSystemConfiguration.ConfigurationModule.Build())
                 .GetInstance<IPartitionedInputDataSet>();

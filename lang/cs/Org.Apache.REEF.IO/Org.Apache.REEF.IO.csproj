@@ -106,6 +106,7 @@ under the License.
     <Compile Include="PartitionedData\FileSystem\FileSystemInputPartitionConfiguration.cs" />
     <Compile Include="PartitionedData\FileSystem\Parameters\FilePathsForInputPartitions.cs" />
     <Compile Include="PartitionedData\FileSystem\Parameters\FilePathsInInputPartition.cs" />
+    <Compile Include="PartitionedData\FileSystem\Parameters\TempFileFolderForInputPartition.cs" />
     <Compile Include="PartitionedData\IInputPartition.cs" />
     <Compile Include="PartitionedData\IPartitionDescriptor.cs" />
     <Compile Include="PartitionedData\IPartitionedInputDataSet.cs" />
