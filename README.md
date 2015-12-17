@@ -27,14 +27,14 @@ Building REEF
 Requirements
 ------------
 
-  * Java 7 Development Kit
+  * Java 7 Development Kit.
   * [Apache Maven](http://maven.apache.org) 3 or newer. Make sure that
     `mvn` is in your `PATH`.
   * [Protocol Buffers](https://code.google.com/p/protobuf/) Compiler
     version 2.5. Make sure that `protoc` is on your `PATH`.
   * For REEF.NET, you will also need [Visual Studio
     2013](http://www.visualstudio.com). Most REEF developers use the
-    free Community Edition
+    free Community Edition.
 
 REEF Java
 ---------
@@ -47,7 +47,7 @@ To test, execute:
     mvn test
 
 Note that the tests will take several minutes to complete. You will
-also see stack traces fly by. Not to worry: Those are part of the
+also see stack traces fly by. Not to worry: those are part of the
 tests that test REEF's error reporting.
 
 REEF.NET
@@ -72,5 +72,5 @@ Additional Information
 More detailed documentation, including building from PowerShell and
 creating NuGets is available from the [project
 wiki](https://cwiki.apache.org/confluence/display/REEF/Home),
-specifcially the [building
+specifically the [building
 instructions](https://cwiki.apache.org/confluence/display/REEF/Compiling+REEF).
