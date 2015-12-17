@@ -21,6 +21,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using Org.Apache.REEF.Common.Io;
 using Org.Apache.REEF.IO.FileSystem;
 using Org.Apache.REEF.IO.PartitionedData.FileSystem.Parameters;
 using Org.Apache.REEF.IO.PartitionedData.Random.Parameters;
@@ -41,17 +42,20 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
         private bool _isInitialized;
         private readonly object _lock = new object();
         private string _localFileFolder;
+        private readonly ITempFileCreator _tempFileCreator;
 
         [Inject]
         private FileSystemInputPartition([Parameter(typeof(PartitionId))] string id,
             [Parameter(typeof(FilePathsInInputPartition))] ISet<string> filePaths,
             IFileSystem fileSystem,
+            ITempFileCreator tempFileCreator,
             IFileDeSerializer<T> fileSerializer)
         {
             _id = id;
             _fileSystem = fileSystem;
             _fileSerializer = fileSerializer;
             _filePaths = filePaths;
+            _tempFileCreator = tempFileCreator;
             _isInitialized = false;
         }
 
@@ -89,7 +93,9 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
 
         private void CopyFromRemote()
         {
-            _localFileFolder = Path.GetTempPath() + "-partition-" + Guid.NewGuid().ToString("N").Substring(0, 8);
+            _localFileFolder = Path.GetFullPath(_tempFileCreator.TempFileFolder + "-partition-" + Guid.NewGuid().ToString("N").Substring(0, 8));
+            Logger.Log(Level.Info, string.Format(CultureInfo.CurrentCulture, "LocalFile temp folder: {0}", _localFileFolder));
+            
             Directory.CreateDirectory(_localFileFolder);
 
             foreach (var sourceFilePath in _filePaths)
@@ -103,7 +109,7 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
                 }
 
                 var localFilePath = _localFileFolder + "\\" + Guid.NewGuid().ToString("N").Substring(0, 8);
-                Logger.Log(Level.Info, string.Format(CultureInfo.CurrentCulture, "localFilePath {0}: ", localFilePath));
+                Logger.Log(Level.Info, string.Format(CultureInfo.CurrentCulture, "LocalFilePath {0}: ", localFilePath));
                 if (File.Exists(localFilePath))
                 {
                     File.Delete(localFilePath);
