@@ -78,6 +78,7 @@ under the License.
     <Compile Include="TestHadoopFileSystem.cs" />
     <Compile Include="TestLocalFileSystem.cs" />
     <Compile Include="TestRandomInputDataSet.cs" />
+    <Compile Include="TestTempFolderCreator.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.Common\Org.Apache.REEF.Common.csproj">

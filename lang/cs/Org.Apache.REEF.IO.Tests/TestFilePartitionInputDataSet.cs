@@ -25,6 +25,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Apache.REEF.IO.PartitionedData;
 using Org.Apache.REEF.IO.PartitionedData.FileSystem;
 using Org.Apache.REEF.IO.PartitionedData.FileSystem.Parameters;
+using Org.Apache.REEF.IO.TempFileCreation;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Implementations.Tang;
@@ -207,6 +208,51 @@ namespace Org.Apache.REEF.IO.Tests
                 var partition =
                     TangFactory.GetTang()
                         .NewInjector(partitionDescriptor.GetPartitionConfiguration())
+                        .GetInstance<IInputPartition<IEnumerable<Row>>>();
+                using (partition as IDisposable)
+                {
+                    IEnumerable<Row> e = partition.GetPartitionHandle();
+
+                    foreach (var row in e)
+                    {
+                        Logger.Log(Level.Info, string.Format(CultureInfo.CurrentCulture, "Data read {0}: ", row.GetValue()));
+                        count++;
+                    }
+                }
+            }
+            Assert.AreEqual(count, 5);
+        }
+
+        /// <remarks>
+        /// This test is to test injected IPartition with TempFileFolerParameter
+        /// </remarks>
+        [TestMethod]
+        public void TestTempFileFolderWithRowDeserializer()
+        {
+            MakeLocalTestFile(sourceFilePath1, new byte[] { 111, 112, 113 });
+            MakeLocalTestFile(sourceFilePath2, new byte[] { 114, 115 });
+
+            var c1 = FileSystemInputPartitionConfiguration<IEnumerable<Row>>.ConfigurationModule
+                .Set(FileSystemInputPartitionConfiguration<IEnumerable<Row>>.FilePathForPartitions, sourceFilePath1)
+                .Set(FileSystemInputPartitionConfiguration<IEnumerable<Row>>.FilePathForPartitions, sourceFilePath2)
+                .Set(FileSystemInputPartitionConfiguration<IEnumerable<Row>>.FileSerializerConfig,
+                    GetRowSerializerConfigString())
+                .Build();
+
+            var c2 = TempFileConfigurationModule.ConfigurationModule
+                .Set(TempFileConfigurationModule.TempFileFolerParameter, @".\test2\abc\")
+                .Build();
+
+            var dataSet = TangFactory.GetTang()
+                .NewInjector(c1)
+                .GetInstance<IPartitionedInputDataSet>();
+
+            int count = 0;
+            foreach (var partitionDescriptor in dataSet)
+            {
+                var partition =
+                    TangFactory.GetTang()
+                        .NewInjector(partitionDescriptor.GetPartitionConfiguration(), c2)
                         .GetInstance<IInputPartition<IEnumerable<Row>>>();
                 using (partition as IDisposable)
                 {
