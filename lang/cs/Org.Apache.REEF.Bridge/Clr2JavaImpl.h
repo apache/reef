@@ -54,7 +54,7 @@ namespace Org {
                             };
                         };
 
-                        public ref class AllocatedEvaluatorClr2Java : public IAllocatedEvaluaotrClr2Java {
+                        public ref class AllocatedEvaluatorClr2Java : public IAllocatedEvaluatorClr2Java {
                             jobject  _jobjectAllocatedEvaluator = NULL;
                             JavaVM* _jvm;
                             jstring _jstringId = NULL;

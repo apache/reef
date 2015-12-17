@@ -42,7 +42,7 @@ under the License.
     <Compile Include="Bridge\BridgeHandlerManager.cs" />
     <Compile Include="Bridge\BridgeLogger.cs" />
     <Compile Include="Bridge\Clr2java\IActiveContextClr2Java.cs" />
-    <Compile Include="Bridge\Clr2java\IAllocatedEvaluaotrClr2Java.cs" />
+    <Compile Include="Bridge\Clr2java\IAllocatedEvaluatorClr2Java.cs" />
     <Compile Include="Bridge\Clr2java\IClosedContextClr2Java.cs" />
     <Compile Include="Bridge\Clr2java\IClr2Java.cs" />
     <Compile Include="Bridge\Clr2java\IClr2JavaTaskMessage.cs" />
