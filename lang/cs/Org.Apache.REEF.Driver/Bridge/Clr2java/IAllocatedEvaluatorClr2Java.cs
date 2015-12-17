@@ -21,7 +21,7 @@ using Org.Apache.REEF.Driver.Evaluator;
 
 namespace Org.Apache.REEF.Driver.Bridge.Clr2java
 {
-    public interface IAllocatedEvaluaotrClr2Java : IClr2Java
+    public interface IAllocatedEvaluatorClr2Java : IClr2Java
     {
         void SubmitContextAndTask(string contextConfigStr, string taskConfigStr);
 

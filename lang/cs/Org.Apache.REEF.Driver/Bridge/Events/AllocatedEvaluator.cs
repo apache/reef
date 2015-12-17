@@ -47,7 +47,7 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
 
         private readonly ISet<IConfigurationProvider> _configurationProviders;
 
-        public AllocatedEvaluator(IAllocatedEvaluaotrClr2Java clr2Java, ISet<IConfigurationProvider> configurationProviders)
+        public AllocatedEvaluator(IAllocatedEvaluatorClr2Java clr2Java, ISet<IConfigurationProvider> configurationProviders)
         {
             _configurationProviders = configurationProviders;
             InstanceId = Guid.NewGuid().ToString("N");
@@ -71,7 +71,7 @@ namespace Org.Apache.REEF.Driver.Bridge.Events
         public string NameServerInfo { get; set; }
 
         [DataMember]
-        private IAllocatedEvaluaotrClr2Java Clr2Java { get; set; }
+        private IAllocatedEvaluatorClr2Java Clr2Java { get; set; }
 
         public void SubmitTask(IConfiguration taskConfiguration)
         {
