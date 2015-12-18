@@ -18,28 +18,38 @@
  */
 
 using Org.Apache.REEF.Common.Evaluator.Parameters;
-using Org.Apache.REEF.Common.Io;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 
-namespace Org.Apache.REEF.IO.FileSystem
+namespace Org.Apache.REEF.IO.TempFileCreation
 {
-    internal sealed class WorkingDirectoryTempFileConfigProvider : IConfigurationProvider
+    /// <summary>
+    /// A configuration provider for tem file
+    /// </summary>
+    internal sealed class TempFileConfigurationProvider : IConfigurationProvider
     {
         private readonly IConfiguration _configuration;
 
+        /// <summary>
+        /// Create configuration for for temp file
+        /// </summary>
+        /// <param name="tempFileFolder"></param>
         [Inject]
-        private WorkingDirectoryTempFileConfigProvider([Parameter(typeof(TempFileFolder))] string tempFileFolder)
+        private TempFileConfigurationProvider([Parameter(typeof(TempFileFolder))] string tempFileFolder)
         {
             _configuration = TangFactory.GetTang().NewConfigurationBuilder()
-                .BindImplementation(GenericType<ITempFileCreator>.Class, GenericType<WorkingDirectoryTempFileCreator>.Class)
+                .BindImplementation(GenericType<ITempFileCreator>.Class, GenericType<TempFileCreator>.Class)
                 .BindStringNamedParam<TempFileFolder>(tempFileFolder)
-                .BindSetEntry<EvaluatorConfigurationProviders, WorkingDirectoryTempFileConfigProvider, IConfigurationProvider>()
+                .BindSetEntry<EvaluatorConfigurationProviders, TempFileConfigurationProvider, IConfigurationProvider>()
                 .Build();
         }
 
+        /// <summary>
+        /// Returns temp file configuration
+        /// </summary>
+        /// <returns></returns>
         IConfiguration IConfigurationProvider.GetConfiguration()
         {
             return _configuration;

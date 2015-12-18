@@ -98,8 +98,6 @@ under the License.
     <Compile Include="FileSystem\AzureBlob\ICloudBlobContainer.cs" />
     <Compile Include="FileSystem\Local\LocalFileSystem.cs" />
     <Compile Include="FileSystem\Local\LocalFileSystemConfiguration.cs" />
-    <Compile Include="FileSystem\WorkingDirectoryTempFileConfigModule.cs" />
-    <Compile Include="FileSystem\WorkingDirectoryTempFileConfigProvider.cs" />
     <Compile Include="PartitionedData\FileSystem\FileSystemInputPartition.cs" />
     <Compile Include="PartitionedData\FileSystem\FileInputPartitionDescriptor.cs" />
     <Compile Include="PartitionedData\FileSystem\Parameters\FileDeSerializerConfigString.cs" />
@@ -119,6 +117,11 @@ under the License.
     <Compile Include="PartitionedData\Random\RandomInputPartition.cs" />
     <Compile Include="PartitionedData\Random\RandomInputPartitionDescriptor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TempFileCreation\ITempFileCreator.cs" />
+    <Compile Include="TempFileCreation\TempFileFolder.cs" />
+    <Compile Include="TempFileCreation\TempFileConfigurationModule.cs" />
+    <Compile Include="TempFileCreation\TempFileConfigurationProvider.cs" />
+    <Compile Include="TempFileCreation\TempFileCreator.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Org.Apache.REEF.IO.nuspec" />
@@ -143,4 +146,5 @@ under the License.
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
   </ItemGroup>
+  <ItemGroup />
 </Project>

@@ -22,10 +22,10 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Org.Apache.REEF.IO.FileSystem;
 using Org.Apache.REEF.IO.PartitionedData;
 using Org.Apache.REEF.IO.PartitionedData.FileSystem;
 using Org.Apache.REEF.IO.PartitionedData.FileSystem.Parameters;
+using Org.Apache.REEF.IO.TempFileCreation;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Implementations.Tang;
@@ -239,8 +239,8 @@ namespace Org.Apache.REEF.IO.Tests
                     GetRowSerializerConfigString())
                 .Build();
 
-            var c2 = WorkingDirectoryTempFileConfigModule.ConfigurationModule
-                .Set(WorkingDirectoryTempFileConfigModule.TempFileFolerParameter, @".\test2\abc\")
+            var c2 = TempFileConfigurationModule.ConfigurationModule
+                .Set(TempFileConfigurationModule.TempFileFolerParameter, @".\test2\abc\")
                 .Build();
 
             var dataSet = TangFactory.GetTang()

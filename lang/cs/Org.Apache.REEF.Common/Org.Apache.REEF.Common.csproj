@@ -98,13 +98,10 @@ under the License.
     <Compile Include="IContextAndTaskSubmittable.cs" />
     <Compile Include="IContextSubmittable.cs" />
     <Compile Include="Io\INameClient.cs" />
-    <Compile Include="Io\ITempFileCreator.cs" />
     <Compile Include="Io\NameAssignment.cs" />
     <Compile Include="Io\NamingConfiguration.cs" />
     <Compile Include="Io\NamingConfigurationOptions.cs" />
     <Compile Include="Io\TcpPortConfigurationProvider.cs" />
-    <Compile Include="Io\TempFileFolder.cs" />
-    <Compile Include="Io\WorkingDirectoryTempFileCreator.cs" />
     <Compile Include="ITaskSubmittable.cs" />
     <Compile Include="Client\Parameters\DriverConfigurationProviders.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

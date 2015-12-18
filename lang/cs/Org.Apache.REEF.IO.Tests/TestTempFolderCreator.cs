@@ -17,8 +17,7 @@
 
 using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Org.Apache.REEF.Common.Io;
-using Org.Apache.REEF.IO.FileSystem;
+using Org.Apache.REEF.IO.TempFileCreation;
 using Org.Apache.REEF.Tang.Implementations.Tang;
 
 namespace Org.Apache.REEF.IO.Tests
@@ -32,7 +31,7 @@ namespace Org.Apache.REEF.IO.Tests
         [TestMethod]
         public void TestDefaultTempFolder()
         {
-            var b = WorkingDirectoryTempFileConfigModule.ConfigurationModule.Build();
+            var b = TempFileConfigurationModule.ConfigurationModule.Build();
             var i = TangFactory.GetTang().NewInjector(b);
             var tempFileCreator = i.GetInstance<ITempFileCreator>();
             var f1 = tempFileCreator.TempFileFolder;
@@ -46,8 +45,8 @@ namespace Org.Apache.REEF.IO.Tests
         [TestMethod]
         public void TestTempFileFolerParameter()
         {
-            var b = WorkingDirectoryTempFileConfigModule.ConfigurationModule
-                .Set(WorkingDirectoryTempFileConfigModule.TempFileFolerParameter, @".\test1\abc\")
+            var b = TempFileConfigurationModule.ConfigurationModule
+                .Set(TempFileConfigurationModule.TempFileFolerParameter, @".\test1\abc\")
                 .Build();
             var i = TangFactory.GetTang().NewInjector(b);
             var tempFileCreator = i.GetInstance<ITempFileCreator>();
@@ -62,14 +61,16 @@ namespace Org.Apache.REEF.IO.Tests
         [TestMethod]
         public void TestCreateTempFileFoler()
         {
-            var b = WorkingDirectoryTempFileConfigModule.ConfigurationModule
-                .Set(WorkingDirectoryTempFileConfigModule.TempFileFolerParameter, @".\test1\abc\")
+            var b = TempFileConfigurationModule.ConfigurationModule
+                .Set(TempFileConfigurationModule.TempFileFolerParameter, @"./test1/abc/")
                 .Build();
             var i = TangFactory.GetTang().NewInjector(b);
             var tempFileCreator = i.GetInstance<ITempFileCreator>();
             var f1 = tempFileCreator.CreateTempDirectory("ddd\\fff");
-            var f2 = Path.GetFullPath(@".\test1\abc\" + "ddd\\fff");
-            Assert.IsTrue(f1.Equals(f2));
+            var f3 = tempFileCreator.CreateTempDirectory("ddd\\fff", "bbb");
+            var f2 = Path.GetFullPath(@"./test1/abc/" + "ddd\\fff");
+            Assert.IsTrue(f1.StartsWith(f2));
+            Assert.IsTrue(f3.EndsWith("bbb"));
         }
     }
 }

@@ -17,40 +17,41 @@
  * under the License.
  */
 
+using System;
 using System.Globalization;
 using System.IO;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities.Logging;
 
-namespace Org.Apache.REEF.Common.Io
+namespace Org.Apache.REEF.IO.TempFileCreation
 {
     /// <summary>
-    /// This class wraps temp file folder and temp file folder creation
+    /// This class that wraps yemp file folder and provides an implementation of temp file folder creation
     /// </summary>
-    public sealed class WorkingDirectoryTempFileCreator : ITempFileCreator
+    internal sealed class TempFileCreator : ITempFileCreator
     {
-        private static readonly Logger Logger = Logger.GetLogger(typeof(WorkingDirectoryTempFileCreator));
+        private static readonly Logger Logger = Logger.GetLogger(typeof(TempFileCreator));
 
         private readonly string _tempFileFolder;
 
         /// <summary>
-        /// Create a temp file folder 
+        /// Create a file folder for given tempFileFolder name
         /// </summary>
         /// <param name="tempFileFolder"></param>
         [Inject]
-        private WorkingDirectoryTempFileCreator(
+        private TempFileCreator(
             [Parameter(typeof(TempFileFolder))] string tempFileFolder)
         {
             _tempFileFolder = tempFileFolder;
-            if (!Directory.Exists(tempFileFolder))
+            if (!Directory.Exists(_tempFileFolder))
             {
-                Directory.CreateDirectory(tempFileFolder);
+                Directory.CreateDirectory(Path.GetFullPath(tempFileFolder));
             }
-            Logger.Log(Level.Info, string.Format(CultureInfo.CurrentCulture, "Temp directory: {0} is craeted", Path.GetFullPath(tempFileFolder)));
+            Logger.Log(Level.Verbose, string.Format(CultureInfo.CurrentCulture, "Temp directory: {0} is created", Path.GetFullPath(tempFileFolder)));
         }
 
         /// <summary>
-        /// returns teh temp file folder
+        /// returns the temp file folder
         /// </summary>
         public string TempFileFolder
         {
@@ -58,22 +59,22 @@ namespace Org.Apache.REEF.Common.Io
         }
 
         /// <summary>
-        /// Create a temp file sub folder 
+        /// Create a unique subfolder under the _tempFileFolder with given prefix and suffix
         /// </summary>
-        /// <param name="subFolder"></param>
+        /// <param name="prefix"></param>
+        /// <param name="suffix"></param>
         /// <returns></returns>
-        public string CreateTempDirectory(string subFolder)
+        public string CreateTempDirectory(string prefix, string suffix)
         {
-            string folder = _tempFileFolder + subFolder;
-            if (!Directory.Exists(folder))
+            string fullPathOfSubFolder = Path.GetFullPath(Path.Combine(_tempFileFolder, prefix, Guid.NewGuid().ToString("N").Substring(0, 8), suffix));
+            if (!Directory.Exists(fullPathOfSubFolder))
             {
-                Directory.CreateDirectory(folder);
+                Directory.CreateDirectory(fullPathOfSubFolder);
             }
 
-            var path = Path.GetFullPath(folder);
-            Logger.Log(Level.Info, string.Format(CultureInfo.CurrentCulture, "Temp directory: {0} is craeted", path));
+            Logger.Log(Level.Verbose, string.Format(CultureInfo.CurrentCulture, "Temp directory: {0} is created", fullPathOfSubFolder));
 
-            return path;
+            return fullPathOfSubFolder;
         }
     }
 }

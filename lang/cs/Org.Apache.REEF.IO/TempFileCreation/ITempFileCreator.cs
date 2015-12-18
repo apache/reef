@@ -19,13 +19,25 @@
 
 using Org.Apache.REEF.Tang.Annotations;
 
-namespace Org.Apache.REEF.Common.Io
+namespace Org.Apache.REEF.IO.TempFileCreation
 {
     /// <summary>
-    /// Folder for local temp file
+    /// Provide interface to wrap temp file folder and temp file folder creation
     /// </summary>
-    [NamedParameter("TempFileFolder", "TempFileFolder", @".\reef\tmp\")]
-    public sealed class TempFileFolder : Name<string>
-    {        
+    [DefaultImplementation(typeof(TempFileCreator))]
+    public interface ITempFileCreator
+    {
+        /// <summary>
+        /// return the temp folder path
+        /// </summary>
+        string TempFileFolder { get; }
+
+        /// <summary>
+        /// CReate a temp folder with given prefix and suffix as part of the name
+        /// </summary>
+        /// <param name="prefix"></param>
+        /// <param name="suffix"></param>
+        /// <returns></returns>
+        string CreateTempDirectory(string prefix = "", string suffix = "");
     }
 }

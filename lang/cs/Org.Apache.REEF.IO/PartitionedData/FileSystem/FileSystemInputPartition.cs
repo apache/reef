@@ -21,10 +21,10 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using Org.Apache.REEF.Common.Io;
 using Org.Apache.REEF.IO.FileSystem;
 using Org.Apache.REEF.IO.PartitionedData.FileSystem.Parameters;
 using Org.Apache.REEF.IO.PartitionedData.Random.Parameters;
+using Org.Apache.REEF.IO.TempFileCreation;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities.Diagnostics;
 using Org.Apache.REEF.Utilities.Logging;
@@ -93,10 +93,8 @@ namespace Org.Apache.REEF.IO.PartitionedData.FileSystem
 
         private void CopyFromRemote()
         {
-            _localFileFolder = Path.GetFullPath(_tempFileCreator.TempFileFolder + "-partition-" + Guid.NewGuid().ToString("N").Substring(0, 8));
-            Logger.Log(Level.Info, string.Format(CultureInfo.CurrentCulture, "LocalFile temp folder: {0}", _localFileFolder));
-            
-            Directory.CreateDirectory(_localFileFolder);
+            _localFileFolder = _tempFileCreator.CreateTempDirectory("-partition-");
+            Logger.Log(Level.Info, string.Format(CultureInfo.CurrentCulture, "Local file temp folder: {0}", _localFileFolder));
 
             foreach (var sourceFilePath in _filePaths)
             {

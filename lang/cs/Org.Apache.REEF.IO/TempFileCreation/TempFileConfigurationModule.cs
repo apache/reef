@@ -18,20 +18,19 @@
  */
 
 using Org.Apache.REEF.Common.Client.Parameters;
-using Org.Apache.REEF.Common.Io;
 using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 
-namespace Org.Apache.REEF.IO.FileSystem
+namespace Org.Apache.REEF.IO.TempFileCreation
 {
-    public sealed class WorkingDirectoryTempFileConfigModule : ConfigurationModuleBuilder
+    public sealed class TempFileConfigurationModule : ConfigurationModuleBuilder
     {
         public static readonly OptionalParameter<string> TempFileFolerParameter = new OptionalParameter<string>();
 
-        public static readonly ConfigurationModule ConfigurationModule = new WorkingDirectoryTempFileConfigModule()
-            .BindSetEntry<DriverConfigurationProviders, WorkingDirectoryTempFileConfigProvider, IConfigurationProvider>(
-                GenericType<DriverConfigurationProviders>.Class, GenericType<WorkingDirectoryTempFileConfigProvider>.Class)
+        public static readonly ConfigurationModule ConfigurationModule = new TempFileConfigurationModule()
+            .BindSetEntry<DriverConfigurationProviders, TempFileConfigurationProvider, IConfigurationProvider>(
+                GenericType<DriverConfigurationProviders>.Class, GenericType<TempFileConfigurationProvider>.Class)
             .BindNamedParameter(GenericType<TempFileFolder>.Class, TempFileFolerParameter)
             .Build();
     }
