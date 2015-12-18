@@ -18,6 +18,7 @@
  */
 
 using System.Runtime.Serialization;
+using Org.Apache.REEF.Utilities.Attributes;
 
 namespace Org.Apache.REEF.Client.Avro.YARN
 {
@@ -25,6 +26,7 @@ namespace Org.Apache.REEF.Client.Avro.YARN
     /// Used to serialize and deserialize Avro record org.apache.reef.reef.bridge.client.avro.AvroYarnJobSubmissionParameters.
     /// This is a (mostly) auto-generated class. For instructions on how to regenerate, please view the README.md in the same folder.
     /// </summary>
+    [Private]
     [DataContract(Namespace = "org.apache.reef.reef.bridge.client.avro")]
     public sealed class AvroYarnJobSubmissionParameters
     {
