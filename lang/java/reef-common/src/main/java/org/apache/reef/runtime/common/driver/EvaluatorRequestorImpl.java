@@ -91,6 +91,10 @@ public final class EvaluatorRequestorImpl implements EvaluatorRequestor {
         relaxLocality = false;
       }
     }
+    // if the user specified any node, then we assume they do not want to relax locality
+    if (!req.getNodeNames().isEmpty()) {
+      relaxLocality = false;
+    }
 
     try (LoggingScope ls = loggingScopeFactory.evaluatorSubmit(req.getNumber())) {
       final ResourceRequestEvent request = ResourceRequestEventImpl
