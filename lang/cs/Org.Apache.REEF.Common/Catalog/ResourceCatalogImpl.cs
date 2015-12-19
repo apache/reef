@@ -28,7 +28,7 @@ using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Common.Catalog
 {
-    public class ResourceCatalogImpl : IResourceCatalog
+    internal sealed class ResourceCatalogImpl : IResourceCatalog
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(ResourceCatalogImpl));
         

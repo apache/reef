@@ -28,10 +28,6 @@ namespace Org.Apache.REEF.Common.Api
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(AbstractFailure));
 
-        public AbstractFailure()
-        {
-        }
-
         /// <summary>
         /// Most detailed error message constructor that takes all parameters possible.
         /// </summary>
@@ -40,7 +36,7 @@ namespace Org.Apache.REEF.Common.Api
         /// <param name="description">Long error description. Can be null.</param>
         /// <param name="cause">Exception that caused the error. Can be null.</param>
         /// <param name="data">byte array that contains serialized version of the error. Can be null.</param>
-        public AbstractFailure(string id, string message, string description, Exception cause, byte[] data)
+        protected AbstractFailure(string id, string message, string description, Exception cause, byte[] data)
         {
             if (string.IsNullOrEmpty(id))
             {
@@ -62,7 +58,7 @@ namespace Org.Apache.REEF.Common.Api
         /// </summary>
         /// <param name="id"></param>
         /// <param name="message"></param>
-        public AbstractFailure(string id, string message)
+        protected AbstractFailure(string id, string message)
             : this(id, message, null, null, null)
         {
         }
@@ -74,7 +70,7 @@ namespace Org.Apache.REEF.Common.Api
         /// </summary>
         /// <param name="id"></param>
         /// <param name="cause"></param>
-        public AbstractFailure(string id, Exception cause)
+        protected AbstractFailure(string id, Exception cause)
         {
             if (string.IsNullOrEmpty(id))
             {
@@ -93,7 +89,7 @@ namespace Org.Apache.REEF.Common.Api
         /// <param name="id"></param>
         /// <param name="message"></param>
         /// <param name="description"></param>
-        public AbstractFailure(string id, string message, string description)
+        protected AbstractFailure(string id, string message, string description)
             : this(id, message, description, null, null)
         {
         }

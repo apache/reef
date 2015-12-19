@@ -32,7 +32,6 @@ using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Common.Runtime.Evaluator.Utils
 {
-    [Obsolete("Deprecated in 0.14, please use EvaluatorSettings.")]
     internal sealed class EvaluatorConfigurations
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(EvaluatorConfigurations));

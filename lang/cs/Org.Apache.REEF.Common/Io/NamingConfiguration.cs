@@ -23,7 +23,7 @@ using Org.Apache.REEF.Tang.Util;
 
 namespace Org.Apache.REEF.Common.Io
 {
-    public class NamingConfiguration : ConfigurationModuleBuilder
+    public sealed class NamingConfiguration : ConfigurationModuleBuilder
     {
         [SuppressMessage("Microsoft.Security", "CA2104:Do not declare read only mutable reference types", Justification = "not applicable")]
         public static readonly RequiredParameter<string> NameServerAddress = new RequiredParameter<string>();

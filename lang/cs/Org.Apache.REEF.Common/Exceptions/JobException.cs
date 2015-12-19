@@ -22,7 +22,7 @@ using Org.Apache.REEF.Utilities;
 
 namespace Org.Apache.REEF.Common.Exceptions
 {
-    public class JobException : Exception, IIdentifiable
+    public sealed class JobException : Exception, IIdentifiable
     {
         private readonly string _jobId;
 
