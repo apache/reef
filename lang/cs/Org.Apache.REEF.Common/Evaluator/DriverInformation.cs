@@ -24,13 +24,12 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
-using System.Threading;
 using Org.Apache.REEF.Common.Avro;
 using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Common.Evaluator
 {
-    public class DriverInformation
+    public sealed class DriverInformation
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(DriverInformation));
 

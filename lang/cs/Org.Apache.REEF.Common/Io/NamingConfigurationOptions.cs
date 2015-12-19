@@ -17,12 +17,11 @@
  * under the License.
  */
 
-using System.ComponentModel;
 using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.Common.Io
 {
-    public class NamingConfigurationOptions
+    public sealed class NamingConfigurationOptions
     {
         [NamedParameter("IP address of NameServer")]
         public class NameServerAddress : Name<string>

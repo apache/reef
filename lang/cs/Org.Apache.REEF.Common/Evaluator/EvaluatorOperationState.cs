@@ -19,7 +19,7 @@
 
 namespace Org.Apache.REEF.Common.Evaluator
 {
-    public enum EvaluatorOperationState
+    internal enum EvaluatorOperationState
     {
         /// <summary>
         /// default state

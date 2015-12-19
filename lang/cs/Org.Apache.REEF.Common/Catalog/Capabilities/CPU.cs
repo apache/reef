@@ -23,7 +23,7 @@ using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Common.Catalog.Capabilities
 {
-    public class CPU : ICapability
+    public sealed class CPU : ICapability
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(CPU));
 

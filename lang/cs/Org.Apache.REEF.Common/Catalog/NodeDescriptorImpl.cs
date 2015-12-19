@@ -20,10 +20,12 @@
 using System.Collections.Generic;
 using System.Net;
 using Org.Apache.REEF.Common.Catalog.Capabilities;
+using Org.Apache.REEF.Utilities.Attributes;
 
 namespace Org.Apache.REEF.Common.Catalog
 {
-    public class NodeDescriptorImpl : INodeDescriptor
+    [Private]
+    internal sealed class NodeDescriptorImpl : INodeDescriptor
     {
         private readonly RackDescriptorImpl _rack;
 

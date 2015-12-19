@@ -22,7 +22,7 @@ namespace Org.Apache.REEF.Common.Files
     /// <summary>
     /// Utility class for dealing with Paths
     /// </summary>
-    public static class PathUtilities
+    internal static class PathUtilities
     {
         /// <summary>
         /// Normalizes a path for easy comparison.

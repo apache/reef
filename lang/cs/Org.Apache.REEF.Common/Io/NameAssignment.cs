@@ -26,7 +26,7 @@ namespace Org.Apache.REEF.Common.Io
     /// Tuple containing the string identifier and IPEndpoint.
     /// Used by NameServer and NameClient
     /// </summary>
-    public class NameAssignment
+    public sealed class NameAssignment
     {
         public NameAssignment(string id, IPEndPoint endpoint)
         {

@@ -22,7 +22,7 @@ using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Common.Context
 {
-    public class ContextMessage
+    public sealed class ContextMessage
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(ContextMessage));
         private readonly string _messageSourcId;

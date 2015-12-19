@@ -17,7 +17,6 @@
  * under the License.
  */
 
-using System;
 using System.IO;
 using Microsoft.Hadoop.Avro;
 using Newtonsoft.Json;
@@ -28,8 +27,7 @@ namespace Org.Apache.REEF.Common.Avro
     /// <summary>
     /// Class AvroHttpSerializer. Provides methods to serialize and deserialize HttpRequest
     /// </summary>
-    //// TODO[REEF-842] Act on the obsoletes
-    public class AvroHttpSerializer
+    internal static class AvroHttpSerializer
     {
         public static AvroHttpRequest FromBytes(byte[] serializedBytes)
         {
@@ -38,17 +36,6 @@ namespace Org.Apache.REEF.Common.Avro
             {
                 return serializer.Deserialize(stream);
             }
-        }
-
-        /// <summary>
-        /// Convert bytes which contains Json string into AvroHttpRequest object
-        /// </summary>
-        /// <param name="serializedBytes">The serialized bytes.</param>
-        /// <returns>AvroHttpRequest.</returns>
-        [Obsolete("Deprecated in 0.14, please use FromBytesWithJson instead.")]
-        public static AvroHttpRequest FromBytesWithJoson(byte[] serializedBytes)
-        {
-            return FromBytesWithJson(serializedBytes);
         }
 
         /// <summary>

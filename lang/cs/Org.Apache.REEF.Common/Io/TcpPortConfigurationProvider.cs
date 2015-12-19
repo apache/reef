@@ -25,7 +25,7 @@ using Org.Apache.REEF.Wake.Remote.Parameters;
 
 namespace Org.Apache.REEF.Common.Io
 {
-    public class TcpPortConfigurationProvider : IConfigurationProvider
+    public sealed class TcpPortConfigurationProvider : IConfigurationProvider
     {
         private readonly IConfiguration _configuration;
         [Inject]

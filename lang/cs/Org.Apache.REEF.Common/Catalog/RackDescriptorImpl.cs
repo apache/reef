@@ -24,7 +24,7 @@ using Org.Apache.REEF.Common.Catalog.Capabilities;
 
 namespace Org.Apache.REEF.Common.Catalog
 {
-    public class RackDescriptorImpl : IRackDescriptor
+    internal sealed class RackDescriptorImpl : IRackDescriptor
     {
         public RackDescriptorImpl(string name)
         {

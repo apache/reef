@@ -21,7 +21,7 @@ using System.Globalization;
 
 namespace Org.Apache.REEF.Common.Catalog.Capabilities
 {
-    public class RAM : ICapability
+    public sealed class RAM : ICapability
     {
         private readonly int _megaBytes;
 

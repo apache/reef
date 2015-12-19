@@ -19,6 +19,7 @@
 
 using Newtonsoft.Json;
 using Org.Apache.REEF.Utilities;
+using Org.Apache.REEF.Utilities.Attributes;
 
 namespace Org.Apache.REEF.Common.Avro
 {
@@ -26,7 +27,8 @@ namespace Org.Apache.REEF.Common.Avro
     /// Wrapper class for serialize/deserialize Avro json. This avoids having to reference Avro dll in every project 
     /// </summary>
     /// <typeparam name="T"> the deserialized type</typeparam>
-    public class AvroJsonSerializer<T>
+    [Private]
+    public sealed class AvroJsonSerializer<T>
     {
         public static T FromString(string str)
         {

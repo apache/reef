@@ -54,8 +54,22 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyVersion("0.14.0.0")]
 [assembly: AssemblyFileVersion("0.14.0.0")]
 
-// Common and Evaluator share functions that should not be exposed to the user
+// Common and Evaluator share APIs that should not be exposed to the user
 [assembly: InternalsVisibleTo("Org.Apache.REEF.Evaluator, publickey=" +
+ "00240000048000009400000006020000002400005253413100040000010001005df3e621d886a9" +
+ "9c03469d0f93a9f5d45aa2c883f50cd158759e93673f759ec4657fd84cc79d2db38ef1a2d914cc" +
+ "b7c717846a897e11dd22eb260a7ce2da2dccf0263ea63e2b3f7dac24f28882aa568ef544341d17" +
+ "618392a1095f4049ad079d4f4f0b429bb535699155fd6a7652ec7d6c1f1ba2b560f11ef3a86b5945d288cf")]
+
+// Common and Driver share APIs that should not be exposed to the user
+[assembly: InternalsVisibleTo("Org.Apache.REEF.Driver, publickey=" +
+ "00240000048000009400000006020000002400005253413100040000010001005df3e621d886a9" +
+ "9c03469d0f93a9f5d45aa2c883f50cd158759e93673f759ec4657fd84cc79d2db38ef1a2d914cc" +
+ "b7c717846a897e11dd22eb260a7ce2da2dccf0263ea63e2b3f7dac24f28882aa568ef544341d17" +
+ "618392a1095f4049ad079d4f4f0b429bb535699155fd6a7652ec7d6c1f1ba2b560f11ef3a86b5945d288cf")]
+
+// Common and IO share APIs that should not be exposed to the user
+[assembly: InternalsVisibleTo("Org.Apache.REEF.IO, publickey=" +
  "00240000048000009400000006020000002400005253413100040000010001005df3e621d886a9" +
  "9c03469d0f93a9f5d45aa2c883f50cd158759e93673f759ec4657fd84cc79d2db38ef1a2d914cc" +
  "b7c717846a897e11dd22eb260a7ce2da2dccf0263ea63e2b3f7dac24f28882aa568ef544341d17" +

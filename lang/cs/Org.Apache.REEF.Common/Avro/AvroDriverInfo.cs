@@ -2,15 +2,17 @@
 
 using System.Collections.Generic;
 using System.Runtime.Serialization;
+using Org.Apache.REEF.Utilities.Attributes;
 
 namespace Org.Apache.REEF.Common.Avro
 {
     /// <summary>
     /// Used to serialize and deserialize Avro record org.apache.reef.webserver.AvroDriverInfo.
     /// </summary>
+    [Private]
     [DataContract(Namespace = "org.apache.reef.webserver")]
     [KnownType(typeof(List<Org.Apache.REEF.Common.Avro.AvroReefServiceInfo>))]
-    public partial class AvroDriverInfo
+    public class AvroDriverInfo
     {
         private const string JsonSchema = @"{""type"":""record"",""name"":""org.apache.reef.webserver.AvroDriverInfo"",""fields"":[{""name"":""remoteId"",""type"":""string""},{""name"":""startTime"",""type"":""string""},{""name"":""services"",""type"":{""type"":""array"",""items"":{""type"":""record"",""name"":""org.apache.reef.webserver.AvroReefServiceInfo"",""fields"":[{""name"":""serviceName"",""type"":""string""},{""name"":""serviceInfo"",""type"":""string""}]}}}]}";
 

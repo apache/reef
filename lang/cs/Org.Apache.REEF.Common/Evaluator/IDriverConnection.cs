@@ -17,10 +17,13 @@
  * under the License.
  */
 
+using Org.Apache.REEF.Utilities.Attributes;
+
 namespace Org.Apache.REEF.Common.Evaluator
 {
     public interface IDriverConnection
     {
+        [Private]
         DriverInformation GetDriverInformation();
     }
 }
