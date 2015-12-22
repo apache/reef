@@ -218,6 +218,13 @@
             <property name="format" value="TODO\[JIRA"/>
         </module>
         <module name="UpperEll"/>
+
+        <!-- Exception-handling checks. -->
+        <!-- See https://issues.apache.org/jira/browse/REEF-864 -->
+        <module name="MutableException"/>
+        <module name="ForbidReturnInFinallyBlockCheck"/>
+        <module name="ForbidThrowAnonymousExceptionsCheck"/>
+        <module name="UselessSingleCatchCheck"/>
     </module>
 
 </module>
