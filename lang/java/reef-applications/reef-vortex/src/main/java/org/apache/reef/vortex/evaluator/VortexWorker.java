@@ -34,7 +34,6 @@ import org.apache.reef.vortex.driver.VortexWorkerConf;
 import org.apache.reef.wake.EventHandler;
 
 import javax.inject.Inject;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
@@ -108,9 +107,9 @@ public final class VortexWorker implements Task, TaskMessageSource {
 
                       try {
                         // Command Executor: Execute the command
-                        final Serializable result = taskletExecutionRequest.execute();
                         final TaskletReport taskletReport =
-                            new TaskletResultReport<>(taskletExecutionRequest.getTaskletId(), result);
+                            new TaskletResultReport(taskletExecutionRequest.getTaskletId(),
+                                taskletExecutionRequest.execute());
                         taskletReports.add(taskletReport);
                       } catch (final InterruptedException ex) {
                         // Assumes that user's thread follows convention that cancelled Futures
@@ -149,7 +148,6 @@ public final class VortexWorker implements Task, TaskMessageSource {
               if (future != null) {
                 future.cancel(true);
               }
-
               break;
             default:
               throw new RuntimeException("Unknown Command");

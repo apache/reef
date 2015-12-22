@@ -16,30 +16,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.vortex.common;
+package org.apache.reef.vortex.util;
 
-import org.apache.reef.annotations.Unstable;
+import org.apache.reef.io.serialization.Codec;
 
 /**
- * Master-to-Worker protocol.
+ * Codec for empty input/output.
  */
-@Unstable
-public interface VortexRequest {
-  /**
-   * Type of Request.
-   */
-  enum RequestType {
-    ExecuteTasklet,
-    CancelTasklet
+public final class VoidCodec implements Codec<Void> {
+
+  @Override
+  public byte[] encode(final Void obj) {
+    return new byte[0];
   }
 
-  /**
-   * @return the ID of the VortexTasklet associated with this VortexRequest.
-   */
-  int getTaskletId();
-
-  /**
-   * @return the type of this VortexRequest.
-   */
-  RequestType getType();
+  @Override
+  public Void decode(final byte[] buf) {
+    return null;
+  }
 }

@@ -27,8 +27,6 @@ import org.apache.reef.vortex.api.VortexFunction;
 import org.apache.reef.vortex.api.VortexFuture;
 import org.apache.reef.vortex.common.WorkerReport;
 
-import java.io.Serializable;
-
 /**
  * The heart of Vortex.
  * Processes various tasklet related events/requests coming from different components of the system.
@@ -40,7 +38,7 @@ public interface VortexMaster {
   /**
    * Submit a new Tasklet to be run sometime in the future, with an optional callback function on the result.
    */
-  <TInput extends Serializable, TOutput extends Serializable> VortexFuture<TOutput>
+  <TInput, TOutput> VortexFuture<TOutput>
       enqueueTasklet(final VortexFunction<TInput, TOutput> vortexFunction, final TInput input,
                      final Optional<FutureCallback<TOutput>> callback);
 

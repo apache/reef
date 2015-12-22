@@ -16,30 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.reef.vortex.common;
-
-import org.apache.reef.annotations.Unstable;
-
 /**
- * Master-to-Worker protocol.
+ * Utilities used in Vortex.
  */
-@Unstable
-public interface VortexRequest {
-  /**
-   * Type of Request.
-   */
-  enum RequestType {
-    ExecuteTasklet,
-    CancelTasklet
-  }
-
-  /**
-   * @return the ID of the VortexTasklet associated with this VortexRequest.
-   */
-  int getTaskletId();
-
-  /**
-   * @return the type of this VortexRequest.
-   */
-  RequestType getType();
-}
+package org.apache.reef.vortex.util;

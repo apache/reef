@@ -18,17 +18,30 @@
  */
 package org.apache.reef.vortex.examples.addone;
 
+import org.apache.reef.io.serialization.Codec;
+import org.apache.reef.io.serialization.SerializableCodec;
 import org.apache.reef.vortex.api.VortexFunction;
 
 /**
  * Outputs input + 1.
  */
 final class AddOneFunction implements VortexFunction<Integer, Integer> {
+  private static final Codec<Integer> CODEC = new SerializableCodec<>();
   /**
    * Outputs input + 1.
    */
   @Override
   public Integer call(final Integer input) throws Exception {
     return input + 1;
+  }
+
+  @Override
+  public Codec<Integer> getInputCodec() {
+    return CODEC;
+  }
+
+  @Override
+  public Codec<Integer> getOutputCodec() {
+    return CODEC;
   }
 }

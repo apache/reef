@@ -18,13 +18,11 @@
  */
 package org.apache.reef.vortex.examples.matmul;
 
-import java.io.Serializable;
-
 /**
  * Input of {@link MatMulFunction} which contains two matrices to multiply,
  * and index of the sub-matrix in the entire result.
  */
-class MatMulInput implements Serializable {
+final class MatMulInput {
   private final int index;
   private final Matrix<Double> leftMatrix;
   private final Matrix<Double> rightMatrix;

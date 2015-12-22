@@ -18,12 +18,16 @@
  */
 package org.apache.reef.vortex.examples.matmul;
 
+import org.apache.reef.io.serialization.Codec;
 import org.apache.reef.vortex.api.VortexFunction;
 
 /**
  * Computes multiplication of two matrices.
  */
 final class MatMulFunction implements VortexFunction<MatMulInput, MatMulOutput> {
+  private static final Codec<MatMulInput> INPUT_CODEC = new MatMulInputCodec();
+  private static final Codec<MatMulOutput> OUTPUT_CODEC = new MatMulOutputCodec();
+
   /**
    * Computes multiplication of two matrices.
    * @param input Input which contains two matrices to multiply,
@@ -38,5 +42,15 @@ final class MatMulFunction implements VortexFunction<MatMulInput, MatMulOutput> 
     final Matrix<Double> rightMatrix = input.getRightMatrix();
     final Matrix<Double> result = leftMatrix.multiply(rightMatrix);
     return new MatMulOutput(index, result);
+  }
+
+  @Override
+  public Codec<MatMulInput> getInputCodec() {
+    return INPUT_CODEC;
+  }
+
+  @Override
+  public Codec<MatMulOutput> getOutputCodec() {
+    return OUTPUT_CODEC;
   }
 }

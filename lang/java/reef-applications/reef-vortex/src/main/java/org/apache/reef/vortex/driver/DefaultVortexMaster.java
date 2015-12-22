@@ -20,6 +20,7 @@ package org.apache.reef.vortex.driver;
 
 import net.jcip.annotations.ThreadSafe;
 import org.apache.reef.annotations.audience.DriverSide;
+import org.apache.reef.io.serialization.Codec;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.util.Optional;
 import org.apache.reef.vortex.api.FutureCallback;
@@ -28,7 +29,6 @@ import org.apache.reef.vortex.api.VortexFuture;
 import org.apache.reef.vortex.common.*;
 
 import javax.inject.Inject;
-import java.io.Serializable;
 import java.util.*;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -63,16 +63,17 @@ final class DefaultVortexMaster implements VortexMaster {
    * Add a new tasklet to pendingTasklets.
    */
   @Override
-  public <TInput extends Serializable, TOutput extends Serializable> VortexFuture<TOutput>
+  public <TInput, TOutput> VortexFuture<TOutput>
       enqueueTasklet(final VortexFunction<TInput, TOutput> function, final TInput input,
                      final Optional<FutureCallback<TOutput>> callback) {
     // TODO[REEF-500]: Simple duplicate Vortex Tasklet launch.
     final VortexFuture<TOutput> vortexFuture;
     final int id = taskletIdCounter.getAndIncrement();
+    final Codec<TOutput> outputCodec = function.getOutputCodec();
     if (callback.isPresent()) {
-      vortexFuture = new VortexFuture<>(executor, this, id, callback.get());
+      vortexFuture = new VortexFuture<>(executor, this, id, outputCodec, callback.get());
     } else {
-      vortexFuture = new VortexFuture<>(executor, this, id);
+      vortexFuture = new VortexFuture<>(executor, this, id, outputCodec);
     }
 
     final Tasklet tasklet = new Tasklet<>(id, function, input, vortexFuture);
@@ -121,7 +122,7 @@ final class DefaultVortexMaster implements VortexMaster {
         final int resultTaskletId = taskletResultReport.getTaskletId();
         final List<Integer> singletonResultTaskletId = Collections.singletonList(resultTaskletId);
         runningWorkers.doneTasklets(workerId, singletonResultTaskletId);
-        fetchDelegate(singletonResultTaskletId).completed(resultTaskletId, taskletResultReport.getResult());
+        fetchDelegate(singletonResultTaskletId).completed(resultTaskletId, taskletResultReport.getSerializedResult());
 
         break;
       case TaskletAggregationResult:
@@ -131,7 +132,7 @@ final class DefaultVortexMaster implements VortexMaster {
         final List<Integer> aggregatedTaskletIds = taskletAggregationResultReport.getTaskletIds();
         runningWorkers.doneTasklets(workerId, aggregatedTaskletIds);
         fetchDelegate(aggregatedTaskletIds).aggregationCompleted(
-            aggregatedTaskletIds, taskletAggregationResultReport.getResult());
+            aggregatedTaskletIds, taskletAggregationResultReport.getSerializedResult());
 
         break;
       case TaskletCancelled:

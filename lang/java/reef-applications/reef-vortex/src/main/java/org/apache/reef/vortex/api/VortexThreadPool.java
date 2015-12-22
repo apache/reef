@@ -23,7 +23,6 @@ import org.apache.reef.util.Optional;
 import org.apache.reef.vortex.driver.VortexMaster;
 
 import javax.inject.Inject;
-import java.io.Serializable;
 
 /**
  * Distributed thread pool.
@@ -44,7 +43,7 @@ public final class VortexThreadPool {
    * @param <TOutput> output type
    * @return VortexFuture for tracking execution progress
    */
-  public <TInput extends Serializable, TOutput extends Serializable> VortexFuture<TOutput>
+  public <TInput, TOutput> VortexFuture<TOutput>
       submit(final VortexFunction<TInput, TOutput> function, final TInput input) {
     return vortexMaster.enqueueTasklet(function, input, Optional.<FutureCallback<TOutput>>empty());
   }
@@ -57,7 +56,7 @@ public final class VortexThreadPool {
    * @param <TOutput> output type
    * @return VortexFuture for tracking execution progress
    */
-  public <TInput extends Serializable, TOutput extends Serializable> VortexFuture<TOutput>
+  public <TInput, TOutput> VortexFuture<TOutput>
       submit(final VortexFunction<TInput, TOutput> function, final TInput input,
              final FutureCallback<TOutput> callback) {
     return vortexMaster.enqueueTasklet(function, input, Optional.of(callback));

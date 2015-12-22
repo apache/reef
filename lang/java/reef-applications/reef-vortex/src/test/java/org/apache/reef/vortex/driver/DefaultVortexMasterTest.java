@@ -18,6 +18,7 @@
  */
 package org.apache.reef.vortex.driver;
 
+import org.apache.reef.io.serialization.SerializableCodec;
 import org.apache.reef.util.Optional;
 import org.apache.reef.vortex.api.FutureCallback;
 import org.apache.reef.vortex.api.VortexFunction;
@@ -40,6 +41,8 @@ import static org.junit.Assert.*;
  * Test whether DefaultVortexMaster correctly handles (simulated) events.
  */
 public class DefaultVortexMasterTest {
+  private static final byte[] EMPTY_RESULT = new byte[0];
+  private static final byte[] INTEGER_RESULT = new SerializableCodec<Integer>().encode(1);
   private TestUtil testUtil = new TestUtil();
 
   /**
@@ -75,7 +78,7 @@ public class DefaultVortexMasterTest {
 
     final ArrayList<Integer> taskletIds = launchTasklets(runningWorkers, pendingTasklets, 1);
     for (final int taskletId : taskletIds) {
-      final TaskletReport taskletReport = new TaskletResultReport<>(taskletId, null);
+      final TaskletReport taskletReport = new TaskletResultReport(taskletId, INTEGER_RESULT);
       vortexMaster.workerReported(
           vortexWorkerManager1.getId(), new WorkerReport(Collections.singletonList(taskletReport)));
     }
@@ -115,7 +118,7 @@ public class DefaultVortexMasterTest {
 
     // Completed?
     for (final int taskletId : taskletIds2) {
-      final TaskletReport taskletReport = new TaskletResultReport<>(taskletId, null);
+      final TaskletReport taskletReport = new TaskletResultReport(taskletId, EMPTY_RESULT);
       vortexMaster.workerReported(
           vortexWorkerManager2.getId(), new WorkerReport(Collections.singletonList(taskletReport)));
     }
@@ -146,7 +149,7 @@ public class DefaultVortexMasterTest {
     final int numOfTasklets = 100;
     for (int i = 0; i < numOfTasklets; i++) {
       vortexFutures.add(vortexMaster.enqueueTasklet(testUtil.newFunction(), null,
-          Optional.<FutureCallback<Integer>>empty()));
+          Optional.<FutureCallback<Void>>empty()));
     }
     final ArrayList<Integer> taskletIds1 = launchTasklets(runningWorkers, pendingTasklets, numOfTasklets);
 
@@ -166,7 +169,7 @@ public class DefaultVortexMasterTest {
     for (final int taskletId : taskletIds2) {
       final String workerId = runningWorkers.getWhereTaskletWasScheduledTo(taskletId);
       assertNotNull("The tasklet must have been scheduled", workerId);
-      final TaskletReport taskletReport = new TaskletResultReport<>(taskletId, null);
+      final TaskletReport taskletReport = new TaskletResultReport(taskletId, EMPTY_RESULT);
       vortexMaster.workerReported(
           workerId, new WorkerReport(Collections.singletonList(taskletReport)));
     }

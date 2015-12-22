@@ -19,16 +19,16 @@
 package org.apache.reef.vortex.common;
 
 import org.apache.reef.annotations.Unstable;
+import org.apache.reef.annotations.audience.Private;
+import org.apache.reef.io.serialization.Codec;
 import org.apache.reef.vortex.api.VortexFunction;
-
-import java.io.Serializable;
 
 /**
  * Request to execute a tasklet.
  */
 @Unstable
-public final class TaskletExecutionRequest<TInput extends Serializable, TOutput extends Serializable>
-    implements VortexRequest {
+@Private
+public final class TaskletExecutionRequest<TInput, TOutput> implements VortexRequest {
   private final int taskletId;
   private final VortexFunction<TInput, TOutput> userFunction;
   private final TInput input;
@@ -54,9 +54,13 @@ public final class TaskletExecutionRequest<TInput extends Serializable, TOutput 
 
   /**
    * Execute the function using the input.
+   * @return Output of the function in a serialized form.
    */
-  public TOutput execute() throws Exception {
-    return userFunction.call(input);
+  public byte[] execute() throws Exception {
+    final TOutput output = userFunction.call(input);
+    final Codec<TOutput> codec = userFunction.getOutputCodec();
+    // TODO[REEF-1113]: Handle serialization failure separately in Vortex
+    return codec.encode(output);
   }
 
   /**

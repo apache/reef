@@ -19,6 +19,9 @@
 package org.apache.reef.vortex.driver;
 
 import org.apache.reef.driver.task.RunningTask;
+import org.apache.reef.io.serialization.Codec;
+import org.apache.reef.io.serialization.SerializableCodec;
+import org.apache.reef.vortex.util.VoidCodec;
 import org.apache.reef.util.Optional;
 import org.apache.reef.vortex.api.VortexFunction;
 import org.apache.reef.vortex.api.VortexFuture;
@@ -26,7 +29,6 @@ import org.apache.reef.vortex.common.*;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -44,6 +46,9 @@ import static org.mockito.Mockito.when;
  * Utility methods for tests.
  */
 public final class TestUtil {
+  private static final Codec<Void> VOID_CODEC = new VoidCodec();
+  private static final Codec<Integer> INTEGER_CODEC = new SerializableCodec<>();
+
   private final AtomicInteger taskletId = new AtomicInteger(0);
   private final AtomicInteger workerId = new AtomicInteger(0);
   private final Executor executor = Executors.newFixedThreadPool(5);
@@ -85,17 +90,27 @@ public final class TestUtil {
    */
   public Tasklet newTasklet() {
     final int id = taskletId.getAndIncrement();
-    return new Tasklet(id, null, null, new VortexFuture(executor, vortexMaster, id));
+    return new Tasklet(id, null, null, new VortexFuture(executor, vortexMaster, id, VOID_CODEC));
   }
 
   /**
    * @return a new dummy function.
    */
-  public VortexFunction newFunction() {
-    return new VortexFunction() {
+  public VortexFunction<Void, Void> newFunction() {
+    return new VortexFunction<Void, Void>() {
       @Override
-      public Serializable call(final Serializable serializable) throws Exception {
+      public Void call(final Void input) throws Exception {
         return null;
+      }
+
+      @Override
+      public Codec getInputCodec() {
+        return VOID_CODEC;
+      }
+
+      @Override
+      public Codec getOutputCodec() {
+        return VOID_CODEC;
       }
     };
   }
@@ -110,16 +125,26 @@ public final class TestUtil {
   /**
    * @return a new dummy function.
    */
-  public VortexFunction newInfiniteLoopFunction() {
-    return new VortexFunction() {
+  public VortexFunction<Void, Void> newInfiniteLoopFunction() {
+    return new VortexFunction<Void, Void>() {
       @Override
-      public Serializable call(final Serializable serializable) throws Exception {
+      public Void call(final Void input) throws Exception {
         while(true) {
           Thread.sleep(100);
           if (Thread.currentThread().isInterrupted()) {
             throw new InterruptedException();
           }
         }
+      }
+
+      @Override
+      public Codec getInputCodec() {
+        return VOID_CODEC;
+      }
+
+      @Override
+      public Codec getOutputCodec() {
+        return VOID_CODEC;
       }
     };
   }
@@ -130,8 +155,18 @@ public final class TestUtil {
   public VortexFunction<Integer, Integer> newIntegerFunction() {
     return new VortexFunction<Integer, Integer>() {
       @Override
-      public Integer call(final Integer integer) throws Exception {
+      public Integer call(final Integer input) throws Exception {
         return 1;
+      }
+
+      @Override
+      public Codec<Integer> getInputCodec() {
+        return INTEGER_CODEC;
+      }
+
+      @Override
+      public Codec<Integer> getOutputCodec() {
+        return INTEGER_CODEC;
       }
     };
   }

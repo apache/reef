@@ -18,14 +18,13 @@
  */
 package org.apache.reef.vortex.examples.matmul;
 
-import java.io.Serializable;
 import java.util.List;
 
 /**
- * Interface of serializable Matrix.
+ * Interface of Matrix.
  * @param <T> Type of elements in Matrix.
  */
-interface Matrix<T> extends Serializable {
+interface Matrix<T> {
 
   /**
    * Add another matrix. Note that dimensions of two matrices should be identical.
