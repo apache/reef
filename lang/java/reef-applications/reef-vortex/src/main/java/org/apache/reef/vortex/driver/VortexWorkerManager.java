@@ -24,7 +24,6 @@ import org.apache.reef.driver.task.RunningTask;
 import org.apache.reef.vortex.common.TaskletCancellationRequest;
 import org.apache.reef.vortex.common.TaskletExecutionRequest;
 
-import java.io.Serializable;
 import java.util.*;
 
 /**
@@ -42,8 +41,7 @@ class VortexWorkerManager {
     this.reefTask = reefTask;
   }
 
-  <TInput extends Serializable, TOutput extends Serializable>
-      void launchTasklet(final Tasklet<TInput, TOutput> tasklet) {
+  <TInput, TOutput> void launchTasklet(final Tasklet<TInput, TOutput> tasklet) {
     assert !runningTasklets.containsKey(tasklet.getId());
     runningTasklets.put(tasklet.getId(), tasklet);
     final TaskletExecutionRequest<TInput, TOutput> taskletExecutionRequest

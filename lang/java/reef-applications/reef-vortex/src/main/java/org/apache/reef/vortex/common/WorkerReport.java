@@ -22,7 +22,6 @@ import org.apache.reef.annotations.Unstable;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -36,7 +35,7 @@ import java.util.List;
 @Private
 @Unstable
 @DriverSide
-public final class WorkerReport implements Serializable {
+public final class WorkerReport {
   private ArrayList<TaskletReport> taskletReports;
 
   public WorkerReport(final Collection<TaskletReport> taskletReports) {

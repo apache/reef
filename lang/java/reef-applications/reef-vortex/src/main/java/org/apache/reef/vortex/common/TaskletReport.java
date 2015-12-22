@@ -22,15 +22,13 @@ import org.apache.reef.annotations.Unstable;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
 
-import java.io.Serializable;
-
 /**
  * The interface for a status report from the {@link org.apache.reef.vortex.evaluator.VortexWorker}.
  */
 @Unstable
 @Private
 @DriverSide
-public interface TaskletReport extends Serializable {
+public interface TaskletReport {
   /**
    * Type of TaskletReport.
    */

@@ -18,12 +18,10 @@
  */
 package org.apache.reef.vortex.examples.matmul;
 
-import java.io.Serializable;
-
 /**
  * Output of {@link MatMulFunction} which contains the sub-matrix and index of it in the entire result.
  */
-class MatMulOutput implements Serializable {
+final class MatMulOutput {
   private final int index;
   private final Matrix<Double> result;
 

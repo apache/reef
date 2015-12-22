@@ -22,25 +22,23 @@ import org.apache.reef.annotations.Unstable;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
 
-import java.io.Serializable;
-
 /**
  * Report of a tasklet execution result.
  */
 @Unstable
 @Private
 @DriverSide
-public final class TaskletResultReport<TOutput extends Serializable> implements TaskletReport {
+public final class TaskletResultReport implements TaskletReport {
   private final int taskletId;
-  private final TOutput result;
+  private final byte[] serializedResult;
 
   /**
    * @param taskletId of the Tasklet.
-   * @param result of the Tasklet execution.
+   * @param serializedResult of the tasklet execution in a serialized form.
    */
-  public TaskletResultReport(final int taskletId, final TOutput result) {
+  public TaskletResultReport(final int taskletId, final byte[] serializedResult) {
     this.taskletId = taskletId;
-    this.result = result;
+    this.serializedResult = serializedResult;
   }
 
   /**
@@ -59,10 +57,10 @@ public final class TaskletResultReport<TOutput extends Serializable> implements 
   }
 
   /**
-   * @return the result of the Tasklet execution.
+   * @return the result of the tasklet execution in a serialized form.
    */
-  public TOutput getResult() {
-    return result;
+  public byte[] getSerializedResult() {
+    return serializedResult;
   }
 
 }

@@ -22,7 +22,6 @@ import org.apache.reef.annotations.Unstable;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
 
-import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -32,17 +31,18 @@ import java.util.List;
 @Unstable
 @DriverSide
 @Private
-public interface VortexFutureDelegate<TOutput extends Serializable> {
+public interface VortexFutureDelegate {
 
   /**
    * A Tasklet associated with the future has completed with a result.
+   * The result should be decoded as in {@link org.apache.reef.vortex.api.VortexFuture#completed(int, byte[])}.
    */
-  void completed(final int taskletId, final TOutput result);
+  void completed(final int taskletId, final byte[] serializedResult);
 
   /**
    * The list of aggregated Tasklets associated with the Future that have completed with a result.
    */
-  void aggregationCompleted(final List<Integer> taskletIds, final TOutput result);
+  void aggregationCompleted(final List<Integer> taskletIds, final byte[] serializedResult);
 
   /**
    * A Tasklet associated with the Future has thrown an Exception.

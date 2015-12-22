@@ -19,19 +19,20 @@
 package org.apache.reef.vortex.api;
 
 import org.apache.reef.annotations.Unstable;
+import org.apache.reef.io.serialization.Codec;
 
 import java.io.Serializable;
 
 /**
- * Typed user function.
- * Implement your functions using this interface.
+ * Typed user function. Implement your functions using this interface.
  * TODO[REEF-504]: Clean up Serializable in Vortex.
+ * TODO[REEF-1003]: Use reflection instead of serialization when launching VortexFunction.
  *
  * @param <TInput> input type
  * @param <TOutput> output type
  */
 @Unstable
-public interface VortexFunction<TInput extends Serializable, TOutput extends Serializable> extends Serializable {
+public interface VortexFunction<TInput, TOutput> extends Serializable {
   /**
    * @param input of the function
    * @return output of the function
@@ -40,4 +41,20 @@ public interface VortexFunction<TInput extends Serializable, TOutput extends Ser
    * For example if threads are spawned here, shut them down before throwing an exception
    */
   TOutput call(TInput input) throws Exception;
+
+  /**
+   * Users must define codec for the input. {@link org.apache.reef.vortex.util.VoidCodec} can be used if the input is
+   * empty, and {@link org.apache.reef.io.serialization.SerializableCodec} can be used for ({@link Serializable} input.
+   * {@link org.apache.reef.vortex.examples.matmul.MatMulInputCodec} is an example of codec for the custom input.
+   * @return Codec used to serialize/deserialize the input.
+   */
+  Codec<TInput> getInputCodec();
+
+  /**
+   * Users must define codec for the output. {@link org.apache.reef.vortex.util.VoidCodec} can be used if the output is
+   * empty, and {@link org.apache.reef.io.serialization.SerializableCodec} can be used for ({@link Serializable} output.
+   * {@link org.apache.reef.vortex.examples.matmul.MatMulOutputCodec} is an example of codec for the custom output.
+   * @return Codec used to serialize/deserialize the output.
+   */
+  Codec<TOutput> getOutputCodec();
 }

@@ -18,20 +18,31 @@
  */
 package org.apache.reef.vortex.examples.hello;
 
+import org.apache.reef.io.serialization.Codec;
 import org.apache.reef.vortex.api.VortexFunction;
-
-import java.io.Serializable;
+import org.apache.reef.vortex.util.VoidCodec;
 
 /**
  * Prints to stdout.
  */
-final class HelloVortexFunction implements VortexFunction {
+final class HelloVortexFunction implements VortexFunction<Void, Void> {
+  private static final Codec<Void> CODEC =  new VoidCodec();
   /**
    * Prints to stdout.
    */
   @Override
-  public Serializable call(final Serializable serializable) throws Exception {
+  public Void call(final Void input) throws Exception {
     System.out.println("Hello, Vortex!");
     return null;
+  }
+
+  @Override
+  public Codec<Void> getInputCodec() {
+    return CODEC;
+  }
+
+  @Override
+  public Codec<Void> getOutputCodec() {
+    return CODEC;
   }
 }

@@ -19,20 +19,22 @@
 
 package org.apache.reef.tests.applications.vortex.cancellation;
 
+import org.apache.reef.io.serialization.Codec;
 import org.apache.reef.vortex.api.VortexFunction;
+import org.apache.reef.vortex.util.VoidCodec;
 
-import java.io.Serializable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
  * Runs an infinite loop and waits for cancellation.
  */
-public final class InfiniteLoopWithCancellationFunction implements VortexFunction {
+public final class InfiniteLoopWithCancellationFunction implements VortexFunction<Void, Void> {
   private static final Logger LOG = Logger.getLogger(InfiniteLoopWithCancellationFunction.class.getName());
+  private static final Codec<Void> CODEC = new VoidCodec();
 
   @Override
-  public Serializable call(final Serializable serializable) throws Exception {
+  public Void call(final Void input) throws Exception {
     LOG.log(Level.FINE, "Entered Infinite Loop Tasklet.");
     while (true) {
       Thread.sleep(100);
@@ -40,5 +42,15 @@ public final class InfiniteLoopWithCancellationFunction implements VortexFunctio
         throw new InterruptedException("Expected exception!");
       }
     }
+  }
+
+  @Override
+  public Codec<Void> getInputCodec() {
+    return CODEC;
+  }
+
+  @Override
+  public Codec<Void> getOutputCodec() {
+    return CODEC;
   }
 }

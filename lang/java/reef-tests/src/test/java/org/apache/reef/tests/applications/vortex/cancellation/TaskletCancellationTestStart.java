@@ -42,7 +42,7 @@ public final class TaskletCancellationTestStart implements VortexStart {
   @Override
   public void start(final VortexThreadPool vortexThreadPool) {
     final InfiniteLoopWithCancellationFunction function = new InfiniteLoopWithCancellationFunction();
-    final VortexFuture future = vortexThreadPool.submit(function, 0);
+    final VortexFuture future = vortexThreadPool.submit(function, null);
 
     try {
       // Hacky way to increase probability that the task has been launched.

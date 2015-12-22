@@ -22,7 +22,6 @@ import org.apache.reef.annotations.Unstable;
 import org.apache.reef.annotations.audience.DriverSide;
 import org.apache.reef.annotations.audience.Private;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -33,17 +32,17 @@ import java.util.List;
 @Private
 @DriverSide
 @Unstable
-public final class TaskletAggregationResultReport<TOutput extends Serializable> implements TaskletReport {
+public final class TaskletAggregationResultReport implements TaskletReport {
   private final List<Integer> taskletIds;
-  private final TOutput result;
+  private final byte[] serializedResult;
 
   /**
    * @param taskletIds of the tasklets.
-   * @param result of the tasklet execution.
+   * @param serializedResult of the tasklet execution in a serialized form.
    */
-  public TaskletAggregationResultReport(final List<Integer> taskletIds, final TOutput result) {
+  public TaskletAggregationResultReport(final List<Integer> taskletIds, final byte[] serializedResult) {
     this.taskletIds = Collections.unmodifiableList(new ArrayList<>(taskletIds));
-    this.result = result;
+    this.serializedResult = serializedResult;
   }
 
   /**
@@ -62,10 +61,10 @@ public final class TaskletAggregationResultReport<TOutput extends Serializable> 
   }
 
   /**
-   * @return the result of the Tasklet aggregation execution.
+   * @return the result of the Tasklet aggregation execution in a serialized form.
    */
-  public TOutput getResult() {
-    return result;
+  public byte[] getSerializedResult() {
+    return serializedResult;
   }
 
 }
