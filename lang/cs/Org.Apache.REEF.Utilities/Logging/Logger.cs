@@ -25,7 +25,7 @@ using System.Globalization;
 namespace Org.Apache.REEF.Utilities.Logging
 {
     // TODO[REEF-842] Act on the obsoletes
-    public class Logger
+    public sealed class Logger
     {
         private static readonly string[] LogLevel = new string[]
             {

@@ -19,10 +19,12 @@
 
 using System.IO;
 using Microsoft.Hadoop.Avro;
+using Org.Apache.REEF.Utilities.Attributes;
 
 namespace Org.Apache.REEF.Utilities
 {
-    public class AvroUtils
+    [Private]
+    public static class AvroUtils
     {
         /// <summary>
         /// Convert an object to byte array using Avro serializiation

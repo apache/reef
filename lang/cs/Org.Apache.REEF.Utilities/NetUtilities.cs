@@ -24,7 +24,7 @@ using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Utilities
 {
-    public class NetUtilities
+    public static class NetUtilities
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(NetUtilities));
 
