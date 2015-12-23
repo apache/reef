@@ -21,9 +21,11 @@ using System;
 using System.Runtime.ExceptionServices;
 using System.Text;
 using Org.Apache.REEF.Utilities.Logging;
+using Org.Apache.REEF.Utilities.Attributes;
 
 namespace Org.Apache.REEF.Utilities.Diagnostics
 {
+    [Private]
     public static class Exceptions
     {
         #region methods

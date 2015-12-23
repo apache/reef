@@ -19,7 +19,7 @@
 
 namespace Org.Apache.REEF.Utilities.Diagnostics
 {
-    public class DiagnosticsMessages
+    internal static class DiagnosticsMessages
     {
         public const string ExceptionThrowing = "ExceptionThrowing";
 

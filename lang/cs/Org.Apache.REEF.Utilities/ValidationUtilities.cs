@@ -23,7 +23,7 @@ using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.Utilities
 {
-    public class ValidationUtilities
+    public static class ValidationUtilities
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(ValidationUtilities));
 
