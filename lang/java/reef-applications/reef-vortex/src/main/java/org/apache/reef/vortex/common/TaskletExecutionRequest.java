@@ -59,6 +59,7 @@ public final class TaskletExecutionRequest<TInput, TOutput> implements VortexReq
   public byte[] execute() throws Exception {
     final TOutput output = userFunction.call(input);
     final Codec<TOutput> codec = userFunction.getOutputCodec();
+    // TODO[REEF-1113]: Handle serialization failure separately in Vortex
     return codec.encode(output);
   }
 

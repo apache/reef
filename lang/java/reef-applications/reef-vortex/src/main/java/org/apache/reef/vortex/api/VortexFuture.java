@@ -188,6 +188,7 @@ public final class VortexFuture<TOutput>
   public void completed(final int pTaskletId, final byte[] serializedResult) {
     assert taskletId == pTaskletId;
 
+    // TODO[REEF-1113]: Handle serialization failure separately in Vortex
     final TOutput result = outputCodec.decode(serializedResult);
     this.userResult = Optional.ofNullable(result);
     if (callbackHandler != null) {

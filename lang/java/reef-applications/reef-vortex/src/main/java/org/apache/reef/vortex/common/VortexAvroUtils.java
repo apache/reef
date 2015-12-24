@@ -56,6 +56,7 @@ public final class VortexAvroUtils {
       // The purpose is to reduce serialization cost, which leads to bottleneck in Master.
       // Temporarily those are left as TODOs, but will be addressed in separate PRs.
       final VortexFunction vortexFunction = taskletExecutionRequest.getFunction();
+      // TODO[REEF-1113]: Handle serialization failure separately in Vortex
       final byte[] serializedInput = vortexFunction.getInputCodec().encode(taskletExecutionRequest.getInput());
       // TODO[REEF-1003]: Use reflection instead of serialization when launching VortexFunction
       final byte[] serializedFunction = SerializationUtils.serialize(vortexFunction);
@@ -190,6 +191,7 @@ public final class VortexAvroUtils {
       final VortexFunction function =
           (VortexFunction) SerializationUtils.deserialize(
               taskletExecutionRequest.getSerializedUserFunction().array());
+      // TODO[REEF-1113]: Handle serialization failure separately in Vortex
       vortexRequest = new TaskletExecutionRequest(taskletExecutionRequest.getTaskletId(), function,
          function.getInputCodec().decode(taskletExecutionRequest.getSerializedInput().array()));
       break;
