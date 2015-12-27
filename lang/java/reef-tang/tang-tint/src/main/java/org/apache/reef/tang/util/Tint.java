@@ -318,7 +318,7 @@ public class Tint {
         out.println("<html><head><title>TangDoc</title>");
 
         out.println("<style>");
-        out.println("body { font-family: 'Segoe UI', 'Comic Sans MS'; font-size:12pt; font-weight: 200; " +
+        out.println("body { font-family: 'Segoe UI', 'Helvetica'; font-size:12pt; font-weight: 200; " +
             "margin: 1em; column-count: 2; }");
         out.println(".package { font-size:18pt; font-weight: 500; column-span: all; }");
 //      out.println(".class { break-after: never; }");
@@ -342,7 +342,7 @@ public class Tint {
           final String[] tok = fullName.split("\\.");
           final StringBuffer sb = new StringBuffer(tok[0]);
           for (int j = 1; j < tok.length; j++) {
-            if (tok[j].matches("^[A-Z].*") || j > 4) {
+            if (tok[j].matches("^[A-Z].*") || j > 5) {
               break;
             } else {
               sb.append("." + tok[j]);
