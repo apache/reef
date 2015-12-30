@@ -47,6 +47,9 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
 
+/**
+ * Tang Static Analytics Tool.
+ */
 public class Tint {
   private static final String SETTERS = "setters";
   private static final String USES = "uses";
@@ -390,7 +393,6 @@ public class Tint {
             try {
               clz = t.ch.classForName(c.getFullName());
             } catch (final ClassNotFoundException e) {
-              // TODO Auto-generated catch block
               e.printStackTrace();
             }
             final String typ = clz.isInterface() ? "interface" : "class";
@@ -708,7 +710,7 @@ public class Tint {
       instance = "";
     }
     sb.append(cell(instance, "simpleName"));
-    sb.append(cell("", "fullName")); // TODO: Documentation string?
+    sb.append(cell("", "fullName")); // TODO[REEF-1118]: Support documentation string
     final StringBuffer uses = new StringBuffer();
     for (final String u : getUsesOf(n)) {
       uses.append("<a href='#" + u + "'>" + stripPrefix(u, pack) + "</a> ");
